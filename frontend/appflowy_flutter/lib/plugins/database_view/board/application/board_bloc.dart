@@ -6,7 +6,7 @@ import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -30,7 +30,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   BoardBloc({required ViewPB view})
       : _databaseController = DatabaseController(
           view: view,
-          layoutType: LayoutTypePB.Board,
+          layoutType: DatabaseLayoutPB.Board,
         ),
         super(BoardState.initial(view.id)) {
     boardController = AppFlowyBoardController(

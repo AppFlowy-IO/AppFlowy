@@ -1,13 +1,8 @@
 use crate::prelude::*;
-use flowy_folder::entities::WorkspaceIdPB;
-use flowy_folder::{
-  entities::{
-    app::*,
-    view::*,
-    workspace::{CreateWorkspacePayloadPB, WorkspacePB},
-  },
-  event_map::FolderEvent::{CreateWorkspace, OpenWorkspace, *},
+use flowy_folder2::entities::{
+  CreateViewPayloadPB, CreateWorkspacePayloadPB, ViewLayoutPB, ViewPB, WorkspaceIdPB, WorkspacePB,
 };
+use flowy_folder2::event_map::FolderEvent::{CreateView, CreateWorkspace, OpenWorkspace};
 use flowy_user::{
   entities::{SignInPayloadPB, SignUpPayloadPB, UserProfilePB},
   errors::FlowyError,
@@ -19,13 +14,13 @@ use std::{fs, path::PathBuf, sync::Arc};
 pub struct ViewTest {
   pub sdk: FlowySDKTest,
   pub workspace: WorkspacePB,
-  pub app: AppPB,
-  pub view: ViewPB,
+  pub parent_view: ViewPB,
+  pub child_view: ViewPB,
 }
 
 impl ViewTest {
   #[allow(dead_code)]
-  pub async fn new(sdk: &FlowySDKTest, layout: ViewLayoutTypePB, data: Vec<u8>) -> Self {
+  pub async fn new(sdk: &FlowySDKTest, layout: ViewLayoutPB, data: Vec<u8>) -> Self {
     let workspace = create_workspace(sdk, "Workspace", "").await;
     open_workspace(sdk, &workspace.id).await;
     let app = create_app(sdk, "App", "AppFlowy GitHub Project", &workspace.id).await;
@@ -33,25 +28,25 @@ impl ViewTest {
     Self {
       sdk: sdk.clone(),
       workspace,
-      app,
-      view,
+      parent_view: app,
+      child_view: view,
     }
   }
 
   pub async fn new_grid_view(sdk: &FlowySDKTest, data: Vec<u8>) -> Self {
-    Self::new(sdk, ViewLayoutTypePB::Grid, data).await
+    Self::new(sdk, ViewLayoutPB::Grid, data).await
   }
 
   pub async fn new_board_view(sdk: &FlowySDKTest, data: Vec<u8>) -> Self {
-    Self::new(sdk, ViewLayoutTypePB::Board, data).await
+    Self::new(sdk, ViewLayoutPB::Board, data).await
   }
 
   pub async fn new_calendar_view(sdk: &FlowySDKTest, data: Vec<u8>) -> Self {
-    Self::new(sdk, ViewLayoutTypePB::Calendar, data).await
+    Self::new(sdk, ViewLayoutPB::Calendar, data).await
   }
 
   pub async fn new_document_view(sdk: &FlowySDKTest) -> Self {
-    Self::new(sdk, ViewLayoutTypePB::Document, vec![]).await
+    Self::new(sdk, ViewLayoutPB::Document, vec![]).await
   }
 }
 
@@ -61,7 +56,7 @@ async fn create_workspace(sdk: &FlowySDKTest, name: &str, desc: &str) -> Workspa
     desc: desc.to_owned(),
   };
 
-  FolderEventBuilder::new(sdk.clone())
+  Folder2EventBuilder::new(sdk.clone())
     .event(CreateWorkspace)
     .payload(request)
     .async_send()
@@ -73,33 +68,36 @@ async fn open_workspace(sdk: &FlowySDKTest, workspace_id: &str) {
   let payload = WorkspaceIdPB {
     value: Some(workspace_id.to_owned()),
   };
-  let _ = FolderEventBuilder::new(sdk.clone())
+  let _ = Folder2EventBuilder::new(sdk.clone())
     .event(OpenWorkspace)
     .payload(payload)
     .async_send()
     .await;
 }
 
-async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id: &str) -> AppPB {
-  let create_app_request = CreateAppPayloadPB {
-    workspace_id: workspace_id.to_owned(),
+async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id: &str) -> ViewPB {
+  let create_app_request = CreateViewPayloadPB {
+    belong_to_id: workspace_id.to_owned(),
     name: name.to_string(),
     desc: desc.to_string(),
-    color_style: Default::default(),
+    thumbnail: None,
+    layout: ViewLayoutPB::Document,
+    initial_data: vec![],
+    ext: Default::default(),
   };
 
-  FolderEventBuilder::new(sdk.clone())
-    .event(CreateApp)
+  Folder2EventBuilder::new(sdk.clone())
+    .event(CreateView)
     .payload(create_app_request)
     .async_send()
     .await
-    .parse::<AppPB>()
+    .parse::<ViewPB>()
 }
 
 async fn create_view(
   sdk: &FlowySDKTest,
   app_id: &str,
-  layout: ViewLayoutTypePB,
+  layout: ViewLayoutPB,
   data: Vec<u8>,
 ) -> ViewPB {
   let payload = CreateViewPayloadPB {
@@ -112,7 +110,7 @@ async fn create_view(
     ext: Default::default(),
   };
 
-  FolderEventBuilder::new(sdk.clone())
+  Folder2EventBuilder::new(sdk.clone())
     .event(CreateView)
     .payload(payload)
     .async_send()

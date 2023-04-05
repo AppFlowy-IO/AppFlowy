@@ -1,11 +1,11 @@
 import {
   FieldType,
   SingleSelectTypeOptionPB,
-  ViewLayoutTypePB,
+  ViewLayoutPB,
   ViewPB,
   WorkspaceSettingPB,
 } from '../../../services/backend';
-import { FolderEventReadCurrentWorkspace } from '../../../services/backend/events/flowy-folder';
+import { FolderEventReadCurrentWorkspace } from '../../../services/backend/events/flowy-folder2';
 import { AppBackendService } from '../../stores/effects/folder/app/app_bd_svc';
 import { DatabaseController } from '../../stores/effects/database/database_controller';
 import { RowInfo } from '../../stores/effects/database/row/row_cache';
@@ -29,9 +29,9 @@ import { SelectOptionBackendService } from '../../stores/effects/database/cell/s
 
 // Create a database view for specific layout type
 // Do not use it production code. Just for testing
-export async function createTestDatabaseView(layout: ViewLayoutTypePB): Promise<ViewPB> {
+export async function createTestDatabaseView(layout: ViewLayoutPB): Promise<ViewPB> {
   const workspaceSetting: WorkspaceSettingPB = await FolderEventReadCurrentWorkspace().then((result) => result.unwrap());
-  const app = workspaceSetting.workspace.apps.items[0];
+  const app = workspaceSetting.workspace.views[0];
   const appService = new AppBackendService(app.id);
   return await appService.createView({ name: 'New Grid', layoutType: layout });
 }

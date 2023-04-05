@@ -12,7 +12,7 @@ impl FlowyRawWebSocket for Arc<WSController> {
     FutureResult::new(async { Ok(()) })
   }
 
-  fn start_connect(&self, addr: String, _user_id: String) -> FutureResult<(), WSErrorCode> {
+  fn start_connect(&self, addr: String, _user_id: i64) -> FutureResult<(), WSErrorCode> {
     let cloned_ws = self.clone();
     FutureResult::new(async move {
       cloned_ws.start(addr).await.map_err(internal_error)?;

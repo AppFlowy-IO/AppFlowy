@@ -14,7 +14,6 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 pub struct SQLiteDeltaDocumentRevisionPersistence {
-  user_id: String,
   pub(crate) pool: Arc<ConnectionPool>,
 }
 
@@ -37,7 +36,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDeltaDocumentRevisionPersi
     rev_ids: Option<Vec<i64>>,
   ) -> Result<Vec<SyncRecord>, Self::Error> {
     let conn = self.pool.get().map_err(internal_error)?;
-    let records = DeltaRevisionSql::read(&self.user_id, object_id, rev_ids, &conn)?;
+    let records = DeltaRevisionSql::read(object_id, rev_ids, &conn)?;
     Ok(records)
   }
 
@@ -47,8 +46,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDeltaDocumentRevisionPersi
     range: &RevisionRange,
   ) -> Result<Vec<SyncRecord>, Self::Error> {
     let conn = &*self.pool.get().map_err(internal_error)?;
-    let revisions =
-      DeltaRevisionSql::read_with_range(&self.user_id, object_id, range.clone(), conn)?;
+    let revisions = DeltaRevisionSql::read_with_range(object_id, range.clone(), conn)?;
     Ok(revisions)
   }
 
@@ -89,11 +87,8 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDeltaDocumentRevisionPersi
 }
 
 impl SQLiteDeltaDocumentRevisionPersistence {
-  pub fn new(user_id: &str, pool: Arc<ConnectionPool>) -> Self {
-    Self {
-      user_id: user_id.to_owned(),
-      pool,
-    }
+  pub fn new(pool: Arc<ConnectionPool>) -> Self {
+    Self { pool }
   }
 }
 
@@ -143,7 +138,6 @@ impl DeltaRevisionSql {
   }
 
   fn read(
-    user_id: &str,
     object_id: &str,
     rev_ids: Option<Vec<i64>>,
     conn: &SqliteConnection,
@@ -157,14 +151,13 @@ impl DeltaRevisionSql {
     let rows = sql.order(dsl::rev_id.asc()).load::<RevisionTable>(conn)?;
     let records = rows
       .into_iter()
-      .map(|row| mk_revision_record_from_table(user_id, row))
+      .map(mk_revision_record_from_table)
       .collect::<Vec<_>>();
 
     Ok(records)
   }
 
   fn read_with_range(
-    user_id: &str,
     object_id: &str,
     range: RevisionRange,
     conn: &SqliteConnection,
@@ -178,7 +171,7 @@ impl DeltaRevisionSql {
 
     let revisions = rev_tables
       .into_iter()
-      .map(|table| mk_revision_record_from_table(user_id, table))
+      .map(mk_revision_record_from_table)
       .collect::<Vec<_>>();
     Ok(revisions)
   }
@@ -205,10 +198,7 @@ impl DeltaRevisionSql {
     Ok(())
   }
 
-  pub fn read_all_documents(
-    user_id: &str,
-    conn: &SqliteConnection,
-  ) -> Result<Vec<Vec<Revision>>, FlowyError> {
+  pub fn read_all_documents(conn: &SqliteConnection) -> Result<Vec<Vec<Revision>>, FlowyError> {
     let rev_tables = dsl::rev_table
       .order(dsl::rev_id.asc())
       .load::<RevisionTable>(conn)?;
@@ -224,7 +214,7 @@ impl DeltaRevisionSql {
       let revisions = rev_tables
         .into_iter()
         .map(|table| {
-          let record = mk_revision_record_from_table(user_id, table);
+          let record = mk_revision_record_from_table(table);
           record.revision
         })
         .collect::<Vec<_>>();
@@ -263,7 +253,7 @@ impl std::default::Default for TextRevisionState {
   }
 }
 
-fn mk_revision_record_from_table(_user_id: &str, table: RevisionTable) -> SyncRecord {
+fn mk_revision_record_from_table(table: RevisionTable) -> SyncRecord {
   let md5 = md5(&table.data);
   let revision = Revision::new(
     &table.doc_id,

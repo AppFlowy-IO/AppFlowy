@@ -97,7 +97,6 @@ impl GroupConfigurationReader for GroupConfigurationReaderImpl {
 }
 
 pub(crate) struct GroupConfigurationWriterImpl {
-  pub(crate) user_id: String,
   pub(crate) rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
   pub(crate) view_pad: Arc<RwLock<DatabaseViewRevisionPad>>,
 }
@@ -109,7 +108,6 @@ impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
     field_type: FieldTypeRevision,
     group_configuration: GroupConfigurationRevision,
   ) -> Fut<FlowyResult<()>> {
-    let user_id = self.user_id.clone();
     let rev_manager = self.rev_manager.clone();
     let view_pad = self.view_pad.clone();
     let field_id = field_id.to_owned();
@@ -121,7 +119,7 @@ impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
         .insert_or_update_group_configuration(&field_id, &field_type, group_configuration)?;
 
       if let Some(changeset) = changeset {
-        apply_change(&user_id, rev_manager, changeset).await?;
+        apply_change(rev_manager, changeset).await?;
       }
       Ok(())
     })
@@ -129,7 +127,6 @@ impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
 }
 
 pub(crate) async fn apply_change(
-  _user_id: &str,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
   change: DatabaseViewRevisionChangeset,
 ) -> FlowyResult<()> {

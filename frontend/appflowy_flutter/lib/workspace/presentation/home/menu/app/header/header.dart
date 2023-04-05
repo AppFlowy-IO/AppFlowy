@@ -2,12 +2,12 @@ import 'dart:convert';
 
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra/icon_data.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:appflowy/workspace/application/app/app_bloc.dart';
@@ -19,7 +19,7 @@ import '../menu_app.dart';
 import 'add_button.dart';
 
 class MenuAppHeader extends StatelessWidget {
-  final AppPB app;
+  final ViewPB app;
   const MenuAppHeader(
     this.app, {
     Key? key,
@@ -83,7 +83,7 @@ class MenuAppHeader extends StatelessWidget {
             case AppDisclosureAction.rename:
               NavigatorTextFieldDialog(
                 title: LocaleKeys.menuAppHeader_renameDialog.tr(),
-                value: context.read<AppBloc>().state.app.name,
+                value: context.read<AppBloc>().state.view.name,
                 confirm: (newValue) {
                   context.read<AppBloc>().add(AppEvent.rename(newValue));
                 },
@@ -166,8 +166,8 @@ class AppActionList extends StatelessWidget {
           onSecondaryTap: () {
             controller.show();
           },
-          child: BlocSelector<AppBloc, AppState, AppPB>(
-            selector: (state) => state.app,
+          child: BlocSelector<AppBloc, AppState, ViewPB>(
+            selector: (state) => state.view,
             builder: (context, app) => FlowyText.medium(
               app.name,
               overflow: TextOverflow.ellipsis,

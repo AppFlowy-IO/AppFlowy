@@ -20,8 +20,6 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub struct DatabaseBlockEditor {
-  #[allow(dead_code)]
-  user_id: String,
   pub block_id: String,
   pad: Arc<RwLock<DatabaseBlockRevisionPad>>,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
@@ -29,7 +27,6 @@ pub struct DatabaseBlockEditor {
 
 impl DatabaseBlockEditor {
   pub async fn new(
-    user_id: &str,
     token: &str,
     block_id: &str,
     mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
@@ -42,10 +39,8 @@ impl DatabaseBlockEditor {
       .await?;
     let pad = Arc::new(RwLock::new(block_revision_pad));
     let rev_manager = Arc::new(rev_manager);
-    let user_id = user_id.to_owned();
     let block_id = block_id.to_owned();
     Ok(Self {
-      user_id,
       block_id,
       pad,
       rev_manager,

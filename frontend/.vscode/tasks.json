@@ -1,223 +1,225 @@
 {
-	"version": "2.0.0",
-	// https://code.visualstudio.com/docs/editor/tasks
-	// https://gist.github.com/deadalusai/9e13e36d61ec7fb72148
-	// ${workspaceRoot}: the root folder of the team
-	// ${file}: the current opened file
-	// ${fileBasename}: the current opened file's basename
-	// ${fileDirname}: the current opened file's dirname
-	// ${fileExtname}: the current opened file's extension
-	// ${cwd}: the current working directory of the spawned process
-	"tasks": [
-		{
-			"label": "AF: Clean + Rebuild All",
-			"type": "shell",
-			"dependsOrder": "sequence",
-			"dependsOn": [
-				"AF: Dart Clean",
-				"AF: Flutter Clean",
-				"AF: Build Appflowy Core",
-				"AF: Flutter Pub Get",
-				"AF: Flutter Package Get",
-				"AF: Generate Language Files",
-				"AF: Generate Freezed Files"
-			],
-			"presentation": {
-				"reveal": "always",
-				"panel": "new"
-			}
-		},
-		{
-			"label": "AF: Clean + Rebuild All (Android)",
-			"type": "shell",
-			"dependsOrder": "sequence",
-			"dependsOn": [
-				"AF: Dart Clean",
-				"AF: Flutter Clean",
-				"AF: Build Appflowy Core_for_android",
-				"AF: Flutter Pub Get",
-				"AF: Flutter Package Get",
-				"AF: Generate Language Files",
-				"AF: Generate Freezed Files"
-			],
-			"presentation": {
-				"reveal": "always",
-				"panel": "new"
-			}
-		},
-		{
-			"label": "AF: Build Appflowy Core_for_android",
-			"type": "shell",
-			"command": "cargo make --profile development-android appflowy-core-dev-android",
-			"group": "build",
-			"options": {
-				"cwd": "${workspaceFolder}"
-			}
-		},
-		{
-			"label": "AF: Build Appflowy Core",
-			"type": "shell",
-			"windows": {
-				"command": "cargo make --profile development-windows-x86 appflowy-core-dev"
-			},
-			"linux": {
-				"command": "cargo make --profile \"development-linux-$(uname -m)\" appflowy-core-dev"
-			},
-			"osx": {
-				"command": "cargo make --profile \"development-mac-$(uname -m)\" appflowy-core-dev"
-			},
-			"group": "build",
-			"options": {
-				"cwd": "${workspaceFolder}"
-			}
-		},
-		{
-			"label": "AF: Code Gen",
-			"type": "shell",
-			"dependsOrder": "sequence",
-			"dependsOn": [
-				"AF: Flutter Clean",
-				"AF: Flutter Pub Get",
-				"AF: Flutter Package Get",
-				"AF: Generate Language Files",
-				"AF: Generate Freezed Files"
-			],
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
-			"presentation": {
-				"reveal": "always",
-				"panel": "new"
-			}
-		},
-		{
-			"label": "AF: Flutter Clean",
-			"type": "shell",
-			"command": "flutter clean",
-			"options": {
-				"cwd": "${workspaceFolder}/appflowy_flutter"
-			}
-		},
-		{
-			"label": "AF: Flutter Pub Get",
-			"type": "shell",
-			"command": "flutter pub get",
-			"options": {
-				"cwd": "${workspaceFolder}/appflowy_flutter"
-			}
-		},
-		{
-			"label": "AF: Flutter Package Get",
-			"type": "shell",
-			"command": "flutter packages pub get",
-			"options": {
-				"cwd": "${workspaceFolder}/appflowy_flutter"
-			}
-		},
-		{
-			"label": "AF: Generate Freezed Files",
-			"type": "shell",
-			"command": "flutter pub run build_runner build --delete-conflicting-outputs",
-			"options": {
-				"cwd": "${workspaceFolder}/appflowy_flutter"
-			}
-		},
-		{
-			"label": "AF: Generate Language Files",
-			"type": "shell",
-			"command": "sh ./scripts/generate_language_files.sh",
-			"windows": {
-				"options": {
-					"shell": {
-						"executable": "cmd.exe",
-						"args": [
-							"/d",
-							"/c",
-							".\\scripts\\generate_language_files.cmd"
-						]
-					}
-				}
-			},
-			"group": "build",
-			"options": {
-				"cwd": "${workspaceFolder}"
-			}
-		},
-		{
-			"label": "AF: Flutter Clean",
-			"type": "shell",
-			"command": "cargo make flutter_clean",
-			"group": "build",
-			"options": {
-				"cwd": "${workspaceFolder}"
-			}
-		},
-		{
-			"label": "AF: flutter build aar",
-			"type": "flutter",
-			"command": "flutter",
-			"args": [
-				"build",
-				"aar"
-			],
-			"group": "build",
-			"problemMatcher": [],
-			"detail": "appflowy_flutter"
-		},
-		{
-			"label": "AF: Tauri UI Dev",
-			"type": "shell",
-			"isBackground": true,
-			"command": "yarn",
-			"args": ["dev"],
-			"options": {
-				"cwd": "${workspaceFolder}/appflowy_tauri"
-			}
-		},
-		{
-			"label": "AF: Tauri UI Build",
-			"type": "shell",
-			"command": "npm run build",
-			"options": {
-				"cwd": "${workspaceFolder}/appflowy_tauri"
-			}
-		},
-		{
-			"label": "AF: Tauri Dev",
-			"type": "shell",
-			"command": "npm run tauri:dev",
-			"options": {
-				"cwd": "${workspaceFolder}/appflowy_tauri"
-			}
-		},
-		{
-			"label": "AF: Tauri Clean",
-			"type": "shell",
-			"command": "cargo make tauri_clean",
-			"options": {
-				"cwd": "${workspaceFolder}"
-			}
-		},
-		{
-			"label": "AF: Tauri Clean + Dev",
-			"type": "shell",
-			"dependsOrder": "sequence",
-			"dependsOn": [
-				"AF: Tauri Clean",
-				"AF: Tauri UI Dev"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			}
-		},
-		{
-			"label": "AF: Tauri ESLint",
-			"type": "shell",
-			"command": "npx eslint --fix src",
-			"options": {
-				"cwd": "${workspaceFolder}/appflowy_tauri"
-			}
-		},	
-	]
+  "version": "2.0.0",
+  // https://code.visualstudio.com/docs/editor/tasks
+  // https://gist.github.com/deadalusai/9e13e36d61ec7fb72148
+  // ${workspaceRoot}: the root folder of the team
+  // ${file}: the current opened file
+  // ${fileBasename}: the current opened file's basename
+  // ${fileDirname}: the current opened file's dirname
+  // ${fileExtname}: the current opened file's extension
+  // ${cwd}: the current working directory of the spawned process
+  "tasks": [
+    {
+      "label": "AF: Clean + Rebuild All",
+      "type": "shell",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "AF: Dart Clean",
+        "AF: Flutter Clean",
+        "AF: Build Appflowy Core",
+        "AF: Flutter Pub Get",
+        "AF: Flutter Package Get",
+        "AF: Generate Language Files",
+        "AF: Generate Freezed Files"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "AF: Clean + Rebuild All (Android)",
+      "type": "shell",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "AF: Dart Clean",
+        "AF: Flutter Clean",
+        "AF: Build Appflowy Core_for_android",
+        "AF: Flutter Pub Get",
+        "AF: Flutter Package Get",
+        "AF: Generate Language Files",
+        "AF: Generate Freezed Files"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "AF: Build Appflowy Core_for_android",
+      "type": "shell",
+      "command": "cargo make --profile development-android appflowy-core-dev-android",
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "AF: Build Appflowy Core",
+      "type": "shell",
+      "windows": {
+        "command": "cargo make --profile development-windows-x86 appflowy-core-dev"
+      },
+      "linux": {
+        "command": "cargo make --profile \"development-linux-$(uname -m)\" appflowy-core-dev"
+      },
+      "osx": {
+        "command": "cargo make --profile \"development-mac-$(uname -m)\" appflowy-core-dev"
+      },
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "AF: Code Gen",
+      "type": "shell",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "AF: Flutter Clean",
+        "AF: Flutter Pub Get",
+        "AF: Flutter Package Get",
+        "AF: Generate Language Files",
+        "AF: Generate Freezed Files"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "AF: Flutter Clean",
+      "type": "shell",
+      "command": "flutter clean",
+      "options": {
+        "cwd": "${workspaceFolder}/appflowy_flutter"
+      }
+    },
+    {
+      "label": "AF: Flutter Pub Get",
+      "type": "shell",
+      "command": "flutter pub get",
+      "options": {
+        "cwd": "${workspaceFolder}/appflowy_flutter"
+      }
+    },
+    {
+      "label": "AF: Flutter Package Get",
+      "type": "shell",
+      "command": "flutter packages pub get",
+      "options": {
+        "cwd": "${workspaceFolder}/appflowy_flutter"
+      }
+    },
+    {
+      "label": "AF: Generate Freezed Files",
+      "type": "shell",
+      "command": "flutter pub run build_runner build --delete-conflicting-outputs",
+      "options": {
+        "cwd": "${workspaceFolder}/appflowy_flutter"
+      }
+    },
+    {
+      "label": "AF: Generate Language Files",
+      "type": "shell",
+      "command": "sh ./scripts/generate_language_files.sh",
+      "windows": {
+        "options": {
+          "shell": {
+            "executable": "cmd.exe",
+            "args": [
+              "/d",
+              "/c",
+              ".\\scripts\\generate_language_files.cmd"
+            ]
+          }
+        }
+      },
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "AF: Flutter Clean",
+      "type": "shell",
+      "command": "cargo make flutter_clean",
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "AF: flutter build aar",
+      "type": "flutter",
+      "command": "flutter",
+      "args": [
+        "build",
+        "aar"
+      ],
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "appflowy_flutter"
+    },
+    {
+      "label": "AF: Tauri UI Dev",
+      "type": "shell",
+      "isBackground": true,
+      "command": "yarn",
+      "args": [
+        "dev"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/appflowy_tauri"
+      }
+    },
+    {
+      "label": "AF: Tauri UI Build",
+      "type": "shell",
+      "command": "npm run build",
+      "options": {
+        "cwd": "${workspaceFolder}/appflowy_tauri"
+      }
+    },
+    {
+      "label": "AF: Tauri Dev",
+      "type": "shell",
+      "command": "npm run tauri:dev",
+      "options": {
+        "cwd": "${workspaceFolder}/appflowy_tauri"
+      }
+    },
+    {
+      "label": "AF: Tauri Clean",
+      "type": "shell",
+      "command": "cargo make tauri_clean",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "AF: Tauri Clean + Dev",
+      "type": "shell",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "AF: Tauri Clean",
+        "AF: Tauri UI Dev"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "AF: Tauri ESLint",
+      "type": "shell",
+      "command": "npx eslint --fix src",
+      "options": {
+        "cwd": "${workspaceFolder}/appflowy_tauri"
+      }
+    },
+  ]
 }

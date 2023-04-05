@@ -119,7 +119,7 @@ class _CreateFlowyAlertDialog extends State<NavigatorAlertDialog> {
             FlowyText.medium(
               widget.title,
               fontSize: FontSizes.s16,
-              color: Theme.of(context).disabledColor,
+              color: Theme.of(context).colorScheme.tertiary,
             ),
           ],
           if (widget.confirm != null) ...[

@@ -1,6 +1,10 @@
 use crate::entities::view::ViewDataFormatPB;
 use crate::entities::{ViewLayoutTypePB, ViewPB, WorkspacePB};
 use crate::services::folder_editor::FolderRevisionMergeable;
+use crate::services::persistence::rev_sqlite::{
+  SQLiteFolderRevisionPersistence, SQLiteFolderRevisionSnapshotPersistence,
+};
+use crate::services::{clear_current_workspace, get_current_workspace};
 use crate::{
   entities::workspace::RepeatedWorkspacePB,
   errors::FlowyResult,
@@ -12,6 +16,7 @@ use crate::{
   },
 };
 use bytes::Bytes;
+use flowy_client_sync::client_folder::FolderPad;
 use flowy_document::editor::initial_read_me;
 use flowy_error::FlowyError;
 use flowy_revision::{
@@ -20,12 +25,6 @@ use flowy_revision::{
 use folder_model::user_default;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
-
-use crate::services::persistence::rev_sqlite::{
-  SQLiteFolderRevisionPersistence, SQLiteFolderRevisionSnapshotPersistence,
-};
-use crate::services::{clear_current_workspace, get_current_workspace};
-use flowy_client_sync::client_folder::FolderPad;
 use std::convert::TryFrom;
 use std::{collections::HashMap, fmt::Formatter, sync::Arc};
 use tokio::sync::RwLock as TokioRwLock;
@@ -84,10 +83,7 @@ impl FolderManager {
     if let Ok(user_id) = user.user_id() {
       // Reset the flag if the folder manager gets initialized, otherwise,
       // the folder_editor will not be initialized after flutter hot reload.
-      INIT_FOLDER_FLAG
-        .write()
-        .await
-        .insert(user_id.to_owned(), false);
+      INIT_FOLDER_FLAG.write().await.insert(user_id, false);
     }
 
     let folder_editor = Arc::new(TokioRwLock::new(None));
@@ -176,9 +172,9 @@ impl FolderManager {
 
     let pool = self.persistence.db_pool()?;
     let object_id = folder_id.as_ref();
-    let disk_cache = SQLiteFolderRevisionPersistence::new(user_id, pool.clone());
+    let disk_cache = SQLiteFolderRevisionPersistence::new(pool.clone());
     let configuration = RevisionPersistenceConfiguration::new(200, false);
-    let rev_persistence = RevisionPersistence::new(user_id, object_id, disk_cache, configuration);
+    let rev_persistence = RevisionPersistence::new(object_id, disk_cache, configuration);
     let rev_compactor = FolderRevisionMergeable();
 
     const FOLDER_SP_PREFIX: &str = "folder";
@@ -186,21 +182,14 @@ impl FolderManager {
     let snapshot_persistence =
       SQLiteFolderRevisionSnapshotPersistence::new(&snapshot_object_id, pool);
     let rev_manager = RevisionManager::new(
-      user_id,
       folder_id.as_ref(),
       rev_persistence,
       rev_compactor,
       snapshot_persistence,
     );
 
-    let folder_editor = FolderEditor::new(
-      user_id,
-      &folder_id,
-      token,
-      rev_manager,
-      self.web_socket.clone(),
-    )
-    .await?;
+    let folder_editor =
+      FolderEditor::new(&folder_id, token, rev_manager, self.web_socket.clone()).await?;
     *self.folder_editor.write().await = Some(Arc::new(folder_editor));
 
     self.app_controller.initialize()?;

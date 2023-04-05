@@ -26,32 +26,32 @@ pub struct DatabaseEditorTest {
 
 impl DatabaseEditorTest {
   pub async fn new_grid() -> Self {
-    Self::new(LayoutTypePB::Grid).await
+    Self::new(DatabaseLayoutPB::Grid).await
   }
 
   pub async fn new_board() -> Self {
-    Self::new(LayoutTypePB::Board).await
+    Self::new(DatabaseLayoutPB::Board).await
   }
 
   pub async fn new_calendar() -> Self {
-    Self::new(LayoutTypePB::Calendar).await
+    Self::new(DatabaseLayoutPB::Calendar).await
   }
 
-  pub async fn new(layout: LayoutTypePB) -> Self {
+  pub async fn new(layout: DatabaseLayoutPB) -> Self {
     let sdk = FlowySDKTest::default();
     let _ = sdk.init_user().await;
     let test = match layout {
-      LayoutTypePB::Grid => {
+      DatabaseLayoutPB::Grid => {
         let build_context = make_test_grid();
         let view_data: Bytes = build_context.into();
         ViewTest::new_grid_view(&sdk, view_data.to_vec()).await
       },
-      LayoutTypePB::Board => {
+      DatabaseLayoutPB::Board => {
         let build_context = make_test_board();
         let view_data: Bytes = build_context.into();
         ViewTest::new_board_view(&sdk, view_data.to_vec()).await
       },
-      LayoutTypePB::Calendar => {
+      DatabaseLayoutPB::Calendar => {
         let build_context = make_test_calendar();
         let view_data: Bytes = build_context.into();
         ViewTest::new_calendar_view(&sdk, view_data.to_vec()).await
@@ -60,16 +60,16 @@ impl DatabaseEditorTest {
 
     let editor = sdk
       .database_manager
-      .open_database_view(&test.view.id)
+      .open_database_view(&test.child_view.id)
       .await
       .unwrap();
     let field_revs = editor.get_field_revs(None).await.unwrap();
     let block_meta_revs = editor.get_block_meta_revs().await.unwrap();
-    let row_pbs = editor.get_all_row_revs(&test.view.id).await.unwrap();
+    let row_pbs = editor.get_all_row_revs(&test.child_view.id).await.unwrap();
     assert_eq!(block_meta_revs.len(), 1);
 
-    let view_id = test.view.id;
-    let app_id = test.app.id;
+    let view_id = test.child_view.id;
+    let app_id = test.parent_view.id;
     Self {
       sdk,
       app_id,

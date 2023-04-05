@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/base/link_to_page_widget.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -23,7 +23,7 @@ SelectionMenuItem gridMenuItem = SelectionMenuItem(
       editorState,
       menuService,
       context,
-      ViewLayoutTypePB.Grid,
+      ViewLayoutPB.Grid,
     );
   },
 );

@@ -17,7 +17,7 @@ pub enum WSErrorCode {
 
 pub trait FlowyRawWebSocket: Send + Sync {
   fn initialize(&self) -> FutureResult<(), WSErrorCode>;
-  fn start_connect(&self, addr: String, user_id: String) -> FutureResult<(), WSErrorCode>;
+  fn start_connect(&self, addr: String, user_id: i64) -> FutureResult<(), WSErrorCode>;
   fn stop_connect(&self) -> FutureResult<(), WSErrorCode>;
   fn subscribe_connect_state(&self) -> BoxFuture<broadcast::Receiver<WSConnectState>>;
   fn reconnect(&self, count: usize) -> FutureResult<(), WSErrorCode>;
@@ -87,7 +87,7 @@ impl FlowyWebSocketConnect {
     }
   }
 
-  pub async fn start(&self, token: String, user_id: String) -> Result<(), WSErrorCode> {
+  pub async fn start(&self, token: String, user_id: i64) -> Result<(), WSErrorCode> {
     let addr = format!("{}/{}", self.addr, &token);
     self.inner.stop_connect().await?;
     self.inner.start_connect(addr, user_id).await?;

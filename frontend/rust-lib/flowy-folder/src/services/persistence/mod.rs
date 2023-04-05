@@ -144,8 +144,8 @@ impl FolderPersistence {
 }
 
 pub fn make_folder_revision_disk_cache(
-  user_id: &str,
+  _user_id: &str,
   pool: Arc<ConnectionPool>,
 ) -> Arc<dyn RevisionDiskCache<Arc<ConnectionPool>, Error = FlowyError>> {
-  Arc::new(SQLiteFolderRevisionPersistence::new(user_id, pool))
+  Arc::new(SQLiteFolderRevisionPersistence::new(pool))
 }

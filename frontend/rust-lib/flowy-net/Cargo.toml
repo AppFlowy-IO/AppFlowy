@@ -19,7 +19,7 @@ flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws"}
 flowy-client-network-config= { path = "../../../shared-lib/flowy-client-network-config"}
 flowy-sync = { path = "../../../shared-lib/flowy-sync"}
 user-model = { path = "../../../shared-lib/user-model"}
-flowy-folder = { path = "../flowy-folder" }
+flowy-folder2 = { path = "../flowy-folder2" }
 flowy-user = { path = "../flowy-user" }
 flowy-document = { path = "../flowy-document" }
 lazy_static = "1.4.0"

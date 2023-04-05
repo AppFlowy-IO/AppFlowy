@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/database_view/application/field/type_option/select_option_type_option_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
 import 'package:flutter/material.dart';
@@ -243,7 +244,11 @@ class _AddOptionButton extends StatelessWidget {
       child: SizedBox(
         height: GridSize.popoverItemHeight,
         child: FlowyButton(
-          text: FlowyText.medium(LocaleKeys.grid_field_addSelectOption.tr()),
+          hoverColor: AFThemeExtension.of(context).lightGreyHover,
+          text: FlowyText.medium(
+            LocaleKeys.grid_field_addSelectOption.tr(),
+            color: AFThemeExtension.of(context).textColor,
+          ),
           onTap: () {
             context
                 .read<SelectOptionTypeOptionBloc>()

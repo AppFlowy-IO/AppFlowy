@@ -1,26 +1,26 @@
-import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsFileExportState {
   SettingsFileExportState({
-    required this.apps,
+    required this.views,
   }) {
     initialize();
   }
 
-  List<AppPB> apps;
+  List<ViewPB> views;
   List<bool> expanded = [];
   List<bool> selectedApps = [];
   List<List<bool>> selectedItems = [];
 
   SettingsFileExportState copyWith({
-    List<AppPB>? apps,
+    List<ViewPB>? views,
     List<bool>? expanded,
     List<bool>? selectedApps,
     List<List<bool>>? selectedItems,
   }) {
     final state = SettingsFileExportState(
-      apps: apps ?? this.apps,
+      views: views ?? this.views,
     );
     state.expanded = expanded ?? this.expanded;
     state.selectedApps = selectedApps ?? this.selectedApps;
@@ -29,17 +29,17 @@ class SettingsFileExportState {
   }
 
   void initialize() {
-    expanded = apps.map((e) => true).toList();
-    selectedApps = apps.map((e) => true).toList();
+    expanded = views.map((e) => true).toList();
+    selectedApps = views.map((e) => true).toList();
     selectedItems =
-        apps.map((e) => e.belongings.items.map((e) => true).toList()).toList();
+        views.map((e) => e.belongings.map((e) => true).toList()).toList();
   }
 }
 
 class SettingsFileExporterCubit extends Cubit<SettingsFileExportState> {
   SettingsFileExporterCubit({
-    required List<AppPB> apps,
-  }) : super(SettingsFileExportState(apps: apps));
+    required List<ViewPB> views,
+  }) : super(SettingsFileExportState(views: views));
 
   void selectOrDeselectItem(int outerIndex, int innerIndex) {
     final selectedItems = state.selectedItems;
@@ -55,7 +55,7 @@ class SettingsFileExporterCubit extends Cubit<SettingsFileExportState> {
   }
 
   Map<String, List<String>> fetchSelectedPages() {
-    final apps = state.apps;
+    final apps = state.views;
     final selectedItems = state.selectedItems;
     Map<String, List<String>> result = {};
     for (var i = 0; i < selectedItems.length; i++) {
@@ -63,7 +63,7 @@ class SettingsFileExporterCubit extends Cubit<SettingsFileExportState> {
       final ids = <String>[];
       for (var j = 0; j < selectedItem.length; j++) {
         if (selectedItem[j]) {
-          ids.add(apps[i].belongings.items[j].id);
+          ids.add(apps[i].belongings[j].id);
         }
       }
       if (ids.isNotEmpty) {

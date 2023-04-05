@@ -1,25 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 
 class AppBackendService {
-  Future<Either<AppPB, FlowyError>> readApp({required String appId}) {
-    final payload = AppIdPB.create()..value = appId;
-
-    return FolderEventReadApp(payload).send();
-  }
-
   Future<Either<ViewPB, FlowyError>> createView({
     required String appId,
     required String name,
     String? desc,
-    required ViewLayoutTypePB layoutType,
+    required ViewLayoutPB layoutType,
 
     /// The initial data should be the JSON of the document.
     /// Currently, only support create document with initial data.
@@ -51,20 +44,20 @@ class AppBackendService {
     return FolderEventCreateView(payload).send();
   }
 
-  Future<Either<List<ViewPB>, FlowyError>> getViews({required String appId}) {
-    final payload = AppIdPB.create()..value = appId;
+  Future<Either<List<ViewPB>, FlowyError>> getViews({required String viewId}) {
+    final payload = ViewIdPB.create()..value = viewId;
 
-    return FolderEventReadApp(payload).send().then((result) {
+    return FolderEventReadView(payload).send().then((result) {
       return result.fold(
-        (app) => left(app.belongings.items),
+        (app) => left(app.belongings),
         (error) => right(error),
       );
     });
   }
 
-  Future<Either<Unit, FlowyError>> delete({required String appId}) {
-    final request = AppIdPB.create()..value = appId;
-    return FolderEventDeleteApp(request).send();
+  Future<Either<Unit, FlowyError>> delete({required String viewId}) {
+    final request = RepeatedViewIdPB.create()..items.add(viewId);
+    return FolderEventDeleteView(request).send();
   }
 
   Future<Either<Unit, FlowyError>> deleteView({required String viewId}) {
@@ -72,14 +65,14 @@ class AppBackendService {
     return FolderEventDeleteView(request).send();
   }
 
-  Future<Either<Unit, FlowyError>> updateApp(
+  Future<Either<ViewPB, FlowyError>> updateApp(
       {required String appId, String? name}) {
-    UpdateAppPayloadPB payload = UpdateAppPayloadPB.create()..appId = appId;
+    var payload = UpdateViewPayloadPB.create()..viewId = appId;
 
     if (name != null) {
       payload.name = name;
     }
-    return FolderEventUpdateApp(payload).send();
+    return FolderEventUpdateView(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> moveView({
@@ -96,22 +89,22 @@ class AppBackendService {
     return FolderEventMoveItem(payload).send();
   }
 
-  Future<List<Tuple2<AppPB, List<ViewPB>>>> fetchViews(
-      ViewLayoutTypePB layoutType) async {
-    final result = <Tuple2<AppPB, List<ViewPB>>>[];
+  Future<List<Tuple2<ViewPB, List<ViewPB>>>> fetchViews(
+      ViewLayoutPB layoutType) async {
+    final result = <Tuple2<ViewPB, List<ViewPB>>>[];
     return FolderEventReadCurrentWorkspace().send().then((value) async {
       final workspaces = value.getLeftOrNull<WorkspaceSettingPB>();
       if (workspaces != null) {
-        final apps = workspaces.workspace.apps.items;
-        for (var app in apps) {
-          final views = await getViews(appId: app.id).then(
+        final views = workspaces.workspace.views;
+        for (var view in views) {
+          final childViews = await getViews(viewId: view.id).then(
             (value) => value
                 .getLeftOrNull<List<ViewPB>>()
                 ?.where((e) => e.layout == layoutType)
                 .toList(),
           );
-          if (views != null && views.isNotEmpty) {
-            result.add(Tuple2(app, views));
+          if (childViews != null && childViews.isNotEmpty) {
+            result.add(Tuple2(view, childViews));
           }
         }
       }
@@ -120,14 +113,21 @@ class AppBackendService {
   }
 
   Future<Either<ViewPB, FlowyError>> getView(
-    String appID,
     String viewID,
   ) async {
-    final payload = AppIdPB.create()..value = appID;
-    return FolderEventReadApp(payload).send().then((result) {
+    final payload = ViewIdPB.create()..value = viewID;
+    return FolderEventReadView(payload).send();
+  }
+
+  Future<Either<ViewPB, FlowyError>> getChildView(
+    String viewID,
+    String childViewID,
+  ) async {
+    final payload = ViewIdPB.create()..value = viewID;
+    return FolderEventReadView(payload).send().then((result) {
       return result.fold(
         (app) => left(
-          app.belongings.items.firstWhere((e) => e.id == viewID),
+          app.belongings.firstWhere((e) => e.id == childViewID),
         ),
         (error) => right(error),
       );

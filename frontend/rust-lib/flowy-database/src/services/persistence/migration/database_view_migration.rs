@@ -22,13 +22,13 @@ use std::sync::Arc;
 
 const DATABASE_VIEW_MIGRATE: &str = "database_view_migrate";
 
-pub fn is_database_view_migrated(user_id: &str) -> bool {
+pub fn is_database_view_migrated(user_id: i64) -> bool {
   let key = md5(format!("{}{}", user_id, DATABASE_VIEW_MIGRATE));
   KV::get_bool(&key)
 }
 
 pub(crate) async fn migrate_database_view(
-  user_id: &str,
+  user_id: i64,
   database_refs: Arc<DatabaseRefs>,
   migrated_databases: &Vec<MigratedDatabase>,
   pool: Arc<ConnectionPool>,
@@ -77,8 +77,7 @@ pub(crate) async fn migrate_database_view(
     let database_view_ops = make_database_view_operations(&database_view_rev);
     let database_view_bytes = database_view_ops.json_bytes();
     let revision = Revision::initial_revision(&database_view_id, database_view_bytes);
-    let rev_manager =
-      make_database_view_rev_manager(user_id, pool.clone(), &database_view_id).await?;
+    let rev_manager = make_database_view_rev_manager(pool.clone(), &database_view_id).await?;
     rev_manager.reset_object(vec![revision]).await?;
   }
 
@@ -87,8 +86,8 @@ pub(crate) async fn migrate_database_view(
     let object = DatabaseViewRevisionResettable {
       database_view_id: database.view_id.clone(),
     };
-    let disk_cache = SQLiteDatabaseViewRevisionPersistence::new(user_id, pool.clone());
-    let reset = RevisionStructReset::new(user_id, object, Arc::new(disk_cache));
+    let disk_cache = SQLiteDatabaseViewRevisionPersistence::new(pool.clone());
+    let reset = RevisionStructReset::new(object, Arc::new(disk_cache));
     reset.run().await?;
   }
 

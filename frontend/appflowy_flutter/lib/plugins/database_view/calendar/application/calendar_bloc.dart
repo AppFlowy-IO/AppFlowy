@@ -3,7 +3,7 @@ import 'package:appflowy/plugins/database_view/application/field/field_controlle
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/protobuf.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:dartz/dartz.dart';
@@ -28,7 +28,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   CalendarBloc({required ViewPB view})
       : _databaseController = DatabaseController(
           view: view,
-          layoutType: LayoutTypePB.Calendar,
+          layoutType: DatabaseLayoutPB.Calendar,
         ),
         super(CalendarState.initial()) {
     on<CalendarEvent>(

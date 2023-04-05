@@ -2,8 +2,7 @@ use crate::errors::ErrorCode;
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 use user_model::{
-  UpdateUserProfileParams, UserEmail, UserIcon, UserId, UserName, UserOpenaiKey, UserPassword,
-  UserProfile,
+  UpdateUserProfileParams, UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword, UserProfile,
 };
 
 #[derive(Default, ProtoBuf)]
@@ -21,7 +20,7 @@ pub struct UserSettingPB {
 #[derive(ProtoBuf, Default, Debug, PartialEq, Eq, Clone)]
 pub struct UserProfilePB {
   #[pb(index = 1)]
-  pub id: String,
+  pub id: i64,
 
   #[pb(index = 2)]
   pub email: String,
@@ -55,7 +54,7 @@ impl std::convert::From<UserProfile> for UserProfilePB {
 #[derive(ProtoBuf, Default)]
 pub struct UpdateUserProfilePayloadPB {
   #[pb(index = 1)]
-  pub id: String,
+  pub id: i64,
 
   #[pb(index = 2, one_of)]
   pub name: Option<String>,
@@ -74,9 +73,9 @@ pub struct UpdateUserProfilePayloadPB {
 }
 
 impl UpdateUserProfilePayloadPB {
-  pub fn new(id: &str) -> Self {
+  pub fn new(id: i64) -> Self {
     Self {
-      id: id.to_owned(),
+      id,
       ..Default::default()
     }
   }
@@ -111,8 +110,6 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<UpdateUserProfileParams, Self::Error> {
-    let id = UserId::parse(self.id)?.0;
-
     let name = match self.name {
       None => None,
       Some(name) => Some(UserName::parse(name)?.0),
@@ -139,7 +136,7 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
     };
 
     Ok(UpdateUserProfileParams {
-      id,
+      id: self.id,
       name,
       email,
       password,

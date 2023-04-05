@@ -21,10 +21,10 @@ import {
   FolderEventOpenWorkspace,
   FolderEventReadCurrentWorkspace,
   FolderEventReadWorkspaces,
-} from '@/services/backend/events/flowy-folder';
+} from '@/services/backend/events/flowy-folder2';
 
 export class UserBackendService {
-  constructor(public readonly userId: string) {}
+  constructor(public readonly userId: number) {}
 
   getUserProfile = () => {
     return UserEventGetUserProfile();

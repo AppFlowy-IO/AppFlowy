@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/trash.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -31,8 +31,7 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
         final result = await _service.putback(e.trashId);
         await _handleResult(result, emit);
       }, delete: (e) async {
-        final result =
-            await _service.deleteViews([Tuple2(e.trash.id, e.trash.ty)]);
+        final result = await _service.deleteViews([e.trash.id]);
         await _handleResult(result, emit);
       }, deleteAll: (e) async {
         final result = await _service.deleteAll();

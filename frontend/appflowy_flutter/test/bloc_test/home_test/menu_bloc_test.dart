@@ -16,7 +16,7 @@ void main() {
     )..add(const MenuEvent.initial());
     await blocResponseFuture();
 
-    assert(menuBloc.state.apps.length == 1);
+    assert(menuBloc.state.views.length == 1);
   });
 
   test('reorder apps', () async {
@@ -35,8 +35,8 @@ void main() {
     menuBloc.add(const MenuEvent.moveApp(1, 3));
     await blocResponseFuture();
 
-    assert(menuBloc.state.apps[1].name == 'App 2');
-    assert(menuBloc.state.apps[2].name == 'App 3');
-    assert(menuBloc.state.apps[3].name == 'App 1');
+    assert(menuBloc.state.views[1].name == 'App 2');
+    assert(menuBloc.state.views[2].name == 'App 3');
+    assert(menuBloc.state.views[3].name == 'App 1');
   });
 }

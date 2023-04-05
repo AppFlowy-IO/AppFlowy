@@ -18,8 +18,6 @@ use ws_model::ws_revision::ServerRevisionWSData;
 
 pub struct FolderEditor {
   #[allow(dead_code)]
-  user_id: String,
-  #[allow(dead_code)]
   folder_id: FolderId,
   pub(crate) folder: Arc<RwLock<FolderPad>>,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
@@ -30,7 +28,6 @@ pub struct FolderEditor {
 impl FolderEditor {
   #[allow(unused_variables)]
   pub async fn new(
-    user_id: &str,
     folder_id: &FolderId,
     token: &str,
     mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
@@ -48,7 +45,6 @@ impl FolderEditor {
 
     #[cfg(feature = "sync")]
     let ws_manager = crate::services::web_socket::make_folder_ws_manager(
-      user_id,
       folder_id.as_ref(),
       rev_manager.clone(),
       web_socket,
@@ -56,10 +52,8 @@ impl FolderEditor {
     )
     .await;
 
-    let user_id = user_id.to_owned();
     let folder_id = folder_id.to_owned();
     Ok(Self {
-      user_id,
       folder_id,
       folder,
       rev_manager,
@@ -108,7 +102,7 @@ impl FolderEditor {
   }
 }
 
-struct FolderRevisionSerde();
+pub struct FolderRevisionSerde();
 impl RevisionObjectDeserializer for FolderRevisionSerde {
   type Output = FolderPad;
 

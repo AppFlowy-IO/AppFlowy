@@ -31,7 +31,7 @@ use ws_model::ws_revision::ServerRevisionWSData;
 
 pub trait DocumentUser: Send + Sync {
   fn user_dir(&self) -> Result<String, FlowyError>;
-  fn user_id(&self) -> Result<String, FlowyError>;
+  fn user_id(&self) -> Result<i64, FlowyError>;
   fn token(&self) -> Result<String, FlowyError>;
 }
 
@@ -113,13 +113,13 @@ impl DocumentManager {
 
   /// Called immediately after the application launched with the user sign in/sign up.
   #[tracing::instrument(level = "trace", skip_all, err)]
-  pub async fn initialize(&self, user_id: &str) -> FlowyResult<()> {
+  pub async fn initialize(&self, user_id: i64) -> FlowyResult<()> {
     self.persistence.initialize(user_id)?;
     listen_ws_state_changed(self.rev_web_socket.clone(), self.editor_map.clone());
     Ok(())
   }
 
-  pub async fn initialize_with_new_user(&self, _user_id: &str, _token: &str) -> FlowyResult<()> {
+  pub async fn initialize_with_new_user(&self, _user_id: i64, _token: &str) -> FlowyResult<()> {
     Ok(())
   }
 
@@ -283,13 +283,11 @@ impl DocumentManager {
     doc_id: &str,
     pool: Arc<ConnectionPool>,
   ) -> Result<RevisionManager<Arc<ConnectionPool>>, FlowyError> {
-    let user_id = self.user.user_id()?;
-    let disk_cache = SQLiteDocumentRevisionPersistence::new(&user_id, pool.clone());
+    let disk_cache = SQLiteDocumentRevisionPersistence::new(pool.clone());
     let configuration = RevisionPersistenceConfiguration::new(200, true);
-    let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache, configuration);
+    let rev_persistence = RevisionPersistence::new(doc_id, disk_cache, configuration);
     let snapshot_persistence = SQLiteDocumentRevisionSnapshotPersistence::new(doc_id, pool);
     Ok(RevisionManager::new(
-      &user_id,
       doc_id,
       rev_persistence,
       DocumentRevisionMergeable(),
@@ -302,12 +300,10 @@ impl DocumentManager {
     doc_id: &str,
     pool: Arc<ConnectionPool>,
   ) -> Result<RevisionManager<Arc<ConnectionPool>>, FlowyError> {
-    let user_id = self.user.user_id()?;
-    let disk_cache = SQLiteDeltaDocumentRevisionPersistence::new(&user_id, pool);
+    let disk_cache = SQLiteDeltaDocumentRevisionPersistence::new(pool);
     let configuration = RevisionPersistenceConfiguration::new(100, true);
-    let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache, configuration);
+    let rev_persistence = RevisionPersistence::new(doc_id, disk_cache, configuration);
     Ok(RevisionManager::new(
-      &user_id,
       doc_id,
       rev_persistence,
       DeltaDocumentRevisionMergeable(),

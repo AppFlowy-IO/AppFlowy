@@ -8,7 +8,6 @@ import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/util/file_picker/file_picker_impl.dart';
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
-import 'package:appflowy/workspace/application/app/prelude.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
@@ -22,8 +21,7 @@ import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/plugins/trash/application/prelude.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
@@ -120,11 +118,6 @@ void _resolveFolderDeps(GetIt getIt) {
   //User
   getIt.registerFactoryParam<SettingsUserViewBloc, UserProfilePB, void>(
     (user, _) => SettingsUserViewBloc(user),
-  );
-
-  // AppPB
-  getIt.registerFactoryParam<AppBloc, AppPB, void>(
-    (app, _) => AppBloc(app: app),
   );
 
   // trash

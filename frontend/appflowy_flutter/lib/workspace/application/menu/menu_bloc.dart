@@ -2,11 +2,11 @@ import 'dart:async';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_listener.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,24 +38,35 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
           emit(state.copyWith(plugin: e.plugin));
         },
         createApp: (_CreateApp event) async {
-          await _performActionOnCreateApp(event, emit);
+          final result = await _workspaceService.createApp(
+            name: event.name,
+            desc: event.desc ?? "",
+          );
+          result.fold(
+            (app) => {},
+            (error) {
+              Log.error(error);
+              emit(state.copyWith(successOrFailure: right(error)));
+            },
+          );
         },
         didReceiveApps: (e) async {
           emit(e.appsOrFail.fold(
-            (apps) => state.copyWith(apps: apps, successOrFailure: left(unit)),
+            (views) =>
+                state.copyWith(views: views, successOrFailure: left(unit)),
             (err) => state.copyWith(successOrFailure: right(err)),
           ));
         },
         moveApp: (_MoveApp value) {
-          if (state.apps.length > value.fromIndex) {
-            final app = state.apps[value.fromIndex];
+          if (state.views.length > value.fromIndex) {
+            final view = state.views[value.fromIndex];
             _workspaceService.moveApp(
-                appId: app.id,
+                appId: view.id,
                 fromIndex: value.fromIndex,
                 toIndex: value.toIndex);
-            final apps = List<AppPB>.from(state.apps);
+            final apps = List<ViewPB>.from(state.views);
             apps.insert(value.toIndex, apps.removeAt(value.fromIndex));
-            emit(state.copyWith(apps: apps));
+            emit(state.copyWith(views: apps));
           }
         },
       );
@@ -68,24 +79,11 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
     return super.close();
   }
 
-  Future<void> _performActionOnCreateApp(
-      _CreateApp event, Emitter<MenuState> emit) async {
-    final result = await _workspaceService.createApp(
-        name: event.name, desc: event.desc ?? "");
-    result.fold(
-      (app) => {},
-      (error) {
-        Log.error(error);
-        emit(state.copyWith(successOrFailure: right(error)));
-      },
-    );
-  }
-
   // ignore: unused_element
   Future<void> _fetchApps(Emitter<MenuState> emit) async {
     final appsOrFail = await _workspaceService.getApps();
     emit(appsOrFail.fold(
-      (apps) => state.copyWith(apps: apps),
+      (views) => state.copyWith(views: views),
       (error) {
         Log.error(error);
         return state.copyWith(successOrFailure: right(error));
@@ -93,7 +91,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
     ));
   }
 
-  void _handleAppsOrFail(Either<List<AppPB>, FlowyError> appsOrFail) {
+  void _handleAppsOrFail(Either<List<ViewPB>, FlowyError> appsOrFail) {
     appsOrFail.fold(
       (apps) => add(MenuEvent.didReceiveApps(left(apps))),
       (error) => add(MenuEvent.didReceiveApps(right(error))),
@@ -108,19 +106,19 @@ class MenuEvent with _$MenuEvent {
   const factory MenuEvent.createApp(String name, {String? desc}) = _CreateApp;
   const factory MenuEvent.moveApp(int fromIndex, int toIndex) = _MoveApp;
   const factory MenuEvent.didReceiveApps(
-      Either<List<AppPB>, FlowyError> appsOrFail) = _ReceiveApps;
+      Either<List<ViewPB>, FlowyError> appsOrFail) = _ReceiveApps;
 }
 
 @freezed
 class MenuState with _$MenuState {
   const factory MenuState({
-    required List<AppPB> apps,
+    required List<ViewPB> views,
     required Either<Unit, FlowyError> successOrFailure,
     required Plugin plugin,
   }) = _MenuState;
 
   factory MenuState.initial(WorkspacePB workspace) => MenuState(
-        apps: workspace.apps.items,
+        views: workspace.views,
         successOrFailure: left(unit),
         plugin: makePlugin(pluginType: PluginType.blank),
       );
