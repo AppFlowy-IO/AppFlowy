@@ -79,7 +79,8 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ChangeCoverPopoverBloc()
+      create: (context) => ChangeCoverPopoverBloc(
+          editorState: widget.editorState, node: widget.node)
         ..add(const ChangeCoverPopoverEvent.fetchPickedImagePaths()),
       child: BlocBuilder<ChangeCoverPopoverBloc, ChangeCoverPopoverState>(
         builder: (context, state) {
