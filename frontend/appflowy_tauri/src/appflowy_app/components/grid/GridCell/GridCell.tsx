@@ -10,6 +10,7 @@ import GridTextCell from './GridTextCell';
 import { GridCheckBox } from './GridCheckBox';
 import { GridDate } from './GridDate';
 import { GridUrl } from './GridUrl';
+import { GridNumberCell } from './GridNumberCell';
 
 export const GridCell = ({
   cellIdentifier,
@@ -22,9 +23,9 @@ export const GridCell = ({
 }) => {
   return (
     <>
-      {cellIdentifier.fieldType === FieldType.MultiSelect || cellIdentifier.fieldType === FieldType.Checklist ? (
-        <p> Select solutions</p>
-      ) : cellIdentifier.fieldType === FieldType.SingleSelect ? (
+      {cellIdentifier.fieldType === FieldType.MultiSelect ||
+      cellIdentifier.fieldType === FieldType.Checklist ||
+      cellIdentifier.fieldType === FieldType.SingleSelect ? (
         <GridSingleSelectOptions
           cellIdentifier={cellIdentifier}
           cellCache={cellCache}
@@ -36,6 +37,8 @@ export const GridCell = ({
         <GridDate cellIdentifier={cellIdentifier} cellCache={cellCache} fieldController={fieldController}></GridDate>
       ) : cellIdentifier.fieldType === FieldType.URL ? (
         <GridUrl cellIdentifier={cellIdentifier} cellCache={cellCache} fieldController={fieldController}></GridUrl>
+      ) : cellIdentifier.fieldType === FieldType.Number ? (
+        <GridNumberCell cellIdentifier={cellIdentifier} cellCache={cellCache} fieldController={fieldController} />
       ) : (
         <GridTextCell cellIdentifier={cellIdentifier} cellCache={cellCache} fieldController={fieldController} />
       )}

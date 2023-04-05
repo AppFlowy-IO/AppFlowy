@@ -2,9 +2,9 @@ import { CellIdentifier } from '@/appflowy_app/stores/effects/database/cell/cell
 import { CellCache } from '@/appflowy_app/stores/effects/database/cell/cell_cache';
 import { FieldController } from '@/appflowy_app/stores/effects/database/field/field_controller';
 import { useCell } from '../../_shared/database-hooks/useCell';
-import { EditCellText } from '../../_shared/EditRow/EditCellText';
+import { EditCellNumber } from '../../_shared/EditRow/EditCellNumber';
 
-export default function GridTextCell({
+export const GridNumberCell = ({
   cellIdentifier,
   cellCache,
   fieldController,
@@ -12,12 +12,14 @@ export default function GridTextCell({
   cellIdentifier: CellIdentifier;
   cellCache: CellCache;
   fieldController: FieldController;
-}) {
+}) => {
   const { data, cellController } = useCell(cellIdentifier, cellCache, fieldController);
 
   return (
     <div className='w-full'>
-      {cellController && <EditCellText data={data as string | undefined} cellController={cellController}></EditCellText>}
+      {cellController && (
+        <EditCellNumber data={data as string | undefined} cellController={cellController}></EditCellNumber>
+      )}
     </div>
   );
-}
+};
