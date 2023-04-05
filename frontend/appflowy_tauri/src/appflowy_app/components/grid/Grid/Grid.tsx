@@ -34,7 +34,7 @@ export const Grid = ({ viewId }: { viewId: string }) => {
             {/* table component view with text area for td */}
             <div className='flex flex-col gap-4'>
               <table className='w-full table-fixed text-sm'>
-                <GridTableHeader />
+                <GridTableHeader controller={controller} />
                 <GridTableRows onOpenRow={onOpenRow} allRows={rows} viewId={viewId} controller={controller} />
               </table>
 

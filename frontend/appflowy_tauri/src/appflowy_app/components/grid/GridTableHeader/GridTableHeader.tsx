@@ -8,15 +8,19 @@ import { MultiSelectTypeSvg } from '../../_shared/svg/MultiSelectTypeSvg';
 import { ChecklistTypeSvg } from '../../_shared/svg/ChecklistTypeSvg';
 import { UrlTypeSvg } from '../../_shared/svg/UrlTypeSvg';
 import { FieldType } from '@/services/backend/models/flowy-database/field_entities';
+import { DatabaseController } from '@/appflowy_app/stores/effects/database/database_controller';
+import { useTranslation } from 'react-i18next';
 
-export const GridTableHeader = () => {
-  const { fields, onAddField } = useGridTableHeaderHooks();
+export const GridTableHeader = ({ controller }: { controller: DatabaseController }) => {
+  const { fields, onAddField } = useGridTableHeaderHooks(controller);
+
+  const { t } = useTranslation('');
 
   return (
     <>
       <thead>
         <tr>
-          {fields.map((field, i) => {
+          {fields.map((field) => {
             return (
               <th key={field.fieldId} className='m-0 border border-l-0 border-shade-6 p-0'>
                 <div className={'flex cursor-pointer items-center px-4 py-2 hover:bg-main-secondary'}>
@@ -44,7 +48,7 @@ export const GridTableHeader = () => {
               <i className='mr-2 h-5 w-5'>
                 <AddSvg />
               </i>
-              <span>New column</span>
+              <span>{t('grid.field.newColumn')}</span>
             </div>
           </th>
         </tr>
