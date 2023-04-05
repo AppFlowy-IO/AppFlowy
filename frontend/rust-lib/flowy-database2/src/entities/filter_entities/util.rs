@@ -216,7 +216,7 @@ impl TryInto<AlterFilterParams> for AlterFilterPayloadPB {
       view_id,
       field_id,
       filter_id,
-      field_type: self.field_type.into(),
+      field_type: self.field_type,
       condition,
       content,
     })

@@ -9,6 +9,7 @@ mod tests {
   use chrono::format::strftime::StrftimeItems;
   use chrono::{FixedOffset, NaiveDateTime};
   use collab_database::fields::Field;
+  use collab_database::rows::Cell;
 
   use strum::IntoEnumIterator;
 
@@ -229,22 +230,22 @@ mod tests {
       is_utc: false,
       include_time: Some(include_time),
     };
-    let (cell_str, _) = type_option.apply_changeset(changeset, None).unwrap();
+    let (cell, _) = type_option.apply_changeset(changeset, None).unwrap();
 
     assert_eq!(
-      decode_cell_data(cell_str, type_option, include_time, field),
+      decode_cell_data(&cell, type_option, include_time, field),
       expected_str.to_owned(),
     );
   }
 
   fn decode_cell_data(
-    cell_str: String,
+    cell: &Cell,
     type_option: &DateTypeOption,
     include_time: bool,
     field: &Field,
   ) -> String {
     let decoded_data = type_option
-      .decode_cell_str(cell_str, &FieldType::DateTime, field)
+      .decode_cell_str(cell, &FieldType::DateTime, field)
       .unwrap();
     let decoded_data = type_option.convert_to_protobuf(decoded_data);
     if include_time {

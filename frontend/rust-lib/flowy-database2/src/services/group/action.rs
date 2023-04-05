@@ -3,6 +3,7 @@ use crate::services::cell::DecodedCellData;
 use crate::services::group::controller::MoveGroupRowContext;
 use crate::services::group::GroupData;
 use collab_database::fields::Field;
+use collab_database::rows::{Cell, Row};
 use database_model::{CellRevision, RowRevision};
 use flowy_error::FlowyResult;
 use std::sync::Arc;
@@ -19,7 +20,7 @@ pub trait GroupCustomize: Send + Sync {
   /// Determine which group the row is placed in based on the data of the cell. If the cell data
   /// is None. The row will be put in to the `No status` group  
   ///
-  fn placeholder_cell(&self) -> Option<CellRevision> {
+  fn placeholder_cell(&self) -> Option<Cell> {
     None
   }
 
@@ -28,7 +29,7 @@ pub trait GroupCustomize: Send + Sync {
 
   fn create_or_delete_group_when_cell_changed(
     &mut self,
-    _row_rev: &RowRevision,
+    row: &Row,
     _old_cell_data: Option<&Self::CellData>,
     _cell_data: &Self::CellData,
   ) -> FlowyResult<(Option<InsertedGroupPB>, Option<GroupPB>)> {
@@ -40,16 +41,12 @@ pub trait GroupCustomize: Send + Sync {
   ///
   fn add_or_remove_row_when_cell_changed(
     &mut self,
-    row_rev: &RowRevision,
+    row: &Row,
     cell_data: &Self::CellData,
   ) -> Vec<GroupRowsNotificationPB>;
 
   /// Deletes the row from the group
-  fn delete_row(
-    &mut self,
-    row_rev: &RowRevision,
-    cell_data: &Self::CellData,
-  ) -> Vec<GroupRowsNotificationPB>;
+  fn delete_row(&mut self, row: &Row, cell_data: &Self::CellData) -> Vec<GroupRowsNotificationPB>;
 
   /// Move row from one group to another
   fn move_row(
@@ -61,7 +58,7 @@ pub trait GroupCustomize: Send + Sync {
   /// Returns None if there is no need to delete the group when corresponding row get removed
   fn delete_group_when_move_row(
     &mut self,
-    _row_rev: &RowRevision,
+    _row: &Row,
     _cell_data: &Self::CellData,
   ) -> Option<GroupPB> {
     None
@@ -80,7 +77,7 @@ pub trait GroupControllerActions: Send + Sync {
   fn get_group(&self, group_id: &str) -> Option<(usize, GroupData)>;
 
   /// Separates the rows into different groups
-  fn fill_groups(&mut self, row_revs: &[Arc<RowRevision>], field: &Field) -> FlowyResult<()>;
+  fn fill_groups(&mut self, rows: &[&Row], field: &Field) -> FlowyResult<()>;
 
   /// Remove the group with from_group_id and insert it to the index with to_group_id
   fn move_group(&mut self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()>;
@@ -88,15 +85,15 @@ pub trait GroupControllerActions: Send + Sync {
   /// Insert/Remove the row to the group if the corresponding cell data is changed
   fn did_update_group_row(
     &mut self,
-    old_row_rev: &Option<Arc<RowRevision>>,
-    row_rev: &RowRevision,
+    old_row: &Option<Arc<Row>>,
+    row: &Row,
     field: &Field,
   ) -> FlowyResult<DidUpdateGroupRowResult>;
 
   /// Remove the row from the group if the row gets deleted
   fn did_delete_delete_row(
     &mut self,
-    row_rev: &RowRevision,
+    row: &Row,
     field: &Field,
   ) -> FlowyResult<DidMoveGroupRowResult>;
 

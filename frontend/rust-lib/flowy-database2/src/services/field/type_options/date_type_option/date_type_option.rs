@@ -10,6 +10,7 @@ use chrono::NaiveDateTime;
 
 use collab::core::lib0_any_ext::Lib0AnyMapExtension;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
+use collab_database::rows::Cell;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -66,11 +67,8 @@ impl TypeOptionCellData for DateTypeOption {
     self.today_desc_from_timestamp(cell_data)
   }
 
-  fn decode_type_option_cell_str(
-    &self,
-    cell_str: String,
-  ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    DateCellData::from_cell_str(&cell_str)
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
+    Ok(DateCellData::from(cell))
   }
 }
 
@@ -140,7 +138,7 @@ impl TypeOptionTransform for DateTypeOption {}
 impl CellDataDecoder for DateTypeOption {
   fn decode_cell_str(
     &self,
-    cell_str: String,
+    cell: &Cell,
     decoded_field_type: &FieldType,
     field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
@@ -152,11 +150,16 @@ impl CellDataDecoder for DateTypeOption {
       return Ok(Default::default());
     }
 
-    self.decode_type_option_cell_str(cell_str)
+    self.decode_cell(cell)
   }
 
   fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     self.today_desc_from_timestamp(cell_data).date
+  }
+
+  fn decode_cell_to_str(&self, cell: &Cell) -> String {
+    let cell_data = Self::CellData::from(cell);
+    self.decode_cell_data_to_str(cell_data)
   }
 }
 
@@ -164,12 +167,12 @@ impl CellDataChangeset for DateTypeOption {
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
-    type_cell_data: Option<TypeCellData>,
-  ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
-    let (timestamp, include_time) = match type_cell_data {
+    cell: Option<Cell>,
+  ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
+    let (timestamp, include_time) = match cell {
       None => (None, false),
-      Some(type_cell_data) => {
-        let cell_data = DateCellData::from_cell_str(&type_cell_data.cell_str).unwrap_or_default();
+      Some(cell) => {
+        let cell_data = DateCellData::from(&cell);
         (cell_data.timestamp, cell_data.include_time)
       },
     };
@@ -198,7 +201,7 @@ impl CellDataChangeset for DateTypeOption {
       timestamp,
       include_time,
     };
-    Ok((date_cell_data.to_string(), date_cell_data))
+    Ok((date_cell_data.clone().into(), date_cell_data))
   }
 }
 

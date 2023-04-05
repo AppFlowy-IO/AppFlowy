@@ -56,7 +56,7 @@ impl std::convert::TryFrom<u8> for NumberFilterConditionPB {
 }
 
 impl FromFilterString for NumberFilterPB {
-  fn from_filter_rev(filter: &Filter) -> Self
+  fn from_filter(filter: &Filter) -> Self
   where
     Self: Sized,
   {

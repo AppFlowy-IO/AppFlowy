@@ -1,6 +1,9 @@
 use crate::entities::{
   AlterFilterParams, DatabaseSettingChangesetParams, DeleteFilterParams, FieldType, InsertedRowPB,
 };
+use collab_database::fields::Field;
+use database_model::{FieldRevision, FieldTypeRevision};
+use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct FilterChangeset {
@@ -53,7 +56,7 @@ impl std::convert::From<&DatabaseSettingChangesetParams> for FilterChangeset {
       .as_ref()
       .map(|insert_filter_params| FilterType {
         field_id: insert_filter_params.field_id.clone(),
-        field_type: insert_filter_params.field_type.into(),
+        field_type: insert_filter_params.field_type.clone(),
       });
 
     let delete_filter = params
@@ -74,9 +77,18 @@ pub struct FilterType {
   pub field_type: FieldType,
 }
 
+impl std::convert::From<&Field> for FilterType {
+  fn from(field: &Field) -> Self {
+    Self {
+      field_id: field.id.clone(),
+      field_type: FieldType::from(field.field_type),
+    }
+  }
+}
+
 impl std::convert::From<&AlterFilterParams> for FilterType {
   fn from(params: &AlterFilterParams) -> Self {
-    let field_type: FieldType = params.field_type.into();
+    let field_type: FieldType = params.field_type.clone();
     Self {
       field_id: params.field_id.clone(),
       field_type,
@@ -93,7 +105,6 @@ impl std::convert::From<&DeleteFilterParams> for FilterType {
 #[derive(Clone, Debug)]
 pub struct FilterResultNotification {
   pub view_id: String,
-  pub block_id: String,
 
   // Indicates there will be some new rows being visible from invisible state.
   pub visible_rows: Vec<InsertedRowPB>,
@@ -103,10 +114,9 @@ pub struct FilterResultNotification {
 }
 
 impl FilterResultNotification {
-  pub fn new(view_id: String, block_id: String) -> Self {
+  pub fn new(view_id: String) -> Self {
     Self {
       view_id,
-      block_id,
       visible_rows: vec![],
       invisible_rows: vec![],
     }

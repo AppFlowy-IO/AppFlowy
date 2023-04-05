@@ -10,6 +10,7 @@ use crate::services::group::{
   move_group_row, remove_select_option_row, GeneratedGroupContext, GroupContext,
 };
 use collab_database::fields::Field;
+use collab_database::rows::Row;
 use database_model::RowRevision;
 use serde::{Deserialize, Serialize};
 
@@ -39,26 +40,22 @@ impl GroupCustomize for MultiSelectGroupController {
 
   fn add_or_remove_row_when_cell_changed(
     &mut self,
-    row_rev: &RowRevision,
+    row: &Row,
     cell_data: &Self::CellData,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
     self.group_ctx.iter_mut_status_groups(|group| {
-      if let Some(changeset) = add_or_remove_select_option_row(group, cell_data, row_rev) {
+      if let Some(changeset) = add_or_remove_select_option_row(group, cell_data, row) {
         changesets.push(changeset);
       }
     });
     changesets
   }
 
-  fn delete_row(
-    &mut self,
-    row_rev: &RowRevision,
-    cell_data: &Self::CellData,
-  ) -> Vec<GroupRowsNotificationPB> {
+  fn delete_row(&mut self, row: &Row, cell_data: &Self::CellData) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
     self.group_ctx.iter_mut_status_groups(|group| {
-      if let Some(changeset) = remove_select_option_row(group, cell_data, row_rev) {
+      if let Some(changeset) = remove_select_option_row(group, cell_data, row) {
         changesets.push(changeset);
       }
     });
@@ -81,12 +78,12 @@ impl GroupCustomize for MultiSelectGroupController {
 }
 
 impl GroupController for MultiSelectGroupController {
-  fn will_create_row(&mut self, row_rev: &mut RowRevision, field: &Field, group_id: &str) {
+  fn will_create_row(&mut self, row: &mut Row, field: &Field, group_id: &str) {
     match self.group_ctx.get_group(group_id) {
       None => tracing::warn!("Can not find the group: {}", group_id),
       Some((_, group)) => {
-        let cell_rev = insert_select_option_cell(vec![group.id.clone()], field);
-        row_rev.cells.insert(field.id.clone(), cell_rev);
+        let cell = insert_select_option_cell(vec![group.id.clone()], field);
+        row.cells.insert(field.id.clone(), cell);
       },
     }
   }
@@ -105,7 +102,7 @@ impl GroupGenerator for MultiSelectGroupGenerator {
 
   fn generate_groups(
     field: &Field,
-    group_ctx: &Self::Context,
+    _group_ctx: &Self::Context,
     type_option: &Option<Self::TypeOptionType>,
   ) -> GeneratedGroupContext {
     let group_configs = match type_option {

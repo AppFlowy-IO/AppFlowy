@@ -3,6 +3,7 @@ use crate::services::cell::insert_select_option_cell;
 use crate::services::field::{SelectOptionCellDataParser, SingleSelectTypeOption};
 use crate::services::group::action::GroupCustomize;
 use collab_database::fields::Field;
+use collab_database::rows::Row;
 
 use crate::services::group::controller::{
   GenericGroupController, GroupController, GroupGenerator, MoveGroupRowContext,
@@ -39,26 +40,22 @@ impl GroupCustomize for SingleSelectGroupController {
 
   fn add_or_remove_row_when_cell_changed(
     &mut self,
-    row_rev: &RowRevision,
+    row: &Row,
     cell_data: &Self::CellData,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
     self.group_ctx.iter_mut_status_groups(|group| {
-      if let Some(changeset) = add_or_remove_select_option_row(group, cell_data, row_rev) {
+      if let Some(changeset) = add_or_remove_select_option_row(group, cell_data, row) {
         changesets.push(changeset);
       }
     });
     changesets
   }
 
-  fn delete_row(
-    &mut self,
-    row_rev: &RowRevision,
-    cell_data: &Self::CellData,
-  ) -> Vec<GroupRowsNotificationPB> {
+  fn delete_row(&mut self, row: &Row, cell_data: &Self::CellData) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
     self.group_ctx.iter_mut_status_groups(|group| {
-      if let Some(changeset) = remove_select_option_row(group, cell_data, row_rev) {
+      if let Some(changeset) = remove_select_option_row(group, cell_data, row) {
         changesets.push(changeset);
       }
     });
@@ -81,13 +78,13 @@ impl GroupCustomize for SingleSelectGroupController {
 }
 
 impl GroupController for SingleSelectGroupController {
-  fn will_create_row(&mut self, row_rev: &mut RowRevision, field: &Field, group_id: &str) {
+  fn will_create_row(&mut self, row: &mut Row, field: &Field, group_id: &str) {
     let group: Option<&mut GroupData> = self.group_ctx.get_mut_group(group_id);
     match group {
       None => {},
       Some(group) => {
-        let cell_rev = insert_select_option_cell(vec![group.id.clone()], field);
-        row_rev.cells.insert(field.id.clone(), cell_rev);
+        let cell = insert_select_option_cell(vec![group.id.clone()], field);
+        row.cells.insert(field.id.clone(), cell);
       },
     }
   }
@@ -104,7 +101,7 @@ impl GroupGenerator for SingleSelectGroupGenerator {
   type TypeOptionType = SingleSelectTypeOption;
   fn generate_groups(
     field: &Field,
-    group_ctx: &Self::Context,
+    _group_ctx: &Self::Context,
     type_option: &Option<Self::TypeOptionType>,
   ) -> GeneratedGroupContext {
     let group_configs = match type_option {

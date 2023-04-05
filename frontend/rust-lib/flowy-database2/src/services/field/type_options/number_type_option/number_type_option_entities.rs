@@ -8,12 +8,12 @@ use rusty_money::Money;
 use std::str::FromStr;
 
 #[derive(Default)]
-pub struct NumberCellData {
+pub struct NumberCellFormat {
   decimal: Option<Decimal>,
   money: Option<String>,
 }
 
-impl NumberCellData {
+impl NumberCellFormat {
   pub fn new() -> Self {
     Self {
       decimal: Default::default(),
@@ -34,7 +34,7 @@ impl NumberCellData {
         Ok(Self::from_money(money))
       },
       Err(_) => match Money::from_str(&num_str, currency) {
-        Ok(money) => Ok(NumberCellData::from_money(money)),
+        Ok(money) => Ok(NumberCellFormat::from_money(money)),
         Err(_) => {
           num_str.retain(|c| !STRIP_SYMBOL.contains(&c.to_string()));
           if num_str.chars().all(char::is_numeric) {
@@ -83,7 +83,7 @@ impl NumberCellData {
 //     }
 // }
 
-impl ToString for NumberCellData {
+impl ToString for NumberCellFormat {
   fn to_string(&self) -> String {
     match &self.money {
       None => match self.decimal {
@@ -95,8 +95,8 @@ impl ToString for NumberCellData {
   }
 }
 
-impl DecodedCellData for NumberCellData {
-  type Object = NumberCellData;
+impl DecodedCellData for NumberCellFormat {
+  type Object = NumberCellFormat;
 
   fn is_empty(&self) -> bool {
     self.decimal.is_none()
@@ -105,22 +105,22 @@ impl DecodedCellData for NumberCellData {
 
 pub struct NumberCellDataParser();
 impl CellProtobufBlobParser for NumberCellDataParser {
-  type Object = NumberCellData;
+  type Object = NumberCellFormat;
   fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
     match String::from_utf8(bytes.to_vec()) {
-      Ok(s) => NumberCellData::from_format_str(&s, true, &NumberFormat::Num),
-      Err(_) => Ok(NumberCellData::default()),
+      Ok(s) => NumberCellFormat::from_format_str(&s, true, &NumberFormat::Num),
+      Err(_) => Ok(NumberCellFormat::default()),
     }
   }
 }
 
 pub struct NumberCellCustomDataParser(pub NumberFormat);
 impl CellBytesCustomParser for NumberCellCustomDataParser {
-  type Object = NumberCellData;
+  type Object = NumberCellFormat;
   fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {
     match String::from_utf8(bytes.to_vec()) {
-      Ok(s) => NumberCellData::from_format_str(&s, true, &self.0),
-      Err(_) => Ok(NumberCellData::default()),
+      Ok(s) => NumberCellFormat::from_format_str(&s, true, &self.0),
+      Err(_) => Ok(NumberCellFormat::default()),
     }
   }
 }

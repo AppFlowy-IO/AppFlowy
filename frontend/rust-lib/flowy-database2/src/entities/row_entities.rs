@@ -1,5 +1,6 @@
 use crate::entities::parser::NotEmptyStr;
 
+use collab_database::rows::Row;
 use database_model::RowRevision;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
@@ -10,12 +11,9 @@ use std::sync::Arc;
 #[derive(Debug, Default, Clone, ProtoBuf, Eq, PartialEq)]
 pub struct RowPB {
   #[pb(index = 1)]
-  pub block_id: String,
-
-  #[pb(index = 2)]
   pub id: String,
 
-  #[pb(index = 3)]
+  #[pb(index = 2)]
   pub height: i32,
 }
 
@@ -23,38 +21,13 @@ impl RowPB {
   pub fn row_id(&self) -> &str {
     &self.id
   }
-
-  pub fn block_id(&self) -> &str {
-    &self.block_id
-  }
 }
 
-impl std::convert::From<&RowRevision> for RowPB {
-  fn from(rev: &RowRevision) -> Self {
+impl std::convert::From<&Row> for RowPB {
+  fn from(row: &Row) -> Self {
     Self {
-      block_id: rev.block_id.clone(),
-      id: rev.id.clone(),
-      height: rev.height,
-    }
-  }
-}
-
-impl std::convert::From<&mut RowRevision> for RowPB {
-  fn from(rev: &mut RowRevision) -> Self {
-    Self {
-      block_id: rev.block_id.clone(),
-      id: rev.id.clone(),
-      height: rev.height,
-    }
-  }
-}
-
-impl std::convert::From<&Arc<RowRevision>> for RowPB {
-  fn from(rev: &Arc<RowRevision>) -> Self {
-    Self {
-      block_id: rev.block_id.clone(),
-      id: rev.id.clone(),
-      height: rev.height,
+      id: row.id.clone(),
+      height: row.height,
     }
   }
 }
@@ -117,10 +90,9 @@ impl std::convert::From<RowPB> for InsertedRowPB {
   }
 }
 
-impl std::convert::From<&RowRevision> for InsertedRowPB {
-  fn from(row: &RowRevision) -> Self {
-    let row_order = RowPB::from(row);
-    Self::from(row_order)
+impl std::convert::From<&Row> for InsertedRowPB {
+  fn from(row: &Row) -> Self {
+    Self::from(RowPB::from(row))
   }
 }
 

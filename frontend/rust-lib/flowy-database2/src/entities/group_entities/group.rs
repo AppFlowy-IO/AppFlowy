@@ -167,7 +167,7 @@ impl TryInto<DeleteGroupParams> for DeleteGroupPayloadPB {
 
     Ok(DeleteGroupParams {
       field_id,
-      field_type: self.field_type.into(),
+      field_type: self.field_type,
       group_id,
       view_id,
     })

@@ -7,7 +7,8 @@ use crate::services::group::{
   SingleSelectOptionGroupContext, URLGroupContext, URLGroupController,
 };
 use collab_database::fields::Field;
-use collab_database::views::{Group, GroupSetting};
+use collab_database::rows::Row;
+use collab_database::views::{DatabaseLayout, Group, GroupSetting};
 use database_model::RowRevision;
 use flowy_error::FlowyResult;
 use std::sync::Arc;
@@ -32,7 +33,7 @@ use std::sync::Arc;
 pub async fn make_group_controller<R, W>(
   view_id: String,
   grouping_field: Arc<Field>,
-  row_revs: Vec<Arc<RowRevision>>,
+  rows: Vec<Arc<Row>>,
   configuration_reader: R,
   configuration_writer: W,
 ) -> FlowyResult<Box<dyn GroupController>>
@@ -98,25 +99,26 @@ where
   }
 
   // Separates the rows into different groups
-  group_controller.fill_groups(&row_revs, &grouping_field)?;
+  let rows = rows.iter().map(|row| row.as_ref()).collect::<Vec<&Row>>();
+  group_controller.fill_groups(rows.as_slice(), &grouping_field)?;
   Ok(group_controller)
 }
 
 #[tracing::instrument(level = "debug", skip_all)]
 pub fn find_grouping_field(
-  field_revs: &[Arc<FieldRevision>],
-  _layout: &LayoutRevision,
-) -> Option<Arc<FieldRevision>> {
+  field_revs: &[Arc<Field>],
+  _layout: &DatabaseLayout,
+) -> Option<Arc<Field>> {
   let mut groupable_field_revs = field_revs
     .iter()
     .flat_map(|field_rev| {
-      let field_type: FieldType = field_rev.ty.into();
+      let field_type = FieldType::from(field_rev.field_type);
       match field_type.can_be_group() {
         true => Some(field_rev.clone()),
         false => None,
       }
     })
-    .collect::<Vec<Arc<FieldRevision>>>();
+    .collect::<Vec<Arc<Field>>>();
 
   if groupable_field_revs.is_empty() {
     // If there is not groupable fields then we use the primary field.

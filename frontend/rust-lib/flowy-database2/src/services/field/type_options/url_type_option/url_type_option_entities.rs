@@ -1,6 +1,8 @@
-use crate::entities::URLCellDataPB;
+use crate::entities::{FieldType, URLCellDataPB};
 use crate::services::cell::{CellProtobufBlobParser, DecodedCellData, FromCellString};
 use bytes::Bytes;
+use collab::core::lib0_any_ext::Lib0AnyMapExtension;
+use collab_database::rows::{new_cell_builder, Cell, CellBuilder};
 use flowy_error::{internal_error, FlowyResult};
 use serde::{Deserialize, Serialize};
 
@@ -20,6 +22,23 @@ impl URLCellData {
 
   pub fn to_json(&self) -> FlowyResult<String> {
     serde_json::to_string(self).map_err(internal_error)
+  }
+}
+
+impl From<&Cell> for URLCellData {
+  fn from(cell: &Cell) -> Self {
+    let url = cell.get_str_value("url").unwrap_or_default();
+    let content = cell.get_str_value("content").unwrap_or_default();
+    Self { url, content }
+  }
+}
+
+impl From<URLCellData> for Cell {
+  fn from(data: URLCellData) -> Self {
+    new_cell_builder(FieldType::URL)
+      .insert("url", data.url)
+      .insert("content", data.content)
+      .build()
   }
 }
 

@@ -12,6 +12,7 @@ use crate::services::field::{
 };
 use bytes::Bytes;
 use collab_database::fields::{Field, TypeOptionData};
+use collab_database::rows::Cell;
 
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 use serde::{Deserialize, Serialize};
@@ -90,27 +91,24 @@ where
     );
   }
 
-  fn transform_type_option_cell_str(
+  fn transform_type_option_cell(
     &self,
-    cell_str: &str,
-    decoded_field_type: &FieldType,
+    cell: &Cell,
+    _decoded_field_type: &FieldType,
     _field: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {
-    match decoded_field_type {
+    match _decoded_field_type {
       FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => None,
-      FieldType::Checkbox => match CheckboxCellData::from_cell_str(cell_str) {
-        Ok(checkbox_cell_data) => {
-          let cell_content = checkbox_cell_data.to_string();
-          let mut transformed_ids = Vec::new();
-          let options = self.options();
-          if let Some(option) = options.iter().find(|option| option.name == cell_content) {
-            transformed_ids.push(option.id.clone());
-          }
-          Some(SelectOptionIds::from(transformed_ids))
-        },
-        Err(_) => None,
+      FieldType::Checkbox => {
+        let cell_content = CheckboxCellData::from(cell).to_string();
+        let mut transformed_ids = Vec::new();
+        let options = self.options();
+        if let Some(option) = options.iter().find(|option| option.name == cell_content) {
+          transformed_ids.push(option.id.clone());
+        }
+        Some(SelectOptionIds::from(transformed_ids))
       },
-      FieldType::RichText => SelectOptionIds::from_cell_str(cell_str).ok(),
+      FieldType::RichText => Some(SelectOptionIds::from(cell)),
       _ => Some(SelectOptionIds::from(vec![])),
     }
   }
@@ -122,11 +120,11 @@ where
 {
   fn decode_cell_str(
     &self,
-    cell_str: String,
-    _decoded_field_type: &FieldType,
-    _field: &Field,
+    cell: &Cell,
+    decoded_field_type: &FieldType,
+    field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    self.decode_type_option_cell_str(cell_str)
+    self.decode_cell(cell)
   }
 
   fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
@@ -137,6 +135,11 @@ where
       .map(|option| option.name)
       .collect::<Vec<String>>()
       .join(SELECTION_IDS_SEPARATOR)
+  }
+
+  fn decode_cell_to_str(&self, cell: &Cell) -> String {
+    let cell_data = Self::CellData::from(cell);
+    self.decode_cell_data_to_str(cell_data)
   }
 }
 

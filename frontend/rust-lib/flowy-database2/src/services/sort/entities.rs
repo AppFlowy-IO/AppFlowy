@@ -12,7 +12,7 @@ impl std::convert::From<&AlterSortParams> for SortType {
   fn from(params: &AlterSortParams) -> Self {
     Self {
       field_id: params.field_id.clone(),
-      field_type: params.field_type.into(),
+      field_type: params.field_type.clone(),
     }
   }
 }

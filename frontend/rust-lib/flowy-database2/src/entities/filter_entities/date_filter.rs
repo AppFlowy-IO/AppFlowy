@@ -83,7 +83,7 @@ impl std::convert::TryFrom<u8> for DateFilterConditionPB {
   }
 }
 impl FromFilterString for DateFilterPB {
-  fn from_filter_rev(filter: &Filter) -> Self
+  fn from_filter(filter: &Filter) -> Self
   where
     Self: Sized,
   {

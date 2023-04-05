@@ -1,5 +1,5 @@
 use crate::entities::{
-  GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB, RowPB, URLCellDataPB,
+  FieldType, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB, RowPB, URLCellDataPB,
 };
 use crate::services::cell::insert_url_cell;
 use crate::services::field::{URLCellData, URLCellDataParser, URLTypeOption};
@@ -12,6 +12,7 @@ use crate::services::group::{
   make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroupContext,
 };
 use collab_database::fields::Field;
+use collab_database::rows::{Cell, CellBuilder, new_cell_builder, Row};
 use collab_database::views::Group;
 use database_model::{CellRevision, RowRevision};
 use flowy_error::FlowyResult;
@@ -34,8 +35,8 @@ pub type URLGroupContext = GroupContext<URLGroupConfiguration>;
 impl GroupCustomize for URLGroupController {
   type CellData = URLCellDataPB;
 
-  fn placeholder_cell(&self) -> Option<CellRevision> {
-    Some(CellRevision::new("".to_string()))
+  fn placeholder_cell(&self) -> Option<Cell> {
+    Some(new_cell_builder(FieldType::URL).insert("data", "").build())
   }
 
   fn can_group(&self, content: &str, cell_data: &Self::CellData) -> bool {
@@ -44,22 +45,22 @@ impl GroupCustomize for URLGroupController {
 
   fn create_or_delete_group_when_cell_changed(
     &mut self,
-    row_rev: &RowRevision,
-    old_cell_data: Option<&Self::CellData>,
-    cell_data: &Self::CellData,
+    row: &Row,
+    _old_cell_data: Option<&Self::CellData>,
+    _cell_data: &Self::CellData,
   ) -> FlowyResult<(Option<InsertedGroupPB>, Option<GroupPB>)> {
     // Just return if the group with this url already exists
     let mut inserted_group = None;
-    if self.group_ctx.get_group(&cell_data.url).is_none() {
-      let cell_data: URLCellData = cell_data.clone().into();
+    if self.group_ctx.get_group(&_cell_data.url).is_none() {
+      let cell_data: URLCellData = _cell_data.clone().into();
       let group = make_group_from_url_cell(&cell_data);
       let mut new_group = self.group_ctx.add_new_group(group)?;
-      new_group.group.rows.push(RowPB::from(row_rev));
+      new_group.group.rows.push(RowPB::from(row));
       inserted_group = Some(new_group);
     }
 
     // Delete the old url group if there are no rows in that group
-    let deleted_group = match old_cell_data
+    let deleted_group = match _old_cell_data
       .and_then(|old_cell_data| self.group_ctx.get_group(&old_cell_data.content))
     {
       None => None,
@@ -85,23 +86,23 @@ impl GroupCustomize for URLGroupController {
 
   fn add_or_remove_row_when_cell_changed(
     &mut self,
-    row_rev: &RowRevision,
+    row: &Row,
     cell_data: &Self::CellData,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
     self.group_ctx.iter_mut_status_groups(|group| {
       let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
       if group.id == cell_data.content {
-        if !group.contains_row(&row_rev.id) {
-          let row_pb = RowPB::from(row_rev);
+        if !group.contains_row(&row.id) {
+          let row_pb = RowPB::from(row);
           changeset
             .inserted_rows
             .push(InsertedRowPB::new(row_pb.clone()));
           group.add_row(row_pb);
         }
-      } else if group.contains_row(&row_rev.id) {
-        changeset.deleted_rows.push(row_rev.id.clone());
-        group.remove_row(&row_rev.id);
+      } else if group.contains_row(&row.id) {
+        changeset.deleted_rows.push(row.id.clone());
+        group.remove_row(&row.id);
       }
 
       if !changeset.is_empty() {
@@ -111,17 +112,13 @@ impl GroupCustomize for URLGroupController {
     changesets
   }
 
-  fn delete_row(
-    &mut self,
-    row_rev: &RowRevision,
-    _cell_data: &Self::CellData,
-  ) -> Vec<GroupRowsNotificationPB> {
+  fn delete_row(&mut self, row: &Row, cell_data: &Self::CellData) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
     self.group_ctx.iter_mut_groups(|group| {
       let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
-      if group.contains_row(&row_rev.id) {
-        changeset.deleted_rows.push(row_rev.id.clone());
-        group.remove_row(&row_rev.id);
+      if group.contains_row(&row.id) {
+        changeset.deleted_rows.push(row.id.clone());
+        group.remove_row(&row.id);
       }
 
       if !changeset.is_empty() {
@@ -147,11 +144,11 @@ impl GroupCustomize for URLGroupController {
 
   fn delete_group_when_move_row(
     &mut self,
-    _row_rev: &RowRevision,
-    cell_data: &Self::CellData,
+    _row: &Row,
+    _cell_data: &Self::CellData,
   ) -> Option<GroupPB> {
     let mut deleted_group = None;
-    if let Some((_, group)) = self.group_ctx.get_group(&cell_data.content) {
+    if let Some((_, group)) = self.group_ctx.get_group(&_cell_data.content) {
       if group.rows.len() == 1 {
         deleted_group = Some(GroupPB::from(group.clone()));
       }
@@ -166,12 +163,12 @@ impl GroupCustomize for URLGroupController {
 }
 
 impl GroupController for URLGroupController {
-  fn will_create_row(&mut self, row_rev: &mut RowRevision, field: &Field, group_id: &str) {
+  fn will_create_row(&mut self, row: &mut Row, field: &Field, group_id: &str) {
     match self.group_ctx.get_group(group_id) {
       None => tracing::warn!("Can not find the group: {}", group_id),
       Some((_, group)) => {
-        let cell_rev = insert_url_cell(group.id.clone(), field);
-        row_rev.cells.insert(field.id.clone(), cell_rev);
+        let cell = insert_url_cell(group.id.clone(), field);
+        row.cells.insert(field.id.clone(), cell);
       },
     }
   }
@@ -191,7 +188,7 @@ impl GroupGenerator for URLGroupGenerator {
   fn generate_groups(
     field: &Field,
     group_ctx: &Self::Context,
-    type_option: &Option<Self::TypeOptionType>,
+    _type_option: &Option<Self::TypeOptionType>,
   ) -> GeneratedGroupContext {
     // Read all the cells for the grouping field
     let cells = futures::executor::block_on(group_ctx.get_all_cells());

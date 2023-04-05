@@ -6,6 +6,7 @@ use crate::services::cell::{
 use crate::services::filter::FromFilterString;
 use bytes::Bytes;
 use collab_database::fields::{Field, TypeOptionData};
+use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
 use protobuf::ProtobufError;
 use std::cmp::Ordering;
@@ -22,7 +23,7 @@ pub trait TypeOption {
   ///
   /// Uses `StrCellData` for any `TypeOption` if their cell data is pure `String`.
   ///
-  type CellData: FromCellString + ToString + Default + Send + Sync + Clone + Debug + 'static;
+  type CellData: ToString + Default + Send + Sync + Clone + Debug + 'static;
 
   /// Represents as the corresponding field type cell changeset.
   /// The changeset must implements the `FromCellChangesetString` and the `ToCellChangesetString` trait.
@@ -57,10 +58,7 @@ pub trait TypeOptionCellData: TypeOption {
   // For example, the cell data is timestamp if its field type is `FieldType::Date`. This cell
   // data can not directly show to user. So it needs to be encode as the date string with custom
   // format setting. Encode `1647251762` to `"Mar 14,2022`
-  fn decode_type_option_cell_str(
-    &self,
-    cell_str: String,
-  ) -> FlowyResult<<Self as TypeOption>::CellData>;
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData>;
 }
 
 pub trait TypeOptionTransform: TypeOption {
@@ -96,9 +94,9 @@ pub trait TypeOptionTransform: TypeOption {
   /// * `decoded_field_type`: the field type of the cell data that's going to be transformed into
   /// current `TypeOption` field type.
   ///
-  fn transform_type_option_cell_str(
+  fn transform_type_option_cell(
     &self,
-    _cell_str: &str,
+    cell: &Cell,
     _decoded_field_type: &FieldType,
     _field: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {

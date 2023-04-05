@@ -42,7 +42,7 @@ impl std::convert::TryFrom<u8> for ChecklistFilterConditionPB {
 }
 
 impl FromFilterString for ChecklistFilterPB {
-  fn from_filter_rev(filter: &Filter) -> Self
+  fn from_filter(filter: &Filter) -> Self
   where
     Self: Sized,
   {

@@ -2,12 +2,14 @@ use crate::entities::{FieldType, NumberFilterPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder, TypeCellData};
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{
-  NumberCellData, StrCellData, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  NumberCellFormat, StrCellData, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
   TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 
+use crate::services::field::type_options::util::ProtobufStr;
 use collab::core::lib0_any_ext::Lib0AnyMapExtension;
+use collab_database::rows::{new_cell_builder, Cell, CellBuilder};
 use fancy_regex::Regex;
 use flowy_error::FlowyResult;
 use lazy_static::lazy_static;
@@ -27,10 +29,39 @@ pub struct NumberTypeOption {
   pub name: String,
 }
 
+#[derive(Clone, Debug, Default)]
+pub struct NumberCellData(pub String);
+
+impl From<&Cell> for NumberCellData {
+  fn from(cell: &Cell) -> Self {
+    Self(cell.get_str_value("data").unwrap_or_default())
+  }
+}
+
+impl From<NumberCellData> for Cell {
+  fn from(data: NumberCellData) -> Self {
+    new_cell_builder(FieldType::Number)
+      .insert("data", data.0)
+      .build()
+  }
+}
+
+impl std::convert::From<String> for NumberCellData {
+  fn from(s: String) -> Self {
+    Self(s)
+  }
+}
+
+impl ToString for NumberCellData {
+  fn to_string(&self) -> String {
+    self.0.clone()
+  }
+}
+
 impl TypeOption for NumberTypeOption {
-  type CellData = StrCellData;
+  type CellData = NumberCellData;
   type CellChangeset = NumberCellChangeset;
-  type CellProtobufType = StrCellData;
+  type CellProtobufType = ProtobufStr;
   type CellFilter = NumberFilterPB;
 }
 
@@ -71,14 +102,11 @@ impl TypeOptionCellData for NumberTypeOption {
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
-    cell_data
+    ProtobufStr::from(cell_data.0)
   }
 
-  fn decode_type_option_cell_str(
-    &self,
-    cell_str: String,
-  ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(StrCellData::from(cell_str))
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
+    Ok(NumberCellData::from(cell))
   }
 }
 
@@ -87,16 +115,22 @@ impl NumberTypeOption {
     Self::default()
   }
 
-  pub(crate) fn format_cell_data(&self, s: &str) -> FlowyResult<NumberCellData> {
+  pub(crate) fn format_cell_data(
+    &self,
+    num_cell_data: &NumberCellData,
+  ) -> FlowyResult<NumberCellFormat> {
     match self.format {
       NumberFormat::Num => {
-        if SCIENTIFIC_NOTATION_REGEX.is_match(s).unwrap() {
-          match Decimal::from_scientific(&s.to_lowercase()) {
-            Ok(value, ..) => Ok(NumberCellData::from_decimal(value)),
-            Err(_) => Ok(NumberCellData::new()),
+        if SCIENTIFIC_NOTATION_REGEX
+          .is_match(&num_cell_data.0)
+          .unwrap()
+        {
+          match Decimal::from_scientific(&num_cell_data.0.to_lowercase()) {
+            Ok(value, ..) => Ok(NumberCellFormat::from_decimal(value)),
+            Err(_) => Ok(NumberCellFormat::new()),
           }
         } else {
-          let draw_numer_string = NUM_REGEX.replace_all(s, "");
+          let draw_numer_string = NUM_REGEX.replace_all(&num_cell_data.0, "");
           let strnum = match draw_numer_string.matches('.').count() {
             0 | 1 => draw_numer_string.to_string(),
             _ => match EXTRACT_NUM_REGEX.captures(&draw_numer_string) {
@@ -108,12 +142,12 @@ impl NumberTypeOption {
             },
           };
           match Decimal::from_str(&strnum) {
-            Ok(value, ..) => Ok(NumberCellData::from_decimal(value)),
-            Err(_) => Ok(NumberCellData::new()),
+            Ok(value, ..) => Ok(NumberCellFormat::from_decimal(value)),
+            Err(_) => Ok(NumberCellFormat::new()),
           }
         }
       },
-      _ => NumberCellData::from_format_str(s, self.sign_positive, &self.format),
+      _ => NumberCellFormat::from_format_str(&num_cell_data.0, self.sign_positive, &self.format),
     }
   }
 
@@ -139,17 +173,18 @@ impl TypeOptionTransform for NumberTypeOption {}
 impl CellDataDecoder for NumberTypeOption {
   fn decode_cell_str(
     &self,
-    cell_str: String,
+    cell: &Cell,
     decoded_field_type: &FieldType,
-    _field: &Field,
+    field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
     if decoded_field_type.is_date() {
       return Ok(Default::default());
     }
 
-    let str_cell_data = self.decode_type_option_cell_str(cell_str)?;
-    let s = StrCellData::from(self.format_cell_data(&str_cell_data)?.to_string());
-    Ok(s)
+    let num_cell_data = self.decode_cell(cell)?;
+    Ok(NumberCellData::from(
+      self.format_cell_data(&num_cell_data)?.to_string(),
+    ))
   }
 
   fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
@@ -157,6 +192,11 @@ impl CellDataDecoder for NumberTypeOption {
       Ok(cell_data) => cell_data.to_string(),
       Err(_) => "".to_string(),
     }
+  }
+
+  fn decode_cell_to_str(&self, cell: &Cell) -> String {
+    let cell_data = Self::CellData::from(cell);
+    self.decode_cell_data_to_str(cell_data)
   }
 }
 
@@ -166,17 +206,20 @@ impl CellDataChangeset for NumberTypeOption {
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
-    _type_cell_data: Option<TypeCellData>,
-  ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
-    let data = changeset.trim().to_string();
-    let number_cell_data = self.format_cell_data(&data)?;
+    cell: Option<Cell>,
+  ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
+    let number_cell_data = NumberCellData(changeset.trim().to_string());
+    let formatter = self.format_cell_data(&number_cell_data)?;
 
     match self.format {
       NumberFormat::Num => Ok((
-        number_cell_data.to_string(),
-        StrCellData::from(number_cell_data.to_string()),
+        NumberCellData(formatter.to_string()).into(),
+        NumberCellData::from(formatter.to_string()),
       )),
-      _ => Ok((data, StrCellData::from(number_cell_data.to_string()))),
+      _ => Ok((
+        NumberCellData::default().into(),
+        NumberCellData::from(formatter.to_string()),
+      )),
     }
   }
 }

@@ -1,11 +1,13 @@
 use std::fmt;
 
-use crate::entities::DateCellDataPB;
+use crate::entities::{DateCellDataPB, FieldType};
 use crate::services::cell::{
   CellProtobufBlobParser, DecodedCellData, FromCellChangesetString, FromCellString,
   ToCellChangesetString,
 };
 use bytes::Bytes;
+use collab::core::lib0_any_ext::Lib0AnyMapExtension;
+use collab_database::rows::{new_cell_builder, Cell, CellBuilder};
 use flowy_error::{internal_error, FlowyResult};
 use serde::de::Visitor;
 use serde::{Deserialize, Serialize};
@@ -51,6 +53,26 @@ impl ToCellChangesetString for DateCellChangeset {
 pub struct DateCellData {
   pub timestamp: Option<i64>,
   pub include_time: bool,
+}
+
+impl From<&Cell> for DateCellData {
+  fn from(cell: &Cell) -> Self {
+    let timestamp = cell.get_i64_value("timestamp");
+    let include_time = cell.get_bool_value("include_time").unwrap_or_default();
+    Self {
+      timestamp,
+      include_time,
+    }
+  }
+}
+
+impl From<DateCellData> for Cell {
+  fn from(data: DateCellData) -> Self {
+    new_cell_builder(FieldType::DateTime)
+      .insert("timestamp", data.timestamp)
+      .insert("include_time", data.include_time)
+      .build()
+  }
 }
 
 impl<'de> serde::Deserialize<'de> for DateCellData {

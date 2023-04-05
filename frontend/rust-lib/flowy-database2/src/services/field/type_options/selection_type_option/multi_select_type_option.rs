@@ -9,6 +9,7 @@ use crate::services::field::{
   TypeOptionCellDataCompare, TypeOptionCellDataFilter,
 };
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
+use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 
@@ -52,11 +53,8 @@ impl TypeOptionCellData for MultiSelectTypeOption {
     self.get_selected_options(cell_data).into()
   }
 
-  fn decode_type_option_cell_str(
-    &self,
-    cell_str: String,
-  ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    SelectOptionIds::from_cell_str(&cell_str)
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
+    Ok(SelectOptionIds::from(cell))
   }
 }
 
@@ -78,8 +76,8 @@ impl CellDataChangeset for MultiSelectTypeOption {
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
-    type_cell_data: Option<TypeCellData>,
-  ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
+    cell: Option<Cell>,
+  ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     let insert_option_ids = changeset
       .insert_option_ids
       .into_iter()
@@ -91,10 +89,10 @@ impl CellDataChangeset for MultiSelectTypeOption {
       })
       .collect::<Vec<String>>();
 
-    let select_option_ids = match type_cell_data {
+    let select_option_ids = match cell {
       None => SelectOptionIds::from(insert_option_ids),
-      Some(type_cell_data) => {
-        let mut select_ids: SelectOptionIds = type_cell_data.cell_str.into();
+      Some(cell) => {
+        let mut select_ids = SelectOptionIds::from(&cell);
         for insert_option_id in insert_option_ids {
           if !select_ids.contains(&insert_option_id) {
             select_ids.push(insert_option_id);
@@ -109,7 +107,10 @@ impl CellDataChangeset for MultiSelectTypeOption {
         select_ids
       },
     };
-    Ok((select_option_ids.to_string(), select_option_ids))
+    Ok((
+      select_option_ids.to_cell_data(FieldType::MultiSelect),
+      select_option_ids,
+    ))
   }
 }
 
@@ -182,7 +183,7 @@ mod tests {
   fn multi_select_transform_with_single_select_type_option_test() {
     let google = SelectOption::new("Google");
     let facebook = SelectOption::new("Facebook");
-    let mut single_select = SingleSelectTypeOption {
+    let single_select = SingleSelectTypeOption {
       options: vec![google, facebook],
       disable_color: false,
     };
@@ -264,14 +265,14 @@ mod tests {
   fn multi_select_insert_invalid_option_id_test() {
     let google = SelectOption::new("Google");
     let multi_select = MultiSelectTypeOption {
-      options: vec![google.clone()],
+      options: vec![google],
       disable_color: false,
     };
 
     // empty option id string
     let changeset = SelectOptionCellChangeset::from_insert_option_id("");
-    let (cell_str, _) = multi_select.apply_changeset(changeset, None).unwrap();
-    assert_eq!(cell_str, "");
+    let (cell, _) = multi_select.apply_changeset(changeset, None).unwrap();
+    assert!(cell.is_empty());
 
     let changeset = SelectOptionCellChangeset::from_insert_option_id("123,456");
     let select_option_ids = multi_select.apply_changeset(changeset, None).unwrap().1;

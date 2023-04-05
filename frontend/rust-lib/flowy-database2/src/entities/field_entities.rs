@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use crate::entities::parser::NotEmptyStr;
 use crate::impl_into_field_type;
-use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
+use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter};
 
 /// [FieldPB] defines a Field's attributes. Such as the name, field_type, and width. etc.
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -464,7 +464,6 @@ pub struct FieldChangesetParams {
   Eq,
   ProtoBuf_Enum,
   EnumCountMacro,
-  EnumString,
   EnumIter,
   Display,
   Serialize_repr,
@@ -499,9 +498,24 @@ impl std::default::Default for FieldType {
 
 impl AsRef<str> for FieldType {
   fn as_ref(&self) -> &str {
-    &self.type_id()
+    match self {
+      FieldType::RichText => "text",
+      FieldType::Number => "number",
+      FieldType::DateTime => "date",
+      FieldType::SingleSelect => "single-select",
+      FieldType::MultiSelect => "multi-select",
+      FieldType::Checkbox => "checkbox",
+      FieldType::URL => "url",
+      FieldType::Checklist => "checklist",
+    }
   }
 }
+
+// impl ToString for FieldType {
+//   fn to_string(&self) -> String {
+//     self.as_ref().to_owned()
+//   }
+// }
 
 impl AsRef<FieldType> for FieldType {
   fn as_ref(&self) -> &FieldType {
@@ -516,10 +530,6 @@ impl From<&FieldType> for FieldType {
 }
 
 impl FieldType {
-  pub fn type_id(&self) -> String {
-    (self.clone() as u8).to_string()
-  }
-
   pub fn default_cell_width(&self) -> i32 {
     match self {
       FieldType::DateTime => 180,

@@ -118,7 +118,7 @@ impl TryInto<AlterSortParams> for AlterSortPayloadPB {
       view_id,
       field_id,
       sort_id,
-      field_type: self.field_type.into(),
+      field_type: self.field_type,
       condition: self.condition as u8,
     })
   }

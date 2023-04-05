@@ -1,9 +1,8 @@
-use crate::entities::{GroupChangesetPB, GroupPB, InsertedGroupPB};
+use crate::entities::{FieldType, GroupChangesetPB, GroupPB, InsertedGroupPB};
 use crate::services::field::RowSingleCellData;
 use crate::services::group::{default_group_configuration, GeneratedGroupContext, GroupData};
 use collab_database::fields::Field;
 use collab_database::views::{Group, GroupSetting};
-use database_model::{FieldTypeRevision, GroupConfigurationRevision};
 use flowy_error::{FlowyError, FlowyResult};
 use indexmap::IndexMap;
 use lib_infra::future::Fut;
@@ -15,7 +14,7 @@ use std::marker::PhantomData;
 use std::sync::Arc;
 
 pub trait GroupConfigurationReader: Send + Sync + 'static {
-  fn get_configuration(&self) -> Fut<Option<Arc<GroupConfigurationRevision>>>;
+  fn get_group_setting(&self) -> Fut<Option<Arc<GroupSetting>>>;
   fn get_configuration_cells(&self, field_id: &str) -> Fut<FlowyResult<Vec<RowSingleCellData>>>;
 }
 
@@ -23,7 +22,7 @@ pub trait GroupConfigurationWriter: Send + Sync + 'static {
   fn save_configuration(
     &self,
     field_id: &str,
-    field_type: FieldTypeRevision,
+    field_type: FieldType,
     group_setting: GroupSetting,
   ) -> Fut<FlowyResult<()>>;
 }
@@ -57,7 +56,7 @@ pub struct GroupContext<C> {
   configuration_phantom: PhantomData<C>,
 
   /// The grouping field
-  field_rev: Arc<Field>,
+  field: Arc<Field>,
 
   /// Cache all the groups
   groups_map: IndexMap<String, GroupData>,
@@ -80,28 +79,29 @@ where
   #[tracing::instrument(level = "trace", skip_all, err)]
   pub async fn new(
     view_id: String,
-    field_rev: Arc<Field>,
+    field: Arc<Field>,
     reader: Arc<dyn GroupConfigurationReader>,
     writer: Arc<dyn GroupConfigurationWriter>,
   ) -> FlowyResult<Self> {
-    let configuration = match reader.get_configuration().await {
+    let setting = match reader.get_group_setting().await {
       None => {
-        let default_configuration = default_group_configuration(&field_rev);
+        let field_type = FieldType::from(field.field_type);
+        let default_configuration = default_group_configuration(&field);
         writer
-          .save_configuration(&field_rev.id, field_rev.ty, default_configuration.clone())
+          .save_configuration(&field.id, field_type, default_configuration.clone())
           .await?;
         Arc::new(default_configuration)
       },
-      Some(configuration) => configuration,
+      Some(setting) => setting,
     };
 
     Ok(Self {
       view_id,
-      field_rev,
+      field,
       groups_map: IndexMap::new(),
       reader,
       writer,
-      setting: configuration,
+      setting,
       configuration_phantom: PhantomData,
     })
   }
@@ -110,11 +110,11 @@ where
   ///
   /// We take the `id` of the `field` as the no status group id
   pub(crate) fn get_no_status_group(&self) -> Option<&GroupData> {
-    self.groups_map.get(&self.field_rev.id)
+    self.groups_map.get(&self.field.id)
   }
 
   pub(crate) fn get_mut_no_status_group(&mut self) -> Option<&mut GroupData> {
-    self.groups_map.get_mut(&self.field_rev.id)
+    self.groups_map.get_mut(&self.field.id)
   }
 
   pub(crate) fn groups(&self) -> Vec<&GroupData> {
@@ -139,7 +139,7 @@ where
   /// Iterate mut the groups without `No status` group
   pub(crate) fn iter_mut_status_groups(&mut self, mut each: impl FnMut(&mut GroupData)) {
     self.groups_map.iter_mut().for_each(|(_, group)| {
-      if group.id != self.field_rev.id {
+      if group.id != self.field.id {
         each(group);
       }
     });
@@ -154,7 +154,7 @@ where
   pub(crate) fn add_new_group(&mut self, group: Group) -> FlowyResult<InsertedGroupPB> {
     let group_data = GroupData::new(
       group.id.clone(),
-      self.field_rev.id.clone(),
+      self.field.id.clone(),
       group.name.clone(),
       group.id.clone(),
     );
@@ -264,18 +264,18 @@ where
 
     let mut old_groups = self.setting.groups.clone();
     // clear all the groups if grouping by a new field
-    if self.setting.field_id != self.field_rev.id {
+    if self.setting.field_id != self.field.id {
       old_groups.clear();
     }
 
     // The `all_group_revs` is the combination of the new groups and old groups
     let MergeGroupResult {
-      mut all_group_revs,
-      new_group_revs,
-      deleted_group_revs,
+      mut all_groups,
+      new_groups,
+      deleted_groups,
     } = merge_groups(no_status_group, old_groups, new_groups);
 
-    let deleted_group_ids = deleted_group_revs
+    let deleted_group_ids = deleted_groups
       .into_iter()
       .map(|group_rev| group_rev.id)
       .collect::<Vec<String>>();
@@ -288,26 +288,26 @@ where
         .retain(|group| !deleted_group_ids.contains(&group.id));
 
       // Update/Insert new groups
-      for group_rev in &mut all_group_revs {
+      for group in &mut all_groups {
         match configuration
           .groups
           .iter()
-          .position(|old_group_rev| old_group_rev.id == group_rev.id)
+          .position(|old_group_rev| old_group_rev.id == group.id)
         {
           None => {
             // Push the group to the end of the list if it doesn't exist in the group
-            configuration.groups.push(group_rev.clone());
+            configuration.groups.push(group.clone());
             is_changed = true;
           },
           Some(pos) => {
             let mut old_group = configuration.groups.get_mut(pos).unwrap();
             // Take the old group setting
-            group_rev.update_with_other(old_group);
+            group.visible = old_group.visible;
             if !is_changed {
-              is_changed = is_group_changed(group_rev, old_group);
+              is_changed = is_group_changed(group, old_group);
             }
             // Consider the the name of the `group_rev` as the newest.
-            old_group.name = group_rev.name.clone();
+            old_group.name = group.name.clone();
           },
         }
       }
@@ -315,27 +315,27 @@ where
     })?;
 
     // Update the memory cache of the groups
-    all_group_revs.into_iter().for_each(|group_rev| {
+    all_groups.into_iter().for_each(|group_rev| {
       let filter_content = filter_content_map
         .get(&group_rev.id)
         .cloned()
         .unwrap_or_else(|| "".to_owned());
       let group = GroupData::new(
         group_rev.id,
-        self.field_rev.id.clone(),
+        self.field.id.clone(),
         group_rev.name,
         filter_content,
       );
       self.groups_map.insert(group.id.clone(), group);
     });
 
-    let initial_groups = new_group_revs
+    let initial_groups = new_groups
       .into_iter()
       .flat_map(|group_rev| {
         let filter_content = filter_content_map.get(&group_rev.id)?;
         let group = GroupData::new(
           group_rev.id,
-          self.field_rev.id.clone(),
+          self.field.id.clone(),
           group_rev.name,
           filter_content.clone(),
         );
@@ -377,7 +377,7 @@ where
   pub(crate) async fn get_all_cells(&self) -> Vec<RowSingleCellData> {
     self
       .reader
-      .get_configuration_cells(&self.field_rev.id)
+      .get_configuration_cells(&self.field.id)
       .await
       .unwrap_or_default()
   }
@@ -391,8 +391,8 @@ where
     if is_changed {
       let configuration = (*self.setting).clone();
       let writer = self.writer.clone();
-      let field_id = self.field_rev.id.clone();
-      let field_type = self.field_rev.ty;
+      let field_id = self.field.id.clone();
+      let field_type = FieldType::from(self.field.field_type);
       tokio::spawn(async move {
         match writer
           .save_configuration(&field_id, field_type, configuration)
@@ -446,22 +446,22 @@ fn merge_groups(
   // The group is ordered in old groups. Add them before adding the new groups
   for old in old_groups {
     if let Some(new) = new_group_map.remove(&old.id) {
-      merge_result.all_group_revs.push(new.clone());
+      merge_result.all_groups.push(new.clone());
     } else {
-      merge_result.deleted_group_revs.push(old);
+      merge_result.deleted_groups.push(old);
     }
   }
 
   // Find out the new groups
   let new_groups = new_group_map.into_values();
   for (_, group) in new_groups.into_iter().enumerate() {
-    merge_result.all_group_revs.push(group.clone());
-    merge_result.new_group_revs.push(group);
+    merge_result.all_groups.push(group.clone());
+    merge_result.new_groups.push(group);
   }
 
   // The `No status` group index is initialized to 0
   if let Some(no_status_group) = no_status_group {
-    merge_result.all_group_revs.insert(0, no_status_group);
+    merge_result.all_groups.insert(0, no_status_group);
   }
   merge_result
 }
@@ -475,17 +475,17 @@ fn is_group_changed(new: &Group, old: &Group) -> bool {
 
 struct MergeGroupResult {
   // Contains the new groups and the updated groups
-  all_group_revs: Vec<Group>,
-  new_group_revs: Vec<Group>,
-  deleted_group_revs: Vec<Group>,
+  all_groups: Vec<Group>,
+  new_groups: Vec<Group>,
+  deleted_groups: Vec<Group>,
 }
 
 impl MergeGroupResult {
   fn new() -> Self {
     Self {
-      all_group_revs: vec![],
-      new_group_revs: vec![],
-      deleted_group_revs: vec![],
+      all_groups: vec![],
+      new_groups: vec![],
+      deleted_groups: vec![],
     }
   }
 }

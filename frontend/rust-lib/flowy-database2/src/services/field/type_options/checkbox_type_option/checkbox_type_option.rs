@@ -7,6 +7,7 @@ use crate::services::field::{
 
 use collab::core::lib0_any_ext::Lib0AnyMapExtension;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
+use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -36,17 +37,14 @@ impl TypeOptionTransform for CheckboxTypeOption {
   ) {
   }
 
-  fn transform_type_option_cell_str(
+  fn transform_type_option_cell(
     &self,
-    cell_str: &str,
-    decoded_field_type: &FieldType,
+    cell: &Cell,
+    _decoded_field_type: &FieldType,
     _field: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {
-    if decoded_field_type.is_text() {
-      match CheckboxCellData::from_str(cell_str) {
-        Ok(cell_data) => Some(cell_data),
-        Err(_) => None,
-      }
+    if _decoded_field_type.is_text() {
+      Some(CheckboxCellData::from(cell))
     } else {
       None
     }
@@ -76,30 +74,31 @@ impl TypeOptionCellData for CheckboxTypeOption {
     cell_data
   }
 
-  fn decode_type_option_cell_str(
-    &self,
-    cell_str: String,
-  ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    CheckboxCellData::from_cell_str(&cell_str)
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
+    Ok(CheckboxCellData::from(cell))
   }
 }
 
 impl CellDataDecoder for CheckboxTypeOption {
   fn decode_cell_str(
     &self,
-    cell_str: String,
+    cell: &Cell,
     decoded_field_type: &FieldType,
-    _field: &Field,
+    field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
     if !decoded_field_type.is_checkbox() {
       return Ok(Default::default());
     }
 
-    self.decode_type_option_cell_str(cell_str)
+    self.decode_cell(cell)
   }
 
   fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     cell_data.to_string()
+  }
+
+  fn decode_cell_to_str(&self, cell: &Cell) -> String {
+    Self::CellData::from(cell).to_string()
   }
 }
 
@@ -109,10 +108,10 @@ impl CellDataChangeset for CheckboxTypeOption {
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
-    _type_cell_data: Option<TypeCellData>,
-  ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
+    cell: Option<Cell>,
+  ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     let checkbox_cell_data = CheckboxCellData::from_str(&changeset)?;
-    Ok((checkbox_cell_data.to_string(), checkbox_cell_data))
+    Ok((checkbox_cell_data.clone().into(), checkbox_cell_data))
   }
 }
 

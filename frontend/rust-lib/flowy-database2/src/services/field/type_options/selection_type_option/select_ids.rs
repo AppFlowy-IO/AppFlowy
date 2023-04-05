@@ -1,4 +1,7 @@
+use crate::entities::FieldType;
 use crate::services::cell::{DecodedCellData, FromCellString};
+use collab::core::lib0_any_ext::Lib0AnyMapExtension;
+use collab_database::rows::{new_cell_builder, Cell, CellBuilder};
 use flowy_error::FlowyResult;
 
 pub const SELECTION_IDS_SEPARATOR: &str = ",";
@@ -18,6 +21,12 @@ impl SelectOptionIds {
   pub fn into_inner(self) -> Vec<String> {
     self.0
   }
+
+  pub fn to_cell_data(&self, field_type: FieldType) -> Cell {
+    new_cell_builder(field_type)
+      .insert("data", self.to_string())
+      .build()
+  }
 }
 
 impl FromCellString for SelectOptionIds {
@@ -26,6 +35,13 @@ impl FromCellString for SelectOptionIds {
     Self: Sized,
   {
     Ok(Self::from(s.to_owned()))
+  }
+}
+
+impl From<&Cell> for SelectOptionIds {
+  fn from(cell: &Cell) -> Self {
+    let value = cell.get_str_value("data").unwrap_or_default();
+    Self::from(value)
   }
 }
 

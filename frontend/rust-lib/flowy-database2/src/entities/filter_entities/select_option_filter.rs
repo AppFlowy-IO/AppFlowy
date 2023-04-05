@@ -49,7 +49,7 @@ impl std::convert::TryFrom<u8> for SelectOptionConditionPB {
   }
 }
 impl FromFilterString for SelectOptionFilterPB {
-  fn from_filter_rev(filter: &Filter) -> Self
+  fn from_filter(filter: &Filter) -> Self
   where
     Self: Sized,
   {

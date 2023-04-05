@@ -2,6 +2,7 @@
 mod tests {
   use crate::entities::FieldType;
   use crate::services::cell::stringify_cell_data;
+  use collab_database::rows::Cell;
 
   use crate::services::field::FieldBuilder;
   use crate::services::field::*;
@@ -15,7 +16,7 @@ mod tests {
 
     assert_eq!(
       stringify_cell_data(
-        1647251762.to_string(),
+        &to_text_cell(1647251762.to_string()),
         &FieldType::RichText,
         &field_type,
         &field
@@ -29,9 +30,18 @@ mod tests {
     };
 
     assert_eq!(
-      stringify_cell_data(data.to_string(), &FieldType::RichText, &field_type, &field),
+      stringify_cell_data(
+        &to_text_cell(data.to_string()),
+        &FieldType::RichText,
+        &field_type,
+        &field
+      ),
       "Mar 14,2022"
     );
+  }
+
+  fn to_text_cell(s: String) -> Cell {
+    StrCellData(s).into()
   }
 
   // Test parser the cell data which field's type is FieldType::SingleSelect to cell data
@@ -46,10 +56,15 @@ mod tests {
       options: vec![done_option.clone()],
       disable_color: false,
     };
-    let field_rev = FieldBuilder::new(field_type, single_select).build();
+    let field = FieldBuilder::new(field_type.clone(), single_select).build();
 
     assert_eq!(
-      stringify_cell_data(option_id, &FieldType::RichText, &field_type, &field_rev),
+      stringify_cell_data(
+        &to_text_cell(option_id),
+        &FieldType::RichText,
+        &field_type,
+        &field
+      ),
       done_option.name,
     );
   }
@@ -72,11 +87,11 @@ mod tests {
       disable_color: false,
     };
 
-    let field_rev = FieldBuilder::new(field_type, multi_select).build();
+    let field_rev = FieldBuilder::new(field_type.clone(), multi_select).build();
 
     assert_eq!(
       stringify_cell_data(
-        format!("{},{}", france_option_id, argentina_option_id),
+        &to_text_cell(format!("{},{}", france_option_id, argentina_option_id)),
         &FieldType::RichText,
         &field_type,
         &field_rev

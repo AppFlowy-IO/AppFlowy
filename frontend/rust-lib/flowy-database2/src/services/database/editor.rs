@@ -9,16 +9,16 @@ pub struct DatabaseEditor {
 }
 
 impl DatabaseEditor {
-  pub fn get_field(&self, field_id: &str) -> Option<Field> {
+  pub fn get_field(&self, _field_id: &str) -> Option<Field> {
     todo!()
   }
 
   pub fn update_field_type_option(
     &self,
-    view_id: &str,
-    field_id: &str,
-    type_option_data: TypeOptionData,
-    old_field: Option<Field>,
+    _view_id: &str,
+    _field_id: &str,
+    _type_option_data: TypeOptionData,
+    _old_field: Option<Field>,
   ) {
   }
 }

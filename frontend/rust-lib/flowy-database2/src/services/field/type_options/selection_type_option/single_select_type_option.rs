@@ -9,6 +9,7 @@ use crate::services::field::{
 };
 use collab::core::lib0_any_ext::Lib0AnyMapExtension;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
+use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -53,11 +54,8 @@ impl TypeOptionCellData for SingleSelectTypeOption {
     self.get_selected_options(cell_data).into()
   }
 
-  fn decode_type_option_cell_str(
-    &self,
-    cell_str: String,
-  ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    SelectOptionIds::from_cell_str(&cell_str)
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
+    Ok(SelectOptionIds::from(cell))
   }
 }
 
@@ -79,8 +77,8 @@ impl CellDataChangeset for SingleSelectTypeOption {
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
-    _type_cell_data: Option<TypeCellData>,
-  ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
+    cell: Option<Cell>,
+  ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     let mut insert_option_ids = changeset
       .insert_option_ids
       .into_iter()
@@ -102,7 +100,10 @@ impl CellDataChangeset for SingleSelectTypeOption {
       let _ = insert_option_ids.drain(1..);
       SelectOptionIds::from(insert_option_ids)
     };
-    Ok((select_option_ids.to_string(), select_option_ids))
+    Ok((
+      select_option_ids.to_cell_data(FieldType::SingleSelect),
+      select_option_ids,
+    ))
   }
 }
 
@@ -167,7 +168,7 @@ mod tests {
   fn single_select_transform_with_multi_select_type_option_test() {
     let google = SelectOption::new("Google");
     let facebook = SelectOption::new("Facebook");
-    let mut multi_select = MultiSelectTypeOption {
+    let multi_select = MultiSelectTypeOption {
       options: vec![google, facebook],
       disable_color: false,
     };

@@ -1266,11 +1266,14 @@ dependencies = [
 name = "flowy-database2"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
+ "async-stream",
  "bytes",
  "chrono",
  "collab",
  "collab-database",
  "collab-persistence",
+ "dashmap",
  "database-model",
  "fancy-regex 0.10.0",
  "flowy-codegen",

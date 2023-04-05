@@ -1,11 +1,11 @@
 use crate::entities::{NumberFilterConditionPB, NumberFilterPB};
-use crate::services::field::NumberCellData;
+use crate::services::field::NumberCellFormat;
 use rust_decimal::prelude::Zero;
 use rust_decimal::Decimal;
 use std::str::FromStr;
 
 impl NumberFilterPB {
-  pub fn is_visible(&self, num_cell_data: &NumberCellData) -> bool {
+  pub fn is_visible(&self, num_cell_data: &NumberCellFormat) -> bool {
     if self.content.is_empty() {
       match self.condition {
         NumberFilterConditionPB::NumberIsEmpty => {
@@ -38,7 +38,7 @@ impl NumberFilterPB {
 #[cfg(test)]
 mod tests {
   use crate::entities::{NumberFilterConditionPB, NumberFilterPB};
-  use crate::services::field::{NumberCellData, NumberFormat};
+  use crate::services::field::{NumberCellFormat, NumberFormat};
   #[test]
   fn number_filter_equal_test() {
     let number_filter = NumberFilterPB {
@@ -47,13 +47,13 @@ mod tests {
     };
 
     for (num_str, visible) in [("123", true), ("1234", false), ("", false)] {
-      let data = NumberCellData::from_format_str(num_str, true, &NumberFormat::Num).unwrap();
+      let data = NumberCellFormat::from_format_str(num_str, true, &NumberFormat::Num).unwrap();
       assert_eq!(number_filter.is_visible(&data), visible);
     }
 
     let format = NumberFormat::USD;
     for (num_str, visible) in [("$123", true), ("1234", false), ("", false)] {
-      let data = NumberCellData::from_format_str(num_str, true, &format).unwrap();
+      let data = NumberCellFormat::from_format_str(num_str, true, &format).unwrap();
       assert_eq!(number_filter.is_visible(&data), visible);
     }
   }
@@ -64,7 +64,7 @@ mod tests {
       content: "12".to_owned(),
     };
     for (num_str, visible) in [("123", true), ("10", false), ("30", true), ("", false)] {
-      let data = NumberCellData::from_format_str(num_str, true, &NumberFormat::Num).unwrap();
+      let data = NumberCellFormat::from_format_str(num_str, true, &NumberFormat::Num).unwrap();
       assert_eq!(number_filter.is_visible(&data), visible);
     }
   }
@@ -76,7 +76,7 @@ mod tests {
       content: "100".to_owned(),
     };
     for (num_str, visible) in [("12", true), ("1234", false), ("30", true), ("", false)] {
-      let data = NumberCellData::from_format_str(num_str, true, &NumberFormat::Num).unwrap();
+      let data = NumberCellFormat::from_format_str(num_str, true, &NumberFormat::Num).unwrap();
       assert_eq!(number_filter.is_visible(&data), visible);
     }
   }

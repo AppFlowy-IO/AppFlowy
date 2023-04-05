@@ -39,7 +39,11 @@ mod tests {
   ) {
     assert_eq!(
       type_option
-        .decode_cell_str(input_str.to_owned(), field_type, field)
+        .decode_cell_str(
+          &CheckboxCellData(input_str.to_string()).into(),
+          field_type,
+          field
+        )
         .unwrap()
         .to_string(),
       expected_str.to_owned()

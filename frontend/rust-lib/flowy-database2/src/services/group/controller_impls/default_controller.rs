@@ -4,6 +4,7 @@ use crate::services::group::action::{
 };
 use crate::services::group::{GroupController, GroupData, MoveGroupRowContext};
 use collab_database::fields::Field;
+use collab_database::rows::Row;
 use database_model::RowRevision;
 use flowy_error::FlowyResult;
 use std::sync::Arc;
@@ -47,9 +48,9 @@ impl GroupControllerActions for DefaultGroupController {
     Some((0, self.group.clone()))
   }
 
-  fn fill_groups(&mut self, row_revs: &[Arc<RowRevision>], field: &Field) -> FlowyResult<()> {
-    row_revs.iter().for_each(|row_rev| {
-      self.group.add_row(RowPB::from(row_rev));
+  fn fill_groups(&mut self, rows: &[&Row], field: &Field) -> FlowyResult<()> {
+    rows.iter().for_each(|row| {
+      self.group.add_row(RowPB::from(*row));
     });
     Ok(())
   }
@@ -60,8 +61,8 @@ impl GroupControllerActions for DefaultGroupController {
 
   fn did_update_group_row(
     &mut self,
-    old_row_rev: &Option<Arc<RowRevision>>,
-    row_rev: &RowRevision,
+    old_row: &Option<Arc<Row>>,
+    row: &Row,
     field: &Field,
   ) -> FlowyResult<DidUpdateGroupRowResult> {
     Ok(DidUpdateGroupRowResult {
@@ -73,7 +74,7 @@ impl GroupControllerActions for DefaultGroupController {
 
   fn did_delete_delete_row(
     &mut self,
-    row_rev: &RowRevision,
+    row: &Row,
     field: &Field,
   ) -> FlowyResult<DidMoveGroupRowResult> {
     Ok(DidMoveGroupRowResult {
@@ -92,13 +93,13 @@ impl GroupControllerActions for DefaultGroupController {
     })
   }
 
-  fn did_update_group_field(&mut self, field: &Field) -> FlowyResult<Option<GroupChangesetPB>> {
+  fn did_update_group_field(&mut self, _field: &Field) -> FlowyResult<Option<GroupChangesetPB>> {
     Ok(None)
   }
 }
 
 impl GroupController for DefaultGroupController {
-  fn will_create_row(&mut self, row_rev: &mut RowRevision, field: &Field, group_id: &str) {}
+  fn will_create_row(&mut self, row: &mut Row, field: &Field, group_id: &str) {}
 
   fn did_create_row(&mut self, _row_rev: &RowPB, _group_id: &str) {}
 }

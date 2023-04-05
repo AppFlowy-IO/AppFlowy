@@ -35,7 +35,7 @@ impl SelectOptionTypeOptionTransformHelper {
         }
       },
       FieldType::MultiSelect => {
-        let options = MultiSelectTypeOption::from(old_type_option_data.clone()).options;
+        let options = MultiSelectTypeOption::from(old_type_option_data).options;
         options.iter().for_each(|new_option| {
           if !shared
             .options()
@@ -47,7 +47,7 @@ impl SelectOptionTypeOptionTransformHelper {
         })
       },
       FieldType::SingleSelect => {
-        let options = SingleSelectTypeOption::from(old_type_option_data.clone()).options;
+        let options = SingleSelectTypeOption::from(old_type_option_data).options;
         options.iter().for_each(|new_option| {
           if !shared
             .options()

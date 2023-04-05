@@ -33,6 +33,9 @@ indexmap = {version = "1.9.2", features = ["serde"]}
 url = { version = "2"}
 fancy-regex = "0.10.0"
 futures = "0.3.26"
+dashmap = "5"
+anyhow = "1.0"
+async-stream = "0.3.4"
 
 strum = "0.21"
 strum_macros = "0.21"

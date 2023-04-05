@@ -10,7 +10,9 @@ use crate::services::field::{
 use bytes::Bytes;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 
+use crate::services::field::type_options::util::ProtobufStr;
 use collab::core::lib0_any_ext::Lib0AnyMapExtension;
+use collab_database::rows::{new_cell_builder, Cell, CellBuilder};
 use flowy_error::{FlowyError, FlowyResult};
 use protobuf::ProtobufError;
 use serde::{Deserialize, Serialize};
@@ -27,7 +29,7 @@ pub struct RichTextTypeOption {
 impl TypeOption for RichTextTypeOption {
   type CellData = StrCellData;
   type CellChangeset = String;
-  type CellProtobufType = StrCellData;
+  type CellProtobufType = ProtobufStr;
   type CellFilter = TextFilterPB;
 }
 
@@ -58,26 +60,26 @@ impl TypeOptionTransform for RichTextTypeOption {
   ) {
   }
 
-  fn transform_type_option_cell_str(
+  fn transform_type_option_cell(
     &self,
-    cell_str: &str,
-    decoded_field_type: &FieldType,
-    field_rev: &Field,
+    cell: &Cell,
+    _decoded_field_type: &FieldType,
+    _field: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {
-    if decoded_field_type.is_date()
-      || decoded_field_type.is_single_select()
-      || decoded_field_type.is_multi_select()
-      || decoded_field_type.is_number()
-      || decoded_field_type.is_url()
+    if _decoded_field_type.is_date()
+      || _decoded_field_type.is_single_select()
+      || _decoded_field_type.is_multi_select()
+      || _decoded_field_type.is_number()
+      || _decoded_field_type.is_url()
     {
       Some(StrCellData::from(stringify_cell_data(
-        cell_str.to_owned(),
-        decoded_field_type,
-        decoded_field_type,
-        field_rev,
+        cell,
+        _decoded_field_type,
+        _decoded_field_type,
+        _field,
       )))
     } else {
-      StrCellData::from_cell_str(cell_str).ok()
+      Some(StrCellData::from(cell))
     }
   }
 }
@@ -87,29 +89,30 @@ impl TypeOptionCellData for RichTextTypeOption {
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
-    cell_data
+    ProtobufStr::from(cell_data.0)
   }
 
-  fn decode_type_option_cell_str(
-    &self,
-    cell_str: String,
-  ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    StrCellData::from_cell_str(&cell_str)
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
+    Ok(StrCellData::from(cell))
   }
 }
 
 impl CellDataDecoder for RichTextTypeOption {
   fn decode_cell_str(
     &self,
-    cell_str: String,
-    _decoded_field_type: &FieldType,
-    _field_rev: &collab_database::fields::Field,
+    cell: &Cell,
+    decoded_field_type: &FieldType,
+    field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    StrCellData::from_cell_str(&cell_str)
+    Ok(StrCellData::from(cell))
   }
 
   fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     cell_data.to_string()
+  }
+
+  fn decode_cell_to_str(&self, cell: &Cell) -> String {
+    Self::CellData::from(cell).to_string()
   }
 }
 
@@ -117,13 +120,13 @@ impl CellDataChangeset for RichTextTypeOption {
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
-    _type_cell_data: Option<TypeCellData>,
-  ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
+    cell: Option<Cell>,
+  ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     if changeset.len() > 10000 {
       Err(FlowyError::text_too_long().context("The len of the text should not be more than 10000"))
     } else {
       let text_cell_data = StrCellData(changeset);
-      Ok((text_cell_data.to_string(), text_cell_data))
+      Ok((text_cell_data.clone().into(), text_cell_data))
     }
   }
 }
@@ -213,6 +216,20 @@ impl std::ops::Deref for StrCellData {
   }
 }
 
+impl From<&Cell> for StrCellData {
+  fn from(cell: &Cell) -> Self {
+    Self(cell.get_str_value("data").unwrap_or_default())
+  }
+}
+
+impl From<StrCellData> for Cell {
+  fn from(data: StrCellData) -> Self {
+    new_cell_builder(FieldType::RichText)
+      .insert("data", data.0)
+      .build()
+  }
+}
+
 impl std::ops::DerefMut for StrCellData {
   fn deref_mut(&mut self) -> &mut Self::Target {
     &mut self.0
@@ -249,19 +266,6 @@ impl std::convert::From<&str> for StrCellData {
   }
 }
 
-impl std::convert::TryFrom<StrCellData> for Bytes {
-  type Error = ProtobufError;
-
-  fn try_from(value: StrCellData) -> Result<Self, Self::Error> {
-    Ok(Bytes::from(value.0))
-  }
-}
-
-impl AsRef<[u8]> for StrCellData {
-  fn as_ref(&self) -> &[u8] {
-    self.0.as_ref()
-  }
-}
 impl AsRef<str> for StrCellData {
   fn as_ref(&self) -> &str {
     self.0.as_str()

@@ -8,6 +8,7 @@ use crate::services::field::{
 
 use collab::core::lib0_any_ext::Lib0AnyMapExtension;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
+use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -52,11 +53,8 @@ impl TypeOptionCellData for ChecklistTypeOption {
     self.get_selected_options(cell_data).into()
   }
 
-  fn decode_type_option_cell_str(
-    &self,
-    cell_str: String,
-  ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    SelectOptionIds::from_cell_str(&cell_str)
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
+    Ok(SelectOptionIds::from(cell))
   }
 }
 
@@ -78,8 +76,8 @@ impl CellDataChangeset for ChecklistTypeOption {
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
-    type_cell_data: Option<TypeCellData>,
-  ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
+    cell: Option<Cell>,
+  ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     let insert_option_ids = changeset
       .insert_option_ids
       .into_iter()
@@ -91,10 +89,10 @@ impl CellDataChangeset for ChecklistTypeOption {
       })
       .collect::<Vec<String>>();
 
-    let select_option_ids = match type_cell_data {
+    let select_option_ids = match cell {
       None => SelectOptionIds::from(insert_option_ids),
-      Some(type_cell_data) => {
-        let mut select_ids: SelectOptionIds = type_cell_data.cell_str.into();
+      Some(cell) => {
+        let mut select_ids = SelectOptionIds::from(&cell);
         for insert_option_id in insert_option_ids {
           if !select_ids.contains(&insert_option_id) {
             select_ids.push(insert_option_id);
@@ -108,7 +106,10 @@ impl CellDataChangeset for ChecklistTypeOption {
         select_ids
       },
     };
-    Ok((select_option_ids.to_string(), select_option_ids))
+    Ok((
+      select_option_ids.to_cell_data(FieldType::Checklist),
+      select_option_ids,
+    ))
   }
 }
 impl TypeOptionCellDataFilter for ChecklistTypeOption {

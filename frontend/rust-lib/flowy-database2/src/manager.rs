@@ -38,9 +38,9 @@ impl DatabaseManager2 {
 
   pub async fn initialize(
     &self,
-    user_id: i64,
+    _user_id: i64,
     _token: &str,
-    get_views_fn: Fut<Vec<(String, String, DatabaseLayoutPB)>>,
+    _get_views_fn: Fut<Vec<(String, String, DatabaseLayoutPB)>>,
   ) -> FlowyResult<()> {
     Ok(())
   }
