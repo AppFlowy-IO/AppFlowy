@@ -5,8 +5,8 @@ use crate::services::field::{
   TypeOptionCellDataFilter, TypeOptionTransform,
 };
 
-use collab_database::fields::TypeOptionData;
-use database_model::FieldRevision;
+use collab::core::lib0_any_ext::Lib0AnyMapExtension;
+use collab_database::fields::{Field, TypeOptionData};
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -40,7 +40,7 @@ impl TypeOptionTransform for CheckboxTypeOption {
     &self,
     cell_str: &str,
     decoded_field_type: &FieldType,
-    _field_rev: &FieldRevision,
+    _field: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {
     if decoded_field_type.is_text() {
       match CheckboxCellData::from_str(cell_str) {
@@ -54,15 +54,14 @@ impl TypeOptionTransform for CheckboxTypeOption {
 }
 
 impl From<TypeOptionData> for CheckboxTypeOption {
-  fn from(_: TypeOptionData) -> Self {
-    todo!()
+  fn from(data: TypeOptionData) -> Self {
+    let is_selected = data.get_bool_value("is_selected").unwrap_or(false);
+    CheckboxTypeOption { is_selected }
   }
 }
 
 impl From<CheckboxTypeOption> for TypeOptionData {
-  fn from(_: CheckboxTypeOption) -> Self {
-    todo!()
-  }
+  fn from(data: CheckboxTypeOption) -> Self {}
 }
 
 impl TypeOptionCellData for CheckboxTypeOption {
@@ -86,7 +85,7 @@ impl CellDataDecoder for CheckboxTypeOption {
     &self,
     cell_str: String,
     decoded_field_type: &FieldType,
-    _field_rev: &FieldRevision,
+    _field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
     if !decoded_field_type.is_checkbox() {
       return Ok(Default::default());

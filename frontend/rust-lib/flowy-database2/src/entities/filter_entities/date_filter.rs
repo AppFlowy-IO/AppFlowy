@@ -1,5 +1,6 @@
 use crate::services::filter::FromFilterString;
-use database_model::FilterRevision;
+use collab_database::views::Filter;
+
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use serde::{Deserialize, Serialize};
@@ -82,41 +83,41 @@ impl std::convert::TryFrom<u8> for DateFilterConditionPB {
   }
 }
 impl FromFilterString for DateFilterPB {
-  fn from_filter_rev(filter_rev: &FilterRevision) -> Self
+  fn from_filter_rev(filter: &Filter) -> Self
   where
     Self: Sized,
   {
-    let condition = DateFilterConditionPB::try_from(filter_rev.condition)
+    let condition = DateFilterConditionPB::try_from(filter.condition as u8)
       .unwrap_or(DateFilterConditionPB::DateIs);
-    let mut filter = DateFilterPB {
+    let mut date_filter = DateFilterPB {
       condition,
       ..Default::default()
     };
 
-    if let Ok(content) = DateFilterContentPB::from_str(&filter_rev.content) {
-      filter.start = content.start;
-      filter.end = content.end;
-      filter.timestamp = content.timestamp;
+    if let Ok(content) = DateFilterContentPB::from_str(&filter.content) {
+      date_filter.start = content.start;
+      date_filter.end = content.end;
+      date_filter.timestamp = content.timestamp;
     };
 
-    filter
+    date_filter
   }
 }
-impl std::convert::From<&FilterRevision> for DateFilterPB {
-  fn from(rev: &FilterRevision) -> Self {
-    let condition =
-      DateFilterConditionPB::try_from(rev.condition).unwrap_or(DateFilterConditionPB::DateIs);
-    let mut filter = DateFilterPB {
+impl std::convert::From<&Filter> for DateFilterPB {
+  fn from(filter: &Filter) -> Self {
+    let condition = DateFilterConditionPB::try_from(filter.condition as u8)
+      .unwrap_or(DateFilterConditionPB::DateIs);
+    let mut date_filter = DateFilterPB {
       condition,
       ..Default::default()
     };
 
-    if let Ok(content) = DateFilterContentPB::from_str(&rev.content) {
-      filter.start = content.start;
-      filter.end = content.end;
-      filter.timestamp = content.timestamp;
+    if let Ok(content) = DateFilterContentPB::from_str(&filter.content) {
+      date_filter.start = content.start;
+      date_filter.end = content.end;
+      date_filter.timestamp = content.timestamp;
     };
 
-    filter
+    date_filter
   }
 }

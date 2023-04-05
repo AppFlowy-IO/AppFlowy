@@ -76,20 +76,6 @@ pub struct FilterType {
   pub field_type: FieldType,
 }
 
-impl From<FilterType> for FieldTypeRevision {
-  fn from(filter_type: FilterType) -> Self {
-    filter_type.field_type.into()
-  }
-}
-impl std::convert::From<&Arc<FieldRevision>> for FilterType {
-  fn from(rev: &Arc<FieldRevision>) -> Self {
-    Self {
-      field_id: rev.id.clone(),
-      field_type: rev.ty.into(),
-    }
-  }
-}
-
 impl std::convert::From<&AlterFilterParams> for FilterType {
   fn from(params: &AlterFilterParams) -> Self {
     let field_type: FieldType = params.field_type.into();

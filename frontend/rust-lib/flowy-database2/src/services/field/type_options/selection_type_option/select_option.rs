@@ -58,11 +58,15 @@ pub struct SelectOptionCellData {
 impl From<SelectOptionCellData> for SelectOptionCellDataPB {
   fn from(data: SelectOptionCellData) -> Self {
     SelectOptionCellDataPB {
-      options: data.options.into_iter().map(|option| option.into).collect(),
+      options: data
+        .options
+        .into_iter()
+        .map(|option| option.into())
+        .collect(),
       select_options: data
         .select_options
         .into_iter()
-        .map(|option| option.into)
+        .map(|option| option.into())
         .collect(),
     }
   }

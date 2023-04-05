@@ -6,7 +6,8 @@ use crate::entities::{
 use crate::services::field::SelectOptionIds;
 use crate::services::filter::FilterType;
 use bytes::Bytes;
-use database_model::{FieldRevision, FieldTypeRevision, FilterRevision};
+use collab_database::views::Filter;
+use database_model::FieldRevision;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use std::convert::TryInto;
@@ -27,23 +28,23 @@ pub struct FilterPB {
   pub data: Vec<u8>,
 }
 
-impl std::convert::From<&FilterRevision> for FilterPB {
-  fn from(rev: &FilterRevision) -> Self {
-    let field_type: FieldType = rev.field_type.into();
+impl std::convert::From<&Filter> for FilterPB {
+  fn from(filter: &Filter) -> Self {
+    let field_type = FieldType::from(filter.field_type);
     let bytes: Bytes = match field_type {
-      FieldType::RichText => TextFilterPB::from(rev).try_into().unwrap(),
-      FieldType::Number => NumberFilterPB::from(rev).try_into().unwrap(),
-      FieldType::DateTime => DateFilterPB::from(rev).try_into().unwrap(),
-      FieldType::SingleSelect => SelectOptionFilterPB::from(rev).try_into().unwrap(),
-      FieldType::MultiSelect => SelectOptionFilterPB::from(rev).try_into().unwrap(),
-      FieldType::Checklist => ChecklistFilterPB::from(rev).try_into().unwrap(),
-      FieldType::Checkbox => CheckboxFilterPB::from(rev).try_into().unwrap(),
-      FieldType::URL => TextFilterPB::from(rev).try_into().unwrap(),
+      FieldType::RichText => TextFilterPB::from(filter).try_into().unwrap(),
+      FieldType::Number => NumberFilterPB::from(filter).try_into().unwrap(),
+      FieldType::DateTime => DateFilterPB::from(filter).try_into().unwrap(),
+      FieldType::SingleSelect => SelectOptionFilterPB::from(filter).try_into().unwrap(),
+      FieldType::MultiSelect => SelectOptionFilterPB::from(filter).try_into().unwrap(),
+      FieldType::Checklist => ChecklistFilterPB::from(filter).try_into().unwrap(),
+      FieldType::Checkbox => CheckboxFilterPB::from(filter).try_into().unwrap(),
+      FieldType::URL => TextFilterPB::from(filter).try_into().unwrap(),
     };
     Self {
-      id: rev.id.clone(),
-      field_id: rev.field_id.clone(),
-      field_type: rev.field_type.into(),
+      id: filter.id.clone(),
+      field_id: filter.field_id.clone(),
+      field_type: FieldType::from(filter.field_type),
       data: bytes.to_vec(),
     }
   }
@@ -55,10 +56,10 @@ pub struct RepeatedFilterPB {
   pub items: Vec<FilterPB>,
 }
 
-impl std::convert::From<Vec<Arc<FilterRevision>>> for RepeatedFilterPB {
-  fn from(revs: Vec<Arc<FilterRevision>>) -> Self {
+impl std::convert::From<Vec<Arc<Filter>>> for RepeatedFilterPB {
+  fn from(filters: Vec<Arc<Filter>>) -> Self {
     RepeatedFilterPB {
-      items: revs.into_iter().map(|rev| rev.as_ref().into()).collect(),
+      items: filters.into_iter().map(|rev| rev.as_ref().into()).collect(),
     }
   }
 }
@@ -228,7 +229,7 @@ pub struct AlterFilterParams {
   pub field_id: String,
   /// Create a new filter if the filter_id is None
   pub filter_id: Option<String>,
-  pub field_type: FieldTypeRevision,
+  pub field_type: FieldType,
   pub condition: u8,
   pub content: String,
 }

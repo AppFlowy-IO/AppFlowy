@@ -5,8 +5,6 @@ use crate::services::field::{
 };
 use collab_database::fields::TypeOptionData;
 
-use database_model::TypeOptionDataDeserializer;
-
 /// Handles how to transform the cell data when switching between different field types
 pub(crate) struct SelectOptionTypeOptionTransformHelper();
 impl SelectOptionTypeOptionTransformHelper {
@@ -37,7 +35,7 @@ impl SelectOptionTypeOptionTransformHelper {
         }
       },
       FieldType::MultiSelect => {
-        let options = MultiSelectTypeOption::from_json_str(&old_type_option_data).options;
+        let options = MultiSelectTypeOption::from(old_type_option_data.clone()).options;
         options.iter().for_each(|new_option| {
           if !shared
             .options()
@@ -49,7 +47,7 @@ impl SelectOptionTypeOptionTransformHelper {
         })
       },
       FieldType::SingleSelect => {
-        let options = SingleSelectTypeOption::from_json_str(&old_type_option_data).options;
+        let options = SingleSelectTypeOption::from(old_type_option_data.clone()).options;
         options.iter().for_each(|new_option| {
           if !shared
             .options()

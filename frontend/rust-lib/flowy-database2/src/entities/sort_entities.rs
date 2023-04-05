@@ -3,7 +3,7 @@ use crate::entities::FieldType;
 use crate::services::sort::SortType;
 use std::sync::Arc;
 
-use database_model::{FieldTypeRevision, SortCondition, SortRevision};
+use database_model::{SortCondition, SortRevision};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
@@ -130,7 +130,7 @@ pub struct AlterSortParams {
   pub field_id: String,
   /// Create a new sort if the sort is None
   pub sort_id: Option<String>,
-  pub field_type: FieldTypeRevision,
+  pub field_type: FieldType,
   pub condition: u8,
 }
 

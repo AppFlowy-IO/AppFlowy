@@ -11,8 +11,8 @@ use crate::services::field::{
   TypeOption, TypeOptionCellData, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
 };
 use bytes::Bytes;
-use collab_database::fields::TypeOptionData;
-use database_model::{FieldRevision, TypeOptionDataSerializer};
+use collab_database::fields::{Field, TypeOptionData};
+
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 use serde::{Deserialize, Serialize};
 
@@ -72,10 +72,7 @@ pub trait SelectTypeOptionSharedAction: Send + Sync {
 
 impl<T> TypeOptionTransform for T
 where
-  T: SelectTypeOptionSharedAction
-    + TypeOption<CellData = SelectOptionIds>
-    + TypeOptionDataSerializer
-    + CellDataDecoder,
+  T: SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + CellDataDecoder,
 {
   fn transformable(&self) -> bool {
     true
@@ -97,7 +94,7 @@ where
     &self,
     cell_str: &str,
     decoded_field_type: &FieldType,
-    _field_rev: &FieldRevision,
+    _field: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {
     match decoded_field_type {
       FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => None,
@@ -127,7 +124,7 @@ where
     &self,
     cell_str: String,
     _decoded_field_type: &FieldType,
-    _field_rev: &FieldRevision,
+    _field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
     self.decode_type_option_cell_str(cell_str)
   }
@@ -144,20 +141,26 @@ where
 }
 
 pub fn select_type_option_from_field_rev(
-  field_rev: &FieldRevision,
+  field_rev: &Field,
 ) -> FlowyResult<Box<dyn SelectTypeOptionSharedAction>> {
-  let field_type: FieldType = field_rev.ty.into();
+  let field_type = FieldType::from(field_rev.field_type);
   match &field_type {
     FieldType::SingleSelect => {
-      let type_option = SingleSelectTypeOption::from(field_rev);
+      let type_option = field_rev
+        .get_type_option::<SingleSelectTypeOption>(&field_type.type_id())
+        .unwrap_or_default();
       Ok(Box::new(type_option))
     },
     FieldType::MultiSelect => {
-      let type_option = MultiSelectTypeOption::from(field_rev);
+      let type_option = field_rev
+        .get_type_option::<MultiSelectTypeOption>(&field_type.type_id())
+        .unwrap_or_default();
       Ok(Box::new(type_option))
     },
     FieldType::Checklist => {
-      let type_option = ChecklistTypeOption::from(field_rev);
+      let type_option = field_rev
+        .get_type_option::<ChecklistTypeOption>(&field_type.type_id())
+        .unwrap_or_default();
       Ok(Box::new(type_option))
     },
     ty => {

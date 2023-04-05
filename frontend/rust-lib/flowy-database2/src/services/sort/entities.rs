@@ -8,12 +8,6 @@ pub struct SortType {
   pub field_type: FieldType,
 }
 
-impl From<SortType> for FieldTypeRevision {
-  fn from(sort_type: SortType) -> Self {
-    sort_type.field_type.into()
-  }
-}
-
 impl std::convert::From<&AlterSortParams> for SortType {
   fn from(params: &AlterSortParams) -> Self {
     Self {

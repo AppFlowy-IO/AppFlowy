@@ -5,8 +5,7 @@ use crate::services::cell::{
 
 use crate::services::filter::FromFilterString;
 use bytes::Bytes;
-use collab_database::fields::TypeOptionData;
-use database_model::FieldRevision;
+use collab_database::fields::{Field, TypeOptionData};
 use flowy_error::FlowyResult;
 use protobuf::ProtobufError;
 use std::cmp::Ordering;
@@ -101,7 +100,7 @@ pub trait TypeOptionTransform: TypeOption {
     &self,
     _cell_str: &str,
     _decoded_field_type: &FieldType,
-    _field_rev: &FieldRevision,
+    _field: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {
     None
   }

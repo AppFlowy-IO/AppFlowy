@@ -1,6 +1,7 @@
 use crate::services::field::SelectOptionIds;
 use crate::services::filter::FromFilterString;
-use database_model::FilterRevision;
+use collab_database::views::Filter;
+
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
@@ -48,24 +49,24 @@ impl std::convert::TryFrom<u8> for SelectOptionConditionPB {
   }
 }
 impl FromFilterString for SelectOptionFilterPB {
-  fn from_filter_rev(filter_rev: &FilterRevision) -> Self
+  fn from_filter_rev(filter: &Filter) -> Self
   where
     Self: Sized,
   {
-    let ids = SelectOptionIds::from(filter_rev.content.clone());
+    let ids = SelectOptionIds::from(filter.content.clone());
     SelectOptionFilterPB {
-      condition: SelectOptionConditionPB::try_from(filter_rev.condition)
+      condition: SelectOptionConditionPB::try_from(filter.condition as u8)
         .unwrap_or(SelectOptionConditionPB::OptionIs),
       option_ids: ids.into_inner(),
     }
   }
 }
 
-impl std::convert::From<&FilterRevision> for SelectOptionFilterPB {
-  fn from(rev: &FilterRevision) -> Self {
-    let ids = SelectOptionIds::from(rev.content.clone());
+impl std::convert::From<&Filter> for SelectOptionFilterPB {
+  fn from(filter: &Filter) -> Self {
+    let ids = SelectOptionIds::from(filter.content.clone());
     SelectOptionFilterPB {
-      condition: SelectOptionConditionPB::try_from(rev.condition)
+      condition: SelectOptionConditionPB::try_from(filter.condition as u8)
         .unwrap_or(SelectOptionConditionPB::OptionIs),
       option_ids: ids.into_inner(),
     }

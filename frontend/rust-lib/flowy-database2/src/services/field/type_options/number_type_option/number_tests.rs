@@ -3,9 +3,10 @@ mod tests {
   use crate::entities::FieldType;
   use crate::services::cell::CellDataDecoder;
   use crate::services::field::FieldBuilder;
+  use collab_database::fields::Field;
 
   use crate::services::field::{strip_currency_symbol, NumberFormat, NumberTypeOption};
-  use database_model::FieldRevision;
+
   use strum::IntoEnumIterator;
 
   /// Testing when the input is not a number.
@@ -655,7 +656,7 @@ mod tests {
     input_str: &str,
     expected_str: &str,
     field_type: &FieldType,
-    field_rev: &FieldRevision,
+    field_rev: &Field,
   ) {
     assert_eq!(
       type_option

@@ -5,8 +5,8 @@ use crate::services::field::{
   TypeOptionTransform, URLCellData,
 };
 
-use collab_database::fields::TypeOptionData;
-use database_model::FieldRevision;
+use collab_database::fields::{Field, TypeOptionData};
+
 use fancy_regex::Regex;
 
 use flowy_error::FlowyResult;
@@ -62,7 +62,7 @@ impl CellDataDecoder for URLTypeOption {
     &self,
     cell_str: String,
     decoded_field_type: &FieldType,
-    _field_rev: &FieldRevision,
+    _field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
     if !decoded_field_type.is_url() {
       return Ok(Default::default());

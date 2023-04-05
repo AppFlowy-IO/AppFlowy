@@ -1,6 +1,6 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{FieldType, RowPB};
-use database_model::{FieldTypeRevision, GroupConfigurationRevision};
+use database_model::GroupConfigurationRevision;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use std::convert::TryInto;
@@ -110,7 +110,7 @@ impl TryInto<InsertGroupParams> for InsertGroupPayloadPB {
 
     Ok(InsertGroupParams {
       field_id,
-      field_type_rev: self.field_type.into(),
+      field_type: self.field_type,
       view_id,
     })
   }
@@ -119,7 +119,7 @@ impl TryInto<InsertGroupParams> for InsertGroupPayloadPB {
 pub struct InsertGroupParams {
   pub view_id: String,
   pub field_id: String,
-  pub field_type_rev: FieldTypeRevision,
+  pub field_type: FieldType,
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]
@@ -153,7 +153,7 @@ impl TryInto<DeleteGroupParams> for DeleteGroupPayloadPB {
 
     Ok(DeleteGroupParams {
       field_id,
-      field_type_rev: self.field_type.into(),
+      field_type: self.field_type.into(),
       group_id,
       view_id,
     })
@@ -164,5 +164,5 @@ pub struct DeleteGroupParams {
   pub view_id: String,
   pub field_id: String,
   pub group_id: String,
-  pub field_type_rev: FieldTypeRevision,
+  pub field_type: FieldType,
 }

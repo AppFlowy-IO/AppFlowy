@@ -3,10 +3,9 @@ use crate::services::cell::{AtomicCellDataCache, CellProtobufBlob, TypeCellData}
 use crate::services::field::*;
 
 use crate::services::group::make_no_status_group;
-use database_model::{CellRevision, FieldRevision};
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-
 use collab_database::fields::Field;
+use database_model::CellRevision;
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use std::fmt::Debug;
 
 /// Decode the opaque cell data into readable format content
@@ -27,7 +26,7 @@ pub trait CellDataDecoder: TypeOption {
     &self,
     cell_str: String,
     decoded_field_type: &FieldType,
-    field_rev: &Field,
+    field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData>;
 
   /// Same as `decode_cell_data` does but Decode the cell data to readable `String`
@@ -54,26 +53,25 @@ pub trait CellDataChangeset: TypeOption {
 ///         FieldType::SingleSelect => SelectOptionChangeset
 ///
 /// cell_rev: It will be None if the cell does not contain any data.
-pub fn apply_cell_data_changeset<C: ToCellChangesetString, T: AsRef<Field>>(
+pub fn apply_cell_data_changeset<C: ToCellChangesetString>(
   changeset: C,
   cell_rev: Option<CellRevision>,
-  field_rev: T,
+  field: &Field,
   cell_data_cache: Option<AtomicCellDataCache>,
 ) -> Result<String, FlowyError> {
-  let field_rev = field_rev.as_ref();
   let changeset = changeset.to_cell_changeset_str();
-  let field_type: FieldType = field_rev.ty.into();
+  let field_type: FieldType = field.field_type.into();
 
   let type_cell_data = cell_rev.and_then(|cell_rev| match TypeCellData::try_from(cell_rev) {
     Ok(type_cell_data) => Some(type_cell_data),
     Err(_) => None,
   });
 
-  let cell_str = match TypeOptionCellExt::new_with_cell_data_cache(field_rev, cell_data_cache)
+  let cell_str = match TypeOptionCellExt::new_with_cell_data_cache(field, cell_data_cache)
     .get_type_option_cell_data_handler(&field_type)
   {
     None => "".to_string(),
-    Some(handler) => handler.handle_cell_changeset(changeset, type_cell_data, field_rev)?,
+    Some(handler) => handler.handle_cell_changeset(changeset, type_cell_data, field)?,
   };
   Ok(TypeCellData::new(cell_str, field_type).to_json())
 }
@@ -83,7 +81,7 @@ pub fn get_type_cell_protobuf<T: TryInto<TypeCellData, Error = FlowyError> + Deb
   field_rev: &Field,
   cell_data_cache: Option<AtomicCellDataCache>,
 ) -> (FieldType, CellProtobufBlob) {
-  let to_field_type = field_rev.ty.into();
+  let to_field_type = FieldType::from(field_rev.field_type);
   match data.try_into() {
     Ok(type_cell_data) => {
       let TypeCellData {
@@ -122,7 +120,7 @@ where
   CellData: TryInto<TypeCellData, Error = FlowyError> + Debug,
   Output: Default + 'static,
 {
-  let to_field_type = field_rev.ty.into();
+  let to_field_type = FieldType::from(field_rev.field_type);
   match data.try_into() {
     Ok(type_cell_data) => {
       let TypeCellData {
@@ -214,42 +212,42 @@ pub fn stringify_cell_data(
   }
 }
 
-pub fn insert_text_cell(s: String, field_rev: &Field) -> CellRevision {
-  let data = apply_cell_data_changeset(s, None, field_rev, None).unwrap();
+pub fn insert_text_cell(s: String, field: &Field) -> CellRevision {
+  let data = apply_cell_data_changeset(s, None, field, None).unwrap();
   CellRevision::new(data)
 }
 
-pub fn insert_number_cell(num: i64, field_rev: &Field) -> CellRevision {
-  let data = apply_cell_data_changeset(num.to_string(), None, field_rev, None).unwrap();
+pub fn insert_number_cell(num: i64, field: &Field) -> CellRevision {
+  let data = apply_cell_data_changeset(num.to_string(), None, field, None).unwrap();
   CellRevision::new(data)
 }
 
-pub fn insert_url_cell(url: String, field_rev: &Field) -> CellRevision {
+pub fn insert_url_cell(url: String, field: &Field) -> CellRevision {
   // checking if url is equal to group id of no status group because everywhere
   // except group of rows with empty url the group id is equal to the url
   // so then on the case that url is equal to empty url group id we should change
   // the url to empty string
-  let _no_status_group_id = make_no_status_group(field_rev).id;
+  let _no_status_group_id = make_no_status_group(field).id;
   let url = match url {
     a if a == _no_status_group_id => "".to_owned(),
     _ => url,
   };
 
-  let data = apply_cell_data_changeset(url, None, field_rev, None).unwrap();
+  let data = apply_cell_data_changeset(url, None, field, None).unwrap();
   CellRevision::new(data)
 }
 
-pub fn insert_checkbox_cell(is_check: bool, field_rev: &Field) -> CellRevision {
+pub fn insert_checkbox_cell(is_check: bool, field: &Field) -> CellRevision {
   let s = if is_check {
     CHECK.to_string()
   } else {
     UNCHECK.to_string()
   };
-  let data = apply_cell_data_changeset(s, None, field_rev, None).unwrap();
+  let data = apply_cell_data_changeset(s, None, field, None).unwrap();
   CellRevision::new(data)
 }
 
-pub fn insert_date_cell(timestamp: i64, field_rev: &Field) -> CellRevision {
+pub fn insert_date_cell(timestamp: i64, field: &Field) -> CellRevision {
   let cell_data = serde_json::to_string(&DateCellChangeset {
     date: Some(timestamp.to_string()),
     time: None,
@@ -257,21 +255,21 @@ pub fn insert_date_cell(timestamp: i64, field_rev: &Field) -> CellRevision {
     is_utc: true,
   })
   .unwrap();
-  let data = apply_cell_data_changeset(cell_data, None, field_rev, None).unwrap();
+  let data = apply_cell_data_changeset(cell_data, None, field, None).unwrap();
   CellRevision::new(data)
 }
 
-pub fn insert_select_option_cell(option_ids: Vec<String>, field_rev: &Field) -> CellRevision {
+pub fn insert_select_option_cell(option_ids: Vec<String>, field: &Field) -> CellRevision {
   let changeset =
     SelectOptionCellChangeset::from_insert_options(option_ids).to_cell_changeset_str();
-  let data = apply_cell_data_changeset(changeset, None, field_rev, None).unwrap();
+  let data = apply_cell_data_changeset(changeset, None, field, None).unwrap();
   CellRevision::new(data)
 }
 
-pub fn delete_select_option_cell(option_ids: Vec<String>, field_rev: &Field) -> CellRevision {
+pub fn delete_select_option_cell(option_ids: Vec<String>, field: &Field) -> CellRevision {
   let changeset =
     SelectOptionCellChangeset::from_delete_options(option_ids).to_cell_changeset_str();
-  let data = apply_cell_data_changeset(changeset, None, field_rev, None).unwrap();
+  let data = apply_cell_data_changeset(changeset, None, field, None).unwrap();
   CellRevision::new(data)
 }
 

@@ -1,5 +1,5 @@
 use crate::services::filter::FromFilterString;
-use database_model::FilterRevision;
+use collab_database::views::Filter;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
@@ -56,24 +56,24 @@ impl std::convert::TryFrom<u8> for TextFilterConditionPB {
 }
 
 impl FromFilterString for TextFilterPB {
-  fn from_filter_rev(filter_rev: &FilterRevision) -> Self
+  fn from_filter_rev(filter: &Filter) -> Self
   where
     Self: Sized,
   {
     TextFilterPB {
-      condition: TextFilterConditionPB::try_from(filter_rev.condition)
+      condition: TextFilterConditionPB::try_from(filter.condition as u8)
         .unwrap_or(TextFilterConditionPB::Is),
-      content: filter_rev.content.clone(),
+      content: filter.content.clone(),
     }
   }
 }
 
-impl std::convert::From<&FilterRevision> for TextFilterPB {
-  fn from(rev: &FilterRevision) -> Self {
+impl std::convert::From<&Filter> for TextFilterPB {
+  fn from(filter: &Filter) -> Self {
     TextFilterPB {
-      condition: TextFilterConditionPB::try_from(rev.condition)
+      condition: TextFilterConditionPB::try_from(filter.condition as u8)
         .unwrap_or(TextFilterConditionPB::Is),
-      content: rev.content.clone(),
+      content: filter.content.clone(),
     }
   }
 }

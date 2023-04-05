@@ -5,8 +5,8 @@ use crate::services::field::{
   NumberCellData, StrCellData, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
   TypeOptionCellDataFilter, TypeOptionTransform,
 };
-use collab_database::fields::TypeOptionData;
-use database_model::FieldRevision;
+use collab_database::fields::{Field, TypeOptionData};
+
 use fancy_regex::Regex;
 use flowy_error::FlowyResult;
 use lazy_static::lazy_static;
@@ -57,7 +57,7 @@ impl TypeOptionCellData for NumberTypeOption {
     &self,
     cell_str: String,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(cell_str.into())
+    Ok(StrCellData::from(cell_str))
   }
 }
 
@@ -120,15 +120,15 @@ impl CellDataDecoder for NumberTypeOption {
     &self,
     cell_str: String,
     decoded_field_type: &FieldType,
-    _field_rev: &FieldRevision,
+    _field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
     if decoded_field_type.is_date() {
       return Ok(Default::default());
     }
 
     let str_cell_data = self.decode_type_option_cell_str(cell_str)?;
-    let s: StrCellData = self.format_cell_data(&str_cell_data)?.to_string();
-    Ok(s.into())
+    let s = StrCellData::from(self.format_cell_data(&str_cell_data)?.to_string());
+    Ok(s)
   }
 
   fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
@@ -153,9 +153,9 @@ impl CellDataChangeset for NumberTypeOption {
     match self.format {
       NumberFormat::Num => Ok((
         number_cell_data.to_string(),
-        number_cell_data.to_string().into(),
+        StrCellData::from(number_cell_data.to_string()),
       )),
-      _ => Ok((data, number_cell_data.to_string().into())),
+      _ => Ok((data, StrCellData::from(number_cell_data.to_string()))),
     }
   }
 }

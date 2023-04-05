@@ -8,8 +8,8 @@ use crate::services::field::{
   TypeOptionTransform,
 };
 use bytes::Bytes;
-use collab_database::fields::TypeOptionData;
-use database_model::FieldRevision;
+use collab_database::fields::{Field, TypeOptionData};
+
 use flowy_error::{FlowyError, FlowyResult};
 use protobuf::ProtobufError;
 use serde::{Deserialize, Serialize};
@@ -58,7 +58,7 @@ impl TypeOptionTransform for RichTextTypeOption {
     &self,
     cell_str: &str,
     decoded_field_type: &FieldType,
-    field_rev: &FieldRevision,
+    field_rev: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {
     if decoded_field_type.is_date()
       || decoded_field_type.is_single_select()
@@ -66,15 +66,12 @@ impl TypeOptionTransform for RichTextTypeOption {
       || decoded_field_type.is_number()
       || decoded_field_type.is_url()
     {
-      Some(
-        stringify_cell_data(
-          cell_str.to_owned(),
-          decoded_field_type,
-          decoded_field_type,
-          field_rev,
-        )
-        .into(),
-      )
+      Some(StrCellData::from(stringify_cell_data(
+        cell_str.to_owned(),
+        decoded_field_type,
+        decoded_field_type,
+        field_rev,
+      )))
     } else {
       StrCellData::from_cell_str(cell_str).ok()
     }
@@ -102,7 +99,7 @@ impl CellDataDecoder for RichTextTypeOption {
     &self,
     cell_str: String,
     _decoded_field_type: &FieldType,
-    _field_rev: &FieldRevision,
+    _field_rev: &collab_database::fields::Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
     StrCellData::from_cell_str(&cell_str)
   }

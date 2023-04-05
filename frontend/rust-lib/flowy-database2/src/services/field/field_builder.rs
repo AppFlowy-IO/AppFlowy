@@ -9,7 +9,7 @@ pub struct FieldBuilder {
 
 impl FieldBuilder {
   pub fn new<T: Into<TypeOptionData>>(field_type: FieldType, type_option_data: T) -> Self {
-    let mut field = Field::new(gen_field_id(), "".to, field_type.into(), false);
+    let mut field = Field::new(gen_field_id(), "".to_string(), field_type.into(), false);
     field.width = field_type.default_cell_width() as i64;
     field
       .type_options
@@ -39,11 +39,6 @@ impl FieldBuilder {
 
   pub fn width(mut self, width: i64) -> Self {
     self.field.width = width;
-    self
-  }
-
-  pub fn frozen(mut self, frozen: bool) -> Self {
-    self.field.frozen = frozen;
     self
   }
 

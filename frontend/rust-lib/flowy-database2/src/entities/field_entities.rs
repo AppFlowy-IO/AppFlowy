@@ -1,10 +1,11 @@
-use database_model::{FieldRevision, FieldTypeRevision};
+use collab_database::fields::Field;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use serde_repr::*;
 use std::sync::Arc;
 
 use crate::entities::parser::NotEmptyStr;
+use crate::impl_into_field_type;
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
 /// [FieldPB] defines a Field's attributes. Such as the name, field_type, and width. etc.
@@ -17,47 +18,32 @@ pub struct FieldPB {
   pub name: String,
 
   #[pb(index = 3)]
-  pub desc: String,
-
-  #[pb(index = 4)]
   pub field_type: FieldType,
 
-  #[pb(index = 5)]
-  pub frozen: bool,
-
-  #[pb(index = 6)]
+  #[pb(index = 4)]
   pub visibility: bool,
 
-  #[pb(index = 7)]
+  #[pb(index = 5)]
   pub width: i32,
 
-  #[pb(index = 8)]
+  #[pb(index = 6)]
   pub is_primary: bool,
 }
 
-impl std::convert::From<FieldRevision> for FieldPB {
-  fn from(field_rev: FieldRevision) -> Self {
+impl std::convert::From<Field> for FieldPB {
+  fn from(field: Field) -> Self {
     Self {
-      id: field_rev.id,
-      name: field_rev.name,
-      desc: field_rev.desc,
-      field_type: field_rev.ty.into(),
-      frozen: field_rev.frozen,
-      visibility: field_rev.visibility,
-      width: field_rev.width,
-      is_primary: field_rev.is_primary,
+      id: field.id,
+      name: field.name,
+      field_type: FieldType::from(field.field_type),
+      visibility: field.visibility,
+      width: field.width as i32,
+      is_primary: field.is_primary,
     }
   }
 }
 
-impl std::convert::From<Arc<FieldRevision>> for FieldPB {
-  fn from(field_rev: Arc<FieldRevision>) -> Self {
-    let field_rev = field_rev.as_ref().clone();
-    FieldPB::from(field_rev)
-  }
-}
-
-/// [FieldIdPB] id of the [FieldRevision]
+/// [FieldIdPB] id of the [Field]
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct FieldIdPB {
   #[pb(index = 1)]
@@ -78,8 +64,8 @@ impl std::convert::From<String> for FieldIdPB {
   }
 }
 
-impl std::convert::From<&Arc<FieldRevision>> for FieldIdPB {
-  fn from(field_rev: &Arc<FieldRevision>) -> Self {
+impl std::convert::From<&Arc<Field>> for FieldIdPB {
+  fn from(field_rev: &Arc<Field>) -> Self {
     Self {
       field_id: field_rev.id.clone(),
     }
@@ -139,7 +125,7 @@ pub struct IndexFieldPB {
 }
 
 impl IndexFieldPB {
-  pub fn from_field_rev(field_rev: &Arc<FieldRevision>, index: usize) -> Self {
+  pub fn from_field_rev(field_rev: &Arc<Field>, index: usize) -> Self {
     Self {
       field: FieldPB::from(field_rev.as_ref().clone()),
       index: index as i32,
@@ -421,7 +407,7 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPB {
   fn try_into(self) -> Result<FieldChangesetParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
     let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
-    let field_type = self.field_type.map(FieldTypeRevision::from);
+    let field_type = self.field_type.map(FieldType::from);
     // if let Some(type_option_data) = self.type_option_data.as_ref() {
     //     if type_option_data.is_empty() {
     //         return Err(ErrorCode::TypeOptionDataIsEmpty);
@@ -452,7 +438,7 @@ pub struct FieldChangesetParams {
 
   pub desc: Option<String>,
 
-  pub field_type: Option<FieldTypeRevision>,
+  pub field_type: Option<FieldType>,
 
   pub frozen: Option<bool>,
 
@@ -576,24 +562,8 @@ impl FieldType {
   }
 }
 
-impl std::convert::From<i64> for FieldType {
-  fn from(ty: i64) -> Self {
-    match ty {
-      0 => FieldType::RichText,
-      1 => FieldType::Number,
-      2 => FieldType::DateTime,
-      3 => FieldType::SingleSelect,
-      4 => FieldType::MultiSelect,
-      5 => FieldType::Checkbox,
-      6 => FieldType::URL,
-      7 => FieldType::Checklist,
-      _ => {
-        tracing::error!("Can't convert FieldTypeRevision: {} to FieldType", ty);
-        FieldType::RichText
-      },
-    }
-  }
-}
+impl_into_field_type!(i64);
+impl_into_field_type!(u8);
 
 impl From<FieldType> for i64 {
   fn from(ty: FieldType) -> Self {

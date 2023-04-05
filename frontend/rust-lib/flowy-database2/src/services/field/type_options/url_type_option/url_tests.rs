@@ -2,10 +2,10 @@
 mod tests {
   use crate::entities::FieldType;
   use crate::services::cell::CellDataChangeset;
+  use collab_database::fields::Field;
 
   use crate::services::field::FieldBuilder;
   use crate::services::field::URLTypeOption;
-  use database_model::FieldRevision;
 
   /// The expected_str will equal to the input string, but the expected_url will be empty if there's no
   /// http url in the input string.
@@ -155,7 +155,7 @@ mod tests {
     input_str: &str,
     expected_str: &str,
     expected_url: &str,
-    _field_rev: &FieldRevision,
+    _field: &Field,
   ) {
     let decode_cell_data = type_option
       .apply_changeset(input_str.to_owned(), None)

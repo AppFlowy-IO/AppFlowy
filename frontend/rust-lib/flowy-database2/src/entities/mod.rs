@@ -14,6 +14,9 @@ mod sort_entities;
 mod url_entities;
 mod view_entities;
 
+#[macro_use]
+mod macros;
+
 pub use calendar_entities::*;
 pub use cell_entities::*;
 pub use database_entities::*;

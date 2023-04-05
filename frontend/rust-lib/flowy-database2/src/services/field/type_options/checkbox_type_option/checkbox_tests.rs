@@ -4,8 +4,7 @@ mod tests {
   use crate::services::cell::CellDataDecoder;
   use crate::services::field::type_options::checkbox_type_option::*;
   use crate::services::field::FieldBuilder;
-
-  use database_model::FieldRevision;
+  use collab_database::fields::Field;
 
   #[test]
   fn checkout_box_description_test() {
@@ -36,11 +35,11 @@ mod tests {
     input_str: &str,
     expected_str: &str,
     field_type: &FieldType,
-    field_rev: &FieldRevision,
+    field: &Field,
   ) {
     assert_eq!(
       type_option
-        .decode_cell_str(input_str.to_owned(), field_type, field_rev)
+        .decode_cell_str(input_str.to_owned(), field_type, field)
         .unwrap()
         .to_string(),
       expected_str.to_owned()

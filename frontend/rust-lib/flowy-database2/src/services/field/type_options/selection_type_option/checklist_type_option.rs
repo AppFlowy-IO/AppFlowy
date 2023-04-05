@@ -1,9 +1,9 @@
 use crate::entities::{ChecklistFilterPB, FieldType, SelectOptionCellDataPB};
 use crate::services::cell::{CellDataChangeset, FromCellString, TypeCellData};
 use crate::services::field::{
-  CheckboxTypeOption, SelectOption, SelectOptionCellChangeset, SelectOptionIds,
-  SelectTypeOptionSharedAction, SelectedSelectOptions, TypeOption, TypeOptionCellData,
-  TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  SelectOption, SelectOptionCellChangeset, SelectOptionIds, SelectTypeOptionSharedAction,
+  SelectedSelectOptions, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter,
 };
 
 use collab_database::fields::TypeOptionData;
@@ -32,7 +32,7 @@ impl From<TypeOptionData> for ChecklistTypeOption {
 }
 
 impl From<ChecklistTypeOption> for TypeOptionData {
-  fn from(_: CheckboxTypeOption) -> Self {
+  fn from(_: ChecklistTypeOption) -> Self {
     todo!()
   }
 }

@@ -33,6 +33,12 @@ impl From<TypeOptionData> for MultiSelectTypeOption {
   }
 }
 
+impl From<MultiSelectTypeOption> for TypeOptionData {
+  fn from(_: MultiSelectTypeOption) -> Self {
+    todo!()
+  }
+}
+
 impl TypeOptionCellData for MultiSelectTypeOption {
   fn convert_to_protobuf(
     &self,

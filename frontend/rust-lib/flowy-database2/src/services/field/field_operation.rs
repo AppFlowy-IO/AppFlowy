@@ -1,31 +1,29 @@
 use crate::services::database::DatabaseEditor;
 use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
-use database_model::{TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use collab_database::fields::TypeOptionData;
+
+use crate::entities::FieldType;
 use flowy_error::FlowyResult;
 use std::sync::Arc;
 
-pub async fn edit_field_type_option<T>(
+pub async fn edit_field_type_option<T: From<TypeOptionData> + Into<TypeOptionData>>(
   view_id: &str,
   field_id: &str,
   editor: Arc<DatabaseEditor>,
   action: impl FnOnce(&mut T),
-) -> FlowyResult<()>
-where
-  T: TypeOptionDataDeserializer + TypeOptionDataSerializer,
-{
+) -> FlowyResult<()> {
   let get_type_option = async {
-    let field_rev = editor.get_field_rev(field_id).await?;
-    field_rev.get_type_option::<T>(field_rev.ty)
+    let field = editor.get_field(field_id)?;
+    let field_type = FieldType::from(field.field_type);
+    field.get_type_option::<T>(&field_type.type_id())
   };
 
   if let Some(mut type_option) = get_type_option.await {
-    let old_field_rev = editor.get_field_rev(field_id).await;
+    let old_field = editor.get_field(field_id);
 
     action(&mut type_option);
-    let bytes = type_option.protobuf_bytes().to_vec();
-    editor
-      .update_field_type_option(view_id, field_id, bytes, old_field_rev)
-      .await?;
+    let type_option_data: TypeOptionData = type_option.into();
+    editor.update_field_type_option(view_id, field_id, type_option_data, old_field);
   }
 
   Ok(())
