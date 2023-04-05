@@ -8,7 +8,7 @@ use crate::services::group::entities::GroupData;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Row};
 use collab_database::views::Group;
-use database_model::{CellRevision, RowRevision};
+
 use flowy_error::FlowyResult;
 use serde::de::DeserializeOwned;
 use serde::Serialize;

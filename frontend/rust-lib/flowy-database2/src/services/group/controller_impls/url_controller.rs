@@ -12,9 +12,9 @@ use crate::services::group::{
   make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroupContext,
 };
 use collab_database::fields::Field;
-use collab_database::rows::{Cell, CellBuilder, new_cell_builder, Row};
+use collab_database::rows::{new_cell_builder, Cell, Row};
 use collab_database::views::Group;
-use database_model::{CellRevision, RowRevision};
+
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 

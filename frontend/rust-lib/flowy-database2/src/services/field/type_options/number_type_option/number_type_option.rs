@@ -1,15 +1,15 @@
 use crate::entities::{FieldType, NumberFilterPB};
-use crate::services::cell::{CellDataChangeset, CellDataDecoder, TypeCellData};
+use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{
-  NumberCellFormat, StrCellData, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  NumberCellFormat, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
   TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 
 use crate::services::field::type_options::util::ProtobufStr;
 use collab::core::lib0_any_ext::Lib0AnyMapExtension;
-use collab_database::rows::{new_cell_builder, Cell, CellBuilder};
+use collab_database::rows::{new_cell_builder, Cell};
 use fancy_regex::Regex;
 use flowy_error::FlowyResult;
 use lazy_static::lazy_static;

@@ -6,8 +6,8 @@ use crate::entities::{
 use crate::services::field::SelectOptionIds;
 use crate::services::filter::FilterType;
 use bytes::Bytes;
+use collab_database::fields::Field;
 use collab_database::views::Filter;
-use database_model::FieldRevision;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use std::convert::TryInto;
@@ -143,14 +143,15 @@ impl AlterFilterPayloadPB {
   #[allow(dead_code)]
   pub fn new<T: TryInto<Bytes, Error = ::protobuf::ProtobufError>>(
     view_id: &str,
-    field_rev: &FieldRevision,
+    field: &Field,
     data: T,
   ) -> Self {
     let data = data.try_into().unwrap_or_else(|_| Bytes::new());
+    let field_type = FieldType::from(field.field_type);
     Self {
       view_id: view_id.to_owned(),
-      field_id: field_rev.id.clone(),
-      field_type: field_rev.ty.into(),
+      field_id: field.id.clone(),
+      field_type,
       filter_id: None,
       data: data.to_vec(),
     }

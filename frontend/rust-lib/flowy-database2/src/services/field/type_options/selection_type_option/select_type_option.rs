@@ -1,7 +1,7 @@
 use crate::entities::{FieldType, SelectOptionCellDataPB};
 use crate::services::cell::{
   CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellChangesetString,
-  FromCellString, ToCellChangesetString,
+  ToCellChangesetString,
 };
 
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;

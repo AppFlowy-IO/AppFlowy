@@ -1,6 +1,6 @@
 use crate::entities::*;
 use crate::manager::DatabaseManager2;
-use database_model::FieldRevision;
+use collab_database::fields::Field;
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{AFPluginData, AFPluginState, DataResult};
 use std::sync::Arc;
@@ -144,11 +144,8 @@ pub(crate) async fn move_field_handler(
   Ok(())
 }
 
-/// The [FieldRevision] contains multiple data, each of them belongs to a specific FieldType.
-async fn get_type_option_data(
-  field_rev: &FieldRevision,
-  field_type: &FieldType,
-) -> FlowyResult<Vec<u8>> {
+/// The [Field] contains multiple data, each of them belongs to a specific FieldType.
+async fn get_type_option_data(field_rev: &Field, field_type: &FieldType) -> FlowyResult<Vec<u8>> {
   todo!()
 }
 

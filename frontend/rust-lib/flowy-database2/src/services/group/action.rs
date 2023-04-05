@@ -4,7 +4,7 @@ use crate::services::group::controller::MoveGroupRowContext;
 use crate::services::group::GroupData;
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Row};
-use database_model::{CellRevision, RowRevision};
+
 use flowy_error::FlowyResult;
 use std::sync::Arc;
 

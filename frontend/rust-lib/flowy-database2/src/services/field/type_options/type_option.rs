@@ -1,7 +1,5 @@
 use crate::entities::FieldType;
-use crate::services::cell::{
-  CellDataDecoder, FromCellChangesetString, FromCellString, ToCellChangesetString,
-};
+use crate::services::cell::{CellDataDecoder, FromCellChangesetString, ToCellChangesetString};
 
 use crate::services::filter::FromFilterString;
 use bytes::Bytes;

@@ -1,7 +1,7 @@
 use crate::entities::FieldType;
 use crate::services::cell::{
   AtomicCellDataCache, AtomicCellFilterCache, CellDataChangeset, CellDataDecoder, CellProtobufBlob,
-  FromCellChangesetString, FromCellString, TypeCellData,
+  FromCellChangesetString,
 };
 use crate::services::field::{
   CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption,
@@ -39,12 +39,7 @@ pub trait TypeOptionCellDataHandler {
     field: &Field,
   ) -> FlowyResult<Cell>;
 
-  fn handle_cell_compare(
-    &self,
-    left_cell_data: &Cell,
-    right_cell_data: &Cell,
-    field: &Field,
-  ) -> Ordering;
+  fn handle_cell_compare(&self, left_cell: &Cell, right_cell: &Cell, field: &Field) -> Ordering;
 
   fn handle_cell_filter(&self, filter_type: &FilterType, field: &Field, cell: &Cell) -> bool;
 
@@ -227,18 +222,13 @@ where
     Ok(cell)
   }
 
-  fn handle_cell_compare(
-    &self,
-    left_cell_data: &Cell,
-    right_cell_data: &Cell,
-    field: &Field,
-  ) -> Ordering {
+  fn handle_cell_compare(&self, left_cell: &Cell, right_cell: &Cell, field: &Field) -> Ordering {
     let field_type = FieldType::from(field.field_type);
     let left = self
-      .get_decoded_cell_data(left_cell_data, &field_type, field)
+      .get_decoded_cell_data(left_cell, &field_type, field)
       .unwrap_or_default();
     let right = self
-      .get_decoded_cell_data(right_cell_data, &field_type, field)
+      .get_decoded_cell_data(right_cell, &field_type, field)
       .unwrap_or_default();
     self.apply_cmp(&left, &right)
   }

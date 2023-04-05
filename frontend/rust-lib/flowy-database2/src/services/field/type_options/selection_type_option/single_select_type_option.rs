@@ -1,5 +1,5 @@
 use crate::entities::{FieldType, SelectOptionCellDataPB, SelectOptionFilterPB};
-use crate::services::cell::{CellDataChangeset, FromCellString, TypeCellData};
+use crate::services::cell::CellDataChangeset;
 use crate::services::field::{
   default_order, SelectOption, SelectedSelectOptions, TypeOption, TypeOptionCellData,
   TypeOptionCellDataCompare, TypeOptionCellDataFilter,

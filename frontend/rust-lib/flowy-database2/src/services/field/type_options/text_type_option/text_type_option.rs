@@ -1,7 +1,7 @@
 use crate::entities::{FieldType, TextFilterPB};
 use crate::services::cell::{
   stringify_cell_data, CellDataChangeset, CellDataDecoder, CellProtobufBlobParser, DecodedCellData,
-  FromCellString, TypeCellData,
+  FromCellString,
 };
 use crate::services::field::{
   TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
@@ -12,9 +12,9 @@ use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 
 use crate::services::field::type_options::util::ProtobufStr;
 use collab::core::lib0_any_ext::Lib0AnyMapExtension;
-use collab_database::rows::{new_cell_builder, Cell, CellBuilder};
+use collab_database::rows::{new_cell_builder, Cell};
 use flowy_error::{FlowyError, FlowyResult};
-use protobuf::ProtobufError;
+
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 

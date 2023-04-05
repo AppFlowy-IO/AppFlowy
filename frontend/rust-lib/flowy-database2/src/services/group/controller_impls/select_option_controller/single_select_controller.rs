@@ -11,7 +11,7 @@ use crate::services::group::controller::{
 use crate::services::group::controller_impls::select_option_controller::util::*;
 use crate::services::group::entities::GroupData;
 use crate::services::group::{make_no_status_group, GeneratedGroupContext, GroupContext};
-use database_model::RowRevision;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Serialize, Deserialize)]

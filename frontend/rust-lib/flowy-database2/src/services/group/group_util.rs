@@ -9,7 +9,7 @@ use crate::services::group::{
 use collab_database::fields::Field;
 use collab_database::rows::Row;
 use collab_database::views::{DatabaseLayout, Group, GroupSetting};
-use database_model::RowRevision;
+
 use flowy_error::FlowyResult;
 use std::sync::Arc;
 

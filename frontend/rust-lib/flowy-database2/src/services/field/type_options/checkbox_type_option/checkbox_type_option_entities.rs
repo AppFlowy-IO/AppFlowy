@@ -2,7 +2,7 @@ use crate::entities::FieldType;
 use crate::services::cell::{CellProtobufBlobParser, DecodedCellData, FromCellString};
 use bytes::Bytes;
 use collab::core::lib0_any_ext::Lib0AnyMapExtension;
-use collab_database::rows::{new_cell_builder, Cell, CellBuilder};
+use collab_database::rows::{new_cell_builder, Cell};
 use flowy_error::{FlowyError, FlowyResult};
 use protobuf::ProtobufError;
 use std::str::FromStr;

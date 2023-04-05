@@ -2,8 +2,6 @@ use crate::entities::{
   AlterFilterParams, DatabaseSettingChangesetParams, DeleteFilterParams, FieldType, InsertedRowPB,
 };
 use collab_database::fields::Field;
-use database_model::{FieldRevision, FieldTypeRevision};
-use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct FilterChangeset {

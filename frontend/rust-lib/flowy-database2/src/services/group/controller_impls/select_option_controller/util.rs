@@ -9,7 +9,6 @@ use crate::services::group::{GeneratedGroupConfig, GroupData};
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Row};
 use collab_database::views::Group;
-use database_model::{CellRevision, RowRevision};
 
 pub fn add_or_remove_select_option_row(
   group: &mut GroupData,

@@ -1,12 +1,12 @@
 use crate::entities::FieldType;
-use crate::services::cell::{AtomicCellDataCache, CellProtobufBlob, TypeCellData};
+use crate::services::cell::{AtomicCellDataCache, CellProtobufBlob};
 use crate::services::field::*;
 
 use crate::services::group::make_no_status_group;
 use collab_database::fields::Field;
 use collab_database::rows::{get_field_type_from_cell, Cell};
-use database_model::CellRevision;
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+
+use flowy_error::{ErrorCode, FlowyResult};
 use std::fmt::Debug;
 
 /// Decode the opaque cell data into readable format content

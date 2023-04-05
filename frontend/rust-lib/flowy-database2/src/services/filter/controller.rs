@@ -1,8 +1,6 @@
 use crate::entities::filter_entities::*;
 use crate::entities::{FieldType, InsertedRowPB, RowPB};
-use crate::services::cell::{
-  AnyTypeCache, AtomicCellDataCache, AtomicCellFilterCache, TypeCellData,
-};
+use crate::services::cell::{AnyTypeCache, AtomicCellDataCache, AtomicCellFilterCache};
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
 use crate::services::field::*;
 use crate::services::filter::{
@@ -12,7 +10,6 @@ use collab_database::fields::Field;
 use collab_database::rows::{Cell, Row};
 use collab_database::views::Filter;
 use dashmap::DashMap;
-use database_model::{CellRevision, FieldId, RowRevision};
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use lib_infra::future::Fut;
@@ -359,7 +356,7 @@ impl FilterController {
 fn filter_row(
   row: &Row,
   result_by_row_id: &DashMap<RowId, FilterResult>,
-  field_by_field_id: &HashMap<FieldId, Arc<Field>>,
+  field_by_field_id: &HashMap<String, Arc<Field>>,
   cell_data_cache: &AtomicCellDataCache,
   cell_filter_cache: &AtomicCellFilterCache,
 ) -> Option<(String, bool)> {

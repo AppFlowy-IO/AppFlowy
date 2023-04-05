@@ -1,5 +1,5 @@
 use crate::entities::{ChecklistFilterPB, FieldType, SelectOptionCellDataPB};
-use crate::services::cell::{CellDataChangeset, FromCellString, TypeCellData};
+use crate::services::cell::CellDataChangeset;
 use crate::services::field::{
   SelectOption, SelectOptionCellChangeset, SelectOptionIds, SelectTypeOptionSharedAction,
   SelectedSelectOptions, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,

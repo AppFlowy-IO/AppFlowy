@@ -1,5 +1,5 @@
 use crate::entities::{AlterSortParams, DeleteSortParams, FieldType};
-use database_model::FieldRevision;
+use collab_database::fields::Field;
 use std::sync::Arc;
 
 #[derive(Hash, Eq, PartialEq, Debug, Clone)]
@@ -17,11 +17,11 @@ impl std::convert::From<&AlterSortParams> for SortType {
   }
 }
 
-impl std::convert::From<&Arc<FieldRevision>> for SortType {
-  fn from(rev: &Arc<FieldRevision>) -> Self {
+impl std::convert::From<&Arc<Field>> for SortType {
+  fn from(field: &Arc<Field>) -> Self {
     Self {
-      field_id: rev.id.clone(),
-      field_type: rev.ty.into(),
+      field_id: field.id.clone(),
+      field_type: FieldType::from(field.field_type),
     }
   }
 }

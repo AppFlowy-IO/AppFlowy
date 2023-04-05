@@ -10,9 +10,9 @@ use crate::services::group::controller::{
 };
 use crate::services::group::{move_group_row, GeneratedGroupConfig, GeneratedGroupContext};
 use collab_database::fields::Field;
-use collab_database::rows::{new_cell_builder, Cell, CellBuilder, Row};
+use collab_database::rows::{new_cell_builder, Cell, Row};
 use collab_database::views::Group;
-use database_model::{CellRevision, RowRevision};
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Serialize, Deserialize)]

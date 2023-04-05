@@ -11,7 +11,7 @@ use crate::services::group::{
 };
 use collab_database::fields::Field;
 use collab_database::rows::Row;
-use database_model::RowRevision;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Serialize, Deserialize)]
