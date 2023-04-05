@@ -12,7 +12,7 @@ class FlowySvg extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return svgWidget(
-      'assets/images/$name.svg',
+      name,
       size: size,
       color: Theme.of(context).iconTheme.color,
     );
