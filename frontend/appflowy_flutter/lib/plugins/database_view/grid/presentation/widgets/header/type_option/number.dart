@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/database_view/application/field/type_option/num
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/format.pbenum.dart';
 import 'package:flutter/material.dart';
@@ -28,12 +29,11 @@ class NumberTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
 
   @override
   Widget? build(BuildContext context) {
-    return Column(
-      children: [
-        VSpace(GridSize.typeOptionSeparatorHeight),
-        _widget,
-      ],
-    );
+    return Column(children: [
+      VSpace(GridSize.typeOptionSeparatorHeight),
+      const TypeOptionSeparator(),
+      _widget,
+    ]);
   }
 }
 
@@ -51,55 +51,65 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
     return BlocProvider(
       create: (context) =>
           NumberTypeOptionBloc(typeOptionContext: typeOptionContext),
-      child: SizedBox(
-        height: GridSize.popoverItemHeight,
-        child: BlocConsumer<NumberTypeOptionBloc, NumberTypeOptionState>(
-          listener: (context, state) =>
-              typeOptionContext.typeOption = state.typeOption,
-          builder: (context, state) {
-            final button = SizedBox(
-              height: GridSize.popoverItemHeight,
-              child: FlowyButton(
-                margin: GridSize.typeOptionContentInsets,
-                rightIcon: svgWidget(
-                  "grid/more",
-                  color: Theme.of(context).iconTheme.color,
-                ),
-                text: Row(
-                  children: [
-                    FlowyText.medium(LocaleKeys.grid_field_numberFormat.tr()),
-                    const Spacer(),
-                    FlowyText.regular(state.typeOption.format.title()),
-                  ],
-                ),
+      child: BlocConsumer<NumberTypeOptionBloc, NumberTypeOptionState>(
+        listener: (context, state) =>
+            typeOptionContext.typeOption = state.typeOption,
+        builder: (context, state) {
+          final selectNumUnitButton = SizedBox(
+            height: GridSize.popoverItemHeight,
+            child: FlowyButton(
+              hoverColor: AFThemeExtension.of(context).lightGreyHover,
+              margin: GridSize.typeOptionContentInsets,
+              rightIcon: svgWidget(
+                "grid/more",
+                color: AFThemeExtension.of(context).textColor,
               ),
-            );
+              text: FlowyText.regular(
+                state.typeOption.format.title(),
+                color: AFThemeExtension.of(context).textColor,
+              ),
+            ),
+          );
 
-            return AppFlowyPopover(
-              mutex: popoverMutex,
-              triggerActions:
-                  PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
-              offset: const Offset(8, 0),
-              constraints: BoxConstraints.loose(const Size(460, 440)),
-              margin: EdgeInsets.zero,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                child: button,
-              ),
-              popupBuilder: (BuildContext popoverContext) {
-                return NumberFormatList(
-                  onSelected: (format) {
-                    context
-                        .read<NumberTypeOptionBloc>()
-                        .add(NumberTypeOptionEvent.didSelectFormat(format));
-                    PopoverContainer.of(popoverContext).close();
+          final numFormatTitle = Container(
+            padding: const EdgeInsets.only(left: 6),
+            height: GridSize.popoverItemHeight,
+            alignment: Alignment.centerLeft,
+            child: FlowyText.medium(
+              LocaleKeys.grid_field_numberFormat.tr(),
+              color: AFThemeExtension.of(context).textColor,
+            ),
+          );
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                numFormatTitle,
+                AppFlowyPopover(
+                  mutex: popoverMutex,
+                  triggerActions:
+                      PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
+                  offset: const Offset(8, 0),
+                  constraints: BoxConstraints.loose(const Size(460, 440)),
+                  margin: EdgeInsets.zero,
+                  child: selectNumUnitButton,
+                  popupBuilder: (BuildContext popoverContext) {
+                    return NumberFormatList(
+                      onSelected: (format) {
+                        context
+                            .read<NumberTypeOptionBloc>()
+                            .add(NumberTypeOptionEvent.didSelectFormat(format));
+                        PopoverContainer.of(popoverContext).close();
+                      },
+                      selectedFormat: state.typeOption.format,
+                    );
                   },
-                  selectedFormat: state.typeOption.format,
-                );
-              },
-            );
-          },
-        ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
