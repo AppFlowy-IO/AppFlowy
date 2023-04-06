@@ -273,7 +273,7 @@
             "optionTitle": "Варианты",
             "addOption": "Добавить",
             "editProperty": "Редактировать свойство",
-            "newColumn": "Добавить колонку",
+            "newProperty": "Добавить колонку",
             "deleteFieldPromptMessage": "Вы уверены? Свойство будет удалено"
         },
         "sort": {

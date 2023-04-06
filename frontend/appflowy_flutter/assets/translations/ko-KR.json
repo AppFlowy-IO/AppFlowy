@@ -191,7 +191,7 @@
       "optionTitle": "옵션",
       "addOption": "옵션 추가",
       "editProperty": "속성 편집",
-      "newColumn": "열 추가",
+      "newProperty": "열 추가",
       "deleteFieldPromptMessage": "해당 속성을 삭제 하시겠습니까?"
     },
     "row": {

@@ -212,7 +212,7 @@ class _CreatePropertyButtonState extends State<_CreatePropertyButton> {
         decoration: _makeBoxDecoration(context),
         child: FlowyButton(
           text: FlowyText.medium(
-            LocaleKeys.grid_field_newColumn.tr(),
+            LocaleKeys.grid_field_newProperty.tr(),
             color: AFThemeExtension.of(context).textColor,
           ),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,

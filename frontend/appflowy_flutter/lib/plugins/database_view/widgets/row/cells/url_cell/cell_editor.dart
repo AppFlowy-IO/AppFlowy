@@ -92,8 +92,8 @@ class URLEditorPopover extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(5),
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(4),
       ),
       padding: const EdgeInsets.all(12),
       child: URLCellEditor(

@@ -132,6 +132,7 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
           );
 
           return AppFlowyPopover(
+            margin: EdgeInsets.zero,
             controller: _popoverController,
             constraints: BoxConstraints.loose(const Size(300, 160)),
             direction: PopoverDirection.bottomWithLeftAligned,
