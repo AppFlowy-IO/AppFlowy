@@ -94,10 +94,10 @@ class _OpenaiKeyInput extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<_OpenaiKeyInput> createState() => OpenaiKeyInputState();
+  State<_OpenaiKeyInput> createState() => _OpenaiKeyInputState();
 }
 
-class OpenaiKeyInputState extends State<_OpenaiKeyInput> {
+class _OpenaiKeyInputState extends State<_OpenaiKeyInput> {
   bool visible = false;
   final textEditingController = TextEditingController();
   final debounce = Debounce();
