@@ -1,6 +1,6 @@
 import { SettingsSvg } from '../_shared/svg/SettingsSvg';
 import { SearchInput } from '../_shared/SearchInput';
-import { BoardBlock } from './BoardBlock';
+import { BoardGroup } from './BoardGroup';
 import { NewBoardBlock } from './NewBoardBlock';
 import { useDatabase } from '../_shared/database-hooks/useDatabase';
 import { ViewLayoutPB } from '@/services/backend';
@@ -39,7 +39,7 @@ export const Board = ({ viewId }: { viewId: string }) => {
             {controller &&
               groups &&
               groups.map((group, index) => (
-                <BoardBlock
+                <BoardGroup
                   key={group.groupId}
                   viewId={viewId}
                   controller={controller}

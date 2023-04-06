@@ -1,7 +1,7 @@
 import { Details2Svg } from '../_shared/svg/Details2Svg';
-import { RowInfo } from '../../stores/effects/database/row/row_cache';
+import { RowInfo } from '$app/stores/effects/database/row/row_cache';
 import { useRow } from '../_shared/database-hooks/useRow';
-import { DatabaseController } from '../../stores/effects/database/database_controller';
+import { DatabaseController } from '$app/stores/effects/database/database_controller';
 import { BoardCell } from './BoardCell';
 import { Draggable } from 'react-beautiful-dnd';
 
