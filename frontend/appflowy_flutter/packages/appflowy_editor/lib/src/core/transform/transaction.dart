@@ -68,9 +68,6 @@ class Transaction {
   /// Deletes the [Node] in the document.
   void deleteNode(Node node) {
     deleteNodesAtPath(node.path);
-    if(beforeSelection != null){
-      afterSelection = beforeSelection;
-    }
   }
 
   /// Deletes the [Node]s in the document.
