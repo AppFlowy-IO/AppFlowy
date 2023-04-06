@@ -58,7 +58,7 @@ class SettingsUserView extends StatelessWidget {
   Widget _renderCurrentOpenaiKey(BuildContext context) {
     String openAIKey =
         context.read<SettingsUserViewBloc>().state.userProfile.openaiKey;
-    return OpenaiKeyInput(openAIKey);
+    return _OpenaiKeyInput(openAIKey);
   }
 }
 
@@ -86,19 +86,18 @@ class UserNameInput extends StatelessWidget {
   }
 }
 
-@visibleForTesting
-class OpenaiKeyInput extends StatefulWidget {
+class _OpenaiKeyInput extends StatefulWidget {
   final String openAIKey;
-  const OpenaiKeyInput(
+  const _OpenaiKeyInput(
     this.openAIKey, {
     Key? key,
   }) : super(key: key);
 
   @override
-  State<OpenaiKeyInput> createState() => OpenaiKeyInputState();
+  State<_OpenaiKeyInput> createState() => OpenaiKeyInputState();
 }
 
-class OpenaiKeyInputState extends State<OpenaiKeyInput> {
+class OpenaiKeyInputState extends State<_OpenaiKeyInput> {
   bool visible = false;
   final textEditingController = TextEditingController();
   final debounce = Debounce();
