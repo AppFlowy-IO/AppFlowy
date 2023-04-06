@@ -2,7 +2,7 @@ use crate::entities::{
   AlterFilterParams, DatabaseSettingChangesetParams, DeleteFilterParams, FieldType, InsertedRowPB,
 };
 use anyhow::bail;
-use collab::core::lib0_any_ext::Lib0AnyMapExtension;
+use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::Field;
 use collab_database::views::{FilterMap, FilterMapBuilder};
 use serde::{Deserialize, Serialize};

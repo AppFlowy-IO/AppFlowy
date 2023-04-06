@@ -11,7 +11,7 @@ use bytes::Bytes;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 
 use crate::services::field::type_options::util::ProtobufStr;
-use collab::core::lib0_any_ext::Lib0AnyMapExtension;
+use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::{new_cell_builder, Cell};
 use flowy_error::{FlowyError, FlowyResult};
 

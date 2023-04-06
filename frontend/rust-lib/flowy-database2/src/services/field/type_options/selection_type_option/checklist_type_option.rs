@@ -6,7 +6,7 @@ use crate::services::field::{
   TypeOptionCellDataFilter,
 };
 
-use collab::core::lib0_any_ext::Lib0AnyMapExtension;
+use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;

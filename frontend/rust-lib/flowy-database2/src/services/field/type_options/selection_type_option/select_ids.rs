@@ -1,6 +1,6 @@
 use crate::entities::FieldType;
 use crate::services::cell::{DecodedCellData, FromCellString};
-use collab::core::lib0_any_ext::Lib0AnyMapExtension;
+use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::{new_cell_builder, Cell};
 use flowy_error::FlowyResult;
 

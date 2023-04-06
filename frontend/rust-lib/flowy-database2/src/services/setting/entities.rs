@@ -1,4 +1,4 @@
-use collab::core::lib0_any_ext::Lib0AnyMapExtension;
+use collab::core::any_map::AnyMapExtension;
 use collab_database::views::{LayoutSetting, LayoutSettingBuilder};
 use serde::{Deserialize, Serialize};
 use serde_repr::*;

@@ -5,7 +5,7 @@ use crate::services::field::{
   TypeOptionTransform, URLCellData,
 };
 
-use collab::core::lib0_any_ext::Lib0AnyMapExtension;
+use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use fancy_regex::Regex;

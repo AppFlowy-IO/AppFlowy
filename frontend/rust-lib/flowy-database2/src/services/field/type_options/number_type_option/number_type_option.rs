@@ -8,7 +8,7 @@ use crate::services::field::{
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 
 use crate::services::field::type_options::util::ProtobufStr;
-use collab::core::lib0_any_ext::Lib0AnyMapExtension;
+use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::{new_cell_builder, Cell};
 use fancy_regex::Regex;
 use flowy_error::FlowyResult;

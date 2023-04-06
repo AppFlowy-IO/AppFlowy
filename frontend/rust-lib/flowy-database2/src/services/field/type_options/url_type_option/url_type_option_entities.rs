@@ -1,7 +1,7 @@
 use crate::entities::{FieldType, URLCellDataPB};
 use crate::services::cell::{CellProtobufBlobParser, DecodedCellData, FromCellString};
 use bytes::Bytes;
-use collab::core::lib0_any_ext::Lib0AnyMapExtension;
+use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::{new_cell_builder, Cell};
 use flowy_error::{internal_error, FlowyResult};
 use serde::{Deserialize, Serialize};

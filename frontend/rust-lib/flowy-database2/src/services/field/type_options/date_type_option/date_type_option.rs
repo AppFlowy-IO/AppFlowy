@@ -8,7 +8,7 @@ use crate::services::field::{
 use chrono::format::strftime::StrftimeItems;
 use chrono::NaiveDateTime;
 
-use collab::core::lib0_any_ext::Lib0AnyMapExtension;
+use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};

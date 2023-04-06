@@ -1,7 +1,7 @@
 use crate::entities::RowPB;
 use crate::protobuf::CreateRowPayloadPB_oneof_one_of_data::data;
 use anyhow::bail;
-use collab::core::lib0_any_ext::Lib0AnyMapExtension;
+use collab::core::any_map::AnyMapExtension;
 use collab_database::views::{GroupMap, GroupMapBuilder};
 use serde::{Deserialize, Serialize};
 
