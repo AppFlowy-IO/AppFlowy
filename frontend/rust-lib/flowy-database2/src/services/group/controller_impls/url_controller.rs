@@ -9,12 +9,10 @@ use crate::services::group::controller::{
   GenericGroupController, GroupController, GroupGenerator, MoveGroupRowContext,
 };
 use crate::services::group::{
-  make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroupContext,
+  make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroupContext, Group,
 };
 use collab_database::fields::Field;
 use collab_database::rows::{new_cell_builder, Cell, Row};
-use collab_database::views::Group;
-
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 

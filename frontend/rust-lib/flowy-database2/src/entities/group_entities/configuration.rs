@@ -1,4 +1,4 @@
-use collab_database::views::Group;
+use crate::services::group::Group;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]

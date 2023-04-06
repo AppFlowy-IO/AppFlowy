@@ -1,4 +1,54 @@
 use crate::entities::RowPB;
+use crate::protobuf::CreateRowPayloadPB_oneof_one_of_data::data;
+use anyhow::bail;
+use collab::core::lib0_any_ext::Lib0AnyMapExtension;
+use collab_database::views::{GroupMap, GroupMapBuilder};
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct Group {
+  pub id: String,
+  pub name: String,
+  #[serde(default = "GROUP_REV_VISIBILITY")]
+  pub visible: bool,
+}
+
+impl TryFrom<GroupMap> for Group {
+  type Error = anyhow::Error;
+
+  fn try_from(value: GroupMap) -> Result<Self, Self::Error> {
+    match value.get_str_value("id") {
+      None => bail!("Invalid group data"),
+      Some(id) => {
+        let name = value.get_str_value("name").unwrap_or_default();
+        let visible = value.get_bool_value("visible").unwrap_or_default();
+        Ok(Self { id, name, visible })
+      },
+    }
+  }
+}
+
+impl From<Group> for GroupMap {
+  fn from(group: Group) -> Self {
+    GroupMapBuilder::new()
+      .insert_str_value("id", group.id)
+      .insert_str_value("name", group.name)
+      .insert_bool_value("visible", group.visible)
+      .build()
+  }
+}
+
+const GROUP_REV_VISIBILITY: fn() -> bool = || true;
+
+impl Group {
+  pub fn new(id: String, name: String) -> Self {
+    Self {
+      id,
+      name,
+      visible: true,
+    }
+  }
+}
 
 #[derive(Clone, PartialEq, Debug, Eq)]
 pub struct GroupData {

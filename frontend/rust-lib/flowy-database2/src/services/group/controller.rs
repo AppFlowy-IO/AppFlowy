@@ -7,8 +7,9 @@ use crate::services::group::configuration::GroupContext;
 use crate::services::group::entities::GroupData;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Row};
-use collab_database::views::Group;
+// use collab_database::views::Group;
 
+use crate::services::group::Group;
 use flowy_error::FlowyResult;
 use serde::de::DeserializeOwned;
 use serde::Serialize;

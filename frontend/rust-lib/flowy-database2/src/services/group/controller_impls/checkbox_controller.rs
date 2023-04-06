@@ -8,10 +8,9 @@ use crate::services::group::configuration::GroupContext;
 use crate::services::group::controller::{
   GenericGroupController, GroupController, GroupGenerator, MoveGroupRowContext,
 };
-use crate::services::group::{move_group_row, GeneratedGroupConfig, GeneratedGroupContext};
+use crate::services::group::{move_group_row, GeneratedGroupConfig, GeneratedGroupContext, Group};
 use collab_database::fields::Field;
 use collab_database::rows::{new_cell_builder, Cell, Row};
-use collab_database::views::Group;
 
 use serde::{Deserialize, Serialize};
 

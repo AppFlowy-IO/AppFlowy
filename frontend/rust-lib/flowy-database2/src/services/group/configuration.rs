@@ -1,8 +1,10 @@
 use crate::entities::{FieldType, GroupChangesetPB, GroupPB, InsertedGroupPB};
 use crate::services::field::RowSingleCellData;
-use crate::services::group::{default_group_configuration, GeneratedGroupContext, GroupData};
+use crate::services::group::{
+  default_group_configuration, GeneratedGroupContext, Group, GroupData,
+};
 use collab_database::fields::Field;
-use collab_database::views::{Group, GroupSetting};
+use collab_database::views::GroupSetting;
 use flowy_error::{FlowyError, FlowyResult};
 use indexmap::IndexMap;
 use lib_infra::future::Fut;

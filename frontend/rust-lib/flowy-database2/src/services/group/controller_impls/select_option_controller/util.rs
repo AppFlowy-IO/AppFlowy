@@ -5,10 +5,9 @@ use crate::services::cell::{insert_checkbox_cell, insert_select_option_cell, ins
 use crate::services::field::{SelectOption, CHECK};
 
 use crate::services::group::controller::MoveGroupRowContext;
-use crate::services::group::{GeneratedGroupConfig, GroupData};
+use crate::services::group::{GeneratedGroupConfig, Group, GroupData};
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Row};
-use collab_database::views::Group;
 
 pub fn add_or_remove_select_option_row(
   group: &mut GroupData,
