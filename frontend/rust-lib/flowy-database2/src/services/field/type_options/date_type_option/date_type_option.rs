@@ -52,9 +52,9 @@ impl From<TypeOptionData> for DateTypeOption {
 impl From<DateTypeOption> for TypeOptionData {
   fn from(data: DateTypeOption) -> Self {
     TypeOptionDataBuilder::new()
-      .insert("data_format", data.date_format.value())
-      .insert("time_format", data.time_format.value())
-      .insert("include_time", data.include_time)
+      .insert_i64_value("data_format", data.date_format.value())
+      .insert_i64_value("time_format", data.time_format.value())
+      .insert_bool_value("include_time", data.include_time)
       .build()
   }
 }

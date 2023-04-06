@@ -41,7 +41,7 @@ impl From<&Cell> for NumberCellData {
 impl From<NumberCellData> for Cell {
   fn from(data: NumberCellData) -> Self {
     new_cell_builder(FieldType::Number)
-      .insert("data", data.0)
+      .insert_str_value("data", data.0)
       .build()
   }
 }
@@ -88,11 +88,11 @@ impl From<TypeOptionData> for NumberTypeOption {
 impl From<NumberTypeOption> for TypeOptionData {
   fn from(data: NumberTypeOption) -> Self {
     TypeOptionDataBuilder::new()
-      .insert("format", data.format.value())
-      .insert("scale", data.scale)
-      .insert("sign_positive", data.sign_positive)
-      .insert("name", data.name)
-      .insert("symbol", data.symbol)
+      .insert_i64_value("format", data.format.value())
+      .insert_i64_value("scale", data.scale as i64)
+      .insert_bool_value("sign_positive", data.sign_positive)
+      .insert_str_value("name", data.name)
+      .insert_str_value("symbol", data.symbol)
       .build()
   }
 }

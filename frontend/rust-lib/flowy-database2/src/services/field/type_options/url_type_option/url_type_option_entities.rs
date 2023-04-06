@@ -36,8 +36,8 @@ impl From<&Cell> for URLCellData {
 impl From<URLCellData> for Cell {
   fn from(data: URLCellData) -> Self {
     new_cell_builder(FieldType::URL)
-      .insert("url", data.url)
-      .insert("content", data.content)
+      .insert_str_value("url", data.url)
+      .insert_str_value("content", data.content)
       .build()
   }
 }

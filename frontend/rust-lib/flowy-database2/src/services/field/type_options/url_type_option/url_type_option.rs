@@ -38,8 +38,8 @@ impl From<TypeOptionData> for URLTypeOption {
 impl From<URLTypeOption> for TypeOptionData {
   fn from(data: URLTypeOption) -> Self {
     TypeOptionDataBuilder::new()
-      .insert("url", data.url)
-      .insert("content", data.content)
+      .insert_str_value("url", data.url)
+      .insert_str_value("content", data.content)
       .build()
   }
 }

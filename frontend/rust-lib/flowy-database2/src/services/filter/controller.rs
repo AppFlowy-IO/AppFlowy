@@ -3,12 +3,9 @@ use crate::entities::{FieldType, InsertedRowPB, RowPB};
 use crate::services::cell::{AnyTypeCache, AtomicCellDataCache, AtomicCellFilterCache};
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
 use crate::services::field::*;
-use crate::services::filter::{
-  FilterChangeset, FilterResult, FilterResultNotification, FilterType,
-};
+use crate::services::filter::{Filter, FilterChangeset, FilterResult, FilterResultNotification, FilterType};
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Row};
-use collab_database::views::Filter;
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};

@@ -40,7 +40,7 @@ impl From<ChecklistTypeOption> for TypeOptionData {
   fn from(data: ChecklistTypeOption) -> Self {
     let content = serde_json::to_string(&data).unwrap_or_default();
     TypeOptionDataBuilder::new()
-      .insert("content", content)
+      .insert_str_value("content", content)
       .build()
   }
 }

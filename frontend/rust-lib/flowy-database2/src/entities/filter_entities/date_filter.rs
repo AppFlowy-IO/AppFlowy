@@ -1,6 +1,4 @@
-use crate::services::filter::FromFilterString;
-use collab_database::views::Filter;
-
+use crate::services::filter::{Filter, FromFilterString};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use serde::{Deserialize, Serialize};

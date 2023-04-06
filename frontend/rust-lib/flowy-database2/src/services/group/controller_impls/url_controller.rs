@@ -36,7 +36,11 @@ impl GroupCustomize for URLGroupController {
   type CellData = URLCellDataPB;
 
   fn placeholder_cell(&self) -> Option<Cell> {
-    Some(new_cell_builder(FieldType::URL).insert("data", "").build())
+    Some(
+      new_cell_builder(FieldType::URL)
+        .insert_str_value("data", "")
+        .build(),
+    )
   }
 
   fn can_group(&self, content: &str, cell_data: &Self::CellData) -> bool {

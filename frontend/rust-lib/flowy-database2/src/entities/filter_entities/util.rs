@@ -4,10 +4,9 @@ use crate::entities::{
   NumberFilterPB, SelectOptionFilterPB, TextFilterPB,
 };
 use crate::services::field::SelectOptionIds;
-use crate::services::filter::FilterType;
+use crate::services::filter::{Filter, FilterType};
 use bytes::Bytes;
 use collab_database::fields::Field;
-use collab_database::views::Filter;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use std::convert::TryInto;

@@ -40,11 +40,11 @@ impl From<LayoutSetting> for CalendarLayoutSetting {
 impl From<CalendarLayoutSetting> for LayoutSetting {
   fn from(setting: CalendarLayoutSetting) -> Self {
     LayoutSettingBuilder::new()
-      .insert("layout_ty", setting.layout_ty.value())
-      .insert("first_day_of_week", setting.first_day_of_week)
-      .insert("show_week_numbers", setting.show_week_numbers)
-      .insert("show_weekends", setting.show_weekends)
-      .insert("field_id", setting.field_id)
+      .insert_i64_value("layout_ty", setting.layout_ty.value())
+      .insert_i64_value("first_day_of_week", setting.first_day_of_week as i64)
+      .insert_bool_value("show_week_numbers", setting.show_week_numbers)
+      .insert_bool_value("show_weekends", setting.show_weekends)
+      .insert_str_value("field_id", setting.field_id)
       .build()
   }
 }

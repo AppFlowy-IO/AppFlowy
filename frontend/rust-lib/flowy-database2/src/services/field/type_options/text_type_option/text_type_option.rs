@@ -43,7 +43,7 @@ impl From<TypeOptionData> for RichTextTypeOption {
 impl From<RichTextTypeOption> for TypeOptionData {
   fn from(data: RichTextTypeOption) -> Self {
     TypeOptionDataBuilder::new()
-      .insert("data", data.inner)
+      .insert_str_value("data", data.inner)
       .build()
   }
 }
@@ -225,7 +225,7 @@ impl From<&Cell> for StrCellData {
 impl From<StrCellData> for Cell {
   fn from(data: StrCellData) -> Self {
     new_cell_builder(FieldType::RichText)
-      .insert("data", data.0)
+      .insert_str_value("data", data.0)
       .build()
   }
 }

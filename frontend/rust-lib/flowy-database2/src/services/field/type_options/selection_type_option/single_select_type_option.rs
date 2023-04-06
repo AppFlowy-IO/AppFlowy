@@ -41,7 +41,7 @@ impl From<SingleSelectTypeOption> for TypeOptionData {
   fn from(data: SingleSelectTypeOption) -> Self {
     let content = serde_json::to_string(&data).unwrap_or_default();
     TypeOptionDataBuilder::new()
-      .insert("content", content)
+      .insert_str_value("content", content)
       .build()
   }
 }

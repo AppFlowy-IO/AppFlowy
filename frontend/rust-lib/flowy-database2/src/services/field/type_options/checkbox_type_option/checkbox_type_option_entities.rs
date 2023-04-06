@@ -43,7 +43,7 @@ impl From<&Cell> for CheckboxCellData {
 impl From<CheckboxCellData> for Cell {
   fn from(data: CheckboxCellData) -> Self {
     new_cell_builder(FieldType::Checkbox)
-      .insert("data", data.to_string())
+      .insert_str_value("data", data.to_string())
       .build()
   }
 }

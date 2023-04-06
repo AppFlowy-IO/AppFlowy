@@ -61,7 +61,7 @@ impl From<TypeOptionData> for CheckboxTypeOption {
 impl From<CheckboxTypeOption> for TypeOptionData {
   fn from(data: CheckboxTypeOption) -> Self {
     TypeOptionDataBuilder::new()
-      .insert("is_selected", data.is_selected)
+      .insert_bool_value("is_selected", data.is_selected)
       .build()
   }
 }

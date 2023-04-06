@@ -69,8 +69,8 @@ impl From<&Cell> for DateCellData {
 impl From<DateCellData> for Cell {
   fn from(data: DateCellData) -> Self {
     new_cell_builder(FieldType::DateTime)
-      .insert("timestamp", data.timestamp)
-      .insert("include_time", data.include_time)
+      .insert_i64_value("timestamp", data.timestamp.unwrap_or_default())
+      .insert_bool_value("include_time", data.include_time)
       .build()
   }
 }

@@ -34,7 +34,7 @@ impl GroupCustomize for CheckboxGroupController {
   fn placeholder_cell(&self) -> Option<Cell> {
     Some(
       new_cell_builder(FieldType::Checkbox)
-        .insert("data", UNCHECK)
+        .insert_str_value("data", UNCHECK)
         .build(),
     )
   }

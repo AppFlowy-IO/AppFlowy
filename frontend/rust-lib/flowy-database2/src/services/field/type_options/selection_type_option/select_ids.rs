@@ -24,7 +24,7 @@ impl SelectOptionIds {
 
   pub fn to_cell_data(&self, field_type: FieldType) -> Cell {
     new_cell_builder(field_type)
-      .insert("data", self.to_string())
+      .insert_str_value("data", self.to_string())
       .build()
   }
 }

@@ -1,8 +1,65 @@
 use crate::entities::{
   AlterFilterParams, DatabaseSettingChangesetParams, DeleteFilterParams, FieldType, InsertedRowPB,
 };
+use anyhow::bail;
+use collab::core::lib0_any_ext::Lib0AnyMapExtension;
 use collab_database::fields::Field;
+use collab_database::views::{FilterMap, FilterMapBuilder};
+use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, Hash)]
+pub struct Filter {
+  pub id: String,
+  pub field_id: String,
+  pub field_type: i64,
+  pub condition: i64,
+  pub content: String,
+}
+
+const FILTER_ID: &str = "id";
+const FIELD_ID: &str = "field_id";
+const FIELD_TYPE: &str = "ty";
+const FILTER_CONDITION: &str = "condition";
+const FILTER_CONTENT: &str = "content";
+
+impl From<Filter> for FilterMap {
+  fn from(data: Filter) -> Self {
+    FilterMapBuilder::new()
+      .insert_str_value(FILTER_ID, data.id)
+      .insert_str_value(FIELD_ID, data.field_id)
+      .insert_str_value(FILTER_CONTENT, data.content)
+      .insert_i64_value(FIELD_TYPE, data.field_type)
+      .insert_i64_value(FILTER_CONDITION, data.condition)
+      .build()
+  }
+}
+
+impl TryFrom<FilterMap> for Filter {
+  type Error = anyhow::Error;
+
+  fn try_from(filter: FilterMap) -> Result<Self, Self::Error> {
+    match (
+      filter.get_str_value(FILTER_ID),
+      filter.get_str_value(FIELD_ID),
+    ) {
+      (Some(id), Some(field_id)) => {
+        let condition = filter.get_i64_value(FILTER_CONDITION).unwrap_or(0);
+        let content = filter.get_str_value(FILTER_CONTENT).unwrap_or_default();
+        let field_type = filter.get_i64_value(FIELD_TYPE).unwrap_or_default();
+        Ok(Filter {
+          id,
+          field_id,
+          field_type,
+          condition,
+          content,
+        })
+      },
+      _ => {
+        bail!("Invalid filter data")
+      },
+    }
+  }
+}
 #[derive(Debug)]
 pub struct FilterChangeset {
   pub(crate) insert_filter: Option<FilterType>,
