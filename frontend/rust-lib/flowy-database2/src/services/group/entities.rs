@@ -2,8 +2,69 @@ use crate::entities::RowPB;
 use crate::protobuf::CreateRowPayloadPB_oneof_one_of_data::data;
 use anyhow::bail;
 use collab::core::any_map::AnyMapExtension;
-use collab_database::views::{GroupMap, GroupMapBuilder};
+use collab_database::database::gen_database_group_id;
+use collab_database::views::{GroupMap, GroupMapBuilder, GroupSettingMap};
 use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct GroupSetting {
+  pub id: String,
+  pub field_id: String,
+  pub field_type: i64,
+  pub groups: Vec<Group>,
+  pub content: String,
+}
+
+impl GroupSetting {
+  pub fn new(field_id: String, field_type: i64, content: String) -> Self {
+    Self {
+      id: gen_database_group_id(),
+      field_id,
+      field_type,
+      groups: vec![],
+      content,
+    }
+  }
+}
+
+const GROUP_ID: &str = "id";
+const FIELD_ID: &str = "field_id";
+const FIELD_TYPE: &str = "ty";
+const GROUPS: &str = "groups";
+const CONTENT: &str = "content";
+
+impl TryFrom<GroupSettingMap> for GroupSetting {
+  type Error = anyhow::Error;
+
+  fn try_from(value: GroupSettingMap) -> Result<Self, Self::Error> {
+    match (
+      value.get_str_value(GROUP_ID),
+      value.get_str_value(FIELD_ID),
+      value.get_i64_value(FIELD_TYPE),
+    ) {
+      (Some(id), Some(field_id), Some(field_type)) => {
+        let content = value.get_str_value(CONTENT).unwrap_or_default();
+        todo!()
+        // let groups = value
+        //   .get_array_value(GROUPS)
+        //   .unwrap_or_default()
+        //   .iter()
+        //   .flat_map(|group| Group::try_from(group).ok())
+        //   .collect::<Vec<Group>>()?;
+        // Ok(Self {
+        //   id,
+        //   field_id,
+        //   field_type,
+        //   groups,
+        //   content,
+        // })
+      },
+      _ => {
+        bail!("Invalid group setting data")
+      },
+    }
+  }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Group {
