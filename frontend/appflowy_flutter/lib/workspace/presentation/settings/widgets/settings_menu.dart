@@ -55,6 +55,16 @@ class SettingsMenu extends StatelessWidget {
           icon: Icons.account_box_outlined,
           changeSelectedPage: changeSelectedPage,
         ),
+        const SizedBox(
+          height: 10,
+        ),
+        SettingsMenuElement(
+          page: SettingsPage.shortcuts,
+          selectedPage: currentPage,
+          label: LocaleKeys.settings_shortcuts_shortcutsLabel.tr(),
+          icon: Icons.cut,
+          changeSelectedPage: changeSelectedPage,
+        ),
       ],
     );
   }

@@ -1,6 +1,7 @@
 /// AppFlowyEditor library
 library appflowy_editor;
 
+export 'src/service/shortcut_event/shortcut_event_barrel.dart';
 export 'src/infra/log.dart';
 export 'src/render/style/editor_style.dart';
 export 'src/core/document/node.dart';
