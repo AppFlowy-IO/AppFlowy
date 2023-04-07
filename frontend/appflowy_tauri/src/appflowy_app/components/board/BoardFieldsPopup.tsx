@@ -1,6 +1,5 @@
 import { useAppSelector } from '$app/stores/store';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
-import { Popup } from '$app/components/_shared/Popup';
 import { useRef } from 'react';
 import useOutsideClick from '$app/components/_shared/useOutsideClick';
 import { EyeOpenSvg } from '$app/components/_shared/svg/EyeOpenSvg';
@@ -12,7 +11,7 @@ export const BoardFieldsPopup = ({ hidePopup }: { hidePopup: () => void }) => {
   useOutsideClick(ref, () => hidePopup());
 
   return (
-    <div ref={ref} className={'absolute top-full left-full z-10 rounded-lg bg-white px-2 py-2 shadow-md'}>
+    <div ref={ref} className={'absolute top-full left-full z-10 rounded-lg bg-white px-2 py-2 text-xs shadow-md'}>
       {columns.map((column, index) => (
         <div
           className={'flex cursor-pointer items-center justify-between rounded-lg px-2 py-2 hover:bg-main-secondary'}

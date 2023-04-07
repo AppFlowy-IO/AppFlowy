@@ -42,7 +42,7 @@ export const BoardSettingsPopup = ({
     <Popup
       onOutsideClick={() => hidePopup()}
       items={settingsItems}
-      className={'absolute top-full left-full z-10'}
+      className={'absolute top-full left-full z-10 text-xs'}
     ></Popup>
   );
 };

@@ -45,121 +45,121 @@ export const TestColors = () => {
       <h1 className={'mb-4 text-2xl'}>Icons</h1>
       <div className={'mb-8'}>
         <div className={'flex flex-wrap items-center gap-4'}>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'AddSvg'}>
             <AddSvg></AddSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'ArrowLeftSvg'}>
             <ArrowLeftSvg></ArrowLeftSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'ArrowRightSvg'}>
             <ArrowRightSvg></ArrowRightSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'BoardSvg'}>
             <BoardSvg></BoardSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'CheckboxSvg'}>
             <CheckboxSvg></CheckboxSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'ChecklistTypeSvg'}>
             <ChecklistTypeSvg></ChecklistTypeSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'CheckmarkSvg'}>
             <CheckmarkSvg></CheckmarkSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'ClockSvg'}>
             <ClockSvg></ClockSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'CloseSvg'}>
             <CloseSvg></CloseSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'CopySvg'}>
             <CopySvg></CopySvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'DateTypeSvg'}>
             <DateTypeSvg></DateTypeSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'Details2Svg'}>
             <Details2Svg></Details2Svg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'DocumentSvg'}>
             <DocumentSvg></DocumentSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'DropDownShowSvg'}>
             <DropDownShowSvg></DropDownShowSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'EarthSvg'}>
             <EarthSvg></EarthSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'EditorCheckSvg'}>
             <EditorCheckSvg></EditorCheckSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'EditorUncheckSvg'}>
             <EditorUncheckSvg></EditorUncheckSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'EditSvg'}>
             <EditSvg></EditSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'EyeClosedSvg'}>
             <EyeClosedSvg></EyeClosedSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'EyeOpenSvg'}>
             <EyeOpenSvg></EyeOpenSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'FilterSvg'}>
             <FilterSvg></FilterSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'GridSvg'}>
             <GridSvg></GridSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'GroupByFieldSvg'}>
             <GroupByFieldSvg></GroupByFieldSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'HideMenuSvg'}>
             <HideMenuSvg></HideMenuSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'InformationSvg'}>
             <InformationSvg></InformationSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'LogoutSvg'}>
             <LogoutSvg></LogoutSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'MoreSvg'}>
             <MoreSvg></MoreSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'MultiSelectTypeSvg'}>
             <MultiSelectTypeSvg></MultiSelectTypeSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'NumberTypeSvg'}>
             <NumberTypeSvg></NumberTypeSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'PropertiesSvg'}>
             <PropertiesSvg></PropertiesSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'SearchSvg'}>
             <SearchSvg></SearchSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'ShowMenuSvg'}>
             <ShowMenuSvg></ShowMenuSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'SingleSelectTypeSvg'}>
             <SingleSelectTypeSvg></SingleSelectTypeSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'SkipLeftSvg'}>
             <SkipLeftSvg></SkipLeftSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'SkipRightSvg'}>
             <SkipRightSvg></SkipRightSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'SortSvg'}>
             <SortSvg></SortSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'TextTypeSvg'}>
             <TextTypeSvg></TextTypeSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'TrashSvg'}>
             <TrashSvg></TrashSvg>
           </i>
-          <i className={'h-5 w-5'}>
+          <i className={'h-5 w-5'} title={'UrlTypeSvg'}>
             <UrlTypeSvg></UrlTypeSvg>
           </i>
         </div>
