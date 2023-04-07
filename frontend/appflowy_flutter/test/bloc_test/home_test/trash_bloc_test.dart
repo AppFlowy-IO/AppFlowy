@@ -1,14 +1,13 @@
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/plugins/trash/application/trash_bloc.dart';
 import 'package:appflowy/workspace/application/app/app_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../util.dart';
 
 class TrashTestContext {
-  late AppPB app;
+  late ViewPB view;
   late AppBloc appBloc;
   late List<ViewPB> allViews;
   final AppFlowyUnitTest unitTest;
@@ -16,8 +15,8 @@ class TrashTestContext {
   TrashTestContext(this.unitTest);
 
   Future<void> initialize() async {
-    app = await unitTest.createTestApp();
-    appBloc = AppBloc(app: app)..add(const AppEvent.initial());
+    view = await unitTest.createTestApp();
+    appBloc = AppBloc(view: view)..add(const AppEvent.initial());
     await blocResponseFuture();
 
     appBloc.add(AppEvent.createView(
@@ -40,7 +39,7 @@ class TrashTestContext {
     );
     await blocResponseFuture();
 
-    allViews = [...appBloc.state.app.belongings.items];
+    allViews = [...appBloc.state.view.belongings];
     assert(allViews.length == 3, 'but receive ${allViews.length}');
   }
 }
@@ -65,17 +64,17 @@ void main() {
       await blocResponseFuture(millisecond: 200);
 
       // delete a view
-      final deletedView = context.appBloc.state.app.belongings.items[0];
+      final deletedView = context.appBloc.state.view.belongings[0];
       context.appBloc.add(AppEvent.deleteView(deletedView.id));
       await blocResponseFuture();
-      assert(context.appBloc.state.app.belongings.items.length == 2);
+      assert(context.appBloc.state.view.belongings.length == 2);
       assert(trashBloc.state.objects.length == 1);
       assert(trashBloc.state.objects.first.id == deletedView.id);
 
       // put back
       trashBloc.add(TrashEvent.putback(deletedView.id));
       await blocResponseFuture();
-      assert(context.appBloc.state.app.belongings.items.length == 3);
+      assert(context.appBloc.state.view.belongings.length == 3);
       assert(trashBloc.state.objects.isEmpty);
 
       // delete all views

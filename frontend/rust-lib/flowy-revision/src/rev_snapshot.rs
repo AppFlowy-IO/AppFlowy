@@ -28,7 +28,6 @@ pub trait RevisionSnapshotDataGenerator: Send + Sync {
 const AUTO_GEN_SNAPSHOT_PER_10_REVISION: i64 = 10;
 
 pub struct RevisionSnapshotController<Connection> {
-  user_id: String,
   object_id: String,
   rev_snapshot_persistence: Arc<dyn RevisionSnapshotPersistence>,
   rev_snapshot_data: Option<Arc<dyn RevisionSnapshotDataGenerator>>,
@@ -43,7 +42,6 @@ where
   Connection: 'static,
 {
   pub fn new<D>(
-    user_id: &str,
     object_id: &str,
     disk_cache: D,
     rev_id_counter: Arc<RevIdCounter>,
@@ -55,7 +53,6 @@ where
   {
     let rev_snapshot_persistence = Arc::new(disk_cache);
     Self {
-      user_id: user_id.to_string(),
       object_id: object_id.to_string(),
       rev_snapshot_persistence,
       rev_id_counter,

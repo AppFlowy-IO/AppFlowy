@@ -57,7 +57,6 @@ impl DeltaDocumentEditor {
     #[cfg(feature = "sync")]
     let ws_manager = crate::old_editor::web_socket::make_document_ws_manager(
       doc_id.clone(),
-      user_id.clone(),
       edit_cmd_tx.clone(),
       rev_manager.clone(),
       rev_web_socket,

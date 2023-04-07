@@ -3,7 +3,7 @@ import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/left_bar_item.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 
 import '../../util.dart';
@@ -29,7 +29,7 @@ class CalendarPluginBuilder extends PluginBuilder {
   PluginType get pluginType => PluginType.calendar;
 
   @override
-  ViewLayoutTypePB? get layoutType => ViewLayoutTypePB.Calendar;
+  ViewLayoutPB? get layoutType => ViewLayoutPB.Calendar;
 }
 
 class CalendarPluginConfig implements PluginConfig {

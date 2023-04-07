@@ -3,6 +3,7 @@ import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 
@@ -31,6 +32,7 @@ class _DisclosureButtonState extends State<DisclosureButton> {
           .toList(),
       buildChild: (controller) {
         return FlowyIconButton(
+          hoverColor: AFThemeExtension.of(context).lightGreyHover,
           width: 20,
           icon: svgWidget(
             "editor/details",

@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { nanoid } from 'nanoid';
-import { WorkspaceSettingPB } from '@/services/backend/models/flowy-folder/workspace';
+import { WorkspaceSettingPB } from '@/services/backend/models/flowy-folder2/workspace';
 
 export interface ICurrentUser {
-  id?: string;
+  id?: number;
   displayName?: string;
   email?: string;
   token?: string;

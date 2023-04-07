@@ -226,6 +226,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
           fontColor: theme.surface,
         ),
       ),
+      scaffoldBackgroundColor: theme.surface,
       scrollbarTheme: ScrollbarThemeData(
         thumbColor: MaterialStateProperty.all(theme.shader3),
         thickness: MaterialStateProperty.resolveWith((states) {
@@ -292,10 +293,12 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
           tint7: theme.tint7,
           tint8: theme.tint8,
           tint9: theme.tint9,
+          textColor: theme.text,
           greyHover: theme.hoverBG1,
           greySelect: theme.bg3,
-          lightGreyHover: theme.shader6,
+          lightGreyHover: theme.hoverBG3,
           toggleOffFill: theme.shader5,
+          progressBarBGcolor: theme.progressBarBGcolor,
           code: _getFontStyle(
             fontFamily: monospaceFontFamily,
             fontColor: theme.shader3,
@@ -309,7 +312,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
             fontFamily: fontFamily,
             fontSize: FontSizes.s11,
             fontWeight: FontWeight.w400,
-            fontColor: theme.shader3,
+            fontColor: theme.hint,
           ),
         )
       ],

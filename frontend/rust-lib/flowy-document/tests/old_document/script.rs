@@ -51,7 +51,6 @@ impl DeltaDocumentEditorTest {
   async fn run_script(&mut self, script: EditorScript) {
     let rev_manager = self.editor.rev_manager();
     let cache = rev_manager.revision_cache().await;
-    let _user_id = self.sdk.user_session.user_id().unwrap();
 
     match script {
       EditorScript::InsertText(s, offset) => {

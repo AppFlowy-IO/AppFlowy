@@ -48,7 +48,7 @@ impl DocumentEditorTest {
     let test = ViewTest::new_document_view(&sdk).await;
     let document_editor = sdk
       .document_manager
-      .open_document_editor(&test.view.id)
+      .open_document_editor(&test.child_view.id)
       .await
       .unwrap();
     let editor = match document_editor

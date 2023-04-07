@@ -5,11 +5,11 @@ import { useAppDispatch } from '$app/stores/store';
 import loadField from './loadField';
 import { FieldInfo } from '$app/stores/effects/database/field/field_controller';
 import { RowInfo } from '$app/stores/effects/database/row/row_cache';
-import { ViewLayoutTypePB } from '@/services/backend';
+import { ViewLayoutPB } from '@/services/backend';
 import { DatabaseGroupController } from '$app/stores/effects/database/group/group_controller';
 import { OnDragEndResponder } from 'react-beautiful-dnd';
 
-export const useDatabase = (viewId: string, type?: ViewLayoutTypePB) => {
+export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
   const dispatch = useAppDispatch();
   const [controller, setController] = useState<DatabaseController>();
   const [rows, setRows] = useState<readonly RowInfo[]>([]);
@@ -66,7 +66,7 @@ export const useDatabase = (viewId: string, type?: ViewLayoutTypePB) => {
         );
       }
 
-      if (type === ViewLayoutTypePB.Board) {
+      if (type === ViewLayoutPB.Board) {
         const fieldId = await controller.getGroupByFieldId();
         setGroupByFieldId(fieldId.unwrap());
         setGroups(controller.groups.value);

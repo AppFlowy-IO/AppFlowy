@@ -1,6 +1,6 @@
 import { AppflowyLogo } from '../../_shared/svg/AppflowyLogo';
-import { EyeClosed } from '../../_shared/svg/EyeClosedSvg';
-import { EyeOpened } from '../../_shared/svg/EyeOpenSvg';
+import { EyeClosedSvg } from '../../_shared/svg/EyeClosedSvg';
+import { EyeOpenSvg } from '../../_shared/svg/EyeOpenSvg';
 import { useLogin } from './Login.hooks';
 import { Link } from 'react-router-dom';
 import { Button } from '../../_shared/Button';
@@ -55,7 +55,7 @@ export const Login = () => {
                 className='absolute right-0 top-0 flex h-full w-12 items-center justify-center '
                 onClick={onTogglePassword}
               >
-                <span className='h-6 w-6'>{showPassword ? <EyeClosed /> : <EyeOpened />}</span>
+                <span className='h-6 w-6'>{showPassword ? <EyeClosedSvg /> : <EyeOpenSvg />}</span>
               </button>
             </div>
 

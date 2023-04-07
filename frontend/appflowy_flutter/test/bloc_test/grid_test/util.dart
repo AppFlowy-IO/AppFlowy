@@ -13,7 +13,7 @@ import 'package:appflowy/workspace/application/app/app_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:dartz/dartz.dart';
 
@@ -178,7 +178,7 @@ class AppFlowyGridTest {
               view,
               DatabaseController(
                 view: view,
-                layoutType: LayoutTypePB.Grid,
+                layoutType: DatabaseLayoutPB.Grid,
               ));
           final result = await context.gridController.open();
           result.fold((l) => null, (r) => throw Exception(r));

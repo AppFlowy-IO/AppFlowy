@@ -13,7 +13,6 @@ use revision_model::{Revision, RevisionRange};
 use std::sync::Arc;
 
 pub struct SQLiteFolderRevisionPersistence {
-  user_id: String,
   pub(crate) pool: Arc<ConnectionPool>,
 }
 
@@ -36,7 +35,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteFolderRevisionPersistence 
     rev_ids: Option<Vec<i64>>,
   ) -> Result<Vec<SyncRecord>, Self::Error> {
     let conn = self.pool.get().map_err(internal_error)?;
-    let records = FolderRevisionSql::read(&self.user_id, object_id, rev_ids, &conn)?;
+    let records = FolderRevisionSql::read(object_id, rev_ids, &conn)?;
     Ok(records)
   }
 
@@ -46,8 +45,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteFolderRevisionPersistence 
     range: &RevisionRange,
   ) -> Result<Vec<SyncRecord>, Self::Error> {
     let conn = &*self.pool.get().map_err(internal_error)?;
-    let revisions =
-      FolderRevisionSql::read_with_range(&self.user_id, object_id, range.clone(), conn)?;
+    let revisions = FolderRevisionSql::read_with_range(object_id, range.clone(), conn)?;
     Ok(revisions)
   }
 
@@ -88,11 +86,8 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteFolderRevisionPersistence 
 }
 
 impl SQLiteFolderRevisionPersistence {
-  pub fn new(user_id: &str, pool: Arc<ConnectionPool>) -> Self {
-    Self {
-      user_id: user_id.to_owned(),
-      pool,
-    }
+  pub fn new(pool: Arc<ConnectionPool>) -> Self {
+    Self { pool }
   }
 }
 
@@ -145,7 +140,6 @@ impl FolderRevisionSql {
   }
 
   fn read(
-    user_id: &str,
     object_id: &str,
     rev_ids: Option<Vec<i64>>,
     conn: &SqliteConnection,
@@ -159,14 +153,13 @@ impl FolderRevisionSql {
     let rows = sql.order(dsl::rev_id.asc()).load::<RevisionTable>(conn)?;
     let records = rows
       .into_iter()
-      .map(|row| mk_revision_record_from_table(user_id, row))
+      .map(mk_revision_record_from_table)
       .collect::<Vec<_>>();
 
     Ok(records)
   }
 
   fn read_with_range(
-    user_id: &str,
     object_id: &str,
     range: RevisionRange,
     conn: &SqliteConnection,
@@ -180,7 +173,7 @@ impl FolderRevisionSql {
 
     let revisions = rev_tables
       .into_iter()
-      .map(|table| mk_revision_record_from_table(user_id, table))
+      .map(mk_revision_record_from_table)
       .collect::<Vec<_>>();
     Ok(revisions)
   }
@@ -241,7 +234,7 @@ impl std::default::Default for TextRevisionState {
   }
 }
 
-fn mk_revision_record_from_table(_user_id: &str, table: RevisionTable) -> SyncRecord {
+fn mk_revision_record_from_table(table: RevisionTable) -> SyncRecord {
   let md5 = md5(&table.data);
   let revision = Revision::new(
     &table.doc_id,

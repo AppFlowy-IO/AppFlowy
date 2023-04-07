@@ -1,7 +1,7 @@
-import { CellIdentifier } from '../../stores/effects/database/cell/cell_bd_svc';
-import { CellCache } from '../../stores/effects/database/cell/cell_cache';
-import { FieldController } from '../../stores/effects/database/field/field_controller';
-import { FieldType } from '../../../services/backend';
+import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
+import { CellCache } from '$app/stores/effects/database/cell/cell_cache';
+import { FieldController } from '$app/stores/effects/database/field/field_controller';
+import { FieldType } from '@/services/backend';
 import { BoardOptionsCell } from './BoardOptionsCell';
 import { BoardDateCell } from './BoardDateCell';
 import { BoardTextCell } from './BoardTextCell';

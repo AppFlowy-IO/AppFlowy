@@ -12,26 +12,26 @@ use std::sync::Arc;
 
 const V1_MIGRATION: &str = "DOCUMENT_V1_MIGRATION";
 pub(crate) struct DocumentMigration {
-  user_id: String,
+  user_id: i64,
   database: Arc<dyn DocumentDatabase>,
 }
 
 impl DocumentMigration {
-  pub fn new(user_id: &str, database: Arc<dyn DocumentDatabase>) -> Self {
+  pub fn new(user_id: i64, database: Arc<dyn DocumentDatabase>) -> Self {
     let user_id = user_id.to_owned();
     Self { user_id, database }
   }
 
   pub fn run_v1_migration(&self) -> FlowyResult<()> {
-    let key = migration_flag_key(&self.user_id, V1_MIGRATION);
+    let key = migration_flag_key(self.user_id, V1_MIGRATION);
     if KV::get_bool(&key) {
       return Ok(());
     }
 
     let pool = self.database.db_pool()?;
     let conn = &*pool.get()?;
-    let disk_cache = SQLiteDocumentRevisionPersistence::new(&self.user_id, pool);
-    let documents = DeltaRevisionSql::read_all_documents(&self.user_id, conn)?;
+    let disk_cache = SQLiteDocumentRevisionPersistence::new(pool);
+    let documents = DeltaRevisionSql::read_all_documents(conn)?;
     tracing::debug!("[Migration]: try migrate {} documents", documents.len());
     for revisions in documents {
       if revisions.is_empty() {
@@ -71,6 +71,6 @@ impl DocumentMigration {
     Ok(())
   }
 }
-fn migration_flag_key(user_id: &str, version: &str) -> String {
+fn migration_flag_key(user_id: i64, version: &str) -> String {
   md5(format!("{}{}", user_id, version,))
 }

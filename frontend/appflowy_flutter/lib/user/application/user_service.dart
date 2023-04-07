@@ -3,15 +3,16 @@ import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:fixnum/fixnum.dart';
 
 class UserBackendService {
   UserBackendService({
     required this.userId,
   });
 
-  final String userId;
+  final Int64 userId;
 
   static Future<Either<UserProfilePB, FlowyError>> getCurrentUserProfile() {
     return UserEventGetUserProfile().send();

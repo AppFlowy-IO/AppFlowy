@@ -23,7 +23,7 @@ import {
   CreateRowPayloadPB,
   ViewIdPB,
 } from '@/services/backend';
-import { FolderEventCloseView } from '@/services/backend/events/flowy-folder';
+import { FolderEventCloseView } from '@/services/backend/events/flowy-folder2';
 
 /// A service that wraps the backend service
 export class DatabaseBackendService {

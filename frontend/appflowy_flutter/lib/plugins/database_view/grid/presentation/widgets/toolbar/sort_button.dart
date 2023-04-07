@@ -24,7 +24,7 @@ class _SortButtonState extends State<SortButton> {
     return BlocBuilder<SortMenuBloc, SortMenuState>(
       builder: (context, state) {
         final textColor = state.sortInfos.isEmpty
-            ? null
+            ? AFThemeExtension.of(context).textColor
             : Theme.of(context).colorScheme.primary;
 
         return wrapPopover(

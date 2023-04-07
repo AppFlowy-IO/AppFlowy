@@ -120,8 +120,14 @@ export const EditRow = ({
       className={`fixed inset-0 z-10 flex items-center justify-center bg-black/30 backdrop-blur-sm transition-opacity duration-300 ${
         unveil ? 'opacity-100' : 'opacity-0'
       }`}
+      onClick={() => onCloseClick()}
     >
-      <div className={`relative flex h-[90%] w-[70%] flex-col gap-8 rounded-xl bg-white px-8 pb-4 pt-12`}>
+      <div
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+        className={`relative flex h-[90%] w-[70%] flex-col gap-8 rounded-xl bg-white px-8 pb-4 pt-12`}
+      >
         <div onClick={() => onCloseClick()} className={'absolute top-4 right-4'}>
           <button className={'block h-8 w-8 rounded-lg text-shade-2 hover:bg-main-secondary'}>
             <CloseSvg></CloseSvg>

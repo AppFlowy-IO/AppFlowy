@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/trash.pb.dart';
 
 class TrashService {
   Future<Either<RepeatedTrashPB, FlowyError>> readTrash() {
@@ -15,12 +15,9 @@ class TrashService {
     return FolderEventPutbackTrash(id).send();
   }
 
-  Future<Either<Unit, FlowyError>> deleteViews(
-      List<Tuple2<String, TrashType>> trashList) {
-    final items = trashList.map((trash) {
-      return TrashIdPB.create()
-        ..id = trash.value1
-        ..ty = trash.value2;
+  Future<Either<Unit, FlowyError>> deleteViews(List<String> trash) {
+    final items = trash.map((trash) {
+      return TrashIdPB.create()..id = trash;
     });
 
     final ids = RepeatedTrashIdPB(items: items);

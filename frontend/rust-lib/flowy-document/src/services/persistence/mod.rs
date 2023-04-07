@@ -16,7 +16,7 @@ impl DocumentPersistence {
   }
 
   #[tracing::instrument(level = "trace", skip_all, err)]
-  pub fn initialize(&self, user_id: &str) -> FlowyResult<()> {
+  pub fn initialize(&self, user_id: i64) -> FlowyResult<()> {
     let migration = DocumentMigration::new(user_id, self.database.clone());
     if let Err(e) = migration.run_v1_migration() {
       tracing::error!("[Document Migration]: run v1 migration failed: {:?}", e);

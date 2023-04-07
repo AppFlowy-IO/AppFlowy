@@ -46,7 +46,7 @@ impl DatabaseDBConnection for DatabaseDBConnectionImpl {
 
 struct GridUserImpl(Arc<UserSession>);
 impl DatabaseUser for GridUserImpl {
-  fn user_id(&self) -> Result<String, FlowyError> {
+  fn user_id(&self) -> Result<i64, FlowyError> {
     self.0.user_id()
   }
 

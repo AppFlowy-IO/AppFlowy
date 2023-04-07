@@ -22,7 +22,6 @@ pub trait RevisionResettable {
 }
 
 pub struct RevisionStructReset<T, C> {
-  user_id: String,
   target: T,
   disk_cache: Arc<dyn RevisionDiskCache<C, Error = FlowyError>>,
 }
@@ -32,13 +31,8 @@ where
   T: RevisionResettable,
   C: 'static,
 {
-  pub fn new(
-    user_id: &str,
-    object: T,
-    disk_cache: Arc<dyn RevisionDiskCache<C, Error = FlowyError>>,
-  ) -> Self {
+  pub fn new(object: T, disk_cache: Arc<dyn RevisionDiskCache<C, Error = FlowyError>>) -> Self {
     Self {
-      user_id: user_id.to_owned(),
       target: object,
       disk_cache,
     }
@@ -67,14 +61,12 @@ where
   async fn reset_object(&self) -> FlowyResult<()> {
     let configuration = RevisionPersistenceConfiguration::new(2, false);
     let rev_persistence = Arc::new(RevisionPersistence::from_disk_cache(
-      &self.user_id,
       self.target.target_id(),
       self.disk_cache.clone(),
       configuration,
     ));
     let revisions = RevisionLoader {
       object_id: self.target.target_id().to_owned(),
-      user_id: self.user_id.clone(),
       cloud: None,
       rev_persistence,
     }

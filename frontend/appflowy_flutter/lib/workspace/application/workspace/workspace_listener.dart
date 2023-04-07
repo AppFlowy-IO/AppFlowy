@@ -1,16 +1,16 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:appflowy/core/folder_notification.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
-import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/notification.pb.dart';
 
-typedef AppListNotifyValue = Either<List<AppPB>, FlowyError>;
+typedef AppListNotifyValue = Either<List<ViewPB>, FlowyError>;
 typedef WorkspaceNotifyValue = Either<WorkspacePB, FlowyError>;
 
 class WorkspaceListener {
@@ -55,10 +55,10 @@ class WorkspaceListener {
           (error) => _workspaceUpdatedNotifier?.value = right(error),
         );
         break;
-      case FolderNotification.DidUpdateWorkspaceApps:
+      case FolderNotification.DidUpdateWorkspaceViews:
         result.fold(
           (payload) => _appsChangedNotifier?.value =
-              left(RepeatedAppPB.fromBuffer(payload).items),
+              left(RepeatedViewPB.fromBuffer(payload).items),
           (error) => _appsChangedNotifier?.value = right(error),
         );
         break;

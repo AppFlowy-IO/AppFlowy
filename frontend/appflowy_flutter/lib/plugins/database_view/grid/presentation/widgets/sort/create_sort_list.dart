@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.da
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -116,19 +117,16 @@ class _FilterTextFieldDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Padding(
+    return Container(
       padding: const EdgeInsets.only(top: 4),
-      child: Container(
-        color: Theme.of(context).colorScheme.background,
-        height: fixHeight,
-        child: FlowyTextField(
-          hintText: LocaleKeys.grid_settings_sortBy.tr(),
-          onChanged: (text) {
-            context
-                .read<CreateSortBloc>()
-                .add(CreateSortEvent.didReceiveFilterText(text));
-          },
-        ),
+      height: fixHeight,
+      child: FlowyTextField(
+        hintText: LocaleKeys.grid_settings_sortBy.tr(),
+        onChanged: (text) {
+          context
+              .read<CreateSortBloc>()
+              .add(CreateSortEvent.didReceiveFilterText(text));
+        },
       ),
     );
   }
@@ -157,7 +155,11 @@ class _SortPropertyCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
-      text: FlowyText.medium(fieldInfo.name),
+      hoverColor: AFThemeExtension.of(context).lightGreyHover,
+      text: FlowyText.medium(
+        fieldInfo.name,
+        color: AFThemeExtension.of(context).textColor,
+      ),
       onTap: () => onTap(fieldInfo),
       leftIcon: svgWidget(
         fieldInfo.fieldType.iconName(),

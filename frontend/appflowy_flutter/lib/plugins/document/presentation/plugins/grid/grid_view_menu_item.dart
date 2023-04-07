@@ -2,7 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/base/insert_page_command.dart';
 import 'package:appflowy/workspace/application/app/app_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -22,17 +22,17 @@ SelectionMenuItem gridViewMenuItem(DocumentBloc documentBloc) =>
       },
       keywords: ['grid'],
       handler: (editorState, menuService, context) async {
-        if (!documentBloc.view.hasAppId()) {
+        if (!documentBloc.view.hasParentViewId()) {
           return;
         }
 
-        final appId = documentBloc.view.appId;
+        final appId = documentBloc.view.parentViewId;
         final service = AppBackendService();
 
         final result = (await service.createView(
           appId: appId,
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-          layoutType: ViewLayoutTypePB.Grid,
+          layoutType: ViewLayoutPB.Grid,
         ))
             .getLeftOrNull();
 
@@ -41,15 +41,14 @@ SelectionMenuItem gridViewMenuItem(DocumentBloc documentBloc) =>
           return;
         }
 
-        final app =
-            (await service.readApp(appId: result.appId)).getLeftOrNull();
+        final app = (await service.getView(result.viewId)).getLeftOrNull();
         // We should show an error dialog.
         if (app == null) {
           return;
         }
 
-        final view =
-            (await service.getView(result.appId, result.id)).getLeftOrNull();
+        final view = (await service.getChildView(result.viewId, result.id))
+            .getLeftOrNull();
         // As this.
         if (view == null) {
           return;

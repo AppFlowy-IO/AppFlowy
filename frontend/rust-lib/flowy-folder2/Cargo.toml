@@ -1,0 +1,41 @@
+[package]
+name = "flowy-folder2"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+collab = { version = "0.1.0" }
+collab-folder = { version = "0.1.0" }
+collab-persistence = { version = "0.1.0" }
+
+flowy-derive = { path = "../flowy-derive" }
+flowy-notification = { path = "../flowy-notification" }
+parking_lot = "0.12.1"
+unicode-segmentation = "1.10"
+tracing = { version = "0.1", features = ["log"] }
+flowy-error = { path = "../flowy-error", features = ["adaptor_dispatch"]}
+lib-dispatch = { path = "../lib-dispatch" }
+bytes = { version = "1.4" }
+lib-infra = { path = "../../../shared-lib/lib-infra" }
+tokio = { version = "1.26", features = ["full"] }
+nanoid = "0.4.0"
+lazy_static = "1.4.0"
+chrono = { version = "0.4.24"}
+strum = "0.21"
+strum_macros = "0.21"
+protobuf = {version = "2.28.0"}
+flowy-document = { path = "../flowy-document" }
+
+[dev-dependencies]
+flowy-folder2 = { path = "../flowy-folder2"}
+flowy-test = { path = "../flowy-test" }
+
+[build-dependencies]
+flowy-codegen = { path = "../flowy-codegen"}
+
+[features]
+dart = ["flowy-codegen/dart", "flowy-notification/dart"]
+ts = ["flowy-codegen/ts", "flowy-notification/ts"]
+test_helper = []
