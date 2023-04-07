@@ -1,5 +1,3 @@
-import { ViewLayoutTypePB } from '@/services/backend';
-
 import { useDatabase } from '../../_shared/database-hooks/useDatabase';
 import { GridTableCount } from '../GridTableCount/GridTableCount';
 import { GridTableHeader } from '../GridTableHeader/GridTableHeader';
@@ -10,9 +8,10 @@ import { GridToolbar } from '../GridToolbar/GridToolbar';
 import { EditRow } from '$app/components/_shared/EditRow/EditRow';
 import { useState } from 'react';
 import { RowInfo } from '$app/stores/effects/database/row/row_cache';
+import { ViewLayoutPB } from '@/services/backend';
 
 export const Grid = ({ viewId }: { viewId: string }) => {
-  const { controller, rows, groups } = useDatabase(viewId, ViewLayoutTypePB.Grid);
+  const { controller, rows, groups } = useDatabase(viewId, ViewLayoutPB.Grid);
   const [showGridRow, setShowGridRow] = useState(false);
   const [boardRowInfo, setBoardRowInfo] = useState<RowInfo>();
 
