@@ -15,6 +15,7 @@ import { FieldType } from '@/services/backend';
 import { CellOptionsPopup } from '$app/components/_shared/EditRow/CellOptionsPopup';
 import { DatePickerPopup } from '$app/components/_shared/EditRow/DatePickerPopup';
 import { DragDropContext, Droppable, OnDragEndResponder } from 'react-beautiful-dnd';
+import { EditCellOptionPopup } from '$app/components/_shared/EditRow/EditCellOptionPopup';
 
 export const EditRow = ({
   onClose,
@@ -47,6 +48,10 @@ export const EditRow = ({
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [datePickerTop, setDatePickerTop] = useState(0);
   const [datePickerLeft, setDatePickerLeft] = useState(0);
+
+  const [showEditCellOption, setShowEditCellOption] = useState(false);
+  const [editCellOptionTop, setEditCellOptionTop] = useState(0);
+  const [editCellOptionLeft, setEditCellOptionLeft] = useState(0);
 
   useEffect(() => {
     setUnveil(true);
@@ -104,6 +109,12 @@ export const EditRow = ({
     setDatePickerLeft(left);
     setDatePickerTop(top);
     setShowDatePicker(true);
+  };
+
+  const onOpenOptionDetailClick = (_left: number, _top: number) => {
+    setShowEditCellOption(true);
+    setEditCellOptionLeft(_left);
+    setEditCellOptionTop(_top);
   };
 
   const onDragEnd: OnDragEndResponder = (result) => {
@@ -202,6 +213,7 @@ export const EditRow = ({
             cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
             fieldController={controller.fieldController}
             onOutsideClick={() => setShowChangeOptionsPopup(false)}
+            openOptionDetail={onOpenOptionDetailClick}
           ></CellOptionsPopup>
         )}
         {showDatePicker && editingCell && (
@@ -213,6 +225,18 @@ export const EditRow = ({
             fieldController={controller.fieldController}
             onOutsideClick={() => setShowDatePicker(false)}
           ></DatePickerPopup>
+        )}
+        {showEditCellOption && editingCell && (
+          <EditCellOptionPopup
+            top={editCellOptionTop}
+            left={editCellOptionLeft}
+            cellIdentifier={editingCell}
+            cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
+            fieldController={controller.fieldController}
+            onOutsideClick={() => {
+              setShowEditCellOption(false);
+            }}
+          ></EditCellOptionPopup>
         )}
       </div>
     </div>

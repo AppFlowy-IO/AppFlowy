@@ -1,4 +1,4 @@
-import { KeyboardEventHandler, useEffect, useRef, useState } from 'react';
+import { KeyboardEventHandler, MouseEventHandler, useEffect, useRef, useState } from 'react';
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { useCell } from '$app/components/_shared/database-hooks/useCell';
 import { CellCache } from '$app/stores/effects/database/cell/cell_cache';
@@ -21,6 +21,7 @@ export const CellOptionsPopup = ({
   cellCache,
   fieldController,
   onOutsideClick,
+  openOptionDetail,
 }: {
   top: number;
   left: number;
@@ -28,6 +29,7 @@ export const CellOptionsPopup = ({
   cellCache: CellCache;
   fieldController: FieldController;
   onOutsideClick: () => void;
+  openOptionDetail: (_left: number, _top: number) => void;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -88,6 +90,19 @@ export const CellOptionsPopup = ({
     }
   };
 
+  const onOptionDetailClick: MouseEventHandler = (e) => {
+    e.stopPropagation();
+    let target = e.target as HTMLElement;
+
+    while (!(target instanceof HTMLButtonElement)) {
+      if (target.parentElement === null) return;
+      target = target.parentElement;
+    }
+
+    const { right: _left, top: _top } = target.getBoundingClientRect();
+    openOptionDetail(_left, _top);
+  };
+
   return (
     <div
       ref={ref}
@@ -120,7 +135,7 @@ export const CellOptionsPopup = ({
           <div className={'font-mono text-shade-3'}>{value.length}/30</div>
         </div>
         <div className={'-mx-4 h-[1px] bg-shade-6'}></div>
-        <div className={'font-semibold text-shade-3'}>{t('grid.selectOption.panelTitle') || ''}</div>
+        <div className={'font-medium text-shade-3'}>{t('grid.selectOption.panelTitle') || ''}</div>
         <div className={'flex flex-col gap-1'}>
           {(databaseStore.fields[cellIdentifier.fieldId]?.fieldOptions as ISelectOptionType).selectOptions.map(
             (option, index) => (
@@ -148,7 +163,7 @@ export const CellOptionsPopup = ({
                       <CheckmarkSvg></CheckmarkSvg>
                     </button>
                   )}
-                  <button className={'h-6 w-6 p-1'}>
+                  <button onClick={onOptionDetailClick} className={'h-6 w-6 p-1'}>
                     <Details2Svg></Details2Svg>
                   </button>
                 </div>
