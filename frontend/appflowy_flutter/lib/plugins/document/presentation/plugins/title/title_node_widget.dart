@@ -1,4 +1,5 @@
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../application/doc_bloc.dart';
 import 'package:flutter/material.dart';
@@ -15,14 +16,11 @@ class TitleNodeWidgetBuilder extends NodeWidgetBuilder {
       key: context.node.key,
       node: context.node,
       editorState: context.editorState,
-      title: docBloc,
     );
   }
 
   @override
-  NodeValidator<Node> get nodeValidator => (node) {
-        return true;
-      };
+  NodeValidator<Node> get nodeValidator => (node) => true;
 }
 
 class _TitleNodeWidget extends StatefulWidget {
@@ -30,12 +28,10 @@ class _TitleNodeWidget extends StatefulWidget {
     super.key,
     required this.node,
     required this.editorState,
-    required this.title,
   });
 
   final Node node;
   final EditorState editorState;
-  final DocumentBloc? title;
 
   @override
   State<_TitleNodeWidget> createState() => _TitleNodeWidgetState();
@@ -43,7 +39,7 @@ class _TitleNodeWidget extends StatefulWidget {
 
 class _TitleNodeWidgetState extends State<_TitleNodeWidget> {
   _TitleNodeWidgetState();
-  late DocumentBloc? docBloc;
+  late final DocumentBloc docBloc = context.read<DocumentBloc>();
   final focusNode = FocusNode();
   var textEditingController = TextEditingController();
   final service = ViewService();
@@ -51,10 +47,9 @@ class _TitleNodeWidgetState extends State<_TitleNodeWidget> {
   @override
   void initState() {
     super.initState();
-    docBloc = context.read<DocumentBloc>();
     textEditingController = TextEditingController.fromValue(
       TextEditingValue(
-        text: docBloc!.view.name.toString(),
+        text: docBloc.view.name.toString(),
       ),
     );
   }
@@ -65,30 +60,28 @@ class _TitleNodeWidgetState extends State<_TitleNodeWidget> {
     super.dispose();
   }
 
-  void updateName(String value) async {
-    await service.updateView(viewId: docBloc!.view.id, name: value);
+  void _updateName(String value) async {
+    await service.updateView(viewId: docBloc.view.id, name: value);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    Color textColor = theme.colorScheme.onSurface;
     return MouseRegion(
       child: EditableText(
         controller: textEditingController,
         autofocus: true,
         focusNode: focusNode,
         selectionColor: theme.highlightColor,
-        style: TextStyle(
-            color: textColor, fontSize: 50.0, fontWeight: FontWeight.bold),
+        style: AFThemeExtension.of(context).pageTitle,
         cursorColor: theme.highlightColor,
         backgroundCursorColor: theme.highlightColor,
         onSubmitted: (value) {
-          updateName(value);
+          _updateName;
         },
       ),
       onExit: (e) {
-        updateName(textEditingController.text);
+        _updateName(textEditingController.text);
         focusNode.unfocus();
       },
       onHover: (e) {

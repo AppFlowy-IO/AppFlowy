@@ -319,6 +319,12 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
             fontWeight: FontWeight.w400,
             fontColor: theme.hint,
           ),
+          pageTitle: _getFontStyle(
+            fontFamily: fontFamily,
+            fontSize: FontSizes.s44,
+            fontWeight: FontWeight.bold,
+            fontColor: theme.text,
+          ),
         )
       ],
     );

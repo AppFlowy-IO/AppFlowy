@@ -25,6 +25,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
   final TextStyle code;
   final TextStyle callout;
   final TextStyle caption;
+  final TextStyle pageTitle;
 
   const AFThemeExtension({
     required this.warning,
@@ -46,6 +47,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     required this.code,
     required this.callout,
     required this.caption,
+    required this.pageTitle,
     required this.progressBarBGcolor,
   });
 
@@ -75,6 +77,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     TextStyle? code,
     TextStyle? callout,
     TextStyle? caption,
+    TextStyle? pageTitle,
   }) {
     return AFThemeExtension(
       warning: warning ?? this.warning,
@@ -97,6 +100,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
       code: code ?? this.code,
       callout: callout ?? this.callout,
       caption: caption ?? this.caption,
+      pageTitle: pageTitle ?? this.pageTitle,
     );
   }
 
@@ -128,6 +132,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
       code: other.code,
       callout: other.callout,
       caption: other.caption,
+      pageTitle: pageTitle,
     );
   }
 }
