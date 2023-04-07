@@ -37,6 +37,7 @@ import { SortSvg } from '$app/components/_shared/svg/SortSvg';
 import { TextTypeSvg } from '$app/components/_shared/svg/TextTypeSvg';
 import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
 import { UrlTypeSvg } from '$app/components/_shared/svg/UrlTypeSvg';
+import { GroupByFieldSvg } from '$app/components/_shared/svg/GroupByFieldSvg';
 
 export const TestColors = () => {
   return (
@@ -109,6 +110,9 @@ export const TestColors = () => {
           </i>
           <i className={'h-5 w-5'}>
             <GridSvg></GridSvg>
+          </i>
+          <i className={'h-5 w-5'}>
+            <GroupByFieldSvg></GroupByFieldSvg>
           </i>
           <i className={'h-5 w-5'}>
             <HideMenuSvg></HideMenuSvg>
