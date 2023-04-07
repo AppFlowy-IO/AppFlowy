@@ -30,6 +30,7 @@ export const CellOptionsPopup = ({
   onOutsideClick: () => void;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation('');
   const [adjustedTop, setAdjustedTop] = useState(-100);
   const [value, setValue] = useState('');
@@ -49,6 +50,12 @@ export const CellOptionsPopup = ({
   useOutsideClick(ref, async () => {
     onOutsideClick();
   });
+
+  useEffect(() => {
+    if (inputRef?.current) {
+      inputRef.current.focus();
+    }
+  }, [inputRef]);
 
   const onKeyDown: KeyboardEventHandler = async (e) => {
     if (e.key === 'Enter' && value.length > 0) {
@@ -75,14 +82,16 @@ export const CellOptionsPopup = ({
     setValue('');
   };
 
-  useEffect(() => {
-    console.log('loaded data: ', data);
-    console.log('have stored ', databaseStore.fields[cellIdentifier.fieldId]);
-  }, [data]);
+  const onKeyDownWrapper: KeyboardEventHandler = (e) => {
+    if (e.key === 'Escape') {
+      onOutsideClick();
+    }
+  };
 
   return (
     <div
       ref={ref}
+      onKeyDown={onKeyDownWrapper}
       className={`fixed z-10 rounded-lg bg-white px-2 py-2 text-xs shadow-md transition-opacity duration-300 ${
         adjustedTop === -100 ? 'opacity-0' : 'opacity-100'
       }`}
@@ -101,6 +110,7 @@ export const CellOptionsPopup = ({
             )) || ''}
           </div>
           <input
+            ref={inputRef}
             className={'py-2'}
             value={value}
             onChange={(e) => setValue(e.target.value)}
