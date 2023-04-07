@@ -3,7 +3,7 @@ use crate::entities::{
   AlterFilterParams, AlterFilterPayloadPB, AlterSortParams, AlterSortPayloadPB,
   CalendarLayoutSettingsPB, DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams,
   DeleteGroupPayloadPB, DeleteSortParams, DeleteSortPayloadPB, InsertGroupParams,
-  InsertGroupPayloadPB, RepeatedFilterPB, RepeatedGroupConfigurationPB, RepeatedSortPB,
+  InsertGroupPayloadPB, RepeatedFilterPB, RepeatedGroupSettingPB, RepeatedSortPB,
 };
 use crate::services::setting::CalendarLayoutSetting;
 use collab_database::views::DatabaseLayout;
@@ -25,7 +25,7 @@ pub struct DatabaseViewSettingPB {
   pub filters: RepeatedFilterPB,
 
   #[pb(index = 4)]
-  pub group_configurations: RepeatedGroupConfigurationPB,
+  pub group_settings: RepeatedGroupSettingPB,
 
   #[pb(index = 5)]
   pub sorts: RepeatedSortPB,
@@ -161,41 +161,9 @@ impl DatabaseSettingChangesetParams {
 }
 
 #[derive(Debug, Eq, PartialEq, Default, ProtoBuf, Clone)]
-pub struct UpdateLayoutSettingPB {
-  #[pb(index = 1)]
-  pub view_id: String,
-
-  #[pb(index = 2)]
-  pub layout_setting: LayoutSettingPB,
-}
-
-#[derive(Debug)]
-pub struct UpdateLayoutSettingParams {
-  pub view_id: String,
-  pub layout_setting: LayoutSettingParams,
-}
-
-impl TryInto<UpdateLayoutSettingParams> for UpdateLayoutSettingPB {
-  type Error = ErrorCode;
-
-  fn try_into(self) -> Result<UpdateLayoutSettingParams, Self::Error> {
-    let view_id = NotEmptyStr::parse(self.view_id)
-      .map_err(|_| ErrorCode::ViewIdIsInvalid)?
-      .0;
-
-    let layout_setting: LayoutSettingParams = self.layout_setting.into();
-
-    Ok(UpdateLayoutSettingParams {
-      view_id,
-      layout_setting,
-    })
-  }
-}
-
-#[derive(Debug, Eq, PartialEq, Default, ProtoBuf, Clone)]
 pub struct LayoutSettingPB {
-  #[pb(index = 1, one_of)]
-  pub calendar: Option<CalendarLayoutSettingsPB>,
+  #[pb(index = 1)]
+  pub calendar: CalendarLayoutSettingsPB,
 }
 
 impl LayoutSettingPB {
@@ -204,23 +172,39 @@ impl LayoutSettingPB {
   }
 }
 
-impl std::convert::From<LayoutSettingParams> for LayoutSettingPB {
-  fn from(params: LayoutSettingParams) -> Self {
-    Self {
-      calendar: params.calendar.map(|calender| calender.into()),
-    }
-  }
-}
-
-impl std::convert::From<LayoutSettingPB> for LayoutSettingParams {
-  fn from(params: LayoutSettingPB) -> Self {
-    Self {
-      calendar: params.calendar.map(|calender| calender.into()),
-    }
-  }
-}
-
 #[derive(Debug, Default, Clone)]
 pub struct LayoutSettingParams {
   pub calendar: Option<CalendarLayoutSetting>,
 }
+
+#[derive(Debug, Eq, PartialEq, Default, ProtoBuf, Clone)]
+pub struct UpdateLayoutSettingPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub layout_setting: LayoutSettingPB,
+}
+
+// #[derive(Debug)]
+// pub struct UpdateLayoutSettingParams {
+//   pub view_id: String,
+//   pub layout_setting: LayoutSettingParams,
+// }
+//
+// impl TryInto<UpdateLayoutSettingParams> for UpdateLayoutSettingPB {
+//   type Error = ErrorCode;
+//
+//   fn try_into(self) -> Result<UpdateLayoutSettingParams, Self::Error> {
+//     let view_id = NotEmptyStr::parse(self.view_id)
+//       .map_err(|_| ErrorCode::ViewIdIsInvalid)?
+//       .0;
+//
+//     let layout_setting: LayoutSettingParams = self.layout_setting.into();
+//
+//     Ok(UpdateLayoutSettingParams {
+//       view_id,
+//       layout_setting,
+//     })
+//   }
+// }

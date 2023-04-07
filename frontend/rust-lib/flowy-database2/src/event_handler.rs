@@ -2,7 +2,7 @@ use crate::entities::*;
 use crate::manager::DatabaseManager2;
 use collab_database::fields::Field;
 use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::{AFPluginData, AFPluginState, DataResult};
+use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use std::sync::Arc;
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
@@ -11,7 +11,9 @@ pub(crate) async fn get_database_data_handler(
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> DataResult<DatabasePB, FlowyError> {
   let view_id: DatabaseViewIdPB = data.into_inner();
-  todo!()
+  let database_editor = manager.open_database_view(view_id.as_ref()).await?;
+  let data = database_editor.get_database_data().await;
+  data_result_ok(data)
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
@@ -303,8 +305,6 @@ pub(crate) async fn set_layout_setting_handler(
   data: AFPluginData<UpdateLayoutSettingPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> FlowyResult<()> {
-  let params: UpdateLayoutSettingParams = data.into_inner().try_into()?;
-
   Ok(())
 }
 

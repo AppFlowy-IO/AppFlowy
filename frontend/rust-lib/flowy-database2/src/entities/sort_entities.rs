@@ -1,7 +1,6 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::FieldType;
-use crate::services::sort::SortType;
-use collab_database::views::{Sort, SortCondition};
+use crate::services::sort::{Sort, SortCondition, SortType};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use std::sync::Arc;
@@ -22,12 +21,23 @@ pub struct SortPB {
 }
 
 impl std::convert::From<&Sort> for SortPB {
-  fn from(sort_rev: &Sort) -> Self {
+  fn from(sort: &Sort) -> Self {
     Self {
-      id: sort_rev.id.clone(),
-      field_id: sort_rev.field_id.clone(),
-      field_type: FieldType::from(sort_rev.field_type),
-      condition: sort_rev.condition.clone().into(),
+      id: sort.id.clone(),
+      field_id: sort.field_id.clone(),
+      field_type: sort.field_type.clone(),
+      condition: sort.condition.clone().into(),
+    }
+  }
+}
+
+impl std::convert::From<Sort> for SortPB {
+  fn from(sort: Sort) -> Self {
+    Self {
+      id: sort.id,
+      field_id: sort.field_id,
+      field_type: sort.field_type,
+      condition: sort.condition.into(),
     }
   }
 }
@@ -38,10 +48,10 @@ pub struct RepeatedSortPB {
   pub items: Vec<SortPB>,
 }
 
-impl std::convert::From<Vec<Arc<Sort>>> for RepeatedSortPB {
-  fn from(revs: Vec<Arc<Sort>>) -> Self {
+impl std::convert::From<Vec<Sort>> for RepeatedSortPB {
+  fn from(revs: Vec<Sort>) -> Self {
     RepeatedSortPB {
-      items: revs.into_iter().map(|rev| rev.as_ref().into()).collect(),
+      items: revs.into_iter().map(|sort| sort.into()).collect(),
     }
   }
 }

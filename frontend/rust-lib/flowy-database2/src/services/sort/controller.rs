@@ -4,11 +4,10 @@ use crate::services::cell::AtomicCellDataCache;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
 use crate::services::field::{default_order, TypeOptionCellExt};
 use crate::services::sort::{
-  ReorderAllRowsResult, ReorderSingleRowResult, SortChangeset, SortType,
+  ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset, SortCondition, SortType,
 };
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Row};
-use collab_database::views::{Sort, SortCondition};
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use lib_infra::future::Fut;
@@ -231,7 +230,7 @@ fn cmp_row(
     right.cells.get(&sort.field_id),
   ) {
     (Some(left_cell), Some(right_cell)) => {
-      let field_type = FieldType::from(sort.field_type);
+      let field_type = sort.field_type.clone();
       match field_revs
         .iter()
         .find(|field_rev| field_rev.id == sort.field_id)

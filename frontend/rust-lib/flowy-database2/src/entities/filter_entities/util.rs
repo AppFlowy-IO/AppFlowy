@@ -29,8 +29,7 @@ pub struct FilterPB {
 
 impl std::convert::From<&Filter> for FilterPB {
   fn from(filter: &Filter) -> Self {
-    let field_type = FieldType::from(filter.field_type);
-    let bytes: Bytes = match field_type {
+    let bytes: Bytes = match filter.field_type {
       FieldType::RichText => TextFilterPB::from(filter).try_into().unwrap(),
       FieldType::Number => NumberFilterPB::from(filter).try_into().unwrap(),
       FieldType::DateTime => DateFilterPB::from(filter).try_into().unwrap(),
@@ -43,7 +42,7 @@ impl std::convert::From<&Filter> for FilterPB {
     Self {
       id: filter.id.clone(),
       field_id: filter.field_id.clone(),
-      field_type: FieldType::from(filter.field_type),
+      field_type: filter.field_type.clone(),
       data: bytes.to_vec(),
     }
   }

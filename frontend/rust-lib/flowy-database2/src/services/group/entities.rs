@@ -1,12 +1,11 @@
 use crate::entities::RowPB;
-use crate::protobuf::CreateRowPayloadPB_oneof_one_of_data::data;
 use anyhow::bail;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::database::gen_database_group_id;
 use collab_database::views::{GroupMap, GroupMapBuilder, GroupSettingMap};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct GroupSetting {
   pub id: String,
   pub field_id: String,
@@ -44,7 +43,7 @@ impl TryFrom<GroupSettingMap> for GroupSetting {
     ) {
       (Some(id), Some(field_id), Some(field_type)) => {
         let content = value.get_str_value(CONTENT).unwrap_or_default();
-        let groups = value.try_get_map_items(GROUPS);
+        let groups = value.try_get_array(GROUPS);
         Ok(Self {
           id,
           field_id,

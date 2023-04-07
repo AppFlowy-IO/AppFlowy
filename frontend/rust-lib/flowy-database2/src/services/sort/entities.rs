@@ -1,14 +1,15 @@
 use crate::entities::{AlterSortParams, DeleteSortParams, FieldType};
 use anyhow::bail;
+use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::Field;
 use collab_database::views::{SortMap, SortMapBuilder};
 use std::sync::Arc;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct Sort {
   pub id: String,
   pub field_id: String,
-  pub field_type: i64,
+  pub field_type: FieldType,
   pub condition: SortCondition,
 }
 
@@ -18,10 +19,29 @@ const FIELD_TYPE: &str = "ty";
 const SORT_CONDITION: &str = "condition";
 
 impl TryFrom<SortMap> for Sort {
-  type Error = ();
+  type Error = anyhow::Error;
 
   fn try_from(value: SortMap) -> Result<Self, Self::Error> {
-    todo!()
+    match (
+      value.get_str_value(SORT_ID),
+      value.get_str_value(FIELD_ID),
+      value.get_i64_value(FIELD_TYPE).map(FieldType::from),
+    ) {
+      (Some(id), Some(field_id), Some(field_type)) => {
+        let condition =
+          SortCondition::try_from(value.get_i64_value(SORT_CONDITION).unwrap_or_default())
+            .unwrap_or_default();
+        Ok(Self {
+          id,
+          field_id,
+          field_type,
+          condition,
+        })
+      },
+      _ => {
+        bail!("Invalid sort data")
+      },
+    }
   }
 }
 
@@ -30,13 +50,13 @@ impl From<Sort> for SortMap {
     SortMapBuilder::new()
       .insert_str_value(SORT_ID, data.id)
       .insert_str_value(FIELD_ID, data.field_id)
-      .insert_i64_value(FIELD_TYPE, data.field_type)
+      .insert_i64_value(FIELD_TYPE, data.field_type.into())
       .insert_i64_value(SORT_CONDITION, data.condition.value())
       .build()
   }
 }
 
-#[derive(Serialize_repr, Copy, Deserialize_repr, PartialEq, Eq, Hash, Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 #[repr(u8)]
 pub enum SortCondition {
   Ascending = 0,

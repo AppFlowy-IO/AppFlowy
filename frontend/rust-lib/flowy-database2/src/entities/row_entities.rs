@@ -2,6 +2,7 @@ use crate::entities::parser::NotEmptyStr;
 
 use collab_database::rows::Row;
 
+use collab_database::views::RowOrder;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use std::collections::HashMap;
@@ -27,6 +28,15 @@ impl std::convert::From<&Row> for RowPB {
     Self {
       id: row.id.clone(),
       height: row.height,
+    }
+  }
+}
+
+impl From<RowOrder> for RowPB {
+  fn from(data: RowOrder) -> Self {
+    Self {
+      id: data.id,
+      height: data.height,
     }
   }
 }

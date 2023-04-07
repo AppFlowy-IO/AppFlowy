@@ -7,7 +7,7 @@ use std::convert::TryInto;
 use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct GroupConfigurationPB {
+pub struct GroupSettingPB {
   #[pb(index = 1)]
   pub id: String,
 
@@ -15,9 +15,9 @@ pub struct GroupConfigurationPB {
   pub field_id: String,
 }
 
-impl std::convert::From<&GroupSetting> for GroupConfigurationPB {
+impl std::convert::From<&GroupSetting> for GroupSettingPB {
   fn from(rev: &GroupSetting) -> Self {
-    GroupConfigurationPB {
+    GroupSettingPB {
       id: rev.id.clone(),
       field_id: rev.field_id.clone(),
     }
@@ -78,21 +78,24 @@ impl std::convert::From<GroupData> for GroupPB {
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct RepeatedGroupConfigurationPB {
+pub struct RepeatedGroupSettingPB {
   #[pb(index = 1)]
-  pub items: Vec<GroupConfigurationPB>,
+  pub items: Vec<GroupSettingPB>,
 }
 
-impl std::convert::From<Vec<GroupConfigurationPB>> for RepeatedGroupConfigurationPB {
-  fn from(items: Vec<GroupConfigurationPB>) -> Self {
+impl std::convert::From<Vec<GroupSettingPB>> for RepeatedGroupSettingPB {
+  fn from(items: Vec<GroupSettingPB>) -> Self {
     Self { items }
   }
 }
 
-impl std::convert::From<Vec<Arc<GroupSetting>>> for RepeatedGroupConfigurationPB {
-  fn from(revs: Vec<Arc<GroupSetting>>) -> Self {
-    RepeatedGroupConfigurationPB {
-      items: revs.iter().map(|rev| rev.as_ref().into()).collect(),
+impl std::convert::From<Vec<GroupSetting>> for RepeatedGroupSettingPB {
+  fn from(group_settings: Vec<GroupSetting>) -> Self {
+    RepeatedGroupSettingPB {
+      items: group_settings
+        .iter()
+        .map(|setting| setting.into())
+        .collect(),
     }
   }
 }

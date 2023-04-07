@@ -5,13 +5,12 @@ use anyhow::bail;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::Field;
 use collab_database::views::{FilterMap, FilterMapBuilder};
-use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone)]
 pub struct Filter {
   pub id: String,
   pub field_id: String,
-  pub field_type: i64,
+  pub field_type: FieldType,
   pub condition: i64,
   pub content: String,
 }
@@ -28,7 +27,7 @@ impl From<Filter> for FilterMap {
       .insert_str_value(FILTER_ID, data.id)
       .insert_str_value(FIELD_ID, data.field_id)
       .insert_str_value(FILTER_CONTENT, data.content)
-      .insert_i64_value(FIELD_TYPE, data.field_type)
+      .insert_i64_value(FIELD_TYPE, data.field_type.into())
       .insert_i64_value(FILTER_CONDITION, data.condition)
       .build()
   }
@@ -45,7 +44,10 @@ impl TryFrom<FilterMap> for Filter {
       (Some(id), Some(field_id)) => {
         let condition = filter.get_i64_value(FILTER_CONDITION).unwrap_or(0);
         let content = filter.get_str_value(FILTER_CONTENT).unwrap_or_default();
-        let field_type = filter.get_i64_value(FIELD_TYPE).unwrap_or_default();
+        let field_type = filter
+          .get_i64_value(FIELD_TYPE)
+          .map(FieldType::from)
+          .unwrap_or_default();
         Ok(Filter {
           id,
           field_id,

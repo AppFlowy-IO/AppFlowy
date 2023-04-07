@@ -1,4 +1,5 @@
 use collab_database::fields::Field;
+use collab_database::views::FieldOrder;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use serde_repr::*;
@@ -61,6 +62,14 @@ impl std::convert::From<&str> for FieldIdPB {
 impl std::convert::From<String> for FieldIdPB {
   fn from(s: String) -> Self {
     FieldIdPB { field_id: s }
+  }
+}
+
+impl From<FieldOrder> for FieldIdPB {
+  fn from(field_order: FieldOrder) -> Self {
+    Self {
+      field_id: field_order.id,
+    }
   }
 }
 
