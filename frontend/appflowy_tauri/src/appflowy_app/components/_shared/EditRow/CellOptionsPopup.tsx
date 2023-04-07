@@ -12,7 +12,7 @@ import { CloseSvg } from '$app/components/_shared/svg/CloseSvg';
 import useOutsideClick from '$app/components/_shared/useOutsideClick';
 import { SelectOptionCellBackendService } from '$app/stores/effects/database/cell/select_option_bd_svc';
 import { useAppSelector } from '$app/stores/store';
-import { ISelectOptionType } from '$app/stores/reducers/database/slice';
+import { ISelectOption, ISelectOptionType } from '$app/stores/reducers/database/slice';
 
 export const CellOptionsPopup = ({
   top,
@@ -29,7 +29,7 @@ export const CellOptionsPopup = ({
   cellCache: CellCache;
   fieldController: FieldController;
   onOutsideClick: () => void;
-  openOptionDetail: (_left: number, _top: number) => void;
+  openOptionDetail: (_left: number, _top: number, _select_option: SelectOptionPB) => void;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -90,7 +90,7 @@ export const CellOptionsPopup = ({
     }
   };
 
-  const onOptionDetailClick: MouseEventHandler = (e) => {
+  const onOptionDetailClick = (e: any, option: ISelectOption) => {
     e.stopPropagation();
     let target = e.target as HTMLElement;
 
@@ -99,8 +99,14 @@ export const CellOptionsPopup = ({
       target = target.parentElement;
     }
 
+    const selectOption = new SelectOptionPB({
+      id: option.selectOptionId,
+      name: option.title,
+      color: option.color || SelectOptionColorPB.Purple,
+    });
+
     const { right: _left, top: _top } = target.getBoundingClientRect();
-    openOptionDetail(_left, _top);
+    openOptionDetail(_left, _top, selectOption);
   };
 
   return (
@@ -163,7 +169,7 @@ export const CellOptionsPopup = ({
                       <CheckmarkSvg></CheckmarkSvg>
                     </button>
                   )}
-                  <button onClick={onOptionDetailClick} className={'h-6 w-6 p-1'}>
+                  <button onClick={(e) => onOptionDetailClick(e, option)} className={'h-6 w-6 p-1'}>
                     <Details2Svg></Details2Svg>
                   </button>
                 </div>

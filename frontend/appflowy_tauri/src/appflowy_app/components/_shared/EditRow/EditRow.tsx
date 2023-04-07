@@ -11,7 +11,7 @@ import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { ChangeFieldTypePopup } from '$app/components/_shared/EditRow/ChangeFieldTypePopup';
 import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
 import { Some } from 'ts-results';
-import { FieldType } from '@/services/backend';
+import { FieldType, SelectOptionPB } from '@/services/backend';
 import { CellOptionsPopup } from '$app/components/_shared/EditRow/CellOptionsPopup';
 import { DatePickerPopup } from '$app/components/_shared/EditRow/DatePickerPopup';
 import { DragDropContext, Droppable, OnDragEndResponder } from 'react-beautiful-dnd';
@@ -52,6 +52,8 @@ export const EditRow = ({
   const [showEditCellOption, setShowEditCellOption] = useState(false);
   const [editCellOptionTop, setEditCellOptionTop] = useState(0);
   const [editCellOptionLeft, setEditCellOptionLeft] = useState(0);
+
+  const [editingSelectOption, setEditingSelectOption] = useState<SelectOptionPB | undefined>();
 
   useEffect(() => {
     setUnveil(true);
@@ -111,7 +113,8 @@ export const EditRow = ({
     setShowDatePicker(true);
   };
 
-  const onOpenOptionDetailClick = (_left: number, _top: number) => {
+  const onOpenOptionDetailClick = (_left: number, _top: number, _select_option: SelectOptionPB) => {
+    setEditingSelectOption(_select_option);
     setShowEditCellOption(true);
     setEditCellOptionLeft(_left);
     setEditCellOptionTop(_top);
@@ -226,11 +229,12 @@ export const EditRow = ({
             onOutsideClick={() => setShowDatePicker(false)}
           ></DatePickerPopup>
         )}
-        {showEditCellOption && editingCell && (
+        {showEditCellOption && editingCell && editingSelectOption && (
           <EditCellOptionPopup
             top={editCellOptionTop}
             left={editCellOptionLeft}
             cellIdentifier={editingCell}
+            editingSelectOption={editingSelectOption}
             cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
             fieldController={controller.fieldController}
             onOutsideClick={() => {

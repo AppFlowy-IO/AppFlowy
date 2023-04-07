@@ -3,7 +3,7 @@ import { CellCache } from '$app/stores/effects/database/cell/cell_cache';
 import { FieldController } from '$app/stores/effects/database/field/field_controller';
 import { KeyboardEventHandler, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SelectOptionCellDataPB, SelectOptionColorPB } from '@/services/backend';
+import { SelectOptionCellDataPB, SelectOptionColorPB, SelectOptionPB } from '@/services/backend';
 import { getBgColor } from '$app/components/_shared/getColor';
 import { CloseSvg } from '$app/components/_shared/svg/CloseSvg';
 import { SelectOptionCellBackendService } from '$app/stores/effects/database/cell/select_option_bd_svc';
@@ -15,6 +15,7 @@ export const EditCellOptionPopup = ({
   left,
   top,
   cellIdentifier,
+  editingSelectOption,
   cellCache,
   fieldController,
   onOutsideClick,
@@ -22,6 +23,7 @@ export const EditCellOptionPopup = ({
   left: number;
   top: number;
   cellIdentifier: CellIdentifier;
+  editingSelectOption: SelectOptionPB;
   cellCache: CellCache;
   fieldController: FieldController;
   onOutsideClick: () => void;
@@ -46,6 +48,10 @@ export const EditCellOptionPopup = ({
     }
   }, [ref, window, top, left]);
 
+  useEffect(() => {
+    setValue(editingSelectOption.name);
+  }, [editingSelectOption]);
+
   const onKeyDown: KeyboardEventHandler = async (e) => {
     if (e.key === 'Enter' && value.length > 0) {
       await new SelectOptionCellBackendService(cellIdentifier).createOption({ name: value });
@@ -59,8 +65,31 @@ export const EditCellOptionPopup = ({
     }
   };
 
-  const onDeleteOptionClick = () => {
-    console.log('delete option');
+  const onBlur = async () => {
+    const svc = new SelectOptionCellBackendService(cellIdentifier);
+    await svc.updateOption(
+      new SelectOptionPB({
+        id: editingSelectOption.id,
+        color: editingSelectOption.color,
+        name: value,
+      })
+    );
+  };
+
+  const onColorClick = async (color: SelectOptionColorPB) => {
+    const svc = new SelectOptionCellBackendService(cellIdentifier);
+    await svc.updateOption(
+      new SelectOptionPB({
+        id: editingSelectOption.id,
+        color,
+        name: editingSelectOption.name,
+      })
+    );
+  };
+
+  const onDeleteOptionClick = async () => {
+    const svc = new SelectOptionCellBackendService(cellIdentifier);
+    await svc.deleteOption([editingSelectOption]);
   };
 
   return (
@@ -80,6 +109,7 @@ export const EditCellOptionPopup = ({
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={onKeyDown}
+            onBlur={() => onBlur()}
           />
           <div className={'font-mono text-shade-3'}>{value.length}/30</div>
         </div>
@@ -97,86 +127,131 @@ export const EditCellOptionPopup = ({
         <div className={'-mx-4 h-[1px] bg-shade-6'}></div>
         <div className={'my-2 font-medium text-shade-3'}>{t('grid.selectOption.colorPanelTitle')}</div>
         <div className={'flex flex-col'}>
-          <div className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-main-secondary'}>
+          <div
+            className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-main-secondary'}
+            onClick={() => onColorClick(SelectOptionColorPB.Purple)}
+          >
             <div className={'flex items-center gap-2'}>
               <div className={`h-4 w-4 rounded-full ${getBgColor(SelectOptionColorPB.Purple)}`}></div>
               <span>{t('grid.selectOption.purpleColor')}</span>
             </div>
-            <i className={'block h-3 w-3'}>
-              <CheckmarkSvg></CheckmarkSvg>
-            </i>
+            {editingSelectOption.color === SelectOptionColorPB.Purple && (
+              <i className={'block h-3 w-3'}>
+                <CheckmarkSvg></CheckmarkSvg>
+              </i>
+            )}
           </div>
-          <div className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-main-secondary'}>
+          <div
+            className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-main-secondary'}
+            onClick={() => onColorClick(SelectOptionColorPB.Pink)}
+          >
             <div className={'flex items-center gap-2'}>
               <div className={`h-4 w-4 rounded-full ${getBgColor(SelectOptionColorPB.Pink)}`}></div>
               <span>{t('grid.selectOption.pinkColor')}</span>
             </div>
-            <i className={'block h-3 w-3'}>
-              <CheckmarkSvg></CheckmarkSvg>
-            </i>
+            {editingSelectOption.color === SelectOptionColorPB.Pink && (
+              <i className={'block h-3 w-3'}>
+                <CheckmarkSvg></CheckmarkSvg>
+              </i>
+            )}
           </div>
-          <div className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-main-secondary'}>
+          <div
+            className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-main-secondary'}
+            onClick={() => onColorClick(SelectOptionColorPB.LightPink)}
+          >
             <div className={'flex items-center gap-2'}>
               <div className={`h-4 w-4 rounded-full ${getBgColor(SelectOptionColorPB.LightPink)}`}></div>
               <span>{t('grid.selectOption.lightPinkColor')}</span>
             </div>
-            <i className={'block h-3 w-3'}>
-              <CheckmarkSvg></CheckmarkSvg>
-            </i>
+            {editingSelectOption.color === SelectOptionColorPB.LightPink && (
+              <i className={'block h-3 w-3'}>
+                <CheckmarkSvg></CheckmarkSvg>
+              </i>
+            )}
           </div>
-          <div className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-main-secondary'}>
+          <div
+            className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-main-secondary'}
+            onClick={() => onColorClick(SelectOptionColorPB.Orange)}
+          >
             <div className={'flex items-center gap-2'}>
               <div className={`h-4 w-4 rounded-full ${getBgColor(SelectOptionColorPB.Orange)}`}></div>
               <span>{t('grid.selectOption.orangeColor')}</span>
             </div>
-            <i className={'block h-3 w-3'}>
-              <CheckmarkSvg></CheckmarkSvg>
-            </i>
+            {editingSelectOption.color === SelectOptionColorPB.Orange && (
+              <i className={'block h-3 w-3'}>
+                <CheckmarkSvg></CheckmarkSvg>
+              </i>
+            )}
           </div>
-          <div className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-main-secondary'}>
+          <div
+            className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-main-secondary'}
+            onClick={() => onColorClick(SelectOptionColorPB.Yellow)}
+          >
             <div className={'flex items-center gap-2'}>
               <div className={`h-4 w-4 rounded-full ${getBgColor(SelectOptionColorPB.Yellow)}`}></div>
               <span>{t('grid.selectOption.yellowColor')}</span>
             </div>
-            <i className={'block h-3 w-3'}>
-              <CheckmarkSvg></CheckmarkSvg>
-            </i>
+            {editingSelectOption.color === SelectOptionColorPB.Yellow && (
+              <i className={'block h-3 w-3'}>
+                <CheckmarkSvg></CheckmarkSvg>
+              </i>
+            )}
           </div>
-          <div className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-main-secondary'}>
+          <div
+            className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-main-secondary'}
+            onClick={() => onColorClick(SelectOptionColorPB.Lime)}
+          >
             <div className={'flex items-center gap-2'}>
               <div className={`h-4 w-4 rounded-full ${getBgColor(SelectOptionColorPB.Lime)}`}></div>
               <span>{t('grid.selectOption.limeColor')}</span>
             </div>
-            <i className={'block h-3 w-3'}>
-              <CheckmarkSvg></CheckmarkSvg>
-            </i>
+            {editingSelectOption.color === SelectOptionColorPB.Lime && (
+              <i className={'block h-3 w-3'}>
+                <CheckmarkSvg></CheckmarkSvg>
+              </i>
+            )}
           </div>
-          <div className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-main-secondary'}>
+          <div
+            className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-main-secondary'}
+            onClick={() => onColorClick(SelectOptionColorPB.Green)}
+          >
             <div className={'flex items-center gap-2'}>
               <div className={`h-4 w-4 rounded-full ${getBgColor(SelectOptionColorPB.Green)}`}></div>
               <span>{t('grid.selectOption.greenColor')}</span>
             </div>
-            <i className={'block h-3 w-3'}>
-              <CheckmarkSvg></CheckmarkSvg>
-            </i>
+            {editingSelectOption.color === SelectOptionColorPB.Green && (
+              <i className={'block h-3 w-3'}>
+                <CheckmarkSvg></CheckmarkSvg>
+              </i>
+            )}
           </div>
-          <div className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-main-secondary'}>
+          <div
+            className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-main-secondary'}
+            onClick={() => onColorClick(SelectOptionColorPB.Aqua)}
+          >
             <div className={'flex items-center gap-2'}>
               <div className={`h-4 w-4 rounded-full ${getBgColor(SelectOptionColorPB.Aqua)}`}></div>
               <span>{t('grid.selectOption.aquaColor')}</span>
             </div>
-            <i className={'block h-3 w-3'}>
-              <CheckmarkSvg></CheckmarkSvg>
-            </i>
+            {editingSelectOption.color === SelectOptionColorPB.Aqua && (
+              <i className={'block h-3 w-3'}>
+                <CheckmarkSvg></CheckmarkSvg>
+              </i>
+            )}
           </div>
-          <div className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-main-secondary'}>
+          <div
+            className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-main-secondary'}
+            onClick={() => onColorClick(SelectOptionColorPB.Blue)}
+          >
             <div className={'flex items-center gap-2'}>
               <div className={`h-4 w-4 rounded-full ${getBgColor(SelectOptionColorPB.Blue)}`}></div>
               <span>{t('grid.selectOption.blueColor')}</span>
             </div>
-            <i className={'block h-3 w-3'}>
-              <CheckmarkSvg></CheckmarkSvg>
-            </i>
+            {editingSelectOption.color === SelectOptionColorPB.Blue && (
+              <i className={'block h-3 w-3'}>
+                <CheckmarkSvg></CheckmarkSvg>
+              </i>
+            )}
           </div>
         </div>
       </div>
