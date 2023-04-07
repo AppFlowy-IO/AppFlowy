@@ -44,20 +44,14 @@ impl TryFrom<GroupSettingMap> for GroupSetting {
     ) {
       (Some(id), Some(field_id), Some(field_type)) => {
         let content = value.get_str_value(CONTENT).unwrap_or_default();
-        todo!()
-        // let groups = value
-        //   .get_array_value(GROUPS)
-        //   .unwrap_or_default()
-        //   .iter()
-        //   .flat_map(|group| Group::try_from(group).ok())
-        //   .collect::<Vec<Group>>()?;
-        // Ok(Self {
-        //   id,
-        //   field_id,
-        //   field_type,
-        //   groups,
-        //   content,
-        // })
+        let groups = value.try_get_map_items(GROUPS);
+        Ok(Self {
+          id,
+          field_id,
+          field_type,
+          groups,
+          content,
+        })
       },
       _ => {
         bail!("Invalid group setting data")

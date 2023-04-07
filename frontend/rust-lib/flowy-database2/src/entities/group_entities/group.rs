@@ -1,7 +1,6 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{FieldType, RowPB};
-use crate::services::group::GroupData;
-use collab_database::views::GroupSetting;
+use crate::services::group::{GroupData, GroupSetting};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use std::convert::TryInto;

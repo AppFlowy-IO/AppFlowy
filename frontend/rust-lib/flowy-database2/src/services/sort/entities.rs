@@ -1,6 +1,71 @@
 use crate::entities::{AlterSortParams, DeleteSortParams, FieldType};
+use anyhow::bail;
 use collab_database::fields::Field;
+use collab_database::views::{SortMap, SortMapBuilder};
 use std::sync::Arc;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Sort {
+  pub id: String,
+  pub field_id: String,
+  pub field_type: i64,
+  pub condition: SortCondition,
+}
+
+const SORT_ID: &str = "id";
+const FIELD_ID: &str = "field_id";
+const FIELD_TYPE: &str = "ty";
+const SORT_CONDITION: &str = "condition";
+
+impl TryFrom<SortMap> for Sort {
+  type Error = ();
+
+  fn try_from(value: SortMap) -> Result<Self, Self::Error> {
+    todo!()
+  }
+}
+
+impl From<Sort> for SortMap {
+  fn from(data: Sort) -> Self {
+    SortMapBuilder::new()
+      .insert_str_value(SORT_ID, data.id)
+      .insert_str_value(FIELD_ID, data.field_id)
+      .insert_i64_value(FIELD_TYPE, data.field_type)
+      .insert_i64_value(SORT_CONDITION, data.condition.value())
+      .build()
+  }
+}
+
+#[derive(Serialize_repr, Copy, Deserialize_repr, PartialEq, Eq, Hash, Clone, Debug)]
+#[repr(u8)]
+pub enum SortCondition {
+  Ascending = 0,
+  Descending = 1,
+}
+
+impl SortCondition {
+  pub fn value(&self) -> i64 {
+    *self as i64
+  }
+}
+
+impl Default for SortCondition {
+  fn default() -> Self {
+    Self::Ascending
+  }
+}
+
+impl TryFrom<i64> for SortCondition {
+  type Error = anyhow::Error;
+
+  fn try_from(value: i64) -> std::result::Result<Self, Self::Error> {
+    match value {
+      0 => Ok(SortCondition::Ascending),
+      1 => Ok(SortCondition::Descending),
+      _ => bail!("Unknown field type {}", value),
+    }
+  }
+}
 
 #[derive(Hash, Eq, PartialEq, Debug, Clone)]
 pub struct SortType {

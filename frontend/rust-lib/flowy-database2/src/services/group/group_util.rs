@@ -3,12 +3,13 @@ use crate::services::group::configuration::GroupConfigurationReader;
 use crate::services::group::controller::GroupController;
 use crate::services::group::{
   CheckboxGroupContext, CheckboxGroupController, DefaultGroupController, Group,
-  GroupConfigurationWriter, MultiSelectGroupController, MultiSelectOptionGroupContext,
-  SingleSelectGroupController, SingleSelectOptionGroupContext, URLGroupContext, URLGroupController,
+  GroupConfigurationWriter, GroupSetting, MultiSelectGroupController,
+  MultiSelectOptionGroupContext, SingleSelectGroupController, SingleSelectOptionGroupContext,
+  URLGroupContext, URLGroupController,
 };
 use collab_database::fields::Field;
 use collab_database::rows::Row;
-use collab_database::views::{DatabaseLayout, GroupSetting};
+use collab_database::views::DatabaseLayout;
 
 use flowy_error::FlowyResult;
 use std::sync::Arc;
