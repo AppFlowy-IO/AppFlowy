@@ -3,9 +3,11 @@
 import 'dart:collection';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
@@ -282,6 +284,26 @@ class _BoardContentState extends State<BoardContent> {
           context
               .read<BoardBloc>()
               .add(BoardEvent.endEditingRow(groupItem.row.id));
+
+          /// Check if the field contains some text
+          var fieldID = fieldController.fieldInfos[0].id;
+          final cellCache = cellBuilder.cellCache;
+          var data = cellCache.get(
+            CellCacheKey(
+              fieldId: fieldID,
+              rowId: rowPB.id,
+            ),
+          );
+
+          if (data == null) return;
+
+          /// If the field is empty simply delete the row
+          if (data.toString().isEmpty) {
+            final rowService = RowBackendService(
+              viewId: viewId,
+            );
+            rowService.deleteRow(groupItem.row.id);
+          }
         },
       ),
     );
