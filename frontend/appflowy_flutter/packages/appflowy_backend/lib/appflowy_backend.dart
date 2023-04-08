@@ -1,11 +1,11 @@
-export 'package:async/async.dart';
-import 'dart:io';
 import 'dart:async';
-import 'package:appflowy_backend/rust_stream.dart';
+import 'dart:io';
+
+import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:flutter/services.dart';
-import 'dart:ffi';
-import 'ffi.dart' as ffi;
-import 'package:ffi/ffi.dart';
+
+export 'package:async/async.dart';
 
 enum ExceptionType {
   AppearanceSettingsIsEmpty,
@@ -28,10 +28,13 @@ class FlowySDK {
   void dispose() {}
 
   Future<void> init(Directory sdkDir) async {
-    final port = RustStreamReceiver.shared.port;
-    ffi.set_stream_port(port);
-
-    ffi.store_dart_post_cobject(NativeApi.postCObject);
-    ffi.init_sdk(sdkDir.path.toNativeUtf8());
+    // TODO: support both dispatchers
+    Log.info("init FlowSDK ...");
+    final dispatcher = GrpcDispatcher();
+    // final dispatcher = FFIDispatcher();
+    Dispatch.dispatcher = dispatcher;
+    // await dispatcher.init(sdkDir);
+    await dispatcher.init(sdkDir);
+    Log.info("FlowSDK initialized");
   }
 }

@@ -29,6 +29,7 @@ use std::{
     Arc,
   },
 };
+use tokio::runtime::Handle;
 use tokio::sync::{broadcast, RwLock};
 use user_model::UserProfile;
 
@@ -138,7 +139,7 @@ impl AppFlowyCore {
     init_log(&config);
     init_kv(&config.storage_path);
     tracing::debug!("🔥 {:?}", config);
-    let runtime = tokio_default_runtime().unwrap();
+    let runtime = Handle::current();
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));

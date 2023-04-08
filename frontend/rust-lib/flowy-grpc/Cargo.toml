@@ -1,0 +1,25 @@
+[package]
+name = "flowy-grpc"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "grpc-server"
+path = "src/server.rs"
+
+[dependencies]
+tonic = "0.9"
+prost = "0.11"
+tokio = { version = "1.26", features = ["macros", "rt-multi-thread"] }
+tokio-stream = "0.1.12"
+lazy_static = "1.4.0"
+parking_lot = "0.12.1"
+log = "0.4.17"
+bytes = { version = "1.4" }
+
+lib-dispatch = { path = "../lib-dispatch" }
+flowy-core = { path = "../flowy-core" }
+flowy-notification = { path = "../flowy-notification" }
+
+[build-dependencies]
+tonic-build = "0.9"

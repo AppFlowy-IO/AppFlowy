@@ -1,9 +1,9 @@
 use std::{io, thread};
-use tokio::runtime;
+use tokio::runtime::{self, Runtime};
 
-pub type AFPluginRuntime = tokio::runtime::Runtime;
+pub type AFPluginRuntime = tokio::runtime::Handle;
 
-pub fn tokio_default_runtime() -> io::Result<AFPluginRuntime> {
+pub fn tokio_default_runtime() -> io::Result<Runtime> {
   runtime::Builder::new_multi_thread()
     .thread_name("dispatch-rt")
     .enable_io()

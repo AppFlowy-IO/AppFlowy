@@ -1,0 +1,30 @@
+syntax = "proto3";
+package flowygrpc;
+
+message Empty {}
+
+message GrpcInitRequest { string path = 1; }
+
+message GrpcRequest {
+  string event = 1;
+  bytes payload = 2;
+}
+
+message GrpcResponse {
+  bytes payload = 1;
+  GrpcStatusCode code = 2;
+}
+
+enum GrpcStatusCode {
+  Ok = 0;
+  Err = 1;
+  Internal = 2;
+}
+
+message GrpcBytes { bytes bytes = 1; }
+
+service FlowyGRPC {
+  rpc asyncRequest(GrpcRequest) returns (GrpcResponse);
+  rpc init(GrpcInitRequest) returns (Empty);
+  rpc notifyMe(Empty) returns (stream GrpcBytes);
+}

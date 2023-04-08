@@ -1,35 +1,40 @@
+import 'dart:async';
+import 'dart:convert' show utf8;
 import 'dart:ffi';
-import 'package:dartz/dartz.dart';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:appflowy_backend/ffi.dart' as ffi;
 import 'package:appflowy_backend/log.dart';
 // ignore: unnecessary_import
 import 'package:appflowy_backend/protobuf/dart-ffi/ffi_response.pb.dart';
+import 'package:appflowy_backend/protobuf/dart-ffi/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-grpc/flowygrpc.pbgrpc.dart';
 import 'package:appflowy_backend/protobuf/flowy-net/network_state.pb.dart';
-import 'package:isolates/isolates.dart';
-import 'package:isolates/ports.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_backend/rust_stream.dart';
+import 'package:dartz/dartz.dart';
 import 'package:ffi/ffi.dart';
 // ignore: unused_import
 import 'package:flutter/services.dart';
-import 'dart:async';
-import 'dart:typed_data';
-import 'package:appflowy_backend/ffi.dart' as ffi;
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:appflowy_backend/protobuf/dart-ffi/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/protobuf.dart';
-
+import 'package:grpc/grpc.dart';
+import 'package:isolates/isolates.dart';
+import 'package:isolates/ports.dart';
 // ignore: unused_import
 import 'package:protobuf/protobuf.dart';
-import 'dart:convert' show utf8;
+
 import '../protobuf/flowy-net/event_map.pb.dart';
 import 'error.dart';
 
+part 'dart_event/flowy-database/dart_event.dart';
+part 'dart_event/flowy-document/dart_event.dart';
 part 'dart_event/flowy-folder/dart_event.dart';
 part 'dart_event/flowy-net/dart_event.dart';
 part 'dart_event/flowy-user/dart_event.dart';
-part 'dart_event/flowy-database/dart_event.dart';
-part 'dart_event/flowy-document/dart_event.dart';
 
 enum FFIException {
   RequestIsEmpty,
@@ -40,13 +45,91 @@ class DispatchException implements Exception {
   DispatchException(this.type);
 }
 
-class Dispatch {
-  static Future<Either<Uint8List, Uint8List>> asyncRequest(FFIRequest request) {
+abstract class Dispatcher {
+  Future<void> init(Directory sdkDir);
+
+  Future<Either<FFIResponse, FlowyInternalError>> asyncRequest(
+      FFIRequest request);
+}
+
+class FFIDispatcher implements Dispatcher {
+  @override
+  Future<void> init(Directory sdkDir) async {
+    final port = RustStreamReceiver.shared.port;
+    ffi.set_stream_port(port);
+
+    ffi.store_dart_post_cobject(NativeApi.postCObject);
+    ffi.init_sdk(sdkDir.path.toNativeUtf8());
+  }
+
+  @override
+  Future<Either<FFIResponse, FlowyInternalError>> asyncRequest(
+      FFIRequest request) {
     // FFIRequest => Rust SDK
     final bytesFuture = _sendToRust(request);
 
     // Rust SDK => FFIResponse
-    final responseFuture = _extractResponse(bytesFuture);
+    return _extractResponse(bytesFuture);
+  }
+}
+
+class GrpcDispatcher implements Dispatcher {
+  // TODO create channel on init
+  final channel = ClientChannel(
+    'localhost',
+    port: 50051,
+    options: ChannelOptions(
+      credentials: ChannelCredentials.insecure(),
+      codecRegistry:
+          CodecRegistry(codecs: const [GzipCodec(), IdentityCodec()]),
+    ),
+  );
+
+  @override
+  Future<void> init(Directory sdkDir) async {
+    final stub = FlowyGRPCClient(channel);
+
+    final responseStream = await stub.notifyMe(Empty());
+    responseStream.forEach((grpcBytes) {
+      Log.info("received notification");
+      RustStreamReceiver.shared.add(Uint8List.fromList(grpcBytes.bytes));
+    });
+
+    // TODO
+    await stub.init(GrpcInitRequest(path: "./data"));
+    //await stub.init(GrpcInitRequest(path: sdkDir.path));
+  }
+
+  @override
+  Future<Either<FFIResponse, FlowyInternalError>> asyncRequest(
+      FFIRequest request) async {
+    final req = GrpcRequest(event: request.event, payload: request.payload);
+    final stub = FlowyGRPCClient(channel);
+
+    try {
+      final response = await stub.asyncRequest(req);
+      return left(FFIResponse(
+        code: FFIStatusCode.valueOf(response.code.value),
+        payload: response.payload,
+      ));
+    } catch (e, s) {
+      final error = StackTraceError(e, s);
+      Log.error('Deserialize response failed. ${error.toString()}');
+      return right(error.asFlowyError());
+    }
+  }
+}
+
+class Dispatch {
+  static Dispatcher _dispatcher = FFIDispatcher();
+
+  static set dispatcher(Dispatcher dispatcher) {
+    _dispatcher = dispatcher;
+  }
+
+  static Future<Either<Uint8List, Uint8List>> asyncRequest(FFIRequest request) {
+    // FFIRequest => Rust SDK => FFIResponse
+    final responseFuture = _dispatcher.asyncRequest(request);
 
     // FFIResponse's payload is the bytes of the Response object
     final payloadFuture = _extractPayload(responseFuture);

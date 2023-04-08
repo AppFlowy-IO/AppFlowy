@@ -20,6 +20,7 @@ members = [
   "flowy-derive",
   "flowy-ast",
   "flowy-codegen",
+  "flowy-grpc",
 ]
 
 [profile.dev]

@@ -5,17 +5,74 @@ use crate::entities::SubscribeObject;
 use bytes::Bytes;
 use lazy_static::lazy_static;
 use lib_dispatch::prelude::ToBytes;
-use std::sync::RwLock;
+use std::{
+  collections::{hash_map::Values, HashMap},
+  sync::RwLock,
+};
 
 lazy_static! {
-  static ref NOTIFICATION_SENDER: RwLock<Vec<Box<dyn NotificationSender>>> = RwLock::new(vec![]);
+  static ref NOTIFICATION_SENDER: RwLock<NotificationSenderStore> =
+    RwLock::new(NotificationSenderStore::new());
 }
 
-pub fn register_notification_sender<T: NotificationSender>(sender: T) {
+struct NotificationSenderStore {
+  idx: usize,
+  senders: HashMap<usize, Box<dyn NotificationSender>>,
+}
+
+impl NotificationSenderStore {
+  pub fn new() -> Self {
+    Self {
+      idx: 0,
+      senders: HashMap::new(),
+    }
+  }
+
+  pub fn next_id(&self) -> usize {
+    self.idx
+  }
+
+  pub fn push(&mut self, sender: Box<dyn NotificationSender>) -> usize {
+    let id = self.idx;
+    self.idx += 1;
+    self.senders.insert(id, sender);
+    id
+  }
+
+  pub fn remove(&mut self, id: &usize) {
+    self.senders.remove(id);
+  }
+
+  pub fn iter(&self) -> Values<usize, Box<dyn NotificationSender>> {
+    self.senders.values()
+  }
+}
+
+pub fn register_notification_sender<T: NotificationSender>(sender: T) -> Option<usize> {
   let box_sender = Box::new(sender);
   match NOTIFICATION_SENDER.write() {
-    Ok(mut write_guard) => write_guard.push(box_sender),
-    Err(err) => tracing::error!("Failed to push notification sender: {:?}", err),
+    Ok(mut write_guard) => Some(write_guard.push(box_sender)),
+    Err(err) => {
+      tracing::error!("Failed to push notification sender: {:?}", err);
+      None
+    },
+  }
+}
+
+pub fn remove_notification_sender(id: &usize) {
+  match NOTIFICATION_SENDER.write() {
+    Ok(mut write_guard) => write_guard.remove(id),
+    Err(err) => tracing::error!("Failed to remove notification sender: {:?}", err),
+  }
+}
+
+pub fn next_notification_sender_id() -> Option<usize> {
+  match NOTIFICATION_SENDER.read() {
+    Ok(read_guard) => Some(read_guard.next_id()),
+    Err(err) => {
+      tracing::error!("Failed to get next sender id: {}", err);
+      None
+    },
   }
 }
 

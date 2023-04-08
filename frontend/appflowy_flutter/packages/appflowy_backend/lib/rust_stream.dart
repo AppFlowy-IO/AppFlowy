@@ -1,8 +1,10 @@
-import 'dart:isolate';
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:ffi';
+import 'dart:isolate';
+import 'dart:typed_data';
+
 import 'package:appflowy_backend/log.dart';
+
 import 'protobuf/flowy-notification/subject.pb.dart';
 
 typedef ObserverCallback = void Function(SubscribeObject observable);
@@ -18,12 +20,18 @@ class RustStreamReceiver {
   StreamController<SubscribeObject> get observable => _observableController;
 
   RustStreamReceiver._internal() {
+    // TODO: move ffi stuff outside
+
     _ffiPort = RawReceivePort();
     _streamController = StreamController();
     _observableController = StreamController.broadcast();
 
     _ffiPort.handler = _streamController.add;
     _ffiSubscription = _streamController.stream.listen(_streamCallback);
+  }
+
+  void add(Uint8List event) {
+    _streamController.add(event);
   }
 
   factory RustStreamReceiver() {
