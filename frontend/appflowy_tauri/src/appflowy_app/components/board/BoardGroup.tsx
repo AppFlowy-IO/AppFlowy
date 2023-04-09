@@ -28,7 +28,7 @@ export const BoardGroup = ({
       <div className={'flex items-center justify-between p-4'}>
         <div className={'flex items-center gap-2'}>
           <span>{group.name}</span>
-          <span className={'text-shade-4'}>()</span>
+          <span className={'text-shade-4'}>({group.rows.length})</span>
         </div>
         <div className={'flex items-center gap-2'}>
           <button className={'h-5 w-5 rounded hover:bg-surface-2'}>
