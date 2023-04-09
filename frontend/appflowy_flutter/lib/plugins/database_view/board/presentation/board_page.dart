@@ -285,6 +285,8 @@ class _BoardContentState extends State<BoardContent> {
               .read<BoardBloc>()
               .add(BoardEvent.endEditingRow(groupItem.row.id));
 
+          if (fieldController.fieldInfos.isEmpty) return;
+
           /// Check if the field contains some text
           var fieldID = fieldController.fieldInfos[0].id;
           final cellCache = cellBuilder.cellCache;
