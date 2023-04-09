@@ -161,7 +161,6 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
                           onSubmit: () {
                             changeCoverBloc.add(
                                 const ChangeCoverPopoverEvent.clearAllImages());
-
                             Navigator.pop(context);
                           },
                         );
@@ -346,7 +345,7 @@ class DeleteImageAlertDialog extends StatelessWidget {
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
+          children: const [
             Text("It will be removed from cover after it is deleted."),
             SizedBox(
               height: 4,
@@ -362,11 +361,11 @@ class DeleteImageAlertDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('No'),
+          child: const Text(LocaleKeys.button_Cancel).tr(),
         ),
         TextButton(
           onPressed: onSubmit,
-          child: const Text('Yes'),
+          child: const Text(LocaleKeys.button_OK).tr(),
         ),
       ],
     );
