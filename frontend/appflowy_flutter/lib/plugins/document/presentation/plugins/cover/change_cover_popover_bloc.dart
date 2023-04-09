@@ -72,6 +72,7 @@ class ChangeCoverPopoverBloc
       return imageNames;
     }
     imageNames.removeWhere((name) => !File(name).existsSync());
+    _prefs.setStringList(kLocalImagesKey, imageNames);
     return imageNames;
   }
 
