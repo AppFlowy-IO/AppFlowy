@@ -1,4 +1,3 @@
-import { SettingsSvg } from '../_shared/svg/SettingsSvg';
 import { SearchInput } from '../_shared/SearchInput';
 import { BoardGroup } from './BoardGroup';
 import { NewBoardBlock } from './NewBoardBlock';

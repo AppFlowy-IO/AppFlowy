@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { CellOptions } from '../../_shared/EditRow/CellOptions';
+import { CellOptions } from '$app/components/_shared/EditRow/CellOptions';
 import { CellIdentifier } from '@/appflowy_app/stores/effects/database/cell/cell_bd_svc';
 import { CellCache } from '@/appflowy_app/stores/effects/database/cell/cell_cache';
 import { FieldController } from '@/appflowy_app/stores/effects/database/field/field_controller';
-import { useCell } from '../../_shared/database-hooks/useCell';
-import { SelectOptionCellDataPB } from '@/services/backend/models/flowy-database/select_type_option';
-import { CellOptionsPopup } from '../../_shared/EditRow/CellOptionsPopup';
+import { useCell } from '$app/components/_shared/database-hooks/useCell';
+import { SelectOptionCellDataPB, SelectOptionPB } from '@/services/backend/models/flowy-database/select_type_option';
+import { CellOptionsPopup } from '$app/components/_shared/EditRow/CellOptionsPopup';
+import { EditCellOptionPopup } from '$app/components/_shared/EditRow/EditCellOptionPopup';
 
 export default function GridSingleSelectOptions({
   cellIdentifier,
@@ -22,10 +23,23 @@ export default function GridSingleSelectOptions({
   const [changeOptionsTop, setChangeOptionsTop] = useState(0);
   const [changeOptionsLeft, setChangeOptionsLeft] = useState(0);
 
+  const [showEditCellOption, setShowEditCellOption] = useState(false);
+  const [editCellOptionTop, setEditCellOptionTop] = useState(0);
+  const [editCellOptionLeft, setEditCellOptionLeft] = useState(0);
+
+  const [editingSelectOption, setEditingSelectOption] = useState<SelectOptionPB | undefined>();
+
   const onEditOptionsClick = async (left: number, top: number) => {
     setChangeOptionsLeft(left);
     setChangeOptionsTop(top);
     setShowOptionsPopup(true);
+  };
+
+  const onOpenOptionDetailClick = (_left: number, _top: number, _select_option: SelectOptionPB) => {
+    setEditingSelectOption(_select_option);
+    setShowEditCellOption(true);
+    setEditCellOptionLeft(_left);
+    setEditCellOptionTop(_top);
   };
 
   return (
@@ -42,7 +56,19 @@ export default function GridSingleSelectOptions({
           cellCache={cellCache}
           fieldController={fieldController}
           onOutsideClick={() => setShowOptionsPopup(false)}
+          openOptionDetail={onOpenOptionDetailClick}
         />
+      )}
+      {showEditCellOption && editingSelectOption && (
+        <EditCellOptionPopup
+          top={editCellOptionTop}
+          left={editCellOptionLeft}
+          cellIdentifier={cellIdentifier}
+          editingSelectOption={editingSelectOption}
+          onOutsideClick={() => {
+            setShowEditCellOption(false);
+          }}
+        ></EditCellOptionPopup>
       )}
     </>
   );

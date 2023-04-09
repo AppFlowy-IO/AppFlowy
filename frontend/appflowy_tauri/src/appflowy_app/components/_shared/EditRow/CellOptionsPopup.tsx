@@ -72,11 +72,7 @@ export const CellOptionsPopup = ({
   };
 
   const onToggleOptionClick = async (option: SelectOptionPB) => {
-    if (
-      (data as SelectOptionCellDataPB | undefined)?.select_options?.find(
-        (selectedOption) => selectedOption.id === option.id
-      )
-    ) {
+    if ((data as SelectOptionCellDataPB)?.select_options?.find((selectedOption) => selectedOption.id === option.id)) {
       await new SelectOptionCellBackendService(cellIdentifier).unselectOption([option.id]);
     } else {
       await new SelectOptionCellBackendService(cellIdentifier).selectOption([option.id]);
@@ -121,7 +117,7 @@ export const CellOptionsPopup = ({
       <div className={'flex flex-col gap-2 p-2'}>
         <div className={'border-shades-3 flex flex-1 items-center gap-2 rounded border bg-main-selector px-2 '}>
           <div className={'flex flex-wrap items-center gap-2 text-black'}>
-            {(data as SelectOptionCellDataPB | undefined)?.select_options?.map((option, index) => (
+            {(data as SelectOptionCellDataPB)?.select_options?.map((option, index) => (
               <div className={`${getBgColor(option.color)} flex items-center gap-0.5 rounded px-1 py-0.5`} key={index}>
                 <span>{option?.name || ''}</span>
                 <button onClick={() => onUnselectOptionClick(option)} className={'h-5 w-5 cursor-pointer'}>
@@ -162,7 +158,7 @@ export const CellOptionsPopup = ({
               >
                 <div className={`${getBgColor(option.color)} rounded px-2 py-0.5`}>{option.title}</div>
                 <div className={'flex items-center'}>
-                  {(data as SelectOptionCellDataPB | undefined)?.select_options?.find(
+                  {(data as SelectOptionCellDataPB)?.select_options?.find(
                     (selectedOption) => selectedOption.id === option.selectOptionId
                   ) && (
                     <button className={'h-5 w-5 p-1'}>

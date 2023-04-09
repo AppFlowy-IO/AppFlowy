@@ -18,7 +18,7 @@ export const BoardOptionsCell = ({
 
   return (
     <div className={'flex flex-wrap items-center gap-2 py-2 text-xs text-black'}>
-      {(data as SelectOptionCellDataPB | undefined)?.select_options?.map((option, index) => (
+      {(data as SelectOptionCellDataPB)?.select_options?.map((option, index) => (
         <div className={`${getBgColor(option.color)} rounded px-2 py-0.5`} key={index}>
           {option?.name || ''}
         </div>

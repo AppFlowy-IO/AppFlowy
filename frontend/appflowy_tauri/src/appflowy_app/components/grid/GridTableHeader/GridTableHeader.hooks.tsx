@@ -1,4 +1,4 @@
-import { useAppSelector } from '../../../stores/store';
+import { useAppSelector } from '$app/stores/store';
 import { DatabaseController } from '@/appflowy_app/stores/effects/database/database_controller';
 import { TypeOptionController } from '@/appflowy_app/stores/effects/database/field/type_option/type_option_controller';
 import { None } from 'ts-results';

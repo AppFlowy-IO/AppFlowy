@@ -69,10 +69,7 @@ export const EditCellWrapper = ({
               cellIdentifier.fieldType === FieldType.MultiSelect ||
               cellIdentifier.fieldType === FieldType.Checklist) &&
               cellController && (
-                <CellOptions
-                  data={data as SelectOptionCellDataPB | undefined}
-                  onEditClick={onEditOptionsClick}
-                ></CellOptions>
+                <CellOptions data={data as SelectOptionCellDataPB} onEditClick={onEditOptionsClick}></CellOptions>
               )}
 
             {cellIdentifier.fieldType === FieldType.Checkbox && cellController && (
@@ -83,7 +80,7 @@ export const EditCellWrapper = ({
             )}
 
             {cellIdentifier.fieldType === FieldType.DateTime && (
-              <EditCellDate data={data as DateCellDataPB | undefined} onEditClick={onEditDateClick}></EditCellDate>
+              <EditCellDate data={data as DateCellDataPB} onEditClick={onEditDateClick}></EditCellDate>
             )}
 
             {cellIdentifier.fieldType === FieldType.Number && cellController && (
@@ -91,7 +88,7 @@ export const EditCellWrapper = ({
             )}
 
             {cellIdentifier.fieldType === FieldType.URL && cellController && (
-              <EditCellUrl data={data as URLCellDataPB | undefined} cellController={cellController}></EditCellUrl>
+              <EditCellUrl data={data as URLCellDataPB} cellController={cellController}></EditCellUrl>
             )}
 
             {cellIdentifier.fieldType === FieldType.RichText && cellController && (

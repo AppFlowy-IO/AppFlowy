@@ -235,8 +235,6 @@ export const EditRow = ({
             left={editCellOptionLeft}
             cellIdentifier={editingCell}
             editingSelectOption={editingSelectOption}
-            cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
-            fieldController={controller.fieldController}
             onOutsideClick={() => {
               setShowEditCellOption(false);
             }}

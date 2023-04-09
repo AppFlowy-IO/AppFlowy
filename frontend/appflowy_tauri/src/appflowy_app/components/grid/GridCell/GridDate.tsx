@@ -30,9 +30,7 @@ export const GridDate = ({
 
   return (
     <div className='flex w-full cursor-pointer justify-start'>
-      {cellController && (
-        <EditCellDate data={data as DateCellDataPB | undefined} onEditClick={onEditDateClick}></EditCellDate>
-      )}
+      {cellController && <EditCellDate data={data as DateCellDataPB} onEditClick={onEditDateClick}></EditCellDate>}
 
       {showDatePopup && (
         <DatePickerPopup

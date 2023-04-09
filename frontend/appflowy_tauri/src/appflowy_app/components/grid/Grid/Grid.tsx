@@ -1,4 +1,4 @@
-import { useDatabase } from '../../_shared/database-hooks/useDatabase';
+import { useDatabase } from '$app/components/_shared/database-hooks/useDatabase';
 import { GridTableCount } from '../GridTableCount/GridTableCount';
 import { GridTableHeader } from '../GridTableHeader/GridTableHeader';
 import { GridAddRow } from '../GridTableRows/GridAddRow';

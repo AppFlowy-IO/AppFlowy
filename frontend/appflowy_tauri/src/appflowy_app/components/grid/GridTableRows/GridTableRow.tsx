@@ -17,7 +17,6 @@ export const GridTableRow = ({
 }) => {
   const { cells } = useRow(viewId, controller, row);
 
-  console.log({ cells });
   return (
     <tr className='group'>
       {cells.map((cell, cellIndex) => {

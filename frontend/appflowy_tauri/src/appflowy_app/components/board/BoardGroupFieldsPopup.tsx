@@ -2,7 +2,6 @@ import { useAppSelector } from '$app/stores/store';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
 import { useRef } from 'react';
 import useOutsideClick from '$app/components/_shared/useOutsideClick';
-import { EyeOpenSvg } from '$app/components/_shared/svg/EyeOpenSvg';
 import { CheckmarkSvg } from '$app/components/_shared/svg/CheckmarkSvg';
 
 export const BoardGroupFieldsPopup = ({ hidePopup }: { hidePopup: () => void }) => {

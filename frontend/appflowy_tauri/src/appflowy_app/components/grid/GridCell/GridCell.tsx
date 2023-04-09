@@ -2,9 +2,6 @@ import { CellIdentifier } from '@/appflowy_app/stores/effects/database/cell/cell
 import { CellCache } from '@/appflowy_app/stores/effects/database/cell/cell_cache';
 import { FieldController } from '@/appflowy_app/stores/effects/database/field/field_controller';
 import { FieldType } from '@/services/backend';
-import { BoardDateCell } from '../../board/BoardDateCell';
-import { BoardUrlCell } from '../../board/BoardUrlCell';
-
 import GridSingleSelectOptions from './GridSingleSelectOptions';
 import GridTextCell from './GridTextCell';
 import { GridCheckBox } from './GridCheckBox';
