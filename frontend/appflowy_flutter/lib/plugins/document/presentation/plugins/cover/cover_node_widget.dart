@@ -435,8 +435,18 @@ class _CoverImageState extends State<_CoverImage> {
     final Widget coverImage;
     switch (selectionType) {
       case CoverSelectionType.file:
+        final imageFile =
+            File(widget.node.attributes[kCoverSelectionAttribute]);
+        if (!imageFile.existsSync()) {
+          // reset cover state
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            widget.onCoverChanged(CoverSelectionType.initial, null);
+          });
+          coverImage = const SizedBox();
+          break;
+        }
         coverImage = Image.file(
-          File(widget.node.attributes[kCoverSelectionAttribute]),
+          imageFile,
           fit: BoxFit.cover,
         );
         break;
