@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { PropertiesSvg } from '$app/components/_shared/svg/PropertiesSvg';
-import { IPopupItem, Popup } from '$app/components/_shared/Popup';
+import { IPopupItem, PopupSelect } from '$app/components/_shared/PopupSelect';
 import { useTranslation } from 'react-i18next';
 import { GroupByFieldSvg } from '$app/components/_shared/svg/GroupByFieldSvg';
 
@@ -39,10 +39,10 @@ export const BoardSettingsPopup = ({
   }, [t]);
 
   return (
-    <Popup
+    <PopupSelect
       onOutsideClick={() => hidePopup()}
       items={settingsItems}
       className={'absolute top-full left-full z-10 text-xs'}
-    ></Popup>
+    ></PopupSelect>
   );
 };

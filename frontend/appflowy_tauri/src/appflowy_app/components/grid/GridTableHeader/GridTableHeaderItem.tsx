@@ -88,7 +88,7 @@ export const GridTableHeaderItem = ({
         {showFieldEditor && editingField && (
           <EditFieldPopup
             top={editFieldTop}
-            right={editFieldRight}
+            left={editFieldRight}
             cellIdentifier={
               {
                 fieldId: editingField.fieldId,
@@ -112,7 +112,7 @@ export const GridTableHeaderItem = ({
         {showChangeFieldTypePopup && (
           <ChangeFieldTypePopup
             top={changeFieldTypeTop}
-            right={changeFieldTypeRight}
+            left={changeFieldTypeRight}
             onClick={(newType) => changeFieldType(newType)}
             onOutsideClick={() => setShowChangeFieldTypePopup(false)}
           ></ChangeFieldTypePopup>

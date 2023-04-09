@@ -7,7 +7,7 @@ export interface IPopupItem {
   onClick: () => void;
 }
 
-export const Popup = ({
+export const PopupSelect = ({
   items,
   className = '',
   onOutsideClick,

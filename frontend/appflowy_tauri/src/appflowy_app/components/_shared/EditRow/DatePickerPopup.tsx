@@ -1,9 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { CellCache } from '$app/stores/effects/database/cell/cell_cache';
 import { FieldController } from '$app/stores/effects/database/field/field_controller';
-import useOutsideClick from '$app/components/_shared/useOutsideClick';
 import Calendar from 'react-calendar';
 import dayjs from 'dayjs';
 import { ClockSvg } from '$app/components/_shared/svg/ClockSvg';
@@ -12,6 +11,7 @@ import { EditorUncheckSvg } from '$app/components/_shared/svg/EditorUncheckSvg';
 import { useCell } from '$app/components/_shared/database-hooks/useCell';
 import { CalendarData } from '$app/stores/effects/database/cell/controller_builder';
 import { DateCellDataPB } from '@/services/backend';
+import { PopupWindow } from '$app/components/_shared/PopupWindow';
 
 export const DatePickerPopup = ({
   left,
@@ -29,24 +29,8 @@ export const DatePickerPopup = ({
   onOutsideClick: () => void;
 }) => {
   const { data, cellController } = useCell(cellIdentifier, cellCache, fieldController);
-  const ref = useRef<HTMLDivElement>(null);
-  const [adjustedTop, setAdjustedTop] = useState(-100);
   const { t } = useTranslation('');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-
-  useEffect(() => {
-    if (!ref.current) return;
-    const { height } = ref.current.getBoundingClientRect();
-    if (top + height + 40 > window.innerHeight) {
-      setAdjustedTop(top - height - 40);
-    } else {
-      setAdjustedTop(top);
-    }
-  }, [ref, window, top, left]);
-
-  useOutsideClick(ref, async () => {
-    onOutsideClick();
-  });
 
   useEffect(() => {
     const date_pb = data as DateCellDataPB | undefined;
@@ -65,13 +49,7 @@ export const DatePickerPopup = ({
   };
 
   return (
-    <div
-      ref={ref}
-      className={`fixed z-10 rounded-lg bg-white px-2 py-2 text-xs shadow-md transition-opacity duration-300 ${
-        adjustedTop === -100 ? 'opacity-0' : 'opacity-100'
-      }`}
-      style={{ top: `${adjustedTop + 40}px`, left: `${left}px` }}
-    >
+    <PopupWindow className={'p-2 text-xs'} onOutsideClick={onOutsideClick} left={left} top={top}>
       <div className={'px-2'}>
         <Calendar onChange={(d) => onChange(d)} value={selectedDate} />
       </div>
@@ -96,6 +74,6 @@ export const DatePickerPopup = ({
           <MoreSvg></MoreSvg>
         </i>
       </div>
-    </div>
+    </PopupWindow>
   );
 };

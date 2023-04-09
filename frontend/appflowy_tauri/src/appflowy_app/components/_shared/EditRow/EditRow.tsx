@@ -35,11 +35,11 @@ export const EditRow = ({
   const [editingCell, setEditingCell] = useState<CellIdentifier | null>(null);
   const [showFieldEditor, setShowFieldEditor] = useState(false);
   const [editFieldTop, setEditFieldTop] = useState(0);
-  const [editFieldRight, setEditFieldRight] = useState(0);
+  const [editFieldLeft, setEditFieldLeft] = useState(0);
 
   const [showChangeFieldTypePopup, setShowChangeFieldTypePopup] = useState(false);
   const [changeFieldTypeTop, setChangeFieldTypeTop] = useState(0);
-  const [changeFieldTypeRight, setChangeFieldTypeRight] = useState(0);
+  const [changeFieldTypeLeft, setChangeFieldTypeLeft] = useState(0);
 
   const [showChangeOptionsPopup, setShowChangeOptionsPopup] = useState(false);
   const [changeOptionsTop, setChangeOptionsTop] = useState(0);
@@ -66,10 +66,10 @@ export const EditRow = ({
     }, 300);
   };
 
-  const onEditFieldClick = (cellIdentifier: CellIdentifier, top: number, right: number) => {
+  const onEditFieldClick = (cellIdentifier: CellIdentifier, left: number, top: number) => {
     setEditingCell(cellIdentifier);
     setEditFieldTop(top);
-    setEditFieldRight(right);
+    setEditFieldLeft(left + 10);
     setShowFieldEditor(true);
   };
 
@@ -81,7 +81,7 @@ export const EditRow = ({
 
   const onChangeFieldTypeClick = (buttonTop: number, buttonRight: number) => {
     setChangeFieldTypeTop(buttonTop);
-    setChangeFieldTypeRight(buttonRight);
+    setChangeFieldTypeLeft(buttonRight + 30);
     setShowChangeFieldTypePopup(true);
   };
 
@@ -102,14 +102,14 @@ export const EditRow = ({
   const onEditOptionsClick = async (cellIdentifier: CellIdentifier, left: number, top: number) => {
     setEditingCell(cellIdentifier);
     setChangeOptionsLeft(left);
-    setChangeOptionsTop(top);
+    setChangeOptionsTop(top + 40);
     setShowChangeOptionsPopup(true);
   };
 
   const onEditDateClick = async (cellIdentifier: CellIdentifier, left: number, top: number) => {
     setEditingCell(cellIdentifier);
     setDatePickerLeft(left);
-    setDatePickerTop(top);
+    setDatePickerTop(top + 40);
     setShowDatePicker(true);
   };
 
@@ -165,11 +165,9 @@ export const EditRow = ({
                     cellIdentifier={cell.cellIdentifier}
                     cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
                     fieldController={controller.fieldController}
-                    onEditFieldClick={(top: number, right: number) => onEditFieldClick(cell.cellIdentifier, top, right)}
-                    onEditOptionsClick={(left: number, top: number) =>
-                      onEditOptionsClick(cell.cellIdentifier, left, top)
-                    }
-                    onEditDateClick={(left: number, top: number) => onEditDateClick(cell.cellIdentifier, left, top)}
+                    onEditFieldClick={onEditFieldClick}
+                    onEditOptionsClick={onEditOptionsClick}
+                    onEditDateClick={onEditDateClick}
                   ></EditCellWrapper>
                 ))}
               </div>
@@ -192,7 +190,7 @@ export const EditRow = ({
         {showFieldEditor && editingCell && (
           <EditFieldPopup
             top={editFieldTop}
-            right={editFieldRight}
+            left={editFieldLeft}
             cellIdentifier={editingCell}
             viewId={viewId}
             onOutsideClick={onOutsideEditFieldClick}
@@ -203,7 +201,7 @@ export const EditRow = ({
         {showChangeFieldTypePopup && (
           <ChangeFieldTypePopup
             top={changeFieldTypeTop}
-            right={changeFieldTypeRight}
+            left={changeFieldTypeLeft}
             onClick={(newType) => changeFieldType(newType)}
             onOutsideClick={() => setShowChangeFieldTypePopup(false)}
           ></ChangeFieldTypePopup>

@@ -1,4 +1,4 @@
-import { IPopupItem, Popup } from '../../_shared/Popup';
+import { IPopupItem, PopupSelect } from '../../_shared/PopupSelect';
 import { FilterSvg } from '../../_shared/svg/FilterSvg';
 import { GroupBySvg } from '../../_shared/svg/GroupBySvg';
 import { PropertiesSvg } from '../../_shared/svg/PropertiesSvg';
@@ -51,5 +51,5 @@ export const GridTitleOptionsPopup = ({ onClose }: { onClose?: () => void }) => 
       title: 'Group by',
     },
   ];
-  return <Popup items={items} className={'absolute top-full z-10 w-fit'} onOutsideClick={onClose} />;
+  return <PopupSelect items={items} className={'absolute top-full z-10 w-fit'} onOutsideClick={onClose} />;
 };

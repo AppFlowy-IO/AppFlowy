@@ -1,4 +1,4 @@
-import { KeyboardEventHandler, MouseEventHandler, useEffect, useRef, useState } from 'react';
+import { KeyboardEventHandler, useEffect, useRef, useState } from 'react';
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { useCell } from '$app/components/_shared/database-hooks/useCell';
 import { CellCache } from '$app/stores/effects/database/cell/cell_cache';
@@ -9,10 +9,10 @@ import { useTranslation } from 'react-i18next';
 import { Details2Svg } from '$app/components/_shared/svg/Details2Svg';
 import { CheckmarkSvg } from '$app/components/_shared/svg/CheckmarkSvg';
 import { CloseSvg } from '$app/components/_shared/svg/CloseSvg';
-import useOutsideClick from '$app/components/_shared/useOutsideClick';
 import { SelectOptionCellBackendService } from '$app/stores/effects/database/cell/select_option_bd_svc';
 import { useAppSelector } from '$app/stores/store';
 import { ISelectOption, ISelectOptionType } from '$app/stores/reducers/database/slice';
+import { PopupWindow } from '$app/components/_shared/PopupWindow';
 
 export const CellOptionsPopup = ({
   top,
@@ -31,27 +31,11 @@ export const CellOptionsPopup = ({
   onOutsideClick: () => void;
   openOptionDetail: (_left: number, _top: number, _select_option: SelectOptionPB) => void;
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation('');
-  const [adjustedTop, setAdjustedTop] = useState(-100);
   const [value, setValue] = useState('');
-  const { data, cellController } = useCell(cellIdentifier, cellCache, fieldController);
+  const { data } = useCell(cellIdentifier, cellCache, fieldController);
   const databaseStore = useAppSelector((state) => state.database);
-
-  useEffect(() => {
-    if (!ref.current) return;
-    const { height } = ref.current.getBoundingClientRect();
-    if (top + height + 40 > window.innerHeight) {
-      setAdjustedTop(window.innerHeight - height - 40);
-    } else {
-      setAdjustedTop(top);
-    }
-  }, [ref, window, top, left]);
-
-  useOutsideClick(ref, async () => {
-    onOutsideClick();
-  });
 
   useEffect(() => {
     if (inputRef?.current) {
@@ -106,15 +90,8 @@ export const CellOptionsPopup = ({
   };
 
   return (
-    <div
-      ref={ref}
-      onKeyDown={onKeyDownWrapper}
-      className={`fixed z-10 rounded-lg bg-white px-2 py-2 text-xs shadow-md transition-opacity duration-300 ${
-        adjustedTop === -100 ? 'opacity-0' : 'opacity-100'
-      }`}
-      style={{ top: `${adjustedTop + 40}px`, left: `${left}px` }}
-    >
-      <div className={'flex flex-col gap-2 p-2'}>
+    <PopupWindow className={'p-2 text-xs'} onOutsideClick={onOutsideClick} left={left} top={top}>
+      <div onKeyDown={onKeyDownWrapper} className={'flex flex-col gap-2 p-2'}>
         <div className={'border-shades-3 flex flex-1 items-center gap-2 rounded border bg-main-selector px-2 '}>
           <div className={'flex flex-wrap items-center gap-2 text-black'}>
             {(data as SelectOptionCellDataPB)?.select_options?.map((option, index) => (
@@ -174,6 +151,6 @@ export const CellOptionsPopup = ({
           )}
         </div>
       </div>
-    </div>
+    </PopupWindow>
   );
 };

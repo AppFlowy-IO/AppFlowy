@@ -1,4 +1,4 @@
-import { IPopupItem, Popup } from '../../_shared/Popup';
+import { IPopupItem, PopupSelect } from '../../_shared/PopupSelect';
 import { EditSvg } from '../../_shared/svg/EditSvg';
 import { TrashSvg } from '../../_shared/svg/TrashSvg';
 import { CopySvg } from '../../_shared/svg/CopySvg';
@@ -47,11 +47,11 @@ export const NavItemOptionsPopup = ({
   ];
 
   return (
-    <Popup
+    <PopupSelect
       onOutsideClick={() => onClose && onClose()}
       items={items}
       className={`absolute right-0`}
       style={{ top: `${top}px` }}
-    ></Popup>
+    ></PopupSelect>
   );
 };

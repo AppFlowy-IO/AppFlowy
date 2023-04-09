@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { SelectOptionColorPB, SelectOptionPB } from '@/services/backend';
 import { getBgColor } from '$app/components/_shared/getColor';
 import { SelectOptionCellBackendService } from '$app/stores/effects/database/cell/select_option_bd_svc';
-import useOutsideClick from '$app/components/_shared/useOutsideClick';
 import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
 import { CheckmarkSvg } from '$app/components/_shared/svg/CheckmarkSvg';
+import { PopupWindow } from '$app/components/_shared/PopupWindow';
 
 export const EditCellOptionPopup = ({
   left,
@@ -21,32 +21,9 @@ export const EditCellOptionPopup = ({
   editingSelectOption: SelectOptionPB;
   onOutsideClick: () => void;
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation('');
-  const [adjustedTop, setAdjustedTop] = useState(-100);
-  const [adjustedLeft, setAdjustedLeft] = useState(-100);
   const [value, setValue] = useState('');
-
-  useOutsideClick(ref, async () => {
-    await onBlur();
-    onOutsideClick();
-  });
-
-  useEffect(() => {
-    if (!ref.current) return;
-    const { height, width } = ref.current.getBoundingClientRect();
-    if (top + height > window.innerHeight) {
-      setAdjustedTop(window.innerHeight - height);
-    } else {
-      setAdjustedTop(top);
-    }
-    if (left + width > window.innerWidth) {
-      setAdjustedLeft(window.innerWidth - width);
-    } else {
-      setAdjustedLeft(left);
-    }
-  }, [ref, window, top, left]);
 
   useEffect(() => {
     setValue(editingSelectOption.name);
@@ -93,15 +70,16 @@ export const EditCellOptionPopup = ({
   };
 
   return (
-    <div
-      ref={ref}
-      onKeyDown={onKeyDownWrapper}
-      className={`fixed z-10 rounded-lg bg-white px-2 py-2 text-xs shadow-md transition-opacity duration-300 ${
-        adjustedTop === -100 && adjustedLeft === -100 ? 'opacity-0' : 'opacity-100'
-      }`}
-      style={{ top: `${adjustedTop}px`, left: `${adjustedLeft}px` }}
+    <PopupWindow
+      className={'p-2 text-xs'}
+      onOutsideClick={async () => {
+        await onBlur();
+        onOutsideClick();
+      }}
+      left={left}
+      top={top}
     >
-      <div className={'flex flex-col gap-2 p-2'}>
+      <div onKeyDown={onKeyDownWrapper} className={'flex flex-col gap-2 p-2'}>
         <div className={'border-shades-3 flex flex-1 items-center gap-2 rounded border bg-main-selector px-2 '}>
           <input
             ref={inputRef}
@@ -255,6 +233,6 @@ export const EditCellOptionPopup = ({
           </div>
         </div>
       </div>
-    </div>
+    </PopupWindow>
   );
 };
