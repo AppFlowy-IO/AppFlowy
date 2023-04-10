@@ -1,4 +1,4 @@
-use crate::entities::{FieldType, RowsChangesetPB};
+use crate::entities::{CreateRowParams, FieldType, RowsChangesetPB};
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::database::DatabaseRowEvent;
 use crate::services::database_view::DatabaseViewChangedNotifier;
@@ -7,7 +7,8 @@ use crate::services::filter::FilterController;
 use crate::services::group::GroupController;
 use crate::services::sort::SortController;
 use collab_database::fields::Field;
-use collab_database::rows::Row;
+use collab_database::rows::{Row, RowId};
+use flowy_error::FlowyResult;
 use flowy_task::TaskDispatcher;
 use lib_infra::future::Fut;
 use std::borrow::Cow;
@@ -24,12 +25,12 @@ pub trait DatabaseViewData: Send + Sync + 'static {
   fn get_primary_field(&self) -> Fut<Option<Arc<Field>>>;
 
   /// Returns the index of the row with row_id
-  fn index_of_row(&self, row_id: &str) -> Fut<Option<usize>>;
+  fn index_of_row(&self, view_id: &str, row_id: RowId) -> Fut<Option<usize>>;
 
   /// Returns the `index` and `RowRevision` with row_id
-  fn get_row(&self, row_id: &str) -> Fut<Option<(usize, Arc<Row>)>>;
+  fn get_row(&self, view_id: &str, row_id: RowId) -> Fut<Option<(usize, Arc<Row>)>>;
 
-  fn get_rows(&self) -> Fut<Vec<Arc<Row>>>;
+  fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<Row>>>;
 
   /// Returns a `TaskDispatcher` used to poll a `Task`
   fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>>;
@@ -57,6 +58,19 @@ impl Drop for DatabaseViewEditor {
 }
 
 impl DatabaseViewEditor {
+  pub async fn v_will_create_row(&self, row: &mut Row, params: CreateRowParams) {
+    if params.group_id.is_none() {
+      return;
+    }
+    let group_id = params.group_id.as_ref().unwrap();
+    let _ = self
+      .mut_group_controller(|group_controller, field| {
+        group_controller.will_create_row(row, &field, group_id);
+        Ok(())
+      })
+      .await;
+  }
+
   pub async fn handle_block_event(&self, event: Cow<'_, DatabaseRowEvent>) {
     let changeset = match event.into_owned() {
       DatabaseRowEvent::InsertRow { row } => {
@@ -81,5 +95,19 @@ impl DatabaseViewEditor {
     send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
       .payload(changeset)
       .send();
+  }
+
+  async fn mut_group_controller<F, T>(&self, f: F) -> Option<T>
+  where
+    F: FnOnce(&mut Box<dyn GroupController>, Arc<Field>) -> FlowyResult<T>,
+  {
+    let group_field_id = self.group_controller.read().await.field_id().to_owned();
+    match self.delegate.get_field(&group_field_id).await {
+      None => None,
+      Some(field) => {
+        let mut write_guard = self.group_controller.write().await;
+        f(&mut write_guard, field).ok()
+      },
+    }
   }
 }

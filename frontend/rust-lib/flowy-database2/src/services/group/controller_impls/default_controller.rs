@@ -50,7 +50,7 @@ impl GroupControllerActions for DefaultGroupController {
 
   fn fill_groups(&mut self, rows: &[&Row], field: &Field) -> FlowyResult<()> {
     rows.iter().for_each(|row| {
-      self.group.add_row(RowPB::from(*row));
+      self.group.add_row((*row).clone());
     });
     Ok(())
   }
@@ -101,5 +101,5 @@ impl GroupControllerActions for DefaultGroupController {
 impl GroupController for DefaultGroupController {
   fn will_create_row(&mut self, row: &mut Row, field: &Field, group_id: &str) {}
 
-  fn did_create_row(&mut self, _row_rev: &RowPB, _group_id: &str) {}
+  fn did_create_row(&mut self, _row: &Row, _group_id: &str) {}
 }

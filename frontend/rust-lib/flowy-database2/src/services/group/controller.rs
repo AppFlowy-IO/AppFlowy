@@ -6,7 +6,7 @@ use crate::services::group::action::{
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::entities::GroupData;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Row};
+use collab_database::rows::{Cell, Row, RowId};
 // use collab_database::views::Group;
 
 use crate::services::group::Group;
@@ -27,7 +27,7 @@ use std::sync::Arc;
 ///
 pub trait GroupController: GroupControllerActions + Send + Sync {
   fn will_create_row(&mut self, row: &mut Row, field: &Field, group_id: &str);
-  fn did_create_row(&mut self, row_pb: &RowPB, group_id: &str);
+  fn did_create_row(&mut self, row: &Row, group_id: &str);
 }
 
 /// The [GroupGenerator] trait is used to generate the groups for different [FieldType]
@@ -57,7 +57,7 @@ pub struct MoveGroupRowContext<'a> {
   pub row_changeset: &'a mut RowChangeset,
   pub field: &'a Field,
   pub to_group_id: &'a str,
-  pub to_row_id: Option<String>,
+  pub to_row_id: Option<RowId>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -138,7 +138,7 @@ where
     let mut changeset = GroupRowsNotificationPB::new(no_status_group.id.clone());
     if !no_status_group_rows.is_empty() {
       changeset.inserted_rows.push(InsertedRowPB::new(row.into()));
-      no_status_group.add_row(row.into());
+      no_status_group.add_row(row.clone());
     }
 
     // [other_group_delete_rows] contains all the deleted rows except the default group.
@@ -163,17 +163,23 @@ where
 
     let mut deleted_row_ids = vec![];
     for row in &no_status_group.rows {
+      let row_id = row.id.to_string();
       if default_group_deleted_rows
         .iter()
-        .any(|deleted_row| deleted_row.row.id == row.id)
+        .any(|deleted_row| deleted_row.row.id == row_id)
       {
-        deleted_row_ids.push(row.id.clone());
+        deleted_row_ids.push(row.id);
       }
     }
     no_status_group
       .rows
       .retain(|row| !deleted_row_ids.contains(&row.id));
-    changeset.deleted_rows.extend(deleted_row_ids);
+    changeset.deleted_rows.extend(
+      deleted_row_ids
+        .into_iter()
+        .map(|id| id.to_string())
+        .collect::<Vec<String>>(),
+    );
     Some(changeset)
   }
 }
@@ -215,7 +221,7 @@ where
         for group in self.group_ctx.groups() {
           if self.can_group(&group.filter_content, &cell_data) {
             grouped_rows.push(GroupedRow {
-              row: (*row).into(),
+              row: (*row).clone(),
               group_id: group.id.clone(),
             });
           }
@@ -232,7 +238,7 @@ where
       }
       match self.group_ctx.get_mut_no_status_group() {
         None => {},
-        Some(no_status_group) => no_status_group.add_row((*row).into()),
+        Some(no_status_group) => no_status_group.add_row((*row).clone()),
       }
     }
 
@@ -307,12 +313,12 @@ where
         tracing::error!("Unexpected None value. It should have the no status group");
       },
       Some(no_status_group) => {
-        if !no_status_group.contains_row(&row.id) {
-          tracing::error!("The row: {} should be in the no status group", row.id);
+        if !no_status_group.contains_row(row.id) {
+          tracing::error!("The row: {:?} should be in the no status group", row.id);
         }
         result.row_changesets = vec![GroupRowsNotificationPB::delete(
           no_status_group.id.clone(),
-          vec![row.id.clone()],
+          vec![row.id.to_string()],
         )];
       },
     }
@@ -347,7 +353,7 @@ where
 }
 
 struct GroupedRow {
-  row: RowPB,
+  row: Row,
   group_id: String,
 }
 

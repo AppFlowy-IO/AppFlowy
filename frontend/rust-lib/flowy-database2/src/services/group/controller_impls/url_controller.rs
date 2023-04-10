@@ -95,16 +95,15 @@ impl GroupCustomize for URLGroupController {
     self.group_ctx.iter_mut_status_groups(|group| {
       let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
       if group.id == cell_data.content {
-        if !group.contains_row(&row.id) {
-          let row_pb = RowPB::from(row);
+        if !group.contains_row(row.id) {
           changeset
             .inserted_rows
-            .push(InsertedRowPB::new(row_pb.clone()));
-          group.add_row(row_pb);
+            .push(InsertedRowPB::new(RowPB::from(row)));
+          group.add_row(row.clone());
         }
-      } else if group.contains_row(&row.id) {
-        changeset.deleted_rows.push(row.id.clone());
-        group.remove_row(&row.id);
+      } else if group.contains_row(row.id) {
+        changeset.deleted_rows.push(row.id.to_string());
+        group.remove_row(row.id);
       }
 
       if !changeset.is_empty() {
@@ -118,9 +117,9 @@ impl GroupCustomize for URLGroupController {
     let mut changesets = vec![];
     self.group_ctx.iter_mut_groups(|group| {
       let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
-      if group.contains_row(&row.id) {
-        changeset.deleted_rows.push(row.id.clone());
-        group.remove_row(&row.id);
+      if group.contains_row(row.id) {
+        changeset.deleted_rows.push(row.id.to_string());
+        group.remove_row(row.id);
       }
 
       if !changeset.is_empty() {
@@ -175,9 +174,9 @@ impl GroupController for URLGroupController {
     }
   }
 
-  fn did_create_row(&mut self, row_pb: &RowPB, group_id: &str) {
+  fn did_create_row(&mut self, row: &Row, group_id: &str) {
     if let Some(group) = self.group_ctx.get_mut_group(group_id) {
-      group.add_row(row_pb.clone())
+      group.add_row(row.clone())
     }
   }
 }

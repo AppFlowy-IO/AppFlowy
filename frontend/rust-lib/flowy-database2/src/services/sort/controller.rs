@@ -91,7 +91,7 @@ impl SortController {
         self.sort_rows(&mut rows).await;
         let row_orders = rows
           .iter()
-          .map(|row| row.id.clone())
+          .map(|row| row.id.to_string())
           .collect::<Vec<String>>();
 
         let notification = ReorderAllRowsResult {

@@ -18,25 +18,27 @@ pub struct RowPB {
   pub height: i32,
 }
 
-impl RowPB {
-  pub fn row_id(&self) -> &str {
-    &self.id
-  }
-}
-
 impl std::convert::From<&Row> for RowPB {
   fn from(row: &Row) -> Self {
     Self {
-      id: row.id.clone(),
+      id: row.id.to_string(),
       height: row.height,
     }
   }
 }
 
+impl std::convert::From<Row> for RowPB {
+  fn from(row: Row) -> Self {
+    Self {
+      id: row.id.to_string(),
+      height: row.height,
+    }
+  }
+}
 impl From<RowOrder> for RowPB {
   fn from(data: RowOrder) -> Self {
     Self {
-      id: data.id,
+      id: data.id.to_string(),
       height: data.height,
     }
   }
@@ -133,6 +135,7 @@ impl From<UpdatedRow> for UpdatedRowPB {
       field_ids: data.field_ids,
     }
   }
+}
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct RowIdPB {

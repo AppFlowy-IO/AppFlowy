@@ -1,5 +1,5 @@
 use crate::entities::DatabaseLayoutPB;
-use crate::services::database::DatabaseEditor;
+use crate::services::database::{Database, DatabaseEditor};
 use collab_database::user::UserDatabase as InnerUserDatabase;
 use collab_persistence::CollabKV;
 use flowy_error::{FlowyError, FlowyResult};
@@ -66,13 +66,14 @@ impl DatabaseManager2 {
     }
 
     let mut editors = self.editors.write().await;
-    let database = self
-      .user_database
-      .lock()
-      .get_database(&database_id)
-      .ok_or(FlowyError::record_not_found())?;
-
-    let editor = Arc::new(DatabaseEditor::new(database));
+    let database = Database::new(
+      self
+        .user_database
+        .lock()
+        .get_database(&database_id)
+        .ok_or(FlowyError::record_not_found())?,
+    );
+    let editor = Arc::new(DatabaseEditor::new(database, self.task_scheduler.clone()).await?);
     editors.insert(database_id.to_string(), editor.clone());
     Ok(editor)
   }

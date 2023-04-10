@@ -70,7 +70,11 @@ impl std::convert::From<GroupData> for GroupPB {
       field_id: group_data.field_id,
       group_id: group_data.id,
       desc: group_data.name,
-      rows: group_data.rows,
+      rows: group_data
+        .rows
+        .into_iter()
+        .map(|row| RowPB::from(row))
+        .collect(),
       is_default: group_data.is_default,
       is_visible: group_data.is_visible,
     }

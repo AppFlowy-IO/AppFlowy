@@ -7,7 +7,7 @@ use crate::services::filter::{
   Filter, FilterChangeset, FilterResult, FilterResultNotification, FilterType,
 };
 use collab_database::fields::Field;
-use collab_database::rows::{Cell, Row};
+use collab_database::rows::{Cell, Row, RowId};
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
@@ -18,13 +18,12 @@ use std::str::FromStr;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-type RowId = String;
 pub trait FilterDelegate: Send + Sync + 'static {
   fn get_filter_rev(&self, filter_type: FilterType) -> Fut<Option<Arc<Filter>>>;
   fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<Field>>>;
   fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
   fn get_rows(&self) -> Fut<Vec<Row>>;
-  fn get_row(&self, rows_id: &str) -> Fut<Option<(usize, Arc<Row>)>>;
+  fn get_row(&self, rows_id: RowId) -> Fut<Option<(usize, Arc<Row>)>>;
 }
 
 pub trait FromFilterString {
@@ -112,10 +111,10 @@ impl FilterController {
       );
     });
 
-    row_revs.retain(|row_rev| {
+    row_revs.retain(|row| {
       self
         .result_by_row_id
-        .get(&row_rev.id)
+        .get(&row.id)
         .map(|result| result.is_visible())
         .unwrap_or(false)
     });
@@ -147,8 +146,8 @@ impl FilterController {
     Ok(())
   }
 
-  async fn filter_row(&self, row_id: String) -> FlowyResult<()> {
-    if let Some((_, row)) = self.delegate.get_row(&row_id).await {
+  async fn filter_row(&self, row_id: RowId) -> FlowyResult<()> {
+    if let Some((_, row)) = self.delegate.get_row(row_id).await {
       let field_by_field_id = self.get_field_map().await;
       let mut notification = FilterResultNotification::new(self.view_id.clone());
       if let Some((row_id, is_visible)) = filter_row(
@@ -159,14 +158,14 @@ impl FilterController {
         &self.cell_filter_cache,
       ) {
         if is_visible {
-          if let Some((index, row)) = self.delegate.get_row(&row_id).await {
+          if let Some((index, row)) = self.delegate.get_row(row_id).await {
             let row_pb = RowPB::from(row.as_ref());
             notification
               .visible_rows
               .push(InsertedRowPB::with_index(row_pb, index as i32))
           }
         } else {
-          notification.invisible_rows.push(row_id);
+          notification.invisible_rows.push(row_id.to_string());
         }
       }
 
@@ -194,7 +193,7 @@ impl FilterController {
           let row_pb = RowPB::from(&row);
           visible_rows.push(InsertedRowPB::with_index(row_pb, index as i32))
         } else {
-          invisible_rows.push(row_id);
+          invisible_rows.push(row_id.to_string());
         }
       }
     }
@@ -211,10 +210,10 @@ impl FilterController {
     Ok(())
   }
 
-  pub async fn did_receive_row_changed(&self, row_id: &str) {
+  pub async fn did_receive_row_changed(&self, row_id: RowId) {
     self
       .gen_task(
-        FilterEvent::RowDidChanged(row_id.to_string()),
+        FilterEvent::RowDidChanged(row_id),
         QualityOfService::UserInteractive,
       )
       .await
@@ -358,10 +357,10 @@ fn filter_row(
   field_by_field_id: &HashMap<String, Arc<Field>>,
   cell_data_cache: &CellCache,
   cell_filter_cache: &CellFilterCache,
-) -> Option<(String, bool)> {
+) -> Option<(RowId, bool)> {
   // Create a filter result cache if it's not exist
   let mut filter_result = result_by_row_id
-    .entry(row.id.clone())
+    .entry(row.id)
     .or_insert_with(FilterResult::default);
   let old_is_visible = filter_result.is_visible();
 
@@ -391,7 +390,7 @@ fn filter_row(
 
   let is_visible = filter_result.is_visible();
   if old_is_visible != is_visible {
-    Some((row.id.clone(), is_visible))
+    Some((row.id, is_visible))
   } else {
     None
   }
@@ -422,7 +421,7 @@ fn filter_cell(
 #[derive(Serialize, Deserialize, Clone, Debug)]
 enum FilterEvent {
   FilterDidChanged,
-  RowDidChanged(String),
+  RowDidChanged(RowId),
 }
 
 impl ToString for FilterEvent {

@@ -19,8 +19,7 @@ pub(crate) fn get_database_data(database: &Arc<InnerDatabase>) -> DatabasePB {
     .map(FieldIdPB::from)
     .collect();
   let rows = database
-    .rows
-    .get_all_row_orders()
+    .get_database_rows()
     .into_iter()
     .map(RowPB::from)
     .collect();

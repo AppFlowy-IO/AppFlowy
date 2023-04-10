@@ -514,6 +514,7 @@ dependencies = [
  "collab",
  "collab-derive",
  "collab-persistence",
+ "lazy_static",
  "nanoid",
  "parking_lot 0.12.1",
  "serde",
