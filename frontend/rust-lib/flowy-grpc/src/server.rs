@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use bytes::Bytes;
 use flowy_core::*;
 use flowy_notification::entities::SubscribeObject;
@@ -17,7 +19,12 @@ use lazy_static::lazy_static;
 use parking_lot::RwLock;
 
 lazy_static! {
-  static ref APPFLOWY_CORE: RwLock<Option<AppFlowyCore>> = RwLock::new(None);
+  static ref APPFLOWY_CORE: RwLock<HashMap<String, AppFlowyCore>> = RwLock::new(HashMap::new());
+}
+
+fn register_core(path: &str, core: AppFlowyCore) {
+  let mut w = APPFLOWY_CORE.write();
+  w.insert(path.to_string(), core);
 }
 
 pub mod flowygrpc {
@@ -93,14 +100,16 @@ impl FlowyGrpc for FlowyGrpcService {
     &self,
     request: Request<GrpcRequest>,
   ) -> Result<Response<GrpcResponse>, Status> {
-    let plugin_request: AFPluginRequest = request.into_inner().into();
+    let req = request.into_inner();
+    let path = req.path.clone();
+    let plugin_request: AFPluginRequest = req.into();
     log::trace!(
       "[GRPC]: {} Async Event: {:?}",
       &plugin_request.id,
       &plugin_request.event,
     );
 
-    let dispatcher = match APPFLOWY_CORE.read().as_ref() {
+    let dispatcher = match APPFLOWY_CORE.read().get(&path) {
       None => {
         log::error!("sdk not init yet.");
         return Err(Status::new(Code::FailedPrecondition, "sdk not init yet."));
@@ -117,7 +126,7 @@ impl FlowyGrpc for FlowyGrpcService {
     let path = request.into_inner().path;
 
     let server_config = get_client_server_configuration().unwrap();
-    let log_crates = vec!["flowy-ffi".to_string()];
+    let log_crates = vec!["flowy-grpc".to_string()];
     let config = AppFlowyCoreConfig::new(&path, DEFAULT_NAME.to_string(), server_config)
       .log_filter("info", log_crates);
 
@@ -126,7 +135,7 @@ impl FlowyGrpc for FlowyGrpcService {
       .await
       .unwrap();
 
-    *APPFLOWY_CORE.write() = Some(core);
+    register_core(&path, core);
 
     Ok(Response::new(Empty::default()))
   }
@@ -136,7 +145,7 @@ impl FlowyGrpc for FlowyGrpcService {
   async fn notify_me(&self, _: Request<Empty>) -> Result<Response<Self::notifyMeStream>, Status> {
     let (tx, rx) = mpsc::channel(1000);
 
-    let id = register_notification_sender(GrpcNotificationSender::new(tx));
+    register_notification_sender(GrpcNotificationSender::new(tx));
 
     Ok(Response::new(ReceiverStream::new(rx)))
   }

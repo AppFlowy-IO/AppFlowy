@@ -15,12 +15,12 @@ use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::event_map::UserStatusCallback;
 use flowy_user::services::{UserSession, UserSessionConfig};
 use lib_dispatch::prelude::*;
-use lib_dispatch::runtime::tokio_default_runtime;
 
 use flowy_database::entities::LayoutTypePB;
 use lib_infra::future::{to_fut, Fut};
 use module::make_plugins;
 pub use module::*;
+use std::fs::create_dir_all;
 use std::time::Duration;
 use std::{
   fmt,
@@ -135,6 +135,8 @@ impl AppFlowyCore {
   pub fn new(config: AppFlowyCoreConfig) -> Self {
     #[cfg(feature = "profiling")]
     console_subscriber::init();
+
+    create_dir_all(&config.storage_path).unwrap();
 
     init_log(&config);
     init_kv(&config.storage_path);
