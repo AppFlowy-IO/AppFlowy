@@ -27,6 +27,7 @@ thread-id = "3.3.0"
 log = "0.4"
 bytes = "1.4"
 nanoid = "0.4.0"
+lazy_static = "1.4.0"
 
 [dev-dependencies]
 quickcheck = "1.0.3"

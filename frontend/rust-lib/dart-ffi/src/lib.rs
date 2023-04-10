@@ -16,15 +16,21 @@ use flowy_notification::register_notification_sender;
 use lazy_static::lazy_static;
 use lib_dispatch::prelude::ToBytes;
 use lib_dispatch::prelude::*;
+use lib_dispatch::runtime::tokio_default_runtime;
 use parking_lot::RwLock;
+use std::io;
 use std::{ffi::CStr, os::raw::c_char};
+use tokio::runtime::Runtime;
 
 lazy_static! {
   static ref APPFLOWY_CORE: RwLock<Option<AppFlowyCore>> = RwLock::new(None);
+  static ref RUNTIME: io::Result<Runtime> = tokio_default_runtime();
 }
 
 #[no_mangle]
 pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
+  let runtime = RUNTIME.as_ref().unwrap().handle();
+
   let c_str: &CStr = unsafe { CStr::from_ptr(path) };
   let path: &str = c_str.to_str().unwrap();
 
@@ -32,7 +38,7 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
   let log_crates = vec!["flowy-ffi".to_string()];
   let config = AppFlowyCoreConfig::new(path, DEFAULT_NAME.to_string(), server_config)
     .log_filter("info", log_crates);
-  *APPFLOWY_CORE.write() = Some(AppFlowyCore::new(config));
+  *APPFLOWY_CORE.write() = Some(AppFlowyCore::new(config, runtime.clone()));
 
   0
 }

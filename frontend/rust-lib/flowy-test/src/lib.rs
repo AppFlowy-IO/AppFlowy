@@ -7,7 +7,10 @@ use flowy_core::{AppFlowyCore, AppFlowyCoreConfig};
 use flowy_document::entities::DocumentVersionPB;
 use flowy_net::get_client_server_configuration;
 use flowy_user::entities::UserProfilePB;
+use lazy_static::lazy_static;
+use lib_dispatch::runtime::tokio_default_runtime;
 use nanoid::nanoid;
+use tokio::runtime::Runtime;
 
 pub mod prelude {
   pub use crate::{event_builder::*, helper::*, *};
@@ -33,15 +36,22 @@ impl std::default::Default for FlowySDKTest {
   }
 }
 
+lazy_static! {
+  static ref RUNTIME: std::io::Result<Runtime> = tokio_default_runtime();
+}
+
 impl FlowySDKTest {
   pub fn new(document_version: DocumentVersionPB) -> Self {
     let server_config = get_client_server_configuration().unwrap();
     let config = AppFlowyCoreConfig::new(&root_dir(), nanoid!(6), server_config)
       .with_document_version(document_version)
       .log_filter("info", vec![]);
-    let sdk = std::thread::spawn(|| AppFlowyCore::new(config))
-      .join()
-      .unwrap();
+    let sdk = std::thread::spawn(|| {
+      let runtime = RUNTIME.as_ref().unwrap().handle();
+      AppFlowyCore::new(config, runtime.clone())
+    })
+    .join()
+    .unwrap();
     std::mem::forget(sdk.dispatcher());
     Self { inner: sdk }
   }

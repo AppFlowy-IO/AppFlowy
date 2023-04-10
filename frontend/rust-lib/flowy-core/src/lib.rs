@@ -15,6 +15,7 @@ use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::event_map::UserStatusCallback;
 use flowy_user::services::{UserSession, UserSessionConfig};
 use lib_dispatch::prelude::*;
+use lib_dispatch::runtime::AFPluginRuntime;
 
 use flowy_database::entities::LayoutTypePB;
 use lib_infra::future::{to_fut, Fut};
@@ -29,7 +30,6 @@ use std::{
     Arc,
   },
 };
-use tokio::runtime::Handle;
 use tokio::sync::{broadcast, RwLock};
 use user_model::UserProfile;
 
@@ -132,7 +132,7 @@ pub struct AppFlowyCore {
 }
 
 impl AppFlowyCore {
-  pub fn new(config: AppFlowyCoreConfig) -> Self {
+  pub fn new(config: AppFlowyCoreConfig, runtime: AFPluginRuntime) -> Self {
     #[cfg(feature = "profiling")]
     console_subscriber::init();
 
@@ -141,7 +141,6 @@ impl AppFlowyCore {
     init_log(&config);
     init_kv(&config.storage_path);
     tracing::debug!("🔥 {:?}", config);
-    let runtime = Handle::current();
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));

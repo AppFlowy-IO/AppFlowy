@@ -1506,6 +1506,7 @@ dependencies = [
  "flowy-user",
  "futures",
  "futures-util",
+ "lazy_static",
  "lib-dispatch",
  "lib-infra",
  "lib-ot",

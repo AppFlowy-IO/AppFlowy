@@ -8,6 +8,7 @@ use flowy_notification::{
   NotificationSender,
 };
 use lib_dispatch::prelude::*;
+use tokio::runtime::Handle;
 use tokio::sync::mpsc;
 use tokio::sync::mpsc::Sender;
 use tokio_stream::wrappers::ReceiverStream;
@@ -131,7 +132,7 @@ impl FlowyGrpc for FlowyGrpcService {
       .log_filter("info", log_crates);
 
     // https://github.com/tokio-rs/tokio/discussions/4563
-    let core = tokio::task::spawn_blocking(move || AppFlowyCore::new(config))
+    let core = tokio::task::spawn_blocking(move || AppFlowyCore::new(config, Handle::current()))
       .await
       .unwrap();
 
