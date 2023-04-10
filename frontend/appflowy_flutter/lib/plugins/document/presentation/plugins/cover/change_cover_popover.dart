@@ -80,8 +80,9 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => ChangeCoverPopoverBloc(
-          editorState: widget.editorState, node: widget.node)
-        ..add(const ChangeCoverPopoverEvent.fetchPickedImagePaths()),
+        editorState: widget.editorState,
+        node: widget.node,
+      )..add(const ChangeCoverPopoverEvent.fetchPickedImagePaths()),
       child: BlocBuilder<ChangeCoverPopoverBloc, ChangeCoverPopoverState>(
         builder: (context, state) {
           return Padding(
@@ -152,21 +153,24 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
               fontColor: Theme.of(context).colorScheme.tertiary,
               onPressed: () async {
                 final hasFileImageCover = CoverSelectionType.fromString(
-                        widget.node.attributes[kCoverSelectionTypeAttribute]) ==
+                      widget.node.attributes[kCoverSelectionTypeAttribute],
+                    ) ==
                     CoverSelectionType.file;
                 final changeCoverBloc = context.read<ChangeCoverPopoverBloc>();
                 if (hasFileImageCover) {
                   await showDialog(
-                      context: context,
-                      builder: (context) {
-                        return DeleteImageAlertDialog(
-                          onSubmit: () {
-                            changeCoverBloc.add(
-                                const ChangeCoverPopoverEvent.clearAllImages());
-                            Navigator.pop(context);
-                          },
-                        );
-                      });
+                    context: context,
+                    builder: (context) {
+                      return DeleteImageAlertDialog(
+                        onSubmit: () {
+                          changeCoverBloc.add(
+                            const ChangeCoverPopoverEvent.clearAllImages(),
+                          );
+                          Navigator.pop(context);
+                        },
+                      );
+                    },
+                  );
                 } else {
                   context
                       .read<ChangeCoverPopoverBloc>()
@@ -237,58 +241,59 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
 
   Widget _buildFileImagePicker() {
     return BlocBuilder<ChangeCoverPopoverBloc, ChangeCoverPopoverState>(
-        builder: (context, state) {
-      if (state is Loaded) {
-        List<String> images = state.imageNames;
-        return GridView.builder(
-          shrinkWrap: true,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            childAspectRatio: 1 / 0.65,
-            crossAxisSpacing: 7,
-            mainAxisSpacing: 7,
-          ),
-          itemCount: images.length + 1,
-          itemBuilder: (BuildContext ctx, index) {
-            if (index == 0) {
-              return Container(
-                decoration: BoxDecoration(
-                  color:
-                      Theme.of(context).colorScheme.primary.withOpacity(0.15),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.primary,
+      builder: (context, state) {
+        if (state is Loaded) {
+          List<String> images = state.imageNames;
+          return GridView.builder(
+            shrinkWrap: true,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              childAspectRatio: 1 / 0.65,
+              crossAxisSpacing: 7,
+              mainAxisSpacing: 7,
+            ),
+            itemCount: images.length + 1,
+            itemBuilder: (BuildContext ctx, index) {
+              if (index == 0) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.15),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    borderRadius: Corners.s8Border,
                   ),
-                  borderRadius: Corners.s8Border,
-                ),
-                child: FlowyIconButton(
-                  iconPadding: EdgeInsets.zero,
-                  icon: Icon(
-                    Icons.add,
-                    color: Theme.of(context).colorScheme.primary,
+                  child: FlowyIconButton(
+                    iconPadding: EdgeInsets.zero,
+                    icon: Icon(
+                      Icons.add,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    width: 20,
+                    onPressed: () {
+                      setState(() {
+                        isAddingImage = true;
+                      });
+                    },
                   ),
-                  width: 20,
-                  onPressed: () {
-                    setState(() {
-                      isAddingImage = true;
-                    });
-                  },
-                ),
-              );
-            }
-            return ImageGridItem(
-              onImageSelect: () {
-                widget.onCoverChanged(
-                  CoverSelectionType.file,
-                  images[index - 1],
                 );
-              },
-              onImageDelete: () async {
-                final changeCoverBloc = context.read<ChangeCoverPopoverBloc>();
-                final deletingCurrentCover =
-                    widget.node.attributes[kCoverSelectionAttribute] ==
-                        images[index - 1];
-                if (deletingCurrentCover) {
-                  await showDialog(
+              }
+              return ImageGridItem(
+                onImageSelect: () {
+                  widget.onCoverChanged(
+                    CoverSelectionType.file,
+                    images[index - 1],
+                  );
+                },
+                onImageDelete: () async {
+                  final changeCoverBloc =
+                      context.read<ChangeCoverPopoverBloc>();
+                  final deletingCurrentCover =
+                      widget.node.attributes[kCoverSelectionAttribute] ==
+                          images[index - 1];
+                  if (deletingCurrentCover) {
+                    await showDialog(
                       context: context,
                       builder: (context) {
                         return DeleteImageAlertDialog(
@@ -301,18 +306,20 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
                             Navigator.pop(context);
                           },
                         );
-                      });
-                } else {
-                  changeCoverBloc.add(DeleteImage(images[index - 1]));
-                }
-              },
-              imagePath: images[index - 1],
-            );
-          },
-        );
-      }
-      return Container();
-    });
+                      },
+                    );
+                  } else {
+                    changeCoverBloc.add(DeleteImage(images[index - 1]));
+                  }
+                },
+                imagePath: images[index - 1],
+              );
+            },
+          );
+        }
+        return Container();
+      },
+    );
   }
 
   List<ColorOption> _generateBackgroundColorOptions(EditorState editorState) {
@@ -356,8 +363,8 @@ class DeleteImageAlertDialog extends StatelessWidget {
               height: 4,
             ),
             const Text(
-                    LocaleKeys.document_plugins_cover_alertDialogConfirmation)
-                .tr(),
+              LocaleKeys.document_plugins_cover_alertDialogConfirmation,
+            ).tr(),
           ],
         ),
       ),
