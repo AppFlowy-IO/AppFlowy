@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:flutter/services.dart';
 
 export 'package:async/async.dart';
@@ -28,13 +27,12 @@ class FlowySDK {
   void dispose() {}
 
   Future<void> init(Directory sdkDir) async {
-    // TODO: support both dispatchers
-    Log.info("init FlowSDK ...");
-    final dispatcher = GrpcDispatcher();
-    // final dispatcher = FFIDispatcher();
-    Dispatch.dispatcher = dispatcher;
-    // await dispatcher.init(sdkDir);
-    await dispatcher.init(sdkDir);
-    Log.info("FlowSDK initialized");
+    if (sdkDir.path.toLowerCase().startsWith("grpc://")) {
+      Dispatch.dispatcher = GrpcDispatcher.url(sdkDir.path);
+    } else {
+      Dispatch.dispatcher = FFIDispatcher(path: sdkDir.path);
+    }
+
+    await Dispatch.init();
   }
 }

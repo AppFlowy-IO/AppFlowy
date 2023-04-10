@@ -1,10 +1,11 @@
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../generated/locale_keys.g.dart';
 import '../../../../main.dart';
@@ -106,6 +107,24 @@ class SettingsFileLocationCustomzierState
                       }
                     },
                   ),
+                ),
+                Tooltip(
+                  message: "Open cloud location",
+                  child: FlowyIconButton(
+                    icon: const Icon(Icons.cloud_outlined),
+                    onPressed: () async {
+                      var result = await showDialog<String?>(
+                        context: context,
+                        builder: (context) {
+                          return const CloudLocationDialog();
+                        },
+                      );
+                      if (result != null) {
+                        await _setCustomLocation(result);
+                        await reloadApp();
+                      }
+                    },
+                  ),
                 )
               ],
             ),
@@ -144,5 +163,60 @@ class SettingsFileLocationCustomzierState
       Navigator.of(context).pop();
     }
     return;
+  }
+}
+
+class CloudLocationDialog extends StatefulWidget {
+  static final Set<String> supportedProtocols = {"grpc"};
+
+  const CloudLocationDialog({super.key});
+
+  @override
+  State<CloudLocationDialog> createState() => _CloudLocationDialogState();
+}
+
+class _CloudLocationDialogState extends State<CloudLocationDialog> {
+  TextEditingController controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: 450),
+        child: TextField(
+          autofocus: true,
+          controller: controller,
+          decoration: const InputDecoration(
+              labelText: "Cloud URL",
+              hintText: 'Enter cloud url',
+              helperText: "e.g. grpc://locahost:50051"),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: const Text("Cancel"),
+        ),
+        TextButton(
+          onPressed: () {
+            try {
+              final uri = Uri.parse(controller.text);
+              if (!CloudLocationDialog.supportedProtocols
+                  .contains(uri.scheme)) {
+                throw const FormatException("protocol not supported");
+              }
+            } catch (e) {
+              showMessageToast("invalid cloud url");
+              return;
+            }
+
+            Navigator.pop(context, controller.text);
+          },
+          child: const Text("Open"),
+        )
+      ],
+    );
   }
 }

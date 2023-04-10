@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert' show utf8;
 import 'dart:ffi';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:appflowy_backend/ffi.dart' as ffi;
@@ -46,20 +45,26 @@ class DispatchException implements Exception {
 }
 
 abstract class Dispatcher {
-  Future<void> init(Directory sdkDir);
+  Future<void> init();
 
   Future<Either<FFIResponse, FlowyInternalError>> asyncRequest(
       FFIRequest request);
 }
 
 class FFIDispatcher implements Dispatcher {
+  final String path;
+
+  FFIDispatcher({
+    required this.path,
+  });
+
   @override
-  Future<void> init(Directory sdkDir) async {
+  Future<void> init() async {
     final port = RustStreamReceiver.shared.port;
     ffi.set_stream_port(port);
 
     ffi.store_dart_post_cobject(NativeApi.postCObject);
-    ffi.init_sdk(sdkDir.path.toNativeUtf8());
+    ffi.init_sdk(path.toNativeUtf8());
   }
 
   @override
@@ -74,37 +79,58 @@ class FFIDispatcher implements Dispatcher {
 }
 
 class GrpcDispatcher implements Dispatcher {
-  // TODO create channel on init
-  final channel = ClientChannel(
-    'localhost',
-    port: 50051,
-    options: ChannelOptions(
-      credentials: ChannelCredentials.insecure(),
-      codecRegistry:
-          CodecRegistry(codecs: const [GzipCodec(), IdentityCodec()]),
-    ),
-  );
+  final String host;
+  final int port;
+  final String path;
+
+  late final ClientChannel _channel;
+
+  GrpcDispatcher({
+    required this.host,
+    required this.port,
+    required this.path,
+  }) {
+    _channel = ClientChannel(
+      host,
+      port: port,
+      options: ChannelOptions(
+        credentials: ChannelCredentials.insecure(),
+        codecRegistry:
+            CodecRegistry(codecs: const [GzipCodec(), IdentityCodec()]),
+      ),
+    );
+  }
+
+  factory GrpcDispatcher.url(String url) {
+    final uri = Uri.parse(url);
+    return GrpcDispatcher(
+      host: uri.host,
+      port: uri.port != 0 ? uri.port : 50051,
+      path: uri.path.isEmpty ? "./data" : "${uri.path}",
+    );
+  }
 
   @override
-  Future<void> init(Directory sdkDir) async {
-    final stub = FlowyGRPCClient(channel);
+  Future<void> init() async {
+    final stub = FlowyGRPCClient(_channel);
 
     final responseStream = await stub.notifyMe(Empty());
     responseStream.forEach((grpcBytes) {
-      Log.info("received notification");
       RustStreamReceiver.shared.add(Uint8List.fromList(grpcBytes.bytes));
     });
 
-    // TODO
-    await stub.init(GrpcInitRequest(path: "./data"));
-    //await stub.init(GrpcInitRequest(path: sdkDir.path));
+    await stub.init(GrpcInitRequest(path: path));
   }
 
   @override
   Future<Either<FFIResponse, FlowyInternalError>> asyncRequest(
       FFIRequest request) async {
-    final req = GrpcRequest(event: request.event, payload: request.payload);
-    final stub = FlowyGRPCClient(channel);
+    final req = GrpcRequest(
+      event: request.event,
+      payload: request.payload,
+      path: path,
+    );
+    final stub = FlowyGRPCClient(_channel);
 
     try {
       final response = await stub.asyncRequest(req);
@@ -121,7 +147,7 @@ class GrpcDispatcher implements Dispatcher {
 }
 
 class Dispatch {
-  static Dispatcher _dispatcher = FFIDispatcher();
+  static late Dispatcher _dispatcher;
 
   static set dispatcher(Dispatcher dispatcher) {
     _dispatcher = dispatcher;
@@ -135,6 +161,10 @@ class Dispatch {
     final payloadFuture = _extractPayload(responseFuture);
 
     return payloadFuture;
+  }
+
+  static Future<void> init() {
+    return _dispatcher.init();
   }
 }
 

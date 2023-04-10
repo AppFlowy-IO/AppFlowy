@@ -8,6 +8,7 @@ message GrpcInitRequest { string path = 1; }
 message GrpcRequest {
   string event = 1;
   bytes payload = 2;
+  string path = 3;
 }
 
 message GrpcResponse {
