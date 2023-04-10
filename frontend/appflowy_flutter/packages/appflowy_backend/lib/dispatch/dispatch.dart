@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert' show utf8;
 import 'dart:ffi';
+import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:appflowy_backend/ffi.dart' as ffi;
@@ -49,9 +50,14 @@ abstract class Dispatcher {
 
   Future<Either<FFIResponse, FlowyInternalError>> asyncRequest(
       FFIRequest request);
+
+  Future<void> dispose();
 }
 
 class FFIDispatcher implements Dispatcher {
+  final RawReceivePort _ffiPort = RawReceivePort();
+  int get port => _ffiPort.sendPort.nativePort;
+
   final String path;
 
   FFIDispatcher({
@@ -60,7 +66,7 @@ class FFIDispatcher implements Dispatcher {
 
   @override
   Future<void> init() async {
-    final port = RustStreamReceiver.shared.port;
+    _ffiPort.handler = RustStreamReceiver.shared.add;
     ffi.set_stream_port(port);
 
     ffi.store_dart_post_cobject(NativeApi.postCObject);
@@ -76,6 +82,11 @@ class FFIDispatcher implements Dispatcher {
     // Rust SDK => FFIResponse
     return _extractResponse(bytesFuture);
   }
+
+  @override
+  Future<void> dispose() async {
+    _ffiPort.close();
+  }
 }
 
 class GrpcDispatcher implements Dispatcher {
@@ -84,6 +95,7 @@ class GrpcDispatcher implements Dispatcher {
   final String path;
 
   late final ClientChannel _channel;
+  ResponseStream<GrpcBytes>? _responseStream;
 
   GrpcDispatcher({
     required this.host,
@@ -114,8 +126,8 @@ class GrpcDispatcher implements Dispatcher {
   Future<void> init() async {
     final stub = FlowyGRPCClient(_channel);
 
-    final responseStream = await stub.notifyMe(Empty());
-    responseStream.forEach((grpcBytes) {
+    _responseStream = await stub.notifyMe(Empty());
+    _responseStream?.forEach((grpcBytes) {
       RustStreamReceiver.shared.add(Uint8List.fromList(grpcBytes.bytes));
     });
 
@@ -144,18 +156,23 @@ class GrpcDispatcher implements Dispatcher {
       return right(error.asFlowyError());
     }
   }
+
+  @override
+  Future<void> dispose() async {
+    await _responseStream?.cancel();
+  }
 }
 
 class Dispatch {
-  static late Dispatcher _dispatcher;
-
-  static set dispatcher(Dispatcher dispatcher) {
-    _dispatcher = dispatcher;
-  }
+  static Dispatcher? dispatcher;
 
   static Future<Either<Uint8List, Uint8List>> asyncRequest(FFIRequest request) {
+    if (dispatcher == null) {
+      throw "dispatcher is null";
+    }
+
     // FFIRequest => Rust SDK => FFIResponse
-    final responseFuture = _dispatcher.asyncRequest(request);
+    final responseFuture = dispatcher!.asyncRequest(request);
 
     // FFIResponse's payload is the bytes of the Response object
     final payloadFuture = _extractPayload(responseFuture);
@@ -163,8 +180,12 @@ class Dispatch {
     return payloadFuture;
   }
 
-  static Future<void> init() {
-    return _dispatcher.init();
+  static Future<void> init() async {
+    await dispatcher?.init();
+  }
+
+  static Future<void> dispose() async {
+    await dispatcher?.dispose();
   }
 }
 

@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:ffi';
-import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:appflowy_backend/log.dart';
@@ -11,22 +9,16 @@ typedef ObserverCallback = void Function(SubscribeObject observable);
 
 class RustStreamReceiver {
   static RustStreamReceiver shared = RustStreamReceiver._internal();
-  late RawReceivePort _ffiPort;
   late StreamController<Uint8List> _streamController;
   late StreamController<SubscribeObject> _observableController;
   late StreamSubscription<Uint8List> _ffiSubscription;
 
-  int get port => _ffiPort.sendPort.nativePort;
   StreamController<SubscribeObject> get observable => _observableController;
 
   RustStreamReceiver._internal() {
-    // TODO: move ffi stuff outside
-
-    _ffiPort = RawReceivePort();
     _streamController = StreamController();
     _observableController = StreamController.broadcast();
 
-    _ffiPort.handler = _streamController.add;
     _ffiSubscription = _streamController.stream.listen(_streamCallback);
   }
 
@@ -59,6 +51,5 @@ class RustStreamReceiver {
     await _ffiSubscription.cancel();
     await _streamController.close();
     await _observableController.close();
-    _ffiPort.close();
   }
 }
