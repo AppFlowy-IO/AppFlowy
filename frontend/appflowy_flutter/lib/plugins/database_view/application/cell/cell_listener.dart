@@ -19,7 +19,9 @@ class CellListener {
   void start({required void Function(UpdateFieldNotifiedValue) onCellChanged}) {
     _updateCellNotifier?.addPublishListener(onCellChanged);
     _listener = DatabaseNotificationListener(
-        objectId: "$rowId:$fieldId", handler: _handler);
+      objectId: "$rowId:$fieldId",
+      handler: _handler,
+    );
   }
 
   void _handler(DatabaseNotification ty, Either<Uint8List, FlowyError> result) {

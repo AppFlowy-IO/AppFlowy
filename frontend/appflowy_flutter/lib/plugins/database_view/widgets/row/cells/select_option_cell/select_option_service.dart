@@ -14,8 +14,10 @@ class SelectOptionBackendService {
   String get fieldId => cellId.fieldInfo.id;
   String get rowId => cellId.rowId;
 
-  Future<Either<Unit, FlowyError>> create(
-      {required String name, bool isSelected = true}) {
+  Future<Either<Unit, FlowyError>> create({
+    required String name,
+    bool isSelected = true,
+  }) {
     return TypeOptionBackendService(viewId: viewId, fieldId: fieldId)
         .newOption(name: name)
         .then(
@@ -51,8 +53,9 @@ class SelectOptionBackendService {
     return DatabaseEventUpdateSelectOption(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> delete(
-      {required Iterable<SelectOptionPB> options}) {
+  Future<Either<Unit, FlowyError>> delete({
+    required Iterable<SelectOptionPB> options,
+  }) {
     final payload = SelectOptionChangesetPB.create()
       ..deleteOptions.addAll(options)
       ..cellIdentifier = _cellIdentifier();
@@ -69,16 +72,18 @@ class SelectOptionBackendService {
     return DatabaseEventGetSelectOptionCellData(payload).send();
   }
 
-  Future<Either<void, FlowyError>> select(
-      {required Iterable<String> optionIds}) {
+  Future<Either<void, FlowyError>> select({
+    required Iterable<String> optionIds,
+  }) {
     final payload = SelectOptionCellChangesetPB.create()
       ..cellIdentifier = _cellIdentifier()
       ..insertOptionIds.addAll(optionIds);
     return DatabaseEventUpdateSelectOptionCell(payload).send();
   }
 
-  Future<Either<void, FlowyError>> unSelect(
-      {required Iterable<String> optionIds}) {
+  Future<Either<void, FlowyError>> unSelect({
+    required Iterable<String> optionIds,
+  }) {
     final payload = SelectOptionCellChangesetPB.create()
       ..cellIdentifier = _cellIdentifier()
       ..deleteOptionIds.addAll(optionIds);

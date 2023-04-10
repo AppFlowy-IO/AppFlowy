@@ -102,11 +102,16 @@ class RowCache {
     final rowInfo = _rowList.get(reorderRow.rowId);
     if (rowInfo != null) {
       _rowList.moveRow(
-          reorderRow.rowId, reorderRow.oldIndex, reorderRow.newIndex);
-      _rowChangeReasonNotifier.receive(RowsChangedReason.reorderSingleRow(
-        reorderRow,
-        rowInfo,
-      ));
+        reorderRow.rowId,
+        reorderRow.oldIndex,
+        reorderRow.newIndex,
+      );
+      _rowChangeReasonNotifier.receive(
+        RowsChangedReason.reorderSingleRow(
+          reorderRow,
+          rowInfo,
+        ),
+      );
     }
   }
 
@@ -325,7 +330,9 @@ class RowsChangedReason with _$RowsChangedReason {
   const factory RowsChangedReason.initial() = InitialListState;
   const factory RowsChangedReason.reorderRows() = _ReorderRows;
   const factory RowsChangedReason.reorderSingleRow(
-      ReorderSingleRowPB reorderRow, RowInfo rowInfo) = _ReorderSingleRow;
+    ReorderSingleRowPB reorderRow,
+    RowInfo rowInfo,
+  ) = _ReorderSingleRow;
 }
 
 class InsertedIndex {

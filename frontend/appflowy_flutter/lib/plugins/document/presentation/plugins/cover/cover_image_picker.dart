@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_image_picker_bloc.dart';
@@ -18,8 +17,11 @@ class CoverImagePicker extends StatefulWidget {
   final VoidCallback onBackPressed;
   final Function(List<String> paths) onFileSubmit;
 
-  const CoverImagePicker(
-      {super.key, required this.onBackPressed, required this.onFileSubmit});
+  const CoverImagePicker({
+    super.key,
+    required this.onBackPressed,
+    required this.onFileSubmit,
+  });
 
   @override
   State<CoverImagePicker> createState() => _CoverImagePickerState();
@@ -35,17 +37,21 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
         listener: (context, state) {
           if (state is NetworkImagePicked) {
             state.successOrFail.isRight()
-                ? showSnapBar(context,
-                    LocaleKeys.document_plugins_cover_invalidImageUrl.tr())
+                ? showSnapBar(
+                    context,
+                    LocaleKeys.document_plugins_cover_invalidImageUrl.tr(),
+                  )
                 : null;
           }
           if (state is Done) {
             state.successOrFail.fold(
-                (l) => widget.onFileSubmit(l),
-                (r) => showSnapBar(
-                    context,
-                    LocaleKeys.document_plugins_cover_failedToAddImageToGallery
-                        .tr()));
+              (l) => widget.onFileSubmit(l),
+              (r) => showSnapBar(
+                context,
+                LocaleKeys.document_plugins_cover_failedToAddImageToGallery
+                    .tr(),
+              ),
+            );
           }
         },
         child: BlocBuilder<CoverImagePickerBloc, CoverImagePickerState>(
@@ -155,8 +161,11 @@ class ImagePickerActionButtons extends StatelessWidget {
   final VoidCallback onBackPressed;
   final VoidCallback onSave;
 
-  const ImagePickerActionButtons(
-      {super.key, required this.onBackPressed, required this.onSave});
+  const ImagePickerActionButtons({
+    super.key,
+    required this.onBackPressed,
+    required this.onSave,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -250,8 +259,9 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
         },
         child: Container(
           decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Theme.of(context).colorScheme.onPrimary),
+            shape: BoxShape.circle,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
           child: svgWidget(
             "editor/close",
             size: const Size(20, 20),
@@ -266,38 +276,46 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
     return Stack(
       children: [
         Container(
-            height: 180,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.secondary,
-                borderRadius: Corners.s6Border,
-                image: widget.state is Initial
-                    ? null
-                    : widget.state is NetworkImagePicked
-                        ? widget.state.successOrFail.fold(
-                            (path) => DecorationImage(
-                                image: NetworkImage(path), fit: BoxFit.cover),
-                            (r) => null)
-                        : widget.state is FileImagePicked
-                            ? DecorationImage(
-                                image: FileImage(File(widget.state.path)),
-                                fit: BoxFit.cover)
-                            : null),
-            child: (widget.state is Initial)
-                ? _buildFilePickerWidget(context)
-                : (widget.state is NetworkImagePicked)
+          height: 180,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.secondary,
+            borderRadius: Corners.s6Border,
+            image: widget.state is Initial
+                ? null
+                : widget.state is NetworkImagePicked
                     ? widget.state.successOrFail.fold(
-                        (l) => null,
-                        (r) => _buildFilePickerWidget(
-                          context,
+                        (path) => DecorationImage(
+                          image: NetworkImage(path),
+                          fit: BoxFit.cover,
                         ),
+                        (r) => null,
                       )
-                    : null),
+                    : widget.state is FileImagePicked
+                        ? DecorationImage(
+                            image: FileImage(File(widget.state.path)),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+          ),
+          child: (widget.state is Initial)
+              ? _buildFilePickerWidget(context)
+              : (widget.state is NetworkImagePicked)
+                  ? widget.state.successOrFail.fold(
+                      (l) => null,
+                      (r) => _buildFilePickerWidget(
+                        context,
+                      ),
+                    )
+                  : null,
+        ),
         (widget.state is FileImagePicked)
             ? _buildImageDeleteButton(context)
             : (widget.state is NetworkImagePicked)
                 ? widget.state.successOrFail.fold(
-                    (l) => _buildImageDeleteButton(context), (r) => Container())
+                    (l) => _buildImageDeleteButton(context),
+                    (r) => Container(),
+                  )
                 : Container()
       ],
     );

@@ -67,8 +67,9 @@ class CoverImagePickerBloc
                 CoverImagePickerState.done(
                   right(
                     FlowyError(
-                        msg: LocaleKeys.document_plugins_cover_imageSavingFailed
-                            .tr()),
+                      msg: LocaleKeys.document_plugins_cover_imageSavingFailed
+                          .tr(),
+                    ),
                   ),
                 ),
               );
@@ -187,7 +188,8 @@ class CoverImagePickerEvent with _$CoverImagePickerEvent {
   const factory CoverImagePickerEvent.pickFileImage() = PickFileImage;
   const factory CoverImagePickerEvent.deleteImage() = DeleteImage;
   const factory CoverImagePickerEvent.saveToGallery(
-      CoverImagePickerState previousState) = SaveToGallery;
+    CoverImagePickerState previousState,
+  ) = SaveToGallery;
   const factory CoverImagePickerEvent.initialEvent() = InitialEvent;
 }
 
@@ -196,9 +198,11 @@ class CoverImagePickerState with _$CoverImagePickerState {
   const factory CoverImagePickerState.initial() = Initial;
   const factory CoverImagePickerState.loading() = Loading;
   const factory CoverImagePickerState.networkImage(
-      Either<String, FlowyError> successOrFail) = NetworkImagePicked;
+    Either<String, FlowyError> successOrFail,
+  ) = NetworkImagePicked;
   const factory CoverImagePickerState.fileImage(String path) = FileImagePicked;
 
   const factory CoverImagePickerState.done(
-      Either<List<String>, FlowyError> successOrFail) = Done;
+    Either<List<String>, FlowyError> successOrFail,
+  ) = Done;
 }

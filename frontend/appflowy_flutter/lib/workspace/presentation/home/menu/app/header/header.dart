@@ -48,9 +48,11 @@ class MenuAppHeader extends StatelessWidget {
       height: MenuAppSizes.headerHeight,
       child: InkWell(
         onTap: () {
-          ExpandableController.of(context,
-                  rebuildOnChange: false, required: true)
-              ?.toggle();
+          ExpandableController.of(
+            context,
+            rebuildOnChange: false,
+            required: true,
+          )?.toggle();
         },
         child: ExpandableIcon(
           theme: ExpandableThemeData(
@@ -72,29 +74,34 @@ class MenuAppHeader extends StatelessWidget {
         listenWhen: (p, c) =>
             (p.latestCreatedView == null && c.latestCreatedView != null),
         listener: (context, state) {
-          final expandableController = ExpandableController.of(context,
-              rebuildOnChange: false, required: true)!;
+          final expandableController = ExpandableController.of(
+            context,
+            rebuildOnChange: false,
+            required: true,
+          )!;
           if (!expandableController.expanded) {
             expandableController.toggle();
           }
         },
-        child: AppActionList(onSelected: (action) {
-          switch (action) {
-            case AppDisclosureAction.rename:
-              NavigatorTextFieldDialog(
-                title: LocaleKeys.menuAppHeader_renameDialog.tr(),
-                value: context.read<AppBloc>().state.app.name,
-                confirm: (newValue) {
-                  context.read<AppBloc>().add(AppEvent.rename(newValue));
-                },
-              ).show(context);
+        child: AppActionList(
+          onSelected: (action) {
+            switch (action) {
+              case AppDisclosureAction.rename:
+                NavigatorTextFieldDialog(
+                  title: LocaleKeys.menuAppHeader_renameDialog.tr(),
+                  value: context.read<AppBloc>().state.app.name,
+                  confirm: (newValue) {
+                    context.read<AppBloc>().add(AppEvent.rename(newValue));
+                  },
+                ).show(context);
 
-              break;
-            case AppDisclosureAction.delete:
-              context.read<AppBloc>().add(const AppEvent.delete());
-              break;
-          }
-        }),
+                break;
+              case AppDisclosureAction.delete:
+                context.read<AppBloc>().add(const AppEvent.delete());
+                break;
+            }
+          },
+        ),
       ),
     );
   }
@@ -160,9 +167,11 @@ class AppActionList extends StatelessWidget {
       buildChild: (controller) {
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: () => ExpandableController.of(context,
-                  rebuildOnChange: false, required: true)
-              ?.toggle(),
+          onTap: () => ExpandableController.of(
+            context,
+            rebuildOnChange: false,
+            required: true,
+          )?.toggle(),
           onSecondaryTap: () {
             controller.show();
           },

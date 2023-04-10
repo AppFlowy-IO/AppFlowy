@@ -49,8 +49,9 @@ class UserBackendService {
     return UserEventUpdateUserProfile(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> deleteWorkspace(
-      {required String workspaceId}) {
+  Future<Either<Unit, FlowyError>> deleteWorkspace({
+    required String workspaceId,
+  }) {
     throw UnimplementedError();
   }
 
@@ -84,7 +85,9 @@ class UserBackendService {
   }
 
   Future<Either<WorkspacePB, FlowyError>> createWorkspace(
-      String name, String desc) {
+    String name,
+    String desc,
+  ) {
     final request = CreateWorkspacePayloadPB.create()
       ..name = name
       ..desc = desc;

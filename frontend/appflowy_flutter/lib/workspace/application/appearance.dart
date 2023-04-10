@@ -22,15 +22,17 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
 
   AppearanceSettingsCubit(AppearanceSettingsPB setting)
       : _setting = setting,
-        super(AppearanceSettingsState.initial(
-          setting.theme,
-          setting.themeMode,
-          setting.font,
-          setting.monospaceFont,
-          setting.locale,
-          setting.isMenuCollapsed,
-          setting.menuOffset,
-        ));
+        super(
+          AppearanceSettingsState.initial(
+            setting.theme,
+            setting.themeMode,
+            setting.font,
+            setting.monospaceFont,
+            setting.locale,
+            setting.isMenuCollapsed,
+            setting.menuOffset,
+          ),
+        );
 
   /// Update selected theme in the user's settings and emit an updated state
   /// with the AppTheme named [themeName].
@@ -342,8 +344,10 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         height: lineHeight,
       );
 
-  TextTheme _getTextTheme(
-      {required String fontFamily, required Color fontColor}) {
+  TextTheme _getTextTheme({
+    required String fontFamily,
+    required Color fontColor,
+  }) {
     return TextTheme(
       displayLarge: _getFontStyle(
         fontFamily: fontFamily,

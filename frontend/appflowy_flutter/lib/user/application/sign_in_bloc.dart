@@ -21,53 +21,74 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           );
         },
         emailChanged: (EmailChanged value) async {
-          emit(state.copyWith(
-              email: value.email, emailError: none(), successOrFail: none()));
+          emit(
+            state.copyWith(
+              email: value.email,
+              emailError: none(),
+              successOrFail: none(),
+            ),
+          );
         },
         passwordChanged: (PasswordChanged value) async {
-          emit(state.copyWith(
+          emit(
+            state.copyWith(
               password: value.password,
               passwordError: none(),
-              successOrFail: none()));
+              successOrFail: none(),
+            ),
+          );
         },
       );
     });
   }
 
   Future<void> _performActionOnSignIn(
-      SignInState state, Emitter<SignInState> emit) async {
-    emit(state.copyWith(
+    SignInState state,
+    Emitter<SignInState> emit,
+  ) async {
+    emit(
+      state.copyWith(
         isSubmitting: true,
         emailError: none(),
         passwordError: none(),
-        successOrFail: none()));
+        successOrFail: none(),
+      ),
+    );
 
     final result = await authService.signIn(
       email: state.email,
       password: state.password,
     );
-    emit(result.fold(
-      (userProfile) => state.copyWith(
-          isSubmitting: false, successOrFail: some(left(userProfile))),
-      (error) => stateFromCode(error),
-    ));
+    emit(
+      result.fold(
+        (userProfile) => state.copyWith(
+          isSubmitting: false,
+          successOrFail: some(left(userProfile)),
+        ),
+        (error) => stateFromCode(error),
+      ),
+    );
   }
 
   SignInState stateFromCode(FlowyError error) {
     switch (ErrorCode.valueOf(error.code)!) {
       case ErrorCode.EmailFormatInvalid:
         return state.copyWith(
-            isSubmitting: false,
-            emailError: some(error.msg),
-            passwordError: none());
+          isSubmitting: false,
+          emailError: some(error.msg),
+          passwordError: none(),
+        );
       case ErrorCode.PasswordFormatInvalid:
         return state.copyWith(
-            isSubmitting: false,
-            passwordError: some(error.msg),
-            emailError: none());
+          isSubmitting: false,
+          passwordError: some(error.msg),
+          emailError: none(),
+        );
       default:
         return state.copyWith(
-            isSubmitting: false, successOrFail: some(right(error)));
+          isSubmitting: false,
+          successOrFail: some(right(error)),
+        );
     }
   }
 }

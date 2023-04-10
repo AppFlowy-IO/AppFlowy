@@ -19,10 +19,12 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
             _startListening();
           },
           didReceiveCellUpdate: (cellData) {
-            emit(state.copyWith(
-              content: cellData?.content ?? "",
-              url: cellData?.url ?? "",
-            ));
+            emit(
+              state.copyWith(
+                content: cellData?.content ?? "",
+                url: cellData?.url ?? "",
+              ),
+            );
           },
           updateURL: (String url) {
             cellController.saveCellData(url, deduplicate: true);

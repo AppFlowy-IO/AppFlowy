@@ -16,9 +16,10 @@ typedef UserNotificationCallback = void Function(
 
 class UserNotificationParser
     extends NotificationParser<UserNotification, FlowyError> {
-  UserNotificationParser(
-      {required String id, required UserNotificationCallback callback})
-      : super(
+  UserNotificationParser({
+    required String id,
+    required UserNotificationCallback callback,
+  }) : super(
           id: id,
           callback: callback,
           tyParser: (ty) => UserNotification.valueOf(ty),
@@ -27,7 +28,9 @@ class UserNotificationParser
 }
 
 typedef UserNotificationHandler = Function(
-    UserNotification ty, Either<Uint8List, FlowyError> result);
+  UserNotification ty,
+  Either<Uint8List, FlowyError> result,
+);
 
 class UserNotificationListener {
   StreamSubscription<SubscribeObject>? _subscription;

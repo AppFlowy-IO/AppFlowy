@@ -13,11 +13,13 @@ class DatabasePropertyBloc
   final FieldController _fieldController;
   Function(List<FieldInfo>)? _onFieldsFn;
 
-  DatabasePropertyBloc(
-      {required String viewId, required FieldController fieldController})
-      : _fieldController = fieldController,
+  DatabasePropertyBloc({
+    required String viewId,
+    required FieldController fieldController,
+  })  : _fieldController = fieldController,
         super(
-            DatabasePropertyState.initial(viewId, fieldController.fieldInfos)) {
+          DatabasePropertyState.initial(viewId, fieldController.fieldInfos),
+        ) {
     on<DatabasePropertyEvent>(
       (event, emit) async {
         await event.map(
@@ -68,9 +70,12 @@ class DatabasePropertyBloc
 class DatabasePropertyEvent with _$DatabasePropertyEvent {
   const factory DatabasePropertyEvent.initial() = _Initial;
   const factory DatabasePropertyEvent.setFieldVisibility(
-      String fieldId, bool visibility) = _SetFieldVisibility;
+    String fieldId,
+    bool visibility,
+  ) = _SetFieldVisibility;
   const factory DatabasePropertyEvent.didReceiveFieldUpdate(
-      List<FieldInfo> fields) = _DidReceiveFieldUpdate;
+    List<FieldInfo> fields,
+  ) = _DidReceiveFieldUpdate;
   const factory DatabasePropertyEvent.moveField(int fromIndex, int toIndex) =
       _MoveField;
 }
