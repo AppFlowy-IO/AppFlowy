@@ -1,6 +1,7 @@
 // ignore_for_file: unused_element
 
 import 'dart:ui';
+
 import 'package:flowy_infra_ui/src/flowy_overlay/layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -383,12 +384,8 @@ class FlowyOverlayState extends State<FlowyOverlay> {
     // // );
     // // ...
 
-    return MaterialApp(
-      theme: Theme.of(context),
-      debugShowCheckedModeBanner: false,
-      home: Stack(
-        children: children..addAll(overlays),
-      ),
+    return Stack(
+      children: children..addAll(overlays),
     );
   }
 
