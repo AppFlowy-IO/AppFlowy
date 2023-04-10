@@ -90,16 +90,18 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
               child: isAddingImage
                   ? CoverImagePicker(
                       onBackPressed: () => setState(() {
-                            isAddingImage = false;
-                          }),
+                        isAddingImage = false;
+                      }),
                       onFileSubmit: (List<String> path) {
                         context.read<ChangeCoverPopoverBloc>().add(
-                            const ChangeCoverPopoverEvent
-                                .fetchPickedImagePaths());
+                              const ChangeCoverPopoverEvent
+                                  .fetchPickedImagePaths(),
+                            );
                         setState(() {
                           isAddingImage = false;
                         });
-                      })
+                      },
+                    )
                   : _buildCoverSelection(),
             ),
           );
@@ -183,10 +185,11 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
     return GridView.builder(
       shrinkWrap: true,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          childAspectRatio: 1 / 0.65,
-          crossAxisSpacing: 7,
-          mainAxisSpacing: 7),
+        crossAxisCount: 3,
+        childAspectRatio: 1 / 0.65,
+        crossAxisSpacing: 7,
+        mainAxisSpacing: 7,
+      ),
       itemCount: builtInAssetImages.length,
       itemBuilder: (BuildContext ctx, index) {
         return InkWell(
@@ -314,10 +317,12 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
 
   List<ColorOption> _generateBackgroundColorOptions(EditorState editorState) {
     return FlowyTint.values
-        .map((t) => ColorOption(
-              colorHex: t.color(context).toHex(),
-              name: t.tintName(AppFlowyEditorLocalizations.current),
-            ))
+        .map(
+          (t) => ColorOption(
+            colorHex: t.color(context).toHex(),
+            name: t.tintName(AppFlowyEditorLocalizations.current),
+          ),
+        )
         .toList();
   }
 }
@@ -452,10 +457,13 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
       height: 30,
       alignment: Alignment.center,
       child: ScrollConfiguration(
-        behavior: ScrollConfiguration.of(context).copyWith(dragDevices: {
-          PointerDeviceKind.touch,
-          PointerDeviceKind.mouse,
-        }, platform: TargetPlatform.windows),
+        behavior: ScrollConfiguration.of(context).copyWith(
+          dragDevices: {
+            PointerDeviceKind.touch,
+            PointerDeviceKind.mouse,
+          },
+          platform: TargetPlatform.windows,
+        ),
         child: ListView.builder(
           controller: scrollController,
           shrinkWrap: true,
@@ -498,7 +506,8 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
                   : Color(int.tryParse(option.colorHex) ?? 0xFFFFFFFF),
               border: isChecked
                   ? Border.all(
-                      color: Color(int.tryParse(option.colorHex) ?? 0xFFFFFF))
+                      color: Color(int.tryParse(option.colorHex) ?? 0xFFFFFF),
+                    )
                   : null,
               shape: BoxShape.circle,
             ),

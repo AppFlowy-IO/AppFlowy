@@ -25,9 +25,11 @@ class GridSettingContext {
 class GridSettingList extends StatelessWidget {
   final GridSettingContext settingContext;
   final Function(DatabaseSettingAction, GridSettingContext) onAction;
-  const GridSettingList(
-      {required this.settingContext, required this.onAction, Key? key})
-      : super(key: key);
+  const GridSettingList({
+    required this.settingContext,
+    required this.onAction,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +37,9 @@ class GridSettingList extends StatelessWidget {
         .where((value) => value.enable())
         .map((action) {
       return _SettingItem(
-          action: action,
-          onAction: (action) => onAction(action, settingContext));
+        action: action,
+        onAction: (action) => onAction(action, settingContext),
+      );
     }).toList();
 
     return SizedBox(

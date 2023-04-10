@@ -61,6 +61,8 @@ class TestWorkspaceService {
         InputFileStream(await workspace.zip.then((value) => value.path));
     final archive = ZipDecoder().decodeBuffer(inputStream);
     extractArchiveToDisk(
-        archive, await TestWorkspace._parent.then((value) => value.path));
+      archive,
+      await TestWorkspace._parent.then((value) => value.path),
+    );
   }
 }

@@ -9,8 +9,10 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
 import '../../generated/locale_keys.g.dart';
 
 class AuthService {
-  Future<Either<UserProfilePB, FlowyError>> signIn(
-      {required String? email, required String? password}) {
+  Future<Either<UserProfilePB, FlowyError>> signIn({
+    required String? email,
+    required String? password,
+  }) {
     //
     final request = SignInPayloadPB.create()
       ..email = email ?? ''
@@ -19,10 +21,11 @@ class AuthService {
     return UserEventSignIn(request).send();
   }
 
-  Future<Either<UserProfilePB, FlowyError>> signUp(
-      {required String? name,
-      required String? password,
-      required String? email}) {
+  Future<Either<UserProfilePB, FlowyError>> signUp({
+    required String? name,
+    required String? password,
+    required String? email,
+  }) {
     final request = SignUpPayloadPB.create()
       ..email = email ?? ''
       ..name = name ?? ''

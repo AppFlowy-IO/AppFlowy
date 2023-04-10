@@ -46,18 +46,20 @@ class FlowyNavigation extends StatelessWidget {
       },
       update: (_, notifier, controller) => controller!..update(notifier),
       child: Expanded(
-        child: Row(children: [
-          _renderCollapse(context),
-          Selector<NavigationNotifier, List<NavigationItem>>(
-            selector: (context, notifier) => notifier.navigationItems,
-            builder: (ctx, items, child) => Expanded(
-              child: Row(
-                children: _renderNavigationItems(items),
-                // crossAxisAlignment: WrapCrossAlignment.start,
+        child: Row(
+          children: [
+            _renderCollapse(context),
+            Selector<NavigationNotifier, List<NavigationItem>>(
+              selector: (context, notifier) => notifier.navigationItems,
+              builder: (ctx, items, child) => Expanded(
+                child: Row(
+                  children: _renderNavigationItems(items),
+                  // crossAxisAlignment: WrapCrossAlignment.start,
+                ),
               ),
             ),
-          ),
-        ]),
+          ],
+        ),
       ),
     );
   }
@@ -70,24 +72,25 @@ class FlowyNavigation extends StatelessWidget {
           return RotationTransition(
             turns: const AlwaysStoppedAnimation(180 / 360),
             child: Tooltip(
-                richMessage: sidebarTooltipTextSpan(
-                  context,
-                  LocaleKeys.sideBar_openSidebar.tr(),
+              richMessage: sidebarTooltipTextSpan(
+                context,
+                LocaleKeys.sideBar_openSidebar.tr(),
+              ),
+              child: FlowyIconButton(
+                width: 24,
+                hoverColor: Colors.transparent,
+                onPressed: () {
+                  context
+                      .read<HomeSettingBloc>()
+                      .add(const HomeSettingEvent.collapseMenu());
+                },
+                iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
+                icon: svgWidget(
+                  "home/hide_menu",
+                  color: Theme.of(context).iconTheme.color,
                 ),
-                child: FlowyIconButton(
-                  width: 24,
-                  hoverColor: Colors.transparent,
-                  onPressed: () {
-                    context
-                        .read<HomeSettingBloc>()
-                        .add(const HomeSettingEvent.collapseMenu());
-                  },
-                  iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
-                  icon: svgWidget(
-                    "home/hide_menu",
-                    color: Theme.of(context).iconTheme.color,
-                  ),
-                )),
+              ),
+            ),
           );
         } else {
           return Container();
@@ -141,7 +144,8 @@ class NaviItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-        child: item.leftBarItem.padding(horizontal: 2, vertical: 2));
+      child: item.leftBarItem.padding(horizontal: 2, vertical: 2),
+    );
   }
 }
 

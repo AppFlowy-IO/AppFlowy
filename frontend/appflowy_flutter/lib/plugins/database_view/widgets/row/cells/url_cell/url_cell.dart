@@ -52,7 +52,9 @@ class GridURLCell extends GridCellWidget {
   GridCellState<GridURLCell> createState() => _GridURLCellState();
 
   GridCellAccessoryBuilder accessoryFromType(
-      GridURLCellAccessoryType ty, GridCellAccessoryBuildContext buildContext) {
+    GridURLCellAccessoryType ty,
+    GridCellAccessoryBuildContext buildContext,
+  ) {
     switch (ty) {
       case GridURLCellAccessoryType.edit:
         return GridCellAccessoryBuilder(
@@ -76,23 +78,29 @@ class GridURLCell extends GridCellWidget {
 
   @override
   List<GridCellAccessoryBuilder> Function(
-          GridCellAccessoryBuildContext buildContext)
-      get accessoryBuilder => (buildContext) {
-            final List<GridCellAccessoryBuilder> accessories = [];
-            if (cellStyle != null) {
-              accessories.addAll(cellStyle!.accessoryTypes.map((ty) {
-                return accessoryFromType(ty, buildContext);
-              }));
-            }
+    GridCellAccessoryBuildContext buildContext,
+  ) get accessoryBuilder => (buildContext) {
+        final List<GridCellAccessoryBuilder> accessories = [];
+        if (cellStyle != null) {
+          accessories.addAll(
+            cellStyle!.accessoryTypes.map((ty) {
+              return accessoryFromType(ty, buildContext);
+            }),
+          );
+        }
 
-            // If the accessories is empty then the default accessory will be GridURLCellAccessoryType.edit
-            if (accessories.isEmpty) {
-              accessories.add(accessoryFromType(
-                  GridURLCellAccessoryType.edit, buildContext));
-            }
+        // If the accessories is empty then the default accessory will be GridURLCellAccessoryType.edit
+        if (accessories.isEmpty) {
+          accessories.add(
+            accessoryFromType(
+              GridURLCellAccessoryType.edit,
+              buildContext,
+            ),
+          );
+        }
 
-            return accessories;
-          };
+        return accessories;
+      };
 }
 
 class _GridURLCellState extends GridCellState<GridURLCell> {
@@ -212,8 +220,10 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
       controller: _popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(0, 8),
-      child: svgWidget("editor/edit",
-          color: AFThemeExtension.of(context).textColor),
+      child: svgWidget(
+        "editor/edit",
+        color: AFThemeExtension.of(context).textColor,
+      ),
       popupBuilder: (BuildContext popoverContext) {
         return URLEditorPopover(
           cellController:

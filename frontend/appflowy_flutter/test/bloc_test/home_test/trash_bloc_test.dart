@@ -20,16 +20,20 @@ class TrashTestContext {
     appBloc = AppBloc(app: app)..add(const AppEvent.initial());
     await blocResponseFuture();
 
-    appBloc.add(AppEvent.createView(
-      "Document 1",
-      DocumentPluginBuilder(),
-    ));
+    appBloc.add(
+      AppEvent.createView(
+        "Document 1",
+        DocumentPluginBuilder(),
+      ),
+    );
     await blocResponseFuture();
 
-    appBloc.add(AppEvent.createView(
-      "Document 2",
-      DocumentPluginBuilder(),
-    ));
+    appBloc.add(
+      AppEvent.createView(
+        "Document 2",
+        DocumentPluginBuilder(),
+      ),
+    );
     await blocResponseFuture();
 
     appBloc.add(
@@ -95,8 +99,10 @@ void main() {
       // delete all view permanently
       trashBloc.add(const TrashEvent.deleteAll());
       await blocResponseFuture();
-      assert(trashBloc.state.objects.isEmpty,
-          "but receive ${trashBloc.state.objects.length}");
+      assert(
+        trashBloc.state.objects.isEmpty,
+        "but receive ${trashBloc.state.objects.length}",
+      );
     });
   });
 }

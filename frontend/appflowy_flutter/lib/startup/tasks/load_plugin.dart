@@ -19,6 +19,8 @@ class PluginLoadTask extends LaunchTask {
     registerPlugin(builder: GridPluginBuilder(), config: GridPluginConfig());
     registerPlugin(builder: BoardPluginBuilder(), config: BoardPluginConfig());
     registerPlugin(
-        builder: CalendarPluginBuilder(), config: CalendarPluginConfig());
+      builder: CalendarPluginBuilder(),
+      config: CalendarPluginConfig(),
+    );
   }
 }
