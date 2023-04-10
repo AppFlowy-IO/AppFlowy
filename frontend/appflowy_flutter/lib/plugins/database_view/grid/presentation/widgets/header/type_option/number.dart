@@ -29,11 +29,13 @@ class NumberTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
 
   @override
   Widget? build(BuildContext context) {
-    return Column(children: [
-      VSpace(GridSize.typeOptionSeparatorHeight),
-      const TypeOptionSeparator(),
-      _widget,
-    ]);
+    return Column(
+      children: [
+        VSpace(GridSize.typeOptionSeparatorHeight),
+        const TypeOptionSeparator(),
+        _widget,
+      ],
+    );
   }
 }
 
