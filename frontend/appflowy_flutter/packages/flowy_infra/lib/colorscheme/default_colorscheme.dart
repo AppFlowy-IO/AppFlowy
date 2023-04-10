@@ -50,8 +50,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           tint9: _lightTint9,
           main1: _lightMain1,
           main2: const Color(0xff00b7ea),
-          //15% black
-          shadow: const Color(0x26000000),
+          shadow: const Color.fromRGBO(0, 0, 0, 0.15),
           sidebarBg: _lightBg1,
           divider: _lightShader6,
           topbarBg: _white,
