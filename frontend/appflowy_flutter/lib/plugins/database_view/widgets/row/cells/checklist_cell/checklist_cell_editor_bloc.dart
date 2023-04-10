@@ -28,16 +28,20 @@ class ChecklistCellEditorBloc
             _loadOptions();
           },
           didReceiveOptions: (data) {
-            emit(state.copyWith(
-              allOptions: _makeChecklistSelectOptions(data, state.predicate),
-              percent: percentFromSelectOptionCellData(data),
-            ));
+            emit(
+              state.copyWith(
+                allOptions: _makeChecklistSelectOptions(data, state.predicate),
+                percent: percentFromSelectOptionCellData(data),
+              ),
+            );
           },
           newOption: (optionName) {
             _createOption(optionName);
-            emit(state.copyWith(
-              predicate: '',
-            ));
+            emit(
+              state.copyWith(
+                predicate: '',
+              ),
+            );
           },
           deleteOption: (option) {
             _deleteOption([option]);
@@ -114,11 +118,13 @@ class ChecklistCellEditorBloc
 class ChecklistCellEditorEvent with _$ChecklistCellEditorEvent {
   const factory ChecklistCellEditorEvent.initial() = _Initial;
   const factory ChecklistCellEditorEvent.didReceiveOptions(
-      SelectOptionCellDataPB data) = _DidReceiveOptions;
+    SelectOptionCellDataPB data,
+  ) = _DidReceiveOptions;
   const factory ChecklistCellEditorEvent.newOption(String optionName) =
       _NewOption;
   const factory ChecklistCellEditorEvent.selectOption(
-      ChecklistSelectOption option) = _SelectOption;
+    ChecklistSelectOption option,
+  ) = _SelectOption;
   const factory ChecklistCellEditorEvent.updateOption(SelectOptionPB option) =
       _UpdateOption;
   const factory ChecklistCellEditorEvent.deleteOption(SelectOptionPB option) =
@@ -163,7 +169,9 @@ double percentFromSelectOptionCellData(SelectOptionCellDataPB? data) {
 }
 
 List<ChecklistSelectOption> _makeChecklistSelectOptions(
-    SelectOptionCellDataPB? data, String predicate) {
+  SelectOptionCellDataPB? data,
+  String predicate,
+) {
   if (data == null) {
     return [];
   }

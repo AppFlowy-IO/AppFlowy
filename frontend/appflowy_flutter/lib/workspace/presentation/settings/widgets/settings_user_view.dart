@@ -186,11 +186,12 @@ class _CurrentIcon extends StatelessWidget {
         child: Column(
           children: <Widget>[
             Align(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  LocaleKeys.settings_user_icon.tr(),
-                  style: const TextStyle(color: Colors.grey),
-                )),
+              alignment: Alignment.topLeft,
+              child: Text(
+                LocaleKeys.settings_user_icon.tr(),
+                style: const TextStyle(color: Colors.grey),
+              ),
+            ),
             Align(
               alignment: Alignment.centerLeft,
               child: Container(
@@ -218,8 +219,10 @@ class IconGallery extends StatelessWidget {
     final Map<String, dynamic> manifestMap = json.decode(manifestContent);
 
     final iconUrls = manifestMap.keys
-        .where((String key) =>
-            key.startsWith('assets/images/emoji/') && key.endsWith('.svg'))
+        .where(
+          (String key) =>
+              key.startsWith('assets/images/emoji/') && key.endsWith('.svg'),
+        )
         .map((String key) => key.split('/').last.split('.').first)
         .toList();
 

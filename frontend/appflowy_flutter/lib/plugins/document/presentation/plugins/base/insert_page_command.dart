@@ -28,7 +28,8 @@ extension InsertPage on EditorState {
 
     if (database == null) {
       throw StateError(
-          'The database associated with ${viewPB.id} could not be found while attempting to create a referenced ${viewPB.layout.name}.');
+        'The database associated with ${viewPB.id} could not be found while attempting to create a referenced ${viewPB.layout.name}.',
+      );
     }
 
     final prefix = referencedBoardPrefix(viewPB.layout);

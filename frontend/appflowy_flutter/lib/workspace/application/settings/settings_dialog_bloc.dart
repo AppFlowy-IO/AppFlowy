@@ -57,7 +57,8 @@ class SettingsDialogBloc
 class SettingsDialogEvent with _$SettingsDialogEvent {
   const factory SettingsDialogEvent.initial() = _Initial;
   const factory SettingsDialogEvent.didReceiveUserProfile(
-      UserProfilePB newUserProfile) = _DidReceiveUserProfile;
+    UserProfilePB newUserProfile,
+  ) = _DidReceiveUserProfile;
   const factory SettingsDialogEvent.setSelectedPage(SettingsPage page) =
       _SetViewIndex;
 }

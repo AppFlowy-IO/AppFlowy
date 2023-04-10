@@ -105,23 +105,31 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             );
           },
           didCreateRow: (group, row, int? index) {
-            emit(state.copyWith(
-              editingRow: Some(BoardEditingRow(
-                group: group,
-                row: row,
-                index: index,
-              )),
-            ));
+            emit(
+              state.copyWith(
+                editingRow: Some(
+                  BoardEditingRow(
+                    group: group,
+                    row: row,
+                    index: index,
+                  ),
+                ),
+              ),
+            );
             _groupItemStartEditing(group, row, true);
           },
           startEditingRow: (group, row) {
-            emit(state.copyWith(
-              editingRow: Some(BoardEditingRow(
-                group: group,
-                row: row,
-                index: null,
-              )),
-            ));
+            emit(
+              state.copyWith(
+                editingRow: Some(
+                  BoardEditingRow(
+                    group: group,
+                    row: row,
+                    index: null,
+                  ),
+                ),
+              ),
+            );
             _groupItemStartEditing(group, row, true);
           },
           endEditingRow: (rowId) {
@@ -175,10 +183,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     groupControllers.clear();
     boardController.clear();
 
-    boardController.addGroups(groups
-        .where((group) => fieldController.getField(group.fieldId) != null)
-        .map((group) => initializeGroupData(group))
-        .toList());
+    boardController.addGroups(
+      groups
+          .where((group) => fieldController.getField(group.fieldId) != null)
+          .map((group) => initializeGroupData(group))
+          .toList(),
+    );
 
     for (final group in groups) {
       final controller = initializeGroupController(group);
@@ -334,7 +344,8 @@ class BoardState with _$BoardState {
 class GridLoadingState with _$GridLoadingState {
   const factory GridLoadingState.loading() = _Loading;
   const factory GridLoadingState.finish(
-      Either<Unit, FlowyError> successOrFail) = _Finish;
+    Either<Unit, FlowyError> successOrFail,
+  ) = _Finish;
 }
 
 class GridFieldEquatable extends Equatable {

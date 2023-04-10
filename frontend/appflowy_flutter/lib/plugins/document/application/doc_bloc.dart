@@ -53,13 +53,17 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
               .deleteViews([Tuple2(view.id, TrashType.TrashView)]);
 
           final newState = result.fold(
-              (l) => state.copyWith(forceClose: true), (r) => state);
+            (l) => state.copyWith(forceClose: true),
+            (r) => state,
+          );
           emit(newState);
         },
         restorePage: (RestorePage value) async {
           final result = await _trashService.putback(view.id);
           final newState = result.fold(
-              (l) => state.copyWith(isDeleted: false), (r) => state);
+            (l) => state.copyWith(isDeleted: false),
+            (r) => state,
+          );
           emit(newState);
         },
       );
@@ -187,7 +191,8 @@ class DocumentState with _$DocumentState {
 class DocumentLoadingState with _$DocumentLoadingState {
   const factory DocumentLoadingState.loading() = _Loading;
   const factory DocumentLoadingState.finish(
-      Either<Unit, FlowyError> successOrFail) = _Finish;
+    Either<Unit, FlowyError> successOrFail,
+  ) = _Finish;
 }
 
 /// Uses to erase the different between appflowy editor and the backend

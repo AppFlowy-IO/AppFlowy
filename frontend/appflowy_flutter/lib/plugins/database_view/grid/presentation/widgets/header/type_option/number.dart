@@ -28,10 +28,12 @@ class NumberTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
 
   @override
   Widget? build(BuildContext context) {
-    return Column(children: [
-      VSpace(GridSize.typeOptionSeparatorHeight),
-      _widget,
-    ]);
+    return Column(
+      children: [
+        VSpace(GridSize.typeOptionSeparatorHeight),
+        _widget,
+      ],
+    );
   }
 }
 
@@ -108,9 +110,11 @@ typedef SelectNumberFormatCallback = Function(NumberFormat format);
 class NumberFormatList extends StatelessWidget {
   final SelectNumberFormatCallback onSelected;
   final NumberFormat selectedFormat;
-  const NumberFormatList(
-      {required this.selectedFormat, required this.onSelected, Key? key})
-      : super(key: key);
+  const NumberFormatList({
+    required this.selectedFormat,
+    required this.onSelected,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -127,11 +131,12 @@ class NumberFormatList extends StatelessWidget {
               builder: (context, state) {
                 final cells = state.formats.map((format) {
                   return NumberFormatCell(
-                      isSelected: format == selectedFormat,
-                      format: format,
-                      onSelected: (format) {
-                        onSelected(format);
-                      });
+                    isSelected: format == selectedFormat,
+                    format: format,
+                    onSelected: (format) {
+                      onSelected(format);
+                    },
+                  );
                 }).toList();
 
                 final list = ListView.separated(

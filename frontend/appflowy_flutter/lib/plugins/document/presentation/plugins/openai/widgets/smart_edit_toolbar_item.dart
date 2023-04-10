@@ -87,7 +87,8 @@ class _SmartEditWidgetState extends State<_SmartEditWidget> {
   }
 
   Future<void> _insertSmartEditNode(
-      SmartEditActionWrapper actionWrapper) async {
+    SmartEditActionWrapper actionWrapper,
+  ) async {
     final selection =
         widget.editorState.service.selectionService.currentSelection.value;
     if (selection == null) {

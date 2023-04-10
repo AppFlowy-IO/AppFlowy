@@ -25,16 +25,20 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
   void fetch() async {
     final prefs = await SharedPreferences.getInstance();
     final fontSize = prefs.getDouble(_kDocumentAppearanceFontSize) ?? 14.0;
-    emit(state.copyWith(
-      fontSize: fontSize,
-    ));
+    emit(
+      state.copyWith(
+        fontSize: fontSize,
+      ),
+    );
   }
 
   void syncFontSize(double fontSize) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setDouble(_kDocumentAppearanceFontSize, fontSize);
-    emit(state.copyWith(
-      fontSize: fontSize,
-    ));
+    emit(
+      state.copyWith(
+        fontSize: fontSize,
+      ),
+    );
   }
 }

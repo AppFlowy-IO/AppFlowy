@@ -16,7 +16,8 @@ class TrashService {
   }
 
   Future<Either<Unit, FlowyError>> deleteViews(
-      List<Tuple2<String, TrashType>> trashList) {
+    List<Tuple2<String, TrashType>> trashList,
+  ) {
     final items = trashList.map((trash) {
       return TrashIdPB.create()
         ..id = trash.value1

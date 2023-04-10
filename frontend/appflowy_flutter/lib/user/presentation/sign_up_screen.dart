@@ -38,7 +38,9 @@ class SignUpScreen extends StatelessWidget {
   }
 
   void _handleSuccessOrFail(
-      BuildContext context, Either<UserProfilePB, FlowyError> result) {
+    BuildContext context,
+    Either<UserProfilePB, FlowyError> result,
+  ) {
     result.fold(
       (user) => router.pushWelcomeScreen(context, user),
       (error) => showSnapBar(context, error.msg),
@@ -95,7 +97,8 @@ class SignUpPrompt extends StatelessWidget {
         ),
         TextButton(
           style: TextButton.styleFrom(
-              textStyle: Theme.of(context).textTheme.bodyMedium),
+            textStyle: Theme.of(context).textTheme.bodyMedium,
+          ),
           onPressed: () => Navigator.pop(context),
           child: FlowyText.medium(
             LocaleKeys.signIn_buttonText.tr(),

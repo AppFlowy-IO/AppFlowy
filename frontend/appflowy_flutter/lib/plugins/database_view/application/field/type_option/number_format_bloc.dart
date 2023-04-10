@@ -7,16 +7,20 @@ class NumberFormatBloc extends Bloc<NumberFormatEvent, NumberFormatState> {
   NumberFormatBloc() : super(NumberFormatState.initial()) {
     on<NumberFormatEvent>(
       (event, emit) async {
-        event.map(setFilter: (_SetFilter value) {
-          final List<NumberFormat> formats = List.from(NumberFormat.values);
-          if (value.filter.isNotEmpty) {
-            formats.retainWhere((element) => element
-                .title()
-                .toLowerCase()
-                .contains(value.filter.toLowerCase()));
-          }
-          emit(state.copyWith(formats: formats, filter: value.filter));
-        });
+        event.map(
+          setFilter: (_SetFilter value) {
+            final List<NumberFormat> formats = List.from(NumberFormat.values);
+            if (value.filter.isNotEmpty) {
+              formats.retainWhere(
+                (element) => element
+                    .title()
+                    .toLowerCase()
+                    .contains(value.filter.toLowerCase()),
+              );
+            }
+            emit(state.copyWith(formats: formats, filter: value.filter));
+          },
+        );
       },
     );
   }
