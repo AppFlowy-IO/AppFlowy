@@ -346,11 +346,12 @@ class DeleteImageAlertDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(LocaleKeys.document_plugins_cover_coverRemoveAlert).tr(),
-            SizedBox(
+            const Text(LocaleKeys.document_plugins_cover_coverRemoveAlert).tr(),
+            const SizedBox(
               height: 4,
             ),
-            Text(LocaleKeys.document_plugins_cover_alertDialogConfirmation)
+            const Text(
+                    LocaleKeys.document_plugins_cover_alertDialogConfirmation)
                 .tr(),
           ],
         ),
