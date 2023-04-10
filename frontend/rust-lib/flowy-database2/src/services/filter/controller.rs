@@ -1,9 +1,11 @@
 use crate::entities::filter_entities::*;
 use crate::entities::{FieldType, InsertedRowPB, RowPB};
-use crate::services::cell::{AnyTypeCache, AtomicCellDataCache, AtomicCellFilterCache};
+use crate::services::cell::{AnyTypeCache, CellCache, CellFilterCache};
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
 use crate::services::field::*;
-use crate::services::filter::{Filter, FilterChangeset, FilterResult, FilterResultNotification, FilterType};
+use crate::services::filter::{
+  Filter, FilterChangeset, FilterResult, FilterResultNotification, FilterType,
+};
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Row};
 use dashmap::DashMap;
@@ -36,8 +38,8 @@ pub struct FilterController {
   handler_id: String,
   delegate: Box<dyn FilterDelegate>,
   result_by_row_id: DashMap<RowId, FilterResult>,
-  cell_data_cache: AtomicCellDataCache,
-  cell_filter_cache: AtomicCellFilterCache,
+  cell_data_cache: CellCache,
+  cell_filter_cache: CellFilterCache,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
   notifier: DatabaseViewChangedNotifier,
 }
@@ -55,7 +57,7 @@ impl FilterController {
     delegate: T,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     filters: Vec<Arc<Filter>>,
-    cell_data_cache: AtomicCellDataCache,
+    cell_data_cache: CellCache,
     notifier: DatabaseViewChangedNotifier,
   ) -> Self
   where
@@ -354,8 +356,8 @@ fn filter_row(
   row: &Row,
   result_by_row_id: &DashMap<RowId, FilterResult>,
   field_by_field_id: &HashMap<String, Arc<Field>>,
-  cell_data_cache: &AtomicCellDataCache,
-  cell_filter_cache: &AtomicCellFilterCache,
+  cell_data_cache: &CellCache,
+  cell_filter_cache: &CellFilterCache,
 ) -> Option<(String, bool)> {
   // Create a filter result cache if it's not exist
   let mut filter_result = result_by_row_id
@@ -403,8 +405,8 @@ fn filter_cell(
   filter_type: &FilterType,
   field: &Arc<Field>,
   cell: Option<Cell>,
-  cell_data_cache: &AtomicCellDataCache,
-  cell_filter_cache: &AtomicCellFilterCache,
+  cell_data_cache: &CellCache,
+  cell_filter_cache: &CellFilterCache,
 ) -> Option<bool> {
   let handler = TypeOptionCellExt::new(
     field.as_ref(),

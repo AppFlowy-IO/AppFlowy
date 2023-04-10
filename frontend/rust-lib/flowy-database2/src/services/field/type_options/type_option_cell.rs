@@ -1,6 +1,6 @@
 use crate::entities::FieldType;
 use crate::services::cell::{
-  AtomicCellDataCache, AtomicCellFilterCache, CellDataChangeset, CellDataDecoder, CellProtobufBlob,
+  CellCache, CellDataChangeset, CellDataDecoder, CellFilterCache, CellProtobufBlob,
   FromCellChangesetString,
 };
 use crate::services::field::{
@@ -82,8 +82,8 @@ impl AsRef<u64> for CellDataCacheKey {
 
 struct TypeOptionCellDataHandlerImpl<T> {
   inner: T,
-  cell_data_cache: Option<AtomicCellDataCache>,
-  cell_filter_cache: Option<AtomicCellFilterCache>,
+  cell_data_cache: Option<CellCache>,
+  cell_filter_cache: Option<CellFilterCache>,
 }
 
 impl<T> TypeOptionCellDataHandlerImpl<T>
@@ -99,8 +99,8 @@ where
 {
   pub fn new_with_boxed(
     inner: T,
-    cell_filter_cache: Option<AtomicCellFilterCache>,
-    cell_data_cache: Option<AtomicCellDataCache>,
+    cell_filter_cache: Option<CellFilterCache>,
+    cell_data_cache: Option<CellCache>,
   ) -> Box<dyn TypeOptionCellDataHandler> {
     Box::new(Self {
       inner,
@@ -282,15 +282,12 @@ where
 
 pub struct TypeOptionCellExt<'a> {
   field: &'a Field,
-  cell_data_cache: Option<AtomicCellDataCache>,
-  cell_filter_cache: Option<AtomicCellFilterCache>,
+  cell_data_cache: Option<CellCache>,
+  cell_filter_cache: Option<CellFilterCache>,
 }
 
 impl<'a> TypeOptionCellExt<'a> {
-  pub fn new_with_cell_data_cache(
-    field: &'a Field,
-    cell_data_cache: Option<AtomicCellDataCache>,
-  ) -> Self {
+  pub fn new_with_cell_data_cache(field: &'a Field, cell_data_cache: Option<CellCache>) -> Self {
     Self {
       field,
       cell_data_cache,
@@ -300,8 +297,8 @@ impl<'a> TypeOptionCellExt<'a> {
 
   pub fn new(
     field: &'a Field,
-    cell_data_cache: Option<AtomicCellDataCache>,
-    cell_filter_cache: Option<AtomicCellFilterCache>,
+    cell_data_cache: Option<CellCache>,
+    cell_filter_cache: Option<CellFilterCache>,
   ) -> Self {
     let mut this = Self::new_with_cell_data_cache(field, cell_data_cache);
     this.cell_filter_cache = cell_filter_cache;

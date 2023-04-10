@@ -2,6 +2,7 @@ use crate::entities::parser::NotEmptyStr;
 
 use collab_database::rows::Row;
 
+use crate::services::database::{InsertedRow, UpdatedRow};
 use collab_database::views::RowOrder;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
@@ -105,6 +106,16 @@ impl std::convert::From<&Row> for InsertedRowPB {
   }
 }
 
+impl From<InsertedRow> for InsertedRowPB {
+  fn from(data: InsertedRow) -> Self {
+    Self {
+      row: data.row.into(),
+      index: data.index,
+      is_new: data.is_new,
+    }
+  }
+}
+
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct UpdatedRowPB {
   #[pb(index = 1)]
@@ -114,6 +125,14 @@ pub struct UpdatedRowPB {
   #[pb(index = 2)]
   pub field_ids: Vec<String>,
 }
+
+impl From<UpdatedRow> for UpdatedRowPB {
+  fn from(data: UpdatedRow) -> Self {
+    Self {
+      row: data.row.into(),
+      field_ids: data.field_ids,
+    }
+  }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct RowIdPB {

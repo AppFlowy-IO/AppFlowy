@@ -1,6 +1,6 @@
 use crate::entities::FieldType;
 use crate::entities::SortChangesetNotificationPB;
-use crate::services::cell::AtomicCellDataCache;
+use crate::services::cell::CellCache;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
 use crate::services::field::{default_order, TypeOptionCellExt};
 use crate::services::sort::{
@@ -33,7 +33,7 @@ pub struct SortController {
   delegate: Box<dyn SortDelegate>,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
   sorts: Vec<Arc<Sort>>,
-  cell_data_cache: AtomicCellDataCache,
+  cell_data_cache: CellCache,
   row_index_cache: HashMap<String, usize>,
   notifier: DatabaseViewChangedNotifier,
 }
@@ -51,7 +51,7 @@ impl SortController {
     sorts: Vec<Arc<Sort>>,
     delegate: T,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
-    cell_data_cache: AtomicCellDataCache,
+    cell_data_cache: CellCache,
     notifier: DatabaseViewChangedNotifier,
   ) -> Self
   where
@@ -223,7 +223,7 @@ fn cmp_row(
   right: &Arc<Row>,
   sort: &Arc<Sort>,
   field_revs: &[Arc<Field>],
-  cell_data_cache: &AtomicCellDataCache,
+  cell_data_cache: &CellCache,
 ) -> Ordering {
   let order = match (
     left.cells.get(&sort.field_id),
@@ -262,7 +262,7 @@ fn cmp_cell(
   right_cell: &Cell,
   field: &Arc<Field>,
   field_type: FieldType,
-  cell_data_cache: &AtomicCellDataCache,
+  cell_data_cache: &CellCache,
 ) -> Ordering {
   match TypeOptionCellExt::new_with_cell_data_cache(field.as_ref(), Some(cell_data_cache.clone()))
     .get_type_option_cell_data_handler(&field_type)

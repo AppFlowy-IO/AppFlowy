@@ -1,5 +1,5 @@
 use crate::entities::FieldType;
-use crate::services::cell::{AtomicCellDataCache, CellProtobufBlob};
+use crate::services::cell::{CellCache, CellProtobufBlob};
 use crate::services::field::*;
 
 use crate::services::group::make_no_status_group;
@@ -60,7 +60,7 @@ pub fn apply_cell_data_changeset<C: ToCellChangesetString>(
   changeset: C,
   cell: Option<Cell>,
   field: &Field,
-  cell_data_cache: Option<AtomicCellDataCache>,
+  cell_data_cache: Option<CellCache>,
 ) -> Cell {
   let changeset = changeset.to_cell_changeset_str();
   let field_type = FieldType::from(field.field_type);
@@ -77,7 +77,7 @@ pub fn apply_cell_data_changeset<C: ToCellChangesetString>(
 pub fn get_type_cell_protobuf(
   cell: &Cell,
   field: &Field,
-  cell_data_cache: Option<AtomicCellDataCache>,
+  cell_data_cache: Option<CellCache>,
 ) -> CellProtobufBlob {
   let from_field_type = get_field_type_from_cell(cell);
   if from_field_type.is_none() {
@@ -104,7 +104,7 @@ pub fn get_type_cell_protobuf(
 pub fn get_type_cell_data<Output>(
   cell: &Cell,
   field: &Field,
-  cell_data_cache: Option<AtomicCellDataCache>,
+  cell_data_cache: Option<CellCache>,
 ) -> Option<Output>
 where
   Output: Default + 'static,
@@ -142,7 +142,7 @@ pub fn try_decode_cell_str_to_cell_protobuf(
   from_field_type: &FieldType,
   to_field_type: &FieldType,
   field: &Field,
-  cell_data_cache: Option<AtomicCellDataCache>,
+  cell_data_cache: Option<CellCache>,
 ) -> FlowyResult<CellProtobufBlob> {
   match TypeOptionCellExt::new_with_cell_data_cache(field, cell_data_cache)
     .get_type_option_cell_data_handler(to_field_type)
@@ -157,7 +157,7 @@ pub fn try_decode_cell_to_cell_data<T: Default + 'static>(
   from_field_type: &FieldType,
   to_field_type: &FieldType,
   field: &Field,
-  cell_data_cache: Option<AtomicCellDataCache>,
+  cell_data_cache: Option<CellCache>,
 ) -> Option<T> {
   let handler = TypeOptionCellExt::new_with_cell_data_cache(field, cell_data_cache)
     .get_type_option_cell_data_handler(to_field_type)?;

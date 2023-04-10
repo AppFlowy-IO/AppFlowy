@@ -6,10 +6,11 @@ use std::fmt::Debug;
 use std::hash::Hash;
 use std::sync::Arc;
 
-pub type AtomicCellDataCache = Arc<RwLock<AnyTypeCache<u64>>>;
-pub type AtomicCellFilterCache = Arc<RwLock<AnyTypeCache<FilterType>>>;
+pub type CellCache = Arc<RwLock<AnyTypeCache<u64>>>;
+pub type CellFilterCache = Arc<RwLock<AnyTypeCache<FilterType>>>;
 
 #[derive(Default, Debug)]
+/// The better option is use LRU cache
 pub struct AnyTypeCache<TypeValueKey>(HashMap<TypeValueKey, TypeValue>);
 
 impl<TypeValueKey> AnyTypeCache<TypeValueKey>
