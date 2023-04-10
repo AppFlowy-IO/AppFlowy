@@ -1,5 +1,13 @@
 import React from 'react';
-import { FieldType, NumberFormat, NumberTypeOptionPB, SelectOptionCellDataPB, ViewLayoutPB } from '@/services/backend';
+import {
+  DateFormat,
+  FieldType,
+  NumberFormat,
+  NumberTypeOptionPB,
+  SelectOptionCellDataPB,
+  TimeFormat,
+  ViewLayoutPB,
+} from '@/services/backend';
 import { Log } from '$app/utils/log';
 import {
   assert,
@@ -23,9 +31,11 @@ import { SelectOptionCellBackendService } from '$app/stores/effects/database/cel
 import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
 import { None, Some } from 'ts-results';
 import { RowBackendService } from '$app/stores/effects/database/row/row_bd_svc';
-import { makeNumberTypeOptionContext } from '$app/stores/effects/database/field/type_option/type_option_context';
+import {
+  makeDateTypeOptionContext,
+  makeNumberTypeOptionContext,
+} from '$app/stores/effects/database/field/type_option/type_option_context';
 import { CalendarData } from '$app/stores/effects/database/cell/controller_builder';
-import { DatabaseEventMoveField } from '@/services/backend/events/flowy-database';
 
 export const RunAllGridTests = () => {
   async function run() {
@@ -162,6 +172,52 @@ async function testEditDateCell() {
   await new Promise((resolve) => setTimeout(resolve, 200));
 }
 
+async function testEditDateFormat() {
+  const view = await createTestDatabaseView(ViewLayoutPB.Grid);
+  const databaseController = await openTestDatabase(view.id);
+  await databaseController.open().then((result) => result.unwrap());
+
+  // Create date field
+  const typeOptionController = new TypeOptionController(view.id, None, FieldType.DateTime);
+  await typeOptionController.initialize();
+
+  // update date type option
+  const dateTypeOptionContext = makeDateTypeOptionContext(typeOptionController);
+  const typeOption = await dateTypeOptionContext.getTypeOption().then((a) => a.unwrap());
+  assert(typeOption.date_format === DateFormat.Friendly, 'Date format not match');
+  assert(typeOption.time_format === TimeFormat.TwentyFourHour, 'Time format not match');
+  typeOption.date_format = DateFormat.Local;
+  typeOption.time_format = TimeFormat.TwelveHour;
+  await dateTypeOptionContext.setTypeOption(typeOption);
+
+  const typeOption2 = await dateTypeOptionContext.getTypeOption().then((a) => a.unwrap());
+  assert(typeOption2.date_format === DateFormat.Local, 'Date format not match');
+  assert(typeOption2.time_format === TimeFormat.TwelveHour, 'Time format not match');
+
+  await new Promise((resolve) => setTimeout(resolve, 200));
+}
+
+async function testEditNumberFormat() {
+  const view = await createTestDatabaseView(ViewLayoutPB.Grid);
+  const databaseController = await openTestDatabase(view.id);
+  await databaseController.open().then((result) => result.unwrap());
+
+  // Create date field
+  const typeOptionController = new TypeOptionController(view.id, None, FieldType.Number);
+  await typeOptionController.initialize();
+
+  // update date type option
+  const dateTypeOptionContext = makeNumberTypeOptionContext(typeOptionController);
+  const typeOption = await dateTypeOptionContext.getTypeOption().then((a) => a.unwrap());
+  typeOption.format = NumberFormat.EUR;
+  typeOption.name = 'Money';
+  await dateTypeOptionContext.setTypeOption(typeOption);
+
+  const typeOption2 = await dateTypeOptionContext.getTypeOption().then((a) => a.unwrap());
+  Log.info(typeOption2);
+  await new Promise((resolve) => setTimeout(resolve, 200));
+}
+
 async function testCheckboxCell() {
   const view = await createTestDatabaseView(ViewLayoutPB.Grid);
   const databaseController = await openTestDatabase(view.id);
@@ -250,10 +306,13 @@ async function testMoveField() {
   const view = await createTestDatabaseView(ViewLayoutPB.Grid);
   const databaseController = await openTestDatabase(view.id);
   await databaseController.open().then((result) => result.unwrap());
+  const ids = databaseController.fieldController.fieldInfos.map((value) => value.field.id);
+  Log.info('Receive fields data:', ids);
 
   databaseController.subscribe({
-    onFieldsChanged: (value) => {
-      Log.info('Receive fields data:', value);
+    onFieldsChanged: (values) => {
+      const new_ids = values.map((value) => value.field.id);
+      Log.info('Receive fields data:', new_ids);
     },
   });
 
@@ -430,6 +489,12 @@ export const TestEditURLCell = () => {
 };
 export const TestEditDateCell = () => {
   return TestButton('Test editing date cell', testEditDateCell);
+};
+export const TestEditDateFormat = () => {
+  return TestButton('Test editing date format', testEditDateFormat);
+};
+export const TestEditNumberFormat = () => {
+  return TestButton('Test editing number format', testEditNumberFormat);
 };
 export const TestEditCheckboxCell = () => {
   return TestButton('Test editing checkbox cell', testCheckboxCell);

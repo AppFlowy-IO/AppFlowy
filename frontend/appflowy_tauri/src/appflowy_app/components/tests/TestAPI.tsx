@@ -10,7 +10,9 @@ import {
   TestEditCell,
   TestEditCheckboxCell,
   TestEditDateCell,
+  TestEditDateFormat,
   TestEditField,
+  TestEditNumberFormat,
   TestEditTextCell,
   TestEditURLCell,
   TestGetSingleSelectFieldData,
@@ -48,6 +50,8 @@ export const TestAPI = () => {
         <TestMoveField></TestMoveField>
         <TestCreateNewField></TestCreateNewField>
         <TestDeleteField></TestDeleteField>
+        <TestEditDateFormat></TestEditDateFormat>
+        <TestEditNumberFormat></TestEditNumberFormat>
         <TestSwitchFromSingleSelectToNumber></TestSwitchFromSingleSelectToNumber>
         <TestSwitchFromMultiSelectToText></TestSwitchFromMultiSelectToText>
         {/*kanban board */}
