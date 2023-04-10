@@ -345,12 +345,13 @@ class DeleteImageAlertDialog extends StatelessWidget {
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: const [
-            Text("It will be removed from cover after it is deleted."),
+          children: [
+            Text(LocaleKeys.document_plugins_cover_coverRemoveAlert).tr(),
             SizedBox(
               height: 4,
             ),
-            Text("Are you sure, you want to continue?"),
+            Text(LocaleKeys.document_plugins_cover_alertDialogConfirmation)
+                .tr(),
           ],
         ),
       ),
