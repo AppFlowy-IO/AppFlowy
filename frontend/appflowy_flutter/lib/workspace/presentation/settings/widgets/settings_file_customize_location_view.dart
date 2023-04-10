@@ -187,9 +187,10 @@ class _CloudLocationDialogState extends State<CloudLocationDialog> {
           autofocus: true,
           controller: controller,
           decoration: const InputDecoration(
-              labelText: "Cloud URL",
-              hintText: 'Enter cloud url',
-              helperText: "e.g. grpc://locahost:50051"),
+            labelText: "Cloud URL",
+            hintText: 'Enter cloud url',
+            helperText: "e.g. grpc://localhost:50051",
+          ),
         ),
       ),
       actions: [
