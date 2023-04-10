@@ -1,8 +1,8 @@
 import { FieldPB, FieldType, TypeOptionPB } from '@/services/backend';
 import { ChangeNotifier } from '$app/utils/change_notifier';
-import { FieldBackendService } from '../field_bd_svc';
+import { FieldBackendService, TypeOptionParser } from '../field_bd_svc';
 import { Log } from '$app/utils/log';
-import { None, Option, Some } from 'ts-results';
+import { None, Ok, Option, Some } from 'ts-results';
 import { FieldInfo } from '../field_controller';
 import { TypeOptionBackendService } from './type_option_bd_svc';
 
