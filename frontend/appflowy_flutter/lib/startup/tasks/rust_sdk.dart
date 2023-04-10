@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:appflowy_backend/appflowy_backend.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 
 import '../startup.dart';
 
@@ -23,12 +23,18 @@ class InitRustSDKTask extends LaunchTask {
     if (directory != null) {
       return directory!.then((directory) async {
         await context.getIt<FlowySDK>().init(directory);
+      }).catchError((err) async {
+        await _initDefault(context);
       });
     } else {
-      return appFlowyDocumentDirectory().then((directory) async {
-        await context.getIt<FlowySDK>().init(directory);
-      });
+      return _initDefault(context);
     }
+  }
+
+  Future<void> _initDefault(LaunchContext context) {
+    return appFlowyDocumentDirectory().then((directory) async {
+      await context.getIt<FlowySDK>().init(directory);
+    });
   }
 }
 
