@@ -301,6 +301,7 @@ class _PropertyCellState extends State<_PropertyCell> {
                 child: FieldCellButton(
                   field: widget.cellId.fieldInfo.field,
                   onTap: () => popover.show(),
+                  radius: BorderRadius.circular(6),
                 ),
               ),
             ),
