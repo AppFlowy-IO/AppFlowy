@@ -16,7 +16,8 @@ class MyMockClient extends Mock implements http.Client {
       final responseHeaders = <String, String>{'content-type': 'text/event-stream'};
       final responseBody = Stream.fromIterable([
         utf8.encode(
-            '{ "choices": [{"text": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula ", "index": 0, "logprobs": null, "finish_reason": null}]}'),
+          '{ "choices": [{"text": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula ", "index": 0, "logprobs": null, "finish_reason": null}]}',
+        ),
         utf8.encode('\n'),
         utf8.encode('[DONE]'),
       ]);
@@ -45,7 +46,6 @@ class MockOpenAIRepository extends HttpOpenAIRepository {
     double temperature = 0.3,
     bool useAction = false,
   }) async {
-
     final request = http.Request('POST', OpenAIRequestType.textCompletion.uri);
     final response = await client.send(request);
 

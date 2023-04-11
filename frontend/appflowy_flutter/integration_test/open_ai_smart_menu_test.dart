@@ -21,10 +21,12 @@ void main() {
       final appFlowyEditor = await setUpOpenAITesting(tester);
       final editorState = appFlowyEditor.editorState;
 
-      editorState.service.selectionService.updateSelection(Selection(
-        start: Position(path: [1], offset: 4),
-        end: Position(path: [1], offset: 10),
-      ));
+      editorState.service.selectionService.updateSelection(
+        Selection(
+          start: Position(path: [1], offset: 4),
+          end: Position(path: [1], offset: 10),
+        ),
+      );
       await tester.pumpAndSettle(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();
 
@@ -51,10 +53,12 @@ void main() {
       final appFlowyEditor = await setUpOpenAITesting(tester);
       final editorState = appFlowyEditor.editorState;
 
-      editorState.service.selectionService.updateSelection(Selection(
-        start: Position(path: [1], offset: 0),
-        end: Position(path: [1], offset: 5),
-      ));
+      editorState.service.selectionService.updateSelection(
+        Selection(
+          start: Position(path: [1], offset: 0),
+          end: Position(path: [1], offset: 5),
+        ),
+      );
       await tester.pumpAndSettle(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();
       expect(find.byType(ToolbarWidget), findsAtLeastNWidgets(1));
