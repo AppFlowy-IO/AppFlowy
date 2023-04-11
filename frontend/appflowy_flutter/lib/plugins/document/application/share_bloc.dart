@@ -5,7 +5,7 @@ import 'package:appflowy/plugins/document/presentation/plugins/parsers/divider_n
 import 'package:appflowy/plugins/document/presentation/plugins/parsers/math_equation_node_parser.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/parsers/code_block_node_parser.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

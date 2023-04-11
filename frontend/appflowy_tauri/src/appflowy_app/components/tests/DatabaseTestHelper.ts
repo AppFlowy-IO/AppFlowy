@@ -1,21 +1,23 @@
 import {
   FieldType,
   SingleSelectTypeOptionPB,
-  ViewLayoutTypePB,
+  ViewLayoutPB,
   ViewPB,
   WorkspaceSettingPB,
 } from '../../../services/backend';
-import { FolderEventReadCurrentWorkspace } from '../../../services/backend/events/flowy-folder';
+import { FolderEventReadCurrentWorkspace } from '../../../services/backend/events/flowy-folder2';
 import { AppBackendService } from '../../stores/effects/folder/app/app_bd_svc';
 import { DatabaseController } from '../../stores/effects/database/database_controller';
 import { RowInfo } from '../../stores/effects/database/row/row_cache';
 import { RowController } from '../../stores/effects/database/row/row_controller';
 import {
   CellControllerBuilder,
+  CheckboxCellController,
   DateCellController,
   NumberCellController,
   SelectOptionCellController,
   TextCellController,
+  URLCellController,
 } from '../../stores/effects/database/cell/controller_builder';
 import { None, Option, Some } from 'ts-results';
 import { TypeOptionBackendService } from '../../stores/effects/database/field/type_option/type_option_bd_svc';
@@ -27,9 +29,9 @@ import { SelectOptionBackendService } from '../../stores/effects/database/cell/s
 
 // Create a database view for specific layout type
 // Do not use it production code. Just for testing
-export async function createTestDatabaseView(layout: ViewLayoutTypePB): Promise<ViewPB> {
+export async function createTestDatabaseView(layout: ViewLayoutPB): Promise<ViewPB> {
   const workspaceSetting: WorkspaceSettingPB = await FolderEventReadCurrentWorkspace().then((result) => result.unwrap());
-  const app = workspaceSetting.workspace.apps.items[0];
+  const app = workspaceSetting.workspace.views[0];
   const appService = new AppBackendService(app.id);
   return await appService.createView({ name: 'New Grid', layoutType: layout });
 }
@@ -123,6 +125,28 @@ export async function makeDateCellController(
     (result) => result.unwrap()
   );
   return Some(builder.build() as DateCellController);
+}
+
+export async function makeCheckboxCellController(
+  fieldId: string,
+  rowInfo: RowInfo,
+  databaseController: DatabaseController
+): Promise<Option<CheckboxCellController>> {
+  const builder = await makeCellControllerBuilder(fieldId, rowInfo, FieldType.Checkbox, databaseController).then(
+    (result) => result.unwrap()
+  );
+  return Some(builder.build() as CheckboxCellController);
+}
+
+export async function makeURLCellController(
+  fieldId: string,
+  rowInfo: RowInfo,
+  databaseController: DatabaseController
+): Promise<Option<URLCellController>> {
+  const builder = await makeCellControllerBuilder(fieldId, rowInfo, FieldType.DateTime, databaseController).then(
+    (result) => result.unwrap()
+  );
+  return Some(builder.build() as URLCellController);
 }
 
 export async function makeCellControllerBuilder(

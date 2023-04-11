@@ -15,7 +15,7 @@ use strum_macros::EnumIter;
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct DatabaseViewSettingPB {
   #[pb(index = 1)]
-  pub current_layout: LayoutTypePB,
+  pub current_layout: DatabaseLayoutPB,
 
   #[pb(index = 2)]
   pub layout_setting: LayoutSettingPB,
@@ -32,34 +32,34 @@ pub struct DatabaseViewSettingPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumIter)]
 #[repr(u8)]
-pub enum LayoutTypePB {
+pub enum DatabaseLayoutPB {
   Grid = 0,
   Board = 1,
   Calendar = 2,
 }
 
-impl std::default::Default for LayoutTypePB {
+impl std::default::Default for DatabaseLayoutPB {
   fn default() -> Self {
-    LayoutTypePB::Grid
+    DatabaseLayoutPB::Grid
   }
 }
 
-impl std::convert::From<LayoutRevision> for LayoutTypePB {
+impl std::convert::From<LayoutRevision> for DatabaseLayoutPB {
   fn from(rev: LayoutRevision) -> Self {
     match rev {
-      LayoutRevision::Grid => LayoutTypePB::Grid,
-      LayoutRevision::Board => LayoutTypePB::Board,
-      LayoutRevision::Calendar => LayoutTypePB::Calendar,
+      LayoutRevision::Grid => DatabaseLayoutPB::Grid,
+      LayoutRevision::Board => DatabaseLayoutPB::Board,
+      LayoutRevision::Calendar => DatabaseLayoutPB::Calendar,
     }
   }
 }
 
-impl std::convert::From<LayoutTypePB> for LayoutRevision {
-  fn from(layout: LayoutTypePB) -> Self {
+impl std::convert::From<DatabaseLayoutPB> for LayoutRevision {
+  fn from(layout: DatabaseLayoutPB) -> Self {
     match layout {
-      LayoutTypePB::Grid => LayoutRevision::Grid,
-      LayoutTypePB::Board => LayoutRevision::Board,
-      LayoutTypePB::Calendar => LayoutRevision::Calendar,
+      DatabaseLayoutPB::Grid => LayoutRevision::Grid,
+      DatabaseLayoutPB::Board => LayoutRevision::Board,
+      DatabaseLayoutPB::Calendar => LayoutRevision::Calendar,
     }
   }
 }
@@ -70,7 +70,7 @@ pub struct DatabaseSettingChangesetPB {
   pub view_id: String,
 
   #[pb(index = 2)]
-  pub layout_type: LayoutTypePB,
+  pub layout_type: DatabaseLayoutPB,
 
   #[pb(index = 3, one_of)]
   pub alter_filter: Option<AlterFilterPayloadPB>,

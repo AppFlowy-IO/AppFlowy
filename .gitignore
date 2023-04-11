@@ -35,3 +35,5 @@ pubspec.lock
 .githooks/gitlint
 .githooks/gitlint.exe
 .fvm/
+
+**/AppFlowy-Collab/

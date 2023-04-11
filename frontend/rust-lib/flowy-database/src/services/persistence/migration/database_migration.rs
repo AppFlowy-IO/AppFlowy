@@ -17,13 +17,13 @@ use revision_model::Revision;
 use std::sync::Arc;
 
 const V1_MIGRATION: &str = "DATABASE_V1_MIGRATION";
-pub fn is_database_rev_migrated(user_id: &str) -> bool {
-  let key = migration_flag_key(&user_id, V1_MIGRATION);
+pub fn is_database_rev_migrated(user_id: i64) -> bool {
+  let key = migration_flag_key(user_id, V1_MIGRATION);
   KV::get_bool(&key)
 }
 
 pub(crate) async fn migration_database_rev_struct(
-  user_id: &str,
+  user_id: i64,
   databases: &Vec<MigratedDatabase>,
   pool: Arc<ConnectionPool>,
 ) -> FlowyResult<()> {
@@ -35,16 +35,16 @@ pub(crate) async fn migration_database_rev_struct(
     let object = DatabaseRevisionResettable {
       database_id: database.view_id.clone(),
     };
-    let disk_cache = SQLiteDatabaseRevisionPersistence::new(&user_id, pool.clone());
-    let reset = RevisionStructReset::new(&user_id, object, Arc::new(disk_cache));
+    let disk_cache = SQLiteDatabaseRevisionPersistence::new(pool.clone());
+    let reset = RevisionStructReset::new(object, Arc::new(disk_cache));
     reset.run().await?;
   }
-  let key = migration_flag_key(&user_id, V1_MIGRATION);
+  let key = migration_flag_key(user_id, V1_MIGRATION);
   KV::set_bool(&key, true);
   Ok(())
 }
 
-fn migration_flag_key(user_id: &str, version: &str) -> String {
+fn migration_flag_key(user_id: i64, version: &str) -> String {
   md5(format!("{}{}", user_id, version,))
 }
 

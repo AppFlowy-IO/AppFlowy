@@ -12,6 +12,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+const _dialogHorizontalPadding = EdgeInsets.symmetric(horizontal: 12);
+const _contentInsetPadding = EdgeInsets.fromLTRB(0.0, 12.0, 0.0, 16.0);
+
 class SettingsDialog extends StatelessWidget {
   final UserProfilePB user;
   SettingsDialog(this.user, {Key? key}) : super(key: ValueKey(user.id));
@@ -23,34 +26,49 @@ class SettingsDialog extends StatelessWidget {
         ..add(const SettingsDialogEvent.initial()),
       child: BlocBuilder<SettingsDialogBloc, SettingsDialogState>(
         builder: (context, state) => FlowyDialog(
-          title: FlowyText(
-            LocaleKeys.settings_title.tr(),
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
+          title: Padding(
+            padding: _dialogHorizontalPadding + _contentInsetPadding,
+            child: FlowyText(
+              LocaleKeys.settings_title.tr(),
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.tertiary,
+            ),
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: 200,
-                child: SettingsMenu(
-                  changeSelectedPage: (index) {
-                    context
-                        .read<SettingsDialogBloc>()
-                        .add(SettingsDialogEvent.setSelectedPage(index));
-                  },
-                  currentPage: context.read<SettingsDialogBloc>().state.page,
+          child: ScaffoldMessenger(
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              body: Padding(
+                padding: _dialogHorizontalPadding,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 200,
+                      child: SettingsMenu(
+                        changeSelectedPage: (index) {
+                          context
+                              .read<SettingsDialogBloc>()
+                              .add(SettingsDialogEvent.setSelectedPage(index));
+                        },
+                        currentPage:
+                            context.read<SettingsDialogBloc>().state.page,
+                      ),
+                    ),
+                    VerticalDivider(
+                      color: Theme.of(context).dividerColor,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: getSettingsView(
+                        context.read<SettingsDialogBloc>().state.page,
+                        context.read<SettingsDialogBloc>().state.userProfile,
+                      ),
+                    )
+                  ],
                 ),
               ),
-              const VerticalDivider(),
-              const SizedBox(width: 10),
-              Expanded(
-                child: getSettingsView(
-                  context.read<SettingsDialogBloc>().state.page,
-                  context.read<SettingsDialogBloc>().state.userProfile,
-                ),
-              )
-            ],
+            ),
           ),
         ),
       ),

@@ -1,36 +1,35 @@
 import {
   FolderEventCreateView,
-  FolderEventDeleteApp,
   FolderEventDeleteView,
   FolderEventMoveItem,
-  FolderEventReadApp,
-  FolderEventUpdateApp,
-  ViewLayoutTypePB,
-} from '../../../../../services/backend/events/flowy-folder';
+  FolderEventReadView,
+  FolderEventUpdateView,
+  ViewLayoutPB,
+} from '@/services/backend/events/flowy-folder2';
 import {
-  AppIdPB,
-  UpdateAppPayloadPB,
   CreateViewPayloadPB,
   RepeatedViewIdPB,
   ViewPB,
   MoveFolderItemPayloadPB,
   MoveFolderItemType,
   FlowyError,
-} from '../../../../../services/backend';
+  ViewIdPB,
+  UpdateViewPayloadPB,
+} from '@/services/backend';
 import { None, Result, Some } from 'ts-results';
 
 export class AppBackendService {
   constructor(public readonly appId: string) {}
 
   getApp = () => {
-    const payload = AppIdPB.fromObject({ value: this.appId });
-    return FolderEventReadApp(payload);
+    const payload = ViewIdPB.fromObject({ value: this.appId });
+    return FolderEventReadView(payload);
   };
 
   createView = async (params: {
     name: string;
     desc?: string;
-    layoutType: ViewLayoutTypePB;
+    layoutType: ViewLayoutPB;
     /// The initial data should be the JSON of the document
     /// For example: {"document":{"type":"editor","children":[]}}
     initialData?: string;
@@ -54,9 +53,9 @@ export class AppBackendService {
   };
 
   getAllViews = (): Promise<Result<ViewPB[], FlowyError>> => {
-    const payload = AppIdPB.fromObject({ value: this.appId });
-    return FolderEventReadApp(payload).then((result) => {
-      return result.map((app) => app.belongings.items);
+    const payload = ViewIdPB.fromObject({ value: this.appId });
+    return FolderEventReadView(payload).then((result) => {
+      return result.map((app) => app.belongings);
     });
   };
 
@@ -75,16 +74,16 @@ export class AppBackendService {
   };
 
   update = async (params: { name: string }) => {
-    const payload = UpdateAppPayloadPB.fromObject({ app_id: this.appId, name: params.name });
-    const result = await FolderEventUpdateApp(payload);
+    const payload = UpdateViewPayloadPB.fromObject({ view_id: this.appId, name: params.name });
+    const result = await FolderEventUpdateView(payload);
     if (!result.ok) {
       throw new Error(result.val.msg);
     }
   };
 
   delete = async () => {
-    const payload = AppIdPB.fromObject({ value: this.appId });
-    const result = await FolderEventDeleteApp(payload);
+    const payload = RepeatedViewIdPB.fromObject({ items: [this.appId] });
+    const result = await FolderEventDeleteView(payload);
     if (!result.ok) {
       throw new Error(result.val.msg);
     }

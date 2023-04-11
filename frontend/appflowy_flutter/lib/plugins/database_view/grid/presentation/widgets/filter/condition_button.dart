@@ -18,14 +18,19 @@ class ConditionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final arrow = Transform.rotate(
       angle: -math.pi / 2,
-      child: svgWidget("home/arrow_left"),
+      child: svgWidget("home/arrow_left",
+          color: AFThemeExtension.of(context).textColor),
     );
 
     return SizedBox(
       height: 20,
       child: FlowyButton(
         useIntrinsicWidth: true,
-        text: FlowyText(conditionName, fontSize: 10),
+        text: FlowyText(
+          conditionName,
+          fontSize: 10,
+          color: AFThemeExtension.of(context).textColor,
+        ),
         margin: const EdgeInsets.symmetric(horizontal: 4),
         radius: const BorderRadius.all(Radius.circular(2)),
         rightIcon: arrow,

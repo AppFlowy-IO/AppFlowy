@@ -7,14 +7,14 @@ import {
   RowsChangesetPB,
   RowsVisibilityChangesetPB,
   ReorderSingleRowPB,
-} from '../../../../../services/backend';
-import { ChangeNotifier } from '../../../../utils/change_notifier';
+} from '@/services/backend';
+import { ChangeNotifier } from '$app/utils/change_notifier';
 import { FieldInfo } from '../field/field_controller';
 import { CellCache, CellCacheKey } from '../cell/cell_cache';
 import { CellIdentifier } from '../cell/cell_bd_svc';
-import { DatabaseEventGetRow } from '../../../../../services/backend/events/flowy-database';
+import { DatabaseEventGetRow } from '@/services/backend/events/flowy-database';
 import { None, Option, Some } from 'ts-results';
-import { Log } from '../../../../utils/log';
+import { Log } from '$app/utils/log';
 
 export type CellByFieldId = Map<string, CellIdentifier>;
 

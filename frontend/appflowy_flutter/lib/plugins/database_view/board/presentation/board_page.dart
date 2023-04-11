@@ -7,7 +7,7 @@ import 'package:appflowy/plugins/database_view/application/field/field_controlle
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
@@ -184,7 +184,7 @@ class _BoardContentState extends State<BoardContent> {
         width: 20,
         child: svgWidget(
           "home/add",
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).iconTheme.color,
         ),
       ),
       onAddButtonClick: () {
@@ -207,7 +207,7 @@ class _BoardContentState extends State<BoardContent> {
         width: 20,
         child: svgWidget(
           "home/add",
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).iconTheme.color,
         ),
       ),
       title: FlowyText.medium(

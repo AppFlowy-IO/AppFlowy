@@ -61,7 +61,7 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
                 margin: GridSize.typeOptionContentInsets,
                 rightIcon: svgWidget(
                   "grid/more",
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).iconTheme.color,
                 ),
                 text: Row(
                   children: [

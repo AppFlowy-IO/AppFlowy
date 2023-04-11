@@ -76,7 +76,6 @@ pub trait DatabaseViewData: Send + Sync + 'static {
 }
 
 pub struct DatabaseViewEditor {
-  user_id: String,
   pub view_id: String,
   pad: Arc<RwLock<DatabaseViewRevisionPad>>,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
@@ -95,7 +94,6 @@ impl Drop for DatabaseViewEditor {
 
 impl DatabaseViewEditor {
   pub async fn from_pad(
-    user_id: &str,
     delegate: Arc<dyn DatabaseViewData>,
     cell_data_cache: AtomicCellDataCache,
     rev_manager: RevisionManager<Arc<ConnectionPool>>,
@@ -108,7 +106,6 @@ impl DatabaseViewEditor {
     let view_rev_pad = Arc::new(RwLock::new(view_rev_pad));
     let rev_manager = Arc::new(rev_manager);
     let group_controller = new_group_controller(
-      user_id.to_owned(),
       view_id.clone(),
       view_rev_pad.clone(),
       rev_manager.clone(),
@@ -116,7 +113,6 @@ impl DatabaseViewEditor {
     )
     .await?;
 
-    let user_id = user_id.to_owned();
     let group_controller = Arc::new(RwLock::new(group_controller));
     let filter_controller = make_filter_controller(
       &view_id,
@@ -138,7 +134,6 @@ impl DatabaseViewEditor {
     .await;
     Ok(Self {
       pad: view_rev_pad,
-      user_id,
       view_id,
       rev_manager,
       delegate,
@@ -151,7 +146,6 @@ impl DatabaseViewEditor {
 
   #[tracing::instrument(level = "trace", skip_all, err)]
   pub async fn new(
-    user_id: &str,
     token: &str,
     view_id: String,
     delegate: Arc<dyn DatabaseViewData>,
@@ -176,14 +170,7 @@ impl DatabaseViewEditor {
       },
     };
 
-    Self::from_pad(
-      user_id,
-      delegate,
-      cell_data_cache,
-      rev_manager,
-      view_rev_pad,
-    )
-    .await
+    Self::from_pad(delegate, cell_data_cache, rev_manager, view_rev_pad).await
   }
 
   #[tracing::instrument(name = "close database view editor", level = "trace", skip_all)]
@@ -238,7 +225,7 @@ impl DatabaseViewEditor {
     self.filter_controller.filter_row_revs(rows).await;
   }
 
-  pub async fn v_duplicate_data(&self) -> FlowyResult<String> {
+  pub async fn v_duplicate_view_setting(&self) -> FlowyResult<String> {
     let json_str = self.pad.read().await.json_str()?;
     Ok(json_str)
   }
@@ -795,7 +782,6 @@ impl DatabaseViewEditor {
         view_editor_delegate: self.delegate.clone(),
       };
       let new_group_controller = new_group_controller_with_field_rev(
-        self.user_id.clone(),
         self.view_id.clone(),
         self.pad.clone(),
         self.rev_manager.clone(),
@@ -973,7 +959,7 @@ impl DatabaseViewEditor {
     match f(&mut write_guard)? {
       None => {},
       Some(change) => {
-        apply_change(&self.user_id, self.rev_manager.clone(), change).await?;
+        apply_change(self.rev_manager.clone(), change).await?;
       },
     }
     Ok(())
@@ -1066,7 +1052,6 @@ pub(crate) async fn get_cells_for_field_in_rows(
 }
 
 async fn new_group_controller(
-  user_id: String,
   view_id: String,
   view_rev_pad: Arc<RwLock<DatabaseViewRevisionPad>>,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
@@ -1092,7 +1077,6 @@ async fn new_group_controller(
     .unwrap_or_else(|| find_grouping_field(&field_revs, &layout).unwrap());
 
   new_group_controller_with_field_rev(
-    user_id,
     view_id,
     view_rev_pad,
     rev_manager,
@@ -1106,7 +1090,6 @@ async fn new_group_controller(
 /// Returns a [GroupController]
 ///
 async fn new_group_controller_with_field_rev(
-  user_id: String,
   view_id: String,
   view_rev_pad: Arc<RwLock<DatabaseViewRevisionPad>>,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
@@ -1115,7 +1098,6 @@ async fn new_group_controller_with_field_rev(
   configuration_reader: GroupConfigurationReaderImpl,
 ) -> FlowyResult<Box<dyn GroupController>> {
   let configuration_writer = GroupConfigurationWriterImpl {
-    user_id,
     rev_manager,
     view_pad: view_rev_pad,
   };

@@ -5,7 +5,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

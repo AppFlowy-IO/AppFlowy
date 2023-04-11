@@ -2,26 +2,24 @@ import 'dart:convert';
 
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/icon_data.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:appflowy/workspace/application/app/app_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 import '../menu_app.dart';
 import 'add_button.dart';
 
 class MenuAppHeader extends StatelessWidget {
-  final AppPB app;
+  final ViewPB app;
   const MenuAppHeader(
     this.app, {
     Key? key,
@@ -58,7 +56,7 @@ class MenuAppHeader extends StatelessWidget {
           theme: ExpandableThemeData(
             expandIcon: FlowyIconData.drop_down_show,
             collapseIcon: FlowyIconData.drop_down_hide,
-            iconColor: Theme.of(context).colorScheme.onSurface,
+            iconColor: Theme.of(context).colorScheme.tertiary,
             iconSize: MenuAppSizes.iconSize,
             iconPadding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
             hasIcon: false,
@@ -85,7 +83,7 @@ class MenuAppHeader extends StatelessWidget {
             case AppDisclosureAction.rename:
               NavigatorTextFieldDialog(
                 title: LocaleKeys.menuAppHeader_renameDialog.tr(),
-                value: context.read<AppBloc>().state.app.name,
+                value: context.read<AppBloc>().state.view.name,
                 confirm: (newValue) {
                   context.read<AppBloc>().add(AppEvent.rename(newValue));
                 },
@@ -104,7 +102,6 @@ class MenuAppHeader extends StatelessWidget {
   Widget _renderCreateViewButton(BuildContext context) {
     return Tooltip(
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
-      textStyle: AFThemeExtension.of(context).caption.textColor(Colors.white),
       child: AddButton(
         onSelected: (pluginBuilder, document) {
           context.read<AppBloc>().add(
@@ -139,9 +136,9 @@ extension AppDisclosureExtension on AppDisclosureAction {
   Widget icon(Color iconColor) {
     switch (this) {
       case AppDisclosureAction.rename:
-        return svgWidget('editor/edit', color: iconColor);
+        return const FlowySvg(name: 'editor/edit');
       case AppDisclosureAction.delete:
-        return svgWidget('editor/delete', color: iconColor);
+        return const FlowySvg(name: 'editor/delete');
     }
   }
 }
@@ -169,11 +166,12 @@ class AppActionList extends StatelessWidget {
           onSecondaryTap: () {
             controller.show();
           },
-          child: BlocSelector<AppBloc, AppState, AppPB>(
-            selector: (state) => state.app,
+          child: BlocSelector<AppBloc, AppState, ViewPB>(
+            selector: (state) => state.view,
             builder: (context, app) => FlowyText.medium(
               app.name,
               overflow: TextOverflow.ellipsis,
+              color: Theme.of(context).colorScheme.tertiary,
             ),
           ),
         );

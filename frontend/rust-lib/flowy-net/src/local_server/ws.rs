@@ -8,7 +8,7 @@ use std::sync::Arc;
 use tokio::sync::{broadcast, broadcast::Receiver, mpsc::UnboundedReceiver};
 
 pub struct LocalWebSocket {
-  user_id: Arc<RwLock<Option<String>>>,
+  user_id: Arc<RwLock<Option<i64>>>,
   receivers: Arc<DashMap<WSChannel, Arc<dyn WSMessageReceiver>>>,
   state_sender: broadcast::Sender<WSConnectState>,
   server_ws_receiver: RwLock<Option<UnboundedReceiver<WebSocketRawMessage>>>,
@@ -53,7 +53,7 @@ impl FlowyRawWebSocket for LocalWebSocket {
     FutureResult::new(async { Ok(()) })
   }
 
-  fn start_connect(&self, _addr: String, user_id: String) -> FutureResult<(), WSErrorCode> {
+  fn start_connect(&self, _addr: String, user_id: i64) -> FutureResult<(), WSErrorCode> {
     *self.user_id.write() = Some(user_id);
     FutureResult::new(async { Ok(()) })
   }

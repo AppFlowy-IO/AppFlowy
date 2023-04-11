@@ -2,7 +2,7 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/trash.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fixnum/fixnum.dart' as $fixnum;
@@ -43,7 +43,7 @@ class TrashCell extends StatelessWidget {
           iconPadding: const EdgeInsets.all(5),
           icon: svgWidget(
             "editor/restore",
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).iconTheme.color,
           ),
         ),
         const HSpace(20),
@@ -53,7 +53,7 @@ class TrashCell extends StatelessWidget {
           iconPadding: const EdgeInsets.all(5),
           icon: svgWidget(
             "editor/delete",
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).iconTheme.color,
           ),
         ),
       ],

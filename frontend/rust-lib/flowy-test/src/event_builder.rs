@@ -12,8 +12,8 @@ use std::{
   sync::Arc,
 };
 
-pub type FolderEventBuilder = EventBuilder<FlowyError>;
-impl FolderEventBuilder {
+pub type Folder2EventBuilder = EventBuilder<FlowyError>;
+impl Folder2EventBuilder {
   pub fn new(sdk: FlowySDKTest) -> Self {
     EventBuilder::test(TestContext::new(sdk))
   }
@@ -22,7 +22,7 @@ impl FolderEventBuilder {
   }
 }
 
-pub type UserModuleEventBuilder = FolderEventBuilder;
+pub type UserModuleEventBuilder = Folder2EventBuilder;
 
 #[derive(Clone)]
 pub struct EventBuilder<E> {

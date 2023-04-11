@@ -322,22 +322,19 @@ async fn make_database_block_editor(
 ) -> FlowyResult<DatabaseBlockEditor> {
   tracing::trace!("Open block:{} editor", block_id);
   let token = user.token()?;
-  let user_id = user.user_id()?;
   let rev_manager = make_database_block_rev_manager(user, block_id)?;
-  DatabaseBlockEditor::new(&user_id, &token, block_id, rev_manager).await
+  DatabaseBlockEditor::new(&token, block_id, rev_manager).await
 }
 
 pub fn make_database_block_rev_manager(
   user: &Arc<dyn DatabaseUser>,
   block_id: &str,
 ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
-  let user_id = user.user_id()?;
-
   // Create revision persistence
   let pool = user.db_pool()?;
-  let disk_cache = SQLiteDatabaseBlockRevisionPersistence::new(&user_id, pool.clone());
+  let disk_cache = SQLiteDatabaseBlockRevisionPersistence::new(pool.clone());
   let configuration = RevisionPersistenceConfiguration::new(4, false);
-  let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache, configuration);
+  let rev_persistence = RevisionPersistence::new(block_id, disk_cache, configuration);
 
   // Create snapshot persistence
   const DATABASE_BLOCK_SP_PREFIX: &str = "grid_block";
@@ -347,7 +344,6 @@ pub fn make_database_block_rev_manager(
 
   let rev_compress = DatabaseBlockRevisionMergeable();
   let rev_manager = RevisionManager::new(
-    &user_id,
     block_id,
     rev_persistence,
     rev_compress,

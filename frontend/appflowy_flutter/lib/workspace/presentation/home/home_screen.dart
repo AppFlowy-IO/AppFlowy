@@ -10,7 +10,7 @@ import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/widgets/edit_panel/panel_animation.dart';
 import 'package:appflowy/workspace/presentation/widgets/float_bubble/question_bubble.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:flowy_infra_ui/style_widget/container.dart';
@@ -261,10 +261,10 @@ class HomeScreenStackAdaptor extends HomeStackDelegate {
   @override
   void didDeleteStackWidget(ViewPB view, int? index) {
     final homeService = HomeService();
-    homeService.readApp(appId: view.appId).then((result) {
+    homeService.readApp(appId: view.parentViewId).then((result) {
       result.fold(
-        (appPB) {
-          final List<ViewPB> views = appPB.belongings.items;
+        (parentView) {
+          final List<ViewPB> views = parentView.belongings;
           if (views.isNotEmpty) {
             var lastView = views.last;
             if (index != null && index != 0 && views.length > index - 1) {

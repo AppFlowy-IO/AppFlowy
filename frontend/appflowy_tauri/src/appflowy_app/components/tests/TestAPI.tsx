@@ -8,8 +8,15 @@ import {
   TestDeleteField,
   TestDeleteRow,
   TestEditCell,
+  TestEditCheckboxCell,
+  TestEditDateCell,
+  TestEditDateFormat,
   TestEditField,
+  TestEditNumberFormat,
+  TestEditTextCell,
+  TestEditURLCell,
   TestGetSingleSelectFieldData,
+  TestMoveField,
   TestSwitchFromMultiSelectToText,
   TestSwitchFromSingleSelectToNumber,
 } from './TestGrid';
@@ -33,11 +40,18 @@ export const TestAPI = () => {
         <TestCreateRow></TestCreateRow>
         <TestDeleteRow></TestDeleteRow>
         <TestEditCell></TestEditCell>
+        <TestEditTextCell></TestEditTextCell>
+        <TestEditURLCell></TestEditURLCell>
+        <TestEditDateCell></TestEditDateCell>
+        <TestEditCheckboxCell></TestEditCheckboxCell>
         <TestCreateSelectOptionInCell></TestCreateSelectOptionInCell>
         <TestGetSingleSelectFieldData></TestGetSingleSelectFieldData>
         <TestEditField></TestEditField>
+        <TestMoveField></TestMoveField>
         <TestCreateNewField></TestCreateNewField>
         <TestDeleteField></TestDeleteField>
+        <TestEditDateFormat></TestEditDateFormat>
+        <TestEditNumberFormat></TestEditNumberFormat>
         <TestSwitchFromSingleSelectToNumber></TestSwitchFromSingleSelectToNumber>
         <TestSwitchFromMultiSelectToText></TestSwitchFromMultiSelectToText>
         {/*kanban board */}

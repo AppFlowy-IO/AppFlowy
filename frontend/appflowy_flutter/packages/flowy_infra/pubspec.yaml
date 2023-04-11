@@ -13,12 +13,12 @@ dependencies:
   time: '>=2.0.0'
   uuid: ">=2.2.2"
   textstyle_extensions: '2.0.0-nullsafety'
-  flutter_svg: ^1.1.1
+  flutter_svg: ^2.0.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.1 
+  flutter_lints: ^2.0.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

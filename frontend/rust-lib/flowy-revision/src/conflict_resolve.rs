@@ -40,7 +40,6 @@ pub struct ConflictController<Operations, Connection>
 where
   Operations: Send + Sync,
 {
-  user_id: String,
   resolver: Arc<dyn ConflictResolver<Operations> + Send + Sync>,
   rev_sink: Arc<dyn ConflictRevisionSink>,
   rev_manager: Arc<RevisionManager<Connection>>,
@@ -52,14 +51,11 @@ where
   Connection: 'static,
 {
   pub fn new(
-    user_id: &str,
     resolver: Arc<dyn ConflictResolver<Operations> + Send + Sync>,
     rev_sink: Arc<dyn ConflictRevisionSink>,
     rev_manager: Arc<RevisionManager<Connection>>,
   ) -> Self {
-    let user_id = user_id.to_owned();
     Self {
-      user_id,
       resolver,
       rev_sink,
       rev_manager,
@@ -135,7 +131,6 @@ where
           self.rev_manager.add_remote_revision(revision).await?;
         }
         let (client_revision, server_revision) = make_client_and_server_revision(
-          &self.user_id,
           &self.rev_manager,
           client_operations,
           Some(server_operations),
@@ -152,7 +147,6 @@ where
 }
 
 fn make_client_and_server_revision<Operations, Connection>(
-  _user_id: &str,
   rev_manager: &Arc<RevisionManager<Connection>>,
   client_operations: Operations,
   server_operations: Option<Operations>,

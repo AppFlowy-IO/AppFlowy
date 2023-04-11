@@ -1,7 +1,13 @@
 import { useEffect, useRef } from 'react';
 import { useFocused, useSlate } from 'slate-react';
+<<<<<<<< HEAD:frontend/appflowy_tauri/src/appflowy_app/components/document/_shared/HoveringToolbar/index.hooks.ts
 import { calcToolbarPosition } from '$app/utils/slate/toolbar';
 
+========
+import { calcToolbarPosition } from '@/appflowy_app/utils/slate/toolbar';
+
+
+>>>>>>>> 341dce67d45ebe46ae55e11349a19191ac99b4cf:frontend/appflowy_tauri/src/appflowy_app/components/document/HoveringToolbar/index.hooks.ts
 export function useHoveringToolbar(id: string) {
   const editor = useSlate();
   const inFocus = useFocused();

@@ -7,7 +7,7 @@ import { IPage } from '../../../stores/reducers/pages/slice';
 import { Button } from '../../_shared/Button';
 import { usePageEvents } from './PageItem.hooks';
 import { RenamePopup } from './RenamePopup';
-import { ViewLayoutTypePB } from '../../../../services/backend';
+import { ViewLayoutPB } from '@/services/backend';
 import { useEffect, useRef, useState } from 'react';
 import { PAGE_ITEM_HEIGHT } from '../../_shared/constants';
 
@@ -47,9 +47,9 @@ export const PageItem = ({ page, onPageClick }: { page: IPage; onPageClick: () =
       >
         <button className={'flex min-w-0 flex-1 items-center'}>
           <i className={'ml-1 mr-1 h-[16px] w-[16px]'}>
-            {page.pageType === ViewLayoutTypePB.Document && <DocumentSvg></DocumentSvg>}
-            {page.pageType === ViewLayoutTypePB.Board && <BoardSvg></BoardSvg>}
-            {page.pageType === ViewLayoutTypePB.Grid && <GridSvg></GridSvg>}
+            {page.pageType === ViewLayoutPB.Document && <DocumentSvg></DocumentSvg>}
+            {page.pageType === ViewLayoutPB.Board && <BoardSvg></BoardSvg>}
+            {page.pageType === ViewLayoutPB.Grid && <GridSvg></GridSvg>}
           </i>
           <span className={'ml-2 min-w-0 flex-1 overflow-hidden overflow-ellipsis whitespace-nowrap text-left'}>
             {page.title}

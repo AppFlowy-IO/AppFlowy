@@ -53,7 +53,6 @@ impl std::default::Default for RevisionPersistenceConfiguration {
 /// The generic parameter, `Connection`, represents as the disk backend's connection.
 /// If the backend is SQLite, then the Connect will be SQLiteConnect.
 pub struct RevisionPersistence<Connection> {
-  user_id: String,
   object_id: String,
   disk_cache: Arc<dyn RevisionDiskCache<Connection, Error = FlowyError>>,
   memory_cache: Arc<RevisionMemoryCache>,
@@ -66,7 +65,6 @@ where
   Connection: 'static,
 {
   pub fn new<C>(
-    user_id: &str,
     object_id: &str,
     disk_cache: C,
     configuration: RevisionPersistenceConfiguration,
@@ -76,24 +74,21 @@ where
   {
     let disk_cache =
       Arc::new(disk_cache) as Arc<dyn RevisionDiskCache<Connection, Error = FlowyError>>;
-    Self::from_disk_cache(user_id, object_id, disk_cache, configuration)
+    Self::from_disk_cache(object_id, disk_cache, configuration)
   }
 
   pub fn from_disk_cache(
-    user_id: &str,
     object_id: &str,
     disk_cache: Arc<dyn RevisionDiskCache<Connection, Error = FlowyError>>,
     configuration: RevisionPersistenceConfiguration,
   ) -> RevisionPersistence<Connection> {
     let object_id = object_id.to_owned();
-    let user_id = user_id.to_owned();
     let sync_seq = RwLock::new(DeferSyncSequence::new());
     let memory_cache = Arc::new(RevisionMemoryCache::new(
       &object_id,
       Arc::new(disk_cache.clone()),
     ));
     Self {
-      user_id,
       object_id,
       disk_cache,
       memory_cache,
@@ -130,8 +125,7 @@ where
       let rev_ids = range.to_rev_ids();
       debug_assert_eq!(range.len() as usize, revisions.len());
       // compact multiple revisions into one
-      let merged_revision =
-        rev_compress.merge_revisions(&self.user_id, &self.object_id, revisions)?;
+      let merged_revision = rev_compress.merge_revisions(&self.object_id, revisions)?;
       tracing::Span::current().record("rev_id", merged_revision.rev_id);
 
       let record = SyncRecord {
@@ -193,8 +187,7 @@ where
       revisions.push(new_revision);
 
       // compact multiple revisions into one
-      let merged_revision =
-        rev_compress.merge_revisions(&self.user_id, &self.object_id, revisions)?;
+      let merged_revision = rev_compress.merge_revisions(&self.object_id, revisions)?;
       let new_rev_id = merged_revision.rev_id;
       tracing::Span::current().record("rev_id", merged_revision.rev_id);
       sync_seq.recv(new_rev_id)?;

@@ -151,10 +151,7 @@ class DateFormatButton extends StatelessWidget {
         margin: buttonMargins,
         onTap: onTap,
         onHover: onHover,
-        rightIcon: svgWidget(
-          "grid/more",
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
+        rightIcon: const FlowySvg(name: 'grid/more'),
       ),
     );
   }
@@ -182,10 +179,7 @@ class TimeFormatButton extends StatelessWidget {
         margin: buttonMargins,
         onTap: onTap,
         onHover: onHover,
-        rightIcon: svgWidget(
-          "grid/more",
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
+        rightIcon: const FlowySvg(name: 'grid/more'),
       ),
     );
   }

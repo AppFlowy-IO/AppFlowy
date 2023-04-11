@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 class TestRawKeyEvent extends RawKeyDownEvent {
   const TestRawKeyEvent({
     required super.data,
+    required super.character,
     this.isControlPressed = false,
     this.isShiftPressed = false,
     this.isAltPressed = false,
@@ -24,7 +25,9 @@ class TestRawKeyEvent extends RawKeyDownEvent {
 
 class TestRawKeyEventData extends RawKeyEventData {
   const TestRawKeyEventData({
-    required this.logicalKey,
+    this.logicalKey =
+        LogicalKeyboardKey.nonConvert, // use nonConvert as placeholder.
+    this.character,
     this.isControlPressed = false,
     this.isShiftPressed = false,
     this.isAltPressed = false,
@@ -46,6 +49,8 @@ class TestRawKeyEventData extends RawKeyEventData {
   @override
   final LogicalKeyboardKey logicalKey;
 
+  final String? character;
+
   @override
   PhysicalKeyboardKey get physicalKey => logicalKey.toPhysicalKey;
 
@@ -55,8 +60,10 @@ class TestRawKeyEventData extends RawKeyEventData {
   }
 
   @override
-  bool isModifierPressed(ModifierKey key,
-      {KeyboardSide side = KeyboardSide.any}) {
+  bool isModifierPressed(
+    ModifierKey key, {
+    KeyboardSide side = KeyboardSide.any,
+  }) {
     throw UnimplementedError();
   }
 
@@ -66,6 +73,7 @@ class TestRawKeyEventData extends RawKeyEventData {
   RawKeyEvent get toKeyEvent {
     return TestRawKeyEvent(
       data: this,
+      character: character,
       isAltPressed: isAltPressed,
       isControlPressed: isControlPressed,
       isMetaPressed: isMetaPressed,

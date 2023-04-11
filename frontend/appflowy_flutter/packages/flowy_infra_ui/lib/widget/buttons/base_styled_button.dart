@@ -9,7 +9,7 @@ class BaseStyledButton extends StatefulWidget {
   final Color? bgColor;
   final Color? focusColor;
   final Color? hoverColor;
-  final Color? downColor;
+  final Color? highlightColor;
   final EdgeInsets? contentPadding;
   final double? minWidth;
   final double? minHeight;
@@ -34,7 +34,7 @@ class BaseStyledButton extends StatefulWidget {
     this.minHeight,
     this.borderRadius,
     this.hoverColor,
-    this.downColor,
+    this.highlightColor,
     this.shape,
     this.useBtnText = true,
     this.autoFocus = false,
@@ -116,10 +116,8 @@ class BaseStyledBtnState extends State<BaseStyledButton> {
         highlightElevation: 0,
         focusElevation: 0,
         fillColor: Colors.transparent,
-        hoverColor:
-            widget.hoverColor ?? Theme.of(context).colorScheme.secondary,
-        highlightColor:
-            widget.downColor ?? Theme.of(context).colorScheme.primary,
+        hoverColor: widget.hoverColor ?? Colors.transparent,
+        highlightColor: widget.highlightColor ?? Colors.transparent,
         focusColor: widget.focusColor ?? Colors.grey.withOpacity(0.35),
         constraints: BoxConstraints(
             minHeight: widget.minHeight ?? 0, minWidth: widget.minWidth ?? 0),

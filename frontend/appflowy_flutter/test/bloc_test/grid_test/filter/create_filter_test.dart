@@ -53,7 +53,7 @@ void main() {
     final service = FilterBackendService(viewId: context.gridView.id);
     final gridController = DatabaseController(
       view: context.gridView,
-      layoutType: LayoutTypePB.Grid,
+      layoutType: DatabaseLayoutPB.Grid,
     );
     final gridBloc = GridBloc(
       view: context.gridView,
@@ -77,7 +77,7 @@ void main() {
     final service = FilterBackendService(viewId: context.gridView.id);
     final gridController = DatabaseController(
       view: context.gridView,
-      layoutType: LayoutTypePB.Grid,
+      layoutType: DatabaseLayoutPB.Grid,
     );
     final gridBloc = GridBloc(
       view: context.gridView,
@@ -121,7 +121,7 @@ void main() {
     final service = FilterBackendService(viewId: context.gridView.id);
     final gridController = DatabaseController(
       view: context.gridView,
-      layoutType: LayoutTypePB.Grid,
+      layoutType: DatabaseLayoutPB.Grid,
     );
     final gridBloc = GridBloc(
       view: context.gridView,
@@ -143,7 +143,7 @@ void main() {
     final service = FilterBackendService(viewId: context.gridView.id);
     final gridController = DatabaseController(
       view: context.gridView,
-      layoutType: LayoutTypePB.Grid,
+      layoutType: DatabaseLayoutPB.Grid,
     );
     final gridBloc = GridBloc(
       view: context.gridView,

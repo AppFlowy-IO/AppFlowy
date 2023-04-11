@@ -14,7 +14,7 @@ pub struct SignInParams {
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub struct SignInResponse {
-  pub user_id: String,
+  pub user_id: i64,
   pub name: String,
   pub email: String,
   pub token: String,
@@ -29,7 +29,7 @@ pub struct SignUpParams {
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct SignUpResponse {
-  pub user_id: String,
+  pub user_id: i64,
   pub name: String,
   pub email: String,
   pub token: String,
@@ -37,7 +37,7 @@ pub struct SignUpResponse {
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone)]
 pub struct UserProfile {
-  pub id: String,
+  pub id: i64,
   pub email: String,
   pub name: String,
   pub token: String,
@@ -47,7 +47,7 @@ pub struct UserProfile {
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 pub struct UpdateUserProfileParams {
-  pub id: String,
+  pub id: i64,
   pub name: Option<String>,
   pub email: Option<String>,
   pub password: Option<String>,
@@ -56,9 +56,9 @@ pub struct UpdateUserProfileParams {
 }
 
 impl UpdateUserProfileParams {
-  pub fn new(user_id: &str) -> Self {
+  pub fn new(id: i64) -> Self {
     Self {
-      id: user_id.to_owned(),
+      id,
       name: None,
       email: None,
       password: None,

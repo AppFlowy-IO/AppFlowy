@@ -1,6 +1,6 @@
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 
 enum FlowyPlugin {
@@ -36,19 +36,19 @@ extension ViewExtension on ViewPB {
   Widget renderThumbnail({Color? iconColor}) {
     String thumbnail = "file_icon";
 
-    final Widget widget = svgWidget(thumbnail, color: iconColor);
+    final Widget widget = FlowySvg(name: thumbnail);
     return widget;
   }
 
   PluginType get pluginType {
     switch (layout) {
-      case ViewLayoutTypePB.Board:
+      case ViewLayoutPB.Board:
         return PluginType.board;
-      case ViewLayoutTypePB.Calendar:
+      case ViewLayoutPB.Calendar:
         return PluginType.calendar;
-      case ViewLayoutTypePB.Document:
+      case ViewLayoutPB.Document:
         return PluginType.editor;
-      case ViewLayoutTypePB.Grid:
+      case ViewLayoutPB.Grid:
         return PluginType.grid;
     }
 
