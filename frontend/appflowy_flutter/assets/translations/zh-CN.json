@@ -195,7 +195,7 @@
       "optionTitle": "标签",
       "addOption": "添加标签",
       "editProperty": "编辑列属性",
-      "newColumn": "增加一列",
+      "newProperty": "增加一列",
       "deleteFieldPromptMessage": "确定要删除这个属性吗? "
     },
     "row": {

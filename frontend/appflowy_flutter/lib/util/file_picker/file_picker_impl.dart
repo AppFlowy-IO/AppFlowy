@@ -8,17 +8,18 @@ class FilePicker implements FilePickerService {
   }
 
   @override
-  Future<FilePickerResult?> pickFiles(
-      {String? dialogTitle,
-      String? initialDirectory,
-      fp.FileType type = fp.FileType.any,
-      List<String>? allowedExtensions,
-      Function(fp.FilePickerStatus p1)? onFileLoading,
-      bool allowCompression = true,
-      bool allowMultiple = false,
-      bool withData = false,
-      bool withReadStream = false,
-      bool lockParentWindow = false}) async {
+  Future<FilePickerResult?> pickFiles({
+    String? dialogTitle,
+    String? initialDirectory,
+    fp.FileType type = fp.FileType.any,
+    List<String>? allowedExtensions,
+    Function(fp.FilePickerStatus p1)? onFileLoading,
+    bool allowCompression = true,
+    bool allowMultiple = false,
+    bool withData = false,
+    bool withReadStream = false,
+    bool lockParentWindow = false,
+  }) async {
     final result = await fp.FilePicker.platform.pickFiles(
       dialogTitle: dialogTitle,
       initialDirectory: initialDirectory,

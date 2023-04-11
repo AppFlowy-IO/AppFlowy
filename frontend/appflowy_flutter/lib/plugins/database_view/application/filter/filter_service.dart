@@ -97,7 +97,8 @@ class FilterBackendService {
         filter.end = $fixnum.Int64(end);
       } else {
         throw Exception(
-            "Start and end should not be null if the timestamp is null");
+          "Start and end should not be null if the timestamp is null",
+        );
       }
     }
 

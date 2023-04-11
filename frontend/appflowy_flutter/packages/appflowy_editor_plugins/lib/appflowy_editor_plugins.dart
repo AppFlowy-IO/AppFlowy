@@ -11,6 +11,6 @@ export 'src/divider/divider_shortcut_event.dart';
 // Emoji Picker
 export 'src/emoji_picker/emoji_menu_item.dart';
 // Math Equation
-export 'src/math_ equation/math_equation_node_widget.dart';
+export 'src/math_equation/math_equation_node_widget.dart';
 
 export 'src/extensions/theme_extension.dart';

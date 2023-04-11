@@ -8,9 +8,11 @@ class GridAccessoryMenuBloc
   final String viewId;
 
   GridAccessoryMenuBloc({required this.viewId})
-      : super(GridAccessoryMenuState.initial(
-          viewId,
-        )) {
+      : super(
+          GridAccessoryMenuState.initial(
+            viewId,
+          ),
+        ) {
     on<GridAccessoryMenuEvent>(
       (event, emit) async {
         event.when(

@@ -23,10 +23,12 @@ class RowController {
   }
 
   void addListener({OnRowChanged? onRowChanged}) {
-    _onRowChangedListeners.add(_rowCache.addListener(
-      rowId: rowId,
-      onCellUpdated: onRowChanged,
-    ));
+    _onRowChangedListeners.add(
+      _rowCache.addListener(
+        rowId: rowId,
+        onCellUpdated: onRowChanged,
+      ),
+    );
   }
 
   void dispose() {

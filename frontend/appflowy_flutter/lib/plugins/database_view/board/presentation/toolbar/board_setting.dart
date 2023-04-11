@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -104,8 +105,12 @@ class _SettingItem extends StatelessWidget {
     return SizedBox(
       height: 30,
       child: FlowyButton(
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
         isSelected: isSelected,
-        text: FlowyText.medium(action.title()),
+        text: FlowyText.medium(
+          action.title(),
+          color: AFThemeExtension.of(context).textColor,
+        ),
         onTap: () {
           context
               .read<BoardSettingBloc>()
