@@ -132,6 +132,28 @@ duplicateRow(Node tableNode, int row, Transaction transaction) {
   transaction.updateNode(tableNode, {'rowsLen': rowsLen + 1});
 }
 
+setColBgColor(Node tableNode, int col, Transaction transaction, String? color) {
+  final rowslen = tableNode.attributes['rowsLen'];
+  for (var i = 0; i < rowslen; i++) {
+    final node = getCellNode(tableNode, col, i)!;
+    transaction.updateNode(
+      node,
+      {'backgroundColor': color},
+    );
+  }
+}
+
+setRowBgColor(Node tableNode, int row, Transaction transaction, String? color) {
+  final colsLen = tableNode.attributes['colsLen'];
+  for (var i = 0; i < colsLen; i++) {
+    final node = getCellNode(tableNode, i, row)!;
+    transaction.updateNode(
+      node,
+      {'backgroundColor': color},
+    );
+  }
+}
+
 newCellNode(Node tableNode, n) {
   final row = n.attributes['position']['row'] as int;
   final col = n.attributes['position']['col'] as int;

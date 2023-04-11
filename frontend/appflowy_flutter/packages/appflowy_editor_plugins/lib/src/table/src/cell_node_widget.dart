@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -23,6 +24,9 @@ class _CellNodeWidgetState extends State<CellNodeWidget> {
       constraints: BoxConstraints(
         minHeight: context.select((Node n) => n.attributes['height']),
       ),
+      color: context.select((Node n) => n.attributes['backgroundColor'] != null
+          ? FlowyTint.fromJson(n.attributes['backgroundColor']).color(context)
+          : null),
       width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

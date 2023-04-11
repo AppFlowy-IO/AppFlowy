@@ -155,6 +155,9 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
         kCoverType: CoverNodeWidgetBuilder(),
         // Smart Edit,
         kSmartEditType: SmartEditInputBuilder(),
+        // Table,
+        kTableType: TableNodeWidgetBuilder(),
+        kTableCellType: TableCellNodeWidgetBuilder(),
       },
       shortcutEvents: [
         // Divider
@@ -163,6 +166,12 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
         enterInCodeBlock,
         ignoreKeysInCodeBlock,
         pasteInCodeBlock,
+        // Table
+        enterInTableCell,
+        leftInTableCell,
+        rightInTableCell,
+        upInTableCell,
+        downInTableCell
       ],
       selectionMenuItems: [
         // Divider
@@ -188,10 +197,12 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
         if (openAIKey != null && openAIKey!.isNotEmpty) ...[
           autoGeneratorMenuItem,
         ],
+        tableMenuItem
       ],
       toolbarItems: [
         smartEditItem,
       ],
+      contextMenuItems: [...tableContextMenuItems],
       themeData: theme.copyWith(
         extensions: [
           ...theme.extensions.values,
