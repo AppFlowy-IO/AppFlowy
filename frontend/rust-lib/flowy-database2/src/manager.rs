@@ -1,5 +1,5 @@
 use crate::entities::DatabaseLayoutPB;
-use crate::services::database::{Database, DatabaseEditor};
+use crate::services::database::{DatabaseEditor, MutexDatabase};
 use collab_database::user::UserDatabase as InnerUserDatabase;
 use collab_persistence::CollabKV;
 use flowy_error::{FlowyError, FlowyResult};
@@ -66,7 +66,7 @@ impl DatabaseManager2 {
     }
 
     let mut editors = self.editors.write().await;
-    let database = Database::new(
+    let database = MutexDatabase::new(
       self
         .user_database
         .lock()

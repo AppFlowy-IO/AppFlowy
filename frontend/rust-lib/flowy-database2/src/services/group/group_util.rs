@@ -1,11 +1,10 @@
 use crate::entities::FieldType;
-use crate::services::group::configuration::GroupConfigurationReader;
+use crate::services::group::configuration::GroupSettingReader;
 use crate::services::group::controller::GroupController;
 use crate::services::group::{
-  CheckboxGroupContext, CheckboxGroupController, DefaultGroupController, Group,
-  GroupConfigurationWriter, GroupSetting, MultiSelectGroupController,
-  MultiSelectOptionGroupContext, SingleSelectGroupController, SingleSelectOptionGroupContext,
-  URLGroupContext, URLGroupController,
+  CheckboxGroupContext, CheckboxGroupController, DefaultGroupController, Group, GroupSetting,
+  GroupSettingWriter, MultiSelectGroupController, MultiSelectOptionGroupContext,
+  SingleSelectGroupController, SingleSelectOptionGroupContext, URLGroupContext, URLGroupController,
 };
 use collab_database::fields::Field;
 use collab_database::rows::Row;
@@ -35,19 +34,19 @@ pub async fn make_group_controller<R, W>(
   view_id: String,
   grouping_field: Arc<Field>,
   rows: Vec<Arc<Row>>,
-  configuration_reader: R,
-  configuration_writer: W,
+  setting_reader: R,
+  setting_writer: W,
 ) -> FlowyResult<Box<dyn GroupController>>
 where
-  R: GroupConfigurationReader,
-  W: GroupConfigurationWriter,
+  R: GroupSettingReader,
+  W: GroupSettingWriter,
 {
   let grouping_field_type = FieldType::from(grouping_field.field_type);
   tracing::Span::current().record("grouping_field_type", &format!("{}", grouping_field_type));
 
   let mut group_controller: Box<dyn GroupController>;
-  let configuration_reader = Arc::new(configuration_reader);
-  let configuration_writer = Arc::new(configuration_writer);
+  let configuration_reader = Arc::new(setting_reader);
+  let configuration_writer = Arc::new(setting_writer);
 
   match grouping_field_type {
     FieldType::SingleSelect => {
@@ -106,11 +105,11 @@ where
 }
 
 #[tracing::instrument(level = "debug", skip_all)]
-pub fn find_grouping_field(
-  field_revs: &[Arc<Field>],
+pub fn find_new_grouping_field(
+  fields: &[Arc<Field>],
   _layout: &DatabaseLayout,
 ) -> Option<Arc<Field>> {
-  let mut groupable_field_revs = field_revs
+  let mut groupable_field_revs = fields
     .iter()
     .flat_map(|field_rev| {
       let field_type = FieldType::from(field_rev.field_type);
@@ -123,7 +122,7 @@ pub fn find_grouping_field(
 
   if groupable_field_revs.is_empty() {
     // If there is not groupable fields then we use the primary field.
-    field_revs
+    fields
       .iter()
       .find(|field_rev| field_rev.is_primary)
       .cloned()

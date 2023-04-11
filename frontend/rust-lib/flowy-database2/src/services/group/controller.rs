@@ -77,6 +77,10 @@ impl RowChangeset {
       ..Default::default()
     }
   }
+
+  pub fn is_empty(&self) -> bool {
+    self.height.is_none() && self.visibility.is_none() && self.cell_by_field_id.is_empty()
+  }
 }
 
 /// C: represents the group configuration that impl [GroupConfigurationSerde]

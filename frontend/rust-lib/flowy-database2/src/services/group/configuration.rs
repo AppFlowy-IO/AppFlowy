@@ -14,18 +14,13 @@ use std::fmt::Formatter;
 use std::marker::PhantomData;
 use std::sync::Arc;
 
-pub trait GroupConfigurationReader: Send + Sync + 'static {
-  fn get_group_setting(&self) -> Fut<Option<Arc<GroupSetting>>>;
-  fn get_configuration_cells(&self, field_id: &str) -> Fut<FlowyResult<Vec<RowSingleCellData>>>;
+pub trait GroupSettingReader: Send + Sync + 'static {
+  fn get_group_setting(&self, view_id: &str) -> Fut<Option<Arc<GroupSetting>>>;
+  fn get_configuration_cells(&self, view_id: &str, field_id: &str) -> Fut<Vec<RowSingleCellData>>;
 }
 
-pub trait GroupConfigurationWriter: Send + Sync + 'static {
-  fn save_configuration(
-    &self,
-    field_id: &str,
-    field_type: FieldType,
-    group_setting: GroupSetting,
-  ) -> Fut<FlowyResult<()>>;
+pub trait GroupSettingWriter: Send + Sync + 'static {
+  fn save_configuration(&self, view_id: &str, group_setting: GroupSetting) -> Fut<FlowyResult<()>>;
 }
 
 impl<T> std::fmt::Display for GroupContext<T> {
@@ -51,7 +46,7 @@ pub struct GroupContext<C> {
   pub view_id: String,
   /// The group configuration restored from the disk.
   ///
-  /// Uses the [GroupConfigurationReader] to read the configuration data from disk
+  /// Uses the [GroupSettingReader] to read the configuration data from disk
   setting: Arc<GroupSetting>,
 
   configuration_phantom: PhantomData<C>,
@@ -62,15 +57,15 @@ pub struct GroupContext<C> {
   /// Cache all the groups
   groups_map: IndexMap<String, GroupData>,
 
-  /// A reader that implement the [GroupConfigurationReader] trait
+  /// A reader that implement the [GroupSettingReader] trait
   ///
   #[allow(dead_code)]
-  reader: Arc<dyn GroupConfigurationReader>,
+  reader: Arc<dyn GroupSettingReader>,
 
-  /// A writer that implement the [GroupConfigurationWriter] trait is used to save the
+  /// A writer that implement the [GroupSettingWriter] trait is used to save the
   /// configuration to disk  
   ///
-  writer: Arc<dyn GroupConfigurationWriter>,
+  writer: Arc<dyn GroupSettingWriter>,
 }
 
 impl<C> GroupContext<C>
@@ -81,15 +76,14 @@ where
   pub async fn new(
     view_id: String,
     field: Arc<Field>,
-    reader: Arc<dyn GroupConfigurationReader>,
-    writer: Arc<dyn GroupConfigurationWriter>,
+    reader: Arc<dyn GroupSettingReader>,
+    writer: Arc<dyn GroupSettingWriter>,
   ) -> FlowyResult<Self> {
-    let setting = match reader.get_group_setting().await {
+    let setting = match reader.get_group_setting(&view_id).await {
       None => {
-        let field_type = FieldType::from(field.field_type);
         let default_configuration = default_group_setting(&field);
         writer
-          .save_configuration(&field.id, field_type, default_configuration.clone())
+          .save_configuration(&field.id, default_configuration.clone())
           .await?;
         Arc::new(default_configuration)
       },
@@ -378,9 +372,8 @@ where
   pub(crate) async fn get_all_cells(&self) -> Vec<RowSingleCellData> {
     self
       .reader
-      .get_configuration_cells(&self.field.id)
+      .get_configuration_cells(&self.view_id, &self.field.id)
       .await
-      .unwrap_or_default()
   }
 
   fn mut_configuration(
@@ -393,12 +386,8 @@ where
       let configuration = (*self.setting).clone();
       let writer = self.writer.clone();
       let field_id = self.field.id.clone();
-      let field_type = FieldType::from(self.field.field_type);
       tokio::spawn(async move {
-        match writer
-          .save_configuration(&field_id, field_type, configuration)
-          .await
-        {
+        match writer.save_configuration(&field_id, configuration).await {
           Ok(_) => {},
           Err(e) => {
             tracing::error!("Save group configuration failed: {}", e);

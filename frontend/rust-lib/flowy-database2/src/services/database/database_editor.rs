@@ -7,18 +7,17 @@ use crate::services::cell::{AnyTypeCache, CellCache};
 use crate::services::database::util::{database_view_setting_pb_from_view, get_database_data};
 use crate::services::database_view::{DatabaseViewData, DatabaseViews, RowEventSender};
 use crate::services::field::TypeOptionCellDataHandler;
-use crate::services::filter::Filter;
+
 use crate::services::group::GroupSetting;
-use crate::services::setting::CalendarLayoutSetting;
+
 use crate::services::sort::Sort;
-use anyhow::Error;
-use collab::plugin_impl::disk::CollabDiskPlugin;
-use collab::plugin_impl::snapshot::CollabSnapshotPlugin;
-use collab::preclude::{Collab, CollabBuilder};
-use collab_database::database::{Database as InnerDatabase, DatabaseContext};
+
+use collab_database::database::Database as InnerDatabase;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Row, RowId};
-use collab_persistence::CollabKV;
+use collab_database::rows::{Row, RowCell, RowId};
+use collab_database::views::{DatabaseLayout, LayoutSetting};
+
+use crate::services::filter::Filter;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
 use lib_infra::future::{to_fut, Fut};
@@ -29,7 +28,7 @@ use tokio::sync::{broadcast, RwLock};
 
 #[derive(Clone)]
 pub struct DatabaseEditor {
-  database: Database,
+  database: MutexDatabase,
   pub cell_cache: CellCache,
   database_views: Arc<DatabaseViews>,
   row_event_tx: RowEventSender,
@@ -37,7 +36,7 @@ pub struct DatabaseEditor {
 
 impl DatabaseEditor {
   pub async fn new(
-    database: Database,
+    database: MutexDatabase,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
   ) -> FlowyResult<Self> {
     let cell_cache = AnyTypeCache::<u64>::new();
@@ -47,8 +46,15 @@ impl DatabaseEditor {
       task_scheduler: task_scheduler.clone(),
     });
 
-    let database_views =
-      Arc::new(DatabaseViews::new(cell_cache.clone(), database_view_data, block_event_rx).await?);
+    let database_views = Arc::new(
+      DatabaseViews::new(
+        database.clone(),
+        cell_cache.clone(),
+        database_view_data,
+        block_event_rx,
+      )
+      .await?,
+    );
     Ok(Self {
       database,
       cell_cache,
@@ -94,24 +100,24 @@ impl DatabaseEditor {
 }
 
 #[derive(Clone)]
-pub struct Database(Arc<Mutex<Arc<InnerDatabase>>>);
-impl Database {
+pub struct MutexDatabase(Arc<Mutex<Arc<InnerDatabase>>>);
+impl MutexDatabase {
   pub(crate) fn new(database: Arc<InnerDatabase>) -> Self {
     Self(Arc::new(Mutex::new(database)))
   }
 }
 
-impl Deref for Database {
+impl Deref for MutexDatabase {
   type Target = Arc<Mutex<Arc<InnerDatabase>>>;
   fn deref(&self) -> &Self::Target {
     &self.0
   }
 }
-unsafe impl Sync for Database {}
-unsafe impl Send for Database {}
+unsafe impl Sync for MutexDatabase {}
+unsafe impl Send for MutexDatabase {}
 
 struct DatabaseViewDataImpl {
-  database: Database,
+  database: MutexDatabase,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
 }
 
@@ -160,6 +166,78 @@ impl DatabaseViewData for DatabaseViewDataImpl {
   fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<Row>>> {
     let rows = self.database.lock().get_rows_for_view(view_id);
     to_fut(async move { rows.into_iter().map(|row| Arc::new(row)).collect() })
+  }
+
+  fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>> {
+    let cells = self.database.lock().get_cells_for_field(view_id, field_id);
+    to_fut(async move { cells.into_iter().map(Arc::new).collect() })
+  }
+
+  fn get_layout_for_view(&self, view_id: &str) -> DatabaseLayout {
+    self
+      .database
+      .lock()
+      .views
+      .get_view_layout(view_id)
+      .unwrap_or_default()
+  }
+
+  fn get_group_setting(&self, view_id: &str) -> Vec<GroupSetting> {
+    self.database.lock().get_all_group_setting(view_id)
+  }
+
+  fn insert_group_setting(&self, view_id: &str, setting: GroupSetting) {
+    self.database.lock().insert_group_setting(view_id, setting);
+  }
+
+  fn insert_sort(&self, view_id: &str, sort: Sort) {
+    self.database.lock().insert_sort(view_id, sort);
+  }
+
+  fn remove_sort(&self, view_id: &str, sort_id: &str) {
+    self.database.lock().remove_sort(view_id, sort_id);
+  }
+
+  fn get_all_sorts(&self, view_id: &str) -> Vec<Sort> {
+    self.database.lock().get_all_sorts::<Sort>(view_id)
+  }
+
+  fn remove_all_sorts(&self, view_id: &str) {
+    self.database.lock().remove_all_sorts(view_id);
+  }
+
+  fn get_all_filters(&self, view_id: &str) -> Vec<Arc<Filter>> {
+    self
+      .database
+      .lock()
+      .get_all_filters(view_id)
+      .into_iter()
+      .map(Arc::new)
+      .collect()
+  }
+
+  fn delete_filter(&self, view_id: &str, filter_id: &str) {
+    self.database.lock().remove_filter(view_id, filter_id);
+  }
+
+  fn update_filter(&self, view_id: &str, filter: Filter) {
+    self.database.lock().insert_filter(view_id, filter);
+  }
+
+  fn get_layout_setting(&self, view_id: &str, layout_ty: &DatabaseLayout) -> Option<LayoutSetting> {
+    self
+      .database
+      .lock()
+      .views
+      .get_layout_setting(view_id, layout_ty)
+  }
+
+  fn insert_layout_setting(
+    &self,
+    view_id: &str,
+    layout_setting: collab_database::views::LayoutSetting,
+  ) {
+    todo!()
   }
 
   fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>> {

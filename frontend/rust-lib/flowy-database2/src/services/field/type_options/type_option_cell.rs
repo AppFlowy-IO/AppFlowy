@@ -10,7 +10,7 @@ use crate::services::field::{
 };
 use crate::services::filter::FilterType;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::Cell;
+use collab_database::rows::{Cell, RowId};
 use flowy_error::FlowyResult;
 use serde::Serialize;
 use std::any::Any;
@@ -24,7 +24,7 @@ use std::hash::{Hash, Hasher};
 /// 1.the return type is not Self.
 /// 2.there are no generic types parameters.
 ///
-pub trait TypeOptionCellDataHandler {
+pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
   fn handle_cell_str(
     &self,
     cell: &Cell,
@@ -56,7 +56,7 @@ pub trait TypeOptionCellDataHandler {
     &self,
     cell: &Cell,
     decoded_field_type: &FieldType,
-    field_rev: &Field,
+    field: &Field,
   ) -> FlowyResult<BoxCellData>;
 }
 
@@ -95,6 +95,8 @@ where
     + TypeOptionTransform
     + TypeOptionCellDataFilter
     + TypeOptionCellDataCompare
+    + Send
+    + Sync
     + 'static,
 {
   pub fn new_with_boxed(
@@ -112,7 +114,7 @@ where
 
 impl<T> TypeOptionCellDataHandlerImpl<T>
 where
-  T: TypeOption + CellDataDecoder,
+  T: TypeOption + CellDataDecoder + Send + Sync,
 {
   fn get_decoded_cell_data(
     &self,
@@ -179,7 +181,7 @@ impl<T> std::ops::Deref for TypeOptionCellDataHandlerImpl<T> {
 
 impl<T> TypeOption for TypeOptionCellDataHandlerImpl<T>
 where
-  T: TypeOption,
+  T: TypeOption + Send + Sync,
 {
   type CellData = T::CellData;
   type CellChangeset = T::CellChangeset;
@@ -195,7 +197,10 @@ where
     + TypeOptionCellData
     + TypeOptionTransform
     + TypeOptionCellDataFilter
-    + TypeOptionCellDataCompare,
+    + TypeOptionCellDataCompare
+    + Send
+    + Sync
+    + 'static,
 {
   fn handle_cell_str(
     &self,
@@ -265,16 +270,16 @@ where
     &self,
     cell: &Cell,
     decoded_field_type: &FieldType,
-    field_rev: &Field,
+    field: &Field,
   ) -> FlowyResult<BoxCellData> {
     // tracing::debug!("get_cell_data: {:?}", std::any::type_name::<Self>());
     let cell_data = if self.transformable() {
-      match self.transform_type_option_cell(&cell, decoded_field_type, field_rev) {
-        None => self.get_decoded_cell_data(cell, decoded_field_type, field_rev)?,
+      match self.transform_type_option_cell(&cell, decoded_field_type, field) {
+        None => self.get_decoded_cell_data(cell, decoded_field_type, field)?,
         Some(cell_data) => cell_data,
       }
     } else {
-      self.get_decoded_cell_data(cell, decoded_field_type, field_rev)?
+      self.get_decoded_cell_data(cell, decoded_field_type, field)?
     };
     Ok(BoxCellData::new(cell_data))
   }
@@ -517,7 +522,7 @@ impl BoxCellData {
 }
 
 pub struct RowSingleCellData {
-  pub row_id: String,
+  pub row_id: RowId,
   pub field_id: String,
   pub field_type: FieldType,
   pub cell_data: BoxCellData,

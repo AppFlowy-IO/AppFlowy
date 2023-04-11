@@ -19,9 +19,9 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub trait FilterDelegate: Send + Sync + 'static {
-  fn get_filter_rev(&self, filter_type: FilterType) -> Fut<Option<Arc<Filter>>>;
-  fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<Field>>>;
-  fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
+  fn get_filter(&self, filter_type: FilterType) -> Fut<Option<Arc<Filter>>>;
+  fn get_field(&self, field_id: &str) -> Fut<Option<Arc<Field>>>;
+  fn get_fields(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
   fn get_rows(&self) -> Fut<Vec<Row>>;
   fn get_row(&self, rows_id: RowId) -> Fut<Option<(usize, Arc<Row>)>>;
 }
@@ -37,7 +37,7 @@ pub struct FilterController {
   handler_id: String,
   delegate: Box<dyn FilterDelegate>,
   result_by_row_id: DashMap<RowId, FilterResult>,
-  cell_data_cache: CellCache,
+  cell_cache: CellCache,
   cell_filter_cache: CellFilterCache,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
   notifier: DatabaseViewChangedNotifier,
@@ -56,7 +56,7 @@ impl FilterController {
     delegate: T,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     filters: Vec<Arc<Filter>>,
-    cell_data_cache: CellCache,
+    cell_cache: CellCache,
     notifier: DatabaseViewChangedNotifier,
   ) -> Self
   where
@@ -67,7 +67,7 @@ impl FilterController {
       handler_id: handler_id.to_string(),
       delegate: Box::new(delegate),
       result_by_row_id: DashMap::default(),
-      cell_data_cache,
+      cell_cache,
       cell_filter_cache: AnyTypeCache::<FilterType>::new(),
       task_scheduler,
       notifier,
@@ -106,7 +106,7 @@ impl FilterController {
         row,
         &self.result_by_row_id,
         &field_by_field_id,
-        &self.cell_data_cache,
+        &self.cell_cache,
         &self.cell_filter_cache,
       );
     });
@@ -123,7 +123,7 @@ impl FilterController {
   async fn get_field_map(&self) -> HashMap<String, Arc<Field>> {
     self
       .delegate
-      .get_field_revs(None)
+      .get_fields(None)
       .await
       .into_iter()
       .map(|field| (field.id.clone(), field))
@@ -154,7 +154,7 @@ impl FilterController {
         &row,
         &self.result_by_row_id,
         &field_by_field_id,
-        &self.cell_data_cache,
+        &self.cell_cache,
         &self.cell_filter_cache,
       ) {
         if is_visible {
@@ -186,7 +186,7 @@ impl FilterController {
         &row,
         &self.result_by_row_id,
         &field_by_field_id,
-        &self.cell_data_cache,
+        &self.cell_cache,
         &self.cell_filter_cache,
       ) {
         if is_visible {
@@ -232,7 +232,7 @@ impl FilterController {
           vec![filter],
         ));
       }
-      if let Some(filter) = self.delegate.get_filter_rev(filter_type.clone()).await {
+      if let Some(filter) = self.delegate.get_filter(filter_type.clone()).await {
         self.refresh_filters(vec![filter]).await;
       }
     }
@@ -251,7 +251,7 @@ impl FilterController {
         // Update the corresponding filter in the cache
         if let Some(filter) = self
           .delegate
-          .get_filter_rev(updated_filter_type.new.clone())
+          .get_filter(updated_filter_type.new.clone())
           .await
         {
           self.refresh_filters(vec![filter]).await;
@@ -289,7 +289,7 @@ impl FilterController {
   async fn filter_from_filter_type(&self, filter_type: &FilterType) -> Option<FilterPB> {
     self
       .delegate
-      .get_filter_rev(filter_type.clone())
+      .get_filter(filter_type.clone())
       .await
       .map(|filter| FilterPB::from(filter.as_ref()))
   }
@@ -297,7 +297,7 @@ impl FilterController {
   #[tracing::instrument(level = "trace", skip_all)]
   async fn refresh_filters(&self, filters: Vec<Arc<Filter>>) {
     for filter in filters {
-      if let Some(field) = self.delegate.get_field_rev(&filter.field_id).await {
+      if let Some(field) = self.delegate.get_field(&filter.field_id).await {
         let filter_type = FilterType::from(field.as_ref());
         tracing::trace!("Create filter with type: {:?}", filter_type);
         match &filter_type.field_type {

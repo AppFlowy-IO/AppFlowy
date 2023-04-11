@@ -216,7 +216,7 @@ impl TryInto<AlterFilterParams> for AlterFilterPayloadPB {
       field_id,
       filter_id,
       field_type: self.field_type,
-      condition,
+      condition: condition as i64,
       content,
     })
   }
@@ -229,6 +229,6 @@ pub struct AlterFilterParams {
   /// Create a new filter if the filter_id is None
   pub filter_id: Option<String>,
   pub field_type: FieldType,
-  pub condition: u8,
+  pub condition: i64,
   pub content: String,
 }

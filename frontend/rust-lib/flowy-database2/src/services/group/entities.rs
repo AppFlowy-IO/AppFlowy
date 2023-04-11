@@ -3,7 +3,7 @@ use anyhow::bail;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::database::gen_database_group_id;
 use collab_database::rows::{Row, RowId};
-use collab_database::views::{GroupMap, GroupMapBuilder, GroupSettingMap};
+use collab_database::views::{GroupMap, GroupMapBuilder, GroupSettingBuilder, GroupSettingMap};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Default)]
@@ -57,6 +57,18 @@ impl TryFrom<GroupSettingMap> for GroupSetting {
         bail!("Invalid group setting data")
       },
     }
+  }
+}
+
+impl From<GroupSetting> for GroupSettingMap {
+  fn from(setting: GroupSetting) -> Self {
+    GroupSettingBuilder::new()
+      .insert_str_value(GROUP_ID, setting.id)
+      .insert_str_value(FIELD_ID, setting.field_id)
+      .insert_i64_value(FIELD_TYPE, setting.field_type)
+      .insert_maps(GROUPS, setting.groups)
+      .insert_str_value(CONTENT, setting.content)
+      .build()
   }
 }
 
