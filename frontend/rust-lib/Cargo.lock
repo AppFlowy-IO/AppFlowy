@@ -491,7 +491,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#306f27e56481eb2a998da4cb9f13763699dade76"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?branch=main#4046d27c0a846ecde80520596364013befa833e0"
 dependencies = [
  "anyhow",
  "bytes",
@@ -509,7 +509,7 @@ dependencies = [
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#306f27e56481eb2a998da4cb9f13763699dade76"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?branch=main#4046d27c0a846ecde80520596364013befa833e0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -519,9 +519,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "collab-document"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?branch=main#4046d27c0a846ecde80520596364013befa833e0"
+dependencies = [
+ "anyhow",
+ "collab",
+ "collab-derive",
+ "collab-persistence",
+ "nanoid",
+ "parking_lot 0.12.1",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#306f27e56481eb2a998da4cb9f13763699dade76"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?branch=main#4046d27c0a846ecde80520596364013befa833e0"
 dependencies = [
  "anyhow",
  "collab",
@@ -539,7 +555,7 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#306f27e56481eb2a998da4cb9f13763699dade76"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?branch=main#4046d27c0a846ecde80520596364013befa833e0"
 dependencies = [
  "bincode",
  "chrono",
@@ -1308,6 +1324,26 @@ dependencies = [
  "unicode-segmentation",
  "url",
  "ws-model",
+]
+
+[[package]]
+name = "flowy-document2"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "collab",
+ "collab-document",
+ "collab-persistence",
+ "flowy-codegen",
+ "flowy-derive",
+ "flowy-error",
+ "flowy-notification",
+ "lib-dispatch",
+ "nanoid",
+ "parking_lot 0.12.1",
+ "protobuf",
+ "strum",
+ "strum_macros",
 ]
 
 [[package]]

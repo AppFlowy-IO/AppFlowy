@@ -189,6 +189,9 @@ pub enum ErrorCode {
 
   #[error("Only the date type can be used in calendar")]
   UnexpectedCalendarFieldType = 61,
+
+  #[error("Document Data Invalid")]
+  DocumentDataInvalid = 62,
 }
 
 impl ErrorCode {
