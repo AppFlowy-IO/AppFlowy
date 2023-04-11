@@ -1,7 +1,7 @@
 use crate::entities::{FieldType, GroupChangesetPB, GroupPB, InsertedGroupPB};
 use crate::services::field::RowSingleCellData;
 use crate::services::group::{
-  default_group_configuration, GeneratedGroupContext, Group, GroupData, GroupSetting,
+  default_group_setting, GeneratedGroupContext, Group, GroupData, GroupSetting,
 };
 use collab_database::fields::Field;
 use flowy_error::{FlowyError, FlowyResult};
@@ -87,7 +87,7 @@ where
     let setting = match reader.get_group_setting().await {
       None => {
         let field_type = FieldType::from(field.field_type);
-        let default_configuration = default_group_configuration(&field);
+        let default_configuration = default_group_setting(&field);
         writer
           .save_configuration(&field.id, field_type, default_configuration.clone())
           .await?;

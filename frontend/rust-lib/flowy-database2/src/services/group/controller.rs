@@ -62,12 +62,21 @@ pub struct MoveGroupRowContext<'a> {
 
 #[derive(Debug, Clone, Default)]
 pub struct RowChangeset {
-  pub row_id: String,
+  pub row_id: RowId,
   pub height: Option<i32>,
   pub visibility: Option<bool>,
   // Contains the key/value changes represents as the update of the cells. For example,
   // if there is one cell was changed, then the `cell_by_field_id` will only have one key/value.
   pub cell_by_field_id: HashMap<String, Cell>,
+}
+
+impl RowChangeset {
+  pub fn new(row_id: RowId) -> Self {
+    Self {
+      row_id,
+      ..Default::default()
+    }
+  }
 }
 
 /// C: represents the group configuration that impl [GroupConfigurationSerde]

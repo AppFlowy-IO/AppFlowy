@@ -1,8 +1,8 @@
-mod editor;
 mod notifier;
+mod view_editor;
 mod views;
 // mod trait_impl;
 
-pub use editor::*;
 pub use notifier::*;
+pub use view_editor::*;
 pub use views::*;

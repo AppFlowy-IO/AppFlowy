@@ -132,13 +132,13 @@ pub fn find_grouping_field(
   }
 }
 
-/// Returns a `default` group configuration for the [FieldRevision]
+/// Returns a `default` group configuration for the [Field]
 ///
 /// # Arguments
 ///
-/// * `field_rev`: making the group configuration for the field
+/// * `field`: making the group configuration for the field
 ///
-pub fn default_group_configuration(field: &Field) -> GroupSetting {
+pub fn default_group_setting(field: &Field) -> GroupSetting {
   let field_id = field.id.clone();
   let field_type = FieldType::from(field.field_type);
   match field_type {

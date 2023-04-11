@@ -7,7 +7,7 @@ use crate::services::sort::{
   ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset, SortCondition, SortType,
 };
 use collab_database::fields::Field;
-use collab_database::rows::{Cell, Row};
+use collab_database::rows::{Cell, Row, RowId};
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use lib_infra::future::Fut;
@@ -34,7 +34,7 @@ pub struct SortController {
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
   sorts: Vec<Arc<Sort>>,
   cell_data_cache: CellCache,
-  row_index_cache: HashMap<String, usize>,
+  row_index_cache: HashMap<RowId, usize>,
   notifier: DatabaseViewChangedNotifier,
 }
 
@@ -77,8 +77,8 @@ impl SortController {
     }
   }
 
-  pub async fn did_receive_row_changed(&self, row_id: &str) {
-    let task_type = SortEvent::RowDidChanged(row_id.to_string());
+  pub async fn did_receive_row_changed(&self, row_id: RowId) {
+    let task_type = SortEvent::RowDidChanged(row_id);
     self.gen_task(task_type, QualityOfService::Background).await;
   }
 
@@ -115,7 +115,7 @@ impl SortController {
               return Ok(());
             }
             let notification = ReorderSingleRowResult {
-              row_id,
+              row_id: row_id.to_string(),
               view_id: self.view_id.clone(),
               old_index: old_row_index,
               new_index: new_row_index,
@@ -156,7 +156,7 @@ impl SortController {
         .par_sort_by(|left, right| cmp_row(left, right, sort, &field_revs, &self.cell_data_cache));
     }
     rows.iter().enumerate().for_each(|(index, row)| {
-      self.row_index_cache.insert(row.id.to_string(), index);
+      self.row_index_cache.insert(row.id, index);
     });
   }
 
@@ -281,7 +281,7 @@ fn cmp_cell(
 #[derive(Serialize, Deserialize, Clone, Debug)]
 enum SortEvent {
   SortDidChanged,
-  RowDidChanged(String),
+  RowDidChanged(RowId),
 }
 
 impl ToString for SortEvent {

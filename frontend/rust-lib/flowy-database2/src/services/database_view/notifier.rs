@@ -1,5 +1,8 @@
 #![allow(clippy::while_let_loop)]
-use crate::entities::{ReorderAllRowsPB, ReorderSingleRowPB, RowsVisibilityChangesetPB};
+use crate::entities::{
+  DatabaseViewSettingPB, FilterChangesetNotificationPB, GroupChangesetPB, GroupRowsNotificationPB,
+  ReorderAllRowsPB, ReorderSingleRowPB, RowsVisibilityChangesetPB, SortChangesetNotificationPB,
+};
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::filter::FilterResultNotification;
 use crate::services::sort::{ReorderAllRowsResult, ReorderSingleRowResult};
@@ -73,4 +76,36 @@ impl DatabaseViewChangedReceiverRunner {
       })
       .await;
   }
+}
+
+pub async fn notify_did_update_group_rows(payload: GroupRowsNotificationPB) {
+  send_notification(&payload.group_id, DatabaseNotification::DidUpdateGroupRow)
+    .payload(payload)
+    .send();
+}
+
+pub async fn notify_did_update_filter(notification: FilterChangesetNotificationPB) {
+  send_notification(&notification.view_id, DatabaseNotification::DidUpdateFilter)
+    .payload(notification)
+    .send();
+}
+
+pub async fn notify_did_update_sort(notification: SortChangesetNotificationPB) {
+  if !notification.is_empty() {
+    send_notification(&notification.view_id, DatabaseNotification::DidUpdateSort)
+      .payload(notification)
+      .send();
+  }
+}
+
+pub(crate) async fn notify_did_update_groups(view_id: &str, changeset: GroupChangesetPB) {
+  send_notification(view_id, DatabaseNotification::DidUpdateGroups)
+    .payload(changeset)
+    .send();
+}
+
+pub(crate) async fn notify_did_update_setting(view_id: &str, setting: DatabaseViewSettingPB) {
+  send_notification(view_id, DatabaseNotification::DidUpdateSettings)
+    .payload(setting)
+    .send();
 }
