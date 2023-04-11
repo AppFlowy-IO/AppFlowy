@@ -85,10 +85,12 @@ class RowList {
       insert(index, builder(insertRow.row));
 
       if (!isContains) {
-        insertIndexs.add(InsertedIndex(
-          index: index,
-          rowId: insertRow.row.id,
-        ));
+        insertIndexs.add(
+          InsertedIndex(
+            index: index,
+            rowId: insertRow.row.id,
+          ),
+        );
       }
     }
     return insertIndexs;

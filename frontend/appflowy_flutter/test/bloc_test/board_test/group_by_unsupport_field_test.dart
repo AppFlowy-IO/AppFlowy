@@ -43,8 +43,10 @@ void main() {
           BoardBloc(view: context.gridView)..add(const BoardEvent.initial()),
       wait: boardResponseDuration(),
       verify: (bloc) {
-        assert(bloc.groupControllers.values.length == 1,
-            "Expected 1, but receive ${bloc.groupControllers.values.length}");
+        assert(
+          bloc.groupControllers.values.length == 1,
+          "Expected 1, but receive ${bloc.groupControllers.values.length}",
+        );
       },
     );
   });

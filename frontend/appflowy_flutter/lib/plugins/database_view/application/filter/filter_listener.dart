@@ -107,7 +107,8 @@ class FilterListener {
       case DatabaseNotification.DidUpdateFilter:
         result.fold(
           (payload) => handleChangeset(
-              FilterChangesetNotificationPB.fromBuffer(payload)),
+            FilterChangesetNotificationPB.fromBuffer(payload),
+          ),
           (error) {},
         );
         break;

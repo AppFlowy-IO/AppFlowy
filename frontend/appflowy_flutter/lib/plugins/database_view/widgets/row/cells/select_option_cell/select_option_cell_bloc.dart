@@ -21,9 +21,11 @@ class SelectOptionCellBloc
             _startListening();
           },
           didReceiveOptions: (_DidReceiveOptions value) {
-            emit(state.copyWith(
-              selectedOptions: value.selectedOptions,
-            ));
+            emit(
+              state.copyWith(
+                selectedOptions: value.selectedOptions,
+              ),
+            );
           },
         );
       },
@@ -44,9 +46,11 @@ class SelectOptionCellBloc
     _onCellChangedFn = cellController.startListening(
       onCellChanged: ((selectOptionContext) {
         if (!isClosed) {
-          add(SelectOptionCellEvent.didReceiveOptions(
-            selectOptionContext?.selectOptions ?? [],
-          ));
+          add(
+            SelectOptionCellEvent.didReceiveOptions(
+              selectOptionContext?.selectOptions ?? [],
+            ),
+          );
         }
       }),
     );

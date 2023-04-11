@@ -38,6 +38,7 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
     return BlocProvider.value(
       value: _cellBloc,
       child: AppFlowyPopover(
+        margin: EdgeInsets.zero,
         controller: _popover,
         constraints: BoxConstraints.loose(const Size(260, 400)),
         direction: PopoverDirection.bottomWithLeftAligned,

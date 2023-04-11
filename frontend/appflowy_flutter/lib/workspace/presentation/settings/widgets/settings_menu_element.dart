@@ -27,11 +27,13 @@ class SettingsMenuElement extends StatelessWidget {
         hoverColor: Theme.of(context).colorScheme.primary,
       ),
       child: ListTile(
-        leading: Icon(icon,
-            size: 16,
-            color: page == selectedPage
-                ? Theme.of(context).colorScheme.onSurface
-                : null),
+        leading: Icon(
+          icon,
+          size: 16,
+          color: page == selectedPage
+              ? Theme.of(context).colorScheme.onSurface
+              : null,
+        ),
         onTap: () {
           changeSelectedPage(page);
         },
@@ -42,12 +44,14 @@ class SettingsMenuElement extends StatelessWidget {
           borderRadius: BorderRadius.circular(5),
         ),
         minLeadingWidth: 0,
-        title: FlowyText.semibold(label,
-            fontSize: FontSizes.s14,
-            overflow: TextOverflow.ellipsis,
-            color: page == selectedPage
-                ? Theme.of(context).colorScheme.onSurface
-                : null),
+        title: FlowyText.semibold(
+          label,
+          fontSize: FontSizes.s14,
+          overflow: TextOverflow.ellipsis,
+          color: page == selectedPage
+              ? Theme.of(context).colorScheme.onSurface
+              : null,
+        ),
       ),
     );
   }

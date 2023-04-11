@@ -21,9 +21,11 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
     on<ViewEvent>((event, emit) async {
       await event.map(
         initial: (e) {
-          listener.start(onViewUpdated: (result) {
-            add(ViewEvent.viewDidUpdate(result));
-          });
+          listener.start(
+            onViewUpdated: (result) {
+              add(ViewEvent.viewDidUpdate(result));
+            },
+          );
           emit(state);
         },
         setIsEditing: (e) {

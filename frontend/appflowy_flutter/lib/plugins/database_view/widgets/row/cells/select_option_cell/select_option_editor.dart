@@ -77,13 +77,15 @@ class _OptionList extends StatelessWidget {
       builder: (context, state) {
         List<Widget> cells = [];
         cells.add(const _Title());
-        cells.addAll(state.options.map((option) {
-          return _SelectOptionCell(
-            option: option,
-            isSelected: state.selectedOptions.contains(option),
-            popoverMutex: popoverMutex,
-          );
-        }).toList());
+        cells.addAll(
+          state.options.map((option) {
+            return _SelectOptionCell(
+              option: option,
+              isSelected: state.selectedOptions.contains(option),
+              popoverMutex: popoverMutex,
+            );
+          }).toList(),
+        );
 
         state.createOption.fold(
           () => null,
@@ -124,9 +126,10 @@ class _TextField extends StatelessWidget {
     return BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
       builder: (context, state) {
         final optionMap = LinkedHashMap<String, SelectOptionPB>.fromIterable(
-            state.selectedOptions,
-            key: (option) => option.name,
-            value: (option) => option);
+          state.selectedOptions,
+          key: (option) => option.name,
+          value: (option) => option,
+        );
 
         return Padding(
           padding: const EdgeInsets.all(_padding),
@@ -149,19 +152,19 @@ class _TextField extends StatelessWidget {
                   .add(SelectOptionEditorEvent.trySelectOption(tagName));
             },
             onPaste: (tagNames, remainder) {
-              context
-                  .read<SelectOptionCellEditorBloc>()
-                  .add(SelectOptionEditorEvent.selectMultipleOptions(
-                    tagNames,
-                    remainder,
-                  ));
+              context.read<SelectOptionCellEditorBloc>().add(
+                    SelectOptionEditorEvent.selectMultipleOptions(
+                      tagNames,
+                      remainder,
+                    ),
+                  );
             },
             onRemove: (optionName) {
-              context
-                  .read<SelectOptionCellEditorBloc>()
-                  .add(SelectOptionEditorEvent.unSelectOption(
-                    optionMap[optionName]!.id,
-                  ));
+              context.read<SelectOptionCellEditorBloc>().add(
+                    SelectOptionEditorEvent.unSelectOption(
+                      optionMap[optionName]!.id,
+                    ),
+                  );
             },
           ),
         );

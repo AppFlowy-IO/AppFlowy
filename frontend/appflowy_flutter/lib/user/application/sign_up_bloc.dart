@@ -15,79 +15,107 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
   final AuthService authService;
   SignUpBloc(this.authService) : super(SignUpState.initial()) {
     on<SignUpEvent>((event, emit) async {
-      await event.map(signUpWithUserEmailAndPassword: (e) async {
-        await _performActionOnSignUp(emit);
-      }, emailChanged: (_EmailChanged value) async {
-        emit(state.copyWith(
-            email: value.email, emailError: none(), successOrFail: none()));
-      }, passwordChanged: (_PasswordChanged value) async {
-        emit(state.copyWith(
-            password: value.password,
-            passwordError: none(),
-            successOrFail: none()));
-      }, repeatPasswordChanged: (_RepeatPasswordChanged value) async {
-        emit(state.copyWith(
-            repeatedPassword: value.password,
-            repeatPasswordError: none(),
-            successOrFail: none()));
-      });
+      await event.map(
+        signUpWithUserEmailAndPassword: (e) async {
+          await _performActionOnSignUp(emit);
+        },
+        emailChanged: (_EmailChanged value) async {
+          emit(
+            state.copyWith(
+              email: value.email,
+              emailError: none(),
+              successOrFail: none(),
+            ),
+          );
+        },
+        passwordChanged: (_PasswordChanged value) async {
+          emit(
+            state.copyWith(
+              password: value.password,
+              passwordError: none(),
+              successOrFail: none(),
+            ),
+          );
+        },
+        repeatPasswordChanged: (_RepeatPasswordChanged value) async {
+          emit(
+            state.copyWith(
+              repeatedPassword: value.password,
+              repeatPasswordError: none(),
+              successOrFail: none(),
+            ),
+          );
+        },
+      );
     });
   }
 
   Future<void> _performActionOnSignUp(Emitter<SignUpState> emit) async {
-    emit(state.copyWith(
-      isSubmitting: true,
-      successOrFail: none(),
-    ));
+    emit(
+      state.copyWith(
+        isSubmitting: true,
+        successOrFail: none(),
+      ),
+    );
 
     final password = state.password;
     final repeatedPassword = state.repeatedPassword;
     if (password == null) {
-      emit(state.copyWith(
-        isSubmitting: false,
-        passwordError: some(LocaleKeys.signUp_emptyPasswordError.tr()),
-      ));
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          passwordError: some(LocaleKeys.signUp_emptyPasswordError.tr()),
+        ),
+      );
       return;
     }
 
     if (repeatedPassword == null) {
-      emit(state.copyWith(
-        isSubmitting: false,
-        repeatPasswordError:
-            some(LocaleKeys.signUp_repeatPasswordEmptyError.tr()),
-      ));
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          repeatPasswordError:
+              some(LocaleKeys.signUp_repeatPasswordEmptyError.tr()),
+        ),
+      );
       return;
     }
 
     if (password != repeatedPassword) {
-      emit(state.copyWith(
-        isSubmitting: false,
-        repeatPasswordError:
-            some(LocaleKeys.signUp_unmatchedPasswordError.tr()),
-      ));
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          repeatPasswordError:
+              some(LocaleKeys.signUp_unmatchedPasswordError.tr()),
+        ),
+      );
       return;
     }
 
-    emit(state.copyWith(
-      passwordError: none(),
-      repeatPasswordError: none(),
-    ));
+    emit(
+      state.copyWith(
+        passwordError: none(),
+        repeatPasswordError: none(),
+      ),
+    );
 
     final result = await authService.signUp(
       name: state.email,
       password: state.password,
       email: state.email,
     );
-    emit(result.fold(
-      (profile) => state.copyWith(
-        isSubmitting: false,
-        successOrFail: some(left(profile)),
-        emailError: none(),
-        passwordError: none(),
-        repeatPasswordError: none(),
+    emit(
+      result.fold(
+        (profile) => state.copyWith(
+          isSubmitting: false,
+          successOrFail: some(left(profile)),
+          emailError: none(),
+          passwordError: none(),
+          repeatPasswordError: none(),
+        ),
+        (error) => stateFromCode(error),
       ),
-      (error) => stateFromCode(error),
-    ));
+    );
   }
 
   SignUpState stateFromCode(FlowyError error) {
@@ -108,7 +136,9 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
         );
       default:
         return state.copyWith(
-            isSubmitting: false, successOrFail: some(right(error)));
+          isSubmitting: false,
+          successOrFail: some(right(error)),
+        );
     }
   }
 }

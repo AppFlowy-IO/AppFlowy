@@ -12,7 +12,8 @@ import 'package:appflowy_backend/rust_stream.dart';
 
 typedef AppDidUpdateCallback = void Function(AppPB app);
 typedef ViewsDidChangeCallback = void Function(
-    Either<List<ViewPB>, FlowyError> viewsOrFailed);
+  Either<List<ViewPB>, FlowyError> viewsOrFailed,
+);
 
 class AppListener {
   StreamSubscription<SubscribeObject>? _subscription;
@@ -32,7 +33,9 @@ class AppListener {
   }
 
   void _handleCallback(
-      FolderNotification ty, Either<Uint8List, FlowyError> result) {
+    FolderNotification ty,
+    Either<Uint8List, FlowyError> result,
+  ) {
     switch (ty) {
       case FolderNotification.DidUpdateApp:
         if (_updated != null) {

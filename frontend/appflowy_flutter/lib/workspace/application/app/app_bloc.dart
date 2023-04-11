@@ -26,35 +26,43 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         appListener = AppListener(appId: app.id),
         super(AppState.initial(app)) {
     on<AppEvent>((event, emit) async {
-      await event.map(initial: (e) async {
-        _startListening();
-        await _loadViews(emit);
-      }, createView: (CreateView value) async {
-        await _createView(value, emit);
-      }, loadViews: (_) async {
-        await _loadViews(emit);
-      }, delete: (e) async {
-        await _deleteApp(emit);
-      }, deleteView: (deletedView) async {
-        await _deleteView(emit, deletedView.viewId);
-      }, rename: (e) async {
-        await _renameView(e, emit);
-      }, appDidUpdate: (e) async {
-        final latestCreatedView = state.latestCreatedView;
-        final views = e.app.belongings.items;
-        AppState newState = state.copyWith(
-          views: views,
-          app: e.app,
-        );
-        if (latestCreatedView != null) {
-          final index =
-              views.indexWhere((element) => element.id == latestCreatedView.id);
-          if (index == -1) {
-            newState = newState.copyWith(latestCreatedView: null);
+      await event.map(
+        initial: (e) async {
+          _startListening();
+          await _loadViews(emit);
+        },
+        createView: (CreateView value) async {
+          await _createView(value, emit);
+        },
+        loadViews: (_) async {
+          await _loadViews(emit);
+        },
+        delete: (e) async {
+          await _deleteApp(emit);
+        },
+        deleteView: (deletedView) async {
+          await _deleteView(emit, deletedView.viewId);
+        },
+        rename: (e) async {
+          await _renameView(e, emit);
+        },
+        appDidUpdate: (e) async {
+          final latestCreatedView = state.latestCreatedView;
+          final views = e.app.belongings.items;
+          AppState newState = state.copyWith(
+            views: views,
+            app: e.app,
+          );
+          if (latestCreatedView != null) {
+            final index = views
+                .indexWhere((element) => element.id == latestCreatedView.id);
+            if (index == -1) {
+              newState = newState.copyWith(latestCreatedView: null);
+            }
           }
-        }
-        emit(newState);
-      });
+          emit(newState);
+        },
+      );
     });
   }
 
@@ -104,10 +112,12 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       ext: value.ext ?? {},
     );
     result.fold(
-      (view) => emit(state.copyWith(
-        latestCreatedView: view,
-        successOrFailure: left(unit),
-      )),
+      (view) => emit(
+        state.copyWith(
+          latestCreatedView: view,
+          successOrFailure: left(unit),
+        ),
+      ),
       (error) {
         Log.error(error);
         emit(state.copyWith(successOrFailure: right(error)));
@@ -222,7 +232,8 @@ class AppViewDataContext extends ChangeNotifier {
       UnmodifiableListView(_viewsNotifier.value);
 
   VoidCallback addViewsChangeListener(
-      void Function(UnmodifiableListView<ViewPB>) callback) {
+    void Function(UnmodifiableListView<ViewPB>) callback,
+  ) {
     listener() {
       callback(views);
     }

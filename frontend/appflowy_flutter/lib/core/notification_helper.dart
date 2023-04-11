@@ -9,11 +9,12 @@ class NotificationParser<T, E> {
   T? Function(int) tyParser;
   E Function(Uint8List) errorParser;
 
-  NotificationParser(
-      {this.id,
-      required this.callback,
-      required this.errorParser,
-      required this.tyParser});
+  NotificationParser({
+    this.id,
+    required this.callback,
+    required this.errorParser,
+    required this.tyParser,
+  });
   void parse(SubscribeObject subject) {
     if (id != null) {
       if (subject.id != id) {

@@ -21,7 +21,9 @@ class PluginSandbox {
         _pluginBuilders.keys.toList().indexWhere((ty) => ty == pluginType);
     if (index == -1) {
       throw PlatformException(
-          code: '-1', message: "Can't find the flowy plugin type: $pluginType");
+        code: '-1',
+        message: "Can't find the flowy plugin type: $pluginType",
+      );
     }
     return index;
   }
@@ -31,11 +33,16 @@ class PluginSandbox {
     return plugin;
   }
 
-  void registerPlugin(PluginType pluginType, PluginBuilder builder,
-      {PluginConfig? config}) {
+  void registerPlugin(
+    PluginType pluginType,
+    PluginBuilder builder, {
+    PluginConfig? config,
+  }) {
     if (_pluginBuilders.containsKey(pluginType)) {
       throw PlatformException(
-          code: '-1', message: "$pluginType was registered before");
+        code: '-1',
+        message: "$pluginType was registered before",
+      );
     }
     _pluginBuilders[pluginType] = builder;
 

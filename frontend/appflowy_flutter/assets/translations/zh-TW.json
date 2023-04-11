@@ -290,7 +290,7 @@
       "optionTitle": "選項",
       "addOption": "新增選項",
       "editProperty": "編輯內容",
-      "newColumn": "新欄位",
+      "newProperty": "新欄位",
       "deleteFieldPromptMessage": "你確定嗎？這個內容將被刪除"
     },
     "sort": {

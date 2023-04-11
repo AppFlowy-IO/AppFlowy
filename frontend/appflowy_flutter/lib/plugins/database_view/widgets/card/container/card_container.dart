@@ -93,11 +93,12 @@ class _CardEnterRegion extends StatelessWidget {
               Provider.of<_CardContainerNotifier>(context, listen: false)
                   .onEnter = false,
           child: IntrinsicHeight(
-              child: Stack(
-            alignment: AlignmentDirectional.topEnd,
-            fit: StackFit.expand,
-            children: children,
-          )),
+            child: Stack(
+              alignment: AlignmentDirectional.topEnd,
+              fit: StackFit.expand,
+              children: children,
+            ),
+          ),
         );
       },
     );

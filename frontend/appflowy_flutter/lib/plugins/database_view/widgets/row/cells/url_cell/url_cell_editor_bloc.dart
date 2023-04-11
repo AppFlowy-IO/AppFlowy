@@ -20,10 +20,12 @@ class URLCellEditorBloc extends Bloc<URLCellEditorEvent, URLCellEditorState> {
           },
           updateText: (text) async {
             await cellController.saveCellData(text);
-            emit(state.copyWith(
-              content: text,
-              isFinishEditing: true,
-            ));
+            emit(
+              state.copyWith(
+                content: text,
+                isFinishEditing: true,
+              ),
+            );
           },
           didReceiveCellUpdate: (cellData) {
             emit(state.copyWith(content: cellData?.content ?? ""));

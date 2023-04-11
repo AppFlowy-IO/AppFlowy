@@ -41,10 +41,12 @@ class CardBloc extends Bloc<BoardCardEvent, BoardCardState> {
             await _startListening();
           },
           didReceiveCells: (cells, reason) async {
-            emit(state.copyWith(
-              cells: cells,
-              changeReason: reason,
-            ));
+            emit(
+              state.copyWith(
+                cells: cells,
+                changeReason: reason,
+              ),
+            );
           },
           setIsEditing: (bool isEditing) {
             emit(state.copyWith(isEditing: isEditing));
@@ -87,7 +89,9 @@ class CardBloc extends Bloc<BoardCardEvent, BoardCardState> {
 }
 
 List<BoardCellEquatable> _makeCells(
-    String groupFieldId, CellByFieldId originalCellMap) {
+  String groupFieldId,
+  CellByFieldId originalCellMap,
+) {
   List<BoardCellEquatable> cells = [];
   for (final entry in originalCellMap.entries) {
     // Filter out the cell if it's fieldId equal to the groupFieldId
