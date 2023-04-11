@@ -29,8 +29,8 @@ class TextCellDataPersistence implements CellDataPersistence<String> {
 @freezed
 class DateCellData with _$DateCellData {
   const factory DateCellData({
-    required DateTime date,
-    String? time,
+    required DateTime? dateTime,
+    required String? time,
     required bool includeTime,
   }) = _DateCellData;
 }
@@ -45,14 +45,16 @@ class DateCellDataPersistence implements CellDataPersistence<DateCellData> {
   Future<Option<FlowyError>> save(DateCellData data) {
     var payload = DateChangesetPB.create()..cellPath = _makeCellPath(cellId);
 
-    final date = (data.date.millisecondsSinceEpoch ~/ 1000).toString();
-    payload.date = date;
-    payload.isUtc = data.date.isUtc;
-    payload.includeTime = data.includeTime;
+    if (data.dateTime != null) {
+      final date = (data.dateTime!.millisecondsSinceEpoch ~/ 1000).toString();
+      payload.date = date;
+    }
 
     if (data.time != null) {
       payload.time = data.time!;
     }
+
+    payload.includeTime = data.includeTime;
 
     return DatabaseEventUpdateDateCell(payload).send().then((result) {
       return result.fold(

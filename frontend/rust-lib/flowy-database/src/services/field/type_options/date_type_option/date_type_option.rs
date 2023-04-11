@@ -65,14 +65,9 @@ impl DateTypeOptionPB {
     let include_time = cell_data.include_time;
     let timezone_id = cell_data.timezone_id;
 
-    if timestamp == 0 {
-      return DateCellDataPB::default();
-    }
-
-    let naive = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0);
-    match naive {
-      None => DateCellDataPB::default(),
-      Some(naive) => {
+    let (date, time) = match cell_data.timestamp {
+      Some(timestamp) => {
+        let naive = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
         let offset = match Tz::from_str(&timezone_id) {
           Ok(timezone) => timezone.offset_from_utc_datetime(&naive).fix(),
           Err(_) => Local::now().offset().clone(),
@@ -85,14 +80,17 @@ impl DateTypeOptionPB {
         let fmt = self.time_format.format_str();
         let time = format!("{}", date_time.format_with_items(StrftimeItems::new(fmt)));
 
-        DateCellDataPB {
-          date,
-          time,
-          include_time,
-          timestamp,
-          timezone_id,
-        }
+        (date, time)
       },
+      None => ("".to_owned(), "".to_owned()),
+    };
+
+    DateCellDataPB {
+      date,
+      time,
+      include_time,
+      timestamp,
+      timezone_id,
     }
   }
 }
@@ -232,7 +230,10 @@ impl CellDataChangeset for DateTypeOptionPB {
               .unwrap()
               .date(),
           ),
-          None => None,
+          None => match timestamp_datetime {
+            Some(datetime) => Some(datetime.date()),
+            None => None,
+          },
         };
 
         match date {
