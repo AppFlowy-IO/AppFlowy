@@ -3,13 +3,12 @@ import { useAppDispatch, useAppSelector } from '../../stores/store';
 import { pagesActions } from '../../stores/reducers/pages/slice';
 import { workspaceActions } from '../../stores/reducers/workspace/slice';
 import { UserBackendService } from '../../stores/effects/user/user_bd_svc';
-import { useError } from '../error/Error.hooks';
 
 export const useWorkspace = () => {
   const currentUser = useAppSelector((state) => state.currentUser);
 
   const appDispatch = useAppDispatch();
-  const error = useError();
+
   const userBackendService: UserBackendService = new UserBackendService(currentUser.id || 0);
 
   const loadWorkspaceItems = async () => {
@@ -31,15 +30,11 @@ export const useWorkspace = () => {
       }
     } catch (e1) {
       // create workspace for first start
-      try {
-        const workspace = await userBackendService.createWorkspace({ name: 'New Workspace', desc: '' });
-        appDispatch(workspaceActions.updateWorkspace({ id: workspace.id, name: workspace.name }));
+      const workspace = await userBackendService.createWorkspace({ name: 'New Workspace', desc: '' });
+      appDispatch(workspaceActions.updateWorkspace({ id: workspace.id, name: workspace.name }));
 
-        appDispatch(foldersActions.clearFolders());
-        appDispatch(pagesActions.clearPages());
-      } catch (e2: any) {
-        error.showError(e2?.message);
-      }
+      appDispatch(foldersActions.clearFolders());
+      appDispatch(pagesActions.clearPages());
     }
   };
 
