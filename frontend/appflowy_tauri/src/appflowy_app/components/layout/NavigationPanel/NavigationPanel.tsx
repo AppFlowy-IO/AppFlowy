@@ -117,6 +117,7 @@ export const NavigationPanel = ({
             {/*<PluginsButton></PluginsButton>*/}
 
             <DesignSpec></DesignSpec>
+            <AllIcons></AllIcons>
             <TestBackendButton></TestBackendButton>
 
             {/*Trash Button*/}
@@ -158,7 +159,7 @@ export const TestBackendButton = () => {
       onClick={() => navigate('/page/api-test')}
       className={'flex w-full items-center rounded-lg px-4 py-2 hover:bg-surface-2'}
     >
-      APITest
+      API Test
     </button>
   );
 };
@@ -171,7 +172,19 @@ export const DesignSpec = () => {
       onClick={() => navigate('page/colors')}
       className={'flex w-full items-center rounded-lg px-4 py-2 hover:bg-surface-2'}
     >
-      Design Specs
+      Color Palette
+    </button>
+  );
+};
+
+export const AllIcons = () => {
+  const navigate = useNavigate();
+  return (
+    <button
+      onClick={() => navigate('page/all-icons')}
+      className={'flex w-full items-center rounded-lg px-4 py-2 hover:bg-surface-2'}
+    >
+      All Icons
     </button>
   );
 };

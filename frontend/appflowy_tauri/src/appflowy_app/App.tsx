@@ -1,6 +1,6 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 
-import { TestColors } from './components/TestColors/TestColors';
+import { ColorPalette } from './components/tests/ColorPalette';
 import { Provider } from 'react-redux';
 import { store } from './stores/store';
 import { DocumentPage } from './views/DocumentPage';
@@ -15,6 +15,7 @@ import initializeI18n from './stores/i18n/initializeI18n';
 import { TestAPI } from './components/tests/TestAPI';
 import { GetStarted } from './components/auth/GetStarted/GetStarted';
 import { ErrorBoundary } from 'react-error-boundary';
+import { AllIcons } from '$app/components/tests/AllIcons';
 
 initializeI18n();
 
@@ -25,7 +26,8 @@ const App = () => {
         <ErrorBoundary FallbackComponent={ErrorHandlerPage}>
           <Routes>
             <Route path={'/'} element={<ProtectedRoutes />}>
-              <Route path={'/page/colors'} element={<TestColors />} />
+              <Route path={'/page/all-icons'} element={<AllIcons />} />
+              <Route path={'/page/colors'} element={<ColorPalette />} />
               <Route path={'/page/api-test'} element={<TestAPI />} />
               <Route path={'/page/document/:id'} element={<DocumentPage />} />
               <Route path={'/page/board/:id'} element={<BoardPage />} />

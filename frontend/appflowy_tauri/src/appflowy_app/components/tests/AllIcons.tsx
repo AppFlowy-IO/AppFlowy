@@ -1,10 +1,10 @@
 import AddSvg from '$app/components/_shared/svg/AddSvg';
-import { ChecklistTypeSvg } from '$app/components/_shared/svg/ChecklistTypeSvg';
-import { CheckmarkSvg } from '$app/components/_shared/svg/CheckmarkSvg';
 import { ArrowLeftSvg } from '$app/components/_shared/svg/ArrowLeftSvg';
 import { ArrowRightSvg } from '$app/components/_shared/svg/ArrowRightSvg';
 import { BoardSvg } from '$app/components/_shared/svg/BoardSvg';
 import { CheckboxSvg } from '$app/components/_shared/svg/CheckboxSvg';
+import { ChecklistTypeSvg } from '$app/components/_shared/svg/ChecklistTypeSvg';
+import { CheckmarkSvg } from '$app/components/_shared/svg/CheckmarkSvg';
 import { ClockSvg } from '$app/components/_shared/svg/ClockSvg';
 import { CloseSvg } from '$app/components/_shared/svg/CloseSvg';
 import { CopySvg } from '$app/components/_shared/svg/CopySvg';
@@ -20,6 +20,7 @@ import { EyeClosedSvg } from '$app/components/_shared/svg/EyeClosedSvg';
 import { EyeOpenSvg } from '$app/components/_shared/svg/EyeOpenSvg';
 import { FilterSvg } from '$app/components/_shared/svg/FilterSvg';
 import { GridSvg } from '$app/components/_shared/svg/GridSvg';
+import { GroupByFieldSvg } from '$app/components/_shared/svg/GroupByFieldSvg';
 import { HideMenuSvg } from '$app/components/_shared/svg/HideMenuSvg';
 import { InformationSvg } from '$app/components/_shared/svg/InformationSvg';
 import { LogoutSvg } from '$app/components/_shared/svg/LogoutSvg';
@@ -32,19 +33,17 @@ import { ShowMenuSvg } from '$app/components/_shared/svg/ShowMenuSvg';
 import { SingleSelectTypeSvg } from '$app/components/_shared/svg/SingleSelectTypeSvg';
 import { SkipLeftSvg } from '$app/components/_shared/svg/SkipLeftSvg';
 import { SkipRightSvg } from '$app/components/_shared/svg/SkipRightSvg';
-import { SortSharp } from '@mui/icons-material';
 import { SortSvg } from '$app/components/_shared/svg/SortSvg';
 import { TextTypeSvg } from '$app/components/_shared/svg/TextTypeSvg';
 import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
 import { UrlTypeSvg } from '$app/components/_shared/svg/UrlTypeSvg';
-import { GroupByFieldSvg } from '$app/components/_shared/svg/GroupByFieldSvg';
 
-export const TestColors = () => {
+export const AllIcons = () => {
   return (
     <div className={'p-8'}>
-      <h1 className={'mb-4 text-2xl'}>Icons</h1>
+      <h1 className={'mb-12 text-2xl'}>Icons</h1>
       <div className={'mb-8'}>
-        <div className={'flex flex-wrap items-center gap-4'}>
+        <div className={'flex flex-wrap items-center gap-8'}>
           <i className={'h-5 w-5'} title={'AddSvg'}>
             <AddSvg></AddSvg>
           </i>
@@ -163,45 +162,6 @@ export const TestColors = () => {
             <UrlTypeSvg></UrlTypeSvg>
           </i>
         </div>
-      </div>
-      <h1 className={'mb-4 text-2xl'}>Colors</h1>
-      <h2 className={'mb-4'}>Main</h2>
-      <div className={'mb-8 flex flex-wrap items-center'}>
-        <div className={'m-2 h-[100px] w-[100px] bg-main-accent'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-main-hovered'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-main-secondary'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-main-selector'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-main-alert'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-main-warning'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-main-success'}></div>
-      </div>
-      <h2 className={'mb-4'}>Tint</h2>
-      <div className={'mb-8 flex flex-wrap items-center'}>
-        <div className={'m-2 h-[100px] w-[100px] bg-tint-1'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-tint-2'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-tint-3'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-tint-4'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-tint-5'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-tint-6'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-tint-7'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-tint-8'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-tint-9'}></div>
-      </div>
-      <h2 className={'mb-4'}>Shades</h2>
-      <div className={'mb-8 flex flex-wrap items-center'}>
-        <div className={'m-2 h-[100px] w-[100px] bg-shade-1'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-shade-2'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-shade-3'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-shade-4'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-shade-5'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-shade-6'}></div>
-      </div>
-      <h2 className={'mb-4'}>Surface</h2>
-      <div className={'mb-8 flex flex-wrap items-center'}>
-        <div className={'m-2 h-[100px] w-[100px] bg-surface-1'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-surface-2'}></div>
-        <div className={'m-2 h-[100px] w-[100px] bg-surface-3'}></div>
-        <div className={'bg-surface-4 m-2 h-[100px] w-[100px]'}></div>
       </div>
     </div>
   );
