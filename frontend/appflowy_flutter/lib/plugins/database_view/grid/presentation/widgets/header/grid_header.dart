@@ -189,7 +189,7 @@ class CreateFieldButton extends StatelessWidget {
       constraints: BoxConstraints.loose(const Size(240, 600)),
       child: FlowyButton(
         radius: BorderRadius.zero,
-        text: FlowyText.medium(LocaleKeys.grid_field_newColumn.tr()),
+        text: FlowyText.medium(LocaleKeys.grid_field_newProperty.tr()),
         hoverColor: AFThemeExtension.of(context).greyHover,
         onTap: () {},
         leftIcon: const FlowySvg(name: 'home/add'),
