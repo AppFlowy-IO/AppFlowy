@@ -146,7 +146,7 @@ impl DatabaseViews {
         self.database_view_data.clone(),
         self.cell_cache.clone(),
       )
-      .await,
+      .await?,
     );
     editor_map.insert(view_id.to_owned(), editor.clone());
     Ok(editor)

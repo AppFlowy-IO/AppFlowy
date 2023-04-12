@@ -19,7 +19,7 @@ use tokio::sync::RwLock;
 pub trait FilterDelegate: Send + Sync + 'static {
   fn get_filter(&self, view_id: &str, filter_id: &str) -> Fut<Option<Arc<Filter>>>;
   fn get_field(&self, field_id: &str) -> Fut<Option<Arc<Field>>>;
-  fn get_fields(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
+  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
   fn get_rows(&self, view_id: &str) -> Fut<Vec<Row>>;
   fn get_row(&self, rows_id: RowId) -> Fut<Option<(usize, Arc<Row>)>>;
 }
@@ -122,7 +122,7 @@ impl FilterController {
   async fn get_field_map(&self) -> HashMap<String, Arc<Field>> {
     self
       .delegate
-      .get_fields(None)
+      .get_fields(&self.view_id, None)
       .await
       .into_iter()
       .map(|field| (field.id.clone(), field))

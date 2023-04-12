@@ -87,13 +87,22 @@ impl From<i64> for SortCondition {
 
 #[derive(Hash, Eq, PartialEq, Debug, Clone)]
 pub struct SortType {
+  pub sort_id: String,
   pub field_id: String,
   pub field_type: FieldType,
 }
 
-impl std::convert::From<&AlterSortParams> for SortType {
+#[derive(Hash, Eq, PartialEq, Debug, Clone)]
+pub struct InsertSortType {
+  pub sort_id: Option<String>,
+  pub field_id: String,
+  pub field_type: FieldType,
+}
+
+impl std::convert::From<&AlterSortParams> for InsertSortType {
   fn from(params: &AlterSortParams) -> Self {
     Self {
+      sort_id: params.sort_id.clone(),
       field_id: params.field_id.clone(),
       field_type: params.field_type.clone(),
     }

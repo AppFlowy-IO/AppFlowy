@@ -2,6 +2,7 @@ mod notifier;
 mod view_editor;
 mod view_filter;
 mod view_group;
+mod view_sort;
 mod views;
 // mod trait_impl;
 

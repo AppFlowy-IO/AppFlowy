@@ -35,7 +35,7 @@ pub async fn new_group_controller(
   let setting_reader = GroupSettingReaderImpl(delegate.clone());
   let setting_writer = GroupSettingWriterImpl(delegate.clone());
 
-  let fields = delegate.get_fields(None).await;
+  let fields = delegate.get_fields(&view_id, None).await;
   let rows = delegate.get_rows(&view_id).await;
   let layout = delegate.get_layout_for_view(&view_id);
 

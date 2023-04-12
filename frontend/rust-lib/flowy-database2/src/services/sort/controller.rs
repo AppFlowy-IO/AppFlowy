@@ -20,11 +20,11 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub trait SortDelegate: Send + Sync {
-  fn get_sort_rev(&self, sort_type: SortType) -> Fut<Option<Arc<Sort>>>;
+  fn get_sort(&self, view_id: &str, sort_id: &str) -> Fut<Option<Arc<Sort>>>;
   /// Returns all the rows after applying grid's filter
-  fn get_rows(&self) -> Fut<Vec<Arc<Row>>>;
+  fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<Row>>>;
   fn get_field(&self, field_id: &str) -> Fut<Option<Arc<Field>>>;
-  fn get_fields(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
+  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
 }
 
 pub struct SortController {
@@ -33,7 +33,7 @@ pub struct SortController {
   delegate: Box<dyn SortDelegate>,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
   sorts: Vec<Arc<Sort>>,
-  cell_data_cache: CellCache,
+  cell_cache: CellCache,
   row_index_cache: HashMap<RowId, usize>,
   notifier: DatabaseViewChangedNotifier,
 }
@@ -51,7 +51,7 @@ impl SortController {
     sorts: Vec<Arc<Sort>>,
     delegate: T,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
-    cell_data_cache: CellCache,
+    cell_cache: CellCache,
     notifier: DatabaseViewChangedNotifier,
   ) -> Self
   where
@@ -63,7 +63,7 @@ impl SortController {
       delegate: Box::new(delegate),
       task_scheduler,
       sorts,
-      cell_data_cache,
+      cell_cache,
       row_index_cache: Default::default(),
       notifier,
     }
@@ -85,7 +85,7 @@ impl SortController {
   #[tracing::instrument(name = "process_sort_task", level = "trace", skip_all, err)]
   pub async fn process(&mut self, predicate: &str) -> FlowyResult<()> {
     let event_type = SortEvent::from_str(predicate).unwrap();
-    let mut rows = self.delegate.get_rows().await;
+    let mut rows = self.delegate.get_rows(&self.view_id).await;
     match event_type {
       SortEvent::SortDidChanged => {
         self.sort_rows(&mut rows).await;
@@ -150,10 +150,9 @@ impl SortController {
       return;
     }
 
-    let field_revs = self.delegate.get_fields(None).await;
+    let field_revs = self.delegate.get_fields(&self.view_id, None).await;
     for sort in self.sorts.iter() {
-      rows
-        .par_sort_by(|left, right| cmp_row(left, right, sort, &field_revs, &self.cell_data_cache));
+      rows.par_sort_by(|left, right| cmp_row(left, right, sort, &field_revs, &self.cell_cache));
     }
     rows.iter().enumerate().for_each(|(index, row)| {
       self.row_index_cache.insert(row.id, index);
@@ -178,7 +177,7 @@ impl SortController {
   ) -> SortChangesetNotificationPB {
     let mut notification = SortChangesetNotificationPB::new(self.view_id.clone());
     if let Some(insert_sort) = changeset.insert_sort {
-      if let Some(sort) = self.delegate.get_sort_rev(insert_sort).await {
+      if let Some(sort) = self.delegate.get_sort(&self.view_id, insert_sort).await {
         notification.insert_sorts.push(sort.as_ref().into());
         self.sorts.push(sort);
       }
@@ -196,7 +195,7 @@ impl SortController {
     }
 
     if let Some(update_sort) = changeset.update_sort {
-      if let Some(updated_sort) = self.delegate.get_sort_rev(update_sort).await {
+      if let Some(updated_sort) = self.delegate.get_sort(&self.view_id, update_sort).await {
         notification.update_sorts.push(updated_sort.as_ref().into());
         if let Some(index) = self
           .sorts

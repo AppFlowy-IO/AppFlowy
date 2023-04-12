@@ -124,8 +124,8 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     to_fut(async move { view })
   }
 
-  fn get_fields(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>> {
-    let fields = self.database.lock().fields.get_fields(field_ids);
+  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>> {
+    let fields = self.database.lock().get_fields(view_id, field_ids);
     to_fut(async move { fields.into_iter().map(|field| Arc::new(field)).collect() })
   }
 

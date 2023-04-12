@@ -11,6 +11,7 @@ use crate::services::database_view::view_filter::make_filter_controller;
 use crate::services::database_view::view_group::{
   new_group_controller, new_group_controller_with_field,
 };
+use crate::services::database_view::view_sort::make_sort_controller;
 use crate::services::database_view::{
   notify_did_update_filter, notify_did_update_group_rows, notify_did_update_groups,
   notify_did_update_setting, notify_did_update_sort, DatabaseViewChangedNotifier,
@@ -37,7 +38,7 @@ use tokio::sync::{broadcast, RwLock};
 pub trait DatabaseViewData: Send + Sync + 'static {
   fn get_view_setting(&self, view_id: &str) -> Fut<Option<DatabaseView>>;
   /// If the field_ids is None, then it will return all the field revisions
-  fn get_fields(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
+  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
 
   /// Returns the field with the field_id
   fn get_field(&self, field_id: &str) -> Fut<Option<Arc<Field>>>;
@@ -75,7 +76,7 @@ pub trait DatabaseViewData: Send + Sync + 'static {
   fn insert_filter(&self, view_id: &str, filter: Filter);
 
   fn get_filter(&self, view_id: &str, filter_id: &str) -> Option<Filter>;
-  
+
   fn get_filter_by_field_id(&self, view_id: &str, field_id: &str) -> Option<Filter>;
 
   fn get_layout_setting(&self, view_id: &str, layout_ty: &DatabaseLayout) -> Option<LayoutSetting>;
@@ -112,10 +113,10 @@ impl DatabaseViewEditor {
     view_id: String,
     delegate: Arc<dyn DatabaseViewData>,
     cell_cache: CellCache,
-  ) -> Self {
+  ) -> FlowyResult<Self> {
     let (notifier, _) = broadcast::channel(100);
     tokio::spawn(DatabaseViewChangedReceiverRunner(Some(notifier.subscribe())).run());
-    let group_controller = new_group_controller(view_id.clone(), delegate.clone()).await;
+    let group_controller = new_group_controller(view_id.clone(), delegate.clone()).await?;
     let group_controller = Arc::new(RwLock::new(group_controller));
 
     let filter_controller = make_filter_controller(
@@ -126,16 +127,23 @@ impl DatabaseViewEditor {
     )
     .await;
 
-    // let sort_controller = make_sort_controller(
-    //   &view_id,
-    //   delegate.clone(),
-    //   notifier.clone(),
-    //   filter_controller.clone(),
-    //   view_rev_pad.clone(),
-    //   cell_data_cache,
-    // )
-    // .await;
-    todo!()
+    let sort_controller = make_sort_controller(
+      &view_id,
+      delegate.clone(),
+      notifier.clone(),
+      filter_controller.clone(),
+      cell_cache,
+    )
+    .await;
+
+    Ok(Self {
+      view_id,
+      delegate,
+      group_controller,
+      filter_controller,
+      sort_controller,
+      notifier,
+    })
   }
 
   pub async fn v_will_create_row(&self, row: &mut Row, params: CreateRowParams) {
@@ -565,7 +573,6 @@ impl DatabaseViewEditor {
     old_field: Option<Arc<Field>>,
   ) -> FlowyResult<()> {
     if let Some(field) = self.delegate.get_field(field_id).await {
-
       self
         .sort_controller
         .read()
