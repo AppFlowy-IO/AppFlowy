@@ -43,7 +43,10 @@ impl DocumentManager {
     collab.initial();
     let data = DocumentDataWrapper::default();
     let document = Arc::new(Document::new(collab, data)?);
-    document.lock().open(|_, _| {}); // FIXME: Warning
+    let documentData = document
+      .lock()
+      .open(|_, _| {})
+      .map_err(|err| FlowyError::internal().context(err))?;
     self
       .documents
       .write()

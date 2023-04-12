@@ -10,7 +10,7 @@ pub struct OpenDocumentPayloadPBV2 {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct DocumentPB {
+pub struct DocumentDataPB {
   #[pb(index = 1)]
   pub page_id: String,
 
@@ -30,16 +30,19 @@ pub struct BlocksPB {
 #[derive(Default, ProtoBuf)]
 pub struct BlockPB {
   #[pb(index = 1)]
-  pub block_id: String,
+  pub id: String,
 
   #[pb(index = 2)]
-  pub data: String,
+  pub ty: String,
 
   #[pb(index = 3)]
-  pub parent_id: String,
+  pub data: String,
 
   #[pb(index = 4)]
-  pub ty: String,
+  pub parent_id: String,
+
+  #[pb(index = 5)]
+  pub children_id: String,
 }
 
 #[derive(Default, ProtoBuf)]

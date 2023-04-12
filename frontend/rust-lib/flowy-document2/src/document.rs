@@ -1,5 +1,6 @@
 use std::{
   collections::HashMap,
+  hash::Hash,
   ops::{Deref, DerefMut},
   sync::Arc,
   vec,
@@ -13,6 +14,8 @@ use collab_document::{
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use nanoid::nanoid;
 use parking_lot::Mutex;
+
+use crate::entities::{BlockPB, BlocksPB, ChildrenPB, DocumentDataPB, MetaPB};
 
 #[derive(Clone)]
 pub struct Document(Arc<Mutex<InnerDocument>>);
@@ -42,7 +45,63 @@ impl DerefMut for Document {
   }
 }
 
-pub struct DocumentDataWrapper(DocumentData);
+#[derive(Clone)]
+pub struct DocumentDataWrapper(pub DocumentData);
+
+impl Deref for DocumentDataWrapper {
+  type Target = DocumentData;
+
+  fn deref(&self) -> &Self::Target {
+    &self.0
+  }
+}
+
+impl DerefMut for DocumentDataWrapper {
+  fn deref_mut(&mut self) -> &mut Self::Target {
+    &mut self.0
+  }
+}
+
+impl From<DocumentDataWrapper> for DocumentDataPB {
+  fn from(data: DocumentDataWrapper) -> Self {
+    let blocks = data
+      .0
+      .blocks
+      .into_iter()
+      .map(|(id, block)| {
+        (
+          id,
+          BlockPB {
+            id: block.id,
+            ty: block.ty,
+            parent_id: block.parent,
+            children_id: block.children,
+            data: serde_json::to_string(&block.data).unwrap(),
+          },
+        )
+      })
+      .collect::<HashMap<String, BlockPB>>();
+    let children_map = data
+      .0
+      .meta
+      .children_map
+      .into_iter()
+      .map(|(id, children)| {
+        (
+          id,
+          ChildrenPB {
+            children: children.into_iter().map(|id| id).collect(),
+          },
+        )
+      })
+      .collect::<HashMap<String, ChildrenPB>>();
+    Self {
+      page_id: data.0.page_id.clone(),
+      blocks: BlocksPB { blocks },
+      meta: MetaPB { children_map },
+    }
+  }
+}
 
 impl Default for DocumentDataWrapper {
   fn default() -> Self {

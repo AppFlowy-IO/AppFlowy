@@ -18,6 +18,7 @@ user-model = { path = "../../../shared-lib/user-model" }
 flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws" }
 flowy-sqlite = { path = "../flowy-sqlite", optional = true }
 flowy-document = { path = "../flowy-document" }
+flowy-document2 = { path = "../flowy-document2" }
 flowy-revision = { path = "../flowy-revision" }
 flowy-error = { path = "../flowy-error", features = ["adaptor_ws"] }
 flowy-task = { path = "../flowy-task" }
