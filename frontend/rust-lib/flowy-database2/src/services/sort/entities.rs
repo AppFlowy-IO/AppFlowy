@@ -75,14 +75,12 @@ impl Default for SortCondition {
   }
 }
 
-impl TryFrom<i64> for SortCondition {
-  type Error = anyhow::Error;
-
-  fn try_from(value: i64) -> std::result::Result<Self, Self::Error> {
+impl From<i64> for SortCondition {
+  fn from(value: i64) -> Self {
     match value {
-      0 => Ok(SortCondition::Ascending),
-      1 => Ok(SortCondition::Descending),
-      _ => bail!("Unknown field type {}", value),
+      0 => SortCondition::Ascending,
+      1 => SortCondition::Descending,
+      _ => SortCondition::Ascending,
     }
   }
 }

@@ -64,7 +64,7 @@ impl CellDataDecoder for URLTypeOption {
     &self,
     cell: &Cell,
     decoded_field_type: &FieldType,
-    field: &Field,
+    _field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
     if !decoded_field_type.is_url() {
       return Ok(Default::default());
@@ -89,7 +89,7 @@ impl CellDataChangeset for URLTypeOption {
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
-    cell: Option<Cell>,
+    _cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     let mut url = "".to_string();
     if let Ok(Some(m)) = URL_REGEX.find(&changeset) {

@@ -1,4 +1,4 @@
-use crate::entities::{FieldType, GroupChangesetPB, GroupPB, InsertedGroupPB};
+use crate::entities::{GroupChangesetPB, GroupPB, InsertedGroupPB};
 use crate::services::field::RowSingleCellData;
 use crate::services::group::{
   default_group_setting, GeneratedGroupContext, Group, GroupData, GroupSetting,

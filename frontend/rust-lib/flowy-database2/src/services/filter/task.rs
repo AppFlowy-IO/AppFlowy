@@ -1,4 +1,4 @@
-use crate::services::filter::{FilterController, FilterType};
+use crate::services::filter::FilterController;
 use flowy_task::{TaskContent, TaskHandler};
 use lib_infra::future::BoxResultFuture;
 use std::collections::HashMap;
@@ -43,13 +43,13 @@ impl TaskHandler for FilterTaskHandler {
 /// Refresh the filter according to the field id.
 #[derive(Default)]
 pub(crate) struct FilterResult {
-  pub(crate) visible_by_filter_id: HashMap<FilterType, bool>,
+  pub(crate) visible_by_field_id: HashMap<String, bool>,
 }
 
 impl FilterResult {
   pub(crate) fn is_visible(&self) -> bool {
     let mut is_visible = true;
-    for visible in self.visible_by_filter_id.values() {
+    for visible in self.visible_by_field_id.values() {
       if !is_visible {
         break;
       }

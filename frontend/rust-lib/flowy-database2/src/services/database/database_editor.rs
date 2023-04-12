@@ -7,15 +7,12 @@ use crate::services::cell::{AnyTypeCache, CellCache};
 use crate::services::database::util::{database_view_setting_pb_from_view, get_database_data};
 use crate::services::database_view::{DatabaseViewData, DatabaseViews, RowEventSender};
 use crate::services::field::TypeOptionCellDataHandler;
-
 use crate::services::group::GroupSetting;
-
 use crate::services::sort::Sort;
-
 use collab_database::database::Database as InnerDatabase;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Row, RowCell, RowId};
-use collab_database::views::{DatabaseLayout, LayoutSetting};
+use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 
 use crate::services::filter::Filter;
 use flowy_error::{FlowyError, FlowyResult};
@@ -122,6 +119,11 @@ struct DatabaseViewDataImpl {
 }
 
 impl DatabaseViewData for DatabaseViewDataImpl {
+  fn get_view_setting(&self, view_id: &str) -> Fut<Option<DatabaseView>> {
+    let view = self.database.lock().get_view(view_id);
+    to_fut(async move { view })
+  }
+
   fn get_fields(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>> {
     let fields = self.database.lock().fields.get_fields(field_ids);
     to_fut(async move { fields.into_iter().map(|field| Arc::new(field)).collect() })
@@ -220,8 +222,22 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     self.database.lock().remove_filter(view_id, filter_id);
   }
 
-  fn update_filter(&self, view_id: &str, filter: Filter) {
+  fn insert_filter(&self, view_id: &str, filter: Filter) {
     self.database.lock().insert_filter(view_id, filter);
+  }
+
+  fn get_filter(&self, view_id: &str, filter_id: &str) -> Option<Filter> {
+    self
+      .database
+      .lock()
+      .get_filter::<Filter>(view_id, filter_id)
+  }
+
+  fn get_filter_by_field_id(&self, view_id: &str, field_id: &str) -> Option<Filter> {
+    self
+      .database
+      .lock()
+      .get_filter_by_field_id::<Filter>(view_id, field_id)
   }
 
   fn get_layout_setting(&self, view_id: &str, layout_ty: &DatabaseLayout) -> Option<LayoutSetting> {
@@ -234,8 +250,8 @@ impl DatabaseViewData for DatabaseViewDataImpl {
 
   fn insert_layout_setting(
     &self,
-    view_id: &str,
-    layout_setting: collab_database::views::LayoutSetting,
+    _view_id: &str,
+    _layout_setting: collab_database::views::LayoutSetting,
   ) {
     todo!()
   }
@@ -246,8 +262,8 @@ impl DatabaseViewData for DatabaseViewDataImpl {
 
   fn get_type_option_cell_handler(
     &self,
-    field: &Field,
-    field_type: &FieldType,
+    _field: &Field,
+    _field_type: &FieldType,
   ) -> Option<Box<dyn TypeOptionCellDataHandler>> {
     todo!()
   }

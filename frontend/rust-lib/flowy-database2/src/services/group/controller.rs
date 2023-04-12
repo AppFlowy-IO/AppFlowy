@@ -1,4 +1,4 @@
-use crate::entities::{FieldType, GroupChangesetPB, GroupRowsNotificationPB, InsertedRowPB, RowPB};
+use crate::entities::{FieldType, GroupChangesetPB, GroupRowsNotificationPB, InsertedRowPB};
 use crate::services::cell::{get_type_cell_protobuf, CellProtobufBlobParser, DecodedCellData};
 use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerActions, GroupCustomize,

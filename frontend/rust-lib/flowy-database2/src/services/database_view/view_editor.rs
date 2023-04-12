@@ -6,28 +6,27 @@ use crate::entities::{
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::CellCache;
-use crate::services::database::DatabaseRowEvent;
+use crate::services::database::{database_view_setting_pb_from_view, DatabaseRowEvent};
 use crate::services::database_view::view_filter::make_filter_controller;
 use crate::services::database_view::view_group::{
-  new_group_controller, new_group_controller_with_field, GroupSettingReaderImpl,
+  new_group_controller, new_group_controller_with_field,
 };
 use crate::services::database_view::{
   notify_did_update_filter, notify_did_update_group_rows, notify_did_update_groups,
-  notify_did_update_sort, DatabaseViewChangedNotifier, DatabaseViewChangedReceiverRunner,
+  notify_did_update_setting, notify_did_update_sort, DatabaseViewChangedNotifier,
+  DatabaseViewChangedReceiverRunner,
 };
 use crate::services::field::TypeOptionCellDataHandler;
 use crate::services::filter::{
-  Filter, FilterChangeset, FilterController, FilterType, UpdatedFilterType,
+  Filter, FilterChangeset, FilterController, FilterType, InsertedFilterType, UpdatedFilterType,
 };
-use crate::services::group::{
-  default_group_setting, Group, GroupController, GroupSetting, MoveGroupRowContext, RowChangeset,
-};
+use crate::services::group::{GroupController, GroupSetting, MoveGroupRowContext, RowChangeset};
 use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{DeletedSortType, Sort, SortChangeset, SortController, SortType};
 use collab_database::database::{gen_database_filter_id, gen_database_sort_id};
 use collab_database::fields::Field;
-use collab_database::rows::{Cell, Row, RowCell, RowId};
-use collab_database::views::{DatabaseLayout, LayoutSetting};
+use collab_database::rows::{Row, RowCell, RowId};
+use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
 use lib_infra::future::Fut;
@@ -36,6 +35,7 @@ use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
 
 pub trait DatabaseViewData: Send + Sync + 'static {
+  fn get_view_setting(&self, view_id: &str) -> Fut<Option<DatabaseView>>;
   /// If the field_ids is None, then it will return all the field revisions
   fn get_fields(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
 
@@ -72,7 +72,11 @@ pub trait DatabaseViewData: Send + Sync + 'static {
 
   fn delete_filter(&self, view_id: &str, filter_id: &str);
 
-  fn update_filter(&self, view_id: &str, filter: Filter);
+  fn insert_filter(&self, view_id: &str, filter: Filter);
+
+  fn get_filter(&self, view_id: &str, filter_id: &str) -> Option<Filter>;
+  
+  fn get_filter_by_field_id(&self, view_id: &str, field_id: &str) -> Option<Filter>;
 
   fn get_layout_setting(&self, view_id: &str, layout_ty: &DatabaseLayout) -> Option<LayoutSetting>;
 
@@ -131,6 +135,7 @@ impl DatabaseViewEditor {
     //   cell_data_cache,
     // )
     // .await;
+    todo!()
   }
 
   pub async fn v_will_create_row(&self, row: &mut Row, params: CreateRowParams) {
@@ -333,7 +338,11 @@ impl DatabaseViewEditor {
   pub async fn v_initialize_new_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
     if self.group_controller.read().await.field_id() != params.field_id {
       self.v_update_group_setting(&params.field_id).await?;
-      self.notify_did_update_setting().await;
+
+      if let Some(view) = self.delegate.get_view_setting(&self.view_id).await {
+        let setting = database_view_setting_pb_from_view(view);
+        notify_did_update_setting(&self.view_id, setting).await;
+      }
     }
     Ok(())
   }
@@ -412,7 +421,6 @@ impl DatabaseViewEditor {
 
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn v_insert_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
-    let filter_type = FilterType::from(&params);
     let is_exist = params.filter_id.is_some();
     let filter_id = match params.filter_id {
       None => gen_database_filter_id(),
@@ -427,13 +435,13 @@ impl DatabaseViewEditor {
     };
     let filter_controller = self.filter_controller.clone();
     let changeset = if is_exist {
+      let filter_type = FilterType::from(&filter);
       let old_filter_type = self
         .delegate
-        .get_field(&params.field_id)
-        .await
-        .map(|field| FilterType::from(field.as_ref()));
+        .get_filter(&self.view_id, &filter.id)
+        .map(|field| FilterType::from(&field));
 
-      self.delegate.update_filter(&self.view_id, filter);
+      self.delegate.insert_filter(&self.view_id, filter);
       filter_controller
         .did_receive_changes(FilterChangeset::from_update(UpdatedFilterType::new(
           old_filter_type,
@@ -441,7 +449,8 @@ impl DatabaseViewEditor {
         )))
         .await
     } else {
-      self.delegate.update_filter(&self.view_id, filter);
+      let filter_type = InsertedFilterType::from(&filter);
+      self.delegate.insert_filter(&self.view_id, filter);
       filter_controller
         .did_receive_changes(FilterChangeset::from_insert(filter_type))
         .await
@@ -482,8 +491,8 @@ impl DatabaseViewEditor {
       DatabaseLayout::Grid => {},
       DatabaseLayout::Board => {},
       DatabaseLayout::Calendar => {
-        if let Some(layout_setting) = self.delegate.get_layout_setting(&self.view_id, layout_ty) {
-          let calendar_setting = CalendarLayoutSetting::from(slayout_setting);
+        if let Some(value) = self.delegate.get_layout_setting(&self.view_id, layout_ty) {
+          let calendar_setting = CalendarLayoutSetting::from(value);
           // Check the field exist or not
           if let Some(field) = self.delegate.get_field(&calendar_setting.field_id).await {
             let field_type = FieldType::from(field.field_type);
@@ -519,9 +528,8 @@ impl DatabaseViewEditor {
         let old_calender_setting = self.v_get_layout_settings(&layout_ty).await?.calendar;
 
         self
-          .modify(|pad| Ok(pad.set_layout_setting(&layout_ty, &new_calendar_setting)?))
-          .await?;
-
+          .delegate
+          .insert_layout_setting(&self.view_id, new_calendar_setting.clone().into());
         let new_field_id = new_calendar_setting.field_id.clone();
         let layout_setting_pb: LayoutSettingPB = LayoutSettingParams {
           calendar: Some(new_calendar_setting),
@@ -532,7 +540,7 @@ impl DatabaseViewEditor {
           // compare the new layout field id is equal to old layout field id
           // if not equal, send the  DidSetNewLayoutField notification
           // if equal, send the  DidUpdateLayoutSettings notification
-          if old_calendar_setting.layout_field_id != new_field_id {
+          if old_calendar_setting.field_id != new_field_id {
             send_notification(&self.view_id, DatabaseNotification::DidSetNewLayoutField)
               .payload(layout_setting_pb)
               .send();
@@ -556,30 +564,30 @@ impl DatabaseViewEditor {
     field_id: &str,
     old_field: Option<Arc<Field>>,
   ) -> FlowyResult<()> {
-    if let Some(field_rev) = self.delegate.get_field(field_id).await {
-      let old = old_field.map(|old_field_rev| FilterType::from(&old_field_rev));
-      let new = FilterType::from(&field_rev);
-      let filter_type = UpdatedFilterType::new(old, new);
-      let filter_changeset = FilterChangeset::from_update(filter_type);
+    if let Some(field) = self.delegate.get_field(field_id).await {
 
       self
         .sort_controller
         .read()
         .await
-        .did_update_view_field_type_option(&field_rev)
+        .did_update_view_field_type_option(&field)
         .await;
 
-      let filter_controller = self.filter_controller.clone();
-      let _ = tokio::spawn(async move {
-        if let Some(notification) = filter_controller
-          .did_receive_changes(filter_changeset)
-          .await
-        {
-          send_notification(&notification.view_id, DatabaseNotification::DidUpdateFilter)
-            .payload(notification)
-            .send();
-        }
-      });
+      // let old = old_field.map(|old_field| FilterType::from(filter));
+      // let new = FilterType::from(field.as_ref());
+      // let filter_type = UpdatedFilterType::new(old, new);
+      // let filter_changeset = FilterChangeset::from_update(filter_type);
+      // let filter_controller = self.filter_controller.clone();
+      // let _ = tokio::spawn(async move {
+      //   if let Some(notification) = filter_controller
+      //     .did_receive_changes(filter_changeset)
+      //     .await
+      //   {
+      //     send_notification(&notification.view_id, DatabaseNotification::DidUpdateFilter)
+      //       .payload(notification)
+      //       .send();
+      //   }
+      // });
     }
     Ok(())
   }

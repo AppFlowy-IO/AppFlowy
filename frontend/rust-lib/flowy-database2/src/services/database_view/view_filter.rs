@@ -7,7 +7,7 @@ use crate::services::filter::{
 };
 use collab_database::fields::Field;
 use collab_database::rows::{Row, RowId};
-use lib_infra::future::Fut;
+use lib_infra::future::{to_fut, Fut};
 use std::sync::Arc;
 
 pub async fn make_filter_controller(
@@ -45,8 +45,9 @@ pub async fn make_filter_controller(
 struct DatabaseViewFilterDelegateImpl(Arc<dyn DatabaseViewData>);
 
 impl FilterDelegate for DatabaseViewFilterDelegateImpl {
-  fn get_filter(&self, filter_type: FilterType) -> Fut<Option<Arc<Filter>>> {
-    todo!()
+  fn get_filter(&self, view_id: &str, filter_id: &str) -> Fut<Option<Arc<Filter>>> {
+    let filter = self.0.get_filter(view_id, filter_id).map(Arc::new);
+    to_fut(async move { filter })
   }
 
   fn get_field(&self, field_id: &str) -> Fut<Option<Arc<Field>>> {
@@ -57,7 +58,7 @@ impl FilterDelegate for DatabaseViewFilterDelegateImpl {
     todo!()
   }
 
-  fn get_rows(&self) -> Fut<Vec<Row>> {
+  fn get_rows(&self, view_id: &str) -> Fut<Vec<Row>> {
     todo!()
   }
 

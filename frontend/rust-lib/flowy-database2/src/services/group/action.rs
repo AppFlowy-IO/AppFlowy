@@ -29,7 +29,7 @@ pub trait GroupCustomize: Send + Sync {
 
   fn create_or_delete_group_when_cell_changed(
     &mut self,
-    row: &Row,
+    _row: &Row,
     _old_cell_data: Option<&Self::CellData>,
     _cell_data: &Self::CellData,
   ) -> FlowyResult<(Option<InsertedGroupPB>, Option<GroupPB>)> {

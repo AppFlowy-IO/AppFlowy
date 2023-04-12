@@ -3,7 +3,6 @@ use crate::entities::FieldType;
 use crate::services::sort::{Sort, SortCondition, SortType};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct SortPB {
@@ -128,7 +127,7 @@ impl TryInto<AlterSortParams> for AlterSortPayloadPB {
       field_id,
       sort_id,
       field_type: self.field_type,
-      condition: self.condition as u8,
+      condition: self.condition as i64,
     })
   }
 }
@@ -140,7 +139,7 @@ pub struct AlterSortParams {
   /// Create a new sort if the sort is None
   pub sort_id: Option<String>,
   pub field_type: FieldType,
-  pub condition: u8,
+  pub condition: i64,
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]

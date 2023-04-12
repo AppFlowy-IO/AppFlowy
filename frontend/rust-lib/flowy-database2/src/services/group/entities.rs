@@ -1,4 +1,3 @@
-use crate::entities::RowPB;
 use anyhow::bail;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::database::gen_database_group_id;

@@ -1,4 +1,4 @@
-use crate::entities::{GroupChangesetPB, RowPB};
+use crate::entities::GroupChangesetPB;
 use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerActions,
 };
@@ -48,7 +48,7 @@ impl GroupControllerActions for DefaultGroupController {
     Some((0, self.group.clone()))
   }
 
-  fn fill_groups(&mut self, rows: &[&Row], field: &Field) -> FlowyResult<()> {
+  fn fill_groups(&mut self, rows: &[&Row], _field: &Field) -> FlowyResult<()> {
     rows.iter().for_each(|row| {
       self.group.add_row((*row).clone());
     });
@@ -61,9 +61,9 @@ impl GroupControllerActions for DefaultGroupController {
 
   fn did_update_group_row(
     &mut self,
-    old_row: &Option<Arc<Row>>,
-    row: &Row,
-    field: &Field,
+    _old_row: &Option<Arc<Row>>,
+    _row: &Row,
+    _field: &Field,
   ) -> FlowyResult<DidUpdateGroupRowResult> {
     Ok(DidUpdateGroupRowResult {
       inserted_group: None,
@@ -74,8 +74,8 @@ impl GroupControllerActions for DefaultGroupController {
 
   fn did_delete_delete_row(
     &mut self,
-    row: &Row,
-    field: &Field,
+    _row: &Row,
+    _field: &Field,
   ) -> FlowyResult<DidMoveGroupRowResult> {
     Ok(DidMoveGroupRowResult {
       deleted_group: None,
@@ -99,7 +99,7 @@ impl GroupControllerActions for DefaultGroupController {
 }
 
 impl GroupController for DefaultGroupController {
-  fn will_create_row(&mut self, row: &mut Row, field: &Field, group_id: &str) {}
+  fn will_create_row(&mut self, _row: &mut Row, _field: &Field, _group_id: &str) {}
 
   fn did_create_row(&mut self, _row: &Row, _group_id: &str) {}
 }

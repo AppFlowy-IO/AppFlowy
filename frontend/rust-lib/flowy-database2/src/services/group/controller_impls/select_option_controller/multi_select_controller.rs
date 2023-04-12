@@ -1,4 +1,4 @@
-use crate::entities::{GroupRowsNotificationPB, RowPB, SelectOptionCellDataPB};
+use crate::entities::{GroupRowsNotificationPB, SelectOptionCellDataPB};
 use crate::services::cell::insert_select_option_cell;
 use crate::services::field::{MultiSelectTypeOption, SelectOptionCellDataParser};
 use crate::services::group::action::GroupCustomize;

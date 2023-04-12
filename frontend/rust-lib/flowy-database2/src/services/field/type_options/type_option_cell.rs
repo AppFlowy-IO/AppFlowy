@@ -8,7 +8,7 @@ use crate::services::field::{
   RichTextTypeOption, SingleSelectTypeOption, TypeOption, TypeOptionCellData,
   TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform, URLTypeOption,
 };
-use crate::services::filter::FilterType;
+
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, RowId};
 use flowy_error::FlowyResult;
@@ -41,7 +41,7 @@ pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
 
   fn handle_cell_compare(&self, left_cell: &Cell, right_cell: &Cell, field: &Field) -> Ordering;
 
-  fn handle_cell_filter(&self, filter_type: &FilterType, field: &Field, cell: &Cell) -> bool;
+  fn handle_cell_filter(&self, field_type: &FieldType, field: &Field, cell: &Cell) -> bool;
 
   /// Decode the cell_str to corresponding cell data, and then return the display string of the
   /// cell data.
@@ -238,14 +238,12 @@ where
     self.apply_cmp(&left, &right)
   }
 
-  fn handle_cell_filter(&self, filter_type: &FilterType, field: &Field, cell: &Cell) -> bool {
+  fn handle_cell_filter(&self, field_type: &FieldType, field: &Field, cell: &Cell) -> bool {
     let perform_filter = || {
       let filter_cache = self.cell_filter_cache.as_ref()?.read();
-      let cell_filter = filter_cache.get::<<Self as TypeOption>::CellFilter>(filter_type)?;
-      let cell_data = self
-        .get_decoded_cell_data(cell, &filter_type.field_type, field)
-        .ok()?;
-      Some(self.apply_filter(cell_filter, &filter_type.field_type, &cell_data))
+      let cell_filter = filter_cache.get::<<Self as TypeOption>::CellFilter>(&field.id)?;
+      let cell_data = self.get_decoded_cell_data(cell, field_type, field).ok()?;
+      Some(self.apply_filter(cell_filter, field_type, &cell_data))
     };
 
     perform_filter().unwrap_or(true)

@@ -175,7 +175,7 @@ impl CellDataDecoder for NumberTypeOption {
     &self,
     cell: &Cell,
     decoded_field_type: &FieldType,
-    field: &Field,
+    _field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
     if decoded_field_type.is_date() {
       return Ok(Default::default());
@@ -206,7 +206,7 @@ impl CellDataChangeset for NumberTypeOption {
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
-    cell: Option<Cell>,
+    _cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     let number_cell_data = NumberCellData(changeset.trim().to_string());
     let formatter = self.format_cell_data(&number_cell_data)?;

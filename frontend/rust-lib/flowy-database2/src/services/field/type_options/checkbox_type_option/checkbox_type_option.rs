@@ -84,7 +84,7 @@ impl CellDataDecoder for CheckboxTypeOption {
     &self,
     cell: &Cell,
     decoded_field_type: &FieldType,
-    field: &Field,
+    _field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
     if !decoded_field_type.is_checkbox() {
       return Ok(Default::default());
@@ -108,7 +108,7 @@ impl CellDataChangeset for CheckboxTypeOption {
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
-    cell: Option<Cell>,
+    _cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     let checkbox_cell_data = CheckboxCellData::from_str(&changeset)?;
     Ok((checkbox_cell_data.clone().into(), checkbox_cell_data))

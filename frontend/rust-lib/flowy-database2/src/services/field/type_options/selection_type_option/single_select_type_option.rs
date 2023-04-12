@@ -77,7 +77,7 @@ impl CellDataChangeset for SingleSelectTypeOption {
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
-    cell: Option<Cell>,
+    _cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     let mut insert_option_ids = changeset
       .insert_option_ids

@@ -1,9 +1,10 @@
 use crate::entities::{
-  AlterFilterParams, DatabaseSettingChangesetParams, DeleteFilterParams, FieldType, InsertedRowPB,
+  DatabaseSettingChangesetParams, DeleteFilterParams, FieldType, InsertedRowPB,
 };
+
 use anyhow::bail;
 use collab::core::any_map::AnyMapExtension;
-use collab_database::fields::Field;
+
 use collab_database::views::{FilterMap, FilterMapBuilder};
 
 #[derive(Debug, Clone)]
@@ -64,7 +65,7 @@ impl TryFrom<FilterMap> for Filter {
 }
 #[derive(Debug)]
 pub struct FilterChangeset {
-  pub(crate) insert_filter: Option<FilterType>,
+  pub(crate) insert_filter: Option<InsertedFilterType>,
   pub(crate) update_filter: Option<UpdatedFilterType>,
   pub(crate) delete_filter: Option<FilterType>,
 }
@@ -82,7 +83,7 @@ impl UpdatedFilterType {
 }
 
 impl FilterChangeset {
-  pub fn from_insert(filter_type: FilterType) -> Self {
+  pub fn from_insert(filter_type: InsertedFilterType) -> Self {
     Self {
       insert_filter: Some(filter_type),
       update_filter: None,
@@ -108,13 +109,15 @@ impl FilterChangeset {
 
 impl std::convert::From<&DatabaseSettingChangesetParams> for FilterChangeset {
   fn from(params: &DatabaseSettingChangesetParams) -> Self {
-    let insert_filter = params
-      .insert_filter
-      .as_ref()
-      .map(|insert_filter_params| FilterType {
-        field_id: insert_filter_params.field_id.clone(),
-        field_type: insert_filter_params.field_type.clone(),
-      });
+    let insert_filter =
+      params
+        .insert_filter
+        .as_ref()
+        .map(|insert_filter_params| InsertedFilterType {
+          filter_id: insert_filter_params.filter_id.clone(),
+          field_id: insert_filter_params.field_id.clone(),
+          field_type: insert_filter_params.field_type.clone(),
+        });
 
     let delete_filter = params
       .delete_filter
@@ -130,25 +133,34 @@ impl std::convert::From<&DatabaseSettingChangesetParams> for FilterChangeset {
 
 #[derive(Hash, Eq, PartialEq, Debug, Clone)]
 pub struct FilterType {
+  pub filter_id: String,
   pub field_id: String,
   pub field_type: FieldType,
 }
 
-impl std::convert::From<&Field> for FilterType {
-  fn from(field: &Field) -> Self {
+impl std::convert::From<&Filter> for FilterType {
+  fn from(filter: &Filter) -> Self {
     Self {
-      field_id: field.id.clone(),
-      field_type: FieldType::from(field.field_type),
+      filter_id: filter.id.clone(),
+      field_id: filter.field_id.clone(),
+      field_type: filter.field_type.clone(),
     }
   }
 }
 
-impl std::convert::From<&AlterFilterParams> for FilterType {
-  fn from(params: &AlterFilterParams) -> Self {
-    let field_type: FieldType = params.field_type.clone();
+#[derive(Hash, Eq, PartialEq, Debug, Clone)]
+pub struct InsertedFilterType {
+  pub field_id: String,
+  pub filter_id: Option<String>,
+  pub field_type: FieldType,
+}
+
+impl std::convert::From<&Filter> for InsertedFilterType {
+  fn from(params: &Filter) -> Self {
     Self {
       field_id: params.field_id.clone(),
-      field_type,
+      filter_id: Some(params.id.clone()),
+      field_type: params.field_type.clone(),
     }
   }
 }

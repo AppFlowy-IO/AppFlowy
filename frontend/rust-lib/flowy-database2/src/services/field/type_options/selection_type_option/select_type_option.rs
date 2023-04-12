@@ -121,8 +121,8 @@ where
   fn decode_cell_str(
     &self,
     cell: &Cell,
-    decoded_field_type: &FieldType,
-    field: &Field,
+    _decoded_field_type: &FieldType,
+    _field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
     self.decode_cell(cell)
   }

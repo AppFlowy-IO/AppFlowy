@@ -1,14 +1,11 @@
 use crate::entities::FieldType;
-use crate::services::database::MutexDatabase;
 use crate::services::database_view::DatabaseViewData;
 use crate::services::field::RowSingleCellData;
 use crate::services::group::{
   find_new_grouping_field, make_group_controller, GroupController, GroupSetting,
   GroupSettingReader, GroupSettingWriter,
 };
-use collab_database::database::Database;
 use collab_database::fields::Field;
-use collab_database::rows::Row;
 use flowy_error::FlowyResult;
 use lib_infra::future::{to_fut, Fut};
 use std::sync::Arc;
@@ -80,7 +77,9 @@ impl GroupSettingReader for GroupSettingReaderImpl {
 
   fn get_configuration_cells(&self, view_id: &str, field_id: &str) -> Fut<Vec<RowSingleCellData>> {
     let field_id = field_id.to_owned();
-    to_fut(async move { get_cells_for_field(self.0.clone(), view_id, &field_id).await })
+    let view_id = view_id.to_owned();
+    let delegate = self.0.clone();
+    to_fut(async move { get_cells_for_field(delegate, &view_id, &field_id).await })
   }
 }
 

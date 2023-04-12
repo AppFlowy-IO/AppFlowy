@@ -4,7 +4,6 @@ use crate::services::group::{GroupData, GroupSetting};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use std::convert::TryInto;
-use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct GroupSettingPB {

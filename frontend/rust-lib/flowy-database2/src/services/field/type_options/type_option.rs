@@ -94,7 +94,7 @@ pub trait TypeOptionTransform: TypeOption {
   ///
   fn transform_type_option_cell(
     &self,
-    cell: &Cell,
+    _cell: &Cell,
     _decoded_field_type: &FieldType,
     _field: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {

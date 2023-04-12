@@ -140,7 +140,7 @@ impl CellDataDecoder for DateTypeOption {
     &self,
     cell: &Cell,
     decoded_field_type: &FieldType,
-    field: &Field,
+    _field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
     // Return default data if the type_option_cell_data is not FieldType::DateTime.
     // It happens when switching from one field to another.

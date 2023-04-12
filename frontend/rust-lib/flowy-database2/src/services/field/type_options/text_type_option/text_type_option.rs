@@ -101,8 +101,8 @@ impl CellDataDecoder for RichTextTypeOption {
   fn decode_cell_str(
     &self,
     cell: &Cell,
-    decoded_field_type: &FieldType,
-    field: &Field,
+    _decoded_field_type: &FieldType,
+    _field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
     Ok(StrCellData::from(cell))
   }
@@ -120,7 +120,7 @@ impl CellDataChangeset for RichTextTypeOption {
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
-    cell: Option<Cell>,
+    _cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     if changeset.len() > 10000 {
       Err(FlowyError::text_too_long().context("The len of the text should not be more than 10000"))

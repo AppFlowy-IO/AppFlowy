@@ -35,7 +35,7 @@ pub(crate) fn database_view_setting_pb_from_view(view: DatabaseView) -> Database
     let calendar_setting =
       CalendarLayoutSettingsPB::from(CalendarLayoutSetting::from(layout_setting.clone()));
     LayoutSettingPB {
-      calendar: calendar_setting,
+      calendar: Some(calendar_setting),
     }
   } else {
     LayoutSettingPB::default()

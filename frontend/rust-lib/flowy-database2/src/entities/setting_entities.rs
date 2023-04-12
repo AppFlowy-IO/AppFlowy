@@ -162,8 +162,8 @@ impl DatabaseSettingChangesetParams {
 
 #[derive(Debug, Eq, PartialEq, Default, ProtoBuf, Clone)]
 pub struct LayoutSettingPB {
-  #[pb(index = 1)]
-  pub calendar: CalendarLayoutSettingsPB,
+  #[pb(index = 1, one_of)]
+  pub calendar: Option<CalendarLayoutSettingsPB>,
 }
 
 impl LayoutSettingPB {
@@ -175,6 +175,14 @@ impl LayoutSettingPB {
 #[derive(Debug, Default, Clone)]
 pub struct LayoutSettingParams {
   pub calendar: Option<CalendarLayoutSetting>,
+}
+
+impl From<LayoutSettingParams> for LayoutSettingPB {
+  fn from(params: LayoutSettingParams) -> Self {
+    Self {
+      calendar: params.calendar.map(|calendar| calendar.into()),
+    }
+  }
 }
 
 #[derive(Debug, Eq, PartialEq, Default, ProtoBuf, Clone)]

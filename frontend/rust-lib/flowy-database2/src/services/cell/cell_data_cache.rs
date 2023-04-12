@@ -1,4 +1,3 @@
-use crate::services::filter::FilterType;
 use parking_lot::RwLock;
 use std::any::{type_name, Any};
 use std::collections::HashMap;
@@ -7,7 +6,7 @@ use std::hash::Hash;
 use std::sync::Arc;
 
 pub type CellCache = Arc<RwLock<AnyTypeCache<u64>>>;
-pub type CellFilterCache = Arc<RwLock<AnyTypeCache<FilterType>>>;
+pub type CellFilterCache = Arc<RwLock<AnyTypeCache<String>>>;
 
 #[derive(Default, Debug)]
 /// The better option is use LRU cache
