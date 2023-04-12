@@ -72,18 +72,16 @@ class _EmojiPopoverState extends State<EmojiPopover> {
     return FlowyButton(
       onTap: () => widget.removeIcon(),
       useIntrinsicWidth: true,
-      hoverColor: Theme.of(context).colorScheme.onPrimary,
       text: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          svgWidget("editor/delete"),
+          const FlowySvg(name: 'editor/delete'),
           const SizedBox(
             width: 5,
           ),
           FlowyText(
             LocaleKeys.document_plugins_cover_removeIcon.tr(),
-            color: Colors.grey,
           ),
         ],
       ),
