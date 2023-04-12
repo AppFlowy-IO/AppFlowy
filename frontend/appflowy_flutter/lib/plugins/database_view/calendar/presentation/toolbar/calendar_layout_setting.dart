@@ -18,6 +18,8 @@ import 'package:protobuf/protobuf.dart';
 
 import 'calendar_setting.dart';
 
+/// Widget that displays a list of settings that alters the appearance of the
+/// calendar
 class CalendarLayoutSetting extends StatefulWidget {
   final CalendarSettingContext settingContext;
   final Function(CalendarLayoutSettingsPB? layoutSettings) onUpdated;
@@ -104,16 +106,7 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
                 },
               );
             default:
-              return ShowWeekends(
-                showWeekends: settings.showWeekends,
-                onUpdated: (showWeekends) {
-                  _updateLayoutSettings(
-                    context,
-                    onUpdated: widget.onUpdated,
-                    showWeekends: showWeekends,
-                  );
-                },
-              );
+              return const SizedBox();
           }
         }).toList();
 
