@@ -92,28 +92,12 @@ pub struct SortType {
   pub field_type: FieldType,
 }
 
-#[derive(Hash, Eq, PartialEq, Debug, Clone)]
-pub struct InsertSortType {
-  pub sort_id: Option<String>,
-  pub field_id: String,
-  pub field_type: FieldType,
-}
-
-impl std::convert::From<&AlterSortParams> for InsertSortType {
-  fn from(params: &AlterSortParams) -> Self {
+impl From<&Sort> for SortType {
+  fn from(data: &Sort) -> Self {
     Self {
-      sort_id: params.sort_id.clone(),
-      field_id: params.field_id.clone(),
-      field_type: params.field_type.clone(),
-    }
-  }
-}
-
-impl std::convert::From<&Arc<Field>> for SortType {
-  fn from(field: &Arc<Field>) -> Self {
-    Self {
-      field_id: field.id.clone(),
-      field_type: FieldType::from(field.field_type),
+      sort_id: data.id.clone(),
+      field_id: data.field_id.clone(),
+      field_type: data.field_type.clone(),
     }
   }
 }

@@ -177,7 +177,11 @@ impl SortController {
   ) -> SortChangesetNotificationPB {
     let mut notification = SortChangesetNotificationPB::new(self.view_id.clone());
     if let Some(insert_sort) = changeset.insert_sort {
-      if let Some(sort) = self.delegate.get_sort(&self.view_id, insert_sort).await {
+      if let Some(sort) = self
+        .delegate
+        .get_sort(&self.view_id, &insert_sort.sort_id)
+        .await
+      {
         notification.insert_sorts.push(sort.as_ref().into());
         self.sorts.push(sort);
       }
@@ -195,7 +199,11 @@ impl SortController {
     }
 
     if let Some(update_sort) = changeset.update_sort {
-      if let Some(updated_sort) = self.delegate.get_sort(&self.view_id, update_sort).await {
+      if let Some(updated_sort) = self
+        .delegate
+        .get_sort(&self.view_id, &update_sort.sort_id)
+        .await
+      {
         notification.update_sorts.push(updated_sort.as_ref().into());
         if let Some(index) = self
           .sorts

@@ -173,6 +173,7 @@ impl TryInto<DeleteSortParams> for DeleteSortPayloadPB {
       .0;
 
     let sort_type = SortType {
+      sort_id: sort_id.clone(),
       field_id,
       field_type: self.field_type,
     };

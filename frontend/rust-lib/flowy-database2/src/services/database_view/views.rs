@@ -1,4 +1,6 @@
-use crate::entities::{DeleteGroupParams, InsertGroupParams, MoveGroupParams};
+use crate::entities::{
+  AlterFilterParams, DeleteFilterParams, DeleteGroupParams, InsertGroupParams, MoveGroupParams,
+};
 use crate::services::cell::CellCache;
 use crate::services::database::{DatabaseRowEvent, MutexDatabase};
 use crate::services::database_view::{DatabaseViewData, DatabaseViewEditor};
@@ -40,40 +42,8 @@ impl DatabaseViews {
     })
   }
 
-  pub async fn open_view(&self, view: DatabaseViewEditor) {
-    self
-      .editor_map
-      .write()
-      .await
-      .insert(view.view_id.clone(), Arc::new(view));
-  }
-
   pub async fn close_view(&self, view_id: &str) {
     self.editor_map.write().await.remove(view_id);
-  }
-
-  pub async fn insert_or_update_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
-    if let Some(field) = self.database.lock().fields.get_field(&params.field_id) {
-      let group_setting = default_group_setting(&field);
-      self
-        .database
-        .lock()
-        .insert_group_setting(&params.view_id, group_setting);
-    }
-    let view_editor = self.get_view_editor(&params.view_id).await?;
-    view_editor.v_initialize_new_group(params).await?;
-
-    Ok(())
-  }
-
-  pub async fn delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
-    self
-      .database
-      .lock()
-      .delete_group_setting(&params.view_id, &params.group_id);
-    let view_editor = self.get_view_editor(&params.view_id).await?;
-    view_editor.v_delete_group(params).await?;
-    Ok(())
   }
 
   pub async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {

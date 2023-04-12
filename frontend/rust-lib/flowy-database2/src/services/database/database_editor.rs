@@ -1,19 +1,22 @@
 use crate::entities::{
-  CalendarLayoutSettingsPB, DatabaseLayoutPB, DatabasePB, DatabaseViewSettingPB, FieldIdPB,
-  FieldType, FilterPB, GroupSettingPB, LayoutSettingPB, RepeatedFilterPB, RepeatedGroupPB,
-  RepeatedGroupSettingPB, RowPB, SortPB,
+  AlterFilterParams, AlterSortParams, CalendarLayoutSettingsPB, DatabaseFieldChangesetPB,
+  DatabaseLayoutPB, DatabasePB, DatabaseViewSettingPB, DeleteFilterParams, DeleteGroupParams,
+  DeleteSortParams, FieldChangesetParams, FieldIdPB, FieldPB, FieldType, FilterPB, GroupSettingPB,
+  InsertGroupParams, LayoutSettingPB, RepeatedFieldPB, RepeatedFilterPB, RepeatedGroupPB,
+  RepeatedGroupSettingPB, RepeatedSortPB, RowPB, SortPB,
 };
 use crate::services::cell::{AnyTypeCache, CellCache};
 use crate::services::database::util::{database_view_setting_pb_from_view, get_database_data};
 use crate::services::database_view::{DatabaseViewData, DatabaseViews, RowEventSender};
 use crate::services::field::TypeOptionCellDataHandler;
-use crate::services::group::GroupSetting;
+use crate::services::group::{default_group_setting, GroupSetting};
 use crate::services::sort::Sort;
 use collab_database::database::Database as InnerDatabase;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Row, RowCell, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 
+use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::filter::Filter;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
@@ -60,8 +63,105 @@ impl DatabaseEditor {
     })
   }
 
-  pub fn get_field(&self, _field_id: &str) -> Option<Field> {
-    todo!()
+  pub fn get_field(&self, field_id: &str) -> Option<Field> {
+    self.database.lock().fields.get_field(field_id)
+  }
+
+  pub async fn insert_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
+    if let Some(field) = self.database.lock().fields.get_field(&params.field_id) {
+      let group_setting = default_group_setting(&field);
+      self
+        .database
+        .lock()
+        .insert_group_setting(&params.view_id, group_setting);
+    }
+    let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
+    view_editor.v_initialize_new_group(params).await?;
+    Ok(())
+  }
+
+  pub async fn delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
+    self
+      .database
+      .lock()
+      .delete_group_setting(&params.view_id, &params.group_id);
+    let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
+    view_editor.v_delete_group(params).await?;
+
+    Ok(())
+  }
+
+  pub async fn create_or_update_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
+    view_editor.v_insert_filter(params).await?;
+    Ok(())
+  }
+
+  pub async fn delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
+    view_editor.v_delete_filter(params).await?;
+    Ok(())
+  }
+
+  pub async fn create_or_update_sort(&self, params: AlterSortParams) -> FlowyResult<Sort> {
+    let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
+    let sort = view_editor.v_insert_sort(params).await?;
+    Ok(sort)
+  }
+
+  pub async fn delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
+    view_editor.v_delete_sort(params).await?;
+    Ok(())
+  }
+
+  pub async fn get_all_filters(&self, view_id: &str) -> RepeatedFilterPB {
+    if let Ok(view_editor) = self.database_views.get_view_editor(view_id).await {
+      view_editor.v_get_all_filters().await.into()
+    } else {
+      RepeatedFilterPB { items: vec![] }
+    }
+  }
+
+  pub async fn get_all_sorts(&self, view_id: &str) -> RepeatedSortPB {
+    if let Ok(view_editor) = self.database_views.get_view_editor(view_id).await {
+      view_editor.v_get_all_sorts().await.into()
+    } else {
+      RepeatedSortPB { items: vec![] }
+    }
+  }
+
+  pub async fn delete_all_sorts(&self, view_id: &str) {
+    if let Ok(view_editor) = self.database_views.get_view_editor(view_id).await {
+      let _ = view_editor.v_delete_all_sorts().await;
+    }
+  }
+
+  pub async fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> RepeatedFieldPB {
+    let fields = self.database.lock().get_fields(view_id, field_ids);
+    fields
+      .into_iter()
+      .map(FieldPB::from)
+      .collect::<Vec<FieldPB>>()
+      .into()
+  }
+
+  pub async fn update_field(&self, params: FieldChangesetParams) -> FlowyResult<()> {
+    self
+      .database
+      .lock()
+      .fields
+      .update_field(&params.field_id, |update| {
+        update
+          .set_name_if_not_none(params.name)
+          .set_field_type_if_not_none(params.field_type.map(|field_type| field_type.into()))
+          .set_width_at_if_not_none(params.width.map(|value| value as i64))
+          .set_visibility_if_not_none(params.visibility);
+      });
+    self
+      .notify_did_update_database_field(&params.field_id)
+      .await?;
+    Ok(())
   }
 
   pub fn update_field_type_option(
@@ -71,6 +171,42 @@ impl DatabaseEditor {
     _type_option_data: TypeOptionData,
     _old_field: Option<Field>,
   ) {
+  }
+
+  #[tracing::instrument(level = "trace", skip_all, err)]
+  async fn notify_did_update_database_field(&self, field_id: &str) -> FlowyResult<()> {
+    let (database_id, field) = {
+      let database = self.database.lock();
+      let database_id = database.get_database_id();
+      let field = database.fields.get_field(field_id);
+      (database_id, field)
+    };
+
+    if let Some(field) = field {
+      let updated_field = FieldPB::from(field);
+      let notified_changeset =
+        DatabaseFieldChangesetPB::update(&database_id, vec![updated_field.clone()]);
+      self.notify_did_update_database(notified_changeset).await?;
+      send_notification(field_id, DatabaseNotification::DidUpdateField)
+        .payload(updated_field)
+        .send();
+    }
+
+    Ok(())
+  }
+
+  async fn notify_did_update_database(
+    &self,
+    changeset: DatabaseFieldChangesetPB,
+  ) -> FlowyResult<()> {
+    let views = self.database.lock().get_all_views_description();
+    for view in views {
+      send_notification(&view.id, DatabaseNotification::DidUpdateFields)
+        .payload(changeset.clone())
+        .send();
+    }
+
+    Ok(())
   }
 
   pub async fn get_database_view_setting(
@@ -190,6 +326,10 @@ impl DatabaseViewData for DatabaseViewDataImpl {
 
   fn insert_group_setting(&self, view_id: &str, setting: GroupSetting) {
     self.database.lock().insert_group_setting(view_id, setting);
+  }
+
+  fn get_sort(&self, view_id: &str, sort_id: &str) -> Option<Sort> {
+    self.database.lock().get_sort::<Sort>(view_id, sort_id)
   }
 
   fn insert_sort(&self, view_id: &str, sort: Sort) {

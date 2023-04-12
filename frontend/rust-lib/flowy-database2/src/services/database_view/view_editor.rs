@@ -19,7 +19,7 @@ use crate::services::database_view::{
 };
 use crate::services::field::TypeOptionCellDataHandler;
 use crate::services::filter::{
-  Filter, FilterChangeset, FilterController, FilterType, InsertedFilterType, UpdatedFilterType,
+  Filter, FilterChangeset, FilterController, FilterType, UpdatedFilterType,
 };
 use crate::services::group::{GroupController, GroupSetting, MoveGroupRowContext, RowChangeset};
 use crate::services::setting::CalendarLayoutSetting;
@@ -60,6 +60,8 @@ pub trait DatabaseViewData: Send + Sync + 'static {
   fn get_group_setting(&self, view_id: &str) -> Vec<GroupSetting>;
 
   fn insert_group_setting(&self, view_id: &str, setting: GroupSetting);
+
+  fn get_sort(&self, view_id: &str, sort_id: &str) -> Option<Sort>;
 
   fn insert_sort(&self, view_id: &str, sort: Sort);
 
@@ -365,7 +367,6 @@ impl DatabaseViewEditor {
 
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn v_insert_sort(&self, params: AlterSortParams) -> FlowyResult<Sort> {
-    let sort_type = SortType::from(&params);
     let is_exist = params.sort_id.is_some();
     let sort_id = match params.sort_id {
       None => gen_database_sort_id(),
@@ -378,7 +379,7 @@ impl DatabaseViewEditor {
       field_type: params.field_type,
       condition: params.condition.into(),
     };
-
+    let sort_type = SortType::from(&sort);
     let mut sort_controller = self.sort_controller.write().await;
     let changeset = if is_exist {
       self.delegate.insert_sort(&self.view_id, sort.clone());
@@ -441,9 +442,9 @@ impl DatabaseViewEditor {
       condition: params.condition,
       content: params.content,
     };
+    let filter_type = FilterType::from(&filter);
     let filter_controller = self.filter_controller.clone();
     let changeset = if is_exist {
-      let filter_type = FilterType::from(&filter);
       let old_filter_type = self
         .delegate
         .get_filter(&self.view_id, &filter.id)
@@ -457,7 +458,6 @@ impl DatabaseViewEditor {
         )))
         .await
     } else {
-      let filter_type = InsertedFilterType::from(&filter);
       self.delegate.insert_filter(&self.view_id, filter);
       filter_controller
         .did_receive_changes(FilterChangeset::from_insert(filter_type))
