@@ -15,7 +15,7 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use nanoid::nanoid;
 use parking_lot::Mutex;
 
-use crate::entities::{BlockPB, BlocksPB, ChildrenPB, DocumentDataPB, MetaPB};
+use crate::entities::{BlockPB, BlocksPB, ChildrenPB, DocumentDataPB2, MetaPB};
 
 #[derive(Clone)]
 pub struct Document(Arc<Mutex<InnerDocument>>);
@@ -62,7 +62,7 @@ impl DerefMut for DocumentDataWrapper {
   }
 }
 
-impl From<DocumentDataWrapper> for DocumentDataPB {
+impl From<DocumentDataWrapper> for DocumentDataPB2 {
   fn from(data: DocumentDataWrapper) -> Self {
     let blocks = data
       .0

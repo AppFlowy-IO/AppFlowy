@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use flowy_derive::ProtoBuf;
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 #[derive(Default, ProtoBuf)]
 pub struct OpenDocumentPayloadPBV2 {
@@ -10,7 +10,23 @@ pub struct OpenDocumentPayloadPBV2 {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct DocumentDataPB {
+pub struct CloseDocumentPayloadPBV2 {
+  #[pb(index = 1)]
+  pub document_id: String,
+  // Support customize initial data
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct ApplyActionPayloadPBV2 {
+  #[pb(index = 1)]
+  pub document_id: String,
+
+  #[pb(index = 2)]
+  pub actions: Vec<BlockActionPB>,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct DocumentDataPB2 {
   #[pb(index = 1)]
   pub page_id: String,
 
@@ -55,4 +71,40 @@ pub struct MetaPB {
 pub struct ChildrenPB {
   #[pb(index = 1)]
   pub children: Vec<String>,
+}
+
+// Actions
+#[derive(Default, ProtoBuf)]
+pub struct BlockActionPB {
+  #[pb(index = 1)]
+  pub action: BlockActionTypePB,
+
+  #[pb(index = 2)]
+  pub payload: BlockActionPayloadPB,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct BlockActionPayloadPB {
+  #[pb(index = 1)]
+  pub block: BlockPB,
+
+  #[pb(index = 2, one_of)]
+  pub prev_id: Option<String>,
+
+  #[pb(index = 3, one_of)]
+  pub parent_id: Option<String>,
+}
+
+#[derive(ProtoBuf_Enum)]
+pub enum BlockActionTypePB {
+  Insert = 0,
+  Update = 1,
+  Delete = 2,
+  Move = 3,
+}
+
+impl Default for BlockActionTypePB {
+  fn default() -> Self {
+    Self::Insert
+  }
 }
