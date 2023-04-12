@@ -42,9 +42,11 @@ class SelectOptionCardCellBloc
     _onCellChangedFn = cellController.startListening(
       onCellChanged: ((selectOptionContext) {
         if (!isClosed) {
-          add(SelectOptionCardCellEvent.didReceiveOptions(
-            selectOptionContext?.selectOptions ?? [],
-          ));
+          add(
+            SelectOptionCardCellEvent.didReceiveOptions(
+              selectOptionContext?.selectOptions ?? [],
+            ),
+          );
         }
       }),
     );
@@ -66,7 +68,8 @@ class SelectOptionCardCellState with _$SelectOptionCardCellState {
   }) = _SelectOptionCardCellState;
 
   factory SelectOptionCardCellState.initial(
-      SelectOptionCellController context) {
+    SelectOptionCellController context,
+  ) {
     final data = context.getCellData();
     return SelectOptionCardCellState(
       selectedOptions: data?.selectOptions ?? [],

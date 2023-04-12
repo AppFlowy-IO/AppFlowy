@@ -76,13 +76,15 @@ class _SortList extends StatelessWidget {
     return BlocBuilder<SortEditorBloc, SortEditorState>(
       builder: (context, state) {
         final List<Widget> children = state.sortInfos
-            .map((info) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: _SortItem(
-                    sortInfo: info,
-                    popoverMutex: popoverMutex,
-                  ),
-                ))
+            .map(
+              (info) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: _SortItem(
+                  sortInfo: info,
+                  popoverMutex: popoverMutex,
+                ),
+              ),
+            )
             .toList();
 
         return Column(
@@ -125,7 +127,7 @@ class _SortItem extends StatelessWidget {
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       icon: svgWidget(
         "home/close",
-        color: Theme.of(context).colorScheme.onSurface,
+        color: Theme.of(context).iconTheme.color,
       ),
     );
 
@@ -182,13 +184,11 @@ class _AddSortButtonState extends State<_AddSortButton> {
       child: SizedBox(
         height: GridSize.popoverItemHeight,
         child: FlowyButton(
+          hoverColor: AFThemeExtension.of(context).greyHover,
           disable: getCreatableSorts(widget.fieldController.fieldInfos).isEmpty,
           text: FlowyText.medium(LocaleKeys.grid_sort_addSort.tr()),
           onTap: () => _popoverController.show(),
-          leftIcon: svgWidget(
-            "home/add",
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+          leftIcon: const FlowySvg(name: 'home/add'),
         ),
       ),
       popupBuilder: (BuildContext context) {
@@ -220,10 +220,7 @@ class _DeleteSortButton extends StatelessWidget {
                   .read<SortEditorBloc>()
                   .add(const SortEditorEvent.deleteAllSorts());
             },
-            leftIcon: svgWidget(
-              "editor/delete",
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+            leftIcon: const FlowySvg(name: 'editor/delete'),
           ),
         );
       },

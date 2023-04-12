@@ -26,6 +26,7 @@ class FlowyDialog extends StatelessWidget {
     final size = windowSize * 0.7;
     return SimpleDialog(
         contentPadding: EdgeInsets.zero,
+        backgroundColor: Theme.of(context).cardColor,
         title: title,
         shape: shape ??
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

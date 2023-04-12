@@ -60,7 +60,9 @@ class GridTestContext {
   }
 
   Future<CellController> makeCellController(
-      String fieldId, int rowIndex) async {
+    String fieldId,
+    int rowIndex,
+  ) async {
     final builder = await makeCellControllerBuilder(fieldId, rowIndex);
     return builder.build();
   }
@@ -123,9 +125,12 @@ class GridTestContext {
   }
 
   Future<SelectOptionCellController> makeSelectOptionCellController(
-      FieldType fieldType, int rowIndex) async {
-    assert(fieldType == FieldType.SingleSelect ||
-        fieldType == FieldType.MultiSelect);
+    FieldType fieldType,
+    int rowIndex,
+  ) async {
+    assert(
+      fieldType == FieldType.SingleSelect || fieldType == FieldType.MultiSelect,
+    );
 
     final field =
         fieldContexts.firstWhere((element) => element.fieldType == fieldType);
@@ -175,11 +180,12 @@ class AppFlowyGridTest {
       return result.fold(
         (view) async {
           final context = GridTestContext(
-              view,
-              DatabaseController(
-                view: view,
-                layoutType: LayoutTypePB.Grid,
-              ));
+            view,
+            DatabaseController(
+              view: view,
+              layoutType: LayoutTypePB.Grid,
+            ),
+          );
           final result = await context.gridController.open();
           result.fold((l) => null, (r) => throw Exception(r));
           return context;
@@ -214,7 +220,9 @@ class AppFlowyGridCellTest {
   }
 
   Future<SelectOptionCellController> makeSelectOptionCellController(
-      FieldType fieldType, int rowIndex) async {
+    FieldType fieldType,
+    int rowIndex,
+  ) async {
     return await context.makeSelectOptionCellController(fieldType, rowIndex);
   }
 }

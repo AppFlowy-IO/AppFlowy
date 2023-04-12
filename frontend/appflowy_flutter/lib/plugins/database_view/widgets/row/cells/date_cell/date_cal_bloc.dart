@@ -44,7 +44,9 @@ class DateCellCalendarBloc
           didReceiveCellUpdate: (DateCellDataPB? cellData) {
             final dateCellData = calDataFromCellData(cellData);
             final time = dateCellData.foldRight(
-                "", (dateData, previous) => dateData.time ?? '');
+              "",
+              (dateData, previous) => dateData.time ?? '',
+            );
             emit(state.copyWith(dateCellData: dateCellData, time: time));
           },
           setIncludeTime: (includeTime) async {
@@ -63,16 +65,24 @@ class DateCellCalendarBloc
           },
           didUpdateCalData:
               (Option<DateCellData> data, Option<String> timeFormatError) {
-            emit(state.copyWith(
-                dateCellData: data, timeFormatError: timeFormatError));
+            emit(
+              state.copyWith(
+                dateCellData: data,
+                timeFormatError: timeFormatError,
+              ),
+            );
           },
         );
       },
     );
   }
 
-  Future<void> _updateDateData(Emitter<DateCellCalendarState> emit,
-      {DateTime? date, String? time, bool? includeTime}) {
+  Future<void> _updateDateData(
+    Emitter<DateCellCalendarState> emit, {
+    DateTime? date,
+    String? time,
+    bool? includeTime,
+  }) {
     final DateCellData newDateData = state.dateCellData.fold(
       () => DateCellData(
         date: date ?? DateTime.now(),
@@ -101,33 +111,44 @@ class DateCellCalendarBloc
   }
 
   Future<void> _saveDateData(
-      Emitter<DateCellCalendarState> emit, DateCellData newCalData) async {
+    Emitter<DateCellCalendarState> emit,
+    DateCellData newCalData,
+  ) async {
     if (state.dateCellData == Some(newCalData)) {
       return;
     }
 
     updateCalData(
-        Option<DateCellData> dateCellData, Option<String> timeFormatError) {
+      Option<DateCellData> dateCellData,
+      Option<String> timeFormatError,
+    ) {
       if (!isClosed) {
-        add(DateCellCalendarEvent.didUpdateCalData(
-            dateCellData, timeFormatError));
+        add(
+          DateCellCalendarEvent.didUpdateCalData(
+            dateCellData,
+            timeFormatError,
+          ),
+        );
       }
     }
 
-    cellController.saveCellData(newCalData, onFinish: (result) {
-      result.fold(
-        () => updateCalData(Some(newCalData), none()),
-        (err) {
-          switch (ErrorCode.valueOf(err.code)!) {
-            case ErrorCode.InvalidDateTimeFormat:
-              updateCalData(state.dateCellData, Some(timeFormatPrompt(err)));
-              break;
-            default:
-              Log.error(err);
-          }
-        },
-      );
-    });
+    cellController.saveCellData(
+      newCalData,
+      onFinish: (result) {
+        result.fold(
+          () => updateCalData(Some(newCalData), none()),
+          (err) {
+            switch (ErrorCode.valueOf(err.code)!) {
+              case ErrorCode.InvalidDateTimeFormat:
+                updateCalData(state.dateCellData, Some(timeFormatPrompt(err)));
+                break;
+              default:
+                Log.error(err);
+            }
+          },
+        );
+      },
+    );
   }
 
   String timeFormatPrompt(FlowyError error) {
@@ -188,9 +209,12 @@ class DateCellCalendarBloc
     );
 
     result.fold(
-      (l) => emit(state.copyWith(
+      (l) => emit(
+        state.copyWith(
           dateTypeOptionPB: newDateTypeOption,
-          timeHintText: _timeHintText(newDateTypeOption))),
+          timeHintText: _timeHintText(newDateTypeOption),
+        ),
+      ),
       (err) => Log.error(err),
     );
   }
@@ -211,10 +235,12 @@ class DateCellCalendarEvent with _$DateCellCalendarEvent {
       _IncludeTime;
   const factory DateCellCalendarEvent.setTime(String time) = _Time;
   const factory DateCellCalendarEvent.didReceiveCellUpdate(
-      DateCellDataPB? data) = _DidReceiveCellUpdate;
+    DateCellDataPB? data,
+  ) = _DidReceiveCellUpdate;
   const factory DateCellCalendarEvent.didUpdateCalData(
-          Option<DateCellData> data, Option<String> timeFormatError) =
-      _DidUpdateCalData;
+    Option<DateCellData> data,
+    Option<String> timeFormatError,
+  ) = _DidUpdateCalData;
 }
 
 @freezed
@@ -268,11 +294,13 @@ Option<DateCellData> calDataFromCellData(DateCellDataPB? cellData) {
       timestamp.toInt(),
       isUtc: true,
     );
-    dateData = Some(DateCellData(
-      date: date,
-      time: time,
-      includeTime: cellData.includeTime,
-    ));
+    dateData = Some(
+      DateCellData(
+        date: date,
+        time: time,
+        includeTime: cellData.includeTime,
+      ),
+    );
   }
   return dateData;
 }

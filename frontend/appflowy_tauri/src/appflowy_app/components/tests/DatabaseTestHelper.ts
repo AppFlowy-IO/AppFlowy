@@ -12,6 +12,7 @@ import { RowInfo } from '../../stores/effects/database/row/row_cache';
 import { RowController } from '../../stores/effects/database/row/row_controller';
 import {
   CellControllerBuilder,
+  CheckboxCellController,
   DateCellController,
   NumberCellController,
   SelectOptionCellController,
@@ -124,6 +125,17 @@ export async function makeDateCellController(
     (result) => result.unwrap()
   );
   return Some(builder.build() as DateCellController);
+}
+
+export async function makeCheckboxCellController(
+  fieldId: string,
+  rowInfo: RowInfo,
+  databaseController: DatabaseController
+): Promise<Option<CheckboxCellController>> {
+  const builder = await makeCellControllerBuilder(fieldId, rowInfo, FieldType.Checkbox, databaseController).then(
+    (result) => result.unwrap()
+  );
+  return Some(builder.build() as CheckboxCellController);
 }
 
 export async function makeURLCellController(

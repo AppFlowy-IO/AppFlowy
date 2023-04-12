@@ -49,11 +49,6 @@ class SelectOptionTypeOptionBloc
       },
     );
   }
-
-  @override
-  Future<void> close() async {
-    return super.close();
-  }
 }
 
 @freezed
@@ -64,9 +59,11 @@ class SelectOptionTypeOptionEvent with _$SelectOptionTypeOptionEvent {
   const factory SelectOptionTypeOptionEvent.endAddingOption() =
       _EndAddingOption;
   const factory SelectOptionTypeOptionEvent.updateOption(
-      SelectOptionPB option) = _UpdateOption;
+    SelectOptionPB option,
+  ) = _UpdateOption;
   const factory SelectOptionTypeOptionEvent.deleteOption(
-      SelectOptionPB option) = _DeleteOption;
+    SelectOptionPB option,
+  ) = _DeleteOption;
 }
 
 @freezed

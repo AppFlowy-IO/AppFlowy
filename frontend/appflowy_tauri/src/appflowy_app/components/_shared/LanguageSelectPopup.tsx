@@ -29,7 +29,10 @@ const supportedLanguages: { key: string; title: string }[] = [
 
 export const LanguageSelectPopup = ({ onClose }: { onClose: () => void }) => {
   const items: IPopupItem[] = supportedLanguages.map<IPopupItem>((item) => ({
-    onClick: () => void i18n.changeLanguage(item.key),
+    onClick: () => {
+      void i18n.changeLanguage(item.key);
+      onClose();
+    },
     title: item.title,
     icon: <></>,
   }));

@@ -22,15 +22,17 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
 
   AppearanceSettingsCubit(AppearanceSettingsPB setting)
       : _setting = setting,
-        super(AppearanceSettingsState.initial(
-          setting.theme,
-          setting.themeMode,
-          setting.font,
-          setting.monospaceFont,
-          setting.locale,
-          setting.isMenuCollapsed,
-          setting.menuOffset,
-        ));
+        super(
+          AppearanceSettingsState.initial(
+            setting.theme,
+            setting.themeMode,
+            setting.font,
+            setting.monospaceFont,
+            setting.locale,
+            setting.isMenuCollapsed,
+            setting.menuOffset,
+          ),
+        );
 
   /// Update selected theme in the user's settings and emit an updated state
   /// with the AppTheme named [themeName].
@@ -210,16 +212,53 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         ? appTheme.lightTheme
         : appTheme.darkTheme;
 
+    final colorScheme = ColorScheme(
+      brightness: brightness,
+      primary: theme.primary,
+      onPrimary: theme.onPrimary,
+      primaryContainer: theme.main2,
+      onPrimaryContainer: _white,
+      // page title hover color
+      secondary: theme.hoverBG1,
+      onSecondary: theme.shader1,
+      // setting value hover color
+      secondaryContainer: theme.selector,
+      onSecondaryContainer: theme.topbarBg,
+      tertiary: theme.shader7,
+      tertiaryContainer: theme.questionBubbleBG,
+      background: theme.surface,
+      onBackground: theme.text,
+      surface: theme.surface,
+      // text&icon color when it is hovered
+      onSurface: theme.hoverFG,
+      onError: theme.shader7,
+      error: theme.red,
+      outline: theme.shader4,
+      surfaceVariant: theme.sidebarBg,
+      shadow: theme.shadow,
+    );
+
     return ThemeData(
       brightness: brightness,
-      textTheme:
-          _getTextTheme(fontFamily: fontFamily, fontColor: theme.shader1),
+      textTheme: _getTextTheme(fontFamily: fontFamily, fontColor: theme.text),
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: theme.main2,
         selectionHandleColor: theme.main2,
       ),
-      primaryIconTheme: IconThemeData(color: theme.hover),
-      iconTheme: IconThemeData(color: theme.shader1),
+      iconTheme: IconThemeData(color: theme.icon),
+      tooltipTheme: TooltipThemeData(
+        textStyle: _getFontStyle(
+          fontFamily: fontFamily,
+          fontSize: FontSizes.s11,
+          fontWeight: FontWeight.w400,
+          fontColor: theme.surface,
+        ),
+      ),
+      scaffoldBackgroundColor: theme.surface,
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: colorScheme.primary,
+        contentTextStyle: TextStyle(color: colorScheme.onSurface),
+      ),
       scrollbarTheme: ScrollbarThemeData(
         thumbColor: MaterialStateProperty.all(theme.shader3),
         thickness: MaterialStateProperty.resolveWith((states) {
@@ -239,32 +278,15 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       ),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       canvasColor: theme.shader6,
-      dividerColor: theme.shader6,
-      hintColor: theme.shader3,
+      dividerColor: theme.divider,
+      hintColor: theme.hint,
+      //action item hover color
+      hoverColor: theme.hoverBG2,
       disabledColor: theme.shader4,
       highlightColor: theme.main1,
       indicatorColor: theme.main1,
-      toggleableActiveColor: theme.main1,
-      colorScheme: ColorScheme(
-        brightness: brightness,
-        primary: theme.main1,
-        onPrimary: _white,
-        primaryContainer: theme.main2,
-        onPrimaryContainer: _white,
-        secondary: theme.hover,
-        onSecondary: theme.shader1,
-        secondaryContainer: theme.selector,
-        onSecondaryContainer: theme.shader1,
-        background: theme.surface,
-        onBackground: theme.shader1,
-        surface: theme.surface,
-        onSurface: theme.shader1,
-        onError: theme.shader7,
-        error: theme.red,
-        outline: theme.shader4,
-        surfaceVariant: theme.bg1,
-        shadow: theme.shadow,
-      ),
+      cardColor: theme.input,
+      colorScheme: colorScheme,
       extensions: [
         AFThemeExtension(
           warning: theme.yellow,
@@ -278,10 +300,12 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
           tint7: theme.tint7,
           tint8: theme.tint8,
           tint9: theme.tint9,
-          greyHover: theme.bg2,
+          textColor: theme.text,
+          greyHover: theme.hoverBG1,
           greySelect: theme.bg3,
-          lightGreyHover: theme.shader6,
+          lightGreyHover: theme.hoverBG3,
           toggleOffFill: theme.shader5,
+          progressBarBGcolor: theme.progressBarBGcolor,
           code: _getFontStyle(
             fontFamily: monospaceFontFamily,
             fontColor: theme.shader3,
@@ -295,7 +319,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
             fontFamily: fontFamily,
             fontSize: FontSizes.s11,
             fontWeight: FontWeight.w400,
-            fontColor: theme.shader3,
+            fontColor: theme.hint,
           ),
         )
       ],
@@ -320,8 +344,10 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         height: lineHeight,
       );
 
-  TextTheme _getTextTheme(
-      {required String fontFamily, required Color fontColor}) {
+  TextTheme _getTextTheme({
+    required String fontFamily,
+    required Color fontColor,
+  }) {
     return TextTheme(
       displayLarge: _getFontStyle(
         fontFamily: fontFamily,

@@ -187,8 +187,10 @@ class DatabaseController {
     );
   }
 
-  Future<Either<Unit, FlowyError>> moveGroup(
-      {required String fromGroupId, required String toGroupId}) {
+  Future<Either<Unit, FlowyError>> moveGroup({
+    required String fromGroupId,
+    required String toGroupId,
+  }) {
     return _databaseViewBackendSvc.moveGroup(
       fromGroupId: fromGroupId,
       toGroupId: toGroupId,
@@ -196,7 +198,8 @@ class DatabaseController {
   }
 
   Future<void> updateCalenderLayoutSetting(
-      CalendarLayoutSettingsPB layoutSetting) async {
+    CalendarLayoutSettingsPB layoutSetting,
+  ) async {
     await _databaseViewBackendSvc
         .updateLayoutSetting(calendarLayoutSetting: layoutSetting)
         .then((result) {
@@ -234,16 +237,20 @@ class DatabaseController {
   }
 
   void _listenOnRowsChanged() {
-    final callbacks =
-        DatabaseViewCallbacks(onRowsChanged: (rows, rowByRowId, reason) {
-      _databaseCallbacks?.onRowsChanged?.call(rows, rowByRowId, reason);
-    }, onRowsDeleted: (ids) {
-      _databaseCallbacks?.onRowsDeleted?.call(ids);
-    }, onRowsUpdated: (ids) {
-      _databaseCallbacks?.onRowsUpdated?.call(ids);
-    }, onRowsCreated: (ids) {
-      _databaseCallbacks?.onRowsCreated?.call(ids);
-    });
+    final callbacks = DatabaseViewCallbacks(
+      onRowsChanged: (rows, rowByRowId, reason) {
+        _databaseCallbacks?.onRowsChanged?.call(rows, rowByRowId, reason);
+      },
+      onRowsDeleted: (ids) {
+        _databaseCallbacks?.onRowsDeleted?.call(ids);
+      },
+      onRowsUpdated: (ids) {
+        _databaseCallbacks?.onRowsUpdated?.call(ids);
+      },
+      onRowsCreated: (ids) {
+        _databaseCallbacks?.onRowsCreated?.call(ids);
+      },
+    );
     _viewCache.addListener(callbacks);
   }
 
@@ -261,42 +268,58 @@ class DatabaseController {
   void _listenOnGroupChanged() {
     groupListener.start(
       onNumOfGroupsChanged: (result) {
-        result.fold((changeset) {
-          if (changeset.updateGroups.isNotEmpty) {
-            _groupCallbacks?.onUpdateGroup?.call(changeset.updateGroups);
-          }
+        result.fold(
+          (changeset) {
+            if (changeset.updateGroups.isNotEmpty) {
+              _groupCallbacks?.onUpdateGroup?.call(changeset.updateGroups);
+            }
 
-          if (changeset.deletedGroups.isNotEmpty) {
-            _groupCallbacks?.onDeleteGroup?.call(changeset.deletedGroups);
-          }
+            if (changeset.deletedGroups.isNotEmpty) {
+              _groupCallbacks?.onDeleteGroup?.call(changeset.deletedGroups);
+            }
 
-          for (final insertedGroup in changeset.insertedGroups) {
-            _groupCallbacks?.onInsertGroup?.call(insertedGroup);
-          }
-        }, (r) => Log.error(r));
+            for (final insertedGroup in changeset.insertedGroups) {
+              _groupCallbacks?.onInsertGroup?.call(insertedGroup);
+            }
+          },
+          (r) => Log.error(r),
+        );
       },
       onGroupByNewField: (result) {
-        result.fold((groups) {
-          _groupCallbacks?.onGroupByField?.call(groups);
-        }, (r) => Log.error(r));
+        result.fold(
+          (groups) {
+            _groupCallbacks?.onGroupByField?.call(groups);
+          },
+          (r) => Log.error(r),
+        );
       },
     );
   }
 
   void _listenOnLayoutChanged() {
-    layoutListener.start(onLayoutChanged: (result) {
-      result.fold((l) {
-        _layoutCallbacks?.onLayoutChanged(l);
-      }, (r) => Log.error(r));
-    });
+    layoutListener.start(
+      onLayoutChanged: (result) {
+        result.fold(
+          (l) {
+            _layoutCallbacks?.onLayoutChanged(l);
+          },
+          (r) => Log.error(r),
+        );
+      },
+    );
   }
 
   void _listenOnCalendarLayoutChanged() {
-    calendarLayoutListener.start(onCalendarLayoutChanged: (result) {
-      result.fold((l) {
-        _calendarLayoutCallbacks?.onCalendarLayoutChanged(l);
-      }, (r) => Log.error(r));
-    });
+    calendarLayoutListener.start(
+      onCalendarLayoutChanged: (result) {
+        result.fold(
+          (l) {
+            _calendarLayoutCallbacks?.onCalendarLayoutChanged(l);
+          },
+          (r) => Log.error(r),
+        );
+      },
+    );
   }
 }
 

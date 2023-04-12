@@ -13,12 +13,12 @@ class TrashCell extends StatelessWidget {
   final VoidCallback onRestore;
   final VoidCallback onDelete;
   final TrashPB object;
-  const TrashCell(
-      {required this.object,
-      required this.onRestore,
-      required this.onDelete,
-      Key? key})
-      : super(key: key);
+  const TrashCell({
+    required this.object,
+    required this.onRestore,
+    required this.onDelete,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +43,7 @@ class TrashCell extends StatelessWidget {
           iconPadding: const EdgeInsets.all(5),
           icon: svgWidget(
             "editor/restore",
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).iconTheme.color,
           ),
         ),
         const HSpace(20),
@@ -53,7 +53,7 @@ class TrashCell extends StatelessWidget {
           iconPadding: const EdgeInsets.all(5),
           icon: svgWidget(
             "editor/delete",
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).iconTheme.color,
           ),
         ),
       ],

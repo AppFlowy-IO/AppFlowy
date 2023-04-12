@@ -6,6 +6,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 
 import '../sort/create_sort_list.dart';
 
@@ -24,7 +25,7 @@ class _SortButtonState extends State<SortButton> {
     return BlocBuilder<SortMenuBloc, SortMenuState>(
       builder: (context, state) {
         final textColor = state.sortInfos.isEmpty
-            ? null
+            ? AFThemeExtension.of(context).textColor
             : Theme.of(context).colorScheme.primary;
 
         return wrapPopover(
@@ -33,11 +34,10 @@ class _SortButtonState extends State<SortButton> {
             height: 26,
             child: FlowyTextButton(
               LocaleKeys.grid_settings_sort.tr(),
-              fontSize: 13,
               fontColor: textColor,
               fillColor: Colors.transparent,
               hoverColor: AFThemeExtension.of(context).lightGreyHover,
-              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+              padding: GridSize.typeOptionContentInsets,
               onPressed: () {
                 final bloc = context.read<SortMenuBloc>();
                 if (bloc.state.sortInfos.isEmpty) {

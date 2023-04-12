@@ -69,7 +69,9 @@ class _MenuAppState extends State<MenuApp> {
   }
 
   ExpandableNotifier expandableWrapper(
-      BuildContext context, AppViewDataContext viewDataContext) {
+    BuildContext context,
+    AppViewDataContext viewDataContext,
+  ) {
     return ExpandableNotifier(
       controller: viewDataContext.expandController,
       child: ScrollOnExpand(

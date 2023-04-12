@@ -173,13 +173,13 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             leftChevronPadding: EdgeInsets.zero,
             leftChevronIcon: svgWidget(
               "home/arrow_left",
-              color: Theme.of(context).colorScheme.onSurface,
+              color: Theme.of(context).iconTheme.color,
             ),
             rightChevronPadding: EdgeInsets.zero,
             rightChevronMargin: EdgeInsets.zero,
             rightChevronIcon: svgWidget(
               "home/arrow_right",
-              color: Theme.of(context).colorScheme.onSurface,
+              color: Theme.of(context).iconTheme.color,
             ),
             headerMargin: const EdgeInsets.only(bottom: 8.0),
           ),
@@ -193,9 +193,11 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             cellMargin: const EdgeInsets.all(3),
             defaultDecoration: boxDecoration,
             selectedDecoration: boxDecoration.copyWith(
-                color: Theme.of(context).colorScheme.primary),
+              color: Theme.of(context).colorScheme.primary,
+            ),
             todayDecoration: boxDecoration.copyWith(
-                color: AFThemeExtension.of(context).lightGreyHover),
+              color: AFThemeExtension.of(context).lightGreyHover,
+            ),
             weekendDecoration: boxDecoration,
             outsideDecoration: boxDecoration,
             defaultTextStyle: textStyle,
@@ -254,7 +256,7 @@ class _IncludeTimeButton extends StatelessWidget {
                 children: [
                   svgWidget(
                     "grid/clock",
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: Theme.of(context).iconTheme.color,
                   ),
                   const HSpace(4),
                   FlowyText.medium(LocaleKeys.grid_field_includeTime.tr()),
@@ -385,10 +387,7 @@ class _DateTypeOptionButton extends StatelessWidget {
               child: FlowyButton(
                 text: FlowyText.medium(title),
                 margin: GridSize.typeOptionContentInsets,
-                rightIcon: svgWidget(
-                  "grid/more",
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+                rightIcon: const FlowySvg(name: 'grid/more'),
               ),
             ),
           ),
@@ -451,11 +450,12 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
         offset: const Offset(8, 0),
         popupBuilder: (BuildContext context) {
           return TimeFormatList(
-              selectedFormat: widget.dateTypeOptionPB.timeFormat,
-              onSelected: (format) {
-                widget.onEvent(DateCellCalendarEvent.setTimeFormat(format));
-                timeSettingPopoverMutex.close();
-              });
+            selectedFormat: widget.dateTypeOptionPB.timeFormat,
+            onSelected: (format) {
+              widget.onEvent(DateCellCalendarEvent.setTimeFormat(format));
+              timeSettingPopoverMutex.close();
+            },
+          );
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6.0),

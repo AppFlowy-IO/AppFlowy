@@ -4,7 +4,8 @@ import 'builder.dart';
 
 class ChecklistTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
   ChecklistTypeOptionWidgetBuilder(
-      ChecklistTypeOptionContext typeOptionContext);
+    ChecklistTypeOptionContext typeOptionContext,
+  );
 
   @override
   Widget? build(BuildContext context) => null;

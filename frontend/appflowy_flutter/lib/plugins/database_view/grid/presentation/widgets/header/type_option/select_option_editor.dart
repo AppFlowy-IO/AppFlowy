@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/database_view/application/field/type_option/edit_select_option_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -65,7 +66,8 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
             if (showOptions) {
               cells.add(const TypeOptionSeparator());
               cells.add(
-                  SelectOptionColorList(selectedColor: state.option.color));
+                SelectOptionColorList(selectedColor: state.option.color),
+              );
             }
 
             return SizedBox(
@@ -103,10 +105,14 @@ class _DeleteTag extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(LocaleKeys.grid_selectOption_deleteTag.tr()),
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        text: FlowyText.medium(
+          LocaleKeys.grid_selectOption_deleteTag.tr(),
+          color: AFThemeExtension.of(context).textColor,
+        ),
         leftIcon: svgWidget(
           "grid/delete",
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).iconTheme.color,
         ),
         onTap: () {
           context
@@ -121,9 +127,11 @@ class _DeleteTag extends StatelessWidget {
 class _OptionNameTextField extends StatelessWidget {
   final String name;
   final bool autoFocus;
-  const _OptionNameTextField(
-      {required this.name, required this.autoFocus, Key? key})
-      : super(key: key);
+  const _OptionNameTextField({
+    required this.name,
+    required this.autoFocus,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -152,7 +160,9 @@ class SelectOptionColorList extends StatelessWidget {
   Widget build(BuildContext context) {
     final cells = SelectOptionColorPB.values.map((color) {
       return _SelectOptionColorCell(
-          color: color, isSelected: selectedColor == color);
+        color: color,
+        isSelected: selectedColor == color,
+      );
     }).toList();
 
     return Column(
@@ -190,9 +200,11 @@ class SelectOptionColorList extends StatelessWidget {
 class _SelectOptionColorCell extends StatelessWidget {
   final SelectOptionColorPB color;
   final bool isSelected;
-  const _SelectOptionColorCell(
-      {required this.color, required this.isSelected, Key? key})
-      : super(key: key);
+  const _SelectOptionColorCell({
+    required this.color,
+    required this.isSelected,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

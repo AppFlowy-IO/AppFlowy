@@ -71,12 +71,15 @@ class _AddFilterButtonState extends State<AddFilterButton> {
       SizedBox(
         height: 28,
         child: FlowyButton(
-          text: FlowyText(LocaleKeys.grid_settings_addFilter.tr()),
+          text: FlowyText(
+            LocaleKeys.grid_settings_addFilter.tr(),
+            color: AFThemeExtension.of(context).textColor,
+          ),
           useIntrinsicWidth: true,
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           leftIcon: svgWidget(
             "home/add",
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).iconTheme.color,
           ),
           onTap: () => popoverController.show(),
         ),

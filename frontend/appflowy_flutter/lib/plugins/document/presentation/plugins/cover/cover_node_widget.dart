@@ -156,10 +156,7 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
                           leftIconSize: const Size.square(18),
                           onTap: widget.onTap,
                           useIntrinsicWidth: true,
-                          leftIcon: svgWidget(
-                            'editor/image',
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
+                          leftIcon: const FlowySvg(name: 'editor/image'),
                           text: FlowyText.regular(
                             LocaleKeys.document_plugins_cover_addCover.tr(),
                           ),
@@ -174,12 +171,12 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
                           useIntrinsicWidth: true,
                           leftIcon: Icon(
                             Icons.emoji_emotions_outlined,
-                            color: Theme.of(context).colorScheme.onSurface,
+                            color: Theme.of(context).iconTheme.color,
                             size: 18,
                           ),
-                          text: FlowyText.regular(LocaleKeys
-                              .document_plugins_cover_removeIcon
-                              .tr()),
+                          text: FlowyText.regular(
+                            LocaleKeys.document_plugins_cover_removeIcon.tr(),
+                          ),
                         )
                       : AppFlowyPopover(
                           mutex: mutex,
@@ -197,23 +194,26 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
                           child: FlowyButton(
                             leftIconSize: const Size.square(18),
                             useIntrinsicWidth: true,
-                            leftIcon: Icon(Icons.emoji_emotions_outlined,
-                                color: Theme.of(context).colorScheme.onSurface,
-                                size: 18),
+                            leftIcon: const Icon(
+                              Icons.emoji_emotions_outlined,
+                              size: 18,
+                            ),
                             text: FlowyText.regular(
-                                LocaleKeys.document_plugins_cover_addIcon.tr()),
+                              LocaleKeys.document_plugins_cover_addIcon.tr(),
+                            ),
                           ),
                           popupBuilder: (BuildContext popoverContext) {
                             isPopoverOpen = true;
                             return EmojiPopover(
-                                showRemoveButton: widget.hasIcon,
-                                removeIcon: _removeIcon,
-                                node: widget.node,
-                                editorState: widget.editorState,
-                                onEmojiChanged: (Emoji emoji) {
-                                  _insertIcon(emoji);
-                                  widget.iconPopoverController.close();
-                                });
+                              showRemoveButton: widget.hasIcon,
+                              removeIcon: _removeIcon,
+                              node: widget.node,
+                              editorState: widget.editorState,
+                              onEmojiChanged: (Emoji emoji) {
+                                _insertIcon(emoji);
+                                widget.iconPopoverController.close();
+                              },
+                            );
                           },
                         )
                 ],
@@ -277,9 +277,10 @@ class _CoverImageState extends State<_CoverImage> {
   CoverSelectionType get selectionType => CoverSelectionType.fromString(
         widget.node.attributes[kCoverSelectionTypeAttribute],
       );
-  Color get color =>
-      Color(int.tryParse(widget.node.attributes[kCoverSelectionAttribute]) ??
-          0xFFFFFFFF);
+  Color get color => Color(
+        int.tryParse(widget.node.attributes[kCoverSelectionAttribute]) ??
+            0xFFFFFFFF,
+      );
   bool get hasIcon => widget.node.attributes[kIconSelectionAttribute] == null
       ? false
       : widget.node.attributes[kIconSelectionAttribute].isNotEmpty;
@@ -319,14 +320,15 @@ class _CoverImageState extends State<_CoverImage> {
                   ),
                   popupBuilder: (BuildContext popoverContext) {
                     return EmojiPopover(
-                        node: widget.node,
-                        showRemoveButton: hasIcon,
-                        removeIcon: _removeIcon,
-                        editorState: widget.editorState,
-                        onEmojiChanged: (Emoji emoji) {
-                          _insertIcon(emoji);
-                          iconPopoverController.close();
-                        });
+                      node: widget.node,
+                      showRemoveButton: hasIcon,
+                      removeIcon: _removeIcon,
+                      editorState: widget.editorState,
+                      onEmojiChanged: (Emoji emoji) {
+                        _insertIcon(emoji);
+                        iconPopoverController.close();
+                      },
+                    );
                   },
                 ),
               )
@@ -336,7 +338,9 @@ class _CoverImageState extends State<_CoverImage> {
             : _AddCoverButton(
                 onTap: () {
                   _insertCover(
-                      CoverSelectionType.asset, builtInAssetImages.first);
+                    CoverSelectionType.asset,
+                    builtInAssetImages.first,
+                  );
                 },
                 node: widget.node,
                 editorState: widget.editorState,
@@ -400,7 +404,7 @@ class _CoverImageState extends State<_CoverImage> {
                 popoverController.show();
               },
               hoverColor: Theme.of(context).colorScheme.surface,
-              textColor: Theme.of(context).colorScheme.onSurface,
+              textColor: Theme.of(context).colorScheme.tertiary,
               fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
               width: 120,
               height: 28,
@@ -422,7 +426,7 @@ class _CoverImageState extends State<_CoverImage> {
             width: 28,
             icon: svgWidget(
               'editor/delete',
-              color: Theme.of(context).colorScheme.onSurface,
+              color: Theme.of(context).colorScheme.tertiary,
             ),
             onPressed: () {
               widget.onCoverChanged(CoverSelectionType.initial, null);

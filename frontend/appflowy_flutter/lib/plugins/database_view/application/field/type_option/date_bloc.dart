@@ -2,7 +2,6 @@ import 'package:appflowy_backend/protobuf/flowy-database/date_type_option.pb.dar
 import 'package:appflowy_backend/protobuf/flowy-database/date_type_option_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 import 'package:protobuf/protobuf.dart';
 
 import 'type_option_context.dart';
@@ -16,16 +15,25 @@ class DateTypeOptionBloc
       (event, emit) async {
         event.map(
           didSelectDateFormat: (_DidSelectDateFormat value) {
-            emit(state.copyWith(
-                typeOption: _updateTypeOption(dateFormat: value.format)));
+            emit(
+              state.copyWith(
+                typeOption: _updateTypeOption(dateFormat: value.format),
+              ),
+            );
           },
           didSelectTimeFormat: (_DidSelectTimeFormat value) {
-            emit(state.copyWith(
-                typeOption: _updateTypeOption(timeFormat: value.format)));
+            emit(
+              state.copyWith(
+                typeOption: _updateTypeOption(timeFormat: value.format),
+              ),
+            );
           },
           includeTime: (_IncludeTime value) {
-            emit(state.copyWith(
-                typeOption: _updateTypeOption(includeTime: value.includeTime)));
+            emit(
+              state.copyWith(
+                typeOption: _updateTypeOption(includeTime: value.includeTime),
+              ),
+            );
           },
         );
       },
@@ -51,11 +59,6 @@ class DateTypeOptionBloc
         typeOption.includeTime = includeTime;
       }
     });
-  }
-
-  @override
-  Future<void> close() async {
-    return super.close();
   }
 }
 

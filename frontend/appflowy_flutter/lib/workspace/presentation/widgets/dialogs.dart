@@ -119,18 +119,21 @@ class _CreateFlowyAlertDialog extends State<NavigatorAlertDialog> {
             FlowyText.medium(
               widget.title,
               fontSize: FontSizes.s16,
-              color: Theme.of(context).disabledColor,
+              color: Theme.of(context).colorScheme.tertiary,
             ),
           ],
           if (widget.confirm != null) ...[
             const VSpace(20),
-            OkCancelButton(onOkPressed: () {
-              widget.confirm?.call();
-              Navigator.of(context).pop();
-            }, onCancelPressed: () {
-              widget.cancel?.call();
-              Navigator.of(context).pop();
-            })
+            OkCancelButton(
+              onOkPressed: () {
+                widget.confirm?.call();
+                Navigator.of(context).pop();
+              },
+              onCancelPressed: () {
+                widget.cancel?.call();
+                Navigator.of(context).pop();
+              },
+            )
           ]
         ],
       ),
@@ -147,16 +150,16 @@ class NavigatorOkCancelDialog extends StatelessWidget {
   final String message;
   final double? maxWidth;
 
-  const NavigatorOkCancelDialog(
-      {Key? key,
-      this.onOkPressed,
-      this.onCancelPressed,
-      this.okTitle,
-      this.cancelTitle,
-      this.title,
-      required this.message,
-      this.maxWidth})
-      : super(key: key);
+  const NavigatorOkCancelDialog({
+    Key? key,
+    this.onOkPressed,
+    this.onCancelPressed,
+    this.okTitle,
+    this.cancelTitle,
+    this.title,
+    required this.message,
+    this.maxWidth,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +175,9 @@ class NavigatorOkCancelDialog extends StatelessWidget {
             ),
             VSpace(Insets.sm * 1.5),
             Container(
-                color: Theme.of(context).colorScheme.surfaceVariant, height: 1),
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              height: 1,
+            ),
             VSpace(Insets.m * 1.5),
           ],
           FlowyText.medium(message),
@@ -202,14 +207,14 @@ class OkCancelButton extends StatelessWidget {
   final String? cancelTitle;
   final double? minHeight;
 
-  const OkCancelButton(
-      {Key? key,
-      this.onOkPressed,
-      this.onCancelPressed,
-      this.okTitle,
-      this.cancelTitle,
-      this.minHeight})
-      : super(key: key);
+  const OkCancelButton({
+    Key? key,
+    this.onOkPressed,
+    this.onCancelPressed,
+    this.okTitle,
+    this.cancelTitle,
+    this.minHeight,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

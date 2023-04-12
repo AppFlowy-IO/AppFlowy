@@ -20,13 +20,17 @@ void main() {
 
     // the group at index 0 is the 'No status' group;
     assert(boardBloc.groupControllers[groupId]!.group.rows.isEmpty);
-    assert(boardBloc.state.groupIds.length == 4,
-        'but receive ${boardBloc.state.groupIds.length}');
+    assert(
+      boardBloc.state.groupIds.length == 4,
+      'but receive ${boardBloc.state.groupIds.length}',
+    );
 
     boardBloc.add(BoardEvent.createBottomRow(boardBloc.state.groupIds[0]));
     await boardResponseFuture();
 
-    assert(boardBloc.groupControllers[groupId]!.group.rows.length == 1,
-        'but receive ${boardBloc.groupControllers[groupId]!.group.rows.length}');
+    assert(
+      boardBloc.groupControllers[groupId]!.group.rows.length == 1,
+      'but receive ${boardBloc.groupControllers[groupId]!.group.rows.length}',
+    );
   });
 }

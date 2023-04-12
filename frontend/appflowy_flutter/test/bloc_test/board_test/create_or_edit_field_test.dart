@@ -46,11 +46,15 @@ void main() {
     await boardResponseFuture();
 
     // assert the groups were not changed
-    assert(boardBloc.groupControllers.values.length == 4,
-        "Expected 4, but receive ${boardBloc.groupControllers.values.length}");
+    assert(
+      boardBloc.groupControllers.values.length == 4,
+      "Expected 4, but receive ${boardBloc.groupControllers.values.length}",
+    );
 
-    assert(context.fieldContexts.length == 2,
-        "Expected 2, but receive ${context.fieldContexts.length}");
+    assert(
+      context.fieldContexts.length == 2,
+      "Expected 2, but receive ${context.fieldContexts.length}",
+    );
   });
 
   test('create a new field in kanban board test', () async {
@@ -64,10 +68,14 @@ void main() {
     final checkboxField = context.fieldContexts.last.field;
     assert(checkboxField.fieldType == FieldType.Checkbox);
 
-    assert(boardBloc.groupControllers.values.length == 4,
-        "Expected 4, but receive ${boardBloc.groupControllers.values.length}");
+    assert(
+      boardBloc.groupControllers.values.length == 4,
+      "Expected 4, but receive ${boardBloc.groupControllers.values.length}",
+    );
 
-    assert(context.fieldContexts.length == 3,
-        "Expected 3, but receive ${context.fieldContexts.length}");
+    assert(
+      context.fieldContexts.length == 3,
+      "Expected 3, but receive ${context.fieldContexts.length}",
+    );
   });
 }

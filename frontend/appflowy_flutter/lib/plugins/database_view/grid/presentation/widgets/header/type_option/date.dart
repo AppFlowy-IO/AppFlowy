@@ -151,10 +151,7 @@ class DateFormatButton extends StatelessWidget {
         margin: buttonMargins,
         onTap: onTap,
         onHover: onHover,
-        rightIcon: svgWidget(
-          "grid/more",
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
+        rightIcon: const FlowySvg(name: 'grid/more'),
       ),
     );
   }
@@ -182,10 +179,7 @@ class TimeFormatButton extends StatelessWidget {
         margin: buttonMargins,
         onTap: onTap,
         onHover: onHover,
-        rightIcon: svgWidget(
-          "grid/more",
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
+        rightIcon: const FlowySvg(name: 'grid/more'),
       ),
     );
   }
@@ -305,6 +299,8 @@ extension DateFormatExtension on DateFormat {
         return LocaleKeys.grid_field_dateFormatLocal.tr();
       case DateFormat.US:
         return LocaleKeys.grid_field_dateFormatUS.tr();
+      case DateFormat.DayMonthYear:
+        return LocaleKeys.grid_field_dateFormatDayMonthYear.tr();
       default:
         throw UnimplementedError;
     }

@@ -20,7 +20,7 @@ class ChecklistProgressBar extends StatelessWidget {
       percent: percent,
       padding: EdgeInsets.zero,
       progressColor: Theme.of(context).colorScheme.primary,
-      backgroundColor: AFThemeExtension.of(context).tint9,
+      backgroundColor: AFThemeExtension.of(context).progressBarBGcolor,
       barRadius: const Radius.circular(5),
     );
   }
@@ -46,11 +46,13 @@ class _SliverChecklistProgressBarDelegate
 
   @override
   Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return BlocBuilder<ChecklistCellEditorBloc, ChecklistCellEditorState>(
       builder: (context, state) {
-        return Container(
-          color: Theme.of(context).colorScheme.background,
+        return Padding(
           padding: GridSize.typeOptionContentInsets,
           child: Column(
             children: [
