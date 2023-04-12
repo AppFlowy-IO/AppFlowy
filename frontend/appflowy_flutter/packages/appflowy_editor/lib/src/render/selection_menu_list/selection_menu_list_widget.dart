@@ -178,13 +178,18 @@ class SelectionMenuListWidget extends StatefulWidget {
 }
 
 class _SelectionMenuListWidgetState extends State<SelectionMenuListWidget> {
-  final _focusNode = FocusNode(debugLabel: 'popup_list_widget');
+  final _focusNode =
+      FocusNode(debugLabel: 'popup_list_widget', skipTraversal: true);
 
   int _selectedIndex = 0;
+  int travelled = 0;
+
   int hoveringIndex = 0;
   bool hovering = false;
   List<SelectionMenuListItem> _showingItems = [];
-  ScrollController listViewScrollConroller = ScrollController();
+  ScrollController listViewScrollConroller = ScrollController(
+    keepScrollOffset: true,
+  );
   String _keyword = '';
   String get keyword => _keyword;
   set keyword(String newKeyword) {
@@ -386,6 +391,7 @@ class _SelectionMenuListWidgetState extends State<SelectionMenuListWidget> {
         if (groups[j] == items[i].group.name) {
           itemWidgets.add(
             SelectionMenuListItemWidget(
+              index: i,
               item: items[i],
               isSelected: selectedIndex == i,
               editorState: widget.editorState,
@@ -409,6 +415,7 @@ class _SelectionMenuListWidgetState extends State<SelectionMenuListWidget> {
     return ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 0, maxHeight: 300),
         child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
           controller: listViewScrollConroller,
           child: Column(
             children: columns,
@@ -431,16 +438,26 @@ class _SelectionMenuListWidgetState extends State<SelectionMenuListWidget> {
     );
   }
 
-  scrollToIndex(i) {
-    final contentSize = listViewScrollConroller.position.viewportDimension +
-        listViewScrollConroller.position.maxScrollExtent;
-    final index = i;
-    final target = contentSize * index / _showingItems.length - 2;
-    listViewScrollConroller.animateTo(
-      target,
-      duration: const Duration(milliseconds: 1),
-      curve: Curves.easeInOut,
-    );
+  scrollIfNeeded(int index, double itemHeight) {
+    double itemTop = index * itemHeight;
+    double itemBottom = itemTop + itemHeight;
+    double viewportHeight = listViewScrollConroller.position.viewportDimension;
+    double visibleTop = listViewScrollConroller.position.pixels;
+    double visibleBottom = visibleTop + viewportHeight;
+
+    if (itemTop < visibleTop) {
+      listViewScrollConroller.animateTo(
+        itemTop,
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeInOut,
+      );
+    } else if (itemBottom > visibleBottom) {
+      listViewScrollConroller.animateTo(
+        itemBottom - viewportHeight,
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   /// Handles arrow keys to switch selected items
@@ -485,11 +502,7 @@ class _SelectionMenuListWidgetState extends State<SelectionMenuListWidget> {
     }
 
     var newSelectedIndex = _selectedIndex;
-    if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-      newSelectedIndex -= widget.maxItemInRow;
-    } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-      newSelectedIndex += widget.maxItemInRow;
-    } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+    if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
       newSelectedIndex -= 1;
     } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
       newSelectedIndex += 1;
@@ -499,7 +512,7 @@ class _SelectionMenuListWidgetState extends State<SelectionMenuListWidget> {
       setState(() {
         _selectedIndex = newSelectedIndex.clamp(0, _showingItems.length - 1);
       });
-      scrollToIndex(_selectedIndex);
+      scrollIfNeeded(_selectedIndex, 75.0);
 
       return KeyEventResult.handled;
     }

@@ -13,6 +13,7 @@ class SelectionMenuListItemWidget extends StatefulWidget {
     required this.isSelected,
     required this.hovering,
     this.width = 290.0,
+    required this.index,
   }) : super(key: key);
 
   final EditorState editorState;
@@ -20,6 +21,7 @@ class SelectionMenuListItemWidget extends StatefulWidget {
   final SelectionMenuListItem item;
   final double width;
   final bool isSelected;
+  final int index;
 
   final void Function(bool value) hovering;
 
@@ -77,7 +79,7 @@ class _SelectionMenuItemWidgetState extends State<SelectionMenuListItemWidget> {
                       textAlign: TextAlign.left,
                       style: TextStyle(
                         fontWeight: FontWeight.w400,
-                        color: (widget.isSelected || _onHover)
+                        color: (widget.isSelected)
                             ? editorStyle.selectionMenuItemSelectedTextColor
                             : editorStyle.selectionMenuItemTextColor,
                         fontSize: 15.0,
@@ -91,7 +93,7 @@ class _SelectionMenuItemWidgetState extends State<SelectionMenuListItemWidget> {
                       textAlign: TextAlign.left,
                       style: TextStyle(
                         fontWeight: FontWeight.w400,
-                        color: (widget.isSelected || _onHover)
+                        color: (widget.isSelected)
                             ? editorStyle.selectionMenuItemSelectedTextColor!
                                 .withOpacity(0.8)
                             : editorStyle.selectionMenuItemTextColor!
