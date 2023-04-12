@@ -20,10 +20,10 @@ use lib_infra::util::md5;
 use revision_model::Revision;
 use std::sync::Arc;
 
-const DATABASE_VIEW_MIGRATE: &str = "database_view_migrate";
+const DATABASE_VIEW_MIGRATE_1: &str = "database_view_migrate_v1";
 
 pub fn is_database_view_migrated(user_id: &str) -> bool {
-  let key = md5(format!("{}{}", user_id, DATABASE_VIEW_MIGRATE));
+  let key = md5(format!("{}{}", user_id, DATABASE_VIEW_MIGRATE_1));
   KV::get_bool(&key)
 }
 
@@ -107,7 +107,7 @@ pub(crate) async fn migrate_database_view(
     let _ = database_refs.bind(&database_id, &database_view_id, true, &database.name);
   }
 
-  let key = md5(format!("{}{}", user_id, DATABASE_VIEW_MIGRATE));
+  let key = md5(format!("{}{}", user_id, DATABASE_VIEW_MIGRATE_1));
   KV::set_bool(&key, true);
   Ok(())
 }

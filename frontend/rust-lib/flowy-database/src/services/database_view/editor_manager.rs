@@ -101,9 +101,9 @@ impl DatabaseViews {
     Ok(row_revs)
   }
 
-  pub async fn duplicate_database_view_setting(&self, view_id: &str) -> FlowyResult<String> {
+  pub async fn duplicate_database_view(&self, view_id: &str) -> FlowyResult<String> {
     let editor = self.get_view_editor(view_id).await?;
-    let view_data = editor.v_duplicate_view_setting().await?;
+    let view_data = editor.v_duplicate_database_view().await?;
     Ok(view_data)
   }
 
