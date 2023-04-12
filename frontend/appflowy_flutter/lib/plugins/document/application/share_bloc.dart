@@ -51,11 +51,14 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
   String _convertDocumentToMarkdown(ExportDataPB value) {
     final json = jsonDecode(value.data);
     final document = Document.fromJson(json);
-    return documentToMarkdown(document, customParsers: [
-      const DividerNodeParser(),
-      const MathEquationNodeParser(),
-      const CodeBlockNodeParser(),
-    ]);
+    return documentToMarkdown(
+      document,
+      customParsers: [
+        const DividerNodeParser(),
+        const MathEquationNodeParser(),
+        const CodeBlockNodeParser(),
+      ],
+    );
   }
 }
 
@@ -71,5 +74,6 @@ class DocShareState with _$DocShareState {
   const factory DocShareState.initial() = _Initial;
   const factory DocShareState.loading() = _Loading;
   const factory DocShareState.finish(
-      Either<ExportDataPB, FlowyError> successOrFail) = _Finish;
+    Either<ExportDataPB, FlowyError> successOrFail,
+  ) = _Finish;
 }

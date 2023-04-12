@@ -30,8 +30,10 @@ class AddButton extends StatelessWidget {
     // Plugins
     actions.addAll(
       pluginBuilders()
-          .map((pluginBuilder) =>
-              AddButtonActionWrapper(pluginBuilder: pluginBuilder))
+          .map(
+            (pluginBuilder) =>
+                AddButtonActionWrapper(pluginBuilder: pluginBuilder),
+          )
           .toList(),
     );
 
@@ -40,8 +42,10 @@ class AddButton extends StatelessWidget {
       getIt<PluginSandbox>()
           .builders
           .whereType<DocumentPluginBuilder>()
-          .map((pluginBuilder) =>
-              ImportActionWrapper(pluginBuilder: pluginBuilder))
+          .map(
+            (pluginBuilder) =>
+                ImportActionWrapper(pluginBuilder: pluginBuilder),
+          )
           .toList(),
     );
 

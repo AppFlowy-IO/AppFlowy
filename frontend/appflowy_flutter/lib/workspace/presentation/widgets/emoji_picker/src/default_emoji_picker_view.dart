@@ -30,14 +30,16 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
   @override
   void initState() {
     var initCategory = widget.state.categoryEmoji.indexWhere(
-        (element) => element.category == widget.config.initCategory);
+      (element) => element.category == widget.config.initCategory,
+    );
     if (initCategory == -1) {
       initCategory = 0;
     }
     _tabController = TabController(
-        initialIndex: initCategory,
-        length: widget.state.categoryEmoji.length,
-        vsync: this);
+      initialIndex: initCategory,
+      length: widget.state.categoryEmoji.length,
+      vsync: this,
+    );
     _pageController = PageController(initialPage: initCategory);
     _emojiFocusNode.requestFocus();
 
@@ -75,14 +77,15 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
       return Material(
         type: MaterialType.transparency,
         child: IconButton(
-            padding: const EdgeInsets.only(bottom: 2),
-            icon: Icon(
-              Icons.backspace,
-              color: widget.config.backspaceColor,
-            ),
-            onPressed: () {
-              widget.state.onBackspacePressed!();
-            }),
+          padding: const EdgeInsets.only(bottom: 2),
+          icon: Icon(
+            Icons.backspace,
+            color: widget.config.backspaceColor,
+          ),
+          onPressed: () {
+            widget.state.onBackspacePressed!();
+          },
+        ),
       );
     }
     return Container();
@@ -163,8 +166,12 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
                           : widget.state.categoryEmoji
                               .asMap()
                               .entries
-                              .map<Widget>((item) => _buildCategory(
-                                  item.value.category, emojiSize))
+                              .map<Widget>(
+                                (item) => _buildCategory(
+                                  item.value.category,
+                                  emojiSize,
+                                ),
+                              )
                               .toList(),
                     ),
                   ),
@@ -209,8 +216,10 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
     );
   }
 
-  Widget _buildButtonWidget(
-      {required VoidCallback onPressed, required Widget child}) {
+  Widget _buildButtonWidget({
+    required VoidCallback onPressed,
+    required Widget child,
+  }) {
     if (widget.config.buttonMode == ButtonMode.MATERIAL) {
       return TextButton(
         onPressed: onPressed,
@@ -219,7 +228,10 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
       );
     }
     return CupertinoButton(
-        padding: EdgeInsets.zero, onPressed: onPressed, child: child);
+      padding: EdgeInsets.zero,
+      onPressed: onPressed,
+      child: child,
+    );
   }
 
   Widget _buildPage(double emojiSize, CategoryEmoji categoryEmoji) {
@@ -259,7 +271,8 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
                   .toList()
               : categoryEmoji.emoji
                   .map<Widget>(
-                      (item) => _buildEmoji(emojiSize, categoryEmoji, item))
+                    (item) => _buildEmoji(emojiSize, categoryEmoji, item),
+                  )
                   .toList(),
         ),
       ),
@@ -272,28 +285,30 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
     Emoji emoji,
   ) {
     return _buildButtonWidget(
-        onPressed: () {
-          widget.state.onEmojiSelected(categoryEmoji.category, emoji);
-        },
-        child: FittedBox(
-          fit: BoxFit.fill,
-          child: Text(
-            emoji.emoji,
-            textScaleFactor: 1.0,
-            style: TextStyle(
-              fontSize: emojiSize,
-              backgroundColor: Colors.transparent,
-            ),
+      onPressed: () {
+        widget.state.onEmojiSelected(categoryEmoji.category, emoji);
+      },
+      child: FittedBox(
+        fit: BoxFit.fill,
+        child: Text(
+          emoji.emoji,
+          textScaleFactor: 1.0,
+          style: TextStyle(
+            fontSize: emojiSize,
+            backgroundColor: Colors.transparent,
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   Widget _buildNoRecent() {
     return Center(
-        child: Text(
-      widget.config.noRecentsText,
-      style: widget.config.noRecentsStyle,
-      textAlign: TextAlign.center,
-    ));
+      child: Text(
+        widget.config.noRecentsText,
+        style: widget.config.noRecentsStyle,
+        textAlign: TextAlign.center,
+      ),
+    );
   }
 }

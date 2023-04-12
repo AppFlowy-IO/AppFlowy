@@ -20,12 +20,12 @@ void main() {
     blocTest<GridBloc, GridState>(
       "create a row",
       build: () => GridBloc(
+        view: context.gridView,
+        databaseController: DatabaseController(
           view: context.gridView,
-          databaseController: DatabaseController(
-            view: context.gridView,
-            layoutType: LayoutTypePB.Grid,
-          ))
-        ..add(const GridEvent.initial()),
+          layoutType: LayoutTypePB.Grid,
+        ),
+      )..add(const GridEvent.initial()),
       act: (bloc) => bloc.add(const GridEvent.createRow()),
       wait: const Duration(milliseconds: 300),
       verify: (bloc) {
@@ -36,20 +36,22 @@ void main() {
     blocTest<GridBloc, GridState>(
       "delete the last row",
       build: () => GridBloc(
+        view: context.gridView,
+        databaseController: DatabaseController(
           view: context.gridView,
-          databaseController: DatabaseController(
-            view: context.gridView,
-            layoutType: LayoutTypePB.Grid,
-          ))
-        ..add(const GridEvent.initial()),
+          layoutType: LayoutTypePB.Grid,
+        ),
+      )..add(const GridEvent.initial()),
       act: (bloc) async {
         await gridResponseFuture();
         bloc.add(GridEvent.deleteRow(bloc.state.rowInfos.last));
       },
       wait: const Duration(milliseconds: 300),
       verify: (bloc) {
-        assert(bloc.state.rowInfos.length == 2,
-            "Expected 2, but receive ${bloc.state.rowInfos.length}");
+        assert(
+          bloc.state.rowInfos.length == 2,
+          "Expected 2, but receive ${bloc.state.rowInfos.length}",
+        );
       },
     );
   });

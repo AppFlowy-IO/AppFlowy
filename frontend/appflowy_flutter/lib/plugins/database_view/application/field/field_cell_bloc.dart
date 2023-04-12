@@ -17,7 +17,9 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
     required FieldCellContext cellContext,
   })  : _fieldListener = SingleFieldListener(fieldId: cellContext.field.id),
         _fieldBackendSvc = FieldBackendService(
-            viewId: cellContext.viewId, fieldId: cellContext.field.id),
+          viewId: cellContext.viewId,
+          fieldId: cellContext.field.id,
+        ),
         super(FieldCellState.initial(cellContext)) {
     on<FieldCellEvent>(
       (event, emit) async {
@@ -49,15 +51,17 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
   }
 
   void _startListening() {
-    _fieldListener.start(onFieldChanged: (result) {
-      if (isClosed) {
-        return;
-      }
-      result.fold(
-        (field) => add(FieldCellEvent.didReceiveFieldUpdate(field)),
-        (err) => Log.error(err),
-      );
-    });
+    _fieldListener.start(
+      onFieldChanged: (result) {
+        if (isClosed) {
+          return;
+        }
+        result.fold(
+          (field) => add(FieldCellEvent.didReceiveFieldUpdate(field)),
+          (err) => Log.error(err),
+        );
+      },
+    );
   }
 }
 

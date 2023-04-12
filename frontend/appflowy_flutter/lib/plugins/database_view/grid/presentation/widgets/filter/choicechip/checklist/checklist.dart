@@ -70,9 +70,11 @@ class _ChecklistFilterChoicechipState extends State<ChecklistFilterChoicechip> {
 class ChecklistFilterEditor extends StatefulWidget {
   final ChecklistFilterEditorBloc bloc;
   final PopoverMutex popoverMutex;
-  const ChecklistFilterEditor(
-      {required this.bloc, required this.popoverMutex, Key? key})
-      : super(key: key);
+  const ChecklistFilterEditor({
+    required this.bloc,
+    required this.popoverMutex,
+    Key? key,
+  }) : super(key: key);
 
   @override
   ChecklistState createState() => ChecklistState();

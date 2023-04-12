@@ -85,8 +85,10 @@ Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
       ? darkPluginStyleExtension
       : lightPluginStyleExtension;
   return pluginTheme.toList()
-    ..removeWhere((element) =>
-        element is HeadingPluginStyle || element is NumberListPluginStyle)
+    ..removeWhere(
+      (element) =>
+          element is HeadingPluginStyle || element is NumberListPluginStyle,
+    )
     ..add(headingPluginStyle)
     ..add(numberListPluginStyle);
 }

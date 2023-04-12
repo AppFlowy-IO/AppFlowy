@@ -15,16 +15,25 @@ class DateTypeOptionBloc
       (event, emit) async {
         event.map(
           didSelectDateFormat: (_DidSelectDateFormat value) {
-            emit(state.copyWith(
-                typeOption: _updateTypeOption(dateFormat: value.format)));
+            emit(
+              state.copyWith(
+                typeOption: _updateTypeOption(dateFormat: value.format),
+              ),
+            );
           },
           didSelectTimeFormat: (_DidSelectTimeFormat value) {
-            emit(state.copyWith(
-                typeOption: _updateTypeOption(timeFormat: value.format)));
+            emit(
+              state.copyWith(
+                typeOption: _updateTypeOption(timeFormat: value.format),
+              ),
+            );
           },
           includeTime: (_IncludeTime value) {
-            emit(state.copyWith(
-                typeOption: _updateTypeOption(includeTime: value.includeTime)));
+            emit(
+              state.copyWith(
+                typeOption: _updateTypeOption(includeTime: value.includeTime),
+              ),
+            );
           },
         );
       },

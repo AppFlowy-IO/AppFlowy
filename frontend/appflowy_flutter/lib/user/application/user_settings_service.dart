@@ -24,7 +24,8 @@ class UserSettingsBackendService {
   }
 
   Future<Either<Unit, FlowyError>> setAppearanceSetting(
-      AppearanceSettingsPB setting) {
+    AppearanceSettingsPB setting,
+  ) {
     return UserEventSetAppearanceSetting(setting).send();
   }
 }

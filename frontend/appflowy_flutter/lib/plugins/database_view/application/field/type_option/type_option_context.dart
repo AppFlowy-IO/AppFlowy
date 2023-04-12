@@ -158,7 +158,9 @@ abstract class IFieldTypeOptionLoader {
   Future<Either<TypeOptionPB, FlowyError>> load();
 
   Future<Either<Unit, FlowyError>> switchToField(
-      String fieldId, FieldType fieldType) {
+    String fieldId,
+    FieldType fieldType,
+  ) {
     final payload = UpdateFieldTypePayloadPB.create()
       ..viewId = viewId
       ..fieldId = fieldId

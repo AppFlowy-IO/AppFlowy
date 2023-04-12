@@ -14,11 +14,13 @@ class GridFilterMenuBloc
   void Function(List<FieldInfo>)? _onFieldFn;
 
   GridFilterMenuBloc({required this.viewId, required this.fieldController})
-      : super(GridFilterMenuState.initial(
-          viewId,
-          fieldController.filterInfos,
-          fieldController.fieldInfos,
-        )) {
+      : super(
+          GridFilterMenuState.initial(
+            viewId,
+            fieldController.filterInfos,
+            fieldController.fieldInfos,
+          ),
+        ) {
     on<GridFilterMenuEvent>(
       (event, emit) async {
         event.when(
@@ -82,7 +84,8 @@ class GridFilterMenuBloc
 class GridFilterMenuEvent with _$GridFilterMenuEvent {
   const factory GridFilterMenuEvent.initial() = _Initial;
   const factory GridFilterMenuEvent.didReceiveFilters(
-      List<FilterInfo> filters) = _DidReceiveFilters;
+    List<FilterInfo> filters,
+  ) = _DidReceiveFilters;
   const factory GridFilterMenuEvent.didReceiveFields(List<FieldInfo> fields) =
       _DidReceiveFields;
   const factory GridFilterMenuEvent.toggleMenu() = _SetMenuVisibility;

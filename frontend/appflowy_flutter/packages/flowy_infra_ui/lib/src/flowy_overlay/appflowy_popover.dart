@@ -82,7 +82,7 @@ class _PopoverContainer extends StatelessWidget {
     final decoration = this.decoration ??
         FlowyDecoration.decoration(
           Theme.of(context).cardColor,
-          Theme.of(context).colorScheme.shadow.withOpacity(0.15),
+          Theme.of(context).colorScheme.shadow,
         );
 
     return Material(

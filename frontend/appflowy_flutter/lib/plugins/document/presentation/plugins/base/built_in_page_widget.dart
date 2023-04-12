@@ -111,9 +111,11 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
         children: [
           // information
           FlowyIconButton(
-            tooltipText: LocaleKeys.tooltip_referencePage.tr(namedArgs: {
-              'name': viewPB.layout.name,
-            }),
+            tooltipText: LocaleKeys.tooltip_referencePage.tr(
+              namedArgs: {
+                'name': viewPB.layout.name,
+              },
+            ),
             width: 24,
             height: 24,
             iconPadding: const EdgeInsets.all(3),

@@ -100,7 +100,8 @@ jobs:
 
       - name: Flutter Analyzer
         working-directory: frontend/appflowy_flutter
-        run: flutter analyze
+        run: |
+          flutter analyze .
 
       - name: Run Flutter unit tests
         working-directory: frontend
