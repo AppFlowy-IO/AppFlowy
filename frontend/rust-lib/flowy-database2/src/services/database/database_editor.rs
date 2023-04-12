@@ -164,13 +164,36 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub fn update_field_type_option(
+  pub async fn update_field_type_option(
     &self,
-    _view_id: &str,
-    _field_id: &str,
-    _type_option_data: TypeOptionData,
-    _old_field: Option<Field>,
-  ) {
+    view_id: &str,
+    field_id: &str,
+    type_option_data: TypeOptionData,
+    old_field: Option<Field>,
+  ) -> FlowyResult<()> {
+    let field = self.database.lock().fields.get_field(field_id);
+    if field.is_none() {
+      tracing::warn!("Can't find the field with id: {}", field_id);
+      return Ok(());
+    }
+
+    let field = field.unwrap();
+    let field_type = FieldType::from(field.field_type);
+    self
+      .database
+      .lock()
+      .fields
+      .update_field(field_id, |update| {
+        update.update_type_options(|type_options_update| {
+          type_options_update.insert(&field_type.to_string(), type_option_data);
+        });
+      });
+    self
+      .database_views
+      .did_update_field_type_option(view_id, field_id, old_field.as_ref())
+      .await?;
+    let _ = self.notify_did_update_database_field(field_id).await;
+    Ok(())
   }
 
   #[tracing::instrument(level = "trace", skip_all, err)]

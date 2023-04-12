@@ -113,8 +113,10 @@ pub(crate) async fn update_field_handler(
   data: AFPluginData<FieldChangesetPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> Result<(), FlowyError> {
-  let changeset: FieldChangesetParams = data.into_inner().try_into()?;
-  todo!()
+  let params: FieldChangesetParams = data.into_inner().try_into()?;
+  let database_editor = manager.open_database(&params.view_id).await?;
+  database_editor.update_field(params).await?;
+  Ok(())
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]

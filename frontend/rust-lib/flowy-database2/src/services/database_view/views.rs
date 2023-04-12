@@ -88,7 +88,7 @@ impl DatabaseViews {
     &self,
     view_id: &str,
     field_id: &str,
-    old_field: Option<Arc<Field>>,
+    old_field: Option<&Field>,
   ) -> FlowyResult<()> {
     let view_editor = self.get_view_editor(view_id).await?;
     // If the id of the grouping field is equal to the updated field's id, then we need to

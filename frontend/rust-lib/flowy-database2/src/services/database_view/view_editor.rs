@@ -570,7 +570,7 @@ impl DatabaseViewEditor {
   pub async fn v_did_update_field_type_option(
     &self,
     field_id: &str,
-    old_field: Option<Arc<Field>>,
+    old_field: Option<&Field>,
   ) -> FlowyResult<()> {
     if let Some(field) = self.delegate.get_field(field_id).await {
       self
@@ -580,6 +580,10 @@ impl DatabaseViewEditor {
         .did_update_view_field_type_option(&field)
         .await;
 
+      // let filter = self
+      //   .delegate
+      //   .get_filter_by_field_id(&self.view_id, field_id);
+      //
       // let old = old_field.map(|old_field| FilterType::from(filter));
       // let new = FilterType::from(field.as_ref());
       // let filter_type = UpdatedFilterType::new(old, new);
