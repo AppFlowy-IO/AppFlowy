@@ -9,6 +9,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:appflowy_backend/log.dart';
@@ -208,9 +209,8 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
           ),
           selectedDayPredicate: (day) => isSameDay(state.dateTime, day),
           onDaySelected: (selectedDay, focusedDay) {
-            context
-                .read<DateCellCalendarBloc>()
-                .add(DateCellCalendarEvent.selectDay(selectedDay));
+            context.read<DateCellCalendarBloc>().add(
+                DateCellCalendarEvent.selectDay(selectedDay.toLocal().date));
           },
           onFormatChanged: (format) {
             context

@@ -8,7 +8,7 @@ use crate::services::field::{
 };
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
-use chrono::{DateTime, Local, NaiveDate, NaiveDateTime, NaiveTime, Offset, TimeZone};
+use chrono::{DateTime, Local, NaiveDateTime, NaiveTime, Offset, TimeZone};
 use chrono_tz::Tz;
 use database_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use flowy_derive::ProtoBuf;
@@ -126,7 +126,7 @@ impl CellDataChangeset for DateTypeOptionPB {
     changeset: <Self as TypeOption>::CellChangeset,
     type_cell_data: Option<TypeCellData>,
   ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
-    // the old data
+    // old date cell data
     let (timestamp, include_time, timezone_id) = match type_cell_data {
       None => (None, false, "".to_owned()),
       Some(type_cell_data) => {
@@ -139,6 +139,7 @@ impl CellDataChangeset for DateTypeOptionPB {
       },
     };
 
+    // update include_time and timezone_id if present
     let include_time = match changeset.include_time {
       None => include_time,
       Some(include_time) => include_time,
@@ -148,101 +149,96 @@ impl CellDataChangeset for DateTypeOptionPB {
       Some(ref timezone_id) => timezone_id.to_owned(),
     };
 
-    let timestamp_datetime = match timestamp {
+    let previous_datetime = match timestamp {
       Some(timestamp) => NaiveDateTime::from_timestamp_opt(timestamp, 0),
       None => None,
     };
 
     let new_date_timestamp = changeset.date_timestamp();
 
-    let timestamp = match (include_time, changeset.time) {
+    // parse the time string, which would be in the local timezone
+    let parsed_time = match (include_time, changeset.time) {
       (true, Some(time_str)) => {
-        // parse the time string, it is in the local timezone
-        let parsed_time = NaiveTime::parse_from_str(&time_str, self.time_format.format_str());
-        let local_time = match parsed_time {
-          Ok(time) => Ok(time),
+        let result = NaiveTime::parse_from_str(&time_str, self.time_format.format_str());
+        match result {
+          Ok(time) => Ok(Some(time)),
           Err(_e) => {
             let msg = format!("Parse {} failed", time_str);
             Err(FlowyError::new(ErrorCode::InvalidDateTimeFormat, &msg))
           },
-        }?;
-
-        match Tz::from_str(&timezone_id) {
-          Ok(timezone) => {
-            let local_date = match new_date_timestamp {
-              Some(timestamp) => {
-                let datetime = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
-                timezone.from_utc_datetime(&datetime).date_naive()
-              },
-              None => match timestamp_datetime {
-                Some(datetime) => timezone.from_utc_datetime(&datetime).date_naive(),
-                None => NaiveDate::from_num_days_from_ce_opt(0).unwrap(),
-              },
-            };
-
-            let dummy_date = NaiveDate::from_num_days_from_ce_opt(0).unwrap();
-            let local_time = timezone
-              .from_local_datetime(&NaiveDateTime::new(dummy_date, local_time))
-              .unwrap()
-              .time();
-
-            let local_datetime = NaiveDateTime::new(local_date, local_time);
-            let datetime = timezone.from_local_datetime(&local_datetime).unwrap();
-
-            Some(datetime.timestamp())
-          },
-          Err(_) => {
-            let offset = Local::now().offset().clone();
-
-            let local_date = match new_date_timestamp {
-              Some(timestamp) => {
-                let datetime = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
-                offset.from_utc_datetime(&datetime).date_naive()
-              },
-              None => match timestamp_datetime {
-                Some(datetime) => offset.from_utc_datetime(&datetime).date_naive(),
-                None => NaiveDate::from_num_days_from_ce_opt(0).unwrap(),
-              },
-            };
-
-            let dummy_date = NaiveDate::from_num_days_from_ce_opt(0).unwrap();
-            let local_time = offset
-              .from_local_datetime(&NaiveDateTime::new(dummy_date, local_time))
-              .unwrap()
-              .time();
-
-            let local_datetime = NaiveDateTime::new(local_date, local_time);
-            let datetime = offset.from_local_datetime(&local_datetime).unwrap();
-
-            Some(datetime.timestamp())
-          },
         }
       },
-      _ => {
-        let time = match timestamp_datetime {
-          Some(datetime) => datetime.time(),
-          None => NaiveTime::from_num_seconds_from_midnight_opt(0, 0).unwrap(),
-        };
+      _ => Ok(None),
+    }?;
 
-        let date = match new_date_timestamp {
-          Some(timestamp) => Some(
-            NaiveDateTime::from_timestamp_opt(timestamp, 0)
-              .unwrap()
-              .date(),
-          ),
-          None => match timestamp_datetime {
-            Some(datetime) => Some(datetime.date()),
+    // Calculate the new timestamp, while keeping in mind the timezone.
+    // If a new timestamp is included in the changeset without an accompanying
+    // time string, the new timestamp will simply overwrite the old one. This
+    // means that in order to change the day without time in the frontend,
+    // the time string must also be passed. This removes confusion over
+    // unfavorable situations where the time component of a new timestamp gets
+    // removed.
+    let timestamp = match Tz::from_str(&timezone_id) {
+      Ok(timezone) => match parsed_time {
+        Some(time) => {
+          // a valid time is provided, so we can replace the time component of old or new timestamp with this.
+          let local_date = match new_date_timestamp {
+            Some(timestamp) => Some(
+              timezone
+                .from_utc_datetime(&NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap())
+                .date_naive(),
+            ),
+            None => match previous_datetime {
+              Some(datetime) => Some(timezone.from_utc_datetime(&datetime).date_naive()),
+              None => None,
+            },
+          };
+
+          match local_date {
+            Some(date) => {
+              let local_datetime = NaiveDateTime::new(date, time);
+              let datetime = timezone.from_local_datetime(&local_datetime).unwrap();
+
+              Some(datetime.timestamp())
+            },
             None => None,
-          },
-        };
+          }
+        },
+        None => match new_date_timestamp {
+          Some(timestamp) => Some(timestamp),
+          None => timestamp,
+        },
+      },
+      Err(_) => match parsed_time {
+        Some(time) => {
+          let offset = Local::now().offset().clone();
 
-        match date {
-          Some(date) => {
-            let datetime = NaiveDateTime::new(date, time);
-            Some(datetime.timestamp())
-          },
-          None => None,
-        }
+          let local_date = match new_date_timestamp {
+            Some(timestamp) => Some(
+              offset
+                .from_utc_datetime(&NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap())
+                .date_naive(),
+            ),
+            None => match previous_datetime {
+              Some(datetime) => Some(offset.from_utc_datetime(&datetime).date_naive()),
+              None => None,
+            },
+          };
+
+          match local_date {
+            Some(date) => {
+              let local_datetime = NaiveDateTime::new(date, time);
+              let datetime = offset.from_local_datetime(&local_datetime).unwrap();
+
+              Some(datetime.timestamp())
+            },
+            None => None,
+          }
+        },
+        None => match new_date_timestamp {
+          Some(timestamp) => Some(timestamp),
+          None => timestamp,
+        },
       },
     };
 
