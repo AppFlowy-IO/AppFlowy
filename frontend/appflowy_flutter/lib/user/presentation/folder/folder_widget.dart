@@ -220,7 +220,10 @@ class CreateFolderWidgetState extends State<CreateFolderWidget> {
 }
 
 Widget _buildTextButton(
-    BuildContext context, String title, VoidCallback onPressed) {
+  BuildContext context,
+  String title,
+  VoidCallback onPressed,
+) {
   return FlowyTextButton(
     title,
     onPressed: onPressed,

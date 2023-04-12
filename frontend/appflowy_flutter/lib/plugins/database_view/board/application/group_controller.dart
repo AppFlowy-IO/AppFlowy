@@ -41,44 +41,46 @@ class GroupController {
   }
 
   void startListening() {
-    _listener.start(onGroupChanged: (result) {
-      result.fold(
-        (GroupRowsNotificationPB changeset) {
-          for (final deletedRow in changeset.deletedRows) {
-            group.rows.removeWhere((rowPB) => rowPB.id == deletedRow);
-            delegate.removeRow(group, deletedRow);
-          }
-
-          for (final insertedRow in changeset.insertedRows) {
-            final index = insertedRow.hasIndex() ? insertedRow.index : null;
-            if (insertedRow.hasIndex() &&
-                group.rows.length > insertedRow.index) {
-              group.rows.insert(insertedRow.index, insertedRow.row);
-            } else {
-              group.rows.add(insertedRow.row);
+    _listener.start(
+      onGroupChanged: (result) {
+        result.fold(
+          (GroupRowsNotificationPB changeset) {
+            for (final deletedRow in changeset.deletedRows) {
+              group.rows.removeWhere((rowPB) => rowPB.id == deletedRow);
+              delegate.removeRow(group, deletedRow);
             }
 
-            if (insertedRow.isNew) {
-              delegate.addNewRow(group, insertedRow.row, index);
-            } else {
-              delegate.insertRow(group, insertedRow.row, index);
-            }
-          }
+            for (final insertedRow in changeset.insertedRows) {
+              final index = insertedRow.hasIndex() ? insertedRow.index : null;
+              if (insertedRow.hasIndex() &&
+                  group.rows.length > insertedRow.index) {
+                group.rows.insert(insertedRow.index, insertedRow.row);
+              } else {
+                group.rows.add(insertedRow.row);
+              }
 
-          for (final updatedRow in changeset.updatedRows) {
-            final index = group.rows.indexWhere(
-              (rowPB) => rowPB.id == updatedRow.id,
-            );
-
-            if (index != -1) {
-              group.rows[index] = updatedRow;
-              delegate.updateRow(group, updatedRow);
+              if (insertedRow.isNew) {
+                delegate.addNewRow(group, insertedRow.row, index);
+              } else {
+                delegate.insertRow(group, insertedRow.row, index);
+              }
             }
-          }
-        },
-        (err) => Log.error(err),
-      );
-    });
+
+            for (final updatedRow in changeset.updatedRows) {
+              final index = group.rows.indexWhere(
+                (rowPB) => rowPB.id == updatedRow.id,
+              );
+
+              if (index != -1) {
+                group.rows[index] = updatedRow;
+                delegate.updateRow(group, updatedRow);
+              }
+            }
+          },
+          (err) => Log.error(err),
+        );
+      },
+    );
   }
 
   Future<void> dispose() async {

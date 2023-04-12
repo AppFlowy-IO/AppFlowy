@@ -46,10 +46,12 @@ class ChecklistFilterEditorBloc
           didReceiveFilter: (FilterPB filter) {
             final filterInfo = state.filterInfo.copyWith(filter: filter);
             final checklistFilter = filterInfo.checklistFilter()!;
-            emit(state.copyWith(
-              filterInfo: filterInfo,
-              filter: checklistFilter,
-            ));
+            emit(
+              state.copyWith(
+                filterInfo: filterInfo,
+                filter: checklistFilter,
+              ),
+            );
           },
         );
       },
@@ -82,7 +84,8 @@ class ChecklistFilterEditorEvent with _$ChecklistFilterEditorEvent {
   const factory ChecklistFilterEditorEvent.didReceiveFilter(FilterPB filter) =
       _DidReceiveFilter;
   const factory ChecklistFilterEditorEvent.updateCondition(
-      ChecklistFilterConditionPB condition) = _UpdateCondition;
+    ChecklistFilterConditionPB condition,
+  ) = _UpdateCondition;
   const factory ChecklistFilterEditorEvent.delete() = _Delete;
 }
 

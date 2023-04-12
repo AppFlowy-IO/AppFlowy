@@ -73,9 +73,11 @@ class _CalendarPageState extends State<CalendarPage> {
               listenWhen: (p, c) => p.updateEvent != c.updateEvent,
               listener: (context, state) {
                 if (state.updateEvent != null) {
-                  _eventController.removeWhere((element) =>
-                      state.updateEvent!.event!.eventId ==
-                      element.event!.eventId);
+                  _eventController.removeWhere(
+                    (element) =>
+                        state.updateEvent!.event!.eventId ==
+                        element.event!.eventId,
+                  );
                   _eventController.add(state.updateEvent!);
                 }
               },

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'colorscheme.dart';
 
-const _black = Color(0xff000000);
 const _white = Color(0xFFFFFFFF);
 const _lightHover = Color(0xFFe0f8ff);
 const _lightSelector = Color(0xfff2fcff);
@@ -51,7 +50,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           tint9: _lightTint9,
           main1: _lightMain1,
           main2: const Color(0xff00b7ea),
-          shadow: _black,
+          shadow: const Color.fromRGBO(0, 0, 0, 0.15),
           sidebarBg: _lightBg1,
           divider: _lightShader6,
           topbarBg: _white,

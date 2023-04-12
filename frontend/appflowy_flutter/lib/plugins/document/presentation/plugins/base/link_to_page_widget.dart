@@ -40,24 +40,26 @@ void showLinkToPageMenu(
   }
 
   _linkToPageMenu?.remove();
-  _linkToPageMenu = OverlayEntry(builder: (context) {
-    return Positioned(
-      top: alignment == Alignment.bottomLeft ? offset.dy : null,
-      bottom: alignment == Alignment.topLeft ? offset.dy : null,
-      left: offset.dx,
-      child: Material(
-        color: Colors.transparent,
-        child: LinkToPageMenu(
-          editorState: editorState,
-          layoutType: pageType,
-          hintText: hintText,
-          onSelected: (appPB, viewPB) {
-            editorState.insertPage(appPB, viewPB);
-          },
+  _linkToPageMenu = OverlayEntry(
+    builder: (context) {
+      return Positioned(
+        top: alignment == Alignment.bottomLeft ? offset.dy : null,
+        bottom: alignment == Alignment.topLeft ? offset.dy : null,
+        left: offset.dx,
+        child: Material(
+          color: Colors.transparent,
+          child: LinkToPageMenu(
+            editorState: editorState,
+            layoutType: pageType,
+            hintText: hintText,
+            onSelected: (appPB, viewPB) {
+              editorState.insertPage(appPB, viewPB);
+            },
+          ),
         ),
-      ),
-    );
-  });
+      );
+    },
+  );
 
   Overlay.of(context).insert(_linkToPageMenu!);
 
@@ -184,7 +186,9 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
       newSelectedIndex %= _totalItems;
     } else if (event.logicalKey == LogicalKeyboardKey.enter) {
       widget.onSelected(
-          _items[_selectedIndex]!.value1, _items[_selectedIndex]!.value2);
+        _items[_selectedIndex]!.value1,
+        _items[_selectedIndex]!.value2,
+      );
     }
 
     setState(() {
@@ -194,8 +198,11 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
     return KeyEventResult.handled;
   }
 
-  Widget _buildListWidget(BuildContext context, int selectedIndex,
-      Future<List<dartz.Tuple2<AppPB, List<ViewPB>>>>? items) {
+  Widget _buildListWidget(
+    BuildContext context,
+    int selectedIndex,
+    Future<List<dartz.Tuple2<AppPB, List<ViewPB>>>>? items,
+  ) {
     int index = 0;
     return FutureBuilder<List<dartz.Tuple2<AppPB, List<ViewPB>>>>(
       builder: (context, snapshot) {

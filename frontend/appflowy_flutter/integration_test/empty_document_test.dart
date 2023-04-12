@@ -31,7 +31,8 @@ void main() {
     setUpAll(() async => await service.setUpAll());
     setUp(() async => await service.setUp());
 
-    testWidgets('/board shortcut creates a new board and view of the board', (tester) async {
+    testWidgets('/board shortcut creates a new board and view of the board',
+        (tester) async {
       await tester.initializeAppFlowy();
 
       // Needs tab to obtain focus for the app flowy editor.
@@ -44,24 +45,30 @@ void main() {
       // does not contain any EditableText widgets.
       // to interact with the app during an integration test,
       // simulate physical keyboard events.
-      await FlowyTestKeyboard.simulateKeyDownEvent([
-        LogicalKeyboardKey.slash,
-        LogicalKeyboardKey.keyB,
-        LogicalKeyboardKey.keyO,
-        LogicalKeyboardKey.keyA,
-        LogicalKeyboardKey.keyR,
-        LogicalKeyboardKey.keyD,
-        LogicalKeyboardKey.arrowDown,
-      ], tester: tester);
+      await FlowyTestKeyboard.simulateKeyDownEvent(
+        [
+          LogicalKeyboardKey.slash,
+          LogicalKeyboardKey.keyB,
+          LogicalKeyboardKey.keyO,
+          LogicalKeyboardKey.keyA,
+          LogicalKeyboardKey.keyR,
+          LogicalKeyboardKey.keyD,
+          LogicalKeyboardKey.arrowDown,
+        ],
+        tester: tester,
+      );
 
       // Checks whether the options in the selection menu
       // for /board exist.
       expect(find.byType(SelectionMenuItemWidget), findsAtLeastNWidgets(2));
 
       // Finalizes the slash command that creates the board.
-      await FlowyTestKeyboard.simulateKeyDownEvent([
-        LogicalKeyboardKey.enter,
-      ], tester: tester);
+      await FlowyTestKeyboard.simulateKeyDownEvent(
+        [
+          LogicalKeyboardKey.enter,
+        ],
+        tester: tester,
+      );
 
       // Checks whether new board is referenced and properly on the page.
       expect(find.byType(BuiltInPageWidget), findsOneWidget);
@@ -75,7 +82,8 @@ void main() {
       expect(find.text(viewOfBoardLabel), findsNWidgets(2));
     });
 
-    testWidgets('/grid shortcut creates a new grid and view of the grid', (tester) async {
+    testWidgets('/grid shortcut creates a new grid and view of the grid',
+        (tester) async {
       await tester.initializeAppFlowy();
 
       // Needs tab to obtain focus for the app flowy editor.
@@ -88,14 +96,17 @@ void main() {
       // does not contain any EditableText widgets.
       // to interact with the app during an integration test,
       // simulate physical keyboard events.
-      await FlowyTestKeyboard.simulateKeyDownEvent([
-        LogicalKeyboardKey.slash,
-        LogicalKeyboardKey.keyG,
-        LogicalKeyboardKey.keyR,
-        LogicalKeyboardKey.keyI,
-        LogicalKeyboardKey.keyD,
-        LogicalKeyboardKey.arrowDown,
-      ], tester: tester);
+      await FlowyTestKeyboard.simulateKeyDownEvent(
+        [
+          LogicalKeyboardKey.slash,
+          LogicalKeyboardKey.keyG,
+          LogicalKeyboardKey.keyR,
+          LogicalKeyboardKey.keyI,
+          LogicalKeyboardKey.keyD,
+          LogicalKeyboardKey.arrowDown,
+        ],
+        tester: tester,
+      );
 
       // Checks whether the options in the selection menu
       // for /grid exist.

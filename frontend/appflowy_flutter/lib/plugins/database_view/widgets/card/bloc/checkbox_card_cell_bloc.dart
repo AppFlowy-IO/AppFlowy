@@ -66,7 +66,8 @@ class CheckboxCardCellState with _$CheckboxCardCellState {
 
   factory CheckboxCardCellState.initial(TextCellController context) {
     return CheckboxCardCellState(
-        isSelected: _isSelected(context.getCellData()));
+      isSelected: _isSelected(context.getCellData()),
+    );
   }
 }
 

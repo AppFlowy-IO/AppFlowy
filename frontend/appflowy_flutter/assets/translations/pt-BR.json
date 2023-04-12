@@ -287,7 +287,7 @@
       "optionTitle": "Opções",
       "addOption": "Adicioar opção",
       "editProperty": "Editar propriedade",
-      "newColumn": "Nova coluna",
+      "newProperty": "Nova coluna",
       "deleteFieldPromptMessage": "Tem certeza? Esta propriedade será excluída"
     },
     "sort": {

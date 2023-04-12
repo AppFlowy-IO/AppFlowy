@@ -25,42 +25,45 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
-        builder: (context, state) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          FlowyText.semibold(
-            LocaleKeys.moreAction_fontSize.tr(),
-            fontSize: 12,
-            color: Theme.of(context).colorScheme.tertiary,
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          ToggleButtons(
-            isSelected:
-                _fontSizes.map((e) => e.item2 == state.fontSize).toList(),
-            onPressed: (int index) {
-              _updateSelectedFontSize(_fontSizes[index].item2);
-            },
-            borderRadius: const BorderRadius.all(Radius.circular(5)),
-            selectedColor: Theme.of(context).colorScheme.tertiary,
-            fillColor: Theme.of(context).colorScheme.primary,
-            color: Theme.of(context).hintColor,
-            constraints: const BoxConstraints(
-              minHeight: 40.0,
-              minWidth: 80.0,
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FlowyText.semibold(
+              LocaleKeys.moreAction_fontSize.tr(),
+              fontSize: 12,
+              color: Theme.of(context).colorScheme.tertiary,
             ),
-            children: _fontSizes
-                .map((e) => Text(
+            const SizedBox(
+              height: 5,
+            ),
+            ToggleButtons(
+              isSelected:
+                  _fontSizes.map((e) => e.item2 == state.fontSize).toList(),
+              onPressed: (int index) {
+                _updateSelectedFontSize(_fontSizes[index].item2);
+              },
+              borderRadius: const BorderRadius.all(Radius.circular(5)),
+              selectedColor: Theme.of(context).colorScheme.tertiary,
+              fillColor: Theme.of(context).colorScheme.primary,
+              color: Theme.of(context).hintColor,
+              constraints: const BoxConstraints(
+                minHeight: 40.0,
+                minWidth: 80.0,
+              ),
+              children: _fontSizes
+                  .map(
+                    (e) => Text(
                       e.item1,
                       style: TextStyle(fontSize: e.item2),
-                    ))
-                .toList(),
-          ),
-        ],
-      );
-    });
+                    ),
+                  )
+                  .toList(),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _updateSelectedFontSize(double fontSize) {

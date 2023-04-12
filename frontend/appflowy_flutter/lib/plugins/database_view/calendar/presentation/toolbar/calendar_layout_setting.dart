@@ -18,6 +18,8 @@ import 'package:protobuf/protobuf.dart';
 
 import 'calendar_setting.dart';
 
+/// Widget that displays a list of settings that alters the appearance of the
+/// calendar
 class CalendarLayoutSetting extends StatefulWidget {
   final CalendarSettingContext settingContext;
   final Function(CalendarLayoutSettingsPB? layoutSettings) onUpdated;
@@ -96,18 +98,15 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
                 fieldId: settings.layoutFieldId,
                 popoverMutex: popoverMutex,
                 onUpdated: (fieldId) {
-                  _updateLayoutSettings(context,
-                      onUpdated: widget.onUpdated, layoutFieldId: fieldId);
+                  _updateLayoutSettings(
+                    context,
+                    onUpdated: widget.onUpdated,
+                    layoutFieldId: fieldId,
+                  );
                 },
               );
             default:
-              return ShowWeekends(
-                showWeekends: settings.showWeekends,
-                onUpdated: (showWeekends) {
-                  _updateLayoutSettings(context,
-                      onUpdated: widget.onUpdated, showWeekends: showWeekends);
-                },
-              );
+              return const SizedBox();
           }
         }).toList();
 
@@ -129,7 +128,8 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
   }
 
   List<CalendarLayoutSettingAction> _availableCalendarSettings(
-      CalendarLayoutSettingsPB layoutSettings) {
+    CalendarLayoutSettingsPB layoutSettings,
+  ) {
     List<CalendarLayoutSettingAction> settings = [
       CalendarLayoutSettingAction.layoutField,
       // CalendarLayoutSettingAction.layoutType,
@@ -220,8 +220,9 @@ class LayoutDateField extends StatelessWidget {
       popupBuilder: (context) {
         return BlocProvider(
           create: (context) => getIt<DatabasePropertyBloc>(
-              param1: viewId, param2: fieldController)
-            ..add(const DatabasePropertyEvent.initial()),
+            param1: viewId,
+            param2: fieldController,
+          )..add(const DatabasePropertyEvent.initial()),
           child: BlocBuilder<DatabasePropertyBloc, DatabasePropertyState>(
             builder: (context, state) {
               final items = state.fieldContexts
@@ -264,7 +265,8 @@ class LayoutDateField extends StatelessWidget {
         child: FlowyButton(
           margin: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
           text: FlowyText.medium(
-              LocaleKeys.calendar_settings_layoutDateField.tr()),
+            LocaleKeys.calendar_settings_layoutDateField.tr(),
+          ),
         ),
       ),
     );
@@ -368,7 +370,8 @@ class FirstDayOfWeek extends StatelessWidget {
         child: FlowyButton(
           margin: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
           text: FlowyText.medium(
-              LocaleKeys.calendar_settings_firstDayOfWeek.tr()),
+            LocaleKeys.calendar_settings_firstDayOfWeek.tr(),
+          ),
         ),
       ),
     );

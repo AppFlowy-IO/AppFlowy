@@ -40,7 +40,9 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   }
 
   Future<void> _moveField(
-      _MoveField value, Emitter<GridHeaderState> emit) async {
+    _MoveField value,
+    Emitter<GridHeaderState> emit,
+  ) async {
     final fields = List<FieldInfo>.from(state.fields);
     fields.insert(value.toIndex, fields.removeAt(value.fromIndex));
     emit(state.copyWith(fields: fields));
@@ -69,7 +71,10 @@ class GridHeaderEvent with _$GridHeaderEvent {
   const factory GridHeaderEvent.didReceiveFieldUpdate(List<FieldInfo> fields) =
       _DidReceiveFieldUpdate;
   const factory GridHeaderEvent.moveField(
-      FieldPB field, int fromIndex, int toIndex) = _MoveField;
+    FieldPB field,
+    int fromIndex,
+    int toIndex,
+  ) = _MoveField;
 }
 
 @freezed

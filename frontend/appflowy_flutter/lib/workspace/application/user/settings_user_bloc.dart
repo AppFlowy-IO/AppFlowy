@@ -84,7 +84,8 @@ class SettingsUserEvent with _$SettingsUserEvent {
   const factory SettingsUserEvent.updateUserOpenAIKey(String openAIKey) =
       _UpdateUserOpenaiKey;
   const factory SettingsUserEvent.didReceiveUserProfile(
-      UserProfilePB newUserProfile) = _DidReceiveUserProfile;
+    UserProfilePB newUserProfile,
+  ) = _DidReceiveUserProfile;
 }
 
 @freezed
