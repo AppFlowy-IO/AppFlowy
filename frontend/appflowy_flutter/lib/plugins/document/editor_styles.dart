@@ -2,6 +2,11 @@ import 'package:appflowy/plugins/document/presentation/more/cubit/document_appea
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:io';
+
+class AppFlowyPlatform {
+  static bool get isMobile => Platform.isAndroid || Platform.isIOS;
+}
 
 EditorStyle customEditorTheme(BuildContext context) {
   final documentStyle = context.watch<DocumentAppearanceCubit>().state;
@@ -9,7 +14,9 @@ EditorStyle customEditorTheme(BuildContext context) {
       ? EditorStyle.dark
       : EditorStyle.light;
   editorStyle = editorStyle.copyWith(
-    padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 0),
+    padding: AppFlowyPlatform.isMobile
+        ? const EdgeInsets.symmetric(horizontal: 15, vertical: 0)
+        : const EdgeInsets.symmetric(horizontal: 100, vertical: 0),
     textStyle: editorStyle.textStyle?.copyWith(
       fontFamily: 'poppins',
       fontSize: documentStyle.fontSize,
