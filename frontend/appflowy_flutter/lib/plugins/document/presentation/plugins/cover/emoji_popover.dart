@@ -50,14 +50,15 @@ class _EmojiPopoverState extends State<EmojiPopover> {
             ],
           );
         },
-        config: const Config(
+        config: Config(
           columns: 8,
           emojiSizeMax: 28,
           bgColor: Colors.transparent,
-          iconColor: Colors.grey,
-          iconColorSelected: Color(0xff333333),
-          indicatorColor: Color(0xff333333),
-          progressIndicatorColor: Color(0xff333333),
+          iconColor: Theme.of(context).iconTheme.color ?? Colors.blue,
+          iconColorSelected: Theme.of(context).colorScheme.onSurface,
+          selectedHoverColor: Theme.of(context).colorScheme.secondary,
+          progressIndicatorColor:
+              Theme.of(context).iconTheme.color ?? Colors.blue,
           buttonMode: ButtonMode.CUPERTINO,
           initCategory: Category.RECENT,
         ),
