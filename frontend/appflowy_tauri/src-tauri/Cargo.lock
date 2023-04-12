@@ -564,7 +564,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#9b3f895bb6f8e92830acd90cfb68b69aece83095"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#4ccf3e5cf88ee71f1ce257e587cca54a8173abae"
 dependencies = [
  "anyhow",
  "bytes",
@@ -582,7 +582,7 @@ dependencies = [
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#9b3f895bb6f8e92830acd90cfb68b69aece83095"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#4ccf3e5cf88ee71f1ce257e587cca54a8173abae"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -592,9 +592,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "collab-document"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#4ccf3e5cf88ee71f1ce257e587cca54a8173abae"
+dependencies = [
+ "anyhow",
+ "collab",
+ "collab-derive",
+ "collab-persistence",
+ "nanoid",
+ "parking_lot 0.12.1",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#9b3f895bb6f8e92830acd90cfb68b69aece83095"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#4ccf3e5cf88ee71f1ce257e587cca54a8173abae"
 dependencies = [
  "anyhow",
  "collab",
@@ -612,7 +628,7 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#9b3f895bb6f8e92830acd90cfb68b69aece83095"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#4ccf3e5cf88ee71f1ce257e587cca54a8173abae"
 dependencies = [
  "bincode",
  "chrono",
@@ -1284,6 +1300,7 @@ dependencies = [
  "flowy-client-ws",
  "flowy-database",
  "flowy-document",
+ "flowy-document2",
  "flowy-error",
  "flowy-folder",
  "flowy-folder2",
@@ -1408,6 +1425,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-document2"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "collab",
+ "collab-document",
+ "collab-persistence",
+ "flowy-codegen",
+ "flowy-derive",
+ "flowy-error",
+ "flowy-notification",
+ "lib-dispatch",
+ "nanoid",
+ "parking_lot 0.12.1",
+ "protobuf",
+ "serde",
+ "serde_json",
+ "strum",
+ "strum_macros",
+]
+
+[[package]]
 name = "flowy-error"
 version = "0.1.0"
 dependencies = [
@@ -1511,6 +1550,7 @@ dependencies = [
  "flowy-codegen",
  "flowy-derive",
  "flowy-document",
+ "flowy-document2",
  "flowy-error",
  "flowy-folder2",
  "flowy-server-sync",

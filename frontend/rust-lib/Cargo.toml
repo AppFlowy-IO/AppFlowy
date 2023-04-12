@@ -43,6 +43,8 @@ collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", branch = "mai
 collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", branch = "main"  }
 collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", branch = "main" }
 collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", branch = "main" }
-#collab = { path = "../AppFlowy-Collab/collab" }
-#collab-folder = { path = "../AppFlowy-Collab/collab-folder" }
-#collab-persistence = { path = "../AppFlowy-Collab/collab-persistence" }
+
+# collab = { path = "../AppFlowy-Collab/collab" }
+# collab-folder = { path = "../AppFlowy-Collab/collab-folder" }
+# collab-persistence = { path = "../AppFlowy-Collab/collab-persistence" }
+# collab-document = { path = "../AppFlowy-Collab/collab-document" }
