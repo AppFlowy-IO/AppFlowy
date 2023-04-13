@@ -1,16 +1,19 @@
+use std::convert::TryInto;
+
+use collab_database::views::DatabaseLayout;
+use strum_macros::EnumIter;
+
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_error::ErrorCode;
+
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
   AlterFilterParams, AlterFilterPayloadPB, AlterSortParams, AlterSortPayloadPB,
-  CalendarLayoutSettingsPB, DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams,
+  CalendarLayoutSettingPB, DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams,
   DeleteGroupPayloadPB, DeleteSortParams, DeleteSortPayloadPB, InsertGroupParams,
   InsertGroupPayloadPB, RepeatedFilterPB, RepeatedGroupSettingPB, RepeatedSortPB,
 };
 use crate::services::setting::CalendarLayoutSetting;
-use collab_database::views::DatabaseLayout;
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error::ErrorCode;
-use std::convert::TryInto;
-use strum_macros::EnumIter;
 
 /// [DatabaseViewSettingPB] defines the setting options for the grid. Such as the filter, group, and sort.
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -163,24 +166,18 @@ impl DatabaseSettingChangesetParams {
 #[derive(Debug, Eq, PartialEq, Default, ProtoBuf, Clone)]
 pub struct LayoutSettingPB {
   #[pb(index = 1, one_of)]
-  pub calendar: Option<CalendarLayoutSettingsPB>,
+  pub calendar: Option<CalendarLayoutSettingPB>,
 }
 
-impl LayoutSettingPB {
-  pub fn new() -> Self {
-    Self::default()
-  }
-}
-
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Clone)]
 pub struct LayoutSettingParams {
   pub calendar: Option<CalendarLayoutSetting>,
 }
 
 impl From<LayoutSettingParams> for LayoutSettingPB {
-  fn from(params: LayoutSettingParams) -> Self {
+  fn from(data: LayoutSettingParams) -> Self {
     Self {
-      calendar: params.calendar.map(|calendar| calendar.into()),
+      calendar: data.calendar.map(|calendar| calendar.into()),
     }
   }
 }
@@ -190,29 +187,27 @@ pub struct UpdateLayoutSettingPB {
   #[pb(index = 1)]
   pub view_id: String,
 
-  #[pb(index = 2)]
-  pub layout_setting: LayoutSettingPB,
+  #[pb(index = 2, one_of)]
+  pub calendar: Option<CalendarLayoutSettingPB>,
 }
 
-// #[derive(Debug)]
-// pub struct UpdateLayoutSettingParams {
-//   pub view_id: String,
-//   pub layout_setting: LayoutSettingParams,
-// }
-//
-// impl TryInto<UpdateLayoutSettingParams> for UpdateLayoutSettingPB {
-//   type Error = ErrorCode;
-//
-//   fn try_into(self) -> Result<UpdateLayoutSettingParams, Self::Error> {
-//     let view_id = NotEmptyStr::parse(self.view_id)
-//       .map_err(|_| ErrorCode::ViewIdIsInvalid)?
-//       .0;
-//
-//     let layout_setting: LayoutSettingParams = self.layout_setting.into();
-//
-//     Ok(UpdateLayoutSettingParams {
-//       view_id,
-//       layout_setting,
-//     })
-//   }
-// }
+#[derive(Debug)]
+pub struct UpdateLayoutSettingParams {
+  pub view_id: String,
+  pub calendar: Option<CalendarLayoutSetting>,
+}
+
+impl TryInto<UpdateLayoutSettingParams> for UpdateLayoutSettingPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<UpdateLayoutSettingParams, Self::Error> {
+    let view_id = NotEmptyStr::parse(self.view_id)
+      .map_err(|_| ErrorCode::ViewIdIsInvalid)?
+      .0;
+
+    Ok(UpdateLayoutSettingParams {
+      view_id,
+      calendar: self.calendar.map(|calendar| calendar.into()),
+    })
+  }
+}

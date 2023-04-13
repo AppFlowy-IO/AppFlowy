@@ -1,16 +1,18 @@
-use crate::entities::{DateCellDataPB, FieldType};
-use crate::services::cell::{
-  CellProtobufBlobParser, DecodedCellData, FromCellChangesetString, FromCellString,
-  ToCellChangesetString,
-};
+use std::fmt;
+
 use bytes::Bytes;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::{new_cell_builder, Cell};
-use flowy_error::{internal_error, FlowyResult};
 use serde::de::Visitor;
 use serde::{Deserialize, Serialize};
-use std::fmt;
 use strum_macros::EnumIter;
+
+use flowy_error::{internal_error, FlowyResult};
+
+use crate::entities::{DateCellDataPB, FieldType};
+use crate::services::cell::{
+  CellProtobufBlobParser, DecodedCellData, FromCellChangeset, FromCellString, ToCellChangeset,
+};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DateCellChangeset {
@@ -33,7 +35,7 @@ impl DateCellChangeset {
   }
 }
 
-impl FromCellChangesetString for DateCellChangeset {
+impl FromCellChangeset for DateCellChangeset {
   fn from_changeset(changeset: String) -> FlowyResult<Self>
   where
     Self: Sized,
@@ -42,7 +44,7 @@ impl FromCellChangesetString for DateCellChangeset {
   }
 }
 
-impl ToCellChangesetString for DateCellChangeset {
+impl ToCellChangeset for DateCellChangeset {
   fn to_cell_changeset_str(&self) -> String {
     serde_json::to_string(self).unwrap_or_default()
   }

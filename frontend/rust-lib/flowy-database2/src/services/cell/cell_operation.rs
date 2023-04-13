@@ -1,14 +1,15 @@
-use crate::entities::FieldType;
-use crate::services::cell::{CellCache, CellProtobufBlob};
-use crate::services::field::*;
 use std::collections::HashMap;
+use std::fmt::Debug;
 
-use crate::services::group::make_no_status_group;
 use collab_database::fields::Field;
 use collab_database::rows::{get_field_type_from_cell, Cell, Cells};
 
 use flowy_error::{ErrorCode, FlowyResult};
-use std::fmt::Debug;
+
+use crate::entities::FieldType;
+use crate::services::cell::{CellCache, CellProtobufBlob};
+use crate::services::field::*;
+use crate::services::group::make_no_status_group;
 
 /// Decode the opaque cell data into readable format content
 pub trait CellDataDecoder: TypeOption {
@@ -57,7 +58,7 @@ pub trait CellDataChangeset: TypeOption {
 ///         FieldType::SingleSelect => SelectOptionChangeset
 ///
 /// cell_rev: It will be None if the cell does not contain any data.
-pub fn apply_cell_data_changeset<C: ToCellChangesetString>(
+pub fn apply_cell_data_changeset<C: ToCellChangeset>(
   changeset: C,
   cell: Option<Cell>,
   field: &Field,
@@ -257,13 +258,13 @@ pub trait FromCellString {
 
 /// If the changeset applying to the cell is not String type, it should impl this trait.
 /// Deserialize the string into cell specific changeset.
-pub trait FromCellChangesetString {
+pub trait FromCellChangeset {
   fn from_changeset(changeset: String) -> FlowyResult<Self>
   where
     Self: Sized;
 }
 
-impl FromCellChangesetString for String {
+impl FromCellChangeset for String {
   fn from_changeset(changeset: String) -> FlowyResult<Self>
   where
     Self: Sized,
@@ -272,11 +273,11 @@ impl FromCellChangesetString for String {
   }
 }
 
-pub trait ToCellChangesetString: Debug {
+pub trait ToCellChangeset: Debug {
   fn to_cell_changeset_str(&self) -> String;
 }
 
-impl ToCellChangesetString for String {
+impl ToCellChangeset for String {
   fn to_cell_changeset_str(&self) -> String {
     self.clone()
   }
@@ -295,7 +296,7 @@ impl<T> AnyCellChangeset<T> {
 
 impl<T, C: ToString> std::convert::From<C> for AnyCellChangeset<T>
 where
-  T: FromCellChangesetString,
+  T: FromCellChangeset,
 {
   fn from(changeset: C) -> Self {
     match T::from_changeset(changeset.to_string()) {

@@ -115,7 +115,7 @@ pub fn move_group_row(
     // If the from_index is none which means the row is not belong to this group before and
     // it is moved from other groups.
     if from_index.is_none() {
-      let cell = make_inserted_cell_rev(&group.id, field);
+      let cell = make_inserted_cell(&group.id, field);
       if let Some(cell) = cell {
         tracing::debug!(
           "Update content of the cell in the row:{} to group:{}",
@@ -135,7 +135,7 @@ pub fn move_group_row(
   }
 }
 
-pub fn make_inserted_cell_rev(group_id: &str, field: &Field) -> Option<Cell> {
+pub fn make_inserted_cell(group_id: &str, field: &Field) -> Option<Cell> {
   let field_type = FieldType::from(field.field_type);
   match field_type {
     FieldType::SingleSelect => {

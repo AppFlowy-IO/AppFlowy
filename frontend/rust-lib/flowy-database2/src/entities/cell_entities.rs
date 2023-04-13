@@ -1,8 +1,10 @@
-use crate::entities::parser::NotEmptyStr;
-use crate::entities::FieldType;
 use collab_database::rows::RowId;
+
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
+
+use crate::entities::parser::NotEmptyStr;
+use crate::entities::FieldType;
 
 #[derive(ProtoBuf, Default)]
 pub struct CreateSelectOptionPayloadPB {
@@ -148,5 +150,5 @@ pub struct CellChangesetPB {
   pub field_id: String,
 
   #[pb(index = 4)]
-  pub type_cell_data: String,
+  pub cell_changeset: String,
 }

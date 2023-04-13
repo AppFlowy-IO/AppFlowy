@@ -13,7 +13,7 @@ use crate::entities::{
   MultiSelectTypeOptionPB, NumberTypeOptionPB, RichTextTypeOptionPB, SingleSelectTypeOptionPB,
   TypeOptionPB, URLTypeOptionPB,
 };
-use crate::services::cell::{CellDataDecoder, FromCellChangesetString, ToCellChangesetString};
+use crate::services::cell::{CellDataDecoder, FromCellChangeset, ToCellChangeset};
 use crate::services::field::{
   CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption,
   RichTextTypeOption, SingleSelectTypeOption, URLTypeOption,
@@ -37,7 +37,7 @@ pub trait TypeOption {
   /// The changeset must implements the `FromCellChangesetString` and the `ToCellChangesetString` trait.
   /// These two traits are auto implemented for `String`.
   ///  
-  type CellChangeset: FromCellChangesetString + ToCellChangesetString;
+  type CellChangeset: FromCellChangeset + ToCellChangeset;
 
   ///  For the moment, the protobuf type only be used in the FFI of `Dart`. If the decoded cell
   /// struct is just a `String`, then use the `StrCellData` as its `CellProtobufType`.

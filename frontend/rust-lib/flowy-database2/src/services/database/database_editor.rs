@@ -1,20 +1,21 @@
+use std::collections::HashMap;
 use std::ops::Deref;
 use std::sync::Arc;
 
 use bytes::Bytes;
 use collab_database::database::{gen_row_id, Database as InnerDatabase};
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Row, RowCell, RowId};
+use collab_database::rows::{Cell, Cells, Row, RowCell, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
-use lib_infra::future::{to_fut, Fut};
 use parking_lot::Mutex;
 use tokio::sync::{broadcast, RwLock};
 
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
+use lib_infra::future::{to_fut, Fut};
 
 use crate::entities::{
-  AlterFilterParams, AlterSortParams, CalendarLayoutSettingsPB, CellChangesetPB, CellPB,
+  AlterFilterParams, AlterSortParams, CalendarLayoutSettingPB, CellChangesetPB, CellPB,
   CreateRowParams, DatabaseFieldChangesetPB, DatabaseLayoutPB, DatabasePB, DatabaseViewSettingPB,
   DeleteFilterParams, DeleteGroupParams, DeleteSortParams, FieldChangesetParams, FieldIdPB,
   FieldPB, FieldType, FilterPB, GroupPB, GroupSettingPB, IndexFieldPB, InsertGroupParams,
@@ -24,7 +25,7 @@ use crate::entities::{
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
   apply_cell_data_changeset, get_type_cell_protobuf, AnyTypeCache, CellBuilder, CellCache,
-  ToCellChangesetString,
+  ToCellChangeset,
 };
 use crate::services::database::util::{database_view_setting_pb_from_view, get_database_data};
 use crate::services::database_view::{DatabaseViewData, DatabaseViews, RowEventSender};
@@ -429,7 +430,7 @@ impl DatabaseEditor {
 
   pub async fn update_cell<T>(&self, row_id: RowId, field_id: &str, cell_changeset: T) -> Option<()>
   where
-    T: ToCellChangesetString,
+    T: ToCellChangeset,
   {
     let (field, old_row, cell) = {
       let database = self.database.lock();
@@ -594,32 +595,50 @@ impl DatabaseEditor {
         let mut row_changeset = RowChangeset::new(row.id);
         let view = self.database_views.get_view_editor(view_id).await?;
         view
-          .v_move_group_row(&row, &mut row_changeset, &to_group_id, to_row)
+          .v_move_group_row(&row, &mut row_changeset, to_group, to_row)
           .await;
 
         tracing::trace!("Row data changed: {:?}", row_changeset);
-        let cell_changesets = row_changeset
-          .cell_by_field_id
-          .into_iter()
-          .map(|(field_id, cell)| CellChangesetPB {
-            view_id: view_id.to_string(),
-            row_id: row_changeset.row_id.into(),
-            field_id,
-            type_cell_data: cell.type_cell_data,
-          })
-          .collect::<Vec<CellChangesetPB>>();
+        self.database.lock().update_row(row.id, |row| {
+          row.set_cells(Cells::from(row_changeset.cell_by_field_id.clone()));
+        });
 
-        for cell_changeset in cell_changesets {
-          match block_manager.update_cell(cell_changeset).await {
-            Ok(_) => {},
-            Err(e) => tracing::error!("Apply cell changeset error:{:?}", e),
-          }
-        }
+        let cell_changesets = cell_changesets_from_cell_by_field_id(
+          view_id,
+          row_changeset.row_id,
+          row_changeset.cell_by_field_id,
+        );
+        notify_did_update_cell(cell_changesets).await;
       },
     }
 
     Ok(())
   }
+
+  pub async fn set_layout_setting<T: Into<LayoutSetting>>(
+    &self,
+    view_id: &str,
+    layout_ty: DatabaseLayout,
+    layout_setting: T,
+  ) {
+    let layout_setting = layout_setting.into();
+    self.database.lock().views.update_view(view_id, |view| {
+      view.update_layout_settings(&layout_ty, layout_setting);
+    });
+  }
+
+  pub async fn get_layout_setting<T: From<LayoutSetting>>(
+    &self,
+    view_id: &str,
+    layout_ty: DatabaseLayout,
+  ) -> Option<T> {
+    self
+      .database
+      .lock()
+      .views
+      .get_layout_setting(view_id, &layout_ty)
+  }
+
   #[tracing::instrument(level = "trace", skip_all, err)]
   async fn notify_did_insert_database_field(&self, field: Field, index: usize) -> FlowyResult<()> {
     let database_id = self.database.lock().get_database_id();
@@ -681,6 +700,30 @@ impl DatabaseEditor {
     let database = self.database.lock();
     get_database_data(&database)
   }
+}
+
+async fn notify_did_update_cell(changesets: Vec<CellChangesetPB>) {
+  for changeset in changesets {
+    let id = format!("{}:{}", changeset.row_id, changeset.field_id);
+    send_notification(&id, DatabaseNotification::DidUpdateCell).send();
+  }
+}
+
+fn cell_changesets_from_cell_by_field_id(
+  view_id: &str,
+  row_id: RowId,
+  cell_by_field_id: HashMap<String, Cell>,
+) -> Vec<CellChangesetPB> {
+  let row_id = row_id.into();
+  cell_by_field_id
+    .into_iter()
+    .map(|(field_id, cell)| CellChangesetPB {
+      view_id: view_id.to_string(),
+      row_id,
+      field_id,
+      cell_changeset: "".to_string(),
+    })
+    .collect::<Vec<CellChangesetPB>>()
 }
 
 #[derive(Clone)]

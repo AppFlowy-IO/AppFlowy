@@ -4,7 +4,7 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
 #[derive(Debug, Clone, Eq, PartialEq, Default, ProtoBuf)]
-pub struct CalendarLayoutSettingsPB {
+pub struct CalendarLayoutSettingPB {
   #[pb(index = 1)]
   pub field_id: String,
 
@@ -21,8 +21,8 @@ pub struct CalendarLayoutSettingsPB {
   pub show_week_numbers: bool,
 }
 
-impl std::convert::From<CalendarLayoutSettingsPB> for CalendarLayoutSetting {
-  fn from(pb: CalendarLayoutSettingsPB) -> Self {
+impl std::convert::From<CalendarLayoutSettingPB> for CalendarLayoutSetting {
+  fn from(pb: CalendarLayoutSettingPB) -> Self {
     CalendarLayoutSetting {
       layout_ty: pb.layout_ty.into(),
       first_day_of_week: pb.first_day_of_week,
@@ -33,9 +33,9 @@ impl std::convert::From<CalendarLayoutSettingsPB> for CalendarLayoutSetting {
   }
 }
 
-impl std::convert::From<CalendarLayoutSetting> for CalendarLayoutSettingsPB {
+impl std::convert::From<CalendarLayoutSetting> for CalendarLayoutSettingPB {
   fn from(params: CalendarLayoutSetting) -> Self {
-    CalendarLayoutSettingsPB {
+    CalendarLayoutSettingPB {
       field_id: params.field_id,
       layout_ty: params.layout_ty.into(),
       first_day_of_week: params.first_day_of_week,

@@ -1,15 +1,18 @@
-use crate::entities::DatabaseLayoutPB;
-use crate::services::database::{DatabaseEditor, MutexDatabase};
-use collab_database::user::UserDatabase as InnerUserDatabase;
-use collab_persistence::CollabKV;
-use flowy_error::{FlowyError, FlowyResult};
-use flowy_task::TaskDispatcher;
-use lib_infra::future::Fut;
-use parking_lot::Mutex;
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::sync::Arc;
+
+use collab_database::user::UserDatabase as InnerUserDatabase;
+use collab_persistence::CollabKV;
+use parking_lot::Mutex;
 use tokio::sync::RwLock;
+
+use flowy_error::{FlowyError, FlowyResult};
+use flowy_task::TaskDispatcher;
+use lib_infra::future::Fut;
+
+use crate::entities::{DatabaseDescriptionPB, DatabaseLayoutPB, RepeatedDatabaseDescriptionPB};
+use crate::services::database::{DatabaseEditor, MutexDatabase};
 
 pub trait DatabaseUser2: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -52,6 +55,19 @@ impl DatabaseManager2 {
   ) -> FlowyResult<()> {
     // do nothing
     Ok(())
+  }
+
+  pub async fn get_all_databases_description(&self) -> RepeatedDatabaseDescriptionPB {
+    let databases_description = self
+      .user_database
+      .lock()
+      .get_all_databases()
+      .into_iter()
+      .map(DatabaseDescriptionPB::from)
+      .collect();
+    RepeatedDatabaseDescriptionPB {
+      items: databases_description,
+    }
   }
 
   pub async fn get_database(&self, view_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {

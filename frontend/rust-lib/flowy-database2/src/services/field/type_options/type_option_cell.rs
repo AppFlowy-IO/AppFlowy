@@ -1,22 +1,24 @@
+use std::any::Any;
+use std::cmp::Ordering;
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
+
+use collab_database::fields::{Field, TypeOptionData};
+use collab_database::rows::{Cell, RowId};
+use serde::Serialize;
+
+use flowy_error::FlowyResult;
+
 use crate::entities::FieldType;
 use crate::services::cell::{
   CellCache, CellDataChangeset, CellDataDecoder, CellFilterCache, CellProtobufBlob,
-  FromCellChangesetString,
+  FromCellChangeset,
 };
 use crate::services::field::{
   CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption,
   RichTextTypeOption, SingleSelectTypeOption, TypeOption, TypeOptionCellData,
   TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform, URLTypeOption,
 };
-
-use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, RowId};
-use flowy_error::FlowyResult;
-use serde::Serialize;
-use std::any::Any;
-use std::cmp::Ordering;
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
 
 /// A helper trait that used to erase the `Self` of `TypeOption` trait to make it become a Object-safe trait
 /// Only object-safe traits can be made into trait objects.

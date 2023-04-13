@@ -1,14 +1,16 @@
+use std::sync::Arc;
+
+use collab_database::database::Database as InnerDatabase;
+use collab_database::views::DatabaseView;
+
 use crate::entities::{
-  CalendarLayoutSettingsPB, DatabaseLayoutPB, DatabasePB, DatabaseViewSettingPB, FieldIdPB,
+  CalendarLayoutSettingPB, DatabaseLayoutPB, DatabasePB, DatabaseViewSettingPB, FieldIdPB,
   FilterPB, GroupSettingPB, LayoutSettingPB, RowPB, SortPB,
 };
 use crate::services::filter::Filter;
 use crate::services::group::GroupSetting;
 use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::Sort;
-use collab_database::database::Database as InnerDatabase;
-use collab_database::views::DatabaseView;
-use std::sync::Arc;
 
 pub(crate) fn get_database_data(database: &Arc<InnerDatabase>) -> DatabasePB {
   let database_id = database.get_database_id();
@@ -33,7 +35,7 @@ pub(crate) fn get_database_data(database: &Arc<InnerDatabase>) -> DatabasePB {
 pub(crate) fn database_view_setting_pb_from_view(view: DatabaseView) -> DatabaseViewSettingPB {
   let layout_setting = if let Some(layout_setting) = view.layout_settings.get(&view.layout) {
     let calendar_setting =
-      CalendarLayoutSettingsPB::from(CalendarLayoutSetting::from(layout_setting.clone()));
+      CalendarLayoutSettingPB::from(CalendarLayoutSetting::from(layout_setting.clone()));
     LayoutSettingPB {
       calendar: Some(calendar_setting),
     }

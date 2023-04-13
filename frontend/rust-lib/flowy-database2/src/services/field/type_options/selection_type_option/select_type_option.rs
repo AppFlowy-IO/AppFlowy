@@ -1,21 +1,20 @@
+use bytes::Bytes;
+use collab_database::fields::{Field, TypeOptionData};
+use collab_database::rows::Cell;
+use serde::{Deserialize, Serialize};
+
+use flowy_error::{internal_error, ErrorCode, FlowyResult};
+
 use crate::entities::{FieldType, SelectOptionCellDataPB};
 use crate::services::cell::{
-  CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellChangesetString,
-  ToCellChangesetString,
+  CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellChangeset, ToCellChangeset,
 };
-
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
 use crate::services::field::{
   make_selected_options, CheckboxCellData, ChecklistTypeOption, MultiSelectTypeOption,
   SelectOption, SelectOptionCellData, SelectOptionColor, SelectOptionIds, SingleSelectTypeOption,
   TypeOption, TypeOptionCellData, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
 };
-use bytes::Bytes;
-use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::Cell;
-
-use flowy_error::{internal_error, ErrorCode, FlowyResult};
-use serde::{Deserialize, Serialize};
 
 /// Defines the shared actions used by SingleSelect or Multi-Select.
 pub trait SelectTypeOptionSharedAction: Send + Sync {
@@ -236,7 +235,7 @@ pub struct SelectOptionCellChangeset {
   pub delete_option_ids: Vec<String>,
 }
 
-impl FromCellChangesetString for SelectOptionCellChangeset {
+impl FromCellChangeset for SelectOptionCellChangeset {
   fn from_changeset(changeset: String) -> FlowyResult<Self>
   where
     Self: Sized,
@@ -245,7 +244,7 @@ impl FromCellChangesetString for SelectOptionCellChangeset {
   }
 }
 
-impl ToCellChangesetString for SelectOptionCellChangeset {
+impl ToCellChangeset for SelectOptionCellChangeset {
   fn to_cell_changeset_str(&self) -> String {
     serde_json::to_string(self).unwrap_or_default()
   }

@@ -1,8 +1,12 @@
-use crate::entities::parser::NotEmptyStr;
-use crate::entities::{DatabaseLayoutPB, FieldIdPB, RowPB};
 use collab_database::rows::RowId;
+use collab_database::user::DatabaseRecord;
+use collab_database::views::DatabaseLayout;
+
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
+
+use crate::entities::parser::NotEmptyStr;
+use crate::entities::{DatabaseLayoutPB, FieldIdPB, RowPB};
 
 /// [DatabasePB] describes how many fields and blocks the grid has
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -152,6 +156,15 @@ pub struct DatabaseDescriptionPB {
   pub database_id: String,
 }
 
+impl From<DatabaseRecord> for DatabaseDescriptionPB {
+  fn from(data: DatabaseRecord) -> Self {
+    Self {
+      name: data.name,
+      database_id: data.database_id,
+    }
+  }
+}
+
 #[derive(Debug, Default, ProtoBuf)]
 pub struct RepeatedDatabaseDescriptionPB {
   #[pb(index = 1)]
@@ -190,5 +203,30 @@ pub struct DatabaseLayoutIdPB {
   pub view_id: String,
 
   #[pb(index = 2)]
+  pub field_id: String,
+
+  #[pb(index = 3)]
   pub layout: DatabaseLayoutPB,
+}
+
+#[derive(Clone, Debug)]
+pub struct DatabaseLayoutId {
+  pub view_id: String,
+  pub field_id: String,
+  pub layout: DatabaseLayout,
+}
+
+impl TryInto<DatabaseLayoutId> for DatabaseLayoutIdPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<DatabaseLayoutId, Self::Error> {
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
+    let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::InvalidData)?;
+    let layout = self.layout.into();
+    Ok(DatabaseLayoutId {
+      view_id: view_id.0,
+      field_id: field_id.0,
+      layout,
+    })
+  }
 }
