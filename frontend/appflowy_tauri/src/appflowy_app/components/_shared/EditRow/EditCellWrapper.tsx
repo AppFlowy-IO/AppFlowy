@@ -61,7 +61,7 @@ export const EditCellWrapper = ({
               <FieldTypeIcon fieldType={cellIdentifier.fieldType}></FieldTypeIcon>
             </div>
             <span className={'overflow-hidden text-ellipsis whitespace-nowrap'}>
-              {databaseStore.fields[cellIdentifier.fieldId].title}
+              {databaseStore.fields[cellIdentifier.fieldId]?.title || ''}
             </span>
           </div>
           <div className={'flex-1 cursor-pointer rounded-lg hover:bg-shade-6'}>

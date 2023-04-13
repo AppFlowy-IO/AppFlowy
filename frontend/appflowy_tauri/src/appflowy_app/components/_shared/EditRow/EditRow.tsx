@@ -18,7 +18,6 @@ import { DragDropContext, Droppable, OnDragEndResponder } from 'react-beautiful-
 import { EditCellOptionPopup } from '$app/components/_shared/EditRow/EditCellOptionPopup';
 import { DateFormatPopup } from '$app/components/_shared/EditRow/DateFormatPopup';
 import { TimeFormatPopup } from '$app/components/_shared/EditRow/TimeFormatPopup';
-import { useDateTimeFormat } from '$app/components/_shared/EditRow/DateTimeFormat.hooks';
 
 export const EditRow = ({
   onClose,
@@ -146,7 +145,7 @@ export const EditRow = ({
   const onDragEnd: OnDragEndResponder = (result) => {
     if (!result.destination?.index) return;
     void controller.moveField({
-      fieldId: result.source.droppableId,
+      fieldId: result.draggableId,
       fromIndex: result.source.index,
       toIndex: result.destination.index,
     });
