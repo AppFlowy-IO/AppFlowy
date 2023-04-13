@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:appflowy/plugins/document/presentation/plugins/cover/change_cover_popover.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_node_widget.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,9 +12,12 @@ part 'change_cover_popover_bloc.freezed.dart';
 
 class ChangeCoverPopoverBloc
     extends Bloc<ChangeCoverPopoverEvent, ChangeCoverPopoverState> {
+  final EditorState editorState;
+  final Node node;
   late final SharedPreferences _prefs;
   final _initCompleter = Completer<void>();
-  ChangeCoverPopoverBloc() : super(const ChangeCoverPopoverState.initial()) {
+  ChangeCoverPopoverBloc({required this.editorState, required this.node})
+      : super(const ChangeCoverPopoverState.initial()) {
     SharedPreferences.getInstance().then((prefs) {
       _prefs = prefs;
       _initCompleter.complete();
@@ -26,8 +31,13 @@ class ChangeCoverPopoverBloc
         },
         deleteImage: (DeleteImage deleteImage) async {
           final currentState = state;
+          final currentlySelectedImage =
+              node.attributes[kCoverSelectionAttribute];
           if (currentState is Loaded) {
             await _deleteImageInStorage(deleteImage.path);
+            if (currentlySelectedImage == deleteImage.path) {
+              _removeCoverImageFromNode();
+            }
             final updateImageList = currentState.imageNames
                 .where((path) => path != deleteImage.path)
                 .toList();
@@ -37,9 +47,15 @@ class ChangeCoverPopoverBloc
         },
         clearAllImages: (ClearAllImages clearAllImages) async {
           final currentState = state;
+          final currentlySelectedImage =
+              node.attributes[kCoverSelectionAttribute];
+
           if (currentState is Loaded) {
             for (final image in currentState.imageNames) {
               await _deleteImageInStorage(image);
+              if (currentlySelectedImage == image) {
+                _removeCoverImageFromNode();
+              }
             }
             await _updateImagePathsInStorage([]);
             emit(const Loaded([]));
@@ -56,6 +72,7 @@ class ChangeCoverPopoverBloc
       return imageNames;
     }
     imageNames.removeWhere((name) => !File(name).existsSync());
+    _prefs.setStringList(kLocalImagesKey, imageNames);
     return imageNames;
   }
 
@@ -68,6 +85,15 @@ class ChangeCoverPopoverBloc
   Future<void> _deleteImageInStorage(String path) async {
     final imageFile = File(path);
     await imageFile.delete();
+  }
+
+  Future<void> _removeCoverImageFromNode() async {
+    final transaction = editorState.transaction;
+    transaction.updateNode(node, {
+      kCoverSelectionTypeAttribute: CoverSelectionType.initial.toString(),
+      kIconSelectionAttribute: node.attributes[kIconSelectionAttribute]
+    });
+    return editorState.apply(transaction);
   }
 }
 
