@@ -39,16 +39,20 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             emit(state.copyWith(grid: Some(grid)));
           },
           didReceiveFieldUpdate: (fields) {
-            emit(state.copyWith(
-              fields: GridFieldEquatable(fields),
-            ));
+            emit(
+              state.copyWith(
+                fields: GridFieldEquatable(fields),
+              ),
+            );
           },
           didReceiveRowUpdate: (newRowInfos, reason) {
-            emit(state.copyWith(
-              rowInfos: newRowInfos,
-              rowCount: newRowInfos.length,
-              reason: reason,
-            ));
+            emit(
+              state.copyWith(
+                rowInfos: newRowInfos,
+                rowCount: newRowInfos.length,
+                reason: reason,
+              ),
+            );
           },
         );
       },
@@ -146,7 +150,8 @@ class GridState with _$GridState {
 class GridLoadingState with _$GridLoadingState {
   const factory GridLoadingState.loading() = _Loading;
   const factory GridLoadingState.finish(
-      Either<Unit, FlowyError> successOrFail) = _Finish;
+    Either<Unit, FlowyError> successOrFail,
+  ) = _Finish;
 }
 
 class GridFieldEquatable extends Equatable {

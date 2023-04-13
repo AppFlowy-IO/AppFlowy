@@ -5,6 +5,7 @@ import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -51,7 +52,9 @@ class GridURLCell extends GridCellWidget {
   GridCellState<GridURLCell> createState() => _GridURLCellState();
 
   GridCellAccessoryBuilder accessoryFromType(
-      GridURLCellAccessoryType ty, GridCellAccessoryBuildContext buildContext) {
+    GridURLCellAccessoryType ty,
+    GridCellAccessoryBuildContext buildContext,
+  ) {
     switch (ty) {
       case GridURLCellAccessoryType.edit:
         return GridCellAccessoryBuilder(
@@ -75,23 +78,29 @@ class GridURLCell extends GridCellWidget {
 
   @override
   List<GridCellAccessoryBuilder> Function(
-          GridCellAccessoryBuildContext buildContext)
-      get accessoryBuilder => (buildContext) {
-            final List<GridCellAccessoryBuilder> accessories = [];
-            if (cellStyle != null) {
-              accessories.addAll(cellStyle!.accessoryTypes.map((ty) {
-                return accessoryFromType(ty, buildContext);
-              }));
-            }
+    GridCellAccessoryBuildContext buildContext,
+  ) get accessoryBuilder => (buildContext) {
+        final List<GridCellAccessoryBuilder> accessories = [];
+        if (cellStyle != null) {
+          accessories.addAll(
+            cellStyle!.accessoryTypes.map((ty) {
+              return accessoryFromType(ty, buildContext);
+            }),
+          );
+        }
 
-            // If the accessories is empty then the default accessory will be GridURLCellAccessoryType.edit
-            if (accessories.isEmpty) {
-              accessories.add(accessoryFromType(
-                  GridURLCellAccessoryType.edit, buildContext));
-            }
+        // If the accessories is empty then the default accessory will be GridURLCellAccessoryType.edit
+        if (accessories.isEmpty) {
+          accessories.add(
+            accessoryFromType(
+              GridURLCellAccessoryType.edit,
+              buildContext,
+            ),
+          );
+        }
 
-            return accessories;
-          };
+        return accessories;
+      };
 }
 
 class _GridURLCellState extends GridCellState<GridURLCell> {
@@ -123,6 +132,7 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
           );
 
           return AppFlowyPopover(
+            margin: EdgeInsets.zero,
             controller: _popoverController,
             constraints: BoxConstraints.loose(const Size(300, 160)),
             direction: PopoverDirection.bottomWithLeftAligned,
@@ -207,13 +217,14 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
   @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
+      margin: EdgeInsets.zero,
       constraints: BoxConstraints.loose(const Size(300, 160)),
       controller: _popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(0, 8),
       child: svgWidget(
         "editor/edit",
-        color: Theme.of(context).iconTheme.color,
+        color: AFThemeExtension.of(context).textColor,
       ),
       popupBuilder: (BuildContext popoverContext) {
         return URLEditorPopover(
@@ -246,7 +257,7 @@ class _CopyURLAccessoryState extends State<_CopyURLAccessory>
   Widget build(BuildContext context) {
     return svgWidget(
       "editor/copy",
-      color: Theme.of(context).iconTheme.color,
+      color: AFThemeExtension.of(context).textColor,
     );
   }
 

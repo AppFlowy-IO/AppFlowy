@@ -71,6 +71,7 @@ class _SettingButtonState extends State<_SettingButton> {
       margin: EdgeInsets.zero,
       child: FlowyTextButton(
         LocaleKeys.settings_title.tr(),
+        fontColor: AFThemeExtension.of(context).textColor,
         fillColor: Colors.transparent,
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         padding: GridSize.typeOptionContentInsets,

@@ -1,30 +1,28 @@
 import 'package:appflowy_backend/protobuf/flowy-database/format.pbenum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 part 'number_format_bloc.freezed.dart';
 
 class NumberFormatBloc extends Bloc<NumberFormatEvent, NumberFormatState> {
   NumberFormatBloc() : super(NumberFormatState.initial()) {
     on<NumberFormatEvent>(
       (event, emit) async {
-        event.map(setFilter: (_SetFilter value) {
-          final List<NumberFormat> formats = List.from(NumberFormat.values);
-          if (value.filter.isNotEmpty) {
-            formats.retainWhere((element) => element
-                .title()
-                .toLowerCase()
-                .contains(value.filter.toLowerCase()));
-          }
-          emit(state.copyWith(formats: formats, filter: value.filter));
-        });
+        event.map(
+          setFilter: (_SetFilter value) {
+            final List<NumberFormat> formats = List.from(NumberFormat.values);
+            if (value.filter.isNotEmpty) {
+              formats.retainWhere(
+                (element) => element
+                    .title()
+                    .toLowerCase()
+                    .contains(value.filter.toLowerCase()),
+              );
+            }
+            emit(state.copyWith(formats: formats, filter: value.filter));
+          },
+        );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    return super.close();
   }
 }
 

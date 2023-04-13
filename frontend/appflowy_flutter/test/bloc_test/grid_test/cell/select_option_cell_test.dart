@@ -16,7 +16,9 @@ void main() {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
       final cellController = await cellTest.makeSelectOptionCellController(
-          FieldType.SingleSelect, 0);
+        FieldType.SingleSelect,
+        0,
+      );
 
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
       bloc.add(const SelectOptionEditorEvent.initial());
@@ -33,7 +35,9 @@ void main() {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
       final cellController = await cellTest.makeSelectOptionCellController(
-          FieldType.SingleSelect, 0);
+        FieldType.SingleSelect,
+        0,
+      );
 
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
       bloc.add(const SelectOptionEditorEvent.initial());
@@ -56,7 +60,9 @@ void main() {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
       final cellController = await cellTest.makeSelectOptionCellController(
-          FieldType.SingleSelect, 0);
+        FieldType.SingleSelect,
+        0,
+      );
 
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
       bloc.add(const SelectOptionEditorEvent.initial());
@@ -64,31 +70,41 @@ void main() {
 
       bloc.add(const SelectOptionEditorEvent.newOption("A"));
       await gridResponseFuture();
-      assert(bloc.state.options.length == 1,
-          "Expect 1 but receive ${bloc.state.options.length}, Options: ${bloc.state.options}");
+      assert(
+        bloc.state.options.length == 1,
+        "Expect 1 but receive ${bloc.state.options.length}, Options: ${bloc.state.options}",
+      );
 
       bloc.add(const SelectOptionEditorEvent.newOption("B"));
       await gridResponseFuture();
-      assert(bloc.state.options.length == 2,
-          "Expect 2 but receive ${bloc.state.options.length}, Options: ${bloc.state.options}");
+      assert(
+        bloc.state.options.length == 2,
+        "Expect 2 but receive ${bloc.state.options.length}, Options: ${bloc.state.options}",
+      );
 
       bloc.add(const SelectOptionEditorEvent.newOption("C"));
       await gridResponseFuture();
-      assert(bloc.state.options.length == 3,
-          "Expect 3 but receive ${bloc.state.options.length}. Options: ${bloc.state.options}");
+      assert(
+        bloc.state.options.length == 3,
+        "Expect 3 but receive ${bloc.state.options.length}. Options: ${bloc.state.options}",
+      );
 
       bloc.add(const SelectOptionEditorEvent.deleteAllOptions());
       await gridResponseFuture();
 
-      assert(bloc.state.options.isEmpty,
-          "Expect empty but receive ${bloc.state.options.length}");
+      assert(
+        bloc.state.options.isEmpty,
+        "Expect empty but receive ${bloc.state.options.length}",
+      );
     });
 
     test('select/unselect option', () async {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
       final cellController = await cellTest.makeSelectOptionCellController(
-          FieldType.SingleSelect, 0);
+        FieldType.SingleSelect,
+        0,
+      );
 
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
       bloc.add(const SelectOptionEditorEvent.initial());
@@ -113,7 +129,9 @@ void main() {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
       final cellController = await cellTest.makeSelectOptionCellController(
-          FieldType.SingleSelect, 0);
+        FieldType.SingleSelect,
+        0,
+      );
 
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
       bloc.add(const SelectOptionEditorEvent.initial());
@@ -137,7 +155,9 @@ void main() {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
       final cellController = await cellTest.makeSelectOptionCellController(
-          FieldType.SingleSelect, 0);
+        FieldType.SingleSelect,
+        0,
+      );
 
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
       bloc.add(const SelectOptionEditorEvent.initial());
@@ -149,8 +169,12 @@ void main() {
       bloc.add(const SelectOptionEditorEvent.newOption("B"));
       await gridResponseFuture();
 
-      bloc.add(const SelectOptionEditorEvent.selectMultipleOptions(
-          ["A", "B", "C"], "x"));
+      bloc.add(
+        const SelectOptionEditorEvent.selectMultipleOptions(
+          ["A", "B", "C"],
+          "x",
+        ),
+      );
       await gridResponseFuture();
 
       assert(bloc.state.selectedOptions.length == 1);
@@ -162,7 +186,9 @@ void main() {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
       final cellController = await cellTest.makeSelectOptionCellController(
-          FieldType.SingleSelect, 0);
+        FieldType.SingleSelect,
+        0,
+      );
 
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
       bloc.add(const SelectOptionEditorEvent.initial());

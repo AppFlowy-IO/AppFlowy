@@ -3,7 +3,6 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -123,16 +122,17 @@ class _AccessoryHoverState extends State<AccessoryHover> {
   @override
   Widget build(BuildContext context) {
     List<Widget> children = [
-      const _Background(),
       Padding(padding: widget.contentPadding, child: widget.child),
     ];
 
     final accessoryBuilder = widget.child.accessoryBuilder;
     if (accessoryBuilder != null) {
-      final accessories = accessoryBuilder((GridCellAccessoryBuildContext(
-        anchorContext: context,
-        isCellEditing: false,
-      )));
+      final accessories = accessoryBuilder(
+        (GridCellAccessoryBuildContext(
+          anchorContext: context,
+          isCellEditing: false,
+        )),
+      );
       children.add(
         Padding(
           padding: const EdgeInsets.only(right: 6),
@@ -169,28 +169,6 @@ class AccessoryHoverState extends ChangeNotifier {
   }
 
   bool get onHover => _onHover;
-}
-
-class _Background extends StatelessWidget {
-  const _Background({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<AccessoryHoverState>(
-      builder: (context, state, child) {
-        if (state.onHover) {
-          return FlowyHoverContainer(
-            style: HoverStyle(
-              borderRadius: Corners.s6Border,
-              hoverColor: AFThemeExtension.of(context).lightGreyHover,
-            ),
-          );
-        } else {
-          return const SizedBox();
-        }
-      },
-    );
-  }
 }
 
 class CellAccessoryContainer extends StatelessWidget {

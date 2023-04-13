@@ -47,12 +47,14 @@ class OptionOverlay<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<_OptionListItem> listItems = items.map((e) => _OptionListItem(e)).toList();
+    final List<_OptionListItem> listItems =
+        items.map((e) => _OptionListItem(e)).toList();
     return ListOverlay(
       itemBuilder: (context, index) {
         return MouseRegion(
           cursor: SystemMouseCursors.click,
-          onHover: onHover != null ? (_) => onHover!(items[index], index) : null,
+          onHover:
+              onHover != null ? (_) => onHover!(items[index], index) : null,
           child: GestureDetector(
             onTap: onTap != null ? () => onTap!(items[index], index) : null,
             child: listItems[index],

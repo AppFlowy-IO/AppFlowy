@@ -22,15 +22,17 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
 
   AppearanceSettingsCubit(AppearanceSettingsPB setting)
       : _setting = setting,
-        super(AppearanceSettingsState.initial(
-          setting.theme,
-          setting.themeMode,
-          setting.font,
-          setting.monospaceFont,
-          setting.locale,
-          setting.isMenuCollapsed,
-          setting.menuOffset,
-        ));
+        super(
+          AppearanceSettingsState.initial(
+            setting.theme,
+            setting.themeMode,
+            setting.font,
+            setting.monospaceFont,
+            setting.locale,
+            setting.isMenuCollapsed,
+            setting.menuOffset,
+          ),
+        );
 
   /// Update selected theme in the user's settings and emit an updated state
   /// with the AppTheme named [themeName].
@@ -210,6 +212,32 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         ? appTheme.lightTheme
         : appTheme.darkTheme;
 
+    final colorScheme = ColorScheme(
+      brightness: brightness,
+      primary: theme.primary,
+      onPrimary: theme.onPrimary,
+      primaryContainer: theme.main2,
+      onPrimaryContainer: _white,
+      // page title hover color
+      secondary: theme.hoverBG1,
+      onSecondary: theme.shader1,
+      // setting value hover color
+      secondaryContainer: theme.selector,
+      onSecondaryContainer: theme.topbarBg,
+      tertiary: theme.shader7,
+      tertiaryContainer: theme.questionBubbleBG,
+      background: theme.surface,
+      onBackground: theme.text,
+      surface: theme.surface,
+      // text&icon color when it is hovered
+      onSurface: theme.hoverFG,
+      onError: theme.shader7,
+      error: theme.red,
+      outline: theme.shader4,
+      surfaceVariant: theme.sidebarBg,
+      shadow: theme.shadow,
+    );
+
     return ThemeData(
       brightness: brightness,
       textTheme: _getTextTheme(fontFamily: fontFamily, fontColor: theme.text),
@@ -225,6 +253,11 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
           fontWeight: FontWeight.w400,
           fontColor: theme.surface,
         ),
+      ),
+      scaffoldBackgroundColor: theme.surface,
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: colorScheme.primary,
+        contentTextStyle: TextStyle(color: colorScheme.onSurface),
       ),
       scrollbarTheme: ScrollbarThemeData(
         thumbColor: MaterialStateProperty.all(theme.shader3),
@@ -252,33 +285,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       disabledColor: theme.shader4,
       highlightColor: theme.main1,
       indicatorColor: theme.main1,
-      toggleableActiveColor: theme.main1,
       cardColor: theme.input,
-      colorScheme: ColorScheme(
-        brightness: brightness,
-        primary: theme.primary,
-        onPrimary: theme.onPrimary,
-        primaryContainer: theme.main2,
-        onPrimaryContainer: _white,
-        // page title hover color
-        secondary: theme.hoverBG1,
-        onSecondary: theme.shader1,
-        // setting value hover color
-        secondaryContainer: theme.selector,
-        onSecondaryContainer: theme.topbarBg,
-        tertiary: theme.shader7,
-        tertiaryContainer: theme.questionBubbleBG,
-        background: theme.surface,
-        onBackground: theme.text,
-        surface: theme.surface,
-        // text&icon color when it is hovered
-        onSurface: theme.hoverFG,
-        onError: theme.shader7,
-        error: theme.red,
-        outline: theme.shader4,
-        surfaceVariant: theme.sidebarBg,
-        shadow: theme.shadow,
-      ),
+      colorScheme: colorScheme,
       extensions: [
         AFThemeExtension(
           warning: theme.yellow,
@@ -292,10 +300,12 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
           tint7: theme.tint7,
           tint8: theme.tint8,
           tint9: theme.tint9,
+          textColor: theme.text,
           greyHover: theme.hoverBG1,
           greySelect: theme.bg3,
-          lightGreyHover: theme.shader6,
+          lightGreyHover: theme.hoverBG3,
           toggleOffFill: theme.shader5,
+          progressBarBGcolor: theme.progressBarBGcolor,
           code: _getFontStyle(
             fontFamily: monospaceFontFamily,
             fontColor: theme.shader3,
@@ -309,7 +319,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
             fontFamily: fontFamily,
             fontSize: FontSizes.s11,
             fontWeight: FontWeight.w400,
-            fontColor: theme.shader3,
+            fontColor: theme.hint,
           ),
         )
       ],
@@ -334,8 +344,10 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         height: lineHeight,
       );
 
-  TextTheme _getTextTheme(
-      {required String fontFamily, required Color fontColor}) {
+  TextTheme _getTextTheme({
+    required String fontFamily,
+    required Color fontColor,
+  }) {
     return TextTheme(
       displayLarge: _getFontStyle(
         fontFamily: fontFamily,

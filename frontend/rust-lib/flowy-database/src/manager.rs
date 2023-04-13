@@ -411,14 +411,20 @@ pub async fn create_new_database(
 
   // Create database view
   tracing::trace!("Create new database view: {}", view_id);
-  let mut database_view_rev = if database_view_data.is_empty() {
-    DatabaseViewRevision::new(database_id, view_id.to_owned(), true, name, layout.into())
+  let database_view = if database_view_data.is_empty() {
+    let mut database_view =
+      DatabaseViewRevision::new(database_id, view_id.to_owned(), true, name, layout.into());
+    database_view.layout_settings = layout_setting;
+    database_view
   } else {
-    DatabaseViewRevision::from_json(database_view_data)?
+    let mut database_view = DatabaseViewRevision::from_json(database_view_data)?;
+    database_view.database_id = database_id;
+    // Replace the view id with the new one. This logic will be removed in the future.
+    database_view.view_id = view_id.to_owned();
+    database_view
   };
 
-  database_view_rev.layout_settings = layout_setting;
-  let database_view_ops = make_database_view_operations(&database_view_rev);
+  let database_view_ops = make_database_view_operations(&database_view);
   let database_view_bytes = database_view_ops.json_bytes();
   let revision = Revision::initial_revision(view_id, database_view_bytes);
   database_manager

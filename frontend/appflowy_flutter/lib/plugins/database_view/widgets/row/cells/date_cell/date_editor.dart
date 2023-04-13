@@ -193,9 +193,11 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             cellMargin: const EdgeInsets.all(3),
             defaultDecoration: boxDecoration,
             selectedDecoration: boxDecoration.copyWith(
-                color: Theme.of(context).colorScheme.primary),
+              color: Theme.of(context).colorScheme.primary,
+            ),
             todayDecoration: boxDecoration.copyWith(
-                color: AFThemeExtension.of(context).lightGreyHover),
+              color: AFThemeExtension.of(context).lightGreyHover,
+            ),
             weekendDecoration: boxDecoration,
             outsideDecoration: boxDecoration,
             defaultTextStyle: textStyle,
@@ -385,10 +387,7 @@ class _DateTypeOptionButton extends StatelessWidget {
               child: FlowyButton(
                 text: FlowyText.medium(title),
                 margin: GridSize.typeOptionContentInsets,
-                rightIcon: svgWidget(
-                  "grid/more",
-                  color: Theme.of(context).iconTheme.color,
-                ),
+                rightIcon: const FlowySvg(name: 'grid/more'),
               ),
             ),
           ),
@@ -451,11 +450,12 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
         offset: const Offset(8, 0),
         popupBuilder: (BuildContext context) {
           return TimeFormatList(
-              selectedFormat: widget.dateTypeOptionPB.timeFormat,
-              onSelected: (format) {
-                widget.onEvent(DateCellCalendarEvent.setTimeFormat(format));
-                timeSettingPopoverMutex.close();
-              });
+            selectedFormat: widget.dateTypeOptionPB.timeFormat,
+            onSelected: (format) {
+              widget.onEvent(DateCellCalendarEvent.setTimeFormat(format));
+              timeSettingPopoverMutex.close();
+            },
+          );
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6.0),

@@ -115,11 +115,11 @@ class HoverStyle {
 
 class FlowyHoverContainer extends StatelessWidget {
   final HoverStyle style;
-  final Widget? child;
+  final Widget child;
 
   const FlowyHoverContainer({
     Key? key,
-    this.child,
+    required this.child,
     required this.style,
   }) : super(key: key);
 
@@ -151,7 +151,7 @@ class FlowyHoverContainer extends StatelessWidget {
               .iconTheme
               .copyWith(color: Theme.of(context).colorScheme.onSurface),
         ),
-        child: child!,
+        child: child,
       ),
     );
   }

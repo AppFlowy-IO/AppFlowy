@@ -70,7 +70,8 @@ class BubbleActionList extends StatelessWidget {
               break;
             case BubbleAction.shortcuts:
               _launchURL(
-                  "https://appflowy.gitbook.io/docs/essential-documentation/shortcuts");
+                "https://appflowy.gitbook.io/docs/essential-documentation/shortcuts",
+              );
               break;
           }
         }
@@ -146,9 +147,10 @@ class FlowyVersionDescription extends CustomActionCell {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Divider(
-                    height: 1,
-                    color: Theme.of(context).dividerColor,
-                    thickness: 1.0),
+                  height: 1,
+                  color: Theme.of(context).dividerColor,
+                  thickness: 1.0,
+                ),
                 const VSpace(6),
                 FlowyText(
                   "$appName $version",
@@ -203,7 +205,7 @@ extension QuestionBubbleExtension on BubbleAction {
       case BubbleAction.debug:
         return '🐛';
       case BubbleAction.shortcuts:
-        return '⌨️';
+        return '📋';
     }
   }
 }

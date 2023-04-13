@@ -27,9 +27,12 @@ void main() {
       final document = Document.fromJson(
         Map<String, Object>.from(json.decode(text)),
       );
-      final result = documentToMarkdown(document, customParsers: [
-        const MathEquationNodeParser(),
-      ]);
+      final result = documentToMarkdown(
+        document,
+        customParsers: [
+          const MathEquationNodeParser(),
+        ],
+      );
       expect(result, r'$$E = MC^2$$');
     });
     // Changes
@@ -52,9 +55,12 @@ void main() {
       final document = Document.fromJson(
         Map<String, Object>.from(json.decode(text)),
       );
-      final result = documentToMarkdown(document, customParsers: [
-        const CodeBlockNodeParser(),
-      ]);
+      final result = documentToMarkdown(
+        document,
+        customParsers: [
+          const CodeBlockNodeParser(),
+        ],
+      );
       expect(result, '```\nSome Code\n```');
     });
     test('divider', () {
@@ -73,9 +79,12 @@ void main() {
       final document = Document.fromJson(
         Map<String, Object>.from(json.decode(text)),
       );
-      final result = documentToMarkdown(document, customParsers: [
-        const DividerNodeParser(),
-      ]);
+      final result = documentToMarkdown(
+        document,
+        customParsers: [
+          const DividerNodeParser(),
+        ],
+      );
       expect(result, '---\n');
     });
   });

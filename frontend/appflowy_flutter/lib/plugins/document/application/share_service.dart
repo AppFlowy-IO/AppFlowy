@@ -7,7 +7,9 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 
 class ShareService {
   Future<Either<ExportDataPB, FlowyError>> export(
-      ViewPB view, ExportType type) {
+    ViewPB view,
+    ExportType type,
+  ) {
     var payload = ExportPayloadPB.create()
       ..viewId = view.id
       ..exportType = type

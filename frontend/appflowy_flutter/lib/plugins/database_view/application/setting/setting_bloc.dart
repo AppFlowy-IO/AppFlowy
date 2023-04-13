@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 import 'package:dartz/dartz.dart';
 
 part 'setting_bloc.freezed.dart';
@@ -12,23 +11,21 @@ class DatabaseSettingBloc
       : super(DatabaseSettingState.initial()) {
     on<DatabaseSettingEvent>(
       (event, emit) async {
-        event.map(performAction: (_PerformAction value) {
-          emit(state.copyWith(selectedAction: Some(value.action)));
-        });
+        event.map(
+          performAction: (_PerformAction value) {
+            emit(state.copyWith(selectedAction: Some(value.action)));
+          },
+        );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    return super.close();
   }
 }
 
 @freezed
 class DatabaseSettingEvent with _$DatabaseSettingEvent {
   const factory DatabaseSettingEvent.performAction(
-      DatabaseSettingAction action) = _PerformAction;
+    DatabaseSettingAction action,
+  ) = _PerformAction;
 }
 
 @freezed

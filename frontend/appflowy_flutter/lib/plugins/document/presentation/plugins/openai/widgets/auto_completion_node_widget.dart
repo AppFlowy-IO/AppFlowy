@@ -66,28 +66,30 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
 
     textFieldFocusNode.addListener(_onFocusChanged);
     textFieldFocusNode.requestFocus();
-    widget.editorState.service.selectionService.register(interceptor
-      ..canTap = (details) {
-        final renderBox = context.findRenderObject() as RenderBox?;
-        if (renderBox != null) {
-          if (!isTapDownDetailsInRenderBox(details, renderBox)) {
-            if (text.isNotEmpty || controller.text.isNotEmpty) {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return DiscardDialog(
-                    onConfirm: () => _onDiscard(),
-                    onCancel: () {},
-                  );
-                },
-              );
-            } else if (controller.text.isEmpty) {
-              _onExit();
+    widget.editorState.service.selectionService.register(
+      interceptor
+        ..canTap = (details) {
+          final renderBox = context.findRenderObject() as RenderBox?;
+          if (renderBox != null) {
+            if (!isTapDownDetailsInRenderBox(details, renderBox)) {
+              if (text.isNotEmpty || controller.text.isNotEmpty) {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return DiscardDialog(
+                      onConfirm: () => _onDiscard(),
+                      onCancel: () {},
+                    );
+                  },
+                );
+              } else if (controller.text.isEmpty) {
+                _onExit();
+              }
             }
           }
-        }
-        return false;
-      });
+          return false;
+        },
+    );
   }
 
   bool isTapDownDetailsInRenderBox(TapDownDetails details, RenderBox box) {
