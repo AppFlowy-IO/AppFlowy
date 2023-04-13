@@ -14,23 +14,27 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
 
 use crate::entities::{
-  AlterFilterParams, AlterSortParams, CalendarLayoutSettingsPB, CellPB, CreateRowParams,
-  DatabaseFieldChangesetPB, DatabaseLayoutPB, DatabasePB, DatabaseViewSettingPB,
+  AlterFilterParams, AlterSortParams, CalendarLayoutSettingsPB, CellChangesetPB, CellPB,
+  CreateRowParams, DatabaseFieldChangesetPB, DatabaseLayoutPB, DatabasePB, DatabaseViewSettingPB,
   DeleteFilterParams, DeleteGroupParams, DeleteSortParams, FieldChangesetParams, FieldIdPB,
-  FieldPB, FieldType, FilterPB, GroupSettingPB, IndexFieldPB, InsertGroupParams, LayoutSettingPB,
-  RepeatedFieldPB, RepeatedFilterPB, RepeatedGroupPB, RepeatedGroupSettingPB, RepeatedSortPB,
-  RowPB, SortPB,
+  FieldPB, FieldType, FilterPB, GroupPB, GroupSettingPB, IndexFieldPB, InsertGroupParams,
+  LayoutSettingPB, RepeatedFieldPB, RepeatedFilterPB, RepeatedGroupPB, RepeatedGroupSettingPB,
+  RepeatedSortPB, RowPB, SelectOptionCellDataPB, SelectOptionPB, SortPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
-use crate::services::cell::{get_type_cell_protobuf, AnyTypeCache, CellBuilder, CellCache};
+use crate::services::cell::{
+  apply_cell_data_changeset, get_type_cell_protobuf, AnyTypeCache, CellBuilder, CellCache,
+  ToCellChangesetString,
+};
 use crate::services::database::util::{database_view_setting_pb_from_view, get_database_data};
 use crate::services::database_view::{DatabaseViewData, DatabaseViews, RowEventSender};
 use crate::services::field::{
-  default_type_option_data_for_type, default_type_option_data_from_type, transform_type_option,
-  type_option_data_from_pb_or_default, type_option_to_pb, TypeOptionCellDataHandler,
+  default_type_option_data_for_type, default_type_option_data_from_type,
+  select_type_option_from_field, transform_type_option, type_option_data_from_pb_or_default,
+  type_option_to_pb, SelectOptionCellChangeset, SelectOptionIds, TypeOptionCellDataHandler,
 };
 use crate::services::filter::Filter;
-use crate::services::group::{default_group_setting, GroupSetting};
+use crate::services::group::{default_group_setting, GroupSetting, RowChangeset};
 use crate::services::sort::Sort;
 
 #[derive(Clone)]
@@ -423,6 +427,199 @@ impl DatabaseEditor {
     }
   }
 
+  pub async fn update_cell<T>(&self, row_id: RowId, field_id: &str, cell_changeset: T) -> Option<()>
+  where
+    T: ToCellChangesetString,
+  {
+    let (field, old_row, cell) = {
+      let database = self.database.lock();
+      (
+        database.fields.get_field(field_id)?,
+        database.get_row(row_id),
+        database.get_cell(field_id, row_id),
+      )
+    };
+
+    let type_cell_data =
+      apply_cell_data_changeset(cell_changeset, cell, &field, Some(self.cell_cache.clone()));
+    self.database.lock().update_row(row_id, |row_update| {
+      row_update.update_cells(|cell_update| {
+        cell_update.insert(field_id, type_cell_data);
+      });
+    });
+
+    let option_row = self.database.lock().get_row(row_id);
+    if let Some(new_row) = option_row {
+      self
+        .database_views
+        .editors()
+        .await
+        .into_iter()
+        .for_each(|view_editor| {
+          view_editor.v_did_update_row(&old_row, &new_row);
+        });
+    }
+    None
+  }
+
+  pub async fn create_select_option(
+    &self,
+    field_id: &str,
+    option_name: String,
+  ) -> Option<SelectOptionPB> {
+    let field = self.database.lock().fields.get_field(field_id)?;
+    let type_option = select_type_option_from_field(&field).ok()?;
+    let select_option = type_option.create_option(&option_name);
+    Some(SelectOptionPB::from(select_option))
+  }
+
+  pub async fn insert_select_options(
+    &self,
+    field_id: &str,
+    row_id: RowId,
+    options: Vec<SelectOptionPB>,
+  ) -> Option<()> {
+    let field = self.database.lock().fields.get_field(field_id)?;
+    let mut type_option = select_type_option_from_field(&field).ok()?;
+    let cell = SelectOptionCellChangeset {
+      insert_option_ids: options.iter().map(|option| option.id.clone()).collect(),
+      ..Default::default()
+    };
+
+    for option in options {
+      type_option.insert_option(option.into());
+    }
+    self
+      .database
+      .lock()
+      .fields
+      .update_field(field_id, |update| {
+        update.set_type_option(field.field_type, Some(type_option.to_type_option_data()));
+      });
+
+    self.update_cell(row_id, field_id, cell).await;
+    None
+  }
+
+  pub async fn delete_select_options(
+    &self,
+    field_id: &str,
+    row_id: RowId,
+    options: Vec<SelectOptionPB>,
+  ) -> Option<()> {
+    let field = self.database.lock().fields.get_field(field_id)?;
+    let mut type_option = select_type_option_from_field(&field).ok()?;
+    let cell = SelectOptionCellChangeset {
+      delete_option_ids: options.iter().map(|option| option.id.clone()).collect(),
+      ..Default::default()
+    };
+
+    for option in options {
+      type_option.delete_option(option.into());
+    }
+    self
+      .database
+      .lock()
+      .fields
+      .update_field(field_id, |update| {
+        update.set_type_option(field.field_type, Some(type_option.to_type_option_data()));
+      });
+
+    self.update_cell(row_id, field_id, cell).await;
+    None
+  }
+
+  pub async fn get_select_options(&self, row_id: RowId, field_id: &str) -> SelectOptionCellDataPB {
+    let field = self.database.lock().fields.get_field(field_id);
+    match field {
+      None => SelectOptionCellDataPB::default(),
+      Some(field) => {
+        let cell = self.database.lock().get_cell(field_id, row_id);
+
+        let ids = match cell {
+          None => SelectOptionIds::new(),
+          Some(cell) => SelectOptionIds::from(&cell),
+        };
+        match select_type_option_from_field(&field) {
+          Ok(type_option) => type_option.get_selected_options(ids).into(),
+          Err(_) => SelectOptionCellDataPB::default(),
+        }
+      },
+    }
+  }
+
+  #[tracing::instrument(level = "trace", skip_all, err)]
+  pub async fn load_groups(&self, view_id: &str) -> FlowyResult<RepeatedGroupPB> {
+    let view = self.database_views.get_view_editor(view_id).await?;
+    let groups = view.v_load_groups().await?;
+    Ok(RepeatedGroupPB { items: groups })
+  }
+
+  #[tracing::instrument(level = "trace", skip_all, err)]
+  pub async fn get_group(&self, view_id: &str, group_id: &str) -> FlowyResult<GroupPB> {
+    let view = self.database_views.get_view_editor(view_id).await?;
+    let group = view.v_get_group(group_id).await?;
+    Ok(group)
+  }
+
+  #[tracing::instrument(level = "trace", skip_all, err)]
+  pub async fn move_group(
+    &self,
+    view_id: &str,
+    from_group: &str,
+    to_group: &str,
+  ) -> FlowyResult<()> {
+    let view = self.database_views.get_view_editor(view_id).await?;
+    view.v_move_group(from_group, to_group).await?;
+    Ok(())
+  }
+
+  #[tracing::instrument(level = "trace", skip_all, err)]
+  pub async fn move_group_row(
+    &self,
+    view_id: &str,
+    to_group: &str,
+    from_row: RowId,
+    to_row: Option<RowId>,
+  ) -> FlowyResult<()> {
+    let row = self.database.lock().get_row(from_row);
+    match row {
+      None => {
+        tracing::warn!(
+          "Move row between group failed, can not find the row:{}",
+          from_row
+        )
+      },
+      Some(row) => {
+        let mut row_changeset = RowChangeset::new(row.id);
+        let view = self.database_views.get_view_editor(view_id).await?;
+        view
+          .v_move_group_row(&row, &mut row_changeset, &to_group_id, to_row)
+          .await;
+
+        tracing::trace!("Row data changed: {:?}", row_changeset);
+        let cell_changesets = row_changeset
+          .cell_by_field_id
+          .into_iter()
+          .map(|(field_id, cell)| CellChangesetPB {
+            view_id: view_id.to_string(),
+            row_id: row_changeset.row_id.into(),
+            field_id,
+            type_cell_data: cell.type_cell_data,
+          })
+          .collect::<Vec<CellChangesetPB>>();
+
+        for cell_changeset in cell_changesets {
+          match block_manager.update_cell(cell_changeset).await {
+            Ok(_) => {},
+            Err(e) => tracing::error!("Apply cell changeset error:{:?}", e),
+          }
+        }
+      },
+    }
+
+    Ok(())
+  }
   #[tracing::instrument(level = "trace", skip_all, err)]
   async fn notify_did_insert_database_field(&self, field: Field, index: usize) -> FlowyResult<()> {
     let database_id = self.database.lock().get_database_id();

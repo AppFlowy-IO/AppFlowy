@@ -142,7 +142,7 @@ pub struct CellChangesetPB {
   pub view_id: String,
 
   #[pb(index = 2)]
-  pub row_id: String,
+  pub row_id: i64,
 
   #[pb(index = 3)]
   pub field_id: String,

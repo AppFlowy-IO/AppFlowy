@@ -61,7 +61,7 @@ impl GroupControllerActions for DefaultGroupController {
 
   fn did_update_group_row(
     &mut self,
-    _old_row: &Option<Arc<Row>>,
+    _old_row: &Option<Row>,
     _row: &Row,
     _field: &Field,
   ) -> FlowyResult<DidUpdateGroupRowResult> {

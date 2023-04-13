@@ -53,12 +53,6 @@ impl DatabaseViews {
     self.editor_map.read().await.values().cloned().collect()
   }
 
-  pub async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
-    let view_editor = self.get_view_editor(&params.view_id).await?;
-    view_editor.v_move_group(params).await?;
-    Ok(())
-  }
-
   /// It may generate a RowChangeset when the Row was moved from one group to another.
   /// The return value, [RowChangeset], contains the changes made by the groups.
   ///

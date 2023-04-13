@@ -38,7 +38,8 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         .event(DatabaseEvent::UpdateCell, update_cell_handler)
         // SelectOption
         .event(DatabaseEvent::CreateSelectOption, new_select_option_handler)
-        .event(DatabaseEvent::UpdateSelectOption, update_select_option_handler)
+        .event(DatabaseEvent::InsertOrUpdateSelectOption, insert_or_update_select_option_handler)
+        .event(DatabaseEvent::DeleteSelectOption, delete_select_option_handler)
         .event(DatabaseEvent::GetSelectOptionCellData, get_select_option_handler)
         .event(DatabaseEvent::UpdateSelectOptionCell, update_select_option_cell_handler)
         // Date
@@ -169,14 +170,17 @@ pub enum DatabaseEvent {
   #[event(input = "CellIdPB", output = "SelectOptionCellDataPB")]
   GetSelectOptionCellData = 31,
 
-  /// [UpdateSelectOption] event is used to update a FieldTypeOptionData whose field_type is
+  /// [InsertOrUpdateSelectOption] event is used to update a FieldTypeOptionData whose field_type is
   /// FieldType::SingleSelect or FieldType::MultiSelect.
   ///
   /// This event may trigger the DatabaseNotification::DidUpdateCell event.
   /// For example, DatabaseNotification::DidUpdateCell will be triggered if the [SelectOptionChangesetPB]
   /// carries a change that updates the name of the option.
-  #[event(input = "SelectOptionChangesetPB")]
-  UpdateSelectOption = 32,
+  #[event(input = "RepeatedSelectOptionPayload")]
+  InsertOrUpdateSelectOption = 32,
+
+  #[event(input = "RepeatedSelectOptionPayload")]
+  DeleteSelectOption = 33,
 
   #[event(input = "CreateRowPayloadPB", output = "RowPB")]
   CreateRow = 50,

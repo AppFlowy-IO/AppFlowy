@@ -40,6 +40,21 @@ impl From<SelectOptionPB> for SelectOption {
   }
 }
 
+#[derive(Default, ProtoBuf)]
+pub struct RepeatedSelectOptionPayload {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub field_id: String,
+
+  #[pb(index = 3)]
+  pub row_id: i64,
+
+  #[pb(index = 4)]
+  pub items: Vec<SelectOptionPB>,
+}
+
 #[derive(ProtoBuf_Enum, PartialEq, Eq, Debug, Clone)]
 #[repr(u8)]
 pub enum SelectOptionColorPB {

@@ -202,10 +202,10 @@ impl DatabaseViewEditor {
     }
   }
 
-  pub async fn v_did_update_row(&self, old_row: Option<Arc<Row>>, row: &Row) {
+  pub async fn v_did_update_row(&self, old_row: &Option<Row>, row: &Row) {
     let result = self
       .mut_group_controller(|group_controller, field| {
-        Ok(group_controller.did_update_group_row(&old_row, row, &field))
+        Ok(group_controller.did_update_group_row(old_row, row, &field))
       })
       .await;
 
@@ -306,19 +306,14 @@ impl DatabaseViewEditor {
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn v_move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
+  pub async fn v_move_group(&self, from_group: &str, to_group: &str) -> FlowyResult<()> {
     self
       .group_controller
       .write()
       .await
-      .move_group(&params.from_group_id, &params.to_group_id)?;
-    match self
-      .group_controller
-      .read()
-      .await
-      .get_group(&params.from_group_id)
-    {
-      None => tracing::warn!("Can not find the group with id: {}", params.from_group_id),
+      .move_group(from_group, to_group)?;
+    match self.group_controller.read().await.get_group(from_group) {
+      None => tracing::warn!("Can not find the group with id: {}", from_group),
       Some((index, group)) => {
         let inserted_group = InsertedGroupPB {
           group: GroupPB::from(group),
@@ -328,7 +323,7 @@ impl DatabaseViewEditor {
         let changeset = GroupChangesetPB {
           view_id: self.view_id.clone(),
           inserted_groups: vec![inserted_group],
-          deleted_groups: vec![params.from_group_id.clone()],
+          deleted_groups: vec![from_group.to_string()],
           update_groups: vec![],
           initial_groups: vec![],
         };

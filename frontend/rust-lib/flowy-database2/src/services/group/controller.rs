@@ -265,7 +265,7 @@ where
 
   fn did_update_group_row(
     &mut self,
-    old_row: &Option<Arc<Row>>,
+    old_row: &Option<Row>,
     row: &Row,
     field: &Field,
   ) -> FlowyResult<DidUpdateGroupRowResult> {
@@ -280,8 +280,8 @@ where
     };
 
     if let Some(cell_data) = get_cell_data_from_row::<P>(Some(row), field) {
-      let old_row_rev = old_row.as_ref().map(|old| old.as_ref());
-      let old_cell_data = get_cell_data_from_row::<P>(old_row_rev, field);
+      let old_row = old_row.as_ref();
+      let old_cell_data = get_cell_data_from_row::<P>(old_row, field);
       if let Ok((insert, delete)) =
         self.create_or_delete_group_when_cell_changed(row, old_cell_data.as_ref(), &cell_data)
       {

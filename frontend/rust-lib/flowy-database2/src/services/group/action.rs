@@ -85,7 +85,7 @@ pub trait GroupControllerActions: Send + Sync {
   /// Insert/Remove the row to the group if the corresponding cell data is changed
   fn did_update_group_row(
     &mut self,
-    old_row: &Option<Arc<Row>>,
+    old_row: &Option<Row>,
     row: &Row,
     field: &Field,
   ) -> FlowyResult<DidUpdateGroupRowResult>;

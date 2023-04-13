@@ -66,6 +66,8 @@ pub trait SelectTypeOptionSharedAction: Send + Sync {
     }
   }
 
+  fn to_type_option_data(&self) -> TypeOptionData;
+
   fn options(&self) -> &Vec<SelectOption>;
 
   fn mut_options(&mut self) -> &mut Vec<SelectOption>;
@@ -143,7 +145,7 @@ where
   }
 }
 
-pub fn select_type_option_from_field_rev(
+pub fn select_type_option_from_field(
   field_rev: &Field,
 ) -> FlowyResult<Box<dyn SelectTypeOptionSharedAction>> {
   let field_type = FieldType::from(field_rev.field_type);
@@ -228,7 +230,7 @@ impl CellProtobufBlobParser for SelectOptionCellDataParser {
   }
 }
 
-#[derive(Clone, Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Default, Debug)]
 pub struct SelectOptionCellChangeset {
   pub insert_option_ids: Vec<String>,
   pub delete_option_ids: Vec<String>,

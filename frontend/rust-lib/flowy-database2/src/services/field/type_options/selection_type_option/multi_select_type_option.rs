@@ -63,6 +63,10 @@ impl SelectTypeOptionSharedAction for MultiSelectTypeOption {
     None
   }
 
+  fn to_type_option_data(&self) -> TypeOptionData {
+    self.clone().into()
+  }
+
   fn options(&self) -> &Vec<SelectOption> {
     &self.options
   }

@@ -8,7 +8,9 @@ use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataRes
 
 use crate::entities::*;
 use crate::manager::DatabaseManager2;
-use crate::services::field::type_option_data_from_pb_or_default;
+use crate::services::field::{
+  type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
+};
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_database_data_handler(
@@ -348,7 +350,15 @@ pub(crate) async fn update_cell_handler(
   data: AFPluginData<CellChangesetPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> Result<(), FlowyError> {
-  let changeset: CellChangesetPB = data.into_inner();
+  let params: CellChangesetPB = data.into_inner();
+  let database_editor = manager.get_database(&params.view_id).await?;
+  database_editor
+    .update_cell(
+      RowId::from(params.row_id),
+      &params.field_id,
+      params.type_cell_data,
+    )
+    .await;
   Ok(())
 }
 
@@ -358,15 +368,41 @@ pub(crate) async fn new_select_option_handler(
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> DataResult<SelectOptionPB, FlowyError> {
   let params: CreateSelectOptionParams = data.into_inner().try_into()?;
-  todo!()
+  let database_editor = manager.get_database(&params.view_id).await?;
+  let result = database_editor
+    .create_select_option(&params.field_id, params.option_name)
+    .await;
+  match result {
+    None => {
+      Err(FlowyError::record_not_found().context("Create select option fail. Can't find the field"))
+    },
+    Some(pb) => data_result_ok(pb),
+  }
 }
 
 #[tracing::instrument(level = "trace", skip_all, err)]
-pub(crate) async fn update_select_option_handler(
-  data: AFPluginData<SelectOptionChangesetPB>,
+pub(crate) async fn insert_or_update_select_option_handler(
+  data: AFPluginData<RepeatedSelectOptionPayload>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> Result<(), FlowyError> {
-  let changeset: SelectOptionChangeset = data.into_inner().try_into()?;
+  let params = data.into_inner();
+  let database_editor = manager.get_database(&params.view_id).await?;
+  database_editor
+    .insert_select_options(&params.field_id, RowId::from(params.row_id), params.items)
+    .await;
+  Ok(())
+}
+
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn delete_select_option_handler(
+  data: AFPluginData<RepeatedSelectOptionPayload>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> Result<(), FlowyError> {
+  let params = data.into_inner();
+  let database_editor = manager.get_database(&params.view_id).await?;
+  database_editor
+    .delete_select_options(&params.field_id, RowId::from(params.row_id), params.items)
+    .await;
   Ok(())
 }
 
@@ -376,7 +412,11 @@ pub(crate) async fn get_select_option_handler(
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> DataResult<SelectOptionCellDataPB, FlowyError> {
   let params: CellIdParams = data.into_inner().try_into()?;
-  todo!()
+  let database_editor = manager.get_database(&params.view_id).await?;
+  let options = database_editor
+    .get_select_options(params.row_id, &params.field_id)
+    .await;
+  data_result_ok(options)
 }
 
 #[tracing::instrument(level = "trace", skip_all, err)]
@@ -385,7 +425,20 @@ pub(crate) async fn update_select_option_cell_handler(
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> Result<(), FlowyError> {
   let params: SelectOptionCellChangesetParams = data.into_inner().try_into()?;
-
+  let database_editor = manager
+    .get_database(&params.cell_identifier.view_id)
+    .await?;
+  let changeset = SelectOptionCellChangeset {
+    insert_option_ids: params.insert_option_ids,
+    delete_option_ids: params.delete_option_ids,
+  };
+  database_editor
+    .update_cell(
+      params.cell_identifier.row_id,
+      &params.cell_identifier.field_id,
+      changeset,
+    )
+    .await;
   Ok(())
 }
 
@@ -395,7 +448,17 @@ pub(crate) async fn update_date_cell_handler(
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> Result<(), FlowyError> {
   let data = data.into_inner();
-
+  let cell_id: CellIdParams = data.cell_path.try_into()?;
+  let cell_changeset = DateCellChangeset {
+    date: data.date,
+    time: data.time,
+    include_time: data.include_time,
+    is_utc: data.is_utc,
+  };
+  let database_editor = manager.get_database(&cell_id.view_id).await?;
+  database_editor
+    .update_cell(cell_id.row_id, &cell_id.field_id, cell_changeset)
+    .await;
   Ok(())
 }
 
@@ -405,7 +468,9 @@ pub(crate) async fn get_groups_handler(
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> DataResult<RepeatedGroupPB, FlowyError> {
   let params: DatabaseViewIdPB = data.into_inner();
-  todo!()
+  let database_editor = manager.get_database(params.as_ref()).await?;
+  let groups = database_editor.load_groups(params.as_ref()).await?;
+  data_result_ok(groups)
 }
 
 #[tracing::instrument(level = "trace", skip_all, err)]
@@ -414,7 +479,11 @@ pub(crate) async fn get_group_handler(
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> DataResult<GroupPB, FlowyError> {
   let params: DatabaseGroupIdParams = data.into_inner().try_into()?;
-  todo!()
+  let database_editor = manager.get_database(&params.view_id).await?;
+  let group = database_editor
+    .get_group(&params.view_id, &params.group_id)
+    .await?;
+  data_result_ok(group)
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
@@ -423,7 +492,11 @@ pub(crate) async fn move_group_handler(
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> FlowyResult<()> {
   let params: MoveGroupParams = data.into_inner().try_into()?;
-  todo!()
+  let database_editor = manager.get_database(&params.view_id).await?;
+  database_editor
+    .move_group(&params.view_id, &params.from_group_id, &params.to_group_id)
+    .await?;
+  Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
@@ -432,7 +505,16 @@ pub(crate) async fn move_group_row_handler(
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> FlowyResult<()> {
   let params: MoveGroupRowParams = data.into_inner().try_into()?;
-  todo!()
+  let database_editor = manager.get_database(&params.view_id).await?;
+  database_editor
+    .move_group_row(
+      &params.view_id,
+      &params.group_id,
+      params.from_row_id,
+      params.to_row_id,
+    )
+    .await?;
+  Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip(manager), err)]
