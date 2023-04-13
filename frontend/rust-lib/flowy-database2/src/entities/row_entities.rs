@@ -1,6 +1,6 @@
 use crate::entities::parser::NotEmptyStr;
 
-use collab_database::rows::Row;
+use collab_database::rows::{Row, RowId};
 
 use crate::services::database::{InsertedRow, UpdatedRow};
 use collab_database::views::RowOrder;
@@ -143,12 +143,12 @@ pub struct RowIdPB {
   pub view_id: String,
 
   #[pb(index = 2)]
-  pub row_id: String,
+  pub row_id: i64,
 }
 
 pub struct RowIdParams {
   pub view_id: String,
-  pub row_id: String,
+  pub row_id: i64,
 }
 
 impl TryInto<RowIdParams> for RowIdPB {
@@ -156,11 +156,10 @@ impl TryInto<RowIdParams> for RowIdPB {
 
   fn try_into(self) -> Result<RowIdParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
-    let row_id = NotEmptyStr::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
 
     Ok(RowIdParams {
       view_id: view_id.0,
-      row_id: row_id.0,
+      row_id: self.row_id,
     })
   }
 }
@@ -180,7 +179,7 @@ pub struct CreateRowPayloadPB {
   pub view_id: String,
 
   #[pb(index = 2, one_of)]
-  pub start_row_id: Option<String>,
+  pub start_row_id: Option<i64>,
 
   #[pb(index = 3, one_of)]
   pub group_id: Option<String>,
@@ -198,7 +197,7 @@ pub struct RowDataPB {
 #[derive(Default)]
 pub struct CreateRowParams {
   pub view_id: String,
-  pub start_row_id: Option<String>,
+  pub start_row_id: Option<RowId>,
   pub group_id: Option<String>,
   pub cell_data_by_field_id: Option<HashMap<String, String>>,
 }
@@ -208,15 +207,7 @@ impl TryInto<CreateRowParams> for CreateRowPayloadPB {
 
   fn try_into(self) -> Result<CreateRowParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::ViewIdIsInvalid)?;
-    let start_row_id = match self.start_row_id {
-      None => None,
-      Some(start_row_id) => Some(
-        NotEmptyStr::parse(start_row_id)
-          .map_err(|_| ErrorCode::RowIdIsEmpty)?
-          .0,
-      ),
-    };
-
+    let start_row_id = self.start_row_id.map(|value| RowId::from(value));
     Ok(CreateRowParams {
       view_id: view_id.0,
       start_row_id,

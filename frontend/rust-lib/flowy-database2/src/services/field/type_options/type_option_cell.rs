@@ -414,12 +414,12 @@ pub fn transform_type_option(
   new_field_type: &FieldType,
   old_type_option_data: Option<TypeOptionData>,
   old_field_type: FieldType,
-) -> String {
+) -> TypeOptionData {
   let mut transform_handler = get_type_option_transform_handler(type_option_data, new_field_type);
   if let Some(old_type_option_data) = old_type_option_data {
     transform_handler.transform(old_field_type, old_type_option_data);
   }
-  transform_handler.json_str()
+  transform_handler.to_type_option_data()
 }
 
 /// A helper trait that used to erase the `Self` of `TypeOption` trait to make it become a Object-safe trait.
@@ -430,12 +430,12 @@ pub trait TypeOptionTransformHandler {
     old_type_option_data: TypeOptionData,
   );
 
-  fn json_str(&self) -> String;
+  fn to_type_option_data(&self) -> TypeOptionData;
 }
 
 impl<T> TypeOptionTransformHandler for T
 where
-  T: TypeOptionTransform + Serialize,
+  T: TypeOptionTransform + Into<TypeOptionData> + Clone,
 {
   fn transform(
     &mut self,
@@ -447,8 +447,8 @@ where
     }
   }
 
-  fn json_str(&self) -> String {
-    serde_json::to_string(&self).unwrap()
+  fn to_type_option_data(&self) -> TypeOptionData {
+    self.clone().into()
   }
 }
 fn get_type_option_transform_handler(

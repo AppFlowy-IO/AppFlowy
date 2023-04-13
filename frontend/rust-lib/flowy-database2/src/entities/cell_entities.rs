@@ -1,5 +1,6 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::FieldType;
+use collab_database::rows::RowId;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 
@@ -46,7 +47,7 @@ pub struct CellIdPB {
   pub field_id: String,
 
   #[pb(index = 3)]
-  pub row_id: String,
+  pub row_id: i64,
 }
 
 /// Represents as the cell identifier. It's used to locate the cell in corresponding
@@ -54,7 +55,7 @@ pub struct CellIdPB {
 pub struct CellIdParams {
   pub view_id: String,
   pub field_id: String,
-  pub row_id: String,
+  pub row_id: RowId,
 }
 
 impl TryInto<CellIdParams> for CellIdPB {
@@ -63,11 +64,10 @@ impl TryInto<CellIdParams> for CellIdPB {
   fn try_into(self) -> Result<CellIdParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
     let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
-    let row_id = NotEmptyStr::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
     Ok(CellIdParams {
       view_id: view_id.0,
       field_id: field_id.0,
-      row_id: row_id.0,
+      row_id: RowId::from(self.row_id),
     })
   }
 }
@@ -79,7 +79,7 @@ pub struct CellPB {
   pub field_id: String,
 
   #[pb(index = 2)]
-  pub row_id: String,
+  pub row_id: i64,
 
   /// Encoded the data using the helper struct `CellProtobufBlob`.
   /// Check out the `CellProtobufBlob` for more information.
@@ -92,19 +92,19 @@ pub struct CellPB {
 }
 
 impl CellPB {
-  pub fn new(field_id: &str, row_id: &str, field_type: FieldType, data: Vec<u8>) -> Self {
+  pub fn new(field_id: &str, row_id: i64, field_type: FieldType, data: Vec<u8>) -> Self {
     Self {
       field_id: field_id.to_owned(),
-      row_id: row_id.to_string(),
+      row_id,
       data,
       field_type: Some(field_type),
     }
   }
 
-  pub fn empty(field_id: &str, row_id: &str) -> Self {
+  pub fn empty(field_id: &str, row_id: i64) -> Self {
     Self {
       field_id: field_id.to_owned(),
-      row_id: row_id.to_owned(),
+      row_id,
       data: vec![],
       field_type: None,
     }
@@ -136,7 +136,6 @@ impl std::convert::From<Vec<CellPB>> for RepeatedCellPB {
   }
 }
 
-///
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct CellChangesetPB {
   #[pb(index = 1)]

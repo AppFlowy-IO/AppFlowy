@@ -10,7 +10,7 @@ use crate::services::group::controller::{
 };
 use crate::services::group::{move_group_row, GeneratedGroupConfig, GeneratedGroupContext, Group};
 use collab_database::fields::Field;
-use collab_database::rows::{new_cell_builder, Cell, Row};
+use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
 
 use serde::{Deserialize, Serialize};
 
@@ -126,13 +126,13 @@ impl GroupCustomize for CheckboxGroupController {
 }
 
 impl GroupController for CheckboxGroupController {
-  fn will_create_row(&mut self, row: &mut Row, field: &Field, group_id: &str) {
+  fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str) {
     match self.group_ctx.get_group(group_id) {
       None => tracing::warn!("Can not find the group: {}", group_id),
       Some((_, group)) => {
         let is_check = group.id == CHECK;
         let cell = insert_checkbox_cell(is_check, field);
-        row.cells.insert(field.id.clone(), cell);
+        cells.insert(field.id.clone(), cell);
       },
     }
   }

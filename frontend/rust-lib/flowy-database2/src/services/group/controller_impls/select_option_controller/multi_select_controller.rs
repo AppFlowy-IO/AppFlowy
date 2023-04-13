@@ -10,7 +10,7 @@ use crate::services::group::{
   move_group_row, remove_select_option_row, GeneratedGroupContext, GroupContext,
 };
 use collab_database::fields::Field;
-use collab_database::rows::Row;
+use collab_database::rows::{Cells, Row};
 
 use serde::{Deserialize, Serialize};
 
@@ -78,12 +78,12 @@ impl GroupCustomize for MultiSelectGroupController {
 }
 
 impl GroupController for MultiSelectGroupController {
-  fn will_create_row(&mut self, row: &mut Row, field: &Field, group_id: &str) {
+  fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str) {
     match self.group_ctx.get_group(group_id) {
       None => tracing::warn!("Can not find the group: {}", group_id),
       Some((_, group)) => {
         let cell = insert_select_option_cell(vec![group.id.clone()], field);
-        row.cells.insert(field.id.clone(), cell);
+        cells.insert(field.id.clone(), cell);
       },
     }
   }

@@ -3,7 +3,7 @@ use crate::services::cell::insert_select_option_cell;
 use crate::services::field::{SelectOptionCellDataParser, SingleSelectTypeOption};
 use crate::services::group::action::GroupCustomize;
 use collab_database::fields::Field;
-use collab_database::rows::Row;
+use collab_database::rows::{Cells, Row};
 
 use crate::services::group::controller::{
   GenericGroupController, GroupController, GroupGenerator, MoveGroupRowContext,
@@ -78,13 +78,13 @@ impl GroupCustomize for SingleSelectGroupController {
 }
 
 impl GroupController for SingleSelectGroupController {
-  fn will_create_row(&mut self, row: &mut Row, field: &Field, group_id: &str) {
+  fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str) {
     let group: Option<&mut GroupData> = self.group_ctx.get_mut_group(group_id);
     match group {
       None => {},
       Some(group) => {
         let cell = insert_select_option_cell(vec![group.id.clone()], field);
-        row.cells.insert(field.id.clone(), cell);
+        cells.insert(field.id.clone(), cell);
       },
     }
   }

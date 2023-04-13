@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use collab_database::database::{gen_database_filter_id, gen_database_sort_id};
 use collab_database::fields::Field;
-use collab_database::rows::{Row, RowCell, RowId};
+use collab_database::rows::{Cells, Row, RowCell, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use tokio::sync::{broadcast, RwLock};
 
@@ -151,29 +151,24 @@ impl DatabaseViewEditor {
     })
   }
 
-  pub async fn v_will_create_row(&self, row: &mut Row, params: CreateRowParams) {
-    if params.group_id.is_none() {
+  pub async fn v_will_create_row(&self, cells: &mut Cells, group_id: &Option<String>) {
+    if group_id.is_none() {
       return;
     }
-    let group_id = params.group_id.as_ref().unwrap();
+    let group_id = group_id.as_ref().unwrap();
     let _ = self
       .mut_group_controller(|group_controller, field| {
-        group_controller.will_create_row(row, &field, group_id);
+        group_controller.will_create_row(cells, &field, group_id);
         Ok(())
       })
       .await;
   }
 
-  pub async fn v_did_create_row(&self, row: &Row, params: &CreateRowParams) {
+  pub async fn v_did_create_row(&self, row: &Row, group_id: &Option<String>, index: usize) {
     // Send the group notification if the current view has groups
-    match params.group_id.as_ref() {
+    match group_id.as_ref() {
       None => {},
       Some(group_id) => {
-        let index = match params.start_row_id {
-          None => Some(0),
-          Some(_) => None,
-        };
-
         self
           .group_controller
           .write()
@@ -181,7 +176,7 @@ impl DatabaseViewEditor {
           .did_create_row(row, group_id);
         let inserted_row = InsertedRowPB {
           row: RowPB::from(row),
-          index,
+          index: Some(index as i32),
           is_new: true,
         };
         let changeset = GroupRowsNotificationPB::insert(group_id.clone(), vec![inserted_row]);

@@ -12,7 +12,7 @@ use crate::services::group::{
   make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroupContext, Group,
 };
 use collab_database::fields::Field;
-use collab_database::rows::{new_cell_builder, Cell, Row};
+use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 
@@ -164,12 +164,12 @@ impl GroupCustomize for URLGroupController {
 }
 
 impl GroupController for URLGroupController {
-  fn will_create_row(&mut self, row: &mut Row, field: &Field, group_id: &str) {
+  fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str) {
     match self.group_ctx.get_group(group_id) {
       None => tracing::warn!("Can not find the group: {}", group_id),
       Some((_, group)) => {
         let cell = insert_url_cell(group.id.clone(), field);
-        row.cells.insert(field.id.clone(), cell);
+        cells.insert(field.id.clone(), cell);
       },
     }
   }

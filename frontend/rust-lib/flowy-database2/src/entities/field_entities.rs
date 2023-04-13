@@ -3,6 +3,7 @@ use collab_database::views::FieldOrder;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use serde_repr::*;
+use std::fmt::{Display, Formatter};
 use std::sync::Arc;
 
 use crate::entities::parser::NotEmptyStr;
@@ -134,9 +135,9 @@ pub struct IndexFieldPB {
 }
 
 impl IndexFieldPB {
-  pub fn from_field_rev(field_rev: &Arc<Field>, index: usize) -> Self {
+  pub fn from_field(field: Field, index: usize) -> Self {
     Self {
-      field: FieldPB::from(field_rev.as_ref().clone()),
+      field: FieldPB::from(field),
       index: index as i32,
     }
   }
@@ -474,7 +475,6 @@ pub struct FieldChangesetParams {
   ProtoBuf_Enum,
   EnumCountMacro,
   EnumIter,
-  Display,
   Serialize_repr,
   Deserialize_repr,
 )]
@@ -505,26 +505,12 @@ impl std::default::Default for FieldType {
   }
 }
 
-impl AsRef<str> for FieldType {
-  fn as_ref(&self) -> &str {
-    match self {
-      FieldType::RichText => "text",
-      FieldType::Number => "number",
-      FieldType::DateTime => "date",
-      FieldType::SingleSelect => "single-select",
-      FieldType::MultiSelect => "multi-select",
-      FieldType::Checkbox => "checkbox",
-      FieldType::URL => "url",
-      FieldType::Checklist => "checklist",
-    }
+impl Display for FieldType {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    let value: i64 = self.clone().into();
+    f.write_fmt(format_args!("{}", value))
   }
 }
-
-// impl ToString for FieldType {
-//   fn to_string(&self) -> String {
-//     self.as_ref().to_owned()
-//   }
-// }
 
 impl AsRef<FieldType> for FieldType {
   fn as_ref(&self) -> &FieldType {
@@ -544,6 +530,20 @@ impl FieldType {
       FieldType::DateTime => 180,
       _ => 150,
     }
+  }
+
+  pub fn default_name(&self) -> String {
+    let s = match self {
+      FieldType::RichText => "Text",
+      FieldType::Number => "Number",
+      FieldType::DateTime => "Date",
+      FieldType::SingleSelect => "Single Select",
+      FieldType::MultiSelect => "Multi Select",
+      FieldType::Checkbox => "Checkbox",
+      FieldType::URL => "URL",
+      FieldType::Checklist => "Checklist",
+    };
+    s.to_string()
   }
 
   pub fn is_number(&self) -> bool {
@@ -592,7 +592,22 @@ impl_into_field_type!(u8);
 
 impl From<FieldType> for i64 {
   fn from(ty: FieldType) -> Self {
-    ty as i64
+    match ty {
+      FieldType::RichText => 0,
+      FieldType::Number => 1,
+      FieldType::DateTime => 2,
+      FieldType::SingleSelect => 3,
+      FieldType::MultiSelect => 4,
+      FieldType::Checkbox => 5,
+      FieldType::URL => 6,
+      FieldType::Checklist => 7,
+    }
+  }
+}
+
+impl From<&FieldType> for i64 {
+  fn from(ty: &FieldType) -> Self {
+    ty.clone() as i64
   }
 }
 

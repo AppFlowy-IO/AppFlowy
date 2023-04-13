@@ -1,29 +1,34 @@
 use std::ops::Deref;
 use std::sync::Arc;
 
-use collab_database::database::Database as InnerDatabase;
+use bytes::Bytes;
+use collab_database::database::{gen_row_id, Database as InnerDatabase};
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Row, RowCell, RowId};
+use collab_database::rows::{Cell, Row, RowCell, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
+use lib_infra::future::{to_fut, Fut};
 use parking_lot::Mutex;
 use tokio::sync::{broadcast, RwLock};
 
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
-use lib_infra::future::{to_fut, Fut};
 
 use crate::entities::{
-  AlterFilterParams, AlterSortParams, CalendarLayoutSettingsPB, DatabaseFieldChangesetPB,
-  DatabaseLayoutPB, DatabasePB, DatabaseViewSettingPB, DeleteFilterParams, DeleteGroupParams,
-  DeleteSortParams, FieldChangesetParams, FieldIdPB, FieldPB, FieldType, FilterPB, GroupSettingPB,
-  InsertGroupParams, LayoutSettingPB, RepeatedFieldPB, RepeatedFilterPB, RepeatedGroupPB,
-  RepeatedGroupSettingPB, RepeatedSortPB, RowPB, SortPB,
+  AlterFilterParams, AlterSortParams, CalendarLayoutSettingsPB, CellPB, CreateRowParams,
+  DatabaseFieldChangesetPB, DatabaseLayoutPB, DatabasePB, DatabaseViewSettingPB,
+  DeleteFilterParams, DeleteGroupParams, DeleteSortParams, FieldChangesetParams, FieldIdPB,
+  FieldPB, FieldType, FilterPB, GroupSettingPB, IndexFieldPB, InsertGroupParams, LayoutSettingPB,
+  RepeatedFieldPB, RepeatedFilterPB, RepeatedGroupPB, RepeatedGroupSettingPB, RepeatedSortPB,
+  RowPB, SortPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
-use crate::services::cell::{AnyTypeCache, CellCache};
+use crate::services::cell::{get_type_cell_protobuf, AnyTypeCache, CellBuilder, CellCache};
 use crate::services::database::util::{database_view_setting_pb_from_view, get_database_data};
 use crate::services::database_view::{DatabaseViewData, DatabaseViews, RowEventSender};
-use crate::services::field::{type_option_data_from_bytes, TypeOptionCellDataHandler};
+use crate::services::field::{
+  default_type_option_data_for_type, default_type_option_data_from_type, transform_type_option,
+  type_option_data_from_pb_or_default, type_option_to_pb, TypeOptionCellDataHandler,
+};
 use crate::services::filter::Filter;
 use crate::services::group::{default_group_setting, GroupSetting};
 use crate::services::sort::Sort;
@@ -204,6 +209,229 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  pub async fn switch_to_field_type(
+    &self,
+    field_id: &str,
+    new_field_type: &FieldType,
+  ) -> FlowyResult<()> {
+    match self.database.lock().fields.get_field(field_id) {
+      None => {},
+      Some(field) => {
+        let old_field_type = FieldType::from(field.field_type);
+        let old_type_option = field.get_any_type_option(old_field_type.clone());
+        let new_type_option = field
+          .get_any_type_option(new_field_type)
+          .unwrap_or_else(|| default_type_option_data_for_type(new_field_type));
+
+        let transformed_type_option = transform_type_option(
+          &new_type_option,
+          new_field_type,
+          old_type_option,
+          old_field_type,
+        );
+        self
+          .database
+          .lock()
+          .fields
+          .update_field(field_id, |update| {
+            update.set_type_option(new_field_type.into(), Some(transformed_type_option));
+          });
+      },
+    }
+
+    self.notify_did_update_database_field(field_id).await?;
+    Ok(())
+  }
+
+  pub async fn duplicate_field(&self, view_id: &str, field_id: &str) -> FlowyResult<()> {
+    let value = self
+      .database
+      .lock()
+      .duplicate_field(view_id, field_id, |field| format!("{} (copy)", field.name));
+    if let Some((index, duplicated_field)) = value {
+      let _ = self
+        .notify_did_insert_database_field(duplicated_field, index)
+        .await;
+    }
+    Ok(())
+  }
+
+  pub async fn duplicate_row(&self, view_id: &str, row_id: RowId) {
+    let _ = self.database.lock().duplicate_row(view_id, row_id);
+  }
+
+  pub async fn move_row(&self, view_id: &str, from: RowId, to: RowId) {
+    // self.database.lock().views.update_view(view_id, |view| {
+    //   view.move_row_order(from as u32, to as u32);
+    // });
+    todo!()
+  }
+
+  pub async fn create_row(&self, params: CreateRowParams) -> FlowyResult<Option<Row>> {
+    let fields = self.database.lock().get_fields(&params.view_id, None);
+    let mut cells =
+      CellBuilder::with_cells(params.cell_data_by_field_id.unwrap_or_default(), fields).build();
+
+    self
+      .database_views
+      .editors()
+      .await
+      .into_iter()
+      .for_each(|view_editor| {
+        view_editor.v_will_create_row(&mut cells, &params.group_id);
+      });
+
+    let result = self.database.lock().create_row(
+      &params.view_id,
+      collab_database::block::CreateRowParams {
+        id: gen_row_id(),
+        cells,
+        height: 60,
+        visibility: true,
+        prev_row_id: params.start_row_id,
+      },
+    );
+
+    if let Some((index, row_order)) = result {
+      let row = self.database.lock().get_row(row_order.id);
+      if let Some(row) = row {
+        self
+          .database_views
+          .editors()
+          .await
+          .into_iter()
+          .for_each(|view_editor| {
+            view_editor.v_did_create_row(&row, &params.group_id, index);
+          });
+        return Ok(Some(row));
+      }
+    }
+
+    return Ok(None);
+  }
+
+  pub async fn get_field_type_option_data(&self, field_id: &str) -> Option<(Field, Bytes)> {
+    let field = self.database.lock().fields.get_field(field_id);
+    field.map(|field| {
+      let field_type = FieldType::from(field.field_type);
+      let type_option = field
+        .get_any_type_option(field_type.clone())
+        .unwrap_or_else(|| default_type_option_data_from_type(&field_type));
+      (field, type_option_to_pb(type_option, &field_type))
+    })
+  }
+
+  pub async fn create_field_with_type_option(
+    &self,
+    view_id: &str,
+    field_type: &FieldType,
+    type_option_data: Option<Vec<u8>>,
+  ) -> (Field, Bytes) {
+    let name = field_type.default_name();
+    let type_option_data = match type_option_data {
+      None => default_type_option_data_for_type(field_type),
+      Some(type_option_data) => type_option_data_from_pb_or_default(type_option_data, field_type),
+    };
+    let (index, field) =
+      self
+        .database
+        .lock()
+        .create_default_field(view_id, name, field_type.into(), |field| {
+          field
+            .type_options
+            .insert(field_type.to_string(), type_option_data.clone());
+        });
+
+    let _ = self
+      .notify_did_insert_database_field(field.clone(), index)
+      .await;
+
+    (field, type_option_to_pb(type_option_data, field_type))
+  }
+
+  pub async fn move_field(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    from: i32,
+    to: i32,
+  ) -> FlowyResult<()> {
+    let (database_id, field) = {
+      let database = self.database.lock();
+      database.views.update_view(view_id, |view_update| {
+        view_update.move_field_order(from as u32, to as u32);
+      });
+      let field = database.fields.get_field(&field_id);
+      let database_id = database.get_database_id();
+      (database_id, field)
+    };
+
+    if let Some(field) = field {
+      let delete_field = FieldIdPB::from(field_id);
+      let insert_field = IndexFieldPB::from_field(field, to as usize);
+      let notified_changeset = DatabaseFieldChangesetPB {
+        view_id: database_id,
+        inserted_fields: vec![insert_field],
+        deleted_fields: vec![delete_field],
+        updated_fields: vec![],
+      };
+
+      self.notify_did_update_database(notified_changeset).await?;
+    }
+    Ok(())
+  }
+
+  pub async fn get_rows(&self, view_id: &str) -> FlowyResult<Vec<Row>> {
+    let rows = self.database.lock().get_rows_for_view(view_id);
+    Ok(rows)
+  }
+
+  pub fn get_row(&self, row_id: RowId) -> Option<Row> {
+    self.database.lock().get_row(row_id)
+  }
+
+  pub async fn delete_row(&self, row_id: RowId) {
+    let row = self.database.lock().remove_row(row_id);
+    if let Some(row) = row {
+      tracing::trace!("Did delete row:{:?}", row);
+      self
+        .database_views
+        .editors()
+        .await
+        .into_iter()
+        .for_each(|editor| {
+          editor.v_did_delete_row(&row);
+        });
+    }
+  }
+
+  pub async fn get_cell(&self, field_id: &str, row_id: RowId) -> CellPB {
+    let field = self.database.lock().fields.get_field(field_id);
+    let cell = self.database.lock().get_cell(field_id, row_id);
+    match (field, cell) {
+      (Some(field), Some(cell)) => {
+        let field_type = FieldType::from(field.field_type);
+        let cell_bytes = get_type_cell_protobuf(&cell, &field, Some(self.cell_cache.clone()));
+        CellPB {
+          field_id: field_id.to_string(),
+          row_id: row_id.into(),
+          data: cell_bytes.to_vec(),
+          field_type: Some(field_type),
+        }
+      },
+      _ => CellPB::empty(field_id, row_id.into()),
+    }
+  }
+
+  #[tracing::instrument(level = "trace", skip_all, err)]
+  async fn notify_did_insert_database_field(&self, field: Field, index: usize) -> FlowyResult<()> {
+    let database_id = self.database.lock().get_database_id();
+    let index_field = IndexFieldPB::from_field(field, index);
+    let notified_changeset = DatabaseFieldChangesetPB::insert(&database_id, vec![index_field]);
+    let _ = self.notify_did_update_database(notified_changeset).await;
+    Ok(())
+  }
+
   #[tracing::instrument(level = "trace", skip_all, err)]
   async fn notify_did_update_database_field(&self, field_id: &str) -> FlowyResult<()> {
     let (database_id, field) = {
@@ -256,15 +484,11 @@ impl DatabaseEditor {
     let database = self.database.lock();
     get_database_data(&database)
   }
-
-  pub async fn get_rows(&self, view_id: &str) -> FlowyResult<Vec<Row>> {
-    let rows = self.database.lock().get_rows_for_view(view_id);
-    Ok(rows)
-  }
 }
 
 #[derive(Clone)]
 pub struct MutexDatabase(Arc<Mutex<Arc<InnerDatabase>>>);
+
 impl MutexDatabase {
   pub(crate) fn new(database: Arc<InnerDatabase>) -> Self {
     Self(Arc::new(Mutex::new(database)))
@@ -277,7 +501,9 @@ impl Deref for MutexDatabase {
     &self.0
   }
 }
+
 unsafe impl Sync for MutexDatabase {}
+
 unsafe impl Send for MutexDatabase {}
 
 struct DatabaseViewDataImpl {
@@ -293,7 +519,7 @@ impl DatabaseViewData for DatabaseViewDataImpl {
 
   fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>> {
     let fields = self.database.lock().get_fields(view_id, field_ids);
-    to_fut(async move { fields.into_iter().map(|field| Arc::new(field)).collect() })
+    to_fut(async move { fields.into_iter().map(Arc::new).collect() })
   }
 
   fn get_field(&self, field_id: &str) -> Fut<Option<Arc<Field>>> {
@@ -334,7 +560,7 @@ impl DatabaseViewData for DatabaseViewDataImpl {
 
   fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<Row>>> {
     let rows = self.database.lock().get_rows_for_view(view_id);
-    to_fut(async move { rows.into_iter().map(|row| Arc::new(row)).collect() })
+    to_fut(async move { rows.into_iter().map(Arc::new).collect() })
   }
 
   fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>> {

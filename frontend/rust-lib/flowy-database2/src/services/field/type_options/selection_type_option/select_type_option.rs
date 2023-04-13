@@ -150,7 +150,7 @@ pub fn select_type_option_from_field_rev(
   match &field_type {
     FieldType::SingleSelect => {
       let type_option = field_rev
-        .get_type_option::<SingleSelectTypeOption>(&field_type)
+        .get_type_option::<SingleSelectTypeOption>(field_type)
         .unwrap_or_default();
       Ok(Box::new(type_option))
     },

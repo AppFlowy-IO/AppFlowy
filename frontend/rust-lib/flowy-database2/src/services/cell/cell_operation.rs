@@ -1,10 +1,11 @@
 use crate::entities::FieldType;
 use crate::services::cell::{CellCache, CellProtobufBlob};
 use crate::services::field::*;
+use std::collections::HashMap;
 
 use crate::services::group::make_no_status_group;
 use collab_database::fields::Field;
-use collab_database::rows::{get_field_type_from_cell, Cell};
+use collab_database::rows::{get_field_type_from_cell, Cell, Cells};
 
 use flowy_error::{ErrorCode, FlowyResult};
 use std::fmt::Debug;
@@ -77,7 +78,7 @@ pub fn apply_cell_data_changeset<C: ToCellChangesetString>(
 pub fn get_type_cell_protobuf(
   cell: &Cell,
   field: &Field,
-  cell_data_cache: Option<CellCache>,
+  cell_cache: Option<CellCache>,
 ) -> CellProtobufBlob {
   let from_field_type = get_field_type_from_cell(cell);
   if from_field_type.is_none() {
@@ -91,7 +92,7 @@ pub fn get_type_cell_protobuf(
     &from_field_type,
     &to_field_type,
     field,
-    cell_data_cache,
+    cell_cache,
   ) {
     Ok(cell_bytes) => cell_bytes,
     Err(e) => {
@@ -311,3 +312,130 @@ where
 //         AnyCellChangeset(Some(s))
 //     }
 // }
+
+pub struct CellBuilder {
+  cells: Cells,
+  field_maps: HashMap<String, Field>,
+}
+
+impl CellBuilder {
+  pub fn with_cells(cell_by_field_id: HashMap<String, String>, fields: Vec<Field>) -> Self {
+    let field_maps = fields
+      .into_iter()
+      .map(|field| (field.id.clone(), field))
+      .collect::<HashMap<String, Field>>();
+
+    let mut cells = Cells::new();
+    for (field_id, cell_str) in cell_by_field_id {
+      if let Some(field) = field_maps.get(&field_id) {
+        let field_type = FieldType::from(field.field_type);
+        match field_type {
+          FieldType::RichText => {
+            cells.insert(field_id, insert_text_cell(cell_str, field));
+          },
+          FieldType::Number => {
+            if let Ok(num) = cell_str.parse::<i64>() {
+              cells.insert(field_id, insert_number_cell(num, field));
+            }
+          },
+          FieldType::DateTime => {
+            if let Ok(timestamp) = cell_str.parse::<i64>() {
+              cells.insert(field_id, insert_date_cell(timestamp, field));
+            }
+          },
+          FieldType::SingleSelect | FieldType::MultiSelect => {
+            if let Ok(ids) = SelectOptionIds::from_cell_str(&cell_str) {
+              cells.insert(field_id, insert_select_option_cell(ids.into_inner(), field));
+            }
+          },
+          FieldType::Checkbox => {
+            if let Ok(value) = CheckboxCellData::from_cell_str(&cell_str) {
+              cells.insert(field_id, insert_checkbox_cell(value.into_inner(), field));
+            }
+          },
+          FieldType::URL => {
+            cells.insert(field_id, insert_url_cell(cell_str, field));
+          },
+          FieldType::Checklist => {
+            if let Ok(ids) = SelectOptionIds::from_cell_str(&cell_str) {
+              cells.insert(field_id, insert_select_option_cell(ids.into_inner(), field));
+            }
+          },
+        }
+      }
+    }
+
+    CellBuilder { cells, field_maps }
+  }
+
+  pub fn build(self) -> Cells {
+    self.cells
+  }
+
+  pub fn insert_text_cell(&mut self, field_id: &str, data: String) {
+    match self.field_maps.get(&field_id.to_owned()) {
+      None => tracing::warn!("Can't find the text field with id: {}", field_id),
+      Some(field) => {
+        self
+          .cells
+          .insert(field_id.to_owned(), insert_text_cell(data, field));
+      },
+    }
+  }
+
+  pub fn insert_url_cell(&mut self, field_id: &str, data: String) {
+    match self.field_maps.get(&field_id.to_owned()) {
+      None => tracing::warn!("Can't find the url field with id: {}", field_id),
+      Some(field) => {
+        self
+          .cells
+          .insert(field_id.to_owned(), insert_url_cell(data, field));
+      },
+    }
+  }
+
+  pub fn insert_number_cell(&mut self, field_id: &str, num: i64) {
+    match self.field_maps.get(&field_id.to_owned()) {
+      None => tracing::warn!("Can't find the number field with id: {}", field_id),
+      Some(field) => {
+        self
+          .cells
+          .insert(field_id.to_owned(), insert_number_cell(num, field));
+      },
+    }
+  }
+
+  pub fn insert_checkbox_cell(&mut self, field_id: &str, is_check: bool) {
+    match self.field_maps.get(&field_id.to_owned()) {
+      None => tracing::warn!("Can't find the checkbox field with id: {}", field_id),
+      Some(field) => {
+        self
+          .cells
+          .insert(field_id.to_owned(), insert_checkbox_cell(is_check, field));
+      },
+    }
+  }
+
+  pub fn insert_date_cell(&mut self, field_id: &str, timestamp: i64) {
+    match self.field_maps.get(&field_id.to_owned()) {
+      None => tracing::warn!("Can't find the date field with id: {}", field_id),
+      Some(field) => {
+        self
+          .cells
+          .insert(field_id.to_owned(), insert_date_cell(timestamp, field));
+      },
+    }
+  }
+
+  pub fn insert_select_option_cell(&mut self, field_id: &str, option_ids: Vec<String>) {
+    match self.field_maps.get(&field_id.to_owned()) {
+      None => tracing::warn!("Can't find the select option field with id: {}", field_id),
+      Some(field) => {
+        self.cells.insert(
+          field_id.to_owned(),
+          insert_select_option_cell(option_ids, field),
+        );
+      },
+    }
+  }
+}

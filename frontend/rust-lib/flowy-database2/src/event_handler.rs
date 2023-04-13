@@ -1,13 +1,14 @@
 use std::sync::Arc;
 
 use collab_database::fields::Field;
+use collab_database::rows::{Row, RowId};
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
 use crate::entities::*;
 use crate::manager::DatabaseManager2;
-use crate::services::field::type_option_data_from_bytes;
+use crate::services::field::type_option_data_from_pb_or_default;
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_database_data_handler(
@@ -132,7 +133,8 @@ pub(crate) async fn update_field_type_option_handler(
   let database_editor = manager.get_database(&params.view_id).await?;
   if let Some(old_field) = database_editor.get_field(&params.field_id) {
     let field_type = FieldType::from(old_field.field_type);
-    let type_option_data = type_option_data_from_bytes(params.type_option_data, &field_type);
+    let type_option_data =
+      type_option_data_from_pb_or_default(params.type_option_data, &field_type);
     database_editor
       .update_field_type_option(
         &params.view_id,
@@ -162,7 +164,32 @@ pub(crate) async fn switch_to_field_handler(
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> Result<(), FlowyError> {
   let params: EditFieldParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database(&params.view_id).await?;
+  let old_field = database_editor.get_field(&params.field_id);
+  database_editor
+    .switch_to_field_type(&params.field_id, &params.field_type)
+    .await?;
 
+  if let Some(new_type_option) = database_editor
+    .get_field(&params.field_id)
+    .map(|field| field.get_any_type_option(field.field_type))
+  {
+    match (old_field, new_type_option) {
+      (Some(old_field), Some(new_type_option)) => {
+        database_editor
+          .update_field_type_option(
+            &params.view_id,
+            &params.field_id,
+            new_type_option,
+            old_field,
+          )
+          .await?;
+      },
+      _ => {
+        tracing::warn!("Old field and the new type option should not be empty");
+      },
+    }
+  }
   Ok(())
 }
 
@@ -172,6 +199,10 @@ pub(crate) async fn duplicate_field_handler(
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> Result<(), FlowyError> {
   let params: FieldIdParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database(&params.view_id).await?;
+  database_editor
+    .duplicate_field(&params.view_id, &params.field_id)
+    .await?;
   Ok(())
 }
 
@@ -182,7 +213,20 @@ pub(crate) async fn get_field_type_option_data_handler(
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> DataResult<TypeOptionPB, FlowyError> {
   let params: TypeOptionPathParams = data.into_inner().try_into()?;
-  todo!()
+  let database_editor = manager.get_database(&params.view_id).await?;
+  if let Some((field, data)) = database_editor
+    .get_field_type_option_data(&params.field_id)
+    .await
+  {
+    let data = TypeOptionPB {
+      view_id: params.view_id,
+      field: FieldPB::from(field),
+      type_option_data: data.to_vec(),
+    };
+    data_result_ok(data)
+  } else {
+    Err(FlowyError::record_not_found())
+  }
 }
 
 /// Create FieldMeta and save it. Return the FieldTypeOptionData.
@@ -192,7 +236,17 @@ pub(crate) async fn create_field_type_option_data_handler(
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> DataResult<TypeOptionPB, FlowyError> {
   let params: CreateFieldParams = data.into_inner().try_into()?;
-  todo!()
+  let database_editor = manager.get_database(&params.view_id).await?;
+  let (field, data) = database_editor
+    .create_field_with_type_option(&params.view_id, &params.field_type, params.type_option_data)
+    .await;
+
+  let data = TypeOptionPB {
+    view_id: params.view_id,
+    field: FieldPB::from(field),
+    type_option_data: data.to_vec(),
+  };
+  data_result_ok(data)
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
@@ -201,12 +255,16 @@ pub(crate) async fn move_field_handler(
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> Result<(), FlowyError> {
   let params: MoveFieldParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database(&params.view_id).await?;
+  database_editor
+    .move_field(
+      &params.view_id,
+      &params.field_id,
+      params.from_index,
+      params.to_index,
+    )
+    .await?;
   Ok(())
-}
-
-/// The [Field] contains multiple data, each of them belongs to a specific FieldType.
-async fn get_type_option_data(field_rev: &Field, field_type: &FieldType) -> FlowyResult<Vec<u8>> {
-  todo!()
 }
 
 // #[tracing::instrument(level = "debug", skip(data, manager), err)]
@@ -214,7 +272,12 @@ pub(crate) async fn get_row_handler(
   data: AFPluginData<RowIdPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> DataResult<OptionalRowPB, FlowyError> {
-  todo!()
+  let params: RowIdParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database(&params.view_id).await?;
+  let row = database_editor
+    .get_row(RowId::from(params.row_id))
+    .map(RowPB::from);
+  data_result_ok(OptionalRowPB { row })
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
@@ -222,6 +285,9 @@ pub(crate) async fn delete_row_handler(
   data: AFPluginData<RowIdPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> Result<(), FlowyError> {
+  let params: RowIdParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database(&params.view_id).await?;
+  database_editor.delete_row(RowId::from(params.row_id)).await;
   Ok(())
 }
 
@@ -230,6 +296,11 @@ pub(crate) async fn duplicate_row_handler(
   data: AFPluginData<RowIdPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> Result<(), FlowyError> {
+  let params: RowIdParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database(&params.view_id).await?;
+  database_editor
+    .duplicate_row(&params.view_id, RowId::from(params.row_id))
+    .await;
   Ok(())
 }
 
@@ -238,6 +309,11 @@ pub(crate) async fn move_row_handler(
   data: AFPluginData<MoveRowPayloadPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> Result<(), FlowyError> {
+  let params: MoveRowParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database(&params.view_id).await?;
+  database_editor
+    .move_row(&params.view_id, params.from_row_id, params.to_row_id)
+    .await;
   Ok(())
 }
 
@@ -247,7 +323,11 @@ pub(crate) async fn create_row_handler(
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> DataResult<RowPB, FlowyError> {
   let params: CreateRowParams = data.into_inner().try_into()?;
-  todo!()
+  let database_editor = manager.get_database(&params.view_id).await?;
+  match database_editor.create_row(params).await? {
+    None => Err(FlowyError::internal().context("Create row fail")),
+    Some(row) => data_result_ok(RowPB::from(row)),
+  }
 }
 
 #[tracing::instrument(level = "trace", skip_all, err)]
@@ -256,7 +336,11 @@ pub(crate) async fn get_cell_handler(
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> DataResult<CellPB, FlowyError> {
   let params: CellIdParams = data.into_inner().try_into()?;
-  todo!()
+  let database_editor = manager.get_database(&params.view_id).await?;
+  let cell = database_editor
+    .get_cell(&params.field_id, params.row_id)
+    .await;
+  data_result_ok(cell)
 }
 
 #[tracing::instrument(level = "trace", skip_all, err)]

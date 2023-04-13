@@ -42,7 +42,10 @@ where
   W: GroupSettingWriter,
 {
   let grouping_field_type = FieldType::from(grouping_field.field_type);
-  tracing::Span::current().record("grouping_field_type", &format!("{}", grouping_field_type));
+  tracing::Span::current().record(
+    "grouping_field_type",
+    &format!("{}", grouping_field_type.default_name()),
+  );
 
   let mut group_controller: Box<dyn GroupController>;
   let configuration_reader = Arc::new(setting_reader);

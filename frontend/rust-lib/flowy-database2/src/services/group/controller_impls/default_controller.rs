@@ -4,7 +4,7 @@ use crate::services::group::action::{
 };
 use crate::services::group::{GroupController, GroupData, MoveGroupRowContext};
 use collab_database::fields::Field;
-use collab_database::rows::Row;
+use collab_database::rows::{Cells, Row};
 
 use flowy_error::FlowyResult;
 use std::sync::Arc;
@@ -99,7 +99,7 @@ impl GroupControllerActions for DefaultGroupController {
 }
 
 impl GroupController for DefaultGroupController {
-  fn will_create_row(&mut self, _row: &mut Row, _field: &Field, _group_id: &str) {}
+  fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str) {}
 
   fn did_create_row(&mut self, _row: &Row, _group_id: &str) {}
 }

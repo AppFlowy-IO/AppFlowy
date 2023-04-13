@@ -49,6 +49,10 @@ impl DatabaseViews {
     self.editor_map.write().await.remove(view_id);
   }
 
+  pub async fn editors(&self) -> Vec<Arc<DatabaseViewEditor>> {
+    self.editor_map.read().await.values().cloned().collect()
+  }
+
   pub async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
     let view_editor = self.get_view_editor(&params.view_id).await?;
     view_editor.v_move_group(params).await?;

@@ -6,7 +6,7 @@ use crate::services::group::action::{
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::entities::GroupData;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Row, RowId};
+use collab_database::rows::{Cell, Cells, Row, RowId};
 // use collab_database::views::Group;
 
 use crate::services::group::Group;
@@ -26,7 +26,7 @@ use std::sync::Arc;
 /// be used.
 ///
 pub trait GroupController: GroupControllerActions + Send + Sync {
-  fn will_create_row(&mut self, row: &mut Row, field: &Field, group_id: &str);
+  fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str);
   fn did_create_row(&mut self, row: &Row, group_id: &str);
 }
 
@@ -106,7 +106,7 @@ where
     mut configuration: GroupContext<C>,
   ) -> FlowyResult<Self> {
     let field_type = FieldType::from(grouping_field.field_type);
-    let type_option = grouping_field.get_type_option::<T>(&field_type);
+    let type_option = grouping_field.get_type_option::<T>(&field_type.to_string());
     let generated_group_context = G::generate_groups(grouping_field, &configuration, &type_option);
     let _ = configuration.init_groups(generated_group_context)?;
 
@@ -279,9 +279,9 @@ where
       row_changesets: vec![],
     };
 
-    if let Some(cell_data) = get_cell_data_from_row_rev::<P>(Some(row), field) {
+    if let Some(cell_data) = get_cell_data_from_row::<P>(Some(row), field) {
       let old_row_rev = old_row.as_ref().map(|old| old.as_ref());
-      let old_cell_data = get_cell_data_from_row_rev::<P>(old_row_rev, field);
+      let old_cell_data = get_cell_data_from_row::<P>(old_row_rev, field);
       if let Ok((insert, delete)) =
         self.create_or_delete_group_when_cell_changed(row, old_cell_data.as_ref(), &cell_data)
       {
@@ -370,7 +370,7 @@ struct GroupedRow {
   group_id: String,
 }
 
-fn get_cell_data_from_row_rev<P: CellProtobufBlobParser>(
+fn get_cell_data_from_row<P: CellProtobufBlobParser>(
   row: Option<&Row>,
   field: &Field,
 ) -> Option<P::Object> {

@@ -1,22 +1,24 @@
+use std::cmp::Ordering;
+use std::fmt::Debug;
+
+use bytes::Bytes;
+use collab_database::fields::{Field, TypeOptionData};
+use collab_database::rows::Cell;
+use protobuf::ProtobufError;
+
+use flowy_error::FlowyResult;
+
 use crate::entities::{
   CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, FieldType,
   MultiSelectTypeOptionPB, NumberTypeOptionPB, RichTextTypeOptionPB, SingleSelectTypeOptionPB,
-  URLTypeOptionPB,
+  TypeOptionPB, URLTypeOptionPB,
 };
 use crate::services::cell::{CellDataDecoder, FromCellChangesetString, ToCellChangesetString};
-
 use crate::services::field::{
   CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption,
   RichTextTypeOption, SingleSelectTypeOption, URLTypeOption,
 };
 use crate::services::filter::FromFilterString;
-use bytes::Bytes;
-use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::Cell;
-use flowy_error::FlowyResult;
-use protobuf::ProtobufError;
-use std::cmp::Ordering;
-use std::fmt::Debug;
 
 pub trait TypeOption {
   /// `CellData` represents as the decoded model for current type option. Each of them impl the
@@ -132,35 +134,97 @@ pub trait TypeOptionCellDataCompare: TypeOption {
   ) -> Ordering;
 }
 
-pub fn type_option_data_from_bytes<T: Into<Bytes>>(
+pub fn type_option_data_from_pb_or_default<T: Into<Bytes>>(
   bytes: T,
   field_type: &FieldType,
 ) -> TypeOptionData {
   let bytes = bytes.into();
+  let result: Result<TypeOptionData, ProtobufError> = match field_type {
+    FieldType::RichText => {
+      RichTextTypeOptionPB::try_from(bytes).map(|pb| RichTextTypeOption::from(pb).into())
+    },
+    FieldType::Number => {
+      NumberTypeOptionPB::try_from(bytes).map(|pb| NumberTypeOption::from(pb).into())
+    },
+    FieldType::DateTime => {
+      DateTypeOptionPB::try_from(bytes).map(|pb| DateTypeOption::from(pb).into())
+    },
+    FieldType::SingleSelect => {
+      SingleSelectTypeOptionPB::try_from(bytes).map(|pb| SingleSelectTypeOption::from(pb).into())
+    },
+    FieldType::MultiSelect => {
+      MultiSelectTypeOptionPB::try_from(bytes).map(|pb| MultiSelectTypeOption::from(pb).into())
+    },
+    FieldType::Checkbox => {
+      CheckboxTypeOptionPB::try_from(bytes).map(|pb| CheckboxTypeOption::from(pb).into())
+    },
+    FieldType::URL => URLTypeOptionPB::try_from(bytes).map(|pb| URLTypeOption::from(pb).into()),
+    FieldType::Checklist => {
+      ChecklistTypeOptionPB::try_from(bytes).map(|pb| ChecklistTypeOption::from(pb).into())
+    },
+  };
+
+  result.unwrap_or_else(|_| default_type_option_data_for_type(field_type))
+}
+
+pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) -> Bytes {
   match field_type {
-    FieldType::RichText => RichTextTypeOptionPB::try_from(bytes)
-      .map(|pb| RichTextTypeOption::from(pb).into())
-      .unwrap_or_default(),
-    FieldType::Number => NumberTypeOptionPB::try_from(bytes)
-      .map(|pb| NumberTypeOption::from(pb).into())
-      .unwrap_or_default(),
-    FieldType::DateTime => DateTypeOptionPB::try_from(bytes)
-      .map(|pb| DateTypeOption::from(pb).into())
-      .unwrap_or_default(),
-    FieldType::SingleSelect => SingleSelectTypeOptionPB::try_from(bytes)
-      .map(|pb| SingleSelectTypeOption::from(pb).into())
-      .unwrap_or_default(),
-    FieldType::MultiSelect => MultiSelectTypeOptionPB::try_from(bytes)
-      .map(|pb| MultiSelectTypeOption::from(pb).into())
-      .unwrap_or_default(),
-    FieldType::Checkbox => CheckboxTypeOptionPB::try_from(bytes)
-      .map(|pb| CheckboxTypeOption::from(pb).into())
-      .unwrap_or_default(),
-    FieldType::URL => URLTypeOptionPB::try_from(bytes)
-      .map(|pb| URLTypeOption::from(pb).into())
-      .unwrap_or_default(),
-    FieldType::Checklist => ChecklistTypeOptionPB::try_from(bytes)
-      .map(|pb| ChecklistTypeOption::from(pb).into())
-      .unwrap_or_default(),
+    FieldType::RichText => {
+      let rich_text_type_option: RichTextTypeOption = type_option.into();
+      RichTextTypeOptionPB::from(rich_text_type_option)
+        .try_into()
+        .unwrap()
+    },
+    FieldType::Number => {
+      let number_type_option: NumberTypeOption = type_option.into();
+      NumberTypeOptionPB::from(number_type_option)
+        .try_into()
+        .unwrap()
+    },
+    FieldType::DateTime => {
+      let date_type_option: DateTypeOption = type_option.into();
+      DateTypeOptionPB::from(date_type_option).try_into().unwrap()
+    },
+    FieldType::SingleSelect => {
+      let single_select_type_option: SingleSelectTypeOption = type_option.into();
+      SingleSelectTypeOptionPB::from(single_select_type_option)
+        .try_into()
+        .unwrap()
+    },
+    FieldType::MultiSelect => {
+      let multi_select_type_option: MultiSelectTypeOption = type_option.into();
+      MultiSelectTypeOptionPB::from(multi_select_type_option)
+        .try_into()
+        .unwrap()
+    },
+    FieldType::Checkbox => {
+      let checkbox_type_option: CheckboxTypeOption = type_option.into();
+      CheckboxTypeOptionPB::from(checkbox_type_option)
+        .try_into()
+        .unwrap()
+    },
+    FieldType::URL => {
+      let url_type_option: URLTypeOption = type_option.into();
+      URLTypeOptionPB::from(url_type_option).try_into().unwrap()
+    },
+    FieldType::Checklist => {
+      let checklist_type_option: ChecklistTypeOption = type_option.into();
+      ChecklistTypeOptionPB::from(checklist_type_option)
+        .try_into()
+        .unwrap()
+    },
+  }
+}
+
+pub fn default_type_option_data_for_type(field_type: &FieldType) -> TypeOptionData {
+  match field_type {
+    FieldType::RichText => RichTextTypeOption::default().into(),
+    FieldType::Number => NumberTypeOption::default().into(),
+    FieldType::DateTime => DateTypeOption::default().into(),
+    FieldType::SingleSelect => SingleSelectTypeOption::default().into(),
+    FieldType::MultiSelect => MultiSelectTypeOption::default().into(),
+    FieldType::Checkbox => CheckboxTypeOption::default().into(),
+    FieldType::URL => URLTypeOption::default().into(),
+    FieldType::Checklist => ChecklistTypeOption::default().into(),
   }
 }
