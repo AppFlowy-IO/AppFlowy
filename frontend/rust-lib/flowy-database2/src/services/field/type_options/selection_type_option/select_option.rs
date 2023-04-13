@@ -72,32 +72,6 @@ impl From<SelectOptionCellData> for SelectOptionCellDataPB {
   }
 }
 
-impl From<SelectOption> for SelectOptionPB {
-  fn from(data: SelectOption) -> Self {
-    SelectOptionPB {
-      id: data.id,
-      name: data.name,
-      color: data.color.into(),
-    }
-  }
-}
-
-impl From<SelectOptionColor> for SelectOptionColorPB {
-  fn from(data: SelectOptionColor) -> Self {
-    match data {
-      SelectOptionColor::Purple => SelectOptionColorPB::Purple,
-      SelectOptionColor::Pink => SelectOptionColorPB::Pink,
-      SelectOptionColor::LightPink => SelectOptionColorPB::LightPink,
-      SelectOptionColor::Orange => SelectOptionColorPB::Orange,
-      SelectOptionColor::Yellow => SelectOptionColorPB::Yellow,
-      SelectOptionColor::Lime => SelectOptionColorPB::Lime,
-      SelectOptionColor::Green => SelectOptionColorPB::Green,
-      SelectOptionColor::Aqua => SelectOptionColorPB::Aqua,
-      SelectOptionColor::Blue => SelectOptionColorPB::Blue,
-    }
-  }
-}
-
 pub fn make_selected_options(ids: SelectOptionIds, options: &[SelectOption]) -> Vec<SelectOption> {
   ids
     .iter()

@@ -23,7 +23,7 @@ use std::cmp::Ordering;
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct RichTextTypeOption {
   #[serde(default)]
-  inner: String,
+  pub inner: String,
 }
 
 impl TypeOption for RichTextTypeOption {

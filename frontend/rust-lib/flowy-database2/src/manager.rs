@@ -54,7 +54,7 @@ impl DatabaseManager2 {
     Ok(())
   }
 
-  pub async fn open_database(&self, view_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
+  pub async fn get_database(&self, view_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
     let database_id = self
       .user_database
       .lock()

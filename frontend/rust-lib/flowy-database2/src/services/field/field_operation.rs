@@ -19,11 +19,11 @@ pub async fn edit_field_type_option<T: From<TypeOptionData> + Into<TypeOptionDat
   };
 
   if let Some(mut type_option) = get_type_option.await {
-    let old_field = editor.get_field(field_id);
-
-    action(&mut type_option);
-    let type_option_data: TypeOptionData = type_option.into();
-    editor.update_field_type_option(view_id, field_id, type_option_data, old_field);
+    if let Some(old_field) = editor.get_field(field_id) {
+      action(&mut type_option);
+      let type_option_data: TypeOptionData = type_option.into();
+      editor.update_field_type_option(view_id, field_id, type_option_data, old_field);
+    }
   }
 
   Ok(())

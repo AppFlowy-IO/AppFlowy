@@ -1,6 +1,14 @@
-use crate::entities::FieldType;
+use crate::entities::{
+  CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, FieldType,
+  MultiSelectTypeOptionPB, NumberTypeOptionPB, RichTextTypeOptionPB, SingleSelectTypeOptionPB,
+  URLTypeOptionPB,
+};
 use crate::services::cell::{CellDataDecoder, FromCellChangesetString, ToCellChangesetString};
 
+use crate::services::field::{
+  CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption,
+  RichTextTypeOption, SingleSelectTypeOption, URLTypeOption,
+};
 use crate::services::filter::FromFilterString;
 use bytes::Bytes;
 use collab_database::fields::{Field, TypeOptionData};
@@ -122,4 +130,37 @@ pub trait TypeOptionCellDataCompare: TypeOption {
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
   ) -> Ordering;
+}
+
+pub fn type_option_data_from_bytes<T: Into<Bytes>>(
+  bytes: T,
+  field_type: &FieldType,
+) -> TypeOptionData {
+  let bytes = bytes.into();
+  match field_type {
+    FieldType::RichText => RichTextTypeOptionPB::try_from(bytes)
+      .map(|pb| RichTextTypeOption::from(pb).into())
+      .unwrap_or_default(),
+    FieldType::Number => NumberTypeOptionPB::try_from(bytes)
+      .map(|pb| NumberTypeOption::from(pb).into())
+      .unwrap_or_default(),
+    FieldType::DateTime => DateTypeOptionPB::try_from(bytes)
+      .map(|pb| DateTypeOption::from(pb).into())
+      .unwrap_or_default(),
+    FieldType::SingleSelect => SingleSelectTypeOptionPB::try_from(bytes)
+      .map(|pb| SingleSelectTypeOption::from(pb).into())
+      .unwrap_or_default(),
+    FieldType::MultiSelect => MultiSelectTypeOptionPB::try_from(bytes)
+      .map(|pb| MultiSelectTypeOption::from(pb).into())
+      .unwrap_or_default(),
+    FieldType::Checkbox => CheckboxTypeOptionPB::try_from(bytes)
+      .map(|pb| CheckboxTypeOption::from(pb).into())
+      .unwrap_or_default(),
+    FieldType::URL => URLTypeOptionPB::try_from(bytes)
+      .map(|pb| URLTypeOption::from(pb).into())
+      .unwrap_or_default(),
+    FieldType::Checklist => ChecklistTypeOptionPB::try_from(bytes)
+      .map(|pb| ChecklistTypeOption::from(pb).into())
+      .unwrap_or_default(),
+  }
 }

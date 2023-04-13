@@ -1,3 +1,15 @@
+use std::borrow::Cow;
+use std::collections::HashMap;
+use std::sync::Arc;
+
+use collab_database::fields::Field;
+use collab_database::rows::{Row, RowId};
+use nanoid::nanoid;
+use tokio::sync::{broadcast, RwLock};
+
+use flowy_error::FlowyResult;
+use lib_infra::future::Fut;
+
 use crate::entities::{
   AlterFilterParams, DeleteFilterParams, DeleteGroupParams, InsertGroupParams, MoveGroupParams,
 };
@@ -5,15 +17,6 @@ use crate::services::cell::CellCache;
 use crate::services::database::{DatabaseRowEvent, MutexDatabase};
 use crate::services::database_view::{DatabaseViewData, DatabaseViewEditor};
 use crate::services::group::{default_group_setting, RowChangeset};
-use collab_database::fields::Field;
-use collab_database::rows::{Row, RowId};
-use flowy_error::FlowyResult;
-use lib_infra::future::Fut;
-use nanoid::nanoid;
-use std::borrow::Cow;
-use std::collections::HashMap;
-use std::sync::Arc;
-use tokio::sync::{broadcast, RwLock};
 
 pub type RowEventSender = broadcast::Sender<DatabaseRowEvent>;
 pub type RowEventReceiver = broadcast::Receiver<DatabaseRowEvent>;
@@ -88,7 +91,7 @@ impl DatabaseViews {
     &self,
     view_id: &str,
     field_id: &str,
-    old_field: Option<&Field>,
+    old_field: &Field,
   ) -> FlowyResult<()> {
     let view_editor = self.get_view_editor(view_id).await?;
     // If the id of the grouping field is equal to the updated field's id, then we need to

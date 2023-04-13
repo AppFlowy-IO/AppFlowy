@@ -1,5 +1,3 @@
-use std::fmt;
-
 use crate::entities::{DateCellDataPB, FieldType};
 use crate::services::cell::{
   CellProtobufBlobParser, DecodedCellData, FromCellChangesetString, FromCellString,
@@ -11,6 +9,7 @@ use collab_database::rows::{new_cell_builder, Cell};
 use flowy_error::{internal_error, FlowyResult};
 use serde::de::Visitor;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 use strum_macros::EnumIter;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

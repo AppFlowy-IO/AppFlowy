@@ -1,3 +1,16 @@
+use std::borrow::Cow;
+use std::sync::Arc;
+
+use collab_database::database::{gen_database_filter_id, gen_database_sort_id};
+use collab_database::fields::Field;
+use collab_database::rows::{Row, RowCell, RowId};
+use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
+use tokio::sync::{broadcast, RwLock};
+
+use flowy_error::{FlowyError, FlowyResult};
+use flowy_task::TaskDispatcher;
+use lib_infra::future::Fut;
+
 use crate::entities::{
   AlterFilterParams, AlterSortParams, CreateRowParams, DeleteFilterParams, DeleteGroupParams,
   DeleteSortParams, FieldType, GroupChangesetPB, GroupPB, GroupRowsNotificationPB,
@@ -24,16 +37,6 @@ use crate::services::filter::{
 use crate::services::group::{GroupController, GroupSetting, MoveGroupRowContext, RowChangeset};
 use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{DeletedSortType, Sort, SortChangeset, SortController, SortType};
-use collab_database::database::{gen_database_filter_id, gen_database_sort_id};
-use collab_database::fields::Field;
-use collab_database::rows::{Row, RowCell, RowId};
-use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
-use flowy_error::{FlowyError, FlowyResult};
-use flowy_task::TaskDispatcher;
-use lib_infra::future::Fut;
-use std::borrow::Cow;
-use std::sync::Arc;
-use tokio::sync::{broadcast, RwLock};
 
 pub trait DatabaseViewData: Send + Sync + 'static {
   fn get_view_setting(&self, view_id: &str) -> Fut<Option<DatabaseView>>;
@@ -570,7 +573,7 @@ impl DatabaseViewEditor {
   pub async fn v_did_update_field_type_option(
     &self,
     field_id: &str,
-    old_field: Option<&Field>,
+    old_field: &Field,
   ) -> FlowyResult<()> {
     if let Some(field) = self.delegate.get_field(field_id).await {
       self

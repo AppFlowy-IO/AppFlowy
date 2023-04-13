@@ -1,3 +1,17 @@
+use std::ops::Deref;
+use std::sync::Arc;
+
+use collab_database::database::Database as InnerDatabase;
+use collab_database::fields::{Field, TypeOptionData};
+use collab_database::rows::{Row, RowCell, RowId};
+use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
+use parking_lot::Mutex;
+use tokio::sync::{broadcast, RwLock};
+
+use flowy_error::{FlowyError, FlowyResult};
+use flowy_task::TaskDispatcher;
+use lib_infra::future::{to_fut, Fut};
+
 use crate::entities::{
   AlterFilterParams, AlterSortParams, CalendarLayoutSettingsPB, DatabaseFieldChangesetPB,
   DatabaseLayoutPB, DatabasePB, DatabaseViewSettingPB, DeleteFilterParams, DeleteGroupParams,
@@ -5,26 +19,14 @@ use crate::entities::{
   InsertGroupParams, LayoutSettingPB, RepeatedFieldPB, RepeatedFilterPB, RepeatedGroupPB,
   RepeatedGroupSettingPB, RepeatedSortPB, RowPB, SortPB,
 };
+use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{AnyTypeCache, CellCache};
 use crate::services::database::util::{database_view_setting_pb_from_view, get_database_data};
 use crate::services::database_view::{DatabaseViewData, DatabaseViews, RowEventSender};
-use crate::services::field::TypeOptionCellDataHandler;
+use crate::services::field::{type_option_data_from_bytes, TypeOptionCellDataHandler};
+use crate::services::filter::Filter;
 use crate::services::group::{default_group_setting, GroupSetting};
 use crate::services::sort::Sort;
-use collab_database::database::Database as InnerDatabase;
-use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Row, RowCell, RowId};
-use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
-
-use crate::notification::{send_notification, DatabaseNotification};
-use crate::services::filter::Filter;
-use flowy_error::{FlowyError, FlowyResult};
-use flowy_task::TaskDispatcher;
-use lib_infra::future::{to_fut, Fut};
-use parking_lot::Mutex;
-use std::ops::Deref;
-use std::sync::Arc;
-use tokio::sync::{broadcast, RwLock};
 
 #[derive(Clone)]
 pub struct DatabaseEditor {
@@ -164,21 +166,27 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  pub async fn delete_field(&self, field_id: &str) -> FlowyResult<()> {
+    self.database.lock().delete_field(field_id);
+    let database_id = {
+      let database = self.database.lock();
+      database.delete_field(field_id);
+      database.get_database_id()
+    };
+    let notified_changeset =
+      DatabaseFieldChangesetPB::delete(&database_id, vec![FieldIdPB::from(field_id)]);
+    self.notify_did_update_database(notified_changeset).await?;
+    Ok(())
+  }
+
   pub async fn update_field_type_option(
     &self,
     view_id: &str,
     field_id: &str,
     type_option_data: TypeOptionData,
-    old_field: Option<Field>,
+    old_field: Field,
   ) -> FlowyResult<()> {
-    let field = self.database.lock().fields.get_field(field_id);
-    if field.is_none() {
-      tracing::warn!("Can't find the field with id: {}", field_id);
-      return Ok(());
-    }
-
-    let field = field.unwrap();
-    let field_type = FieldType::from(field.field_type);
+    let field_type = FieldType::from(old_field.field_type);
     self
       .database
       .lock()
@@ -190,7 +198,7 @@ impl DatabaseEditor {
       });
     self
       .database_views
-      .did_update_field_type_option(view_id, field_id, old_field.as_ref())
+      .did_update_field_type_option(view_id, field_id, &old_field)
       .await?;
     let _ = self.notify_did_update_database_field(field_id).await;
     Ok(())
