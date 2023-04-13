@@ -1,6 +1,5 @@
-import { SettingsSvg } from '../_shared/svg/SettingsSvg';
 import { SearchInput } from '../_shared/SearchInput';
-import { BoardBlock } from './BoardBlock';
+import { BoardGroup } from './BoardGroup';
 import { NewBoardBlock } from './NewBoardBlock';
 import { useDatabase } from '../_shared/database-hooks/useDatabase';
 import { ViewLayoutPB } from '@/services/backend';
@@ -8,8 +7,9 @@ import { DragDropContext } from 'react-beautiful-dnd';
 import { useState } from 'react';
 import { RowInfo } from '$app/stores/effects/database/row/row_cache';
 import { EditRow } from '$app/components/_shared/EditRow/EditRow';
+import { BoardToolbar } from '$app/components/board/BoardToolbar';
 
-export const Board = ({ viewId }: { viewId: string }) => {
+export const Board = ({ viewId, title }: { viewId: string; title: string }) => {
   const { controller, rows, groups, groupByFieldId, onNewRowClick, onDragEnd } = useDatabase(viewId, ViewLayoutPB.Board);
   const [showBoardRow, setShowBoardRow] = useState(false);
   const [boardRowInfo, setBoardRowInfo] = useState<RowInfo>();
@@ -22,12 +22,7 @@ export const Board = ({ viewId }: { viewId: string }) => {
   return (
     <>
       <div className='flex w-full items-center justify-between'>
-        <div className={'flex items-center text-xl font-semibold'}>
-          <div>{'Kanban'}</div>
-          <button className={'ml-2 h-5 w-5'}>
-            <SettingsSvg></SettingsSvg>
-          </button>
-        </div>
+        <BoardToolbar title={title} />
 
         <div className='flex shrink-0 items-center gap-4'>
           <SearchInput />
@@ -39,7 +34,7 @@ export const Board = ({ viewId }: { viewId: string }) => {
             {controller &&
               groups &&
               groups.map((group, index) => (
-                <BoardBlock
+                <BoardGroup
                   key={group.groupId}
                   viewId={viewId}
                   controller={controller}

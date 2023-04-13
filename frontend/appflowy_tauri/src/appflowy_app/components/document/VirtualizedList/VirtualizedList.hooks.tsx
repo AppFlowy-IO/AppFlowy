@@ -6,7 +6,7 @@ const defaultSize = 60;
 export function useVirtualizedList(count: number) {
   const parentRef = useRef<HTMLDivElement>(null);
 
-  const Virtualize = useVirtualizer({
+  const virtualize = useVirtualizer({
     count,
     getScrollElement: () => parentRef.current,
     estimateSize: () => {
@@ -15,7 +15,7 @@ export function useVirtualizedList(count: number) {
   });
 
   return {
-    Virtualize: Virtualize,
+    virtualize,
     parentRef,
   };
 }

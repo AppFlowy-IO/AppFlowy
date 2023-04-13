@@ -1,11 +1,8 @@
-import { gridActions } from '../../../stores/reducers/grid/slice';
-import { useAppDispatch } from '../../../stores/store';
+import { DatabaseController } from '@/appflowy_app/stores/effects/database/database_controller';
 
-export const useGridAddRow = () => {
-  const dispatch = useAppDispatch();
-
-  function addRow() {
-    dispatch(gridActions.addRow());
+export const useGridAddRow = (controller: DatabaseController) => {
+  async function addRow() {
+    await controller.createRow();
   }
 
   return {

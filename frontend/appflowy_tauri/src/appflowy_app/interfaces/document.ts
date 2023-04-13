@@ -12,14 +12,21 @@ export enum BlockType {
   TableBlock = 'table',
   ColumnBlock = 'column',
 }
+
+export interface HeadingBlockData {
+  level: number;
+}
+
+export interface TextBlockData {
+  delta: TextDelta[];
+}
+
+export interface PageBlockData extends TextBlockData {}
+
 export interface NestedBlock {
   id: string;
   type: BlockType;
-  data: {
-    delta?: TextDelta[];
-  };
-  externalId: string;
-  externalType: 'text' | 'array' | 'map';
+  data: Record<string, any>;
   parent: string | null;
   children: string;
 }

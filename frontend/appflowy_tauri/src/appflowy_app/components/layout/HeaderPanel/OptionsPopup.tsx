@@ -1,4 +1,4 @@
-import { IPopupItem, Popup } from '../../_shared/Popup';
+import { IPopupItem, PopupSelect } from '../../_shared/PopupSelect';
 import { LogoutSvg } from '../../_shared/svg/LogoutSvg';
 
 export const OptionsPopup = ({ onSignOutClick, onClose }: { onSignOutClick: () => void; onClose: () => void }) => {
@@ -14,10 +14,10 @@ export const OptionsPopup = ({ onSignOutClick, onClose }: { onSignOutClick: () =
     },
   ];
   return (
-    <Popup
+    <PopupSelect
       className={'absolute top-[50px] right-[30px] z-10 whitespace-nowrap'}
       items={items}
       onOutsideClick={onClose}
-    ></Popup>
+    ></PopupSelect>
   );
 };

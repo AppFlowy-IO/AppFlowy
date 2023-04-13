@@ -1,15 +1,17 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { CellCache } from '$app/stores/effects/database/cell/cell_cache';
 import { FieldController } from '$app/stores/effects/database/field/field_controller';
-import useOutsideClick from '$app/components/_shared/useOutsideClick';
 import Calendar from 'react-calendar';
 import dayjs from 'dayjs';
 import { ClockSvg } from '$app/components/_shared/svg/ClockSvg';
 import { MoreSvg } from '$app/components/_shared/svg/MoreSvg';
 import { EditorUncheckSvg } from '$app/components/_shared/svg/EditorUncheckSvg';
 import { useCell } from '$app/components/_shared/database-hooks/useCell';
+import { CalendarData } from '$app/stores/effects/database/cell/controller_builder';
+import { DateCellDataPB } from '@/services/backend';
+import { PopupWindow } from '$app/components/_shared/PopupWindow';
 
 export const DatePickerPopup = ({
   left,
@@ -27,47 +29,27 @@ export const DatePickerPopup = ({
   onOutsideClick: () => void;
 }) => {
   const { data, cellController } = useCell(cellIdentifier, cellCache, fieldController);
-  const ref = useRef<HTMLDivElement>(null);
-  const [adjustedTop, setAdjustedTop] = useState(-100);
-  // const [value, setValue] = useState();
   const { t } = useTranslation('');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   useEffect(() => {
-    if (!ref.current) return;
-    const { height } = ref.current.getBoundingClientRect();
-    if (top + height + 40 > window.innerHeight) {
-      setAdjustedTop(top - height - 40);
-    } else {
-      setAdjustedTop(top);
-    }
-  }, [ref, window, top, left]);
+    const date_pb = data as DateCellDataPB | undefined;
+    if (!date_pb || !date_pb?.date.length) return;
 
-  useOutsideClick(ref, async () => {
-    onOutsideClick();
-  });
-
-  useEffect(() => {
-    // console.log((data as DateCellDataPB).date);
-    // setSelectedDate(new Date((data as DateCellDataPB).date));
+    // should be changed after we can modify date format
+    setSelectedDate(dayjs(date_pb.date, 'MMM DD, YYYY').toDate());
   }, [data]);
 
-  const onChange = (v: Date | null | (Date | null)[]) => {
+  const onChange = async (v: Date | null | (Date | null)[]) => {
     if (v instanceof Date) {
-      console.log(dayjs(v).format('YYYY-MM-DD'));
       setSelectedDate(v);
-      // void cellController?.saveCellData(new DateCellDataPB({ date: dayjs(v).format('YYYY-MM-DD') }));
+      const date = new CalendarData(dayjs(v).add(dayjs().utcOffset(), 'minutes').toDate(), false);
+      await cellController?.saveCellData(date);
     }
   };
 
   return (
-    <div
-      ref={ref}
-      className={`fixed z-10 rounded-lg bg-white px-2 py-2 text-xs shadow-md transition-opacity duration-300 ${
-        adjustedTop === -100 ? 'opacity-0' : 'opacity-100'
-      }`}
-      style={{ top: `${adjustedTop + 40}px`, left: `${left}px` }}
-    >
+    <PopupWindow className={'p-2 text-xs'} onOutsideClick={onOutsideClick} left={left} top={top}>
       <div className={'px-2'}>
         <Calendar onChange={(d) => onChange(d)} value={selectedDate} />
       </div>
@@ -92,6 +74,6 @@ export const DatePickerPopup = ({
           <MoreSvg></MoreSvg>
         </i>
       </div>
-    </div>
+    </PopupWindow>
   );
 };

@@ -13,8 +13,8 @@ export default function VirtualizedList({
   node: Node;
   renderNode: (nodeId: string) => JSX.Element;
 }) {
-  const { Virtualize, parentRef } = useVirtualizedList(childIds.length);
-  const virtualItems = Virtualize.getVirtualItems();
+  const { virtualize, parentRef } = useVirtualizedList(childIds.length);
+  const virtualItems = virtualize.getVirtualItems();
 
   return (
     <>
@@ -25,7 +25,7 @@ export default function VirtualizedList({
         <div
           className='doc-body max-w-screen w-[900px] min-w-0'
           style={{
-            height: Virtualize.getTotalSize(),
+            height: virtualize.getTotalSize(),
             position: 'relative',
           }}
         >
@@ -42,7 +42,7 @@ export default function VirtualizedList({
               {virtualItems.map((virtualRow) => {
                 const id = childIds[virtualRow.index];
                 return (
-                  <div className='p-[1px]' key={id} data-index={virtualRow.index} ref={Virtualize.measureElement}>
+                  <div className='p-[1px]' key={id} data-index={virtualRow.index} ref={virtualize.measureElement}>
                     {virtualRow.index === 0 ? <DocumentTitle id={node.id} /> : null}
                     {renderNode(id)}
                   </div>
