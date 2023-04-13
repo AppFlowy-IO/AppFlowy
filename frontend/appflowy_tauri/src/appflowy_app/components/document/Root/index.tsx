@@ -4,7 +4,7 @@ import { useRoot } from './Root.hooks';
 import Node from '../Node';
 import { withErrorBoundary } from 'react-error-boundary';
 import { ErrorBoundaryFallbackComponent } from '../_shared/ErrorBoundaryFallbackComponent';
-import VirtualizedList from '../VirtualizerList';
+import VirtualizedList from '../VirtualizedList';
 import { Skeleton } from '@mui/material';
 
 function Root({ documentData }: { documentData: DocumentData }) {

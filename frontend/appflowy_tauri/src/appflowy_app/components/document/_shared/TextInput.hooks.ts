@@ -8,8 +8,8 @@ import { withReact } from 'slate-react';
 import * as Y from 'yjs';
 import { withYjs, YjsEditor, slateNodesToInsertDelta } from '@slate-yjs/core';
 
-export function useTextInput(text: string, delta: TextDelta[]) {
-  const { sendDelta } = useTransact(text);
+export function useTextInput(delta: TextDelta[]) {
+  const { sendDelta } = useTransact();
   const { editor } = useBindYjs(delta, sendDelta);
 
   return {
@@ -17,49 +17,45 @@ export function useTextInput(text: string, delta: TextDelta[]) {
   };
 }
 
-function useController(textId: string) {
+function useController() {
   const docController = useContext(DocumentControllerContext);
 
   const update = useCallback(
     (delta: TextDelta[]) => {
-      docController?.yTextApply(textId, delta);
+      docController?.applyActions([
+        {
+          type: 'update',
+          payload: {
+            block: {
+              data: {
+                delta,
+              },
+            },
+          },
+        },
+      ]);
     },
-    [textId]
-  );
-  const transact = useCallback(
-    (actions: (() => void)[]) => {
-      docController?.transact(actions);
-    },
-    [textId]
+    [docController]
   );
 
   return {
     update,
-    transact,
   };
 }
 
-function useTransact(textId: string) {
-  const pendingActions = useRef<(() => void)[]>([]);
-  const { update, transact } = useController(textId);
-
-  const sendTransact = useCallback(() => {
-    const actions = pendingActions.current;
-    transact(actions);
-  }, [transact]);
-
-  const debounceSendTransact = useMemo(() => debounce(sendTransact, 300), [transact]);
+function useTransact() {
+  const { update } = useController();
 
   const sendDelta = useCallback(
     (delta: TextDelta[]) => {
-      const action = () => update(delta);
-      pendingActions.current.push(action);
-      debounceSendTransact();
+      update(delta);
     },
-    [update, debounceSendTransact]
+    [update]
   );
+  const debounceSendDelta = useMemo(() => debounce(sendDelta, 300), [sendDelta]);
+
   return {
-    sendDelta,
+    sendDelta: debounceSendDelta,
   };
 }
 
@@ -70,7 +66,7 @@ const initialValue = [
   },
 ];
 
-export function useBindYjs(delta: TextDelta[], update: (_delta: TextDelta[]) => void) {
+function useBindYjs(delta: TextDelta[], update: (_delta: TextDelta[]) => void) {
   const yTextRef = useRef<Y.XmlText>();
   // Create a yjs document and get the shared type
   const sharedType = useMemo(() => {
@@ -102,7 +98,9 @@ export function useBindYjs(delta: TextDelta[], update: (_delta: TextDelta[]) => 
     if (!yText) return;
 
     const textEventHandler = (event: Y.YTextEvent) => {
-      update(event.changes.delta as TextDelta[]);
+      const textDelta = event.target.toDelta();
+      console.log('delta', textDelta);
+      update(textDelta);
     };
     yText.applyDelta(delta);
     yText.observe(textEventHandler);

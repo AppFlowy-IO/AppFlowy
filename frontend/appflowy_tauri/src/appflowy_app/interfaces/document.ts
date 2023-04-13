@@ -10,12 +10,14 @@ export enum BlockType {
   DividerBlock = 'divider',
   MediaBlock = 'media',
   TableBlock = 'table',
-  ColumnBlock = 'column'
+  ColumnBlock = 'column',
 }
 export interface NestedBlock {
   id: string;
   type: BlockType;
-  data: Record<string, any>;
+  data: {
+    delta?: TextDelta[];
+  };
   externalId: string;
   externalType: 'text' | 'array' | 'map';
   parent: string | null;
@@ -29,7 +31,6 @@ export interface DocumentData {
   rootId: string;
   blocks: Record<string, NestedBlock>;
   meta: {
-    text_map: Record<string, TextDelta[]>;
-    children_map: Record<string, string[]>;
-  }
+    childrenMap: Record<string, string[]>;
+  };
 }

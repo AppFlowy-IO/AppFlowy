@@ -1,9 +1,5 @@
 import FormatButton from './FormatButton';
-<<<<<<<< HEAD:frontend/appflowy_tauri/src/appflowy_app/components/document/_shared/HoveringToolbar/index.tsx
 import Portal from '../../BlockPortal';
-========
-import Portal from '../BlockPortal';
->>>>>>>> 341dce67d45ebe46ae55e11349a19191ac99b4cf:frontend/appflowy_tauri/src/appflowy_app/components/document/HoveringToolbar/index.tsx
 import { useHoveringToolbar } from './index.hooks';
 
 const HoveringToolbar = ({ id }: { id: string }) => {

@@ -4,8 +4,8 @@ import { Descendant, Range } from 'slate';
 import { TextDelta } from '$app/interfaces/document';
 import { useTextInput } from '../_shared/TextInput.hooks';
 
-export function useTextBlock(text: string, delta: TextDelta[]) {
-  const { editor } = useTextInput(text, delta);
+export function useTextBlock(delta: TextDelta[]) {
+  const { editor } = useTextInput(delta);
   const [value, setValue] = useState<Descendant[]>([]);
 
   const onChange = useCallback(

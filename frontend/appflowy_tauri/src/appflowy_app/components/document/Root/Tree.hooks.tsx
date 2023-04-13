@@ -11,8 +11,7 @@ export function useParseTree(documentData: DocumentData) {
     dispatch(
       documentActions.create({
         nodes: blocks,
-        delta: meta.text_map,
-        children: meta.children_map,
+        children: meta.childrenMap,
       })
     );
 

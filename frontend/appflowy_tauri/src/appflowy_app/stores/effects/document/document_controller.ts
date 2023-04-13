@@ -17,30 +17,23 @@ export class DocumentController {
       return {
         rootId: '',
         blocks: {},
-        ytexts: {},
-        yarrays: {}
+        meta: {
+          childrenMap: {},
+        },
       };
     } else {
       return null;
     }
   };
 
-
-  insert(node: {
-    id: string,
-    type: BlockType,
-    delta?: TextDelta[]
-  }, parentId: string, prevId: string) {
+  applyActions = (
+    actions: {
+      type: string;
+      payload: any;
+    }[]
+  ) => {
     //
-  }
-
-  transact(actions: (() => void)[]) {
-    //
-  }
-
-  yTextApply = (yTextId: string, delta: TextDelta[]) => {
-    //
-  }
+  };
 
   dispose = async () => {
     await this.backendService.close();

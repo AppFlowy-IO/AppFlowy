@@ -23,6 +23,7 @@
     "@slate-yjs/core": "^0.3.1",
     "@tanstack/react-virtual": "3.0.0-beta.54",
     "@tauri-apps/api": "^1.2.0",
+    "dayjs": "^1.11.7",
     "events": "^3.3.0",
     "google-protobuf": "^3.21.2",
     "i18next": "^22.4.10",
@@ -32,6 +33,8 @@
     "nanoid": "^4.0.0",
     "protoc-gen-ts": "^0.8.5",
     "react": "^18.2.0",
+    "react-beautiful-dnd": "^13.1.1",
+    "react-calendar": "^4.1.0",
     "react-dom": "^18.2.0",
     "react-error-boundary": "^3.1.4",
     "react-i18next": "^12.2.0",
@@ -44,8 +47,8 @@
     "slate-react": "^0.91.9",
     "ts-results": "^3.3.0",
     "utf8": "^3.0.0",
-    "yjs": "^13.5.51",
-		"y-indexeddb": "^9.0.9"
+    "y-indexeddb": "^9.0.9",
+    "yjs": "^13.5.51"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1.2.2",
@@ -53,6 +56,7 @@
     "@types/is-hotkey": "^0.1.7",
     "@types/node": "^18.7.10",
     "@types/react": "^18.0.15",
+    "@types/react-beautiful-dnd": "^13.1.3",
     "@types/react-dom": "^18.0.6",
     "@types/utf8": "^3.0.1",
     "@types/uuid": "^9.0.1",
