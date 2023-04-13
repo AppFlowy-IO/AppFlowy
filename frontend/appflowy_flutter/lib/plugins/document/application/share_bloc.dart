@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/document/application/share_service.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/parsers/divider_node_parser.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/parsers/math_equation_node_parser.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/parsers/code_block_node_parser.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/parsers/underline_node_parser.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -58,7 +57,6 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
         const DividerNodeParser(),
         const MathEquationNodeParser(),
         const CodeBlockNodeParser(),
-        const UnderlineNodeParser(),
       ],
     );
   }
