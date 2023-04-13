@@ -1,4 +1,4 @@
-import { useAppSelector } from '../../../stores/store';
+import { useAppSelector } from '$app/stores/store';
 
 export const useGridTableCount = () => {
   const { grid } = useAppSelector((state) => state);

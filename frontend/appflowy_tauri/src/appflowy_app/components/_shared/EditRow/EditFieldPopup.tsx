@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import useOutsideClick from '$app/components/_shared/useOutsideClick';
 import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
 import { FieldTypeName } from '$app/components/_shared/EditRow/FieldTypeName';
@@ -10,10 +9,11 @@ import { FieldInfo } from '$app/stores/effects/database/field/field_controller';
 import { MoreSvg } from '$app/components/_shared/svg/MoreSvg';
 import { useAppSelector } from '$app/stores/store';
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
+import { PopupWindow } from '$app/components/_shared/PopupWindow';
 
 export const EditFieldPopup = ({
   top,
-  right,
+  left,
   cellIdentifier,
   viewId,
   onOutsideClick,
@@ -21,7 +21,7 @@ export const EditFieldPopup = ({
   changeFieldTypeClick,
 }: {
   top: number;
-  right: number;
+  left: number;
   cellIdentifier: CellIdentifier;
   viewId: string;
   onOutsideClick: () => void;
@@ -30,30 +30,12 @@ export const EditFieldPopup = ({
 }) => {
   const databaseStore = useAppSelector((state) => state.database);
   const { t } = useTranslation('');
-  const ref = useRef<HTMLDivElement>(null);
   const changeTypeButtonRef = useRef<HTMLDivElement>(null);
   const [name, setName] = useState('');
-
-  const [adjustedTop, setAdjustedTop] = useState(-100);
-
-  useOutsideClick(ref, async () => {
-    await save();
-    onOutsideClick();
-  });
 
   useEffect(() => {
     setName(databaseStore.fields[cellIdentifier.fieldId].title);
   }, [databaseStore, cellIdentifier]);
-
-  useEffect(() => {
-    if (!ref.current) return;
-    const { height } = ref.current.getBoundingClientRect();
-    if (top + height > window.innerHeight) {
-      setAdjustedTop(window.innerHeight - height);
-    } else {
-      setAdjustedTop(top);
-    }
-  }, [ref, window, top, right]);
 
   const save = async () => {
     if (!fieldInfo) return;
@@ -78,12 +60,14 @@ export const EditFieldPopup = ({
   };
 
   return (
-    <div
-      ref={ref}
-      className={`fixed z-10 rounded-lg bg-white px-2 py-2 text-xs shadow-md transition-opacity duration-300 ${
-        adjustedTop === -100 ? 'opacity-0' : 'opacity-100'
-      }`}
-      style={{ top: `${adjustedTop}px`, left: `${right + 10}px` }}
+    <PopupWindow
+      className={'px-2 py-2 text-xs'}
+      onOutsideClick={async () => {
+        await save();
+        onOutsideClick();
+      }}
+      left={left}
+      top={top}
     >
       <div className={'flex flex-col gap-2 p-2'}>
         <input
@@ -125,6 +109,6 @@ export const EditFieldPopup = ({
           </i>
         </div>
       </div>
-    </div>
+    </PopupWindow>
   );
 };

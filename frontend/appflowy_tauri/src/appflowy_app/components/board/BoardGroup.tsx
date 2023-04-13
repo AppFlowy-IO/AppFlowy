@@ -1,12 +1,12 @@
 import { Details2Svg } from '../_shared/svg/Details2Svg';
 import AddSvg from '../_shared/svg/AddSvg';
 import { BoardCard } from './BoardCard';
-import { RowInfo } from '../../stores/effects/database/row/row_cache';
-import { DatabaseController } from '../../stores/effects/database/database_controller';
+import { RowInfo } from '$app/stores/effects/database/row/row_cache';
+import { DatabaseController } from '$app/stores/effects/database/database_controller';
 import { Droppable } from 'react-beautiful-dnd';
 import { DatabaseGroupController } from '$app/stores/effects/database/group/group_controller';
 
-export const BoardBlock = ({
+export const BoardGroup = ({
   viewId,
   controller,
   allRows,

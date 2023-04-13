@@ -11,10 +11,11 @@ import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { ChangeFieldTypePopup } from '$app/components/_shared/EditRow/ChangeFieldTypePopup';
 import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
 import { Some } from 'ts-results';
-import { FieldType } from '@/services/backend';
+import { FieldType, SelectOptionPB } from '@/services/backend';
 import { CellOptionsPopup } from '$app/components/_shared/EditRow/CellOptionsPopup';
 import { DatePickerPopup } from '$app/components/_shared/EditRow/DatePickerPopup';
 import { DragDropContext, Droppable, OnDragEndResponder } from 'react-beautiful-dnd';
+import { EditCellOptionPopup } from '$app/components/_shared/EditRow/EditCellOptionPopup';
 
 export const EditRow = ({
   onClose,
@@ -34,11 +35,11 @@ export const EditRow = ({
   const [editingCell, setEditingCell] = useState<CellIdentifier | null>(null);
   const [showFieldEditor, setShowFieldEditor] = useState(false);
   const [editFieldTop, setEditFieldTop] = useState(0);
-  const [editFieldRight, setEditFieldRight] = useState(0);
+  const [editFieldLeft, setEditFieldLeft] = useState(0);
 
   const [showChangeFieldTypePopup, setShowChangeFieldTypePopup] = useState(false);
   const [changeFieldTypeTop, setChangeFieldTypeTop] = useState(0);
-  const [changeFieldTypeRight, setChangeFieldTypeRight] = useState(0);
+  const [changeFieldTypeLeft, setChangeFieldTypeLeft] = useState(0);
 
   const [showChangeOptionsPopup, setShowChangeOptionsPopup] = useState(false);
   const [changeOptionsTop, setChangeOptionsTop] = useState(0);
@@ -47,6 +48,12 @@ export const EditRow = ({
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [datePickerTop, setDatePickerTop] = useState(0);
   const [datePickerLeft, setDatePickerLeft] = useState(0);
+
+  const [showEditCellOption, setShowEditCellOption] = useState(false);
+  const [editCellOptionTop, setEditCellOptionTop] = useState(0);
+  const [editCellOptionLeft, setEditCellOptionLeft] = useState(0);
+
+  const [editingSelectOption, setEditingSelectOption] = useState<SelectOptionPB | undefined>();
 
   useEffect(() => {
     setUnveil(true);
@@ -59,10 +66,10 @@ export const EditRow = ({
     }, 300);
   };
 
-  const onEditFieldClick = (cellIdentifier: CellIdentifier, top: number, right: number) => {
+  const onEditFieldClick = (cellIdentifier: CellIdentifier, left: number, top: number) => {
     setEditingCell(cellIdentifier);
     setEditFieldTop(top);
-    setEditFieldRight(right);
+    setEditFieldLeft(left + 10);
     setShowFieldEditor(true);
   };
 
@@ -74,7 +81,7 @@ export const EditRow = ({
 
   const onChangeFieldTypeClick = (buttonTop: number, buttonRight: number) => {
     setChangeFieldTypeTop(buttonTop);
-    setChangeFieldTypeRight(buttonRight);
+    setChangeFieldTypeLeft(buttonRight + 30);
     setShowChangeFieldTypePopup(true);
   };
 
@@ -95,15 +102,22 @@ export const EditRow = ({
   const onEditOptionsClick = async (cellIdentifier: CellIdentifier, left: number, top: number) => {
     setEditingCell(cellIdentifier);
     setChangeOptionsLeft(left);
-    setChangeOptionsTop(top);
+    setChangeOptionsTop(top + 40);
     setShowChangeOptionsPopup(true);
   };
 
   const onEditDateClick = async (cellIdentifier: CellIdentifier, left: number, top: number) => {
     setEditingCell(cellIdentifier);
     setDatePickerLeft(left);
-    setDatePickerTop(top);
+    setDatePickerTop(top + 40);
     setShowDatePicker(true);
+  };
+
+  const onOpenOptionDetailClick = (_left: number, _top: number, _select_option: SelectOptionPB) => {
+    setEditingSelectOption(_select_option);
+    setShowEditCellOption(true);
+    setEditCellOptionLeft(_left);
+    setEditCellOptionTop(_top);
   };
 
   const onDragEnd: OnDragEndResponder = (result) => {
@@ -120,8 +134,14 @@ export const EditRow = ({
       className={`fixed inset-0 z-10 flex items-center justify-center bg-black/30 backdrop-blur-sm transition-opacity duration-300 ${
         unveil ? 'opacity-100' : 'opacity-0'
       }`}
+      onClick={() => onCloseClick()}
     >
-      <div className={`relative flex h-[90%] w-[70%] flex-col gap-8 rounded-xl bg-white px-8 pb-4 pt-12`}>
+      <div
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+        className={`relative flex h-[90%] w-[70%] flex-col gap-8 rounded-xl bg-white px-8 pb-4 pt-12`}
+      >
         <div onClick={() => onCloseClick()} className={'absolute top-4 right-4'}>
           <button className={'block h-8 w-8 rounded-lg text-shade-2 hover:bg-main-secondary'}>
             <CloseSvg></CloseSvg>
@@ -145,11 +165,9 @@ export const EditRow = ({
                     cellIdentifier={cell.cellIdentifier}
                     cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
                     fieldController={controller.fieldController}
-                    onEditFieldClick={(top: number, right: number) => onEditFieldClick(cell.cellIdentifier, top, right)}
-                    onEditOptionsClick={(left: number, top: number) =>
-                      onEditOptionsClick(cell.cellIdentifier, left, top)
-                    }
-                    onEditDateClick={(left: number, top: number) => onEditDateClick(cell.cellIdentifier, left, top)}
+                    onEditFieldClick={onEditFieldClick}
+                    onEditOptionsClick={onEditOptionsClick}
+                    onEditDateClick={onEditDateClick}
                   ></EditCellWrapper>
                 ))}
               </div>
@@ -172,7 +190,7 @@ export const EditRow = ({
         {showFieldEditor && editingCell && (
           <EditFieldPopup
             top={editFieldTop}
-            right={editFieldRight}
+            left={editFieldLeft}
             cellIdentifier={editingCell}
             viewId={viewId}
             onOutsideClick={onOutsideEditFieldClick}
@@ -183,7 +201,7 @@ export const EditRow = ({
         {showChangeFieldTypePopup && (
           <ChangeFieldTypePopup
             top={changeFieldTypeTop}
-            right={changeFieldTypeRight}
+            left={changeFieldTypeLeft}
             onClick={(newType) => changeFieldType(newType)}
             onOutsideClick={() => setShowChangeFieldTypePopup(false)}
           ></ChangeFieldTypePopup>
@@ -196,6 +214,7 @@ export const EditRow = ({
             cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
             fieldController={controller.fieldController}
             onOutsideClick={() => setShowChangeOptionsPopup(false)}
+            openOptionDetail={onOpenOptionDetailClick}
           ></CellOptionsPopup>
         )}
         {showDatePicker && editingCell && (
@@ -207,6 +226,17 @@ export const EditRow = ({
             fieldController={controller.fieldController}
             onOutsideClick={() => setShowDatePicker(false)}
           ></DatePickerPopup>
+        )}
+        {showEditCellOption && editingCell && editingSelectOption && (
+          <EditCellOptionPopup
+            top={editCellOptionTop}
+            left={editCellOptionLeft}
+            cellIdentifier={editingCell}
+            editingSelectOption={editingSelectOption}
+            onOutsideClick={() => {
+              setShowEditCellOption(false);
+            }}
+          ></EditCellOptionPopup>
         )}
       </div>
     </div>
