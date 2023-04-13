@@ -273,7 +273,6 @@ class _CoverImage extends StatefulWidget {
 
 class _CoverImageState extends State<_CoverImage> {
   final popoverController = PopoverController();
-  bool isCoverPopoverOpen = false;
 
   CoverSelectionType get selectionType => CoverSelectionType.fromString(
         widget.node.attributes[kCoverSelectionTypeAttribute],
@@ -396,7 +395,6 @@ class _CoverImageState extends State<_CoverImage> {
         children: [
           AppFlowyPopover(
             onClose: () {
-              isCoverPopoverOpen = false;
               setOverlayButtonsHidden(true);
             },
             offset: const Offset(-125, 10),
@@ -417,9 +415,8 @@ class _CoverImageState extends State<_CoverImage> {
                     height: 28,
                     title: LocaleKeys.document_plugins_cover_changeCover.tr(),
                   )
-                : const SizedBox(),
+                : const SizedBox.shrink(),
             popupBuilder: (BuildContext popoverContext) {
-              isCoverPopoverOpen = true;
               return ChangeCoverPopover(
                 node: widget.node,
                 editorState: widget.editorState,
@@ -442,7 +439,7 @@ class _CoverImageState extends State<_CoverImage> {
                     widget.onCoverChanged(CoverSelectionType.initial, null);
                   },
                 )
-              : const SizedBox(),
+              : const SizedBox.shrink(),
         ],
       ),
     );
@@ -498,7 +495,7 @@ class _CoverImageState extends State<_CoverImage> {
                 width: double.infinity,
                 child: coverImage,
               ),
-              hasCover ? _buildCoverOverlayButtons(context) : const SizedBox()
+              hasCover ? _buildCoverOverlayButtons(context) : const SizedBox.shrink()
             ],
           ),
         ),
