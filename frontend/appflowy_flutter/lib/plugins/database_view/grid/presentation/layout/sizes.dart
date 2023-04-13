@@ -28,10 +28,7 @@ class GridSize {
         vertical: GridSize.cellVPadding,
       );
 
-  static EdgeInsets get typeOptionContentInsets => const EdgeInsets.symmetric(
-        horizontal: 6,
-        vertical: 2,
-      );
+  static EdgeInsets get typeOptionContentInsets => const EdgeInsets.all(4);
 
   static EdgeInsets get footerContentInsets => EdgeInsets.fromLTRB(
         GridSize.leadingHeaderPadding,

@@ -220,7 +220,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
 
       final date = DateTime.fromMillisecondsSinceEpoch(
         eventPB.timestamp.toInt() * 1000,
-        isUtc: true,
       );
       return CalendarEventData(
         title: eventPB.title,
