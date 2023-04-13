@@ -41,17 +41,14 @@ impl DocumentManager {
     let document = Arc::new(Document::new(collab, data)?);
 
     let clone_doc_id = doc_id.clone();
-    let document_data = document
+    let _document_data = document
       .lock()
       .open(move |_, _| {
         // TODO: add payload data.
         send_notification(&clone_doc_id, DocumentNotification::DidReceiveUpdate).send();
       })
       .map_err(|err| FlowyError::internal().context(err))?;
-    self
-      .documents
-      .write()
-      .insert(doc_id.clone(), document.clone());
+    self.documents.write().insert(doc_id, document.clone());
     Ok(document)
   }
 
@@ -60,10 +57,10 @@ impl DocumentManager {
     Ok(())
   }
 
-  fn get_collab_for_doc_id(&self, doc_id: &String) -> Result<collab::preclude::Collab, FlowyError> {
+  fn get_collab_for_doc_id(&self, doc_id: &str) -> Result<collab::preclude::Collab, FlowyError> {
     let uid = self.user.user_id()?;
     let kv_db = self.user.kv_db()?;
-    let mut collab = CollabBuilder::new(uid, doc_id.clone()).build();
+    let mut collab = CollabBuilder::new(uid, doc_id).build();
     let disk_plugin = Arc::new(
       CollabDiskPlugin::new(uid, kv_db).map_err(|err| FlowyError::internal().context(err))?,
     );

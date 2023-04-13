@@ -1,10 +1,10 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{sync::Arc};
 
 use crate::{
   document::DocumentDataWrapper,
   entities::{
-    ApplyActionPayloadPBV2, BlockActionPB, BlockActionPayloadPB, BlockActionTypePB, BlockPB,
-    BlocksPB, CloseDocumentPayloadPBV2, DocumentDataPB2, MetaPB, OpenDocumentPayloadPBV2,
+    ApplyActionPayloadPBV2, BlockActionPB, BlockActionPayloadPB, BlockActionTypePB,
+    BlockPB, CloseDocumentPayloadPBV2, DocumentDataPB2, OpenDocumentPayloadPBV2,
   },
   manager::DocumentManager,
 };

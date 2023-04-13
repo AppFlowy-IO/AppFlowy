@@ -1,6 +1,5 @@
 use std::{
   collections::HashMap,
-  hash::Hash,
   ops::{Deref, DerefMut},
   sync::Arc,
   vec,
@@ -15,7 +14,7 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use nanoid::nanoid;
 use parking_lot::Mutex;
 
-use crate::entities::{BlockPB, BlocksPB, ChildrenPB, DocumentDataPB2, MetaPB};
+use crate::entities::{BlockMapPB, BlockPB, ChildrenPB, DocumentDataPB2, MetaPB};
 
 #[derive(Clone)]
 pub struct Document(Arc<Mutex<InnerDocument>>);
@@ -90,14 +89,14 @@ impl From<DocumentDataWrapper> for DocumentDataPB2 {
         (
           id,
           ChildrenPB {
-            children: children.into_iter().map(|id| id).collect(),
+            children: children.into_iter().collect(),
           },
         )
       })
       .collect::<HashMap<String, ChildrenPB>>();
     Self {
-      page_id: data.0.page_id.clone(),
-      blocks: BlocksPB { blocks },
+      page_id: data.0.page_id,
+      blocks: BlockMapPB { blocks },
       meta: MetaPB { children_map },
     }
   }

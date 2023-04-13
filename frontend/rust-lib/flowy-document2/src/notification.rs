@@ -1,6 +1,6 @@
 use flowy_derive::ProtoBuf_Enum;
 use flowy_notification::NotificationBuilder;
-use lib_dispatch::prelude::ToBytes;
+
 
 const OBSERVABLE_CATEGORY: &str = "Document";
 
