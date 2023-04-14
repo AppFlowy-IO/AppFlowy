@@ -3,11 +3,12 @@ import 'dart:io';
 import 'package:appflowy/main.dart' as app;
 import 'package:appflowy/startup/tasks/prelude.dart';
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path/path.dart' as p;
 
 class TestFolder {
   /// Location / Path
@@ -29,7 +30,12 @@ class TestFolder {
   /// Clean the location.
   static Future<void> cleanTestLocation(String? name) async {
     final dir = await testLocation(name);
-    await dir.delete(recursive: true);
+    try {
+      await dir.delete(recursive: true);
+    } on FileSystemException catch (e) {
+      // do nothing
+      debugPrint('Failed to delete test location, $e');
+    }
     return;
   }
 
@@ -47,11 +53,8 @@ class TestFolder {
 
   /// Get default location under test environment.
   static Future<Directory> testLocation(String? name) async {
-    final dir = await getApplicationDocumentsDirectory();
-    var path = '${dir.path}/flowy_test';
-    if (name != null) {
-      path += '/$name';
-    }
+    final dir = await appFlowyDocumentDirectory();
+    final path = p.join(dir.path, 'flowy_test', name);
     return Directory(path).create(recursive: true);
   }
 }
