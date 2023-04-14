@@ -70,7 +70,8 @@
       "name": "Debug-Informationen",
       "success": "Debug-Informationen in die Zwischenablage kopiert!",
       "fail": "Debug-Informationen können nicht in die Zwischenablage kopiert werden"
-    }
+    },
+    "shortcuts": "Abkürzungen"
   },
   "menuAppHeader": {
     "addPageTooltip": "Schnell eine Seite innerhalb hinzufügen",
@@ -150,6 +151,7 @@
     "small": "klein",
     "medium": "mittel",
     "large": "groß",
-    "fontSize": "Schriftgröße"
+    "fontSize": "Schriftgröße",
+    "import": "Importieren"
   }
 }
