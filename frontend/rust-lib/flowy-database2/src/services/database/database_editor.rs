@@ -422,7 +422,7 @@ impl DatabaseEditor {
       (
         database.fields.get_field(field_id)?,
         database.get_row(row_id),
-        database.get_cell(field_id, row_id),
+        database.get_cell(field_id, row_id).map(|cell| cell.cell),
       )
     };
 
@@ -515,11 +515,10 @@ impl DatabaseEditor {
     match field {
       None => SelectOptionCellDataPB::default(),
       Some(field) => {
-        let cell = self.database.lock().get_cell(field_id, row_id);
-
-        let ids = match cell {
+        let row_cell = self.database.lock().get_cell(field_id, row_id);
+        let ids = match row_cell {
           None => SelectOptionIds::new(),
-          Some(cell) => SelectOptionIds::from(&cell),
+          Some(row_cell) => SelectOptionIds::from(&row_cell.cell),
         };
         match select_type_option_from_field(&field) {
           Ok(type_option) => type_option.get_selected_options(ids).into(),
@@ -802,8 +801,9 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     to_fut(async move { cells.into_iter().map(Arc::new).collect() })
   }
 
-  fn get_cell_in_row(&self, _field_id: &str, _row_id: RowId) -> Fut<Option<Arc<RowCell>>> {
-    todo!()
+  fn get_cell_in_row(&self, field_id: &str, row_id: RowId) -> Fut<Option<Arc<RowCell>>> {
+    let cell = self.database.lock().get_cell(field_id, row_id);
+    to_fut(async move { cell.map(Arc::new) })
   }
 
   fn get_layout_for_view(&self, view_id: &str) -> DatabaseLayout {

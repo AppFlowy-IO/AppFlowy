@@ -130,7 +130,7 @@ pub struct AppFlowyCore {
   pub document_manager: Arc<DocumentManager>,
   pub folder_manager: Arc<Folder2Manager>,
   pub database_manager: Arc<DatabaseManager>,
-  pub database_manager2: Arc<DatabaseManager2>,
+  // pub database_manager2: Arc<DatabaseManager2>,
   pub event_dispatcher: Arc<AFPluginDispatcher>,
   pub ws_conn: Arc<FlowyWebSocketConnect>,
   pub local_server: Option<Arc<LocalServer>>,

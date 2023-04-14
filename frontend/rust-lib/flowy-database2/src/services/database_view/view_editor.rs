@@ -13,11 +13,10 @@ use flowy_task::TaskDispatcher;
 use lib_infra::future::Fut;
 
 use crate::entities::{
-  AlterFilterParams, AlterSortParams, CalendarEventPB, CreateRowParams, DeleteFilterParams,
-  DeleteGroupParams, DeleteSortParams, FieldType, GroupChangesetPB, GroupPB,
-  GroupRowsNotificationPB, InsertGroupParams, InsertedGroupPB, InsertedRowPB, LayoutSettingPB,
-  LayoutSettingParams, MoveGroupParams, RowPB, RowsChangesetPB, SortChangesetNotificationPB,
-  SortPB,
+  AlterFilterParams, AlterSortParams, CalendarEventPB, DeleteFilterParams, DeleteGroupParams,
+  DeleteSortParams, FieldType, GroupChangesetPB, GroupPB, GroupRowsNotificationPB,
+  InsertGroupParams, InsertedGroupPB, InsertedRowPB, LayoutSettingPB, LayoutSettingParams,
+  MoveGroupParams, RowPB, RowsChangesetPB, SortChangesetNotificationPB, SortPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::CellCache;
