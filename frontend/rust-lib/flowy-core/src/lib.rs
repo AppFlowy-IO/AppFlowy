@@ -94,6 +94,7 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   filters.push(format!("collab_folder={}", level));
   filters.push(format!("flowy_user={}", level));
   filters.push(format!("flowy_document={}", level));
+  filters.push(format!("flowy_document2={}", level));
   filters.push(format!("flowy_database={}", level));
   filters.push(format!("flowy_sync={}", "info"));
   filters.push(format!("flowy_client_sync={}", "info"));
