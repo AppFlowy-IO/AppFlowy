@@ -148,6 +148,7 @@
   },
   "moreAction": {
     "small": "klein",
-    "medium": "mittel"
+    "medium": "mittel",
+    "large": "groß"
   }
 }
