@@ -10,9 +10,11 @@ class BoardSettingBloc extends Bloc<BoardSettingEvent, BoardSettingState> {
       : super(BoardSettingState.initial()) {
     on<BoardSettingEvent>(
       (event, emit) async {
-        event.when(performAction: (action) {
-          emit(state.copyWith(selectedAction: Some(action)));
-        });
+        event.when(
+          performAction: (action) {
+            emit(state.copyWith(selectedAction: Some(action)));
+          },
+        );
       },
     );
   }

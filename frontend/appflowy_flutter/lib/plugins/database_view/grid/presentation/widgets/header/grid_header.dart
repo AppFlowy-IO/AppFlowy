@@ -39,7 +39,9 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
     return BlocProvider(
       create: (context) {
         final bloc = getIt<GridHeaderBloc>(
-            param1: widget.viewId, param2: widget.fieldController);
+          param1: widget.viewId,
+          param2: widget.fieldController,
+        );
         bloc.add(const GridHeaderEvent.initial());
         return bloc;
       },
@@ -98,10 +100,16 @@ class _GridHeaderState extends State<_GridHeader> {
       builder: (context, state) {
         final cells = state.fields
             .where((field) => field.visibility)
-            .map((field) =>
-                FieldCellContext(viewId: widget.viewId, field: field.field))
-            .map((ctx) =>
-                GridFieldCell(key: _getKeyById(ctx.field.id), cellContext: ctx))
+            .map(
+              (field) =>
+                  FieldCellContext(viewId: widget.viewId, field: field.field),
+            )
+            .map(
+              (ctx) => GridFieldCell(
+                key: _getKeyById(ctx.field.id),
+                cellContext: ctx,
+              ),
+            )
             .toList();
 
         return Container(
@@ -124,8 +132,12 @@ class _GridHeaderState extends State<_GridHeader> {
     );
   }
 
-  void _onReorder(List<GridFieldCell> cells, int oldIndex, BuildContext context,
-      int newIndex) {
+  void _onReorder(
+    List<GridFieldCell> cells,
+    int oldIndex,
+    BuildContext context,
+    int newIndex,
+  ) {
     if (cells.length > oldIndex) {
       final field = cells[oldIndex].cellContext.field;
       context
@@ -177,7 +189,7 @@ class CreateFieldButton extends StatelessWidget {
       constraints: BoxConstraints.loose(const Size(240, 600)),
       child: FlowyButton(
         radius: BorderRadius.zero,
-        text: FlowyText.medium(LocaleKeys.grid_field_newColumn.tr()),
+        text: FlowyText.medium(LocaleKeys.grid_field_newProperty.tr()),
         hoverColor: AFThemeExtension.of(context).greyHover,
         onTap: () {},
         leftIcon: const FlowySvg(name: 'home/add'),
@@ -197,12 +209,17 @@ class SliverHeaderDelegateImplementation
   final String gridId;
   final List<FieldPB> fields;
 
-  SliverHeaderDelegateImplementation(
-      {required this.gridId, required this.fields});
+  SliverHeaderDelegateImplementation({
+    required this.gridId,
+    required this.fields,
+  });
 
   @override
   Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return _GridHeader(viewId: gridId);
   }
 

@@ -21,10 +21,11 @@ class GridAccessoryMenu extends StatelessWidget {
       child: MultiBlocListener(
         listeners: [
           BlocListener<GridFilterMenuBloc, GridFilterMenuState>(
-              listenWhen: (p, c) => p.isVisible != c.isVisible,
-              listener: (context, state) => context
-                  .read<GridAccessoryMenuBloc>()
-                  .add(const GridAccessoryMenuEvent.toggleMenu())),
+            listenWhen: (p, c) => p.isVisible != c.isVisible,
+            listener: (context, state) => context
+                .read<GridAccessoryMenuBloc>()
+                .add(const GridAccessoryMenuEvent.toggleMenu()),
+          ),
           BlocListener<SortMenuBloc, SortMenuState>(
             listenWhen: (p, c) => p.isVisible != c.isVisible,
             listener: (context, state) => context

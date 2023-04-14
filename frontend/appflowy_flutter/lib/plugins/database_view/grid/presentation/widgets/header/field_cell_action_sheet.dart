@@ -101,25 +101,27 @@ class _FieldOperationList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      Flex(
-        direction: Axis.horizontal,
-        children: [
-          _actionCell(FieldAction.hide),
-          HSpace(GridSize.typeOptionSeparatorHeight),
-          _actionCell(FieldAction.duplicate),
-        ],
-      ),
-      VSpace(GridSize.typeOptionSeparatorHeight),
-      Flex(
-        direction: Axis.horizontal,
-        children: [
-          _actionCell(FieldAction.delete),
-          HSpace(GridSize.typeOptionSeparatorHeight),
-          const Spacer(),
-        ],
-      ),
-    ]);
+    return Column(
+      children: [
+        Flex(
+          direction: Axis.horizontal,
+          children: [
+            _actionCell(FieldAction.hide),
+            HSpace(GridSize.typeOptionSeparatorHeight),
+            _actionCell(FieldAction.duplicate),
+          ],
+        ),
+        VSpace(GridSize.typeOptionSeparatorHeight),
+        Flex(
+          direction: Axis.horizontal,
+          children: [
+            _actionCell(FieldAction.delete),
+            HSpace(GridSize.typeOptionSeparatorHeight),
+            const Spacer(),
+          ],
+        ),
+      ],
+    );
   }
 
   Widget _actionCell(FieldAction action) {

@@ -10,7 +10,6 @@ import 'package:flowy_infra_ui/style_widget/text_input.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 export 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class NavigatorTextFieldDialog extends StatefulWidget {
   final String value;
@@ -43,21 +42,20 @@ class _CreateTextFieldDialog extends State<NavigatorTextFieldDialog> {
   Widget build(BuildContext context) {
     return StyledDialog(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          ...[
-            FlowyText.medium(
-              widget.title,
-              color: Theme.of(context).disabledColor,
-              fontSize: FontSizes.s16,
-            ),
-            VSpace(Insets.sm * 1.5),
-          ],
+          FlowyText.medium(
+            widget.title,
+            color: Theme.of(context).colorScheme.tertiary,
+            fontSize: FontSizes.s16,
+          ),
+          VSpace(Insets.m),
           FlowyFormTextInput(
+            textAlign: TextAlign.center,
             hintText: LocaleKeys.dialogCreatePageNameHint.tr(),
             initialValue: widget.value,
-            textStyle:
-                Theme.of(context).textTheme.bodySmall!.size(FontSizes.s24),
+            textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontSize: FontSizes.s16,
+                ),
             autoFocus: true,
             onChanged: (text) {
               newValue = text;
@@ -67,7 +65,7 @@ class _CreateTextFieldDialog extends State<NavigatorTextFieldDialog> {
               AppGlobals.nav.pop();
             },
           ),
-          const VSpace(10),
+          VSpace(Insets.xl),
           OkCancelButton(
             onOkPressed: () {
               widget.confirm(newValue);
@@ -124,13 +122,16 @@ class _CreateFlowyAlertDialog extends State<NavigatorAlertDialog> {
           ],
           if (widget.confirm != null) ...[
             const VSpace(20),
-            OkCancelButton(onOkPressed: () {
-              widget.confirm?.call();
-              Navigator.of(context).pop();
-            }, onCancelPressed: () {
-              widget.cancel?.call();
-              Navigator.of(context).pop();
-            })
+            OkCancelButton(
+              onOkPressed: () {
+                widget.confirm?.call();
+                Navigator.of(context).pop();
+              },
+              onCancelPressed: () {
+                widget.cancel?.call();
+                Navigator.of(context).pop();
+              },
+            )
           ]
         ],
       ),
@@ -147,16 +148,16 @@ class NavigatorOkCancelDialog extends StatelessWidget {
   final String message;
   final double? maxWidth;
 
-  const NavigatorOkCancelDialog(
-      {Key? key,
-      this.onOkPressed,
-      this.onCancelPressed,
-      this.okTitle,
-      this.cancelTitle,
-      this.title,
-      required this.message,
-      this.maxWidth})
-      : super(key: key);
+  const NavigatorOkCancelDialog({
+    Key? key,
+    this.onOkPressed,
+    this.onCancelPressed,
+    this.okTitle,
+    this.cancelTitle,
+    this.title,
+    required this.message,
+    this.maxWidth,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +173,9 @@ class NavigatorOkCancelDialog extends StatelessWidget {
             ),
             VSpace(Insets.sm * 1.5),
             Container(
-                color: Theme.of(context).colorScheme.surfaceVariant, height: 1),
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              height: 1,
+            ),
             VSpace(Insets.m * 1.5),
           ],
           FlowyText.medium(message),
@@ -201,22 +204,24 @@ class OkCancelButton extends StatelessWidget {
   final String? okTitle;
   final String? cancelTitle;
   final double? minHeight;
+  final MainAxisAlignment alignment;
 
-  const OkCancelButton(
-      {Key? key,
-      this.onOkPressed,
-      this.onCancelPressed,
-      this.okTitle,
-      this.cancelTitle,
-      this.minHeight})
-      : super(key: key);
+  const OkCancelButton({
+    Key? key,
+    this.onOkPressed,
+    this.onCancelPressed,
+    this.okTitle,
+    this.cancelTitle,
+    this.minHeight,
+    this.alignment = MainAxisAlignment.spaceAround,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 48,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: alignment,
         children: <Widget>[
           if (onCancelPressed != null)
             SecondaryTextButton(

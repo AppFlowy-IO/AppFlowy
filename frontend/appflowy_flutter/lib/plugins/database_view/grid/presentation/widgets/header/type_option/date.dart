@@ -299,6 +299,8 @@ extension DateFormatExtension on DateFormat {
         return LocaleKeys.grid_field_dateFormatLocal.tr();
       case DateFormat.US:
         return LocaleKeys.grid_field_dateFormatUS.tr();
+      case DateFormat.DayMonthYear:
+        return LocaleKeys.grid_field_dateFormatDayMonthYear.tr();
       default:
         throw UnimplementedError;
     }

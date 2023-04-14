@@ -51,11 +51,12 @@ class MenuUser extends StatelessWidget {
       width: 25,
       height: 25,
       child: ClipRRect(
-          borderRadius: Corners.s5Border,
-          child: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            child: svgWidget('emoji/$iconUrl'),
-          )),
+        borderRadius: Corners.s5Border,
+        child: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          child: svgWidget('emoji/$iconUrl'),
+        ),
+      ),
     );
   }
 

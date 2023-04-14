@@ -238,7 +238,7 @@ impl DatabaseViewEditor {
     self.filter_controller.filter_row_revs(rows).await;
   }
 
-  pub async fn v_duplicate_view_setting(&self) -> FlowyResult<String> {
+  pub async fn v_duplicate_database_view(&self) -> FlowyResult<String> {
     let json_str = self.pad.read().await.json_str()?;
     Ok(json_str)
   }

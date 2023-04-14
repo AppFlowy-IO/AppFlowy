@@ -83,14 +83,16 @@ void _resolveHomeDeps(GetIt getIt) {
   // share
   getIt.registerLazySingleton<ShareService>(() => ShareService());
   getIt.registerFactoryParam<DocShareBloc, ViewPB, void>(
-      (view, _) => DocShareBloc(view: view, service: getIt<ShareService>()));
+    (view, _) => DocShareBloc(view: view, service: getIt<ShareService>()),
+  );
 }
 
 void _resolveFolderDeps(GetIt getIt) {
   //workspace
   getIt.registerFactoryParam<WorkspaceListener, UserProfilePB, String>(
-      (user, workspaceId) =>
-          WorkspaceListener(user: user, workspaceId: workspaceId));
+    (user, workspaceId) =>
+        WorkspaceListener(user: user, workspaceId: workspaceId),
+  );
 
   // ViewPB
   getIt.registerFactoryParam<ViewListener, ViewPB, void>(

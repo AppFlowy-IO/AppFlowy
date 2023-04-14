@@ -33,81 +33,85 @@ class SettingsFileLocationCustomzierState
     return BlocProvider<SettingsLocationCubit>.value(
       value: widget.cubit,
       child: BlocBuilder<SettingsLocationCubit, SettingsLocation>(
-          builder: (context, state) {
-        return ListTile(
-          title: FlowyText.regular(
-            LocaleKeys.settings_files_defaultLocation.tr(),
-            fontSize: 15.0,
-            overflow: TextOverflow.ellipsis,
-          ),
-          subtitle: Tooltip(
-            message: LocaleKeys.settings_files_doubleTapToCopy.tr(),
-            child: GestureDetector(
-              onDoubleTap: () {
-                Clipboard.setData(ClipboardData(
-                  text: state.path,
-                )).then((_) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: FlowyText(
-                          LocaleKeys.settings_files_pathCopiedSnackbar.tr(),
+        builder: (context, state) {
+          return ListTile(
+            title: FlowyText.regular(
+              LocaleKeys.settings_files_defaultLocation.tr(),
+              fontSize: 15.0,
+              overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: Tooltip(
+              message: LocaleKeys.settings_files_doubleTapToCopy.tr(),
+              child: GestureDetector(
+                onDoubleTap: () {
+                  Clipboard.setData(
+                    ClipboardData(
+                      text: state.path,
+                    ),
+                  ).then((_) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: FlowyText(
+                            LocaleKeys.settings_files_pathCopiedSnackbar.tr(),
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                         ),
-                      ),
-                    );
-                  }
-                });
-              },
-              child: FlowyText.regular(
-                state.path ?? '',
-                fontSize: 10.0,
-                overflow: TextOverflow.ellipsis,
+                      );
+                    }
+                  });
+                },
+                child: FlowyText.regular(
+                  state.path ?? '',
+                  fontSize: 10.0,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ),
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Tooltip(
-                message: LocaleKeys.settings_files_restoreLocation.tr(),
-                child: FlowyIconButton(
-                  icon: const Icon(Icons.restore_outlined),
-                  onPressed: () async {
-                    final result = await appFlowyDocumentDirectory();
-                    await _setCustomLocation(result.path);
-                    await FlowyRunner.run(
-                      FlowyApp(),
-                      config: const LaunchConfiguration(
-                        autoRegistrationSupported: true,
-                      ),
-                    );
-                    if (mounted) {
-                      Navigator.of(context).pop();
-                    }
-                  },
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Tooltip(
+                  message: LocaleKeys.settings_files_restoreLocation.tr(),
+                  child: FlowyIconButton(
+                    icon: const Icon(Icons.restore_outlined),
+                    onPressed: () async {
+                      final result = await appFlowyDocumentDirectory();
+                      await _setCustomLocation(result.path);
+                      await FlowyRunner.run(
+                        FlowyApp(),
+                        config: const LaunchConfiguration(
+                          autoRegistrationSupported: true,
+                        ),
+                      );
+                      if (mounted) {
+                        Navigator.of(context).pop();
+                      }
+                    },
+                  ),
                 ),
-              ),
-              const SizedBox(
-                width: 5,
-              ),
-              Tooltip(
-                message: LocaleKeys.settings_files_customizeLocation.tr(),
-                child: FlowyIconButton(
-                  icon: const Icon(Icons.folder_open_outlined),
-                  onPressed: () async {
-                    final result =
-                        await getIt<FilePickerService>().getDirectoryPath();
-                    if (result != null) {
-                      await _setCustomLocation(result);
-                      await reloadApp();
-                    }
-                  },
+                const SizedBox(
+                  width: 5,
                 ),
-              )
-            ],
-          ),
-        );
-      }),
+                Tooltip(
+                  message: LocaleKeys.settings_files_customizeLocation.tr(),
+                  child: FlowyIconButton(
+                    icon: const Icon(Icons.folder_open_outlined),
+                    onPressed: () async {
+                      final result =
+                          await getIt<FilePickerService>().getDirectoryPath();
+                      if (result != null) {
+                        await _setCustomLocation(result);
+                        await reloadApp();
+                      }
+                    },
+                  ),
+                )
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
