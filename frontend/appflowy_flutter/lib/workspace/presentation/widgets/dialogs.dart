@@ -204,7 +204,7 @@ class OkCancelButton extends StatelessWidget {
   final String? okTitle;
   final String? cancelTitle;
   final double? minHeight;
-  final MainAxisAlignment? alignment;
+  final MainAxisAlignment alignment;
 
   const OkCancelButton({
     Key? key,
@@ -221,7 +221,7 @@ class OkCancelButton extends StatelessWidget {
     return SizedBox(
       height: 48,
       child: Row(
-        mainAxisAlignment: alignment!,
+        mainAxisAlignment: alignment,
         children: <Widget>[
           if (onCancelPressed != null)
             SecondaryTextButton(

@@ -15,7 +15,7 @@ class FlowyFormTextInput extends StatelessWidget {
   final String? hintText;
   final EdgeInsets? contentPadding;
   final TextStyle? textStyle;
-  final TextAlign? textAlign;
+  final TextAlign textAlign;
   final int? maxLines;
   final TextEditingController? controller;
   final TextCapitalization? capitalization;
@@ -38,7 +38,7 @@ class FlowyFormTextInput extends StatelessWidget {
       this.contentPadding,
       this.capitalization,
       this.textStyle,
-      this.textAlign,
+      this.textAlign = TextAlign.center,
       this.maxLines})
       : super(key: key);
 
@@ -52,7 +52,7 @@ class FlowyFormTextInput extends StatelessWidget {
       onChanged: onChanged,
       onFocusCreated: onFocusCreated,
       style: textStyle ?? Theme.of(context).textTheme.bodyMedium,
-      textAlign: textAlign ?? TextAlign.center,
+      textAlign: textAlign,
       onEditingComplete: onEditingComplete,
       onFocusChanged: onFocusChanged,
       controller: controller,
@@ -72,7 +72,7 @@ class FlowyFormTextInput extends StatelessWidget {
 class StyledSearchTextInput extends StatefulWidget {
   final String? label;
   final TextStyle? style;
-  final TextAlign? textAlign;
+  final TextAlign textAlign;
   final EdgeInsets? contentPadding;
   final bool? autoFocus;
   final bool? obscureText;
@@ -206,7 +206,7 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
         enabled: widget.enabled,
         maxLines: widget.maxLines,
         textCapitalization: widget.capitalization ?? TextCapitalization.none,
-        textAlign: widget.textAlign ?? TextAlign.center,
+        textAlign: widget.textAlign,
         decoration: widget.inputDecoration ??
             InputDecoration(
               prefixIcon: widget.prefixIcon,
