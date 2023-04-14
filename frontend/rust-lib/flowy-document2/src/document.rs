@@ -20,8 +20,8 @@ use crate::entities::{BlockPB, ChildrenPB, DocumentDataPB2, MetaPB};
 pub struct Document(Arc<Mutex<InnerDocument>>);
 
 impl Document {
-  pub fn new(collab: Collab, data: DocumentDataWrapper) -> FlowyResult<Self> {
-    let inner = InnerDocument::create(collab, data.0)
+  pub fn new(collab: Collab) -> FlowyResult<Self> {
+    let inner = InnerDocument::create(collab)
       .map_err(|_| FlowyError::from(ErrorCode::DocumentDataInvalid))?;
     Ok(Self(Arc::new(Mutex::new(inner))))
   }

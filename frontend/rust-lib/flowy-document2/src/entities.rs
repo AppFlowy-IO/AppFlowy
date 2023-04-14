@@ -10,6 +10,13 @@ pub struct OpenDocumentPayloadPBV2 {
 }
 
 #[derive(Default, ProtoBuf)]
+pub struct CreateDocumentPayloadPBV2 {
+  #[pb(index = 1)]
+  pub document_id: String,
+  // Support customize initial data
+}
+
+#[derive(Default, ProtoBuf)]
 pub struct CloseDocumentPayloadPBV2 {
   #[pb(index = 1)]
   pub document_id: String,
@@ -101,4 +108,22 @@ impl Default for BlockActionTypePB {
   fn default() -> Self {
     Self::Insert
   }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct DocEventPB {
+  #[pb(index = 1)]
+  pub events: Vec<BlockEventPB>,
+
+  #[pb(index = 2)]
+  pub is_remote: bool,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct BlockEventPB {
+  #[pb(index = 1)]
+  pub path: Vec<String>,
+
+  #[pb(index = 2)]
+  pub delta: String,
 }
