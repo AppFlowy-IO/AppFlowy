@@ -96,7 +96,8 @@
   },
   "tooltip": {
     "lightMode": "In den hellen Modus wechseln",
-    "darkMode": "In den dunklen Modus wechseln"
+    "darkMode": "In den dunklen Modus wechseln",
+    "openAsPage": "Als Seite öffnen"
   },
   "contactsPage": {
     "title": "Kontakte",
