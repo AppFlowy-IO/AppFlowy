@@ -24,22 +24,7 @@ import {
 export class DocumentBackendService {
   constructor(public readonly viewId: string) {}
 
-  open = (): Promise<Result<DocumentDataPB, FlowyError>> => {
-    const payload = OpenDocumentPayloadPB.fromObject({ document_id: this.viewId, version: DocumentVersionPB.V1 });
-    return DocumentEventGetDocument(payload);
-  };
-
-  applyEdit = (operations: string) => {
-    const payload = EditPayloadPB.fromObject({ doc_id: this.viewId, operations: operations });
-    return DocumentEventApplyEdit(payload);
-  };
-
-  close = () => {
-    const payload = ViewIdPB.fromObject({ value: this.viewId });
-    return FolderEventCloseView(payload);
-  };
-
-  openV2 = (): Promise<Result<DocumentDataPB2, FlowyError>> => {
+  open = (): Promise<Result<DocumentDataPB2, FlowyError>> => {
     const payload = OpenDocumentPayloadPBV2.fromObject({
       document_id: this.viewId,
     });
@@ -54,7 +39,7 @@ export class DocumentBackendService {
     return DocumentEvent2ApplyAction(payload);
   };
 
-  closeV2 = (): Promise<Result<void, FlowyError>> => {
+  close = (): Promise<Result<void, FlowyError>> => {
     const payload = CloseDocumentPayloadPBV2.fromObject({
       document_id: this.viewId,
     });

@@ -1,4 +1,4 @@
-import { toggleFormat, isFormatActive } from '@/appflowy_app/utils/slate/format';
+import { toggleFormat, isFormatActive } from '$app/utils/slate/format';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 

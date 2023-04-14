@@ -1,4 +1,4 @@
-import { BlockType } from '@/appflowy_app/interfaces/document';
+import { BlockType, HeadingBlockData } from '@/appflowy_app/interfaces/document';
 import { useAppSelector } from '@/appflowy_app/stores/store';
 import { debounce } from '@/appflowy_app/utils/tool';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
@@ -43,9 +43,10 @@ export function useBlockSideTools({ container }: { container: HTMLDivElement }) 
       el.style.zIndex = '1';
       el.style.top = '1px';
       if (node?.type === BlockType.HeadingBlock) {
-        if (node.data.style?.level === 1) {
+        const nodeData = node.data as HeadingBlockData;
+        if (nodeData.level === 1) {
           el.style.top = '8px';
-        } else if (node.data.style?.level === 2) {
+        } else if (nodeData.level === 2) {
           el.style.top = '6px';
         } else {
           el.style.top = '5px';
@@ -80,16 +81,7 @@ function useController() {
     const parentId = node.parent;
     if (!parentId || !controller) return;
 
-    controller.transact([
-      () => {
-        const newNode = {
-          id: v4(),
-          delta: [],
-          type: BlockType.TextBlock,
-        };
-        controller.insert(newNode, parentId, node.id);
-      },
-    ]);
+    //
   }, []);
 
   return {

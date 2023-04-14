@@ -1,10 +1,8 @@
-import { DocumentData, BlockType, TextDelta } from '@/appflowy_app/interfaces/document';
+import { DocumentData, BlockType } from '@/appflowy_app/interfaces/document';
 import { createContext } from 'react';
 import { DocumentBackendService } from './document_bd_svc';
-import { Err } from 'ts-results';
-import { BlockActionPB, BlockActionPayloadPB, BlockActionTypePB, BlockPB, FlowyError } from '@/services/backend';
+import { FlowyError } from '@/services/backend';
 import { DocumentObserver } from './document_observer';
-import { nanoid } from 'nanoid';
 
 export const DocumentControllerContext = createContext<DocumentController | null>(null);
 
@@ -17,7 +15,7 @@ export class DocumentController {
     this.observer = new DocumentObserver(viewId);
   }
 
-  open = async (): Promise<DocumentData | null> => {
+  open = async (): Promise<DocumentData | FlowyError> => {
     // example:
     await this.observer.subscribe({
       didReceiveUpdate: () => {
@@ -25,55 +23,39 @@ export class DocumentController {
       },
     });
 
-    const document = await this.backendService.openV2();
-    let root_id = '';
+    const document = await this.backendService.open();
     if (document.ok) {
-      root_id = document.val.page_id;
-      console.log(document.val.blocks);
-    }
-    await this.backendService.applyActions([
-      BlockActionPB.fromObject({
-        action: BlockActionTypePB.Insert,
-        payload: BlockActionPayloadPB.fromObject({
-          block: BlockPB.fromObject({
-            id: nanoid(10),
-            ty: 'text',
-            parent_id: root_id,
-          }),
-        }),
-      }),
-    ]);
-
-    const openDocumentResult = await this.backendService.open();
-    if (openDocumentResult.ok) {
+      console.log(document.val);
+      const blocks: DocumentData["blocks"] = {};
+      document.val.blocks.forEach((block) => {
+        blocks[block.id] = {
+          id: block.id,
+          type: block.ty as BlockType,
+          parent: block.parent_id,
+          children: block.children_id,
+          data: JSON.parse(block.data),
+        };
+      });
+      const childrenMap: Record<string, string[]> = {};
+      document.val.meta.children_map.forEach((child, key) => { childrenMap[key] = child.children; });
       return {
-        rootId: '',
-        blocks: {},
-        ytexts: {},
-        yarrays: {},
-      };
-    } else {
-      return null;
+        rootId: document.val.page_id,
+        blocks,
+        meta: {
+          childrenMap
+        }
+      }
     }
+    return document.val;
+
   };
 
-  insert(
-    node: {
-      id: string;
-      type: BlockType;
-      delta?: TextDelta[];
-    },
-    parentId: string,
-    prevId: string
-  ) {
-    //
-  }
-
-  transact(actions: (() => void)[]) {
-    //
-  }
-
-  yTextApply = (yTextId: string, delta: TextDelta[]) => {
+  applyActions = (
+    actions: {
+      type: string;
+      payload: any;
+    }[]
+  ) => {
     //
   };
 

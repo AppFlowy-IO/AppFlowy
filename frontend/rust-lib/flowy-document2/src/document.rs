@@ -14,7 +14,7 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use nanoid::nanoid;
 use parking_lot::Mutex;
 
-use crate::entities::{BlockMapPB, BlockPB, ChildrenPB, DocumentDataPB2, MetaPB};
+use crate::entities::{BlockPB, ChildrenPB, DocumentDataPB2, MetaPB};
 
 #[derive(Clone)]
 pub struct Document(Arc<Mutex<InnerDocument>>);
@@ -96,7 +96,7 @@ impl From<DocumentDataWrapper> for DocumentDataPB2 {
       .collect::<HashMap<String, ChildrenPB>>();
     Self {
       page_id: data.0.page_id,
-      blocks: BlockMapPB { blocks },
+      blocks,
       meta: MetaPB { children_map },
     }
   }

@@ -1,5 +1,5 @@
 import FormatButton from './FormatButton';
-import Portal from '../BlockPortal';
+import Portal from '../../BlockPortal';
 import { useHoveringToolbar } from './index.hooks';
 
 const HoveringToolbar = ({ id }: { id: string }) => {

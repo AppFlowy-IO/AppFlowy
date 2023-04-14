@@ -23,7 +23,7 @@ export const useDocument = () => {
       const res = await c.open();
       console.log(res)
       if (!res) return;
-      setDocumentData(res)
+      // setDocumentData(res)
       setDocumentId(params.id)
       
     })();

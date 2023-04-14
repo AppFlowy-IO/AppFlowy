@@ -29,8 +29,8 @@ export class DocumentObserver {
   };
 
   unsubscribe = async () => {
-    this.appListNotifier.unsubscribe();
-    this.workspaceNotifier.unsubscribe();
+    // this.appListNotifier.unsubscribe();
+    // this.workspaceNotifier.unsubscribe();
     await this.listener?.stop();
   };
 }

@@ -1,10 +1,10 @@
 import React from 'react';
-import { useVirtualizerList } from './VirtualizerList.hooks';
+import { useVirtualizedList } from './VirtualizedList.hooks';
 import { Node } from '@/appflowy_app/stores/reducers/document/slice';
 import DocumentTitle from '../DocumentTitle';
 import Overlay from '../Overlay';
 
-export default function VirtualizerList({
+export default function VirtualizedList({
   childIds,
   node,
   renderNode,
@@ -13,9 +13,8 @@ export default function VirtualizerList({
   node: Node;
   renderNode: (nodeId: string) => JSX.Element;
 }) {
-  const { rowVirtualizer, parentRef } = useVirtualizerList(childIds.length);
-
-  const virtualItems = rowVirtualizer.getVirtualItems();
+  const { virtualize, parentRef } = useVirtualizedList(childIds.length);
+  const virtualItems = virtualize.getVirtualItems();
 
   return (
     <>
@@ -26,7 +25,7 @@ export default function VirtualizerList({
         <div
           className='doc-body max-w-screen w-[900px] min-w-0'
           style={{
-            height: rowVirtualizer.getTotalSize(),
+            height: virtualize.getTotalSize(),
             position: 'relative',
           }}
         >
@@ -43,7 +42,7 @@ export default function VirtualizerList({
               {virtualItems.map((virtualRow) => {
                 const id = childIds[virtualRow.index];
                 return (
-                  <div className='p-[1px]' key={id} data-index={virtualRow.index} ref={rowVirtualizer.measureElement}>
+                  <div className='p-[1px]' key={id} data-index={virtualRow.index} ref={virtualize.measureElement}>
                     {virtualRow.index === 0 ? <DocumentTitle id={node.id} /> : null}
                     {renderNode(id)}
                   </div>

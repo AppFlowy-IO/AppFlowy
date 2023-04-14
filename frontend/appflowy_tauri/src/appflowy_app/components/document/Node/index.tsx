@@ -7,14 +7,26 @@ import TextBlock from '../TextBlock';
 import { TextDelta } from '@/appflowy_app/interfaces/document';
 
 function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<HTMLDivElement>) {
-  const { node, childIds, delta, isSelected, ref } = useNode(id);
+  const { node, childIds, isSelected, ref } = useNode(id);
 
   console.log('=====', id);
-  const renderBlock = useCallback((_props: { node: Node; childIds?: string[]; delta?: TextDelta[] }) => {
+  const renderBlock = useCallback((_props: { node: Node; childIds?: string[] }) => {
     switch (_props.node.type) {
-      case 'text':
-        if (!_props.delta) return null;
-        return <TextBlock {..._props} delta={_props.delta} />;
+      case 'text': {
+        const delta = _props.node.data.delta;
+        if (!delta) return null;
+        return (
+          <TextBlock
+            node={{
+              ..._props.node,
+              data: {
+                delta,
+              },
+            }}
+            childIds={childIds}
+          />
+        );
+      }
       default:
         break;
     }
@@ -27,7 +39,6 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
       {renderBlock({
         node,
         childIds,
-        delta,
       })}
       <div className='block-overlay' />
       {isSelected ? <div className='pointer-events-none absolute inset-0 z-[-1] rounded-[4px] bg-[#E0F8FF]' /> : null}

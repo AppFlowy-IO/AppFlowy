@@ -3,10 +3,10 @@ import { useRef } from 'react';
 
 const defaultSize = 60;
 
-export function useVirtualizerList(count: number) {
+export function useVirtualizedList(count: number) {
   const parentRef = useRef<HTMLDivElement>(null);
 
-  const rowVirtualizer = useVirtualizer({
+  const virtualize = useVirtualizer({
     count,
     getScrollElement: () => parentRef.current,
     estimateSize: () => {
@@ -15,7 +15,7 @@ export function useVirtualizerList(count: number) {
   });
 
   return {
-    rowVirtualizer,
+    virtualize,
     parentRef,
   };
 }

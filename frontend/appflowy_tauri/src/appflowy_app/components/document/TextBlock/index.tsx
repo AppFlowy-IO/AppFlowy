@@ -3,23 +3,21 @@ import Leaf from './Leaf';
 import { useTextBlock } from './TextBlock.hooks';
 import { Node } from '@/appflowy_app/stores/reducers/document/slice';
 import NodeComponent from '../Node';
-import HoveringToolbar from '../HoveringToolbar';
-import { TextDelta } from '@/appflowy_app/interfaces/document';
+import HoveringToolbar from '../_shared/HoveringToolbar';
 import React from 'react';
+import { TextDelta } from '@/appflowy_app/interfaces/document';
 
 function TextBlock({
   node,
   childIds,
   placeholder,
-  delta,
   ...props
 }: {
-  node: Node;
-  delta: TextDelta[];
+  node: Node & { data: { delta: TextDelta[] } };
   childIds?: string[];
   placeholder?: string;
 } & React.HTMLAttributes<HTMLDivElement>) {
-  const { editor, value, onChange, onKeyDownCapture, onDOMBeforeInput } = useTextBlock(node.data.text!, delta);
+  const { editor, value, onChange, onKeyDownCapture, onDOMBeforeInput } = useTextBlock(node.data.delta);
 
   return (
     <div {...props} className={`py-[2px] ${props.className}`}>

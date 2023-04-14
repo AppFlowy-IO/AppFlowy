@@ -31,16 +31,10 @@ pub struct DocumentDataPB2 {
   pub page_id: String,
 
   #[pb(index = 2)]
-  pub blocks: BlockMapPB,
+  pub blocks: HashMap<String, BlockPB>,
 
   #[pb(index = 3)]
   pub meta: MetaPB,
-}
-
-#[derive(Default, ProtoBuf)]
-pub struct BlockMapPB {
-  #[pb(index = 1)]
-  pub blocks: HashMap<String, BlockPB>,
 }
 
 #[derive(Default, ProtoBuf)]

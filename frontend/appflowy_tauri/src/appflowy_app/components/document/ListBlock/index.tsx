@@ -11,7 +11,7 @@ export default function ListBlock({ node, delta }: { node: Node; delta: TextDelt
     if (node.data.style?.type === 'column') return <></>;
     return (
       <div className='flex-1'>
-        <TextBlock delta={delta} node={node} childIds={[]} />
+        {/*<TextBlock delta={delta} node={node} childIds={[]} />*/}
       </div>
     );
   }, [node, delta]);
