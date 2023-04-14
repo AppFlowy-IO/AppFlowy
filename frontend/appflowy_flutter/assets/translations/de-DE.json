@@ -149,6 +149,7 @@
   "moreAction": {
     "small": "klein",
     "medium": "mittel",
-    "large": "groß"
+    "large": "groß",
+    "fontSize": "Schriftgröße"
   }
 }
