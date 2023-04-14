@@ -169,7 +169,7 @@ pub struct LayoutSettingPB {
   pub calendar: Option<CalendarLayoutSettingPB>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct LayoutSettingParams {
   pub calendar: Option<CalendarLayoutSetting>,
 }
@@ -183,7 +183,7 @@ impl From<LayoutSettingParams> for LayoutSettingPB {
 }
 
 #[derive(Debug, Eq, PartialEq, Default, ProtoBuf, Clone)]
-pub struct UpdateLayoutSettingPB {
+pub struct LayoutSettingChangesetPB {
   #[pb(index = 1)]
   pub view_id: String,
 
@@ -192,20 +192,20 @@ pub struct UpdateLayoutSettingPB {
 }
 
 #[derive(Debug)]
-pub struct UpdateLayoutSettingParams {
+pub struct LayoutSettingChangeset {
   pub view_id: String,
   pub calendar: Option<CalendarLayoutSetting>,
 }
 
-impl TryInto<UpdateLayoutSettingParams> for UpdateLayoutSettingPB {
+impl TryInto<LayoutSettingChangeset> for LayoutSettingChangesetPB {
   type Error = ErrorCode;
 
-  fn try_into(self) -> Result<UpdateLayoutSettingParams, Self::Error> {
+  fn try_into(self) -> Result<LayoutSettingChangeset, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id)
       .map_err(|_| ErrorCode::ViewIdIsInvalid)?
       .0;
 
-    Ok(UpdateLayoutSettingParams {
+    Ok(LayoutSettingChangeset {
       view_id,
       calendar: self.calendar.map(|calendar| calendar.into()),
     })

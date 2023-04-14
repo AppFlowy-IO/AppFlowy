@@ -3,7 +3,6 @@ use collab_database::views::{LayoutSetting, LayoutSettingBuilder};
 use serde::{Deserialize, Serialize};
 use serde_repr::*;
 
-pub type FieldTypeRevision = u8;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CalendarLayoutSetting {
   pub layout_ty: CalendarLayout,
@@ -65,18 +64,18 @@ impl CalendarLayoutSetting {
 #[repr(u8)]
 pub enum CalendarLayout {
   #[default]
-  MonthLayout = 0,
-  WeekLayout = 1,
-  DayLayout = 2,
+  Month = 0,
+  Week = 1,
+  Day = 2,
 }
 
 impl From<i64> for CalendarLayout {
   fn from(value: i64) -> Self {
     match value {
-      0 => CalendarLayout::MonthLayout,
-      1 => CalendarLayout::WeekLayout,
-      2 => CalendarLayout::DayLayout,
-      _ => CalendarLayout::MonthLayout,
+      0 => CalendarLayout::Month,
+      1 => CalendarLayout::Week,
+      2 => CalendarLayout::Day,
+      _ => CalendarLayout::Month,
     }
   }
 }

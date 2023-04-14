@@ -3,7 +3,7 @@ use crate::services::database_view::{
   gen_handler_id, DatabaseViewChangedNotifier, DatabaseViewData,
 };
 use crate::services::filter::{
-  Filter, FilterController, FilterDelegate, FilterTaskHandler, FilterType,
+  Filter, FilterController, FilterDelegate, FilterTaskHandler,
 };
 use collab_database::fields::Field;
 use collab_database::rows::{Row, RowId};

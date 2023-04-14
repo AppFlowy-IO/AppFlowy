@@ -1,3 +1,5 @@
+#![allow(clippy::upper_case_acronyms)]
+
 use lazy_static::lazy_static;
 use rusty_money::define_currency_set;
 use serde::{Deserialize, Serialize};

@@ -4,7 +4,7 @@ use crate::services::cell::CellCache;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
 use crate::services::field::{default_order, TypeOptionCellExt};
 use crate::services::sort::{
-  ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset, SortCondition, SortType,
+  ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset, SortCondition,
 };
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Row, RowId};

@@ -1,12 +1,13 @@
-use crate::entities::parser::NotEmptyStr;
+use std::collections::HashMap;
 
 use collab_database::rows::{Row, RowId};
-
-use crate::services::database::{InsertedRow, UpdatedRow};
 use collab_database::views::RowOrder;
+
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
-use std::collections::HashMap;
+
+use crate::entities::parser::NotEmptyStr;
+use crate::services::database::{InsertedRow, UpdatedRow};
 
 /// [RowPB] Describes a row. Has the id of the parent Block. Has the metadata of the row.
 #[derive(Debug, Default, Clone, ProtoBuf, Eq, PartialEq)]
@@ -148,7 +149,7 @@ pub struct RowIdPB {
 
 pub struct RowIdParams {
   pub view_id: String,
-  pub row_id: i64,
+  pub row_id: RowId,
 }
 
 impl TryInto<RowIdParams> for RowIdPB {
@@ -159,7 +160,7 @@ impl TryInto<RowIdParams> for RowIdPB {
 
     Ok(RowIdParams {
       view_id: view_id.0,
-      row_id: self.row_id,
+      row_id: RowId::from(self.row_id),
     })
   }
 }

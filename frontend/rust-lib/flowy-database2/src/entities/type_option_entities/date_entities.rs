@@ -1,7 +1,11 @@
+#![allow(clippy::upper_case_acronyms)]
+
+use strum_macros::EnumIter;
+
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+
 use crate::entities::CellIdPB;
 use crate::services::field::{DateFormat, DateTypeOption, TimeFormat};
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use strum_macros::EnumIter;
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct DateCellDataPB {

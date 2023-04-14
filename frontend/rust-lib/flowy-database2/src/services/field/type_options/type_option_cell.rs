@@ -5,7 +5,6 @@ use std::hash::{Hash, Hasher};
 
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, RowId};
-use serde::Serialize;
 
 use flowy_error::FlowyResult;
 
@@ -124,7 +123,7 @@ where
     decoded_field_type: &FieldType,
     field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    let key = CellDataCacheKey::new(field, decoded_field_type.clone(), &cell);
+    let key = CellDataCacheKey::new(field, decoded_field_type.clone(), cell);
     if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
       let read_guard = cell_data_cache.read();
       if let Some(cell_data) = read_guard.get(key.as_ref()).cloned() {
@@ -274,7 +273,7 @@ where
   ) -> FlowyResult<BoxCellData> {
     // tracing::debug!("get_cell_data: {:?}", std::any::type_name::<Self>());
     let cell_data = if self.transformable() {
-      match self.transform_type_option_cell(&cell, decoded_field_type, field) {
+      match self.transform_type_option_cell(cell, decoded_field_type, field) {
         None => self.get_decoded_cell_data(cell, decoded_field_type, field)?,
         Some(cell_data) => cell_data,
       }

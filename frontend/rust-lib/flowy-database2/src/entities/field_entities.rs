@@ -1,14 +1,18 @@
-use collab_database::fields::Field;
-use collab_database::views::FieldOrder;
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error::ErrorCode;
-use serde_repr::*;
+#![allow(clippy::upper_case_acronyms)]
+
 use std::fmt::{Display, Formatter};
 use std::sync::Arc;
 
+use collab_database::fields::Field;
+use collab_database::views::FieldOrder;
+use serde_repr::*;
+use strum_macros::{EnumCount as EnumCountMacro, EnumIter};
+
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_error::ErrorCode;
+
 use crate::entities::parser::NotEmptyStr;
 use crate::impl_into_field_type;
-use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter};
 
 /// [FieldPB] defines a Field's attributes. Such as the name, field_type, and width. etc.
 #[derive(Debug, Clone, Default, ProtoBuf)]

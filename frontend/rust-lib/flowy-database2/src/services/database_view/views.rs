@@ -10,13 +10,10 @@ use tokio::sync::{broadcast, RwLock};
 use flowy_error::FlowyResult;
 use lib_infra::future::Fut;
 
-use crate::entities::{
-  AlterFilterParams, DeleteFilterParams, DeleteGroupParams, InsertGroupParams, MoveGroupParams,
-};
 use crate::services::cell::CellCache;
 use crate::services::database::{DatabaseRowEvent, MutexDatabase};
 use crate::services::database_view::{DatabaseViewData, DatabaseViewEditor};
-use crate::services::group::{default_group_setting, RowChangeset};
+use crate::services::group::RowChangeset;
 
 pub type RowEventSender = broadcast::Sender<DatabaseRowEvent>;
 pub type RowEventReceiver = broadcast::Receiver<DatabaseRowEvent>;
@@ -65,9 +62,9 @@ impl DatabaseViews {
     recv_row_changeset: impl FnOnce(RowChangeset) -> Fut<()>,
   ) -> FlowyResult<()> {
     let view_editor = self.get_view_editor(view_id).await?;
-    let mut row_changeset = RowChangeset::new(row.id.clone());
+    let mut row_changeset = RowChangeset::new(row.id);
     view_editor
-      .v_move_group_row(&row, &mut row_changeset, &to_group_id, to_row_id.clone())
+      .v_move_group_row(&row, &mut row_changeset, &to_group_id, to_row_id)
       .await;
 
     if !row_changeset.is_empty() {

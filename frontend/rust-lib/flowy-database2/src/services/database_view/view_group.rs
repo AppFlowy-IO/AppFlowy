@@ -1,3 +1,11 @@
+use std::sync::Arc;
+
+use collab_database::fields::Field;
+use collab_database::rows::RowId;
+
+use flowy_error::FlowyResult;
+use lib_infra::future::{to_fut, Fut};
+
 use crate::entities::FieldType;
 use crate::services::database_view::DatabaseViewData;
 use crate::services::field::RowSingleCellData;
@@ -5,10 +13,6 @@ use crate::services::group::{
   find_new_grouping_field, make_group_controller, GroupController, GroupSetting,
   GroupSettingReader, GroupSettingWriter,
 };
-use collab_database::fields::Field;
-use flowy_error::FlowyResult;
-use lib_infra::future::{to_fut, Fut};
-use std::sync::Arc;
 
 pub async fn new_group_controller_with_field(
   view_id: String,
@@ -67,11 +71,11 @@ impl GroupSettingReader for GroupSettingReaderImpl {
   fn get_group_setting(&self, view_id: &str) -> Fut<Option<Arc<GroupSetting>>> {
     let mut settings = self.0.get_group_setting(view_id);
     to_fut(async move {
-      return if settings.is_empty() {
+      if settings.is_empty() {
         None
       } else {
         Some(Arc::new(settings.remove(0)))
-      };
+      }
     })
   }
 
@@ -81,6 +85,29 @@ impl GroupSettingReader for GroupSettingReaderImpl {
     let delegate = self.0.clone();
     to_fut(async move { get_cells_for_field(delegate, &view_id, &field_id).await })
   }
+}
+
+pub(crate) async fn get_cell_for_row(
+  delegate: Arc<dyn DatabaseViewData>,
+  field_id: &str,
+  row_id: RowId,
+) -> Option<RowSingleCellData> {
+  let field = delegate.get_field(field_id).await?;
+  let cell = delegate.get_cell_in_row(field_id, row_id).await?;
+  let field_type = FieldType::from(field.field_type);
+
+  if let Some(handler) = delegate.get_type_option_cell_handler(&field, &field_type) {
+    return match handler.get_cell_data(&cell, &field_type, &field) {
+      Ok(cell_data) => Some(RowSingleCellData {
+        row_id: cell.row_id,
+        field_id: field.id.clone(),
+        field_type: field_type.clone(),
+        cell_data,
+      }),
+      Err(_) => None,
+    };
+  }
+  None
 }
 
 // Returns the list of cells corresponding to the given field.
@@ -96,7 +123,7 @@ pub(crate) async fn get_cells_for_field(
       return cells
         .iter()
         .flat_map(
-          |cell| match handler.get_cell_data(&cell, &field_type, &field) {
+          |cell| match handler.get_cell_data(cell, &field_type, &field) {
             Ok(cell_data) => Some(RowSingleCellData {
               row_id: cell.row_id,
               field_id: field.id.clone(),

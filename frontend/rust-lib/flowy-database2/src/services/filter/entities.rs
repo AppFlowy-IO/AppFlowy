@@ -1,10 +1,8 @@
 use crate::entities::{
-  DatabaseSettingChangesetParams, DeleteFilterParams, FieldType, InsertedRowPB,
+  DeleteFilterParams, FieldType, InsertedRowPB,
 };
-
 use anyhow::bail;
 use collab::core::any_map::AnyMapExtension;
-
 use collab_database::views::{FilterMap, FilterMapBuilder};
 
 #[derive(Debug, Clone)]

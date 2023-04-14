@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use collab_database::database::{gen_database_filter_id, gen_database_sort_id};
@@ -12,17 +13,18 @@ use flowy_task::TaskDispatcher;
 use lib_infra::future::Fut;
 
 use crate::entities::{
-  AlterFilterParams, AlterSortParams, CreateRowParams, DeleteFilterParams, DeleteGroupParams,
-  DeleteSortParams, FieldType, GroupChangesetPB, GroupPB, GroupRowsNotificationPB,
-  InsertGroupParams, InsertedGroupPB, InsertedRowPB, LayoutSettingPB, MoveGroupParams, RowPB,
-  RowsChangesetPB, SortChangesetNotificationPB, SortPB,
+  AlterFilterParams, AlterSortParams, CalendarEventPB, CreateRowParams, DeleteFilterParams,
+  DeleteGroupParams, DeleteSortParams, FieldType, GroupChangesetPB, GroupPB,
+  GroupRowsNotificationPB, InsertGroupParams, InsertedGroupPB, InsertedRowPB, LayoutSettingPB,
+  LayoutSettingParams, MoveGroupParams, RowPB, RowsChangesetPB, SortChangesetNotificationPB,
+  SortPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::CellCache;
 use crate::services::database::{database_view_setting_pb_from_view, DatabaseRowEvent};
 use crate::services::database_view::view_filter::make_filter_controller;
 use crate::services::database_view::view_group::{
-  new_group_controller, new_group_controller_with_field,
+  get_cell_for_row, get_cells_for_field, new_group_controller, new_group_controller_with_field,
 };
 use crate::services::database_view::view_sort::make_sort_controller;
 use crate::services::database_view::{
@@ -57,6 +59,8 @@ pub trait DatabaseViewData: Send + Sync + 'static {
   fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<Row>>>;
 
   fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>>;
+
+  fn get_cell_in_row(&self, field_id: &str, row_id: RowId) -> Fut<Option<Arc<RowCell>>>;
 
   fn get_layout_for_view(&self, view_id: &str) -> DatabaseLayout;
 
@@ -235,7 +239,7 @@ impl DatabaseViewEditor {
 
     let filter_controller = self.filter_controller.clone();
     let sort_controller = self.sort_controller.clone();
-    let row_id = row.id.clone();
+    let row_id = row.id;
     tokio::spawn(async move {
       filter_controller.did_receive_row_changed(row_id).await;
       sort_controller
@@ -350,7 +354,7 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
-  pub async fn v_delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
+  pub async fn v_delete_group(&self, _params: DeleteGroupParams) -> FlowyResult<()> {
     Ok(())
   }
 
@@ -409,10 +413,7 @@ impl DatabaseViewEditor {
     self.delegate.remove_all_sorts(&self.view_id);
 
     let mut notification = SortChangesetNotificationPB::new(self.view_id.clone());
-    notification.delete_sorts = all_sorts
-      .into_iter()
-      .map(|sort| SortPB::from(sort))
-      .collect();
+    notification.delete_sorts = all_sorts.into_iter().map(SortPB::from).collect();
     notify_did_update_sort(notification).await;
     Ok(())
   }
@@ -482,11 +483,8 @@ impl DatabaseViewEditor {
   }
 
   /// Returns the current calendar settings
-  #[tracing::instrument(level = "debug", skip(self), err)]
-  pub async fn v_get_layout_settings(
-    &self,
-    layout_ty: &DatabaseLayout,
-  ) -> FlowyResult<LayoutSettingParams> {
+  #[tracing::instrument(level = "debug", skip(self))]
+  pub async fn v_get_layout_settings(&self, layout_ty: &DatabaseLayout) -> LayoutSettingParams {
     let mut layout_setting = LayoutSettingParams::default();
     match layout_ty {
       DatabaseLayout::Grid => {},
@@ -508,11 +506,15 @@ impl DatabaseViewEditor {
     }
 
     tracing::debug!("{:?}", layout_setting);
-    Ok(layout_setting)
+    layout_setting
   }
 
   /// Update the calendar settings and send the notification to refresh the UI
-  pub async fn v_set_layout_settings(&self, params: LayoutSettingParams) -> FlowyResult<()> {
+  pub async fn v_set_layout_settings(
+    &self,
+    _layout_ty: &DatabaseLayout,
+    params: LayoutSettingParams,
+  ) -> FlowyResult<()> {
     // Maybe it needs no send notification to refresh the UI
     if let Some(new_calendar_setting) = params.calendar {
       if let Some(field) = self
@@ -526,7 +528,7 @@ impl DatabaseViewEditor {
         }
 
         let layout_ty = DatabaseLayout::Calendar;
-        let old_calender_setting = self.v_get_layout_settings(&layout_ty).await?.calendar;
+        let old_calender_setting = self.v_get_layout_settings(&layout_ty).await.calendar;
 
         self
           .delegate
@@ -563,7 +565,7 @@ impl DatabaseViewEditor {
   pub async fn v_did_update_field_type_option(
     &self,
     field_id: &str,
-    old_field: &Field,
+    _old_field: &Field,
   ) -> FlowyResult<()> {
     if let Some(field) = self.delegate.get_field(field_id).await {
       self
@@ -631,100 +633,91 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
-  // pub async fn v_get_calendar_event(&self, row_id: &str) -> Option<CalendarEventPB> {
-  //   let layout_ty = LayoutRevision::Calendar;
-  //   let calendar_setting = self
-  //     .v_get_layout_settings(&layout_ty)
-  //     .await
-  //     .ok()?
-  //     .calendar?;
-  //
-  //   // Text
-  //   let primary_field = self.delegate.get_primary_field_rev().await?;
-  //   let text_cell = get_cell_for_row(self.delegate.clone(), &primary_field.id, row_id).await?;
-  //
-  //   // Date
-  //   let date_field = self
-  //     .delegate
-  //     .get_field_rev(&calendar_setting.layout_field_id)
-  //     .await?;
-  //
-  //   let date_cell = get_cell_for_row(self.delegate.clone(), &date_field.id, row_id).await?;
-  //   let title = text_cell
-  //     .into_text_field_cell_data()
-  //     .unwrap_or_default()
-  //     .into();
-  //
-  //   let timestamp = date_cell
-  //     .into_date_field_cell_data()
-  //     .unwrap_or_default()
-  //     .timestamp
-  //     .unwrap_or_default();
-  //
-  //   Some(CalendarEventPB {
-  //     row_id: row_id.to_string(),
-  //     title_field_id: primary_field.id.clone(),
-  //     title,
-  //     timestamp,
-  //   })
-  // }
-  //
-  // pub async fn v_get_all_calendar_events(&self) -> Option<Vec<CalendarEventPB>> {
-  //   let layout_ty = LayoutRevision::Calendar;
-  //   let calendar_setting = self
-  //     .v_get_layout_settings(&layout_ty)
-  //     .await
-  //     .ok()?
-  //     .calendar?;
-  //
-  //   // Text
-  //   let primary_field = self.delegate.get_primary_field_rev().await?;
-  //   let text_cells = self.v_get_cells_for_field(&primary_field.id).await.ok()?;
-  //
-  //   // Date
-  //   let timestamp_by_row_id = self
-  //     .v_get_cells_for_field(&calendar_setting.layout_field_id)
-  //     .await
-  //     .ok()?
-  //     .into_iter()
-  //     .map(|date_cell| {
-  //       let row_id = date_cell.row_id.clone();
-  //
-  //       // timestamp
-  //       let timestamp = date_cell
-  //         .into_date_field_cell_data()
-  //         .map(|date_cell_data| date_cell_data.timestamp.unwrap_or_default())
-  //         .unwrap_or_default();
-  //
-  //       (row_id, timestamp)
-  //     })
-  //     .collect::<HashMap<String, i64>>();
-  //
-  //   let mut events: Vec<CalendarEventPB> = vec![];
-  //   for text_cell in text_cells {
-  //     let title_field_id = text_cell.field_id.clone();
-  //     let row_id = text_cell.row_id.clone();
-  //     let timestamp = timestamp_by_row_id
-  //       .get(&row_id)
-  //       .cloned()
-  //       .unwrap_or_default();
-  //
-  //     let title = text_cell
-  //       .into_text_field_cell_data()
-  //       .unwrap_or_default()
-  //       .into();
-  //
-  //     let event = CalendarEventPB {
-  //       row_id,
-  //       title_field_id,
-  //       title,
-  //       timestamp,
-  //     };
-  //     events.push(event);
-  //   }
-  //
-  //   Some(events)
-  // }
+  pub async fn v_get_calendar_event(&self, row_id: RowId) -> Option<CalendarEventPB> {
+    let layout_ty = DatabaseLayout::Calendar;
+    let calendar_setting = self.v_get_layout_settings(&layout_ty).await.calendar?;
+
+    // Text
+    let primary_field = self.delegate.get_primary_field().await?;
+    let text_cell = get_cell_for_row(self.delegate.clone(), &primary_field.id, row_id).await?;
+
+    // Date
+    let date_field = self.delegate.get_field(&calendar_setting.field_id).await?;
+
+    let date_cell = get_cell_for_row(self.delegate.clone(), &date_field.id, row_id).await?;
+    let title = text_cell
+      .into_text_field_cell_data()
+      .unwrap_or_default()
+      .into();
+
+    let timestamp = date_cell
+      .into_date_field_cell_data()
+      .unwrap_or_default()
+      .timestamp
+      .unwrap_or_default();
+
+    Some(CalendarEventPB {
+      row_id: row_id.into(),
+      title_field_id: primary_field.id.clone(),
+      title,
+      timestamp,
+    })
+  }
+
+  pub async fn v_get_all_calendar_events(&self) -> Option<Vec<CalendarEventPB>> {
+    let layout_ty = DatabaseLayout::Calendar;
+    let calendar_setting = self.v_get_layout_settings(&layout_ty).await.calendar?;
+
+    // Text
+    let primary_field = self.delegate.get_primary_field().await?;
+    let text_cells =
+      get_cells_for_field(self.delegate.clone(), &self.view_id, &primary_field.id).await;
+
+    // Date
+    let timestamp_by_row_id = get_cells_for_field(
+      self.delegate.clone(),
+      &self.view_id,
+      &calendar_setting.field_id,
+    )
+    .await
+    .into_iter()
+    .map(|date_cell| {
+      let row_id = date_cell.row_id;
+
+      // timestamp
+      let timestamp = date_cell
+        .into_date_field_cell_data()
+        .map(|date_cell_data| date_cell_data.timestamp.unwrap_or_default())
+        .unwrap_or_default();
+
+      (row_id, timestamp)
+    })
+    .collect::<HashMap<RowId, i64>>();
+
+    let mut events: Vec<CalendarEventPB> = vec![];
+    for text_cell in text_cells {
+      let title_field_id = text_cell.field_id.clone();
+      let row_id = text_cell.row_id;
+      let timestamp = timestamp_by_row_id
+        .get(&row_id)
+        .cloned()
+        .unwrap_or_default();
+
+      let title = text_cell
+        .into_text_field_cell_data()
+        .unwrap_or_default()
+        .into();
+
+      let event = CalendarEventPB {
+        row_id: row_id.into(),
+        title_field_id,
+        title,
+        timestamp,
+      };
+      events.push(event);
+    }
+    Some(events)
+  }
 
   pub async fn handle_block_event(&self, event: Cow<'_, DatabaseRowEvent>) {
     let changeset = match event.into_owned() {

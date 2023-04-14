@@ -3,7 +3,7 @@ use crate::services::database_view::{
   gen_handler_id, DatabaseViewChangedNotifier, DatabaseViewData,
 };
 use crate::services::filter::FilterController;
-use crate::services::sort::{Sort, SortController, SortDelegate, SortTaskHandler, SortType};
+use crate::services::sort::{Sort, SortController, SortDelegate, SortTaskHandler};
 use collab_database::fields::Field;
 use collab_database::rows::Row;
 use lib_infra::future::{to_fut, Fut};

@@ -1,10 +1,12 @@
-use crate::services::database::DatabaseEditor;
-use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
+use std::sync::Arc;
+
 use collab_database::fields::TypeOptionData;
 
-use crate::entities::FieldType;
 use flowy_error::FlowyResult;
-use std::sync::Arc;
+
+use crate::entities::FieldType;
+use crate::services::database::DatabaseEditor;
+use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
 
 pub async fn edit_field_type_option<T: From<TypeOptionData> + Into<TypeOptionData>>(
   view_id: &str,
@@ -22,7 +24,9 @@ pub async fn edit_field_type_option<T: From<TypeOptionData> + Into<TypeOptionDat
     if let Some(old_field) = editor.get_field(field_id) {
       action(&mut type_option);
       let type_option_data: TypeOptionData = type_option.into();
-      editor.update_field_type_option(view_id, field_id, type_option_data, old_field);
+      editor
+        .update_field_type_option(view_id, field_id, type_option_data, old_field)
+        .await?;
     }
   }
 

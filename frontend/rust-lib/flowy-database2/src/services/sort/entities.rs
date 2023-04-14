@@ -1,9 +1,9 @@
-use crate::entities::{AlterSortParams, DeleteSortParams, FieldType};
+use crate::entities::{DeleteSortParams, FieldType};
 use anyhow::bail;
 use collab::core::any_map::AnyMapExtension;
-use collab_database::fields::Field;
+
 use collab_database::views::{SortMap, SortMapBuilder};
-use std::sync::Arc;
+
 
 #[derive(Debug, Clone)]
 pub struct Sort {

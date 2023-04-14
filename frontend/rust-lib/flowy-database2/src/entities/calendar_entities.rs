@@ -1,7 +1,8 @@
-use crate::entities::parser::NotEmptyStr;
-use crate::services::setting::{CalendarLayout, CalendarLayoutSetting};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
+
+use crate::entities::parser::NotEmptyStr;
+use crate::services::setting::{CalendarLayout, CalendarLayoutSetting};
 
 #[derive(Debug, Clone, Eq, PartialEq, Default, ProtoBuf)]
 pub struct CalendarLayoutSettingPB {
@@ -57,18 +58,18 @@ pub enum CalendarLayoutPB {
 impl std::convert::From<CalendarLayoutPB> for CalendarLayout {
   fn from(pb: CalendarLayoutPB) -> Self {
     match pb {
-      CalendarLayoutPB::MonthLayout => CalendarLayout::MonthLayout,
-      CalendarLayoutPB::WeekLayout => CalendarLayout::WeekLayout,
-      CalendarLayoutPB::DayLayout => CalendarLayout::DayLayout,
+      CalendarLayoutPB::MonthLayout => CalendarLayout::Month,
+      CalendarLayoutPB::WeekLayout => CalendarLayout::Week,
+      CalendarLayoutPB::DayLayout => CalendarLayout::Day,
     }
   }
 }
 impl std::convert::From<CalendarLayout> for CalendarLayoutPB {
   fn from(layout: CalendarLayout) -> Self {
     match layout {
-      CalendarLayout::MonthLayout => CalendarLayoutPB::MonthLayout,
-      CalendarLayout::WeekLayout => CalendarLayoutPB::WeekLayout,
-      CalendarLayout::DayLayout => CalendarLayoutPB::DayLayout,
+      CalendarLayout::Month => CalendarLayoutPB::MonthLayout,
+      CalendarLayout::Week => CalendarLayoutPB::WeekLayout,
+      CalendarLayout::Day => CalendarLayoutPB::DayLayout,
     }
   }
 }
@@ -105,7 +106,7 @@ impl TryInto<CalendarEventRequestParams> for CalendarEventRequestPB {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct CalendarEventPB {
   #[pb(index = 1)]
-  pub row_id: String,
+  pub row_id: i64,
 
   #[pb(index = 2)]
   pub title_field_id: String,

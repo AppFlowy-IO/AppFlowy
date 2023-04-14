@@ -15,12 +15,13 @@ use flowy_task::TaskDispatcher;
 use lib_infra::future::{to_fut, Fut};
 
 use crate::entities::{
-  AlterFilterParams, AlterSortParams, CalendarLayoutSettingPB, CellChangesetPB, CellPB,
-  CreateRowParams, DatabaseFieldChangesetPB, DatabaseLayoutPB, DatabasePB, DatabaseViewSettingPB,
-  DeleteFilterParams, DeleteGroupParams, DeleteSortParams, FieldChangesetParams, FieldIdPB,
-  FieldPB, FieldType, FilterPB, GroupPB, GroupSettingPB, IndexFieldPB, InsertGroupParams,
-  LayoutSettingPB, RepeatedFieldPB, RepeatedFilterPB, RepeatedGroupPB, RepeatedGroupSettingPB,
-  RepeatedSortPB, RowPB, SelectOptionCellDataPB, SelectOptionPB, SortPB,
+  AlterFilterParams, AlterSortParams, CalendarEventPB, CalendarLayoutSettingPB, CellChangesetPB,
+  CellPB, CreateRowParams, DatabaseFieldChangesetPB, DatabaseLayoutPB, DatabasePB,
+  DatabaseViewSettingPB, DeleteFilterParams, DeleteGroupParams, DeleteSortParams,
+  FieldChangesetParams, FieldIdPB, FieldPB, FieldType, FilterPB, GroupPB, GroupSettingPB,
+  IndexFieldPB, InsertGroupParams, LayoutSettingPB, LayoutSettingParams, RepeatedFieldPB,
+  RepeatedFilterPB, RepeatedGroupPB, RepeatedGroupSettingPB, RepeatedSortPB, RowPB,
+  SelectOptionCellDataPB, SelectOptionPB, SortPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
@@ -265,7 +266,7 @@ impl DatabaseEditor {
     let _ = self.database.lock().duplicate_row(view_id, row_id);
   }
 
-  pub async fn move_row(&self, view_id: &str, from: RowId, to: RowId) {
+  pub async fn move_row(&self, _view_id: &str, _from: RowId, _to: RowId) {
     // self.database.lock().views.update_view(view_id, |view| {
     //   view.move_row_order(from as u32, to as u32);
     // });
@@ -276,15 +277,9 @@ impl DatabaseEditor {
     let fields = self.database.lock().get_fields(&params.view_id, None);
     let mut cells =
       CellBuilder::with_cells(params.cell_data_by_field_id.unwrap_or_default(), fields).build();
-
-    self
-      .database_views
-      .editors()
-      .await
-      .into_iter()
-      .for_each(|view_editor| {
-        view_editor.v_will_create_row(&mut cells, &params.group_id);
-      });
+    for view in self.database_views.editors().await {
+      view.v_will_create_row(&mut cells, &params.group_id);
+    }
 
     let result = self.database.lock().create_row(
       &params.view_id,
@@ -300,19 +295,14 @@ impl DatabaseEditor {
     if let Some((index, row_order)) = result {
       let row = self.database.lock().get_row(row_order.id);
       if let Some(row) = row {
-        self
-          .database_views
-          .editors()
-          .await
-          .into_iter()
-          .for_each(|view_editor| {
-            view_editor.v_did_create_row(&row, &params.group_id, index);
-          });
+        for view in self.database_views.editors().await {
+          view.v_did_create_row(&row, &params.group_id, index);
+        }
         return Ok(Some(row));
       }
     }
 
-    return Ok(None);
+    Ok(None)
   }
 
   pub async fn get_field_type_option_data(&self, field_id: &str) -> Option<(Field, Bytes)> {
@@ -366,7 +356,7 @@ impl DatabaseEditor {
       database.views.update_view(view_id, |view_update| {
         view_update.move_field_order(from as u32, to as u32);
       });
-      let field = database.fields.get_field(&field_id);
+      let field = database.fields.get_field(field_id);
       let database_id = database.get_database_id();
       (database_id, field)
     };
@@ -399,14 +389,9 @@ impl DatabaseEditor {
     let row = self.database.lock().remove_row(row_id);
     if let Some(row) = row {
       tracing::trace!("Did delete row:{:?}", row);
-      self
-        .database_views
-        .editors()
-        .await
-        .into_iter()
-        .for_each(|editor| {
-          editor.v_did_delete_row(&row);
-        });
+      for view in self.database_views.editors().await {
+        view.v_did_delete_row(&row);
+      }
     }
   }
 
@@ -451,14 +436,9 @@ impl DatabaseEditor {
 
     let option_row = self.database.lock().get_row(row_id);
     if let Some(new_row) = option_row {
-      self
-        .database_views
-        .editors()
-        .await
-        .into_iter()
-        .for_each(|view_editor| {
-          view_editor.v_did_update_row(&old_row, &new_row);
-        });
+      for view in self.database_views.editors().await {
+        view.v_did_update_row(&old_row, &new_row).await;
+      }
     }
     None
   }
@@ -615,28 +595,42 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn set_layout_setting<T: Into<LayoutSetting>>(
+  pub async fn set_layout_setting(
     &self,
     view_id: &str,
     layout_ty: DatabaseLayout,
-    layout_setting: T,
+    layout_setting: LayoutSettingParams,
   ) {
-    let layout_setting = layout_setting.into();
-    self.database.lock().views.update_view(view_id, |view| {
-      view.update_layout_settings(&layout_ty, layout_setting);
-    });
+    if let Ok(view) = self.database_views.get_view_editor(view_id).await {
+      let _ = view.v_set_layout_settings(&layout_ty, layout_setting).await;
+    }
   }
 
-  pub async fn get_layout_setting<T: From<LayoutSetting>>(
+  pub async fn get_layout_setting(
     &self,
     view_id: &str,
     layout_ty: DatabaseLayout,
-  ) -> Option<T> {
-    self
-      .database
-      .lock()
-      .views
-      .get_layout_setting(view_id, &layout_ty)
+  ) -> Option<LayoutSettingParams> {
+    let view = self.database_views.get_view_editor(view_id).await.ok()?;
+    let layout_setting = view.v_get_layout_settings(&layout_ty).await;
+    Some(layout_setting)
+  }
+
+  #[tracing::instrument(level = "trace", skip_all)]
+  pub async fn get_all_calendar_events(&self, view_id: &str) -> Vec<CalendarEventPB> {
+    match self.database_views.get_view_editor(view_id).await {
+      Ok(view) => view.v_get_all_calendar_events().await.unwrap_or_default(),
+      Err(_) => {
+        tracing::warn!("Can not find the view: {}", view_id);
+        vec![]
+      },
+    }
+  }
+
+  #[tracing::instrument(level = "trace", skip_all)]
+  pub async fn get_calendar_event(&self, view_id: &str, row_id: RowId) -> Option<CalendarEventPB> {
+    let view = self.database_views.get_view_editor(view_id).await.ok()?;
+    view.v_get_calendar_event(row_id).await
   }
 
   #[tracing::instrument(level = "trace", skip_all, err)]
@@ -717,7 +711,7 @@ fn cell_changesets_from_cell_by_field_id(
   let row_id = row_id.into();
   cell_by_field_id
     .into_iter()
-    .map(|(field_id, cell)| CellChangesetPB {
+    .map(|(field_id, _cell)| CellChangesetPB {
       view_id: view_id.to_string(),
       row_id,
       field_id,
@@ -806,6 +800,10 @@ impl DatabaseViewData for DatabaseViewDataImpl {
   fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>> {
     let cells = self.database.lock().get_cells_for_field(view_id, field_id);
     to_fut(async move { cells.into_iter().map(Arc::new).collect() })
+  }
+
+  fn get_cell_in_row(&self, _field_id: &str, _row_id: RowId) -> Fut<Option<Arc<RowCell>>> {
+    todo!()
   }
 
   fn get_layout_for_view(&self, view_id: &str) -> DatabaseLayout {

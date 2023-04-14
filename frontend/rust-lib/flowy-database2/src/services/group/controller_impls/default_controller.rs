@@ -1,13 +1,15 @@
+use std::sync::Arc;
+
+use collab_database::fields::Field;
+use collab_database::rows::{Cells, Row};
+
+use flowy_error::FlowyResult;
+
 use crate::entities::GroupChangesetPB;
 use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerActions,
 };
 use crate::services::group::{GroupController, GroupData, MoveGroupRowContext};
-use collab_database::fields::Field;
-use collab_database::rows::{Cells, Row};
-
-use flowy_error::FlowyResult;
-use std::sync::Arc;
 
 /// A [DefaultGroupController] is used to handle the group actions for the [FieldType] that doesn't
 /// implement its own group controller. The default group controller only contains one group, which
@@ -99,7 +101,7 @@ impl GroupControllerActions for DefaultGroupController {
 }
 
 impl GroupController for DefaultGroupController {
-  fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str) {}
+  fn will_create_row(&mut self, _cells: &mut Cells, _field: &Field, _group_id: &str) {}
 
   fn did_create_row(&mut self, _row: &Row, _group_id: &str) {}
 }

@@ -1,8 +1,9 @@
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_error::ErrorCode;
+
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::FieldType;
 use crate::services::sort::{Sort, SortCondition, SortType};
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error::ErrorCode;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct SortPB {
@@ -25,7 +26,7 @@ impl std::convert::From<&Sort> for SortPB {
       id: sort.id.clone(),
       field_id: sort.field_id.clone(),
       field_type: sort.field_type.clone(),
-      condition: sort.condition.clone().into(),
+      condition: sort.condition.into(),
     }
   }
 }
