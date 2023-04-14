@@ -96,16 +96,12 @@ impl DatabaseManager2 {
 }
 
 #[derive(Clone)]
-pub struct UserDatabase(Arc<Mutex<InnerUserDatabase>>);
+pub struct UserDatabase(Arc<Mutex<Option<InnerUserDatabase>>>);
 
-impl UserDatabase {
-  fn new(uid: i64, kv: Arc<CollabKV>) -> Self {
-    Self(Arc::new(Mutex::new(InnerUserDatabase::new(uid, kv))))
-  }
-}
+impl UserDatabase {}
 
 impl Deref for UserDatabase {
-  type Target = Arc<Mutex<InnerUserDatabase>>;
+  type Target = Arc<Mutex<Option<InnerUserDatabase>>>;
   fn deref(&self) -> &Self::Target {
     &self.0
   }

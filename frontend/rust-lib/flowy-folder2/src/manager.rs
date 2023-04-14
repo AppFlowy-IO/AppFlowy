@@ -85,7 +85,7 @@ impl Folder2Manager {
     Ok(views)
   }
 
-  /// Called immediately after the application launched with the user sign in/sign up.
+  /// Called immediately after the application launched fi the user already sign in/sign up.
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn initialize(&self, user_id: i64) -> FlowyResult<()> {
     if let Ok(uid) = self.user.user_id() {
@@ -113,6 +113,7 @@ impl Folder2Manager {
     Ok(())
   }
 
+  /// Called after the user sign up / sign in
   pub async fn initialize_with_new_user(&self, user_id: i64, token: &str) -> FlowyResult<()> {
     self.initialize(user_id).await?;
     let (folder_data, workspace_pb) =

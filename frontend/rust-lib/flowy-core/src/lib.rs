@@ -12,6 +12,7 @@ use tokio::sync::{broadcast, RwLock};
 use flowy_client_ws::{listen_on_websocket, FlowyWebSocketConnect, NetworkType};
 use flowy_database::entities::DatabaseLayoutPB;
 use flowy_database::manager::DatabaseManager;
+use flowy_database2::DatabaseManager2;
 use flowy_document::entities::DocumentVersionPB;
 use flowy_document::{DocumentConfig, DocumentManager};
 use flowy_error::FlowyResult;
@@ -129,6 +130,7 @@ pub struct AppFlowyCore {
   pub document_manager: Arc<DocumentManager>,
   pub folder_manager: Arc<Folder2Manager>,
   pub database_manager: Arc<DatabaseManager>,
+  pub database_manager2: Arc<DatabaseManager2>,
   pub event_dispatcher: Arc<AFPluginDispatcher>,
   pub ws_conn: Arc<FlowyWebSocketConnect>,
   pub local_server: Option<Arc<LocalServer>>,
@@ -166,6 +168,12 @@ impl AppFlowyCore {
           task_dispatcher.clone(),
         )
         .await;
+
+        // let database_manager2 = DatabaseDepsResolver2::resolve(
+        //           ws_conn.clone(),
+        //           user_session.clone(),
+        //           task_dispatcher.clone(),
+        //         );
 
         let folder_manager =
           Folder2DepsResolver::resolve(user_session.clone(), &document_manager, &database_manager)
