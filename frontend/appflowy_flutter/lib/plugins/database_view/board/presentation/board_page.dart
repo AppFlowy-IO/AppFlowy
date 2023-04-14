@@ -292,9 +292,10 @@ class _BoardContentState extends State<BoardContent> {
       color: Theme.of(context).dividerColor,
       width: 1.0,
     );
+    final isLightMode = Theme.of(context).brightness == Brightness.light;
     return BoxDecoration(
       color: Theme.of(context).colorScheme.surface,
-      border: Border.fromBorderSide(borderSide),
+      border: isLightMode ? Border.fromBorderSide(borderSide) : null,
       borderRadius: const BorderRadius.all(Radius.circular(6)),
     );
   }
