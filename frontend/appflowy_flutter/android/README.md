@@ -5,10 +5,10 @@ Compiling the sdk is easy it just needs a few tweaks.
 When compiling for android we need the following pre-requisites:
 
 - Android NDK Tools. (v24 has been tested).
-- Cargo NDK. (@latest version).
+- Cargo NDK. (@2.12.2).
 
 **Getting the tools**
-- Install cargo-ndk ```bash cargo install cargo-ndk```.
+- Install cargo-ndk ```bash cargo install cargo-ndk@2.12.2```.
 - [Download](https://developer.android.com/ndk/downloads/) Android NDK version 24.
 - When downloading Android NDK you can get the compressed version as a standalone from the site.
     Or you can download it through [Android Studio](https://developer.android.com/studio).
@@ -60,5 +60,5 @@ This GitHub [issue](https://github.com/fzyzcjy/flutter_rust_bridge/issues/419) e
  (.vimrc, .zshrc, .profile, .bashrc file), That way it can be found.
 
  ```vim
- export PATH=/home/sean/Android/Sdk/ndk/24.0.8215888
+ export PATH=/home/user/Android/Sdk/ndk/24.0.8215888
  ```
