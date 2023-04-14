@@ -49,7 +49,8 @@ class StyledDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget innerContent = Container(
-      padding: padding ?? EdgeInsets.all(Insets.lGutter),
+      padding: padding ??
+          EdgeInsets.symmetric(horizontal: Insets.xxl, vertical: Insets.xl),
       color: bgColor ?? Theme.of(context).colorScheme.surface,
       child: child,
     );

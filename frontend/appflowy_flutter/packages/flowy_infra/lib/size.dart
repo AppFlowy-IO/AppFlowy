@@ -11,14 +11,8 @@ class PageBreaks {
 }
 
 class Insets {
-  static double gutterScale = 1;
-
-  static double scale = 1;
-
   /// Dynamic insets, may get scaled with the device size
-  static double get mGutter => m * gutterScale;
-
-  static double get lGutter => l * gutterScale;
+  static double scale = 1;
 
   static double get xs => 2 * scale;
 
@@ -29,6 +23,10 @@ class Insets {
   static double get l => 24 * scale;
 
   static double get xl => 36 * scale;
+
+  static double get xxl => 64 * scale;
+
+  static double get xxxl => 80 * scale;
 }
 
 class FontSizes {
