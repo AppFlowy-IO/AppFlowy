@@ -12,7 +12,7 @@ import {
   DocumentEvent2ApplyAction,
   DocumentEvent2CloseDocument,
   DocumentEvent2OpenDocument,
-  DocumentEvent2CreateDocument
+  DocumentEvent2CreateDocument,
 } from '@/services/backend/events/flowy-document2';
 
 export class DocumentBackendService {
@@ -23,7 +23,7 @@ export class DocumentBackendService {
       document_id: this.viewId,
     });
     return DocumentEvent2CreateDocument(payload);
-  }
+  };
 
   open = (): Promise<Result<DocumentDataPB2, FlowyError>> => {
     const payload = OpenDocumentPayloadPBV2.fromObject({
@@ -32,7 +32,7 @@ export class DocumentBackendService {
     return DocumentEvent2OpenDocument(payload);
   };
 
-  applyActions = (actions: BlockActionPB[]): Promise<Result<void, FlowyError>> => {
+  applyActions = (actions: ReturnType<typeof BlockActionPB.prototype.toObject>[]): Promise<Result<void, FlowyError>> => {
     const payload = ApplyActionPayloadPBV2.fromObject({
       document_id: this.viewId,
       actions: actions,

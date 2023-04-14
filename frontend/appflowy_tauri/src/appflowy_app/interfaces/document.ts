@@ -41,3 +41,11 @@ export interface DocumentData {
     childrenMap: Record<string, string[]>;
   };
 }
+
+// eslint-disable-next-line no-shadow
+export enum BlockActionType {
+  Insert = 0,
+  Update = 1,
+  Delete = 2,
+  Move = 3
+}

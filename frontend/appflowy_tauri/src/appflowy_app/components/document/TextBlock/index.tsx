@@ -4,8 +4,7 @@ import { useTextBlock } from './TextBlock.hooks';
 import { Node } from '@/appflowy_app/stores/reducers/document/slice';
 import NodeComponent from '../Node';
 import HoveringToolbar from '../_shared/HoveringToolbar';
-import React from 'react';
-import { TextDelta } from '@/appflowy_app/interfaces/document';
+import React, { useMemo } from 'react';
 
 function TextBlock({
   node,
@@ -13,11 +12,12 @@ function TextBlock({
   placeholder,
   ...props
 }: {
-  node: Node & { data: { delta: TextDelta[] } };
+  node: Node;
   childIds?: string[];
   placeholder?: string;
 } & React.HTMLAttributes<HTMLDivElement>) {
-  const { editor, value, onChange, onKeyDownCapture, onDOMBeforeInput } = useTextBlock(node.data.delta);
+  const delta = useMemo(() => node.data.delta || [], [node.data.delta]);
+  const { editor, value, onChange, onKeyDownCapture, onDOMBeforeInput } = useTextBlock(delta);
 
   return (
     <div {...props} className={`py-[2px] ${props.className}`}>

@@ -15,22 +15,21 @@ export class DocumentController {
     this.observer = new DocumentObserver(viewId);
   }
 
-  create = async(): Promise<FlowyError | void> => {
+  create = async (): Promise<FlowyError | void> => {
     const result = await this.backendService.create();
     if (result.ok) {
       return;
     }
     return result.val;
-  }
-  open = async (): Promise<DocumentData | FlowyError> => {
+  };
+  open = async (): Promise<DocumentData> => {
     await this.observer.subscribe({
       didReceiveUpdate: this.updated,
     });
 
     const document = await this.backendService.open();
     if (document.ok) {
-      console.log(document.val);
-      const blocks: DocumentData["blocks"] = {};
+      const blocks: DocumentData['blocks'] = {};
       document.val.blocks.forEach((block) => {
         let data = {};
         try {
@@ -44,26 +43,26 @@ export class DocumentController {
           type: block.ty as BlockType,
           parent: block.parent_id,
           children: block.children_id,
-          data
+          data,
         };
       });
       const childrenMap: Record<string, string[]> = {};
-      document.val.meta.children_map.forEach((child, key) => { childrenMap[key] = child.children; });
+      document.val.meta.children_map.forEach((child, key) => {
+        childrenMap[key] = child.children;
+      });
       return {
         rootId: document.val.page_id,
         blocks,
         meta: {
-          childrenMap
-        }
-      }
+          childrenMap,
+        },
+      };
     }
-    return document.val;
 
+    return Promise.reject(document.val);
   };
 
-  applyActions = async (
-    actions: BlockActionPB[]
-  ) => {
+  applyActions = async (actions: ReturnType<typeof BlockActionPB.prototype.toObject>[]) => {
     await this.backendService.applyActions(actions);
   };
 
@@ -73,6 +72,5 @@ export class DocumentController {
 
   private updated = (payload: Uint8Array) => {
     console.log('didReceiveUpdate', payload);
-  }
-
+  };
 }
