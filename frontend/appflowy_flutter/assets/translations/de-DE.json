@@ -91,7 +91,8 @@
     "inlineCode": "Inline-Code",
     "quote": "Zitat",
     "header": "Überschrift",
-    "highlight": "Hervorhebung"
+    "highlight": "Hervorhebung",
+    "color": "Farbe"
   },
   "tooltip": {
     "lightMode": "In den hellen Modus wechseln",
