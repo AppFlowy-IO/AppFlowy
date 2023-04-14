@@ -147,6 +147,7 @@
     "closeSidebar": "Close sidebar"
   },
   "moreAction": {
-    "small": "klein"
+    "small": "klein",
+    "medium": "mittel"
   }
 }
