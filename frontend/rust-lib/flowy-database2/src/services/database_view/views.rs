@@ -42,8 +42,12 @@ impl DatabaseViews {
     })
   }
 
-  pub async fn close_view(&self, view_id: &str) {
-    self.editor_map.write().await.remove(view_id);
+  pub async fn close_view(&self, view_id: &str) -> bool {
+    let mut editor_map = self.editor_map.write().await;
+    if let Some(view) = editor_map.remove(view_id) {
+      view.close().await;
+    }
+    editor_map.is_empty()
   }
 
   pub async fn editors(&self) -> Vec<Arc<DatabaseViewEditor>> {

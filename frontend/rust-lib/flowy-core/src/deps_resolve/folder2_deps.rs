@@ -8,6 +8,7 @@ use flowy_document::editor::make_transaction_from_document_content;
 use flowy_document::DocumentManager;
 use flowy_error::FlowyError;
 
+use flowy_database2::DatabaseManager2;
 use flowy_folder2::entities::ViewLayoutPB;
 use flowy_folder2::manager::{Folder2Manager, FolderUser};
 use flowy_folder2::view_ext::{ViewDataProcessor, ViewDataProcessorMap};
@@ -24,7 +25,7 @@ impl Folder2DepsResolver {
   pub async fn resolve(
     user_session: Arc<UserSession>,
     document_manager: &Arc<DocumentManager>,
-    database_manager: &Arc<DatabaseManager>,
+    database_manager: &Arc<DatabaseManager2>,
   ) -> Arc<Folder2Manager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl(user_session.clone()));
 
@@ -40,7 +41,7 @@ impl Folder2DepsResolver {
 
 fn make_view_data_processor(
   document_manager: Arc<DocumentManager>,
-  database_manager: Arc<DatabaseManager>,
+  database_manager: Arc<DatabaseManager2>,
 ) -> ViewDataProcessorMap {
   let mut map: HashMap<ViewLayout, Arc<dyn ViewDataProcessor + Send + Sync>> = HashMap::new();
 
@@ -145,7 +146,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
   }
 }
 
-struct DatabaseViewDataProcessor(Arc<DatabaseManager>);
+struct DatabaseViewDataProcessor(Arc<DatabaseManager2>);
 impl ViewDataProcessor for DatabaseViewDataProcessor {
   fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
     let database_manager = self.0.clone();
@@ -160,9 +161,8 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
     let database_manager = self.0.clone();
     let view_id = view_id.to_owned();
     FutureResult::new(async move {
-      let editor = database_manager.open_database_view(&view_id).await?;
-      let delta_bytes = editor.duplicate_database(&view_id).await?;
-      Ok(delta_bytes.into())
+      let delta_bytes = database_manager.duplicate_database(&view_id).await?;
+      Ok(Bytes::from(delta_bytes))
     })
   }
 

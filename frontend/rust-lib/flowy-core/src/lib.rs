@@ -130,7 +130,7 @@ pub struct AppFlowyCore {
   pub document_manager: Arc<DocumentManager>,
   pub folder_manager: Arc<Folder2Manager>,
   pub database_manager: Arc<DatabaseManager>,
-  // pub database_manager2: Arc<DatabaseManager2>,
+  pub database_manager2: Arc<DatabaseManager2>,
   pub event_dispatcher: Arc<AFPluginDispatcher>,
   pub ws_conn: Arc<FlowyWebSocketConnect>,
   pub local_server: Option<Arc<LocalServer>>,
@@ -169,11 +169,12 @@ impl AppFlowyCore {
         )
         .await;
 
-        // let database_manager2 = DatabaseDepsResolver2::resolve(
-        //           ws_conn.clone(),
-        //           user_session.clone(),
-        //           task_dispatcher.clone(),
-        //         );
+        let database_manager2 = Database2DepsResolver::resolve(
+          ws_conn.clone(),
+          user_session.clone(),
+          task_dispatcher.clone(),
+        )
+        .await;
 
         let folder_manager =
           Folder2DepsResolver::resolve(user_session.clone(), &document_manager, &database_manager)

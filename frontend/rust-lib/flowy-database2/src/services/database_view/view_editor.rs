@@ -154,6 +154,11 @@ impl DatabaseViewEditor {
     })
   }
 
+  pub async fn close(&self) {
+    self.sort_controller.write().await.close().await;
+    self.filter_controller.close().await;
+  }
+
   pub async fn v_will_create_row(&self, cells: &mut Cells, group_id: &Option<String>) {
     if group_id.is_none() {
       return;

@@ -22,9 +22,9 @@ impl FieldBuilder {
     Self { field }
   }
 
-  pub fn from_field_type(field_type: &FieldType) -> Self {
-    let type_option_data = default_type_option_data_from_type(field_type);
-    Self::new(field_type.clone(), type_option_data)
+  pub fn from_field_type(field_type: FieldType) -> Self {
+    let type_option_data = default_type_option_data_from_type(&field_type);
+    Self::new(field_type, type_option_data)
   }
 
   pub fn name(mut self, name: &str) -> Self {

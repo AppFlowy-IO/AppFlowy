@@ -76,6 +76,13 @@ impl DatabaseEditor {
     })
   }
 
+  #[tracing::instrument(level = "debug", skip_all)]
+  pub async fn close_view_editor(&self, view_id: &str) -> bool {
+    self.database_views.close_view(view_id).await
+  }
+
+  pub async fn close(&self) {}
+
   pub fn get_field(&self, field_id: &str) -> Option<Field> {
     self.database.lock().fields.get_field(field_id)
   }
