@@ -1192,7 +1192,6 @@ dependencies = [
  "flowy-database2",
  "flowy-document",
  "flowy-error",
- "flowy-folder",
  "flowy-folder2",
  "flowy-net",
  "flowy-revision",
@@ -1389,45 +1388,6 @@ dependencies = [
  "serde_repr",
  "thiserror",
  "user-model",
-]
-
-[[package]]
-name = "flowy-folder"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "diesel",
- "diesel_derives",
- "flowy-client-sync",
- "flowy-codegen",
- "flowy-derive",
- "flowy-document",
- "flowy-error",
- "flowy-folder",
- "flowy-notification",
- "flowy-revision",
- "flowy-revision-persistence",
- "flowy-sqlite",
- "flowy-test",
- "folder-model",
- "futures",
- "lazy_static",
- "lib-dispatch",
- "lib-infra",
- "lib-ot",
- "log",
- "parking_lot 0.12.1",
- "pin-project",
- "protobuf",
- "revision-model",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "unicode-segmentation",
- "ws-model",
 ]
 
 [[package]]

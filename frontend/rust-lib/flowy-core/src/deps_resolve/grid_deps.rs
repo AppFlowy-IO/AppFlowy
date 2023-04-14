@@ -1,8 +1,8 @@
-use crate::FlowyError;
 use bytes::Bytes;
 use flowy_client_ws::FlowyWebSocketConnect;
 use flowy_database::manager::{DatabaseManager, DatabaseUser};
 use flowy_database::services::persistence::DatabaseDBConnection;
+use flowy_error::FlowyError;
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
 use flowy_sqlite::ConnectionPool;
 use flowy_task::TaskDispatcher;

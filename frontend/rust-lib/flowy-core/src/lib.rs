@@ -1,6 +1,13 @@
-mod deps_resolve;
-pub mod module;
-use crate::deps_resolve::*;
+use std::time::Duration;
+use std::{
+  fmt,
+  sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+  },
+};
+
+use tokio::sync::{broadcast, RwLock};
 
 use flowy_client_ws::{listen_on_websocket, FlowyWebSocketConnect, NetworkType};
 use flowy_database::entities::DatabaseLayoutPB;
@@ -8,7 +15,6 @@ use flowy_database::manager::DatabaseManager;
 use flowy_document::entities::DocumentVersionPB;
 use flowy_document::{DocumentConfig, DocumentManager};
 use flowy_error::FlowyResult;
-use flowy_folder::errors::FlowyError;
 use flowy_folder2::manager::Folder2Manager;
 pub use flowy_net::get_client_server_configuration;
 use flowy_net::local_server::LocalServer;
@@ -21,16 +27,12 @@ use lib_dispatch::runtime::tokio_default_runtime;
 use lib_infra::future::{to_fut, Fut};
 use module::make_plugins;
 pub use module::*;
-use std::time::Duration;
-use std::{
-  fmt,
-  sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
-  },
-};
-use tokio::sync::{broadcast, RwLock};
 use user_model::UserProfile;
+
+use crate::deps_resolve::*;
+
+mod deps_resolve;
+pub mod module;
 
 static INIT_LOG: AtomicBool = AtomicBool::new(false);
 
@@ -94,6 +96,7 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   filters.push(format!("flowy_user={}", level));
   filters.push(format!("flowy_document={}", level));
   filters.push(format!("flowy_database={}", level));
+  filters.push(format!("flowy_database2={}", level));
   filters.push(format!("flowy_sync={}", "info"));
   filters.push(format!("flowy_client_sync={}", "info"));
   filters.push(format!("flowy_notification={}", "info"));
