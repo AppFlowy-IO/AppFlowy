@@ -1188,7 +1188,6 @@ dependencies = [
  "console-subscriber",
  "database-model",
  "flowy-client-ws",
- "flowy-database",
  "flowy-database2",
  "flowy-document",
  "flowy-error",
@@ -1229,7 +1228,6 @@ dependencies = [
  "fancy-regex 0.10.0",
  "flowy-client-sync",
  "flowy-codegen",
- "flowy-database",
  "flowy-derive",
  "flowy-error",
  "flowy-notification",
@@ -1372,6 +1370,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bytes",
+ "collab-database",
  "flowy-client-sync",
  "flowy-client-ws",
  "flowy-codegen",

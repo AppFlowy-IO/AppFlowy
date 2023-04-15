@@ -1,17 +1,18 @@
-use crate::entities::FieldType;
-use crate::services::cell::{insert_select_option_cell, insert_text_cell};
-use crate::services::field::{
-  FieldBuilder, SelectOption, SelectOptionColor, SingleSelectTypeOption,
-};
 use collab_database::block::CreateRowParams;
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id};
 use collab_database::fields::Field;
 use collab_database::views::{
   CreateDatabaseParams, CreateViewParams, DatabaseLayout, LayoutSettings,
 };
-use database_model::CalendarLayoutSetting;
 
-pub fn make_default_grid() -> CreateDatabaseParams {
+use crate::entities::FieldType;
+use crate::services::cell::{insert_select_option_cell, insert_text_cell};
+use crate::services::field::{
+  FieldBuilder, SelectOption, SelectOptionColor, SingleSelectTypeOption,
+};
+use crate::services::setting::CalendarLayoutSetting;
+
+pub fn make_default_grid(view_id: &str, name: &str) -> CreateDatabaseParams {
   let text_field = FieldBuilder::from_field_type(FieldType::RichText)
     .name("Name")
     .visibility(true)
@@ -30,8 +31,8 @@ pub fn make_default_grid() -> CreateDatabaseParams {
 
   CreateDatabaseParams {
     database_id: gen_database_id(),
-    view_id: gen_database_view_id(),
-    name: "Untitled".to_string(),
+    view_id: view_id.to_string(),
+    name: name.to_string(),
     layout: DatabaseLayout::Grid,
     layout_settings: Default::default(),
     filters: vec![],
@@ -46,7 +47,7 @@ pub fn make_default_grid() -> CreateDatabaseParams {
   }
 }
 
-pub fn make_default_board() -> CreateDatabaseParams {
+pub fn make_default_board(view_id: &str, name: &str) -> CreateDatabaseParams {
   // text
   let text_field = FieldBuilder::from_field_type(FieldType::RichText)
     .name("Description")
@@ -62,7 +63,7 @@ pub fn make_default_board() -> CreateDatabaseParams {
   let mut single_select_type_option = SingleSelectTypeOption::default();
   single_select_type_option
     .options
-    .extend(vec![to_do_option, doing_option, done_option]);
+    .extend(vec![to_do_option.clone(), doing_option, done_option]);
   let single_select = FieldBuilder::new(FieldType::SingleSelect, single_select_type_option)
     .name("Status")
     .visibility(true)
@@ -85,8 +86,8 @@ pub fn make_default_board() -> CreateDatabaseParams {
 
   CreateDatabaseParams {
     database_id: gen_database_id(),
-    view_id: gen_database_view_id(),
-    name: "Untitled".to_string(),
+    view_id: view_id.to_string(),
+    name: name.to_string(),
     layout: DatabaseLayout::Board,
     layout_settings: Default::default(),
     filters: vec![],
@@ -97,7 +98,7 @@ pub fn make_default_board() -> CreateDatabaseParams {
   }
 }
 
-pub fn make_default_calendar() -> CreateDatabaseParams {
+pub fn make_default_calendar(view_id: &str, name: &str) -> CreateDatabaseParams {
   // text
   let text_field = FieldBuilder::from_field_type(FieldType::RichText)
     .name("Title")
@@ -126,8 +127,8 @@ pub fn make_default_calendar() -> CreateDatabaseParams {
 
   CreateDatabaseParams {
     database_id: gen_database_id(),
-    view_id: gen_database_view_id(),
-    name: "Untitled".to_string(),
+    view_id: view_id.to_string(),
+    name: name.to_string(),
     layout: DatabaseLayout::Calendar,
     layout_settings,
     filters: vec![],

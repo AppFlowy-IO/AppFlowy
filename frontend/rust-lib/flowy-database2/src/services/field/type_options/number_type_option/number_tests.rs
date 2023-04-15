@@ -1,20 +1,19 @@
 #[cfg(test)]
 mod tests {
+  use collab_database::fields::Field;
+  use strum::IntoEnumIterator;
+
   use crate::entities::FieldType;
   use crate::services::cell::CellDataDecoder;
-  use crate::services::field::{FieldBuilder, NumberCellData};
-  use collab_database::fields::Field;
-
   use crate::services::field::{strip_currency_symbol, NumberFormat, NumberTypeOption};
-
-  use strum::IntoEnumIterator;
+  use crate::services::field::{FieldBuilder, NumberCellData};
 
   /// Testing when the input is not a number.
   #[test]
   fn number_type_option_invalid_input_test() {
     let type_option = NumberTypeOption::default();
     let field_type = FieldType::Number;
-    let field_rev = FieldBuilder::from_field_type(&field_type).build();
+    let field_rev = FieldBuilder::from_field_type(field_type.clone()).build();
 
     // Input is empty String
     assert_number(&type_option, "", "", &field_type, &field_rev);
@@ -37,7 +36,7 @@ mod tests {
   fn number_type_option_format_number_test() {
     let mut type_option = NumberTypeOption::default();
     let field_type = FieldType::Number;
-    let field_rev = FieldBuilder::from_field_type(&field_type).build();
+    let field_rev = FieldBuilder::from_field_type(field_type.clone()).build();
 
     for format in NumberFormat::iter() {
       type_option.format = format;
@@ -161,7 +160,7 @@ mod tests {
   fn number_type_option_format_str_test() {
     let mut type_option = NumberTypeOption::default();
     let field_type = FieldType::Number;
-    let field_rev = FieldBuilder::from_field_type(&field_type).build();
+    let field_rev = FieldBuilder::from_field_type(field_type.clone()).build();
 
     for format in NumberFormat::iter() {
       type_option.format = format;
@@ -532,7 +531,7 @@ mod tests {
       ..Default::default()
     };
     let field_type = FieldType::Number;
-    let field_rev = FieldBuilder::from_field_type(&field_type).build();
+    let field_rev = FieldBuilder::from_field_type(field_type.clone()).build();
 
     for format in NumberFormat::iter() {
       type_option.format = format;

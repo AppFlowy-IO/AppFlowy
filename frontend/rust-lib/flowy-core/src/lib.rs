@@ -10,8 +10,6 @@ use std::{
 use tokio::sync::{broadcast, RwLock};
 
 use flowy_client_ws::{listen_on_websocket, FlowyWebSocketConnect, NetworkType};
-use flowy_database::entities::DatabaseLayoutPB;
-use flowy_database::manager::DatabaseManager;
 use flowy_database2::DatabaseManager2;
 use flowy_document::entities::DocumentVersionPB;
 use flowy_document::{DocumentConfig, DocumentManager};
@@ -129,8 +127,8 @@ pub struct AppFlowyCore {
   pub user_session: Arc<UserSession>,
   pub document_manager: Arc<DocumentManager>,
   pub folder_manager: Arc<Folder2Manager>,
-  pub database_manager: Arc<DatabaseManager>,
-  pub database_manager2: Arc<DatabaseManager2>,
+  // pub database_manager: Arc<DatabaseManager>,
+  pub database_manager: Arc<DatabaseManager2>,
   pub event_dispatcher: Arc<AFPluginDispatcher>,
   pub ws_conn: Arc<FlowyWebSocketConnect>,
   pub local_server: Option<Arc<LocalServer>>,
@@ -162,12 +160,12 @@ impl AppFlowyCore {
           &config.document,
         );
 
-        let database_manager = DatabaseDepsResolver::resolve(
-          ws_conn.clone(),
-          user_session.clone(),
-          task_dispatcher.clone(),
-        )
-        .await;
+        // let database_manager = DatabaseDepsResolver::resolve(
+        //   ws_conn.clone(),
+        //   user_session.clone(),
+        //   task_dispatcher.clone(),
+        // )
+        // .await;
 
         let database_manager2 = Database2DepsResolver::resolve(
           ws_conn.clone(),
@@ -177,7 +175,7 @@ impl AppFlowyCore {
         .await;
 
         let folder_manager =
-          Folder2DepsResolver::resolve(user_session.clone(), &document_manager, &database_manager)
+          Folder2DepsResolver::resolve(user_session.clone(), &document_manager, &database_manager2)
             .await;
 
         if let Some(local_server) = local_server.as_ref() {
@@ -189,7 +187,7 @@ impl AppFlowyCore {
           document_manager,
           folder_manager,
           local_server,
-          database_manager,
+          database_manager2,
         )
       });
 
@@ -307,7 +305,7 @@ fn mk_user_session(
 struct UserStatusListener {
   document_manager: Arc<DocumentManager>,
   folder_manager: Arc<Folder2Manager>,
-  database_manager: Arc<DatabaseManager>,
+  database_manager: Arc<DatabaseManager2>,
   ws_conn: Arc<FlowyWebSocketConnect>,
   #[allow(dead_code)]
   config: AppFlowyCoreConfig,
@@ -317,27 +315,7 @@ impl UserStatusListener {
   async fn did_sign_in(&self, token: &str, user_id: i64) -> FlowyResult<()> {
     self.folder_manager.initialize(user_id).await?;
     self.document_manager.initialize(user_id).await?;
-    let cloned_folder_manager = self.folder_manager.clone();
-    let get_views_fn = to_fut(async move {
-      cloned_folder_manager
-        .get_current_workspace_views()
-        .await
-        .unwrap_or_default()
-        .into_iter()
-        .filter(|view| view.layout.is_database())
-        .map(|view| {
-          (
-            view.id,
-            view.name,
-            layout_type_from_view_layout(view.layout),
-          )
-        })
-        .collect::<Vec<(String, String, DatabaseLayoutPB)>>()
-    });
-    self
-      .database_manager
-      .initialize(user_id, token, get_views_fn)
-      .await?;
+    self.database_manager.initialize(user_id, token).await?;
     self
       .ws_conn
       .start(token.to_owned(), user_id.to_owned())

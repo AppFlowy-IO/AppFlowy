@@ -50,7 +50,7 @@ parking_lot = "0.12.1"
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }
-flowy-database = { path = "", features = ["flowy_unit_test"]}
+#flowy-database = { path = "", features = ["flowy_unit_test"]}
 
 [build-dependencies]
 flowy-codegen = { path = "../flowy-codegen"}

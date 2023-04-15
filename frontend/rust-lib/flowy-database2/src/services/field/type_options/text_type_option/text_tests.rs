@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod tests {
-  use crate::entities::FieldType;
-  use crate::services::cell::stringify_cell_data;
   use collab_database::rows::Cell;
 
+  use crate::entities::FieldType;
+  use crate::services::cell::stringify_cell_data;
   use crate::services::field::FieldBuilder;
   use crate::services::field::*;
 
@@ -12,7 +12,7 @@ mod tests {
   #[test]
   fn date_type_to_text_type() {
     let field_type = FieldType::DateTime;
-    let field = FieldBuilder::from_field_type(&field_type).build();
+    let field = FieldBuilder::from_field_type(field_type.clone()).build();
 
     assert_eq!(
       stringify_cell_data(

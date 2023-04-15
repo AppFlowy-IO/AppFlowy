@@ -1,14 +1,13 @@
+use std::collections::HashMap;
+
 use bytes::Bytes;
 use collab_persistence::CollabKV;
-use database_model::BuildDatabaseContext;
-use flowy_database::entities::DatabaseLayoutPB;
-use flowy_database::manager::{create_new_database, link_existing_database, DatabaseManager};
-use flowy_database::util::{make_default_board, make_default_calendar, make_default_grid};
+use flowy_database2::entities::DatabaseLayoutPB;
+use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
+use flowy_database2::DatabaseManager2;
 use flowy_document::editor::make_transaction_from_document_content;
 use flowy_document::DocumentManager;
 use flowy_error::FlowyError;
-
-use flowy_database2::DatabaseManager2;
 use flowy_folder2::entities::ViewLayoutPB;
 use flowy_folder2::manager::{Folder2Manager, FolderUser};
 use flowy_folder2::view_ext::{ViewDataProcessor, ViewDataProcessorMap};
@@ -16,8 +15,6 @@ use flowy_folder2::ViewLayout;
 use flowy_user::services::UserSession;
 use lib_infra::future::FutureResult;
 use revision_model::Revision;
-use std::collections::HashMap;
-use std::convert::TryFrom;
 use std::sync::Arc;
 
 pub struct Folder2DepsResolver();
@@ -178,38 +175,27 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
     layout: ViewLayout,
     ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
-    let view_id = view_id.to_string();
     let name = name.to_string();
     let database_manager = self.0.clone();
-    match DatabaseExtParams::from_map(ext).map(|params| params.database_id) {
-      None => {
-        let (build_context, layout) = match layout {
-          ViewLayout::Grid => (make_default_grid(), DatabaseLayoutPB::Grid),
-          ViewLayout::Board => (make_default_board(), DatabaseLayoutPB::Board),
-          ViewLayout::Calendar => (make_default_calendar(), DatabaseLayoutPB::Calendar),
-          ViewLayout::Document => {
-            return FutureResult::new(async move {
-              Err(FlowyError::internal().context(format!("Can't handle {:?} layout type", layout)))
-            });
-          },
-        };
-        FutureResult::new(async move {
-          create_new_database(&view_id, name, layout, database_manager, build_context).await
-        })
+    let data = match layout {
+      ViewLayout::Grid => make_default_grid(view_id, &name),
+      ViewLayout::Board => make_default_board(view_id, &name),
+      ViewLayout::Calendar => make_default_calendar(view_id, &name),
+      ViewLayout::Document => {
+        return FutureResult::new(async move {
+          Err(FlowyError::internal().context(format!("Can't handle {:?} layout type", layout)))
+        });
       },
-      Some(database_id) => {
-        let layout = layout_type_from_view_layout(layout.into());
-        FutureResult::new(async move {
-          link_existing_database(&view_id, name, &database_id, layout, database_manager).await
-        })
-      },
-    }
+    };
+    FutureResult::new(async move {
+      database_manager.create_database_with_params(data).await?;
+      Ok(())
+    })
   }
 
-  /// Create a database view with custom data.
+  /// Create a database view with duplicated data.
   /// If the ext contains the {"database_id": "xx"}, then it will link
-  /// to the existing database. The data of the database will be shared
-  /// within these references views.
+  /// to the existing database.
   fn create_view_with_custom_data(
     &self,
     _user_id: i64,
@@ -219,30 +205,46 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
     layout: ViewLayout,
     ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
-    let view_id = view_id.to_string();
-    let database_manager = self.0.clone();
-    let layout = layout_type_from_view_layout(layout.into());
-    let name = name.to_string();
-    match DatabaseExtParams::from_map(ext).map(|params| params.database_id) {
-      None => FutureResult::new(async move {
-        let bytes = Bytes::from(data);
-        let build_context = BuildDatabaseContext::try_from(bytes)?;
-        let _ = create_new_database(&view_id, name, layout, database_manager, build_context).await;
-        Ok(())
-      }),
-      Some(database_id) => FutureResult::new(async move {
-        link_existing_database(&view_id, name, &database_id, layout, database_manager).await
-      }),
+    match CreateDatabaseExtParams::from_map(ext) {
+      None => {
+        let database_manager = self.0.clone();
+        FutureResult::new(async move {
+          database_manager
+            .create_database_with_duplicated_data(data)
+            .await?;
+          Ok(())
+        })
+      },
+      Some(params) => {
+        let database_manager = self.0.clone();
+        let layout = layout_type_from_view_layout(layout.into());
+        let name = name.to_string();
+        let target_view_id = view_id.to_string();
+
+        FutureResult::new(async move {
+          database_manager
+            .create_linked_view(
+              name,
+              layout,
+              params.database_id,
+              target_view_id,
+              params.duplicated_view_id,
+            )
+            .await?;
+          Ok(())
+        })
+      },
     }
   }
 }
 
 #[derive(Debug, serde::Deserialize)]
-struct DatabaseExtParams {
+struct CreateDatabaseExtParams {
   database_id: String,
+  duplicated_view_id: Option<String>,
 }
 
-impl DatabaseExtParams {
+impl CreateDatabaseExtParams {
   pub fn from_map(map: HashMap<String, String>) -> Option<Self> {
     let value = serde_json::to_value(map).ok()?;
     serde_json::from_value::<Self>(value).ok()

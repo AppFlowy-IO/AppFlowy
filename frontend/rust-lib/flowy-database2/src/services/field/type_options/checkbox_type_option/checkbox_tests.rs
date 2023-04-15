@@ -1,16 +1,17 @@
 #[cfg(test)]
 mod tests {
+  use collab_database::fields::Field;
+
   use crate::entities::FieldType;
   use crate::services::cell::CellDataDecoder;
   use crate::services::field::type_options::checkbox_type_option::*;
   use crate::services::field::FieldBuilder;
-  use collab_database::fields::Field;
 
   #[test]
   fn checkout_box_description_test() {
     let type_option = CheckboxTypeOption::default();
     let field_type = FieldType::Checkbox;
-    let field_rev = FieldBuilder::from_field_type(&field_type).build();
+    let field_rev = FieldBuilder::from_field_type(field_type.clone()).build();
 
     // the checkout value will be checked if the value is "1", "true" or "yes"
     assert_checkbox(&type_option, "1", CHECK, &field_type, &field_rev);

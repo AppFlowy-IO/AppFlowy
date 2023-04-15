@@ -1,8 +1,8 @@
 pub use manager::*;
 
-mod entities;
+pub mod entities;
 mod event_handler;
-mod event_map;
+pub mod event_map;
 mod manager;
 mod notification;
 mod protobuf;

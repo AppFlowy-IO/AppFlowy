@@ -1,19 +1,18 @@
-use collab_database::database::DuplicatedDatabase;
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::sync::Arc;
 
+use crate::entities::{DatabaseDescriptionPB, DatabaseLayoutPB, RepeatedDatabaseDescriptionPB};
+use crate::services::database::{DatabaseEditor, MutexDatabase};
+use collab_database::database::DuplicatedDatabase;
 use collab_database::user::UserDatabase as InnerUserDatabase;
+use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use collab_persistence::CollabKV;
-use parking_lot::Mutex;
-use tokio::sync::RwLock;
-
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
 use lib_infra::future::Fut;
-
-use crate::entities::{DatabaseDescriptionPB, DatabaseLayoutPB, RepeatedDatabaseDescriptionPB};
-use crate::services::database::{DatabaseEditor, MutexDatabase};
+use parking_lot::Mutex;
+use tokio::sync::RwLock;
 
 pub trait DatabaseUser2: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -123,7 +122,7 @@ impl DatabaseManager2 {
     Ok(database_data)
   }
 
-  pub async fn create_database_with_data(&self, data: Vec<u8>) -> FlowyResult<()> {
+  pub async fn create_database_with_duplicated_data(&self, data: Vec<u8>) -> FlowyResult<()> {
     let database_data = DuplicatedDatabase::from_json_bytes(data)?;
     self.with_user_database(
       Err(FlowyError::internal().context("Create database with data failed")),
@@ -133,6 +132,46 @@ impl DatabaseManager2 {
       },
     )?;
     Ok(())
+  }
+
+  pub async fn create_database_with_params(&self, params: CreateDatabaseParams) -> FlowyResult<()> {
+    let _ = self.with_user_database(
+      Err(FlowyError::internal().context("Create database with params failed")),
+      |user_database| {
+        let database = user_database.create_database(params)?;
+        Ok(database)
+      },
+    )?;
+    Ok(())
+  }
+
+  pub async fn create_linked_view(
+    &self,
+    name: String,
+    layout: DatabaseLayoutPB,
+    database_id: String,
+    target_view_id: String,
+    duplicated_view_id: Option<String>,
+  ) -> FlowyResult<()> {
+    let view_id = self.with_user_database(
+      Err(FlowyError::internal().context("Create database view failed")),
+      |user_database| {
+        let database = user_database
+          .get_database(&database_id)
+          .ok_or(FlowyError::record_not_found())?;
+        match duplicated_view_id {
+          None => {
+            let params = CreateViewParams::new(database_id, target_view_id, name, layout.into());
+            database.create_linked_view(params);
+          },
+          Some(duplicated_view_id) => {
+            database.duplicate_linked_view(&duplicated_view_id);
+          },
+        }
+        Ok(())
+      },
+    )?;
+    Ok(view_id)
   }
 
   fn with_user_database<F, Output>(&self, default_value: Output, f: F) -> Output
@@ -146,42 +185,6 @@ impl DatabaseManager2 {
     }
   }
 }
-
-
-pub async fn create_new_database(
-    view_id: &str,
-    name: String,
-    layout: DatabaseLayoutPB,
-    database_manager: Arc<DatabaseManager>,
-    build_context: BuildDatabaseContext,
-) -> FlowyResult<()> {
-    let BuildDatabaseContext {
-        field_revs,
-        block_metas,
-        blocks,
-        database_view_data,
-        layout_setting,
-    } = build_context;
-
-    for block_meta_data in &blocks {
-        let block_id = &block_meta_data.block_id;
-        // Indexing the block's rows
-        block_meta_data.rows.iter().for_each(|row| {
-            let _ = database_manager
-                .block_indexer
-                .insert(&row.block_id, &row.id);
-        });
-
-        // Create database's block
-        let database_block_ops = make_database_block_operations(block_meta_data);
-        let database_block_bytes = database_block_ops.json_bytes();
-        let revision = Revision::initial_revision(block_id, database_block_bytes);
-        database_manager
-            .create_database_block(&block_id, vec![revision])
-            .await?;
-    }
-
-
 
 #[derive(Clone, Default)]
 pub struct UserDatabase(Arc<Mutex<Option<InnerUserDatabase>>>);
