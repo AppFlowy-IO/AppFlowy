@@ -53,7 +53,7 @@ export const BoardCard = ({
 
   return (
     <>
-      <Draggable draggableId={rowInfo.row.id} index={index}>
+      <Draggable draggableId={rowInfo.row.id} key={rowInfo.row.id} index={index}>
         {(provided) => (
           <div
             ref={provided.innerRef}

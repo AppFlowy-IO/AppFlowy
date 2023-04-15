@@ -42,7 +42,7 @@ export const EditCellWrapper = ({
   };
 
   return (
-    <Draggable draggableId={cellIdentifier.fieldId} index={index}>
+    <Draggable draggableId={cellIdentifier.fieldId} index={index} key={cellIdentifier.fieldId}>
       {(provided) => (
         <div
           ref={provided.innerRef}
