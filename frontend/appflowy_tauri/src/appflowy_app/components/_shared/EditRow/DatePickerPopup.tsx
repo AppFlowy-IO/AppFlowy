@@ -105,7 +105,7 @@ export const DatePickerPopup = ({
       <button
         onClick={_onDateFormatClick}
         className={
-          'flex w-full cursor-pointer items-center justify-between rounded-lg px-4 py-2 hover:bg-main-secondary'
+          'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-2 hover:bg-main-secondary'
         }
       >
         <span>{t('grid.field.dateFormat')}</span>
@@ -117,7 +117,7 @@ export const DatePickerPopup = ({
       <button
         onClick={() => toggleIncludeTime()}
         className={
-          'flex w-full cursor-pointer items-center justify-between rounded-lg px-4 py-2 hover:bg-main-secondary'
+          'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-2 hover:bg-main-secondary'
         }
       >
         <div className={'flex items-center gap-2'}>
@@ -134,7 +134,7 @@ export const DatePickerPopup = ({
       <button
         onClick={_onTimeFormatClick}
         className={
-          'flex w-full cursor-pointer items-center justify-between rounded-lg px-4 py-2 hover:bg-main-secondary'
+          'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-2 hover:bg-main-secondary'
         }
       >
         <span>{t('grid.field.timeFormat')}</span>
