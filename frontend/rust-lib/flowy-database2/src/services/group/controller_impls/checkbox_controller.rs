@@ -1,3 +1,7 @@
+use collab_database::fields::Field;
+use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
+use serde::{Deserialize, Serialize};
+
 use crate::entities::{FieldType, GroupRowsNotificationPB, InsertedRowPB, RowPB};
 use crate::services::cell::insert_checkbox_cell;
 use crate::services::field::{
@@ -9,10 +13,6 @@ use crate::services::group::controller::{
   GenericGroupController, GroupController, GroupGenerator, MoveGroupRowContext,
 };
 use crate::services::group::{move_group_row, GeneratedGroupConfig, GeneratedGroupContext, Group};
-use collab_database::fields::Field;
-use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
-
-use serde::{Deserialize, Serialize};
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct CheckboxGroupConfiguration {
@@ -58,7 +58,7 @@ impl GroupCustomize for CheckboxGroupController {
       if group.id == CHECK {
         if cell_data.is_uncheck() {
           // Remove the row if the group.id is CHECK but the cell_data is UNCHECK
-          changeset.deleted_rows.push(row.id.to_string());
+          changeset.deleted_rows.push(row.id.into());
           group.remove_row(row.id);
         } else {
           // Add the row to the group if the group didn't contain the row
@@ -74,7 +74,7 @@ impl GroupCustomize for CheckboxGroupController {
       if group.id == UNCHECK {
         if cell_data.is_check() {
           // Remove the row if the group.id is UNCHECK but the cell_data is CHECK
-          changeset.deleted_rows.push(row.id.to_string());
+          changeset.deleted_rows.push(row.id.into());
           group.remove_row(row.id);
         } else {
           // Add the row to the group if the group didn't contain the row
@@ -99,7 +99,7 @@ impl GroupCustomize for CheckboxGroupController {
     self.group_ctx.iter_mut_groups(|group| {
       let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
       if group.contains_row(row.id) {
-        changeset.deleted_rows.push(row.id.to_string());
+        changeset.deleted_rows.push(row.id.into());
         group.remove_row(row.id);
       }
 

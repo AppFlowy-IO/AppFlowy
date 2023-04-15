@@ -1,9 +1,12 @@
-use crate::event_handler::*;
-use crate::manager::DatabaseManager2;
+use std::sync::Arc;
+
+use strum_macros::Display;
+
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use lib_dispatch::prelude::*;
-use std::sync::Arc;
-use strum_macros::Display;
+
+use crate::event_handler::*;
+use crate::manager::DatabaseManager2;
 
 pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
   let mut plugin = AFPlugin::new()
@@ -246,7 +249,7 @@ pub enum DatabaseEvent {
   #[event(output = "RepeatedDatabaseDescriptionPB")]
   GetDatabases = 114,
 
-  #[event(input = "UpdateLayoutSettingPB")]
+  #[event(input = "LayoutSettingChangesetPB")]
   SetLayoutSetting = 115,
 
   #[event(input = "DatabaseLayoutIdPB", output = "LayoutSettingPB")]

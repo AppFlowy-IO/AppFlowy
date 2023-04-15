@@ -1,13 +1,13 @@
 import 'dart:collection';
-import 'package:appflowy_backend/protobuf/flowy-database/filter_changeset.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/sort_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/filter_changeset.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/group.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/util.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
 import 'package:flutter/foundation.dart';
 import '../../grid/presentation/widgets/filter/filter_info.dart';
 import '../../grid/presentation/widgets/sort/sort_info.dart';
@@ -94,7 +94,7 @@ class FieldController {
       _updatedFieldCallbacks = {};
 
   // Group callbacks
-  final Map<String, GroupConfigurationPB> _groupConfigurationByFieldId = {};
+  final Map<String, GroupSettingPB> _groupConfigurationByFieldId = {};
 
   // Filter callbacks
   final Map<OnReceiveFilters, VoidCallback> _filterCallbacks = {};
@@ -393,7 +393,7 @@ class FieldController {
 
   void _updateSetting(DatabaseViewSettingPB setting) {
     _groupConfigurationByFieldId.clear();
-    for (final configuration in setting.groupConfigurations.items) {
+    for (final configuration in setting.groupSettings.items) {
       _groupConfigurationByFieldId[configuration.fieldId] = configuration;
     }
 

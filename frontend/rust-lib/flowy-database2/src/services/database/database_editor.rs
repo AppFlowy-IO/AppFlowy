@@ -285,7 +285,7 @@ impl DatabaseEditor {
     let mut cells =
       CellBuilder::with_cells(params.cell_data_by_field_id.unwrap_or_default(), fields).build();
     for view in self.database_views.editors().await {
-      view.v_will_create_row(&mut cells, &params.group_id);
+      view.v_will_create_row(&mut cells, &params.group_id).await;
     }
 
     let result = self.database.lock().create_row(
@@ -303,7 +303,7 @@ impl DatabaseEditor {
       let row = self.database.lock().get_row(row_order.id);
       if let Some(row) = row {
         for view in self.database_views.editors().await {
-          view.v_did_create_row(&row, &params.group_id, index);
+          view.v_did_create_row(&row, &params.group_id, index).await;
         }
         return Ok(Some(row));
       }
@@ -397,7 +397,7 @@ impl DatabaseEditor {
     if let Some(row) = row {
       tracing::trace!("Did delete row:{:?}", row);
       for view in self.database_views.editors().await {
-        view.v_did_delete_row(&row);
+        view.v_did_delete_row(&row).await;
       }
     }
   }

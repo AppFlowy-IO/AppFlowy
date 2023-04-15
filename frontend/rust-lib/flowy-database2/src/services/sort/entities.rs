@@ -1,9 +1,8 @@
-use crate::entities::{DeleteSortParams, FieldType};
 use anyhow::bail;
 use collab::core::any_map::AnyMapExtension;
-
 use collab_database::views::{SortMap, SortMapBuilder};
 
+use crate::entities::{DeleteSortParams, FieldType};
 
 #[derive(Debug, Clone)]
 pub struct Sort {
@@ -120,7 +119,7 @@ impl ReorderAllRowsResult {
 #[derive(Clone)]
 pub struct ReorderSingleRowResult {
   pub view_id: String,
-  pub row_id: String,
+  pub row_id: i64,
   pub old_index: usize,
   pub new_index: usize,
 }

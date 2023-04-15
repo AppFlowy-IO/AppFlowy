@@ -1,7 +1,7 @@
 import 'dart:collection';
 
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/text_field.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:textfield_tags/textfield_tags.dart';

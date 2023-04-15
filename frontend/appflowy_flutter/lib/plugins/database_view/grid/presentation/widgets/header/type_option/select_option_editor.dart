@@ -1,12 +1,12 @@
 import 'package:appflowy/plugins/database_view/application/field/type_option/edit_select_option_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';

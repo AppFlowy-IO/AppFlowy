@@ -7,7 +7,8 @@ import 'package:equatable/equatable.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -186,7 +187,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     }
   }
 
-  RowCache? getRowCache(String blockId) {
+  RowCache? getRowCache() {
     return _databaseController.rowCache;
   }
 
@@ -300,7 +301,7 @@ class BoardEvent with _$BoardEvent {
     GroupPB group,
     RowPB row,
   ) = _StartEditRow;
-  const factory BoardEvent.endEditingRow(String rowId) = _EndEditRow;
+  const factory BoardEvent.endEditingRow(Int64 rowId) = _EndEditRow;
   const factory BoardEvent.didReceiveError(FlowyError error) = _DidReceiveError;
   const factory BoardEvent.didReceiveGridUpdate(
     DatabasePB grid,
@@ -373,7 +374,7 @@ class GroupItem extends AppFlowyGroupItem {
   }
 
   @override
-  String get id => row.id;
+  String get id => row.id.toString();
 }
 
 class GroupControllerDelegateImpl extends GroupControllerDelegate {
@@ -411,8 +412,8 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
   }
 
   @override
-  void removeRow(GroupPB group, String rowId) {
-    controller.removeGroupItem(group.groupId, rowId);
+  void removeRow(GroupPB group, Int64 rowId) {
+    controller.removeGroupItem(group.groupId, rowId.toString());
   }
 
   @override

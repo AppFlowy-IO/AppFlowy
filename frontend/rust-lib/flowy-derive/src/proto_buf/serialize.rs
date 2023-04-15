@@ -1,7 +1,10 @@
 #![allow(clippy::while_let_on_iterator)]
-use crate::proto_buf::util::{get_member_ident, ident_category, TypeCategory};
-use flowy_ast::*;
+
 use proc_macro2::TokenStream;
+
+use flowy_ast::*;
+
+use crate::proto_buf::util::{get_member_ident, ident_category, TypeCategory};
 
 pub fn make_se_token_stream(ast_result: &ASTResult, ast: &ASTContainer) -> Option<TokenStream> {
   let pb_ty = ast.pb_attrs.pb_struct_type()?;
@@ -172,7 +175,9 @@ fn token_stream_for_vec(
             .collect());
     }),
     TypeCategory::Bytes => Some(quote! { pb.#member = o.#member.clone(); }),
-
+    TypeCategory::Primitive => Some(quote! {
+        pb.#member = o.#member.clone();
+    }),
     _ => Some(quote! {
         pb.#member = ::protobuf::RepeatedField::from_vec(o.#member.clone());
     }),

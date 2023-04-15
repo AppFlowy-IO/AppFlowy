@@ -15,8 +15,8 @@ use lib_infra::future::Fut;
 use crate::entities::{
   AlterFilterParams, AlterSortParams, CalendarEventPB, DeleteFilterParams, DeleteGroupParams,
   DeleteSortParams, FieldType, GroupChangesetPB, GroupPB, GroupRowsNotificationPB,
-  InsertGroupParams, InsertedGroupPB, InsertedRowPB, LayoutSettingPB, LayoutSettingParams,
-  MoveGroupParams, RowPB, RowsChangesetPB, SortChangesetNotificationPB, SortPB,
+  InsertGroupParams, InsertedGroupPB, InsertedRowPB, LayoutSettingPB, LayoutSettingParams, RowPB,
+  RowsChangesetPB, SortChangesetNotificationPB, SortPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::CellCache;

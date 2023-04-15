@@ -1,3 +1,18 @@
+use std::cmp::Ordering;
+use std::collections::HashMap;
+use std::str::FromStr;
+use std::sync::Arc;
+
+use collab_database::fields::Field;
+use collab_database::rows::{Cell, Row, RowId};
+use rayon::prelude::ParallelSliceMut;
+use serde::{Deserialize, Serialize};
+use tokio::sync::RwLock;
+
+use flowy_error::FlowyResult;
+use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
+use lib_infra::future::Fut;
+
 use crate::entities::FieldType;
 use crate::entities::SortChangesetNotificationPB;
 use crate::services::cell::CellCache;
@@ -6,18 +21,6 @@ use crate::services::field::{default_order, TypeOptionCellExt};
 use crate::services::sort::{
   ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset, SortCondition,
 };
-use collab_database::fields::Field;
-use collab_database::rows::{Cell, Row, RowId};
-use flowy_error::FlowyResult;
-use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
-use lib_infra::future::Fut;
-use rayon::prelude::ParallelSliceMut;
-use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
-use std::collections::HashMap;
-use std::str::FromStr;
-use std::sync::Arc;
-use tokio::sync::RwLock;
 
 pub trait SortDelegate: Send + Sync {
   fn get_sort(&self, view_id: &str, sort_id: &str) -> Fut<Option<Arc<Sort>>>;
@@ -115,7 +118,7 @@ impl SortController {
               return Ok(());
             }
             let notification = ReorderSingleRowResult {
-              row_id: row_id.to_string(),
+              row_id: row_id.into(),
               view_id: self.view_id.clone(),
               old_index: old_row_index,
               new_index: new_row_index,

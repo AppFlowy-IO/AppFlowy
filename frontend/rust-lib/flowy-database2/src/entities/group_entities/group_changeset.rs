@@ -1,8 +1,10 @@
-use crate::entities::parser::NotEmptyStr;
-use crate::entities::{GroupPB, InsertedRowPB, RowPB};
+use std::fmt::Formatter;
+
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
-use std::fmt::Formatter;
+
+use crate::entities::parser::NotEmptyStr;
+use crate::entities::{GroupPB, InsertedRowPB, RowPB};
 
 #[derive(Debug, Default, ProtoBuf)]
 pub struct GroupRowsNotificationPB {
@@ -16,7 +18,7 @@ pub struct GroupRowsNotificationPB {
   pub inserted_rows: Vec<InsertedRowPB>,
 
   #[pb(index = 4)]
-  pub deleted_rows: Vec<String>,
+  pub deleted_rows: Vec<i64>,
 
   #[pb(index = 5)]
   pub updated_rows: Vec<RowPB>,
@@ -70,7 +72,7 @@ impl GroupRowsNotificationPB {
     }
   }
 
-  pub fn delete(group_id: String, deleted_rows: Vec<String>) -> Self {
+  pub fn delete(group_id: String, deleted_rows: Vec<i64>) -> Self {
     Self {
       group_id,
       deleted_rows,

@@ -1,3 +1,14 @@
+use std::collections::HashMap;
+use std::marker::PhantomData;
+use std::sync::Arc;
+
+use collab_database::fields::{Field, TypeOptionData};
+use collab_database::rows::{Cell, Cells, Row, RowId};
+use serde::de::DeserializeOwned;
+use serde::Serialize;
+
+use flowy_error::FlowyResult;
+
 use crate::entities::{FieldType, GroupChangesetPB, GroupRowsNotificationPB, InsertedRowPB};
 use crate::services::cell::{get_type_cell_protobuf, CellProtobufBlobParser, DecodedCellData};
 use crate::services::group::action::{
@@ -5,17 +16,9 @@ use crate::services::group::action::{
 };
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::entities::GroupData;
-use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Cells, Row, RowId};
-// use collab_database::views::Group;
-
 use crate::services::group::Group;
-use flowy_error::FlowyResult;
-use serde::de::DeserializeOwned;
-use serde::Serialize;
-use std::collections::HashMap;
-use std::marker::PhantomData;
-use std::sync::Arc;
+
+// use collab_database::views::Group;
 
 /// The [GroupController] trait defines the group actions, including create/delete/move items
 /// For example, the group will insert a item if the one of the new [RowRevision]'s [CellRevision]s
@@ -146,7 +149,7 @@ where
           .iter()
           .any(|inserted_row| &inserted_row.row.id == row_id)
       })
-      .collect::<Vec<String>>();
+      .collect::<Vec<i64>>();
 
     let mut changeset = GroupRowsNotificationPB::new(no_status_group.id.clone());
     if !no_status_group_rows.is_empty() {
@@ -155,7 +158,7 @@ where
     }
 
     // [other_group_delete_rows] contains all the deleted rows except the default group.
-    let other_group_delete_rows: Vec<String> = other_group_changesets
+    let other_group_delete_rows: Vec<i64> = other_group_changesets
       .iter()
       .flat_map(|changeset| &changeset.deleted_rows)
       .cloned()
@@ -167,16 +170,15 @@ where
       .filter(|inserted_row| {
         // if the [other_group_delete_rows] contain the inserted_row, which means this row should move
         // out from the default_group.
-        let inserted_row_id = &inserted_row.row.id;
         !other_group_delete_rows
           .iter()
-          .any(|row_id| inserted_row_id == row_id)
+          .any(|row_id| inserted_row.row.id == *row_id)
       })
       .collect::<Vec<&InsertedRowPB>>();
 
     let mut deleted_row_ids = vec![];
     for row in &no_status_group.rows {
-      let row_id = row.id.to_string();
+      let row_id: i64 = row.id.into();
       if default_group_deleted_rows
         .iter()
         .any(|deleted_row| deleted_row.row.id == row_id)
@@ -190,8 +192,8 @@ where
     changeset.deleted_rows.extend(
       deleted_row_ids
         .into_iter()
-        .map(|id| id.to_string())
-        .collect::<Vec<String>>(),
+        .map(|id| id.into())
+        .collect::<Vec<i64>>(),
     );
     Some(changeset)
   }
@@ -222,7 +224,7 @@ where
   #[tracing::instrument(level = "trace", skip_all, fields(row_count=%rows.len(), group_result))]
   fn fill_groups(&mut self, rows: &[&Row], field: &Field) -> FlowyResult<()> {
     for row in rows {
-      let cell = match row.cells.get(&self.grouping_field_id).clone() {
+      let cell = match row.cells.get(&self.grouping_field_id) {
         None => self.placeholder_cell(),
         Some(cell) => Some(cell.clone()),
       };
@@ -331,7 +333,7 @@ where
         }
         result.row_changesets = vec![GroupRowsNotificationPB::delete(
           no_status_group.id.clone(),
-          vec![row.id.to_string()],
+          vec![row.id.into()],
         )];
       },
     }

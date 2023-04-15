@@ -3,7 +3,7 @@ import 'package:appflowy/plugins/database_view/application/field/field_controlle
 import 'package:appflowy/plugins/database_view/grid/application/sort/sort_editor_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/sort/util.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/sort_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';

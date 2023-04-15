@@ -1,9 +1,8 @@
-use crate::entities::{
-  DeleteFilterParams, FieldType, InsertedRowPB,
-};
 use anyhow::bail;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::views::{FilterMap, FilterMapBuilder};
+
+use crate::entities::{DeleteFilterParams, FieldType, InsertedRowPB};
 
 #[derive(Debug, Clone)]
 pub struct Filter {
@@ -153,7 +152,7 @@ pub struct FilterResultNotification {
   pub visible_rows: Vec<InsertedRowPB>,
 
   // Indicates there will be some new rows being invisible from visible state.
-  pub invisible_rows: Vec<String>,
+  pub invisible_rows: Vec<i64>,
 }
 
 impl FilterResultNotification {

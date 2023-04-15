@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:appflowy/core/grid_notification.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/sort_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/notification.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/view_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/view_entities.pb.dart';
 
 typedef RowsVisibilityNotifierValue
     = Either<RowsVisibilityChangesetPB, FlowyError>;

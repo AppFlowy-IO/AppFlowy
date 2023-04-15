@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 

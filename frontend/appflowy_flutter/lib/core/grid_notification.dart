@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/notification.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 
 import 'notification_helper.dart';

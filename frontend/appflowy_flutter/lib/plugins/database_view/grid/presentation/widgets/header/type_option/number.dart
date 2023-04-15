@@ -1,13 +1,13 @@
 import 'package:appflowy/plugins/database_view/application/field/type_option/number_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/number_format_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/number_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/format.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:easy_localization/easy_localization.dart' hide NumberFormat;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
 import '../../../layout/sizes.dart';
@@ -103,11 +103,11 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
   }
 }
 
-typedef SelectNumberFormatCallback = Function(NumberFormat format);
+typedef SelectNumberFormatCallback = Function(NumberFormatPB format);
 
 class NumberFormatList extends StatelessWidget {
   final SelectNumberFormatCallback onSelected;
-  final NumberFormat selectedFormat;
+  final NumberFormatPB selectedFormat;
   const NumberFormatList(
       {required this.selectedFormat, required this.onSelected, Key? key})
       : super(key: key);
@@ -157,9 +157,9 @@ class NumberFormatList extends StatelessWidget {
 }
 
 class NumberFormatCell extends StatelessWidget {
-  final NumberFormat format;
+  final NumberFormatPB format;
   final bool isSelected;
-  final Function(NumberFormat format) onSelected;
+  final Function(NumberFormatPB format) onSelected;
   const NumberFormatCell({
     required this.isSelected,
     required this.format,

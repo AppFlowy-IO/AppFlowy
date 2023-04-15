@@ -9,10 +9,10 @@ pub enum DatabaseRowEvent {
     row: UpdatedRow,
   },
   DeleteRow {
-    row_id: String,
+    row_id: i64,
   },
   Move {
-    deleted_row_id: String,
+    deleted_row_id: i64,
     inserted_row: InsertedRow,
   },
 }

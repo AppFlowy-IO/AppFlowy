@@ -1,20 +1,23 @@
+use std::collections::HashMap;
+use std::str::FromStr;
+use std::sync::Arc;
+
+use collab_database::fields::Field;
+use collab_database::rows::{Cell, Row, RowId};
+use dashmap::DashMap;
+use serde::{Deserialize, Serialize};
+use tokio::sync::RwLock;
+
+use flowy_error::FlowyResult;
+use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
+use lib_infra::future::Fut;
+
 use crate::entities::filter_entities::*;
 use crate::entities::{FieldType, InsertedRowPB, RowPB};
 use crate::services::cell::{AnyTypeCache, CellCache, CellFilterCache};
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
 use crate::services::field::*;
 use crate::services::filter::{Filter, FilterChangeset, FilterResult, FilterResultNotification};
-use collab_database::fields::Field;
-use collab_database::rows::{Cell, Row, RowId};
-use dashmap::DashMap;
-use flowy_error::FlowyResult;
-use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
-use lib_infra::future::Fut;
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::str::FromStr;
-use std::sync::Arc;
-use tokio::sync::RwLock;
 
 pub trait FilterDelegate: Send + Sync + 'static {
   fn get_filter(&self, view_id: &str, filter_id: &str) -> Fut<Option<Arc<Filter>>>;
@@ -164,7 +167,7 @@ impl FilterController {
               .push(InsertedRowPB::with_index(row_pb, index as i32))
           }
         } else {
-          notification.invisible_rows.push(row_id.to_string());
+          notification.invisible_rows.push(row_id.into());
         }
       }
 
@@ -198,7 +201,7 @@ impl FilterController {
           let row_pb = RowPB::from(row.as_ref());
           visible_rows.push(InsertedRowPB::with_index(row_pb, index as i32))
         } else {
-          invisible_rows.push(row_id.to_string());
+          invisible_rows.push(i64::from(row_id));
         }
       }
     }
@@ -312,43 +315,43 @@ impl FilterController {
           self
             .cell_filter_cache
             .write()
-            .insert(&field_id, TextFilterPB::from_filter(filter.as_ref()));
+            .insert(field_id, TextFilterPB::from_filter(filter.as_ref()));
         },
         FieldType::Number => {
           self
             .cell_filter_cache
             .write()
-            .insert(&field_id, NumberFilterPB::from_filter(filter.as_ref()));
+            .insert(field_id, NumberFilterPB::from_filter(filter.as_ref()));
         },
         FieldType::DateTime => {
           self
             .cell_filter_cache
             .write()
-            .insert(&field_id, DateFilterPB::from_filter(filter.as_ref()));
+            .insert(field_id, DateFilterPB::from_filter(filter.as_ref()));
         },
         FieldType::SingleSelect | FieldType::MultiSelect => {
-          self.cell_filter_cache.write().insert(
-            &field_id,
-            SelectOptionFilterPB::from_filter(filter.as_ref()),
-          );
+          self
+            .cell_filter_cache
+            .write()
+            .insert(field_id, SelectOptionFilterPB::from_filter(filter.as_ref()));
         },
         FieldType::Checkbox => {
           self
             .cell_filter_cache
             .write()
-            .insert(&field_id, CheckboxFilterPB::from_filter(filter.as_ref()));
+            .insert(field_id, CheckboxFilterPB::from_filter(filter.as_ref()));
         },
         FieldType::URL => {
           self
             .cell_filter_cache
             .write()
-            .insert(&field_id, TextFilterPB::from_filter(filter.as_ref()));
+            .insert(field_id, TextFilterPB::from_filter(filter.as_ref()));
         },
         FieldType::Checklist => {
           self
             .cell_filter_cache
             .write()
-            .insert(&field_id, ChecklistFilterPB::from_filter(filter.as_ref()));
+            .insert(field_id, ChecklistFilterPB::from_filter(filter.as_ref()));
         },
       }
     }

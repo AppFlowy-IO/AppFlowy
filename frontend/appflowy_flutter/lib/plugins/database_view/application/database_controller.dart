@@ -2,17 +2,18 @@ import 'package:appflowy/plugins/database_view/application/field/field_controlle
 import 'package:appflowy/plugins/database_view/application/layout/calendar_setting_listener.dart';
 import 'package:appflowy/plugins/database_view/application/view/view_cache.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/calendar_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/group.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/group_changeset.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/group_changeset.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:collection/collection.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
+import 'package:fixnum/fixnum.dart';
 import 'database_view_service.dart';
 import 'defines.dart';
 import 'layout/layout_setting_listener.dart';
@@ -156,7 +157,7 @@ class DatabaseController {
   }
 
   Future<Either<RowPB, FlowyError>> createRow({
-    String? startRowId,
+    Int64? startRowId,
     String? groupId,
     void Function(RowDataBuilder builder)? withCells,
   }) {
@@ -196,7 +197,7 @@ class DatabaseController {
   }
 
   Future<void> updateCalenderLayoutSetting(
-      CalendarLayoutSettingsPB layoutSetting) async {
+      CalendarLayoutSettingPB layoutSetting) async {
     await _databaseViewBackendSvc
         .updateLayoutSetting(calendarLayoutSetting: layoutSetting)
         .then((result) {

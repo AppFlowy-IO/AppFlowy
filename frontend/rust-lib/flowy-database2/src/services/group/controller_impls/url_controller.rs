@@ -1,3 +1,9 @@
+use collab_database::fields::Field;
+use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
+use serde::{Deserialize, Serialize};
+
+use flowy_error::FlowyResult;
+
 use crate::entities::{
   FieldType, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB, RowPB, URLCellDataPB,
 };
@@ -11,10 +17,6 @@ use crate::services::group::controller::{
 use crate::services::group::{
   make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroupContext, Group,
 };
-use collab_database::fields::Field;
-use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
-use flowy_error::FlowyResult;
-use serde::{Deserialize, Serialize};
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct URLGroupConfiguration {
@@ -102,7 +104,7 @@ impl GroupCustomize for URLGroupController {
           group.add_row(row.clone());
         }
       } else if group.contains_row(row.id) {
-        changeset.deleted_rows.push(row.id.to_string());
+        changeset.deleted_rows.push(row.id.into());
         group.remove_row(row.id);
       }
 
@@ -118,7 +120,7 @@ impl GroupCustomize for URLGroupController {
     self.group_ctx.iter_mut_groups(|group| {
       let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
       if group.contains_row(row.id) {
-        changeset.deleted_rows.push(row.id.to_string());
+        changeset.deleted_rows.push(row.id.into());
         group.remove_row(row.id);
       }
 

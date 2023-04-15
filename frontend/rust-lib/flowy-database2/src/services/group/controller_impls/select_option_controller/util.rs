@@ -1,13 +1,13 @@
+use collab_database::fields::Field;
+use collab_database::rows::{Cell, Row};
+
 use crate::entities::{
   FieldType, GroupRowsNotificationPB, InsertedRowPB, RowPB, SelectOptionCellDataPB,
 };
 use crate::services::cell::{insert_checkbox_cell, insert_select_option_cell, insert_url_cell};
 use crate::services::field::{SelectOption, CHECK};
-
 use crate::services::group::controller::MoveGroupRowContext;
 use crate::services::group::{GeneratedGroupConfig, Group, GroupData};
-use collab_database::fields::Field;
-use collab_database::rows::{Cell, Row};
 
 pub fn add_or_remove_select_option_row(
   group: &mut GroupData,
@@ -17,7 +17,7 @@ pub fn add_or_remove_select_option_row(
   let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
   if cell_data.select_options.is_empty() {
     if group.contains_row(row.id) {
-      changeset.deleted_rows.push(row.id.to_string());
+      changeset.deleted_rows.push(row.id.into());
       group.remove_row(row.id);
     }
   } else {
@@ -30,7 +30,7 @@ pub fn add_or_remove_select_option_row(
           group.add_row(row.clone());
         }
       } else if group.contains_row(row.id) {
-        changeset.deleted_rows.push(row.id.to_string());
+        changeset.deleted_rows.push(row.id.into());
         group.remove_row(row.id);
       }
     });
@@ -51,7 +51,7 @@ pub fn remove_select_option_row(
   let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
   cell_data.select_options.iter().for_each(|option| {
     if option.id == group.id && group.contains_row(row.id) {
-      changeset.deleted_rows.push(row.id.to_string());
+      changeset.deleted_rows.push(row.id.into());
       group.remove_row(row.id);
     }
   });
@@ -84,7 +84,7 @@ pub fn move_group_row(
 
   // Remove the row in which group contains it
   if let Some(from_index) = &from_index {
-    changeset.deleted_rows.push(row.id.to_string());
+    changeset.deleted_rows.push(row.id.into());
     tracing::debug!("Group:{} remove {} at {}", group.id, row.id, from_index);
     group.remove_row(row.id);
   }

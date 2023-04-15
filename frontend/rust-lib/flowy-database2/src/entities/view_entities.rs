@@ -1,5 +1,6 @@
-use crate::entities::{InsertedRowPB, UpdatedRowPB};
 use flowy_derive::ProtoBuf;
+
+use crate::entities::{InsertedRowPB, UpdatedRowPB};
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct RowsVisibilityChangesetPB {
@@ -10,7 +11,7 @@ pub struct RowsVisibilityChangesetPB {
   pub visible_rows: Vec<InsertedRowPB>,
 
   #[pb(index = 6)]
-  pub invisible_rows: Vec<String>,
+  pub invisible_rows: Vec<i64>,
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
@@ -22,7 +23,7 @@ pub struct RowsChangesetPB {
   pub inserted_rows: Vec<InsertedRowPB>,
 
   #[pb(index = 3)]
-  pub deleted_rows: Vec<String>,
+  pub deleted_rows: Vec<i64>,
 
   #[pb(index = 4)]
   pub updated_rows: Vec<UpdatedRowPB>,
@@ -37,7 +38,7 @@ impl RowsChangesetPB {
     }
   }
 
-  pub fn from_delete(view_id: String, deleted_rows: Vec<String>) -> Self {
+  pub fn from_delete(view_id: String, deleted_rows: Vec<i64>) -> Self {
     Self {
       view_id,
       deleted_rows,
@@ -55,7 +56,7 @@ impl RowsChangesetPB {
 
   pub fn from_move(
     view_id: String,
-    deleted_rows: Vec<String>,
+    deleted_rows: Vec<i64>,
     inserted_rows: Vec<InsertedRowPB>,
   ) -> Self {
     Self {

@@ -13,7 +13,7 @@ use crate::services::database::{InsertedRow, UpdatedRow};
 #[derive(Debug, Default, Clone, ProtoBuf, Eq, PartialEq)]
 pub struct RowPB {
   #[pb(index = 1)]
-  pub id: String,
+  pub id: i64,
 
   #[pb(index = 2)]
   pub height: i32,
@@ -22,7 +22,7 @@ pub struct RowPB {
 impl std::convert::From<&Row> for RowPB {
   fn from(row: &Row) -> Self {
     Self {
-      id: row.id.to_string(),
+      id: row.id.into(),
       height: row.height,
     }
   }
@@ -31,7 +31,7 @@ impl std::convert::From<&Row> for RowPB {
 impl std::convert::From<Row> for RowPB {
   fn from(row: Row) -> Self {
     Self {
-      id: row.id.to_string(),
+      id: row.id.into(),
       height: row.height,
     }
   }
@@ -39,7 +39,7 @@ impl std::convert::From<Row> for RowPB {
 impl From<RowOrder> for RowPB {
   fn from(data: RowOrder) -> Self {
     Self {
-      id: data.id.to_string(),
+      id: data.id.into(),
       height: data.height,
     }
   }

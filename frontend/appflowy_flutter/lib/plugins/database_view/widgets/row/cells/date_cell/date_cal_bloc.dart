@@ -2,13 +2,12 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart'
     show StringTranslateExtension;
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/date_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/date_type_option_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -133,10 +132,10 @@ class DateCellCalendarBloc
   String timeFormatPrompt(FlowyError error) {
     String msg = "${LocaleKeys.grid_field_invalidTimeFormat.tr()}.";
     switch (state.dateTypeOptionPB.timeFormat) {
-      case TimeFormat.TwelveHour:
+      case TimeFormatPB.TwelveHour:
         msg = "$msg e.g. 01:00 PM";
         break;
-      case TimeFormat.TwentyFourHour:
+      case TimeFormatPB.TwentyFourHour:
         msg = "$msg e.g. 13:00";
         break;
       default:
@@ -167,8 +166,8 @@ class DateCellCalendarBloc
 
   Future<void>? _updateTypeOption(
     Emitter<DateCellCalendarState> emit, {
-    DateFormat? dateFormat,
-    TimeFormat? timeFormat,
+    DateFormatPB? dateFormat,
+    TimeFormatPB? timeFormat,
   }) async {
     state.dateTypeOptionPB.freeze();
     final newDateTypeOption = state.dateTypeOptionPB.rebuild((typeOption) {
@@ -203,9 +202,9 @@ class DateCellCalendarEvent with _$DateCellCalendarEvent {
   const factory DateCellCalendarEvent.setCalFormat(CalendarFormat format) =
       _CalendarFormat;
   const factory DateCellCalendarEvent.setFocusedDay(DateTime day) = _FocusedDay;
-  const factory DateCellCalendarEvent.setTimeFormat(TimeFormat timeFormat) =
+  const factory DateCellCalendarEvent.setTimeFormat(TimeFormatPB timeFormat) =
       _TimeFormat;
-  const factory DateCellCalendarEvent.setDateFormat(DateFormat dateFormat) =
+  const factory DateCellCalendarEvent.setDateFormat(DateFormatPB dateFormat) =
       _DateFormat;
   const factory DateCellCalendarEvent.setIncludeTime(bool includeTime) =
       _IncludeTime;
@@ -250,9 +249,9 @@ class DateCellCalendarState with _$DateCellCalendarState {
 
 String _timeHintText(DateTypeOptionPB typeOption) {
   switch (typeOption.timeFormat) {
-    case TimeFormat.TwelveHour:
+    case TimeFormatPB.TwelveHour:
       return LocaleKeys.document_date_timeHintTextInTwelveHour.tr();
-    case TimeFormat.TwentyFourHour:
+    case TimeFormatPB.TwentyFourHour:
       return LocaleKeys.document_date_timeHintTextInTwentyFourHour.tr();
     default:
       return "";

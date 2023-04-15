@@ -1,8 +1,8 @@
 import 'package:appflowy/plugins/database_view/application/field/type_option/select_option_type_option_bloc.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';

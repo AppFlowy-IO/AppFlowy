@@ -2,8 +2,8 @@ import 'package:appflowy/plugins/database_view/application/filter/filter_listene
 import 'package:appflowy/plugins/database_view/application/filter/filter_service.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/select_option/select_option_loader.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/filter_info.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/select_option_filter.pbserver.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/util.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pbserver.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';

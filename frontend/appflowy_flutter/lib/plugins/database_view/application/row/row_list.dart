@@ -1,5 +1,6 @@
 import 'dart:collection';
-import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
+import 'package:fixnum/fixnum.dart';
 import 'row_cache.dart';
 
 class RowList {
@@ -9,13 +10,13 @@ class RowList {
   List<RowInfo> get rows => List.from(_rowInfos);
 
   /// Use Map for faster access the raw row data.
-  final HashMap<String, RowInfo> rowInfoByRowId = HashMap();
+  final HashMap<Int64, RowInfo> rowInfoByRowId = HashMap();
 
-  RowInfo? get(String rowId) {
+  RowInfo? get(Int64 rowId) {
     return rowInfoByRowId[rowId];
   }
 
-  int? indexOfRow(String rowId) {
+  int? indexOfRow(Int64 rowId) {
     final rowInfo = rowInfoByRowId[rowId];
     if (rowInfo != null) {
       return _rowInfos.indexOf(rowInfo);
@@ -56,7 +57,7 @@ class RowList {
     }
   }
 
-  DeletedIndex? remove(String rowId) {
+  DeletedIndex? remove(Int64 rowId) {
     final rowInfo = rowInfoByRowId[rowId];
     if (rowInfo != null) {
       final index = _rowInfos.indexOf(rowInfo);
@@ -143,7 +144,7 @@ class RowList {
     }
   }
 
-  void moveRow(String rowId, int oldIndex, int newIndex) {
+  void moveRow(Int64 rowId, int oldIndex, int newIndex) {
     final index = _rowInfos.indexWhere(
       (rowInfo) => rowInfo.rowPB.id == rowId,
     );
@@ -154,7 +155,7 @@ class RowList {
     }
   }
 
-  bool contains(String rowId) {
+  bool contains(Int64 rowId) {
     return rowInfoByRowId[rowId] != null;
   }
 }

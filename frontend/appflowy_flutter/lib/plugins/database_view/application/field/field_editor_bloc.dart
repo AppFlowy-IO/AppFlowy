@@ -1,4 +1,4 @@
-import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
@@ -17,8 +17,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
     required String fieldName,
     required bool isGroupField,
     required IFieldTypeOptionLoader loader,
-  })  : dataController =
-            TypeOptionController(viewId: viewId, loader: loader),
+  })  : dataController = TypeOptionController(viewId: viewId, loader: loader),
         super(FieldEditorState.initial(viewId, fieldName, isGroupField)) {
     on<FieldEditorEvent>(
       (event, emit) async {

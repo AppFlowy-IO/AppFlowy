@@ -1,7 +1,7 @@
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/builder.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 
 import '../../filter_info.dart';
 

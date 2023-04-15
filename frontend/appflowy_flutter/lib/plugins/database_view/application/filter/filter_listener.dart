@@ -3,10 +3,10 @@ import 'dart:typed_data';
 import 'package:appflowy/core/grid_notification.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/notification.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/filter_changeset.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/filter_changeset.pb.dart';
 import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/util.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
 
 typedef UpdateFilterNotifiedValue
     = Either<FilterChangesetNotificationPB, FlowyError>;
