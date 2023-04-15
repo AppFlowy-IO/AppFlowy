@@ -76,50 +76,23 @@ export const documentSlice = createSlice({
       regionGrid.updateBlock(id, position);
     },
 
-    addNode: (state, action: PayloadAction<Node>) => {
+    setBlocks: (state, action: PayloadAction<Node>) => {
       state.nodes[action.payload.id] = action.payload;
     },
 
-    addChild: (state, action: PayloadAction<{ parentId: string; childId: string; prevId: string }>) => {
-      const { parentId, childId, prevId } = action.payload;
-      const parentChildrenId = state.nodes[parentId].children;
-      const children = state.children[parentChildrenId];
-      const prevIndex = children.indexOf(prevId);
-      if (prevIndex === -1) {
-        children.push(childId);
-      } else {
-        children.splice(prevIndex + 1, 0, childId);
-      }
-    },
-
-    updateChildren: (state, action: PayloadAction<{ id: string; childIds: string[] }>) => {
+    setChildrenMap: (state, action: PayloadAction<{ id: string; childIds: string[] }>) => {
       const { id, childIds } = action.payload;
       state.children[id] = childIds;
     },
 
-    updateNode: (state, action: PayloadAction<{ id: string; data: any }>) => {
-      state.nodes[action.payload.id] = {
-        ...state.nodes[action.payload.id],
-        ...action.payload,
-      };
+    removeBlock(state, action: PayloadAction<string>) {
+      const { id } = state.nodes[action.payload];
+      regionGrid.removeBlock(id);
+      delete state.nodes[id];
     },
 
-    removeNode: (state, action: PayloadAction<string>) => {
-      const { children, data, parent } = state.nodes[action.payload];
-      // remove from parent
-      if (parent) {
-        const index = state.children[state.nodes[parent].children].indexOf(action.payload);
-        if (index > -1) {
-          state.children[state.nodes[parent].children].splice(index, 1);
-        }
-      }
-      // remove children
-      if (children) {
-        delete state.children[children];
-      }
-
-      // remove node
-      delete state.nodes[action.payload];
+    removeChildren(state, action: PayloadAction<string>) {
+      delete state.children[action.payload];
     },
   },
 });

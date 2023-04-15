@@ -34,44 +34,47 @@ impl DocumentManager {
   }
 
   pub fn create_document(&self, doc_id: String, data: DocumentDataWrapper) -> FlowyResult<Arc<Document>> {
-    self.get_document(doc_id, Some(data))
+    self.initial_document(doc_id, Some(data))
   }
 
-  fn get_document(&self, doc_id: String, data: Option<DocumentDataWrapper>) -> FlowyResult<Arc<Document>> {
+  fn initial_document(&self, doc_id: String, data: Option<DocumentDataWrapper>) -> FlowyResult<Arc<Document>> {
     let collab = self.get_collab_for_doc_id(&doc_id)?;
-    let document = Arc::new(Document::new(collab)?);
-    self.documents.write().insert(doc_id, document.clone());
-    if data.is_some() {
-      // Here use unwrap() is safe, because we have checked data.is_some() before.
-      document.lock().create_with_data(data.unwrap().0).map_err(|err| FlowyError::internal().context(err))?;
-    }
+    let document = match data {
+      Some(data) => Document::create_with_data(collab, data.0).map_err(|err| FlowyError::internal().context(err))?,
+      None => Document::new(collab).map_err(|err| FlowyError::internal().context(err))?,
+    };
+    let document = Arc::new(document);
+
+    let clone_doc_id = doc_id.clone();
+    document
+        .lock()
+        .open(move |events, is_remote| {
+
+          send_notification(&clone_doc_id, DocumentNotification::DidReceiveUpdate)
+              .payload(DocEventPB {
+                events: events
+                    .iter()
+                    .map(|block_event| BlockEventPB { event: block_event.to_owned().iter().map(|e| e.to_owned().into()).collect() })
+                    .collect(),
+                is_remote: is_remote.to_owned(),
+              })
+              .send();
+
+        })
+        .map_err(|err| FlowyError::internal().context(err))?;
+    self.documents.write().insert(doc_id.clone(), document.clone());
+
     Ok(document)
   }
 
   pub fn open_document(&self, doc_id: String) -> FlowyResult<Arc<Document>> {
+    tracing::debug!("open_document: {:?}", &doc_id);
     if let Some(doc) = self.documents.read().get(&doc_id) {
       return Ok(doc.clone());
     }
 
-    let document = self.get_document(doc_id.clone(), None)?;
-    let clone_doc_id = doc_id.clone();
-    let _document_data = document
-      .lock()
-      .open(move |events, is_remote| {
-        println!("events: {:?}", events);
-        println!("is_remote: {:?}", is_remote);
-        send_notification(&clone_doc_id, DocumentNotification::DidReceiveUpdate)
-            .payload(DocEventPB {
-              events: events
-                  .iter()
-                  .map(|event| event.to_owned().into())
-                  .collect::<Vec<BlockEventPB>>(),
-              is_remote: is_remote.to_owned(),
-            })
-            .send();
+    let document = self.initial_document(doc_id.clone(), None)?;
 
-      })
-      .map_err(|err| FlowyError::internal().context(err))?;
     Ok(document)
   }
 

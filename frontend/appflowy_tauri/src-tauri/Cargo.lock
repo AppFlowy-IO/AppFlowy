@@ -576,7 +576,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#986737b4125162ae94dbeb6ece8267714f67b1dd"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#f75354a82d26a1ad1f3fd41ead8f134d279b8054"
 dependencies = [
  "anyhow",
  "bytes",
@@ -594,7 +594,7 @@ dependencies = [
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#986737b4125162ae94dbeb6ece8267714f67b1dd"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#f75354a82d26a1ad1f3fd41ead8f134d279b8054"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -606,7 +606,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#986737b4125162ae94dbeb6ece8267714f67b1dd"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#f75354a82d26a1ad1f3fd41ead8f134d279b8054"
 dependencies = [
  "anyhow",
  "collab",
@@ -622,7 +622,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#986737b4125162ae94dbeb6ece8267714f67b1dd"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#f75354a82d26a1ad1f3fd41ead8f134d279b8054"
 dependencies = [
  "anyhow",
  "collab",
@@ -640,16 +640,18 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#986737b4125162ae94dbeb6ece8267714f67b1dd"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#f75354a82d26a1ad1f3fd41ead8f134d279b8054"
 dependencies = [
  "bincode",
  "chrono",
  "lib0",
+ "parking_lot 0.12.1",
  "serde",
  "sled",
  "smallvec",
  "thiserror",
  "tokio",
+ "tracing",
  "yrs",
 ]
 
@@ -1480,6 +1482,7 @@ dependencies = [
  "serde_json",
  "strum",
  "strum_macros",
+ "tracing",
 ]
 
 [[package]]
@@ -4055,9 +4058,9 @@ dependencies = [
 
 [[package]]
 name = "rustc-demangle"
-version = "0.1.22"
+version = "0.1.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d4a36c42d1873f9a77c53bde094f9664d9891bc604a45b4798fd2c389ed12e5b"
+checksum = "d626bb9dae77e28219937af045c257c28bfd3f69333c512553507f5f9798cb76"
 
 [[package]]
 name = "rustc_version"

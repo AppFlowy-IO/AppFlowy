@@ -5,13 +5,13 @@ use crate::{
   entities::{
     ApplyActionPayloadPBV2, BlockActionPB, BlockActionPayloadPB, BlockActionTypePB,
     BlockPB, CloseDocumentPayloadPBV2, DocumentDataPB2, OpenDocumentPayloadPBV2, CreateDocumentPayloadPBV2,
-    BlockEventPB
+    BlockEventPayloadPB, DeltaTypePB,
   },
   manager::DocumentManager,
 };
 
 use collab_document::blocks::{
-  json_str_to_hashmap, Block, BlockAction, BlockActionPayload, BlockActionType, BlockEvent
+  json_str_to_hashmap, Block, BlockAction, BlockActionPayload, BlockActionType, BlockEventPayload, DeltaType
 };
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -108,12 +108,25 @@ impl From<BlockPB> for Block {
   }
 }
 
-impl From<BlockEvent> for BlockEventPB {
-  fn from(block_event: BlockEvent) -> Self {
-    let delta = serde_json::to_value(&block_event.delta).unwrap();
-    Self {
-      path: block_event.path.into(),
-      delta: delta.to_string(),
+
+impl From<BlockEventPayload> for BlockEventPayloadPB {
+    fn from(payload: BlockEventPayload) -> Self {
+        Self {
+          command: payload.command.into(),
+          path: payload.path,
+          id: payload.id,
+          value: payload.value,
+        }
+    }
+}
+
+impl From<DeltaType> for DeltaTypePB {
+  fn from(action: DeltaType) -> Self {
+    match action {
+      DeltaType::Inserted => Self::Inserted,
+      DeltaType::Updated => Self::Updated,
+      DeltaType::Removed => Self::Removed,
     }
   }
 }
+

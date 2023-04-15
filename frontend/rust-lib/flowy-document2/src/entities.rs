@@ -110,6 +110,18 @@ impl Default for BlockActionTypePB {
   }
 }
 
+#[derive(ProtoBuf_Enum)]
+pub enum DeltaTypePB {
+  Inserted = 0,
+  Updated = 1,
+  Removed = 2,
+}
+impl Default for DeltaTypePB {
+  fn default() -> Self {
+    Self::Inserted
+  }
+}
+
 #[derive(Default, ProtoBuf)]
 pub struct DocEventPB {
   #[pb(index = 1)]
@@ -122,8 +134,20 @@ pub struct DocEventPB {
 #[derive(Default, ProtoBuf)]
 pub struct BlockEventPB {
   #[pb(index = 1)]
-  pub path: Vec<String>,
+  pub event: Vec<BlockEventPayloadPB>
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct BlockEventPayloadPB {
+  #[pb(index = 1)]
+  pub command: DeltaTypePB,
 
   #[pb(index = 2)]
-  pub delta: String,
+  pub path: Vec<String>,
+
+  #[pb(index = 3)]
+  pub id: String,
+
+  #[pb(index = 4)]
+  pub value: String,
 }
