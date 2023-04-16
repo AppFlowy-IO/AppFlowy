@@ -337,18 +337,13 @@ class WindowButtonsState extends State<WindowButtons> {
   @override
   void didChangeDependencies() {
     buttonColors = WindowButtonColors(
-        normal: Colors.transparent,
-        iconNormal: Theme.of(context).colorScheme.primary,
-        mouseOver: const Color(0xFF404040),
-        mouseDown: const Color(0xFF202020),
-        iconMouseOver: const Color(0xFFFFFFFF),
-        iconMouseDown: const Color(0xFFF0F0F0));
+      iconNormal: Theme.of(context).colorScheme.primary,
+    );
 
     closeButtonColors = WindowButtonColors(
-        mouseOver: const Color(0xFFD32F2F),
-        mouseDown: const Color(0xFFB71C1C),
-        iconNormal: Theme.of(context).colorScheme.primary,
-        iconMouseOver: const Color(0xFFFFFFFF));
+      mouseOver: Theme.of(context).colorScheme.error,
+      iconNormal: Theme.of(context).colorScheme.primary,
+    );
     super.didChangeDependencies();
   }
 
