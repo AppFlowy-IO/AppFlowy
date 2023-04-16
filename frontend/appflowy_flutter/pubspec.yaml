@@ -86,7 +86,7 @@ dependencies:
   textstyle_extensions: "2.0.0-nullsafety"
   shared_preferences: ^2.0.15
   google_fonts: ^4.0.3
-  file_picker: <=5.0.0
+  file_picker: ^5.0.0
   percent_indicator: ^4.0.1
   appflowy_editor_plugins:
     path: packages/appflowy_editor_plugins
