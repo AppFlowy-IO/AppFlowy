@@ -279,7 +279,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         radius: Corners.s10Radius,
       ),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      canvasColor: theme.shader6,
+      //dropdown menu color
+      canvasColor: theme.surface,
       dividerColor: theme.divider,
       hintColor: theme.hint,
       //action item hover color
