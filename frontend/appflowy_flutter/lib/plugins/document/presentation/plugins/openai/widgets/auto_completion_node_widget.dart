@@ -9,6 +9,8 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
+import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
+import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -179,27 +181,13 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
   Widget _buildInputFooterWidget(BuildContext context) {
     return Row(
       children: [
-        FlowyRichTextButton(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: LocaleKeys.button_generate.tr(),
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-          ),
+        PrimaryTextButton(
+          LocaleKeys.button_generate.tr(),
           onPressed: () async => await _onGenerate(),
         ),
         const Space(10, 0),
-        FlowyRichTextButton(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: LocaleKeys.button_Cancel.tr(),
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-          ),
+        SecondaryTextButton(
+          LocaleKeys.button_Cancel.tr(),
           onPressed: () async => await _onExit(),
         ),
         Expanded(
@@ -219,27 +207,13 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
   Widget _buildFooterWidget(BuildContext context) {
     return Row(
       children: [
-        FlowyRichTextButton(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: '${LocaleKeys.button_keep.tr()}  ',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-          ),
+        PrimaryTextButton(
+          LocaleKeys.button_keep.tr(),
           onPressed: () => _onExit(),
         ),
         const Space(10, 0),
-        FlowyRichTextButton(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: '${LocaleKeys.button_discard.tr()}  ',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-          ),
+        SecondaryTextButton(
+          LocaleKeys.button_discard.tr(),
           onPressed: () => _onDiscard(),
         ),
       ],
