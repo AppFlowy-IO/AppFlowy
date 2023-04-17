@@ -25,6 +25,7 @@ pub(crate) async fn open_document_handler(
     .lock()
     .get_document()
     .map_err(|err| FlowyError::internal().context(err))?;
+  drop(document);
   data_result_ok(DocumentDataPB2::from(DocumentDataWrapper(document_data)))
 }
 
@@ -60,6 +61,7 @@ pub(crate) async fn apply_action_handler(
     .collect();
   let document = manager.open_document(doc_id)?;
   document.lock().apply_action(actions);
+  drop(document);
   Ok(())
 }
 

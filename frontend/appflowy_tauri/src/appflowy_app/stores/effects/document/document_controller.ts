@@ -75,6 +75,7 @@ export class DocumentController {
     const dispatch = this.dispatch;
     if (!dispatch) return;
     const docEvent = DocEventPB.deserializeBinary(payload);
+    console.log('docEvent', docEvent);
     docEvent.events.forEach((event) => {
       event.event.forEach((_payload) => {
         const { path, id, value, command } = _payload;

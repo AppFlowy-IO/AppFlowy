@@ -43,7 +43,18 @@ impl DocumentManager {
       Some(data) => Document::create_with_data(collab, data.0).map_err(|err| FlowyError::internal().context(err))?,
       None => Document::new(collab).map_err(|err| FlowyError::internal().context(err))?,
     };
-    let document = Arc::new(document);
+
+    Ok(Arc::new(document))
+  }
+
+  pub fn open_document(&self, doc_id: String) -> FlowyResult<Arc<Document>> {
+
+    if let Some(doc) = self.documents.read().get(&doc_id) {
+      tracing::debug!("get_document: {:?}", &doc_id);
+      return Ok(doc.clone());
+    }
+    tracing::debug!("open_document: {:?}", &doc_id);
+    let document = self.initial_document(doc_id.clone(), None)?;
 
     let clone_doc_id = doc_id.clone();
     document
@@ -63,17 +74,6 @@ impl DocumentManager {
         })
         .map_err(|err| FlowyError::internal().context(err))?;
     self.documents.write().insert(doc_id.clone(), document.clone());
-
-    Ok(document)
-  }
-
-  pub fn open_document(&self, doc_id: String) -> FlowyResult<Arc<Document>> {
-    tracing::debug!("open_document: {:?}", &doc_id);
-    if let Some(doc) = self.documents.read().get(&doc_id) {
-      return Ok(doc.clone());
-    }
-
-    let document = self.initial_document(doc_id.clone(), None)?;
 
     Ok(document)
   }

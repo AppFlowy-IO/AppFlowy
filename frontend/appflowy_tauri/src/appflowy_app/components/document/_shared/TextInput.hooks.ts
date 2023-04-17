@@ -108,6 +108,7 @@ function useBindYjs(delta: TextDelta[], update: (_delta: TextDelta[]) => void) {
 
     const textEventHandler = (event: Y.YTextEvent) => {
       const textDelta = event.target.toDelta();
+      console.log(textDelta);
       update(textDelta);
     };
     yText.applyDelta(delta);

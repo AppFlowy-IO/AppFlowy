@@ -34,8 +34,12 @@ export const useDocument = () => {
       }
     })();
     return () => {
-      void (document_controller && document_controller.dispose());
-      console.log('==== leave ====', params?.id);
+      void (async () => {
+        if (document_controller) {
+          await document_controller.dispose();
+        }
+        console.log('==== leave ====', params?.id);
+      })();
     };
   }, [params.id]);
   return { documentId, documentData, controller };

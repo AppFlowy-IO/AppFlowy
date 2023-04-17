@@ -105,7 +105,7 @@ impl Folder2Manager {
         view_change_tx: Some(view_tx),
         trash_change_tx: Some(trash_tx),
       };
-      *self.folder.lock() = Some(InnerFolder::create(collab, folder_context));
+      *self.folder.lock() = Some(InnerFolder::get_or_create(collab, folder_context));
       listen_on_trash_change(trash_rx, self.folder.clone());
       listen_on_view_change(view_rx, self.folder.clone());
     }
