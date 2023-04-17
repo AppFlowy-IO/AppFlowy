@@ -4,13 +4,14 @@ use crate::{
   document::DocumentDataWrapper,
   entities::{
     ApplyActionPayloadPBV2, BlockActionPB, BlockActionPayloadPB, BlockActionTypePB,
-    BlockPB, CloseDocumentPayloadPBV2, DocumentDataPB2, OpenDocumentPayloadPBV2,
+    BlockPB, CloseDocumentPayloadPBV2, DocumentDataPB2, OpenDocumentPayloadPBV2, CreateDocumentPayloadPBV2,
+    BlockEventPB
   },
   manager::DocumentManager,
 };
 
 use collab_document::blocks::{
-  json_str_to_hashmap, Block, BlockAction, BlockActionPayload, BlockActionType,
+  json_str_to_hashmap, Block, BlockAction, BlockActionPayload, BlockActionType, BlockEvent
 };
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -25,6 +26,16 @@ pub(crate) async fn open_document_handler(
     .get_document()
     .map_err(|err| FlowyError::internal().context(err))?;
   data_result_ok(DocumentDataPB2::from(DocumentDataWrapper(document_data)))
+}
+
+pub(crate) async fn create_document_handler(
+  data: AFPluginData<CreateDocumentPayloadPBV2>,
+  manager: AFPluginState<Arc<DocumentManager>>,
+) -> FlowyResult<()> {
+  let context = data.into_inner();
+  let data = DocumentDataWrapper::default();
+  manager.create_document(context.document_id, data)?;
+  Ok(())
 }
 
 pub(crate) async fn close_document_handler(
@@ -93,6 +104,16 @@ impl From<BlockPB> for Block {
       data,
       external_id: None,
       external_type: None,
+    }
+  }
+}
+
+impl From<BlockEvent> for BlockEventPB {
+  fn from(block_event: BlockEvent) -> Self {
+    let delta = serde_json::to_value(&block_event.delta).unwrap();
+    Self {
+      path: block_event.path.into(),
+      delta: delta.to_string(),
     }
   }
 }

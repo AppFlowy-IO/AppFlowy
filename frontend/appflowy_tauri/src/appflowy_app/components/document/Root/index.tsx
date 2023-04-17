@@ -18,6 +18,7 @@ function Root({ documentData }: { documentData: DocumentData }) {
     return <Skeleton />;
   }
 
+
   return (
     <div id='appflowy-block-doc' className='h-[100%] overflow-hidden'>
       <VirtualizedList node={node} childIds={childIds} renderNode={renderNode} />

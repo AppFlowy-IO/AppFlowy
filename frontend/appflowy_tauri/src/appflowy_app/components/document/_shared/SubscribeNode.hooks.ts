@@ -1,6 +1,7 @@
 import { Node } from '@/appflowy_app/stores/reducers/document/slice';
 import { useAppSelector } from '@/appflowy_app/stores/store';
-import { useMemo } from 'react';
+import { useMemo, createContext } from 'react';
+export const NodeContext = createContext<Node | null>(null);
 
 /**
  * Subscribe to a node and its children

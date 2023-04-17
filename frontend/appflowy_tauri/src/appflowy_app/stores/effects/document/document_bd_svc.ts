@@ -1,28 +1,29 @@
 import {
-  DocumentDataPB,
-  DocumentVersionPB,
-  EditPayloadPB,
   FlowyError,
-  OpenDocumentPayloadPB,
   DocumentDataPB2,
-  ViewIdPB,
   OpenDocumentPayloadPBV2,
+  CreateDocumentPayloadPBV2,
   ApplyActionPayloadPBV2,
-  BlockActionTypePB,
   BlockActionPB,
   CloseDocumentPayloadPBV2,
 } from '@/services/backend';
-import { DocumentEventApplyEdit, DocumentEventGetDocument } from '@/services/backend/events/flowy-document';
 import { Result } from 'ts-results';
-import { FolderEventCloseView } from '@/services/backend/events/flowy-folder2';
 import {
   DocumentEvent2ApplyAction,
   DocumentEvent2CloseDocument,
   DocumentEvent2OpenDocument,
+  DocumentEvent2CreateDocument,
 } from '@/services/backend/events/flowy-document2';
 
 export class DocumentBackendService {
   constructor(public readonly viewId: string) {}
+
+  create = (): Promise<Result<void, FlowyError>> => {
+    const payload = CreateDocumentPayloadPBV2.fromObject({
+      document_id: this.viewId,
+    });
+    return DocumentEvent2CreateDocument(payload);
+  };
 
   open = (): Promise<Result<DocumentDataPB2, FlowyError>> => {
     const payload = OpenDocumentPayloadPBV2.fromObject({
@@ -31,7 +32,7 @@ export class DocumentBackendService {
     return DocumentEvent2OpenDocument(payload);
   };
 
-  applyActions = (actions: [BlockActionPB]): Promise<Result<void, FlowyError>> => {
+  applyActions = (actions: ReturnType<typeof BlockActionPB.prototype.toObject>[]): Promise<Result<void, FlowyError>> => {
     const payload = ApplyActionPayloadPBV2.fromObject({
       document_id: this.viewId,
       actions: actions,

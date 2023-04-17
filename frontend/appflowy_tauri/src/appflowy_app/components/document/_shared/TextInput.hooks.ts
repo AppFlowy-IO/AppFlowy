@@ -1,12 +1,14 @@
 import { useCallback, useContext, useMemo, useRef, useEffect } from 'react';
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
-import { TextDelta } from '$app/interfaces/document';
+import { TextDelta, BlockActionType } from '$app/interfaces/document';
 import { debounce } from '@/appflowy_app/utils/tool';
 import { createEditor } from 'slate';
 import { withReact } from 'slate-react';
 
 import * as Y from 'yjs';
 import { withYjs, YjsEditor, slateNodesToInsertDelta } from '@slate-yjs/core';
+import { NodeContext } from './SubscribeNode.hooks';
+import { BlockActionTypePB } from '@/services/backend/models/flowy-document2';
 
 export function useTextInput(delta: TextDelta[]) {
   const { sendDelta } = useTransact();
@@ -19,23 +21,30 @@ export function useTextInput(delta: TextDelta[]) {
 
 function useController() {
   const docController = useContext(DocumentControllerContext);
+  const node = useContext(NodeContext);
 
   const update = useCallback(
-    (delta: TextDelta[]) => {
-      docController?.applyActions([
+    async (delta: TextDelta[]) => {
+      if (!docController || !node) return;
+      await docController.applyActions([
         {
-          type: 'update',
+          action: BlockActionTypePB.Update,
           payload: {
             block: {
-              data: {
+              id: node.id,
+              ty: node.type,
+              parent_id: node.parent || '',
+              children_id: node.children,
+              data: JSON.stringify({
+                ...node.data,
                 delta,
-              },
+              }),
             },
           },
         },
       ]);
     },
-    [docController]
+    [docController, node]
   );
 
   return {
@@ -48,7 +57,7 @@ function useTransact() {
 
   const sendDelta = useCallback(
     (delta: TextDelta[]) => {
-      update(delta);
+      void update(delta);
     },
     [update]
   );
@@ -99,7 +108,6 @@ function useBindYjs(delta: TextDelta[], update: (_delta: TextDelta[]) => void) {
 
     const textEventHandler = (event: Y.YTextEvent) => {
       const textDelta = event.target.toDelta();
-      console.log('delta', textDelta);
       update(textDelta);
     };
     yText.applyDelta(delta);

@@ -4,7 +4,7 @@ import { FolderNotificationObserver } from '../folder/notifications/observer';
 import { DocumentNotification } from '@/services/backend';
 import { DocumentNotificationObserver } from './notifications/observer';
 
-export type DidReceiveUpdateCallback = () => void; // todo: add params
+export type DidReceiveUpdateCallback = (payload: Uint8Array) => void; // todo: add params
 
 export class DocumentObserver {
   private listener?: DocumentNotificationObserver;
@@ -17,8 +17,9 @@ export class DocumentObserver {
       parserHandler: (notification, result) => {
         switch (notification) {
           case DocumentNotification.DidReceiveUpdate:
-            callbacks.didReceiveUpdate();
-            // Fixme: ...
+            if (!result.ok) break;
+            callbacks.didReceiveUpdate(result.val);
+
             break;
           default:
             break;
