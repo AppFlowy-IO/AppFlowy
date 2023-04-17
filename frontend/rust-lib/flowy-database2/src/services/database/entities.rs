@@ -2,15 +2,9 @@ use collab_database::views::RowOrder;
 
 #[derive(Debug, Clone)]
 pub enum DatabaseRowEvent {
-  InsertRow {
-    row: InsertedRow,
-  },
-  UpdateRow {
-    row: UpdatedRow,
-  },
-  DeleteRow {
-    row_id: i64,
-  },
+  InsertRow(InsertedRow),
+  UpdateRow(UpdatedRow),
+  DeleteRow(i64),
   Move {
     deleted_row_id: i64,
     inserted_row: InsertedRow,

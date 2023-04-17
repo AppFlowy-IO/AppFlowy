@@ -560,11 +560,13 @@ dependencies = [
  "bincode",
  "chrono",
  "lib0",
+ "parking_lot 0.12.1",
  "serde",
  "sled",
  "smallvec",
  "thiserror",
  "tokio",
+ "tracing",
  "yrs",
 ]
 

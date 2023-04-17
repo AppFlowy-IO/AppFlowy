@@ -725,13 +725,13 @@ impl DatabaseViewEditor {
 
   pub async fn handle_block_event(&self, event: Cow<'_, DatabaseRowEvent>) {
     let changeset = match event.into_owned() {
-      DatabaseRowEvent::InsertRow { row } => {
+      DatabaseRowEvent::InsertRow(row) => {
         RowsChangesetPB::from_insert(self.view_id.clone(), vec![row.into()])
       },
-      DatabaseRowEvent::UpdateRow { row } => {
+      DatabaseRowEvent::UpdateRow(row) => {
         RowsChangesetPB::from_update(self.view_id.clone(), vec![row.into()])
       },
-      DatabaseRowEvent::DeleteRow { row_id } => {
+      DatabaseRowEvent::DeleteRow(row_id) => {
         RowsChangesetPB::from_delete(self.view_id.clone(), vec![row_id])
       },
       DatabaseRowEvent::Move {

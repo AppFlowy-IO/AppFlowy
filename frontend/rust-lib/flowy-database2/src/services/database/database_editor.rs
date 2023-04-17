@@ -6,7 +6,7 @@ use bytes::Bytes;
 use collab_database::database::{gen_row_id, Database as InnerDatabase};
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, Row, RowCell, RowId};
-use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
+use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, RowOrder};
 use parking_lot::Mutex;
 use tokio::sync::{broadcast, RwLock};
 
@@ -15,13 +15,12 @@ use flowy_task::TaskDispatcher;
 use lib_infra::future::{to_fut, Fut};
 
 use crate::entities::{
-  AlterFilterParams, AlterSortParams, CalendarEventPB, CalendarLayoutSettingPB, CellChangesetPB,
-  CellPB, CreateRowParams, DatabaseFieldChangesetPB, DatabaseLayoutPB, DatabasePB,
-  DatabaseViewSettingPB, DeleteFilterParams, DeleteGroupParams, DeleteSortParams,
-  FieldChangesetParams, FieldIdPB, FieldPB, FieldType, FilterPB, GroupPB, GroupSettingPB,
-  IndexFieldPB, InsertGroupParams, LayoutSettingPB, LayoutSettingParams, RepeatedFieldPB,
-  RepeatedFilterPB, RepeatedGroupPB, RepeatedGroupSettingPB, RepeatedSortPB, RowPB,
-  SelectOptionCellDataPB, SelectOptionPB, SortPB,
+  AlterFilterParams, AlterSortParams, CalendarEventPB, CellChangesetPB, CellPB, CreateRowParams,
+  DatabaseFieldChangesetPB, DatabaseLayoutPB, DatabasePB, DatabaseViewSettingPB,
+  DeleteFilterParams, DeleteGroupParams, DeleteSortParams, FieldChangesetParams, FieldIdPB,
+  FieldPB, FieldType, FilterPB, GroupPB, GroupSettingPB, IndexFieldPB, InsertGroupParams,
+  LayoutSettingPB, LayoutSettingParams, RepeatedFieldPB, RepeatedFilterPB, RepeatedGroupPB,
+  RepeatedGroupSettingPB, RepeatedSortPB, RowPB, SelectOptionCellDataPB, SelectOptionPB, SortPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
@@ -29,6 +28,7 @@ use crate::services::cell::{
   ToCellChangeset,
 };
 use crate::services::database::util::{database_view_setting_pb_from_view, get_database_data};
+use crate::services::database::{DatabaseRowEvent, InsertedRow, UpdatedRow};
 use crate::services::database_view::{DatabaseViewData, DatabaseViews, RowEventSender};
 use crate::services::field::{
   default_type_option_data_for_type, default_type_option_data_from_type,
@@ -53,7 +53,7 @@ impl DatabaseEditor {
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
   ) -> FlowyResult<Self> {
     let cell_cache = AnyTypeCache::<u64>::new();
-    let (row_event_tx, block_event_rx) = broadcast::channel(100);
+    let (row_event_tx, row_event_rx) = broadcast::channel(100);
     let database_view_data = Arc::new(DatabaseViewDataImpl {
       database: database.clone(),
       task_scheduler: task_scheduler.clone(),
@@ -64,7 +64,7 @@ impl DatabaseEditor {
         database.clone(),
         cell_cache.clone(),
         database_view_data,
-        block_event_rx,
+        row_event_rx,
       )
       .await?,
     );
@@ -277,7 +277,7 @@ impl DatabaseEditor {
     // self.database.lock().views.update_view(view_id, |view| {
     //   view.move_row_order(from as u32, to as u32);
     // });
-    todo!()
+    // self.row_event_tx.send(DatabaseRowEvent::Move { from: _from, to: _to})
   }
 
   pub async fn create_row(&self, params: CreateRowParams) -> FlowyResult<Option<Row>> {
@@ -300,6 +300,14 @@ impl DatabaseEditor {
     );
 
     if let Some((index, row_order)) = result {
+      let _ = self
+        .row_event_tx
+        .send(DatabaseRowEvent::InsertRow(InsertedRow {
+          row: row_order.clone(),
+          index: Some(index as i32),
+          is_new: true,
+        }));
+
       let row = self.database.lock().get_row(row_order.id);
       if let Some(row) = row {
         for view in self.database_views.editors().await {
@@ -396,6 +404,10 @@ impl DatabaseEditor {
     let row = self.database.lock().remove_row(row_id);
     if let Some(row) = row {
       tracing::trace!("Did delete row:{:?}", row);
+      let _ = self
+        .row_event_tx
+        .send(DatabaseRowEvent::DeleteRow(row.id.into()));
+
       for view in self.database_views.editors().await {
         view.v_did_delete_row(&row).await;
       }
@@ -443,6 +455,12 @@ impl DatabaseEditor {
 
     let option_row = self.database.lock().get_row(row_id);
     if let Some(new_row) = option_row {
+      let _ = self
+        .row_event_tx
+        .send(DatabaseRowEvent::UpdateRow(UpdatedRow {
+          row: RowOrder::from(&new_row),
+          field_ids: vec![field_id.to_string()],
+        }));
       for view in self.database_views.editors().await {
         view.v_did_update_row(&old_row, &new_row).await;
       }

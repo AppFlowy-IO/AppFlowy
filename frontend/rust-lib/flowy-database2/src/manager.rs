@@ -2,17 +2,19 @@ use std::collections::HashMap;
 use std::ops::Deref;
 use std::sync::Arc;
 
-use crate::entities::{DatabaseDescriptionPB, DatabaseLayoutPB, RepeatedDatabaseDescriptionPB};
-use crate::services::database::{DatabaseEditor, MutexDatabase};
 use collab_database::database::DuplicatedDatabase;
 use collab_database::user::UserDatabase as InnerUserDatabase;
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use collab_persistence::CollabKV;
+use parking_lot::Mutex;
+use tokio::sync::RwLock;
+
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
 use lib_infra::future::Fut;
-use parking_lot::Mutex;
-use tokio::sync::RwLock;
+
+use crate::entities::{DatabaseDescriptionPB, DatabaseLayoutPB, RepeatedDatabaseDescriptionPB};
+use crate::services::database::{DatabaseEditor, MutexDatabase};
 
 pub trait DatabaseUser2: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;

@@ -13,11 +13,11 @@ pub struct Database2DepsResolver();
 
 impl Database2DepsResolver {
   pub async fn resolve(
-    ws_conn: Arc<FlowyWebSocketConnect>,
+    _ws_conn: Arc<FlowyWebSocketConnect>,
     user_session: Arc<UserSession>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
   ) -> Arc<DatabaseManager2> {
-    let user = Arc::new(DatabaseUserImpl(user_session.clone()));
+    let user = Arc::new(DatabaseUserImpl(user_session));
     Arc::new(DatabaseManager2::new(user, task_scheduler))
   }
 }

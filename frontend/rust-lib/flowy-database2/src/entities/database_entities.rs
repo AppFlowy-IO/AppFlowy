@@ -221,7 +221,7 @@ impl TryInto<DatabaseLayoutId> for DatabaseLayoutIdPB {
 
   fn try_into(self) -> Result<DatabaseLayoutId, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
-    let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::InvalidData)?;
+    let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
     let layout = self.layout.into();
     Ok(DatabaseLayoutId {
       view_id: view_id.0,

@@ -1,3 +1,20 @@
+use std::collections::{HashMap, HashSet};
+use std::ops::Deref;
+use std::sync::Arc;
+
+use collab::plugin_impl::disk::CollabDiskPlugin;
+use collab::preclude::CollabBuilder;
+use collab_folder::core::{
+  Folder as InnerFolder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, TrashRecord,
+  View, ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
+};
+use collab_persistence::CollabKV;
+use parking_lot::Mutex;
+use tracing::{event, Level};
+
+use flowy_error::{FlowyError, FlowyResult};
+use lib_infra::util::timestamp;
+
 use crate::entities::{
   CreateViewParams, CreateWorkspaceParams, RepeatedTrashPB, RepeatedViewPB, RepeatedWorkspacePB,
   UpdateViewParams, ViewPB,
@@ -10,20 +27,6 @@ use crate::user_default::{gen_workspace_id, DefaultFolderBuilder};
 use crate::view_ext::{
   gen_view_id, view_from_create_view_params, ViewDataProcessor, ViewDataProcessorMap,
 };
-use collab::plugin_impl::disk::CollabDiskPlugin;
-use collab::preclude::CollabBuilder;
-use collab_folder::core::{
-  Folder as InnerFolder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, TrashRecord,
-  View, ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
-};
-use collab_persistence::CollabKV;
-use flowy_error::{FlowyError, FlowyResult};
-use lib_infra::util::timestamp;
-use parking_lot::Mutex;
-use std::collections::{HashMap, HashSet};
-use std::ops::Deref;
-use std::sync::Arc;
-use tracing::{event, Level};
 
 pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -105,7 +108,7 @@ impl Folder2Manager {
         view_change_tx: Some(view_tx),
         trash_change_tx: Some(trash_tx),
       };
-      *self.folder.lock() = Some(InnerFolder::create(collab, folder_context));
+      *self.folder.lock() = Some(InnerFolder::get_or_create(collab, folder_context));
       listen_on_trash_change(trash_rx, self.folder.clone());
       listen_on_view_change(view_rx, self.folder.clone());
     }
