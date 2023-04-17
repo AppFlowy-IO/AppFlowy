@@ -6,7 +6,15 @@ use parking_lot::Once;
 use tempfile::TempDir;
 use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
 
-pub struct FakeUser();
+pub struct FakeUser {
+  kv: Arc<CollabKV>,
+}
+
+impl FakeUser {
+  pub fn new() -> Self {
+    Self { kv: db() }
+  }
+}
 
 impl DocumentUser for FakeUser {
   fn user_id(&self) -> Result<i64, flowy_error::FlowyError> {
@@ -18,7 +26,7 @@ impl DocumentUser for FakeUser {
   }
 
   fn kv_db(&self) -> Result<std::sync::Arc<CollabKV>, flowy_error::FlowyError> {
-    Ok(db())
+    Ok(self.kv.clone())
   }
 }
 
