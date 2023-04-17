@@ -128,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return Column(
           children: [
             Container(
-              color: Theme.of(context).colorScheme.onSecondaryContainer,
+              color: Theme.of(context).colorScheme.surfaceVariant,
               child: WindowTitleBarBox(
                 child: Row(
                   children: [
@@ -337,12 +337,12 @@ class WindowButtonsState extends State<WindowButtons> {
   @override
   void didChangeDependencies() {
     buttonColors = WindowButtonColors(
-      iconNormal: Theme.of(context).colorScheme.primary,
+      iconNormal: Theme.of(context).colorScheme.tertiary,
     );
 
     closeButtonColors = WindowButtonColors(
       mouseOver: Theme.of(context).colorScheme.error,
-      iconNormal: Theme.of(context).colorScheme.primary,
+      iconNormal: Theme.of(context).colorScheme.tertiary,
     );
     super.didChangeDependencies();
   }
