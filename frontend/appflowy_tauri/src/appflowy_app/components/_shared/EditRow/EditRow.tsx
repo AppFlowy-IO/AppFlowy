@@ -16,8 +16,6 @@ import { CellOptionsPopup } from '$app/components/_shared/EditRow/CellOptionsPop
 import { DatePickerPopup } from '$app/components/_shared/EditRow/DatePickerPopup';
 import { DragDropContext, Droppable, OnDragEndResponder } from 'react-beautiful-dnd';
 import { EditCellOptionPopup } from '$app/components/_shared/EditRow/EditCellOptionPopup';
-import { DateFormatPopup } from '$app/components/_shared/EditRow/DateFormatPopup';
-import { TimeFormatPopup } from '$app/components/_shared/EditRow/TimeFormatPopup';
 import { NumberFormatPopup } from '$app/components/_shared/EditRow/NumberFormatPopup';
 
 export const EditRow = ({
@@ -57,14 +55,6 @@ export const EditRow = ({
   const [editCellOptionLeft, setEditCellOptionLeft] = useState(0);
 
   const [editingSelectOption, setEditingSelectOption] = useState<SelectOptionPB | undefined>();
-
-  const [showDateFormatPopup, setShowDateFormatPopup] = useState(false);
-  const [dateFormatTop, setDateFormatTop] = useState(0);
-  const [dateFormatLeft, setDateFormatLeft] = useState(0);
-
-  const [showTimeFormatPopup, setShowTimeFormatPopup] = useState(false);
-  const [timeFormatTop, setTimeFormatTop] = useState(0);
-  const [timeFormatLeft, setTimeFormatLeft] = useState(0);
 
   const [showNumberFormatPopup, setShowNumberFormatPopup] = useState(false);
   const [numberFormatTop, setNumberFormatTop] = useState(0);
@@ -133,18 +123,6 @@ export const EditRow = ({
     setShowEditCellOption(true);
     setEditCellOptionLeft(_left);
     setEditCellOptionTop(_top);
-  };
-
-  const onDateFormatClick = (_left: number, _top: number) => {
-    setShowDateFormatPopup(true);
-    setDateFormatLeft(_left + 10);
-    setDateFormatTop(_top);
-  };
-
-  const onTimeFormatClick = (_left: number, _top: number) => {
-    setShowTimeFormatPopup(true);
-    setTimeFormatLeft(_left + 10);
-    setTimeFormatTop(_top);
   };
 
   const onNumberFormat = (_left: number, _top: number) => {
@@ -228,6 +206,7 @@ export const EditRow = ({
             viewId={viewId}
             onOutsideClick={onOutsideEditFieldClick}
             fieldInfo={controller.fieldController.getField(editingCell.fieldId)}
+            fieldController={controller.fieldController}
             changeFieldTypeClick={onChangeFieldTypeClick}
             onNumberFormat={onNumberFormat}
           ></EditFieldPopup>
@@ -259,29 +238,7 @@ export const EditRow = ({
             cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
             fieldController={controller.fieldController}
             onOutsideClick={() => setShowDatePicker(false)}
-            onDateFormatClick={onDateFormatClick}
-            onTimeFormatClick={onTimeFormatClick}
           ></DatePickerPopup>
-        )}
-        {showDateFormatPopup && editingCell && (
-          <DateFormatPopup
-            top={dateFormatTop}
-            left={dateFormatLeft}
-            cellIdentifier={editingCell}
-            cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
-            fieldController={controller.fieldController}
-            onOutsideClick={() => setShowDateFormatPopup(false)}
-          ></DateFormatPopup>
-        )}
-        {showTimeFormatPopup && editingCell && (
-          <TimeFormatPopup
-            top={timeFormatTop}
-            left={timeFormatLeft}
-            cellIdentifier={editingCell}
-            cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
-            fieldController={controller.fieldController}
-            onOutsideClick={() => setShowTimeFormatPopup(false)}
-          ></TimeFormatPopup>
         )}
         {showEditCellOption && editingCell && editingSelectOption && (
           <EditCellOptionPopup

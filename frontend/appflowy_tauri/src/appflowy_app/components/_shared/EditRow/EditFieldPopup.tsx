@@ -5,12 +5,13 @@ import { FieldTypeName } from '$app/components/_shared/EditRow/FieldTypeName';
 import { useTranslation } from 'react-i18next';
 import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
 import { Some } from 'ts-results';
-import { FieldInfo } from '$app/stores/effects/database/field/field_controller';
+import { FieldController, FieldInfo } from '$app/stores/effects/database/field/field_controller';
 import { MoreSvg } from '$app/components/_shared/svg/MoreSvg';
 import { useAppSelector } from '$app/stores/store';
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { PopupWindow } from '$app/components/_shared/PopupWindow';
 import { FieldType } from '@/services/backend';
+import { DateTypeOptions } from '$app/components/_shared/EditRow/DateTypeOptions';
 
 export const EditFieldPopup = ({
   top,
@@ -19,6 +20,7 @@ export const EditFieldPopup = ({
   viewId,
   onOutsideClick,
   fieldInfo,
+  fieldController,
   changeFieldTypeClick,
   onNumberFormat,
 }: {
@@ -28,6 +30,7 @@ export const EditFieldPopup = ({
   viewId: string;
   onOutsideClick: () => void;
   fieldInfo: FieldInfo | undefined;
+  fieldController: FieldController;
   changeFieldTypeClick: (buttonTop: number, buttonRight: number) => void;
   onNumberFormat: (buttonLeft: number, buttonTop: number) => void;
 }) => {
@@ -127,24 +130,27 @@ export const EditFieldPopup = ({
           </span>
         </div>
 
-        {cellIdentifier.fieldType === FieldType.Number || cellIdentifier.fieldType === FieldType.DateTime ? (
-          <hr className={'-mx-2 border-shade-6'} />
-        ) : (
-          <></>
+        {cellIdentifier.fieldType === FieldType.Number && (
+          <>
+            <hr className={'-mx-2 border-shade-6'} />
+            <button
+              onClick={onNumberFormatClick}
+              className={
+                'flex w-full cursor-pointer items-center justify-between rounded-lg py-2 hover:bg-main-secondary'
+              }
+            >
+              <span className={'pl-2'}>{t('grid.field.numberFormat')}</span>
+              <span className={'pr-2'}>
+                <i className={'block h-5 w-5'}>
+                  <MoreSvg></MoreSvg>
+                </i>
+              </span>
+            </button>
+          </>
         )}
 
-        {cellIdentifier.fieldType === FieldType.Number && (
-          <button
-            onClick={onNumberFormatClick}
-            className={'flex w-full cursor-pointer items-center justify-between rounded-lg py-2 hover:bg-main-secondary'}
-          >
-            <span className={'pl-2'}>{t('grid.field.numberFormat')}</span>
-            <span className={'pr-2'}>
-              <i className={'block h-5 w-5'}>
-                <MoreSvg></MoreSvg>
-              </i>
-            </span>
-          </button>
+        {cellIdentifier.fieldType === FieldType.DateTime && (
+          <DateTypeOptions cellIdentifier={cellIdentifier} fieldController={fieldController}></DateTypeOptions>
         )}
       </div>
     </PopupWindow>

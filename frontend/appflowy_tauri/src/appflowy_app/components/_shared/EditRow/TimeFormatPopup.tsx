@@ -1,5 +1,4 @@
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
-import { CellCache } from '$app/stores/effects/database/cell/cell_cache';
 import { FieldController } from '$app/stores/effects/database/field/field_controller';
 import { useTranslation } from 'react-i18next';
 import { PopupWindow } from '$app/components/_shared/PopupWindow';
@@ -14,14 +13,12 @@ export const TimeFormatPopup = ({
   left,
   top,
   cellIdentifier,
-  cellCache,
   fieldController,
   onOutsideClick,
 }: {
   left: number;
   top: number;
   cellIdentifier: CellIdentifier;
-  cellCache: CellCache;
   fieldController: FieldController;
   onOutsideClick: () => void;
 }) => {
