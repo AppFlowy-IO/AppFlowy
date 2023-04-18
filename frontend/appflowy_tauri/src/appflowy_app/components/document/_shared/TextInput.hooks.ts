@@ -1,6 +1,6 @@
 import { useCallback, useContext, useMemo, useRef, useEffect } from 'react';
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
-import { TextDelta, BlockActionType } from '$app/interfaces/document';
+import { TextDelta } from '$app/interfaces/document';
 import { debounce } from '@/appflowy_app/utils/tool';
 import { createEditor } from 'slate';
 import { withReact } from 'slate-react';
@@ -108,9 +108,10 @@ function useBindYjs(delta: TextDelta[], update: (_delta: TextDelta[]) => void) {
 
     const textEventHandler = (event: Y.YTextEvent) => {
       const textDelta = event.target.toDelta();
-      console.log(textDelta);
       update(textDelta);
     };
+    console.log('delta change', delta);
+    yText.delete(0, yText.length);
     yText.applyDelta(delta);
     yText.observe(textEventHandler);
 

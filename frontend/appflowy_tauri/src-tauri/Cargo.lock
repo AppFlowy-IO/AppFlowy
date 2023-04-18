@@ -1482,6 +1482,7 @@ dependencies = [
  "serde_json",
  "strum",
  "strum_macros",
+ "tokio",
  "tracing",
 ]
 
