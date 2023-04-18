@@ -37,7 +37,10 @@ class SortChoiceButton extends StatelessWidget {
     return FlowyButton(
       decoration: decoration,
       useIntrinsicWidth: true,
-      text: FlowyText(text),
+      text: FlowyText(
+        text,
+        color: AFThemeExtension.of(context).textColor,
+      ),
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       radius: BorderRadius.all(radius),
       leftIcon: leftIcon,

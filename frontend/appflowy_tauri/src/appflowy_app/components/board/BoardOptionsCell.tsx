@@ -1,8 +1,8 @@
-import { SelectOptionCellDataPB } from '../../../services/backend';
+import { SelectOptionCellDataPB } from '@/services/backend';
 import { useCell } from '../_shared/database-hooks/useCell';
-import { CellIdentifier } from '../../stores/effects/database/cell/cell_bd_svc';
-import { CellCache } from '../../stores/effects/database/cell/cell_cache';
-import { FieldController } from '../../stores/effects/database/field/field_controller';
+import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
+import { CellCache } from '$app/stores/effects/database/cell/cell_cache';
+import { FieldController } from '$app/stores/effects/database/field/field_controller';
 import { getBgColor } from '$app/components/_shared/getColor';
 
 export const BoardOptionsCell = ({
@@ -18,7 +18,7 @@ export const BoardOptionsCell = ({
 
   return (
     <div className={'flex flex-wrap items-center gap-2 py-2 text-xs text-black'}>
-      {(data as SelectOptionCellDataPB | undefined)?.select_options?.map((option, index) => (
+      {(data as SelectOptionCellDataPB)?.select_options?.map((option, index) => (
         <div className={`${getBgColor(option.color)} rounded px-2 py-0.5`} key={index}>
           {option?.name || ''}
         </div>

@@ -11,9 +11,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  ffi: ^1.0.0
+  ffi: ^2.0.1
   isolates: ^3.0.3+8
-  protobuf: "2.0.0"
+  protobuf: ^2.0.0
   dartz: ^0.10.1
   freezed_annotation:
   logger: ^1.0.0

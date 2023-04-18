@@ -4,7 +4,7 @@ import { useRoot } from './Root.hooks';
 import Node from '../Node';
 import { withErrorBoundary } from 'react-error-boundary';
 import { ErrorBoundaryFallbackComponent } from '../_shared/ErrorBoundaryFallbackComponent';
-import VirtualizerList from '../VirtualizerList';
+import VirtualizedList from '../VirtualizedList';
 import { Skeleton } from '@mui/material';
 
 function Root({ documentData }: { documentData: DocumentData }) {
@@ -18,9 +18,10 @@ function Root({ documentData }: { documentData: DocumentData }) {
     return <Skeleton />;
   }
 
+
   return (
     <div id='appflowy-block-doc' className='h-[100%] overflow-hidden'>
-      <VirtualizerList node={node} childIds={childIds} renderNode={renderNode} />
+      <VirtualizedList node={node} childIds={childIds} renderNode={renderNode} />
     </div>
   );
 }

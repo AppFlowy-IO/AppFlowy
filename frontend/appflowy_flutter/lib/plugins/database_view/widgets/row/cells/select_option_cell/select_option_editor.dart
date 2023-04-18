@@ -210,7 +210,7 @@ class _CreateOptionCell extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: SelectOptionTag(
                   name: name,
-                  color: AFThemeExtension.of(context).lightGreyHover,
+                  color: AFThemeExtension.of(context).greyHover,
                   onSelected: () => context
                       .read<SelectOptionCellEditorBloc>()
                       .add(SelectOptionEditorEvent.newOption(name)),

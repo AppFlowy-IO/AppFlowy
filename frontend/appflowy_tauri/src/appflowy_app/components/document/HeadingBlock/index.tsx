@@ -11,7 +11,7 @@ const fontSize: Record<string, string> = {
 export default function HeadingBlock({ node, delta }: { node: Node; delta: TextDelta[] }) {
   return (
     <div className={`${fontSize[node.data.style?.level]} font-semibold	`}>
-      <TextBlock node={node} childIds={[]} delta={delta} />
+      {/*<TextBlock node={node} childIds={[]} delta={delta} />*/}
     </div>
   );
 }

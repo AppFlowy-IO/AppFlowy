@@ -1,27 +1,25 @@
-import { nanoid } from 'nanoid';
-import { FieldType } from '@/services/backend/models/flowy-database/field_entities';
-import { gridActions } from '../../../stores/reducers/grid/slice';
-import { useAppDispatch, useAppSelector } from '../../../stores/store';
+import { useAppSelector } from '$app/stores/store';
+import { DatabaseController } from '@/appflowy_app/stores/effects/database/database_controller';
+import { TypeOptionController } from '@/appflowy_app/stores/effects/database/field/type_option/type_option_controller';
+import { None } from 'ts-results';
 
-export const useGridTableHeaderHooks = function () {
-  const dispatch = useAppDispatch();
-  const grid = useAppSelector((state) => state.grid);
+export const useGridTableHeaderHooks = function (controller: DatabaseController) {
+  const database = useAppSelector((state) => state.database);
 
-  const onAddField = () => {
-    dispatch(
-      gridActions.addField({
-        field: {
-          fieldId: nanoid(8),
-          name: 'Name',
-          fieldOptions: {},
-          fieldType: FieldType.RichText,
-        },
-      })
-    );
+  const onAddField = async () => {
+    // TODO: move this to database controller hook
+    const fieldController = new TypeOptionController(controller.viewId, None);
+    await fieldController.initialize();
   };
 
   return {
-    fields: grid.fields,
+    fields: Object.values(database.fields).map((field) => {
+      return {
+        fieldId: field.fieldId,
+        name: field.title,
+        fieldType: field.fieldType,
+      };
+    }),
     onAddField,
   };
 };

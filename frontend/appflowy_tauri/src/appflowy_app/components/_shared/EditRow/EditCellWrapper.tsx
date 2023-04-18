@@ -27,9 +27,9 @@ export const EditCellWrapper = ({
   cellIdentifier: CellIdentifier;
   cellCache: CellCache;
   fieldController: FieldController;
-  onEditFieldClick: (top: number, right: number) => void;
-  onEditOptionsClick: (left: number, top: number) => void;
-  onEditDateClick: (left: number, top: number) => void;
+  onEditFieldClick: (cell: CellIdentifier, left: number, top: number) => void;
+  onEditOptionsClick: (cell: CellIdentifier, left: number, top: number) => void;
+  onEditDateClick: (cell: CellIdentifier, left: number, top: number) => void;
 }) => {
   const { data, cellController } = useCell(cellIdentifier, cellCache, fieldController);
   const databaseStore = useAppSelector((state) => state.database);
@@ -38,7 +38,7 @@ export const EditCellWrapper = ({
   const onClick = () => {
     if (!el.current) return;
     const { top, right } = el.current.getBoundingClientRect();
-    onEditFieldClick(top, right);
+    onEditFieldClick(cellIdentifier, right, top);
   };
 
   return (
@@ -70,17 +70,23 @@ export const EditCellWrapper = ({
               cellIdentifier.fieldType === FieldType.Checklist) &&
               cellController && (
                 <CellOptions
-                  data={data as SelectOptionCellDataPB | undefined}
-                  onEditClick={onEditOptionsClick}
+                  data={data as SelectOptionCellDataPB}
+                  onEditClick={(left, top) => onEditOptionsClick(cellIdentifier, left, top)}
                 ></CellOptions>
               )}
 
             {cellIdentifier.fieldType === FieldType.Checkbox && cellController && (
-              <EditCheckboxCell data={data as boolean | undefined} cellController={cellController}></EditCheckboxCell>
+              <EditCheckboxCell
+                data={data as 'Yes' | 'No' | undefined}
+                cellController={cellController}
+              ></EditCheckboxCell>
             )}
 
             {cellIdentifier.fieldType === FieldType.DateTime && (
-              <EditCellDate data={data as DateCellDataPB | undefined} onEditClick={onEditDateClick}></EditCellDate>
+              <EditCellDate
+                data={data as DateCellDataPB}
+                onEditClick={(left, top) => onEditDateClick(cellIdentifier, left, top)}
+              ></EditCellDate>
             )}
 
             {cellIdentifier.fieldType === FieldType.Number && cellController && (
@@ -88,7 +94,7 @@ export const EditCellWrapper = ({
             )}
 
             {cellIdentifier.fieldType === FieldType.URL && cellController && (
-              <EditCellUrl data={data as URLCellDataPB | undefined} cellController={cellController}></EditCellUrl>
+              <EditCellUrl data={data as URLCellDataPB} cellController={cellController}></EditCellUrl>
             )}
 
             {cellIdentifier.fieldType === FieldType.RichText && cellController && (

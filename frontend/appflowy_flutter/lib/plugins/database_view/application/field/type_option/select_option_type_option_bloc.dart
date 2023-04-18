@@ -49,11 +49,6 @@ class SelectOptionTypeOptionBloc
       },
     );
   }
-
-  @override
-  Future<void> close() async {
-    return super.close();
-  }
 }
 
 @freezed

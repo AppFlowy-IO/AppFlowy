@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/database_view/application/field/type_option/edi
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -103,7 +104,11 @@ class _DeleteTag extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(LocaleKeys.grid_selectOption_deleteTag.tr()),
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        text: FlowyText.medium(
+          LocaleKeys.grid_selectOption_deleteTag.tr(),
+          color: AFThemeExtension.of(context).textColor,
+        ),
         leftIcon: svgWidget(
           "grid/delete",
           color: Theme.of(context).iconTheme.color,

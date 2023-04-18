@@ -23,8 +23,6 @@ class CalendarSettingBloc
     });
   }
 
-  @override
-  Future<void> close() async => super.close();
 }
 
 @freezed

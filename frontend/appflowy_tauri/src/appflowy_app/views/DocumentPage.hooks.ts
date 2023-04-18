@@ -20,12 +20,16 @@ export const useDocument = () => {
       if (!params?.id) return;
       const c = new DocumentController(params.id);
       setController(c);
-      const res = await c.open();
-      console.log(res)
-      if (!res) return;
-      setDocumentData(res)
-      setDocumentId(params.id)
-      
+      try {
+        const res = await c.open();
+        console.log(res)
+        if (!res) return;
+        setDocumentData(res);
+        setDocumentId(params.id);
+      } catch (e) {
+        console.log(e)
+      }
+
     })();
     return () => {
       console.log('==== leave ====', params?.id)

@@ -72,7 +72,7 @@ export function useBlockSelection({
     });
   }, []);
 
-  const calcIntersectBlocks = useCallback(
+  const updateSelctionsByPoint = useCallback(
     (clientX: number, clientY: number) => {
       if (!isDragging) return;
       const [startX, startY] = pointRef.current;
@@ -86,7 +86,7 @@ export function useBlockSelection({
         endY,
       });
       disaptch(
-        documentActions.changeSelectionByIntersectRect({
+        documentActions.setSelectionByRect({
           startX: Math.min(startX, endX),
           startY: Math.min(startY, endY),
           endX: Math.max(startX, endX),
@@ -102,7 +102,7 @@ export function useBlockSelection({
       if (!isDragging) return;
       e.preventDefault();
       e.stopPropagation();
-      calcIntersectBlocks(e.clientX, e.clientY);
+      updateSelctionsByPoint(e.clientX, e.clientY);
 
       const { top, bottom } = container.getBoundingClientRect();
       if (e.clientY >= bottom) {
@@ -124,7 +124,7 @@ export function useBlockSelection({
       }
       if (!isDragging) return;
       e.preventDefault();
-      calcIntersectBlocks(e.clientX, e.clientY);
+      updateSelctionsByPoint(e.clientX, e.clientY);
       setDragging(false);
       setRect(null);
     },

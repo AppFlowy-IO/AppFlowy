@@ -8,7 +8,7 @@ async function testCreateDocument() {
   const document = await svc.open().then((result) => result.unwrap());
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const content = JSON.parse(document.content);
+  // const content = JSON.parse(document.content);
   // The initial document content:
   // {
   //   "document": {

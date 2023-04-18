@@ -38,9 +38,9 @@ fi
 printMessage "Setting up Flutter"
 # Get the current Flutter version
 FLUTTER_VERSION=$(flutter --version | grep -oP 'Flutter \K\S+')
-# Check if the current version is 3.3.10
-if [ "$FLUTTER_VERSION" = "3.3.10" ]; then
-    echo "Flutter version is already 3.3.10"
+# Check if the current version is 3.7.5
+if [ "$FLUTTER_VERSION" = "3.7.5" ]; then
+    echo "Flutter version is already 3.7.5"
 else
     # Get the path to the Flutter SDK
     FLUTTER_PATH=$(which flutter)
@@ -49,12 +49,12 @@ else
     current_dir=$(pwd)
 
     cd $FLUTTER_PATH
-    # Use git to checkout version 3.3.10 of Flutter
-    git checkout 3.3.10
+    # Use git to checkout version 3.7.5 of Flutter
+    git checkout 3.7.5
     # Get back to current working directory
     cd "$current_dir"
 
-    echo "Switched to Flutter version 3.3.10"
+    echo "Switched to Flutter version 3.7.5"
 fi
 
 # Enable linux desktop

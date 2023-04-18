@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_node_
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
+import 'package:appflowy/workspace/application/doc/doc_listener.dart';
 import 'package:appflowy/plugins/document/application/doc_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
@@ -17,12 +18,13 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:dartz/dartz.dart';
 import 'dart:async';
 import 'package:appflowy/util/either_extension.dart';
-
+import 'package:appflowy_backend/protobuf/flowy-document2/entities.pb.dart';
 part 'doc_bloc.freezed.dart';
 
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   final ViewPB view;
   final DocumentService _documentService;
+  final DocumentListener _docListener;
 
   final ViewListener _listener;
   final TrashService _trashService;
@@ -32,12 +34,14 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   DocumentBloc({
     required this.view,
   })  : _documentService = DocumentService(),
+        _docListener = DocumentListener(id: view.id),
         _listener = ViewListener(view: view),
         _trashService = TrashService(),
         super(DocumentState.initial()) {
     on<DocumentEvent>((event, emit) async {
       await event.map(
         initial: (Initial value) async {
+          _listenOnDocChange();
           await _initial(value, emit);
           _listenOnViewChange();
         },
@@ -73,6 +77,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     }
 
     await _documentService.closeDocument(docId: view.id);
+    await _documentService.closeDocumentV2(view: view);
     return super.close();
   }
 
@@ -88,6 +93,39 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       );
     }
     final result = await _documentService.openDocument(view: view);
+    // test code
+    final document = await _documentService.openDocumentV2(view: view);
+    BlockPB? root;
+    document.fold((l) {
+      print('---------<open document v2>-----------');
+      print('page id = ${l.pageId}');
+      l.blocks.blocks.forEach((key, value) {
+        print('-----<block begin>-----');
+        print('block = $value');
+        if (value.ty == 'page') {
+          root = value;
+        }
+        print('-----<block end>-----');
+      });
+      print('---------<open document v2>-----------');
+    }, (r) {});
+    if (root != null) {
+      await _documentService.applyAction(
+        view: view,
+        actions: [
+          BlockActionPB(
+            action: BlockActionTypePB.Insert,
+            payload: BlockActionPayloadPB(
+              block: BlockPB()
+                ..id = 'id_0'
+                ..ty = 'text'
+                ..parentId = root!.id,
+            ),
+          ),
+        ],
+      );
+    }
+
     return result.fold(
       (documentData) async {
         await _initEditorState(documentData).whenComplete(() {
@@ -122,6 +160,14 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           (view) => add(const DocumentEvent.restore()),
           (error) {},
         );
+      },
+    );
+  }
+
+  void _listenOnDocChange() {
+    _docListener.start(
+      didReceiveUpdate: () {
+        print('---------<receive document update>-----------');
       },
     );
   }

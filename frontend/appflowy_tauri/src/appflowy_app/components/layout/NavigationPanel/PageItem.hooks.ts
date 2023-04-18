@@ -13,7 +13,6 @@ export const usePageEvents = (page: IPage) => {
   const [activePageId, setActivePageId] = useState<string>('');
   const currentLocation = useLocation();
   const viewBackendService: ViewBackendService = new ViewBackendService(page.id);
-  const error = useError();
 
   useEffect(() => {
     const { pathname } = currentLocation;
@@ -32,33 +31,21 @@ export const usePageEvents = (page: IPage) => {
   };
 
   const changePageTitle = async (newTitle: string) => {
-    try {
-      await viewBackendService.update({ name: newTitle });
-      appDispatch(pagesActions.renamePage({ id: page.id, newTitle }));
-    } catch (e: any) {
-      error.showError(e?.message);
-    }
+    await viewBackendService.update({ name: newTitle });
+    appDispatch(pagesActions.renamePage({ id: page.id, newTitle }));
   };
 
   const deletePage = async () => {
     closePopup();
-    try {
-      await viewBackendService.delete();
-      appDispatch(pagesActions.deletePage({ id: page.id }));
-    } catch (e: any) {
-      error.showError(e?.message);
-    }
+    await viewBackendService.delete();
+    appDispatch(pagesActions.deletePage({ id: page.id }));
   };
 
   const duplicatePage = () => {
     closePopup();
-    try {
-      appDispatch(
-        pagesActions.addPage({ id: nanoid(8), pageType: page.pageType, title: page.title, folderId: page.folderId })
-      );
-    } catch (e: any) {
-      error.showError(e?.message);
-    }
+    appDispatch(
+      pagesActions.addPage({ id: nanoid(8), pageType: page.pageType, title: page.title, folderId: page.folderId })
+    );
   };
 
   const closePopup = () => {

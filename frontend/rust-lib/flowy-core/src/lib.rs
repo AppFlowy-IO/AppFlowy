@@ -13,6 +13,7 @@ use flowy_client_ws::{listen_on_websocket, FlowyWebSocketConnect, NetworkType};
 use flowy_database2::DatabaseManager2;
 use flowy_document::entities::DocumentVersionPB;
 use flowy_document::{DocumentConfig, DocumentManager};
+use flowy_document2::manager::DocumentManager as DocumentManager2;
 use flowy_error::FlowyResult;
 use flowy_folder2::manager::Folder2Manager;
 pub use flowy_net::get_client_server_configuration;
@@ -96,6 +97,7 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   filters.push(format!("collab_database={}", level));
   filters.push(format!("flowy_user={}", level));
   filters.push(format!("flowy_document={}", level));
+  filters.push(format!("flowy_document2={}", level));
   filters.push(format!("flowy_database={}", level));
   filters.push(format!("flowy_database2={}", level));
   filters.push(format!("flowy_sync={}", "info"));
@@ -128,6 +130,7 @@ pub struct AppFlowyCore {
   pub config: AppFlowyCoreConfig,
   pub user_session: Arc<UserSession>,
   pub document_manager: Arc<DocumentManager>,
+  pub document_manager2: Arc<DocumentManager2>,
   pub folder_manager: Arc<Folder2Manager>,
   // pub database_manager: Arc<DatabaseManager>,
   pub database_manager: Arc<DatabaseManager2>,
@@ -151,47 +154,55 @@ impl AppFlowyCore {
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
 
     let (local_server, ws_conn) = mk_local_server(&config.server_config);
-    let (user_session, document_manager, folder_manager, local_server, database_manager) = runtime
-      .block_on(async {
-        let user_session = mk_user_session(&config, &local_server, &config.server_config);
-        let document_manager = DocumentDepsResolver::resolve(
-          local_server.clone(),
-          ws_conn.clone(),
-          user_session.clone(),
-          &config.server_config,
-          &config.document,
-        );
+    let (
+      user_session,
+      document_manager,
+      folder_manager,
+      local_server,
+      database_manager,
+      document_manager2,
+    ) = runtime.block_on(async {
+      let user_session = mk_user_session(&config, &local_server, &config.server_config);
+      let document_manager = DocumentDepsResolver::resolve(
+        local_server.clone(),
+        ws_conn.clone(),
+        user_session.clone(),
+        &config.server_config,
+        &config.document,
+      );
+      let database_manager2 = Database2DepsResolver::resolve(
+        ws_conn.clone(),
+        user_session.clone(),
+        task_dispatcher.clone(),
+      )
+      .await;
+      let database_manager = DatabaseDepsResolver::resolve(
+        ws_conn.clone(),
+        user_session.clone(),
+        task_dispatcher.clone(),
+      )
+      .await;
 
-        // let database_manager = DatabaseDepsResolver::resolve(
-        //   ws_conn.clone(),
-        //   user_session.clone(),
-        //   task_dispatcher.clone(),
-        // )
-        // .await;
+      let folder_manager =
+        Folder2DepsResolver::resolve(user_session.clone(), &document_manager, &database_manager)
+          .await;
 
-        let database_manager2 = Database2DepsResolver::resolve(
-          ws_conn.clone(),
-          user_session.clone(),
-          task_dispatcher.clone(),
-        )
-        .await;
+      let document_manager2 =
+        Document2DepsResolver::resolve(user_session.clone(), &database_manager);
 
-        let folder_manager =
-          Folder2DepsResolver::resolve(user_session.clone(), &document_manager, &database_manager2)
-            .await;
-
-        if let Some(local_server) = local_server.as_ref() {
-          local_server.run();
-        }
-        ws_conn.init().await;
-        (
-          user_session,
-          document_manager,
-          folder_manager,
-          local_server,
-          database_manager2,
-        )
-      });
+      if let Some(local_server) = local_server.as_ref() {
+        local_server.run();
+      }
+      ws_conn.init().await;
+      (
+        user_session,
+        document_manager,
+        folder_manager,
+        local_server,
+        database_manager2,
+        document_manager2,
+      )
+    });
 
     let user_status_listener = UserStatusListener {
       document_manager: document_manager.clone(),
@@ -215,6 +226,7 @@ impl AppFlowyCore {
         &database_manager,
         &user_session,
         &document_manager,
+        &document_manager2,
       )
     }));
     _start_listening(&event_dispatcher, &ws_conn, &folder_manager);
@@ -223,6 +235,7 @@ impl AppFlowyCore {
       config,
       user_session,
       document_manager,
+      document_manager2,
       folder_manager,
       database_manager,
       event_dispatcher,
