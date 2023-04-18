@@ -116,7 +116,7 @@ impl DatabaseManager2 {
 
   pub async fn duplicate_database(&self, view_id: &str) -> FlowyResult<Vec<u8>> {
     let database_data = self.with_user_database(Err(FlowyError::internal()), |database| {
-      let data = database.make_duplicate_database_data(view_id)?;
+      let data = database.get_database_duplicated_data(view_id)?;
       let json_bytes = data.to_json_bytes()?;
       Ok(json_bytes)
     })?;

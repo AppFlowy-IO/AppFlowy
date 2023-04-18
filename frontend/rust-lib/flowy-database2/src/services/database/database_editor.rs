@@ -3,7 +3,7 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use bytes::Bytes;
-use collab_database::database::{gen_row_id, Database as InnerDatabase};
+use collab_database::database::{gen_row_id, timestamp, Database as InnerDatabase};
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, Row, RowCell, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, RowOrder};
@@ -288,7 +288,7 @@ impl DatabaseEditor {
       view.v_will_create_row(&mut cells, &params.group_id).await;
     }
 
-    let result = self.database.lock().create_row(
+    let result = self.database.lock().create_row_in_view(
       &params.view_id,
       collab_database::block::CreateRowParams {
         id: gen_row_id(),
@@ -296,6 +296,7 @@ impl DatabaseEditor {
         height: 60,
         visibility: true,
         prev_row_id: params.start_row_id,
+        timestamp: timestamp(),
       },
     );
 
