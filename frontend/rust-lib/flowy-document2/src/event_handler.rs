@@ -1,17 +1,17 @@
-use std::{sync::Arc};
+use std::sync::Arc;
 
 use crate::{
   document::DocumentDataWrapper,
   entities::{
-    ApplyActionPayloadPBV2, BlockActionPB, BlockActionPayloadPB, BlockActionTypePB,
-    BlockPB, CloseDocumentPayloadPBV2, DocumentDataPB2, OpenDocumentPayloadPBV2, CreateDocumentPayloadPBV2,
-    BlockEventPB
+    ApplyActionPayloadPBV2, BlockActionPB, BlockActionPayloadPB, BlockActionTypePB, BlockEventPB,
+    BlockPB, CloseDocumentPayloadPBV2, CreateDocumentPayloadPBV2, DocumentDataPB2,
+    OpenDocumentPayloadPBV2,
   },
   manager::DocumentManager,
 };
 
 use collab_document::blocks::{
-  json_str_to_hashmap, Block, BlockAction, BlockActionPayload, BlockActionType, BlockEvent
+  json_str_to_hashmap, Block, BlockAction, BlockActionPayload, BlockActionType, BlockEvent,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -110,10 +110,12 @@ impl From<BlockPB> for Block {
 
 impl From<BlockEvent> for BlockEventPB {
   fn from(block_event: BlockEvent) -> Self {
-    let delta = serde_json::to_value(&block_event.delta).unwrap();
-    Self {
-      path: block_event.path.into(),
-      delta: delta.to_string(),
-    }
+    // let delta = serde_json::to_value(&block_event.delta).unwrap();
+    // Self {
+    //   path: block_event.path.into(),
+    //   delta: delta.to_string(),
+    // }
+    // TODO: fei kang
+    todo!()
   }
 }

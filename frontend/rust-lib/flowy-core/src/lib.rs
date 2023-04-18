@@ -176,19 +176,13 @@ impl AppFlowyCore {
         task_dispatcher.clone(),
       )
       .await;
-      let database_manager = DatabaseDepsResolver::resolve(
-        ws_conn.clone(),
-        user_session.clone(),
-        task_dispatcher.clone(),
-      )
-      .await;
 
       let folder_manager =
-        Folder2DepsResolver::resolve(user_session.clone(), &document_manager, &database_manager)
+        Folder2DepsResolver::resolve(user_session.clone(), &document_manager, &database_manager2)
           .await;
 
       let document_manager2 =
-        Document2DepsResolver::resolve(user_session.clone(), &database_manager);
+        Document2DepsResolver::resolve(user_session.clone(), &database_manager2);
 
       if let Some(local_server) = local_server.as_ref() {
         local_server.run();

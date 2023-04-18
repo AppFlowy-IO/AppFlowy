@@ -538,7 +538,6 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?branch=main#dd49b08fae2ad008844409c7ce6b8c754446955c"
 dependencies = [
  "anyhow",
  "collab",
@@ -549,6 +548,7 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror",
+ "tracing",
 ]
 
 [[package]]

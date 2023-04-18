@@ -576,7 +576,6 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#986737b4125162ae94dbeb6ece8267714f67b1dd"
 dependencies = [
  "anyhow",
  "bytes",
@@ -592,9 +591,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "collab-database"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "collab",
+ "collab-derive",
+ "collab-persistence",
+ "lazy_static",
+ "nanoid",
+ "parking_lot 0.12.1",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "thiserror",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#986737b4125162ae94dbeb6ece8267714f67b1dd"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -606,7 +624,6 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#986737b4125162ae94dbeb6ece8267714f67b1dd"
 dependencies = [
  "anyhow",
  "collab",
@@ -617,12 +634,12 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror",
+ "tracing",
 ]
 
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#986737b4125162ae94dbeb6ece8267714f67b1dd"
 dependencies = [
  "anyhow",
  "collab",
@@ -640,16 +657,17 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#986737b4125162ae94dbeb6ece8267714f67b1dd"
 dependencies = [
  "bincode",
  "chrono",
  "lib0",
+ "parking_lot 0.12.1",
  "serde",
  "sled",
  "smallvec",
  "thiserror",
  "tokio",
+ "tracing",
  "yrs",
 ]
 
@@ -1334,11 +1352,10 @@ dependencies = [
  "collab-persistence",
  "database-model",
  "flowy-client-ws",
- "flowy-database",
+ "flowy-database2",
  "flowy-document",
  "flowy-document2",
  "flowy-error",
- "flowy-folder",
  "flowy-folder2",
  "flowy-net",
  "flowy-revision",
@@ -1361,40 +1378,33 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-database"
+name = "flowy-database2"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-stream",
- "atomic_refcell",
  "bytes",
  "chrono",
- "crossbeam-utils",
+ "collab",
+ "collab-database",
+ "collab-persistence",
  "dashmap",
  "database-model",
- "diesel",
  "fancy-regex 0.10.0",
- "flowy-client-sync",
  "flowy-codegen",
  "flowy-derive",
  "flowy-error",
  "flowy-notification",
- "flowy-revision",
- "flowy-revision-persistence",
- "flowy-sqlite",
  "flowy-task",
  "futures",
  "indexmap",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
- "lib-ot",
  "nanoid",
  "parking_lot 0.12.1",
  "protobuf",
  "rayon",
- "regex",
- "revision-model",
  "rust_decimal",
  "rusty-money",
  "serde",
@@ -1480,6 +1490,7 @@ dependencies = [
  "serde_json",
  "strum",
  "strum_macros",
+ "tracing",
 ]
 
 [[package]]
@@ -1488,6 +1499,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bytes",
+ "collab-database",
  "flowy-client-sync",
  "flowy-client-ws",
  "flowy-codegen",
@@ -1504,43 +1516,6 @@ dependencies = [
  "serde_repr",
  "thiserror",
  "user-model",
-]
-
-[[package]]
-name = "flowy-folder"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "diesel",
- "diesel_derives",
- "flowy-client-sync",
- "flowy-codegen",
- "flowy-derive",
- "flowy-document",
- "flowy-error",
- "flowy-notification",
- "flowy-revision",
- "flowy-revision-persistence",
- "flowy-sqlite",
- "folder-model",
- "futures",
- "lazy_static",
- "lib-dispatch",
- "lib-infra",
- "lib-ot",
- "log",
- "parking_lot 0.12.1",
- "pin-project",
- "protobuf",
- "revision-model",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "unicode-segmentation",
- "ws-model",
 ]
 
 [[package]]
