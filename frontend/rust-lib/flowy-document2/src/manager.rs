@@ -1,5 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
+use collab::preclude::Collab;
 use collab::{plugin_impl::disk::CollabDiskPlugin, preclude::CollabBuilder};
 use collab_persistence::CollabKV;
 use flowy_error::{FlowyError, FlowyResult};
@@ -38,31 +39,22 @@ impl DocumentManager {
     doc_id: String,
     data: DocumentDataWrapper,
   ) -> FlowyResult<Arc<Document>> {
-    self.initial_document(doc_id, Some(data))
-  }
-
-  fn initial_document(
-    &self,
-    doc_id: String,
-    data: Option<DocumentDataWrapper>,
-  ) -> FlowyResult<Arc<Document>> {
     let collab = self.get_collab_for_doc_id(&doc_id)?;
-    let document = match data {
-      Some(data) => Document::create_with_data(collab, data.0)
-        .map_err(|err| FlowyError::internal().context(err))?,
-      None => Document::new(collab).map_err(|err| FlowyError::internal().context(err))?,
-    };
-
-    Ok(Arc::new(document))
+    let document = Arc::new(Document::create_with_data(collab, data.0)?);
+    self
+      .documents
+      .write()
+      .insert(doc_id.clone(), document.clone());
+    Ok(document)
   }
 
   pub fn open_document(&self, doc_id: String) -> FlowyResult<Arc<Document>> {
     if let Some(doc) = self.documents.read().get(&doc_id) {
-      tracing::debug!("get_document: {:?}", &doc_id);
       return Ok(doc.clone());
     }
     tracing::debug!("open_document: {:?}", &doc_id);
-    let document = self.initial_document(doc_id.clone(), None)?;
+    let collab = self.get_collab_for_doc_id(&doc_id)?;
+    let document = Arc::new(Document::new(collab)?);
 
     let clone_doc_id = doc_id.clone();
     document
@@ -89,7 +81,6 @@ impl DocumentManager {
       .documents
       .write()
       .insert(doc_id.clone(), document.clone());
-
     Ok(document)
   }
 
@@ -98,7 +89,7 @@ impl DocumentManager {
     Ok(())
   }
 
-  fn get_collab_for_doc_id(&self, doc_id: &str) -> Result<collab::preclude::Collab, FlowyError> {
+  fn get_collab_for_doc_id(&self, doc_id: &str) -> Result<Collab, FlowyError> {
     let uid = self.user.user_id()?;
     let kv_db = self.user.kv_db()?;
     let mut collab = CollabBuilder::new(uid, doc_id).build();
