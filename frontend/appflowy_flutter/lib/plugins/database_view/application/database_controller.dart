@@ -199,7 +199,8 @@ class DatabaseController {
   }
 
   Future<void> updateCalenderLayoutSetting(
-      CalendarLayoutSettingPB layoutSetting) async {
+    CalendarLayoutSettingPB layoutSetting,
+  ) async {
     await _databaseViewBackendSvc
         .updateLayoutSetting(calendarLayoutSetting: layoutSetting)
         .then((result) {

@@ -93,24 +93,25 @@ impl Folder2Manager {
   pub async fn initialize(&self, user_id: i64) -> FlowyResult<()> {
     if let Ok(uid) = self.user.user_id() {
       let folder_id = FolderId::new(uid);
-      let mut collab = CollabBuilder::new(uid, folder_id).build();
+
       if let Ok(kv_db) = self.user.kv_db() {
+        let mut collab = CollabBuilder::new(uid, folder_id).build();
         let disk_plugin = Arc::new(
           CollabDiskPlugin::new(uid, kv_db).map_err(|err| FlowyError::internal().context(err))?,
         );
         collab.add_plugin(disk_plugin);
         collab.initial();
-      }
 
-      let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
-      let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
-      let folder_context = FolderContext {
-        view_change_tx: Some(view_tx),
-        trash_change_tx: Some(trash_tx),
-      };
-      *self.folder.lock() = Some(InnerFolder::get_or_create(collab, folder_context));
-      listen_on_trash_change(trash_rx, self.folder.clone());
-      listen_on_view_change(view_rx, self.folder.clone());
+        let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
+        let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
+        let folder_context = FolderContext {
+          view_change_tx: Some(view_tx),
+          trash_change_tx: Some(trash_tx),
+        };
+        *self.folder.lock() = Some(InnerFolder::get_or_create(collab, folder_context));
+        listen_on_trash_change(trash_rx, self.folder.clone());
+        listen_on_view_change(view_rx, self.folder.clone());
+      }
     }
 
     Ok(())

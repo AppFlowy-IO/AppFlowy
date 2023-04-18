@@ -96,8 +96,9 @@ class DatabaseViewBackendService {
     return DatabaseEventGetLayoutSetting(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> updateLayoutSetting(
-      {CalendarLayoutSettingPB? calendarLayoutSetting}) {
+  Future<Either<Unit, FlowyError>> updateLayoutSetting({
+    CalendarLayoutSettingPB? calendarLayoutSetting,
+  }) {
     final payload = LayoutSettingChangesetPB.create()..viewId = viewId;
     if (calendarLayoutSetting != null) {
       payload.calendar = calendarLayoutSetting;

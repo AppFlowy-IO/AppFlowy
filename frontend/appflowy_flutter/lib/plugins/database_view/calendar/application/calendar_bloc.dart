@@ -306,7 +306,8 @@ class CalendarEvent with _$CalendarEvent {
 
   // Called after loading the calendar layout setting from the backend
   const factory CalendarEvent.didReceiveCalendarSettings(
-      CalendarLayoutSettingPB settings) = _ReceiveCalendarSettings;
+    CalendarLayoutSettingPB settings,
+  ) = _ReceiveCalendarSettings;
 
   // Called after loading all the current evnets
   const factory CalendarEvent.didLoadAllEvents(Events events) =
@@ -332,13 +333,15 @@ class CalendarEvent with _$CalendarEvent {
 
   // Called when updating the calendar's layout settings
   const factory CalendarEvent.updateCalendarLayoutSetting(
-      CalendarLayoutSettingPB layoutSetting) = _UpdateCalendarLayoutSetting;
+    CalendarLayoutSettingPB layoutSetting,
+  ) = _UpdateCalendarLayoutSetting;
 
   const factory CalendarEvent.didReceiveDatabaseUpdate(DatabasePB database) =
       _ReceiveDatabaseUpdate;
 
   const factory CalendarEvent.didReceiveNewLayoutField(
-      CalendarLayoutSettingPB layoutSettings) = _DidReceiveNewLayoutField;
+    CalendarLayoutSettingPB layoutSettings,
+  ) = _DidReceiveNewLayoutField;
 }
 
 @freezed
