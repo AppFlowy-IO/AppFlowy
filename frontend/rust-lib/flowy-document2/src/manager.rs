@@ -7,8 +7,8 @@ use parking_lot::RwLock;
 
 use crate::{
   document::{Document, DocumentDataWrapper},
+  entities::{BlockEventPB, DocEventPB},
   notification::{send_notification, DocumentNotification},
-  entities::{DocEventPB, BlockEventPB},
 };
 
 pub trait DocumentUser: Send + Sync {
@@ -33,14 +33,23 @@ impl DocumentManager {
     }
   }
 
-  pub fn create_document(&self, doc_id: String, data: DocumentDataWrapper) -> FlowyResult<Arc<Document>> {
+  pub fn create_document(
+    &self,
+    doc_id: String,
+    data: DocumentDataWrapper,
+  ) -> FlowyResult<Arc<Document>> {
     self.initial_document(doc_id, Some(data))
   }
 
-  fn initial_document(&self, doc_id: String, data: Option<DocumentDataWrapper>) -> FlowyResult<Arc<Document>> {
+  fn initial_document(
+    &self,
+    doc_id: String,
+    data: Option<DocumentDataWrapper>,
+  ) -> FlowyResult<Arc<Document>> {
     let collab = self.get_collab_for_doc_id(&doc_id)?;
     let document = match data {
-      Some(data) => Document::create_with_data(collab, data.0).map_err(|err| FlowyError::internal().context(err))?,
+      Some(data) => Document::create_with_data(collab, data.0)
+        .map_err(|err| FlowyError::internal().context(err))?,
       None => Document::new(collab).map_err(|err| FlowyError::internal().context(err))?,
     };
 
@@ -48,7 +57,6 @@ impl DocumentManager {
   }
 
   pub fn open_document(&self, doc_id: String) -> FlowyResult<Arc<Document>> {
-
     if let Some(doc) = self.documents.read().get(&doc_id) {
       tracing::debug!("get_document: {:?}", &doc_id);
       return Ok(doc.clone());
@@ -58,22 +66,29 @@ impl DocumentManager {
 
     let clone_doc_id = doc_id.clone();
     document
-        .lock()
-        .open(move |events, is_remote| {
-
-          send_notification(&clone_doc_id, DocumentNotification::DidReceiveUpdate)
-              .payload(DocEventPB {
-                events: events
-                    .iter()
-                    .map(|block_event| BlockEventPB { event: block_event.to_owned().iter().map(|e| e.to_owned().into()).collect() })
-                    .collect(),
-                is_remote: is_remote.to_owned(),
+      .lock()
+      .open(move |events, is_remote| {
+        send_notification(&clone_doc_id, DocumentNotification::DidReceiveUpdate)
+          .payload(DocEventPB {
+            events: events
+              .iter()
+              .map(|block_event| BlockEventPB {
+                event: block_event
+                  .to_owned()
+                  .iter()
+                  .map(|e| e.to_owned().into())
+                  .collect(),
               })
-              .send();
-
-        })
-        .map_err(|err| FlowyError::internal().context(err))?;
-    self.documents.write().insert(doc_id.clone(), document.clone());
+              .collect(),
+            is_remote: is_remote.to_owned(),
+          })
+          .send();
+      })
+      .map_err(|err| FlowyError::internal().context(err))?;
+    self
+      .documents
+      .write()
+      .insert(doc_id.clone(), document.clone());
 
     Ok(document)
   }

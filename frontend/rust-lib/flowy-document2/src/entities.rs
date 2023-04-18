@@ -23,7 +23,7 @@ pub struct CloseDocumentPayloadPBV2 {
   // Support customize initial data
 }
 
-#[derive(Default, ProtoBuf)]
+#[derive(Default, ProtoBuf, Debug)]
 pub struct ApplyActionPayloadPBV2 {
   #[pb(index = 1)]
   pub document_id: String,
@@ -44,7 +44,7 @@ pub struct DocumentDataPB2 {
   pub meta: MetaPB,
 }
 
-#[derive(Default, ProtoBuf)]
+#[derive(Default, ProtoBuf, Debug)]
 pub struct BlockPB {
   #[pb(index = 1)]
   pub id: String,
@@ -75,7 +75,7 @@ pub struct ChildrenPB {
 }
 
 // Actions
-#[derive(Default, ProtoBuf)]
+#[derive(Default, ProtoBuf, Debug)]
 pub struct BlockActionPB {
   #[pb(index = 1)]
   pub action: BlockActionTypePB,
@@ -84,7 +84,7 @@ pub struct BlockActionPB {
   pub payload: BlockActionPayloadPB,
 }
 
-#[derive(Default, ProtoBuf)]
+#[derive(Default, ProtoBuf, Debug)]
 pub struct BlockActionPayloadPB {
   #[pb(index = 1)]
   pub block: BlockPB,
@@ -96,7 +96,7 @@ pub struct BlockActionPayloadPB {
   pub parent_id: Option<String>,
 }
 
-#[derive(ProtoBuf_Enum)]
+#[derive(ProtoBuf_Enum, Debug)]
 pub enum BlockActionTypePB {
   Insert = 0,
   Update = 1,
@@ -134,7 +134,7 @@ pub struct DocEventPB {
 #[derive(Default, ProtoBuf)]
 pub struct BlockEventPB {
   #[pb(index = 1)]
-  pub event: Vec<BlockEventPayloadPB>
+  pub event: Vec<BlockEventPayloadPB>,
 }
 
 #[derive(Default, ProtoBuf)]

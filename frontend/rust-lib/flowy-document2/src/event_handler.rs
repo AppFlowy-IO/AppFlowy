@@ -1,17 +1,18 @@
-use std::{sync::Arc};
+use std::sync::Arc;
 
 use crate::{
   document::DocumentDataWrapper,
   entities::{
     ApplyActionPayloadPBV2, BlockActionPB, BlockActionPayloadPB, BlockActionTypePB,
-    BlockPB, CloseDocumentPayloadPBV2, DocumentDataPB2, OpenDocumentPayloadPBV2, CreateDocumentPayloadPBV2,
-    BlockEventPayloadPB, DeltaTypePB,
+    BlockEventPayloadPB, BlockPB, CloseDocumentPayloadPBV2, CreateDocumentPayloadPBV2, DeltaTypePB,
+    DocumentDataPB2, OpenDocumentPayloadPBV2,
   },
   manager::DocumentManager,
 };
 
 use collab_document::blocks::{
-  json_str_to_hashmap, Block, BlockAction, BlockActionPayload, BlockActionType, BlockEventPayload, DeltaType
+  json_str_to_hashmap, Block, BlockAction, BlockActionPayload, BlockActionType, BlockEventPayload,
+  DeltaType,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -25,8 +26,8 @@ pub(crate) async fn open_document_handler(
     .lock()
     .get_document()
     .map_err(|err| FlowyError::internal().context(err))?;
-  drop(document);
-  data_result_ok(DocumentDataPB2::from(DocumentDataWrapper(document_data)))
+  let pb = DocumentDataPB2::from(DocumentDataWrapper(document_data));
+  data_result_ok(pb)
 }
 
 pub(crate) async fn create_document_handler(
@@ -48,11 +49,13 @@ pub(crate) async fn close_document_handler(
   Ok(())
 }
 
+#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn apply_action_handler(
   data: AFPluginData<ApplyActionPayloadPBV2>,
   manager: AFPluginState<Arc<DocumentManager>>,
 ) -> FlowyResult<()> {
   let context = data.into_inner();
+  tracing::trace!("{:?}", context);
   let doc_id = context.document_id;
   let actions = context
     .actions
@@ -110,16 +113,15 @@ impl From<BlockPB> for Block {
   }
 }
 
-
 impl From<BlockEventPayload> for BlockEventPayloadPB {
-    fn from(payload: BlockEventPayload) -> Self {
-        Self {
-          command: payload.command.into(),
-          path: payload.path,
-          id: payload.id,
-          value: payload.value,
-        }
+  fn from(payload: BlockEventPayload) -> Self {
+    Self {
+      command: payload.command.into(),
+      path: payload.path,
+      id: payload.id,
+      value: payload.value,
     }
+  }
 }
 
 impl From<DeltaType> for DeltaTypePB {
@@ -131,4 +133,3 @@ impl From<DeltaType> for DeltaTypePB {
     }
   }
 }
-
