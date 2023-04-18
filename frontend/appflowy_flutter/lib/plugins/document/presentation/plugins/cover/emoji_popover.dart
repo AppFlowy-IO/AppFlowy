@@ -54,11 +54,10 @@ class _EmojiPopoverState extends State<EmojiPopover> {
           columns: 8,
           emojiSizeMax: 28,
           bgColor: Colors.transparent,
-          iconColor: Theme.of(context).iconTheme.color ?? Colors.blue,
+          iconColor: Theme.of(context).iconTheme.color!,
           iconColorSelected: Theme.of(context).colorScheme.onSurface,
           selectedHoverColor: Theme.of(context).colorScheme.secondary,
-          progressIndicatorColor:
-              Theme.of(context).iconTheme.color ?? Colors.blue,
+          progressIndicatorColor: Theme.of(context).iconTheme.color!,
           buttonMode: ButtonMode.CUPERTINO,
           initCategory: Category.RECENT,
         ),
