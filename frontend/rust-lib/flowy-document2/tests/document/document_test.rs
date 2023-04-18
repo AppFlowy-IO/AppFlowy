@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::Arc, vec};
 use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
 use flowy_document2::{document::DocumentDataWrapper, manager::DocumentManager};
 use nanoid::nanoid;
-use serde_json::Value;
+use serde_json::{json, to_value, Value};
 
 use super::util::FakeUser;
 
@@ -96,6 +96,48 @@ fn document_apply_insert_action() {
   _ = manager.close_document(doc_id.clone());
 
   assert_eq!(data_b, data_a);
+}
+
+#[test]
+fn document_apply_update_page_action() {
+  let user = FakeUser::new();
+  let manager = DocumentManager::new(Arc::new(user));
+
+  let doc_id: String = nanoid!(10);
+  let data = DocumentDataWrapper::default();
+
+  // create a document
+  _ = manager.create_document(doc_id.clone(), data.clone());
+
+  // open a document
+  let document = manager.open_document(doc_id.clone()).unwrap();
+  let page_block = document.lock().get_block(&data.0.page_id).unwrap();
+
+  let mut page_block_clone = page_block.clone();
+  page_block_clone.data = HashMap::new();
+  page_block_clone.data.insert(
+    "delta".to_string(),
+    to_value(json!([{"insert": "Hello World!"}])).unwrap(),
+  );
+  let action = BlockAction {
+    action: BlockActionType::Update,
+    payload: BlockActionPayload {
+      block: page_block_clone,
+      parent_id: None,
+      prev_id: None,
+    },
+  };
+  let actions = vec![action];
+  tracing::trace!("{:?}", &actions);
+  document.lock().apply_action(actions);
+  let page_block_old = document.lock().get_block(&data.0.page_id).unwrap();
+  _ = manager.close_document(doc_id.clone());
+
+  // re-open the document
+  let document = manager.open_document(doc_id.clone()).unwrap();
+  let page_block_new = document.lock().get_block(&data.0.page_id).unwrap();
+  assert_eq!(page_block_old, page_block_new);
+  assert!(page_block_new.data.contains_key("delta"));
 }
 
 #[test]
