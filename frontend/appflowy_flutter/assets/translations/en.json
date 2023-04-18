@@ -385,7 +385,9 @@
         "pickFromFiles": "Pick from files",
         "couldNotFetchImage": "Could not fetch image",
         "imageSavingFailed": "Image Saving Failed",
-        "addIcon": "Add Icon"
+        "addIcon": "Add Icon",
+        "coverRemoveAlert": "It will be removed from cover after it is deleted.",
+        "alertDialogConfirmation": "Are you sure, you want to continue?"
       }
     }
   },

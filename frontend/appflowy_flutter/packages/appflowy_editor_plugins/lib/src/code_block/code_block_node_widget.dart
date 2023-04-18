@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:highlight/highlight.dart' as highlight;
 import 'package:highlight/languages/all.dart';
@@ -132,9 +133,9 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
               allLanguages.keys.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
               value: value,
-              child: Text(
+              child: FlowyText.medium(
                 value,
-                style: const TextStyle(fontSize: 12.0),
+                color: Theme.of(context).colorScheme.tertiary,
               ),
             );
           }).toList(growable: false),
