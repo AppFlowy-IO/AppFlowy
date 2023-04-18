@@ -71,9 +71,11 @@ class OptionTitle extends StatelessWidget {
     return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
       builder: (context, state) {
         List<Widget> children = [
-          FlowyText.medium(
-            LocaleKeys.grid_field_optionTitle.tr(),
-            color: Theme.of(context).hintColor,
+          Padding(
+            padding: const EdgeInsets.only(left: 9),
+            child: FlowyText.medium(
+              LocaleKeys.grid_field_optionTitle.tr(),
+            ),
           )
         ];
         if (state.options.isNotEmpty && !state.isEditingOption) {

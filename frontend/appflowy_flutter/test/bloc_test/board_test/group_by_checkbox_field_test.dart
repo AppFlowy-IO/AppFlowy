@@ -34,10 +34,12 @@ void main() {
       viewId: context.gridView.id,
       fieldController: context.fieldController,
     )..add(const DatabaseGroupEvent.initial());
-    gridGroupBloc.add(DatabaseGroupEvent.setGroupByField(
-      checkboxField.id,
-      checkboxField.fieldType,
-    ));
+    gridGroupBloc.add(
+      DatabaseGroupEvent.setGroupByField(
+        checkboxField.id,
+        checkboxField.fieldType,
+      ),
+    );
     await boardResponseFuture();
 
     assert(boardBloc.groupControllers.values.length == 2);

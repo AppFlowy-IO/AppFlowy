@@ -195,7 +195,7 @@
       "optionTitle": "Alternativ",
       "addOption": "Lägg till alternativ",
       "editProperty": "Redigera egenskap",
-      "newColumn": "Ny kolumn",
+      "newProperty": "Ny kolumn",
       "deleteFieldPromptMessage": "Är du säker? Denna egenskap kommer att raderas."
     },
     "row": {

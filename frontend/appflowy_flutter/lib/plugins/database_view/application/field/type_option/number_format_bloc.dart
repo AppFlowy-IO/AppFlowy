@@ -10,10 +10,12 @@ class NumberFormatBloc extends Bloc<NumberFormatEvent, NumberFormatState> {
         event.map(setFilter: (_SetFilter value) {
           final List<NumberFormatPB> formats = List.from(NumberFormatPB.values);
           if (value.filter.isNotEmpty) {
-            formats.retainWhere((element) => element
-                .title()
-                .toLowerCase()
-                .contains(value.filter.toLowerCase()));
+            formats.retainWhere(
+              (element) => element
+                  .title()
+                  .toLowerCase()
+                  .contains(value.filter.toLowerCase()),
+            );
           }
           emit(state.copyWith(formats: formats, filter: value.filter));
         });

@@ -27,16 +27,18 @@ class _ViewLeftBarItemState extends State<ViewLeftBarItem> {
     _viewService = ViewService();
     _focusNode.addListener(_handleFocusChanged);
     _viewListener = ViewListener(view: widget.view);
-    _viewListener.start(onViewUpdated: (result) {
-      result.fold(
-        (updatedView) {
-          if (mounted) {
-            setState(() => view = updatedView);
-          }
-        },
-        (err) => Log.error(err),
-      );
-    });
+    _viewListener.start(
+      onViewUpdated: (result) {
+        result.fold(
+          (updatedView) {
+            if (mounted) {
+              setState(() => view = updatedView);
+            }
+          },
+          (err) => Log.error(err),
+        );
+      },
+    );
     super.initState();
   }
 

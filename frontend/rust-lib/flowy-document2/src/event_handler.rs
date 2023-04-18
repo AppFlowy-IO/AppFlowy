@@ -115,7 +115,9 @@ impl From<BlockEvent> for BlockEventPB {
     //   path: block_event.path.into(),
     //   delta: delta.to_string(),
     // }
-    // TODO: fei kang
-    todo!()
+    Self {
+      path: vec![],
+      delta: "".to_string(),
+    }
   }
 }

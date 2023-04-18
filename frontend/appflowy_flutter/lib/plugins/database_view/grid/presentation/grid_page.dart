@@ -117,7 +117,8 @@ class FlowyGrid extends StatefulWidget {
 
 class _FlowyGridState extends State<FlowyGrid> {
   final _scrollController = GridScrollController(
-      scrollGroupController: LinkedScrollControllerGroup());
+    scrollGroupController: LinkedScrollControllerGroup(),
+  );
   late ScrollController headerScrollController;
 
   @override
@@ -318,13 +319,14 @@ class _GridRowsState extends State<_GridRows> {
     );
 
     FlowyOverlay.show(
-        context: context,
-        builder: (BuildContext context) {
-          return RowDetailPage(
-            cellBuilder: cellBuilder,
-            dataController: dataController,
-          );
-        });
+      context: context,
+      builder: (BuildContext context) {
+        return RowDetailPage(
+          cellBuilder: cellBuilder,
+          dataController: dataController,
+        );
+      },
+    );
   }
 }
 

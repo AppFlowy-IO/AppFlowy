@@ -49,10 +49,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                 ? workspaceSetting.latestView
                 : state.latestView;
 
-            emit(state.copyWith(
-              workspaceSetting: value.setting,
-              latestView: latestView,
-            ));
+            emit(
+              state.copyWith(
+                workspaceSetting: value.setting,
+                latestView: latestView,
+              ),
+            );
           },
           unauthorized: (_Unauthorized value) {
             emit(state.copyWith(unauthorized: true));
@@ -98,7 +100,8 @@ class HomeEvent with _$HomeEvent {
   const factory HomeEvent.initial() = _Initial;
   const factory HomeEvent.showLoading(bool isLoading) = _ShowLoading;
   const factory HomeEvent.didReceiveWorkspaceSetting(
-      WorkspaceSettingPB setting) = _DidReceiveWorkspaceSetting;
+    WorkspaceSettingPB setting,
+  ) = _DidReceiveWorkspaceSetting;
   const factory HomeEvent.unauthorized(String msg) = _Unauthorized;
 }
 

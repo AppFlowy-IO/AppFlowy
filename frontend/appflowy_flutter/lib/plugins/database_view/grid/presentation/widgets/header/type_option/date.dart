@@ -76,7 +76,9 @@ class DateTypeOptionWidget extends TypeOptionWidget {
   }
 
   Widget _renderDateFormatButton(
-      BuildContext context, DateFormatPB dataFormat) {
+    BuildContext context,
+    DateFormatPB dataFormat,
+  ) {
     return AppFlowyPopover(
       mutex: popoverMutex,
       asBarrier: true,
@@ -104,7 +106,9 @@ class DateTypeOptionWidget extends TypeOptionWidget {
   }
 
   Widget _renderTimeFormatButton(
-      BuildContext context, TimeFormatPB timeFormat) {
+    BuildContext context,
+    TimeFormatPB timeFormat,
+  ) {
     return AppFlowyPopover(
       mutex: popoverMutex,
       asBarrier: true,
@@ -301,6 +305,8 @@ extension DateFormatExtension on DateFormatPB {
         return LocaleKeys.grid_field_dateFormatLocal.tr();
       case DateFormatPB.US:
         return LocaleKeys.grid_field_dateFormatUS.tr();
+      case DateFormatPB.DayMonthYear:
+        return LocaleKeys.grid_field_dateFormatDayMonthYear.tr();
       default:
         throw UnimplementedError;
     }

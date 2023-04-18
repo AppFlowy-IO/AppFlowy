@@ -110,7 +110,10 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
                   selectedOptionIds: state.filter.optionIds,
                   onSelectedOptions: (optionIds) {
                     context.read<SelectOptionFilterEditorBloc>().add(
-                        SelectOptionFilterEditorEvent.updateContent(optionIds));
+                          SelectOptionFilterEditorEvent.updateContent(
+                            optionIds,
+                          ),
+                        );
                   },
                 ),
               ),
@@ -132,7 +135,9 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
   }
 
   Widget _buildFilterPanel(
-      BuildContext context, SelectOptionFilterEditorState state) {
+    BuildContext context,
+    SelectOptionFilterEditorState state,
+  ) {
     return SizedBox(
       height: 20,
       child: Row(
@@ -144,7 +149,8 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
             popoverMutex: popoverMutex,
             onCondition: (condition) {
               context.read<SelectOptionFilterEditorBloc>().add(
-                  SelectOptionFilterEditorEvent.updateCondition(condition));
+                    SelectOptionFilterEditorEvent.updateCondition(condition),
+                  );
             },
           ),
           const Spacer(),

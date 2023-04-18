@@ -16,9 +16,10 @@ typedef DatabaseNotificationCallback = void Function(
 
 class DatabaseNotificationParser
     extends NotificationParser<DatabaseNotification, FlowyError> {
-  DatabaseNotificationParser(
-      {String? id, required DatabaseNotificationCallback callback})
-      : super(
+  DatabaseNotificationParser({
+    String? id,
+    required DatabaseNotificationCallback callback,
+  }) : super(
           id: id,
           callback: callback,
           tyParser: (ty) => DatabaseNotification.valueOf(ty),
@@ -27,7 +28,9 @@ class DatabaseNotificationParser
 }
 
 typedef DatabaseNotificationHandler = Function(
-    DatabaseNotification ty, Either<Uint8List, FlowyError> result);
+  DatabaseNotification ty,
+  Either<Uint8List, FlowyError> result,
+);
 
 class DatabaseNotificationListener {
   StreamSubscription<SubscribeObject>? _subscription;

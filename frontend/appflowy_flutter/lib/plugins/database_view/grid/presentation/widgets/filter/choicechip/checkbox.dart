@@ -100,7 +100,9 @@ class _CheckboxFilterEditorState extends State<CheckboxFilterEditor> {
   }
 
   Widget _buildFilterPanel(
-      BuildContext context, CheckboxFilterEditorState state) {
+    BuildContext context,
+    CheckboxFilterEditorState state,
+  ) {
     return SizedBox(
       height: 20,
       child: Row(

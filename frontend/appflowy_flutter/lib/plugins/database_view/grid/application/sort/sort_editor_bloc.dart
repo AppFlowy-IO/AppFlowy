@@ -100,7 +100,9 @@ class SortEditorEvent with _$SortEditorEvent {
   const factory SortEditorEvent.didReceiveSorts(List<SortInfo> sortInfos) =
       _DidReceiveSorts;
   const factory SortEditorEvent.setCondition(
-      SortInfo sortInfo, SortConditionPB condition) = _SetCondition;
+    SortInfo sortInfo,
+    SortConditionPB condition,
+  ) = _SetCondition;
   const factory SortEditorEvent.deleteSort(SortInfo sortInfo) = _DeleteSort;
   const factory SortEditorEvent.deleteAllSorts() = _DeleteAllSorts;
 }

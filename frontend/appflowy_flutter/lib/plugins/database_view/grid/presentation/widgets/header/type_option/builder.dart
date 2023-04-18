@@ -74,12 +74,13 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
       );
     case FieldType.DateTime:
       return DateTypeOptionWidgetBuilder(
-          makeTypeOptionContextWithDataController<DateTypeOptionPB>(
-            viewId: viewId,
-            fieldType: fieldType,
-            dataController: dataController,
-          ),
-          popoverMutex);
+        makeTypeOptionContextWithDataController<DateTypeOptionPB>(
+          viewId: viewId,
+          fieldType: fieldType,
+          dataController: dataController,
+        ),
+        popoverMutex,
+      );
     case FieldType.SingleSelect:
       return SingleSelectTypeOptionWidgetBuilder(
         makeTypeOptionContextWithDataController<SingleSelectTypeOptionPB>(

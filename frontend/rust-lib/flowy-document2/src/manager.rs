@@ -46,16 +46,17 @@ impl DocumentManager {
     doc_id: String,
     data: Option<DocumentDataWrapper>,
   ) -> FlowyResult<Arc<Document>> {
-    // TODO: fei kang
-    // let collab = self.get_collab_for_doc_id(&doc_id)?;
-    // let document = Arc::new(Document::new(collab)?);
-    // self.documents.write().insert(doc_id, document.clone());
-    // if data.is_some() {
-    //   // Here use unwrap() is safe, because we have checked data.is_some() before.
-    //   document.lock().create_with_data(data.unwrap().0).map_err(|err| FlowyError::internal().context(err))?;
-    // }
-    // Ok(document)
-    todo!()
+    let collab = self.get_collab_for_doc_id(&doc_id)?;
+    let document = Arc::new(Document::new(collab)?);
+    self.documents.write().insert(doc_id, document.clone());
+    if data.is_some() {
+      // Here use unwrap() is safe, because we have checked data.is_some() before.
+      // document
+      //   .lock()
+      //   .create_with_data(data.unwrap().0)
+      //   .map_err(|err| FlowyError::internal().context(err))?;
+    }
+    Ok(document)
   }
 
   pub fn open_document(&self, doc_id: String) -> FlowyResult<Arc<Document>> {

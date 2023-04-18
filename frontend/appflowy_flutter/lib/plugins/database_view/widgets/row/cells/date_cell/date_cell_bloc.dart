@@ -17,8 +17,12 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
         event.when(
           initial: () => _startListening(),
           didReceiveCellUpdate: (DateCellDataPB? cellData) {
-            emit(state.copyWith(
-                data: cellData, dateStr: _dateStrFromCellData(cellData)));
+            emit(
+              state.copyWith(
+                data: cellData,
+                dateStr: _dateStrFromCellData(cellData),
+              ),
+            );
           },
         );
       },

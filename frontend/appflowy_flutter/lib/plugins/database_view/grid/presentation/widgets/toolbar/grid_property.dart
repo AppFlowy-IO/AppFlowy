@@ -40,8 +40,9 @@ class _GridPropertyListState extends State<GridPropertyList> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => getIt<DatabasePropertyBloc>(
-          param1: widget.viewId, param2: widget.fieldController)
-        ..add(const DatabasePropertyEvent.initial()),
+        param1: widget.viewId,
+        param2: widget.fieldController,
+      )..add(const DatabasePropertyEvent.initial()),
       child: BlocBuilder<DatabasePropertyBloc, DatabasePropertyState>(
         builder: (context, state) {
           final cells = state.fieldContexts.map((field) {
@@ -129,8 +130,11 @@ class _GridPropertyCellState extends State<_GridPropertyCell> {
           hoverColor: Colors.transparent,
           onPressed: () {
             context.read<DatabasePropertyBloc>().add(
-                DatabasePropertyEvent.setFieldVisibility(
-                    widget.fieldInfo.id, !widget.fieldInfo.visibility));
+                  DatabasePropertyEvent.setFieldVisibility(
+                    widget.fieldInfo.id,
+                    !widget.fieldInfo.visibility,
+                  ),
+                );
           },
           icon: checkmark.padding(all: 6.0),
         ),

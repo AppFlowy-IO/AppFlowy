@@ -28,18 +28,22 @@ class SelectOptionCellEditorBloc
           },
           didReceiveOptions: (_DidReceiveOptions value) {
             final result = _makeOptions(state.filter, value.options);
-            emit(state.copyWith(
-              allOptions: value.options,
-              options: result.options,
-              createOption: result.createOption,
-              selectedOptions: value.selectedOptions,
-            ));
+            emit(
+              state.copyWith(
+                allOptions: value.options,
+                options: result.options,
+                createOption: result.createOption,
+                selectedOptions: value.selectedOptions,
+              ),
+            );
           },
           newOption: (_NewOption value) async {
             await _createOption(value.optionName);
-            emit(state.copyWith(
-              filter: none(),
-            ));
+            emit(
+              state.copyWith(
+                filter: none(),
+              ),
+            );
           },
           deleteOption: (_DeleteOption value) async {
             await _deleteOption([value.option]);
@@ -100,7 +104,9 @@ class SelectOptionCellEditorBloc
   }
 
   void _trySelectOption(
-      String optionName, Emitter<SelectOptionEditorState> emit) {
+    String optionName,
+    Emitter<SelectOptionEditorState> emit,
+  ) {
     SelectOptionPB? matchingOption;
     bool optionExistsButSelected = false;
 
@@ -151,11 +157,13 @@ class SelectOptionCellEditorBloc
       Some(optionName),
       state.allOptions,
     );
-    emit(state.copyWith(
-      filter: Some(optionName),
-      options: result.options,
-      createOption: result.createOption,
-    ));
+    emit(
+      state.copyWith(
+        filter: Some(optionName),
+        options: result.options,
+        createOption: result.createOption,
+      ),
+    );
   }
 
   Future<void> _loadOptions() async {
@@ -225,8 +233,9 @@ class SelectOptionCellEditorBloc
 class SelectOptionEditorEvent with _$SelectOptionEditorEvent {
   const factory SelectOptionEditorEvent.initial() = _Initial;
   const factory SelectOptionEditorEvent.didReceiveOptions(
-          List<SelectOptionPB> options, List<SelectOptionPB> selectedOptions) =
-      _DidReceiveOptions;
+    List<SelectOptionPB> options,
+    List<SelectOptionPB> selectedOptions,
+  ) = _DidReceiveOptions;
   const factory SelectOptionEditorEvent.newOption(String optionName) =
       _NewOption;
   const factory SelectOptionEditorEvent.selectOption(String optionId) =
@@ -243,7 +252,9 @@ class SelectOptionEditorEvent with _$SelectOptionEditorEvent {
   const factory SelectOptionEditorEvent.trySelectOption(String optionName) =
       _TrySelectOption;
   const factory SelectOptionEditorEvent.selectMultipleOptions(
-      List<String> optionNames, String remainder) = _SelectMultipleOptions;
+    List<String> optionNames,
+    String remainder,
+  ) = _SelectMultipleOptions;
 }
 
 @freezed

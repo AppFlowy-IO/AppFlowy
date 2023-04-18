@@ -46,11 +46,13 @@ class _SliverChecklistProgressBarDelegate
 
   @override
   Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return BlocBuilder<ChecklistCellEditorBloc, ChecklistCellEditorState>(
       builder: (context, state) {
-        return Container(
-          color: Theme.of(context).colorScheme.background,
+        return Padding(
           padding: GridSize.typeOptionContentInsets,
           child: Column(
             children: [

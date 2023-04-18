@@ -36,11 +36,13 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             }
           },
           didReceiveFieldChanged: (FieldPB field) {
-            emit(state.copyWith(
-              field: Some(field),
-              name: field.name,
-              canDelete: field.isPrimary,
-            ));
+            emit(
+              state.copyWith(
+                field: Some(field),
+                name: field.name,
+                canDelete: field.isPrimary,
+              ),
+            );
           },
           deleteField: () {
             state.field.fold(

@@ -35,11 +35,13 @@ class RowBloc extends Bloc<RowEvent, RowState> {
             final cells = cellByFieldId.values
                 .map((e) => GridCellEquatable(e.fieldInfo))
                 .toList();
-            emit(state.copyWith(
-              cellByFieldId: cellByFieldId,
-              cells: UnmodifiableListView(cells),
-              changeReason: reason,
-            ));
+            emit(
+              state.copyWith(
+                cellByFieldId: cellByFieldId,
+                cells: UnmodifiableListView(cells),
+                changeReason: reason,
+              ),
+            );
           },
         );
       },
@@ -68,8 +70,9 @@ class RowEvent with _$RowEvent {
   const factory RowEvent.initial() = _InitialRow;
   const factory RowEvent.createRow() = _CreateRow;
   const factory RowEvent.didReceiveCells(
-          CellByFieldId cellsByFieldId, RowsChangedReason reason) =
-      _DidReceiveCells;
+    CellByFieldId cellsByFieldId,
+    RowsChangedReason reason,
+  ) = _DidReceiveCells;
 }
 
 @freezed

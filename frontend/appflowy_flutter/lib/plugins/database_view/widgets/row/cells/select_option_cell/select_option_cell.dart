@@ -169,10 +169,12 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
   Widget build(BuildContext context) {
     Widget child = _buildOptions(context);
 
-    final constraints = BoxConstraints.loose(Size(
-      SelectOptionCellEditor.editorPanelWidth,
-      300,
-    ));
+    final constraints = BoxConstraints.loose(
+      Size(
+        SelectOptionCellEditor.editorPanelWidth,
+        300,
+      ),
+    );
     return AppFlowyPopover(
       controller: widget.popoverController,
       constraints: constraints,

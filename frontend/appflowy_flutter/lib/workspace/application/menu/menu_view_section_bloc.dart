@@ -60,7 +60,9 @@ class ViewSectionBloc extends Bloc<ViewSectionEvent, ViewSectionState> {
   }
 
   Future<void> _moveView(
-      _MoveView value, Emitter<ViewSectionState> emit) async {
+    _MoveView value,
+    Emitter<ViewSectionState> emit,
+  ) async {
     if (value.fromIndex < state.views.length) {
       final viewId = state.views[value.fromIndex].id;
       final views = List<ViewPB>.from(state.views);

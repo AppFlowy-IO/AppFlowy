@@ -54,10 +54,12 @@ class TextFilterEditorBloc
           didReceiveFilter: (FilterPB filter) {
             final filterInfo = state.filterInfo.copyWith(filter: filter);
             final textFilter = filterInfo.textFilter()!;
-            emit(state.copyWith(
-              filterInfo: filterInfo,
-              filter: textFilter,
-            ));
+            emit(
+              state.copyWith(
+                filterInfo: filterInfo,
+                filter: textFilter,
+              ),
+            );
           },
         );
       },
@@ -88,7 +90,8 @@ class TextFilterEditorEvent with _$TextFilterEditorEvent {
   const factory TextFilterEditorEvent.didReceiveFilter(FilterPB filter) =
       _DidReceiveFilter;
   const factory TextFilterEditorEvent.updateCondition(
-      TextFilterConditionPB condition) = _UpdateCondition;
+    TextFilterConditionPB condition,
+  ) = _UpdateCondition;
   const factory TextFilterEditorEvent.updateContent(String content) =
       _UpdateContent;
   const factory TextFilterEditorEvent.delete() = _Delete;

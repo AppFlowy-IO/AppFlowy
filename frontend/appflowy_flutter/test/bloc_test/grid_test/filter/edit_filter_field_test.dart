@@ -27,9 +27,10 @@ void main() {
 
     // Insert filter for the text field
     await service.insertTextFilter(
-        fieldId: textField.id,
-        condition: TextFilterConditionPB.TextIsEmpty,
-        content: "");
+      fieldId: textField.id,
+      condition: TextFilterConditionPB.TextIsEmpty,
+      content: "",
+    );
     await gridResponseFuture();
     assert(menuBloc.state.filters.length == 1);
 

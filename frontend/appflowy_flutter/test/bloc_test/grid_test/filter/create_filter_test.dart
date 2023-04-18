@@ -19,9 +19,10 @@ void main() {
     final service = FilterBackendService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
     await service.insertTextFilter(
-        fieldId: textField.id,
-        condition: TextFilterConditionPB.TextIsEmpty,
-        content: "");
+      fieldId: textField.id,
+      condition: TextFilterConditionPB.TextIsEmpty,
+      content: "",
+    );
     await gridResponseFuture();
 
     assert(context.fieldController.filterInfos.length == 1);
@@ -32,9 +33,10 @@ void main() {
     final service = FilterBackendService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
     await service.insertTextFilter(
-        fieldId: textField.id,
-        condition: TextFilterConditionPB.TextIsEmpty,
-        content: "");
+      fieldId: textField.id,
+      condition: TextFilterConditionPB.TextIsEmpty,
+      content: "",
+    );
     await gridResponseFuture();
 
     final filterInfo = context.fieldController.filterInfos.first;
@@ -63,9 +65,10 @@ void main() {
 
     final textField = context.textFieldContext();
     service.insertTextFilter(
-        fieldId: textField.id,
-        condition: TextFilterConditionPB.TextIsEmpty,
-        content: "");
+      fieldId: textField.id,
+      condition: TextFilterConditionPB.TextIsEmpty,
+      content: "",
+    );
     await gridResponseFuture();
 
     expect(gridBloc.state.rowInfos.length, 3);
@@ -87,9 +90,10 @@ void main() {
 
     final textField = context.textFieldContext();
     await service.insertTextFilter(
-        fieldId: textField.id,
-        condition: TextFilterConditionPB.TextIsEmpty,
-        content: "");
+      fieldId: textField.id,
+      condition: TextFilterConditionPB.TextIsEmpty,
+      content: "",
+    );
     await gridResponseFuture();
 
     final controller = await context.makeTextCellController(0);
@@ -108,9 +112,10 @@ void main() {
     final textField = context.textFieldContext();
     await gridResponseFuture();
     await service.insertTextFilter(
-        fieldId: textField.id,
-        condition: TextFilterConditionPB.TextIsNotEmpty,
-        content: "");
+      fieldId: textField.id,
+      condition: TextFilterConditionPB.TextIsNotEmpty,
+      content: "",
+    );
     await gridResponseFuture();
     assert(context.rowInfos.isEmpty);
   });

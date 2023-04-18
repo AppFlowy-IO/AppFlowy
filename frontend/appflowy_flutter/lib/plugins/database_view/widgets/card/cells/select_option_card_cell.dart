@@ -50,45 +50,49 @@ class _SelectOptionCardCellState extends State<SelectOptionCardCell> {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<SelectOptionCardCellBloc, SelectOptionCardCellState>(
-          buildWhen: (previous, current) {
-        return previous.selectedOptions != current.selectedOptions;
-      }, builder: (context, state) {
-        Widget? custom = widget.renderHook?.call(
-          state.selectedOptions,
-          widget.cardData,
-        );
-        if (custom != null) {
-          return custom;
-        }
+        buildWhen: (previous, current) {
+          return previous.selectedOptions != current.selectedOptions;
+        },
+        builder: (context, state) {
+          Widget? custom = widget.renderHook?.call(
+            state.selectedOptions,
+            widget.cardData,
+          );
+          if (custom != null) {
+            return custom;
+          }
 
-        final children = state.selectedOptions.map(
-          (option) {
-            final tag = SelectOptionTag.fromOption(
-              context: context,
-              option: option,
-              onSelected: () => _popover.show(),
-            );
-            return _wrapPopover(tag);
-          },
-        ).toList();
+          final children = state.selectedOptions.map(
+            (option) {
+              final tag = SelectOptionTag.fromOption(
+                context: context,
+                option: option,
+                onSelected: () => _popover.show(),
+              );
+              return _wrapPopover(tag);
+            },
+          ).toList();
 
-        return IntrinsicHeight(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: SizedBox.expand(
-              child: Wrap(spacing: 4, runSpacing: 2, children: children),
+          return IntrinsicHeight(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: SizedBox.expand(
+                child: Wrap(spacing: 4, runSpacing: 2, children: children),
+              ),
             ),
-          ),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 
   Widget _wrapPopover(Widget child) {
-    final constraints = BoxConstraints.loose(Size(
-      SelectOptionCellEditor.editorPanelWidth,
-      300,
-    ));
+    final constraints = BoxConstraints.loose(
+      Size(
+        SelectOptionCellEditor.editorPanelWidth,
+        300,
+      ),
+    );
     return AppFlowyPopover(
       controller: _popover,
       constraints: constraints,

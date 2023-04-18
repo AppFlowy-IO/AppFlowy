@@ -96,7 +96,8 @@ abstract class CellEditable {
 }
 
 typedef AccessoryBuilder = List<GridCellAccessoryBuilder> Function(
-    GridCellAccessoryBuildContext buildContext);
+  GridCellAccessoryBuildContext buildContext,
+);
 
 abstract class CellAccessory extends Widget {
   const CellAccessory({Key? key}) : super(key: key);
@@ -127,7 +128,8 @@ abstract class GridCellWidget extends StatefulWidget
 
   @override
   List<GridCellAccessoryBuilder> Function(
-      GridCellAccessoryBuildContext buildContext)? get accessoryBuilder => null;
+    GridCellAccessoryBuildContext buildContext,
+  )? get accessoryBuilder => null;
 
   @override
   final GridCellFocusListener beginFocus = GridCellFocusListener();

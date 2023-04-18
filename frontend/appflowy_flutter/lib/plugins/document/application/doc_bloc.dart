@@ -18,7 +18,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:dartz/dartz.dart';
 import 'dart:async';
 import 'package:appflowy/util/either_extension.dart';
-import 'package:appflowy_backend/protobuf/flowy-document2/entities.pb.dart';
 part 'doc_bloc.freezed.dart';
 
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
@@ -55,13 +54,17 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           final result = await _trashService.deleteViews([view.id]);
 
           final newState = result.fold(
-              (l) => state.copyWith(forceClose: true), (r) => state);
+            (l) => state.copyWith(forceClose: true),
+            (r) => state,
+          );
           emit(newState);
         },
         restorePage: (RestorePage value) async {
           final result = await _trashService.putback(view.id);
           final newState = result.fold(
-              (l) => state.copyWith(isDeleted: false), (r) => state);
+            (l) => state.copyWith(isDeleted: false),
+            (r) => state,
+          );
           emit(newState);
         },
       );
@@ -93,38 +96,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       );
     }
     final result = await _documentService.openDocument(view: view);
-    // test code
-    final document = await _documentService.openDocumentV2(view: view);
-    BlockPB? root;
-    document.fold((l) {
-      print('---------<open document v2>-----------');
-      print('page id = ${l.pageId}');
-      l.blocks.blocks.forEach((key, value) {
-        print('-----<block begin>-----');
-        print('block = $value');
-        if (value.ty == 'page') {
-          root = value;
-        }
-        print('-----<block end>-----');
-      });
-      print('---------<open document v2>-----------');
-    }, (r) {});
-    if (root != null) {
-      await _documentService.applyAction(
-        view: view,
-        actions: [
-          BlockActionPB(
-            action: BlockActionTypePB.Insert,
-            payload: BlockActionPayloadPB(
-              block: BlockPB()
-                ..id = 'id_0'
-                ..ty = 'text'
-                ..parentId = root!.id,
-            ),
-          ),
-        ],
-      );
-    }
 
     return result.fold(
       (documentData) async {
@@ -166,9 +137,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
   void _listenOnDocChange() {
     _docListener.start(
-      didReceiveUpdate: () {
-        print('---------<receive document update>-----------');
-      },
+      didReceiveUpdate: () {},
     );
   }
 
@@ -231,7 +200,8 @@ class DocumentState with _$DocumentState {
 class DocumentLoadingState with _$DocumentLoadingState {
   const factory DocumentLoadingState.loading() = _Loading;
   const factory DocumentLoadingState.finish(
-      Either<Unit, FlowyError> successOrFail) = _Finish;
+    Either<Unit, FlowyError> successOrFail,
+  ) = _Finish;
 }
 
 /// Uses to erase the different between appflowy editor and the backend

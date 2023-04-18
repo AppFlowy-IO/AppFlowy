@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/database_view/application/setting/group_bloc.da
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -79,7 +80,11 @@ class _GridGroupCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(fieldInfo.name),
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        text: FlowyText.medium(
+          fieldInfo.name,
+          color: AFThemeExtension.of(context).textColor,
+        ),
         leftIcon: svgWidget(
           fieldInfo.fieldType.iconName(),
           color: Theme.of(context).iconTheme.color,

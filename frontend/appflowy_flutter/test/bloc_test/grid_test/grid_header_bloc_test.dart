@@ -117,7 +117,8 @@ void main() {
       wait: gridResponseDuration(),
       verify: (bloc) {
         final field = bloc.state.fields.firstWhere(
-            (element) => element.id == actionSheetBloc.fieldService.fieldId);
+          (element) => element.id == actionSheetBloc.fieldService.fieldId,
+        );
 
         expect(field.name, "Hello world");
       },

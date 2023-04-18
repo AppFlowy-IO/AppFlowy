@@ -61,10 +61,12 @@ class SelectOptionFilterEditorBloc
           didReceiveFilter: (FilterPB filter) {
             final filterInfo = state.filterInfo.copyWith(filter: filter);
             final selectOptionFilter = filterInfo.selectOptionFilter()!;
-            emit(state.copyWith(
-              filterInfo: filterInfo,
-              filter: selectOptionFilter,
-            ));
+            emit(
+              state.copyWith(
+                filterInfo: filterInfo,
+                filter: selectOptionFilter,
+              ),
+            );
           },
           updateFilterDescription: (String desc) {
             emit(state.copyWith(filterDesc: desc));
@@ -112,13 +114,17 @@ class SelectOptionFilterEditorBloc
 class SelectOptionFilterEditorEvent with _$SelectOptionFilterEditorEvent {
   const factory SelectOptionFilterEditorEvent.initial() = _Initial;
   const factory SelectOptionFilterEditorEvent.didReceiveFilter(
-      FilterPB filter) = _DidReceiveFilter;
+    FilterPB filter,
+  ) = _DidReceiveFilter;
   const factory SelectOptionFilterEditorEvent.updateCondition(
-      SelectOptionConditionPB condition) = _UpdateCondition;
+    SelectOptionConditionPB condition,
+  ) = _UpdateCondition;
   const factory SelectOptionFilterEditorEvent.updateContent(
-      List<String> optionIds) = _UpdateContent;
+    List<String> optionIds,
+  ) = _UpdateContent;
   const factory SelectOptionFilterEditorEvent.updateFilterDescription(
-      String desc) = _UpdateDesc;
+    String desc,
+  ) = _UpdateDesc;
   const factory SelectOptionFilterEditorEvent.delete() = _Delete;
 }
 

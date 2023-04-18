@@ -26,8 +26,10 @@ void main() {
       condition: CheckboxFilterConditionPB.IsChecked,
     );
     await gridResponseFuture();
-    assert(context.rowInfos.length == 1,
-        "expect 1 but receive ${context.rowInfos.length}");
+    assert(
+      context.rowInfos.length == 1,
+      "expect 1 but receive ${context.rowInfos.length}",
+    );
   });
 
   test('filter rows by checkbox is uncheck condition)', () async {
@@ -45,7 +47,9 @@ void main() {
       condition: CheckboxFilterConditionPB.IsUnChecked,
     );
     await gridResponseFuture();
-    assert(context.rowInfos.length == 2,
-        "expect 2 but receive ${context.rowInfos.length}");
+    assert(
+      context.rowInfos.length == 2,
+      "expect 2 but receive ${context.rowInfos.length}",
+    );
   });
 }

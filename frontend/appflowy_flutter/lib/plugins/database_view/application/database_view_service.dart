@@ -74,8 +74,9 @@ class DatabaseViewBackendService {
     return DatabaseEventMoveGroup(payload).send();
   }
 
-  Future<Either<List<FieldPB>, FlowyError>> getFields(
-      {List<FieldIdPB>? fieldIds}) {
+  Future<Either<List<FieldPB>, FlowyError>> getFields({
+    List<FieldIdPB>? fieldIds,
+  }) {
     var payload = GetFieldPayloadPB.create()..viewId = viewId;
 
     if (fieldIds != null) {
@@ -87,7 +88,8 @@ class DatabaseViewBackendService {
   }
 
   Future<Either<LayoutSettingPB, FlowyError>> getLayoutSetting(
-      DatabaseLayoutPB layoutType) {
+    DatabaseLayoutPB layoutType,
+  ) {
     final payload = DatabaseLayoutIdPB.create()
       ..viewId = viewId
       ..layout = layoutType;

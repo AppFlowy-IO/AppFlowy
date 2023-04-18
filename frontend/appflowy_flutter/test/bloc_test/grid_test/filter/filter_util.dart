@@ -18,11 +18,12 @@ Future<GridTestContext> createTestFilterGrid(AppFlowyGridTest gridTest) async {
     return result.fold(
       (view) async {
         final context = GridTestContext(
-            view,
-            DatabaseController(
-              view: view,
-              layoutType: DatabaseLayoutPB.Grid,
-            ));
+          view,
+          DatabaseController(
+            view: view,
+            layoutType: DatabaseLayoutPB.Grid,
+          ),
+        );
         final result = await context.gridController.open();
 
         await editCells(context);

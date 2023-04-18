@@ -147,7 +147,9 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
   }
 
   Widget _buildFilterTextField(
-      BuildContext context, TextFilterEditorState state) {
+    BuildContext context,
+    TextFilterEditorState state,
+  ) {
     return FlowyTextField(
       text: state.filter.content,
       hintText: LocaleKeys.grid_settings_typeAValue.tr(),

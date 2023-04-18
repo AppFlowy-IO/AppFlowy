@@ -59,7 +59,8 @@ class RowDetailEvent with _$RowDetailEvent {
   const factory RowDetailEvent.initial() = _Initial;
   const factory RowDetailEvent.deleteField(String fieldId) = _DeleteField;
   const factory RowDetailEvent.didReceiveCellDatas(
-      List<CellIdentifier> gridCells) = _DidReceiveCellDatas;
+    List<CellIdentifier> gridCells,
+  ) = _DidReceiveCellDatas;
 }
 
 @freezed

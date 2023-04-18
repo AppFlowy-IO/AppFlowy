@@ -22,7 +22,6 @@ class CalendarSettingBloc
       );
     });
   }
-
 }
 
 @freezed
@@ -33,7 +32,8 @@ class CalendarSettingState with _$CalendarSettingState {
   }) = _CalendarSettingState;
 
   factory CalendarSettingState.initial(
-          CalendarLayoutSettingPB? layoutSettings) =>
+    CalendarLayoutSettingPB? layoutSettings,
+  ) =>
       CalendarSettingState(
         selectedAction: none(),
         layoutSetting: layoutSettings == null ? none() : Some(layoutSettings),
@@ -43,9 +43,11 @@ class CalendarSettingState with _$CalendarSettingState {
 @freezed
 class CalendarSettingEvent with _$CalendarSettingEvent {
   const factory CalendarSettingEvent.performAction(
-      CalendarSettingAction action) = _PerformAction;
+    CalendarSettingAction action,
+  ) = _PerformAction;
   const factory CalendarSettingEvent.updateLayoutSetting(
-      CalendarLayoutSettingPB setting) = _UpdateLayoutSetting;
+    CalendarLayoutSettingPB setting,
+  ) = _UpdateLayoutSetting;
 }
 
 enum CalendarSettingAction {

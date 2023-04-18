@@ -43,15 +43,22 @@ class SelectOptionFilterListBloc<T>
           didReceiveOptions: (newOptions) {
             List<SelectOptionPB> options = List.from(newOptions);
             options.retainWhere(
-                (element) => element.name.contains(state.predicate));
+              (element) => element.name.contains(state.predicate),
+            );
 
             final visibleOptions = options.map((option) {
               return VisibleSelectOption(
-                  option, state.selectedOptionIds.contains(option.id));
+                option,
+                state.selectedOptionIds.contains(option.id),
+              );
             }).toList();
 
-            emit(state.copyWith(
-                options: options, visibleOptions: visibleOptions));
+            emit(
+              state.copyWith(
+                options: options,
+                visibleOptions: visibleOptions,
+              ),
+            );
           },
           filterOption: (optionName) {
             _updateSelectOptions(predicate: optionName, emit: emit);
@@ -71,11 +78,13 @@ class SelectOptionFilterListBloc<T>
       selectedOptionIds ?? state.selectedOptionIds,
     );
 
-    emit(state.copyWith(
-      predicate: predicate ?? state.predicate,
-      visibleOptions: visibleOptions,
-      selectedOptionIds: selectedOptionIds ?? state.selectedOptionIds,
-    ));
+    emit(
+      state.copyWith(
+        predicate: predicate ?? state.predicate,
+        visibleOptions: visibleOptions,
+        selectedOptionIds: selectedOptionIds ?? state.selectedOptionIds,
+      ),
+    );
   }
 
   List<VisibleSelectOption> _makeVisibleOptions(
@@ -105,11 +114,14 @@ class SelectOptionFilterListBloc<T>
 class SelectOptionFilterListEvent with _$SelectOptionFilterListEvent {
   const factory SelectOptionFilterListEvent.initial() = _Initial;
   const factory SelectOptionFilterListEvent.selectOption(
-      SelectOptionPB option) = _SelectOption;
+    SelectOptionPB option,
+  ) = _SelectOption;
   const factory SelectOptionFilterListEvent.unselectOption(
-      SelectOptionPB option) = _UnSelectOption;
+    SelectOptionPB option,
+  ) = _UnSelectOption;
   const factory SelectOptionFilterListEvent.didReceiveOptions(
-      List<SelectOptionPB> options) = _DidReceiveOptions;
+    List<SelectOptionPB> options,
+  ) = _DidReceiveOptions;
   const factory SelectOptionFilterListEvent.filterOption(String optionName) =
       _SelectOptionFilter;
 }

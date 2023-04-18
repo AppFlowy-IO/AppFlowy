@@ -67,7 +67,8 @@ class DatabaseGroupEvent with _$DatabaseGroupEvent {
     FieldType fieldType,
   ) = _DatabaseGroupEvent;
   const factory DatabaseGroupEvent.didReceiveFieldUpdate(
-      List<FieldInfo> fields) = _DidReceiveFieldUpdate;
+    List<FieldInfo> fields,
+  ) = _DidReceiveFieldUpdate;
 }
 
 @freezed
@@ -78,7 +79,9 @@ class DatabaseGroupState with _$DatabaseGroupState {
   }) = _DatabaseGroupState;
 
   factory DatabaseGroupState.initial(
-          String viewId, List<FieldInfo> fieldContexts) =>
+    String viewId,
+    List<FieldInfo> fieldContexts,
+  ) =>
       DatabaseGroupState(
         viewId: viewId,
         fieldContexts: fieldContexts,

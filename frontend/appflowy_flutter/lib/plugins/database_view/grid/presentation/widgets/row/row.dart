@@ -68,11 +68,13 @@ class _GridRowState extends State<GridRow> {
               ),
             );
 
-            return Row(children: [
-              const _RowLeading(),
-              content,
-              const _RowTrailing(),
-            ]);
+            return Row(
+              children: [
+                const _RowLeading(),
+                content,
+                const _RowTrailing(),
+              ],
+            );
           },
         ),
       ),
@@ -129,9 +131,11 @@ class _RowLeadingState extends State<_RowLeading> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const _InsertButton(),
-        _MenuButton(openMenu: () {
-          popoverController.show();
-        }),
+        _MenuButton(
+          openMenu: () {
+            popoverController.show();
+          },
+        ),
       ],
     );
   }
@@ -216,12 +220,13 @@ class RowContent extends StatelessWidget {
           !listEquals(previous.cells, current.cells),
       builder: (context, state) {
         return IntrinsicHeight(
-            child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: _makeCells(context, state.cellByFieldId),
-        ));
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: _makeCells(context, state.cellByFieldId),
+          ),
+        );
       },
     );
   }

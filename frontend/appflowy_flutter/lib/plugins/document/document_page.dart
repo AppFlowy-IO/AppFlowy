@@ -61,27 +61,28 @@ class _DocumentPageState extends State<DocumentPage> {
       providers: [
         BlocProvider<DocumentBloc>.value(value: documentBloc),
       ],
-      child:
-          BlocBuilder<DocumentBloc, DocumentState>(builder: (context, state) {
-        return state.loadingState.map(
-          loading: (_) => SizedBox.expand(
-            child: Container(color: Colors.transparent),
-          ),
-          finish: (result) => result.successOrFail.fold(
-            (_) {
-              if (state.forceClose) {
-                widget.onDeleted();
-                return const SizedBox();
-              } else if (documentBloc.editorState == null) {
-                return const SizedBox();
-              } else {
-                return _renderDocument(context, state);
-              }
-            },
-            (err) => FlowyErrorPage(err.toString()),
-          ),
-        );
-      }),
+      child: BlocBuilder<DocumentBloc, DocumentState>(
+        builder: (context, state) {
+          return state.loadingState.map(
+            loading: (_) => SizedBox.expand(
+              child: Container(color: Colors.transparent),
+            ),
+            finish: (result) => result.successOrFail.fold(
+              (_) {
+                if (state.forceClose) {
+                  widget.onDeleted();
+                  return const SizedBox();
+                } else if (documentBloc.editorState == null) {
+                  return const SizedBox();
+                } else {
+                  return _renderDocument(context, state);
+                }
+              },
+              (err) => FlowyErrorPage(err.toString()),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -191,11 +192,13 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
       toolbarItems: [
         smartEditItem,
       ],
-      themeData: theme.copyWith(extensions: [
-        ...theme.extensions.values,
-        customEditorTheme(context),
-        ...customPluginTheme(context),
-      ]),
+      themeData: theme.copyWith(
+        extensions: [
+          ...theme.extensions.values,
+          customEditorTheme(context),
+          ...customPluginTheme(context),
+        ],
+      ),
     );
     return Expanded(
       child: Center(

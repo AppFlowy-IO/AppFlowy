@@ -282,6 +282,7 @@
       "dateFormatISO": "Year-Month-Day",
       "dateFormatLocal": "Month/Day/Year",
       "dateFormatUS": "Year/Month/Day",
+      "dateFormatDayMonthYear": "Day/Month/Year",
       "timeFormat": "Time format",
       "invalidTimeFormat": "Invalid format",
       "timeFormatTwelveHour": "12 hour",
@@ -290,7 +291,7 @@
       "optionTitle": "Options",
       "addOption": "Add option",
       "editProperty": "Edit property",
-      "newColumn": "New column",
+      "newProperty": "New property",
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted"
     },
     "sort": {
@@ -383,7 +384,9 @@
         "pickFromFiles": "Pick from files",
         "couldNotFetchImage": "Could not fetch image",
         "imageSavingFailed": "Image Saving Failed",
-        "addIcon": "Add Icon"
+        "addIcon": "Add Icon",
+        "coverRemoveAlert": "It will be removed from cover after it is deleted.",
+        "alertDialogConfirmation": "Are you sure, you want to continue?"
       }
     }
   },

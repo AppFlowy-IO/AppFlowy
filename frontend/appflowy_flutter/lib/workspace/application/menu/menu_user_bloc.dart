@@ -27,7 +27,8 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
         initial: () async {
           _userListener.start(onProfileUpdated: _profileUpdated);
           _userWorkspaceListener.start(
-              onWorkspacesUpdated: _workspaceListUpdated);
+            onWorkspacesUpdated: _workspaceListUpdated,
+          );
           await _initUser();
         },
         fetchWorkspaces: () async {
@@ -69,7 +70,8 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
   }
 
   void _workspaceListUpdated(
-      Either<List<WorkspacePB>, FlowyError> workspacesOrFailed) {
+    Either<List<WorkspacePB>, FlowyError> workspacesOrFailed,
+  ) {
     // Do nothing by now
   }
 }
@@ -80,7 +82,8 @@ class MenuUserEvent with _$MenuUserEvent {
   const factory MenuUserEvent.fetchWorkspaces() = _FetchWorkspaces;
   const factory MenuUserEvent.updateUserName(String name) = _UpdateUserName;
   const factory MenuUserEvent.didReceiveUserProfile(
-      UserProfilePB newUserProfile) = _DidReceiveUserProfile;
+    UserProfilePB newUserProfile,
+  ) = _DidReceiveUserProfile;
 }
 
 @freezed

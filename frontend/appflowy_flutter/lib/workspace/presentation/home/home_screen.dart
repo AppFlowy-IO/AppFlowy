@@ -56,47 +56,51 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ],
       child: HomeHotKeys(
-          child: Scaffold(
-        body: MultiBlocListener(
-          listeners: [
-            BlocListener<HomeBloc, HomeState>(
-              listenWhen: (p, c) => p.unauthorized != c.unauthorized,
-              listener: (context, state) {
-                if (state.unauthorized) {
-                  Log.error("Push to login screen when user token was invalid");
-                }
-              },
-            ),
-            BlocListener<HomeBloc, HomeState>(
-              listenWhen: (p, c) => p.latestView != c.latestView,
-              listener: (context, state) {
-                final view = state.latestView;
-                if (view != null) {
-                  // Only open the last opened view if the [HomeStackManager] current opened plugin is blank and the last opened view is not null.
-                  // All opened widgets that display on the home screen are in the form of plugins. There is a list of built-in plugins defined in the [PluginType] enum, including board, grid and trash.
-                  if (getIt<HomeStackManager>().plugin.ty == PluginType.blank) {
-                    final plugin = makePlugin(
-                      pluginType: view.pluginType,
-                      data: view,
+        child: Scaffold(
+          body: MultiBlocListener(
+            listeners: [
+              BlocListener<HomeBloc, HomeState>(
+                listenWhen: (p, c) => p.unauthorized != c.unauthorized,
+                listener: (context, state) {
+                  if (state.unauthorized) {
+                    Log.error(
+                      "Push to login screen when user token was invalid",
                     );
-                    getIt<HomeStackManager>().setPlugin(plugin);
-                    getIt<MenuSharedState>().latestOpenView = view;
                   }
-                }
+                },
+              ),
+              BlocListener<HomeBloc, HomeState>(
+                listenWhen: (p, c) => p.latestView != c.latestView,
+                listener: (context, state) {
+                  final view = state.latestView;
+                  if (view != null) {
+                    // Only open the last opened view if the [HomeStackManager] current opened plugin is blank and the last opened view is not null.
+                    // All opened widgets that display on the home screen are in the form of plugins. There is a list of built-in plugins defined in the [PluginType] enum, including board, grid and trash.
+                    if (getIt<HomeStackManager>().plugin.ty ==
+                        PluginType.blank) {
+                      final plugin = makePlugin(
+                        pluginType: view.pluginType,
+                        data: view,
+                      );
+                      getIt<HomeStackManager>().setPlugin(plugin);
+                      getIt<MenuSharedState>().latestOpenView = view;
+                    }
+                  }
+                },
+              ),
+            ],
+            child: BlocBuilder<HomeSettingBloc, HomeSettingState>(
+              buildWhen: (previous, current) => previous != current,
+              builder: (context, state) {
+                return FlowyContainer(
+                  Theme.of(context).colorScheme.surface,
+                  child: _buildBody(context),
+                );
               },
             ),
-          ],
-          child: BlocBuilder<HomeSettingBloc, HomeSettingState>(
-            buildWhen: (previous, current) => previous != current,
-            builder: (context, state) {
-              return FlowyContainer(
-                Theme.of(context).colorScheme.surface,
-                child: _buildBody(context),
-              );
-            },
           ),
         ),
-      )),
+      ),
     );
   }
 
@@ -176,24 +180,25 @@ class _HomeScreenState extends State<HomeScreen> {
     return MouseRegion(
       cursor: SystemMouseCursors.resizeLeftRight,
       child: GestureDetector(
-          dragStartBehavior: DragStartBehavior.down,
-          onHorizontalDragStart: (details) => context
-              .read<HomeSettingBloc>()
-              .add(const HomeSettingEvent.editPanelResizeStart()),
-          onHorizontalDragUpdate: (details) => context
-              .read<HomeSettingBloc>()
-              .add(HomeSettingEvent.editPanelResized(details.localPosition.dx)),
-          onHorizontalDragEnd: (details) => context
-              .read<HomeSettingBloc>()
-              .add(const HomeSettingEvent.editPanelResizeEnd()),
-          onHorizontalDragCancel: () => context
-              .read<HomeSettingBloc>()
-              .add(const HomeSettingEvent.editPanelResizeEnd()),
-          behavior: HitTestBehavior.translucent,
-          child: SizedBox(
-            width: 10,
-            height: MediaQuery.of(context).size.height,
-          )),
+        dragStartBehavior: DragStartBehavior.down,
+        onHorizontalDragStart: (details) => context
+            .read<HomeSettingBloc>()
+            .add(const HomeSettingEvent.editPanelResizeStart()),
+        onHorizontalDragUpdate: (details) => context
+            .read<HomeSettingBloc>()
+            .add(HomeSettingEvent.editPanelResized(details.localPosition.dx)),
+        onHorizontalDragEnd: (details) => context
+            .read<HomeSettingBloc>()
+            .add(const HomeSettingEvent.editPanelResizeEnd()),
+        onHorizontalDragCancel: () => context
+            .read<HomeSettingBloc>()
+            .add(const HomeSettingEvent.editPanelResizeEnd()),
+        behavior: HitTestBehavior.translucent,
+        child: SizedBox(
+          width: 10,
+          height: MediaQuery.of(context).size.height,
+        ),
+      ),
     );
   }
 
@@ -210,11 +215,12 @@ class _HomeScreenState extends State<HomeScreen> {
         homeStack
             .constrained(minWidth: 500)
             .positioned(
-                left: layout.homePageLOffset,
-                right: layout.homePageROffset,
-                bottom: 0,
-                top: 0,
-                animate: true)
+              left: layout.homePageLOffset,
+              right: layout.homePageROffset,
+              bottom: 0,
+              top: 0,
+              animate: true,
+            )
             .animate(layout.animDuration, Curves.easeOut),
         bubble
             .positioned(
@@ -230,18 +236,23 @@ class _HomeScreenState extends State<HomeScreen> {
               isClosed: !layout.showEditPanel,
             )
             .positioned(
-                right: 0, top: 0, bottom: 0, width: layout.editPanelWidth),
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: layout.editPanelWidth,
+            ),
         homeMenu
             .animatedPanelX(
               closeX: -layout.menuWidth,
               isClosed: !layout.showMenu,
             )
             .positioned(
-                left: 0,
-                top: 0,
-                width: layout.menuWidth,
-                bottom: 0,
-                animate: true)
+              left: 0,
+              top: 0,
+              width: layout.menuWidth,
+              bottom: 0,
+              animate: true,
+            )
             .animate(layout.animDuration, Curves.easeOut),
         homeMenuResizer
             .positioned(left: layout.menuWidth - 5)

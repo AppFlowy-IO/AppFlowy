@@ -255,24 +255,26 @@ class FieldController {
       }
     }
 
-    _filtersListener.start(onFilterChanged: (result) {
-      result.fold(
-        (FilterChangesetNotificationPB changeset) {
-          final List<FilterInfo> filters = filterInfos;
-          // Deletes the filters
-          deleteFilterFromChangeset(filters, changeset);
+    _filtersListener.start(
+      onFilterChanged: (result) {
+        result.fold(
+          (FilterChangesetNotificationPB changeset) {
+            final List<FilterInfo> filters = filterInfos;
+            // Deletes the filters
+            deleteFilterFromChangeset(filters, changeset);
 
-          // Inserts the new filter if it's not exist
-          insertFilterFromChangeset(filters, changeset);
+            // Inserts the new filter if it's not exist
+            insertFilterFromChangeset(filters, changeset);
 
-          updateFilterFromChangeset(filters, changeset);
+            updateFilterFromChangeset(filters, changeset);
 
-          _updateFieldInfos();
-          _filterNotifier?.filters = filters;
-        },
-        (err) => Log.error(err),
-      );
-    });
+            _updateFieldInfos();
+            _filterNotifier?.filters = filters;
+          },
+          (err) => Log.error(err),
+        );
+      },
+    );
   }
 
   void _listenOnSortChanged() {
@@ -347,48 +349,54 @@ class FieldController {
       }
     }
 
-    _sortsListener.start(onSortChanged: (result) {
-      result.fold(
-        (SortChangesetNotificationPB changeset) {
-          final List<SortInfo> newSortInfos = sortInfos;
-          deleteSortFromChangeset(newSortInfos, changeset);
-          insertSortFromChangeset(newSortInfos, changeset);
-          updateSortFromChangeset(newSortInfos, changeset);
+    _sortsListener.start(
+      onSortChanged: (result) {
+        result.fold(
+          (SortChangesetNotificationPB changeset) {
+            final List<SortInfo> newSortInfos = sortInfos;
+            deleteSortFromChangeset(newSortInfos, changeset);
+            insertSortFromChangeset(newSortInfos, changeset);
+            updateSortFromChangeset(newSortInfos, changeset);
 
-          _updateFieldInfos();
-          _sortNotifier?.sorts = newSortInfos;
-        },
-        (err) => Log.error(err),
-      );
-    });
+            _updateFieldInfos();
+            _sortNotifier?.sorts = newSortInfos;
+          },
+          (err) => Log.error(err),
+        );
+      },
+    );
   }
 
   void _listenOnSettingChanges() {
     //Listen on setting changes
-    _settingListener.start(onSettingUpdated: (result) {
-      result.fold(
-        (setting) => _updateSetting(setting),
-        (r) => Log.error(r),
-      );
-    });
+    _settingListener.start(
+      onSettingUpdated: (result) {
+        result.fold(
+          (setting) => _updateSetting(setting),
+          (r) => Log.error(r),
+        );
+      },
+    );
   }
 
   void _listenOnFieldChanges() {
     //Listen on field's changes
-    _fieldListener.start(onFieldsChanged: (result) {
-      result.fold(
-        (changeset) {
-          _deleteFields(changeset.deletedFields);
-          _insertFields(changeset.insertedFields);
+    _fieldListener.start(
+      onFieldsChanged: (result) {
+        result.fold(
+          (changeset) {
+            _deleteFields(changeset.deletedFields);
+            _insertFields(changeset.insertedFields);
 
-          final updatedFields = _updateFields(changeset.updatedFields);
-          for (final listener in _updatedFieldCallbacks.values) {
-            listener(updatedFields);
-          }
-        },
-        (err) => Log.error(err),
-      );
-    });
+            final updatedFields = _updateFields(changeset.updatedFields);
+            for (final listener in _updatedFieldCallbacks.values) {
+              listener(updatedFields);
+            }
+          },
+          (err) => Log.error(err),
+        );
+      },
+    );
   }
 
   void _updateSetting(DatabaseViewSettingPB setting) {

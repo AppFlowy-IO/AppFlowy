@@ -23,7 +23,8 @@ class Config {
       this.showRecentsTab = true,
       this.recentsLimit = 28,
       this.noRecentsText = 'No Recents',
-      this.noRecentsStyle = const TextStyle(fontSize: 20, color: Colors.black26),
+      this.noRecentsStyle =
+          const TextStyle(fontSize: 20, color: Colors.black26),
       this.tabIndicatorAnimDuration = kTabScrollDuration,
       this.categoryIcons = const CategoryIcons(),
       this.buttonMode = ButtonMode.MATERIAL});

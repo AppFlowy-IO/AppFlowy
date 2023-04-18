@@ -3,7 +3,7 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use collab_database::database::DuplicatedDatabase;
-use collab_database::user::UserDatabase as InnerUserDatabase;
+use collab_database::user::{Config, UserDatabase as InnerUserDatabase};
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use collab_persistence::CollabKV;
 use parking_lot::Mutex;
@@ -44,7 +44,7 @@ impl DatabaseManager2 {
 
   pub async fn initialize(&self, user_id: i64, _token: &str) -> FlowyResult<()> {
     let kv = self.user.kv_db()?;
-    *self.user_database.lock() = Some(InnerUserDatabase::new(user_id, kv));
+    *self.user_database.lock() = Some(InnerUserDatabase::new(user_id, kv, Config::default()));
     // do nothing
     Ok(())
   }

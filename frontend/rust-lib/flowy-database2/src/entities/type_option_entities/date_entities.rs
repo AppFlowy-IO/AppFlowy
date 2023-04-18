@@ -79,6 +79,7 @@ pub enum DateFormatPB {
   US = 1,
   ISO = 2,
   Friendly = 3,
+  DayMonthYear = 4,
 }
 impl std::default::Default for DateFormatPB {
   fn default() -> Self {
@@ -93,6 +94,7 @@ impl From<DateFormatPB> for DateFormat {
       DateFormatPB::US => DateFormat::US,
       DateFormatPB::ISO => DateFormat::ISO,
       DateFormatPB::Friendly => DateFormat::Friendly,
+      DateFormatPB::DayMonthYear => DateFormat::DayMonthYear,
     }
   }
 }
@@ -104,6 +106,7 @@ impl From<DateFormat> for DateFormatPB {
       DateFormat::US => DateFormatPB::US,
       DateFormat::ISO => DateFormatPB::ISO,
       DateFormat::Friendly => DateFormatPB::Friendly,
+      DateFormat::DayMonthYear => DateFormatPB::DayMonthYear,
     }
   }
 }

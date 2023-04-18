@@ -76,13 +76,15 @@ class _SortList extends StatelessWidget {
     return BlocBuilder<SortEditorBloc, SortEditorState>(
       builder: (context, state) {
         final List<Widget> children = state.sortInfos
-            .map((info) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: _SortItem(
-                    sortInfo: info,
-                    popoverMutex: popoverMutex,
-                  ),
-                ))
+            .map(
+              (info) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: _SortItem(
+                  sortInfo: info,
+                  popoverMutex: popoverMutex,
+                ),
+              ),
+            )
             .toList();
 
         return Column(

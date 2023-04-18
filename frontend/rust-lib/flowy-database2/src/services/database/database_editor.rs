@@ -914,7 +914,6 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     _view_id: &str,
     _layout_setting: collab_database::views::LayoutSetting,
   ) {
-    todo!()
   }
 
   fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>> {

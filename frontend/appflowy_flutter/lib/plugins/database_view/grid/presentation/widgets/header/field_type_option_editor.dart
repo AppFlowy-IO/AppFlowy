@@ -90,11 +90,13 @@ class _SwitchFieldButton extends StatelessWidget {
       mutex: popoverMutex,
       offset: const Offset(8, 0),
       popupBuilder: (popOverContext) {
-        return FieldTypeList(onSelectField: (newFieldType) {
-          context
-              .read<FieldTypeOptionEditBloc>()
-              .add(FieldTypeOptionEditEvent.switchToField(newFieldType));
-        });
+        return FieldTypeList(
+          onSelectField: (newFieldType) {
+            context
+                .read<FieldTypeOptionEditBloc>()
+                .add(FieldTypeOptionEditEvent.switchToField(newFieldType));
+          },
+        );
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12.0),

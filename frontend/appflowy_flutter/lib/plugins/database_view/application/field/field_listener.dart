@@ -17,8 +17,9 @@ class SingleFieldListener {
 
   SingleFieldListener({required this.fieldId});
 
-  void start(
-      {required void Function(UpdateFieldNotifiedValue) onFieldChanged}) {
+  void start({
+    required void Function(UpdateFieldNotifiedValue) onFieldChanged,
+  }) {
     _updateFieldNotifier?.addPublishListener(onFieldChanged);
     _listener = DatabaseNotificationListener(
       objectId: fieldId,
@@ -60,8 +61,9 @@ class FieldsListener {
   DatabaseNotificationListener? _listener;
   FieldsListener({required this.viewId});
 
-  void start(
-      {required void Function(UpdateFieldsNotifiedValue) onFieldsChanged}) {
+  void start({
+    required void Function(UpdateFieldsNotifiedValue) onFieldsChanged,
+  }) {
     updateFieldsNotifier?.addPublishListener(onFieldsChanged);
     _listener = DatabaseNotificationListener(
       objectId: viewId,
