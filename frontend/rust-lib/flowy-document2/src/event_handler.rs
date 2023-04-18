@@ -27,6 +27,10 @@ pub(crate) async fn open_document_handler(
     .get_document()
     .map_err(|err| FlowyError::internal().context(err))?;
   let pb = DocumentDataPB2::from(DocumentDataWrapper(document_data));
+
+  if pb.page_id.is_empty() {
+    println!("");
+  }
   data_result_ok(pb)
 }
 
