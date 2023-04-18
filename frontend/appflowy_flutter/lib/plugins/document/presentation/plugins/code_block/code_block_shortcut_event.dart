@@ -1,5 +1,5 @@
+import 'package:appflowy/plugins/document/presentation/plugins/plugins_export.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor_plugins/src/code_block/code_block_node_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

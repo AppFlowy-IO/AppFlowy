@@ -191,29 +191,29 @@ class EmojiPickerState extends State<EmojiPicker> {
     }
     categoryEmoji.addAll([
       CategoryEmoji(Category.SMILEYS,
-          await _getAvailableEmojis(emoji_list.smileys, title: 'smileys')),
+          await _getAvailableEmojis(emoji_list.smileys, title: 'smileys'),),
       CategoryEmoji(Category.ANIMALS,
-          await _getAvailableEmojis(emoji_list.animals, title: 'animals')),
+          await _getAvailableEmojis(emoji_list.animals, title: 'animals'),),
       CategoryEmoji(Category.FOODS,
-          await _getAvailableEmojis(emoji_list.foods, title: 'foods')),
+          await _getAvailableEmojis(emoji_list.foods, title: 'foods'),),
       CategoryEmoji(
           Category.ACTIVITIES,
           await _getAvailableEmojis(emoji_list.activities,
-              title: 'activities')),
+              title: 'activities',),),
       CategoryEmoji(Category.TRAVEL,
-          await _getAvailableEmojis(emoji_list.travel, title: 'travel')),
+          await _getAvailableEmojis(emoji_list.travel, title: 'travel'),),
       CategoryEmoji(Category.OBJECTS,
-          await _getAvailableEmojis(emoji_list.objects, title: 'objects')),
+          await _getAvailableEmojis(emoji_list.objects, title: 'objects'),),
       CategoryEmoji(Category.SYMBOLS,
-          await _getAvailableEmojis(emoji_list.symbols, title: 'symbols')),
+          await _getAvailableEmojis(emoji_list.symbols, title: 'symbols'),),
       CategoryEmoji(Category.FLAGS,
-          await _getAvailableEmojis(emoji_list.flags, title: 'flags'))
+          await _getAvailableEmojis(emoji_list.flags, title: 'flags'),)
     ]);
   }
 
   // Get available emoji for given category title
   Future<List<Emoji>> _getAvailableEmojis(Map<String, String> map,
-      {required String title}) async {
+      {required String title,}) async {
     Map<String, String>? newMap;
 
     // Get Emojis cached locally if available
@@ -236,7 +236,7 @@ class EmojiPickerState extends State<EmojiPicker> {
 
   // Check if emoji is available on current platform
   Future<Map<String, String>?> _getPlatformAvailableEmoji(
-      Map<String, String> emoji) async {
+      Map<String, String> emoji,) async {
     if (Platform.isAndroid) {
       Map<String, String>? filtered = {};
       var delimiter = '|';
@@ -244,7 +244,7 @@ class EmojiPickerState extends State<EmojiPicker> {
         var entries = emoji.values.join(delimiter);
         var keys = emoji.keys.join(delimiter);
         var result = (await platform.invokeMethod<String>('checkAvailability',
-            {'emojiKeys': keys, 'emojiEntries': entries})) as String;
+            {'emojiKeys': keys, 'emojiEntries': entries},)) as String;
         var resultKeys = result.split(delimiter);
         for (var i = 0; i < resultKeys.length; i++) {
           filtered[resultKeys[i]] = emoji[resultKeys[i]]!;
@@ -272,7 +272,7 @@ class EmojiPickerState extends State<EmojiPicker> {
 
   // Stores filtered emoji locally for faster access next time
   Future<void> _cacheFilteredEmojis(
-      String title, Map<String, String> emojis) async {
+      String title, Map<String, String> emojis,) async {
     final prefs = await SharedPreferences.getInstance();
     var emojiJson = jsonEncode(emojis);
     prefs.setString(title, emojiJson);
@@ -305,7 +305,7 @@ class EmojiPickerState extends State<EmojiPicker> {
     recentEmoji.sort((a, b) => b.counter - a.counter);
     // Limit entries to recentsLimit
     recentEmoji = recentEmoji.sublist(
-        0, min(widget.config.recentsLimit, recentEmoji.length));
+        0, min(widget.config.recentsLimit, recentEmoji.length),);
     // save locally
     prefs.setString('recent', jsonEncode(recentEmoji));
   }
