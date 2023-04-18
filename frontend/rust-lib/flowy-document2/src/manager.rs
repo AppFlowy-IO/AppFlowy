@@ -7,8 +7,8 @@ use parking_lot::RwLock;
 
 use crate::{
   document::{Document, DocumentDataWrapper},
+  entities::{BlockEventPB, DocEventPB},
   notification::{send_notification, DocumentNotification},
-  entities::{DocEventPB, BlockEventPB},
 };
 
 pub trait DocumentUser: Send + Sync {
@@ -33,17 +33,28 @@ impl DocumentManager {
     }
   }
 
-  pub fn create_document(&self, doc_id: String, data: DocumentDataWrapper) -> FlowyResult<Arc<Document>> {
+  pub fn create_document(
+    &self,
+    doc_id: String,
+    data: DocumentDataWrapper,
+  ) -> FlowyResult<Arc<Document>> {
     self.get_document(doc_id, Some(data))
   }
 
-  fn get_document(&self, doc_id: String, data: Option<DocumentDataWrapper>) -> FlowyResult<Arc<Document>> {
+  fn get_document(
+    &self,
+    doc_id: String,
+    data: Option<DocumentDataWrapper>,
+  ) -> FlowyResult<Arc<Document>> {
     let collab = self.get_collab_for_doc_id(&doc_id)?;
     let document = Arc::new(Document::new(collab)?);
     self.documents.write().insert(doc_id, document.clone());
     if data.is_some() {
       // Here use unwrap() is safe, because we have checked data.is_some() before.
-      document.lock().create_with_data(data.unwrap().0).map_err(|err| FlowyError::internal().context(err))?;
+      // document
+      //   .lock()
+      //   .create_with_data(data.unwrap().0)
+      //   .map_err(|err| FlowyError::internal().context(err))?;
     }
     Ok(document)
   }
@@ -61,15 +72,14 @@ impl DocumentManager {
         println!("events: {:?}", events);
         println!("is_remote: {:?}", is_remote);
         send_notification(&clone_doc_id, DocumentNotification::DidReceiveUpdate)
-            .payload(DocEventPB {
-              events: events
-                  .iter()
-                  .map(|event| event.to_owned().into())
-                  .collect::<Vec<BlockEventPB>>(),
-              is_remote: is_remote.to_owned(),
-            })
-            .send();
-
+          .payload(DocEventPB {
+            events: events
+              .iter()
+              .map(|event| event.to_owned().into())
+              .collect::<Vec<BlockEventPB>>(),
+            is_remote: is_remote.to_owned(),
+          })
+          .send();
       })
       .map_err(|err| FlowyError::internal().context(err))?;
     Ok(document)

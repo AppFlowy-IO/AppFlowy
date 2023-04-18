@@ -13,11 +13,15 @@ void main() {
 
   test('rename view test', () async {
     final app = await testContext.createTestApp();
+
     final appBloc = AppBloc(view: app)..add(const AppEvent.initial());
-    appBloc.add(AppEvent.createView(
-      "Test document",
-      DocumentPluginBuilder(),
-    ));
+    appBloc.add(
+      AppEvent.createView(
+        "Test document",
+        DocumentPluginBuilder(),
+      ),
+    );
+
     await blocResponseFuture();
 
     final viewBloc = ViewBloc(view: appBloc.state.views.first)
@@ -33,10 +37,12 @@ void main() {
     final appBloc = AppBloc(view: app)..add(const AppEvent.initial());
     await blocResponseFuture();
 
-    appBloc.add(AppEvent.createView(
-      "Test document",
-      DocumentPluginBuilder(),
-    ));
+    appBloc.add(
+      AppEvent.createView(
+        "Test document",
+        DocumentPluginBuilder(),
+      ),
+    );
     await blocResponseFuture();
 
     final viewBloc = ViewBloc(view: appBloc.state.views.first)
@@ -54,10 +60,12 @@ void main() {
     final appBloc = AppBloc(view: app)..add(const AppEvent.initial());
     await blocResponseFuture();
 
-    appBloc.add(AppEvent.createView(
-      "Test document",
-      DocumentPluginBuilder(),
-    ));
+    appBloc.add(
+      AppEvent.createView(
+        "Test document",
+        DocumentPluginBuilder(),
+      ),
+    );
     await blocResponseFuture();
     expect(appBloc.state.views.length, 1);
 

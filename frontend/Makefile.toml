@@ -205,11 +205,16 @@ script = [
 ]
 script_runner = "@duckscript"
 
-[env.test-macos]
+[env.test-macos-x86_64]
 TEST_CRATE_TYPE = "cdylib"
 TEST_LIB_EXT = "dylib"
 # For the moment, the DynamicLibrary only supports open x86_64 architectures binary.
 TEST_COMPILE_TARGET = "x86_64-apple-darwin"
+
+[env.test-macos-arm64]
+TEST_CRATE_TYPE = "cdylib"
+TEST_LIB_EXT = "dylib"
+TEST_COMPILE_TARGET = "aarch64-apple-darwin"
 
 [env.test-linux]
 TEST_CRATE_TYPE = "cdylib"

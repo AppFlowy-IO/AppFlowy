@@ -95,17 +95,20 @@ class _GridHeaderCellContainer extends StatelessWidget {
       width: 1.0,
     );
     final decoration = BoxDecoration(
-        border: Border(
-      top: borderSide,
-      right: borderSide,
-      bottom: borderSide,
-    ));
+      border: Border(
+        top: borderSide,
+        right: borderSide,
+        bottom: borderSide,
+      ),
+    );
 
     return Container(
       width: width,
       decoration: decoration,
       child: ConstrainedBox(
-          constraints: const BoxConstraints.expand(), child: child),
+        constraints: const BoxConstraints.expand(),
+        child: child,
+      ),
     );
   }
 }
@@ -149,10 +152,12 @@ class FieldCellButton extends StatelessWidget {
   final VoidCallback onTap;
   final FieldPB field;
   final int? maxLines;
+  final BorderRadius? radius;
   const FieldCellButton({
     required this.field,
     required this.onTap,
     this.maxLines = 1,
+    this.radius = BorderRadius.zero,
     Key? key,
   }) : super(key: key);
 
@@ -169,7 +174,7 @@ class FieldCellButton extends StatelessWidget {
       leftIcon: FlowySvg(
         name: field.fieldType.iconName(),
       ),
-      radius: BorderRadius.zero,
+      radius: radius,
       text: FlowyText.medium(
         text,
         maxLines: maxLines,

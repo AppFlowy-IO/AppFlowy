@@ -34,7 +34,7 @@ class _EmojiIconWidgetState extends State<EmojiIconWidget> {
         margin: const EdgeInsets.only(top: 18),
         decoration: BoxDecoration(
           color: !hover
-              ? Theme.of(context).colorScheme.secondary
+              ? Theme.of(context).colorScheme.inverseSurface
               : Colors.transparent,
           borderRadius: Corners.s8Border,
         ),

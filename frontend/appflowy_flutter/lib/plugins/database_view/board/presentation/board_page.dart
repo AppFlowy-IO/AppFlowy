@@ -80,8 +80,8 @@ class _BoardContentState extends State<BoardContent> {
   late AppFlowyBoardScrollController scrollManager;
   final cardConfiguration = CardConfiguration<String>();
 
-  final config = AppFlowyBoardConfig(
-    groupBackgroundColor: HexColor.fromHex('#F7F8FC'),
+  final config = const AppFlowyBoardConfig(
+    groupBackgroundColor: Color(0xffF7F8FC),
   );
 
   @override
@@ -292,9 +292,10 @@ class _BoardContentState extends State<BoardContent> {
       color: Theme.of(context).dividerColor,
       width: 1.0,
     );
+    final isLightMode = Theme.of(context).brightness == Brightness.light;
     return BoxDecoration(
       color: Theme.of(context).colorScheme.surface,
-      border: Border.fromBorderSide(borderSide),
+      border: isLightMode ? Border.fromBorderSide(borderSide) : null,
       borderRadius: const BorderRadius.all(Radius.circular(6)),
     );
   }
@@ -346,15 +347,6 @@ class _ToolbarBlocAdaptor extends StatelessWidget {
         return BoardToolbar(toolbarContext: toolbarContext);
       },
     );
-  }
-}
-
-extension HexColor on Color {
-  static Color fromHex(String hexString) {
-    final buffer = StringBuffer();
-    if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
-    buffer.write(hexString.replaceFirst('#', ''));
-    return Color(int.parse(buffer.toString(), radix: 16));
   }
 }
 

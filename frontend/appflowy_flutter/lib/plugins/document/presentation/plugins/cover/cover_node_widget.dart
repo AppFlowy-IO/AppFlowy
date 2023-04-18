@@ -169,14 +169,13 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
                             _removeIcon();
                           },
                           useIntrinsicWidth: true,
-                          leftIcon: Icon(
+                          leftIcon: const Icon(
                             Icons.emoji_emotions_outlined,
-                            color: Theme.of(context).iconTheme.color,
                             size: 18,
                           ),
-                          text: FlowyText.regular(LocaleKeys
-                              .document_plugins_cover_removeIcon
-                              .tr()),
+                          text: FlowyText.regular(
+                            LocaleKeys.document_plugins_cover_removeIcon.tr(),
+                          ),
                         )
                       : AppFlowyPopover(
                           mutex: mutex,
@@ -194,22 +193,26 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
                           child: FlowyButton(
                             leftIconSize: const Size.square(18),
                             useIntrinsicWidth: true,
-                            leftIcon: const Icon(Icons.emoji_emotions_outlined,
-                                size: 18),
+                            leftIcon: const Icon(
+                              Icons.emoji_emotions_outlined,
+                              size: 18,
+                            ),
                             text: FlowyText.regular(
-                                LocaleKeys.document_plugins_cover_addIcon.tr()),
+                              LocaleKeys.document_plugins_cover_addIcon.tr(),
+                            ),
                           ),
                           popupBuilder: (BuildContext popoverContext) {
                             isPopoverOpen = true;
                             return EmojiPopover(
-                                showRemoveButton: widget.hasIcon,
-                                removeIcon: _removeIcon,
-                                node: widget.node,
-                                editorState: widget.editorState,
-                                onEmojiChanged: (Emoji emoji) {
-                                  _insertIcon(emoji);
-                                  widget.iconPopoverController.close();
-                                });
+                              showRemoveButton: widget.hasIcon,
+                              removeIcon: _removeIcon,
+                              node: widget.node,
+                              editorState: widget.editorState,
+                              onEmojiChanged: (Emoji emoji) {
+                                _insertIcon(emoji);
+                                widget.iconPopoverController.close();
+                              },
+                            );
                           },
                         )
                 ],
@@ -273,9 +276,10 @@ class _CoverImageState extends State<_CoverImage> {
   CoverSelectionType get selectionType => CoverSelectionType.fromString(
         widget.node.attributes[kCoverSelectionTypeAttribute],
       );
-  Color get color =>
-      Color(int.tryParse(widget.node.attributes[kCoverSelectionAttribute]) ??
-          0xFFFFFFFF);
+  Color get color => Color(
+        int.tryParse(widget.node.attributes[kCoverSelectionAttribute]) ??
+            0xFFFFFFFF,
+      );
   bool get hasIcon => widget.node.attributes[kIconSelectionAttribute] == null
       ? false
       : widget.node.attributes[kIconSelectionAttribute].isNotEmpty;
@@ -315,14 +319,15 @@ class _CoverImageState extends State<_CoverImage> {
                   ),
                   popupBuilder: (BuildContext popoverContext) {
                     return EmojiPopover(
-                        node: widget.node,
-                        showRemoveButton: hasIcon,
-                        removeIcon: _removeIcon,
-                        editorState: widget.editorState,
-                        onEmojiChanged: (Emoji emoji) {
-                          _insertIcon(emoji);
-                          iconPopoverController.close();
-                        });
+                      node: widget.node,
+                      showRemoveButton: hasIcon,
+                      removeIcon: _removeIcon,
+                      editorState: widget.editorState,
+                      onEmojiChanged: (Emoji emoji) {
+                        _insertIcon(emoji);
+                        iconPopoverController.close();
+                      },
+                    );
                   },
                 ),
               )
@@ -332,7 +337,9 @@ class _CoverImageState extends State<_CoverImage> {
             : _AddCoverButton(
                 onTap: () {
                   _insertCover(
-                      CoverSelectionType.asset, builtInAssetImages.first);
+                    CoverSelectionType.asset,
+                    builtInAssetImages.first,
+                  );
                 },
                 node: widget.node,
                 editorState: widget.editorState,
@@ -435,8 +442,18 @@ class _CoverImageState extends State<_CoverImage> {
     final Widget coverImage;
     switch (selectionType) {
       case CoverSelectionType.file:
+        final imageFile =
+            File(widget.node.attributes[kCoverSelectionAttribute]);
+        if (!imageFile.existsSync()) {
+          // reset cover state
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            widget.onCoverChanged(CoverSelectionType.initial, null);
+          });
+          coverImage = const SizedBox();
+          break;
+        }
         coverImage = Image.file(
-          File(widget.node.attributes[kCoverSelectionAttribute]),
+          imageFile,
           fit: BoxFit.cover,
         );
         break;

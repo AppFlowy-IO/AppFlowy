@@ -143,7 +143,7 @@ impl DatabaseEditor {
   /// * `field_id`: the id of the field
   /// * `type_option_data`: the updated type-option data. The `type-option` data might be empty
   /// if there is no type-option config for that field. For example, the `RichTextTypeOptionPB`.
-  ///  
+  ///
   pub async fn update_field_type_option(
     &self,
     view_id: &str,
@@ -307,7 +307,7 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  /// Switch the field with id to a new field type.  
+  /// Switch the field with id to a new field type.
   ///
   /// If the field type is not exist before, the default type-option data will be created.
   /// Each field type has its corresponding data, aka, the type-option data. Check out [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid#fieldtype)
@@ -888,15 +888,9 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn duplicate_database<T: AsRef<str>>(
-    &self,
-    _view_id: T,
-  ) -> FlowyResult<BuildDatabaseContext> {
+  pub async fn duplicate_database(&self, view_id: &str) -> FlowyResult<BuildDatabaseContext> {
     let database_pad = self.database_pad.read().await;
-    // let database_view_data = self
-    //   .database_views
-    //   .duplicate_database_view(view_id.as_ref())
-    //   .await?;
+    let database_view_data = self.database_views.duplicate_database_view(view_id).await?;
     let original_blocks = database_pad.get_block_meta_revs();
     let (duplicated_fields, duplicated_blocks) = database_pad.duplicate_database_block_meta().await;
 
@@ -925,7 +919,7 @@ impl DatabaseEditor {
       block_metas: duplicated_blocks,
       blocks: blocks_meta_data,
       layout_setting: Default::default(),
-      database_view_data: "".to_string(),
+      database_view_data,
     })
   }
 

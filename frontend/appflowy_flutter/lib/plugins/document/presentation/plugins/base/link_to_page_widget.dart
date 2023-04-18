@@ -7,9 +7,9 @@ import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'insert_page_command.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'insert_page_command.dart';
 
 EditorState? _editorState;
 OverlayEntry? _linkToPageMenu;
@@ -39,24 +39,26 @@ void showLinkToPageMenu(
   }
 
   _linkToPageMenu?.remove();
-  _linkToPageMenu = OverlayEntry(builder: (context) {
-    return Positioned(
-      top: alignment == Alignment.bottomLeft ? offset.dy : null,
-      bottom: alignment == Alignment.topLeft ? offset.dy : null,
-      left: offset.dx,
-      child: Material(
-        color: Colors.transparent,
-        child: LinkToPageMenu(
-          editorState: editorState,
-          layoutType: pageType,
-          hintText: hintText,
-          onSelected: (viewPB, childViewPB) {
-            editorState.insertPage(viewPB, childViewPB);
-          },
+  _linkToPageMenu = OverlayEntry(
+    builder: (context) {
+      return Positioned(
+        top: alignment == Alignment.bottomLeft ? offset.dy : null,
+        bottom: alignment == Alignment.topLeft ? offset.dy : null,
+        left: offset.dx,
+        child: Material(
+          color: Colors.transparent,
+          child: LinkToPageMenu(
+            editorState: editorState,
+            layoutType: pageType,
+            hintText: hintText,
+            onSelected: (appPB, viewPB) {
+              editorState.insertPage(appPB, viewPB);
+            },
+          ),
         ),
-      ),
-    );
-  });
+      );
+    },
+  );
 
   Overlay.of(context).insert(_linkToPageMenu!);
 
@@ -183,7 +185,9 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
       newSelectedIndex %= _totalItems;
     } else if (event.logicalKey == LogicalKeyboardKey.enter) {
       widget.onSelected(
-          _items[_selectedIndex]!.value1, _items[_selectedIndex]!.value2);
+        _items[_selectedIndex]!.value1,
+        _items[_selectedIndex]!.value2,
+      );
     }
 
     setState(() {

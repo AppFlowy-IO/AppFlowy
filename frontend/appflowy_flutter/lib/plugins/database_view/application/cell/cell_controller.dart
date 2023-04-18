@@ -73,28 +73,35 @@ class CellController<T, D> extends Equatable {
     /// For example:
     ///  user input: 12
     ///  cell display: $12
-    _cellListener?.start(onCellChanged: (result) {
-      result.fold(
-        (_) {
-          _cellCache.remove(_cacheKey);
-          _loadData();
-        },
-        (err) => Log.error(err),
-      );
-    });
+    _cellListener?.start(
+      onCellChanged: (result) {
+        result.fold(
+          (_) {
+            _cellCache.remove(_cacheKey);
+            _loadData();
+          },
+          (err) => Log.error(err),
+        );
+      },
+    );
 
     /// 2.Listen on the field event and load the cell data if needed.
-    _fieldListener.start(onFieldChanged: (result) {
-      result.fold((fieldPB) {
-        /// reloadOnFieldChanged should be true if you need to load the data when the corresponding field is changed
-        /// For example:
-        ///   ￥12 -> $12
-        if (_cellDataLoader.reloadOnFieldChanged) {
-          _loadData();
-        }
-        _onCellFieldChanged?.call();
-      }, (err) => Log.error(err));
-    });
+    _fieldListener.start(
+      onFieldChanged: (result) {
+        result.fold(
+          (fieldPB) {
+            /// reloadOnFieldChanged should be true if you need to load the data when the corresponding field is changed
+            /// For example:
+            ///   ￥12 -> $12
+            if (_cellDataLoader.reloadOnFieldChanged) {
+              _loadData();
+            }
+            _onCellFieldChanged?.call();
+          },
+          (err) => Log.error(err),
+        );
+      },
+    );
   }
 
   /// Listen on the cell content or field changes
@@ -130,7 +137,8 @@ class CellController<T, D> extends Equatable {
   /// Return the TypeOptionPB that can be parsed into corresponding class using the [parser].
   /// [PD] is the type that the parser return.
   Future<Either<PD, FlowyError>> getTypeOption<PD, P extends TypeOptionParser>(
-      P parser) {
+    P parser,
+  ) {
     return _fieldBackendSvc
         .getFieldTypeOptionData(fieldType: fieldType)
         .then((result) {

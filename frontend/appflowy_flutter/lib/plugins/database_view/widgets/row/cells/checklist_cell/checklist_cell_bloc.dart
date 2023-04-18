@@ -26,11 +26,13 @@ class ChecklistCardCellBloc
             _loadOptions();
           },
           didReceiveOptions: (data) {
-            emit(state.copyWith(
-              allOptions: data.options,
-              selectedOptions: data.selectOptions,
-              percent: percentFromSelectOptionCellData(data),
-            ));
+            emit(
+              state.copyWith(
+                allOptions: data.options,
+                selectedOptions: data.selectOptions,
+                percent: percentFromSelectOptionCellData(data),
+              ),
+            );
           },
         );
       },
@@ -76,7 +78,8 @@ class ChecklistCardCellBloc
 class ChecklistCellEvent with _$ChecklistCellEvent {
   const factory ChecklistCellEvent.initial() = _InitialCell;
   const factory ChecklistCellEvent.didReceiveOptions(
-      SelectOptionCellDataPB data) = _DidReceiveCellUpdate;
+    SelectOptionCellDataPB data,
+  ) = _DidReceiveCellUpdate;
 }
 
 @freezed

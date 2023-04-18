@@ -8,15 +8,15 @@ class AnimatedPanel extends StatefulWidget {
   final Curve? curve;
   final Widget? child;
 
-  const AnimatedPanel(
-      {Key? key,
-      this.isClosed = false,
-      this.closedX = 0.0,
-      this.closedY = 0.0,
-      this.duration = 0.0,
-      this.curve,
-      this.child})
-      : super(key: key);
+  const AnimatedPanel({
+    Key? key,
+    this.isClosed = false,
+    this.closedX = 0.0,
+    this.closedY = 0.0,
+    this.duration = 0.0,
+    this.curve,
+    this.child,
+  }) : super(key: key);
 
   @override
   AnimatedPanelState createState() => AnimatedPanelState();
@@ -49,39 +49,45 @@ class AnimatedPanelState extends State<AnimatedPanel> {
 }
 
 extension AnimatedPanelExtensions on Widget {
-  Widget animatedPanelX(
-          {double closeX = 0.0,
-          bool? isClosed,
-          double? duration,
-          Curve? curve}) =>
+  Widget animatedPanelX({
+    double closeX = 0.0,
+    bool? isClosed,
+    double? duration,
+    Curve? curve,
+  }) =>
       animatedPanel(
-          closePos: Offset(closeX, 0),
-          isClosed: isClosed,
-          curve: curve,
-          duration: duration);
-
-  Widget animatedPanelY(
-          {double closeY = 0.0,
-          bool? isClosed,
-          double? duration,
-          Curve? curve}) =>
-      animatedPanel(
-          closePos: Offset(0, closeY),
-          isClosed: isClosed,
-          curve: curve,
-          duration: duration);
-
-  Widget animatedPanel(
-      {required Offset closePos,
-      bool? isClosed,
-      double? duration,
-      Curve? curve}) {
-    return AnimatedPanel(
-        closedX: closePos.dx,
-        closedY: closePos.dy,
-        isClosed: isClosed ?? false,
-        duration: duration ?? .35,
+        closePos: Offset(closeX, 0),
+        isClosed: isClosed,
         curve: curve,
-        child: this);
+        duration: duration,
+      );
+
+  Widget animatedPanelY({
+    double closeY = 0.0,
+    bool? isClosed,
+    double? duration,
+    Curve? curve,
+  }) =>
+      animatedPanel(
+        closePos: Offset(0, closeY),
+        isClosed: isClosed,
+        curve: curve,
+        duration: duration,
+      );
+
+  Widget animatedPanel({
+    required Offset closePos,
+    bool? isClosed,
+    double? duration,
+    Curve? curve,
+  }) {
+    return AnimatedPanel(
+      closedX: closePos.dx,
+      closedY: closePos.dy,
+      isClosed: isClosed ?? false,
+      duration: duration ?? .35,
+      curve: curve,
+      child: this,
+    );
   }
 }

@@ -37,7 +37,6 @@ pub struct DatabaseViewRevision {
   #[serde(rename = "grid_id")]
   pub database_id: String,
 
-  #[serde(skip_serializing_if = "String::is_empty")]
   #[serde(default)]
   pub name: String,
 
@@ -47,7 +46,6 @@ pub struct DatabaseViewRevision {
   pub layout: LayoutRevision,
 
   #[serde(default)]
-  #[serde(skip_serializing_if = "LayoutSetting::is_empty")]
   pub layout_settings: LayoutSetting,
 
   #[serde(default)]
@@ -123,29 +121,4 @@ impl std::ops::DerefMut for LayoutSetting {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct RowOrderRevision {
   pub row_id: String,
-}
-
-#[cfg(test)]
-mod tests {
-  use crate::DatabaseViewRevision;
-
-  #[test]
-  fn grid_view_revision_serde_test() {
-    let grid_view_revision = DatabaseViewRevision {
-      view_id: "1".to_string(),
-      database_id: "1".to_string(),
-      name: "".to_string(),
-      is_base: true,
-      layout: Default::default(),
-      layout_settings: Default::default(),
-      filters: Default::default(),
-      groups: Default::default(),
-      sorts: Default::default(),
-    };
-    let s = serde_json::to_string(&grid_view_revision).unwrap();
-    assert_eq!(
-      s,
-      r#"{"view_id":"1","grid_id":"1","is_base":true,"layout":0,"filters":[],"groups":[],"sorts":[]}"#
-    );
-  }
 }

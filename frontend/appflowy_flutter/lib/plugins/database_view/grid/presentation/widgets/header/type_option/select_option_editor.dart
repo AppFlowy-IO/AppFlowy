@@ -66,7 +66,8 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
             if (showOptions) {
               cells.add(const TypeOptionSeparator());
               cells.add(
-                  SelectOptionColorList(selectedColor: state.option.color));
+                SelectOptionColorList(selectedColor: state.option.color),
+              );
             }
 
             return SizedBox(
@@ -126,9 +127,11 @@ class _DeleteTag extends StatelessWidget {
 class _OptionNameTextField extends StatelessWidget {
   final String name;
   final bool autoFocus;
-  const _OptionNameTextField(
-      {required this.name, required this.autoFocus, Key? key})
-      : super(key: key);
+  const _OptionNameTextField({
+    required this.name,
+    required this.autoFocus,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -157,7 +160,9 @@ class SelectOptionColorList extends StatelessWidget {
   Widget build(BuildContext context) {
     final cells = SelectOptionColorPB.values.map((color) {
       return _SelectOptionColorCell(
-          color: color, isSelected: selectedColor == color);
+        color: color,
+        isSelected: selectedColor == color,
+      );
     }).toList();
 
     return Column(
@@ -195,9 +200,11 @@ class SelectOptionColorList extends StatelessWidget {
 class _SelectOptionColorCell extends StatelessWidget {
   final SelectOptionColorPB color;
   final bool isSelected;
-  const _SelectOptionColorCell(
-      {required this.color, required this.isSelected, Key? key})
-      : super(key: key);
+  const _SelectOptionColorCell({
+    required this.color,
+    required this.isSelected,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

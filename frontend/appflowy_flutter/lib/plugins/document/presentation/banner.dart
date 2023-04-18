@@ -9,9 +9,11 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 class DocumentBanner extends StatelessWidget {
   final void Function() onRestore;
   final void Function() onDelete;
-  const DocumentBanner(
-      {required this.onRestore, required this.onDelete, Key? key})
-      : super(key: key);
+  const DocumentBanner({
+    required this.onRestore,
+    required this.onDelete,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -25,41 +27,44 @@ class DocumentBanner extends StatelessWidget {
           fit: BoxFit.scaleDown,
           child: Row(
             children: [
-              FlowyText.medium(LocaleKeys.deletePagePrompt_text.tr(),
-                  color: Colors.white),
+              FlowyText.medium(
+                LocaleKeys.deletePagePrompt_text.tr(),
+                color: Colors.white,
+              ),
               const HSpace(20),
               BaseStyledButton(
-                  minWidth: 160,
-                  minHeight: 40,
-                  contentPadding: EdgeInsets.zero,
-                  bgColor: Colors.transparent,
-                  hoverColor: Theme.of(context).colorScheme.primary,
-                  highlightColor:
-                      Theme.of(context).colorScheme.primaryContainer,
-                  outlineColor: Colors.white,
-                  borderRadius: Corners.s8Border,
-                  onPressed: onRestore,
-                  child: FlowyText.medium(
-                    LocaleKeys.deletePagePrompt_restore.tr(),
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    fontSize: 14,
-                  )),
+                minWidth: 160,
+                minHeight: 40,
+                contentPadding: EdgeInsets.zero,
+                bgColor: Colors.transparent,
+                hoverColor: Theme.of(context).colorScheme.primary,
+                highlightColor: Theme.of(context).colorScheme.primaryContainer,
+                outlineColor: Colors.white,
+                borderRadius: Corners.s8Border,
+                onPressed: onRestore,
+                child: FlowyText.medium(
+                  LocaleKeys.deletePagePrompt_restore.tr(),
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  fontSize: 14,
+                ),
+              ),
               const HSpace(20),
               BaseStyledButton(
-                  minWidth: 220,
-                  minHeight: 40,
-                  contentPadding: EdgeInsets.zero,
-                  bgColor: Colors.transparent,
-                  hoverColor: Theme.of(context).colorScheme.primaryContainer,
-                  highlightColor: Theme.of(context).colorScheme.primary,
-                  outlineColor: Colors.white,
-                  borderRadius: Corners.s8Border,
-                  onPressed: onDelete,
-                  child: FlowyText.medium(
-                    LocaleKeys.deletePagePrompt_deletePermanent.tr(),
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    fontSize: 14,
-                  )),
+                minWidth: 220,
+                minHeight: 40,
+                contentPadding: EdgeInsets.zero,
+                bgColor: Colors.transparent,
+                hoverColor: Theme.of(context).colorScheme.primaryContainer,
+                highlightColor: Theme.of(context).colorScheme.primary,
+                outlineColor: Colors.white,
+                borderRadius: Corners.s8Border,
+                onPressed: onDelete,
+                child: FlowyText.medium(
+                  LocaleKeys.deletePagePrompt_deletePermanent.tr(),
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  fontSize: 14,
+                ),
+              ),
             ],
           ),
         ),

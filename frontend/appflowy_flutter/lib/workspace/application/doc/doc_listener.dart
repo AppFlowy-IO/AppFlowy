@@ -6,7 +6,6 @@ import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/notification.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
-import 'package:flowy_infra/notifier.dart';
 
 class DocumentListener {
   DocumentListener({
@@ -15,7 +14,6 @@ class DocumentListener {
 
   final String id;
 
-  final _didReceiveUpdate = PublishNotifier();
   StreamSubscription<SubscribeObject>? _subscription;
   DocumentNotificationParser? _parser;
 

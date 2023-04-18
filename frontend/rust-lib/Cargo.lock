@@ -490,7 +490,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?branch=main#dd49b08fae2ad008844409c7ce6b8c754446955c"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?branch=main#2493922c509a4d2862bc49a11f068917b0c5bb93"
 dependencies = [
  "anyhow",
  "bytes",
@@ -508,7 +508,7 @@ dependencies = [
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?branch=main#dd49b08fae2ad008844409c7ce6b8c754446955c"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?branch=main#2493922c509a4d2862bc49a11f068917b0c5bb93"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -520,7 +520,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?branch=main#dd49b08fae2ad008844409c7ce6b8c754446955c"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?branch=main#2493922c509a4d2862bc49a11f068917b0c5bb93"
 dependencies = [
  "anyhow",
  "collab",
@@ -531,12 +531,13 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror",
+ "tracing",
 ]
 
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?branch=main#dd49b08fae2ad008844409c7ce6b8c754446955c"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?branch=main#2493922c509a4d2862bc49a11f068917b0c5bb93"
 dependencies = [
  "anyhow",
  "collab",
@@ -554,16 +555,18 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?branch=main#dd49b08fae2ad008844409c7ce6b8c754446955c"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?branch=main#2493922c509a4d2862bc49a11f068917b0c5bb93"
 dependencies = [
  "bincode",
  "chrono",
  "lib0",
+ "parking_lot 0.12.1",
  "serde",
  "sled",
  "smallvec",
  "thiserror",
  "tokio",
+ "tracing",
  "yrs",
 ]
 

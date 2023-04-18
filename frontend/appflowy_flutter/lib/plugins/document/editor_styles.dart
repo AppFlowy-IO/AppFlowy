@@ -23,10 +23,9 @@ EditorStyle customEditorTheme(BuildContext context) {
       fontFamily: 'poppins-Bold',
     ),
     backgroundColor: Theme.of(context).colorScheme.surface,
-    selectionMenuItemSelectedIconColor:
-        Theme.of(context).textTheme.bodyMedium?.color,
-    selectionMenuItemSelectedTextColor:
-        Theme.of(context).textTheme.bodyMedium?.color,
+    selectionMenuBackgroundColor: Theme.of(context).cardColor,
+    selectionMenuItemSelectedIconColor: Theme.of(context).colorScheme.onSurface,
+    selectionMenuItemSelectedTextColor: Theme.of(context).colorScheme.onSurface,
   );
   return editorStyle;
 }
@@ -85,8 +84,10 @@ Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
       ? darkPluginStyleExtension
       : lightPluginStyleExtension;
   return pluginTheme.toList()
-    ..removeWhere((element) =>
-        element is HeadingPluginStyle || element is NumberListPluginStyle)
+    ..removeWhere(
+      (element) =>
+          element is HeadingPluginStyle || element is NumberListPluginStyle,
+    )
     ..add(headingPluginStyle)
     ..add(numberListPluginStyle);
 }
