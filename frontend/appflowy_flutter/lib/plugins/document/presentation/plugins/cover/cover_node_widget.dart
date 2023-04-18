@@ -169,9 +169,8 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
                             _removeIcon();
                           },
                           useIntrinsicWidth: true,
-                          leftIcon: Icon(
+                          leftIcon: const Icon(
                             Icons.emoji_emotions_outlined,
-                            color: Theme.of(context).iconTheme.color,
                             size: 18,
                           ),
                           text: FlowyText.regular(
