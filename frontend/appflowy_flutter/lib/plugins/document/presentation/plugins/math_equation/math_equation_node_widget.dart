@@ -1,4 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
+import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
@@ -131,14 +134,14 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
         color: _isHover || _mathEquation.isEmpty
-            ? Colors.grey[200]
+            ? Theme.of(context).colorScheme.tertiaryContainer
             : Colors.transparent,
       ),
       child: Center(
         child: _mathEquation.isEmpty
-            ? Text(
+            ? const FlowyText.medium(
                 'Add a Math Equation',
-                style: widget.editorState.editorStyle.placeholderTextStyle,
+                fontSize: 16,
               )
             : Math.tex(
                 _mathEquation,
@@ -155,6 +158,7 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
       builder: (context) {
         final controller = TextEditingController(text: _mathEquation);
         return AlertDialog(
+          backgroundColor: Theme.of(context).canvasColor,
           title: const Text('Edit Math Equation'),
           content: RawKeyboardListener(
             focusNode: FocusNode(),
@@ -178,15 +182,17 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
             ),
           ),
           actions: [
-            TextButton(
+            SecondaryTextButton(
+              'Cancel',
               onPressed: () => _dismiss(context),
-              child: const Text('Cancel'),
             ),
-            TextButton(
+            PrimaryTextButton(
+              'Done',
               onPressed: () => _updateMathEquation(controller.text, context),
-              child: const Text('Done'),
             ),
           ],
+          actionsPadding: const EdgeInsets.only(bottom: 20),
+          actionsAlignment: MainAxisAlignment.spaceAround,
         );
       },
     );
