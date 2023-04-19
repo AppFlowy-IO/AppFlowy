@@ -254,8 +254,6 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
               if (index == 0) {
                 return Container(
                   decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.15),
                     border: Border.all(
                       color: Theme.of(context).colorScheme.primary,
                     ),
@@ -267,6 +265,8 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
                       Icons.add,
                       color: Theme.of(context).colorScheme.primary,
                     ),
+                    hoverColor:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.15),
                     width: 20,
                     onPressed: () {
                       setState(() {
