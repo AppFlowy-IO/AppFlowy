@@ -78,12 +78,14 @@ class _URLCellEditorState extends State<URLCellEditor> {
         final parseResult = parseValidUrl(_controller.text);
 
         parseResult.fold(
+          (_) {
+            showSnapBar(
+              context,
+              "Enter a valid URL",
+              Theme.of(context).colorScheme.error,
+            );
+          },
           (_) => _cellBloc.add(URLCellEditorEvent.updateText(_controller.text)),
-          (_) => showSnapBar(
-            context,
-            "Enter a valid URL",
-            Theme.of(context).colorScheme.error,
-          ),
         );
       }
     }
