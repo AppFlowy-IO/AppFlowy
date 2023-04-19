@@ -154,7 +154,7 @@ class FlowyTextButton extends StatelessWidget {
         overflow: overflow,
         fontWeight: fontWeight,
         fontSize: fontSize,
-        color: fontColor ?? Theme.of(context).colorScheme.onSecondary,
+        color: fontColor,
         textAlign: TextAlign.center,
         decoration: decoration,
       ),
