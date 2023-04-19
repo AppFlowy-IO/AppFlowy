@@ -401,20 +401,25 @@ class _CoverImageState extends State<_CoverImage> {
             direction: PopoverDirection.bottomWithCenterAligned,
             constraints: BoxConstraints.loose(const Size(380, 450)),
             margin: EdgeInsets.zero,
-            child: !isOverlayButtonsHidden
-                ? RoundedTextButton(
-                    onPressed: () {
-                      popoverController.show();
-                      setOverlayButtonsHidden(true);
-                    },
-                    hoverColor: Theme.of(context).colorScheme.surface,
-                    textColor: Theme.of(context).colorScheme.onSurface,
-                    fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
-                    width: 120,
-                    height: 28,
-                    title: LocaleKeys.document_plugins_cover_changeCover.tr(),
-                  )
-                : const SizedBox.shrink(),
+            child: Visibility(
+              maintainState: true,
+              maintainAnimation: true,
+              maintainSize: true,
+              visible: !isOverlayButtonsHidden,
+              child: RoundedTextButton(
+                onPressed: () {
+                  popoverController.show();
+                  setOverlayButtonsHidden(true);
+                },
+                hoverColor: Theme.of(context).colorScheme.surface,
+                textColor: Theme.of(context).colorScheme.onSurface,
+                fillColor:
+                    Theme.of(context).colorScheme.surface.withOpacity(0.8),
+                width: 120,
+                height: 28,
+                title: LocaleKeys.document_plugins_cover_changeCover.tr(),
+              ),
+            ),
             popupBuilder: (BuildContext popoverContext) {
               return ChangeCoverPopover(
                 node: widget.node,
@@ -424,21 +429,25 @@ class _CoverImageState extends State<_CoverImage> {
             },
           ),
           const SizedBox(width: 10),
-          !isOverlayButtonsHidden
-              ? FlowyIconButton(
-                  fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
-                  hoverColor: Theme.of(context).colorScheme.surface,
-                  iconPadding: const EdgeInsets.all(5),
-                  width: 28,
-                  icon: svgWidget(
-                    'editor/delete',
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                  onPressed: () {
-                    widget.onCoverChanged(CoverSelectionType.initial, null);
-                  },
-                )
-              : const SizedBox.shrink(),
+          Visibility(
+            maintainAnimation: true,
+            maintainSize: true,
+            maintainState: true,
+            visible: !isOverlayButtonsHidden,
+            child: FlowyIconButton(
+              fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
+              hoverColor: Theme.of(context).colorScheme.surface,
+              iconPadding: const EdgeInsets.all(5),
+              width: 28,
+              icon: svgWidget(
+                'editor/delete',
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+              onPressed: () {
+                widget.onCoverChanged(CoverSelectionType.initial, null);
+              },
+            ),
+          ),
         ],
       ),
     );
@@ -504,7 +513,9 @@ class _CoverImageState extends State<_CoverImage> {
                 width: double.infinity,
                 child: coverImage,
               ),
-              hasCover ? _buildCoverOverlayButtons(context) : const SizedBox.shrink()
+              hasCover
+                  ? _buildCoverOverlayButtons(context)
+                  : const SizedBox.shrink()
             ],
           ),
         ),
