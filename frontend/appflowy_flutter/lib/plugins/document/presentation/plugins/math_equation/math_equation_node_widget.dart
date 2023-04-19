@@ -1,4 +1,6 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
@@ -139,8 +141,8 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
       ),
       child: Center(
         child: _mathEquation.isEmpty
-            ? const FlowyText.medium(
-                'Add a Math Equation',
+            ? FlowyText.medium(
+                LocaleKeys.document_plugins_mathEquation_addMathEquation.tr(),
                 fontSize: 16,
               )
             : Math.tex(
@@ -159,7 +161,9 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
         final controller = TextEditingController(text: _mathEquation);
         return AlertDialog(
           backgroundColor: Theme.of(context).canvasColor,
-          title: const Text('Edit Math Equation'),
+          title: Text(
+            LocaleKeys.document_plugins_mathEquation_editMathEquation.tr(),
+          ),
           content: RawKeyboardListener(
             focusNode: FocusNode(),
             onKey: (key) {
@@ -183,11 +187,11 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
           ),
           actions: [
             SecondaryTextButton(
-              'Cancel',
+              LocaleKeys.button_Cancel.tr(),
               onPressed: () => _dismiss(context),
             ),
             PrimaryTextButton(
-              'Done',
+              LocaleKeys.button_Done.tr(),
               onPressed: () => _updateMathEquation(controller.text, context),
             ),
           ],
