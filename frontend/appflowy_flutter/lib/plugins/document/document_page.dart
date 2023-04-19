@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/presentation/plugins/plugins_export.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/plugins.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:dartz/dartz.dart' as dartz;
