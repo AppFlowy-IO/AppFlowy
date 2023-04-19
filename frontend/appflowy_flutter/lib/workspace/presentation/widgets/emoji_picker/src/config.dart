@@ -16,6 +16,7 @@ class Config {
     this.initCategory = Category.RECENT,
     this.bgColor = const Color(0xFFEBEFF2),
     this.indicatorColor = Colors.blue,
+    this.selectedHoverColor = Colors.grey,
     this.iconColor = Colors.grey,
     this.iconColorSelected = Colors.blue,
     this.progressIndicatorColor = Colors.blue,
@@ -51,6 +52,9 @@ class Config {
 
   /// The color of the category indicator
   final Color indicatorColor;
+
+  /// The background color of the selected category
+  final Color selectedHoverColor;
 
   /// The color of the category icons
   final Color iconColor;

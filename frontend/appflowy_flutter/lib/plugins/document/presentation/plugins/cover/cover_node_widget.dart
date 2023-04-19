@@ -169,9 +169,8 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
                             _removeIcon();
                           },
                           useIntrinsicWidth: true,
-                          leftIcon: Icon(
+                          leftIcon: const Icon(
                             Icons.emoji_emotions_outlined,
-                            color: Theme.of(context).iconTheme.color,
                             size: 18,
                           ),
                           text: FlowyText.regular(
@@ -451,8 +450,18 @@ class _CoverImageState extends State<_CoverImage> {
     final Widget coverImage;
     switch (selectionType) {
       case CoverSelectionType.file:
+        final imageFile =
+            File(widget.node.attributes[kCoverSelectionAttribute]);
+        if (!imageFile.existsSync()) {
+          // reset cover state
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            widget.onCoverChanged(CoverSelectionType.initial, null);
+          });
+          coverImage = const SizedBox();
+          break;
+        }
         coverImage = Image.file(
-          File(widget.node.attributes[kCoverSelectionAttribute]),
+          imageFile,
           fit: BoxFit.cover,
         );
         break;

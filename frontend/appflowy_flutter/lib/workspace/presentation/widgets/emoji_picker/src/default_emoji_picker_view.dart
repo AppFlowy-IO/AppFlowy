@@ -1,4 +1,6 @@
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -106,37 +108,42 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
 
         return Container(
           color: widget.config.bgColor,
-          padding: const EdgeInsets.all(5.0),
+          padding: const EdgeInsets.all(4.0),
           child: Column(
             children: [
               SizedBox(
-                height: 25.0,
+                height: 40,
                 child: TextField(
                   controller: _emojiController,
                   focusNode: _emojiFocusNode,
                   autofocus: true,
-                  style: const TextStyle(fontSize: 14.0),
                   cursorWidth: 1.0,
-                  cursorColor: Colors.black,
+                  cursorColor: Theme.of(context).colorScheme.tertiary,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontSize: FontSizes.s16,
+                        fontWeight: FontWeight.w400,
+                      ),
                   decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 5.0),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                     hintText: "Search emoji",
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(4.0),
-                      borderSide: const BorderSide(),
-                      gapPadding: 0.0,
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.tertiary,
+                        width: 2,
+                      ),
                     ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(4.0),
-                      borderSide: const BorderSide(),
-                      gapPadding: 0.0,
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
                     ),
                     filled: true,
-                    fillColor: Colors.white,
-                    hoverColor: Colors.white,
+                    fillColor: Colors.transparent,
+                    hoverColor: Colors.transparent,
                   ),
                 ),
               ),
+              const VSpace(6),
               Row(
                 children: [
                   Expanded(
@@ -150,9 +157,8 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
                       indicatorColor: widget.config.indicatorColor,
                       padding: const EdgeInsets.symmetric(vertical: 5.0),
                       indicator: BoxDecoration(
-                        border: Border.all(color: Colors.transparent),
                         borderRadius: BorderRadius.circular(4.0),
-                        color: Colors.grey.withOpacity(0.5),
+                        color: widget.config.selectedHoverColor,
                       ),
                       onTap: (index) {
                         _pageController!.animateToPage(
@@ -296,6 +302,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
           style: TextStyle(
             fontSize: emojiSize,
             backgroundColor: Colors.transparent,
+            color: Theme.of(context).iconTheme.color,
           ),
         ),
       ),
