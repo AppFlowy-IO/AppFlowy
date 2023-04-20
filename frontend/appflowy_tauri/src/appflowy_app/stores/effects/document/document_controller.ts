@@ -1,7 +1,7 @@
 import { DocumentData, BlockType, DeltaItem } from '@/appflowy_app/interfaces/document';
 import { createContext, Dispatch } from 'react';
 import { DocumentBackendService } from './document_bd_svc';
-import { FlowyError, BlockActionPB, DocEventPB, DeltaTypePB } from '@/services/backend';
+import { FlowyError, BlockActionPB, DocEventPB, DeltaTypePB, BlockActionTypePB } from '@/services/backend';
 import { DocumentObserver } from './document_observer';
 import { documentActions, Node } from '@/appflowy_app/stores/reducers/document/slice';
 
@@ -67,16 +67,63 @@ export class DocumentController {
     await this.backendService.applyActions(actions);
   };
 
+  getInsertAction = (node: Node, prevId: string | null) => {
+    return {
+      action: BlockActionTypePB.Insert,
+      payload: this.getActionPayloadByNode(node, prevId),
+    }
+  }
+
+  getUpdateAction = (node: Node) => {
+    return {
+      action: BlockActionTypePB.Update,
+      payload: this.getActionPayloadByNode(node, ""),
+    }
+  }
+
+  getMoveAction = (node: Node, parentId: string, prevId: string | null) => {
+    node.parent = parentId;
+    return {
+      action: BlockActionTypePB.Move,
+      payload: this.getActionPayloadByNode(node, prevId),
+    }
+  }
+
+  getDeleteAction = (node: Node) => {
+    return {
+      action: BlockActionTypePB.Delete,
+      payload: this.getActionPayloadByNode(node, ""),
+    }
+  }
+
   dispose = async () => {
     await this.backendService.close();
   };
 
+  private getActionPayloadByNode = (node: Node, prevId: string | null) => {
+    return {
+      block: this.getBlockByNode(node),
+      parent_id: node.parent || '',
+      prev_id: prevId || '',
+    }
+  }
+
+  private getBlockByNode = (node: Node) => {
+    return {
+      id: node.id,
+      parent_id: node.parent || '',
+      children_id: node.children,
+      data: JSON.stringify(node.data),
+      ty: node.type,
+    }
+  }
+
   private updated = (payload: Uint8Array) => {
     const dispatch = this.dispatch;
     if (!dispatch) return;
-    const docEvent = DocEventPB.deserializeBinary(payload);
-    console.log('docEvent', docEvent);
-    docEvent.events.forEach((event) => {
+    const { events, is_remote } = DocEventPB.deserializeBinary(payload);
+    if (!is_remote) return;
+    events.forEach((event) => {
       event.event.forEach((_payload) => {
         const { path, id, value, command } = _payload;
         let valueJson;
@@ -107,7 +154,7 @@ export class DocumentController {
               data: valueJson.data,
             };
 
-            dispatch(documentActions.setBlocks(block));
+            dispatch(documentActions.setBlockMap(block));
           } else {
             dispatch(
               documentActions.setChildrenMap({
@@ -119,9 +166,9 @@ export class DocumentController {
         } else {
           // remove map key ( block map or children map)
           if (path[0] === 'blocks') {
-            dispatch(documentActions.removeBlock(id));
+            dispatch(documentActions.removeBlockMapKey(id));
           } else {
-            dispatch(documentActions.removeChildren(id));
+            dispatch(documentActions.removeChildrenMapKey(id));
           }
         }
       });

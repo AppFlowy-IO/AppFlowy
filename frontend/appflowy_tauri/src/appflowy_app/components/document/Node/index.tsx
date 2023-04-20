@@ -23,7 +23,7 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
 
   return (
     <NodeContext.Provider value={node}>
-      <div {...props} ref={ref} data-block-id={node.id} className={`relative my-[2px] px-[2px] ${props.className}`}>
+      <div {...props} ref={ref} data-block-id={node.id} className={`relative my-[2px] px-2 ${props.className}`}>
         {renderBlock()}
         <div className='block-overlay' />
         {isSelected ? <div className='pointer-events-none absolute inset-0 z-[-1] rounded-[4px] bg-[#E0F8FF]' /> : null}

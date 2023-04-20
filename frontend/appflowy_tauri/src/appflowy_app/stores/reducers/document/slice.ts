@@ -42,6 +42,11 @@ export const documentSlice = createSlice({
       state.selections = action.payload;
     },
 
+    setSelectionById: (state, action: PayloadAction<string>) => {
+      const id = action.payload;
+      state.selections = [id];
+    },
+
     setSelectionByRect: (
       state,
       action: PayloadAction<{
@@ -76,8 +81,14 @@ export const documentSlice = createSlice({
       regionGrid.updateBlock(id, position);
     },
 
-    setBlocks: (state, action: PayloadAction<Node>) => {
+    setBlockMap: (state, action: PayloadAction<Node>) => {
       state.nodes[action.payload.id] = action.payload;
+    },
+
+    removeBlockMapKey(state, action: PayloadAction<string>) {
+      const { id } = state.nodes[action.payload];
+      regionGrid.removeBlock(id);
+      delete state.nodes[id];
     },
 
     setChildrenMap: (state, action: PayloadAction<{ id: string; childIds: string[] }>) => {
@@ -85,14 +96,24 @@ export const documentSlice = createSlice({
       state.children[id] = childIds;
     },
 
-    removeBlock(state, action: PayloadAction<string>) {
-      const { id } = state.nodes[action.payload];
-      regionGrid.removeBlock(id);
-      delete state.nodes[id];
+    removeChildrenMapKey(state, action: PayloadAction<string>) {
+      delete state.children[action.payload];
     },
 
-    removeChildren(state, action: PayloadAction<string>) {
-      delete state.children[action.payload];
+    insertChild: (state, action: PayloadAction<{ id: string; childId: string; prevId: string }>) => {
+      const { id, childId, prevId } = action.payload;
+      const parent = state.nodes[id];
+      const children = state.children[parent.children];
+      const index = prevId ? children.indexOf(prevId) + 1 : 0;
+      children.splice(index, 0, childId);
+    },
+
+    deleteChild: (state, action: PayloadAction<{ id: string; childId: string }>) => {
+      const { id, childId } = action.payload;
+      const parent = state.nodes[id];
+      const children = state.children[parent.children];
+      const index = children.indexOf(childId);
+      children.splice(index, 1);
     },
   },
 });
