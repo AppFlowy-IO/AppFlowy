@@ -2,11 +2,8 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/cover/change_cover_popover_bloc.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_image_picker.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
@@ -257,8 +254,6 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
               if (index == 0) {
                 return Container(
                   decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.15),
                     border: Border.all(
                       color: Theme.of(context).colorScheme.primary,
                     ),
@@ -270,6 +265,8 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
                       Icons.add,
                       color: Theme.of(context).colorScheme.primary,
                     ),
+                    hoverColor:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.15),
                     width: 20,
                     onPressed: () {
                       setState(() {
