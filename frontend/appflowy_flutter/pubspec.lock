@@ -44,11 +44,10 @@ packages:
   appflowy_editor:
     dependency: "direct main"
     description:
-      name: appflowy_editor
-      sha256: "0768e7aee78c67c6ddd2ee8cbaa182848c9d94a98d495bd415ff0059b491ac08"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.5"
+      path: "/Users/yijinghuang/Development/appflowy-editor"
+      relative: false
+    source: path
+    version: "0.1.8"
   appflowy_popover:
     dependency: "direct main"
     description:
