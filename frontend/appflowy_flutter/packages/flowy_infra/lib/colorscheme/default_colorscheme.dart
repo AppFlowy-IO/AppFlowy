@@ -18,6 +18,7 @@ const _darkShader3 = Color(0xff363D49);
 const _darkShader5 = Color(0xffBBC3CD);
 const _darkShader6 = Color(0xffF2F2F2);
 const _darkMain1 = Color(0xff00BCF0);
+const _darkInput = Color(0xff282E3A);
 
 class DefaultColorScheme extends FlowyColorScheme {
   const DefaultColorScheme.light()
@@ -66,6 +67,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           questionBubbleBG: _lightSelector,
           hoverBG3: _lightShader6,
           progressBarBGcolor: _lightTint9,
+          toolbarColor: _lightShader1,
         );
 
   const DefaultColorScheme.dark()
@@ -104,7 +106,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           topbarBg: _darkShader1,
           icon: _darkShader5,
           text: _darkShader5,
-          input: const Color(0xff282E3A),
+          input: _darkInput,
           hint: _darkShader5,
           primary: _darkMain1,
           onPrimary: _darkShader1,
@@ -114,5 +116,6 @@ class DefaultColorScheme extends FlowyColorScheme {
           hoverFG: _darkShader1,
           questionBubbleBG: _darkShader3,
           progressBarBGcolor: _darkShader3,
+          toolbarColor: _darkInput,
         );
 }
