@@ -157,11 +157,11 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
             ? TextSpan(text: node.value)
             : TextSpan(
                 text: node.value,
-                style: _builtInCodeBlockTheme[node.className!]));
+                style: _builtInCodeBlockTheme[node.className!],),);
       } else if (node.children != null) {
         List<TextSpan> tmp = [];
         currentSpans.add(TextSpan(
-            children: tmp, style: _builtInCodeBlockTheme[node.className!]));
+            children: tmp, style: _builtInCodeBlockTheme[node.className!],),);
         stack.add(currentSpans);
         currentSpans = tmp;
 
@@ -213,7 +213,7 @@ const _builtInCodeBlockTheme = {
   'attr': TextStyle(color: Color(0xff836C28)),
   'subst': TextStyle(color: Color(0xff000000)),
   'formula': TextStyle(
-      backgroundColor: Color(0xffeeeeee), fontStyle: FontStyle.italic),
+      backgroundColor: Color(0xffeeeeee), fontStyle: FontStyle.italic,),
   'addition': TextStyle(backgroundColor: Color(0xffbaeeba)),
   'deletion': TextStyle(backgroundColor: Color(0xffffc8bd)),
   'selector-id': TextStyle(color: Color(0xff9b703f)),

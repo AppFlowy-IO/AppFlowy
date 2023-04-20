@@ -27,7 +27,7 @@ class Config {
           const TextStyle(fontSize: 20, color: Colors.black26),
       this.tabIndicatorAnimDuration = kTabScrollDuration,
       this.categoryIcons = const CategoryIcons(),
-      this.buttonMode = ButtonMode.MATERIAL});
+      this.buttonMode = ButtonMode.MATERIAL,});
 
   /// Number of emojis per row
   final int columns;
