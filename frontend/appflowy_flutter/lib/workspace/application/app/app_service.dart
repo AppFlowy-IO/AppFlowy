@@ -65,8 +65,10 @@ class AppBackendService {
     return FolderEventDeleteView(request).send();
   }
 
-  Future<Either<ViewPB, FlowyError>> updateApp(
-      {required String appId, String? name}) {
+  Future<Either<ViewPB, FlowyError>> updateApp({
+    required String appId,
+    String? name,
+  }) {
     var payload = UpdateViewPayloadPB.create()..viewId = appId;
 
     if (name != null) {
@@ -90,7 +92,8 @@ class AppBackendService {
   }
 
   Future<List<Tuple2<ViewPB, List<ViewPB>>>> fetchViews(
-      ViewLayoutPB layoutType) async {
+    ViewLayoutPB layoutType,
+  ) async {
     final result = <Tuple2<ViewPB, List<ViewPB>>>[];
     return FolderEventReadCurrentWorkspace().send().then((value) async {
       final workspaces = value.getLeftOrNull<WorkspaceSettingPB>();

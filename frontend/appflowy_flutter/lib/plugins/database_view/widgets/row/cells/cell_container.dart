@@ -77,7 +77,8 @@ class CellContainer extends StatelessWidget {
         width: 1.0,
       );
       return BoxDecoration(
-          border: Border(right: borderSide, bottom: borderSide));
+        border: Border(right: borderSide, bottom: borderSide),
+      );
     }
   }
 }

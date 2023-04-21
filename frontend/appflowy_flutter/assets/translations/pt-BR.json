@@ -39,7 +39,7 @@
     "workInProgress": "Em breve",
     "markdown": "Marcador",
     "copyLink": "Copiar link"
-    },
+  },
   "moreAction": {
     "small": "pequeno",
     "medium": "médio",
@@ -177,7 +177,7 @@
         "system": "Adaptar-se ao sistema"
       },
       "theme": "Tema"
-  },
+    },
     "files": {
       "defaultLocation": "Onde os seus dados ficam armazenados",
       "doubleTapToCopy": "Clique duas vezes para copiar o caminho",
@@ -287,7 +287,7 @@
       "optionTitle": "Opções",
       "addOption": "Adicioar opção",
       "editProperty": "Editar propriedade",
-      "newColumn": "Nova coluna",
+      "newProperty": "Nova coluna",
       "deleteFieldPromptMessage": "Tem certeza? Esta propriedade será excluída"
     },
     "sort": {
@@ -320,7 +320,7 @@
       "pannelTitle": "Escolha uma opção ou crie uma",
       "searchOption": "Procurar uma opção"
     },
-        "checklist": {
+    "checklist": {
       "panelTitle": "Adicionar um item"
     },
     "menuName": "Grade"

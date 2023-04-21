@@ -59,7 +59,11 @@ class WelcomeScreen extends StatelessWidget {
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         onPressed: () {
           context.read<WelcomeBloc>().add(
-              WelcomeEvent.createWorkspace(LocaleKeys.workspace_hint.tr(), ""));
+                WelcomeEvent.createWorkspace(
+                  LocaleKeys.workspace_hint.tr(),
+                  "",
+                ),
+              );
         },
       ),
     );
@@ -90,9 +94,11 @@ class WelcomeScreen extends StatelessWidget {
 class WorkspaceItem extends StatelessWidget {
   final WorkspacePB workspace;
   final void Function(WorkspacePB workspace) onPressed;
-  const WorkspaceItem(
-      {Key? key, required this.workspace, required this.onPressed})
-      : super(key: key);
+  const WorkspaceItem({
+    Key? key,
+    required this.workspace,
+    required this.onPressed,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

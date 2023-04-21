@@ -35,7 +35,7 @@ impl DatabaseMigration {
   ) -> FlowyResult<()> {
     let pool = self.user.db_pool()?;
 
-    if !is_database_view_migrated(user_id) || !is_database_rev_migrated(user_id) {
+    if !is_database_view_migrated(&user_id.to_string()) || !is_database_rev_migrated(user_id) {
       let migrated_databases = get_views_fn
         .await
         .into_iter()

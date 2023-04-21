@@ -20,8 +20,10 @@ class WorkspaceService {
   WorkspaceService({
     required this.workspaceId,
   });
-  Future<Either<ViewPB, FlowyError>> createApp(
-      {required String name, String? desc}) {
+  Future<Either<ViewPB, FlowyError>> createApp({
+    required String name,
+    String? desc,
+  }) {
     final payload = CreateViewPayloadPB.create()
       ..belongToId = workspaceId
       ..name = name
@@ -39,8 +41,10 @@ class WorkspaceService {
           assert(workspaces.items.length == 1);
 
           if (workspaces.items.isEmpty) {
-            return right(FlowyError.create()
-              ..msg = LocaleKeys.workspace_notFoundError.tr());
+            return right(
+              FlowyError.create()
+                ..msg = LocaleKeys.workspace_notFoundError.tr(),
+            );
           } else {
             return left(workspaces.items[0]);
           }

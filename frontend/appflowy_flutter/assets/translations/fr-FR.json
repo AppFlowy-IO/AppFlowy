@@ -195,7 +195,7 @@
       "optionTitle": "Options",
       "addOption": "Ajouter une option",
       "editProperty": "Modifier la propriété",
-      "newColumn": "Nouvelle colonne",
+      "newProperty": "Nouvelle colonne",
       "deleteFieldPromptMessage": "Vous voulez supprimer cette propriété ?"
     },
     "row": {

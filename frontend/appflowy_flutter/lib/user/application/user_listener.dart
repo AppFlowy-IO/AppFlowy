@@ -40,7 +40,9 @@ class UserListener {
     }
 
     _userParser = UserNotificationParser(
-        id: _userProfile.token, callback: _userNotificationCallback);
+      id: _userProfile.token,
+      callback: _userNotificationCallback,
+    );
     _subscription = RustStreamReceiver.listen((observable) {
       _userParser?.parse(observable);
     });
@@ -57,7 +59,9 @@ class UserListener {
   }
 
   void _userNotificationCallback(
-      user.UserNotification ty, Either<Uint8List, FlowyError> result) {
+    user.UserNotification ty,
+    Either<Uint8List, FlowyError> result,
+  ) {
     switch (ty) {
       case user.UserNotification.DidUpdateUserProfile:
         result.fold(

@@ -25,12 +25,15 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
           updateCell: (text) {
             if (state.cellContent != text) {
               emit(state.copyWith(cellContent: text));
-              cellController.saveCellData(text, onFinish: (result) {
-                result.fold(
-                  () {},
-                  (err) => Log.error(err),
-                );
-              });
+              cellController.saveCellData(
+                text,
+                onFinish: (result) {
+                  result.fold(
+                    () {},
+                    (err) => Log.error(err),
+                  );
+                },
+              );
             }
           },
         );

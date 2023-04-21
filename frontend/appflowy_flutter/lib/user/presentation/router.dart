@@ -28,17 +28,21 @@ class AuthRouter {
     );
   }
 
-  void pushHomeScreen(BuildContext context, UserProfilePB profile,
-      WorkspaceSettingPB workspaceSetting) {
+  void pushHomeScreen(
+    BuildContext context,
+    UserProfilePB profile,
+    WorkspaceSettingPB workspaceSetting,
+  ) {
     Navigator.push(
       context,
       PageRoutes.fade(
-          () => HomeScreen(
-                profile,
-                workspaceSetting,
-                key: ValueKey(profile.id),
-              ),
-          RouteDurations.slow.inMilliseconds * .001),
+        () => HomeScreen(
+          profile,
+          workspaceSetting,
+          key: ValueKey(profile.id),
+        ),
+        RouteDurations.slow.inMilliseconds * .001,
+      ),
     );
   }
 }
@@ -73,20 +77,23 @@ class SplashRoute {
     Navigator.push(
       context,
       PageRoutes.fade(
-          () => HomeScreen(
-                userProfile,
-                workspaceSetting,
-                key: ValueKey(userProfile.id),
-              ),
-          RouteDurations.slow.inMilliseconds * .001),
+        () => HomeScreen(
+          userProfile,
+          workspaceSetting,
+          key: ValueKey(userProfile.id),
+        ),
+        RouteDurations.slow.inMilliseconds * .001,
+      ),
     );
   }
 
   void pushSignInScreen(BuildContext context) {
     Navigator.push(
       context,
-      PageRoutes.fade(() => SignInScreen(router: getIt<AuthRouter>()),
-          RouteDurations.slow.inMilliseconds * .001),
+      PageRoutes.fade(
+        () => SignInScreen(router: getIt<AuthRouter>()),
+        RouteDurations.slow.inMilliseconds * .001,
+      ),
     );
   }
 
@@ -94,11 +101,12 @@ class SplashRoute {
     Navigator.push(
       context,
       PageRoutes.fade(
-          () => SkipLogInScreen(
-                router: getIt<AuthRouter>(),
-                authService: getIt<AuthService>(),
-              ),
-          RouteDurations.slow.inMilliseconds * .001),
+        () => SkipLogInScreen(
+          router: getIt<AuthRouter>(),
+          authService: getIt<AuthService>(),
+        ),
+        RouteDurations.slow.inMilliseconds * .001,
+      ),
     );
   }
 }

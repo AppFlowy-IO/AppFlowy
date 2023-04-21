@@ -165,11 +165,13 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
     }
 
     final children = widget.selectedOptionMap.values
-        .map((option) => SelectOptionTag.fromOption(
-              context: context,
-              option: option,
-              onRemove: (option) => widget.onRemove(option),
-            ))
+        .map(
+          (option) => SelectOptionTag.fromOption(
+            context: context,
+            option: option,
+            onRemove: (option) => widget.onRemove(option),
+          ),
+        )
         .toList();
     return MouseRegion(
       cursor: SystemMouseCursors.basic,

@@ -15,8 +15,9 @@ class DatabaseCalendarLayoutListener {
   DatabaseNotificationListener? _listener;
   DatabaseCalendarLayoutListener(this.viewId);
 
-  void start(
-      {required void Function(NewLayoutFieldValue) onCalendarLayoutChanged}) {
+  void start({
+    required void Function(NewLayoutFieldValue) onCalendarLayoutChanged,
+  }) {
     _newLayoutFieldNotifier?.addPublishListener(onCalendarLayoutChanged);
     _listener = DatabaseNotificationListener(
       objectId: viewId,

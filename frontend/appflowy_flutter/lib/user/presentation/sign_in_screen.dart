@@ -41,7 +41,9 @@ class SignInScreen extends StatelessWidget {
   }
 
   void _handleSuccessOrFail(
-      Either<UserProfilePB, FlowyError> result, BuildContext context) {
+    Either<UserProfilePB, FlowyError> result,
+    BuildContext context,
+  ) {
     result.fold(
       (user) => router.pushWelcomeScreen(context, user),
       (error) => showSnapBar(context, error.msg),
@@ -103,7 +105,8 @@ class SignUpPrompt extends StatelessWidget {
         ),
         TextButton(
           style: TextButton.styleFrom(
-              textStyle: Theme.of(context).textTheme.bodyMedium),
+            textStyle: Theme.of(context).textTheme.bodyMedium,
+          ),
           onPressed: () => router.pushSignUpScreen(context),
           child: Text(
             LocaleKeys.signUp_buttonText.tr(),
@@ -145,7 +148,8 @@ class ForgetPasswordButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       style: TextButton.styleFrom(
-          textStyle: Theme.of(context).textTheme.bodyMedium),
+        textStyle: Theme.of(context).textTheme.bodyMedium,
+      ),
       onPressed: () => router.pushForgetPasswordScreen(context),
       child: Text(
         LocaleKeys.signIn_forgotPassword.tr(),

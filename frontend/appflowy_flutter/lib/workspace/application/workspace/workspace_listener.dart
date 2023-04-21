@@ -46,7 +46,9 @@ class WorkspaceListener {
   }
 
   void _handleObservableType(
-      FolderNotification ty, Either<Uint8List, FlowyError> result) {
+    FolderNotification ty,
+    Either<Uint8List, FlowyError> result,
+  ) {
     switch (ty) {
       case FolderNotification.DidUpdateWorkspace:
         result.fold(

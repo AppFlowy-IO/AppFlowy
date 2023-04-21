@@ -28,12 +28,14 @@ class SettingController {
     });
 
     // Listen on the setting changes
-    _listener.start(onSettingUpdated: (result) {
-      result.fold(
-        (newSetting) => updateSetting(newSetting),
-        (err) => _onError?.call(err),
-      );
-    });
+    _listener.start(
+      onSettingUpdated: (result) {
+        result.fold(
+          (newSetting) => updateSetting(newSetting),
+          (err) => _onError?.call(err),
+        );
+      },
+    );
   }
 
   void startListening({

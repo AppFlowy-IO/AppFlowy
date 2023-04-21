@@ -41,7 +41,9 @@ class ViewSection extends StatelessWidget {
   }
 
   ReorderableColumn _reorderableColumn(
-      BuildContext context, ViewSectionState state) {
+    BuildContext context,
+    ViewSectionState state,
+  ) {
     final children = state.views.map((view) {
       return ViewSectionItem(
         key: ValueKey(view.id),

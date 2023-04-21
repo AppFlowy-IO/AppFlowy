@@ -10,7 +10,10 @@ class TrashHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return TrashHeader();
   }
 
@@ -36,14 +39,17 @@ class TrashHeaderItem {
 class TrashHeader extends StatelessWidget {
   final List<TrashHeaderItem> items = [
     TrashHeaderItem(
-        title: LocaleKeys.trash_pageHeader_fileName.tr(),
-        width: TrashSizes.fileNameWidth),
+      title: LocaleKeys.trash_pageHeader_fileName.tr(),
+      width: TrashSizes.fileNameWidth,
+    ),
     TrashHeaderItem(
-        title: LocaleKeys.trash_pageHeader_lastModified.tr(),
-        width: TrashSizes.lashModifyWidth),
+      title: LocaleKeys.trash_pageHeader_lastModified.tr(),
+      width: TrashSizes.lashModifyWidth,
+    ),
     TrashHeaderItem(
-        title: LocaleKeys.trash_pageHeader_created.tr(),
-        width: TrashSizes.createTimeWidth),
+      title: LocaleKeys.trash_pageHeader_created.tr(),
+      width: TrashSizes.createTimeWidth,
+    ),
   ];
 
   TrashHeader({Key? key}) : super(key: key);

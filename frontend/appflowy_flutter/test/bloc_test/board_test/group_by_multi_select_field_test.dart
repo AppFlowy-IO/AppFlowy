@@ -30,22 +30,27 @@ void main() {
     )..add(const DatabaseGroupEvent.initial());
     await boardResponseFuture();
 
-    gridGroupBloc.add(DatabaseGroupEvent.setGroupByField(
-      multiSelectField.id,
-      multiSelectField.fieldType,
-    ));
+    gridGroupBloc.add(
+      DatabaseGroupEvent.setGroupByField(
+        multiSelectField.id,
+        multiSelectField.fieldType,
+      ),
+    );
     await boardResponseFuture();
 
     //assert only have the 'No status' group
     final boardBloc = BoardBloc(view: context.gridView)
       ..add(const BoardEvent.initial());
     await boardResponseFuture();
-    assert(boardBloc.groupControllers.values.length == 1,
-        "Expected 1, but receive ${boardBloc.groupControllers.values.length}");
+    assert(
+      boardBloc.groupControllers.values.length == 1,
+      "Expected 1, but receive ${boardBloc.groupControllers.values.length}",
+    );
     final expectedGroupName = "No ${multiSelectField.name}";
     assert(
-        boardBloc.groupControllers.values.first.group.desc == expectedGroupName,
-        "Expected $expectedGroupName, but receive ${boardBloc.groupControllers.values.first.group.desc}");
+      boardBloc.groupControllers.values.first.group.desc == expectedGroupName,
+      "Expected $expectedGroupName, but receive ${boardBloc.groupControllers.values.first.group.desc}",
+    );
   });
 
   test('group by multi select with no options test', () async {
@@ -77,18 +82,22 @@ void main() {
     )..add(const DatabaseGroupEvent.initial());
     await boardResponseFuture();
 
-    gridGroupBloc.add(DatabaseGroupEvent.setGroupByField(
-      multiSelectField.id,
-      multiSelectField.fieldType,
-    ));
+    gridGroupBloc.add(
+      DatabaseGroupEvent.setGroupByField(
+        multiSelectField.id,
+        multiSelectField.fieldType,
+      ),
+    );
     await boardResponseFuture();
 
     // assert there are only three group
     final boardBloc = BoardBloc(view: context.gridView)
       ..add(const BoardEvent.initial());
     await boardResponseFuture();
-    assert(boardBloc.groupControllers.values.length == 3,
-        "Expected 3, but receive ${boardBloc.groupControllers.values.length}");
+    assert(
+      boardBloc.groupControllers.values.length == 3,
+      "Expected 3, but receive ${boardBloc.groupControllers.values.length}",
+    );
 
     final groups =
         boardBloc.groupControllers.values.map((e) => e.group).toList();

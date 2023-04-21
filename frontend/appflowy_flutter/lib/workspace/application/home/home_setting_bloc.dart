@@ -21,10 +21,12 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
     AppearanceSettingsCubit appearanceSettingsCubit,
   )   : _listener = UserWorkspaceListener(userProfile: user),
         _appearanceSettingsCubit = appearanceSettingsCubit,
-        super(HomeSettingState.initial(
-          workspaceSetting,
-          appearanceSettingsCubit.state,
-        )) {
+        super(
+          HomeSettingState.initial(
+            workspaceSetting,
+            appearanceSettingsCubit.state,
+          ),
+        ) {
     on<HomeSettingEvent>(
       (event, emit) async {
         await event.map(
@@ -44,10 +46,12 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
             emit(state.copyWith(isMenuCollapsed: isMenuCollapsed));
           },
           editPanelResizeStart: (_EditPanelResizeStart e) {
-            emit(state.copyWith(
-              resizeType: MenuResizeType.drag,
-              resizeStart: state.resizeOffset,
-            ));
+            emit(
+              state.copyWith(
+                resizeType: MenuResizeType.drag,
+                resizeStart: state.resizeOffset,
+              ),
+            );
           },
           editPanelResized: (_EditPanelResized e) {
             final newPosition =
@@ -95,7 +99,8 @@ class HomeSettingEvent with _$HomeSettingEvent {
       _ShowEditPanel;
   const factory HomeSettingEvent.dismissEditPanel() = _DismissEditPanel;
   const factory HomeSettingEvent.didReceiveWorkspaceSetting(
-      WorkspaceSettingPB setting) = _DidReceiveWorkspaceSetting;
+    WorkspaceSettingPB setting,
+  ) = _DidReceiveWorkspaceSetting;
   const factory HomeSettingEvent.collapseMenu() = _CollapseMenu;
   const factory HomeSettingEvent.editPanelResized(double offset) =
       _EditPanelResized;

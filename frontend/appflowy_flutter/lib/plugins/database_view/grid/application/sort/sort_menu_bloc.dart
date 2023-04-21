@@ -14,11 +14,13 @@ class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
   void Function(List<FieldInfo>)? _onFieldFn;
 
   SortMenuBloc({required this.viewId, required this.fieldController})
-      : super(SortMenuState.initial(
-          viewId,
-          fieldController.sortInfos,
-          fieldController.fieldInfos,
-        )) {
+      : super(
+          SortMenuState.initial(
+            viewId,
+            fieldController.sortInfos,
+            fieldController.fieldInfos,
+          ),
+        ) {
     on<SortMenuEvent>(
       (event, emit) async {
         event.when(

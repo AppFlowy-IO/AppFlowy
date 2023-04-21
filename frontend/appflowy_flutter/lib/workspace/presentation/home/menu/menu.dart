@@ -107,7 +107,9 @@ class HomeMenu extends StatelessWidget {
   Widget _renderApps(BuildContext context) {
     return ExpandableTheme(
       data: ExpandableThemeData(
-          useInkWell: true, animationDuration: Durations.medium),
+        useInkWell: true,
+        animationDuration: Durations.medium,
+      ),
       child: Expanded(
         child: ScrollConfiguration(
           behavior: const ScrollBehavior().copyWith(scrollbars: false),
@@ -141,7 +143,8 @@ class HomeMenu extends StatelessWidget {
                     index: index,
                     child: Padding(
                       padding: EdgeInsets.symmetric(
-                          vertical: MenuAppSizes.appVPadding / 2),
+                        vertical: MenuAppSizes.appVPadding / 2,
+                      ),
                       child: menuItems[index],
                     ),
                   );
