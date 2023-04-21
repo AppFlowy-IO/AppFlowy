@@ -203,16 +203,12 @@ pub struct DatabaseLayoutIdPB {
   pub view_id: String,
 
   #[pb(index = 2)]
-  pub field_id: String,
-
-  #[pb(index = 3)]
   pub layout: DatabaseLayoutPB,
 }
 
 #[derive(Clone, Debug)]
 pub struct DatabaseLayoutId {
   pub view_id: String,
-  pub field_id: String,
   pub layout: DatabaseLayout,
 }
 
@@ -221,11 +217,9 @@ impl TryInto<DatabaseLayoutId> for DatabaseLayoutIdPB {
 
   fn try_into(self) -> Result<DatabaseLayoutId, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
-    let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
     let layout = self.layout.into();
     Ok(DatabaseLayoutId {
       view_id: view_id.0,
-      field_id: field_id.0,
       layout,
     })
   }

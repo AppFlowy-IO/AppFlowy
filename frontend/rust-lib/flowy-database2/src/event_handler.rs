@@ -8,6 +8,7 @@ use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataRes
 
 use crate::entities::*;
 use crate::manager::DatabaseManager2;
+use crate::services::database::notify_did_update_cell;
 use crate::services::field::{
   type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
 };
@@ -352,9 +353,10 @@ pub(crate) async fn update_cell_handler(
   let database_editor = manager.get_database(&params.view_id).await?;
   database_editor
     .update_cell(
+      &params.view_id,
       RowId::from(params.row_id),
       &params.field_id,
-      params.cell_changeset,
+      params.cell_changeset.clone(),
     )
     .await;
   Ok(())
@@ -386,7 +388,12 @@ pub(crate) async fn insert_or_update_select_option_handler(
   let params = data.into_inner();
   let database_editor = manager.get_database(&params.view_id).await?;
   database_editor
-    .insert_select_options(&params.field_id, RowId::from(params.row_id), params.items)
+    .insert_select_options(
+      &params.view_id,
+      &params.field_id,
+      RowId::from(params.row_id),
+      params.items,
+    )
     .await;
   Ok(())
 }
@@ -399,7 +406,12 @@ pub(crate) async fn delete_select_option_handler(
   let params = data.into_inner();
   let database_editor = manager.get_database(&params.view_id).await?;
   database_editor
-    .delete_select_options(&params.field_id, RowId::from(params.row_id), params.items)
+    .delete_select_options(
+      &params.view_id,
+      &params.field_id,
+      RowId::from(params.row_id),
+      params.items,
+    )
     .await;
   Ok(())
 }
@@ -432,6 +444,7 @@ pub(crate) async fn update_select_option_cell_handler(
   };
   database_editor
     .update_cell(
+      &params.cell_identifier.view_id,
       params.cell_identifier.row_id,
       &params.cell_identifier.field_id,
       changeset,
@@ -455,7 +468,12 @@ pub(crate) async fn update_date_cell_handler(
   };
   let database_editor = manager.get_database(&cell_id.view_id).await?;
   database_editor
-    .update_cell(cell_id.row_id, &cell_id.field_id, cell_changeset)
+    .update_cell(
+      &cell_id.view_id,
+      cell_id.row_id,
+      &cell_id.field_id,
+      cell_changeset,
+    )
     .await;
   Ok(())
 }

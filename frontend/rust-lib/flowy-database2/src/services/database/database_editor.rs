@@ -433,7 +433,13 @@ impl DatabaseEditor {
     }
   }
 
-  pub async fn update_cell<T>(&self, row_id: RowId, field_id: &str, cell_changeset: T) -> Option<()>
+  pub async fn update_cell<T>(
+    &self,
+    view_id: &str,
+    row_id: RowId,
+    field_id: &str,
+    cell_changeset: T,
+  ) -> Option<()>
   where
     T: ToCellChangeset,
   {
@@ -445,9 +451,13 @@ impl DatabaseEditor {
         database.get_cell(field_id, row_id).map(|cell| cell.cell),
       )
     };
-
-    let type_cell_data =
-      apply_cell_data_changeset(cell_changeset, cell, &field, Some(self.cell_cache.clone()));
+    let cell_changeset = cell_changeset.to_cell_changeset_str();
+    let type_cell_data = apply_cell_data_changeset(
+      cell_changeset.clone(),
+      cell,
+      &field,
+      Some(self.cell_cache.clone()),
+    );
     self.database.lock().update_row(row_id, |row_update| {
       row_update.update_cells(|cell_update| {
         cell_update.insert(field_id, type_cell_data);
@@ -466,6 +476,14 @@ impl DatabaseEditor {
         view.v_did_update_row(&old_row, &new_row).await;
       }
     }
+
+    notify_did_update_cell(vec![CellChangesetPB {
+      view_id: view_id.to_string(),
+      row_id: row_id.into(),
+      field_id: field_id.to_string(),
+      cell_changeset,
+    }])
+    .await;
     None
   }
 
@@ -482,6 +500,7 @@ impl DatabaseEditor {
 
   pub async fn insert_select_options(
     &self,
+    view_id: &str,
     field_id: &str,
     row_id: RowId,
     options: Vec<SelectOptionPB>,
@@ -504,12 +523,13 @@ impl DatabaseEditor {
         update.set_type_option(field.field_type, Some(type_option.to_type_option_data()));
       });
 
-    self.update_cell(row_id, field_id, cell).await;
+    self.update_cell(view_id, row_id, field_id, cell).await;
     None
   }
 
   pub async fn delete_select_options(
     &self,
+    view_id: &str,
     field_id: &str,
     row_id: RowId,
     options: Vec<SelectOptionPB>,
@@ -532,7 +552,7 @@ impl DatabaseEditor {
         update.set_type_option(field.field_type, Some(type_option.to_type_option_data()));
       });
 
-    self.update_cell(row_id, field_id, cell).await;
+    self.update_cell(view_id, row_id, field_id, cell).await;
     None
   }
 
@@ -721,7 +741,7 @@ impl DatabaseEditor {
   }
 }
 
-async fn notify_did_update_cell(changesets: Vec<CellChangesetPB>) {
+pub(crate) async fn notify_did_update_cell(changesets: Vec<CellChangesetPB>) {
   for changeset in changesets {
     let id = format!("{}:{}", changeset.row_id, changeset.field_id);
     send_notification(&id, DatabaseNotification::DidUpdateCell).send();

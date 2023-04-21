@@ -14,7 +14,6 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
     .state(database_manager);
   plugin = plugin
         .event(DatabaseEvent::GetDatabase, get_database_data_handler)
-        // .event(GridEvent::GetGridBlocks, get_grid_blocks_handler)
         .event(DatabaseEvent::GetDatabaseSetting, get_database_setting_handler)
         .event(DatabaseEvent::UpdateDatabaseSetting, update_database_setting_handler)
         .event(DatabaseEvent::GetAllFilters, get_all_filters_handler)
