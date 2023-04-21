@@ -1,5 +1,5 @@
 use bytes::Bytes;
-use collab_persistence::CollabKV;
+use collab_persistence::kv::rocks_kv::RocksCollabDB;
 use database_model::BuildDatabaseContext;
 use flowy_database::entities::DatabaseLayoutPB;
 use flowy_database::manager::{create_new_database, link_existing_database, DatabaseManager};
@@ -70,7 +70,7 @@ impl FolderUser for FolderUserImpl {
       .map_err(|e| FlowyError::internal().context(e))
   }
 
-  fn kv_db(&self) -> Result<Arc<CollabKV>, FlowyError> {
+  fn kv_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
     self.0.get_kv_db()
   }
 }

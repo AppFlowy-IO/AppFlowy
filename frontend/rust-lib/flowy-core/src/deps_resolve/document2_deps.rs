@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use collab_persistence::CollabKV;
+use collab_persistence::kv::rocks_kv::RocksCollabDB;
 use flowy_database::manager::DatabaseManager;
 use flowy_document2::manager::{DocumentManager as DocumentManager2, DocumentUser};
 use flowy_error::FlowyError;
@@ -10,7 +10,7 @@ pub struct Document2DepsResolver();
 impl Document2DepsResolver {
   pub fn resolve(
     user_session: Arc<UserSession>,
-    database_manager: &Arc<DatabaseManager>,
+    _database_manager: &Arc<DatabaseManager>,
   ) -> Arc<DocumentManager2> {
     let user: Arc<dyn DocumentUser> = Arc::new(DocumentUserImpl(user_session.clone()));
 
@@ -34,7 +34,7 @@ impl DocumentUser for DocumentUserImpl {
       .map_err(|e| FlowyError::internal().context(e))
   }
 
-  fn kv_db(&self) -> Result<Arc<CollabKV>, FlowyError> {
+  fn kv_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
     self.0.get_kv_db()
   }
 }
