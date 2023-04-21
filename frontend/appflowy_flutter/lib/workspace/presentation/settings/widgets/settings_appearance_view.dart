@@ -77,7 +77,7 @@ class ThemeSetting extends StatelessWidget {
       child: FlowyButton(
         text: FlowyText.medium(theme),
         rightIcon: currentTheme == theme
-            ? svgWidget("grid/checkmark")
+            ? const FlowySvg(name: 'grid/checkmark')
             : const SizedBox(),
         onTap: () {
           if (currentTheme != theme) {
@@ -134,7 +134,7 @@ class ThemeModeSetting extends StatelessWidget {
       child: FlowyButton(
         text: FlowyText.medium(_themeModeLabelText(themeMode)),
         rightIcon: currentThemeMode == themeMode
-            ? svgWidget("grid/checkmark")
+            ? const FlowySvg(name: 'grid/checkmark')
             : const SizedBox(),
         onTap: () {
           if (currentThemeMode != themeMode) {

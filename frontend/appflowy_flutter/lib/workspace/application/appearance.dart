@@ -264,7 +264,17 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         contentTextStyle: TextStyle(color: colorScheme.onSurface),
       ),
       scrollbarTheme: ScrollbarThemeData(
-        thumbColor: MaterialStateProperty.all(theme.shader3),
+        thumbColor: MaterialStateProperty.resolveWith((states) {
+          const Set<MaterialState> interactiveStates = <MaterialState>{
+            MaterialState.pressed,
+            MaterialState.hovered,
+            MaterialState.dragged,
+          };
+          if (states.any(interactiveStates.contains)) {
+            return theme.shader7;
+          }
+          return theme.shader5;
+        }),
         thickness: MaterialStateProperty.resolveWith((states) {
           const Set<MaterialState> interactiveStates = <MaterialState>{
             MaterialState.pressed,
@@ -272,7 +282,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
             MaterialState.dragged,
           };
           if (states.any(interactiveStates.contains)) {
-            return 5.0;
+            return 4;
           }
           return 3.0;
         }),
