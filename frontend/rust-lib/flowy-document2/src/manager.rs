@@ -1,9 +1,9 @@
-use std::{collections::HashMap, sync::Arc};
-
-use collab::{plugin_impl::disk::CollabDiskPlugin, preclude::CollabBuilder};
-use collab_persistence::CollabKV;
+use collab::plugin_impl::rocks_disk::RocksDiskPlugin;
+use collab::preclude::{Collab, CollabBuilder};
+use collab_persistence::kv::rocks_kv::RocksCollabDB;
 use flowy_error::{FlowyError, FlowyResult};
 use parking_lot::RwLock;
+use std::{collections::HashMap, sync::Arc};
 
 use crate::{
   document::{Document, DocumentDataWrapper},
@@ -14,7 +14,7 @@ use crate::{
 pub trait DocumentUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn token(&self) -> Result<String, FlowyError>; // unused now.
-  fn kv_db(&self) -> Result<Arc<CollabKV>, FlowyError>;
+  fn kv_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError>;
 }
 
 pub struct DocumentManager {
@@ -90,12 +90,12 @@ impl DocumentManager {
     Ok(())
   }
 
-  fn get_collab_for_doc_id(&self, doc_id: &str) -> Result<collab::preclude::Collab, FlowyError> {
+  fn get_collab_for_doc_id(&self, doc_id: &str) -> Result<Collab, FlowyError> {
     let uid = self.user.user_id()?;
     let kv_db = self.user.kv_db()?;
     let mut collab = CollabBuilder::new(uid, doc_id).build();
     let disk_plugin = Arc::new(
-      CollabDiskPlugin::new(uid, kv_db).map_err(|err| FlowyError::internal().context(err))?,
+      RocksDiskPlugin::new(uid, kv_db).map_err(|err| FlowyError::internal().context(err))?,
     );
     collab.add_plugin(disk_plugin);
     collab.initial();

@@ -39,10 +39,10 @@ opt-level = 3
 incremental = false
 
 [patch.crates-io]
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", branch = "main"  }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", branch = "main"  }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", branch = "main" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", branch = "main" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "fd64f5"  }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "fd64f5"  }
+collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "fd64f5" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "fd64f5" }
 
 # collab = { path = "../AppFlowy-Collab/collab" }
 # collab-folder = { path = "../AppFlowy-Collab/collab-folder" }

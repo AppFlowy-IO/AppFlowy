@@ -109,7 +109,7 @@ impl From<BlockPB> for Block {
 }
 
 impl From<BlockEvent> for BlockEventPB {
-  fn from(block_event: BlockEvent) -> Self {
+  fn from(_block_event: BlockEvent) -> Self {
     // let delta = serde_json::to_value(&block_event.delta).unwrap();
     // Self {
     //   path: block_event.path.into(),

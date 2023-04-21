@@ -10,13 +10,13 @@ use crate::user_default::{gen_workspace_id, DefaultFolderBuilder};
 use crate::view_ext::{
   gen_view_id, view_from_create_view_params, ViewDataProcessor, ViewDataProcessorMap,
 };
-use collab::plugin_impl::disk::CollabDiskPlugin;
+use collab::plugin_impl::rocks_disk::RocksDiskPlugin;
 use collab::preclude::CollabBuilder;
 use collab_folder::core::{
   Folder as InnerFolder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, TrashRecord,
   View, ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
 };
-use collab_persistence::CollabKV;
+use collab_persistence::kv::rocks_kv::RocksCollabDB;
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::util::timestamp;
 use parking_lot::Mutex;
@@ -28,7 +28,7 @@ use tracing::{event, Level};
 pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn token(&self) -> Result<String, FlowyError>;
-  fn kv_db(&self) -> Result<Arc<CollabKV>, FlowyError>;
+  fn kv_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError>;
 }
 
 pub struct Folder2Manager {
@@ -93,7 +93,7 @@ impl Folder2Manager {
       let mut collab = CollabBuilder::new(uid, folder_id).build();
       if let Ok(kv_db) = self.user.kv_db() {
         let disk_plugin = Arc::new(
-          CollabDiskPlugin::new(uid, kv_db).map_err(|err| FlowyError::internal().context(err))?,
+          RocksDiskPlugin::new(uid, kv_db).map_err(|err| FlowyError::internal().context(err))?,
         );
         collab.add_plugin(disk_plugin);
         collab.initial();
