@@ -52,32 +52,16 @@ class LanguageSelector extends StatelessWidget {
         onPressed: () {},
       ),
       popupBuilder: (BuildContext context) {
+        final allLocales = EasyLocalization.of(context)!.supportedLocales;
+
         return ConstrainedBox(
           constraints: const BoxConstraints(maxHeight: 400),
           child: ListView.builder(
             itemBuilder: (context, index) {
-              final locale =
-                  EasyLocalization.of(context)!.supportedLocales[index];
-              return SizedBox(
-                height: 32,
-                child: FlowyButton(
-                  text: FlowyText.medium(
-                    languageFromLocale(locale),
-                  ),
-                  rightIcon: currentLocale == locale
-                      ? const FlowySvg(name: 'grid/checkmark')
-                      : const SizedBox(),
-                  onTap: () {
-                    if (currentLocale != locale) {
-                      context
-                          .read<AppearanceSettingsCubit>()
-                          .setLocale(context, locale);
-                    }
-                  },
-                ),
-              );
+              final locale = allLocales[index];
+              return LanguageItem(locale: locale, currentLocale: currentLocale);
             },
-            itemCount: EasyLocalization.of(context)!.supportedLocales.length,
+            itemCount: allLocales.length,
           ),
         );
       },
@@ -103,7 +87,7 @@ class LanguageItem extends StatelessWidget {
           languageFromLocale(locale),
         ),
         rightIcon: currentLocale == locale
-            ? svgWidget("grid/checkmark")
+            ? const FlowySvg(name: 'grid/checkmark')
             : const SizedBox(),
         onTap: () {
           if (currentLocale != locale) {
