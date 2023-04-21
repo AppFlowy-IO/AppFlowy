@@ -711,7 +711,7 @@ impl DatabaseEditor {
       .database
       .lock()
       .get_view(view_id)
-      .ok_or(FlowyError::record_not_found().context("Can't find the database view"))?;
+      .ok_or_else(|| FlowyError::record_not_found().context("Can't find the database view"))?;
     Ok(database_view_setting_pb_from_view(view))
   }
 

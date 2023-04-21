@@ -4,14 +4,13 @@ use std::sync::Arc;
 
 use collab_database::database::DuplicatedDatabase;
 use collab_database::user::{Config, UserDatabase as InnerUserDatabase};
-use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
-use collab_persistence::CollabKV;
+use collab_database::views::{CreateDatabaseParams, CreateViewParams};
+use collab_persistence::kv::rocks_kv::RocksCollabDB;
 use parking_lot::Mutex;
 use tokio::sync::RwLock;
 
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
-use lib_infra::future::Fut;
 
 use crate::entities::{DatabaseDescriptionPB, DatabaseLayoutPB, RepeatedDatabaseDescriptionPB};
 use crate::services::database::{DatabaseEditor, MutexDatabase};
@@ -19,7 +18,7 @@ use crate::services::database::{DatabaseEditor, MutexDatabase};
 pub trait DatabaseUser2: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn token(&self) -> Result<String, FlowyError>;
-  fn kv_db(&self) -> Result<Arc<CollabKV>, FlowyError>;
+  fn kv_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError>;
 }
 
 pub struct DatabaseManager2 {
@@ -43,8 +42,8 @@ impl DatabaseManager2 {
   }
 
   pub async fn initialize(&self, user_id: i64, _token: &str) -> FlowyResult<()> {
-    let kv = self.user.kv_db()?;
-    *self.user_database.lock() = Some(InnerUserDatabase::new(user_id, kv, Config::default()));
+    let db = self.user.kv_db()?;
+    *self.user_database.lock() = Some(InnerUserDatabase::new(user_id, db, Config::default()));
     // do nothing
     Ok(())
   }
@@ -72,7 +71,7 @@ impl DatabaseManager2 {
     let database_id = self.with_user_database(Err(FlowyError::internal()), |database| {
       database
         .get_database_id_with_view_id(view_id)
-        .ok_or(FlowyError::record_not_found())
+        .ok_or_else(|| FlowyError::record_not_found())
     })?;
 
     if let Some(editor) = self.editors.read().await.get(&database_id) {
@@ -85,7 +84,7 @@ impl DatabaseManager2 {
       |database| {
         database
           .get_database(&database_id)
-          .ok_or(FlowyError::record_not_found())
+          .ok_or_else(|| FlowyError::record_not_found())
       },
     )?);
 
@@ -155,12 +154,12 @@ impl DatabaseManager2 {
     target_view_id: String,
     duplicated_view_id: Option<String>,
   ) -> FlowyResult<()> {
-    let view_id = self.with_user_database(
+    self.with_user_database(
       Err(FlowyError::internal().context("Create database view failed")),
       |user_database| {
         let database = user_database
           .get_database(&database_id)
-          .ok_or(FlowyError::record_not_found())?;
+          .ok_or_else(|| FlowyError::record_not_found())?;
         match duplicated_view_id {
           None => {
             let params = CreateViewParams::new(database_id, target_view_id, name, layout.into());
@@ -173,7 +172,7 @@ impl DatabaseManager2 {
         Ok(())
       },
     )?;
-    Ok(view_id)
+    Ok(())
   }
 
   fn with_user_database<F, Output>(&self, default_value: Output, f: F) -> Output

@@ -208,7 +208,7 @@ impl TryInto<CreateRowParams> for CreateRowPayloadPB {
 
   fn try_into(self) -> Result<CreateRowParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::ViewIdIsInvalid)?;
-    let start_row_id = self.start_row_id.map(|value| RowId::from(value));
+    let start_row_id = self.start_row_id.map(RowId::from);
     Ok(CreateRowParams {
       view_id: view_id.0,
       start_row_id,

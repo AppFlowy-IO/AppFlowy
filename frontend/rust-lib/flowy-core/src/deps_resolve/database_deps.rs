@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use collab_persistence::CollabKV;
+use collab_persistence::kv::rocks_kv::RocksCollabDB;
 use tokio::sync::RwLock;
 
 use flowy_client_ws::FlowyWebSocketConnect;
@@ -38,7 +38,7 @@ impl DatabaseUser2 for DatabaseUserImpl {
       .map_err(|e| FlowyError::internal().context(e))
   }
 
-  fn kv_db(&self) -> Result<Arc<CollabKV>, FlowyError> {
+  fn kv_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
     self.0.get_kv_db()
   }
 }

@@ -1,13 +1,9 @@
-use crate::entities::{UserProfilePB, UserSettingPB};
-use crate::event_map::UserStatusCallback;
+use std::sync::Arc;
 
-use crate::{
-  errors::{ErrorCode, FlowyError},
-  event_map::UserCloudService,
-  notification::*,
-  services::database::{UserDB, UserTable, UserTableChangeset},
-};
-use collab_persistence::CollabKV;
+use collab_persistence::kv::rocks_kv::RocksCollabDB;
+use serde::{Deserialize, Serialize};
+use tokio::sync::RwLock;
+
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{
   kv::KV,
@@ -15,12 +11,17 @@ use flowy_sqlite::{
   schema::{user_table, user_table::dsl},
   DBConnection, ExpressionMethods, UserDatabaseConnection,
 };
-
-use serde::{Deserialize, Serialize};
-use std::sync::Arc;
-use tokio::sync::RwLock;
 use user_model::{
   SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
+};
+
+use crate::entities::{UserProfilePB, UserSettingPB};
+use crate::event_map::UserStatusCallback;
+use crate::{
+  errors::{ErrorCode, FlowyError},
+  event_map::UserCloudService,
+  notification::*,
+  services::database::{UserDB, UserTable, UserTableChangeset},
 };
 
 // lazy_static! {
@@ -125,7 +126,7 @@ impl UserSession {
     self.database.get_pool(user_id)
   }
 
-  pub fn get_kv_db(&self) -> Result<Arc<CollabKV>, FlowyError> {
+  pub fn get_kv_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
     let user_id = self.get_session()?.user_id;
     self.database.get_kv_db(user_id)
   }

@@ -1,7 +1,9 @@
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use bytes::Bytes;
-use collab_persistence::CollabKV;
+use collab_persistence::kv::rocks_kv::RocksCollabDB;
+
 use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
 use flowy_database2::DatabaseManager2;
@@ -15,7 +17,6 @@ use flowy_folder2::ViewLayout;
 use flowy_user::services::UserSession;
 use lib_infra::future::FutureResult;
 use revision_model::Revision;
-use std::sync::Arc;
 
 pub struct Folder2DepsResolver();
 impl Folder2DepsResolver {
@@ -68,7 +69,7 @@ impl FolderUser for FolderUserImpl {
       .map_err(|e| FlowyError::internal().context(e))
   }
 
-  fn kv_db(&self) -> Result<Arc<CollabKV>, FlowyError> {
+  fn kv_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
     self.0.get_kv_db()
   }
 }

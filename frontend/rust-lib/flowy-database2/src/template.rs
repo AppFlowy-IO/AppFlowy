@@ -1,9 +1,7 @@
 use collab_database::block::CreateRowParams;
-use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id};
-use collab_database::fields::Field;
-use collab_database::views::{
-  CreateDatabaseParams, CreateViewParams, DatabaseLayout, LayoutSettings,
-};
+use collab_database::database::{gen_database_id, gen_row_id};
+
+use collab_database::views::{CreateDatabaseParams, DatabaseLayout, LayoutSettings};
 
 use crate::entities::FieldType;
 use crate::services::cell::{insert_select_option_cell, insert_text_cell};

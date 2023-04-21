@@ -32,14 +32,7 @@ mod tests {
           assert_date(&type_option, 1647251762, None, "03/14/2022", false, &field);
         },
         DateFormat::DayMonthYear => {
-          assert_date(
-            &type_option,
-            1647251762,
-            None,
-            "14/03/2022",
-            false,
-            &field_rev,
-          );
+          assert_date(&type_option, 1647251762, None, "14/03/2022", false, &field);
         },
       }
     }
