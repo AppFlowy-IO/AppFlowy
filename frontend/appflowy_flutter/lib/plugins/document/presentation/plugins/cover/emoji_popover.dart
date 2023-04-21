@@ -4,7 +4,6 @@ import 'package:appflowy/workspace/presentation/widgets/emoji_picker/src/default
 import 'package:appflowy/workspace/presentation/widgets/emoji_picker/src/emoji_view_state.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
