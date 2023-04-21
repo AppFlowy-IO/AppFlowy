@@ -28,7 +28,7 @@ EditorStyle customEditorTheme(BuildContext context) {
     selectionMenuItemSelectedIconColor: theme.colorScheme.onSurface,
     selectionMenuItemSelectedTextColor: theme.colorScheme.onSurface,
     selectionMenuItemSelectedColor: theme.hoverColor,
-    // Toolbar
+    // Toolbar and its item's style
     toolbarColor: theme.colorScheme.onTertiary,
     toolbarElevation: 0,
     lineHeight: 1.5,
@@ -54,6 +54,8 @@ EditorStyle customEditorTheme(BuildContext context) {
         backgroundColor: theme.colorScheme.inverseSurface,
       ),
     ),
+    popupMenuFGColor: theme.iconTheme.color,
+    popupMenuHoverColor: theme.colorScheme.tertiaryContainer,
   );
 
   return editorStyle;
