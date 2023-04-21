@@ -22,6 +22,7 @@ import 'editor_styles.dart';
 import 'presentation/banner.dart';
 import 'presentation/plugins/grid/grid_view_menu_item.dart';
 import 'presentation/plugins/board/board_menu_item.dart';
+import '';
 
 class DocumentPage extends StatefulWidget {
   final VoidCallback onDeleted;
@@ -138,6 +139,7 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
       customBuilders: {
         // Divider
         kDividerType: DividerWidgetBuilder(),
+        kDottedDividerType: DottedDividerWidgetBuilder(),
         // Math Equation
         kMathEquationType: MathEquationNodeWidgetBuidler(),
         // Code Block
@@ -158,6 +160,7 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
       shortcutEvents: [
         // Divider
         insertDividerEvent,
+        insertDottedDividerEvent,
         // Code Block
         enterInCodeBlock,
         ignoreKeysInCodeBlock,
@@ -166,6 +169,7 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
       selectionMenuItems: [
         // Divider
         dividerMenuItem,
+        dottedDividerMenuItem,
         // Math Equation
         mathEquationMenuItem,
         // Code Block

@@ -8,6 +8,11 @@ export 'src/code_block/code_block_shortcut_event.dart';
 // Divider
 export 'src/divider/divider_node_widget.dart';
 export 'src/divider/divider_shortcut_event.dart';
+
+// Dotted Divider
+export 'src/divider/dotted_divided_shortcut_event.dart';
+export 'src/divider/dotted_divider_node_widget.dart';
+
 // Emoji Picker
 export 'src/emoji_picker/emoji_menu_item.dart';
 // Math Equation

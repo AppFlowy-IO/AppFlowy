@@ -82,6 +82,8 @@ class DocumentMarkdownDecoder extends Converter<String, Document> {
       );
     } else if (text.isNotEmpty && RegExp(r'^-*').stringMatch(text) == text) {
       return Node(type: 'divider');
+    } else if (text.isNotEmpty && RegExp(r'^_*$').stringMatch(text) == text) {
+      return Node(type: 'dotted_divider');
     }
 
     if (text.isNotEmpty) {

@@ -46,6 +46,8 @@ class SimpleEditor extends StatelessWidget {
             customBuilders: {
               // Divider
               kDividerType: DividerWidgetBuilder(),
+              kDottedDividerType: DottedDividerWidgetBuilder(),
+
               // Math Equation
               kMathEquationType: MathEquationNodeWidgetBuidler(),
               // Code Block
@@ -54,6 +56,7 @@ class SimpleEditor extends StatelessWidget {
             shortcutEvents: [
               // Divider
               insertDividerEvent,
+              insertDottedDividerEvent,
               // Code Block
               enterInCodeBlock,
               ignoreKeysInCodeBlock,
@@ -62,6 +65,8 @@ class SimpleEditor extends StatelessWidget {
             selectionMenuItems: [
               // Divider
               dividerMenuItem,
+              dottedDividerMenuItem,
+
               // Math Equation
               mathEquationMenuItem,
               // Code Block
