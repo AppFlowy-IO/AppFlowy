@@ -135,19 +135,19 @@ impl UserTable {
   }
 }
 
-impl std::convert::From<SignUpResponse> for UserTable {
+impl From<SignUpResponse> for UserTable {
   fn from(resp: SignUpResponse) -> Self {
     UserTable::new(resp.user_id.to_string(), resp.name, resp.email, resp.token)
   }
 }
 
-impl std::convert::From<SignInResponse> for UserTable {
+impl From<SignInResponse> for UserTable {
   fn from(resp: SignInResponse) -> Self {
     UserTable::new(resp.user_id.to_string(), resp.name, resp.email, resp.token)
   }
 }
 
-impl std::convert::From<UserTable> for UserProfile {
+impl From<UserTable> for UserProfile {
   fn from(table: UserTable) -> Self {
     UserProfile {
       id: table.id.parse::<i64>().unwrap_or(0),
