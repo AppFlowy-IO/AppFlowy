@@ -66,7 +66,8 @@ impl AppFlowyDocumentEditor {
 
   pub async fn duplicate_document(&self) -> FlowyResult<String> {
     let transaction = self.document_transaction().await?;
-    let json = transaction.to_json()?;
+    let document = Document::from_transaction(transaction)?;
+    let json = serde_json::to_string(&document)?;
     Ok(json)
   }
 
