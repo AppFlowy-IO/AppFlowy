@@ -2,8 +2,8 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor_plugins/src/divider/dotted_divider_node_widget.dart';
 
-// insert divider into a document by typing three minuses.
-// ---
+// insert divider into a document by typing three underscores.
+// ___
 
 ShortcutEvent insertDottedDividerEvent = ShortcutEvent(
   key: 'DottedDivider',

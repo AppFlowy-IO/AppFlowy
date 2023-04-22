@@ -22,7 +22,6 @@ import 'editor_styles.dart';
 import 'presentation/banner.dart';
 import 'presentation/plugins/grid/grid_view_menu_item.dart';
 import 'presentation/plugins/board/board_menu_item.dart';
-import '';
 
 class DocumentPage extends StatefulWidget {
   final VoidCallback onDeleted;
