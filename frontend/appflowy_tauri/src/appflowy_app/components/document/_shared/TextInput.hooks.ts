@@ -9,6 +9,8 @@ import * as Y from 'yjs';
 import { withYjs, YjsEditor, slateNodesToInsertDelta } from '@slate-yjs/core';
 import { NodeContext } from './SubscribeNode.hooks';
 import { BlockActionTypePB } from '@/services/backend/models/flowy-document2';
+import { useAppDispatch } from '@/appflowy_app/stores/store';
+import { documentActions } from '@/appflowy_app/stores/reducers/document/slice';
 
 export function useTextInput(delta: TextDelta[]) {
   const { sendDelta } = useTransact();
@@ -22,6 +24,7 @@ export function useTextInput(delta: TextDelta[]) {
 function useController() {
   const docController = useContext(DocumentControllerContext);
   const node = useContext(NodeContext);
+  const dispatch = useAppDispatch();
 
   const update = useCallback(
     async (delta: TextDelta[]) => {
@@ -43,6 +46,15 @@ function useController() {
           },
         },
       ]);
+      console.log('update', JSON.stringify(delta));
+      dispatch(
+        documentActions.setBlockMap({
+          ...node,
+          data: {
+            delta,
+          },
+        })
+      );
     },
     [docController, node]
   );
@@ -105,14 +117,14 @@ function useBindYjs(delta: TextDelta[], update: (_delta: TextDelta[]) => void) {
   useEffect(() => {
     const yText = yTextRef.current;
     if (!yText) return;
-
     const textEventHandler = (event: Y.YTextEvent) => {
       const textDelta = event.target.toDelta();
       update(textDelta);
     };
-    console.log('delta change', delta);
-    yText.delete(0, yText.length);
-    yText.applyDelta(delta);
+    if (JSON.stringify(yText.toDelta()) !== JSON.stringify(delta)) {
+      yText.delete(0, yText.length);
+      yText.applyDelta(delta);
+    }
     yText.observe(textEventHandler);
 
     return () => {

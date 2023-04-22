@@ -1,10 +1,10 @@
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
-import { documentActions, Node } from '@/appflowy_app/stores/reducers/document/slice';
-import { nanoid } from 'nanoid';
+import { documentActions } from '@/appflowy_app/stores/reducers/document/slice';
 import { useSubscribeNode } from '../_shared/SubscribeNode.hooks';
 import { useAppDispatch } from '@/appflowy_app/stores/store';
 import { useCallback, useContext, useRef, useState, useEffect } from 'react';
-import { BlockType } from '@/appflowy_app/interfaces/document';
+import { insertAfterNodeThunk, deleteNodeThunk } from '@/appflowy_app/stores/reducers/document/async_actions';
+
 export function useBlockMenu(nodeId: string, open: boolean) {
   const ref = useRef<HTMLDivElement | null>(null);
   const { insertAfter, remove } = useActions(nodeId);
@@ -25,7 +25,7 @@ export function useBlockMenu(nodeId: string, open: boolean) {
       top: rect.top + 'px',
       left: rect.left + 'px',
     });
-  }, [open]);
+  }, [open, nodeId]);
 
   const handleAddClick = useCallback(async () => {
     if (!nodeId) return;
@@ -35,7 +35,7 @@ export function useBlockMenu(nodeId: string, open: boolean) {
   const handleDeleteClick = useCallback(async () => {
     if (!nodeId) return;
     await remove();
-  }, []);
+  }, [remove, nodeId]);
 
   return {
     ref,
@@ -45,58 +45,21 @@ export function useBlockMenu(nodeId: string, open: boolean) {
   };
 }
 
-function useController() {
-  const controller = useContext(DocumentControllerContext);
-
-  const insertAfter = useCallback(async (node: Node, parentId: string, prevId: string) => {
-    if (!controller) return;
-    await controller.applyActions([controller.getInsertAction(node, prevId)]);
-  }, []);
-
-  const remove = useCallback(async (node: Node) => {
-    if (!controller) return;
-    await controller.applyActions([controller.getDeleteAction(node)]);
-  }, []);
-
-  return {
-    insertAfter,
-    remove,
-  };
-}
-
 function useActions(id: string) {
   const dispatch = useAppDispatch();
-  const { insertAfter: collabInsertAfter, remove: collabRemove } = useController();
+  const controller = useContext(DocumentControllerContext);
 
   const { node } = useSubscribeNode(id);
 
   const insertAfter = useCallback(async () => {
-    if (!node) return;
-    const parentId = node.parent;
-    if (!parentId) return;
-    // create new node
-    const newNode: Node = {
-      id: nanoid(10),
-      parent: parentId,
-      type: BlockType.TextBlock,
-      data: {},
-      children: nanoid(10),
-    };
-    // insert new node
-    await collabInsertAfter(newNode, parentId, node.id);
-    // update UI state
-    dispatch(documentActions.setBlockMap(newNode));
-    dispatch(documentActions.insertChild({ id: parentId, prevId: node.id, childId: newNode.id }));
-  }, [node, dispatch, collabInsertAfter]);
+    if (!controller || !node) return;
+    await dispatch(insertAfterNodeThunk({ id: node.id, controller }));
+  }, [node, controller, dispatch]);
 
   const remove = useCallback(async () => {
-    if (!node || !node.parent) return;
-    // remove node
-    await collabRemove(node);
-    // update UI state
-    dispatch(documentActions.removeBlockMapKey(node.id));
-    dispatch(documentActions.deleteChild({ id: node.parent, childId: node.id }));
-  }, [node, dispatch, collabRemove]);
+    if (!controller || !node) return;
+    await dispatch(deleteNodeThunk({ id: node.id, controller }));
+  }, [node, dispatch]);
 
   return {
     insertAfter,
