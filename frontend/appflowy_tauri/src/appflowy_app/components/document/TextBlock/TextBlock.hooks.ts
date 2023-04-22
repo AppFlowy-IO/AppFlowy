@@ -1,16 +1,16 @@
 import { triggerHotkey } from '@/appflowy_app/utils/slate/hotkey';
 import { useCallback, useContext, useState } from 'react';
 import { Descendant, Range } from 'slate';
-import { NestedBlock, TextDelta } from '$app/interfaces/document';
+import { TextDelta } from '$app/interfaces/document';
 import { useTextInput } from '../_shared/TextInput.hooks';
 import { useAppDispatch } from '@/appflowy_app/stores/store';
 import { DocumentControllerContext } from '@/appflowy_app/stores/effects/document/document_controller';
 import { backspaceNodeThunk, indentNodeThunk } from '@/appflowy_app/stores/reducers/document/async_actions';
 
-export function useTextBlock(node: NestedBlock, delta: TextDelta[]) {
+export function useTextBlock(id: string, delta: TextDelta[]) {
   const { editor } = useTextInput(delta);
   const [value, setValue] = useState<Descendant[]>([]);
-  const { onTab, onBackSpace } = useActions(node);
+  const { onTab, onBackSpace } = useActions(id);
   const onChange = useCallback(
     (e: Descendant[]) => {
       setValue(e);
@@ -70,24 +70,24 @@ export function useTextBlock(node: NestedBlock, delta: TextDelta[]) {
   };
 }
 
-function useActions(node: NestedBlock) {
+function useActions(id: string) {
   const dispatch = useAppDispatch();
   const controller = useContext(DocumentControllerContext);
 
   const onTab = useCallback(async () => {
-    if (!node || !controller) return;
+    if (!controller) return;
     await dispatch(
       indentNodeThunk({
-        id: node.id,
+        id,
         controller,
       })
     );
-  }, [node, controller]);
+  }, [id, controller]);
 
   const onBackSpace = useCallback(async () => {
-    if (!controller || !node) return;
-    await dispatch(backspaceNodeThunk({ id: node.id, controller }));
-  }, [controller, node]);
+    if (!controller) return;
+    await dispatch(backspaceNodeThunk({ id, controller }));
+  }, [controller, id]);
 
   return {
     onTab,

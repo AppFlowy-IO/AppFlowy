@@ -4,6 +4,30 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { documentActions, DocumentState } from '../slice';
 import { outdentNodeThunk } from './outdent';
 
+const composeParentThunk = createAsyncThunk(
+  'document/composeParent',
+  async (payload: { id: string; controller: DocumentController }, thunkAPI) => {
+    const { id, controller } = payload;
+    const { dispatch, getState } = thunkAPI;
+    const state = (getState() as { document: DocumentState }).document;
+    const node = state.nodes[id];
+    if (!node.parent) return;
+    const parent = state.nodes[node.parent];
+    // merge delta
+    const newParent = {
+      ...parent,
+      data: {
+        ...parent.data,
+        delta: [...parent.data.delta, ...node.data.delta],
+      },
+    };
+    await controller.applyActions([controller.getDeleteAction(node), controller.getUpdateAction(newParent)]);
+
+    dispatch(documentActions.setBlockMap(newParent));
+    dispatch(documentActions.removeBlockMapKey(node.id));
+    dispatch(documentActions.removeChildrenMapKey(node.children));
+  }
+);
 const composePrevNodeThunk = createAsyncThunk(
   'document/composePrevNode',
   async (payload: { prevNodeId: string; id: string; controller: DocumentController }, thunkAPI) => {
@@ -56,7 +80,11 @@ export const backspaceNodeThunk = createAsyncThunk(
     }
     // compose to previous line when it has next sibling or no ancestor
     if (nextNodeId || !ancestorId) {
-      if (!prevNodeId) return;
+      // compose to parent when it has no previous sibling
+      if (!prevNodeId) {
+        await dispatch(composeParentThunk({ id, controller }));
+        return;
+      }
       await dispatch(composePrevNodeThunk({ prevNodeId, id, controller }));
       return;
     } else {

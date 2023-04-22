@@ -9,7 +9,7 @@ import BlockMenu from '../BlockMenu';
 const sx = { height: 24, width: 24 };
 
 export default function BlockSideTools(props: { container: HTMLDivElement }) {
-  const { nodeId, ref, menuOpen, handleOpenMenu, handleCloseMenu } = useBlockSideTools(props);
+  const { nodeId, ref, menuOpen, handleToggleMenu } = useBlockSideTools(props);
 
   if (!nodeId) return null;
   return (
@@ -26,7 +26,7 @@ export default function BlockSideTools(props: { container: HTMLDivElement }) {
             e.preventDefault();
           }}
         >
-          <IconButton onClick={() => handleOpenMenu()} sx={sx}>
+          <IconButton onClick={() => handleToggleMenu(true)} sx={sx}>
             <ExpandCircleDownSharpIcon />
           </IconButton>
           <IconButton sx={sx}>
@@ -34,7 +34,7 @@ export default function BlockSideTools(props: { container: HTMLDivElement }) {
           </IconButton>
         </div>
       </Portal>
-      <BlockMenu open={menuOpen} onClose={handleCloseMenu} nodeId={nodeId} />
+      <BlockMenu open={menuOpen} onClose={() => handleToggleMenu(false)} nodeId={nodeId} />
     </>
   );
 }

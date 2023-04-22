@@ -1,32 +1,10 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useBlockMenu } from './BlockMenu.hooks';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
-import Button from '@mui/material/Button';
+import MenuItem from './MenuItem';
+import { ActionType } from '$app/components/document/BlockMenu/MenuItem.hooks';
 
 function BlockMenu({ open, onClose, nodeId }: { open: boolean; onClose: () => void; nodeId: string }) {
-  const { ref, handleAddClick, handleDeleteClick, style } = useBlockMenu(nodeId, open);
-
-  const btnList = useMemo(() => {
-    return [
-      {
-        icon: <AddIcon />,
-        onClick: async () => {
-          await handleAddClick();
-          onClose();
-        },
-        name: 'Add',
-      },
-      {
-        icon: <DeleteIcon />,
-        name: 'Delete',
-        onClick: async () => {
-          await handleDeleteClick();
-          onClose();
-        },
-      },
-    ];
-  }, [handleDeleteClick, handleAddClick, onClose]);
+  const { ref, style } = useBlockMenu(nodeId, open);
 
   return open ? (
     <div
@@ -54,19 +32,8 @@ function BlockMenu({ open, onClose, nodeId }: { open: boolean; onClose: () => vo
           e.stopPropagation();
         }}
       >
-        {btnList.map((btn) => (
-          <Button
-            key={btn.name}
-            className='w-[100%]'
-            variant={'text'}
-            color={'inherit'}
-            startIcon={btn.icon}
-            onClick={btn.onClick}
-            style={{ justifyContent: 'flex-start' }}
-          >
-            {btn.name}
-          </Button>
-        ))}
+        <MenuItem id={nodeId} type={ActionType.InsertAfter} />
+        <MenuItem id={nodeId} type={ActionType.Remove} onClick={onClose} />
       </div>
     </div>
   ) : null;

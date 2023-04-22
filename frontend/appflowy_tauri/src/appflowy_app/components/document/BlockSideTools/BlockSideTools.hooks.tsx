@@ -53,13 +53,11 @@ export function useBlockSideTools({ container }: { container: HTMLDivElement }) 
     }
   }, [nodeId]);
 
-  const handleOpenMenu = useCallback(() => {
-    setMenuOpen(true);
-  }, []);
-
-  const handleCloseMenu = useCallback(() => {
-    setMenuOpen(false);
-    setHoverNodeId('');
+  const handleToggleMenu = useCallback((isOpen: boolean) => {
+    setMenuOpen(isOpen);
+    if (!isOpen) {
+      setHoverNodeId('');
+    }
   }, []);
 
   useEffect(() => {
@@ -76,8 +74,7 @@ export function useBlockSideTools({ container }: { container: HTMLDivElement }) 
   return {
     nodeId,
     ref,
-    handleOpenMenu,
-    handleCloseMenu,
+    handleToggleMenu,
     menuOpen,
   };
 }

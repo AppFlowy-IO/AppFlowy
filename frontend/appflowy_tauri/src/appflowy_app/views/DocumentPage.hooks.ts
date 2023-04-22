@@ -17,26 +17,25 @@ export const useDocument = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    let document_controller: DocumentController | null = null;
+    let documentController: DocumentController | null = null;
     void (async () => {
       if (!params?.id) return;
       console.log('==== enter ====', params?.id);
-      document_controller = new DocumentController(params.id, dispatch);
-      setController(document_controller);
+      documentController = new DocumentController(params.id, dispatch);
+      setController(documentController);
       try {
-        const res = await document_controller.open();
-        console.log(res);
+        const res = await documentController.open();
         if (!res) return;
         setDocumentData(res);
         setDocumentId(params.id);
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     })();
     return () => {
       void (async () => {
-        if (document_controller) {
-          await document_controller.dispose();
+        if (documentController) {
+          await documentController.dispose();
         }
         console.log('==== leave ====', params?.id);
       })();

@@ -46,7 +46,6 @@ function useController() {
           },
         },
       ]);
-      console.log('update', JSON.stringify(delta));
       dispatch(
         documentActions.setBlockMap({
           ...node,

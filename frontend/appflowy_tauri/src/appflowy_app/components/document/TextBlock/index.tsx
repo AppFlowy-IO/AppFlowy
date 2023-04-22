@@ -17,7 +17,7 @@ function TextBlock({
   placeholder?: string;
 } & React.HTMLAttributes<HTMLDivElement>) {
   const delta = useMemo(() => node.data.delta || [], [node.data.delta]);
-  const { editor, value, onChange, onKeyDownCapture, onDOMBeforeInput } = useTextBlock(node, delta);
+  const { editor, value, onChange, onKeyDownCapture, onDOMBeforeInput } = useTextBlock(node.id, delta);
 
   return (
     <>
@@ -34,8 +34,8 @@ function TextBlock({
       </div>
       {childIds && childIds.length > 0 ? (
         <div className='pl-[1.5em]'>
-          {childIds.map((item, index) => (
-            <NodeComponent key={item} id={item} className={index === 0 ? '' : 'mt-[2px]'} />
+          {childIds.map((item) => (
+            <NodeComponent key={item} id={item} />
           ))}
         </div>
       ) : null}
