@@ -33,10 +33,10 @@ default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
 
 [patch.crates-io]
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab" }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "fd64f5" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "fd64f5" }
+collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "fd64f5" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "fd64f5" }
 
 #collab = { path = "../../AppFlowy-Collab/collab" }
 #collab-folder = { path = "../../AppFlowy-Collab/collab-folder" }

@@ -26,12 +26,7 @@ pub(crate) async fn open_document_handler(
     .lock()
     .get_document()
     .map_err(|err| FlowyError::internal().context(err))?;
-  let pb = DocumentDataPB2::from(DocumentDataWrapper(document_data));
-
-  if pb.page_id.is_empty() {
-    println!("");
-  }
-  data_result_ok(pb)
+  data_result_ok(DocumentDataPB2::from(DocumentDataWrapper(document_data)))
 }
 
 pub(crate) async fn create_document_handler(
@@ -53,13 +48,11 @@ pub(crate) async fn close_document_handler(
   Ok(())
 }
 
-#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn apply_action_handler(
   data: AFPluginData<ApplyActionPayloadPBV2>,
   manager: AFPluginState<Arc<DocumentManager>>,
 ) -> FlowyResult<()> {
   let context = data.into_inner();
-  tracing::trace!("{:?}", context);
   let doc_id = context.document_id;
   let actions = context
     .actions
@@ -68,7 +61,6 @@ pub(crate) async fn apply_action_handler(
     .collect();
   let document = manager.open_document(doc_id)?;
   document.lock().apply_action(actions);
-  drop(document);
   Ok(())
 }
 

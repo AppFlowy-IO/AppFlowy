@@ -7,7 +7,7 @@ use crate::{
   notification::*,
   services::database::{UserDB, UserTable, UserTableChangeset},
 };
-use collab_persistence::CollabKV;
+use collab_persistence::kv::rocks_kv::RocksCollabDB;
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{
   kv::KV,
@@ -125,7 +125,7 @@ impl UserSession {
     self.database.get_pool(user_id)
   }
 
-  pub fn get_kv_db(&self) -> Result<Arc<CollabKV>, FlowyError> {
+  pub fn get_kv_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
     let user_id = self.get_session()?.user_id;
     self.database.get_kv_db(user_id)
   }
