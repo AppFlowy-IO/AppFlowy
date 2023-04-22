@@ -36,7 +36,7 @@ class DateCellCalendarBloc
             emit(
               state.copyWith(
                 dateTime: dateData.dateTime,
-                time: dateData.time ?? "",
+                time: dateData.time,
                 includeTime: dateData.includeTime,
               ),
             );
@@ -76,20 +76,16 @@ class DateCellCalendarBloc
     String? time,
     bool? includeTime,
   }) async {
-    if (date == state.dateTime &&
-        time == state.time &&
-        includeTime == state.includeTime) {
-      return;
-    }
+    String? newTime = time ?? state.time;
 
     DateTime? newDate = date;
-    if (time != null && time.isNotEmpty && state.dateTime == null) {
-      newDate = DateTime.now();
+    if (time != null && time.isNotEmpty) {
+      newDate = state.dateTime ?? DateTime.now();
     }
 
     final DateCellData newDateData = DateCellData(
       dateTime: newDate,
-      time: time,
+      time: newTime,
       includeTime: includeTime ?? state.includeTime,
     );
 
