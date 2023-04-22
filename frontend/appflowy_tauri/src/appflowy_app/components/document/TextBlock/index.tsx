@@ -17,27 +17,29 @@ function TextBlock({
   placeholder?: string;
 } & React.HTMLAttributes<HTMLDivElement>) {
   const delta = useMemo(() => node.data.delta || [], [node.data.delta]);
-  const { editor, value, onChange, onKeyDownCapture, onDOMBeforeInput } = useTextBlock(delta);
+  const { editor, value, onChange, onKeyDownCapture, onDOMBeforeInput } = useTextBlock(node, delta);
 
   return (
-    <div {...props} className={`py-[2px] ${props.className}`}>
-      <Slate editor={editor} onChange={onChange} value={value}>
-        <HoveringToolbar id={node.id} />
-        <Editable
-          onKeyDownCapture={onKeyDownCapture}
-          onDOMBeforeInput={onDOMBeforeInput}
-          renderLeaf={(leafProps) => <Leaf {...leafProps} />}
-          placeholder={placeholder || 'Please enter some text...'}
-        />
-      </Slate>
+    <>
+      <div {...props} className={`py-[2px] ${props.className}`}>
+        <Slate editor={editor} onChange={onChange} value={value}>
+          <HoveringToolbar id={node.id} />
+          <Editable
+            onKeyDownCapture={onKeyDownCapture}
+            onDOMBeforeInput={onDOMBeforeInput}
+            renderLeaf={(leafProps) => <Leaf {...leafProps} />}
+            placeholder={placeholder || 'Please enter some text...'}
+          />
+        </Slate>
+      </div>
       {childIds && childIds.length > 0 ? (
         <div className='pl-[1.5em]'>
-          {childIds.map((item) => (
-            <NodeComponent key={item} id={item} />
+          {childIds.map((item, index) => (
+            <NodeComponent key={item} id={item} className={index === 0 ? '' : 'mt-[2px]'} />
           ))}
         </div>
       ) : null}
-    </div>
+    </>
   );
 }
 

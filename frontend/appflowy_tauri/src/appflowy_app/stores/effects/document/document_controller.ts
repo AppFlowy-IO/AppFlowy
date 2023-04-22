@@ -71,30 +71,35 @@ export class DocumentController {
     return {
       action: BlockActionTypePB.Insert,
       payload: this.getActionPayloadByNode(node, prevId),
-    }
-  }
+    };
+  };
 
   getUpdateAction = (node: Node) => {
     return {
       action: BlockActionTypePB.Update,
-      payload: this.getActionPayloadByNode(node, ""),
-    }
-  }
+      payload: this.getActionPayloadByNode(node, ''),
+    };
+  };
 
   getMoveAction = (node: Node, parentId: string, prevId: string | null) => {
-    node.parent = parentId;
     return {
       action: BlockActionTypePB.Move,
-      payload: this.getActionPayloadByNode(node, prevId),
-    }
-  }
+      payload: this.getActionPayloadByNode(
+        {
+          ...node,
+          parent: parentId,
+        },
+        prevId
+      ),
+    };
+  };
 
   getDeleteAction = (node: Node) => {
     return {
       action: BlockActionTypePB.Delete,
-      payload: this.getActionPayloadByNode(node, ""),
-    }
-  }
+      payload: this.getActionPayloadByNode(node, ''),
+    };
+  };
 
   dispose = async () => {
     await this.backendService.close();
@@ -105,8 +110,8 @@ export class DocumentController {
       block: this.getBlockByNode(node),
       parent_id: node.parent || '',
       prev_id: prevId || '',
-    }
-  }
+    };
+  };
 
   private getBlockByNode = (node: Node) => {
     return {
@@ -115,8 +120,8 @@ export class DocumentController {
       children_id: node.children,
       data: JSON.stringify(node.data),
       ty: node.type,
-    }
-  }
+    };
+  };
 
   private updated = (payload: Uint8Array) => {
     const dispatch = this.dispatch;
