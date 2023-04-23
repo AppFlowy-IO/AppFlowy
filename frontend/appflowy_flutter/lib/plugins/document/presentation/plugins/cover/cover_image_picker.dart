@@ -145,7 +145,7 @@ class _NetworkImageUrlInputState extends State<NetworkImageUrlInput> {
             },
             hoverColor: Colors.transparent,
             fillColor: buttonDisabled
-                ? Colors.grey
+                ? Theme.of(context).disabledColor
                 : Theme.of(context).colorScheme.primary,
             height: 36,
             title: LocaleKeys.document_plugins_cover_add.tr(),
@@ -174,7 +174,7 @@ class ImagePickerActionButtons extends StatelessWidget {
       children: [
         FlowyTextButton(
           LocaleKeys.document_plugins_cover_back.tr(),
-          hoverColor: Colors.transparent,
+          hoverColor: Theme.of(context).colorScheme.secondaryContainer,
           fillColor: Colors.transparent,
           mainAxisAlignment: MainAxisAlignment.end,
           onPressed: () => onBackPressed(),
@@ -182,7 +182,7 @@ class ImagePickerActionButtons extends StatelessWidget {
         FlowyTextButton(
           LocaleKeys.document_plugins_cover_saveToGallery.tr(),
           onPressed: () => onSave(),
-          hoverColor: Colors.transparent,
+          hoverColor: Theme.of(context).colorScheme.secondaryContainer,
           fillColor: Colors.transparent,
           mainAxisAlignment: MainAxisAlignment.end,
           fontColor: Theme.of(context).colorScheme.primary,
@@ -204,48 +204,61 @@ class CoverImagePreviewWidget extends StatefulWidget {
 
 class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
   _buildFilePickerWidget(BuildContext ctx) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            svgWidget(
-              "editor/add",
-              size: const Size(20, 20),
-            ),
-            const SizedBox(
-              width: 3,
-            ),
-            FlowyText(
-              LocaleKeys.document_plugins_cover_pasteImageUrl.tr(),
-            ),
-          ],
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        FlowyText(
-          LocaleKeys.document_plugins_cover_or.tr(),
-          color: Colors.grey,
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        FlowyButton(
-          onTap: () {
-            ctx.read<CoverImagePickerBloc>().add(const PickFileImage());
-          },
-          useIntrinsicWidth: true,
-          leftIcon: svgWidget(
-            "file_icon",
-            size: const Size(25, 25),
-          ),
-          text: FlowyText(
-            LocaleKeys.document_plugins_cover_pickFromFiles.tr(),
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: Corners.s6Border,
+        border: Border.fromBorderSide(
+          BorderSide(
+            color: Theme.of(context).colorScheme.primary,
+            width: 1,
           ),
         ),
-      ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const FlowySvg(
+                name: 'editor/add',
+                size: Size(20, 20),
+              ),
+              const SizedBox(
+                width: 3,
+              ),
+              FlowyText(
+                LocaleKeys.document_plugins_cover_pasteImageUrl.tr(),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          FlowyText(
+            LocaleKeys.document_plugins_cover_or.tr(),
+            fontWeight: FontWeight.w300,
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          FlowyButton(
+            hoverColor: Theme.of(context).hoverColor,
+            onTap: () {
+              ctx.read<CoverImagePickerBloc>().add(const PickFileImage());
+            },
+            useIntrinsicWidth: true,
+            leftIcon: const FlowySvg(
+              name: 'file_icon',
+              size: Size(20, 20),
+            ),
+            text: FlowyText(
+              LocaleKeys.document_plugins_cover_pickFromFiles.tr(),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

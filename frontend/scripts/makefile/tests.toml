@@ -1,7 +1,7 @@
 
 [tasks.dart_unit_test]
 script = '''
-cargo make --profile test-macos run_dart_unit_test
+cargo make --profile test-macos-$(uname -m) run_dart_unit_test
 '''
 script_runner = "@shell"
 

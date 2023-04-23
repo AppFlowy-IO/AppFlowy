@@ -128,6 +128,7 @@
   },
   "button": {
     "OK": "OK",
+    "Done": "Done",
     "Cancel": "Cancel",
     "signIn": "Sign In",
     "signOut": "Sign Out",
@@ -385,8 +386,12 @@
         "couldNotFetchImage": "Could not fetch image",
         "imageSavingFailed": "Image Saving Failed",
         "addIcon": "Add Icon",
-        "coverRemoveAlert" : "It will be removed from cover after it is deleted.",
-        "alertDialogConfirmation" : "Are you sure, you want to continue?"
+        "coverRemoveAlert": "It will be removed from cover after it is deleted.",
+        "alertDialogConfirmation": "Are you sure, you want to continue?"
+      },
+      "mathEquation": {
+        "addMathEquation": "Add Math Equation",
+        "editMathEquation": "Edit Math Equation"
       }
     }
   },

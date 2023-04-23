@@ -23,7 +23,7 @@ CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
 LIB_NAME = "dart_ffi"
-CURRENT_APP_VERSION = "0.1.2"
+CURRENT_APP_VERSION = "0.1.3"
 FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite"
 PRODUCT_NAME = "AppFlowy"
 # CRATE_TYPE: https://doc.rust-lang.org/reference/linkage.html
@@ -205,11 +205,16 @@ script = [
 ]
 script_runner = "@duckscript"
 
-[env.test-macos]
+[env.test-macos-x86_64]
 TEST_CRATE_TYPE = "cdylib"
 TEST_LIB_EXT = "dylib"
 # For the moment, the DynamicLibrary only supports open x86_64 architectures binary.
 TEST_COMPILE_TARGET = "x86_64-apple-darwin"
+
+[env.test-macos-arm64]
+TEST_CRATE_TYPE = "cdylib"
+TEST_LIB_EXT = "dylib"
+TEST_COMPILE_TARGET = "aarch64-apple-darwin"
 
 [env.test-linux]
 TEST_CRATE_TYPE = "cdylib"

@@ -5,7 +5,7 @@ import 'package:appflowy/plugins/document/presentation/plugins/cover/change_cove
 import 'package:appflowy/plugins/document/presentation/plugins/cover/emoji_popover.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/cover/icon_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/emoji_picker/emoji_picker.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide FlowySvg;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -169,9 +169,8 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
                             _removeIcon();
                           },
                           useIntrinsicWidth: true,
-                          leftIcon: Icon(
+                          leftIcon: const Icon(
                             Icons.emoji_emotions_outlined,
-                            color: Theme.of(context).iconTheme.color,
                             size: 18,
                           ),
                           text: FlowyText.regular(

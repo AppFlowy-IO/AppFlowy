@@ -225,12 +225,16 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       secondaryContainer: theme.selector,
       onSecondaryContainer: theme.topbarBg,
       tertiary: theme.shader7,
+      // Editor: toolbarColor
+      onTertiary: theme.toolbarColor,
       tertiaryContainer: theme.questionBubbleBG,
       background: theme.surface,
       onBackground: theme.text,
       surface: theme.surface,
       // text&icon color when it is hovered
       onSurface: theme.hoverFG,
+      // grey hover color
+      inverseSurface: theme.hoverBG3,
       onError: theme.shader7,
       error: theme.red,
       outline: theme.shader4,
@@ -277,7 +281,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         radius: Corners.s10Radius,
       ),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      canvasColor: theme.shader6,
+      //dropdown menu color
+      canvasColor: theme.surface,
       dividerColor: theme.divider,
       hintColor: theme.hint,
       //action item hover color
