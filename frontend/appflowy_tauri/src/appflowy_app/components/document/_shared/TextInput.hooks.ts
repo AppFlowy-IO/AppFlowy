@@ -14,10 +14,11 @@ import { documentActions } from '@/appflowy_app/stores/reducers/document/slice';
 
 export function useTextInput(delta: TextDelta[]) {
   const { sendDelta } = useTransact();
-  const { editor } = useBindYjs(delta, sendDelta);
+  const { editor, yText } = useBindYjs(delta, sendDelta);
 
   return {
     editor,
+    yText,
   };
 }
 
@@ -118,6 +119,7 @@ function useBindYjs(delta: TextDelta[], update: (_delta: TextDelta[]) => void) {
     if (!yText) return;
     const textEventHandler = (event: Y.YTextEvent) => {
       const textDelta = event.target.toDelta();
+      console.log('====update', textDelta);
       update(textDelta);
     };
     if (JSON.stringify(yText.toDelta()) !== JSON.stringify(delta)) {
@@ -131,5 +133,5 @@ function useBindYjs(delta: TextDelta[], update: (_delta: TextDelta[]) => void) {
     };
   }, [delta]);
 
-  return { editor };
+  return { editor, yText: yTextRef.current };
 }

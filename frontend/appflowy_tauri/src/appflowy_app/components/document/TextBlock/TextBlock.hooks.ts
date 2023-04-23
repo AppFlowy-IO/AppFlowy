@@ -1,16 +1,20 @@
 import { triggerHotkey } from '@/appflowy_app/utils/slate/hotkey';
 import { useCallback, useContext, useState } from 'react';
-import { Descendant, Range } from 'slate';
+import { Descendant, Range, Editor, Element, Text, Location } from 'slate';
 import { TextDelta } from '$app/interfaces/document';
 import { useTextInput } from '../_shared/TextInput.hooks';
 import { useAppDispatch } from '@/appflowy_app/stores/store';
 import { DocumentControllerContext } from '@/appflowy_app/stores/effects/document/document_controller';
-import { backspaceNodeThunk, indentNodeThunk } from '@/appflowy_app/stores/reducers/document/async_actions';
+import {
+  backspaceNodeThunk,
+  indentNodeThunk,
+  splitNodeThunk,
+} from '@/appflowy_app/stores/reducers/document/async_actions';
 
 export function useTextBlock(id: string, delta: TextDelta[]) {
-  const { editor } = useTextInput(delta);
+  const { editor, yText } = useTextInput(delta);
   const [value, setValue] = useState<Descendant[]>([]);
-  const { onTab, onBackSpace } = useActions(id);
+  const { onTab, onBackSpace, onEnter } = useActions(id);
   const onChange = useCallback(
     (e: Descendant[]) => {
       setValue(e);
@@ -21,8 +25,16 @@ export function useTextBlock(id: string, delta: TextDelta[]) {
   const onKeyDownCapture = (event: React.KeyboardEvent<HTMLDivElement>) => {
     switch (event.key) {
       case 'Enter': {
+        if (!editor.selection) return;
         event.stopPropagation();
         event.preventDefault();
+        const retainRange = getRetainRangeBy(editor);
+        const retain = getDelta(editor, retainRange);
+        const insertRange = getInsertRangeBy(editor);
+        const insert = getDelta(editor, insertRange);
+        void (async () => {
+          await onEnter(retain, insert);
+        })();
         return;
       }
       case 'Backspace': {
@@ -89,8 +101,45 @@ function useActions(id: string) {
     await dispatch(backspaceNodeThunk({ id, controller }));
   }, [controller, id]);
 
+  const onEnter = useCallback(
+    async (retain: TextDelta[], insert: TextDelta[]) => {
+      if (!controller) return;
+      await dispatch(splitNodeThunk({ id, retain, insert, controller }));
+    },
+    [controller, id]
+  );
+
   return {
     onTab,
     onBackSpace,
+    onEnter,
+  };
+}
+
+function getDelta(editor: Editor, at: Location): TextDelta[] {
+  const baseElement = Editor.fragment(editor, at)[0] as Element;
+  return baseElement.children.map((item) => {
+    const { text, ...attributes } = item as Text;
+    return {
+      insert: text,
+      attributes,
+    };
+  });
+}
+
+function getRetainRangeBy(editor: Editor) {
+  const start = Editor.start(editor, editor.selection!);
+  return {
+    anchor: { path: [0, 0], offset: 0 },
+    focus: start,
+  };
+}
+
+function getInsertRangeBy(editor: Editor) {
+  const end = Editor.end(editor, editor.selection!);
+  const fragment = (editor.children[0] as Element).children;
+  return {
+    anchor: end,
+    focus: { path: [0, fragment.length - 1], offset: (fragment[fragment.length - 1] as Text).text.length },
   };
 }
