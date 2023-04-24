@@ -33,7 +33,8 @@ use crate::services::database_view::{DatabaseViewData, DatabaseViews, RowEventSe
 use crate::services::field::{
   default_type_option_data_for_type, default_type_option_data_from_type,
   select_type_option_from_field, transform_type_option, type_option_data_from_pb_or_default,
-  type_option_to_pb, SelectOptionCellChangeset, SelectOptionIds, TypeOptionCellDataHandler,
+  type_option_to_pb, FieldBuilder, SelectOptionCellChangeset, SelectOptionIds,
+  TypeOptionCellDataHandler,
 };
 use crate::services::filter::Filter;
 use crate::services::group::{default_group_setting, GroupSetting, RowChangeset};
@@ -227,7 +228,8 @@ impl DatabaseEditor {
     field_id: &str,
     new_field_type: &FieldType,
   ) -> FlowyResult<()> {
-    match self.database.lock().fields.get_field(field_id) {
+    let field = self.database.lock().fields.get_field(field_id);
+    match field {
       None => {},
       Some(field) => {
         let old_field_type = FieldType::from(field.field_type);
@@ -247,7 +249,9 @@ impl DatabaseEditor {
           .lock()
           .fields
           .update_field(field_id, |update| {
-            update.set_type_option(new_field_type.into(), Some(transformed_type_option));
+            update
+              .set_field_type(new_field_type.into())
+              .set_type_option(new_field_type.into(), Some(transformed_type_option));
           });
       },
     }
@@ -290,7 +294,7 @@ impl DatabaseEditor {
 
     let result = self.database.lock().create_row_in_view(
       &params.view_id,
-      collab_database::block::CreateRowParams {
+      collab_database::rows::CreateRowParams {
         id: gen_row_id(),
         cells,
         height: 60,

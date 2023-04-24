@@ -568,6 +568,7 @@ dependencies = [
  "collab-derive",
  "collab-persistence",
  "lazy_static",
+ "lru",
  "nanoid",
  "parking_lot 0.12.1",
  "serde",
@@ -2496,7 +2497,6 @@ dependencies = [
  "glob",
  "libc",
  "libz-sys",
- "lz4-sys",
  "zstd-sys",
 ]
 
@@ -2563,13 +2563,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "lz4-sys"
-version = "1.9.4"
+name = "lru"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57d27b317e207b10f69f5e75494119e391a96f48861ae870d1da6edac98ca900"
+checksum = "03f1160296536f10c833a82dca22267d5486734230d47bf00bf435885814ba1e"
 dependencies = [
- "cc",
- "libc",
+ "hashbrown 0.13.2",
 ]
 
 [[package]]

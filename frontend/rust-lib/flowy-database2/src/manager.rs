@@ -1,9 +1,10 @@
+use collab::plugin_impl::rocks_disk::Config;
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::sync::Arc;
 
 use collab_database::database::DuplicatedDatabase;
-use collab_database::user::{Config, UserDatabase as InnerUserDatabase};
+use collab_database::user::UserDatabase as InnerUserDatabase;
 use collab_database::views::{CreateDatabaseParams, CreateViewParams};
 use collab_persistence::kv::rocks_kv::RocksCollabDB;
 use parking_lot::Mutex;
@@ -43,7 +44,13 @@ impl DatabaseManager2 {
 
   pub async fn initialize(&self, user_id: i64, _token: &str) -> FlowyResult<()> {
     let db = self.user.kv_db()?;
-    *self.user_database.lock() = Some(InnerUserDatabase::new(user_id, db, Config::default()));
+    *self.user_database.lock() = Some(InnerUserDatabase::new(
+      user_id,
+      db,
+      Config::default()
+        .enable_snapshot(true)
+        .snapshot_per_update(10),
+    ));
     // do nothing
     Ok(())
   }

@@ -96,7 +96,7 @@ pub enum DatabaseEvent {
   #[event(input = "DatabaseViewIdPB")]
   DeleteAllSorts = 6,
 
-  /// [GetFields] event is used to get the database's settings.
+  /// [GetFields] event is used to get the database's fields.
   ///
   /// The event handler accepts a [GetFieldPayloadPB] and returns a [RepeatedFieldPB]
   /// if there are no errors.

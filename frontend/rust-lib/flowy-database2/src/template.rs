@@ -1,6 +1,5 @@
-use collab_database::block::CreateRowParams;
 use collab_database::database::{gen_database_id, gen_row_id};
-
+use collab_database::rows::CreateRowParams;
 use collab_database::views::{CreateDatabaseParams, DatabaseLayout, LayoutSettings};
 
 use crate::entities::FieldType;
