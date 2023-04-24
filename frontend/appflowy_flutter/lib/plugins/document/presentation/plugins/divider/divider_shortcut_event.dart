@@ -1,5 +1,5 @@
+import 'package:appflowy/plugins/document/presentation/plugins/divider/divider_node_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor_plugins/src/divider/divider_node_widget.dart';
 import 'package:flutter/material.dart';
 
 // insert divider into a document by typing three minuses.

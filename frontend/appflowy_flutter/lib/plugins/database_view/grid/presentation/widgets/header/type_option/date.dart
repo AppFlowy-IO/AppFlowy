@@ -1,7 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/field/type_option/date_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
-import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
-import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:easy_localization/easy_localization.dart' hide DateFormat;
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:flowy_infra/image.dart';
@@ -54,7 +52,6 @@ class DateTypeOptionWidget extends TypeOptionWidget {
             const TypeOptionSeparator(),
             _renderDateFormatButton(context, state.typeOption.dateFormat),
             _renderTimeFormatButton(context, state.typeOption.timeFormat),
-            const _IncludeTimeButton(),
           ];
 
           return ListView.separated(
@@ -181,44 +178,6 @@ class TimeFormatButton extends StatelessWidget {
         onHover: onHover,
         rightIcon: const FlowySvg(name: 'grid/more'),
       ),
-    );
-  }
-}
-
-class _IncludeTimeButton extends StatelessWidget {
-  const _IncludeTimeButton({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocSelector<DateTypeOptionBloc, DateTypeOptionState, bool>(
-      selector: (state) => state.typeOption.includeTime,
-      builder: (context, includeTime) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: SizedBox(
-            height: GridSize.popoverItemHeight,
-            child: Padding(
-              padding: GridSize.typeOptionContentInsets,
-              child: Row(
-                children: [
-                  FlowyText.medium(LocaleKeys.grid_field_includeTime.tr()),
-                  const Spacer(),
-                  Toggle(
-                    value: includeTime,
-                    onChanged: (value) {
-                      context
-                          .read<DateTypeOptionBloc>()
-                          .add(DateTypeOptionEvent.includeTime(!value));
-                    },
-                    style: ToggleStyle.big,
-                    padding: EdgeInsets.zero,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 }

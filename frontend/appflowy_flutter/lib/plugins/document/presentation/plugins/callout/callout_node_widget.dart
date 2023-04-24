@@ -1,6 +1,5 @@
+import 'package:appflowy/plugins/document/presentation/plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor_plugins/src/emoji_picker/emoji_menu_item.dart';
-import 'package:appflowy_editor_plugins/src/extensions/theme_extension.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -192,10 +191,12 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
   Widget _buildColorPicker() {
     return FlowyColorPicker(
       colors: FlowyTint.values
-          .map((t) => ColorOption(
-                color: t.color(context),
-                name: t.tintName(AppFlowyEditorLocalizations.current),
-              ))
+          .map(
+            (t) => ColorOption(
+              color: t.color(context),
+              name: t.tintName(AppFlowyEditorLocalizations.current),
+            ),
+          )
           .toList(),
       selected: tint.color(context),
       onTap: (color, index) {

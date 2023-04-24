@@ -173,8 +173,8 @@ class CellController<T, D> extends Equatable {
 
   void _loadData() {
     _saveDataOperation?.cancel();
-
     _loadDataOperation?.cancel();
+
     _loadDataOperation = Timer(const Duration(milliseconds: 10), () {
       _cellDataLoader.loadData().then((data) {
         if (data != null) {
@@ -182,7 +182,6 @@ class CellController<T, D> extends Equatable {
         } else {
           _cellCache.remove(_cacheKey);
         }
-
         _cellDataNotifier?.value = data;
       });
     });
