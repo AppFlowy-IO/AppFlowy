@@ -114,7 +114,8 @@ export const documentSlice = createSlice({
       }>
     ) => {
       const { blockId, selection } = action.payload;
-      if (!selection) {
+      const node = state.nodes[blockId];
+      if (!node || !selection) {
         delete state.textSelections[blockId];
       } else {
         state.textSelections = {
@@ -123,9 +124,26 @@ export const documentSlice = createSlice({
       }
     },
 
-    // update block
+    // remove text selections
+    removeTextSelection: (state, action: PayloadAction<string>) => {
+      const id = action.payload;
+      if (!state.textSelections[id]) return;
+      state.textSelections;
+    },
+
+    // insert block
     setBlockMap: (state, action: PayloadAction<Node>) => {
       state.nodes[action.payload.id] = action.payload;
+    },
+
+    // update block when `type`, `parent` or `children` changed
+    updateBlock: (state, action: PayloadAction<{ id: string; block: NestedBlock }>) => {
+      const { id, block } = action.payload;
+      const node = state.nodes[id];
+      if (!node || node.parent !== block.parent || node.type !== block.type || node.children !== block.children) {
+        state.nodes[action.payload.id] = block;
+        return;
+      }
     },
 
     // remove block

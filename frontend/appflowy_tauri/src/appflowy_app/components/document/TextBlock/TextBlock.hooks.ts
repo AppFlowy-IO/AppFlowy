@@ -1,6 +1,6 @@
 import { triggerHotkey } from '@/appflowy_app/utils/slate/hotkey';
-import { useCallback, useContext, useState } from 'react';
-import { Descendant, Range, Editor, Element, Text, Location } from 'slate';
+import { useCallback, useContext } from 'react';
+import { Range, Editor, Element, Text, Location } from 'slate';
 import { TextDelta } from '$app/interfaces/document';
 import { useTextInput } from '../_shared/TextInput.hooks';
 import { useAppDispatch } from '@/appflowy_app/stores/store';
@@ -10,65 +10,76 @@ import {
   indentNodeThunk,
   splitNodeThunk,
 } from '@/appflowy_app/stores/reducers/document/async_actions';
-import { TextSelection } from '@/appflowy_app/stores/reducers/document/slice';
+import { documentActions, TextSelection } from '@/appflowy_app/stores/reducers/document/slice';
 
-export function useTextBlock(id: string, delta: TextDelta[]) {
-  const { editor, onSelectionChange } = useTextInput(id, delta);
-  const [value, setValue] = useState<Descendant[]>([]);
+export function useTextBlock(id: string) {
+  const { editor, onChange, value } = useTextInput(id);
   const { onTab, onBackSpace, onEnter } = useActions(id);
-  const onChange = useCallback(
-    (e: Descendant[]) => {
-      setValue(e);
-      editor.operations.forEach((op) => {
-        if (op.type === 'set_selection') {
-          onSelectionChange(op.newProperties as TextSelection);
-        }
-      });
-    },
-    [editor]
-  );
+  const dispatch = useAppDispatch();
 
-  const onKeyDownCapture = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    switch (event.key) {
-      case 'Enter': {
-        if (!editor.selection) return;
-        event.stopPropagation();
-        event.preventDefault();
-        const retainRange = getRetainRangeBy(editor);
-        const retain = getDelta(editor, retainRange);
-        const insertRange = getInsertRangeBy(editor);
-        const insert = getDelta(editor, insertRange);
-        void (async () => {
-          await onEnter(retain, insert);
-        })();
-        return;
-      }
-      case 'Backspace': {
-        if (!editor.selection) return;
+  const keepSelection = useCallback(() => {
+    // This is a hack to make sure the selection is updated after next render
+    // It will save the selection to the store, and the selection will be restored
+    if (!editor.selection || !editor.selection.anchor || !editor.selection.focus) return;
+    const { anchor, focus } = editor.selection;
+    const selection = { anchor, focus } as TextSelection;
+    dispatch(documentActions.setTextSelection({ blockId: id, selection }));
+  }, [editor]);
 
-        const { anchor } = editor.selection;
-        const isCollapsed = Range.isCollapsed(editor.selection);
-        if (isCollapsed && anchor.offset === 0 && anchor.path.toString() === '0,0') {
+  const onKeyDownCapture = useCallback(
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
+      switch (event.key) {
+        // It should be handled when `Enter` is pressed
+        case 'Enter': {
+          if (!editor.selection) return;
           event.stopPropagation();
           event.preventDefault();
+          // get the retain content
+          const retainRange = getRetainRangeBy(editor);
+          const retain = getDelta(editor, retainRange);
+          // get the insert content
+          const insertRange = getInsertRangeBy(editor);
+          const insert = getDelta(editor, insertRange);
           void (async () => {
-            await onBackSpace();
+            // retain this node and insert a new node
+            await onEnter(retain, insert);
           })();
+          return;
         }
-        return;
-      }
-      case 'Tab': {
-        event.stopPropagation();
-        event.preventDefault();
-        void (async () => {
-          await onTab();
-        })();
+        // It should be handled when `Backspace` is pressed
+        case 'Backspace': {
+          if (!editor.selection) {
+            return;
+          }
+          // It should be handled if the selection is collapsed and the cursor is at the beginning of the block
+          const { anchor } = editor.selection;
+          const isCollapsed = Range.isCollapsed(editor.selection);
+          if (isCollapsed && anchor.offset === 0 && anchor.path.toString() === '0,0') {
+            event.stopPropagation();
+            event.preventDefault();
+            keepSelection();
+            void (async () => {
+              await onBackSpace();
+            })();
+          }
+          return;
+        }
+        // It should be handled when `Tab` is pressed
+        case 'Tab': {
+          event.stopPropagation();
+          event.preventDefault();
+          keepSelection();
+          void (async () => {
+            await onTab();
+          })();
 
-        return;
+          return;
+        }
       }
-    }
-    triggerHotkey(event, editor);
-  };
+      triggerHotkey(event, editor);
+    },
+    [editor, keepSelection, onEnter, onBackSpace, onTab]
+  );
 
   const onDOMBeforeInput = useCallback((e: InputEvent) => {
     // COMPAT: in Apple, `compositionend` is dispatched after the `beforeinput` for "insertFromComposition".
