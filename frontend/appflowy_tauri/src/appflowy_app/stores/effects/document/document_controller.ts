@@ -5,7 +5,7 @@ import { FlowyError, BlockActionPB, DocEventPB, DeltaTypePB, BlockActionTypePB }
 import { DocumentObserver } from './document_observer';
 import { documentActions, Node } from '@/appflowy_app/stores/reducers/document/slice';
 import { Log } from '@/appflowy_app/utils/log';
-
+import * as Y from 'yjs';
 export const DocumentControllerContext = createContext<DocumentController | null>(null);
 
 export class DocumentController {
@@ -69,6 +69,7 @@ export class DocumentController {
   };
 
   getInsertAction = (node: Node, prevId: string | null) => {
+    this.composeDelta(node);
     return {
       action: BlockActionTypePB.Insert,
       payload: this.getActionPayloadByNode(node, prevId),
@@ -76,6 +77,7 @@ export class DocumentController {
   };
 
   getUpdateAction = (node: Node) => {
+    this.composeDelta(node);
     return {
       action: BlockActionTypePB.Update,
       payload: this.getActionPayloadByNode(node, ''),
@@ -124,11 +126,22 @@ export class DocumentController {
     };
   };
 
+  private composeDelta = (node: Node) => {
+    const delta = node.data.delta;
+    if (!delta) {
+      return;
+    }
+    const ydoc = new Y.Doc();
+    const ytext = ydoc.getText(node.id);
+    ytext.applyDelta(delta);
+    Object.assign(node.data, { delta: ytext.toDelta() });
+  };
+
   private updated = (payload: Uint8Array) => {
     const dispatch = this.dispatch;
     if (!dispatch) return;
     const { events, is_remote } = DocEventPB.deserializeBinary(payload);
-    console.log('updated', events, is_remote);
+
     if (!is_remote) return;
     events.forEach((event) => {
       event.event.forEach((_payload) => {

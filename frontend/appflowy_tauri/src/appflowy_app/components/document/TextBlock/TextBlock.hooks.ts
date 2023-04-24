@@ -1,6 +1,6 @@
 import { triggerHotkey } from '@/appflowy_app/utils/slate/hotkey';
-import { useCallback, useContext, useState } from 'react';
-import { Descendant, Range, Editor, Element, Text, Location } from 'slate';
+import { useCallback, useContext } from 'react';
+import { Range, Editor, Element, Text, Location } from 'slate';
 import { TextDelta } from '$app/interfaces/document';
 import { useTextInput } from '../_shared/TextInput.hooks';
 import { useAppDispatch } from '@/appflowy_app/stores/store';
@@ -10,65 +10,58 @@ import {
   indentNodeThunk,
   splitNodeThunk,
 } from '@/appflowy_app/stores/reducers/document/async_actions';
-import { TextSelection } from '@/appflowy_app/stores/reducers/document/slice';
 
-export function useTextBlock(id: string, delta: TextDelta[]) {
-  const { editor, onSelectionChange } = useTextInput(id, delta);
-  const [value, setValue] = useState<Descendant[]>([]);
+export function useTextBlock(id: string) {
+  const { editor, onChange, value } = useTextInput(id);
   const { onTab, onBackSpace, onEnter } = useActions(id);
-  const onChange = useCallback(
-    (e: Descendant[]) => {
-      setValue(e);
-      editor.operations.forEach((op) => {
-        if (op.type === 'set_selection') {
-          onSelectionChange(op.newProperties as TextSelection);
+
+  const onKeyDownCapture = useCallback(
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
+      switch (event.key) {
+        case 'Enter': {
+          if (!editor.selection) return;
+          event.stopPropagation();
+          event.preventDefault();
+          const retainRange = getRetainRangeBy(editor);
+          const retain = getDelta(editor, retainRange);
+          const insertRange = getInsertRangeBy(editor);
+          const insert = getDelta(editor, insertRange);
+          void (async () => {
+            await onEnter(retain, insert);
+          })();
+          return;
         }
-      });
-    },
-    [editor]
-  );
-
-  const onKeyDownCapture = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    switch (event.key) {
-      case 'Enter': {
-        if (!editor.selection) return;
-        event.stopPropagation();
-        event.preventDefault();
-        const retainRange = getRetainRangeBy(editor);
-        const retain = getDelta(editor, retainRange);
-        const insertRange = getInsertRangeBy(editor);
-        const insert = getDelta(editor, insertRange);
-        void (async () => {
-          await onEnter(retain, insert);
-        })();
-        return;
-      }
-      case 'Backspace': {
-        if (!editor.selection) return;
-
-        const { anchor } = editor.selection;
-        const isCollapsed = Range.isCollapsed(editor.selection);
-        if (isCollapsed && anchor.offset === 0 && anchor.path.toString() === '0,0') {
+        case 'Backspace': {
+          if (!editor.selection) {
+            event.stopPropagation();
+            event.preventDefault();
+            return;
+          }
+          const { anchor } = editor.selection;
+          const isCollapsed = Range.isCollapsed(editor.selection);
+          if (isCollapsed && anchor.offset === 0 && anchor.path.toString() === '0,0') {
+            event.stopPropagation();
+            event.preventDefault();
+            void (async () => {
+              await onBackSpace();
+            })();
+          }
+          return;
+        }
+        case 'Tab': {
           event.stopPropagation();
           event.preventDefault();
           void (async () => {
-            await onBackSpace();
+            await onTab();
           })();
-        }
-        return;
-      }
-      case 'Tab': {
-        event.stopPropagation();
-        event.preventDefault();
-        void (async () => {
-          await onTab();
-        })();
 
-        return;
+          return;
+        }
       }
-    }
-    triggerHotkey(event, editor);
-  };
+      triggerHotkey(event, editor);
+    },
+    [editor, onEnter, onBackSpace, onTab]
+  );
 
   const onDOMBeforeInput = useCallback((e: InputEvent) => {
     // COMPAT: in Apple, `compositionend` is dispatched after the `beforeinput` for "insertFromComposition".

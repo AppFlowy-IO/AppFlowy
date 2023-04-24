@@ -3,6 +3,7 @@ import { DocumentController } from '$app/stores/effects/document/document_contro
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { documentActions, DocumentState } from '../slice';
 import { generateId } from '@/appflowy_app/utils/block';
+import { setCursorAfterThunk } from './set_cursor';
 export const insertAfterNodeThunk = createAsyncThunk(
   'document/insertAfterNode',
   async (payload: { id: string; controller: DocumentController }, thunkAPI) => {
@@ -37,5 +38,6 @@ export const insertAfterNodeThunk = createAsyncThunk(
         prevId: node.id,
       })
     );
+    await dispatch(setCursorAfterThunk({ id: newNode.id }));
   }
 );

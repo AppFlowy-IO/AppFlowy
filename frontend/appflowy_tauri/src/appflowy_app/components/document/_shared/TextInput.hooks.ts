@@ -1,122 +1,72 @@
-import { useCallback, useContext, useMemo, useRef, useEffect } from 'react';
+import { useCallback, useContext, useMemo, useRef, useEffect, useState } from 'react';
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { TextDelta } from '$app/interfaces/document';
-import { debounce } from '@/appflowy_app/utils/tool';
 import { NodeContext } from './SubscribeNode.hooks';
-import { BlockActionTypePB } from '@/services/backend/models/flowy-document2';
 import { useAppDispatch, useAppSelector } from '@/appflowy_app/stores/store';
-import { documentActions, TextSelection } from '@/appflowy_app/stores/reducers/document/slice';
 
-import { createEditor, Transforms } from 'slate';
+import { createEditor, Descendant, Transforms } from 'slate';
 import { withReact, ReactEditor } from 'slate-react';
 
 import * as Y from 'yjs';
 import { withYjs, YjsEditor, slateNodesToInsertDelta } from '@slate-yjs/core';
+import { updateNodeDeltaThunk } from '@/appflowy_app/stores/reducers/document/async_actions/update';
+import { documentActions, TextSelection } from '@/appflowy_app/stores/reducers/document/slice';
+import { deltaToSlateValue, getDeltaFromSlateNodes } from '@/appflowy_app/utils/block';
 
-export function useTextInput(id: string, delta: TextDelta[]) {
-  const { sendDelta } = useTransact();
-  const { editor, yText } = useBindYjs(delta, sendDelta);
+export function useTextInput(id: string) {
   const dispatch = useAppDispatch();
+  const node = useContext(NodeContext);
+  const delta = useMemo(() => {
+    if (!node || !('delta' in node.data)) {
+      return [];
+    }
+    return node.data.delta;
+  }, [node?.data]);
+
+  const { editor, yText } = useBindYjs(id, delta);
+
+  useEffect(() => {
+    return () => {
+      dispatch(documentActions.removeTextSelection(id));
+    };
+  }, [id]);
+
+  const [value, setValue] = useState<Descendant[]>([]);
+
+  const onChange = useCallback(
+    (e: Descendant[]) => {
+      setValue(e);
+      if (!editor.selection || !editor.selection.anchor || !editor.selection.focus) return;
+      const { anchor, focus } = editor.selection;
+      const selection = { anchor, focus } as TextSelection;
+      dispatch(documentActions.setTextSelection({ blockId: id, selection }));
+    },
+    [editor, dispatch, id]
+  );
+
   const currentSelection = useAppSelector((state) => state.document.textSelections[id]);
 
   useEffect(() => {
-    if (!currentSelection || !currentSelection.anchor || !currentSelection.focus) return;
-    ReactEditor.focus(editor);
-    Transforms.select(editor, currentSelection);
-  }, [currentSelection, editor]);
-
-  const onSelectionChange = useCallback(
-    (selection?: TextSelection) => {
-      dispatch(
-        documentActions.setTextSelection({
-          blockId: id,
-          selection,
-        })
-      );
-    },
-    [id]
-  );
+    setSelection(editor, currentSelection);
+  }, [editor, currentSelection]);
 
   return {
     editor,
     yText,
-    onSelectionChange,
+    onChange,
+    value,
   };
 }
-
-function useController() {
-  const docController = useContext(DocumentControllerContext);
-  const node = useContext(NodeContext);
-  const dispatch = useAppDispatch();
-
-  const update = useCallback(
-    async (delta: TextDelta[]) => {
-      if (!docController || !node) return;
-      await docController.applyActions([
-        {
-          action: BlockActionTypePB.Update,
-          payload: {
-            block: {
-              id: node.id,
-              ty: node.type,
-              parent_id: node.parent || '',
-              children_id: node.children,
-              data: JSON.stringify({
-                ...node.data,
-                delta,
-              }),
-            },
-          },
-        },
-      ]);
-      dispatch(
-        documentActions.setBlockMap({
-          ...node,
-          data: {
-            delta,
-          },
-        })
-      );
-    },
-    [docController, node]
-  );
-
-  return {
-    update,
-  };
-}
-
-function useTransact() {
-  const { update } = useController();
-
-  const sendDelta = useCallback(
-    (delta: TextDelta[]) => {
-      void update(delta);
-    },
-    [update]
-  );
-  const debounceSendDelta = useMemo(() => debounce(sendDelta, 300), [sendDelta]);
-
-  return {
-    sendDelta: debounceSendDelta,
-  };
-}
-
-const initialValue = [
-  {
-    type: 'paragraph',
-    children: [{ text: '' }],
-  },
-];
-
-function useBindYjs(delta: TextDelta[], update: (_delta: TextDelta[]) => void) {
+function useBindYjs(id: string, delta: TextDelta[]) {
+  const { sendDelta } = useController(id);
   const yTextRef = useRef<Y.XmlText>();
+
   // Create a yjs document and get the shared type
   const sharedType = useMemo(() => {
     const doc = new Y.Doc();
     const _sharedType = doc.get('content', Y.XmlText) as Y.XmlText;
 
-    const insertDelta = slateNodesToInsertDelta(initialValue);
+    const insertDelta = slateNodesToInsertDelta(deltaToSlateValue(delta));
     // Load the initial value into the yjs document
     _sharedType.applyDelta(insertDelta);
 
@@ -141,18 +91,73 @@ function useBindYjs(delta: TextDelta[], update: (_delta: TextDelta[]) => void) {
     if (!yText) return;
     const textEventHandler = (event: Y.YTextEvent) => {
       const textDelta = event.target.toDelta();
-      update(textDelta);
+      void sendDelta(textDelta);
     };
-    if (JSON.stringify(yText.toDelta()) !== JSON.stringify(delta)) {
-      yText.delete(0, yText.length);
-      yText.applyDelta(delta);
-    }
+
     yText.observe(textEventHandler);
 
     return () => {
       yText.unobserve(textEventHandler);
     };
-  }, [delta]);
+  }, [sendDelta]);
+
+  const currentSelection = useAppSelector((state) => state.document.textSelections[id]);
+
+  useEffect(() => {
+    const yText = yTextRef.current;
+    if (!yText) return;
+
+    if (JSON.stringify(yText.toDelta()) !== JSON.stringify(delta)) {
+      yText.delete(0, yText.length);
+      yText.applyDelta(delta);
+      setSelection(editor, currentSelection);
+    }
+  }, [delta, currentSelection, editor]);
 
   return { editor, yText: yTextRef.current };
+}
+
+function useController(id: string) {
+  const docController = useContext(DocumentControllerContext);
+  const dispatch = useAppDispatch();
+
+  const sendDelta = useCallback(
+    async (delta: TextDelta[]) => {
+      if (!docController) return;
+      await dispatch(
+        updateNodeDeltaThunk({
+          id,
+          delta,
+          controller: docController,
+        })
+      );
+    },
+    [docController, id]
+  );
+
+  return {
+    sendDelta,
+  };
+}
+
+function setSelection(editor: ReactEditor, currentSelection: TextSelection) {
+  if (!currentSelection || !currentSelection.anchor || !currentSelection.focus) {
+    ReactEditor.blur(editor);
+    ReactEditor.deselect(editor);
+    return;
+  }
+
+  if (JSON.stringify(currentSelection) === JSON.stringify(editor.selection)) {
+    return;
+  }
+
+  const { path, offset } = currentSelection.focus;
+  // out of range
+  const children = getDeltaFromSlateNodes(editor.children);
+  if (children[path[1]].insert.length < offset) {
+    return;
+  }
+
+  Transforms.select(editor, currentSelection);
+  ReactEditor.focus(editor);
 }

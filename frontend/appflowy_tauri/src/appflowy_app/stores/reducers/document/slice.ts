@@ -114,13 +114,21 @@ export const documentSlice = createSlice({
       }>
     ) => {
       const { blockId, selection } = action.payload;
-      if (!selection) {
+      const node = state.nodes[blockId];
+      if (!node || !selection) {
         delete state.textSelections[blockId];
       } else {
         state.textSelections = {
           [blockId]: selection,
         };
       }
+    },
+
+    // remove text selections
+    removeTextSelection: (state, action: PayloadAction<string>) => {
+      const id = action.payload;
+      if (!state.textSelections[id]) return;
+      state.textSelections;
     },
 
     // update block

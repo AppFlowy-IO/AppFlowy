@@ -138,8 +138,8 @@ impl From<DeltaType> for DeltaTypePB {
   }
 }
 
-impl DocEventPB {
-  pub(crate) fn get_from(events: &Vec<BlockEvent>, is_remote: bool) -> Self {
+impl From<(&Vec<BlockEvent>, bool)> for DocEventPB {
+  fn from((events, is_remote): (&Vec<BlockEvent>, bool)) -> Self {
     Self {
       events: events.iter().map(|e| e.to_owned().into()).collect(),
       is_remote,
