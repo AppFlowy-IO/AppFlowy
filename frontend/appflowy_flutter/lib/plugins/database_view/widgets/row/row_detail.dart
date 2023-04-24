@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/database_view/application/field/type_option/typ
 import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -14,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 
+import '../../application/row/row_service.dart';
 import '../../grid/presentation/layout/sizes.dart';
 import 'accessory/cell_accessory.dart';
 import 'cell_builder.dart';
@@ -43,68 +45,44 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
 }
 
 class _RowDetailPageState extends State<RowDetailPage> {
-  final padding = const EdgeInsets.symmetric(
-    horizontal: 40,
-    vertical: 20,
-  );
-
   @override
   Widget build(BuildContext context) {
     return FlowyDialog(
       child: BlocProvider(
         create: (context) {
-          final bloc = RowDetailBloc(
-            dataController: widget.dataController,
-          );
-          bloc.add(const RowDetailEvent.initial());
-          return bloc;
+          return RowDetailBloc(dataController: widget.dataController)
+            ..add(const RowDetailEvent.initial());
         },
-        child: Padding(
-          padding: padding,
-          child: Column(
-            children: [
-              const _Header(),
-              Expanded(
-                child: _PropertyColumn(
-                  cellBuilder: widget.cellBuilder,
-                  viewId: widget.dataController.viewId,
-                ),
+        child: ListView(
+          children: [
+            // const SizedBox(height: 100),
+            // const Divider(height: 1.0),
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    flex: 4,
+                    child: _PropertyColumn(
+                      cellBuilder: widget.cellBuilder,
+                      viewId: widget.dataController.viewId,
+                    ),
+                  ),
+                  const VerticalDivider(width: 1.0),
+                  Flexible(
+                    child: _RowOptionColumn(
+                      viewId: widget.dataController.viewId,
+                      rowId: widget.dataController.rowId,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            const Divider(height: 1.0),
+            const SizedBox(height: 200)
+          ],
         ),
-      ),
-    );
-  }
-}
-
-class _Header extends StatelessWidget {
-  const _Header({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 30,
-      child: Row(
-        children: const [Spacer(), _CloseButton()],
-      ),
-    );
-  }
-}
-
-class _CloseButton extends StatelessWidget {
-  const _CloseButton({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return FlowyIconButton(
-      hoverColor: AFThemeExtension.of(context).lightGreyHover,
-      width: 24,
-      onPressed: () => FlowyOverlay.pop(context),
-      iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
-      icon: svgWidget(
-        "home/close",
-        color: Theme.of(context).iconTheme.color,
       ),
     );
   }
@@ -113,77 +91,54 @@ class _CloseButton extends StatelessWidget {
 class _PropertyColumn extends StatelessWidget {
   final String viewId;
   final GridCellBuilder cellBuilder;
-  final ScrollController _scrollController;
-  _PropertyColumn({
+  const _PropertyColumn({
     required this.viewId,
     required this.cellBuilder,
     Key? key,
-  })  : _scrollController = ScrollController(),
-        super(key: key);
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<RowDetailBloc, RowDetailState>(
       buildWhen: (previous, current) => previous.gridCells != current.gridCells,
       builder: (context, state) {
-        return Column(
-          children: [
-            Expanded(child: _wrapScrollbar(buildPropertyCells(state))),
-            const VSpace(10),
-            _CreatePropertyButton(
-              viewId: viewId,
-              onClosed: _scrollToNewProperty,
-            ),
-          ],
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(50, 50, 50, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // const FlowyText.semibold(
+              //   "Row Title",
+              //   fontSize: 20,
+              // ),
+              // const VSpace(20),
+              ...state.gridCells
+                  .map(
+                    (cell) => Padding(
+                      padding: const EdgeInsets.only(bottom: 4.0),
+                      child: _PropertyCell(
+                        cellId: cell,
+                        cellBuilder: cellBuilder,
+                      ),
+                    ),
+                  )
+                  .toList(),
+              const VSpace(20),
+              _CreatePropertyButton(viewId: viewId),
+            ],
+          ),
         );
       },
     );
-  }
-
-  Widget buildPropertyCells(RowDetailState state) {
-    return ListView.separated(
-      controller: _scrollController,
-      itemCount: state.gridCells.length,
-      itemBuilder: (BuildContext context, int index) {
-        return _PropertyCell(
-          cellId: state.gridCells[index],
-          cellBuilder: cellBuilder,
-        );
-      },
-      separatorBuilder: (BuildContext context, int index) {
-        return const VSpace(2);
-      },
-    );
-  }
-
-  Widget _wrapScrollbar(Widget child) {
-    return ScrollbarListStack(
-      axis: Axis.vertical,
-      controller: _scrollController,
-      barSize: GridSize.scrollBarSize,
-      autoHideScrollbar: false,
-      child: child,
-    );
-  }
-
-  void _scrollToNewProperty() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.ease,
-      );
-    });
   }
 }
 
 class _CreatePropertyButton extends StatefulWidget {
   final String viewId;
-  final VoidCallback onClosed;
 
   const _CreatePropertyButton({
     required this.viewId,
-    required this.onClosed,
     Key? key,
   }) : super(key: key);
 
@@ -207,10 +162,8 @@ class _CreatePropertyButtonState extends State<_CreatePropertyButton> {
       controller: popoverController,
       direction: PopoverDirection.topWithLeftAligned,
       margin: EdgeInsets.zero,
-      onClose: widget.onClosed,
-      child: Container(
+      child: SizedBox(
         height: 40,
-        decoration: _makeBoxDecoration(context),
         child: FlowyButton(
           text: FlowyText.medium(
             LocaleKeys.grid_field_newProperty.tr(),
@@ -242,14 +195,6 @@ class _CreatePropertyButtonState extends State<_CreatePropertyButton> {
           },
         );
       },
-    );
-  }
-
-  BoxDecoration _makeBoxDecoration(BuildContext context) {
-    final borderSide =
-        BorderSide(color: Theme.of(context).dividerColor, width: 1.0);
-    return BoxDecoration(
-      border: Border(top: borderSide),
     );
   }
 }
@@ -376,4 +321,48 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
       );
   }
   throw UnimplementedError;
+}
+
+class _RowOptionColumn extends StatelessWidget {
+  final RowBackendService _rowBackendService;
+  final String rowId;
+
+  _RowOptionColumn({required String viewId, required this.rowId, Key? key})
+      : _rowBackendService = RowBackendService(viewId: viewId),
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 10),
+            child: FlowyText(LocaleKeys.grid_row_action.tr()),
+          ),
+          const VSpace(15),
+          SizedBox(
+            height: GridSize.popoverItemHeight,
+            child: FlowyButton(
+              text: FlowyText.regular(LocaleKeys.grid_field_delete.tr()),
+              leftIcon: const FlowySvg(name: "home/trash"),
+              onTap: () async {
+                final result = await _rowBackendService.deleteRow(rowId);
+                result.fold(
+                  (l) => null,
+                  (err) => Log.error(err),
+                );
+                if (context.mounted) {
+                  FlowyOverlay.pop(context);
+                }
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
