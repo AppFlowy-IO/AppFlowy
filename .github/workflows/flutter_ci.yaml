@@ -7,6 +7,7 @@ on:
       - "release/*"
     paths:
       - "frontend/**"
+      - "!frontend/appflowy_tauri/**"
 
   pull_request:
     branches:
@@ -14,6 +15,7 @@ on:
       - "release/*"
     paths:
       - "frontend/**"
+      - "!frontend/appflowy_tauri/**"
 
 env:
   FLUTTER_VERSION: "3.7.5"
