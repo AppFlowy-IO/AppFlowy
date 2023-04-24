@@ -23,6 +23,11 @@ args[1]: The appflowy version to be built (github ref_name).
   assert(await repositoryRoot.exists(),
       '$repositoryRoot is an invalid directory. Please try again with a valid directory.\n\n$help');
   final appVersion = args[1];
-  await _BuildTool(repositoryRoot: repositoryRoot.path, appVersion: appVersion)
-      .run();
+  String? arch;
+  if (args.length > 2) arch = args[2];
+  await _BuildTool(
+    repositoryRoot: repositoryRoot.path,
+    appVersion: appVersion,
+    arch: arch,
+  ).run();
 }
