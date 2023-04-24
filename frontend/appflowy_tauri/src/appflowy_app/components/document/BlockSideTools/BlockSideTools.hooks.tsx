@@ -1,16 +1,14 @@
 import { BlockType, HeadingBlockData } from '@/appflowy_app/interfaces/document';
 import { useAppSelector } from '@/appflowy_app/stores/store';
 import { debounce } from '@/appflowy_app/utils/tool';
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
-import { Node } from '@/appflowy_app/stores/reducers/document/slice';
-import { v4 } from 'uuid';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export function useBlockSideTools({ container }: { container: HTMLDivElement }) {
   const [nodeId, setHoverNodeId] = useState<string>('');
+  const [menuOpen, setMenuOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
   const nodes = useAppSelector((state) => state.document.nodes);
-  const { insertAfter } = useController();
+  const nodesRef = useRef(nodes);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     const { clientX, clientY } = e;
@@ -20,7 +18,7 @@ export function useBlockSideTools({ container }: { container: HTMLDivElement }) 
     if (!id) {
       setHoverNodeId('');
     } else {
-      if ([BlockType.ColumnBlock].includes(nodes[id].type)) {
+      if ([BlockType.ColumnBlock].includes(nodesRef.current[id].type)) {
         setHoverNodeId('');
         return;
       }
@@ -34,13 +32,13 @@ export function useBlockSideTools({ container }: { container: HTMLDivElement }) 
     const el = ref.current;
     if (!el || !nodeId) return;
 
-    const node = nodes[nodeId];
+    const node = nodesRef.current[nodeId];
     if (!node) {
       el.style.opacity = '0';
-      el.style.zIndex = '-1';
+      el.style.pointerEvents = 'none';
     } else {
       el.style.opacity = '1';
-      el.style.zIndex = '1';
+      el.style.pointerEvents = 'auto';
       el.style.top = '1px';
       if (node?.type === BlockType.HeadingBlock) {
         const nodeData = node.data as HeadingBlockData;
@@ -53,12 +51,14 @@ export function useBlockSideTools({ container }: { container: HTMLDivElement }) 
         }
       }
     }
-  }, [nodeId, nodes]);
+  }, [nodeId]);
 
-  const handleAddClick = useCallback(() => {
-    if (!nodeId) return;
-    insertAfter(nodes[nodeId]);
-  }, [nodeId, nodes]);
+  const handleToggleMenu = useCallback((isOpen: boolean) => {
+    setMenuOpen(isOpen);
+    if (!isOpen) {
+      setHoverNodeId('');
+    }
+  }, []);
 
   useEffect(() => {
     container.addEventListener('mousemove', debounceMove);
@@ -67,25 +67,15 @@ export function useBlockSideTools({ container }: { container: HTMLDivElement }) 
     };
   }, [debounceMove]);
 
+  useEffect(() => {
+    nodesRef.current = nodes;
+  }, [nodes]);
+
   return {
     nodeId,
     ref,
-    handleAddClick,
-  };
-}
-
-function useController() {
-  const controller = useContext(DocumentControllerContext);
-
-  const insertAfter = useCallback((node: Node) => {
-    const parentId = node.parent;
-    if (!parentId || !controller) return;
-
-    //
-  }, []);
-
-  return {
-    insertAfter,
+    handleToggleMenu,
+    menuOpen,
   };
 }
 

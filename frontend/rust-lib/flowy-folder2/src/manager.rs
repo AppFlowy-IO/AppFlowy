@@ -132,7 +132,6 @@ impl Folder2Manager {
   /// Called when the current user logout
   ///
   pub async fn clear(&self, _user_id: i64) {
-    todo!()
   }
 
   pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> FlowyResult<Workspace> {

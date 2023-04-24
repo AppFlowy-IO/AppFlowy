@@ -118,14 +118,16 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
       layoutType: ViewLayoutPB.Document,
     });
     try {
-      await new DocumentController(newView.id).create();
+      const c = new DocumentController(newView.id);
+      await c.create();
+      await c.dispose();
       appDispatch(
-          pagesActions.addPage({
-            folderId: folder.id,
-            pageType: ViewLayoutPB.Document,
-            title: newView.name,
-            id: newView.id,
-          })
+        pagesActions.addPage({
+          folderId: folder.id,
+          pageType: ViewLayoutPB.Document,
+          title: newView.name,
+          id: newView.id,
+        })
       );
 
       setShowPages(true);
@@ -134,7 +136,6 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
     } catch (e) {
       console.error(e);
     }
-
   };
 
   const onAddNewBoardPage = async () => {

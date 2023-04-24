@@ -1,27 +1,53 @@
 import { useCallback, useContext, useMemo, useRef, useEffect } from 'react';
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
-import { TextDelta, BlockActionType } from '$app/interfaces/document';
+import { TextDelta } from '$app/interfaces/document';
 import { debounce } from '@/appflowy_app/utils/tool';
-import { createEditor } from 'slate';
-import { withReact } from 'slate-react';
+import { NodeContext } from './SubscribeNode.hooks';
+import { BlockActionTypePB } from '@/services/backend/models/flowy-document2';
+import { useAppDispatch, useAppSelector } from '@/appflowy_app/stores/store';
+import { documentActions, TextSelection } from '@/appflowy_app/stores/reducers/document/slice';
+
+import { createEditor, Transforms } from 'slate';
+import { withReact, ReactEditor } from 'slate-react';
 
 import * as Y from 'yjs';
 import { withYjs, YjsEditor, slateNodesToInsertDelta } from '@slate-yjs/core';
-import { NodeContext } from './SubscribeNode.hooks';
-import { BlockActionTypePB } from '@/services/backend/models/flowy-document2';
 
-export function useTextInput(delta: TextDelta[]) {
+export function useTextInput(id: string, delta: TextDelta[]) {
   const { sendDelta } = useTransact();
-  const { editor } = useBindYjs(delta, sendDelta);
+  const { editor, yText } = useBindYjs(delta, sendDelta);
+  const dispatch = useAppDispatch();
+  const currentSelection = useAppSelector((state) => state.document.textSelections[id]);
+
+  useEffect(() => {
+    if (!currentSelection || !currentSelection.anchor || !currentSelection.focus) return;
+    ReactEditor.focus(editor);
+    Transforms.select(editor, currentSelection);
+  }, [currentSelection, editor]);
+
+  const onSelectionChange = useCallback(
+    (selection?: TextSelection) => {
+      dispatch(
+        documentActions.setTextSelection({
+          blockId: id,
+          selection,
+        })
+      );
+    },
+    [id]
+  );
 
   return {
     editor,
+    yText,
+    onSelectionChange,
   };
 }
 
 function useController() {
   const docController = useContext(DocumentControllerContext);
   const node = useContext(NodeContext);
+  const dispatch = useAppDispatch();
 
   const update = useCallback(
     async (delta: TextDelta[]) => {
@@ -43,6 +69,14 @@ function useController() {
           },
         },
       ]);
+      dispatch(
+        documentActions.setBlockMap({
+          ...node,
+          data: {
+            delta,
+          },
+        })
+      );
     },
     [docController, node]
   );
@@ -105,12 +139,14 @@ function useBindYjs(delta: TextDelta[], update: (_delta: TextDelta[]) => void) {
   useEffect(() => {
     const yText = yTextRef.current;
     if (!yText) return;
-
     const textEventHandler = (event: Y.YTextEvent) => {
       const textDelta = event.target.toDelta();
       update(textDelta);
     };
-    yText.applyDelta(delta);
+    if (JSON.stringify(yText.toDelta()) !== JSON.stringify(delta)) {
+      yText.delete(0, yText.length);
+      yText.applyDelta(delta);
+    }
     yText.observe(textEventHandler);
 
     return () => {
@@ -118,5 +154,5 @@ function useBindYjs(delta: TextDelta[], update: (_delta: TextDelta[]) => void) {
     };
   }, [delta]);
 
-  return { editor };
+  return { editor, yText: yTextRef.current };
 }

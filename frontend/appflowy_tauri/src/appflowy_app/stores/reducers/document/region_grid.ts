@@ -55,7 +55,7 @@ export class RegionGrid {
   }
   
   removeBlock(blockId: string) {
-    for (const rows of this.regions) {
+    for (const rows of this.regions.filter(r => r)) {
       for (const region of rows) {
         if (!region) return;
         const blockIndex = region.blocks.findIndex(b => b.id === blockId);

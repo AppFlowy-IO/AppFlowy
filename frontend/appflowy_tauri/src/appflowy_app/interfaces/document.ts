@@ -47,5 +47,13 @@ export enum BlockActionType {
   Insert = 0,
   Update = 1,
   Delete = 2,
-  Move = 3
+  Move = 3,
+}
+
+export interface DeltaItem {
+  action: 'inserted' | 'removed' | 'updated';
+  payload: {
+    id: string;
+    value?: NestedBlock | string[];
+  };
 }

@@ -1,31 +1,51 @@
 import { BlockType, NestedBlock, TextDelta } from '@/appflowy_app/interfaces/document';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { nanoid } from 'nanoid';
+import { DocumentController } from '../../effects/document/document_controller';
 import { RegionGrid } from './region_grid';
 
 export type Node = NestedBlock;
 
-export interface NodeState {
+export interface SelectionPoint {
+  path: [number, number];
+  offset: number;
+}
+
+export interface TextSelection {
+  anchor: SelectionPoint;
+  focus: SelectionPoint;
+}
+
+export interface DocumentState {
+  // map of block id to block
   nodes: Record<string, Node>;
+  // map of block id to children block ids
   children: Record<string, string[]>;
+  // selected block ids
   selections: string[];
+  // map of block id to text selection
+  textSelections: Record<string, TextSelection>;
 }
 
 const regionGrid = new RegionGrid(50);
 
-const initialState: NodeState = {
+const initialState: DocumentState = {
   nodes: {},
   children: {},
   selections: [],
+  textSelections: {},
 };
 
 export const documentSlice = createSlice({
   name: 'document',
   initialState: initialState,
   reducers: {
+    // initialize the document
     clear: () => {
       return initialState;
     },
 
+    // set document data
     create: (
       state,
       action: PayloadAction<{
@@ -38,10 +58,18 @@ export const documentSlice = createSlice({
       state.children = children;
     },
 
+    // update block selections
     updateSelections: (state, action: PayloadAction<string[]>) => {
       state.selections = action.payload;
     },
 
+    // set block selected
+    setSelectionById: (state, action: PayloadAction<string>) => {
+      const id = action.payload;
+      state.selections = [id];
+    },
+
+    // set block selected by selection rect
     setSelectionByRect: (
       state,
       action: PayloadAction<{
@@ -56,6 +84,7 @@ export const documentSlice = createSlice({
       state.selections = blocks.map((block) => block.id);
     },
 
+    // update block position
     updateNodePosition: (
       state,
       action: PayloadAction<{
@@ -76,50 +105,85 @@ export const documentSlice = createSlice({
       regionGrid.updateBlock(id, position);
     },
 
-    addNode: (state, action: PayloadAction<Node>) => {
-      state.nodes[action.payload.id] = action.payload;
-    },
-
-    addChild: (state, action: PayloadAction<{ parentId: string; childId: string; prevId: string }>) => {
-      const { parentId, childId, prevId } = action.payload;
-      const parentChildrenId = state.nodes[parentId].children;
-      const children = state.children[parentChildrenId];
-      const prevIndex = children.indexOf(prevId);
-      if (prevIndex === -1) {
-        children.push(childId);
+    // update text selections
+    setTextSelection: (
+      state,
+      action: PayloadAction<{
+        blockId: string;
+        selection?: TextSelection;
+      }>
+    ) => {
+      const { blockId, selection } = action.payload;
+      if (!selection) {
+        delete state.textSelections[blockId];
       } else {
-        children.splice(prevIndex + 1, 0, childId);
+        state.textSelections = {
+          [blockId]: selection,
+        };
       }
     },
 
-    updateChildren: (state, action: PayloadAction<{ id: string; childIds: string[] }>) => {
+    // update block
+    setBlockMap: (state, action: PayloadAction<Node>) => {
+      state.nodes[action.payload.id] = action.payload;
+    },
+
+    // remove block
+    removeBlockMapKey(state, action: PayloadAction<string>) {
+      if (!state.nodes[action.payload]) return;
+      const { id } = state.nodes[action.payload];
+      regionGrid.removeBlock(id);
+      delete state.nodes[id];
+    },
+
+    // set block's relationship with its children
+    setChildrenMap: (state, action: PayloadAction<{ id: string; childIds: string[] }>) => {
       const { id, childIds } = action.payload;
       state.children[id] = childIds;
     },
 
-    updateNode: (state, action: PayloadAction<{ id: string; data: any }>) => {
-      state.nodes[action.payload.id] = {
-        ...state.nodes[action.payload.id],
-        ...action.payload,
-      };
+    // remove block's relationship with its children
+    removeChildrenMapKey(state, action: PayloadAction<string>) {
+      if (state.children[action.payload]) {
+        delete state.children[action.payload];
+      }
     },
 
-    removeNode: (state, action: PayloadAction<string>) => {
-      const { children, data, parent } = state.nodes[action.payload];
-      // remove from parent
-      if (parent) {
-        const index = state.children[state.nodes[parent].children].indexOf(action.payload);
-        if (index > -1) {
-          state.children[state.nodes[parent].children].splice(index, 1);
-        }
-      }
-      // remove children
-      if (children) {
-        delete state.children[children];
-      }
+    // set block's relationship with its parent
+    insertChild: (state, action: PayloadAction<{ id: string; childId: string; prevId: string | null }>) => {
+      const { id, childId, prevId } = action.payload;
+      const parent = state.nodes[id];
+      const children = state.children[parent.children];
+      const index = prevId ? children.indexOf(prevId) + 1 : 0;
+      children.splice(index, 0, childId);
+    },
 
-      // remove node
-      delete state.nodes[action.payload];
+    // remove block's relationship with its parent
+    deleteChild: (state, action: PayloadAction<{ id: string; childId: string }>) => {
+      const { id, childId } = action.payload;
+      const parent = state.nodes[id];
+      const children = state.children[parent.children];
+      const index = children.indexOf(childId);
+      children.splice(index, 1);
+    },
+
+    // move block to another parent
+    moveNode: (state, action: PayloadAction<{ id: string; newParentId: string; newPrevId: string | null }>) => {
+      const { id, newParentId, newPrevId } = action.payload;
+      const newParent = state.nodes[newParentId];
+      const oldParentId = state.nodes[id].parent;
+      if (!oldParentId) return;
+      const oldParent = state.nodes[oldParentId];
+
+      state.nodes[id] = {
+        ...state.nodes[id],
+        parent: newParentId,
+      };
+      const index = state.children[oldParent.children].indexOf(id);
+      state.children[oldParent.children].splice(index, 1);
+
+      const newIndex = newPrevId ? state.children[newParent.children].indexOf(newPrevId) + 1 : 0;
+      state.children[newParent.children].splice(newIndex, 0, id);
     },
   },
 });

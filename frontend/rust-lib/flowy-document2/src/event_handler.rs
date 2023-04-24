@@ -4,14 +4,15 @@ use crate::{
   document::DocumentDataWrapper,
   entities::{
     ApplyActionPayloadPBV2, BlockActionPB, BlockActionPayloadPB, BlockActionTypePB, BlockEventPB,
-    BlockPB, CloseDocumentPayloadPBV2, CreateDocumentPayloadPBV2, DocumentDataPB2,
-    OpenDocumentPayloadPBV2,
+    BlockEventPayloadPB, BlockPB, CloseDocumentPayloadPBV2, CreateDocumentPayloadPBV2, DeltaTypePB,
+    DocEventPB, DocumentDataPB2, OpenDocumentPayloadPBV2,
   },
   manager::DocumentManager,
 };
 
 use collab_document::blocks::{
   json_str_to_hashmap, Block, BlockAction, BlockActionPayload, BlockActionType, BlockEvent,
+  BlockEventPayload, DeltaType,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -109,15 +110,39 @@ impl From<BlockPB> for Block {
 }
 
 impl From<BlockEvent> for BlockEventPB {
-  fn from(_block_event: BlockEvent) -> Self {
-    // let delta = serde_json::to_value(&block_event.delta).unwrap();
-    // Self {
-    //   path: block_event.path.into(),
-    //   delta: delta.to_string(),
-    // }
+  fn from(payload: BlockEvent) -> Self {
     Self {
-      path: vec![],
-      delta: "".to_string(),
+      event: payload.iter().map(|e| e.to_owned().into()).collect(),
+    }
+  }
+}
+
+impl From<BlockEventPayload> for BlockEventPayloadPB {
+  fn from(payload: BlockEventPayload) -> Self {
+    Self {
+      command: payload.command.into(),
+      path: payload.path,
+      id: payload.id,
+      value: payload.value,
+    }
+  }
+}
+
+impl From<DeltaType> for DeltaTypePB {
+  fn from(action: DeltaType) -> Self {
+    match action {
+      DeltaType::Inserted => Self::Inserted,
+      DeltaType::Updated => Self::Updated,
+      DeltaType::Removed => Self::Removed,
+    }
+  }
+}
+
+impl DocEventPB {
+  pub(crate) fn get_from(events: &Vec<BlockEvent>, is_remote: bool) -> Self {
+    Self {
+      events: events.iter().map(|e| e.to_owned().into()).collect(),
+      is_remote,
     }
   }
 }

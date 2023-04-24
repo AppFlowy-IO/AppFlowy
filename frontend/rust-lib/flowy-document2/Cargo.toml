@@ -25,6 +25,11 @@ strum_macros = "0.21"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = {version = "1.0"}
 tracing = { version = "0.1", features = ["log"] }
+tokio = { version = "1.26", features = ["full"] }
+
+[dev-dependencies]
+tempfile = "3.4.0"
+tracing-subscriber = { version = "0.3.3", features = ["env-filter"] }
 
 [build-dependencies]
 flowy-codegen = { path = "../flowy-codegen"}
@@ -32,3 +37,4 @@ flowy-codegen = { path = "../flowy-codegen"}
 [features]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
 ts = ["flowy-codegen/ts", "flowy-notification/ts"]
+
