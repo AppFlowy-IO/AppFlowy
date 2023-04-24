@@ -15,18 +15,14 @@ class SettingsLanguageView extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-        builder: (context, state) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        builder: (context, state) => Row(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child:
-                      FlowyText.medium(LocaleKeys.settings_menu_language.tr()),
-                ),
-                LanguageSelector(currentLocale: state.locale),
-              ],
+            Expanded(
+              child: FlowyText.medium(
+                LocaleKeys.settings_menu_language.tr(),
+              ),
             ),
+            LanguageSelector(currentLocale: state.locale),
           ],
         ),
       ),
@@ -54,17 +50,36 @@ class LanguageSelector extends StatelessWidget {
       popupBuilder: (BuildContext context) {
         final allLocales = EasyLocalization.of(context)!.supportedLocales;
 
-        return ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 400),
-          child: ListView.builder(
-            itemBuilder: (context, index) {
-              final locale = allLocales[index];
-              return LanguageItem(locale: locale, currentLocale: currentLocale);
-            },
-            itemCount: allLocales.length,
-          ),
+        return LanguageItemsListView(
+          allLocales: allLocales,
+          currentLocale: currentLocale,
         );
       },
+    );
+  }
+}
+
+class LanguageItemsListView extends StatelessWidget {
+  const LanguageItemsListView({
+    super.key,
+    required this.allLocales,
+    required this.currentLocale,
+  });
+
+  final List<Locale> allLocales;
+  final Locale currentLocale;
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxHeight: 400),
+      child: ListView.builder(
+        itemBuilder: (context, index) {
+          final locale = allLocales[index];
+          return LanguageItem(locale: locale, currentLocale: currentLocale);
+        },
+        itemCount: allLocales.length,
+      ),
     );
   }
 }
@@ -88,7 +103,7 @@ class LanguageItem extends StatelessWidget {
         ),
         rightIcon: currentLocale == locale
             ? const FlowySvg(name: 'grid/checkmark')
-            : const SizedBox(),
+            : null,
         onTap: () {
           if (currentLocale != locale) {
             context.read<AppearanceSettingsCubit>().setLocale(context, locale);
