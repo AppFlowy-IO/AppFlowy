@@ -209,9 +209,10 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
     match CreateDatabaseExtParams::from_map(ext) {
       None => {
         let database_manager = self.0.clone();
+        let view_id = view_id.to_string();
         FutureResult::new(async move {
           database_manager
-            .create_database_with_duplicated_data(data)
+            .create_database_with_duplicated_data(&view_id, data)
             .await?;
           Ok(())
         })

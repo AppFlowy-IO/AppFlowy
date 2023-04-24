@@ -130,8 +130,14 @@ impl DatabaseManager2 {
     Ok(database_data)
   }
 
-  pub async fn create_database_with_duplicated_data(&self, data: Vec<u8>) -> FlowyResult<()> {
-    let database_data = DuplicatedDatabase::from_json_bytes(data)?;
+  #[tracing::instrument(level = "trace", skip_all, err)]
+  pub async fn create_database_with_duplicated_data(
+    &self,
+    view_id: &str,
+    data: Vec<u8>,
+  ) -> FlowyResult<()> {
+    let mut database_data = DuplicatedDatabase::from_json_bytes(data)?;
+    database_data.view.id = view_id.to_string();
     self.with_user_database(
       Err(FlowyError::internal().context("Create database with data failed")),
       |database| {
