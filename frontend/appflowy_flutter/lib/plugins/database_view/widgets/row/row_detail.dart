@@ -206,6 +206,7 @@ class _CreatePropertyButtonState extends State<_CreatePropertyButton> {
       constraints: BoxConstraints.loose(const Size(240, 200)),
       controller: popoverController,
       direction: PopoverDirection.topWithLeftAligned,
+      margin: EdgeInsets.zero,
       onClose: widget.onClosed,
       child: Container(
         height: 40,
