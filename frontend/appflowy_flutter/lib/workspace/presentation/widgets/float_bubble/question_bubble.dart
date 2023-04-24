@@ -73,6 +73,11 @@ class BubbleActionList extends StatelessWidget {
                 "https://appflowy.gitbook.io/docs/essential-documentation/shortcuts",
               );
               break;
+            case BubbleAction.markdown:
+              _launchURL(
+                "https://appflowy.gitbook.io/docs/essential-documentation/markdown",
+              );
+              break;
           }
         }
 
@@ -169,7 +174,7 @@ class FlowyVersionDescription extends CustomActionCell {
   }
 }
 
-enum BubbleAction { whatsNews, help, debug, shortcuts }
+enum BubbleAction { whatsNews, help, debug, shortcuts, markdown }
 
 class BubbleActionWrapper extends ActionCell {
   final BubbleAction inner;
@@ -193,19 +198,23 @@ extension QuestionBubbleExtension on BubbleAction {
         return LocaleKeys.questionBubble_debug_name.tr();
       case BubbleAction.shortcuts:
         return LocaleKeys.questionBubble_shortcuts.tr();
+      case BubbleAction.markdown:
+        return LocaleKeys.questionBubble_markdown.tr();
     }
   }
 
   String get emoji {
     switch (this) {
       case BubbleAction.whatsNews:
-        return '⭐️';
+        return '🆕';
       case BubbleAction.help:
         return '👥';
       case BubbleAction.debug:
         return '🐛';
       case BubbleAction.shortcuts:
         return '📋';
+      case BubbleAction.markdown:
+        return '✨';
     }
   }
 }
