@@ -233,7 +233,7 @@ class DateFormatCell extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget? checkmark;
     if (isSelected) {
-      checkmark = svgWidget("grid/checkmark");
+      checkmark = const FlowySvg(name: 'grid/checkmark');
     }
 
     return SizedBox(
@@ -317,7 +317,7 @@ class TimeFormatCell extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget? checkmark;
     if (isSelected) {
-      checkmark = svgWidget("grid/checkmark");
+      checkmark = const FlowySvg(name: 'grid/checkmark');
     }
 
     return SizedBox(
