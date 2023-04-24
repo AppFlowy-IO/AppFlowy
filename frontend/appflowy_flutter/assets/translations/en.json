@@ -74,6 +74,7 @@
     "shortcuts": "Shortcuts",
     "whatsNew": "What's new?",
     "help": "Help & Support",
+    "markdown": "Markdown",
     "debug": {
       "name": "Debug Info",
       "success": "Copied debug info to clipboard!",

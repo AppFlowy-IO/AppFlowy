@@ -21,6 +21,7 @@ const _darkShader3 = Color(0xff363D49);
 const _darkShader5 = Color(0xffBBC3CD);
 const _darkShader6 = Color(0xffF2F2F2);
 const _darkMain1 = Color(0xffA652FB);
+const _darkInput = Color(0xff282E3A);
 
 class LavenderColorScheme extends FlowyColorScheme {
   const LavenderColorScheme.light()
@@ -69,6 +70,7 @@ class LavenderColorScheme extends FlowyColorScheme {
           hoverFG: _lightShader1,
           questionBubbleBG: _lightSelector,
           progressBarBGcolor: _lightTint9,
+          toolbarColor: _lightShader1,
         );
 
   const LavenderColorScheme.dark()
@@ -117,5 +119,6 @@ class LavenderColorScheme extends FlowyColorScheme {
           hoverFG: _darkShader1,
           questionBubbleBG: _darkShader3,
           progressBarBGcolor: _darkShader3,
+          toolbarColor: _darkInput,
         );
 }
