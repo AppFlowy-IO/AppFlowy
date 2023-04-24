@@ -3,16 +3,16 @@ use std::sync::Arc;
 use crate::{
   document::DocumentDataWrapper,
   entities::{
-    ApplyActionPayloadPBV2, BlockActionPB, BlockActionPayloadPB, BlockActionTypePB,
+    ApplyActionPayloadPBV2, BlockActionPB, BlockActionPayloadPB, BlockActionTypePB, BlockEventPB,
     BlockEventPayloadPB, BlockPB, CloseDocumentPayloadPBV2, CreateDocumentPayloadPBV2, DeltaTypePB,
-    DocumentDataPB2, OpenDocumentPayloadPBV2,
+    DocEventPB, DocumentDataPB2, OpenDocumentPayloadPBV2,
   },
   manager::DocumentManager,
 };
 
 use collab_document::blocks::{
-  json_str_to_hashmap, Block, BlockAction, BlockActionPayload, BlockActionType, BlockEventPayload,
-  DeltaType,
+  json_str_to_hashmap, Block, BlockAction, BlockActionPayload, BlockActionType, BlockEvent,
+  BlockEventPayload, DeltaType,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -109,6 +109,14 @@ impl From<BlockPB> for Block {
   }
 }
 
+impl From<BlockEvent> for BlockEventPB {
+  fn from(payload: BlockEvent) -> Self {
+    Self {
+      event: payload.iter().map(|e| e.to_owned().into()).collect(),
+    }
+  }
+}
+
 impl From<BlockEventPayload> for BlockEventPayloadPB {
   fn from(payload: BlockEventPayload) -> Self {
     Self {
@@ -126,6 +134,15 @@ impl From<DeltaType> for DeltaTypePB {
       DeltaType::Inserted => Self::Inserted,
       DeltaType::Updated => Self::Updated,
       DeltaType::Removed => Self::Removed,
+    }
+  }
+}
+
+impl DocEventPB {
+  pub(crate) fn get_from(events: &Vec<BlockEvent>, is_remote: bool) -> Self {
+    Self {
+      events: events.iter().map(|e| e.to_owned().into()).collect(),
+      is_remote,
     }
   }
 }

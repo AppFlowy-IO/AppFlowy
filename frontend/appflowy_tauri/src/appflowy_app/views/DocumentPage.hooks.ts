@@ -1,13 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
-import {
-  DocumentEventGetDocument,
-  DocumentVersionPB,
-  OpenDocumentPayloadPB,
-} from '../../services/backend/events/flowy-document';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { DocumentData } from '../interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { useAppDispatch } from '../stores/store';
+import { Log } from '../utils/log';
 
 export const useDocument = () => {
   const params = useParams();
@@ -20,7 +16,7 @@ export const useDocument = () => {
     let documentController: DocumentController | null = null;
     void (async () => {
       if (!params?.id) return;
-      console.log('==== enter ====', params?.id);
+      Log.debug('open document', params.id);
       documentController = new DocumentController(params.id, dispatch);
       setController(documentController);
       try {
@@ -29,7 +25,7 @@ export const useDocument = () => {
         setDocumentData(res);
         setDocumentId(params.id);
       } catch (e) {
-        console.error(e);
+        Log.error(e);
       }
     })();
     return () => {
@@ -37,7 +33,7 @@ export const useDocument = () => {
         if (documentController) {
           await documentController.dispose();
         }
-        console.log('==== leave ====', params?.id);
+        Log.debug('close document', params.id);
       })();
     };
   }, [params.id]);

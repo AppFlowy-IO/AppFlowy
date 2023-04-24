@@ -2,8 +2,7 @@ import { BlockType, NestedBlock } from '@/appflowy_app/interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { documentActions, DocumentState } from '../slice';
-import { nanoid } from 'nanoid';
-
+import { generateId } from '@/appflowy_app/utils/block';
 export const insertAfterNodeThunk = createAsyncThunk(
   'document/insertAfterNode',
   async (payload: { id: string; controller: DocumentController }, thunkAPI) => {
@@ -16,11 +15,11 @@ export const insertAfterNodeThunk = createAsyncThunk(
     if (!parentId) return;
     // create new node
     const newNode: NestedBlock = {
-      id: nanoid(10),
+      id: generateId(),
       parent: parentId,
       type: BlockType.TextBlock,
       data: {},
-      children: nanoid(10),
+      children: generateId(),
     };
     await controller.applyActions([controller.getInsertAction(newNode, node.id)]);
     dispatch(documentActions.setBlockMap(newNode));

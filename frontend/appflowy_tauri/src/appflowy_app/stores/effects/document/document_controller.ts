@@ -4,6 +4,7 @@ import { DocumentBackendService } from './document_bd_svc';
 import { FlowyError, BlockActionPB, DocEventPB, DeltaTypePB, BlockActionTypePB } from '@/services/backend';
 import { DocumentObserver } from './document_observer';
 import { documentActions, Node } from '@/appflowy_app/stores/reducers/document/slice';
+import { Log } from '@/appflowy_app/utils/log';
 
 export const DocumentControllerContext = createContext<DocumentController | null>(null);
 
@@ -127,6 +128,7 @@ export class DocumentController {
     const dispatch = this.dispatch;
     if (!dispatch) return;
     const { events, is_remote } = DocEventPB.deserializeBinary(payload);
+    console.log('updated', events, is_remote);
     if (!is_remote) return;
     events.forEach((event) => {
       event.event.forEach((_payload) => {
@@ -143,22 +145,7 @@ export class DocumentController {
         if (command === DeltaTypePB.Inserted || command === DeltaTypePB.Updated) {
           // set map key and value ( block map or children map)
           if (path[0] === 'blocks') {
-            if ('data' in valueJson && typeof valueJson.data === 'string') {
-              try {
-                valueJson.data = JSON.parse(valueJson.data);
-              } catch {
-                console.error('valueJson data parse error', valueJson.data);
-                return;
-              }
-            }
-            const block = {
-              id: valueJson.id,
-              type: valueJson.ty as BlockType,
-              parent: valueJson.parent,
-              children: valueJson.children,
-              data: valueJson.data,
-            };
-
+            const block = blockChangeValue2Node(valueJson);
             dispatch(documentActions.setBlockMap(block));
           } else {
             dispatch(
@@ -179,4 +166,24 @@ export class DocumentController {
       });
     });
   };
+}
+
+function blockChangeValue2Node(value: { id: string; ty: string; parent: string; children: string; data: string }): Node {
+  const block = {
+    id: value.id,
+    type: value.ty as BlockType,
+    parent: value.parent,
+    children: value.children,
+    data: {},
+  };
+  if ('data' in value && typeof value.data === 'string') {
+    try {
+      Object.assign(block, {
+        data: JSON.parse(value.data),
+      });
+    } catch {
+      Log.error('valueJson data parse error', block.data);
+    }
+  }
+  return block;
 }

@@ -28,7 +28,7 @@ export const indentNodeThunk = createAsyncThunk(
     await controller.applyActions([controller.getMoveAction(node, newParentId, newPrevId)]);
     dispatch(
       documentActions.moveNode({
-        id: node.id,
+        id,
         newParentId,
         newPrevId,
       })

@@ -7,7 +7,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use crate::{
   document::{Document, DocumentDataWrapper},
-  entities::{BlockEventPB, DocEventPB},
+  entities::DocEventPB,
   notification::{send_notification, DocumentNotification},
 };
 
@@ -60,19 +60,7 @@ impl DocumentManager {
       .lock()
       .open(move |events, is_remote| {
         send_notification(&clone_doc_id, DocumentNotification::DidReceiveUpdate)
-          .payload(DocEventPB {
-            events: events
-              .iter()
-              .map(|block_event| BlockEventPB {
-                event: block_event
-                  .to_owned()
-                  .iter()
-                  .map(|e| e.to_owned().into())
-                  .collect(),
-              })
-              .collect(),
-            is_remote: is_remote.to_owned(),
-          })
+          .payload(DocEventPB::get_from(events, is_remote))
           .send();
       })
       .map_err(|err| FlowyError::internal().context(err))?;

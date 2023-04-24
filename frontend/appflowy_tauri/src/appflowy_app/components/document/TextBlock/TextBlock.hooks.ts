@@ -10,14 +10,20 @@ import {
   indentNodeThunk,
   splitNodeThunk,
 } from '@/appflowy_app/stores/reducers/document/async_actions';
+import { TextSelection } from '@/appflowy_app/stores/reducers/document/slice';
 
 export function useTextBlock(id: string, delta: TextDelta[]) {
-  const { editor, yText } = useTextInput(delta);
+  const { editor, onSelectionChange } = useTextInput(id, delta);
   const [value, setValue] = useState<Descendant[]>([]);
   const { onTab, onBackSpace, onEnter } = useActions(id);
   const onChange = useCallback(
     (e: Descendant[]) => {
       setValue(e);
+      editor.operations.forEach((op) => {
+        if (op.type === 'set_selection') {
+          onSelectionChange(op.newProperties as TextSelection);
+        }
+      });
     },
     [editor]
   );

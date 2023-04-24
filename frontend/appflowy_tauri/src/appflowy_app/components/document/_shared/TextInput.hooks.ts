@@ -2,23 +2,45 @@ import { useCallback, useContext, useMemo, useRef, useEffect } from 'react';
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { TextDelta } from '$app/interfaces/document';
 import { debounce } from '@/appflowy_app/utils/tool';
-import { createEditor } from 'slate';
-import { withReact } from 'slate-react';
+import { NodeContext } from './SubscribeNode.hooks';
+import { BlockActionTypePB } from '@/services/backend/models/flowy-document2';
+import { useAppDispatch, useAppSelector } from '@/appflowy_app/stores/store';
+import { documentActions, TextSelection } from '@/appflowy_app/stores/reducers/document/slice';
+
+import { createEditor, Transforms } from 'slate';
+import { withReact, ReactEditor } from 'slate-react';
 
 import * as Y from 'yjs';
 import { withYjs, YjsEditor, slateNodesToInsertDelta } from '@slate-yjs/core';
-import { NodeContext } from './SubscribeNode.hooks';
-import { BlockActionTypePB } from '@/services/backend/models/flowy-document2';
-import { useAppDispatch } from '@/appflowy_app/stores/store';
-import { documentActions } from '@/appflowy_app/stores/reducers/document/slice';
 
-export function useTextInput(delta: TextDelta[]) {
+export function useTextInput(id: string, delta: TextDelta[]) {
   const { sendDelta } = useTransact();
   const { editor, yText } = useBindYjs(delta, sendDelta);
+  const dispatch = useAppDispatch();
+  const currentSelection = useAppSelector((state) => state.document.textSelections[id]);
+
+  useEffect(() => {
+    if (!currentSelection || !currentSelection.anchor || !currentSelection.focus) return;
+    ReactEditor.focus(editor);
+    Transforms.select(editor, currentSelection);
+  }, [currentSelection, editor]);
+
+  const onSelectionChange = useCallback(
+    (selection?: TextSelection) => {
+      dispatch(
+        documentActions.setTextSelection({
+          blockId: id,
+          selection,
+        })
+      );
+    },
+    [id]
+  );
 
   return {
     editor,
     yText,
+    onSelectionChange,
   };
 }
 
@@ -119,7 +141,6 @@ function useBindYjs(delta: TextDelta[], update: (_delta: TextDelta[]) => void) {
     if (!yText) return;
     const textEventHandler = (event: Y.YTextEvent) => {
       const textDelta = event.target.toDelta();
-      console.log('====update', textDelta);
       update(textDelta);
     };
     if (JSON.stringify(yText.toDelta()) !== JSON.stringify(delta)) {
