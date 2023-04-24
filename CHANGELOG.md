@@ -1,5 +1,15 @@
 # Release Notes
 
+## Version 0.1.3 - 24/04/2023
+
+### New features
+- Launch the official Dark Mode.
+- Customize the font color and highlight color by setting a hex color value and an opacity level.
+
+### Bug Fixes
+- Fix: the slash menu can be triggered by all other keyboards than English.
+- Fix: convert the single asterisk to italic text and the double asterisks to bold text.
+
 ## Version 0.1.2 - 03/28/2023
 
 ### Bug Fixes

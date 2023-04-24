@@ -130,15 +130,15 @@ jobs:
     needs: create-release
     env:
       MACOS_APP_RELEASE_PATH: frontend/appflowy_flutter/product/${{ github.ref_name }}/macos/Release
-      MACOS_X86_ZIP_NAME: AppFlowy_${{ github.ref_name }}_macos-aarch64.zip
-      MACOS_DMG_NAME: AppFlowy_${{ github.ref_name }}_macos-aarch64
+      MACOS_X86_ZIP_NAME: AppFlowy_${{ github.ref_name }}_macos-x86_64.zip
+      MACOS_DMG_NAME: AppFlowy_${{ github.ref_name }}_macos-x86_64
     strategy:
       fail-fast: false
       matrix:
         job:
           - {
-              target: aarch64-apple-darwin,
-              os: macos-12,
+              target: x86_64-apple-darwin,
+              os: macos-10.15,
               extra-build-args: "",
             }
     steps:
@@ -176,7 +176,7 @@ jobs:
         working-directory: frontend
         run: |
           flutter config --enable-macos-desktop
-          dart ./scripts/flutter_release_build/build_flowy.dart . ${{ github.ref_name }} 'arm64'
+          dart ./scripts/flutter_release_build/build_flowy.dart . ${{ github.ref_name }}
 
       - name: Create macOS dmg
         run: |
