@@ -1,18 +1,21 @@
-import { DocumentData, BlockType, DeltaItem } from '@/appflowy_app/interfaces/document';
-import { createContext, Dispatch } from 'react';
+import { DocumentData, BlockType } from '@/appflowy_app/interfaces/document';
+import { createContext } from 'react';
 import { DocumentBackendService } from './document_bd_svc';
-import { FlowyError, BlockActionPB, DocEventPB, DeltaTypePB, BlockActionTypePB } from '@/services/backend';
+import { FlowyError, BlockActionPB, DocEventPB, BlockActionTypePB, BlockEventPayloadPB } from '@/services/backend';
 import { DocumentObserver } from './document_observer';
-import { documentActions, Node } from '@/appflowy_app/stores/reducers/document/slice';
-import { Log } from '@/appflowy_app/utils/log';
+import { Node } from '@/appflowy_app/stores/reducers/document/slice';
 import * as Y from 'yjs';
+
 export const DocumentControllerContext = createContext<DocumentController | null>(null);
 
 export class DocumentController {
   private readonly backendService: DocumentBackendService;
   private readonly observer: DocumentObserver;
 
-  constructor(public readonly viewId: string, private dispatch?: Dispatch<any>) {
+  constructor(
+    public readonly viewId: string,
+    private onDocChange?: (props: { isRemote: boolean; data: BlockEventPayloadPB }) => void
+  ) {
     this.backendService = new DocumentBackendService(viewId);
     this.observer = new DocumentObserver(viewId);
   }
@@ -107,6 +110,7 @@ export class DocumentController {
   };
 
   dispose = async () => {
+    this.onDocChange = undefined;
     await this.backendService.close();
   };
 
@@ -143,65 +147,16 @@ export class DocumentController {
   };
 
   private updated = (payload: Uint8Array) => {
-    const dispatch = this.dispatch;
-    if (!dispatch) return;
+    if (!this.onDocChange) return;
     const { events, is_remote } = DocEventPB.deserializeBinary(payload);
 
-    if (!is_remote) return;
     events.forEach((event) => {
       event.event.forEach((_payload) => {
-        const { path, id, value, command } = _payload;
-        let valueJson;
-        try {
-          valueJson = JSON.parse(value);
-        } catch {
-          console.error('json parse error', value);
-          return;
-        }
-        if (!valueJson) return;
-
-        if (command === DeltaTypePB.Inserted || command === DeltaTypePB.Updated) {
-          // set map key and value ( block map or children map)
-          if (path[0] === 'blocks') {
-            const block = blockChangeValue2Node(valueJson);
-            dispatch(documentActions.setBlockMap(block));
-          } else {
-            dispatch(
-              documentActions.setChildrenMap({
-                id,
-                childIds: valueJson,
-              })
-            );
-          }
-        } else {
-          // remove map key ( block map or children map)
-          if (path[0] === 'blocks') {
-            dispatch(documentActions.removeBlockMapKey(id));
-          } else {
-            dispatch(documentActions.removeChildrenMapKey(id));
-          }
-        }
+        this.onDocChange?.({
+          isRemote: is_remote,
+          data: _payload,
+        });
       });
     });
   };
-}
-
-function blockChangeValue2Node(value: { id: string; ty: string; parent: string; children: string; data: string }): Node {
-  const block = {
-    id: value.id,
-    type: value.ty as BlockType,
-    parent: value.parent,
-    children: value.children,
-    data: {},
-  };
-  if ('data' in value && typeof value.data === 'string') {
-    try {
-      Object.assign(block, {
-        data: JSON.parse(value.data),
-      });
-    } catch {
-      Log.error('valueJson data parse error', block.data);
-    }
-  }
-  return block;
 }

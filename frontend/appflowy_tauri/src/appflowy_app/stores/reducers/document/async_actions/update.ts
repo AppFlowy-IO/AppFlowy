@@ -1,7 +1,7 @@
-import { TextDelta } from '@/appflowy_app/interfaces/document';
+import { TextDelta, NestedBlock } from '@/appflowy_app/interfaces/document';
 import { DocumentController } from '@/appflowy_app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { documentActions, DocumentState, Node } from '../slice';
+import { documentActions, DocumentState } from '../slice';
 import { debounce } from '$app/utils/tool';
 export const updateNodeDeltaThunk = createAsyncThunk(
   'document/updateNodeDelta',
@@ -9,25 +9,23 @@ export const updateNodeDeltaThunk = createAsyncThunk(
     const { id, delta, controller } = payload;
     const { dispatch, getState } = thunkAPI;
     const state = (getState() as { document: DocumentState }).document;
+    // The block map should be updated immediately
+    // or the component will use the old data to update the editor
+    dispatch(documentActions.updateNodeData({ id, data: { delta } }));
+
     const node = state.nodes[id];
-    const updateNode = {
+    // the transaction is delayed to avoid too many updates
+    debounceApplyUpdate(controller, {
       ...node,
-      id,
       data: {
         ...node.data,
         delta,
       },
-    };
-    // The block map should be updated immediately
-    // or the component will use the old data to update the editor
-    dispatch(documentActions.setBlockMap(updateNode));
-
-    // the transaction is delayed to avoid too many updates
-    debounceApplyUpdate(controller, updateNode);
+    });
   }
 );
 
-const debounceApplyUpdate = debounce((controller: DocumentController, updateNode: Node) => {
+const debounceApplyUpdate = debounce((controller: DocumentController, updateNode: NestedBlock) => {
   void controller.applyActions([
     controller.getUpdateAction({
       ...updateNode,

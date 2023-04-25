@@ -42,13 +42,8 @@ const composeNodeThunk = createAsyncThunk(
 
     // move must be before delete
     await controller.applyActions([...moveActions, deleteAction, updateAction]);
-
-    children.reverse().forEach((childId) => {
-      dispatch(documentActions.moveNode({ id: childId, newParentId: newNode.id, newPrevId: '' }));
-    });
-    dispatch(documentActions.setBlockMap(newNode));
-    dispatch(documentActions.removeBlockMapKey(node.id));
-    dispatch(documentActions.removeChildrenMapKey(node.children));
+    // update local node data
+    dispatch(documentActions.updateNodeData({ id: newNode.id, data: { delta: newNode.data.delta } }));
   }
 );
 

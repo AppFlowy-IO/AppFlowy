@@ -1,7 +1,8 @@
-import { BlockType, NestedBlock, TextDelta } from '@/appflowy_app/interfaces/document';
+import { NestedBlock } from '@/appflowy_app/interfaces/document';
+import { blockChangeValue2Node } from '@/appflowy_app/utils/block';
+import { Log } from '@/appflowy_app/utils/log';
+import { BlockEventPayloadPB, DeltaTypePB } from '@/services/backend';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { nanoid } from 'nanoid';
-import { DocumentController } from '../../effects/document/document_controller';
 import { RegionGrid } from './region_grid';
 
 export type Node = NestedBlock;
@@ -131,77 +132,70 @@ export const documentSlice = createSlice({
       state.textSelections;
     },
 
-    // insert block
-    setBlockMap: (state, action: PayloadAction<Node>) => {
-      state.nodes[action.payload.id] = action.payload;
+    // We need this action to update the local state before `onDataChange` to make the UI more smooth,
+    // because we often use `debounce` to send the change to db, so the db data will be updated later.
+    updateNodeData: (state, action: PayloadAction<{ id: string; data: Record<string, any> }>) => {
+      const { id, data } = action.payload;
+      const node = state.nodes[id];
+      if (!node) return;
+      node.data = {
+        ...node.data,
+        ...data,
+      };
     },
 
-    // update block when `type`, `parent` or `children` changed
-    updateBlock: (state, action: PayloadAction<{ id: string; block: NestedBlock }>) => {
-      const { id, block } = action.payload;
-      const node = state.nodes[id];
-      if (!node || node.parent !== block.parent || node.type !== block.type || node.children !== block.children) {
-        state.nodes[action.payload.id] = block;
+    // when we use `onDataChange` to handle the change, we don't need care about the change is from which client,
+    // because the data is always from db state, and then to UI.
+    // Except the `updateNodeData` action, we will use it before `onDataChange` to update the local state,
+    // so we should skip update block's `data` field when the change is from local
+    onDataChange: (
+      state,
+      action: PayloadAction<{
+        data: BlockEventPayloadPB;
+        isRemote: boolean;
+      }>
+    ) => {
+      const { path, id, value, command } = action.payload.data;
+      const isRemote = action.payload.isRemote;
+
+      let valueJson;
+      try {
+        valueJson = JSON.parse(value);
+      } catch {
+        Log.error('[onDataChange] json parse error', value);
         return;
       }
-    },
+      if (!valueJson) return;
 
-    // remove block
-    removeBlockMapKey(state, action: PayloadAction<string>) {
-      if (!state.nodes[action.payload]) return;
-      const { id } = state.nodes[action.payload];
-      regionGrid.removeBlock(id);
-      delete state.nodes[id];
-    },
-
-    // set block's relationship with its children
-    setChildrenMap: (state, action: PayloadAction<{ id: string; childIds: string[] }>) => {
-      const { id, childIds } = action.payload;
-      state.children[id] = childIds;
-    },
-
-    // remove block's relationship with its children
-    removeChildrenMapKey(state, action: PayloadAction<string>) {
-      if (state.children[action.payload]) {
-        delete state.children[action.payload];
+      if (command === DeltaTypePB.Inserted || command === DeltaTypePB.Updated) {
+        // set map key and value ( block map or children map)
+        if (path[0] === 'blocks') {
+          const block = blockChangeValue2Node(valueJson);
+          if (command === DeltaTypePB.Updated && !isRemote) {
+            // the `data` from local is already updated in local, so we just need to update other fields
+            const node = state.nodes[block.id];
+            if (!node || node.parent !== block.parent || node.type !== block.type || node.children !== block.children) {
+              state.nodes[block.id] = block;
+            }
+          } else {
+            state.nodes[block.id] = block;
+          }
+        } else {
+          state.children[id] = valueJson;
+        }
+      } else {
+        // remove map key ( block map or children map)
+        if (path[0] === 'blocks') {
+          if (state.selections.indexOf(id)) {
+            state.selections.splice(state.selections.indexOf(id), 1);
+          }
+          regionGrid.removeBlock(id);
+          delete state.textSelections[id];
+          delete state.nodes[id];
+        } else {
+          delete state.children[id];
+        }
       }
-    },
-
-    // set block's relationship with its parent
-    insertChild: (state, action: PayloadAction<{ id: string; childId: string; prevId: string | null }>) => {
-      const { id, childId, prevId } = action.payload;
-      const parent = state.nodes[id];
-      const children = state.children[parent.children];
-      const index = prevId ? children.indexOf(prevId) + 1 : 0;
-      children.splice(index, 0, childId);
-    },
-
-    // remove block's relationship with its parent
-    deleteChild: (state, action: PayloadAction<{ id: string; childId: string }>) => {
-      const { id, childId } = action.payload;
-      const parent = state.nodes[id];
-      const children = state.children[parent.children];
-      const index = children.indexOf(childId);
-      children.splice(index, 1);
-    },
-
-    // move block to another parent
-    moveNode: (state, action: PayloadAction<{ id: string; newParentId: string; newPrevId: string | null }>) => {
-      const { id, newParentId, newPrevId } = action.payload;
-      const newParent = state.nodes[newParentId];
-      const oldParentId = state.nodes[id].parent;
-      if (!oldParentId) return;
-      const oldParent = state.nodes[oldParentId];
-
-      state.nodes[id] = {
-        ...state.nodes[id],
-        parent: newParentId,
-      };
-      const index = state.children[oldParent.children].indexOf(id);
-      state.children[oldParent.children].splice(index, 1);
-
-      const newIndex = newPrevId ? state.children[newParent.children].indexOf(newPrevId) + 1 : 0;
-      state.children[newParent.children].splice(newIndex, 0, id);
     },
   },
 });
