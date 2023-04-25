@@ -316,7 +316,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
           greySelect: theme.bg3,
           lightGreyHover: theme.hoverBG3,
           toggleOffFill: theme.shader5,
-          progressBarBGcolor: theme.progressBarBGcolor,
+          progressBarBGColor: theme.progressBarBGColor,
+          toggleButtonBGColor: theme.toggleButtonBGColor,
           code: _getFontStyle(
             fontFamily: monospaceFontFamily,
             fontColor: theme.shader3,

@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -24,6 +25,8 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
 
   @override
   Widget build(BuildContext context) {
+    final selectedBgColor = AFThemeExtension.of(context).toggleButtonBGColor;
+    final foregroundColor = Theme.of(context).colorScheme.onBackground;
     return BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
       builder: (context, state) {
         return Column(
@@ -43,10 +46,16 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
               onPressed: (int index) {
                 _updateSelectedFontSize(_fontSizes[index].item2);
               },
+              color: foregroundColor,
               borderRadius: const BorderRadius.all(Radius.circular(5)),
-              selectedColor: Theme.of(context).colorScheme.tertiary,
-              fillColor: Theme.of(context).colorScheme.primary,
-              color: Theme.of(context).hintColor,
+              borderColor: foregroundColor,
+              borderWidth: 0.5,
+              // when selected
+              selectedColor: foregroundColor,
+              selectedBorderColor: foregroundColor,
+              fillColor: selectedBgColor,
+              // when hover
+              hoverColor: selectedBgColor.withOpacity(0.3),
               constraints: const BoxConstraints(
                 minHeight: 40.0,
                 minWidth: 80.0,
