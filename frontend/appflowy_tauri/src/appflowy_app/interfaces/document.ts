@@ -15,18 +15,21 @@ export enum BlockType {
 
 export interface HeadingBlockData {
   level: number;
+  delta: TextDelta[];
 }
 
 export interface TextBlockData {
   delta: TextDelta[];
 }
 
-export interface PageBlockData extends TextBlockData {}
+export type PageBlockData = TextBlockData;
+
+export type BlockData = TextBlockData | HeadingBlockData | PageBlockData;
 
 export interface NestedBlock {
   id: string;
   type: BlockType;
-  data: Record<string, any>;
+  data: BlockData | Record<string, any>;
   parent: string | null;
   children: string;
 }

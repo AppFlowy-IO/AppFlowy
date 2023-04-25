@@ -60,7 +60,7 @@ impl DocumentManager {
       .lock()
       .open(move |events, is_remote| {
         send_notification(&clone_doc_id, DocumentNotification::DidReceiveUpdate)
-          .payload(DocEventPB::get_from(events, is_remote))
+          .payload::<DocEventPB>((events, is_remote).into())
           .send();
       })
       .map_err(|err| FlowyError::internal().context(err))?;
