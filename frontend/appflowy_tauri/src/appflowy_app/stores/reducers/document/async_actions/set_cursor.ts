@@ -1,4 +1,3 @@
-import { DocumentController } from '@/appflowy_app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { documentActions, DocumentState, SelectionPoint, TextSelection } from '../slice';
 

@@ -1,13 +1,13 @@
 import { BlockType } from '@/appflowy_app/interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { documentActions, DocumentState } from '../slice';
+import { DocumentState } from '../slice';
 
 export const indentNodeThunk = createAsyncThunk(
   'document/indentNode',
   async (payload: { id: string; controller: DocumentController }, thunkAPI) => {
     const { id, controller } = payload;
-    const { dispatch, getState } = thunkAPI;
+    const { getState } = thunkAPI;
     const state = (getState() as { document: DocumentState }).document;
     const node = state.nodes[id];
     if (!node.parent) return;
@@ -26,12 +26,5 @@ export const indentNodeThunk = createAsyncThunk(
     const newPrevId = prevNodeChildren[prevNodeChildren.length - 1];
 
     await controller.applyActions([controller.getMoveAction(node, newParentId, newPrevId)]);
-    dispatch(
-      documentActions.moveNode({
-        id,
-        newParentId,
-        newPrevId,
-      })
-    );
   }
 );

@@ -4,6 +4,8 @@ import { DocumentData } from '../interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { useAppDispatch } from '../stores/store';
 import { Log } from '../utils/log';
+import { documentActions } from '../stores/reducers/document/slice';
+import { BlockEventPayloadPB } from '@/services/backend/models/flowy-document2';
 
 export const useDocument = () => {
   const params = useParams();
@@ -12,12 +14,16 @@ export const useDocument = () => {
   const [controller, setController] = useState<DocumentController | null>(null);
   const dispatch = useAppDispatch();
 
+  const onDocumentChange = (props: { isRemote: boolean; data: BlockEventPayloadPB }) => {
+    dispatch(documentActions.onDataChange(props));
+  };
+
   useEffect(() => {
     let documentController: DocumentController | null = null;
     void (async () => {
       if (!params?.id) return;
       Log.debug('open document', params.id);
-      documentController = new DocumentController(params.id, dispatch);
+      documentController = new DocumentController(params.id, onDocumentChange);
       setController(documentController);
       try {
         const res = await documentController.open();

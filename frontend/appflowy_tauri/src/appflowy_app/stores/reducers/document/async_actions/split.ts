@@ -2,7 +2,7 @@ import { BlockType, TextDelta } from '@/appflowy_app/interfaces/document';
 import { DocumentController } from '@/appflowy_app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { generateId } from '@/appflowy_app/utils/block';
-import { documentActions, DocumentState, TextSelection } from '../slice';
+import { documentActions, DocumentState } from '../slice';
 import { setCursorBeforeThunk } from './set_cursor';
 
 export const splitNodeThunk = createAsyncThunk(
@@ -36,22 +36,8 @@ export const splitNodeThunk = createAsyncThunk(
       },
     };
     await controller.applyActions([controller.getInsertAction(newNode, prevId), controller.getUpdateAction(retainNode)]);
-    dispatch(documentActions.setBlockMap(newNode));
-    dispatch(documentActions.setBlockMap(retainNode));
-    dispatch(
-      documentActions.setChildrenMap({
-        id: newNode.children,
-        childIds: [],
-      })
-    );
-    dispatch(
-      documentActions.insertChild({
-        id: parent.id,
-        childId: newNode.id,
-        prevId,
-      })
-    );
-
+    // update local node data
+    dispatch(documentActions.updateNodeData({ id: retainNode.id, data: { delta: retain } }));
     // set cursor
     await dispatch(setCursorBeforeThunk({ id: newNode.id }));
   }

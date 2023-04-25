@@ -1,9 +1,9 @@
 import { BlockType, NestedBlock } from '@/appflowy_app/interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { documentActions, DocumentState } from '../slice';
+import { DocumentState } from '../slice';
 import { generateId } from '@/appflowy_app/utils/block';
-import { setCursorAfterThunk } from './set_cursor';
+
 export const insertAfterNodeThunk = createAsyncThunk(
   'document/insertAfterNode',
   async (payload: { id: string; controller: DocumentController }, thunkAPI) => {
@@ -25,21 +25,5 @@ export const insertAfterNodeThunk = createAsyncThunk(
       children: generateId(),
     };
     await controller.applyActions([controller.getInsertAction(newNode, node.id)]);
-    dispatch(documentActions.setBlockMap(newNode));
-    dispatch(
-      documentActions.setChildrenMap({
-        id: newNode.children,
-        childIds: [],
-      })
-    );
-    // insert new node to parent
-    dispatch(
-      documentActions.insertChild({
-        id: parentId,
-        childId: newNode.id,
-        prevId: node.id,
-      })
-    );
-    await dispatch(setCursorAfterThunk({ id: newNode.id }));
   }
 );
