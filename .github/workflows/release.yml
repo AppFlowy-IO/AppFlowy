@@ -138,7 +138,7 @@ jobs:
         job:
           - {
               target: x86_64-apple-darwin,
-              os: macos-10.15,
+              os: macos-10.13,
               extra-build-args: "",
             }
     steps:
