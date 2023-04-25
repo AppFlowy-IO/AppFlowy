@@ -3,7 +3,6 @@ import 'package:appflowy/plugins/database_view/application/field/type_option/num
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/format.pbenum.dart';
 import 'package:flutter/material.dart';
@@ -60,15 +59,10 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
           final selectNumUnitButton = SizedBox(
             height: GridSize.popoverItemHeight,
             child: FlowyButton(
-              hoverColor: AFThemeExtension.of(context).lightGreyHover,
               margin: GridSize.typeOptionContentInsets,
-              rightIcon: svgWidget(
-                "grid/more",
-                color: AFThemeExtension.of(context).textColor,
-              ),
+              rightIcon: const FlowySvg(name: 'grid/more'),
               text: FlowyText.regular(
                 state.typeOption.format.title(),
-                color: AFThemeExtension.of(context).textColor,
               ),
             ),
           );
@@ -79,7 +73,6 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
             alignment: Alignment.centerLeft,
             child: FlowyText.medium(
               LocaleKeys.grid_field_numberFormat.tr(),
-              color: AFThemeExtension.of(context).textColor,
             ),
           );
           return Padding(
@@ -188,7 +181,9 @@ class NumberFormatCell extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget? checkmark;
     if (isSelected) {
-      checkmark = svgWidget("grid/checkmark");
+      checkmark = const FlowySvg(
+        name: 'grid/checkmark',
+      );
     }
 
     return SizedBox(
