@@ -1,7 +1,5 @@
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -38,25 +36,19 @@ class TrashCell extends StatelessWidget {
         ),
         const Spacer(),
         FlowyIconButton(
-          width: 26,
+          iconColorOnHover: Theme.of(context).colorScheme.onSurface,
+          width: TrashSizes.actionIconWidth,
           onPressed: onRestore,
-          hoverColor: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
           iconPadding: const EdgeInsets.all(5),
-          icon: svgWidget(
-            "editor/restore",
-            color: Theme.of(context).iconTheme.color,
-          ),
+          icon: const FlowySvg(name: 'editor/restore'),
         ),
         const HSpace(20),
         FlowyIconButton(
-          width: 26,
+          iconColorOnHover: Theme.of(context).colorScheme.onSurface,
+          width: TrashSizes.actionIconWidth,
           onPressed: onDelete,
-          hoverColor: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
           iconPadding: const EdgeInsets.all(5),
-          icon: svgWidget(
-            "editor/delete",
-            color: Theme.of(context).iconTheme.color,
-          ),
+          icon: const FlowySvg(name: 'editor/delete'),
         ),
       ],
     );
