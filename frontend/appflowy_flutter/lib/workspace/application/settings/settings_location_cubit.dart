@@ -25,6 +25,8 @@ class SettingsLocation {
     if (Platform.isMacOS) {
       // remove the prefix `/Volumes/*`
       return _path?.replaceFirst(RegExp(r'^/Volumes/[^/]+'), '');
+    } else if (Platform.isWindows) {
+      return _path?.replaceAll("/", "\\");
     }
     return _path;
   }
