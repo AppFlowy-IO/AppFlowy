@@ -215,10 +215,8 @@ class _NewEventButton extends StatelessWidget {
     return FlowyIconButton(
       onPressed: onClick,
       iconPadding: EdgeInsets.zero,
-      icon: svgWidget(
-        "home/add",
-        color: Theme.of(context).iconTheme.color,
-      ),
+      icon: const FlowySvg(name: "home/add"),
+      hoverColor: AFThemeExtension.of(context).lightGreyHover,
       width: 22,
     );
   }
@@ -237,7 +235,7 @@ class _DayBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color dayTextColor = Theme.of(context).colorScheme.onSurface;
+    Color dayTextColor = Theme.of(context).colorScheme.onBackground;
     String dayString = date.day == 1
         ? DateFormat('MMM d', context.locale.toLanguageTag()).format(date)
         : date.day.toString();
