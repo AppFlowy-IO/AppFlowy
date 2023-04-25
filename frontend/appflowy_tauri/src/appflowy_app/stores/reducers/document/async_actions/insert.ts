@@ -1,7 +1,6 @@
-import { BlockType, NestedBlock } from '@/appflowy_app/interfaces/document';
+import { BlockType, DocumentState, NestedBlock } from '@/appflowy_app/interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { DocumentState } from '../slice';
 import { generateId } from '@/appflowy_app/utils/block';
 
 export const insertAfterNodeThunk = createAsyncThunk(

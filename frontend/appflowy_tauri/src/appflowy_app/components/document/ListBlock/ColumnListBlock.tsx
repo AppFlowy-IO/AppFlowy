@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import ColumnBlock from '../ColumnBlock';
-import { Node } from '@/appflowy_app/stores/reducers/document/slice';
+
+import { Node } from '$app/interfaces/document';
 
 export default function ColumnListBlock({
   node,

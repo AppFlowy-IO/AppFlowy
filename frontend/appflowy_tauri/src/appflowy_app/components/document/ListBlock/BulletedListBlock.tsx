@@ -1,6 +1,6 @@
-import { Node } from '@/appflowy_app/stores/reducers/document/slice';
 import { Circle } from '@mui/icons-material';
 import NodeComponent from '../Node';
+import { Node } from '$app/interfaces/document';
 
 export default function BulletedListBlock({
   title,

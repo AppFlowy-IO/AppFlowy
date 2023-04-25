@@ -1,5 +1,5 @@
-import { Node } from '@/appflowy_app/stores/reducers/document/slice';
 import NodeComponent from '../Node';
+import { Node } from '$app/interfaces/document';
 
 export default function NumberedListBlock({
   title,

@@ -1,5 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { documentActions, DocumentState, SelectionPoint, TextSelection } from '../slice';
+import { documentActions } from '../slice';
+import { DocumentState, SelectionPoint, TextSelection } from '$app/interfaces/document';
 
 export const setCursorBeforeThunk = createAsyncThunk(
   'document/setCursorBefore',

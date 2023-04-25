@@ -1,8 +1,8 @@
+import { BlockPB } from '@/services/backend/models/flowy-document2';
 import { nanoid } from 'nanoid';
 import { Descendant, Element, Text } from 'slate';
-import { TextDelta, BlockType, NestedBlock } from '../interfaces/document';
+import { BlockType, TextDelta } from '../interfaces/document';
 import { Log } from './log';
-
 export function generateId() {
   return nanoid(10);
 }
@@ -36,29 +36,19 @@ export function getDeltaFromSlateNodes(slateNodes: Descendant[]) {
   });
 }
 
-export function blockChangeValue2Node(value: {
-  id: string;
-  ty: string;
-  parent: string;
-  children: string;
-  data: string;
-}): NestedBlock {
-  const block = {
-    id: value.id,
-    type: value.ty as BlockType,
-    parent: value.parent,
-    children: value.children,
-    data: {},
-  };
-  if ('data' in value && typeof value.data === 'string') {
-    try {
-      Object.assign(block, {
-        data: JSON.parse(value.data),
-      });
-    } catch {
-      Log.error('valueJson data parse error', block.data);
-    }
+export function blockPB2Node(block: BlockPB) {
+  let data = {};
+  try {
+    data = JSON.parse(block.data);
+  } catch {
+    Log.error('[Document Open] json parse error', block.data);
   }
-
-  return block;
+  const node = {
+    id: block.id,
+    type: block.ty as BlockType,
+    parent: block.parent_id,
+    children: block.children_id,
+    data,
+  };
+  return node;
 }

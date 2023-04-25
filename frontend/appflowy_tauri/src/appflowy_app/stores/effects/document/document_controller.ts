@@ -1,10 +1,20 @@
-import { DocumentData, BlockType } from '@/appflowy_app/interfaces/document';
+import { DocumentData, Node } from '@/appflowy_app/interfaces/document';
 import { createContext } from 'react';
 import { DocumentBackendService } from './document_bd_svc';
-import { FlowyError, BlockActionPB, DocEventPB, BlockActionTypePB, BlockEventPayloadPB } from '@/services/backend';
+import {
+  FlowyError,
+  BlockActionPB,
+  DocEventPB,
+  BlockActionTypePB,
+  BlockEventPayloadPB,
+  BlockPB,
+  ChildrenPB,
+} from '@/services/backend';
 import { DocumentObserver } from './document_observer';
-import { Node } from '@/appflowy_app/stores/reducers/document/slice';
 import * as Y from 'yjs';
+import { blockPB2Node } from '@/appflowy_app/utils/block';
+import { BLOCK_MAP_NAME, CHILDREN_MAP_NAME, META_NAME } from '@/appflowy_app/constants/block';
+import { get } from '@/appflowy_app/utils/tool';
 
 export const DocumentControllerContext = createContext<DocumentController | null>(null);
 
@@ -34,33 +44,18 @@ export class DocumentController {
 
     const document = await this.backendService.open();
     if (document.ok) {
-      const blocks: DocumentData['blocks'] = {};
-      document.val.blocks.forEach((block) => {
-        let data = {};
-        try {
-          data = JSON.parse(block.data);
-        } catch {
-          console.log('json parse error', block.data);
-        }
-
-        blocks[block.id] = {
-          id: block.id,
-          type: block.ty as BlockType,
-          parent: block.parent_id,
-          children: block.children_id,
-          data,
-        };
+      const nodes: DocumentData['nodes'] = {};
+      get<Map<string, BlockPB>>(document.val, [BLOCK_MAP_NAME]).forEach((block) => {
+        nodes[block.id] = blockPB2Node(block);
       });
-      const childrenMap: Record<string, string[]> = {};
-      document.val.meta.children_map.forEach((child, key) => {
-        childrenMap[key] = child.children;
+      const children: Record<string, string[]> = {};
+      get<Map<string, ChildrenPB>>(document.val, [META_NAME, CHILDREN_MAP_NAME]).forEach((child, key) => {
+        children[key] = child.children;
       });
       return {
         rootId: document.val.page_id,
-        blocks,
-        meta: {
-          childrenMap,
-        },
+        nodes,
+        children,
       };
     }
 
@@ -150,8 +145,8 @@ export class DocumentController {
     if (!this.onDocChange) return;
     const { events, is_remote } = DocEventPB.deserializeBinary(payload);
 
-    events.forEach((event) => {
-      event.event.forEach((_payload) => {
+    events.forEach((blockEvent) => {
+      blockEvent.event.forEach((_payload) => {
         this.onDocChange?.({
           isRemote: is_remote,
           data: _payload,

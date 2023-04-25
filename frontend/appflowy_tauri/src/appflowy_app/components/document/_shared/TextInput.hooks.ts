@@ -1,6 +1,6 @@
 import { useCallback, useContext, useMemo, useRef, useEffect, useState } from 'react';
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
-import { TextDelta } from '$app/interfaces/document';
+import { TextDelta, TextSelection } from '$app/interfaces/document';
 import { NodeContext } from './SubscribeNode.hooks';
 import { useAppDispatch, useAppSelector } from '@/appflowy_app/stores/store';
 
@@ -10,7 +10,7 @@ import { withReact, ReactEditor } from 'slate-react';
 import * as Y from 'yjs';
 import { withYjs, YjsEditor, slateNodesToInsertDelta } from '@slate-yjs/core';
 import { updateNodeDeltaThunk } from '@/appflowy_app/stores/reducers/document/async_actions/update';
-import { documentActions, TextSelection } from '@/appflowy_app/stores/reducers/document/slice';
+import { documentActions } from '@/appflowy_app/stores/reducers/document/slice';
 import { deltaToSlateValue, getDeltaFromSlateNodes } from '@/appflowy_app/utils/block';
 
 export function useTextInput(id: string) {

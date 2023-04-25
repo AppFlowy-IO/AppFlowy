@@ -1,32 +1,8 @@
-import { NestedBlock } from '@/appflowy_app/interfaces/document';
-import { blockChangeValue2Node } from '@/appflowy_app/utils/block';
-import { Log } from '@/appflowy_app/utils/log';
-import { BlockEventPayloadPB, DeltaTypePB } from '@/services/backend';
-import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { RegionGrid } from './region_grid';
-
-export type Node = NestedBlock;
-
-export interface SelectionPoint {
-  path: [number, number];
-  offset: number;
-}
-
-export interface TextSelection {
-  anchor: SelectionPoint;
-  focus: SelectionPoint;
-}
-
-export interface DocumentState {
-  // map of block id to block
-  nodes: Record<string, Node>;
-  // map of block id to children block ids
-  children: Record<string, string[]>;
-  // selected block ids
-  selections: string[];
-  // map of block id to text selection
-  textSelections: Record<string, TextSelection>;
-}
+import { DocumentState, Node, TextSelection } from '@/appflowy_app/interfaces/document';
+import { BlockEventPayloadPB } from '@/services/backend';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { RegionGrid } from '@/appflowy_app/utils/region_grid';
+import { parseValue, matchChange } from '@/appflowy_app/utils/block_change';
 
 const regionGrid = new RegionGrid(50);
 
@@ -158,44 +134,11 @@ export const documentSlice = createSlice({
       const { path, id, value, command } = action.payload.data;
       const isRemote = action.payload.isRemote;
 
-      let valueJson;
-      try {
-        valueJson = JSON.parse(value);
-      } catch {
-        Log.error('[onDataChange] json parse error', value);
-        return;
-      }
+      const valueJson = parseValue(value);
       if (!valueJson) return;
 
-      if (command === DeltaTypePB.Inserted || command === DeltaTypePB.Updated) {
-        // set map key and value ( block map or children map)
-        if (path[0] === 'blocks') {
-          const block = blockChangeValue2Node(valueJson);
-          if (command === DeltaTypePB.Updated && !isRemote) {
-            // the `data` from local is already updated in local, so we just need to update other fields
-            const node = state.nodes[block.id];
-            if (!node || node.parent !== block.parent || node.type !== block.type || node.children !== block.children) {
-              state.nodes[block.id] = block;
-            }
-          } else {
-            state.nodes[block.id] = block;
-          }
-        } else {
-          state.children[id] = valueJson;
-        }
-      } else {
-        // remove map key ( block map or children map)
-        if (path[0] === 'blocks') {
-          if (state.selections.indexOf(id)) {
-            state.selections.splice(state.selections.indexOf(id), 1);
-          }
-          regionGrid.removeBlock(id);
-          delete state.textSelections[id];
-          delete state.nodes[id];
-        } else {
-          delete state.children[id];
-        }
-      }
+      // match change
+      matchChange(state, { path, id, value: valueJson, command }, isRemote);
     },
   },
 });
