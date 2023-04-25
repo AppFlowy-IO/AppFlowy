@@ -35,33 +35,33 @@
         "notFoundError": "مساحة العمل غير موجودة"
     },
     "shareAction": {
-        "buttonText": "يشارك",
+        "buttonText": "مشاركه",
         "workInProgress": "قريباً",
-        "markdown": "تخفيض السعر",
-        "copyLink": "نسخ الوصلة"
+        "markdown": "Markdown",
+        "copyLink": "نسخ الرابط"
     },
     "moreAction": {
         "small": "صغير",
-        "medium": "واسطة",
+        "medium": "متوسط",
         "large": "كبير",
         "fontSize": "حجم الخط",
-        "import": "يستورد"
+        "import": "استيراد"
     },
     "disclosureAction": {
         "rename": "إعادة تسمية",
         "delete": "يمسح",
-        "duplicate": "ينسخ"
+        "duplicate": "كرر"
     },
     "blankPageTitle": "صفحة فارغة",
     "newPageText": "صفحة جديدة",
     "trash": {
-        "text": "نفاية",
-        "restoreAll": "استعادة كل",
+        "text": "المهملات",
+        "restoreAll": "استعادة الكل",
         "deleteAll": "حذف الكل",
         "pageHeader": {
             "fileName": "اسم الملف",
             "lastModified": "آخر تعديل",
-            "created": "مخلوق"
+            "created": "تم انشاؤها"
         }
     },
     "deletePagePrompt": {
@@ -73,8 +73,8 @@
     "questionBubble": {
         "shortcuts": "الاختصارات",
         "whatsNew": "ما هو الجديد؟",
-        "help": "ساعد لدعم",
-        "markdown": "تخفيض السعر",
+        "help": "المساعدة والدعم",
+        "markdown": "Markdown",
         "debug": {
             "name": "معلومات التصحيح",
             "success": "تم نسخ معلومات التصحيح إلى الحافظة!",
@@ -118,7 +118,7 @@
     "notifications": {
         "export": {
             "markdown": "تم تصدير ملاحظة إلى Markdown",
-            "path": "المستندات / المتدفقة"
+            "path": "Documents/flowy"
         }
     },
     "contactsPage": {
@@ -130,16 +130,16 @@
     "button": {
         "OK": "نعم",
         "Done": "منتهي",
-        "Cancel": "يلغي",
+        "Cancel": "إلغاء",
         "signIn": "تسجيل الدخول",
         "signOut": "خروج",
         "complete": "مكتمل",
-        "save": "يحفظ",
+        "save": "حفظ",
         "generate": "يولد",
         "esc": "خروج",
-        "keep": "يحفظ",
+        "keep": "ابقاء",
         "tryAgain": "حاول ثانية",
-        "discard": "ينبذ",
+        "discard": "تجاهل",
         "replace": "يستبدل",
         "insertBelow": "إدراج أدناه"
     },
@@ -303,7 +303,7 @@
             "addSort": "أضف نوعًا"
         },
         "row": {
-            "duplicate": "ينسخ",
+            "duplicate": "مكرره",
             "delete": "يمسح",
             "textPlaceholder": "فارغ",
             "copyProperty": "نسخ الممتلكات إلى الحافظة",
