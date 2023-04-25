@@ -40,6 +40,7 @@ class TrashCell extends StatelessWidget {
         FlowyIconButton(
           width: 26,
           onPressed: onRestore,
+          hoverColor: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
           iconPadding: const EdgeInsets.all(5),
           icon: svgWidget(
             "editor/restore",
@@ -50,6 +51,7 @@ class TrashCell extends StatelessWidget {
         FlowyIconButton(
           width: 26,
           onPressed: onDelete,
+          hoverColor: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
           iconPadding: const EdgeInsets.all(5),
           icon: svgWidget(
             "editor/delete",
