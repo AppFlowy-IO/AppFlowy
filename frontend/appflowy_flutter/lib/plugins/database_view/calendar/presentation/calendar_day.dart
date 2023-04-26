@@ -66,7 +66,7 @@ class CalendarDayCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: _Header(
                 date: date,
                 isInMonth: isInMonth,
