@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-shadow
 export enum BlockType {
   PageBlock = 'page',
   HeadingBlock = 'heading',
@@ -38,7 +37,6 @@ export interface TextDelta {
   attributes?: Record<string, string | boolean>;
 }
 
-// eslint-disable-next-line no-shadow
 export enum BlockActionType {
   Insert = 0,
   Update = 1,
@@ -84,7 +82,6 @@ export interface DocumentState {
   textSelections: Record<string, TextSelection>;
 }
 
-// eslint-disable-next-line no-shadow
 export enum ChangeType {
   BlockInsert,
   BlockUpdate,

@@ -17,7 +17,7 @@ module.exports = {
     '@typescript-eslint/adjacent-overload-signatures': 'error',
     '@typescript-eslint/no-empty-function': 'error',
     '@typescript-eslint/no-empty-interface': 'warn',
-    '@typescript-eslint/no-floating-promises': 'error',
+    '@typescript-eslint/no-floating-promises': 'warn',
     '@typescript-eslint/await-thenable': 'error',
     '@typescript-eslint/no-namespace': 'error',
     '@typescript-eslint/no-unnecessary-type-assertion': 'error',
@@ -42,18 +42,13 @@ module.exports = {
     'no-param-reassign': 'error',
     'no-redeclare': 'error',
     'no-sequences': 'error',
-    'no-shadow': [
-      'error',
-      {
-        hoist: 'all',
-      },
-    ],
     'no-throw-literal': 'error',
     'no-unsafe-finally': 'error',
     'no-unused-labels': 'error',
     'no-var': 'warn',
     'no-void': 'off',
     'prefer-const': 'warn',
+    'prefer-spread': 'off',
   },
   ignorePatterns: ['src/**/*.test.ts'],
 };

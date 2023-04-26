@@ -3,7 +3,6 @@ export function debounce(fn: (...args: any[]) => void, delay: number) {
   return (...args: any[]) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
-      // eslint-disable-next-line prefer-spread
       fn.apply(undefined, args);
     }, delay);
   };
@@ -15,10 +14,8 @@ export function throttle(fn: (...args: any[]) => void, delay: number, immediate 
     if (!timeout) {
       timeout = setTimeout(() => {
         timeout = null;
-        // eslint-disable-next-line prefer-spread
         !immediate && fn.apply(undefined, args);
       }, delay);
-      // eslint-disable-next-line prefer-spread
       immediate && fn.apply(undefined, args);
     }
   };
