@@ -1,6 +1,5 @@
 import TextBlock from '../TextBlock';
-import { Node } from '@/appflowy_app/stores/reducers/document/slice';
-import { HeadingBlockData } from '@/appflowy_app/interfaces/document';
+import { HeadingBlockData, Node } from '@/appflowy_app/interfaces/document';
 
 const fontSize: Record<string, string> = {
   1: 'mt-8 text-3xl',

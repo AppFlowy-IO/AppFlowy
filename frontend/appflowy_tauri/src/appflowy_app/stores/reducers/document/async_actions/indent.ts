@@ -1,7 +1,6 @@
-import { BlockType } from '@/appflowy_app/interfaces/document';
+import { BlockType, DocumentState } from '@/appflowy_app/interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { DocumentState } from '../slice';
 
 export const indentNodeThunk = createAsyncThunk(
   'document/indentNode',

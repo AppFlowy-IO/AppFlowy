@@ -2,9 +2,9 @@ import React, { useCallback } from 'react';
 import { useNode } from './Node.hooks';
 import { withErrorBoundary } from 'react-error-boundary';
 import { ErrorBoundaryFallbackComponent } from '../_shared/ErrorBoundaryFallbackComponent';
-import { Node } from '@/appflowy_app/stores/reducers/document/slice';
 import TextBlock from '../TextBlock';
 import { NodeContext } from '../_shared/SubscribeNode.hooks';
+import { Node } from '$app/interfaces/document';
 
 function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<HTMLDivElement>) {
   const { node, childIds, isSelected, ref } = useNode(id);

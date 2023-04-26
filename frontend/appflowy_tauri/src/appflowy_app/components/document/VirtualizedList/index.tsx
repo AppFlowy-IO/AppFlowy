@@ -1,8 +1,8 @@
 import React from 'react';
 import { useVirtualizedList } from './VirtualizedList.hooks';
-import { Node } from '@/appflowy_app/stores/reducers/document/slice';
 import DocumentTitle from '../DocumentTitle';
 import Overlay from '../Overlay';
+import { Node } from '$app/interfaces/document';
 
 export default function VirtualizedList({
   childIds,

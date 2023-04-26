@@ -1,8 +1,8 @@
-import { BlockType, TextDelta } from '@/appflowy_app/interfaces/document';
+import { BlockType, DocumentState, TextDelta } from '@/appflowy_app/interfaces/document';
 import { DocumentController } from '@/appflowy_app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { generateId } from '@/appflowy_app/utils/block';
-import { documentActions, DocumentState } from '../slice';
+import { documentActions } from '../slice';
 import { setCursorBeforeThunk } from './set_cursor';
 
 export const splitNodeThunk = createAsyncThunk(

@@ -1,6 +1,7 @@
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { DocumentState } from '../slice';
+
+import { DocumentState } from '$app/interfaces/document';
 
 export const deleteNodeThunk = createAsyncThunk(
   'document/deleteNode',

@@ -1,6 +1,6 @@
-import { Node } from '@/appflowy_app/stores/reducers/document/slice';
 import { useAppSelector } from '@/appflowy_app/stores/store';
 import { useMemo, createContext } from 'react';
+import { Node } from '$app/interfaces/document';
 export const NodeContext = createContext<Node | null>(null);
 
 /**

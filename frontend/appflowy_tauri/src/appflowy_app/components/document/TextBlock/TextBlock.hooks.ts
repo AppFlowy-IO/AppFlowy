@@ -1,7 +1,7 @@
 import { triggerHotkey } from '@/appflowy_app/utils/slate/hotkey';
 import { useCallback, useContext } from 'react';
 import { Range, Editor, Element, Text, Location } from 'slate';
-import { TextDelta } from '$app/interfaces/document';
+import { TextDelta, TextSelection } from '$app/interfaces/document';
 import { useTextInput } from '../_shared/TextInput.hooks';
 import { useAppDispatch } from '@/appflowy_app/stores/store';
 import { DocumentControllerContext } from '@/appflowy_app/stores/effects/document/document_controller';
@@ -10,7 +10,7 @@ import {
   indentNodeThunk,
   splitNodeThunk,
 } from '@/appflowy_app/stores/reducers/document/async_actions';
-import { documentActions, TextSelection } from '@/appflowy_app/stores/reducers/document/slice';
+import { documentActions } from '@/appflowy_app/stores/reducers/document/slice';
 
 export function useTextBlock(id: string) {
   const { editor, onChange, value } = useTextInput(id);

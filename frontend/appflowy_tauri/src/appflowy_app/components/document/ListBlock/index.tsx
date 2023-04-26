@@ -3,8 +3,7 @@ import TextBlock from '../TextBlock';
 import NumberedListBlock from './NumberedListBlock';
 import BulletedListBlock from './BulletedListBlock';
 import ColumnListBlock from './ColumnListBlock';
-import { Node } from '@/appflowy_app/stores/reducers/document/slice';
-import { TextDelta } from '@/appflowy_app/interfaces/document';
+import { Node, TextDelta } from '@/appflowy_app/interfaces/document';
 
 export default function ListBlock({ node }: { node: Node }) {
   const title = useMemo(() => {

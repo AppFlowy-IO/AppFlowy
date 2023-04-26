@@ -1,10 +1,10 @@
 import { Slate, Editable } from 'slate-react';
 import Leaf from './Leaf';
 import { useTextBlock } from './TextBlock.hooks';
-import { Node } from '@/appflowy_app/stores/reducers/document/slice';
 import NodeComponent from '../Node';
 import HoveringToolbar from '../_shared/HoveringToolbar';
 import React, { useEffect } from 'react';
+import { Node } from '$app/interfaces/document';
 
 function TextBlock({
   node,
