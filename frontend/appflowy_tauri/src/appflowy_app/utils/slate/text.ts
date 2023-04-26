@@ -23,8 +23,10 @@ export function getRetainRangeBy(editor: Editor) {
 export function getInsertRangeBy(editor: Editor) {
   const end = Editor.end(editor, editor.selection!);
   const fragment = (editor.children[0] as Element).children;
+  const lastIndex = fragment.length - 1;
+  const lastNode = fragment[lastIndex] as Text;
   return {
     anchor: end,
-    focus: { path: [0, fragment.length - 1], offset: (fragment[fragment.length - 1] as Text).text.length },
+    focus: { path: [0, lastIndex], offset: lastNode.text.length },
   };
 }
