@@ -82,7 +82,7 @@ pub enum FilterScript {
     },
     AssertFilterContent {
         filter_id: String,
-        condition: u32,
+        condition: i64,
         content: String
     },
     AssertNumberOfVisibleRows {
@@ -234,13 +234,13 @@ impl DatabaseFilterTest {
                 self.insert_filter(payload).await;
             }
             FilterScript::AssertFilterCount { count } => {
-                let filters = self.editor.get_all_filters(&self.view_id).await;
+                let filters = self.editor.get_all_filters(&self.view_id).await.items;
                 assert_eq!(count as usize, filters.len());
             }
             FilterScript::AssertFilterContent { filter_id, condition, content} => {
-                // let filter = self.editor.get_filter(&self.view_id, &filter_id).await.unwrap();
-                // assert_eq!(&filter.content, &content);
-                // assert_eq!(filter.condition as u32, condition);
+                let filter = self.editor.get_filter(&self.view_id, &filter_id).await.unwrap();
+                assert_eq!(&filter.content, &content);
+                assert_eq!(filter.condition, condition);
 
             }
             FilterScript::DeleteFilter {  filter_id, filter_type ,changed} => {

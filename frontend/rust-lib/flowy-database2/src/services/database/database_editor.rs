@@ -29,7 +29,9 @@ use crate::services::cell::{
 };
 use crate::services::database::util::{database_view_setting_pb_from_view, get_database_data};
 use crate::services::database::{DatabaseRowEvent, InsertedRow, UpdatedRow};
-use crate::services::database_view::{DatabaseViewData, DatabaseViews, RowEventSender};
+use crate::services::database_view::{
+  DatabaseViewChanged, DatabaseViewData, DatabaseViews, RowEventSender,
+};
 use crate::services::field::{
   default_type_option_data_for_type, default_type_option_data_from_type,
   select_type_option_from_field, transform_type_option, type_option_data_from_pb_or_default,
@@ -83,6 +85,14 @@ impl DatabaseEditor {
   }
 
   pub async fn close(&self) {}
+
+  pub async fn subscribe_view_changed(
+    &self,
+    view_id: &str,
+  ) -> FlowyResult<broadcast::Receiver<DatabaseViewChanged>> {
+    let view_editor = self.database_views.get_view_editor(view_id).await?;
+    Ok(view_editor.notifier.subscribe())
+  }
 
   pub fn get_field(&self, field_id: &str) -> Option<Field> {
     self.database.lock().fields.get_field(field_id)
@@ -144,10 +154,9 @@ impl DatabaseEditor {
     }
   }
 
-  pub async fn get_filter(&self, view_id: &str, filter_id: &str) -> Option<FilterPB> {
+  pub async fn get_filter(&self, view_id: &str, filter_id: &str) -> Option<Filter> {
     if let Ok(view_editor) = self.database_views.get_view_editor(view_id).await {
-      let filter = view_editor.v_get_filter(filter_id).await?;
-      Some(FilterPB::from(&filter))
+      Some(view_editor.v_get_filter(filter_id).await?)
     } else {
       None
     }
