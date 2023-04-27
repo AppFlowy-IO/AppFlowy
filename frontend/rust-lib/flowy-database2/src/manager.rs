@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::ops::Deref;
 use std::sync::Arc;
 
-use collab_database::database::DuplicatedDatabase;
+use collab_database::database::DatabaseData;
 use collab_database::user::UserDatabase as InnerUserDatabase;
 use collab_database::views::{CreateDatabaseParams, CreateViewParams};
 use collab_persistence::kv::rocks_kv::RocksCollabDB;
@@ -131,17 +131,17 @@ impl DatabaseManager2 {
   }
 
   #[tracing::instrument(level = "trace", skip_all, err)]
-  pub async fn create_database_with_duplicated_data(
+  pub async fn create_database_with_database_data(
     &self,
     view_id: &str,
     data: Vec<u8>,
   ) -> FlowyResult<()> {
-    let mut database_data = DuplicatedDatabase::from_json_bytes(data)?;
+    let mut database_data = DatabaseData::from_json_bytes(data)?;
     database_data.view.id = view_id.to_string();
     self.with_user_database(
       Err(FlowyError::internal().context("Create database with data failed")),
       |database| {
-        let database = database.create_database_with_duplicated_data(database_data)?;
+        let database = database.create_database_with_data(database_data)?;
         Ok(database)
       },
     )?;

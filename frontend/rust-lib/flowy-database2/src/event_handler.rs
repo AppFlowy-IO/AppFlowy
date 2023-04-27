@@ -112,7 +112,11 @@ pub(crate) async fn get_fields_handler(
   let database_editor = manager.get_database(&params.view_id).await?;
   let fields = database_editor
     .get_fields(&params.view_id, params.field_ids)
-    .await;
+    .await
+    .into_iter()
+    .map(FieldPB::from)
+    .collect::<Vec<FieldPB>>()
+    .into();
   data_result_ok(fields)
 }
 

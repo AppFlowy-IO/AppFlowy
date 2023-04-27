@@ -2,7 +2,7 @@ use anyhow::bail;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::views::{FilterMap, FilterMapBuilder};
 
-use crate::entities::{DeleteFilterParams, FieldType, InsertedRowPB};
+use crate::entities::{DeleteFilterParams, FieldType, FilterPB, InsertedRowPB};
 
 #[derive(Debug, Clone)]
 pub struct Filter {
@@ -121,6 +121,15 @@ impl std::convert::From<&Filter> for FilterType {
   }
 }
 
+impl std::convert::From<&FilterPB> for FilterType {
+  fn from(filter: &FilterPB) -> Self {
+    Self {
+      filter_id: filter.id.clone(),
+      field_id: filter.field_id.clone(),
+      field_type: filter.field_type.clone(),
+    }
+  }
+}
 // #[derive(Hash, Eq, PartialEq, Debug, Clone)]
 // pub struct InsertedFilterType {
 //   pub field_id: String,

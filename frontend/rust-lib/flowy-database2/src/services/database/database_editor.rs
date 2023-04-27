@@ -36,7 +36,7 @@ use crate::services::field::{
   type_option_to_pb, FieldBuilder, SelectOptionCellChangeset, SelectOptionIds,
   TypeOptionCellDataHandler,
 };
-use crate::services::filter::Filter;
+use crate::services::filter::{Filter, FilterType};
 use crate::services::group::{default_group_setting, GroupSetting, RowChangeset};
 use crate::services::sort::Sort;
 
@@ -144,6 +144,14 @@ impl DatabaseEditor {
     }
   }
 
+  pub async fn get_filter(&self, view_id: &str, filter_id: &str) -> Option<FilterPB> {
+    if let Ok(view_editor) = self.database_views.get_view_editor(view_id).await {
+      let filter = view_editor.v_get_filter(filter_id).await?;
+      Some(FilterPB::from(&filter))
+    } else {
+      None
+    }
+  }
   pub async fn get_all_sorts(&self, view_id: &str) -> RepeatedSortPB {
     if let Ok(view_editor) = self.database_views.get_view_editor(view_id).await {
       view_editor.v_get_all_sorts().await.into()
@@ -158,13 +166,8 @@ impl DatabaseEditor {
     }
   }
 
-  pub async fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> RepeatedFieldPB {
-    let fields = self.database.lock().get_fields(view_id, field_ids);
-    fields
-      .into_iter()
-      .map(FieldPB::from)
-      .collect::<Vec<FieldPB>>()
-      .into()
+  pub async fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Vec<Field> {
+    self.database.lock().get_fields(view_id, field_ids)
   }
 
   pub async fn update_field(&self, params: FieldChangesetParams) -> FlowyResult<()> {
@@ -435,6 +438,10 @@ impl DatabaseEditor {
       },
       _ => CellPB::empty(field_id, row_id.into()),
     }
+  }
+
+  pub async fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Vec<RowCell> {
+    self.database.lock().get_cells_for_field(view_id, field_id)
   }
 
   pub async fn update_cell<T>(

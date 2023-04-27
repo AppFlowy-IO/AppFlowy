@@ -486,6 +486,10 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
+  pub async fn v_get_filter(&self, filter_id: &str) -> Option<Filter> {
+    self.delegate.get_filter(&self.view_id, filter_id)
+  }
+
   /// Returns the current calendar settings
   #[tracing::instrument(level = "debug", skip(self))]
   pub async fn v_get_layout_settings(&self, layout_ty: &DatabaseLayout) -> LayoutSettingParams {

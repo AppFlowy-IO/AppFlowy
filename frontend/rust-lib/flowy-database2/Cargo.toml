@@ -42,6 +42,9 @@ nanoid = "0.4.0"
 strum = "0.21"
 strum_macros = "0.21"
 
+[dev-dependencies]
+flowy-test = { path = "../flowy-test" }
+
 [build-dependencies]
 flowy-codegen = { path = "../flowy-codegen"}
 

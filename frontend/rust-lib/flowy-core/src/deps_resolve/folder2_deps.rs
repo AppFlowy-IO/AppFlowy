@@ -212,7 +212,7 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
         let view_id = view_id.to_string();
         FutureResult::new(async move {
           database_manager
-            .create_database_with_duplicated_data(&view_id, data)
+            .create_database_with_database_data(&view_id, data)
             .await?;
           Ok(())
         })
