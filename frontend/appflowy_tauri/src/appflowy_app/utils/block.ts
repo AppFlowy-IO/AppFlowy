@@ -1,7 +1,7 @@
 import { BlockPB } from '@/services/backend/models/flowy-document2';
 import { nanoid } from 'nanoid';
 import { Descendant, Element, Text } from 'slate';
-import { BlockType, TextDelta } from '../interfaces/document';
+import { BlockType, DocumentState, NestedBlock, TextDelta } from '../interfaces/document';
 import { Log } from './log';
 export function generateId() {
   return nanoid(10);
@@ -51,4 +51,51 @@ export function blockPB2Node(block: BlockPB) {
     data,
   };
   return node;
+}
+
+export function getPrevLineId(state: DocumentState, id: string) {
+  const node = state.nodes[id];
+  if (!node.parent) return;
+  const parent = state.nodes[node.parent];
+  const children = state.children[parent.children];
+  const index = children.indexOf(id);
+  const prevNodeId = children[index - 1];
+  const prevNode = state.nodes[prevNodeId];
+  if (!prevNode) {
+    return parent.id;
+  }
+  // find prev line
+  let prevLineId = prevNode.id;
+  while (prevLineId) {
+    const prevLineChildren = state.children[state.nodes[prevLineId].children];
+    if (prevLineChildren.length === 0) break;
+    prevLineId = prevLineChildren[prevLineChildren.length - 1];
+  }
+  return prevLineId || parent.id;
+}
+
+export function getNextLineId(state: DocumentState, id: string) {
+  const node = state.nodes[id];
+  if (!node.parent) return;
+
+  const firstChild = state.children[node.children][0];
+  if (firstChild) return firstChild;
+
+  let nextNodeId = getNextNodeId(state, id);
+  let parent: NestedBlock | null = state.nodes[node.parent];
+  while (!nextNodeId && parent) {
+    nextNodeId = getNextNodeId(state, parent.id);
+    parent = parent.parent ? state.nodes[parent.parent] : null;
+  }
+  return nextNodeId;
+}
+
+export function getNextNodeId(state: DocumentState, id: string) {
+  const node = state.nodes[id];
+  if (!node.parent) return;
+  const parent = state.nodes[node.parent];
+  const children = state.children[parent.children];
+  const index = children.indexOf(id);
+  const nextNodeId = children[index + 1];
+  return nextNodeId;
 }

@@ -161,13 +161,16 @@ function setSelection(editor: ReactEditor, currentSelection: TextSelection) {
   const { path, offset } = currentSelection.focus;
   // It is possible that the current selection is out of range
   const children = getDeltaFromSlateNodes(editor.children);
-  if (children[path[1]].insert.length < offset) {
+
+  // the path always has 2 elements,
+  // because the slate node is a two-dimensional array
+  const index = path[1];
+  if (children[index].insert.length < offset) {
     return;
   }
 
   // the order of the following two lines is important
   // if we reverse the order, the selection will be lost or always at the start
   Transforms.select(editor, currentSelection);
-  editor.selection = currentSelection;
   ReactEditor.focus(editor);
 }

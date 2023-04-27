@@ -4,6 +4,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { documentActions } from '../slice';
 import { outdentNodeThunk } from './outdent';
 import { setCursorAfterThunk } from './set_cursor';
+import { getPrevLineId } from '$app/utils/block';
 
 const composeNodeThunk = createAsyncThunk(
   'document/composeNode',
@@ -65,15 +66,8 @@ const composePrevNodeThunk = createAsyncThunk(
     const { id, prevNodeId, controller } = payload;
     const { dispatch, getState } = thunkAPI;
     const state = (getState() as { document: DocumentState }).document;
-    const prevNode = state.nodes[prevNodeId];
-    if (!prevNode) return;
-    // find prev line
-    let prevLineId = prevNode.id;
-    while (prevLineId) {
-      const prevLineChildren = state.children[state.nodes[prevLineId].children];
-      if (prevLineChildren.length === 0) break;
-      prevLineId = prevLineChildren[prevLineChildren.length - 1];
-    }
+    const prevLineId = getPrevLineId(state, id);
+    if (!prevLineId) return;
     await dispatch(composeNodeThunk({ id: id, composeId: prevLineId, controller }));
   }
 );
