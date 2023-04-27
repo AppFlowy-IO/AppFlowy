@@ -270,7 +270,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
           widget.state.onEmojiSelected(categoryEmoji.category, emoji);
         },
         child: FittedBox(
-          fit: BoxFit.fill,
+          fit: BoxFit.scaleDown,
           child: Text(
             emoji.emoji,
             textScaleFactor: 1.0,
