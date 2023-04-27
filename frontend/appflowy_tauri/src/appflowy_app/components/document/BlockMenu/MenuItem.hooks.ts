@@ -2,7 +2,7 @@ import { DocumentControllerContext } from '$app/stores/effects/document/document
 import { useAppDispatch } from '@/appflowy_app/stores/store';
 import { useCallback, useContext } from 'react';
 import { insertAfterNodeThunk, deleteNodeThunk } from '@/appflowy_app/stores/reducers/document/async_actions';
-// eslint-disable-next-line no-shadow
+
 export enum ActionType {
   InsertAfter = 'insertAfter',
   Remove = 'remove',
