@@ -7,7 +7,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 
 import 'notification_helper.dart';
-
+// DROP THIS
 // Folder
 typedef FolderNotificationCallback = void Function(
   FolderNotification,
