@@ -49,7 +49,7 @@ class CalendarDayCard extends StatelessWidget {
 
     return ChangeNotifierProvider(
       create: (_) => _CardEnterNotifier(),
-      builder: ((context, child) {
+      builder: (context, child) {
         final children = events.map((event) {
           return _DayEventCell(
             event: event,
@@ -101,7 +101,7 @@ class CalendarDayCard extends StatelessWidget {
             ),
           ),
         );
-      }),
+      },
     );
   }
 
@@ -249,7 +249,7 @@ class _DayBadge extends StatelessWidget {
       dayTextColor = Theme.of(context).disabledColor;
     }
 
-    Widget day = Container(
+    return Container(
       decoration: BoxDecoration(
         color: isToday ? Theme.of(context).colorScheme.primary : null,
         borderRadius: Corners.s6Border,
@@ -260,8 +260,6 @@ class _DayBadge extends StatelessWidget {
         color: dayTextColor,
       ),
     );
-
-    return day;
   }
 }
 
