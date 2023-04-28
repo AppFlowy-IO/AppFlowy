@@ -108,11 +108,6 @@ class _PropertyColumn extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // const FlowyText.semibold(
-              //   "Row Title",
-              //   fontSize: 20,
-              // ),
-              // const VSpace(20),
               ...state.gridCells
                   .map(
                     (cell) => Padding(
