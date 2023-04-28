@@ -44,6 +44,7 @@ collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "c5aba2
 collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "c5aba2"  }
 collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "c5aba2" }
 collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "c5aba2" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "c5aba2" }
 
 #collab = { path = "../AppFlowy-Collab/collab" }
 #collab-folder = { path = "../AppFlowy-Collab/collab-folder" }
