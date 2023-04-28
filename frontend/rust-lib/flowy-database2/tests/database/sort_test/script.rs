@@ -1,5 +1,5 @@
 use std::cmp::min;
-use std::sync::Arc;
+
 use std::time::Duration;
 
 use async_stream::stream;
@@ -8,7 +8,7 @@ use collab_database::rows::RowId;
 use futures::stream::StreamExt;
 use tokio::sync::broadcast::Receiver;
 
-use flowy_database2::entities::{AlterSortParams, CellIdParams, DeleteSortParams, FieldType};
+use flowy_database2::entities::{AlterSortParams, DeleteSortParams, FieldType};
 use flowy_database2::services::cell::stringify_cell_data;
 use flowy_database2::services::database_view::DatabaseViewChanged;
 use flowy_database2::services::sort::{Sort, SortCondition, SortType};
@@ -77,7 +77,7 @@ impl DatabaseSortTest {
           field_id: field.id.clone(),
           sort_id: None,
           field_type: FieldType::from(field.field_type),
-          condition: condition.value(),
+          condition,
         };
         let sort_rev = self.editor.create_or_update_sort(params).await.unwrap();
         self.current_sort_rev = Some(sort_rev);
@@ -104,9 +104,12 @@ impl DatabaseSortTest {
         let field = self.editor.get_field(&field_id).unwrap();
         let field_type = FieldType::from(field.field_type);
         for row in rows {
-          let cell = row.cells.get(&field_id).unwrap().clone();
-          let content = stringify_cell_data(&cell, &field_type, &field_type, &field);
-          cells.push(content);
+          if let Some(cell) = row.cells.get(&field_id) {
+            let content = stringify_cell_data(cell, &field_type, &field_type, &field);
+            cells.push(content);
+          } else {
+            cells.push("".to_string());
+          }
         }
         if orders.is_empty() {
           assert_eq!(cells, orders);

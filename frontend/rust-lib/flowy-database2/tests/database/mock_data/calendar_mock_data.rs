@@ -1,10 +1,10 @@
 use crate::database::database_editor::TestRowBuilder;
 use collab_database::database::{gen_database_id, gen_database_view_id, DatabaseData};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, LayoutSettings};
-use database_model::LayoutRevision;
+
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::{FieldBuilder, MultiSelectTypeOption};
-use flowy_database2::services::setting::{CalendarLayout, CalendarLayoutSetting};
+use flowy_database2::services::setting::CalendarLayoutSetting;
 use strum::IntoEnumIterator;
 
 // Calendar unit test mock data
@@ -30,7 +30,7 @@ pub fn make_test_calendar() -> DatabaseData {
 
   // multi select
 
-  let mut type_option = MultiSelectTypeOption::default();
+  let type_option = MultiSelectTypeOption::default();
   let multi_select_field = FieldBuilder::new(FieldType::MultiSelect, type_option)
     .name("Tags")
     .visibility(true)

@@ -11,9 +11,9 @@ pub struct Document2DepsResolver();
 impl Document2DepsResolver {
   pub fn resolve(
     user_session: Arc<UserSession>,
-    database_manager: &Arc<DatabaseManager2>,
+    _database_manager: &Arc<DatabaseManager2>,
   ) -> Arc<DocumentManager2> {
-    let user: Arc<dyn DocumentUser> = Arc::new(DocumentUserImpl(user_session.clone()));
+    let user: Arc<dyn DocumentUser> = Arc::new(DocumentUserImpl(user_session));
 
     Arc::new(DocumentManager2::new(user.clone()))
   }

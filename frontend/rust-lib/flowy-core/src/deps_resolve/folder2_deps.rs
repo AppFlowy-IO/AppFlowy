@@ -174,7 +174,7 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
     view_id: &str,
     name: &str,
     layout: ViewLayout,
-    ext: HashMap<String, String>,
+    _ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
     let name = name.to_string();
     let database_manager = self.0.clone();

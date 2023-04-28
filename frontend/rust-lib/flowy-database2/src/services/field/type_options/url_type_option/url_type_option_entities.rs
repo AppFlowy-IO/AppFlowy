@@ -1,5 +1,6 @@
 use crate::entities::{FieldType, URLCellDataPB};
 use crate::services::cell::{CellProtobufBlobParser, DecodedCellData, FromCellString};
+use crate::services::field::CELL_DATE;
 use bytes::Bytes;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::{new_cell_builder, Cell};
@@ -9,14 +10,14 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct URLCellData {
   pub url: String,
-  pub content: String,
+  pub data: String,
 }
 
 impl URLCellData {
   pub fn new(s: &str) -> Self {
     Self {
       url: "".to_string(),
-      content: s.to_string(),
+      data: s.to_string(),
     }
   }
 
@@ -28,8 +29,8 @@ impl URLCellData {
 impl From<&Cell> for URLCellData {
   fn from(cell: &Cell) -> Self {
     let url = cell.get_str_value("url").unwrap_or_default();
-    let content = cell.get_str_value("content").unwrap_or_default();
-    Self { url, content }
+    let content = cell.get_str_value(CELL_DATE).unwrap_or_default();
+    Self { url, data: content }
   }
 }
 
@@ -37,7 +38,7 @@ impl From<URLCellData> for Cell {
   fn from(data: URLCellData) -> Self {
     new_cell_builder(FieldType::URL)
       .insert_str_value("url", data.url)
-      .insert_str_value("content", data.content)
+      .insert_str_value(CELL_DATE, data.data)
       .build()
   }
 }
@@ -46,7 +47,7 @@ impl From<URLCellData> for URLCellDataPB {
   fn from(data: URLCellData) -> Self {
     Self {
       url: data.url,
-      content: data.content,
+      content: data.data,
     }
   }
 }
@@ -63,7 +64,7 @@ impl From<URLCellDataPB> for URLCellData {
   fn from(data: URLCellDataPB) -> Self {
     Self {
       url: data.url,
-      content: data.content,
+      data: data.content,
     }
   }
 }
@@ -78,7 +79,7 @@ impl DecodedCellData for URLCellData {
   type Object = URLCellData;
 
   fn is_empty(&self) -> bool {
-    self.content.is_empty()
+    self.data.is_empty()
   }
 }
 

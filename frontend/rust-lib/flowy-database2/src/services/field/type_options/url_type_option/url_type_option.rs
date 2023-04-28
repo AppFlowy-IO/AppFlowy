@@ -74,7 +74,7 @@ impl CellDataDecoder for URLTypeOption {
   }
 
   fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
-    cell_data.content
+    cell_data.data
   }
 
   fn decode_cell_to_str(&self, cell: &Cell) -> String {
@@ -97,7 +97,7 @@ impl CellDataChangeset for URLTypeOption {
     }
     let url_cell_data = URLCellData {
       url,
-      content: changeset,
+      data: changeset,
     };
     Ok((url_cell_data.clone().into(), url_cell_data))
   }
@@ -124,7 +124,7 @@ impl TypeOptionCellDataCompare for URLTypeOption {
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
   ) -> Ordering {
-    cell_data.content.cmp(&other_cell_data.content)
+    cell_data.data.cmp(&other_cell_data.data)
   }
 }
 fn auto_append_scheme(s: &str) -> String {

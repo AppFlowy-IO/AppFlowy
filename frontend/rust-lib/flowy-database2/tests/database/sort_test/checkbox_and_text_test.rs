@@ -18,7 +18,7 @@ async fn sort_checkbox_and_then_text_by_descending_test() {
       field_id: text_field.id.clone(),
       orders: vec!["A", "", "C", "DA", "AE", "AE"],
     },
-    // Insert checkbox sort
+    // // Insert checkbox sort
     InsertSort {
       field: checkbox_field.clone(),
       condition: SortCondition::Descending,

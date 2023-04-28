@@ -67,7 +67,7 @@ impl DocumentManager {
     }
 
     let document = self.get_document(doc_id.clone(), None)?;
-    let clone_doc_id = doc_id.clone();
+    let clone_doc_id = doc_id;
     let _document_data = document
       .lock()
       .open(move |events, is_remote| {

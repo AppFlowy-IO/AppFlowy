@@ -34,7 +34,10 @@ impl DatabaseCellTest {
     // let _cache = rev_manager.revision_cache().await;
 
     match script {
-      CellScript::UpdateCell { changeset, is_err } => {
+      CellScript::UpdateCell {
+        changeset,
+        is_err: _,
+      } => {
         self
           .editor
           .update_cell_with_changeset(

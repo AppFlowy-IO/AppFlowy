@@ -249,7 +249,7 @@ impl DatabaseFilterTest {
             FilterScript::DeleteFilter {  filter_id, filter_type ,changed} => {
                 self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 self.assert_future_changed(changed).await;
-                let params = DeleteFilterParams { view_id: self.view_id(),filter_type };
+                let params = DeleteFilterParams { filter_id, view_id: self.view_id(),filter_type };
                 let _ = self.editor.delete_filter(params).await.unwrap();
             }
             FilterScript::AssertGridSetting { expected_setting } => {
@@ -257,7 +257,7 @@ impl DatabaseFilterTest {
                 assert_eq!(expected_setting, setting);
             }
             FilterScript::AssertNumberOfVisibleRows { expected } => {
-                let grid = self.editor.get_database_data().await;
+                let grid = self.editor.get_database_data(&self.view_id).await;
                 assert_eq!(grid.rows.len(), expected);
             }
             FilterScript::Wait { millisecond } => {

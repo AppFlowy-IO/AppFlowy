@@ -2,14 +2,15 @@ use crate::database::mock_data::{
   COMPLETED, FACEBOOK, FIRST_THING, GOOGLE, PAUSED, PLANNED, SECOND_THING, THIRD_THING, TWITTER,
 };
 use collab_database::database::{gen_database_id, gen_database_view_id, DatabaseData};
-use collab_database::rows::RowBuilder;
-use collab_database::views::{CreateDatabaseParams, DatabaseLayout, DatabaseView};
+
+use collab_database::views::{DatabaseLayout, DatabaseView};
 
 use crate::database::database_editor::TestRowBuilder;
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::{
   ChecklistTypeOption, DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption,
-  SelectOption, SelectOptionColor, SingleSelectTypeOption, TimeFormat,
+  NumberFormat, NumberTypeOption, SelectOption, SelectOptionColor, SingleSelectTypeOption,
+  TimeFormat,
 };
 use strum::IntoEnumIterator;
 
@@ -29,7 +30,10 @@ pub fn make_test_grid() -> DatabaseData {
       },
       FieldType::Number => {
         // Number
-        let number_field = FieldBuilder::from_field_type(field_type.clone())
+        let mut type_option = NumberTypeOption::default();
+        type_option.set_format(NumberFormat::USD);
+
+        let number_field = FieldBuilder::new(field_type.clone(), type_option)
           .name("Price")
           .visibility(true)
           .build();

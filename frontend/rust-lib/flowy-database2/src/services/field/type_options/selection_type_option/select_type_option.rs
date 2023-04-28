@@ -21,7 +21,7 @@ pub trait SelectTypeOptionSharedAction: Send + Sync {
   /// Returns `None` means there is no limited
   fn number_of_max_options(&self) -> Option<usize>;
 
-  /// Insert the `SelectOptionPB` into corresponding type option.
+  /// Insert the `SelectOption` into corresponding type option.
   fn insert_option(&mut self, new_option: SelectOption) {
     let options = self.mut_options();
     if let Some(index) = options

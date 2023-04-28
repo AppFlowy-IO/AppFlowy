@@ -161,7 +161,7 @@ mod tests {
       .apply_changeset(input_str.to_owned(), None)
       .unwrap()
       .1;
-    assert_eq!(expected_str.to_owned(), decode_cell_data.content);
+    assert_eq!(expected_str.to_owned(), decode_cell_data.data);
     assert_eq!(expected_url.to_owned(), decode_cell_data.url);
   }
 }

@@ -2,9 +2,7 @@ use crate::services::cell::CellCache;
 use crate::services::database_view::{
   gen_handler_id, DatabaseViewChangedNotifier, DatabaseViewData,
 };
-use crate::services::filter::{
-  Filter, FilterController, FilterDelegate, FilterTaskHandler,
-};
+use crate::services::filter::{Filter, FilterController, FilterDelegate, FilterTaskHandler};
 use collab_database::fields::Field;
 use collab_database::rows::{Row, RowId};
 use lib_infra::future::{to_fut, Fut};
@@ -55,14 +53,14 @@ impl FilterDelegate for DatabaseViewFilterDelegateImpl {
   }
 
   fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>> {
-    self.0.get_fields(view_id,field_ids)
+    self.0.get_fields(view_id, field_ids)
   }
 
   fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<Row>>> {
     self.0.get_rows(view_id)
   }
 
-  fn get_row(&self, view_id:&str, row_id: RowId) -> Fut<Option<(usize, Arc<Row>)>> {
+  fn get_row(&self, view_id: &str, row_id: RowId) -> Fut<Option<(usize, Arc<Row>)>> {
     self.0.get_row(view_id, row_id)
   }
 }

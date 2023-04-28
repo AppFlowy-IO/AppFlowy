@@ -1,5 +1,6 @@
 use crate::entities::FieldType;
 use crate::services::cell::{DecodedCellData, FromCellString};
+use crate::services::field::CELL_DATE;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::{new_cell_builder, Cell};
 use flowy_error::FlowyResult;
@@ -24,7 +25,7 @@ impl SelectOptionIds {
 
   pub fn to_cell_data(&self, field_type: FieldType) -> Cell {
     new_cell_builder(field_type)
-      .insert_str_value("data", self.to_string())
+      .insert_str_value(CELL_DATE, self.to_string())
       .build()
   }
 }
@@ -40,7 +41,7 @@ impl FromCellString for SelectOptionIds {
 
 impl From<&Cell> for SelectOptionIds {
   fn from(cell: &Cell) -> Self {
-    let value = cell.get_str_value("data").unwrap_or_default();
+    let value = cell.get_str_value(CELL_DATE).unwrap_or_default();
     Self::from(value)
   }
 }

@@ -6,7 +6,7 @@ use std::{sync::Arc, time::Duration};
 
 lazy_static::lazy_static! {
     static ref DB_POOL: Arc<ScheduledThreadPool> = Arc::new(
-        ScheduledThreadPool::with_name("db-pool-{}:", 4)
+        ScheduledThreadPool::builder().num_threads(4).thread_name_pattern("db-pool-{}:").build()
     );
 }
 

@@ -19,6 +19,7 @@ pub type RowEventSender = broadcast::Sender<DatabaseRowEvent>;
 pub type RowEventReceiver = broadcast::Receiver<DatabaseRowEvent>;
 
 pub struct DatabaseViews {
+  #[allow(dead_code)]
   database: MutexDatabase,
   cell_cache: CellCache,
   database_view_data: Arc<dyn DatabaseViewData>,
@@ -130,21 +131,16 @@ fn listen_on_database_row_event(
   view_editors: Arc<RwLock<HashMap<String, Arc<DatabaseViewEditor>>>>,
 ) {
   tokio::spawn(async move {
-    loop {
-      match row_event_rx.recv().await {
-        Ok(event) => {
-          let read_guard = view_editors.read().await;
-          let view_editors = read_guard.values();
-          let event = if view_editors.len() == 1 {
-            Cow::Owned(event)
-          } else {
-            Cow::Borrowed(&event)
-          };
-          for view_editor in view_editors {
-            view_editor.handle_block_event(event.clone()).await;
-          }
-        },
-        Err(_) => break,
+    while let Ok(event) = row_event_rx.recv().await {
+      let read_guard = view_editors.read().await;
+      let view_editors = read_guard.values();
+      let event = if view_editors.len() == 1 {
+        Cow::Owned(event)
+      } else {
+        Cow::Borrowed(&event)
+      };
+      for view_editor in view_editors {
+        view_editor.handle_block_event(event.clone()).await;
       }
     }
   });

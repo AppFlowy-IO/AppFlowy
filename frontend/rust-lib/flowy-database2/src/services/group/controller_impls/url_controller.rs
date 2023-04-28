@@ -200,10 +200,10 @@ impl GroupGenerator for URLGroupGenerator {
     let group_configs = cells
       .into_iter()
       .flat_map(|value| value.into_url_field_cell_data())
-      .filter(|cell| !cell.content.is_empty())
+      .filter(|cell| !cell.data.is_empty())
       .map(|cell| GeneratedGroupConfig {
         group: make_group_from_url_cell(&cell),
-        filter_content: cell.content,
+        filter_content: cell.data,
       })
       .collect();
 
@@ -216,7 +216,7 @@ impl GroupGenerator for URLGroupGenerator {
 }
 
 fn make_group_from_url_cell(cell: &URLCellData) -> Group {
-  let group_id = cell.content.clone();
-  let group_name = cell.content.clone();
+  let group_id = cell.data.clone();
+  let group_name = cell.data.clone();
   Group::new(group_id, group_name)
 }

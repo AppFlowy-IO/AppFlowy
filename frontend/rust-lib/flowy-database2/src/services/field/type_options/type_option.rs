@@ -10,7 +10,8 @@ use flowy_error::FlowyResult;
 
 use crate::entities::{
   CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, FieldType,
-  MultiSelectTypeOptionPB, NumberTypeOptionPB, RichTextTypeOptionPB, SingleSelectTypeOptionPB, URLTypeOptionPB,
+  MultiSelectTypeOptionPB, NumberTypeOptionPB, RichTextTypeOptionPB, SingleSelectTypeOptionPB,
+  URLTypeOptionPB,
 };
 use crate::services::cell::{CellDataDecoder, FromCellChangeset, ToCellChangeset};
 use crate::services::field::{

@@ -25,21 +25,21 @@ async fn grid_cell_update() {
         FieldType::DateTime => make_date_cell_string("123"),
         FieldType::SingleSelect => {
           let type_option = field
-            .get_type_option::<SingleSelectTypeOption>(&field.field_type)
+            .get_type_option::<SingleSelectTypeOption>(field.field_type)
             .unwrap();
           SelectOptionCellChangeset::from_insert_option_id(&type_option.options.first().unwrap().id)
             .to_cell_changeset_str()
         },
         FieldType::MultiSelect => {
           let type_option = field
-            .get_type_option::<MultiSelectTypeOption>(&field.field_type)
+            .get_type_option::<MultiSelectTypeOption>(field.field_type)
             .unwrap();
           SelectOptionCellChangeset::from_insert_option_id(&type_option.options.first().unwrap().id)
             .to_cell_changeset_str()
         },
         FieldType::Checklist => {
           let type_option = field
-            .get_type_option::<ChecklistTypeOption>(&field.field_type)
+            .get_type_option::<ChecklistTypeOption>(field.field_type)
             .unwrap();
           SelectOptionCellChangeset::from_insert_option_id(&type_option.options.first().unwrap().id)
             .to_cell_changeset_str()

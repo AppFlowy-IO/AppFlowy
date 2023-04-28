@@ -1,14 +1,11 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use bytes::Bytes;
 use collab_database::fields::Field;
 use collab_database::rows::{CreateRowParams, Row, RowId};
 use strum::EnumCount;
 
-use flowy_database2::entities::{
-  DatabaseLayoutPB, FieldType, FilterPB, RowPB, SelectOptionPB, SingleSelectTypeOptionPB,
-};
+use flowy_database2::entities::{DatabaseLayoutPB, FieldType, FilterPB, RowPB};
 use flowy_database2::services::cell::{CellBuilder, ToCellChangeset};
 use flowy_database2::services::database::DatabaseEditor;
 use flowy_database2::services::field::{
@@ -26,7 +23,7 @@ pub struct DatabaseEditorTest {
   pub view_id: String,
   pub editor: Arc<DatabaseEditor>,
   pub fields: Vec<Arc<Field>>,
-  pub rows: Vec<Row>,
+  pub rows: Vec<Arc<Row>>,
   pub field_count: usize,
   pub row_by_row_id: HashMap<String, RowPB>,
 }
@@ -97,7 +94,7 @@ impl DatabaseEditorTest {
     self.editor.get_all_filters(&self.view_id).await.items
   }
 
-  pub async fn get_rows(&self) -> Vec<Row> {
+  pub async fn get_rows(&self) -> Vec<Arc<Row>> {
     self.editor.get_rows(&self.view_id).await.unwrap()
   }
 
@@ -186,8 +183,7 @@ impl DatabaseEditorTest {
     self
       .editor
       .update_cell_with_changeset(&self.view_id, row_id, &field.id, cell_changeset)
-      .await
-      .unwrap();
+      .await;
   }
 
   pub(crate) async fn update_text_cell(&mut self, row_id: RowId, content: &str) {

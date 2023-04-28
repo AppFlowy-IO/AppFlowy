@@ -1,8 +1,7 @@
-use bytes::Bytes;
 use collab_database::database::gen_option_id;
 
 use flowy_database2::entities::{FieldChangesetParams, FieldType};
-use flowy_database2::services::field::{SelectOption, SingleSelectTypeOption, CHECK, UNCHECK};
+use flowy_database2::services::field::{SelectOption, CHECK, UNCHECK};
 
 use crate::database::field_test::script::DatabaseFieldTest;
 use crate::database::field_test::script::FieldScript::*;
@@ -67,10 +66,7 @@ async fn grid_update_field_with_empty_change() {
     UpdateField { changeset },
     AssertFieldTypeOptionEqual {
       field_index: create_field_index,
-      expected_type_option_data: field
-        .get_any_type_option(field.field_type)
-        .unwrap()
-        .to_owned(),
+      expected_type_option_data: field.get_any_type_option(field.field_type).unwrap(),
     },
   ];
   test.run_scripts(scripts).await;
@@ -84,7 +80,7 @@ async fn grid_delete_field() {
   let scripts = vec![CreateField { params }];
   test.run_scripts(scripts).await;
 
-  let field = test.get_fields().pop().unwrap().clone();
+  let field = test.get_fields().pop().unwrap();
   let scripts = vec![
     DeleteField { field },
     AssertFieldCount(original_field_count),
@@ -234,15 +230,15 @@ async fn grid_switch_from_checkbox_to_text_test() {
 #[tokio::test]
 async fn grid_switch_from_text_to_checkbox_test() {
   let mut test = DatabaseFieldTest::new().await;
-  let field_rev = test.get_first_field(FieldType::RichText).clone();
+  let field = test.get_first_field(FieldType::RichText).clone();
 
   let scripts = vec![
     SwitchToField {
-      field_id: field_rev.id.clone(),
+      field_id: field.id.clone(),
       new_field_type: FieldType::Checkbox,
     },
     AssertCellContent {
-      field_id: field_rev.id.clone(),
+      field_id: field.id.clone(),
       row_index: 0,
       from_field_type: FieldType::RichText,
       expected_content: "".to_string(),

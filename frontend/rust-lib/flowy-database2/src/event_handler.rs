@@ -8,7 +8,7 @@ use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataRes
 
 use crate::entities::*;
 use crate::manager::DatabaseManager2;
-use crate::services::database::notify_did_update_cell;
+
 use crate::services::field::{
   type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
 };
@@ -20,7 +20,7 @@ pub(crate) async fn get_database_data_handler(
 ) -> DataResult<DatabasePB, FlowyError> {
   let view_id: DatabaseViewIdPB = data.into_inner();
   let database_editor = manager.get_database(view_id.as_ref()).await?;
-  let data = database_editor.get_database_data().await;
+  let data = database_editor.get_database_data(view_id.as_ref()).await;
   data_result_ok(data)
 }
 

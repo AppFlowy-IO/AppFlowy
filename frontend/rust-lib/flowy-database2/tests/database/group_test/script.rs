@@ -1,13 +1,6 @@
-use std::sync::Arc;
-
 use collab_database::fields::Field;
 use collab_database::rows::RowId;
-
-use database_model::{FieldRevision, RowChangeset};
-use flowy_database2::entities::{
-  CreateRowParams, FieldType, GroupPB, MoveGroupRowParams, RowPB, SelectOptionPB,
-  SingleSelectTypeOptionPB,
-};
+use flowy_database2::entities::{CreateRowParams, FieldType, GroupPB, RowPB};
 use flowy_database2::services::cell::{
   delete_select_option_cell, insert_select_option_cell, insert_url_cell,
 };
@@ -192,8 +185,7 @@ impl DatabaseGroupTest {
         self
           .editor
           .update_cell(&self.view_id, row_id, &field_id, cell)
-          .await
-          .unwrap();
+          .await;
       },
       GroupScript::UpdateGroupedCellWithData {
         from_group_index,
@@ -214,9 +206,8 @@ impl DatabaseGroupTest {
         let row_id = RowId::from(self.row_at_index(from_group_index, row_index).await.id);
         self
           .editor
-          .update_cell(&self.view_id, row_id.into(), &field_id, cell)
-          .await
-          .unwrap();
+          .update_cell(&self.view_id, row_id, &field_id, cell)
+          .await;
       },
       GroupScript::MoveGroup {
         from_group_index,
@@ -270,7 +261,7 @@ impl DatabaseGroupTest {
 
   #[allow(dead_code)]
   pub async fn get_multi_select_field(&self) -> Field {
-    let field = self
+    self
       .inner
       .get_fields()
       .into_iter()
@@ -279,8 +270,6 @@ impl DatabaseGroupTest {
         field_type.is_multi_select()
       })
       .unwrap()
-      .clone();
-    field
   }
 
   pub async fn get_single_select_field(&self) -> Field {
@@ -293,7 +282,6 @@ impl DatabaseGroupTest {
         field_type.is_single_select()
       })
       .unwrap()
-      .clone()
   }
 
   pub async fn edit_single_select_type_option(

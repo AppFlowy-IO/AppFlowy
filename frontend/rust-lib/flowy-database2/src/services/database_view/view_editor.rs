@@ -89,7 +89,12 @@ pub trait DatabaseViewData: Send + Sync + 'static {
 
   fn get_layout_setting(&self, view_id: &str, layout_ty: &DatabaseLayout) -> Option<LayoutSetting>;
 
-  fn insert_layout_setting(&self, view_id: &str, layout_setting: LayoutSetting);
+  fn insert_layout_setting(
+    &self,
+    view_id: &str,
+    layout_ty: &DatabaseLayout,
+    layout_setting: LayoutSetting,
+  );
 
   /// Returns a `TaskDispatcher` used to poll a `Task`
   fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>>;
@@ -254,6 +259,21 @@ impl DatabaseViewEditor {
     });
   }
 
+  pub async fn v_filter_rows(&self, rows: &mut Vec<Arc<Row>>) {
+    self.filter_controller.filter_rows(rows).await
+  }
+
+  pub async fn v_sort_rows(&self, rows: &mut Vec<Arc<Row>>) {
+    self.sort_controller.write().await.sort_rows(rows).await
+  }
+
+  pub async fn v_get_rows(&self) -> Vec<Arc<Row>> {
+    let mut rows = self.delegate.get_rows(&self.view_id).await;
+    self.v_filter_rows(&mut rows).await;
+    self.v_sort_rows(&mut rows).await;
+    rows
+  }
+
   pub async fn v_move_group_row(
     &self,
     row: &Row,
@@ -378,12 +398,12 @@ impl DatabaseViewEditor {
       id: sort_id,
       field_id: params.field_id.clone(),
       field_type: params.field_type,
-      condition: params.condition.into(),
+      condition: params.condition,
     };
     let sort_type = SortType::from(&sort);
     let mut sort_controller = self.sort_controller.write().await;
+    self.delegate.insert_sort(&self.view_id, sort.clone());
     let changeset = if is_exist {
-      self.delegate.insert_sort(&self.view_id, sort.clone());
       sort_controller
         .did_receive_changes(SortChangeset::from_update(sort_type))
         .await
@@ -479,7 +499,7 @@ impl DatabaseViewEditor {
 
     self
       .delegate
-      .delete_filter(&self.view_id, &filter_type.field_id);
+      .delete_filter(&self.view_id, &filter_type.filter_id);
     if changeset.is_some() {
       notify_did_update_filter(changeset.unwrap()).await;
     }
@@ -538,9 +558,11 @@ impl DatabaseViewEditor {
         let layout_ty = DatabaseLayout::Calendar;
         let old_calender_setting = self.v_get_layout_settings(&layout_ty).await.calendar;
 
-        self
-          .delegate
-          .insert_layout_setting(&self.view_id, new_calendar_setting.clone().into());
+        self.delegate.insert_layout_setting(
+          &self.view_id,
+          &layout_ty,
+          new_calendar_setting.clone().into(),
+        );
         let new_field_id = new_calendar_setting.field_id.clone();
         let layout_setting_pb: LayoutSettingPB = LayoutSettingParams {
           calendar: Some(new_calendar_setting),

@@ -82,6 +82,14 @@ impl std::convert::From<SortCondition> for SortConditionPB {
     }
   }
 }
+impl std::convert::From<SortConditionPB> for SortCondition {
+  fn from(condition: SortConditionPB) -> Self {
+    match condition {
+      SortConditionPB::Ascending => SortCondition::Ascending,
+      SortConditionPB::Descending => SortCondition::Descending,
+    }
+  }
+}
 
 #[derive(ProtoBuf, Debug, Default, Clone)]
 pub struct AlterSortPayloadPB {
@@ -128,7 +136,7 @@ impl TryInto<AlterSortParams> for AlterSortPayloadPB {
       field_id,
       sort_id,
       field_type: self.field_type,
-      condition: self.condition as i64,
+      condition: self.condition.into(),
     })
   }
 }
@@ -140,7 +148,7 @@ pub struct AlterSortParams {
   /// Create a new sort if the sort is None
   pub sort_id: Option<String>,
   pub field_type: FieldType,
-  pub condition: i64,
+  pub condition: SortCondition,
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]

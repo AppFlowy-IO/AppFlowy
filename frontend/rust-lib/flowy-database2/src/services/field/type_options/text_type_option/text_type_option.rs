@@ -5,7 +5,7 @@ use crate::services::cell::{
 };
 use crate::services::field::{
   TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionTransform,
+  TypeOptionTransform, CELL_DATE,
 };
 use bytes::Bytes;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
@@ -35,7 +35,7 @@ impl TypeOption for RichTextTypeOption {
 
 impl From<TypeOptionData> for RichTextTypeOption {
   fn from(data: TypeOptionData) -> Self {
-    let s = data.get_str_value("data").unwrap_or_default();
+    let s = data.get_str_value(CELL_DATE).unwrap_or_default();
     Self { inner: s }
   }
 }
@@ -43,7 +43,7 @@ impl From<TypeOptionData> for RichTextTypeOption {
 impl From<RichTextTypeOption> for TypeOptionData {
   fn from(data: RichTextTypeOption) -> Self {
     TypeOptionDataBuilder::new()
-      .insert_str_value("data", data.inner)
+      .insert_str_value(CELL_DATE, data.inner)
       .build()
   }
 }

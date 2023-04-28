@@ -1,5 +1,5 @@
 use crate::services::field::RichTextTypeOption;
-use flowy_derive::{ProtoBuf};
+use flowy_derive::ProtoBuf;
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct RichTextTypeOptionPB {

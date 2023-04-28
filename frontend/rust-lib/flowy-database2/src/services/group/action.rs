@@ -7,7 +7,6 @@ use collab_database::rows::{Cell, Row};
 
 use flowy_error::FlowyResult;
 
-
 /// Using polymorphism to provides the customs action for different group controller.
 ///
 /// For example, the `CheckboxGroupController` implements this trait to provide custom behavior.

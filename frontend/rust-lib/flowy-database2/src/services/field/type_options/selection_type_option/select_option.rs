@@ -1,4 +1,4 @@
-use crate::entities::{SelectOptionCellDataPB};
+use crate::entities::SelectOptionCellDataPB;
 use crate::services::field::SelectOptionIds;
 use collab_database::database::gen_option_id;
 use serde::{Deserialize, Serialize};

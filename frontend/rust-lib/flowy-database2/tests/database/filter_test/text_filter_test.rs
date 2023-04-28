@@ -40,7 +40,6 @@ async fn grid_filter_text_is_not_empty_test() {
   test.run_scripts(scripts).await;
 
   let filter = test.database_filters().await.pop().unwrap();
-  let field_rev = test.get_first_field(FieldType::RichText).clone();
   test
     .run_scripts(vec![
       DeleteFilter {
@@ -100,7 +99,7 @@ async fn grid_filter_contain_text_test2() {
       }),
     },
     UpdateTextCell {
-      row_id: rows[1].id.clone(),
+      row_id: rows[1].id,
       text: "ABC".to_string(),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 1,
@@ -233,7 +232,7 @@ async fn grid_filter_update_empty_text_cell_test() {
     },
     AssertFilterCount { count: 1 },
     UpdateTextCell {
-      row_id: rows[0].id.clone(),
+      row_id: rows[0].id,
       text: "".to_string(),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 1,

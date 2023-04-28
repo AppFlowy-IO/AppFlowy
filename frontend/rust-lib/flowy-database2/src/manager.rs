@@ -78,7 +78,7 @@ impl DatabaseManager2 {
     let database_id = self.with_user_database(Err(FlowyError::internal()), |database| {
       database
         .get_database_id_with_view_id(view_id)
-        .ok_or_else(|| FlowyError::record_not_found())
+        .ok_or_else(FlowyError::record_not_found)
     })?;
 
     if let Some(editor) = self.editors.read().await.get(&database_id) {
@@ -91,7 +91,7 @@ impl DatabaseManager2 {
       |database| {
         database
           .get_database(&database_id)
-          .ok_or_else(|| FlowyError::record_not_found())
+          .ok_or_else(FlowyError::record_not_found)
       },
     )?);
 
@@ -172,7 +172,7 @@ impl DatabaseManager2 {
       |user_database| {
         let database = user_database
           .get_database(&database_id)
-          .ok_or_else(|| FlowyError::record_not_found())?;
+          .ok_or_else(FlowyError::record_not_found)?;
         match duplicated_view_id {
           None => {
             let params = CreateViewParams::new(database_id, target_view_id, name, layout.into());

@@ -3,7 +3,7 @@ use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{
   NumberCellFormat, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter, TypeOptionTransform,
+  TypeOptionCellDataFilter, TypeOptionTransform, CELL_DATE,
 };
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 
@@ -34,14 +34,14 @@ pub struct NumberCellData(pub String);
 
 impl From<&Cell> for NumberCellData {
   fn from(cell: &Cell) -> Self {
-    Self(cell.get_str_value("data").unwrap_or_default())
+    Self(cell.get_str_value(CELL_DATE).unwrap_or_default())
   }
 }
 
 impl From<NumberCellData> for Cell {
   fn from(data: NumberCellData) -> Self {
     new_cell_builder(FieldType::Number)
-      .insert_str_value("data", data.0)
+      .insert_str_value(CELL_DATE, data.0)
       .build()
   }
 }
@@ -217,7 +217,7 @@ impl CellDataChangeset for NumberTypeOption {
         NumberCellData::from(formatter.to_string()),
       )),
       _ => Ok((
-        NumberCellData::default().into(),
+        NumberCellData::from(formatter.to_string()).into(),
         NumberCellData::from(formatter.to_string()),
       )),
     }

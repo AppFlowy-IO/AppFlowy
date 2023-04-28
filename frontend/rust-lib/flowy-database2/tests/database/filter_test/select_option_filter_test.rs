@@ -118,13 +118,13 @@ async fn grid_filter_single_select_is_test2() {
     },
     AssertNumberOfVisibleRows { expected: 2 },
     UpdateSingleSelectCell {
-      row_id: rows[1].id.clone(),
+      row_id: rows[1].id,
       option_id: option.id.clone(),
       changed: None,
     },
     AssertNumberOfVisibleRows { expected: 3 },
     UpdateSingleSelectCell {
-      row_id: rows[1].id.clone(),
+      row_id: rows[1].id,
       option_id: "".to_string(),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 0,

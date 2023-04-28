@@ -83,7 +83,7 @@ where
       None => {
         let default_configuration = default_group_setting(&field);
         writer
-          .save_configuration(&field.id, default_configuration.clone())
+          .save_configuration(&view_id, default_configuration.clone())
           .await?;
         Arc::new(default_configuration)
       },

@@ -15,20 +15,18 @@ use flowy_task::TaskDispatcher;
 use lib_infra::future::{to_fut, Fut};
 
 use crate::entities::{
-  AlterFilterParams, AlterSortParams, CalendarEventPB, CellChangesetNotifyPB, CellChangesetPB,
-  CellPB, CreateRowParams, DatabaseFieldChangesetPB, DatabaseLayoutPB, DatabasePB,
-  DatabaseViewSettingPB, DeleteFilterParams, DeleteGroupParams, DeleteSortParams,
-  FieldChangesetParams, FieldIdPB, FieldPB, FieldType, FilterPB, GroupPB, GroupSettingPB,
-  IndexFieldPB, InsertGroupParams, LayoutSettingPB, LayoutSettingParams, RepeatedFieldPB,
-  RepeatedFilterPB, RepeatedGroupPB, RepeatedGroupSettingPB, RepeatedSortPB, RowPB,
-  SelectOptionCellDataPB, SelectOptionPB, SortPB,
+  AlterFilterParams, AlterSortParams, CalendarEventPB, CellChangesetNotifyPB, CellPB,
+  CreateRowParams, DatabaseFieldChangesetPB, DatabasePB, DatabaseViewSettingPB, DeleteFilterParams,
+  DeleteGroupParams, DeleteSortParams, FieldChangesetParams, FieldIdPB, FieldPB, FieldType,
+  GroupPB, IndexFieldPB, InsertGroupParams, LayoutSettingParams, RepeatedFilterPB, RepeatedGroupPB,
+  RepeatedSortPB, RowPB, SelectOptionCellDataPB, SelectOptionPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
   apply_cell_data_changeset, get_type_cell_protobuf, AnyTypeCache, CellBuilder, CellCache,
   ToCellChangeset,
 };
-use crate::services::database::util::{database_view_setting_pb_from_view, get_database_data};
+use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database::{DatabaseRowEvent, InsertedRow, UpdatedRow};
 use crate::services::database_view::{
   DatabaseViewChanged, DatabaseViewData, DatabaseViews, RowEventSender,
@@ -36,10 +34,10 @@ use crate::services::database_view::{
 use crate::services::field::{
   default_type_option_data_for_type, default_type_option_data_from_type,
   select_type_option_from_field, transform_type_option, type_option_data_from_pb_or_default,
-  type_option_to_pb, FieldBuilder, SelectOptionCellChangeset, SelectOptionIds,
-  TypeOptionCellDataHandler,
+  type_option_to_pb, SelectOptionCellChangeset, SelectOptionIds, TypeOptionCellDataHandler,
+  TypeOptionCellExt,
 };
-use crate::services::filter::{Filter, FilterType};
+use crate::services::filter::Filter;
 use crate::services::group::{default_group_setting, GroupSetting, RowChangeset};
 use crate::services::sort::Sort;
 
@@ -61,6 +59,7 @@ impl DatabaseEditor {
     let database_view_data = Arc::new(DatabaseViewDataImpl {
       database: database.clone(),
       task_scheduler: task_scheduler.clone(),
+      cell_cache: cell_cache.clone(),
     });
 
     let database_views = Arc::new(
@@ -409,9 +408,9 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn get_rows(&self, view_id: &str) -> FlowyResult<Vec<Row>> {
-    let rows = self.database.lock().get_rows_for_view(view_id);
-    Ok(rows)
+  pub async fn get_rows(&self, view_id: &str) -> FlowyResult<Vec<Arc<Row>>> {
+    let view_editor = self.database_views.get_view_editor(view_id).await?;
+    Ok(view_editor.v_get_rows().await)
   }
 
   pub fn get_row(&self, row_id: RowId) -> Option<Row> {
@@ -774,9 +773,29 @@ impl DatabaseEditor {
     Ok(database_view_setting_pb_from_view(view))
   }
 
-  pub async fn get_database_data(&self) -> DatabasePB {
-    let database = self.database.lock();
-    get_database_data(&database)
+  pub async fn get_database_data(&self, view_id: &str) -> DatabasePB {
+    let rows = self.get_rows(view_id).await.unwrap_or_default();
+    let (database_id, fields) = {
+      let database = self.database.lock();
+      let database_id = database.get_database_id();
+      let fields = database
+        .fields
+        .get_all_field_orders()
+        .into_iter()
+        .map(FieldIdPB::from)
+        .collect();
+      (database_id, fields)
+    };
+
+    let rows = rows
+      .into_iter()
+      .map(|row| RowPB::from(row.as_ref()))
+      .collect::<Vec<RowPB>>();
+    DatabasePB {
+      id: database_id,
+      fields,
+      rows,
+    }
   }
 }
 
@@ -826,6 +845,7 @@ unsafe impl Send for MutexDatabase {}
 struct DatabaseViewDataImpl {
   database: MutexDatabase,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
+  cell_cache: CellCache,
 }
 
 impl DatabaseViewData for DatabaseViewDataImpl {
@@ -969,9 +989,14 @@ impl DatabaseViewData for DatabaseViewDataImpl {
 
   fn insert_layout_setting(
     &self,
-    _view_id: &str,
-    _layout_setting: collab_database::views::LayoutSetting,
+    view_id: &str,
+    layout_ty: &DatabaseLayout,
+    layout_setting: LayoutSetting,
   ) {
+    self
+      .database
+      .lock()
+      .insert_layout_setting(view_id, layout_ty, layout_setting);
   }
 
   fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>> {
@@ -980,9 +1005,10 @@ impl DatabaseViewData for DatabaseViewDataImpl {
 
   fn get_type_option_cell_handler(
     &self,
-    _field: &Field,
-    _field_type: &FieldType,
+    field: &Field,
+    field_type: &FieldType,
   ) -> Option<Box<dyn TypeOptionCellDataHandler>> {
-    todo!()
+    TypeOptionCellExt::new_with_cell_data_cache(field, Some(self.cell_cache.clone()))
+      .get_type_option_cell_data_handler(field_type)
   }
 }

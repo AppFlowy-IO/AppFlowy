@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use collab_database::fields::Field;
 use collab_database::views::DatabaseLayout;
 

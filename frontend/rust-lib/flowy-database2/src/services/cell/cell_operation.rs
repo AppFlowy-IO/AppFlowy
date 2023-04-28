@@ -111,7 +111,7 @@ pub fn get_type_cell_data<Output>(
 where
   Output: Default + 'static,
 {
-  let from_field_type = get_field_type_from_cell(&cell)?;
+  let from_field_type = get_field_type_from_cell(cell)?;
   let to_field_type = FieldType::from(field.field_type);
   try_decode_cell_to_cell_data(
     cell,

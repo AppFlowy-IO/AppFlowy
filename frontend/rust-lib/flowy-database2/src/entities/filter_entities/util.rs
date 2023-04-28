@@ -99,13 +99,14 @@ impl TryInto<DeleteFilterParams> for DeleteFilterPayloadPB {
       .0;
 
     let filter_type = FilterType {
-      filter_id,
+      filter_id: filter_id.clone(),
       field_id,
       field_type: self.field_type,
     };
 
     Ok(DeleteFilterParams {
       view_id,
+      filter_id,
       filter_type,
     })
   }
@@ -114,6 +115,7 @@ impl TryInto<DeleteFilterParams> for DeleteFilterPayloadPB {
 #[derive(Debug)]
 pub struct DeleteFilterParams {
   pub view_id: String,
+  pub filter_id: String,
   pub filter_type: FilterType,
 }
 

@@ -5,7 +5,9 @@ use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use lib_dispatch::prelude::AFPlugin;
 
 use crate::{
-  event_handler::{apply_action_handler, close_document_handler, open_document_handler, create_document_handler },
+  event_handler::{
+    apply_action_handler, close_document_handler, create_document_handler, open_document_handler,
+  },
   manager::DocumentManager,
 };
 
