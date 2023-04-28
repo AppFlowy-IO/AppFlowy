@@ -1,10 +1,11 @@
-import { BlockType, DocumentState } from '@/appflowy_app/interfaces/document';
+import { BlockType, DocumentState } from '$app/interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { documentActions } from '../slice';
+import { documentActions } from '$app_reducers/document/slice';
 import { outdentNodeThunk } from './outdent';
-import { setCursorAfterThunk } from './set_cursor';
-import { getPrevLineId } from '$app/utils/block';
+import { setCursorAfterThunk } from '../../cursor';
+import { turnToTextBlockThunk } from '$app_reducers/document/async-actions/blocks/text/index';
+import { getPrevLineId } from '$app/utils/document/blocks/common';
 
 const composeNodeThunk = createAsyncThunk(
   'document/composeNode',
@@ -32,11 +33,8 @@ const composeNodeThunk = createAsyncThunk(
     const updateAction = controller.getUpdateAction(newNode);
 
     // move children
-    const children = state.children[node.children];
-    // the reverse can ensure that every child will be inserted in first place and don't need to update prevId
-    const moveActions = children.reverse().map((childId) => {
-      return controller.getMoveAction(state.nodes[childId], newNode.id, '');
-    });
+    const children = state.children[node.children].map((id) => state.nodes[id]);
+    const moveActions = controller.getMoveChildrenAction(children, newNode.id, '');
 
     // delete node
     const deleteAction = controller.getDeleteAction(node);
@@ -88,7 +86,8 @@ export const backspaceNodeThunk = createAsyncThunk(
     const nextNodeId = children[index + 1];
     // transform to text block
     if (node.type !== BlockType.TextBlock) {
-      // todo: transform to text block
+      await dispatch(turnToTextBlockThunk({ id, controller }));
+      return;
     }
     // compose to previous line when it has next sibling or no ancestor
     if (nextNodeId || !ancestorId) {

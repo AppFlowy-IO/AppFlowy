@@ -4,18 +4,22 @@ import { withErrorBoundary } from 'react-error-boundary';
 import { ErrorBoundaryFallbackComponent } from '../_shared/ErrorBoundaryFallbackComponent';
 import TextBlock from '../TextBlock';
 import { NodeContext } from '../_shared/SubscribeNode.hooks';
-import { Node } from '$app/interfaces/document';
+import { BlockType } from '$app/interfaces/document';
+import HeadingBlock from '$app/components/document/HeadingBlock';
 
 function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<HTMLDivElement>) {
   const { node, childIds, isSelected, ref } = useNode(id);
 
   const renderBlock = useCallback(() => {
     switch (node.type) {
-      case 'text': {
+      case BlockType.TextBlock: {
         return <TextBlock node={node} childIds={childIds} />;
       }
+      case BlockType.HeadingBlock: {
+        return <HeadingBlock node={node} />;
+      }
       default:
-        break;
+        return null;
     }
   }, [node, childIds]);
 

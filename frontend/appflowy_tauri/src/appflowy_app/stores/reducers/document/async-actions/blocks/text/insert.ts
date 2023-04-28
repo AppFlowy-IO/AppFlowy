@@ -1,7 +1,7 @@
-import { BlockType, DocumentState, NestedBlock } from '@/appflowy_app/interfaces/document';
+import { DocumentState } from '$app/interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { generateId } from '@/appflowy_app/utils/block';
+import { newTextBlock } from '$app/utils/document/blocks/text';
 
 export const insertAfterNodeThunk = createAsyncThunk(
   'document/insertAfterNode',
@@ -14,15 +14,9 @@ export const insertAfterNodeThunk = createAsyncThunk(
     const parentId = node.parent;
     if (!parentId) return;
     // create new node
-    const newNode: NestedBlock = {
-      id: generateId(),
-      parent: parentId,
-      type: BlockType.TextBlock,
-      data: {
-        delta: [],
-      },
-      children: generateId(),
-    };
+    const newNode = newTextBlock(parentId, {
+      delta: [],
+    });
     await controller.applyActions([controller.getInsertAction(newNode, node.id)]);
   }
 );

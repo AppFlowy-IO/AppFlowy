@@ -2,9 +2,9 @@ import { Slate, Editable } from 'slate-react';
 import Leaf from './Leaf';
 import { useTextBlock } from './TextBlock.hooks';
 import NodeComponent from '../Node';
-import HoveringToolbar from '../_shared/HoveringToolbar';
-import React, { useEffect } from 'react';
-import { Node } from '$app/interfaces/document';
+import BlockHorizontalToolbar from '../BlockHorizontalToolbar';
+import React from 'react';
+import { BlockType, NestedBlock } from '$app/interfaces/document';
 
 function TextBlock({
   node,
@@ -12,7 +12,7 @@ function TextBlock({
   placeholder,
   ...props
 }: {
-  node: Node;
+  node: NestedBlock;
   childIds?: string[];
   placeholder?: string;
 } & React.HTMLAttributes<HTMLDivElement>) {
@@ -21,7 +21,7 @@ function TextBlock({
     <>
       <div {...props} className={`py-[2px] ${props.className}`}>
         <Slate editor={editor} onChange={onChange} value={value}>
-          <HoveringToolbar id={node.id} />
+          <BlockHorizontalToolbar id={node.id} />
           <Editable
             onKeyDownCapture={onKeyDownCapture}
             onDOMBeforeInput={onDOMBeforeInput}

@@ -1,11 +1,8 @@
-import { BlockPB } from '@/services/backend/models/flowy-document2';
-import { nanoid } from 'nanoid';
+import { BlockData, BlockType, DocumentState, NestedBlock, TextDelta } from '$app/interfaces/document';
 import { Descendant, Element, Text } from 'slate';
-import { BlockType, DocumentState, NestedBlock, TextDelta } from '../interfaces/document';
-import { Log } from './log';
-export function generateId() {
-  return nanoid(10);
-}
+import { BlockPB } from '@/services/backend';
+import { Log } from '$app/utils/log';
+import { nanoid } from 'nanoid';
 
 export function deltaToSlateValue(delta: TextDelta[]) {
   const slateNode = {
@@ -53,6 +50,10 @@ export function blockPB2Node(block: BlockPB) {
   return node;
 }
 
+export function generateId() {
+  return nanoid(10);
+}
+
 export function getPrevLineId(state: DocumentState, id: string) {
   const node = state.nodes[id];
   if (!node.parent) return;
@@ -98,4 +99,14 @@ export function getNextNodeId(state: DocumentState, id: string) {
   const index = children.indexOf(id);
   const nextNodeId = children[index + 1];
   return nextNodeId;
+}
+
+export function newBlock<Type>(type: BlockType, parentId: string, data: BlockData<Type>): NestedBlock<Type> {
+  return {
+    id: generateId(),
+    type,
+    parent: parentId,
+    children: generateId(),
+    data,
+  };
 }

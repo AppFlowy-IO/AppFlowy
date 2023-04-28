@@ -1,6 +1,6 @@
 import React from 'react';
 import { FormatBold, FormatUnderlined, FormatItalic, CodeOutlined, StrikethroughSOutlined } from '@mui/icons-material';
-import { iconSize } from '$app/constants/toolbar';
+import { iconSize } from '$app/constants/document/toolbar';
 
 export default function FormatIcon({ icon }: { icon: string }) {
   switch (icon) {

@@ -1,8 +1,8 @@
 import FormatButton from './FormatButton';
-import Portal from '../../BlockPortal';
+import Portal from '../BlockPortal';
 import { useHoveringToolbar } from './index.hooks';
 
-const HoveringToolbar = ({ id }: { id: string }) => {
+const BlockHorizontalToolbar = ({ id }: { id: string }) => {
   const { inFocus, ref, editor } = useHoveringToolbar(id);
   if (!inFocus) return null;
 
@@ -27,4 +27,4 @@ const HoveringToolbar = ({ id }: { id: string }) => {
   );
 };
 
-export default HoveringToolbar;
+export default BlockHorizontalToolbar;

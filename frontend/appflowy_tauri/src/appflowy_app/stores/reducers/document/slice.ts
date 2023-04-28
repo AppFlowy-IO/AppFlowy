@@ -2,7 +2,7 @@ import { DocumentState, Node, TextSelection } from '@/appflowy_app/interfaces/do
 import { BlockEventPayloadPB } from '@/services/backend';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RegionGrid } from '@/appflowy_app/utils/region_grid';
-import { parseValue, matchChange } from '@/appflowy_app/utils/block_change';
+import { parseValue, matchChange } from '$app/utils/document/subscribe';
 
 const regionGrid = new RegionGrid(50);
 
@@ -92,6 +92,8 @@ export const documentSlice = createSlice({
     ) => {
       const { blockId, selection } = action.payload;
       const node = state.nodes[blockId];
+      const oldSelection = state.textSelections[blockId];
+      if (JSON.stringify(oldSelection) === JSON.stringify(selection)) return;
       if (!node || !selection) {
         delete state.textSelections[blockId];
       } else {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useBlockSideTools } from './BlockSideTools.hooks';
+import { useBlockSideToolbar } from './BlockSideToolbar.hooks';
 import ExpandCircleDownSharpIcon from '@mui/icons-material/ExpandCircleDownSharp';
 import DragIndicatorRoundedIcon from '@mui/icons-material/DragIndicatorRounded';
 import Portal from '../BlockPortal';
@@ -8,8 +8,8 @@ import BlockMenu from '../BlockMenu';
 
 const sx = { height: 24, width: 24 };
 
-export default function BlockSideTools(props: { container: HTMLDivElement }) {
-  const { nodeId, ref, menuOpen, handleToggleMenu } = useBlockSideTools(props);
+export default function BlockSideToolbar(props: { container: HTMLDivElement }) {
+  const { nodeId, ref, menuOpen, handleToggleMenu } = useBlockSideToolbar(props);
 
   if (!nodeId) return null;
   return (
