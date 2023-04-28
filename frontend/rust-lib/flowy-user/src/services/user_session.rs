@@ -1,9 +1,6 @@
 use std::sync::Arc;
 
 use collab_persistence::kv::rocks_kv::RocksCollabDB;
-use serde::{Deserialize, Serialize};
-use tokio::sync::RwLock;
-
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{
   kv::KV,
@@ -11,6 +8,8 @@ use flowy_sqlite::{
   schema::{user_table, user_table::dsl},
   DBConnection, ExpressionMethods, UserDatabaseConnection,
 };
+use serde::{Deserialize, Serialize};
+use tokio::sync::RwLock;
 use user_model::{
   SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };

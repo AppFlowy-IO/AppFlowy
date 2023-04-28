@@ -25,6 +25,12 @@ impl Document {
       .map_err(|_| FlowyError::from(ErrorCode::DocumentDataInvalid))?;
     Ok(Self(Arc::new(Mutex::new(inner))))
   }
+
+  pub fn create_with_data(collab: Collab, data: DocumentData) -> FlowyResult<Self> {
+    let inner = InnerDocument::create_with_data(collab, data)
+      .map_err(|_| FlowyError::from(ErrorCode::DocumentDataInvalid))?;
+    Ok(Self(Arc::new(Mutex::new(inner))))
+  }
 }
 
 unsafe impl Sync for Document {}

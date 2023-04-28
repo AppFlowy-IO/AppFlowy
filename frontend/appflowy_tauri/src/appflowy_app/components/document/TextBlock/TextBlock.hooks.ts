@@ -1,40 +1,34 @@
-import { triggerHotkey } from '@/appflowy_app/utils/slate/hotkey';
-import { useCallback, useState } from 'react';
-import { Descendant, Range } from 'slate';
-import { TextDelta } from '$app/interfaces/document';
+import { useCallback, useContext, useMemo } from 'react';
+import { Editor } from 'slate';
+import { TextDelta, TextSelection } from '$app/interfaces/document';
 import { useTextInput } from '../_shared/TextInput.hooks';
+import { useAppDispatch } from '@/appflowy_app/stores/store';
+import { DocumentControllerContext } from '@/appflowy_app/stores/effects/document/document_controller';
+import {
+  backspaceNodeThunk,
+  indentNodeThunk,
+  splitNodeThunk,
+} from '@/appflowy_app/stores/reducers/document/async_actions';
+import { documentActions } from '@/appflowy_app/stores/reducers/document/slice';
+import {
+  triggerHotkey,
+  canHandleEnterKey,
+  canHandleBackspaceKey,
+  canHandleTabKey,
+  onHandleEnterKey,
+} from '@/appflowy_app/utils/slate/hotkey';
+import { updateNodeDeltaThunk } from '$app/stores/reducers/document/async_actions/update';
 
-export function useTextBlock(delta: TextDelta[]) {
-  const { editor } = useTextInput(delta);
-  const [value, setValue] = useState<Descendant[]>([]);
+export function useTextBlock(id: string) {
+  const { editor, onChange, value } = useTextInput(id);
+  const { onKeyDown } = useTextBlockKeyEvent(id, editor);
 
-  const onChange = useCallback(
-    (e: Descendant[]) => {
-      setValue(e);
+  const onKeyDownCapture = useCallback(
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
+      onKeyDown(event);
     },
-    [editor]
+    [onKeyDown]
   );
-
-  const onKeyDownCapture = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    switch (event.key) {
-      case 'Enter': {
-        event.stopPropagation();
-        event.preventDefault();
-        return;
-      }
-      case 'Backspace': {
-        if (!editor.selection) return;
-        const { anchor } = editor.selection;
-        const isCollapsed = Range.isCollapsed(editor.selection);
-        if (isCollapsed && anchor.offset === 0 && anchor.path.toString() === '0,0') {
-          event.stopPropagation();
-          event.preventDefault();
-          return;
-        }
-      }
-    }
-    triggerHotkey(event, editor);
-  };
 
   const onDOMBeforeInput = useCallback((e: InputEvent) => {
     // COMPAT: in Apple, `compositionend` is dispatched after the `beforeinput` for "insertFromComposition".
@@ -51,5 +45,129 @@ export function useTextBlock(delta: TextDelta[]) {
     onDOMBeforeInput,
     editor,
     value,
+  };
+}
+
+// eslint-disable-next-line no-shadow
+enum TextBlockKeyEvent {
+  Enter,
+  BackSpace,
+  Tab,
+}
+
+type TextBlockKeyEventHandlerParams = [React.KeyboardEvent<HTMLDivElement>, Editor];
+
+function useTextBlockKeyEvent(id: string, editor: Editor) {
+  const { indentAction, backSpaceAction, splitAction, wrapAction } = useActions(id);
+
+  const dispatch = useAppDispatch();
+  const keepSelection = useCallback(() => {
+    // This is a hack to make sure the selection is updated after next render
+    // It will save the selection to the store, and the selection will be restored
+    if (!editor.selection || !editor.selection.anchor || !editor.selection.focus) return;
+    const { anchor, focus } = editor.selection;
+    const selection = { anchor, focus } as TextSelection;
+    dispatch(documentActions.setTextSelection({ blockId: id, selection }));
+  }, [editor]);
+
+  const enterEvent = useMemo(() => {
+    return {
+      key: TextBlockKeyEvent.Enter,
+      canHandle: canHandleEnterKey,
+      handler: (...args: TextBlockKeyEventHandlerParams) => {
+        onHandleEnterKey(...args, {
+          onSplit: splitAction,
+          onWrap: wrapAction,
+        });
+      },
+    };
+  }, [splitAction, wrapAction]);
+
+  const tabEvent = useMemo(() => {
+    return {
+      key: TextBlockKeyEvent.Tab,
+      canHandle: canHandleTabKey,
+      handler: (..._args: TextBlockKeyEventHandlerParams) => {
+        keepSelection();
+        void indentAction();
+      },
+    };
+  }, [keepSelection, indentAction]);
+
+  const backSpaceEvent = useMemo(() => {
+    return {
+      key: TextBlockKeyEvent.BackSpace,
+      canHandle: canHandleBackspaceKey,
+      handler: (..._args: TextBlockKeyEventHandlerParams) => {
+        keepSelection();
+        void backSpaceAction();
+      },
+    };
+  }, [keepSelection, backSpaceAction]);
+
+  const onKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
+      // This is list of key events that can be handled by TextBlock
+      const keyEvents = [enterEvent, backSpaceEvent, tabEvent];
+      const matchKey = keyEvents.find((keyEvent) => keyEvent.canHandle(event, editor));
+      if (!matchKey) {
+        triggerHotkey(event, editor);
+        return;
+      }
+
+      event.stopPropagation();
+      event.preventDefault();
+      matchKey.handler(event, editor);
+    },
+    [editor, enterEvent, backSpaceEvent, tabEvent]
+  );
+
+  return {
+    onKeyDown,
+  };
+}
+
+function useActions(id: string) {
+  const dispatch = useAppDispatch();
+  const controller = useContext(DocumentControllerContext);
+
+  const indentAction = useCallback(async () => {
+    if (!controller) return;
+    await dispatch(
+      indentNodeThunk({
+        id,
+        controller,
+      })
+    );
+  }, [id, controller]);
+
+  const backSpaceAction = useCallback(async () => {
+    if (!controller) return;
+    await dispatch(backspaceNodeThunk({ id, controller }));
+  }, [controller, id]);
+
+  const splitAction = useCallback(
+    async (retain: TextDelta[], insert: TextDelta[]) => {
+      if (!controller) return;
+      await dispatch(splitNodeThunk({ id, retain, insert, controller }));
+    },
+    [controller, id]
+  );
+
+  const wrapAction = useCallback(
+    async (delta: TextDelta[], selection: TextSelection) => {
+      if (!controller) return;
+      await dispatch(updateNodeDeltaThunk({ id, delta, controller }));
+      // This is a hack to make sure the selection is updated after next render
+      dispatch(documentActions.setTextSelection({ blockId: id, selection }));
+    },
+    [controller, id]
+  );
+
+  return {
+    indentAction,
+    backSpaceAction,
+    splitAction,
+    wrapAction,
   };
 }

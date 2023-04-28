@@ -1,8 +1,17 @@
 import React, { useMemo } from 'react';
 import ColumnBlock from '../ColumnBlock';
-import { Node } from '@/appflowy_app/stores/reducers/document/slice';
 
-export default function ColumnListBlock({ node, childIds }: { node: Node; childIds?: string[] }) {
+import { Node } from '$app/interfaces/document';
+
+export default function ColumnListBlock({
+  node,
+  childIds,
+}: {
+  node: Node & {
+    data: Record<string, any>;
+  };
+  childIds?: string[];
+}) {
   const resizerWidth = useMemo(() => {
     return 46 * (node.children?.length || 0);
   }, [node.children?.length]);
@@ -13,7 +22,7 @@ export default function ColumnListBlock({ node, childIds }: { node: Node; childI
           <ColumnBlock
             key={item}
             index={index}
-            width={`calc((100% - ${resizerWidth}px) * ${node.data.style?.ratio})`}
+            width={`calc((100% - ${resizerWidth}px) * ${node.data.ratio})`}
             id={item}
           />
         ))}

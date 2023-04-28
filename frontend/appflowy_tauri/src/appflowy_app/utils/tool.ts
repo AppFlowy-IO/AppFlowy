@@ -1,30 +1,27 @@
 export function debounce(fn: (...args: any[]) => void, delay: number) {
   let timeout: NodeJS.Timeout;
   return (...args: any[]) => {
-    clearTimeout(timeout)
-    timeout = setTimeout(()=>{
-      // eslint-disable-next-line prefer-spread
-      fn.apply(undefined, args)
-    }, delay)
-  }
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      fn.apply(undefined, args);
+    }, delay);
+  };
 }
 
 export function throttle(fn: (...args: any[]) => void, delay: number, immediate = true) {
-  let timeout: NodeJS.Timeout | null = null
+  let timeout: NodeJS.Timeout | null = null;
   return (...args: any[]) => {
     if (!timeout) {
       timeout = setTimeout(() => {
-        timeout = null
-        // eslint-disable-next-line prefer-spread
-        !immediate && fn.apply(undefined, args)
-      }, delay)
-      // eslint-disable-next-line prefer-spread
-      immediate && fn.apply(undefined, args)
+        timeout = null;
+        !immediate && fn.apply(undefined, args);
+      }, delay);
+      immediate && fn.apply(undefined, args);
     }
-  }
+  };
 }
 
-export function get(obj: any, path: string[], defaultValue?: any) {
+export function get<T = any>(obj: any, path: string[], defaultValue?: any): T {
   let value = obj;
   for (const prop of path) {
     value = value[prop];
@@ -55,7 +52,6 @@ export function isEqual<T>(value1: T, value2: T): boolean {
     return value1 === value2;
   }
 
-
   if (Array.isArray(value1)) {
     if (!Array.isArray(value2) || value1.length !== value2.length) {
       return false;
@@ -77,9 +73,9 @@ export function isEqual<T>(value1: T, value2: T): boolean {
     return false;
   }
 
-  for (const key of keys1) {  
+  for (const key of keys1) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error  
+    // @ts-expect-error
     if (!isEqual(value1[key], value2[key])) {
       return false;
     }

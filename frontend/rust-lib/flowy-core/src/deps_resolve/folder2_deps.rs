@@ -3,7 +3,6 @@ use std::sync::Arc;
 
 use bytes::Bytes;
 use collab_persistence::kv::rocks_kv::RocksCollabDB;
-
 use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
 use flowy_database2::DatabaseManager2;

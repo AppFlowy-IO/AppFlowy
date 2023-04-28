@@ -1,8 +1,8 @@
 import React from 'react';
 import { useVirtualizedList } from './VirtualizedList.hooks';
-import { Node } from '@/appflowy_app/stores/reducers/document/slice';
 import DocumentTitle from '../DocumentTitle';
 import Overlay from '../Overlay';
+import { Node } from '$app/interfaces/document';
 
 export default function VirtualizedList({
   childIds,
@@ -42,7 +42,12 @@ export default function VirtualizedList({
               {virtualItems.map((virtualRow) => {
                 const id = childIds[virtualRow.index];
                 return (
-                  <div className='p-[1px]' key={id} data-index={virtualRow.index} ref={virtualize.measureElement}>
+                  <div
+                    className='float-left w-[100%]'
+                    key={id}
+                    data-index={virtualRow.index}
+                    ref={virtualize.measureElement}
+                  >
                     {virtualRow.index === 0 ? <DocumentTitle id={node.id} /> : null}
                     {renderNode(id)}
                   </div>

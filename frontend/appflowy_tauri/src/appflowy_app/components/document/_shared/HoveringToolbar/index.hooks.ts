@@ -16,10 +16,10 @@ export function useHoveringToolbar(id: string) {
 
     if (!position) {
       el.style.opacity = '0';
-      el.style.zIndex = '-1';
+      el.style.pointerEvents = 'none';
     } else {
       el.style.opacity = '1';
-      el.style.zIndex = '1';
+      el.style.pointerEvents = 'auto';
       el.style.top = position.top;
       el.style.left = position.left;
     }

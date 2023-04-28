@@ -50,11 +50,11 @@ impl UserDB {
   }
 
   fn open_kv_db_if_need(&self, user_id: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
-    if let Some(kv) = KVDB_MAP.read().get(&user_id) {
+    if let Some(kv) = COLLAB_DB_MAP.read().get(&user_id) {
       return Ok(kv.clone());
     }
 
-    let mut write_guard = KVDB_MAP.write();
+    let mut write_guard = COLLAB_DB_MAP.write();
     // The Write guard acquire exclusive access that will guarantee the user db only initialize once.
     match write_guard.get(&user_id) {
       None => {},
@@ -101,7 +101,7 @@ impl UserDB {
 
 lazy_static! {
   static ref DB_MAP: RwLock<HashMap<i64, Database>> = RwLock::new(HashMap::new());
-  static ref KVDB_MAP: RwLock<HashMap<i64, Arc<RocksCollabDB>>> = RwLock::new(HashMap::new());
+  static ref COLLAB_DB_MAP: RwLock<HashMap<i64, Arc<RocksCollabDB>>> = RwLock::new(HashMap::new());
 }
 
 #[derive(Clone, Default, Queryable, Identifiable, Insertable)]

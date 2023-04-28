@@ -5,15 +5,9 @@ import { documentActions } from '$app/stores/reducers/document/slice';
 
 export function useParseTree(documentData: DocumentData) {
   const dispatch = useAppDispatch();
-  const { blocks, meta } = documentData;
 
   useEffect(() => {
-    dispatch(
-      documentActions.create({
-        nodes: blocks,
-        children: meta.childrenMap,
-      })
-    );
+    dispatch(documentActions.create(documentData));
 
     return () => {
       dispatch(documentActions.clear());
