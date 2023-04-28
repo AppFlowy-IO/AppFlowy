@@ -106,7 +106,7 @@ impl TryInto<CalendarEventRequestParams> for CalendarEventRequestPB {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct CalendarEventPB {
   #[pb(index = 1)]
-  pub row_id: i64,
+  pub row_id: String,
 
   #[pb(index = 2)]
   pub title_field_id: String,

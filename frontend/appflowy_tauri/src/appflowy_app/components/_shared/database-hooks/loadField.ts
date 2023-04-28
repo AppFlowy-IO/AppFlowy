@@ -1,15 +1,7 @@
 import { TypeOptionController } from '../../../stores/effects/database/field/type_option/type_option_controller';
 import { Some } from 'ts-results';
 import { IDatabaseField, ISelectOption } from '../../../stores/reducers/database/slice';
-import {
-  ChecklistTypeOptionPB,
-  DateFormat,
-  FieldType,
-  MultiSelectTypeOptionPB,
-  NumberFormat,
-  SingleSelectTypeOptionPB,
-  TimeFormat,
-} from '@/services/backend';
+import { ChecklistTypeOptionPB, FieldType, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB } from '@/services/backend';
 import {
   makeChecklistTypeOptionContext,
   makeDateTypeOptionContext,
@@ -78,7 +70,7 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
         title: field.name,
         fieldType: field.field_type,
         fieldOptions: {
-          numberFormat: typeOption.format,
+          NumberFormatPB: typeOption.format,
         },
       };
     }
@@ -90,8 +82,8 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
         title: field.name,
         fieldType: field.field_type,
         fieldOptions: {
-          dateFormat: typeOption.date_format,
-          timeFormat: typeOption.time_format,
+          DateFormatPB: typeOption.date_format,
+          TimeFormatPB: typeOption.time_format,
           includeTime: typeOption.include_time,
         },
       };

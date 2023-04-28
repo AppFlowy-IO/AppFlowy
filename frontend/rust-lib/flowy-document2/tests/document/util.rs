@@ -1,13 +1,12 @@
-use std::sync::Arc;
-
-use collab_persistence::CollabKV;
+use collab_persistence::kv::rocks_kv::RocksCollabDB;
 use flowy_document2::manager::DocumentUser;
 use parking_lot::Once;
+use std::sync::Arc;
 use tempfile::TempDir;
 use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
 
 pub struct FakeUser {
-  kv: Arc<CollabKV>,
+  kv: Arc<RocksCollabDB>,
 }
 
 impl FakeUser {
@@ -25,12 +24,12 @@ impl DocumentUser for FakeUser {
     Ok("1".to_string())
   }
 
-  fn kv_db(&self) -> Result<std::sync::Arc<CollabKV>, flowy_error::FlowyError> {
+  fn kv_db(&self) -> Result<std::sync::Arc<RocksCollabDB>, flowy_error::FlowyError> {
     Ok(self.kv.clone())
   }
 }
 
-pub fn db() -> Arc<CollabKV> {
+pub fn db() -> Arc<RocksCollabDB> {
   static START: Once = Once::new();
   START.call_once(|| {
     std::env::set_var("RUST_LOG", "collab_persistence=trace");
@@ -43,5 +42,5 @@ pub fn db() -> Arc<CollabKV> {
 
   let tempdir = TempDir::new().unwrap();
   let path = tempdir.into_path();
-  Arc::new(CollabKV::open(path).unwrap())
+  Arc::new(RocksCollabDB::open(path).unwrap())
 }

@@ -104,15 +104,12 @@ impl DatabaseGroupTest {
           .unwrap();
         let to_group = groups.get(to_group_index).unwrap();
         let to_row = to_group.rows.get(to_row_index).unwrap();
+        let from_row = RowId::from(from_row.id.clone());
+        let to_row = RowId::from(to_row.id.clone());
 
         self
           .editor
-          .move_group_row(
-            &self.view_id,
-            &to_group.group_id,
-            RowId::from(from_row.id),
-            Some(RowId::from(to_row.id)),
-          )
+          .move_group_row(&self.view_id, &to_group.group_id, from_row, Some(to_row))
           .await
           .unwrap();
       },
@@ -141,7 +138,8 @@ impl DatabaseGroupTest {
         row_index,
       } => {
         let row = self.row_at_index(group_index, row_index).await;
-        self.editor.delete_row(RowId::from(row.id)).await;
+        let row_id = RowId::from(row.id);
+        self.editor.delete_row(&row_id).await;
       },
       GroupScript::UpdateGroupedCell {
         from_group_index,

@@ -41,10 +41,7 @@ impl DocumentManager {
   ) -> FlowyResult<Arc<Document>> {
     let collab = self.get_collab_for_doc_id(&doc_id)?;
     let document = Arc::new(Document::create_with_data(collab, data.0)?);
-    self
-      .documents
-      .write()
-      .insert(doc_id.clone(), document.clone());
+    self.documents.write().insert(doc_id, document.clone());
     Ok(document)
   }
 
@@ -65,10 +62,7 @@ impl DocumentManager {
           .send();
       })
       .map_err(|err| FlowyError::internal().context(err))?;
-    self
-      .documents
-      .write()
-      .insert(doc_id.clone(), document.clone());
+    self.documents.write().insert(doc_id, document.clone());
     Ok(document)
   }
 

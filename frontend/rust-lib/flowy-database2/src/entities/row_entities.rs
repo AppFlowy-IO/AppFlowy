@@ -13,7 +13,7 @@ use crate::services::database::{InsertedRow, UpdatedRow};
 #[derive(Debug, Default, Clone, ProtoBuf, Eq, PartialEq)]
 pub struct RowPB {
   #[pb(index = 1)]
-  pub id: i64,
+  pub id: String,
 
   #[pb(index = 2)]
   pub height: i32,
@@ -22,7 +22,7 @@ pub struct RowPB {
 impl std::convert::From<&Row> for RowPB {
   fn from(row: &Row) -> Self {
     Self {
-      id: row.id.into(),
+      id: row.id.clone().into_inner(),
       height: row.height,
     }
   }
@@ -31,7 +31,7 @@ impl std::convert::From<&Row> for RowPB {
 impl std::convert::From<Row> for RowPB {
   fn from(row: Row) -> Self {
     Self {
-      id: row.id.into(),
+      id: row.id.into_inner(),
       height: row.height,
     }
   }
@@ -39,7 +39,7 @@ impl std::convert::From<Row> for RowPB {
 impl From<RowOrder> for RowPB {
   fn from(data: RowOrder) -> Self {
     Self {
-      id: data.id.into(),
+      id: data.id.into_inner(),
       height: data.height,
     }
   }
@@ -144,7 +144,7 @@ pub struct RowIdPB {
   pub view_id: String,
 
   #[pb(index = 2)]
-  pub row_id: i64,
+  pub row_id: String,
 }
 
 pub struct RowIdParams {
@@ -180,7 +180,7 @@ pub struct CreateRowPayloadPB {
   pub view_id: String,
 
   #[pb(index = 2, one_of)]
-  pub start_row_id: Option<i64>,
+  pub start_row_id: Option<String>,
 
   #[pb(index = 3, one_of)]
   pub group_id: Option<String>,

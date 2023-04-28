@@ -280,7 +280,7 @@ pub(crate) async fn get_row_handler(
 ) -> DataResult<OptionalRowPB, FlowyError> {
   let params: RowIdParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database(&params.view_id).await?;
-  let row = database_editor.get_row(params.row_id).map(RowPB::from);
+  let row = database_editor.get_row(&params.row_id).map(RowPB::from);
   data_result_ok(OptionalRowPB { row })
 }
 
@@ -291,7 +291,7 @@ pub(crate) async fn delete_row_handler(
 ) -> Result<(), FlowyError> {
   let params: RowIdParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database(&params.view_id).await?;
-  database_editor.delete_row(params.row_id).await;
+  database_editor.delete_row(&params.row_id).await;
   Ok(())
 }
 
@@ -303,7 +303,7 @@ pub(crate) async fn duplicate_row_handler(
   let params: RowIdParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database(&params.view_id).await?;
   database_editor
-    .duplicate_row(&params.view_id, params.row_id)
+    .duplicate_row(&params.view_id, &params.row_id)
     .await;
   Ok(())
 }

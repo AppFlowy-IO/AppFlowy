@@ -247,7 +247,7 @@ pub struct ReorderAllRowsPB {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct ReorderSingleRowPB {
   #[pb(index = 1)]
-  pub row_id: i64,
+  pub row_id: String,
 
   #[pb(index = 2)]
   pub old_index: i32,

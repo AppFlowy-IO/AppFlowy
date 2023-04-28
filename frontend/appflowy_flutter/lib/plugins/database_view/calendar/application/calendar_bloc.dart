@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
@@ -7,7 +8,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:dartz/dartz.dart';
-import 'package:fixnum/fixnum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -83,7 +83,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
               ),
             );
           },
-          didDeleteEvents: (List<Int64> deletedRowIds) {
+          didDeleteEvents: (List<RowId> deletedRowIds) {
             var events = [...state.allEvents];
             events.retainWhere(
               (element) => !deletedRowIds.contains(element.event!.cellId.rowId),
@@ -165,7 +165,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     return _databaseController.updateCalenderLayoutSetting(layoutSetting);
   }
 
-  Future<CalendarEventData<CalendarDayEvent>?> _loadEvent(Int64 rowId) async {
+  Future<CalendarEventData<CalendarDayEvent>?> _loadEvent(RowId rowId) async {
     final payload = RowIdPB(viewId: viewId, rowId: rowId);
     return DatabaseEventGetCalendarEvent(payload).send().then((result) {
       return result.fold(
@@ -324,7 +324,7 @@ class CalendarEvent with _$CalendarEvent {
   ) = _DidReceiveNewEvent;
 
   // Called when deleting events
-  const factory CalendarEvent.didDeleteEvents(List<Int64> rowIds) =
+  const factory CalendarEvent.didDeleteEvents(List<RowId> rowIds) =
       _DidDeleteEvents;
 
   // Called when creating a new event
@@ -351,7 +351,7 @@ class CalendarState with _$CalendarState {
     required Events allEvents,
     required Events initialEvents,
     CalendarEventData<CalendarDayEvent>? newEvent,
-    required List<Int64> deleteEventIds,
+    required List<RowId> deleteEventIds,
     CalendarEventData<CalendarDayEvent>? updateEvent,
     required Option<CalendarLayoutSettingPB> settings,
     required DatabaseLoadingState loadingState,
@@ -391,6 +391,6 @@ class CalendarDayEvent {
   final CalendarEventPB event;
   final CellIdentifier cellId;
 
-  Int64 get eventId => cellId.rowId;
+  RowId get eventId => cellId.rowId;
   CalendarDayEvent({required this.cellId, required this.event});
 }

@@ -90,16 +90,16 @@ impl GroupSettingReader for GroupSettingReaderImpl {
 pub(crate) async fn get_cell_for_row(
   delegate: Arc<dyn DatabaseViewData>,
   field_id: &str,
-  row_id: RowId,
+  row_id: &RowId,
 ) -> Option<RowSingleCellData> {
   let field = delegate.get_field(field_id).await?;
-  let cell = delegate.get_cell_in_row(field_id, row_id).await?;
+  let cell = delegate.get_cell_in_row(field_id, &row_id).await?;
   let field_type = FieldType::from(field.field_type);
 
   if let Some(handler) = delegate.get_type_option_cell_handler(&field, &field_type) {
     return match handler.get_cell_data(&cell, &field_type, &field) {
       Ok(cell_data) => Some(RowSingleCellData {
-        row_id: cell.row_id,
+        row_id: cell.row_id.clone(),
         field_id: field.id.clone(),
         field_type: field_type.clone(),
         cell_data,
@@ -125,7 +125,7 @@ pub(crate) async fn get_cells_for_field(
         .flat_map(
           |cell| match handler.get_cell_data(cell, &field_type, &field) {
             Ok(cell_data) => Some(RowSingleCellData {
-              row_id: cell.row_id,
+              row_id: cell.row_id.clone(),
               field_id: field.id.clone(),
               field_type: field_type.clone(),
               cell_data,

@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
-import 'package:fixnum/fixnum.dart';
 import 'row_cache.dart';
+import 'row_service.dart';
 
 class RowList {
   /// Use List to reverse the order of the row.
@@ -10,13 +10,13 @@ class RowList {
   List<RowInfo> get rows => List.from(_rowInfos);
 
   /// Use Map for faster access the raw row data.
-  final HashMap<Int64, RowInfo> rowInfoByRowId = HashMap();
+  final HashMap<RowId, RowInfo> rowInfoByRowId = HashMap();
 
-  RowInfo? get(Int64 rowId) {
+  RowInfo? get(RowId rowId) {
     return rowInfoByRowId[rowId];
   }
 
-  int? indexOfRow(Int64 rowId) {
+  int? indexOfRow(RowId rowId) {
     final rowInfo = rowInfoByRowId[rowId];
     if (rowInfo != null) {
       return _rowInfos.indexOf(rowInfo);
@@ -57,7 +57,7 @@ class RowList {
     }
   }
 
-  DeletedIndex? remove(Int64 rowId) {
+  DeletedIndex? remove(RowId rowId) {
     final rowInfo = rowInfoByRowId[rowId];
     if (rowInfo != null) {
       final index = _rowInfos.indexOf(rowInfo);
@@ -146,7 +146,7 @@ class RowList {
     }
   }
 
-  void moveRow(Int64 rowId, int oldIndex, int newIndex) {
+  void moveRow(RowId rowId, int oldIndex, int newIndex) {
     final index = _rowInfos.indexWhere(
       (rowInfo) => rowInfo.rowPB.id == rowId,
     );
@@ -157,7 +157,7 @@ class RowList {
     }
   }
 
-  bool contains(Int64 rowId) {
+  bool contains(RowId rowId) {
     return rowInfoByRowId[rowId] != null;
   }
 }

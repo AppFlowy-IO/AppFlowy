@@ -1,4 +1,4 @@
-import { DatabaseEventGetCell, DatabaseEventUpdateCell } from '@/services/backend/events/flowy-database';
+import { DatabaseEventGetCell, DatabaseEventUpdateCell } from '@/services/backend/events/flowy-database2';
 import { CellChangesetPB, CellIdPB, FieldType } from '@/services/backend';
 
 class CellIdentifier {
@@ -16,7 +16,7 @@ class CellBackendService {
       view_id: cellId.viewId,
       field_id: cellId.fieldId,
       row_id: cellId.rowId,
-      type_cell_data: data,
+      cell_changeset: data,
     });
     return DatabaseEventUpdateCell(payload);
   };

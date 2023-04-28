@@ -14,7 +14,7 @@ import {
   MoveGroupPayloadPB,
   MoveGroupRowPayloadPB,
   MoveRowPayloadPB,
-} from '@/services/backend/events/flowy-database';
+} from '@/services/backend/events/flowy-database2';
 import {
   GetFieldPayloadPB,
   RepeatedFieldIdPB,
@@ -65,28 +65,18 @@ export class DatabaseBackendService {
   };
 
   /// Move the row from one group to another group
-  /// [groupId] can be the moving row's group id or others.
   /// [toRowId] is used to locate the moving row location.
-  moveGroupRow = (fromRowId: string, groupId: string, toRowId?: string) => {
+  moveGroupRow = (fromRowId: string, toGroupId: string, toRowId?: string) => {
     const payload = MoveGroupRowPayloadPB.fromObject({
       view_id: this.viewId,
       from_row_id: fromRowId,
-      to_group_id: groupId,
+      to_group_id: toGroupId,
     });
     if (toRowId !== undefined) {
       payload.to_row_id = toRowId;
     }
 
     return DatabaseEventMoveGroupRow(payload);
-  };
-
-  exchangeRow = (fromRowId: string, toRowId: string) => {
-    const payload = MoveRowPayloadPB.fromObject({
-      view_id: this.viewId,
-      from_row_id: fromRowId,
-      to_row_id: toRowId,
-    });
-    return DatabaseEventMoveRow(payload);
   };
 
   moveGroup = (fromGroupId: string, toGroupId: string) => {

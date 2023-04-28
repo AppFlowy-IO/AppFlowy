@@ -1,12 +1,12 @@
-import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import '../cell/cell_service.dart';
 import 'row_cache.dart';
+import 'row_service.dart';
 
 typedef OnRowChanged = void Function(CellByFieldId, RowsChangedReason);
 
 class RowController {
-  final Int64 rowId;
+  final RowId rowId;
   final String viewId;
   final List<VoidCallback> _onRowChangedListeners = [];
   final RowCache _rowCache;

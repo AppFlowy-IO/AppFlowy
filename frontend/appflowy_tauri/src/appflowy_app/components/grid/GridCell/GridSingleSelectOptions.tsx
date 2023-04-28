@@ -4,9 +4,9 @@ import { CellIdentifier } from '@/appflowy_app/stores/effects/database/cell/cell
 import { CellCache } from '@/appflowy_app/stores/effects/database/cell/cell_cache';
 import { FieldController } from '@/appflowy_app/stores/effects/database/field/field_controller';
 import { useCell } from '$app/components/_shared/database-hooks/useCell';
-import { SelectOptionCellDataPB, SelectOptionPB } from '@/services/backend/models/flowy-database/select_type_option';
 import { CellOptionsPopup } from '$app/components/_shared/EditRow/CellOptionsPopup';
 import { EditCellOptionPopup } from '$app/components/_shared/EditRow/EditCellOptionPopup';
+import { SelectOptionCellDataPB, SelectOptionPB } from '@/services/backend';
 
 export default function GridSingleSelectOptions({
   cellIdentifier,

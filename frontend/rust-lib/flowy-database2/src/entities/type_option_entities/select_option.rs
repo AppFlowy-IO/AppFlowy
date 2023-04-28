@@ -49,7 +49,7 @@ pub struct RepeatedSelectOptionPayload {
   pub field_id: String,
 
   #[pb(index = 3)]
-  pub row_id: i64,
+  pub row_id: String,
 
   #[pb(index = 4)]
   pub items: Vec<SelectOptionPB>,

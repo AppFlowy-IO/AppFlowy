@@ -16,22 +16,22 @@ pub fn add_or_remove_select_option_row(
 ) -> Option<GroupRowsNotificationPB> {
   let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
   if cell_data.select_options.is_empty() {
-    if group.contains_row(row.id) {
-      changeset.deleted_rows.push(row.id.into());
-      group.remove_row(row.id);
+    if group.contains_row(&row.id) {
+      group.remove_row(&row.id);
+      changeset.deleted_rows.push(row.id.clone().into_inner());
     }
   } else {
     cell_data.select_options.iter().for_each(|option| {
       if option.id == group.id {
-        if !group.contains_row(row.id) {
+        if !group.contains_row(&row.id) {
           changeset
             .inserted_rows
             .push(InsertedRowPB::new(RowPB::from(row)));
           group.add_row(row.clone());
         }
-      } else if group.contains_row(row.id) {
-        changeset.deleted_rows.push(row.id.into());
-        group.remove_row(row.id);
+      } else if group.contains_row(&row.id) {
+        group.remove_row(&row.id);
+        changeset.deleted_rows.push(row.id.clone().into_inner());
       }
     });
   }
@@ -50,9 +50,9 @@ pub fn remove_select_option_row(
 ) -> Option<GroupRowsNotificationPB> {
   let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
   cell_data.select_options.iter().for_each(|option| {
-    if option.id == group.id && group.contains_row(row.id) {
-      changeset.deleted_rows.push(row.id.into());
-      group.remove_row(row.id);
+    if option.id == group.id && group.contains_row(&row.id) {
+      group.remove_row(&row.id);
+      changeset.deleted_rows.push(row.id.clone().into_inner());
     }
   });
 
@@ -76,17 +76,17 @@ pub fn move_group_row(
     to_row_id,
   } = context;
 
-  let from_index = group.index_of_row(row.id);
+  let from_index = group.index_of_row(&row.id);
   let to_index = match to_row_id {
     None => None,
-    Some(to_row_id) => group.index_of_row(*to_row_id),
+    Some(to_row_id) => group.index_of_row(to_row_id),
   };
 
   // Remove the row in which group contains it
   if let Some(from_index) = &from_index {
-    changeset.deleted_rows.push(row.id.into());
+    changeset.deleted_rows.push(row.id.clone().into_inner());
     tracing::debug!("Group:{} remove {} at {}", group.id, row.id, from_index);
-    group.remove_row(row.id);
+    group.remove_row(&row.id);
   }
 
   if group.id == *to_group_id {

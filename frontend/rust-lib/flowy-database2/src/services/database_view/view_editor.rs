@@ -50,16 +50,16 @@ pub trait DatabaseViewData: Send + Sync + 'static {
   fn get_primary_field(&self) -> Fut<Option<Arc<Field>>>;
 
   /// Returns the index of the row with row_id
-  fn index_of_row(&self, view_id: &str, row_id: RowId) -> Fut<Option<usize>>;
+  fn index_of_row(&self, view_id: &str, row_id: &RowId) -> Fut<Option<usize>>;
 
   /// Returns the `index` and `RowRevision` with row_id
-  fn get_row(&self, view_id: &str, row_id: RowId) -> Fut<Option<(usize, Arc<Row>)>>;
+  fn get_row(&self, view_id: &str, row_id: &RowId) -> Fut<Option<(usize, Arc<Row>)>>;
 
   fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<Row>>>;
 
   fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>>;
 
-  fn get_cell_in_row(&self, field_id: &str, row_id: RowId) -> Fut<Option<Arc<RowCell>>>;
+  fn get_cell_in_row(&self, field_id: &str, row_id: &RowId) -> Fut<Option<Arc<RowCell>>>;
 
   fn get_layout_for_view(&self, view_id: &str) -> DatabaseLayout;
 
@@ -248,9 +248,11 @@ impl DatabaseViewEditor {
 
     let filter_controller = self.filter_controller.clone();
     let sort_controller = self.sort_controller.clone();
-    let row_id = row.id;
+    let row_id = row.id.clone();
     tokio::spawn(async move {
-      filter_controller.did_receive_row_changed(row_id).await;
+      filter_controller
+        .did_receive_row_changed(row_id.clone())
+        .await;
       sort_controller
         .read()
         .await
@@ -669,12 +671,12 @@ impl DatabaseViewEditor {
 
     // Text
     let primary_field = self.delegate.get_primary_field().await?;
-    let text_cell = get_cell_for_row(self.delegate.clone(), &primary_field.id, row_id).await?;
+    let text_cell = get_cell_for_row(self.delegate.clone(), &primary_field.id, &row_id).await?;
 
     // Date
     let date_field = self.delegate.get_field(&calendar_setting.field_id).await?;
 
-    let date_cell = get_cell_for_row(self.delegate.clone(), &date_field.id, row_id).await?;
+    let date_cell = get_cell_for_row(self.delegate.clone(), &date_field.id, &row_id).await?;
     let title = text_cell
       .into_text_field_cell_data()
       .unwrap_or_default()
@@ -687,7 +689,7 @@ impl DatabaseViewEditor {
       .unwrap_or_default();
 
     Some(CalendarEventPB {
-      row_id: row_id.into(),
+      row_id: row_id.into_inner(),
       title_field_id: primary_field.id.clone(),
       title,
       timestamp,
@@ -712,7 +714,7 @@ impl DatabaseViewEditor {
     .await
     .into_iter()
     .map(|date_cell| {
-      let row_id = date_cell.row_id;
+      let row_id = date_cell.row_id.clone();
 
       // timestamp
       let timestamp = date_cell
@@ -727,7 +729,7 @@ impl DatabaseViewEditor {
     let mut events: Vec<CalendarEventPB> = vec![];
     for text_cell in text_cells {
       let title_field_id = text_cell.field_id.clone();
-      let row_id = text_cell.row_id;
+      let row_id = text_cell.row_id.clone();
       let timestamp = timestamp_by_row_id
         .get(&row_id)
         .cloned()
@@ -739,7 +741,7 @@ impl DatabaseViewEditor {
         .into();
 
       let event = CalendarEventPB {
-        row_id: row_id.into(),
+        row_id: row_id.into_inner(),
         title_field_id,
         title,
         timestamp,
@@ -758,14 +760,14 @@ impl DatabaseViewEditor {
         RowsChangesetPB::from_update(self.view_id.clone(), vec![row.into()])
       },
       DatabaseRowEvent::DeleteRow(row_id) => {
-        RowsChangesetPB::from_delete(self.view_id.clone(), vec![row_id])
+        RowsChangesetPB::from_delete(self.view_id.clone(), vec![row_id.into_inner()])
       },
       DatabaseRowEvent::Move {
         deleted_row_id,
         inserted_row,
       } => RowsChangesetPB::from_move(
         self.view_id.clone(),
-        vec![deleted_row_id],
+        vec![deleted_row_id.into_inner()],
         vec![inserted_row.into()],
       ),
     };

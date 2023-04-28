@@ -54,12 +54,12 @@ impl GroupCustomize for CheckboxGroupController {
     let mut changesets = vec![];
     self.group_ctx.iter_mut_status_groups(|group| {
       let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
-      let is_not_contained = !group.contains_row(row.id);
+      let is_not_contained = !group.contains_row(&row.id);
       if group.id == CHECK {
         if cell_data.is_uncheck() {
           // Remove the row if the group.id is CHECK but the cell_data is UNCHECK
-          changeset.deleted_rows.push(row.id.into());
-          group.remove_row(row.id);
+          changeset.deleted_rows.push(row.id.clone().into_inner());
+          group.remove_row(&row.id);
         } else {
           // Add the row to the group if the group didn't contain the row
           if is_not_contained {
@@ -74,8 +74,8 @@ impl GroupCustomize for CheckboxGroupController {
       if group.id == UNCHECK {
         if cell_data.is_check() {
           // Remove the row if the group.id is UNCHECK but the cell_data is CHECK
-          changeset.deleted_rows.push(row.id.into());
-          group.remove_row(row.id);
+          changeset.deleted_rows.push(row.id.clone().into_inner());
+          group.remove_row(&row.id);
         } else {
           // Add the row to the group if the group didn't contain the row
           if is_not_contained {
@@ -98,9 +98,9 @@ impl GroupCustomize for CheckboxGroupController {
     let mut changesets = vec![];
     self.group_ctx.iter_mut_groups(|group| {
       let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
-      if group.contains_row(row.id) {
-        changeset.deleted_rows.push(row.id.into());
-        group.remove_row(row.id);
+      if group.contains_row(&row.id) {
+        changeset.deleted_rows.push(row.id.clone().into_inner());
+        group.remove_row(&row.id);
       }
 
       if !changeset.is_empty() {

@@ -2,7 +2,8 @@ import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
-import 'package:fixnum/fixnum.dart';
+
+typedef RowId = String;
 
 class RowBackendService {
   final String viewId;
@@ -11,7 +12,7 @@ class RowBackendService {
     required this.viewId,
   });
 
-  Future<Either<RowPB, FlowyError>> createRow(Int64 rowId) {
+  Future<Either<RowPB, FlowyError>> createRow(RowId rowId) {
     final payload = CreateRowPayloadPB.create()
       ..viewId = viewId
       ..startRowId = rowId;
@@ -19,7 +20,7 @@ class RowBackendService {
     return DatabaseEventCreateRow(payload).send();
   }
 
-  Future<Either<OptionalRowPB, FlowyError>> getRow(Int64 rowId) {
+  Future<Either<OptionalRowPB, FlowyError>> getRow(RowId rowId) {
     final payload = RowIdPB.create()
       ..viewId = viewId
       ..rowId = rowId;
@@ -27,7 +28,7 @@ class RowBackendService {
     return DatabaseEventGetRow(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> deleteRow(Int64 rowId) {
+  Future<Either<Unit, FlowyError>> deleteRow(RowId rowId) {
     final payload = RowIdPB.create()
       ..viewId = viewId
       ..rowId = rowId;
@@ -35,7 +36,7 @@ class RowBackendService {
     return DatabaseEventDeleteRow(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> duplicateRow(Int64 rowId) {
+  Future<Either<Unit, FlowyError>> duplicateRow(RowId rowId) {
     final payload = RowIdPB.create()
       ..viewId = viewId
       ..rowId = rowId;

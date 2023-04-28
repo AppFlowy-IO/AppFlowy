@@ -75,11 +75,11 @@ export class DatabaseController {
     const settingsResult = await this.backendService.getSettings();
     if (settingsResult.ok) {
       const settings = settingsResult.val;
-      const groupConfig = settings.group_configurations.items;
+      const groupConfig = settings.group_settings.items;
       if (groupConfig.length === 0) {
         return Err(new FlowyError({ msg: 'this database has no groups' }));
       }
-      return Ok(settings.group_configurations.items[0].field_id);
+      return Ok(settings.group_settings.items[0].field_id);
     } else {
       return Err(settingsResult.val);
     }
@@ -93,8 +93,8 @@ export class DatabaseController {
     return this.backendService.moveGroupRow(rowId, groupId);
   };
 
-  exchangeRow = async (fromRowId: string, toRowId: string) => {
-    await this.backendService.exchangeRow(fromRowId, toRowId);
+  exchangeRow = async (fromRowId: string, toGroupId: string, toRowId?: string) => {
+    await this.backendService.moveGroupRow(fromRowId, toGroupId, toRowId);
     await this.loadGroup();
   };
 

@@ -4,7 +4,7 @@ import {
   DatabaseEventDeleteRow,
   DatabaseEventDuplicateRow,
   DatabaseEventGetRow,
-} from '@/services/backend/events/flowy-database';
+} from '@/services/backend/events/flowy-database2';
 
 export class RowBackendService {
   constructor(public readonly viewId: string) {}

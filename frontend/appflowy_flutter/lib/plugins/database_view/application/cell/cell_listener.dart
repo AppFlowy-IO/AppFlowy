@@ -2,15 +2,16 @@ import 'package:appflowy/core/grid_notification.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/notification.pb.dart';
-import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'dart:async';
 import 'dart:typed_data';
 
+import '../row/row_service.dart';
+
 typedef UpdateFieldNotifiedValue = Either<Unit, FlowyError>;
 
 class CellListener {
-  final Int64 rowId;
+  final RowId rowId;
   final String fieldId;
   PublishNotifier<UpdateFieldNotifiedValue>? _updateCellNotifier =
       PublishNotifier();

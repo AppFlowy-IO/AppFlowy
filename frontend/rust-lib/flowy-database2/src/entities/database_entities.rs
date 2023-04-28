@@ -83,10 +83,10 @@ pub struct MoveRowPayloadPB {
   pub view_id: String,
 
   #[pb(index = 2)]
-  pub from_row_id: i64,
+  pub from_row_id: String,
 
   #[pb(index = 3)]
-  pub to_row_id: i64,
+  pub to_row_id: String,
 }
 
 pub struct MoveRowParams {
@@ -114,13 +114,13 @@ pub struct MoveGroupRowPayloadPB {
   pub view_id: String,
 
   #[pb(index = 2)]
-  pub from_row_id: i64,
+  pub from_row_id: String,
 
   #[pb(index = 3)]
   pub to_group_id: String,
 
   #[pb(index = 4, one_of)]
-  pub to_row_id: Option<i64>,
+  pub to_row_id: Option<String>,
 }
 
 pub struct MoveGroupRowParams {

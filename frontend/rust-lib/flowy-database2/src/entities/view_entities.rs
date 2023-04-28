@@ -11,7 +11,7 @@ pub struct RowsVisibilityChangesetPB {
   pub visible_rows: Vec<InsertedRowPB>,
 
   #[pb(index = 6)]
-  pub invisible_rows: Vec<i64>,
+  pub invisible_rows: Vec<String>,
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
@@ -23,7 +23,7 @@ pub struct RowsChangesetPB {
   pub inserted_rows: Vec<InsertedRowPB>,
 
   #[pb(index = 3)]
-  pub deleted_rows: Vec<i64>,
+  pub deleted_rows: Vec<String>,
 
   #[pb(index = 4)]
   pub updated_rows: Vec<UpdatedRowPB>,
@@ -38,7 +38,7 @@ impl RowsChangesetPB {
     }
   }
 
-  pub fn from_delete(view_id: String, deleted_rows: Vec<i64>) -> Self {
+  pub fn from_delete(view_id: String, deleted_rows: Vec<String>) -> Self {
     Self {
       view_id,
       deleted_rows,
@@ -56,7 +56,7 @@ impl RowsChangesetPB {
 
   pub fn from_move(
     view_id: String,
-    deleted_rows: Vec<i64>,
+    deleted_rows: Vec<String>,
     inserted_rows: Vec<InsertedRowPB>,
   ) -> Self {
     Self {

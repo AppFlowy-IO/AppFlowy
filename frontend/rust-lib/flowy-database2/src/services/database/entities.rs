@@ -1,12 +1,13 @@
+use collab_database::rows::RowId;
 use collab_database::views::RowOrder;
 
 #[derive(Debug, Clone)]
 pub enum DatabaseRowEvent {
   InsertRow(InsertedRow),
   UpdateRow(UpdatedRow),
-  DeleteRow(i64),
+  DeleteRow(RowId),
   Move {
-    deleted_row_id: i64,
+    deleted_row_id: RowId,
     inserted_row: InsertedRow,
   },
 }

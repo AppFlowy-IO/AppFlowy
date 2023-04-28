@@ -63,7 +63,7 @@ pub struct MoveGroupRowContext<'a> {
   pub to_row_id: Option<RowId>,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct RowChangeset {
   pub row_id: RowId,
   pub height: Option<i32>,
@@ -77,7 +77,9 @@ impl RowChangeset {
   pub fn new(row_id: RowId) -> Self {
     Self {
       row_id,
-      ..Default::default()
+      height: None,
+      visibility: None,
+      cell_by_field_id: Default::default(),
     }
   }
 
@@ -149,7 +151,7 @@ where
           .iter()
           .any(|inserted_row| &inserted_row.row.id == row_id)
       })
-      .collect::<Vec<i64>>();
+      .collect::<Vec<String>>();
 
     let mut changeset = GroupRowsNotificationPB::new(no_status_group.id.clone());
     if !no_status_group_rows.is_empty() {
@@ -158,7 +160,7 @@ where
     }
 
     // [other_group_delete_rows] contains all the deleted rows except the default group.
-    let other_group_delete_rows: Vec<i64> = other_group_changesets
+    let other_group_delete_rows: Vec<String> = other_group_changesets
       .iter()
       .flat_map(|changeset| &changeset.deleted_rows)
       .cloned()
@@ -172,29 +174,24 @@ where
         // out from the default_group.
         !other_group_delete_rows
           .iter()
-          .any(|row_id| inserted_row.row.id == *row_id)
+          .any(|row_id| &inserted_row.row.id == row_id)
       })
       .collect::<Vec<&InsertedRowPB>>();
 
     let mut deleted_row_ids = vec![];
     for row in &no_status_group.rows {
-      let row_id: i64 = row.id.into();
+      let row_id = row.id.clone().into_inner();
       if default_group_deleted_rows
         .iter()
         .any(|deleted_row| deleted_row.row.id == row_id)
       {
-        deleted_row_ids.push(row.id);
+        deleted_row_ids.push(row_id);
       }
     }
     no_status_group
       .rows
       .retain(|row| !deleted_row_ids.contains(&row.id));
-    changeset.deleted_rows.extend(
-      deleted_row_ids
-        .into_iter()
-        .map(|id| id.into())
-        .collect::<Vec<i64>>(),
-    );
+    changeset.deleted_rows.extend(deleted_row_ids);
     Some(changeset)
   }
 }
@@ -328,12 +325,12 @@ where
         tracing::error!("Unexpected None value. It should have the no status group");
       },
       Some(no_status_group) => {
-        if !no_status_group.contains_row(row.id) {
+        if !no_status_group.contains_row(&row.id) {
           tracing::error!("The row: {:?} should be in the no status group", row.id);
         }
         result.row_changesets = vec![GroupRowsNotificationPB::delete(
           no_status_group.id.clone(),
-          vec![row.id.into()],
+          vec![row.id.clone().into_inner()],
         )];
       },
     }

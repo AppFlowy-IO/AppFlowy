@@ -91,7 +91,11 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
 
     if (source.droppableId === destination?.droppableId) {
       // move inside the block (group)
-      await controller.exchangeRow(group.rows[source.index].id, group.rows[destination.index].id);
+      await controller.exchangeRow(
+        group.rows[source.index].id,
+        destination.droppableId,
+        group.rows[destination.index].id
+      );
     } else {
       // move to different block (group)
       if (!destination?.droppableId) return;

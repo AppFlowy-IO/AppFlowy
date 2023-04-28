@@ -13,12 +13,12 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:collection/collection.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
-import 'package:fixnum/fixnum.dart';
 import 'database_view_service.dart';
 import 'defines.dart';
 import 'layout/layout_setting_listener.dart';
 import 'row/row_cache.dart';
 import 'group/group_listener.dart';
+import 'row/row_service.dart';
 
 typedef OnGroupByField = void Function(List<GroupPB>);
 typedef OnUpdateGroup = void Function(List<GroupPB>);
@@ -157,7 +157,7 @@ class DatabaseController {
   }
 
   Future<Either<RowPB, FlowyError>> createRow({
-    Int64? startRowId,
+    RowId? startRowId,
     String? groupId,
     void Function(RowDataBuilder builder)? withCells,
   }) {

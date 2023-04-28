@@ -9,12 +9,12 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/cell_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:convert' show utf8;
 
 import '../field/field_controller.dart';
+import '../row/row_service.dart';
 part 'cell_service.freezed.dart';
 part 'cell_data_loader.dart';
 part 'cell_cache.dart';
@@ -52,7 +52,7 @@ class CellBackendService {
 class CellIdentifier with _$CellIdentifier {
   const factory CellIdentifier({
     required String viewId,
-    required Int64 rowId,
+    required RowId rowId,
     required FieldInfo fieldInfo,
   }) = _CellIdentifier;
 

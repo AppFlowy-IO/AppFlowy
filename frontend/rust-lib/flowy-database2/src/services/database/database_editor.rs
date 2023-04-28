@@ -285,7 +285,7 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn duplicate_row(&self, view_id: &str, row_id: RowId) {
+  pub async fn duplicate_row(&self, view_id: &str, row_id: &RowId) {
     let _ = self.database.lock().duplicate_row(view_id, row_id);
   }
 
@@ -325,7 +325,7 @@ impl DatabaseEditor {
           is_new: true,
         }));
 
-      let row = self.database.lock().get_row(row_order.id);
+      let row = self.database.lock().get_row(&row_order.id);
       if let Some(row) = row {
         for view in self.database_views.editors().await {
           view.v_did_create_row(&row, &params.group_id, index).await;
@@ -413,17 +413,17 @@ impl DatabaseEditor {
     Ok(view_editor.v_get_rows().await)
   }
 
-  pub fn get_row(&self, row_id: RowId) -> Option<Row> {
+  pub fn get_row(&self, row_id: &RowId) -> Option<Row> {
     self.database.lock().get_row(row_id)
   }
 
-  pub async fn delete_row(&self, row_id: RowId) {
+  pub async fn delete_row(&self, row_id: &RowId) {
     let row = self.database.lock().remove_row(row_id);
     if let Some(row) = row {
       tracing::trace!("Did delete row:{:?}", row);
       let _ = self
         .row_event_tx
-        .send(DatabaseRowEvent::DeleteRow(row.id.into()));
+        .send(DatabaseRowEvent::DeleteRow(row.id.clone()));
 
       for view in self.database_views.editors().await {
         view.v_did_delete_row(&row).await;
@@ -433,7 +433,7 @@ impl DatabaseEditor {
 
   pub async fn get_cell(&self, field_id: &str, row_id: RowId) -> CellPB {
     let field = self.database.lock().fields.get_field(field_id);
-    let cell = self.database.lock().get_cell(field_id, row_id);
+    let cell = self.database.lock().get_cell(field_id, &row_id);
     match (field, cell) {
       (Some(field), Some(cell)) => {
         let field_type = FieldType::from(field.field_type);
@@ -445,7 +445,7 @@ impl DatabaseEditor {
           field_type: Some(field_type),
         }
       },
-      _ => CellPB::empty(field_id, row_id.into()),
+      _ => CellPB::empty(field_id, row_id.into_inner()),
     }
   }
 
@@ -467,7 +467,7 @@ impl DatabaseEditor {
       let database = self.database.lock();
       (
         database.fields.get_field(field_id)?,
-        database.get_cell(field_id, row_id).map(|cell| cell.cell),
+        database.get_cell(field_id, &row_id).map(|cell| cell.cell),
       )
     };
     let cell_changeset = cell_changeset.to_cell_changeset_str();
@@ -485,15 +485,15 @@ impl DatabaseEditor {
   ) -> Option<()> {
     let old_row = {
       let database = self.database.lock();
-      database.get_row(row_id)
+      database.get_row(&row_id)
     };
-    self.database.lock().update_row(row_id, |row_update| {
+    self.database.lock().update_row(&row_id, |row_update| {
       row_update.update_cells(|cell_update| {
         cell_update.insert(field_id, new_cell);
       });
     });
 
-    let option_row = self.database.lock().get_row(row_id);
+    let option_row = self.database.lock().get_row(&row_id);
     if let Some(new_row) = option_row {
       let _ = self
         .row_event_tx
@@ -508,7 +508,7 @@ impl DatabaseEditor {
 
     notify_did_update_cell(vec![CellChangesetNotifyPB {
       view_id: view_id.to_string(),
-      row_id: row_id.into(),
+      row_id: row_id.into_inner(),
       field_id: field_id.to_string(),
     }])
     .await;
@@ -593,7 +593,7 @@ impl DatabaseEditor {
     match field {
       None => SelectOptionCellDataPB::default(),
       Some(field) => {
-        let row_cell = self.database.lock().get_cell(field_id, row_id);
+        let row_cell = self.database.lock().get_cell(field_id, &row_id);
         let ids = match row_cell {
           None => SelectOptionIds::new(),
           Some(row_cell) => SelectOptionIds::from(&row_cell.cell),
@@ -640,7 +640,7 @@ impl DatabaseEditor {
     from_row: RowId,
     to_row: Option<RowId>,
   ) -> FlowyResult<()> {
-    let row = self.database.lock().get_row(from_row);
+    let row = self.database.lock().get_row(&from_row);
     match row {
       None => {
         tracing::warn!(
@@ -649,14 +649,14 @@ impl DatabaseEditor {
         )
       },
       Some(row) => {
-        let mut row_changeset = RowChangeset::new(row.id);
+        let mut row_changeset = RowChangeset::new(row.id.clone());
         let view = self.database_views.get_view_editor(view_id).await?;
         view
           .v_move_group_row(&row, &mut row_changeset, to_group, to_row)
           .await;
 
         tracing::trace!("Row data changed: {:?}", row_changeset);
-        self.database.lock().update_row(row.id, |row| {
+        self.database.lock().update_row(&row.id, |row| {
           row.set_cells(Cells::from(row_changeset.cell_by_field_id.clone()));
         });
 
@@ -811,12 +811,12 @@ fn cell_changesets_from_cell_by_field_id(
   row_id: RowId,
   cell_by_field_id: HashMap<String, Cell>,
 ) -> Vec<CellChangesetNotifyPB> {
-  let row_id = row_id.into();
+  let row_id = row_id.into_inner();
   cell_by_field_id
     .into_iter()
     .map(|(field_id, _cell)| CellChangesetNotifyPB {
       view_id: view_id.to_string(),
-      row_id,
+      row_id: row_id.clone(),
       field_id,
     })
     .collect()
@@ -879,14 +879,14 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     to_fut(async move { field })
   }
 
-  fn index_of_row(&self, view_id: &str, row_id: RowId) -> Fut<Option<usize>> {
+  fn index_of_row(&self, view_id: &str, row_id: &RowId) -> Fut<Option<usize>> {
     let index = self.database.lock().index_of_row(view_id, row_id);
     to_fut(async move { index })
   }
 
-  fn get_row(&self, view_id: &str, row_id: RowId) -> Fut<Option<(usize, Arc<Row>)>> {
+  fn get_row(&self, view_id: &str, row_id: &RowId) -> Fut<Option<(usize, Arc<Row>)>> {
     let index = self.database.lock().index_of_row(view_id, row_id);
-    let row = self.database.lock().get_row(row_id);
+    let row = self.database.lock().get_row(&row_id);
     to_fut(async move {
       match (index, row) {
         (Some(index), Some(row)) => Some((index, Arc::new(row))),
@@ -905,7 +905,7 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     to_fut(async move { cells.into_iter().map(Arc::new).collect() })
   }
 
-  fn get_cell_in_row(&self, field_id: &str, row_id: RowId) -> Fut<Option<Arc<RowCell>>> {
+  fn get_cell_in_row(&self, field_id: &str, row_id: &RowId) -> Fut<Option<Arc<RowCell>>> {
     let cell = self.database.lock().get_cell(field_id, row_id);
     to_fut(async move { cell.map(Arc::new) })
   }

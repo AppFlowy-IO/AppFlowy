@@ -18,7 +18,7 @@ pub struct GroupRowsNotificationPB {
   pub inserted_rows: Vec<InsertedRowPB>,
 
   #[pb(index = 4)]
-  pub deleted_rows: Vec<i64>,
+  pub deleted_rows: Vec<String>,
 
   #[pb(index = 5)]
   pub updated_rows: Vec<RowPB>,
@@ -72,7 +72,7 @@ impl GroupRowsNotificationPB {
     }
   }
 
-  pub fn delete(group_id: String, deleted_rows: Vec<i64>) -> Self {
+  pub fn delete(group_id: String, deleted_rows: Vec<String>) -> Self {
     Self {
       group_id,
       deleted_rows,

@@ -12,7 +12,7 @@ import { ChangeNotifier } from '$app/utils/change_notifier';
 import { FieldInfo } from '../field/field_controller';
 import { CellCache, CellCacheKey } from '../cell/cell_cache';
 import { CellIdentifier } from '../cell/cell_bd_svc';
-import { DatabaseEventGetRow } from '@/services/backend/events/flowy-database';
+import { DatabaseEventGetRow } from '@/services/backend/events/flowy-database2';
 import { None, Option, Some } from 'ts-results';
 import { Log } from '$app/utils/log';
 

@@ -3,7 +3,7 @@ import { CellCache } from '@/appflowy_app/stores/effects/database/cell/cell_cach
 import { FieldController } from '@/appflowy_app/stores/effects/database/field/field_controller';
 import { useCell } from '../../_shared/database-hooks/useCell';
 import { EditCellUrl } from '../../_shared/EditRow/EditCellUrl';
-import { URLCellDataPB } from '@/services/backend/models/flowy-database/url_type_option_entities';
+import { URLCellDataPB } from '@/services/backend';
 
 export const GridUrl = ({
   cellIdentifier,

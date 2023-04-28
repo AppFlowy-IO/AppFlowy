@@ -1,7 +1,7 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
-import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 
 typedef CellRenderHook<C, T> = Widget? Function(C cellData, T cardData);
@@ -122,7 +122,7 @@ abstract class EditableCell {
 
 class EditableCellId {
   String fieldId;
-  Int64 rowId;
+  RowId rowId;
 
   EditableCellId(this.rowId, this.fieldId);
 

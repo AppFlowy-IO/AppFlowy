@@ -42,7 +42,7 @@ fn restore_document() {
     .get_document()
     .unwrap();
   // close a document
-  _ = manager.close_document(doc_id.clone());
+  _ = manager.close_document(doc_id);
 
   assert_eq!(data_b, data.0);
 }
@@ -66,7 +66,7 @@ fn document_apply_insert_action() {
   let text_block = Block {
     id: nanoid!(10),
     ty: "text".to_string(),
-    parent: page_block.id.clone(),
+    parent: page_block.id,
     children: nanoid!(10),
     external_id: None,
     external_type: None,
@@ -75,7 +75,7 @@ fn document_apply_insert_action() {
   let insert_text_action = BlockAction {
     action: BlockActionType::Insert,
     payload: BlockActionPayload {
-      block: text_block.clone(),
+      block: text_block,
       parent_id: None,
       prev_id: None,
     },
@@ -93,7 +93,7 @@ fn document_apply_insert_action() {
     .get_document()
     .unwrap();
   // close a document
-  _ = manager.close_document(doc_id.clone());
+  _ = manager.close_document(doc_id);
 
   assert_eq!(data_b, data_a);
 }
@@ -113,7 +113,7 @@ fn document_apply_update_page_action() {
   let document = manager.open_document(doc_id.clone()).unwrap();
   let page_block = document.lock().get_block(&data.0.page_id).unwrap();
 
-  let mut page_block_clone = page_block.clone();
+  let mut page_block_clone = page_block;
   page_block_clone.data = HashMap::new();
   page_block_clone.data.insert(
     "delta".to_string(),
@@ -134,7 +134,7 @@ fn document_apply_update_page_action() {
   _ = manager.close_document(doc_id.clone());
 
   // re-open the document
-  let document = manager.open_document(doc_id.clone()).unwrap();
+  let document = manager.open_document(doc_id).unwrap();
   let page_block_new = document.lock().get_block(&data.0.page_id).unwrap();
   assert_eq!(page_block_old, page_block_new);
   assert!(page_block_new.data.contains_key("delta"));
@@ -160,7 +160,7 @@ fn document_apply_update_action() {
   let text_block = Block {
     id: text_block_id.clone(),
     ty: "text".to_string(),
-    parent: page_block.id.clone(),
+    parent: page_block.id,
     children: nanoid!(10),
     external_id: None,
     external_type: None,
@@ -169,7 +169,7 @@ fn document_apply_update_action() {
   let insert_text_action = BlockAction {
     action: BlockActionType::Insert,
     payload: BlockActionPayload {
-      block: text_block.clone(),
+      block: text_block,
       parent_id: None,
       prev_id: None,
     },
@@ -192,7 +192,7 @@ fn document_apply_update_action() {
   let update_text_action = BlockAction {
     action: BlockActionType::Update,
     payload: BlockActionPayload {
-      block: updated_text_block.clone(),
+      block: updated_text_block,
       parent_id: None,
       prev_id: None,
     },
@@ -206,5 +206,5 @@ fn document_apply_update_action() {
   let block = document.lock().get_block(&text_block_id).unwrap();
   assert_eq!(block.data, updated_text_block_data);
   // close a document
-  _ = manager.close_document(doc_id.clone());
+  _ = manager.close_document(doc_id);
 }

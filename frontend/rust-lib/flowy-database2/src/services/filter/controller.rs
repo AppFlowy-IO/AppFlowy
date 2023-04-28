@@ -24,7 +24,7 @@ pub trait FilterDelegate: Send + Sync + 'static {
   fn get_field(&self, field_id: &str) -> Fut<Option<Arc<Field>>>;
   fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
   fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<Row>>>;
-  fn get_row(&self, view_id: &str, rows_id: RowId) -> Fut<Option<(usize, Arc<Row>)>>;
+  fn get_row(&self, view_id: &str, rows_id: &RowId) -> Fut<Option<(usize, Arc<Row>)>>;
 }
 
 pub trait FromFilterString {
@@ -149,7 +149,7 @@ impl FilterController {
   }
 
   async fn filter_row(&self, row_id: RowId) -> FlowyResult<()> {
-    if let Some((_, row)) = self.delegate.get_row(&self.view_id, row_id).await {
+    if let Some((_, row)) = self.delegate.get_row(&self.view_id, &row_id).await {
       let field_by_field_id = self.get_field_map().await;
       let mut notification = FilterResultNotification::new(self.view_id.clone());
       if let Some((row_id, is_visible)) = filter_row(
@@ -160,14 +160,14 @@ impl FilterController {
         &self.cell_filter_cache,
       ) {
         if is_visible {
-          if let Some((index, row)) = self.delegate.get_row(&self.view_id, row_id).await {
+          if let Some((index, row)) = self.delegate.get_row(&self.view_id, &row_id).await {
             let row_pb = RowPB::from(row.as_ref());
             notification
               .visible_rows
               .push(InsertedRowPB::with_index(row_pb, index as i32))
           }
         } else {
-          notification.invisible_rows.push(row_id.into());
+          notification.invisible_rows.push(row_id);
         }
       }
 
@@ -201,7 +201,7 @@ impl FilterController {
           let row_pb = RowPB::from(row.as_ref());
           visible_rows.push(InsertedRowPB::with_index(row_pb, index as i32))
         } else {
-          invisible_rows.push(i64::from(row_id));
+          invisible_rows.push(row_id);
         }
       }
     }
@@ -369,7 +369,7 @@ fn filter_row(
 ) -> Option<(RowId, bool)> {
   // Create a filter result cache if it's not exist
   let mut filter_result = result_by_row_id
-    .entry(row.id)
+    .entry(row.id.clone())
     .or_insert_with(FilterResult::default);
   let old_is_visible = filter_result.is_visible();
 
@@ -395,7 +395,7 @@ fn filter_row(
 
   let is_visible = filter_result.is_visible();
   if old_is_visible != is_visible {
-    Some((row.id, is_visible))
+    Some((row.id.clone(), is_visible))
   } else {
     None
   }
