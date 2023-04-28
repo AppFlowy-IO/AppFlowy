@@ -109,7 +109,7 @@ where
     mut configuration: GroupContext<C>,
   ) -> FlowyResult<Self> {
     let field_type = FieldType::from(grouping_field.field_type);
-    let type_option = grouping_field.get_type_option::<T>(&field_type.to_string());
+    let type_option = grouping_field.get_type_option::<T>(field_type);
     let generated_group_context = G::generate_groups(grouping_field, &configuration, &type_option);
     let _ = configuration.init_groups(generated_group_context)?;
 

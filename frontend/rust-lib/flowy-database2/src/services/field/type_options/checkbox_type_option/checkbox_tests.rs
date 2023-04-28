@@ -4,6 +4,7 @@ mod tests {
 
   use crate::entities::FieldType;
   use crate::services::cell::CellDataDecoder;
+  use crate::services::cell::FromCellString;
   use crate::services::field::type_options::checkbox_type_option::*;
   use crate::services::field::FieldBuilder;
 
@@ -41,7 +42,7 @@ mod tests {
     assert_eq!(
       type_option
         .decode_cell_str(
-          &CheckboxCellData(input_str.to_string()).into(),
+          &CheckboxCellData::from_cell_str(input_str).unwrap().into(),
           field_type,
           field
         )

@@ -60,7 +60,15 @@ pub struct DateCellData {
 
 impl From<&Cell> for DateCellData {
   fn from(cell: &Cell) -> Self {
-    let timestamp = cell.get_i64_value("timestamp");
+    let mut timestamp = cell.get_i64_value("timestamp");
+
+    if timestamp.is_none() {
+      // In text cell, the data is stored in "data"
+      timestamp = cell
+        .get_str_value("data")
+        .map(|data| data.parse::<i64>().unwrap_or_default());
+    }
+
     let include_time = cell.get_bool_value("include_time").unwrap_or_default();
     Self {
       timestamp,

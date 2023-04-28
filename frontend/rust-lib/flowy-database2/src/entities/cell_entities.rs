@@ -152,3 +152,15 @@ pub struct CellChangesetPB {
   #[pb(index = 4)]
   pub cell_changeset: String,
 }
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct CellChangesetNotifyPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub row_id: i64,
+
+  #[pb(index = 3)]
+  pub field_id: String,
+}

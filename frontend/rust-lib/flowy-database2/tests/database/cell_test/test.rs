@@ -1,6 +1,3 @@
-use crate::database::cell_test::script::CellScript::UpdateCell;
-use crate::database::cell_test::script::DatabaseCellTest;
-use crate::database::field_test::util::make_date_cell_string;
 use flowy_database2::entities::{CellChangesetPB, FieldType};
 use flowy_database2::services::cell::ToCellChangeset;
 use flowy_database2::services::field::{
@@ -8,15 +5,19 @@ use flowy_database2::services::field::{
   StrCellData, URLCellData,
 };
 
+use crate::database::cell_test::script::CellScript::UpdateCell;
+use crate::database::cell_test::script::DatabaseCellTest;
+use crate::database::field_test::util::make_date_cell_string;
+
 #[tokio::test]
 async fn grid_cell_update() {
   let mut test = DatabaseCellTest::new().await;
-  let fields = &test.fields;
-  let row_revs = &test.rows;
+  let fields = test.get_fields();
+  let rows = &test.rows;
 
   let mut scripts = vec![];
-  for (_, row) in row_revs.iter().enumerate() {
-    for field in fields {
+  for (_, row) in rows.iter().enumerate() {
+    for field in &fields {
       let field_type = FieldType::from(field.field_type);
       let cell_changeset = match field_type {
         FieldType::RichText => "".to_string(),
@@ -24,21 +25,21 @@ async fn grid_cell_update() {
         FieldType::DateTime => make_date_cell_string("123"),
         FieldType::SingleSelect => {
           let type_option = field
-            .get_type_option::<SingleSelectTypeOption>(&field.id)
+            .get_type_option::<SingleSelectTypeOption>(&field.field_type)
             .unwrap();
           SelectOptionCellChangeset::from_insert_option_id(&type_option.options.first().unwrap().id)
             .to_cell_changeset_str()
         },
         FieldType::MultiSelect => {
           let type_option = field
-            .get_type_option::<MultiSelectTypeOption>(&field.id)
+            .get_type_option::<MultiSelectTypeOption>(&field.field_type)
             .unwrap();
           SelectOptionCellChangeset::from_insert_option_id(&type_option.options.first().unwrap().id)
             .to_cell_changeset_str()
         },
         FieldType::Checklist => {
           let type_option = field
-            .get_type_option::<ChecklistTypeOption>(&field.id)
+            .get_type_option::<ChecklistTypeOption>(&field.field_type)
             .unwrap();
           SelectOptionCellChangeset::from_insert_option_id(&type_option.options.first().unwrap().id)
             .to_cell_changeset_str()

@@ -1,6 +1,8 @@
-use crate::database::database_editor::DatabaseEditorTest;
 use collab_database::rows::RowId;
+
 use flowy_database2::entities::CellChangesetPB;
+
+use crate::database::database_editor::DatabaseEditorTest;
 
 pub enum CellScript {
   UpdateCell {
@@ -35,7 +37,7 @@ impl DatabaseCellTest {
       CellScript::UpdateCell { changeset, is_err } => {
         self
           .editor
-          .update_cell(
+          .update_cell_with_changeset(
             &self.view_id,
             RowId::from(changeset.row_id),
             &changeset.field_id,

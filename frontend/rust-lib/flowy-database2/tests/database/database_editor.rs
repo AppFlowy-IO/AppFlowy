@@ -1,7 +1,11 @@
-use crate::database::mock_data::{make_test_board, make_test_calendar, make_test_grid};
+use std::collections::HashMap;
+use std::sync::Arc;
+
 use bytes::Bytes;
 use collab_database::fields::Field;
 use collab_database::rows::{CreateRowParams, Row, RowId};
+use strum::EnumCount;
+
 use flowy_database2::entities::{
   DatabaseLayoutPB, FieldType, FilterPB, RowPB, SelectOptionPB, SingleSelectTypeOptionPB,
 };
@@ -13,9 +17,8 @@ use flowy_database2::services::field::{
 };
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
-use std::collections::HashMap;
-use std::sync::Arc;
-use strum::EnumCount;
+
+use crate::database::mock_data::{make_test_board, make_test_calendar, make_test_grid};
 
 pub struct DatabaseEditorTest {
   pub sdk: FlowySDKTest,
@@ -66,7 +69,6 @@ impl DatabaseEditorTest {
       .unwrap();
     let fields = editor
       .get_fields(&test.child_view.id, None)
-      .await
       .into_iter()
       .map(Arc::new)
       .collect();
@@ -99,10 +101,11 @@ impl DatabaseEditorTest {
     self.editor.get_rows(&self.view_id).await.unwrap()
   }
 
-  pub fn get_field(&self, field_id: &str, field_type: FieldType) -> &Arc<Field> {
+  pub fn get_field(&self, field_id: &str, field_type: FieldType) -> Field {
     self
-      .fields
-      .iter()
+      .editor
+      .get_fields(&self.view_id, None)
+      .into_iter()
       .filter(|field| {
         let t_field_type = FieldType::from(field.field_type);
         field.id == field_id && t_field_type == field_type
@@ -114,10 +117,11 @@ impl DatabaseEditorTest {
 
   /// returns the first `Field` in the build-in test grid.
   /// Not support duplicate `FieldType` in test grid yet.
-  pub fn get_first_field(&self, field_type: FieldType) -> &Arc<Field> {
+  pub fn get_first_field(&self, field_type: FieldType) -> Field {
     self
-      .fields
-      .iter()
+      .editor
+      .get_fields(&self.view_id, None)
+      .into_iter()
       .filter(|field| {
         let t_field_type = FieldType::from(field.field_type);
         t_field_type == field_type
@@ -126,8 +130,9 @@ impl DatabaseEditorTest {
       .pop()
       .unwrap()
   }
-  pub async fn get_fields(&self) -> Vec<Field> {
-    self.editor.get_fields(&self.view_id, None).await
+
+  pub fn get_fields(&self) -> Vec<Field> {
+    self.editor.get_fields(&self.view_id, None)
   }
 
   pub fn get_multi_select_type_option(&self, field_id: &str) -> Vec<SelectOption> {
@@ -172,21 +177,23 @@ impl DatabaseEditorTest {
     cell_changeset: T,
   ) {
     let field = self
-      .fields
-      .iter()
+      .editor
+      .get_fields(&self.view_id, None)
+      .into_iter()
       .find(|field| field.id == field_id)
       .unwrap();
 
     self
       .editor
-      .update_cell(&self.view_id, row_id, &field.id, cell_changeset)
+      .update_cell_with_changeset(&self.view_id, row_id, &field.id, cell_changeset)
       .await
       .unwrap();
   }
 
   pub(crate) async fn update_text_cell(&mut self, row_id: RowId, content: &str) {
     let field = self
-      .fields
+      .editor
+      .get_fields(&self.view_id, None)
       .iter()
       .find(|field| {
         let field_type = FieldType::from(field.field_type);
@@ -202,7 +209,8 @@ impl DatabaseEditorTest {
 
   pub(crate) async fn update_single_select_cell(&mut self, row_id: RowId, option_id: &str) {
     let field = self
-      .fields
+      .editor
+      .get_fields(&self.view_id, None)
       .iter()
       .find(|field| {
         let field_type = FieldType::from(field.field_type);

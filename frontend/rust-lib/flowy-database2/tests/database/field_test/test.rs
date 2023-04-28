@@ -1,10 +1,12 @@
+use bytes::Bytes;
+use collab_database::database::gen_option_id;
+
+use flowy_database2::entities::{FieldChangesetParams, FieldType};
+use flowy_database2::services::field::{SelectOption, SingleSelectTypeOption, CHECK, UNCHECK};
+
 use crate::database::field_test::script::DatabaseFieldTest;
 use crate::database::field_test::script::FieldScript::*;
 use crate::database::field_test::util::*;
-use bytes::Bytes;
-use collab_database::database::gen_option_id;
-use flowy_database2::entities::{FieldChangesetParams, FieldType};
-use flowy_database2::services::field::{SelectOption, SingleSelectTypeOption, CHECK, UNCHECK};
 
 #[tokio::test]
 async fn grid_create_field() {
@@ -54,7 +56,7 @@ async fn grid_update_field_with_empty_change() {
   let scripts = vec![CreateField { params }];
   test.run_scripts(scripts).await;
 
-  let field = test.get_fields().await.pop().unwrap().clone();
+  let field = test.get_fields().pop().unwrap().clone();
   let changeset = FieldChangesetParams {
     field_id: field.id.clone(),
     view_id: test.view_id(),
@@ -82,7 +84,7 @@ async fn grid_delete_field() {
   let scripts = vec![CreateField { params }];
   test.run_scripts(scripts).await;
 
-  let field = test.get_fields().await.pop().unwrap().clone();
+  let field = test.get_fields().pop().unwrap().clone();
   let scripts = vec![
     DeleteField { field },
     AssertFieldCount(original_field_count),
@@ -127,11 +129,11 @@ async fn grid_switch_from_select_option_to_checkbox_test() {
 #[tokio::test]
 async fn grid_switch_from_checkbox_to_select_option_test() {
   let mut test = DatabaseFieldTest::new().await;
-  let field_rev = test.get_first_field(FieldType::Checkbox).clone();
+  let checkbox_field = test.get_first_field(FieldType::Checkbox).clone();
   let scripts = vec![
     // switch to single-select field type
     SwitchToField {
-      field_id: field_rev.id.clone(),
+      field_id: checkbox_field.id.clone(),
       new_field_type: FieldType::SingleSelect,
     },
     // Assert the cell content after switch the field type. The cell content will be changed if
@@ -140,7 +142,7 @@ async fn grid_switch_from_checkbox_to_select_option_test() {
     //
     // Make sure which cell of the row you want to check.
     AssertCellContent {
-      field_id: field_rev.id.clone(),
+      field_id: checkbox_field.id.clone(),
       // the mock data of the checkbox with row_index one is "true"
       row_index: 1,
       // the from_field_type represents as the current field type
@@ -151,7 +153,7 @@ async fn grid_switch_from_checkbox_to_select_option_test() {
   ];
   test.run_scripts(scripts).await;
 
-  let single_select_type_option = test.get_single_select_type_option(&field_rev.id);
+  let single_select_type_option = test.get_single_select_type_option(&checkbox_field.id);
   assert_eq!(single_select_type_option.options.len(), 2);
   assert!(single_select_type_option
     .options
@@ -255,20 +257,20 @@ async fn grid_switch_from_text_to_checkbox_test() {
 #[tokio::test]
 async fn grid_switch_from_date_to_text_test() {
   let mut test = DatabaseFieldTest::new().await;
-  let field_rev = test.get_first_field(FieldType::DateTime).clone();
+  let field = test.get_first_field(FieldType::DateTime).clone();
   let scripts = vec![
     SwitchToField {
-      field_id: field_rev.id.clone(),
+      field_id: field.id.clone(),
       new_field_type: FieldType::RichText,
     },
     AssertCellContent {
-      field_id: field_rev.id.clone(),
+      field_id: field.id.clone(),
       row_index: 2,
       from_field_type: FieldType::DateTime,
       expected_content: "2022/03/14".to_string(),
     },
     AssertCellContent {
-      field_id: field_rev.id.clone(),
+      field_id: field.id.clone(),
       row_index: 3,
       from_field_type: FieldType::DateTime,
       expected_content: "2022/11/17".to_string(),
@@ -283,21 +285,21 @@ async fn grid_switch_from_date_to_text_test() {
 #[tokio::test]
 async fn grid_switch_from_number_to_text_test() {
   let mut test = DatabaseFieldTest::new().await;
-  let field_rev = test.get_first_field(FieldType::Number).clone();
+  let field = test.get_first_field(FieldType::Number).clone();
 
   let scripts = vec![
     SwitchToField {
-      field_id: field_rev.id.clone(),
+      field_id: field.id.clone(),
       new_field_type: FieldType::RichText,
     },
     AssertCellContent {
-      field_id: field_rev.id.clone(),
+      field_id: field.id.clone(),
       row_index: 0,
       from_field_type: FieldType::Number,
       expected_content: "$1".to_string(),
     },
     AssertCellContent {
-      field_id: field_rev.id.clone(),
+      field_id: field.id.clone(),
       row_index: 4,
       from_field_type: FieldType::Number,
       expected_content: "".to_string(),

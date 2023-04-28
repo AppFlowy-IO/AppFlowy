@@ -1,16 +1,22 @@
-use crate::database::database_editor::DatabaseEditorTest;
+use std::sync::Arc;
+
+use collab_database::fields::Field;
+use collab_database::rows::RowId;
+
 use database_model::{FieldRevision, RowChangeset};
-use flowy_database::entities::{
-  CreateRowParams, FieldType, GroupPB, MoveGroupParams, MoveGroupRowParams, RowPB,
-};
-use flowy_database::services::cell::{
-  delete_select_option_cell, insert_select_option_cell, insert_url_cell,
-};
-use flowy_database::services::field::{
-  edit_single_select_type_option, SelectOptionPB, SelectTypeOptionSharedAction,
+use flowy_database2::entities::{
+  CreateRowParams, FieldType, GroupPB, MoveGroupRowParams, RowPB, SelectOptionPB,
   SingleSelectTypeOptionPB,
 };
-use std::sync::Arc;
+use flowy_database2::services::cell::{
+  delete_select_option_cell, insert_select_option_cell, insert_url_cell,
+};
+use flowy_database2::services::field::{
+  edit_single_select_type_option, SelectOption, SelectTypeOptionSharedAction,
+  SingleSelectTypeOption,
+};
+
+use crate::database::database_editor::DatabaseEditorTest;
 
 pub enum GroupScript {
   AssertGroupRowCount {
@@ -55,7 +61,7 @@ pub enum GroupScript {
     to_group_index: usize,
   },
   UpdateSingleSelectSelectOption {
-    inserted_options: Vec<SelectOptionPB>,
+    inserted_options: Vec<SelectOption>,
   },
   GroupByField {
     field_id: String,
@@ -105,14 +111,17 @@ impl DatabaseGroupTest {
           .unwrap();
         let to_group = groups.get(to_group_index).unwrap();
         let to_row = to_group.rows.get(to_row_index).unwrap();
-        let params = MoveGroupRowParams {
-          view_id: self.view_id.clone(),
-          from_row_id: from_row.id.clone(),
-          to_group_id: to_group.group_id.clone(),
-          to_row_id: Some(to_row.id.clone()),
-        };
 
-        self.editor.move_group_row(params).await.unwrap();
+        self
+          .editor
+          .move_group_row(
+            &self.view_id,
+            &to_group.group_id,
+            RowId::from(from_row.id),
+            Some(RowId::from(to_row.id)),
+          )
+          .await
+          .unwrap();
       },
       GroupScript::AssertRow {
         group_index,
@@ -139,7 +148,7 @@ impl DatabaseGroupTest {
         row_index,
       } => {
         let row = self.row_at_index(group_index, row_index).await;
-        self.editor.delete_row(&row.id).await.unwrap();
+        self.editor.delete_row(RowId::from(row.id)).await;
       },
       GroupScript::UpdateGroupedCell {
         from_group_index,
@@ -149,16 +158,16 @@ impl DatabaseGroupTest {
         let from_group = self.group_at_index(from_group_index).await;
         let to_group = self.group_at_index(to_group_index).await;
         let field_id = from_group.field_id;
-        let field_rev = self.editor.get_field_rev(&field_id).await.unwrap();
-        let field_type: FieldType = field_rev.ty.into();
+        let field = self.editor.get_field(&field_id).unwrap();
+        let field_type = FieldType::from(field.field_type);
 
-        let cell_rev = if to_group.is_default {
+        let cell = if to_group.is_default {
           match field_type {
             FieldType::SingleSelect => {
-              delete_select_option_cell(vec![to_group.group_id.clone()], &field_rev)
+              delete_select_option_cell(vec![to_group.group_id.clone()], &field)
             },
             FieldType::MultiSelect => {
-              delete_select_option_cell(vec![to_group.group_id.clone()], &field_rev)
+              delete_select_option_cell(vec![to_group.group_id.clone()], &field)
             },
             _ => {
               panic!("Unsupported group field type");
@@ -167,22 +176,24 @@ impl DatabaseGroupTest {
         } else {
           match field_type {
             FieldType::SingleSelect => {
-              insert_select_option_cell(vec![to_group.group_id.clone()], &field_rev)
+              insert_select_option_cell(vec![to_group.group_id.clone()], &field)
             },
             FieldType::MultiSelect => {
-              insert_select_option_cell(vec![to_group.group_id.clone()], &field_rev)
+              insert_select_option_cell(vec![to_group.group_id.clone()], &field)
             },
-            FieldType::URL => insert_url_cell(to_group.group_id.clone(), &field_rev),
+            FieldType::URL => insert_url_cell(to_group.group_id.clone(), &field),
             _ => {
               panic!("Unsupported group field type");
             },
           }
         };
 
-        let row_id = self.row_at_index(from_group_index, row_index).await.id;
-        let mut row_changeset = RowChangeset::new(row_id);
-        row_changeset.cell_by_field_id.insert(field_id, cell_rev);
-        self.editor.update_row(row_changeset).await.unwrap();
+        let row_id = RowId::from(self.row_at_index(from_group_index, row_index).await.id);
+        self
+          .editor
+          .update_cell(&self.view_id, row_id, &field_id, cell)
+          .await
+          .unwrap();
       },
       GroupScript::UpdateGroupedCellWithData {
         from_group_index,
@@ -191,19 +202,21 @@ impl DatabaseGroupTest {
       } => {
         let from_group = self.group_at_index(from_group_index).await;
         let field_id = from_group.field_id;
-        let field_rev = self.editor.get_field_rev(&field_id).await.unwrap();
-        let field_type: FieldType = field_rev.ty.into();
-        let cell_rev = match field_type {
-          FieldType::URL => insert_url_cell(cell_data, &field_rev),
+        let field = self.editor.get_field(&field_id).unwrap();
+        let field_type = FieldType::from(field.field_type);
+        let cell = match field_type {
+          FieldType::URL => insert_url_cell(cell_data, &field),
           _ => {
             panic!("Unsupported group field type");
           },
         };
 
-        let row_id = self.row_at_index(from_group_index, row_index).await.id;
-        let mut row_changeset = RowChangeset::new(row_id);
-        row_changeset.cell_by_field_id.insert(field_id, cell_rev);
-        self.editor.update_row(row_changeset).await.unwrap();
+        let row_id = RowId::from(self.row_at_index(from_group_index, row_index).await.id);
+        self
+          .editor
+          .update_cell(&self.view_id, row_id.into(), &field_id, cell)
+          .await
+          .unwrap();
       },
       GroupScript::MoveGroup {
         from_group_index,
@@ -211,12 +224,11 @@ impl DatabaseGroupTest {
       } => {
         let from_group = self.group_at_index(from_group_index).await;
         let to_group = self.group_at_index(to_group_index).await;
-        let params = MoveGroupParams {
-          view_id: self.view_id.clone(),
-          from_group_id: from_group.group_id,
-          to_group_id: to_group.group_id,
-        };
-        self.editor.move_group(params).await.unwrap();
+        self
+          .editor
+          .move_group(&self.view_id, &from_group.group_id, &to_group.group_id)
+          .await
+          .unwrap();
         //
       },
       GroupScript::AssertGroup {
@@ -257,13 +269,13 @@ impl DatabaseGroupTest {
   }
 
   #[allow(dead_code)]
-  pub async fn get_multi_select_field(&self) -> Arc<FieldRevision> {
+  pub async fn get_multi_select_field(&self) -> Field {
     let field = self
       .inner
-      .field_revs
-      .iter()
+      .get_fields()
+      .into_iter()
       .find(|field_rev| {
-        let field_type: FieldType = field_rev.ty.into();
+        let field_type = FieldType::from(field_rev.field_type);
         field_type.is_multi_select()
       })
       .unwrap()
@@ -271,13 +283,13 @@ impl DatabaseGroupTest {
     field
   }
 
-  pub async fn get_single_select_field(&self) -> Arc<FieldRevision> {
+  pub async fn get_single_select_field(&self) -> Field {
     self
       .inner
-      .field_revs
-      .iter()
-      .find(|field_rev| {
-        let field_type: FieldType = field_rev.ty.into();
+      .get_fields()
+      .into_iter()
+      .find(|field| {
+        let field_type = FieldType::from(field.field_type);
         field_type.is_single_select()
       })
       .unwrap()
@@ -286,7 +298,7 @@ impl DatabaseGroupTest {
 
   pub async fn edit_single_select_type_option(
     &self,
-    action: impl FnOnce(&mut SingleSelectTypeOptionPB),
+    action: impl FnOnce(&mut SingleSelectTypeOption),
   ) {
     let single_select = self.get_single_select_field().await;
     edit_single_select_type_option(
@@ -299,17 +311,16 @@ impl DatabaseGroupTest {
     .unwrap();
   }
 
-  pub async fn get_url_field(&self) -> Arc<FieldRevision> {
+  pub async fn get_url_field(&self) -> Field {
     self
       .inner
-      .field_revs
-      .iter()
-      .find(|field_rev| {
-        let field_type: FieldType = field_rev.ty.into();
+      .get_fields()
+      .into_iter()
+      .find(|field| {
+        let field_type = FieldType::from(field.field_type);
         field_type.is_url()
       })
       .unwrap()
-      .clone()
   }
 }
 

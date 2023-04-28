@@ -1,7 +1,9 @@
-use crate::database::database_editor::DatabaseEditorTest;
 use collab_database::fields::{Field, TypeOptionData};
+
 use flowy_database2::entities::{CreateFieldParams, FieldChangesetParams, FieldType};
 use flowy_database2::services::cell::stringify_cell_data;
+
+use crate::database::database_editor::DatabaseEditorTest;
 
 pub enum FieldScript {
   CreateField {
@@ -66,7 +68,7 @@ impl DatabaseFieldTest {
           .editor
           .create_field_with_type_option(&self.view_id, &params.field_type, params.type_option_data)
           .await;
-        let fields = self.editor.get_fields(&self.view_id, None).await;
+        let fields = self.editor.get_fields(&self.view_id, None);
         assert_eq!(self.field_count, fields.len());
       },
       FieldScript::UpdateField { changeset: change } => {
@@ -78,7 +80,7 @@ impl DatabaseFieldTest {
         }
 
         self.editor.delete_field(&field.id).await.unwrap();
-        let fields = self.editor.get_fields(&self.view_id, None).await;
+        let fields = self.editor.get_fields(&self.view_id, None);
         assert_eq!(self.field_count, fields.len());
       },
       FieldScript::SwitchToField {
@@ -105,16 +107,13 @@ impl DatabaseFieldTest {
           .unwrap();
       },
       FieldScript::AssertFieldCount(count) => {
-        assert_eq!(
-          self.editor.get_fields(&self.view_id, None).await.len(),
-          count
-        );
+        assert_eq!(self.get_fields().len(), count);
       },
       FieldScript::AssertFieldTypeOptionEqual {
         field_index,
         expected_type_option_data,
       } => {
-        let fields = self.editor.get_fields(&self.view_id, None).await;
+        let fields = self.get_fields();
         let field = &fields[field_index];
         let type_option_data = field.get_any_type_option(field.field_type).unwrap();
         assert_eq!(type_option_data, expected_type_option_data);

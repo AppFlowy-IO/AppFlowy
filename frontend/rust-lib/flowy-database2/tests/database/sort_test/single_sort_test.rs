@@ -1,18 +1,19 @@
+use flowy_database2::entities::FieldType;
+use flowy_database2::services::sort::SortCondition;
+
 use crate::database::sort_test::script::{DatabaseSortTest, SortScript::*};
-use database_model::SortCondition;
-use flowy_database::entities::FieldType;
 
 #[tokio::test]
 async fn sort_text_by_ascending_test() {
   let mut test = DatabaseSortTest::new().await;
-  let text_field = test.get_first_field_rev(FieldType::RichText);
+  let text_field = test.get_first_field(FieldType::RichText);
   let scripts = vec![
     AssertCellContentOrder {
       field_id: text_field.id.clone(),
       orders: vec!["A", "", "C", "DA", "AE", "AE"],
     },
     InsertSort {
-      field_rev: text_field.clone(),
+      field: text_field.clone(),
       condition: SortCondition::Ascending,
     },
     AssertCellContentOrder {
@@ -26,10 +27,10 @@ async fn sort_text_by_ascending_test() {
 #[tokio::test]
 async fn sort_change_notification_by_update_text_test() {
   let mut test = DatabaseSortTest::new().await;
-  let text_field = test.get_first_field_rev(FieldType::RichText).clone();
+  let text_field = test.get_first_field(FieldType::RichText).clone();
   let scripts = vec![
     InsertSort {
-      field_rev: text_field.clone(),
+      field: text_field.clone(),
       condition: SortCondition::Ascending,
     },
     AssertCellContentOrder {
@@ -41,10 +42,10 @@ async fn sort_change_notification_by_update_text_test() {
   ];
   test.run_scripts(scripts).await;
 
-  let row_revs = test.get_row_revs().await;
+  let rows = test.get_rows().await;
   let scripts = vec![
     UpdateTextCell {
-      row_id: row_revs[2].id.clone(),
+      row_id: rows[2].id.clone(),
       text: "E".to_string(),
     },
     AssertSortChanged {
@@ -58,17 +59,17 @@ async fn sort_change_notification_by_update_text_test() {
 #[tokio::test]
 async fn sort_text_by_ascending_and_delete_sort_test() {
   let mut test = DatabaseSortTest::new().await;
-  let text_field = test.get_first_field_rev(FieldType::RichText).clone();
+  let text_field = test.get_first_field(FieldType::RichText).clone();
   let scripts = vec![InsertSort {
-    field_rev: text_field.clone(),
+    field: text_field.clone(),
     condition: SortCondition::Ascending,
   }];
   test.run_scripts(scripts).await;
-  let sort_rev = test.current_sort_rev.as_ref().unwrap();
+  let sort = test.current_sort_rev.as_ref().unwrap();
   let scripts = vec![
     DeleteSort {
-      field_rev: text_field.clone(),
-      sort_id: sort_rev.id.clone(),
+      sort: sort.clone(),
+      sort_id: sort.id.clone(),
     },
     AssertCellContentOrder {
       field_id: text_field.id.clone(),
@@ -81,14 +82,14 @@ async fn sort_text_by_ascending_and_delete_sort_test() {
 #[tokio::test]
 async fn sort_text_by_descending_test() {
   let mut test = DatabaseSortTest::new().await;
-  let text_field = test.get_first_field_rev(FieldType::RichText);
+  let text_field = test.get_first_field(FieldType::RichText);
   let scripts = vec![
     AssertCellContentOrder {
       field_id: text_field.id.clone(),
       orders: vec!["A", "", "C", "DA", "AE", "AE"],
     },
     InsertSort {
-      field_rev: text_field.clone(),
+      field: text_field.clone(),
       condition: SortCondition::Descending,
     },
     AssertCellContentOrder {
@@ -102,14 +103,14 @@ async fn sort_text_by_descending_test() {
 #[tokio::test]
 async fn sort_checkbox_by_ascending_test() {
   let mut test = DatabaseSortTest::new().await;
-  let checkbox_field = test.get_first_field_rev(FieldType::Checkbox);
+  let checkbox_field = test.get_first_field(FieldType::Checkbox);
   let scripts = vec![
     AssertCellContentOrder {
       field_id: checkbox_field.id.clone(),
       orders: vec!["Yes", "Yes", "No", "No", "No"],
     },
     InsertSort {
-      field_rev: checkbox_field.clone(),
+      field: checkbox_field.clone(),
       condition: SortCondition::Ascending,
     },
   ];
@@ -119,14 +120,14 @@ async fn sort_checkbox_by_ascending_test() {
 #[tokio::test]
 async fn sort_checkbox_by_descending_test() {
   let mut test = DatabaseSortTest::new().await;
-  let checkbox_field = test.get_first_field_rev(FieldType::Checkbox);
+  let checkbox_field = test.get_first_field(FieldType::Checkbox);
   let scripts = vec![
     AssertCellContentOrder {
       field_id: checkbox_field.id.clone(),
       orders: vec!["Yes", "Yes", "No", "No", "No", "Yes"],
     },
     InsertSort {
-      field_rev: checkbox_field.clone(),
+      field: checkbox_field.clone(),
       condition: SortCondition::Descending,
     },
     AssertCellContentOrder {
@@ -140,7 +141,7 @@ async fn sort_checkbox_by_descending_test() {
 #[tokio::test]
 async fn sort_date_by_ascending_test() {
   let mut test = DatabaseSortTest::new().await;
-  let date_field = test.get_first_field_rev(FieldType::DateTime);
+  let date_field = test.get_first_field(FieldType::DateTime);
   let scripts = vec![
     AssertCellContentOrder {
       field_id: date_field.id.clone(),
@@ -153,7 +154,7 @@ async fn sort_date_by_ascending_test() {
       ],
     },
     InsertSort {
-      field_rev: date_field.clone(),
+      field: date_field.clone(),
       condition: SortCondition::Ascending,
     },
     AssertCellContentOrder {
@@ -173,7 +174,7 @@ async fn sort_date_by_ascending_test() {
 #[tokio::test]
 async fn sort_date_by_descending_test() {
   let mut test = DatabaseSortTest::new().await;
-  let date_field = test.get_first_field_rev(FieldType::DateTime);
+  let date_field = test.get_first_field(FieldType::DateTime);
   let scripts = vec![
     AssertCellContentOrder {
       field_id: date_field.id.clone(),
@@ -187,7 +188,7 @@ async fn sort_date_by_descending_test() {
       ],
     },
     InsertSort {
-      field_rev: date_field.clone(),
+      field: date_field.clone(),
       condition: SortCondition::Descending,
     },
     AssertCellContentOrder {
@@ -208,14 +209,14 @@ async fn sort_date_by_descending_test() {
 #[tokio::test]
 async fn sort_number_by_descending_test() {
   let mut test = DatabaseSortTest::new().await;
-  let number_field = test.get_first_field_rev(FieldType::Number);
+  let number_field = test.get_first_field(FieldType::Number);
   let scripts = vec![
     AssertCellContentOrder {
       field_id: number_field.id.clone(),
       orders: vec!["$1", "$2", "$3", "$4", "", "$5"],
     },
     InsertSort {
-      field_rev: number_field.clone(),
+      field: number_field.clone(),
       condition: SortCondition::Descending,
     },
     AssertCellContentOrder {
@@ -229,14 +230,14 @@ async fn sort_number_by_descending_test() {
 #[tokio::test]
 async fn sort_single_select_by_descending_test() {
   let mut test = DatabaseSortTest::new().await;
-  let single_select = test.get_first_field_rev(FieldType::SingleSelect);
+  let single_select = test.get_first_field(FieldType::SingleSelect);
   let scripts = vec![
     AssertCellContentOrder {
       field_id: single_select.id.clone(),
       orders: vec!["", "", "Completed", "Completed", "Planned", "Planned"],
     },
     InsertSort {
-      field_rev: single_select.clone(),
+      field: single_select.clone(),
       condition: SortCondition::Descending,
     },
     AssertCellContentOrder {
@@ -250,14 +251,14 @@ async fn sort_single_select_by_descending_test() {
 #[tokio::test]
 async fn sort_multi_select_by_ascending_test() {
   let mut test = DatabaseSortTest::new().await;
-  let multi_select = test.get_first_field_rev(FieldType::MultiSelect);
+  let multi_select = test.get_first_field(FieldType::MultiSelect);
   let scripts = vec![
     AssertCellContentOrder {
       field_id: multi_select.id.clone(),
       orders: vec!["Google,Facebook", "Google,Twitter", "Facebook", "", "", ""],
     },
     InsertSort {
-      field_rev: multi_select.clone(),
+      field: multi_select.clone(),
       condition: SortCondition::Ascending,
     },
     AssertCellContentOrder {

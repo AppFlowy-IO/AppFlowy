@@ -1,6 +1,7 @@
+use flowy_database2::services::setting::CalendarLayoutSetting;
+
 use crate::database::layout_test::script::DatabaseLayoutTest;
 use crate::database::layout_test::script::LayoutScript::*;
-use database_model::CalendarLayoutSetting;
 
 #[tokio::test]
 async fn calendar_initial_layout_setting_test() {

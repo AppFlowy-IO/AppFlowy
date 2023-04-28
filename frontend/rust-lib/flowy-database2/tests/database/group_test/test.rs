@@ -1,7 +1,7 @@
+use flowy_database2::services::field::SelectOption;
+
 use crate::database::group_test::script::DatabaseGroupTest;
 use crate::database::group_test::script::GroupScript::*;
-
-use flowy_database::services::field::SelectOptionPB;
 
 #[tokio::test]
 async fn group_init_test() {
@@ -457,7 +457,7 @@ async fn group_insert_single_select_option_test() {
   let scripts = vec![
     AssertGroupCount(4),
     UpdateSingleSelectSelectOption {
-      inserted_options: vec![SelectOptionPB::new(new_option_name)],
+      inserted_options: vec![SelectOption::new(new_option_name)],
     },
     AssertGroupCount(5),
   ];

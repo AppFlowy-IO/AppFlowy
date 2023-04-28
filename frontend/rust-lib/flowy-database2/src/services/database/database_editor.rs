@@ -15,12 +15,13 @@ use flowy_task::TaskDispatcher;
 use lib_infra::future::{to_fut, Fut};
 
 use crate::entities::{
-  AlterFilterParams, AlterSortParams, CalendarEventPB, CellChangesetPB, CellPB, CreateRowParams,
-  DatabaseFieldChangesetPB, DatabaseLayoutPB, DatabasePB, DatabaseViewSettingPB,
-  DeleteFilterParams, DeleteGroupParams, DeleteSortParams, FieldChangesetParams, FieldIdPB,
-  FieldPB, FieldType, FilterPB, GroupPB, GroupSettingPB, IndexFieldPB, InsertGroupParams,
-  LayoutSettingPB, LayoutSettingParams, RepeatedFieldPB, RepeatedFilterPB, RepeatedGroupPB,
-  RepeatedGroupSettingPB, RepeatedSortPB, RowPB, SelectOptionCellDataPB, SelectOptionPB, SortPB,
+  AlterFilterParams, AlterSortParams, CalendarEventPB, CellChangesetNotifyPB, CellChangesetPB,
+  CellPB, CreateRowParams, DatabaseFieldChangesetPB, DatabaseLayoutPB, DatabasePB,
+  DatabaseViewSettingPB, DeleteFilterParams, DeleteGroupParams, DeleteSortParams,
+  FieldChangesetParams, FieldIdPB, FieldPB, FieldType, FilterPB, GroupPB, GroupSettingPB,
+  IndexFieldPB, InsertGroupParams, LayoutSettingPB, LayoutSettingParams, RepeatedFieldPB,
+  RepeatedFilterPB, RepeatedGroupPB, RepeatedGroupSettingPB, RepeatedSortPB, RowPB,
+  SelectOptionCellDataPB, SelectOptionPB, SortPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
@@ -175,7 +176,7 @@ impl DatabaseEditor {
     }
   }
 
-  pub async fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Vec<Field> {
+  pub fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Vec<Field> {
     self.database.lock().get_fields(view_id, field_ids)
   }
 
@@ -453,7 +454,7 @@ impl DatabaseEditor {
     self.database.lock().get_cells_for_field(view_id, field_id)
   }
 
-  pub async fn update_cell<T>(
+  pub async fn update_cell_with_changeset<T>(
     &self,
     view_id: &str,
     row_id: RowId,
@@ -463,24 +464,33 @@ impl DatabaseEditor {
   where
     T: ToCellChangeset,
   {
-    let (field, old_row, cell) = {
+    let (field, cell) = {
       let database = self.database.lock();
       (
         database.fields.get_field(field_id)?,
-        database.get_row(row_id),
         database.get_cell(field_id, row_id).map(|cell| cell.cell),
       )
     };
     let cell_changeset = cell_changeset.to_cell_changeset_str();
-    let type_cell_data = apply_cell_data_changeset(
-      cell_changeset.clone(),
-      cell,
-      &field,
-      Some(self.cell_cache.clone()),
-    );
+    let new_cell =
+      apply_cell_data_changeset(cell_changeset, cell, &field, Some(self.cell_cache.clone()));
+    self.update_cell(view_id, row_id, field_id, new_cell).await
+  }
+
+  pub async fn update_cell(
+    &self,
+    view_id: &str,
+    row_id: RowId,
+    field_id: &str,
+    new_cell: Cell,
+  ) -> Option<()> {
+    let old_row = {
+      let database = self.database.lock();
+      database.get_row(row_id)
+    };
     self.database.lock().update_row(row_id, |row_update| {
       row_update.update_cells(|cell_update| {
-        cell_update.insert(field_id, type_cell_data);
+        cell_update.insert(field_id, new_cell);
       });
     });
 
@@ -497,11 +507,10 @@ impl DatabaseEditor {
       }
     }
 
-    notify_did_update_cell(vec![CellChangesetPB {
+    notify_did_update_cell(vec![CellChangesetNotifyPB {
       view_id: view_id.to_string(),
       row_id: row_id.into(),
       field_id: field_id.to_string(),
-      cell_changeset,
     }])
     .await;
     None
@@ -527,7 +536,7 @@ impl DatabaseEditor {
   ) -> Option<()> {
     let field = self.database.lock().fields.get_field(field_id)?;
     let mut type_option = select_type_option_from_field(&field).ok()?;
-    let cell = SelectOptionCellChangeset {
+    let cell_changeset = SelectOptionCellChangeset {
       insert_option_ids: options.iter().map(|option| option.id.clone()).collect(),
       ..Default::default()
     };
@@ -543,7 +552,9 @@ impl DatabaseEditor {
         update.set_type_option(field.field_type, Some(type_option.to_type_option_data()));
       });
 
-    self.update_cell(view_id, row_id, field_id, cell).await;
+    self
+      .update_cell_with_changeset(view_id, row_id, field_id, cell_changeset)
+      .await;
     None
   }
 
@@ -556,7 +567,7 @@ impl DatabaseEditor {
   ) -> Option<()> {
     let field = self.database.lock().fields.get_field(field_id)?;
     let mut type_option = select_type_option_from_field(&field).ok()?;
-    let cell = SelectOptionCellChangeset {
+    let cell_changeset = SelectOptionCellChangeset {
       delete_option_ids: options.iter().map(|option| option.id.clone()).collect(),
       ..Default::default()
     };
@@ -572,7 +583,9 @@ impl DatabaseEditor {
         update.set_type_option(field.field_type, Some(type_option.to_type_option_data()));
       });
 
-    self.update_cell(view_id, row_id, field_id, cell).await;
+    self
+      .update_cell_with_changeset(view_id, row_id, field_id, cell_changeset)
+      .await;
     None
   }
 
@@ -657,6 +670,12 @@ impl DatabaseEditor {
       },
     }
 
+    Ok(())
+  }
+
+  pub async fn group_by_field(&self, view_id: &str, field_id: &str) -> FlowyResult<()> {
+    let view = self.database_views.get_view_editor(view_id).await?;
+    view.v_update_group_setting(field_id).await?;
     Ok(())
   }
 
@@ -761,7 +780,7 @@ impl DatabaseEditor {
   }
 }
 
-pub(crate) async fn notify_did_update_cell(changesets: Vec<CellChangesetPB>) {
+pub(crate) async fn notify_did_update_cell(changesets: Vec<CellChangesetNotifyPB>) {
   for changeset in changesets {
     let id = format!("{}:{}", changeset.row_id, changeset.field_id);
     send_notification(&id, DatabaseNotification::DidUpdateCell).send();
@@ -772,17 +791,16 @@ fn cell_changesets_from_cell_by_field_id(
   view_id: &str,
   row_id: RowId,
   cell_by_field_id: HashMap<String, Cell>,
-) -> Vec<CellChangesetPB> {
+) -> Vec<CellChangesetNotifyPB> {
   let row_id = row_id.into();
   cell_by_field_id
     .into_iter()
-    .map(|(field_id, _cell)| CellChangesetPB {
+    .map(|(field_id, _cell)| CellChangesetNotifyPB {
       view_id: view_id.to_string(),
       row_id,
       field_id,
-      cell_changeset: "".to_string(),
     })
-    .collect::<Vec<CellChangesetPB>>()
+    .collect()
 }
 
 #[derive(Clone)]

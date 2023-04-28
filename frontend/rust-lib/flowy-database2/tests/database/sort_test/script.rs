@@ -1,22 +1,27 @@
-use crate::database::database_editor::DatabaseEditorTest;
-use async_stream::stream;
-use database_model::{FieldRevision, SortCondition, SortRevision};
-use flowy_database::entities::{AlterSortParams, CellIdParams, DeleteSortParams};
-use flowy_database::services::database_view::DatabaseViewChanged;
-use flowy_database::services::sort::SortType;
-use futures::stream::StreamExt;
 use std::cmp::min;
 use std::sync::Arc;
 use std::time::Duration;
+
+use async_stream::stream;
+use collab_database::fields::Field;
+use collab_database::rows::RowId;
+use futures::stream::StreamExt;
 use tokio::sync::broadcast::Receiver;
+
+use flowy_database2::entities::{AlterSortParams, CellIdParams, DeleteSortParams, FieldType};
+use flowy_database2::services::cell::stringify_cell_data;
+use flowy_database2::services::database_view::DatabaseViewChanged;
+use flowy_database2::services::sort::{Sort, SortCondition, SortType};
+
+use crate::database::database_editor::DatabaseEditorTest;
 
 pub enum SortScript {
   InsertSort {
-    field_rev: Arc<FieldRevision>,
+    field: Field,
     condition: SortCondition,
   },
   DeleteSort {
-    field_rev: Arc<FieldRevision>,
+    sort: Sort,
     sort_id: String,
   },
   AssertCellContentOrder {
@@ -24,7 +29,7 @@ pub enum SortScript {
     orders: Vec<&'static str>,
   },
   UpdateTextCell {
-    row_id: String,
+    row_id: RowId,
     text: String,
   },
   AssertSortChanged {
@@ -38,7 +43,7 @@ pub enum SortScript {
 
 pub struct DatabaseSortTest {
   inner: DatabaseEditorTest,
-  pub current_sort_rev: Option<SortRevision>,
+  pub current_sort_rev: Option<Sort>,
   recv: Option<Receiver<DatabaseViewChanged>>,
 }
 
@@ -59,10 +64,7 @@ impl DatabaseSortTest {
 
   pub async fn run_script(&mut self, script: SortScript) {
     match script {
-      SortScript::InsertSort {
-        condition,
-        field_rev,
-      } => {
+      SortScript::InsertSort { condition, field } => {
         self.recv = Some(
           self
             .editor
@@ -72,15 +74,15 @@ impl DatabaseSortTest {
         );
         let params = AlterSortParams {
           view_id: self.view_id.clone(),
-          field_id: field_rev.id.clone(),
+          field_id: field.id.clone(),
           sort_id: None,
-          field_type: field_rev.ty,
-          condition: condition.into(),
+          field_type: FieldType::from(field.field_type),
+          condition: condition.value(),
         };
         let sort_rev = self.editor.create_or_update_sort(params).await.unwrap();
         self.current_sort_rev = Some(sort_rev);
       },
-      SortScript::DeleteSort { field_rev, sort_id } => {
+      SortScript::DeleteSort { sort, sort_id } => {
         self.recv = Some(
           self
             .editor
@@ -90,7 +92,7 @@ impl DatabaseSortTest {
         );
         let params = DeleteSortParams {
           view_id: self.view_id.clone(),
-          sort_type: SortType::from(&field_rev),
+          sort_type: SortType::from(&sort),
           sort_id,
         };
         self.editor.delete_sort(params).await.unwrap();
@@ -98,15 +100,13 @@ impl DatabaseSortTest {
       },
       SortScript::AssertCellContentOrder { field_id, orders } => {
         let mut cells = vec![];
-        let rows = self.editor.get_database(&self.view_id).await.unwrap().rows;
+        let rows = self.editor.get_rows(&self.view_id).await.unwrap();
+        let field = self.editor.get_field(&field_id).unwrap();
+        let field_type = FieldType::from(field.field_type);
         for row in rows {
-          let params = CellIdParams {
-            view_id: self.view_id.clone(),
-            field_id: field_id.clone(),
-            row_id: row.id,
-          };
-          let cell = self.editor.get_cell_display_str(&params).await;
-          cells.push(cell);
+          let cell = row.cells.get(&field_id).unwrap().clone();
+          let content = stringify_cell_data(&cell, &field_type, &field_type, &field);
+          cells.push(content);
         }
         if orders.is_empty() {
           assert_eq!(cells, orders);

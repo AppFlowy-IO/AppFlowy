@@ -1,7 +1,12 @@
-use crate::database::database_editor::DatabaseEditorTest;
-use database_model::{CalendarLayoutSetting, FieldRevision, LayoutRevision};
-use flowy_database::entities::FieldType;
 use std::sync::Arc;
+
+use collab_database::fields::Field;
+use collab_database::views::DatabaseLayout;
+
+use flowy_database2::entities::FieldType;
+use flowy_database2::services::setting::CalendarLayoutSetting;
+
+use crate::database::database_editor::DatabaseEditorTest;
 
 pub enum LayoutScript {
   AssertCalendarLayoutSetting { expected: CalendarLayoutSetting },
@@ -24,18 +29,15 @@ impl DatabaseLayoutTest {
     }
   }
 
-  pub async fn get_first_date_field(&self) -> Arc<FieldRevision> {
-    self
-      .database_test
-      .get_first_field_rev(FieldType::DateTime)
-      .clone()
+  pub async fn get_first_date_field(&self) -> Field {
+    self.database_test.get_first_field(FieldType::DateTime)
   }
 
   pub async fn run_script(&mut self, script: LayoutScript) {
     match script {
       LayoutScript::AssertCalendarLayoutSetting { expected } => {
         let view_id = self.database_test.view_id.clone();
-        let layout_ty = LayoutRevision::Calendar;
+        let layout_ty = DatabaseLayout::Calendar;
 
         let calendar_setting = self
           .database_test

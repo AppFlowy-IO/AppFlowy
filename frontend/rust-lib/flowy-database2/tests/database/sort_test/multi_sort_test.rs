@@ -1,13 +1,14 @@
+use flowy_database2::entities::FieldType;
+use flowy_database2::services::sort::SortCondition;
+
 use crate::database::sort_test::script::DatabaseSortTest;
 use crate::database::sort_test::script::SortScript::*;
-use database_model::SortCondition;
-use flowy_database::entities::FieldType;
 
 #[tokio::test]
 async fn sort_text_with_checkbox_by_ascending_test() {
   let mut test = DatabaseSortTest::new().await;
-  let text_field = test.get_first_field_rev(FieldType::RichText).clone();
-  let checkbox_field = test.get_first_field_rev(FieldType::Checkbox).clone();
+  let text_field = test.get_first_field(FieldType::RichText).clone();
+  let checkbox_field = test.get_first_field(FieldType::Checkbox).clone();
   let scripts = vec![
     AssertCellContentOrder {
       field_id: text_field.id.clone(),
@@ -18,7 +19,7 @@ async fn sort_text_with_checkbox_by_ascending_test() {
       orders: vec!["Yes", "Yes", "No", "No", "No"],
     },
     InsertSort {
-      field_rev: text_field.clone(),
+      field: text_field.clone(),
       condition: SortCondition::Ascending,
     },
     AssertCellContentOrder {
@@ -30,7 +31,7 @@ async fn sort_text_with_checkbox_by_ascending_test() {
 
   let scripts = vec![
     InsertSort {
-      field_rev: checkbox_field.clone(),
+      field: checkbox_field.clone(),
       condition: SortCondition::Descending,
     },
     AssertCellContentOrder {

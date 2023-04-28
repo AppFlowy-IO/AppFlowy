@@ -4,13 +4,16 @@
 #![allow(unused_imports)]
 
 use std::time::Duration;
+
 use bytes::Bytes;
 use collab_database::rows::{Row, RowId};
 use futures::TryFutureExt;
 use tokio::sync::broadcast::Receiver;
+
 use flowy_database2::entities::{AlterFilterParams, AlterFilterPayloadPB, CheckboxFilterConditionPB, CheckboxFilterPB, ChecklistFilterConditionPB, ChecklistFilterPB, DatabaseViewSettingPB, DateFilterConditionPB, DateFilterPB, DeleteFilterParams, FieldType, FilterPB, NumberFilterConditionPB, NumberFilterPB, SelectOptionConditionPB, SelectOptionFilterPB, TextFilterConditionPB, TextFilterPB};
 use flowy_database2::services::database_view::DatabaseViewChanged;
 use flowy_database2::services::filter::FilterType;
+
 use crate::database::database_editor::DatabaseEditorTest;
 
 pub struct FilterRowChanged {
@@ -142,15 +145,15 @@ impl DatabaseFilterTest {
             FilterScript::CreateTextFilter { condition, content, changed} => {
                 self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 self.assert_future_changed(changed).await;
-                let field_rev = self.get_first_field(FieldType::RichText);
+                let field = self.get_first_field(FieldType::RichText);
                 let text_filter= TextFilterPB {
                     condition,
                     content
                 };
                 let payload =
                     AlterFilterPayloadPB::new(
-                       & self.view_id(),
-                        field_rev, text_filter);
+                        & self.view_id(),
+                        &field, text_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::UpdateTextFilter { filter, condition, content, changed} => {
@@ -169,32 +172,32 @@ impl DatabaseFilterTest {
             FilterScript::CreateNumberFilter {condition, content, changed} => {
                 self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 self.assert_future_changed(changed).await;
-                let field_rev = self.get_first_field(FieldType::Number);
+                let field = self.get_first_field(FieldType::Number);
                 let number_filter = NumberFilterPB {
                     condition,
                     content
                 };
                 let payload =
                     AlterFilterPayloadPB::new(
-                         &self.view_id(),
-                        field_rev, number_filter);
+                        &self.view_id(),
+                        &field, number_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateCheckboxFilter {condition, changed} => {
                 self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 self.assert_future_changed(changed).await;
-                let field_rev = self.get_first_field(FieldType::Checkbox);
+                let field = self.get_first_field(FieldType::Checkbox);
                 let checkbox_filter = CheckboxFilterPB {
                     condition
                 };
                 let payload =
-                    AlterFilterPayloadPB::new(& self.view_id(), field_rev, checkbox_filter);
+                    AlterFilterPayloadPB::new(& self.view_id(), &field, checkbox_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateDateFilter { condition, start, end, timestamp, changed} => {
                 self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 self.assert_future_changed(changed).await;
-                let field_rev = self.get_first_field(FieldType::DateTime);
+                let field = self.get_first_field(FieldType::DateTime);
                 let date_filter = DateFilterPB {
                     condition,
                     start,
@@ -203,34 +206,34 @@ impl DatabaseFilterTest {
                 };
 
                 let payload =
-                    AlterFilterPayloadPB::new( &self.view_id(), field_rev, date_filter);
+                    AlterFilterPayloadPB::new(&self.view_id(), &field, date_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateMultiSelectFilter { condition, option_ids} => {
                 self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
-                let field_rev = self.get_first_field(FieldType::MultiSelect);
+                let field = self.get_first_field(FieldType::MultiSelect);
                 let filter = SelectOptionFilterPB { condition, option_ids };
                 let payload =
-                    AlterFilterPayloadPB::new( &self.view_id(),field_rev, filter);
+                    AlterFilterPayloadPB::new(&self.view_id(), &field, filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateSingleSelectFilter { condition, option_ids, changed} => {
                 self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 self.assert_future_changed(changed).await;
-                let field_rev = self.get_first_field(FieldType::SingleSelect);
+                let field = self.get_first_field(FieldType::SingleSelect);
                 let filter = SelectOptionFilterPB { condition, option_ids };
                 let payload =
-                    AlterFilterPayloadPB::new(& self.view_id(),field_rev, filter);
+                    AlterFilterPayloadPB::new(& self.view_id(), &field, filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateChecklistFilter { condition,changed} => {
                 self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 self.assert_future_changed(changed).await;
-                let field_rev = self.get_first_field(FieldType::Checklist);
+                let field = self.get_first_field(FieldType::Checklist);
                 // let type_option = self.get_checklist_type_option(&field_rev.id);
                 let filter = ChecklistFilterPB { condition };
                 let payload =
-                    AlterFilterPayloadPB::new(& self.view_id(),field_rev, filter);
+                    AlterFilterPayloadPB::new(& self.view_id(), &field, filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::AssertFilterCount { count } => {

@@ -112,7 +112,6 @@ pub(crate) async fn get_fields_handler(
   let database_editor = manager.get_database(&params.view_id).await?;
   let fields = database_editor
     .get_fields(&params.view_id, params.field_ids)
-    .await
     .into_iter()
     .map(FieldPB::from)
     .collect::<Vec<FieldPB>>()
@@ -356,7 +355,7 @@ pub(crate) async fn update_cell_handler(
   let params: CellChangesetPB = data.into_inner();
   let database_editor = manager.get_database(&params.view_id).await?;
   database_editor
-    .update_cell(
+    .update_cell_with_changeset(
       &params.view_id,
       RowId::from(params.row_id),
       &params.field_id,
@@ -447,7 +446,7 @@ pub(crate) async fn update_select_option_cell_handler(
     delete_option_ids: params.delete_option_ids,
   };
   database_editor
-    .update_cell(
+    .update_cell_with_changeset(
       &params.cell_identifier.view_id,
       params.cell_identifier.row_id,
       &params.cell_identifier.field_id,
@@ -472,7 +471,7 @@ pub(crate) async fn update_date_cell_handler(
   };
   let database_editor = manager.get_database(&cell_id.view_id).await?;
   database_editor
-    .update_cell(
+    .update_cell_with_changeset(
       &cell_id.view_id,
       cell_id.row_id,
       &cell_id.field_id,

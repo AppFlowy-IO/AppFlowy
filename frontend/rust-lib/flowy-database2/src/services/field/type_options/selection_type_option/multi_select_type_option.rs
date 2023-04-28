@@ -1,17 +1,19 @@
-use crate::entities::{FieldType, SelectOptionCellDataPB, SelectOptionFilterPB};
-use crate::services::cell::CellDataChangeset;
-use collab::core::any_map::AnyMapExtension;
 use std::cmp::{min, Ordering};
 
+use collab::core::any_map::AnyMapExtension;
+use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
+use collab_database::rows::Cell;
+use serde::{Deserialize, Serialize};
+
+use flowy_error::FlowyResult;
+
+use crate::entities::{FieldType, SelectOptionCellDataPB, SelectOptionFilterPB};
+use crate::services::cell::CellDataChangeset;
 use crate::services::field::{
   default_order, SelectOption, SelectOptionCellChangeset, SelectOptionIds,
   SelectTypeOptionSharedAction, SelectedSelectOptions, TypeOption, TypeOptionCellData,
   TypeOptionCellDataCompare, TypeOptionCellDataFilter,
 };
-use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
-use collab_database::rows::Cell;
-use flowy_error::FlowyResult;
-use serde::{Deserialize, Serialize};
 
 // Multiple select
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -276,7 +278,8 @@ mod tests {
     // empty option id string
     let changeset = SelectOptionCellChangeset::from_insert_option_id("");
     let (cell, _) = multi_select.apply_changeset(changeset, None).unwrap();
-    assert!(cell.is_empty());
+    let option_ids = SelectOptionIds::from(&cell);
+    assert!(option_ids.is_empty());
 
     let changeset = SelectOptionCellChangeset::from_insert_option_id("123,456");
     let select_option_ids = multi_select.apply_changeset(changeset, None).unwrap().1;
