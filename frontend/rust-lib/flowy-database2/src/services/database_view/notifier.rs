@@ -41,7 +41,11 @@ impl DatabaseViewChangedReceiverRunner {
             let changeset = RowsVisibilityChangesetPB {
               view_id: notification.view_id,
               visible_rows: notification.visible_rows,
-              invisible_rows: notification.invisible_rows,
+              invisible_rows: notification
+                .invisible_rows
+                .into_iter()
+                .map(|row| row.into_inner())
+                .collect(),
             };
 
             send_notification(
@@ -61,7 +65,7 @@ impl DatabaseViewChangedReceiverRunner {
           },
           DatabaseViewChanged::ReorderSingleRowNotification(notification) => {
             let reorder_row = ReorderSingleRowPB {
-              row_id: notification.row_id,
+              row_id: notification.row_id.into_inner(),
               old_index: notification.old_index as i32,
               new_index: notification.new_index as i32,
             };

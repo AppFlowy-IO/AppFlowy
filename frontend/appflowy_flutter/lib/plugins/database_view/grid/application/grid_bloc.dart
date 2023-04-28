@@ -6,7 +6,6 @@ import 'package:equatable/equatable.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:fixnum/fixnum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../application/field/field_controller.dart';
@@ -66,7 +65,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     return super.close();
   }
 
-  RowCache? getRowCache(Int64 rowId) {
+  RowCache? getRowCache(RowId rowId) {
     return databaseController.rowCache;
   }
 

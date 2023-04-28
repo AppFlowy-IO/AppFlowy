@@ -13,7 +13,7 @@ class DatabaseCell {
 /// We use [fieldId + rowId] to identify the cell.
 class CellCacheKey {
   final String fieldId;
-  final Int64 rowId;
+  final RowId rowId;
   CellCacheKey({
     required this.fieldId,
     required this.rowId,
@@ -28,7 +28,7 @@ class CellCache {
   final String viewId;
 
   /// fieldId: {cacheKey: GridCell}
-  final Map<String, Map<Int64, dynamic>> _cellDataByFieldId = {};
+  final Map<String, Map<RowId, dynamic>> _cellDataByFieldId = {};
   CellCache({
     required this.viewId,
   });

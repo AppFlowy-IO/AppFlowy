@@ -1,5 +1,6 @@
 use anyhow::bail;
 use collab::core::any_map::AnyMapExtension;
+use collab_database::rows::RowId;
 use collab_database::views::{FilterMap, FilterMapBuilder};
 
 use crate::entities::{DeleteFilterParams, FieldType, FilterPB, InsertedRowPB};
@@ -161,7 +162,7 @@ pub struct FilterResultNotification {
   pub visible_rows: Vec<InsertedRowPB>,
 
   // Indicates there will be some new rows being invisible from visible state.
-  pub invisible_rows: Vec<i64>,
+  pub invisible_rows: Vec<RowId>,
 }
 
 impl FilterResultNotification {

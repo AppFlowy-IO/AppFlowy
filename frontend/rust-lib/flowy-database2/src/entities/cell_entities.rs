@@ -49,7 +49,7 @@ pub struct CellIdPB {
   pub field_id: String,
 
   #[pb(index = 3)]
-  pub row_id: i64,
+  pub row_id: String,
 }
 
 /// Represents as the cell identifier. It's used to locate the cell in corresponding
@@ -81,7 +81,7 @@ pub struct CellPB {
   pub field_id: String,
 
   #[pb(index = 2)]
-  pub row_id: i64,
+  pub row_id: String,
 
   /// Encoded the data using the helper struct `CellProtobufBlob`.
   /// Check out the `CellProtobufBlob` for more information.
@@ -94,7 +94,7 @@ pub struct CellPB {
 }
 
 impl CellPB {
-  pub fn new(field_id: &str, row_id: i64, field_type: FieldType, data: Vec<u8>) -> Self {
+  pub fn new(field_id: &str, row_id: String, field_type: FieldType, data: Vec<u8>) -> Self {
     Self {
       field_id: field_id.to_owned(),
       row_id,
@@ -103,7 +103,7 @@ impl CellPB {
     }
   }
 
-  pub fn empty(field_id: &str, row_id: i64) -> Self {
+  pub fn empty(field_id: &str, row_id: String) -> Self {
     Self {
       field_id: field_id.to_owned(),
       row_id,
@@ -144,7 +144,7 @@ pub struct CellChangesetPB {
   pub view_id: String,
 
   #[pb(index = 2)]
-  pub row_id: i64,
+  pub row_id: String,
 
   #[pb(index = 3)]
   pub field_id: String,
@@ -159,7 +159,7 @@ pub struct CellChangesetNotifyPB {
   pub view_id: String,
 
   #[pb(index = 2)]
-  pub row_id: i64,
+  pub row_id: String,
 
   #[pb(index = 3)]
   pub field_id: String,

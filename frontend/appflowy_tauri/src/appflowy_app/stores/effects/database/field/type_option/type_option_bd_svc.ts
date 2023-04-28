@@ -1,14 +1,9 @@
-import {
-  CreateFieldPayloadPB,
-  FieldType,
-  TypeOptionPathPB,
-  UpdateFieldTypePayloadPB,
-} from '@/services/backend';
+import { CreateFieldPayloadPB, FieldType, TypeOptionPathPB, UpdateFieldTypePayloadPB } from '@/services/backend';
 import {
   DatabaseEventCreateTypeOption,
   DatabaseEventGetTypeOption,
   DatabaseEventUpdateFieldType,
-} from '@/services/backend/events/flowy-database';
+} from '@/services/backend/events/flowy-database2';
 
 export class TypeOptionBackendService {
   constructor(public readonly viewId: string) {}

@@ -118,7 +118,7 @@ impl SortController {
               return Ok(());
             }
             let notification = ReorderSingleRowResult {
-              row_id: row_id.into(),
+              row_id,
               view_id: self.view_id.clone(),
               old_index: old_row_index,
               new_index: new_row_index,
@@ -158,7 +158,7 @@ impl SortController {
       rows.par_sort_by(|left, right| cmp_row(left, right, sort, &field_revs, &self.cell_cache));
     }
     rows.iter().enumerate().for_each(|(index, row)| {
-      self.row_index_cache.insert(row.id, index);
+      self.row_index_cache.insert(row.id.clone(), index);
     });
   }
 

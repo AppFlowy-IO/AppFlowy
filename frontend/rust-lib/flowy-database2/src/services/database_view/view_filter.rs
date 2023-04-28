@@ -60,7 +60,7 @@ impl FilterDelegate for DatabaseViewFilterDelegateImpl {
     self.0.get_rows(view_id)
   }
 
-  fn get_row(&self, view_id: &str, row_id: RowId) -> Fut<Option<(usize, Arc<Row>)>> {
-    self.0.get_row(view_id, row_id)
+  fn get_row(&self, view_id: &str, rows_id: &RowId) -> Fut<Option<(usize, Arc<Row>)>> {
+    self.0.get_row(view_id, rows_id)
   }
 }

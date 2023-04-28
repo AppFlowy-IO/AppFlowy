@@ -1,17 +1,17 @@
+import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'dart:typed_data';
 
 import 'package:appflowy/core/grid_notification.dart';
-import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:dartz/dartz.dart';
 
 typedef OnGroupError = void Function(FlowyError);
 
 abstract class GroupControllerDelegate {
-  void removeRow(GroupPB group, Int64 rowId);
+  void removeRow(GroupPB group, RowId rowId);
   void insertRow(GroupPB group, RowPB row, int? index);
   void updateRow(GroupPB group, RowPB row);
   void addNewRow(GroupPB group, RowPB row, int? index);

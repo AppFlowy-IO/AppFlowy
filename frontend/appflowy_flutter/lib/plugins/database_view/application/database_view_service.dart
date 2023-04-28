@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group_changeset.pb.dart';
@@ -9,7 +10,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
-import 'package:fixnum/fixnum.dart';
 
 class DatabaseViewBackendService {
   final String viewId;
@@ -25,12 +25,12 @@ class DatabaseViewBackendService {
   }
 
   Future<Either<RowPB, FlowyError>> createRow({
-    Int64? startRowId,
+    RowId? startRowId,
     String? groupId,
     Map<String, String>? cellDataByFieldId,
   }) {
     var payload = CreateRowPayloadPB.create()..viewId = viewId;
-    payload.startRowId = startRowId ?? Int64(0);
+    payload.startRowId = startRowId ?? "";
 
     if (groupId != null) {
       payload.groupId = groupId;
@@ -44,9 +44,9 @@ class DatabaseViewBackendService {
   }
 
   Future<Either<Unit, FlowyError>> moveRow({
-    required Int64 fromRowId,
+    required RowId fromRowId,
     required String toGroupId,
-    Int64? toRowId,
+    RowId? toRowId,
   }) {
     var payload = MoveGroupRowPayloadPB.create()
       ..viewId = viewId

@@ -2,16 +2,17 @@ import { CellIdentifier } from './cell_bd_svc';
 import {
   CellIdPB,
   CreateSelectOptionPayloadPB,
+  RepeatedSelectOptionPayload,
   SelectOptionCellChangesetPB,
-  SelectOptionChangesetPB,
   SelectOptionPB,
 } from '@/services/backend';
 import {
   DatabaseEventCreateSelectOption,
+  DatabaseEventDeleteSelectOption,
   DatabaseEventGetSelectOptionCellData,
-  DatabaseEventUpdateSelectOption,
+  DatabaseEventInsertOrUpdateSelectOption,
   DatabaseEventUpdateSelectOptionCell,
-} from '@/services/backend/events/flowy-database';
+} from '@/services/backend/events/flowy-database2';
 
 export class SelectOptionBackendService {
   constructor(public readonly viewId: string, public readonly fieldId: string) {}
@@ -47,25 +48,33 @@ export class SelectOptionCellBackendService {
   };
 
   private _insertOption = (option: SelectOptionPB, isSelect: boolean) => {
-    const payload = SelectOptionChangesetPB.fromObject({ cell_identifier: this._cellIdentifier() });
-    if (isSelect) {
-      payload.insert_options.push(option);
-    } else {
-      payload.update_options.push(option);
-    }
-    return DatabaseEventUpdateSelectOption(payload);
+    const payload = RepeatedSelectOptionPayload.fromObject({
+      view_id: this.cellIdentifier.viewId,
+      field_id: this.cellIdentifier.fieldId,
+      row_id: this.cellIdentifier.rowId,
+    });
+    payload.items.push(option);
+    return DatabaseEventInsertOrUpdateSelectOption(payload);
   };
 
   updateOption = (option: SelectOptionPB) => {
-    const payload = SelectOptionChangesetPB.fromObject({ cell_identifier: this._cellIdentifier() });
-    payload.update_options.push(option);
-    return DatabaseEventUpdateSelectOption(payload);
+    const payload = RepeatedSelectOptionPayload.fromObject({
+      view_id: this.cellIdentifier.viewId,
+      field_id: this.cellIdentifier.fieldId,
+      row_id: this.cellIdentifier.rowId,
+    });
+    payload.items.push(option);
+    return DatabaseEventInsertOrUpdateSelectOption(payload);
   };
 
   deleteOption = (options: SelectOptionPB[]) => {
-    const payload = SelectOptionChangesetPB.fromObject({ cell_identifier: this._cellIdentifier() });
-    payload.delete_options.push(...options);
-    return DatabaseEventUpdateSelectOption(payload);
+    const payload = RepeatedSelectOptionPayload.fromObject({
+      view_id: this.cellIdentifier.viewId,
+      field_id: this.cellIdentifier.fieldId,
+      row_id: this.cellIdentifier.rowId,
+    });
+    payload.items.push(...options);
+    return DatabaseEventDeleteSelectOption(payload);
   };
 
   getOptionCellData = () => {

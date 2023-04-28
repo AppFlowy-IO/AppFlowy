@@ -143,12 +143,12 @@ impl GroupData {
     }
   }
 
-  pub fn contains_row(&self, row_id: RowId) -> bool {
-    self.rows.iter().any(|row| row.id == row_id)
+  pub fn contains_row(&self, row_id: &RowId) -> bool {
+    self.rows.iter().any(|row| &row.id == row_id)
   }
 
-  pub fn remove_row(&mut self, row_id: RowId) {
-    match self.rows.iter().position(|row| row.id == row_id) {
+  pub fn remove_row(&mut self, row_id: &RowId) {
+    match self.rows.iter().position(|row| &row.id == row_id) {
       None => {},
       Some(pos) => {
         self.rows.remove(pos);
@@ -177,8 +177,8 @@ impl GroupData {
     }
   }
 
-  pub fn index_of_row(&self, row_id: RowId) -> Option<usize> {
-    self.rows.iter().position(|row| row.id == row_id)
+  pub fn index_of_row(&self, row_id: &RowId) -> Option<usize> {
+    self.rows.iter().position(|row| &row.id == row_id)
   }
 
   pub fn number_of_row(&self) -> usize {

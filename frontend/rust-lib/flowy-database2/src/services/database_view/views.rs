@@ -67,7 +67,7 @@ impl DatabaseViews {
     recv_row_changeset: impl FnOnce(RowChangeset) -> Fut<()>,
   ) -> FlowyResult<()> {
     let view_editor = self.get_view_editor(view_id).await?;
-    let mut row_changeset = RowChangeset::new(row.id);
+    let mut row_changeset = RowChangeset::new(row.id.clone());
     view_editor
       .v_move_group_row(&row, &mut row_changeset, &to_group_id, to_row_id)
       .await;

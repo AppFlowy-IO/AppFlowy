@@ -12,7 +12,7 @@ import {
   DatabaseEventGetTypeOption,
   DatabaseEventUpdateField,
   DatabaseEventUpdateFieldTypeOption,
-} from '@/services/backend/events/flowy-database';
+} from '@/services/backend/events/flowy-database2';
 
 export abstract class TypeOptionParser<T> {
   abstract fromBuffer(buffer: Uint8Array): T;

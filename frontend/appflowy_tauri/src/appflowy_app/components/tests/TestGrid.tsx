@@ -1,11 +1,11 @@
 import React from 'react';
 import {
-  DateFormat,
+  DateFormatPB,
   FieldType,
-  NumberFormat,
+  NumberFormatPB,
   NumberTypeOptionPB,
   SelectOptionCellDataPB,
-  TimeFormat,
+  TimeFormatPB,
   ViewLayoutPB,
 } from '@/services/backend';
 import { Log } from '$app/utils/log';
@@ -172,7 +172,7 @@ async function testEditDateCell() {
   await new Promise((resolve) => setTimeout(resolve, 200));
 }
 
-async function testEditDateFormat() {
+async function testEditDateFormatPB() {
   const view = await createTestDatabaseView(ViewLayoutPB.Grid);
   const databaseController = await openTestDatabase(view.id);
   await databaseController.open().then((result) => result.unwrap());
@@ -184,20 +184,20 @@ async function testEditDateFormat() {
   // update date type option
   const dateTypeOptionContext = makeDateTypeOptionContext(typeOptionController);
   const typeOption = await dateTypeOptionContext.getTypeOption().then((a) => a.unwrap());
-  assert(typeOption.date_format === DateFormat.Friendly, 'Date format not match');
-  assert(typeOption.time_format === TimeFormat.TwentyFourHour, 'Time format not match');
-  typeOption.date_format = DateFormat.Local;
-  typeOption.time_format = TimeFormat.TwelveHour;
+  assert(typeOption.date_format === DateFormatPB.Friendly, 'Date format not match');
+  assert(typeOption.time_format === TimeFormatPB.TwentyFourHour, 'Time format not match');
+  typeOption.date_format = DateFormatPB.Local;
+  typeOption.time_format = TimeFormatPB.TwelveHour;
   await dateTypeOptionContext.setTypeOption(typeOption);
 
   const typeOption2 = await dateTypeOptionContext.getTypeOption().then((a) => a.unwrap());
-  assert(typeOption2.date_format === DateFormat.Local, 'Date format not match');
-  assert(typeOption2.time_format === TimeFormat.TwelveHour, 'Time format not match');
+  assert(typeOption2.date_format === DateFormatPB.Local, 'Date format not match');
+  assert(typeOption2.time_format === TimeFormatPB.TwelveHour, 'Time format not match');
 
   await new Promise((resolve) => setTimeout(resolve, 200));
 }
 
-async function testEditNumberFormat() {
+async function testEditNumberFormatPB() {
   const view = await createTestDatabaseView(ViewLayoutPB.Grid);
   const databaseController = await openTestDatabase(view.id);
   await databaseController.open().then((result) => result.unwrap());
@@ -209,7 +209,7 @@ async function testEditNumberFormat() {
   // update date type option
   const dateTypeOptionContext = makeNumberTypeOptionContext(typeOptionController);
   const typeOption = await dateTypeOptionContext.getTypeOption().then((a) => a.unwrap());
-  typeOption.format = NumberFormat.EUR;
+  typeOption.format = NumberFormatPB.EUR;
   typeOption.name = 'Money';
   await dateTypeOptionContext.setTypeOption(typeOption);
 
@@ -366,8 +366,8 @@ async function testSwitchFromSingleSelectToNumber() {
   const numberTypeOption: NumberTypeOptionPB = await numberTypeOptionContext
     .getTypeOption()
     .then((result) => result.unwrap());
-  const format: NumberFormat = numberTypeOption.format;
-  if (format !== NumberFormat.Num) {
+  const format: NumberFormatPB = numberTypeOption.format;
+  if (format !== NumberFormatPB.Num) {
     throw Error('The default format should be number');
   }
 
@@ -491,10 +491,10 @@ export const TestEditDateCell = () => {
   return TestButton('Test editing date cell', testEditDateCell);
 };
 export const TestEditDateFormat = () => {
-  return TestButton('Test editing date format', testEditDateFormat);
+  return TestButton('Test editing date format', testEditDateFormatPB);
 };
 export const TestEditNumberFormat = () => {
-  return TestButton('Test editing number format', testEditNumberFormat);
+  return TestButton('Test editing number format', testEditNumberFormatPB);
 };
 export const TestEditCheckboxCell = () => {
   return TestButton('Test editing checkbox cell', testCheckboxCell);
