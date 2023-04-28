@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 import 'package:appflowy_backend/log.dart';
+import 'package:fixnum/fixnum.dart';
 import '../defines.dart';
 import '../field/field_controller.dart';
 import '../row/row_cache.dart';
@@ -39,7 +40,7 @@ class DatabaseViewCache {
   UnmodifiableListView<RowInfo> get rowInfos => _rowCache.rowInfos;
   RowCache get rowCache => _rowCache;
 
-  RowInfo? getRow(String rowId) => _rowCache.getRow(rowId);
+  RowInfo? getRow(Int64 rowId) => _rowCache.getRow(rowId);
 
   DatabaseViewCache({
     required this.viewId,

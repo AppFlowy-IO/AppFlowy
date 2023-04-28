@@ -1,11 +1,11 @@
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/checkbox_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/checklist_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/date_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/select_option_filter.pbserver.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/text_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/util.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/checkbox_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/checklist_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/date_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pbserver.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
 
 class FilterInfo {
   final String viewId;

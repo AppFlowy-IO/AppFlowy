@@ -1,12 +1,5 @@
-use crate::entities::{UserProfilePB, UserSettingPB};
-use crate::event_map::UserStatusCallback;
+use std::sync::Arc;
 
-use crate::{
-  errors::{ErrorCode, FlowyError},
-  event_map::UserCloudService,
-  notification::*,
-  services::database::{UserDB, UserTable, UserTableChangeset},
-};
 use collab_persistence::kv::rocks_kv::RocksCollabDB;
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{
@@ -15,12 +8,19 @@ use flowy_sqlite::{
   schema::{user_table, user_table::dsl},
   DBConnection, ExpressionMethods, UserDatabaseConnection,
 };
-
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 use tokio::sync::RwLock;
 use user_model::{
   SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
+};
+
+use crate::entities::{UserProfilePB, UserSettingPB};
+use crate::event_map::UserStatusCallback;
+use crate::{
+  errors::{ErrorCode, FlowyError},
+  event_map::UserCloudService,
+  notification::*,
+  services::database::{UserDB, UserTable, UserTableChangeset},
 };
 
 // lazy_static! {

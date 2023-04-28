@@ -1,6 +1,8 @@
-use crate::proto_buf::util::*;
-use flowy_ast::*;
 use proc_macro2::{Span, TokenStream};
+
+use flowy_ast::*;
+
+use crate::proto_buf::util::*;
 
 pub fn make_de_token_steam(ast_result: &ASTResult, ast: &ASTContainer) -> Option<TokenStream> {
   let pb_ty = ast.pb_attrs.pb_struct_type()?;
@@ -225,11 +227,16 @@ fn token_stream_for_vec(
           o.#member = pb.#member.clone();
       })
     },
-    _ => {
-      // String
+    TypeCategory::Str => {
       let take_ident = format_ident!("take_{}", ident.to_string());
       Some(quote! {
           o.#member = pb.#take_ident().into_vec();
+      })
+    },
+    _ => {
+      let take_ident = format_ident!("take_{}", ident.to_string());
+      Some(quote! {
+          o.#member = pb.#take_ident();
       })
     },
   }

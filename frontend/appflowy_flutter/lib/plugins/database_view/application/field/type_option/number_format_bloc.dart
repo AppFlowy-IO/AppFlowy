@@ -1,4 +1,4 @@
-import 'package:appflowy_backend/protobuf/flowy-database/format.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/number_entities.pbenum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 part 'number_format_bloc.freezed.dart';
@@ -9,7 +9,8 @@ class NumberFormatBloc extends Bloc<NumberFormatEvent, NumberFormatState> {
       (event, emit) async {
         event.map(
           setFilter: (_SetFilter value) {
-            final List<NumberFormat> formats = List.from(NumberFormat.values);
+            final List<NumberFormatPB> formats =
+                List.from(NumberFormatPB.values);
             if (value.filter.isNotEmpty) {
               formats.retainWhere(
                 (element) => element
@@ -34,92 +35,92 @@ class NumberFormatEvent with _$NumberFormatEvent {
 @freezed
 class NumberFormatState with _$NumberFormatState {
   const factory NumberFormatState({
-    required List<NumberFormat> formats,
+    required List<NumberFormatPB> formats,
     required String filter,
   }) = _NumberFormatState;
 
   factory NumberFormatState.initial() {
     return const NumberFormatState(
-      formats: NumberFormat.values,
+      formats: NumberFormatPB.values,
       filter: "",
     );
   }
 }
 
-extension NumberFormatExtension on NumberFormat {
+extension NumberFormatExtension on NumberFormatPB {
   String title() {
     switch (this) {
-      case NumberFormat.ArgentinePeso:
+      case NumberFormatPB.ArgentinePeso:
         return "Argentine peso";
-      case NumberFormat.Baht:
+      case NumberFormatPB.Baht:
         return "Baht";
-      case NumberFormat.CanadianDollar:
+      case NumberFormatPB.CanadianDollar:
         return "Canadian dollar";
-      case NumberFormat.ChileanPeso:
+      case NumberFormatPB.ChileanPeso:
         return "Chilean peso";
-      case NumberFormat.ColombianPeso:
+      case NumberFormatPB.ColombianPeso:
         return "Colombian peso";
-      case NumberFormat.DanishKrone:
+      case NumberFormatPB.DanishKrone:
         return "Danish krone";
-      case NumberFormat.Dirham:
+      case NumberFormatPB.Dirham:
         return "Dirham";
-      case NumberFormat.EUR:
+      case NumberFormatPB.EUR:
         return "Euro";
-      case NumberFormat.Forint:
+      case NumberFormatPB.Forint:
         return "Forint";
-      case NumberFormat.Franc:
+      case NumberFormatPB.Franc:
         return "Franc";
-      case NumberFormat.HongKongDollar:
+      case NumberFormatPB.HongKongDollar:
         return "Hone Kong dollar";
-      case NumberFormat.Koruna:
+      case NumberFormatPB.Koruna:
         return "Koruna";
-      case NumberFormat.Krona:
+      case NumberFormatPB.Krona:
         return "Krona";
-      case NumberFormat.Leu:
+      case NumberFormatPB.Leu:
         return "Leu";
-      case NumberFormat.Lira:
+      case NumberFormatPB.Lira:
         return "Lira";
-      case NumberFormat.MexicanPeso:
+      case NumberFormatPB.MexicanPeso:
         return "Mexican peso";
-      case NumberFormat.NewTaiwanDollar:
+      case NumberFormatPB.NewTaiwanDollar:
         return "New Taiwan dollar";
-      case NumberFormat.NewZealandDollar:
+      case NumberFormatPB.NewZealandDollar:
         return "New Zealand dollar";
-      case NumberFormat.NorwegianKrone:
+      case NumberFormatPB.NorwegianKrone:
         return "Norwegian krone";
-      case NumberFormat.Num:
+      case NumberFormatPB.Num:
         return "Number";
-      case NumberFormat.Percent:
+      case NumberFormatPB.Percent:
         return "Percent";
-      case NumberFormat.PhilippinePeso:
+      case NumberFormatPB.PhilippinePeso:
         return "Philippine peso";
-      case NumberFormat.Pound:
+      case NumberFormatPB.Pound:
         return "Pound";
-      case NumberFormat.Rand:
+      case NumberFormatPB.Rand:
         return "Rand";
-      case NumberFormat.Real:
+      case NumberFormatPB.Real:
         return "Real";
-      case NumberFormat.Ringgit:
+      case NumberFormatPB.Ringgit:
         return "Ringgit";
-      case NumberFormat.Riyal:
+      case NumberFormatPB.Riyal:
         return "Riyal";
-      case NumberFormat.Ruble:
+      case NumberFormatPB.Ruble:
         return "Ruble";
-      case NumberFormat.Rupee:
+      case NumberFormatPB.Rupee:
         return "Rupee";
-      case NumberFormat.Rupiah:
+      case NumberFormatPB.Rupiah:
         return "Rupiah";
-      case NumberFormat.Shekel:
+      case NumberFormatPB.Shekel:
         return "Skekel";
-      case NumberFormat.USD:
+      case NumberFormatPB.USD:
         return "US dollar";
-      case NumberFormat.UruguayanPeso:
+      case NumberFormatPB.UruguayanPeso:
         return "Uruguayan peso";
-      case NumberFormat.Won:
+      case NumberFormatPB.Won:
         return "Won";
-      case NumberFormat.Yen:
+      case NumberFormatPB.Yen:
         return "Yen";
-      case NumberFormat.Yuan:
+      case NumberFormatPB.Yuan:
         return "Yuan";
       default:
         throw UnimplementedError;
@@ -128,13 +129,13 @@ extension NumberFormatExtension on NumberFormat {
 
   // String iconName() {
   //   switch (this) {
-  //     case NumberFormat.CNY:
+  //     case NumberFormatPB.CNY:
   //       return "grid/field/yen";
-  //     case NumberFormat.EUR:
+  //     case NumberFormatPB.EUR:
   //       return "grid/field/euro";
-  //     case NumberFormat.Number:
+  //     case NumberFormatPB.Number:
   //       return "grid/field/numbers";
-  //     case NumberFormat.USD:
+  //     case NumberFormatPB.USD:
   //       return "grid/field/us_dollar";
   //     default:
   //       throw UnimplementedError;

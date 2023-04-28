@@ -2,7 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_setting_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
@@ -19,8 +19,8 @@ import 'calendar_layout_setting.dart';
 /// contents with the submenu when a category is selected.
 class CalendarSetting extends StatelessWidget {
   final CalendarSettingContext settingContext;
-  final CalendarLayoutSettingsPB? layoutSettings;
-  final Function(CalendarLayoutSettingsPB? layoutSettings) onUpdated;
+  final CalendarLayoutSettingPB? layoutSettings;
+  final Function(CalendarLayoutSettingPB? layoutSettings) onUpdated;
 
   const CalendarSetting({
     required this.onUpdated,

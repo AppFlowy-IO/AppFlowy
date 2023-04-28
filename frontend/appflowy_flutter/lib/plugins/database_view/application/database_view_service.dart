@@ -1,14 +1,15 @@
-import 'package:appflowy_backend/protobuf/flowy-database/calendar_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/database_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/group_changeset.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/group_changeset.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/group.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
+import 'package:fixnum/fixnum.dart';
 
 class DatabaseViewBackendService {
   final String viewId;
@@ -24,14 +25,12 @@ class DatabaseViewBackendService {
   }
 
   Future<Either<RowPB, FlowyError>> createRow({
-    String? startRowId,
+    Int64? startRowId,
     String? groupId,
     Map<String, String>? cellDataByFieldId,
   }) {
     var payload = CreateRowPayloadPB.create()..viewId = viewId;
-    if (startRowId != null) {
-      payload.startRowId = startRowId;
-    }
+    payload.startRowId = startRowId ?? Int64(0);
 
     if (groupId != null) {
       payload.groupId = groupId;
@@ -45,9 +44,9 @@ class DatabaseViewBackendService {
   }
 
   Future<Either<Unit, FlowyError>> moveRow({
-    required String fromRowId,
+    required Int64 fromRowId,
     required String toGroupId,
-    String? toRowId,
+    Int64? toRowId,
   }) {
     var payload = MoveGroupRowPayloadPB.create()
       ..viewId = viewId
@@ -96,16 +95,12 @@ class DatabaseViewBackendService {
   }
 
   Future<Either<Unit, FlowyError>> updateLayoutSetting({
-    CalendarLayoutSettingsPB? calendarLayoutSetting,
+    CalendarLayoutSettingPB? calendarLayoutSetting,
   }) {
-    final layoutSetting = LayoutSettingPB.create();
+    final payload = LayoutSettingChangesetPB.create()..viewId = viewId;
     if (calendarLayoutSetting != null) {
-      layoutSetting.calendar = calendarLayoutSetting;
+      payload.calendar = calendarLayoutSetting;
     }
-
-    final payload = UpdateLayoutSettingPB.create()
-      ..viewId = viewId
-      ..layoutSetting = layoutSetting;
 
     return DatabaseEventSetLayoutSetting(payload).send();
   }

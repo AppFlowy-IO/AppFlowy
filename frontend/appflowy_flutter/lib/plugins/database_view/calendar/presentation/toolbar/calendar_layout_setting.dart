@@ -6,8 +6,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.da
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/protobuf.dart'
-    hide DateFormat;
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -22,7 +21,7 @@ import 'calendar_setting.dart';
 /// calendar
 class CalendarLayoutSetting extends StatefulWidget {
   final CalendarSettingContext settingContext;
-  final Function(CalendarLayoutSettingsPB? layoutSettings) onUpdated;
+  final Function(CalendarLayoutSettingPB? layoutSettings) onUpdated;
 
   const CalendarLayoutSetting({
     required this.onUpdated,
@@ -47,7 +46,7 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
   Widget build(BuildContext context) {
     return BlocBuilder<CalendarSettingBloc, CalendarSettingState>(
       builder: (context, state) {
-        final CalendarLayoutSettingsPB? settings = state.layoutSetting
+        final CalendarLayoutSettingPB? settings = state.layoutSetting
             .foldLeft(null, (previous, settings) => settings);
 
         if (settings == null) {
@@ -95,7 +94,7 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
               return LayoutDateField(
                 fieldController: widget.settingContext.fieldController,
                 viewId: widget.settingContext.viewId,
-                fieldId: settings.layoutFieldId,
+                fieldId: settings.fieldId,
                 popoverMutex: popoverMutex,
                 onUpdated: (fieldId) {
                   _updateLayoutSettings(
@@ -128,7 +127,7 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
   }
 
   List<CalendarLayoutSettingAction> _availableCalendarSettings(
-    CalendarLayoutSettingsPB layoutSettings,
+    CalendarLayoutSettingPB layoutSettings,
   ) {
     List<CalendarLayoutSettingAction> settings = [
       CalendarLayoutSettingAction.layoutField,
@@ -162,13 +161,13 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
 
   void _updateLayoutSettings(
     BuildContext context, {
-    required Function(CalendarLayoutSettingsPB? layoutSettings) onUpdated,
+    required Function(CalendarLayoutSettingPB? layoutSettings) onUpdated,
     bool? showWeekends,
     bool? showWeekNumbers,
     int? firstDayOfWeek,
     String? layoutFieldId,
   }) {
-    CalendarLayoutSettingsPB setting = context
+    CalendarLayoutSettingPB setting = context
         .read<CalendarSettingBloc>()
         .state
         .layoutSetting
@@ -185,7 +184,7 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
         setting.firstDayOfWeek = firstDayOfWeek;
       }
       if (layoutFieldId != null) {
-        setting.layoutFieldId = layoutFieldId;
+        setting.fieldId = layoutFieldId;
       }
     });
     context

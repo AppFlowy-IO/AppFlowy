@@ -1,5 +1,4 @@
-import 'package:appflowy_backend/protobuf/flowy-database/format.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/number_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/number_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
@@ -22,7 +21,7 @@ class NumberTypeOptionBloc
     );
   }
 
-  NumberTypeOptionPB _updateNumberFormat(NumberFormat format) {
+  NumberTypeOptionPB _updateNumberFormat(NumberFormatPB format) {
     state.typeOption.freeze();
     return state.typeOption.rebuild((typeOption) {
       typeOption.format = format;
@@ -32,7 +31,7 @@ class NumberTypeOptionBloc
 
 @freezed
 class NumberTypeOptionEvent with _$NumberTypeOptionEvent {
-  const factory NumberTypeOptionEvent.didSelectFormat(NumberFormat format) =
+  const factory NumberTypeOptionEvent.didSelectFormat(NumberFormatPB format) =
       _DidSelectFormat;
 }
 

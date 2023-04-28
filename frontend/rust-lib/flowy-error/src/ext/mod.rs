@@ -24,3 +24,6 @@ pub mod user;
 
 #[cfg(feature = "adaptor_server_error")]
 pub mod http_server;
+
+#[cfg(feature = "collab")]
+pub mod collab;

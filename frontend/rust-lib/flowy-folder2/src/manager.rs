@@ -1,3 +1,20 @@
+use std::collections::{HashMap, HashSet};
+use std::ops::Deref;
+use std::sync::Arc;
+
+use collab::plugin_impl::rocks_disk::RocksDiskPlugin;
+use collab::preclude::CollabBuilder;
+use collab_folder::core::{
+  Folder as InnerFolder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, TrashRecord,
+  View, ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
+};
+use collab_persistence::kv::rocks_kv::RocksCollabDB;
+use parking_lot::Mutex;
+use tracing::{event, Level};
+
+use flowy_error::{FlowyError, FlowyResult};
+use lib_infra::util::timestamp;
+
 use crate::entities::{
   CreateViewParams, CreateWorkspaceParams, RepeatedTrashPB, RepeatedViewPB, RepeatedWorkspacePB,
   UpdateViewParams, ViewPB,
@@ -10,20 +27,6 @@ use crate::user_default::{gen_workspace_id, DefaultFolderBuilder};
 use crate::view_ext::{
   gen_view_id, view_from_create_view_params, ViewDataProcessor, ViewDataProcessorMap,
 };
-use collab::plugin_impl::rocks_disk::RocksDiskPlugin;
-use collab::preclude::CollabBuilder;
-use collab_folder::core::{
-  Folder as InnerFolder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, TrashRecord,
-  View, ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
-};
-use collab_persistence::kv::rocks_kv::RocksCollabDB;
-use flowy_error::{FlowyError, FlowyResult};
-use lib_infra::util::timestamp;
-use parking_lot::Mutex;
-use std::collections::{HashMap, HashSet};
-use std::ops::Deref;
-use std::sync::Arc;
-use tracing::{event, Level};
 
 pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -85,34 +88,36 @@ impl Folder2Manager {
     Ok(views)
   }
 
-  /// Called immediately after the application launched with the user sign in/sign up.
+  /// Called immediately after the application launched fi the user already sign in/sign up.
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn initialize(&self, user_id: i64) -> FlowyResult<()> {
     if let Ok(uid) = self.user.user_id() {
       let folder_id = FolderId::new(uid);
-      let mut collab = CollabBuilder::new(uid, folder_id).build();
+
       if let Ok(kv_db) = self.user.kv_db() {
+        let mut collab = CollabBuilder::new(uid, folder_id).build();
         let disk_plugin = Arc::new(
           RocksDiskPlugin::new(uid, kv_db).map_err(|err| FlowyError::internal().context(err))?,
         );
         collab.add_plugin(disk_plugin);
         collab.initial();
-      }
 
-      let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
-      let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
-      let folder_context = FolderContext {
-        view_change_tx: Some(view_tx),
-        trash_change_tx: Some(trash_tx),
-      };
-      *self.folder.lock() = Some(InnerFolder::get_or_create(collab, folder_context));
-      listen_on_trash_change(trash_rx, self.folder.clone());
-      listen_on_view_change(view_rx, self.folder.clone());
+        let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
+        let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
+        let folder_context = FolderContext {
+          view_change_tx: Some(view_tx),
+          trash_change_tx: Some(trash_tx),
+        };
+        *self.folder.lock() = Some(InnerFolder::get_or_create(collab, folder_context));
+        listen_on_trash_change(trash_rx, self.folder.clone());
+        listen_on_view_change(view_rx, self.folder.clone());
+      }
     }
 
     Ok(())
   }
 
+  /// Called after the user sign up / sign in
   pub async fn initialize_with_new_user(&self, user_id: i64, token: &str) -> FlowyResult<()> {
     self.initialize(user_id).await?;
     let (folder_data, workspace_pb) =
@@ -131,8 +136,7 @@ impl Folder2Manager {
 
   /// Called when the current user logout
   ///
-  pub async fn clear(&self, _user_id: i64) {
-  }
+  pub async fn clear(&self, _user_id: i64) {}
 
   pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> FlowyResult<Workspace> {
     let workspace = Workspace {

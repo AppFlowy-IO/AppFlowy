@@ -1,7 +1,8 @@
 import 'dart:collection';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -42,7 +43,7 @@ class RowCache {
     return UnmodifiableListView(visibleRows);
   }
 
-  UnmodifiableMapView<String, RowInfo> get rowByRowId {
+  UnmodifiableMapView<Int64, RowInfo> get rowByRowId {
     return UnmodifiableMapView(_rowList.rowInfoByRowId);
   }
 
@@ -65,7 +66,7 @@ class RowCache {
     });
   }
 
-  RowInfo? getRow(String rowId) {
+  RowInfo? getRow(Int64 rowId) {
     return _rowList.get(rowId);
   }
 
@@ -115,7 +116,7 @@ class RowCache {
     }
   }
 
-  void _deleteRows(List<String> deletedRowIds) {
+  void _deleteRows(List<Int64> deletedRowIds) {
     for (final rowId in deletedRowIds) {
       final deletedRow = _rowList.remove(rowId);
       if (deletedRow != null) {
@@ -156,7 +157,7 @@ class RowCache {
     }
   }
 
-  void _hideRows(List<String> invisibleRows) {
+  void _hideRows(List<Int64> invisibleRows) {
     for (final rowId in invisibleRows) {
       final deletedRow = _rowList.remove(rowId);
       if (deletedRow != null) {
@@ -183,7 +184,7 @@ class RowCache {
   }
 
   RowUpdateCallback addListener({
-    required String rowId,
+    required Int64 rowId,
     void Function(CellByFieldId, RowsChangedReason)? onCellUpdated,
     bool Function()? listenWhen,
   }) {
@@ -219,7 +220,7 @@ class RowCache {
     _rowChangeReasonNotifier.removeListener(callback);
   }
 
-  CellByFieldId loadGridCells(String rowId) {
+  CellByFieldId loadGridCells(Int64 rowId) {
     final RowPB? data = _rowList.get(rowId)?.rowPB;
     if (data == null) {
       _loadRow(rowId);
@@ -227,7 +228,7 @@ class RowCache {
     return _makeGridCells(rowId, data);
   }
 
-  Future<void> _loadRow(String rowId) async {
+  Future<void> _loadRow(Int64 rowId) async {
     final payload = RowIdPB.create()
       ..viewId = viewId
       ..rowId = rowId;
@@ -239,7 +240,7 @@ class RowCache {
     );
   }
 
-  CellByFieldId _makeGridCells(String rowId, RowPB? row) {
+  CellByFieldId _makeGridCells(Int64 rowId, RowPB? row) {
     // ignore: prefer_collection_literals
     var cellDataMap = CellByFieldId();
     for (final field in _delegate.fields) {
@@ -319,7 +320,7 @@ typedef InsertedIndexs = List<InsertedIndex>;
 typedef DeletedIndexs = List<DeletedIndex>;
 // key: id of the row
 // value: UpdatedIndex
-typedef UpdatedIndexMap = LinkedHashMap<String, UpdatedIndex>;
+typedef UpdatedIndexMap = LinkedHashMap<Int64, UpdatedIndex>;
 
 @freezed
 class RowsChangedReason with _$RowsChangedReason {
@@ -337,7 +338,7 @@ class RowsChangedReason with _$RowsChangedReason {
 
 class InsertedIndex {
   final int index;
-  final String rowId;
+  final Int64 rowId;
   InsertedIndex({
     required this.index,
     required this.rowId,
@@ -355,7 +356,7 @@ class DeletedIndex {
 
 class UpdatedIndex {
   final int index;
-  final String rowId;
+  final Int64 rowId;
   UpdatedIndex({
     required this.index,
     required this.rowId,

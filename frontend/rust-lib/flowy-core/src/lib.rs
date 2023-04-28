@@ -1,15 +1,20 @@
-mod deps_resolve;
-pub mod module;
-use crate::deps_resolve::*;
+use std::time::Duration;
+use std::{
+  fmt,
+  sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+  },
+};
+
+use tokio::sync::{broadcast, RwLock};
 
 use flowy_client_ws::{listen_on_websocket, FlowyWebSocketConnect, NetworkType};
-use flowy_database::entities::DatabaseLayoutPB;
-use flowy_database::manager::DatabaseManager;
+use flowy_database2::DatabaseManager2;
 use flowy_document::entities::DocumentVersionPB;
 use flowy_document::{DocumentConfig, DocumentManager};
 use flowy_document2::manager::DocumentManager as DocumentManager2;
 use flowy_error::FlowyResult;
-use flowy_folder::errors::FlowyError;
 use flowy_folder2::manager::Folder2Manager;
 pub use flowy_net::get_client_server_configuration;
 use flowy_net::local_server::LocalServer;
@@ -22,16 +27,12 @@ use lib_dispatch::runtime::tokio_default_runtime;
 use lib_infra::future::{to_fut, Fut};
 use module::make_plugins;
 pub use module::*;
-use std::time::Duration;
-use std::{
-  fmt,
-  sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
-  },
-};
-use tokio::sync::{broadcast, RwLock};
 use user_model::UserProfile;
+
+use crate::deps_resolve::*;
+
+mod deps_resolve;
+pub mod module;
 
 static INIT_LOG: AtomicBool = AtomicBool::new(false);
 
@@ -93,11 +94,13 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   filters.push(format!("flowy_folder2={}", level));
   filters.push(format!("collab_folder={}", level));
   filters.push(format!("collab_persistence={}", level));
+  filters.push(format!("collab_database={}", level));
   filters.push(format!("collab={}", level));
   filters.push(format!("flowy_user={}", level));
   filters.push(format!("flowy_document={}", level));
   filters.push(format!("flowy_document2={}", level));
   filters.push(format!("flowy_database={}", level));
+  filters.push(format!("flowy_database2={}", level));
   filters.push(format!("flowy_sync={}", "info"));
   filters.push(format!("flowy_client_sync={}", "info"));
   filters.push(format!("flowy_notification={}", "info"));
@@ -130,7 +133,8 @@ pub struct AppFlowyCore {
   pub document_manager: Arc<DocumentManager>,
   pub document_manager2: Arc<DocumentManager2>,
   pub folder_manager: Arc<Folder2Manager>,
-  pub database_manager: Arc<DatabaseManager>,
+  // pub database_manager: Arc<DatabaseManager>,
+  pub database_manager: Arc<DatabaseManager2>,
   pub event_dispatcher: Arc<AFPluginDispatcher>,
   pub ws_conn: Arc<FlowyWebSocketConnect>,
   pub local_server: Option<Arc<LocalServer>>,
@@ -167,8 +171,7 @@ impl AppFlowyCore {
         &config.server_config,
         &config.document,
       );
-
-      let database_manager = DatabaseDepsResolver::resolve(
+      let database_manager2 = Database2DepsResolver::resolve(
         ws_conn.clone(),
         user_session.clone(),
         task_dispatcher.clone(),
@@ -176,11 +179,11 @@ impl AppFlowyCore {
       .await;
 
       let folder_manager =
-        Folder2DepsResolver::resolve(user_session.clone(), &document_manager, &database_manager)
+        Folder2DepsResolver::resolve(user_session.clone(), &document_manager, &database_manager2)
           .await;
 
       let document_manager2 =
-        Document2DepsResolver::resolve(user_session.clone(), &database_manager);
+        Document2DepsResolver::resolve(user_session.clone(), &database_manager2);
 
       if let Some(local_server) = local_server.as_ref() {
         local_server.run();
@@ -191,7 +194,7 @@ impl AppFlowyCore {
         document_manager,
         folder_manager,
         local_server,
-        database_manager,
+        database_manager2,
         document_manager2,
       )
     });
@@ -312,7 +315,7 @@ fn mk_user_session(
 struct UserStatusListener {
   document_manager: Arc<DocumentManager>,
   folder_manager: Arc<Folder2Manager>,
-  database_manager: Arc<DatabaseManager>,
+  database_manager: Arc<DatabaseManager2>,
   ws_conn: Arc<FlowyWebSocketConnect>,
   #[allow(dead_code)]
   config: AppFlowyCoreConfig,
@@ -322,27 +325,7 @@ impl UserStatusListener {
   async fn did_sign_in(&self, token: &str, user_id: i64) -> FlowyResult<()> {
     self.folder_manager.initialize(user_id).await?;
     self.document_manager.initialize(user_id).await?;
-    let cloned_folder_manager = self.folder_manager.clone();
-    let get_views_fn = to_fut(async move {
-      cloned_folder_manager
-        .get_current_workspace_views()
-        .await
-        .unwrap_or_default()
-        .into_iter()
-        .filter(|view| view.layout.is_database())
-        .map(|view| {
-          (
-            view.id,
-            view.name,
-            layout_type_from_view_layout(view.layout),
-          )
-        })
-        .collect::<Vec<(String, String, DatabaseLayoutPB)>>()
-    });
-    self
-      .database_manager
-      .initialize(user_id, token, get_views_fn)
-      .await?;
+    self.database_manager.initialize(user_id, token).await?;
     self
       .ws_conn
       .start(token.to_owned(), user_id.to_owned())

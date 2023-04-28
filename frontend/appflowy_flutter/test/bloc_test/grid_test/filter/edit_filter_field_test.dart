@@ -2,8 +2,8 @@ import 'package:appflowy/plugins/database_view/application/field/field_editor_bl
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/application/filter/filter_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/filter/filter_menu_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/text_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../util.dart';

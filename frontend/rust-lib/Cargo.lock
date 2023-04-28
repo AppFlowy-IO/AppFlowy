@@ -544,7 +544,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=fd64f5#fd64f5b9ccc40aa52eae34789133f39172259832"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=c5aba2#c5aba21c9652e76a0960ab1add329266d6e0e6e7"
 dependencies = [
  "anyhow",
  "bytes",
@@ -560,9 +560,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "collab-database"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=c5aba2#c5aba21c9652e76a0960ab1add329266d6e0e6e7"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "collab",
+ "collab-derive",
+ "collab-persistence",
+ "lazy_static",
+ "lru",
+ "nanoid",
+ "parking_lot 0.12.1",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "thiserror",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=fd64f5#fd64f5b9ccc40aa52eae34789133f39172259832"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=c5aba2#c5aba21c9652e76a0960ab1add329266d6e0e6e7"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -574,7 +596,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=fd64f5#fd64f5b9ccc40aa52eae34789133f39172259832"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=c5aba2#c5aba21c9652e76a0960ab1add329266d6e0e6e7"
 dependencies = [
  "anyhow",
  "collab",
@@ -591,7 +613,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=fd64f5#fd64f5b9ccc40aa52eae34789133f39172259832"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=c5aba2#c5aba21c9652e76a0960ab1add329266d6e0e6e7"
 dependencies = [
  "anyhow",
  "collab",
@@ -609,7 +631,7 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=fd64f5#fd64f5b9ccc40aa52eae34789133f39172259832"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=c5aba2#c5aba21c9652e76a0960ab1add329266d6e0e6e7"
 dependencies = [
  "bincode",
  "chrono",
@@ -1268,11 +1290,10 @@ dependencies = [
  "console-subscriber",
  "database-model",
  "flowy-client-ws",
- "flowy-database",
+ "flowy-database2",
  "flowy-document",
  "flowy-document2",
  "flowy-error",
- "flowy-folder",
  "flowy-folder2",
  "flowy-net",
  "flowy-revision",
@@ -1310,7 +1331,6 @@ dependencies = [
  "fancy-regex 0.10.0",
  "flowy-client-sync",
  "flowy-codegen",
- "flowy-database",
  "flowy-derive",
  "flowy-error",
  "flowy-notification",
@@ -1331,6 +1351,47 @@ dependencies = [
  "rayon",
  "regex",
  "revision-model",
+ "rust_decimal",
+ "rusty-money",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "strum",
+ "strum_macros",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "flowy-database2"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-stream",
+ "bytes",
+ "chrono",
+ "collab",
+ "collab-database",
+ "collab-persistence",
+ "dashmap",
+ "database-model",
+ "fancy-regex 0.10.0",
+ "flowy-codegen",
+ "flowy-derive",
+ "flowy-error",
+ "flowy-notification",
+ "flowy-task",
+ "flowy-test",
+ "futures",
+ "indexmap",
+ "lazy_static",
+ "lib-dispatch",
+ "lib-infra",
+ "nanoid",
+ "parking_lot 0.12.1",
+ "protobuf",
+ "rayon",
  "rust_decimal",
  "rusty-money",
  "serde",
@@ -1439,6 +1500,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bytes",
+ "collab-database",
  "flowy-client-sync",
  "flowy-client-ws",
  "flowy-codegen",
@@ -1455,45 +1517,6 @@ dependencies = [
  "serde_repr",
  "thiserror",
  "user-model",
-]
-
-[[package]]
-name = "flowy-folder"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "diesel",
- "diesel_derives",
- "flowy-client-sync",
- "flowy-codegen",
- "flowy-derive",
- "flowy-document",
- "flowy-error",
- "flowy-folder",
- "flowy-notification",
- "flowy-revision",
- "flowy-revision-persistence",
- "flowy-sqlite",
- "flowy-test",
- "folder-model",
- "futures",
- "lazy_static",
- "lib-dispatch",
- "lib-infra",
- "lib-ot",
- "log",
- "parking_lot 0.12.1",
- "pin-project",
- "protobuf",
- "revision-model",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "unicode-segmentation",
- "ws-model",
 ]
 
 [[package]]
@@ -2484,7 +2507,6 @@ dependencies = [
  "glob",
  "libc",
  "libz-sys",
- "lz4-sys",
  "zstd-sys",
 ]
 
@@ -2551,13 +2573,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "lz4-sys"
-version = "1.9.4"
+name = "lru"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57d27b317e207b10f69f5e75494119e391a96f48861ae870d1da6edac98ca900"
+checksum = "03f1160296536f10c833a82dca22267d5486734230d47bf00bf435885814ba1e"
 dependencies = [
- "cc",
- "libc",
+ "hashbrown 0.13.2",
 ]
 
 [[package]]

@@ -1,11 +1,13 @@
+use std::path::PathBuf;
+use std::{collections::HashMap, sync::Arc, time::Duration};
+
 use collab_persistence::kv::rocks_kv::RocksCollabDB;
+use lazy_static::lazy_static;
+use parking_lot::RwLock;
+
 use flowy_error::FlowyError;
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{schema::user_table, DBConnection, Database};
-use lazy_static::lazy_static;
-use parking_lot::RwLock;
-use std::path::PathBuf;
-use std::{collections::HashMap, sync::Arc, time::Duration};
 use user_model::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 
 pub struct UserDB {
@@ -65,10 +67,10 @@ impl UserDB {
 
     tracing::trace!("open kv db {} at path: {:?}", user_id, dir);
     let db = RocksCollabDB::open(dir).map_err(|err| FlowyError::internal().context(err))?;
-    let kv_db = Arc::new(db);
-    write_guard.insert(user_id.to_owned(), kv_db.clone());
+    let db = Arc::new(db);
+    write_guard.insert(user_id.to_owned(), db.clone());
     drop(write_guard);
-    Ok(kv_db)
+    Ok(db)
   }
 
   pub(crate) fn close_user_db(&self, user_id: i64) -> Result<(), FlowyError> {
@@ -133,19 +135,19 @@ impl UserTable {
   }
 }
 
-impl std::convert::From<SignUpResponse> for UserTable {
+impl From<SignUpResponse> for UserTable {
   fn from(resp: SignUpResponse) -> Self {
     UserTable::new(resp.user_id.to_string(), resp.name, resp.email, resp.token)
   }
 }
 
-impl std::convert::From<SignInResponse> for UserTable {
+impl From<SignInResponse> for UserTable {
   fn from(resp: SignInResponse) -> Self {
     UserTable::new(resp.user_id.to_string(), resp.name, resp.email, resp.token)
   }
 }
 
-impl std::convert::From<UserTable> for UserProfile {
+impl From<UserTable> for UserProfile {
   fn from(table: UserTable) -> Self {
     UserProfile {
       id: table.id.parse::<i64>().unwrap_or(0),

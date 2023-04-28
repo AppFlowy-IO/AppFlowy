@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/sort_entities.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/sort_entities.pbserver.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pbserver.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';

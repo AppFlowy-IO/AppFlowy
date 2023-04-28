@@ -1,14 +1,15 @@
 import 'dart:async';
 import 'dart:collection';
+import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/url_entities.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/cell_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/date_type_option_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/url_type_option_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/cell_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:convert' show utf8;
@@ -30,7 +31,7 @@ class CellBackendService {
       ..viewId = cellId.viewId
       ..fieldId = cellId.fieldId
       ..rowId = cellId.rowId
-      ..typeCellData = data;
+      ..cellChangeset = data;
     return DatabaseEventUpdateCell(payload).send();
   }
 
@@ -51,7 +52,7 @@ class CellBackendService {
 class CellIdentifier with _$CellIdentifier {
   const factory CellIdentifier({
     required String viewId,
-    required String rowId,
+    required Int64 rowId,
     required FieldInfo fieldInfo,
   }) = _CellIdentifier;
 

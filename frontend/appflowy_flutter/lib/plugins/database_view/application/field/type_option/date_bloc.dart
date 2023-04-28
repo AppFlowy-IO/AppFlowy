@@ -1,5 +1,4 @@
-import 'package:appflowy_backend/protobuf/flowy-database/date_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/date_type_option_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
@@ -41,8 +40,8 @@ class DateTypeOptionBloc
   }
 
   DateTypeOptionPB _updateTypeOption({
-    DateFormat? dateFormat,
-    TimeFormat? timeFormat,
+    DateFormatPB? dateFormat,
+    TimeFormatPB? timeFormat,
     bool? includeTime,
   }) {
     state.typeOption.freeze();
@@ -64,9 +63,9 @@ class DateTypeOptionBloc
 
 @freezed
 class DateTypeOptionEvent with _$DateTypeOptionEvent {
-  const factory DateTypeOptionEvent.didSelectDateFormat(DateFormat format) =
+  const factory DateTypeOptionEvent.didSelectDateFormat(DateFormatPB format) =
       _DidSelectDateFormat;
-  const factory DateTypeOptionEvent.didSelectTimeFormat(TimeFormat format) =
+  const factory DateTypeOptionEvent.didSelectTimeFormat(TimeFormatPB format) =
       _DidSelectTimeFormat;
   const factory DateTypeOptionEvent.includeTime(bool includeTime) =
       _IncludeTime;

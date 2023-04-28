@@ -1,4 +1,4 @@
-import 'package:appflowy_backend/protobuf/flowy-database/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -9,7 +9,7 @@ typedef DayOfWeek = int;
 
 class CalendarSettingBloc
     extends Bloc<CalendarSettingEvent, CalendarSettingState> {
-  CalendarSettingBloc({required CalendarLayoutSettingsPB? layoutSettings})
+  CalendarSettingBloc({required CalendarLayoutSettingPB? layoutSettings})
       : super(CalendarSettingState.initial(layoutSettings)) {
     on<CalendarSettingEvent>((event, emit) {
       event.when(
@@ -28,11 +28,11 @@ class CalendarSettingBloc
 class CalendarSettingState with _$CalendarSettingState {
   const factory CalendarSettingState({
     required Option<CalendarSettingAction> selectedAction,
-    required Option<CalendarLayoutSettingsPB> layoutSetting,
+    required Option<CalendarLayoutSettingPB> layoutSetting,
   }) = _CalendarSettingState;
 
   factory CalendarSettingState.initial(
-    CalendarLayoutSettingsPB? layoutSettings,
+    CalendarLayoutSettingPB? layoutSettings,
   ) =>
       CalendarSettingState(
         selectedAction: none(),
@@ -46,7 +46,7 @@ class CalendarSettingEvent with _$CalendarSettingEvent {
     CalendarSettingAction action,
   ) = _PerformAction;
   const factory CalendarSettingEvent.updateLayoutSetting(
-    CalendarLayoutSettingsPB setting,
+    CalendarLayoutSettingPB setting,
   ) = _UpdateLayoutSetting;
 }
 

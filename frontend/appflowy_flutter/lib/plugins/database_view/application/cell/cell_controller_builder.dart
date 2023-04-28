@@ -1,7 +1,7 @@
-import 'package:appflowy_backend/protobuf/flowy-database/date_type_option_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/url_type_option_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/url_entities.pb.dart';
 
 import 'cell_controller.dart';
 import 'cell_service.dart';

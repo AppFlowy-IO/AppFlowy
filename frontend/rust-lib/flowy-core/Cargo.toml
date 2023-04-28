@@ -10,9 +10,9 @@ lib-dispatch = { path = "../lib-dispatch" }
 lib-log = { path = "../lib-log" }
 flowy-user = { path = "../flowy-user" }
 flowy-net = { path = "../flowy-net" }
-flowy-folder = { path = "../flowy-folder" }
 flowy-folder2 = { path = "../flowy-folder2" }
-flowy-database = { path = "../flowy-database" }
+#flowy-database = { path = "../flowy-database" }
+flowy-database2 = { path = "../flowy-database2" }
 database-model = { path = "../../../shared-lib/database-model" }
 user-model = { path = "../../../shared-lib/user-model" }
 flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws" }
@@ -41,32 +41,28 @@ serde_json = "1.0"
 [features]
 default = ["rev-sqlite"]
 profiling = ["console-subscriber", "tokio/tracing"]
-http_sync = ["flowy-folder/cloud_sync", "flowy-document/cloud_sync"]
-native_sync = ["flowy-folder/cloud_sync", "flowy-document/cloud_sync"]
+http_sync = ["flowy-document/cloud_sync"]
+native_sync = ["flowy-document/cloud_sync"]
 use_bunyan = ["lib-log/use_bunyan"]
 dart = [
     "flowy-user/dart",
     "flowy-net/dart",
-#    "flowy-folder/dart",
     "flowy-folder2/dart",
-    "flowy-database/dart",
+    "flowy-database2/dart",
     "flowy-document/dart",
     "flowy-document2/dart",
 ]
 ts = [
     "flowy-user/ts",
     "flowy-net/ts",
-#    "flowy-folder/ts",
     "flowy-folder2/ts",
-    "flowy-database/ts",
+    "flowy-database2/ts",
     "flowy-document/ts",
     "flowy-document2/ts",
 ]
 rev-sqlite = [
     "flowy-sqlite",
     "flowy-user/rev-sqlite",
-    "flowy-folder/rev-sqlite",
-    "flowy-database/rev-sqlite",
     "flowy-document/rev-sqlite",
 ]
 openssl_vendored = ["flowy-sqlite/openssl_vendored"]
