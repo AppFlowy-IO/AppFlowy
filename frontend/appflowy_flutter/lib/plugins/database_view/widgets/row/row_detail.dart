@@ -3,7 +3,6 @@ import 'package:appflowy/plugins/database_view/application/field/type_option/typ
 import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -15,7 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 
-import '../../application/row/row_service.dart';
 import '../../grid/presentation/layout/sizes.dart';
 import 'accessory/cell_accessory.dart';
 import 'cell_builder.dart';
@@ -343,12 +341,12 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
 }
 
 class _RowOptionColumn extends StatelessWidget {
-  final RowBackendService _rowBackendService;
   final String rowId;
-
-  _RowOptionColumn({required String viewId, required this.rowId, Key? key})
-      : _rowBackendService = RowBackendService(viewId: viewId),
-        super(key: key);
+  const _RowOptionColumn({
+    required String viewId,
+    required this.rowId,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -361,24 +359,49 @@ class _RowOptionColumn extends StatelessWidget {
           child: FlowyText(LocaleKeys.grid_row_action.tr()),
         ),
         const VSpace(15),
-        SizedBox(
-          height: GridSize.popoverItemHeight,
-          child: FlowyButton(
-            text: FlowyText.regular(LocaleKeys.grid_field_delete.tr()),
-            leftIcon: const FlowySvg(name: "home/trash"),
-            onTap: () async {
-              final result = await _rowBackendService.deleteRow(rowId);
-              result.fold(
-                (l) => null,
-                (err) => Log.error(err),
-              );
-              if (context.mounted) {
-                FlowyOverlay.pop(context);
-              }
-            },
-          ),
-        ),
+        _DeleteButton(rowId: rowId),
+        _DuplicateButton(rowId: rowId),
       ],
+    );
+  }
+}
+
+class _DeleteButton extends StatelessWidget {
+  final String rowId;
+  const _DeleteButton({required this.rowId, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: GridSize.popoverItemHeight,
+      child: FlowyButton(
+        text: FlowyText.regular(LocaleKeys.grid_row_delete.tr()),
+        leftIcon: const FlowySvg(name: "home/trash"),
+        onTap: () {
+          context.read<RowDetailBloc>().add(RowDetailEvent.deleteRow(rowId));
+          FlowyOverlay.pop(context);
+        },
+      ),
+    );
+  }
+}
+
+class _DuplicateButton extends StatelessWidget {
+  final String rowId;
+  const _DuplicateButton({required this.rowId, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: GridSize.popoverItemHeight,
+      child: FlowyButton(
+        text: FlowyText.regular(LocaleKeys.grid_row_duplicate.tr()),
+        leftIcon: const FlowySvg(name: "grid/duplicate"),
+        onTap: () {
+          context.read<RowDetailBloc>().add(RowDetailEvent.duplicateRow(rowId));
+          FlowyOverlay.pop(context);
+        },
+      ),
     );
   }
 }

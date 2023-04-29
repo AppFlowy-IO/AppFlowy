@@ -520,7 +520,30 @@ impl DatabaseEditor {
     self.database_views.subscribe_view_changed(view_id).await
   }
 
-  pub async fn duplicate_row(&self, _row_id: &str) -> FlowyResult<()> {
+  pub async fn duplicate_row(&self, view_id: &str, row_id: &str) -> FlowyResult<()> {
+    if let Some(row) = self.get_row_rev(row_id).await? {
+      let params = CreateRowParams {
+        view_id: view_id.to_string(),
+        start_row_id: Some(row.id.clone()),
+        group_id: None,
+        cell_data_by_field_id: Some(
+          row
+            .cells
+            .iter()
+            .map(|(field_id, cell)| {
+              (
+                field_id.clone(),
+                TypeCellData::try_from(cell)
+                  .map(|value| value.cell_str)
+                  .unwrap_or_default(),
+              )
+            })
+            .collect::<HashMap<String, String>>(),
+        ),
+      };
+
+      self.create_row(params).await?;
+    }
     Ok(())
   }
 
