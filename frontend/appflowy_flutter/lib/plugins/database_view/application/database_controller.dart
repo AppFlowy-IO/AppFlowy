@@ -342,10 +342,9 @@ class RowDataBuilder {
     _cellDataByFieldId[fieldInfo.field.id] = num.toString();
   }
 
-  /// The date should use the UTC timezone. Becuase the backend uses UTC timezone to format the time string.
   void insertDate(FieldInfo fieldInfo, DateTime date) {
     assert(fieldInfo.fieldType == FieldType.DateTime);
-    final timestamp = (date.toUtc().millisecondsSinceEpoch ~/ 1000);
+    final timestamp = date.millisecondsSinceEpoch ~/ 1000;
     _cellDataByFieldId[fieldInfo.field.id] = timestamp.toString();
   }
 

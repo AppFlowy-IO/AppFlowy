@@ -54,9 +54,9 @@ class DateTypeOptionBloc
         typeOption.timeFormat = timeFormat;
       }
 
-      if (includeTime != null) {
-        typeOption.includeTime = includeTime;
-      }
+      // if (includeTime != null) {
+      //   typeOption.includeTime = includeTime;
+      // }
     });
   }
 }

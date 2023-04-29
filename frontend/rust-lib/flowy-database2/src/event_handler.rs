@@ -467,6 +467,7 @@ pub(crate) async fn update_date_cell_handler(
     date: data.date,
     time: data.time,
     include_time: data.include_time,
+    timezone_id: data.timezone_id,
   };
   let database_editor = manager.get_database(&cell_id.view_id).await?;
   database_editor

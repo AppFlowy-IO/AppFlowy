@@ -231,6 +231,7 @@ pub fn insert_date_cell(timestamp: i64, field: &Field) -> Cell {
     date: Some(timestamp.to_string()),
     time: None,
     include_time: Some(false),
+    timezone_id: None,
   })
   .unwrap();
   apply_cell_data_changeset(cell_data, None, field, None)

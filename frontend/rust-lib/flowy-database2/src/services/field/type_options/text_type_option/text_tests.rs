@@ -27,6 +27,7 @@ mod tests {
     let data = DateCellData {
       timestamp: Some(1647251762),
       include_time: true,
+      timezone_id: "".to_owned(),
     };
 
     assert_eq!(

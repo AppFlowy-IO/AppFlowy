@@ -258,6 +258,7 @@ impl TestRowBuilder {
       date: Some(data.to_string()),
       time: None,
       include_time: Some(false),
+      timezone_id: None,
     })
     .unwrap();
     let date_field = self.field_with_type(&FieldType::DateTime);
