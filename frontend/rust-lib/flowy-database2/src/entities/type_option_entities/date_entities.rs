@@ -35,9 +35,6 @@ pub struct DateChangesetPB {
 
   #[pb(index = 4, one_of)]
   pub include_time: Option<bool>,
-
-  #[pb(index = 5)]
-  pub is_utc: bool,
 }
 
 // Date
@@ -48,9 +45,6 @@ pub struct DateTypeOptionPB {
 
   #[pb(index = 2)]
   pub time_format: TimeFormatPB,
-
-  #[pb(index = 3)]
-  pub include_time: bool,
 }
 
 impl From<DateTypeOption> for DateTypeOptionPB {
@@ -58,7 +52,6 @@ impl From<DateTypeOption> for DateTypeOptionPB {
     Self {
       date_format: data.date_format.into(),
       time_format: data.time_format.into(),
-      include_time: data.include_time,
     }
   }
 }
@@ -68,7 +61,6 @@ impl From<DateTypeOptionPB> for DateTypeOption {
     Self {
       date_format: data.date_format.into(),
       time_format: data.time_format.into(),
-      include_time: data.include_time,
     }
   }
 }

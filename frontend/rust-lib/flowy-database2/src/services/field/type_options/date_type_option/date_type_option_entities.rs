@@ -22,7 +22,6 @@ pub struct DateCellChangeset {
   pub date: Option<String>,
   pub time: Option<String>,
   pub include_time: Option<bool>,
-  pub is_utc: bool,
 }
 
 impl DateCellChangeset {

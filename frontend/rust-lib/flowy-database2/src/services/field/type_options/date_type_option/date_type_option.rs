@@ -18,7 +18,6 @@ use std::cmp::Ordering;
 pub struct DateTypeOption {
   pub date_format: DateFormat,
   pub time_format: TimeFormat,
-  pub include_time: bool,
 }
 
 impl TypeOption for DateTypeOption {
@@ -30,7 +29,6 @@ impl TypeOption for DateTypeOption {
 
 impl From<TypeOptionData> for DateTypeOption {
   fn from(data: TypeOptionData) -> Self {
-    let include_time = data.get_bool_value("include_time").unwrap_or(false);
     let date_format = data
       .get_i64_value("data_format")
       .map(DateFormat::from)
@@ -42,7 +40,6 @@ impl From<TypeOptionData> for DateTypeOption {
     Self {
       date_format,
       time_format,
-      include_time,
     }
   }
 }
@@ -52,7 +49,6 @@ impl From<DateTypeOption> for TypeOptionData {
     TypeOptionDataBuilder::new()
       .insert_i64_value("data_format", data.date_format.value())
       .insert_i64_value("time_format", data.time_format.value())
-      .insert_bool_value("include_time", data.include_time)
       .build()
   }
 }
