@@ -55,36 +55,63 @@ class _RowDetailPageState extends State<RowDetailPage> {
         },
         child: ListView(
           children: [
-            // const SizedBox(height: 100),
-            // const Divider(height: 1.0),
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    flex: 4,
-                    child: _PropertyColumn(
-                      cellBuilder: widget.cellBuilder,
-                      viewId: widget.dataController.viewId,
-                    ),
-                  ),
-                  const VerticalDivider(width: 1.0),
-                  Flexible(
-                    child: _RowOptionColumn(
-                      viewId: widget.dataController.viewId,
-                      rowId: widget.dataController.rowId,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1.0),
-            const SizedBox(height: 200)
+            // using ListView here for future expansion:
+            // - header and cover image
+            // - lower rich text area
+            IntrinsicHeight(child: _responsiveRowInfo()),
+            const Divider(height: 1.0)
           ],
         ),
       ),
     );
+  }
+
+  Widget _responsiveRowInfo() {
+    final rowDataColumn = _PropertyColumn(
+      cellBuilder: widget.cellBuilder,
+      viewId: widget.dataController.viewId,
+    );
+    final rowOptionColumn = _RowOptionColumn(
+      viewId: widget.dataController.viewId,
+      rowId: widget.dataController.rowId,
+    );
+    if (MediaQuery.of(context).size.width > 800) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Flexible(
+            flex: 4,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(50, 50, 20, 20),
+              child: rowDataColumn,
+            ),
+          ),
+          const VerticalDivider(width: 1.0),
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+              child: rowOptionColumn,
+            ),
+          ),
+        ],
+      );
+    } else {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+            child: rowDataColumn,
+          ),
+          const Divider(height: 1.0),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: rowOptionColumn,
+          )
+        ],
+      );
+    }
   }
 }
 
@@ -102,27 +129,24 @@ class _PropertyColumn extends StatelessWidget {
     return BlocBuilder<RowDetailBloc, RowDetailState>(
       buildWhen: (previous, current) => previous.gridCells != current.gridCells,
       builder: (context, state) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(50, 50, 50, 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ...state.gridCells
-                  .map(
-                    (cell) => Padding(
-                      padding: const EdgeInsets.only(bottom: 4.0),
-                      child: _PropertyCell(
-                        cellId: cell,
-                        cellBuilder: cellBuilder,
-                      ),
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ...state.gridCells
+                .map(
+                  (cell) => Padding(
+                    padding: const EdgeInsets.only(bottom: 4.0),
+                    child: _PropertyCell(
+                      cellId: cell,
+                      cellBuilder: cellBuilder,
                     ),
-                  )
-                  .toList(),
-              const VSpace(20),
-              _CreatePropertyButton(viewId: viewId),
-            ],
-          ),
+                  ),
+                )
+                .toList(),
+            const VSpace(20),
+            _CreatePropertyButton(viewId: viewId),
+          ],
         );
       },
     );
@@ -328,36 +352,33 @@ class _RowOptionColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 10),
-            child: FlowyText(LocaleKeys.grid_row_action.tr()),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 10),
+          child: FlowyText(LocaleKeys.grid_row_action.tr()),
+        ),
+        const VSpace(15),
+        SizedBox(
+          height: GridSize.popoverItemHeight,
+          child: FlowyButton(
+            text: FlowyText.regular(LocaleKeys.grid_field_delete.tr()),
+            leftIcon: const FlowySvg(name: "home/trash"),
+            onTap: () async {
+              final result = await _rowBackendService.deleteRow(rowId);
+              result.fold(
+                (l) => null,
+                (err) => Log.error(err),
+              );
+              if (context.mounted) {
+                FlowyOverlay.pop(context);
+              }
+            },
           ),
-          const VSpace(15),
-          SizedBox(
-            height: GridSize.popoverItemHeight,
-            child: FlowyButton(
-              text: FlowyText.regular(LocaleKeys.grid_field_delete.tr()),
-              leftIcon: const FlowySvg(name: "home/trash"),
-              onTap: () async {
-                final result = await _rowBackendService.deleteRow(rowId);
-                result.fold(
-                  (l) => null,
-                  (err) => Log.error(err),
-                );
-                if (context.mounted) {
-                  FlowyOverlay.pop(context);
-                }
-              },
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
