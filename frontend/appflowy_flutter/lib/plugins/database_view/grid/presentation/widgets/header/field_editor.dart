@@ -147,8 +147,6 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
     widget.popoverMutex.listenOnPopoverChanged(() {
       if (focusNode.hasFocus) {
         focusNode.unfocus();
-      } else {
-        focusNode.requestFocus();
       }
     });
 

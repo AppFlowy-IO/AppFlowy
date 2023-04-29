@@ -49,7 +49,7 @@ class CalendarDayCard extends StatelessWidget {
 
     return ChangeNotifierProvider(
       create: (_) => _CardEnterNotifier(),
-      builder: ((context, child) {
+      builder: (context, child) {
         final children = events.map((event) {
           return _DayEventCell(
             event: event,
@@ -66,7 +66,7 @@ class CalendarDayCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: _Header(
                 date: date,
                 isInMonth: isInMonth,
@@ -101,7 +101,7 @@ class CalendarDayCard extends StatelessWidget {
             ),
           ),
         );
-      }),
+      },
     );
   }
 
@@ -215,10 +215,8 @@ class _NewEventButton extends StatelessWidget {
     return FlowyIconButton(
       onPressed: onClick,
       iconPadding: EdgeInsets.zero,
-      icon: svgWidget(
-        "home/add",
-        color: Theme.of(context).iconTheme.color,
-      ),
+      icon: const FlowySvg(name: "home/add"),
+      hoverColor: AFThemeExtension.of(context).lightGreyHover,
       width: 22,
     );
   }
@@ -237,7 +235,7 @@ class _DayBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color dayTextColor = Theme.of(context).colorScheme.onSurface;
+    Color dayTextColor = Theme.of(context).colorScheme.onBackground;
     String dayString = date.day == 1
         ? DateFormat('MMM d', context.locale.toLanguageTag()).format(date)
         : date.day.toString();
@@ -249,7 +247,7 @@ class _DayBadge extends StatelessWidget {
       dayTextColor = Theme.of(context).disabledColor;
     }
 
-    Widget day = Container(
+    return Container(
       decoration: BoxDecoration(
         color: isToday ? Theme.of(context).colorScheme.primary : null,
         borderRadius: Corners.s6Border,
@@ -260,8 +258,6 @@ class _DayBadge extends StatelessWidget {
         color: dayTextColor,
       ),
     );
-
-    return day;
   }
 }
 

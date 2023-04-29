@@ -9,6 +9,9 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../application/row/row_data_controller.dart';
+import '../../widgets/row/cell_builder.dart';
+import '../../widgets/row/row_detail.dart';
 import 'calendar_day.dart';
 import 'layout/sizes.dart';
 import 'toolbar/calendar_toolbar.dart';
@@ -88,6 +91,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 if (state.newEvent != null) {
                   _eventController.add(state.newEvent!);
                 }
+                _showRowDetailPage(state.newEvent!.event!, context);
               },
             ),
           ],
@@ -137,7 +141,7 @@ class _CalendarPageState extends State<CalendarPage> {
         FlowyIconButton(
           width: CalendarSize.navigatorButtonWidth,
           height: CalendarSize.navigatorButtonHeight,
-          icon: svgWidget('home/arrow_left'),
+          icon: const FlowySvg(name: 'home/arrow_left'),
           tooltipText: LocaleKeys.calendar_navigation_previousMonth.tr(),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onPressed: () => _calendarState?.currentState?.previousPage(),
@@ -155,7 +159,7 @@ class _CalendarPageState extends State<CalendarPage> {
         FlowyIconButton(
           width: CalendarSize.navigatorButtonWidth,
           height: CalendarSize.navigatorButtonHeight,
-          icon: svgWidget('home/arrow_right'),
+          icon: const FlowySvg(name: 'home/arrow_right'),
           tooltipText: LocaleKeys.calendar_navigation_nextMonth.tr(),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onPressed: () => _calendarState?.currentState?.nextPage(),
@@ -207,5 +211,25 @@ class _CalendarPageState extends State<CalendarPage> {
   WeekDays _weekdayFromInt(int dayOfWeek) {
     // MonthView places the first day of week on the second column for some reason.
     return WeekDays.values[(dayOfWeek + 1) % 7];
+  }
+
+  void _showRowDetailPage(CalendarDayEvent event, BuildContext context) {
+    final dataController = RowController(
+      rowId: event.cellId.rowId,
+      viewId: widget.view.id,
+      rowCache: _calendarBloc.rowCache,
+    );
+
+    FlowyOverlay.show(
+      context: context,
+      builder: (BuildContext context) {
+        return RowDetailPage(
+          cellBuilder: GridCellBuilder(
+            cellCache: _calendarBloc.rowCache.cellCache,
+          ),
+          dataController: dataController,
+        );
+      },
+    );
   }
 }

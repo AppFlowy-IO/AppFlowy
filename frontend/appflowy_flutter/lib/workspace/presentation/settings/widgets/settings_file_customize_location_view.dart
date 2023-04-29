@@ -74,7 +74,11 @@ class SettingsFileLocationCustomzierState
                 Tooltip(
                   message: LocaleKeys.settings_files_restoreLocation.tr(),
                   child: FlowyIconButton(
+                    height: 40,
+                    width: 40,
                     icon: const Icon(Icons.restore_outlined),
+                    hoverColor:
+                        Theme.of(context).colorScheme.secondaryContainer,
                     onPressed: () async {
                       final result = await appFlowyDocumentDirectory();
                       await _setCustomLocation(result.path);
@@ -96,7 +100,11 @@ class SettingsFileLocationCustomzierState
                 Tooltip(
                   message: LocaleKeys.settings_files_customizeLocation.tr(),
                   child: FlowyIconButton(
+                    height: 40,
+                    width: 40,
                     icon: const Icon(Icons.folder_open_outlined),
+                    hoverColor:
+                        Theme.of(context).colorScheme.secondaryContainer,
                     onPressed: () async {
                       final result =
                           await getIt<FilePickerService>().getDirectoryPath();
