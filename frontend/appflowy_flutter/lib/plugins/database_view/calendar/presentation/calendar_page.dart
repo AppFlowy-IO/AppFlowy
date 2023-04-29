@@ -137,7 +137,7 @@ class _CalendarPageState extends State<CalendarPage> {
         FlowyIconButton(
           width: CalendarSize.navigatorButtonWidth,
           height: CalendarSize.navigatorButtonHeight,
-          icon: svgWidget('home/arrow_left'),
+          icon: const FlowySvg(name: 'home/arrow_left'),
           tooltipText: LocaleKeys.calendar_navigation_previousMonth.tr(),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onPressed: () => _calendarState?.currentState?.previousPage(),
@@ -155,7 +155,7 @@ class _CalendarPageState extends State<CalendarPage> {
         FlowyIconButton(
           width: CalendarSize.navigatorButtonWidth,
           height: CalendarSize.navigatorButtonHeight,
-          icon: svgWidget('home/arrow_right'),
+          icon: const FlowySvg(name: 'home/arrow_right'),
           tooltipText: LocaleKeys.calendar_navigation_nextMonth.tr(),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onPressed: () => _calendarState?.currentState?.nextPage(),
