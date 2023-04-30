@@ -283,7 +283,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
           return 3.0;
         }),
         crossAxisMargin: 0.0,
-        mainAxisMargin: 0.0,
+        mainAxisMargin: 6.0,
         radius: Corners.s10Radius,
       ),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,

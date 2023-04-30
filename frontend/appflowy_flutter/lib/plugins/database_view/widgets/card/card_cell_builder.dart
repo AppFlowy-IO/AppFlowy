@@ -22,7 +22,7 @@ class CardCellBuilder<CustomCardData> {
     CustomCardData? cardData,
     required CellIdentifier cellId,
     EditableCardNotifier? cellNotifier,
-    CardConfiguration<CustomCardData>? cardConfiguration,
+    RowCardRenderHook<CustomCardData>? renderHook,
     Map<FieldType, CardCellStyle>? styles,
   }) {
     final cellControllerBuilder = CellControllerBuilder(
@@ -39,20 +39,21 @@ class CardCellBuilder<CustomCardData> {
           key: key,
         );
       case FieldType.DateTime:
-        return DateCardCell(
+        return DateCardCell<CustomCardData>(
+          renderHook: renderHook?.renderHook[FieldType.DateTime],
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.SingleSelect:
         return SelectOptionCardCell<CustomCardData>(
-          renderHook: cardConfiguration?.renderHook[FieldType.SingleSelect],
+          renderHook: renderHook?.renderHook[FieldType.SingleSelect],
           cellControllerBuilder: cellControllerBuilder,
           cardData: cardData,
           key: key,
         );
       case FieldType.MultiSelect:
         return SelectOptionCardCell<CustomCardData>(
-          renderHook: cardConfiguration?.renderHook[FieldType.MultiSelect],
+          renderHook: renderHook?.renderHook[FieldType.MultiSelect],
           cellControllerBuilder: cellControllerBuilder,
           cardData: cardData,
           editableNotifier: cellNotifier,
@@ -69,9 +70,11 @@ class CardCellBuilder<CustomCardData> {
           key: key,
         );
       case FieldType.RichText:
-        return TextCardCell(
+        return TextCardCell<CustomCardData>(
+          renderHook: renderHook?.renderHook[FieldType.RichText],
           cellControllerBuilder: cellControllerBuilder,
           editableNotifier: cellNotifier,
+          cardData: cardData,
           style: isStyleOrNull<TextCardCellStyle>(style),
           key: key,
         );

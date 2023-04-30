@@ -86,12 +86,19 @@ class _CalendarPageState extends State<CalendarPage> {
               },
             ),
             BlocListener<CalendarBloc, CalendarState>(
+              listenWhen: (p, c) => p.createdEvent != c.createdEvent,
+              listener: (context, state) {
+                if (state.createdEvent != null) {
+                  _showRowDetailPage(state.createdEvent!.event!, context);
+                }
+              },
+            ),
+            BlocListener<CalendarBloc, CalendarState>(
               listenWhen: (p, c) => p.newEvent != c.newEvent,
               listener: (context, state) {
                 if (state.newEvent != null) {
                   _eventController.add(state.newEvent!);
                 }
-                _showRowDetailPage(state.newEvent!.event!, context);
               },
             ),
           ],
@@ -120,7 +127,7 @@ class _CalendarPageState extends State<CalendarPage> {
       child: MonthView(
         key: _calendarState,
         controller: _eventController,
-        cellAspectRatio: .9,
+        cellAspectRatio: .6,
         startDay: _weekdayFromInt(firstDayOfWeek),
         borderColor: Theme.of(context).dividerColor,
         headerBuilder: _headerNavigatorBuilder,

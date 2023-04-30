@@ -43,83 +43,84 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
 }
 
 class _RowDetailPageState extends State<RowDetailPage> {
-  final padding = const EdgeInsets.symmetric(
-    horizontal: 40,
-    vertical: 20,
-  );
-
   @override
   Widget build(BuildContext context) {
     return FlowyDialog(
       child: BlocProvider(
         create: (context) {
-          final bloc = RowDetailBloc(
-            dataController: widget.dataController,
-          );
-          bloc.add(const RowDetailEvent.initial());
-          return bloc;
+          return RowDetailBloc(dataController: widget.dataController)
+            ..add(const RowDetailEvent.initial());
         },
-        child: Padding(
-          padding: padding,
-          child: Column(
-            children: [
-              const _Header(),
-              Expanded(
-                child: _PropertyColumn(
-                  cellBuilder: widget.cellBuilder,
-                  viewId: widget.dataController.viewId,
-                ),
-              ),
-            ],
-          ),
+        child: ListView(
+          children: [
+            // using ListView here for future expansion:
+            // - header and cover image
+            // - lower rich text area
+            IntrinsicHeight(child: _responsiveRowInfo()),
+            const Divider(height: 1.0)
+          ],
         ),
       ),
     );
   }
-}
 
-class _Header extends StatelessWidget {
-  const _Header({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 30,
-      child: Row(
-        children: const [Spacer(), _CloseButton()],
-      ),
+  Widget _responsiveRowInfo() {
+    final rowDataColumn = _PropertyColumn(
+      cellBuilder: widget.cellBuilder,
+      viewId: widget.dataController.viewId,
     );
-  }
-}
-
-class _CloseButton extends StatelessWidget {
-  const _CloseButton({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return FlowyIconButton(
-      hoverColor: AFThemeExtension.of(context).lightGreyHover,
-      width: 24,
-      onPressed: () => FlowyOverlay.pop(context),
-      iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
-      icon: svgWidget(
-        "home/close",
-        color: Theme.of(context).iconTheme.color,
-      ),
+    final rowOptionColumn = _RowOptionColumn(
+      viewId: widget.dataController.viewId,
+      rowId: widget.dataController.rowId,
     );
+    if (MediaQuery.of(context).size.width > 800) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Flexible(
+            flex: 4,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(50, 50, 20, 20),
+              child: rowDataColumn,
+            ),
+          ),
+          const VerticalDivider(width: 1.0),
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+              child: rowOptionColumn,
+            ),
+          ),
+        ],
+      );
+    } else {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+            child: rowDataColumn,
+          ),
+          const Divider(height: 1.0),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: rowOptionColumn,
+          )
+        ],
+      );
+    }
   }
 }
 
 class _PropertyColumn extends StatelessWidget {
   final String viewId;
   final GridCellBuilder cellBuilder;
-  final ScrollController _scrollController;
-  _PropertyColumn({
+  const _PropertyColumn({
     required this.viewId,
     required this.cellBuilder,
     Key? key,
-  })  : _scrollController = ScrollController(),
-        super(key: key);
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -127,63 +128,34 @@ class _PropertyColumn extends StatelessWidget {
       buildWhen: (previous, current) => previous.gridCells != current.gridCells,
       builder: (context, state) {
         return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: _wrapScrollbar(buildPropertyCells(state))),
-            const VSpace(10),
-            _CreatePropertyButton(
-              viewId: viewId,
-              onClosed: _scrollToNewProperty,
-            ),
+            ...state.gridCells
+                .map(
+                  (cell) => Padding(
+                    padding: const EdgeInsets.only(bottom: 4.0),
+                    child: _PropertyCell(
+                      cellId: cell,
+                      cellBuilder: cellBuilder,
+                    ),
+                  ),
+                )
+                .toList(),
+            const VSpace(20),
+            _CreatePropertyButton(viewId: viewId),
           ],
         );
       },
     );
   }
-
-  Widget buildPropertyCells(RowDetailState state) {
-    return ListView.separated(
-      controller: _scrollController,
-      itemCount: state.gridCells.length,
-      itemBuilder: (BuildContext context, int index) {
-        return _PropertyCell(
-          cellId: state.gridCells[index],
-          cellBuilder: cellBuilder,
-        );
-      },
-      separatorBuilder: (BuildContext context, int index) {
-        return const VSpace(2);
-      },
-    );
-  }
-
-  Widget _wrapScrollbar(Widget child) {
-    return ScrollbarListStack(
-      axis: Axis.vertical,
-      controller: _scrollController,
-      barSize: GridSize.scrollBarSize,
-      autoHideScrollbar: false,
-      child: child,
-    );
-  }
-
-  void _scrollToNewProperty() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.ease,
-      );
-    });
-  }
 }
 
 class _CreatePropertyButton extends StatefulWidget {
   final String viewId;
-  final VoidCallback onClosed;
 
   const _CreatePropertyButton({
     required this.viewId,
-    required this.onClosed,
     Key? key,
   }) : super(key: key);
 
@@ -207,10 +179,8 @@ class _CreatePropertyButtonState extends State<_CreatePropertyButton> {
       controller: popoverController,
       direction: PopoverDirection.topWithLeftAligned,
       margin: EdgeInsets.zero,
-      onClose: widget.onClosed,
-      child: Container(
+      child: SizedBox(
         height: 40,
-        decoration: _makeBoxDecoration(context),
         child: FlowyButton(
           text: FlowyText.medium(
             LocaleKeys.grid_field_newProperty.tr(),
@@ -242,14 +212,6 @@ class _CreatePropertyButtonState extends State<_CreatePropertyButton> {
           },
         );
       },
-    );
-  }
-
-  BoxDecoration _makeBoxDecoration(BuildContext context) {
-    final borderSide =
-        BorderSide(color: Theme.of(context).dividerColor, width: 1.0);
-    return BoxDecoration(
-      border: Border(top: borderSide),
     );
   }
 }
@@ -376,4 +338,70 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
       );
   }
   throw UnimplementedError;
+}
+
+class _RowOptionColumn extends StatelessWidget {
+  final String rowId;
+  const _RowOptionColumn({
+    required String viewId,
+    required this.rowId,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 10),
+          child: FlowyText(LocaleKeys.grid_row_action.tr()),
+        ),
+        const VSpace(15),
+        _DeleteButton(rowId: rowId),
+        _DuplicateButton(rowId: rowId),
+      ],
+    );
+  }
+}
+
+class _DeleteButton extends StatelessWidget {
+  final String rowId;
+  const _DeleteButton({required this.rowId, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: GridSize.popoverItemHeight,
+      child: FlowyButton(
+        text: FlowyText.regular(LocaleKeys.grid_row_delete.tr()),
+        leftIcon: const FlowySvg(name: "home/trash"),
+        onTap: () {
+          context.read<RowDetailBloc>().add(RowDetailEvent.deleteRow(rowId));
+          FlowyOverlay.pop(context);
+        },
+      ),
+    );
+  }
+}
+
+class _DuplicateButton extends StatelessWidget {
+  final String rowId;
+  const _DuplicateButton({required this.rowId, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: GridSize.popoverItemHeight,
+      child: FlowyButton(
+        text: FlowyText.regular(LocaleKeys.grid_row_duplicate.tr()),
+        leftIcon: const FlowySvg(name: "grid/duplicate"),
+        onTap: () {
+          context.read<RowDetailBloc>().add(RowDetailEvent.duplicateRow(rowId));
+          FlowyOverlay.pop(context);
+        },
+      ),
+    );
+  }
 }
