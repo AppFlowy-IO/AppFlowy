@@ -30,9 +30,9 @@ export const EditFieldPopup = ({
   viewId: string;
   onOutsideClick: () => void;
   fieldInfo: FieldInfo | undefined;
-  fieldController: FieldController;
+  fieldController?: FieldController;
   changeFieldTypeClick: (buttonTop: number, buttonRight: number) => void;
-  onNumberFormat: (buttonLeft: number, buttonTop: number) => void;
+  onNumberFormat?: (buttonLeft: number, buttonTop: number) => void;
 }) => {
   const databaseStore = useAppSelector((state) => state.database);
   const { t } = useTranslation('');
@@ -75,7 +75,7 @@ export const EditFieldPopup = ({
     }
 
     const { right: _left, top: _top } = target.getBoundingClientRect();
-    onNumberFormat(_left, _top);
+    onNumberFormat?.(_left, _top);
   };
 
   return (
@@ -149,7 +149,7 @@ export const EditFieldPopup = ({
           </>
         )}
 
-        {cellIdentifier.fieldType === FieldType.DateTime && (
+        {cellIdentifier.fieldType === FieldType.DateTime && fieldController && (
           <DateTypeOptions cellIdentifier={cellIdentifier} fieldController={fieldController}></DateTypeOptions>
         )}
       </div>

@@ -1,6 +1,6 @@
 import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
 import { Some } from 'ts-results';
-import { DateFormat, DateTypeOptionPB, FieldType, TimeFormat } from '@/services/backend';
+import { DateFormatPB, DateTypeOptionPB, FieldType, TimeFormatPB } from '@/services/backend';
 import { makeDateTypeOptionContext } from '$app/stores/effects/database/field/type_option/type_option_context';
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { FieldController } from '$app/stores/effects/database/field/field_controller';
@@ -17,10 +17,10 @@ export const useDateTimeFormat = (cellIdentifier: CellIdentifier, fieldControlle
     await dateTypeOptionContext.setTypeOption(typeOption);
   };
 
-  const changeDateFormat = async (format: DateFormat) => {
+  const changeDateFormat = async (format: DateFormatPB) => {
     await changeFormat((option) => (option.date_format = format));
   };
-  const changeTimeFormat = async (format: TimeFormat) => {
+  const changeTimeFormat = async (format: TimeFormatPB) => {
     await changeFormat((option) => (option.time_format = format));
   };
   const includeTime = async (include: boolean) => {

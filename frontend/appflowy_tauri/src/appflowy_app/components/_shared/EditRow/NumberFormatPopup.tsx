@@ -2,49 +2,49 @@ import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { FieldController } from '$app/stores/effects/database/field/field_controller';
 import { PopupWindow } from '$app/components/_shared/PopupWindow';
 import { useNumberFormat } from '$app/components/_shared/EditRow/NumberFormat.hooks';
-import { NumberFormat } from '@/services/backend';
+import { NumberFormatPB } from '@/services/backend';
 import { CheckmarkSvg } from '$app/components/_shared/svg/CheckmarkSvg';
 import { useAppSelector } from '$app/stores/store';
 import { useEffect, useState } from 'react';
 import { INumberType } from '$app/stores/reducers/database/slice';
 
 const list = [
-  { format: NumberFormat.Num, title: 'Num' },
-  { format: NumberFormat.USD, title: 'USD' },
-  { format: NumberFormat.CanadianDollar, title: 'CanadianDollar' },
-  { format: NumberFormat.EUR, title: 'EUR' },
-  { format: NumberFormat.Pound, title: 'Pound' },
-  { format: NumberFormat.Yen, title: 'Yen' },
-  { format: NumberFormat.Ruble, title: 'Ruble' },
-  { format: NumberFormat.Rupee, title: 'Rupee' },
-  { format: NumberFormat.Won, title: 'Won' },
-  { format: NumberFormat.Yuan, title: 'Yuan' },
-  { format: NumberFormat.Real, title: 'Real' },
-  { format: NumberFormat.Lira, title: 'Lira' },
-  { format: NumberFormat.Rupiah, title: 'Rupiah' },
-  { format: NumberFormat.Franc, title: 'Franc' },
-  { format: NumberFormat.HongKongDollar, title: 'HongKongDollar' },
-  { format: NumberFormat.NewZealandDollar, title: 'NewZealandDollar' },
-  { format: NumberFormat.Krona, title: 'Krona' },
-  { format: NumberFormat.NorwegianKrone, title: 'NorwegianKrone' },
-  { format: NumberFormat.MexicanPeso, title: 'MexicanPeso' },
-  { format: NumberFormat.Rand, title: 'Rand' },
-  { format: NumberFormat.NewTaiwanDollar, title: 'NewTaiwanDollar' },
-  { format: NumberFormat.DanishKrone, title: 'DanishKrone' },
-  { format: NumberFormat.Baht, title: 'Baht' },
-  { format: NumberFormat.Forint, title: 'Forint' },
-  { format: NumberFormat.Koruna, title: 'Koruna' },
-  { format: NumberFormat.Shekel, title: 'Shekel' },
-  { format: NumberFormat.ChileanPeso, title: 'ChileanPeso' },
-  { format: NumberFormat.PhilippinePeso, title: 'PhilippinePeso' },
-  { format: NumberFormat.Dirham, title: 'Dirham' },
-  { format: NumberFormat.ColombianPeso, title: 'ColombianPeso' },
-  { format: NumberFormat.Riyal, title: 'Riyal' },
-  { format: NumberFormat.Ringgit, title: 'Ringgit' },
-  { format: NumberFormat.Leu, title: 'Leu' },
-  { format: NumberFormat.ArgentinePeso, title: 'ArgentinePeso' },
-  { format: NumberFormat.UruguayanPeso, title: 'UruguayanPeso' },
-  { format: NumberFormat.Percent, title: 'Percent' },
+  { format: NumberFormatPB.Num, title: 'Num' },
+  { format: NumberFormatPB.USD, title: 'USD' },
+  { format: NumberFormatPB.CanadianDollar, title: 'CanadianDollar' },
+  { format: NumberFormatPB.EUR, title: 'EUR' },
+  { format: NumberFormatPB.Pound, title: 'Pound' },
+  { format: NumberFormatPB.Yen, title: 'Yen' },
+  { format: NumberFormatPB.Ruble, title: 'Ruble' },
+  { format: NumberFormatPB.Rupee, title: 'Rupee' },
+  { format: NumberFormatPB.Won, title: 'Won' },
+  { format: NumberFormatPB.Yuan, title: 'Yuan' },
+  { format: NumberFormatPB.Real, title: 'Real' },
+  { format: NumberFormatPB.Lira, title: 'Lira' },
+  { format: NumberFormatPB.Rupiah, title: 'Rupiah' },
+  { format: NumberFormatPB.Franc, title: 'Franc' },
+  { format: NumberFormatPB.HongKongDollar, title: 'HongKongDollar' },
+  { format: NumberFormatPB.NewZealandDollar, title: 'NewZealandDollar' },
+  { format: NumberFormatPB.Krona, title: 'Krona' },
+  { format: NumberFormatPB.NorwegianKrone, title: 'NorwegianKrone' },
+  { format: NumberFormatPB.MexicanPeso, title: 'MexicanPeso' },
+  { format: NumberFormatPB.Rand, title: 'Rand' },
+  { format: NumberFormatPB.NewTaiwanDollar, title: 'NewTaiwanDollar' },
+  { format: NumberFormatPB.DanishKrone, title: 'DanishKrone' },
+  { format: NumberFormatPB.Baht, title: 'Baht' },
+  { format: NumberFormatPB.Forint, title: 'Forint' },
+  { format: NumberFormatPB.Koruna, title: 'Koruna' },
+  { format: NumberFormatPB.Shekel, title: 'Shekel' },
+  { format: NumberFormatPB.ChileanPeso, title: 'ChileanPeso' },
+  { format: NumberFormatPB.PhilippinePeso, title: 'PhilippinePeso' },
+  { format: NumberFormatPB.Dirham, title: 'Dirham' },
+  { format: NumberFormatPB.ColombianPeso, title: 'ColombianPeso' },
+  { format: NumberFormatPB.Riyal, title: 'Riyal' },
+  { format: NumberFormatPB.Ringgit, title: 'Ringgit' },
+  { format: NumberFormatPB.Leu, title: 'Leu' },
+  { format: NumberFormatPB.ArgentinePeso, title: 'ArgentinePeso' },
+  { format: NumberFormatPB.UruguayanPeso, title: 'UruguayanPeso' },
+  { format: NumberFormatPB.Percent, title: 'Percent' },
 ];
 
 export const NumberFormatPopup = ({
@@ -68,7 +68,7 @@ export const NumberFormatPopup = ({
     setNumberType(databaseStore.fields[cellIdentifier.fieldId]?.fieldOptions as INumberType);
   }, [databaseStore]);
 
-  const changeNumberFormatClick = async (format: NumberFormat) => {
+  const changeNumberFormatClick = async (format: NumberFormatPB) => {
     await changeNumberFormat(format);
     onOutsideClick();
   };

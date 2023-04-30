@@ -3,7 +3,7 @@ import { FieldController } from '$app/stores/effects/database/field/field_contro
 import { PopupWindow } from '$app/components/_shared/PopupWindow';
 import { CheckmarkSvg } from '$app/components/_shared/svg/CheckmarkSvg';
 import { useTranslation } from 'react-i18next';
-import { DateFormat } from '@/services/backend';
+import { DateFormatPB } from '@/services/backend';
 import { useDateTimeFormat } from '$app/components/_shared/EditRow/DateTimeFormat.hooks';
 import { useAppSelector } from '$app/stores/store';
 import { useEffect, useState } from 'react';
@@ -31,68 +31,66 @@ export const DateFormatPopup = ({
     setDateType(databaseStore.fields[cellIdentifier.fieldId]?.fieldOptions as IDateType);
   }, [databaseStore]);
 
-  const changeFormat = async (format: DateFormat) => {
+  const changeFormat = async (format: DateFormatPB) => {
     await changeDateFormat(format);
     onOutsideClick();
   };
 
   return (
     <PopupWindow className={'p-2 text-xs'} onOutsideClick={onOutsideClick} left={left} top={top}>
-      <button
-        onClick={() => changeFormat(DateFormat.Friendly)}
-        className={
-          'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-main-secondary'
-        }
-      >
-        {t('grid.field.dateFormatFriendly')}
-
-        {dateType?.dateFormat === DateFormat.Friendly && (
-          <div className={'ml-8 h-5 w-5 p-1'}>
-            <CheckmarkSvg></CheckmarkSvg>
-          </div>
-        )}
-      </button>
-      <button
-        onClick={() => changeFormat(DateFormat.ISO)}
-        className={
-          'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-main-secondary'
-        }
-      >
-        {t('grid.field.dateFormatISO')}
-
-        {dateType?.dateFormat === DateFormat.ISO && (
-          <div className={'ml-8 h-5 w-5 p-1'}>
-            <CheckmarkSvg></CheckmarkSvg>
-          </div>
-        )}
-      </button>
-      <button
-        onClick={() => changeFormat(DateFormat.Local)}
-        className={
-          'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-main-secondary'
-        }
-      >
-        {t('grid.field.dateFormatLocal')}
-
-        {dateType?.dateFormat === DateFormat.Local && (
-          <div className={'ml-8 h-5 w-5 p-1'}>
-            <CheckmarkSvg></CheckmarkSvg>
-          </div>
-        )}
-      </button>
-      <button
-        onClick={() => changeFormat(DateFormat.US)}
-        className={
-          'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-main-secondary'
-        }
-      >
-        {t('grid.field.dateFormatUS')}
-        {dateType?.dateFormat === DateFormat.US && (
-          <div className={'ml-8 h-5 w-5 p-1'}>
-            <CheckmarkSvg></CheckmarkSvg>
-          </div>
-        )}
-      </button>
+      <PopupItem
+        changeFormat={changeFormat}
+        format={DateFormatPB.Friendly}
+        checked={dateType?.dateFormat === DateFormatPB.Friendly}
+        text={t('grid.field.dateFormatFriendly')}
+      />
+      <PopupItem
+        changeFormat={changeFormat}
+        format={DateFormatPB.ISO}
+        checked={dateType?.dateFormat === DateFormatPB.ISO}
+        text={t('grid.field.dateFormatISO')}
+      />
+      <PopupItem
+        changeFormat={changeFormat}
+        format={DateFormatPB.Local}
+        checked={dateType?.dateFormat === DateFormatPB.Local}
+        text={t('grid.field.dateFormatLocal')}
+      />
+      <PopupItem
+        changeFormat={changeFormat}
+        format={DateFormatPB.US}
+        checked={dateType?.dateFormat === DateFormatPB.US}
+        text={t('grid.field.dateFormatUS')}
+      />
     </PopupWindow>
   );
 };
+
+function PopupItem({
+  format,
+  text,
+  changeFormat,
+  checked,
+}: {
+  format: DateFormatPB;
+  text: string;
+  changeFormat: (_: DateFormatPB) => Promise<void>;
+  checked: boolean;
+}) {
+  return (
+    <button
+      onClick={() => changeFormat(format)}
+      className={
+        'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-main-secondary'
+      }
+    >
+      {text}
+
+      {checked && (
+        <div className={'ml-8 h-5 w-5 p-1'}>
+          <CheckmarkSvg></CheckmarkSvg>
+        </div>
+      )}
+    </button>
+  );
+}
