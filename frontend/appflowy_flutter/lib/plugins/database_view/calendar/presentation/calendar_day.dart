@@ -54,11 +54,9 @@ class CalendarDayCard extends StatelessWidget {
         if (cards.isNotEmpty) {
           multipleCards = Flexible(
             child: ListView.separated(
-              itemBuilder: (BuildContext context, int index) {
-                return cards[index];
-              },
+              itemBuilder: (BuildContext context, int index) => cards[index],
               itemCount: cards.length,
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 8.0),
               separatorBuilder: (BuildContext context, int index) =>
                   VSpace(GridSize.typeOptionSeparatorHeight),
             ),
@@ -86,11 +84,11 @@ class CalendarDayCard extends StatelessWidget {
         return Container(
           color: backgroundColor,
           child: MouseRegion(
-            cursor: SystemMouseCursors.click,
+            cursor: SystemMouseCursors.basic,
             onEnter: (p) => notifyEnter(context, true),
             onExit: (p) => notifyEnter(context, false),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 2.0),
+              padding: const EdgeInsets.only(top: 8.0),
               child: child,
             ),
           ),
@@ -188,18 +186,21 @@ class CalendarDayCard extends StatelessWidget {
 
       return GestureDetector(
         onTap: () => _showRowDetailPage(event, context),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 2),
-          decoration: BoxDecoration(
-            border: Border.fromBorderSide(
-              BorderSide(
-                color: Theme.of(context).dividerColor,
-                width: 1.5,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            decoration: BoxDecoration(
+              border: Border.fromBorderSide(
+                BorderSide(
+                  color: Theme.of(context).dividerColor,
+                  width: 1.5,
+                ),
               ),
+              borderRadius: Corners.s6Border,
             ),
-            borderRadius: Corners.s6Border,
+            child: card,
           ),
-          child: card,
         ),
       );
     }).toList();
@@ -305,27 +306,36 @@ class _DayBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color dayTextColor = Theme.of(context).colorScheme.onBackground;
-    String dayString = date.day == 1
-        ? DateFormat('MMM d', context.locale.toLanguageTag()).format(date)
-        : date.day.toString();
+    String monthString =
+        DateFormat("MMM ", context.locale.toLanguageTag()).format(date);
+    String dayString = date.day.toString();
 
-    if (isToday) {
-      dayTextColor = Theme.of(context).colorScheme.onPrimary;
-    }
     if (!isInMonth) {
       dayTextColor = Theme.of(context).disabledColor;
     }
+    if (isToday) {
+      dayTextColor = Theme.of(context).colorScheme.onPrimary;
+    }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: isToday ? Theme.of(context).colorScheme.primary : null,
-        borderRadius: Corners.s6Border,
-      ),
-      padding: GridSize.typeOptionContentInsets,
-      child: FlowyText.medium(
-        dayString,
-        color: dayTextColor,
-      ),
+    return Row(
+      children: [
+        if (date.day == 1) FlowyText.medium(monthString),
+        Container(
+          decoration: BoxDecoration(
+            color: isToday ? Theme.of(context).colorScheme.primary : null,
+            borderRadius: Corners.s6Border,
+          ),
+          width: isToday ? 26 : null,
+          height: isToday ? 26 : null,
+          padding: GridSize.typeOptionContentInsets,
+          child: Center(
+            child: FlowyText.medium(
+              dayString,
+              color: dayTextColor,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
