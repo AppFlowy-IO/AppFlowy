@@ -1,26 +1,58 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/date_type_option_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
 import 'package:flutter/material.dart';
 
-typedef CellRenderHook<C, T> = Widget? Function(C cellData, T cardData);
+typedef CellRenderHook<C, CustomCardData> = Widget? Function(
+  C cellData,
+  CustomCardData cardData,
+);
 typedef RenderHookByFieldType<C> = Map<FieldType, CellRenderHook<dynamic, C>>;
 
-class CardConfiguration<CustomCardData> {
+class RowCardRenderHook<CustomCardData> {
   final RenderHookByFieldType<CustomCardData> renderHook = {};
-  CardConfiguration();
+  RowCardRenderHook();
 
+  /// Add render hook for the FieldType.SingleSelect and FieldType.MultiSelect
   void addSelectOptionHook(
-    CellRenderHook<List<SelectOptionPB>, CustomCardData> hook,
+    CellRenderHook<List<SelectOptionPB>, CustomCardData?> hook,
   ) {
-    selectOptionHook(cellData, cardData) {
-      if (cellData is List<SelectOptionPB>) {
-        hook(cellData, cardData);
+    final hookFn = _typeSafeHook<List<SelectOptionPB>>(hook);
+    renderHook[FieldType.SingleSelect] = hookFn;
+    renderHook[FieldType.MultiSelect] = hookFn;
+  }
+
+  void addTextFieldHook(
+    CellRenderHook<String, CustomCardData?> hook,
+  ) {
+    renderHook[FieldType.RichText] = _typeSafeHook<String>(hook);
+  }
+
+  void addDateFieldHook(
+    CellRenderHook<DateCellDataPB, CustomCardData?> hook,
+  ) {
+    renderHook[FieldType.DateTime] = _typeSafeHook<DateCellDataPB>(hook);
+  }
+
+  CellRenderHook<dynamic, CustomCardData> _typeSafeHook<C>(
+    CellRenderHook<C, CustomCardData?> hook,
+  ) {
+    hookFn(cellData, cardData) {
+      if (cellData == null) {
+        return null;
+      }
+
+      if (cellData is C) {
+        return hook(cellData, cardData);
+      } else {
+        Log.debug("Unexpected cellData type: ${cellData.runtimeType}");
+        return null;
       }
     }
 
-    renderHook[FieldType.SingleSelect] = selectOptionHook;
-    renderHook[FieldType.MultiSelect] = selectOptionHook;
+    return hookFn;
   }
 }
 

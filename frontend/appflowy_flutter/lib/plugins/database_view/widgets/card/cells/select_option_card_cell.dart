@@ -11,17 +11,18 @@ import 'card_cell.dart';
 
 class SelectOptionCardCellStyle extends CardCellStyle {}
 
-class SelectOptionCardCell<T> extends CardCell<T, SelectOptionCardCellStyle>
+class SelectOptionCardCell<CustomCardData>
+    extends CardCell<CustomCardData, SelectOptionCardCellStyle>
     with EditableCell {
   final CellControllerBuilder cellControllerBuilder;
-  final CellRenderHook<List<SelectOptionPB>, T>? renderHook;
+  final CellRenderHook<List<SelectOptionPB>, CustomCardData>? renderHook;
 
   @override
   final EditableCardNotifier? editableNotifier;
 
   SelectOptionCardCell({
     required this.cellControllerBuilder,
-    required T? cardData,
+    required CustomCardData? cardData,
     this.renderHook,
     this.editableNotifier,
     Key? key,

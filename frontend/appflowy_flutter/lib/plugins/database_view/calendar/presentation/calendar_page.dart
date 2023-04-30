@@ -127,7 +127,7 @@ class _CalendarPageState extends State<CalendarPage> {
       child: MonthView(
         key: _calendarState,
         controller: _eventController,
-        cellAspectRatio: .9,
+        cellAspectRatio: .6,
         startDay: _weekdayFromInt(firstDayOfWeek),
         borderColor: Theme.of(context).dividerColor,
         headerBuilder: _headerNavigatorBuilder,

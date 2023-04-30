@@ -414,5 +414,6 @@ class CalendarDayEvent {
   final CellIdentifier cellId;
 
   String get eventId => cellId.rowId;
+  String get fieldId => cellId.fieldId;
   CalendarDayEvent({required this.cellId, required this.event});
 }

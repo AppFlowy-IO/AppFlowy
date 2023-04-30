@@ -7,11 +7,13 @@ import '../bloc/date_card_cell_bloc.dart';
 import '../define.dart';
 import 'card_cell.dart';
 
-class DateCardCell extends CardCell {
+class DateCardCell<CustomCardData> extends CardCell {
   final CellControllerBuilder cellControllerBuilder;
+  final CellRenderHook<dynamic, CustomCardData>? renderHook;
 
   const DateCardCell({
     required this.cellControllerBuilder,
+    this.renderHook,
     Key? key,
   }) : super(key: key);
 
@@ -42,6 +44,14 @@ class _DateCardCellState extends State<DateCardCell> {
           if (state.dateStr.isEmpty) {
             return const SizedBox();
           } else {
+            Widget? custom = widget.renderHook?.call(
+              state.data,
+              widget.cardData,
+            );
+            if (custom != null) {
+              return custom;
+            }
+
             return Align(
               alignment: Alignment.centerLeft,
               child: Padding(

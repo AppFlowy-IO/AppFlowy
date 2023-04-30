@@ -14,18 +14,21 @@ class TextCardCellStyle extends CardCellStyle {
   TextCardCellStyle(this.fontSize);
 }
 
-class TextCardCell extends CardCell<String, TextCardCellStyle>
-    with EditableCell {
+class TextCardCell<CustomCardData>
+    extends CardCell<CustomCardData, TextCardCellStyle> with EditableCell {
   @override
   final EditableCardNotifier? editableNotifier;
   final CellControllerBuilder cellControllerBuilder;
+  final CellRenderHook<String, CustomCardData>? renderHook;
 
   const TextCardCell({
     required this.cellControllerBuilder,
+    required CustomCardData? cardData,
     this.editableNotifier,
+    this.renderHook,
     TextCardCellStyle? style,
     Key? key,
-  }) : super(key: key, style: style);
+  }) : super(key: key, style: style, cardData: cardData);
 
   @override
   State<TextCardCell> createState() => _TextCardCellState();
@@ -104,6 +107,15 @@ class _TextCardCellState extends State<TextCardCell> {
             return previous != current;
           },
           builder: (context, state) {
+            // Returns a custom render widget
+            Widget? custom = widget.renderHook?.call(
+              state.content,
+              widget.cardData,
+            );
+            if (custom != null) {
+              return custom;
+            }
+
             if (state.content.isEmpty &&
                 state.enableEdit == false &&
                 focusWhenInit == false) {

@@ -13,23 +13,40 @@ import 'card_cell_builder.dart';
 import 'container/accessory.dart';
 import 'container/card_container.dart';
 
-class Card<CustomCardData> extends StatefulWidget {
+/// Edit a database row with card style widget
+class RowCard<CustomCardData> extends StatefulWidget {
   final RowPB row;
   final String viewId;
-  final String fieldId;
+  final String? groupingFieldId;
+
+  /// Allows passing a custom card data object to the card. The card will be
+  /// returned in the [CardCellBuilder] and can be used to build the card.
   final CustomCardData? cardData;
   final bool isEditing;
   final RowCache rowCache;
-  final CardCellBuilder<CustomCardData> cellBuilder;
-  final void Function(BuildContext) openCard;
-  final VoidCallback onStartEditing;
-  final VoidCallback onEndEditing;
-  final CardConfiguration<CustomCardData>? configuration;
 
-  const Card({
+  /// The [CardCellBuilder] is used to build the card cells.
+  final CardCellBuilder<CustomCardData> cellBuilder;
+
+  /// Called when the user taps on the card.
+  final void Function(BuildContext) openCard;
+
+  /// Called when the user starts editing the card.
+  final VoidCallback onStartEditing;
+
+  /// Called when the user ends editing the card.
+  final VoidCallback onEndEditing;
+
+  /// The [RowCardRenderHook] is used to render the card's cell. Other than
+  /// using the default cell builder. For example the [SelectOptionCardCell]
+  final RowCardRenderHook<CustomCardData>? renderHook;
+
+  final RowCardStyleConfiguration styleConfiguration;
+
+  const RowCard({
     required this.row,
     required this.viewId,
-    required this.fieldId,
+    this.groupingFieldId,
     required this.isEditing,
     required this.rowCache,
     required this.cellBuilder,
@@ -37,15 +54,19 @@ class Card<CustomCardData> extends StatefulWidget {
     required this.onStartEditing,
     required this.onEndEditing,
     this.cardData,
-    this.configuration,
+    this.styleConfiguration = const RowCardStyleConfiguration(
+      showAccessory: true,
+    ),
+    this.renderHook,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<Card<CustomCardData>> createState() => _CardState<CustomCardData>();
+  State<RowCard<CustomCardData>> createState() =>
+      _RowCardState<CustomCardData>();
 }
 
-class _CardState<T> extends State<Card<T>> {
+class _RowCardState<T> extends State<RowCard<T>> {
   late CardBloc _cardBloc;
   late EditableRowNotifier rowNotifier;
   late PopoverController popoverController;
@@ -56,15 +77,15 @@ class _CardState<T> extends State<Card<T>> {
     rowNotifier = EditableRowNotifier(isEditing: widget.isEditing);
     _cardBloc = CardBloc(
       viewId: widget.viewId,
-      groupFieldId: widget.fieldId,
+      groupFieldId: widget.groupingFieldId,
       isEditing: widget.isEditing,
       row: widget.row,
       rowCache: widget.rowCache,
-    )..add(const BoardCardEvent.initial());
+    )..add(const RowCardEvent.initial());
 
     rowNotifier.isEditing.addListener(() {
       if (!mounted) return;
-      _cardBloc.add(BoardCardEvent.setIsEditing(rowNotifier.isEditing.value));
+      _cardBloc.add(RowCardEvent.setIsEditing(rowNotifier.isEditing.value));
 
       if (rowNotifier.isEditing.value) {
         widget.onStartEditing();
@@ -81,7 +102,7 @@ class _CardState<T> extends State<Card<T>> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cardBloc,
-      child: BlocBuilder<CardBloc, BoardCardState>(
+      child: BlocBuilder<CardBloc, RowCardState>(
         buildWhen: (previous, current) {
           // Rebuild when:
           // 1.If the length of the cells is not the same
@@ -106,21 +127,26 @@ class _CardState<T> extends State<Card<T>> {
               context,
               popoverContext,
             ),
-            child: BoardCardContainer(
+            child: RowCardContainer(
               buildAccessoryWhen: () => state.isEditing == false,
               accessoryBuilder: (context) {
-                return [
-                  _CardEditOption(rowNotifier: rowNotifier),
-                  _CardMoreOption(),
-                ];
+                if (widget.styleConfiguration.showAccessory == false) {
+                  return [];
+                } else {
+                  return [
+                    _CardEditOption(rowNotifier: rowNotifier),
+                    _CardMoreOption(),
+                  ];
+                }
               },
               openAccessory: _handleOpenAccessory,
               openCard: (context) => widget.openCard(context),
               child: _CardContent<T>(
                 rowNotifier: rowNotifier,
                 cellBuilder: widget.cellBuilder,
+                styleConfiguration: widget.styleConfiguration,
                 cells: state.cells,
-                cardConfiguration: widget.configuration,
+                renderHook: widget.renderHook,
                 cardData: widget.cardData,
               ),
             ),
@@ -166,15 +192,17 @@ class _CardState<T> extends State<Card<T>> {
 class _CardContent<CustomCardData> extends StatelessWidget {
   final CardCellBuilder<CustomCardData> cellBuilder;
   final EditableRowNotifier rowNotifier;
-  final List<BoardCellEquatable> cells;
-  final CardConfiguration<CustomCardData>? cardConfiguration;
+  final List<RowCellEquatable> cells;
+  final RowCardRenderHook<CustomCardData>? renderHook;
   final CustomCardData? cardData;
+  final RowCardStyleConfiguration styleConfiguration;
   const _CardContent({
     required this.rowNotifier,
     required this.cellBuilder,
     required this.cells,
     required this.cardData,
-    this.cardConfiguration,
+    required this.styleConfiguration,
+    this.renderHook,
     Key? key,
   }) : super(key: key);
 
@@ -188,14 +216,14 @@ class _CardContent<CustomCardData> extends StatelessWidget {
 
   List<Widget> _makeCells(
     BuildContext context,
-    List<BoardCellEquatable> cells,
+    List<RowCellEquatable> cells,
   ) {
     final List<Widget> children = [];
     // Remove all the cell listeners.
     rowNotifier.unbind();
 
     cells.asMap().forEach(
-      (int index, BoardCellEquatable cell) {
+      (int index, RowCellEquatable cell) {
         final isEditing = index == 0 ? rowNotifier.isEditing.value : false;
         final cellNotifier = EditableCardNotifier(isEditing: isEditing);
 
@@ -207,11 +235,11 @@ class _CardContent<CustomCardData> extends StatelessWidget {
 
         final child = Padding(
           key: cell.identifier.key(),
-          padding: const EdgeInsets.only(left: 4, right: 4),
+          padding: styleConfiguration.cellPadding,
           child: cellBuilder.buildCell(
             cellId: cell.identifier,
             cellNotifier: cellNotifier,
-            cardConfiguration: cardConfiguration,
+            renderHook: renderHook,
             cardData: cardData,
           ),
         );
@@ -264,4 +292,14 @@ class _CardEditOption extends StatelessWidget with CardAccessory {
 
   @override
   AccessoryType get type => AccessoryType.edit;
+}
+
+class RowCardStyleConfiguration {
+  final bool showAccessory;
+  final EdgeInsets cellPadding;
+
+  const RowCardStyleConfiguration({
+    this.showAccessory = true,
+    this.cellPadding = const EdgeInsets.only(left: 4, right: 4),
+  });
 }
