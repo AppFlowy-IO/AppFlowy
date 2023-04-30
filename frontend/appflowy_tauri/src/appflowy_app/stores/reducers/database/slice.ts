@@ -13,13 +13,13 @@ export interface ISelectOptionType {
 }
 
 export interface IDateType {
-  DateFormatPB: DateFormatPB;
-  TimeFormatPB: TimeFormatPB;
+  dateFormat: DateFormatPB;
+  timeFormat: TimeFormatPB;
   includeTime: boolean;
 }
 
 export interface INumberType {
-  NumberFormatPB: NumberFormatPB;
+  numberFormat: NumberFormatPB;
 }
 
 export interface IDatabaseField {

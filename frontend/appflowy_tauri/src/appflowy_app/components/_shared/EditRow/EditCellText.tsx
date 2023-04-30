@@ -1,5 +1,5 @@
 import { CellController } from '$app/stores/effects/database/cell/cell_controller';
-import { useEffect, useState, KeyboardEvent, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 
 export const EditCellText = ({
   data,
@@ -16,6 +16,7 @@ export const EditCellText = ({
   }, [data]);
 
   useEffect(() => {
+    if (!value?.length) return;
     setContentRows(Math.max(1, (value || '').split('\n').length));
   }, [value]);
 
