@@ -313,7 +313,9 @@ pub(crate) async fn duplicate_row_handler(
 ) -> Result<(), FlowyError> {
   let params: RowIdParams = data.into_inner().try_into()?;
   let editor = manager.get_database_editor(&params.view_id).await?;
-  editor.duplicate_row(&params.view_id, &params.row_id).await?;
+  editor
+    .duplicate_row(&params.view_id, &params.row_id)
+    .await?;
   Ok(())
 }
 
