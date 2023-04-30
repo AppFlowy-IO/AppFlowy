@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/action.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
@@ -192,7 +193,7 @@ class _RowCardState<T> extends State<RowCard<T>> {
 class _CardContent<CustomCardData> extends StatelessWidget {
   final CardCellBuilder<CustomCardData> cellBuilder;
   final EditableRowNotifier rowNotifier;
-  final List<RowCellEquatable> cells;
+  final List<CellIdentifier> cells;
   final RowCardRenderHook<CustomCardData>? renderHook;
   final CustomCardData? cardData;
   final RowCardStyleConfiguration styleConfiguration;
@@ -216,28 +217,28 @@ class _CardContent<CustomCardData> extends StatelessWidget {
 
   List<Widget> _makeCells(
     BuildContext context,
-    List<RowCellEquatable> cells,
+    List<CellIdentifier> cells,
   ) {
     final List<Widget> children = [];
     // Remove all the cell listeners.
     rowNotifier.unbind();
 
     cells.asMap().forEach(
-      (int index, RowCellEquatable cell) {
+      (int index, CellIdentifier cell) {
         final isEditing = index == 0 ? rowNotifier.isEditing.value : false;
         final cellNotifier = EditableCardNotifier(isEditing: isEditing);
 
         if (index == 0) {
           // Only use the first cell to receive user's input when click the edit
           // button
-          rowNotifier.bindCell(cell.identifier, cellNotifier);
+          rowNotifier.bindCell(cell, cellNotifier);
         }
 
         final child = Padding(
-          key: cell.identifier.key(),
+          key: cell.key(),
           padding: styleConfiguration.cellPadding,
           child: cellBuilder.buildCell(
-            cellId: cell.identifier,
+            cellId: cell,
             cellNotifier: cellNotifier,
             renderHook: renderHook,
             cardData: cardData,

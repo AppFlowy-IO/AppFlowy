@@ -1,5 +1,4 @@
 import 'dart:collection';
-import 'package:equatable/equatable.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -69,7 +68,7 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
     return RowInfo(
       viewId: _rowBackendSvc.viewId,
       fields: UnmodifiableListView(
-        state.cells.map((cell) => cell.identifier.fieldInfo).toList(),
+        state.cells.map((cell) => cell.fieldInfo).toList(),
       ),
       rowPB: state.rowPB,
     );
@@ -88,11 +87,11 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
   }
 }
 
-List<RowCellEquatable> _makeCells(
+List<CellIdentifier> _makeCells(
   String? groupFieldId,
   CellByFieldId originalCellMap,
 ) {
-  List<RowCellEquatable> cells = [];
+  List<CellIdentifier> cells = [];
   for (final entry in originalCellMap.entries) {
     // Filter out the cell if it's fieldId equal to the groupFieldId
     if (groupFieldId != null) {
@@ -101,7 +100,7 @@ List<RowCellEquatable> _makeCells(
       }
     }
 
-    cells.add(RowCellEquatable(entry.value));
+    cells.add(entry.value);
   }
   return cells;
 }
@@ -111,7 +110,7 @@ class RowCardEvent with _$RowCardEvent {
   const factory RowCardEvent.initial() = _InitialRow;
   const factory RowCardEvent.setIsEditing(bool isEditing) = _IsEditing;
   const factory RowCardEvent.didReceiveCells(
-    List<RowCellEquatable> cells,
+    List<CellIdentifier> cells,
     RowsChangedReason reason,
   ) = _DidReceiveCells;
 }
@@ -120,14 +119,14 @@ class RowCardEvent with _$RowCardEvent {
 class RowCardState with _$RowCardState {
   const factory RowCardState({
     required RowPB rowPB,
-    required List<RowCellEquatable> cells,
+    required List<CellIdentifier> cells,
     required bool isEditing,
     RowsChangedReason? changeReason,
   }) = _RowCardState;
 
   factory RowCardState.initial(
     RowPB rowPB,
-    List<RowCellEquatable> cells,
+    List<CellIdentifier> cells,
     bool isEditing,
   ) =>
       RowCardState(
@@ -135,20 +134,4 @@ class RowCardState with _$RowCardState {
         cells: cells,
         isEditing: isEditing,
       );
-}
-
-class RowCellEquatable extends Equatable {
-  final CellIdentifier identifier;
-
-  const RowCellEquatable(this.identifier);
-
-  @override
-  List<Object?> get props {
-    return [
-      identifier.fieldInfo.id,
-      identifier.fieldInfo.fieldType,
-      identifier.fieldInfo.visibility,
-      identifier.fieldInfo.width,
-    ];
-  }
 }

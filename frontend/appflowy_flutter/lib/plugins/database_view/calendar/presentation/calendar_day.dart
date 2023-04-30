@@ -167,6 +167,9 @@ class CalendarDayCard extends StatelessWidget {
       // renderHook.addDateFieldHook((cellData, cardData) {
 
       final card = RowCard<String>(
+        // Add the key here to make sure the card is rebuilt when the cells
+        // in this row are updated.
+        key: ValueKey(event.eventId),
         row: rowInfo!.rowPB,
         viewId: viewId,
         rowCache: _rowCache,
