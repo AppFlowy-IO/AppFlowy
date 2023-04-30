@@ -111,6 +111,7 @@ class _TextCardCellState extends State<TextCardCell> {
             Widget? custom = widget.renderHook?.call(
               state.content,
               widget.cardData,
+              context,
             );
             if (custom != null) {
               return custom;

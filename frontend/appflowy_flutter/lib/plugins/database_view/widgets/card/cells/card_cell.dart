@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 typedef CellRenderHook<C, CustomCardData> = Widget? Function(
   C cellData,
   CustomCardData cardData,
+  BuildContext buildContext,
 );
 typedef RenderHookByFieldType<C> = Map<FieldType, CellRenderHook<dynamic, C>>;
 
@@ -39,13 +40,13 @@ class RowCardRenderHook<CustomCardData> {
   CellRenderHook<dynamic, CustomCardData> _typeSafeHook<C>(
     CellRenderHook<C, CustomCardData?> hook,
   ) {
-    hookFn(cellData, cardData) {
+    hookFn(cellData, cardData, buildContext) {
       if (cellData == null) {
         return null;
       }
 
       if (cellData is C) {
-        return hook(cellData, cardData);
+        return hook(cellData, cardData, buildContext);
       } else {
         Log.debug("Unexpected cellData type: ${cellData.runtimeType}");
         return null;

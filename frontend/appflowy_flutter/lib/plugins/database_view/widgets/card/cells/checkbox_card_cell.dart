@@ -44,13 +44,16 @@ class _CheckboxCardCellState extends State<CheckboxCardCell> {
               : svgWidget('editor/editor_uncheck');
           return Align(
             alignment: Alignment.centerLeft,
-            child: FlowyIconButton(
-              iconPadding: EdgeInsets.zero,
-              icon: icon,
-              width: 20,
-              onPressed: () => context
-                  .read<CheckboxCardCellBloc>()
-                  .add(const CheckboxCardCellEvent.select()),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: FlowyIconButton(
+                iconPadding: EdgeInsets.zero,
+                icon: icon,
+                width: 20,
+                onPressed: () => context
+                    .read<CheckboxCardCellBloc>()
+                    .add(const CheckboxCardCellEvent.select()),
+              ),
             ),
           );
         },

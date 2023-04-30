@@ -47,6 +47,7 @@ class _DateCardCellState extends State<DateCardCell> {
             Widget? custom = widget.renderHook?.call(
               state.data,
               widget.cardData,
+              context,
             );
             if (custom != null) {
               return custom;

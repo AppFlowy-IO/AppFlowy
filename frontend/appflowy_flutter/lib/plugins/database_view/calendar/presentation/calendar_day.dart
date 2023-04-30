@@ -48,7 +48,7 @@ class CalendarDayCard extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => _CardEnterNotifier(),
       builder: (context, child) {
-        List<GestureDetector> cards = _buildChildren(context);
+        List<GestureDetector> cards = _buildCards(context);
 
         Widget? multipleCards;
         if (cards.isNotEmpty) {
@@ -99,20 +99,16 @@ class CalendarDayCard extends StatelessWidget {
     );
   }
 
-  List<GestureDetector> _buildChildren(BuildContext context) {
+  List<GestureDetector> _buildCards(BuildContext context) {
     final children = events.map((CalendarDayEvent event) {
       final cellBuilder = CardCellBuilder<String>(_rowCache.cellCache);
       final rowInfo = _rowCache.getRow(event.eventId);
 
       final renderHook = RowCardRenderHook<String>();
-      renderHook.addTextFieldHook((cellData, primaryFieldId) {
-        if (primaryFieldId != event.fieldId) {
-          // Don't display the cell if the cellData is empty
-          if (primaryFieldId?.isEmpty ?? true) {
-            return const SizedBox();
-          }
+      renderHook.addTextFieldHook((cellData, primaryFieldId, _) {
+        if (cellData.isEmpty) {
+          return const SizedBox();
         }
-
         return Align(
           alignment: Alignment.centerLeft,
           child: FlowyText.medium(
@@ -124,21 +120,31 @@ class CalendarDayCard extends StatelessWidget {
         );
       });
 
-      renderHook.addDateFieldHook((cellData, cardData) {
+      renderHook.addDateFieldHook((cellData, cardData, _) {
         return Align(
           alignment: Alignment.centerLeft,
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 2),
-            child: FlowyText.regular(
-              cellData.date,
-              fontSize: 10,
-              color: Theme.of(context).hintColor,
+            child: Row(
+              children: [
+                FlowyText.regular(
+                  cellData.date,
+                  fontSize: 10,
+                  color: Theme.of(context).hintColor,
+                ),
+                const Spacer(),
+                FlowyText.regular(
+                  cellData.time,
+                  fontSize: 10,
+                  color: Theme.of(context).hintColor,
+                )
+              ],
             ),
           ),
         );
       });
 
-      renderHook.addSelectOptionHook((selectedOptions, cardData) {
+      renderHook.addSelectOptionHook((selectedOptions, cardData, _) {
         final children = selectedOptions.map(
           (option) {
             return SelectOptionTag.fromOption(
@@ -185,7 +191,7 @@ class CalendarDayCard extends StatelessWidget {
             border: Border.fromBorderSide(
               BorderSide(
                 color: Theme.of(context).dividerColor,
-                width: 1.0,
+                width: 1.5,
               ),
             ),
             borderRadius: Corners.s6Border,

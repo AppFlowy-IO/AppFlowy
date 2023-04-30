@@ -87,7 +87,7 @@ class _BoardContentState extends State<BoardContent> {
   @override
   void initState() {
     scrollManager = AppFlowyBoardScrollController();
-    renderHook.addSelectOptionHook((options, groupId) {
+    renderHook.addSelectOptionHook((options, groupId, _) {
       // The cell should hide if the option id is equal to the groupId.
       final isInGroup =
           options.where((element) => element.id == groupId).isNotEmpty;

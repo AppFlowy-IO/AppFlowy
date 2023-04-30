@@ -58,6 +58,7 @@ class _SelectOptionCardCellState extends State<SelectOptionCardCell> {
           Widget? custom = widget.renderHook?.call(
             state.selectedOptions,
             widget.cardData,
+            context,
           );
           if (custom != null) {
             return custom;
