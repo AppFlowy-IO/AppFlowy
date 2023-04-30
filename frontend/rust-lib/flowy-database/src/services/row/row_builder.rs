@@ -4,7 +4,7 @@ use crate::services::cell::{
 };
 
 use crate::entities::FieldType;
-use crate::services::field::{CheckboxCellData, SelectOptionIds};
+use crate::services::field::{CheckboxCellData, DateCellData, SelectOptionIds};
 use database_model::{gen_row_id, CellRevision, FieldRevision, RowRevision, DEFAULT_ROW_HEIGHT};
 use indexmap::IndexMap;
 use std::collections::HashMap;
@@ -52,12 +52,12 @@ impl RowRevisionBuilder {
           FieldType::RichText => builder.insert_text_cell(&field_id, cell_data),
           FieldType::Number => {
             if let Ok(num) = cell_data.parse::<i64>() {
-              builder.insert_date_cell(&field_id, num)
+              builder.insert_number_cell(&field_id, num)
             }
           },
           FieldType::DateTime => {
-            if let Ok(timestamp) = cell_data.parse::<i64>() {
-              builder.insert_date_cell(&field_id, timestamp)
+            if let Ok(date_cell_data) = DateCellData::from_cell_str(&cell_data) {
+              builder.insert_date_cell(&field_id, date_cell_data)
             }
           },
           FieldType::MultiSelect | FieldType::SingleSelect => {
@@ -132,14 +132,14 @@ impl RowRevisionBuilder {
     }
   }
 
-  pub fn insert_date_cell(&mut self, field_id: &str, timestamp: i64) {
+  pub fn insert_date_cell(&mut self, field_id: &str, date_cell_data: DateCellData) {
     match self.field_rev_map.get(&field_id.to_owned()) {
       None => tracing::warn!("Can't find the date field with id: {}", field_id),
       Some(field_rev) => {
-        self
-          .payload
-          .cell_by_field_id
-          .insert(field_id.to_owned(), insert_date_cell(timestamp, field_rev));
+        self.payload.cell_by_field_id.insert(
+          field_id.to_owned(),
+          insert_date_cell(date_cell_data, field_rev),
+        );
       },
     }
   }

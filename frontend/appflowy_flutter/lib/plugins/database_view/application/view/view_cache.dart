@@ -111,9 +111,10 @@ class DatabaseViewCache {
   Future<void> dispose() async {
     await _databaseViewListener.stop();
     await _rowCache.dispose();
+    _callbacks = null;
   }
 
-  void addListener(DatabaseViewCallbacks callbacks) {
+  void setListener(DatabaseViewCallbacks callbacks) {
     _callbacks = callbacks;
   }
 }
