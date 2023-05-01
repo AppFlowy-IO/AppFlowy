@@ -143,7 +143,8 @@ class TypeOptionContext<T extends GeneratedMessage> {
   }
 
   set typeOption(T typeOption) {
-    _dataController.typeOptionData = typeOption.writeToBuffer();
+    _dataController.typeOptionData
+     = typeOption.writeToBuffer();
     _typeOptionObject = typeOption;
   }
 }

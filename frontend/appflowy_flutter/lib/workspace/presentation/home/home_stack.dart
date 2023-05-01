@@ -172,8 +172,6 @@ class HomeStackManager {
       providers: [ChangeNotifierProvider.value(value: _notifier)],
       child: Consumer(
         builder: (ctx, HomeStackNotifier notifier, child) {
-          Log.info("details of notifier.plugin.ty : ${notifier.plugin.ty}");
-          Log.info("details of notifier.plugin.ty : ${notifier.plugin.display}");
           return FadingIndexedStack(
             index: getIt<PluginSandbox>().indexOf(notifier.plugin.ty),
             children:
