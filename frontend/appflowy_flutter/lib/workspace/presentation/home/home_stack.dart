@@ -5,7 +5,6 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/navigation.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';

@@ -1,4 +1,3 @@
-import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';

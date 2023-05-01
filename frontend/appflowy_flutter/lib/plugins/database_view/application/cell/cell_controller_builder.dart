@@ -1,4 +1,3 @@
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/date_type_option_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
