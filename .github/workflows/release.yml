@@ -236,7 +236,6 @@ jobs:
               extra-build-args: "",
               flutter_profile: production-linux-x86_64,
             }
-          # - { arch: aarch64, target: aarch64-unknown-linux-gnu, os: ubuntu-20.04, extra-build-args: "", flutter_profile: production-linux-aarch64 }
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
