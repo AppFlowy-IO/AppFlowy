@@ -239,7 +239,7 @@ class DateFormatCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(dateFormat.title()),
+        text: FlowyText.medium( dateFormat.title() ),
         rightIcon: checkmark,
         onTap: () => onSelected(dateFormat),
       ),

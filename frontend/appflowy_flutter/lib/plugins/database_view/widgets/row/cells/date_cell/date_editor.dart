@@ -49,7 +49,7 @@ class _DateCellEditor extends State<DateCellEditor> {
       ),
       builder: (BuildContext context, snapshot) {
         if (snapshot.hasData) {
-          return _buildWidget(snapshot);
+          return  _buildWidget(snapshot) ;
         } else {
           return const SizedBox();
         }
@@ -431,12 +431,14 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
         triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
         offset: const Offset(8, 0),
         popupBuilder: (BuildContext context) {
+          Log.info("DateFormat ${widget.dateTypeOptionPB.dateFormat}");
+          Log.info("DateFormat Selected ${widget.dateTypeOptionPB.dateFormat}");
           return DateFormatList(
             selectedFormat: widget.dateTypeOptionPB.dateFormat,
             onSelected: (format) {
               widget.onEvent(DateCellCalendarEvent.setDateFormat(format));
               timeSettingPopoverMutex.close();
-            },
+            }
           );
         },
         child: const Padding(
