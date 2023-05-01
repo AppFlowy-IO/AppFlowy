@@ -1,7 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { documentActions } from '../slice';
 import { DocumentState, TextSelection } from '$app/interfaces/document';
-import { getNextLineId, getPrevLineId } from '$app/utils/block';
 import { Editor } from 'slate';
 import {
   getBeforeRangeAt,
@@ -10,7 +9,8 @@ import {
   getNodeBeginSelection,
   getNodeEndSelection,
   getStartLineSelectionByOffset,
-} from '$app/utils/slate/text';
+} from '$app/utils/document/slate/text';
+import { getNextLineId, getPrevLineId } from '$app/utils/document/blocks/common';
 
 export const setCursorBeforeThunk = createAsyncThunk(
   'document/setCursorBefore',

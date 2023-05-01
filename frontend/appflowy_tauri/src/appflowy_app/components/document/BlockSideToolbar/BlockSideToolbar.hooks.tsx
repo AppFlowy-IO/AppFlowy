@@ -3,7 +3,7 @@ import { useAppSelector } from '@/appflowy_app/stores/store';
 import { debounce } from '@/appflowy_app/utils/tool';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-export function useBlockSideTools({ container }: { container: HTMLDivElement }) {
+export function useBlockSideToolbar({ container }: { container: HTMLDivElement }) {
   const [nodeId, setHoverNodeId] = useState<string>('');
   const [menuOpen, setMenuOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);

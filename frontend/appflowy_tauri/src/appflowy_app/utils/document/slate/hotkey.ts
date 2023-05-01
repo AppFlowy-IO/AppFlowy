@@ -1,8 +1,9 @@
 import isHotkey from 'is-hotkey';
 import { toggleFormat } from './format';
 import { Editor, Range } from 'slate';
-import { getBeforeRangeAt, getDelta, getAfterRangeAt, pointInEnd, pointInBegin, clonePoint } from './text';
+import { clonePoint, getAfterRangeAt, getBeforeRangeAt, getDelta, pointInBegin, pointInEnd } from './text';
 import { SelectionPoint, TextDelta, TextSelection } from '$app/interfaces/document';
+import { keyBoardEventKeyMap } from '$app/constants/document/text_block';
 
 const HOTKEYS: Record<string, string> = {
   'mod+b': 'bold',
@@ -11,16 +12,6 @@ const HOTKEYS: Record<string, string> = {
   'mod+e': 'code',
   'mod+shift+X': 'strikethrough',
   'mod+shift+S': 'strikethrough',
-};
-
-export const keyBoardEventKeyMap = {
-  Enter: 'Enter',
-  Backspace: 'Backspace',
-  Tab: 'Tab',
-  Up: 'ArrowUp',
-  Down: 'ArrowDown',
-  Left: 'ArrowLeft',
-  Right: 'ArrowRight',
 };
 
 export function triggerHotkey(event: React.KeyboardEvent<HTMLDivElement>, editor: Editor) {

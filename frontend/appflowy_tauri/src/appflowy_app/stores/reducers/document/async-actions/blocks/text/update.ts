@@ -1,7 +1,7 @@
-import { TextDelta, NestedBlock, DocumentState } from '@/appflowy_app/interfaces/document';
-import { DocumentController } from '@/appflowy_app/stores/effects/document/document_controller';
+import { TextDelta, NestedBlock, DocumentState } from '$app/interfaces/document';
+import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { documentActions } from '../slice';
+import { documentActions } from '$app_reducers/document/slice';
 import { debounce } from '$app/utils/tool';
 export const updateNodeDeltaThunk = createAsyncThunk(
   'document/updateNodeDelta',

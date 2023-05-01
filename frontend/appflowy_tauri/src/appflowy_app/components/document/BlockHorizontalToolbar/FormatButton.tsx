@@ -1,8 +1,8 @@
-import { toggleFormat, isFormatActive } from '$app/utils/slate/format';
+import { toggleFormat, isFormatActive } from '$app/utils/document/slate/format';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 
-import { command } from '$app/constants/toolbar';
+import { command } from '$app/constants/document/toolbar';
 import FormatIcon from './FormatIcon';
 import { BaseEditor } from 'slate';
 

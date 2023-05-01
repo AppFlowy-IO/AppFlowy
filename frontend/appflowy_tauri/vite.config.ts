@@ -27,7 +27,8 @@ export default defineConfig({
   resolve: {
     alias: [
       { find: '@/', replacement: `${__dirname}/src/` },
-      { find: '$app/', replacement: `${__dirname}/src/appflowy_app/` }
+      { find: '$app/', replacement: `${__dirname}/src/appflowy_app/` },
+      { find: '$app_reducers/', replacement: `${__dirname}/src/appflowy_app/stores/reducers/` },
     ],
   },
 });

@@ -1,7 +1,7 @@
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { useAppDispatch } from '@/appflowy_app/stores/store';
 import { useCallback, useContext } from 'react';
-import { insertAfterNodeThunk, deleteNodeThunk } from '@/appflowy_app/stores/reducers/document/async_actions';
+import { insertAfterNodeThunk, deleteNodeThunk } from '$app/stores/reducers/document/async-actions';
 
 export enum ActionType {
   InsertAfter = 'insertAfter',
