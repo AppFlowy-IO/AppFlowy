@@ -94,15 +94,22 @@ impl DateTypeOptionPB {
 
   fn timestamp_from_utc_with_time(
     &self,
-    naive_date: &NaiveDateTime,
+    naive_date: NaiveDateTime,
     time_str: &Option<String>,
   ) -> FlowyResult<i64> {
     if let Some(time_str) = time_str.as_ref() {
       if !time_str.is_empty() {
+        let offset = Local::now().offset().clone();
         let naive_time = chrono::NaiveTime::parse_from_str(time_str, self.time_format.format_str());
 
         return match naive_time {
-          Ok(naive_time) => Ok(naive_date.date().and_time(naive_time).timestamp()),
+          Ok(naive_time) => {
+            let naive = chrono::DateTime::<Local>::from_utc(naive_date, offset)
+              .date_naive()
+              .and_time(naive_time);
+            let local = chrono::DateTime::<Local>::from_local(naive, offset);
+            Ok(local.timestamp())
+          },
           Err(_e) => {
             let msg = format!("Parse {} failed", time_str);
             Err(FlowyError::new(ErrorCode::InvalidDateTimeFormat, &msg))
@@ -165,7 +172,7 @@ impl CellDataChangeset for DateTypeOptionPB {
           let time = Some(time.trim().to_uppercase());
           let naive = NaiveDateTime::from_timestamp_opt(date_timestamp, 0);
           if let Some(naive) = naive {
-            Some(self.timestamp_from_utc_with_time(&naive, &time)?)
+            Some(self.timestamp_from_utc_with_time(naive, &time)?)
           } else {
             Some(date_timestamp)
           }
