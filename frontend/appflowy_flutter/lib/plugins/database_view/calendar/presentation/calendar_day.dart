@@ -98,6 +98,9 @@ class CalendarDayCard extends StatelessWidget {
   }
 
   List<GestureDetector> _buildCards(BuildContext context) {
+    events.sort(
+      (a, b) => a.event.timestamp.compareTo(b.event.timestamp),
+    );
     final children = events.map((CalendarDayEvent event) {
       final cellBuilder = CardCellBuilder<String>(_rowCache.cellCache);
       final rowInfo = _rowCache.getRow(event.eventId);
