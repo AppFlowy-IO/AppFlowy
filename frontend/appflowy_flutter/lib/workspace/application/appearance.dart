@@ -250,6 +250,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
 
     return ThemeData(
       brightness: brightness,
+      dialogBackgroundColor: theme.surface,
       textTheme: _getTextTheme(fontFamily: fontFamily, fontColor: theme.text),
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: theme.main2,

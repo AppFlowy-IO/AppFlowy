@@ -1,19 +1,19 @@
-import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/util/debounce.dart';
-import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flutter/material.dart';
-import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:flowy_infra/image.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
-
 import 'dart:convert';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/debounce.dart';
+import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 const defaultUserAvatar = '1F600';
+const _iconSize = Size(60, 60);
 
 class SettingsUserView extends StatelessWidget {
   final UserProfilePB user;
@@ -76,6 +76,17 @@ class UserNameInput extends StatelessWidget {
       controller: TextEditingController()..text = name,
       decoration: InputDecoration(
         labelText: LocaleKeys.settings_user_name.tr(),
+        labelStyle: Theme.of(context)
+            .textTheme
+            .titleMedium!
+            .copyWith(fontWeight: FontWeight.w500),
+        enabledBorder: UnderlineInputBorder(
+          borderSide:
+              BorderSide(color: Theme.of(context).colorScheme.onBackground),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+        ),
       ),
       onSubmitted: (val) {
         context
@@ -115,14 +126,26 @@ class _OpenaiKeyInputState extends State<_OpenaiKeyInput> {
       controller: textEditingController,
       obscureText: !visible,
       decoration: InputDecoration(
+        enabledBorder: UnderlineInputBorder(
+          borderSide:
+              BorderSide(color: Theme.of(context).colorScheme.onBackground),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+        ),
         labelText: 'OpenAI Key',
+        labelStyle: Theme.of(context)
+            .textTheme
+            .titleMedium!
+            .copyWith(fontWeight: FontWeight.w500),
         hintText: LocaleKeys.settings_user_pleaseInputYourOpenAIKey.tr(),
-        suffixIcon: IconButton(
-          iconSize: 15.0,
-          icon: Icon(visible ? Icons.visibility : Icons.visibility_off),
-          padding: EdgeInsets.zero,
-          hoverColor: Colors.transparent,
-          splashColor: Colors.transparent,
+        suffixIcon: FlowyIconButton(
+          width: 40,
+          height: 40,
+          hoverColor: Theme.of(context).colorScheme.secondaryContainer,
+          icon: Icon(
+            visible ? Icons.visibility : Icons.visibility_off,
+          ),
           onPressed: () {
             setState(() {
               visible = !visible;
@@ -160,51 +183,48 @@ class _CurrentIcon extends StatelessWidget {
       Navigator.of(context).pop();
     }
 
-    return Material(
-      color: Colors.transparent,
-      child: GestureDetector(
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return SimpleDialog(
-                backgroundColor: Theme.of(context).canvasColor,
-                title: FlowyText.medium(
-                  LocaleKeys.settings_user_selectAnIcon.tr(),
-                  fontSize: FontSizes.s16,
-                ),
-                children: <Widget>[
-                  SizedBox(
-                    height: 300,
-                    width: 300,
-                    child: IconGallery(setIcon),
-                  )
-                ],
-              );
-            },
-          );
-        },
-        child: Column(
-          children: <Widget>[
-            Align(
-              alignment: Alignment.topLeft,
-              child: Text(
-                LocaleKeys.settings_user_icon.tr(),
-                style: const TextStyle(color: Colors.grey),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          LocaleKeys.settings_user_icon.tr(),
+          style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                fontWeight: FontWeight.w500,
+                fontSize: 13,
               ),
-            ),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Container(
-                margin: const EdgeInsets.all(5.0),
-                decoration:
-                    BoxDecoration(border: Border.all(color: Colors.grey)),
-                child: svgWidget('emoji/$iconUrl', size: const Size(60, 60)),
-              ),
-            ),
-          ],
         ),
-      ),
+        InkWell(
+          borderRadius: Corners.s6Border,
+          hoverColor: Theme.of(context).colorScheme.secondaryContainer,
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return SimpleDialog(
+                  title: FlowyText.medium(
+                    LocaleKeys.settings_user_selectAnIcon.tr(),
+                    fontSize: FontSizes.s16,
+                  ),
+                  children: <Widget>[
+                    SizedBox(
+                      height: 300,
+                      width: 300,
+                      child: IconGallery(setIcon),
+                    )
+                  ],
+                );
+              },
+            );
+          },
+          child: Container(
+            margin: const EdgeInsets.fromLTRB(0, 5, 5, 5),
+            child: svgWidget(
+              'emoji/$iconUrl',
+              size: _iconSize,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -262,19 +282,13 @@ class IconOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: IconButton(
-        iconSize: 15.0,
-        icon: svgWidget(
-          'emoji/$iconUrl',
-        ),
-        padding: EdgeInsets.zero,
-        hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
-        onPressed: () {
-          setIcon(iconUrl);
-        },
-      ),
+    return InkWell(
+      borderRadius: Corners.s6Border,
+      hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
+      onTap: () {
+        setIcon(iconUrl);
+      },
+      child: svgWidget('emoji/$iconUrl', size: _iconSize),
     );
   }
 }

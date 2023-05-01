@@ -1,5 +1,6 @@
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -35,9 +36,8 @@ class SettingsFileLocationCustomzierState
       child: BlocBuilder<SettingsLocationCubit, SettingsLocation>(
         builder: (context, state) {
           return ListTile(
-            title: FlowyText.regular(
+            title: FlowyText.medium(
               LocaleKeys.settings_files_defaultLocation.tr(),
-              fontSize: 15.0,
               overflow: TextOverflow.ellipsis,
             ),
             subtitle: Tooltip(
@@ -63,7 +63,6 @@ class SettingsFileLocationCustomzierState
                 },
                 child: FlowyText.regular(
                   state.path ?? '',
-                  fontSize: 10.0,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
