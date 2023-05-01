@@ -168,6 +168,7 @@ class _CurrentIcon extends StatelessWidget {
             context: context,
             builder: (BuildContext context) {
               return SimpleDialog(
+                backgroundColor: Theme.of(context).canvasColor,
                 title: FlowyText.medium(
                   LocaleKeys.settings_user_selectAnIcon.tr(),
                   fontSize: FontSizes.s16,
@@ -263,11 +264,16 @@ class IconOption extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
-      child: GestureDetector(
-        onTap: () {
+      child: IconButton(
+        iconSize: 15.0,
+        icon: svgWidget(
+          'emoji/$iconUrl',
+        ),
+        padding: EdgeInsets.zero,
+        hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
+        onPressed: () {
           setIcon(iconUrl);
         },
-        child: svgWidget('emoji/$iconUrl'),
       ),
     );
   }
