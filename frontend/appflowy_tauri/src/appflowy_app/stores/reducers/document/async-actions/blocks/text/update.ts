@@ -1,4 +1,4 @@
-import { TextDelta, NestedBlock, DocumentState } from '$app/interfaces/document';
+import { TextDelta, NestedBlock, DocumentState, BlockData } from '$app/interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { documentActions } from '$app_reducers/document/slice';
@@ -35,3 +35,29 @@ const debounceApplyUpdate = debounce((controller: DocumentController, updateNode
     }),
   ]);
 }, 200);
+
+export const updateNodeDataThunk = createAsyncThunk<
+  void,
+  {
+    id: string;
+    data: Partial<BlockData<any>>;
+    controller: DocumentController;
+  }
+>('document/updateNodeDataExceptDelta', async (payload, thunkAPI) => {
+  const { id, data, controller } = payload;
+  const { dispatch, getState } = thunkAPI;
+  const state = (getState() as { document: DocumentState }).document;
+
+  dispatch(documentActions.updateNodeData({ id, data: { ...data } }));
+
+  const node = state.nodes[id];
+  await controller.applyActions([
+    controller.getUpdateAction({
+      ...node,
+      data: {
+        ...node.data,
+        ...data,
+      },
+    }),
+  ]);
+});

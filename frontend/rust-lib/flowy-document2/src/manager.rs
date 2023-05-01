@@ -57,6 +57,7 @@ impl DocumentManager {
     document
       .lock()
       .open(move |events, is_remote| {
+        tracing::debug!("data_change: {:?}, from remote: {}", &events, is_remote);
         send_notification(&clone_doc_id, DocumentNotification::DidReceiveUpdate)
           .payload::<DocEventPB>((events, is_remote).into())
           .send();

@@ -151,15 +151,15 @@ function useTextBlockKeyEvent(id: string, editor: Editor) {
       const keyEvents = [enterEvent, backSpaceEvent, tabEvent, upEvent, downEvent, leftEvent, rightEvent];
 
       keyEvents.push(...markdownEvents);
-      const matchKey = keyEvents.find((keyEvent) => keyEvent.canHandle(event, editor));
-      if (!matchKey) {
+      const matchKeys = keyEvents.filter((keyEvent) => keyEvent.canHandle(event, editor));
+      if (matchKeys.length === 0) {
         triggerHotkey(event, editor);
         return;
       }
 
       event.stopPropagation();
       event.preventDefault();
-      matchKey.handler(event, editor);
+      matchKeys.forEach((matchKey) => matchKey.handler(event, editor));
     },
     [editor, enterEvent, backSpaceEvent, tabEvent, upEvent, downEvent, leftEvent, rightEvent, markdownEvents]
   );

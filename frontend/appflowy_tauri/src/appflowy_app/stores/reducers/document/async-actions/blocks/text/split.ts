@@ -3,7 +3,8 @@ import { DocumentController } from '$app/stores/effects/document/document_contro
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { documentActions } from '$app_reducers/document/slice';
 import { setCursorBeforeThunk } from '../../cursor';
-import { newTextBlock } from '$app/utils/document/blocks/text';
+import { getDefaultBlockData, newBlock } from '$app/utils/document/blocks/common';
+import { splitableBlockTypes } from '$app/constants/document/config';
 
 export const splitNodeThunk = createAsyncThunk(
   'document/splitNode',
@@ -20,7 +21,10 @@ export const splitNodeThunk = createAsyncThunk(
     const prevId = children.length > 0 ? null : node.id;
     const parent = children.length > 0 ? node : state.nodes[node.parent];
 
-    const newNode = newTextBlock(parent.id, {
+    const newNodeType = splitableBlockTypes.includes(node.type) ? node.type : BlockType.TextBlock;
+    const defaultData = getDefaultBlockData(newNodeType);
+    const newNode = newBlock<any>(newNodeType, parent.id, {
+      ...defaultData,
       delta: insert,
     });
     const retainNode = {

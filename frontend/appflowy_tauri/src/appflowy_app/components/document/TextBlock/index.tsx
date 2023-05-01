@@ -4,7 +4,8 @@ import { useTextBlock } from './TextBlock.hooks';
 import NodeComponent from '../Node';
 import BlockHorizontalToolbar from '../BlockHorizontalToolbar';
 import React from 'react';
-import { BlockType, NestedBlock } from '$app/interfaces/document';
+import { NestedBlock } from '$app/interfaces/document';
+import NodeChildren from '$app/components/document/Node/NodeChildren';
 
 function TextBlock({
   node,
@@ -17,9 +18,11 @@ function TextBlock({
   placeholder?: string;
 } & React.HTMLAttributes<HTMLDivElement>) {
   const { editor, value, onChange, onKeyDownCapture, onDOMBeforeInput } = useTextBlock(node.id);
+  const className = props.className !== undefined ? ` ${props.className}` : '';
+
   return (
     <>
-      <div {...props} className={`py-[2px] ${props.className}`}>
+      <div {...props} className={`py-[2px]${className}`}>
         <Slate editor={editor} onChange={onChange} value={value}>
           <BlockHorizontalToolbar id={node.id} />
           <Editable
@@ -30,13 +33,7 @@ function TextBlock({
           />
         </Slate>
       </div>
-      {childIds && childIds.length > 0 ? (
-        <div className='pl-[1.5em]'>
-          {childIds.map((item) => (
-            <NodeComponent key={item} id={item} />
-          ))}
-        </div>
-      ) : null}
+      <NodeChildren childIds={childIds} />
     </>
   );
 }
