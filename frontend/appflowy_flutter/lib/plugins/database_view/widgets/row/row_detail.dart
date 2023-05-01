@@ -57,7 +57,8 @@ class _RowDetailPageState extends State<RowDetailPage> {
             // - header and cover image
             // - lower rich text area
             IntrinsicHeight(child: _responsiveRowInfo()),
-            const Divider(height: 1.0)
+            const Divider(height: 1.0),
+            const SizedBox(height: 10),
           ],
         ),
       ),
