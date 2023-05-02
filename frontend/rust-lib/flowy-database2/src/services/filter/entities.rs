@@ -1,5 +1,6 @@
 use anyhow::bail;
 use collab::core::any_map::AnyMapExtension;
+
 use collab_database::rows::RowId;
 use collab_database::views::{FilterMap, FilterMapBuilder};
 
@@ -131,6 +132,7 @@ impl std::convert::From<&FilterPB> for FilterType {
     }
   }
 }
+
 // #[derive(Hash, Eq, PartialEq, Debug, Clone)]
 // pub struct InsertedFilterType {
 //   pub field_id: String,

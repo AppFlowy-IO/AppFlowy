@@ -597,7 +597,7 @@ impl DatabaseViewEditor {
   pub async fn v_did_update_field_type_option(
     &self,
     field_id: &str,
-    _old_field: &Field,
+    old_field: &Field,
   ) -> FlowyResult<()> {
     if let Some(field) = self.delegate.get_field(field_id).await {
       self
@@ -607,25 +607,25 @@ impl DatabaseViewEditor {
         .did_update_view_field_type_option(&field)
         .await;
 
-      // let filter = self
-      //   .delegate
-      //   .get_filter_by_field_id(&self.view_id, field_id);
-      //
-      // let old = old_field.map(|old_field| FilterType::from(filter));
-      // let new = FilterType::from(field.as_ref());
-      // let filter_type = UpdatedFilterType::new(old, new);
-      // let filter_changeset = FilterChangeset::from_update(filter_type);
-      // let filter_controller = self.filter_controller.clone();
-      // let _ = tokio::spawn(async move {
-      //   if let Some(notification) = filter_controller
-      //     .did_receive_changes(filter_changeset)
-      //     .await
-      //   {
-      //     send_notification(&notification.view_id, DatabaseNotification::DidUpdateFilter)
-      //       .payload(notification)
-      //       .send();
-      //   }
-      // });
+      if let Some(filter) = self
+        .delegate
+        .get_filter_by_field_id(&self.view_id, field_id)
+      {
+        let mut old = FilterType::from(&filter);
+        old.field_type = FieldType::from(old_field.field_type);
+        let new = FilterType::from(&filter);
+        let filter_type = UpdatedFilterType::new(Some(old), new);
+        let filter_changeset = FilterChangeset::from_update(filter_type);
+        let filter_controller = self.filter_controller.clone();
+        let _ = tokio::spawn(async move {
+          if let Some(notification) = filter_controller
+            .did_receive_changes(filter_changeset)
+            .await
+          {
+            notify_did_update_filter(notification).await;
+          }
+        });
+      }
     }
     Ok(())
   }

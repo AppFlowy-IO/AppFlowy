@@ -16,7 +16,7 @@ members = [
   "flowy-error",
   "flowy-revision",
   "flowy-revision-persistence",
-  "flowy-database",
+#  "flowy-database",
   "flowy-database2",
   "flowy-task",
   "flowy-client-sync",

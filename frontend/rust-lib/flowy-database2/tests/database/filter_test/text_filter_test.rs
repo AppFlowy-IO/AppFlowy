@@ -99,7 +99,7 @@ async fn grid_filter_contain_text_test2() {
       }),
     },
     UpdateTextCell {
-      row_id: rows[1].id,
+      row_id: rows[1].id.clone(),
       text: "ABC".to_string(),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 1,
@@ -232,7 +232,7 @@ async fn grid_filter_update_empty_text_cell_test() {
     },
     AssertFilterCount { count: 1 },
     UpdateTextCell {
-      row_id: rows[0].id,
+      row_id: rows[0].id.clone(),
       text: "".to_string(),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 1,
