@@ -83,7 +83,7 @@ class _GridPageState extends State<GridPage> {
             loading: (_) =>
                 const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) => result.successOrFail.fold(
-              (_) => const  GridShortcuts(child: FlowyGrid() ),
+              (_) => const GridShortcuts(child: FlowyGrid()),
               (err) => FlowyErrorPage(err.toString()),
             ),
           );
