@@ -1,17 +1,16 @@
+import { createEditor, Descendant, Transforms } from 'slate';
+import { withReact, ReactEditor } from 'slate-react';
+import * as Y from 'yjs';
+import { withYjs, YjsEditor, slateNodesToInsertDelta } from '@slate-yjs/core';
 import { useCallback, useContext, useMemo, useRef, useEffect, useState } from 'react';
+
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { TextDelta, TextSelection } from '$app/interfaces/document';
 import { NodeContext } from './SubscribeNode.hooks';
 import { useAppDispatch, useAppSelector } from '@/appflowy_app/stores/store';
-
-import { createEditor, Descendant, Transforms } from 'slate';
-import { withReact, ReactEditor } from 'slate-react';
-
-import * as Y from 'yjs';
-import { withYjs, YjsEditor, slateNodesToInsertDelta } from '@slate-yjs/core';
-import { updateNodeDeltaThunk } from '@/appflowy_app/stores/reducers/document/async_actions/update';
+import { updateNodeDeltaThunk } from '$app_reducers/document/async-actions/blocks/text/update';
+import { deltaToSlateValue, getDeltaFromSlateNodes } from '$app/utils/document/blocks/common';
 import { documentActions } from '@/appflowy_app/stores/reducers/document/slice';
-import { deltaToSlateValue, getDeltaFromSlateNodes } from '@/appflowy_app/utils/block';
 
 export function useTextInput(id: string) {
   const dispatch = useAppDispatch();
@@ -34,15 +33,34 @@ export function useTextInput(id: string) {
 
   const [value, setValue] = useState<Descendant[]>([]);
 
-  const onChange = useCallback((e: Descendant[]) => {
-    setValue(e);
-  }, []);
+  const storeSelection = useCallback(() => {
+    // This is a hack to make sure the selection is updated after next render
+    // It will save the selection to the store, and the selection will be restored
+    if (!ReactEditor.isFocused(editor) || !editor.selection || !editor.selection.anchor || !editor.selection.focus)
+      return;
+    const { anchor, focus } = editor.selection;
+    const selection = { anchor, focus } as TextSelection;
+    dispatch(documentActions.setTextSelection({ blockId: id, selection }));
+  }, [editor]);
 
   const currentSelection = useAppSelector((state) => state.document.textSelections[id]);
-
-  useEffect(() => {
+  const restoreSelection = useCallback(() => {
+    if (editor.selection && JSON.stringify(currentSelection) === JSON.stringify(editor.selection)) return;
     setSelection(editor, currentSelection);
   }, [editor, currentSelection]);
+
+  const onChange = useCallback(
+    (e: Descendant[]) => {
+      setValue(e);
+      storeSelection();
+    },
+
+    [storeSelection]
+  );
+
+  useEffect(() => {
+    restoreSelection();
+  }, [restoreSelection]);
 
   if (editor.selection && ReactEditor.isFocused(editor)) {
     const domSelection = window.getSelection();
@@ -98,7 +116,6 @@ function useBindYjs(id: string, delta: TextDelta[]) {
     };
 
     yText.observe(textEventHandler);
-
     return () => {
       yText.unobserve(textEventHandler);
     };
@@ -148,8 +165,10 @@ function useController(id: string) {
 function setSelection(editor: ReactEditor, currentSelection: TextSelection) {
   // If the current selection is empty, blur the editor and deselect the selection
   if (!currentSelection || !currentSelection.anchor || !currentSelection.focus) {
-    ReactEditor.blur(editor);
-    ReactEditor.deselect(editor);
+    if (ReactEditor.isFocused(editor)) {
+      ReactEditor.blur(editor);
+      ReactEditor.deselect(editor);
+    }
     return;
   }
 
@@ -161,13 +180,16 @@ function setSelection(editor: ReactEditor, currentSelection: TextSelection) {
   const { path, offset } = currentSelection.focus;
   // It is possible that the current selection is out of range
   const children = getDeltaFromSlateNodes(editor.children);
-  if (children[path[1]].insert.length < offset) {
+
+  // the path always has 2 elements,
+  // because the slate node is a two-dimensional array
+  const index = path[1];
+  if (children[index].insert.length < offset) {
     return;
   }
 
   // the order of the following two lines is important
   // if we reverse the order, the selection will be lost or always at the start
   Transforms.select(editor, currentSelection);
-  editor.selection = currentSelection;
   ReactEditor.focus(editor);
 }

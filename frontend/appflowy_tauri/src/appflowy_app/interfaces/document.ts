@@ -1,3 +1,5 @@
+import { Editor } from 'slate';
+
 export enum BlockType {
   PageBlock = 'page',
   HeadingBlock = 'heading',
@@ -12,9 +14,8 @@ export enum BlockType {
   ColumnBlock = 'column',
 }
 
-export interface HeadingBlockData {
+export interface HeadingBlockData extends TextBlockData {
   level: number;
-  delta: TextDelta[];
 }
 
 export interface TextBlockData {
@@ -23,12 +24,16 @@ export interface TextBlockData {
 
 export type PageBlockData = TextBlockData;
 
-export type BlockData = TextBlockData | HeadingBlockData | PageBlockData;
+export type BlockData<Type> = Type extends BlockType.HeadingBlock
+  ? HeadingBlockData
+  : Type extends BlockType.PageBlock
+  ? PageBlockData
+  : TextBlockData;
 
-export interface NestedBlock {
+export interface NestedBlock<Type = any> {
   id: string;
   type: BlockType;
-  data: BlockData | Record<string, any>;
+  data: BlockData<Type>;
   parent: string | null;
   children: string;
 }
@@ -98,3 +103,5 @@ export interface BlockPBValue {
   children: string;
   data: string;
 }
+
+export type TextBlockKeyEventHandlerParams = [React.KeyboardEvent<HTMLDivElement>, Editor];

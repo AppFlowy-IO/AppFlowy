@@ -12,9 +12,9 @@ import {
 } from '@/services/backend';
 import { DocumentObserver } from './document_observer';
 import * as Y from 'yjs';
-import { blockPB2Node } from '@/appflowy_app/utils/block';
-import { BLOCK_MAP_NAME, CHILDREN_MAP_NAME, META_NAME } from '@/appflowy_app/constants/block';
+import { BLOCK_MAP_NAME, CHILDREN_MAP_NAME, META_NAME } from '$app/constants/document/block';
 import { get } from '@/appflowy_app/utils/tool';
+import { blockPB2Node } from '$app/utils/document/blocks/common';
 
 export const DocumentControllerContext = createContext<DocumentController | null>(null);
 
@@ -46,7 +46,9 @@ export class DocumentController {
     if (document.ok) {
       const nodes: DocumentData['nodes'] = {};
       get<Map<string, BlockPB>>(document.val, [BLOCK_MAP_NAME]).forEach((block) => {
-        nodes[block.id] = blockPB2Node(block);
+        Object.assign(nodes, {
+          [block.id]: blockPB2Node(block),
+        });
       });
       const children: Record<string, string[]> = {};
       get<Map<string, ChildrenPB>>(document.val, [META_NAME, CHILDREN_MAP_NAME]).forEach((child, key) => {
@@ -95,6 +97,12 @@ export class DocumentController {
         prevId
       ),
     };
+  };
+
+  getMoveChildrenAction = (children: Node[], parentId: string, prevId: string | null) => {
+    return children.reverse().map((child) => {
+      return this.getMoveAction(child, parentId, prevId);
+    });
   };
 
   getDeleteAction = (node: Node) => {

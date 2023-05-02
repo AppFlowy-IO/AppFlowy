@@ -1,7 +1,7 @@
 import { DeltaTypePB } from '@/services/backend/models/flowy-document2';
-import { BlockType, NestedBlock, DocumentState, ChangeType, BlockPBValue } from '../interfaces/document';
-import { Log } from './log';
-import { BLOCK_MAP_NAME, CHILDREN_MAP_NAME, META_NAME } from '../constants/block';
+import { BlockType, NestedBlock, DocumentState, ChangeType, BlockPBValue } from '../../interfaces/document';
+import { Log } from '../log';
+import { BLOCK_MAP_NAME, CHILDREN_MAP_NAME, META_NAME } from '../../constants/document/block';
 
 // This is a list of all the possible changes that can happen to document data
 const matchCases = [
@@ -153,12 +153,14 @@ function onMatchChildrenDelete(state: DocumentState, id: string, _children: stri
  * @param value
  */
 export function blockChangeValue2Node(value: BlockPBValue): NestedBlock {
-  const block = {
+  const block: NestedBlock = {
     id: value.id,
     type: value.ty as BlockType,
     parent: value.parent,
     children: value.children,
-    data: {},
+    data: {
+      delta: [],
+    },
   };
   if ('data' in value && typeof value.data === 'string') {
     try {

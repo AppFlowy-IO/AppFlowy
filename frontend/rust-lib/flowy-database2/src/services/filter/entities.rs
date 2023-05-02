@@ -1,6 +1,5 @@
 use anyhow::bail;
 use collab::core::any_map::AnyMapExtension;
-
 use collab_database::rows::RowId;
 use collab_database::views::{FilterMap, FilterMapBuilder};
 

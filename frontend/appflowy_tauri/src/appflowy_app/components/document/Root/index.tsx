@@ -18,9 +18,17 @@ function Root({ documentData }: { documentData: DocumentData }) {
     return <Skeleton />;
   }
 
-
   return (
-    <div id='appflowy-block-doc' className='h-[100%] overflow-hidden'>
+    <div
+      id='appflowy-block-doc'
+      className='h-[100%] overflow-hidden'
+      onKeyDown={(e) => {
+        // prevent backspace from going back
+        if (e.key === 'Backspace') {
+          e.stopPropagation();
+        }
+      }}
+    >
       <VirtualizedList node={node} childIds={childIds} renderNode={renderNode} />
     </div>
   );

@@ -105,14 +105,20 @@ export const NavigationPanel = ({
         <div className={'flex flex-col'}>
           <AppLogo iconToShow={'hide'} onHideMenuClick={onHideMenuClick}></AppLogo>
           <WorkspaceUser></WorkspaceUser>
-          <div className={'relative flex flex-col'} style={{ height: 'calc(100vh - 300px)' }}>
-            <div className={'flex flex-col overflow-auto px-2'} ref={el}>
+          <div className={'relative flex flex-1 flex-col'}>
+            <div
+              className={'flex flex-col overflow-auto px-2'}
+              style={{
+                maxHeight: 'calc(100vh - 350px)',
+              }}
+              ref={el}
+            >
               <WorkspaceApps folders={folders} pages={pages} onPageClick={onPageClick} />
             </div>
           </div>
         </div>
 
-        <div className={'flex flex-col'}>
+        <div className={'flex max-h-[215px] flex-col'}>
           <div className={'border-b border-shade-6 px-2 pb-4'}>
             {/*<PluginsButton></PluginsButton>*/}
 

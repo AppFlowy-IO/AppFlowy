@@ -1,9 +1,9 @@
-import { BlockType, DocumentState, TextDelta } from '@/appflowy_app/interfaces/document';
-import { DocumentController } from '@/appflowy_app/stores/effects/document/document_controller';
+import { BlockType, DocumentState, TextDelta } from '$app/interfaces/document';
+import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { generateId } from '@/appflowy_app/utils/block';
-import { documentActions } from '../slice';
-import { setCursorBeforeThunk } from './set_cursor';
+import { documentActions } from '$app_reducers/document/slice';
+import { setCursorBeforeThunk } from '../../cursor';
+import { newTextBlock } from '$app/utils/document/blocks/text';
 
 export const splitNodeThunk = createAsyncThunk(
   'document/splitNode',
@@ -19,15 +19,10 @@ export const splitNodeThunk = createAsyncThunk(
     const children = state.children[node.children];
     const prevId = children.length > 0 ? null : node.id;
     const parent = children.length > 0 ? node : state.nodes[node.parent];
-    const newNode = {
-      id: generateId(),
-      parent: parent.id,
-      type: BlockType.TextBlock,
-      data: {
-        delta: insert,
-      },
-      children: generateId(),
-    };
+
+    const newNode = newTextBlock(parent.id, {
+      delta: insert,
+    });
     const retainNode = {
       ...node,
       data: {

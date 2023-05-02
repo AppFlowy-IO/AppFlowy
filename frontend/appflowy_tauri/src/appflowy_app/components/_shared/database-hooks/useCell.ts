@@ -25,9 +25,13 @@ export const useCell = (cellIdentifier: CellIdentifier, cellCache: CellCache, fi
     });
 
     void (async () => {
-      const cellData = await c.getCellData();
-      if (cellData.some) {
-        setData(cellData.unwrap());
+      try {
+        const cellData = await c.getCellData();
+        if (cellData.some) {
+          setData(cellData.unwrap());
+        }
+      } catch (e) {
+        // mute for now
       }
     })();
 

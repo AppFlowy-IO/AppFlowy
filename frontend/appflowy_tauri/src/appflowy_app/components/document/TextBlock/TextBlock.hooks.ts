@@ -1,6 +1,6 @@
 import { useCallback, useContext, useMemo } from 'react';
 import { Editor } from 'slate';
-import { TextDelta, TextSelection } from '$app/interfaces/document';
+import { TextBlockKeyEventHandlerParams, TextDelta, TextSelection } from '$app/interfaces/document';
 import { useTextInput } from '../_shared/TextInput.hooks';
 import { useAppDispatch } from '@/appflowy_app/stores/store';
 import { DocumentControllerContext } from '@/appflowy_app/stores/effects/document/document_controller';
@@ -8,16 +8,24 @@ import {
   backspaceNodeThunk,
   indentNodeThunk,
   splitNodeThunk,
-} from '@/appflowy_app/stores/reducers/document/async_actions';
+  setCursorNextLineThunk,
+  setCursorPreLineThunk,
+} from '@/appflowy_app/stores/reducers/document/async-actions';
 import { documentActions } from '@/appflowy_app/stores/reducers/document/slice';
 import {
-  triggerHotkey,
-  canHandleEnterKey,
   canHandleBackspaceKey,
+  canHandleDownKey,
+  canHandleEnterKey,
+  canHandleLeftKey,
+  canHandleRightKey,
   canHandleTabKey,
+  canHandleUpKey,
   onHandleEnterKey,
-} from '@/appflowy_app/utils/slate/hotkey';
-import { updateNodeDeltaThunk } from '$app/stores/reducers/document/async_actions/update';
+  triggerHotkey,
+} from '$app/utils/document/slate/hotkey';
+import { updateNodeDeltaThunk } from '$app_reducers/document/async-actions/blocks/text/update';
+import { useMarkDown } from './useMarkDown.hooks';
+import { keyBoardEventKeyMap } from '$app/constants/document/text_block';
 
 export function useTextBlock(id: string) {
   const { editor, onChange, value } = useTextInput(id);
@@ -48,31 +56,15 @@ export function useTextBlock(id: string) {
   };
 }
 
-// eslint-disable-next-line no-shadow
-enum TextBlockKeyEvent {
-  Enter,
-  BackSpace,
-  Tab,
-}
-
-type TextBlockKeyEventHandlerParams = [React.KeyboardEvent<HTMLDivElement>, Editor];
-
 function useTextBlockKeyEvent(id: string, editor: Editor) {
-  const { indentAction, backSpaceAction, splitAction, wrapAction } = useActions(id);
+  const { indentAction, backSpaceAction, splitAction, wrapAction, focusPreLineAction, focusNextLineAction } =
+    useActions(id);
 
-  const dispatch = useAppDispatch();
-  const keepSelection = useCallback(() => {
-    // This is a hack to make sure the selection is updated after next render
-    // It will save the selection to the store, and the selection will be restored
-    if (!editor.selection || !editor.selection.anchor || !editor.selection.focus) return;
-    const { anchor, focus } = editor.selection;
-    const selection = { anchor, focus } as TextSelection;
-    dispatch(documentActions.setTextSelection({ blockId: id, selection }));
-  }, [editor]);
+  const { markdownEvents } = useMarkDown(id);
 
   const enterEvent = useMemo(() => {
     return {
-      key: TextBlockKeyEvent.Enter,
+      triggerEventKey: keyBoardEventKeyMap.Enter,
       canHandle: canHandleEnterKey,
       handler: (...args: TextBlockKeyEventHandlerParams) => {
         onHandleEnterKey(...args, {
@@ -85,30 +77,80 @@ function useTextBlockKeyEvent(id: string, editor: Editor) {
 
   const tabEvent = useMemo(() => {
     return {
-      key: TextBlockKeyEvent.Tab,
+      triggerEventKey: keyBoardEventKeyMap.Tab,
       canHandle: canHandleTabKey,
       handler: (..._args: TextBlockKeyEventHandlerParams) => {
-        keepSelection();
         void indentAction();
       },
     };
-  }, [keepSelection, indentAction]);
+  }, [indentAction]);
 
   const backSpaceEvent = useMemo(() => {
     return {
-      key: TextBlockKeyEvent.BackSpace,
+      triggerEventKey: keyBoardEventKeyMap.Backspace,
       canHandle: canHandleBackspaceKey,
       handler: (..._args: TextBlockKeyEventHandlerParams) => {
-        keepSelection();
         void backSpaceAction();
       },
     };
-  }, [keepSelection, backSpaceAction]);
+  }, [backSpaceAction]);
+
+  const upEvent = useMemo(() => {
+    return {
+      triggerEventKey: keyBoardEventKeyMap.Up,
+      canHandle: canHandleUpKey,
+      handler: (...args: TextBlockKeyEventHandlerParams) => {
+        void focusPreLineAction({
+          editor: args[1],
+        });
+      },
+    };
+  }, [focusPreLineAction]);
+
+  const downEvent = useMemo(() => {
+    return {
+      triggerEventKey: keyBoardEventKeyMap.Down,
+      canHandle: canHandleDownKey,
+      handler: (...args: TextBlockKeyEventHandlerParams) => {
+        void focusNextLineAction({
+          editor: args[1],
+        });
+      },
+    };
+  }, [focusNextLineAction]);
+
+  const leftEvent = useMemo(() => {
+    return {
+      triggerEventKey: keyBoardEventKeyMap.Left,
+      canHandle: canHandleLeftKey,
+      handler: (...args: TextBlockKeyEventHandlerParams) => {
+        void focusPreLineAction({
+          editor: args[1],
+          focusEnd: true,
+        });
+      },
+    };
+  }, [focusPreLineAction]);
+
+  const rightEvent = useMemo(() => {
+    return {
+      triggerEventKey: keyBoardEventKeyMap.Right,
+      canHandle: canHandleRightKey,
+      handler: (...args: TextBlockKeyEventHandlerParams) => {
+        void focusNextLineAction({
+          editor: args[1],
+          focusStart: true,
+        });
+      },
+    };
+  }, [focusNextLineAction]);
 
   const onKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
       // This is list of key events that can be handled by TextBlock
-      const keyEvents = [enterEvent, backSpaceEvent, tabEvent];
+      const keyEvents = [enterEvent, backSpaceEvent, tabEvent, upEvent, downEvent, leftEvent, rightEvent];
+
+      keyEvents.push(...markdownEvents);
       const matchKey = keyEvents.find((keyEvent) => keyEvent.canHandle(event, editor));
       if (!matchKey) {
         triggerHotkey(event, editor);
@@ -119,7 +161,7 @@ function useTextBlockKeyEvent(id: string, editor: Editor) {
       event.preventDefault();
       matchKey.handler(event, editor);
     },
-    [editor, enterEvent, backSpaceEvent, tabEvent]
+    [editor, enterEvent, backSpaceEvent, tabEvent, upEvent, downEvent, leftEvent, rightEvent, markdownEvents]
   );
 
   return {
@@ -164,10 +206,26 @@ function useActions(id: string) {
     [controller, id]
   );
 
+  const focusPreLineAction = useCallback(
+    async (params: { editor: Editor; focusEnd?: boolean }) => {
+      await dispatch(setCursorPreLineThunk({ id, ...params }));
+    },
+    [id]
+  );
+
+  const focusNextLineAction = useCallback(
+    async (params: { editor: Editor; focusStart?: boolean }) => {
+      await dispatch(setCursorNextLineThunk({ id, ...params }));
+    },
+    [id]
+  );
+
   return {
     indentAction,
     backSpaceAction,
     splitAction,
     wrapAction,
+    focusPreLineAction,
+    focusNextLineAction,
   };
 }

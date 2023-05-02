@@ -17,7 +17,7 @@ import { databaseSlice } from './reducers/database/slice';
 import { documentSlice } from './reducers/document/slice';
 import { boardSlice } from './reducers/board/slice';
 import { errorSlice } from './reducers/error/slice';
-import { activePageIdSlice } from './reducers/activePageId/slice';
+import { activePageIdSlice } from '$app_reducers/active-page-id/slice';
 
 const listenerMiddlewareInstance = createListenerMiddleware({
   onError: () => console.error,

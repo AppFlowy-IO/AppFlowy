@@ -16,6 +16,7 @@ import { CellOptionsPopup } from '$app/components/_shared/EditRow/CellOptionsPop
 import { DatePickerPopup } from '$app/components/_shared/EditRow/DatePickerPopup';
 import { DragDropContext, Droppable, OnDragEndResponder } from 'react-beautiful-dnd';
 import { EditCellOptionPopup } from '$app/components/_shared/EditRow/EditCellOptionPopup';
+import { NumberFormatPopup } from '$app/components/_shared/EditRow/NumberFormatPopup';
 
 export const EditRow = ({
   onClose,
@@ -54,6 +55,10 @@ export const EditRow = ({
   const [editCellOptionLeft, setEditCellOptionLeft] = useState(0);
 
   const [editingSelectOption, setEditingSelectOption] = useState<SelectOptionPB | undefined>();
+
+  const [showNumberFormatPopup, setShowNumberFormatPopup] = useState(false);
+  const [numberFormatTop, setNumberFormatTop] = useState(0);
+  const [numberFormatLeft, setNumberFormatLeft] = useState(0);
 
   useEffect(() => {
     setUnveil(true);
@@ -120,10 +125,16 @@ export const EditRow = ({
     setEditCellOptionTop(_top);
   };
 
+  const onNumberFormat = (_left: number, _top: number) => {
+    setShowNumberFormatPopup(true);
+    setNumberFormatLeft(_left + 10);
+    setNumberFormatTop(_top);
+  };
+
   const onDragEnd: OnDragEndResponder = (result) => {
     if (!result.destination?.index) return;
     void controller.moveField({
-      fieldId: result.source.droppableId,
+      fieldId: result.draggableId,
       fromIndex: result.source.index,
       toIndex: result.destination.index,
     });
@@ -195,7 +206,9 @@ export const EditRow = ({
             viewId={viewId}
             onOutsideClick={onOutsideEditFieldClick}
             fieldInfo={controller.fieldController.getField(editingCell.fieldId)}
+            fieldController={controller.fieldController}
             changeFieldTypeClick={onChangeFieldTypeClick}
+            onNumberFormat={onNumberFormat}
           ></EditFieldPopup>
         )}
         {showChangeFieldTypePopup && (
@@ -237,6 +250,17 @@ export const EditRow = ({
               setShowEditCellOption(false);
             }}
           ></EditCellOptionPopup>
+        )}
+        {showNumberFormatPopup && editingCell && (
+          <NumberFormatPopup
+            top={numberFormatTop}
+            left={numberFormatLeft}
+            cellIdentifier={editingCell}
+            fieldController={controller.fieldController}
+            onOutsideClick={() => {
+              setShowNumberFormatPopup(false);
+            }}
+          ></NumberFormatPopup>
         )}
       </div>
     </div>
