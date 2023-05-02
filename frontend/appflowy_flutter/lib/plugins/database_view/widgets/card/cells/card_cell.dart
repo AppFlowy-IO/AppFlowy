@@ -12,6 +12,9 @@ typedef CellRenderHook<C, CustomCardData> = Widget? Function(
 );
 typedef RenderHookByFieldType<C> = Map<FieldType, CellRenderHook<dynamic, C>>;
 
+/// The [RowCardRenderHook] is used to customize the rendering of the
+///  card cell. Each cell has itw own field type. So the [renderHook]
+///  is a map of [FieldType] to [CellRenderHook].
 class RowCardRenderHook<CustomCardData> {
   final RenderHookByFieldType<CustomCardData> renderHook = {};
   RowCardRenderHook();
@@ -25,12 +28,14 @@ class RowCardRenderHook<CustomCardData> {
     renderHook[FieldType.MultiSelect] = hookFn;
   }
 
+  /// Add a render hook for the [FieldType.RichText]
   void addTextFieldHook(
     CellRenderHook<String, CustomCardData?> hook,
   ) {
     renderHook[FieldType.RichText] = _typeSafeHook<String>(hook);
   }
 
+  /// Add a render hook for the [FieldType.Date]
   void addDateFieldHook(
     CellRenderHook<DateCellDataPB, CustomCardData?> hook,
   ) {

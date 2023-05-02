@@ -48,14 +48,13 @@ class CalendarDayCard extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => _CardEnterNotifier(),
       builder: (context, child) {
-        List<GestureDetector> cards = _buildCards(context);
-
         Widget? multipleCards;
-        if (cards.isNotEmpty) {
+        if (events.isNotEmpty) {
           multipleCards = Flexible(
             child: ListView.separated(
-              itemBuilder: (BuildContext context, int index) => cards[index],
-              itemCount: cards.length,
+              itemBuilder: (BuildContext context, int index) =>
+                  _buildCard(context, events[index]),
+              itemCount: events.length,
               padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 8.0),
               separatorBuilder: (BuildContext context, int index) =>
                   VSpace(GridSize.typeOptionSeparatorHeight),
@@ -97,114 +96,111 @@ class CalendarDayCard extends StatelessWidget {
     );
   }
 
-  List<GestureDetector> _buildCards(BuildContext context) {
-    final children = events.map((CalendarDayEvent event) {
-      final cellBuilder = CardCellBuilder<String>(_rowCache.cellCache);
-      final rowInfo = _rowCache.getRow(event.eventId);
+  GestureDetector _buildCard(BuildContext context, CalendarDayEvent event) {
+    final cellBuilder = CardCellBuilder<String>(_rowCache.cellCache);
+    final rowInfo = _rowCache.getRow(event.eventId);
 
-      final renderHook = RowCardRenderHook<String>();
-      renderHook.addTextFieldHook((cellData, primaryFieldId, _) {
-        if (cellData.isEmpty) {
-          return const SizedBox();
-        }
-        return Align(
-          alignment: Alignment.centerLeft,
-          child: FlowyText.medium(
-            cellData,
-            textAlign: TextAlign.left,
-            fontSize: 11,
-            maxLines: null, // Enable multiple lines
-          ),
-        );
-      });
-
-      renderHook.addDateFieldHook((cellData, cardData, _) {
-        return Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: Row(
-              children: [
-                FlowyText.regular(
-                  cellData.date,
-                  fontSize: 10,
-                  color: Theme.of(context).hintColor,
-                ),
-                const Spacer(),
-                FlowyText.regular(
-                  cellData.time,
-                  fontSize: 10,
-                  color: Theme.of(context).hintColor,
-                )
-              ],
-            ),
-          ),
-        );
-      });
-
-      renderHook.addSelectOptionHook((selectedOptions, cardData, _) {
-        final children = selectedOptions.map(
-          (option) {
-            return SelectOptionTag.fromOption(
-              context: context,
-              option: option,
-            );
-          },
-        ).toList();
-
-        return IntrinsicHeight(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: SizedBox.expand(
-              child: Wrap(spacing: 4, runSpacing: 4, children: children),
-            ),
-          ),
-        );
-      });
-
-      // renderHook.addDateFieldHook((cellData, cardData) {
-
-      final card = RowCard<String>(
-        // Add the key here to make sure the card is rebuilt when the cells
-        // in this row are updated.
-        key: ValueKey(event.eventId),
-        row: rowInfo!.rowPB,
-        viewId: viewId,
-        rowCache: _rowCache,
-        cardData: event.fieldId,
-        isEditing: false,
-        cellBuilder: cellBuilder,
-        openCard: (context) => _showRowDetailPage(event, context),
-        styleConfiguration: const RowCardStyleConfiguration(
-          showAccessory: false,
-          cellPadding: EdgeInsets.zero,
+    final renderHook = RowCardRenderHook<String>();
+    renderHook.addTextFieldHook((cellData, primaryFieldId, _) {
+      if (cellData.isEmpty) {
+        return const SizedBox();
+      }
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: FlowyText.medium(
+          cellData,
+          textAlign: TextAlign.left,
+          fontSize: 11,
+          maxLines: null, // Enable multiple lines
         ),
-        renderHook: renderHook,
-        onStartEditing: () {},
-        onEndEditing: () {},
       );
+    });
 
-      return GestureDetector(
-        onTap: () => _showRowDetailPage(event, context),
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            decoration: BoxDecoration(
-              border: Border.fromBorderSide(
-                BorderSide(
-                  color: Theme.of(context).dividerColor,
-                  width: 1.5,
-                ),
+    renderHook.addDateFieldHook((cellData, cardData, _) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(
+            children: [
+              FlowyText.regular(
+                cellData.date,
+                fontSize: 10,
+                color: Theme.of(context).hintColor,
               ),
-              borderRadius: Corners.s6Border,
-            ),
-            child: card,
+              const Spacer(),
+              FlowyText.regular(
+                cellData.time,
+                fontSize: 10,
+                color: Theme.of(context).hintColor,
+              )
+            ],
           ),
         ),
       );
-    }).toList();
-    return children;
+    });
+
+    renderHook.addSelectOptionHook((selectedOptions, cardData, _) {
+      final children = selectedOptions.map(
+        (option) {
+          return SelectOptionTag.fromOption(
+            context: context,
+            option: option,
+          );
+        },
+      ).toList();
+
+      return IntrinsicHeight(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: SizedBox.expand(
+            child: Wrap(spacing: 4, runSpacing: 4, children: children),
+          ),
+        ),
+      );
+    });
+
+    // renderHook.addDateFieldHook((cellData, cardData) {
+
+    final card = RowCard<String>(
+      // Add the key here to make sure the card is rebuilt when the cells
+      // in this row are updated.
+      key: ValueKey(event.eventId),
+      row: rowInfo!.rowPB,
+      viewId: viewId,
+      rowCache: _rowCache,
+      cardData: event.fieldId,
+      isEditing: false,
+      cellBuilder: cellBuilder,
+      openCard: (context) => _showRowDetailPage(event, context),
+      styleConfiguration: const RowCardStyleConfiguration(
+        showAccessory: false,
+        cellPadding: EdgeInsets.zero,
+      ),
+      renderHook: renderHook,
+      onStartEditing: () {},
+      onEndEditing: () {},
+    );
+
+    return GestureDetector(
+      onTap: () => _showRowDetailPage(event, context),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          decoration: BoxDecoration(
+            border: Border.fromBorderSide(
+              BorderSide(
+                color: Theme.of(context).dividerColor,
+                width: 1.5,
+              ),
+            ),
+            borderRadius: Corners.s6Border,
+          ),
+          child: card,
+        ),
+      ),
+    );
   }
 
   void _showRowDetailPage(CalendarDayEvent event, BuildContext context) {
