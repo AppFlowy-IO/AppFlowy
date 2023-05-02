@@ -268,7 +268,7 @@ DateCellData _dateDataFromCellData(DateCellDataPB? cellData) {
   // a null DateCellDataPB may be returned, indicating that all the fields are
   // at their default values: empty strings and false booleans
   if (cellData == null) {
-    return const DateCellData(dateTime: null, time: null, includeTime: false);
+    return const DateCellData(includeTime: false);
   }
 
   DateTime? dateTime;

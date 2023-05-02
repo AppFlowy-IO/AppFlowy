@@ -29,8 +29,8 @@ class TextCellDataPersistence implements CellDataPersistence<String> {
 @freezed
 class DateCellData with _$DateCellData {
   const factory DateCellData({
-    required DateTime? dateTime,
-    required String? time,
+    DateTime? dateTime,
+    String? time,
     required bool includeTime,
   }) = _DateCellData;
 }
