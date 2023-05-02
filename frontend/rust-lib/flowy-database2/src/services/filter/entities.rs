@@ -131,6 +131,7 @@ impl std::convert::From<&FilterPB> for FilterType {
     }
   }
 }
+
 // #[derive(Hash, Eq, PartialEq, Debug, Clone)]
 // pub struct InsertedFilterType {
 //   pub field_id: String,

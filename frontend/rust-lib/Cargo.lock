@@ -1316,54 +1316,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-database"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-stream",
- "atomic_refcell",
- "bytes",
- "chrono",
- "crossbeam-utils",
- "dashmap",
- "database-model",
- "diesel",
- "fancy-regex 0.10.0",
- "flowy-client-sync",
- "flowy-codegen",
- "flowy-derive",
- "flowy-error",
- "flowy-notification",
- "flowy-revision",
- "flowy-revision-persistence",
- "flowy-sqlite",
- "flowy-task",
- "flowy-test",
- "futures",
- "indexmap",
- "lazy_static",
- "lib-dispatch",
- "lib-infra",
- "lib-ot",
- "nanoid",
- "parking_lot 0.12.1",
- "protobuf",
- "rayon",
- "regex",
- "revision-model",
- "rust_decimal",
- "rusty-money",
- "serde",
- "serde_json",
- "serde_repr",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "url",
-]
-
-[[package]]
 name = "flowy-database2"
 version = "0.1.0"
 dependencies = [

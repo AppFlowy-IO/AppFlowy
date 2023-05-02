@@ -99,13 +99,15 @@ impl DatabaseEditor {
   }
 
   pub async fn insert_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
-    if let Some(field) = self.database.lock().fields.get_field(&params.field_id) {
-      let group_setting = default_group_setting(&field);
-      self
-        .database
-        .lock()
-        .insert_group_setting(&params.view_id, group_setting);
+    {
+      let database = self.database.lock();
+      let field = database.fields.get_field(&params.field_id);
+      if let Some(field) = field {
+        let group_setting = default_group_setting(&field);
+        database.insert_group_setting(&params.view_id, group_setting);
+      }
     }
+
     let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
     view_editor.v_initialize_new_group(params).await?;
     Ok(())
@@ -122,6 +124,7 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  #[tracing::instrument(level = "trace", skip_all, err)]
   pub async fn create_or_update_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
     let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
     view_editor.v_insert_filter(params).await?;
@@ -198,7 +201,6 @@ impl DatabaseEditor {
   }
 
   pub async fn delete_field(&self, field_id: &str) -> FlowyResult<()> {
-    self.database.lock().delete_field(field_id);
     let database_id = {
       let database = self.database.lock();
       database.delete_field(field_id);
@@ -432,8 +434,13 @@ impl DatabaseEditor {
   }
 
   pub async fn get_cell(&self, field_id: &str, row_id: RowId) -> CellPB {
-    let field = self.database.lock().fields.get_field(field_id);
-    let cell = self.database.lock().get_cell(field_id, &row_id);
+    let (field, cell) = {
+      let database = self.database.lock();
+      let field = database.fields.get_field(field_id);
+      let cell = database.get_cell(field_id, &row_id);
+      (field, cell)
+    };
+
     match (field, cell) {
       (Some(field), Some(cell)) => {
         let field_type = FieldType::from(field.field_type);
@@ -483,10 +490,7 @@ impl DatabaseEditor {
     field_id: &str,
     new_cell: Cell,
   ) -> Option<()> {
-    let old_row = {
-      let database = self.database.lock();
-      database.get_row(&row_id)
-    };
+    let old_row = { self.database.lock().get_row(&row_id) };
     self.database.lock().update_row(&row_id, |row_update| {
       row_update.update_cells(|cell_update| {
         cell_update.insert(field_id, new_cell);
