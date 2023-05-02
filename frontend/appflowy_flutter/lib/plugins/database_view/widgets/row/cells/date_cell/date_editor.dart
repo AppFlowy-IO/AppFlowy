@@ -49,7 +49,7 @@ class _DateCellEditor extends State<DateCellEditor> {
       ),
       builder: (BuildContext context, snapshot) {
         if (snapshot.hasData) {
-          return  _buildWidget(snapshot) ;
+          return _buildWidget(snapshot);
         } else {
           return const SizedBox();
         }
