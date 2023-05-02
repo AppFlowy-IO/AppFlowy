@@ -77,7 +77,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
             emit(
               state.copyWith(
                 allEvents: allEvents,
-                updateEvent: eventData,
               ),
             );
           },
@@ -380,7 +379,6 @@ class CalendarState with _$CalendarState {
     CalendarEventData<CalendarDayEvent>? createdEvent,
     CalendarEventData<CalendarDayEvent>? newEvent,
     required List<String> deleteEventIds,
-    CalendarEventData<CalendarDayEvent>? updateEvent,
     required Option<CalendarLayoutSettingsPB> settings,
     required DatabaseLoadingState loadingState,
     required Option<FlowyError> noneOrError,
