@@ -1,11 +1,7 @@
 import { Editor } from 'slate';
 import { getAfterRangeAt, getBeforeRangeAt } from '$app/utils/document/slate/text';
-import { BlockType, HeadingBlockData, NestedBlock } from '$app/interfaces/document';
-import { getDeltaFromSlateNodes, newBlock } from '$app/utils/document/blocks/common';
-
-export function newHeadingBlock(parentId: string, data: HeadingBlockData): NestedBlock {
-  return newBlock<BlockType.HeadingBlock>(BlockType.HeadingBlock, parentId, data);
-}
+import { HeadingBlockData } from '$app/interfaces/document';
+import { getDeltaAfterSelection, getDeltaFromSlateNodes } from '$app/utils/document/blocks/common';
 
 /**
  * get heading data from editor, only support markdown
@@ -17,8 +13,8 @@ export function getHeadingDataFromEditor(editor: Editor): HeadingBlockData | und
   const hashTags = Editor.string(editor, getBeforeRangeAt(editor, selection));
   const level = hashTags.match(/#/g)?.length;
   if (!level) return;
-  const slateNodes = Editor.fragment(editor, getAfterRangeAt(editor, selection));
-  const delta = getDeltaFromSlateNodes(slateNodes);
+  const delta = getDeltaAfterSelection(editor);
+  if (!delta) return;
   return {
     level,
     delta,

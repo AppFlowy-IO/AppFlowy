@@ -36,7 +36,7 @@ export default function TodoListBlock({
           <TextBlock node={node} />
         </div>
       </div>
-      <NodeChildren childIds={childIds} />
+      <NodeChildren className='pl-[1.5em]' childIds={childIds} />
     </>
   );
 }
