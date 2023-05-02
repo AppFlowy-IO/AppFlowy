@@ -50,7 +50,7 @@ class _NumberCardCellState extends State<NumberCardCell> {
                 ),
                 child: FlowyText.medium(
                   state.content,
-                  fontSize: 14,
+                  fontSize: 10,
                 ),
               ),
             );
