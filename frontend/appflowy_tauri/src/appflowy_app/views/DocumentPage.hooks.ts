@@ -41,8 +41,7 @@ export const useDocument = () => {
       }
       Log.debug('close document', params.id);
     };
-    // dispose controller before unload
-    window.addEventListener('beforeunload', closeDocument);
+
     return closeDocument;
   }, [params.id]);
 

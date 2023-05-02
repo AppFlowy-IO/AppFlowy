@@ -5,6 +5,8 @@ export enum BlockType {
   HeadingBlock = 'heading',
   TextBlock = 'text',
   TodoListBlock = 'todo_list',
+  BulletedListBlock = 'bulleted_list',
+  NumberedListBlock = 'numbered_list',
   CodeBlock = 'code',
   EmbedBlock = 'embed',
   QuoteBlock = 'quote',

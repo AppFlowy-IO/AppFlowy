@@ -9,11 +9,11 @@ export const updateNodeDeltaThunk = createAsyncThunk(
     const { id, delta, controller } = payload;
     const { dispatch, getState } = thunkAPI;
     const state = (getState() as { document: DocumentState }).document;
+    const node = state.nodes[id];
     // The block map should be updated immediately
     // or the component will use the old data to update the editor
     dispatch(documentActions.updateNodeData({ id, data: { delta } }));
 
-    const node = state.nodes[id];
     // the transaction is delayed to avoid too many updates
     debounceApplyUpdate(controller, {
       ...node,
@@ -47,17 +47,16 @@ export const updateNodeDataThunk = createAsyncThunk<
   const { id, data, controller } = payload;
   const { dispatch, getState } = thunkAPI;
   const state = (getState() as { document: DocumentState }).document;
-
-  dispatch(documentActions.updateNodeData({ id, data: { ...data } }));
-
   const node = state.nodes[id];
+
+  const newData = { ...node.data, ...data };
+
+  dispatch(documentActions.updateNodeData({ id, data: newData }));
+
   await controller.applyActions([
     controller.getUpdateAction({
       ...node,
-      data: {
-        ...node.data,
-        ...data,
-      },
+      data: newData,
     }),
   ]);
 });

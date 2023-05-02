@@ -15,6 +15,7 @@ import * as Y from 'yjs';
 import { BLOCK_MAP_NAME, CHILDREN_MAP_NAME, META_NAME } from '$app/constants/document/block';
 import { get } from '@/appflowy_app/utils/tool';
 import { blockPB2Node } from '$app/utils/document/blocks/common';
+import { Log } from '$app/utils/log';
 
 export const DocumentControllerContext = createContext<DocumentController | null>(null);
 
@@ -65,6 +66,7 @@ export class DocumentController {
   };
 
   applyActions = async (actions: ReturnType<typeof BlockActionPB.prototype.toObject>[]) => {
+    Log.debug('applyActions', actions);
     await this.backendService.applyActions(actions);
   };
 
@@ -153,6 +155,7 @@ export class DocumentController {
     if (!this.onDocChange) return;
     const { events, is_remote } = DocEventPB.deserializeBinary(payload);
 
+    Log.debug('DocumentController', 'updated', { events, is_remote });
     events.forEach((blockEvent) => {
       blockEvent.event.forEach((_payload) => {
         this.onDocChange?.({

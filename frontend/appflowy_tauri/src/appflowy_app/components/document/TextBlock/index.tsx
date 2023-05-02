@@ -1,7 +1,6 @@
 import { Slate, Editable } from 'slate-react';
 import Leaf from './Leaf';
 import { useTextBlock } from './TextBlock.hooks';
-import NodeComponent from '../Node';
 import BlockHorizontalToolbar from '../BlockHorizontalToolbar';
 import React from 'react';
 import { NestedBlock } from '$app/interfaces/document';

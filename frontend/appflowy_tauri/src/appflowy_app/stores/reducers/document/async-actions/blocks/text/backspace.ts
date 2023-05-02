@@ -4,8 +4,8 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { documentActions } from '$app_reducers/document/slice';
 import { outdentNodeThunk } from './outdent';
 import { setCursorAfterThunk } from '../../cursor';
-import { turnToTextBlockThunk } from '$app_reducers/document/async-actions/blocks/text/index';
 import { getPrevLineId } from '$app/utils/document/blocks/common';
+import { turnToTextBlockThunk } from '$app_reducers/document/async-actions/blocks/text/turn_to';
 
 const composeNodeThunk = createAsyncThunk(
   'document/composeNode',

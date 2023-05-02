@@ -1,6 +1,3 @@
-import { Ok, Result } from 'ts-results';
-import { ChangeNotifier } from '$app/utils/change_notifier';
-import { FolderNotificationObserver } from '../folder/notifications/observer';
 import { DocumentNotification } from '@/services/backend';
 import { DocumentNotificationObserver } from './notifications/observer';
 
