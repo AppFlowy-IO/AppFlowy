@@ -4,7 +4,7 @@ import 'package:appflowy/plugins/document/presentation/plugins/openai/service/op
 import 'package:appflowy/plugins/document/presentation/plugins/openai/util/learn_more_action.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/discard_dialog.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/smart_edit_action.dart';
-import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -242,7 +242,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
           ),
           onPressed: () async {
             await _onReplace();
-            _onExit();
+            await _onExit();
           },
         ),
         const Space(10, 0),
@@ -257,7 +257,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
           ),
           onPressed: () async {
             await _onInsertBelow();
-            _onExit();
+            await _onExit();
           },
         ),
         const Space(10, 0),
@@ -272,10 +272,13 @@ class _SmartEditInputState extends State<_SmartEditInput> {
           ),
           onPressed: () async => await _onExit(),
         ),
-        const Spacer(),
-        FlowyText.regular(
-          LocaleKeys.document_plugins_warning.tr(),
-          color: Theme.of(context).hintColor,
+        const Spacer(flex: 2),
+        Expanded(
+          child: FlowyText.regular(
+            overflow: TextOverflow.ellipsis,
+            LocaleKeys.document_plugins_warning.tr(),
+            color: Theme.of(context).hintColor,
+          ),
         ),
       ],
     );
@@ -298,7 +301,22 @@ class _SmartEditInputState extends State<_SmartEditInput> {
       selection,
       texts,
     );
-    return widget.editorState.apply(transaction);
+    await widget.editorState.apply(transaction);
+
+    int endOffset = texts.last.length;
+    if (texts.length == 1) {
+      endOffset += selection.start.offset;
+    }
+
+    await widget.editorState.updateCursorSelection(
+      Selection(
+        start: selection.start,
+        end: Position(
+          path: [selection.start.path.first + texts.length - 1],
+          offset: endOffset,
+        ),
+      ),
+    );
   }
 
   Future<void> _onInsertBelow() async {
@@ -317,7 +335,16 @@ class _SmartEditInputState extends State<_SmartEditInput> {
         ),
       ),
     );
-    return widget.editorState.apply(transaction);
+    await widget.editorState.apply(transaction);
+
+    await widget.editorState.updateCursorSelection(
+      Selection(
+        start: Position(path: selection.end.path.next, offset: 0),
+        end: Position(
+          path: [selection.end.path.next.first + texts.length],
+        ),
+      ),
+    );
   }
 
   Future<void> _onExit() async {
@@ -333,51 +360,42 @@ class _SmartEditInputState extends State<_SmartEditInput> {
   }
 
   Future<void> _requestCompletions() async {
-    final result = await UserBackendService.getCurrentUserProfile();
-    return result.fold((l) async {
-      final openAIRepository = HttpOpenAIRepository(
-        client: client,
-        apiKey: l.openaiKey,
-      );
+    final openAIRepository = await getIt.getAsync<OpenAIRepository>();
 
-      var lines = input.split('\n\n');
-      if (action == SmartEditAction.summarize) {
-        lines = [lines.join('\n')];
-      }
-      for (var i = 0; i < lines.length; i++) {
-        final element = lines[i];
-        await openAIRepository.getStreamedCompletions(
-          useAction: true,
-          prompt: action.prompt(element),
-          onStart: () async {
-            setState(() {
-              loading = false;
-            });
-          },
-          onProcess: (response) async {
-            setState(() {
-              if (response.choices.first.text != '\n') {
-                this.result += response.choices.first.text;
-              }
-            });
-          },
-          onEnd: () async {
-            setState(() {
-              if (i != lines.length - 1) {
-                this.result += '\n';
-              }
-            });
-          },
-          onError: (error) async {
-            await _showError(error.message);
-            await _onExit();
-          },
-        );
-      }
-    }, (r) async {
-      await _showError(r.msg);
-      await _onExit();
-    });
+    var lines = input.split('\n\n');
+    if (action == SmartEditAction.summarize) {
+      lines = [lines.join('\n')];
+    }
+    for (var i = 0; i < lines.length; i++) {
+      final element = lines[i];
+      await openAIRepository.getStreamedCompletions(
+        useAction: true,
+        prompt: action.prompt(element),
+        onStart: () async {
+          setState(() {
+            loading = false;
+          });
+        },
+        onProcess: (response) async {
+          setState(() {
+            if (response.choices.first.text != '\n') {
+              result += response.choices.first.text;
+            }
+          });
+        },
+        onEnd: () async {
+          setState(() {
+            if (i != lines.length - 1) {
+              result += '\n';
+            }
+          });
+        },
+        onError: (error) async {
+          await _showError(error.message);
+          await _onExit();
+        },
+      );
+    }
   }
 
   Future<void> _showError(String message) async {
