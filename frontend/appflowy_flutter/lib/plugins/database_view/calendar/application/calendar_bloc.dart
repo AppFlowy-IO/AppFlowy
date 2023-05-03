@@ -287,8 +287,12 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         for (final id in rowIds) {
           final event = await _loadEvent(id);
           if (event != null && isEventDayChanged(event)) {
-            add(CalendarEvent.didDeleteEvents([id]));
-            add(CalendarEvent.didReceiveEvent(event));
+            if (isEventDayChanged(event)) {
+              add(CalendarEvent.didDeleteEvents([id]));
+              add(CalendarEvent.didReceiveEvent(event));
+            } else {
+              add(CalendarEvent.didUpdateEvent(event));
+            }
           }
         }
       },
