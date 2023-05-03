@@ -8,10 +8,11 @@ import { blockConfig } from '$app/constants/document/config';
 import { Editor } from 'slate';
 import { getBeforeRangeAt } from '$app/utils/document/slate/text';
 import {
-  getBulletedDataFromEditor,
   getHeadingDataFromEditor,
   getQuoteDataFromEditor,
   getTodoListDataFromEditor,
+  getBulletedDataFromEditor,
+  getNumberedListDataFromEditor,
 } from '$app/utils/document/blocks';
 
 const blockDataFactoryMap: Record<string, (editor: Editor) => BlockData<any> | undefined> = {
@@ -19,6 +20,7 @@ const blockDataFactoryMap: Record<string, (editor: Editor) => BlockData<any> | u
   [BlockType.TodoListBlock]: getTodoListDataFromEditor,
   [BlockType.QuoteBlock]: getQuoteDataFromEditor,
   [BlockType.BulletedListBlock]: getBulletedDataFromEditor,
+  [BlockType.NumberedListBlock]: getNumberedListDataFromEditor
 };
 
 export function useTurnIntoBlock(id: string) {

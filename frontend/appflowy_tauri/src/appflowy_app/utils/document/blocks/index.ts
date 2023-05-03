@@ -1,7 +1,12 @@
 import { Editor } from 'slate';
-import { BulletListBlockData, HeadingBlockData, TodoListBlockData } from '$app/interfaces/document';
-import { getAfterRangeAt, getBeforeRangeAt } from '$app/utils/document/slate/text';
-import { getDeltaAfterSelection, getDeltaFromSlateNodes } from '$app/utils/document/blocks/common';
+import {
+  BulletListBlockData,
+  HeadingBlockData,
+  NumberedListBlockData,
+  TodoListBlockData,
+} from '$app/interfaces/document';
+import { getBeforeRangeAt } from '$app/utils/document/slate/text';
+import { getDeltaAfterSelection } from '$app/utils/document/blocks/common';
 
 /**
  * get heading data from editor, only support markdown
@@ -56,6 +61,19 @@ export function getTodoListDataFromEditor(editor: Editor): TodoListBlockData | u
  * @param editor
  */
 export function getBulletedDataFromEditor(editor: Editor): BulletListBlockData | undefined {
+  const delta = getDeltaAfterSelection(editor);
+  if (!delta) return;
+  return {
+    delta,
+    format: 'default',
+  };
+}
+
+/**
+ * get numbered_list data from editor, only support markdown
+ * @param editor
+ */
+export function getNumberedListDataFromEditor(editor: Editor): NumberedListBlockData | undefined {
   const delta = getDeltaAfterSelection(editor);
   if (!delta) return;
   return {

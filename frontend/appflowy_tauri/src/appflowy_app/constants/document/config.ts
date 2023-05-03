@@ -53,8 +53,9 @@ export const blockConfig: Record<
     splitType: BlockType.NumberedListBlock,
     /**
      * 1. or 2. or 3.
+     * a. or b. or c.
      */
-    markdownRegexps: [/^(\s*\d+\.)$/],
+    markdownRegexps: [/^(\s*[\d|a-zA-Z]+\.)$/],
   },
   [BlockType.QuoteBlock]: {
     canAddChild: true,
