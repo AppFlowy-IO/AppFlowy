@@ -280,7 +280,7 @@
       "numberFormat": "Number format",
       "dateFormat": "Date format",
       "includeTime": "Include time",
-      "dateFormatFriendly": "Month Day,Year",
+      "dateFormatFriendly": "Month Day, Year",
       "dateFormatISO": "Year-Month-Day",
       "dateFormatLocal": "Month/Day/Year",
       "dateFormatUS": "Year/Month/Day",
