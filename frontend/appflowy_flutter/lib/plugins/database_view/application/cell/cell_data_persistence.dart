@@ -48,7 +48,14 @@ class DateCellDataPersistence implements CellDataPersistence<DateCellData> {
     // This is a bit of a hack. This converts the data.date which is in
     // UTC to Local but actually changes the timestamp instead of just
     // changing the isUtc flag
-    final dateTime = DateTime(data.date.year, data.date.month, data.date.day);
+    final dateTime = DateTime(
+      data.date.year,
+      data.date.month,
+      data.date.day,
+      data.date.hour,
+      data.date.minute,
+      data.date.second,
+    );
 
     final date = (dateTime.millisecondsSinceEpoch ~/ 1000).toString();
     payload.date = date;

@@ -84,11 +84,24 @@ class DateCellCalendarBloc
     bool? includeTime,
   }) {
     final DateCellData newDateData = state.dateCellData.fold(
-      () => DateCellData(
-        date: date ?? DateTime.now(),
-        time: time,
-        includeTime: includeTime ?? false,
-      ),
+      () {
+        DateTime newDate = DateTime.now();
+        if (date != null) {
+          newDate = DateTime(
+            date.year,
+            date.month,
+            date.day,
+            newDate.hour,
+            newDate.minute,
+            newDate.second,
+          );
+        }
+        return DateCellData(
+          date: newDate,
+          time: time,
+          includeTime: includeTime ?? false,
+        );
+      },
       (dateData) {
         var newDateData = dateData;
         if (date != null && !isSameDay(newDateData.date, date)) {
