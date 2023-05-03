@@ -44,7 +44,8 @@
     "small": "маленький",
     "medium": "средний",
     "large": "большой",
-    "fontSize": "Размер шрифта"
+    "fontSize": "Размер шрифта",
+    "import": "Импортировать"
   },
   "disclosureAction": {
     "rename": "Переименовать",
@@ -70,8 +71,10 @@
   },
   "dialogCreatePageNameHint": "Имя страницы",
   "questionBubble": {
+    "shortcuts": "Комбинации клавиш",
     "whatsNew": "Что нового?",
     "help": "Помощь",
+    "markdown": "Markdown",
     "debug": {
       "name": "Отладочная информация",
       "success": "Скопировано в буфер обмена!",
@@ -126,6 +129,7 @@
   },
   "button": {
     "OK": "OK",
+    "Done": "Завершить",
     "Cancel": "Отмена",
     "signIn": "Войти",
     "signOut": "Выйти",
@@ -170,7 +174,7 @@
     },
     "appearance": {
       "themeMode": {
-        "label": "Режим темы",
+        "label": "Тема приложения",
         "light": "Светлая",
         "dark": "Тёмная",
         "system": "Системная"
@@ -197,7 +201,7 @@
       "create": "Создать",
       "folderPath": "Путь к вашей папке",
       "locationCannotBeEmpty": "Путь не может быть пустым",
-      "pathCopiedSnackbar": "File storage path copied to clipboard!"
+      "pathCopiedSnackbar": "Путь скопирован в буфер обмена!"
     },
     "user": {
       "name": "Имя",
@@ -216,7 +220,8 @@
       "addFilter": "Добавить фильтр",
       "deleteFilter": "Удалить фильтр",
       "filterBy": "Фильтровать по...",
-      "typeAValue": "Введите значение..."
+      "typeAValue": "Введите значение...",
+      "layout": "Раскладка"
     },
     "textFilter": {
       "contains": "Содержит",
@@ -303,7 +308,8 @@
       "textPlaceholder": "Пусто",
       "copyProperty": "Свойство скопировано",
       "count": "Количество",
-      "newRow": "Новая строка"
+      "newRow": "Новая строка",
+      "action": "Действия"
     },
     "selectOption": {
       "create": "Создать",
@@ -384,6 +390,10 @@
         "addIcon": "Добавить иконку",
         "coverRemoveAlert": "Изображение будет удалено с обложки",
         "alertDialogConfirmation": "Вы хотите продолжить?"
+      },
+      "mathEquation": {
+        "addMathEquation": "Добавить математическое выражение",
+        "editMathEquation": "Редактировать математическое выражение"
       }
     }
   },

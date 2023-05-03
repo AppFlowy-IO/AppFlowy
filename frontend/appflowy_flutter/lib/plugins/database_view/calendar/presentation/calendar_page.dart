@@ -9,6 +9,9 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../application/row/row_data_controller.dart';
+import '../../widgets/row/cell_builder.dart';
+import '../../widgets/row/row_detail.dart';
 import 'calendar_day.dart';
 import 'layout/sizes.dart';
 import 'toolbar/calendar_toolbar.dart';
@@ -70,15 +73,10 @@ class _CalendarPageState extends State<CalendarPage> {
               },
             ),
             BlocListener<CalendarBloc, CalendarState>(
-              listenWhen: (p, c) => p.updateEvent != c.updateEvent,
+              listenWhen: (p, c) => p.createdEvent != c.createdEvent,
               listener: (context, state) {
-                if (state.updateEvent != null) {
-                  _eventController.removeWhere(
-                    (element) =>
-                        state.updateEvent!.event!.eventId ==
-                        element.event!.eventId,
-                  );
-                  _eventController.add(state.updateEvent!);
+                if (state.createdEvent != null) {
+                  _showRowDetailPage(state.createdEvent!.event!, context);
                 }
               },
             ),
@@ -116,7 +114,7 @@ class _CalendarPageState extends State<CalendarPage> {
       child: MonthView(
         key: _calendarState,
         controller: _eventController,
-        cellAspectRatio: .9,
+        cellAspectRatio: .6,
         startDay: _weekdayFromInt(firstDayOfWeek),
         borderColor: Theme.of(context).dividerColor,
         headerBuilder: _headerNavigatorBuilder,
@@ -137,7 +135,7 @@ class _CalendarPageState extends State<CalendarPage> {
         FlowyIconButton(
           width: CalendarSize.navigatorButtonWidth,
           height: CalendarSize.navigatorButtonHeight,
-          icon: svgWidget('home/arrow_left'),
+          icon: const FlowySvg(name: 'home/arrow_left'),
           tooltipText: LocaleKeys.calendar_navigation_previousMonth.tr(),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onPressed: () => _calendarState?.currentState?.previousPage(),
@@ -155,7 +153,7 @@ class _CalendarPageState extends State<CalendarPage> {
         FlowyIconButton(
           width: CalendarSize.navigatorButtonWidth,
           height: CalendarSize.navigatorButtonHeight,
-          icon: svgWidget('home/arrow_right'),
+          icon: const FlowySvg(name: 'home/arrow_right'),
           tooltipText: LocaleKeys.calendar_navigation_nextMonth.tr(),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onPressed: () => _calendarState?.currentState?.nextPage(),
@@ -185,7 +183,12 @@ class _CalendarPageState extends State<CalendarPage> {
     isInMonth,
   ) {
     final events = calenderEvents.map((value) => value.event!).toList();
-
+    // Sort the events by timestamp. Because the database view is not
+    // reserving the order of the events. Reserving the order of the rows/events
+    // is implemnted in the develop branch(WIP). Will be replaced with that.
+    events.sort(
+      (a, b) => a.event.timestamp.compareTo(b.event.timestamp),
+    );
     return CalendarDayCard(
       viewId: widget.view.id,
       isToday: isToday,
@@ -207,5 +210,25 @@ class _CalendarPageState extends State<CalendarPage> {
   WeekDays _weekdayFromInt(int dayOfWeek) {
     // MonthView places the first day of week on the second column for some reason.
     return WeekDays.values[(dayOfWeek + 1) % 7];
+  }
+
+  void _showRowDetailPage(CalendarDayEvent event, BuildContext context) {
+    final dataController = RowController(
+      rowId: event.cellId.rowId,
+      viewId: widget.view.id,
+      rowCache: _calendarBloc.rowCache,
+    );
+
+    FlowyOverlay.show(
+      context: context,
+      builder: (BuildContext context) {
+        return RowDetailPage(
+          cellBuilder: GridCellBuilder(
+            cellCache: _calendarBloc.rowCache.cellCache,
+          ),
+          dataController: dataController,
+        );
+      },
+    );
   }
 }

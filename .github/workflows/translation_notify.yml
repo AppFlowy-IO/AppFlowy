@@ -13,4 +13,6 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         with:
-          args: '@appflowytranslators English UI strings has been updated.'
+          args: |
+            @appflowytranslators English UI strings has been updated.
+            Link to changes: ${{github.event.compare}}
