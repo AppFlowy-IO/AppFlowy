@@ -240,6 +240,8 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         cellId: cellId,
       );
 
+      // The timestamp is using UTC in the backend, so we need to convert it
+      // to local time.
       final date = DateTime.fromMillisecondsSinceEpoch(
         eventPB.timestamp.toInt() * 1000,
       );

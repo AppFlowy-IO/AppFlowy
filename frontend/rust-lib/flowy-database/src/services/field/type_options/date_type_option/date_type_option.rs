@@ -8,7 +8,7 @@ use crate::services::field::{
 };
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
-use chrono::NaiveDateTime;
+use chrono::{Local, NaiveDateTime};
 use database_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use flowy_derive::ProtoBuf;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -60,22 +60,26 @@ impl DateTypeOptionPB {
 
   fn today_desc_from_timestamp(&self, cell_data: DateCellData) -> DateCellDataPB {
     let timestamp = cell_data.timestamp.unwrap_or_default();
-    let include_time = cell_data.include_time;
-
-    let naive = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0);
-    if naive.is_none() {
-      return DateCellDataPB::default();
-    }
-    let naive = naive.unwrap();
     if timestamp == 0 {
       return DateCellDataPB::default();
     }
+
+    let include_time = cell_data.include_time;
+    let native = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0);
+    if native.is_none() {
+      return DateCellDataPB::default();
+    }
+
+    // Use the local timezone to calculate the formatted date string. We can use the timezone that
+    // specified by the user in the future.
+    let offset = Local::now().offset().clone();
+    let native = chrono::DateTime::<chrono::Local>::from_utc(native.unwrap(), offset);
     let fmt = self.date_format.format_str();
-    let date = format!("{}", naive.format_with_items(StrftimeItems::new(fmt)));
+    let date = format!("{}", native.format_with_items(StrftimeItems::new(fmt)));
 
     let time = if include_time {
       let fmt = self.time_format.format_str();
-      format!("{}", naive.format_with_items(StrftimeItems::new(fmt)))
+      format!("{}", native.format_with_items(StrftimeItems::new(fmt)))
     } else {
       "".to_string()
     };
@@ -97,13 +101,11 @@ impl DateTypeOptionPB {
       if !time_str.is_empty() {
         let naive_time = chrono::NaiveTime::parse_from_str(time_str, self.time_format.format_str());
 
-        match naive_time {
-          Ok(naive_time) => {
-            return Ok(naive_date.date().and_time(naive_time).timestamp());
-          },
+        return match naive_time {
+          Ok(naive_time) => Ok(naive_date.date().and_time(naive_time).timestamp()),
           Err(_e) => {
             let msg = format!("Parse {} failed", time_str);
-            return Err(FlowyError::new(ErrorCode::InvalidDateTimeFormat, &msg));
+            Err(FlowyError::new(ErrorCode::InvalidDateTimeFormat, &msg))
           },
         };
       }
