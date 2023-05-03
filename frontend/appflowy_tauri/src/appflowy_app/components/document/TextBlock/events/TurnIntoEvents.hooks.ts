@@ -7,12 +7,18 @@ import { turnToBlockThunk } from '$app_reducers/document/async-actions';
 import { blockConfig } from '$app/constants/document/config';
 import { Editor } from 'slate';
 import { getBeforeRangeAt } from '$app/utils/document/slate/text';
-import { getHeadingDataFromEditor, getQuoteDataFromEditor, getTodoListDataFromEditor } from '$app/utils/document/blocks';
+import {
+  getBulletedDataFromEditor,
+  getHeadingDataFromEditor,
+  getQuoteDataFromEditor,
+  getTodoListDataFromEditor,
+} from '$app/utils/document/blocks';
 
 const blockDataFactoryMap: Record<string, (editor: Editor) => BlockData<any> | undefined> = {
   [BlockType.HeadingBlock]: getHeadingDataFromEditor,
   [BlockType.TodoListBlock]: getTodoListDataFromEditor,
   [BlockType.QuoteBlock]: getQuoteDataFromEditor,
+  [BlockType.BulletedListBlock]: getBulletedDataFromEditor,
 };
 
 export function useTurnIntoBlock(id: string) {

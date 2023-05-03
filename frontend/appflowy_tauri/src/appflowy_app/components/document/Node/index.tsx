@@ -8,6 +8,7 @@ import { BlockType } from '$app/interfaces/document';
 import HeadingBlock from '$app/components/document/HeadingBlock';
 import TodoListBlock from '$app/components/document/TodoListBlock';
 import QuoteBlock from '$app/components/document/QuoteBlock';
+import BulletedListBlock from '$app/components/document/BulletedListBlock';
 
 function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<HTMLDivElement>) {
   const { node, childIds, isSelected, ref } = useNode(id);
@@ -25,6 +26,9 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
       }
       case BlockType.QuoteBlock: {
         return <QuoteBlock node={node} childIds={childIds} />;
+      }
+      case BlockType.BulletedListBlock: {
+        return <BulletedListBlock node={node} childIds={childIds} />;
       }
       default:
         return null;

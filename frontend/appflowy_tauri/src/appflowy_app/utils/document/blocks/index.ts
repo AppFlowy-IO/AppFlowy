@@ -1,5 +1,5 @@
 import { Editor } from 'slate';
-import { HeadingBlockData, TodoListBlockData } from '$app/interfaces/document';
+import { BulletListBlockData, HeadingBlockData, TodoListBlockData } from '$app/interfaces/document';
 import { getAfterRangeAt, getBeforeRangeAt } from '$app/utils/document/slate/text';
 import { getDeltaAfterSelection, getDeltaFromSlateNodes } from '$app/utils/document/blocks/common';
 
@@ -43,10 +43,23 @@ export function getTodoListDataFromEditor(editor: Editor): TodoListBlockData | u
   if (!selection) return;
   const hashTags = Editor.string(editor, getBeforeRangeAt(editor, selection));
   const checked = hashTags.match(/x/g)?.length;
-  const slateNodes = Editor.fragment(editor, getAfterRangeAt(editor, selection));
-  const delta = getDeltaFromSlateNodes(slateNodes);
+  const delta = getDeltaAfterSelection(editor);
+  if (!delta) return;
   return {
     delta,
     checked: !!checked,
+  };
+}
+
+/**
+ * get bulleted_list data from editor, only support markdown
+ * @param editor
+ */
+export function getBulletedDataFromEditor(editor: Editor): BulletListBlockData | undefined {
+  const delta = getDeltaAfterSelection(editor);
+  if (!delta) return;
+  return {
+    delta,
+    format: 'default',
   };
 }
