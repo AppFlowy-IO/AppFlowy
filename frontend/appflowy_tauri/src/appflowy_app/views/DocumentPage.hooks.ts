@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { DocumentData } from '../interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
@@ -14,9 +14,9 @@ export const useDocument = () => {
   const [controller, setController] = useState<DocumentController | null>(null);
   const dispatch = useAppDispatch();
 
-  const onDocumentChange = (props: { isRemote: boolean; data: BlockEventPayloadPB }) => {
+  const onDocumentChange = useCallback((props: { isRemote: boolean; data: BlockEventPayloadPB }) => {
     dispatch(documentActions.onDataChange(props));
-  };
+  }, []);
 
   useEffect(() => {
     let documentController: DocumentController | null = null;
@@ -34,14 +34,17 @@ export const useDocument = () => {
         Log.error(e);
       }
     })();
-    return () => {
-      void (async () => {
-        if (documentController) {
-          await documentController.dispose();
-        }
-        Log.debug('close document', params.id);
-      })();
+
+    const closeDocument = () => {
+      if (documentController) {
+        void documentController.dispose();
+      }
+      Log.debug('close document', params.id);
     };
+    // dispose controller before unload
+    window.addEventListener('beforeunload', closeDocument);
+    return closeDocument;
   }, [params.id]);
+
   return { documentId, documentData, controller };
 };

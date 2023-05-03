@@ -6,6 +6,7 @@ import TextBlock from '../TextBlock';
 import { NodeContext } from '../_shared/SubscribeNode.hooks';
 import { BlockType } from '$app/interfaces/document';
 import HeadingBlock from '$app/components/document/HeadingBlock';
+import TodoListBlock from '$app/components/document/TodoListBlock';
 
 function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<HTMLDivElement>) {
   const { node, childIds, isSelected, ref } = useNode(id);
@@ -17,6 +18,9 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
       }
       case BlockType.HeadingBlock: {
         return <HeadingBlock node={node} />;
+      }
+      case BlockType.TodoListBlock: {
+        return <TodoListBlock node={node} childIds={childIds} />;
       }
       default:
         return null;

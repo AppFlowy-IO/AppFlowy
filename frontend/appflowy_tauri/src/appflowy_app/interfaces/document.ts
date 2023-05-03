@@ -3,8 +3,8 @@ import { Editor } from 'slate';
 export enum BlockType {
   PageBlock = 'page',
   HeadingBlock = 'heading',
-  ListBlock = 'list',
   TextBlock = 'text',
+  TodoListBlock = 'todo_list',
   CodeBlock = 'code',
   EmbedBlock = 'embed',
   QuoteBlock = 'quote',
@@ -18,6 +18,10 @@ export interface HeadingBlockData extends TextBlockData {
   level: number;
 }
 
+export interface TodoListBlockData extends TextBlockData {
+  checked: boolean;
+}
+
 export interface TextBlockData {
   delta: TextDelta[];
 }
@@ -28,6 +32,8 @@ export type BlockData<Type> = Type extends BlockType.HeadingBlock
   ? HeadingBlockData
   : Type extends BlockType.PageBlock
   ? PageBlockData
+  : Type extends BlockType.TodoListBlock
+  ? TodoListBlockData
   : TextBlockData;
 
 export interface NestedBlock<Type = any> {

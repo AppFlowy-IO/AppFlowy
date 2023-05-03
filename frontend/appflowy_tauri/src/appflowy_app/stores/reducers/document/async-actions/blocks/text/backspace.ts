@@ -84,7 +84,7 @@ export const backspaceNodeThunk = createAsyncThunk(
     const index = children.indexOf(id);
     const prevNodeId = children[index - 1];
     const nextNodeId = children[index + 1];
-    // transform to text block
+    // turn to text block
     if (node.type !== BlockType.TextBlock) {
       await dispatch(turnToTextBlockThunk({ id, controller }));
       return;

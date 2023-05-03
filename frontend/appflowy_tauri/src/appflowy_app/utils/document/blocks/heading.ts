@@ -7,6 +7,10 @@ export function newHeadingBlock(parentId: string, data: HeadingBlockData): Neste
   return newBlock<BlockType.HeadingBlock>(BlockType.HeadingBlock, parentId, data);
 }
 
+/**
+ * get heading data from editor, only support markdown
+ * @param editor
+ */
 export function getHeadingDataFromEditor(editor: Editor): HeadingBlockData | undefined {
   const selection = editor.selection;
   if (!selection) return;

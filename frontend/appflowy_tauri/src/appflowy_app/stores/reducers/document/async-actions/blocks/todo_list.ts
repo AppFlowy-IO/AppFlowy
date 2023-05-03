@@ -1,29 +1,29 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { Editor } from 'slate';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { BlockType } from '$app/interfaces/document';
 import { turnToBlockThunk } from '$app_reducers/document/async-actions/turn_to';
-import { getHeadingDataFromEditor } from '$app/utils/document/blocks/heading';
+import { Editor } from 'slate';
+import { getTodoListDataFromEditor } from '$app/utils/document/blocks/todo_list';
 
 /**
- * transform to heading block
- * 1. insert heading block after current block
- * 2. move all children to parent after heading block, because heading block can't have children
+ * transform to todolist block
+ * 1. insert todolist block after current block
+ * 2. move children to todolist block
  * 3. delete current block
  */
-export const turnToHeadingBlockThunk = createAsyncThunk(
-  'document/turnToHeadingBlock',
+export const turnToTodoListBlockThunk = createAsyncThunk(
+  'document/turnToTodoListBlock',
   async (payload: { id: string; editor: Editor; controller: DocumentController }, thunkAPI) => {
-    const { id, editor, controller } = payload;
+    const { id, controller, editor } = payload;
     const { dispatch } = thunkAPI;
-
-    const data = getHeadingDataFromEditor(editor);
+    const data = getTodoListDataFromEditor(editor);
     if (!data) return;
+
     await dispatch(
       turnToBlockThunk({
         id,
         controller,
-        type: BlockType.HeadingBlock,
+        type: BlockType.TodoListBlock,
         data,
       })
     );
