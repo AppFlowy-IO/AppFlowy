@@ -272,7 +272,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
           ),
           onPressed: () async => await _onExit(),
         ),
-        const Spacer(flex:2),
+        const Spacer(flex: 2),
         Expanded(
           child: FlowyText.regular(
             overflow: TextOverflow.ellipsis,
@@ -360,7 +360,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
   }
 
   Future<void> _requestCompletions() async {
-    final openAIRepository = await getIt.getAsync<OpenAIRepository>() as HttpOpenAIRepository;
+    final openAIRepository = await getIt.getAsync<OpenAIRepository>();
 
     var lines = input.split('\n\n');
     if (action == SmartEditAction.summarize) {
