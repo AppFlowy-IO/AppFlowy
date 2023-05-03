@@ -70,7 +70,7 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
         title: field.name,
         fieldType: field.field_type,
         fieldOptions: {
-          NumberFormatPB: typeOption.format,
+          numberFormat: typeOption.format,
         },
       };
     }
@@ -82,8 +82,8 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
         title: field.name,
         fieldType: field.field_type,
         fieldOptions: {
-          DateFormatPB: typeOption.date_format,
-          TimeFormatPB: typeOption.time_format,
+          dateFormat: typeOption.date_format,
+          timeFormat: typeOption.time_format,
           includeTime: typeOption.include_time,
         },
       };

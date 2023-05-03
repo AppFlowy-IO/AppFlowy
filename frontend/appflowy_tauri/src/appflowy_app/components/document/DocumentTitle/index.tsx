@@ -8,7 +8,7 @@ export default function DocumentTitle({ id }: { id: string }) {
   if (!node) return null;
   return (
     <NodeContext.Provider value={node}>
-      <div data-block-id={node.id} className='doc-title relative mb-2 px-2 pt-[50px] text-4xl font-bold'>
+      <div data-block-id={node.id} className='doc-title relative mb-2 px-1 pt-[50px] text-4xl font-bold'>
         <TextBlock placeholder='Untitled' childIds={[]} node={node} />
       </div>
     </NodeContext.Provider>

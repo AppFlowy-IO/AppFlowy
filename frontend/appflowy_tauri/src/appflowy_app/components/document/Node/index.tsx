@@ -7,6 +7,7 @@ import { NodeContext } from '../_shared/SubscribeNode.hooks';
 import { BlockType } from '$app/interfaces/document';
 import HeadingBlock from '$app/components/document/HeadingBlock';
 import TodoListBlock from '$app/components/document/TodoListBlock';
+import QuoteBlock from '$app/components/document/QuoteBlock';
 
 function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<HTMLDivElement>) {
   const { node, childIds, isSelected, ref } = useNode(id);
@@ -22,6 +23,9 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
       case BlockType.TodoListBlock: {
         return <TodoListBlock node={node} childIds={childIds} />;
       }
+      case BlockType.QuoteBlock: {
+        return <QuoteBlock node={node} childIds={childIds} />;
+      }
       default:
         return null;
     }
@@ -31,7 +35,7 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
 
   return (
     <NodeContext.Provider value={node}>
-      <div {...props} ref={ref} data-block-id={node.id} className={`relative px-2  ${props.className}`}>
+      <div {...props} ref={ref} data-block-id={node.id} className={`relative px-1  ${props.className}`}>
         {renderBlock()}
         <div className='block-overlay' />
         {isSelected ? (

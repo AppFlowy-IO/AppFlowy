@@ -8,6 +8,7 @@ export enum BlockType {
   CodeBlock = 'code',
   EmbedBlock = 'embed',
   QuoteBlock = 'quote',
+  CalloutBlock = 'callout',
   DividerBlock = 'divider',
   MediaBlock = 'media',
   TableBlock = 'table',
@@ -22,6 +23,10 @@ export interface TodoListBlockData extends TextBlockData {
   checked: boolean;
 }
 
+export interface QuoteBlockData extends TextBlockData {
+  size: 'default' | 'large';
+}
+
 export interface TextBlockData {
   delta: TextDelta[];
 }
@@ -34,6 +39,8 @@ export type BlockData<Type> = Type extends BlockType.HeadingBlock
   ? PageBlockData
   : Type extends BlockType.TodoListBlock
   ? TodoListBlockData
+  : Type extends BlockType.QuoteBlock
+  ? QuoteBlockData
   : TextBlockData;
 
 export interface NestedBlock<Type = any> {

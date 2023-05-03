@@ -18,6 +18,15 @@ export function canHandleToCheckboxBlock(event: React.KeyboardEvent<HTMLDivEleme
   return isCheckboxMarkdown;
 }
 
+export function canHandleToQuoteBlock(event: React.KeyboardEvent<HTMLDivElement>, editor: Editor) {
+  const flag = getMarkdownFlag(event, editor);
+  if (!flag) return false;
+
+  const isQuoteMarkdown = /^("|“|”)$/.test(flag);
+
+  return isQuoteMarkdown;
+}
+
 function getMarkdownFlag(event: React.KeyboardEvent<HTMLDivElement>, editor: Editor) {
   const isSpaceKey = event.key === keyBoardEventKeyMap.Space;
   const selection = editor.selection;

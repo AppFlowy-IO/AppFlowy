@@ -1,8 +1,9 @@
 import { BlockData, BlockType, DocumentState, NestedBlock, TextDelta } from '$app/interfaces/document';
-import { Descendant, Element, Text } from 'slate';
+import { Descendant, Editor, Element, Text } from 'slate';
 import { BlockPB } from '@/services/backend';
 import { Log } from '$app/utils/log';
 import { nanoid } from 'nanoid';
+import { getAfterRangeAt } from '$app/utils/document/slate/text';
 
 export function deltaToSlateValue(delta: TextDelta[]) {
   const slateNode = {
@@ -19,6 +20,14 @@ export function deltaToSlateValue(delta: TextDelta[]) {
     });
   }
   return slateNodes;
+}
+
+export function getDeltaAfterSelection(editor: Editor): TextDelta[] | undefined {
+  const selection = editor.selection;
+  if (!selection) return;
+  const slateNodes = Editor.fragment(editor, getAfterRangeAt(editor, selection));
+  const delta = getDeltaFromSlateNodes(slateNodes);
+  return delta;
 }
 
 export function getDeltaFromSlateNodes(slateNodes: Descendant[]) {
