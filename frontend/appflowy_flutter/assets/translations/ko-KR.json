@@ -179,7 +179,7 @@
       "numberFormat": "숫자 형식",
       "dateFormat": "날짜 형식",
       "includeTime": "시간 표시",
-      "dateFormatFriendly": "월 일,년",
+      "dateFormatFriendly": "월 일, 년",
       "dateFormatISO": "년-월-일",
       "dateFormatLocal": "월/일/년",
       "dateFormatUS": "년/월/일",

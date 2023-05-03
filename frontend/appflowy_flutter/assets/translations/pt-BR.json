@@ -275,7 +275,7 @@
       "numberFormat": "Formato numérico",
       "dateFormat": "Formato de data",
       "includeTime": "Incluir hora",
-      "dateFormatFriendly": "Mês Dia,Ano",
+      "dateFormatFriendly": "Mês Dia, Ano",
       "dateFormatISO": "Ano-Mês-Dia",
       "dateFormatLocal": "Mês/Dia/Ano",
       "dateFormatUS": "Ano/Mês/Dia",
