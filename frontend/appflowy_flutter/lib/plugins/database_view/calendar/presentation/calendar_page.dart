@@ -73,14 +73,16 @@ class _CalendarPageState extends State<CalendarPage> {
               },
             ),
             BlocListener<CalendarBloc, CalendarState>(
-              listenWhen: (p, c) => p.createdEvent != c.createdEvent,
+              listenWhen: (p, c) => p.editEvent != c.editEvent,
               listener: (context, state) {
-                if (state.createdEvent != null) {
-                  _showRowDetailPage(state.createdEvent!.event!, context);
+                if (state.editEvent != null) {
+                  _showEditEventPage(state.editEvent!.event!, context);
                 }
               },
             ),
             BlocListener<CalendarBloc, CalendarState>(
+              // Event create by click the + button or double click on the
+              // calendar
               listenWhen: (p, c) => p.newEvent != c.newEvent,
               listener: (context, state) {
                 if (state.newEvent != null) {
@@ -212,9 +214,9 @@ class _CalendarPageState extends State<CalendarPage> {
     return WeekDays.values[(dayOfWeek + 1) % 7];
   }
 
-  void _showRowDetailPage(CalendarDayEvent event, BuildContext context) {
+  void _showEditEventPage(CalendarDayEvent event, BuildContext context) {
     final dataController = RowController(
-      rowId: event.cellId.rowId,
+      rowId: event.eventId,
       viewId: widget.view.id,
       rowCache: _calendarBloc.rowCache,
     );

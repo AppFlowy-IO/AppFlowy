@@ -179,7 +179,7 @@ class CalendarDayCard extends StatelessWidget {
       row: rowInfo!.rowPB,
       viewId: viewId,
       rowCache: _rowCache,
-      cardData: event.fieldId,
+      cardData: event.dateFieldId,
       isEditing: false,
       cellBuilder: cellBuilder,
       openCard: (context) => _showRowDetailPage(event, context),
@@ -215,7 +215,7 @@ class CalendarDayCard extends StatelessWidget {
 
   void _showRowDetailPage(CalendarDayEvent event, BuildContext context) {
     final dataController = RowController(
-      rowId: event.cellId.rowId,
+      rowId: event.eventId,
       viewId: viewId,
       rowCache: _rowCache,
     );
