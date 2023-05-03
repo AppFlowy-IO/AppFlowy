@@ -8,7 +8,6 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'startup/launch_configuration.dart';
 import 'startup/startup.dart';
 import 'user/presentation/splash_screen.dart';
-import 'window/window.dart';
 
 class FlowyApp implements EntryPoint {
   @override
@@ -32,15 +31,18 @@ Future<void> main() async {
   await EasyLocalization.ensureInitialized();
   await hotKeyManager.unregisterAll();
 
+  await FlowyRunner.run(FlowyApp());
+
   doWhenWindowReady(() {
     const initialSize = Size(1280, 700);
-    const minSize = Size(600, 400);
     appWindow.size = initialSize;
+
+    const minSize = Size(600, 400);
     appWindow.minSize = minSize;
+
     appWindow.alignment = Alignment.center;
+    appWindow.title = 'AppFlowy';
+
     appWindow.show();
   });
-  await AppWindow.initialize();
-
-  await FlowyRunner.run(FlowyApp());
 }

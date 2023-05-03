@@ -1,6 +1,3 @@
-import 'dart:io' show Platform;
-
-import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/trash/menu.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -14,7 +11,6 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
-// import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/time/duration.dart';
@@ -199,12 +195,9 @@ class MenuTopBar extends StatelessWidget {
   const MenuTopBar({Key? key}) : super(key: key);
 
   Widget renderIcon(BuildContext context) {
-    if (Platform.isMacOS) {
-      return Container();
-    }
-    return (Theme.of(context).brightness == Brightness.dark
-        ? svgWidget("flowy_logo_dark_mode", size: const Size(92, 17))
-        : svgWidget("flowy_logo_with_text", size: const Size(92, 17)));
+    return Theme.of(context).brightness == Brightness.dark
+        ? const FlowySvg(name: 'flowy_logo_dark_mode', size: Size(92, 17))
+        : const FlowySvg(name: 'flowy_logo_with_text', size: Size(92, 17));
   }
 
   @override
@@ -213,31 +206,29 @@ class MenuTopBar extends StatelessWidget {
       builder: (context, state) {
         return SizedBox(
           height: HomeSizes.topBarHeight,
-          child: MoveWindowDetector(
-            child: Row(
-              children: [
-                renderIcon(context),
-                const Spacer(),
-                Tooltip(
-                  richMessage: sidebarTooltipTextSpan(
-                    context,
-                    LocaleKeys.sideBar_closeSidebar.tr(),
+          child: Row(
+            children: [
+              renderIcon(context),
+              const Spacer(),
+              Tooltip(
+                richMessage: sidebarTooltipTextSpan(
+                  context,
+                  LocaleKeys.sideBar_closeSidebar.tr(),
+                ),
+                child: FlowyIconButton(
+                  width: 28,
+                  hoverColor: Colors.transparent,
+                  onPressed: () => context
+                      .read<HomeSettingBloc>()
+                      .add(const HomeSettingEvent.collapseMenu()),
+                  iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                  icon: svgWidget(
+                    "home/hide_menu",
+                    color: Theme.of(context).iconTheme.color,
                   ),
-                  child: FlowyIconButton(
-                    width: 28,
-                    hoverColor: Colors.transparent,
-                    onPressed: () => context
-                        .read<HomeSettingBloc>()
-                        .add(const HomeSettingEvent.collapseMenu()),
-                    iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-                    icon: svgWidget(
-                      "home/hide_menu",
-                      color: Theme.of(context).iconTheme.color,
-                    ),
-                  ),
-                )
-              ],
-            ),
+                ),
+              )
+            ],
           ),
         );
       },
