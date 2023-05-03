@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/database_view/application/field/field_controlle
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/openai/service/openai_client.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/util/file_picker/file_picker_impl.dart';
@@ -27,6 +28,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart' as http;
 
 class DependencyResolver {
   static Future<void> resolve(GetIt getIt) async {
@@ -44,8 +46,25 @@ class DependencyResolver {
   }
 }
 
-void _resolveCommonService(GetIt getIt) {
+void _resolveCommonService(GetIt getIt) async {
   getIt.registerFactory<FilePickerService>(() => FilePicker());
+
+  getIt.registerFactoryAsync<OpenAIRepository>(
+    () async {
+      final result = await UserBackendService.getCurrentUserProfile();
+      return result.fold(
+        (l) {
+          return HttpOpenAIRepository(
+            client: http.Client(),
+            apiKey: l.openaiKey,
+          );
+        },
+        (r) {
+          throw Exception('Failed to get user profile: ${r.msg}');
+        },
+      );
+    },
+  );
 }
 
 void _resolveUserDeps(GetIt getIt) {

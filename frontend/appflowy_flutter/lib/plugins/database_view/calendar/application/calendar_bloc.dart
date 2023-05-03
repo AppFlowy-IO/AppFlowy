@@ -46,7 +46,13 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
             emit(state.copyWith(database: Some(database)));
           },
           didLoadAllEvents: (events) {
-            emit(state.copyWith(initialEvents: events, allEvents: events));
+            final calenderEvents = _calendarEventDataFromEventPBs(events);
+            emit(
+              state.copyWith(
+                initialEvents: calenderEvents,
+                allEvents: calenderEvents,
+              ),
+            );
           },
           didReceiveNewLayoutField: (CalendarLayoutSettingsPB layoutSettings) {
             _loadAllEvents();
@@ -57,9 +63,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           },
           didCreateEvent: (CalendarEventData<CalendarDayEvent> event) {
             emit(
-              state.copyWith(
-                createdEvent: event,
-              ),
+              state.copyWith(editEvent: event),
             );
           },
           updateCalendarLayoutSetting:
@@ -69,7 +73,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           didUpdateEvent: (CalendarEventData<CalendarDayEvent> eventData) {
             var allEvents = [...state.allEvents];
             final index = allEvents.indexWhere(
-              (element) => element.event!.cellId == eventData.event!.cellId,
+              (element) => element.event!.eventId == eventData.event!.eventId,
             );
             if (index != -1) {
               allEvents[index] = eventData;
@@ -77,14 +81,13 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
             emit(
               state.copyWith(
                 allEvents: allEvents,
-                updateEvent: eventData,
               ),
             );
           },
           didDeleteEvents: (List<String> deletedRowIds) {
             var events = [...state.allEvents];
             events.retainWhere(
-              (element) => !deletedRowIds.contains(element.event!.cellId.rowId),
+              (element) => !deletedRowIds.contains(element.event!.eventId),
             );
             emit(
               state.copyWith(
@@ -209,15 +212,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       result.fold(
         (events) {
           if (!isClosed) {
-            final calendarEvents = <CalendarEventData<CalendarDayEvent>>[];
-            for (final eventPB in events.items) {
-              final calendarEvent = _calendarEventDataFromEventPB(eventPB);
-              if (calendarEvent != null) {
-                calendarEvents.add(calendarEvent);
-              }
-            }
-
-            add(CalendarEvent.didLoadAllEvents(calendarEvents));
+            add(CalendarEvent.didLoadAllEvents(events.items));
           }
         },
         (r) => Log.error(r),
@@ -225,22 +220,32 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     });
   }
 
+  List<CalendarEventData<CalendarDayEvent>> _calendarEventDataFromEventPBs(
+    List<CalendarEventPB> eventPBs,
+  ) {
+    final calendarEvents = <CalendarEventData<CalendarDayEvent>>[];
+    for (final eventPB in eventPBs) {
+      final event = _calendarEventDataFromEventPB(eventPB);
+      if (event != null) {
+        calendarEvents.add(event);
+      }
+    }
+    return calendarEvents;
+  }
+
   CalendarEventData<CalendarDayEvent>? _calendarEventDataFromEventPB(
     CalendarEventPB eventPB,
   ) {
-    final fieldInfo = fieldInfoByFieldId[eventPB.titleFieldId];
+    final fieldInfo = fieldInfoByFieldId[eventPB.dateFieldId];
     if (fieldInfo != null) {
-      final cellId = CellIdentifier(
-        viewId: viewId,
-        rowId: eventPB.rowId,
-        fieldInfo: fieldInfo,
-      );
-
       final eventData = CalendarDayEvent(
         event: eventPB,
-        cellId: cellId,
+        eventId: eventPB.rowId,
+        dateFieldId: eventPB.dateFieldId,
       );
 
+      // The timestamp is using UTC in the backend, so we need to convert it
+      // to local time.
       final date = DateTime.fromMillisecondsSinceEpoch(
         eventPB.timestamp.toInt() * 1000,
       );
@@ -265,25 +270,29 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           for (var fieldInfo in fieldInfos) fieldInfo.field.id: fieldInfo
         };
       },
-      onRowsChanged: ((onRowsChanged, rowByRowId, reason) {}),
-      onRowsCreated: ((ids) async {
-        for (final id in ids) {
+      onRowsCreated: ((rowIds) async {
+        for (final id in rowIds) {
           final event = await _loadEvent(id);
           if (event != null && !isClosed) {
             add(CalendarEvent.didReceiveEvent(event));
           }
         }
       }),
-      onRowsDeleted: (ids) {
+      onRowsDeleted: (rowIds) {
         if (isClosed) return;
-        add(CalendarEvent.didDeleteEvents(ids));
+        add(CalendarEvent.didDeleteEvents(rowIds));
       },
-      onRowsUpdated: (ids) async {
+      onRowsUpdated: (rowIds) async {
         if (isClosed) return;
-        for (final id in ids) {
+        for (final id in rowIds) {
           final event = await _loadEvent(id);
-          if (event != null) {
-            add(CalendarEvent.didUpdateEvent(event));
+          if (event != null && isEventDayChanged(event)) {
+            if (isEventDayChanged(event)) {
+              add(CalendarEvent.didDeleteEvents([id]));
+              add(CalendarEvent.didReceiveEvent(event));
+            } else {
+              add(CalendarEvent.didUpdateEvent(event));
+            }
           }
         }
       },
@@ -318,6 +327,19 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       add(CalendarEvent.didReceiveNewLayoutField(layoutSetting.calendar));
     }
   }
+
+  bool isEventDayChanged(
+    CalendarEventData<CalendarDayEvent> event,
+  ) {
+    final index = state.allEvents.indexWhere(
+      (element) => element.event!.eventId == event.event!.eventId,
+    );
+    if (index != -1) {
+      return state.allEvents[index].date.day != event.date.day;
+    } else {
+      return false;
+    }
+  }
 }
 
 typedef Events = List<CalendarEventData<CalendarDayEvent>>;
@@ -332,7 +354,7 @@ class CalendarEvent with _$CalendarEvent {
   ) = _ReceiveCalendarSettings;
 
   // Called after loading all the current evnets
-  const factory CalendarEvent.didLoadAllEvents(Events events) =
+  const factory CalendarEvent.didLoadAllEvents(List<CalendarEventPB> events) =
       _ReceiveCalendarEvents;
 
   // Called when specific event was updated
@@ -375,12 +397,12 @@ class CalendarEvent with _$CalendarEvent {
 class CalendarState with _$CalendarState {
   const factory CalendarState({
     required Option<DatabasePB> database,
+    // events by row id
     required Events allEvents,
     required Events initialEvents,
-    CalendarEventData<CalendarDayEvent>? createdEvent,
+    CalendarEventData<CalendarDayEvent>? editEvent,
     CalendarEventData<CalendarDayEvent>? newEvent,
     required List<String> deleteEventIds,
-    CalendarEventData<CalendarDayEvent>? updateEvent,
     required Option<CalendarLayoutSettingsPB> settings,
     required DatabaseLoadingState loadingState,
     required Option<FlowyError> noneOrError,
@@ -417,9 +439,12 @@ class CalendarEditingRow {
 
 class CalendarDayEvent {
   final CalendarEventPB event;
-  final CellIdentifier cellId;
+  final String dateFieldId;
+  final String eventId;
 
-  String get eventId => cellId.rowId;
-  String get fieldId => cellId.fieldId;
-  CalendarDayEvent({required this.cellId, required this.event});
+  CalendarDayEvent({
+    required this.dateFieldId,
+    required this.eventId,
+    required this.event,
+  });
 }

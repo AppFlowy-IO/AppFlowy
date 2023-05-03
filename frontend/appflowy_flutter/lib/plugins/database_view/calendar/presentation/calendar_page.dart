@@ -73,27 +73,16 @@ class _CalendarPageState extends State<CalendarPage> {
               },
             ),
             BlocListener<CalendarBloc, CalendarState>(
-              listenWhen: (p, c) => p.updateEvent != c.updateEvent,
+              listenWhen: (p, c) => p.editEvent != c.editEvent,
               listener: (context, state) {
-                if (state.updateEvent != null) {
-                  _eventController.removeWhere(
-                    (element) =>
-                        state.updateEvent!.event!.eventId ==
-                        element.event!.eventId,
-                  );
-                  _eventController.add(state.updateEvent!);
+                if (state.editEvent != null) {
+                  _showEditEventPage(state.editEvent!.event!, context);
                 }
               },
             ),
             BlocListener<CalendarBloc, CalendarState>(
-              listenWhen: (p, c) => p.createdEvent != c.createdEvent,
-              listener: (context, state) {
-                if (state.createdEvent != null) {
-                  _showRowDetailPage(state.createdEvent!.event!, context);
-                }
-              },
-            ),
-            BlocListener<CalendarBloc, CalendarState>(
+              // Event create by click the + button or double click on the
+              // calendar
               listenWhen: (p, c) => p.newEvent != c.newEvent,
               listener: (context, state) {
                 if (state.newEvent != null) {
@@ -196,7 +185,12 @@ class _CalendarPageState extends State<CalendarPage> {
     isInMonth,
   ) {
     final events = calenderEvents.map((value) => value.event!).toList();
-
+    // Sort the events by timestamp. Because the database view is not
+    // reserving the order of the events. Reserving the order of the rows/events
+    // is implemnted in the develop branch(WIP). Will be replaced with that.
+    events.sort(
+      (a, b) => a.event.timestamp.compareTo(b.event.timestamp),
+    );
     return CalendarDayCard(
       viewId: widget.view.id,
       isToday: isToday,
@@ -220,9 +214,9 @@ class _CalendarPageState extends State<CalendarPage> {
     return WeekDays.values[(dayOfWeek + 1) % 7];
   }
 
-  void _showRowDetailPage(CalendarDayEvent event, BuildContext context) {
+  void _showEditEventPage(CalendarDayEvent event, BuildContext context) {
     final dataController = RowController(
-      rowId: event.cellId.rowId,
+      rowId: event.eventId,
       viewId: widget.view.id,
       rowCache: _calendarBloc.rowCache,
     );

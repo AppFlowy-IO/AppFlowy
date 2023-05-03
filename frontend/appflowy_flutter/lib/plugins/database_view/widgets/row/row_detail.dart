@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/database_view/application/field/type_option/typ
 import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -132,7 +133,14 @@ class _PropertyColumn extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _RowTitle(
+              cellId: state.gridCells
+                  .firstWhereOrNull((e) => e.fieldInfo.isPrimary),
+              cellBuilder: cellBuilder,
+            ),
+            const VSpace(20),
             ...state.gridCells
+                .where((element) => !element.fieldInfo.isPrimary)
                 .map(
                   (cell) => Padding(
                     padding: const EdgeInsets.only(bottom: 4.0),
@@ -149,6 +157,26 @@ class _PropertyColumn extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+class _RowTitle extends StatelessWidget {
+  final CellIdentifier? cellId;
+  final GridCellBuilder cellBuilder;
+  const _RowTitle({this.cellId, required this.cellBuilder, Key? key})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (cellId == null) {
+      return const SizedBox();
+    }
+    final style = GridTextCellStyle(
+      placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+      textStyle: Theme.of(context).textTheme.titleLarge,
+      autofocus: true,
+    );
+    return cellBuilder.build(cellId!, style: style);
   }
 }
 
