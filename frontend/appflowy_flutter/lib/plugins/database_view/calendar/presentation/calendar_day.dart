@@ -82,13 +82,16 @@ class CalendarDayCard extends StatelessWidget {
 
         return Container(
           color: backgroundColor,
-          child: MouseRegion(
-            cursor: SystemMouseCursors.basic,
-            onEnter: (p) => notifyEnter(context, true),
-            onExit: (p) => notifyEnter(context, false),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: child,
+          child: GestureDetector(
+            onDoubleTap: () => onCreateEvent(date),
+            child: MouseRegion(
+              cursor: SystemMouseCursors.basic,
+              onEnter: (p) => notifyEnter(context, true),
+              onExit: (p) => notifyEnter(context, false),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: child,
+              ),
             ),
           ),
         );
