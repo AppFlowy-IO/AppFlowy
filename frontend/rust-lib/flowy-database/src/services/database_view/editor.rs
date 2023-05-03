@@ -906,7 +906,6 @@ impl DatabaseViewEditor {
 
     let mut events: Vec<CalendarEventPB> = vec![];
     for text_cell in text_cells {
-      let title_field_id = text_cell.field_id.clone();
       let row_id = text_cell.row_id.clone();
       let timestamp = timestamp_by_row_id
         .get(&row_id)
@@ -920,7 +919,7 @@ impl DatabaseViewEditor {
 
       let event = CalendarEventPB {
         row_id,
-        date_field_id: title_field_id,
+        date_field_id: calendar_setting.layout_field_id.clone(),
         title,
         timestamp,
       };
