@@ -363,6 +363,7 @@
       "smartEditFixSpelling": "Fix spelling",
       "warning": "⚠️ AI responses can be inaccurate or misleading.",
       "smartEditSummarize": "Summarize",
+      "smartEditImproveWriting":"Improve Writing",
       "smartEditCouldNotFetchResult": "Could not fetch result from OpenAI",
       "smartEditCouldNotFetchKey": "Could not fetch OpenAI key",
       "smartEditDisabled": "Connect OpenAI in Settings",

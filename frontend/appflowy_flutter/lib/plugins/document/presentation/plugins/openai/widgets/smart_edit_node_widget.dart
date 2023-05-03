@@ -356,7 +356,9 @@ class _SmartEditInputState extends State<_SmartEditInput> {
           },
           onProcess: (response) async {
             setState(() {
-              this.result += response.choices.first.text;
+              if (response.choices.first.text != '\n') {
+                this.result += response.choices.first.text;
+              }
             });
           },
           onEnd: () async {
