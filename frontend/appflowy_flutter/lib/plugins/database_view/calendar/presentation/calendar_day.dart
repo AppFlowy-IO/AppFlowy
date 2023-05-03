@@ -122,17 +122,24 @@ class CalendarDayCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 2),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              FlowyText.regular(
-                cellData.date,
-                fontSize: 10,
-                color: Theme.of(context).hintColor,
+              Flexible(
+                flex: 3,
+                child: FlowyText.regular(
+                  cellData.date,
+                  fontSize: 10,
+                  color: Theme.of(context).hintColor,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              const Spacer(),
-              FlowyText.regular(
-                cellData.time,
-                fontSize: 10,
-                color: Theme.of(context).hintColor,
+              Flexible(
+                child: FlowyText.regular(
+                  cellData.time,
+                  fontSize: 10,
+                  color: Theme.of(context).hintColor,
+                  overflow: TextOverflow.ellipsis,
+                ),
               )
             ],
           ),
