@@ -29,14 +29,21 @@ class RowCardRenderHook<CustomCardData> {
   }
 
   /// Add a render hook for the [FieldType.RichText]
-  void addTextFieldHook(
+  void addTextCellHook(
     CellRenderHook<String, CustomCardData?> hook,
   ) {
     renderHook[FieldType.RichText] = _typeSafeHook<String>(hook);
   }
 
+  /// Add a render hook for the [FieldType.Number]
+  void addNumberCellHook(
+    CellRenderHook<String, CustomCardData?> hook,
+  ) {
+    renderHook[FieldType.Number] = _typeSafeHook<String>(hook);
+  }
+
   /// Add a render hook for the [FieldType.Date]
-  void addDateFieldHook(
+  void addDateCellHook(
     CellRenderHook<DateCellDataPB, CustomCardData?> hook,
   ) {
     renderHook[FieldType.DateTime] = _typeSafeHook<DateCellDataPB>(hook);

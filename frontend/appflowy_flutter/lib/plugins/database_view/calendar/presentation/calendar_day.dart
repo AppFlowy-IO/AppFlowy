@@ -3,8 +3,11 @@ import 'package:appflowy/plugins/database_view/application/row/row_data_controll
 import 'package:appflowy/plugins/database_view/widgets/card/card.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/cells/card_cell.dart';
+import 'package:appflowy/plugins/database_view/widgets/card/cells/number_card_cell.dart';
+import 'package:appflowy/plugins/database_view/widgets/card/cells/url_card_cell.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
@@ -100,11 +103,19 @@ class CalendarDayCard extends StatelessWidget {
   }
 
   GestureDetector _buildCard(BuildContext context, CalendarDayEvent event) {
-    final cellBuilder = CardCellBuilder<String>(_rowCache.cellCache);
-    final rowInfo = _rowCache.getRow(event.eventId);
+    final styles = <FieldType, CardCellStyle>{
+      FieldType.Number: NumberCardCellStyle(10),
+      FieldType.URL: URLCardCellStyle(10),
+    };
 
+    final cellBuilder = CardCellBuilder<String>(
+      _rowCache.cellCache,
+      styles: styles,
+    );
+
+    final rowInfo = _rowCache.getRow(event.eventId);
     final renderHook = RowCardRenderHook<String>();
-    renderHook.addTextFieldHook((cellData, primaryFieldId, _) {
+    renderHook.addTextCellHook((cellData, primaryFieldId, _) {
       if (cellData.isEmpty) {
         return const SizedBox();
       }
@@ -119,7 +130,7 @@ class CalendarDayCard extends StatelessWidget {
       );
     });
 
-    renderHook.addDateFieldHook((cellData, cardData, _) {
+    renderHook.addDateCellHook((cellData, cardData, _) {
       return Align(
         alignment: Alignment.centerLeft,
         child: Padding(

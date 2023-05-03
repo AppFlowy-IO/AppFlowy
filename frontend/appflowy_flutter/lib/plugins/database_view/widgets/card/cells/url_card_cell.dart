@@ -8,13 +8,21 @@ import '../bloc/url_card_cell_bloc.dart';
 import '../define.dart';
 import 'card_cell.dart';
 
-class URLCardCell extends CardCell {
+class URLCardCellStyle extends CardCellStyle {
+  final double fontSize;
+
+  URLCardCellStyle(this.fontSize);
+}
+
+class URLCardCell<CustomCardData>
+    extends CardCell<CustomCardData, URLCardCellStyle> {
   final CellControllerBuilder cellControllerBuilder;
 
   const URLCardCell({
     required this.cellControllerBuilder,
+    URLCardCellStyle? style,
     Key? key,
-  }) : super(key: key);
+  }) : super(key: key, style: style);
 
   @override
   State<URLCardCell> createState() => _URLCardCellState();
@@ -55,7 +63,7 @@ class _URLCardCellState extends State<URLCardCell> {
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium!
-                        .size(FontSizes.s14)
+                        .size(widget.style?.fontSize ?? FontSizes.s14)
                         .textColor(Theme.of(context).colorScheme.primary)
                         .underline,
                   ),

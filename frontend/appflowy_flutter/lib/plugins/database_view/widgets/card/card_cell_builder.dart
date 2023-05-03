@@ -15,15 +15,15 @@ import 'cells/url_card_cell.dart';
 // T represents as the Generic card data
 class CardCellBuilder<CustomCardData> {
   final CellCache cellCache;
+  final Map<FieldType, CardCellStyle>? styles;
 
-  CardCellBuilder(this.cellCache);
+  CardCellBuilder(this.cellCache, {this.styles});
 
   Widget buildCell({
     CustomCardData? cardData,
     required CellIdentifier cellId,
     EditableCardNotifier? cellNotifier,
     RowCardRenderHook<CustomCardData>? renderHook,
-    Map<FieldType, CardCellStyle>? styles,
   }) {
     final cellControllerBuilder = CellControllerBuilder(
       cellId: cellId,
@@ -65,7 +65,9 @@ class CardCellBuilder<CustomCardData> {
           key: key,
         );
       case FieldType.Number:
-        return NumberCardCell(
+        return NumberCardCell<CustomCardData>(
+          renderHook: renderHook?.renderHook[FieldType.Number],
+          style: isStyleOrNull<NumberCardCellStyle>(style),
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
@@ -79,7 +81,8 @@ class CardCellBuilder<CustomCardData> {
           key: key,
         );
       case FieldType.URL:
-        return URLCardCell(
+        return URLCardCell<CustomCardData>(
+          style: isStyleOrNull<URLCardCellStyle>(style),
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
