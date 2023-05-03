@@ -82,13 +82,16 @@ class CalendarDayCard extends StatelessWidget {
 
         return Container(
           color: backgroundColor,
-          child: MouseRegion(
-            cursor: SystemMouseCursors.basic,
-            onEnter: (p) => notifyEnter(context, true),
-            onExit: (p) => notifyEnter(context, false),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: child,
+          child: GestureDetector(
+            onDoubleTap: () => onCreateEvent(date),
+            child: MouseRegion(
+              cursor: SystemMouseCursors.basic,
+              onEnter: (p) => notifyEnter(context, true),
+              onExit: (p) => notifyEnter(context, false),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: child,
+              ),
             ),
           ),
         );
@@ -122,17 +125,24 @@ class CalendarDayCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 2),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              FlowyText.regular(
-                cellData.date,
-                fontSize: 10,
-                color: Theme.of(context).hintColor,
+              Flexible(
+                flex: 3,
+                child: FlowyText.regular(
+                  cellData.date,
+                  fontSize: 10,
+                  color: Theme.of(context).hintColor,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              const Spacer(),
-              FlowyText.regular(
-                cellData.time,
-                fontSize: 10,
-                color: Theme.of(context).hintColor,
+              Flexible(
+                child: FlowyText.regular(
+                  cellData.time,
+                  fontSize: 10,
+                  color: Theme.of(context).hintColor,
+                  overflow: TextOverflow.ellipsis,
+                ),
               )
             ],
           ),
