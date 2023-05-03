@@ -112,18 +112,13 @@ impl NumberTypeOptionPB {
             Err(_) => Ok(NumberCellData::new()),
           }
         } else {
-          let draw_numer_string = NUM_REGEX.replace_all(s, "");
-          let strnum = match draw_numer_string.matches('.').count() {
-            0 | 1 => draw_numer_string.to_string(),
-            _ => match EXTRACT_NUM_REGEX.captures(&draw_numer_string) {
-              Ok(captures) => match captures {
-                Some(capture) => capture[1].to_string(),
-                None => "".to_string(),
-              },
-              Err(_) => "".to_string(),
+          let num = match EXTRACT_NUM_REGEX.captures(s) {
+            Ok(Some(captures)) =>  {
+              captures.get(0).map(|m| m.as_str().to_string()).unwrap_or_default()
             },
+            _ => "".to_string(),
           };
-          match Decimal::from_str(&strnum) {
+          match Decimal::from_str(&num) {
             Ok(value, ..) => Ok(NumberCellData::from_decimal(value)),
             Err(_) => Ok(NumberCellData::new()),
           }
@@ -238,13 +233,7 @@ impl std::default::Default for NumberTypeOptionPB {
 }
 
 lazy_static! {
-  static ref NUM_REGEX: Regex = Regex::new(r"[^\d\.]").unwrap();
-}
-
-lazy_static! {
   static ref SCIENTIFIC_NOTATION_REGEX: Regex = Regex::new(r"([+-]?\d*\.?\d+)e([+-]?\d+)").unwrap();
+  static ref EXTRACT_NUM_REGEX: Regex = Regex::new(r"-?\d+(\.\d+)?").unwrap();
 }
 
-lazy_static! {
-  static ref EXTRACT_NUM_REGEX: Regex = Regex::new(r"^(\d+\.\d+)(?:\.\d+)*$").unwrap();
-}
