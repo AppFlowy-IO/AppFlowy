@@ -412,9 +412,9 @@ class _CoverImageState extends State<_CoverImage> {
                   setOverlayButtonsHidden(true);
                 },
                 hoverColor: Theme.of(context).colorScheme.surface,
-                textColor: Theme.of(context).colorScheme.onSurface,
+                textColor: Theme.of(context).colorScheme.tertiary,
                 fillColor:
-                    Theme.of(context).colorScheme.surface.withOpacity(0.8),
+                    Theme.of(context).colorScheme.surface.withOpacity(0.5),
                 width: 120,
                 height: 28,
                 title: LocaleKeys.document_plugins_cover_changeCover.tr(),
@@ -435,13 +435,13 @@ class _CoverImageState extends State<_CoverImage> {
             maintainState: true,
             visible: !isOverlayButtonsHidden,
             child: FlowyIconButton(
-              fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
               hoverColor: Theme.of(context).colorScheme.surface,
+              fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.5),
               iconPadding: const EdgeInsets.all(5),
               width: 28,
               icon: svgWidget(
                 'editor/delete',
-                color: Theme.of(context).colorScheme.onSurface,
+                color: Theme.of(context).colorScheme.tertiary,
               ),
               onPressed: () {
                 widget.onCoverChanged(CoverSelectionType.initial, null);
