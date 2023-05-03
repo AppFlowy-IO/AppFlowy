@@ -308,7 +308,8 @@
       "textPlaceholder": "Empty",
       "copyProperty": "Copied property to clipboard",
       "count": "Count",
-      "newRow": "New row"
+      "newRow": "New row",
+      "action": "Action"
     },
     "selectOption": {
       "create": "Create",

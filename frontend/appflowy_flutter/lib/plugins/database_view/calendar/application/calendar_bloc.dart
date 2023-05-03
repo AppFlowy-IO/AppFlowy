@@ -55,6 +55,13 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           createEvent: (DateTime date, String title) async {
             await _createEvent(date, title);
           },
+          didCreateEvent: (CalendarEventData<CalendarDayEvent> event) {
+            emit(
+              state.copyWith(
+                createdEvent: event,
+              ),
+            );
+          },
           updateCalendarLayoutSetting:
               (CalendarLayoutSettingsPB layoutSetting) async {
             await _updateCalendarLayoutSetting(layoutSetting);
@@ -70,15 +77,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
             emit(
               state.copyWith(
                 allEvents: allEvents,
-                updateEvent: eventData,
-              ),
-            );
-          },
-          didReceiveNewEvent: (CalendarEventData<CalendarDayEvent> event) {
-            emit(
-              state.copyWith(
-                allEvents: [...state.allEvents, event],
-                newEvent: event,
               ),
             );
           },
@@ -94,9 +92,23 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
               ),
             );
           },
+          didReceiveEvent: (CalendarEventData<CalendarDayEvent> event) {
+            emit(
+              state.copyWith(
+                allEvents: [...state.allEvents, event],
+                newEvent: event,
+              ),
+            );
+          },
         );
       },
     );
+  }
+
+  @override
+  Future<void> close() async {
+    await _databaseController.dispose();
+    return super.close();
   }
 
   FieldInfo? _getCalendarFieldInfo(String fieldId) {
@@ -142,17 +154,27 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         final dateField = _getCalendarFieldInfo(settings.layoutFieldId);
         final titleField = _getTitleFieldInfo();
         if (dateField != null && titleField != null) {
-          final result = await _databaseController.createRow(
+          final newRow = await _databaseController.createRow(
             withCells: (builder) {
               builder.insertDate(dateField, date);
               builder.insertText(titleField, title);
             },
+          ).then(
+            (result) => result.fold(
+              (newRow) => newRow,
+              (err) {
+                Log.error(err);
+                return null;
+              },
+            ),
           );
 
-          return result.fold(
-            (newRow) {},
-            (err) => Log.error(err),
-          );
+          if (newRow != null) {
+            final event = await _loadEvent(newRow.id);
+            if (event != null && !isClosed) {
+              add(CalendarEvent.didCreateEvent(event));
+            }
+          }
         }
       },
     );
@@ -218,6 +240,8 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         cellId: cellId,
       );
 
+      // The timestamp is using UTC in the backend, so we need to convert it
+      // to local time.
       final date = DateTime.fromMillisecondsSinceEpoch(
         eventPB.timestamp.toInt() * 1000,
       );
@@ -247,7 +271,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         for (final id in ids) {
           final event = await _loadEvent(id);
           if (event != null && !isClosed) {
-            add(CalendarEvent.didReceiveNewEvent(event));
+            add(CalendarEvent.didReceiveEvent(event));
           }
         }
       }),
@@ -275,7 +299,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       onCalendarLayoutChanged: _didReceiveNewLayoutField,
     );
 
-    _databaseController.addListener(
+    _databaseController.setListener(
       onDatabaseChanged: onDatabaseChanged,
       onLayoutChanged: onLayoutChanged,
       onCalendarLayoutChanged: onCalendarLayoutFieldChanged,
@@ -318,9 +342,14 @@ class CalendarEvent with _$CalendarEvent {
   ) = _DidUpdateEvent;
 
   // Called after creating a new event
-  const factory CalendarEvent.didReceiveNewEvent(
+  const factory CalendarEvent.didCreateEvent(
     CalendarEventData<CalendarDayEvent> event,
   ) = _DidReceiveNewEvent;
+
+  // Called when receive a new event
+  const factory CalendarEvent.didReceiveEvent(
+    CalendarEventData<CalendarDayEvent> event,
+  ) = _DidReceiveEvent;
 
   // Called when deleting events
   const factory CalendarEvent.didDeleteEvents(List<String> rowIds) =
@@ -349,9 +378,9 @@ class CalendarState with _$CalendarState {
     required Option<DatabasePB> database,
     required Events allEvents,
     required Events initialEvents,
+    CalendarEventData<CalendarDayEvent>? createdEvent,
     CalendarEventData<CalendarDayEvent>? newEvent,
     required List<String> deleteEventIds,
-    CalendarEventData<CalendarDayEvent>? updateEvent,
     required Option<CalendarLayoutSettingsPB> settings,
     required DatabaseLoadingState loadingState,
     required Option<FlowyError> noneOrError,
@@ -391,5 +420,6 @@ class CalendarDayEvent {
   final CellIdentifier cellId;
 
   String get eventId => cellId.rowId;
+  String get fieldId => cellId.fieldId;
   CalendarDayEvent({required this.cellId, required this.event});
 }

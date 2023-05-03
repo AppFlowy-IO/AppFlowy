@@ -250,6 +250,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
 
     return ThemeData(
       brightness: brightness,
+      dialogBackgroundColor: theme.surface,
       textTheme: _getTextTheme(fontFamily: fontFamily, fontColor: theme.text),
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: theme.main2,
@@ -283,7 +284,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
           return 3.0;
         }),
         crossAxisMargin: 0.0,
-        mainAxisMargin: 0.0,
+        mainAxisMargin: 6.0,
         radius: Corners.s10Radius,
       ),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -316,7 +317,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
           greySelect: theme.bg3,
           lightGreyHover: theme.hoverBG3,
           toggleOffFill: theme.shader5,
-          progressBarBGcolor: theme.progressBarBGcolor,
+          progressBarBGColor: theme.progressBarBGColor,
+          toggleButtonBGColor: theme.toggleButtonBGColor,
           code: _getFontStyle(
             fontFamily: monospaceFontFamily,
             fontColor: theme.shader3,

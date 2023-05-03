@@ -236,7 +236,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       },
     );
 
-    _databaseController.addListener(
+    _databaseController.setListener(
       onDatabaseChanged: onDatabaseChanged,
       onGroupChanged: onGroupChanged,
     );

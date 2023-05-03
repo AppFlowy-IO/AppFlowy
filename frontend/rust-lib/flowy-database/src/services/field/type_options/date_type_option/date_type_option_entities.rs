@@ -157,8 +157,7 @@ impl FromCellString for DateCellData {
   where
     Self: Sized,
   {
-    let result: DateCellData = serde_json::from_str(s).unwrap();
-    Ok(result)
+    Ok(serde_json::from_str::<DateCellData>(s).unwrap_or_default())
   }
 }
 
