@@ -90,12 +90,12 @@ class _UnscheduleEventsButton extends StatefulWidget {
 }
 
 class _UnscheduleEventsButtonState extends State<_UnscheduleEventsButton> {
-  late PopoverController _popover;
+  late final PopoverController _controller;
 
   @override
   void initState() {
-    _popover = PopoverController();
     super.initState();
+    _controller = PopoverController();
   }
 
   @override
@@ -108,7 +108,7 @@ class _UnscheduleEventsButtonState extends State<_UnscheduleEventsButton> {
         final rowCache = context.read<CalendarBloc>().rowCache;
         return AppFlowyPopover(
           direction: PopoverDirection.bottomWithCenterAligned,
-          controller: _popover,
+          controller: _controller,
           offset: const Offset(0, 8),
           child: FlowyTextButton(
             "${LocaleKeys.calendar_settings_noDateTitle.tr()} (${unscheduledEvents.length})",
@@ -133,7 +133,7 @@ class _UnscheduleEventsButtonState extends State<_UnscheduleEventsButton> {
                           viewId: viewId,
                           rowCache: rowCache,
                         );
-                        _popover.close();
+                        _controller.close();
                       },
                     ),
                   ),
