@@ -113,9 +113,10 @@ impl NumberTypeOptionPB {
           }
         } else {
           let num = match EXTRACT_NUM_REGEX.captures(s) {
-            Ok(Some(captures)) =>  {
-              captures.get(0).map(|m| m.as_str().to_string()).unwrap_or_default()
-            },
+            Ok(Some(captures)) => captures
+              .get(0)
+              .map(|m| m.as_str().to_string())
+              .unwrap_or_default(),
             _ => "".to_string(),
           };
           match Decimal::from_str(&num) {
@@ -236,4 +237,3 @@ lazy_static! {
   static ref SCIENTIFIC_NOTATION_REGEX: Regex = Regex::new(r"([+-]?\d*\.?\d+)e([+-]?\d+)").unwrap();
   static ref EXTRACT_NUM_REGEX: Regex = Regex::new(r"-?\d+(\.\d+)?").unwrap();
 }
-
