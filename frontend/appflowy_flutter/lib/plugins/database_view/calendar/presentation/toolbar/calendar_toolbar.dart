@@ -103,7 +103,8 @@ class _UnscheduleEventsButtonState extends State<_UnscheduleEventsButton> {
     return BlocBuilder<CalendarBloc, CalendarState>(
       builder: (context, state) {
         final unscheduledEvents = state.allEvents
-            .where((e) => e.date == DateTime.fromMillisecondsSinceEpoch(0));
+            .where((e) => e.date == DateTime.fromMillisecondsSinceEpoch(0))
+            .toList();
         final viewId = context.read<CalendarBloc>().viewId;
         final rowCache = context.read<CalendarBloc>().rowCache;
         return AppFlowyPopover(
@@ -117,29 +118,7 @@ class _UnscheduleEventsButtonState extends State<_UnscheduleEventsButton> {
             padding: GridSize.typeOptionContentInsets,
           ),
           popupBuilder: (context) {
-            final cells = unscheduledEvents
-                .map(
-                  (CalendarEventData<CalendarDayEvent> event) => SizedBox(
-                    height: GridSize.popoverItemHeight,
-                    child: FlowyTextButton(
-                      event.title,
-                      fillColor: Colors.transparent,
-                      hoverColor: AFThemeExtension.of(context).lightGreyHover,
-                      padding: GridSize.typeOptionContentInsets,
-                      onPressed: () {
-                        showEventDetails(
-                          context: context,
-                          event: event.event!,
-                          viewId: viewId,
-                          rowCache: rowCache,
-                        );
-                        _controller.close();
-                      },
-                    ),
-                  ),
-                )
-                .toList();
-            if (cells.isEmpty) {
+            if (unscheduledEvents.isEmpty) {
               return SizedBox(
                 height: GridSize.popoverItemHeight,
                 child: Center(
@@ -151,8 +130,19 @@ class _UnscheduleEventsButtonState extends State<_UnscheduleEventsButton> {
               );
             }
             return ListView.separated(
-              itemBuilder: (context, index) => cells[index],
-              itemCount: cells.length,
+              itemBuilder: (context, index) => _UnscheduledEventItem(
+                event: unscheduledEvents[index],
+                onPressed: () {
+                  showEventDetails(
+                    context: context,
+                    event: unscheduledEvents[index].event!,
+                    viewId: viewId,
+                    rowCache: rowCache,
+                  );
+                  _controller.close();
+                },
+              ),
+              itemCount: unscheduledEvents.length,
               separatorBuilder: (context, index) =>
                   VSpace(GridSize.typeOptionSeparatorHeight),
               shrinkWrap: true,
@@ -160,6 +150,30 @@ class _UnscheduleEventsButtonState extends State<_UnscheduleEventsButton> {
           },
         );
       },
+    );
+  }
+}
+
+class _UnscheduledEventItem extends StatelessWidget {
+  final CalendarEventData<CalendarDayEvent> event;
+  final VoidCallback onPressed;
+  const _UnscheduledEventItem({
+    required this.event,
+    required this.onPressed,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: GridSize.popoverItemHeight,
+      child: FlowyTextButton(
+        event.title,
+        fillColor: Colors.transparent,
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        padding: GridSize.typeOptionContentInsets,
+        onPressed: onPressed,
+      ),
     );
   }
 }
