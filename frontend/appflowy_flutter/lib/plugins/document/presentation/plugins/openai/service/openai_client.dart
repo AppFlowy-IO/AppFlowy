@@ -50,6 +50,7 @@ abstract class OpenAIRepository {
     String? suffix,
     int maxTokens = 2048,
     double temperature = 0.3,
+    bool useAction = false,
   });
 
   ///  Get edits from GPT-3
