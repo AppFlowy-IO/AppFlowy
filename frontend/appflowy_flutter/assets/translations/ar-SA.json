@@ -405,7 +405,6 @@
     },
     "calendar": {
         "menuName": "تقويم",
-        "defaultNewCalendarTitle": "بدون عنوان",
         "navigation": {
             "today": "اليوم",
             "jumpToday": "انتقل إلى اليوم",

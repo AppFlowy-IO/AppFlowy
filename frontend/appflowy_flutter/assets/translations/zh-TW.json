@@ -393,7 +393,6 @@
   },
   "calendar": {
     "menuName": "日曆",
-    "defaultNewCalendarTitle": "未命名的",
     "navigation": {
       "today": "今天",
       "jumpToday": "跳至今天",

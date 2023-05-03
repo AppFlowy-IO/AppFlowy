@@ -202,7 +202,7 @@ class _CalendarPageState extends State<CalendarPage> {
         _calendarBloc.add(
           CalendarEvent.createEvent(
             date,
-            LocaleKeys.calendar_defaultNewCalendarTitle.tr(),
+            "",
           ),
         );
       },

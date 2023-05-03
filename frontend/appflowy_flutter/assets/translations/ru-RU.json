@@ -406,7 +406,6 @@
   },
   "calendar": {
     "menuName": "Календарь",
-    "defaultNewCalendarTitle": "Безымянный",
     "navigation": {
       "today": "Сегодня",
       "jumpToday": "Перейти к сегодняшнему дню",
