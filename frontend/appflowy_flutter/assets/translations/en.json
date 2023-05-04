@@ -74,6 +74,7 @@
     "shortcuts": "Shortcuts",
     "whatsNew": "What's new?",
     "help": "Help & Support",
+    "markdown": "Markdown",
     "debug": {
       "name": "Debug Info",
       "success": "Copied debug info to clipboard!",
@@ -128,6 +129,7 @@
   },
   "button": {
     "OK": "OK",
+    "Done": "Done",
     "Cancel": "Cancel",
     "signIn": "Sign In",
     "signOut": "Sign Out",
@@ -278,7 +280,7 @@
       "numberFormat": "Number format",
       "dateFormat": "Date format",
       "includeTime": "Include time",
-      "dateFormatFriendly": "Month Day,Year",
+      "dateFormatFriendly": "Month Day, Year",
       "dateFormatISO": "Year-Month-Day",
       "dateFormatLocal": "Month/Day/Year",
       "dateFormatUS": "Year/Month/Day",
@@ -306,7 +308,8 @@
       "textPlaceholder": "Empty",
       "copyProperty": "Copied property to clipboard",
       "count": "Count",
-      "newRow": "New row"
+      "newRow": "New row",
+      "action": "Action"
     },
     "selectOption": {
       "create": "Create",
@@ -360,6 +363,7 @@
       "smartEditFixSpelling": "Fix spelling",
       "warning": "⚠️ AI responses can be inaccurate or misleading.",
       "smartEditSummarize": "Summarize",
+      "smartEditImproveWriting": "Improve Writing",
       "smartEditCouldNotFetchResult": "Could not fetch result from OpenAI",
       "smartEditCouldNotFetchKey": "Could not fetch OpenAI key",
       "smartEditDisabled": "Connect OpenAI in Settings",
@@ -387,6 +391,10 @@
         "addIcon": "Add Icon",
         "coverRemoveAlert": "It will be removed from cover after it is deleted.",
         "alertDialogConfirmation": "Are you sure, you want to continue?"
+      },
+      "mathEquation": {
+        "addMathEquation": "Add Math Equation",
+        "editMathEquation": "Edit Math Equation"
       }
     }
   },
@@ -409,7 +417,7 @@
     "settings": {
       "showWeekNumbers": "Show week numbers",
       "showWeekends": "Show weekends",
-      "firstDayOfWeek": "First day of week",
+      "firstDayOfWeek": "Start week on",
       "layoutDateField": "Layout calendar by"
     }
   }

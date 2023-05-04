@@ -55,7 +55,7 @@ class CellControllerBuilder {
       case FieldType.Number:
         final cellDataLoader = CellDataLoader(
           cellId: _cellId,
-          parser: StringCellDataParser(),
+          parser: NumberCellDataParser(),
           reloadOnFieldChanged: true,
         );
         return NumberCellController(

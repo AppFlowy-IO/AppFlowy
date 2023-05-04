@@ -225,6 +225,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       secondaryContainer: theme.selector,
       onSecondaryContainer: theme.topbarBg,
       tertiary: theme.shader7,
+      // Editor: toolbarColor
+      onTertiary: theme.toolbarColor,
       tertiaryContainer: theme.questionBubbleBG,
       background: theme.surface,
       onBackground: theme.text,
@@ -240,8 +242,15 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       shadow: theme.shadow,
     );
 
+    const Set<MaterialState> scrollbarInteractiveStates = <MaterialState>{
+      MaterialState.pressed,
+      MaterialState.hovered,
+      MaterialState.dragged,
+    };
+
     return ThemeData(
       brightness: brightness,
+      dialogBackgroundColor: theme.surface,
       textTheme: _getTextTheme(fontFamily: fontFamily, fontColor: theme.text),
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: theme.main2,
@@ -262,20 +271,20 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         contentTextStyle: TextStyle(color: colorScheme.onSurface),
       ),
       scrollbarTheme: ScrollbarThemeData(
-        thumbColor: MaterialStateProperty.all(theme.shader3),
+        thumbColor: MaterialStateProperty.resolveWith((states) {
+          if (states.any(scrollbarInteractiveStates.contains)) {
+            return theme.shader7;
+          }
+          return theme.shader5;
+        }),
         thickness: MaterialStateProperty.resolveWith((states) {
-          const Set<MaterialState> interactiveStates = <MaterialState>{
-            MaterialState.pressed,
-            MaterialState.hovered,
-            MaterialState.dragged,
-          };
-          if (states.any(interactiveStates.contains)) {
-            return 5.0;
+          if (states.any(scrollbarInteractiveStates.contains)) {
+            return 4;
           }
           return 3.0;
         }),
         crossAxisMargin: 0.0,
-        mainAxisMargin: 0.0,
+        mainAxisMargin: 6.0,
         radius: Corners.s10Radius,
       ),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -308,7 +317,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
           greySelect: theme.bg3,
           lightGreyHover: theme.hoverBG3,
           toggleOffFill: theme.shader5,
-          progressBarBGcolor: theme.progressBarBGcolor,
+          progressBarBGColor: theme.progressBarBGColor,
+          toggleButtonBGColor: theme.toggleButtonBGColor,
           code: _getFontStyle(
             fontFamily: monospaceFontFamily,
             fontColor: theme.shader3,

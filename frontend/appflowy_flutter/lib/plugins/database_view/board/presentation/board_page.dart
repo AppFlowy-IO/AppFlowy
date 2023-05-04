@@ -78,7 +78,7 @@ class BoardContent extends StatefulWidget {
 
 class _BoardContentState extends State<BoardContent> {
   late AppFlowyBoardScrollController scrollManager;
-  final cardConfiguration = CardConfiguration<String>();
+  final renderHook = RowCardRenderHook<String>();
 
   final config = const AppFlowyBoardConfig(
     groupBackgroundColor: Color(0xffF7F8FC),
@@ -87,7 +87,7 @@ class _BoardContentState extends State<BoardContent> {
   @override
   void initState() {
     scrollManager = AppFlowyBoardScrollController();
-    cardConfiguration.addSelectOptionHook((options, groupId) {
+    renderHook.addSelectOptionHook((options, groupId, _) {
       // The cell should hide if the option id is equal to the groupId.
       final isInGroup =
           options.where((element) => element.id == groupId).isNotEmpty;
@@ -254,15 +254,15 @@ class _BoardContentState extends State<BoardContent> {
       key: ValueKey(groupItemId),
       margin: config.cardPadding,
       decoration: _makeBoxDecoration(context),
-      child: Card<String>(
+      child: RowCard<String>(
         row: rowPB,
         viewId: viewId,
         rowCache: rowCache,
         cardData: groupData.group.groupId,
-        fieldId: groupItem.fieldInfo.id,
+        groupingFieldId: groupItem.fieldInfo.id,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
-        configuration: cardConfiguration,
+        renderHook: renderHook,
         openCard: (context) => _openCard(
           viewId,
           fieldController,

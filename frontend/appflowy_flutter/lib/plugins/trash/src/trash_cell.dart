@@ -38,23 +38,19 @@ class TrashCell extends StatelessWidget {
         ),
         const Spacer(),
         FlowyIconButton(
-          width: 26,
+          iconColorOnHover: Theme.of(context).colorScheme.onSurface,
+          width: TrashSizes.actionIconWidth,
           onPressed: onRestore,
           iconPadding: const EdgeInsets.all(5),
-          icon: svgWidget(
-            "editor/restore",
-            color: Theme.of(context).iconTheme.color,
-          ),
+          icon: const FlowySvg(name: 'editor/restore'),
         ),
         const HSpace(20),
         FlowyIconButton(
-          width: 26,
+          iconColorOnHover: Theme.of(context).colorScheme.onSurface,
+          width: TrashSizes.actionIconWidth,
           onPressed: onDelete,
           iconPadding: const EdgeInsets.all(5),
-          icon: svgWidget(
-            "editor/delete",
-            color: Theme.of(context).iconTheme.color,
-          ),
+          icon: const FlowySvg(name: 'editor/delete'),
         ),
       ],
     );

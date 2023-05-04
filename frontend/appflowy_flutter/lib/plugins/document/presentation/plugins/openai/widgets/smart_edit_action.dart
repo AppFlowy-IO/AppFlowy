@@ -5,7 +5,8 @@ import 'package:easy_localization/easy_localization.dart';
 
 enum SmartEditAction {
   summarize,
-  fixSpelling;
+  fixSpelling,
+  improveWriting;
 
   String get toInstruction {
     switch (this) {
@@ -13,6 +14,8 @@ enum SmartEditAction {
         return 'Tl;dr';
       case SmartEditAction.fixSpelling:
         return 'Correct this to standard English:';
+      case SmartEditAction.improveWriting:
+        return 'Rewrite this in your own words:';
     }
   }
 
@@ -22,6 +25,8 @@ enum SmartEditAction {
         return '$input\n\nTl;dr';
       case SmartEditAction.fixSpelling:
         return 'Correct this to standard English:\n\n$input';
+      case SmartEditAction.improveWriting:
+        return 'Rewrite this:\n\n$input';
     }
   }
 
@@ -31,6 +36,8 @@ enum SmartEditAction {
         return SmartEditAction.summarize;
       case 1:
         return SmartEditAction.fixSpelling;
+      case 2:
+        return SmartEditAction.improveWriting;
     }
     return SmartEditAction.fixSpelling;
   }
@@ -41,6 +48,8 @@ enum SmartEditAction {
         return LocaleKeys.document_plugins_smartEditSummarize.tr();
       case SmartEditAction.fixSpelling:
         return LocaleKeys.document_plugins_smartEditFixSpelling.tr();
+      case SmartEditAction.improveWriting:
+        return LocaleKeys.document_plugins_smartEditImproveWriting.tr();
     }
   }
 }

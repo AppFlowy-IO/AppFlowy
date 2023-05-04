@@ -147,8 +147,6 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
     widget.popoverMutex.listenOnPopoverChanged(() {
       if (focusNode.hasFocus) {
         focusNode.unfocus();
-      } else {
-        focusNode.requestFocus();
       }
     });
 
@@ -205,6 +203,7 @@ class _DeleteFieldButton extends StatelessWidget {
       builder: (context, state) {
         final enable = !state.canDelete && !state.isGroupField;
         Widget button = FlowyButton(
+          disable: !enable,
           text: FlowyText.medium(
             LocaleKeys.grid_field_delete.tr(),
             color: enable ? null : Theme.of(context).disabledColor,

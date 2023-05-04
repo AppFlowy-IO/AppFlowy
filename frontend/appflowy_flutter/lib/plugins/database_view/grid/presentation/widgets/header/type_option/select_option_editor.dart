@@ -105,15 +105,10 @@ class _DeleteTag extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        hoverColor: AFThemeExtension.of(context).lightGreyHover,
         text: FlowyText.medium(
           LocaleKeys.grid_selectOption_deleteTag.tr(),
-          color: AFThemeExtension.of(context).textColor,
         ),
-        leftIcon: svgWidget(
-          "grid/delete",
-          color: Theme.of(context).iconTheme.color,
-        ),
+        leftIcon: const FlowySvg(name: 'grid/delete'),
         onTap: () {
           context
               .read<EditSelectOptionBloc>()
@@ -226,7 +221,11 @@ class _SelectOptionColorCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(color.optionName()),
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        text: FlowyText.medium(
+          color.optionName(),
+          color: AFThemeExtension.of(context).textColor,
+        ),
         leftIcon: colorIcon,
         rightIcon: checkmark,
         onTap: () {

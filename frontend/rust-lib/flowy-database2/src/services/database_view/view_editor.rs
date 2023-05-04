@@ -690,7 +690,7 @@ impl DatabaseViewEditor {
 
     Some(CalendarEventPB {
       row_id: row_id.into_inner(),
-      title_field_id: primary_field.id.clone(),
+      date_field_id: primary_field.id.clone(),
       title,
       timestamp,
     })
@@ -742,7 +742,7 @@ impl DatabaseViewEditor {
 
       let event = CalendarEventPB {
         row_id: row_id.into_inner(),
-        title_field_id,
+        date_field_id: title_field_id,
         title,
         timestamp,
       };

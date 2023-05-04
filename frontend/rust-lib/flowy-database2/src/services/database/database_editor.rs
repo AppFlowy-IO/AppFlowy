@@ -890,7 +890,7 @@ impl DatabaseViewData for DatabaseViewDataImpl {
 
   fn get_row(&self, view_id: &str, row_id: &RowId) -> Fut<Option<(usize, Arc<Row>)>> {
     let index = self.database.lock().index_of_row(view_id, row_id);
-    let row = self.database.lock().get_row(&row_id);
+    let row = self.database.lock().get_row(row_id);
     to_fut(async move {
       match (index, row) {
         (Some(index), Some(row)) => Some((index, Arc::new(row))),

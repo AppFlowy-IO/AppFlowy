@@ -9,6 +9,7 @@ const _lightBg1 = Color(0xfff7f8fc);
 const _lightBg2 = Color(0xffedeef2);
 const _lightShader1 = Color(0xff333333);
 const _lightShader3 = Color(0xff828282);
+const _lightShader5 = Color(0xffe0e0e0);
 const _lightShader6 = Color(0xfff2f2f2);
 const _lightMain1 = Color(0xff00bcf0);
 const _lightTint9 = Color(0xffe1fbff);
@@ -18,6 +19,7 @@ const _darkShader3 = Color(0xff363D49);
 const _darkShader5 = Color(0xffBBC3CD);
 const _darkShader6 = Color(0xffF2F2F2);
 const _darkMain1 = Color(0xff00BCF0);
+const _darkInput = Color(0xff282E3A);
 
 class DefaultColorScheme extends FlowyColorScheme {
   const DefaultColorScheme.light()
@@ -32,7 +34,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           shader2: const Color(0xff4f4f4f),
           shader3: _lightShader3,
           shader4: const Color(0xffbdbdbd),
-          shader5: const Color(0xffe0e0e0),
+          shader5: _lightShader5,
           shader6: _lightShader6,
           shader7: _lightShader1,
           bg1: _lightBg1,
@@ -65,7 +67,9 @@ class DefaultColorScheme extends FlowyColorScheme {
           hoverFG: _lightShader1,
           questionBubbleBG: _lightSelector,
           hoverBG3: _lightShader6,
-          progressBarBGcolor: _lightTint9,
+          progressBarBGColor: _lightTint9,
+          toolbarColor: _lightShader1,
+          toggleButtonBGColor: _lightShader5,
         );
 
   const DefaultColorScheme.dark()
@@ -104,7 +108,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           topbarBg: _darkShader1,
           icon: _darkShader5,
           text: _darkShader5,
-          input: const Color(0xff282E3A),
+          input: _darkInput,
           hint: _darkShader5,
           primary: _darkMain1,
           onPrimary: _darkShader1,
@@ -113,6 +117,8 @@ class DefaultColorScheme extends FlowyColorScheme {
           hoverBG3: _darkShader3,
           hoverFG: _darkShader1,
           questionBubbleBG: _darkShader3,
-          progressBarBGcolor: _darkShader3,
+          progressBarBGColor: _darkShader3,
+          toolbarColor: _darkInput,
+          toggleButtonBGColor: _darkShader1,
         );
 }

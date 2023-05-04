@@ -93,7 +93,7 @@ pub(crate) async fn get_cell_for_row(
   row_id: &RowId,
 ) -> Option<RowSingleCellData> {
   let field = delegate.get_field(field_id).await?;
-  let cell = delegate.get_cell_in_row(field_id, &row_id).await?;
+  let cell = delegate.get_cell_in_row(field_id, row_id).await?;
   let field_type = FieldType::from(field.field_type);
 
   if let Some(handler) = delegate.get_type_option_cell_handler(&field, &field_type) {

@@ -157,8 +157,7 @@ impl FromCellString for DateCellData {
   where
     Self: Sized,
   {
-    let result: DateCellData = serde_json::from_str(s).unwrap();
-    Ok(result)
+    Ok(serde_json::from_str::<DateCellData>(s).unwrap_or_default())
   }
 }
 
@@ -208,7 +207,7 @@ impl DateFormat {
       DateFormat::Local => "%m/%d/%Y",
       DateFormat::US => "%Y/%m/%d",
       DateFormat::ISO => "%Y-%m-%d",
-      DateFormat::Friendly => "%b %d,%Y",
+      DateFormat::Friendly => "%b %d, %Y",
       DateFormat::DayMonthYear => "%d/%m/%Y",
     }
   }

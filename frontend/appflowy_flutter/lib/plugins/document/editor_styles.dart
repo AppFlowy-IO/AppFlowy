@@ -1,32 +1,63 @@
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 EditorStyle customEditorTheme(BuildContext context) {
   final documentStyle = context.watch<DocumentAppearanceCubit>().state;
-  var editorStyle = Theme.of(context).brightness == Brightness.dark
-      ? EditorStyle.dark
-      : EditorStyle.light;
-  editorStyle = editorStyle.copyWith(
-    padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 0),
-    textStyle: editorStyle.textStyle?.copyWith(
+  final theme = Theme.of(context);
+
+  var editorStyle = EditorStyle(
+    // Editor styles
+    padding: const EdgeInsets.symmetric(horizontal: 100),
+    backgroundColor: theme.colorScheme.surface,
+    cursorColor: theme.colorScheme.primary,
+    // Text styles
+    textPadding: const EdgeInsets.symmetric(vertical: 8.0),
+    textStyle: TextStyle(
       fontFamily: 'poppins',
       fontSize: documentStyle.fontSize,
+      color: theme.colorScheme.onBackground,
     ),
-    placeholderTextStyle: editorStyle.placeholderTextStyle?.copyWith(
-      fontFamily: 'poppins',
-      fontSize: documentStyle.fontSize,
-    ),
-    bold: editorStyle.bold?.copyWith(
-      fontWeight: FontWeight.w600,
+    selectionColor: theme.colorScheme.tertiary.withOpacity(0.2),
+    // Selection menu
+    selectionMenuBackgroundColor: theme.cardColor,
+    selectionMenuItemTextColor: theme.iconTheme.color,
+    selectionMenuItemIconColor: theme.colorScheme.onBackground,
+    selectionMenuItemSelectedIconColor: theme.colorScheme.onSurface,
+    selectionMenuItemSelectedTextColor: theme.colorScheme.onSurface,
+    selectionMenuItemSelectedColor: theme.hoverColor,
+    // Toolbar and its item's style
+    toolbarColor: theme.colorScheme.onTertiary,
+    toolbarElevation: 0,
+    lineHeight: 1.5,
+    placeholderTextStyle:
+        TextStyle(fontSize: documentStyle.fontSize, color: theme.hintColor),
+    bold: const TextStyle(
       fontFamily: 'poppins-Bold',
+      fontWeight: FontWeight.w600,
     ),
-    backgroundColor: Theme.of(context).colorScheme.surface,
-    selectionMenuBackgroundColor: Theme.of(context).cardColor,
-    selectionMenuItemSelectedIconColor: Theme.of(context).colorScheme.onSurface,
-    selectionMenuItemSelectedTextColor: Theme.of(context).colorScheme.onSurface,
+    italic: const TextStyle(fontStyle: FontStyle.italic),
+    underline: const TextStyle(decoration: TextDecoration.underline),
+    strikethrough: const TextStyle(decoration: TextDecoration.lineThrough),
+    href: TextStyle(
+      color: theme.colorScheme.primary,
+      decoration: TextDecoration.underline,
+    ),
+    highlightColorHex: '0x6000BCF0',
+    code: GoogleFonts.robotoMono(
+      textStyle: TextStyle(
+        fontSize: documentStyle.fontSize,
+        fontWeight: FontWeight.normal,
+        color: Colors.red,
+        backgroundColor: theme.colorScheme.inverseSurface,
+      ),
+    ),
+    popupMenuFGColor: theme.iconTheme.color,
+    popupMenuHoverColor: theme.colorScheme.tertiaryContainer,
   );
+
   return editorStyle;
 }
 

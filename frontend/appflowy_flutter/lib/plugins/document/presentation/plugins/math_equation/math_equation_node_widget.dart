@@ -1,4 +1,9 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
+import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
@@ -131,14 +136,14 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
         color: _isHover || _mathEquation.isEmpty
-            ? Colors.grey[200]
+            ? Theme.of(context).colorScheme.tertiaryContainer
             : Colors.transparent,
       ),
       child: Center(
         child: _mathEquation.isEmpty
-            ? Text(
-                'Add a Math Equation',
-                style: widget.editorState.editorStyle.placeholderTextStyle,
+            ? FlowyText.medium(
+                LocaleKeys.document_plugins_mathEquation_addMathEquation.tr(),
+                fontSize: 16,
               )
             : Math.tex(
                 _mathEquation,
@@ -155,7 +160,10 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
       builder: (context) {
         final controller = TextEditingController(text: _mathEquation);
         return AlertDialog(
-          title: const Text('Edit Math Equation'),
+          backgroundColor: Theme.of(context).canvasColor,
+          title: Text(
+            LocaleKeys.document_plugins_mathEquation_editMathEquation.tr(),
+          ),
           content: RawKeyboardListener(
             focusNode: FocusNode(),
             onKey: (key) {
@@ -178,15 +186,17 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
             ),
           ),
           actions: [
-            TextButton(
+            SecondaryTextButton(
+              LocaleKeys.button_Cancel.tr(),
               onPressed: () => _dismiss(context),
-              child: const Text('Cancel'),
             ),
-            TextButton(
+            PrimaryTextButton(
+              LocaleKeys.button_Done.tr(),
               onPressed: () => _updateMathEquation(controller.text, context),
-              child: const Text('Done'),
             ),
           ],
+          actionsPadding: const EdgeInsets.only(bottom: 20),
+          actionsAlignment: MainAxisAlignment.spaceAround,
         );
       },
     );

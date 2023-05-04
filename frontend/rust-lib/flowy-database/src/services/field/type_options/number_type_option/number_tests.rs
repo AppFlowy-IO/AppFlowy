@@ -20,6 +20,16 @@ mod tests {
 
     // Input is letter
     assert_number(&type_option, "abc", "", &field_type, &field_rev);
+
+    assert_number(&type_option, "-123", "-123", &field_type, &field_rev);
+
+    assert_number(&type_option, "abc-123", "-123", &field_type, &field_rev);
+
+    assert_number(&type_option, "+123", "123", &field_type, &field_rev);
+
+    assert_number(&type_option, "0.2", "0.2", &field_type, &field_rev);
+
+    assert_number(&type_option, "-0.2", "-0.2", &field_type, &field_rev);
   }
 
   /// Testing the strip_currency_symbol function. It should return the string without the input symbol.

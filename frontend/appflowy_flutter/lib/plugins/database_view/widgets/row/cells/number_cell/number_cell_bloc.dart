@@ -1,11 +1,11 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 
 part 'number_cell_bloc.freezed.dart';
 
+//
 class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
   final NumberCellController cellController;
   void Function()? _onCellChangedFn;
@@ -22,17 +22,18 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
           didReceiveCellUpdate: (cellContent) {
             emit(state.copyWith(cellContent: cellContent ?? ""));
           },
-          updateCell: (text) {
+          updateCell: (text) async {
             if (state.cellContent != text) {
               emit(state.copyWith(cellContent: text));
-              cellController.saveCellData(
-                text,
-                onFinish: (result) {
-                  result.fold(
-                    () {},
-                    (err) => Log.error(err),
-                  );
-                },
+              await cellController.saveCellData(text);
+
+              // If the input content is "abc" that can't parsered as number then the data stored in the backend will be an empty string.
+              // So for every cell data that will be formatted in the backend.
+              // It needs to get the formatted data after saving.
+              add(
+                NumberCellEvent.didReceiveCellUpdate(
+                  cellController.getCellData(),
+                ),
               );
             }
           },

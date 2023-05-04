@@ -186,6 +186,7 @@ class CreateFieldButton extends StatelessWidget {
     return AppFlowyPopover(
       direction: PopoverDirection.bottomWithRightAligned,
       asBarrier: true,
+      margin: EdgeInsets.zero,
       constraints: BoxConstraints.loose(const Size(240, 600)),
       child: FlowyButton(
         radius: BorderRadius.zero,

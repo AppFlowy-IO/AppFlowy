@@ -116,7 +116,7 @@ class DatabaseController {
     }
   }
 
-  void addListener({
+  void setListener({
     DatabaseCallbacks? onDatabaseChanged,
     LayoutCallbacks? onLayoutChanged,
     GroupCallbacks? onGroupChanged,
@@ -212,6 +212,11 @@ class DatabaseController {
     await _databaseViewBackendSvc.closeView();
     await fieldController.dispose();
     await groupListener.stop();
+    await _viewCache.dispose();
+    _databaseCallbacks = null;
+    _groupCallbacks = null;
+    _layoutCallbacks = null;
+    _calendarLayoutCallbacks = null;
   }
 
   Future<void> _loadGroups() async {
@@ -252,7 +257,7 @@ class DatabaseController {
         _databaseCallbacks?.onRowsCreated?.call(ids);
       },
     );
-    _viewCache.addListener(callbacks);
+    _viewCache.setListener(callbacks);
   }
 
   void _listenOnFieldsChanged() {
@@ -337,9 +342,10 @@ class RowDataBuilder {
     _cellDataByFieldId[fieldInfo.field.id] = num.toString();
   }
 
+  /// The date should use the UTC timezone. Becuase the backend uses UTC timezone to format the time string.
   void insertDate(FieldInfo fieldInfo, DateTime date) {
     assert(fieldInfo.fieldType == FieldType.DateTime);
-    final timestamp = (date.millisecondsSinceEpoch ~/ 1000);
+    final timestamp = (date.toUtc().millisecondsSinceEpoch ~/ 1000);
     _cellDataByFieldId[fieldInfo.field.id] = timestamp.toString();
   }
 

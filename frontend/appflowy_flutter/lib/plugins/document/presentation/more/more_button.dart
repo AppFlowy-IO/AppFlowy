@@ -12,6 +12,7 @@ class DocumentMoreButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<int>(
+      color: Theme.of(context).colorScheme.surfaceVariant,
       offset: const Offset(0, 30),
       itemBuilder: (context) {
         return [

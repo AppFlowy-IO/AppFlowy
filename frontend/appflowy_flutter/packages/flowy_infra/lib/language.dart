@@ -16,6 +16,8 @@ String languageFromLocale(Locale locale) {
       }
 
     // Then in alphabetical order
+    case "ar":
+      return "العربية";
     case "ca":
       return "Català";
     case "de":
