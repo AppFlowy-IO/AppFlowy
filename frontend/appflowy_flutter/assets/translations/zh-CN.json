@@ -183,7 +183,7 @@
       "numberFormat": "数字格式",
       "dateFormat": "日期格式",
       "includeTime": "包含时间",
-      "dateFormatFriendly": "月 日,年",
+      "dateFormatFriendly": "月 日, 年",
       "dateFormatISO": "年-月-日",
       "dateFormatLocal": "月/日/年",
       "dateFormatUS": "年/月/日",

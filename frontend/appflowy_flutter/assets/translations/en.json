@@ -363,7 +363,7 @@
       "smartEditFixSpelling": "Fix spelling",
       "warning": "⚠️ AI responses can be inaccurate or misleading.",
       "smartEditSummarize": "Summarize",
-      "smartEditImproveWriting":"Improve Writing",
+      "smartEditImproveWriting": "Improve Writing",
       "smartEditCouldNotFetchResult": "Could not fetch result from OpenAI",
       "smartEditCouldNotFetchKey": "Could not fetch OpenAI key",
       "smartEditDisabled": "Connect OpenAI in Settings",
@@ -417,7 +417,7 @@
     "settings": {
       "showWeekNumbers": "Show week numbers",
       "showWeekends": "Show weekends",
-      "firstDayOfWeek": "First day of week",
+      "firstDayOfWeek": "Start week on",
       "layoutDateField": "Layout calendar by",
       "noDateTitle": "No Date",
       "emptyNoDate": "No unscheduled events"
