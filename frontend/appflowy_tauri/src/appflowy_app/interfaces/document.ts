@@ -42,6 +42,10 @@ export interface QuoteBlockData extends TextBlockData {
   size: 'default' | 'large';
 }
 
+export interface CalloutBlockData extends TextBlockData {
+  icon: string;
+}
+
 export interface TextBlockData {
   delta: TextDelta[];
 }
@@ -66,6 +70,8 @@ export type BlockData<Type> = Type extends BlockType.HeadingBlock
   ? ToggleListBlockData
   : Type extends BlockType.DividerBlock
   ? DividerBlockData
+  : Type extends BlockType.CalloutBlock
+  ? CalloutBlockData
   : Type extends BlockType.TextBlock
   ? TextBlockData
   : any;

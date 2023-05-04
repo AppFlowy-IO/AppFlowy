@@ -14,24 +14,24 @@ import {
   getBulletedDataFromEditor,
   getNumberedListDataFromEditor,
   getToggleListDataFromEditor,
+  getCalloutDataFromEditor,
 } from '$app/utils/document/blocks';
 import { getDeltaAfterSelection } from '$app/utils/document/blocks/common';
-
-const blockDataFactoryMap: Record<string, (editor: Editor) => BlockData<any> | undefined> = {
-  [BlockType.HeadingBlock]: getHeadingDataFromEditor,
-  [BlockType.TodoListBlock]: getTodoListDataFromEditor,
-  [BlockType.QuoteBlock]: getQuoteDataFromEditor,
-  [BlockType.BulletedListBlock]: getBulletedDataFromEditor,
-  [BlockType.NumberedListBlock]: getNumberedListDataFromEditor,
-  [BlockType.ToggleListBlock]: getToggleListDataFromEditor,
-};
 
 export function useTurnIntoBlock(id: string) {
   const controller = useContext(DocumentControllerContext);
   const dispatch = useAppDispatch();
 
   const turnIntoBlockEvents = useMemo(() => {
-    const commonEvents = Object.entries(blockDataFactoryMap).map(([type, getData]) => {
+    const spaceTriggerEvents = Object.entries({
+      [BlockType.HeadingBlock]: getHeadingDataFromEditor,
+      [BlockType.TodoListBlock]: getTodoListDataFromEditor,
+      [BlockType.QuoteBlock]: getQuoteDataFromEditor,
+      [BlockType.BulletedListBlock]: getBulletedDataFromEditor,
+      [BlockType.NumberedListBlock]: getNumberedListDataFromEditor,
+      [BlockType.ToggleListBlock]: getToggleListDataFromEditor,
+      [BlockType.CalloutBlock]: getCalloutDataFromEditor,
+    }).map(([type, getData]) => {
       const blockType = type as BlockType;
       const triggerKey = keyBoardEventKeyMap.Space;
       return {
@@ -45,9 +45,9 @@ export function useTurnIntoBlock(id: string) {
           dispatch(turnToBlockThunk({ id, data, type: blockType, controller }));
         },
       };
-    }, []);
+    });
     return [
-      ...commonEvents,
+      ...spaceTriggerEvents,
       {
         triggerEventKey: keyBoardEventKeyMap.Reduce,
         canHandle: canHandle(BlockType.DividerBlock, keyBoardEventKeyMap.Reduce),

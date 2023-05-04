@@ -121,6 +121,21 @@ export const blockConfig: Record<
      */
     markdownRegexps: [/^("|“|”)(\s)+$/],
   },
+  [BlockType.CalloutBlock]: {
+    canAddChild: true,
+    defaultData: {
+      delta: [],
+      icon: 'bulb',
+    },
+    splitProps: {
+      nextLineRelationShip: SplitRelationship.NextSibling,
+      nextLineBlockType: BlockType.TextBlock,
+    },
+    /**
+     * [!TIP] or [!INFO] or [!WARNING] or [!DANGER]
+     */
+    markdownRegexps: [/^(\[!)(TIP|INFO|WARNING|DANGER)(\])(\s)+$/],
+  },
   [BlockType.ToggleListBlock]: {
     canAddChild: true,
     defaultData: {
@@ -143,6 +158,7 @@ export const blockConfig: Record<
      */
     markdownRegexps: [/^(-{3,})$/],
   },
+
   [BlockType.CodeBlock]: {
     canAddChild: false,
     /**

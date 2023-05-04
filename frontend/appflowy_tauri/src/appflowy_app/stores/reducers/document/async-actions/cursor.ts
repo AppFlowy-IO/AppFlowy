@@ -46,11 +46,12 @@ export const setCursorPreLineThunk = createAsyncThunk(
 
     let prevLineNode = state.nodes[prevId];
     // Find the prev line that has delta
-    while (!prevLineNode.data.delta) {
-      const id = getPrevLineId(state, prevId);
+    while (prevLineNode && !prevLineNode.data.delta) {
+      const id = getPrevLineId(state, prevLineNode.id);
       if (!id) return;
       prevLineNode = state.nodes[id];
     }
+    if (!prevLineNode) return;
 
     // whatever the selection is, set cursor to the end of prev line when focusEnd is true
     if (focusEnd) {
@@ -79,11 +80,12 @@ export const setCursorNextLineThunk = createAsyncThunk(
     if (!nextId) return;
     let nextLineNode = state.nodes[nextId];
     // Find the next line that has delta
-    while (!nextLineNode.data.delta) {
-      const id = getNextLineId(state, nextId);
+    while (nextLineNode && !nextLineNode.data.delta) {
+      const id = getNextLineId(state, nextLineNode.id);
       if (!id) return;
       nextLineNode = state.nodes[id];
     }
+    if (!nextLineNode) return;
 
     const delta = nextLineNode.data.delta;
     // whatever the selection is, set cursor to the start of next line when focusStart is true

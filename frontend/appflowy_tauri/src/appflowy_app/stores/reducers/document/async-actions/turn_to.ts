@@ -51,7 +51,7 @@ export const turnToBlockThunk = createAsyncThunk(
 
 /**
  * turn to divider block
- * 1. insert text block after current block
+ * 1. insert text block with delta after current block
  * 2. turn current block to divider block
  */
 export const turnToDividerBlockThunk = createAsyncThunk(
