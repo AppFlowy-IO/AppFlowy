@@ -87,14 +87,7 @@ class DateCellCalendarBloc
       () {
         DateTime newDate = DateTime.now();
         if (date != null) {
-          newDate = DateTime(
-            date.year,
-            date.month,
-            date.day,
-            newDate.hour,
-            newDate.minute,
-            newDate.second,
-          );
+          newDate = _utcToLocalAddTime(date);
         }
         return DateCellData(
           date: newDate,
@@ -105,7 +98,9 @@ class DateCellCalendarBloc
       (dateData) {
         var newDateData = dateData;
         if (date != null && !isSameDay(newDateData.date, date)) {
-          newDateData = newDateData.copyWith(date: date);
+          newDateData = newDateData.copyWith(
+            date: _utcToLocalAddTime(date),
+          );
         }
 
         if (newDateData.time != time) {
@@ -161,6 +156,21 @@ class DateCellCalendarBloc
           },
         );
       },
+    );
+  }
+
+  DateTime _utcToLocalAddTime(DateTime date) {
+    final now = DateTime.now();
+    // the incoming date is Utc. this trick converts it into Local
+    // and add the current time, though
+    // the time may be overwritten by explicitly provided time string
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
+      now.hour,
+      now.minute,
+      now.second,
     );
   }
 
