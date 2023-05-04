@@ -7,6 +7,7 @@ export enum BlockType {
   TodoListBlock = 'todo_list',
   BulletedListBlock = 'bulleted_list',
   NumberedListBlock = 'numbered_list',
+  ToggleListBlock = 'toggle_list',
   CodeBlock = 'code',
   EmbedBlock = 'embed',
   QuoteBlock = 'quote',
@@ -33,6 +34,10 @@ export interface NumberedListBlockData extends TextBlockData {
   format: 'default' | 'numbers' | 'letters' | 'roman_numerals';
 }
 
+export interface ToggleListBlockData extends TextBlockData {
+  collapsed: boolean;
+}
+
 export interface QuoteBlockData extends TextBlockData {
   size: 'default' | 'large';
 }
@@ -55,6 +60,8 @@ export type BlockData<Type> = Type extends BlockType.HeadingBlock
   ? BulletListBlockData
   : Type extends BlockType.NumberedListBlock
   ? NumberedListBlockData
+  : Type extends BlockType.ToggleListBlock
+  ? ToggleListBlockData
   : TextBlockData;
 
 export interface NestedBlock<Type = any> {

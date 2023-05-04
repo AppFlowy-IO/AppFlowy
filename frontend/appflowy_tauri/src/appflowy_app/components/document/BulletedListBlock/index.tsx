@@ -8,7 +8,7 @@ function BulletedListBlock({ node, childIds }: { node: NestedBlock<BlockType.Bul
   return (
     <>
       <div className={'flex'}>
-        <div className={`relative flex h-[calc(1.5em_+_2px)] min-w-[24px] select-none items-center`}>
+        <div className={`relative flex h-[calc(1.5em_+_2px)] min-w-[1.5em] select-none items-center px-1`}>
           <Circle sx={{ width: 8, height: 8 }} />
         </div>
         <div className={'flex-1'}>

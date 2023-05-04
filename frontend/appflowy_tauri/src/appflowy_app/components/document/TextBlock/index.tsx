@@ -21,7 +21,7 @@ function TextBlock({
 
   return (
     <>
-      <div {...props} className={`py-[2px]${className}`}>
+      <div {...props} className={`px-1 py-[2px]${className}`}>
         <Slate editor={editor} onChange={onChange} value={value}>
           <BlockHorizontalToolbar id={node.id} />
           <Editable

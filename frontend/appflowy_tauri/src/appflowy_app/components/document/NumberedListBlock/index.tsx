@@ -11,7 +11,7 @@ function NumberedListBlock({ node, childIds }: { node: NestedBlock<BlockType.Num
     <>
       <div className={'flex'}>
         <div
-          className={`relative flex h-[calc(1.5em_+_4px)] min-w-[24px] select-none items-center whitespace-nowrap text-center`}
+          className={`relative flex h-[calc(1.5em_+_4px)] min-w-[1.5em] select-none  items-center whitespace-nowrap px-1 text-left`}
         >
           {index}.
         </div>

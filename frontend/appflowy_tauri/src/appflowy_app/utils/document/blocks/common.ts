@@ -119,17 +119,3 @@ export function newBlock<Type>(type: BlockType, parentId: string, data: BlockDat
     data,
   };
 }
-
-export function getDefaultBlockData(type: BlockType) {
-  switch (type) {
-    case BlockType.TodoListBlock:
-      return {
-        checked: false,
-        delta: [],
-      };
-    default:
-      return {
-        delta: [],
-      };
-  }
-}
