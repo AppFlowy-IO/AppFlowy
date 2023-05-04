@@ -12,7 +12,7 @@ import {
   canHandleUpKey,
   onHandleEnterKey,
   triggerHotkey,
-} from '$app/utils/document/slate/hotkey';
+} from '$app/utils/document/blocks/text/hotkey';
 import { TextBlockKeyEventHandlerParams } from '$app/interfaces/document';
 import { useActions } from './Actions.hooks';
 

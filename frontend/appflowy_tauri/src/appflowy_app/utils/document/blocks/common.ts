@@ -3,7 +3,7 @@ import { Descendant, Editor, Element, Text } from 'slate';
 import { BlockPB } from '@/services/backend';
 import { Log } from '$app/utils/log';
 import { nanoid } from 'nanoid';
-import { getAfterRangeAt } from '$app/utils/document/slate/text';
+import { getAfterRangeAt } from '$app/utils/document/blocks/text/delta';
 
 export function deltaToSlateValue(delta: TextDelta[]) {
   const slateNode = {

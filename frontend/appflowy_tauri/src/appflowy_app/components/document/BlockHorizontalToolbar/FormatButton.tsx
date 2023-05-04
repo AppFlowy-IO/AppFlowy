@@ -1,4 +1,4 @@
-import { toggleFormat, isFormatActive } from '$app/utils/document/slate/format';
+import { toggleFormat, isFormatActive } from '$app/utils/document/blocks/text/format';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 

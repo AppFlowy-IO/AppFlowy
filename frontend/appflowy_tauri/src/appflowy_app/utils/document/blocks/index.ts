@@ -6,7 +6,7 @@ import {
   TodoListBlockData,
   ToggleListBlockData,
 } from '$app/interfaces/document';
-import { getBeforeRangeAt } from '$app/utils/document/slate/text';
+import { getBeforeRangeAt } from '$app/utils/document/blocks/text/delta';
 import { getDeltaAfterSelection } from '$app/utils/document/blocks/common';
 
 /**

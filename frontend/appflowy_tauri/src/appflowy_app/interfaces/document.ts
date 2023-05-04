@@ -46,6 +46,8 @@ export interface TextBlockData {
   delta: TextDelta[];
 }
 
+export interface DividerBlockData {}
+
 export type PageBlockData = TextBlockData;
 
 export type BlockData<Type> = Type extends BlockType.HeadingBlock
@@ -62,7 +64,11 @@ export type BlockData<Type> = Type extends BlockType.HeadingBlock
   ? NumberedListBlockData
   : Type extends BlockType.ToggleListBlock
   ? ToggleListBlockData
-  : TextBlockData;
+  : Type extends BlockType.DividerBlock
+  ? DividerBlockData
+  : Type extends BlockType.TextBlock
+  ? TextBlockData
+  : any;
 
 export interface NestedBlock<Type = any> {
   id: string;

@@ -13,6 +13,7 @@ import QuoteBlock from '$app/components/document/QuoteBlock';
 import BulletedListBlock from '$app/components/document/BulletedListBlock';
 import NumberedListBlock from '$app/components/document/NumberedListBlock';
 import ToggleListBlock from '$app/components/document/ToggleListBlock';
+import DividerBlock from '$app/components/document/DividerBlock';
 
 function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<HTMLDivElement>) {
   const { node, childIds, isSelected, ref } = useNode(id);
@@ -39,6 +40,9 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
       }
       case BlockType.ToggleListBlock: {
         return <ToggleListBlock node={node} childIds={childIds} />;
+      }
+      case BlockType.DividerBlock: {
+        return <DividerBlock />;
       }
       default:
         return (
