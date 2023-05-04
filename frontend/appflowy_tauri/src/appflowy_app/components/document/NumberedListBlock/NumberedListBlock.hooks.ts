@@ -1,8 +1,8 @@
 import { useAppSelector } from '$app/stores/store';
 import { BlockType, NestedBlock } from '$app/interfaces/document';
-import { useEffect, useMemo } from 'react';
 
 export function useNumberedListBlock(node: NestedBlock<BlockType.NumberedListBlock>) {
+  // Find the last index of the previous blocks
   const prevNumberedIndex = useAppSelector((state) => {
     const nodes = state['document'].nodes;
     const children = state['document'].children;
@@ -10,16 +10,14 @@ export function useNumberedListBlock(node: NestedBlock<BlockType.NumberedListBlo
     const parent = nodes[node.parent!];
     const siblings = children[parent.children];
     const index = siblings.indexOf(node.id);
-    // listen the change of the previous node
-    const prevNodeIds = siblings.slice(0, index);
-    const prevNodeTypes = prevNodeIds.map((id) => nodes[id].type);
-
     if (index === 0) return 0;
-    const numberedIndex = prevNodeTypes.reverse().findIndex((type) => {
-      return type !== BlockType.NumberedListBlock;
+    const prevNodeIds = siblings.slice(0, index);
+    // The index is distance from last block to the last non-numbered-list block
+    const lastIndex = prevNodeIds.reverse().findIndex((id) => {
+      return nodes[id].type !== BlockType.NumberedListBlock;
     });
-    if (numberedIndex === -1) return prevNodeTypes.length;
-    return numberedIndex;
+    if (lastIndex === -1) return prevNodeIds.length;
+    return lastIndex;
   });
 
   return {
