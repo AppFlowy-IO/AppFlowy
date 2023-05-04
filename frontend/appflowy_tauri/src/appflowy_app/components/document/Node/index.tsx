@@ -8,6 +8,9 @@ import { BlockType } from '$app/interfaces/document';
 import HeadingBlock from '$app/components/document/HeadingBlock';
 import TodoListBlock from '$app/components/document/TodoListBlock';
 import QuoteBlock from '$app/components/document/QuoteBlock';
+import BulletedListBlock from '$app/components/document/BulletedListBlock';
+import NumberedListBlock from '$app/components/document/NumberedListBlock';
+import { Alert } from '@mui/material';
 
 function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<HTMLDivElement>) {
   const { node, childIds, isSelected, ref } = useNode(id);
@@ -26,8 +29,18 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
       case BlockType.QuoteBlock: {
         return <QuoteBlock node={node} childIds={childIds} />;
       }
+      case BlockType.BulletedListBlock: {
+        return <BulletedListBlock node={node} childIds={childIds} />;
+      }
+      case BlockType.NumberedListBlock: {
+        return <NumberedListBlock node={node} childIds={childIds} />;
+      }
       default:
-        return null;
+        return (
+          <Alert severity='info' className='mb-2'>
+            <p>The current version does not support this Block.</p>
+          </Alert>
+        );
     }
   }, [node, childIds]);
 

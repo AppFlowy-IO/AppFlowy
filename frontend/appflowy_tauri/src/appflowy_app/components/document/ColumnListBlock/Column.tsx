@@ -1,7 +1,7 @@
+import NodeComponent from '$app/components/document/Node';
 import React from 'react';
-import NodeComponent from '../Node';
 
-export default function ColumnBlock({ id, index, width }: { id: string; index: number; width: string }) {
+export function ColumnBlock({ id, index, width }: { id: string; index: number; width: string }) {
   const renderResizer = () => {
     return (
       <div className={`relative w-[46px] flex-shrink-0 flex-grow-0 transition-opacity`} style={{ opacity: 0 }}></div>

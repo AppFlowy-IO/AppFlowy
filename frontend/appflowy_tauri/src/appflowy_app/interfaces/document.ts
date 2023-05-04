@@ -25,6 +25,14 @@ export interface TodoListBlockData extends TextBlockData {
   checked: boolean;
 }
 
+export interface BulletListBlockData extends TextBlockData {
+  format: 'default' | 'circle' | 'square' | 'disc';
+}
+
+export interface NumberedListBlockData extends TextBlockData {
+  format: 'default' | 'numbers' | 'letters' | 'roman_numerals';
+}
+
 export interface QuoteBlockData extends TextBlockData {
   size: 'default' | 'large';
 }
@@ -43,6 +51,10 @@ export type BlockData<Type> = Type extends BlockType.HeadingBlock
   ? TodoListBlockData
   : Type extends BlockType.QuoteBlock
   ? QuoteBlockData
+  : Type extends BlockType.BulletedListBlock
+  ? BulletListBlockData
+  : Type extends BlockType.NumberedListBlock
+  ? NumberedListBlockData
   : TextBlockData;
 
 export interface NestedBlock<Type = any> {

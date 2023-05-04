@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
-import ColumnBlock from '../ColumnBlock';
-
 import { Node } from '$app/interfaces/document';
+import { ColumnBlock } from './Column';
 
 export default function ColumnListBlock({
   node,
