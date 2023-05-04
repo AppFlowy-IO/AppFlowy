@@ -1,10 +1,10 @@
-import { BlockType, DocumentState, TextDelta } from '$app/interfaces/document';
+import { DocumentState, TextDelta } from '$app/interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { documentActions } from '$app_reducers/document/slice';
 import { setCursorBeforeThunk } from '../../cursor';
 import { getDefaultBlockData, newBlock } from '$app/utils/document/blocks/common';
-import { splitableBlockTypes } from '$app/constants/document/config';
+import { blockConfig } from '$app/constants/document/config';
 
 export const splitNodeThunk = createAsyncThunk(
   'document/splitNode',
@@ -18,10 +18,11 @@ export const splitNodeThunk = createAsyncThunk(
     const node = state.nodes[id];
     if (!node.parent) return;
     const children = state.children[node.children];
-    const prevId = children.length > 0 ? null : node.id;
-    const parent = children.length > 0 ? node : state.nodes[node.parent];
+    const prevId = node.id;
+    const parent = state.nodes[node.parent];
 
-    const newNodeType = splitableBlockTypes.includes(node.type) ? node.type : BlockType.TextBlock;
+    const config = blockConfig[node.type];
+    const newNodeType = config.splitType;
     const defaultData = getDefaultBlockData(newNodeType);
     const newNode = newBlock<any>(newNodeType, parent.id, {
       ...defaultData,
@@ -34,7 +35,14 @@ export const splitNodeThunk = createAsyncThunk(
         delta: retain,
       },
     };
-    await controller.applyActions([controller.getInsertAction(newNode, prevId), controller.getUpdateAction(retainNode)]);
+    const insertAction = controller.getInsertAction(newNode, prevId);
+    const updateAction = controller.getUpdateAction(retainNode);
+    const moveChildrenAction = controller.getMoveChildrenAction(
+      children.map((id) => state.nodes[id]),
+      newNode.id,
+      ''
+    );
+    await controller.applyActions([insertAction, ...moveChildrenAction, updateAction]);
     // update local node data
     dispatch(documentActions.updateNodeData({ id: retainNode.id, data: { delta: retain } }));
     // set cursor

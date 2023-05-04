@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from '@/appflowy_app/stores/store';
 import { updateNodeDeltaThunk } from '$app_reducers/document/async-actions/blocks/text/update';
 import { deltaToSlateValue, getDeltaFromSlateNodes } from '$app/utils/document/blocks/common';
 import { documentActions } from '@/appflowy_app/stores/reducers/document/slice';
+import { isSameDelta } from '$app/utils/document/blocks/text';
 
 export function useTextInput(id: string) {
   const dispatch = useAppDispatch();
@@ -25,27 +26,18 @@ export function useTextInput(id: string) {
 
   const { editor, yText } = useBindYjs(id, delta);
 
-  useEffect(() => {
-    return () => {
-      dispatch(documentActions.removeTextSelection(id));
-    };
-  }, [id]);
-
   const [value, setValue] = useState<Descendant[]>([]);
 
   const storeSelection = useCallback(() => {
     // This is a hack to make sure the selection is updated after next render
     // It will save the selection to the store, and the selection will be restored
-    if (!ReactEditor.isFocused(editor) || !editor.selection || !editor.selection.anchor || !editor.selection.focus)
-      return;
-    const { anchor, focus } = editor.selection;
-    const selection = { anchor, focus } as TextSelection;
+    if (!ReactEditor.isFocused(editor)) return;
+    const selection = editor.selection as TextSelection;
     dispatch(documentActions.setTextSelection({ blockId: id, selection }));
   }, [editor]);
 
   const currentSelection = useAppSelector((state) => state.document.textSelections[id]);
   const restoreSelection = useCallback(() => {
-    if (editor.selection && JSON.stringify(currentSelection) === JSON.stringify(editor.selection)) return;
     setSelection(editor, currentSelection);
   }, [editor, currentSelection]);
 
@@ -54,13 +46,15 @@ export function useTextInput(id: string) {
       setValue(e);
       storeSelection();
     },
-
     [storeSelection]
   );
 
   useEffect(() => {
     restoreSelection();
-  }, [restoreSelection]);
+    return () => {
+      dispatch(documentActions.removeTextSelection(id));
+    };
+  }, [id, restoreSelection]);
 
   if (editor.selection && ReactEditor.isFocused(editor)) {
     const domSelection = window.getSelection();
@@ -128,12 +122,13 @@ function useBindYjs(id: string, delta: TextDelta[]) {
     if (!yText) return;
 
     // If the delta is not equal to the current yText, then we need to update the yText
-    if (JSON.stringify(yText.toDelta()) !== JSON.stringify(delta)) {
-      yText.delete(0, yText.length);
-      yText.applyDelta(delta);
-      // It should be noted that the selection will be lost after the yText is updated
-      setSelection(editor, currentSelection);
-    }
+    const isSame = isSameDelta(delta, yText.toDelta());
+    if (isSame) return;
+
+    yText.delete(0, yText.length);
+    yText.applyDelta(delta);
+    // It should be noted that the selection will be lost after the yText is updated
+    setSelection(editor, currentSelection);
   }, [delta, currentSelection, editor]);
 
   return { editor, yText: yTextRef.current };
@@ -167,7 +162,6 @@ function setSelection(editor: ReactEditor, currentSelection: TextSelection) {
   if (!currentSelection || !currentSelection.anchor || !currentSelection.focus) {
     if (ReactEditor.isFocused(editor)) {
       ReactEditor.blur(editor);
-      ReactEditor.deselect(editor);
     }
     return;
   }
@@ -178,12 +172,12 @@ function setSelection(editor: ReactEditor, currentSelection: TextSelection) {
   }
 
   const { path, offset } = currentSelection.focus;
-  // It is possible that the current selection is out of range
   const children = getDeltaFromSlateNodes(editor.children);
 
   // the path always has 2 elements,
   // because the slate node is a two-dimensional array
   const index = path[1];
+  // It is possible that the current selection is out of range
   if (children[index].insert.length < offset) {
     return;
   }

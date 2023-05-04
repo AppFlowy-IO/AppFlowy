@@ -95,6 +95,7 @@ export const setCursorNextLineThunk = createAsyncThunk(
 
     // set the cursor to next line with the relative offset
     const newSelection = getStartLineSelectionByOffset(delta, textOffset);
+
     dispatch(documentActions.setTextSelection({ blockId: nextLineNode.id, selection: newSelection }));
   }
 );
