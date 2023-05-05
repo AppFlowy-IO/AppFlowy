@@ -1,4 +1,3 @@
-import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -160,7 +159,7 @@ class HomeStackManager {
       child: Selector<HomeStackNotifier, Widget>(
         selector: (context, notifier) => notifier.titleWidget,
         builder: (context, widget, child) {
-          return MoveWindowDetector(child: HomeTopBar(layout: layout));
+          return HomeTopBar(layout: layout);
         },
       ),
     );

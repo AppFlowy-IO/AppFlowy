@@ -99,7 +99,7 @@ dependencies:
   json_annotation: ^4.7.0
   path: ^1.8.2
   archive: ^3.3.0
-  bitsdojo_window: ^0.1.2
+  bitsdojo_window: ^0.1.5
   flutter_svg: ^2.0.5
 
 dev_dependencies:

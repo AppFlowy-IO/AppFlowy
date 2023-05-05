@@ -1,4 +1,3 @@
-import 'package:appflowy/core/frameless_window.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -38,7 +37,6 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const _SkipLoginMoveWindow(),
       body: Center(
         child: _renderBody(context),
       ),
@@ -169,23 +167,4 @@ class GoButton extends StatelessWidget {
       hoverColor: Theme.of(context).colorScheme.primaryContainer,
     );
   }
-}
-
-class _SkipLoginMoveWindow extends StatelessWidget
-    implements PreferredSizeWidget {
-  const _SkipLoginMoveWindow();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: const [
-        Expanded(
-          child: MoveWindowDetector(),
-        ),
-      ],
-    );
-  }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(55.0);
 }
