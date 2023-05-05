@@ -21,7 +21,7 @@ mod tests {
         &field_type,
         &field
       ),
-      "Mar 14,2022"
+      "Mar 14, 2022"
     );
 
     let data = DateCellData {
@@ -32,7 +32,7 @@ mod tests {
 
     assert_eq!(
       stringify_cell_data(&data.into(), &FieldType::RichText, &field_type, &field),
-      "Mar 14,2022"
+      "Mar 14, 2022"
     );
   }
 

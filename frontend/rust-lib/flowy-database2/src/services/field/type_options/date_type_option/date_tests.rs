@@ -30,7 +30,7 @@ mod tests {
               timezone_id: None,
             },
             None,
-            "Mar 14,2022",
+            "Mar 14, 2022",
           );
         },
         DateFormat::US => {
@@ -112,7 +112,7 @@ mod tests {
               timezone_id: Some("Etc/UTC".to_owned()),
             },
             None,
-            "May 27,2022 00:00",
+            "May 27, 2022 00:00",
           );
           assert_date(
             &type_option,
@@ -124,7 +124,7 @@ mod tests {
               timezone_id: Some("Etc/UTC".to_owned()),
             },
             None,
-            "May 27,2022 09:00",
+            "May 27, 2022 09:00",
           );
           assert_date(
             &type_option,
@@ -136,7 +136,7 @@ mod tests {
               timezone_id: Some("Etc/UTC".to_owned()),
             },
             None,
-            "May 27,2022 23:00",
+            "May 27, 2022 23:00",
           );
         },
         TimeFormat::TwelveHour => {
@@ -150,7 +150,7 @@ mod tests {
               timezone_id: Some("Etc/UTC".to_owned()),
             },
             None,
-            "May 27,2022 12:00 AM",
+            "May 27, 2022 12:00 AM",
           );
           assert_date(
             &type_option,
@@ -162,7 +162,7 @@ mod tests {
               timezone_id: None,
             },
             None,
-            "May 27,2022 09:00 AM",
+            "May 27, 2022 09:00 AM",
           );
           assert_date(
             &type_option,
@@ -174,7 +174,7 @@ mod tests {
               timezone_id: Some("Etc/UTC".to_owned()),
             },
             None,
-            "May 27,2022 11:23 PM",
+            "May 27, 2022 11:23 PM",
           );
         },
       }
@@ -216,7 +216,7 @@ mod tests {
         timezone_id: None,
       },
       None,
-      "May 27,2022 01:00",
+      "May 27, 2022 01:00",
     );
   }
 
@@ -236,7 +236,7 @@ mod tests {
         timezone_id: None,
       },
       None,
-      "May 27,2022 01:00",
+      "May 27, 2022 01:00",
     );
   }
 
@@ -255,7 +255,7 @@ mod tests {
         timezone_id: None,
       },
       None,
-      "May 27,2022 00:00",
+      "May 27, 2022 00:00",
     );
   }
 
@@ -275,7 +275,7 @@ mod tests {
         timezone_id: None,
       },
       None,
-      "May 27,2022 01:00 AM",
+      "May 27, 2022 01:00 AM",
     );
   }
 
@@ -297,7 +297,7 @@ mod tests {
         timezone_id: None,
       },
       None,
-      "May 27,2022 08:00 PM",
+      "May 27, 2022 08:00 PM",
     );
   }
 
@@ -355,7 +355,7 @@ mod tests {
         timezone_id: None,
       },
       Some(old_cell_data),
-      "Nov 30,2023 08:00",
+      "Nov 30, 2023 08:00",
     );
   }
 
@@ -383,7 +383,7 @@ mod tests {
         timezone_id: None,
       },
       Some(old_cell_data),
-      "Nov 15,2023 14:00",
+      "Nov 15, 2023 14:00",
     );
   }
 
@@ -402,7 +402,7 @@ mod tests {
         timezone_id: Some("Asia/Tokyo".to_owned()),
       },
       None,
-      "Jan 06,2023 09:00",
+      "Jan 06, 2023 09:00",
     );
     assert_date(
       &type_option,
@@ -414,7 +414,7 @@ mod tests {
         timezone_id: Some("Asia/Tokyo".to_owned()),
       },
       None,
-      "May 30,2023 09:00",
+      "May 30, 2023 09:00",
     );
   }
 
@@ -433,7 +433,7 @@ mod tests {
         timezone_id: Some("Europe/Paris".to_owned()),
       },
       None,
-      "Jan 06,2023 01:00",
+      "Jan 06, 2023 01:00",
     );
     assert_date(
       &type_option,
@@ -445,7 +445,7 @@ mod tests {
         timezone_id: Some("Europe/Paris".to_owned()),
       },
       None,
-      "May 30,2023 02:00",
+      "May 30, 2023 02:00",
     );
   }
 
@@ -473,7 +473,7 @@ mod tests {
         timezone_id: Some("America/Los_Angeles".to_owned()),
       },
       Some(old_cell_data),
-      "Jan 05,2023 16:00",
+      "Jan 05, 2023 16:00",
     );
   }
 
