@@ -96,6 +96,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       );
     }
     final result = await _documentService.openDocument(view: view);
+    final document = await _documentService.openDocumentV2(view: view);
+    debugPrint(document.toString());
 
     return result.fold(
       (documentData) async {

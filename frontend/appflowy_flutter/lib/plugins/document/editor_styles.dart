@@ -9,6 +9,7 @@ EditorStyle customEditorTheme(BuildContext context) {
   final theme = Theme.of(context);
 
   var editorStyle = EditorStyle(
+    textStyleConfiguration: const TextStyleConfiguration(),
     // Editor styles
     padding: const EdgeInsets.symmetric(horizontal: 100),
     backgroundColor: theme.colorScheme.surface,
