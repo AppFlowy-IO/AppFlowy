@@ -4,6 +4,7 @@ import {
   HeadingBlockData,
   NumberedListBlockData,
   TodoListBlockData,
+  ToggleListBlockData,
 } from '$app/interfaces/document';
 import { getBeforeRangeAt } from '$app/utils/document/slate/text';
 import { getDeltaAfterSelection } from '$app/utils/document/blocks/common';
@@ -79,5 +80,17 @@ export function getNumberedListDataFromEditor(editor: Editor): NumberedListBlock
   return {
     delta,
     format: 'default',
+  };
+}
+
+/**
+ * get toggle_list data from editor, only support markdown
+ */
+export function getToggleListDataFromEditor(editor: Editor): ToggleListBlockData | undefined {
+  const delta = getDeltaAfterSelection(editor);
+  if (!delta) return;
+  return {
+    delta,
+    collapsed: false,
   };
 }

@@ -5,12 +5,14 @@ import { ErrorBoundaryFallbackComponent } from '../_shared/ErrorBoundaryFallback
 import TextBlock from '../TextBlock';
 import { NodeContext } from '../_shared/SubscribeNode.hooks';
 import { BlockType } from '$app/interfaces/document';
+import { Alert } from '@mui/material';
+
 import HeadingBlock from '$app/components/document/HeadingBlock';
 import TodoListBlock from '$app/components/document/TodoListBlock';
 import QuoteBlock from '$app/components/document/QuoteBlock';
 import BulletedListBlock from '$app/components/document/BulletedListBlock';
 import NumberedListBlock from '$app/components/document/NumberedListBlock';
-import { Alert } from '@mui/material';
+import ToggleListBlock from '$app/components/document/ToggleListBlock';
 
 function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<HTMLDivElement>) {
   const { node, childIds, isSelected, ref } = useNode(id);
@@ -35,6 +37,9 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
       case BlockType.NumberedListBlock: {
         return <NumberedListBlock node={node} childIds={childIds} />;
       }
+      case BlockType.ToggleListBlock: {
+        return <ToggleListBlock node={node} childIds={childIds} />;
+      }
       default:
         return (
           <Alert severity='info' className='mb-2'>
@@ -48,7 +53,7 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
 
   return (
     <NodeContext.Provider value={node}>
-      <div {...props} ref={ref} data-block-id={node.id} className={`relative px-1  ${props.className}`}>
+      <div {...props} ref={ref} data-block-id={node.id} className={`relative ${props.className}`}>
         {renderBlock()}
         <div className='block-overlay' />
         {isSelected ? (

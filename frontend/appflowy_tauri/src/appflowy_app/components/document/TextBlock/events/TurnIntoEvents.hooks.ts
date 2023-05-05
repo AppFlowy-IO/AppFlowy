@@ -13,6 +13,7 @@ import {
   getTodoListDataFromEditor,
   getBulletedDataFromEditor,
   getNumberedListDataFromEditor,
+  getToggleListDataFromEditor,
 } from '$app/utils/document/blocks';
 
 const blockDataFactoryMap: Record<string, (editor: Editor) => BlockData<any> | undefined> = {
@@ -20,7 +21,8 @@ const blockDataFactoryMap: Record<string, (editor: Editor) => BlockData<any> | u
   [BlockType.TodoListBlock]: getTodoListDataFromEditor,
   [BlockType.QuoteBlock]: getQuoteDataFromEditor,
   [BlockType.BulletedListBlock]: getBulletedDataFromEditor,
-  [BlockType.NumberedListBlock]: getNumberedListDataFromEditor
+  [BlockType.NumberedListBlock]: getNumberedListDataFromEditor,
+  [BlockType.ToggleListBlock]: getToggleListDataFromEditor,
 };
 
 export function useTurnIntoBlock(id: string) {
