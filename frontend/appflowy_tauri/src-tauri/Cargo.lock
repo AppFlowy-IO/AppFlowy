@@ -640,7 +640,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=935868#93586873d1982d3b4ab96993a39810e4bb4d1993"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=46c9a1#46c9a199af9b2654080bebdcd9637b7a5d7bffe8"
 dependencies = [
  "anyhow",
  "bytes",
@@ -658,13 +658,14 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=935868#93586873d1982d3b4ab96993a39810e4bb4d1993"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=46c9a1#46c9a199af9b2654080bebdcd9637b7a5d7bffe8"
 dependencies = [
  "anyhow",
  "chrono",
  "collab",
  "collab-derive",
  "collab-persistence",
+ "collab-plugins",
  "lazy_static",
  "lru",
  "nanoid",
@@ -680,7 +681,7 @@ dependencies = [
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=935868#93586873d1982d3b4ab96993a39810e4bb4d1993"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=46c9a1#46c9a199af9b2654080bebdcd9637b7a5d7bffe8"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -692,7 +693,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=935868#93586873d1982d3b4ab96993a39810e4bb4d1993"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=46c9a1#46c9a199af9b2654080bebdcd9637b7a5d7bffe8"
 dependencies = [
  "anyhow",
  "collab",
@@ -709,7 +710,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=935868#93586873d1982d3b4ab96993a39810e4bb4d1993"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=46c9a1#46c9a199af9b2654080bebdcd9637b7a5d7bffe8"
 dependencies = [
  "anyhow",
  "collab",
@@ -727,7 +728,7 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=935868#93586873d1982d3b4ab96993a39810e4bb4d1993"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=46c9a1#46c9a199af9b2654080bebdcd9637b7a5d7bffe8"
 dependencies = [
  "bincode",
  "chrono",
@@ -742,6 +743,59 @@ dependencies = [
  "tokio",
  "tracing",
  "yrs",
+]
+
+[[package]]
+name = "collab-plugins"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=46c9a1#46c9a199af9b2654080bebdcd9637b7a5d7bffe8"
+dependencies = [
+ "collab",
+ "collab-persistence",
+ "collab-sync",
+ "collab-ws",
+ "tracing",
+ "y-sync",
+ "yrs",
+]
+
+[[package]]
+name = "collab-sync"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=46c9a1#46c9a199af9b2654080bebdcd9637b7a5d7bffe8"
+dependencies = [
+ "bytes",
+ "collab",
+ "futures-util",
+ "lib0",
+ "md5",
+ "parking_lot 0.12.1",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tokio-stream",
+ "tokio-util",
+ "tracing",
+ "y-sync",
+ "yrs",
+]
+
+[[package]]
+name = "collab-ws"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=46c9a1#46c9a199af9b2654080bebdcd9637b7a5d7bffe8"
+dependencies = [
+ "bytes",
+ "futures-util",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tokio-retry",
+ "tokio-stream",
+ "tokio-tungstenite 0.18.0",
+ "tracing",
 ]
 
 [[package]]
@@ -1461,6 +1515,7 @@ dependencies = [
  "collab",
  "collab-database",
  "collab-persistence",
+ "collab-plugins",
  "dashmap",
  "database-model",
  "fancy-regex 0.10.0",
@@ -1551,6 +1606,7 @@ dependencies = [
  "collab",
  "collab-document",
  "collab-persistence",
+ "collab-plugins",
  "flowy-codegen",
  "flowy-derive",
  "flowy-error",
@@ -1601,6 +1657,7 @@ dependencies = [
  "collab",
  "collab-folder",
  "collab-persistence",
+ "collab-plugins",
  "flowy-codegen",
  "flowy-derive",
  "flowy-document",
@@ -2811,7 +2868,7 @@ dependencies = [
  "serde_repr",
  "strum_macros",
  "tokio",
- "tokio-tungstenite",
+ "tokio-tungstenite 0.15.0",
  "tracing",
  "url",
 ]
@@ -4508,6 +4565,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "sha1"
+version = "0.10.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f04293dc80c3993519f2d7f6f511707ee7094fe0c6d3406feb330cdb3540eba3"
+dependencies = [
+ "cfg-if",
+ "cpufeatures",
+ "digest 0.10.6",
+]
+
+[[package]]
 name = "sha2"
 version = "0.10.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5212,6 +5280,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "tokio-retry"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7f57eb36ecbe0fc510036adff84824dd3c24bb781e21bfa67b69d556aa85214f"
+dependencies = [
+ "pin-project",
+ "rand 0.8.5",
+ "tokio",
+]
+
+[[package]]
+name = "tokio-stream"
+version = "0.1.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "397c988d37662c7dda6d2208364a706264bf3d6138b11d436cbac0ad38832842"
+dependencies = [
+ "futures-core",
+ "pin-project-lite",
+ "tokio",
+ "tokio-util",
+]
+
+[[package]]
 name = "tokio-tungstenite"
 version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5221,7 +5312,19 @@ dependencies = [
  "log",
  "pin-project",
  "tokio",
- "tungstenite",
+ "tungstenite 0.14.0",
+]
+
+[[package]]
+name = "tokio-tungstenite"
+version = "0.18.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "54319c93411147bced34cb5609a80e0a8e44c5999c93903a81cd866630ec0bfd"
+dependencies = [
+ "futures-util",
+ "log",
+ "tokio",
+ "tungstenite 0.18.0",
 ]
 
 [[package]]
@@ -5439,6 +5542,25 @@ dependencies = [
  "log",
  "rand 0.8.5",
  "sha-1",
+ "thiserror",
+ "url",
+ "utf-8",
+]
+
+[[package]]
+name = "tungstenite"
+version = "0.18.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "30ee6ab729cd4cf0fd55218530c4522ed30b7b6081752839b68fcec8d0960788"
+dependencies = [
+ "base64 0.13.1",
+ "byteorder",
+ "bytes",
+ "http",
+ "httparse",
+ "log",
+ "rand 0.8.5",
+ "sha1",
  "thiserror",
  "url",
  "utf-8",
@@ -6221,9 +6343,9 @@ dependencies = [
 
 [[package]]
 name = "y-sync"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e77a143afe4dde83bc987ad3119228d0f107053a3da131a00738cb2d7f496641"
+checksum = "f54d34b68ec4514a0659838c2b1ba867c571b20b3804a1338dacf4fa9062d801"
 dependencies = [
  "lib0",
  "thiserror",

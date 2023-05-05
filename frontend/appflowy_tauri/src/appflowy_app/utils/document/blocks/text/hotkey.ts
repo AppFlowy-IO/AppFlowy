@@ -1,8 +1,7 @@
 import isHotkey from 'is-hotkey';
 import { toggleFormat } from './format';
 import { Editor, Range } from 'slate';
-import { clonePoint, getAfterRangeAt, getBeforeRangeAt, getDelta, pointInBegin, pointInEnd } from './delta';
-import { SelectionPoint, TextDelta, TextSelection } from '$app/interfaces/document';
+import { getAfterRangeAt, getBeforeRangeAt, pointInBegin, pointInEnd } from './delta';
 import { keyBoardEventKeyMap } from '$app/constants/document/text_block';
 
 const HOTKEYS: Record<string, string> = {
@@ -24,11 +23,6 @@ export function triggerHotkey(event: React.KeyboardEvent<HTMLDivElement>, editor
   }
 }
 
-export function canHandleEnterKey(event: React.KeyboardEvent<HTMLDivElement>, editor: Editor) {
-  const isEnter = event.key === 'Enter';
-  return isEnter && editor.selection;
-}
-
 export function canHandleBackspaceKey(event: React.KeyboardEvent<HTMLDivElement>, editor: Editor) {
   const isBackspaceKey = isHotkey('backspace', event);
   const selection = editor.selection;
@@ -39,10 +33,6 @@ export function canHandleBackspaceKey(event: React.KeyboardEvent<HTMLDivElement>
   // It should be handled if the selection is collapsed and the cursor is at the beginning of the block
   const isCollapsed = Range.isCollapsed(selection);
   return isCollapsed && pointInBegin(editor, selection);
-}
-
-export function canHandleTabKey(event: React.KeyboardEvent<HTMLDivElement>, _: Editor) {
-  return isHotkey('tab', event);
 }
 
 export function canHandleUpKey(event: React.KeyboardEvent<HTMLDivElement>, editor: Editor) {
@@ -97,57 +87,4 @@ export function canHandleRightKey(event: React.KeyboardEvent<HTMLDivElement>, ed
   // It should be handled if the selection is collapsed and the cursor is at the end of the block
   const isCollapsed = Range.isCollapsed(selection);
   return isCollapsed && pointInEnd(editor, selection);
-}
-
-export function onHandleEnterKey(
-  event: React.KeyboardEvent<HTMLDivElement>,
-  editor: Editor,
-  {
-    onSplit,
-    onWrap,
-  }: {
-    onSplit: (...args: [TextDelta[], TextDelta[]]) => Promise<void>;
-    onWrap: (newDelta: TextDelta[], _selection: TextSelection) => Promise<void>;
-  }
-) {
-  const selection = editor.selection;
-  if (!selection) return;
-  // get the retain content
-  const retainRange = getBeforeRangeAt(editor, selection);
-  const retain = getDelta(editor, retainRange);
-  // get the insert content
-  const insertRange = getAfterRangeAt(editor, selection);
-  const insert = getDelta(editor, insertRange);
-
-  // if the shift key is pressed, break wrap the current node
-  if (isHotkey('shift+enter', event)) {
-    const newSelection = getSelectionAfterBreakWrap(editor);
-    if (!newSelection) return;
-
-    // insert `\n` after the retain content
-    void onWrap([...retain, { insert: '\n' }, ...insert], newSelection);
-    return;
-  }
-
-  // if the enter key is pressed, split the current node
-  if (isHotkey('enter', event)) {
-    // retain this node and insert a new node
-    void onSplit(retain, insert);
-    return;
-  }
-
-  // other cases, do nothing
-  return;
-}
-
-function getSelectionAfterBreakWrap(editor: Editor) {
-  const selection = editor.selection;
-  if (!selection) return;
-  const start = Range.start(selection);
-  const cursor = { path: start.path, offset: start.offset + 1 } as SelectionPoint;
-  const newSelection = {
-    anchor: clonePoint(cursor),
-    focus: clonePoint(cursor),
-  } as TextSelection;
-  return newSelection;
 }

@@ -15,6 +15,7 @@ import NumberedListBlock from '$app/components/document/NumberedListBlock';
 import ToggleListBlock from '$app/components/document/ToggleListBlock';
 import DividerBlock from '$app/components/document/DividerBlock';
 import CalloutBlock from '$app/components/document/CalloutBlock';
+import CodeBlock from '$app/components/document/CodeBlock';
 
 function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<HTMLDivElement>) {
   const { node, childIds, isSelected, ref } = useNode(id);
@@ -48,12 +49,10 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
       case BlockType.CalloutBlock: {
         return <CalloutBlock node={node} childIds={childIds} />;
       }
+      case BlockType.CodeBlock:
+        return <CodeBlock node={node} />;
       default:
-        return (
-          <Alert severity='info' className='mb-2'>
-            <p>The current version does not support this Block.</p>
-          </Alert>
-        );
+        return <UnSupportedBlock />;
     }
   }, [node, childIds]);
 
@@ -75,5 +74,13 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
 const NodeWithErrorBoundary = withErrorBoundary(NodeComponent, {
   FallbackComponent: ErrorBoundaryFallbackComponent,
 });
+
+const UnSupportedBlock = () => {
+  return (
+    <Alert severity='info' className='mb-2'>
+      <p>The current version does not support this Block.</p>
+    </Alert>
+  );
+};
 
 export default React.memo(NodeWithErrorBoundary);

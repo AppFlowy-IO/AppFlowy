@@ -16,7 +16,7 @@ function TextBlock({
   childIds?: string[];
   placeholder?: string;
 } & React.HTMLAttributes<HTMLDivElement>) {
-  const { editor, value, onChange, onKeyDownCapture, onDOMBeforeInput } = useTextBlock(node.id);
+  const { editor, value, onChange, onKeyDown, onDOMBeforeInput } = useTextBlock(node.id);
   const className = props.className !== undefined ? ` ${props.className}` : '';
 
   return (
@@ -25,7 +25,7 @@ function TextBlock({
         <Slate editor={editor} onChange={onChange} value={value}>
           <BlockHorizontalToolbar id={node.id} />
           <Editable
-            onKeyDownCapture={onKeyDownCapture}
+            onKeyDown={onKeyDown}
             onDOMBeforeInput={onDOMBeforeInput}
             renderLeaf={(leafProps) => <Leaf {...leafProps} />}
             placeholder={placeholder || 'Please enter some text...'}

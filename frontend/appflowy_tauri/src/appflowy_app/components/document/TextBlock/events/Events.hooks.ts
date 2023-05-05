@@ -1,93 +1,84 @@
 import { Editor } from 'slate';
 import { useTurnIntoBlock } from './TurnIntoEvents.hooks';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { keyBoardEventKeyMap } from '$app/constants/document/text_block';
-import {
-  canHandleBackspaceKey,
-  canHandleDownKey,
-  canHandleEnterKey,
-  canHandleLeftKey,
-  canHandleRightKey,
-  canHandleTabKey,
-  canHandleUpKey,
-  onHandleEnterKey,
-  triggerHotkey,
-} from '$app/utils/document/blocks/text/hotkey';
+import { triggerHotkey } from '$app/utils/document/blocks/text/hotkey';
 import { TextBlockKeyEventHandlerParams } from '$app/interfaces/document';
-import { useActions } from './Actions.hooks';
+import isHotkey from 'is-hotkey';
+import { indentNodeThunk, outdentNodeThunk, splitNodeThunk } from '$app_reducers/document/async-actions';
+import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { useAppDispatch } from '$app/stores/store';
+import { useDefaultTextInputEvents } from '$app/components/document/_shared/Text/useTextEvents';
 
 export function useTextBlockKeyEvent(id: string, editor: Editor) {
-  const { indentAction, backSpaceAction, splitAction, wrapAction, focusPreLineAction, focusNextLineAction } =
-    useActions(id);
+  const controller = useContext(DocumentControllerContext);
+  const dispatch = useAppDispatch();
+
+  const defaultTextInputEvents = useDefaultTextInputEvents(id);
 
   const { turnIntoBlockEvents } = useTurnIntoBlock(id);
 
+  // Here custom key events for TextBlock
   const events = useMemo(() => {
     return [
+      ...defaultTextInputEvents,
       {
+        // Here custom enter key event for TextBlock
         triggerEventKey: keyBoardEventKeyMap.Enter,
-        canHandle: canHandleEnterKey,
+        canHandle: (...args: TextBlockKeyEventHandlerParams) => isHotkey('enter', args[0]),
         handler: (...args: TextBlockKeyEventHandlerParams) => {
-          onHandleEnterKey(...args, {
-            onSplit: splitAction,
-            onWrap: wrapAction,
-          });
+          const [e, editor] = args;
+          e.preventDefault();
+          void (async () => {
+            if (!controller) return;
+            await dispatch(splitNodeThunk({ id, controller, editor }));
+          })();
         },
       },
       {
+        // Here custom shift+enter key event for TextBlock
+        triggerEventKey: keyBoardEventKeyMap.Enter,
+        canHandle: (...args: TextBlockKeyEventHandlerParams) => isHotkey('shift+enter', args[0]),
+        handler: (...args: TextBlockKeyEventHandlerParams) => {
+          const [e, editor] = args;
+          e.preventDefault();
+          Editor.insertText(editor, '\n');
+        },
+      },
+      {
+        // Here custom tab key event for TextBlock
         triggerEventKey: keyBoardEventKeyMap.Tab,
-        canHandle: canHandleTabKey,
-        handler: (..._args: TextBlockKeyEventHandlerParams) => {
-          void indentAction();
-        },
-      },
-      {
-        triggerEventKey: keyBoardEventKeyMap.Backspace,
-        canHandle: canHandleBackspaceKey,
-        handler: (..._args: TextBlockKeyEventHandlerParams) => {
-          void backSpaceAction();
-        },
-      },
-      {
-        triggerEventKey: keyBoardEventKeyMap.Up,
-        canHandle: canHandleUpKey,
+        canHandle: (...args: TextBlockKeyEventHandlerParams) => isHotkey('tab', args[0]),
         handler: (...args: TextBlockKeyEventHandlerParams) => {
-          void focusPreLineAction({
-            editor: args[1],
-          });
+          const [e, _] = args;
+          e.preventDefault();
+          if (!controller) return;
+          dispatch(
+            indentNodeThunk({
+              id,
+              controller,
+            })
+          );
         },
       },
       {
-        triggerEventKey: keyBoardEventKeyMap.Down,
-        canHandle: canHandleDownKey,
+        // Here custom shift+tab key event for TextBlock
+        triggerEventKey: keyBoardEventKeyMap.Tab,
+        canHandle: (...args: TextBlockKeyEventHandlerParams) => isHotkey('shift+tab', args[0]),
         handler: (...args: TextBlockKeyEventHandlerParams) => {
-          void focusNextLineAction({
-            editor: args[1],
-          });
-        },
-      },
-      {
-        triggerEventKey: keyBoardEventKeyMap.Left,
-        canHandle: canHandleLeftKey,
-        handler: (...args: TextBlockKeyEventHandlerParams) => {
-          void focusPreLineAction({
-            editor: args[1],
-            focusEnd: true,
-          });
-        },
-      },
-      {
-        triggerEventKey: keyBoardEventKeyMap.Right,
-        canHandle: canHandleRightKey,
-        handler: (...args: TextBlockKeyEventHandlerParams) => {
-          void focusNextLineAction({
-            editor: args[1],
-            focusStart: true,
-          });
+          const [e, _] = args;
+          e.preventDefault();
+          if (!controller) return;
+          dispatch(
+            outdentNodeThunk({
+              id,
+              controller,
+            })
+          );
         },
       },
     ];
-  }, [splitAction, wrapAction, indentAction, backSpaceAction, focusPreLineAction, focusNextLineAction]);
+  }, [defaultTextInputEvents, controller, dispatch, id]);
 
   const onKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -100,8 +91,6 @@ export function useTextBlockKeyEvent(id: string, editor: Editor) {
         return;
       }
 
-      event.stopPropagation();
-      event.preventDefault();
       matchKeys.forEach((matchKey) => matchKey.handler(event, editor));
     },
     [editor, events, turnIntoBlockEvents]
