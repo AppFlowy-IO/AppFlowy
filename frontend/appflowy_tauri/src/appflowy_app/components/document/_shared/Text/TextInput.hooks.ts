@@ -1,46 +1,61 @@
 import { createEditor, Descendant, Transforms } from 'slate';
-import { withReact, ReactEditor } from 'slate-react';
+import { ReactEditor, withReact } from 'slate-react';
 import * as Y from 'yjs';
-import { withYjs, YjsEditor, slateNodesToInsertDelta } from '@slate-yjs/core';
-import { useCallback, useContext, useMemo, useRef, useEffect, useState } from 'react';
+import { slateNodesToInsertDelta, withYjs, YjsEditor } from '@slate-yjs/core';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { TextDelta, TextSelection } from '$app/interfaces/document';
-import { NodeContext } from './SubscribeNode.hooks';
-import { useAppDispatch, useAppSelector } from '@/appflowy_app/stores/store';
+import { NodeContext } from '../SubscribeNode.hooks';
+import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { updateNodeDeltaThunk } from '$app_reducers/document/async-actions/blocks/text/update';
-import { deltaToSlateValue, getDeltaFromSlateNodes } from '$app/utils/document/blocks/common';
-import { documentActions } from '@/appflowy_app/stores/reducers/document/slice';
+import { deltaToSlateValue } from '$app/utils/document/blocks/common';
+import { documentActions } from '$app_reducers/document/slice';
 
 import { isSameDelta } from '$app/utils/document/blocks/text/delta';
 
 export function useTextInput(id: string) {
   const dispatch = useAppDispatch();
   const node = useContext(NodeContext);
+  const selectionRef = useRef<TextSelection | null>(null);
 
   const delta = useMemo(() => {
     if (!node || !('delta' in node.data)) {
       return [];
     }
     return node.data.delta;
-  }, [node?.data]);
+  }, [node]);
 
   const { editor, yText } = useBindYjs(id, delta);
 
   const [value, setValue] = useState<Descendant[]>([]);
 
   const storeSelection = useCallback(() => {
-    // This is a hack to make sure the selection is updated after next render
-    // It will save the selection to the store, and the selection will be restored
-    if (!ReactEditor.isFocused(editor)) return;
+    if (!ReactEditor.isFocused(editor)) {
+      selectionRef.current = null;
+      return;
+    }
+
     const selection = editor.selection as TextSelection;
+    if (selectionRef.current && JSON.stringify(selection) !== JSON.stringify(selectionRef.current)) {
+      Transforms.select(editor, selectionRef.current);
+      selectionRef.current = null;
+    }
+
     dispatch(documentActions.setTextSelection({ blockId: id, selection }));
-  }, [editor]);
+  }, [dispatch, editor, id]);
 
   const currentSelection = useAppSelector((state) => state.document.textSelections[id]);
   const restoreSelection = useCallback(() => {
-    setSelection(editor, currentSelection);
-  }, [editor, currentSelection]);
+    if (!currentSelection) return;
+    if (ReactEditor.isFocused(editor)) {
+      Transforms.select(editor, currentSelection);
+    } else {
+      selectionRef.current = currentSelection;
+      Transforms.select(editor, currentSelection);
+      ReactEditor.focus(editor);
+    }
+  }, [currentSelection, editor]);
 
   const onChange = useCallback(
     (e: Descendant[]) => {
@@ -55,7 +70,7 @@ export function useTextInput(id: string) {
     return () => {
       dispatch(documentActions.removeTextSelection(id));
     };
-  }, [id, restoreSelection]);
+  }, [dispatch, id, restoreSelection]);
 
   if (editor.selection && ReactEditor.isFocused(editor)) {
     const domSelection = window.getSelection();
@@ -66,11 +81,21 @@ export function useTextInput(id: string) {
     }
   }
 
+  const onDOMBeforeInput = useCallback((e: InputEvent) => {
+    // COMPAT: in Apple, `compositionend` is dispatched after the `beforeinput` for "insertFromComposition".
+    // It will cause repeated characters when inputting Chinese.
+    // Here, prevent the beforeInput event and wait for the compositionend event to take effect.
+    if (e.inputType === 'insertFromComposition') {
+      e.preventDefault();
+    }
+  }, []);
+
   return {
     editor,
     yText,
     onChange,
     value,
+    onDOMBeforeInput,
   };
 }
 function useBindYjs(id: string, delta: TextDelta[]) {
@@ -90,6 +115,8 @@ function useBindYjs(id: string, delta: TextDelta[]) {
     yTextRef.current = yText;
 
     return _sharedType;
+    // Here we only want to create the sharedType once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const editor = useMemo(() => withYjs(withReact(createEditor()), sharedType), []);
@@ -116,8 +143,6 @@ function useBindYjs(id: string, delta: TextDelta[]) {
     };
   }, [sendDelta]);
 
-  const currentSelection = useAppSelector((state) => state.document.textSelections[id]);
-
   useEffect(() => {
     const yText = yTextRef.current;
     if (!yText) return;
@@ -128,9 +153,7 @@ function useBindYjs(id: string, delta: TextDelta[]) {
 
     yText.delete(0, yText.length);
     yText.applyDelta(delta);
-    // It should be noted that the selection will be lost after the yText is updated
-    setSelection(editor, currentSelection);
-  }, [delta, currentSelection, editor]);
+  }, [delta, editor]);
 
   return { editor, yText: yTextRef.current };
 }
@@ -150,41 +173,10 @@ function useController(id: string) {
         })
       );
     },
-    [docController, id]
+    [dispatch, docController, id]
   );
 
   return {
     sendDelta,
   };
-}
-
-function setSelection(editor: ReactEditor, currentSelection: TextSelection) {
-  // If the current selection is empty, blur the editor and deselect the selection
-  if (!currentSelection || !currentSelection.anchor || !currentSelection.focus) {
-    if (ReactEditor.isFocused(editor)) {
-      ReactEditor.blur(editor);
-    }
-    return;
-  }
-
-  // If the editor is focused and the current selection is the same as the editor's selection, no need to set the selection
-  if (ReactEditor.isFocused(editor) && JSON.stringify(currentSelection) === JSON.stringify(editor.selection)) {
-    return;
-  }
-
-  const { path, offset } = currentSelection.focus;
-  const children = getDeltaFromSlateNodes(editor.children);
-
-  // the path always has 2 elements,
-  // because the text node is a two-dimensional array
-  const index = path[1];
-  // It is possible that the current selection is out of range
-  if (children[index].insert.length < offset) {
-    return;
-  }
-
-  // the order of the following two lines is important
-  // if we reverse the order, the selection will be lost or always at the start
-  Transforms.select(editor, currentSelection);
-  ReactEditor.focus(editor);
 }

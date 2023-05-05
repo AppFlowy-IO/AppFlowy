@@ -7,8 +7,7 @@ import {
   TodoListBlockData,
   ToggleListBlockData,
 } from '$app/interfaces/document';
-import { getBeforeRangeAt } from '$app/utils/document/blocks/text/delta';
-import { getDeltaAfterSelection } from '$app/utils/document/blocks/common';
+import { getAfterRangeAt, getBeforeRangeAt, getDeltaAfterSelection } from '$app/utils/document/blocks/text/delta';
 
 /**
  * get heading data from editor, only support markdown
@@ -116,5 +115,18 @@ export function getCalloutDataFromEditor(editor: Editor): CalloutBlockData | und
   return {
     delta,
     icon: iconMap[tag],
+  };
+}
+
+/**
+ * get code block data from editor, only support markdown
+ */
+export function getCodeBlockDataFromEditor(editor: Editor) {
+  const delta = getDeltaAfterSelection(editor);
+  if (!delta) return;
+  return {
+    delta,
+    language: 'javascript',
+    wrap: true,
   };
 }

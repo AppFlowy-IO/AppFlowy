@@ -5,14 +5,16 @@ import { documentActions } from '$app_reducers/document/slice';
 import { setCursorBeforeThunk } from '../../cursor';
 import { newBlock } from '$app/utils/document/blocks/common';
 import { blockConfig, SplitRelationship } from '$app/constants/document/config';
+import { Editor } from 'slate';
+import { getSplitDelta } from '@/appflowy_app/utils/document/blocks/text/delta';
 
 export const splitNodeThunk = createAsyncThunk(
   'document/splitNode',
-  async (
-    payload: { id: string; retain: TextDelta[]; insert: TextDelta[]; controller: DocumentController },
-    thunkAPI
-  ) => {
-    const { id, controller, retain, insert } = payload;
+  async (payload: { id: string; editor: Editor; controller: DocumentController }, thunkAPI) => {
+    const { id, controller, editor } = payload;
+    // get the split content
+    const { retain, insert } = getSplitDelta(editor);
+
     const { dispatch, getState } = thunkAPI;
     const state = (getState() as { document: DocumentState }).document;
     const node = state.nodes[id];
