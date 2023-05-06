@@ -243,7 +243,7 @@ class _IncludeTimeButton extends StatelessWidget {
                     "grid/clock",
                     color: Theme.of(context).iconTheme.color,
                   ),
-                  const HSpace(4),
+                  const HSpace(6),
                   FlowyText.medium(LocaleKeys.grid_field_includeTime.tr()),
                   const Spacer(),
                   Toggle(
