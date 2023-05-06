@@ -417,8 +417,10 @@
     "settings": {
       "showWeekNumbers": "Show week numbers",
       "showWeekends": "Show weekends",
-      "firstDayOfWeek": "First day of week",
-      "layoutDateField": "Layout calendar by"
+      "firstDayOfWeek": "Start week on",
+      "layoutDateField": "Layout calendar by",
+      "noDateTitle": "No Date",
+      "emptyNoDate": "No unscheduled events"
     }
   }
 }
