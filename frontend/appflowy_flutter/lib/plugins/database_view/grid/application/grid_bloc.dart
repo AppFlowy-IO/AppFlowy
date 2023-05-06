@@ -87,7 +87,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
         }
       },
     );
-    databaseController.addListener(onDatabaseChanged: onDatabaseChanged);
+    databaseController.setListener(onDatabaseChanged: onDatabaseChanged);
   }
 
   Future<void> _openGrid(Emitter<GridState> emit) async {

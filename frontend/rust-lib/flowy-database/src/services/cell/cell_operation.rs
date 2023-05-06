@@ -248,11 +248,11 @@ pub fn insert_checkbox_cell(is_check: bool, field_rev: &FieldRevision) -> CellRe
   CellRevision::new(data)
 }
 
-pub fn insert_date_cell(timestamp: i64, field_rev: &FieldRevision) -> CellRevision {
+pub fn insert_date_cell(date_cell_data: DateCellData, field_rev: &FieldRevision) -> CellRevision {
   let cell_data = serde_json::to_string(&DateCellChangeset {
-    date: Some(timestamp.to_string()),
+    date: date_cell_data.timestamp.map(|t| t.to_string()),
     time: None,
-    include_time: Some(false),
+    include_time: Some(date_cell_data.include_time),
     is_utc: true,
   })
   .unwrap();

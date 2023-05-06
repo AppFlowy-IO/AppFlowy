@@ -48,7 +48,7 @@ void _showEmojiSelectionMenu(
         ),
       ),
     );
-  });
+  },);
 
   Overlay.of(context).insert(_emojiSelectionMenu!);
 

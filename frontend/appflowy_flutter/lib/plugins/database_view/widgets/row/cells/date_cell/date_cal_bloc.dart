@@ -84,15 +84,23 @@ class DateCellCalendarBloc
     bool? includeTime,
   }) {
     final DateCellData newDateData = state.dateCellData.fold(
-      () => DateCellData(
-        date: date ?? DateTime.now(),
-        time: time,
-        includeTime: includeTime ?? false,
-      ),
+      () {
+        DateTime newDate = DateTime.now();
+        if (date != null) {
+          newDate = _utcToLocalAddTime(date);
+        }
+        return DateCellData(
+          date: newDate,
+          time: time,
+          includeTime: includeTime ?? false,
+        );
+      },
       (dateData) {
         var newDateData = dateData;
         if (date != null && !isSameDay(newDateData.date, date)) {
-          newDateData = newDateData.copyWith(date: date);
+          newDateData = newDateData.copyWith(
+            date: _utcToLocalAddTime(date),
+          );
         }
 
         if (newDateData.time != time) {
@@ -148,6 +156,21 @@ class DateCellCalendarBloc
           },
         );
       },
+    );
+  }
+
+  DateTime _utcToLocalAddTime(DateTime date) {
+    final now = DateTime.now();
+    // the incoming date is Utc. this trick converts it into Local
+    // and add the current time, though
+    // the time may be overwritten by explicitly provided time string
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
+      now.hour,
+      now.minute,
+      now.second,
     );
   }
 
@@ -290,10 +313,7 @@ Option<DateCellData> calDataFromCellData(DateCellDataPB? cellData) {
   Option<DateCellData> dateData = none();
   if (cellData != null) {
     final timestamp = cellData.timestamp * 1000;
-    final date = DateTime.fromMillisecondsSinceEpoch(
-      timestamp.toInt(),
-      isUtc: true,
-    );
+    final date = DateTime.fromMillisecondsSinceEpoch(timestamp.toInt());
     dateData = Some(
       DateCellData(
         date: date,

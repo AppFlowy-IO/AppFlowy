@@ -1,5 +1,4 @@
 import 'dart:collection';
-import 'package:equatable/equatable.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,9 +11,9 @@ import '../../application/row/row_service.dart';
 
 part 'card_bloc.freezed.dart';
 
-class CardBloc extends Bloc<BoardCardEvent, BoardCardState> {
+class CardBloc extends Bloc<RowCardEvent, RowCardState> {
   final RowPB row;
-  final String groupFieldId;
+  final String? groupFieldId;
   final RowBackendService _rowBackendSvc;
   final RowCache _rowCache;
   VoidCallback? _rowCallback;
@@ -28,13 +27,13 @@ class CardBloc extends Bloc<BoardCardEvent, BoardCardState> {
   })  : _rowBackendSvc = RowBackendService(viewId: viewId),
         _rowCache = rowCache,
         super(
-          BoardCardState.initial(
+          RowCardState.initial(
             row,
             _makeCells(groupFieldId, rowCache.loadGridCells(row.id)),
             isEditing,
           ),
         ) {
-    on<BoardCardEvent>(
+    on<RowCardEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
@@ -69,7 +68,7 @@ class CardBloc extends Bloc<BoardCardEvent, BoardCardState> {
     return RowInfo(
       viewId: _rowBackendSvc.viewId,
       fields: UnmodifiableListView(
-        state.cells.map((cell) => cell.identifier.fieldInfo).toList(),
+        state.cells.map((cell) => cell.fieldInfo).toList(),
       ),
       rowPB: state.rowPB,
     );
@@ -81,70 +80,58 @@ class CardBloc extends Bloc<BoardCardEvent, BoardCardState> {
       onCellUpdated: (cellMap, reason) {
         if (!isClosed) {
           final cells = _makeCells(groupFieldId, cellMap);
-          add(BoardCardEvent.didReceiveCells(cells, reason));
+          add(RowCardEvent.didReceiveCells(cells, reason));
         }
       },
     );
   }
 }
 
-List<BoardCellEquatable> _makeCells(
-  String groupFieldId,
+List<CellIdentifier> _makeCells(
+  String? groupFieldId,
   CellByFieldId originalCellMap,
 ) {
-  List<BoardCellEquatable> cells = [];
+  List<CellIdentifier> cells = [];
   for (final entry in originalCellMap.entries) {
     // Filter out the cell if it's fieldId equal to the groupFieldId
-    if (entry.value.fieldId != groupFieldId) {
-      cells.add(BoardCellEquatable(entry.value));
+    if (groupFieldId != null) {
+      if (entry.value.fieldId == groupFieldId) {
+        continue;
+      }
     }
+
+    cells.add(entry.value);
   }
   return cells;
 }
 
 @freezed
-class BoardCardEvent with _$BoardCardEvent {
-  const factory BoardCardEvent.initial() = _InitialRow;
-  const factory BoardCardEvent.setIsEditing(bool isEditing) = _IsEditing;
-  const factory BoardCardEvent.didReceiveCells(
-    List<BoardCellEquatable> cells,
+class RowCardEvent with _$RowCardEvent {
+  const factory RowCardEvent.initial() = _InitialRow;
+  const factory RowCardEvent.setIsEditing(bool isEditing) = _IsEditing;
+  const factory RowCardEvent.didReceiveCells(
+    List<CellIdentifier> cells,
     RowsChangedReason reason,
   ) = _DidReceiveCells;
 }
 
 @freezed
-class BoardCardState with _$BoardCardState {
-  const factory BoardCardState({
+class RowCardState with _$RowCardState {
+  const factory RowCardState({
     required RowPB rowPB,
-    required List<BoardCellEquatable> cells,
+    required List<CellIdentifier> cells,
     required bool isEditing,
     RowsChangedReason? changeReason,
-  }) = _BoardCardState;
+  }) = _RowCardState;
 
-  factory BoardCardState.initial(
+  factory RowCardState.initial(
     RowPB rowPB,
-    List<BoardCellEquatable> cells,
+    List<CellIdentifier> cells,
     bool isEditing,
   ) =>
-      BoardCardState(
+      RowCardState(
         rowPB: rowPB,
         cells: cells,
         isEditing: isEditing,
       );
-}
-
-class BoardCellEquatable extends Equatable {
-  final CellIdentifier identifier;
-
-  const BoardCellEquatable(this.identifier);
-
-  @override
-  List<Object?> get props {
-    return [
-      identifier.fieldInfo.id,
-      identifier.fieldInfo.fieldType,
-      identifier.fieldInfo.visibility,
-      identifier.fieldInfo.width,
-    ];
-  }
 }

@@ -99,6 +99,7 @@ class HoverStyle {
   final Color borderColor;
   final double borderWidth;
   final Color? hoverColor;
+  final Color? foregroundColorOnHover;
   final BorderRadius borderRadius;
   final EdgeInsets contentMargin;
   final Color backgroundColor;
@@ -110,6 +111,7 @@ class HoverStyle {
     this.contentMargin = EdgeInsets.zero,
     this.backgroundColor = Colors.transparent,
     this.hoverColor,
+    this.foregroundColorOnHover,
   });
 }
 
@@ -138,18 +140,17 @@ class FlowyHoverContainer extends StatelessWidget {
         borderRadius: style.borderRadius,
       ),
       child:
-          //override text's theme with new color when it is hovered
+          //override text's theme with foregroundColorOnHover when it is hovered
           Theme(
         data: Theme.of(context).copyWith(
           textTheme: Theme.of(context).textTheme.copyWith(
-                bodyMedium: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                bodyMedium: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: style.foregroundColorOnHover ??
+                        Theme.of(context).colorScheme.onSurface),
               ),
-          iconTheme: Theme.of(context)
-              .iconTheme
-              .copyWith(color: Theme.of(context).colorScheme.onSurface),
+          iconTheme: Theme.of(context).iconTheme.copyWith(
+              color: style.foregroundColorOnHover ??
+                  Theme.of(context).colorScheme.onSurface),
         ),
         child: child,
       ),

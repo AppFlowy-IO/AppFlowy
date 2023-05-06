@@ -4,7 +4,6 @@ import 'package:appflowy/workspace/presentation/widgets/emoji_picker/src/default
 import 'package:appflowy/workspace/presentation/widgets/emoji_picker/src/emoji_view_state.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
@@ -50,14 +49,14 @@ class _EmojiPopoverState extends State<EmojiPopover> {
             ],
           );
         },
-        config: const Config(
+        config: Config(
           columns: 8,
           emojiSizeMax: 28,
           bgColor: Colors.transparent,
-          iconColor: Colors.grey,
-          iconColorSelected: Color(0xff333333),
-          indicatorColor: Color(0xff333333),
-          progressIndicatorColor: Color(0xff333333),
+          iconColor: Theme.of(context).iconTheme.color!,
+          iconColorSelected: Theme.of(context).colorScheme.onSurface,
+          selectedHoverColor: Theme.of(context).colorScheme.secondary,
+          progressIndicatorColor: Theme.of(context).iconTheme.color!,
           buttonMode: ButtonMode.CUPERTINO,
           initCategory: Category.RECENT,
         ),
@@ -72,18 +71,16 @@ class _EmojiPopoverState extends State<EmojiPopover> {
     return FlowyButton(
       onTap: () => widget.removeIcon(),
       useIntrinsicWidth: true,
-      hoverColor: Theme.of(context).colorScheme.onPrimary,
       text: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          svgWidget("editor/delete"),
+          const FlowySvg(name: 'editor/delete'),
           const SizedBox(
             width: 5,
           ),
           FlowyText(
             LocaleKeys.document_plugins_cover_removeIcon.tr(),
-            color: Colors.grey,
           ),
         ],
       ),

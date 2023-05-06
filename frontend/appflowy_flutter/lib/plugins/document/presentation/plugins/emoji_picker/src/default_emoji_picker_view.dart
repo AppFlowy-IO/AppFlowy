@@ -27,14 +27,14 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
   @override
   void initState() {
     var initCategory = widget.state.categoryEmoji.indexWhere(
-        (element) => element.category == widget.config.initCategory);
+        (element) => element.category == widget.config.initCategory,);
     if (initCategory == -1) {
       initCategory = 0;
     }
     _tabController = TabController(
         initialIndex: initCategory,
         length: widget.state.categoryEmoji.length,
-        vsync: this);
+        vsync: this,);
     _pageController = PageController(initialPage: initCategory);
     _emojiFocusNode.requestFocus();
 
@@ -79,7 +79,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
             ),
             onPressed: () {
               widget.state.onBackspacePressed!();
-            }),
+            },),
       );
     }
     return Container();
@@ -161,7 +161,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
                               .asMap()
                               .entries
                               .map<Widget>((item) => _buildCategory(
-                                  item.value.category, emojiSize))
+                                  item.value.category, emojiSize,),)
                               .toList(),
                     ),
                   ),
@@ -207,7 +207,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
   }
 
   Widget _buildButtonWidget(
-      {required VoidCallback onPressed, required Widget child}) {
+      {required VoidCallback onPressed, required Widget child,}) {
     if (widget.config.buttonMode == ButtonMode.MATERIAL) {
       return InkWell(
         onTap: onPressed,
@@ -270,7 +270,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
           widget.state.onEmojiSelected(categoryEmoji.category, emoji);
         },
         child: FittedBox(
-          fit: BoxFit.fill,
+          fit: BoxFit.scaleDown,
           child: Text(
             emoji.emoji,
             textScaleFactor: 1.0,
@@ -279,7 +279,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
               backgroundColor: Colors.transparent,
             ),
           ),
-        ));
+        ),);
   }
 
   Widget _buildNoRecent() {
@@ -288,6 +288,6 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
       widget.config.noRecentsText,
       style: widget.config.noRecentsStyle,
       textAlign: TextAlign.center,
-    ));
+    ),);
   }
 }

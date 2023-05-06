@@ -27,7 +27,12 @@ class CellDataLoader<T> {
       (result) => result.fold(
         (CellPB cell) {
           try {
-            return parser.parserData(cell.data);
+            // Return null the data of the cell is empty.
+            if (cell.data.isEmpty) {
+              return null;
+            } else {
+              return parser.parserData(cell.data);
+            }
           } catch (e, s) {
             Log.error('$parser parser cellData failed, $e');
             Log.error('Stack trace \n $s');
@@ -48,6 +53,13 @@ class StringCellDataParser implements CellDataParser<String> {
   String? parserData(List<int> data) {
     final s = utf8.decode(data);
     return s;
+  }
+}
+
+class NumberCellDataParser implements CellDataParser<String> {
+  @override
+  String? parserData(List<int> data) {
+    return utf8.decode(data);
   }
 }
 
