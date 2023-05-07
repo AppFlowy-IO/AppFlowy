@@ -1,6 +1,6 @@
 use collab::plugin_impl::rocks_disk::RocksDiskPlugin;
 use collab::preclude::{Collab, CollabBuilder};
-use collab_persistence::doc;
+
 use collab_persistence::kv::rocks_kv::RocksCollabDB;
 use parking_lot::RwLock;
 use std::{collections::HashMap, sync::Arc};
