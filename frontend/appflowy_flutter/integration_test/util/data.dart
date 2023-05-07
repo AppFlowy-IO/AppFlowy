@@ -9,7 +9,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 enum TestWorkspace {
   board("board"),
-  emptyDocument("empty_document");
+  emptyDocument("empty_document"),
+  aiWorkSpace("ai_workspace"),
+  coverImage("cover_image");
 
   const TestWorkspace(this._name);
 

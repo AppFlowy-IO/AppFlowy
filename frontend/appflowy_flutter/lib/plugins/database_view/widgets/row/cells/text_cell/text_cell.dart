@@ -8,9 +8,13 @@ import '../../cell_builder.dart';
 
 class GridTextCellStyle extends GridCellStyle {
   String? placeholder;
+  TextStyle? textStyle;
+  bool? autofocus;
 
   GridTextCellStyle({
     this.placeholder,
+    this.textStyle,
+    this.autofocus,
   });
 }
 
@@ -66,7 +70,9 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
             controller: _controller,
             focusNode: focusNode,
             maxLines: null,
-            style: Theme.of(context).textTheme.bodyMedium,
+            style: widget.cellStyle?.textStyle ??
+                Theme.of(context).textTheme.bodyMedium,
+            autofocus: widget.cellStyle?.autofocus ?? false,
             decoration: InputDecoration(
               contentPadding: EdgeInsets.only(
                 top: GridSize.cellContentInsets.top,

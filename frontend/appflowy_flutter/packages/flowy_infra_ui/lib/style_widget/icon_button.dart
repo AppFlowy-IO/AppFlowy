@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 
 class FlowyIconButton extends StatelessWidget {
@@ -11,6 +12,7 @@ class FlowyIconButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final Color? fillColor;
   final Color? hoverColor;
+  final Color? iconColorOnHover;
   final EdgeInsets iconPadding;
   final BorderRadius? radius;
   final String? tooltipText;
@@ -23,6 +25,7 @@ class FlowyIconButton extends StatelessWidget {
     this.onPressed,
     this.fillColor = Colors.transparent,
     this.hoverColor,
+    this.iconColorOnHover,
     this.iconPadding = EdgeInsets.zero,
     this.radius,
     this.tooltipText,
@@ -62,9 +65,17 @@ class FlowyIconButton extends StatelessWidget {
           highlightColor: Colors.transparent,
           elevation: 0,
           onPressed: onPressed,
-          child: Padding(
-            padding: iconPadding,
-            child: SizedBox.fromSize(size: childSize, child: child),
+          child: FlowyHover(
+            style: HoverStyle(
+              hoverColor: hoverColor,
+              foregroundColorOnHover:
+                  iconColorOnHover ?? Theme.of(context).iconTheme.color,
+              backgroundColor: fillColor ?? Colors.transparent,
+            ),
+            child: Padding(
+              padding: iconPadding,
+              child: SizedBox.fromSize(size: childSize, child: child),
+            ),
           ),
         ),
       ),

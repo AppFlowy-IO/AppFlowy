@@ -74,6 +74,7 @@
     "shortcuts": "Shortcuts",
     "whatsNew": "What's new?",
     "help": "Help & Support",
+    "markdown": "Markdown",
     "debug": {
       "name": "Debug Info",
       "success": "Copied debug info to clipboard!",
@@ -279,7 +280,7 @@
       "numberFormat": "Number format",
       "dateFormat": "Date format",
       "includeTime": "Include time",
-      "dateFormatFriendly": "Month Day,Year",
+      "dateFormatFriendly": "Month Day, Year",
       "dateFormatISO": "Year-Month-Day",
       "dateFormatLocal": "Month/Day/Year",
       "dateFormatUS": "Year/Month/Day",
@@ -307,7 +308,8 @@
       "textPlaceholder": "Empty",
       "copyProperty": "Copied property to clipboard",
       "count": "Count",
-      "newRow": "New row"
+      "newRow": "New row",
+      "action": "Action"
     },
     "selectOption": {
       "create": "Create",
@@ -361,6 +363,7 @@
       "smartEditFixSpelling": "Fix spelling",
       "warning": "⚠️ AI responses can be inaccurate or misleading.",
       "smartEditSummarize": "Summarize",
+      "smartEditImproveWriting": "Improve Writing",
       "smartEditCouldNotFetchResult": "Could not fetch result from OpenAI",
       "smartEditCouldNotFetchKey": "Could not fetch OpenAI key",
       "smartEditDisabled": "Connect OpenAI in Settings",
@@ -414,8 +417,10 @@
     "settings": {
       "showWeekNumbers": "Show week numbers",
       "showWeekends": "Show weekends",
-      "firstDayOfWeek": "First day of week",
-      "layoutDateField": "Layout calendar by"
+      "firstDayOfWeek": "Start week on",
+      "layoutDateField": "Layout calendar by",
+      "noDateTitle": "No Date",
+      "emptyNoDate": "No unscheduled events"
     }
   }
 }

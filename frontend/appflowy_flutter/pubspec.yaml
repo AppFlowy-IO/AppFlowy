@@ -15,7 +15,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.1.2
+version: 0.1.4
 
 environment:
   sdk: ">=2.19.0 <3.0.0"
@@ -42,7 +42,7 @@ dependencies:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
       ref: a183c57
-  appflowy_editor: "^0.1.9"
+  appflowy_editor: ^0.1.9
   appflowy_popover:
     path: packages/appflowy_popover
 
@@ -98,6 +98,7 @@ dependencies:
   http: ^0.13.5
   json_annotation: ^4.7.0
   path: ^1.8.2
+  mocktail: ^0.3.0
   archive: ^3.3.0
   bitsdojo_window: ^0.1.5
   flutter_svg: ^2.0.5

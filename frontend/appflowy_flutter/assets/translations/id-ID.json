@@ -175,7 +175,7 @@
       "numberFormat": "Format angka",
       "dateFormat": "Format tanggal",
       "includeTime": "Sertakan waktu",
-      "dateFormatFriendly": "Bulan Hari,Tahun",
+      "dateFormatFriendly": "Bulan Hari, Tahun",
       "dateFormatISO": "Tahun-Bulan-Hari",
       "dateFormatLocal": "Bulan/Hari/Tahun",
       "dateFormatUS": "Tahun/Bulan/Hari",

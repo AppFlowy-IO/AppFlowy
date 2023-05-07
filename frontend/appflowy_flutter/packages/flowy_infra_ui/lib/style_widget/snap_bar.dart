@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-void showSnapBar(BuildContext context, String title) {
+void showSnapBar(BuildContext context, String title, [Color? backgroundColor]) {
   ScaffoldMessenger.of(context).clearSnackBars();
 
   ScaffoldMessenger.of(context)
@@ -18,6 +18,7 @@ void showSnapBar(BuildContext context, String title) {
               ),
             ),
           ),
+          backgroundColor: backgroundColor,
         ),
       )
       .closed

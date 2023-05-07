@@ -45,10 +45,10 @@ packages:
     dependency: "direct main"
     description:
       name: appflowy_editor
-      sha256: a1dbca3d7d33f4669f1d44bfa1e06b6646f46726c219921b8a59d9ee22bf252d
+      sha256: "5371e8aa78e6a5e5b5c958b1450958689755b5fd0e9862312ca423f7c0da9fcc"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.9"
+    version: "0.1.10"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -849,7 +849,7 @@ packages:
     source: hosted
     version: "1.0.4"
   mocktail:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: mocktail
       sha256: "80a996cd9a69284b3dc521ce185ffe9150cde69767c2d3a0720147d93c0cef53"

@@ -20,7 +20,8 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
   final Color greySelect;
   final Color lightGreyHover;
   final Color toggleOffFill;
-  final Color progressBarBGcolor;
+  final Color progressBarBGColor;
+  final Color toggleButtonBGColor;
 
   final TextStyle code;
   final TextStyle callout;
@@ -46,7 +47,8 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     required this.code,
     required this.callout,
     required this.caption,
-    required this.progressBarBGcolor,
+    required this.progressBarBGColor,
+    required this.toggleButtonBGColor,
   });
 
   static AFThemeExtension of(BuildContext context) {
@@ -71,7 +73,8 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     Color? greySelect,
     Color? lightGreyHover,
     Color? toggleOffFill,
-    Color? progressBarBGcolor,
+    Color? progressBarBGColor,
+    Color? toggleButtonBGColor,
     TextStyle? code,
     TextStyle? callout,
     TextStyle? caption,
@@ -93,7 +96,8 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
       greySelect: greySelect ?? this.greySelect,
       lightGreyHover: lightGreyHover ?? this.lightGreyHover,
       toggleOffFill: toggleOffFill ?? this.toggleOffFill,
-      progressBarBGcolor: progressBarBGcolor ?? this.progressBarBGcolor,
+      progressBarBGColor: progressBarBGColor ?? this.progressBarBGColor,
+      toggleButtonBGColor: toggleButtonBGColor ?? this.toggleButtonBGColor,
       code: code ?? this.code,
       callout: callout ?? this.callout,
       caption: caption ?? this.caption,
@@ -123,8 +127,10 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
       greySelect: Color.lerp(greySelect, other.greySelect, t)!,
       lightGreyHover: Color.lerp(lightGreyHover, other.lightGreyHover, t)!,
       toggleOffFill: Color.lerp(toggleOffFill, other.toggleOffFill, t)!,
-      progressBarBGcolor:
-          Color.lerp(progressBarBGcolor, other.progressBarBGcolor, t)!,
+      progressBarBGColor:
+          Color.lerp(progressBarBGColor, other.progressBarBGColor, t)!,
+      toggleButtonBGColor:
+          Color.lerp(toggleButtonBGColor, other.toggleButtonBGColor, t)!,
       code: other.code,
       callout: other.callout,
       caption: other.caption,

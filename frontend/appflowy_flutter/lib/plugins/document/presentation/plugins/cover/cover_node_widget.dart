@@ -393,21 +393,32 @@ class _CoverImageState extends State<_CoverImage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           AppFlowyPopover(
+            onClose: () {
+              setOverlayButtonsHidden(true);
+            },
             offset: const Offset(-125, 10),
             controller: popoverController,
             direction: PopoverDirection.bottomWithCenterAligned,
             constraints: BoxConstraints.loose(const Size(380, 450)),
             margin: EdgeInsets.zero,
-            child: RoundedTextButton(
-              onPressed: () {
-                popoverController.show();
-              },
-              hoverColor: Theme.of(context).colorScheme.surface,
-              textColor: Theme.of(context).colorScheme.tertiary,
-              fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
-              width: 120,
-              height: 28,
-              title: LocaleKeys.document_plugins_cover_changeCover.tr(),
+            child: Visibility(
+              maintainState: true,
+              maintainAnimation: true,
+              maintainSize: true,
+              visible: !isOverlayButtonsHidden,
+              child: RoundedTextButton(
+                onPressed: () {
+                  popoverController.show();
+                  setOverlayButtonsHidden(true);
+                },
+                hoverColor: Theme.of(context).colorScheme.surface,
+                textColor: Theme.of(context).colorScheme.tertiary,
+                fillColor:
+                    Theme.of(context).colorScheme.surface.withOpacity(0.5),
+                width: 120,
+                height: 28,
+                title: LocaleKeys.document_plugins_cover_changeCover.tr(),
+              ),
             ),
             popupBuilder: (BuildContext popoverContext) {
               return ChangeCoverPopover(
@@ -418,18 +429,24 @@ class _CoverImageState extends State<_CoverImage> {
             },
           ),
           const SizedBox(width: 10),
-          FlowyIconButton(
-            fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
-            hoverColor: Theme.of(context).colorScheme.surface,
-            iconPadding: const EdgeInsets.all(5),
-            width: 28,
-            icon: svgWidget(
-              'editor/delete',
-              color: Theme.of(context).colorScheme.tertiary,
+          Visibility(
+            maintainAnimation: true,
+            maintainSize: true,
+            maintainState: true,
+            visible: !isOverlayButtonsHidden,
+            child: FlowyIconButton(
+              hoverColor: Theme.of(context).colorScheme.surface,
+              fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+              iconPadding: const EdgeInsets.all(5),
+              width: 28,
+              icon: svgWidget(
+                'editor/delete',
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+              onPressed: () {
+                widget.onCoverChanged(CoverSelectionType.initial, null);
+              },
             ),
-            onPressed: () {
-              widget.onCoverChanged(CoverSelectionType.initial, null);
-            },
           ),
         ],
       ),
@@ -477,20 +494,30 @@ class _CoverImageState extends State<_CoverImage> {
         break;
     }
 //OverflowBox needs to be wraped by a widget with constraints(or from its parent) first,otherwise it will occur an error
-    return SizedBox(
-      height: height,
-      child: OverflowBox(
-        maxWidth: screenSize.width,
-        child: Stack(
-          children: [
-            Container(
-              padding: const EdgeInsets.only(bottom: 10),
-              height: double.infinity,
-              width: double.infinity,
-              child: coverImage,
-            ),
-            hasCover ? _buildCoverOverlayButtons(context) : const SizedBox()
-          ],
+    return MouseRegion(
+      onEnter: (event) {
+        setOverlayButtonsHidden(false);
+      },
+      onExit: (event) {
+        setOverlayButtonsHidden(true);
+      },
+      child: SizedBox(
+        height: height,
+        child: OverflowBox(
+          maxWidth: screenSize.width,
+          child: Stack(
+            children: [
+              Container(
+                padding: const EdgeInsets.only(bottom: 10),
+                height: double.infinity,
+                width: double.infinity,
+                child: coverImage,
+              ),
+              hasCover
+                  ? _buildCoverOverlayButtons(context)
+                  : const SizedBox.shrink()
+            ],
+          ),
         ),
       ),
     );

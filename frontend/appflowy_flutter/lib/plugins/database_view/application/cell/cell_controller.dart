@@ -76,10 +76,7 @@ class CellController<T, D> extends Equatable {
     _cellListener?.start(
       onCellChanged: (result) {
         result.fold(
-          (_) {
-            _cellCache.remove(_cacheKey);
-            _loadData();
-          },
+          (_) => _loadData(),
           (err) => Log.error(err),
         );
       },

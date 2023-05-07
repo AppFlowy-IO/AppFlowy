@@ -7,13 +7,24 @@ import '../bloc/number_card_cell_bloc.dart';
 import '../define.dart';
 import 'card_cell.dart';
 
-class NumberCardCell extends CardCell {
+class NumberCardCellStyle extends CardCellStyle {
+  final double fontSize;
+
+  NumberCardCellStyle(this.fontSize);
+}
+
+class NumberCardCell<CustomCardData>
+    extends CardCell<CustomCardData, NumberCardCellStyle> {
+  final CellRenderHook<String, CustomCardData>? renderHook;
   final CellControllerBuilder cellControllerBuilder;
 
   const NumberCardCell({
     required this.cellControllerBuilder,
+    CustomCardData? cardData,
+    NumberCardCellStyle? style,
+    this.renderHook,
     Key? key,
-  }) : super(key: key);
+  }) : super(key: key, style: style, cardData: cardData);
 
   @override
   State<NumberCardCell> createState() => _NumberCardCellState();
@@ -42,6 +53,15 @@ class _NumberCardCellState extends State<NumberCardCell> {
           if (state.content.isEmpty) {
             return const SizedBox();
           } else {
+            Widget? custom = widget.renderHook?.call(
+              state.content,
+              widget.cardData,
+              context,
+            );
+            if (custom != null) {
+              return custom;
+            }
+
             return Align(
               alignment: Alignment.centerLeft,
               child: Padding(
@@ -50,7 +70,7 @@ class _NumberCardCellState extends State<NumberCardCell> {
                 ),
                 child: FlowyText.medium(
                   state.content,
-                  fontSize: 14,
+                  fontSize: widget.style?.fontSize ?? 14,
                 ),
               ),
             );
