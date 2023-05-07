@@ -51,6 +51,7 @@ class _DocumentPageState extends State<DocumentPage> {
           return state.loadingState.map(
             loading: (_) => const SizedBox.shrink(),
             finish: (result) => result.successOrFail.fold(
+              (error) => FlowyErrorPage(error.toString()),
               (_) {
                 if (state.forceClose) {
                   widget.onDeleted();
@@ -61,7 +62,6 @@ class _DocumentPageState extends State<DocumentPage> {
                   return _buildEditorPage(context, state);
                 }
               },
-              (error) => FlowyErrorPage(error.toString()),
             ),
           );
         },
@@ -76,7 +76,9 @@ class _DocumentPageState extends State<DocumentPage> {
         : Column(
             children: [
               _buildBanner(context),
-              appflowyEditorPage,
+              const Expanded(
+                child: appflowyEditorPage,
+              ),
             ],
           );
   }

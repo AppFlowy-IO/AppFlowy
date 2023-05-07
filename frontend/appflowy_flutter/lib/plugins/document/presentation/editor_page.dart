@@ -29,7 +29,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   Widget build(BuildContext context) {
     final autoFocusParameters = _computeAutoFocusParameters();
 
-    final editor = AppFlowyEditor.custom(
+    final editor = AppFlowyEditor.standard(
       editorState: editorState,
       editable: true,
       // setup the auto focus parameters
@@ -39,14 +39,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       editorStyle: _desktopEditorStyle(),
     );
 
-    return Expanded(
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(
-            maxWidth: double.infinity,
-          ),
-          child: editor,
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(
+          maxWidth: double.infinity,
         ),
+        child: editor,
       ),
     );
   }
