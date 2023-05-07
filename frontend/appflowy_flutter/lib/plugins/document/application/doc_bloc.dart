@@ -8,7 +8,14 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
-    show EditorState, Transaction, Operation, InsertOperation, PathExtensions;
+    show
+        EditorState,
+        Transaction,
+        Operation,
+        InsertOperation,
+        UpdateOperation,
+        DeleteOperation,
+        PathExtensions;
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:collection/collection.dart';
@@ -209,9 +216,8 @@ extension on Operation {
   BlockActionPB? toBlockAction(EditorState editorState) {
     final op = this;
     if (op is InsertOperation) {
-      //
+      // TODO: support inserting multiple nodes
       assert(op.nodes.length == 1);
-      // for (final node in op.nodes) {
       final node = op.nodes.first;
       final parentId = node.parent?.id ??
           editorState.getNodeAtPath(op.path.parent)?.id ??
@@ -219,10 +225,39 @@ extension on Operation {
       final payload = BlockActionPayloadPB()
         ..block = node.toBlock()
         ..parentId = parentId;
-      // }
       assert(parentId.isNotEmpty);
       return BlockActionPB()
         ..action = BlockActionTypePB.Insert
+        ..payload = payload;
+    } else if (op is UpdateOperation) {
+      final node = editorState.getNodeAtPath(op.path);
+      if (node == null) {
+        assert(false, 'node not found at path: ${op.path}');
+        return null;
+      }
+      final parentId = node.parent?.id ??
+          editorState.getNodeAtPath(op.path.parent)?.id ??
+          '';
+      assert(parentId.isNotEmpty);
+      final payload = BlockActionPayloadPB()
+        ..block = node.toBlock()
+        ..parentId = parentId;
+      return BlockActionPB()
+        ..action = BlockActionTypePB.Update
+        ..payload = payload;
+    } else if (op is DeleteOperation) {
+      // TODO: support deleting multiple nodes
+      assert(op.nodes.length == 1);
+      final node = op.nodes.first;
+      final parentId = node.parent?.id ??
+          editorState.getNodeAtPath(op.path.parent)?.id ??
+          '';
+      final payload = BlockActionPayloadPB()
+        ..block = node.toBlock()
+        ..parentId = parentId;
+      assert(parentId.isNotEmpty);
+      return BlockActionPB()
+        ..action = BlockActionTypePB.Delete
         ..payload = payload;
     }
     return null;

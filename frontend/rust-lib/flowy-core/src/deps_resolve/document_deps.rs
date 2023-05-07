@@ -81,11 +81,11 @@ struct DocumentRevisionWebSocket(Arc<FlowyWebSocketConnect>);
 impl RevisionWebSocket for DocumentRevisionWebSocket {
   fn send(&self, data: ClientRevisionWSData) -> BoxResultFuture<(), FlowyError> {
     let bytes: Bytes = data.try_into().unwrap();
-    let msg = WebSocketRawMessage {
+    let _msg = WebSocketRawMessage {
       channel: WSChannel::Document,
       data: bytes.to_vec(),
     };
-    let ws_conn = self.0.clone();
+    let _ws_conn = self.0.clone();
     Box::pin(async move {
       //   match ws_conn.web_socket().await? {
       //     None => {},

@@ -87,7 +87,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
   /// Get the view data.
   ///
   /// only use in the duplicate view.
-  fn get_view_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
+  fn get_view_data(&self, _view_id: &str) -> FutureResult<Bytes, FlowyError> {
     // TODO: implement the duplicate view.
     unimplemented!()
   }
@@ -117,7 +117,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     _user_id: i64,
     view_id: &str,
     _name: &str,
-    data: Vec<u8>,
+    _data: Vec<u8>,
     layout: ViewLayout,
     _ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
