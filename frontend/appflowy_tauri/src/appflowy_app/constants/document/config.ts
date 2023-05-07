@@ -1,5 +1,9 @@
-import { BlockType } from '$app/interfaces/document';
+import { BlockData, BlockType } from '$app/interfaces/document';
 
+export enum SplitRelationship {
+  NextSibling,
+  FirstChild,
+}
 /**
  * If the block type is not in the config, it will be thrown an error in development env
  */
@@ -11,22 +15,46 @@ export const blockConfig: Record<
      */
     canAddChild: boolean;
     /**
-     * the type of the block that will be split from the current block
-     */
-    splitType: BlockType;
-    /**
      * The regexps that will be used to match the markdown flag
      */
     markdownRegexps?: RegExp[];
+
+    /**
+     * The default data of the block
+     */
+    defaultData?: BlockData<any>;
+
+    /**
+     * The props that will be passed to the text split function
+     */
+    splitProps?: {
+      /**
+       * The relationship between the next line block and the current block
+       */
+      nextLineRelationShip: SplitRelationship;
+      /**
+       * The type of the next line block
+       */
+      nextLineBlockType: BlockType;
+    };
   }
 > = {
   [BlockType.TextBlock]: {
     canAddChild: true,
-    splitType: BlockType.TextBlock,
+    defaultData: {
+      delta: [],
+    },
+    splitProps: {
+      nextLineRelationShip: SplitRelationship.NextSibling,
+      nextLineBlockType: BlockType.TextBlock,
+    },
   },
   [BlockType.HeadingBlock]: {
     canAddChild: false,
-    splitType: BlockType.TextBlock,
+    splitProps: {
+      nextLineRelationShip: SplitRelationship.NextSibling,
+      nextLineBlockType: BlockType.TextBlock,
+    },
     /**
      * # or ## or ###
      */
@@ -34,7 +62,14 @@ export const blockConfig: Record<
   },
   [BlockType.TodoListBlock]: {
     canAddChild: true,
-    splitType: BlockType.TodoListBlock,
+    defaultData: {
+      delta: [],
+      checked: false,
+    },
+    splitProps: {
+      nextLineRelationShip: SplitRelationship.NextSibling,
+      nextLineBlockType: BlockType.TodoListBlock,
+    },
     /**
      * -[] or -[x] or -[ ] or [] or [x] or [ ]
      */
@@ -42,7 +77,14 @@ export const blockConfig: Record<
   },
   [BlockType.BulletedListBlock]: {
     canAddChild: true,
-    splitType: BlockType.BulletedListBlock,
+    defaultData: {
+      delta: [],
+      format: 'default',
+    },
+    splitProps: {
+      nextLineRelationShip: SplitRelationship.NextSibling,
+      nextLineBlockType: BlockType.BulletedListBlock,
+    },
     /**
      * - or + or *
      */
@@ -50,23 +92,52 @@ export const blockConfig: Record<
   },
   [BlockType.NumberedListBlock]: {
     canAddChild: true,
-    splitType: BlockType.NumberedListBlock,
+    defaultData: {
+      delta: [],
+      format: 'default',
+    },
+    splitProps: {
+      nextLineRelationShip: SplitRelationship.NextSibling,
+      nextLineBlockType: BlockType.NumberedListBlock,
+    },
     /**
      * 1. or 2. or 3.
+     * a. or b. or c.
      */
-    markdownRegexps: [/^(\s*\d+\.)$/],
+    markdownRegexps: [/^(\s*[\d|a-zA-Z]+\.)$/],
   },
   [BlockType.QuoteBlock]: {
     canAddChild: true,
-    splitType: BlockType.TextBlock,
+    defaultData: {
+      delta: [],
+      size: 'default',
+    },
+    splitProps: {
+      nextLineRelationShip: SplitRelationship.NextSibling,
+      nextLineBlockType: BlockType.TextBlock,
+    },
     /**
      * " or “ or ”
      */
     markdownRegexps: [/^("|“|”)$/],
   },
+  [BlockType.ToggleListBlock]: {
+    canAddChild: true,
+    defaultData: {
+      delta: [],
+      collapsed: false,
+    },
+    splitProps: {
+      nextLineRelationShip: SplitRelationship.FirstChild,
+      nextLineBlockType: BlockType.TextBlock,
+    },
+    /**
+     * >
+     */
+    markdownRegexps: [/^(>)$/],
+  },
   [BlockType.CodeBlock]: {
     canAddChild: false,
-    splitType: BlockType.TextBlock,
     /**
      * ```
      */

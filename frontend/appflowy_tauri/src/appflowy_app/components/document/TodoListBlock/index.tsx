@@ -21,7 +21,7 @@ export default function TodoListBlock({
   return (
     <>
       <div className={'flex'} onKeyDownCapture={handleShortcut}>
-        <div className={'flex h-[calc(1.5em_+_2px)] w-[24px] select-none items-center justify-start'}>
+        <div className={'flex h-[calc(1.5em_+_2px)] w-[1.5em] select-none items-center justify-start px-1'}>
           <div className={'relative flex h-4 w-4 items-center justify-start transition'}>
             <div>{checked ? <EditorCheckSvg /> : <EditorUncheckSvg />}</div>
             <input
