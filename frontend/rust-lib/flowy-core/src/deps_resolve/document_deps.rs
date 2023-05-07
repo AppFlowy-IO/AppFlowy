@@ -1,9 +1,9 @@
 use bytes::Bytes;
 use flowy_client_ws::FlowyWebSocketConnect;
 use flowy_document::{
-  errors::{internal_error, FlowyError},
   DocumentCloudService, DocumentConfig, DocumentDatabase, DocumentManager, DocumentUser,
 };
+use flowy_error::FlowyError;
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{http_server::document::DocumentCloudServiceImpl, local_server::LocalServer};
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
@@ -87,12 +87,12 @@ impl RevisionWebSocket for DocumentRevisionWebSocket {
     };
     let ws_conn = self.0.clone();
     Box::pin(async move {
-      match ws_conn.web_socket().await? {
-        None => {},
-        Some(sender) => {
-          sender.send(msg).map_err(internal_error)?;
-        },
-      }
+      //   match ws_conn.web_socket().await? {
+      //     None => {},
+      //     Some(sender) => {
+      //       sender.send(msg).map_err(internal_error)?;
+      //     },
+      //   }
       Ok(())
     })
   }

@@ -164,6 +164,7 @@ impl AppFlowyCore {
       document_manager2,
     ) = runtime.block_on(async {
       let user_session = mk_user_session(&config, &local_server, &config.server_config);
+
       let document_manager = DocumentDepsResolver::resolve(
         local_server.clone(),
         ws_conn.clone(),
@@ -178,12 +179,12 @@ impl AppFlowyCore {
       )
       .await;
 
-      let folder_manager =
-        Folder2DepsResolver::resolve(user_session.clone(), &document_manager, &database_manager2)
-          .await;
-
       let document_manager2 =
         Document2DepsResolver::resolve(user_session.clone(), &database_manager2);
+
+      let folder_manager =
+        Folder2DepsResolver::resolve(user_session.clone(), &document_manager2, &database_manager2)
+          .await;
 
       if let Some(local_server) = local_server.as_ref() {
         local_server.run();

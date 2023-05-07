@@ -1,7 +1,13 @@
+/*
+ * The following code defines functions that handle creating, opening, and closing documents,
+ * as well as performing actions on documents. These functions make use of a DocumentManager,
+ * which you can think of as a higher-level interface to interact with documents.
+ */
+
 use std::sync::Arc;
 
 use crate::{
-  document::DocumentDataWrapper,
+  document_data::DocumentDataWrapper,
   entities::{
     ApplyActionPayloadPBV2, BlockActionPB, BlockActionPayloadPB, BlockActionTypePB, BlockEventPB,
     BlockEventPayloadPB, BlockPB, CloseDocumentPayloadPBV2, CreateDocumentPayloadPBV2, DeltaTypePB,
@@ -16,29 +22,31 @@ use collab_document::blocks::{
 };
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+
+// Handler for creating a new document
+pub(crate) async fn create_document_handler(
+  data: AFPluginData<CreateDocumentPayloadPBV2>,
+  manager: AFPluginState<Arc<DocumentManager>>,
+) -> FlowyResult<()> {
+  let context = data.into_inner();
+  // Create a new document with a default content, one page block and one text block
+  let data = DocumentDataWrapper::default();
+  manager.create_document(context.document_id, data)?;
+  Ok(())
+}
+
+// Handler for opening an existing document
 pub(crate) async fn open_document_handler(
   data: AFPluginData<OpenDocumentPayloadPBV2>,
   manager: AFPluginState<Arc<DocumentManager>>,
 ) -> DataResult<DocumentDataPB2, FlowyError> {
   let context = data.into_inner();
   let document = manager.open_document(context.document_id)?;
-  let document_data = document
-    .lock()
-    .get_document()
-    .map_err(|err| FlowyError::internal().context(err))?;
+  let document_data = document.lock().get_document()?;
   data_result_ok(DocumentDataPB2::from(DocumentDataWrapper(document_data)))
 }
 
-pub(crate) async fn create_document_handler(
-  data: AFPluginData<CreateDocumentPayloadPBV2>,
-  manager: AFPluginState<Arc<DocumentManager>>,
-) -> FlowyResult<()> {
-  let context = data.into_inner();
-  let data = DocumentDataWrapper::default();
-  manager.create_document(context.document_id, data)?;
-  Ok(())
-}
-
+// Handler for closing an existing document
 pub(crate) async fn close_document_handler(
   data: AFPluginData<CloseDocumentPayloadPBV2>,
   manager: AFPluginState<Arc<DocumentManager>>,
@@ -48,18 +56,15 @@ pub(crate) async fn close_document_handler(
   Ok(())
 }
 
+// Handler for applying an action to a document
 pub(crate) async fn apply_action_handler(
   data: AFPluginData<ApplyActionPayloadPBV2>,
   manager: AFPluginState<Arc<DocumentManager>>,
 ) -> FlowyResult<()> {
   let context = data.into_inner();
   let doc_id = context.document_id;
-  let actions = context
-    .actions
-    .into_iter()
-    .map(|action| action.into())
-    .collect();
   let document = manager.open_document(doc_id)?;
+  let actions = context.actions.into_iter().map(BlockAction::from).collect();
   document.lock().apply_action(actions);
   Ok(())
 }
@@ -96,7 +101,10 @@ impl From<BlockActionPayloadPB> for BlockActionPayload {
 
 impl From<BlockPB> for Block {
   fn from(pb: BlockPB) -> Self {
+    // Use `json_str_to_hashmap()` from the `collab_document` crate to convert the JSON data to a hashmap
     let data = json_str_to_hashmap(&pb.data).unwrap_or_default();
+
+    // Convert the protobuf `BlockPB` to our internal `Block` struct
     Self {
       id: pb.id,
       ty: pb.ty,
@@ -111,6 +119,7 @@ impl From<BlockPB> for Block {
 
 impl From<BlockEvent> for BlockEventPB {
   fn from(payload: BlockEvent) -> Self {
+    // Convert each individual `BlockEvent` to a protobuf `BlockEventPB`, and collect the results into a `Vec`
     Self {
       event: payload.iter().map(|e| e.to_owned().into()).collect(),
     }
@@ -140,6 +149,7 @@ impl From<DeltaType> for DeltaTypePB {
 
 impl From<(&Vec<BlockEvent>, bool)> for DocEventPB {
   fn from((events, is_remote): (&Vec<BlockEvent>, bool)) -> Self {
+    // Convert each individual `BlockEvent` to a protobuf `BlockEventPB`, and collect the results into a `Vec`
     Self {
       events: events.iter().map(|e| e.to_owned().into()).collect(),
       is_remote,

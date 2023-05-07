@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc, vec};
 
 use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
-use flowy_document2::{document::DocumentDataWrapper, manager::DocumentManager};
+use flowy_document2::{document_data::DocumentDataWrapper, manager::DocumentManager};
 use nanoid::nanoid;
 use serde_json::{json, to_value, Value};
 

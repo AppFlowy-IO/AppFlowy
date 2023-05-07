@@ -199,7 +199,7 @@ impl Folder2Manager {
       true => {
         tracing::trace!("Create view with build-in data");
         processor
-          .create_view_with_build_in_data(
+          .create_view_with_built_in_data(
             user_id,
             &params.view_id,
             &params.name,

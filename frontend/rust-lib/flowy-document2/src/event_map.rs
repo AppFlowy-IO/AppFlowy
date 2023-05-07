@@ -27,15 +27,15 @@ pub fn init(document_manager: Arc<DocumentManager>) -> AFPlugin {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Display, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum DocumentEvent2 {
+  #[event(input = "CreateDocumentPayloadPBV2")]
+  CreateDocument = 0,
+
   #[event(input = "OpenDocumentPayloadPBV2", output = "DocumentDataPB2")]
-  OpenDocument = 0,
+  OpenDocument = 1,
 
   #[event(input = "CloseDocumentPayloadPBV2")]
-  CloseDocument = 1,
+  CloseDocument = 2,
 
   #[event(input = "ApplyActionPayloadPBV2")]
-  ApplyAction = 2,
-
-  #[event(input = "CreateDocumentPayloadPBV2")]
-  CreateDocument = 3,
+  ApplyAction = 3,
 }

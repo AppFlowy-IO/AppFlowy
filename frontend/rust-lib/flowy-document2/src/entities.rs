@@ -73,7 +73,6 @@ pub struct ChildrenPB {
   #[pb(index = 1)]
   pub children: Vec<String>,
 }
-
 // Actions
 #[derive(Default, ProtoBuf, Debug)]
 pub struct BlockActionPB {
