@@ -42,9 +42,15 @@ export interface QuoteBlockData extends TextBlockData {
   size: 'default' | 'large';
 }
 
+export interface CalloutBlockData extends TextBlockData {
+  icon: string;
+}
+
 export interface TextBlockData {
   delta: TextDelta[];
 }
+
+export interface DividerBlockData {}
 
 export type PageBlockData = TextBlockData;
 
@@ -62,7 +68,13 @@ export type BlockData<Type> = Type extends BlockType.HeadingBlock
   ? NumberedListBlockData
   : Type extends BlockType.ToggleListBlock
   ? ToggleListBlockData
-  : TextBlockData;
+  : Type extends BlockType.DividerBlock
+  ? DividerBlockData
+  : Type extends BlockType.CalloutBlock
+  ? CalloutBlockData
+  : Type extends BlockType.TextBlock
+  ? TextBlockData
+  : any;
 
 export interface NestedBlock<Type = any> {
   id: string;

@@ -9,7 +9,7 @@ import {
   getNodeBeginSelection,
   getNodeEndSelection,
   getStartLineSelectionByOffset,
-} from '$app/utils/document/slate/text';
+} from '$app/utils/document/blocks/text/delta';
 import { getNextLineId, getPrevLineId } from '$app/utils/document/blocks/common';
 
 export const setCursorBeforeThunk = createAsyncThunk(
@@ -43,13 +43,15 @@ export const setCursorPreLineThunk = createAsyncThunk(
     const state = (getState() as { document: DocumentState }).document;
     const prevId = getPrevLineId(state, id);
     if (!prevId) return;
-    const prevLineNode = state.nodes[prevId];
 
-    // if prev line have no delta, just set block is selected
-    if (!prevLineNode.data.delta) {
-      dispatch(documentActions.setSelectionById(prevId));
-      return;
+    let prevLineNode = state.nodes[prevId];
+    // Find the prev line that has delta
+    while (prevLineNode && !prevLineNode.data.delta) {
+      const id = getPrevLineId(state, prevLineNode.id);
+      if (!id) return;
+      prevLineNode = state.nodes[id];
     }
+    if (!prevLineNode) return;
 
     // whatever the selection is, set cursor to the end of prev line when focusEnd is true
     if (focusEnd) {
@@ -76,14 +78,16 @@ export const setCursorNextLineThunk = createAsyncThunk(
     const node = state.nodes[id];
     const nextId = getNextLineId(state, id);
     if (!nextId) return;
-    const nextLineNode = state.nodes[nextId];
-    const delta = nextLineNode.data.delta;
-    // if next line have no delta, just set block is selected
-    if (!delta) {
-      dispatch(documentActions.setSelectionById(nextId));
-      return;
+    let nextLineNode = state.nodes[nextId];
+    // Find the next line that has delta
+    while (nextLineNode && !nextLineNode.data.delta) {
+      const id = getNextLineId(state, nextLineNode.id);
+      if (!id) return;
+      nextLineNode = state.nodes[id];
     }
+    if (!nextLineNode) return;
 
+    const delta = nextLineNode.data.delta;
     // whatever the selection is, set cursor to the start of next line when focusStart is true
     if (focusStart) {
       await dispatch(setCursorBeforeThunk({ id: nextLineNode.id }));

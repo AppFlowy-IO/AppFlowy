@@ -1,12 +1,13 @@
 import { Editor } from 'slate';
 import {
   BulletListBlockData,
+  CalloutBlockData,
   HeadingBlockData,
   NumberedListBlockData,
   TodoListBlockData,
   ToggleListBlockData,
 } from '$app/interfaces/document';
-import { getBeforeRangeAt } from '$app/utils/document/slate/text';
+import { getBeforeRangeAt } from '$app/utils/document/blocks/text/delta';
 import { getDeltaAfterSelection } from '$app/utils/document/blocks/common';
 
 /**
@@ -92,5 +93,28 @@ export function getToggleListDataFromEditor(editor: Editor): ToggleListBlockData
   return {
     delta,
     collapsed: false,
+  };
+}
+
+/**
+ * get callout data from editor, only support markdown
+ */
+export function getCalloutDataFromEditor(editor: Editor): CalloutBlockData | undefined {
+  const delta = getDeltaAfterSelection(editor);
+  if (!delta) return;
+  const selection = editor.selection;
+  if (!selection) return;
+  const hashTags = Editor.string(editor, getBeforeRangeAt(editor, selection));
+  const tag = hashTags.match(/(TIP|INFO|WARNING|DANGER)/g)?.[0];
+  if (!tag) return;
+  const iconMap: Record<string, string> = {
+    TIP: '💡',
+    INFO: '❗',
+    WARNING: '⚠️',
+    DANGER: '‼️',
+  };
+  return {
+    delta,
+    icon: iconMap[tag],
   };
 }

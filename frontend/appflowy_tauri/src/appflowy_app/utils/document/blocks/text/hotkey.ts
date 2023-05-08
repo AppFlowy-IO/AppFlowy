@@ -1,7 +1,7 @@
 import isHotkey from 'is-hotkey';
 import { toggleFormat } from './format';
 import { Editor, Range } from 'slate';
-import { clonePoint, getAfterRangeAt, getBeforeRangeAt, getDelta, pointInBegin, pointInEnd } from './text';
+import { clonePoint, getAfterRangeAt, getBeforeRangeAt, getDelta, pointInBegin, pointInEnd } from './delta';
 import { SelectionPoint, TextDelta, TextSelection } from '$app/interfaces/document';
 import { keyBoardEventKeyMap } from '$app/constants/document/text_block';
 

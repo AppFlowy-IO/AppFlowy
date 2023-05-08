@@ -1,9 +1,10 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
-import { BlockData, BlockType, DocumentState, NestedBlock } from '$app/interfaces/document';
+import { BlockData, BlockType, DocumentState, NestedBlock, TextDelta } from '$app/interfaces/document';
 import { setCursorBeforeThunk } from '$app_reducers/document/async-actions/cursor';
 import { blockConfig } from '$app/constants/document/config';
 import { newBlock } from '$app/utils/document/blocks/common';
+import { insertAfterNodeThunk } from '$app_reducers/document/async-actions/blocks';
 
 /**
  * transform to block
@@ -45,5 +46,31 @@ export const turnToBlockThunk = createAsyncThunk(
     await controller.applyActions([insertHeadingAction, ...moveChildrenActions, deleteAction]);
     // set cursor in new block
     await dispatch(setCursorBeforeThunk({ id: block.id }));
+  }
+);
+
+/**
+ * turn to divider block
+ * 1. insert text block with delta after current block
+ * 2. turn current block to divider block
+ */
+export const turnToDividerBlockThunk = createAsyncThunk(
+  'document/turnToDividerBlock',
+  async (payload: { id: string; controller: DocumentController; delta: TextDelta[] }, thunkAPI) => {
+    const { id, controller, delta } = payload;
+    const { dispatch } = thunkAPI;
+    const { payload: newNodeId } = await dispatch(
+      insertAfterNodeThunk({
+        id,
+        controller,
+        type: BlockType.TextBlock,
+        data: {
+          delta,
+        },
+      })
+    );
+    if (!newNodeId) return;
+    await dispatch(turnToBlockThunk({ id, type: BlockType.DividerBlock, controller, data: {} }));
+    dispatch(setCursorBeforeThunk({ id: newNodeId as string }));
   }
 );

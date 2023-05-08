@@ -1,5 +1,6 @@
-import { Editor, Element, Text, Location } from 'slate';
+import { Editor, Element, Location, Text } from 'slate';
 import { SelectionPoint, TextDelta, TextSelection } from '$app/interfaces/document';
+import * as Y from 'yjs';
 
 export function getDelta(editor: Editor, at: Location): TextDelta[] {
   const baseElement = Editor.fragment(editor, at)[0] as Element;
@@ -197,4 +198,13 @@ export function clonePoint(point: SelectionPoint): SelectionPoint {
     path: [...point.path],
     offset: point.offset,
   };
+}
+
+export function isSameDelta(referDelta: TextDelta[], delta: TextDelta[]) {
+  const ydoc = new Y.Doc();
+  const yText = ydoc.getText('1');
+  const yTextRefer = ydoc.getText('2');
+  yText.applyDelta(delta);
+  yTextRefer.applyDelta(referDelta);
+  return JSON.stringify(yText.toDelta()) === JSON.stringify(yTextRefer.toDelta());
 }

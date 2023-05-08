@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useFocused, useSlate } from 'slate-react';
-import { calcToolbarPosition } from '$app/utils/document/slate/toolbar';
+import { calcToolbarPosition } from '$app/utils/document/blocks/text/toolbar';
 export function useHoveringToolbar(id: string) {
   const editor = useSlate();
   const inFocus = useFocused();
