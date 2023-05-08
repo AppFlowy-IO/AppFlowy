@@ -35,6 +35,19 @@ async fn grid_create_field() {
     },
   ];
   test.run_scripts(scripts).await;
+
+  let (params, field_rev) = create_date_field(&test.view_id(), FieldType::CreatedAt);
+  let scripts = vec![
+    CreateField { params },
+    AssertFieldTypeOptionEqual {
+      field_index: test.field_count(),
+      expected_type_option_data: field_rev
+        .get_type_option_str(field_rev.ty)
+        .unwrap()
+        .to_owned(),
+    },
+  ];
+  test.run_scripts(scripts).await;
 }
 
 #[tokio::test]

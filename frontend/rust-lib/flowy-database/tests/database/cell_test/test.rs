@@ -25,7 +25,9 @@ async fn grid_cell_update() {
       let data = match field_type {
         FieldType::RichText => "".to_string(),
         FieldType::Number => "123".to_string(),
-        FieldType::DateTime => make_date_cell_string("123"),
+        FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
+          make_date_cell_string("123")
+        },
         FieldType::SingleSelect => {
           let type_option = SingleSelectTypeOptionPB::from(field_rev);
           SelectOptionCellChangeset::from_insert_option_id(&type_option.options.first().unwrap().id)
@@ -61,7 +63,7 @@ async fn grid_cell_update() {
 }
 
 #[tokio::test]
-async fn text_cell_date_test() {
+async fn text_cell_data_test() {
   let test = DatabaseCellTest::new().await;
   let text_field = test.get_first_field_rev(FieldType::RichText);
   let cells = test
@@ -85,7 +87,7 @@ async fn text_cell_date_test() {
 }
 
 #[tokio::test]
-async fn url_cell_date_test() {
+async fn url_cell_data_test() {
   let test = DatabaseCellTest::new().await;
   let url_field = test.get_first_field_rev(FieldType::URL);
   let cells = test
@@ -98,6 +100,53 @@ async fn url_cell_date_test() {
     let url_cell_data = cell.into_url_field_cell_data().unwrap();
     if i == 0 {
       assert_eq!(url_cell_data.url.as_str(), "https://www.appflowy.io/");
+    }
+  }
+}
+
+#[tokio::test]
+async fn update_updated_at_field_on_other_cell_update() {
+  let mut test = DatabaseCellTest::new().await;
+  let updated_at_field = test.get_first_field_rev(FieldType::UpdatedAt).clone();
+
+  let field_revs = test.field_revs.clone();
+  let row_revs = &test.row_revs;
+  let grid_blocks = &test.block_meta_revs;
+  let block_id = &grid_blocks.first().unwrap().block_id;
+  let text_field = field_revs
+    .iter()
+    .find(|&f| <u8 as Into<FieldType>>::into(f.ty) == FieldType::RichText)
+    .unwrap();
+
+  let before_update_timestamp = chrono::offset::Utc::now().timestamp();
+  test
+    .run_script(UpdateCell {
+      changeset: CellChangesetPB {
+        view_id: block_id.to_string(),
+        row_id: row_revs[0].id.clone(),
+        field_id: text_field.id.clone(),
+        type_cell_data: "change".to_string(),
+      },
+      is_err: false,
+    })
+    .await;
+  let after_update_timestamp = chrono::offset::Utc::now().timestamp();
+
+  let cells = test
+    .editor
+    .get_cells_for_field(&test.view_id, &updated_at_field.id)
+    .await
+    .unwrap();
+  for (i, cell) in cells.into_iter().enumerate() {
+    let timestamp = cell.into_date_field_cell_data().unwrap().timestamp.unwrap();
+    match i {
+      0 => assert!(timestamp >= before_update_timestamp && timestamp <= after_update_timestamp),
+      1 => assert!(timestamp < before_update_timestamp),
+      2 => assert!(timestamp < before_update_timestamp),
+      3 => assert!(timestamp < before_update_timestamp),
+      4 => assert!(timestamp < before_update_timestamp),
+      5 => assert!(timestamp < before_update_timestamp),
+      _ => {},
     }
   }
 }

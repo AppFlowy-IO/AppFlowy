@@ -57,6 +57,46 @@ pub fn create_single_select_field(grid_id: &str) -> (CreateFieldParams, FieldRev
   (params, cloned_field_rev)
 }
 
+pub fn create_date_field(
+  grid_id: &str,
+  field_type: FieldType,
+) -> (CreateFieldParams, FieldRevision) {
+  let mut field_rev: FieldRevision = match field_type {
+    FieldType::DateTime => FieldBuilder::new(DateTypeOptionBuilder::default())
+      .name("Date")
+      .visibility(true)
+      .build(),
+    FieldType::UpdatedAt => FieldBuilder::new(UpdatedAtTypeOptionBuilder::default())
+      .name("Updated At")
+      .visibility(true)
+      .build(),
+    FieldType::CreatedAt => FieldBuilder::new(CreatedAtTypeOptionBuilder::default())
+      .name("Created At")
+      .visibility(true)
+      .build(),
+    _ => panic!("Unsupported group field type"),
+  };
+
+  let cloned_field_rev = field_rev.clone();
+
+  let type_option_data = field_rev
+    .get_type_option::<DateTypeOptionPB>(field_rev.ty)
+    .unwrap()
+    .protobuf_bytes()
+    .to_vec();
+
+  let type_option_builder =
+    type_option_builder_from_bytes(type_option_data.clone(), &field_rev.ty.into());
+  field_rev.insert_type_option(type_option_builder.serializer());
+
+  let params = CreateFieldParams {
+    view_id: grid_id.to_owned(),
+    field_type: field_rev.ty.into(),
+    type_option_data: Some(type_option_data),
+  };
+  (params, cloned_field_rev)
+}
+
 //  The grid will contains all existing field types and there are three empty rows in this grid.
 
 pub fn make_date_cell_string(s: &str) -> String {

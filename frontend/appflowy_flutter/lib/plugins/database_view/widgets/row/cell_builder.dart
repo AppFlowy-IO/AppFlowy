@@ -34,6 +34,8 @@ class GridCellBuilder {
           key: key,
         );
       case FieldType.DateTime:
+      case FieldType.UpdatedAt:
+      case FieldType.CreatedAt:
         return GridDateCell(
           cellControllerBuilder: cellControllerBuilder,
           key: key,

@@ -160,12 +160,14 @@ pub fn default_group_configuration(field_rev: &FieldRevision) -> GroupConfigurat
       NumberGroupConfigurationRevision::default(),
     )
     .unwrap(),
-    FieldType::DateTime => GroupConfigurationRevision::new(
-      field_id,
-      field_type_rev,
-      DateGroupConfigurationRevision::default(),
-    )
-    .unwrap(),
+    FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
+      GroupConfigurationRevision::new(
+        field_id,
+        field_type_rev,
+        DateGroupConfigurationRevision::default(),
+      )
+      .unwrap()
+    },
 
     FieldType::SingleSelect => GroupConfigurationRevision::new(
       field_id,

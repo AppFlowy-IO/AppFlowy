@@ -6,6 +6,7 @@ use flowy_client_sync::client_database::DatabaseBuilder;
 
 pub fn make_default_grid() -> BuildDatabaseContext {
   let mut database_builder = DatabaseBuilder::new();
+
   // text
   let text_field = FieldBuilder::new(RichTextTypeOptionBuilder::default())
     .name("Name")

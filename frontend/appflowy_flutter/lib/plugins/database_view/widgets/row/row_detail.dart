@@ -335,6 +335,8 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
     case FieldType.Checkbox:
       return null;
     case FieldType.DateTime:
+    case FieldType.UpdatedAt:
+    case FieldType.CreatedAt:
       return DateCellStyle(
         alignment: Alignment.centerLeft,
       );

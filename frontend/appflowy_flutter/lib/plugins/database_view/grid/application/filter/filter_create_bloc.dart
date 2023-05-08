@@ -93,11 +93,14 @@ class GridCreateFilterBloc
           condition: CheckboxFilterConditionPB.IsChecked,
         );
       case FieldType.DateTime:
+      case FieldType.UpdatedAt:
+      case FieldType.CreatedAt:
         final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
         return _filterBackendSvc.insertDateFilter(
           fieldId: fieldId,
           condition: DateFilterConditionPB.DateIs,
           timestamp: timestamp,
+          fieldType: field.fieldType,
         );
       case FieldType.MultiSelect:
         return _filterBackendSvc.insertSelectOptionFilter(

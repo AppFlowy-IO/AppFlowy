@@ -494,6 +494,8 @@ pub enum FieldType {
   Checkbox = 5,
   URL = 6,
   Checklist = 7,
+  UpdatedAt = 8,
+  CreatedAt = 9,
 }
 
 pub const RICH_TEXT_FIELD: FieldType = FieldType::RichText;
@@ -504,6 +506,8 @@ pub const MULTI_SELECT_FIELD: FieldType = FieldType::MultiSelect;
 pub const CHECKBOX_FIELD: FieldType = FieldType::Checkbox;
 pub const URL_FIELD: FieldType = FieldType::URL;
 pub const CHECKLIST_FIELD: FieldType = FieldType::Checklist;
+pub const UPDATED_AT_FIELD: FieldType = FieldType::UpdatedAt;
+pub const CREATED_AT_FIELD: FieldType = FieldType::CreatedAt;
 
 impl std::default::Default for FieldType {
   fn default() -> Self {
@@ -548,7 +552,7 @@ impl FieldType {
   }
 
   pub fn is_date(&self) -> bool {
-    self == &DATE_FIELD
+    self == &DATE_FIELD || self == &UPDATED_AT_FIELD || self == &CREATED_AT_FIELD
   }
 
   pub fn is_single_select(&self) -> bool {
@@ -605,6 +609,8 @@ impl std::convert::From<FieldTypeRevision> for FieldType {
       5 => FieldType::Checkbox,
       6 => FieldType::URL,
       7 => FieldType::Checklist,
+      8 => FieldType::UpdatedAt,
+      9 => FieldType::CreatedAt,
       _ => {
         tracing::error!("Can't convert FieldTypeRevision: {} to FieldType", ty);
         FieldType::RichText

@@ -3,13 +3,13 @@ use crate::entities::*;
 use crate::manager::DatabaseUser;
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
-  apply_cell_data_changeset, get_type_cell_protobuf, stringify_cell_data, AnyTypeCache,
-  AtomicCellDataCache, CellProtobufBlob, ToCellChangesetString, TypeCellData,
+  apply_cell_data_changeset, get_type_cell_protobuf, insert_date_cell, stringify_cell_data,
+  AnyTypeCache, AtomicCellDataCache, CellProtobufBlob, ToCellChangesetString, TypeCellData,
 };
 use crate::services::database::DatabaseBlocks;
 use crate::services::field::{
   default_type_option_builder_from_type, transform_type_option, type_option_builder_from_bytes,
-  FieldBuilder, RowSingleCellData,
+  DateCellData, FieldBuilder, RowSingleCellData,
 };
 
 use crate::services::database::DatabaseViewDataImpl;
@@ -666,6 +666,29 @@ impl DatabaseEditor {
           type_cell_data,
         };
         self.database_blocks.update_cell(cell_changeset).await?;
+
+        let field_revs = self.database_pad.read().await.get_field_revs(None)?;
+        for f_rev in field_revs {
+          let field_type: FieldType = f_rev.ty.into();
+          if f_rev.id == field_id || field_type != FieldType::UpdatedAt {
+            continue;
+          }
+          let cell_rev = insert_date_cell(
+            DateCellData {
+              timestamp: Some(chrono::offset::Utc::now().timestamp()),
+              include_time: true,
+            },
+            &f_rev,
+          );
+          let cell_changeset = CellChangesetPB {
+            view_id: self.database_id.clone(),
+            row_id: row_id.to_owned(),
+            field_id: f_rev.id.to_owned(),
+            type_cell_data: cell_rev.type_cell_data,
+          };
+          self.database_blocks.update_cell(cell_changeset).await?;
+        }
+
         self
           .database_views
           .did_update_row(old_row_rev, row_id)

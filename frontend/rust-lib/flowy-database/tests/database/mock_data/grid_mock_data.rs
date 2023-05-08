@@ -52,6 +52,26 @@ pub fn make_test_grid() -> BuildDatabaseContext {
           .build();
         database_builder.add_field(date_field);
       },
+      FieldType::UpdatedAt => {
+        let date = UpdatedAtTypeOptionBuilder::default()
+          .date_format(DateFormat::US)
+          .time_format(TimeFormat::TwentyFourHour);
+        let date_field = FieldBuilder::new(date)
+          .name("Updated At")
+          .visibility(true)
+          .build();
+        database_builder.add_field(date_field);
+      },
+      FieldType::CreatedAt => {
+        let date = CreatedAtTypeOptionBuilder::default()
+          .date_format(DateFormat::US)
+          .time_format(TimeFormat::TwentyFourHour);
+        let date_field = FieldBuilder::new(date)
+          .name("Created At")
+          .visibility(true)
+          .build();
+        database_builder.add_field(date_field);
+      },
       FieldType::SingleSelect => {
         // Single Select
         let single_select = SingleSelectTypeOptionBuilder::default()

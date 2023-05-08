@@ -16,6 +16,11 @@ pub fn default_type_option_builder_from_type(field_type: &FieldType) -> Box<dyn 
     FieldType::RichText => RichTextTypeOptionPB::default().into(),
     FieldType::Number => NumberTypeOptionPB::default().into(),
     FieldType::DateTime => DateTypeOptionPB::default().into(),
+    FieldType::UpdatedAt | FieldType::CreatedAt => {
+      let mut date_type_option = DateTypeOptionPB::default();
+      date_type_option.include_time = true;
+      date_type_option.into()
+    },
     FieldType::SingleSelect => SingleSelectTypeOptionPB::default().into(),
     FieldType::MultiSelect => MultiSelectTypeOptionPB::default().into(),
     FieldType::Checkbox => CheckboxTypeOptionPB::default().into(),
@@ -34,6 +39,8 @@ pub fn type_option_builder_from_json_str(
     FieldType::RichText => Box::new(RichTextTypeOptionBuilder::from_json_str(s)),
     FieldType::Number => Box::new(NumberTypeOptionBuilder::from_json_str(s)),
     FieldType::DateTime => Box::new(DateTypeOptionBuilder::from_json_str(s)),
+    FieldType::UpdatedAt => Box::new(UpdatedAtTypeOptionBuilder::from_json_str(s)),
+    FieldType::CreatedAt => Box::new(CreatedAtTypeOptionBuilder::from_json_str(s)),
     FieldType::SingleSelect => Box::new(SingleSelectTypeOptionBuilder::from_json_str(s)),
     FieldType::MultiSelect => Box::new(MultiSelectTypeOptionBuilder::from_json_str(s)),
     FieldType::Checkbox => Box::new(CheckboxTypeOptionBuilder::from_json_str(s)),
@@ -51,6 +58,8 @@ pub fn type_option_builder_from_bytes<T: Into<Bytes>>(
     FieldType::RichText => Box::new(RichTextTypeOptionBuilder::from_protobuf_bytes(bytes)),
     FieldType::Number => Box::new(NumberTypeOptionBuilder::from_protobuf_bytes(bytes)),
     FieldType::DateTime => Box::new(DateTypeOptionBuilder::from_protobuf_bytes(bytes)),
+    FieldType::UpdatedAt => Box::new(UpdatedAtTypeOptionBuilder::from_protobuf_bytes(bytes)),
+    FieldType::CreatedAt => Box::new(CreatedAtTypeOptionBuilder::from_protobuf_bytes(bytes)),
     FieldType::SingleSelect => Box::new(SingleSelectTypeOptionBuilder::from_protobuf_bytes(bytes)),
     FieldType::MultiSelect => Box::new(MultiSelectTypeOptionBuilder::from_protobuf_bytes(bytes)),
     FieldType::Checkbox => Box::new(CheckboxTypeOptionBuilder::from_protobuf_bytes(bytes)),

@@ -365,7 +365,7 @@ impl<'a> TypeOptionCellExt<'a> {
             self.cell_data_cache.clone(),
           )
         }),
-      FieldType::DateTime => self
+      FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => self
         .field_rev
         .get_type_option::<DateTypeOptionPB>(field_type.into())
         .map(|type_option| {
@@ -472,8 +472,10 @@ fn get_type_option_transform_handler(
       as Box<dyn TypeOptionTransformHandler>,
     FieldType::Number => Box::new(NumberTypeOptionPB::from_json_str(type_option_data))
       as Box<dyn TypeOptionTransformHandler>,
-    FieldType::DateTime => Box::new(DateTypeOptionPB::from_json_str(type_option_data))
-      as Box<dyn TypeOptionTransformHandler>,
+    FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
+      Box::new(DateTypeOptionPB::from_json_str(type_option_data))
+        as Box<dyn TypeOptionTransformHandler>
+    },
     FieldType::SingleSelect => Box::new(SingleSelectTypeOptionPB::from_json_str(type_option_data))
       as Box<dyn TypeOptionTransformHandler>,
     FieldType::MultiSelect => Box::new(MultiSelectTypeOptionPB::from_json_str(type_option_data))

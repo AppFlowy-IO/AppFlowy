@@ -244,3 +244,55 @@ impl TypeOptionBuilder for DateTypeOptionBuilder {
     &self.0
   }
 }
+
+#[derive(Default)]
+pub struct UpdatedAtTypeOptionBuilder(DateTypeOptionPB);
+impl_into_box_type_option_builder!(UpdatedAtTypeOptionBuilder);
+impl_builder_from_json_str_and_from_bytes!(UpdatedAtTypeOptionBuilder, DateTypeOptionPB);
+
+impl UpdatedAtTypeOptionBuilder {
+  pub fn date_format(mut self, date_format: DateFormat) -> Self {
+    self.0.date_format = date_format;
+    self
+  }
+
+  pub fn time_format(mut self, time_format: TimeFormat) -> Self {
+    self.0.time_format = time_format;
+    self
+  }
+}
+impl TypeOptionBuilder for UpdatedAtTypeOptionBuilder {
+  fn field_type(&self) -> FieldType {
+    FieldType::UpdatedAt
+  }
+
+  fn serializer(&self) -> &dyn TypeOptionDataSerializer {
+    &self.0
+  }
+}
+
+#[derive(Default)]
+pub struct CreatedAtTypeOptionBuilder(DateTypeOptionPB);
+impl_into_box_type_option_builder!(CreatedAtTypeOptionBuilder);
+impl_builder_from_json_str_and_from_bytes!(CreatedAtTypeOptionBuilder, DateTypeOptionPB);
+
+impl CreatedAtTypeOptionBuilder {
+  pub fn date_format(mut self, date_format: DateFormat) -> Self {
+    self.0.date_format = date_format;
+    self
+  }
+
+  pub fn time_format(mut self, time_format: TimeFormat) -> Self {
+    self.0.time_format = time_format;
+    self
+  }
+}
+impl TypeOptionBuilder for CreatedAtTypeOptionBuilder {
+  fn field_type(&self) -> FieldType {
+    FieldType::CreatedAt
+  }
+
+  fn serializer(&self) -> &dyn TypeOptionDataSerializer {
+    &self.0
+  }
+}

@@ -201,7 +201,7 @@ impl DatabaseRowTest {
           .unwrap();
         assert_eq!(cell_data.to_string(), expected);
       },
-      FieldType::DateTime => {
+      FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
         let cell_data = self
           .editor
           .get_cell_protobuf(&cell_id)

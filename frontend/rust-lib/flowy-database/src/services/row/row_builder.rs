@@ -45,6 +45,22 @@ impl RowRevisionBuilder {
       payload,
     };
 
+    for (field_id, field_rev) in builder.field_rev_map.clone() {
+      let field_type: FieldType = field_rev.ty.into();
+      if cell_data_by_field_id.contains_key(&field_id) {
+        continue;
+      }
+      if field_type == FieldType::CreatedAt || field_type == FieldType::UpdatedAt {
+        builder.insert_date_cell(
+          &field_id,
+          DateCellData {
+            timestamp: Some(chrono::offset::Utc::now().timestamp()),
+            include_time: true,
+          },
+        );
+      }
+    }
+
     for (field_id, cell_data) in cell_data_by_field_id {
       if let Some(field_rev) = builder.field_rev_map.get(&field_id) {
         let field_type: FieldType = field_rev.ty.into();
@@ -55,7 +71,7 @@ impl RowRevisionBuilder {
               builder.insert_number_cell(&field_id, num)
             }
           },
-          FieldType::DateTime => {
+          FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
             if let Ok(date_cell_data) = DateCellData::from_cell_str(&cell_data) {
               builder.insert_date_cell(&field_id, date_cell_data)
             }

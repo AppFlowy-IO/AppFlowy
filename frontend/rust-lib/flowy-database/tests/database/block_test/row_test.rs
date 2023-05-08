@@ -133,3 +133,63 @@ async fn grid_row_insert_multi_select_test() {
   let scripts = builder.build();
   test.run_scripts(scripts).await;
 }
+
+#[tokio::test]
+async fn set_created_at_field_on_create_row() {
+  let mut test = DatabaseRowTest::new().await;
+  let row_count = test.row_revs.len();
+
+  let before_create_timestamp = chrono::offset::Utc::now().timestamp();
+  test
+    .run_scripts(vec![CreateEmptyRow, AssertRowCount(row_count + 1)])
+    .await;
+  let after_create_timestamp = chrono::offset::Utc::now().timestamp();
+
+  let field_revs = test.field_revs.clone();
+  let created_at_field = field_revs
+    .iter()
+    .find(|&f| <u8 as Into<FieldType>>::into(f.ty) == FieldType::CreatedAt)
+    .unwrap();
+  let updated_at_field = field_revs
+    .iter()
+    .find(|&f| <u8 as Into<FieldType>>::into(f.ty) == FieldType::UpdatedAt)
+    .unwrap();
+
+  let created_at_cells = test
+    .editor
+    .get_cells_for_field(&test.view_id, &created_at_field.id)
+    .await
+    .unwrap();
+  let created_at_timestamp = created_at_cells
+    .into_iter()
+    .last()
+    .unwrap()
+    .into_date_field_cell_data()
+    .unwrap()
+    .timestamp
+    .unwrap();
+
+  assert!(
+    created_at_timestamp >= before_create_timestamp
+      && created_at_timestamp <= after_create_timestamp
+  );
+
+  let updated_at_cells = test
+    .editor
+    .get_cells_for_field(&test.view_id, &updated_at_field.id)
+    .await
+    .unwrap();
+  let updated_at_timestamp = updated_at_cells
+    .into_iter()
+    .last()
+    .unwrap()
+    .into_date_field_cell_data()
+    .unwrap()
+    .timestamp
+    .unwrap();
+
+  assert!(
+    updated_at_timestamp >= before_create_timestamp
+      && updated_at_timestamp <= after_create_timestamp
+  );
+}
