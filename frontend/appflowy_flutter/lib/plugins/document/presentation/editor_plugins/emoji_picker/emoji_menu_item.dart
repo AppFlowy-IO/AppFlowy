@@ -29,26 +29,27 @@ void _showEmojiSelectionMenu(
   menuService.dismiss();
 
   _emojiSelectionMenu?.remove();
-  _emojiSelectionMenu = OverlayEntry(builder: (context) {
-    return Positioned(
-      top: alignment == Alignment.bottomLeft ? offset.dy : null,
-      bottom: alignment == Alignment.topLeft ? offset.dy : null,
-      left: offset.dx,
-      child: Material(
-        child: EmojiSelectionMenu(
-          editorState: editorState,
-          onSubmitted: (text) {
-            // insert emoji
-            editorState.insertEmoji(text);
-          },
-          onExit: () {
-            _dismissEmojiSelectionMenu();
-            //close emoji panel
-          },
+  _emojiSelectionMenu = OverlayEntry(
+    builder: (context) {
+      return Positioned(
+        top: alignment == Alignment.bottomLeft ? offset.dy : null,
+        bottom: alignment == Alignment.topLeft ? offset.dy : null,
+        left: offset.dx,
+        child: Material(
+          child: EmojiSelectionMenu(
+            onSubmitted: (text) {
+              // insert emoji
+              editorState.insertEmoji(text);
+            },
+            onExit: () {
+              _dismissEmojiSelectionMenu();
+              //close emoji panel
+            },
+          ),
         ),
-      ),
-    );
-  },);
+      );
+    },
+  );
 
   Overlay.of(context).insert(_emojiSelectionMenu!);
 
@@ -70,20 +71,16 @@ class EmojiSelectionMenu extends StatefulWidget {
     Key? key,
     required this.onSubmitted,
     required this.onExit,
-    required this.editorState,
   }) : super(key: key);
 
   final void Function(Emoji emoji) onSubmitted;
   final void Function() onExit;
-  final EditorState editorState;
 
   @override
   State<EmojiSelectionMenu> createState() => _EmojiSelectionMenuState();
 }
 
 class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
-  EditorStyle get style => widget.editorState.editorStyle;
-
   @override
   void initState() {
     HardwareKeyboard.instance.addHandler(_handleGlobalKeyEvent);
@@ -114,41 +111,18 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 300,
-      padding: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        color: style.selectionMenuBackgroundColor,
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 5,
-            spreadRadius: 1,
-            color: Colors.black.withOpacity(0.1),
-          ),
-        ],
-        borderRadius: BorderRadius.circular(6.0),
-      ),
-      child: _buildEmojiBox(context),
-    );
-  }
-
-  Widget _buildEmojiBox(BuildContext context) {
-    return SizedBox(
-      height: 200,
-      child: EmojiPicker(
-        onEmojiSelected: (category, emoji) => widget.onSubmitted(emoji),
-        config: Config(
-          columns: 8,
-          emojiSizeMax: 28,
-          bgColor:
-              style.selectionMenuBackgroundColor ?? const Color(0xffF2F2F2),
-          iconColor: Colors.grey,
-          iconColorSelected: const Color(0xff333333),
-          indicatorColor: const Color(0xff333333),
-          progressIndicatorColor: const Color(0xff333333),
-          buttonMode: ButtonMode.CUPERTINO,
-          initCategory: Category.RECENT,
-        ),
+    return EmojiPicker(
+      onEmojiSelected: (category, emoji) => widget.onSubmitted(emoji),
+      config: const Config(
+        columns: 7,
+        emojiSizeMax: 28,
+        bgColor: Colors.transparent,
+        iconColor: Colors.grey,
+        iconColorSelected: Color(0xff333333),
+        indicatorColor: Color(0xff333333),
+        progressIndicatorColor: Color(0xff333333),
+        buttonMode: ButtonMode.CUPERTINO,
+        initCategory: Category.RECENT,
       ),
     );
   }

@@ -41,9 +41,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       editorStyle: _desktopEditorStyle(),
     );
     */
-    final items = [
+    final slashMenuItems = [
       boardMenuItem,
       gridMenuItem,
+      calloutItem,
     ];
 
     final editor = AppFlowyEditor.custom(
@@ -59,6 +60,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         ...standardBlockComponentBuilderMap,
         kBoardType: const BoardBlockComponentBuilder(),
         kGridType: const GridBlockComponentBuilder(),
+        'callout': const CalloutBlockComponentBuilder(),
       },
       // default shortcuts
       characterShortcutEvents: [
@@ -66,7 +68,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           ..removeWhere(
             (element) => element == slashCommand,
           ), // remove the default slash command.
-        customSlashCommand(items),
+        customSlashCommand(slashMenuItems),
       ],
       commandShortcutEvents: [
         ...standardCommandShortcutEvents,
