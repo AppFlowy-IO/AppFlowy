@@ -23,9 +23,8 @@ class FilterInfo {
   }
 
   DateFilterPB? dateFilter() {
-    if (filter.fieldType != FieldType.DateTime &&
-        filter.fieldType != FieldType.UpdatedAt &&
-        filter.fieldType != FieldType.CreatedAt) {
+    if ([FieldType.DateTime, FieldType.UpdatedAt, FieldType.CreatedAt]
+        .contains(filter.fieldType)) {
       return null;
     }
     return DateFilterPB.fromBuffer(filter.data);
