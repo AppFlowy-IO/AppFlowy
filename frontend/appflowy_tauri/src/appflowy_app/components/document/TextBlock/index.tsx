@@ -3,7 +3,7 @@ import Leaf from './Leaf';
 import { useTextBlock } from './TextBlock.hooks';
 import BlockHorizontalToolbar from '../BlockHorizontalToolbar';
 import React from 'react';
-import { NestedBlock } from '$app/interfaces/document';
+import { BlockType, NestedBlock } from '$app/interfaces/document';
 import NodeChildren from '$app/components/document/Node/NodeChildren';
 
 function TextBlock({

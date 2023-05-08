@@ -11,7 +11,8 @@ import { useAppDispatch, useAppSelector } from '@/appflowy_app/stores/store';
 import { updateNodeDeltaThunk } from '$app_reducers/document/async-actions/blocks/text/update';
 import { deltaToSlateValue, getDeltaFromSlateNodes } from '$app/utils/document/blocks/common';
 import { documentActions } from '@/appflowy_app/stores/reducers/document/slice';
-import { isSameDelta } from '$app/utils/document/blocks/text';
+
+import { isSameDelta } from '$app/utils/document/blocks/text/delta';
 
 export function useTextInput(id: string) {
   const dispatch = useAppDispatch();
@@ -175,7 +176,7 @@ function setSelection(editor: ReactEditor, currentSelection: TextSelection) {
   const children = getDeltaFromSlateNodes(editor.children);
 
   // the path always has 2 elements,
-  // because the slate node is a two-dimensional array
+  // because the text node is a two-dimensional array
   const index = path[1];
   // It is possible that the current selection is out of range
   if (children[index].insert.length < offset) {

@@ -58,7 +58,7 @@ export const blockConfig: Record<
     /**
      * # or ## or ###
      */
-    markdownRegexps: [/^(#{1,3})$/],
+    markdownRegexps: [/^(#{1,3})(\s)+$/],
   },
   [BlockType.TodoListBlock]: {
     canAddChild: true,
@@ -73,7 +73,7 @@ export const blockConfig: Record<
     /**
      * -[] or -[x] or -[ ] or [] or [x] or [ ]
      */
-    markdownRegexps: [/^((-)?\[(x|\s)?\])$/],
+    markdownRegexps: [/^((-)?\[(x|\s)?\])(\s)+$/],
   },
   [BlockType.BulletedListBlock]: {
     canAddChild: true,
@@ -88,7 +88,7 @@ export const blockConfig: Record<
     /**
      * - or + or *
      */
-    markdownRegexps: [/^(\s*[-+*])$/],
+    markdownRegexps: [/^(\s*[-+*])(\s)+$/],
   },
   [BlockType.NumberedListBlock]: {
     canAddChild: true,
@@ -104,7 +104,7 @@ export const blockConfig: Record<
      * 1. or 2. or 3.
      * a. or b. or c.
      */
-    markdownRegexps: [/^(\s*[\d|a-zA-Z]+\.)$/],
+    markdownRegexps: [/^(\s*[\d|a-zA-Z]+\.)(\s)+$/],
   },
   [BlockType.QuoteBlock]: {
     canAddChild: true,
@@ -119,7 +119,22 @@ export const blockConfig: Record<
     /**
      * " or “ or ”
      */
-    markdownRegexps: [/^("|“|”)$/],
+    markdownRegexps: [/^("|“|”)(\s)+$/],
+  },
+  [BlockType.CalloutBlock]: {
+    canAddChild: true,
+    defaultData: {
+      delta: [],
+      icon: 'bulb',
+    },
+    splitProps: {
+      nextLineRelationShip: SplitRelationship.NextSibling,
+      nextLineBlockType: BlockType.TextBlock,
+    },
+    /**
+     * [!TIP] or [!INFO] or [!WARNING] or [!DANGER]
+     */
+    markdownRegexps: [/^(\[!)(TIP|INFO|WARNING|DANGER)(\])(\s)+$/],
   },
   [BlockType.ToggleListBlock]: {
     canAddChild: true,
@@ -134,8 +149,16 @@ export const blockConfig: Record<
     /**
      * >
      */
-    markdownRegexps: [/^(>)$/],
+    markdownRegexps: [/^(>)(\s)+$/],
   },
+  [BlockType.DividerBlock]: {
+    canAddChild: false,
+    /**
+     * ---
+     */
+    markdownRegexps: [/^(-{3,})$/],
+  },
+
   [BlockType.CodeBlock]: {
     canAddChild: false,
     /**

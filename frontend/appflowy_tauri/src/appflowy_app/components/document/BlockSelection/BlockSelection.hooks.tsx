@@ -133,14 +133,16 @@ export function useBlockSelection({
 
   useEffect(() => {
     if (!ref.current) return;
-    document.addEventListener('mousedown', handleDragStart);
-    document.addEventListener('mousemove', handleDraging);
-    document.addEventListener('mouseup', handleDragEnd);
+    const doc = document.getElementById('appflowy-block-doc');
+    if (!doc) return;
+    doc.addEventListener('mousedown', handleDragStart);
+    doc.addEventListener('mousemove', handleDraging);
+    doc.addEventListener('mouseup', handleDragEnd);
 
     return () => {
-      document.removeEventListener('mousedown', handleDragStart);
-      document.removeEventListener('mousemove', handleDraging);
-      document.removeEventListener('mouseup', handleDragEnd);
+      doc.removeEventListener('mousedown', handleDragStart);
+      doc.removeEventListener('mousemove', handleDraging);
+      doc.removeEventListener('mouseup', handleDragEnd);
     };
   }, [handleDragStart, handleDragEnd, handleDraging]);
 
