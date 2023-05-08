@@ -171,8 +171,9 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   Widget _headerWeekDayBuilder(day) {
+    // incoming day starts from Monday, the symbols start from Sunday
     final symbols = DateFormat.EEEE(context.locale.toLanguageTag()).dateSymbols;
-    final weekDayString = symbols.WEEKDAYS[day];
+    final weekDayString = symbols.WEEKDAYS[(day + 1) % 7];
     return Center(
       child: Padding(
         padding: CalendarSize.daysOfWeekInsets,
@@ -216,8 +217,8 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   WeekDays _weekdayFromInt(int dayOfWeek) {
-    // MonthView places the first day of week on the second column for some reason.
-    return WeekDays.values[(dayOfWeek + 1) % 7];
+    // dayOfWeek starts from Sunday, WeekDays starts from Monday
+    return WeekDays.values[(dayOfWeek - 1) % 7];
   }
 }
 
