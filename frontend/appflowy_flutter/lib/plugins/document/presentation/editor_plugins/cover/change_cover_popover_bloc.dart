@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:appflowy/plugins/document/presentation/plugins/cover/change_cover_popover.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/change_cover_popover.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/cover_node_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';

@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:appflowy/plugins/document/presentation/plugins/parsers/code_block_node_parser.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/parsers/divider_node_parser.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/parsers/math_equation_node_parser.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/code_block_node_parser.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/divider_node_parser.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/math_equation_node_parser.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -1,27 +1,20 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/doc_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/insert_page_command.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_svg_widget.dart';
+import 'package:appflowy/workspace/application/app/app_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/application/prelude.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/base/insert_page_command.dart';
-import 'package:appflowy/workspace/application/app/app_service.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
-import 'package:flutter/material.dart';
 
-SelectionMenuItem boardViewMenuItem(DocumentBloc documentBloc) =>
+SelectionMenuItem gridViewMenuItem(DocumentBloc documentBloc) =>
     SelectionMenuItem(
-      name: LocaleKeys.document_slashMenu_board_createANewBoard.tr(),
-      icon: (editorState, onSelected) {
-        return svgWidget(
-          'editor/board',
-          size: const Size.square(18.0),
-          color: onSelected
-              ? editorState.editorStyle.selectionMenuItemSelectedIconColor
-              : editorState.editorStyle.selectionMenuItemIconColor,
-        );
-      },
-      // TODO(a-wallen): Translate keywords.
-      keywords: ['board', 'kanban'],
+      name: LocaleKeys.document_slashMenu_grid_createANewGrid.tr(),
+      icon: (editorState, onSelected) => SelectableSvgWidget(
+        name: 'editor/grid',
+        isSelected: onSelected,
+      ),
+      keywords: ['grid'],
       handler: (editorState, menuService, context) async {
         if (!documentBloc.view.hasParentViewId()) {
           return;
@@ -33,7 +26,7 @@ SelectionMenuItem boardViewMenuItem(DocumentBloc documentBloc) =>
         final result = (await service.createView(
           appId: appId,
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-          layoutType: ViewLayoutPB.Board,
+          layoutType: ViewLayoutPB.Grid,
         ))
             .getLeftOrNull();
 

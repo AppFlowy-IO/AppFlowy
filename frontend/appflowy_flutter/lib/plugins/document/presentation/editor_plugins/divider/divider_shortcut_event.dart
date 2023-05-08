@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/presentation/plugins/divider/divider_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/divider/divider_node_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 

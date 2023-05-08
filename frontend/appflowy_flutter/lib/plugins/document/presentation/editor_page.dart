@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   Widget build(BuildContext context) {
     final autoFocusParameters = _computeAutoFocusParameters();
 
+    /*
     final editor = AppFlowyEditor.standard(
       editorState: editorState,
       editable: true,
@@ -37,6 +39,38 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       focusedSelection: autoFocusParameters.item2,
       // setup the theme
       editorStyle: _desktopEditorStyle(),
+    );
+    */
+    final items = [
+      boardMenuItem,
+      gridMenuItem,
+    ];
+
+    final editor = AppFlowyEditor.custom(
+      editorState: editorState,
+      editable: true,
+      // setup the auto focus parameters
+      autoFocus: autoFocusParameters.item1,
+      focusedSelection: autoFocusParameters.item2,
+      // setup the theme
+      editorStyle: _desktopEditorStyle(),
+      // custom the block builder
+      blockComponentBuilders: {
+        ...standardBlockComponentBuilderMap,
+        kBoardType: const BoardBlockComponentBuilder(),
+        kGridType: const GridBlockComponentBuilder(),
+      },
+      // default shortcuts
+      characterShortcutEvents: [
+        ...standardCharacterShortcutEvents
+          ..removeWhere(
+            (element) => element == slashCommand,
+          ), // remove the default slash command.
+        customSlashCommand(items),
+      ],
+      commandShortcutEvents: [
+        ...standardCommandShortcutEvents,
+      ],
     );
 
     return Center(

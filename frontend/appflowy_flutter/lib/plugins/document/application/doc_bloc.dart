@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/util/json_print.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/doc/doc_listener.dart';
 import 'package:appflowy/plugins/document/application/doc_service.dart';
@@ -114,7 +115,10 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   /// subscribe to the document content change
   void _onDocumentChanged() {
     _documentListener.start(
-      didReceiveUpdate: () => throw UnimplementedError(),
+      didReceiveUpdate: (docEvent) {
+        // todo: integrate the document change to the editor
+        // prettyPrintJson(docEvent.toProto3Json());
+      },
     );
   }
 
@@ -132,18 +136,14 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   Future<void> _initAppFlowyEditorState(DocumentDataPB2 data) async {
-    Log.debug('init editor data:\n${data.toProto3Json().toString()}');
-    final document = data.toDocument();
-    Log.debug('init editor document:\n${document.root.toString()}');
+    prettyPrintJson(data.toProto3Json());
 
+    final document = data.toDocument();
     final editorState = EditorState(document: document);
     this.editorState = editorState;
 
     // subscribe to the document change from the editor
     _subscription = editorState.transactionStream.listen((transaction) async {
-      Log.debug('editor tr => ${transaction.toJson()}');
-
-      // todo: apply the transaction.
       await _transactionAdapter.apply(transaction, editorState);
     });
 
@@ -222,14 +222,24 @@ extension on Operation {
       final parentId = node.parent?.id ??
           editorState.getNodeAtPath(op.path.parent)?.id ??
           '';
+      final prevId = node.previous?.id ??
+          editorState.getNodeAtPath(op.path.previous)?.id ??
+          '';
+      assert(parentId.isNotEmpty && prevId.isNotEmpty);
       final payload = BlockActionPayloadPB()
         ..block = node.toBlock()
-        ..parentId = parentId;
+        ..parentId = parentId
+        ..prevId = prevId;
       assert(parentId.isNotEmpty);
       return BlockActionPB()
         ..action = BlockActionTypePB.Insert
         ..payload = payload;
     } else if (op is UpdateOperation) {
+      // if the attributes are both empty, we don't need to update
+      if (const DeepCollectionEquality()
+          .equals(op.attributes, op.oldAttributes)) {
+        return null;
+      }
       final node = editorState.getNodeAtPath(op.path);
       if (node == null) {
         assert(false, 'node not found at path: ${op.path}');

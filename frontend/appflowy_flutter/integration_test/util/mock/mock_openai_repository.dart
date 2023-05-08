@@ -1,8 +1,8 @@
-import 'package:appflowy/plugins/document/presentation/plugins/openai/service/openai_client.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
 import 'package:mocktail/mocktail.dart';
 import 'dart:convert';
-import 'package:appflowy/plugins/document/presentation/plugins/openai/service/text_completion.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/openai/service/error.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/text_completion.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/error.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 

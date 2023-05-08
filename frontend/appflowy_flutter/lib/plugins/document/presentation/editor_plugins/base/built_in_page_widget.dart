@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/presentation/plugins/base/insert_page_command.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/insert_page_command.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/app/app_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -35,32 +35,18 @@ class BuiltInPageWidget extends StatefulWidget {
 }
 
 class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
+  late Future<dartz.Either<FlowyError, ViewPB>> future;
   final focusNode = FocusNode();
 
-  String get gridID {
-    return widget.node.attributes[kViewID];
-  }
-
-  String get appID {
-    return widget.node.attributes[kAppID];
-  }
+  String get gridID => widget.node.attributes[DatabaseBlockKeys.kAppID];
+  String get appID => widget.node.attributes[DatabaseBlockKeys.kViewID];
 
   @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<dartz.Either<ViewPB, FlowyError>>(
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final board = snapshot.data?.getLeftOrNull<ViewPB>();
-          if (board != null) {
-            return _build(context, board);
-          }
-        }
-        return const Center(
-          child: CircularProgressIndicator(),
+  void initState() {
+    super.initState();
+    future = AppBackendService().getChildView(appID, gridID).then(
+          (value) => value.swap(),
         );
-      },
-      future: AppBackendService().getChildView(appID, gridID),
-    );
   }
 
   @override
@@ -69,14 +55,26 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
     super.dispose();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<dartz.Either<FlowyError, ViewPB>>(
+      builder: (context, snapshot) {
+        final board = snapshot.data?.toOption().toNullable();
+        if (snapshot.hasData && board != null) {
+          return _build(context, board);
+        }
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+      future: future,
+    );
+  }
+
   Widget _build(BuildContext context, ViewPB viewPB) {
     return MouseRegion(
-      onEnter: (event) {
-        widget.editorState.service.scrollService?.disable();
-      },
-      onExit: (event) {
-        widget.editorState.service.scrollService?.enable();
-      },
+      onEnter: (_) => widget.editorState.service.scrollService?.disable(),
+      onExit: (_) => widget.editorState.service.scrollService?.enable(),
       child: SizedBox(
         height: 400,
         child: Stack(
@@ -112,9 +110,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
           // information
           FlowyIconButton(
             tooltipText: LocaleKeys.tooltip_referencePage.tr(
-              namedArgs: {
-                'name': viewPB.layout.name,
-              },
+              namedArgs: {'name': viewPB.layout.name},
             ),
             width: 24,
             height: 24,
@@ -137,19 +133,17 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
             actions: _ActionType.values
                 .map((action) => _ActionWrapper(action))
                 .toList(),
-            buildChild: (controller) {
-              return FlowyIconButton(
-                tooltipText: LocaleKeys.tooltip_openMenu.tr(),
-                width: 24,
-                height: 24,
-                iconPadding: const EdgeInsets.all(3),
-                icon: svgWidget(
-                  'common/settings',
-                  color: Theme.of(context).iconTheme.color,
-                ),
-                onPressed: () => controller.show(),
-              );
-            },
+            buildChild: (controller) => FlowyIconButton(
+              tooltipText: LocaleKeys.tooltip_openMenu.tr(),
+              width: 24,
+              height: 24,
+              iconPadding: const EdgeInsets.all(3),
+              icon: svgWidget(
+                'common/settings',
+                color: Theme.of(context).iconTheme.color,
+              ),
+              onPressed: () => controller.show(),
+            ),
             onSelected: (action, controller) async {
               switch (action.inner) {
                 case _ActionType.viewDatabase:

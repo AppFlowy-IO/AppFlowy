@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:appflowy/plugins/document/presentation/plugins/openai/service/text_edit.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/text_edit.dart';
 
 import 'text_completion.dart';
 import 'package:dartz/dartz.dart';

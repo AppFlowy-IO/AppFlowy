@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:appflowy/plugins/document/presentation/plugins/openai/service/openai_client.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/openai/util/learn_more_action.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/discard_dialog.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/smart_edit_action.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/util/learn_more_action.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/discard_dialog.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_action.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';

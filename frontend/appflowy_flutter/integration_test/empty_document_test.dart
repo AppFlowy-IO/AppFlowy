@@ -1,4 +1,3 @@
-import 'package:appflowy/plugins/document/presentation/plugins/base/built_in_page_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';

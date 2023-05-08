@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/cover/change_cover_popover.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/cover/emoji_popover.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/cover/icon_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/change_cover_popover.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/emoji_popover.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/icon_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide FlowySvg;
 import 'package:appflowy_popover/appflowy_popover.dart';
