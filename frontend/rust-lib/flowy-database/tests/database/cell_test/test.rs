@@ -140,12 +140,44 @@ async fn update_updated_at_field_on_other_cell_update() {
   for (i, cell) in cells.into_iter().enumerate() {
     let timestamp = cell.into_date_field_cell_data().unwrap().timestamp.unwrap();
     match i {
-      0 => assert!(timestamp >= before_update_timestamp && timestamp <= after_update_timestamp),
-      1 => assert!(timestamp < before_update_timestamp),
-      2 => assert!(timestamp < before_update_timestamp),
-      3 => assert!(timestamp < before_update_timestamp),
-      4 => assert!(timestamp < before_update_timestamp),
-      5 => assert!(timestamp < before_update_timestamp),
+      0 => assert!(
+        timestamp >= before_update_timestamp && timestamp <= after_update_timestamp,
+        "{} >= {} && {} <= {}",
+        timestamp,
+        before_update_timestamp,
+        timestamp,
+        after_update_timestamp
+      ),
+      1 => assert!(
+        timestamp < before_update_timestamp,
+        "{} < {}",
+        timestamp,
+        before_update_timestamp
+      ),
+      2 => assert!(
+        timestamp < before_update_timestamp,
+        "{} < {}",
+        timestamp,
+        before_update_timestamp
+      ),
+      3 => assert!(
+        timestamp < before_update_timestamp,
+        "{} < {}",
+        timestamp,
+        before_update_timestamp
+      ),
+      4 => assert!(
+        timestamp < before_update_timestamp,
+        "{} < {}",
+        timestamp,
+        before_update_timestamp
+      ),
+      5 => assert!(
+        timestamp < before_update_timestamp,
+        "{} < {}",
+        timestamp,
+        before_update_timestamp
+      ),
       _ => {},
     }
   }
