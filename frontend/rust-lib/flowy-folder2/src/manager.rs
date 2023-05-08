@@ -2,13 +2,13 @@ use std::collections::{HashMap, HashSet};
 use std::ops::Deref;
 use std::sync::Arc;
 
-use collab::plugin_impl::rocks_disk::RocksDiskPlugin;
 use collab::preclude::CollabBuilder;
 use collab_folder::core::{
   Folder as InnerFolder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, TrashRecord,
   View, ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
 };
 use collab_persistence::kv::rocks_kv::RocksCollabDB;
+use collab_plugins::disk_plugin::rocksdb::RocksdbDiskPlugin;
 use parking_lot::Mutex;
 use tracing::{event, Level};
 
@@ -97,7 +97,7 @@ impl Folder2Manager {
       if let Ok(kv_db) = self.user.kv_db() {
         let mut collab = CollabBuilder::new(uid, folder_id).build();
         let disk_plugin = Arc::new(
-          RocksDiskPlugin::new(uid, kv_db).map_err(|err| FlowyError::internal().context(err))?,
+          RocksdbDiskPlugin::new(uid, kv_db).map_err(|err| FlowyError::internal().context(err))?,
         );
         collab.add_plugin(disk_plugin);
         collab.initial();

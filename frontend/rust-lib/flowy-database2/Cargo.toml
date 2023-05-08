@@ -7,8 +7,9 @@ edition = "2021"
 
 [dependencies]
 collab = { version = "0.1.0" }
-collab-database = { version = "0.1.0" }
 collab-persistence = { version = "0.1.0" }
+collab-database = { version = "0.1.0" }
+collab-plugins = {version = "0.1.0", feature = ["disk_rocksdb", "sync"]}
 
 flowy-derive = { path = "../flowy-derive" }
 flowy-notification = { path = "../flowy-notification" }
