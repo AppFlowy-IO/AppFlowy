@@ -5,7 +5,11 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-const String kGridType = 'grid';
+class GridBlockKeys {
+  const GridBlockKeys._();
+
+  static const String type = 'grid';
+}
 
 class GridBlockComponentBuilder extends BlockComponentBuilder {
   const GridBlockComponentBuilder({

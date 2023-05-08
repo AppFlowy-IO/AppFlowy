@@ -9,6 +9,8 @@ import '../base/emoji_picker_button.dart';
 class CalloutBlockKeys {
   const CalloutBlockKeys._();
 
+  static const String type = 'callout';
+
   /// The background color of a callout block.
   ///
   /// The value is a String.

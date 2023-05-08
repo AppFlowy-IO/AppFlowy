@@ -1,48 +1,71 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
-const String kDividerType = 'divider';
+class DividerBlockKeys {
+  const DividerBlockKeys._();
 
-class DividerWidgetBuilder extends NodeWidgetBuilder<Node> {
+  static const String type = 'divider';
+}
+
+// creating a new callout node
+Node dividerNode() {
+  return Node(
+    type: DividerBlockKeys.type,
+  );
+}
+
+class DividerBlockComponentBuilder extends BlockComponentBuilder {
+  const DividerBlockComponentBuilder({
+    this.padding = const EdgeInsets.symmetric(vertical: 8.0),
+    this.lineColor = Colors.grey,
+  });
+
+  final EdgeInsets padding;
+  final Color lineColor;
+
   @override
-  Widget build(NodeWidgetContext<Node> context) {
-    return _DividerWidget(
-      key: context.node.key,
-      node: context.node,
-      editorState: context.editorState,
+  Widget build(BlockComponentContext blockComponentContext) {
+    final node = blockComponentContext.node;
+    return DividerBlockComponentWidget(
+      key: node.key,
+      node: node,
+      padding: padding,
+      lineColor: lineColor,
     );
   }
 
   @override
-  NodeValidator<Node> get nodeValidator => (node) {
-        return true;
-      };
+  bool validate(Node node) => node.children.isEmpty;
 }
 
-class _DividerWidget extends StatefulWidget {
-  const _DividerWidget({
+class DividerBlockComponentWidget extends StatefulWidget {
+  const DividerBlockComponentWidget({
     Key? key,
     required this.node,
-    required this.editorState,
+    this.padding = const EdgeInsets.symmetric(vertical: 8.0),
+    this.lineColor = Colors.grey,
   }) : super(key: key);
 
   final Node node;
-  final EditorState editorState;
+  final EdgeInsets padding;
+  final Color lineColor;
 
   @override
-  State<_DividerWidget> createState() => _DividerWidgetState();
+  State<DividerBlockComponentWidget> createState() =>
+      _DividerBlockComponentWidgetState();
 }
 
-class _DividerWidgetState extends State<_DividerWidget> with SelectableMixin {
+class _DividerBlockComponentWidgetState
+    extends State<DividerBlockComponentWidget> with SelectableMixin {
   RenderBox get _renderBox => context.findRenderObject() as RenderBox;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+    return Padding(
+      padding: widget.padding,
       child: Container(
         height: 1,
-        color: Colors.grey,
+        color: widget.lineColor,
       ),
     );
   }
@@ -60,7 +83,7 @@ class _DividerWidgetState extends State<_DividerWidget> with SelectableMixin {
   bool get shouldCursorBlink => false;
 
   @override
-  CursorStyle get cursorStyle => CursorStyle.borderLine;
+  CursorStyle get cursorStyle => CursorStyle.cover;
 
   @override
   Rect? getCursorRectInPosition(Position position) {

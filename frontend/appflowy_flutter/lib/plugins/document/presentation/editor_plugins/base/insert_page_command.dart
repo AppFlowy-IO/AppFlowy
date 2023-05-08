@@ -78,9 +78,9 @@ extension InsertDatabase on EditorState {
   String _convertPageType(ViewPB viewPB) {
     switch (viewPB.layout) {
       case ViewLayoutPB.Grid:
-        return kGridType;
+        return GridBlockKeys.type;
       case ViewLayoutPB.Board:
-        return kBoardType;
+        return BoardBlockKeys.type;
       default:
         throw Exception('Unknown layout type');
     }

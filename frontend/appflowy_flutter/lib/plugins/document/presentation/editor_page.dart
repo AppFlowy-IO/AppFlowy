@@ -45,6 +45,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       boardMenuItem,
       gridMenuItem,
       calloutItem,
+      dividerMenuItem,
     ];
 
     final editor = AppFlowyEditor.custom(
@@ -58,9 +59,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       // custom the block builder
       blockComponentBuilders: {
         ...standardBlockComponentBuilderMap,
-        kBoardType: const BoardBlockComponentBuilder(),
-        kGridType: const GridBlockComponentBuilder(),
-        'callout': const CalloutBlockComponentBuilder(),
+        BoardBlockKeys.type: const BoardBlockComponentBuilder(),
+        GridBlockKeys.type: const GridBlockComponentBuilder(),
+        CalloutBlockKeys.type: const CalloutBlockComponentBuilder(),
+        DividerBlockKeys.type: const DividerBlockComponentBuilder(),
       },
       // default shortcuts
       characterShortcutEvents: [
@@ -69,6 +71,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
             (element) => element == slashCommand,
           ), // remove the default slash command.
         customSlashCommand(slashMenuItems),
+
+        // divider
+        insertDividerCommand,
       ],
       commandShortcutEvents: [
         ...standardCommandShortcutEvents,

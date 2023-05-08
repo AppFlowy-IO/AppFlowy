@@ -5,7 +5,11 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-const String kBoardType = 'board';
+class BoardBlockKeys {
+  const BoardBlockKeys._();
+
+  static const String type = 'board';
+}
 
 class BoardBlockComponentBuilder extends BlockComponentBuilder {
   const BoardBlockComponentBuilder({

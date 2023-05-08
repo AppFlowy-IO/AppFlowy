@@ -127,15 +127,15 @@
 //       focusedSelection: autoFocusParameters.value2,
 //       customBuilders: {
 //         // Divider
-//         kDividerType: DividerWidgetBuilder(),
+//         DividerBlockKeys.type: DividerWidgetBuilder(),
 //         // Math Equation
 //         kMathEquationType: MathEquationNodeWidgetBuidler(),
 //         // Code Block
 //         kCodeBlockType: CodeBlockNodeWidgetBuilder(),
 //         // Board
-//         kBoardType: BoardNodeWidgetBuilder(),
+//         BoardBlockKeys.type: BoardNodeWidgetBuilder(),
 //         // Grid
-//         kGridType: GridNodeWidgetBuilder(),
+//         GridBlockKeys.type: GridNodeWidgetBuilder(),
 //         // Card
 //         kCalloutType: CalloutNodeWidgetBuilder(),
 //         // Auto Generator,
