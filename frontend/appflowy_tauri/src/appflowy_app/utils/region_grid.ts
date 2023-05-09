@@ -5,92 +5,94 @@ export interface BlockPosition {
   height: number;
   width: number;
 }
-interface BlockRegion {
-  regionX: number;
-  regionY: number;
-  blocks: BlockPosition[];
+
+interface Rectangle {
+  x: number;
+  y: number;
+  height: number;
+  width: number;
 }
 
 export class RegionGrid {
-  private regions: BlockRegion[][];
-  private regionSize: number;
-  private blocks = new Map();
+  private readonly gridSize: number;
+  private readonly grid: Map<string, BlockPosition[]>;
+  private readonly blockKeysMap: Map<string, string[]>;
 
-  constructor(regionSize: number) {
-    this.regionSize = regionSize;
-    this.regions = [];
+  constructor(gridSize: number) {
+    this.gridSize = gridSize;
+    this.grid = new Map();
+    this.blockKeysMap = new Map();
   }
 
-  addBlock(blockPosition: BlockPosition) {
-    const regionX = Math.floor(blockPosition.x / this.regionSize);
-    const regionY = Math.floor(blockPosition.y / this.regionSize);
+  private getKeys(x: number, y: number, width: number, height: number): string[] {
+    const keys: string[] = [];
 
-    let region = this.regions[regionY]?.[regionX];
-    if (!region) {
-      region = {
-        regionX,
-        regionY,
-        blocks: []
-      };
-      if (!this.regions[regionY]) {
-        this.regions[regionY] = [];
-      }
-      this.regions[regionY][regionX] = region;
-    }
-    this.blocks.set(blockPosition.id, blockPosition);
-    region.blocks.push(blockPosition);
-  }
-
-  updateBlock(blockId: string, position: BlockPosition) {
-    const prevPosition = this.blocks.get(blockId);
-    if (prevPosition && prevPosition.x === position.x &&
-      prevPosition.y === position.y &&
-      prevPosition.height === position.height &&
-      prevPosition.width === position.width) {
-      return;
-    }
-    this.blocks.set(blockId, position);
-    this.removeBlock(blockId);
-    this.addBlock(position);
-  }
-  
-  removeBlock(blockId: string) {
-    for (const rows of this.regions.filter(r => r)) {
-      for (const region of rows) {
-        if (!region) return;
-        const blockIndex = region.blocks.findIndex(b => b.id === blockId);
-        if (blockIndex !== -1) {
-          region.blocks.splice(blockIndex, 1);
-          return;
-        }
+    for (let i = Math.floor(x / this.gridSize); i <= Math.floor((x + width) / this.gridSize); i++) {
+      for (let j = Math.floor(y / this.gridSize); j <= Math.floor((y + height) / this.gridSize); j++) {
+        keys.push(`${i},${j}`);
       }
     }
-    this.blocks.delete(blockId);
+
+    return keys;
   }
-  
 
-  getIntersectBlocks(startX: number, startY: number, endX: number, endY: number): BlockPosition[] {
-    const selectedBlocks: BlockPosition[] = [];
+  addBlock(block: BlockPosition): void {
+    const keys = this.getKeys(block.x, block.y, block.width, block.height);
 
-    const startRegionX = Math.floor(startX / this.regionSize);
-    const startRegionY = Math.floor(startY / this.regionSize);
-    const endRegionX = Math.floor(endX / this.regionSize);
-    const endRegionY = Math.floor(endY / this.regionSize);
+    this.blockKeysMap.set(block.id, keys);
 
-    for (let y = startRegionY; y <= endRegionY; y++) {
-      for (let x = startRegionX; x <= endRegionX; x++) {
-        const region = this.regions[y]?.[x];
-        if (region) {
-          for (const block of region.blocks) {
-            if (block.x + block.width - 1 >= startX && block.x <= endX &&
-              block.y + block.height - 1 >= startY && block.y <= endY) {
-              selectedBlocks.push(block);
-            }
+    for (const key of keys) {
+      if (!this.grid.has(key)) {
+        this.grid.set(key, []);
+      }
+
+      this.grid.get(key)!.push(block);
+    }
+  }
+
+  updateBlock(block: BlockPosition): void {
+    this.removeBlock(block);
+    this.addBlock(block);
+  }
+
+  removeBlock(block: BlockPosition): void {
+    const keys = this.blockKeysMap.get(block.id) || [];
+
+    for (const key of keys) {
+      const blocks = this.grid.get(key);
+
+      if (blocks) {
+        const index = blocks.findIndex((b) => b.id === block.id);
+
+        if (index !== -1) {
+          blocks.splice(index, 1);
+
+          if (blocks.length === 0) {
+            this.grid.delete(key);
           }
         }
       }
     }
+  }
 
-    return selectedBlocks;
+  getIntersectingBlocks(rect: Rectangle): BlockPosition[] {
+    const blocks = new Set<BlockPosition>();
+    const keys = this.getKeys(rect.x, rect.y, rect.width, rect.height);
+
+    for (const key of keys) {
+      if (this.grid.has(key)) {
+        this.grid.get(key)?.forEach((block) => {
+          if (
+            rect.x < block.x + block.width &&
+            rect.x + rect.width > block.x &&
+            rect.y < block.y + block.height &&
+            rect.y + rect.height > block.y
+          )
+            blocks.add(block);
+        });
+      }
+    }
+
+    return Array.from(blocks);
   }
 }

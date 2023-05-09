@@ -101,6 +101,16 @@ export function getNextNodeId(state: DocumentState, id: string) {
   return nextNodeId;
 }
 
+export function getPrevNodeId(state: DocumentState, id: string) {
+  const node = state.nodes[id];
+  if (!node.parent) return;
+  const parent = state.nodes[node.parent];
+  const children = state.children[parent.children];
+  const index = children.indexOf(id);
+  const prevNodeId = children[index - 1];
+  return prevNodeId;
+}
+
 export function newBlock<Type>(type: BlockType, parentId: string, data: BlockData<Type>): NestedBlock<Type> {
   return {
     id: generateId(),

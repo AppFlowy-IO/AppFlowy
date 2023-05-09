@@ -1,4 +1,5 @@
 import { Editor } from 'slate';
+import { RegionGrid } from '$app/utils/region_grid';
 
 export enum BlockType {
   PageBlock = 'page',

@@ -1,6 +1,9 @@
-import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import { useAppDispatch } from '$app/stores/store';
+import { useEffect, useRef, useState, useCallback, useMemo, useContext } from 'react';
+import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { documentActions } from '@/appflowy_app/stores/reducers/document/slice';
+import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { debounce } from '$app/utils/tool';
+import { RegionGrid } from '$app/utils/region_grid';
 
 export function useBlockSelection({
   container,
@@ -13,12 +16,13 @@ export function useBlockSelection({
   const disaptch = useAppDispatch();
 
   const [isDragging, setDragging] = useState(false);
-  const pointRef = useRef<number[]>([]);
-  const startScrollTopRef = useRef<number>(0);
+  const startPointRef = useRef<number[]>([]);
+
+  const { getIntersectedBlockIds } = useNodesRect(container, isDragging);
 
   useEffect(() => {
     onDragging?.(isDragging);
-  }, [isDragging]);
+  }, [isDragging, onDragging]);
 
   const [rect, setRect] = useState<{
     startX: number;
@@ -40,7 +44,7 @@ export function useBlockSelection({
       width: width + 'px',
       height: height + 'px',
     };
-  }, [rect]);
+  }, [container.scrollLeft, container.scrollTop, rect]);
 
   const isPointInBlock = useCallback((target: HTMLElement | null) => {
     let node = target;
@@ -53,49 +57,45 @@ export function useBlockSelection({
     return false;
   }, []);
 
-  const handleDragStart = useCallback((e: MouseEvent) => {
-    console.log('handleDragStart');
-    if (isPointInBlock(e.target as HTMLElement)) {
-      return;
-    }
-    e.preventDefault();
-    setDragging(true);
+  const handleDragStart = useCallback(
+    (e: MouseEvent) => {
+      if (isPointInBlock(e.target as HTMLElement)) {
+        return;
+      }
+      e.preventDefault();
+      setDragging(true);
 
-    const startX = e.clientX + container.scrollLeft;
-    const startY = e.clientY + container.scrollTop;
-    pointRef.current = [startX, startY];
-    startScrollTopRef.current = container.scrollTop;
-    setRect({
-      startX,
-      startY,
-      endX: startX,
-      endY: startY,
-    });
-  }, []);
+      const startX = e.clientX + container.scrollLeft;
+      const startY = e.clientY + container.scrollTop;
+      startPointRef.current = [startX, startY];
+      setRect({
+        startX,
+        startY,
+        endX: startX,
+        endY: startY,
+      });
+    },
+    [container.scrollLeft, container.scrollTop, isPointInBlock]
+  );
 
   const updateSelctionsByPoint = useCallback(
     (clientX: number, clientY: number) => {
       if (!isDragging) return;
-      const [startX, startY] = pointRef.current;
+      const [startX, startY] = startPointRef.current;
       const endX = clientX + container.scrollLeft;
       const endY = clientY + container.scrollTop;
 
-      setRect({
+      const newRect = {
         startX,
         startY,
         endX,
         endY,
-      });
-      disaptch(
-        documentActions.setSelectionByRect({
-          startX: Math.min(startX, endX),
-          startY: Math.min(startY, endY),
-          endX: Math.max(startX, endX),
-          endY: Math.max(startY, endY),
-        })
-      );
+      };
+      const blockIds = getIntersectedBlockIds(newRect);
+      disaptch(documentActions.updateSelections(blockIds));
+      setRect(newRect);
     },
-    [isDragging]
+    [container.scrollLeft, container.scrollTop, disaptch, getIntersectedBlockIds, isDragging]
   );
 
   const handleDraging = useCallback(
@@ -114,7 +114,7 @@ export function useBlockSelection({
         container.scrollBy(0, delta);
       }
     },
-    [isDragging]
+    [container, isDragging, updateSelctionsByPoint]
   );
 
   const handleDragEnd = useCallback(
@@ -129,25 +129,101 @@ export function useBlockSelection({
       setDragging(false);
       setRect(null);
     },
-    [isDragging]
+    [disaptch, isDragging, isPointInBlock, updateSelctionsByPoint]
   );
 
   useEffect(() => {
     if (!ref.current) return;
-    container.addEventListener('mousedown', handleDragStart);
-    container.addEventListener('mousemove', handleDraging);
-    container.addEventListener('mouseup', handleDragEnd);
+    document.addEventListener('mousedown', handleDragStart);
+    document.addEventListener('mousemove', handleDraging);
+    document.addEventListener('mouseup', handleDragEnd);
 
     return () => {
-      container.removeEventListener('mousedown', handleDragStart);
-      container.removeEventListener('mousemove', handleDraging);
-      container.removeEventListener('mouseup', handleDragEnd);
+      document.removeEventListener('mousedown', handleDragStart);
+      document.removeEventListener('mousemove', handleDraging);
+      document.removeEventListener('mouseup', handleDragEnd);
     };
-  }, [handleDragStart, handleDragEnd, handleDraging, container]);
+  }, [handleDragStart, handleDragEnd, handleDraging]);
 
   return {
     isDragging,
     style,
     ref,
+  };
+}
+
+function useNodesRect(container: HTMLDivElement, isDragging: boolean) {
+  const controller = useContext(DocumentControllerContext);
+
+  const data = useAppSelector((state) => {
+    return {
+      nodes: state.document.nodes,
+      children: state.document.children,
+    };
+  });
+
+  const regionGrid = useMemo(() => {
+    if (!controller) return null;
+    return new RegionGrid(300);
+  }, [controller]);
+
+  const debounceUpdateViewPortNodesRect = useMemo(() => {
+    return debounce(() => {
+      const nodes = container.querySelectorAll('[data-block-id]');
+      Array.from(nodes).forEach((node) => {
+        const id = node.getAttribute('data-block-id');
+        if (!id) return;
+        const { x, y, width, height } = node.getBoundingClientRect();
+        const rect = {
+          id,
+          x: x + container.scrollLeft,
+          y: y + container.scrollTop,
+          width,
+          height,
+        };
+        regionGrid?.updateBlock(rect);
+      });
+    }, 500);
+  }, [container, regionGrid]);
+
+  // update nodes rect when data changed
+  useEffect(() => {
+    if (isDragging) return;
+    debounceUpdateViewPortNodesRect();
+  }, [data, debounceUpdateViewPortNodesRect, isDragging]);
+
+  // update nodes rect when scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      debounceUpdateViewPortNodesRect();
+    };
+    container.addEventListener('scroll', handleScroll);
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+    };
+  }, [container, debounceUpdateViewPortNodesRect]);
+
+  const getIntersectedBlockIds = useCallback(
+    (rect: { startX: number; startY: number; endX: number; endY: number }) => {
+      if (!regionGrid) return [];
+      const { startX, startY, endX, endY } = rect;
+      const x = Math.min(startX, endX);
+      const y = Math.min(startY, endY);
+      const width = Math.abs(endX - startX);
+      const height = Math.abs(endY - startY);
+      return regionGrid
+        .getIntersectingBlocks({
+          x,
+          y,
+          width,
+          height,
+        })
+        .map((block) => block.id);
+    },
+    [regionGrid]
+  );
+
+  return {
+    getIntersectedBlockIds,
   };
 }

@@ -1,10 +1,8 @@
 import { DocumentState, Node, TextSelection } from '@/appflowy_app/interfaces/document';
 import { BlockEventPayloadPB } from '@/services/backend';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RegionGrid } from '@/appflowy_app/utils/region_grid';
 import { parseValue, matchChange } from '$app/utils/document/subscribe';
-
-const regionGrid = new RegionGrid(50);
+import { getNextNodeId, getPrevNodeId } from '$app/utils/document/blocks/common';
 
 const initialState: DocumentState = {
   nodes: {},
@@ -37,49 +35,29 @@ export const documentSlice = createSlice({
 
     // update block selections
     updateSelections: (state, action: PayloadAction<string[]>) => {
-      state.selections = action.payload;
+      const selections = action.payload;
+      const selected: Record<string, boolean> = {};
+      selections.forEach((id) => {
+        const node = state.nodes[id];
+        if (!node.parent) {
+          return;
+        }
+        selected[id] = selected[id] === undefined ? true : selected[id];
+        selected[node.parent] = false;
+        const nextNodeId = getNextNodeId(state, node.parent);
+        const prevNodeId = getPrevNodeId(state, node.parent);
+        if ((nextNodeId && selections.includes(nextNodeId)) || (prevNodeId && selections.includes(prevNodeId))) {
+          selected[node.parent] = true;
+        }
+      });
+
+      state.selections = selections.filter((id) => selected[id]);
     },
 
     // set block selected
     setSelectionById: (state, action: PayloadAction<string>) => {
       const id = action.payload;
       state.selections = [id];
-    },
-
-    // set block selected by selection rect
-    setSelectionByRect: (
-      state,
-      action: PayloadAction<{
-        startX: number;
-        startY: number;
-        endX: number;
-        endY: number;
-      }>
-    ) => {
-      const { startX, startY, endX, endY } = action.payload;
-      const blocks = regionGrid.getIntersectBlocks(startX, startY, endX, endY);
-      state.selections = blocks.map((block) => block.id);
-    },
-
-    // update block position
-    updateNodePosition: (
-      state,
-      action: PayloadAction<{
-        id: string;
-        rect: {
-          x: number;
-          y: number;
-          width: number;
-          height: number;
-        };
-      }>
-    ) => {
-      const { id, rect } = action.payload;
-      const position = {
-        id,
-        ...rect,
-      };
-      regionGrid.updateBlock(id, position);
     },
 
     // update text selections
