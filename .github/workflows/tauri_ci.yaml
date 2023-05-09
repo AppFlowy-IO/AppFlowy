@@ -73,10 +73,6 @@ jobs:
         working-directory: frontend/appflowy_tauri
         run: |
           mkdir dist
-          npm install
+          pnpm install
           cargo make --cwd .. tauri_build 
-          yarn && yarn build
-
-      - uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          yarn build
