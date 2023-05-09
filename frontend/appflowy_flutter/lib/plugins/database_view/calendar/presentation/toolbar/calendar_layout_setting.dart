@@ -340,7 +340,7 @@ class FirstDayOfWeek extends StatelessWidget {
             DateFormat.EEEE(context.locale.toLanguageTag()).dateSymbols;
         // starts from sunday
         final items = symbols.WEEKDAYS.asMap().entries.map((entry) {
-          final index = (entry.key - 1) % 7;
+          final index = entry.key;
           final string = entry.value;
           return SizedBox(
             height: GridSize.popoverItemHeight,
