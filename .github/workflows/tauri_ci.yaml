@@ -59,7 +59,6 @@ jobs:
         if: matrix.platform == 'macos-latest'
         working-directory: frontend
         run: |
-          brew install llvm
           cargo install --force cargo-make
           cargo make appflowy-tauri-deps-tools
 
@@ -76,7 +75,6 @@ jobs:
           mkdir dist
           npm install
           cargo make --cwd .. tauri_build 
-          yarn && yarn build
 
       - uses: tauri-apps/tauri-action@v0
         env:
