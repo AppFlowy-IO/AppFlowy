@@ -1,7 +1,7 @@
 export 'board/board_node_widget.dart';
 export 'board/board_menu_item.dart';
 export 'board/board_view_menu_item.dart';
-export 'callout/callout_node_widget.dart';
+export 'callout/callout_block_component.dart';
 export 'code_block/code_block_node_widget.dart';
 export 'code_block/code_block_shortcut_event.dart';
 export 'cover/change_cover_popover_bloc.dart';
@@ -14,7 +14,7 @@ export 'extensions/flowy_tint_extension.dart';
 export 'grid/grid_menu_item.dart';
 export 'grid/grid_node_widget.dart';
 export 'grid/grid_view_menu_item.dart';
-export 'math_equation/math_equation_node_widget.dart';
+export 'math_equation/math_equation_block_component.dart';
 export 'openai/widgets/auto_completion_node_widget.dart';
 export 'openai/widgets/auto_completion_plugins.dart';
 export 'openai/widgets/smart_edit_node_widget.dart';

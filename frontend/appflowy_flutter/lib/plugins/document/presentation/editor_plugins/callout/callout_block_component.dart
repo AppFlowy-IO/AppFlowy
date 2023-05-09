@@ -16,10 +16,10 @@ class CalloutBlockKeys {
   /// The value is a String.
   static const String backgroundColor = 'bgColor';
 
-  /// The emoji of a callout block.
+  /// The emoji icon of a callout block.
   ///
   /// The value is a String.
-  static const String emoji = 'icon';
+  static const String icon = 'icon';
 }
 
 // creating a new callout node
@@ -29,7 +29,7 @@ Node calloutNode({
 }) {
   attributes ??= {
     'delta': Delta().toJson(),
-    CalloutBlockKeys.emoji: emoji,
+    CalloutBlockKeys.icon: emoji,
     CalloutBlockKeys.backgroundColor: '#F0F0F0'
   };
   return Node(
@@ -72,7 +72,7 @@ class CalloutBlockComponentBuilder extends BlockComponentBuilder {
   bool validate(Node node) =>
       node.delta != null &&
       node.children.isEmpty &&
-      node.attributes[CalloutBlockKeys.emoji] is String &&
+      node.attributes[CalloutBlockKeys.icon] is String &&
       node.attributes[CalloutBlockKeys.backgroundColor] is String;
 }
 
@@ -117,7 +117,7 @@ class _CalloutBlockComponentWidgetState
   }
 
   // get the emoji of the note block from the node's attributes or default to '📌'
-  String get emoji => node.attributes[CalloutBlockKeys.emoji] ?? '📌';
+  String get emoji => node.attributes[CalloutBlockKeys.icon] ?? '📌';
 
   final PopoverController colorPopoverController = PopoverController();
   final PopoverController emojiPopoverController = PopoverController();
@@ -182,7 +182,7 @@ class _CalloutBlockComponentWidgetState
   Future<void> setEmoji(String emoji) async {
     final transaction = editorState.transaction
       ..updateNode(node, {
-        CalloutBlockKeys.emoji: emoji,
+        CalloutBlockKeys.icon: emoji,
       });
     await editorState.apply(transaction);
   }

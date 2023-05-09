@@ -46,8 +46,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       gridMenuItem,
       calloutItem,
       dividerMenuItem,
+      mathEquationItem,
     ];
 
+    final editorStyle = _desktopEditorStyle();
     final editor = AppFlowyEditor.custom(
       editorState: editorState,
       editable: true,
@@ -55,7 +57,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       autoFocus: autoFocusParameters.item1,
       focusedSelection: autoFocusParameters.item2,
       // setup the theme
-      editorStyle: _desktopEditorStyle(),
+      editorStyle: editorStyle,
       // custom the block builder
       blockComponentBuilders: {
         ...standardBlockComponentBuilderMap,
@@ -63,6 +65,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         GridBlockKeys.type: const GridBlockComponentBuilder(),
         CalloutBlockKeys.type: const CalloutBlockComponentBuilder(),
         DividerBlockKeys.type: const DividerBlockComponentBuilder(),
+        MathEquationBlockKeys.type: const MathEquationBlockComponentBuilder(),
       },
       // default shortcuts
       characterShortcutEvents: [

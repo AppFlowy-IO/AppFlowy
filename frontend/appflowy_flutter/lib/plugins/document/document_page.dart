@@ -129,7 +129,7 @@
 //         // Divider
 //         DividerBlockKeys.type: DividerWidgetBuilder(),
 //         // Math Equation
-//         kMathEquationType: MathEquationNodeWidgetBuidler(),
+//         MathEquationBlockKeys.type: MathEquationNodeWidgetBuidler(),
 //         // Code Block
 //         kCodeBlockType: CodeBlockNodeWidgetBuilder(),
 //         // Board
