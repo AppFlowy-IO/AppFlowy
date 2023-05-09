@@ -1,8 +1,29 @@
-import { BlockData, BlockType, DocumentState, NestedBlock, TextDelta } from '$app/interfaces/document';
+import {
+  BlockData,
+  BlockType,
+  DocumentState,
+  NestedBlock,
+  RangeSelectionState,
+  TextDelta,
+  TextSelection
+} from "$app/interfaces/document";
 import { Descendant, Element, Text } from 'slate';
 import { BlockPB } from '@/services/backend';
 import { Log } from '$app/utils/log';
 import { nanoid } from 'nanoid';
+import { clone } from "$app/utils/tool";
+
+export function slateValueToDelta(slateNodes: Descendant[]) {
+  const element = slateNodes[0] as Element;
+  const children = element.children as Text[];
+  return children.map((child) => {
+    const { text, ...attributes } = child;
+    return {
+      insert: text,
+      attributes,
+    };
+  });
+}
 
 export function deltaToSlateValue(delta: TextDelta[]) {
   const slateNode = {
@@ -101,6 +122,16 @@ export function getNextNodeId(state: DocumentState, id: string) {
   return nextNodeId;
 }
 
+export function getPrevNodeId(state: DocumentState, id: string) {
+  const node = state.nodes[id];
+  if (!node.parent) return;
+  const parent = state.nodes[node.parent];
+  const children = state.children[parent.children];
+  const index = children.indexOf(id);
+  const prevNodeId = children[index - 1];
+  return prevNodeId;
+}
+
 export function newBlock<Type>(type: BlockType, parentId: string, data: BlockData<Type>): NestedBlock<Type> {
   return {
     id: generateId(),
@@ -109,4 +140,15 @@ export function newBlock<Type>(type: BlockType, parentId: string, data: BlockDat
     children: generateId(),
     data,
   };
+}
+
+export function getCollapsedRange(id: string, selection: TextSelection): RangeSelectionState {
+  const point = {
+    id,
+    selection
+  };
+  return {
+    anchor: clone(point),
+    focus: clone(point),
+  }
 }

@@ -12,7 +12,7 @@ export default function CodeBlock({
   placeholder,
   ...props
 }: { node: NestedBlock<BlockType.CodeBlock>; placeholder?: string } & React.HTMLAttributes<HTMLDivElement>) {
-  const { editor, value, onChange, onKeyDown, onDOMBeforeInput } = useCodeBlock(node);
+  const { editor, value, onChange, ...rest } = useCodeBlock(node);
 
   const className = props.className ? ` ${props.className}` : '';
   const id = node.id;
@@ -24,11 +24,9 @@ export default function CodeBlock({
       </div>
       <Slate editor={editor} onChange={onChange} value={value}>
         <BlockHorizontalToolbar id={id} />
-
         <Editable
-          onKeyDown={onKeyDown}
+          {...rest}
           decorate={(entry) => decorateCodeFunc(entry, language)}
-          onDOMBeforeInput={onDOMBeforeInput}
           renderLeaf={CodeLeaf}
           renderElement={CodeBlockElement}
           placeholder={placeholder || 'Please enter some text...'}

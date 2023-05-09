@@ -1,7 +1,7 @@
-import { DeltaTypePB } from '@/services/backend/models/flowy-document2';
-import { BlockType, NestedBlock, DocumentState, ChangeType, BlockPBValue } from '../../interfaces/document';
-import { Log } from '../log';
-import { BLOCK_MAP_NAME, CHILDREN_MAP_NAME, META_NAME } from '../../constants/document/block';
+import { DeltaTypePB } from "@/services/backend/models/flowy-document2";
+import { BlockPBValue, BlockType, ChangeType, DocumentState, NestedBlock } from "$app/interfaces/document";
+import { Log } from "../log";
+import { BLOCK_MAP_NAME, CHILDREN_MAP_NAME, META_NAME } from "$app/constants/document/block";
 
 // This is a list of all the possible changes that can happen to document data
 const matchCases = [
@@ -100,8 +100,7 @@ function matchChildrenMapDelete(command: DeltaTypePB, path: string[]) {
 }
 
 function onMatchBlockInsert(state: DocumentState, blockId: string, blockValue: BlockPBValue, _isRemote?: boolean) {
-  const block = blockChangeValue2Node(blockValue);
-  state.nodes[blockId] = block;
+  state.nodes[blockId] = blockChangeValue2Node(blockValue);
 }
 
 function onMatchBlockUpdate(state: DocumentState, blockId: string, blockValue: BlockPBValue, isRemote?: boolean) {
@@ -125,12 +124,7 @@ function onMatchBlockUpdate(state: DocumentState, blockId: string, blockValue: B
   return;
 }
 
-function onMatchBlockDelete(state: DocumentState, blockId: string, blockValue: BlockPBValue, _isRemote?: boolean) {
-  const index = state.selections.indexOf(blockId);
-  if (index > -1) {
-    state.selections.splice(index, 1);
-  }
-  delete state.textSelections[blockId];
+function onMatchBlockDelete(state: DocumentState, blockId: string, _blockValue: BlockPBValue, _isRemote?: boolean) {
   delete state.nodes[blockId];
 }
 
