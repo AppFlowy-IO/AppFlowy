@@ -4,7 +4,7 @@ use std::fmt::Debug;
 use collab_database::fields::Field;
 use collab_database::rows::{get_field_type_from_cell, Cell, Cells};
 
-use flowy_error::{ErrorCode, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
 use crate::entities::FieldType;
 use crate::services::cell::{CellCache, CellProtobufBlob};
@@ -63,16 +63,14 @@ pub fn apply_cell_data_changeset<C: ToCellChangeset>(
   cell: Option<Cell>,
   field: &Field,
   cell_data_cache: Option<CellCache>,
-) -> Cell {
+) -> Result<Cell, FlowyError> {
   let changeset = changeset.to_cell_changeset_str();
   let field_type = FieldType::from(field.field_type);
   match TypeOptionCellExt::new_with_cell_data_cache(field, cell_data_cache)
     .get_type_option_cell_data_handler(&field_type)
   {
-    None => Cell::default(),
-    Some(handler) => handler
-      .handle_cell_changeset(changeset, cell, field)
-      .unwrap_or_default(),
+    None => Ok(Cell::default()),
+    Some(handler) => Ok(handler.handle_cell_changeset(changeset, cell, field)?),
   }
 }
 
@@ -196,11 +194,11 @@ pub fn stringify_cell_data(
 }
 
 pub fn insert_text_cell(s: String, field: &Field) -> Cell {
-  apply_cell_data_changeset(s, None, field, None)
+  apply_cell_data_changeset(s, None, field, None).unwrap()
 }
 
 pub fn insert_number_cell(num: i64, field: &Field) -> Cell {
-  apply_cell_data_changeset(num.to_string(), None, field, None)
+  apply_cell_data_changeset(num.to_string(), None, field, None).unwrap()
 }
 
 pub fn insert_url_cell(url: String, field: &Field) -> Cell {
@@ -214,7 +212,7 @@ pub fn insert_url_cell(url: String, field: &Field) -> Cell {
     _ => url,
   };
 
-  apply_cell_data_changeset(url, None, field, None)
+  apply_cell_data_changeset(url, None, field, None).unwrap()
 }
 
 pub fn insert_checkbox_cell(is_check: bool, field: &Field) -> Cell {
@@ -223,7 +221,7 @@ pub fn insert_checkbox_cell(is_check: bool, field: &Field) -> Cell {
   } else {
     UNCHECK.to_string()
   };
-  apply_cell_data_changeset(s, None, field, None)
+  apply_cell_data_changeset(s, None, field, None).unwrap()
 }
 
 pub fn insert_date_cell(timestamp: i64, field: &Field) -> Cell {
@@ -231,22 +229,22 @@ pub fn insert_date_cell(timestamp: i64, field: &Field) -> Cell {
     date: Some(timestamp.to_string()),
     time: None,
     include_time: Some(false),
-    is_utc: true,
+    timezone_id: None,
   })
   .unwrap();
-  apply_cell_data_changeset(cell_data, None, field, None)
+  apply_cell_data_changeset(cell_data, None, field, None).unwrap()
 }
 
 pub fn insert_select_option_cell(option_ids: Vec<String>, field: &Field) -> Cell {
   let changeset =
     SelectOptionCellChangeset::from_insert_options(option_ids).to_cell_changeset_str();
-  apply_cell_data_changeset(changeset, None, field, None)
+  apply_cell_data_changeset(changeset, None, field, None).unwrap()
 }
 
 pub fn delete_select_option_cell(option_ids: Vec<String>, field: &Field) -> Cell {
   let changeset =
     SelectOptionCellChangeset::from_delete_options(option_ids).to_cell_changeset_str();
-  apply_cell_data_changeset(changeset, None, field, None)
+  apply_cell_data_changeset(changeset, None, field, None).unwrap()
 }
 
 /// Deserialize the String into cell specific data type.

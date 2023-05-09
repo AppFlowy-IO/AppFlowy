@@ -257,8 +257,8 @@ impl TestRowBuilder {
     let value = serde_json::to_string(&DateCellChangeset {
       date: Some(data.to_string()),
       time: None,
-      is_utc: true,
       include_time: Some(false),
+      timezone_id: None,
     })
     .unwrap();
     let date_field = self.field_with_type(&FieldType::DateTime);

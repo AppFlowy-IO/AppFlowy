@@ -43,7 +43,6 @@ pub fn make_test_board() -> DatabaseData {
         let date_type_option = DateTypeOption {
           date_format: DateFormat::US,
           time_format: TimeFormat::TwentyFourHour,
-          include_time: false,
         };
         let date_field = FieldBuilder::new(field_type.clone(), date_type_option)
           .name("Time")
