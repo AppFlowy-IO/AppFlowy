@@ -8,7 +8,6 @@ specifiers:
   '@mui/icons-material': ^5.11.11
   '@mui/material': ^5.11.12
   '@reduxjs/toolkit': ^1.9.2
-  '@slate-yjs/core': ^0.3.1
   '@tanstack/react-virtual': 3.0.0-beta.54
   '@tauri-apps/api': ^1.2.0
   '@tauri-apps/cli': ^1.2.2
@@ -72,7 +71,6 @@ dependencies:
   '@mui/icons-material': 5.11.11_ao76n7r2cajsoyr3cbwrn7geoi
   '@mui/material': 5.11.12_xqeqsl5kvjjtyxwyi3jhw3yuli
   '@reduxjs/toolkit': 1.9.3_k4ae6lp43ej6mezo3ztvx6pykq
-  '@slate-yjs/core': 0.3.1_slate@0.91.4+yjs@13.5.51
   '@tanstack/react-virtual': 3.0.0-beta.54_react@18.2.0
   '@tauri-apps/api': 1.2.0
   dayjs: 1.11.7
@@ -1350,17 +1348,6 @@ packages:
     resolution: {integrity: sha512-SwUDyjWnah1AaNl7kxsa7cfLhlTYoiyhDAIgyh+El30YvXs/o7OLXpYH88Zdhyx9JExKrmHDJ+10bwIcY80Jmw==}
     dependencies:
       '@sinonjs/commons': 2.0.0
-    dev: false
-
-  /@slate-yjs/core/0.3.1_slate@0.91.4+yjs@13.5.51:
-    resolution: {integrity: sha512-8nvS9m5FhMNONgydAfzwDCUhuoWbgzx5Bvw1/foSe+JO331UOT1xAKbUX5FzGCOunUcbRjMPXSdNyiPc0dodJg==}
-    peerDependencies:
-      slate: '>=0.70.0'
-      yjs: ^13.5.29
-    dependencies:
-      slate: 0.91.4
-      y-protocols: 1.0.5
-      yjs: 13.5.51
     dev: false
 
   /@tanstack/react-virtual/3.0.0-beta.54_react@18.2.0:
@@ -5071,12 +5058,6 @@ packages:
     dependencies:
       lib0: 0.2.73
       yjs: 13.5.51
-    dev: false
-
-  /y-protocols/1.0.5:
-    resolution: {integrity: sha512-Wil92b7cGk712lRHDqS4T90IczF6RkcvCwAD0A2OPg+adKmOe+nOiT/N2hvpQIWS3zfjmtL4CPaH5sIW1Hkm/A==}
-    dependencies:
-      lib0: 0.2.73
     dev: false
 
   /y18n/5.0.8:

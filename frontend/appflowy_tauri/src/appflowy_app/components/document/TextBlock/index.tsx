@@ -16,7 +16,16 @@ function TextBlock({
   childIds?: string[];
   placeholder?: string;
 } & React.HTMLAttributes<HTMLDivElement>) {
-  const { editor, value, onChange, onKeyDown, onDOMBeforeInput } = useTextBlock(node.id);
+  const {
+    editor,
+    value,
+    onChange,
+    onKeyDown,
+    onDOMBeforeInput,
+    onCompositionStart,
+    onCompositionUpdate,
+    onCompositionEnd,
+  } = useTextBlock(node.id);
   const className = props.className !== undefined ? ` ${props.className}` : '';
 
   return (
@@ -27,6 +36,9 @@ function TextBlock({
           <Editable
             onKeyDown={onKeyDown}
             onDOMBeforeInput={onDOMBeforeInput}
+            onCompositionStart={onCompositionStart}
+            onCompositionUpdate={onCompositionUpdate}
+            onCompositionEnd={onCompositionEnd}
             renderLeaf={(leafProps) => <Leaf {...leafProps} />}
             placeholder={placeholder || 'Please enter some text...'}
           />

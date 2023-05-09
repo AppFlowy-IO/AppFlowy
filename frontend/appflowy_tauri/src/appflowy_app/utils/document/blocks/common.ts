@@ -4,6 +4,18 @@ import { BlockPB } from '@/services/backend';
 import { Log } from '$app/utils/log';
 import { nanoid } from 'nanoid';
 
+export function slateValueToDelta(slateNodes: Descendant[]) {
+  const element = slateNodes[0] as Element;
+  const children = element.children as Text[];
+  return children.map((child) => {
+    const { text, ...attributes } = child;
+    return {
+      insert: text,
+      attributes,
+    };
+  });
+}
+
 export function deltaToSlateValue(delta: TextDelta[]) {
   const slateNode = {
     type: 'paragraph',
