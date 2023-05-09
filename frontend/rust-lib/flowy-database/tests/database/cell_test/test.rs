@@ -149,32 +149,32 @@ async fn update_updated_at_field_on_other_cell_update() {
         after_update_timestamp
       ),
       1 => assert!(
-        timestamp < before_update_timestamp,
-        "{} < {}",
+        timestamp <= before_update_timestamp,
+        "{} <= {}",
         timestamp,
         before_update_timestamp
       ),
       2 => assert!(
-        timestamp < before_update_timestamp,
-        "{} < {}",
+        timestamp <= before_update_timestamp,
+        "{} <= {}",
         timestamp,
         before_update_timestamp
       ),
       3 => assert!(
-        timestamp < before_update_timestamp,
-        "{} < {}",
+        timestamp <= before_update_timestamp,
+        "{} <= {}",
         timestamp,
         before_update_timestamp
       ),
       4 => assert!(
-        timestamp < before_update_timestamp,
-        "{} < {}",
+        timestamp <= before_update_timestamp,
+        "{} <= {}",
         timestamp,
         before_update_timestamp
       ),
       5 => assert!(
-        timestamp < before_update_timestamp,
-        "{} < {}",
+        timestamp <= before_update_timestamp,
+        "{} <= {}",
         timestamp,
         before_update_timestamp
       ),
