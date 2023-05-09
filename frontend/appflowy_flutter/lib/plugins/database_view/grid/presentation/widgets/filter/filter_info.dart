@@ -23,7 +23,7 @@ class FilterInfo {
   }
 
   DateFilterPB? dateFilter() {
-    if ([FieldType.DateTime, FieldType.UpdatedAt, FieldType.CreatedAt]
+    if (![FieldType.DateTime, FieldType.UpdatedAt, FieldType.CreatedAt]
         .contains(filter.fieldType)) {
       return null;
     }
