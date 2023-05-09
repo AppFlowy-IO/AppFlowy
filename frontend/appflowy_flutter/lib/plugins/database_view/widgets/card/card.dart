@@ -141,7 +141,6 @@ class _RowCardState<T> extends State<RowCard<T>> {
                 }
               },
               openAccessory: _handleOpenAccessory,
-              openCard: (context) => widget.openCard(context),
               child: _CardContent<T>(
                 rowNotifier: rowNotifier,
                 cellBuilder: widget.cellBuilder,
