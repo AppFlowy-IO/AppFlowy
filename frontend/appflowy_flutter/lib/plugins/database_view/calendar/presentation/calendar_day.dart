@@ -193,12 +193,8 @@ class CalendarDayCard extends StatelessWidget {
       cardData: event.dateFieldId,
       isEditing: false,
       cellBuilder: cellBuilder,
-      openCard: (context) => showEventDetails(
-        context: context,
-        event: event,
-        viewId: viewId,
-        rowCache: _rowCache,
-      ),
+      //Since we already have [showEventDetails] in calendar_day.dart, we don't need to implement it here again.
+      openCard: (_) {},
       styleConfiguration: const RowCardStyleConfiguration(
         showAccessory: false,
         cellPadding: EdgeInsets.zero,
