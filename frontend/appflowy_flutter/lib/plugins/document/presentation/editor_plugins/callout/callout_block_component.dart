@@ -11,6 +11,11 @@ class CalloutBlockKeys {
 
   static const String type = 'callout';
 
+  /// The content of a code block.
+  ///
+  /// The value is a String.
+  static const String delta = 'delta';
+
   /// The background color of a callout block.
   ///
   /// The value is a String.
@@ -24,13 +29,14 @@ class CalloutBlockKeys {
 
 // creating a new callout node
 Node calloutNode({
+  Delta? delta,
   String emoji = '📌',
-  Attributes? attributes,
+  String backgroundColor = '#F0F0F0',
 }) {
-  attributes ??= {
-    'delta': Delta().toJson(),
+  final attributes = {
+    CalloutBlockKeys.delta: (delta ?? Delta()).toJson(),
     CalloutBlockKeys.icon: emoji,
-    CalloutBlockKeys.backgroundColor: '#F0F0F0'
+    CalloutBlockKeys.backgroundColor: backgroundColor,
   };
   return Node(
     type: 'callout',
@@ -118,9 +124,6 @@ class _CalloutBlockComponentWidgetState
 
   // get the emoji of the note block from the node's attributes or default to '📌'
   String get emoji => node.attributes[CalloutBlockKeys.icon] ?? '📌';
-
-  final PopoverController colorPopoverController = PopoverController();
-  final PopoverController emojiPopoverController = PopoverController();
 
   // get access to the editor state via provider
   late final editorState = Provider.of<EditorState>(context, listen: false);

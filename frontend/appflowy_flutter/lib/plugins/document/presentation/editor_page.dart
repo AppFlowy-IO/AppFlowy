@@ -47,6 +47,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       calloutItem,
       dividerMenuItem,
       mathEquationItem,
+      codeBlockItem,
     ];
 
     final editorStyle = _desktopEditorStyle();
@@ -66,6 +67,15 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         CalloutBlockKeys.type: const CalloutBlockComponentBuilder(),
         DividerBlockKeys.type: const DividerBlockComponentBuilder(),
         MathEquationBlockKeys.type: const MathEquationBlockComponentBuilder(),
+        CodeBlockKeys.type: CodeBlockComponentBuilder(
+          configuration: BlockComponentConfiguration(
+            padding: (_) => const EdgeInsets.only(
+              left: 30,
+              right: 30,
+              bottom: 36,
+            ),
+          ),
+        ),
       },
       // default shortcuts
       characterShortcutEvents: [

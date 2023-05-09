@@ -1,224 +1,333 @@
-// import 'package:appflowy_editor/appflowy_editor.dart';
-// import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-// import 'package:flutter/material.dart';
-// import 'package:highlight/highlight.dart' as highlight;
-// import 'package:highlight/languages/all.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_item_list_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:highlight/highlight.dart' as highlight;
+import 'package:highlight/languages/all.dart';
+import 'package:provider/provider.dart';
 
-// const String kCodeBlockType = 'text/$kCodeBlockSubType';
-// const String kCodeBlockSubType = 'code_block';
-// const String kCodeBlockAttrTheme = 'theme';
-// const String kCodeBlockAttrLanguage = 'language';
+const String kCodeBlockType = 'text/$kCodeBlockSubType';
+const String kCodeBlockSubType = 'code_block';
+const String kCodeBlockAttrTheme = 'theme';
+const String kCodeBlockAttrLanguage = 'language';
 
-// class CodeBlockNodeWidgetBuilder extends NodeWidgetBuilder<TextNode>
-//     with ActionProvider<TextNode> {
-//   @override
-//   Widget build(NodeWidgetContext<TextNode> context) {
-//     return _CodeBlockNodeWidge(
-//       key: context.node.key,
-//       textNode: context.node,
-//       editorState: context.editorState,
-//     );
-//   }
+class CodeBlockKeys {
+  const CodeBlockKeys._();
 
-//   @override
-//   NodeValidator<Node> get nodeValidator => (node) {
-//         return node is TextNode &&
-//             node.attributes[kCodeBlockAttrTheme] is String;
-//       };
+  static const String type = 'code';
 
-//   @override
-//   List<ActionMenuItem> actions(NodeWidgetContext<TextNode> context) {
-//     return [
-//       ActionMenuItem.svg(
-//         name: 'delete',
-//         onPressed: () {
-//           final transaction = context.editorState.transaction
-//             ..deleteNode(context.node);
-//           context.editorState.apply(transaction);
-//         },
-//       ),
-//     ];
-//   }
-// }
+  /// The content of a code block.
+  ///
+  /// The value is a String.
+  static const String delta = 'delta';
 
-// class _CodeBlockNodeWidge extends StatefulWidget {
-//   const _CodeBlockNodeWidge({
-//     Key? key,
-//     required this.textNode,
-//     required this.editorState,
-//   }) : super(key: key);
+  /// The language of a code block.
+  ///
+  /// The value is a String.
+  static const String language = kCodeBlockAttrLanguage;
+}
 
-//   final TextNode textNode;
-//   final EditorState editorState;
+Node codeBlockNode({
+  Delta? delta,
+  String? language,
+}) {
+  final attributes = {
+    CodeBlockKeys.delta: (delta ?? Delta()).toJson(),
+    CodeBlockKeys.language: language,
+  };
+  return Node(
+    type: CodeBlockKeys.type,
+    attributes: attributes,
+  );
+}
 
-//   @override
-//   State<_CodeBlockNodeWidge> createState() => __CodeBlockNodeWidgeState();
-// }
+// defining the callout block menu item for selection
+SelectionMenuItem codeBlockItem = SelectionMenuItem.node(
+  name: 'Code Block',
+  iconData: Icons.abc,
+  keywords: ['code', 'codeblock'],
+  nodeBuilder: (editorState) => codeBlockNode(),
+  replace: (_, node) => node.delta?.isEmpty ?? false,
+);
 
-// class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
-//     with SelectableMixin, DefaultSelectable {
-//   final _richTextKey = GlobalKey(debugLabel: kCodeBlockType);
-//   final _padding = const EdgeInsets.only(left: 20, top: 30, bottom: 30);
-//   String? get _language =>
-//       widget.textNode.attributes[kCodeBlockAttrLanguage] as String?;
-//   String? _detectLanguage;
+class CodeBlockComponentBuilder extends BlockComponentBuilder {
+  const CodeBlockComponentBuilder({
+    this.configuration = const BlockComponentConfiguration(),
+  });
 
-//   @override
-//   SelectableMixin<StatefulWidget> get forward =>
-//       _richTextKey.currentState as SelectableMixin;
+  final BlockComponentConfiguration configuration;
 
-//   @override
-//   GlobalKey<State<StatefulWidget>>? get iconKey => null;
+  @override
+  Widget build(BlockComponentContext blockComponentContext) {
+    final node = blockComponentContext.node;
+    return CodeBlockComponentWidget(
+      key: node.key,
+      node: node,
+      configuration: configuration,
+    );
+  }
 
-//   @override
-//   Offset get baseOffset => super.baseOffset + _padding.topLeft;
+  @override
+  bool validate(Node node) => node.delta != null;
+}
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Stack(
-//       children: [
-//         _buildCodeBlock(context),
-//         _buildSwitchCodeButton(context),
-//       ],
-//     );
-//   }
+class CodeBlockComponentWidget extends StatefulWidget {
+  const CodeBlockComponentWidget({
+    Key? key,
+    required this.node,
+    this.configuration = const BlockComponentConfiguration(),
+  }) : super(key: key);
 
-//   Widget _buildCodeBlock(BuildContext context) {
-//     final result = highlight.highlight.parse(
-//       widget.textNode.toPlainText(),
-//       language: _language,
-//       autoDetection: _language == null,
-//     );
-//     _detectLanguage = _language ?? result.language;
-//     final code = result.nodes;
-//     final codeTextSpan = _convert(code!);
-//     return Container(
-//       decoration: BoxDecoration(
-//         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-//         color: Colors.grey.withOpacity(0.1),
-//       ),
-//       padding: _padding,
-//       width: MediaQuery.of(context).size.width,
-//       child: FlowyRichText(
-//         key: _richTextKey,
-//         textNode: widget.textNode,
-//         editorState: widget.editorState,
-//         lineHeight: 1.0,
-//         cursorHeight: 15.0,
-//         textSpanDecorator: (textSpan) => TextSpan(
-//           style: widget.editorState.editorStyle.textStyle,
-//           children: codeTextSpan,
-//         ),
-//       ),
-//     );
-//   }
+  final Node node;
+  final BlockComponentConfiguration configuration;
 
-//   Widget _buildSwitchCodeButton(BuildContext context) {
-//     return Positioned(
-//       top: -5,
-//       left: 10,
-//       child: SizedBox(
-//         height: 35,
-//         child: DropdownButton<String>(
-//           value: _detectLanguage,
-//           iconSize: 14.0,
-//           onChanged: (value) {
-//             final transaction = widget.editorState.transaction
-//               ..updateNode(widget.textNode, {
-//                 kCodeBlockAttrLanguage: value,
-//               });
-//             widget.editorState.apply(transaction);
-//           },
-//           items:
-//               allLanguages.keys.map<DropdownMenuItem<String>>((String value) {
-//             return DropdownMenuItem<String>(
-//               value: value,
-//               child: FlowyText.medium(
-//                 value,
-//                 color: Theme.of(context).colorScheme.tertiary,
-//               ),
-//             );
-//           }).toList(growable: false),
-//         ),
-//       ),
-//     );
-//   }
+  @override
+  State<CodeBlockComponentWidget> createState() =>
+      _CodeBlockComponentWidgetState();
+}
 
-//   // Copy from flutter.highlight package.
-//   // https://github.com/git-touch/highlight.dart/blob/master/flutter_highlight/lib/flutter_highlight.dart
-//   List<TextSpan> _convert(List<highlight.Node> nodes) {
-//     List<TextSpan> spans = [];
-//     var currentSpans = spans;
-//     List<List<TextSpan>> stack = [];
+class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
+    with SelectableMixin, DefaultSelectable, BlockComponentConfigurable {
+  // the key used to forward focus to the richtext child
+  @override
+  final forwardKey = GlobalKey(debugLabel: 'flowy_rich_text');
 
-//     void traverse(highlight.Node node) {
-//       if (node.value != null) {
-//         currentSpans.add(node.className == null
-//             ? TextSpan(text: node.value)
-//             : TextSpan(
-//                 text: node.value,
-//                 style: _builtInCodeBlockTheme[node.className!],),);
-//       } else if (node.children != null) {
-//         List<TextSpan> tmp = [];
-//         currentSpans.add(TextSpan(
-//             children: tmp, style: _builtInCodeBlockTheme[node.className!],),);
-//         stack.add(currentSpans);
-//         currentSpans = tmp;
+  @override
+  BlockComponentConfiguration get configuration => widget.configuration;
 
-//         for (var n in node.children!) {
-//           traverse(n);
-//           if (n == node.children!.last) {
-//             currentSpans = stack.isEmpty ? spans : stack.removeLast();
-//           }
-//         }
-//       }
-//     }
+  @override
+  GlobalKey<State<StatefulWidget>> get containerKey => node.key;
 
-//     for (var node in nodes) {
-//       traverse(node);
-//     }
+  @override
+  Node get node => widget.node;
 
-//     return spans;
-//   }
-// }
+  final supportedLanguages = [
+    'Assembly',
+    'Bash',
+    'BASIC',
+    'C',
+    'C#',
+    'C++',
+    'Clojure',
+    'CSS',
+    'Dart',
+    'Docker',
+    'Elixir',
+    'Elm',
+    'Erlang',
+    'Fortran',
+    'Go',
+    'GraphQL',
+    'Haskell',
+    'HTML',
+    'Java',
+    'JavaScript',
+    'JSON',
+    'Kotlin',
+    'LaTeX',
+    'Lisp',
+    'Lua',
+    'Markdown',
+    'MATLAB',
+    'Objective-C',
+    'OCaml',
+    'Perl',
+    'PHP',
+    'PowerShell',
+    'Python',
+    'R',
+    'Ruby',
+    'Rust',
+    'Scala',
+    'Shell',
+    'SQL',
+    'Swift',
+    'TypeScript',
+    'Visual Basic',
+    'XML',
+    'YAML',
+  ];
+  late final languages = supportedLanguages
+      .map((e) => e.toLowerCase())
+      .toSet()
+      .intersection(allLanguages.keys.toSet())
+      .toList();
 
-// const _builtInCodeBlockTheme = {
-//   'root':
-//       TextStyle(backgroundColor: Color(0xffffffff), color: Color(0xff000000)),
-//   'comment': TextStyle(color: Color(0xff007400)),
-//   'quote': TextStyle(color: Color(0xff007400)),
-//   'tag': TextStyle(color: Color(0xffaa0d91)),
-//   'attribute': TextStyle(color: Color(0xffaa0d91)),
-//   'keyword': TextStyle(color: Color(0xffaa0d91)),
-//   'selector-tag': TextStyle(color: Color(0xffaa0d91)),
-//   'literal': TextStyle(color: Color(0xffaa0d91)),
-//   'name': TextStyle(color: Color(0xffaa0d91)),
-//   'variable': TextStyle(color: Color(0xff3F6E74)),
-//   'template-variable': TextStyle(color: Color(0xff3F6E74)),
-//   'code': TextStyle(color: Color(0xffc41a16)),
-//   'string': TextStyle(color: Color(0xffc41a16)),
-//   'meta-string': TextStyle(color: Color(0xffc41a16)),
-//   'regexp': TextStyle(color: Color(0xff0E0EFF)),
-//   'link': TextStyle(color: Color(0xff0E0EFF)),
-//   'title': TextStyle(color: Color(0xff1c00cf)),
-//   'symbol': TextStyle(color: Color(0xff1c00cf)),
-//   'bullet': TextStyle(color: Color(0xff1c00cf)),
-//   'number': TextStyle(color: Color(0xff1c00cf)),
-//   'section': TextStyle(color: Color(0xff643820)),
-//   'meta': TextStyle(color: Color(0xff643820)),
-//   'type': TextStyle(color: Color(0xff5c2699)),
-//   'built_in': TextStyle(color: Color(0xff5c2699)),
-//   'builtin-name': TextStyle(color: Color(0xff5c2699)),
-//   'params': TextStyle(color: Color(0xff5c2699)),
-//   'attr': TextStyle(color: Color(0xff836C28)),
-//   'subst': TextStyle(color: Color(0xff000000)),
-//   'formula': TextStyle(
-//       backgroundColor: Color(0xffeeeeee), fontStyle: FontStyle.italic,),
-//   'addition': TextStyle(backgroundColor: Color(0xffbaeeba)),
-//   'deletion': TextStyle(backgroundColor: Color(0xffffc8bd)),
-//   'selector-id': TextStyle(color: Color(0xff9b703f)),
-//   'selector-class': TextStyle(color: Color(0xff9b703f)),
-//   'doctag': TextStyle(fontWeight: FontWeight.bold),
-//   'strong': TextStyle(fontWeight: FontWeight.bold),
-//   'emphasis': TextStyle(fontStyle: FontStyle.italic),
-// };
+  late final editorState = context.read<EditorState>();
+
+  String? get language => node.attributes[CodeBlockKeys.language] as String?;
+  String? autoDetectLanguage;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+        color: Colors.grey.withOpacity(0.1),
+      ),
+      width: MediaQuery.of(context).size.width,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildSwitchLanguageButton(context),
+          _buildCodeBlock(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCodeBlock(BuildContext context) {
+    final delta = node.delta ?? Delta();
+    final content = delta.toPlainText();
+
+    final result = highlight.highlight.parse(
+      content,
+      language: language,
+      autoDetection: language == null,
+    );
+    autoDetectLanguage = language ?? result.language;
+
+    final codeNodes = result.nodes;
+    if (codeNodes == null) {
+      throw Exception('Code block parse error.');
+    }
+    final codeTextSpans = _convert(codeNodes);
+    return Padding(
+      padding: padding,
+      child: FlowyRichText(
+        key: forwardKey,
+        node: widget.node,
+        editorState: editorState,
+        lineHeight: 1.0,
+        placeholderText: placeholderText,
+        textSpanDecorator: (textSpan) => TextSpan(
+          style: textStyle,
+          children: codeTextSpans,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSwitchLanguageButton(BuildContext context) {
+    return AppFlowyPopover(
+      child: Container(
+        width: 100,
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: FlowyTextButton(
+          autoDetectLanguage ?? 'auto',
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 4.0,
+          ),
+          fontColor: Theme.of(context).colorScheme.onBackground,
+          fillColor: Colors.transparent,
+          onPressed: () {},
+        ),
+      ),
+      popupBuilder: (BuildContext context) {
+        return SelectableItemListMenu(
+          items: languages.map((e) => e.capitalize()).toList(),
+          selectedIndex: languages.indexOf(language ?? ''),
+          onSelected: (index) => updateLanguage(languages[index]),
+        );
+      },
+    );
+  }
+
+  Future<void> updateLanguage(String language) async {
+    final transaction = editorState.transaction
+      ..updateNode(node, {
+        CodeBlockKeys.language: language,
+      });
+    await editorState.apply(transaction);
+  }
+
+  // Copy from flutter.highlight package.
+  // https://github.com/git-touch/highlight.dart/blob/master/flutter_highlight/lib/flutter_highlight.dart
+  List<TextSpan> _convert(List<highlight.Node> nodes) {
+    List<TextSpan> spans = [];
+    var currentSpans = spans;
+    List<List<TextSpan>> stack = [];
+
+    void traverse(highlight.Node node) {
+      if (node.value != null) {
+        currentSpans.add(
+          node.className == null
+              ? TextSpan(text: node.value)
+              : TextSpan(
+                  text: node.value,
+                  style: _builtInCodeBlockTheme[node.className!],
+                ),
+        );
+      } else if (node.children != null) {
+        List<TextSpan> tmp = [];
+        currentSpans.add(
+          TextSpan(
+            children: tmp,
+            style: _builtInCodeBlockTheme[node.className!],
+          ),
+        );
+        stack.add(currentSpans);
+        currentSpans = tmp;
+
+        for (var n in node.children!) {
+          traverse(n);
+          if (n == node.children!.last) {
+            currentSpans = stack.isEmpty ? spans : stack.removeLast();
+          }
+        }
+      }
+    }
+
+    for (var node in nodes) {
+      traverse(node);
+    }
+
+    return spans;
+  }
+}
+
+const _builtInCodeBlockTheme = {
+  'root':
+      TextStyle(backgroundColor: Color(0xffffffff), color: Color(0xff000000)),
+  'comment': TextStyle(color: Color(0xff007400)),
+  'quote': TextStyle(color: Color(0xff007400)),
+  'tag': TextStyle(color: Color(0xffaa0d91)),
+  'attribute': TextStyle(color: Color(0xffaa0d91)),
+  'keyword': TextStyle(color: Color(0xffaa0d91)),
+  'selector-tag': TextStyle(color: Color(0xffaa0d91)),
+  'literal': TextStyle(color: Color(0xffaa0d91)),
+  'name': TextStyle(color: Color(0xffaa0d91)),
+  'variable': TextStyle(color: Color(0xff3F6E74)),
+  'template-variable': TextStyle(color: Color(0xff3F6E74)),
+  'code': TextStyle(color: Color(0xffc41a16)),
+  'string': TextStyle(color: Color(0xffc41a16)),
+  'meta-string': TextStyle(color: Color(0xffc41a16)),
+  'regexp': TextStyle(color: Color(0xff0E0EFF)),
+  'link': TextStyle(color: Color(0xff0E0EFF)),
+  'title': TextStyle(color: Color(0xff1c00cf)),
+  'symbol': TextStyle(color: Color(0xff1c00cf)),
+  'bullet': TextStyle(color: Color(0xff1c00cf)),
+  'number': TextStyle(color: Color(0xff1c00cf)),
+  'section': TextStyle(color: Color(0xff643820)),
+  'meta': TextStyle(color: Color(0xff643820)),
+  'type': TextStyle(color: Color(0xff5c2699)),
+  'built_in': TextStyle(color: Color(0xff5c2699)),
+  'builtin-name': TextStyle(color: Color(0xff5c2699)),
+  'params': TextStyle(color: Color(0xff5c2699)),
+  'attr': TextStyle(color: Color(0xff836C28)),
+  'subst': TextStyle(color: Color(0xff000000)),
+  'formula': TextStyle(
+    backgroundColor: Color(0xffeeeeee),
+    fontStyle: FontStyle.italic,
+  ),
+  'addition': TextStyle(backgroundColor: Color(0xffbaeeba)),
+  'deletion': TextStyle(backgroundColor: Color(0xffffc8bd)),
+  'selector-id': TextStyle(color: Color(0xff9b703f)),
+  'selector-class': TextStyle(color: Color(0xff9b703f)),
+  'doctag': TextStyle(fontWeight: FontWeight.bold),
+  'strong': TextStyle(fontWeight: FontWeight.bold),
+  'emphasis': TextStyle(fontStyle: FontStyle.italic),
+};
