@@ -1,8 +1,9 @@
-use collab::preclude::{Collab, CollabBuilder};
-use collab_persistence::kv::rocks_kv::RocksCollabDB;
-use collab_plugins::disk_plugin::rocksdb::RocksdbDiskPlugin;
-use parking_lot::RwLock;
 use std::{collections::HashMap, sync::Arc};
+
+use collab::preclude::{Collab, CollabBuilder};
+use collab_plugins::disk::kv::rocks_kv::RocksCollabDB;
+use collab_plugins::disk::rocksdb::RocksdbDiskPlugin;
+use parking_lot::RwLock;
 
 use flowy_error::{FlowyError, FlowyResult};
 

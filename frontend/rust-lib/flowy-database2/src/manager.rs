@@ -5,8 +5,8 @@ use std::sync::Arc;
 use collab_database::database::DatabaseData;
 use collab_database::user::UserDatabase as InnerUserDatabase;
 use collab_database::views::{CreateDatabaseParams, CreateViewParams};
-use collab_persistence::kv::rocks_kv::RocksCollabDB;
-use collab_plugins::disk_plugin::rocksdb::Config;
+use collab_plugins::disk::kv::rocks_kv::RocksCollabDB;
+use collab_plugins::disk::rocksdb::Config;
 use parking_lot::Mutex;
 use tokio::sync::RwLock;
 
