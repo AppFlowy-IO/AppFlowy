@@ -80,10 +80,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       // default shortcuts
       characterShortcutEvents: [
         // divider
-        insertDividerCommand,
+        convertMinusesToDivider,
 
         // code block
-        enterInCodeBlockCommand,
+        ...codeBlockCharacterEvents,
+
         ...standardCharacterShortcutEvents
           ..removeWhere(
             (element) => element == slashCommand,
@@ -91,7 +92,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         customSlashCommand(slashMenuItems),
       ],
       commandShortcutEvents: [
-        insertNewParagraphNextToCodeBlockCommand,
+        ...codeBlockCommands,
         ...standardCommandShortcutEvents,
       ],
     );

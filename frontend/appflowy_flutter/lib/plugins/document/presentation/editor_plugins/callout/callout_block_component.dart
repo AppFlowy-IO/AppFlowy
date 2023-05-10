@@ -1,6 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/color_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../base/emoji_picker_button.dart';
@@ -39,7 +38,7 @@ Node calloutNode({
     CalloutBlockKeys.backgroundColor: backgroundColor,
   };
   return Node(
-    type: 'callout',
+    type: CalloutBlockKeys.type,
     attributes: attributes,
   );
 }
@@ -74,6 +73,7 @@ class CalloutBlockComponentBuilder extends BlockComponentBuilder {
     );
   }
 
+  // validate the data of the node, if the result is false, the node will be rendered as a placeholder
   @override
   bool validate(Node node) =>
       node.delta != null &&

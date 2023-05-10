@@ -9,13 +9,13 @@ import 'package:flutter/material.dart';
 ///   - web
 ///   - mobile
 ///
-final CharacterShortcutEvent insertDividerCommand = CharacterShortcutEvent(
+final CharacterShortcutEvent convertMinusesToDivider = CharacterShortcutEvent(
   key: 'insert a divider',
   character: '-',
-  handler: _insertDividerCommandHandler,
+  handler: _convertMinusesToDividerHandler,
 );
 
-CharacterShortcutEventHandler _insertDividerCommandHandler =
+CharacterShortcutEventHandler _convertMinusesToDividerHandler =
     (editorState) async {
   final selection = editorState.selection;
   if (selection == null || !selection.isCollapsed) {
