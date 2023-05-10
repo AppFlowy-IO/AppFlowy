@@ -67,19 +67,14 @@ jobs:
           cargo make appflowy-tauri-deps-tools
           npm install -g pnpm@${{ env.PNPM_VERSION }}
 
-      # - name: lint
-      #   working-directory: frontend/appflowy_tauri
-      #   run: |
-      #     yarn --frozen-lockfile
-      #     yarn test:prettier
-      #     yarn test:code
 
       - name: build
         working-directory: frontend/appflowy_tauri
         run: |
           mkdir dist
           pnpm install
-          cargo make --cwd .. tauri_build 
+          cargo make --cwd .. tauri_build
+          pnpm test:code
 
       - uses: tauri-apps/tauri-action@v0
         env:
