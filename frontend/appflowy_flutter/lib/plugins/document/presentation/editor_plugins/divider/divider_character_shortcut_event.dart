@@ -32,9 +32,9 @@ CharacterShortcutEventHandler _convertMinusesToDividerHandler =
   }
   final transaction = editorState.transaction
     ..insertNode(path, dividerNode())
-    ..deleteNode(node);
-  // remove the existing minuses.
-
+    ..insertNode(path, paragraphNode())
+    ..deleteNode(node)
+    ..afterSelection = Selection.collapse(path.next, 0);
   editorState.apply(transaction);
   return true;
 };
