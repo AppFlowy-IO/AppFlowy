@@ -344,9 +344,11 @@ class RowDataBuilder {
   /// The date should use the UTC timezone. Becuase the backend uses UTC timezone to format the time string.
   void insertDate(FieldInfo fieldInfo, DateTime date) {
     assert(
-      fieldInfo.fieldType == FieldType.DateTime ||
-          fieldInfo.fieldType == FieldType.UpdatedAt ||
-          fieldInfo.fieldType == FieldType.CreatedAt,
+      [
+        FieldType.DateTime,
+        FieldType.UpdatedAt,
+        FieldType.CreatedAt,
+      ].contains(fieldInfo.fieldType),
     );
     final timestamp = (date.toUtc().millisecondsSinceEpoch ~/ 1000);
     _cellDataByFieldId[fieldInfo.field.id] = timestamp.toString();

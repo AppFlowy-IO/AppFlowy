@@ -90,8 +90,11 @@ class FilterBackendService {
     int? timestamp,
   }) {
     assert(
-      [FieldType.DateTime, FieldType.UpdatedAt, FieldType.CreatedAt]
-          .contains(fieldType),
+      [
+        FieldType.DateTime,
+        FieldType.UpdatedAt,
+        FieldType.CreatedAt,
+      ].contains(fieldType),
     );
 
     var filter = DateFilterPB();
