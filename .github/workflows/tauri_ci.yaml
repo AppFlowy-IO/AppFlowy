@@ -2,8 +2,8 @@ name: Tauri-CI
 on:
   pull_request:
     paths:
-#      - "frontend/rust-lib/**"
-#      - "frontend/appflowy_tauri/**"
+      - "frontend/rust-lib/**"
+      - "frontend/appflowy_tauri/**"
 
 env:
   NODE_VERSION: "16"
@@ -62,7 +62,6 @@ jobs:
         if: matrix.platform == 'macos-latest'
         working-directory: frontend
         run: |
-          brew install llvm
           cargo install --force cargo-make
           cargo make appflowy-tauri-deps-tools
           npm install -g pnpm@${{ env.PNPM_VERSION }}
