@@ -46,7 +46,8 @@ impl DatabaseCellTest {
             &changeset.field_id,
             changeset.cell_changeset,
           )
-          .await;
+          .await
+          .unwrap();
       }, // CellScript::AssertGridRevisionPad => {
          //     sleep(Duration::from_millis(2 * REVISION_WRITE_INTERVAL_IN_MILLIS)).await;
          //     let mut grid_rev_manager = grid_manager.make_grid_rev_manager(&self.grid_id, pool.clone()).unwrap();

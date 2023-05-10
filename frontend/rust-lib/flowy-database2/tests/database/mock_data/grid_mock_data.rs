@@ -118,7 +118,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("A"),
             FieldType::Number => row_builder.insert_number_cell("1"),
-            FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
+            FieldType::DateTime => row_builder.insert_date_cell("1647251762", None, None, None),
             FieldType::MultiSelect => row_builder
               .insert_multi_select_cell(|mut options| vec![options.remove(0), options.remove(0)]),
             FieldType::Checklist => row_builder.insert_checklist_cell(|options| options),
@@ -135,7 +135,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell(""),
             FieldType::Number => row_builder.insert_number_cell("2"),
-            FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
+            FieldType::DateTime => row_builder.insert_date_cell("1647251762", None, None, None),
             FieldType::MultiSelect => row_builder
               .insert_multi_select_cell(|mut options| vec![options.remove(0), options.remove(1)]),
             FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
@@ -148,7 +148,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("C"),
             FieldType::Number => row_builder.insert_number_cell("3"),
-            FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
+            FieldType::DateTime => row_builder.insert_date_cell("1647251762", None, None, None),
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(0))
             },
@@ -165,7 +165,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("DA"),
             FieldType::Number => row_builder.insert_number_cell("4"),
-            FieldType::DateTime => row_builder.insert_date_cell("1668704685"),
+            FieldType::DateTime => row_builder.insert_date_cell("1668704685", None, None, None),
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(0))
             },
@@ -179,7 +179,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("AE"),
             FieldType::Number => row_builder.insert_number_cell(""),
-            FieldType::DateTime => row_builder.insert_date_cell("1668359085"),
+            FieldType::DateTime => row_builder.insert_date_cell("1668359085", None, None, None),
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(1))
             },
@@ -194,7 +194,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("AE"),
             FieldType::Number => row_builder.insert_number_cell("5"),
-            FieldType::DateTime => row_builder.insert_date_cell("1671938394"),
+            FieldType::DateTime => row_builder.insert_date_cell("1671938394", None, None, None),
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(1))
             },

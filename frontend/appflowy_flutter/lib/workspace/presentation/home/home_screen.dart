@@ -275,7 +275,7 @@ class HomeScreenStackAdaptor extends HomeStackDelegate {
     homeService.readApp(appId: view.parentViewId).then((result) {
       result.fold(
         (parentView) {
-          final List<ViewPB> views = parentView.belongings;
+          final List<ViewPB> views = parentView.childViews;
           if (views.isNotEmpty) {
             var lastView = views.last;
             if (index != null && index != 0 && views.length > index - 1) {

@@ -1,8 +1,9 @@
 use crate::entities::{
-  CreateViewParams, CreateViewPayloadPB, CreateWorkspaceParams, CreateWorkspacePayloadPB,
-  MoveFolderItemPayloadPB, MoveViewParams, RepeatedTrashIdPB, RepeatedTrashPB, RepeatedViewIdPB,
-  RepeatedViewPB, RepeatedWorkspacePB, TrashIdPB, UpdateViewParams, UpdateViewPayloadPB, ViewIdPB,
-  ViewPB, WorkspaceIdPB, WorkspacePB, WorkspaceSettingPB,
+  view_pb_without_child_views, CreateViewParams, CreateViewPayloadPB, CreateWorkspaceParams,
+  CreateWorkspacePayloadPB, MoveFolderItemPayloadPB, MoveViewParams, RepeatedTrashIdPB,
+  RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, RepeatedWorkspacePB, TrashIdPB,
+  UpdateViewParams, UpdateViewPayloadPB, ViewIdPB, ViewPB, WorkspaceIdPB, WorkspacePB,
+  WorkspaceSettingPB,
 };
 use crate::manager::Folder2Manager;
 
@@ -85,7 +86,7 @@ pub(crate) async fn create_view_handler(
   let params: CreateViewParams = data.into_inner().try_into()?;
   let view = folder.create_view_with_params(params).await?;
   let _ = folder.set_current_view(&view.id).await;
-  data_result_ok(view.into())
+  data_result_ok(view_pb_without_child_views(view))
 }
 
 pub(crate) async fn read_view_handler(
@@ -103,7 +104,7 @@ pub(crate) async fn update_view_handler(
   folder: AFPluginState<Arc<Folder2Manager>>,
 ) -> Result<(), FlowyError> {
   let params: UpdateViewParams = data.into_inner().try_into()?;
-  let _ = folder.update_view_with_params(params).await?;
+  folder.update_view_with_params(params).await?;
   Ok(())
 }
 

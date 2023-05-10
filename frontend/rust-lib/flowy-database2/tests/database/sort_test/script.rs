@@ -126,7 +126,7 @@ impl DatabaseSortTest {
             .await
             .unwrap(),
         );
-        self.update_text_cell(row_id, &text).await;
+        self.update_text_cell(row_id, &text).await.unwrap();
       },
       SortScript::AssertSortChanged {
         new_row_orders,

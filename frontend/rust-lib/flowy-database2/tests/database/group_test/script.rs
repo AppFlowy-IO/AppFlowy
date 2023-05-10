@@ -183,7 +183,8 @@ impl DatabaseGroupTest {
         self
           .editor
           .update_cell(&self.view_id, row_id, &field_id, cell)
-          .await;
+          .await
+          .unwrap();
       },
       GroupScript::UpdateGroupedCellWithData {
         from_group_index,
@@ -205,7 +206,8 @@ impl DatabaseGroupTest {
         self
           .editor
           .update_cell(&self.view_id, row_id, &field_id, cell)
-          .await;
+          .await
+          .unwrap();
       },
       GroupScript::MoveGroup {
         from_group_index,

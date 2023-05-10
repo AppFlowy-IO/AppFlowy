@@ -149,9 +149,9 @@ async fn app_create_with_view() {
     .await;
 
   app = test.parent_view.clone();
-  assert_eq!(app.belongings.len(), 3);
-  assert_eq!(app.belongings[1].name, "View A");
-  assert_eq!(app.belongings[2].name, "Grid")
+  assert_eq!(app.child_views.len(), 3);
+  assert_eq!(app.child_views[1].name, "View A");
+  assert_eq!(app.child_views[2].name, "Grid")
 }
 
 #[tokio::test]
@@ -216,13 +216,13 @@ async fn view_delete_all() {
     .await;
 
   assert_eq!(
-    test.parent_view.belongings.len(),
+    test.parent_view.child_views.len(),
     3,
     "num of belongings should be 3"
   );
   let view_ids = test
     .parent_view
-    .belongings
+    .child_views
     .iter()
     .map(|view| view.id.clone())
     .collect::<Vec<String>>();
@@ -234,7 +234,7 @@ async fn view_delete_all() {
     ])
     .await;
 
-  assert_eq!(test.parent_view.belongings.len(), 0);
+  assert_eq!(test.parent_view.child_views.len(), 0);
   assert_eq!(test.trash.len(), 3);
 }
 
@@ -255,7 +255,7 @@ async fn view_delete_all_permanent() {
 
   let view_ids = test
     .parent_view
-    .belongings
+    .child_views
     .iter()
     .map(|view| view.id.clone())
     .collect::<Vec<String>>();
@@ -268,6 +268,6 @@ async fn view_delete_all_permanent() {
     ])
     .await;
 
-  assert_eq!(test.parent_view.belongings.len(), 0);
+  assert_eq!(test.parent_view.child_views.len(), 0);
   assert_eq!(test.trash.len(), 0);
 }

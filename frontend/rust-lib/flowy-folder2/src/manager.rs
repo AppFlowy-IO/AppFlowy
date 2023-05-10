@@ -16,8 +16,8 @@ use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::util::timestamp;
 
 use crate::entities::{
-  CreateViewParams, CreateWorkspaceParams, RepeatedTrashPB, RepeatedViewPB, RepeatedWorkspacePB,
-  UpdateViewParams, ViewPB,
+  view_pb_with_child_views, CreateViewParams, CreateWorkspaceParams, RepeatedTrashPB,
+  RepeatedViewPB, RepeatedWorkspacePB, UpdateViewParams, ViewPB,
 };
 use crate::notification::{
   send_notification, send_workspace_notification, send_workspace_setting_notification,
@@ -285,14 +285,13 @@ impl Folder2Manager {
       None => Err(FlowyError::record_not_found()),
       Some(mut view) => {
         view.belongings.retain(|b| !trash_ids.contains(&b.id));
-        let mut view_pb: ViewPB = view.into();
-        view_pb.belongings = folder
+        let child_views = folder
           .views
-          .get_views_belong_to(&view_pb.id)
+          .get_views_belong_to(&view.id)
           .into_iter()
           .filter(|view| !trash_ids.contains(&view.id))
-          .map(|view| view.into())
-          .collect::<Vec<ViewPB>>();
+          .collect::<Vec<View>>();
+        let view_pb = view_pb_with_child_views(view, child_views);
         Ok(view_pb)
       },
     }
@@ -344,8 +343,8 @@ impl Folder2Manager {
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn update_view_with_params(&self, params: UpdateViewParams) -> FlowyResult<View> {
-    let view = self
+  pub async fn update_view_with_params(&self, params: UpdateViewParams) -> FlowyResult<()> {
+    let _ = self
       .folder
       .lock()
       .as_ref()
@@ -358,18 +357,13 @@ impl Folder2Manager {
           .done()
       });
 
-    match view {
-      None => Err(FlowyError::record_not_found()),
-      Some(view) => {
-        let view_pb: ViewPB = view.clone().into();
-        send_notification(&view.id, FolderNotification::DidUpdateView)
-          .payload(view_pb)
-          .send();
-
-        notify_parent_view_did_change(self.folder.clone(), vec![view.bid.clone()]);
-        Ok(view)
-      },
+    if let Ok(view_pb) = self.get_view(&params.view_id).await {
+      send_notification(&view_pb.id, FolderNotification::DidUpdateView)
+        .payload(view_pb)
+        .send();
     }
+
+    Ok(())
   }
 
   #[tracing::instrument(level = "debug", skip(self), err)]
@@ -536,16 +530,13 @@ fn get_workspace_view_pbs(workspace_id: &str, folder: &InnerFolder) -> Vec<ViewP
   views
     .into_iter()
     .map(|view| {
-      let mut parent_view: ViewPB = view.into();
-
       // Get child views
-      parent_view.belongings = folder
+      let child_views = folder
         .views
-        .get_views_belong_to(&parent_view.id)
+        .get_views_belong_to(&view.id)
         .into_iter()
-        .map(|view| view.into())
         .collect();
-      parent_view
+      view_pb_with_child_views(view, child_views)
     })
     .collect()
 }
@@ -584,11 +575,7 @@ fn notify_parent_view_did_change<T: AsRef<str>>(
       event!(Level::DEBUG, child_views_count = child_views.len());
 
       // Post the notification
-      let mut parent_view_pb: ViewPB = parent_view.into();
-      parent_view_pb.belongings = child_views
-        .into_iter()
-        .map(|child_view| child_view.into())
-        .collect::<Vec<ViewPB>>();
+      let parent_view_pb = view_pb_with_child_views(parent_view, child_views);
       send_notification(parent_view_id, FolderNotification::DidUpdateChildViews)
         .payload(parent_view_pb)
         .send();
