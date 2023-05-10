@@ -7,7 +7,7 @@ import { keyBoardEventKeyMap } from '$app/constants/document/text_block';
 import { useAppDispatch } from '$app/stores/store';
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { splitNodeThunk } from '$app_reducers/document/async-actions';
-import { useDefaultTextInputEvents } from '$app/components/document/_shared/Text/useTextEvents';
+import { useDefaultTextInputEvents } from '$app/components/document/_shared/Text/TextEvents.hooks';
 import { indent, outdent } from '$app/utils/document/blocks/code';
 
 export function useCodeBlock(node: NestedBlock<BlockType.CodeBlock>) {

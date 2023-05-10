@@ -40,8 +40,6 @@ export const mergeToPrevLineThunk = createAsyncThunk(
 
     const mergeDelta = [...prevLineDelta, ...node.data.delta];
 
-    dispatch(documentActions.updateNodeData({ id: prevLine.id, data: { delta: mergeDelta } }));
-
     const updateAction = controller.getUpdateAction({
       ...prevLine,
       data: {
@@ -66,7 +64,6 @@ export const mergeToPrevLineThunk = createAsyncThunk(
       actions.push(deleteAction);
     } else {
       // clear current block delta
-      dispatch(documentActions.updateNodeData({ id: node.id, data: { delta: [] } }));
       const updateAction = controller.getUpdateAction({
         ...node,
         data: {

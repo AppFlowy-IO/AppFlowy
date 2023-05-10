@@ -3,7 +3,6 @@ import { useNode } from './Node.hooks';
 import { withErrorBoundary } from 'react-error-boundary';
 import { ErrorBoundaryFallbackComponent } from '../_shared/ErrorBoundaryFallbackComponent';
 import TextBlock from '../TextBlock';
-import { NodeContext } from '../_shared/SubscribeNode.hooks';
 import { BlockType } from '$app/interfaces/document';
 import { Alert } from '@mui/material';
 
@@ -59,7 +58,6 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
   if (!node) return null;
 
   return (
-    <NodeContext.Provider value={node}>
       <div {...props} ref={ref} data-block-id={node.id} className={`relative ${props.className}`}>
         {renderBlock()}
         <div className='block-overlay' />
@@ -67,7 +65,6 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
           <div className='pointer-events-none absolute inset-0 z-[-1] m-[1px] rounded-[4px] bg-[#E0F8FF]' />
         ) : null}
       </div>
-    </NodeContext.Provider>
   );
 }
 

@@ -8,7 +8,7 @@ import isHotkey from 'is-hotkey';
 import { indentNodeThunk, outdentNodeThunk, splitNodeThunk } from '$app_reducers/document/async-actions';
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { useAppDispatch } from '$app/stores/store';
-import { useDefaultTextInputEvents } from '$app/components/document/_shared/Text/useTextEvents';
+import { useDefaultTextInputEvents } from '$app/components/document/_shared/Text/TextEvents.hooks';
 
 export function useTextBlockKeyEvent(id: string, editor: Editor) {
   const controller = useContext(DocumentControllerContext);

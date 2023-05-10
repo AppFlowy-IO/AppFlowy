@@ -68,8 +68,6 @@ export const splitNodeThunk = createAsyncThunk(
 
     await controller.applyActions([insertAction, ...moveChildrenAction, updateAction]);
 
-    // update local node data
-    dispatch(documentActions.updateNodeData({ id: retainNode.id, data: { delta: retain } }));
     // set cursor
     await dispatch(setCursorBeforeThunk({ id: newNode.id }));
   }
