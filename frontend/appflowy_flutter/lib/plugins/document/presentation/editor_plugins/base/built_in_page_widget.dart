@@ -38,13 +38,13 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
   late Future<dartz.Either<FlowyError, ViewPB>> future;
   final focusNode = FocusNode();
 
-  String get gridID => widget.node.attributes[DatabaseBlockKeys.kAppID];
-  String get appID => widget.node.attributes[DatabaseBlockKeys.kViewID];
+  String get appId => widget.node.attributes[DatabaseBlockKeys.kAppID];
+  String get viewId => widget.node.attributes[DatabaseBlockKeys.kViewID];
 
   @override
   void initState() {
     super.initState();
-    future = AppBackendService().getChildView(appID, gridID).then(
+    future = AppBackendService().getChildView(viewId, appId).then(
           (value) => value.swap(),
         );
   }
@@ -59,9 +59,14 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
   Widget build(BuildContext context) {
     return FutureBuilder<dartz.Either<FlowyError, ViewPB>>(
       builder: (context, snapshot) {
-        final board = snapshot.data?.toOption().toNullable();
-        if (snapshot.hasData && board != null) {
-          return _build(context, board);
+        final page = snapshot.data?.toOption().toNullable();
+        if (snapshot.hasData && page != null) {
+          return _build(context, page);
+        }
+        if (snapshot.connectionState == ConnectionState.done) {
+          return const Center(
+            child: FlowyText('Cannot load the page'),
+          );
         }
         return const Center(
           child: CircularProgressIndicator(),

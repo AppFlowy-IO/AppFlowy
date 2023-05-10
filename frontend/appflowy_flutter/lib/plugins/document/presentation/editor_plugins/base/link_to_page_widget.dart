@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/insert_page_command.dart';
 import 'package:appflowy/workspace/application/app/app_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -9,70 +10,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'insert_page_command.dart';
 
 EditorState? _editorState;
 OverlayEntry? _linkToPageMenu;
 
 void showLinkToPageMenu(
+  OverlayState container,
   EditorState editorState,
   SelectionMenuService menuService,
-  BuildContext context,
   ViewLayoutPB pageType,
 ) {
-  final alignment = menuService.alignment;
-  final offset = menuService.offset;
   menuService.dismiss();
 
-  _editorState = editorState;
+  final alignment = menuService.alignment;
+  final offset = menuService.offset;
 
-  String hintText = '';
-  switch (pageType) {
-    case ViewLayoutPB.Grid:
-      hintText = LocaleKeys.document_slashMenu_grid_selectAGridToLinkTo.tr();
-      break;
-    case ViewLayoutPB.Board:
-      hintText = LocaleKeys.document_slashMenu_board_selectABoardToLinkTo.tr();
-      break;
-    default:
-      throw Exception('Unknown layout type');
-  }
+  final top = alignment == Alignment.bottomLeft ? offset.dy : null;
+  final bottom = alignment == Alignment.topLeft ? offset.dy : null;
 
-  _linkToPageMenu?.remove();
-  _linkToPageMenu = OverlayEntry(
-    builder: (context) {
-      return Positioned(
-        top: alignment == Alignment.bottomLeft ? offset.dy : null,
-        bottom: alignment == Alignment.topLeft ? offset.dy : null,
-        left: offset.dx,
-        child: Material(
-          color: Colors.transparent,
-          child: LinkToPageMenu(
-            editorState: editorState,
-            layoutType: pageType,
-            hintText: hintText,
-            onSelected: (appPB, viewPB) {
-              editorState.insertPage(appPB, viewPB);
-            },
-          ),
-        ),
-      );
-    },
-  );
-
-  Overlay.of(context).insert(_linkToPageMenu!);
-
-  editorState.service.selectionService.currentSelection
-      .addListener(dismissLinkToPageMenu);
-}
-
-void dismissLinkToPageMenu() {
-  _linkToPageMenu?.remove();
-  _linkToPageMenu = null;
-
-  _editorState?.service.selectionService.currentSelection
-      .removeListener(dismissLinkToPageMenu);
-  _editorState = null;
+  final linkToPageMenuEntry = FullScreenOverlayEntry(
+    top: top,
+    bottom: bottom,
+    left: offset.dx,
+    builder: (context) => Material(
+      color: Colors.transparent,
+      child: LinkToPageMenu(
+        editorState: editorState,
+        layoutType: pageType,
+        hintText: pageType.toHintText(),
+        onSelected: (appPB, viewPB) {
+          editorState.insertPage(appPB, viewPB);
+        },
+      ),
+    ),
+  ).build();
+  container.insert(linkToPageMenuEntry);
 }
 
 class LinkToPageMenu extends StatefulWidget {
@@ -267,6 +239,21 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
         return 'editor/grid';
       case ViewLayoutPB.Board:
         return 'editor/board';
+      default:
+        throw Exception('Unknown layout type');
+    }
+  }
+}
+
+extension on ViewLayoutPB {
+  String toHintText() {
+    switch (this) {
+      case ViewLayoutPB.Grid:
+        return LocaleKeys.document_slashMenu_grid_selectAGridToLinkTo.tr();
+
+      case ViewLayoutPB.Board:
+        return LocaleKeys.document_slashMenu_board_selectABoardToLinkTo.tr();
+
       default:
         throw Exception('Unknown layout type');
     }
