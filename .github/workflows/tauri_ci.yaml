@@ -6,8 +6,8 @@ on:
       - "frontend/appflowy_tauri/**"
 
 env:
-  NODE_VERSION: "16"
-  PNPM_VERSION: "7.17.1"
+  NODE_VERSION: "18.16.0"
+  PNPM_VERSION: "8.5.0"
   RUST_TOOLCHAIN: "1.65"
 
 jobs:
