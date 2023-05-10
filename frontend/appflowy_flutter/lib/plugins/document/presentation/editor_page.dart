@@ -16,8 +16,76 @@ class AppFlowyEditorPage extends StatefulWidget {
 }
 
 class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
+  final scrollController = ScrollController();
+  final slashMenuItems = [
+    boardMenuItem,
+    gridMenuItem,
+    calloutItem,
+    dividerMenuItem,
+    mathEquationItem,
+    codeBlockItem,
+    emojiMenuItem,
+    autoGeneratorMenuItem,
+  ];
+
+  final Map<String, BlockComponentBuilder> blockComponentBuilders = {
+    ...standardBlockComponentBuilderMap,
+    BoardBlockKeys.type: const BoardBlockComponentBuilder(),
+    GridBlockKeys.type: const GridBlockComponentBuilder(),
+    CalloutBlockKeys.type: const CalloutBlockComponentBuilder(),
+    DividerBlockKeys.type: const DividerBlockComponentBuilder(),
+    MathEquationBlockKeys.type: const MathEquationBlockComponentBuilder(),
+    CodeBlockKeys.type: CodeBlockComponentBuilder(
+      configuration: BlockComponentConfiguration(
+        padding: (_) => const EdgeInsets.only(
+          left: 30,
+          right: 30,
+          bottom: 36,
+        ),
+      ),
+    ),
+    AutoCompletionBlockKeys.type: const AutoCompletionBlockComponentBuilder(),
+    SmartEditBlockKeys.type: const SmartEditBlockComponentBuilder(),
+  };
+
+  final List<CommandShortcutEvent> commandShortcutEvents = [
+    ...codeBlockCommands,
+    ...standardCommandShortcutEvents,
+  ];
+
+  final List<ToolbarItem> toolbarItems = [
+    smartEditItem,
+    placeholderItem,
+    paragraphItem,
+    ...headingItems,
+    placeholderItem,
+    ...markdownFormatItems,
+    placeholderItem,
+    quoteItem,
+    bulletedListItem,
+    numberedListItem,
+    placeholderItem,
+    linkItem,
+    colorItem
+  ];
+
+  late final List<CharacterShortcutEvent> characterShortcutEvents = [
+    // divider
+    convertMinusesToDivider,
+
+    // code block
+    ...codeBlockCharacterEvents,
+
+    ...standardCharacterShortcutEvents
+      ..removeWhere(
+        (element) => element == slashCommand,
+      ), // remove the default slash command.
+    customSlashCommand(slashMenuItems),
+  ];
+
   late final EditorState editorState =
       documentBloc.editorState ?? EditorState.empty();
+  late final editorStyle = _desktopEditorStyle();
 
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
 
@@ -29,31 +97,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   @override
   Widget build(BuildContext context) {
     final autoFocusParameters = _computeAutoFocusParameters();
-
-    /*
-    final editor = AppFlowyEditor.standard(
-      editorState: editorState,
-      editable: true,
-      // setup the auto focus parameters
-      autoFocus: autoFocusParameters.item1,
-      focusedSelection: autoFocusParameters.item2,
-      // setup the theme
-      editorStyle: _desktopEditorStyle(),
-    );
-    */
-    final slashMenuItems = [
-      boardMenuItem,
-      gridMenuItem,
-      calloutItem,
-      dividerMenuItem,
-      mathEquationItem,
-      codeBlockItem,
-      emojiMenuItem,
-      autoGeneratorMenuItem,
-    ];
-
-    final scrollController = ScrollController();
-    final editorStyle = _desktopEditorStyle();
     final editor = AppFlowyEditor.custom(
       editorState: editorState,
       editable: true,
@@ -63,44 +106,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       focusedSelection: autoFocusParameters.item2,
       // setup the theme
       editorStyle: editorStyle,
-      // custom the block builder
-      blockComponentBuilders: {
-        ...standardBlockComponentBuilderMap,
-        BoardBlockKeys.type: const BoardBlockComponentBuilder(),
-        GridBlockKeys.type: const GridBlockComponentBuilder(),
-        CalloutBlockKeys.type: const CalloutBlockComponentBuilder(),
-        DividerBlockKeys.type: const DividerBlockComponentBuilder(),
-        MathEquationBlockKeys.type: const MathEquationBlockComponentBuilder(),
-        CodeBlockKeys.type: CodeBlockComponentBuilder(
-          configuration: BlockComponentConfiguration(
-            padding: (_) => const EdgeInsets.only(
-              left: 30,
-              right: 30,
-              bottom: 36,
-            ),
-          ),
-        ),
-        AutoCompletionBlockKeys.type:
-            const AutoCompletionBlockComponentBuilder(),
-      },
-      // default shortcuts
-      characterShortcutEvents: [
-        // divider
-        convertMinusesToDivider,
-
-        // code block
-        ...codeBlockCharacterEvents,
-
-        ...standardCharacterShortcutEvents
-          ..removeWhere(
-            (element) => element == slashCommand,
-          ), // remove the default slash command.
-        customSlashCommand(slashMenuItems),
-      ],
-      commandShortcutEvents: [
-        ...codeBlockCommands,
-        ...standardCommandShortcutEvents,
-      ],
+      // customize the block builder
+      blockComponentBuilders: blockComponentBuilders,
+      // customize the shortcuts
+      characterShortcutEvents: characterShortcutEvents,
+      commandShortcutEvents: commandShortcutEvents,
     );
 
     return Center(
@@ -109,19 +119,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           maxWidth: double.infinity,
         ),
         child: FloatingToolbar(
-          items: [
-            paragraphItem,
-            ...headingItems,
-            placeholderItem,
-            ...markdownFormatItems,
-            placeholderItem,
-            quoteItem,
-            bulletedListItem,
-            numberedListItem,
-            placeholderItem,
-            linkItem,
-            colorItem
-          ],
+          items: toolbarItems,
           editorState: editorState,
           scrollController: scrollController,
           child: editor,
@@ -142,6 +140,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           fontFamily: 'poppins',
           fontSize: fontSize,
           color: theme.colorScheme.onBackground,
+          height: 1.5,
         ),
         bold: const TextStyle(
           fontFamily: 'poppins-Bold',

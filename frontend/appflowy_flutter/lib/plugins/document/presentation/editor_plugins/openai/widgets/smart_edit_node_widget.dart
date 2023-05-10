@@ -13,59 +13,98 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 const String kSmartEditType = 'smart_edit_input';
 const String kSmartEditInstructionType = 'smart_edit_instruction';
 const String kSmartEditInputType = 'smart_edit_input';
 
-class SmartEditInputBuilder extends NodeWidgetBuilder<Node> {
-  @override
-  NodeValidator<Node> get nodeValidator => (node) {
-        return SmartEditAction.values
-                .map((e) => e.index)
-                .contains(node.attributes[kSmartEditInstructionType]) &&
-            node.attributes[kSmartEditInputType] is String;
-      };
+class SmartEditBlockKeys {
+  const SmartEditBlockKeys._();
 
-  @override
-  Widget build(NodeWidgetContext<Node> context) {
-    return _HoverSmartInput(
-      key: context.node.key,
-      node: context.node,
-      editorState: context.editorState,
-    );
-  }
+  static const type = 'smart_edit';
+
+  /// The instruction of the smart edit.
+  ///
+  /// It is a [SmartEditAction] value.
+  static const action = 'action';
+
+  /// The input of the smart edit.
+  static const content = 'content';
 }
 
-class _HoverSmartInput extends StatefulWidget {
-  const _HoverSmartInput({
+Node smartEditNode({
+  required SmartEditAction action,
+  required String content,
+}) {
+  return Node(
+    type: SmartEditBlockKeys.type,
+    attributes: {
+      SmartEditBlockKeys.action: action.index,
+      SmartEditBlockKeys.content: content,
+    },
+  );
+}
+
+class SmartEditBlockComponentBuilder extends BlockComponentBuilder {
+  const SmartEditBlockComponentBuilder();
+
+  @override
+  Widget build(BlockComponentContext blockComponentContext) {
+    final node = blockComponentContext.node;
+    return SmartEditBlockComponentWidget(
+      key: node.key,
+      node: node,
+    );
+  }
+
+  @override
+  bool validate(Node node) =>
+      node.attributes[SmartEditBlockKeys.action] is int &&
+      node.attributes[SmartEditBlockKeys.content] is String;
+}
+
+class SmartEditBlockComponentWidget extends StatefulWidget {
+  const SmartEditBlockComponentWidget({
     required super.key,
     required this.node,
-    required this.editorState,
   });
 
   final Node node;
-  final EditorState editorState;
 
   @override
-  State<_HoverSmartInput> createState() => _HoverSmartInputState();
+  State<SmartEditBlockComponentWidget> createState() =>
+      _SmartEditBlockComponentWidgetState();
 }
 
-class _HoverSmartInputState extends State<_HoverSmartInput> {
+class _SmartEditBlockComponentWidgetState
+    extends State<SmartEditBlockComponentWidget> {
   final popoverController = PopoverController();
   final key = GlobalKey(debugLabel: 'smart_edit_input');
+
+  late final editorState = context.read<EditorState>();
 
   @override
   void initState() {
     super.initState();
+
+    // todo: don't use a popover to show the content of the smart edit.
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       popoverController.show();
     });
   }
 
   @override
+  void reassemble() {
+    super.reassemble();
+
+    final transaction = editorState.transaction..deleteNode(widget.node);
+    editorState.apply(transaction);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final width = _maxWidth();
+    final width = _getEditorWidth();
 
     return AppFlowyPopover(
       controller: popoverController,
@@ -82,7 +121,7 @@ class _HoverSmartInputState extends State<_HoverSmartInput> {
       ),
       canClose: () async {
         final completer = Completer<bool>();
-        final state = key.currentState as _SmartEditInputState;
+        final state = key.currentState as _SmartEditInputWidgetState;
         if (state.result.isEmpty) {
           completer.complete(true);
         } else {
@@ -98,20 +137,24 @@ class _HoverSmartInputState extends State<_HoverSmartInput> {
         }
         return completer.future;
       },
+      onClose: () {
+        final transaction = editorState.transaction..deleteNode(widget.node);
+        editorState.apply(transaction);
+      },
       popupBuilder: (BuildContext popoverContext) {
-        return _SmartEditInput(
+        return SmartEditInputWidget(
           key: key,
           node: widget.node,
-          editorState: widget.editorState,
+          editorState: editorState,
         );
       },
     );
   }
 
-  double _maxWidth() {
+  double _getEditorWidth() {
     var width = double.infinity;
-    final editorSize = widget.editorState.renderBox?.size;
-    final padding = widget.editorState.editorStyle.padding;
+    final editorSize = editorState.renderBox?.size;
+    final padding = editorState.editorStyle.padding;
     if (editorSize != null && padding != null) {
       width = editorSize.width - padding.left - padding.right;
     }
@@ -119,8 +162,8 @@ class _HoverSmartInputState extends State<_HoverSmartInput> {
   }
 }
 
-class _SmartEditInput extends StatefulWidget {
-  const _SmartEditInput({
+class SmartEditInputWidget extends StatefulWidget {
+  const SmartEditInputWidget({
     required super.key,
     required this.node,
     required this.editorState,
@@ -130,16 +173,19 @@ class _SmartEditInput extends StatefulWidget {
   final EditorState editorState;
 
   @override
-  State<_SmartEditInput> createState() => _SmartEditInputState();
+  State<SmartEditInputWidget> createState() => _SmartEditInputWidgetState();
 }
 
-class _SmartEditInputState extends State<_SmartEditInput> {
-  SmartEditAction get action =>
-      SmartEditAction.from(widget.node.attributes[kSmartEditInstructionType]);
-  String get input => widget.node.attributes[kSmartEditInputType];
-
+class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
   final focusNode = FocusNode();
   final client = http.Client();
+
+  SmartEditAction get action => SmartEditAction.from(
+        widget.node.attributes[SmartEditBlockKeys.action],
+      );
+  String get content => widget.node.attributes[SmartEditBlockKeys.content];
+  EditorState get editorState => widget.editorState;
+
   bool loading = true;
   String result = '';
 
@@ -147,19 +193,19 @@ class _SmartEditInputState extends State<_SmartEditInput> {
   void initState() {
     super.initState();
 
-    widget.editorState.service.keyboardService?.disable(showCursor: true);
-    focusNode.requestFocus();
-    focusNode.addListener(() {
-      if (!focusNode.hasFocus) {
-        widget.editorState.service.keyboardService?.enable();
-      }
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      editorState.service.keyboardService?.disable();
+      // editorState.selection = null;
     });
+
+    focusNode.requestFocus();
     _requestCompletions();
   }
 
   @override
   void dispose() {
     client.close();
+    focusNode.dispose();
     super.dispose();
   }
 
@@ -272,12 +318,15 @@ class _SmartEditInputState extends State<_SmartEditInput> {
           ),
           onPressed: () async => await _onExit(),
         ),
-        const Spacer(flex: 2),
+        const Spacer(flex: 1),
         Expanded(
-          child: FlowyText.regular(
-            overflow: TextOverflow.ellipsis,
-            LocaleKeys.document_plugins_warning.tr(),
-            color: Theme.of(context).hintColor,
+          child: Container(
+            alignment: Alignment.centerRight,
+            child: FlowyText.regular(
+              LocaleKeys.document_plugins_warning.tr(),
+              color: Theme.of(context).hintColor,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
       ],
@@ -285,72 +334,69 @@ class _SmartEditInputState extends State<_SmartEditInput> {
   }
 
   Future<void> _onReplace() async {
-    final selection = widget.editorState.service.selectionService
-        .currentSelection.value?.normalized;
-    final selectedNodes = widget
-        .editorState.service.selectionService.currentSelectedNodes.normalized
-        .whereType<TextNode>();
-    if (selection == null || result.isEmpty) {
+    final selection = editorState.selection?.normalized;
+    if (selection == null) {
       return;
     }
-
-    final texts = result.split('\n')..removeWhere((element) => element.isEmpty);
-    final transaction = widget.editorState.transaction;
+    final nodes = editorState.getNodesInSelection(selection);
+    if (nodes.isEmpty || !nodes.every((element) => element.delta != null)) {
+      return;
+    }
+    final replaceTexts = result.split('\n')
+      ..removeWhere((element) => element.isEmpty);
+    final transaction = editorState.transaction;
     transaction.replaceTexts(
-      selectedNodes.toList(growable: false),
+      nodes,
       selection,
-      texts,
+      replaceTexts,
     );
-    await widget.editorState.apply(transaction);
+    await editorState.apply(transaction);
 
-    int endOffset = texts.last.length;
-    if (texts.length == 1) {
+    int endOffset = replaceTexts.last.length;
+    if (replaceTexts.length == 1) {
       endOffset += selection.start.offset;
     }
 
-    await widget.editorState.updateCursorSelection(
-      Selection(
-        start: selection.start,
-        end: Position(
-          path: [selection.start.path.first + texts.length - 1],
-          offset: endOffset,
-        ),
+    editorState.selection = Selection(
+      start: selection.start,
+      end: Position(
+        path: [selection.start.path.first + replaceTexts.length - 1],
+        offset: endOffset,
       ),
     );
   }
 
   Future<void> _onInsertBelow() async {
-    final selection = widget.editorState.service.selectionService
-        .currentSelection.value?.normalized;
-    if (selection == null || result.isEmpty) {
+    final selection = editorState.selection?.normalized;
+    if (selection == null) {
       return;
     }
-    final texts = result.split('\n')..removeWhere((element) => element.isEmpty);
-    final transaction = widget.editorState.transaction;
+    final insertedText = result.split('\n')
+      ..removeWhere((element) => element.isEmpty);
+    final transaction = editorState.transaction;
     transaction.insertNodes(
-      selection.normalized.end.path.next,
-      texts.map(
-        (e) => TextNode(
-          delta: Delta()..insert(e),
+      selection.end.path.next,
+      insertedText.map(
+        (e) => paragraphNode(
+          text: e,
         ),
       ),
     );
-    await widget.editorState.apply(transaction);
+    await editorState.apply(transaction);
 
-    await widget.editorState.updateCursorSelection(
+    editorState.updateCursorSelection(
       Selection(
         start: Position(path: selection.end.path.next, offset: 0),
         end: Position(
-          path: [selection.end.path.next.first + texts.length],
+          path: [selection.end.path.next.first + insertedText.length],
         ),
       ),
     );
   }
 
   Future<void> _onExit() async {
-    final transaction = widget.editorState.transaction;
-    transaction.deleteNode(widget.node);
-    return widget.editorState.apply(
+    final transaction = editorState.transaction..deleteNode(widget.node);
+    return editorState.apply(
       transaction,
       options: const ApplyOptions(
         recordRedo: false,
@@ -362,7 +408,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
   Future<void> _requestCompletions() async {
     final openAIRepository = await getIt.getAsync<OpenAIRepository>();
 
-    var lines = input.split('\n\n');
+    var lines = content.split('\n\n');
     if (action == SmartEditAction.summarize) {
       lines = [lines.join('\n')];
     }
