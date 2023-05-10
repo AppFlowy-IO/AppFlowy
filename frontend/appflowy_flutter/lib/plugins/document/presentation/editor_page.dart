@@ -48,6 +48,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       dividerMenuItem,
       mathEquationItem,
       codeBlockItem,
+      emojiMenuItem,
     ];
 
     final editorStyle = _desktopEditorStyle();

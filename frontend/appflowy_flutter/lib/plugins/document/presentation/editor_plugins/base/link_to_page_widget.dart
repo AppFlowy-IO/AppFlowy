@@ -11,9 +11,6 @@ import 'package:flutter/services.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-EditorState? _editorState;
-OverlayEntry? _linkToPageMenu;
-
 void showLinkToPageMenu(
   OverlayState container,
   EditorState editorState,
@@ -24,7 +21,6 @@ void showLinkToPageMenu(
 
   final alignment = menuService.alignment;
   final offset = menuService.offset;
-
   final top = alignment == Alignment.bottomLeft ? offset.dy : null;
   final bottom = alignment == Alignment.topLeft ? offset.dy : null;
 

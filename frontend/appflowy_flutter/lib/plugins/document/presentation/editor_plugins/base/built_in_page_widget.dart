@@ -85,14 +85,14 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
         child: Stack(
           children: [
             _buildMenu(context, viewPB),
-            _buildGrid(context, viewPB),
+            _buildPage(context, viewPB),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildGrid(BuildContext context, ViewPB viewPB) {
+  Widget _buildPage(BuildContext context, ViewPB viewPB) {
     return Focus(
       focusNode: focusNode,
       onFocusChange: (value) {
