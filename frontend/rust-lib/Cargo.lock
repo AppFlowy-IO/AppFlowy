@@ -566,11 +566,10 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=46c9a1#46c9a199af9b2654080bebdcd9637b7a5d7bffe8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=f66084#f66084454c143418cf69155dc8cce77df2d57d0c"
 dependencies = [
  "anyhow",
  "bytes",
- "collab-persistence",
  "lib0",
  "parking_lot 0.12.1",
  "serde",
@@ -582,9 +581,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "collab-client-ws"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=f66084#f66084454c143418cf69155dc8cce77df2d57d0c"
+dependencies = [
+ "bytes",
+ "collab-sync",
+ "futures-util",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tokio-retry",
+ "tokio-stream",
+ "tokio-tungstenite 0.18.0",
+ "tracing",
+]
+
+[[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=46c9a1#46c9a199af9b2654080bebdcd9637b7a5d7bffe8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=f66084#f66084454c143418cf69155dc8cce77df2d57d0c"
 dependencies = [
  "anyhow",
  "chrono",
@@ -607,7 +624,7 @@ dependencies = [
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=46c9a1#46c9a199af9b2654080bebdcd9637b7a5d7bffe8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=f66084#f66084454c143418cf69155dc8cce77df2d57d0c"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -619,7 +636,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=46c9a1#46c9a199af9b2654080bebdcd9637b7a5d7bffe8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=f66084#f66084454c143418cf69155dc8cce77df2d57d0c"
 dependencies = [
  "anyhow",
  "collab",
@@ -636,7 +653,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=46c9a1#46c9a199af9b2654080bebdcd9637b7a5d7bffe8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=f66084#f66084454c143418cf69155dc8cce77df2d57d0c"
 dependencies = [
  "anyhow",
  "collab",
@@ -654,7 +671,7 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=46c9a1#46c9a199af9b2654080bebdcd9637b7a5d7bffe8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=f66084#f66084454c143418cf69155dc8cce77df2d57d0c"
 dependencies = [
  "bincode",
  "chrono",
@@ -674,12 +691,12 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=46c9a1#46c9a199af9b2654080bebdcd9637b7a5d7bffe8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=f66084#f66084454c143418cf69155dc8cce77df2d57d0c"
 dependencies = [
  "collab",
+ "collab-client-ws",
  "collab-persistence",
  "collab-sync",
- "collab-ws",
  "tracing",
  "y-sync",
  "yrs",
@@ -688,7 +705,7 @@ dependencies = [
 [[package]]
 name = "collab-sync"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=46c9a1#46c9a199af9b2654080bebdcd9637b7a5d7bffe8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=f66084#f66084454c143418cf69155dc8cce77df2d57d0c"
 dependencies = [
  "bytes",
  "collab",
@@ -705,23 +722,6 @@ dependencies = [
  "tracing",
  "y-sync",
  "yrs",
-]
-
-[[package]]
-name = "collab-ws"
-version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=46c9a1#46c9a199af9b2654080bebdcd9637b7a5d7bffe8"
-dependencies = [
- "bytes",
- "futures-util",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "tokio-retry",
- "tokio-stream",
- "tokio-tungstenite 0.18.0",
- "tracing",
 ]
 
 [[package]]
@@ -1402,7 +1402,6 @@ dependencies = [
  "chrono-tz 0.8.2",
  "collab",
  "collab-database",
- "collab-persistence",
  "collab-plugins",
  "dashmap",
  "database-model",
@@ -1505,7 +1504,6 @@ dependencies = [
  "bytes",
  "collab",
  "collab-document",
- "collab-persistence",
  "collab-plugins",
  "flowy-codegen",
  "flowy-derive",
@@ -1558,7 +1556,6 @@ dependencies = [
  "chrono",
  "collab",
  "collab-folder",
- "collab-persistence",
  "collab-plugins",
  "flowy-codegen",
  "flowy-derive",

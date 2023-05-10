@@ -180,7 +180,7 @@
     {
       "label": "AF: Tauri UI Build",
       "type": "shell",
-      "command": "npm run build",
+      "command": "pnpm run build",
       "options": {
         "cwd": "${workspaceFolder}/appflowy_tauri"
       }

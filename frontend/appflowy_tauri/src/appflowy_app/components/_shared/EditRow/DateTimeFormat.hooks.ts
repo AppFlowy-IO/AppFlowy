@@ -24,7 +24,9 @@ export const useDateTimeFormat = (cellIdentifier: CellIdentifier, fieldControlle
     await changeFormat((option) => (option.time_format = format));
   };
   const includeTime = async (include: boolean) => {
-    await changeFormat((option) => (option.include_time = include));
+    await changeFormat((option) => {
+      // option.include_time = include;
+    });
   };
 
   return {

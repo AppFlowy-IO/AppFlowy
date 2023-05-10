@@ -7,8 +7,8 @@ use collab_folder::core::{
   Folder as InnerFolder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, TrashRecord,
   View, ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
 };
-use collab_persistence::kv::rocks_kv::RocksCollabDB;
-use collab_plugins::disk_plugin::rocksdb::RocksdbDiskPlugin;
+use collab_plugins::disk::kv::rocks_kv::RocksCollabDB;
+use collab_plugins::disk::rocksdb::RocksdbDiskPlugin;
 use parking_lot::Mutex;
 use tracing::{event, Level};
 

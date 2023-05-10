@@ -84,7 +84,6 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
         fieldOptions: {
           dateFormat: typeOption.date_format,
           timeFormat: typeOption.time_format,
-          includeTime: typeOption.include_time,
         },
       };
     }
