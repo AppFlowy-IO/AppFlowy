@@ -52,10 +52,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       autoGeneratorMenuItem,
     ];
 
+    final scrollController = ScrollController();
     final editorStyle = _desktopEditorStyle();
     final editor = AppFlowyEditor.custom(
       editorState: editorState,
       editable: true,
+      scrollController: scrollController,
       // setup the auto focus parameters
       autoFocus: autoFocusParameters.item1,
       focusedSelection: autoFocusParameters.item2,
@@ -106,7 +108,24 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         constraints: const BoxConstraints(
           maxWidth: double.infinity,
         ),
-        child: editor,
+        child: FloatingToolbar(
+          items: [
+            paragraphItem,
+            ...headingItems,
+            placeholderItem,
+            ...markdownFormatItems,
+            placeholderItem,
+            quoteItem,
+            bulletedListItem,
+            numberedListItem,
+            placeholderItem,
+            linkItem,
+            colorItem
+          ],
+          editorState: editorState,
+          scrollController: scrollController,
+          child: editor,
+        ),
       ),
     );
   }
