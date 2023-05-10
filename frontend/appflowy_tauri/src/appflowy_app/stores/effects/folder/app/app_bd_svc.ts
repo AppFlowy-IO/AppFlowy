@@ -55,7 +55,7 @@ export class AppBackendService {
   getAllViews = (): Promise<Result<ViewPB[], FlowyError>> => {
     const payload = ViewIdPB.fromObject({ value: this.appId });
     return FolderEventReadView(payload).then((result) => {
-      return result.map((app) => app.belongings);
+      return result.map((app) => app.child_views);
     });
   };
 

@@ -1,4 +1,4 @@
-use crate::entities::{ViewPB, WorkspacePB, WorkspaceSettingPB};
+use crate::entities::{view_pb_without_child_views, WorkspacePB, WorkspaceSettingPB};
 use collab_folder::core::{View, Workspace};
 use flowy_derive::ProtoBuf_Enum;
 use flowy_notification::NotificationBuilder;
@@ -62,7 +62,7 @@ pub(crate) fn send_workspace_setting_notification(
   current_view: Option<View>,
 ) -> Option<()> {
   let workspace: WorkspacePB = current_workspace?.into();
-  let latest_view = current_view.map(ViewPB::from);
+  let latest_view = current_view.map(view_pb_without_child_views);
   let setting = WorkspaceSettingPB {
     workspace,
     latest_view,

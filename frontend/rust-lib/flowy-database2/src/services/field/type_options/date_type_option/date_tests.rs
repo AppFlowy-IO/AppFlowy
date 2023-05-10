@@ -171,7 +171,7 @@ mod tests {
               date: Some("1653609600".to_owned()),
               time: Some("11:23 pm".to_owned()),
               include_time: Some(true),
-              timezone_id: Some("Etc/UTC".to_owned()),
+              timezone_id: Some(chrono_tz::Tz::Etc__UTC.to_string()),
             },
             None,
             "May 27, 2022 11:23 PM",

@@ -47,7 +47,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         },
         appDidUpdate: (e) async {
           final latestCreatedView = state.latestCreatedView;
-          final views = e.app.belongings;
+          final views = e.app.childViews;
           AppState newState = state.copyWith(
             views: views,
             view: e.app,
@@ -174,7 +174,7 @@ class AppState with _$AppState {
 
   factory AppState.initial(ViewPB view) => AppState(
         view: view,
-        views: view.belongings,
+        views: view.childViews,
         successOrFailure: left(unit),
       );
 }

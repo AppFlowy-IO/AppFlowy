@@ -84,7 +84,7 @@ impl DateTypeOption {
         let naive = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
         let offset = match Tz::from_str(&timezone_id) {
           Ok(timezone) => timezone.offset_from_utc_datetime(&naive).fix(),
-          Err(_) => Local::now().offset().clone(),
+          Err(_) => *Local::now().offset(),
         };
 
         let date_time = DateTime::<Local>::from_utc(naive, offset);
@@ -206,9 +206,8 @@ impl CellDataChangeset for DateTypeOption {
                 .from_utc_datetime(&NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap())
                 .date_naive(),
             ),
-            None => match previous_datetime {
-              Some(datetime) => Some(timezone.from_utc_datetime(&datetime).date_naive()),
-              None => None,
+            None => {
+              previous_datetime.map(|datetime| timezone.from_utc_datetime(&datetime).date_naive())
             },
           };
 
@@ -231,17 +230,15 @@ impl CellDataChangeset for DateTypeOption {
       Err(_) => match parsed_time {
         // same logic as above, but using local time instead of timezone
         Some(time) => {
-          let offset = Local::now().offset().clone();
-
+          let offset = *Local::now().offset();
           let local_date = match new_date_timestamp {
             Some(timestamp) => Some(
               offset
                 .from_utc_datetime(&NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap())
                 .date_naive(),
             ),
-            None => match previous_datetime {
-              Some(datetime) => Some(offset.from_utc_datetime(&datetime).date_naive()),
-              None => None,
+            None => {
+              previous_datetime.map(|datetime| offset.from_utc_datetime(&datetime).date_naive())
             },
           };
 

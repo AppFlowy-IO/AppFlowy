@@ -64,8 +64,7 @@ impl From<&Cell> for DateCellData {
   fn from(cell: &Cell) -> Self {
     let timestamp = cell
       .get_str_value(CELL_DATE)
-      .map(|data| data.parse::<i64>().ok())
-      .flatten();
+      .and_then(|data| data.parse::<i64>().ok());
 
     let include_time = cell.get_bool_value("include_time").unwrap_or_default();
     let timezone_id = cell.get_str_value("timezone_id").unwrap_or_default();

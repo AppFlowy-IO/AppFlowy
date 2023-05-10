@@ -49,7 +49,7 @@ class AppBackendService {
 
     return FolderEventReadView(payload).send().then((result) {
       return result.fold(
-        (app) => left(app.belongings),
+        (app) => left(app.childViews),
         (error) => right(error),
       );
     });
@@ -130,7 +130,7 @@ class AppBackendService {
     return FolderEventReadView(payload).send().then((result) {
       return result.fold(
         (app) => left(
-          app.belongings.firstWhere((e) => e.id == childViewID),
+          app.childViews.firstWhere((e) => e.id == childViewID),
         ),
         (error) => right(error),
       );
