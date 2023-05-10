@@ -74,7 +74,7 @@ jobs:
           mkdir dist
           pnpm install
           cargo make --cwd .. tauri_build
-          pnpm test:code
+          pnpm test:errors
 
       - uses: tauri-apps/tauri-action@v0
         env:
