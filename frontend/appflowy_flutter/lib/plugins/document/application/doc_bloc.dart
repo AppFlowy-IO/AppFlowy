@@ -16,7 +16,8 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         InsertOperation,
         UpdateOperation,
         DeleteOperation,
-        PathExtensions;
+        PathExtensions,
+        Node;
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:collection/collection.dart';
@@ -150,7 +151,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     // output the log from the editor when debug mode
     if (kDebugMode) {
       editorState.logConfiguration.handler = (log) {
-        // Log.debug(log);
+        Log.debug(log);
       };
     }
   }
@@ -203,7 +204,8 @@ class TransactionAdapter {
   Future<void> apply(Transaction transaction, EditorState editorState) async {
     final actions = transaction.operations
         .map((op) => op.toBlockAction(editorState))
-        .whereNotNull();
+        .whereNotNull()
+        .expand((element) => element);
     Log.debug('actions => $actions');
     await documentService.applyAction(
       documentId: documentId,
@@ -213,37 +215,42 @@ class TransactionAdapter {
 }
 
 extension on Operation {
-  BlockActionPB? toBlockAction(EditorState editorState) {
+  List<BlockActionPB> toBlockAction(EditorState editorState) {
+    final List<BlockActionPB> actions = [];
     final op = this;
     if (op is InsertOperation) {
-      // TODO: support inserting multiple nodes
-      assert(op.nodes.length == 1);
-      final node = op.nodes.first;
-      final parentId = node.parent?.id ??
-          editorState.getNodeAtPath(op.path.parent)?.id ??
-          '';
-      final prevId = node.previous?.id ??
-          editorState.getNodeAtPath(op.path.previous)?.id ??
-          '';
-      assert(parentId.isNotEmpty && prevId.isNotEmpty);
-      final payload = BlockActionPayloadPB()
-        ..block = node.toBlock()
-        ..parentId = parentId
-        ..prevId = prevId;
-      assert(parentId.isNotEmpty);
-      return BlockActionPB()
-        ..action = BlockActionTypePB.Insert
-        ..payload = payload;
+      Node? previousNode;
+      for (final node in op.nodes) {
+        final parentId = node.parent?.id ??
+            editorState.getNodeAtPath(op.path.parent)?.id ??
+            '';
+        final prevId = previousNode?.id ??
+            node.previous?.id ??
+            editorState.getNodeAtPath(op.path.previous)?.id ??
+            '';
+        assert(parentId.isNotEmpty && prevId.isNotEmpty);
+        final payload = BlockActionPayloadPB()
+          ..block = node.toBlock()
+          ..parentId = parentId
+          ..prevId = prevId;
+        assert(parentId.isNotEmpty);
+        actions.add(
+          BlockActionPB()
+            ..action = BlockActionTypePB.Insert
+            ..payload = payload,
+        );
+        previousNode = node;
+      }
     } else if (op is UpdateOperation) {
       // if the attributes are both empty, we don't need to update
       if (const DeepCollectionEquality()
           .equals(op.attributes, op.oldAttributes)) {
-        return null;
+        return actions;
       }
       final node = editorState.getNodeAtPath(op.path);
       if (node == null) {
         assert(false, 'node not found at path: ${op.path}');
-        return null;
+        return actions;
       }
       final parentId = node.parent?.id ??
           editorState.getNodeAtPath(op.path.parent)?.id ??
@@ -252,24 +259,28 @@ extension on Operation {
       final payload = BlockActionPayloadPB()
         ..block = node.toBlock()
         ..parentId = parentId;
-      return BlockActionPB()
-        ..action = BlockActionTypePB.Update
-        ..payload = payload;
+      actions.add(
+        BlockActionPB()
+          ..action = BlockActionTypePB.Update
+          ..payload = payload,
+      );
     } else if (op is DeleteOperation) {
       // TODO: support deleting multiple nodes
-      assert(op.nodes.length == 1);
-      final node = op.nodes.first;
-      final parentId = node.parent?.id ??
-          editorState.getNodeAtPath(op.path.parent)?.id ??
-          '';
-      final payload = BlockActionPayloadPB()
-        ..block = node.toBlock()
-        ..parentId = parentId;
-      assert(parentId.isNotEmpty);
-      return BlockActionPB()
-        ..action = BlockActionTypePB.Delete
-        ..payload = payload;
+      for (final node in op.nodes) {
+        final parentId = node.parent?.id ??
+            editorState.getNodeAtPath(op.path.parent)?.id ??
+            '';
+        final payload = BlockActionPayloadPB()
+          ..block = node.toBlock()
+          ..parentId = parentId;
+        assert(parentId.isNotEmpty);
+        actions.add(
+          BlockActionPB()
+            ..action = BlockActionTypePB.Delete
+            ..payload = payload,
+        );
+      }
     }
-    return null;
+    return actions;
   }
 }

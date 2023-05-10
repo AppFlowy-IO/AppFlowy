@@ -49,6 +49,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       mathEquationItem,
       codeBlockItem,
       emojiMenuItem,
+      autoGeneratorMenuItem,
     ];
 
     final editorStyle = _desktopEditorStyle();
@@ -77,6 +78,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
             ),
           ),
         ),
+        AutoCompletionBlockKeys.type:
+            const AutoCompletionBlockComponentBuilder(),
       },
       // default shortcuts
       characterShortcutEvents: [

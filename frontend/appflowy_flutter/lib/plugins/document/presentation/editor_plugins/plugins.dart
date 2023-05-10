@@ -16,6 +16,5 @@ export 'grid/grid_node_widget.dart';
 export 'grid/grid_view_menu_item.dart';
 export 'math_equation/math_equation_block_component.dart';
 export 'openai/widgets/auto_completion_node_widget.dart';
-export 'openai/widgets/auto_completion_plugins.dart';
 export 'openai/widgets/smart_edit_node_widget.dart';
 export 'openai/widgets/smart_edit_toolbar_item.dart';
