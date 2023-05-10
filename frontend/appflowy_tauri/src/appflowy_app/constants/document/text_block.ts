@@ -8,4 +8,5 @@ export const keyBoardEventKeyMap = {
   Right: 'ArrowRight',
   Space: ' ',
   Reduce: '-',
+  Backquote: '`',
 };

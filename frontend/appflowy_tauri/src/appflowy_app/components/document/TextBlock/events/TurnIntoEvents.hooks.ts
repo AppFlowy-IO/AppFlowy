@@ -1,12 +1,12 @@
 import { useContext, useMemo } from 'react';
-import { BlockData, BlockType, TextBlockKeyEventHandlerParams } from '$app/interfaces/document';
+import { BlockType, TextBlockKeyEventHandlerParams } from '$app/interfaces/document';
 import { keyBoardEventKeyMap } from '$app/constants/document/text_block';
 import { useAppDispatch } from '$app/stores/store';
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { turnToBlockThunk, turnToDividerBlockThunk } from '$app_reducers/document/async-actions';
 import { blockConfig } from '$app/constants/document/config';
 import { Editor } from 'slate';
-import { getBeforeRangeAt } from '$app/utils/document/blocks/text/delta';
+import { getBeforeRangeAt, getDeltaAfterSelection } from '$app/utils/document/blocks/text/delta';
 import {
   getHeadingDataFromEditor,
   getQuoteDataFromEditor,
@@ -15,8 +15,8 @@ import {
   getNumberedListDataFromEditor,
   getToggleListDataFromEditor,
   getCalloutDataFromEditor,
+  getCodeBlockDataFromEditor,
 } from '$app/utils/document/blocks';
-import { getDeltaAfterSelection } from '$app/utils/document/blocks/common';
 
 export function useTurnIntoBlock(id: string) {
   const controller = useContext(DocumentControllerContext);
@@ -56,6 +56,16 @@ export function useTurnIntoBlock(id: string) {
           const [_event, editor] = args;
           const delta = getDeltaAfterSelection(editor) || [];
           dispatch(turnToDividerBlockThunk({ id, controller, delta }));
+        },
+      },
+      {
+        triggerEventKey: keyBoardEventKeyMap.Backquote,
+        canHandle: canHandle(BlockType.CodeBlock, keyBoardEventKeyMap.Backquote),
+        handler: (...args: TextBlockKeyEventHandlerParams) => {
+          if (!controller) return;
+          const [_event, editor] = args;
+          const data = getCodeBlockDataFromEditor(editor);
+          dispatch(turnToBlockThunk({ id, data, type: BlockType.CodeBlock, controller }));
         },
       },
     ];

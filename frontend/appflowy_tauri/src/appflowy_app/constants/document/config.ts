@@ -161,6 +161,10 @@ export const blockConfig: Record<
 
   [BlockType.CodeBlock]: {
     canAddChild: false,
+    defaultData: {
+      delta: [],
+      language: 'javascript',
+    },
     /**
      * ```
      */
