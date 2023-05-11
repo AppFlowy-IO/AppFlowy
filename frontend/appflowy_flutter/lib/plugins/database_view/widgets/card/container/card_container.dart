@@ -43,6 +43,7 @@ class RowCardContainer extends StatelessWidget {
           }
 
           return GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () => openCard(context),
             child: Padding(
               padding: const EdgeInsets.all(8),

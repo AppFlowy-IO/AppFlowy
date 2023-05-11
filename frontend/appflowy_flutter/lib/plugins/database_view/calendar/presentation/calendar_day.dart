@@ -10,6 +10,7 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -100,7 +101,7 @@ class CalendarDayCard extends StatelessWidget {
     );
   }
 
-  GestureDetector _buildCard(BuildContext context, CalendarDayEvent event) {
+  Widget _buildCard(BuildContext context, CalendarDayEvent event) {
     final styles = <FieldType, CardCellStyle>{
       FieldType.Number: NumberCardCellStyle(10),
       FieldType.URL: URLCardCellStyle(10),
@@ -206,28 +207,23 @@ class CalendarDayCard extends StatelessWidget {
       onEndEditing: () {},
     );
 
-    return GestureDetector(
-      onTap: () => showEventDetails(
-        context: context,
-        event: event,
-        viewId: viewId,
-        rowCache: _rowCache,
+    return FlowyHover(
+      style: HoverStyle(
+        hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
+        foregroundColorOnHover: Theme.of(context).colorScheme.onBackground,
       ),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 2),
-          decoration: BoxDecoration(
-            border: Border.fromBorderSide(
-              BorderSide(
-                color: Theme.of(context).dividerColor,
-                width: 1.5,
-              ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        decoration: BoxDecoration(
+          border: Border.fromBorderSide(
+            BorderSide(
+              color: Theme.of(context).dividerColor,
+              width: 1.5,
             ),
-            borderRadius: Corners.s6Border,
           ),
-          child: card,
+          borderRadius: Corners.s6Border,
         ),
+        child: card,
       ),
     );
   }
