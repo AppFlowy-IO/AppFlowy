@@ -1,5 +1,11 @@
 # Release Notes
 
+## Version 0.1.5 - 11/05/2023
+
+### Bug Fixes
+- Fix: calendar dates don't match with weekdays.
+- Fix: sort numbers in Grid.
+
 ## Version 0.1.4 - 04/05/2023
 
 ### New features
