@@ -19,4 +19,5 @@ Source: "AppFlowy\*";DestDir: "{app}"
 Source: "AppFlowy\data\*";DestDir: "{app}\data\"; Flags: recursesubdirs
 
 [Icons]
-Name: "{userdesktop}\AppFlowy"; "{group}\AppFlowy"; Filename: "{app}\AppFlowy.exe"
+Name: "{userdesktop}\AppFlowy"; Filename: "{app}\AppFlowy.exe"
+Name: "{group}\AppFlowy"; Filename: "{app}\AppFlowy.exe"
