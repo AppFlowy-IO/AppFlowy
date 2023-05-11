@@ -1,8 +1,10 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,6 +26,7 @@ class DocumentPage extends StatefulWidget {
 
 class _DocumentPageState extends State<DocumentPage> {
   late final DocumentBloc documentBloc;
+  EditorState? editorState;
 
   @override
   void initState() {
@@ -59,6 +62,7 @@ class _DocumentPageState extends State<DocumentPage> {
                 } else if (documentBloc.editorState == null) {
                   return const SizedBox.shrink();
                 } else {
+                  editorState = documentBloc.editorState!;
                   return _buildEditorPage(context, state);
                 }
               },
@@ -70,17 +74,18 @@ class _DocumentPageState extends State<DocumentPage> {
   }
 
   Widget _buildEditorPage(BuildContext context, DocumentState state) {
-    const appflowyEditorPage = AppFlowyEditorPage();
-    return !state.isDeleted
-        ? appflowyEditorPage
-        : Column(
-            children: [
-              _buildBanner(context),
-              const Expanded(
-                child: appflowyEditorPage,
-              ),
-            ],
-          );
+    final appflowyEditorPage = AppFlowyEditorPage(
+      editorState: editorState!,
+    );
+    return Column(
+      children: [
+        if (state.isDeleted) _buildBanner(context),
+        _buildCoverAndIcon(context),
+        Expanded(
+          child: appflowyEditorPage,
+        ),
+      ],
+    );
   }
 
   Widget _buildBanner(BuildContext context) {
@@ -90,6 +95,17 @@ class _DocumentPageState extends State<DocumentPage> {
       onDelete: () => context
           .read<DocumentBloc>()
           .add(const DocumentEvent.deletePermanently()),
+    );
+  }
+
+  Widget _buildCoverAndIcon(BuildContext context) {
+    if (editorState == null) {
+      return const Placeholder();
+    }
+    final page = editorState!.document.root;
+    return CoverImageNodeWidget(
+      node: page,
+      editorState: editorState!,
     );
   }
 }

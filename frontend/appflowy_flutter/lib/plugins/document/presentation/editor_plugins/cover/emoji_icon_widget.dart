@@ -1,16 +1,17 @@
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 class EmojiIconWidget extends StatefulWidget {
-  final String? emoji;
-  final void Function() onEmojiTapped;
-
   const EmojiIconWidget({
     super.key,
     required this.emoji,
-    required this.onEmojiTapped,
+    this.size = 80,
+    this.emojiSize = 60,
   });
+
+  final String emoji;
+  final double size;
+  final double emojiSize;
 
   @override
   State<EmojiIconWidget> createState() => _EmojiIconWidgetState();
@@ -22,31 +23,22 @@ class _EmojiIconWidgetState extends State<EmojiIconWidget> {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      onEnter: (event) {
-        setHidden(false);
-      },
-      onExit: (event) {
-        setHidden(true);
-      },
+      onEnter: (_) => setHidden(false),
+      onExit: (_) => setHidden(true),
       child: Container(
-        height: 130,
-        width: 130,
-        margin: const EdgeInsets.only(top: 18),
+        height: widget.size,
+        width: widget.size,
         decoration: BoxDecoration(
           color: !hover
               ? Theme.of(context).colorScheme.inverseSurface
               : Colors.transparent,
-          borderRadius: Corners.s8Border,
+          borderRadius: BorderRadius.circular(8),
         ),
         alignment: Alignment.center,
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            FlowyText(
-              widget.emoji.toString(),
-              fontSize: 80,
-            ),
-          ],
+        child: FlowyText(
+          widget.emoji,
+          fontSize: widget.emojiSize,
+          textAlign: TextAlign.center,
         ),
       ),
     );

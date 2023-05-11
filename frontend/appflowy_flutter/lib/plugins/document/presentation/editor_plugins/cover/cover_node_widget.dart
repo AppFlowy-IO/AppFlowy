@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/change_cover_popover.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/emoji_popover.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/icon_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/emoji_icon_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide FlowySvg;
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -39,7 +39,7 @@ enum CoverSelectionType {
 class CoverNodeWidgetBuilder implements NodeWidgetBuilder {
   @override
   Widget build(NodeWidgetContext<Node> context) {
-    return _CoverImageNodeWidget(
+    return CoverImageNodeWidget(
       key: context.node.key,
       node: context.node,
       editorState: context.editorState,
@@ -52,8 +52,8 @@ class CoverNodeWidgetBuilder implements NodeWidgetBuilder {
       };
 }
 
-class _CoverImageNodeWidget extends StatefulWidget {
-  const _CoverImageNodeWidget({
+class CoverImageNodeWidget extends StatefulWidget {
+  const CoverImageNodeWidget({
     Key? key,
     required this.node,
     required this.editorState,
@@ -63,13 +63,31 @@ class _CoverImageNodeWidget extends StatefulWidget {
   final EditorState editorState;
 
   @override
-  State<_CoverImageNodeWidget> createState() => _CoverImageNodeWidgetState();
+  State<CoverImageNodeWidget> createState() => _CoverImageNodeWidgetState();
 }
 
-class _CoverImageNodeWidgetState extends State<_CoverImageNodeWidget> {
+class _CoverImageNodeWidgetState extends State<CoverImageNodeWidget> {
   CoverSelectionType get selectionType => CoverSelectionType.fromString(
         widget.node.attributes[kCoverSelectionTypeAttribute],
       );
+
+  @override
+  void initState() {
+    super.initState();
+
+    widget.node.addListener(_reload);
+  }
+
+  @override
+  void dispose() {
+    widget.node.removeListener(_reload);
+
+    super.dispose();
+  }
+
+  void _reload() {
+    setState(() {});
+  }
 
   PopoverController iconPopoverController = PopoverController();
   @override
@@ -313,9 +331,6 @@ class _CoverImageState extends State<_CoverImage> {
                   margin: EdgeInsets.zero,
                   child: EmojiIconWidget(
                     emoji: widget.node.attributes[kIconSelectionAttribute],
-                    onEmojiTapped: () {
-                      iconPopoverController.show();
-                    },
                   ),
                   popupBuilder: (BuildContext popoverContext) {
                     return EmojiPopover(
@@ -493,7 +508,7 @@ class _CoverImageState extends State<_CoverImage> {
         coverImage = const SizedBox();
         break;
     }
-//OverflowBox needs to be wraped by a widget with constraints(or from its parent) first,otherwise it will occur an error
+// OverflowBox needs to be wraped by a widget with constraints(or from its parent) first,otherwise it will occur an error
     return MouseRegion(
       onEnter: (event) {
         setOverlayButtonsHidden(false);
@@ -503,21 +518,18 @@ class _CoverImageState extends State<_CoverImage> {
       },
       child: SizedBox(
         height: height,
-        child: OverflowBox(
-          maxWidth: screenSize.width,
-          child: Stack(
-            children: [
-              Container(
-                padding: const EdgeInsets.only(bottom: 10),
-                height: double.infinity,
-                width: double.infinity,
-                child: coverImage,
-              ),
-              hasCover
-                  ? _buildCoverOverlayButtons(context)
-                  : const SizedBox.shrink()
-            ],
-          ),
+        child: Stack(
+          children: [
+            Container(
+              padding: const EdgeInsets.only(bottom: 10),
+              height: double.infinity,
+              width: double.infinity,
+              child: coverImage,
+            ),
+            hasCover
+                ? _buildCoverOverlayButtons(context)
+                : const SizedBox.shrink()
+          ],
         ),
       ),
     );

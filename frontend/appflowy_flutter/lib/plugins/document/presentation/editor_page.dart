@@ -9,7 +9,12 @@ import 'package:tuple/tuple.dart';
 
 /// Wrapper for the appflowy editor.
 class AppFlowyEditorPage extends StatefulWidget {
-  const AppFlowyEditorPage({super.key});
+  const AppFlowyEditorPage({
+    super.key,
+    required this.editorState,
+  });
+
+  final EditorState editorState;
 
   @override
   State<AppFlowyEditorPage> createState() => _AppFlowyEditorPageState();
@@ -66,7 +71,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     numberedListItem,
     placeholderItem,
     linkItem,
-    colorItem
+    textColorItem,
+    highlightColorItem,
   ];
 
   late final List<CharacterShortcutEvent> characterShortcutEvents = [
@@ -83,8 +89,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     customSlashCommand(slashMenuItems),
   ];
 
-  late final EditorState editorState =
-      documentBloc.editorState ?? EditorState.empty();
   late final editorStyle = _desktopEditorStyle();
 
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
@@ -98,7 +102,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   Widget build(BuildContext context) {
     final autoFocusParameters = _computeAutoFocusParameters();
     final editor = AppFlowyEditor.custom(
-      editorState: editorState,
+      editorState: widget.editorState,
       editable: true,
       scrollController: scrollController,
       // setup the auto focus parameters
@@ -120,7 +124,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         ),
         child: FloatingToolbar(
           items: toolbarItems,
-          editorState: editorState,
+          editorState: widget.editorState,
           scrollController: scrollController,
           child: editor,
         ),
@@ -166,10 +170,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   }
 
   Tuple2<bool, Selection?> _computeAutoFocusParameters() {
-    if (editorState.document.isEmpty) {
+    if (widget.editorState.document.isEmpty) {
       return Tuple2(true, Selection.collapse([0], 0));
     }
-    final nodes = editorState.document.root.children
+    final nodes = widget.editorState.document.root.children
         .where((element) => element.delta != null);
     final isAllEmpty =
         nodes.isNotEmpty && nodes.every((element) => element.delta!.isEmpty);
