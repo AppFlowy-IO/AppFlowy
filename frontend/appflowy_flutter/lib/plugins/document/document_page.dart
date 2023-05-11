@@ -226,6 +226,9 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
       if (temporaryNodeTypes.contains(node.type)) {
         transaction.deleteNode(node);
       }
+      if (kCoverType == node.type && !node.path.equals([0])) {
+        transaction.deleteNode(node);
+      }
     }
     if (transaction.operations.isNotEmpty) {
       await editorState.apply(transaction, withUpdateCursor: false);

@@ -123,7 +123,6 @@ class CalendarDayCard extends StatelessWidget {
         child: FlowyText.medium(
           cellData,
           textAlign: TextAlign.left,
-          color: Theme.of(context).colorScheme.onBackground,
           fontSize: 11,
           maxLines: null, // Enable multiple lines
         ),
@@ -193,8 +192,12 @@ class CalendarDayCard extends StatelessWidget {
       cardData: event.dateFieldId,
       isEditing: false,
       cellBuilder: cellBuilder,
-      //Since we already have [showEventDetails] in calendar_day.dart, we don't need to implement it here again.
-      openCard: (_) {},
+      openCard: (context) => showEventDetails(
+        context: context,
+        event: event,
+        viewId: viewId,
+        rowCache: _rowCache,
+      ),
       styleConfiguration: const RowCardStyleConfiguration(
         showAccessory: false,
         cellPadding: EdgeInsets.zero,
@@ -204,30 +207,23 @@ class CalendarDayCard extends StatelessWidget {
       onEndEditing: () {},
     );
 
-    return InkWell(
-      onTap: () => showEventDetails(
-        context: context,
-        event: event,
-        viewId: viewId,
-        rowCache: _rowCache,
+    return FlowyHover(
+      style: HoverStyle(
+        hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
+        foregroundColorOnHover: Theme.of(context).colorScheme.onBackground,
       ),
-      child: FlowyHover(
-        style: HoverStyle(
-          hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
-        ),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 2),
-          decoration: BoxDecoration(
-            border: Border.fromBorderSide(
-              BorderSide(
-                color: Theme.of(context).dividerColor,
-                width: 1.5,
-              ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        decoration: BoxDecoration(
+          border: Border.fromBorderSide(
+            BorderSide(
+              color: Theme.of(context).dividerColor,
+              width: 1.5,
             ),
-            borderRadius: Corners.s6Border,
           ),
-          child: card,
+          borderRadius: Corners.s6Border,
         ),
+        child: card,
       ),
     );
   }
