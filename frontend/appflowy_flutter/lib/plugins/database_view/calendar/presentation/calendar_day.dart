@@ -10,7 +10,6 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -101,7 +100,7 @@ class CalendarDayCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCard(BuildContext context, CalendarDayEvent event) {
+  GestureDetector _buildCard(BuildContext context, CalendarDayEvent event) {
     final styles = <FieldType, CardCellStyle>{
       FieldType.Number: NumberCardCellStyle(10),
       FieldType.URL: URLCardCellStyle(10),
@@ -123,7 +122,6 @@ class CalendarDayCard extends StatelessWidget {
         child: FlowyText.medium(
           cellData,
           textAlign: TextAlign.left,
-          color: Theme.of(context).colorScheme.onBackground,
           fontSize: 11,
           maxLines: null, // Enable multiple lines
         ),
@@ -193,8 +191,12 @@ class CalendarDayCard extends StatelessWidget {
       cardData: event.dateFieldId,
       isEditing: false,
       cellBuilder: cellBuilder,
-      //Since we already have [showEventDetails] in calendar_day.dart, we don't need to implement it here again.
-      openCard: (_) {},
+      openCard: (context) => showEventDetails(
+        context: context,
+        event: event,
+        viewId: viewId,
+        rowCache: _rowCache,
+      ),
       styleConfiguration: const RowCardStyleConfiguration(
         showAccessory: false,
         cellPadding: EdgeInsets.zero,
@@ -204,17 +206,15 @@ class CalendarDayCard extends StatelessWidget {
       onEndEditing: () {},
     );
 
-    return InkWell(
+    return GestureDetector(
       onTap: () => showEventDetails(
         context: context,
         event: event,
         viewId: viewId,
         rowCache: _rowCache,
       ),
-      child: FlowyHover(
-        style: HoverStyle(
-          hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
-        ),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 2),
           decoration: BoxDecoration(

@@ -8,9 +8,11 @@ class RowCardContainer extends StatelessWidget {
   final Widget child;
   final CardAccessoryBuilder? accessoryBuilder;
   final bool Function()? buildAccessoryWhen;
+  final void Function(BuildContext) openCard;
   final void Function(AccessoryType) openAccessory;
   const RowCardContainer({
     required this.child,
+    required this.openCard,
     required this.openAccessory,
     this.accessoryBuilder,
     this.buildAccessoryWhen,
@@ -40,10 +42,15 @@ class RowCardContainer extends StatelessWidget {
             }
           }
 
-          return Container(
-            padding: const EdgeInsets.all(8),
-            constraints: const BoxConstraints(minHeight: 30),
-            child: container,
+          return GestureDetector(
+            onTap: () => openCard(context),
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 30),
+                child: container,
+              ),
+            ),
           );
         },
       ),
