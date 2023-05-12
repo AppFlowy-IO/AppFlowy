@@ -1,7 +1,6 @@
 import { useAppDispatch } from '$app/stores/store';
 import { useCallback, useContext } from 'react';
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
-import { Editor } from 'slate';
 import { backspaceNodeThunk, setCursorNextLineThunk, setCursorPreLineThunk } from '$app_reducers/document/async-actions';
 import { keyBoardEventKeyMap } from '$app/constants/document/text_block';
 import {
@@ -12,20 +11,21 @@ import {
   canHandleUpKey,
 } from '$app/utils/document/blocks/text/hotkey';
 import { TextBlockKeyEventHandlerParams } from '$app/interfaces/document';
+import { ReactEditor } from "slate-react";
 
 export function useDefaultTextInputEvents(id: string) {
   const dispatch = useAppDispatch();
   const controller = useContext(DocumentControllerContext);
 
   const focusPreLineAction = useCallback(
-    async (params: { editor: Editor; focusEnd?: boolean }) => {
+    async (params: { editor: ReactEditor; focusEnd?: boolean }) => {
       await dispatch(setCursorPreLineThunk({ id, ...params }));
     },
     [dispatch, id]
   );
 
   const focusNextLineAction = useCallback(
-    async (params: { editor: Editor; focusStart?: boolean }) => {
+    async (params: { editor: ReactEditor; focusStart?: boolean }) => {
       await dispatch(setCursorNextLineThunk({ id, ...params }));
     },
     [dispatch, id]
@@ -35,6 +35,8 @@ export function useDefaultTextInputEvents(id: string) {
       triggerEventKey: keyBoardEventKeyMap.Up,
       canHandle: canHandleUpKey,
       handler: (...args: TextBlockKeyEventHandlerParams) => {
+        const [e, _] = args;
+        e.preventDefault();
         void focusPreLineAction({
           editor: args[1],
         });
@@ -44,6 +46,8 @@ export function useDefaultTextInputEvents(id: string) {
       triggerEventKey: keyBoardEventKeyMap.Down,
       canHandle: canHandleDownKey,
       handler: (...args: TextBlockKeyEventHandlerParams) => {
+        const [e, _] = args;
+        e.preventDefault();
         void focusNextLineAction({
           editor: args[1],
         });
@@ -53,6 +57,8 @@ export function useDefaultTextInputEvents(id: string) {
       triggerEventKey: keyBoardEventKeyMap.Left,
       canHandle: canHandleLeftKey,
       handler: (...args: TextBlockKeyEventHandlerParams) => {
+        const [e, _] = args;
+        e.preventDefault();
         void focusPreLineAction({
           editor: args[1],
           focusEnd: true,
@@ -63,6 +69,8 @@ export function useDefaultTextInputEvents(id: string) {
       triggerEventKey: keyBoardEventKeyMap.Right,
       canHandle: canHandleRightKey,
       handler: (...args: TextBlockKeyEventHandlerParams) => {
+        const [e, _] = args;
+        e.preventDefault();
         void focusNextLineAction({
           editor: args[1],
           focusStart: true,

@@ -10,9 +10,11 @@ export const updateNodeDeltaThunk = createAsyncThunk(
     const { getState } = thunkAPI;
     const state = (getState() as { document: DocumentState }).document;
     const node = state.nodes[id];
-    const isSame = isSameDelta(delta, node.data.delta);
+    const isSame = isSameDelta(delta, node.data.delta || []);
+
     if (isSame) return;
     const newData = { ...node.data, delta };
+
     await controller.applyActions([
       controller.getUpdateAction({
         ...node,

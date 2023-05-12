@@ -1,6 +1,6 @@
 import { DocumentState, Node, RangeSelectionState } from '@/appflowy_app/interfaces/document';
 import { BlockEventPayloadPB } from '@/services/backend';
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { parseValue, matchChange } from '$app/utils/document/subscribe';
 
 const initialState: DocumentState = {
@@ -76,27 +76,24 @@ export const rectSelectionSlice = createSlice({
       if (state.includes(id)) return;
       state.push(id);
     },
-  }
+  },
 });
-
 
 export const rangeSelectionSlice = createSlice({
   name: 'documentRangeSelection',
   initialState: rangeSelectionInitialState,
   reducers: {
-    setRange: (
-      state,
-      action: PayloadAction<RangeSelectionState>
-    ) => {
-      state.anchor = action.payload.anchor;
-      state.focus = action.payload.focus;
+    setRange: (state, action: PayloadAction<RangeSelectionState>) => {
+      return {
+        ...state,
+        ...action.payload,
+      };
     },
 
     clearRange: (state, _: PayloadAction) => {
-      state.anchor = undefined;
-      state.focus = undefined;
+      return rangeSelectionInitialState;
     },
-  }
+  },
 });
 
 export const documentReducers = {

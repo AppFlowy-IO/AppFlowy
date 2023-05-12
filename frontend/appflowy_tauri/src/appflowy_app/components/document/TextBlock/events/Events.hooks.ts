@@ -9,8 +9,9 @@ import { indentNodeThunk, outdentNodeThunk, splitNodeThunk } from '$app_reducers
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { useAppDispatch } from '$app/stores/store';
 import { useDefaultTextInputEvents } from '$app/components/document/_shared/Text/TextEvents.hooks';
+import { ReactEditor } from 'slate-react';
 
-export function useTextBlockKeyEvent(id: string, editor: Editor) {
+export function useTextBlockKeyEvent(id: string, editor: ReactEditor) {
   const controller = useContext(DocumentControllerContext);
   const dispatch = useAppDispatch();
 

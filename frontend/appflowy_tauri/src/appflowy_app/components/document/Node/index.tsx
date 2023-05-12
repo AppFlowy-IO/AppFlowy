@@ -58,13 +58,13 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
   if (!node) return null;
 
   return (
-      <div {...props} ref={ref} data-block-id={node.id} className={`relative ${props.className}`}>
-        {renderBlock()}
-        <div className='block-overlay' />
-        {isSelected ? (
-          <div className='pointer-events-none absolute inset-0 z-[-1] m-[1px] rounded-[4px] bg-[#E0F8FF]' />
-        ) : null}
-      </div>
+    <div {...props} ref={ref} data-block-id={node.id} className={`relative ${props.className}`}>
+      {renderBlock()}
+      <div className='block-overlay' />
+      {isSelected ? (
+        <div className='pointer-events-none absolute inset-0 z-[-1] m-[1px] rounded-[4px] bg-[#E0F8FF]' />
+      ) : null}
+    </div>
   );
 }
 

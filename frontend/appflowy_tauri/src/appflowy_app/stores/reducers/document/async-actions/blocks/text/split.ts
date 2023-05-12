@@ -1,16 +1,15 @@
-import { DocumentState, TextDelta } from '$app/interfaces/document';
+import { DocumentState } from '$app/interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { documentActions } from '$app_reducers/document/slice';
 import { setCursorBeforeThunk } from '../../cursor';
 import { newBlock } from '$app/utils/document/blocks/common';
 import { blockConfig, SplitRelationship } from '$app/constants/document/config';
-import { Editor } from 'slate';
 import { getSplitDelta } from '@/appflowy_app/utils/document/blocks/text/delta';
+import { ReactEditor } from "slate-react";
 
 export const splitNodeThunk = createAsyncThunk(
   'document/splitNode',
-  async (payload: { id: string; editor: Editor; controller: DocumentController }, thunkAPI) => {
+  async (payload: { id: string; editor: ReactEditor; controller: DocumentController }, thunkAPI) => {
     const { id, controller, editor } = payload;
     // get the split content
     const { retain, insert } = getSplitDelta(editor);
@@ -68,6 +67,7 @@ export const splitNodeThunk = createAsyncThunk(
 
     await controller.applyActions([insertAction, ...moveChildrenAction, updateAction]);
 
+    ReactEditor.deselect(editor);
     // set cursor
     await dispatch(setCursorBeforeThunk({ id: newNode.id }));
   }

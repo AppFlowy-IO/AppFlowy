@@ -11,6 +11,7 @@ import {
   getStartLineSelectionByOffset,
 } from '$app/utils/document/blocks/text/delta';
 import { getCollapsedRange, getNextLineId, getPrevLineId } from "$app/utils/document/blocks/common";
+import { ReactEditor } from "slate-react";
 
 export const setCursorBeforeThunk = createAsyncThunk(
   'document/setCursorBefore',
@@ -39,7 +40,7 @@ export const setCursorAfterThunk = createAsyncThunk(
 
 export const setCursorPreLineThunk = createAsyncThunk(
   'document/setCursorPreLine',
-  async (payload: { id: string; editor: Editor; focusEnd?: boolean }, thunkAPI) => {
+  async (payload: { id: string; editor: ReactEditor; focusEnd?: boolean }, thunkAPI) => {
     const { id, editor, focusEnd } = payload;
     const selection = editor.selection as TextSelection;
     const { dispatch, getState } = thunkAPI;
@@ -73,7 +74,7 @@ export const setCursorPreLineThunk = createAsyncThunk(
 
 export const setCursorNextLineThunk = createAsyncThunk(
   'document/setCursorNextLine',
-  async (payload: { id: string; editor: Editor; focusStart?: boolean }, thunkAPI) => {
+  async (payload: { id: string; editor: ReactEditor; focusStart?: boolean }, thunkAPI) => {
     const { id, editor, focusStart } = payload;
     const selection = editor.selection as TextSelection;
     const { dispatch, getState } = thunkAPI;

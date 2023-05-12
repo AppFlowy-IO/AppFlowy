@@ -1,22 +1,22 @@
-import { createEditor, Descendant, Editor } from "slate";
-import { withReact } from "slate-react";
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createEditor, Descendant, Editor } from 'slate';
+import { withReact } from 'slate-react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
-import { DocumentControllerContext } from "$app/stores/effects/document/document_controller";
-import { TextDelta } from "$app/interfaces/document";
-import { useAppDispatch } from "$app/stores/store";
-import { updateNodeDeltaThunk } from "$app_reducers/document/async-actions/blocks/text/update";
-import { deltaToSlateValue, slateValueToDelta } from "$app/utils/document/blocks/common";
-import { isSameDelta } from "$app/utils/document/blocks/text/delta";
-import { debounce } from "$app/utils/tool";
-import { useSubscribeNode } from "$app/components/document/_shared/SubscribeNode.hooks";
-import { useSelection } from "$app/components/document/_shared/Text/Selection.hooks";
+import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { TextDelta } from '$app/interfaces/document';
+import { useAppDispatch } from '$app/stores/store';
+import { updateNodeDeltaThunk } from '$app_reducers/document/async-actions/blocks/text/update';
+import { deltaToSlateValue, slateValueToDelta } from '$app/utils/document/blocks/common';
+import { isSameDelta } from '$app/utils/document/blocks/text/delta';
+import { debounce } from '$app/utils/tool';
+import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
+import { useTextSelections } from '$app/components/document/_shared/Text/TextSelection.hooks';
 
 export function useTextInput(id: string) {
   const { node } = useSubscribeNode(id);
   const [editor] = useState(() => withReact(createEditor()));
-  const { storeSelection } = useSelection(id, editor);
   const isComposition = useRef(false);
+  const { setLastActiveSelection, ...selectionProps } = useTextSelections(id, editor);
 
   const delta = useMemo(() => {
     if (!node || !('delta' in node.data)) {
@@ -33,7 +33,6 @@ export function useTextInput(id: string) {
   useEffect(() => {
     // If composition is in progress, do nothing.
     if (isComposition.current) return;
-
     receive(delta);
   }, [delta, receive]);
 
@@ -42,14 +41,13 @@ export function useTextInput(id: string) {
     (e: Descendant[]) => {
       // Update the editor's value and selection.
       setValue(e);
-      storeSelection();
-
+      // If the selection is not null, update the last active selection.
+      if (editor.selection !== null) setLastActiveSelection(editor.selection);
       // If composition is in progress, do nothing.
       if (isComposition.current) return;
-
       sync();
     },
-    [sync, storeSelection]
+    [editor.selection, setLastActiveSelection, sync]
   );
 
   const onDOMBeforeInput = useCallback((e: InputEvent) => {
@@ -77,6 +75,7 @@ export function useTextInput(id: string) {
     editor,
     onChange,
     value,
+    ...selectionProps,
     onDOMBeforeInput,
     onCompositionStart,
     onCompositionUpdate,
@@ -94,7 +93,7 @@ function useUpdateDelta(id: string, editor: Editor) {
     return debounce(() => {
       if (!controller) return;
       const delta = slateValueToDelta(editor.children);
-      void(async() => {
+      void (async () => {
         await dispatch(
           updateNodeDeltaThunk({
             id,
@@ -114,22 +113,24 @@ function useUpdateDelta(id: string, editor: Editor) {
     debounceUpdate();
   }, [debounceUpdate]);
 
-  const receive = useCallback((delta: TextDelta[]) => {
-    // if pendding, do nothing
-    if (penddingRef.current) return;
+  const receive = useCallback(
+    (delta: TextDelta[]) => {
+      // if pendding, do nothing
+      if (penddingRef.current) return;
 
-    // If the delta is the same as the editor's value, do nothing.
-    const localDelta = slateValueToDelta(editor.children);
-    const isSame = isSameDelta(delta, localDelta);
-    if (isSame) return;
+      // If the delta is the same as the editor's value, do nothing.
+      const localDelta = slateValueToDelta(editor.children);
+      const isSame = isSameDelta(delta, localDelta);
+      if (isSame) return;
 
-    const slateValue = deltaToSlateValue(delta);
-    editor.children = slateValue;
-  }, [editor]);
+      const slateValue = deltaToSlateValue(delta);
+      editor.children = slateValue;
+    },
+    [editor]
+  );
 
   return {
     sync,
-    receive
+    receive,
   };
 }
-
