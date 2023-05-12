@@ -1,7 +1,7 @@
-import { Ok, Result } from 'ts-results';
-import { FlowyError, FolderNotification, RepeatedViewPB } from '@/services/backend';
-import { ChangeNotifier } from '$app/utils/change_notifier';
-import { FolderNotificationObserver } from '../notifications/observer';
+import { Ok, Result } from "ts-results";
+import { FlowyError, FolderNotification, RepeatedViewPB } from "@/services/backend";
+import { ChangeNotifier } from "$app/utils/change_notifier";
+import { FolderNotificationObserver } from "../notifications/observer";
 
 export type AppUpdateNotifyCallback = (value: Result<RepeatedViewPB, FlowyError>) => void;
 
@@ -9,10 +9,11 @@ export class AppObserver {
   _appNotifier = new ChangeNotifier<Result<RepeatedViewPB, FlowyError>>();
   _listener?: FolderNotificationObserver;
 
-  constructor(public readonly appId: string) {}
+  constructor(public readonly appId: string) {
+  }
 
   subscribe = async (callbacks: { onAppChanged: AppUpdateNotifyCallback }) => {
-    this._appNotifier?.observer.subscribe(callbacks.onAppChanged);
+    this._appNotifier?.observer?.subscribe(callbacks.onAppChanged);
     this._listener = new FolderNotificationObserver({
       viewId: this.appId,
       parserHandler: (notification, result) => {
@@ -27,7 +28,7 @@ export class AppObserver {
           default:
             break;
         }
-      },
+      }
     });
     await this._listener.start();
   };
