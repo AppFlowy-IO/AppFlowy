@@ -53,7 +53,7 @@ SelectionMenuItem mathEquationItem = SelectionMenuItem.node(
 );
 
 class MathEquationBlockComponentBuilder extends BlockComponentBuilder {
-  const MathEquationBlockComponentBuilder();
+  MathEquationBlockComponentBuilder();
 
   @override
   Widget build(BlockComponentContext blockComponentContext) {

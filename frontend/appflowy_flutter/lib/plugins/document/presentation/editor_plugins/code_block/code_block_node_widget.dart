@@ -52,7 +52,7 @@ SelectionMenuItem codeBlockItem = SelectionMenuItem.node(
 );
 
 class CodeBlockComponentBuilder extends BlockComponentBuilder {
-  const CodeBlockComponentBuilder({
+  CodeBlockComponentBuilder({
     this.configuration = const BlockComponentConfiguration(),
   });
 

@@ -12,7 +12,7 @@ class GridBlockKeys {
 }
 
 class GridBlockComponentBuilder extends BlockComponentBuilder {
-  const GridBlockComponentBuilder({
+  GridBlockComponentBuilder({
     this.configuration = const BlockComponentConfiguration(),
   });
 

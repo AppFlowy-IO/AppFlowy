@@ -15,7 +15,7 @@ Node dividerNode() {
 }
 
 class DividerBlockComponentBuilder extends BlockComponentBuilder {
-  const DividerBlockComponentBuilder({
+  DividerBlockComponentBuilder({
     this.padding = const EdgeInsets.symmetric(vertical: 8.0),
     this.lineColor = Colors.grey,
   });

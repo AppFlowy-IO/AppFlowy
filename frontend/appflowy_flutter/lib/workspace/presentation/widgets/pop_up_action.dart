@@ -11,6 +11,7 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
   final BoxConstraints constraints;
   final PopoverDirection direction;
   final Widget Function(PopoverController) buildChild;
+  final VoidCallback? onPopupBuilder;
   final VoidCallback? onClosed;
   final bool asBarrier;
   final Offset offset;
@@ -21,6 +22,7 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
     required this.onSelected,
     this.mutex,
     this.onClosed,
+    this.onPopupBuilder,
     this.direction = PopoverDirection.rightWithTopAligned,
     this.asBarrier = false,
     this.offset = Offset.zero,
@@ -60,6 +62,7 @@ class _PopoverActionListState<T extends PopoverAction>
       triggerActions: PopoverTriggerFlags.none,
       onClose: widget.onClosed,
       popupBuilder: (BuildContext popoverContext) {
+        widget.onPopupBuilder?.call();
         final List<Widget> children = widget.actions.map((action) {
           if (action is ActionCell) {
             return ActionCellWidget<T>(

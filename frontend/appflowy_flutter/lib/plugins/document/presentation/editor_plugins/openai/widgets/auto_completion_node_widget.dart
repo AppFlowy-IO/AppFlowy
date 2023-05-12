@@ -51,7 +51,7 @@ SelectionMenuItem autoGeneratorMenuItem = SelectionMenuItem.node(
 );
 
 class AutoCompletionBlockComponentBuilder extends BlockComponentBuilder {
-  const AutoCompletionBlockComponentBuilder();
+  AutoCompletionBlockComponentBuilder();
 
   @override
   Widget build(BlockComponentContext blockComponentContext) {

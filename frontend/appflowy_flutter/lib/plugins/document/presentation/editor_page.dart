@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -33,26 +34,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     autoGeneratorMenuItem,
   ];
 
-  final Map<String, BlockComponentBuilder> blockComponentBuilders = {
-    ...standardBlockComponentBuilderMap,
-    BoardBlockKeys.type: const BoardBlockComponentBuilder(),
-    GridBlockKeys.type: const GridBlockComponentBuilder(),
-    CalloutBlockKeys.type: const CalloutBlockComponentBuilder(),
-    DividerBlockKeys.type: const DividerBlockComponentBuilder(),
-    MathEquationBlockKeys.type: const MathEquationBlockComponentBuilder(),
-    CodeBlockKeys.type: CodeBlockComponentBuilder(
-      configuration: BlockComponentConfiguration(
-        padding: (_) => const EdgeInsets.only(
-          left: 30,
-          right: 30,
-          bottom: 36,
-        ),
-      ),
-    ),
-    AutoCompletionBlockKeys.type: const AutoCompletionBlockComponentBuilder(),
-    SmartEditBlockKeys.type: const SmartEditBlockComponentBuilder(),
-  };
-
   final List<CommandShortcutEvent> commandShortcutEvents = [
     ...codeBlockCommands,
     ...standardCommandShortcutEvents,
@@ -75,6 +56,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     highlightColorItem,
   ];
 
+  late final Map<String, BlockComponentBuilder> blockComponentBuilders;
   late final List<CharacterShortcutEvent> characterShortcutEvents = [
     // divider
     convertMinusesToDivider,
@@ -92,6 +74,13 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   late final editorStyle = _desktopEditorStyle();
 
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
+
+  @override
+  void initState() {
+    super.initState();
+
+    blockComponentBuilders = _customAppFlowyBlockComponentBuilders();
+  }
 
   @override
   void dispose() {
@@ -167,6 +156,35 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         ),
       ),
     );
+  }
+
+  Map<String, BlockComponentBuilder> _customAppFlowyBlockComponentBuilders() {
+    for (var element in standardBlockComponentBuilderMap.values) {
+      element.actionBuilder = (_, state) => OptionActionList(
+            blockComponentState: state,
+          );
+    }
+    final builders = {
+      ...standardBlockComponentBuilderMap,
+      BoardBlockKeys.type: BoardBlockComponentBuilder(),
+      GridBlockKeys.type: GridBlockComponentBuilder(),
+      CalloutBlockKeys.type: CalloutBlockComponentBuilder(),
+      DividerBlockKeys.type: DividerBlockComponentBuilder(),
+      MathEquationBlockKeys.type: MathEquationBlockComponentBuilder(),
+      CodeBlockKeys.type: CodeBlockComponentBuilder(
+        configuration: BlockComponentConfiguration(
+          padding: (_) => const EdgeInsets.only(
+            left: 30,
+            right: 30,
+            bottom: 36,
+          ),
+        ),
+      ),
+      AutoCompletionBlockKeys.type: AutoCompletionBlockComponentBuilder(),
+      SmartEditBlockKeys.type: SmartEditBlockComponentBuilder(),
+    };
+
+    return builders;
   }
 
   Tuple2<bool, Selection?> _computeAutoFocusParameters() {

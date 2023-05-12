@@ -12,7 +12,7 @@ class BoardBlockKeys {
 }
 
 class BoardBlockComponentBuilder extends BlockComponentBuilder {
-  const BoardBlockComponentBuilder({
+  BoardBlockComponentBuilder({
     this.configuration = const BlockComponentConfiguration(),
   });
 

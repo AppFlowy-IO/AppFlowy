@@ -47,7 +47,7 @@ Node smartEditNode({
 }
 
 class SmartEditBlockComponentBuilder extends BlockComponentBuilder {
-  const SmartEditBlockComponentBuilder();
+  SmartEditBlockComponentBuilder();
 
   @override
   Widget build(BlockComponentContext blockComponentContext) {

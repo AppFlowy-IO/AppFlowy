@@ -57,7 +57,7 @@ SelectionMenuItem calloutItem = SelectionMenuItem.node(
 
 // building the callout block widget
 class CalloutBlockComponentBuilder extends BlockComponentBuilder {
-  const CalloutBlockComponentBuilder({
+  CalloutBlockComponentBuilder({
     this.configuration = const BlockComponentConfiguration(),
   });
 
