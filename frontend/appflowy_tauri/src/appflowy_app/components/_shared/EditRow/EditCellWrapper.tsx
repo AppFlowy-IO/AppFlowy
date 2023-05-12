@@ -2,7 +2,7 @@ import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { useCell } from '$app/components/_shared/database-hooks/useCell';
 import { CellCache } from '$app/stores/effects/database/cell/cell_cache';
 import { FieldController } from '$app/stores/effects/database/field/field_controller';
-import {CellIdPB, DateCellDataPB, FieldType, SelectOptionCellDataPB, URLCellDataPB} from '@/services/backend';
+import { DateCellDataPB, FieldType, SelectOptionCellDataPB, URLCellDataPB } from '@/services/backend';
 import { useAppSelector } from '$app/stores/store';
 import { EditCellText } from '$app/components/_shared/EditRow/EditCellText';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
@@ -24,7 +24,7 @@ export const EditCellWrapper = ({
   onEditFieldClick,
   onEditOptionsClick,
   onEditDateClick,
-                                  onEditCheckListClick,
+  onEditCheckListClick,
 }: {
   index: number;
   cellIdentifier: CellIdentifier;
@@ -33,7 +33,7 @@ export const EditCellWrapper = ({
   onEditFieldClick: (cell: CellIdentifier, left: number, top: number) => void;
   onEditOptionsClick: (cell: CellIdentifier, left: number, top: number) => void;
   onEditDateClick: (cell: CellIdentifier, left: number, top: number) => void;
-  onEditCheckListClick:(cell: CellIdentifier, left: number, top: number) => void;
+  onEditCheckListClick: (cell: CellIdentifier, left: number, top: number) => void;
 }) => {
   const { data, cellController } = useCell(cellIdentifier, cellCache, fieldController);
   const databaseStore = useAppSelector((state) => state.database);

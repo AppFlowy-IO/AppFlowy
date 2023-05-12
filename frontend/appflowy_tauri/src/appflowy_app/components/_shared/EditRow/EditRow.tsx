@@ -17,8 +17,9 @@ import { DatePickerPopup } from '$app/components/_shared/EditRow/DatePickerPopup
 import { DragDropContext, Droppable, OnDragEndResponder } from 'react-beautiful-dnd';
 import { EditCellOptionPopup } from '$app/components/_shared/EditRow/EditCellOptionPopup';
 import { NumberFormatPopup } from '$app/components/_shared/EditRow/NumberFormatPopup';
-import {CheckListPopup} from "$app/components/_shared/EditRow/CheckListPopup";
-import {EditCheckListPopup} from "$app/components/_shared/EditRow/EditCheckListPopup";
+import { CheckListPopup } from '$app/components/_shared/EditRow/CheckListPopup';
+import { EditCheckListPopup } from '$app/components/_shared/EditRow/EditCheckListPopup';
+import { PropertiesPanel } from '$app/components/_shared/EditRow/PropertiesPanel';
 
 export const EditRow = ({
   onClose,
@@ -137,10 +138,10 @@ export const EditRow = ({
 
   const onOpenCheckListDetailClick = (_left: number, _top: number, _select_option: SelectOptionPB) => {
     setEditingSelectOption(_select_option);
-    setShowEditCheckList(true)
-    setEditCheckListLeft(_left+ 10);
+    setShowEditCheckList(true);
+    setEditCheckListLeft(_left + 10);
     setEditCheckListTop(_top);
-  }
+  };
 
   const onNumberFormat = (_left: number, _top: number) => {
     setShowNumberFormatPopup(true);
@@ -148,12 +149,12 @@ export const EditRow = ({
     setNumberFormatTop(_top);
   };
 
-  const onEditCheckListClick = (cellIdentifier: CellIdentifier,left: number, top: number) => {
+  const onEditCheckListClick = (cellIdentifier: CellIdentifier, left: number, top: number) => {
     setEditingCell(cellIdentifier);
     setShowCheckListPopup(true);
     setCheckListPopupLeft(left);
     setCheckListPopupTop(top + 40);
-  }
+  };
 
   const onDragEnd: OnDragEndResponder = (result) => {
     if (!result.destination?.index) return;
@@ -175,23 +176,23 @@ export const EditRow = ({
         onClick={(e) => {
           e.stopPropagation();
         }}
-        className={`relative flex h-[90%] w-[70%] flex-col gap-8 rounded-xl bg-white px-8 pb-4 pt-12`}
+        className={`relative flex h-[90%] w-[70%] flex-col gap-8 rounded-xl bg-white `}
       >
-        <div onClick={() => onCloseClick()} className={'absolute top-4 right-4'}>
+        <div onClick={() => onCloseClick()} className={'absolute top-1 right-1'}>
           <button className={'block h-8 w-8 rounded-lg text-shade-2 hover:bg-main-secondary'}>
             <CloseSvg></CloseSvg>
           </button>
         </div>
 
         <div className={'flex h-full'}>
-          <div className={'flex-1 flex flex-col border-r border-shade-6 h-full'}>
+          <div className={'flex h-full flex-1 flex-col border-r border-shade-6 pb-4 pt-12'}>
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable droppableId={'field-list'}>
                 {(provided) => (
                   <div
                     {...provided.droppableProps}
                     ref={provided.innerRef}
-                    className={`flex flex-1 flex-col gap-8 ${
+                    className={`flex flex-1 flex-col gap-8 px-8 ${
                       showFieldEditor || showChangeOptionsPopup || showDatePicker ? 'overflow-hidden' : 'overflow-auto'
                     }`}
                   >
@@ -213,7 +214,7 @@ export const EditRow = ({
               </Droppable>
             </DragDropContext>
 
-            <div className={'border-t border-shade-6 pt-2'}>
+            <div className={'border-t border-shade-6 px-8 pt-2'}>
               <button
                 onClick={() => onNewColumnClick()}
                 className={'flex w-full items-center gap-2 rounded-lg px-4 py-2 hover:bg-shade-6'}
@@ -225,9 +226,7 @@ export const EditRow = ({
               </button>
             </div>
           </div>
-          <div className={'flex flex-col'}>
-            <div className={'px-4'}>Basic Properties</div>
-          </div>
+          <PropertiesPanel viewId={viewId} controller={controller} rowInfo={rowInfo}></PropertiesPanel>
         </div>
 
         {showFieldEditor && editingCell && (
@@ -301,16 +300,17 @@ export const EditRow = ({
             cellIdentifier={editingCell}
             cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
             fieldController={controller.fieldController}
-            onOutsideClick={() =>              setShowCheckListPopup(false)            }
+            onOutsideClick={() => setShowCheckListPopup(false)}
             openCheckListDetail={onOpenCheckListDetailClick}
-          ></CheckListPopup>)}
+          ></CheckListPopup>
+        )}
         {showEditCheckList && editingCell && editingSelectOption && (
           <EditCheckListPopup
             top={editCheckListTop}
             left={editCheckListLeft}
             cellIdentifier={editingCell}
             editingSelectOption={editingSelectOption}
-            onOutsideClick={() =>              setShowEditCheckList(false)            }
+            onOutsideClick={() => setShowEditCheckList(false)}
           ></EditCheckListPopup>
         )}
       </div>
