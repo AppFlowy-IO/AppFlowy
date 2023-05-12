@@ -56,7 +56,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     highlightColorItem,
   ];
 
-  late final Map<String, BlockComponentBuilder> blockComponentBuilders;
+  late final Map<String, BlockComponentBuilder> blockComponentBuilders =
+      _customAppFlowyBlockComponentBuilders();
   late final List<CharacterShortcutEvent> characterShortcutEvents = [
     // divider
     convertMinusesToDivider,
@@ -74,18 +75,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   late final editorStyle = _desktopEditorStyle();
 
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
-
-  @override
-  void initState() {
-    super.initState();
-
-    blockComponentBuilders = _customAppFlowyBlockComponentBuilders();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -159,9 +148,15 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   }
 
   Map<String, BlockComponentBuilder> _customAppFlowyBlockComponentBuilders() {
-    for (var element in standardBlockComponentBuilderMap.values) {
-      element.actionBuilder = (_, state) => OptionActionList(
+    for (final entry in standardBlockComponentBuilderMap.entries) {
+      if (entry.key == 'document') {
+        continue;
+      }
+      final builder = entry.value;
+      builder.actionBuilder = (context, state) => OptionActionList(
+            blockComponentContext: context,
             blockComponentState: state,
+            editorState: widget.editorState,
           );
     }
     final builders = {

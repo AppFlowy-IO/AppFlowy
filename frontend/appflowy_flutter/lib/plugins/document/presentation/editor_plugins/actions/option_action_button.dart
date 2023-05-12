@@ -3,16 +3,19 @@ import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 class OptionActionList extends StatelessWidget {
   const OptionActionList({
     Key? key,
+    required this.blockComponentContext,
     required this.blockComponentState,
+    required this.editorState,
   }) : super(key: key);
 
+  final BlockComponentContext blockComponentContext;
   final BlockComponentState blockComponentState;
+  final EditorState editorState;
 
   @override
   Widget build(BuildContext context) {
@@ -38,22 +41,70 @@ class OptionActionList extends StatelessWidget {
       offset: const Offset(0, 0),
       actions: actions,
       onPopupBuilder: () => blockComponentState.alwaysShowActions = true,
-      onClosed: () => blockComponentState.alwaysShowActions = false,
-      buildChild: (controller) => Align(
-        alignment: Alignment.center,
-        child: GestureDetector(
-          onTap: () => controller.show(),
-          child: svgWidget(
-            'editor/option',
-            size: const Size.square(24.0),
-            color: Theme.of(context).iconTheme.color,
-          ),
-        ),
-      ),
-      onSelected: (action, controller) async {
+      onClosed: () {
+        editorState.selectionType = null;
+        editorState.selection = null;
+        blockComponentState.alwaysShowActions = false;
+      },
+      onSelected: (action, controller) {
+        if (action is OptionActionWrapper) {
+          _onSelectAction(action.inner);
+        }
+
         controller.close();
       },
+      buildChild: (controller) => OptionActionButton(
+        onTap: () {
+          controller.show();
+
+          // update selection
+          _updateBlockSelection();
+        },
+      ),
     );
+  }
+
+  void _updateBlockSelection() {
+    final startNode = blockComponentContext.node;
+    var endNode = startNode;
+    while (endNode.children.isNotEmpty) {
+      endNode = endNode.children.last;
+    }
+
+    final start = Position(path: startNode.path, offset: 0);
+    final end = endNode.selectable?.end() ??
+        Position(
+          path: endNode.path,
+          offset: endNode.delta?.length ?? 0,
+        );
+
+    editorState.selectionType = SelectionType.block;
+    editorState.selection = Selection(
+      start: start,
+      end: end,
+    );
+  }
+
+  void _onSelectAction(OptionAction action) {
+    switch (action) {
+      case OptionAction.delete:
+        final node = blockComponentContext.node;
+        final transaction = editorState.transaction..deleteNode(node);
+        editorState.apply(transaction);
+        break;
+      case OptionAction.duplicate:
+        break;
+      case OptionAction.turnInto:
+        break;
+      case OptionAction.moveUp:
+        break;
+      case OptionAction.moveDown:
+        break;
+      case OptionAction.color:
+        break;
+      case OptionAction.divider:
+        throw UnimplementedError();
+    }
   }
 }
 
@@ -83,38 +134,25 @@ class BlockComponentActionButton extends StatelessWidget {
   }
 }
 
-class OptionActionButton extends StatefulWidget {
+class OptionActionButton extends StatelessWidget {
   const OptionActionButton({
     super.key,
-    required this.blockComponentState,
+    required this.onTap,
   });
 
-  final BlockComponentState blockComponentState;
-
-  @override
-  State<OptionActionButton> createState() => _OptionActionButtonState();
-}
-
-class _OptionActionButtonState extends State<OptionActionButton> {
-  final controller = PopoverController();
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return AppFlowyPopover(
-      margin: const EdgeInsets.all(0),
-      controller: controller,
-      onClose: () => widget.blockComponentState.alwaysShowActions = false,
-      popupBuilder: (context) {
-        widget.blockComponentState.alwaysShowActions = true;
-        return Container(
-          width: 100,
-          height: 100,
-          color: Colors.red,
-        );
-      },
-      child: const Icon(
-        Icons.apps_rounded,
-        size: 18.0,
+    return Align(
+      alignment: Alignment.center,
+      child: GestureDetector(
+        onTap: onTap,
+        child: svgWidget(
+          'editor/option',
+          size: const Size.square(24.0),
+          color: Theme.of(context).iconTheme.color,
+        ),
       ),
     );
   }

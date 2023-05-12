@@ -382,16 +382,13 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
         ),
       ),
     );
-    await editorState.apply(transaction);
-
-    editorState.updateCursorSelection(
-      Selection(
-        start: Position(path: selection.end.path.next, offset: 0),
-        end: Position(
-          path: [selection.end.path.next.first + insertedText.length],
-        ),
+    transaction.afterSelection = Selection(
+      start: Position(path: selection.end.path.next, offset: 0),
+      end: Position(
+        path: [selection.end.path.next.first + insertedText.length],
       ),
     );
+    await editorState.apply(transaction);
   }
 
   Future<void> _onExit() async {
