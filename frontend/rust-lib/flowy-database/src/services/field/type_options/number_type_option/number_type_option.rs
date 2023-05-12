@@ -216,7 +216,17 @@ impl TypeOptionCellDataCompare for NumberTypeOptionPB {
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
   ) -> Ordering {
-    cell_data.0.cmp(&other_cell_data.0)
+    let left = NumberCellData::from_format_str(&cell_data.0, self.sign_positive, &self.format);
+    let right =
+      NumberCellData::from_format_str(&other_cell_data.0, self.sign_positive, &self.format);
+    match (left, right) {
+      (Ok(left), Ok(right)) => {
+        return left.decimal().cmp(&right.decimal());
+      },
+      (Ok(_), Err(_)) => Ordering::Greater,
+      (Err(_), Ok(_)) => Ordering::Less,
+      (Err(_), Err(_)) => Ordering::Equal,
+    }
   }
 }
 impl std::default::Default for NumberTypeOptionPB {
