@@ -1,4 +1,5 @@
 import { Editor } from 'slate';
+import { RegionGrid } from '$app/utils/region_grid';
 
 export enum BlockType {
   PageBlock = 'page',
@@ -127,10 +128,17 @@ export interface DocumentState {
   nodes: Record<string, Node>;
   // map of block id to children block ids
   children: Record<string, string[]>;
-  // selected block ids
-  selections: string[];
-  // map of block id to text selection
-  textSelections: Record<string, TextSelection>;
+}
+
+export interface RangeSelectionState {
+  anchor?: PointState,
+  focus?: PointState,
+}
+
+
+export interface PointState {
+  id: string,
+  selection: TextSelection
 }
 
 export enum ChangeType {

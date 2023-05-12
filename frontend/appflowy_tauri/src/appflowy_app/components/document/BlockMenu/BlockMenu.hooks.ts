@@ -1,4 +1,4 @@
-import { documentActions } from '@/appflowy_app/stores/reducers/document/slice';
+import { rectSelectionActions } from "@/appflowy_app/stores/reducers/document/slice";
 import { useAppDispatch } from '@/appflowy_app/stores/store';
 import { useRef, useState, useEffect } from 'react';
 
@@ -12,7 +12,7 @@ export function useBlockMenu(nodeId: string, open: boolean) {
       return;
     }
     // set selection when open
-    dispatch(documentActions.setSelectionById(nodeId));
+    dispatch(rectSelectionActions.setSelectionById(nodeId));
     // get node rect
     const rect = document.querySelector(`[data-block-id="${nodeId}"]`)?.getBoundingClientRect();
     if (!rect) return;
@@ -21,7 +21,7 @@ export function useBlockMenu(nodeId: string, open: boolean) {
       top: rect.top + 'px',
       left: rect.left + 'px',
     });
-  }, [open, nodeId]);
+  }, [open, nodeId, dispatch]);
 
   return {
     ref,

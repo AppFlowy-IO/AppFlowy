@@ -3,6 +3,7 @@ import { DocumentController } from '$app/stores/effects/document/document_contro
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { documentActions } from '$app_reducers/document/slice';
 import { debounce } from '$app/utils/tool';
+import { isSameDelta } from '$app/utils/document/blocks/text/delta';
 export const updateNodeDeltaThunk = createAsyncThunk(
   'document/updateNodeDelta',
   async (payload: { id: string; delta: TextDelta[]; controller: DocumentController }, thunkAPI) => {
@@ -10,6 +11,8 @@ export const updateNodeDeltaThunk = createAsyncThunk(
     const { dispatch, getState } = thunkAPI;
     const state = (getState() as { document: DocumentState }).document;
     const node = state.nodes[id];
+    const isSame = isSameDelta(delta, node.data.delta);
+    if (isSame) return;
     // The block map should be updated immediately
     // or the component will use the old data to update the editor
     dispatch(documentActions.updateNodeData({ id, data: { delta } }));
@@ -34,7 +37,7 @@ const debounceApplyUpdate = debounce((controller: DocumentController, updateNode
       },
     }),
   ]);
-}, 200);
+}, 500);
 
 export const updateNodeDataThunk = createAsyncThunk<
   void,

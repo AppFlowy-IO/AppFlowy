@@ -51,6 +51,12 @@ module.exports = {
     'no-void': 'off',
     'prefer-const': 'warn',
     'prefer-spread': 'off',
+    '@typescript-eslint/no-unused-vars': [
+      'warn',
+      {
+        argsIgnorePattern: '^_',
+      }
+    ],
   },
   ignorePatterns: ['src/**/*.test.ts'],
 };

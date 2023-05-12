@@ -14,7 +14,7 @@ export function useCodeBlock(node: NestedBlock<BlockType.CodeBlock>) {
   const id = node.id;
   const dispatch = useAppDispatch();
   const controller = useContext(DocumentControllerContext);
-  const { editor, onChange, value, onDOMBeforeInput } = useTextInput(id);
+  const { editor, ...rest } = useTextInput(id);
   const defaultTextInputEvents = useDefaultTextInputEvents(id);
 
   const customEvents = useMemo(() => {
@@ -81,8 +81,6 @@ export function useCodeBlock(node: NestedBlock<BlockType.CodeBlock>) {
   return {
     editor,
     onKeyDown,
-    onChange,
-    value,
-    onDOMBeforeInput,
+    ...rest
   };
 }

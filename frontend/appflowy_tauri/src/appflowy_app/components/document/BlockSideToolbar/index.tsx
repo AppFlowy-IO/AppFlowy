@@ -24,6 +24,7 @@ export default function BlockSideToolbar(props: { container: HTMLDivElement }) {
           onMouseDown={(e) => {
             // prevent toolbar from taking focus away from editor
             e.preventDefault();
+            e.stopPropagation();
           }}
         >
           <IconButton onClick={() => handleToggleMenu(true)} sx={sx}>

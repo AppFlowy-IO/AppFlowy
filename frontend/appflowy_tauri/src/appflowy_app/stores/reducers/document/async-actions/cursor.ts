@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { documentActions } from '../slice';
+import { rangeSelectionActions } from "../slice";
 import { DocumentState, TextSelection } from '$app/interfaces/document';
 import { Editor } from 'slate';
 import {
@@ -10,7 +10,7 @@ import {
   getNodeEndSelection,
   getStartLineSelectionByOffset,
 } from '$app/utils/document/blocks/text/delta';
-import { getNextLineId, getPrevLineId } from '$app/utils/document/blocks/common';
+import { getCollapsedRange, getNextLineId, getPrevLineId } from "$app/utils/document/blocks/common";
 
 export const setCursorBeforeThunk = createAsyncThunk(
   'document/setCursorBefore',
@@ -18,7 +18,9 @@ export const setCursorBeforeThunk = createAsyncThunk(
     const { id } = payload;
     const { dispatch } = thunkAPI;
     const selection = getNodeBeginSelection();
-    dispatch(documentActions.setTextSelection({ blockId: id, selection }));
+
+    const range = getCollapsedRange(id, selection);
+    dispatch(rangeSelectionActions.setRange(range));
   }
 );
 
@@ -30,7 +32,8 @@ export const setCursorAfterThunk = createAsyncThunk(
     const state = (getState() as { document: DocumentState }).document;
     const node = state.nodes[id];
     const selection = getNodeEndSelection(node.data.delta);
-    dispatch(documentActions.setTextSelection({ blockId: node.id, selection }));
+    const range = getCollapsedRange(id, selection);
+    dispatch(rangeSelectionActions.setRange(range));
   }
 );
 
@@ -64,7 +67,7 @@ export const setCursorPreLineThunk = createAsyncThunk(
 
     // set the cursor to prev line with the relative offset
     const newSelection = getEndLineSelectionByOffset(prevLineNode.data.delta, textOffset);
-    dispatch(documentActions.setTextSelection({ blockId: prevLineNode.id, selection: newSelection }));
+    dispatch(rangeSelectionActions.setRange(getCollapsedRange(prevLineNode.id, newSelection)));
   }
 );
 
@@ -100,6 +103,6 @@ export const setCursorNextLineThunk = createAsyncThunk(
     // set the cursor to next line with the relative offset
     const newSelection = getStartLineSelectionByOffset(delta, textOffset);
 
-    dispatch(documentActions.setTextSelection({ blockId: nextLineNode.id, selection: newSelection }));
+    dispatch(rangeSelectionActions.setRange(getCollapsedRange(nextLineNode.id, newSelection)));
   }
 );

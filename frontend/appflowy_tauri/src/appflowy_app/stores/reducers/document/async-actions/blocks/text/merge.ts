@@ -1,9 +1,8 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { DocumentState } from '$app/interfaces/document';
-import { getPrevLineId } from '$app/utils/document/blocks/common';
-import { setCursorAfterThunk } from '$app_reducers/document/async-actions';
-import { documentActions } from '$app_reducers/document/slice';
+import { getCollapsedRange, getPrevLineId } from "$app/utils/document/blocks/common";
+import { documentActions, rangeSelectionActions } from "$app_reducers/document/slice";
 import { blockConfig } from '$app/constants/document/config';
 import { getNodeEndSelection } from '$app/utils/document/blocks/text/delta';
 
@@ -80,6 +79,7 @@ export const mergeToPrevLineThunk = createAsyncThunk(
     await controller.applyActions(actions);
 
     // set cursor after the prev line
-    dispatch(documentActions.setTextSelection({ blockId: prevLine.id, selection }));
+    const range = getCollapsedRange(prevLine.id, selection);
+    dispatch(rangeSelectionActions.setRange(range));
   }
 );
