@@ -37,6 +37,7 @@ import { SortSvg } from '$app/components/_shared/svg/SortSvg';
 import { TextTypeSvg } from '$app/components/_shared/svg/TextTypeSvg';
 import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
 import { UrlTypeSvg } from '$app/components/_shared/svg/UrlTypeSvg';
+import { DragElementSvg } from '$app/components/_shared/svg/DragElementSvg';
 
 export const AllIcons = () => {
   return (
@@ -82,6 +83,9 @@ export const AllIcons = () => {
           </i>
           <i className={'h-5 w-5'} title={'DocumentSvg'}>
             <DocumentSvg></DocumentSvg>
+          </i>
+          <i className={'h-5 w-5'} title={'DragElementSvg'}>
+            <DragElementSvg></DragElementSvg>
           </i>
           <i className={'h-5 w-5'} title={'DropDownShowSvg'}>
             <DropDownShowSvg></DropDownShowSvg>

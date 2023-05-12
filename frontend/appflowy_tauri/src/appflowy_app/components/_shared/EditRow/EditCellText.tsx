@@ -31,7 +31,7 @@ export const EditCellText = ({
   return (
     <div className={''}>
       <textarea
-        className={'mt-0.5 h-full w-full resize-none px-4 py-2'}
+        className={'mt-0.5 h-full w-full resize-none px-4 py-1'}
         rows={contentRows}
         value={value}
         onChange={(e) => onTextFieldChange(e.target.value)}

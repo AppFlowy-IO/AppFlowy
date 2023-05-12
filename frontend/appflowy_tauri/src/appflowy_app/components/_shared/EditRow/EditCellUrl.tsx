@@ -25,7 +25,7 @@ export const EditCellUrl = ({
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onBlur={() => save()}
-      className={'w-full px-4 py-2'}
+      className={'w-full px-4 py-1'}
     ></input>
   );
 };

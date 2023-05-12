@@ -17,6 +17,8 @@ import { DatePickerPopup } from '$app/components/_shared/EditRow/DatePickerPopup
 import { DragDropContext, Droppable, OnDragEndResponder } from 'react-beautiful-dnd';
 import { EditCellOptionPopup } from '$app/components/_shared/EditRow/EditCellOptionPopup';
 import { NumberFormatPopup } from '$app/components/_shared/EditRow/NumberFormatPopup';
+import {CheckListPopup} from "$app/components/_shared/EditRow/CheckListPopup";
+import {EditCheckListPopup} from "$app/components/_shared/EditRow/EditCheckListPopup";
 
 export const EditRow = ({
   onClose,
@@ -56,9 +58,17 @@ export const EditRow = ({
 
   const [editingSelectOption, setEditingSelectOption] = useState<SelectOptionPB | undefined>();
 
+  const [showEditCheckList, setShowEditCheckList] = useState(false);
+  const [editCheckListTop, setEditCheckListTop] = useState(0);
+  const [editCheckListLeft, setEditCheckListLeft] = useState(0);
+
   const [showNumberFormatPopup, setShowNumberFormatPopup] = useState(false);
   const [numberFormatTop, setNumberFormatTop] = useState(0);
   const [numberFormatLeft, setNumberFormatLeft] = useState(0);
+
+  const [showCheckListPopup, setShowCheckListPopup] = useState(false);
+  const [checkListPopupTop, setCheckListPopupTop] = useState(0);
+  const [checkListPopupLeft, setCheckListPopupLeft] = useState(0);
 
   useEffect(() => {
     setUnveil(true);
@@ -125,11 +135,25 @@ export const EditRow = ({
     setEditCellOptionTop(_top);
   };
 
+  const onOpenCheckListDetailClick = (_left: number, _top: number, _select_option: SelectOptionPB) => {
+    setEditingSelectOption(_select_option);
+    setShowEditCheckList(true)
+    setEditCheckListLeft(_left+ 10);
+    setEditCheckListTop(_top);
+  }
+
   const onNumberFormat = (_left: number, _top: number) => {
     setShowNumberFormatPopup(true);
     setNumberFormatLeft(_left + 10);
     setNumberFormatTop(_top);
   };
+
+  const onEditCheckListClick = (cellIdentifier: CellIdentifier,left: number, top: number) => {
+    setEditingCell(cellIdentifier);
+    setShowCheckListPopup(true);
+    setCheckListPopupLeft(left);
+    setCheckListPopupTop(top + 40);
+  }
 
   const onDragEnd: OnDragEndResponder = (result) => {
     if (!result.destination?.index) return;
@@ -159,43 +183,51 @@ export const EditRow = ({
           </button>
         </div>
 
-        <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable droppableId={'field-list'}>
-            {(provided) => (
-              <div
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-                className={`flex flex-1 flex-col gap-2 ${
-                  showFieldEditor || showChangeOptionsPopup || showDatePicker ? 'overflow-hidden' : 'overflow-auto'
-                }`}
-              >
-                {cells.map((cell, cellIndex) => (
-                  <EditCellWrapper
-                    index={cellIndex}
-                    key={cellIndex}
-                    cellIdentifier={cell.cellIdentifier}
-                    cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
-                    fieldController={controller.fieldController}
-                    onEditFieldClick={onEditFieldClick}
-                    onEditOptionsClick={onEditOptionsClick}
-                    onEditDateClick={onEditDateClick}
-                  ></EditCellWrapper>
-                ))}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
+        <div className={'flex h-full'}>
+          <div className={'flex-1 flex flex-col border-r border-shade-6 h-full'}>
+            <DragDropContext onDragEnd={onDragEnd}>
+              <Droppable droppableId={'field-list'}>
+                {(provided) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className={`flex flex-1 flex-col gap-8 ${
+                      showFieldEditor || showChangeOptionsPopup || showDatePicker ? 'overflow-hidden' : 'overflow-auto'
+                    }`}
+                  >
+                    {cells.map((cell, cellIndex) => (
+                      <EditCellWrapper
+                        index={cellIndex}
+                        key={cellIndex}
+                        cellIdentifier={cell.cellIdentifier}
+                        cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
+                        fieldController={controller.fieldController}
+                        onEditFieldClick={onEditFieldClick}
+                        onEditOptionsClick={onEditOptionsClick}
+                        onEditDateClick={onEditDateClick}
+                        onEditCheckListClick={onEditCheckListClick}
+                      ></EditCellWrapper>
+                    ))}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
 
-        <div className={'border-t border-shade-6 pt-2'}>
-          <button
-            onClick={() => onNewColumnClick()}
-            className={'flex w-full items-center gap-2 rounded-lg px-4 py-2 hover:bg-shade-6'}
-          >
-            <i className={'h-5 w-5'}>
-              <AddSvg></AddSvg>
-            </i>
-            <span>{t('grid.field.newColumn')}</span>
-          </button>
+            <div className={'border-t border-shade-6 pt-2'}>
+              <button
+                onClick={() => onNewColumnClick()}
+                className={'flex w-full items-center gap-2 rounded-lg px-4 py-2 hover:bg-shade-6'}
+              >
+                <i className={'h-5 w-5'}>
+                  <AddSvg></AddSvg>
+                </i>
+                <span>{t('grid.field.newProperty')}</span>
+              </button>
+            </div>
+          </div>
+          <div className={'flex flex-col'}>
+            <div className={'px-4'}>Basic Properties</div>
+          </div>
         </div>
 
         {showFieldEditor && editingCell && (
@@ -261,6 +293,25 @@ export const EditRow = ({
               setShowNumberFormatPopup(false);
             }}
           ></NumberFormatPopup>
+        )}
+        {showCheckListPopup && editingCell && (
+          <CheckListPopup
+            top={checkListPopupTop}
+            left={checkListPopupLeft}
+            cellIdentifier={editingCell}
+            cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
+            fieldController={controller.fieldController}
+            onOutsideClick={() =>              setShowCheckListPopup(false)            }
+            openCheckListDetail={onOpenCheckListDetailClick}
+          ></CheckListPopup>)}
+        {showEditCheckList && editingCell && editingSelectOption && (
+          <EditCheckListPopup
+            top={editCheckListTop}
+            left={editCheckListLeft}
+            cellIdentifier={editingCell}
+            editingSelectOption={editingSelectOption}
+            onOutsideClick={() =>              setShowEditCheckList(false)            }
+          ></EditCheckListPopup>
         )}
       </div>
     </div>

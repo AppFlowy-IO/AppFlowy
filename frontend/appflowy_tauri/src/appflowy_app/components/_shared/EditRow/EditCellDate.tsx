@@ -17,7 +17,7 @@ export const EditCellDate = ({
   };
 
   return (
-    <div ref={ref} onClick={() => onClick()} className={'w-full px-4 py-2'}>
+    <div ref={ref} onClick={() => onClick()} className={'w-full px-4 py-1'}>
       {data?.date || <>&nbsp;</>}
     </div>
   );
