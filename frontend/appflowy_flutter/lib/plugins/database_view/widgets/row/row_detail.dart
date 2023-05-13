@@ -361,8 +361,8 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
       return GridURLCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
         accessoryTypes: [
-          GridURLCellAccessoryType.edit,
           GridURLCellAccessoryType.copyURL,
+          GridURLCellAccessoryType.visitURL,
         ],
       );
   }
