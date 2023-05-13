@@ -16,9 +16,13 @@ export function useTextSelections(id: string, editor: ReactEditor) {
 
   useEffect(() => {
     if (!rangeRef.current) return;
-    const { isDragging, focus, anchor } = rangeRef.current;
-    if (isDragging || anchor?.id !== focus?.id || !currentSelection || !Range.isCollapsed(currentSelection as BaseRange))
+    if (!currentSelection) {
+      ReactEditor.deselect(editor);
+      ReactEditor.blur(editor);
       return;
+    }
+    const { isDragging, focus, anchor } = rangeRef.current;
+    if (isDragging || anchor?.id !== focus?.id || !Range.isCollapsed(currentSelection as BaseRange)) return;
 
     if (!ReactEditor.isFocused(editor)) {
       ReactEditor.focus(editor);
@@ -66,11 +70,17 @@ export function useTextSelections(id: string, editor: ReactEditor) {
       if (!rangeRef.current) return;
       const { isDragging, anchor } = rangeRef.current;
       if (!isDragging || !anchor || ReactEditor.isFocused(editor)) return;
-
-      const isForward = selectionIsForward(anchor.selection);
-      if (!isForward) {
-        Transforms.select(editor, getEditorEndPoint(editor));
+      if (anchor.id === id) {
+        if (Range.isRange(anchor.selection)) {
+          Transforms.select(editor, anchor.selection);
+        }
+      } else {
+        const isForward = selectionIsForward(anchor.selection);
+        if (!isForward) {
+          Transforms.select(editor, getEditorEndPoint(editor));
+        }
       }
+
       ReactEditor.focus(editor);
     },
     [editor, rangeRef]

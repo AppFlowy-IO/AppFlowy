@@ -1,7 +1,7 @@
 import { BlockType, NestedBlock } from '$app/interfaces/document';
 import { useCodeBlock } from './CodeBlock.hooks';
 import { Editable, Slate } from 'slate-react';
-import BlockHorizontalToolbar from '$app/components/document/BlockHorizontalToolbar';
+import TextActionMenu from '$app/components/document/TextActionMenu';
 import React from 'react';
 import { CodeLeaf, CodeBlockElement } from './elements';
 import SelectLanguage from './SelectLanguage';
@@ -23,10 +23,14 @@ export default function CodeBlock({
         <SelectLanguage id={id} language={language} />
       </div>
       <Slate editor={editor} onChange={onChange} value={value}>
-        <BlockHorizontalToolbar id={id} />
+        <TextActionMenu id={id} />
         <Editable
           {...rest}
-          decorate={(entry) => decorateCodeFunc(entry, language)}
+          decorate={(entry) => {
+            const codeRange = decorateCodeFunc(entry, language);
+            const range = rest.decorate(entry);
+            return [...range, ...codeRange];
+          }}
           renderLeaf={CodeLeaf}
           renderElement={CodeBlockElement}
           placeholder={placeholder || 'Please enter some text...'}

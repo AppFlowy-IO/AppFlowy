@@ -290,7 +290,8 @@ export function getPointOfCurrentLineBeginning(editor: Editor) {
   return beginPoint;
 }
 
-export function selectionIsForward(selection: TextSelection) {
+export function selectionIsForward(selection: TextSelection | null) {
+  if (!selection) return false;
   const { anchor, focus } = selection;
   if (!anchor || !focus) return false;
   return anchor.path[1] < focus.path[1] || (anchor.path[1] === focus.path[1] && anchor.offset < focus.offset);
