@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAppDispatch } from '$app/stores/store';
-import { rectSelectionActions } from "@/appflowy_app/stores/reducers/document/slice";
+import { rectSelectionActions } from '@/appflowy_app/stores/reducers/document/slice';
 import { useNodesRect } from '$app/components/document/BlockSelection/NodesRect.hooks';
-import { setRectSelectionThunk } from "$app_reducers/document/async-actions/rect_selection";
+import { setRectSelectionThunk } from '$app_reducers/document/async-actions/rect_selection';
 
 export function useBlockSelection({
   container,

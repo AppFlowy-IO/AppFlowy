@@ -6,6 +6,12 @@ import { DocumentControllerContext } from '../stores/effects/document/document_c
 const theme = createTheme({
   typography: {
     fontFamily: ['Poppins'].join(','),
+    fontSize: 14,
+  },
+  palette: {
+    primary: {
+      main: '#00BCF0',
+    },
   },
 });
 

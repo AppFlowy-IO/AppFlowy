@@ -16,9 +16,13 @@ export function useTextSelections(id: string, editor: ReactEditor) {
 
   useEffect(() => {
     if (!rangeRef.current) return;
-    const { isDragging, focus, anchor } = rangeRef.current;
-    if (isDragging || anchor?.id !== focus?.id || !currentSelection || !Range.isCollapsed(currentSelection as BaseRange))
+    if (!currentSelection) {
+      ReactEditor.deselect(editor);
+      ReactEditor.blur(editor);
       return;
+    }
+    const { isDragging, focus, anchor } = rangeRef.current;
+    if (isDragging || anchor?.id !== focus?.id || !Range.isCollapsed(currentSelection as BaseRange)) return;
 
     if (!ReactEditor.isFocused(editor)) {
       ReactEditor.focus(editor);

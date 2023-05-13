@@ -8,6 +8,7 @@ interface CodeLeafProps extends RenderLeafProps {
     underlined?: boolean;
     strikethrough?: boolean;
     prism_token?: string;
+    selectionHighlighted?: boolean;
   };
 }
 
@@ -27,8 +28,19 @@ export const CodeLeaf = (props: CodeLeafProps) => {
     newChildren = <u>{newChildren}</u>;
   }
 
+  let className = 'token';
+  if (leaf.prism_token) {
+    className += ` ${leaf.prism_token}`;
+  }
+  if (leaf.strikethrough) {
+    className += ' line-through';
+  }
+  if (leaf.selectionHighlighted) {
+    className += ' bg-main-secondary';
+  }
+
   return (
-    <span {...attributes} className={`token ${leaf.prism_token} ${leaf.strikethrough ? `line-through` : ''}`}>
+    <span {...attributes} className={className}>
       {newChildren}
     </span>
   );

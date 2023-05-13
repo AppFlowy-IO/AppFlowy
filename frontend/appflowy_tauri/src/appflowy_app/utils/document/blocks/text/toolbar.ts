@@ -1,11 +1,4 @@
-import { Editor, Range } from 'slate';
-export function calcToolbarPosition(editor: Editor, toolbarDom: HTMLDivElement, blockRect: DOMRect) {
-  const { selection } = editor;
-
-  if (!selection || Range.isCollapsed(selection) || Editor.string(editor, selection) === '') {
-    return;
-  }
-
+export function calcToolbarPosition(toolbarDom: HTMLDivElement, blockRect: DOMRect) {
   const domSelection = window.getSelection();
   let domRange;
   if (domSelection?.rangeCount === 0) {
@@ -15,13 +8,23 @@ export function calcToolbarPosition(editor: Editor, toolbarDom: HTMLDivElement, 
   }
 
   const rect = domRange?.getBoundingClientRect() || { top: 0, left: 0, width: 0, height: 0 };
-  
-  const top = `${-toolbarDom.offsetHeight - 5 + (rect.top - blockRect.y)}px`;
-  const left = `${rect.left - blockRect.x - toolbarDom.offsetWidth / 2 + rect.width / 2}px`;
-  
-  return {
-    top,
-    left,
+
+  let top = -toolbarDom.offsetHeight - 5 + (rect.top - blockRect.y);
+  let left = rect.left - blockRect.x - toolbarDom.offsetWidth / 2 + rect.width / 2;
+
+  const container = document.querySelector('.doc-scroller-container') as HTMLElement;
+  const containerRect = container.getBoundingClientRect();
+  const leftThreshold = containerRect.left;
+  const rightThreshold = containerRect.left + containerRect.width;
+
+  if (blockRect.x + left < leftThreshold) {
+    left = leftThreshold - blockRect.x;
+  } else if (blockRect.x + left + toolbarDom.offsetWidth > rightThreshold) {
+    left = rightThreshold - blockRect.x - toolbarDom.offsetWidth;
   }
-  
+
+  return {
+    top: top + 'px',
+    left: left + 'px',
+  };
 }
