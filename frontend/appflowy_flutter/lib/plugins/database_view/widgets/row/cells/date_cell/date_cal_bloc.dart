@@ -75,7 +75,7 @@ class DateCellCalendarBloc
     String? time,
     bool? includeTime,
   }) async {
-    // make sure date and time are not updated together from the UI
+    // make sure that not both date and time are updated at the same time
     assert(
       date == null && time == null ||
           date == null && time != null ||
@@ -83,7 +83,7 @@ class DateCellCalendarBloc
     );
     String? newTime = time ?? state.time;
 
-    DateTime? newDate = date;
+    DateTime? newDate = _utcToLocalAddTime(date);
     if (time != null && time.isNotEmpty) {
       newDate = state.dateTime ?? DateTime.now();
     }
@@ -122,11 +122,14 @@ class DateCellCalendarBloc
     );
   }
 
-  DateTime _utcToLocalAddTime(DateTime date) {
+  DateTime? _utcToLocalAddTime(DateTime? date) {
+    if (date == null) {
+      return null;
+    }
     final now = DateTime.now();
     // the incoming date is Utc. this trick converts it into Local
-    // and add the current time, though
-    // the time may be overwritten by explicitly provided time string
+    // and add the current time, though the time may be overwritten by
+    // explicitly provided time string
     return DateTime(
       date.year,
       date.month,
