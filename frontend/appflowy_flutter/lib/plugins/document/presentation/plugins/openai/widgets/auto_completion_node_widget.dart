@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:appflowy/plugins/document/presentation/plugins/openai/service/openai_client.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/util/learn_more_action.dart';
@@ -21,6 +22,8 @@ import '../util/editor_extension.dart';
 
 const String kAutoCompletionInputType = 'auto_completion_input';
 const String kAutoCompletionInputString = 'auto_completion_input_string';
+const String kAutoCompletionGenerationCount =
+    'auto_completion_generation_count';
 const String kAutoCompletionInputStartSelection =
     'auto_completion_input_start_selection';
 
@@ -124,7 +127,8 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
   }
 
   Widget _buildAutoGeneratorPanel(BuildContext context) {
-    if (text.isEmpty) {
+    if (text.isEmpty &&
+        widget.node.attributes[kAutoCompletionGenerationCount] < 1) {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -204,6 +208,15 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
     );
   }
 
+  Future<void> _updateGenerationCount() async {
+    final transaction = widget.editorState.transaction;
+    transaction.updateNode(widget.node, {
+      kAutoCompletionGenerationCount:
+          widget.node.attributes[kAutoCompletionGenerationCount] + 1
+    });
+    await widget.editorState.apply(transaction);
+  }
+
   Widget _buildFooterWidget(BuildContext context) {
     return Row(
       children: [
@@ -215,6 +228,11 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
         SecondaryTextButton(
           LocaleKeys.button_discard.tr(),
           onPressed: () => _onDiscard(),
+        ),
+        const Space(10, 0),
+        SecondaryTextButton(
+          LocaleKeys.document_plugins_autoGeneratorRewrite.tr(),
+          onPressed: () => _onRewrite(),
         ),
       ],
     );
@@ -272,12 +290,95 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
           await _showError(error.message);
         },
       );
+      await _updateGenerationCount();
     }, (error) async {
       loading.stop();
       await _showError(
         LocaleKeys.document_plugins_autoGeneratorCantGetOpenAIKey.tr(),
       );
     });
+  }
+
+  Future<void> _onRewrite() async {
+    String previousOutput = _getPreviousOutput();
+    final loading = Loading(context);
+    loading.start();
+    // clear previous response
+    final selection =
+        widget.node.attributes[kAutoCompletionInputStartSelection];
+    if (selection != null) {
+      final start = Selection.fromJson(json.decode(selection)).start.path;
+      final end = widget.node.previous?.path;
+      if (end != null) {
+        final transaction = widget.editorState.transaction;
+        transaction.deleteNodesAtPath(
+          start,
+          end.last - start.last + 1,
+        );
+        await widget.editorState.apply(transaction);
+      }
+    }
+    // generate new response
+    final result = await UserBackendService.getCurrentUserProfile();
+    result.fold((userProfile) async {
+      final openAIRepository = HttpOpenAIRepository(
+        client: http.Client(),
+        apiKey: userProfile.openaiKey,
+      );
+      await openAIRepository.getStreamedCompletions(
+        prompt: _rewritePrompt(previousOutput),
+        temperature: _getRandomTemperature(),
+        onStart: () async {
+          loading.stop();
+          await _makeSurePreviousNodeIsEmptyTextNode();
+        },
+        onProcess: (response) async {
+          if (response.choices.isNotEmpty) {
+            final text = response.choices.first.text;
+            await widget.editorState.autoInsertText(
+              text,
+              inputType: TextRobotInputType.word,
+              delay: Duration.zero,
+            );
+          }
+        },
+        onEnd: () async {},
+        onError: (error) async {
+          loading.stop();
+          await _showError(error.message);
+        },
+      );
+      await _updateGenerationCount();
+    }, (error) async {
+      loading.stop();
+      await _showError(
+        LocaleKeys.document_plugins_autoGeneratorCantGetOpenAIKey.tr(),
+      );
+    });
+  }
+
+  _getPreviousOutput() {
+    final selection =
+        widget.node.attributes[kAutoCompletionInputStartSelection];
+    if (selection != null) {
+      final start = Selection.fromJson(json.decode(selection)).start.path;
+      final end = widget.node.previous?.path;
+      if (end != null) {
+        String lastOutput = "";
+        for (var i = start.last; i < end.last - start.last + 2; i++) {
+          TextNode? textNode =
+              widget.editorState.document.nodeAtPath([i]) as TextNode?;
+          lastOutput = "$lastOutput ${textNode!.toPlainText()}";
+        }
+        return lastOutput.trim();
+      }
+    }
+  }
+
+  _rewritePrompt(String previousOutput) {
+    String prompt =
+        "I am not satisfied with yout previous response($previousOutput) to the query ($text) please write another one";
+    return prompt;
   }
 
   Future<void> _onDiscard() async {
@@ -293,6 +394,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
           end.last - start.last + 1,
         );
         await widget.editorState.apply(transaction);
+        await _makeSurePreviousNodeIsEmptyTextNode();
       }
     }
     _onExit();
@@ -363,4 +465,12 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
   }
 
   void _onCancelWhenSelectionChanged() {}
+
+  double _getRandomTemperature() {
+    Random random = Random();
+    double min = 0.2;
+    double max = 0.8;
+    double randomTemperature = min + random.nextDouble() * (max - min);
+    return randomTemperature;
+  }
 }
