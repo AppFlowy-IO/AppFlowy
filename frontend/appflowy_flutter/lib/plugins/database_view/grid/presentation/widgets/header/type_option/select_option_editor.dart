@@ -66,7 +66,12 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
             if (showOptions) {
               cells.add(const TypeOptionSeparator());
               cells.add(
-                SelectOptionColorList(selectedColor: state.option.color),
+                SelectOptionColorList(
+                  selectedColor: state.option.color,
+                  onSelectedColor: (color) => context
+                      .read<EditSelectOptionBloc>()
+                      .add(EditSelectOptionEvent.updateColor(color)),
+                ),
               );
             }
 
@@ -147,9 +152,14 @@ class _OptionNameTextField extends StatelessWidget {
 }
 
 class SelectOptionColorList extends StatelessWidget {
+  const SelectOptionColorList({
+    super.key,
+    required this.selectedColor,
+    required this.onSelectedColor,
+  });
+
   final SelectOptionColorPB selectedColor;
-  const SelectOptionColorList({required this.selectedColor, Key? key})
-      : super(key: key);
+  final void Function(SelectOptionColorPB color) onSelectedColor;
 
   @override
   Widget build(BuildContext context) {
@@ -157,6 +167,7 @@ class SelectOptionColorList extends StatelessWidget {
       return _SelectOptionColorCell(
         color: color,
         isSelected: selectedColor == color,
+        onSelectedColor: onSelectedColor,
       );
     }).toList();
 
@@ -193,13 +204,16 @@ class SelectOptionColorList extends StatelessWidget {
 }
 
 class _SelectOptionColorCell extends StatelessWidget {
-  final SelectOptionColorPB color;
-  final bool isSelected;
   const _SelectOptionColorCell({
     required this.color,
     required this.isSelected,
+    required this.onSelectedColor,
     Key? key,
   }) : super(key: key);
+
+  final SelectOptionColorPB color;
+  final bool isSelected;
+  final void Function(SelectOptionColorPB color) onSelectedColor;
 
   @override
   Widget build(BuildContext context) {
@@ -228,11 +242,7 @@ class _SelectOptionColorCell extends StatelessWidget {
         ),
         leftIcon: colorIcon,
         rightIcon: checkmark,
-        onTap: () {
-          context
-              .read<EditSelectOptionBloc>()
-              .add(EditSelectOptionEvent.updateColor(color));
-        },
+        onTap: () => onSelectedColor(color),
       ),
     );
   }

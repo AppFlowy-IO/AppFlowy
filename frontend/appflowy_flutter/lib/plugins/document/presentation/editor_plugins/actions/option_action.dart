@@ -1,4 +1,8 @@
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/select_option_editor.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +23,46 @@ class DividerOptionAction extends CustomActionCell {
       height: 1.0,
     );
   }
+}
+
+class ColorOptionAction extends PopoverActionCell {
+  ColorOptionAction({
+    required this.editorState,
+  });
+
+  final EditorState editorState;
+
+  @override
+  Widget? leftIcon(Color iconColor) {
+    return svgWidget(
+      'editor/color', // todo: add color icon
+      color: iconColor,
+    );
+  }
+
+  @override
+  String get name {
+    return 'Color';
+  }
+
+  @override
+  WidgetBuilder get builder => (context) => SelectOptionColorList(
+        selectedColor: SelectOptionColorPB.Blue,
+        onSelectedColor: (color) {
+          final selection = editorState.selection;
+          if (selection == null) {
+            return;
+          }
+          final nodes = editorState.getNodesInSelection(selection);
+          final transaction = editorState.transaction;
+          for (final node in nodes) {
+            transaction.updateNode(node, {
+              'bgColor': color.make(context).toHex(),
+            });
+          }
+          editorState.apply(transaction);
+        },
+      );
 }
 
 class OptionActionWrapper extends ActionCell {

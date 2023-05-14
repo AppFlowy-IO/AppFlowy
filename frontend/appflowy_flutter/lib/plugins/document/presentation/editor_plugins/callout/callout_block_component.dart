@@ -1,4 +1,3 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/base/color_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -117,9 +116,12 @@ class _CalloutBlockComponentWidgetState
 
   // get the background color of the note block from the node's attributes
   Color get backgroundColor {
-    final backgroundColor =
-        node.attributes[CalloutBlockKeys.backgroundColor] as String;
-    return backgroundColor.toColor();
+    final colorString =
+        node.attributes[CalloutBlockKeys.backgroundColor] as String?;
+    if (colorString == null) {
+      return Colors.transparent;
+    }
+    return colorString.toColor();
   }
 
   // get the emoji of the note block from the node's attributes or default to '📌'

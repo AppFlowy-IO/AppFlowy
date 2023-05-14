@@ -22,19 +22,23 @@ class OptionActionList extends StatelessWidget {
     final actions = [
       OptionAction.delete,
       OptionAction.duplicate,
-      OptionAction.turnInto,
+      // OptionAction.turnInto, // unimplement yet.
       OptionAction.divider,
       OptionAction.moveUp,
       OptionAction.moveDown,
       OptionAction.divider,
       OptionAction.color,
-    ]
-        .map(
-          (e) => e == OptionAction.divider
-              ? DividerOptionAction()
-              : OptionActionWrapper(e),
-        )
-        .toList();
+    ].map((e) {
+      if (e == OptionAction.divider) {
+        return DividerOptionAction();
+      } else if (e == OptionAction.color) {
+        return ColorOptionAction(
+          editorState: editorState,
+        );
+      } else {
+        return OptionActionWrapper(e);
+      }
+    }).toList();
 
     return PopoverActionList<PopoverAction>(
       direction: PopoverDirection.leftWithCenterAligned,
@@ -49,9 +53,8 @@ class OptionActionList extends StatelessWidget {
       onSelected: (action, controller) {
         if (action is OptionActionWrapper) {
           _onSelectAction(action.inner);
+          controller.close();
         }
-
-        controller.close();
       },
       buildChild: (controller) => OptionActionButton(
         onTap: () {
@@ -86,25 +89,34 @@ class OptionActionList extends StatelessWidget {
   }
 
   void _onSelectAction(OptionAction action) {
+    final node = blockComponentContext.node;
+    final transaction = editorState.transaction;
     switch (action) {
       case OptionAction.delete:
-        final node = blockComponentContext.node;
-        final transaction = editorState.transaction..deleteNode(node);
-        editorState.apply(transaction);
+        transaction.deleteNode(node);
         break;
       case OptionAction.duplicate:
+        transaction.insertNode(
+          node.path.next,
+          node.copyWith(),
+        );
         break;
       case OptionAction.turnInto:
         break;
       case OptionAction.moveUp:
+        transaction.moveNode(node.path.previous, node);
         break;
       case OptionAction.moveDown:
+        transaction.moveNode(node.path.next.next, node);
         break;
       case OptionAction.color:
+        // show the color picker
+
         break;
       case OptionAction.divider:
         throw UnimplementedError();
     }
+    editorState.apply(transaction);
   }
 }
 

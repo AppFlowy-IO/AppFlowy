@@ -544,9 +544,3 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
     );
   }
 }
-
-extension on Color {
-  String toHex() {
-    return '0x${value.toRadixString(16)}';
-  }
-}
