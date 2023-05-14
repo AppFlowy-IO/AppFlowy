@@ -4,6 +4,79 @@ import 'package:flutter/services.dart';
 
 import 'emoji_picker.dart';
 
+ShortcutEvent showEmojiPickerEvent(BuildContext context) => ShortcutEvent(
+      key: 'Show emoji picker',
+      command: 'meta+e',
+      windowsCommand: 'ctrl+e',
+      linuxCommand: 'ctrl+e',
+      macOSCommand: 'cmd+e',
+      handler: (state, event) =>
+          _showEmojiSelectionMenuShortcut(state, event, context),
+    );
+
+KeyEventResult _showEmojiSelectionMenuShortcut(
+  EditorState editorState,
+  RawKeyEvent? event,
+  BuildContext context,
+) {
+  if (_emojiSelectionMenu != null) {
+    _emojiSelectionMenu?.remove();
+  }
+  const menuHeight = 200.0;
+  final selectionService = editorState.service.selectionService;
+  final selectionRects = selectionService.selectionRects;
+  const menuOffset = Offset(0, 10);
+  final editorOffset =
+      editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
+  final editorHeight = editorState.renderBox!.size.height;
+
+  // show below default
+  var showBelow = true;
+  var alignment = Alignment.bottomLeft;
+  final bottomRight = selectionRects.first.bottomRight;
+  final topRight = selectionRects.first.topRight;
+  var offset = bottomRight + menuOffset;
+  // overflow
+  if (offset.dy + menuHeight >= editorOffset.dy + editorHeight) {
+    // show above
+    offset = topRight - menuOffset;
+    showBelow = false;
+    alignment = Alignment.topLeft;
+  }
+  offset = Offset(
+    offset.dx,
+    showBelow ? offset.dy : MediaQuery.of(context).size.height - offset.dy,
+  );
+  _emojiSelectionMenu = OverlayEntry(
+    builder: (context) {
+      return Positioned(
+        top: alignment == Alignment.bottomLeft ? offset.dy : null,
+        bottom: alignment == Alignment.topLeft ? offset.dy : null,
+        left: offset.dx,
+        child: Material(
+          child: EmojiSelectionMenu(
+            editorState: editorState,
+            onSubmitted: (text) {
+              // insert emoji
+              editorState.insertEmoji(text);
+            },
+            onExit: () {
+              _dismissEmojiSelectionMenu();
+              //close emoji panel
+            },
+          ),
+        ),
+      );
+    },
+  );
+  Overlay.of(context).insert(_emojiSelectionMenu!);
+
+  _editorState = editorState;
+  editorState.service.selectionService.currentSelection
+      .addListener(_dismissEmojiSelectionMenu);
+  return KeyEventResult.handled;
+}
+
 SelectionMenuItem emojiMenuItem = SelectionMenuItem(
   name: 'Emoji',
   icon: (editorState, onSelected) => Icon(

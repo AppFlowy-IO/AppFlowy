@@ -152,6 +152,7 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
         enterInCodeBlock,
         ignoreKeysInCodeBlock,
         pasteInCodeBlock,
+        showEmojiPickerEvent(context),
       ],
       selectionMenuItems: [
         // Divider
