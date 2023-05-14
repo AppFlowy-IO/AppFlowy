@@ -212,7 +212,7 @@ async fn sort_number_by_descending_test() {
   let scripts = vec![
     AssertCellContentOrder {
       field_id: number_field.id.clone(),
-      orders: vec!["$1", "$2", "$3", "$4", "", "$5"],
+      orders: vec!["$1", "$2", "$3", "$14", "", "$5"],
     },
     InsertSort {
       field_rev: number_field.clone(),
@@ -220,7 +220,7 @@ async fn sort_number_by_descending_test() {
     },
     AssertCellContentOrder {
       field_id: number_field.id.clone(),
-      orders: vec!["$5", "$4", "$3", "$2", "$1", ""],
+      orders: vec!["$14", "$5", "$3", "$2", "$1", ""],
     },
   ];
   test.run_scripts(scripts).await;

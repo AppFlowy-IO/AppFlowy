@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -19,7 +21,8 @@ class CalendarToolbar extends StatelessWidget {
       height: 40,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
-        children: [
+        children: const [
+          _UnscheduleEventsButton(),
           _SettingButton(),
         ],
       ),
@@ -28,25 +31,22 @@ class CalendarToolbar extends StatelessWidget {
 }
 
 class _SettingButton extends StatefulWidget {
+  const _SettingButton({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => _SettingButtonState();
 }
 
 class _SettingButtonState extends State<_SettingButton> {
-  late PopoverController popoverController;
-
   @override
   void initState() {
-    popoverController = PopoverController();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
-      controller: popoverController,
       direction: PopoverDirection.bottomWithRightAligned,
-      triggerActions: PopoverTriggerFlags.none,
       constraints: BoxConstraints.loose(const Size(300, 400)),
       margin: EdgeInsets.zero,
       child: FlowyTextButton(
@@ -54,7 +54,6 @@ class _SettingButtonState extends State<_SettingButton> {
         fillColor: Colors.transparent,
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         padding: GridSize.typeOptionContentInsets,
-        onPressed: () => popoverController.show(),
       ),
       popupBuilder: (BuildContext popoverContext) {
         final bloc = context.watch<CalendarBloc>();
@@ -78,6 +77,103 @@ class _SettingButtonState extends State<_SettingButton> {
           },
         );
       }, // use blocbuilder
+    );
+  }
+}
+
+class _UnscheduleEventsButton extends StatefulWidget {
+  const _UnscheduleEventsButton({Key? key}) : super(key: key);
+
+  @override
+  State<_UnscheduleEventsButton> createState() =>
+      _UnscheduleEventsButtonState();
+}
+
+class _UnscheduleEventsButtonState extends State<_UnscheduleEventsButton> {
+  late final PopoverController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = PopoverController();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<CalendarBloc, CalendarState>(
+      builder: (context, state) {
+        final unscheduledEvents = state.allEvents
+            .where((e) => e.date == DateTime.fromMillisecondsSinceEpoch(0))
+            .toList();
+        final viewId = context.read<CalendarBloc>().viewId;
+        final rowCache = context.read<CalendarBloc>().rowCache;
+        return AppFlowyPopover(
+          direction: PopoverDirection.bottomWithCenterAligned,
+          controller: _controller,
+          offset: const Offset(0, 8),
+          child: FlowyTextButton(
+            "${LocaleKeys.calendar_settings_noDateTitle.tr()} (${unscheduledEvents.length})",
+            fillColor: Colors.transparent,
+            hoverColor: AFThemeExtension.of(context).lightGreyHover,
+            padding: GridSize.typeOptionContentInsets,
+          ),
+          popupBuilder: (context) {
+            if (unscheduledEvents.isEmpty) {
+              return SizedBox(
+                height: GridSize.popoverItemHeight,
+                child: Center(
+                  child: FlowyText.medium(
+                    LocaleKeys.calendar_settings_emptyNoDate.tr(),
+                    color: Theme.of(context).hintColor,
+                  ),
+                ),
+              );
+            }
+            return ListView.separated(
+              itemBuilder: (context, index) => _UnscheduledEventItem(
+                event: unscheduledEvents[index],
+                onPressed: () {
+                  showEventDetails(
+                    context: context,
+                    event: unscheduledEvents[index].event!,
+                    viewId: viewId,
+                    rowCache: rowCache,
+                  );
+                  _controller.close();
+                },
+              ),
+              itemCount: unscheduledEvents.length,
+              separatorBuilder: (context, index) =>
+                  VSpace(GridSize.typeOptionSeparatorHeight),
+              shrinkWrap: true,
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class _UnscheduledEventItem extends StatelessWidget {
+  final CalendarEventData<CalendarDayEvent> event;
+  final VoidCallback onPressed;
+  const _UnscheduledEventItem({
+    required this.event,
+    required this.onPressed,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: GridSize.popoverItemHeight,
+      child: FlowyTextButton(
+        event.title,
+        fillColor: Colors.transparent,
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        padding: GridSize.typeOptionContentInsets,
+        onPressed: onPressed,
+      ),
     );
   }
 }

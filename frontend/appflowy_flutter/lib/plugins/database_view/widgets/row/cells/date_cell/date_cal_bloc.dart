@@ -122,6 +122,21 @@ class DateCellCalendarBloc
     );
   }
 
+  DateTime _utcToLocalAddTime(DateTime date) {
+    final now = DateTime.now();
+    // the incoming date is Utc. this trick converts it into Local
+    // and add the current time, though
+    // the time may be overwritten by explicitly provided time string
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
+      now.hour,
+      now.minute,
+      now.second,
+    );
+  }
+
   String timeFormatPrompt(FlowyError error) {
     String msg = "${LocaleKeys.grid_field_invalidTimeFormat.tr()}.";
     switch (state.dateTypeOptionPB.timeFormat) {

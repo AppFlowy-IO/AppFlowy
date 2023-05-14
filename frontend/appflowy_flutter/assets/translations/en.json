@@ -418,7 +418,9 @@
       "showWeekNumbers": "Show week numbers",
       "showWeekends": "Show weekends",
       "firstDayOfWeek": "Start week on",
-      "layoutDateField": "Layout calendar by"
+      "layoutDateField": "Layout calendar by",
+      "noDateTitle": "No Date",
+      "emptyNoDate": "No unscheduled events"
     }
   }
 }

@@ -149,6 +149,8 @@ class HomeMenu extends StatelessWidget {
                     ),
                   );
                 },
+                proxyDecorator: (child, index, animation) =>
+                    Material(color: Colors.transparent, child: child),
               );
             },
           ),
