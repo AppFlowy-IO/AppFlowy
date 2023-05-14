@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
@@ -45,8 +47,29 @@ class MenuUser extends StatelessWidget {
     String iconUrl = context.read<MenuUserBloc>().state.userProfile.iconUrl;
     if (iconUrl.isEmpty) {
       iconUrl = defaultUserAvatar;
+      final String name = context.read<MenuUserBloc>().state.userProfile.name;
+      final Color nameColor = _generateRandomNameColor(name);
+      // Taking the first letters of the name components and limiting to 2 elements
+      final nameInitials = name
+          .split(' ')
+          .map((element) => element[0].toUpperCase())
+          .take(2)
+          .join('');
+      return Container(
+        width: 28,
+        height: 28,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: nameColor,
+          shape: BoxShape.circle,
+        ),
+        child: FlowyText.semibold(
+          nameInitials,
+          color: Colors.white,
+          fontSize: nameInitials.length == 2 ? 12 : 14,
+        ),
+      );
     }
-
     return SizedBox(
       width: 25,
       height: 25,
@@ -58,6 +81,18 @@ class MenuUser extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Color _generateRandomNameColor(String name) {
+    int hashCode = name.hashCode;
+    Random random = Random(hashCode);
+    Color color = Color(random.nextInt(0xffffffff));
+    double luminance = color.computeLuminance();
+    // Checking if the color is too light and returning the darker version
+    if (luminance > 0.5) {
+      return color.withOpacity(0.8);
+    }
+    return color.withOpacity(1.0);
   }
 
   Widget _renderUserName(BuildContext context) {
