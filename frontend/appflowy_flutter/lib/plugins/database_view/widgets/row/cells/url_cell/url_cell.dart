@@ -290,7 +290,7 @@ class _VisitURLAccessoryState extends State<_VisitURLAccessory>
   @override
   Widget build(BuildContext context) {
     return svgWidget(
-      "editor/full_view",
+      "editor/link",
       color: AFThemeExtension.of(context).textColor,
     );
   }
