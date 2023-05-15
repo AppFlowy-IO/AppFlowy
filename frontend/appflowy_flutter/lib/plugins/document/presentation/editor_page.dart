@@ -148,6 +148,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         continue;
       }
       final builder = entry.value;
+
+      // customize the action builder.
       final supportColorBuilderTypes = [
         ParagraphBlockKeys.type,
         HeadingBlockKeys.type,
