@@ -10,25 +10,18 @@ class OptionActionList extends StatelessWidget {
     Key? key,
     required this.blockComponentContext,
     required this.blockComponentState,
+    required this.actions,
     required this.editorState,
   }) : super(key: key);
 
   final BlockComponentContext blockComponentContext;
   final BlockComponentState blockComponentState;
+  final List<OptionAction> actions;
   final EditorState editorState;
 
   @override
   Widget build(BuildContext context) {
-    final actions = [
-      OptionAction.delete,
-      OptionAction.duplicate,
-      // OptionAction.turnInto, // unimplement yet.
-      OptionAction.divider,
-      OptionAction.moveUp,
-      OptionAction.moveDown,
-      OptionAction.divider,
-      OptionAction.color,
-    ].map((e) {
+    final popoverActions = actions.map((e) {
       if (e == OptionAction.divider) {
         return DividerOptionAction();
       } else if (e == OptionAction.color) {
@@ -42,8 +35,7 @@ class OptionActionList extends StatelessWidget {
 
     return PopoverActionList<PopoverAction>(
       direction: PopoverDirection.leftWithCenterAligned,
-      offset: const Offset(0, 0),
-      actions: actions,
+      actions: popoverActions,
       onPopupBuilder: () => blockComponentState.alwaysShowActions = true,
       onClosed: () {
         editorState.selectionType = null;

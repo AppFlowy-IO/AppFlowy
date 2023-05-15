@@ -154,11 +154,11 @@ class _OptionNameTextField extends StatelessWidget {
 class SelectOptionColorList extends StatelessWidget {
   const SelectOptionColorList({
     super.key,
-    required this.selectedColor,
+    this.selectedColor,
     required this.onSelectedColor,
   });
 
-  final SelectOptionColorPB selectedColor;
+  final SelectOptionColorPB? selectedColor;
   final void Function(SelectOptionColorPB color) onSelectedColor;
 
   @override
@@ -166,7 +166,7 @@ class SelectOptionColorList extends StatelessWidget {
     final cells = SelectOptionColorPB.values.map((color) {
       return _SelectOptionColorCell(
         color: color,
-        isSelected: selectedColor == color,
+        isSelected: selectedColor != null ? selectedColor == color : false,
         onSelectedColor: onSelectedColor,
       );
     }).toList();

@@ -17,7 +17,7 @@ class CalloutBlockKeys {
   /// The background color of a callout block.
   ///
   /// The value is a String.
-  static const String backgroundColor = 'bgColor';
+  static const String backgroundColor = blockComponentBackgroundColor;
 
   /// The emoji icon of a callout block.
   ///

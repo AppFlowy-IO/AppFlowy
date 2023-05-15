@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
@@ -110,6 +111,78 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     );
   }
 
+  Map<String, BlockComponentBuilder> _customAppFlowyBlockComponentBuilders() {
+    final standardActions = [
+      OptionAction.delete,
+      OptionAction.duplicate,
+      OptionAction.divider,
+      OptionAction.moveUp,
+      OptionAction.moveDown,
+    ];
+
+    final customBlockComponentBuilderMap = {
+      BoardBlockKeys.type: BoardBlockComponentBuilder(),
+      GridBlockKeys.type: GridBlockComponentBuilder(),
+      CalloutBlockKeys.type: CalloutBlockComponentBuilder(),
+      DividerBlockKeys.type: DividerBlockComponentBuilder(),
+      MathEquationBlockKeys.type: MathEquationBlockComponentBuilder(),
+      CodeBlockKeys.type: CodeBlockComponentBuilder(
+        configuration: BlockComponentConfiguration(
+          padding: (_) => const EdgeInsets.only(
+            left: 30,
+            right: 30,
+            bottom: 36,
+          ),
+        ),
+      ),
+      AutoCompletionBlockKeys.type: AutoCompletionBlockComponentBuilder(),
+      SmartEditBlockKeys.type: SmartEditBlockComponentBuilder(),
+    };
+
+    final builders = {
+      ...standardBlockComponentBuilderMap,
+      ...customBlockComponentBuilderMap,
+    };
+
+    // customize the action builder. actually, we can customize them in their own builder. Put them here just for convenience.
+    for (final entry in builders.entries) {
+      if (entry.key == 'document') {
+        continue;
+      }
+      final builder = entry.value;
+      final supportColorBuilderTypes = [
+        ParagraphBlockKeys.type,
+        HeadingBlockKeys.type,
+        BulletedListBlockKeys.type,
+        NumberedListBlockKeys.type,
+        QuoteBlockKeys.type,
+        TodoListBlockKeys.type,
+        CalloutBlockKeys.type
+      ];
+      if (!supportColorBuilderTypes.contains(entry.key)) {
+        builder.actionBuilder = (context, state) => OptionActionList(
+              blockComponentContext: context,
+              blockComponentState: state,
+              editorState: widget.editorState,
+              actions: standardActions,
+            );
+        continue;
+      }
+      final colorAction = [
+        OptionAction.divider,
+        OptionAction.color,
+      ];
+      builder.actionBuilder = (context, state) => OptionActionList(
+            blockComponentContext: context,
+            blockComponentState: state,
+            editorState: widget.editorState,
+            actions: standardActions + colorAction,
+          );
+    }
+
+    return builders;
+  }
+
   EditorStyle _desktopEditorStyle() {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
@@ -145,41 +218,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         ),
       ),
     );
-  }
-
-  Map<String, BlockComponentBuilder> _customAppFlowyBlockComponentBuilders() {
-    for (final entry in standardBlockComponentBuilderMap.entries) {
-      if (entry.key == 'document') {
-        continue;
-      }
-      final builder = entry.value;
-      builder.actionBuilder = (context, state) => OptionActionList(
-            blockComponentContext: context,
-            blockComponentState: state,
-            editorState: widget.editorState,
-          );
-    }
-    final builders = {
-      ...standardBlockComponentBuilderMap,
-      BoardBlockKeys.type: BoardBlockComponentBuilder(),
-      GridBlockKeys.type: GridBlockComponentBuilder(),
-      CalloutBlockKeys.type: CalloutBlockComponentBuilder(),
-      DividerBlockKeys.type: DividerBlockComponentBuilder(),
-      MathEquationBlockKeys.type: MathEquationBlockComponentBuilder(),
-      CodeBlockKeys.type: CodeBlockComponentBuilder(
-        configuration: BlockComponentConfiguration(
-          padding: (_) => const EdgeInsets.only(
-            left: 30,
-            right: 30,
-            bottom: 36,
-          ),
-        ),
-      ),
-      AutoCompletionBlockKeys.type: AutoCompletionBlockComponentBuilder(),
-      SmartEditBlockKeys.type: SmartEditBlockComponentBuilder(),
-    };
-
-    return builders;
   }
 
   Tuple2<bool, Selection?> _computeAutoFocusParameters() {
