@@ -201,80 +201,77 @@ class _GridRowsState extends State<_GridRows> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GridFilterMenuBloc, GridFilterMenuState>(
-      builder: (context, filterState) {
-        return BlocBuilder<SortMenuBloc, SortMenuState>(
-          builder: (context, sortState) {
-            return BlocConsumer<GridBloc, GridState>(
-              listenWhen: (previous, current) =>
-                  previous.reason != current.reason,
-              listener: (context, state) {
-                state.reason.whenOrNull(
-                  insert: (item) {
-                    _key.currentState?.insertItem(item.index);
-                  },
-                  delete: (item) {
-                    _key.currentState?.removeItem(
-                      item.index,
-                      (context, animation) => _renderRow(
-                        context,
-                        item.rowInfo,
-                        animation: animation,
-                      ),
-                    );
-                  },
-                );
+    return Builder(
+      builder: (context) {
+        final filterState = context.watch<GridFilterMenuBloc>().state;
+        final sortState = context.watch<SortMenuBloc>().state;
+
+        return BlocConsumer<GridBloc, GridState>(
+          listenWhen: (previous, current) => previous.reason != current.reason,
+          listener: (context, state) {
+            state.reason.whenOrNull(
+              insert: (item) {
+                _key.currentState?.insertItem(item.index);
               },
-              buildWhen: (previous, current) {
-                return current.reason.maybeWhen(
-                  reorderRows: () => true,
-                  reorderSingleRow: (reorderRow, rowInfo) => true,
-                  delete: (item) => true,
-                  insert: (item) => true,
-                  orElse: () => false,
-                );
-              },
-              builder: (context, state) {
-                final rowInfos = context.watch<GridBloc>().state.rowInfos;
-
-                return SliverToBoxAdapter(
-                  child: ReorderableListView.builder(
-                    key: _key,
-                    buildDefaultDragHandles: false,
-                    proxyDecorator: (child, index, animation) => Material(
-                      color: Colors.white.withOpacity(.1),
-                      child: Opacity(
-                        opacity: .5,
-                        child: child,
-                      ),
-                    ),
-                    shrinkWrap: true,
-                    onReorder: (fromIndex, newIndex) {
-                      final toIndex =
-                          newIndex > fromIndex ? newIndex - 1 : newIndex;
-
-                      context
-                          .read<GridBloc>()
-                          .add(GridEvent.moveRow(fromIndex, toIndex));
-                    },
-                    itemCount: rowInfos.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final RowInfo rowInfo = rowInfos[index];
-                      if (index >= rowInfos.length) {
-                        return const SizedBox.shrink();
-                      }
-
-                      return _renderRow(
-                        context,
-                        rowInfo,
-                        index: index,
-                        isSortEnabled: sortState.sortInfos.isNotEmpty,
-                        isFilterEnabled: filterState.filters.isNotEmpty,
-                      );
-                    },
+              delete: (item) {
+                _key.currentState?.removeItem(
+                  item.index,
+                  (context, animation) => _renderRow(
+                    context,
+                    item.rowInfo,
+                    animation: animation,
                   ),
                 );
               },
+            );
+          },
+          buildWhen: (previous, current) {
+            return current.reason.maybeWhen(
+              reorderRows: () => true,
+              reorderSingleRow: (reorderRow, rowInfo) => true,
+              delete: (item) => true,
+              insert: (item) => true,
+              orElse: () => false,
+            );
+          },
+          builder: (context, state) {
+            final rowInfos = context.watch<GridBloc>().state.rowInfos;
+
+            return SliverFillRemaining(
+              child: ReorderableListView.builder(
+                key: _key,
+                buildDefaultDragHandles: false,
+                proxyDecorator: (child, index, animation) => Material(
+                  color: Colors.white.withOpacity(.1),
+                  child: Opacity(
+                    opacity: .5,
+                    child: child,
+                  ),
+                ),
+                onReorder: (fromIndex, newIndex) {
+                  final toIndex =
+                      newIndex > fromIndex ? newIndex - 1 : newIndex;
+
+                  if (fromIndex == toIndex) {
+                    return;
+                  }
+
+                  context
+                      .read<GridBloc>()
+                      .add(GridEvent.moveRow(fromIndex, toIndex));
+                },
+                itemCount: rowInfos.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final RowInfo rowInfo = rowInfos[index];
+                  return _renderRow(
+                    context,
+                    rowInfo,
+                    index: index,
+                    isSortEnabled: sortState.sortInfos.isNotEmpty,
+                    isFilterEnabled: filterState.filters.isNotEmpty,
+                  );
+                },
+              ),
             );
           },
         );
@@ -309,8 +306,7 @@ class _GridRowsState extends State<_GridRows> {
     final child = GridRow(
       key: ValueKey(rowInfo.rowPB.id),
       index: index,
-      isSortEnabled: isSortEnabled,
-      isFilterEnabled: isFilterEnabled,
+      isDraggable: !isSortEnabled && !isFilterEnabled,
       rowInfo: rowInfo,
       dataController: dataController,
       cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
@@ -326,7 +322,10 @@ class _GridRowsState extends State<_GridRows> {
     );
 
     if (animation != null) {
-      return SizeTransition(sizeFactor: animation, child: child);
+      return SizeTransition(
+        sizeFactor: animation,
+        child: child,
+      );
     }
 
     return child;

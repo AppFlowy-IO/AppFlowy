@@ -36,8 +36,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             await rowService.deleteRow(rowInfo.rowPB.id);
           },
           moveRow: (int from, int to) {
-            final List<RowInfo> rows = [];
-            rows.addAll(state.rowInfos);
+            final List<RowInfo> rows = [...state.rowInfos];
 
             final fromRow = rows[from].rowPB;
             final toRow = rows[to].rowPB;

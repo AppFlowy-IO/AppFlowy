@@ -26,8 +26,7 @@ class GridRow extends StatefulWidget {
   final void Function(BuildContext, GridCellBuilder) openDetailPage;
 
   final int? index;
-  final bool isSortEnabled;
-  final bool isFilterEnabled;
+  final bool isDraggable;
 
   const GridRow({
     super.key,
@@ -36,8 +35,7 @@ class GridRow extends StatefulWidget {
     required this.cellBuilder,
     required this.openDetailPage,
     this.index,
-    this.isSortEnabled = false,
-    this.isFilterEnabled = false,
+    this.isDraggable = false,
   });
 
   @override
@@ -79,8 +77,7 @@ class _GridRowState extends State<GridRow> {
               children: [
                 _RowLeading(
                   index: widget.index,
-                  isSortEnabled: widget.isSortEnabled,
-                  isFilterEnabled: widget.isFilterEnabled,
+                  isDraggable: widget.isDraggable,
                 ),
                 content,
               ],
@@ -100,13 +97,11 @@ class _GridRowState extends State<GridRow> {
 
 class _RowLeading extends StatefulWidget {
   final int? index;
-  final bool isSortEnabled;
-  final bool isFilterEnabled;
+  final bool isDraggable;
 
   const _RowLeading({
     this.index,
-    this.isSortEnabled = false,
-    this.isFilterEnabled = false,
+    this.isDraggable = false,
   });
 
   @override
@@ -170,8 +165,7 @@ class _RowLeadingState extends State<_RowLeading> {
     );
   }
 
-  bool get isDraggable =>
-      widget.index != null && !widget.isSortEnabled && !widget.isFilterEnabled;
+  bool get isDraggable => widget.index != null && widget.isDraggable;
 }
 
 class _InsertButton extends StatelessWidget {
