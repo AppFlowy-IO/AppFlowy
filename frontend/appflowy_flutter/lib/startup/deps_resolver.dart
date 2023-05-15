@@ -7,6 +7,8 @@ import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc
 import 'package:appflowy/plugins/document/presentation/plugins/openai/service/openai_client.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/util/color_picker/color_picker_impl.dart';
+import 'package:appflowy/util/color_picker/color_picker_service.dart';
 import 'package:appflowy/util/file_picker/file_picker_impl.dart';
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
 import 'package:appflowy/workspace/application/app/prelude.dart';
@@ -48,6 +50,7 @@ class DependencyResolver {
 
 void _resolveCommonService(GetIt getIt) async {
   getIt.registerFactory<FilePickerService>(() => FilePicker());
+  getIt.registerFactory<ColorPickerService>(() => ColorPicker());
 
   getIt.registerFactoryAsync<OpenAIRepository>(
     () async {
