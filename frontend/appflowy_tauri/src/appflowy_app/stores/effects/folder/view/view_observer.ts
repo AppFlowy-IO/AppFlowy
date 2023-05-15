@@ -1,7 +1,7 @@
-import { Ok, Result } from 'ts-results';
-import { DeletedViewPB, FolderNotification, ViewPB, FlowyError } from '@/services/backend';
-import { ChangeNotifier } from '$app/utils/change_notifier';
-import { FolderNotificationObserver } from '../notifications/observer';
+import { Ok, Result } from "ts-results";
+import { DeletedViewPB, FolderNotification, ViewPB, FlowyError } from "@/services/backend";
+import { ChangeNotifier } from "$app/utils/change_notifier";
+import { FolderNotificationObserver } from "../notifications/observer";
 
 type DeleteViewNotifyValue = Result<ViewPB, FlowyError>;
 type UpdateViewNotifyValue = Result<ViewPB, FlowyError>;
@@ -15,7 +15,8 @@ export class ViewObserver {
   private _moveToTashNotifier = new ChangeNotifier<MoveToTrashViewNotifyValue>();
   private _listener?: FolderNotificationObserver;
 
-  constructor(public readonly viewId: string) {}
+  constructor(public readonly viewId: string) {
+  }
 
   subscribe = async (callbacks: {
     onViewUpdate?: (value: UpdateViewNotifyValue) => void;
@@ -24,19 +25,19 @@ export class ViewObserver {
     onViewMoveToTrash?: (value: MoveToTrashViewNotifyValue) => void;
   }) => {
     if (callbacks.onViewDelete !== undefined) {
-      this._deleteViewNotifier.observer.subscribe(callbacks.onViewDelete);
+      this._deleteViewNotifier.observer?.subscribe(callbacks.onViewDelete);
     }
 
     if (callbacks.onViewUpdate !== undefined) {
-      this._updateViewNotifier.observer.subscribe(callbacks.onViewUpdate);
+      this._updateViewNotifier.observer?.subscribe(callbacks.onViewUpdate);
     }
 
     if (callbacks.onViewRestored !== undefined) {
-      this._restoreViewNotifier.observer.subscribe(callbacks.onViewRestored);
+      this._restoreViewNotifier.observer?.subscribe(callbacks.onViewRestored);
     }
 
     if (callbacks.onViewMoveToTrash !== undefined) {
-      this._moveToTashNotifier.observer.subscribe(callbacks.onViewMoveToTrash);
+      this._moveToTashNotifier.observer?.subscribe(callbacks.onViewMoveToTrash);
     }
 
     this._listener = new FolderNotificationObserver({
@@ -74,7 +75,7 @@ export class ViewObserver {
           default:
             break;
         }
-      },
+      }
     });
     await this._listener.start();
   };

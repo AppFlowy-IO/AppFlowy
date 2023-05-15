@@ -1,14 +1,14 @@
-import { Ok, Result } from 'ts-results';
+import { Ok, Result } from "ts-results";
 import {
   DatabaseNotification,
   FlowyError,
   ReorderAllRowsPB,
   ReorderSingleRowPB,
   RowsChangesetPB,
-  RowsVisibilityChangesetPB,
-} from '@/services/backend';
-import { ChangeNotifier } from '$app/utils/change_notifier';
-import { DatabaseNotificationObserver } from '../notifications/observer';
+  RowsVisibilityChangesetPB
+} from "@/services/backend";
+import { ChangeNotifier } from "$app/utils/change_notifier";
+import { DatabaseNotificationObserver } from "../notifications/observer";
 
 export type RowsVisibilityNotifyValue = Result<RowsVisibilityChangesetPB, FlowyError>;
 export type RowsNotifyValue = Result<RowsChangesetPB, FlowyError>;
@@ -23,7 +23,8 @@ export class DatabaseViewRowsObserver {
 
   private _listener?: DatabaseNotificationObserver;
 
-  constructor(public readonly viewId: string) {}
+  constructor(public readonly viewId: string) {
+  }
 
   subscribe = async (callbacks: {
     onRowsVisibilityChanged?: (value: RowsVisibilityNotifyValue) => void;
@@ -32,10 +33,10 @@ export class DatabaseViewRowsObserver {
     onReorderSingleRow?: (value: ReorderSingleRowNotifyValue) => void;
   }) => {
     //
-    this.rowsVisibilityNotifier.observer.subscribe(callbacks.onRowsVisibilityChanged);
-    this.rowsNotifier.observer.subscribe(callbacks.onNumberOfRowsChanged);
-    this.reorderRowsNotifier.observer.subscribe(callbacks.onReorderRows);
-    this.reorderSingleRowNotifier.observer.subscribe(callbacks.onReorderSingleRow);
+    this.rowsVisibilityNotifier.observer?.subscribe(callbacks.onRowsVisibilityChanged);
+    this.rowsNotifier.observer?.subscribe(callbacks.onNumberOfRowsChanged);
+    this.reorderRowsNotifier.observer?.subscribe(callbacks.onReorderRows);
+    this.reorderSingleRowNotifier.observer?.subscribe(callbacks.onReorderSingleRow);
 
     this._listener = new DatabaseNotificationObserver({
       id: this.viewId,
@@ -72,7 +73,7 @@ export class DatabaseViewRowsObserver {
           default:
             break;
         }
-      },
+      }
     });
     await this._listener.start();
   };
