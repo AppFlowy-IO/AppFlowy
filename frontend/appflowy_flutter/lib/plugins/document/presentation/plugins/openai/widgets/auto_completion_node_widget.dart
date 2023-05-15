@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
-
 import 'package:appflowy/plugins/document/presentation/plugins/openai/service/openai_client.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/util/learn_more_action.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/discard_dialog.dart';
@@ -226,13 +224,13 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
         ),
         const Space(10, 0),
         SecondaryTextButton(
-          LocaleKeys.button_discard.tr(),
-          onPressed: () => _onDiscard(),
+          LocaleKeys.document_plugins_autoGeneratorRewrite.tr(),
+          onPressed: () => _onRewrite(),
         ),
         const Space(10, 0),
         SecondaryTextButton(
-          LocaleKeys.document_plugins_autoGeneratorRewrite.tr(),
-          onPressed: () => _onRewrite(),
+          LocaleKeys.button_discard.tr(),
+          onPressed: () => _onDiscard(),
         ),
       ],
     );
@@ -300,7 +298,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
   }
 
   Future<void> _onRewrite() async {
-    String previousOutput = _getPreviousOutput();
+    String previousOutput = _getPreviousOutput()!;
     final loading = Loading(context);
     loading.start();
     // clear previous response
@@ -327,7 +325,6 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
       );
       await openAIRepository.getStreamedCompletions(
         prompt: _rewritePrompt(previousOutput),
-        temperature: _getRandomTemperature(),
         onStart: () async {
           loading.stop();
           await _makeSurePreviousNodeIsEmptyTextNode();
@@ -357,7 +354,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
     });
   }
 
-  _getPreviousOutput() {
+  String? _getPreviousOutput() {
     final selection =
         widget.node.attributes[kAutoCompletionInputStartSelection];
     if (selection != null) {
@@ -373,11 +370,12 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
         return lastOutput.trim();
       }
     }
+    return null;
   }
 
-  _rewritePrompt(String previousOutput) {
+  String _rewritePrompt(String previousOutput) {
     String prompt =
-        "I am not satisfied with yout previous response($previousOutput) to the query ($text) please write another one";
+        'I am not satisfied with your previous response($previousOutput) to the query ($text) please write another one';
     return prompt;
   }
 
@@ -465,12 +463,4 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
   }
 
   void _onCancelWhenSelectionChanged() {}
-
-  double _getRandomTemperature() {
-    Random random = Random();
-    double min = 0.2;
-    double max = 0.8;
-    double randomTemperature = min + random.nextDouble() * (max - min);
-    return randomTemperature;
-  }
 }
