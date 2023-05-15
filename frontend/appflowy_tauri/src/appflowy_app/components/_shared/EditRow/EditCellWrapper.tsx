@@ -14,7 +14,7 @@ import { EditCheckboxCell } from '$app/components/_shared/EditRow/EditCheckboxCe
 import { EditCellUrl } from '$app/components/_shared/EditRow/EditCellUrl';
 import { Draggable } from 'react-beautiful-dnd';
 import { DragElementSvg } from '$app/components/_shared/svg/DragElementSvg';
-import { CheckList } from '$app/components/_shared/EditRow/CheckList';
+import { CheckListCell } from '$app/components/_shared/EditRow/CheckListCell';
 
 export const EditCellWrapper = ({
   index,
@@ -71,7 +71,7 @@ export const EditCellWrapper = ({
             </span>
           </div>
 
-          <div className={'flex-1 cursor-pointer rounded-lg pl-3 text-sm hover:bg-shade-6'}>
+          <div className={'w-full cursor-pointer rounded-lg pl-3 text-sm hover:bg-shade-6'}>
             {(cellIdentifier.fieldType === FieldType.SingleSelect ||
               cellIdentifier.fieldType === FieldType.MultiSelect) &&
               cellController && (
@@ -82,10 +82,11 @@ export const EditCellWrapper = ({
               )}
 
             {cellIdentifier.fieldType === FieldType.Checklist && cellController && (
-              <CheckList
+              <CheckListCell
                 data={data as SelectOptionCellDataPB}
+                fieldId={cellIdentifier.fieldId}
                 onEditClick={(left, top) => onEditCheckListClick(cellIdentifier, left, top)}
-              ></CheckList>
+              ></CheckListCell>
             )}
 
             {cellIdentifier.fieldType === FieldType.Checkbox && cellController && (

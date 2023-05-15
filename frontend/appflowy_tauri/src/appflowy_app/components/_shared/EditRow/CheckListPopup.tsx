@@ -15,6 +15,7 @@ import AddSvg from '$app/components/_shared/svg/AddSvg';
 import { useTranslation } from 'react-i18next';
 import { SelectOptionCellBackendService } from '$app/stores/effects/database/cell/select_option_bd_svc';
 import { useEffect, useState } from 'react';
+import { CheckListProgress } from '$app/components/_shared/CheckListProgress';
 
 export const CheckListPopup = ({
   left,
@@ -92,21 +93,10 @@ export const CheckListPopup = ({
       top={top}
     >
       <div className={'min-w-[320px]'}>
-        <div className={'flex items-center gap-4 px-4 pt-8 pb-4'}>
-          <div className={'flex flex-1 gap-1'}>
-            {Array(selectedOptionsCount)
-              .fill(0)
-              .map((item, index) => (
-                <div key={index} className={'h-[4px] flex-1 flex-shrink-0 rounded bg-main-accent'}></div>
-              ))}
-            {Array(allOptionsCount - selectedOptionsCount)
-              .fill(0)
-              .map((item, index) => (
-                <div key={index} className={'h-[4px] flex-1 flex-shrink-0 rounded bg-tint-9'}></div>
-              ))}
-          </div>
-          <div className={'text-xs text-shade-4'}>{((100 * selectedOptionsCount) / allOptionsCount).toFixed(0)}%</div>
+        <div className={'px-4 pt-8 pb-4'}>
+          <CheckListProgress completed={selectedOptionsCount} max={allOptionsCount} />
         </div>
+
         <div className={'flex flex-col p-2'}>
           {(databaseStore.fields[cellIdentifier.fieldId]?.fieldOptions as ISelectOptionType).selectOptions.map(
             (option, index) => (
