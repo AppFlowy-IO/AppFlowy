@@ -152,6 +152,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           placeholderText: (node) =>
               'Heading ${node.attributes[HeadingBlockKeys.level]}',
         ),
+        textStyleBuilder: (level) => styleCustomizer.headingStyleBuilder(level),
       ),
       ImageBlockKeys.type: ImageBlockComponentBuilder(),
       BoardBlockKeys.type: BoardBlockComponentBuilder(
