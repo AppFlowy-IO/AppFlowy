@@ -52,10 +52,10 @@ class MenuUser extends StatelessWidget {
       const initialsCount = 2;
       // Taking the first letters of the name components and limiting to 2 elements
       final nameInitials = name
-          .trim()
           .split(' ')
-          .map((element) => element[0].toUpperCase())
+          .where((element) => element.isNotEmpty)
           .take(initialsCount)
+          .map((element) => element[0].toUpperCase())
           .join('');
       return Container(
         width: 28,
