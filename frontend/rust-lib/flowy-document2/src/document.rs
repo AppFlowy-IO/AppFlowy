@@ -3,10 +3,11 @@ use std::{
   sync::Arc,
 };
 
-use collab::preclude::Collab;
+use collab::core::collab::MutexCollab;
 use collab_document::{blocks::DocumentData, document::Document as InnerDocument};
-use flowy_error::FlowyResult;
 use parking_lot::Mutex;
+
+use flowy_error::FlowyResult;
 
 /// This struct wrap the document::Document
 #[derive(Clone)]
@@ -19,7 +20,7 @@ impl Document {
   ///
   /// # Returns
   /// * `Result<Document, FlowyError>` - a Result containing either a new Document object or an Error if the document creation failed
-  pub fn new(collab: Collab) -> FlowyResult<Self> {
+  pub fn new(collab: Arc<MutexCollab>) -> FlowyResult<Self> {
     InnerDocument::create(collab)
       .map(|inner| Self(Arc::new(Mutex::new(inner))))
       .map_err(|err| err.into())
@@ -32,7 +33,7 @@ impl Document {
   ///
   /// # Returns
   /// * `Result<Document, FlowyError>` - a Result containing either a new Document object or an Error if the document creation failed
-  pub fn create_with_data(collab: Collab, data: DocumentData) -> FlowyResult<Self> {
+  pub fn create_with_data(collab: Arc<MutexCollab>, data: DocumentData) -> FlowyResult<Self> {
     InnerDocument::create_with_data(collab, data)
       .map(|inner| Self(Arc::new(Mutex::new(inner))))
       .map_err(|err| err.into())

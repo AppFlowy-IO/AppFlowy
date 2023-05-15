@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use std::time::Duration;
 use std::{
   fmt,
@@ -7,6 +8,8 @@ use std::{
   },
 };
 
+use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
+use appflowy_integrate::config::{AWSDynamoDBConfig, AppFlowyCollabConfig};
 use tokio::sync::{broadcast, RwLock};
 
 use flowy_client_ws::{listen_on_websocket, FlowyWebSocketConnect, NetworkType};
@@ -19,6 +22,7 @@ use flowy_folder2::manager::Folder2Manager;
 pub use flowy_net::get_client_server_configuration;
 use flowy_net::local_server::LocalServer;
 use flowy_net::ClientServerConfiguration;
+use flowy_sqlite::kv::KV;
 use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::event_map::UserStatusCallback;
 use flowy_user::services::{UserSession, UserSessionConfig};
@@ -148,6 +152,10 @@ impl AppFlowyCore {
 
     init_log(&config);
     init_kv(&config.storage_path);
+    let collab_config = get_collab_config();
+    inject_aws_env(collab_config.aws_config());
+    let collab_builder = Arc::new(AppFlowyCollabBuilder::new(collab_config));
+
     tracing::debug!("🔥 {:?}", config);
     let runtime = tokio_default_runtime().unwrap();
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
@@ -176,15 +184,23 @@ impl AppFlowyCore {
         ws_conn.clone(),
         user_session.clone(),
         task_dispatcher.clone(),
+        collab_builder.clone(),
       )
       .await;
 
-      let document_manager2 =
-        Document2DepsResolver::resolve(user_session.clone(), &database_manager2);
+      let document_manager2 = Document2DepsResolver::resolve(
+        user_session.clone(),
+        &database_manager2,
+        collab_builder.clone(),
+      );
 
-      let folder_manager =
-        Folder2DepsResolver::resolve(user_session.clone(), &document_manager2, &database_manager2)
-          .await;
+      let folder_manager = Folder2DepsResolver::resolve(
+        user_session.clone(),
+        &document_manager2,
+        &database_manager2,
+        collab_builder.clone(),
+      )
+      .await;
 
       if let Some(local_server) = local_server.as_ref() {
         local_server.run();
@@ -287,9 +303,26 @@ async fn _listen_network_status(mut subscribe: broadcast::Receiver<NetworkType>)
 }
 
 fn init_kv(root: &str) {
-  match flowy_sqlite::kv::KV::init(root) {
+  match KV::init(root) {
     Ok(_) => {},
     Err(e) => tracing::error!("Init kv store failed: {}", e),
+  }
+}
+
+fn get_collab_config() -> AppFlowyCollabConfig {
+  match KV::get_str("collab_config") {
+    None => AppFlowyCollabConfig::default(),
+    Some(s) => AppFlowyCollabConfig::from_str(&s).unwrap_or_default(),
+  }
+}
+
+fn inject_aws_env(aws_config: Option<&AWSDynamoDBConfig>) {
+  if let Some(aws_config) = aws_config {
+    std::env::set_var("AWS_ACCESS_KEY_ID", aws_config.access_key_id.clone());
+    std::env::set_var(
+      "AWS_SECRET_ACCESS_KEY",
+      aws_config.secret_access_key.clone(),
+    );
   }
 }
 

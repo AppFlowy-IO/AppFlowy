@@ -1,8 +1,10 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
+use appflowy_integrate::RocksCollabDB;
 use bytes::Bytes;
-use collab_persistence::kv::rocks_kv::RocksCollabDB;
+
 use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
 use flowy_database2::DatabaseManager2;
@@ -22,13 +24,14 @@ impl Folder2DepsResolver {
     user_session: Arc<UserSession>,
     document_manager: &Arc<DocumentManager>,
     database_manager: &Arc<DatabaseManager2>,
+    collab_builder: Arc<AppFlowyCollabBuilder>,
   ) -> Arc<Folder2Manager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl(user_session.clone()));
 
     let view_data_processor =
       make_view_data_processor(document_manager.clone(), database_manager.clone());
     Arc::new(
-      Folder2Manager::new(user.clone(), view_data_processor)
+      Folder2Manager::new(user.clone(), collab_builder, view_data_processor)
         .await
         .unwrap(),
     )
@@ -67,8 +70,8 @@ impl FolderUser for FolderUserImpl {
       .map_err(|e| FlowyError::internal().context(e))
   }
 
-  fn kv_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
-    self.0.get_kv_db()
+  fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
+    self.0.get_collab_db()
   }
 }
 
@@ -79,7 +82,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      manager.close_document(view_id);
+      manager.close_document(view_id)?;
       Ok(())
     })
   }

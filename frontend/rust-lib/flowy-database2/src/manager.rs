@@ -2,11 +2,12 @@ use std::collections::HashMap;
 use std::ops::Deref;
 use std::sync::Arc;
 
+use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
+use appflowy_integrate::{RocksCollabDB, RocksDBConfig};
+use collab::core::collab::MutexCollab;
 use collab_database::database::DatabaseData;
-use collab_database::user::UserDatabase as InnerUserDatabase;
+use collab_database::user::{UserDatabase as InnerUserDatabase, UserDatabaseCollabBuilder};
 use collab_database::views::{CreateDatabaseParams, CreateViewParams};
-use collab_plugins::disk::kv::rocks_kv::RocksCollabDB;
-use collab_plugins::disk::rocksdb::Config;
 use parking_lot::Mutex;
 use tokio::sync::RwLock;
 
@@ -19,7 +20,7 @@ use crate::services::database::{DatabaseEditor, MutexDatabase};
 pub trait DatabaseUser2: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn token(&self) -> Result<String, FlowyError>;
-  fn kv_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError>;
+  fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError>;
 }
 
 pub struct DatabaseManager2 {
@@ -27,29 +28,33 @@ pub struct DatabaseManager2 {
   user_database: UserDatabase,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
   editors: RwLock<HashMap<String, Arc<DatabaseEditor>>>,
+  collab_builder: Arc<AppFlowyCollabBuilder>,
 }
 
 impl DatabaseManager2 {
   pub fn new(
     database_user: Arc<dyn DatabaseUser2>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    collab_builder: Arc<AppFlowyCollabBuilder>,
   ) -> Self {
     Self {
       user: database_user,
       user_database: UserDatabase::default(),
       task_scheduler,
       editors: Default::default(),
+      collab_builder,
     }
   }
 
   pub async fn initialize(&self, user_id: i64, _token: &str) -> FlowyResult<()> {
-    let db = self.user.kv_db()?;
+    let db = self.user.collab_db()?;
     *self.user_database.lock() = Some(InnerUserDatabase::new(
       user_id,
       db,
-      Config::default()
+      RocksDBConfig::default()
         .enable_snapshot(true)
         .snapshot_per_update(10),
+      UserDatabaseCollabBuilderImpl(self.collab_builder.clone()),
     ));
     // do nothing
     Ok(())
@@ -213,3 +218,21 @@ impl Deref for UserDatabase {
 unsafe impl Sync for UserDatabase {}
 
 unsafe impl Send for UserDatabase {}
+
+struct UserDatabaseCollabBuilderImpl(Arc<AppFlowyCollabBuilder>);
+
+impl UserDatabaseCollabBuilder for UserDatabaseCollabBuilderImpl {
+  fn build(&self, uid: i64, object_id: &str, db: Arc<RocksCollabDB>) -> Arc<MutexCollab> {
+    self.0.build(uid, object_id, db)
+  }
+
+  fn build_with_config(
+    &self,
+    uid: i64,
+    object_id: &str,
+    db: Arc<RocksCollabDB>,
+    config: &RocksDBConfig,
+  ) -> Arc<MutexCollab> {
+    self.0.build_with_config(uid, object_id, db, config)
+  }
+}

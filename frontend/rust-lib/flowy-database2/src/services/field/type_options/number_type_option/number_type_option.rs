@@ -248,7 +248,7 @@ impl TypeOptionCellDataCompare for NumberTypeOption {
       NumberCellFormat::from_format_str(&other_cell_data.0, self.sign_positive, &self.format);
     match (left, right) {
       (Ok(left), Ok(right)) => {
-        return left.decimal().cmp(&right.decimal());
+        return left.decimal().cmp(right.decimal());
       },
       (Ok(_), Err(_)) => Ordering::Greater,
       (Err(_), Ok(_)) => Ordering::Less,

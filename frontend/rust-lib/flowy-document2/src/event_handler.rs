@@ -6,6 +6,14 @@
 
 use std::sync::Arc;
 
+use collab_document::blocks::{
+  json_str_to_hashmap, Block, BlockAction, BlockActionPayload, BlockActionType, BlockEvent,
+  BlockEventPayload, DeltaType,
+};
+
+use flowy_error::{FlowyError, FlowyResult};
+use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+
 use crate::{
   document_data::DocumentDataWrapper,
   entities::{
@@ -15,13 +23,6 @@ use crate::{
   },
   manager::DocumentManager,
 };
-
-use collab_document::blocks::{
-  json_str_to_hashmap, Block, BlockAction, BlockActionPayload, BlockActionType, BlockEvent,
-  BlockEventPayload, DeltaType,
-};
-use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
 // Handler for creating a new document
 pub(crate) async fn create_document_handler(
@@ -46,7 +47,6 @@ pub(crate) async fn open_document_handler(
   data_result_ok(DocumentDataPB2::from(DocumentDataWrapper(document_data)))
 }
 
-// Handler for closing an existing document
 pub(crate) async fn close_document_handler(
   data: AFPluginData<CloseDocumentPayloadPBV2>,
   manager: AFPluginState<Arc<DocumentManager>>,
