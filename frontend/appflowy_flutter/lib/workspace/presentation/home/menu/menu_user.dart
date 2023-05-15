@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
@@ -85,24 +83,10 @@ class MenuUser extends StatelessWidget {
 
   Color _generateRandomNameColor(String name) {
     final hash = name.hashCode;
-    final h = _normalizeHash(
-      hash,
-      0,
-      360,
-    );
-    final s = _normalizeHash(
-      hash,
-      50,
-      75,
-    );
-    final l = _normalizeHash(
-      hash,
-      25,
-      60,
-    );
-    final color = _hslToColor(
-      [h, s, l],
-    );
+    final h = _normalizeHash(hash, 0, 360);
+    final s = _normalizeHash(hash, 50, 75);
+    final l = _normalizeHash(hash, 25, 60);
+    final color = _hslToColor([h, s, l]);
     return color;
   }
 
