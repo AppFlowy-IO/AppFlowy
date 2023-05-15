@@ -23,9 +23,11 @@ You are in charge of your data and customizations.
     <a href="https://twitter.com/appflowy"><b>Twitter</b></a>
 </p>
 
-<p align="center"><img src="https://user-images.githubusercontent.com/12026239/200787830-96be260b-d0a0-4152-864e-6730b19095cd.png" alt="The Open Source Alternative To Notion." width="1000px" /></p>
-<p align="center"><img src="https://user-images.githubusercontent.com/12026239/174753177-98e4c899-2356-4137-bb42-374bba2b127b.png" alt="The Open Source Alternative To Notion." width="1000px" /></p>
-<p align="center"><img src="https://user-images.githubusercontent.com/12026239/190650183-a940f1e0-a2c5-4797-ab3a-56758f6f696c.png" alt="The Open Source Alternative To Notion." width="1000px" /></p>
+<p align="center"><img src="https://user-images.githubusercontent.com/12026239/236664610-fc209a97-815e-4716-af07-d94a859d1907.png" alt="AppFlowy Docs & Notes & Wikis" width="1000px" /></p>
+<p align="center"><img src="https://user-images.githubusercontent.com/12026239/236664628-5def2450-914a-4b2d-b907-92b7476b9863.png" alt="AppFlowy Databases for Tasks and Projects" width="1000px" /></p>
+<p align="center"><img src="https://user-images.githubusercontent.com/12026239/236664642-22e26c1b-5eae-4635-9aa6-b12ecf1c3c46.png" alt="AppFlowy Kanban Board for To-Dos" width="1000px" /></p>
+<p align="center"><img src="https://github.com/AppFlowy-IO/AppFlowy/assets/12026239/6be93d2b-a5c5-48a9-b7cf-c599d5f5140c" alt="AppFlowy Calendars for Plan and Manage Content" width="1000px" /></p>
+<p align="center"><img src="https://user-images.githubusercontent.com/12026239/236664657-dc5291f3-67b0-4a43-a818-640e92735deb.png" alt="AppFlowy OpenAI GPT Writers" width="1000px" /></p>
 
 ## User Installation
 

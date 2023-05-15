@@ -29,29 +29,32 @@ void _showEmojiSelectionMenu(
   menuService.dismiss();
 
   _emojiSelectionMenu?.remove();
-  _emojiSelectionMenu = OverlayEntry(builder: (context) {
-    return Positioned(
-      top: alignment == Alignment.bottomLeft ? offset.dy : null,
-      bottom: alignment == Alignment.topLeft ? offset.dy : null,
-      left: offset.dx,
-      child: Material(
-        child: EmojiSelectionMenu(
-          editorState: editorState,
-          onSubmitted: (text) {
-            // insert emoji
-            editorState.insertEmoji(text);
-          },
-          onExit: () {
-            _dismissEmojiSelectionMenu();
-            //close emoji panel
-          },
+  _emojiSelectionMenu = OverlayEntry(
+    builder: (context) {
+      return Positioned(
+        top: alignment == Alignment.bottomLeft ? offset.dy : null,
+        bottom: alignment == Alignment.topLeft ? offset.dy : null,
+        left: offset.dx,
+        child: Material(
+          child: EmojiSelectionMenu(
+            editorState: editorState,
+            onSubmitted: (text) {
+              // insert emoji
+              editorState.insertEmoji(text);
+            },
+            onExit: () {
+              _dismissEmojiSelectionMenu();
+              //close emoji panel
+            },
+          ),
         ),
-      ),
-    );
-  },);
+      );
+    },
+  );
 
   Overlay.of(context).insert(_emojiSelectionMenu!);
 
+  _editorState = editorState;
   editorState.service.selectionService.currentSelection
       .addListener(_dismissEmojiSelectionMenu);
 }
@@ -62,6 +65,7 @@ void _dismissEmojiSelectionMenu() {
 
   _editorState?.service.selectionService.currentSelection
       .removeListener(_dismissEmojiSelectionMenu);
+  _editorState?.service.keyboardService?.enable();
   _editorState = null;
 }
 

@@ -1,5 +1,27 @@
 # Release Notes
 
+## Version 0.1.5 - 11/05/2023
+
+### Bug Fixes
+- Fix: calendar dates don't match with weekdays.
+- Fix: sort numbers in Grid.
+
+## Version 0.1.4 - 04/05/2023
+
+### New features
+- Use AppFlowy’s calendar views to plan and manage tasks and deadlines.
+- Writing can be improved with the help of OpenAI.
+
+## Version 0.1.3 - 24/04/2023
+
+### New features
+- Launch the official Dark Mode.
+- Customize the font color and highlight color by setting a hex color value and an opacity level.
+
+### Bug Fixes
+- Fix: the slash menu can be triggered by all other keyboards than English.
+- Fix: convert the single asterisk to italic text and the double asterisks to bold text.
+
 ## Version 0.1.2 - 03/28/2023
 
 ### Bug Fixes
