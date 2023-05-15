@@ -22,6 +22,7 @@ class DividerOptionAction extends CustomActionCell {
   Widget buildWithContext(BuildContext context) {
     return const Divider(
       height: 1.0,
+      thickness: 1.0,
     );
   }
 }
