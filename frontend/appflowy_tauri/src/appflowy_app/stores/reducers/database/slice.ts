@@ -15,7 +15,7 @@ export interface ISelectOptionType {
 export interface IDateType {
   dateFormat: DateFormatPB;
   timeFormat: TimeFormatPB;
-  includeTime: boolean;
+  // includeTime: boolean;
 }
 
 export interface INumberType {

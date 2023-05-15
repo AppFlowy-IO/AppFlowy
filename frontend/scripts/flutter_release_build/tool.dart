@@ -14,10 +14,12 @@ class _BuildTool {
   const _BuildTool({
     required this.repositoryRoot,
     required this.appVersion,
+    this.arch,
   });
 
   final String repositoryRoot;
   final String appVersion;
+  final String? arch;
 
   String get projectRoot =>
       [repositoryRoot, 'appflowy_flutter'].join(Platform.pathSeparator);
@@ -30,8 +32,9 @@ class _BuildTool {
 
   Future<String> get _commandForOS async {
     // Check the operating system and CPU architecture
-    var os = Platform.operatingSystem;
-    var arch = Platform.isMacOS ? await _architecture : Platform.localHostname;
+    final os = Platform.operatingSystem;
+    final arch = this.arch ??
+        (Platform.isMacOS ? await _architecture : Platform.localHostname);
 
     // Determine the appropriate command based on the OS and architecture
     if (os == 'windows') {

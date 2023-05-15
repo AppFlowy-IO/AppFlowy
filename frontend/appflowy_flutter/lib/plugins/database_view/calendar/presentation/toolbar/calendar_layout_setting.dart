@@ -216,6 +216,7 @@ class LayoutDateField extends StatelessWidget {
       direction: PopoverDirection.leftWithTopAligned,
       constraints: BoxConstraints.loose(const Size(300, 400)),
       mutex: popoverMutex,
+      offset: const Offset(-16, 0),
       popupBuilder: (context) {
         return BlocProvider(
           create: (context) => getIt<DatabasePropertyBloc>(
@@ -236,9 +237,9 @@ class LayoutDateField extends StatelessWidget {
                         onUpdated(fieldInfo.id);
                         popoverMutex.close();
                       },
-                      leftIcon: svgWidget('grid/field/date'),
+                      leftIcon: const FlowySvg(name: 'grid/field/date'),
                       rightIcon: fieldInfo.id == fieldId
-                          ? svgWidget('grid/checkmark')
+                          ? const FlowySvg(name: 'grid/checkmark')
                           : null,
                     ),
                   );
@@ -332,12 +333,13 @@ class FirstDayOfWeek extends StatelessWidget {
       direction: PopoverDirection.leftWithTopAligned,
       constraints: BoxConstraints.loose(const Size(300, 400)),
       mutex: popoverMutex,
+      offset: const Offset(-16, 0),
       popupBuilder: (context) {
         final symbols =
             DateFormat.EEEE(context.locale.toLanguageTag()).dateSymbols;
         // starts from sunday
         final items = symbols.WEEKDAYS.asMap().entries.map((entry) {
-          final index = (entry.key - 1) % 7;
+          final index = entry.key;
           final string = entry.value;
           return SizedBox(
             height: GridSize.popoverItemHeight,
@@ -347,8 +349,9 @@ class FirstDayOfWeek extends StatelessWidget {
                 onUpdated(index);
                 popoverMutex.close();
               },
-              rightIcon:
-                  firstDayOfWeek == index ? svgWidget('grid/checkmark') : null,
+              rightIcon: firstDayOfWeek == index
+                  ? const FlowySvg(name: 'grid/checkmark')
+                  : null,
             ),
           );
         }).toList();

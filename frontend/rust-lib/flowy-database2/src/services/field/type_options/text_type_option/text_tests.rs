@@ -21,17 +21,18 @@ mod tests {
         &field_type,
         &field
       ),
-      "Mar 14,2022"
+      "Mar 14, 2022"
     );
 
     let data = DateCellData {
       timestamp: Some(1647251762),
       include_time: true,
+      timezone_id: "".to_owned(),
     };
 
     assert_eq!(
       stringify_cell_data(&data.into(), &FieldType::RichText, &field_type, &field),
-      "Mar 14,2022"
+      "Mar 14, 2022"
     );
   }
 

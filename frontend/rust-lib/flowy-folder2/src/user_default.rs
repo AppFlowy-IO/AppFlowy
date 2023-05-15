@@ -1,4 +1,4 @@
-use crate::entities::{ViewPB, WorkspacePB};
+use crate::entities::{view_pb_with_child_views, WorkspacePB};
 
 use crate::view_ext::{gen_view_id, ViewDataProcessorMap};
 use chrono::Utc;
@@ -92,10 +92,7 @@ fn workspace_pb_from_workspace(
   view: &View,
   child_view: &View,
 ) -> WorkspacePB {
-  let child_view_pb: ViewPB = child_view.clone().into();
-  let mut view_pb: ViewPB = view.clone().into();
-  view_pb.belongings.push(child_view_pb);
-
+  let view_pb = view_pb_with_child_views(view.clone(), vec![child_view.clone()]);
   WorkspacePB {
     id: workspace.id.clone(),
     name: workspace.name.clone(),

@@ -1,7 +1,7 @@
-import { Ok, Result } from 'ts-results';
-import { DatabaseNotification, DatabaseFieldChangesetPB, FlowyError, FieldPB } from '@/services/backend';
-import { ChangeNotifier } from '$app/utils/change_notifier';
-import { DatabaseNotificationObserver } from '../notifications/observer';
+import { Ok, Result } from "ts-results";
+import { DatabaseNotification, DatabaseFieldChangesetPB, FlowyError, FieldPB } from "@/services/backend";
+import { ChangeNotifier } from "$app/utils/change_notifier";
+import { DatabaseNotificationObserver } from "../notifications/observer";
 
 export type FieldChangesetSubscribeCallback = (value: Result<DatabaseFieldChangesetPB, FlowyError>) => void;
 
@@ -9,11 +9,12 @@ export class DatabaseFieldChangesetObserver {
   private notifier?: ChangeNotifier<Result<DatabaseFieldChangesetPB, FlowyError>>;
   private listener?: DatabaseNotificationObserver;
 
-  constructor(public readonly viewId: string) {}
+  constructor(public readonly viewId: string) {
+  }
 
   subscribe = async (callbacks: { onFieldsChanged: FieldChangesetSubscribeCallback }) => {
     this.notifier = new ChangeNotifier();
-    this.notifier?.observer.subscribe(callbacks.onFieldsChanged);
+    this.notifier?.observer?.subscribe(callbacks.onFieldsChanged);
 
     this.listener = new DatabaseNotificationObserver({
       id: this.viewId,
@@ -29,7 +30,7 @@ export class DatabaseFieldChangesetObserver {
           default:
             break;
         }
-      },
+      }
     });
     await this.listener.start();
   };
@@ -46,11 +47,12 @@ export class DatabaseFieldObserver {
   private _notifier?: ChangeNotifier<Result<FieldPB, FlowyError>>;
   private _listener?: DatabaseNotificationObserver;
 
-  constructor(public readonly fieldId: string) {}
+  constructor(public readonly fieldId: string) {
+  }
 
   subscribe = async (callbacks: { onFieldChanged: FieldSubscribeCallback }) => {
     this._notifier = new ChangeNotifier();
-    this._notifier?.observer.subscribe(callbacks.onFieldChanged);
+    this._notifier?.observer?.subscribe(callbacks.onFieldChanged);
 
     this._listener = new DatabaseNotificationObserver({
       id: this.fieldId,
@@ -66,7 +68,7 @@ export class DatabaseFieldObserver {
           default:
             break;
         }
-      },
+      }
     });
     await this._listener.start();
   };

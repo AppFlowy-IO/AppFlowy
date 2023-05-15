@@ -31,6 +31,7 @@ export default function VirtualizedList({
         >
           {node && childIds && virtualItems.length ? (
             <div
+              className={'doc-body-inner'}
               style={{
                 position: 'absolute',
                 top: 0,

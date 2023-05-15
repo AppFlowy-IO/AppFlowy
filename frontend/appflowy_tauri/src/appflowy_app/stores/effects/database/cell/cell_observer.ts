@@ -2,21 +2,20 @@ import { Ok, Result } from 'ts-results';
 import { ChangeNotifier } from '$app/utils/change_notifier';
 import { DatabaseNotificationObserver } from '../notifications/observer';
 import { DatabaseNotification, FlowyError } from '@/services/backend';
+import { Subscription } from 'rxjs';
 
-type UpdateCellNotifiedValue = Result<void, FlowyError>;
-
-export type CellChangedCallback = (value: UpdateCellNotifiedValue) => void;
+export type CellChangedCallback = (value: Result<void, FlowyError>) => void;
 
 export class CellObserver {
-  private notifier?: ChangeNotifier<UpdateCellNotifiedValue>;
+  private notifier?: ChangeNotifier<Result<void, FlowyError>>;
   private listener?: DatabaseNotificationObserver;
+  private subscription?: Subscription;
 
   constructor(public readonly rowId: string, public readonly fieldId: string) {}
 
   subscribe = async (callbacks: { onCellChanged: CellChangedCallback }) => {
     this.notifier = new ChangeNotifier();
-    this.notifier?.observer.subscribe(callbacks.onCellChanged);
-
+    this.subscription = this.notifier?.observer?.subscribe(callbacks.onCellChanged);
     this.listener = new DatabaseNotificationObserver({
       // The rowId combine with fieldId can identifier the cell.
       // This format rowId:fieldId is also defined in the backend,
@@ -40,7 +39,7 @@ export class CellObserver {
   };
 
   unsubscribe = async () => {
-    this.notifier?.unsubscribe();
+    this.subscription?.unsubscribe();
     await this.listener?.stop();
   };
 }

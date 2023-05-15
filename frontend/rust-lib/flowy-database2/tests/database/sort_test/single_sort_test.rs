@@ -184,7 +184,7 @@ async fn sort_date_by_descending_test() {
         "2022/03/14",
         "2022/11/17",
         "2022/11/13",
-        "2022/12/25",
+        "2022/12/24",
       ],
     },
     InsertSort {
@@ -194,7 +194,7 @@ async fn sort_date_by_descending_test() {
     AssertCellContentOrder {
       field_id: date_field.id.clone(),
       orders: vec![
-        "2022/12/25",
+        "2022/12/24",
         "2022/11/17",
         "2022/11/13",
         "2022/03/14",
@@ -213,7 +213,7 @@ async fn sort_number_by_descending_test() {
   let scripts = vec![
     AssertCellContentOrder {
       field_id: number_field.id.clone(),
-      orders: vec!["$1", "$2", "$3", "$4", "", "$5"],
+      orders: vec!["$1", "$2", "$3", "$14", "", "$5"],
     },
     InsertSort {
       field: number_field.clone(),
@@ -221,7 +221,7 @@ async fn sort_number_by_descending_test() {
     },
     AssertCellContentOrder {
       field_id: number_field.id.clone(),
-      orders: vec!["$5", "$4", "$3", "$2", "$1", ""],
+      orders: vec!["$14", "$5", "$3", "$2", "$1", ""],
     },
   ];
   test.run_scripts(scripts).await;

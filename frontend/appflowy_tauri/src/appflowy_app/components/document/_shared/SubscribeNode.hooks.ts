@@ -19,7 +19,7 @@ export function useSubscribeNode(id: string) {
   });
 
   const isSelected = useAppSelector<boolean>((state) => {
-    return state.document.selections?.includes(id) || false;
+    return state.rectSelection.selections?.includes(id) || false;
   });
 
   // Memoize the node and its children
@@ -27,7 +27,7 @@ export function useSubscribeNode(id: string) {
   // It very important for performance
   const memoizedNode = useMemo(
     () => node,
-    [node?.id, JSON.stringify(node?.data), node?.parent, node?.type, node?.children]
+    [JSON.stringify(node)]
   );
   const memoizedChildIds = useMemo(() => childIds, [JSON.stringify(childIds)]);
 

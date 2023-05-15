@@ -76,11 +76,11 @@ export const DateTypeOptions = ({
   };
 
   const toggleIncludeTime = async () => {
-    if (dateType?.includeTime) {
-      await includeTime(false);
-    } else {
-      await includeTime(true);
-    }
+    // if (dateType?.includeTime) {
+    //   await includeTime(false);
+    // } else {
+    //   await includeTime(true);
+    // }
   };
 
   return (
@@ -110,9 +110,9 @@ export const DateTypeOptions = ({
           </i>*/}
           <span>{t('grid.field.includeTime')}</span>
         </div>
-        <i className={'h-5 w-5'}>
-          {dateType?.includeTime ? <EditorCheckSvg></EditorCheckSvg> : <EditorUncheckSvg></EditorUncheckSvg>}
-        </i>
+        {/*<i className={'h-5 w-5'}>*/}
+        {/*  {dateType?.includeTime ? <EditorCheckSvg></EditorCheckSvg> : <EditorUncheckSvg></EditorUncheckSvg>}*/}
+        {/*</i>*/}
       </button>
 
       <button

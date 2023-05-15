@@ -24,11 +24,11 @@ export class DocumentController {
   private readonly observer: DocumentObserver;
 
   constructor(
-    public readonly viewId: string,
+    public readonly documentId: string,
     private onDocChange?: (props: { isRemote: boolean; data: BlockEventPayloadPB }) => void
   ) {
-    this.backendService = new DocumentBackendService(viewId);
-    this.observer = new DocumentObserver(viewId);
+    this.backendService = new DocumentBackendService(documentId);
+    this.observer = new DocumentObserver(documentId);
   }
 
   create = async (): Promise<FlowyError | void> => {

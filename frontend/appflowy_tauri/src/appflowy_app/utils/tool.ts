@@ -82,3 +82,19 @@ export function isEqual<T>(value1: T, value2: T): boolean {
   }
   return true;
 }
+
+export function clone<T>(value: T): T {
+  if (typeof value !== 'object' || value === null) {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => clone(item)) as any;
+  }
+
+  const result: any = {};
+  for (const key in value) {
+    result[key] = clone(value[key]);
+  }
+  return result;
+}

@@ -26,13 +26,13 @@ import { FieldInfo } from '../../stores/effects/database/field/field_controller'
 import { TypeOptionController } from '../../stores/effects/database/field/type_option/type_option_controller';
 import { makeSingleSelectTypeOptionContext } from '../../stores/effects/database/field/type_option/type_option_context';
 import { SelectOptionBackendService } from '../../stores/effects/database/cell/select_option_bd_svc';
+import { Log } from '$app/utils/log';
 
 // Create a database view for specific layout type
 // Do not use it production code. Just for testing
 export async function createTestDatabaseView(layout: ViewLayoutPB): Promise<ViewPB> {
   const workspaceSetting: WorkspaceSettingPB = await FolderEventReadCurrentWorkspace().then((result) => result.unwrap());
-  const app = workspaceSetting.workspace.views[0];
-  const appService = new AppBackendService(app.id);
+  const appService = new AppBackendService(workspaceSetting.workspace.id);
   return await appService.createView({ name: 'New Grid', layoutType: layout });
 }
 

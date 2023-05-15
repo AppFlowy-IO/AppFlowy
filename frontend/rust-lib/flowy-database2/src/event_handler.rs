@@ -361,7 +361,7 @@ pub(crate) async fn update_cell_handler(
       &params.field_id,
       params.cell_changeset.clone(),
     )
-    .await;
+    .await?;
   Ok(())
 }
 
@@ -397,7 +397,7 @@ pub(crate) async fn insert_or_update_select_option_handler(
       RowId::from(params.row_id),
       params.items,
     )
-    .await;
+    .await?;
   Ok(())
 }
 
@@ -415,7 +415,7 @@ pub(crate) async fn delete_select_option_handler(
       RowId::from(params.row_id),
       params.items,
     )
-    .await;
+    .await?;
   Ok(())
 }
 
@@ -452,7 +452,7 @@ pub(crate) async fn update_select_option_cell_handler(
       &params.cell_identifier.field_id,
       changeset,
     )
-    .await;
+    .await?;
   Ok(())
 }
 
@@ -467,7 +467,7 @@ pub(crate) async fn update_date_cell_handler(
     date: data.date,
     time: data.time,
     include_time: data.include_time,
-    is_utc: data.is_utc,
+    timezone_id: data.timezone_id,
   };
   let database_editor = manager.get_database(&cell_id.view_id).await?;
   database_editor
@@ -477,7 +477,7 @@ pub(crate) async fn update_date_cell_handler(
       &cell_id.field_id,
       cell_changeset,
     )
-    .await;
+    .await?;
   Ok(())
 }
 

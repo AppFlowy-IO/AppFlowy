@@ -51,5 +51,6 @@ class CalendarSettingEvent with _$CalendarSettingEvent {
 }
 
 enum CalendarSettingAction {
+  properties,
   layout,
 }

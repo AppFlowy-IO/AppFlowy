@@ -12,6 +12,7 @@ use flowy_database2::services::field::{
   CheckboxTypeOption, ChecklistTypeOption, DateCellChangeset, MultiSelectTypeOption, SelectOption,
   SelectOptionCellChangeset, SingleSelectTypeOption,
 };
+use flowy_error::FlowyResult;
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
 
@@ -172,7 +173,7 @@ impl DatabaseEditorTest {
     field_id: &str,
     row_id: RowId,
     cell_changeset: T,
-  ) {
+  ) -> FlowyResult<()> {
     let field = self
       .editor
       .get_fields(&self.view_id, None)
@@ -183,10 +184,10 @@ impl DatabaseEditorTest {
     self
       .editor
       .update_cell_with_changeset(&self.view_id, row_id, &field.id, cell_changeset)
-      .await;
+      .await
   }
 
-  pub(crate) async fn update_text_cell(&mut self, row_id: RowId, content: &str) {
+  pub(crate) async fn update_text_cell(&mut self, row_id: RowId, content: &str) -> FlowyResult<()> {
     let field = self
       .editor
       .get_fields(&self.view_id, None)
@@ -200,10 +201,14 @@ impl DatabaseEditorTest {
 
     self
       .update_cell(&field.id, row_id, content.to_string())
-      .await;
+      .await
   }
 
-  pub(crate) async fn update_single_select_cell(&mut self, row_id: RowId, option_id: &str) {
+  pub(crate) async fn update_single_select_cell(
+    &mut self,
+    row_id: RowId,
+    option_id: &str,
+  ) -> FlowyResult<()> {
     let field = self
       .editor
       .get_fields(&self.view_id, None)
@@ -216,7 +221,7 @@ impl DatabaseEditorTest {
       .clone();
 
     let cell_changeset = SelectOptionCellChangeset::from_insert_option_id(option_id);
-    self.update_cell(&field.id, row_id, cell_changeset).await;
+    self.update_cell(&field.id, row_id, cell_changeset).await
   }
 }
 
@@ -253,12 +258,18 @@ impl TestRowBuilder {
     number_field.id.clone()
   }
 
-  pub fn insert_date_cell(&mut self, data: &str) -> String {
+  pub fn insert_date_cell(
+    &mut self,
+    data: &str,
+    time: Option<String>,
+    include_time: Option<bool>,
+    timezone_id: Option<String>,
+  ) -> String {
     let value = serde_json::to_string(&DateCellChangeset {
       date: Some(data.to_string()),
-      time: None,
-      is_utc: true,
-      include_time: Some(false),
+      time,
+      include_time,
+      timezone_id,
     })
     .unwrap();
     let date_field = self.field_with_type(&FieldType::DateTime);

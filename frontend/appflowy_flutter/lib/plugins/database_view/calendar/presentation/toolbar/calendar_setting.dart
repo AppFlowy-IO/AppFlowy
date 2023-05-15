@@ -2,8 +2,10 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_setting_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_property.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -38,6 +40,11 @@ class CalendarSetting extends StatelessWidget {
           final CalendarSettingAction? action =
               state.selectedAction.foldLeft(null, (previous, action) => action);
           switch (action) {
+            case CalendarSettingAction.properties:
+              return GridPropertyList(
+                viewId: settingContext.viewId,
+                fieldController: settingContext.fieldController,
+              );
             case CalendarSettingAction.layout:
               return CalendarLayoutSetting(
                 onUpdated: onUpdated,
@@ -78,9 +85,16 @@ class AllCalendarSettings extends StatelessWidget {
   }
 
   Widget _settingItem(BuildContext context, CalendarSettingAction action) {
+    Widget? icon;
+    if (action.iconName() != null) {
+      icon = FlowySvg(
+        name: action.iconName()!,
+      );
+    }
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
+        leftIcon: icon,
         text: FlowyText.medium(action.title()),
         onTap: () {
           context
@@ -93,8 +107,19 @@ class AllCalendarSettings extends StatelessWidget {
 }
 
 extension _SettingExtension on CalendarSettingAction {
+  String? iconName() {
+    switch (this) {
+      case CalendarSettingAction.properties:
+        return 'grid/setting/properties';
+      case CalendarSettingAction.layout:
+        return null;
+    }
+  }
+
   String title() {
     switch (this) {
+      case CalendarSettingAction.properties:
+        return LocaleKeys.grid_settings_Properties.tr();
       case CalendarSettingAction.layout:
         return LocaleKeys.grid_settings_layout.tr();
     }

@@ -9,6 +9,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../application/row/row_cache.dart';
 import '../../application/row/row_data_controller.dart';
 import '../../widgets/row/cell_builder.dart';
 import '../../widgets/row/row_detail.dart';
@@ -76,7 +77,12 @@ class _CalendarPageState extends State<CalendarPage> {
               listenWhen: (p, c) => p.editEvent != c.editEvent,
               listener: (context, state) {
                 if (state.editEvent != null) {
-                  _showEditEventPage(state.editEvent!.event!, context);
+                  showEventDetails(
+                    context: context,
+                    event: state.editEvent!.event!,
+                    viewId: widget.view.id,
+                    rowCache: _calendarBloc.rowCache,
+                  );
                 }
               },
             ),
@@ -165,8 +171,9 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   Widget _headerWeekDayBuilder(day) {
+    // incoming day starts from Monday, the symbols start from Sunday
     final symbols = DateFormat.EEEE(context.locale.toLanguageTag()).dateSymbols;
-    final weekDayString = symbols.WEEKDAYS[day];
+    final weekDayString = symbols.WEEKDAYS[(day + 1) % 7];
     return Center(
       child: Padding(
         padding: CalendarSize.daysOfWeekInsets,
@@ -210,27 +217,32 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   WeekDays _weekdayFromInt(int dayOfWeek) {
-    // MonthView places the first day of week on the second column for some reason.
-    return WeekDays.values[(dayOfWeek + 1) % 7];
+    // dayOfWeek starts from Sunday, WeekDays starts from Monday
+    return WeekDays.values[(dayOfWeek - 1) % 7];
   }
+}
 
-  void _showEditEventPage(CalendarDayEvent event, BuildContext context) {
-    final dataController = RowController(
-      rowId: event.eventId,
-      viewId: widget.view.id,
-      rowCache: _calendarBloc.rowCache,
-    );
+void showEventDetails({
+  required BuildContext context,
+  required CalendarDayEvent event,
+  required String viewId,
+  required RowCache rowCache,
+}) {
+  final dataController = RowController(
+    rowId: event.eventId,
+    viewId: viewId,
+    rowCache: rowCache,
+  );
 
-    FlowyOverlay.show(
-      context: context,
-      builder: (BuildContext context) {
-        return RowDetailPage(
-          cellBuilder: GridCellBuilder(
-            cellCache: _calendarBloc.rowCache.cellCache,
-          ),
-          dataController: dataController,
-        );
-      },
-    );
-  }
+  FlowyOverlay.show(
+    context: context,
+    builder: (BuildContext context) {
+      return RowDetailPage(
+        cellBuilder: GridCellBuilder(
+          cellCache: rowCache.cellCache,
+        ),
+        dataController: dataController,
+      );
+    },
+  );
 }

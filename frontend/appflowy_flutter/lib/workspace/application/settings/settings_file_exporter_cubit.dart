@@ -32,7 +32,7 @@ class SettingsFileExportState {
     expanded = views.map((e) => true).toList();
     selectedApps = views.map((e) => true).toList();
     selectedItems =
-        views.map((e) => e.belongings.map((e) => true).toList()).toList();
+        views.map((e) => e.childViews.map((e) => true).toList()).toList();
   }
 }
 
@@ -63,7 +63,7 @@ class SettingsFileExporterCubit extends Cubit<SettingsFileExportState> {
       final ids = <String>[];
       for (var j = 0; j < selectedItem.length; j++) {
         if (selectedItem[j]) {
-          ids.add(apps[i].belongings[j].id);
+          ids.add(apps[i].childViews[j].id);
         }
       }
       if (ids.isNotEmpty) {

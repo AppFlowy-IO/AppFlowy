@@ -43,7 +43,6 @@ pub fn make_test_board() -> DatabaseData {
         let date_type_option = DateTypeOption {
           date_format: DateFormat::US,
           time_format: TimeFormat::TwentyFourHour,
-          include_time: false,
         };
         let date_field = FieldBuilder::new(field_type.clone(), date_type_option)
           .name("Time")
@@ -120,7 +119,12 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("A"),
             FieldType::Number => row_builder.insert_number_cell("1"),
             // 1647251762 => Mar 14,2022
-            FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
+            FieldType::DateTime => row_builder.insert_date_cell(
+              "1647251762",
+              None,
+              None,
+              Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
+            ),
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(0))
             },
@@ -138,7 +142,12 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("B"),
             FieldType::Number => row_builder.insert_number_cell("2"),
             // 1647251762 => Mar 14,2022
-            FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
+            FieldType::DateTime => row_builder.insert_date_cell(
+              "1647251762",
+              None,
+              None,
+              Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
+            ),
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(0))
             },
@@ -155,7 +164,12 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("C"),
             FieldType::Number => row_builder.insert_number_cell("3"),
             // 1647251762 => Mar 14,2022
-            FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
+            FieldType::DateTime => row_builder.insert_date_cell(
+              "1647251762",
+              None,
+              None,
+              Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
+            ),
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(1))
             },
@@ -175,7 +189,12 @@ pub fn make_test_board() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("DA"),
             FieldType::Number => row_builder.insert_number_cell("4"),
-            FieldType::DateTime => row_builder.insert_date_cell("1668704685"),
+            FieldType::DateTime => row_builder.insert_date_cell(
+              "1668704685",
+              None,
+              None,
+              Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
+            ),
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(1))
             },
@@ -190,7 +209,12 @@ pub fn make_test_board() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("AE"),
             FieldType::Number => row_builder.insert_number_cell(""),
-            FieldType::DateTime => row_builder.insert_date_cell("1668359085"),
+            FieldType::DateTime => row_builder.insert_date_cell(
+              "1668359085",
+              None,
+              None,
+              Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
+            ),
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(2))
             },

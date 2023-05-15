@@ -1,6 +1,7 @@
 import { Editor, Element, Location, Text } from 'slate';
 import { SelectionPoint, TextDelta, TextSelection } from '$app/interfaces/document';
 import * as Y from 'yjs';
+import { getDeltaFromSlateNodes } from '$app/utils/document/blocks/common';
 
 export function getDelta(editor: Editor, at: Location): TextDelta[] {
   const baseElement = Editor.fragment(editor, at)[0] as Element;
@@ -119,6 +120,23 @@ export function getLastLineOffsetByDelta(delta: TextDelta[]): number {
 }
 
 /**
+ * get the offset of per line beginning
+ * @param editor
+ */
+export function getOffsetOfPerLineBeginning(editor: Editor): number[] {
+  const delta = getDeltaFromSlateNodes(editor.children);
+  const lines = getLinesByDelta(delta);
+  const offsets: number[] = [];
+  let offset = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const lineText = lines[i] + '\n';
+    offsets.push(offset);
+    offset += lineText.length;
+  }
+  return offsets;
+}
+
+/**
  * get the selection of the end line by offset
  * @param delta
  * @param offset relative offset of the end line
@@ -169,6 +187,21 @@ export function getSelectionByTextOffset(delta: TextDelta[], offset: number) {
 }
 
 /**
+ * get the text offset by selection
+ * @param delta
+ * @param point
+ */
+export function getTextOffsetBySelection(delta: TextDelta[], point: SelectionPoint) {
+  let textOffset = 0;
+  for (let i = 0; i < point.path[1]; i++) {
+    const item = delta[i];
+    textOffset += item.insert.length;
+  }
+  textOffset += point.offset;
+  return textOffset;
+}
+
+/**
  * get the point by text offset
  * @param delta
  * @param offset absolute offset
@@ -207,4 +240,45 @@ export function isSameDelta(referDelta: TextDelta[], delta: TextDelta[]) {
   yText.applyDelta(delta);
   yTextRefer.applyDelta(referDelta);
   return JSON.stringify(yText.toDelta()) === JSON.stringify(yTextRefer.toDelta());
+}
+
+export function getDeltaBeforeSelection(editor: Editor) {
+  const selection = editor.selection;
+  if (!selection) return;
+  const beforeRange = getBeforeRangeAt(editor, selection);
+  return getDelta(editor, beforeRange);
+}
+
+export function getDeltaAfterSelection(editor: Editor): TextDelta[] | undefined {
+  const selection = editor.selection;
+  if (!selection) return;
+  const afterRange = getAfterRangeAt(editor, selection);
+  return getDelta(editor, afterRange);
+}
+
+export function getSplitDelta(editor: Editor) {
+  // get the retain content
+  const retain = getDeltaBeforeSelection(editor) || [];
+  // get the insert content
+  const insert = getDeltaAfterSelection(editor) || [];
+  return { retain, insert };
+}
+
+export function getPointOfCurrentLineBeginning(editor: Editor) {
+  const { selection } = editor;
+  if (!selection) return;
+  const delta = getDeltaFromSlateNodes(editor.children);
+  const textOffset = getTextOffsetBySelection(delta, selection.anchor as SelectionPoint);
+  const offsets = getOffsetOfPerLineBeginning(editor);
+  let lineNumber = offsets.findIndex((item) => item > textOffset);
+  if (lineNumber === -1) {
+    lineNumber = offsets.length - 1;
+  } else {
+    lineNumber -= 1;
+  }
+
+  const lineBeginOffset = offsets[lineNumber];
+
+  const beginPoint = getPointByTextOffset(delta, lineBeginOffset);
+  return beginPoint;
 }

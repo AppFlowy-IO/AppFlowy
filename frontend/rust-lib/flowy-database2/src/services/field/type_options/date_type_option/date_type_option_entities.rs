@@ -22,7 +22,7 @@ pub struct DateCellChangeset {
   pub date: Option<String>,
   pub time: Option<String>,
   pub include_time: Option<bool>,
-  pub is_utc: bool,
+  pub timezone_id: Option<String>,
 }
 
 impl DateCellChangeset {
@@ -57,27 +57,36 @@ impl ToCellChangeset for DateCellChangeset {
 pub struct DateCellData {
   pub timestamp: Option<i64>,
   pub include_time: bool,
+  pub timezone_id: String,
 }
 
 impl From<&Cell> for DateCellData {
   fn from(cell: &Cell) -> Self {
     let timestamp = cell
       .get_str_value(CELL_DATE)
-      .map(|data| data.parse::<i64>().unwrap_or_default());
+      .and_then(|data| data.parse::<i64>().ok());
 
     let include_time = cell.get_bool_value("include_time").unwrap_or_default();
+    let timezone_id = cell.get_str_value("timezone_id").unwrap_or_default();
+
     Self {
       timestamp,
       include_time,
+      timezone_id,
     }
   }
 }
 
 impl From<DateCellData> for Cell {
   fn from(data: DateCellData) -> Self {
+    let timestamp_string = match data.timestamp {
+      Some(timestamp) => timestamp.to_string(),
+      None => "".to_owned(),
+    };
     new_cell_builder(FieldType::DateTime)
-      .insert_str_value(CELL_DATE, data.timestamp.unwrap_or_default().to_string())
+      .insert_str_value(CELL_DATE, timestamp_string)
       .insert_bool_value("include_time", data.include_time)
+      .insert_str_value("timezone_id", data.timezone_id)
       .build()
   }
 }
@@ -105,6 +114,7 @@ impl<'de> serde::Deserialize<'de> for DateCellData {
         Ok(DateCellData {
           timestamp: Some(value),
           include_time: false,
+          timezone_id: "".to_owned(),
         })
       }
 
@@ -121,6 +131,7 @@ impl<'de> serde::Deserialize<'de> for DateCellData {
       {
         let mut timestamp: Option<i64> = None;
         let mut include_time: Option<bool> = None;
+        let mut timezone_id: Option<String> = None;
 
         while let Some(key) = map.next_key()? {
           match key {
@@ -130,15 +141,20 @@ impl<'de> serde::Deserialize<'de> for DateCellData {
             "include_time" => {
               include_time = map.next_value()?;
             },
+            "timezone_id" => {
+              timezone_id = map.next_value()?;
+            },
             _ => {},
           }
         }
 
-        let include_time = include_time.unwrap_or(false);
+        let include_time = include_time.unwrap_or_default();
+        let timezone_id = timezone_id.unwrap_or_default();
 
         Ok(DateCellData {
           timestamp,
           include_time,
+          timezone_id,
         })
       }
     }
@@ -203,7 +219,7 @@ impl DateFormat {
       DateFormat::Local => "%m/%d/%Y",
       DateFormat::US => "%Y/%m/%d",
       DateFormat::ISO => "%Y-%m-%d",
-      DateFormat::Friendly => "%b %d,%Y",
+      DateFormat::Friendly => "%b %d, %Y",
       DateFormat::DayMonthYear => "%d/%m/%Y",
     }
   }

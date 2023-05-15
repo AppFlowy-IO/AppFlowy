@@ -466,20 +466,27 @@ impl DatabaseEditor {
     row_id: RowId,
     field_id: &str,
     cell_changeset: T,
-  ) -> Option<()>
+  ) -> FlowyResult<()>
   where
     T: ToCellChangeset,
   {
     let (field, cell) = {
       let database = self.database.lock();
+      let field = match database.fields.get_field(field_id) {
+        Some(field) => Ok(field),
+        None => {
+          let msg = format!("Field with id:{} not found", &field_id);
+          Err(FlowyError::internal().context(msg))
+        },
+      }?;
       (
-        database.fields.get_field(field_id)?,
+        field,
         database.get_cell(field_id, &row_id).map(|cell| cell.cell),
       )
     };
     let cell_changeset = cell_changeset.to_cell_changeset_str();
     let new_cell =
-      apply_cell_data_changeset(cell_changeset, cell, &field, Some(self.cell_cache.clone()));
+      apply_cell_data_changeset(cell_changeset, cell, &field, Some(self.cell_cache.clone()))?;
     self.update_cell(view_id, row_id, field_id, new_cell).await
   }
 
@@ -489,7 +496,7 @@ impl DatabaseEditor {
     row_id: RowId,
     field_id: &str,
     new_cell: Cell,
-  ) -> Option<()> {
+  ) -> FlowyResult<()> {
     let old_row = { self.database.lock().get_row(&row_id) };
     self.database.lock().update_row(&row_id, |row_update| {
       row_update.update_cells(|cell_update| {
@@ -516,7 +523,7 @@ impl DatabaseEditor {
       field_id: field_id.to_string(),
     }])
     .await;
-    None
+    Ok(())
   }
 
   pub async fn create_select_option(
@@ -536,9 +543,15 @@ impl DatabaseEditor {
     field_id: &str,
     row_id: RowId,
     options: Vec<SelectOptionPB>,
-  ) -> Option<()> {
-    let field = self.database.lock().fields.get_field(field_id)?;
-    let mut type_option = select_type_option_from_field(&field).ok()?;
+  ) -> FlowyResult<()> {
+    let field = match self.database.lock().fields.get_field(field_id) {
+      Some(field) => Ok(field),
+      None => {
+        let msg = format!("Field with id:{} not found", &field_id);
+        Err(FlowyError::internal().context(msg))
+      },
+    }?;
+    let mut type_option = select_type_option_from_field(&field)?;
     let cell_changeset = SelectOptionCellChangeset {
       insert_option_ids: options.iter().map(|option| option.id.clone()).collect(),
       ..Default::default()
@@ -557,8 +570,8 @@ impl DatabaseEditor {
 
     self
       .update_cell_with_changeset(view_id, row_id, field_id, cell_changeset)
-      .await;
-    None
+      .await?;
+    Ok(())
   }
 
   pub async fn delete_select_options(
@@ -567,9 +580,15 @@ impl DatabaseEditor {
     field_id: &str,
     row_id: RowId,
     options: Vec<SelectOptionPB>,
-  ) -> Option<()> {
-    let field = self.database.lock().fields.get_field(field_id)?;
-    let mut type_option = select_type_option_from_field(&field).ok()?;
+  ) -> FlowyResult<()> {
+    let field = match self.database.lock().fields.get_field(field_id) {
+      Some(field) => Ok(field),
+      None => {
+        let msg = format!("Field with id:{} not found", &field_id);
+        Err(FlowyError::internal().context(msg))
+      },
+    }?;
+    let mut type_option = select_type_option_from_field(&field)?;
     let cell_changeset = SelectOptionCellChangeset {
       delete_option_ids: options.iter().map(|option| option.id.clone()).collect(),
       ..Default::default()
@@ -588,8 +607,8 @@ impl DatabaseEditor {
 
     self
       .update_cell_with_changeset(view_id, row_id, field_id, cell_changeset)
-      .await;
-    None
+      .await?;
+    Ok(())
   }
 
   pub async fn get_select_options(&self, row_id: RowId, field_id: &str) -> SelectOptionCellDataPB {

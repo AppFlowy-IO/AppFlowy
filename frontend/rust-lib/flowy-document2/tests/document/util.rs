@@ -1,9 +1,11 @@
-use collab_persistence::kv::rocks_kv::RocksCollabDB;
-use flowy_document2::manager::DocumentUser;
-use parking_lot::Once;
 use std::sync::Arc;
+
+use collab_plugins::disk::kv::rocks_kv::RocksCollabDB;
+use parking_lot::Once;
 use tempfile::TempDir;
 use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
+
+use flowy_document2::manager::DocumentUser;
 
 pub struct FakeUser {
   kv: Arc<RocksCollabDB>,

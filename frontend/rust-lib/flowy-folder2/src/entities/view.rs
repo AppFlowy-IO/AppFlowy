@@ -22,22 +22,35 @@ pub struct ViewPB {
   pub create_time: i64,
 
   #[pb(index = 5)]
-  pub belongings: Vec<ViewPB>,
+  pub child_views: Vec<ViewPB>,
 
   #[pb(index = 6)]
   pub layout: ViewLayoutPB,
 }
 
-impl std::convert::From<View> for ViewPB {
-  fn from(view: View) -> Self {
-    ViewPB {
-      id: view.id,
-      parent_view_id: view.bid,
-      name: view.name,
-      create_time: view.created_at,
-      belongings: Default::default(),
-      layout: view.layout.into(),
-    }
+pub fn view_pb_without_child_views(view: View) -> ViewPB {
+  ViewPB {
+    id: view.id,
+    parent_view_id: view.bid,
+    name: view.name,
+    create_time: view.created_at,
+    child_views: Default::default(),
+    layout: view.layout.into(),
+  }
+}
+
+/// Returns a ViewPB with child views. Only the first level of child views are included.
+pub fn view_pb_with_child_views(view: View, child_views: Vec<View>) -> ViewPB {
+  ViewPB {
+    id: view.id,
+    parent_view_id: view.bid,
+    name: view.name,
+    create_time: view.created_at,
+    child_views: child_views
+      .into_iter()
+      .map(view_pb_without_child_views)
+      .collect(),
+    layout: view.layout.into(),
   }
 }
 
