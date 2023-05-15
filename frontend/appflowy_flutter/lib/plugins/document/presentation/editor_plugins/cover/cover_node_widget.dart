@@ -4,6 +4,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/change_cover_popover.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/emoji_popover.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/emoji_icon_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/workspace/presentation/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide FlowySvg;
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -159,7 +160,11 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
         height: widget.hasIcon ? 180 : 50.0,
         alignment: Alignment.bottomLeft,
         width: double.infinity,
-        padding: const EdgeInsets.only(top: 20, bottom: 5),
+        padding: EdgeInsets.only(
+          left: EditorStyleCustomizer.horizontalPadding + 30,
+          top: 20,
+          bottom: 5,
+        ),
         child: isHidden
             ? Container()
             : Row(
@@ -322,7 +327,8 @@ class _CoverImageState extends State<_CoverImage> {
         ),
         hasIcon
             ? Positioned(
-                bottom: !hasCover ? 30 : 10,
+                left: EditorStyleCustomizer.horizontalPadding + 30,
+                bottom: !hasCover ? 30 : 40,
                 child: AppFlowyPopover(
                   offset: const Offset(100, 0),
                   controller: iconPopoverController,

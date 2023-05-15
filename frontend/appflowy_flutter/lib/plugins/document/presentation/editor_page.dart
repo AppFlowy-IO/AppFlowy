@@ -2,11 +2,10 @@ import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:tuple/tuple.dart';
 
 /// Wrapper for the appflowy editor.
@@ -73,8 +72,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     customSlashCommand(slashMenuItems),
   ];
 
-  late final editorStyle = _desktopEditorStyle();
-
+  late final styleCustomizer = EditorStyleCustomizer(context: context);
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
 
   @override
@@ -88,7 +86,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       autoFocus: autoFocusParameters.item1,
       focusedSelection: autoFocusParameters.item2,
       // setup the theme
-      editorStyle: editorStyle,
+      editorStyle: styleCustomizer.style(),
       // customize the block builder
       blockComponentBuilders: blockComponentBuilders,
       // customize the shortcuts
@@ -181,43 +179,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     }
 
     return builders;
-  }
-
-  EditorStyle _desktopEditorStyle() {
-    final theme = Theme.of(context);
-    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
-    return EditorStyle.desktop(
-      padding: const EdgeInsets.symmetric(horizontal: 100),
-      backgroundColor: theme.colorScheme.surface,
-      cursorColor: theme.colorScheme.primary,
-      textStyleConfiguration: TextStyleConfiguration(
-        text: TextStyle(
-          fontFamily: 'poppins',
-          fontSize: fontSize,
-          color: theme.colorScheme.onBackground,
-          height: 1.5,
-        ),
-        bold: const TextStyle(
-          fontFamily: 'poppins-Bold',
-          fontWeight: FontWeight.w600,
-        ),
-        italic: const TextStyle(fontStyle: FontStyle.italic),
-        underline: const TextStyle(decoration: TextDecoration.underline),
-        strikethrough: const TextStyle(decoration: TextDecoration.lineThrough),
-        href: TextStyle(
-          color: theme.colorScheme.primary,
-          decoration: TextDecoration.underline,
-        ),
-        code: GoogleFonts.robotoMono(
-          textStyle: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.normal,
-            color: Colors.red,
-            backgroundColor: theme.colorScheme.inverseSurface,
-          ),
-        ),
-      ),
-    );
   }
 
   Tuple2<bool, Selection?> _computeAutoFocusParameters() {
