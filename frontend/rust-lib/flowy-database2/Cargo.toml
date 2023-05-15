@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 collab = { version = "0.1.0" }
 collab-database = { version = "0.1.0" }
-collab-plugins = {version = "0.1.0", feature = ["disk_rocksdb", "sync"]}
+appflowy-integrate = {version = "0.1.0" }
 
 flowy-derive = { path = "../flowy-derive" }
 flowy-notification = { path = "../flowy-notification" }
@@ -39,6 +39,7 @@ async-stream = "0.3.4"
 rayon = "1.6.1"
 nanoid = "0.4.0"
 chrono-tz = "0.8.1"
+async-trait = "0.1"
 
 strum = "0.21"
 strum_macros = "0.21"

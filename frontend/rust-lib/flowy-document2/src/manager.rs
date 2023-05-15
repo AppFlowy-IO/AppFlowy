@@ -1,8 +1,8 @@
 use std::{collections::HashMap, sync::Arc};
 
-use collab::preclude::{Collab, CollabBuilder};
-use collab_plugins::disk::kv::rocks_kv::RocksCollabDB;
-use collab_plugins::disk::rocksdb::RocksdbDiskPlugin;
+use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
+use appflowy_integrate::RocksCollabDB;
+
 use parking_lot::RwLock;
 
 use flowy_error::{FlowyError, FlowyResult};
@@ -16,42 +16,48 @@ use crate::{
 pub trait DocumentUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn token(&self) -> Result<String, FlowyError>; // unused now.
-  fn kv_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError>;
+  fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError>;
 }
 
 pub struct DocumentManager {
-  documents: Arc<RwLock<HashMap<String, Arc<Document>>>>,
   user: Arc<dyn DocumentUser>,
+  collab_builder: Arc<AppFlowyCollabBuilder>,
+  documents: Arc<RwLock<HashMap<String, Arc<Document>>>>,
 }
 
-// unsafe impl Send for DocumentManager {}
-// unsafe impl Sync for DocumentManager {}
+unsafe impl Send for DocumentManager {}
+unsafe impl Sync for DocumentManager {}
 
 impl DocumentManager {
-  pub fn new(user: Arc<dyn DocumentUser>) -> Self {
+  pub fn new(user: Arc<dyn DocumentUser>, collab_builder: Arc<AppFlowyCollabBuilder>) -> Self {
     Self {
-      documents: Default::default(),
       user,
+      collab_builder,
+      documents: Default::default(),
     }
   }
 
-  pub fn create_document(
+  pub async fn create_document(
     &self,
     doc_id: String,
     data: DocumentDataWrapper,
   ) -> FlowyResult<Arc<Document>> {
-    let collab = self.get_collab_for_doc_id(&doc_id)?;
+    let uid = self.user.user_id()?;
+    let db = self.user.collab_db()?;
+    let collab = self.collab_builder.build(uid, &doc_id, db);
     let document = Arc::new(Document::create_with_data(collab, data.0)?);
     self.documents.write().insert(doc_id, document.clone());
     Ok(document)
   }
 
-  pub fn open_document(&self, doc_id: String) -> FlowyResult<Arc<Document>> {
+  pub async fn open_document(&self, doc_id: String) -> FlowyResult<Arc<Document>> {
     if let Some(doc) = self.documents.read().get(&doc_id) {
       return Ok(doc.clone());
     }
     tracing::debug!("open_document: {:?}", &doc_id);
-    let collab = self.get_collab_for_doc_id(&doc_id)?;
+    let uid = self.user.user_id()?;
+    let db = self.user.collab_db()?;
+    let collab = self.collab_builder.build(uid, &doc_id, db);
     let document = Arc::new(Document::new(collab)?);
 
     let clone_doc_id = doc_id.clone();
@@ -71,17 +77,5 @@ impl DocumentManager {
   pub fn close_document(&self, doc_id: String) -> FlowyResult<()> {
     self.documents.write().remove(&doc_id);
     Ok(())
-  }
-
-  fn get_collab_for_doc_id(&self, doc_id: &str) -> Result<Collab, FlowyError> {
-    let uid = self.user.user_id()?;
-    let kv_db = self.user.kv_db()?;
-    let mut collab = CollabBuilder::new(uid, doc_id).build();
-    let disk_plugin = Arc::new(
-      RocksdbDiskPlugin::new(uid, kv_db).map_err(|err| FlowyError::internal().context(err))?,
-    );
-    collab.add_plugin(disk_plugin);
-    collab.initial();
-    Ok(collab)
   }
 }

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use collab_plugins::disk::kv::rocks_kv::RocksCollabDB;
+use appflowy_integrate::RocksCollabDB;
 use parking_lot::Once;
 use tempfile::TempDir;
 use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
@@ -26,7 +26,7 @@ impl DocumentUser for FakeUser {
     Ok("1".to_string())
   }
 
-  fn kv_db(&self) -> Result<std::sync::Arc<RocksCollabDB>, flowy_error::FlowyError> {
+  fn collab_db(&self) -> Result<std::sync::Arc<RocksCollabDB>, flowy_error::FlowyError> {
     Ok(self.kv.clone())
   }
 }
