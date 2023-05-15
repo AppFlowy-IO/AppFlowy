@@ -1,5 +1,5 @@
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/util/color_picker/color_picker_service.dart';
+import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
@@ -47,8 +47,7 @@ class MenuUser extends StatelessWidget {
     if (iconUrl.isEmpty) {
       iconUrl = defaultUserAvatar;
       final String name = context.read<MenuUserBloc>().state.userProfile.name;
-      final Color nameColor =
-          getIt<ColorPickerService>().generateRandomNameColor(name);
+      final Color color = ColorGenerator().generateColorFromString(name);
       const initialsCount = 2;
       // Taking the first letters of the name components and limiting to 2 elements
       final nameInitials = name
@@ -62,7 +61,7 @@ class MenuUser extends StatelessWidget {
         height: 28,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: nameColor,
+          color: color,
           shape: BoxShape.circle,
         ),
         child: FlowyText.semibold(
