@@ -19,7 +19,7 @@ use crate::services::field::{
   TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform, URLTypeOption,
 };
 
-pub const CELL_DATE: &str = "data";
+pub const CELL_DATA: &str = "data";
 
 /// A helper trait that used to erase the `Self` of `TypeOption` trait to make it become a Object-safe trait
 /// Only object-safe traits can be made into trait objects.

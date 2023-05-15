@@ -15,7 +15,7 @@ use crate::entities::{DateCellDataPB, FieldType};
 use crate::services::cell::{
   CellProtobufBlobParser, DecodedCellData, FromCellChangeset, FromCellString, ToCellChangeset,
 };
-use crate::services::field::CELL_DATE;
+use crate::services::field::CELL_DATA;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DateCellChangeset {
@@ -63,7 +63,7 @@ pub struct DateCellData {
 impl From<&Cell> for DateCellData {
   fn from(cell: &Cell) -> Self {
     let timestamp = cell
-      .get_str_value(CELL_DATE)
+      .get_str_value(CELL_DATA)
       .and_then(|data| data.parse::<i64>().ok());
 
     let include_time = cell.get_bool_value("include_time").unwrap_or_default();
@@ -84,7 +84,7 @@ impl From<DateCellData> for Cell {
       None => "".to_owned(),
     };
     new_cell_builder(FieldType::DateTime)
-      .insert_str_value(CELL_DATE, timestamp_string)
+      .insert_str_value(CELL_DATA, timestamp_string)
       .insert_bool_value("include_time", data.include_time)
       .insert_str_value("timezone_id", data.timezone_id)
       .build()
