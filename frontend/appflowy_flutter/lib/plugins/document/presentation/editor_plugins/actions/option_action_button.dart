@@ -3,6 +3,7 @@ import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flutter/material.dart';
 
 class OptionActionList extends StatelessWidget {
@@ -150,12 +151,18 @@ class OptionActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.center,
-      child: GestureDetector(
-        onTap: onTap,
-        child: svgWidget(
-          'editor/option',
-          size: const Size.square(24.0),
-          color: Theme.of(context).iconTheme.color,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.grab,
+        child: IgnoreParentGestureWidget(
+          child: GestureDetector(
+            onTap: onTap,
+            behavior: HitTestBehavior.deferToChild,
+            child: svgWidget(
+              'editor/option',
+              size: const Size.square(24.0),
+              color: Theme.of(context).iconTheme.color,
+            ),
+          ),
         ),
       ),
     );
