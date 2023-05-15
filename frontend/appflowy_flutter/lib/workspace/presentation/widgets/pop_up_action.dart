@@ -75,7 +75,7 @@ class _PopoverActionListState<T extends PopoverAction>
           } else if (action is PopoverActionCell) {
             return PopoverActionCellWidget<T>(
               mutex: widget.mutex,
-              popoverController: popoverController,
+              // popoverController: popoverController,
               action: action,
               itemHeight: ActionListSizes.itemHeight,
             );
@@ -157,10 +157,10 @@ class ActionCellWidget<T extends PopoverAction> extends StatelessWidget {
 }
 
 class PopoverActionCellWidget<T extends PopoverAction> extends StatelessWidget {
-  const PopoverActionCellWidget({
+  PopoverActionCellWidget({
     Key? key,
     this.mutex,
-    required this.popoverController,
+    // required this.popoverController,
     required this.action,
     required this.itemHeight,
   }) : super(key: key);
@@ -169,7 +169,7 @@ class PopoverActionCellWidget<T extends PopoverAction> extends StatelessWidget {
   final double itemHeight;
 
   final PopoverMutex? mutex;
-  final PopoverController popoverController; // = PopoverController();
+  final PopoverController popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {
@@ -179,7 +179,7 @@ class PopoverActionCellWidget<T extends PopoverAction> extends StatelessWidget {
     final rightIcon =
         actionCell.rightIcon(Theme.of(context).colorScheme.onSurface);
     return AppFlowyPopover(
-      mutex: mutex,
+      // mutex: mutex,
       controller: popoverController,
       asBarrier: true,
       popupBuilder: (context) => actionCell.builder(
