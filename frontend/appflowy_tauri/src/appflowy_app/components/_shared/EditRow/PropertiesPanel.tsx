@@ -28,12 +28,14 @@ export const PropertiesPanel = ({
   viewId,
   controller,
   rowInfo,
+  onDeletePropertyClick,
 }: {
   viewId: string;
   controller: DatabaseController;
   rowInfo: RowInfo;
+  onDeletePropertyClick: (fieldId: string) => void;
 }) => {
-  const { cells, onNewColumnClick } = useRow(viewId, controller, rowInfo);
+  const { cells } = useRow(viewId, controller, rowInfo);
   const databaseStore = useAppSelector((state) => state.database);
 
   const [showAddedProperties, setShowAddedProperties] = useState(false);
@@ -82,7 +84,7 @@ export const PropertiesPanel = ({
               </div>
               <div className={'flex items-center'}>
                 <i
-                  onClick={() => console.log('delete property')}
+                  onClick={() => onDeletePropertyClick(cell.cellIdentifier.fieldId)}
                   className={`h-[16px] w-[16px] text-black transition-opacity duration-300 ${
                     hoveredPropertyIndex === cellIndex ? 'opacity-100' : 'opacity-0'
                   }`}

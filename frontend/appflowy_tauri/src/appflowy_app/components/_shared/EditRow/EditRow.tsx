@@ -20,6 +20,8 @@ import { NumberFormatPopup } from '$app/components/_shared/EditRow/NumberFormatP
 import { CheckListPopup } from '$app/components/_shared/EditRow/CheckListPopup';
 import { EditCheckListPopup } from '$app/components/_shared/EditRow/EditCheckListPopup';
 import { PropertiesPanel } from '$app/components/_shared/EditRow/PropertiesPanel';
+import { ImageSvg } from '$app/components/_shared/svg/ImageSvg';
+import { PromptWindow } from '$app/components/_shared/PromptWindow';
 
 export const EditRow = ({
   onClose,
@@ -70,6 +72,9 @@ export const EditRow = ({
   const [showCheckListPopup, setShowCheckListPopup] = useState(false);
   const [checkListPopupTop, setCheckListPopupTop] = useState(0);
   const [checkListPopupLeft, setCheckListPopupLeft] = useState(0);
+
+  const [deletingPropertyId, setDeletingPropertyId] = useState<string | null>(null);
+  const [showDeletePropertyPrompt, setShowDeletePropertyPrompt] = useState(false);
 
   useEffect(() => {
     setUnveil(true);
@@ -165,155 +170,183 @@ export const EditRow = ({
     });
   };
 
+  const onDeletePropertyClick = (fieldId: string) => {
+    setDeletingPropertyId(fieldId);
+    setShowDeletePropertyPrompt(true);
+  };
+
   return (
-    <div
-      className={`fixed inset-0 z-10 flex items-center justify-center bg-black/30 backdrop-blur-sm transition-opacity duration-300 ${
-        unveil ? 'opacity-100' : 'opacity-0'
-      }`}
-      onClick={() => onCloseClick()}
-    >
+    <>
       <div
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
-        className={`relative flex h-[90%] w-[70%] flex-col gap-8 rounded-xl bg-white `}
+        className={`fixed inset-0 z-10 flex items-center justify-center bg-black/30 backdrop-blur-sm transition-opacity duration-300 ${
+          unveil ? 'opacity-100' : 'opacity-0'
+        }`}
+        onClick={() => onCloseClick()}
       >
-        <div onClick={() => onCloseClick()} className={'absolute top-1 right-1'}>
-          <button className={'block h-8 w-8 rounded-lg text-shade-2 hover:bg-main-secondary'}>
-            <CloseSvg></CloseSvg>
-          </button>
-        </div>
-
-        <div className={'flex h-full'}>
-          <div className={'flex h-full flex-1 flex-col border-r border-shade-6 pb-4 pt-12'}>
-            <DragDropContext onDragEnd={onDragEnd}>
-              <Droppable droppableId={'field-list'}>
-                {(provided) => (
-                  <div
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                    className={`flex flex-1 flex-col gap-8 px-8 ${
-                      showFieldEditor || showChangeOptionsPopup || showDatePicker ? 'overflow-hidden' : 'overflow-auto'
-                    }`}
-                  >
-                    {cells.map((cell, cellIndex) => (
-                      <EditCellWrapper
-                        index={cellIndex}
-                        key={cellIndex}
-                        cellIdentifier={cell.cellIdentifier}
-                        cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
-                        fieldController={controller.fieldController}
-                        onEditFieldClick={onEditFieldClick}
-                        onEditOptionsClick={onEditOptionsClick}
-                        onEditDateClick={onEditDateClick}
-                        onEditCheckListClick={onEditCheckListClick}
-                      ></EditCellWrapper>
-                    ))}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-
-            <div className={'border-t border-shade-6 px-8 pt-2'}>
-              <button
-                onClick={() => onNewColumnClick()}
-                className={'flex w-full items-center gap-2 rounded-lg px-4 py-2 hover:bg-shade-6'}
-              >
-                <i className={'h-5 w-5'}>
-                  <AddSvg></AddSvg>
-                </i>
-                <span>{t('grid.field.newProperty')}</span>
-              </button>
-            </div>
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+          className={`relative flex h-[90%] w-[70%] flex-col gap-8 rounded-xl bg-white `}
+        >
+          <div onClick={() => onCloseClick()} className={'absolute top-1 right-1'}>
+            <button className={'block h-8 w-8 rounded-lg text-shade-2 hover:bg-main-secondary'}>
+              <CloseSvg></CloseSvg>
+            </button>
           </div>
-          <PropertiesPanel viewId={viewId} controller={controller} rowInfo={rowInfo}></PropertiesPanel>
-        </div>
 
-        {showFieldEditor && editingCell && (
-          <EditFieldPopup
-            top={editFieldTop}
-            left={editFieldLeft}
-            cellIdentifier={editingCell}
-            viewId={viewId}
-            onOutsideClick={onOutsideEditFieldClick}
-            fieldInfo={controller.fieldController.getField(editingCell.fieldId)}
-            fieldController={controller.fieldController}
-            changeFieldTypeClick={onChangeFieldTypeClick}
-            onNumberFormat={onNumberFormat}
-          ></EditFieldPopup>
-        )}
-        {showChangeFieldTypePopup && (
-          <ChangeFieldTypePopup
-            top={changeFieldTypeTop}
-            left={changeFieldTypeLeft}
-            onClick={(newType) => changeFieldType(newType)}
-            onOutsideClick={() => setShowChangeFieldTypePopup(false)}
-          ></ChangeFieldTypePopup>
-        )}
-        {showChangeOptionsPopup && editingCell && (
-          <CellOptionsPopup
-            top={changeOptionsTop}
-            left={changeOptionsLeft}
-            cellIdentifier={editingCell}
-            cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
-            fieldController={controller.fieldController}
-            onOutsideClick={() => setShowChangeOptionsPopup(false)}
-            openOptionDetail={onOpenOptionDetailClick}
-          ></CellOptionsPopup>
-        )}
-        {showDatePicker && editingCell && (
-          <DatePickerPopup
-            top={datePickerTop}
-            left={datePickerLeft}
-            cellIdentifier={editingCell}
-            cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
-            fieldController={controller.fieldController}
-            onOutsideClick={() => setShowDatePicker(false)}
-          ></DatePickerPopup>
-        )}
-        {showEditCellOption && editingCell && editingSelectOption && (
-          <EditCellOptionPopup
-            top={editCellOptionTop}
-            left={editCellOptionLeft}
-            cellIdentifier={editingCell}
-            editingSelectOption={editingSelectOption}
-            onOutsideClick={() => {
-              setShowEditCellOption(false);
-            }}
-          ></EditCellOptionPopup>
-        )}
-        {showNumberFormatPopup && editingCell && (
-          <NumberFormatPopup
-            top={numberFormatTop}
-            left={numberFormatLeft}
-            cellIdentifier={editingCell}
-            fieldController={controller.fieldController}
-            onOutsideClick={() => {
-              setShowNumberFormatPopup(false);
-            }}
-          ></NumberFormatPopup>
-        )}
-        {showCheckListPopup && editingCell && (
-          <CheckListPopup
-            top={checkListPopupTop}
-            left={checkListPopupLeft}
-            cellIdentifier={editingCell}
-            cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
-            fieldController={controller.fieldController}
-            onOutsideClick={() => setShowCheckListPopup(false)}
-            openCheckListDetail={onOpenCheckListDetailClick}
-          ></CheckListPopup>
-        )}
-        {showEditCheckList && editingCell && editingSelectOption && (
-          <EditCheckListPopup
-            top={editCheckListTop}
-            left={editCheckListLeft}
-            cellIdentifier={editingCell}
-            editingSelectOption={editingSelectOption}
-            onOutsideClick={() => setShowEditCheckList(false)}
-          ></EditCheckListPopup>
-        )}
+          <div className={'flex h-full'}>
+            <div className={'flex h-full flex-1 flex-col border-r border-shade-6 pb-4 pt-6'}>
+              <div className={'pl-12 pb-4'}>
+                <button className={'flex items-center gap-2 p-4'}>
+                  <i className={'h-5 w-5'}>
+                    <ImageSvg></ImageSvg>
+                  </i>
+                  <span className={'text-xs'}>Add Cover</span>
+                </button>
+              </div>
+
+              <DragDropContext onDragEnd={onDragEnd}>
+                <Droppable droppableId={'field-list'}>
+                  {(provided) => (
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                      className={`flex flex-1 flex-col gap-8 px-8 ${
+                        showFieldEditor || showChangeOptionsPopup || showDatePicker ? 'overflow-hidden' : 'overflow-auto'
+                      }`}
+                    >
+                      {cells.map((cell, cellIndex) => (
+                        <EditCellWrapper
+                          index={cellIndex}
+                          key={cellIndex}
+                          cellIdentifier={cell.cellIdentifier}
+                          cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
+                          fieldController={controller.fieldController}
+                          onEditFieldClick={onEditFieldClick}
+                          onEditOptionsClick={onEditOptionsClick}
+                          onEditDateClick={onEditDateClick}
+                          onEditCheckListClick={onEditCheckListClick}
+                        ></EditCellWrapper>
+                      ))}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+
+              <div className={'border-t border-shade-6 px-8 pt-2'}>
+                <button
+                  onClick={() => onNewColumnClick()}
+                  className={'flex w-full items-center gap-2 rounded-lg px-4 py-2 hover:bg-shade-6'}
+                >
+                  <i className={'h-5 w-5'}>
+                    <AddSvg></AddSvg>
+                  </i>
+                  <span>{t('grid.field.newProperty')}</span>
+                </button>
+              </div>
+            </div>
+            <PropertiesPanel
+              viewId={viewId}
+              controller={controller}
+              rowInfo={rowInfo}
+              onDeletePropertyClick={onDeletePropertyClick}
+            ></PropertiesPanel>
+          </div>
+
+          {showFieldEditor && editingCell && (
+            <EditFieldPopup
+              top={editFieldTop}
+              left={editFieldLeft}
+              cellIdentifier={editingCell}
+              viewId={viewId}
+              onOutsideClick={onOutsideEditFieldClick}
+              fieldInfo={controller.fieldController.getField(editingCell.fieldId)}
+              fieldController={controller.fieldController}
+              changeFieldTypeClick={onChangeFieldTypeClick}
+              onNumberFormat={onNumberFormat}
+            ></EditFieldPopup>
+          )}
+          {showChangeFieldTypePopup && (
+            <ChangeFieldTypePopup
+              top={changeFieldTypeTop}
+              left={changeFieldTypeLeft}
+              onClick={(newType) => changeFieldType(newType)}
+              onOutsideClick={() => setShowChangeFieldTypePopup(false)}
+            ></ChangeFieldTypePopup>
+          )}
+          {showChangeOptionsPopup && editingCell && (
+            <CellOptionsPopup
+              top={changeOptionsTop}
+              left={changeOptionsLeft}
+              cellIdentifier={editingCell}
+              cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
+              fieldController={controller.fieldController}
+              onOutsideClick={() => setShowChangeOptionsPopup(false)}
+              openOptionDetail={onOpenOptionDetailClick}
+            ></CellOptionsPopup>
+          )}
+          {showDatePicker && editingCell && (
+            <DatePickerPopup
+              top={datePickerTop}
+              left={datePickerLeft}
+              cellIdentifier={editingCell}
+              cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
+              fieldController={controller.fieldController}
+              onOutsideClick={() => setShowDatePicker(false)}
+            ></DatePickerPopup>
+          )}
+          {showEditCellOption && editingCell && editingSelectOption && (
+            <EditCellOptionPopup
+              top={editCellOptionTop}
+              left={editCellOptionLeft}
+              cellIdentifier={editingCell}
+              editingSelectOption={editingSelectOption}
+              onOutsideClick={() => {
+                setShowEditCellOption(false);
+              }}
+            ></EditCellOptionPopup>
+          )}
+          {showNumberFormatPopup && editingCell && (
+            <NumberFormatPopup
+              top={numberFormatTop}
+              left={numberFormatLeft}
+              cellIdentifier={editingCell}
+              fieldController={controller.fieldController}
+              onOutsideClick={() => {
+                setShowNumberFormatPopup(false);
+              }}
+            ></NumberFormatPopup>
+          )}
+          {showCheckListPopup && editingCell && (
+            <CheckListPopup
+              top={checkListPopupTop}
+              left={checkListPopupLeft}
+              cellIdentifier={editingCell}
+              cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
+              fieldController={controller.fieldController}
+              onOutsideClick={() => setShowCheckListPopup(false)}
+              openCheckListDetail={onOpenCheckListDetailClick}
+            ></CheckListPopup>
+          )}
+          {showEditCheckList && editingCell && editingSelectOption && (
+            <EditCheckListPopup
+              top={editCheckListTop}
+              left={editCheckListLeft}
+              cellIdentifier={editingCell}
+              editingSelectOption={editingSelectOption}
+              onOutsideClick={() => setShowEditCheckList(false)}
+            ></EditCheckListPopup>
+          )}
+        </div>
       </div>
-    </div>
+      {showDeletePropertyPrompt && (
+        <PromptWindow
+          msg={'Are you sure you want to delete this property?'}
+          onYes={() => console.log('yes')}
+          onCancel={() => setShowDeletePropertyPrompt(false)}
+        ></PromptWindow>
+      )}
+    </>
   );
 };
