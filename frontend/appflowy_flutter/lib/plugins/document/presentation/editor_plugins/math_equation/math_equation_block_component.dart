@@ -53,7 +53,12 @@ SelectionMenuItem mathEquationItem = SelectionMenuItem.node(
 );
 
 class MathEquationBlockComponentBuilder extends BlockComponentBuilder {
-  MathEquationBlockComponentBuilder();
+  MathEquationBlockComponentBuilder({
+    this.configuration = const BlockComponentConfiguration(),
+  });
+
+  @override
+  final BlockComponentConfiguration configuration;
 
   @override
   Widget build(BlockComponentContext blockComponentContext) {
@@ -61,6 +66,7 @@ class MathEquationBlockComponentBuilder extends BlockComponentBuilder {
     return MathEquationBlockComponentWidget(
       key: node.key,
       node: node,
+      configuration: configuration,
     );
   }
 
@@ -74,9 +80,11 @@ class MathEquationBlockComponentWidget extends StatefulWidget {
   const MathEquationBlockComponentWidget({
     Key? key,
     required this.node,
+    this.configuration = const BlockComponentConfiguration(),
   }) : super(key: key);
 
   final Node node;
+  final BlockComponentConfiguration configuration;
 
   @override
   State<MathEquationBlockComponentWidget> createState() =>
@@ -84,7 +92,14 @@ class MathEquationBlockComponentWidget extends StatefulWidget {
 }
 
 class _MathEquationBlockComponentWidgetState
-    extends State<MathEquationBlockComponentWidget> {
+    extends State<MathEquationBlockComponentWidget>
+    with BlockComponentConfigurable {
+  @override
+  BlockComponentConfiguration get configuration => widget.configuration;
+
+  @override
+  Node get node => widget.node;
+
   bool isHover = false;
   String get formula =>
       widget.node.attributes[MathEquationBlockKeys.formula] as String;
@@ -104,7 +119,7 @@ class _MathEquationBlockComponentWidgetState
     return Container(
       width: double.infinity,
       constraints: const BoxConstraints(minHeight: 50),
-      padding: const EdgeInsets.symmetric(vertical: 20),
+      padding: padding,
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
         color: isHover || formula.isEmpty

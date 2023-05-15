@@ -118,14 +118,59 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       OptionAction.moveDown,
     ];
 
+    final configuration = BlockComponentConfiguration(
+      padding: (_) => const EdgeInsets.symmetric(vertical: 4.0),
+    );
     final customBlockComponentBuilderMap = {
-      BoardBlockKeys.type: BoardBlockComponentBuilder(),
-      GridBlockKeys.type: GridBlockComponentBuilder(),
-      CalloutBlockKeys.type: CalloutBlockComponentBuilder(),
+      'document': DocumentComponentBuilder(),
+      ParagraphBlockKeys.type: TextBlockComponentBuilder(
+        configuration: configuration,
+      ),
+      TodoListBlockKeys.type: TodoListBlockComponentBuilder(
+        configuration: configuration.copyWith(
+          placeholderText: (_) => 'To-do',
+        ),
+      ),
+      BulletedListBlockKeys.type: BulletedListBlockComponentBuilder(
+        configuration: configuration.copyWith(
+          placeholderText: (_) => 'List',
+        ),
+      ),
+      NumberedListBlockKeys.type: NumberedListBlockComponentBuilder(
+        configuration: configuration.copyWith(
+          placeholderText: (_) => 'List',
+        ),
+      ),
+      QuoteBlockKeys.type: QuoteBlockComponentBuilder(
+        configuration: configuration.copyWith(
+          placeholderText: (_) => 'Quote',
+        ),
+      ),
+      HeadingBlockKeys.type: HeadingBlockComponentBuilder(
+        configuration: configuration.copyWith(
+          padding: (_) => const EdgeInsets.only(top: 12.0, bottom: 4.0),
+          placeholderText: (node) =>
+              'Heading ${node.attributes[HeadingBlockKeys.level]}',
+        ),
+      ),
+      ImageBlockKeys.type: ImageBlockComponentBuilder(),
+      BoardBlockKeys.type: BoardBlockComponentBuilder(
+        configuration: configuration,
+      ),
+      GridBlockKeys.type: GridBlockComponentBuilder(
+        configuration: configuration,
+      ),
+      CalloutBlockKeys.type: CalloutBlockComponentBuilder(
+        configuration: configuration,
+      ),
       DividerBlockKeys.type: DividerBlockComponentBuilder(),
-      MathEquationBlockKeys.type: MathEquationBlockComponentBuilder(),
+      MathEquationBlockKeys.type: MathEquationBlockComponentBuilder(
+        configuration: configuration.copyWith(
+          padding: (node) => const EdgeInsets.symmetric(vertical: 20),
+        ),
+      ),
       CodeBlockKeys.type: CodeBlockComponentBuilder(
-        configuration: BlockComponentConfiguration(
+        configuration: configuration.copyWith(
           padding: (_) => const EdgeInsets.only(
             left: 30,
             right: 30,
