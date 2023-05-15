@@ -1,5 +1,13 @@
 use std::sync::Arc;
 
+use collab_document::blocks::{
+  json_str_to_hashmap, Block, BlockAction, BlockActionPayload, BlockActionType, BlockEvent,
+  BlockEventPayload, DeltaType,
+};
+
+use flowy_error::{FlowyError, FlowyResult};
+use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+
 use crate::{
   document::DocumentDataWrapper,
   entities::{
@@ -10,18 +18,12 @@ use crate::{
   manager::DocumentManager,
 };
 
-use collab_document::blocks::{
-  json_str_to_hashmap, Block, BlockAction, BlockActionPayload, BlockActionType, BlockEvent,
-  BlockEventPayload, DeltaType,
-};
-use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 pub(crate) async fn open_document_handler(
   data: AFPluginData<OpenDocumentPayloadPBV2>,
   manager: AFPluginState<Arc<DocumentManager>>,
 ) -> DataResult<DocumentDataPB2, FlowyError> {
   let context = data.into_inner();
-  let document = manager.open_document(context.document_id)?;
+  let document = manager.open_document(context.document_id).await?;
   let document_data = document
     .lock()
     .get_document()
@@ -35,7 +37,7 @@ pub(crate) async fn create_document_handler(
 ) -> FlowyResult<()> {
   let context = data.into_inner();
   let data = DocumentDataWrapper::default();
-  manager.create_document(context.document_id, data)?;
+  manager.create_document(context.document_id, data).await?;
   Ok(())
 }
 
@@ -59,7 +61,7 @@ pub(crate) async fn apply_action_handler(
     .into_iter()
     .map(|action| action.into())
     .collect();
-  let document = manager.open_document(doc_id)?;
+  let document = manager.open_document(doc_id).await?;
   document.lock().apply_action(actions);
   Ok(())
 }

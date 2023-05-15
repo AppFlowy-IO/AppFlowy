@@ -5,14 +5,16 @@ use std::{
   vec,
 };
 
-use collab::preclude::Collab;
+use collab::core::collab::MutexCollab;
+
 use collab_document::{
   blocks::{Block, DocumentData, DocumentMeta},
   document::Document as InnerDocument,
 };
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use nanoid::nanoid;
 use parking_lot::Mutex;
+
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
 use crate::entities::{BlockPB, ChildrenPB, DocumentDataPB2, MetaPB};
 
@@ -20,13 +22,13 @@ use crate::entities::{BlockPB, ChildrenPB, DocumentDataPB2, MetaPB};
 pub struct Document(Arc<Mutex<InnerDocument>>);
 
 impl Document {
-  pub fn new(collab: Collab) -> FlowyResult<Self> {
+  pub fn new(collab: Arc<MutexCollab>) -> FlowyResult<Self> {
     let inner = InnerDocument::create(collab)
       .map_err(|_| FlowyError::from(ErrorCode::DocumentDataInvalid))?;
     Ok(Self(Arc::new(Mutex::new(inner))))
   }
 
-  pub fn create_with_data(collab: Collab, data: DocumentData) -> FlowyResult<Self> {
+  pub fn create_with_data(collab: Arc<MutexCollab>, data: DocumentData) -> FlowyResult<Self> {
     let inner = InnerDocument::create_with_data(collab, data)
       .map_err(|_| FlowyError::from(ErrorCode::DocumentDataInvalid))?;
     Ok(Self(Arc::new(Mutex::new(inner))))

@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
-use collab_persistence::kv::rocks_kv::RocksCollabDB;
+use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
+use appflowy_integrate::RocksCollabDB;
 use tokio::sync::RwLock;
 
 use flowy_client_ws::FlowyWebSocketConnect;
@@ -16,9 +17,10 @@ impl Database2DepsResolver {
     _ws_conn: Arc<FlowyWebSocketConnect>,
     user_session: Arc<UserSession>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    collab_builder: Arc<AppFlowyCollabBuilder>,
   ) -> Arc<DatabaseManager2> {
     let user = Arc::new(DatabaseUserImpl(user_session));
-    Arc::new(DatabaseManager2::new(user, task_scheduler))
+    Arc::new(DatabaseManager2::new(user, task_scheduler, collab_builder))
   }
 }
 
@@ -38,7 +40,7 @@ impl DatabaseUser2 for DatabaseUserImpl {
       .map_err(|e| FlowyError::internal().context(e))
   }
 
-  fn kv_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
-    self.0.get_kv_db()
+  fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
+    self.0.get_collab_db()
   }
 }

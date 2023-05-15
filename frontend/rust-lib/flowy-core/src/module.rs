@@ -1,12 +1,12 @@
+use std::sync::Arc;
+
 use flowy_client_ws::FlowyWebSocketConnect;
 use flowy_database2::DatabaseManager2;
 use flowy_document::DocumentManager;
 use flowy_document2::manager::DocumentManager as DocumentManager2;
-
 use flowy_folder2::manager::Folder2Manager;
 use flowy_user::services::UserSession;
 use lib_dispatch::prelude::AFPlugin;
-use std::sync::Arc;
 
 pub fn make_plugins(
   ws_conn: &Arc<FlowyWebSocketConnect>,

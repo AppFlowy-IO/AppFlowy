@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use std::{collections::HashMap, sync::Arc, time::Duration};
 
-use collab_persistence::kv::rocks_kv::RocksCollabDB;
+use appflowy_integrate::RocksCollabDB;
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
 

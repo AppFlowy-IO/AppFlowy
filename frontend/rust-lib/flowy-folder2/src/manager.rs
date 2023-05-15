@@ -2,13 +2,13 @@ use std::collections::{HashMap, HashSet};
 use std::ops::Deref;
 use std::sync::Arc;
 
-use collab::preclude::CollabBuilder;
+use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
+use appflowy_integrate::RocksCollabDB;
+
 use collab_folder::core::{
   Folder as InnerFolder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, TrashRecord,
   View, ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
 };
-use collab_plugins::disk::kv::rocks_kv::RocksCollabDB;
-use collab_plugins::disk::rocksdb::RocksdbDiskPlugin;
 use parking_lot::Mutex;
 use tracing::{event, Level};
 
@@ -31,11 +31,12 @@ use crate::view_ext::{
 pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn token(&self) -> Result<String, FlowyError>;
-  fn kv_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError>;
+  fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError>;
 }
 
 pub struct Folder2Manager {
   folder: Folder,
+  collab_builder: Arc<AppFlowyCollabBuilder>,
   user: Arc<dyn FolderUser>,
   view_processors: ViewDataProcessorMap,
 }
@@ -46,13 +47,14 @@ unsafe impl Sync for Folder2Manager {}
 impl Folder2Manager {
   pub async fn new(
     user: Arc<dyn FolderUser>,
+    collab_builder: Arc<AppFlowyCollabBuilder>,
     view_processors: ViewDataProcessorMap,
   ) -> FlowyResult<Self> {
-    // let folder = make_user_folder(user.clone())?;
     let folder = Folder::default();
     let manager = Self {
       user,
       folder,
+      collab_builder,
       view_processors,
     };
 
@@ -94,14 +96,8 @@ impl Folder2Manager {
     if let Ok(uid) = self.user.user_id() {
       let folder_id = FolderId::new(uid);
 
-      if let Ok(kv_db) = self.user.kv_db() {
-        let mut collab = CollabBuilder::new(uid, folder_id).build();
-        let disk_plugin = Arc::new(
-          RocksdbDiskPlugin::new(uid, kv_db).map_err(|err| FlowyError::internal().context(err))?,
-        );
-        collab.add_plugin(disk_plugin);
-        collab.initial();
-
+      if let Ok(kv_db) = self.user.collab_db() {
+        let collab = self.collab_builder.build(uid, folder_id.as_ref(), kv_db);
         let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
         let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
         let folder_context = FolderContext {

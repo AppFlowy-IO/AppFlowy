@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
-use collab_persistence::kv::rocks_kv::RocksCollabDB;
+use appflowy_integrate::RocksCollabDB;
+use serde::{Deserialize, Serialize};
+use tokio::sync::RwLock;
+
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{
   kv::KV,
@@ -8,8 +11,6 @@ use flowy_sqlite::{
   schema::{user_table, user_table::dsl},
   DBConnection, ExpressionMethods, UserDatabaseConnection,
 };
-use serde::{Deserialize, Serialize};
-use tokio::sync::RwLock;
 use user_model::{
   SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
@@ -47,60 +48,24 @@ impl UserSessionConfig {
 
 pub struct UserSession {
   database: UserDB,
-  config: UserSessionConfig,
+  session_config: UserSessionConfig,
   cloud_service: Arc<dyn UserCloudService>,
   user_status_callback: RwLock<Option<Arc<dyn UserStatusCallback>>>,
 }
 
 impl UserSession {
-  pub fn new(config: UserSessionConfig, cloud_service: Arc<dyn UserCloudService>) -> Self {
-    let db = UserDB::new(&config.root_dir);
+  pub fn new(session_config: UserSessionConfig, cloud_service: Arc<dyn UserCloudService>) -> Self {
+    let db = UserDB::new(&session_config.root_dir);
     let user_status_callback = RwLock::new(None);
     Self {
       database: db,
-      config,
+      session_config,
       cloud_service,
       user_status_callback,
     }
   }
 
   pub async fn init<C: UserStatusCallback + 'static>(&self, user_status_callback: C) {
-    // if let Some(old_session) = self.get_old_session() {
-    //   let uid = ID_GEN.lock().next_id();
-    //   let _ = user_status_callback
-    //     .will_migrated(&old_session.token, &old_session.user_id, uid)
-    //     .await;
-    //
-    //   let new_session = Session {
-    //     user_id: uid,
-    //     token: old_session.token.clone(),
-    //     email: old_session.email.clone(),
-    //     name: old_session.name.clone(),
-    //   };
-    //   self.set_session(Some(new_session)).unwrap();
-    //
-    //   if let Ok(db) = self.db_connection() {
-    //     // Update db
-    //     let _ = db.immediate_transaction(|| {
-    //       // get the user data
-    //       let mut user = dsl::user_table
-    //         .filter(user_table::id.eq(&old_session.user_id))
-    //         .first::<UserTable>(&*db)?;
-    //
-    //       // delete the existing row
-    //       let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&old_session.user_id)))
-    //         .execute(&*db)?;
-    //
-    //       // insert new row
-    //       user.id = uid.to_string();
-    //       let _ = diesel::insert_into(user_table::table)
-    //         .values(user)
-    //         .execute(&*db)?;
-    //       Ok::<(), FlowyError>(())
-    //     });
-    //   }
-    // }
-
     if let Ok(session) = self.get_session() {
       let _ = user_status_callback
         .did_sign_in(&session.token, session.user_id)
@@ -125,7 +90,7 @@ impl UserSession {
     self.database.get_pool(user_id)
   }
 
-  pub fn get_kv_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
+  pub fn get_collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
     let user_id = self.get_session()?.user_id;
     self.database.get_kv_db(user_id)
   }
@@ -251,7 +216,10 @@ impl UserSession {
 
   pub fn user_dir(&self) -> Result<String, FlowyError> {
     let session = self.get_session()?;
-    Ok(format!("{}/{}", self.config.root_dir, session.user_id))
+    Ok(format!(
+      "{}/{}",
+      self.session_config.root_dir, session.user_id
+    ))
   }
 
   pub fn user_setting(&self) -> Result<UserSettingPB, FlowyError> {
@@ -323,15 +291,18 @@ impl UserSession {
   fn set_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
     tracing::debug!("Set user session: {:?}", session);
     match &session {
-      None => KV::remove(&self.config.session_cache_key)
+      None => KV::remove(&self.session_config.session_cache_key)
         .map_err(|e| FlowyError::new(ErrorCode::Internal, &e))?,
-      Some(session) => KV::set_str(&self.config.session_cache_key, session.clone().into()),
+      Some(session) => KV::set_str(
+        &self.session_config.session_cache_key,
+        session.clone().into(),
+      ),
     }
     Ok(())
   }
 
   fn get_session(&self) -> Result<Session, FlowyError> {
-    match KV::get_str(&self.config.session_cache_key) {
+    match KV::get_str(&self.session_config.session_cache_key) {
       None => Err(FlowyError::unauthorized()),
       Some(s) => Ok(Session::from(s)),
     }
