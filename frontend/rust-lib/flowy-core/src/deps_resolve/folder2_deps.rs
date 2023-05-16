@@ -8,8 +8,8 @@ use bytes::Bytes;
 use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
 use flowy_database2::DatabaseManager2;
-use flowy_document::editor::make_transaction_from_document_content;
-use flowy_document::DocumentManager;
+use flowy_document2::document_data::DocumentDataWrapper;
+use flowy_document2::manager::DocumentManager;
 use flowy_error::FlowyError;
 use flowy_folder2::entities::ViewLayoutPB;
 use flowy_folder2::manager::{Folder2Manager, FolderUser};
@@ -17,7 +17,6 @@ use flowy_folder2::view_ext::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder2::ViewLayout;
 use flowy_user::services::UserSession;
 use lib_infra::future::FutureResult;
-use revision_model::Revision;
 
 pub struct Folder2DepsResolver();
 impl Folder2DepsResolver {
@@ -78,26 +77,32 @@ impl FolderUser for FolderUserImpl {
 
 struct DocumentViewDataProcessor(Arc<DocumentManager>);
 impl ViewDataProcessor for DocumentViewDataProcessor {
+  /// Close the document view.
   fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      manager.close_document_editor(view_id).await?;
+      manager.close_document(view_id)?;
       Ok(())
     })
   }
 
+  /// Get the view data.
+  ///
+  /// only use in the duplicate view.
   fn get_view_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      let editor = manager.open_document_editor(view_id).await?;
-      let document_data = Bytes::from(editor.duplicate().await?);
-      Ok(document_data)
+      let document = manager.get_document(view_id)?;
+      let data = document.lock().get_document()?;
+      let data_bytes = serde_json::to_string(&data)?.as_bytes().to_vec();
+      Ok(Bytes::from(data_bytes))
     })
   }
 
-  fn create_view_with_build_in_data(
+  /// Create a view with built-in data.
+  fn create_view_with_built_in_data(
     &self,
     _user_id: i64,
     view_id: &str,
@@ -106,13 +111,12 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     _ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayout::Document);
+
     let view_id = view_id.to_string();
     let manager = self.0.clone();
-    let document_content = self.0.initial_document_content();
+    // TODO: implement read the document data from json.
     FutureResult::new(async move {
-      let delta_data = Bytes::from(document_content);
-      let revision = Revision::initial_revision(&view_id, delta_data);
-      manager.create_document(view_id, vec![revision]).await?;
+      manager.create_document(view_id, DocumentDataWrapper::default())?;
       Ok(())
     })
   }
@@ -122,25 +126,17 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     _user_id: i64,
     view_id: &str,
     _name: &str,
-    data: Vec<u8>,
+    _data: Vec<u8>,
     layout: ViewLayout,
     _ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayout::Document);
-    let view_data = match String::from_utf8(data) {
-      Ok(content) => match make_transaction_from_document_content(&content) {
-        Ok(transaction) => transaction.to_bytes().unwrap_or_else(|_| vec![]),
-        Err(_) => vec![],
-      },
-      Err(_) => vec![],
-    };
-
-    let revision = Revision::initial_revision(view_id, Bytes::from(view_data));
+    // TODO: implement read the document data from custom data.
     let view_id = view_id.to_string();
     let manager = self.0.clone();
 
     FutureResult::new(async move {
-      manager.create_document(view_id, vec![revision]).await?;
+      manager.create_document(view_id, DocumentDataWrapper::default())?;
       Ok(())
     })
   }
@@ -170,7 +166,7 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
   /// If the ext contains the {"database_id": "xx"}, then it will link to
   /// the existing database. The data of the database will be shared within
   /// these references views.
-  fn create_view_with_build_in_data(
+  fn create_view_with_built_in_data(
     &self,
     _user_id: i64,
     view_id: &str,

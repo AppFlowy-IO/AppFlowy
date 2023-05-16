@@ -1,37 +1,42 @@
 use std::{
-  collections::HashMap,
   ops::{Deref, DerefMut},
   sync::Arc,
-  vec,
 };
 
 use collab::core::collab::MutexCollab;
-
-use collab_document::{
-  blocks::{Block, DocumentData, DocumentMeta},
-  document::Document as InnerDocument,
-};
-use nanoid::nanoid;
+use collab_document::{blocks::DocumentData, document::Document as InnerDocument};
 use parking_lot::Mutex;
 
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_error::FlowyResult;
 
-use crate::entities::{BlockPB, ChildrenPB, DocumentDataPB2, MetaPB};
-
+/// This struct wrap the document::Document
 #[derive(Clone)]
 pub struct Document(Arc<Mutex<InnerDocument>>);
 
 impl Document {
+  /// Creates and returns a new Document object.
+  /// # Arguments
+  /// * `collab` - the identifier of the collaboration instance
+  ///
+  /// # Returns
+  /// * `Result<Document, FlowyError>` - a Result containing either a new Document object or an Error if the document creation failed
   pub fn new(collab: Arc<MutexCollab>) -> FlowyResult<Self> {
-    let inner = InnerDocument::create(collab)
-      .map_err(|_| FlowyError::from(ErrorCode::DocumentDataInvalid))?;
-    Ok(Self(Arc::new(Mutex::new(inner))))
+    InnerDocument::create(collab)
+      .map(|inner| Self(Arc::new(Mutex::new(inner))))
+      .map_err(|err| err.into())
   }
 
+  /// Creates and returns a new Document object with initial data.
+  /// # Arguments
+  /// * `collab` - the identifier of the collaboration instance
+  /// * `data` - the initial data to include in the document
+  ///
+  /// # Returns
+  /// * `Result<Document, FlowyError>` - a Result containing either a new Document object or an Error if the document creation failed
   pub fn create_with_data(collab: Arc<MutexCollab>, data: DocumentData) -> FlowyResult<Self> {
-    let inner = InnerDocument::create_with_data(collab, data)
-      .map_err(|_| FlowyError::from(ErrorCode::DocumentDataInvalid))?;
-    Ok(Self(Arc::new(Mutex::new(inner))))
+    InnerDocument::create_with_data(collab, data)
+      .map(|inner| Self(Arc::new(Mutex::new(inner))))
+      .map_err(|err| err.into())
   }
 }
 
@@ -49,108 +54,5 @@ impl Deref for Document {
 impl DerefMut for Document {
   fn deref_mut(&mut self) -> &mut Self::Target {
     &mut self.0
-  }
-}
-
-#[derive(Clone)]
-pub struct DocumentDataWrapper(pub DocumentData);
-
-impl Deref for DocumentDataWrapper {
-  type Target = DocumentData;
-
-  fn deref(&self) -> &Self::Target {
-    &self.0
-  }
-}
-
-impl DerefMut for DocumentDataWrapper {
-  fn deref_mut(&mut self) -> &mut Self::Target {
-    &mut self.0
-  }
-}
-
-impl From<DocumentDataWrapper> for DocumentDataPB2 {
-  fn from(data: DocumentDataWrapper) -> Self {
-    let blocks = data
-      .0
-      .blocks
-      .into_iter()
-      .map(|(id, block)| {
-        (
-          id,
-          BlockPB {
-            id: block.id,
-            ty: block.ty,
-            parent_id: block.parent,
-            children_id: block.children,
-            data: serde_json::to_string(&block.data).unwrap(),
-          },
-        )
-      })
-      .collect::<HashMap<String, BlockPB>>();
-    let children_map = data
-      .0
-      .meta
-      .children_map
-      .into_iter()
-      .map(|(id, children)| {
-        (
-          id,
-          ChildrenPB {
-            children: children.into_iter().collect(),
-          },
-        )
-      })
-      .collect::<HashMap<String, ChildrenPB>>();
-    Self {
-      page_id: data.0.page_id,
-      blocks,
-      meta: MetaPB { children_map },
-    }
-  }
-}
-
-impl Default for DocumentDataWrapper {
-  fn default() -> Self {
-    let mut blocks: HashMap<String, Block> = HashMap::new();
-    let mut meta: HashMap<String, Vec<String>> = HashMap::new();
-
-    // page block
-    let page_id = nanoid!(10);
-    let children_id = nanoid!(10);
-    let root = Block {
-      id: page_id.clone(),
-      ty: "page".to_string(),
-      parent: "".to_string(),
-      children: children_id.clone(),
-      external_id: None,
-      external_type: None,
-      data: HashMap::new(),
-    };
-    blocks.insert(page_id.clone(), root);
-
-    // text block
-    let text_block_id = nanoid!(10);
-    let text_0_children_id = nanoid!(10);
-    let text_block = Block {
-      id: text_block_id.clone(),
-      ty: "text".to_string(),
-      parent: page_id.clone(),
-      children: text_0_children_id.clone(),
-      external_id: None,
-      external_type: None,
-      data: HashMap::new(),
-    };
-    blocks.insert(text_block_id.clone(), text_block);
-
-    // meta
-    meta.insert(children_id, vec![text_block_id]);
-    meta.insert(text_0_children_id, vec![]);
-
-    Self(DocumentData {
-      page_id,
-      blocks,
-      meta: DocumentMeta { children_map: meta },
-    })
   }
 }

@@ -18,9 +18,9 @@ class FontSizeSwitcher extends StatefulWidget {
 
 class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
   final List<Tuple3<String, double, bool>> _fontSizes = [
-    Tuple3(LocaleKeys.moreAction_small.tr(), 12.0, false),
-    Tuple3(LocaleKeys.moreAction_medium.tr(), 14.0, true),
-    Tuple3(LocaleKeys.moreAction_large.tr(), 18.0, false),
+    Tuple3(LocaleKeys.moreAction_small.tr(), 14.0, false),
+    Tuple3(LocaleKeys.moreAction_medium.tr(), 18.0, true),
+    Tuple3(LocaleKeys.moreAction_large.tr(), 22.0, false),
   ];
 
   @override

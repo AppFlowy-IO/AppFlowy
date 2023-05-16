@@ -1,3 +1,5 @@
+use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
+use appflowy_integrate::config::AppFlowyCollabConfig;
 use std::sync::Arc;
 
 use appflowy_integrate::RocksCollabDB;
@@ -45,4 +47,9 @@ pub fn db() -> Arc<RocksCollabDB> {
   let tempdir = TempDir::new().unwrap();
   let path = tempdir.into_path();
   Arc::new(RocksCollabDB::open(path).unwrap())
+}
+
+pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
+  let builder = AppFlowyCollabBuilder::new(AppFlowyCollabConfig::default());
+  Arc::new(builder)
 }

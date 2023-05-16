@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:appflowy/core/document_notification.dart';
+import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-document2/notification.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 
 class DocumentListener {
@@ -17,10 +17,10 @@ class DocumentListener {
   StreamSubscription<SubscribeObject>? _subscription;
   DocumentNotificationParser? _parser;
 
-  Function()? didReceiveUpdate;
+  Function(DocEventPB docEvent)? didReceiveUpdate;
 
   void start({
-    void Function()? didReceiveUpdate,
+    Function(DocEventPB docEvent)? didReceiveUpdate,
   }) {
     this.didReceiveUpdate = didReceiveUpdate;
 
@@ -39,7 +39,9 @@ class DocumentListener {
   ) {
     switch (ty) {
       case DocumentNotification.DidReceiveUpdate:
-        didReceiveUpdate?.call();
+        result
+            .swap()
+            .map((r) => didReceiveUpdate?.call(DocEventPB.fromBuffer(r)));
         break;
       default:
         break;

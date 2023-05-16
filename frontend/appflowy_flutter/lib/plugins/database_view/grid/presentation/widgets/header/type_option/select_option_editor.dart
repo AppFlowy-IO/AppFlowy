@@ -66,7 +66,12 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
             if (showOptions) {
               cells.add(const TypeOptionSeparator());
               cells.add(
-                SelectOptionColorList(selectedColor: state.option.color),
+                SelectOptionColorList(
+                  selectedColor: state.option.color,
+                  onSelectedColor: (color) => context
+                      .read<EditSelectOptionBloc>()
+                      .add(EditSelectOptionEvent.updateColor(color)),
+                ),
               );
             }
 
@@ -147,16 +152,22 @@ class _OptionNameTextField extends StatelessWidget {
 }
 
 class SelectOptionColorList extends StatelessWidget {
-  final SelectOptionColorPB selectedColor;
-  const SelectOptionColorList({required this.selectedColor, Key? key})
-      : super(key: key);
+  const SelectOptionColorList({
+    super.key,
+    this.selectedColor,
+    required this.onSelectedColor,
+  });
+
+  final SelectOptionColorPB? selectedColor;
+  final void Function(SelectOptionColorPB color) onSelectedColor;
 
   @override
   Widget build(BuildContext context) {
     final cells = SelectOptionColorPB.values.map((color) {
       return _SelectOptionColorCell(
         color: color,
-        isSelected: selectedColor == color,
+        isSelected: selectedColor != null ? selectedColor == color : false,
+        onSelectedColor: onSelectedColor,
       );
     }).toList();
 
@@ -193,13 +204,16 @@ class SelectOptionColorList extends StatelessWidget {
 }
 
 class _SelectOptionColorCell extends StatelessWidget {
-  final SelectOptionColorPB color;
-  final bool isSelected;
   const _SelectOptionColorCell({
     required this.color,
     required this.isSelected,
+    required this.onSelectedColor,
     Key? key,
   }) : super(key: key);
+
+  final SelectOptionColorPB color;
+  final bool isSelected;
+  final void Function(SelectOptionColorPB color) onSelectedColor;
 
   @override
   Widget build(BuildContext context) {
@@ -228,11 +242,7 @@ class _SelectOptionColorCell extends StatelessWidget {
         ),
         leftIcon: colorIcon,
         rightIcon: checkmark,
-        onTap: () {
-          context
-              .read<EditSelectOptionBloc>()
-              .add(EditSelectOptionEvent.updateColor(color));
-        },
+        onTap: () => onSelectedColor(color),
       ),
     );
   }

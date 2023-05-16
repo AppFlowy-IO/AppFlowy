@@ -14,8 +14,10 @@ class UserBackendService {
 
   final Int64 userId;
 
-  static Future<Either<UserProfilePB, FlowyError>> getCurrentUserProfile() {
-    return UserEventGetUserProfile().send();
+  static Future<Either<FlowyError, UserProfilePB>>
+      getCurrentUserProfile() async {
+    final result = await UserEventGetUserProfile().send();
+    return result.swap();
   }
 
   Future<Either<Unit, FlowyError>> updateUserProfile({

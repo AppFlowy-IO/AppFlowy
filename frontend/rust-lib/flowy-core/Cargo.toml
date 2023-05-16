@@ -41,8 +41,8 @@ serde_json = "1.0"
 [features]
 default = ["rev-sqlite"]
 profiling = ["console-subscriber", "tokio/tracing"]
-http_sync = ["flowy-document/cloud_sync"]
-native_sync = ["flowy-document/cloud_sync"]
+http_sync = []
+native_sync = []
 use_bunyan = ["lib-log/use_bunyan"]
 dart = [
     "flowy-user/dart",

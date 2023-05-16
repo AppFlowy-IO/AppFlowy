@@ -44,10 +44,11 @@ packages:
   appflowy_editor:
     dependency: "direct main"
     description:
-      name: appflowy_editor
-      sha256: "6f7d2b0b54ca1049cb396229549d228b5bbd7ea6d09f1f7325a20db2d7586a5f"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "4f66f7"
+      resolved-ref: "4f66f77debabbc35cf4a56c816f9432a831a40e2"
+      url: "https://github.com/LucasXu0/appflowy-editor.git"
+    source: git
     version: "0.1.12"
   appflowy_popover:
     dependency: "direct main"
@@ -816,6 +817,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.0"
+  nanoid:
+    dependency: "direct main"
+    description:
+      name: nanoid
+      sha256: be3f8752d9046c825df2f3914195151eb876f3ad64b9d833dd0b799b77b8759e
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   nested:
     dependency: transitive
     description:

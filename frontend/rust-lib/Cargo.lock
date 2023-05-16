@@ -1920,6 +1920,7 @@ dependencies = [
  "anyhow",
  "bytes",
  "collab-database",
+ "collab-document",
  "flowy-client-sync",
  "flowy-client-ws",
  "flowy-codegen",
