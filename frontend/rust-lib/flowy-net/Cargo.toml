@@ -14,11 +14,9 @@ folder-model = { path = "../../../shared-lib/folder-model" }
 revision-model = { path = "../../../shared-lib/revision-model"}
 document-model = { path = "../../../shared-lib/document-model"}
 ws-model = { path = "../../../shared-lib/ws-model"}
-flowy-server-sync = { path = "../../../shared-lib/flowy-server-sync"}
 flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws"}
 flowy-client-network-config= { path = "../../../shared-lib/flowy-client-network-config"}
 flowy-sync = { path = "../../../shared-lib/flowy-sync"}
-user-model = { path = "../../../shared-lib/user-model"}
 flowy-folder2 = { path = "../flowy-folder2" }
 flowy-document2 = { path = "../flowy-document2" }
 flowy-user = { path = "../flowy-user" }

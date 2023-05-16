@@ -1776,7 +1776,6 @@ dependencies = [
  "serde_json",
  "tokio",
  "tracing",
- "user-model",
  "ws-model",
 ]
 
@@ -1935,7 +1934,6 @@ dependencies = [
  "serde_json",
  "serde_repr",
  "thiserror",
- "user-model",
 ]
 
 [[package]]
@@ -1986,7 +1984,6 @@ dependencies = [
  "flowy-document2",
  "flowy-error",
  "flowy-folder2",
- "flowy-server-sync",
  "flowy-sync",
  "flowy-user",
  "folder-model",
@@ -2009,7 +2006,6 @@ dependencies = [
  "thiserror",
  "tokio",
  "tracing",
- "user-model",
  "ws-model",
 ]
 
@@ -2059,27 +2055,6 @@ version = "0.1.0"
 dependencies = [
  "flowy-error",
  "revision-model",
-]
-
-[[package]]
-name = "flowy-server-sync"
-version = "0.1.0"
-dependencies = [
- "async-stream",
- "bytes",
- "dashmap",
- "document-model",
- "flowy-sync",
- "folder-model",
- "futures",
- "lib-infra",
- "lib-ot",
- "log",
- "revision-model",
- "serde",
- "tokio",
- "tracing",
- "ws-model",
 ]
 
 [[package]]
@@ -2151,7 +2126,7 @@ dependencies = [
  "nanoid",
  "protobuf",
  "quickcheck",
- "quickcheck_macros",
+ "quickcheck_macros 0.9.1",
  "serde",
  "serde_json",
  "serial_test",
@@ -2167,6 +2142,7 @@ dependencies = [
  "bytes",
  "diesel",
  "diesel_derives",
+ "fake",
  "fancy-regex 0.11.0",
  "flowy-codegen",
  "flowy-derive",
@@ -2182,6 +2158,10 @@ dependencies = [
  "once_cell",
  "parking_lot 0.12.1",
  "protobuf",
+ "quickcheck",
+ "quickcheck_macros 1.0.0",
+ "rand 0.8.5",
+ "rand_core 0.6.4",
  "serde",
  "serde_json",
  "strum",
@@ -3849,6 +3829,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "quickcheck_macros"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b22a693222d716a9587786f37ac3f6b4faedb5b80c23914e7303ff5a1d8016e9"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "quote"
 version = "1.0.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5336,20 +5327,6 @@ name = "urlencoding"
 version = "2.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e8db7427f936968176eaa7cdf81b7f98b980b18495ec28f1b5791ac3bfe3eea9"
-
-[[package]]
-name = "user-model"
-version = "0.1.0"
-dependencies = [
- "fancy-regex 0.11.0",
- "lazy_static",
- "serde",
- "serde_repr",
- "thiserror",
- "tracing",
- "unicode-segmentation",
- "validator",
-]
 
 [[package]]
 name = "utf-8"

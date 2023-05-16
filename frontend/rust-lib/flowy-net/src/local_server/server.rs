@@ -17,8 +17,6 @@ use document_model::document::{
 use flowy_client_sync::errors::SyncError;
 use flowy_document::DocumentCloudService;
 use flowy_error::{internal_error, FlowyError};
-use flowy_server_sync::server_document::ServerDocumentManager;
-use flowy_server_sync::server_folder::ServerFolderManager;
 use flowy_sync::{RevisionSyncResponse, RevisionUser};
 use flowy_user::entities::{
   SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams,
@@ -37,8 +35,6 @@ lazy_static! {
 }
 
 pub struct LocalServer {
-  doc_manager: Arc<ServerDocumentManager>,
-  folder_manager: Arc<ServerFolderManager>,
   stop_tx: RwLock<Option<mpsc::Sender<()>>>,
   client_ws_sender: mpsc::UnboundedSender<WebSocketRawMessage>,
   client_ws_receiver: broadcast::Sender<WebSocketRawMessage>,
@@ -49,13 +45,9 @@ impl LocalServer {
     client_ws_sender: mpsc::UnboundedSender<WebSocketRawMessage>,
     client_ws_receiver: broadcast::Sender<WebSocketRawMessage>,
   ) -> Self {
-    let persistence = Arc::new(LocalDocumentCloudPersistence::default());
-    let doc_manager = Arc::new(ServerDocumentManager::new(persistence.clone()));
-    let folder_manager = Arc::new(ServerFolderManager::new(persistence));
+    let _persistence = Arc::new(LocalDocumentCloudPersistence::default());
     let stop_tx = RwLock::new(None);
     LocalServer {
-      doc_manager,
-      folder_manager,
       stop_tx,
       client_ws_sender,
       client_ws_receiver,
@@ -73,8 +65,6 @@ impl LocalServer {
     let (stop_tx, stop_rx) = mpsc::channel(1);
     *self.stop_tx.write() = Some(stop_tx);
     let runner = LocalWebSocketRunner {
-      doc_manager: self.doc_manager.clone(),
-      folder_manager: self.folder_manager.clone(),
       stop_rx: Some(stop_rx),
       client_ws_sender: self.client_ws_sender.clone(),
       client_ws_receiver: Some(self.client_ws_receiver.subscribe()),
@@ -84,8 +74,6 @@ impl LocalServer {
 }
 
 struct LocalWebSocketRunner {
-  doc_manager: Arc<ServerDocumentManager>,
-  folder_manager: Arc<ServerFolderManager>,
   stop_rx: Option<mpsc::Receiver<()>>,
   client_ws_sender: mpsc::UnboundedSender<WebSocketRawMessage>,
   client_ws_receiver: Option<broadcast::Receiver<WebSocketRawMessage>>,
@@ -155,25 +143,15 @@ impl LocalWebSocketRunner {
       client_data.ty,
     );
     let client_ws_sender = self.client_ws_sender.clone();
-    let user = Arc::new(LocalRevisionUser {
+    let _user = Arc::new(LocalRevisionUser {
       user_id,
       client_ws_sender,
       channel: WSChannel::Folder,
     });
-    let ty = client_data.ty.clone();
+    let ty = client_data.ty;
     match ty {
-      ClientRevisionWSDataType::ClientPushRev => {
-        self
-          .folder_manager
-          .handle_client_revisions(user, client_data)
-          .await?;
-      },
-      ClientRevisionWSDataType::ClientPing => {
-        self
-          .folder_manager
-          .handle_client_ping(user, client_data)
-          .await?;
-      },
+      ClientRevisionWSDataType::ClientPushRev => {},
+      ClientRevisionWSDataType::ClientPing => {},
     }
     Ok(())
   }
@@ -190,25 +168,15 @@ impl LocalWebSocketRunner {
       client_data.ty,
     );
     let client_ws_sender = self.client_ws_sender.clone();
-    let user = Arc::new(LocalRevisionUser {
+    let _user = Arc::new(LocalRevisionUser {
       user_id,
       client_ws_sender,
       channel: WSChannel::Document,
     });
-    let ty = client_data.ty.clone();
+    let ty = client_data.ty;
     match ty {
-      ClientRevisionWSDataType::ClientPushRev => {
-        self
-          .doc_manager
-          .handle_client_revisions(user, client_data)
-          .await?;
-      },
-      ClientRevisionWSDataType::ClientPing => {
-        self
-          .doc_manager
-          .handle_client_ping(user, client_data)
-          .await?;
-      },
+      ClientRevisionWSDataType::ClientPushRev => {},
+      ClientRevisionWSDataType::ClientPing => {},
     }
     Ok(())
   }

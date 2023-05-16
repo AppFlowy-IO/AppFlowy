@@ -19,9 +19,6 @@ pub mod database;
 #[cfg(feature = "adaptor_ws")]
 pub mod ws;
 
-#[cfg(feature = "adaptor_user")]
-pub mod user;
-
 #[cfg(feature = "adaptor_server_error")]
 pub mod http_server;
 

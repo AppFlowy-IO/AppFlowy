@@ -8,7 +8,7 @@ edition = "2018"
 [dependencies]
 flowy-derive = { path = "../flowy-derive" }
 flowy-sqlite = { path = "../flowy-sqlite", optional = true }
-flowy-error = { path = "../flowy-error", features = ["adaptor_database", "adaptor_dispatch", "adaptor_user"] }
+flowy-error = { path = "../flowy-error", features = ["adaptor_database", "adaptor_dispatch"] }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-notification = { path = "../flowy-notification" }
 lib-dispatch = { path = "../lib-dispatch" }
@@ -35,6 +35,11 @@ fancy-regex = "0.11.0"
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }
 nanoid = "0.4.0"
+fake = "2.0.0"
+rand = "0.8.4"
+quickcheck = "1.0.3"
+rand_core = "0.6.2"
+quickcheck_macros = "1.0"
 
 [features]
 default = ["rev-sqlite"]
