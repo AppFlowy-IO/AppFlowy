@@ -4,6 +4,9 @@ members = [
   "lib-ws",
   "lib-infra",
   "flowy-client-network-config",
+  "flowy-derive",
+  "flowy-ast",
+  "flowy-codegen",
 ]
 
 [profile.dev]

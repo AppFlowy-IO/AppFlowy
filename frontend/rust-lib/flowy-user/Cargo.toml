@@ -6,7 +6,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-derive = { path = "../flowy-derive" }
+flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 flowy-sqlite = { path = "../flowy-sqlite", optional = true }
 flowy-error = { path = "../flowy-error", features = ["adaptor_database", "adaptor_dispatch"] }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
@@ -48,4 +48,4 @@ dart = ["flowy-codegen/dart", "flowy-notification/dart"]
 ts = ["flowy-codegen/ts", "flowy-notification/ts"]
 
 [build-dependencies]
-flowy-codegen = { path = "../flowy-codegen"}
+flowy-codegen = { path = "../../../shared-lib/flowy-codegen"}

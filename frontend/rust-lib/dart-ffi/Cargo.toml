@@ -29,7 +29,7 @@ tracing = { version = "0.1", features = ["log"] }
 lib-dispatch = { path = "../lib-dispatch" }
 flowy-core = { path = "../flowy-core" }
 flowy-notification = { path = "../flowy-notification" }
-flowy-derive = { path = "../flowy-derive" }
+flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 
 [features]
 default = ["dart", "rev-sqlite"]
@@ -39,4 +39,4 @@ http_sync = ["flowy-core/http_sync", "flowy-core/use_bunyan"]
 openssl_vendored = ["flowy-core/openssl_vendored"]
 
 [build-dependencies]
-flowy-codegen = { path = "../flowy-codegen", features = ["dart"] }
+flowy-codegen = { path = "../../../shared-lib/flowy-codegen", features = ["dart"] }

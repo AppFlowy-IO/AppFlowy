@@ -6,7 +6,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-derive = { path = "../flowy-derive" }
+flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 protobuf = {version = "2.28.0"}
 bytes = "1.4"
 anyhow = "1.0"
@@ -36,4 +36,4 @@ ts = ["flowy-codegen/ts"]
 collab = ["collab-database", "collab-document"]
 
 [build-dependencies]
-flowy-codegen = { path = "../flowy-codegen", features = ["proto_gen"]}
+flowy-codegen = { path = "../../../shared-lib/flowy-codegen", features = ["proto_gen"]}

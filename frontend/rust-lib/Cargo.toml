@@ -14,9 +14,6 @@ members = [
   "flowy-error",
   "flowy-database2",
   "flowy-task",
-  "flowy-derive",
-  "flowy-ast",
-  "flowy-codegen",
 ]
 
 [profile.dev]

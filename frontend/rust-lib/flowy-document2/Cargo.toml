@@ -10,7 +10,7 @@ collab = { version = "0.1.0" }
 collab-document = { version = "0.1.0" }
 appflowy-integrate = {version = "0.1.0" }
 
-flowy-derive = { path = "../flowy-derive" }
+flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 flowy-notification = { path = "../flowy-notification" }
 flowy-error = { path = "../flowy-error", features = ["adaptor_ot", "adaptor_serde", "adaptor_database", "adaptor_dispatch", "collab"] }
 
@@ -32,7 +32,7 @@ tempfile = "3.4.0"
 tracing-subscriber = { version = "0.3.3", features = ["env-filter"] }
 
 [build-dependencies]
-flowy-codegen = { path = "../flowy-codegen"}
+flowy-codegen = { path = "../../../shared-lib/flowy-codegen"}
 
 [features]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]

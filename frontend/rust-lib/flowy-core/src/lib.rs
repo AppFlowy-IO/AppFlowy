@@ -176,9 +176,6 @@ impl AppFlowyCore {
         )
         .await;
 
-        if let Some(local_server) = local_server.as_ref() {
-          local_server.run();
-        }
         (
           user_session,
           folder_manager,
@@ -234,7 +231,6 @@ fn mk_local_server(server_config: &ClientServerConfiguration) -> Option<Arc<Loca
     None
   } else {
     let context = flowy_net::local_server::build_server(server_config);
-    let _local_ws = Arc::new(context.local_ws);
     // let ws_conn = Arc::new(FlowyWebSocketConnect::from_local(ws_addr, local_ws));
     Some(Arc::new(context.local_server))
   }
