@@ -11,7 +11,6 @@ flowy-error = { path = "../flowy-error", features = ["adaptor_sync", "adaptor_re
 flowy-derive = { path = "../flowy-derive" }
 flowy-client-sync = { path = "../flowy-client-sync"}
 revision-model = { path = "../../../shared-lib/revision-model"}
-document-model = { path = "../../../shared-lib/document-model"}
 ws-model = { path = "../../../shared-lib/ws-model"}
 flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws"}
 flowy-client-network-config= { path = "../../../shared-lib/flowy-client-network-config"}
