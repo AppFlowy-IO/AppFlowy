@@ -13,7 +13,6 @@ flowy-net = { path = "../flowy-net" }
 flowy-folder2 = { path = "../flowy-folder2" }
 #flowy-database = { path = "../flowy-database" }
 flowy-database2 = { path = "../flowy-database2" }
-database-model = { path = "../../../shared-lib/database-model" }
 flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws" }
 flowy-sqlite = { path = "../flowy-sqlite", optional = true }
 flowy-document = { path = "../flowy-document" }

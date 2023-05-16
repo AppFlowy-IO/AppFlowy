@@ -1398,18 +1398,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "database-model"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "indexmap",
- "nanoid",
- "serde",
- "serde_json",
- "serde_repr",
-]
-
-[[package]]
 name = "derivative"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1751,7 +1739,6 @@ dependencies = [
  "appflowy-integrate",
  "bytes",
  "console-subscriber",
- "database-model",
  "flowy-client-ws",
  "flowy-database2",
  "flowy-document",
@@ -1791,7 +1778,6 @@ dependencies = [
  "collab",
  "collab-database",
  "dashmap",
- "database-model",
  "fancy-regex 0.10.0",
  "flowy-codegen",
  "flowy-derive",

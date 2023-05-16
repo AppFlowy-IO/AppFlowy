@@ -20,7 +20,6 @@ tokio = { version = "1.26", features = ["sync"] }
 flowy-task= { path = "../flowy-task" }
 bytes = { version = "1.4" }
 tracing = { version = "0.1", features = ["log"] }
-database-model = { path = "../../../shared-lib/database-model" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = {version = "1.0"}
 serde_repr = "0.1"
