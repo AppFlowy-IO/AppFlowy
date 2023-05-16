@@ -475,7 +475,6 @@ class _CoverImageState extends State<_CoverImage> {
   }
 
   Widget _buildCoverImage(BuildContext context, EditorState editorState) {
-    final screenSize = MediaQuery.of(context).size;
     const height = 250.0;
     final Widget coverImage;
     switch (selectionType) {

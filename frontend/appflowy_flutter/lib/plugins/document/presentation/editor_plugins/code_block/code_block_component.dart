@@ -7,11 +7,6 @@ import 'package:highlight/highlight.dart' as highlight;
 import 'package:highlight/languages/all.dart';
 import 'package:provider/provider.dart';
 
-const String kCodeBlockType = 'text/$kCodeBlockSubType';
-const String kCodeBlockSubType = 'code_block';
-const String kCodeBlockAttrTheme = 'theme';
-const String kCodeBlockAttrLanguage = 'language';
-
 class CodeBlockKeys {
   const CodeBlockKeys._();
 
@@ -25,7 +20,7 @@ class CodeBlockKeys {
   /// The language of a code block.
   ///
   /// The value is a String.
-  static const String language = kCodeBlockAttrLanguage;
+  static const String language = 'language';
 }
 
 Node codeBlockNode({
@@ -54,9 +49,13 @@ SelectionMenuItem codeBlockItem = SelectionMenuItem.node(
 class CodeBlockComponentBuilder extends BlockComponentBuilder {
   CodeBlockComponentBuilder({
     this.configuration = const BlockComponentConfiguration(),
+    this.padding = const EdgeInsets.all(0),
   });
 
+  @override
   final BlockComponentConfiguration configuration;
+
+  final EdgeInsets padding;
 
   @override
   Widget build(BlockComponentContext blockComponentContext) {
@@ -65,6 +64,7 @@ class CodeBlockComponentBuilder extends BlockComponentBuilder {
       key: node.key,
       node: node,
       configuration: configuration,
+      padding: padding,
     );
   }
 
@@ -77,10 +77,12 @@ class CodeBlockComponentWidget extends StatefulWidget {
     Key? key,
     required this.node,
     this.configuration = const BlockComponentConfiguration(),
+    this.padding = const EdgeInsets.all(0),
   }) : super(key: key);
 
   final Node node;
   final BlockComponentConfiguration configuration;
+  final EdgeInsets padding;
 
   @override
   State<CodeBlockComponentWidget> createState() =>
@@ -195,16 +197,19 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     }
     final codeTextSpans = _convert(codeNodes);
     return Padding(
-      padding: padding,
+      padding: widget.padding,
       child: FlowyRichText(
         key: forwardKey,
         node: widget.node,
         editorState: editorState,
-        lineHeight: 1.0,
+        lineHeight: 1.2,
         placeholderText: placeholderText,
         textSpanDecorator: (textSpan) => TextSpan(
           style: textStyle,
           children: codeTextSpans,
+        ),
+        placeholderTextSpanDecorator: (textSpan) => TextSpan(
+          style: textStyle,
         ),
       ),
     );

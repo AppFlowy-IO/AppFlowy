@@ -171,12 +171,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         ),
       ),
       CodeBlockKeys.type: CodeBlockComponentBuilder(
-        configuration: configuration.copyWith(
-          padding: (_) => const EdgeInsets.only(
-            left: 30,
-            right: 30,
-            bottom: 36,
-          ),
+        padding: const EdgeInsets.only(
+          left: 30,
+          right: 30,
+          bottom: 36,
         ),
       ),
       AutoCompletionBlockKeys.type: AutoCompletionBlockComponentBuilder(),

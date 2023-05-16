@@ -2,7 +2,7 @@ export 'board/board_node_widget.dart';
 export 'board/board_menu_item.dart';
 export 'board/board_view_menu_item.dart';
 export 'callout/callout_block_component.dart';
-export 'code_block/code_block_node_widget.dart';
+export 'code_block/code_block_component.dart';
 export 'code_block/code_block_shortcut_event.dart';
 export 'cover/change_cover_popover_bloc.dart';
 export 'cover/cover_node_widget.dart';

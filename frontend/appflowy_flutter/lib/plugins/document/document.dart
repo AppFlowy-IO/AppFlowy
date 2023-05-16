@@ -1,7 +1,7 @@
 library document_plugin;
 
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/document_page2.dart';
+import 'package:appflowy/plugins/document/document_page.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/more/more_button.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';

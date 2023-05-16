@@ -60,6 +60,7 @@ class CalloutBlockComponentBuilder extends BlockComponentBuilder {
     this.configuration = const BlockComponentConfiguration(),
   });
 
+  @override
   final BlockComponentConfiguration configuration;
 
   @override

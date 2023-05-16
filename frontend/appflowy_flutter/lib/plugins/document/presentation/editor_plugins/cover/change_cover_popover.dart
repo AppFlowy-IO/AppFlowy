@@ -55,7 +55,7 @@ class CoverColorPicker extends StatefulWidget {
 
   final Color pickerBackgroundColor;
   final Color pickerItemHoverColor;
-  final void Function(String color) onSubmittedbackgroundColorHex;
+  final void Function(String color) onSubmittedBackgroundColorHex;
   final List<ColorOption> backgroundColorOptions;
   const CoverColorPicker({
     super.key,
@@ -63,7 +63,7 @@ class CoverColorPicker extends StatefulWidget {
     required this.pickerBackgroundColor,
     required this.backgroundColorOptions,
     required this.pickerItemHoverColor,
-    required this.onSubmittedbackgroundColorHex,
+    required this.onSubmittedBackgroundColorHex,
   });
 
   @override
@@ -215,21 +215,18 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
   }
 
   Widget _buildColorPickerList() {
+    final theme = Theme.of(context);
     return CoverColorPicker(
-      pickerBackgroundColor:
-          widget.editorState.editorStyle.selectionMenuBackgroundColor ??
-              Colors.white,
-      pickerItemHoverColor:
-          widget.editorState.editorStyle.selectionMenuItemSelectedColor ??
-              Colors.blue.withOpacity(0.3),
+      pickerBackgroundColor: theme.cardColor,
+      pickerItemHoverColor: theme.hoverColor,
       selectedBackgroundColorHex:
           widget.node.attributes[kCoverSelectionTypeAttribute] ==
                   CoverSelectionType.color.toString()
               ? widget.node.attributes[kCoverSelectionAttribute]
-              : "ffffff",
+              : 'ffffff',
       backgroundColorOptions:
           _generateBackgroundColorOptions(widget.editorState),
-      onSubmittedbackgroundColorHex: (color) {
+      onSubmittedBackgroundColorHex: (color) {
         widget.onCoverChanged(CoverSelectionType.color, color);
         setState(() {});
       },
@@ -497,7 +494,7 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
       ),
       hoverColor: widget.pickerItemHoverColor,
       onTap: () {
-        widget.onSubmittedbackgroundColorHex(option.colorHex);
+        widget.onSubmittedBackgroundColorHex(option.colorHex);
       },
       child: Padding(
         padding: const EdgeInsets.only(right: 10.0),

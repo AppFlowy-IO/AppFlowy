@@ -101,6 +101,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Focus(
       focusNode: _focusNode,
       onKey: _onKey,
@@ -108,7 +109,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
         width: 300,
         padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
         decoration: BoxDecoration(
-          color: style.selectionMenuBackgroundColor,
+          color: theme.cardColor,
           boxShadow: [
             BoxShadow(
               blurRadius: 5,
@@ -118,7 +119,11 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
           ],
           borderRadius: BorderRadius.circular(6.0),
         ),
-        child: _buildListWidget(context, _selectedIndex, _availableLayout),
+        child: _buildListWidget(
+          context,
+          _selectedIndex,
+          _availableLayout,
+        ),
       ),
     );
   }

@@ -1,248 +1,108 @@
-// import 'package:appflowy/plugins/document/presentation/plugins/plugins.dart';
-// import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-// import 'package:appflowy_editor/appflowy_editor.dart';
-// import 'package:dartz/dartz.dart' as dartz;
-// import 'package:flowy_infra_ui/widget/error_page.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:flutter/material.dart';
-// import 'package:intl/intl.dart';
+import 'package:appflowy/plugins/document/application/doc_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/banner.dart';
+import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
-// import '../../startup/startup.dart';
-// import 'application/doc_bloc.dart';
-// import 'editor_styles.dart';
-// import 'presentation/banner.dart';
+class DocumentPage extends StatefulWidget {
+  const DocumentPage({
+    super.key,
+    required this.onDeleted,
+    required this.view,
+  });
 
-// class DocumentPage extends StatefulWidget {
-//   final VoidCallback onDeleted;
-//   final ViewPB view;
+  final VoidCallback onDeleted;
+  final ViewPB view;
 
-//   DocumentPage({
-//     required this.view,
-//     required this.onDeleted,
-//     Key? key,
-//   }) : super(key: ValueKey(view.id));
+  @override
+  State<DocumentPage> createState() => _DocumentPageState();
+}
 
-//   @override
-//   State<DocumentPage> createState() => _DocumentPageState();
-// }
+class _DocumentPageState extends State<DocumentPage> {
+  late final DocumentBloc documentBloc;
+  EditorState? editorState;
 
-// class _DocumentPageState extends State<DocumentPage> {
-//   late DocumentBloc documentBloc;
+  @override
+  void initState() {
+    super.initState();
 
-//   @override
-//   void initState() {
-//     // The appflowy editor use Intl as localization, set the default language as fallback.
-//     Intl.defaultLocale = 'en_US';
-//     documentBloc = getIt<DocumentBloc>(param1: super.widget.view)
-//       ..add(const DocumentEvent.initial());
-//     super.initState();
-//   }
+    documentBloc = getIt<DocumentBloc>(param1: widget.view)
+      ..add(const DocumentEvent.initial());
 
-//   @override
-//   void dispose() {
-//     documentBloc.close();
-//     super.dispose();
-//   }
+    // The appflowy editor use Intl as localization, set the default language as fallback.
+    Intl.defaultLocale = 'en_US';
+  }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return MultiBlocProvider(
-//       providers: [
-//         BlocProvider<DocumentBloc>.value(value: documentBloc),
-//       ],
-//       child: BlocBuilder<DocumentBloc, DocumentState>(
-//         builder: (context, state) {
-//           return state.loadingState.map(
-//             loading: (_) => SizedBox.expand(
-//               child: Container(color: Colors.transparent),
-//             ),
-//             finish: (result) => result.successOrFail.fold(
-//               (_) {
-//                 if (state.forceClose) {
-//                   widget.onDeleted();
-//                   return const SizedBox();
-//                 } else if (documentBloc.editorState == null) {
-//                   return const SizedBox();
-//                 } else {
-//                   return _renderDocument(context, state);
-//                 }
-//               },
-//               (err) => FlowyErrorPage(err.toString()),
-//             ),
-//           );
-//         },
-//       ),
-//     );
-//   }
+  @override
+  void dispose() {
+    documentBloc.close();
+    super.dispose();
+  }
 
-//   Widget _renderDocument(BuildContext context, DocumentState state) {
-//     return Column(
-//       children: [
-//         if (state.isDeleted) _renderBanner(context),
-//         // AppFlowy Editor
-//         const _AppFlowyEditorPage(),
-//       ],
-//     );
-//   }
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider.value(
+      value: documentBloc,
+      child: BlocBuilder<DocumentBloc, DocumentState>(
+        builder: (context, state) {
+          return state.loadingState.when(
+            loading: () => const SizedBox.shrink(),
+            finish: (result) => result.fold(
+              (error) => FlowyErrorPage(error.toString()),
+              (_) {
+                if (state.forceClose) {
+                  widget.onDeleted();
+                  return const SizedBox.shrink();
+                } else if (documentBloc.editorState == null) {
+                  return const SizedBox.shrink();
+                } else {
+                  editorState = documentBloc.editorState!;
+                  return _buildEditorPage(context, state);
+                }
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
 
-//   Widget _renderBanner(BuildContext context) {
-//     return DocumentBanner(
-//       onRestore: () =>
-//           context.read<DocumentBloc>().add(const DocumentEvent.restorePage()),
-//       onDelete: () => context
-//           .read<DocumentBloc>()
-//           .add(const DocumentEvent.deletePermanently()),
-//     );
-//   }
-// }
+  Widget _buildEditorPage(BuildContext context, DocumentState state) {
+    final appflowyEditorPage = AppFlowyEditorPage(
+      editorState: editorState!,
+    );
+    return Column(
+      children: [
+        if (state.isDeleted) _buildBanner(context),
+        _buildCoverAndIcon(context),
+        Expanded(
+          child: appflowyEditorPage,
+        ),
+      ],
+    );
+  }
 
-// class _AppFlowyEditorPage extends StatefulWidget {
-//   const _AppFlowyEditorPage({
-//     Key? key,
-//   }) : super(key: key);
+  Widget _buildBanner(BuildContext context) {
+    return DocumentBanner(
+      onRestore: () => documentBloc.add(const DocumentEvent.restorePage()),
+      onDelete: () => documentBloc.add(const DocumentEvent.deletePermanently()),
+    );
+  }
 
-//   @override
-//   State<_AppFlowyEditorPage> createState() => _AppFlowyEditorPageState();
-// }
-
-// class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
-//   late DocumentBloc documentBloc;
-//   late EditorState editorState;
-//   String? get openAIKey => documentBloc.state.userProfilePB?.openaiKey;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     documentBloc = context.read<DocumentBloc>();
-//     editorState = documentBloc.editorState ?? EditorState.empty();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final theme = Theme.of(context);
-//     final autoFocusParameters = _autoFocusParameters();
-//     final editor = AppFlowyEditor(
-//       editorState: editorState,
-//       autoFocus: autoFocusParameters.value1,
-//       focusedSelection: autoFocusParameters.value2,
-//       customBuilders: {
-//         // Divider
-//         DividerBlockKeys.type: DividerWidgetBuilder(),
-//         // Math Equation
-//         MathEquationBlockKeys.type: MathEquationNodeWidgetBuidler(),
-//         // Code Block
-//         kCodeBlockType: CodeBlockNodeWidgetBuilder(),
-//         // Board
-//         BoardBlockKeys.type: BoardNodeWidgetBuilder(),
-//         // Grid
-//         GridBlockKeys.type: GridNodeWidgetBuilder(),
-//         // Card
-//         kCalloutType: CalloutNodeWidgetBuilder(),
-//         // Auto Generator,
-//         kAutoCompletionInputType: AutoCompletionInputBuilder(),
-//         // Cover
-//         kCoverType: CoverNodeWidgetBuilder(),
-//         // Smart Edit,
-//         kSmartEditType: SmartEditInputBuilder(),
-//       },
-//       shortcutEvents: [
-//         // Divider
-//         insertDividerEvent,
-//         // Code Block
-//         enterInCodeBlock,
-//         ignoreKeysInCodeBlock,
-//         pasteInCodeBlock,
-//       ],
-//       selectionMenuItems: [
-//         // Divider
-//         dividerMenuItem,
-//         // Math Equation
-//         mathEquationMenuItem,
-//         // Code Block
-//         codeBlockMenuItem,
-//         // Emoji
-//         emojiMenuItem,
-//         // Board
-//         boardMenuItem,
-//         // Create Board
-//         boardViewMenuItem(documentBloc),
-//         // Grid
-//         gridMenuItem,
-//         // Create Grid
-//         gridViewMenuItem(documentBloc),
-//         // Callout
-//         calloutMenuItem,
-//         // AI
-//         // enable open ai features if needed.
-//         if (openAIKey != null && openAIKey!.isNotEmpty) ...[
-//           autoGeneratorMenuItem,
-//         ],
-//       ],
-//       toolbarItems: [
-//         smartEditItem,
-//       ],
-//       themeData: theme.copyWith(
-//         extensions: [
-//           ...theme.extensions.values,
-//           customEditorTheme(context),
-//           ...customPluginTheme(context),
-//         ],
-//       ),
-//     );
-//     return Expanded(
-//       child: Center(
-//         child: Container(
-//           constraints: const BoxConstraints(
-//             maxWidth: double.infinity,
-//           ),
-//           child: editor,
-//         ),
-//       ),
-//     );
-//   }
-
-//   @override
-//   void dispose() {
-//     _clearTemporaryNodes();
-//     super.dispose();
-//   }
-
-//   Future<void> _clearTemporaryNodes() async {
-//     final document = editorState.document;
-//     if (document.root.children.isEmpty) {
-//       return;
-//     }
-//     final temporaryNodeTypes = [
-//       kAutoCompletionInputType,
-//       kSmartEditType,
-//     ];
-//     final iterator = NodeIterator(
-//       document: document,
-//       startNode: document.root.children.first,
-//     );
-//     final transaction = editorState.transaction;
-//     while (iterator.moveNext()) {
-//       final node = iterator.current;
-//       if (temporaryNodeTypes.contains(node.type)) {
-//         transaction.deleteNode(node);
-//       }
-//     }
-//     if (transaction.operations.isNotEmpty) {
-//       await editorState.apply(transaction);
-//     }
-//   }
-
-//   dartz.Tuple2<bool, Selection?> _autoFocusParameters() {
-//     if (editorState.document.isEmpty) {
-//       return dartz.Tuple2(true, Selection.single(path: [0], startOffset: 0));
-//     }
-//     final texts = editorState.document.root.children.whereType<TextNode>();
-//     if (texts.every((element) => element.toPlainText().isEmpty)) {
-//       return dartz.Tuple2(
-//         true,
-//         Selection.single(path: texts.first.path, startOffset: 0),
-//       );
-//     }
-//     return const dartz.Tuple2(false, null);
-//   }
-// }
+  Widget _buildCoverAndIcon(BuildContext context) {
+    if (editorState == null) {
+      return const Placeholder();
+    }
+    final page = editorState!.document.root;
+    return CoverImageNodeWidget(
+      node: page,
+      editorState: editorState!,
+    );
+  }
+}
