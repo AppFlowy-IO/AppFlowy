@@ -9,7 +9,6 @@ edition = "2021"
 lib-ot = { path = "../lib-ot" }
 lib-infra = { path = "../lib-infra" }
 revision-model = { path = "../revision-model" }
-folder-model = { path = "../folder-model" }
 ws-model = { path = "../ws-model" }
 document-model = { path = "../document-model" }
 strum = "0.21"

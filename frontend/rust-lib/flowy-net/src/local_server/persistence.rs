@@ -6,7 +6,6 @@ use std::{
 use document_model::document::DocumentInfo;
 use flowy_client_sync::errors::SyncError;
 use flowy_sync::ext::{DocumentCloudPersistence, FolderCloudPersistence};
-use folder_model::folder::FolderInfo;
 use lib_infra::future::BoxResultFuture;
 use revision_model::Revision;
 
@@ -45,11 +44,7 @@ impl std::default::Default for LocalDocumentCloudPersistence {
 }
 
 impl FolderCloudPersistence for LocalDocumentCloudPersistence {
-  fn read_folder(
-    &self,
-    _user_id: &str,
-    _folder_id: &str,
-  ) -> BoxResultFuture<FolderInfo, SyncError> {
+  fn read_folder(&self, _user_id: &str, _folder_id: &str) -> BoxResultFuture<String, SyncError> {
     todo!()
     // let storage = self.storage.clone();
     // let folder_id = folder_id.to_owned();
@@ -67,7 +62,7 @@ impl FolderCloudPersistence for LocalDocumentCloudPersistence {
     _user_id: &str,
     _folder_id: &str,
     _revisions: Vec<Revision>,
-  ) -> BoxResultFuture<Option<FolderInfo>, SyncError> {
+  ) -> BoxResultFuture<Option<String>, SyncError> {
     todo!()
   }
 

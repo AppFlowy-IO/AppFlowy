@@ -1,21 +1,22 @@
-use crate::errors::SyncError;
-use crate::RevisionSyncPersistence;
-use document_model::document::DocumentInfo;
-use folder_model::FolderInfo;
-use lib_infra::future::BoxResultFuture;
-use revision_model::Revision;
 use std::fmt::Debug;
 use std::sync::Arc;
 
+use document_model::document::DocumentInfo;
+use lib_infra::future::BoxResultFuture;
+use revision_model::Revision;
+
+use crate::errors::SyncError;
+use crate::RevisionSyncPersistence;
+
 pub trait FolderCloudPersistence: Send + Sync + Debug {
-  fn read_folder(&self, user_id: &str, folder_id: &str) -> BoxResultFuture<FolderInfo, SyncError>;
+  fn read_folder(&self, user_id: &str, folder_id: &str) -> BoxResultFuture<String, SyncError>;
 
   fn create_folder(
     &self,
     user_id: &str,
     folder_id: &str,
     revisions: Vec<Revision>,
-  ) -> BoxResultFuture<Option<FolderInfo>, SyncError>;
+  ) -> BoxResultFuture<Option<String>, SyncError>;
 
   fn save_folder_revisions(&self, revisions: Vec<Revision>) -> BoxResultFuture<(), SyncError>;
 
