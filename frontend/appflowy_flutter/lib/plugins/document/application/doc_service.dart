@@ -3,49 +3,14 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/entities.pb.dart';
 
 class DocumentService {
-  Future<Either<DocumentDataPB, FlowyError>> openDocument({
-    required ViewPB view,
-  }) async {
-    await FolderEventSetLatestView(ViewIdPB(value: view.id)).send();
-
-    final payload = OpenDocumentPayloadPB()
-      ..documentId = view.id
-      ..version = DocumentVersionPB.V1;
-    // switch (view.dataFormat) {
-    //   case ViewDataFormatPB.DeltaFormat:
-    //     payload.documentVersion = DocumentVersionPB.V0;
-    //     break;
-    //   default:
-    //     break;
-    // }
-
-    return DocumentEventGetDocument(payload).send();
-  }
-
-  Future<Either<Unit, FlowyError>> applyEdit({
-    required String docId,
-    required String operations,
-  }) {
-    final payload = EditPayloadPB.create()
-      ..docId = docId
-      ..operations = operations;
-    return DocumentEventApplyEdit(payload).send();
-  }
-
-  Future<Either<Unit, FlowyError>> closeDocument({required String docId}) {
-    final payload = ViewIdPB(value: docId);
-    return FolderEventCloseView(payload).send();
-  }
-
   // unused now.
   Future<Either<FlowyError, Unit>> createDocument({
     required ViewPB view,
   }) async {
-    final canOpen = await openDocumentV2(view: view);
+    final canOpen = await openDocument(view: view);
     if (canOpen.isRight()) {
       return const Right(unit);
     }
@@ -54,7 +19,7 @@ class DocumentService {
     return result.swap();
   }
 
-  Future<Either<FlowyError, DocumentDataPB2>> openDocumentV2({
+  Future<Either<FlowyError, DocumentDataPB2>> openDocument({
     required ViewPB view,
   }) async {
     // set the latest view
@@ -65,7 +30,7 @@ class DocumentService {
     return result.swap();
   }
 
-  Future<Either<FlowyError, Unit>> closeDocumentV2({
+  Future<Either<FlowyError, Unit>> closeDocument({
     required ViewPB view,
   }) async {
     final payload = CloseDocumentPayloadPBV2()..documentId = view.id;

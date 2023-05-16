@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
+import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/util/json_print.dart';
@@ -8,19 +9,9 @@ import 'package:appflowy/plugins/document/application/doc_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
-import 'package:appflowy_editor/appflowy_editor.dart'
-    show
-        EditorState,
-        Transaction,
-        Operation,
-        InsertOperation,
-        UpdateOperation,
-        DeleteOperation,
-        PathExtensions,
-        Node;
+import 'package:appflowy_editor/appflowy_editor.dart' show EditorState;
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -60,7 +51,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   Future<void> close() async {
     await _viewListener.stop();
     await _subscription?.cancel();
-    await _documentService.closeDocumentV2(view: view);
+    await _documentService.closeDocument(view: view);
+    editorState?.cancelSubscription();
     return super.close();
   }
 
@@ -82,13 +74,11 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       },
       deletePermanently: (DeletePermanently value) async {
         final result = await _trashService.deleteViews([view.id]);
-        // TODO: swap the Either. Left should be the erorr.
-        emit(state.copyWith(forceClose: result.isLeft()));
+        emit(state.copyWith(forceClose: result.swap().isLeft()));
       },
       restorePage: (RestorePage value) async {
         final result = await _trashService.putback(view.id);
-        // TODO: swap the Either. Left should be the erorr.
-        emit(state.copyWith(isDeleted: result.isLeft()));
+        emit(state.copyWith(isDeleted: result.swap().isRight()));
       },
     );
   }
@@ -108,8 +98,10 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   /// subscribe to the view(document page) change
   void _onViewChanged() {
     _viewListener.start(
-      onViewDeleted: (r) => r.map((r) => add(const DocumentEvent.deleted())),
-      onViewRestored: (r) => r.map((r) => add(const DocumentEvent.restore())),
+      onViewDeleted: (r) =>
+          r.swap().map((r) => add(const DocumentEvent.deleted())),
+      onViewRestored: (r) =>
+          r.swap().map((r) => add(const DocumentEvent.restore())),
     );
   }
 
@@ -128,7 +120,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     final result = await UserBackendService.getCurrentUserProfile().then(
       (value) async => value.andThen(
         // open the document
-        await _documentService.openDocumentV2(view: view),
+        await _documentService.openDocument(view: view),
       ),
     );
     return state.copyWith(
@@ -137,7 +129,9 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   Future<void> _initAppFlowyEditorState(DocumentDataPB2 data) async {
-    prettyPrintJson(data.toProto3Json());
+    if (kDebugMode) {
+      prettyPrintJson(data.toProto3Json());
+    }
 
     final document = data.toDocument();
     final editorState = EditorState(document: document);
@@ -189,98 +183,4 @@ class DocumentLoadingState with _$DocumentLoadingState {
   const factory DocumentLoadingState.finish(
     Either<FlowyError, DocumentDataPB2> successOrFail,
   ) = _Finish;
-}
-
-/// Uses to adjust the data structure between the editor and the backend.
-class TransactionAdapter {
-  TransactionAdapter({
-    required this.documentId,
-    required this.documentService,
-  });
-
-  final DocumentService documentService;
-  final String documentId;
-
-  Future<void> apply(Transaction transaction, EditorState editorState) async {
-    final actions = transaction.operations
-        .map((op) => op.toBlockAction(editorState))
-        .whereNotNull()
-        .expand((element) => element);
-    Log.debug('actions => $actions');
-    await documentService.applyAction(
-      documentId: documentId,
-      actions: actions,
-    );
-  }
-}
-
-extension on Operation {
-  List<BlockActionPB> toBlockAction(EditorState editorState) {
-    final List<BlockActionPB> actions = [];
-    final op = this;
-    if (op is InsertOperation) {
-      Node? previousNode;
-      for (final node in op.nodes) {
-        final parentId = node.parent?.id ??
-            editorState.getNodeAtPath(op.path.parent)?.id ??
-            '';
-        final prevId = previousNode?.id ??
-            node.previous?.id ??
-            editorState.getNodeAtPath(op.path.previous)?.id ??
-            '';
-        assert(parentId.isNotEmpty && prevId.isNotEmpty);
-        final payload = BlockActionPayloadPB()
-          ..block = node.toBlock()
-          ..parentId = parentId
-          ..prevId = prevId;
-        assert(parentId.isNotEmpty);
-        actions.add(
-          BlockActionPB()
-            ..action = BlockActionTypePB.Insert
-            ..payload = payload,
-        );
-        previousNode = node;
-      }
-    } else if (op is UpdateOperation) {
-      // if the attributes are both empty, we don't need to update
-      if (const DeepCollectionEquality()
-          .equals(op.attributes, op.oldAttributes)) {
-        return actions;
-      }
-      final node = editorState.getNodeAtPath(op.path);
-      if (node == null) {
-        assert(false, 'node not found at path: ${op.path}');
-        return actions;
-      }
-      final parentId = node.parent?.id ??
-          editorState.getNodeAtPath(op.path.parent)?.id ??
-          '';
-      assert(parentId.isNotEmpty);
-      final payload = BlockActionPayloadPB()
-        ..block = node.toBlock()
-        ..parentId = parentId;
-      actions.add(
-        BlockActionPB()
-          ..action = BlockActionTypePB.Update
-          ..payload = payload,
-      );
-    } else if (op is DeleteOperation) {
-      // TODO: support deleting multiple nodes
-      for (final node in op.nodes) {
-        final parentId = node.parent?.id ??
-            editorState.getNodeAtPath(op.path.parent)?.id ??
-            '';
-        final payload = BlockActionPayloadPB()
-          ..block = node.toBlock()
-          ..parentId = parentId;
-        assert(parentId.isNotEmpty);
-        actions.add(
-          BlockActionPB()
-            ..action = BlockActionTypePB.Delete
-            ..payload = payload,
-        );
-      }
-    }
-    return actions;
-  }
 }
