@@ -1,23 +1,27 @@
 #![allow(clippy::not_unsafe_ptr_arg_deref)]
-mod c;
-mod model;
-mod notification;
-mod protobuf;
-mod util;
+
+use std::{ffi::CStr, os::raw::c_char};
+
+use lazy_static::lazy_static;
+use parking_lot::RwLock;
+
+use flowy_core::*;
+use flowy_net::http_server::self_host::configuration::get_client_server_configuration;
+use flowy_notification::register_notification_sender;
+use lib_dispatch::prelude::ToBytes;
+use lib_dispatch::prelude::*;
 
 use crate::notification::DartNotificationSender;
 use crate::{
   c::{extend_front_four_bytes_into_bytes, forget_rust},
   model::{FFIRequest, FFIResponse},
 };
-use flowy_core::get_client_server_configuration;
-use flowy_core::*;
-use flowy_notification::register_notification_sender;
-use lazy_static::lazy_static;
-use lib_dispatch::prelude::ToBytes;
-use lib_dispatch::prelude::*;
-use parking_lot::RwLock;
-use std::{ffi::CStr, os::raw::c_char};
+
+mod c;
+mod model;
+mod notification;
+mod protobuf;
+mod util;
 
 lazy_static! {
   static ref APPFLOWY_CORE: RwLock<Option<AppFlowyCore>> = RwLock::new(None);

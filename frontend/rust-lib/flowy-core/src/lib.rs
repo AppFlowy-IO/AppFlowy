@@ -10,15 +10,14 @@ use std::{
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::config::{AWSDynamoDBConfig, AppFlowyCollabConfig};
-use tokio::sync::{broadcast, RwLock};
+use tokio::sync::RwLock;
 
 use flowy_database2::DatabaseManager2;
 use flowy_document2::manager::DocumentManager as DocumentManager2;
 use flowy_error::FlowyResult;
 use flowy_folder2::manager::Folder2Manager;
-pub use flowy_net::get_client_server_configuration;
+use flowy_net::http_server::self_host::configuration::ClientServerConfiguration;
 use flowy_net::local_server::LocalServer;
-use flowy_net::ClientServerConfiguration;
 use flowy_sqlite::kv::KV;
 use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::entities::UserProfile;
@@ -83,7 +82,6 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
     .map(|crate_name| format!("{}={}", crate_name, level))
     .collect::<Vec<String>>();
   filters.push(format!("flowy_core={}", level));
-  filters.push(format!("flowy_folder={}", level));
   filters.push(format!("flowy_folder2={}", level));
   filters.push(format!("collab_folder={}", level));
   // filters.push(format!("collab_persistence={}", level));
@@ -93,17 +91,10 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   filters.push(format!("collab={}", level));
   filters.push(format!("flowy_user={}", level));
   filters.push(format!("flowy_document2={}", level));
-  filters.push(format!("flowy_database={}", level));
   filters.push(format!("flowy_database2={}", level));
-  filters.push(format!("flowy_sync={}", "info"));
-  filters.push(format!("flowy_client_sync={}", "info"));
   filters.push(format!("flowy_notification={}", "info"));
   filters.push(format!("lib_ot={}", level));
-  filters.push(format!("lib_ws={}", level));
   filters.push(format!("lib_infra={}", level));
-  filters.push(format!("flowy_sync={}", level));
-  filters.push(format!("flowy_revision={}", level));
-  filters.push(format!("flowy_revision_persistence={}", level));
   filters.push(format!("flowy_task={}", level));
   // filters.push(format!("lib_dispatch={}", level));
 

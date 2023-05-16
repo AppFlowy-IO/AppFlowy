@@ -17,6 +17,7 @@ pub struct HttpError {
 }
 
 impl HttpError {
+  #[allow(dead_code)]
   pub fn is_unauthorized(&self) -> bool {
     self.code == ErrorCode::UserUnauthorized
   }

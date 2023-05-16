@@ -1,6 +1,6 @@
 use lazy_static::lazy_static;
 use parking_lot::{Mutex, RwLock};
-use tokio::sync::{broadcast, mpsc};
+use tokio::sync::mpsc;
 
 use flowy_error::FlowyError;
 use flowy_user::entities::{
@@ -10,20 +10,19 @@ use flowy_user::entities::{
 use flowy_user::event_map::UserCloudService;
 use flowy_user::uid::UserIDGenerator;
 use lib_infra::future::FutureResult;
-use lib_ws::WebSocketRawMessage;
 
 lazy_static! {
   static ref ID_GEN: Mutex<UserIDGenerator> = Mutex::new(UserIDGenerator::new(1));
 }
 
+#[derive(Default)]
 pub struct LocalServer {
   stop_tx: RwLock<Option<mpsc::Sender<()>>>,
 }
 
 impl LocalServer {
   pub fn new() -> Self {
-    let stop_tx = RwLock::new(None);
-    LocalServer { stop_tx }
+    Self::default()
   }
 
   pub async fn stop(&self) {

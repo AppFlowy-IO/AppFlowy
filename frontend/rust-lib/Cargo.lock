@@ -1259,6 +1259,7 @@ dependencies = [
  "flowy-codegen",
  "flowy-core",
  "flowy-derive",
+ "flowy-net",
  "flowy-notification",
  "lazy_static",
  "lib-dispatch",
@@ -1510,16 +1511,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-client-network-config"
-version = "0.1.0"
-dependencies = [
- "config",
- "serde",
- "serde-aux",
- "serde_json",
-]
-
-[[package]]
 name = "flowy-codegen"
 version = "0.1.0"
 dependencies = [
@@ -1666,7 +1657,6 @@ dependencies = [
  "flowy-sqlite",
  "http-error-code",
  "lib-dispatch",
- "lib-ot",
  "protobuf",
  "r2d2",
  "reqwest",
@@ -1713,7 +1703,6 @@ dependencies = [
  "bytes",
  "config",
  "dashmap",
- "flowy-client-network-config",
  "flowy-codegen",
  "flowy-derive",
  "flowy-document2",

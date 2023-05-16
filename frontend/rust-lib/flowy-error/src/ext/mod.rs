@@ -1,5 +1,5 @@
-#[cfg(feature = "adaptor_ot")]
-pub mod ot;
+// #[cfg(feature = "adaptor_ot")]
+// pub mod ot;
 
 #[cfg(feature = "adaptor_serde")]
 pub mod serde;

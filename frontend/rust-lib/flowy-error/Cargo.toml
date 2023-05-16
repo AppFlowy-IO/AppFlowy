@@ -13,7 +13,6 @@ anyhow = "1.0"
 thiserror = "1.0"
 
 lib-dispatch = { path = "../lib-dispatch", optional = true }
-lib-ot = { path = "../../../shared-lib/lib-ot", optional = true}
 serde_json = {version = "1.0", optional = true}
 serde_repr = { version = "0.1" }
 serde = "1.0"
@@ -25,7 +24,6 @@ collab-database = { version = "0.1.0", optional = true }
 collab-document = { version = "0.1.0", optional = true }
 
 [features]
-adaptor_ot = ["lib-ot"]
 adaptor_dispatch = ["lib-dispatch"]
 adaptor_serde = ["serde_json"]
 adaptor_reqwest = ["reqwest"]

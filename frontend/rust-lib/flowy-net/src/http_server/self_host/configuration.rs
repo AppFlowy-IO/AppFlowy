@@ -1,6 +1,8 @@
+use std::convert::{TryFrom, TryInto};
+
 use config::FileFormat;
 use serde_aux::field_attributes::deserialize_number_from_string;
-use std::convert::{TryFrom, TryInto};
+
 pub const HEADER_TOKEN: &str = "token";
 
 #[derive(serde::Deserialize, Clone, Debug)]
@@ -14,7 +16,7 @@ pub struct ClientServerConfiguration {
 
 pub fn get_client_server_configuration() -> Result<ClientServerConfiguration, config::ConfigError> {
   let mut settings = config::Config::default();
-  let base = include_str!("../configuration/base.yaml");
+  let base = include_str!("./configuration/base.yaml");
   settings.merge(config::File::from_str(base, FileFormat::Yaml).required(true))?;
 
   let environment: Environment = std::env::var("APP_ENVIRONMENT")
@@ -23,8 +25,8 @@ pub fn get_client_server_configuration() -> Result<ClientServerConfiguration, co
     .expect("Failed to parse APP_ENVIRONMENT.");
 
   let custom = match environment {
-    Environment::Local => include_str!("../configuration/local.yaml"),
-    Environment::Production => include_str!("../configuration/production.yaml"),
+    Environment::Local => include_str!("./configuration/local.yaml"),
+    Environment::Production => include_str!("./configuration/production.yaml"),
   };
 
   settings.merge(config::File::from_str(custom, FileFormat::Yaml).required(true))?;

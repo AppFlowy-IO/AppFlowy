@@ -1,7 +1,7 @@
 use nanoid::nanoid;
 
 use flowy_core::{AppFlowyCore, AppFlowyCoreConfig};
-use flowy_net::get_client_server_configuration;
+use flowy_net::http_server::self_host::configuration::get_client_server_configuration;
 use flowy_user::entities::UserProfilePB;
 
 use crate::helper::*;

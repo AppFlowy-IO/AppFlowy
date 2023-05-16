@@ -1,16 +1,19 @@
-use crate::response::HttpResponse;
-use bytes::Bytes;
-use flowy_client_network_config::HEADER_TOKEN;
-use flowy_error::FlowyError;
-use hyper::http;
-use protobuf::ProtobufError;
-use reqwest::{header::HeaderMap, Client, Method, Response};
 use std::{
   convert::{TryFrom, TryInto},
   sync::Arc,
   time::Duration,
 };
+
+use bytes::Bytes;
+use hyper::http;
+use protobuf::ProtobufError;
+use reqwest::{header::HeaderMap, Client, Method, Response};
 use tokio::sync::oneshot;
+
+use flowy_error::FlowyError;
+
+use crate::http_server::self_host::configuration::HEADER_TOKEN;
+use crate::response::HttpResponse;
 
 pub trait ResponseMiddleware {
   fn receive_response(&self, token: &Option<String>, response: &HttpResponse);
@@ -43,6 +46,7 @@ impl HttpRequestBuilder {
     HttpRequestBuilder::default()
   }
 
+  #[allow(dead_code)]
   pub fn middleware<T>(mut self, middleware: Arc<T>) -> Self
   where
     T: 'static + ResponseMiddleware + Send + Sync,
@@ -147,6 +151,7 @@ impl HttpRequestBuilder {
     }
   }
 
+  #[allow(dead_code)]
   pub async fn option_json_response<T>(self) -> Result<Option<T>, FlowyError>
   where
     T: serde::de::DeserializeOwned + 'static,
