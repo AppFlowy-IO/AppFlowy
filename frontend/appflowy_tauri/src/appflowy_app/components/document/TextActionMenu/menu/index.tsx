@@ -1,29 +1,25 @@
 import { TextAction } from '$app/interfaces/document';
-import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
 import React, { useCallback } from 'react';
 import TurnIntoSelect from '$app/components/document/TextActionMenu/menu/TurnIntoSelect';
-import { BaseEditor } from 'slate';
 import FormatButton from '$app/components/document/TextActionMenu/menu/FormatButton';
+import { useTextActionMenu } from '$app/components/document/TextActionMenu/menu/index.hooks';
 
-function TextActionMenuList({ id, groupItems, editor }: { id: string; groupItems: TextAction[][]; editor: BaseEditor }) {
-  const { node } = useSubscribeNode(id);
-  const renderNode = useCallback(
-    (action: TextAction) => {
-      switch (action) {
-        case TextAction.Turn:
-          return <TurnIntoSelect id={id} selected={node?.type} />;
-        case TextAction.Bold:
-        case TextAction.Italic:
-        case TextAction.Underline:
-        case TextAction.Strikethrough:
-        case TextAction.Code:
-          return <FormatButton editor={editor} format={action} icon={action} />;
-        default:
-          return null;
-      }
-    },
-    [id, node, editor]
-  );
+function TextActionMenuList() {
+  const { groupItems, id } = useTextActionMenu();
+  const renderNode = useCallback((action: TextAction, id?: string) => {
+    switch (action) {
+      case TextAction.Turn:
+        return id ? <TurnIntoSelect id={id} /> : null;
+      case TextAction.Bold:
+      case TextAction.Italic:
+      case TextAction.Underline:
+      case TextAction.Strikethrough:
+      case TextAction.Code:
+        return <FormatButton format={action} icon={action} />;
+      default:
+        return null;
+    }
+  }, []);
 
   return (
     <div className={'flex px-1'}>
@@ -31,7 +27,7 @@ function TextActionMenuList({ id, groupItems, editor }: { id: string; groupItems
         <div className={'flex border-r border-solid border-shade-2 px-1 last:border-r-0'} key={i}>
           {group.map((item) => (
             <div key={item} className={'flex items-center'}>
-              {renderNode(item)}
+              {renderNode(item, id)}
             </div>
           ))}
         </div>

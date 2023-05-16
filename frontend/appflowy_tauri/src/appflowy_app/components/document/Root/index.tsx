@@ -32,7 +32,6 @@ function Root({ documentData }: { documentData: DocumentData }) {
       >
         <VirtualizedList node={node} childIds={childIds} renderNode={renderNode} />
       </div>
-      <div className={'appflowy-doc-overlay'} />
     </>
   );
 }

@@ -2,7 +2,7 @@ import { useAppSelector } from '@/appflowy_app/stores/store';
 import { useMemo, useRef } from 'react';
 import { DocumentState, Node, RangeSelectionState } from '$app/interfaces/document';
 import { nodeInRange } from '$app/utils/document/blocks/common';
-import { getNodeEndSelection, selectionIsForward } from '$app/utils/document/blocks/text/delta';
+import { getNodeEndSelection } from '$app/utils/document/blocks/text/delta';
 
 /**
  * Subscribe node information
@@ -18,7 +18,7 @@ export function useSubscribeNode(id: string) {
   });
 
   const isSelected = useAppSelector<boolean>((state) => {
-    return state.documentRectSelection.includes(id) || false;
+    return state.documentRectSelection.selection.includes(id) || false;
   });
 
   // Memoize the node and its children
@@ -50,6 +50,7 @@ export function useSubscribeRangeSelection(id: string) {
     if (range.focus?.id === id) {
       return range.focus.selection;
     }
+
     return getAmendInRangeNodeSelection(id, range, state.document);
   });
 
@@ -60,17 +61,17 @@ export function useSubscribeRangeSelection(id: string) {
 }
 
 function getAmendInRangeNodeSelection(id: string, range: RangeSelectionState, document: DocumentState) {
-  if (!range.anchor || !range.focus || range.anchor.id === range.focus.id) {
+  if (!range.anchor || !range.focus || range.anchor.id === range.focus.id || range.isForward === undefined) {
     return null;
   }
-  const isForward = selectionIsForward(range.anchor.selection);
+
   const isNodeInRange = nodeInRange(
     id,
     {
       startId: range.anchor.id,
       endId: range.focus.id,
     },
-    isForward,
+    range.isForward,
     document
   );
 

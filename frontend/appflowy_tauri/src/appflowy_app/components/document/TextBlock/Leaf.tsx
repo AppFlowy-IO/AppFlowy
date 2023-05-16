@@ -16,10 +16,6 @@ const Leaf = ({ attributes, children, leaf }: LeafProps) => {
     newChildren = <strong>{children}</strong>;
   }
 
-  if (leaf.code) {
-    newChildren = <code className='rounded-sm	 bg-[#F2FCFF] p-1'>{newChildren}</code>;
-  }
-
   if (leaf.italic) {
     newChildren = <em>{newChildren}</em>;
   }
@@ -28,9 +24,11 @@ const Leaf = ({ attributes, children, leaf }: LeafProps) => {
     newChildren = <u>{newChildren}</u>;
   }
 
-  const className = [leaf.strikethrough && 'line-through', leaf.selectionHighlighted && 'bg-main-secondary'].filter(
-    Boolean
-  );
+  const className = [
+    leaf.strikethrough && 'line-through',
+    leaf.selectionHighlighted && 'bg-main-secondary',
+    leaf.code && 'bg-main-selector',
+  ].filter(Boolean);
 
   return (
     <span {...attributes} className={className.join(' ')}>

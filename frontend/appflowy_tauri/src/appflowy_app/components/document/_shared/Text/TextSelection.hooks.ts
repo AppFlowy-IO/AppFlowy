@@ -1,14 +1,14 @@
-import { MouseEventHandler, useCallback, useEffect } from 'react';
+import { MouseEvent, useCallback, useEffect } from 'react';
 import { BaseRange, Editor, Node, Path, Range, Transforms } from 'slate';
 import { EditableProps } from 'slate-react/dist/components/editable';
 import { useSubscribeRangeSelection } from '$app/components/document/_shared/SubscribeNode.hooks';
 import { useAppDispatch } from '$app/stores/store';
-import { rangeSelectionActions } from '$app_reducers/document/slice';
 import { TextSelection } from '$app/interfaces/document';
 import { ReactEditor } from 'slate-react';
 import { syncRangeSelectionThunk } from '$app_reducers/document/async-actions/range_selection';
-import { getCollapsedRange } from '$app/utils/document/blocks/common';
-import { getEditorEndPoint, selectionIsForward } from '$app/utils/document/blocks/text/delta';
+import { getNodeEndSelection } from '$app/utils/document/blocks/text/delta';
+import { slateValueToDelta } from '$app/utils/document/blocks/common';
+import { isEqual } from '$app/utils/tool';
 
 export function useTextSelections(id: string, editor: ReactEditor) {
   const { rangeRef, currentSelection } = useSubscribeRangeSelection(id);
@@ -21,14 +21,16 @@ export function useTextSelections(id: string, editor: ReactEditor) {
       ReactEditor.blur(editor);
       return;
     }
-    const { isDragging, focus, anchor } = rangeRef.current;
-    if (isDragging || anchor?.id !== focus?.id || !Range.isCollapsed(currentSelection as BaseRange)) return;
 
+    const { isDragging, focus } = rangeRef.current;
+    if (isDragging || focus?.id !== id) return;
     if (!ReactEditor.isFocused(editor)) {
       ReactEditor.focus(editor);
     }
-    Transforms.select(editor, currentSelection);
-  }, [currentSelection, editor, rangeRef]);
+    if (!isEqual(editor.selection, currentSelection)) {
+      Transforms.select(editor, currentSelection);
+    }
+  }, [currentSelection, editor, id, rangeRef]);
 
   const decorate: EditableProps['decorate'] = useCallback(
     (entry: [Node, Path]) => {
@@ -52,54 +54,6 @@ export function useTextSelections(id: string, editor: ReactEditor) {
     [editor, currentSelection]
   );
 
-  const onMouseDown: MouseEventHandler<HTMLDivElement> = useCallback(
-    (e) => {
-      const range = getCollapsedRange(id, editor.selection as TextSelection);
-      dispatch(
-        rangeSelectionActions.setRange({
-          ...range,
-          isDragging: true,
-        })
-      );
-    },
-    [dispatch, editor, id]
-  );
-
-  const onMouseMove: MouseEventHandler<HTMLDivElement> = useCallback(
-    (e) => {
-      if (!rangeRef.current) return;
-      const { isDragging, anchor } = rangeRef.current;
-      if (!isDragging || !anchor || ReactEditor.isFocused(editor)) return;
-      if (anchor.id === id) {
-        if (Range.isRange(anchor.selection)) {
-          Transforms.select(editor, anchor.selection);
-        }
-      } else {
-        const isForward = selectionIsForward(anchor.selection);
-        if (!isForward) {
-          Transforms.select(editor, getEditorEndPoint(editor));
-        }
-      }
-
-      ReactEditor.focus(editor);
-    },
-    [editor, rangeRef]
-  );
-
-  const onMouseUp: MouseEventHandler<HTMLDivElement> = useCallback(
-    (e) => {
-      if (!rangeRef.current) return;
-      const { isDragging } = rangeRef.current;
-      if (!isDragging) return;
-      dispatch(
-        rangeSelectionActions.setRange({
-          isDragging: false,
-        })
-      );
-    },
-    [dispatch, rangeRef]
-  );
-
   const setLastActiveSelection = useCallback(
     (lastActiveSelection: Range) => {
       const selection = lastActiveSelection as TextSelection;
@@ -112,12 +66,33 @@ export function useTextSelections(id: string, editor: ReactEditor) {
     ReactEditor.deselect(editor);
   }, [editor]);
 
+  const onMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!rangeRef.current) return;
+      const { isDragging, isForward, anchor } = rangeRef.current;
+      if (!isDragging || !anchor) return;
+      if (ReactEditor.isFocused(editor)) {
+        return;
+      }
+
+      if (anchor.id === id) {
+        Transforms.select(editor, anchor.selection);
+      } else if (!isForward) {
+        const endSelection = getNodeEndSelection(slateValueToDelta(editor.children));
+        Transforms.select(editor, {
+          anchor: endSelection.anchor,
+          focus: editor.selection?.focus || endSelection.focus,
+        });
+      }
+      ReactEditor.focus(editor);
+    },
+    [editor, id, rangeRef]
+  );
+
   return {
     decorate,
-    onMouseDown,
-    onMouseMove,
-    onMouseUp,
     onBlur,
+    onMouseMove,
     setLastActiveSelection,
   };
 }

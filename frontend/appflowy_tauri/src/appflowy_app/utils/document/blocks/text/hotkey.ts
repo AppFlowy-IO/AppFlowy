@@ -1,5 +1,4 @@
 import isHotkey from 'is-hotkey';
-import { toggleFormat } from './format';
 import { Editor, Range } from 'slate';
 import { getAfterRangeAt, getBeforeRangeAt, pointInBegin, pointInEnd } from './delta';
 import { keyBoardEventKeyMap } from '$app/constants/document/text_block';
@@ -12,16 +11,6 @@ const HOTKEYS: Record<string, string> = {
   'mod+shift+X': 'strikethrough',
   'mod+shift+S': 'strikethrough',
 };
-
-export function triggerHotkey(event: React.KeyboardEvent<HTMLDivElement>, editor: Editor) {
-  for (const hotkey in HOTKEYS) {
-    if (isHotkey(hotkey, event)) {
-      event.preventDefault();
-      const format = HOTKEYS[hotkey];
-      toggleFormat(editor, format);
-    }
-  }
-}
 
 export function canHandleBackspaceKey(event: React.KeyboardEvent<HTMLDivElement>, editor: Editor) {
   const isBackspaceKey = isHotkey('backspace', event);

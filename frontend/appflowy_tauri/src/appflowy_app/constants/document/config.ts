@@ -1,4 +1,4 @@
-import { BlockConfig, BlockType, SplitRelationship, TextAction } from '$app/interfaces/document';
+import { BlockConfig, BlockType, SplitRelationship, TextAction, TextActionMenuProps } from '$app/interfaces/document';
 
 /**
  * If the block type is not in the config, it will be thrown an error in development env
@@ -141,8 +141,7 @@ export const blockConfig: Record<string, BlockConfig> = {
   },
 };
 
-export const defaultTextActionProps = {
-  enabled: true,
+export const defaultTextActionProps: TextActionMenuProps = {
   customItems: [
     TextAction.Turn,
     TextAction.Bold,
@@ -154,6 +153,21 @@ export const defaultTextActionProps = {
   ],
   excludeItems: [],
 };
+
+export const multiLineTextActionProps: TextActionMenuProps = {
+  customItems: [TextAction.Bold, TextAction.Italic, TextAction.Underline, TextAction.Strikethrough, TextAction.Code],
+};
+
+export const multiLineTextActionGroups = [
+  [
+    TextAction.Bold,
+    TextAction.Italic,
+    TextAction.Underline,
+    TextAction.Strikethrough,
+    TextAction.Code,
+    TextAction.Equation,
+  ],
+];
 
 export const textActionGroups = [
   [TextAction.Turn],

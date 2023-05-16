@@ -2,20 +2,23 @@ import { Editor } from 'slate';
 import { useTurnIntoBlock } from './TurnIntoEvents.hooks';
 import { useCallback, useContext, useMemo } from 'react';
 import { keyBoardEventKeyMap } from '$app/constants/document/text_block';
-import { triggerHotkey } from '$app/utils/document/blocks/text/hotkey';
 import { TextBlockKeyEventHandlerParams } from '$app/interfaces/document';
 import isHotkey from 'is-hotkey';
 import { indentNodeThunk, outdentNodeThunk, splitNodeThunk } from '$app_reducers/document/async-actions';
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
-import { useAppDispatch } from '$app/stores/store';
+import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { useDefaultTextInputEvents } from '$app/components/document/_shared/Text/TextEvents.hooks';
 import { ReactEditor } from 'slate-react';
 
 export function useTextBlockKeyEvent(id: string, editor: ReactEditor) {
   const controller = useContext(DocumentControllerContext);
   const dispatch = useAppDispatch();
-
   const defaultTextInputEvents = useDefaultTextInputEvents(id);
+  const isFocusCurrentNode = useAppSelector((state) => {
+    const { anchor, focus } = state.documentRangeSelection;
+    if (!anchor || !focus) return false;
+    return anchor.id === id && focus.id === id;
+  });
 
   const { turnIntoBlockEvents } = useTurnIntoBlock(id);
 
@@ -84,18 +87,20 @@ export function useTextBlockKeyEvent(id: string, editor: ReactEditor) {
 
   const onKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
+      if (!isFocusCurrentNode) {
+        event.preventDefault();
+        return;
+      }
+
+      event.stopPropagation();
       // This is list of key events that can be handled by TextBlock
       const keyEvents = [...events, ...turnIntoBlockEvents];
 
       const matchKeys = keyEvents.filter((keyEvent) => keyEvent.canHandle(event, editor));
-      if (matchKeys.length === 0) {
-        triggerHotkey(event, editor);
-        return;
-      }
 
       matchKeys.forEach((matchKey) => matchKey.handler(event, editor));
     },
-    [editor, events, turnIntoBlockEvents]
+    [editor, events, turnIntoBlockEvents, isFocusCurrentNode]
   );
 
   return {

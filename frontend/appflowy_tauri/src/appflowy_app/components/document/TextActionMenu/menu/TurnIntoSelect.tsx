@@ -1,13 +1,14 @@
 import React, { useCallback } from 'react';
-import { BlockType } from '$app/interfaces/document';
 import TurnIntoPopover from '$app/components/document/_shared/TurnInto';
 import Button from '@mui/material/Button';
 import ArrowDropDown from '@mui/icons-material/ArrowDropDown';
 import MenuTooltip from './MenuTooltip';
+import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
 
-function TurnIntoSelect({ id, selected }: { id: string; selected: BlockType }) {
+function TurnIntoSelect({ id }: { id: string }) {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
 
+  const { node } = useSubscribeNode(id);
   const handleClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   }, []);
@@ -23,7 +24,7 @@ function TurnIntoSelect({ id, selected }: { id: string; selected: BlockType }) {
       <MenuTooltip title='Turn into'>
         <Button size={'small'} variant='text' onClick={handleClick}>
           <div className='flex items-center text-main-accent'>
-            <span>{selected}</span>
+            <span>{node.type}</span>
             <ArrowDropDown />
           </div>
         </Button>

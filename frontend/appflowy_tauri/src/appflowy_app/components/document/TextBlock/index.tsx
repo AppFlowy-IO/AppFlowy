@@ -1,9 +1,8 @@
 import { Slate, Editable } from 'slate-react';
 import Leaf from './Leaf';
 import { useTextBlock } from './TextBlock.hooks';
-import TextActionMenu from '../TextActionMenu';
 import React from 'react';
-import { NestedBlock, TextActionMenuProps } from '$app/interfaces/document';
+import { NestedBlock } from '$app/interfaces/document';
 import NodeChildren from '$app/components/document/Node/NodeChildren';
 
 function TextBlock({
@@ -23,7 +22,6 @@ function TextBlock({
     <>
       <div className={`px-1 py-[2px] ${className}`}>
         <Slate editor={editor} onChange={onChange} value={value}>
-          <TextActionMenu id={node.id} />
           <Editable
             {...rest}
             renderLeaf={(leafProps) => <Leaf {...leafProps} />}

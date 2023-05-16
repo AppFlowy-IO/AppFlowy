@@ -1,21 +1,20 @@
-import { useEffect, useMemo, useRef } from 'react';
-import { useFocused, useSlate } from 'slate-react';
+import { useEffect, useRef, useState } from 'react';
 import { calcToolbarPosition } from '$app/utils/document/blocks/text/toolbar';
-import { TextActionMenuProps } from '$app/interfaces/document';
-import { blockConfig, defaultTextActionProps, textActionGroups } from '$app/constants/document/config';
-import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
+import { useAppSelector } from '$app/stores/store';
 
-export function useMenuStyle(id: string) {
+export function useMenuStyle(container: HTMLDivElement) {
   const ref = useRef<HTMLDivElement | null>(null);
+  const range = useAppSelector((state) => state.documentRangeSelection);
 
+  const [scrollTop, setScrollTop] = useState(container.scrollTop);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
 
-    const nodeRect = document.querySelector(`[data-block-id="${id}"]`)?.getBoundingClientRect();
+    const id = range.focus?.id;
+    if (!id) return;
 
-    if (!nodeRect) return;
-    const position = calcToolbarPosition(el, nodeRect);
+    const position = calcToolbarPosition(el);
 
     if (!position) {
       el.style.opacity = '0';
@@ -28,28 +27,17 @@ export function useMenuStyle(id: string) {
     }
   });
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollTop(container.scrollTop);
+    };
+    container.addEventListener('scroll', handleScroll);
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+    };
+  }, [container]);
+
   return {
     ref,
-  };
-}
-
-export function useActionItems(id: string, props: TextActionMenuProps) {
-  const { node } = useSubscribeNode(id);
-
-  const { enabled, customItems, excludeItems } = useMemo(
-    () => ({ ...defaultTextActionProps, ...blockConfig[node.type]?.textActionMenuProps, ...props }),
-    [node.type, props]
-  );
-  const items = useMemo(() => customItems.filter((item) => !excludeItems.includes(item)), [customItems, excludeItems]);
-
-  const groupItems = useMemo(() => {
-    return textActionGroups.map((group) => {
-      return group.filter((item) => items.includes(item));
-    });
-  }, [JSON.stringify(items)]);
-
-  return {
-    enabled,
-    groupItems,
   };
 }

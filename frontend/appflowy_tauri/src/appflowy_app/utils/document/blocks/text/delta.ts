@@ -1,4 +1,4 @@
-import { Editor, Element, Location, Text } from 'slate';
+import { Editor, Element, Location, Text, Range } from 'slate';
 import { SelectionPoint, TextDelta, TextSelection } from '$app/interfaces/document';
 import * as Y from 'yjs';
 import { getDeltaFromSlateNodes } from '$app/utils/document/blocks/common';
@@ -14,6 +14,86 @@ export function getDelta(editor: Editor, at: Location): TextDelta[] {
   });
 }
 
+export function getBeforeRangeDelta(delta: TextDelta[], range: TextSelection): TextDelta[] {
+  const anchor = Range.start(range);
+  const sliceNodes = delta.slice(0, anchor.path[1] + 1);
+  const sliceEnd = sliceNodes[sliceNodes.length - 1];
+  const sliceEndText = sliceEnd.insert.slice(0, anchor.offset);
+  const sliceEndAttributes = sliceEnd.attributes;
+  const sliceEndNode =
+    sliceEndText.length > 0
+      ? {
+          insert: sliceEndText,
+          attributes: sliceEndAttributes,
+        }
+      : null;
+  const sliceMiddleNodes = sliceNodes.slice(0, sliceNodes.length - 1);
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  return [...sliceMiddleNodes, sliceEndNode].filter((item) => item);
+}
+
+export function getAfterRangeDelta(delta: TextDelta[], range: TextSelection): TextDelta[] {
+  const focus = Range.end(range);
+  const sliceNodes = delta.slice(focus.path[1], delta.length);
+  const sliceStart = sliceNodes[0];
+  const sliceStartText = sliceStart.insert.slice(focus.offset);
+  const sliceStartAttributes = sliceStart.attributes;
+  const sliceStartNode =
+    sliceStartText.length > 0
+      ? {
+          insert: sliceStartText,
+          attributes: sliceStartAttributes,
+        }
+      : null;
+  const sliceMiddleNodes = sliceNodes.slice(1, sliceNodes.length);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  return [sliceStartNode, ...sliceMiddleNodes].filter((item) => item);
+}
+
+export function getRangeDelta(delta: TextDelta[], range: TextSelection): TextDelta[] {
+  const anchor = Range.start(range);
+  const focus = Range.end(range);
+  const sliceNodes = delta.slice(anchor.path[1], focus.path[1] + 1);
+  if (anchor.path[1] === focus.path[1]) {
+    return sliceNodes.map((item) => {
+      const { insert, attributes } = item;
+      const text = insert.slice(anchor.offset, focus.offset);
+      return {
+        insert: text,
+        attributes,
+      };
+    });
+  }
+  const sliceStart = sliceNodes[0];
+  const sliceEnd = sliceNodes[sliceNodes.length - 1];
+  const sliceStartText = sliceStart.insert.slice(anchor.offset);
+  const sliceEndText = sliceEnd.insert.slice(0, focus.offset);
+  const sliceStartAttributes = sliceStart.attributes;
+  const sliceEndAttributes = sliceEnd.attributes;
+  const sliceStartNode =
+    sliceStartText.length > 0
+      ? {
+          insert: sliceStartText,
+          attributes: sliceStartAttributes,
+        }
+      : null;
+
+  const sliceEndNode =
+    sliceEndText.length > 0
+      ? {
+          insert: sliceEndText,
+          attributes: sliceEndAttributes,
+        }
+      : null;
+  const sliceMiddleNodes = sliceNodes.slice(1, sliceNodes.length - 1);
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  return [sliceStartNode, ...sliceMiddleNodes, sliceEndNode].filter((item) => item);
+}
 /**
  * get the selection between the beginning of the editor and the point
  * form 0 to point

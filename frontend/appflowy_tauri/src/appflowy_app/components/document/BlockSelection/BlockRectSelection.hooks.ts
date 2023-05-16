@@ -3,16 +3,10 @@ import { useAppDispatch } from '$app/stores/store';
 import { rectSelectionActions } from '@/appflowy_app/stores/reducers/document/slice';
 import { useNodesRect } from '$app/components/document/BlockSelection/NodesRect.hooks';
 import { setRectSelectionThunk } from '$app_reducers/document/async-actions/rect_selection';
+import { isPointInBlock } from '$app/utils/document/blocks/selection';
 
-export function useBlockSelection({
-  container,
-  onDragging,
-}: {
-  container: HTMLDivElement;
-  onDragging?: (_isDragging: boolean) => void;
-}) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const disaptch = useAppDispatch();
+export function useBlockRectSelection({ container }: { container: HTMLDivElement }) {
+  const dispatch = useAppDispatch();
 
   const [isDragging, setDragging] = useState(false);
   const startPointRef = useRef<number[]>([]);
@@ -20,8 +14,8 @@ export function useBlockSelection({
   const { getIntersectedBlockIds } = useNodesRect(container);
 
   useEffect(() => {
-    onDragging?.(isDragging);
-  }, [isDragging, onDragging]);
+    dispatch(rectSelectionActions.setDragging(isDragging));
+  }, [dispatch, isDragging]);
 
   const [rect, setRect] = useState<{
     startX: number;
@@ -45,17 +39,6 @@ export function useBlockSelection({
     };
   }, [container.scrollLeft, container.scrollTop, rect]);
 
-  const isPointInBlock = useCallback((target: HTMLElement | null) => {
-    let node = target;
-    while (node) {
-      if (node.getAttribute('data-block-id')) {
-        return true;
-      }
-      node = node.parentElement;
-    }
-    return false;
-  }, []);
-
   const handleDragStart = useCallback(
     (e: MouseEvent) => {
       if (isPointInBlock(e.target as HTMLElement)) {
@@ -74,7 +57,7 @@ export function useBlockSelection({
         endY: startY,
       });
     },
-    [container.scrollLeft, container.scrollTop, isPointInBlock]
+    [container.scrollLeft, container.scrollTop]
   );
 
   const updateSelctionsByPoint = useCallback(
@@ -92,9 +75,9 @@ export function useBlockSelection({
       };
       const blockIds = getIntersectedBlockIds(newRect);
       setRect(newRect);
-      disaptch(setRectSelectionThunk(blockIds));
+      dispatch(setRectSelectionThunk(blockIds));
     },
-    [container.scrollLeft, container.scrollTop, disaptch, getIntersectedBlockIds, isDragging]
+    [container.scrollLeft, container.scrollTop, dispatch, getIntersectedBlockIds, isDragging]
   );
 
   const handleDraging = useCallback(
@@ -119,7 +102,7 @@ export function useBlockSelection({
   const handleDragEnd = useCallback(
     (e: MouseEvent) => {
       if (isPointInBlock(e.target as HTMLElement) && !isDragging) {
-        disaptch(rectSelectionActions.updateSelections([]));
+        dispatch(rectSelectionActions.updateSelections([]));
         return;
       }
       if (!isDragging) return;
@@ -128,11 +111,10 @@ export function useBlockSelection({
       setDragging(false);
       setRect(null);
     },
-    [disaptch, isDragging, isPointInBlock, updateSelctionsByPoint]
+    [dispatch, isDragging, updateSelctionsByPoint]
   );
 
   useEffect(() => {
-    if (!ref.current) return;
     document.addEventListener('mousedown', handleDragStart);
     document.addEventListener('mousemove', handleDraging);
     document.addEventListener('mouseup', handleDragEnd);
@@ -147,6 +129,5 @@ export function useBlockSelection({
   return {
     isDragging,
     style,
-    ref,
   };
 }

@@ -88,7 +88,7 @@ export interface NestedBlock<Type = any> {
 }
 export interface TextDelta {
   insert: string;
-  attributes?: Record<string, string | boolean>;
+  attributes?: Record<string, string | boolean | undefined>;
 }
 
 export enum BlockActionType {
@@ -132,10 +132,16 @@ export interface DocumentState {
   children: Record<string, string[]>;
 }
 
+export interface RectSelectionState {
+  selection: string[];
+  isDragging: boolean;
+}
 export interface RangeSelectionState {
-  isDragging?: boolean;
   anchor?: PointState;
   focus?: PointState;
+  isForward?: boolean;
+  isDragging: boolean;
+  selection: string[];
 }
 
 export interface PointState {
@@ -176,10 +182,6 @@ export enum TextAction {
   Equation = 'equation',
 }
 export interface TextActionMenuProps {
-  /**
-   * Whether the action menu is enabled
-   */
-  enabled?: boolean;
   /**
    * The custom items that will be covered in the default items
    */
