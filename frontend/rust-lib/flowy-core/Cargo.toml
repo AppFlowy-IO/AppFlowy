@@ -13,12 +13,11 @@ flowy-net = { path = "../flowy-net" }
 flowy-folder2 = { path = "../flowy-folder2" }
 #flowy-database = { path = "../flowy-database" }
 flowy-database2 = { path = "../flowy-database2" }
-flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws" }
 flowy-sqlite = { path = "../flowy-sqlite", optional = true }
 #flowy-document = { path = "../flowy-document" }
 flowy-document2 = { path = "../flowy-document2" }
 #flowy-revision = { path = "../flowy-revision" }
-flowy-error = { path = "../flowy-error", features = ["adaptor_ws"] }
+flowy-error = { path = "../flowy-error" }
 flowy-task = { path = "../flowy-task" }
 appflowy-integrate = { version = "0.1.0" }
 

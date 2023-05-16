@@ -1529,21 +1529,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-client-ws"
-version = "0.1.0"
-dependencies = [
- "futures-util",
- "lib-infra",
- "lib-ws",
- "parking_lot 0.12.1",
- "serde",
- "serde_repr",
- "thiserror",
- "tokio",
- "tracing",
-]
-
-[[package]]
 name = "flowy-codegen"
 version = "0.1.0"
 dependencies = [
@@ -1574,7 +1559,6 @@ dependencies = [
  "appflowy-integrate",
  "bytes",
  "console-subscriber",
- "flowy-client-ws",
  "flowy-database2",
  "flowy-document2",
  "flowy-error",
@@ -1689,7 +1673,6 @@ dependencies = [
  "bytes",
  "collab-database",
  "collab-document",
- "flowy-client-ws",
  "flowy-codegen",
  "flowy-derive",
  "flowy-sqlite",
@@ -1743,7 +1726,6 @@ dependencies = [
  "config",
  "dashmap",
  "flowy-client-network-config",
- "flowy-client-ws",
  "flowy-codegen",
  "flowy-derive",
  "flowy-document2",

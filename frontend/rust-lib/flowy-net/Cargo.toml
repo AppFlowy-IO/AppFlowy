@@ -9,7 +9,6 @@ edition = "2018"
 lib-dispatch = { path = "../lib-dispatch" }
 flowy-error = { path = "../flowy-error", features = ["adaptor_reqwest", "adaptor_server_error"] }
 flowy-derive = { path = "../flowy-derive" }
-flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws"}
 flowy-client-network-config= { path = "../../../shared-lib/flowy-client-network-config"}
 flowy-folder2 = { path = "../flowy-folder2" }
 flowy-document2 = { path = "../flowy-document2" }

@@ -12,7 +12,6 @@ use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::config::{AWSDynamoDBConfig, AppFlowyCollabConfig};
 use tokio::sync::{broadcast, RwLock};
 
-use flowy_client_ws::{listen_on_websocket, FlowyWebSocketConnect, NetworkType};
 use flowy_database2::DatabaseManager2;
 use flowy_document2::manager::DocumentManager as DocumentManager2;
 use flowy_error::FlowyResult;
@@ -130,7 +129,6 @@ pub struct AppFlowyCore {
   // pub database_manager: Arc<DatabaseManager>,
   pub database_manager: Arc<DatabaseManager2>,
   pub event_dispatcher: Arc<AFPluginDispatcher>,
-  pub ws_conn: Arc<FlowyWebSocketConnect>,
   pub local_server: Option<Arc<LocalServer>>,
   pub task_dispatcher: Arc<RwLock<TaskDispatcher>>,
 }
@@ -152,13 +150,12 @@ impl AppFlowyCore {
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
 
-    let (local_server, ws_conn) = mk_local_server(&config.server_config);
+    let local_server = mk_local_server(&config.server_config);
     let (user_session, folder_manager, local_server, database_manager, document_manager2) = runtime
       .block_on(async {
         let user_session = mk_user_session(&config, &local_server, &config.server_config);
 
         let database_manager2 = Database2DepsResolver::resolve(
-          ws_conn.clone(),
           user_session.clone(),
           task_dispatcher.clone(),
           collab_builder.clone(),
@@ -182,7 +179,6 @@ impl AppFlowyCore {
         if let Some(local_server) = local_server.as_ref() {
           local_server.run();
         }
-        ws_conn.init().await;
         (
           user_session,
           folder_manager,
@@ -195,7 +191,6 @@ impl AppFlowyCore {
     let user_status_listener = UserStatusListener {
       folder_manager: folder_manager.clone(),
       database_manager: database_manager.clone(),
-      ws_conn: ws_conn.clone(),
       config: config.clone(),
     };
     let user_status_callback = UserStatusCallbackImpl {
@@ -208,14 +203,12 @@ impl AppFlowyCore {
 
     let event_dispatcher = Arc::new(AFPluginDispatcher::construct(runtime, || {
       make_plugins(
-        &ws_conn,
         &folder_manager,
         &database_manager,
         &user_session,
         &document_manager2,
       )
     }));
-    _start_listening(&event_dispatcher, &ws_conn, &folder_manager);
 
     Self {
       config,
@@ -224,7 +217,6 @@ impl AppFlowyCore {
       folder_manager,
       database_manager,
       event_dispatcher,
-      ws_conn,
       local_server,
       task_dispatcher,
     }
@@ -235,43 +227,16 @@ impl AppFlowyCore {
   }
 }
 
-fn _start_listening(
-  event_dispatcher: &AFPluginDispatcher,
-  ws_conn: &Arc<FlowyWebSocketConnect>,
-  folder_manager: &Arc<Folder2Manager>,
-) {
-  let subscribe_network_type = ws_conn.subscribe_network_ty();
-  let folder_manager = folder_manager.clone();
-  let _cloned_folder_manager = folder_manager;
-  let ws_conn = ws_conn.clone();
-
-  event_dispatcher.spawn(async move {
-    listen_on_websocket(ws_conn.clone());
-  });
-
-  event_dispatcher.spawn(async move {
-    _listen_network_status(subscribe_network_type).await;
-  });
-}
-
-fn mk_local_server(
-  server_config: &ClientServerConfiguration,
-) -> (Option<Arc<LocalServer>>, Arc<FlowyWebSocketConnect>) {
-  let ws_addr = server_config.ws_addr();
+fn mk_local_server(server_config: &ClientServerConfiguration) -> Option<Arc<LocalServer>> {
+  // let ws_addr = server_config.ws_addr();
   if cfg!(feature = "http_sync") {
-    let ws_conn = Arc::new(FlowyWebSocketConnect::new(ws_addr));
-    (None, ws_conn)
+    // let ws_conn = Arc::new(FlowyWebSocketConnect::new(ws_addr));
+    None
   } else {
     let context = flowy_net::local_server::build_server(server_config);
-    let local_ws = Arc::new(context.local_ws);
-    let ws_conn = Arc::new(FlowyWebSocketConnect::from_local(ws_addr, local_ws));
-    (Some(Arc::new(context.local_server)), ws_conn)
-  }
-}
-
-async fn _listen_network_status(mut subscribe: broadcast::Receiver<NetworkType>) {
-  while let Ok(_new_type) = subscribe.recv().await {
-    // core.network_state_changed(new_type);
+    let _local_ws = Arc::new(context.local_ws);
+    // let ws_conn = Arc::new(FlowyWebSocketConnect::from_local(ws_addr, local_ws));
+    Some(Arc::new(context.local_server))
   }
 }
 
@@ -322,7 +287,6 @@ fn mk_user_session(
 struct UserStatusListener {
   folder_manager: Arc<Folder2Manager>,
   database_manager: Arc<DatabaseManager2>,
-  ws_conn: Arc<FlowyWebSocketConnect>,
   #[allow(dead_code)]
   config: AppFlowyCoreConfig,
 }
@@ -331,10 +295,10 @@ impl UserStatusListener {
   async fn did_sign_in(&self, token: &str, user_id: i64) -> FlowyResult<()> {
     self.folder_manager.initialize(user_id).await?;
     self.database_manager.initialize(user_id, token).await?;
-    self
-      .ws_conn
-      .start(token.to_owned(), user_id.to_owned())
-      .await?;
+    // self
+    //   .ws_conn
+    //   .start(token.to_owned(), user_id.to_owned())
+    //   .await?;
     Ok(())
   }
 
@@ -349,16 +313,11 @@ impl UserStatusListener {
       .initialize_with_new_user(user_profile.id, &user_profile.token)
       .await?;
 
-    self
-      .ws_conn
-      .start(user_profile.token.clone(), user_profile.id)
-      .await?;
     Ok(())
   }
 
   async fn did_expired(&self, _token: &str, user_id: i64) -> FlowyResult<()> {
     self.folder_manager.clear(user_id).await;
-    self.ws_conn.stop().await;
     Ok(())
   }
 }
