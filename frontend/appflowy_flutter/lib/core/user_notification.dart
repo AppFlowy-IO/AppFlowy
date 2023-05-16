@@ -8,6 +8,8 @@ import 'package:appflowy_backend/rust_stream.dart';
 
 import 'notification_helper.dart';
 
+// TODO(a-wallen): REMOVE THIS (KICKING OFF TESTS)
+
 // User
 typedef UserNotificationCallback = void Function(
   UserNotification,

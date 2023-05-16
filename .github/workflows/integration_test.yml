@@ -111,7 +111,7 @@ jobs:
         shell: bash
 
       - name: Retry failures to detect flakes
-        if: ${{ failure() $$ matrix.max-runs > 1 }}
+        if: ${{ failure() && matrix.max-runs > 1 }}
         run: |
           echo "Retrying failed tests to deflake..."
           chmod +x run_tests.sh
@@ -130,16 +130,16 @@ jobs:
       #     fail_ci_if_error: true
       #     verbose: true
 
-final-check:
-  needs: appflowy-test
-  runs-on: ubuntu-latest
+  final-check:
+    needs: tests
+    runs-on: ubuntu-latest
 
-  steps:
-    - name: Check test result
-      run: |
-        test_result=$(echo "${{ needs.test.outputs.test-result }}") # Retrieve the test result
-        if [[ $test_result == "failure" ]]; then
-          exit 1 # Mark the test as failed if it consistently failed across all runs
-        else
-          exit 0 # Mark the test as passed if it passed at least once
-        fi
+    steps:
+      - name: Check test result
+        run: |
+          test_result=$(echo "${{ needs.test.outputs.test-result }}") # Retrieve the test result
+          if [[ $test_result == "failure" ]]; then
+            exit 1 # Mark the test as failed if it consistently failed across all runs
+          else
+            exit 0 # Mark the test as passed if it passed at least once
+          fi
