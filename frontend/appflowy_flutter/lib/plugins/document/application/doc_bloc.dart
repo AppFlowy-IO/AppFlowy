@@ -135,6 +135,11 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     }
 
     final document = data.toDocument();
+    if (document == null) {
+      assert(false, 'document is null');
+      return;
+    }
+
     final editorState = EditorState(document: document);
     this.editorState = editorState;
 

@@ -1,14 +1,23 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/export_page_widget.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/base64_string.dart';
+import 'package:appflowy/util/file_picker/file_picker_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' as p;
 
 class DocumentPage extends StatefulWidget {
   const DocumentPage({
@@ -55,12 +64,16 @@ class _DocumentPageState extends State<DocumentPage> {
             loading: () => const SizedBox.shrink(),
             finish: (result) => result.fold(
               (error) => FlowyErrorPage(error.toString()),
-              (_) {
+              (data) {
                 if (state.forceClose) {
                   widget.onDeleted();
                   return const SizedBox.shrink();
                 } else if (documentBloc.editorState == null) {
-                  return const SizedBox.shrink();
+                  return Center(
+                    child: ExportPageWidget(
+                      onTap: () async => await _exportPage(data),
+                    ),
+                  );
                 } else {
                   editorState = documentBloc.editorState!;
                   return _buildEditorPage(context, state);
@@ -103,6 +116,31 @@ class _DocumentPageState extends State<DocumentPage> {
     return CoverImageNodeWidget(
       node: page,
       editorState: editorState!,
+    );
+  }
+
+  Future<void> _exportPage(DocumentDataPB2 data) async {
+    final picker = getIt<FilePickerService>();
+    final dir = await picker.getDirectoryPath();
+    if (dir == null) {
+      return;
+    }
+    final path = p.join(dir, '${documentBloc.view.name}.json');
+    const encoder = JsonEncoder.withIndent('  ');
+    final json = encoder.convert(data.toProto3Json());
+    await File(path).writeAsString(json.base64.base64);
+
+    _showMessage('Export success to $path');
+  }
+
+  void _showMessage(String message) {
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: FlowyText(message),
+      ),
     );
   }
 }

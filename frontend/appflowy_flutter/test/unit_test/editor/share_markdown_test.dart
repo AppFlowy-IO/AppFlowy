@@ -12,7 +12,7 @@ void main() {
       const text = '''
 {
     "document":{
-        "type":"editor",
+        "type":"document",
         "children":[
             {
                 "type":"math_equation",

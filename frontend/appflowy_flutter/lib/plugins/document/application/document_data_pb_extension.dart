@@ -1,14 +1,20 @@
 import 'dart:convert';
 
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
-    show Document, Node, Attributes, Delta;
+    show Document, Node, Attributes, Delta, ParagraphBlockKeys;
 
 extension AppFlowyEditor on DocumentDataPB2 {
-  Document toDocument() {
+  Document? toDocument() {
     final rootId = pageId;
-    final root = buildNode(rootId);
-    return Document(root: root);
+    try {
+      final root = buildNode(rootId);
+      return Document(root: root);
+    } catch (e) {
+      Log.error('create document error: $e');
+      return null;
+    }
   }
 
   Node buildNode(String id) {
@@ -21,6 +27,13 @@ extension AppFlowyEditor on DocumentDataPB2 {
     }
     return block.toNode(children: children);
   }
+}
+
+class _BackendKeys {
+  const _BackendKeys._();
+
+  static const String page = 'page';
+  static const String text = 'text';
 }
 
 extension BlockToNode on BlockPB {
@@ -37,8 +50,8 @@ extension BlockToNode on BlockPB {
 
   String _typeAdapter(String ty) {
     final adapter = {
-      'page': 'document',
-      'text': 'paragraph',
+      _BackendKeys.page: 'document',
+      _BackendKeys.text: ParagraphBlockKeys.type,
     };
     return adapter[ty] ?? ty;
   }
