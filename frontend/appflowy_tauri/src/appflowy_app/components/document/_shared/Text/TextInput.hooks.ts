@@ -129,6 +129,12 @@ function useUpdateDelta(id: string, editor: Editor) {
     [editor]
   );
 
+  useEffect(() => {
+    return () => {
+      debounceUpdate.cancel();
+    };
+  });
+
   return {
     sync,
     receive,

@@ -1,11 +1,15 @@
 export function debounce(fn: (...args: any[]) => void, delay: number) {
   let timeout: NodeJS.Timeout;
-  return (...args: any[]) => {
+  const debounceFn = (...args: any[]) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
       fn.apply(undefined, args);
     }, delay);
   };
+  debounceFn.cancel = () => {
+    clearTimeout(timeout);
+  };
+  return debounceFn;
 }
 
 export function throttle(fn: (...args: any[]) => void, delay: number, immediate = true) {

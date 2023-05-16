@@ -1,7 +1,7 @@
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { DocumentState } from '$app/interfaces/document';
-import { blockConfig } from "$app/constants/document/config";
+import { blockConfig } from '$app/constants/document/config';
 
 /**
  * outdent node
@@ -34,15 +34,23 @@ export const outdentNodeThunk = createAsyncThunk(
 
     const config = blockConfig[node.type];
     if (nextSiblingIds.length > 0) {
-        if (config.canAddChild) {
-            const children = state.children[node.children];
-            const lastChildId = children[children.length - 1] || '';
-            const moveChildrenActions = nextSiblingIds.reverse().map(id => controller.getMoveAction(state.nodes[id], node.id, lastChildId));
-            actions.push(...moveChildrenActions);
-        } else {
-            const moveChildrenActions = nextSiblingIds.reverse().map(id => controller.getMoveAction(state.nodes[id], ancestorId, node.id));
-            actions.push(...moveChildrenActions);
+      if (config.canAddChild) {
+        const children = state.children[node.children];
+        let lastChildId: string | null = null;
+        const lastIndex = children.length - 1;
+        if (lastIndex >= 0) {
+          lastChildId = children[lastIndex];
         }
+        const moveChildrenActions = nextSiblingIds
+          .reverse()
+          .map((id) => controller.getMoveAction(state.nodes[id], node.id, lastChildId));
+        actions.push(...moveChildrenActions);
+      } else {
+        const moveChildrenActions = nextSiblingIds
+          .reverse()
+          .map((id) => controller.getMoveAction(state.nodes[id], ancestorId, node.id));
+        actions.push(...moveChildrenActions);
+      }
     }
 
     await controller.applyActions(actions);
