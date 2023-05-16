@@ -147,8 +147,12 @@ class _CalloutBlockComponentWidgetState
           Padding(
             padding: const EdgeInsets.all(2.0),
             child: EmojiPickerButton(
+              key: ValueKey(emoji), // force to refresh the popover state
               emoji: emoji,
-              onSubmitted: (emoji) => setEmoji(emoji.emoji),
+              onSubmitted: (emoji, controller) {
+                setEmoji(emoji.emoji);
+                controller.close();
+              },
             ),
           ),
           Expanded(
@@ -189,7 +193,11 @@ class _CalloutBlockComponentWidgetState
     final transaction = editorState.transaction
       ..updateNode(node, {
         CalloutBlockKeys.icon: emoji,
-      });
+      })
+      ..afterSelection = Selection.collapse(
+        node.path,
+        node.delta?.length ?? 0,
+      );
     await editorState.apply(transaction);
   }
 }

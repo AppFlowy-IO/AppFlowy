@@ -16,12 +16,13 @@ class EmojiPickerButton extends StatelessWidget {
   final String emoji;
   final double emojiSize;
   final Size emojiPickerSize;
-  final void Function(Emoji emoji) onSubmitted;
+  final void Function(Emoji emoji, PopoverController controller) onSubmitted;
   final PopoverController popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
+      controller: popoverController,
       triggerActions: PopoverTriggerFlags.click,
       constraints: BoxConstraints.expand(
         width: emojiPickerSize.width,
@@ -47,7 +48,7 @@ class EmojiPickerButton extends StatelessWidget {
       height: emojiPickerSize.height,
       padding: const EdgeInsets.all(4.0),
       child: EmojiSelectionMenu(
-        onSubmitted: onSubmitted,
+        onSubmitted: (emoji) => onSubmitted(emoji, popoverController),
         onExit: () {},
       ),
     );
