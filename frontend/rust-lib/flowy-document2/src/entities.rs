@@ -157,3 +157,49 @@ pub struct BlockEventPayloadPB {
   #[pb(index = 4)]
   pub value: String,
 }
+
+#[derive(PartialEq, Eq, Debug, ProtoBuf_Enum, Clone)]
+pub enum ExportType {
+  Text = 0,
+  Markdown = 1,
+  Link = 2,
+}
+
+impl Default for ExportType {
+  fn default() -> Self {
+    ExportType::Text
+  }
+}
+
+impl From<i32> for ExportType {
+  fn from(val: i32) -> Self {
+    match val {
+      0 => ExportType::Text,
+      1 => ExportType::Markdown,
+      2 => ExportType::Link,
+      _ => {
+        tracing::error!("Invalid export type: {}", val);
+        ExportType::Text
+      },
+    }
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct EditPayloadPB {
+  #[pb(index = 1)]
+  pub doc_id: String,
+
+  // Encode in JSON format
+  #[pb(index = 2)]
+  pub operations: String,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct ExportDataPB {
+  #[pb(index = 1)]
+  pub data: String,
+
+  #[pb(index = 2)]
+  pub export_type: ExportType,
+}
