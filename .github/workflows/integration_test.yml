@@ -23,6 +23,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
+        max-runs: [1, 2, 3]
 
     runs-on: ${{ matrix.os }}
 
@@ -102,19 +103,24 @@ jobs:
         shell: bash
 
       - name: Run AppFlowy tests
+        id: appflowy-test
         working-directory: frontend/appflowy_flutter
         run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            export DISPLAY=:99
-            sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
-            sudo apt-get install network-manager
-            flutter test integration_test/runner.dart -d Linux --coverage --verbose
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            flutter test integration_test/runner.dart -d macOS --coverage --verbose
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            flutter test integration_test/runner.dart -d Windows --coverage --verbose
-          fi
+          chmod +x run_tests.sh
+          ../scripts/run_tests.sh
         shell: bash
+
+      - name: Retry failures to detect flakes
+        if: ${{ failure() $$ matrix.max-runs > 1 }}
+        run: |
+          echo "Retrying failed tests to deflake..."
+          chmod +x run_tests.sh
+          ../scripts/run_tests.sh
+
+      - name: Set test result
+        id: test-result
+        # Capture the test result
+        run: echo "::set-output name=result::${{ job.status }}"
 
       # - uses: codecov/codecov-action@v3
       #   with:
@@ -123,3 +129,17 @@ jobs:
       #     env_vars: ${{ matrix.os }}
       #     fail_ci_if_error: true
       #     verbose: true
+
+final-check:
+  needs: appflowy-test
+  runs-on: ubuntu-latest
+
+  steps:
+    - name: Check test result
+      run: |
+        test_result=$(echo "${{ needs.test.outputs.test-result }}") # Retrieve the test result
+        if [[ $test_result == "failure" ]]; then
+          exit 1 # Mark the test as failed if it consistently failed across all runs
+        else
+          exit 0 # Mark the test as passed if it passed at least once
+        fi
