@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_item_list_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:highlight/highlight.dart' as highlight;
@@ -103,6 +104,8 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
 
   @override
   Node get node => widget.node;
+
+  final popoverController = PopoverController();
 
   final supportedLanguages = [
     'Assembly',
@@ -217,6 +220,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
 
   Widget _buildSwitchLanguageButton(BuildContext context) {
     return AppFlowyPopover(
+      controller: popoverController,
       child: Container(
         width: 100,
         padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -235,7 +239,10 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
         return SelectableItemListMenu(
           items: languages.map((e) => e.capitalize()).toList(),
           selectedIndex: languages.indexOf(language ?? ''),
-          onSelected: (index) => updateLanguage(languages[index]),
+          onSelected: (index) {
+            updateLanguage(languages[index]);
+            popoverController.close();
+          },
         );
       },
     );
@@ -245,7 +252,11 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     final transaction = editorState.transaction
       ..updateNode(node, {
         CodeBlockKeys.language: language,
-      });
+      })
+      ..afterSelection = Selection.collapse(
+        node.path,
+        node.delta?.length ?? 0,
+      );
     await editorState.apply(transaction);
   }
 
