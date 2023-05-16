@@ -1,5 +1,6 @@
 use std::{collections::HashMap, sync::Arc, vec};
 
+use crate::document::util::default_collab_builder;
 use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
 use flowy_document2::{
   document::Document, document_data::DocumentDataWrapper, manager::DocumentManager,
@@ -40,7 +41,7 @@ fn document_apply_insert_block_with_empty_parent_id() {
 
 fn create_and_open_empty_document() -> (DocumentManager, Arc<Document>, String) {
   let user = FakeUser::new();
-  let manager = DocumentManager::new(Arc::new(user));
+  let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
 
   let doc_id: String = nanoid!(10);
   let data = DocumentDataWrapper::default();
