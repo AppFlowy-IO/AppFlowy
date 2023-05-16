@@ -80,6 +80,13 @@ export function getNodeBeginSelection(): TextSelection {
   return selection;
 }
 
+export function getEditorEndPoint(editor: Editor): SelectionPoint {
+  const fragment = (editor.children[0] as Element).children;
+  const lastIndex = fragment.length - 1;
+  const lastNode = fragment[lastIndex] as Text;
+  return { path: [0, lastIndex], offset: lastNode.text.length };
+}
+
 /**
  * get the selection of the end of the node
  * @param delta
@@ -281,4 +288,10 @@ export function getPointOfCurrentLineBeginning(editor: Editor) {
 
   const beginPoint = getPointByTextOffset(delta, lineBeginOffset);
   return beginPoint;
+}
+
+export function selectionIsForward(selection: TextSelection) {
+  const { anchor, focus } = selection;
+  if (!anchor || !focus) return false;
+  return anchor.path[1] < focus.path[1] || (anchor.path[1] === focus.path[1] && anchor.offset < focus.offset);
 }

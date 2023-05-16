@@ -1,57 +1,50 @@
-import { BlockType, HeadingBlockData } from '@/appflowy_app/interfaces/document';
-import { useAppSelector } from '@/appflowy_app/stores/store';
-import { debounce } from '@/appflowy_app/utils/tool';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { BlockType, HeadingBlockData, NestedBlock } from "@/appflowy_app/interfaces/document";
+import { useAppDispatch } from "@/appflowy_app/stores/store";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { getBlockByIdThunk } from "$app_reducers/document/async-actions";
 
+const headingBlockTopOffset: Record<number, number> = {
+  1: 7,
+  2: 6,
+  3: 3,
+};
 export function useBlockSideToolbar({ container }: { container: HTMLDivElement }) {
-  const [nodeId, setHoverNodeId] = useState<string>('');
+  const [nodeId, setHoverNodeId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
-  const nodes = useAppSelector((state) => state.document.nodes);
-  const nodesRef = useRef(nodes);
-
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    const { clientX, clientY } = e;
-    const x = clientX;
-    const y = clientY;
-    const id = getNodeIdByPoint(x, y);
-    if (!id) {
-      setHoverNodeId('');
-    } else {
-      if ([BlockType.ColumnBlock].includes(nodesRef.current[id].type)) {
-        setHoverNodeId('');
-        return;
-      }
-      setHoverNodeId(id);
-    }
-  }, []);
-
-  const debounceMove = useMemo(() => debounce(handleMouseMove, 30), [handleMouseMove]);
+  const dispatch = useAppDispatch();
+  const [style, setStyle] = useState<React.CSSProperties>({});
 
   useEffect(() => {
     const el = ref.current;
     if (!el || !nodeId) return;
+    void(async () => {
+      const{ payload: node } = await dispatch(getBlockByIdThunk(nodeId)) as {
+        payload: NestedBlock;
+      };
+      if (!node) {
+        setStyle({
+          opacity: '0',
+          pointerEvents: 'none',
+        });
+        return;
+      } else {
+        let top = 1;
 
-    const node = nodesRef.current[nodeId];
-    if (!node) {
-      el.style.opacity = '0';
-      el.style.pointerEvents = 'none';
-    } else {
-      el.style.opacity = '1';
-      el.style.pointerEvents = 'auto';
-      el.style.top = '1px';
-      if (node?.type === BlockType.HeadingBlock) {
-        const nodeData = node.data as HeadingBlockData;
-        if (nodeData.level === 1) {
-          el.style.top = '8px';
-        } else if (nodeData.level === 2) {
-          el.style.top = '6px';
-        } else {
-          el.style.top = '5px';
+        if (node.type === BlockType.HeadingBlock) {
+          const nodeData = node.data as HeadingBlockData;
+          top = headingBlockTopOffset[nodeData.level];
         }
+
+        setStyle({
+          opacity: '1',
+          pointerEvents: 'auto',
+          top: `${top}px`,
+        });
       }
-    }
-  }, [nodeId]);
+    })();
+
+  }, [dispatch, nodeId]);
 
   const handleToggleMenu = useCallback((isOpen: boolean) => {
     setMenuOpen(isOpen);
@@ -60,22 +53,25 @@ export function useBlockSideToolbar({ container }: { container: HTMLDivElement }
     }
   }, []);
 
-  useEffect(() => {
-    container.addEventListener('mousemove', debounceMove);
-    return () => {
-      container.removeEventListener('mousemove', debounceMove);
-    };
-  }, [debounceMove]);
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    const { clientX, clientY } = e;
+    const id = getNodeIdByPoint(clientX, clientY);
+    setHoverNodeId(id);
+  }, []);
 
   useEffect(() => {
-    nodesRef.current = nodes;
-  }, [nodes]);
+    container.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      container.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [container, handleMouseMove]);
 
   return {
     nodeId,
     ref,
     handleToggleMenu,
     menuOpen,
+    style
   };
 }
 

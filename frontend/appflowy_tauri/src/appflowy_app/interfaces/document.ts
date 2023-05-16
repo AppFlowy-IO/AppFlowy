@@ -1,5 +1,6 @@
 import { Editor } from 'slate';
 import { RegionGrid } from '$app/utils/region_grid';
+import { ReactEditor } from "slate-react";
 
 export enum BlockType {
   PageBlock = 'page',
@@ -131,6 +132,7 @@ export interface DocumentState {
 }
 
 export interface RangeSelectionState {
+  isDragging?: boolean,
   anchor?: PointState,
   focus?: PointState,
 }
@@ -158,4 +160,4 @@ export interface BlockPBValue {
   data: string;
 }
 
-export type TextBlockKeyEventHandlerParams = [React.KeyboardEvent<HTMLDivElement>, Editor];
+export type TextBlockKeyEventHandlerParams = [React.KeyboardEvent<HTMLDivElement>, ReactEditor & Editor];

@@ -5,13 +5,13 @@ import {
   NestedBlock,
   RangeSelectionState,
   TextDelta,
-  TextSelection
-} from "$app/interfaces/document";
+  TextSelection,
+} from '$app/interfaces/document';
 import { Descendant, Element, Text } from 'slate';
 import { BlockPB } from '@/services/backend';
 import { Log } from '$app/utils/log';
 import { nanoid } from 'nanoid';
-import { clone } from "$app/utils/tool";
+import { clone } from '$app/utils/tool';
 
 export function slateValueToDelta(slateNodes: Descendant[]) {
   const element = slateNodes[0] as Element;
@@ -145,10 +145,35 @@ export function newBlock<Type>(type: BlockType, parentId: string, data: BlockDat
 export function getCollapsedRange(id: string, selection: TextSelection): RangeSelectionState {
   const point = {
     id,
-    selection
+    selection,
   };
   return {
     anchor: clone(point),
     focus: clone(point),
+    isDragging: false,
+  };
+}
+
+export function nodeInRange(
+  id: string,
+  range: {
+    startId: string;
+    endId: string;
+  },
+  isForward: boolean,
+  document: DocumentState
+) {
+  const { startId, endId } = range;
+  let currentId = startId;
+  while (currentId && currentId !== id && currentId !== endId) {
+    if (isForward) {
+      currentId = getNextLineId(document, currentId) || '';
+    } else {
+      currentId = getPrevLineId(document, currentId) || '';
+    }
   }
+  if (currentId === id) {
+    return true;
+  }
+  return false;
 }

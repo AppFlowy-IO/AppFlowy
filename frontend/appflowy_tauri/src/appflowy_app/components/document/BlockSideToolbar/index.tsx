@@ -9,7 +9,7 @@ import BlockMenu from '../BlockMenu';
 const sx = { height: 24, width: 24 };
 
 export default function BlockSideToolbar(props: { container: HTMLDivElement }) {
-  const { nodeId, ref, menuOpen, handleToggleMenu } = useBlockSideToolbar(props);
+  const { nodeId, style, ref, menuOpen, handleToggleMenu } = useBlockSideToolbar(props);
 
   if (!nodeId) return null;
   return (
@@ -19,6 +19,7 @@ export default function BlockSideToolbar(props: { container: HTMLDivElement }) {
           ref={ref}
           style={{
             opacity: 0,
+            ...style,
           }}
           className='absolute left-[-50px] inline-flex h-[calc(1.5em_+_3px)] transition-opacity duration-500'
           onMouseDown={(e) => {
