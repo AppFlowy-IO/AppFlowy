@@ -1589,7 +1589,6 @@ dependencies = [
  "lib-log",
  "lib-ws",
  "parking_lot 0.12.1",
- "revision-model",
  "serde",
  "serde_json",
  "tokio",
@@ -1761,7 +1760,6 @@ dependencies = [
  "parking_lot 0.12.1",
  "protobuf",
  "reqwest",
- "revision-model",
  "serde",
  "serde-aux",
  "serde_json",
@@ -3705,16 +3703,6 @@ dependencies = [
  "wasm-bindgen-futures",
  "web-sys",
  "winreg",
-]
-
-[[package]]
-name = "revision-model"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "md5",
- "serde",
- "serde_json",
 ]
 
 [[package]]

@@ -4,7 +4,7 @@ members = [
   "lib-ws",
   "lib-infra",
 #  "ws-model",
-  "revision-model",
+#  "revision-model",
   "flowy-client-network-config",
   "flowy-client-ws",
 ]
