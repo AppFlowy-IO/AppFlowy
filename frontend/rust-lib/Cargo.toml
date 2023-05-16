@@ -12,8 +12,6 @@ members = [
   "flowy-notification",
   "flowy-document2",
   "flowy-error",
-#  "flowy-revision",
-#  "flowy-revision-persistence",
   "flowy-database2",
   "flowy-task",
   "flowy-derive",
