@@ -12,7 +12,7 @@ appflowy-integrate = {version = "0.1.0" }
 
 flowy-derive = { path = "../flowy-derive" }
 flowy-notification = { path = "../flowy-notification" }
-flowy-error = { path = "../flowy-error", features = ["adaptor_sync", "adaptor_ot", "adaptor_serde", "adaptor_database", "adaptor_dispatch", "collab"] }
+flowy-error = { path = "../flowy-error", features = ["adaptor_ot", "adaptor_serde", "adaptor_database", "adaptor_dispatch", "collab"] }
 
 lib-dispatch = { path = "../lib-dispatch" }
 

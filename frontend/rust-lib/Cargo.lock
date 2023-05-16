@@ -1384,12 +1384,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dissimilar"
-version = "1.0.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "210ec60ae7d710bed8683e333e9d2855a8a56a3e9892b38bad3bb0d4d29b0d5e"
-
-[[package]]
 name = "dyn-clone"
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1532,27 +1526,6 @@ dependencies = [
  "serde",
  "serde-aux",
  "serde_json",
-]
-
-[[package]]
-name = "flowy-client-sync"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "chrono",
- "dissimilar",
- "flowy-derive",
- "lib-infra",
- "lib-ot",
- "parking_lot 0.12.1",
- "revision-model",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "url",
 ]
 
 [[package]]
@@ -1719,7 +1692,6 @@ dependencies = [
  "bytes",
  "collab-database",
  "collab-document",
- "flowy-client-sync",
  "flowy-client-ws",
  "flowy-codegen",
  "flowy-derive",
@@ -1774,7 +1746,6 @@ dependencies = [
  "config",
  "dashmap",
  "flowy-client-network-config",
- "flowy-client-sync",
  "flowy-client-ws",
  "flowy-codegen",
  "flowy-derive",
@@ -1888,7 +1859,6 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "fake",
- "flowy-client-sync",
  "flowy-core",
  "flowy-folder2",
  "flowy-net",

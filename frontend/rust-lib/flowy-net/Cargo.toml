@@ -7,9 +7,8 @@ edition = "2018"
 
 [dependencies]
 lib-dispatch = { path = "../lib-dispatch" }
-flowy-error = { path = "../flowy-error", features = ["adaptor_sync", "adaptor_reqwest", "adaptor_server_error"] }
+flowy-error = { path = "../flowy-error", features = ["adaptor_reqwest", "adaptor_server_error"] }
 flowy-derive = { path = "../flowy-derive" }
-flowy-client-sync = { path = "../flowy-client-sync"}
 revision-model = { path = "../../../shared-lib/revision-model"}
 ws-model = { path = "../../../shared-lib/ws-model"}
 flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws"}

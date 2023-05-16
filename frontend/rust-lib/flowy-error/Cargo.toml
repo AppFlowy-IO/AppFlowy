@@ -12,7 +12,6 @@ bytes = "1.4"
 anyhow = "1.0"
 thiserror = "1.0"
 
-flowy-client-sync = { path = "../flowy-client-sync", optional = true}
 lib-dispatch = { path = "../lib-dispatch", optional = true }
 lib-ot = { path = "../../../shared-lib/lib-ot", optional = true}
 flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws", optional = true }
@@ -27,7 +26,6 @@ collab-database = { version = "0.1.0", optional = true }
 collab-document = { version = "0.1.0", optional = true }
 
 [features]
-adaptor_sync = ["flowy-client-sync"]
 adaptor_ot = ["lib-ot"]
 adaptor_dispatch = ["lib-dispatch"]
 adaptor_serde = ["serde_json"]
