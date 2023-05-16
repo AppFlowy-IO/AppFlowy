@@ -167,10 +167,14 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       DividerBlockKeys.type: DividerBlockComponentBuilder(),
       MathEquationBlockKeys.type: MathEquationBlockComponentBuilder(
         configuration: configuration.copyWith(
-          padding: (node) => const EdgeInsets.symmetric(vertical: 20),
+          padding: (_) => const EdgeInsets.symmetric(vertical: 20),
         ),
       ),
       CodeBlockKeys.type: CodeBlockComponentBuilder(
+        configuration: configuration.copyWith(
+          textStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
+          placeholderTextStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
+        ),
         padding: const EdgeInsets.only(
           left: 30,
           right: 30,

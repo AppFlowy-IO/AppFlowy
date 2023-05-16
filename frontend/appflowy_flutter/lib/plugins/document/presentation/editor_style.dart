@@ -113,4 +113,13 @@ class EditorStyleCustomizer {
       fontWeight: FontWeight.bold,
     );
   }
+
+  TextStyle codeBlockStyleBuilder() {
+    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+    return TextStyle(
+      fontFamily: 'poppins',
+      fontSize: fontSize,
+      height: 1.5,
+    );
+  }
 }

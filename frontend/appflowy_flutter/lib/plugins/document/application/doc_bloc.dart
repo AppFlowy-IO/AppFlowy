@@ -9,7 +9,8 @@ import 'package:appflowy/plugins/document/application/doc_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' show EditorState;
+import 'package:appflowy_editor/appflowy_editor.dart'
+    show EditorState, LogLevel;
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/foundation.dart';
@@ -144,9 +145,11 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
     // output the log from the editor when debug mode
     if (kDebugMode) {
-      editorState.logConfiguration.handler = (log) {
-        Log.debug(log);
-      };
+      editorState.logConfiguration
+        ..level = LogLevel.all
+        ..handler = (log) {
+          Log.debug(log);
+        };
     }
   }
 }
