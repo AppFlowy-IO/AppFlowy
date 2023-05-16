@@ -33,6 +33,13 @@ pub struct ApplyActionPayloadPBV2 {
 }
 
 #[derive(Default, ProtoBuf)]
+pub struct GetDocumentDataPayloadPBV2 {
+  #[pb(index = 1)]
+  pub document_id: String,
+  // Support customize initial data
+}
+
+#[derive(Default, ProtoBuf)]
 pub struct DocumentDataPB2 {
   #[pb(index = 1)]
   pub page_id: String,

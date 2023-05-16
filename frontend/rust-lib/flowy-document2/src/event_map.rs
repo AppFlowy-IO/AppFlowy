@@ -6,7 +6,8 @@ use lib_dispatch::prelude::AFPlugin;
 
 use crate::{
   event_handler::{
-    apply_action_handler, close_document_handler, create_document_handler, open_document_handler,
+    apply_action_handler, close_document_handler, create_document_handler,
+    get_document_data_handler, open_document_handler,
   },
   manager::DocumentManager,
 };
@@ -20,6 +21,7 @@ pub fn init(document_manager: Arc<DocumentManager>) -> AFPlugin {
   plugin = plugin.event(DocumentEvent2::CloseDocument, close_document_handler);
   plugin = plugin.event(DocumentEvent2::ApplyAction, apply_action_handler);
   plugin = plugin.event(DocumentEvent2::CreateDocument, create_document_handler);
+  plugin = plugin.event(DocumentEvent2::GetDocumentData, get_document_data_handler);
 
   plugin
 }
@@ -38,4 +40,7 @@ pub enum DocumentEvent2 {
 
   #[event(input = "ApplyActionPayloadPBV2")]
   ApplyAction = 3,
+
+  #[event(input = "GetDocumentDataPayloadPBV2")]
+  GetDocumentData = 4,
 }

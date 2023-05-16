@@ -56,6 +56,18 @@ pub(crate) async fn close_document_handler(
   Ok(())
 }
 
+// Get the content of the existing document,
+//  if the document does not exist, return an error.
+pub(crate) async fn get_document_data_handler(
+  data: AFPluginData<OpenDocumentPayloadPBV2>,
+  manager: AFPluginState<Arc<DocumentManager>>,
+) -> DataResult<DocumentDataPB2, FlowyError> {
+  let context = data.into_inner();
+  let document = manager.get_document(context.document_id)?;
+  let document_data = document.lock().get_document()?;
+  data_result_ok(DocumentDataPB2::from(DocumentDataWrapper(document_data)))
+}
+
 // Handler for applying an action to a document
 pub(crate) async fn apply_action_handler(
   data: AFPluginData<ApplyActionPayloadPBV2>,

@@ -81,6 +81,15 @@ impl DocumentManager {
     Ok(document)
   }
 
+  pub fn get_document(&self, doc_id: String) -> FlowyResult<Arc<Document>> {
+    let uid = self.user.user_id()?;
+    let db = self.user.collab_db()?;
+    let collab = self.collab_builder.build(uid, &doc_id, db);
+    // read the existing document from the disk.
+    let document = Arc::new(Document::new(collab)?);
+    Ok(document)
+  }
+
   pub fn close_document(&self, doc_id: String) -> FlowyResult<()> {
     self.documents.write().remove(&doc_id);
     Ok(())
