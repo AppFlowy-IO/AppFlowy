@@ -20,7 +20,7 @@ pub trait ViewDataProcessor {
   /// Create a view with the pre-defined data.
   /// For example, the initial data of the grid/calendar/kanban board when
   /// you create a new view.
-  fn create_view_with_build_in_data(
+  fn create_view_with_built_in_data(
     &self,
     user_id: i64,
     view_id: &str,

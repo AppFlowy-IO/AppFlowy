@@ -1507,15 +1507,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "210ec60ae7d710bed8683e333e9d2855a8a56a3e9892b38bad3bb0d4d29b0d5e"
 
 [[package]]
-name = "document-model"
-version = "0.1.0"
-dependencies = [
- "revision-model",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "dyn-clone"
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1835,7 +1826,6 @@ dependencies = [
  "derive_more",
  "diesel",
  "diesel_derives",
- "document-model",
  "flowy-client-sync",
  "flowy-codegen",
  "flowy-derive",
@@ -1901,6 +1891,7 @@ dependencies = [
  "anyhow",
  "bytes",
  "collab-database",
+ "collab-document",
  "flowy-client-sync",
  "flowy-client-ws",
  "flowy-codegen",

@@ -1,22 +1,23 @@
+use std::cmp::Ordering;
+
+use bytes::Bytes;
+use collab::core::any_map::AnyMapExtension;
+use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
+use collab_database::rows::{new_cell_builder, Cell};
+use serde::{Deserialize, Serialize};
+
+use flowy_error::{FlowyError, FlowyResult};
+
 use crate::entities::{FieldType, TextFilterPB};
 use crate::services::cell::{
   stringify_cell_data, CellDataChangeset, CellDataDecoder, CellProtobufBlobParser, DecodedCellData,
   FromCellString,
 };
+use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
   TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionTransform, CELL_DATE,
+  TypeOptionTransform, CELL_DATA,
 };
-use bytes::Bytes;
-use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
-
-use crate::services::field::type_options::util::ProtobufStr;
-use collab::core::any_map::AnyMapExtension;
-use collab_database::rows::{new_cell_builder, Cell};
-use flowy_error::{FlowyError, FlowyResult};
-
-use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
 
 /// For the moment, the `RichTextTypeOptionPB` is empty. The `data` property is not
 /// used yet.
@@ -35,7 +36,7 @@ impl TypeOption for RichTextTypeOption {
 
 impl From<TypeOptionData> for RichTextTypeOption {
   fn from(data: TypeOptionData) -> Self {
-    let s = data.get_str_value(CELL_DATE).unwrap_or_default();
+    let s = data.get_str_value(CELL_DATA).unwrap_or_default();
     Self { inner: s }
   }
 }
@@ -43,7 +44,7 @@ impl From<TypeOptionData> for RichTextTypeOption {
 impl From<RichTextTypeOption> for TypeOptionData {
   fn from(data: RichTextTypeOption) -> Self {
     TypeOptionDataBuilder::new()
-      .insert_str_value(CELL_DATE, data.inner)
+      .insert_str_value(CELL_DATA, data.inner)
       .build()
   }
 }

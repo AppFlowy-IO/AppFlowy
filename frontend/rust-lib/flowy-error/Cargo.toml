@@ -24,6 +24,7 @@ http-error-code = { git = "https://github.com/AppFlowy-IO/AppFlowy-Server", bran
 flowy-sqlite = { path = "../flowy-sqlite", optional = true}
 r2d2 = { version = "0.8", optional = true}
 collab-database = { version = "0.1.0", optional = true }
+collab-document = { version = "0.1.0", optional = true }
 
 [features]
 adaptor_sync = ["flowy-client-sync"]
@@ -36,7 +37,7 @@ adaptor_ws= ["flowy-client-ws"]
 adaptor_server_error = ["http-error-code"]
 dart = ["flowy-codegen/dart"]
 ts = ["flowy-codegen/ts"]
-collab = ["collab-database"]
+collab = ["collab-database", "collab-document"]
 
 [build-dependencies]
 flowy-codegen = { path = "../flowy-codegen", features = ["proto_gen"]}

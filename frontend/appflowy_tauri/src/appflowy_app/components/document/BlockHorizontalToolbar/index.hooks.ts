@@ -24,6 +24,7 @@ export function useHoveringToolbar(id: string) {
       el.style.left = position.left;
     }
   });
+
   return {
     ref,
     inFocus,

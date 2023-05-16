@@ -2,6 +2,7 @@ import { DeltaTypePB } from "@/services/backend/models/flowy-document2";
 import { BlockPBValue, BlockType, ChangeType, DocumentState, NestedBlock } from "$app/interfaces/document";
 import { Log } from "../log";
 import { BLOCK_MAP_NAME, CHILDREN_MAP_NAME, META_NAME } from "$app/constants/document/block";
+import { isEqual } from "$app/utils/tool";
 
 // This is a list of all the possible changes that can happen to document data
 const matchCases = [
@@ -26,12 +27,11 @@ export function matchChange(
     id: string;
     value: BlockPBValue & string[];
   },
-  isRemote?: boolean
 ) {
   const matchCase = matchCases.find((item) => item.match(command, path));
 
   if (matchCase) {
-    matchCase.onMatch(state, id, value, isRemote);
+    matchCase.onMatch(state, id, value);
   }
 }
 
@@ -99,46 +99,34 @@ function matchChildrenMapDelete(command: DeltaTypePB, path: string[]) {
   );
 }
 
-function onMatchBlockInsert(state: DocumentState, blockId: string, blockValue: BlockPBValue, _isRemote?: boolean) {
+function onMatchBlockInsert(state: DocumentState, blockId: string, blockValue: BlockPBValue) {
   state.nodes[blockId] = blockChangeValue2Node(blockValue);
 }
 
-function onMatchBlockUpdate(state: DocumentState, blockId: string, blockValue: BlockPBValue, isRemote?: boolean) {
+function onMatchBlockUpdate(state: DocumentState, blockId: string, blockValue: BlockPBValue) {
   const block = blockChangeValue2Node(blockValue);
   const node = state.nodes[blockId];
   if (!node) return;
-  // if the change is from remote, we should update all fields
-  if (isRemote) {
-    state.nodes[blockId] = block;
-    return;
-  }
-  // if the change is from local, we should update all fields except `data`,
-  // because we will update `data` field in `updateNodeData` action
-  const shouldUpdate = node.parent !== block.parent || node.type !== block.type || node.children !== block.children;
-  if (shouldUpdate) {
-    state.nodes[blockId] = {
-      ...block,
-      data: node.data,
-    };
-  }
+  if (isEqual(node, block)) return;
+  state.nodes[blockId] = block;
   return;
 }
 
-function onMatchBlockDelete(state: DocumentState, blockId: string, _blockValue: BlockPBValue, _isRemote?: boolean) {
+function onMatchBlockDelete(state: DocumentState, blockId: string, _blockValue: BlockPBValue) {
   delete state.nodes[blockId];
 }
 
-function onMatchChildrenInsert(state: DocumentState, id: string, children: string[], _isRemote?: boolean) {
+function onMatchChildrenInsert(state: DocumentState, id: string, children: string[]) {
   state.children[id] = children;
 }
 
-function onMatchChildrenUpdate(state: DocumentState, id: string, newChildren: string[], _isRemote?: boolean) {
+function onMatchChildrenUpdate(state: DocumentState, id: string, newChildren: string[]) {
   const children = state.children[id];
   if (!children) return;
   state.children[id] = newChildren;
 }
 
-function onMatchChildrenDelete(state: DocumentState, id: string, _children: string[], _isRemote?: boolean) {
+function onMatchChildrenDelete(state: DocumentState, id: string, _children: string[]) {
   delete state.children[id];
 }
 

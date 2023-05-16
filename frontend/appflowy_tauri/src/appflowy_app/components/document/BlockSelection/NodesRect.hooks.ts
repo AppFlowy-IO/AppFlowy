@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { useAppSelector } from '$app/stores/store';
 import { RegionGrid } from '$app/utils/region_grid';
@@ -6,9 +6,7 @@ import { RegionGrid } from '$app/utils/region_grid';
 export function useNodesRect(container: HTMLDivElement) {
   const controller = useContext(DocumentControllerContext);
 
-  const data = useAppSelector((state) => {
-    return state.document;
-  });
+  const version = useVersionUpdate();
 
   const regionGrid = useMemo(() => {
     if (!controller) return null;
@@ -40,7 +38,7 @@ export function useNodesRect(container: HTMLDivElement) {
   // update nodes rect when data changed
   useEffect(() => {
     updateViewPortNodesRect();
-  }, [data, updateViewPortNodesRect]);
+  }, [version, updateViewPortNodesRect]);
 
   // update nodes rect when scroll
   useEffect(() => {
@@ -73,4 +71,20 @@ export function useNodesRect(container: HTMLDivElement) {
   return {
     getIntersectedBlockIds,
   };
+}
+
+function useVersionUpdate() {
+  const [version, setVersion] = useState(0);
+  const data = useAppSelector((state) => {
+    return state.document;
+  });
+
+  useEffect(() => {
+    setVersion((v) => {
+      if (v < Number.MAX_VALUE) return v + 1;
+      return 0;
+    });
+  }, [data]);
+
+  return version;
 }

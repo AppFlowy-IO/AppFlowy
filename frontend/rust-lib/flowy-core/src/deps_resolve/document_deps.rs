@@ -1,9 +1,9 @@
 use bytes::Bytes;
 use flowy_client_ws::FlowyWebSocketConnect;
 use flowy_document::{
-  errors::{internal_error, FlowyError},
   DocumentCloudService, DocumentConfig, DocumentDatabase, DocumentManager, DocumentUser,
 };
+use flowy_error::FlowyError;
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{http_server::document::DocumentCloudServiceImpl, local_server::LocalServer};
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
@@ -81,18 +81,18 @@ struct DocumentRevisionWebSocket(Arc<FlowyWebSocketConnect>);
 impl RevisionWebSocket for DocumentRevisionWebSocket {
   fn send(&self, data: ClientRevisionWSData) -> BoxResultFuture<(), FlowyError> {
     let bytes: Bytes = data.try_into().unwrap();
-    let msg = WebSocketRawMessage {
+    let _msg = WebSocketRawMessage {
       channel: WSChannel::Document,
       data: bytes.to_vec(),
     };
-    let ws_conn = self.0.clone();
+    let _ws_conn = self.0.clone();
     Box::pin(async move {
-      match ws_conn.web_socket().await? {
-        None => {},
-        Some(sender) => {
-          sender.send(msg).map_err(internal_error)?;
-        },
-      }
+      //   match ws_conn.web_socket().await? {
+      //     None => {},
+      //     Some(sender) => {
+      //       sender.send(msg).map_err(internal_error)?;
+      //     },
+      //   }
       Ok(())
     })
   }

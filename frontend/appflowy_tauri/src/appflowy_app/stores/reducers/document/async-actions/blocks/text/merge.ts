@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { DocumentState } from '$app/interfaces/document';
 import { getCollapsedRange, getPrevLineId } from "$app/utils/document/blocks/common";
-import { documentActions, rangeSelectionActions } from "$app_reducers/document/slice";
+import { rangeSelectionActions } from "$app_reducers/document/slice";
 import { blockConfig } from '$app/constants/document/config';
 import { getNodeEndSelection } from '$app/utils/document/blocks/text/delta';
 
@@ -40,8 +40,6 @@ export const mergeToPrevLineThunk = createAsyncThunk(
 
     const mergeDelta = [...prevLineDelta, ...node.data.delta];
 
-    dispatch(documentActions.updateNodeData({ id: prevLine.id, data: { delta: mergeDelta } }));
-
     const updateAction = controller.getUpdateAction({
       ...prevLine,
       data: {
@@ -66,7 +64,6 @@ export const mergeToPrevLineThunk = createAsyncThunk(
       actions.push(deleteAction);
     } else {
       // clear current block delta
-      dispatch(documentActions.updateNodeData({ id: node.id, data: { delta: [] } }));
       const updateAction = controller.getUpdateAction({
         ...node,
         data: {

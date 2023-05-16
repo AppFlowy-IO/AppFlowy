@@ -1,23 +1,25 @@
-use crate::entities::{FieldType, NumberFilterPB};
-use crate::services::cell::{CellDataChangeset, CellDataDecoder};
-use crate::services::field::type_options::number_type_option::format::*;
-use crate::services::field::{
-  NumberCellFormat, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter, TypeOptionTransform, CELL_DATE,
-};
-use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
-
-use crate::services::field::type_options::util::ProtobufStr;
-use collab::core::any_map::AnyMapExtension;
-use collab_database::rows::{new_cell_builder, Cell};
-use fancy_regex::Regex;
-use flowy_error::FlowyResult;
-use lazy_static::lazy_static;
-use rust_decimal::Decimal;
-use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::default::Default;
 use std::str::FromStr;
+
+use collab::core::any_map::AnyMapExtension;
+use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
+use collab_database::rows::{new_cell_builder, Cell};
+use fancy_regex::Regex;
+use lazy_static::lazy_static;
+use rust_decimal::Decimal;
+use serde::{Deserialize, Serialize};
+
+use flowy_error::FlowyResult;
+
+use crate::entities::{FieldType, NumberFilterPB};
+use crate::services::cell::{CellDataChangeset, CellDataDecoder};
+use crate::services::field::type_options::number_type_option::format::*;
+use crate::services::field::type_options::util::ProtobufStr;
+use crate::services::field::{
+  NumberCellFormat, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionTransform, CELL_DATA,
+};
 
 // Number
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -34,14 +36,14 @@ pub struct NumberCellData(pub String);
 
 impl From<&Cell> for NumberCellData {
   fn from(cell: &Cell) -> Self {
-    Self(cell.get_str_value(CELL_DATE).unwrap_or_default())
+    Self(cell.get_str_value(CELL_DATA).unwrap_or_default())
   }
 }
 
 impl From<NumberCellData> for Cell {
   fn from(data: NumberCellData) -> Self {
     new_cell_builder(FieldType::Number)
-      .insert_str_value(CELL_DATE, data.0)
+      .insert_str_value(CELL_DATA, data.0)
       .build()
   }
 }
