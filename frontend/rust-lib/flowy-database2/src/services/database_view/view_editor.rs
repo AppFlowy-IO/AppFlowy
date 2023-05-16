@@ -736,45 +736,30 @@ impl DatabaseViewEditor {
       get_cells_for_field(self.delegate.clone(), &self.view_id, &primary_field.id).await;
 
     // Date
-    let timestamp_by_row_id = get_cells_for_field(
+    let date_cells = get_cells_for_field(
       self.delegate.clone(),
       &self.view_id,
       &calendar_setting.field_id,
     )
-    .await
-    .into_iter()
-    .map(|date_cell| {
-      let row_id = date_cell.row_id.clone();
-
-      // timestamp
-      let timestamp = date_cell
-        .into_date_field_cell_data()
-        .map(|date_cell_data| date_cell_data.timestamp.unwrap_or_default())
-        .unwrap_or_default();
-
-      (row_id, timestamp)
-    })
-    .collect::<HashMap<RowId, i64>>();
+    .await;
 
     let mut events: Vec<CalendarEventPB> = vec![];
-    for text_cell in text_cells {
+    for (text_cell, date_cell) in text_cells.iter().zip(date_cells.iter()) {
       let title_field_id = text_cell.field_id.clone();
       let row_id = text_cell.row_id.clone();
-      let timestamp = timestamp_by_row_id
-        .get(&row_id)
-        .cloned()
-        .unwrap_or_default();
 
       let title = text_cell
         .into_text_field_cell_data()
         .unwrap_or_default()
         .into();
 
+      let date = date_cell.into_date_field_cell_data().unwrap_or_default(); // Need to convert to DateCellDataPB
+
       let event = CalendarEventPB {
         row_id: row_id.into_inner(),
         date_field_id: title_field_id,
         title,
-        timestamp,
+        date,
       };
       events.push(event);
     }
