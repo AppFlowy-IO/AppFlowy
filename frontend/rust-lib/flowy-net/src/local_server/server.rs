@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use async_stream::stream;
-
 use futures_util::stream::StreamExt;
 use lazy_static::lazy_static;
 use parking_lot::{Mutex, RwLock};
@@ -16,7 +15,6 @@ use flowy_user::event_map::UserCloudService;
 use flowy_user::uid::UserIDGenerator;
 use lib_infra::future::FutureResult;
 use lib_ws::WebSocketRawMessage;
-use ws_model::ws_revision::ClientRevisionWSData;
 
 use crate::local_server::persistence::LocalDocumentCloudPersistence;
 
@@ -105,7 +103,7 @@ impl LocalWebSocketRunner {
 
   pub async fn handle_folder_client_data(
     &self,
-    _client_data: ClientRevisionWSData,
+    _client_data: String,
     _user_id: String,
   ) -> Result<(), String> {
     Ok(())
@@ -113,7 +111,7 @@ impl LocalWebSocketRunner {
 
   pub async fn handle_document_client_data(
     &self,
-    _client_data: ClientRevisionWSData,
+    _client_data: String,
     _user_id: String,
   ) -> Result<(), String> {
     Ok(())

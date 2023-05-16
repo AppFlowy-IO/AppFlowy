@@ -17,7 +17,7 @@ flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws" }
 flowy-sqlite = { path = "../flowy-sqlite", optional = true }
 #flowy-document = { path = "../flowy-document" }
 flowy-document2 = { path = "../flowy-document2" }
-flowy-revision = { path = "../flowy-revision" }
+#flowy-revision = { path = "../flowy-revision" }
 flowy-error = { path = "../flowy-error", features = ["adaptor_ws"] }
 flowy-task = { path = "../flowy-task" }
 appflowy-integrate = { version = "0.1.0" }
@@ -30,7 +30,7 @@ console-subscriber = { version = "0.1.8", optional = true }
 parking_lot = "0.12.1"
 
 revision-model = { path = "../../../shared-lib/revision-model" }
-ws-model = { path = "../../../shared-lib/ws-model" }
+#ws-model = { path = "../../../shared-lib/ws-model" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 serde = "1.0"

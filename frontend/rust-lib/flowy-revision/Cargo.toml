@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 revision-model = { path = "../../../shared-lib/revision-model" }
-ws-model = { path = "../../../shared-lib/ws-model" }
+#ws-model = { path = "../../../shared-lib/ws-model" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-error = { path = "../flowy-error" }

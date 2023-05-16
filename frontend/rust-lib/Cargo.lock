@@ -1580,7 +1580,6 @@ dependencies = [
  "flowy-error",
  "flowy-folder2",
  "flowy-net",
- "flowy-revision",
  "flowy-sqlite",
  "flowy-task",
  "flowy-user",
@@ -1595,7 +1594,6 @@ dependencies = [
  "serde_json",
  "tokio",
  "tracing",
- "ws-model",
 ]
 
 [[package]]
@@ -1772,7 +1770,6 @@ dependencies = [
  "thiserror",
  "tokio",
  "tracing",
- "ws-model",
 ]
 
 [[package]]
@@ -1787,40 +1784,6 @@ dependencies = [
  "protobuf",
  "serde",
  "tracing",
-]
-
-[[package]]
-name = "flowy-revision"
-version = "0.1.0"
-dependencies = [
- "async-stream",
- "bytes",
- "dashmap",
- "flowy-error",
- "flowy-revision",
- "flowy-revision-persistence",
- "futures",
- "futures-util",
- "lib-infra",
- "lib-ws",
- "nanoid",
- "parking_lot 0.12.1",
- "revision-model",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "ws-model",
-]
-
-[[package]]
-name = "flowy-revision-persistence"
-version = "0.1.0"
-dependencies = [
- "flowy-error",
- "revision-model",
 ]
 
 [[package]]
@@ -5348,17 +5311,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "80d0f4e272c85def139476380b12f9ac60926689dd2e01d4923222f40580869d"
 dependencies = [
  "winapi",
-]
-
-[[package]]
-name = "ws-model"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "revision-model",
- "serde",
- "serde_json",
- "serde_repr",
 ]
 
 [[package]]

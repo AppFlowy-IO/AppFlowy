@@ -1,12 +1,7 @@
-use crate::ConflictRevisionSink;
-use async_stream::stream;
-
-use flowy_error::{FlowyError, FlowyResult};
-use futures_util::{future::BoxFuture, stream::StreamExt};
-use lib_infra::future::{BoxResultFuture, FutureResult};
-use lib_ws::WSConnectState;
-use revision_model::{Revision, RevisionRange};
 use std::{collections::VecDeque, fmt::Formatter, sync::Arc};
+
+use async_stream::stream;
+use futures_util::{future::BoxFuture, stream::StreamExt};
 use tokio::{
   sync::{
     broadcast, mpsc,
@@ -15,9 +10,13 @@ use tokio::{
   },
   time::{interval, Duration},
 };
-use ws_model::ws_revision::{
-  ClientRevisionWSData, NewDocumentUser, ServerRevisionWSData, WSRevisionPayload,
-};
+
+use flowy_error::{FlowyError, FlowyResult};
+use lib_infra::future::{BoxResultFuture, FutureResult};
+use lib_ws::WSConnectState;
+use revision_model::{Revision, RevisionRange};
+
+use crate::ConflictRevisionSink;
 
 // The consumer consumes the messages pushed by the web socket.
 pub trait RevisionWSDataStream: Send + Sync {
