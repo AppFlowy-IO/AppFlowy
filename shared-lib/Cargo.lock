@@ -269,23 +269,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-sync"
-version = "0.1.0"
-dependencies = [
- "document-model",
- "lib-infra",
- "lib-ot",
- "parking_lot",
- "revision-model",
- "serde",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "ws-model",
-]
-
-[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"

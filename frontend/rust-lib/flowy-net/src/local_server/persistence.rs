@@ -3,9 +3,7 @@ use std::{
   sync::Arc,
 };
 
-use document_model::document::DocumentInfo;
 use flowy_client_sync::errors::SyncError;
-use flowy_sync::ext::{DocumentCloudPersistence, FolderCloudPersistence};
 use lib_infra::future::BoxResultFuture;
 use revision_model::Revision;
 
@@ -42,84 +40,84 @@ impl std::default::Default for LocalDocumentCloudPersistence {
     }
   }
 }
-
-impl FolderCloudPersistence for LocalDocumentCloudPersistence {
-  fn read_folder(&self, _user_id: &str, _folder_id: &str) -> BoxResultFuture<String, SyncError> {
-    todo!()
-    // let storage = self.storage.clone();
-    // let folder_id = folder_id.to_owned();
-    // Box::pin(async move {
-    //   let revisions = storage.get_revisions(&folder_id, None).await?;
-    //   match make_folder_from_revisions(&folder_id, revisions)? {
-    //     Some(folder_info) => Ok(folder_info),
-    //     None => Err(SyncError::record_not_found()),
-    //   }
-    // })
-  }
-
-  fn create_folder(
-    &self,
-    _user_id: &str,
-    _folder_id: &str,
-    _revisions: Vec<Revision>,
-  ) -> BoxResultFuture<Option<String>, SyncError> {
-    todo!()
-  }
-
-  fn save_folder_revisions(&self, _revisions: Vec<Revision>) -> BoxResultFuture<(), SyncError> {
-    todo!()
-  }
-
-  fn read_folder_revisions(
-    &self,
-    _folder_id: &str,
-    _rev_ids: Option<Vec<i64>>,
-  ) -> BoxResultFuture<Vec<Revision>, SyncError> {
-    todo!()
-  }
-
-  fn reset_folder(
-    &self,
-    _folder_id: &str,
-    _revisions: Vec<Revision>,
-  ) -> BoxResultFuture<(), SyncError> {
-    todo!()
-  }
-}
-
-impl DocumentCloudPersistence for LocalDocumentCloudPersistence {
-  fn read_document(&self, _doc_id: &str) -> BoxResultFuture<DocumentInfo, SyncError> {
-    todo!()
-  }
-
-  fn create_document(
-    &self,
-    _doc_id: &str,
-    _revisions: Vec<Revision>,
-  ) -> BoxResultFuture<Option<DocumentInfo>, SyncError> {
-    todo!()
-  }
-
-  fn read_document_revisions(
-    &self,
-    _doc_id: &str,
-    _rev_ids: Option<Vec<i64>>,
-  ) -> BoxResultFuture<Vec<Revision>, SyncError> {
-    todo!()
-  }
-
-  fn save_document_revisions(&self, _revisions: Vec<Revision>) -> BoxResultFuture<(), SyncError> {
-    todo!()
-  }
-
-  fn reset_document(
-    &self,
-    _doc_id: &str,
-    _revisions: Vec<Revision>,
-  ) -> BoxResultFuture<(), SyncError> {
-    todo!()
-  }
-}
+//
+// impl FolderCloudPersistence for LocalDocumentCloudPersistence {
+//   fn read_folder(&self, _user_id: &str, _folder_id: &str) -> BoxResultFuture<String, SyncError> {
+//     todo!()
+//     // let storage = self.storage.clone();
+//     // let folder_id = folder_id.to_owned();
+//     // Box::pin(async move {
+//     //   let revisions = storage.get_revisions(&folder_id, None).await?;
+//     //   match make_folder_from_revisions(&folder_id, revisions)? {
+//     //     Some(folder_info) => Ok(folder_info),
+//     //     None => Err(SyncError::record_not_found()),
+//     //   }
+//     // })
+//   }
+//
+//   fn create_folder(
+//     &self,
+//     _user_id: &str,
+//     _folder_id: &str,
+//     _revisions: Vec<Revision>,
+//   ) -> BoxResultFuture<Option<String>, SyncError> {
+//     todo!()
+//   }
+//
+//   fn save_folder_revisions(&self, _revisions: Vec<Revision>) -> BoxResultFuture<(), SyncError> {
+//     todo!()
+//   }
+//
+//   fn read_folder_revisions(
+//     &self,
+//     _folder_id: &str,
+//     _rev_ids: Option<Vec<i64>>,
+//   ) -> BoxResultFuture<Vec<Revision>, SyncError> {
+//     todo!()
+//   }
+//
+//   fn reset_folder(
+//     &self,
+//     _folder_id: &str,
+//     _revisions: Vec<Revision>,
+//   ) -> BoxResultFuture<(), SyncError> {
+//     todo!()
+//   }
+// }
+//
+// impl DocumentCloudPersistence for LocalDocumentCloudPersistence {
+//   fn read_document(&self, _doc_id: &str) -> BoxResultFuture<DocumentInfo, SyncError> {
+//     todo!()
+//   }
+//
+//   fn create_document(
+//     &self,
+//     _doc_id: &str,
+//     _revisions: Vec<Revision>,
+//   ) -> BoxResultFuture<Option<DocumentInfo>, SyncError> {
+//     todo!()
+//   }
+//
+//   fn read_document_revisions(
+//     &self,
+//     _doc_id: &str,
+//     _rev_ids: Option<Vec<i64>>,
+//   ) -> BoxResultFuture<Vec<Revision>, SyncError> {
+//     todo!()
+//   }
+//
+//   fn save_document_revisions(&self, _revisions: Vec<Revision>) -> BoxResultFuture<(), SyncError> {
+//     todo!()
+//   }
+//
+//   fn reset_document(
+//     &self,
+//     _doc_id: &str,
+//     _revisions: Vec<Revision>,
+//   ) -> BoxResultFuture<(), SyncError> {
+//     todo!()
+//   }
+// }
 
 #[derive(Default)]
 struct MemoryDocumentCloudStorage {}

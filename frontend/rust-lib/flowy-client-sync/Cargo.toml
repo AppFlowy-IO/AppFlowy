@@ -11,7 +11,6 @@ lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-derive = { path = "../flowy-derive" }
 revision-model = { path = "../../../shared-lib/revision-model" }
 document-model = { path = "../../../shared-lib/document-model" }
-flowy-sync = { path = "../../../shared-lib/flowy-sync" }
 bytes = "1.4"
 tokio = { version = "1.26", features = ["full"] }
 serde = { version = "1.0", features = ["derive", "rc"] }

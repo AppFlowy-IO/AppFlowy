@@ -1,5 +1,6 @@
-use crate::errors::SyncError;
 use dissimilar::Chunk;
+use serde::de::DeserializeOwned;
+
 use document_model::document::DocumentInfo;
 use lib_ot::core::{DeltaOperationBuilder, OTString, OperationAttributes};
 use lib_ot::{
@@ -7,7 +8,6 @@ use lib_ot::{
   text_delta::DeltaTextOperations,
 };
 use revision_model::Revision;
-use serde::de::DeserializeOwned;
 
 #[inline]
 pub fn find_newline(s: &str) -> Option<usize> {

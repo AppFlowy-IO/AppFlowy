@@ -15,7 +15,6 @@ document-model = { path = "../../../shared-lib/document-model"}
 ws-model = { path = "../../../shared-lib/ws-model"}
 flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws"}
 flowy-client-network-config= { path = "../../../shared-lib/flowy-client-network-config"}
-flowy-sync = { path = "../../../shared-lib/flowy-sync"}
 flowy-folder2 = { path = "../flowy-folder2" }
 flowy-document2 = { path = "../flowy-document2" }
 flowy-user = { path = "../flowy-user" }

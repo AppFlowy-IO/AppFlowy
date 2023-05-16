@@ -6,7 +6,6 @@ members = [
   "document-model",
   "ws-model",
   "revision-model",
-  "flowy-sync",
   "flowy-client-network-config",
   "flowy-client-ws",
 ]

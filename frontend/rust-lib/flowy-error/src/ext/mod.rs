@@ -1,6 +1,3 @@
-#[cfg(feature = "adaptor_sync")]
-pub mod sync;
-
 #[cfg(feature = "adaptor_ot")]
 pub mod ot;
 

@@ -1679,7 +1679,6 @@ dependencies = [
  "dissimilar",
  "document-model",
  "flowy-derive",
- "flowy-sync",
  "lib-infra",
  "lib-ot",
  "parking_lot 0.12.1",
@@ -1968,7 +1967,6 @@ dependencies = [
  "flowy-document2",
  "flowy-error",
  "flowy-folder2",
- "flowy-sync",
  "flowy-user",
  "futures-util",
  "hyper",
@@ -2055,23 +2053,6 @@ dependencies = [
  "r2d2",
  "scheduled-thread-pool",
  "tracing",
-]
-
-[[package]]
-name = "flowy-sync"
-version = "0.1.0"
-dependencies = [
- "document-model",
- "lib-infra",
- "lib-ot",
- "parking_lot 0.12.1",
- "revision-model",
- "serde",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "ws-model",
 ]
 
 [[package]]

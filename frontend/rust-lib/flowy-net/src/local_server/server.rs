@@ -9,7 +9,7 @@ use bytes::Bytes;
 use futures_util::stream::StreamExt;
 use lazy_static::lazy_static;
 use parking_lot::{Mutex, RwLock};
-use tokio::sync::{broadcast, mpsc, mpsc::UnboundedSender};
+use tokio::sync::{broadcast, mpsc};
 
 use document_model::document::{
   CreateDocumentParams, DocumentId, DocumentInfo, ResetDocumentParams,
@@ -17,7 +17,6 @@ use document_model::document::{
 use flowy_client_sync::errors::SyncError;
 use flowy_document::DocumentCloudService;
 use flowy_error::{internal_error, FlowyError};
-use flowy_sync::{RevisionSyncResponse, RevisionUser};
 use flowy_user::entities::{
   SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams,
   UserProfilePB,
@@ -134,7 +133,7 @@ impl LocalWebSocketRunner {
   pub async fn handle_folder_client_data(
     &self,
     client_data: ClientRevisionWSData,
-    user_id: String,
+    _user_id: String,
   ) -> Result<(), SyncError> {
     tracing::trace!(
       "[LocalFolderServer] receive: {}:{}-{:?} ",
@@ -142,12 +141,7 @@ impl LocalWebSocketRunner {
       client_data.rev_id,
       client_data.ty,
     );
-    let client_ws_sender = self.client_ws_sender.clone();
-    let _user = Arc::new(LocalRevisionUser {
-      user_id,
-      client_ws_sender,
-      channel: WSChannel::Folder,
-    });
+    let _client_ws_sender = self.client_ws_sender.clone();
     let ty = client_data.ty;
     match ty {
       ClientRevisionWSDataType::ClientPushRev => {},
@@ -159,7 +153,7 @@ impl LocalWebSocketRunner {
   pub async fn handle_document_client_data(
     &self,
     client_data: ClientRevisionWSData,
-    user_id: String,
+    _user_id: String,
   ) -> Result<(), SyncError> {
     tracing::trace!(
       "[LocalDocumentServer] receive: {}:{}-{:?} ",
@@ -167,74 +161,13 @@ impl LocalWebSocketRunner {
       client_data.rev_id,
       client_data.ty,
     );
-    let client_ws_sender = self.client_ws_sender.clone();
-    let _user = Arc::new(LocalRevisionUser {
-      user_id,
-      client_ws_sender,
-      channel: WSChannel::Document,
-    });
+    let _client_ws_sender = self.client_ws_sender.clone();
     let ty = client_data.ty;
     match ty {
       ClientRevisionWSDataType::ClientPushRev => {},
       ClientRevisionWSDataType::ClientPing => {},
     }
     Ok(())
-  }
-}
-
-#[derive(Debug)]
-struct LocalRevisionUser {
-  user_id: String,
-  client_ws_sender: mpsc::UnboundedSender<WebSocketRawMessage>,
-  channel: WSChannel,
-}
-
-impl RevisionUser for LocalRevisionUser {
-  fn user_id(&self) -> String {
-    self.user_id.clone()
-  }
-
-  fn receive(&self, resp: RevisionSyncResponse) {
-    let sender = self.client_ws_sender.clone();
-    let send_fn =
-      |sender: UnboundedSender<WebSocketRawMessage>, msg: WebSocketRawMessage| match sender
-        .send(msg)
-      {
-        Ok(_) => {},
-        Err(e) => {
-          tracing::error!("LocalDocumentUser send message failed: {}", e);
-        },
-      };
-    let channel = self.channel.clone();
-
-    tokio::spawn(async move {
-      match resp {
-        RevisionSyncResponse::Pull(data) => {
-          let bytes: Bytes = data.try_into().unwrap();
-          let msg = WebSocketRawMessage {
-            channel,
-            data: bytes.to_vec(),
-          };
-          send_fn(sender, msg);
-        },
-        RevisionSyncResponse::Push(data) => {
-          let bytes: Bytes = data.try_into().unwrap();
-          let msg = WebSocketRawMessage {
-            channel,
-            data: bytes.to_vec(),
-          };
-          send_fn(sender, msg);
-        },
-        RevisionSyncResponse::Ack(data) => {
-          let bytes: Bytes = data.try_into().unwrap();
-          let msg = WebSocketRawMessage {
-            channel,
-            data: bytes.to_vec(),
-          };
-          send_fn(sender, msg);
-        },
-      }
-    });
   }
 }
 
