@@ -1,15 +1,18 @@
-use crate::entities::UserProfilePB;
-use crate::event_handler::*;
-use crate::{errors::FlowyError, services::UserSession};
+use std::sync::Arc;
+
+use strum_macros::Display;
+
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
 use lib_dispatch::prelude::*;
 use lib_infra::future::{Fut, FutureResult};
-use std::sync::Arc;
-use strum_macros::Display;
-use user_model::{
+
+use crate::entities::UserProfilePB;
+use crate::entities::{
   SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
+use crate::event_handler::*;
+use crate::{errors::FlowyError, services::UserSession};
 
 pub fn init(user_session: Arc<UserSession>) -> AFPlugin {
   AFPlugin::new()

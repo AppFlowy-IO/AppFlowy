@@ -1,6 +1,16 @@
-use crate::local_server::persistence::LocalDocumentCloudPersistence;
+use std::{
+  convert::{TryFrom, TryInto},
+  fmt::Debug,
+  sync::Arc,
+};
+
 use async_stream::stream;
 use bytes::Bytes;
+use futures_util::stream::StreamExt;
+use lazy_static::lazy_static;
+use parking_lot::{Mutex, RwLock};
+use tokio::sync::{broadcast, mpsc, mpsc::UnboundedSender};
+
 use document_model::document::{
   CreateDocumentParams, DocumentId, DocumentInfo, ResetDocumentParams,
 };
@@ -10,24 +20,18 @@ use flowy_error::{internal_error, FlowyError};
 use flowy_server_sync::server_document::ServerDocumentManager;
 use flowy_server_sync::server_folder::ServerFolderManager;
 use flowy_sync::{RevisionSyncResponse, RevisionUser};
-use flowy_user::entities::UserProfilePB;
+use flowy_user::entities::{
+  SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams,
+  UserProfilePB,
+};
 use flowy_user::event_map::UserCloudService;
-
 use flowy_user::uid::UserIDGenerator;
-use futures_util::stream::StreamExt;
 use lib_infra::future::FutureResult;
 use lib_ws::{WSChannel, WebSocketRawMessage};
-
-use lazy_static::lazy_static;
-use parking_lot::{Mutex, RwLock};
-use std::{
-  convert::{TryFrom, TryInto},
-  fmt::Debug,
-  sync::Arc,
-};
-use tokio::sync::{broadcast, mpsc, mpsc::UnboundedSender};
-use user_model::*;
 use ws_model::ws_revision::{ClientRevisionWSData, ClientRevisionWSDataType};
+
+use crate::local_server::persistence::LocalDocumentCloudPersistence;
+
 lazy_static! {
   static ref ID_GEN: Mutex<UserIDGenerator> = Mutex::new(UserIDGenerator::new(1));
 }

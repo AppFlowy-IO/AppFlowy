@@ -1,10 +1,13 @@
-use crate::request::HttpRequestBuilder;
 use flowy_client_network_config::{ClientServerConfiguration, HEADER_TOKEN};
 use flowy_error::FlowyError;
-use flowy_user::entities::UserProfilePB;
+use flowy_user::entities::{
+  SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams,
+  UserProfilePB,
+};
 use flowy_user::event_map::UserCloudService;
 use lib_infra::future::FutureResult;
-use user_model::*;
+
+use crate::request::HttpRequestBuilder;
 
 pub struct UserHttpCloudService {
   config: ClientServerConfiguration,

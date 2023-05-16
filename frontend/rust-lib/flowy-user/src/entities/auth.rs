@@ -1,7 +1,11 @@
-use crate::errors::ErrorCode;
-use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
-use user_model::{SignInParams, SignUpParams, UserEmail, UserName, UserPassword};
+
+use serde::{Deserialize, Serialize};
+
+use flowy_derive::ProtoBuf;
+
+use crate::entities::parser::*;
+use crate::errors::ErrorCode;
 
 #[derive(ProtoBuf, Default)]
 pub struct SignInPayloadPB {
@@ -54,5 +58,93 @@ impl TryInto<SignUpParams> for SignUpPayloadPB {
       name: name.0,
       password: password.0,
     })
+  }
+}
+
+#[derive(Default, Serialize, Deserialize, Debug)]
+pub struct SignInParams {
+  pub email: String,
+  pub password: String,
+  pub name: String,
+}
+
+#[derive(Debug, Default, Serialize, Deserialize, Clone)]
+pub struct SignInResponse {
+  pub user_id: i64,
+  pub name: String,
+  pub email: String,
+  pub token: String,
+}
+
+#[derive(Serialize, Deserialize, Default, Debug)]
+pub struct SignUpParams {
+  pub email: String,
+  pub name: String,
+  pub password: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+pub struct SignUpResponse {
+  pub user_id: i64,
+  pub name: String,
+  pub email: String,
+  pub token: String,
+}
+
+#[derive(Serialize, Deserialize, Default, Debug, Clone)]
+pub struct UserProfile {
+  pub id: i64,
+  pub email: String,
+  pub name: String,
+  pub token: String,
+  pub icon_url: String,
+  pub openai_key: String,
+}
+
+#[derive(Serialize, Deserialize, Default, Clone, Debug)]
+pub struct UpdateUserProfileParams {
+  pub id: i64,
+  pub name: Option<String>,
+  pub email: Option<String>,
+  pub password: Option<String>,
+  pub icon_url: Option<String>,
+  pub openai_key: Option<String>,
+}
+
+impl UpdateUserProfileParams {
+  pub fn new(id: i64) -> Self {
+    Self {
+      id,
+      name: None,
+      email: None,
+      password: None,
+      icon_url: None,
+      openai_key: None,
+    }
+  }
+
+  pub fn name(mut self, name: &str) -> Self {
+    self.name = Some(name.to_owned());
+    self
+  }
+
+  pub fn email(mut self, email: &str) -> Self {
+    self.email = Some(email.to_owned());
+    self
+  }
+
+  pub fn password(mut self, password: &str) -> Self {
+    self.password = Some(password.to_owned());
+    self
+  }
+
+  pub fn icon_url(mut self, icon_url: &str) -> Self {
+    self.icon_url = Some(icon_url.to_owned());
+    self
+  }
+
+  pub fn openai_key(mut self, openai_key: &str) -> Self {
+    self.openai_key = Some(openai_key.to_owned());
+    self
   }
 }

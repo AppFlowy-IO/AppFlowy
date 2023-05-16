@@ -1,10 +1,12 @@
-use crate::entities::*;
-use crate::services::UserSession;
+use std::{convert::TryInto, sync::Arc};
+
 use flowy_error::FlowyError;
 use flowy_sqlite::kv::KV;
 use lib_dispatch::prelude::*;
-use std::{convert::TryInto, sync::Arc};
-use user_model::{SignInParams, SignUpParams, UpdateUserProfileParams};
+
+use crate::entities::*;
+use crate::entities::{SignInParams, SignUpParams, UpdateUserProfileParams};
+use crate::services::UserSession;
 
 // tracing instrument 👉🏻 https://docs.rs/tracing/0.1.26/tracing/attr.instrument.html
 #[tracing::instrument(level = "debug", name = "sign_in", skip(data, session), fields(email = %data.email), err)]

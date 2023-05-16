@@ -9,7 +9,6 @@ edition = "2018"
 flowy-derive = { path = "../flowy-derive" }
 flowy-sqlite = { path = "../flowy-sqlite", optional = true }
 flowy-error = { path = "../flowy-error", features = ["adaptor_database", "adaptor_dispatch", "adaptor_user"] }
-user-model = { path = "../../../shared-lib/user-model" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-notification = { path = "../flowy-notification" }
 lib-dispatch = { path = "../lib-dispatch" }
@@ -29,6 +28,9 @@ parking_lot = "0.12.1"
 strum = "0.21"
 strum_macros = "0.21"
 tokio = { version = "1.26", features = ["rt"] }
+validator = "0.16.0"
+unicode-segmentation = "1.10"
+fancy-regex = "0.11.0"
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }

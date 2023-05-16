@@ -24,6 +24,7 @@ use flowy_net::local_server::LocalServer;
 use flowy_net::ClientServerConfiguration;
 use flowy_sqlite::kv::KV;
 use flowy_task::{TaskDispatcher, TaskRunner};
+use flowy_user::entities::UserProfile;
 use flowy_user::event_map::UserStatusCallback;
 use flowy_user::services::{UserSession, UserSessionConfig};
 use lib_dispatch::prelude::*;
@@ -31,7 +32,6 @@ use lib_dispatch::runtime::tokio_default_runtime;
 use lib_infra::future::{to_fut, Fut};
 use module::make_plugins;
 pub use module::*;
-use user_model::UserProfile;
 
 use crate::deps_resolve::*;
 
@@ -99,6 +99,8 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   filters.push(format!("collab_folder={}", level));
   // filters.push(format!("collab_persistence={}", level));
   filters.push(format!("collab_database={}", level));
+  filters.push(format!("collab_plugins={}", level));
+  filters.push(format!("appflowy_integrate={}", level));
   filters.push(format!("collab={}", level));
   filters.push(format!("flowy_user={}", level));
   filters.push(format!("flowy_document={}", level));

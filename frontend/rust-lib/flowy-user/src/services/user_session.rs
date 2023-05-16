@@ -11,10 +11,10 @@ use flowy_sqlite::{
   schema::{user_table, user_table::dsl},
   DBConnection, ExpressionMethods, UserDatabaseConnection,
 };
-use user_model::{
+
+use crate::entities::{
   SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
-
 use crate::entities::{UserProfilePB, UserSettingPB};
 use crate::event_map::UserStatusCallback;
 use crate::{
@@ -24,9 +24,6 @@ use crate::{
   services::database::{UserDB, UserTable, UserTableChangeset},
 };
 
-// lazy_static! {
-//   static ref ID_GEN: Mutex<UserIDGenerator> = Mutex::new(UserIDGenerator::new(1));
-// }
 pub struct UserSessionConfig {
   root_dir: String,
 
