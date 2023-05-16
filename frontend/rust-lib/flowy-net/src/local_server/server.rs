@@ -1,22 +1,13 @@
-use std::{
-  convert::{TryFrom, TryInto},
-  fmt::Debug,
-  sync::Arc,
-};
+use std::sync::Arc;
 
 use async_stream::stream;
-use bytes::Bytes;
+
 use futures_util::stream::StreamExt;
 use lazy_static::lazy_static;
 use parking_lot::{Mutex, RwLock};
 use tokio::sync::{broadcast, mpsc};
 
-use document_model::document::{
-  CreateDocumentParams, DocumentId, DocumentInfo, ResetDocumentParams,
-};
-use flowy_client_sync::errors::SyncError;
-use flowy_document::DocumentCloudService;
-use flowy_error::{internal_error, FlowyError};
+use flowy_error::FlowyError;
 use flowy_user::entities::{
   SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams,
   UserProfilePB,
@@ -24,8 +15,8 @@ use flowy_user::entities::{
 use flowy_user::event_map::UserCloudService;
 use flowy_user::uid::UserIDGenerator;
 use lib_infra::future::FutureResult;
-use lib_ws::{WSChannel, WebSocketRawMessage};
-use ws_model::ws_revision::{ClientRevisionWSData, ClientRevisionWSDataType};
+use lib_ws::WebSocketRawMessage;
+use ws_model::ws_revision::ClientRevisionWSData;
 
 use crate::local_server::persistence::LocalDocumentCloudPersistence;
 
@@ -108,65 +99,23 @@ impl LocalWebSocketRunner {
       .await;
   }
 
-  async fn handle_message(&self, message: WebSocketRawMessage) -> Result<(), FlowyError> {
-    let bytes = Bytes::from(message.data);
-    let client_data = ClientRevisionWSData::try_from(bytes).map_err(internal_error)?;
-    match message.channel {
-      WSChannel::Document => {
-        self
-          .handle_document_client_data(client_data, "".to_owned())
-          .await?;
-        Ok(())
-      },
-      WSChannel::Folder => {
-        self
-          .handle_folder_client_data(client_data, "".to_owned())
-          .await?;
-        Ok(())
-      },
-      WSChannel::Database => {
-        todo!("Implement database web socket channel")
-      },
-    }
+  async fn handle_message(&self, _message: WebSocketRawMessage) -> Result<(), FlowyError> {
+    Ok(())
   }
 
   pub async fn handle_folder_client_data(
     &self,
-    client_data: ClientRevisionWSData,
+    _client_data: ClientRevisionWSData,
     _user_id: String,
-  ) -> Result<(), SyncError> {
-    tracing::trace!(
-      "[LocalFolderServer] receive: {}:{}-{:?} ",
-      client_data.object_id,
-      client_data.rev_id,
-      client_data.ty,
-    );
-    let _client_ws_sender = self.client_ws_sender.clone();
-    let ty = client_data.ty;
-    match ty {
-      ClientRevisionWSDataType::ClientPushRev => {},
-      ClientRevisionWSDataType::ClientPing => {},
-    }
+  ) -> Result<(), String> {
     Ok(())
   }
 
   pub async fn handle_document_client_data(
     &self,
-    client_data: ClientRevisionWSData,
+    _client_data: ClientRevisionWSData,
     _user_id: String,
-  ) -> Result<(), SyncError> {
-    tracing::trace!(
-      "[LocalDocumentServer] receive: {}:{}-{:?} ",
-      client_data.object_id,
-      client_data.rev_id,
-      client_data.ty,
-    );
-    let _client_ws_sender = self.client_ws_sender.clone();
-    let ty = client_data.ty;
-    match ty {
-      ClientRevisionWSDataType::ClientPushRev => {},
-      ClientRevisionWSDataType::ClientPing => {},
-    }
+  ) -> Result<(), String> {
     Ok(())
   }
 }
@@ -214,31 +163,5 @@ impl UserCloudService for LocalServer {
 
   fn ws_addr(&self) -> String {
     "ws://localhost:8000/ws/".to_owned()
-  }
-}
-
-impl DocumentCloudService for LocalServer {
-  fn create_document(
-    &self,
-    _token: &str,
-    _params: CreateDocumentParams,
-  ) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async { Ok(()) })
-  }
-
-  fn fetch_document(
-    &self,
-    _token: &str,
-    _params: DocumentId,
-  ) -> FutureResult<Option<DocumentInfo>, FlowyError> {
-    FutureResult::new(async { Ok(None) })
-  }
-
-  fn update_document_content(
-    &self,
-    _token: &str,
-    _params: ResetDocumentParams,
-  ) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async { Ok(()) })
   }
 }

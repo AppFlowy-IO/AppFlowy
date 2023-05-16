@@ -14,8 +14,6 @@ use tokio::sync::{broadcast, RwLock};
 
 use flowy_client_ws::{listen_on_websocket, FlowyWebSocketConnect, NetworkType};
 use flowy_database2::DatabaseManager2;
-use flowy_document::entities::DocumentVersionPB;
-use flowy_document::{DocumentConfig, DocumentManager};
 use flowy_document2::manager::DocumentManager as DocumentManager2;
 use flowy_error::FlowyResult;
 use flowy_folder2::manager::Folder2Manager;
@@ -52,7 +50,6 @@ pub struct AppFlowyCoreConfig {
   storage_path: String,
   log_filter: String,
   server_config: ClientServerConfiguration,
-  pub document: DocumentConfig,
 }
 
 impl fmt::Debug for AppFlowyCoreConfig {
@@ -60,7 +57,6 @@ impl fmt::Debug for AppFlowyCoreConfig {
     f.debug_struct("AppFlowyCoreConfig")
       .field("storage_path", &self.storage_path)
       .field("server-config", &self.server_config)
-      .field("document-config", &self.document)
       .finish()
   }
 }
@@ -72,13 +68,7 @@ impl AppFlowyCoreConfig {
       storage_path: root.to_owned(),
       log_filter: create_log_filter("info".to_owned(), vec![]),
       server_config,
-      document: DocumentConfig::default(),
     }
-  }
-
-  pub fn with_document_version(mut self, version: DocumentVersionPB) -> Self {
-    self.document.version = version;
-    self
   }
 
   pub fn log_filter(mut self, level: &str, with_crates: Vec<String>) -> Self {
@@ -103,7 +93,6 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   filters.push(format!("appflowy_integrate={}", level));
   filters.push(format!("collab={}", level));
   filters.push(format!("flowy_user={}", level));
-  filters.push(format!("flowy_document={}", level));
   filters.push(format!("flowy_document2={}", level));
   filters.push(format!("flowy_database={}", level));
   filters.push(format!("flowy_database2={}", level));
@@ -136,7 +125,6 @@ pub struct AppFlowyCore {
   #[allow(dead_code)]
   pub config: AppFlowyCoreConfig,
   pub user_session: Arc<UserSession>,
-  pub document_manager: Arc<DocumentManager>,
   pub document_manager2: Arc<DocumentManager2>,
   pub folder_manager: Arc<Folder2Manager>,
   // pub database_manager: Arc<DatabaseManager>,
@@ -165,61 +153,46 @@ impl AppFlowyCore {
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
 
     let (local_server, ws_conn) = mk_local_server(&config.server_config);
-    let (
-      user_session,
-      document_manager,
-      folder_manager,
-      local_server,
-      database_manager,
-      document_manager2,
-    ) = runtime.block_on(async {
-      let user_session = mk_user_session(&config, &local_server, &config.server_config);
+    let (user_session, folder_manager, local_server, database_manager, document_manager2) = runtime
+      .block_on(async {
+        let user_session = mk_user_session(&config, &local_server, &config.server_config);
 
-      let document_manager = DocumentDepsResolver::resolve(
-        local_server.clone(),
-        ws_conn.clone(),
-        user_session.clone(),
-        &config.server_config,
-        &config.document,
-      );
-      let database_manager2 = Database2DepsResolver::resolve(
-        ws_conn.clone(),
-        user_session.clone(),
-        task_dispatcher.clone(),
-        collab_builder.clone(),
-      )
-      .await;
+        let database_manager2 = Database2DepsResolver::resolve(
+          ws_conn.clone(),
+          user_session.clone(),
+          task_dispatcher.clone(),
+          collab_builder.clone(),
+        )
+        .await;
 
-      let document_manager2 = Document2DepsResolver::resolve(
-        user_session.clone(),
-        &database_manager2,
-        collab_builder.clone(),
-      );
+        let document_manager2 = Document2DepsResolver::resolve(
+          user_session.clone(),
+          &database_manager2,
+          collab_builder.clone(),
+        );
 
-      let folder_manager = Folder2DepsResolver::resolve(
-        user_session.clone(),
-        &document_manager2,
-        &database_manager2,
-        collab_builder.clone(),
-      )
-      .await;
+        let folder_manager = Folder2DepsResolver::resolve(
+          user_session.clone(),
+          &document_manager2,
+          &database_manager2,
+          collab_builder.clone(),
+        )
+        .await;
 
-      if let Some(local_server) = local_server.as_ref() {
-        local_server.run();
-      }
-      ws_conn.init().await;
-      (
-        user_session,
-        document_manager,
-        folder_manager,
-        local_server,
-        database_manager2,
-        document_manager2,
-      )
-    });
+        if let Some(local_server) = local_server.as_ref() {
+          local_server.run();
+        }
+        ws_conn.init().await;
+        (
+          user_session,
+          folder_manager,
+          local_server,
+          database_manager2,
+          document_manager2,
+        )
+      });
 
     let user_status_listener = UserStatusListener {
-      document_manager: document_manager.clone(),
       folder_manager: folder_manager.clone(),
       database_manager: database_manager.clone(),
       ws_conn: ws_conn.clone(),
@@ -239,7 +212,6 @@ impl AppFlowyCore {
         &folder_manager,
         &database_manager,
         &user_session,
-        &document_manager,
         &document_manager2,
       )
     }));
@@ -248,7 +220,6 @@ impl AppFlowyCore {
     Self {
       config,
       user_session,
-      document_manager,
       document_manager2,
       folder_manager,
       database_manager,
@@ -349,7 +320,6 @@ fn mk_user_session(
 }
 
 struct UserStatusListener {
-  document_manager: Arc<DocumentManager>,
   folder_manager: Arc<Folder2Manager>,
   database_manager: Arc<DatabaseManager2>,
   ws_conn: Arc<FlowyWebSocketConnect>,
@@ -360,7 +330,6 @@ struct UserStatusListener {
 impl UserStatusListener {
   async fn did_sign_in(&self, token: &str, user_id: i64) -> FlowyResult<()> {
     self.folder_manager.initialize(user_id).await?;
-    self.document_manager.initialize(user_id).await?;
     self.database_manager.initialize(user_id, token).await?;
     self
       .ws_conn
@@ -372,10 +341,6 @@ impl UserStatusListener {
   async fn did_sign_up(&self, user_profile: &UserProfile) -> FlowyResult<()> {
     self
       .folder_manager
-      .initialize_with_new_user(user_profile.id, &user_profile.token)
-      .await?;
-    self
-      .document_manager
       .initialize_with_new_user(user_profile.id, &user_profile.token)
       .await?;
 

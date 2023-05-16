@@ -15,7 +15,7 @@ flowy-folder2 = { path = "../flowy-folder2" }
 flowy-database2 = { path = "../flowy-database2" }
 flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws" }
 flowy-sqlite = { path = "../flowy-sqlite", optional = true }
-flowy-document = { path = "../flowy-document" }
+#flowy-document = { path = "../flowy-document" }
 flowy-document2 = { path = "../flowy-document2" }
 flowy-revision = { path = "../flowy-revision" }
 flowy-error = { path = "../flowy-error", features = ["adaptor_ws"] }
@@ -47,7 +47,6 @@ dart = [
     "flowy-net/dart",
     "flowy-folder2/dart",
     "flowy-database2/dart",
-    "flowy-document/dart",
     "flowy-document2/dart",
 ]
 ts = [
@@ -55,12 +54,10 @@ ts = [
     "flowy-net/ts",
     "flowy-folder2/ts",
     "flowy-database2/ts",
-    "flowy-document/ts",
     "flowy-document2/ts",
 ]
 rev-sqlite = [
     "flowy-sqlite",
     "flowy-user/rev-sqlite",
-    "flowy-document/rev-sqlite",
 ]
 openssl_vendored = ["flowy-sqlite/openssl_vendored"]

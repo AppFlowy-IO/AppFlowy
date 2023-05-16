@@ -1,14 +1,12 @@
+use std::sync::Arc;
+
+use lazy_static::lazy_static;
+
+use flowy_client_network_config::{ClientServerConfiguration, HEADER_TOKEN};
+use flowy_error::FlowyError;
+
 use crate::request::{HttpRequestBuilder, ResponseMiddleware};
 use crate::response::HttpResponse;
-use document_model::document::{
-  CreateDocumentParams, DocumentId, DocumentInfo, ResetDocumentParams,
-};
-use flowy_client_network_config::{ClientServerConfiguration, HEADER_TOKEN};
-use flowy_document::DocumentCloudService;
-use flowy_error::FlowyError;
-use lazy_static::lazy_static;
-use lib_infra::future::FutureResult;
-use std::sync::Arc;
 
 pub struct DocumentCloudServiceImpl {
   config: ClientServerConfiguration,
@@ -20,41 +18,9 @@ impl DocumentCloudServiceImpl {
   }
 }
 
-impl DocumentCloudService for DocumentCloudServiceImpl {
-  fn create_document(
-    &self,
-    token: &str,
-    params: CreateDocumentParams,
-  ) -> FutureResult<(), FlowyError> {
-    let token = token.to_owned();
-    let url = self.config.doc_url();
-    FutureResult::new(async move { create_document_request(&token, params, &url).await })
-  }
-
-  fn fetch_document(
-    &self,
-    token: &str,
-    params: DocumentId,
-  ) -> FutureResult<Option<DocumentInfo>, FlowyError> {
-    let token = token.to_owned();
-    let url = self.config.doc_url();
-    FutureResult::new(async move { read_document_request(&token, params, &url).await })
-  }
-
-  fn update_document_content(
-    &self,
-    token: &str,
-    params: ResetDocumentParams,
-  ) -> FutureResult<(), FlowyError> {
-    let token = token.to_owned();
-    let url = self.config.doc_url();
-    FutureResult::new(async move { reset_doc_request(&token, params, &url).await })
-  }
-}
-
 pub async fn create_document_request(
   token: &str,
-  params: CreateDocumentParams,
+  params: String,
   url: &str,
 ) -> Result<(), FlowyError> {
   request_builder()
@@ -67,32 +33,26 @@ pub async fn create_document_request(
 }
 
 pub async fn read_document_request(
-  token: &str,
-  params: DocumentId,
-  url: &str,
-) -> Result<Option<DocumentInfo>, FlowyError> {
-  let doc = request_builder()
-    .get(url)
-    .header(HEADER_TOKEN, token)
-    .json(params)?
-    .option_json_response()
-    .await?;
-
-  Ok(doc)
+  _token: &str,
+  _params: String,
+  _url: &str,
+) -> Result<Option<String>, FlowyError> {
+  todo!()
 }
 
 pub async fn reset_doc_request(
-  token: &str,
-  params: ResetDocumentParams,
-  url: &str,
+  _token: &str,
+  _params: String,
+  _url: &str,
 ) -> Result<(), FlowyError> {
-  request_builder()
-    .patch(url)
-    .header(HEADER_TOKEN, token)
-    .json(params)?
-    .send()
-    .await?;
-  Ok(())
+  // request_builder()
+  //   .patch(url)
+  //   .header(HEADER_TOKEN, token)
+  //   .json(params)?
+  //   .send()
+  //   .await?;
+  // Ok(())
+  todo!()
 }
 
 fn request_builder() -> HttpRequestBuilder {

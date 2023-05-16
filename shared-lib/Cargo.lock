@@ -222,15 +222,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "document-model"
-version = "0.1.0"
-dependencies = [
- "revision-model",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "env_logger"
 version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"

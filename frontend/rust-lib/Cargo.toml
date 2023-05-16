@@ -12,7 +12,7 @@ members = [
   "flowy-folder2",
   "flowy-notification",
   "flowy-document2",
-  "flowy-document",
+#  "flowy-document",
   "flowy-error",
   "flowy-revision",
   "flowy-revision-persistence",

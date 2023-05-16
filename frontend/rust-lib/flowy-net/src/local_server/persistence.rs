@@ -3,24 +3,19 @@ use std::{
   sync::Arc,
 };
 
-use flowy_client_sync::errors::SyncError;
 use lib_infra::future::BoxResultFuture;
 use revision_model::Revision;
 
 // For the moment, we use memory to cache the data, it will be implemented with
 // other storage. Like the Firestore,Dropbox.etc.
 pub trait RevisionCloudStorage: Send + Sync {
-  fn set_revisions(&self, revisions: Vec<Revision>) -> BoxResultFuture<(), SyncError>;
+  fn set_revisions(&self, revisions: Vec<Revision>) -> BoxResultFuture<(), String>;
   fn get_revisions(
     &self,
     object_id: &str,
     rev_ids: Option<Vec<i64>>,
-  ) -> BoxResultFuture<Vec<Revision>, SyncError>;
-  fn reset_object(
-    &self,
-    object_id: &str,
-    revisions: Vec<Revision>,
-  ) -> BoxResultFuture<(), SyncError>;
+  ) -> BoxResultFuture<Vec<Revision>, String>;
+  fn reset_object(&self, object_id: &str, revisions: Vec<Revision>) -> BoxResultFuture<(), String>;
 }
 
 pub(crate) struct LocalDocumentCloudPersistence {
@@ -122,7 +117,7 @@ impl std::default::Default for LocalDocumentCloudPersistence {
 #[derive(Default)]
 struct MemoryDocumentCloudStorage {}
 impl RevisionCloudStorage for MemoryDocumentCloudStorage {
-  fn set_revisions(&self, _revisions: Vec<Revision>) -> BoxResultFuture<(), SyncError> {
+  fn set_revisions(&self, _revisions: Vec<Revision>) -> BoxResultFuture<(), String> {
     Box::pin(async move { Ok(()) })
   }
 
@@ -130,7 +125,7 @@ impl RevisionCloudStorage for MemoryDocumentCloudStorage {
     &self,
     _object_id: &str,
     _rev_ids: Option<Vec<i64>>,
-  ) -> BoxResultFuture<Vec<Revision>, SyncError> {
+  ) -> BoxResultFuture<Vec<Revision>, String> {
     Box::pin(async move { Ok(vec![]) })
   }
 
@@ -138,7 +133,7 @@ impl RevisionCloudStorage for MemoryDocumentCloudStorage {
     &self,
     _object_id: &str,
     _revisions: Vec<Revision>,
-  ) -> BoxResultFuture<(), SyncError> {
+  ) -> BoxResultFuture<(), String> {
     Box::pin(async move { Ok(()) })
   }
 }

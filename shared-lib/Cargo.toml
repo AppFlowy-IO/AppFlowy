@@ -3,7 +3,6 @@ members = [
   "lib-ot",
   "lib-ws",
   "lib-infra",
-  "document-model",
   "ws-model",
   "revision-model",
   "flowy-client-network-config",
