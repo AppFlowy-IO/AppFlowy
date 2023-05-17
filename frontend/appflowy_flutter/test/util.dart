@@ -1,6 +1,6 @@
 import 'package:appflowy/startup/launch_configuration.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/auth_service.dart';
+import 'package:appflowy/user/application/auth/appflowy_auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -55,11 +55,11 @@ class AppFlowyUnitTest {
       email: userEmail,
     );
     return result.fold(
+      (error) {},
       (user) {
         userProfile = user;
         userService = UserBackendService(userId: userProfile.id);
       },
-      (error) {},
     );
   }
 

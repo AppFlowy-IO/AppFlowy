@@ -1,10 +1,10 @@
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../startup/startup.dart';
-import '../application/auth_service.dart';
 import '../application/splash_bloc.dart';
 import '../domain/auth_state.dart';
 import 'router.dart';
@@ -83,14 +83,14 @@ class SplashScreen extends StatelessWidget {
   }
 
   void _handleUnauthenticated(BuildContext context, Unauthenticated result) {
-    // getIt<SplashRoute>().pushSignInScreen(context);
-    getIt<SplashRoute>().pushSkipLoginScreen(context);
+    getIt<SplashRoute>().pushSignInScreen(context);
+    // getIt<SplashRoute>().pushSkipLoginScreen(context);
   }
 
   Future<void> _registerIfNeeded() async {
     final result = await UserEventCheckUser().send();
     if (!result.isLeft()) {
-      await getIt<AuthService>().autoSignUp();
+      await getIt<AuthService>().signUpAsAnonymousUser();
     }
   }
 }

@@ -5,6 +5,8 @@ import 'package:appflowy/plugins/database_view/application/field/field_service.d
 import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/application/auth/supabase_auth_service.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/util/file_picker/file_picker_impl.dart';
@@ -66,11 +68,17 @@ void _resolveCommonService(GetIt getIt) async {
 }
 
 void _resolveUserDeps(GetIt getIt) {
-  getIt.registerFactory<AuthService>(() => AuthService());
+  // getIt.registerFactory<AuthService>(() => AppFlowyAuthService());
+  getIt.registerFactory<AuthService>(() => const SupabaseAuthService());
+
   getIt.registerFactory<AuthRouter>(() => AuthRouter());
 
-  getIt.registerFactory<SignInBloc>(() => SignInBloc(getIt<AuthService>()));
-  getIt.registerFactory<SignUpBloc>(() => SignUpBloc(getIt<AuthService>()));
+  getIt.registerFactory<SignInBloc>(
+    () => SignInBloc(getIt<AuthService>()),
+  );
+  getIt.registerFactory<SignUpBloc>(
+    () => SignUpBloc(getIt<AuthService>()),
+  );
 
   getIt.registerFactory<SplashRoute>(() => SplashRoute());
   getIt.registerFactory<EditPanelBloc>(() => EditPanelBloc());

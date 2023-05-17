@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:appflowy/startup/tasks/secret.dart';
+import 'package:appflowy/util/secret.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

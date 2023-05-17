@@ -1,5 +1,6 @@
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/startup/entry_point.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -15,7 +16,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../generated/locale_keys.g.dart';
 import '../../startup/launch_configuration.dart';
 import '../../startup/startup.dart';
-import '../application/auth_service.dart';
 import 'folder/folder_widget.dart';
 import 'router.dart';
 import 'widgets/background.dart';
@@ -120,15 +120,15 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   }
 
   Future<void> _autoRegister(BuildContext context) async {
-    final result = await widget.authService.autoSignUp();
+    final result = await widget.authService.signUpAsAnonymousUser();
     result.fold(
+      (error) {
+        Log.error(error);
+      },
       (user) {
         FolderEventReadCurrentWorkspace().send().then((result) {
           _openCurrentWorkspace(context, user, result);
         });
-      },
-      (error) {
-        Log.error(error);
       },
     );
   }

@@ -1,4 +1,4 @@
-import 'package:appflowy/user/application/auth_service.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -55,17 +55,18 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       ),
     );
 
+    // TODO: add validation
     final result = await authService.signIn(
-      email: state.email,
-      password: state.password,
+      email: state.email ?? '',
+      password: state.password ?? '',
     );
     emit(
       result.fold(
+        (error) => stateFromCode(error),
         (userProfile) => state.copyWith(
           isSubmitting: false,
           successOrFail: some(left(userProfile)),
         ),
-        (error) => stateFromCode(error),
       ),
     );
   }

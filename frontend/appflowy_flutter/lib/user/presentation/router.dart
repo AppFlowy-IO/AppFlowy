@@ -1,5 +1,5 @@
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/auth_service.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/presentation/sign_in_screen.dart';
 import 'package:appflowy/user/presentation/sign_up_screen.dart';
 import 'package:appflowy/user/presentation/skip_log_in_screen.dart';

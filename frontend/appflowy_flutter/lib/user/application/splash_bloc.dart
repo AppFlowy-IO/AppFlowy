@@ -1,10 +1,6 @@
-import 'dart:async';
-
-import 'package:appflowy/user/application/supabase_auth_service.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/domain/auth_state.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -15,36 +11,15 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
     on<SplashEvent>((event, emit) async {
       await event.map(
         getUser: (val) async {
-          // await getUserFromLocalService(emit);
-          await getUserFromSupabase(emit);
+          final response = await getIt<AuthService>().getUser();
+          final authState = response.fold(
+            (error) => AuthState.unauthenticated(error),
+            (user) => AuthState.authenticated(user),
+          );
+          emit(state.copyWith(auth: authState));
         },
       );
     });
-  }
-
-  Future<void> getUserFromLocalService(Emitter<SplashState> emit) async {
-    final result = await UserEventCheckUser().send();
-    final authState = result.fold(
-      (userProfile) => AuthState.authenticated(userProfile),
-      (error) => AuthState.unauthenticated(error),
-    );
-
-    emit(state.copyWith(auth: authState));
-  }
-
-  // move the function to a single file
-  final _supabaseAuth = const SupabaseAuthService();
-  Future<void> getUserFromSupabase(Emitter<SplashState> emit) async {
-    const email = '';
-    const password = '';
-    assert(email.isNotEmpty && password.isNotEmpty);
-    final response = await _supabaseAuth.signIn(email, password);
-    // TODO: redefine the user profile pb, make id as String.
-    final auth = response.fold(
-      (l) => AuthState.unauthenticated(FlowyError()),
-      (r) => AuthState.authenticated(UserProfilePB()..email = r.email!),
-    );
-    emit(state.copyWith(auth: auth));
   }
 }
 
