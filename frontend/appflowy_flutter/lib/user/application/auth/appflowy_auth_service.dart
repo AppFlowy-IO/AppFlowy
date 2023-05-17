@@ -1,5 +1,6 @@
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/auth.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
@@ -41,8 +42,9 @@ class AppFlowyAuthService implements AuthService {
   }
 
   @override
-  Future<void> signOut() async {
-    await UserEventSignOut().send();
+  Future<void> signOut(AuthTypePB authType) async {
+    final payload = SignOutPB()..authType = authType;
+    await UserEventSignOut(payload).send();
     return;
   }
 

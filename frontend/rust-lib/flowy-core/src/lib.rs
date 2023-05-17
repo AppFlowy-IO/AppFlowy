@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::str::FromStr;
 use std::time::Duration;
 use std::{
@@ -269,7 +270,7 @@ fn mk_user_session(
 ) -> Arc<UserSession> {
   let user_config = UserSessionConfig::new(&config.name, &config.storage_path);
   let cloud_service = UserDepsResolver::resolve(local_server, server_config);
-  Arc::new(UserSession::new(user_config, cloud_service))
+  Arc::new(UserSession::new(user_config, HashMap::new()))
 }
 
 struct UserStatusListener {
@@ -283,10 +284,6 @@ impl UserStatusListener {
   async fn did_sign_in(&self, token: &str, user_id: i64) -> FlowyResult<()> {
     self.folder_manager.initialize(user_id).await?;
     self.database_manager.initialize(user_id, token).await?;
-    // self
-    //   .ws_conn
-    //   .start(token.to_owned(), user_id.to_owned())
-    //   .await?;
     Ok(())
   }
 
@@ -333,10 +330,5 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let token = token.to_owned();
     let user_id = user_id.to_owned();
     to_fut(async move { listener.did_expired(&token, user_id).await })
-  }
-
-  fn will_migrated(&self, _token: &str, _old_user_id: &str, _user_id: i64) -> Fut<FlowyResult<()>> {
-    // Read the folder data
-    todo!()
   }
 }

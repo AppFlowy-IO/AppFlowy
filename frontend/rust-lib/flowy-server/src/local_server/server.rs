@@ -70,6 +70,7 @@ impl UserCloudService for LocalServer {
     _token: &str,
     _params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError> {
+    // Do nothing, just return ok
     FutureResult::new(async { Ok(()) })
   }
 

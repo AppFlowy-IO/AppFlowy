@@ -1,7 +1,9 @@
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use appflowy_integrate::RocksCollabDB;
 use serde::{Deserialize, Serialize};
+use serde_repr::*;
 use tokio::sync::RwLock;
 
 use flowy_error::internal_error;
@@ -15,7 +17,7 @@ use flowy_sqlite::{
 use lib_infra::box_any::BoxAny;
 
 use crate::entities::{
-  SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
+  AuthTypePB, SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
 use crate::entities::{UserProfilePB, UserSettingPB};
 use crate::event_map::UserStatusCallback;
@@ -48,18 +50,21 @@ impl UserSessionConfig {
 pub struct UserSession {
   database: UserDB,
   session_config: UserSessionConfig,
-  cloud_service: Arc<dyn UserCloudService>,
+  cloud_services: HashMap<AuthType, Arc<dyn UserCloudService>>,
   user_status_callback: RwLock<Option<Arc<dyn UserStatusCallback>>>,
 }
 
 impl UserSession {
-  pub fn new(session_config: UserSessionConfig, cloud_service: Arc<dyn UserCloudService>) -> Self {
+  pub fn new(
+    session_config: UserSessionConfig,
+    cloud_services: HashMap<AuthType, Arc<dyn UserCloudService>>,
+  ) -> Self {
     let db = UserDB::new(&session_config.root_dir);
     let user_status_callback = RwLock::new(None);
     Self {
       database: db,
       session_config,
-      cloud_service,
+      cloud_services,
       user_status_callback,
     }
   }
@@ -94,62 +99,68 @@ impl UserSession {
     self.database.get_kv_db(user_id)
   }
 
-  #[tracing::instrument(level = "debug", skip(self))]
-  pub async fn sign_in(&self, params: SignInParams) -> Result<UserProfile, FlowyError> {
-    if self.is_user_login(&params.email) {
-      match self.get_user_profile().await {
-        Ok(profile) => {
-          send_sign_in_notification()
-            .payload::<UserProfilePB>(profile.clone().into())
-            .send();
-          Ok(profile)
-        },
-        Err(err) => Err(err),
-      }
-    } else {
-      let resp = self.cloud_service.sign_in(BoxAny::new(params)).await?;
-      let session: Session = resp.clone().into();
-      self.set_session(Some(session))?;
-      let user_profile: UserProfile = self.save_user(resp.into()).await?.into();
-      let _ = self
-        .user_status_callback
-        .read()
-        .await
-        .as_ref()
-        .unwrap()
-        .did_sign_in(&user_profile.token, user_profile.id)
-        .await;
-      send_sign_in_notification()
-        .payload::<UserProfilePB>(user_profile.clone().into())
-        .send();
-      Ok(user_profile)
-    }
+  #[tracing::instrument(level = "debug", skip(self, params))]
+  pub async fn sign_in(
+    &self,
+    auth_type: &AuthType,
+    params: BoxAny,
+  ) -> Result<UserProfile, FlowyError> {
+    let resp = self
+      .cloud_services
+      .get(auth_type)
+      .as_ref()
+      .unwrap()
+      .sign_in(params)
+      .await?;
+
+    let session: Session = resp.clone().into();
+    self.set_session(Some(session))?;
+    let user_profile: UserProfile = self.save_user(resp.into()).await?.into();
+    let _ = self
+      .user_status_callback
+      .read()
+      .await
+      .as_ref()
+      .unwrap()
+      .did_sign_in(&user_profile.token, user_profile.id)
+      .await;
+    send_sign_in_notification()
+      .payload::<UserProfilePB>(user_profile.clone().into())
+      .send();
+    Ok(user_profile)
+  }
+
+  #[tracing::instrument(level = "debug", skip(self, params))]
+  pub async fn sign_up(
+    &self,
+    auth_type: &AuthType,
+    params: BoxAny,
+  ) -> Result<UserProfile, FlowyError> {
+    let resp = self
+      .cloud_services
+      .get(auth_type)
+      .as_ref()
+      .unwrap()
+      .sign_up(params)
+      .await?;
+
+    let session: Session = resp.clone().into();
+    self.set_session(Some(session))?;
+    let user_table = self.save_user(resp.into()).await?;
+    let user_profile: UserProfile = user_table.into();
+    let _ = self
+      .user_status_callback
+      .read()
+      .await
+      .as_ref()
+      .unwrap()
+      .did_sign_up(&user_profile)
+      .await;
+    Ok(user_profile)
   }
 
   #[tracing::instrument(level = "debug", skip(self))]
-  pub async fn sign_up(&self, params: SignUpParams) -> Result<UserProfile, FlowyError> {
-    if self.is_user_login(&params.email) {
-      self.get_user_profile().await
-    } else {
-      let resp = self.cloud_service.sign_up(BoxAny::new(params)).await?;
-      let session: Session = resp.clone().into();
-      self.set_session(Some(session))?;
-      let user_table = self.save_user(resp.into()).await?;
-      let user_profile: UserProfile = user_table.into();
-      let _ = self
-        .user_status_callback
-        .read()
-        .await
-        .as_ref()
-        .unwrap()
-        .did_sign_up(&user_profile)
-        .await;
-      Ok(user_profile)
-    }
-  }
-
-  #[tracing::instrument(level = "debug", skip(self))]
-  pub async fn sign_out(&self) -> Result<(), FlowyError> {
+  pub async fn sign_out(&self, auth_type: &AuthType) -> Result<(), FlowyError> {
     let session = self.get_session()?;
     let uid = session.user_id.to_string();
     let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&uid)))
@@ -164,7 +175,9 @@ impl UserSession {
       .unwrap()
       .did_expired(&session.token, session.user_id)
       .await;
-    self.sign_out_on_server(&session.token).await?;
+
+    let server = self.cloud_services.get(auth_type).unwrap().clone();
+    self.sign_out_on_server(server, &session.token).await?;
 
     Ok(())
   }
@@ -174,6 +187,7 @@ impl UserSession {
     &self,
     params: UpdateUserProfileParams,
   ) -> Result<(), FlowyError> {
+    let auth_type = params.auth_type.clone();
     let session = self.get_session()?;
     let changeset = UserTableChangeset::new(params.clone());
     diesel_update_table!(user_table, changeset, &*self.db_connection()?);
@@ -183,7 +197,7 @@ impl UserSession {
     send_notification(&session.token, UserNotification::DidUpdateUserProfile)
       .payload(profile_pb)
       .send();
-    self.update_user_on_server(&session.token, params).await?;
+    self.update_user(&auth_type, &session.token, params).await?;
     Ok(())
   }
 
@@ -246,12 +260,13 @@ impl UserSession {
     Ok(())
   }
 
-  async fn update_user_on_server(
+  async fn update_user(
     &self,
+    auth_type: &AuthType,
     token: &str,
     params: UpdateUserProfileParams,
   ) -> Result<(), FlowyError> {
-    let server = self.cloud_service.clone();
+    let server = self.cloud_services.get(auth_type).unwrap().clone();
     let token = token.to_owned();
     let _ = tokio::spawn(async move {
       match server.update_user(&token, params).await {
@@ -266,8 +281,11 @@ impl UserSession {
     Ok(())
   }
 
-  async fn sign_out_on_server(&self, token: &str) -> Result<(), FlowyError> {
-    let server = self.cloud_service.clone();
+  async fn sign_out_on_server(
+    &self,
+    server: Arc<dyn UserCloudService>,
+    token: &str,
+  ) -> Result<(), FlowyError> {
     let token = token.to_owned();
     let _ = tokio::spawn(async move {
       match server.sign_out(&token).await {
@@ -391,11 +409,30 @@ impl std::convert::From<Session> for String {
   }
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-struct OldSession {
-  user_id: String,
-  token: String,
-  email: String,
-  #[serde(default)]
-  name: String,
+#[derive(Debug, Clone, Hash, Serialize_repr, Deserialize_repr, Eq, PartialEq)]
+#[repr(u8)]
+pub enum AuthType {
+  /// It's a local server, we do fake sign in default.
+  Local = 0,
+  /// Currently not supported. It will be supported in the future when the
+  /// [AppFlowy-Server](https://github.com/AppFlowy-IO/AppFlowy-Server) ready.
+  SelfHosted = 1,
+  /// It uses Supabase as the backend.
+  Supabase = 2,
+}
+
+impl Default for AuthType {
+  fn default() -> Self {
+    Self::Local
+  }
+}
+
+impl From<AuthTypePB> for AuthType {
+  fn from(pb: AuthTypePB) -> Self {
+    match pb {
+      AuthTypePB::Supabase => AuthType::Supabase,
+      AuthTypePB::Local => AuthType::Local,
+      AuthTypePB::SelfHosted => AuthType::SelfHosted,
+    }
+  }
 }

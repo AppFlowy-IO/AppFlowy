@@ -12,23 +12,6 @@ import 'launch_configuration.dart';
 import 'plugin/plugin.dart';
 import 'tasks/prelude.dart';
 
-// [[diagram: flowy startup flow]]
-//                   ┌──────────┐
-//                   │ FlowyApp │
-//                   └──────────┘
-//                         │  impl
-//                         ▼
-// ┌────────┐  1.run ┌──────────┐
-// │ System │───┬───▶│EntryPoint│
-// └────────┘   │    └──────────┘         ┌─────────────────┐
-//              │                    ┌──▶ │ RustSDKInitTask │
-//              │    ┌───────────┐   │    └─────────────────┘
-//              └──▶ │AppLauncher│───┤
-//        2.launch   └───────────┘   │    ┌─────────────┐         ┌──────────────────┐      ┌───────────────┐
-//                                   └───▶│AppWidgetTask│────────▶│ApplicationWidget │─────▶│ SplashScreen  │
-//                                        └─────────────┘         └──────────────────┘      └───────────────┘
-//
-//                                                 3.build MaterialApp
 final getIt = GetIt.instance;
 
 abstract class EntryPoint {

@@ -26,22 +26,25 @@ pub fn init(user_session: Arc<UserSession>) -> AFPlugin {
     .event(UserEvent::SetAppearanceSetting, set_appearance_setting)
     .event(UserEvent::GetAppearanceSetting, get_appearance_setting)
     .event(UserEvent::GetUserSetting, get_user_setting)
+    .event(UserEvent::ThirdPartyAuth, third_party_auth_handler)
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {
   fn did_sign_in(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
   fn did_sign_up(&self, user_profile: &UserProfile) -> Fut<FlowyResult<()>>;
   fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
-  fn will_migrated(&self, token: &str, old_user_id: &str, user_id: i64) -> Fut<FlowyResult<()>>;
 }
 
 /// Provide the generic interface for the user cloud service
 /// The user cloud service is responsible for the user authentication and user profile management
 pub trait UserCloudService: Send + Sync {
-  /// Sign up a new account
+  /// Sign up a new account.
+  /// The type of the params is defined the this trait's implementation.
+  /// Use the `unbox_or_error` of the [BoxAny] to get the params.
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError>;
 
   /// Sign in an account
+  /// The type of the params is defined the this trait's implementation.
   fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, FlowyError>;
 
   /// Sign out an account
@@ -70,7 +73,7 @@ pub enum UserEvent {
   SignUp = 1,
 
   /// Logging out fo an account
-  #[event(passthrough)]
+  #[event(input = "SignOutPB")]
   SignOut = 2,
 
   /// Update the user information
@@ -100,4 +103,7 @@ pub enum UserEvent {
   /// Get the settings of the user, such as the user storage folder
   #[event(output = "UserSettingPB")]
   GetUserSetting = 9,
+
+  #[event(input = "ThirdPartyAuthPB", output = "UserProfilePB")]
+  ThirdPartyAuth = 10,
 }

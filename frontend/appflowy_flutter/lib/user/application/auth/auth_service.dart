@@ -1,4 +1,5 @@
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/auth.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
 import 'package:dartz/dartz.dart';
 
@@ -25,7 +26,7 @@ abstract class AuthService {
   Future<Either<FlowyError, UserProfilePB>> signUpAsAnonymousUser();
 
   ///
-  Future<void> signOut();
+  Future<void> signOut(AuthTypePB authType);
 
   /// Returns [UserProfilePB] if the user has sign in, otherwise returns null.
   Future<Either<FlowyError, UserProfilePB>> getUser();

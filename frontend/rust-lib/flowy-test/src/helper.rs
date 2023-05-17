@@ -1,15 +1,18 @@
-use crate::prelude::*;
+use std::{fs, path::PathBuf, sync::Arc};
+
 use flowy_folder2::entities::{
   CreateViewPayloadPB, CreateWorkspacePayloadPB, ViewLayoutPB, ViewPB, WorkspaceIdPB, WorkspacePB,
 };
 use flowy_folder2::event_map::FolderEvent::{CreateView, CreateWorkspace, OpenWorkspace};
+use flowy_user::entities::AuthTypePB;
 use flowy_user::{
   entities::{SignInPayloadPB, SignUpPayloadPB, UserProfilePB},
   errors::FlowyError,
   event_map::UserEvent::{InitUser, SignIn, SignOut, SignUp},
 };
 use lib_dispatch::prelude::{AFPluginDispatcher, AFPluginRequest, ToBytes};
-use std::{fs, path::PathBuf, sync::Arc};
+
+use crate::prelude::*;
 
 pub struct ViewTest {
   pub sdk: FlowySDKTest,
@@ -156,6 +159,7 @@ pub fn sign_up(dispatch: Arc<AFPluginDispatcher>) -> SignUpContext {
     email: random_email(),
     name: "app flowy".to_string(),
     password: password.clone(),
+    auth_type: AuthTypePB::SelfHosted,
   }
   .into_bytes()
   .unwrap();
@@ -179,6 +183,7 @@ pub async fn async_sign_up(dispatch: Arc<AFPluginDispatcher>) -> SignUpContext {
     email,
     name: "app flowy".to_string(),
     password: password.clone(),
+    auth_type: AuthTypePB::SelfHosted,
   }
   .into_bytes()
   .unwrap();
@@ -208,6 +213,7 @@ fn sign_in(dispatch: Arc<AFPluginDispatcher>) -> UserProfilePB {
     email: login_email(),
     password: login_password(),
     name: "rust".to_owned(),
+    auth_type: AuthTypePB::SelfHosted,
   }
   .into_bytes()
   .unwrap();

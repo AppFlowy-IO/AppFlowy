@@ -1843,6 +1843,7 @@ dependencies = [
  "rand_core 0.6.4",
  "serde",
  "serde_json",
+ "serde_repr",
  "strum",
  "strum_macros",
  "tokio",
