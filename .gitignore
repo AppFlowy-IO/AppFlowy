@@ -37,3 +37,5 @@ pubspec.lock
 .fvm/
 
 **/AppFlowy-Collab/
+
+**/secret.dart

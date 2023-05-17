@@ -1,13 +1,14 @@
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-final _supabase = Supabase.instance.client;
-
 class SupabaseAuthService {
   const SupabaseAuthService();
 
+  GoTrueClient get _auth => Supabase.instance.client.auth;
+
   Future<Either<Error, User>> signUp(String email, String password) async {
-    final response = await _supabase.auth.signUp(
+    await _auth.signInWithOAuth(Provider.google);
+    final response = await _auth.signUp(
       email: email,
       password: password,
     );
@@ -20,7 +21,8 @@ class SupabaseAuthService {
   }
 
   Future<Either<Error, User>> signIn(String email, String password) async {
-    final response = await _supabase.auth.signInWithPassword(
+    await _auth.signInWithOAuth(Provider.google);
+    final response = await _auth.signInWithPassword(
       email: email,
       password: password,
     );
@@ -33,10 +35,10 @@ class SupabaseAuthService {
   }
 
   Future<void> signOut() async {
-    await _supabase.auth.signOut();
+    await _auth.signOut();
   }
 
   Future<User?> getCurrentUser() async {
-    return _supabase.auth.currentUser;
+    return _auth.currentUser;
   }
 }

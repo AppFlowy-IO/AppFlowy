@@ -2,10 +2,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../startup.dart';
 
-// TODO: inject these values from a config file
-const supabaseUrl = '';
-const anonKey = '';
-
 class InitSupabaseTask extends LaunchTask {
   const InitSupabaseTask({
     required this.url,
