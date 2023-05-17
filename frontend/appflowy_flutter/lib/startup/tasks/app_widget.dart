@@ -23,6 +23,7 @@ class InitAppWidgetTask extends LaunchTask {
       appearanceSetting: appearanceSetting,
       child: widget,
     );
+
     Bloc.observer = ApplicationBlocObserver();
     runApp(
       EasyLocalization(
