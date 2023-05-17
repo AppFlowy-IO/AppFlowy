@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -8,7 +10,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class SupabaseAuthService implements AuthService {
   const SupabaseAuthService();
 
-  GoTrueClient get _auth => Supabase.instance.client.auth;
+  SupabaseClient get _client => Supabase.instance.client;
+  GoTrueClient get _auth => _client.auth;
 
   @override
   Future<Either<FlowyError, UserProfilePB>> signUp({
@@ -33,6 +36,7 @@ class SupabaseAuthService implements AuthService {
     required String email,
     required String password,
   }) async {
+    // return signInWithOAuth();
     try {
       final user = await _auth
           .signInWithPassword(
@@ -50,15 +54,34 @@ class SupabaseAuthService implements AuthService {
     }
   }
 
-  Future<Either<FlowyError, UserProfilePB>> signInWithOAuth({
-    Provider provider = Provider.github,
+  @override
+  Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
+    required String platform,
   }) async {
-    final response = await _auth.signInWithOAuth(provider);
+    final provider = platform.toProvider();
+    final completer = Completer<Either<FlowyError, UserProfilePB>>();
+    _auth.onAuthStateChange.listen((event) {
+      if (event.event == AuthChangeEvent.signedIn) {
+        completer.complete(getUser());
+      } else {
+        completer.complete(left(FlowyError()));
+      }
+    });
+    final Map<String, String> query = {};
+    if (provider == Provider.google) {
+      query['access_type'] = 'offline';
+      query['prompt'] = 'consent';
+    }
+    final response = await _auth.signInWithOAuth(
+      provider,
+      queryParams: query,
+      redirectTo: 'io.appflowy.appflowy-flutter://login-callback',
+    );
     if (!response) {
       // TODO: handle error
-      return left(FlowyError());
+      completer.complete(left(FlowyError()));
     }
-    return getUser();
+    return completer.future;
   }
 
   @override
@@ -87,5 +110,20 @@ extension on User {
     return UserProfilePB()
       ..email = email ?? ''
       ..token = this.id;
+  }
+}
+
+extension on String {
+  Provider toProvider() {
+    switch (this) {
+      case 'github':
+        return Provider.github;
+      case 'google':
+        return Provider.google;
+      case 'discord':
+        return Provider.discord;
+      default:
+        throw UnimplementedError();
+    }
   }
 }

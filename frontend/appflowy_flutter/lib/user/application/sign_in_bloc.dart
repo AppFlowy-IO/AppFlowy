@@ -20,6 +20,12 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
             emit,
           );
         },
+        signedInWithOAuth: (value) async =>
+            await _performActionOnSignInWithOAuth(
+          state,
+          emit,
+          value.platform,
+        ),
         emailChanged: (EmailChanged value) async {
           emit(
             state.copyWith(
@@ -46,6 +52,27 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     SignInState state,
     Emitter<SignInState> emit,
   ) async {
+    // TODO: add validation
+    final result = await authService.signIn(
+      email: state.email ?? '',
+      password: state.password ?? '',
+    );
+    emit(
+      result.fold(
+        (error) => stateFromCode(error),
+        (userProfile) => state.copyWith(
+          isSubmitting: false,
+          successOrFail: some(left(userProfile)),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _performActionOnSignInWithOAuth(
+    SignInState state,
+    Emitter<SignInState> emit,
+    String platform,
+  ) async {
     emit(
       state.copyWith(
         isSubmitting: true,
@@ -55,10 +82,8 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       ),
     );
 
-    // TODO: add validation
-    final result = await authService.signIn(
-      email: state.email ?? '',
-      password: state.password ?? '',
+    final result = await authService.signUpWithOAuth(
+      platform: platform,
     );
     emit(
       result.fold(
@@ -98,6 +123,8 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
 class SignInEvent with _$SignInEvent {
   const factory SignInEvent.signedInWithUserEmailAndPassword() =
       SignedInWithUserEmailAndPassword;
+  const factory SignInEvent.signedInWithOAuth(String platform) =
+      SignedInWithOAuth;
   const factory SignInEvent.emailChanged(String email) = EmailChanged;
   const factory SignInEvent.passwordChanged(String password) = PasswordChanged;
 }

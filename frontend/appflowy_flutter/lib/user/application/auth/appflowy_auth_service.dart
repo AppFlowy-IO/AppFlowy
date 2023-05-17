@@ -62,4 +62,11 @@ class AppFlowyAuthService implements AuthService {
   Future<Either<FlowyError, UserProfilePB>> getUser() async {
     return UserBackendService.getCurrentUserProfile();
   }
+
+  @override
+  Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
+    required String platform,
+  }) {
+    throw UnimplementedError();
+  }
 }

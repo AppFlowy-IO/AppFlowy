@@ -16,6 +16,11 @@ abstract class AuthService {
     required String password,
   });
 
+  ///
+  Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
+    required String platform,
+  });
+
   /// Returns a default [UserProfilePB]
   Future<Either<FlowyError, UserProfilePB>> signUpAsAnonymousUser();
 

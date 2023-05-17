@@ -40,5 +40,16 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string></string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>io.appflowy.appflowy-flutter</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
