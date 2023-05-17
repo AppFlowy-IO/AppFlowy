@@ -6,3 +6,4 @@ export 'hot_key.dart';
 export 'platform_error_catcher.dart';
 export 'windows.dart';
 export 'localization.dart';
+export 'supabase_task.dart';
