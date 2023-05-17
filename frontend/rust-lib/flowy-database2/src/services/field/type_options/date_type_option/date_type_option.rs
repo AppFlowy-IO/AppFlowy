@@ -6,7 +6,7 @@ use crate::services::field::{
 };
 use chrono::format::strftime::StrftimeItems;
 use chrono::{DateTime, Local, NaiveDateTime, NaiveTime, Offset, TimeZone};
-use chrono_tz::Tz;
+use chrono_tz::{Tz, UTC};
 use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
@@ -107,6 +107,37 @@ impl DateTypeOption {
       timezone_id,
     }
   }
+
+  fn timestamp_from_parsed_time_previous_and_new_timestamp(
+    &self,
+    timezone: Tz,
+    parsed_time: Option<NaiveTime>,
+    previous_timestamp: Option<i64>,
+    changeset_timestamp: Option<i64>,
+  ) -> Option<i64> {
+    if let Some(time) = parsed_time {
+      // a valid time is provided, so we replace the time component of old
+      // (or new timestamp if provided) with it.
+      let local_date = changeset_timestamp.or(previous_timestamp).map(|timestamp| {
+        timezone
+          .from_utc_datetime(&NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap())
+          .date_naive()
+      });
+
+      match local_date {
+        Some(date) => {
+          let local_datetime = timezone
+            .from_local_datetime(&NaiveDateTime::new(date, time))
+            .unwrap();
+
+          Some(local_datetime.timestamp())
+        },
+        None => None,
+      }
+    } else {
+      changeset_timestamp.or(previous_timestamp)
+    }
+  }
 }
 
 impl TypeOptionTransform for DateTypeOption {}
@@ -146,7 +177,7 @@ impl CellDataChangeset for DateTypeOption {
     cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     // old date cell data
-    let (timestamp, include_time, timezone_id) = match cell {
+    let (previous_timestamp, include_time, timezone_id) = match cell {
       None => (None, false, "".to_owned()),
       Some(type_cell_data) => {
         let cell_data = DateCellData::from(&type_cell_data);
@@ -158,24 +189,23 @@ impl CellDataChangeset for DateTypeOption {
       },
     };
 
-    // update include_time and timezone_id if present
-    let include_time = match changeset.include_time {
-      None => include_time,
-      Some(include_time) => include_time,
-    };
-    let timezone_id = match changeset.timezone_id {
-      None => timezone_id,
-      Some(ref timezone_id) => timezone_id.to_owned(),
-    };
+    // update include_time and timezone_id if necessary
+    let include_time = changeset.include_time.unwrap_or(include_time);
+    let timezone_id = changeset
+      .timezone_id
+      .as_ref()
+      .map(|timezone_id| timezone_id.to_owned())
+      .unwrap_or_else(|| timezone_id);
 
-    let previous_datetime = match timestamp {
-      Some(timestamp) => NaiveDateTime::from_timestamp_opt(timestamp, 0),
-      None => None,
-    };
+    // Calculate the timezone-aware timestamp. If a new timestamp is included
+    // in the changeset without an accompanying time string, the old timestamp
+    // will simply be overwritten. Meaning, in order to change the day without
+    // changing the time, the old time string should be passed in as well.
 
-    let new_date_timestamp = changeset.date_timestamp();
+    let changeset_timestamp = changeset.date_timestamp();
 
-    // parse the time string, which would be in the local timezone
+    // parse the time string, which is in the timezone corresponding to
+    // timezone_id or local
     let parsed_time = match (include_time, changeset.time) {
       (true, Some(time_str)) => {
         let result = NaiveTime::parse_from_str(&time_str, self.time_format.format_str());
@@ -190,74 +220,26 @@ impl CellDataChangeset for DateTypeOption {
       _ => Ok(None),
     }?;
 
-    // Calculate the new timestamp, while considering the timezone. If a new
-    // timestamp is included in the changeset without an accompanying time
-    // string, the new timestamp will simply overwrite the old one. Meaning,
-    // in order to change the day without time in the frontend, the time string
-    // must also be passed.
-    let timestamp = match Tz::from_str(&timezone_id) {
-      Ok(timezone) => match parsed_time {
-        Some(time) => {
-          // a valid time is provided, so we replace the time component of old
-          // (or new timestamp if provided) with this.
-          let local_date = match new_date_timestamp {
-            Some(timestamp) => Some(
-              timezone
-                .from_utc_datetime(&NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap())
-                .date_naive(),
-            ),
-            None => {
-              previous_datetime.map(|datetime| timezone.from_utc_datetime(&datetime).date_naive())
-            },
-          };
-
-          match local_date {
-            Some(date) => {
-              let local_datetime_naive = NaiveDateTime::new(date, time);
-              let local_datetime = timezone.from_local_datetime(&local_datetime_naive).unwrap();
-
-              Some(local_datetime.timestamp())
-            },
-            None => None,
-          }
-        },
-        None => match new_date_timestamp {
-          // no valid time, return old timestamp or new one if provided
-          Some(timestamp) => Some(timestamp),
-          None => timestamp,
-        },
-      },
-      Err(_) => match parsed_time {
-        // same logic as above, but using local time instead of timezone
-        Some(time) => {
-          let offset = *Local::now().offset();
-          let local_date = match new_date_timestamp {
-            Some(timestamp) => Some(
-              offset
-                .from_utc_datetime(&NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap())
-                .date_naive(),
-            ),
-            None => {
-              previous_datetime.map(|datetime| offset.from_utc_datetime(&datetime).date_naive())
-            },
-          };
-
-          match local_date {
-            Some(date) => {
-              let local_datetime = NaiveDateTime::new(date, time);
-              let datetime = offset.from_local_datetime(&local_datetime).unwrap();
-
-              Some(datetime.timestamp())
-            },
-            None => None,
-          }
-        },
-        None => match new_date_timestamp {
-          Some(timestamp) => Some(timestamp),
-          None => timestamp,
-        },
-      },
+    // Tz timezone if provided, local timezone otherwise
+    let current_timezone_offset = UTC
+      .offset_from_local_datetime(&Local::now().naive_local())
+      .unwrap();
+    let current_timezone = Tz::from_offset(&current_timezone_offset);
+    let timezone = if timezone_id.is_empty() {
+      current_timezone
+    } else {
+      match Tz::from_str(&timezone_id) {
+        Ok(timezone) => timezone,
+        Err(_) => current_timezone,
+      }
     };
+
+    let timestamp = self.timestamp_from_parsed_time_previous_and_new_timestamp(
+      timezone,
+      parsed_time,
+      previous_timestamp,
+      changeset_timestamp,
+    );
 
     let date_cell_data = DateCellData {
       timestamp,

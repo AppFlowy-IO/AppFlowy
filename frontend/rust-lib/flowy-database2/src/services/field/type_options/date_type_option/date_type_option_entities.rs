@@ -27,14 +27,7 @@ pub struct DateCellChangeset {
 
 impl DateCellChangeset {
   pub fn date_timestamp(&self) -> Option<i64> {
-    if let Some(date) = &self.date {
-      match date.parse::<i64>() {
-        Ok(date_timestamp) => Some(date_timestamp),
-        Err(_) => None,
-      }
-    } else {
-      None
-    }
+    self.date.as_ref().and_then(|date| date.parse::<i64>().ok())
   }
 }
 
