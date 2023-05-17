@@ -54,8 +54,11 @@ class CalendarDayCard extends StatelessWidget {
         if (events.isNotEmpty) {
           multipleCards = Flexible(
             child: ListView.separated(
-              itemBuilder: (BuildContext context, int index) =>
-                  _buildCard(context, events[index]),
+              itemBuilder: (BuildContext context, int index) => _EventCard(
+                event: events[index],
+                viewId: viewId,
+                rowCache: _rowCache,
+              ),
               itemCount: events.length,
               padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 8.0),
               separatorBuilder: (BuildContext context, int index) =>
@@ -98,136 +101,6 @@ class CalendarDayCard extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildCard(BuildContext context, CalendarDayEvent event) {
-    final styles = <FieldType, CardCellStyle>{
-      FieldType.Number: NumberCardCellStyle(10),
-      FieldType.URL: URLCardCellStyle(10),
-    };
-
-    final cellBuilder = CardCellBuilder<String>(
-      _rowCache.cellCache,
-      styles: styles,
-    );
-
-    final rowInfo = _rowCache.getRow(event.eventId);
-    final renderHook = RowCardRenderHook<String>();
-    renderHook.addTextCellHook((cellData, primaryFieldId, _) {
-      if (cellData.isEmpty) {
-        return const SizedBox();
-      }
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: FlowyText.medium(
-          cellData,
-          textAlign: TextAlign.left,
-          fontSize: 11,
-          maxLines: null, // Enable multiple lines
-        ),
-      );
-    });
-
-    renderHook.addDateCellHook((cellData, cardData, _) {
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                flex: 3,
-                child: FlowyText.regular(
-                  cellData.date,
-                  fontSize: 10,
-                  color: Theme.of(context).hintColor,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              Flexible(
-                child: FlowyText.regular(
-                  cellData.time,
-                  fontSize: 10,
-                  color: Theme.of(context).hintColor,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              )
-            ],
-          ),
-        ),
-      );
-    });
-
-    renderHook.addSelectOptionHook((selectedOptions, cardData, _) {
-      if (selectedOptions.isEmpty) {
-        return const SizedBox.shrink();
-      }
-      final children = selectedOptions.map(
-        (option) {
-          return SelectOptionTag.fromOption(
-            context: context,
-            option: option,
-          );
-        },
-      ).toList();
-
-      return IntrinsicHeight(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
-          child: SizedBox.expand(
-            child: Wrap(spacing: 4, runSpacing: 4, children: children),
-          ),
-        ),
-      );
-    });
-
-    // renderHook.addDateFieldHook((cellData, cardData) {
-
-    final card = RowCard<String>(
-      // Add the key here to make sure the card is rebuilt when the cells
-      // in this row are updated.
-      key: ValueKey(event.eventId),
-      row: rowInfo!.rowPB,
-      viewId: viewId,
-      rowCache: _rowCache,
-      cardData: event.dateFieldId,
-      isEditing: false,
-      cellBuilder: cellBuilder,
-      openCard: (context) => showEventDetails(
-        context: context,
-        event: event,
-        viewId: viewId,
-        rowCache: _rowCache,
-      ),
-      styleConfiguration: const RowCardStyleConfiguration(
-        showAccessory: false,
-        cellPadding: EdgeInsets.zero,
-      ),
-      renderHook: renderHook,
-      onStartEditing: () {},
-      onEndEditing: () {},
-    );
-
-    return FlowyHover(
-      style: HoverStyle(
-        hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
-        foregroundColorOnHover: Theme.of(context).colorScheme.onBackground,
-      ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 2),
-        decoration: BoxDecoration(
-          border: Border.fromBorderSide(
-            BorderSide(
-              color: Theme.of(context).dividerColor,
-              width: 1.5,
-            ),
-          ),
-          borderRadius: Corners.s6Border,
-        ),
-        child: card,
-      ),
     );
   }
 
@@ -340,6 +213,148 @@ class _DayBadge extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _EventCard extends StatelessWidget {
+  final CalendarDayEvent event;
+  final String viewId;
+  final RowCache rowCache;
+
+  const _EventCard({
+    required this.event,
+    required this.viewId,
+    required this.rowCache,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final styles = <FieldType, CardCellStyle>{
+      FieldType.Number: NumberCardCellStyle(10),
+      FieldType.URL: URLCardCellStyle(10),
+    };
+
+    final cellBuilder = CardCellBuilder<String>(
+      rowCache.cellCache,
+      styles: styles,
+    );
+
+    final rowInfo = rowCache.getRow(event.eventId);
+    final renderHook = RowCardRenderHook<String>();
+    renderHook.addTextCellHook((cellData, primaryFieldId, _) {
+      if (cellData.isEmpty) {
+        return const SizedBox.shrink();
+      }
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: FlowyText.medium(
+          cellData,
+          textAlign: TextAlign.left,
+          fontSize: 11,
+          maxLines: null, // Enable multiple lines
+        ),
+      );
+    });
+
+    renderHook.addDateCellHook((cellData, cardData, _) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                flex: 3,
+                child: FlowyText.regular(
+                  cellData.date,
+                  fontSize: 10,
+                  color: Theme.of(context).hintColor,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Flexible(
+                child: FlowyText.regular(
+                  cellData.time,
+                  fontSize: 10,
+                  color: Theme.of(context).hintColor,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              )
+            ],
+          ),
+        ),
+      );
+    });
+
+    renderHook.addSelectOptionHook((selectedOptions, cardData, _) {
+      if (selectedOptions.isEmpty) {
+        return const SizedBox.shrink();
+      }
+      final children = selectedOptions.map(
+        (option) {
+          return SelectOptionTag.fromOption(
+            context: context,
+            option: option,
+          );
+        },
+      ).toList();
+
+      return IntrinsicHeight(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: SizedBox.expand(
+            child: Wrap(spacing: 4, runSpacing: 4, children: children),
+          ),
+        ),
+      );
+    });
+
+    final card = RowCard<String>(
+      // Add the key here to make sure the card is rebuilt when the cells
+      // in this row are updated.
+      key: ValueKey(event.eventId),
+      row: rowInfo!.rowPB,
+      viewId: viewId,
+      rowCache: rowCache,
+      cardData: event.dateFieldId,
+      isEditing: false,
+      cellBuilder: cellBuilder,
+      openCard: (context) => showEventDetails(
+        context: context,
+        event: event,
+        viewId: viewId,
+        rowCache: rowCache,
+      ),
+      styleConfiguration: const RowCardStyleConfiguration(
+        showAccessory: false,
+        cellPadding: EdgeInsets.zero,
+      ),
+      renderHook: renderHook,
+      onStartEditing: () {},
+      onEndEditing: () {},
+    );
+
+    return FlowyHover(
+      style: HoverStyle(
+        hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
+        foregroundColorOnHover: Theme.of(context).colorScheme.onBackground,
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        decoration: BoxDecoration(
+          border: Border.fromBorderSide(
+            BorderSide(
+              color: Theme.of(context).dividerColor,
+              width: 1.5,
+            ),
+          ),
+          borderRadius: Corners.s6Border,
+        ),
+        child: card,
+      ),
     );
   }
 }
