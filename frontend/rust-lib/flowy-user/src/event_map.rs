@@ -5,11 +5,12 @@ use strum_macros::Display;
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
 use lib_dispatch::prelude::*;
+use lib_infra::box_any::BoxAny;
 use lib_infra::future::{Fut, FutureResult};
 
 use crate::entities::UserProfilePB;
 use crate::entities::{
-  SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
+  SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
 use crate::event_handler::*;
 use crate::{errors::FlowyError, services::UserSession};
@@ -41,10 +42,10 @@ pub trait UserStatusCallback: Send + Sync + 'static {
 /// The user cloud service is responsible for the user authentication and user profile management
 pub trait UserCloudService: Send + Sync {
   /// Sign up a new account
-  fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, FlowyError>;
+  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError>;
 
   /// Sign in an account
-  fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError>;
+  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, FlowyError>;
 
   /// Sign out an account
   fn sign_out(&self, token: &str) -> FutureResult<(), FlowyError>;

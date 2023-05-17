@@ -4,6 +4,7 @@ use flowy_user::entities::{
   UserProfilePB,
 };
 use flowy_user::event_map::UserCloudService;
+use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::http_server::self_host::configuration::{ClientServerConfiguration, HEADER_TOKEN};
@@ -21,17 +22,19 @@ impl UserHttpCloudService {
 }
 
 impl UserCloudService for UserHttpCloudService {
-  fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, FlowyError> {
+  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
     let url = self.config.sign_up_url();
     FutureResult::new(async move {
+      let params = params.unbox_or_error::<SignUpParams>()?;
       let resp = user_sign_up_request(params, &url).await?;
       Ok(resp)
     })
   }
 
-  fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError> {
+  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, FlowyError> {
     let url = self.config.sign_in_url();
     FutureResult::new(async move {
+      let params = params.unbox_or_error::<SignInParams>()?;
       let resp = user_sign_in_request(params, &url).await?;
       Ok(resp)
     })

@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::cmp::Ordering;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
@@ -7,6 +6,7 @@ use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, RowId};
 
 use flowy_error::FlowyResult;
+use lib_infra::box_any::BoxAny;
 
 use crate::entities::FieldType;
 use crate::services::cell::{
@@ -486,41 +486,7 @@ fn get_type_option_transform_handler(
   }
 }
 
-pub struct BoxCellData(Box<dyn Any + Send + Sync + 'static>);
-
-impl BoxCellData {
-  fn new<T>(value: T) -> Self
-  where
-    T: Send + Sync + 'static,
-  {
-    Self(Box::new(value))
-  }
-
-  fn unbox_or_default<T>(self) -> T
-  where
-    T: Default + 'static,
-  {
-    match self.0.downcast::<T>() {
-      Ok(value) => *value,
-      Err(_) => T::default(),
-    }
-  }
-
-  pub(crate) fn unbox_or_none<T>(self) -> Option<T>
-  where
-    T: Default + 'static,
-  {
-    match self.0.downcast::<T>() {
-      Ok(value) => Some(*value),
-      Err(_) => None,
-    }
-  }
-
-  #[allow(dead_code)]
-  fn downcast_ref<T: 'static>(&self) -> Option<&T> {
-    self.0.downcast_ref()
-  }
-}
+pub type BoxCellData = BoxAny;
 
 pub struct RowSingleCellData {
   pub row_id: RowId,

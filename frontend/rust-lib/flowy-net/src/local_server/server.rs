@@ -9,6 +9,7 @@ use flowy_user::entities::{
 };
 use flowy_user::event_map::UserCloudService;
 use flowy_user::uid::UserIDGenerator;
+use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 lazy_static! {
@@ -34,9 +35,10 @@ impl LocalServer {
 }
 
 impl UserCloudService for LocalServer {
-  fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, FlowyError> {
-    let uid = ID_GEN.lock().next_id();
+  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
     FutureResult::new(async move {
+      let params = params.unbox_or_error::<SignUpParams>()?;
+      let uid = ID_GEN.lock().next_id();
       Ok(SignUpResponse {
         user_id: uid,
         name: params.name,
@@ -46,9 +48,10 @@ impl UserCloudService for LocalServer {
     })
   }
 
-  fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError> {
-    let uid = ID_GEN.lock().next_id();
+  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, FlowyError> {
     FutureResult::new(async move {
+      let uid = ID_GEN.lock().next_id();
+      let params = params.unbox_or_error::<SignInParams>()?;
       Ok(SignInResponse {
         user_id: uid,
         name: params.name,

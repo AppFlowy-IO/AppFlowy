@@ -1,8 +1,11 @@
-use crate::code::ErrorCode;
-use anyhow::Result;
-use flowy_derive::ProtoBuf;
 use std::fmt::Debug;
+
+use anyhow::Result;
 use thiserror::Error;
+
+use flowy_derive::ProtoBuf;
+
+use crate::code::ErrorCode;
 
 pub type FlowyResult<T> = anyhow::Result<T, FlowyError>;
 
@@ -112,6 +115,12 @@ impl std::convert::From<std::io::Error> for FlowyError {
 
 impl std::convert::From<protobuf::ProtobufError> for FlowyError {
   fn from(e: protobuf::ProtobufError) -> Self {
+    FlowyError::internal().context(e)
+  }
+}
+
+impl From<anyhow::Error> for FlowyError {
+  fn from(e: anyhow::Error) -> Self {
     FlowyError::internal().context(e)
   }
 }

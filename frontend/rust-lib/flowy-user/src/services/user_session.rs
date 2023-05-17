@@ -12,6 +12,7 @@ use flowy_sqlite::{
   schema::{user_table, user_table::dsl},
   DBConnection, ExpressionMethods, UserDatabaseConnection,
 };
+use lib_infra::box_any::BoxAny;
 
 use crate::entities::{
   SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
@@ -106,7 +107,7 @@ impl UserSession {
         Err(err) => Err(err),
       }
     } else {
-      let resp = self.cloud_service.sign_in(params).await?;
+      let resp = self.cloud_service.sign_in(BoxAny::new(params)).await?;
       let session: Session = resp.clone().into();
       self.set_session(Some(session))?;
       let user_profile: UserProfile = self.save_user(resp.into()).await?.into();
@@ -130,7 +131,7 @@ impl UserSession {
     if self.is_user_login(&params.email) {
       self.get_user_profile().await
     } else {
-      let resp = self.cloud_service.sign_up(params).await?;
+      let resp = self.cloud_service.sign_up(BoxAny::new(params)).await?;
       let session: Session = resp.clone().into();
       self.set_session(Some(session))?;
       let user_table = self.save_user(resp.into()).await?;
