@@ -7,7 +7,7 @@ import 'package:path/path.dart' as path;
 import '../startup.dart';
 
 class InitRustSDKTask extends LaunchTask {
-  InitRustSDKTask({
+  const InitRustSDKTask({
     this.directory,
   });
 

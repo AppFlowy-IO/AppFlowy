@@ -1,37 +1,36 @@
 import 'dart:ui';
 
 import 'package:appflowy/core/helpers/helpers.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:flutter/foundation.dart';
 import 'package:window_manager/window_manager.dart';
 
-/// Represents the main window of the app.
-class AppWindow {
-  /// The singleton instance of the window.
-  static late AppWindow instance;
+class InitAppWindowTask extends LaunchTask {
+  const InitAppWindowTask({
+    this.minimumSize = const Size(600, 400),
+    this.title = 'AppFlowy',
+  });
 
-  AppWindow._() {
-    instance = this;
-  }
+  final Size minimumSize;
+  final String title;
 
-  /// Initializes the window.
-  static Future<AppWindow?> initialize() async {
+  @override
+  Future<void> initialize(LaunchContext context) async {
     // Don't initialize on mobile or web.
     if (!defaultTargetPlatform.isDesktop) {
-      return null;
+      return;
     }
 
     await windowManager.ensureInitialized();
 
-    WindowOptions windowOptions = const WindowOptions(
-      minimumSize: Size(600, 400),
-      title: 'AppFlowy',
+    WindowOptions windowOptions = WindowOptions(
+      minimumSize: minimumSize,
+      title: title,
     );
 
     await windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
       await windowManager.focus();
     });
-
-    return AppWindow._();
   }
 }
