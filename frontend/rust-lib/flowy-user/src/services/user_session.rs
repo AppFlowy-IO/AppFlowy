@@ -4,6 +4,7 @@ use appflowy_integrate::RocksCollabDB;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
 
+use flowy_error::internal_error;
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{
   kv::KV,
@@ -18,7 +19,7 @@ use crate::entities::{
 use crate::entities::{UserProfilePB, UserSettingPB};
 use crate::event_map::UserStatusCallback;
 use crate::{
-  errors::{ErrorCode, FlowyError},
+  errors::FlowyError,
   event_map::UserCloudService,
   notification::*,
   services::database::{UserDB, UserTable, UserTableChangeset},
@@ -288,27 +289,21 @@ impl UserSession {
   fn set_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
     tracing::debug!("Set user session: {:?}", session);
     match &session {
-      None => KV::remove(&self.session_config.session_cache_key)
-        .map_err(|e| FlowyError::new(ErrorCode::Internal, &e))?,
-      Some(session) => KV::set_str(
-        &self.session_config.session_cache_key,
-        session.clone().into(),
-      ),
+      None => KV::remove(&self.session_config.session_cache_key),
+      Some(session) => {
+        KV::set_object(&self.session_config.session_cache_key, session.clone())
+          .map_err(internal_error)?;
+      },
     }
     Ok(())
   }
 
   fn get_session(&self) -> Result<Session, FlowyError> {
-    match KV::get_str(&self.session_config.session_cache_key) {
+    match KV::get_object::<Session>(&self.session_config.session_cache_key) {
       None => Err(FlowyError::unauthorized()),
-      Some(s) => Ok(Session::from(s)),
+      Some(session) => Ok(session),
     }
   }
-
-  // fn get_old_session(&self) -> Option<OldSession> {
-  //   let s = KV::get_str(&self.config.session_cache_key)?;
-  //   serde_json::from_str::<OldSession>(&s).ok()
-  // }
 
   fn is_user_login(&self, email: &str) -> bool {
     match self.get_session() {
