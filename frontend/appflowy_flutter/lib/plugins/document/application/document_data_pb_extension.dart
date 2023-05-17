@@ -10,21 +10,33 @@ extension AppFlowyEditor on DocumentDataPB2 {
     final rootId = pageId;
     try {
       final root = buildNode(rootId);
-      return Document(root: root);
+
+      if (root != null) {
+        return Document(root: root);
+      }
+
+      return null;
     } catch (e) {
       Log.error('create document error: $e');
       return null;
     }
   }
 
-  Node buildNode(String id) {
-    final block = blocks[id]!; // TODO: don't use force unwrap
+  Node? buildNode(String id) {
+    if (blocks.isEmpty || !blocks.keys.contains(id)) {
+      return null;
+    }
+
+    final block = blocks[id]!;
     final childrenId = block.childrenId;
     final childrenIds = meta.childrenMap[childrenId]?.children;
+
     final children = <Node>[];
     if (childrenIds != null && childrenIds.isNotEmpty) {
-      children.addAll(childrenIds.map((e) => buildNode(e)));
+      final renderables = childrenIds.where((id) => blocks[id] != null);
+      children.addAll(renderables.map((e) => buildNode(e)!));
     }
+
     return block.toNode(children: children);
   }
 }
