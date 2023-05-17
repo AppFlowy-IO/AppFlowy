@@ -1747,6 +1747,7 @@ dependencies = [
 name = "flowy-sqlite"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "diesel",
  "diesel_derives",
  "diesel_migrations",
@@ -1755,8 +1756,12 @@ dependencies = [
  "libsqlite3-sys",
  "openssl",
  "openssl-sys",
+ "parking_lot 0.12.1",
  "r2d2",
  "scheduled-thread-pool",
+ "serde",
+ "serde_json",
+ "tempfile",
  "tracing",
 ]
 
