@@ -17,11 +17,13 @@ pub fn make_plugins(
   let network_plugin = flowy_net::event_map::init();
   let database_plugin = flowy_database2::event_map::init(database_manager.clone());
   let document_plugin2 = flowy_document2::event_map::init(document_manager2.clone());
+  let config_plugin = flowy_config::event_map::init();
   vec![
     user_plugin,
     folder_plugin,
     network_plugin,
     database_plugin,
     document_plugin2,
+    config_plugin,
   ]
 }

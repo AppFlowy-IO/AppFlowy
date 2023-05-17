@@ -1536,12 +1536,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-config"
+version = "0.1.0"
+dependencies = [
+ "appflowy-integrate",
+ "bytes",
+ "flowy-codegen",
+ "flowy-derive",
+ "flowy-error",
+ "flowy-sqlite",
+ "lib-dispatch",
+ "protobuf",
+ "strum_macros",
+]
+
+[[package]]
 name = "flowy-core"
 version = "0.1.0"
 dependencies = [
  "appflowy-integrate",
  "bytes",
  "console-subscriber",
+ "flowy-config",
  "flowy-database2",
  "flowy-document2",
  "flowy-error",

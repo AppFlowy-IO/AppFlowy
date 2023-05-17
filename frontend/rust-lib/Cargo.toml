@@ -15,6 +15,7 @@ members = [
   "flowy-database2",
   "flowy-task",
   "flowy-server",
+  "flowy-config",
 ]
 
 [profile.dev]
