@@ -206,6 +206,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
         node: widget.node,
         editorState: editorState,
         placeholderText: placeholderText,
+        lineHeight: 1.5,
         textSpanDecorator: (textSpan) => TextSpan(
           style: textStyle,
           children: codeTextSpans,
@@ -218,10 +219,12 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
   }
 
   Widget _buildSwitchLanguageButton(BuildContext context) {
+    const maxWidth = 100.0;
     return AppFlowyPopover(
       controller: popoverController,
       child: Container(
-        width: 100,
+        width: maxWidth,
+        alignment: Alignment.centerLeft,
         padding: const EdgeInsets.symmetric(horizontal: 4),
         child: FlowyTextButton(
           '${language?.capitalize() ?? 'auto'} ',
@@ -229,8 +232,10 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
             horizontal: 12.0,
             vertical: 4.0,
           ),
+          constraints: const BoxConstraints(maxWidth: maxWidth),
           fontColor: Theme.of(context).colorScheme.onBackground,
           fillColor: Colors.transparent,
+          mainAxisAlignment: MainAxisAlignment.start,
           onPressed: () {},
         ),
       ),

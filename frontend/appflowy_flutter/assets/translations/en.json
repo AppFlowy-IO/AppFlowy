@@ -395,6 +395,10 @@
       "mathEquation": {
         "addMathEquation": "Add Math Equation",
         "editMathEquation": "Edit Math Equation"
+      },
+      "optionAction": {
+        "click": "Click",
+        "toOpenMenu": " to open menu"
       }
     }
   },

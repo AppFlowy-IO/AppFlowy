@@ -89,11 +89,11 @@ class _DocumentPageState extends State<DocumentPage> {
   Widget _buildEditorPage(BuildContext context, DocumentState state) {
     final appflowyEditorPage = AppFlowyEditorPage(
       editorState: editorState!,
+      header: _buildCoverAndIcon(context),
     );
     return Column(
       children: [
         if (state.isDeleted) _buildBanner(context),
-        _buildCoverAndIcon(context),
         Expanded(
           child: appflowyEditorPage,
         ),
