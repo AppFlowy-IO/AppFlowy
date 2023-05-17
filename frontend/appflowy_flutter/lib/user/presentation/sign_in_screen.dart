@@ -19,8 +19,12 @@ import 'package:flowy_infra/image.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
 class SignInScreen extends StatelessWidget {
+  const SignInScreen({
+    super.key,
+    required this.router,
+  });
+
   final AuthRouter router;
-  const SignInScreen({Key? key, required this.router}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -52,11 +56,12 @@ class SignInScreen extends StatelessWidget {
 }
 
 class SignInForm extends StatelessWidget {
-  final AuthRouter router;
   const SignInForm({
-    Key? key,
+    super.key,
     required this.router,
-  }) : super(key: key);
+  });
+
+  final AuthRouter router;
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +75,7 @@ class SignInForm extends StatelessWidget {
           ),
           const VSpace(30),
           const EmailTextField(),
+          const VSpace(5),
           const PasswordTextField(),
           ForgetPasswordButton(router: router),
           const VSpace(30),
@@ -150,7 +156,10 @@ class ForgetPasswordButton extends StatelessWidget {
       style: TextButton.styleFrom(
         textStyle: Theme.of(context).textTheme.bodyMedium,
       ),
-      onPressed: () => router.pushForgetPasswordScreen(context),
+      onPressed: () {
+        throw UnimplementedError();
+        router.pushForgetPasswordScreen(context);
+      },
       child: Text(
         LocaleKeys.signIn_forgotPassword.tr(),
         style: TextStyle(color: Theme.of(context).colorScheme.primary),
