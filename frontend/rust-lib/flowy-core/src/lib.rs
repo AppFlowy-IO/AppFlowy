@@ -16,8 +16,9 @@ use flowy_database2::DatabaseManager2;
 use flowy_document2::manager::DocumentManager as DocumentManager2;
 use flowy_error::FlowyResult;
 use flowy_folder2::manager::Folder2Manager;
-use flowy_net::http_server::self_host::configuration::ClientServerConfiguration;
-use flowy_net::local_server::LocalServer;
+use flowy_server::local_server;
+use flowy_server::local_server::LocalServer;
+use flowy_server::self_host::configuration::ClientServerConfiguration;
 use flowy_sqlite::kv::KV;
 use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::entities::UserProfile;
@@ -221,7 +222,7 @@ fn mk_local_server(server_config: &ClientServerConfiguration) -> Option<Arc<Loca
     // let ws_conn = Arc::new(FlowyWebSocketConnect::new(ws_addr));
     None
   } else {
-    let context = flowy_net::local_server::build_server(server_config);
+    let context = local_server::build_server(server_config);
     // let ws_conn = Arc::new(FlowyWebSocketConnect::from_local(ws_addr, local_ws));
     Some(Arc::new(context.local_server))
   }

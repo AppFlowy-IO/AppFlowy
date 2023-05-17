@@ -19,6 +19,7 @@ flowy-document2 = { path = "../flowy-document2" }
 #flowy-revision = { path = "../flowy-revision" }
 flowy-error = { path = "../flowy-error" }
 flowy-task = { path = "../flowy-task" }
+flowy-server = { path = "../flowy-server" }
 appflowy-integrate = { version = "0.1.0" }
 
 tracing = { version = "0.1", features = ["log"] }

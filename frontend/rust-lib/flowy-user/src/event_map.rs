@@ -8,10 +8,7 @@ use lib_dispatch::prelude::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::{Fut, FutureResult};
 
-use crate::entities::UserProfilePB;
-use crate::entities::{
-  SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
-};
+use crate::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 use crate::event_handler::*;
 use crate::{errors::FlowyError, services::UserSession};
 
@@ -58,7 +55,7 @@ pub trait UserCloudService: Send + Sync {
   ) -> FutureResult<(), FlowyError>;
 
   /// Get the user information using the user's token
-  fn get_user(&self, token: &str) -> FutureResult<UserProfilePB, FlowyError>;
+  fn get_user(&self, token: &str) -> FutureResult<UserProfile, FlowyError>;
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]

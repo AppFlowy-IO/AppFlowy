@@ -4,13 +4,13 @@ use tokio::sync::mpsc;
 
 use flowy_error::FlowyError;
 use flowy_user::entities::{
-  SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams,
-  UserProfilePB,
+  SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
 use flowy_user::event_map::UserCloudService;
-use flowy_user::uid::UserIDGenerator;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
+
+use crate::local_server::uid::UserIDGenerator;
 
 lazy_static! {
   static ref ID_GEN: Mutex<UserIDGenerator> = Mutex::new(UserIDGenerator::new(1));
@@ -73,7 +73,7 @@ impl UserCloudService for LocalServer {
     FutureResult::new(async { Ok(()) })
   }
 
-  fn get_user(&self, _token: &str) -> FutureResult<UserProfilePB, FlowyError> {
-    FutureResult::new(async { Ok(UserProfilePB::default()) })
+  fn get_user(&self, _token: &str) -> FutureResult<UserProfile, FlowyError> {
+    FutureResult::new(async { Ok(UserProfile::default()) })
   }
 }

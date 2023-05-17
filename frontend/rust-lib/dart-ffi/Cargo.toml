@@ -31,6 +31,7 @@ flowy-core = { path = "../flowy-core" }
 flowy-notification = { path = "../flowy-notification" }
 flowy-net = { path = "../flowy-net" }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
+flowy-server = { path = "../flowy-server" }
 
 [features]
 default = ["dart", "rev-sqlite"]

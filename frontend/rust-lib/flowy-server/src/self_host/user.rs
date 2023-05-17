@@ -1,14 +1,13 @@
 use flowy_error::FlowyError;
 use flowy_user::entities::{
-  SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams,
-  UserProfilePB,
+  SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
 use flowy_user::event_map::UserCloudService;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
-use crate::http_server::self_host::configuration::{ClientServerConfiguration, HEADER_TOKEN};
 use crate::request::HttpRequestBuilder;
+use crate::self_host::configuration::{ClientServerConfiguration, HEADER_TOKEN};
 
 pub struct UserHttpCloudService {
   config: ClientServerConfiguration,
@@ -62,7 +61,7 @@ impl UserCloudService for UserHttpCloudService {
     })
   }
 
-  fn get_user(&self, token: &str) -> FutureResult<UserProfilePB, FlowyError> {
+  fn get_user(&self, token: &str) -> FutureResult<UserProfile, FlowyError> {
     let token = token.to_owned();
     let url = self.config.user_profile_url();
     FutureResult::new(async move {
@@ -76,11 +75,7 @@ pub async fn user_sign_up_request(
   params: SignUpParams,
   url: &str,
 ) -> Result<SignUpResponse, FlowyError> {
-  let response = request_builder()
-    .post(url)
-    .json(params)?
-    .json_response()
-    .await?;
+  let response = request_builder().post(url).json(params)?.response().await?;
   Ok(response)
 }
 
@@ -88,11 +83,7 @@ pub async fn user_sign_in_request(
   params: SignInParams,
   url: &str,
 ) -> Result<SignInResponse, FlowyError> {
-  let response = request_builder()
-    .post(url)
-    .json(params)?
-    .json_response()
-    .await?;
+  let response = request_builder().post(url).json(params)?.response().await?;
   Ok(response)
 }
 
@@ -105,7 +96,7 @@ pub async fn user_sign_out_request(token: &str, url: &str) -> Result<(), FlowyEr
   Ok(())
 }
 
-pub async fn get_user_profile_request(token: &str, url: &str) -> Result<UserProfilePB, FlowyError> {
+pub async fn get_user_profile_request(token: &str, url: &str) -> Result<UserProfile, FlowyError> {
   let user_profile = request_builder()
     .get(url)
     .header(HEADER_TOKEN, token)

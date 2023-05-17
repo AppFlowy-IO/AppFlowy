@@ -1,7 +1,7 @@
 use nanoid::nanoid;
 
 use flowy_core::{AppFlowyCore, AppFlowyCoreConfig};
-use flowy_net::http_server::self_host::configuration::get_client_server_configuration;
+use flowy_server::self_host::configuration::self_host_server_configuration;
 use flowy_user::entities::UserProfilePB;
 
 use crate::helper::*;
@@ -36,7 +36,7 @@ impl std::default::Default for FlowySDKTest {
 
 impl FlowySDKTest {
   pub fn new() -> Self {
-    let server_config = get_client_server_configuration().unwrap();
+    let server_config = self_host_server_configuration().unwrap();
     let config =
       AppFlowyCoreConfig::new(&root_dir(), nanoid!(6), server_config).log_filter("info", vec![]);
     let sdk = std::thread::spawn(|| AppFlowyCore::new(config))

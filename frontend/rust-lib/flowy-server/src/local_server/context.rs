@@ -1,5 +1,5 @@
-use crate::http_server::self_host::configuration::ClientServerConfiguration;
 use crate::local_server::LocalServer;
+use crate::self_host::configuration::ClientServerConfiguration;
 
 pub struct LocalServerContext {
   pub local_server: LocalServer,

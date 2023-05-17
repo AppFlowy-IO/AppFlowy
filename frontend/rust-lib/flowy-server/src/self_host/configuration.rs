@@ -14,7 +14,7 @@ pub struct ClientServerConfiguration {
   pub ws_scheme: String,
 }
 
-pub fn get_client_server_configuration() -> Result<ClientServerConfiguration, config::ConfigError> {
+pub fn self_host_server_configuration() -> Result<ClientServerConfiguration, config::ConfigError> {
   let mut settings = config::Config::default();
   let base = include_str!("./configuration/base.yaml");
   settings.merge(config::File::from_str(base, FileFormat::Yaml).required(true))?;

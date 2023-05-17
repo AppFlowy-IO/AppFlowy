@@ -1,19 +1,14 @@
-use std::{
-  convert::{TryFrom, TryInto},
-  sync::Arc,
-  time::Duration,
-};
+use std::{sync::Arc, time::Duration};
 
 use bytes::Bytes;
 use hyper::http;
-use protobuf::ProtobufError;
 use reqwest::{header::HeaderMap, Client, Method, Response};
 use tokio::sync::oneshot;
 
 use flowy_error::FlowyError;
 
-use crate::http_server::self_host::configuration::HEADER_TOKEN;
 use crate::response::HttpResponse;
+use crate::self_host::configuration::HEADER_TOKEN;
 
 pub trait ResponseMiddleware {
   fn receive_response(&self, token: &Option<String>, response: &HttpResponse);
@@ -84,15 +79,6 @@ impl HttpRequestBuilder {
     self
   }
 
-  #[allow(dead_code)]
-  pub fn protobuf<T>(self, body: T) -> Result<Self, FlowyError>
-  where
-    T: TryInto<Bytes, Error = ProtobufError>,
-  {
-    let body: Bytes = body.try_into()?;
-    self.bytes(body)
-  }
-
   pub fn json<T>(self, body: T) -> Result<Self, FlowyError>
   where
     T: serde::Serialize,
@@ -113,59 +99,12 @@ impl HttpRequestBuilder {
 
   pub async fn response<T>(self) -> Result<T, FlowyError>
   where
-    T: TryFrom<Bytes, Error = ProtobufError>,
-  {
-    let builder = self.inner_send().await?;
-    match builder.response {
-      None => Err(unexpected_empty_payload(&builder.url)),
-      Some(data) => Ok(T::try_from(data)?),
-    }
-  }
-
-  pub async fn json_response<T>(self) -> Result<T, FlowyError>
-  where
     T: serde::de::DeserializeOwned,
   {
     let builder = self.inner_send().await?;
     match builder.response {
       None => Err(unexpected_empty_payload(&builder.url)),
       Some(data) => Ok(serde_json::from_slice(&data)?),
-    }
-  }
-
-  #[allow(dead_code)]
-  pub async fn option_protobuf_response<T>(self) -> Result<Option<T>, FlowyError>
-  where
-    T: TryFrom<Bytes, Error = ProtobufError>,
-  {
-    let result = self.inner_send().await;
-    match result {
-      Ok(builder) => match builder.response {
-        None => Err(unexpected_empty_payload(&builder.url)),
-        Some(data) => Ok(Some(T::try_from(data)?)),
-      },
-      Err(error) => match error.is_record_not_found() {
-        true => Ok(None),
-        false => Err(error),
-      },
-    }
-  }
-
-  #[allow(dead_code)]
-  pub async fn option_json_response<T>(self) -> Result<Option<T>, FlowyError>
-  where
-    T: serde::de::DeserializeOwned + 'static,
-  {
-    let result = self.inner_send().await;
-    match result {
-      Ok(builder) => match builder.response {
-        None => Err(unexpected_empty_payload(&builder.url)),
-        Some(data) => Ok(Some(serde_json::from_slice(&data)?)),
-      },
-      Err(error) => match error.is_record_not_found() {
-        true => Ok(None),
-        false => Err(error),
-      },
     }
   }
 
