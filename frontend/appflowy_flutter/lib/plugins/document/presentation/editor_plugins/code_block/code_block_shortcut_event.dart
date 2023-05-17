@@ -11,6 +11,7 @@ final List<CommandShortcutEvent> codeBlockCommands = [
   insertNewParagraphNextToCodeBlockCommand,
   tabToInsertSpacesInCodeBlockCommand,
   tabToDeleteSpacesInCodeBlockCommand,
+  selectAllInCodeBlockCommand,
 ];
 
 /// press the enter key in code block to insert a new line in it.
@@ -82,6 +83,18 @@ final CommandShortcutEvent tabToDeleteSpacesInCodeBlockCommand =
   key: 'shift + tab to delete two spaces at the line start in code block',
   command: 'shift+tab',
   handler: _tabToDeleteSpacesInCodeBlockCommandHandler,
+);
+
+/// CTRL+A to select all content inside a Code Block, if cursor is inside one.
+///
+/// - support
+///   - desktop
+///   - web
+final CommandShortcutEvent selectAllInCodeBlockCommand = CommandShortcutEvent(
+  key: 'ctrl + a to select all content inside a code block',
+  command: 'ctrl+a',
+  macOSCommand: 'meta+a',
+  handler: _selectAllInCodeBlockCommandHandler,
 );
 
 CharacterShortcutEventHandler _enterInCodeBlockCommandHandler =
@@ -225,5 +238,28 @@ CommandShortcutEventHandler _tabToDeleteSpacesInCodeBlockCommandHandler =
     }
     index += line.length + 1;
   }
+  return KeyEventResult.handled;
+};
+
+CommandShortcutEventHandler _selectAllInCodeBlockCommandHandler =
+    (editorState) {
+  final selection = editorState.selection;
+  if (selection == null) {
+    return KeyEventResult.ignored;
+  }
+
+  final node = editorState.getNodeAtPath(selection.end.path);
+  final delta = node?.delta;
+  if (node == null || delta == null || node.type != CodeBlockKeys.type) {
+    return KeyEventResult.ignored;
+  }
+
+  editorState.service.selectionService.updateSelection(
+    Selection(
+      start: Position(path: node.path),
+      end: Position(path: node.path, offset: delta.length),
+    ),
+  );
+
   return KeyEventResult.handled;
 };
