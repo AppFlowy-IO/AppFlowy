@@ -100,14 +100,16 @@ impl KV {
   }
 
   fn set_key_value(key: &str, value: Option<String>) -> Result<(), anyhow::Error> {
-    let _ = diesel::replace_into(kv_table::table)
+    let conn = get_connection()?;
+    diesel::replace_into(kv_table::table)
       .values(KeyValue {
         key: key.to_string(),
         value,
       })
-      .execute(&*(get_connection()?))?;
+      .execute(&*conn)?;
     Ok(())
   }
+
   fn get_key_value(key: &str) -> Option<KeyValue> {
     let conn = get_connection().ok()?;
     dsl::kv_table
