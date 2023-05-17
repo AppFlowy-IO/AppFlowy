@@ -1,8 +1,9 @@
-use flowy_net::ClientServerConfiguration;
-use flowy_net::{http_server::user::UserHttpCloudService, local_server::LocalServer};
-use flowy_user::event_map::UserCloudService;
-
 use std::sync::Arc;
+
+use flowy_net::http_server::self_host::configuration::ClientServerConfiguration;
+use flowy_net::http_server::self_host::user::UserHttpCloudService;
+use flowy_net::local_server::LocalServer;
+use flowy_user::event_map::UserCloudService;
 
 pub struct UserDepsResolver();
 impl UserDepsResolver {

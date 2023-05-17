@@ -44,7 +44,7 @@ env = { RUST_LOG = "info" }
 description = "Run rust-lib unit tests"
 script = '''
 cd rust-lib
-cargo test --no-default-features --features="sync, rev-sqlite"
+cargo test --no-default-features --features="rev-sqlite"
 '''
 
 [tasks.shared_lib_unit_test]
@@ -100,7 +100,7 @@ script = ["""
   CARGO_INCREMENTAL=0 \
   RUSTFLAGS='-C instrument-coverage' \
   LLVM_PROFILE_FILE='prof-%p-%m.profraw' \
-  cargo test --no-default-features --features="sync,rev-sqlite"
+  cargo test --no-default-features --features="rev-sqlite"
   """]
 
 [tasks.run_sharedlib_coverage_tests]

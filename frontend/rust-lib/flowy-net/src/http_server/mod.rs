@@ -1,2 +1,1 @@
-pub mod document;
-pub mod user;
+pub mod self_host;

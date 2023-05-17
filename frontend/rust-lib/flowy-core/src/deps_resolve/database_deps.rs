@@ -4,7 +4,6 @@ use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::RocksCollabDB;
 use tokio::sync::RwLock;
 
-use flowy_client_ws::FlowyWebSocketConnect;
 use flowy_database2::{DatabaseManager2, DatabaseUser2};
 use flowy_error::FlowyError;
 use flowy_task::TaskDispatcher;
@@ -14,7 +13,6 @@ pub struct Database2DepsResolver();
 
 impl Database2DepsResolver {
   pub async fn resolve(
-    _ws_conn: Arc<FlowyWebSocketConnect>,
     user_session: Arc<UserSession>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     collab_builder: Arc<AppFlowyCollabBuilder>,

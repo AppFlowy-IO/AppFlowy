@@ -51,7 +51,7 @@ fn create_and_open_empty_document() -> (DocumentManager, Arc<Document>, String) 
     .create_document(doc_id.clone(), data.clone())
     .unwrap();
 
-  let document = manager.open_document(doc_id.clone()).unwrap();
+  let document = manager.open_document(doc_id).unwrap();
 
   (manager, document, data.0.page_id)
 }

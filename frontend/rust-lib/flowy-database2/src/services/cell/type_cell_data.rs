@@ -1,8 +1,9 @@
-use crate::entities::FieldType;
 use bytes::Bytes;
-use database_model::CellRevision;
-use flowy_error::{internal_error, FlowyError, FlowyResult};
 use serde::{Deserialize, Serialize};
+
+use flowy_error::{internal_error, FlowyError, FlowyResult};
+
+use crate::entities::FieldType;
 
 /// TypeCellData is a generic CellData, you can parse the type_cell_data according to the field_type.
 /// The `data` is encoded by JSON format. You can use `IntoCellData` to decode the opaque data to
@@ -52,22 +53,6 @@ impl std::convert::TryFrom<String> for TypeCellData {
 impl ToString for TypeCellData {
   fn to_string(&self) -> String {
     self.cell_str.clone()
-  }
-}
-
-impl std::convert::TryFrom<&CellRevision> for TypeCellData {
-  type Error = FlowyError;
-
-  fn try_from(value: &CellRevision) -> Result<Self, Self::Error> {
-    Self::from_json_str(&value.type_cell_data)
-  }
-}
-
-impl std::convert::TryFrom<CellRevision> for TypeCellData {
-  type Error = FlowyError;
-
-  fn try_from(value: CellRevision) -> Result<Self, Self::Error> {
-    Self::try_from(&value)
   }
 }
 

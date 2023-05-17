@@ -10,10 +10,8 @@ flowy-core = { path = "../flowy-core" }
 flowy-user = { path = "../flowy-user"}
 flowy-net = { path = "../flowy-net"}
 flowy-folder2 = { path = "../flowy-folder2", features = ["test_helper"] }
-flowy-document= { path = "../flowy-document" }
+#flowy-document= { path = "../flowy-document" }
 lib-dispatch = { path = "../lib-dispatch" }
-
-flowy-client-sync = { path = "../flowy-client-sync"}
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 

@@ -6,10 +6,9 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-derive = { path = "../flowy-derive" }
+flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 flowy-sqlite = { path = "../flowy-sqlite", optional = true }
-flowy-error = { path = "../flowy-error", features = ["adaptor_database", "adaptor_dispatch", "adaptor_user"] }
-user-model = { path = "../../../shared-lib/user-model" }
+flowy-error = { path = "../flowy-error", features = ["adaptor_database", "adaptor_dispatch"] }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-notification = { path = "../flowy-notification" }
 lib-dispatch = { path = "../lib-dispatch" }
@@ -29,10 +28,18 @@ parking_lot = "0.12.1"
 strum = "0.21"
 strum_macros = "0.21"
 tokio = { version = "1.26", features = ["rt"] }
+validator = "0.16.0"
+unicode-segmentation = "1.10"
+fancy-regex = "0.11.0"
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }
 nanoid = "0.4.0"
+fake = "2.0.0"
+rand = "0.8.4"
+quickcheck = "1.0.3"
+rand_core = "0.6.2"
+quickcheck_macros = "1.0"
 
 [features]
 default = ["rev-sqlite"]
@@ -41,4 +48,4 @@ dart = ["flowy-codegen/dart", "flowy-notification/dart"]
 ts = ["flowy-codegen/ts", "flowy-notification/ts"]
 
 [build-dependencies]
-flowy-codegen = { path = "../flowy-codegen"}
+flowy-codegen = { path = "../../../shared-lib/flowy-codegen"}

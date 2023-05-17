@@ -1,9 +1,10 @@
-use crate::errors::ErrorCode;
-use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
-use user_model::{
-  UpdateUserProfileParams, UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword, UserProfile,
-};
+
+use flowy_derive::ProtoBuf;
+
+use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
+use crate::entities::{UpdateUserProfileParams, UserProfile};
+use crate::errors::ErrorCode;
 
 #[derive(Default, ProtoBuf)]
 pub struct UserTokenPB {

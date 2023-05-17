@@ -8,21 +8,12 @@ members = [
   "flowy-user",
   "flowy-test",
   "flowy-sqlite",
-#  "flowy-folder",r
   "flowy-folder2",
   "flowy-notification",
   "flowy-document2",
-  "flowy-document",
   "flowy-error",
-  "flowy-revision",
-  "flowy-revision-persistence",
-#  "flowy-database",
   "flowy-database2",
   "flowy-task",
-  "flowy-client-sync",
-  "flowy-derive",
-  "flowy-ast",
-  "flowy-codegen",
 ]
 
 [profile.dev]

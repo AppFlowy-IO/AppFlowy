@@ -1,11 +1,11 @@
-use crate::entities::{view_pb_with_child_views, WorkspacePB};
+use std::collections::HashMap;
 
-use crate::view_ext::{gen_view_id, ViewDataProcessorMap};
 use chrono::Utc;
 use collab_folder::core::{Belonging, Belongings, FolderData, View, ViewLayout, Workspace};
-use flowy_document::editor::initial_read_me;
 use nanoid::nanoid;
-use std::collections::HashMap;
+
+use crate::entities::{view_pb_with_child_views, WorkspacePB};
+use crate::view_ext::{gen_view_id, ViewDataProcessorMap};
 
 pub struct DefaultFolderBuilder();
 impl DefaultFolderBuilder {
@@ -99,4 +99,9 @@ fn workspace_pb_from_workspace(
     views: vec![view_pb],
     create_time: workspace.created_at,
   }
+}
+
+pub fn initial_read_me() -> String {
+  let document_content = include_str!("READ_ME.json");
+  document_content.to_string()
 }

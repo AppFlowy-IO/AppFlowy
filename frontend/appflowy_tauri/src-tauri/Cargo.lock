@@ -117,6 +117,7 @@ version = "0.0.0"
 dependencies = [
  "bytes",
  "flowy-core",
+ "flowy-net",
  "flowy-notification",
  "lib-dispatch",
  "serde",
@@ -1478,18 +1479,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "database-model"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "indexmap",
- "nanoid",
- "serde",
- "serde_json",
- "serde_repr",
-]
-
-[[package]]
 name = "derivative"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1597,21 +1586,6 @@ name = "dispatch"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bd0c93bb4b0c6d9b77f4435b0ae98c24d17f1c45b2ff844c6151a07256ca923b"
-
-[[package]]
-name = "dissimilar"
-version = "1.0.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "210ec60ae7d710bed8683e333e9d2855a8a56a3e9892b38bad3bb0d4d29b0d5e"
-
-[[package]]
-name = "document-model"
-version = "0.1.0"
-dependencies = [
- "revision-model",
- "serde",
- "serde_json",
-]
 
 [[package]]
 name = "dtoa"
@@ -1788,56 +1762,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-client-network-config"
-version = "0.1.0"
-dependencies = [
- "config",
- "serde",
- "serde-aux",
- "serde_json",
-]
-
-[[package]]
-name = "flowy-client-sync"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "chrono",
- "database-model",
- "dissimilar",
- "document-model",
- "flowy-derive",
- "flowy-sync",
- "folder-model",
- "lib-infra",
- "lib-ot",
- "parking_lot 0.12.1",
- "revision-model",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "url",
-]
-
-[[package]]
-name = "flowy-client-ws"
-version = "0.1.0"
-dependencies = [
- "futures-util",
- "lib-infra",
- "lib-ws",
- "parking_lot 0.12.1",
- "serde",
- "serde_repr",
- "thiserror",
- "tokio",
- "tracing",
-]
-
-[[package]]
 name = "flowy-codegen"
 version = "0.1.0"
 dependencies = [
@@ -1867,15 +1791,11 @@ version = "0.1.0"
 dependencies = [
  "appflowy-integrate",
  "bytes",
- "database-model",
- "flowy-client-ws",
  "flowy-database2",
- "flowy-document",
  "flowy-document2",
  "flowy-error",
  "flowy-folder2",
  "flowy-net",
- "flowy-revision",
  "flowy-sqlite",
  "flowy-task",
  "flowy-user",
@@ -1885,13 +1805,10 @@ dependencies = [
  "lib-log",
  "lib-ws",
  "parking_lot 0.12.1",
- "revision-model",
  "serde",
  "serde_json",
  "tokio",
  "tracing",
- "user-model",
- "ws-model",
 ]
 
 [[package]]
@@ -1908,7 +1825,6 @@ dependencies = [
  "collab",
  "collab-database",
  "dashmap",
- "database-model",
  "fancy-regex 0.10.0",
  "flowy-codegen",
  "flowy-derive",
@@ -1952,44 +1868,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-document"
-version = "0.1.0"
-dependencies = [
- "async-stream",
- "bytes",
- "chrono",
- "dashmap",
- "diesel",
- "diesel_derives",
- "document-model",
- "flowy-client-sync",
- "flowy-codegen",
- "flowy-derive",
- "flowy-error",
- "flowy-notification",
- "flowy-revision",
- "flowy-revision-persistence",
- "flowy-sqlite",
- "futures",
- "futures-util",
- "lib-dispatch",
- "lib-infra",
- "lib-ot",
- "lib-ws",
- "md5",
- "protobuf",
- "revision-model",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "url",
- "ws-model",
-]
-
-[[package]]
 name = "flowy-document2"
 version = "0.1.0"
 dependencies = [
@@ -2021,14 +1899,11 @@ dependencies = [
  "bytes",
  "collab-database",
  "collab-document",
- "flowy-client-sync",
- "flowy-client-ws",
  "flowy-codegen",
  "flowy-derive",
  "flowy-sqlite",
  "http-error-code",
  "lib-dispatch",
- "lib-ot",
  "protobuf",
  "r2d2",
  "reqwest",
@@ -2036,7 +1911,6 @@ dependencies = [
  "serde_json",
  "serde_repr",
  "thiserror",
- "user-model",
 ]
 
 [[package]]
@@ -2050,7 +1924,6 @@ dependencies = [
  "collab-folder",
  "flowy-codegen",
  "flowy-derive",
- "flowy-document",
  "flowy-error",
  "flowy-notification",
  "lazy_static",
@@ -2075,20 +1948,12 @@ dependencies = [
  "bytes",
  "config",
  "dashmap",
- "document-model",
- "flowy-client-network-config",
- "flowy-client-sync",
- "flowy-client-ws",
  "flowy-codegen",
  "flowy-derive",
- "flowy-document",
  "flowy-document2",
  "flowy-error",
  "flowy-folder2",
- "flowy-server-sync",
- "flowy-sync",
  "flowy-user",
- "folder-model",
  "futures-util",
  "hyper",
  "lazy_static",
@@ -2099,7 +1964,6 @@ dependencies = [
  "parking_lot 0.12.1",
  "protobuf",
  "reqwest",
- "revision-model",
  "serde",
  "serde-aux",
  "serde_json",
@@ -2108,8 +1972,6 @@ dependencies = [
  "thiserror",
  "tokio",
  "tracing",
- "user-model",
- "ws-model",
 ]
 
 [[package]]
@@ -2127,58 +1989,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-revision"
-version = "0.1.0"
-dependencies = [
- "async-stream",
- "bytes",
- "dashmap",
- "flowy-error",
- "flowy-revision-persistence",
- "futures",
- "futures-util",
- "lib-infra",
- "lib-ws",
- "revision-model",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "ws-model",
-]
-
-[[package]]
-name = "flowy-revision-persistence"
-version = "0.1.0"
-dependencies = [
- "flowy-error",
- "revision-model",
-]
-
-[[package]]
-name = "flowy-server-sync"
-version = "0.1.0"
-dependencies = [
- "async-stream",
- "bytes",
- "dashmap",
- "document-model",
- "flowy-sync",
- "folder-model",
- "futures",
- "lib-infra",
- "lib-ot",
- "log",
- "revision-model",
- "serde",
- "tokio",
- "tracing",
- "ws-model",
-]
-
-[[package]]
 name = "flowy-sqlite"
 version = "0.1.0"
 dependencies = [
@@ -2191,24 +2001,6 @@ dependencies = [
  "r2d2",
  "scheduled-thread-pool",
  "tracing",
-]
-
-[[package]]
-name = "flowy-sync"
-version = "0.1.0"
-dependencies = [
- "document-model",
- "folder-model",
- "lib-infra",
- "lib-ot",
- "parking_lot 0.12.1",
- "revision-model",
- "serde",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "ws-model",
 ]
 
 [[package]]
@@ -2230,6 +2022,7 @@ dependencies = [
  "bytes",
  "diesel",
  "diesel_derives",
+ "fancy-regex 0.11.0",
  "flowy-codegen",
  "flowy-derive",
  "flowy-error",
@@ -2248,7 +2041,8 @@ dependencies = [
  "strum_macros",
  "tokio",
  "tracing",
- "user-model",
+ "unicode-segmentation",
+ "validator",
 ]
 
 [[package]]
@@ -2256,16 +2050,6 @@ name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
-
-[[package]]
-name = "folder-model"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "nanoid",
- "serde",
- "serde_repr",
-]
 
 [[package]]
 name = "foreign-types"
@@ -3026,12 +2810,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "indextree"
-version = "4.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c40411d0e5c63ef1323c3d09ce5ec6d84d71531e18daed0743fccea279d7deb6"
-
-[[package]]
 name = "infer"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3249,23 +3027,6 @@ dependencies = [
  "tracing-core",
  "tracing-log",
  "tracing-subscriber 0.2.25",
-]
-
-[[package]]
-name = "lib-ot"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "indexmap",
- "indextree",
- "lazy_static",
- "log",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "thiserror",
- "tracing",
 ]
 
 [[package]]
@@ -4646,16 +4407,6 @@ dependencies = [
  "wasm-bindgen-futures",
  "web-sys",
  "winreg",
-]
-
-[[package]]
-name = "revision-model"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "md5",
- "serde",
- "serde_json",
 ]
 
 [[package]]
@@ -6280,20 +6031,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e8db7427f936968176eaa7cdf81b7f98b980b18495ec28f1b5791ac3bfe3eea9"
 
 [[package]]
-name = "user-model"
-version = "0.1.0"
-dependencies = [
- "fancy-regex 0.11.0",
- "lazy_static",
- "serde",
- "serde_repr",
- "thiserror",
- "tracing",
- "unicode-segmentation",
- "validator",
-]
-
-[[package]]
 name = "utf-8"
 version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6911,17 +6648,6 @@ dependencies = [
  "webview2-com",
  "windows 0.39.0",
  "windows-implement",
-]
-
-[[package]]
-name = "ws-model"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "revision-model",
- "serde",
- "serde_json",
- "serde_repr",
 ]
 
 [[package]]

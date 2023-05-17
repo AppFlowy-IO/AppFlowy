@@ -10,7 +10,7 @@ collab = { version = "0.1.0" }
 collab-folder = { version = "0.1.0" }
 appflowy-integrate = {version = "0.1.0" }
 
-flowy-derive = { path = "../flowy-derive" }
+flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 flowy-notification = { path = "../flowy-notification" }
 parking_lot = "0.12.1"
 unicode-segmentation = "1.10"
@@ -26,14 +26,14 @@ chrono = { version = "0.4.24"}
 strum = "0.21"
 strum_macros = "0.21"
 protobuf = {version = "2.28.0"}
-flowy-document = { path = "../flowy-document" }
+#flowy-document = { path = "../flowy-document" }
 
 [dev-dependencies]
 flowy-folder2 = { path = "../flowy-folder2"}
 flowy-test = { path = "../flowy-test" }
 
 [build-dependencies]
-flowy-codegen = { path = "../flowy-codegen"}
+flowy-codegen = { path = "../../../shared-lib/flowy-codegen"}
 
 [features]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]

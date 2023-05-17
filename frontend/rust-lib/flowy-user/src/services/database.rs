@@ -8,7 +8,8 @@ use parking_lot::RwLock;
 use flowy_error::FlowyError;
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{schema::user_table, DBConnection, Database};
-use user_model::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
+
+use crate::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 
 pub struct UserDB {
   db_dir: String,

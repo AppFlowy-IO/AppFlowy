@@ -1,4 +1,5 @@
-use flowy_core::{get_client_server_configuration, AppFlowyCore, AppFlowyCoreConfig, DEFAULT_NAME};
+use flowy_core::{ AppFlowyCore, AppFlowyCoreConfig, DEFAULT_NAME};
+use flowy_net::http_server::self_host::configuration::get_client_server_configuration;
 
 pub fn init_flowy_core() -> AppFlowyCore {
   let config_json = include_str!("../tauri.conf.json");

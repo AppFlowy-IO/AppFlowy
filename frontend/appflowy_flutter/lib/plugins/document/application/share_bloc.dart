@@ -4,7 +4,7 @@ import 'package:appflowy/plugins/document/application/share_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/divider_node_parser.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/math_equation_node_parser.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/code_block_node_parser.dart';
-import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-document2/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';

@@ -7,22 +7,12 @@ edition = "2018"
 
 [dependencies]
 lib-dispatch = { path = "../lib-dispatch" }
-flowy-error = { path = "../flowy-error", features = ["adaptor_sync", "adaptor_reqwest", "adaptor_server_error"] }
-flowy-derive = { path = "../flowy-derive" }
-flowy-client-sync = { path = "../flowy-client-sync"}
-folder-model = { path = "../../../shared-lib/folder-model" }
-revision-model = { path = "../../../shared-lib/revision-model"}
-document-model = { path = "../../../shared-lib/document-model"}
-ws-model = { path = "../../../shared-lib/ws-model"}
-flowy-server-sync = { path = "../../../shared-lib/flowy-server-sync"}
-flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws"}
-flowy-client-network-config= { path = "../../../shared-lib/flowy-client-network-config"}
-flowy-sync = { path = "../../../shared-lib/flowy-sync"}
-user-model = { path = "../../../shared-lib/user-model"}
+flowy-error = { path = "../flowy-error", features = ["adaptor_reqwest", "adaptor_server_error"] }
+flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 flowy-folder2 = { path = "../flowy-folder2" }
 flowy-document2 = { path = "../flowy-document2" }
 flowy-user = { path = "../flowy-user" }
-flowy-document = { path = "../flowy-document" }
+#flowy-document = { path = "../flowy-document" }
 lazy_static = "1.4.0"
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 protobuf = {version = "2.28.0"}
@@ -61,4 +51,4 @@ ts = [
 ]
 
 [build-dependencies]
-flowy-codegen = { path = "../flowy-codegen"}
+flowy-codegen = { path = "../../../shared-lib/flowy-codegen"}

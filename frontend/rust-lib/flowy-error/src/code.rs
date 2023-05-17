@@ -1,6 +1,7 @@
-use flowy_derive::ProtoBuf_Enum;
 use serde_repr::*;
 use thiserror::Error;
+
+use flowy_derive::ProtoBuf_Enum;
 
 #[derive(Debug, Clone, PartialEq, Eq, Error, Serialize_repr, Deserialize_repr, ProtoBuf_Enum)]
 #[repr(u8)]

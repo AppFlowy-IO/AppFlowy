@@ -1,17 +1,18 @@
-pub mod event_builder;
-pub mod helper;
+use nanoid::nanoid;
+
+use flowy_core::{AppFlowyCore, AppFlowyCoreConfig};
+use flowy_net::http_server::self_host::configuration::get_client_server_configuration;
+use flowy_user::entities::UserProfilePB;
 
 use crate::helper::*;
 
-use flowy_core::{AppFlowyCore, AppFlowyCoreConfig};
-use flowy_document::entities::DocumentVersionPB;
-use flowy_net::get_client_server_configuration;
-use flowy_user::entities::UserProfilePB;
-use nanoid::nanoid;
+pub mod event_builder;
+pub mod helper;
 
 pub mod prelude {
-  pub use crate::{event_builder::*, helper::*, *};
   pub use lib_dispatch::prelude::*;
+
+  pub use crate::{event_builder::*, helper::*, *};
 }
 
 #[derive(Clone)]
@@ -29,16 +30,15 @@ impl std::ops::Deref for FlowySDKTest {
 
 impl std::default::Default for FlowySDKTest {
   fn default() -> Self {
-    Self::new(DocumentVersionPB::V0)
+    Self::new()
   }
 }
 
 impl FlowySDKTest {
-  pub fn new(document_version: DocumentVersionPB) -> Self {
+  pub fn new() -> Self {
     let server_config = get_client_server_configuration().unwrap();
-    let config = AppFlowyCoreConfig::new(&root_dir(), nanoid!(6), server_config)
-      .with_document_version(document_version)
-      .log_filter("info", vec![]);
+    let config =
+      AppFlowyCoreConfig::new(&root_dir(), nanoid!(6), server_config).log_filter("info", vec![]);
     let sdk = std::thread::spawn(|| AppFlowyCore::new(config))
       .join()
       .unwrap();
@@ -54,9 +54,5 @@ impl FlowySDKTest {
     let context = async_sign_up(self.inner.dispatcher()).await;
     init_user_setting(self.inner.dispatcher()).await;
     context.user_profile
-  }
-
-  pub fn document_version(&self) -> DocumentVersionPB {
-    self.inner.config.document.version.clone()
   }
 }
