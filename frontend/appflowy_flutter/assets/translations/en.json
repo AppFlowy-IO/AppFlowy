@@ -108,6 +108,7 @@
     "openAsPage": "Open as a Page",
     "addNewRow": "Add a new row",
     "openMenu": "Click to open menu",
+    "dragRow": "Long press to reorder the row",
     "viewDataBase": "View database",
     "referencePage": "This {name} is referenced"
   },
@@ -363,7 +364,8 @@
       "smartEditFixSpelling": "Fix spelling",
       "warning": "⚠️ AI responses can be inaccurate or misleading.",
       "smartEditSummarize": "Summarize",
-      "smartEditImproveWriting": "Improve Writing",
+      "smartEditImproveWriting": "Improve writing",
+      "smartEditMakeLonger": "Make longer",
       "smartEditCouldNotFetchResult": "Could not fetch result from OpenAI",
       "smartEditCouldNotFetchKey": "Could not fetch OpenAI key",
       "smartEditDisabled": "Connect OpenAI in Settings",

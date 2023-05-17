@@ -73,7 +73,7 @@ class DeleteButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
-      onTap: () => onPressed,
+      onTap: onPressed,
       useIntrinsicWidth: true,
       text: FlowyText(
         LocaleKeys.document_plugins_cover_removeIcon.tr(),
