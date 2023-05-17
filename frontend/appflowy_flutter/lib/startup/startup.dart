@@ -37,8 +37,9 @@ abstract class EntryPoint {
 class FlowyRunner {
   static Future<void> run(
     EntryPoint f, {
-    LaunchConfiguration config =
-        const LaunchConfiguration(autoRegistrationSupported: false),
+    LaunchConfiguration config = const LaunchConfiguration(
+      autoRegistrationSupported: false,
+    ),
   }) async {
     // Clear all the states in case of rebuilding.
     await getIt.reset();
@@ -52,16 +53,30 @@ class FlowyRunner {
         .then((value) => Directory(value));
 
     // add task
-    getIt<AppLauncher>().addTask(InitRustSDKTask(directory: directory));
-    getIt<AppLauncher>().addTask(PluginLoadTask());
+    final launcher = getIt<AppLauncher>();
+    launcher.addTasks(
+      [
+        // handle platform errors.
+        const PlatformErrorCatcherTask(),
+        // localization
+        const InitLocalizationTask(),
+        // init the app window
+        const InitAppWindowTask(),
+        // Init Rust SDK
+        InitRustSDKTask(directory: directory),
+        // Load Plugins, like document, grid ...
+        const PluginLoadTask(),
 
-    if (!env.isTest()) {
-      getIt<AppLauncher>().addTask(InitAppWidgetTask());
-      getIt<AppLauncher>().addTask(InitPlatformServiceTask());
-    }
-
-    // execute the tasks
-    await getIt<AppLauncher>().launch();
+        // init the app widget
+        // ignore in test mode
+        if (!env.isTest()) ...[
+          const HotKeyTask(),
+          const InitAppWidgetTask(),
+          const InitPlatformServiceTask()
+        ],
+      ],
+    );
+    await launcher.launch(); // execute the tasks
   }
 }
 
@@ -104,23 +119,31 @@ enum LaunchTaskType {
 /// The interface of an app launch task, which will trigger
 /// some nonresident indispensable task in app launching task.
 abstract class LaunchTask {
+  const LaunchTask();
+
   LaunchTaskType get type => LaunchTaskType.dataProcessing;
+
   Future<void> initialize(LaunchContext context);
 }
 
 class AppLauncher {
-  List<LaunchTask> tasks;
+  AppLauncher({
+    required this.context,
+  });
 
   final LaunchContext context;
-
-  AppLauncher({required this.context}) : tasks = List.from([]);
+  final List<LaunchTask> tasks = [];
 
   void addTask(LaunchTask task) {
     tasks.add(task);
   }
 
+  void addTasks(Iterable<LaunchTask> tasks) {
+    this.tasks.addAll(tasks);
+  }
+
   Future<void> launch() async {
-    for (var task in tasks) {
+    for (final task in tasks) {
       await task.initialize(context);
     }
   }

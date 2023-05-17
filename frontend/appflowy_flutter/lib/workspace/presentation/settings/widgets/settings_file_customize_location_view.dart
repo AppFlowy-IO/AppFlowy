@@ -1,3 +1,4 @@
+import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../generated/locale_keys.g.dart';
-import '../../../../main.dart';
 import '../../../../startup/launch_configuration.dart';
 import '../../../../startup/startup.dart';
 import '../../../../startup/tasks/prelude.dart';

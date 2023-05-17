@@ -1,4 +1,5 @@
 import 'package:appflowy/core/frameless_window.dart';
+import 'package:appflowy/startup/entry_point.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -12,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../generated/locale_keys.g.dart';
-import '../../main.dart';
 import '../../startup/launch_configuration.dart';
 import '../../startup/startup.dart';
 import '../application/auth_service.dart';

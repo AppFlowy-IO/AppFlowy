@@ -107,6 +107,7 @@ dependencies:
   archive: ^3.3.0
   flutter_svg: ^2.0.5
   nanoid: ^1.0.0
+  supabase_flutter: ^1.9.1
 
 dev_dependencies:
   flutter_lints: ^2.0.1
