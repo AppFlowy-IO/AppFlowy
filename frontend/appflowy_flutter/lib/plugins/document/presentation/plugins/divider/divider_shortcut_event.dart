@@ -18,20 +18,36 @@ ShortcutEventHandler _insertDividerHandler = (editorState, event) {
     return KeyEventResult.ignored;
   }
   final textNode = textNodes.first;
-  if (textNode.toPlainText() != '--') {
+  if (!_hasTwoConsecutiveDashes(textNode.toPlainText(), selection.start.offset)) {
     return KeyEventResult.ignored;
   }
-  final transaction = editorState.transaction
-    ..deleteText(textNode, 0, 2) // remove the existing minuses.
-    ..insertNode(textNode.path, Node(type: kDividerType)) // insert the divder
-    ..afterSelection = Selection.single(
-      // update selection to the next text node.
-      path: textNode.path.next,
-      startOffset: 0,
-    );
+  final dashStartPosition = selection.start.offset - 2;
+  Transaction transaction;
+
+  if (textNode.toPlainText().length > 2) {
+    transaction = editorState.transaction
+      ..deleteText(textNode, dashStartPosition, 2)
+      ..insertNode(selection.end.path.next, Node(type: kDividerType));
+  } else {
+    transaction = editorState.transaction
+      ..deleteText(textNode, 0, 2) // remove the existing minuses.
+      ..insertNode(textNode.path, Node(type: kDividerType)) // insert the divder
+      ..afterSelection = Selection.single(
+        // update selection to the next text node.
+        path: textNode.path.next,
+        startOffset: 0,
+      );
+  }
   editorState.apply(transaction);
   return KeyEventResult.handled;
 };
+
+_hasTwoConsecutiveDashes(String text, int end) {
+  if(text.length < 2) {
+    return false;
+  }
+  return text[end - 1] == '-' && text[end - 2] == '-';
+}
 
 SelectionMenuItem dividerMenuItem = SelectionMenuItem(
   name: 'Divider',
