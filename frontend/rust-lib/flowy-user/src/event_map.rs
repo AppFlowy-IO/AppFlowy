@@ -37,17 +37,27 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   fn will_migrated(&self, token: &str, old_user_id: &str, user_id: i64) -> Fut<FlowyResult<()>>;
 }
 
+/// Provide the generic interface for the user cloud service
+/// The user cloud service is responsible for the user authentication and user profile management
 pub trait UserCloudService: Send + Sync {
+  /// Sign up a new account
   fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, FlowyError>;
+
+  /// Sign in an account
   fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError>;
+
+  /// Sign out an account
   fn sign_out(&self, token: &str) -> FutureResult<(), FlowyError>;
+
+  /// Using the user's token to update the user information
   fn update_user(
     &self,
     token: &str,
     params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError>;
+
+  /// Get the user information using the user's token
   fn get_user(&self, token: &str) -> FutureResult<UserProfilePB, FlowyError>;
-  fn ws_addr(&self) -> String;
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]

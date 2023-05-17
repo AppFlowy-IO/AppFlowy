@@ -67,10 +67,6 @@ impl UserCloudService for UserHttpCloudService {
       Ok(profile)
     })
   }
-
-  fn ws_addr(&self) -> String {
-    self.config.ws_addr()
-  }
 }
 
 pub async fn user_sign_up_request(

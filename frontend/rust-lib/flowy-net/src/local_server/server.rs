@@ -73,8 +73,4 @@ impl UserCloudService for LocalServer {
   fn get_user(&self, _token: &str) -> FutureResult<UserProfilePB, FlowyError> {
     FutureResult::new(async { Ok(UserProfilePB::default()) })
   }
-
-  fn ws_addr(&self) -> String {
-    "ws://localhost:8000/ws/".to_owned()
-  }
 }
