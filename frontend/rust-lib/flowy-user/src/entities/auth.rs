@@ -6,7 +6,6 @@ use serde::{Deserialize, Serialize};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 use crate::entities::parser::*;
-
 use crate::errors::ErrorCode;
 use crate::services::AuthType;
 
@@ -106,6 +105,11 @@ pub struct SignUpResponse {
 
 #[derive(ProtoBuf, Default)]
 pub struct ThirdPartyAuthPB {
+  /// Use this field to store the third party auth information.
+  /// Different auth type has different fields.
+  /// Supabase:
+  ///   - map: { "uuid": "xxx" }
+  ///
   #[pb(index = 1)]
   pub map: HashMap<String, String>,
 
