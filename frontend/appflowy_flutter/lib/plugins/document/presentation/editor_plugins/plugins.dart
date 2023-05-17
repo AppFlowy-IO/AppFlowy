@@ -18,3 +18,5 @@ export 'math_equation/math_equation_block_component.dart';
 export 'openai/widgets/auto_completion_node_widget.dart';
 export 'openai/widgets/smart_edit_node_widget.dart';
 export 'openai/widgets/smart_edit_toolbar_item.dart';
+export 'toggle/toggle_block_component.dart';
+export 'toggle/toggle_block_shortcut_event.dart';

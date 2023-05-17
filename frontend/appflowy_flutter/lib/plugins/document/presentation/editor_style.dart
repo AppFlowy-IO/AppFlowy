@@ -28,7 +28,10 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     return EditorStyle.desktop(
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+      padding: EdgeInsets.only(
+        left: horizontalPadding / 2.0,
+        right: horizontalPadding,
+      ),
       backgroundColor: theme.colorScheme.surface,
       cursorColor: theme.colorScheme.primary,
       textStyleConfiguration: TextStyleConfiguration(
@@ -115,11 +118,13 @@ class EditorStyleCustomizer {
   }
 
   TextStyle codeBlockStyleBuilder() {
+    final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     return TextStyle(
       fontFamily: 'poppins',
       fontSize: fontSize,
       height: 1.5,
+      color: theme.colorScheme.onBackground,
     );
   }
 }
