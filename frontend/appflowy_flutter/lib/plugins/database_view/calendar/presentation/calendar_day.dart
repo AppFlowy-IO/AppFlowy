@@ -328,33 +328,31 @@ class _EventCard extends StatelessWidget {
         viewId: viewId,
         rowCache: rowCache,
       ),
-      styleConfiguration: const RowCardStyleConfiguration(
+      styleConfiguration: RowCardStyleConfiguration(
         showAccessory: false,
         cellPadding: EdgeInsets.zero,
+        hoverStyle: HoverStyle(
+          hoverColor: AFThemeExtension.of(context).lightGreyHover,
+          foregroundColorOnHover: Theme.of(context).colorScheme.onBackground,
+        ),
       ),
       renderHook: renderHook,
       onStartEditing: () {},
       onEndEditing: () {},
     );
 
-    return FlowyHover(
-      style: HoverStyle(
-        hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
-        foregroundColorOnHover: Theme.of(context).colorScheme.onBackground,
-      ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 2),
-        decoration: BoxDecoration(
-          border: Border.fromBorderSide(
-            BorderSide(
-              color: Theme.of(context).dividerColor,
-              width: 1.5,
-            ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      decoration: BoxDecoration(
+        border: Border.fromBorderSide(
+          BorderSide(
+            color: Theme.of(context).dividerColor,
+            width: 1.5,
           ),
-          borderRadius: Corners.s6Border,
         ),
-        child: card,
+        borderRadius: Corners.s6Border,
       ),
+      child: card,
     );
   }
 }
