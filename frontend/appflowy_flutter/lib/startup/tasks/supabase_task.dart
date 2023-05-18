@@ -33,6 +33,6 @@ class InitSupabaseTask extends LaunchTask {
       key: anonKey,
       secret: jwtSecret,
     );
-    isSupabaseEnable = true;
+    isSupabaseEnable = false;
   }
 }

@@ -7,7 +7,7 @@ import 'package:window_manager/window_manager.dart';
 
 class InitAppWindowTask extends LaunchTask {
   const InitAppWindowTask({
-    this.minimumSize = const Size(600, 400),
+    this.minimumSize = const Size(800, 600),
     this.title = 'AppFlowy',
   });
 

@@ -1,3 +1,4 @@
+import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/router.dart';
@@ -37,6 +38,10 @@ class SignInScreen extends StatelessWidget {
           );
         },
         builder: (_, __) => Scaffold(
+          appBar: const PreferredSize(
+            preferredSize: Size(double.infinity, 60),
+            child: MoveWindowDetector(),
+          ),
           body: SignInForm(router: router),
         ),
       ),
@@ -79,6 +84,8 @@ class SignInForm extends StatelessWidget {
           const PasswordTextField(),
           const VSpace(20),
           const LoginButton(),
+          const VSpace(10),
+          const SignInAsGuestButton(),
           const VSpace(10),
           SignUpPrompt(router: router),
 
@@ -147,6 +154,23 @@ class LoginButton extends StatelessWidget {
       onPressed: () => context
           .read<SignInBloc>()
           .add(const SignInEvent.signedInWithUserEmailAndPassword()),
+    );
+  }
+}
+
+class SignInAsGuestButton extends StatelessWidget {
+  const SignInAsGuestButton({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return RoundedTextButton(
+      title: LocaleKeys.signIn_loginAsGuestButtonText.tr(),
+      height: 28,
+      borderRadius: Corners.s6Border,
+      onPressed: () =>
+          context.read<SignInBloc>().add(const SignInEvent.signedInAsGuest()),
     );
   }
 }

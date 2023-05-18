@@ -36,7 +36,7 @@ abstract class AuthService {
   });
 
   /// Returns a default [UserProfilePB]
-  Future<Either<FlowyError, UserProfilePB>> signUpAsAnonymousUser({
+  Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
     AuthTypePB authType,
     Map<String, String> map,
   });

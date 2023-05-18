@@ -26,6 +26,10 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           emit,
           value.platform,
         ),
+        signedInAsGuest: (value) async => await _performActionOnSignInAsGuest(
+          state,
+          emit,
+        ),
         emailChanged: (EmailChanged value) async {
           emit(
             state.copyWith(
@@ -52,7 +56,6 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     SignInState state,
     Emitter<SignInState> emit,
   ) async {
-    // TODO: add validation
     final result = await authService.signIn(
       email: state.email ?? '',
       password: state.password ?? '',
@@ -96,6 +99,31 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     );
   }
 
+  Future<void> _performActionOnSignInAsGuest(
+    SignInState state,
+    Emitter<SignInState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        isSubmitting: true,
+        emailError: none(),
+        passwordError: none(),
+        successOrFail: none(),
+      ),
+    );
+
+    final result = await authService.signUpAsGuest();
+    emit(
+      result.fold(
+        (error) => stateFromCode(error),
+        (userProfile) => state.copyWith(
+          isSubmitting: false,
+          successOrFail: some(left(userProfile)),
+        ),
+      ),
+    );
+  }
+
   SignInState stateFromCode(FlowyError error) {
     switch (ErrorCode.valueOf(error.code)!) {
       case ErrorCode.EmailFormatInvalid:
@@ -125,6 +153,7 @@ class SignInEvent with _$SignInEvent {
       SignedInWithUserEmailAndPassword;
   const factory SignInEvent.signedInWithOAuth(String platform) =
       SignedInWithOAuth;
+  const factory SignInEvent.signedInAsGuest() = SignedInAsGuest;
   const factory SignInEvent.emailChanged(String email) = EmailChanged;
   const factory SignInEvent.passwordChanged(String password) = PasswordChanged;
 }

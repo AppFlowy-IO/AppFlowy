@@ -120,7 +120,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   }
 
   Future<void> _autoRegister(BuildContext context) async {
-    final result = await widget.authService.signUpAsAnonymousUser();
+    final result = await widget.authService.signUpAsGuest();
     result.fold(
       (error) {
         Log.error(error);

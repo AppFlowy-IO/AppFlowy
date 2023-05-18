@@ -149,7 +149,7 @@ class SupabaseAuthService implements AuthService {
 
   @override
   Future<void> signOut({
-    AuthTypePB authType = AuthTypePB.Local,
+    AuthTypePB authType = AuthTypePB.Supabase,
   }) async {
     if (!isSupabaseEnable) {
       return _appFlowyAuthService.signOut();
@@ -161,11 +161,13 @@ class SupabaseAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signUpAsAnonymousUser({
-    AuthTypePB authType = AuthTypePB.Local,
+  Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
+    AuthTypePB authType = AuthTypePB.Supabase,
     Map<String, String> map = const {},
-  }) {
-    throw UnimplementedError();
+  }) async {
+    // supabase don't support guest login.
+    // so, just forward to our backend.
+    return _appFlowyAuthService.signUpAsGuest();
   }
 
   @override

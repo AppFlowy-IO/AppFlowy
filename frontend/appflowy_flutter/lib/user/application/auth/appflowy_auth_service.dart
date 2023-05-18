@@ -19,10 +19,10 @@ class AppFlowyAuthService implements AuthService {
     AuthTypePB authType = AuthTypePB.Local,
     Map<String, String> map = const {},
   }) async {
-    //
     final request = SignInPayloadPB.create()
       ..email = email
-      ..password = password;
+      ..password = password
+      ..authType = authType;
     final response = UserEventSignIn(request).send();
     return response.then((value) => value.swap());
   }
@@ -61,7 +61,7 @@ class AppFlowyAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signUpAsAnonymousUser({
+  Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
     AuthTypePB authType = AuthTypePB.Local,
     Map<String, String> map = const {},
   }) {
