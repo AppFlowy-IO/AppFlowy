@@ -58,6 +58,7 @@ class FlowyRunner {
           const InitSupabaseTask(
             url: Secret.supabaseUrl,
             anonKey: Secret.supabaseAnonKey,
+            jwtSecret: Secret.supabaseJWTSecret,
           ),
           const InitAppWidgetTask(),
           const InitPlatformServiceTask()
