@@ -57,7 +57,11 @@ impl UserAuthService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async { Ok(()) })
   }
 
-  fn get_user(&self, _token: &str) -> FutureResult<UserProfile, FlowyError> {
-    FutureResult::new(async { Ok(UserProfile::default()) })
+  fn get_user_profile(
+    &self,
+    _token: Option<String>,
+    _uid: i64,
+  ) -> FutureResult<Option<UserProfile>, FlowyError> {
+    FutureResult::new(async { Ok(None) })
   }
 }

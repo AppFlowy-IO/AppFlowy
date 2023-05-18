@@ -176,6 +176,14 @@ impl UpdateUserProfileParams {
     self.openai_key = Some(openai_key.to_owned());
     self
   }
+
+  pub fn is_empty(&self) -> bool {
+    self.name.is_none()
+      && self.email.is_none()
+      && self.password.is_none()
+      && self.icon_url.is_none()
+      && self.openai_key.is_none()
+  }
 }
 
 #[derive(ProtoBuf, Default)]

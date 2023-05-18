@@ -149,9 +149,6 @@ pub enum ErrorCode {
   #[error("Invalid date time format")]
   InvalidDateTimeFormat = 47,
 
-  #[error("The input string is empty or contains invalid characters")]
-  UnexpectedEmptyString = 48,
-
   #[error("Invalid data")]
   InvalidData = 49,
 
@@ -185,8 +182,8 @@ pub enum ErrorCode {
   #[error("Http request error")]
   HttpError = 59,
 
-  #[error("Payload should not be empty")]
-  UnexpectedEmptyPayload = 60,
+  #[error("The content should not be empty")]
+  UnexpectedEmpty = 60,
 
   #[error("Only the date type can be used in calendar")]
   UnexpectedCalendarFieldType = 61,

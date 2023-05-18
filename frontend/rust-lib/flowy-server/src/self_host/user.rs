@@ -81,12 +81,24 @@ impl UserAuthService for SelfHostedUserAuthServiceImpl {
     }
   }
 
-  fn get_user(&self, token: &str) -> FutureResult<UserProfile, FlowyError> {
-    let token = token.to_owned();
+  fn get_user_profile(
+    &self,
+    token: Option<String>,
+    _uid: i64,
+  ) -> FutureResult<Option<UserProfile>, FlowyError> {
+    let token = token;
     let url = self.config.user_profile_url();
     FutureResult::new(async move {
-      let profile = get_user_profile_request(&token, &url).await?;
-      Ok(profile)
+      match token {
+        None => Err(FlowyError::new(
+          ErrorCode::UnexpectedEmpty,
+          "Token should not be empty",
+        )),
+        Some(token) => {
+          let profile = get_user_profile_request(&token, &url).await?;
+          Ok(Some(profile))
+        },
+      }
     })
   }
 }

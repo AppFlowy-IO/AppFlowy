@@ -1,3 +1,12 @@
+use std::convert::TryInto;
+use std::sync::Arc;
+
+use bytes::Bytes;
+use collab_database::fields::Field;
+
+use flowy_derive::ProtoBuf;
+use flowy_error::ErrorCode;
+
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
   CheckboxFilterPB, ChecklistFilterPB, DateFilterContentPB, DateFilterPB, FieldType,
@@ -5,12 +14,6 @@ use crate::entities::{
 };
 use crate::services::field::SelectOptionIds;
 use crate::services::filter::{Filter, FilterType};
-use bytes::Bytes;
-use collab_database::fields::Field;
-use flowy_derive::ProtoBuf;
-use flowy_error::ErrorCode;
-use std::convert::TryInto;
-use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct FilterPB {
@@ -95,7 +98,7 @@ impl TryInto<DeleteFilterParams> for DeleteFilterPayloadPB {
       .0;
 
     let filter_id = NotEmptyStr::parse(self.filter_id)
-      .map_err(|_| ErrorCode::UnexpectedEmptyString)?
+      .map_err(|_| ErrorCode::UnexpectedEmpty)?
       .0;
 
     let filter_type = FilterType {

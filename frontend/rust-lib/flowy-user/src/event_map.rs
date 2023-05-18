@@ -75,7 +75,11 @@ pub trait UserAuthService: Send + Sync {
   ) -> FutureResult<(), FlowyError>;
 
   /// Get the user information using the user's token
-  fn get_user(&self, token: &str) -> FutureResult<UserProfile, FlowyError>;
+  fn get_user_profile(
+    &self,
+    token: Option<String>,
+    uid: i64,
+  ) -> FutureResult<Option<UserProfile>, FlowyError>;
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]

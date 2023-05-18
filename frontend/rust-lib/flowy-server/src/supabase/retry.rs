@@ -1,5 +1,3 @@
-use tokio_retry::Action;
-
 // pub(crate) struct SupabaseRetryAction {}
 //
 // impl Action for SupabaseRetryAction {

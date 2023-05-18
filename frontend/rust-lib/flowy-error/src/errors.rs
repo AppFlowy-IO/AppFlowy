@@ -83,7 +83,7 @@ impl FlowyError {
   static_flowy_error!(out_of_bounds, ErrorCode::OutOfBounds);
   static_flowy_error!(serde, ErrorCode::Serde);
   static_flowy_error!(field_record_not_found, ErrorCode::FieldRecordNotFound);
-  static_flowy_error!(payload_none, ErrorCode::UnexpectedEmptyPayload);
+  static_flowy_error!(payload_none, ErrorCode::UnexpectedEmpty);
   static_flowy_error!(http, ErrorCode::HttpError);
   static_flowy_error!(
     unexpect_calendar_field_type,
