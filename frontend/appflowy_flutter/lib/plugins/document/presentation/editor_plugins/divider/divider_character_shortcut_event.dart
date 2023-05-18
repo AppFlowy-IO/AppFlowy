@@ -49,7 +49,7 @@ CharacterShortcutEventHandler _convertMinusesToDividerHandler =
 };
 
 bool _hasTwoConsecutiveDashes(String text, int end) {
-  if (text.length < 2 || end > text.length || end == 0) {
+  if (text.length < 2 || end > text.length) {
     return false;
   }
   return text[end - 1] == '-' && text[end - 2] == '-';
