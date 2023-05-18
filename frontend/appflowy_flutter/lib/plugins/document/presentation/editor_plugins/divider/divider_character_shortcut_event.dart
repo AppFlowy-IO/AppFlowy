@@ -1,65 +1,88 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/divider/divider_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/divider/divider_node_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
-/// insert divider into a document by typing three minuses(-).
-///
-/// - support
-///   - desktop
-///   - web
-///   - mobile
-///
-final CharacterShortcutEvent convertMinusesToDivider = CharacterShortcutEvent(
-  key: 'insert a divider',
-  character: '-',
-  handler: _convertMinusesToDividerHandler,
+// insert divider into a document by typing three minuses.
+// ---
+ShortcutEvent insertDividerEvent = ShortcutEvent(
+  key: 'Divider',
+  command: 'Minus',
+  handler: _insertDividerHandler,
 );
 
-CharacterShortcutEventHandler _convertMinusesToDividerHandler =
-    (editorState) async {
-  final selection = editorState.selection;
-  if (selection == null || !selection.isCollapsed) {
-    return false;
+ShortcutEventHandler _insertDividerHandler = (editorState, event) {
+  final selection = editorState.service.selectionService.currentSelection.value;
+  final textNodes = editorState.service.selectionService.currentSelectedNodes
+      .whereType<TextNode>();
+  if (textNodes.length != 1 || selection == null) {
+    return KeyEventResult.ignored;
   }
-  final path = selection.end.path;
-  final node = editorState.getNodeAtPath(path);
-  final delta = node?.delta;
-  if (node == null || delta == null) {
-    return false;
+  final textNode = textNodes.first;
+  if (!_hasTwoConsecutiveDashes(textNode.toPlainText(), selection.start.offset)) {
+    return KeyEventResult.ignored;
   }
-  if (delta.toPlainText() != '--') {
-    return false;
+  final dashStartPosition = selection.start.offset - 2;
+  final transaction = editorState.transaction;
+
+  if (textNode.toPlainText().length > 2) {
+    editorState.transaction
+      ..deleteText(textNode, dashStartPosition, 2)
+      ..insertNode(selection.end.path.next, Node(type: kDividerType));
+  } else {
+    editorState.transaction
+      ..deleteText(textNode, 0, 2) // remove the existing minuses.
+      ..insertNode(textNode.path, Node(type: kDividerType)) // insert the divder
+      ..afterSelection = Selection.single(
+        // update selection to the next text node.
+        path: textNode.path.next,
+        startOffset: 0,
+      );
   }
-  final transaction = editorState.transaction
-    ..insertNode(path, dividerNode())
-    ..insertNode(path, paragraphNode())
-    ..deleteNode(node)
-    ..afterSelection = Selection.collapse(path.next, 0);
   editorState.apply(transaction);
-  return true;
+  return KeyEventResult.handled;
 };
+
+bool _hasTwoConsecutiveDashes(String text, int end) {
+  if (text.length < 2 || end > text.length) {
+    return false;
+  }
+  return text[end - 1] == '-' && text[end - 2] == '-';
+}
 
 SelectionMenuItem dividerMenuItem = SelectionMenuItem(
   name: 'Divider',
-  icon: (editorState, onSelected) => const Icon(
+  icon: (editorState, onSelected) => Icon(
     Icons.horizontal_rule,
+    color: onSelected
+        ? editorState.editorStyle.selectionMenuItemSelectedIconColor
+        : editorState.editorStyle.selectionMenuItemIconColor,
     size: 18.0,
   ),
   keywords: ['horizontal rule', 'divider'],
   handler: (editorState, _, __) {
-    final selection = editorState.selection;
-    if (selection == null || !selection.isCollapsed) {
+    final selection =
+        editorState.service.selectionService.currentSelection.value;
+    final textNodes = editorState.service.selectionService.currentSelectedNodes
+        .whereType<TextNode>();
+    if (textNodes.length != 1 || selection == null) {
       return;
     }
-    final path = selection.end.path;
-    final node = editorState.getNodeAtPath(path);
-    final delta = node?.delta;
-    if (node == null || delta == null) {
-      return;
+    final textNode = textNodes.first;
+    // insert the divider at current path if the text node is empty.
+    if (textNode.toPlainText().isEmpty) {
+      final transaction = editorState.transaction
+        ..insertNode(textNode.path, Node(type: kDividerType))
+        ..afterSelection = Selection.single(
+          path: textNode.path.next,
+          startOffset: 0,
+        );
+      editorState.apply(transaction);
+    } else {
+      // insert the divider at the path next to current path if the text node is not empty.
+      final transaction = editorState.transaction
+        ..insertNode(selection.end.path.next, Node(type: kDividerType))
+        ..afterSelection = selection;
+      editorState.apply(transaction);
     }
-    final insertedPath = delta.isEmpty ? path : path.next;
-    final transaction = editorState.transaction
-      ..insertNode(insertedPath, dividerNode());
-    editorState.apply(transaction);
   },
 );
