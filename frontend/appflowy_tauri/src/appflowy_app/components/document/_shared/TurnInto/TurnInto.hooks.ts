@@ -11,28 +11,26 @@ export function useTurnInto({ node, onClose }: { node: NestedBlock; onClose?: ()
   const controller = useContext(DocumentControllerContext);
 
   const turnIntoBlock = useCallback(
-    (type: BlockType, isSelected: boolean, data?: BlockData<any>) => {
+    async (type: BlockType, isSelected: boolean, data?: BlockData<any>) => {
       if (!controller || isSelected) {
         onClose?.();
         return;
       }
 
       const config = blockConfig[type];
-      void (async () => {
-        await dispatch(
-          turnToBlockThunk({
-            id: node.id,
-            controller,
-            type,
-            data: {
-              ...config.defaultData,
-              delta: node?.data?.delta || [],
-              ...data,
-            },
-          })
-        );
-        onClose?.();
-      })();
+      await dispatch(
+        turnToBlockThunk({
+          id: node.id,
+          controller,
+          type,
+          data: {
+            ...config.defaultData,
+            delta: node?.data?.delta || [],
+            ...data,
+          },
+        })
+      );
+      onClose?.();
     },
     [onClose, controller, dispatch, node]
   );

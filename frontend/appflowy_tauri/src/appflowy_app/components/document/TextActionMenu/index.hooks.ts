@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { calcToolbarPosition } from '$app/utils/document/blocks/text/toolbar';
+import { calcToolbarPosition } from '$app/utils/document/toolbar';
 import { useAppSelector } from '$app/stores/store';
 
 export function useMenuStyle(container: HTMLDivElement) {

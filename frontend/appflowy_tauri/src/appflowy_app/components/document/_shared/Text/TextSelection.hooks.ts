@@ -1,4 +1,4 @@
-import { MouseEvent, useCallback, useEffect } from 'react';
+import { MouseEvent, useCallback, useEffect, useRef } from 'react';
 import { BaseRange, Editor, Node, Path, Range, Transforms } from 'slate';
 import { EditableProps } from 'slate-react/dist/components/editable';
 import { useSubscribeRangeSelection } from '$app/components/document/_shared/SubscribeNode.hooks';

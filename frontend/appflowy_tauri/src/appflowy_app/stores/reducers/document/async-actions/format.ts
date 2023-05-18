@@ -13,9 +13,9 @@ export const getFormatActiveThunk = createAsyncThunk<boolean, TextAction>(
     const { selection, anchor, focus } = state.documentRangeSelection;
 
     const match = (delta: TextDelta[], format: TextAction) => {
-      return delta.some((op) => op.attributes?.[format] === true);
+      return delta.every((op) => op.attributes?.[format] === true);
     };
-    return selection.some((id) => {
+    return selection.every((id) => {
       const node = document.nodes[id];
       let delta = node.data?.delta as TextDelta[];
       if (!delta) return false;
@@ -32,16 +32,15 @@ export const getFormatActiveThunk = createAsyncThunk<boolean, TextAction>(
 
 export const toggleFormatThunk = createAsyncThunk(
   'document/toggleFormat',
-  async (payload: { format: TextAction; controller: DocumentController }, thunkAPI) => {
+  async (payload: { format: TextAction; controller: DocumentController; isActive: boolean }, thunkAPI) => {
     const { getState } = thunkAPI;
-    const { format, controller } = payload;
+    const { format, controller, isActive } = payload;
     const state = getState() as RootState;
     const { document } = state;
     const { selection, anchor, focus } = state.documentRangeSelection;
+    const ids = Array.from(new Set(selection));
 
     const toggle = (delta: TextDelta[], format: TextAction) => {
-      const isActive = delta.every((op) => op.attributes?.[format] === true);
-
       return delta.map((op) => {
         const attributes = {
           ...op.attributes,
@@ -64,9 +63,7 @@ export const toggleFormatThunk = createAsyncThunk(
       return [...before, ...middle, ...after];
     };
 
-    const set = new Set(selection);
-
-    const actions = Array.from(set).map((id) => {
+    const actions = ids.map((id) => {
       const node = document.nodes[id];
       let delta = node.data?.delta as TextDelta[];
       if (!delta) return controller.getUpdateAction(node);

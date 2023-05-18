@@ -15,14 +15,16 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
   const focusId = useAppSelector((state) => state.documentRangeSelection.focus?.id || '');
   const { node: focusNode } = useSubscribeNode(focusId);
 
-  const [color, setColor] = React.useState('white');
+  const [isActive, setIsActive] = React.useState(false);
+  const color = useMemo(() => (isActive ? '#00BCF0' : 'white'), [isActive]);
+
   const formatTooltips: Record<string, string> = useMemo(
     () => ({
       [TextAction.Bold]: 'Bold',
       [TextAction.Italic]: 'Italic',
       [TextAction.Underline]: 'Underline',
       [TextAction.Strikethrough]: 'Strike through',
-      [TextAction.Code]: 'Make as Code',
+      [TextAction.Code]: 'Mark as Code',
     }),
     []
   );
@@ -30,7 +32,7 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
   const isFormatActive = useCallback(async () => {
     if (!focusNode) return false;
     const { payload: isActive } = await dispatch(getFormatActiveThunk(format));
-    return isActive;
+    return !!isActive;
   }, [dispatch, format, focusNode]);
 
   const toggleFormat = useCallback(
@@ -40,16 +42,17 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
         toggleFormatThunk({
           format,
           controller,
+          isActive,
         })
       );
     },
-    [controller, dispatch]
+    [controller, dispatch, isActive]
   );
 
   useEffect(() => {
     void (async () => {
       const isActive = await isFormatActive();
-      setColor(isActive ? '#00BCF0' : 'white');
+      setIsActive(isActive);
     })();
   }, [isFormatActive]);
 
