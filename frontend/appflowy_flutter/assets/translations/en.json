@@ -45,7 +45,8 @@
     "medium": "medium",
     "large": "large",
     "fontSize": "Font Size",
-    "import": "Import"
+    "import": "Import",
+    "moreOptions": "More options"
   },
   "disclosureAction": {
     "rename": "Rename",
