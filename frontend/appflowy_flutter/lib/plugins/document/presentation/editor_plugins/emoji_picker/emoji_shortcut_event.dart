@@ -6,8 +6,8 @@ import 'emoji_menu_item.dart';
 CommandShortcutEvent showEmojiPickerEvent(BuildContext context) =>
     CommandShortcutEvent(
       key: 'Show emoji picker',
-      command: 'ctrl+shift+e',
-      macOSCommand: 'cmd+shift+e',
+      command: 'ctrl+alt+e',
+      macOSCommand: 'cmd+alt+e',
       handler: (state) =>
           _showEmojiSelectionMenuShortcut(Overlay.of(context), state, context),
     );
