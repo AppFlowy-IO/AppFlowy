@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import '../workspace/application/settings/settings_location_cubit.dart';
 import 'deps_resolver.dart';
 import 'launch_configuration.dart';
 import 'plugin/plugin.dart';
@@ -32,9 +31,11 @@ class FlowyRunner {
     final env = integrationEnv();
     initGetIt(getIt, env, f, config);
 
-    final directory = await getIt<LocalFileStorage>()
-        .getPath()
-        .then((value) => Directory(value));
+    // final directory = await getIt<LocalFileStorage>()
+    //     .getPath()
+    //     .then((value) => Directory(value));
+
+    final directory = await appFlowyDocumentDirectory();
 
     // add task
     final launcher = getIt<AppLauncher>();
@@ -57,8 +58,8 @@ class FlowyRunner {
           const HotKeyTask(),
           const InitSupabaseTask(
             url: Env.supabaseUrl,
-            anonKey: Env.supabaseUrl,
-            jwtSecret: Env.supabaseUrl,
+            anonKey: Env.supabaseAnonKey,
+            jwtSecret: Env.supabaseJwtSecret,
           ),
           const InitAppWidgetTask(),
           const InitPlatformServiceTask()

@@ -93,6 +93,9 @@ class AppFlowyAuthService implements AuthService {
     required AuthTypePB authType,
     required Map<String, String> map,
   }) async {
+    if (authType == AuthTypePB.Local) {
+      return getUser();
+    }
     final payload = ThirdPartyAuthPB(
       authType: authType,
       map: map,
