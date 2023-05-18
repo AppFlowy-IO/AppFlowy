@@ -4,6 +4,7 @@ import 'board_test.dart' as board_test;
 import 'switch_folder_test.dart' as switch_folder_test;
 import 'empty_document_test.dart' as empty_document_test;
 import 'open_ai_smart_menu_test.dart' as smart_menu_test;
+import 'command_shortcut_tests.dart' as command_shortcut_tests;
 
 /// The main task runner for all integration tests in AppFlowy.
 ///
@@ -18,4 +19,5 @@ void main() {
   board_test.main();
   empty_document_test.main();
   smart_menu_test.main();
+  command_shortcut_tests.main();
 }
