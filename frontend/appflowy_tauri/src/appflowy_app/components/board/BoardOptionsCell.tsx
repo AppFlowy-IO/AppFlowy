@@ -22,8 +22,7 @@ export const BoardOptionsCell = ({
         <div className={`${getBgColor(option.color)} rounded px-2 py-0.5`} key={index}>
           {option?.name || ''}
         </div>
-      )) || ''}
-      &nbsp;
+      )) || <>&nbsp;</>}
     </div>
   );
 };
