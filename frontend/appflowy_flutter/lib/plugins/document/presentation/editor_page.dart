@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_list.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/emoji_picker/emoji_shortcut_event.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -79,6 +80,15 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final styleCustomizer = EditorStyleCustomizer(context: context);
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
+
+  @override
+  void initState() {
+    super.initState();
+    commandShortcutEvents.insert(
+      0,
+      showEmojiPickerEvent(context),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
