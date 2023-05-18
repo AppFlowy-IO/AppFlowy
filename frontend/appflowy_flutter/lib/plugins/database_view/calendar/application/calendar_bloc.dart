@@ -62,6 +62,10 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           createEvent: (DateTime date, String title) async {
             await _createEvent(date, title);
           },
+          moveEvent: (CalendarDayEvent event, DateTime date) {
+            // TODO: imlement logic
+            print("Hello world");
+          },
           didCreateEvent: (CalendarEventData<CalendarDayEvent> event) {
             emit(
               state.copyWith(editEvent: event),
@@ -380,6 +384,10 @@ class CalendarEvent with _$CalendarEvent {
   // Called when creating a new event
   const factory CalendarEvent.createEvent(DateTime date, String title) =
       _CreateEvent;
+
+  // Called when moving an event
+  const factory CalendarEvent.moveEvent(CalendarDayEvent event, DateTime date) =
+      _MoveEvent;
 
   // Called when updating the calendar's layout settings
   const factory CalendarEvent.updateCalendarLayoutSetting(

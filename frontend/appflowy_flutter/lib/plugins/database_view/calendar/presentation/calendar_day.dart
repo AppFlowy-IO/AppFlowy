@@ -84,9 +84,21 @@ class CalendarDayCard extends StatelessWidget {
                   cursor: SystemMouseCursors.basic,
                   onEnter: (p) => notifyEnter(context, true),
                   onExit: (p) => notifyEnter(context, false),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: child,
+                  child: DragTarget<CalendarDayEvent>(
+                    builder: (context, _, __) => Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: child,
+                    ),
+                    onWillAccept: (CalendarDayEvent? event) {
+                      return true;
+                      // TODO: Implement logic
+                    },
+                    onAccept: (CalendarDayEvent event) {
+                      // TODO: Implement logic
+                      context
+                          .read<CalendarBloc>()
+                          .add(CalendarEvent.moveEvent(event, date));
+                    },
                   ),
                 ),
               ),
