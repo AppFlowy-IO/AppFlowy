@@ -56,14 +56,8 @@ KeyEventResult _showEmojiSelectionMenuShortcut(
         child: Material(
           child: EmojiSelectionMenu(
             editorState: editorState,
-            onSubmitted: (text) {
-              // insert emoji
-              editorState.insertEmoji(text);
-            },
-            onExit: () {
-              _dismissEmojiSelectionMenu();
-              //close emoji panel
-            },
+            onSubmitted: editorState.insertEmoji,
+            onExit: _dismissEmojiSelectionMenu,
           ),
         ),
       );
