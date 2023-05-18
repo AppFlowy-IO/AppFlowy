@@ -29,10 +29,10 @@ macro_rules! static_flowy_error {
 }
 
 impl FlowyError {
-  pub fn new(code: ErrorCode, msg: &str) -> Self {
+  pub fn new<T: ToString>(code: ErrorCode, msg: T) -> Self {
     Self {
       code: code.value() as i32,
-      msg: msg.to_owned(),
+      msg: msg.to_string(),
     }
   }
   pub fn context<T: Debug>(mut self, error: T) -> Self {

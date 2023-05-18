@@ -1,43 +1,45 @@
+use std::sync::Arc;
+
 use postgrest::Postgrest;
 
 use flowy_error::FlowyError;
 use flowy_user::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
-use flowy_user::event_map::UserCloudService;
+use flowy_user::event_map::UserAuthService;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
-struct PostgrestServer {
-  postgres: Postgrest,
+pub(crate) struct PostgrestUserAuthServiceImpl {
+  postgrest: Arc<Postgrest>,
 }
 
-impl PostgrestServer {
-  pub fn new(postgres: Postgrest) -> Self {
-    Self { postgres }
+impl PostgrestUserAuthServiceImpl {
+  pub(crate) fn new(postgrest: Arc<Postgrest>) -> Self {
+    Self { postgrest }
   }
 }
 
-impl UserCloudService for PostgrestServer {
-  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
+impl UserAuthService for PostgrestUserAuthServiceImpl {
+  fn sign_up(&self, _params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
     todo!()
   }
 
-  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, FlowyError> {
+  fn sign_in(&self, _params: BoxAny) -> FutureResult<SignInResponse, FlowyError> {
     todo!()
   }
 
-  fn sign_out(&self, token: &str) -> FutureResult<(), FlowyError> {
+  fn sign_out(&self, _token: &str) -> FutureResult<(), FlowyError> {
     todo!()
   }
 
   fn update_user(
     &self,
-    token: &str,
-    params: UpdateUserProfileParams,
+    _token: &str,
+    _params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError> {
     todo!()
   }
 
-  fn get_user(&self, token: &str) -> FutureResult<UserProfile, FlowyError> {
+  fn get_user(&self, _token: &str) -> FutureResult<UserProfile, FlowyError> {
     todo!()
   }
 }

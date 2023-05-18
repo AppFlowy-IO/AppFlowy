@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::sync::Arc;
 
 use appflowy_integrate::RocksCollabDB;
@@ -20,10 +19,10 @@ use crate::entities::{
   AuthTypePB, SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
 use crate::entities::{UserProfilePB, UserSettingPB};
-use crate::event_map::UserStatusCallback;
+use crate::event_map::{UserCloudServiceProvider, UserStatusCallback};
 use crate::{
   errors::FlowyError,
-  event_map::UserCloudService,
+  event_map::UserAuthService,
   notification::*,
   services::database::{UserDB, UserTable, UserTableChangeset},
 };
@@ -50,14 +49,14 @@ impl UserSessionConfig {
 pub struct UserSession {
   database: UserDB,
   session_config: UserSessionConfig,
-  cloud_services: HashMap<AuthType, Arc<dyn UserCloudService>>,
+  cloud_services: Arc<dyn UserCloudServiceProvider>,
   user_status_callback: RwLock<Option<Arc<dyn UserStatusCallback>>>,
 }
 
 impl UserSession {
   pub fn new(
     session_config: UserSessionConfig,
-    cloud_services: HashMap<AuthType, Arc<dyn UserCloudService>>,
+    cloud_services: Arc<dyn UserCloudServiceProvider>,
   ) -> Self {
     let db = UserDB::new(&session_config.root_dir);
     let user_status_callback = RwLock::new(None);
@@ -107,9 +106,7 @@ impl UserSession {
   ) -> Result<UserProfile, FlowyError> {
     let resp = self
       .cloud_services
-      .get(auth_type)
-      .as_ref()
-      .unwrap()
+      .get_auth_service(auth_type)?
       .sign_in(params)
       .await?;
 
@@ -138,9 +135,7 @@ impl UserSession {
   ) -> Result<UserProfile, FlowyError> {
     let resp = self
       .cloud_services
-      .get(auth_type)
-      .as_ref()
-      .unwrap()
+      .get_auth_service(auth_type)?
       .sign_up(params)
       .await?;
 
@@ -175,8 +170,7 @@ impl UserSession {
       .unwrap()
       .did_expired(&session.token, session.user_id)
       .await;
-
-    let server = self.cloud_services.get(auth_type).unwrap().clone();
+    let server = self.cloud_services.get_auth_service(auth_type)?;
     self.sign_out_on_server(server, &session.token).await?;
 
     Ok(())
@@ -266,7 +260,7 @@ impl UserSession {
     token: &str,
     params: UpdateUserProfileParams,
   ) -> Result<(), FlowyError> {
-    let server = self.cloud_services.get(auth_type).unwrap().clone();
+    let server = self.cloud_services.get_auth_service(auth_type)?;
     let token = token.to_owned();
     let _ = tokio::spawn(async move {
       match server.update_user(&token, params).await {
@@ -283,7 +277,7 @@ impl UserSession {
 
   async fn sign_out_on_server(
     &self,
-    server: Arc<dyn UserCloudService>,
+    server: Arc<dyn UserAuthService>,
     token: &str,
   ) -> Result<(), FlowyError> {
     let token = token.to_owned();
@@ -323,17 +317,10 @@ impl UserSession {
       Some(session) => Ok(session),
     }
   }
-
-  fn is_user_login(&self, email: &str) -> bool {
-    match self.get_session() {
-      Ok(session) => session.email == email,
-      Err(_) => false,
-    }
-  }
 }
 
 pub async fn update_user(
-  _cloud_service: Arc<dyn UserCloudService>,
+  _cloud_service: Arc<dyn UserAuthService>,
   pool: Arc<ConnectionPool>,
   params: UpdateUserProfileParams,
 ) -> Result<(), FlowyError> {

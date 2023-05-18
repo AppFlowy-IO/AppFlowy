@@ -1,2 +1,6 @@
+pub use server::*;
+pub use user::*;
+
 pub mod configuration;
-pub mod user;
+mod server;
+mod user;

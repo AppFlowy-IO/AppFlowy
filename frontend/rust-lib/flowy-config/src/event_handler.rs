@@ -35,6 +35,7 @@ pub(crate) async fn remove_key_value_handler(data: AFPluginData<KeyPB>) -> Flowy
 pub(crate) async fn set_supabase_config_handler(
   data: AFPluginData<SupabaseConfigPB>,
 ) -> FlowyResult<()> {
-  let _config = data.into_inner();
+  let config = data.into_inner();
+  config.write_to_env();
   Ok(())
 }

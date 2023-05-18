@@ -193,6 +193,12 @@ pub enum ErrorCode {
 
   #[error("Document Data Invalid")]
   DocumentDataInvalid = 62,
+
+  #[error("Unsupported auth type")]
+  UnsupportedAuthType = 63,
+
+  #[error("Invalid auth configuration")]
+  InvalidAuthConfig = 64,
 }
 
 impl ErrorCode {

@@ -2,25 +2,24 @@ use flowy_error::FlowyError;
 use flowy_user::entities::{
   SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
-use flowy_user::event_map::UserCloudService;
+use flowy_user::event_map::UserAuthService;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::request::HttpRequestBuilder;
-use crate::self_host::configuration::{ClientServerConfiguration, HEADER_TOKEN};
+use crate::self_host::configuration::{SelfHostedConfiguration, HEADER_TOKEN};
 
-pub struct UserHttpCloudService {
-  config: ClientServerConfiguration,
+pub(crate) struct SelfHostedUserAuthServiceImpl {
+  config: SelfHostedConfiguration,
 }
-impl UserHttpCloudService {
-  pub fn new(config: &ClientServerConfiguration) -> Self {
-    Self {
-      config: config.clone(),
-    }
+
+impl SelfHostedUserAuthServiceImpl {
+  pub(crate) fn new(config: SelfHostedConfiguration) -> Self {
+    Self { config }
   }
 }
 
-impl UserCloudService for UserHttpCloudService {
+impl UserAuthService for SelfHostedUserAuthServiceImpl {
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
     let url = self.config.sign_up_url();
     FutureResult::new(async move {

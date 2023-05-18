@@ -10,6 +10,7 @@ use lib_infra::future::{Fut, FutureResult};
 
 use crate::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 use crate::event_handler::*;
+use crate::services::AuthType;
 use crate::{errors::FlowyError, services::UserSession};
 
 pub fn init(user_session: Arc<UserSession>) -> AFPlugin {
@@ -35,9 +36,24 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
 }
 
+/// The user cloud service provider.
+/// The provider can be supabase, firebase, aws, or any other cloud service.
+pub trait UserCloudServiceProvider: Send + Sync + 'static {
+  fn get_auth_service(&self, auth_type: &AuthType) -> Result<Arc<dyn UserAuthService>, FlowyError>;
+}
+
+impl<T> UserCloudServiceProvider for Arc<T>
+where
+  T: UserCloudServiceProvider,
+{
+  fn get_auth_service(&self, auth_type: &AuthType) -> Result<Arc<dyn UserAuthService>, FlowyError> {
+    (**self).get_auth_service(auth_type)
+  }
+}
+
 /// Provide the generic interface for the user cloud service
 /// The user cloud service is responsible for the user authentication and user profile management
-pub trait UserCloudService: Send + Sync {
+pub trait UserAuthService: Send + Sync {
   /// Sign up a new account.
   /// The type of the params is defined the this trait's implementation.
   /// Use the `unbox_or_error` of the [BoxAny] to get the params.
