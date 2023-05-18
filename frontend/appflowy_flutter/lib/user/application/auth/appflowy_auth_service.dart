@@ -16,12 +16,13 @@ class AppFlowyAuthService implements AuthService {
   Future<Either<FlowyError, UserProfilePB>> signIn({
     required String email,
     required String password,
+    AuthTypePB authType = AuthTypePB.Local,
+    Map<String, String> map = const {},
   }) async {
     //
     final request = SignInPayloadPB.create()
       ..email = email
       ..password = password;
-
     final response = UserEventSignIn(request).send();
     return response.then((value) => value.swap());
   }
@@ -31,25 +32,39 @@ class AppFlowyAuthService implements AuthService {
     required String name,
     required String email,
     required String password,
+    AuthTypePB authType = AuthTypePB.Local,
+    Map<String, String> map = const {},
   }) async {
     final request = SignUpPayloadPB.create()
       ..name = name
       ..email = email
-      ..password = password;
-
-    final response = UserEventSignUp(request).send();
-    return response.then((value) => value.swap());
+      ..password = password
+      ..authType = authType;
+    final response = await UserEventSignUp(request).send().then(
+          (value) => value.swap(),
+        );
+    final Future<Either<FlowyError, UserProfilePB>> result = response.fold(
+      (l) async => left(l),
+      (r) async => await setupAuth(authType: authType, map: map),
+    );
+    return result;
   }
 
   @override
-  Future<void> signOut(AuthTypePB authType) async {
+  Future<void> signOut({
+    AuthTypePB authType = AuthTypePB.Local,
+    Map<String, String> map = const {},
+  }) async {
     final payload = SignOutPB()..authType = authType;
     await UserEventSignOut(payload).send();
     return;
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signUpAsAnonymousUser() {
+  Future<Either<FlowyError, UserProfilePB>> signUpAsAnonymousUser({
+    AuthTypePB authType = AuthTypePB.Local,
+    Map<String, String> map = const {},
+  }) {
     const password = "AppFlowy123@";
     final uid = uuid();
     final userEmail = "$uid@appflowy.io";
@@ -61,14 +76,29 @@ class AppFlowyAuthService implements AuthService {
   }
 
   @override
+  Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
+    required String platform,
+    AuthTypePB authType = AuthTypePB.Local,
+    Map<String, String> map = const {},
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
   Future<Either<FlowyError, UserProfilePB>> getUser() async {
     return UserBackendService.getCurrentUserProfile();
   }
 
-  @override
-  Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
-    required String platform,
-  }) {
-    throw UnimplementedError();
+  Future<Either<FlowyError, UserProfilePB>> setupAuth({
+    required AuthTypePB authType,
+    required Map<String, String> map,
+  }) async {
+    final payload = ThirdPartyAuthPB(
+      authType: authType,
+      map: map,
+    );
+    return UserEventThirdPartyAuth(payload)
+        .send()
+        .then((value) => value.swap());
   }
 }

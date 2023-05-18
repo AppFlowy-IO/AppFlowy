@@ -69,7 +69,7 @@ void _resolveCommonService(GetIt getIt) async {
 
 void _resolveUserDeps(GetIt getIt) {
   // getIt.registerFactory<AuthService>(() => AppFlowyAuthService());
-  getIt.registerFactory<AuthService>(() => const SupabaseAuthService());
+  getIt.registerFactory<AuthService>(() => SupabaseAuthService());
 
   getIt.registerFactory<AuthRouter>(() => AuthRouter());
 
