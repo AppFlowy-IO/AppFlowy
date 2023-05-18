@@ -38,8 +38,8 @@ export const PropertiesPanel = ({
   const { cells } = useRow(viewId, controller, rowInfo);
   const databaseStore = useAppSelector((state) => state.database);
 
-  const [showAddedProperties, setShowAddedProperties] = useState(false);
-  const [showBasicProperties, setShowBasicProperties] = useState(true);
+  const [showAddedProperties, setShowAddedProperties] = useState(true);
+  const [showBasicProperties, setShowBasicProperties] = useState(false);
   const [showAdvancedProperties, setShowAdvancedProperties] = useState(false);
 
   const [hoveredPropertyIndex, setHoveredPropertyIndex] = useState(-1);

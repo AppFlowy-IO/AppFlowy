@@ -175,6 +175,16 @@ export const EditRow = ({
     setShowDeletePropertyPrompt(true);
   };
 
+  const onDelete = async () => {
+    if (!deletingPropertyId) return;
+    const fieldInfo = controller.fieldController.getField(deletingPropertyId);
+    if (!fieldInfo) return;
+    const typeController = new TypeOptionController(viewId, Some(fieldInfo));
+    await typeController.initialize();
+    await typeController.deleteField();
+    setShowDeletePropertyPrompt(false);
+  };
+
   return (
     <>
       <div
@@ -343,7 +353,7 @@ export const EditRow = ({
       {showDeletePropertyPrompt && (
         <PromptWindow
           msg={'Are you sure you want to delete this property?'}
-          onYes={() => console.log('yes')}
+          onYes={() => onDelete()}
           onCancel={() => setShowDeletePropertyPrompt(false)}
         ></PromptWindow>
       )}

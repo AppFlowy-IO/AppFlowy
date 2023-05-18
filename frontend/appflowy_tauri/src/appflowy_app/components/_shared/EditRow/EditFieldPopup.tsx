@@ -56,15 +56,6 @@ export const EditFieldPopup = ({
     changeFieldTypeClick(buttonTop, buttonRight);
   };
 
-  // this is causing an error right now
-  const onDeleteFieldClick = async () => {
-    if (!fieldInfo) return;
-    const controller = new TypeOptionController(viewId, Some(fieldInfo));
-    await controller.initialize();
-    await controller.deleteField();
-    onOutsideClick();
-  };
-
   const onNumberFormatClick: MouseEventHandler = (e) => {
     e.stopPropagation();
     let target = e.target as HTMLElement;
@@ -95,18 +86,6 @@ export const EditFieldPopup = ({
           onBlur={() => save()}
           className={'border-shades-3 flex-1 rounded border bg-main-selector px-2 py-2'}
         />
-
-        <button
-          onClick={() => onDeleteFieldClick()}
-          className={'flex cursor-pointer items-center gap-2 rounded-lg py-2 text-main-alert hover:bg-main-secondary'}
-        >
-          <span className={'flex items-center gap-2 pl-2'}>
-            <i className={'block h-5 w-5'}>
-              <TrashSvg></TrashSvg>
-            </i>
-            <span>{t('grid.field.delete')}</span>
-          </span>
-        </button>
 
         <div
           ref={changeTypeButtonRef}
