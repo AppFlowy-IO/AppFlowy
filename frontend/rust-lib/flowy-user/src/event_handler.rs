@@ -99,8 +99,7 @@ pub async fn set_appearance_setting(
     setting.theme = APPEARANCE_DEFAULT_THEME.to_string();
   }
 
-  let s = serde_json::to_string(&setting)?;
-  KV::set_str(APPEARANCE_SETTING_CACHE_KEY, s);
+  KV::set_object(APPEARANCE_SETTING_CACHE_KEY, setting)?;
   Ok(())
 }
 

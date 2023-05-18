@@ -40,7 +40,7 @@ class UserListener {
     }
 
     _userParser = UserNotificationParser(
-      id: _userProfile.token,
+      id: _userProfile.id.toString(),
       callback: _userNotificationCallback,
     );
     _subscription = RustStreamReceiver.listen((observable) {

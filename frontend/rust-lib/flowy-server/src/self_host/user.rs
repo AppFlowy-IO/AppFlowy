@@ -1,4 +1,4 @@
-use flowy_error::FlowyError;
+use flowy_error::{ErrorCode, FlowyError};
 use flowy_user::entities::{
   SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
@@ -38,26 +38,47 @@ impl UserAuthService for SelfHostedUserAuthServiceImpl {
     })
   }
 
-  fn sign_out(&self, token: &str) -> FutureResult<(), FlowyError> {
-    let token = token.to_owned();
-    let url = self.config.sign_out_url();
-    FutureResult::new(async move {
-      let _ = user_sign_out_request(&token, &url).await;
-      Ok(())
-    })
+  fn sign_out(&self, token: Option<String>) -> FutureResult<(), FlowyError> {
+    match token {
+      None => FutureResult::new(async {
+        Err(FlowyError::new(
+          ErrorCode::InvalidData,
+          "Token should not be empty",
+        ))
+      }),
+      Some(token) => {
+        let token = token;
+        let url = self.config.sign_out_url();
+        FutureResult::new(async move {
+          let _ = user_sign_out_request(&token, &url).await;
+          Ok(())
+        })
+      },
+    }
   }
 
   fn update_user(
     &self,
-    token: &str,
+    _uid: i64,
+    token: &Option<String>,
     params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError> {
-    let token = token.to_owned();
-    let url = self.config.user_profile_url();
-    FutureResult::new(async move {
-      update_user_profile_request(&token, params, &url).await?;
-      Ok(())
-    })
+    match token {
+      None => FutureResult::new(async {
+        Err(FlowyError::new(
+          ErrorCode::InvalidData,
+          "Token should not be empty",
+        ))
+      }),
+      Some(token) => {
+        let token = token.to_owned();
+        let url = self.config.user_profile_url();
+        FutureResult::new(async move {
+          update_user_profile_request(&token, params, &url).await?;
+          Ok(())
+        })
+      },
+    }
   }
 
   fn get_user(&self, token: &str) -> FutureResult<UserProfile, FlowyError> {

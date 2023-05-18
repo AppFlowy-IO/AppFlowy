@@ -70,9 +70,7 @@ impl UserSession {
 
   pub async fn init<C: UserStatusCallback + 'static>(&self, user_status_callback: C) {
     if let Ok(session) = self.get_session() {
-      let _ = user_status_callback
-        .did_sign_in(&session.token, session.user_id)
-        .await;
+      let _ = user_status_callback.did_sign_in(session.user_id).await;
     }
     *self.user_status_callback.write().await = Some(Arc::new(user_status_callback));
   }
@@ -119,7 +117,7 @@ impl UserSession {
       .await
       .as_ref()
       .unwrap()
-      .did_sign_in(&user_profile.token, user_profile.id)
+      .did_sign_in(user_profile.id)
       .await;
     send_sign_in_notification()
       .payload::<UserProfilePB>(user_profile.clone().into())
@@ -162,16 +160,14 @@ impl UserSession {
       .execute(&*(self.db_connection()?))?;
     self.database.close_user_db(session.user_id)?;
     self.set_session(None)?;
-    let _ = self
-      .user_status_callback
-      .read()
-      .await
-      .as_ref()
-      .unwrap()
-      .did_expired(&session.token, session.user_id)
-      .await;
     let server = self.cloud_services.get_auth_service(auth_type)?;
-    self.sign_out_on_server(server, &session.token).await?;
+    let token = session.token;
+    let _ = tokio::spawn(async move {
+      match server.sign_out(token).await {
+        Ok(_) => {},
+        Err(e) => tracing::error!("Sign out failed: {:?}", e),
+      }
+    });
 
     Ok(())
   }
@@ -188,10 +184,15 @@ impl UserSession {
 
     let user_profile = self.get_user_profile().await?;
     let profile_pb: UserProfilePB = user_profile.into();
-    send_notification(&session.token, UserNotification::DidUpdateUserProfile)
-      .payload(profile_pb)
-      .send();
-    self.update_user(&auth_type, &session.token, params).await?;
+    send_notification(
+      &session.user_id.to_string(),
+      UserNotification::DidUpdateUserProfile,
+    )
+    .payload(profile_pb)
+    .send();
+    self
+      .update_user(&auth_type, session.user_id, &session.token, params)
+      .await?;
     Ok(())
   }
 
@@ -200,24 +201,21 @@ impl UserSession {
   }
 
   pub async fn check_user(&self) -> Result<UserProfile, FlowyError> {
-    let (user_id, token) = self.get_session()?.into_part();
+    let (user_id, _token) = self.get_session()?.into_part();
     let user_id = user_id.to_string();
     let user = dsl::user_table
       .filter(user_table::id.eq(&user_id))
       .first::<UserTable>(&*(self.db_connection()?))?;
-
-    self.read_user_profile_on_server(&token)?;
     Ok(user.into())
   }
 
   pub async fn get_user_profile(&self) -> Result<UserProfile, FlowyError> {
-    let (user_id, token) = self.get_session()?.into_part();
+    let (user_id, _) = self.get_session()?.into_part();
     let user_id = user_id.to_string();
     let user = dsl::user_table
       .filter(user_table::id.eq(&user_id))
       .first::<UserTable>(&*(self.db_connection()?))?;
 
-    self.read_user_profile_on_server(&token)?;
     Ok(user.into())
   }
 
@@ -244,47 +242,28 @@ impl UserSession {
     Ok(self.get_session()?.name)
   }
 
-  pub fn token(&self) -> Result<String, FlowyError> {
+  pub fn token(&self) -> Result<Option<String>, FlowyError> {
     Ok(self.get_session()?.token)
   }
 }
 
 impl UserSession {
-  fn read_user_profile_on_server(&self, _token: &str) -> Result<(), FlowyError> {
-    Ok(())
-  }
-
   async fn update_user(
     &self,
     auth_type: &AuthType,
-    token: &str,
+    uid: i64,
+    token: &Option<String>,
     params: UpdateUserProfileParams,
   ) -> Result<(), FlowyError> {
     let server = self.cloud_services.get_auth_service(auth_type)?;
     let token = token.to_owned();
     let _ = tokio::spawn(async move {
-      match server.update_user(&token, params).await {
+      match server.update_user(uid, &token, params).await {
         Ok(_) => {},
         Err(e) => {
           // TODO: retry?
           tracing::error!("update user profile failed: {:?}", e);
         },
-      }
-    })
-    .await;
-    Ok(())
-  }
-
-  async fn sign_out_on_server(
-    &self,
-    server: Arc<dyn UserAuthService>,
-    token: &str,
-  ) -> Result<(), FlowyError> {
-    let token = token.to_owned();
-    let _ = tokio::spawn(async move {
-      match server.sign_out(&token).await {
-        Ok(_) => {},
-        Err(e) => tracing::error!("Sign out failed: {:?}", e),
       }
     })
     .await;
@@ -339,8 +318,8 @@ impl UserDatabaseConnection for UserSession {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 struct Session {
   user_id: i64,
-  token: String,
-  email: String,
+  token: Option<String>,
+  email: Option<String>,
   #[serde(default)]
   name: String,
 }
@@ -368,7 +347,7 @@ impl std::convert::From<SignUpResponse> for Session {
 }
 
 impl Session {
-  pub fn into_part(self) -> (i64, String) {
+  pub fn into_part(self) -> (i64, Option<String>) {
     (self.user_id, self.token)
   }
 }

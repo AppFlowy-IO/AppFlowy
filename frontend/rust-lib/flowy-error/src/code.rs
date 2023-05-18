@@ -199,6 +199,9 @@ pub enum ErrorCode {
 
   #[error("Invalid auth configuration")]
   InvalidAuthConfig = 64,
+
+  #[error("Missing auth field")]
+  MissingAuthField = 65,
 }
 
 impl ErrorCode {

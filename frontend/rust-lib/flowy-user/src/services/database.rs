@@ -138,13 +138,23 @@ impl UserTable {
 
 impl From<SignUpResponse> for UserTable {
   fn from(resp: SignUpResponse) -> Self {
-    UserTable::new(resp.user_id.to_string(), resp.name, resp.email, resp.token)
+    UserTable::new(
+      resp.user_id.to_string(),
+      resp.name,
+      resp.email.unwrap_or_default(),
+      resp.token.unwrap_or_default(),
+    )
   }
 }
 
 impl From<SignInResponse> for UserTable {
   fn from(resp: SignInResponse) -> Self {
-    UserTable::new(resp.user_id.to_string(), resp.name, resp.email, resp.token)
+    UserTable::new(
+      resp.user_id.to_string(),
+      resp.name,
+      resp.email.unwrap_or_default(),
+      resp.token.unwrap_or_default(),
+    )
   }
 }
 

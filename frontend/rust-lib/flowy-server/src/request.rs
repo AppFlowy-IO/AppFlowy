@@ -5,7 +5,7 @@ use hyper::http;
 use reqwest::{header::HeaderMap, Client, Method, Response};
 use tokio::sync::oneshot;
 
-use flowy_error::FlowyError;
+use flowy_error::{internal_error, FlowyError};
 
 use crate::response::HttpResponse;
 use crate::self_host::configuration::HEADER_TOKEN;
@@ -83,7 +83,7 @@ impl HttpRequestBuilder {
   where
     T: serde::Serialize,
   {
-    let bytes = Bytes::from(serde_json::to_vec(&body)?);
+    let bytes = Bytes::from(serde_json::to_vec(&body).map_err(internal_error)?);
     self.bytes(bytes)
   }
 
@@ -104,7 +104,7 @@ impl HttpRequestBuilder {
     let builder = self.inner_send().await?;
     match builder.response {
       None => Err(unexpected_empty_payload(&builder.url)),
-      Some(data) => Ok(serde_json::from_slice(&data)?),
+      Some(data) => serde_json::from_slice(&data).map_err(internal_error),
     }
   }
 
@@ -137,10 +137,7 @@ impl HttpRequestBuilder {
       let _ = tx.send(response);
     });
 
-    let response = rx.await.map_err(|e| {
-      let mag = format!("Receive http response channel error: {}", e);
-      FlowyError::internal().context(mag)
-    })??;
+    let response = rx.await.map_err(internal_error)?.map_err(internal_error)?;
     tracing::trace!("Http Response: {:?}", response);
     let flowy_response = flowy_response_from(response).await?;
     let token = self.token();
@@ -163,16 +160,16 @@ fn unexpected_empty_payload(url: &str) -> FlowyError {
 }
 
 async fn flowy_response_from(original: Response) -> Result<HttpResponse, FlowyError> {
-  let bytes = original.bytes().await?;
-  let response: HttpResponse = serde_json::from_slice(&bytes)?;
+  let bytes = original.bytes().await.map_err(internal_error)?;
+  let response: HttpResponse = serde_json::from_slice(&bytes).map_err(internal_error)?;
   Ok(response)
 }
 
 #[allow(dead_code)]
 async fn get_response_data(original: Response) -> Result<Bytes, FlowyError> {
   if original.status() == http::StatusCode::OK {
-    let bytes = original.bytes().await?;
-    let response: HttpResponse = serde_json::from_slice(&bytes)?;
+    let bytes = original.bytes().await.map_err(internal_error)?;
+    let response: HttpResponse = serde_json::from_slice(&bytes).map_err(internal_error)?;
     match response.error {
       None => Ok(response.data),
       Some(error) => Err(FlowyError::new(error.code, &error.msg)),

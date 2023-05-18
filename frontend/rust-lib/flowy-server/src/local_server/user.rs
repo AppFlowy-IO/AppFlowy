@@ -25,8 +25,8 @@ impl UserAuthService for LocalServerUserAuthServiceImpl {
       Ok(SignUpResponse {
         user_id: uid,
         name: params.name,
-        email: params.email,
-        token: "".to_string(),
+        email: Some(params.email),
+        token: None,
       })
     })
   }
@@ -38,22 +38,22 @@ impl UserAuthService for LocalServerUserAuthServiceImpl {
       Ok(SignInResponse {
         user_id: uid,
         name: params.name,
-        email: params.email,
-        token: "".to_string(),
+        email: Some(params.email),
+        token: None,
       })
     })
   }
 
-  fn sign_out(&self, _token: &str) -> FutureResult<(), FlowyError> {
+  fn sign_out(&self, _token: Option<String>) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
   }
 
   fn update_user(
     &self,
-    _token: &str,
+    _uid: i64,
+    _token: &Option<String>,
     _params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError> {
-    // Do nothing, just return ok
     FutureResult::new(async { Ok(()) })
   }
 

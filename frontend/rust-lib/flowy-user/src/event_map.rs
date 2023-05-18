@@ -31,7 +31,7 @@ pub fn init(user_session: Arc<UserSession>) -> AFPlugin {
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {
-  fn did_sign_in(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
+  fn did_sign_in(&self, user_id: i64) -> Fut<FlowyResult<()>>;
   fn did_sign_up(&self, user_profile: &UserProfile) -> Fut<FlowyResult<()>>;
   fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
 }
@@ -64,12 +64,13 @@ pub trait UserAuthService: Send + Sync {
   fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, FlowyError>;
 
   /// Sign out an account
-  fn sign_out(&self, token: &str) -> FutureResult<(), FlowyError>;
+  fn sign_out(&self, token: Option<String>) -> FutureResult<(), FlowyError>;
 
   /// Using the user's token to update the user information
   fn update_user(
     &self,
-    token: &str,
+    uid: i64,
+    token: &Option<String>,
     params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError>;
 

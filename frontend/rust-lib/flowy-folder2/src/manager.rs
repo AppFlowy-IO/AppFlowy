@@ -4,7 +4,6 @@ use std::sync::Arc;
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::RocksCollabDB;
-
 use collab_folder::core::{
   Folder as InnerFolder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, TrashRecord,
   View, ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
@@ -30,7 +29,7 @@ use crate::view_ext::{
 
 pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
-  fn token(&self) -> Result<String, FlowyError>;
+  fn token(&self) -> Result<Option<String>, FlowyError>;
   fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError>;
 }
 

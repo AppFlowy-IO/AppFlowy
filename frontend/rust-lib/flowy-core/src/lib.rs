@@ -276,9 +276,9 @@ struct UserStatusListener {
 }
 
 impl UserStatusListener {
-  async fn did_sign_in(&self, token: &str, user_id: i64) -> FlowyResult<()> {
+  async fn did_sign_in(&self, user_id: i64) -> FlowyResult<()> {
     self.folder_manager.initialize(user_id).await?;
-    self.database_manager.initialize(user_id, token).await?;
+    self.database_manager.initialize(user_id).await?;
     Ok(())
   }
 
@@ -307,11 +307,10 @@ struct UserStatusCallbackImpl {
 }
 
 impl UserStatusCallback for UserStatusCallbackImpl {
-  fn did_sign_in(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>> {
+  fn did_sign_in(&self, user_id: i64) -> Fut<FlowyResult<()>> {
     let listener = self.listener.clone();
-    let token = token.to_owned();
     let user_id = user_id.to_owned();
-    to_fut(async move { listener.did_sign_in(&token, user_id).await })
+    to_fut(async move { listener.did_sign_in(user_id).await })
   }
 
   fn did_sign_up(&self, user_profile: &UserProfile) -> Fut<FlowyResult<()>> {

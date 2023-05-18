@@ -83,8 +83,8 @@ pub struct SignInParams {
 pub struct SignInResponse {
   pub user_id: i64,
   pub name: String,
-  pub email: String,
-  pub token: String,
+  pub email: Option<String>,
+  pub token: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Default, Debug)]
@@ -99,8 +99,8 @@ pub struct SignUpParams {
 pub struct SignUpResponse {
   pub user_id: i64,
   pub name: String,
-  pub email: String,
-  pub token: String,
+  pub email: Option<String>,
+  pub token: Option<String>,
 }
 
 #[derive(ProtoBuf, Default)]
