@@ -130,7 +130,7 @@ class CoverImagePickerBloc
   }
 
   Future<String> _coverPath() async {
-    final directory = await getIt<SettingsLocationCubit>().fetchLocation();
+    final directory = await getIt<LocalFileStorage>().getPath();
     return Directory(p.join(directory, 'covers'))
         .create(recursive: true)
         .then((value) => value.path);

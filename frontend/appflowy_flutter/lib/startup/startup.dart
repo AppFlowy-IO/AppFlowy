@@ -32,8 +32,8 @@ class FlowyRunner {
     final env = integrationEnv();
     initGetIt(getIt, env, f, config);
 
-    final directory = getIt<SettingsLocationCubit>()
-        .fetchLocation()
+    final directory = await getIt<LocalFileStorage>()
+        .getPath()
         .then((value) => Directory(value));
 
     // add task

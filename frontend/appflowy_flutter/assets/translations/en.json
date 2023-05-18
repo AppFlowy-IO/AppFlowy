@@ -202,7 +202,11 @@
       "create": "Create",
       "folderPath": "Path to store your folder",
       "locationCannotBeEmpty": "Path cannot be empty",
-      "pathCopiedSnackbar": "File storage path copied to clipboard!"
+      "pathCopiedSnackbar": "File storage path copied to clipboard!",
+      "changeLocationTooltips": "Change the files read the data directory",
+      "change": "Change",
+      "openLocationTooltips": "Open the files read the data directory",
+      "recoverLocationTooltips": "Recover the files read the data directory"
     },
     "user": {
       "name": "Name",

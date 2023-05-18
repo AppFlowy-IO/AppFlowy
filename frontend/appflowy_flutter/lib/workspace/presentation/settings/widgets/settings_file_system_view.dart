@@ -13,16 +13,12 @@ class SettingsFileSystemView extends StatefulWidget {
 }
 
 class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
-  final _locationCubit = SettingsLocationCubit()..fetchLocation();
-
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
       itemBuilder: (context, index) {
         if (index == 0) {
-          return SettingsFileLocationCustomzier(
-            cubit: _locationCubit,
-          );
+          return const SettingsFileLocationCustomizer();
         } else if (index == 1) {
           // return _buildExportDatabaseButton();
         }

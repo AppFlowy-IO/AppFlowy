@@ -1,3 +1,4 @@
+import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/network_monitor.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_action_sheet_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
@@ -47,7 +48,9 @@ class DependencyResolver {
 }
 
 void _resolveCommonService(GetIt getIt) async {
+  getIt.registerFactory<KeyValueStorage>(() => KeyValue());
   getIt.registerFactory<FilePickerService>(() => FilePicker());
+  getIt.registerFactory<LocalFileStorage>(() => LocalFileStorage());
 
   getIt.registerFactoryAsync<OpenAIRepository>(
     () async {
@@ -137,11 +140,6 @@ void _resolveFolderDeps(GetIt getIt) {
   //Settings
   getIt.registerFactoryParam<SettingsDialogBloc, UserProfilePB, void>(
     (user, _) => SettingsDialogBloc(user),
-  );
-
-  // Location
-  getIt.registerFactory<SettingsLocationCubit>(
-    () => SettingsLocationCubit(),
   );
 
   //User
