@@ -3,7 +3,6 @@ use std::sync::Arc;
 
 use parking_lot::RwLock;
 
-use flowy_config::entities::{SUPABASE_JWT, SUPABASE_KEY, SUPABASE_URL};
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_server::local_server::LocalServer;
 use flowy_server::self_host::configuration::self_host_server_configuration;

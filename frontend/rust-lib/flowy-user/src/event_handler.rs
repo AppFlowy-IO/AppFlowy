@@ -131,6 +131,8 @@ pub async fn get_user_setting(
   data_result_ok(user_setting)
 }
 
+/// Only used for third party auth.
+/// Use [UserEvent::SignIn] or [UserEvent::SignUp] If the [AuthType] is Local or SelfHosted
 #[tracing::instrument(level = "debug", skip(data, session), err)]
 pub async fn third_party_auth_handler(
   data: AFPluginData<ThirdPartyAuthPB>,

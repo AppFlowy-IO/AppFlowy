@@ -81,10 +81,12 @@ pub trait UserAuthService: Send + Sync {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum UserEvent {
+  /// Only use when the [AuthType] is Local or SelfHosted
   /// Logging into an account using a register email and password
   #[event(input = "SignInPayloadPB", output = "UserProfilePB")]
   SignIn = 0,
 
+  /// Only use when the [AuthType] is Local or SelfHosted
   /// Creating a new account
   #[event(input = "SignUpPayloadPB", output = "UserProfilePB")]
   SignUp = 1,

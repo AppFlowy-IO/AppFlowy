@@ -21,6 +21,7 @@ parking_lot = "0.12"
 lazy_static = "1.4.0"
 bytes = "1.0.1"
 postgrest = "1.0"
+tokio-retry = "0.3"
 
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-user = { path = "../flowy-user" }

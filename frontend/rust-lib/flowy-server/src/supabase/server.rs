@@ -19,11 +19,11 @@ impl SupabaseServerConfiguration {
   pub fn from_env() -> Result<Self, FlowyError> {
     Ok(Self {
       supabase_url: std::env::var(SUPABASE_URL)
-        .map_err(|e| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_URL"))?,
+        .map_err(|_| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_URL"))?,
       supabase_key: std::env::var(SUPABASE_KEY)
-        .map_err(|e| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_KEY"))?,
+        .map_err(|_| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_KEY"))?,
       supabase_jwt: std::env::var(SUPABASE_JWT)
-        .map_err(|e| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_JWT"))?,
+        .map_err(|_| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_JWT"))?,
     })
   }
 }
