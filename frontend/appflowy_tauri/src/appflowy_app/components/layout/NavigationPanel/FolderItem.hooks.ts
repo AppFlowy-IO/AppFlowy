@@ -1,12 +1,12 @@
-import { foldersActions, IFolder } from '../../../stores/reducers/folders/slice';
+import { foldersActions, IFolder } from '$app_reducers/folders/slice';
 import { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../../stores/store';
-import { IPage, pagesActions } from '../../../stores/reducers/pages/slice';
+import { useAppDispatch, useAppSelector } from '$app/stores/store';
+import { IPage, pagesActions } from '$app_reducers/pages/slice';
 import { ViewLayoutPB } from '@/services/backend';
-import { AppBackendService } from '../../../stores/effects/folder/app/app_bd_svc';
-import { WorkspaceBackendService } from '../../../stores/effects/folder/workspace/workspace_bd_svc';
+import { AppBackendService } from '$app/stores/effects/folder/app/app_bd_svc';
+import { WorkspaceBackendService } from '$app/stores/effects/folder/workspace/workspace_bd_svc';
 
-import { AppObserver } from '../../../stores/effects/folder/app/app_observer';
+import { AppObserver } from '$app/stores/effects/folder/app/app_observer';
 import { useNavigate } from 'react-router-dom';
 import { INITIAL_FOLDER_HEIGHT, PAGE_ITEM_HEIGHT } from '../../_shared/constants';
 
