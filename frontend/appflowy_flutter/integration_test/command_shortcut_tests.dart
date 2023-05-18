@@ -32,8 +32,7 @@ void main() {
     setUpAll(() async => await service.setUpAll());
     setUp(() async => await service.setUp());
 
-    testWidgets('cmd/ctrl+shift+e shortcut toggles emoji picker',
-        (tester) async {
+    testWidgets('cmd/ctrl+alt+e shortcut toggles emoji picker', (tester) async {
       await tester.initializeAppFlowy();
 
       // Needs tab to obtain focus for the app flowy editor.
@@ -49,7 +48,7 @@ void main() {
       await FlowyTestKeyboard.simulateKeyDownEvent(
         [
           LogicalKeyboardKey.control,
-          LogicalKeyboardKey.shift,
+          LogicalKeyboardKey.alt,
           LogicalKeyboardKey.keyE,
         ],
         tester: tester,
