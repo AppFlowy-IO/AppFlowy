@@ -58,7 +58,6 @@ KeyEventResult _showEmojiSelectionMenuShortcut(
           onSubmitted: (emoji) {
             editorState.insertTextAtCurrentSelection(emoji.emoji);
           },
-          onExit: () {},
         ),
       ),
     ),

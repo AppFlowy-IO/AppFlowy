@@ -61,11 +61,11 @@ class EmojiSelectionMenu extends StatefulWidget {
   const EmojiSelectionMenu({
     Key? key,
     required this.onSubmitted,
-    required this.onExit,
+    this.onExit,
   }) : super(key: key);
 
   final void Function(Emoji emoji) onSubmitted;
-  final void Function() onExit;
+  final void Function()? onExit;
 
   @override
   State<EmojiSelectionMenu> createState() => _EmojiSelectionMenuState();
@@ -82,7 +82,9 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
     if (event.logicalKey == LogicalKeyboardKey.escape &&
         event is KeyDownEvent) {
       //triggers on esc
-      widget.onExit();
+      if (widget.onExit != null) {
+        widget.onExit!();
+      }
       return true;
     } else {
       return false;
