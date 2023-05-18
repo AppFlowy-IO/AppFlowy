@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:appflowy/startup/tasks/prelude.dart';
 import 'package:appflowy/user/application/auth/appflowy_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -27,6 +28,14 @@ class SupabaseAuthService implements AuthService {
     AuthTypePB authType = AuthTypePB.Supabase,
     Map<String, String> map = const {},
   }) async {
+    if (!isSupabaseEnable) {
+      return _appFlowyAuthService.signUp(
+        name: name,
+        email: email,
+        password: password,
+      );
+    }
+
     // fetch the uuid from supabase.
     final response = await _auth.signUp(
       email: email,
@@ -56,6 +65,13 @@ class SupabaseAuthService implements AuthService {
     AuthTypePB authType = AuthTypePB.Supabase,
     Map<String, String> map = const {},
   }) async {
+    if (!isSupabaseEnable) {
+      return _appFlowyAuthService.signIn(
+        email: email,
+        password: password,
+      );
+    }
+
     try {
       final response = await _auth.signInWithPassword(
         email: email,
@@ -85,6 +101,11 @@ class SupabaseAuthService implements AuthService {
     AuthTypePB authType = AuthTypePB.Supabase,
     Map<String, String> map = const {},
   }) async {
+    if (!isSupabaseEnable) {
+      return _appFlowyAuthService.signUpWithOAuth(
+        platform: platform,
+      );
+    }
     final provider = platform.toProvider();
     final completer = Completer<Either<FlowyError, UserProfilePB>>();
     late final StreamSubscription<AuthState> subscription;
@@ -130,6 +151,9 @@ class SupabaseAuthService implements AuthService {
   Future<void> signOut({
     AuthTypePB authType = AuthTypePB.Local,
   }) async {
+    if (!isSupabaseEnable) {
+      return _appFlowyAuthService.signOut();
+    }
     await _auth.signOut();
     await _appFlowyAuthService.signOut(
       authType: authType,
@@ -146,6 +170,9 @@ class SupabaseAuthService implements AuthService {
 
   @override
   Future<Either<FlowyError, UserProfilePB>> getUser() async {
+    if (!isSupabaseEnable) {
+      return _appFlowyAuthService.getUser();
+    }
     final user = await getSupabaseUser();
     return user.map((r) => r.toUserProfile());
   }

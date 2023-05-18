@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:appflowy/util/secret.dart';
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -56,9 +56,9 @@ class FlowyRunner {
         if (!env.isTest()) ...[
           const HotKeyTask(),
           const InitSupabaseTask(
-            url: Secret.supabaseUrl,
-            anonKey: Secret.supabaseAnonKey,
-            jwtSecret: Secret.supabaseJWTSecret,
+            url: Env.supabaseUrl,
+            anonKey: Env.supabaseUrl,
+            jwtSecret: Env.supabaseUrl,
           ),
           const InitAppWidgetTask(),
           const InitPlatformServiceTask()

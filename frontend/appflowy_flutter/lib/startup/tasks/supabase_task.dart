@@ -1,7 +1,10 @@
 import 'package:appflowy/core/config/config.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../startup.dart';
+
+bool isSupabaseEnable = false;
 
 class InitSupabaseTask extends LaunchTask {
   const InitSupabaseTask({
@@ -16,7 +19,11 @@ class InitSupabaseTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    assert(url.isNotEmpty && anonKey.isNotEmpty);
+    if (url.isEmpty || anonKey.isEmpty || jwtSecret.isEmpty) {
+      isSupabaseEnable = false;
+      Log.info('Supabase config is empty, skip init supabase.');
+      return;
+    }
     await Supabase.initialize(
       url: url,
       anonKey: anonKey,
@@ -26,5 +33,6 @@ class InitSupabaseTask extends LaunchTask {
       key: anonKey,
       secret: jwtSecret,
     );
+    isSupabaseEnable = true;
   }
 }
