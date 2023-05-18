@@ -1,6 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
+import '../../layout/sizes.dart';
 import 'emoji_menu_item.dart';
 
 CommandShortcutEvent showEmojiPickerEvent(BuildContext context) =>
@@ -17,10 +18,8 @@ KeyEventResult _showEmojiSelectionMenuShortcut(
   EditorState editorState,
   BuildContext context,
 ) {
-  const menuHeight = 200.0;
   final selectionService = editorState.service.selectionService;
   final selectionRects = selectionService.selectionRects;
-  const menuOffset = Offset(0, 10);
   final editorOffset =
       editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
   final editorHeight = editorState.renderBox!.size.height;
@@ -30,11 +29,11 @@ KeyEventResult _showEmojiSelectionMenuShortcut(
   var alignment = Alignment.bottomLeft;
   final bottomRight = selectionRects.first.bottomRight;
   final topRight = selectionRects.first.topRight;
-  var offset = bottomRight + menuOffset;
+  var offset = bottomRight + DocumentSizes.menuOffset;
   // overflow
-  if (offset.dy + menuHeight >= editorOffset.dy + editorHeight) {
+  if (offset.dy + DocumentSizes.menuHeight >= editorOffset.dy + editorHeight) {
     // show above
-    offset = topRight - menuOffset;
+    offset = topRight - DocumentSizes.menuOffset;
     showBelow = false;
     alignment = Alignment.topLeft;
   }
