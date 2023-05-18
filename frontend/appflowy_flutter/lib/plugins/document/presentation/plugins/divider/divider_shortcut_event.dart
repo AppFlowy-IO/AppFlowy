@@ -22,14 +22,14 @@ ShortcutEventHandler _insertDividerHandler = (editorState, event) {
     return KeyEventResult.ignored;
   }
   final dashStartPosition = selection.start.offset - 2;
-  Transaction transaction;
+  final transaction = editorState.transaction;
 
   if (textNode.toPlainText().length > 2) {
-    transaction = editorState.transaction
+    editorState.transaction
       ..deleteText(textNode, dashStartPosition, 2)
       ..insertNode(selection.end.path.next, Node(type: kDividerType));
   } else {
-    transaction = editorState.transaction
+    editorState.transaction
       ..deleteText(textNode, 0, 2) // remove the existing minuses.
       ..insertNode(textNode.path, Node(type: kDividerType)) // insert the divder
       ..afterSelection = Selection.single(
@@ -42,8 +42,8 @@ ShortcutEventHandler _insertDividerHandler = (editorState, event) {
   return KeyEventResult.handled;
 };
 
-_hasTwoConsecutiveDashes(String text, int end) {
-  if(text.length < 2) {
+bool _hasTwoConsecutiveDashes(String text, int end) {
+  if (text.length < 2 || end > text.length) {
     return false;
   }
   return text[end - 1] == '-' && text[end - 2] == '-';
