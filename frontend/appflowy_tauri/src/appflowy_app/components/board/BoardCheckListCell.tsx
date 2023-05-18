@@ -25,12 +25,12 @@ export const BoardCheckListCell = ({
 
   useEffect(() => {
     setAllOptionsCount(
-      (databaseStore.fields[cellIdentifier.fieldId]?.fieldOptions as ISelectOptionType).selectOptions.length
+      (databaseStore.fields[cellIdentifier.fieldId]?.fieldOptions as ISelectOptionType)?.selectOptions?.length || 0
     );
   }, [databaseStore, cellIdentifier]);
 
   useEffect(() => {
-    setSelectedOptionsCount((data as SelectOptionCellDataPB)?.select_options.length);
+    setSelectedOptionsCount((data as SelectOptionCellDataPB)?.select_options?.length || 0);
   }, [data]);
 
   return <CheckListProgress completed={selectedOptionsCount} max={allOptionsCount} />;
