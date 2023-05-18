@@ -82,9 +82,7 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
     if (event.logicalKey == LogicalKeyboardKey.escape &&
         event is KeyDownEvent) {
       //triggers on esc
-      if (widget.onExit != null) {
-        widget.onExit!();
-      }
+      widget.onExit?.call();
       return true;
     } else {
       return false;
