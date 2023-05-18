@@ -84,10 +84,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   @override
   void initState() {
     super.initState();
-    commandShortcutEvents.insert(
-      0,
-      showEmojiPickerEvent(context),
-    );
+    commandShortcutEvents.add(showEmojiPickerEvent(context));
   }
 
   @override
