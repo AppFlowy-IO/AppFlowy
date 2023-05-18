@@ -2,8 +2,6 @@ import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { SelectOptionCellDataPB, SelectOptionColorPB, SelectOptionPB } from '@/services/backend';
 import { PopupWindow } from '$app/components/_shared/PopupWindow';
 import { ISelectOption, ISelectOptionType } from '$app_reducers/database/slice';
-import { getBgColor } from '$app/components/_shared/getColor';
-import { CheckmarkSvg } from '$app/components/_shared/svg/CheckmarkSvg';
 import { Details2Svg } from '$app/components/_shared/svg/Details2Svg';
 import { useAppSelector } from '$app/stores/store';
 import { useCell } from '$app/components/_shared/database-hooks/useCell';
@@ -40,20 +38,17 @@ export const CheckListPopup = ({
 
   const [allOptionsCount, setAllOptionsCount] = useState(0);
   const [selectedOptionsCount, setSelectedOptionsCount] = useState(0);
+  const [newOptions, setNewOptions] = useState<string[]>([]);
 
   useEffect(() => {
     setAllOptionsCount(
-      (databaseStore.fields[cellIdentifier.fieldId]?.fieldOptions as ISelectOptionType).selectOptions.length
+      (databaseStore.fields[cellIdentifier.fieldId]?.fieldOptions as ISelectOptionType)?.selectOptions?.length || 0
     );
   }, [databaseStore, cellIdentifier]);
 
   useEffect(() => {
-    setSelectedOptionsCount((data as SelectOptionCellDataPB)?.select_options.length);
+    setSelectedOptionsCount((data as SelectOptionCellDataPB)?.select_options?.length || 0);
   }, [data]);
-
-  const onBlur = async () => {
-    console.log('on blur');
-  };
 
   const onToggleOptionClick = async (option: SelectOptionPB) => {
     if ((data as SelectOptionCellDataPB)?.select_options?.find((selectedOption) => selectedOption.id === option.id)) {
@@ -82,16 +77,29 @@ export const CheckListPopup = ({
     openCheckListDetail(_left, _top, selectOption);
   };
 
+  const newOptionClick = () => {
+    setNewOptions([...newOptions, '']);
+  };
+
+  const updateNewOption = (index: number, value: string) => {
+    const newOptionsCopy = [...newOptions];
+    newOptionsCopy[index] = value;
+    setNewOptions(newOptionsCopy);
+  };
+
+  const onNewOptionKeyDown = (index: number, e: KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      void onSaveNewOptionClick(index);
+    }
+  };
+
+  const onSaveNewOptionClick = async (index: number) => {
+    await new SelectOptionCellBackendService(cellIdentifier).createOption({ name: newOptions[index] });
+    setNewOptions(newOptions.filter((_, i) => i !== index));
+  };
+
   return (
-    <PopupWindow
-      className={'text-xs'}
-      onOutsideClick={async () => {
-        await onBlur();
-        onOutsideClick();
-      }}
-      left={left}
-      top={top}
-    >
+    <PopupWindow className={'text-xs'} onOutsideClick={onOutsideClick} left={left} top={top}>
       <div className={'min-w-[320px]'}>
         <div className={'px-4 pt-8 pb-4'}>
           <CheckListProgress completed={selectedOptionsCount} max={allOptionsCount} />
@@ -115,7 +123,6 @@ export const CheckListPopup = ({
                   )
                 }
               >
-                {/*<EditorUncheckSvg></EditorUncheckSvg>*/}
                 <div className={'h-5 w-5'}>
                   {(data as SelectOptionCellDataPB)?.select_options?.find((so) => so.id === option.selectOptionId) ? (
                     <EditorCheckSvg></EditorCheckSvg>
@@ -132,11 +139,32 @@ export const CheckListPopup = ({
               </div>
             )
           )}
+          {newOptions.map((option, index) => (
+            <div
+              key={index}
+              className={'flex cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-shade-6'}
+            >
+              <input
+                onKeyDown={(e) => onNewOptionKeyDown(index, e as unknown as KeyboardEvent)}
+                className={'min-w-0 flex-1 pl-7'}
+                value={option}
+                onChange={(e) => updateNewOption(index, e.target.value)}
+              />
+              <button
+                onClick={() => onSaveNewOptionClick(index)}
+                className={
+                  'flex items-center gap-2 rounded-lg bg-main-accent px-4 py-2 text-white hover:bg-main-hovered'
+                }
+              >
+                {t('grid.selectOption.create')}
+              </button>
+            </div>
+          ))}
         </div>
         <div className={'h-[1px] bg-shade-6'}></div>
         <div className={'p-2'}>
           <button
-            onClick={() => console.log('new check list item')}
+            onClick={() => newOptionClick()}
             className={'flex w-full items-center gap-2 rounded-lg px-2 py-2 hover:bg-shade-6'}
           >
             <i className={'h-5 w-5'}>
