@@ -82,3 +82,53 @@ impl UserAuthService for PostgrestUserAuthServiceImpl {
     todo!()
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use std::sync::Arc;
+
+  use dotenv::dotenv;
+  use postgrest::Postgrest;
+  use uuid::Uuid;
+
+  use crate::supabase::{SupabaseServer, SupabaseServerConfiguration};
+
+  #[tokio::test]
+  async fn read_user_table_test() {
+    dotenv().ok();
+    if let Ok(config) = SupabaseServerConfiguration::from_env() {
+      let server = Arc::new(SupabaseServer::new(config));
+      let resp = server
+        .postgres
+        .from("user")
+        .eq("id", "0")
+        .select("*")
+        .execute()
+        .await
+        .unwrap();
+      let body = resp.text().await.unwrap();
+      println!("{}", body);
+    }
+  }
+
+  #[tokio::test]
+  async fn insert_user_table_test() {
+    dotenv().ok();
+    if let Ok(config) = SupabaseServerConfiguration::from_env() {
+      let server = Arc::new(SupabaseServer::new(config));
+      // let uuid = Uuid::new_v4();
+      let uuid = "e5d692b5-28bd-4995-9a4f-1c57a493fef7";
+      let insert = format!("{{\"uuid\": \"{}\"}}", uuid.to_string());
+      let resp = server
+        .postgres
+        .from("user")
+        .insert(insert)
+        .execute()
+        .await
+        .unwrap();
+      println!("{:?}", resp.status());
+      println!("{:?}", resp.headers());
+      println!("{}", resp.text().await.unwrap());
+    }
+  }
+}

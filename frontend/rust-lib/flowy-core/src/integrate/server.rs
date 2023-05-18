@@ -59,26 +59,7 @@ fn server_from_auth_type(auth_type: &AuthType) -> Result<Arc<dyn AppFlowyServer>
     },
     AuthType::Supabase => {
       // init the SupabaseServerConfiguration from the environment variables.
-      let config = SupabaseServerConfiguration {
-        supabase_url: std::env::var(SUPABASE_URL).map_err(|e| {
-          FlowyError::new(
-            ErrorCode::InvalidAuthConfig,
-            format!("Missing SUPABASE_URL: {:?}. Error: {:?}", auth_type, e),
-          )
-        })?,
-        supabase_key: std::env::var(SUPABASE_KEY).map_err(|e| {
-          FlowyError::new(
-            ErrorCode::InvalidAuthConfig,
-            format!("Missing SUPABASE_KEY: {:?}. Error: {:?}", auth_type, e),
-          )
-        })?,
-        supabase_jwt: std::env::var(SUPABASE_JWT).map_err(|e| {
-          FlowyError::new(
-            ErrorCode::InvalidAuthConfig,
-            format!("Missing SUPABASE_JWT: {:?}. Error: {:?}", auth_type, e),
-          )
-        })?,
-      };
+      let config = SupabaseServerConfiguration::from_env()?;
       let server = Arc::new(SupabaseServer::new(config));
       Ok(server)
     },
