@@ -15,9 +15,9 @@ pub struct KeyPB {
   pub key: String,
 }
 
-pub const SUPABASE_URL: &str = "supabase_url";
-pub const SUPABASE_KEY: &str = "supabase_key";
-pub const SUPABASE_JWT: &str = "supabase_jwt_secret";
+pub const SUPABASE_URL: &str = "SUPABASE_URL";
+pub const SUPABASE_KEY: &str = "SUPABASE_KEY";
+pub const SUPABASE_JWT: &str = "SUPABASE_JWT";
 
 #[derive(Default, ProtoBuf)]
 pub struct SupabaseConfigPB {
