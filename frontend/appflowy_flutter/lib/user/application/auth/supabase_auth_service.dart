@@ -6,11 +6,10 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/prelude.dart';
 import 'package:appflowy/user/application/auth/appflowy_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/auth.pb.dart'
-    show AuthTypePB;
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'auth_error.dart';
@@ -119,15 +118,7 @@ class SupabaseAuthService implements AuthService {
         final user = await getSupabaseUser();
         final Either<FlowyError, UserProfilePB> response = await user.fold(
           (l) => left(l),
-          (r) async => await _appFlowyAuthService.signUp(
-            name: r.email ?? '',
-            email: r.email ?? '',
-            password: 'AppFlowy123..',
-            authType: authType,
-            map: {
-              AuthServiceMapKeys.uuid: r.id,
-            },
-          ),
+          (r) async => await setupAuth(map: {AuthServiceMapKeys.uuid: r.id}),
         );
         completer.complete(response);
       }
@@ -191,6 +182,18 @@ class SupabaseAuthService implements AuthService {
       return left(AuthError.supabaseGetUserError);
     }
     return Right(user);
+  }
+
+  Future<Either<FlowyError, UserProfilePB>> setupAuth({
+    required Map<String, String> map,
+  }) async {
+    final payload = ThirdPartyAuthPB(
+      authType: AuthTypePB.Supabase,
+      map: map,
+    );
+    return UserEventThirdPartyAuth(payload)
+        .send()
+        .then((value) => value.swap());
   }
 }
 

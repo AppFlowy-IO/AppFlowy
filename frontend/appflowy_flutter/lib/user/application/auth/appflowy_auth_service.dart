@@ -43,11 +43,7 @@ class AppFlowyAuthService implements AuthService {
     final response = await UserEventSignUp(request).send().then(
           (value) => value.swap(),
         );
-    final Future<Either<FlowyError, UserProfilePB>> result = response.fold(
-      (l) async => left(l),
-      (r) async => await setupAuth(authType: authType, map: map),
-    );
-    return result;
+    return response;
   }
 
   @override
@@ -87,21 +83,5 @@ class AppFlowyAuthService implements AuthService {
   @override
   Future<Either<FlowyError, UserProfilePB>> getUser() async {
     return UserBackendService.getCurrentUserProfile();
-  }
-
-  Future<Either<FlowyError, UserProfilePB>> setupAuth({
-    required AuthTypePB authType,
-    required Map<String, String> map,
-  }) async {
-    if (authType == AuthTypePB.Local) {
-      return getUser();
-    }
-    final payload = ThirdPartyAuthPB(
-      authType: authType,
-      map: map,
-    );
-    return UserEventThirdPartyAuth(payload)
-        .send()
-        .then((value) => value.swap());
   }
 }
