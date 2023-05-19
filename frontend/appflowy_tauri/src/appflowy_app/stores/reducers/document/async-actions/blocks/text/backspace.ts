@@ -4,6 +4,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { outdentNodeThunk } from './outdent';
 import { turnToTextBlockThunk } from '$app_reducers/document/async-actions/blocks/text/turn_to';
 import { mergeToPrevLineThunk } from '$app_reducers/document/async-actions/blocks/text/merge';
+import { ReactEditor } from 'slate-react';
 
 /**
  * 1. If current node is not text block, turn it to text block
@@ -14,8 +15,8 @@ import { mergeToPrevLineThunk } from '$app_reducers/document/async-actions/block
  */
 export const backspaceNodeThunk = createAsyncThunk(
   'document/backspaceNode',
-  async (payload: { id: string; controller: DocumentController }, thunkAPI) => {
-    const { id, controller } = payload;
+  async (payload: { id: string; controller: DocumentController; editor: ReactEditor }, thunkAPI) => {
+    const { id, controller, editor } = payload;
     const { dispatch, getState } = thunkAPI;
     const state = (getState() as { document: DocumentState }).document;
     const node = state.nodes[id];
@@ -33,6 +34,7 @@ export const backspaceNodeThunk = createAsyncThunk(
     // merge to previous line when parent is root
     if (parentIsRoot || nextNodeId) {
       // merge to previous line
+      ReactEditor.deselect(editor);
       await dispatch(mergeToPrevLineThunk({ id, controller, deleteCurrentNode: true }));
       return;
     }

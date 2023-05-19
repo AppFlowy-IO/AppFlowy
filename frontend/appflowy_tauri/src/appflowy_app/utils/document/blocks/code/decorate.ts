@@ -28,7 +28,7 @@ import 'prismjs/components/prism-php';
 import 'prismjs/components/prism-sql';
 import 'prismjs/components/prism-visual-basic';
 
-import { BaseRange, NodeEntry, Text, Path } from 'slate';
+import { BaseRange, NodeEntry, Text, Path, Range, Editor } from 'slate';
 
 const push_string = (
   token: string | Prism.Token,

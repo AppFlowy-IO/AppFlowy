@@ -1,6 +1,6 @@
 import { Editor } from 'slate';
 import { RegionGrid } from '$app/utils/region_grid';
-import { ReactEditor } from "slate-react";
+import { ReactEditor } from 'slate-react';
 
 export enum BlockType {
   PageBlock = 'page',
@@ -11,6 +11,7 @@ export enum BlockType {
   NumberedListBlock = 'numbered_list',
   ToggleListBlock = 'toggle_list',
   CodeBlock = 'code',
+  EquationBlock = 'math_equation',
   EmbedBlock = 'embed',
   QuoteBlock = 'quote',
   CalloutBlock = 'callout',
@@ -87,7 +88,7 @@ export interface NestedBlock<Type = any> {
 }
 export interface TextDelta {
   insert: string;
-  attributes?: Record<string, string | boolean>;
+  attributes?: Record<string, string | boolean | undefined>;
 }
 
 export enum BlockActionType {
@@ -131,16 +132,21 @@ export interface DocumentState {
   children: Record<string, string[]>;
 }
 
+export interface RectSelectionState {
+  selection: string[];
+  isDragging: boolean;
+}
 export interface RangeSelectionState {
-  isDragging?: boolean,
-  anchor?: PointState,
-  focus?: PointState,
+  anchor?: PointState;
+  focus?: PointState;
+  isForward?: boolean;
+  isDragging: boolean;
+  selection: string[];
 }
 
-
 export interface PointState {
-  id: string,
-  selection: TextSelection
+  id: string;
+  selection: TextSelection;
 }
 
 export enum ChangeType {
@@ -161,3 +167,62 @@ export interface BlockPBValue {
 }
 
 export type TextBlockKeyEventHandlerParams = [React.KeyboardEvent<HTMLDivElement>, ReactEditor & Editor];
+
+export enum SplitRelationship {
+  NextSibling,
+  FirstChild,
+}
+export enum TextAction {
+  Turn = 'turn',
+  Bold = 'bold',
+  Italic = 'italic',
+  Underline = 'underlined',
+  Strikethrough = 'strikethrough',
+  Code = 'code',
+  Equation = 'equation',
+}
+export interface TextActionMenuProps {
+  /**
+   * The custom items that will be covered in the default items
+   */
+  customItems?: TextAction[];
+  /**
+   * The items that will be excluded from the default items
+   */
+  excludeItems?: TextAction[];
+}
+
+export interface BlockConfig {
+  /**
+   * Whether the block can have children
+   */
+  canAddChild: boolean;
+  /**
+   * The regexps that will be used to match the markdown flag
+   */
+  markdownRegexps?: RegExp[];
+
+  /**
+   * The default data of the block
+   */
+  defaultData?: BlockData<any>;
+
+  /**
+   * The props that will be passed to the text split function
+   */
+  splitProps?: {
+    /**
+     * The relationship between the next line block and the current block
+     */
+    nextLineRelationShip: SplitRelationship;
+    /**
+     * The type of the next line block
+     */
+    nextLineBlockType: BlockType;
+  };
+
+  /**
+   * The props that will be passed to the text action menu
+   */
+  textActionMenuProps?: TextActionMenuProps;
+}

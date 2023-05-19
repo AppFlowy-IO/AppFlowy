@@ -1,8 +1,10 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { DocumentState, RangeSelectionState, TextSelection } from '$app/interfaces/document';
+import { DocumentState, TextSelection } from '$app/interfaces/document';
 import { rangeSelectionActions } from '$app_reducers/document/slice';
-import { getNodeEndSelection, selectionIsForward } from '$app/utils/document/blocks/text/delta';
+import { getNodeBeginSelection, getNodeEndSelection } from '$app/utils/document/blocks/text/delta';
 import { isEqual } from '$app/utils/tool';
+import { RootState } from '$app/stores/store';
+import { getNodesInRange } from '$app/utils/document/blocks/common';
 
 const amendAnchorNodeThunk = createAsyncThunk(
   'document/amendAnchorNode',
@@ -15,22 +17,18 @@ const amendAnchorNodeThunk = createAsyncThunk(
     const { id } = payload;
     const { getState, dispatch } = thunkAPI;
     const nodes = (getState() as { document: DocumentState }).document.nodes;
-    const range = (getState() as { documentRangeSelection: RangeSelectionState }).documentRangeSelection;
-    const { anchor: anchorNode, isDragging, focus: focusNode } = range;
+
+    const state = getState() as RootState;
+    const { isDragging, isForward, ...range } = state.documentRangeSelection;
+    const { anchor: anchorNode, focus: focusNode } = range;
 
     if (!isDragging || !anchorNode || anchorNode.id !== id) return;
     const isCollapsed = focusNode?.id === id && anchorNode?.id === id;
     if (isCollapsed) return;
 
     const selection = anchorNode.selection;
-    const isForward = selectionIsForward(selection);
     const node = nodes[id];
-    const focus = isForward
-      ? getNodeEndSelection(node.data.delta).anchor
-      : {
-          path: [0, 0],
-          offset: 0,
-        };
+    const focus = isForward ? getNodeEndSelection(node.data.delta).anchor : getNodeBeginSelection().anchor;
     if (isEqual(focus, selection.focus)) return;
     const newSelection = {
       anchor: selection.anchor,
@@ -58,29 +56,64 @@ export const syncRangeSelectionThunk = createAsyncThunk(
     thunkAPI
   ) => {
     const { getState, dispatch } = thunkAPI;
-    const range = (getState() as { documentRangeSelection: RangeSelectionState }).documentRangeSelection;
+    const state = getState() as RootState;
+    const range = state.documentRangeSelection;
+    const isDragging = range.isDragging;
 
     const { id, selection } = payload;
+
     const updateRange = {
       focus: {
         id,
         selection,
       },
     };
-    const isAnchor = range.anchor?.id === id;
-    if (isAnchor) {
+
+    if (!isDragging && range.anchor?.id === id) {
       Object.assign(updateRange, {
         anchor: {
           id,
-          selection,
+          selection: { ...selection },
+        },
+      });
+      dispatch(rangeSelectionActions.setRange(updateRange));
+      return;
+    }
+    if (!range.anchor || range.anchor.id === id) {
+      Object.assign(updateRange, {
+        anchor: {
+          id,
+          selection: {
+            anchor: !range.anchor ? selection.anchor : range.anchor.selection.anchor,
+            focus: selection.focus,
+          },
         },
       });
     }
+
     dispatch(rangeSelectionActions.setRange(updateRange));
 
     const anchorId = range.anchor?.id;
-    if (!isAnchor && anchorId) {
+    // more than one node is selected
+    if (anchorId && anchorId !== id) {
       dispatch(amendAnchorNodeThunk({ id: anchorId }));
     }
   }
 );
+
+export const setRangeSelectionThunk = createAsyncThunk('document/setRangeSelection', async (payload, thunkAPI) => {
+  const { getState, dispatch } = thunkAPI;
+  const state = getState() as RootState;
+  const { anchor, focus, isForward } = state.documentRangeSelection;
+  const document = state.document;
+  if (!anchor || !focus || isForward === undefined) return;
+  const rangeIds = getNodesInRange(
+    {
+      startId: anchor.id,
+      endId: focus.id,
+    },
+    isForward,
+    document
+  );
+  dispatch(rangeSelectionActions.setSelection(rangeIds));
+});

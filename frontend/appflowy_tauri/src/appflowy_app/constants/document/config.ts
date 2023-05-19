@@ -1,44 +1,9 @@
-import { BlockData, BlockType } from '$app/interfaces/document';
+import { BlockConfig, BlockType, SplitRelationship, TextAction, TextActionMenuProps } from '$app/interfaces/document';
 
-export enum SplitRelationship {
-  NextSibling,
-  FirstChild,
-}
 /**
  * If the block type is not in the config, it will be thrown an error in development env
  */
-export const blockConfig: Record<
-  string,
-  {
-    /**
-     * Whether the block can have children
-     */
-    canAddChild: boolean;
-    /**
-     * The regexps that will be used to match the markdown flag
-     */
-    markdownRegexps?: RegExp[];
-
-    /**
-     * The default data of the block
-     */
-    defaultData?: BlockData<any>;
-
-    /**
-     * The props that will be passed to the text split function
-     */
-    splitProps?: {
-      /**
-       * The relationship between the next line block and the current block
-       */
-      nextLineRelationShip: SplitRelationship;
-      /**
-       * The type of the next line block
-       */
-      nextLineBlockType: BlockType;
-    };
-  }
-> = {
+export const blockConfig: Record<string, BlockConfig> = {
   [BlockType.TextBlock]: {
     canAddChild: true,
     defaultData: {
@@ -169,5 +134,49 @@ export const blockConfig: Record<
      * ```
      */
     markdownRegexps: [/^(```)$/],
+
+    textActionMenuProps: {
+      excludeItems: [TextAction.Code],
+    },
   },
 };
+
+export const defaultTextActionProps: TextActionMenuProps = {
+  customItems: [
+    TextAction.Turn,
+    TextAction.Bold,
+    TextAction.Italic,
+    TextAction.Underline,
+    TextAction.Strikethrough,
+    TextAction.Code,
+    TextAction.Equation,
+  ],
+  excludeItems: [],
+};
+
+export const multiLineTextActionProps: TextActionMenuProps = {
+  customItems: [TextAction.Bold, TextAction.Italic, TextAction.Underline, TextAction.Strikethrough, TextAction.Code],
+};
+
+export const multiLineTextActionGroups = [
+  [
+    TextAction.Bold,
+    TextAction.Italic,
+    TextAction.Underline,
+    TextAction.Strikethrough,
+    TextAction.Code,
+    TextAction.Equation,
+  ],
+];
+
+export const textActionGroups = [
+  [TextAction.Turn],
+  [
+    TextAction.Bold,
+    TextAction.Italic,
+    TextAction.Underline,
+    TextAction.Strikethrough,
+    TextAction.Code,
+    TextAction.Equation,
+  ],
+];

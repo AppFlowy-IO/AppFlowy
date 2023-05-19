@@ -151,7 +151,52 @@ export function getCollapsedRange(id: string, selection: TextSelection): RangeSe
     anchor: clone(point),
     focus: clone(point),
     isDragging: false,
+    selection: [],
   };
+}
+
+export function iterateNodes(
+  range: {
+    startId: string;
+    endId: string;
+  },
+  isForward: boolean,
+  document: DocumentState,
+  callback: (nodeId?: string) => boolean
+) {
+  const { startId, endId } = range;
+  let currentId = startId;
+  while (currentId && currentId !== endId) {
+    if (isForward) {
+      currentId = getNextLineId(document, currentId) || '';
+    } else {
+      currentId = getPrevLineId(document, currentId) || '';
+    }
+    if (callback(currentId)) {
+      break;
+    }
+  }
+}
+export function getNodesInRange(
+  range: {
+    startId: string;
+    endId: string;
+  },
+  isForward: boolean,
+  document: DocumentState
+) {
+  const nodeIds: string[] = [];
+  nodeIds.push(range.startId);
+  iterateNodes(range, isForward, document, (nodeId) => {
+    if (nodeId) {
+      nodeIds.push(nodeId);
+      return false;
+    } else {
+      return true;
+    }
+  });
+  nodeIds.push(range.endId);
+  return nodeIds;
 }
 
 export function nodeInRange(
@@ -163,17 +208,13 @@ export function nodeInRange(
   isForward: boolean,
   document: DocumentState
 ) {
-  const { startId, endId } = range;
-  let currentId = startId;
-  while (currentId && currentId !== id && currentId !== endId) {
-    if (isForward) {
-      currentId = getNextLineId(document, currentId) || '';
-    } else {
-      currentId = getPrevLineId(document, currentId) || '';
+  let match = false;
+  iterateNodes(range, isForward, document, (nodeId) => {
+    if (nodeId === id) {
+      match = true;
+      return true;
     }
-  }
-  if (currentId === id) {
-    return true;
-  }
-  return false;
+    return false;
+  });
+  return match;
 }
