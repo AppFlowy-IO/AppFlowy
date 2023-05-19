@@ -244,7 +244,7 @@ CommandShortcutEventHandler _tabToDeleteSpacesInCodeBlockCommandHandler =
 CommandShortcutEventHandler _selectAllInCodeBlockCommandHandler =
     (editorState) {
   final selection = editorState.selection;
-  if (selection == null) {
+  if (selection == null || !selection.isSingle) {
     return KeyEventResult.ignored;
   }
 
@@ -255,9 +255,10 @@ CommandShortcutEventHandler _selectAllInCodeBlockCommandHandler =
   }
 
   editorState.service.selectionService.updateSelection(
-    Selection(
-      start: Position(path: node.path),
-      end: Position(path: node.path, offset: delta.length),
+    Selection.single(
+      path: node.path,
+      startOffset: 0,
+      endOffset: delta.length,
     ),
   );
 

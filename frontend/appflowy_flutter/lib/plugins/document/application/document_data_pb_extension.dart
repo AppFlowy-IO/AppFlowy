@@ -4,6 +4,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show Document, Node, Attributes, Delta, ParagraphBlockKeys;
+import 'package:collection/collection.dart';
 
 extension AppFlowyEditor on DocumentDataPB2 {
   Document? toDocument() {
@@ -23,21 +24,16 @@ extension AppFlowyEditor on DocumentDataPB2 {
   }
 
   Node? buildNode(String id) {
-    if (blocks.isEmpty || !blocks.keys.contains(id)) {
-      return null;
-    }
-
-    final block = blocks[id]!;
-    final childrenId = block.childrenId;
+    final block = blocks[id];
+    final childrenId = block?.childrenId;
     final childrenIds = meta.childrenMap[childrenId]?.children;
 
     final children = <Node>[];
     if (childrenIds != null && childrenIds.isNotEmpty) {
-      final renderables = childrenIds.where((id) => blocks[id] != null);
-      children.addAll(renderables.map((e) => buildNode(e)!));
+      children.addAll(childrenIds.map((e) => buildNode(e)).whereNotNull());
     }
 
-    return block.toNode(children: children);
+    return block?.toNode(children: children);
   }
 }
 
