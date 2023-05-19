@@ -33,4 +33,5 @@
     },
     "editor.formatOnSave": true,
     "files.eol": "\n",
+    "cmake.configureOnOpen": false,
 }
