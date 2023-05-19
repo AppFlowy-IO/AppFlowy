@@ -11,7 +11,7 @@ export const EditCellNumber = ({
   const [value, setValue] = useState('');
 
   useEffect(() => {
-    setValue(data || '');
+    setValue(data ?? '');
   }, [data]);
 
   const save = async () => {

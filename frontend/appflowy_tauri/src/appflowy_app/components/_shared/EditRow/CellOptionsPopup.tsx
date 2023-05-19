@@ -82,7 +82,7 @@ export const CellOptionsPopup = ({
     const selectOption = new SelectOptionPB({
       id: option.selectOptionId,
       name: option.title,
-      color: option.color || SelectOptionColorPB.Purple,
+      color: option.color ?? SelectOptionColorPB.Purple,
     });
 
     const { right: _left, top: _top } = target.getBoundingClientRect();
@@ -96,25 +96,25 @@ export const CellOptionsPopup = ({
           <div className={'flex flex-wrap items-center gap-2 text-black'}>
             {(data as SelectOptionCellDataPB)?.select_options?.map((option, index) => (
               <div className={`${getBgColor(option.color)} flex items-center gap-0.5 rounded px-1 py-0.5`} key={index}>
-                <span>{option?.name || ''}</span>
+                <span>{option?.name ?? ''}</span>
                 <button onClick={() => onUnselectOptionClick(option)} className={'h-5 w-5 cursor-pointer'}>
-                  <CloseSvg></CloseSvg>{' '}
+                  <CloseSvg></CloseSvg>
                 </button>
               </div>
-            )) || ''}
+            ))}
           </div>
           <input
             ref={inputRef}
             className={'py-2'}
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            placeholder={t('grid.selectOption.searchOption') || ''}
+            placeholder={t('grid.selectOption.searchOption') ?? ''}
             onKeyDown={onKeyDown}
           />
           <div className={'font-mono text-shade-3'}>{value.length}/30</div>
         </div>
         <div className={'-mx-4 h-[1px] bg-shade-6'}></div>
-        <div className={'font-medium text-shade-3'}>{t('grid.selectOption.panelTitle') || ''}</div>
+        <div className={'font-medium text-shade-3'}>{t('grid.selectOption.panelTitle') ?? ''}</div>
         <div className={'flex flex-col gap-1'}>
           {(databaseStore.fields[cellIdentifier.fieldId]?.fieldOptions as ISelectOptionType).selectOptions.map(
             (option, index) => (
@@ -125,7 +125,7 @@ export const CellOptionsPopup = ({
                     new SelectOptionPB({
                       id: option.selectOptionId,
                       name: option.title,
-                      color: option.color || SelectOptionColorPB.Purple,
+                      color: option.color ?? SelectOptionColorPB.Purple,
                     })
                   )
                 }

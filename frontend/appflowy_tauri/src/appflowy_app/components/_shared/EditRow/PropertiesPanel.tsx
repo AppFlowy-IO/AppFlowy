@@ -79,7 +79,7 @@ export const PropertiesPanel = ({
                   <FieldTypeIcon fieldType={cell.cellIdentifier.fieldType}></FieldTypeIcon>
                 </div>
                 <span className={'overflow-hidden text-ellipsis whitespace-nowrap'}>
-                  {databaseStore.fields[cell.cellIdentifier.fieldId]?.title || ''}
+                  {databaseStore.fields[cell.cellIdentifier.fieldId]?.title ?? ''}
                 </span>
               </div>
               <div className={'flex items-center'}>

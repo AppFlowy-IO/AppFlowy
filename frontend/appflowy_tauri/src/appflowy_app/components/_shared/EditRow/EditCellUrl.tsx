@@ -13,7 +13,7 @@ export const EditCellUrl = ({
   const [value, setValue] = useState('');
 
   useEffect(() => {
-    setValue((data as URLCellDataPB)?.url || '');
+    setValue((data as URLCellDataPB)?.url ?? '');
   }, [data]);
 
   const save = async () => {

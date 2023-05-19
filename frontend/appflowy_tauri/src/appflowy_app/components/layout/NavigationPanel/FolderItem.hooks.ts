@@ -32,7 +32,7 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
 
   // Backend services
   const appBackendService = new AppBackendService(folder.id);
-  const workspaceBackendService = new WorkspaceBackendService(workspace.id || '');
+  const workspaceBackendService = new WorkspaceBackendService(workspace.id ?? '');
 
   useEffect(() => {
     void appObserver.subscribe({

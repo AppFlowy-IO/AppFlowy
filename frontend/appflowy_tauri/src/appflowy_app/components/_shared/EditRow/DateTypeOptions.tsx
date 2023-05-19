@@ -105,9 +105,6 @@ export const DateTypeOptions = ({
         }
       >
         <div className={'flex items-center gap-2'}>
-          {/*<i className={'h-4 w-4'}>
-            <ClockSvg></ClockSvg>
-          </i>*/}
           <span>{t('grid.field.includeTime')}</span>
         </div>
         <i className={'h-5 w-5'}>

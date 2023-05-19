@@ -1,18 +1,18 @@
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { KeyboardEventHandler, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SelectOptionColorPB, SelectOptionPB } from '@/services/backend';
+import { SelectOptionPB } from '@/services/backend';
 import { SelectOptionCellBackendService } from '$app/stores/effects/database/cell/select_option_bd_svc';
 import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
 import { PopupWindow } from '$app/components/_shared/PopupWindow';
 
 export const EditCheckListPopup = ({
-                                      left,
-                                      top,
-                                      cellIdentifier,
-                                      editingSelectOption,
-                                      onOutsideClick,
-                                    }: {
+  left,
+  top,
+  cellIdentifier,
+  editingSelectOption,
+  onOutsideClick,
+}: {
   left: number;
   top: number;
   cellIdentifier: CellIdentifier;
@@ -92,4 +92,3 @@ export const EditCheckListPopup = ({
     </PopupWindow>
   );
 };
-

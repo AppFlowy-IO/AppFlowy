@@ -1,5 +1,5 @@
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
-import { SelectOptionCellDataPB, SelectOptionColorPB, SelectOptionPB } from '@/services/backend';
+import { SelectOptionCellDataPB, SelectOptionPB } from '@/services/backend';
 import { PopupWindow } from '$app/components/_shared/PopupWindow';
 import { ISelectOption, ISelectOptionType } from '$app_reducers/database/slice';
 import { Details2Svg } from '$app/components/_shared/svg/Details2Svg';
@@ -42,12 +42,12 @@ export const CheckListPopup = ({
 
   useEffect(() => {
     setAllOptionsCount(
-      (databaseStore.fields[cellIdentifier.fieldId]?.fieldOptions as ISelectOptionType)?.selectOptions?.length || 0
+      (databaseStore.fields[cellIdentifier.fieldId]?.fieldOptions as ISelectOptionType)?.selectOptions?.length ?? 0
     );
   }, [databaseStore, cellIdentifier]);
 
   useEffect(() => {
-    setSelectedOptionsCount((data as SelectOptionCellDataPB)?.select_options?.length || 0);
+    setSelectedOptionsCount((data as SelectOptionCellDataPB)?.select_options?.length ?? 0);
   }, [data]);
 
   const onToggleOptionClick = async (option: SelectOptionPB) => {
@@ -70,7 +70,6 @@ export const CheckListPopup = ({
     const selectOption = new SelectOptionPB({
       id: option.selectOptionId,
       name: option.title,
-      color: option.color || SelectOptionColorPB.Purple,
     });
 
     const { right: _left, top: _top } = target.getBoundingClientRect();
@@ -118,7 +117,6 @@ export const CheckListPopup = ({
                     new SelectOptionPB({
                       id: option.selectOptionId,
                       name: option.title,
-                      color: option.color || SelectOptionColorPB.Purple,
                     })
                   )
                 }

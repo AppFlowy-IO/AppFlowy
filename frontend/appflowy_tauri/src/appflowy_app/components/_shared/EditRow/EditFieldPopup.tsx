@@ -1,5 +1,4 @@
 import { MouseEventHandler, useEffect, useRef, useState } from 'react';
-import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
 import { FieldTypeName } from '$app/components/_shared/EditRow/FieldTypeName';
 import { useTranslation } from 'react-i18next';

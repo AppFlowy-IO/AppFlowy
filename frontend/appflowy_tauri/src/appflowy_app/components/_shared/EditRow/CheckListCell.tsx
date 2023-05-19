@@ -19,11 +19,11 @@ export const CheckListCell = ({
   const databaseStore = useAppSelector((state) => state.database);
 
   useEffect(() => {
-    setAllOptionsCount((databaseStore.fields[fieldId]?.fieldOptions as ISelectOptionType)?.selectOptions?.length || 0);
+    setAllOptionsCount((databaseStore.fields[fieldId]?.fieldOptions as ISelectOptionType)?.selectOptions?.length ?? 0);
   }, [databaseStore, fieldId]);
 
   useEffect(() => {
-    setSelectedOptionsCount((data as SelectOptionCellDataPB)?.select_options?.length || 0);
+    setSelectedOptionsCount((data as SelectOptionCellDataPB)?.select_options?.length ?? 0);
   }, [data]);
 
   const onClick = () => {
