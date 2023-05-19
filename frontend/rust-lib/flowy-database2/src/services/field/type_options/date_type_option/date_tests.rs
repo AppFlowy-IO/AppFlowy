@@ -259,7 +259,8 @@ mod tests {
     );
   }
 
-  /// The default time format is TwentyFourHour, so the include_time_str in twelve_hours_format will cause parser error.
+  /// The default time format is TwentyFourHour, so the include_time_str in
+  /// twelve_hours_format will cause parser error.
   #[test]
   #[should_panic]
   fn date_type_option_twelve_hours_include_time_str_in_twenty_four_hours_format() {
@@ -279,7 +280,8 @@ mod tests {
     );
   }
 
-  // Attempting to parse include_time_str as TwelveHour when TwentyFourHour format is given should cause parser error.
+  /// Attempting to parse include_time_str as TwelveHour when TwentyFourHour
+  /// format is given should cause parser error.
   #[test]
   #[should_panic]
   fn date_type_option_twenty_four_hours_include_time_str_in_twelve_hours_format() {
