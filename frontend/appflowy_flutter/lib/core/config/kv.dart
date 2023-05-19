@@ -2,6 +2,7 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-config/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class KeyValueStorage {
@@ -50,6 +51,11 @@ class DartKeyValue implements KeyValueStorage {
   Future<void> _initSharedPreferencesIfNeeded() async {
     _sharedPreferences ??= await SharedPreferences.getInstance();
   }
+
+  @visibleForTesting
+  static Future<void> setMockInitialValues(Map<String, String> values) async {
+    SharedPreferences.setMockInitialValues(values);
+  }
 }
 
 /// Key-value store
@@ -81,6 +87,12 @@ class RustKeyValue implements KeyValueStorage {
   @override
   Future<void> clear() {
     // TODO: implement clear
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> setMockInitialValues(Map<String, String> values) {
+    // TODO: implement setMockInitialValues
     throw UnimplementedError();
   }
 }
