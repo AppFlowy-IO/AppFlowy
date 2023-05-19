@@ -30,3 +30,9 @@ abstract class Env {
   )
   static final supabaseJwtSecret = _Env.supabaseJwtSecret;
 }
+
+bool get isSupabaseEnable =>
+    Env.supabaseUrl.isNotEmpty &&
+    Env.supabaseAnonKey.isNotEmpty &&
+    Env.supabaseKey.isNotEmpty &&
+    Env.supabaseJwtSecret.isNotEmpty;

@@ -81,15 +81,22 @@ class SignInForm extends StatelessWidget {
             logoSize: const Size(60, 60),
           ),
           const VSpace(30),
-          const EmailTextField(),
-          const VSpace(5),
-          const PasswordTextField(),
-          const VSpace(20),
-          const LoginButton(),
-          const VSpace(10),
+          // Email and password. don't support yet.
+          /*
+          ...[
+            const EmailTextField(),
+            const VSpace(5),
+            const PasswordTextField(),
+            const VSpace(20),
+            const LoginButton(),
+            const VSpace(10),
+
+            const VSpace(10),
+            SignUpPrompt(router: router),
+          ],
+          */
+
           const SignInAsGuestButton(),
-          const VSpace(10),
-          SignUpPrompt(router: router),
 
           // third-party sign in.
           const VSpace(20),
@@ -102,7 +109,8 @@ class SignInForm extends StatelessWidget {
           if (context.read<SignInBloc>().state.isSubmitting) ...[
             const SizedBox(height: 8),
             const LinearProgressIndicator(value: null),
-          ]
+            const VSpace(20),
+          ],
         ],
       ),
     );
@@ -169,7 +177,7 @@ class SignInAsGuestButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return RoundedTextButton(
       title: LocaleKeys.signIn_loginAsGuestButtonText.tr(),
-      height: 28,
+      height: 48,
       borderRadius: Corners.s6Border,
       onPressed: () {
         getIt<KeyValueStorage>().set(KVKeys.loginType, 'local');
@@ -305,7 +313,9 @@ class ThirdPartySignInButton extends StatelessWidget {
       iconPadding: const EdgeInsets.all(8.0),
       radius: Corners.s10Border,
       onPressed: onPressed,
-      icon: svgWidget(icon),
+      icon: svgWidget(
+        icon,
+      ),
     );
   }
 }
@@ -337,6 +347,16 @@ class ThirdPartySignInButtons extends StatelessWidget {
             context
                 .read<SignInBloc>()
                 .add(const SignInEvent.signedInWithOAuth('github'));
+          },
+        ),
+        const SizedBox(width: 20),
+        ThirdPartySignInButton(
+          icon: 'login/discord-mark',
+          onPressed: () {
+            getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
+            context
+                .read<SignInBloc>()
+                .add(const SignInEvent.signedInWithOAuth('discord'));
           },
         ),
       ],

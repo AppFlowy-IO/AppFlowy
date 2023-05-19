@@ -21,7 +21,7 @@
   "signIn": {
     "loginTitle": "Login to @:appName",
     "loginButtonText": "Login",
-    "loginAsGuestButtonText": "Login As Guest",
+    "loginAsGuestButtonText": "Get Started",
     "buttonText": "Sign In",
     "forgotPassword": "Forgot Password?",
     "emailHint": "Email",

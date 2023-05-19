@@ -1,3 +1,4 @@
+import 'package:appflowy/startup/tasks/supabase_task.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -86,8 +87,12 @@ class SplashScreen extends StatelessWidget {
   }
 
   void _handleUnauthenticated(BuildContext context, Unauthenticated result) {
-    getIt<SplashRoute>().pushSignInScreen(context);
-    // getIt<SplashRoute>().pushSkipLoginScreen(context);
+    // if the env is not configured, we will skip to the 'skip login screen'.
+    if (isSupabaseEnable) {
+      getIt<SplashRoute>().pushSignInScreen(context);
+    } else {
+      getIt<SplashRoute>().pushSkipLoginScreen(context);
+    }
   }
 
   Future<void> _registerIfNeeded() async {
