@@ -8,6 +8,7 @@ import { MouseEventHandler, useState } from 'react';
 import { PopupWindow } from '$app/components/_shared/PopupWindow';
 import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
 import { RowBackendService } from '$app/stores/effects/database/row/row_bd_svc';
+import { useTranslation } from 'react-i18next';
 
 export const BoardCard = ({
   index,
@@ -24,6 +25,8 @@ export const BoardCard = ({
   groupByFieldId: string;
   onOpenRow: (rowId: RowInfo) => void;
 }) => {
+  const { t } = useTranslation();
+
   const { cells } = useRow(viewId, controller, rowInfo);
 
   const [showCardPopup, setShowCardPopup] = useState(false);
@@ -95,7 +98,7 @@ export const BoardCard = ({
             <i className={'h-5 w-5'}>
               <TrashSvg></TrashSvg>
             </i>
-            <span className={'flex-shrink-0'}>Delete</span>
+            <span className={'flex-shrink-0'}>{t('grid.row.delete')}</span>
           </button>
         </PopupWindow>
       )}
