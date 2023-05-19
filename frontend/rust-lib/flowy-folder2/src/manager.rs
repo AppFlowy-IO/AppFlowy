@@ -116,8 +116,12 @@ impl Folder2Manager {
     workspace_id: &str,
   ) -> FlowyResult<()> {
     self.initialize(user_id, workspace_id).await?;
-    let (folder_data, workspace_pb) =
-      DefaultFolderBuilder::build(self.user.user_id()?, &self.view_processors).await;
+    let (folder_data, workspace_pb) = DefaultFolderBuilder::build(
+      self.user.user_id()?,
+      workspace_id.to_string(),
+      &self.view_processors,
+    )
+    .await;
     self.with_folder((), |folder| {
       folder.create_with_data(folder_data);
     });
@@ -555,7 +559,7 @@ fn notify_parent_view_did_change<T: AsRef<str>>(
   for parent_view_id in parent_view_ids {
     let parent_view_id = parent_view_id.as_ref();
 
-    // if the view's bid is equal to workspace id. Then it will fetch the current
+    // if the view's parent id equal to workspace id. Then it will fetch the current
     // workspace views. Because the the workspace is not a view stored in the views map.
     if parent_view_id == workspace_id {
       let repeated_view: RepeatedViewPB = get_workspace_view_pbs(&workspace_id, folder).into();

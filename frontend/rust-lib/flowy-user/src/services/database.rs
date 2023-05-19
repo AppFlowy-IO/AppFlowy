@@ -138,25 +138,29 @@ impl UserTable {
 
 impl From<SignUpResponse> for UserTable {
   fn from(resp: SignUpResponse) -> Self {
-    UserTable::new(
-      resp.user_id.to_string(),
-      resp.name,
-      resp.workspace_id,
-      resp.email.unwrap_or_default(),
-      resp.token.unwrap_or_default(),
-    )
+    UserTable {
+      id: resp.user_id.to_string(),
+      name: resp.name,
+      token: resp.token.unwrap_or_default(),
+      email: resp.email.unwrap_or_default(),
+      workspace: resp.workspace_id,
+      icon_url: "".to_string(),
+      openai_key: "".to_string(),
+    }
   }
 }
 
 impl From<SignInResponse> for UserTable {
   fn from(resp: SignInResponse) -> Self {
-    UserTable::new(
-      resp.user_id.to_string(),
-      resp.name,
-      resp.workspace_id,
-      resp.email.unwrap_or_default(),
-      resp.token.unwrap_or_default(),
-    )
+    UserTable {
+      id: resp.user_id.to_string(),
+      name: resp.name,
+      token: resp.token.unwrap_or_default(),
+      email: resp.email.unwrap_or_default(),
+      workspace: resp.workspace_id,
+      icon_url: "".to_string(),
+      openai_key: "".to_string(),
+    }
   }
 }
 

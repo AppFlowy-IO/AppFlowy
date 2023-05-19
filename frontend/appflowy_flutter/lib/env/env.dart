@@ -9,6 +9,8 @@ abstract class Env {
   static const supabaseUrl = _Env.supabaseUrl;
   @EnviedField(varName: 'SUPABASE_ANON_KEY', defaultValue: '')
   static const supabaseAnonKey = _Env.supabaseAnonKey;
+  @EnviedField(varName: 'SUPABASE_KEY', defaultValue: '')
+  static const supabaseKey = _Env.supabaseKey;
   @EnviedField(varName: 'SUPABASE_JWT_SECRET', defaultValue: '')
   static const supabaseJwtSecret = _Env.supabaseJwtSecret;
 }

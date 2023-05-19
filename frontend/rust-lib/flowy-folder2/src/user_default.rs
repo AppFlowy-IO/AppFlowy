@@ -11,10 +11,10 @@ pub struct DefaultFolderBuilder();
 impl DefaultFolderBuilder {
   pub async fn build(
     uid: i64,
+    workspace_id: String,
     view_processors: &ViewDataProcessorMap,
   ) -> (FolderData, WorkspacePB) {
     let time = Utc::now().timestamp();
-    let workspace_id = gen_workspace_id();
     let view_id = gen_view_id();
     let child_view_id = gen_view_id();
 

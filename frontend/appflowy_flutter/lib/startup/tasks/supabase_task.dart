@@ -11,16 +11,18 @@ class InitSupabaseTask extends LaunchTask {
   const InitSupabaseTask({
     required this.url,
     required this.anonKey,
+    required this.key,
     required this.jwtSecret,
   });
 
   final String url;
   final String anonKey;
+  final String key;
   final String jwtSecret;
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    if (url.isEmpty || anonKey.isEmpty || jwtSecret.isEmpty) {
+    if (url.isEmpty || anonKey.isEmpty || jwtSecret.isEmpty || key.isEmpty) {
       isSupabaseEnable = false;
       Log.info('Supabase config is empty, skip init supabase.');
       return;
@@ -34,8 +36,9 @@ class InitSupabaseTask extends LaunchTask {
     );
     await Config.setSupabaseConfig(
       url: url,
-      key: anonKey,
+      key: key,
       secret: jwtSecret,
+      anonKey: anonKey,
     );
     isSupabaseEnable = true;
     isSupabaseInitialized = true;

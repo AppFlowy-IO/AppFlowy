@@ -321,6 +321,7 @@ impl UserDatabaseConnection for UserSession {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 struct Session {
   user_id: i64,
+
   workspace_id: String,
 
   #[serde(default)]

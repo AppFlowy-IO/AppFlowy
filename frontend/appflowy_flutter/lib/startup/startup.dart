@@ -60,6 +60,7 @@ class FlowyRunner {
           const InitSupabaseTask(
             url: Env.supabaseUrl,
             anonKey: Env.supabaseAnonKey,
+            key: Env.supabaseKey,
             jwtSecret: Env.supabaseJwtSecret,
           ),
           const InitAppWidgetTask(),

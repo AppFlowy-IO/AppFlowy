@@ -9,6 +9,7 @@ use flowy_user::event_map::UserAuthService;
 use crate::supabase::user::PostgrestUserAuthServiceImpl;
 use crate::AppFlowyServer;
 
+#[derive(Debug)]
 pub struct SupabaseConfiguration {
   /// The url of the supabase server.
   pub url: String,

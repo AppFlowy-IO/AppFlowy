@@ -4,7 +4,7 @@ use collab_folder::core::{View, ViewLayout};
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
-use nanoid::nanoid;
+
 use std::collections::HashMap;
 use std::sync::Arc;
 

@@ -141,7 +141,7 @@ pub async fn third_party_auth_handler(
   let params = data.into_inner();
   let auth_type: AuthType = params.auth_type.into();
   let user_profile: UserProfilePB = session
-    .sign_in(&auth_type, BoxAny::new(params.map))
+    .sign_up(&auth_type, BoxAny::new(params.map))
     .await?
     .into();
   data_result_ok(user_profile)

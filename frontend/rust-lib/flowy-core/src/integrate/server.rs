@@ -16,15 +16,14 @@ use flowy_user::services::AuthType;
 /// the auth type, the [AppFlowyServerProvider] will create a new [AppFlowyServer] if it doesn't
 /// exist.
 /// Each server implements the [AppFlowyServer] trait, which provides the [UserAuthService], etc.
+#[derive(Default)]
 pub struct AppFlowyServerProvider {
   providers: RwLock<HashMap<AuthType, Arc<dyn AppFlowyServer>>>,
 }
 
 impl AppFlowyServerProvider {
   pub fn new() -> Self {
-    Self {
-      providers: Default::default(),
-    }
+    Self::default()
   }
 }
 
@@ -32,11 +31,14 @@ impl UserCloudServiceProvider for AppFlowyServerProvider {
   /// Returns the [UserAuthService] base on the current [AuthType].
   /// Creates a new [AppFlowyServer] if it doesn't exist.
   fn get_auth_service(&self, auth_type: &AuthType) -> Result<Arc<dyn UserAuthService>, FlowyError> {
-    server_from_auth_type(auth_type).map(|server| {
-      let user_service = server.user_service();
-      // self.providers.write().insert(auth_type.clone(), server);
-      user_service
-    })
+    if let Some(provider) = self.providers.read().get(auth_type) {
+      return Ok(provider.user_service());
+    }
+
+    let server = server_from_auth_type(auth_type)?;
+    let user_service = server.user_service();
+    self.providers.write().insert(auth_type.clone(), server);
+    Ok(user_service)
   }
 }
 

@@ -50,9 +50,11 @@ impl InsertResponse {
 #[derive(Debug, Deserialize, Clone)]
 pub(crate) struct InsertRecord {
   pub(crate) uid: i64,
+  #[allow(dead_code)]
   pub(crate) uuid: String,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize, Clone)]
 pub(crate) struct UserProfile {
   pub uid: i64,
@@ -65,19 +67,6 @@ pub(crate) struct UserProfile {
 #[derive(Debug, Deserialize)]
 pub(crate) struct UserProfileList(pub Vec<UserProfile>);
 
-impl UserProfileList {
-  pub(crate) fn first_or_error(&self) -> Result<UserProfile, FlowyError> {
-    if self.0.is_empty() {
-      Err(FlowyError::new(
-        ErrorCode::UnexpectedEmpty,
-        "Insert response contains no records",
-      ))
-    } else {
-      Ok(self.0[0].clone())
-    }
-  }
-}
-
 #[derive(Debug, Deserialize, Clone)]
 pub(crate) struct UserWorkspace {
   pub uid: i64,
@@ -88,19 +77,6 @@ pub(crate) struct UserWorkspace {
 
 #[derive(Debug, Deserialize)]
 pub(crate) struct UserWorkspaceList(pub Vec<UserWorkspace>);
-
-impl UserWorkspaceList {
-  pub(crate) fn first_or_error(&self) -> Result<UserWorkspace, FlowyError> {
-    if self.0.is_empty() {
-      Err(FlowyError::new(
-        ErrorCode::UnexpectedEmpty,
-        "Insert response contains no records",
-      ))
-    } else {
-      Ok(self.0[0].clone())
-    }
-  }
-}
 
 /// Handles the case where the value is null. If the value is null, return the default value of the
 /// type. Otherwise, deserialize the value.

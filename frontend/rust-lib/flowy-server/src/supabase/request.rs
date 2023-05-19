@@ -19,7 +19,7 @@ const USER_UUID: &str = "uuid";
 pub(crate) async fn create_user_with_uuid(
   postgrest: Arc<Postgrest>,
   uuid: String,
-) -> Result<i64, FlowyError> {
+) -> Result<UserWorkspace, FlowyError> {
   let insert = format!("{{\"{}\": \"{}\"}}", USER_UUID, &uuid);
 
   // Create a new user with uuid.
@@ -43,7 +43,14 @@ pub(crate) async fn create_user_with_uuid(
     let record = serde_json::from_str::<InsertResponse>(&content)
       .map_err(|e| FlowyError::serde().context(e))?
       .first_or_error()?;
-    Ok(record.uid)
+
+    match get_user_workspace_with_uid(postgrest, record.uid).await {
+      Ok(Some(user)) => Ok(user),
+      _ => Err(FlowyError::new(
+        ErrorCode::Internal,
+        "Failed to get user workspace",
+      )),
+    }
   } else {
     let err = serde_json::from_str::<PostgrestError>(&content)
       .map_err(|e| FlowyError::serde().context(e))?;
@@ -51,9 +58,12 @@ pub(crate) async fn create_user_with_uuid(
     // If there is a unique violation, try to get the user id with uuid. At this point, the user
     // should exist.
     if err.is_unique_violation() {
-      match get_user_id_with_uuid(postgrest, uuid).await? {
-        Some(uid) => Ok(uid),
-        None => Err(FlowyError::internal().context("Failed to get user id with uuid")),
+      match get_user_workspace_with_uuid(postgrest, uuid).await {
+        Ok(Some(user)) => Ok(user),
+        _ => Err(FlowyError::new(
+          ErrorCode::Internal,
+          "Failed to get user workspace",
+        )),
       }
     } else {
       Err(FlowyError::new(ErrorCode::Internal, err))
@@ -61,6 +71,7 @@ pub(crate) async fn create_user_with_uuid(
   }
 }
 
+#[allow(dead_code)]
 pub(crate) async fn get_user_id_with_uuid(
   postgrest: Arc<Postgrest>,
   uuid: String,
@@ -101,6 +112,7 @@ pub(crate) fn uuid_from_box_any(any: BoxAny) -> Result<String, FlowyError> {
   Ok(uuid.to_string())
 }
 
+#[allow(dead_code)]
 pub(crate) async fn get_user_profile(
   postgrest: Arc<Postgrest>,
   uid: i64,
@@ -122,7 +134,28 @@ pub(crate) async fn get_user_profile(
   Ok(resp.0.first().cloned())
 }
 
-pub(crate) async fn get_user_workspace(
+pub(crate) async fn get_user_workspace_with_uuid(
+  postgrest: Arc<Postgrest>,
+  uuid: String,
+) -> Result<Option<UserWorkspace>, FlowyError> {
+  let resp = postgrest
+    .from(USER_WORKSPACE_TABLE)
+    .eq(USER_UUID, uuid)
+    .select("*")
+    .execute()
+    .await
+    .map_err(|e| FlowyError::new(ErrorCode::HttpError, e))?;
+
+  let content = resp
+    .text()
+    .await
+    .map_err(|e| FlowyError::new(ErrorCode::UnexpectedEmpty, e))?;
+  let resp = serde_json::from_str::<UserWorkspaceList>(&content)
+    .map_err(|_e| FlowyError::new(ErrorCode::Serde, "Deserialize UserWorkspaceList failed"))?;
+  Ok(resp.0.first().cloned())
+}
+
+pub(crate) async fn get_user_workspace_with_uid(
   postgrest: Arc<Postgrest>,
   uid: i64,
 ) -> Result<Option<UserWorkspace>, FlowyError> {
@@ -143,6 +176,7 @@ pub(crate) async fn get_user_workspace(
   Ok(resp.0.first().cloned())
 }
 
+#[allow(dead_code)]
 pub(crate) async fn update_user_profile(
   postgrest: Arc<Postgrest>,
   params: UpdateUserProfileParams,
