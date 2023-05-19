@@ -13,11 +13,14 @@ use crate::supabase::response::{
 };
 use crate::supabase::user::{USER_PROFILE_TABLE, USER_TABLE};
 
+const USER_ID: &str = "uid";
+const USER_UUID: &str = "uuid";
+
 pub(crate) async fn create_user_with_uuid(
   postgrest: Arc<Postgrest>,
   uuid: String,
 ) -> Result<i64, FlowyError> {
-  let insert = format!("{{\"uuid\": \"{}\"}}", &uuid);
+  let insert = format!("{{\"{}\": \"{}\"}}", USER_UUID, &uuid);
 
   // Create a new user with uuid.
   let resp = postgrest
@@ -64,7 +67,7 @@ pub(crate) async fn get_user_id_with_uuid(
 ) -> Result<Option<i64>, FlowyError> {
   let resp = postgrest
     .from(USER_TABLE)
-    .eq("uuid", uuid)
+    .eq(USER_UUID, uuid)
     .select("*")
     .execute()
     .await
@@ -93,7 +96,7 @@ pub(crate) async fn get_user_id_with_uuid(
 pub(crate) fn uuid_from_box_any(any: BoxAny) -> Result<String, FlowyError> {
   let map: HashMap<String, String> = any.unbox_or_error()?;
   let uuid = map
-    .get("uuid")
+    .get(USER_UUID)
     .ok_or_else(|| FlowyError::new(ErrorCode::MissingAuthField, "Missing uuid field"))?;
   Ok(uuid.to_string())
 }
@@ -104,7 +107,7 @@ pub(crate) async fn get_user_profile(
 ) -> Result<Option<PostgresUserProfile>, FlowyError> {
   let resp = postgrest
     .from(USER_PROFILE_TABLE)
-    .eq("id", uid.to_string())
+    .eq(USER_ID, uid.to_string())
     .select("*")
     .execute()
     .await
@@ -137,7 +140,7 @@ pub(crate) async fn update_user_profile(
   let update_str = serde_json::to_string(&update).unwrap();
   let resp = postgrest
     .from(USER_PROFILE_TABLE)
-    .eq("id", params.id.to_string())
+    .eq(USER_ID, params.id.to_string())
     .update(update_str)
     .execute()
     .await

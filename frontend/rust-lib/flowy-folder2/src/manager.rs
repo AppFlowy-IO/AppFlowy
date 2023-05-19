@@ -91,30 +91,31 @@ impl Folder2Manager {
 
   /// Called immediately after the application launched fi the user already sign in/sign up.
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn initialize(&self, user_id: i64) -> FlowyResult<()> {
-    if let Ok(uid) = self.user.user_id() {
-      let folder_id = FolderId::new(uid);
-
-      if let Ok(kv_db) = self.user.collab_db() {
-        let collab = self.collab_builder.build(uid, folder_id.as_ref(), kv_db);
-        let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
-        let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
-        let folder_context = FolderContext {
-          view_change_tx: Some(view_tx),
-          trash_change_tx: Some(trash_tx),
-        };
-        *self.folder.lock() = Some(InnerFolder::get_or_create(collab, folder_context));
-        listen_on_trash_change(trash_rx, self.folder.clone());
-        listen_on_view_change(view_rx, self.folder.clone());
-      }
+  pub async fn initialize(&self, uid: i64, workspace_id: String) -> FlowyResult<()> {
+    if let Ok(kv_db) = self.user.collab_db() {
+      let collab = self.collab_builder.build(uid, &workspace_id, kv_db);
+      let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
+      let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
+      let folder_context = FolderContext {
+        view_change_tx: Some(view_tx),
+        trash_change_tx: Some(trash_tx),
+      };
+      *self.folder.lock() = Some(InnerFolder::get_or_create(collab, folder_context));
+      listen_on_trash_change(trash_rx, self.folder.clone());
+      listen_on_view_change(view_rx, self.folder.clone());
     }
 
     Ok(())
   }
 
   /// Called after the user sign up / sign in
-  pub async fn initialize_with_new_user(&self, user_id: i64, token: &str) -> FlowyResult<()> {
-    self.initialize(user_id).await?;
+  pub async fn initialize_with_new_user(
+    &self,
+    user_id: i64,
+    token: &str,
+    workspace_id: String,
+  ) -> FlowyResult<()> {
+    self.initialize(user_id, workspace_id).await?;
     let (folder_data, workspace_pb) =
       DefaultFolderBuilder::build(self.user.user_id()?, &self.view_processors).await;
     self.with_folder((), |folder| {
@@ -584,19 +585,6 @@ fn folder_not_init_error() -> FlowyError {
   FlowyError::internal().context("Folder not initialized")
 }
 
-#[derive(Clone)]
-pub struct FolderId(String);
-impl FolderId {
-  pub fn new(uid: i64) -> Self {
-    Self(format!("{}:folder", uid))
-  }
-}
-
-impl AsRef<str> for FolderId {
-  fn as_ref(&self) -> &str {
-    &self.0
-  }
-}
 #[derive(Clone, Default)]
 pub struct Folder(Arc<Mutex<Option<InnerFolder>>>);
 

@@ -112,7 +112,7 @@ pub struct UserTable {
   pub(crate) name: String,
   pub(crate) token: String,
   pub(crate) email: String,
-  pub(crate) workspace: String, // deprecated
+  pub(crate) workspace: String,
   pub(crate) icon_url: String,
   pub(crate) openai_key: String,
 }
@@ -167,6 +167,7 @@ impl From<UserTable> for UserProfile {
       token: table.token,
       icon_url: table.icon_url,
       openai_key: table.openai_key,
+      workspace_id: table.workspace,
     }
   }
 }

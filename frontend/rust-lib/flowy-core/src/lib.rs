@@ -276,8 +276,11 @@ struct UserStatusListener {
 }
 
 impl UserStatusListener {
-  async fn did_sign_in(&self, user_id: i64) -> FlowyResult<()> {
-    self.folder_manager.initialize(user_id).await?;
+  async fn did_sign_in(&self, user_id: i64, workspace_id: String) -> FlowyResult<()> {
+    self
+      .folder_manager
+      .initialize(user_id, workspace_id)
+      .await?;
     self.database_manager.initialize(user_id).await?;
     Ok(())
   }

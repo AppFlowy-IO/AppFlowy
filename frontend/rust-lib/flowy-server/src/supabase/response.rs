@@ -60,6 +60,7 @@ pub(crate) struct PostgresUserProfile {
   pub name: String,
   #[serde(deserialize_with = "deserialize_null_or_default")]
   pub email: String,
+  pub workspace_id: String,
 }
 
 /// Handles the case where the value is null. If the value is null, return the default value of the
