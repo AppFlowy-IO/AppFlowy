@@ -68,5 +68,5 @@ pub fn view_from_create_view_params(params: CreateViewParams, layout: ViewLayout
   }
 }
 pub fn gen_view_id() -> String {
-  format!("v:{}", nanoid!(10))
+  uuid::Uuid::new_v4().to_string()
 }

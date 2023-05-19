@@ -100,12 +100,12 @@ mod tests {
 
   use crate::supabase::request::{get_user_profile, get_user_workspace};
   use crate::supabase::user::{create_user_with_uuid, get_user_id_with_uuid, update_user_profile};
-  use crate::supabase::{SupabaseServer, SupabaseServerConfiguration};
+  use crate::supabase::{SupabaseConfiguration, SupabaseServer};
 
   #[tokio::test]
   async fn read_user_table_test() {
     dotenv().ok();
-    if let Ok(config) = SupabaseServerConfiguration::from_env() {
+    if let Ok(config) = SupabaseConfiguration::from_env() {
       let server = Arc::new(SupabaseServer::new(config));
       let uid = get_user_id_with_uuid(
         server.postgres.clone(),
@@ -120,7 +120,7 @@ mod tests {
   #[tokio::test]
   async fn insert_user_table_test() {
     dotenv().ok();
-    if let Ok(config) = SupabaseServerConfiguration::from_env() {
+    if let Ok(config) = SupabaseConfiguration::from_env() {
       let server = Arc::new(SupabaseServer::new(config));
       let uuid = uuid::Uuid::new_v4();
       // let uuid = "c8c674fc-506f-403c-b052-209e09817f6e";
@@ -132,7 +132,7 @@ mod tests {
   #[tokio::test]
   async fn create_and_then_update_user_profile_test() {
     dotenv().ok();
-    if let Ok(config) = SupabaseServerConfiguration::from_env() {
+    if let Ok(config) = SupabaseConfiguration::from_env() {
       let server = Arc::new(SupabaseServer::new(config));
       let uuid = uuid::Uuid::new_v4();
       let uid = create_user_with_uuid(server.postgres.clone(), uuid.to_string())

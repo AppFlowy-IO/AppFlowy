@@ -28,14 +28,14 @@ pub struct SupabaseConfigPB {
   supabase_key: String,
 
   #[pb(index = 3)]
-  jwt_secret_secret: String,
+  jwt_secret: String,
 }
 
 impl SupabaseConfigPB {
   pub(crate) fn write_to_env(self) {
     std::env::set_var(SUPABASE_URL, self.supabase_url);
     std::env::set_var(SUPABASE_KEY, self.supabase_key);
-    std::env::set_var(SUPABASE_JWT_SECRET, self.jwt_secret_secret);
+    std::env::set_var(SUPABASE_JWT_SECRET, self.jwt_secret);
   }
 }
 

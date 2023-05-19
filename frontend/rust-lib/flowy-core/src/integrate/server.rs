@@ -7,7 +7,7 @@ use flowy_error::{ErrorCode, FlowyError};
 use flowy_server::local_server::LocalServer;
 use flowy_server::self_host::configuration::self_host_server_configuration;
 use flowy_server::self_host::SelfHostServer;
-use flowy_server::supabase::{SupabaseServer, SupabaseServerConfiguration};
+use flowy_server::supabase::{SupabaseConfiguration, SupabaseServer};
 use flowy_server::AppFlowyServer;
 use flowy_user::event_map::{UserAuthService, UserCloudServiceProvider};
 use flowy_user::services::AuthType;
@@ -58,7 +58,7 @@ fn server_from_auth_type(auth_type: &AuthType) -> Result<Arc<dyn AppFlowyServer>
     },
     AuthType::Supabase => {
       // init the SupabaseServerConfiguration from the environment variables.
-      let config = SupabaseServerConfiguration::from_env()?;
+      let config = SupabaseConfiguration::from_env()?;
       let server = Arc::new(SupabaseServer::new(config));
       Ok(server)
     },

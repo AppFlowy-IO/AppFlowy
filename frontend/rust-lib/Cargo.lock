@@ -1716,6 +1716,7 @@ dependencies = [
  "tokio",
  "tracing",
  "unicode-segmentation",
+ "uuid",
 ]
 
 [[package]]
