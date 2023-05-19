@@ -1,6 +1,6 @@
 export const CheckListProgress = ({ completed, max }: { completed: number; max: number }) => {
   return (
-    <div className={'flex w-full items-center gap-4'}>
+    <div className={'flex w-full items-center gap-4 py-1'}>
       {max > 0 && (
         <>
           <div className={'flex flex-1 gap-1'}>
