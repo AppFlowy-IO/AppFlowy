@@ -8,7 +8,6 @@ import { useAppDispatch } from '$app/stores/store';
 import { updateNodeDeltaThunk } from '$app_reducers/document/async-actions/blocks/text/update';
 import { deltaToSlateValue, slateValueToDelta } from '$app/utils/document/blocks/common';
 import { isSameDelta } from '$app/utils/document/blocks/text/delta';
-import { debounce } from '$app/utils/tool';
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
 import { useTextSelections } from '$app/components/document/_shared/Text/TextSelection.hooks';
 
@@ -104,16 +103,11 @@ function useUpdateDelta(id: string, editor: Editor) {
     })();
   }, [controller, dispatch, editor, id]);
 
-  // when user input, update the node's delta after 200ms
-  const debounceUpdate = useMemo(() => {
-    return debounce(update, 50);
-  }, [update]);
-
   const sync = useCallback(() => {
     // set pendding flag
     penddingRef.current = true;
-    debounceUpdate();
-  }, [debounceUpdate]);
+    update();
+  }, [update]);
 
   const receive = useCallback(
     (delta: TextDelta[], setValue: (children: Descendant[]) => void) => {
@@ -132,12 +126,6 @@ function useUpdateDelta(id: string, editor: Editor) {
     },
     [editor]
   );
-
-  useEffect(() => {
-    return () => {
-      debounceUpdate.cancel();
-    };
-  }, [debounceUpdate, update]);
 
   return {
     sync,
