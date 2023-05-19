@@ -21,7 +21,7 @@ impl NumberCellFormat {
     }
   }
 
-  pub fn from_format_str(s: &str, sign_positive: bool, format: &NumberFormat) -> FlowyResult<Self> {
+  pub fn from_format_str(s: &str, format: &NumberFormat) -> FlowyResult<Self> {
     let mut num_str = strip_currency_symbol(s);
     let currency = format.currency();
     if num_str.is_empty() {
@@ -29,7 +29,6 @@ impl NumberCellFormat {
     }
     match Decimal::from_str(&num_str) {
       Ok(mut decimal) => {
-        decimal.set_sign_positive(sign_positive);
         let money = Money::from_decimal(decimal, currency);
         Ok(Self::from_money(money))
       },
@@ -38,7 +37,7 @@ impl NumberCellFormat {
         Err(_) => {
           num_str.retain(|c| !STRIP_SYMBOL.contains(&c.to_string()));
           if num_str.chars().all(char::is_numeric) {
-            Self::from_format_str(&num_str, sign_positive, format)
+            Self::from_format_str(&num_str,  format)
           } else {
             // returns empty string if it can be formatted
             Ok(Self::default())
@@ -108,7 +107,7 @@ impl CellProtobufBlobParser for NumberCellDataParser {
   type Object = NumberCellFormat;
   fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
     match String::from_utf8(bytes.to_vec()) {
-      Ok(s) => NumberCellFormat::from_format_str(&s, true, &NumberFormat::Num),
+      Ok(s) => NumberCellFormat::from_format_str(&s,  &NumberFormat::Num),
       Err(_) => Ok(NumberCellFormat::default()),
     }
   }
@@ -119,7 +118,7 @@ impl CellBytesCustomParser for NumberCellCustomDataParser {
   type Object = NumberCellFormat;
   fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {
     match String::from_utf8(bytes.to_vec()) {
-      Ok(s) => NumberCellFormat::from_format_str(&s, true, &self.0),
+      Ok(s) => NumberCellFormat::from_format_str(&s,  &self.0),
       Err(_) => Ok(NumberCellFormat::default()),
     }
   }

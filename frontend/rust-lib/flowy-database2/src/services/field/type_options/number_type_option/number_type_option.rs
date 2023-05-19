@@ -27,7 +27,6 @@ pub struct NumberTypeOption {
   pub format: NumberFormat,
   pub scale: u32,
   pub symbol: String,
-  pub sign_positive: bool,
   pub name: String,
 }
 
@@ -75,13 +74,11 @@ impl From<TypeOptionData> for NumberTypeOption {
       .unwrap_or_default();
     let scale = data.get_i64_value("scale").unwrap_or_default() as u32;
     let symbol = data.get_str_value("symbol").unwrap_or_default();
-    let sign_positive = data.get_bool_value("sign_positive").unwrap_or_default();
     let name = data.get_str_value("name").unwrap_or_default();
     Self {
       format,
       scale,
       symbol,
-      sign_positive,
       name,
     }
   }
@@ -92,7 +89,6 @@ impl From<NumberTypeOption> for TypeOptionData {
     TypeOptionDataBuilder::new()
       .insert_i64_value("format", data.format.value())
       .insert_i64_value("scale", data.scale as i64)
-      .insert_bool_value("sign_positive", data.sign_positive)
       .insert_str_value("name", data.name)
       .insert_str_value("symbol", data.symbol)
       .build()
@@ -145,7 +141,7 @@ impl NumberTypeOption {
           }
         }
       },
-      _ => NumberCellFormat::from_format_str(&num_cell_data.0, self.sign_positive, &self.format),
+      _ => NumberCellFormat::from_format_str(&num_cell_data.0,  &self.format),
     }
   }
 
@@ -245,9 +241,9 @@ impl TypeOptionCellDataCompare for NumberTypeOption {
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
   ) -> Ordering {
-    let left = NumberCellFormat::from_format_str(&cell_data.0, self.sign_positive, &self.format);
+    let left = NumberCellFormat::from_format_str(&cell_data.0,  &self.format);
     let right =
-      NumberCellFormat::from_format_str(&other_cell_data.0, self.sign_positive, &self.format);
+      NumberCellFormat::from_format_str(&other_cell_data.0,  &self.format);
     match (left, right) {
       (Ok(left), Ok(right)) => {
         return left.decimal().cmp(right.decimal());
@@ -266,7 +262,6 @@ impl std::default::Default for NumberTypeOption {
       format,
       scale: 0,
       symbol,
-      sign_positive: true,
       name: "Number".to_string(),
     }
   }

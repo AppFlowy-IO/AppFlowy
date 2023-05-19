@@ -389,7 +389,6 @@ mod tests {
   #[test]
   fn number_description_sign_test() {
     let mut type_option = NumberTypeOption {
-      sign_positive: false,
       ..Default::default()
     };
     let field_type = FieldType::Number;
