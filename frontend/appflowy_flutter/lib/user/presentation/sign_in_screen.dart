@@ -203,7 +203,6 @@ class ForgetPasswordButton extends StatelessWidget {
       ),
       onPressed: () {
         throw UnimplementedError();
-        router.pushForgetPasswordScreen(context);
       },
       child: Text(
         LocaleKeys.signIn_forgotPassword.tr(),
