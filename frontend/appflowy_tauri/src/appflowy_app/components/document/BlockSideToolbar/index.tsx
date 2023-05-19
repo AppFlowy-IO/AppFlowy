@@ -1,21 +1,50 @@
-import React from 'react';
-import { useBlockSideToolbar } from './BlockSideToolbar.hooks';
-import ExpandCircleDownSharpIcon from '@mui/icons-material/ExpandCircleDownSharp';
-import DragIndicatorRoundedIcon from '@mui/icons-material/DragIndicatorRounded';
+import React, { useCallback, useState } from 'react';
+import { PopoverType, useBlockSideToolbar, usePopover } from './BlockSideToolbar.hooks';
 import Portal from '../BlockPortal';
-import { IconButton } from '@mui/material';
-import BlockMenu from '../BlockMenu';
-import { useAppSelector } from '$app/stores/store';
+import { useAppDispatch, useAppSelector } from '$app/stores/store';
+import Popover from '@mui/material/Popover';
+import DragIndicatorRoundedIcon from '@mui/icons-material/DragIndicatorRounded';
+import AddSharpIcon from '@mui/icons-material/AddSharp';
+import ToolbarButton from './ToolbarButton';
+import AddBelowMenu from './AddBelowMenu';
+import BlockMenu from './BlockMenu';
+import { rectSelectionActions } from '$app_reducers/document/slice';
 
-const sx = { height: 24, width: 24 };
-
-export default function BlockSideToolbar(props: { container: HTMLDivElement }) {
-  const { nodeId, style, ref, menuOpen, handleToggleMenu } = useBlockSideToolbar(props);
+export default function BlockSideToolbar({ container }: { container: HTMLDivElement }) {
+  const dispatch = useAppDispatch();
+  const { nodeId, style, ref } = useBlockSideToolbar({ container });
   const isDragging = useAppSelector(
     (state) => state.documentRangeSelection.isDragging || state.documentRectSelection.isDragging
   );
+  const [type, setType] = useState<PopoverType>();
+  const { handleOpen, ...popoverProps } = usePopover(type);
+
+  const renderPopoverContent = useCallback(() => {
+    if (!nodeId || !type) return null;
+
+    if (type === PopoverType.AddBelowMenu) {
+      return <AddBelowMenu id={nodeId} onClose={popoverProps.onClose} />;
+    }
+    if (type === PopoverType.BlockMenu) {
+      return <BlockMenu id={nodeId} onClose={popoverProps.onClose} />;
+    }
+    return null;
+  }, [nodeId, popoverProps.onClose, type]);
+
+  const triggerOpen = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (!nodeId) return;
+      dispatch(rectSelectionActions.setSelectionById(nodeId));
+      handleOpen(e);
+    },
+    [dispatch, handleOpen, nodeId]
+  );
+
+  // prevent popover from showing when anchorEl is not in DOM
+  const showPopover = popoverProps.anchorEl ? document.contains(popoverProps.anchorEl) : true;
 
   if (!nodeId || isDragging) return null;
+
   return (
     <>
       <Portal blockId={nodeId}>
@@ -32,15 +61,31 @@ export default function BlockSideToolbar(props: { container: HTMLDivElement }) {
             e.stopPropagation();
           }}
         >
-          <IconButton onClick={() => handleToggleMenu(true)} sx={sx}>
-            <ExpandCircleDownSharpIcon />
-          </IconButton>
-          <IconButton sx={sx}>
+          {/** Add Block below */}
+          <ToolbarButton
+            tooltip={'Add a new block below'}
+            onClick={(e) => {
+              setType(PopoverType.AddBelowMenu);
+              triggerOpen(e);
+            }}
+          >
+            <AddSharpIcon />
+          </ToolbarButton>
+
+          {/** Open menu or drag */}
+          <ToolbarButton
+            tooltip={'Click to open Menu'}
+            onClick={(e) => {
+              setType(PopoverType.BlockMenu);
+              triggerOpen(e);
+            }}
+          >
             <DragIndicatorRoundedIcon />
-          </IconButton>
+          </ToolbarButton>
         </div>
       </Portal>
-      <BlockMenu open={menuOpen} onClose={() => handleToggleMenu(false)} nodeId={nodeId} />
+
+      {showPopover && <Popover {...popoverProps}>{renderPopoverContent()}</Popover>}
     </>
   );
 }
