@@ -92,44 +92,27 @@ function getNodeIdByPoint(x: number, y: number) {
       ).el.getAttribute('data-block-id')
     : null;
 }
-export enum PopoverType {
-  BlockMenu = 'menu',
-  AddBelowMenu = 'add-below-menu',
-}
-export function usePopover(type?: PopoverType) {
+
+const origin: {
+  anchorOrigin: PopoverOrigin;
+  transformOrigin: PopoverOrigin;
+} = {
+  anchorOrigin: {
+    vertical: 'bottom',
+    horizontal: 'right',
+  },
+  transformOrigin: {
+    vertical: 'bottom',
+    horizontal: 'left',
+  },
+};
+export function usePopover() {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
 
   const onClose = useCallback(() => {
     setAnchorEl(null);
   }, []);
 
-  const origin: {
-    anchorOrigin: PopoverOrigin;
-    transformOrigin: PopoverOrigin;
-  } = useMemo(() => {
-    if (type === PopoverType.AddBelowMenu) {
-      return {
-        anchorOrigin: {
-          vertical: 'bottom',
-          horizontal: 'right',
-        },
-        transformOrigin: {
-          vertical: 'bottom',
-          horizontal: 'left',
-        },
-      };
-    }
-    return {
-      anchorOrigin: {
-        vertical: 'bottom',
-        horizontal: 'left',
-      },
-      transformOrigin: {
-        vertical: 'top',
-        horizontal: 'left',
-      },
-    };
-  }, [type]);
   const handleOpen = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setAnchorEl(e.currentTarget);

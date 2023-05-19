@@ -9,4 +9,5 @@ export const keyBoardEventKeyMap = {
   Space: ' ',
   Reduce: '-',
   Backquote: '`',
+  Slash: '/',
 };

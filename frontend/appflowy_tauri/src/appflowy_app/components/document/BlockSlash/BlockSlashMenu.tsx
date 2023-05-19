@@ -14,29 +14,26 @@ import {
 import { List } from '@mui/material';
 import { BlockData, BlockType } from '$app/interfaces/document';
 import { useAppDispatch } from '$app/stores/store';
-import { insertAfterNodeThunk } from '$app_reducers/document/async-actions';
-import { blockConfig } from '$app/constants/document/config';
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { triggerSlashCommandActionThunk } from '$app_reducers/document/async-actions/menu';
 
-function AddBelowMenu({ id, onClose }: { id: string; onClose: () => void }) {
+function BlockSlashMenu({ id, onClose, searchText }: { id: string; onClose?: () => void; searchText?: string }) {
   const dispatch = useAppDispatch();
   const controller = useContext(DocumentControllerContext);
   const handleInsert = useCallback(
     async (type: BlockType, data?: BlockData<any>) => {
       if (!controller) return;
-      const defaultData = blockConfig[type].defaultData;
       await dispatch(
-        insertAfterNodeThunk({
-          id,
+        triggerSlashCommandActionThunk({
           controller,
-          type,
-          data: {
-            ...defaultData,
-            ...data,
+          id,
+          props: {
+            type,
+            data,
           },
         })
       );
-      onClose();
+      onClose?.();
     },
     [controller, dispatch, id, onClose]
   );
@@ -142,4 +139,4 @@ function AddBelowMenu({ id, onClose }: { id: string; onClose: () => void }) {
   );
 }
 
-export default AddBelowMenu;
+export default BlockSlashMenu;
