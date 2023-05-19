@@ -4,6 +4,7 @@ use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
+
 use lib_dispatch::prelude::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::{Fut, FutureResult};
@@ -31,7 +32,7 @@ pub fn init(user_session: Arc<UserSession>) -> AFPlugin {
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {
-  fn did_sign_in(&self, user_id: i64) -> Fut<FlowyResult<()>>;
+  fn did_sign_in(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>>;
   fn did_sign_up(&self, user_profile: &UserProfile) -> Fut<FlowyResult<()>>;
   fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
 }

@@ -49,18 +49,57 @@ impl InsertResponse {
 
 #[derive(Debug, Deserialize, Clone)]
 pub(crate) struct InsertRecord {
-  pub(crate) id: i64,
+  pub(crate) uid: i64,
   pub(crate) uuid: String,
 }
 
 #[derive(Debug, Deserialize, Clone)]
-pub(crate) struct PostgresUserProfile {
-  pub id: i64,
+pub(crate) struct UserProfile {
+  pub uid: i64,
   #[serde(deserialize_with = "deserialize_null_or_default")]
   pub name: String,
   #[serde(deserialize_with = "deserialize_null_or_default")]
   pub email: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct UserProfileList(pub Vec<UserProfile>);
+
+impl UserProfileList {
+  pub(crate) fn first_or_error(&self) -> Result<UserProfile, FlowyError> {
+    if self.0.is_empty() {
+      Err(FlowyError::new(
+        ErrorCode::UnexpectedEmpty,
+        "Insert response contains no records",
+      ))
+    } else {
+      Ok(self.0[0].clone())
+    }
+  }
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub(crate) struct UserWorkspace {
+  pub uid: i64,
+  #[serde(deserialize_with = "deserialize_null_or_default")]
+  pub name: String,
   pub workspace_id: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct UserWorkspaceList(pub Vec<UserWorkspace>);
+
+impl UserWorkspaceList {
+  pub(crate) fn first_or_error(&self) -> Result<UserWorkspace, FlowyError> {
+    if self.0.is_empty() {
+      Err(FlowyError::new(
+        ErrorCode::UnexpectedEmpty,
+        "Insert response contains no records",
+      ))
+    } else {
+      Ok(self.0[0].clone())
+    }
+  }
 }
 
 /// Handles the case where the value is null. If the value is null, return the default value of the
@@ -72,20 +111,4 @@ where
 {
   let opt = Option::deserialize(deserializer)?;
   Ok(opt.unwrap_or_default())
-}
-
-#[derive(Debug, Deserialize)]
-pub(crate) struct PostgrestProfileList(pub Vec<PostgresUserProfile>);
-
-impl PostgrestProfileList {
-  pub(crate) fn first_or_error(&self) -> Result<PostgresUserProfile, FlowyError> {
-    if self.0.is_empty() {
-      Err(FlowyError::new(
-        ErrorCode::UnexpectedEmpty,
-        "Insert response contains no records",
-      ))
-    } else {
-      Ok(self.0[0].clone())
-    }
-  }
 }

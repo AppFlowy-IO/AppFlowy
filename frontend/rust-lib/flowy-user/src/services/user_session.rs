@@ -70,7 +70,9 @@ impl UserSession {
 
   pub async fn init<C: UserStatusCallback + 'static>(&self, user_status_callback: C) {
     if let Ok(session) = self.get_session() {
-      let _ = user_status_callback.did_sign_in(session.user_id).await;
+      let _ = user_status_callback
+        .did_sign_in(session.user_id, &session.workspace_id)
+        .await;
     }
     *self.user_status_callback.write().await = Some(Arc::new(user_status_callback));
   }
@@ -117,11 +119,12 @@ impl UserSession {
       .await
       .as_ref()
       .unwrap()
-      .did_sign_in(user_profile.id)
+      .did_sign_in(user_profile.id, &user_profile.workspace_id)
       .await;
     send_sign_in_notification()
       .payload::<UserProfilePB>(user_profile.clone().into())
       .send();
+
     Ok(user_profile)
   }
 
@@ -318,10 +321,16 @@ impl UserDatabaseConnection for UserSession {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 struct Session {
   user_id: i64,
-  token: Option<String>,
-  email: Option<String>,
+  workspace_id: String,
+
   #[serde(default)]
   name: String,
+
+  #[serde(default)]
+  token: Option<String>,
+
+  #[serde(default)]
+  email: Option<String>,
 }
 
 impl std::convert::From<SignInResponse> for Session {
@@ -331,6 +340,7 @@ impl std::convert::From<SignInResponse> for Session {
       token: resp.token,
       email: resp.email,
       name: resp.name,
+      workspace_id: resp.workspace_id,
     }
   }
 }
@@ -342,6 +352,7 @@ impl std::convert::From<SignUpResponse> for Session {
       token: resp.token,
       email: resp.email,
       name: resp.name,
+      workspace_id: resp.workspace_id,
     }
   }
 }

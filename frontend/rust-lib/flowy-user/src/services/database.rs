@@ -118,14 +118,14 @@ pub struct UserTable {
 }
 
 impl UserTable {
-  pub fn new(id: String, name: String, email: String, token: String) -> Self {
+  pub fn new(id: String, name: String, email: String, token: String, workspace_id: String) -> Self {
     Self {
       id,
       name,
       email,
       token,
       icon_url: "".to_owned(),
-      workspace: "".to_owned(),
+      workspace: workspace_id,
       openai_key: "".to_owned(),
     }
   }
@@ -141,6 +141,7 @@ impl From<SignUpResponse> for UserTable {
     UserTable::new(
       resp.user_id.to_string(),
       resp.name,
+      resp.workspace_id,
       resp.email.unwrap_or_default(),
       resp.token.unwrap_or_default(),
     )
@@ -152,6 +153,7 @@ impl From<SignInResponse> for UserTable {
     UserTable::new(
       resp.user_id.to_string(),
       resp.name,
+      resp.workspace_id,
       resp.email.unwrap_or_default(),
       resp.token.unwrap_or_default(),
     )

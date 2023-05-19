@@ -276,7 +276,7 @@ struct UserStatusListener {
 }
 
 impl UserStatusListener {
-  async fn did_sign_in(&self, user_id: i64, workspace_id: String) -> FlowyResult<()> {
+  async fn did_sign_in(&self, user_id: i64, workspace_id: &str) -> FlowyResult<()> {
     self
       .folder_manager
       .initialize(user_id, workspace_id)
@@ -288,7 +288,11 @@ impl UserStatusListener {
   async fn did_sign_up(&self, user_profile: &UserProfile) -> FlowyResult<()> {
     self
       .folder_manager
-      .initialize_with_new_user(user_profile.id, &user_profile.token)
+      .initialize_with_new_user(
+        user_profile.id,
+        &user_profile.token,
+        &user_profile.workspace_id,
+      )
       .await?;
 
     self
@@ -310,10 +314,11 @@ struct UserStatusCallbackImpl {
 }
 
 impl UserStatusCallback for UserStatusCallbackImpl {
-  fn did_sign_in(&self, user_id: i64) -> Fut<FlowyResult<()>> {
+  fn did_sign_in(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>> {
     let listener = self.listener.clone();
     let user_id = user_id.to_owned();
-    to_fut(async move { listener.did_sign_in(user_id).await })
+    let workspace_id = workspace_id.to_owned();
+    to_fut(async move { listener.did_sign_in(user_id, &workspace_id).await })
   }
 
   fn did_sign_up(&self, user_profile: &UserProfile) -> Fut<FlowyResult<()>> {

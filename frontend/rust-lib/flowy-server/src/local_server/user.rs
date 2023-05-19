@@ -22,9 +22,11 @@ impl UserAuthService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async move {
       let params = params.unbox_or_error::<SignUpParams>()?;
       let uid = ID_GEN.lock().next_id();
+      let workspace_id = uuid::Uuid::new_v4().to_string();
       Ok(SignUpResponse {
         user_id: uid,
         name: params.name,
+        workspace_id,
         email: Some(params.email),
         token: None,
       })
@@ -35,9 +37,11 @@ impl UserAuthService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async move {
       let uid = ID_GEN.lock().next_id();
       let params = params.unbox_or_error::<SignInParams>()?;
+      let workspace_id = uuid::Uuid::new_v4().to_string();
       Ok(SignInResponse {
         user_id: uid,
         name: params.name,
+        workspace_id,
         email: Some(params.email),
         token: None,
       })

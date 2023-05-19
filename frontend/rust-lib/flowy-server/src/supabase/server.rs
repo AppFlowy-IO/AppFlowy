@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use postgrest::Postgrest;
 
-use flowy_config::entities::{SUPABASE_JWT, SUPABASE_KEY, SUPABASE_URL};
+use flowy_config::entities::{SUPABASE_JWT_SECRET, SUPABASE_KEY, SUPABASE_URL};
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_user::event_map::UserAuthService;
 
@@ -12,7 +12,7 @@ use crate::AppFlowyServer;
 pub struct SupabaseServerConfiguration {
   pub supabase_url: String,
   pub supabase_key: String,
-  pub supabase_jwt: String,
+  pub supabase_jwt_secret: String,
 }
 
 impl SupabaseServerConfiguration {
@@ -22,8 +22,9 @@ impl SupabaseServerConfiguration {
         .map_err(|_| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_URL"))?,
       supabase_key: std::env::var(SUPABASE_KEY)
         .map_err(|_| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_KEY"))?,
-      supabase_jwt: std::env::var(SUPABASE_JWT)
-        .map_err(|_| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_JWT"))?,
+      supabase_jwt_secret: std::env::var(SUPABASE_JWT_SECRET).map_err(|_| {
+        FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_JWT_SECRET")
+      })?,
     })
   }
 }

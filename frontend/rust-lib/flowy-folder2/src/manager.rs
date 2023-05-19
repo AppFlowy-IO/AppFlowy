@@ -91,9 +91,9 @@ impl Folder2Manager {
 
   /// Called immediately after the application launched fi the user already sign in/sign up.
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn initialize(&self, uid: i64, workspace_id: String) -> FlowyResult<()> {
+  pub async fn initialize(&self, uid: i64, workspace_id: &str) -> FlowyResult<()> {
     if let Ok(kv_db) = self.user.collab_db() {
-      let collab = self.collab_builder.build(uid, &workspace_id, kv_db);
+      let collab = self.collab_builder.build(uid, workspace_id, kv_db);
       let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
       let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
       let folder_context = FolderContext {
@@ -113,7 +113,7 @@ impl Folder2Manager {
     &self,
     user_id: i64,
     token: &str,
-    workspace_id: String,
+    workspace_id: &str,
   ) -> FlowyResult<()> {
     self.initialize(user_id, workspace_id).await?;
     let (folder_data, workspace_pb) =

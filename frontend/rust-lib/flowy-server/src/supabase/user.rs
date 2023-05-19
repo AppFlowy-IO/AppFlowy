@@ -10,8 +10,9 @@ use lib_infra::future::FutureResult;
 
 use crate::supabase::request::*;
 
-pub(crate) const USER_TABLE: &str = "user";
-pub(crate) const USER_PROFILE_TABLE: &str = "user_profile";
+pub(crate) const USER_TABLE: &str = "af_user";
+pub(crate) const USER_PROFILE_TABLE: &str = "af_user_profile";
+pub(crate) const USER_WORKSPACE_TABLE: &str = "af_user_workspace";
 pub(crate) struct PostgrestUserAuthServiceImpl {
   postgrest: Arc<Postgrest>,
 }
@@ -73,16 +74,16 @@ impl UserAuthService for PostgrestUserAuthServiceImpl {
   ) -> FutureResult<Option<UserProfile>, FlowyError> {
     let postgrest = self.postgrest.clone();
     FutureResult::new(async move {
-      let profile = get_user_profile(postgrest, uid)
+      let profile = get_user_workspace(postgrest, uid)
         .await?
-        .map(|profile| UserProfile {
-          id: profile.id,
-          email: profile.email,
-          name: profile.name,
+        .map(|user_workspace| UserProfile {
+          id: user_workspace.uid,
+          email: "".to_string(),
+          name: user_workspace.name,
           token: "".to_string(),
           icon_url: "".to_string(),
           openai_key: "".to_string(),
-          workspace_id: profile.workspace_id,
+          workspace_id: user_workspace.workspace_id,
         });
       Ok(profile)
     })
@@ -97,7 +98,7 @@ mod tests {
 
   use flowy_user::entities::UpdateUserProfileParams;
 
-  use crate::supabase::request::get_user_profile;
+  use crate::supabase::request::{get_user_profile, get_user_workspace};
   use crate::supabase::user::{create_user_with_uuid, get_user_id_with_uuid, update_user_profile};
   use crate::supabase::{SupabaseServer, SupabaseServerConfiguration};
 
@@ -152,6 +153,12 @@ mod tests {
         .unwrap()
         .unwrap();
       assert_eq!(result.name, "nathan".to_string());
+
+      let result = get_user_workspace(server.postgres.clone(), uid)
+        .await
+        .unwrap()
+        .unwrap();
+      assert!(!result.workspace_id.is_empty());
     }
   }
 }
