@@ -65,9 +65,12 @@ class FlowyText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final text = overflow == TextOverflow.ellipsis
+        ? title.replaceAll('', '\u200B')
+        : title;
     if (selectable) {
       return SelectableText(
-        title,
+        text,
         maxLines: maxLines,
         textAlign: textAlign,
         style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -79,7 +82,7 @@ class FlowyText extends StatelessWidget {
       );
     } else {
       return Text(
-        title,
+        text,
         maxLines: maxLines,
         textAlign: textAlign,
         overflow: overflow ?? TextOverflow.clip,

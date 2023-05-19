@@ -1,8 +1,6 @@
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_file_customize_location_view.dart';
 import 'package:flutter/material.dart';
 
-import '../../../application/settings/settings_location_cubit.dart';
-
 class SettingsFileSystemView extends StatefulWidget {
   const SettingsFileSystemView({
     super.key,
@@ -15,6 +13,9 @@ class SettingsFileSystemView extends StatefulWidget {
 class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
   @override
   Widget build(BuildContext context) {
+    // return Column(
+    //   children: [],
+    // );
     return ListView.separated(
       itemBuilder: (context, index) {
         if (index == 0) {

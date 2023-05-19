@@ -183,7 +183,8 @@
       "theme": "Theme"
     },
     "files": {
-      "defaultLocation": "Where your data is stored now",
+      "copy": "Copy",
+      "defaultLocation": "Read files and data storage location",
       "doubleTapToCopy": "Double tap to copy the path",
       "restoreLocation": "Restore to AppFlowy default path",
       "customizeLocation": "Open another folder",

@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../startup.dart';
 
 bool isSupabaseEnable = false;
+bool isSupabaseInitialized = false;
 
 class InitSupabaseTask extends LaunchTask {
   const InitSupabaseTask({
@@ -24,6 +25,9 @@ class InitSupabaseTask extends LaunchTask {
       Log.info('Supabase config is empty, skip init supabase.');
       return;
     }
+    if (isSupabaseInitialized) {
+      return;
+    }
     await Supabase.initialize(
       url: url,
       anonKey: anonKey,
@@ -34,5 +38,6 @@ class InitSupabaseTask extends LaunchTask {
       secret: jwtSecret,
     );
     isSupabaseEnable = true;
+    isSupabaseInitialized = true;
   }
 }

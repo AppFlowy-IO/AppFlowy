@@ -227,7 +227,7 @@ class OkCancelButton extends StatelessWidget {
             SecondaryTextButton(
               cancelTitle ?? LocaleKeys.button_Cancel.tr(),
               onPressed: onCancelPressed,
-              bigMode: true,
+              mode: SecondaryTextButtonMode.big,
             ),
           HSpace(Insets.m),
           if (onOkPressed != null)
