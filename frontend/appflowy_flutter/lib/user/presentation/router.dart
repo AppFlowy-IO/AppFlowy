@@ -28,7 +28,7 @@ class AuthRouter {
     );
   }
 
-  void pushHomeScreen(
+  void pushHomeScreenWithWorkSpace(
     BuildContext context,
     UserProfilePB profile,
     WorkspaceSettingPB workspaceSetting,
@@ -43,6 +43,21 @@ class AuthRouter {
         ),
         RouteDurations.slow.inMilliseconds * .001,
       ),
+    );
+  }
+
+  Future<void> pushHomeScreen(
+    BuildContext context,
+    UserProfilePB userProfile,
+  ) async {
+    final result = await FolderEventReadCurrentWorkspace().send();
+    result.fold(
+      (workspaceSettingPB) => pushHomeScreenWithWorkSpace(
+        context,
+        userProfile,
+        workspaceSettingPB,
+      ),
+      (r) => pushWelcomeScreen(context, userProfile),
     );
   }
 }

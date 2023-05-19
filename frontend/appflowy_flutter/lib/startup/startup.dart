@@ -57,7 +57,7 @@ class FlowyRunner {
         // ignore in test mode
         if (!env.isTest()) ...[
           const HotKeyTask(),
-          const InitSupabaseTask(
+          InitSupabaseTask(
             url: Env.supabaseUrl,
             anonKey: Env.supabaseAnonKey,
             key: Env.supabaseKey,

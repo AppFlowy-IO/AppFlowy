@@ -140,7 +140,8 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   ) {
     workspacesOrError.fold(
       (workspaceSetting) {
-        widget.router.pushHomeScreen(context, user, workspaceSetting);
+        widget.router
+            .pushHomeScreenWithWorkSpace(context, user, workspaceSetting);
       },
       (error) {
         Log.error(error);

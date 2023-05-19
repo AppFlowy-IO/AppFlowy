@@ -55,7 +55,7 @@ class SignInScreen extends StatelessWidget {
     BuildContext context,
   ) {
     result.fold(
-      (user) => router.pushWelcomeScreen(context, user),
+      (user) => router.pushHomeScreen(context, user),
       (error) => showSnapBar(context, error.msg),
     );
   }

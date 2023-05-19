@@ -64,20 +64,23 @@ class SplashScreen extends StatelessWidget {
     );
   }
 
-  void _handleAuthenticated(BuildContext context, Authenticated result) {
-    final userProfile = result.userProfile;
-    FolderEventReadCurrentWorkspace().send().then(
-      (result) {
-        return result.fold(
-          (workspaceSetting) {
-            getIt<SplashRoute>()
-                .pushHomeScreen(context, userProfile, workspaceSetting);
-          },
-          (error) async {
-            Log.error(error);
-            getIt<SplashRoute>().pushWelcomeScreen(context, userProfile);
-          },
+  Future<void> _handleAuthenticated(
+    BuildContext context,
+    Authenticated authenticated,
+  ) async {
+    final userProfile = authenticated.userProfile;
+    final result = await FolderEventReadCurrentWorkspace().send();
+    result.fold(
+      (workspaceSetting) {
+        getIt<SplashRoute>().pushHomeScreen(
+          context,
+          userProfile,
+          workspaceSetting,
         );
+      },
+      (error) async {
+        Log.error(error);
+        getIt<SplashRoute>().pushWelcomeScreen(context, userProfile);
       },
     );
   }

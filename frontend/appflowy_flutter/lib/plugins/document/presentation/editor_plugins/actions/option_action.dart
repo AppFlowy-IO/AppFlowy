@@ -37,7 +37,7 @@ class ColorOptionAction extends PopoverActionCell {
   @override
   Widget? leftIcon(Color iconColor) {
     return svgWidget(
-      'editor/delete', // todo: add color icon
+      'editor/color_formatter',
       color: iconColor,
     );
   }
@@ -100,9 +100,9 @@ class ColorOptionAction extends PopoverActionCell {
 }
 
 class OptionActionWrapper extends ActionCell {
-  final OptionAction inner;
-
   OptionActionWrapper(this.inner);
+
+  final OptionAction inner;
 
   @override
   Widget? leftIcon(Color iconColor) {
@@ -125,15 +125,13 @@ class OptionActionWrapper extends ActionCell {
         name = 'editor/move_down';
         break;
       case OptionAction.color:
-        name = 'editor/color';
-        break;
+        throw UnimplementedError();
       case OptionAction.divider:
         throw UnimplementedError();
     }
     if (name.isEmpty) {
       return null;
     }
-    name = 'editor/delete';
     return svgWidget(
       name,
       color: iconColor,
