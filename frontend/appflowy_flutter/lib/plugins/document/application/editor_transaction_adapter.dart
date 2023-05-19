@@ -65,7 +65,6 @@ extension on InsertOperation {
       final parentId =
           node.parent?.id ?? editorState.getNodeAtPath(path.parent)?.id ?? '';
       final prevId = previousNode?.id ??
-          node.previous?.id ??
           editorState.getNodeAtPath(path.previous)?.id ??
           '';
       assert(parentId.isNotEmpty && prevId.isNotEmpty);
