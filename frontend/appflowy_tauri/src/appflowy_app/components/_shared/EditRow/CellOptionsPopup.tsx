@@ -32,7 +32,7 @@ export const CellOptionsPopup = ({
   openOptionDetail: (_left: number, _top: number, _select_option: SelectOptionPB) => void;
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { t } = useTranslation('');
+  const { t } = useTranslation();
   const [value, setValue] = useState('');
   const { data } = useCell(cellIdentifier, cellCache, fieldController);
   const databaseStore = useAppSelector((state) => state.database);

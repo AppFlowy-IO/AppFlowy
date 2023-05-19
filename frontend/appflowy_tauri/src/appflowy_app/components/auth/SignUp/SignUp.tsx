@@ -27,7 +27,7 @@ export const SignUp = () => {
     setRepeatedPassword,
     authError,
   } = useSignUp();
-  const { t } = useTranslation('');
+  const { t } = useTranslation();
   const [showLanguagePopup, setShowLanguagePopup] = useState(false);
 
   return (

@@ -34,7 +34,7 @@ export const CheckListPopup = ({
 }) => {
   const databaseStore = useAppSelector((state) => state.database);
   const { data } = useCell(cellIdentifier, cellCache, fieldController);
-  const { t } = useTranslation('');
+  const { t } = useTranslation();
 
   const [allOptionsCount, setAllOptionsCount] = useState(0);
   const [selectedOptionsCount, setSelectedOptionsCount] = useState(0);

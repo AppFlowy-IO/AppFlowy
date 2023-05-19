@@ -35,7 +35,7 @@ export const EditRow = ({
   rowInfo: RowInfo;
 }) => {
   const { cells, onNewColumnClick } = useRow(viewId, controller, rowInfo);
-  const { t } = useTranslation('');
+  const { t } = useTranslation();
   const [unveil, setUnveil] = useState(false);
 
   const [editingCell, setEditingCell] = useState<CellIdentifier | null>(null);

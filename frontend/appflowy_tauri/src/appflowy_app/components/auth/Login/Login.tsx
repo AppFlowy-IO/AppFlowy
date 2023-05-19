@@ -12,7 +12,7 @@ import { LanguageSelectPopup } from '../../_shared/LanguageSelectPopup';
 export const Login = () => {
   const { showPassword, onTogglePassword, onSignInClick, email, setEmail, password, setPassword, authError } =
     useLogin();
-  const { t } = useTranslation('');
+  const { t } = useTranslation();
   const [showLanguagePopup, setShowLanguagePopup] = useState(false);
 
   return (

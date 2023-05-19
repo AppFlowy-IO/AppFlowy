@@ -18,7 +18,7 @@ export const DateTypeOptions = ({
   cellIdentifier: CellIdentifier;
   fieldController: FieldController;
 }) => {
-  const { t } = useTranslation('');
+  const { t } = useTranslation();
 
   const [showDateFormatPopup, setShowDateFormatPopup] = useState(false);
   const [dateFormatTop, setDateFormatTop] = useState(0);

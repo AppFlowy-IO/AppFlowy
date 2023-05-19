@@ -34,7 +34,7 @@ export const EditFieldPopup = ({
   onNumberFormat?: (buttonLeft: number, buttonTop: number) => void;
 }) => {
   const databaseStore = useAppSelector((state) => state.database);
-  const { t } = useTranslation('');
+  const { t } = useTranslation();
   const changeTypeButtonRef = useRef<HTMLDivElement>(null);
   const [name, setName] = useState('');
 

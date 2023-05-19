@@ -22,7 +22,7 @@ export const TimeFormatPopup = ({
   fieldController: FieldController;
   onOutsideClick: () => void;
 }) => {
-  const { t } = useTranslation('');
+  const { t } = useTranslation();
   const databaseStore = useAppSelector((state) => state.database);
   const [dateType, setDateType] = useState<IDateType | undefined>();
 

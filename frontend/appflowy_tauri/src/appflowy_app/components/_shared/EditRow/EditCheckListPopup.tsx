@@ -20,7 +20,7 @@ export const EditCheckListPopup = ({
   onOutsideClick: () => void;
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { t } = useTranslation('');
+  const { t } = useTranslation();
   const [value, setValue] = useState('');
 
   useEffect(() => {
