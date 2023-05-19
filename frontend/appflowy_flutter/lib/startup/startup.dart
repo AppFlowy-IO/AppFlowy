@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:appflowy/env/env.dart';
+import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -31,11 +32,11 @@ class FlowyRunner {
     final env = integrationEnv();
     initGetIt(getIt, env, f, config);
 
-    // final directory = await getIt<LocalFileStorage>()
-    //     .getPath()
-    //     .then((value) => Directory(value));
+    final directory = await getIt<LocalFileStorage>()
+        .getPath()
+        .then((value) => Directory(value));
 
-    final directory = await appFlowyDocumentDirectory();
+    // final directory = await appFlowyDocumentDirectory();
 
     // add task
     final launcher = getIt<AppLauncher>();

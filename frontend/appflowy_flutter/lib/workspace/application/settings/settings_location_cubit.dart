@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:flutter/foundation.dart';
@@ -36,10 +37,6 @@ class SettingsLocationCubit extends Cubit<SettingsLocationState> {
 
 class LocalFileStorage {
   LocalFileStorage();
-
-  static const String _prefix = 'io.appflowy.localFileStoragePath';
-  static const String _pathKey = '$_prefix.path';
-
   String? _cachePath;
 
   Future<void> setPath(String path) async {
@@ -55,7 +52,7 @@ class LocalFileStorage {
       path = path.replaceAll('/', '\\');
     }
 
-    await getIt<KeyValueStorage>().set(_pathKey, path);
+    await getIt<KeyValueStorage>().set(KVKeys.pathLocation, path);
     // clear the cache path, and not set the cache path to the new path because the set path may be invalid
     _cachePath = null;
   }
@@ -65,7 +62,7 @@ class LocalFileStorage {
       return _cachePath!;
     }
 
-    final response = await getIt<KeyValueStorage>().get(_pathKey);
+    final response = await getIt<KeyValueStorage>().get(KVKeys.pathLocation);
     final String path = await response.fold(
       (error) async {
         // return the default path if the path is not set
@@ -75,6 +72,12 @@ class LocalFileStorage {
       (path) => path,
     );
     _cachePath = path;
+
+    // if the path is not exists means the path is invalid, so we should clear the kv store
+    if (!Directory(path).existsSync()) {
+      await getIt<KeyValueStorage>().clear();
+    }
+
     return path;
   }
 }

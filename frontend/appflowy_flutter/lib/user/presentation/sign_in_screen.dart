@@ -1,3 +1,5 @@
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
@@ -169,8 +171,10 @@ class SignInAsGuestButton extends StatelessWidget {
       title: LocaleKeys.signIn_loginAsGuestButtonText.tr(),
       height: 28,
       borderRadius: Corners.s6Border,
-      onPressed: () =>
-          context.read<SignInBloc>().add(const SignInEvent.signedInAsGuest()),
+      onPressed: () {
+        getIt<KeyValueStorage>().set(KVKeys.loginType, 'local');
+        context.read<SignInBloc>().add(const SignInEvent.signedInAsGuest());
+      },
     );
   }
 }
@@ -318,16 +322,22 @@ class ThirdPartySignInButtons extends StatelessWidget {
       children: [
         ThirdPartySignInButton(
           icon: 'login/google-mark',
-          onPressed: () => context
-              .read<SignInBloc>()
-              .add(const SignInEvent.signedInWithOAuth('google')),
+          onPressed: () {
+            getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
+            context
+                .read<SignInBloc>()
+                .add(const SignInEvent.signedInWithOAuth('google'));
+          },
         ),
         const SizedBox(width: 20),
         ThirdPartySignInButton(
           icon: 'login/github-mark',
-          onPressed: () => context
-              .read<SignInBloc>()
-              .add(const SignInEvent.signedInWithOAuth('github')),
+          onPressed: () {
+            getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
+            context
+                .read<SignInBloc>()
+                .add(const SignInEvent.signedInWithOAuth('github'));
+          },
         ),
       ],
     );

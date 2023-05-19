@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/prelude.dart';
 import 'package:appflowy/user/application/auth/appflowy_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
@@ -172,7 +175,10 @@ class SupabaseAuthService implements AuthService {
 
   @override
   Future<Either<FlowyError, UserProfilePB>> getUser() async {
-    if (!isSupabaseEnable) {
+    final loginType = await getIt<KeyValueStorage>()
+        .get(KVKeys.loginType)
+        .then((value) => value.toOption().toNullable());
+    if (!isSupabaseEnable || (loginType != null && loginType != 'supabase')) {
       return _appFlowyAuthService.getUser();
     }
     final user = await getSupabaseUser();

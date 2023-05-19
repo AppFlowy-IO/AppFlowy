@@ -48,7 +48,8 @@ class DependencyResolver {
 }
 
 void _resolveCommonService(GetIt getIt) async {
-  getIt.registerFactory<KeyValueStorage>(() => KeyValue());
+  // getIt.registerFactory<KeyValueStorage>(() => RustKeyValue());
+  getIt.registerFactory<KeyValueStorage>(() => DartKeyValue());
   getIt.registerFactory<FilePickerService>(() => FilePicker());
   getIt.registerFactory<LocalFileStorage>(() => LocalFileStorage());
 
