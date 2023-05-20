@@ -7,10 +7,15 @@ use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
 lazy_static! {
-  pub static ref CURRENCY_SYMBOL: Vec<String> = NumberFormat::iter()
+  pub static ref CURRENCY_SYMBOL: Vec<String> = sorted_symbol();
+}
+
+fn sorted_symbol() -> Vec<String> {
+  let mut symbols = NumberFormat::iter()
     .map(|format| format.symbol())
     .collect::<Vec<String>>();
-  pub static ref STRIP_SYMBOL: Vec<String> = vec![",".to_owned(), ".".to_owned()];
+  symbols.sort_by(|a, b| b.len().cmp(&a.len()));
+  symbols
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, EnumIter, Serialize, Deserialize)]

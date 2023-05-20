@@ -85,7 +85,7 @@ impl SortController {
     self.gen_task(task_type, QualityOfService::Background).await;
   }
 
-  #[tracing::instrument(name = "process_sort_task", level = "trace", skip_all, err)]
+  #[tracing::instrument(name = "process_sort_task", level = "debug", skip_all, err)]
   pub async fn process(&mut self, predicate: &str) -> FlowyResult<()> {
     let event_type = SortEvent::from_str(predicate).unwrap();
     let mut rows = self.delegate.get_rows(&self.view_id).await;

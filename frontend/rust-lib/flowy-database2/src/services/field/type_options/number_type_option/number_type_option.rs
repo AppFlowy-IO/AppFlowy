@@ -128,20 +128,23 @@ impl NumberTypeOption {
             Err(_) => Ok(NumberCellFormat::new()),
           }
         } else {
-          let num = match EXTRACT_NUM_REGEX.captures(&num_cell_data.0) {
+          let num_str = match EXTRACT_NUM_REGEX.captures(&num_cell_data.0) {
             Ok(Some(captures)) => captures
               .get(0)
               .map(|m| m.as_str().to_string())
               .unwrap_or_default(),
             _ => "".to_string(),
           };
-          match Decimal::from_str(&num) {
-            Ok(value, ..) => Ok(NumberCellFormat::from_decimal(value)),
+
+          match Decimal::from_str(&num_str) {
+            Ok(decimal, ..) => {
+              return Ok(NumberCellFormat::from_decimal(decimal));
+            },
             Err(_) => Ok(NumberCellFormat::new()),
           }
         }
       },
-      _ => NumberCellFormat::from_format_str(&num_cell_data.0,  &self.format),
+      _ => NumberCellFormat::from_format_str(&num_cell_data.0, &self.format),
     }
   }
 
@@ -149,17 +152,6 @@ impl NumberTypeOption {
     self.format = format;
     self.symbol = format.symbol();
   }
-}
-
-pub(crate) fn strip_currency_symbol<T: ToString>(s: T) -> String {
-  let mut s = s.to_string();
-  for symbol in CURRENCY_SYMBOL.iter() {
-    if s.starts_with(symbol) {
-      s = s.strip_prefix(symbol).unwrap_or("").to_string();
-      break;
-    }
-  }
-  s
 }
 
 impl TypeOptionTransform for NumberTypeOption {}
@@ -202,9 +194,11 @@ impl CellDataChangeset for NumberTypeOption {
     changeset: <Self as TypeOption>::CellChangeset,
     _cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
-    let number_cell_data = NumberCellData(changeset.trim().to_string());
+    let num_str = changeset.trim().to_string();
+    let number_cell_data = NumberCellData(num_str);
     let formatter = self.format_cell_data(&number_cell_data)?;
 
+    tracing::trace!("number: {:?}", number_cell_data);
     match self.format {
       NumberFormat::Num => Ok((
         NumberCellData(formatter.to_string()).into(),
@@ -241,9 +235,8 @@ impl TypeOptionCellDataCompare for NumberTypeOption {
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
   ) -> Ordering {
-    let left = NumberCellFormat::from_format_str(&cell_data.0,  &self.format);
-    let right =
-      NumberCellFormat::from_format_str(&other_cell_data.0,  &self.format);
+    let left = NumberCellFormat::from_format_str(&cell_data.0, &self.format);
+    let right = NumberCellFormat::from_format_str(&other_cell_data.0, &self.format);
     match (left, right) {
       (Ok(left), Ok(right)) => {
         return left.decimal().cmp(right.decimal());
@@ -269,5 +262,5 @@ impl std::default::Default for NumberTypeOption {
 
 lazy_static! {
   static ref SCIENTIFIC_NOTATION_REGEX: Regex = Regex::new(r"([+-]?\d*\.?\d+)e([+-]?\d+)").unwrap();
-  static ref EXTRACT_NUM_REGEX: Regex = Regex::new(r"-?\d+(\.\d+)?").unwrap();
+  pub(crate) static ref EXTRACT_NUM_REGEX: Regex = Regex::new(r"-?\d+(\.\d+)?").unwrap();
 }

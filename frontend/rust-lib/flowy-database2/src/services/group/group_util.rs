@@ -25,7 +25,7 @@ use std::sync::Arc;
 /// * `configuration_writer`: as writer used to write the group configuration to disk
 ///
 #[tracing::instrument(
-  level = "debug",
+  level = "trace",
   skip_all,
   fields(grouping_field_id=%grouping_field.id, grouping_field_type)
   err

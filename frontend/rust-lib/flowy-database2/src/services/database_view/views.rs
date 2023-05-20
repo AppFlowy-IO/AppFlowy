@@ -1,4 +1,3 @@
-use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -31,10 +30,8 @@ impl DatabaseViews {
     database: MutexDatabase,
     cell_cache: CellCache,
     database_view_data: Arc<dyn DatabaseViewData>,
-    row_event_rx: RowEventReceiver,
   ) -> FlowyResult<Self> {
     let editor_map = Arc::new(RwLock::new(HashMap::default()));
-    listen_on_database_row_event(row_event_rx, editor_map.clone());
     Ok(Self {
       database,
       database_view_data,
@@ -124,26 +121,6 @@ impl DatabaseViews {
     editor_map.insert(view_id.to_owned(), editor.clone());
     Ok(editor)
   }
-}
-
-fn listen_on_database_row_event(
-  mut row_event_rx: broadcast::Receiver<DatabaseRowEvent>,
-  view_editors: Arc<RwLock<HashMap<String, Arc<DatabaseViewEditor>>>>,
-) {
-  tokio::spawn(async move {
-    while let Ok(event) = row_event_rx.recv().await {
-      let read_guard = view_editors.read().await;
-      let view_editors = read_guard.values();
-      let event = if view_editors.len() == 1 {
-        Cow::Owned(event)
-      } else {
-        Cow::Borrowed(&event)
-      };
-      for view_editor in view_editors {
-        view_editor.handle_block_event(event.clone()).await;
-      }
-    }
-  });
 }
 
 pub fn gen_handler_id() -> String {

@@ -58,7 +58,7 @@ pub trait CellDataChangeset: TypeOption {
 ///         FieldType::SingleSelect => SelectOptionChangeset
 ///
 /// cell_rev: It will be None if the cell does not contain any data.
-pub fn apply_cell_data_changeset<C: ToCellChangeset>(
+pub fn apply_cell_changeset<C: ToCellChangeset>(
   changeset: C,
   cell: Option<Cell>,
   field: &Field,
@@ -194,11 +194,11 @@ pub fn stringify_cell_data(
 }
 
 pub fn insert_text_cell(s: String, field: &Field) -> Cell {
-  apply_cell_data_changeset(s, None, field, None).unwrap()
+  apply_cell_changeset(s, None, field, None).unwrap()
 }
 
 pub fn insert_number_cell(num: i64, field: &Field) -> Cell {
-  apply_cell_data_changeset(num.to_string(), None, field, None).unwrap()
+  apply_cell_changeset(num.to_string(), None, field, None).unwrap()
 }
 
 pub fn insert_url_cell(url: String, field: &Field) -> Cell {
@@ -212,7 +212,7 @@ pub fn insert_url_cell(url: String, field: &Field) -> Cell {
     _ => url,
   };
 
-  apply_cell_data_changeset(url, None, field, None).unwrap()
+  apply_cell_changeset(url, None, field, None).unwrap()
 }
 
 pub fn insert_checkbox_cell(is_check: bool, field: &Field) -> Cell {
@@ -221,7 +221,7 @@ pub fn insert_checkbox_cell(is_check: bool, field: &Field) -> Cell {
   } else {
     UNCHECK.to_string()
   };
-  apply_cell_data_changeset(s, None, field, None).unwrap()
+  apply_cell_changeset(s, None, field, None).unwrap()
 }
 
 pub fn insert_date_cell(timestamp: i64, field: &Field) -> Cell {
@@ -232,19 +232,19 @@ pub fn insert_date_cell(timestamp: i64, field: &Field) -> Cell {
     timezone_id: None,
   })
   .unwrap();
-  apply_cell_data_changeset(cell_data, None, field, None).unwrap()
+  apply_cell_changeset(cell_data, None, field, None).unwrap()
 }
 
 pub fn insert_select_option_cell(option_ids: Vec<String>, field: &Field) -> Cell {
   let changeset =
     SelectOptionCellChangeset::from_insert_options(option_ids).to_cell_changeset_str();
-  apply_cell_data_changeset(changeset, None, field, None).unwrap()
+  apply_cell_changeset(changeset, None, field, None).unwrap()
 }
 
 pub fn delete_select_option_cell(option_ids: Vec<String>, field: &Field) -> Cell {
   let changeset =
     SelectOptionCellChangeset::from_delete_options(option_ids).to_cell_changeset_str();
-  apply_cell_data_changeset(changeset, None, field, None).unwrap()
+  apply_cell_changeset(changeset, None, field, None).unwrap()
 }
 
 /// Deserialize the String into cell specific data type.

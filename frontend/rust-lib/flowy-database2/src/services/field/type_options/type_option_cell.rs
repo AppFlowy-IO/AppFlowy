@@ -141,12 +141,12 @@ where
 
     let cell_data = self.decode_cell_str(cell, decoded_field_type, field)?;
     if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
-      tracing::trace!(
-        "Cell cache update: field_type:{}, cell: {:?}, cell_data: {:?}",
-        decoded_field_type,
-        cell,
-        cell_data
-      );
+      // tracing::trace!(
+      //   "Cell cache update: field_type:{}, cell: {:?}, cell_data: {:?}",
+      //   decoded_field_type,
+      //   cell,
+      //   cell_data
+      // );
       cell_data_cache
         .write()
         .insert(key.as_ref(), cell_data.clone());
@@ -163,12 +163,12 @@ where
     if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
       let field_type = FieldType::from(field.field_type);
       let key = CellDataCacheKey::new(field, field_type.clone(), cell);
-      tracing::trace!(
-        "Cell cache update: field_type:{}, cell: {:?}, cell_data: {:?}",
-        field_type,
-        cell,
-        cell_data
-      );
+      // tracing::trace!(
+      //   "Cell cache update: field_type:{}, cell: {:?}, cell_data: {:?}",
+      //   field_type,
+      //   cell,
+      //   cell_data
+      // );
       cell_data_cache.write().insert(key.as_ref(), cell_data);
     }
   }

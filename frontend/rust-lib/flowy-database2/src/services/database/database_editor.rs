@@ -6,7 +6,7 @@ use bytes::Bytes;
 use collab_database::database::{gen_row_id, timestamp, Database as InnerDatabase};
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, Row, RowCell, RowId};
-use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, RowOrder};
+use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use parking_lot::Mutex;
 use tokio::sync::{broadcast, RwLock};
 
@@ -23,11 +23,11 @@ use crate::entities::{
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
-  apply_cell_data_changeset, get_type_cell_protobuf, AnyTypeCache, CellBuilder, CellCache,
+  apply_cell_changeset, get_type_cell_protobuf, AnyTypeCache, CellBuilder, CellCache,
   ToCellChangeset,
 };
 use crate::services::database::util::database_view_setting_pb_from_view;
-use crate::services::database::{DatabaseRowEvent, InsertedRow, UpdatedRow};
+use crate::services::database::{DatabaseRowEvent, InsertedRow};
 use crate::services::database_view::{
   DatabaseViewChanged, DatabaseViewData, DatabaseViews, RowEventSender,
 };
@@ -46,6 +46,7 @@ pub struct DatabaseEditor {
   database: MutexDatabase,
   pub cell_cache: CellCache,
   database_views: Arc<DatabaseViews>,
+  /// Notify the changes of the row to the database view.
   row_event_tx: RowEventSender,
 }
 
@@ -55,22 +56,15 @@ impl DatabaseEditor {
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
   ) -> FlowyResult<Self> {
     let cell_cache = AnyTypeCache::<u64>::new();
-    let (row_event_tx, row_event_rx) = broadcast::channel(100);
+    let (row_event_tx, _row_event_rx) = broadcast::channel(100);
     let database_view_data = Arc::new(DatabaseViewDataImpl {
       database: database.clone(),
       task_scheduler: task_scheduler.clone(),
       cell_cache: cell_cache.clone(),
     });
 
-    let database_views = Arc::new(
-      DatabaseViews::new(
-        database.clone(),
-        cell_cache.clone(),
-        database_view_data,
-        row_event_rx,
-      )
-      .await?,
-    );
+    let database_views =
+      Arc::new(DatabaseViews::new(database.clone(), cell_cache.clone(), database_view_data).await?);
     Ok(Self {
       database,
       cell_cache,
@@ -295,7 +289,14 @@ impl DatabaseEditor {
     // self.database.lock().views.update_view(view_id, |view| {
     //   view.move_row_order(from as u32, to as u32);
     // });
-    // self.row_event_tx.send(DatabaseRowEvent::Move { from: _from, to: _to})
+    // let changeset = RowsChangesetPB::from_move(
+    //   view_id.to_string(),
+    //   vec![from.into_inner()],
+    //   vec![to.into()],
+    // );
+    // send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
+    //     .payload(changeset)
+    //     .send();
   }
 
   pub async fn create_row(&self, params: CreateRowParams) -> FlowyResult<Option<Row>> {
@@ -481,15 +482,18 @@ impl DatabaseEditor {
       }?;
       (
         field,
-        database.get_cell(field_id, &row_id).map(|cell| cell.cell),
+        database
+          .get_cell(field_id, &row_id)
+          .map(|row_cell| row_cell.cell),
       )
     };
-    let cell_changeset = cell_changeset.to_cell_changeset_str();
     let new_cell =
-      apply_cell_data_changeset(cell_changeset, cell, &field, Some(self.cell_cache.clone()))?;
+      apply_cell_changeset(cell_changeset, cell, &field, Some(self.cell_cache.clone()))?;
     self.update_cell(view_id, row_id, field_id, new_cell).await
   }
 
+  /// Update a cell in the database.
+  /// This will notify all views that the cell has been updated.
   pub async fn update_cell(
     &self,
     view_id: &str,
@@ -497,6 +501,7 @@ impl DatabaseEditor {
     field_id: &str,
     new_cell: Cell,
   ) -> FlowyResult<()> {
+    // Get the old row before updating the cell. It would be better to get the old cell
     let old_row = { self.database.lock().get_row(&row_id) };
     self.database.lock().update_row(&row_id, |row_update| {
       row_update.update_cells(|cell_update| {
@@ -506,14 +511,8 @@ impl DatabaseEditor {
 
     let option_row = self.database.lock().get_row(&row_id);
     if let Some(new_row) = option_row {
-      let _ = self
-        .row_event_tx
-        .send(DatabaseRowEvent::UpdateRow(UpdatedRow {
-          row: RowOrder::from(&new_row),
-          field_ids: vec![field_id.to_string()],
-        }));
       for view in self.database_views.editors().await {
-        view.v_did_update_row(&old_row, &new_row).await;
+        view.v_did_update_row(&old_row, &new_row, field_id).await;
       }
     }
 
