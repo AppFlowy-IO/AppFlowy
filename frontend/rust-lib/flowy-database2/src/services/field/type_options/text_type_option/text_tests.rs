@@ -31,7 +31,12 @@ mod tests {
     };
 
     assert_eq!(
-      stringify_cell_data(&data.into(), &FieldType::RichText, &field_type, &field),
+      stringify_cell_data(
+        &cell_from_date_cell_data(field_type.clone(), data),
+        &FieldType::RichText,
+        &field_type,
+        &field
+      ),
       "Mar 14, 2022"
     );
   }

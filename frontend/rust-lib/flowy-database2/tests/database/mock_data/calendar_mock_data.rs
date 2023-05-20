@@ -51,6 +51,7 @@ pub fn make_test_calendar() -> DatabaseData {
               None,
               None,
               Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
+              &field_type,
             ),
             _ => "".to_owned(),
           };
@@ -65,6 +66,7 @@ pub fn make_test_calendar() -> DatabaseData {
               None,
               None,
               Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
+              &field_type,
             ),
             _ => "".to_owned(),
           };
@@ -79,6 +81,7 @@ pub fn make_test_calendar() -> DatabaseData {
               None,
               None,
               Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
+              &field_type,
             ),
             _ => "".to_owned(),
           };
@@ -93,6 +96,7 @@ pub fn make_test_calendar() -> DatabaseData {
               None,
               None,
               Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
+              &field_type,
             ),
             _ => "".to_owned(),
           };
@@ -107,6 +111,7 @@ pub fn make_test_calendar() -> DatabaseData {
               None,
               None,
               Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
+              &field_type,
             ),
             _ => "".to_owned(),
           };

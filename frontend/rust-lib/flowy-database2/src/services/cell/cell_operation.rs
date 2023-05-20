@@ -224,11 +224,11 @@ pub fn insert_checkbox_cell(is_check: bool, field: &Field) -> Cell {
   apply_cell_data_changeset(s, None, field, None).unwrap()
 }
 
-pub fn insert_date_cell(timestamp: i64, field: &Field) -> Cell {
+pub fn insert_date_cell(timestamp: i64, include_time: Option<bool>, field: &Field) -> Cell {
   let cell_data = serde_json::to_string(&DateCellChangeset {
     date: Some(timestamp.to_string()),
     time: None,
-    include_time: Some(false),
+    include_time,
     timezone_id: None,
   })
   .unwrap();
@@ -320,12 +320,13 @@ pub struct CellBuilder {
 impl CellBuilder {
   pub fn with_cells(cell_by_field_id: HashMap<String, String>, fields: Vec<Field>) -> Self {
     let field_maps = fields
+      .clone()
       .into_iter()
       .map(|field| (field.id.clone(), field))
       .collect::<HashMap<String, Field>>();
 
     let mut cells = Cells::new();
-    for (field_id, cell_str) in cell_by_field_id {
+    for (field_id, cell_str) in cell_by_field_id.clone() {
       if let Some(field) = field_maps.get(&field_id) {
         let field_type = FieldType::from(field.field_type);
         match field_type {
@@ -337,9 +338,9 @@ impl CellBuilder {
               cells.insert(field_id, insert_number_cell(num, field));
             }
           },
-          FieldType::DateTime => {
+          FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
             if let Ok(timestamp) = cell_str.parse::<i64>() {
-              cells.insert(field_id, insert_date_cell(timestamp, field));
+              cells.insert(field_id, insert_date_cell(timestamp, Some(false), field));
             }
           },
           FieldType::SingleSelect | FieldType::MultiSelect => {
@@ -361,6 +362,23 @@ impl CellBuilder {
             }
           },
         }
+      }
+    }
+
+    let created_updated_at_fields = fields
+      .into_iter()
+      .filter(|f| {
+        (FieldType::from(f.field_type) == FieldType::CreatedAt
+          || FieldType::from(f.field_type) == FieldType::UpdatedAt)
+          && !cell_by_field_id.contains_key(&f.id)
+      })
+      .collect::<Vec<Field>>();
+    for field in created_updated_at_fields {
+      if let Some(field) = field_maps.get(&field.id) {
+        cells.insert(
+          field.id.clone(),
+          insert_date_cell(chrono::offset::Utc::now().timestamp(), Some(true), field),
+        );
       }
     }
 
@@ -419,9 +437,10 @@ impl CellBuilder {
     match self.field_maps.get(&field_id.to_owned()) {
       None => tracing::warn!("Can't find the date field with id: {}", field_id),
       Some(field) => {
-        self
-          .cells
-          .insert(field_id.to_owned(), insert_date_cell(timestamp, field));
+        self.cells.insert(
+          field_id.to_owned(),
+          insert_date_cell(timestamp, Some(false), field),
+        );
       },
     }
   }

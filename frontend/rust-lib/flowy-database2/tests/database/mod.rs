@@ -1,3 +1,4 @@
+mod block_test;
 mod cell_test;
 mod database_editor;
 mod field_test;

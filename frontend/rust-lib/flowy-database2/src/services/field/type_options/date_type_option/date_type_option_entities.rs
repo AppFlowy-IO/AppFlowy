@@ -70,18 +70,16 @@ impl From<&Cell> for DateCellData {
   }
 }
 
-impl From<DateCellData> for Cell {
-  fn from(data: DateCellData) -> Self {
-    let timestamp_string = match data.timestamp {
-      Some(timestamp) => timestamp.to_string(),
-      None => "".to_owned(),
-    };
-    new_cell_builder(FieldType::DateTime)
-      .insert_str_value(CELL_DATA, timestamp_string)
-      .insert_bool_value("include_time", data.include_time)
-      .insert_str_value("timezone_id", data.timezone_id)
-      .build()
-  }
+pub fn cell_from_date_cell_data(field_type: FieldType, data: DateCellData) -> Cell {
+  let timestamp_string = match data.timestamp {
+    Some(timestamp) => timestamp.to_string(),
+    None => "".to_owned(),
+  };
+  new_cell_builder(field_type)
+    .insert_str_value(CELL_DATE, timestamp_string)
+    .insert_bool_value("include_time", data.include_time)
+    .insert_str_value("timezone_id", data.timezone_id)
+    .build()
 }
 
 impl<'de> serde::Deserialize<'de> for DateCellData {

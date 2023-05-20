@@ -264,6 +264,7 @@ impl TestRowBuilder {
     time: Option<String>,
     include_time: Option<bool>,
     timezone_id: Option<String>,
+    field_type: &FieldType,
   ) -> String {
     let value = serde_json::to_string(&DateCellChangeset {
       date: Some(data.to_string()),
@@ -272,7 +273,7 @@ impl TestRowBuilder {
       timezone_id,
     })
     .unwrap();
-    let date_field = self.field_with_type(&FieldType::DateTime);
+    let date_field = self.field_with_type(field_type);
     self.cell_build.insert_text_cell(&date_field.id, value);
     date_field.id.clone()
   }

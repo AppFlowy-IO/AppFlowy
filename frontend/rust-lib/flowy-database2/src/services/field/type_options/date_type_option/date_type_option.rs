@@ -1,8 +1,9 @@
 use crate::entities::{DateCellDataPB, DateFilterPB, FieldType};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
-  default_order, DateCellChangeset, DateCellData, DateFormat, TimeFormat, TypeOption,
-  TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform,
+  cell_from_date_cell_data, default_order, DateCellChangeset, DateCellData, DateFormat, TimeFormat,
+  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOptionTransform,
 };
 use chrono::format::strftime::StrftimeItems;
 use chrono::{DateTime, Local, NaiveDateTime, NaiveTime, Offset, TimeZone};
@@ -177,14 +178,15 @@ impl CellDataChangeset for DateTypeOption {
     cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     // old date cell data
-    let (previous_timestamp, include_time, timezone_id) = match cell {
-      None => (None, false, "".to_owned()),
+    let (previous_timestamp, include_time, timezone_id, field_type) = match cell {
+      None => (None, false, "".to_owned(), FieldType::DateTime),
       Some(type_cell_data) => {
         let cell_data = DateCellData::from(&type_cell_data);
         (
           cell_data.timestamp,
           cell_data.include_time,
           cell_data.timezone_id,
+          FieldType::from(type_cell_data.get_i64_value("field_type").unwrap()),
         )
       },
     };
@@ -246,7 +248,10 @@ impl CellDataChangeset for DateTypeOption {
       include_time,
       timezone_id,
     };
-    Ok((Cell::from(date_cell_data.clone()), date_cell_data))
+    Ok((
+      cell_from_date_cell_data(field_type, date_cell_data.clone()),
+      date_cell_data,
+    ))
   }
 }
 

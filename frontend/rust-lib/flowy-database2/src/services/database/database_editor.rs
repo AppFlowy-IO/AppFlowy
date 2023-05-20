@@ -23,8 +23,8 @@ use crate::entities::{
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
-  apply_cell_data_changeset, get_type_cell_protobuf, AnyTypeCache, CellBuilder, CellCache,
-  ToCellChangeset,
+  apply_cell_data_changeset, get_type_cell_protobuf, insert_date_cell, AnyTypeCache, CellBuilder,
+  CellCache, ToCellChangeset,
 };
 use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database::{DatabaseRowEvent, InsertedRow, UpdatedRow};
@@ -498,31 +498,52 @@ impl DatabaseEditor {
     new_cell: Cell,
   ) -> FlowyResult<()> {
     let old_row = { self.database.lock().get_row(&row_id) };
+    let updated_at_fields = self
+      .database
+      .lock()
+      .get_fields(view_id, None)
+      .into_iter()
+      .filter(|f| FieldType::from(f.field_type) == FieldType::UpdatedAt)
+      .collect::<Vec<Field>>();
     self.database.lock().update_row(&row_id, |row_update| {
       row_update.update_cells(|cell_update| {
-        cell_update.insert(field_id, new_cell);
+        let mut cells_update = cell_update.insert(field_id, new_cell);
+        for field in updated_at_fields.clone() {
+          cells_update = cells_update.insert(
+            &field.id,
+            insert_date_cell(chrono::offset::Utc::now().timestamp(), Some(true), &field),
+          );
+        }
       });
     });
 
+    let mut updated_field_ids = updated_at_fields
+      .into_iter()
+      .map(|f| f.id.to_string())
+      .collect::<Vec<String>>();
+    updated_field_ids.push(field_id.to_string());
     let option_row = self.database.lock().get_row(&row_id);
     if let Some(new_row) = option_row {
       let _ = self
         .row_event_tx
         .send(DatabaseRowEvent::UpdateRow(UpdatedRow {
           row: RowOrder::from(&new_row),
-          field_ids: vec![field_id.to_string()],
+          field_ids: updated_field_ids.clone(),
         }));
       for view in self.database_views.editors().await {
         view.v_did_update_row(&old_row, &new_row).await;
       }
     }
 
-    notify_did_update_cell(vec![CellChangesetNotifyPB {
-      view_id: view_id.to_string(),
-      row_id: row_id.into_inner(),
-      field_id: field_id.to_string(),
-    }])
-    .await;
+    let mut cell_changesets = vec![];
+    for field_id in updated_field_ids {
+      cell_changesets.push(CellChangesetNotifyPB {
+        view_id: view_id.to_string(),
+        row_id: row_id.clone().into_inner(),
+        field_id: field_id.to_string(),
+      });
+    }
+    notify_did_update_cell(cell_changesets).await;
     Ok(())
   }
 
