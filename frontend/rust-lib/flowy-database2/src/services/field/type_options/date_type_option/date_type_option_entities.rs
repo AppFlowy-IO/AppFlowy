@@ -76,7 +76,7 @@ pub fn cell_from_date_cell_data(field_type: FieldType, data: DateCellData) -> Ce
     None => "".to_owned(),
   };
   new_cell_builder(field_type)
-    .insert_str_value(CELL_DATE, timestamp_string)
+    .insert_str_value(CELL_DATA, timestamp_string)
     .insert_bool_value("include_time", data.include_time)
     .insert_str_value("timezone_id", data.timezone_id)
     .build()
