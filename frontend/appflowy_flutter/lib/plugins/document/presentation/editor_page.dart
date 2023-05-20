@@ -40,6 +40,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   final List<CommandShortcutEvent> commandShortcutEvents = [
     ...codeBlockCommands,
     ...standardCommandShortcutEvents,
+    showEmojiPickerEvent,
   ];
 
   final List<ToolbarItem> toolbarItems = [
@@ -80,12 +81,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final styleCustomizer = EditorStyleCustomizer(context: context);
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
-
-  @override
-  void initState() {
-    super.initState();
-    commandShortcutEvents.add(showEmojiPickerEvent(context));
-  }
 
   @override
   Widget build(BuildContext context) {

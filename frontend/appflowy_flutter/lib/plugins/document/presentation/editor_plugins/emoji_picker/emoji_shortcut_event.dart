@@ -4,20 +4,17 @@ import 'package:flutter/material.dart';
 import '../../layout/sizes.dart';
 import 'emoji_menu_item.dart';
 
-CommandShortcutEvent showEmojiPickerEvent(BuildContext context) =>
-    CommandShortcutEvent(
-      key: 'Show emoji picker',
-      command: 'ctrl+alt+e',
-      macOSCommand: 'cmd+alt+e',
-      handler: (state) =>
-          _showEmojiSelectionMenuShortcut(Overlay.of(context), state, context),
-    );
+CommandShortcutEvent showEmojiPickerEvent = CommandShortcutEvent(
+  key: 'Show emoji picker',
+  command: 'ctrl+alt+e',
+  macOSCommand: 'cmd+alt+e',
+  handler: _showEmojiSelectionMenuShortcut,
+);
 
 KeyEventResult _showEmojiSelectionMenuShortcut(
-  OverlayState container,
   EditorState editorState,
-  BuildContext context,
 ) {
+  final context = editorState.document.root.context!;
   final selectionService = editorState.service.selectionService;
   final selectionRects = selectionService.selectionRects;
   final editorOffset =
@@ -61,6 +58,6 @@ KeyEventResult _showEmojiSelectionMenuShortcut(
       ),
     ),
   ).build();
-  container.insert(emojiPickerMenuEntry);
+  Overlay.of(context).insert(emojiPickerMenuEntry);
   return KeyEventResult.handled;
 }
