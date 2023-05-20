@@ -220,10 +220,10 @@ impl DatabaseViewEditor {
       }
     }
     let changeset =
-        RowsChangesetPB::from_delete(self.view_id.clone(), vec![row.id.clone().into_inner()]);
+      RowsChangesetPB::from_delete(self.view_id.clone(), vec![row.id.clone().into_inner()]);
     send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
-        .payload(changeset)
-        .send();
+      .payload(changeset)
+      .send();
   }
 
   /// Notify the view that the row has been updated. If the view has groups,

@@ -27,9 +27,7 @@ use crate::services::cell::{
   ToCellChangeset,
 };
 use crate::services::database::util::database_view_setting_pb_from_view;
-use crate::services::database_view::{
-  DatabaseViewChanged, DatabaseViewData, DatabaseViews,
-};
+use crate::services::database_view::{DatabaseViewChanged, DatabaseViewData, DatabaseViews};
 use crate::services::field::{
   default_type_option_data_for_type, default_type_option_data_from_type,
   select_type_option_from_field, transform_type_option, type_option_data_from_pb_or_default,
