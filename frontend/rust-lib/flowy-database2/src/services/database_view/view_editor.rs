@@ -218,13 +218,12 @@ impl DatabaseViewEditor {
       for changeset in result.row_changesets {
         notify_did_update_group_rows(changeset).await;
       }
-    } else {
-      let changeset =
+    }
+    let changeset =
         RowsChangesetPB::from_delete(self.view_id.clone(), vec![row.id.clone().into_inner()]);
-      send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
+    send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
         .payload(changeset)
         .send();
-    }
   }
 
   /// Notify the view that the row has been updated. If the view has groups,

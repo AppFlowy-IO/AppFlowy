@@ -27,9 +27,8 @@ use crate::services::cell::{
   ToCellChangeset,
 };
 use crate::services::database::util::database_view_setting_pb_from_view;
-use crate::services::database::{DatabaseRowEvent, InsertedRow};
 use crate::services::database_view::{
-  DatabaseViewChanged, DatabaseViewData, DatabaseViews, RowEventSender,
+  DatabaseViewChanged, DatabaseViewData, DatabaseViews,
 };
 use crate::services::field::{
   default_type_option_data_for_type, default_type_option_data_from_type,
@@ -46,8 +45,6 @@ pub struct DatabaseEditor {
   database: MutexDatabase,
   pub cell_cache: CellCache,
   database_views: Arc<DatabaseViews>,
-  /// Notify the changes of the row to the database view.
-  row_event_tx: RowEventSender,
 }
 
 impl DatabaseEditor {
@@ -56,7 +53,6 @@ impl DatabaseEditor {
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
   ) -> FlowyResult<Self> {
     let cell_cache = AnyTypeCache::<u64>::new();
-    let (row_event_tx, _row_event_rx) = broadcast::channel(100);
     let database_view_data = Arc::new(DatabaseViewDataImpl {
       database: database.clone(),
       task_scheduler: task_scheduler.clone(),
@@ -69,7 +65,6 @@ impl DatabaseEditor {
       database,
       cell_cache,
       database_views,
-      row_event_tx,
     })
   }
 
@@ -320,14 +315,6 @@ impl DatabaseEditor {
     );
 
     if let Some((index, row_order)) = result {
-      let _ = self
-        .row_event_tx
-        .send(DatabaseRowEvent::InsertRow(InsertedRow {
-          row: row_order.clone(),
-          index: Some(index as i32),
-          is_new: true,
-        }));
-
       let row = self.database.lock().get_row(&row_order.id);
       if let Some(row) = row {
         for view in self.database_views.editors().await {
@@ -424,10 +411,6 @@ impl DatabaseEditor {
     let row = self.database.lock().remove_row(row_id);
     if let Some(row) = row {
       tracing::trace!("Did delete row:{:?}", row);
-      let _ = self
-        .row_event_tx
-        .send(DatabaseRowEvent::DeleteRow(row.id.clone()));
-
       for view in self.database_views.editors().await {
         view.v_did_delete_row(&row).await;
       }
