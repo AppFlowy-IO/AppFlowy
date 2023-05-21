@@ -76,32 +76,35 @@ class CalendarDayCard extends StatelessWidget {
               ],
             );
 
-            return Container(
-              color: backgroundColor,
-              child: GestureDetector(
-                onDoubleTap: () => onCreateEvent(date),
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.basic,
-                  onEnter: (p) => notifyEnter(context, true),
-                  onExit: (p) => notifyEnter(context, false),
-                  child: DragTarget<CalendarDayEvent>(
-                    builder: (context, _, __) => Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: child,
+            return Stack(
+              children: <Widget>[
+                GestureDetector(
+                  onDoubleTap: () => onCreateEvent(date),
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.basic,
+                    onEnter: (p) => notifyEnter(context, true),
+                    onExit: (p) => notifyEnter(context, false),
+                    child: DragTarget<CalendarDayEvent>(
+                      builder: (context, _, __) =>
+                          Container(color: backgroundColor),
+                      onWillAccept: (CalendarDayEvent? event) {
+                        return true;
+                        // TODO: Implement logic
+                      },
+                      onAccept: (CalendarDayEvent event) {
+                        // TODO: Implement logic
+                        context
+                            .read<CalendarBloc>()
+                            .add(CalendarEvent.moveEvent(event, date));
+                      },
                     ),
-                    onWillAccept: (CalendarDayEvent? event) {
-                      return true;
-                      // TODO: Implement logic
-                    },
-                    onAccept: (CalendarDayEvent event) {
-                      // TODO: Implement logic
-                      context
-                          .read<CalendarBloc>()
-                          .add(CalendarEvent.moveEvent(event, date));
-                    },
                   ),
                 ),
-              ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: child,
+                ),
+              ],
             );
           },
         );

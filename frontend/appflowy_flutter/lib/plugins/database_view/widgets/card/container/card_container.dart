@@ -44,7 +44,6 @@ class RowCardContainer extends StatelessWidget {
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () => openCard(context),
-            onDoubleTap: () {},
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 30),
               child: container,
