@@ -20,9 +20,6 @@ pub struct DateCellDataPB {
 
   #[pb(index = 4)]
   pub include_time: bool,
-
-  #[pb(index = 5)]
-  pub timezone_id: String,
 }
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
@@ -38,9 +35,6 @@ pub struct DateChangesetPB {
 
   #[pb(index = 4, one_of)]
   pub include_time: Option<bool>,
-
-  #[pb(index = 5, one_of)]
-  pub timezone_id: Option<String>,
 }
 
 // Date
