@@ -478,6 +478,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
           await _showError(error.message);
         },
       );
+      await _updateGenerationCount();
     }, (error) async {
       loading.stop();
       await _showError(
