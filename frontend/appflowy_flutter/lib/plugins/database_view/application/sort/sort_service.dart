@@ -80,7 +80,7 @@ class SortBackendService {
     required String sortId,
     required FieldType fieldType,
   }) {
-    final deleteFilterPayload = DeleteSortPayloadPB.create()
+    final deleteSortPayload = DeleteSortPayloadPB.create()
       ..fieldId = fieldId
       ..sortId = sortId
       ..viewId = viewId
@@ -88,7 +88,7 @@ class SortBackendService {
 
     final payload = DatabaseSettingChangesetPB.create()
       ..viewId = viewId
-      ..deleteSort = deleteFilterPayload;
+      ..deleteSort = deleteSortPayload;
 
     return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
