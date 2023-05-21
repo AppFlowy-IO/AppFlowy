@@ -10,10 +10,11 @@ SelectionMenuItem autoGeneratorMenuItem = SelectionMenuItem.node(
   iconData: Icons.generating_tokens,
   keywords: ['ai', 'openai' 'writer', 'autogenerator'],
   nodeBuilder: (editorState) {
-    final node = Node(
+    final node = Node(  
       type: kAutoCompletionInputType,
       attributes: {
         kAutoCompletionInputString: '',
+        kAutoCompletionGenerationCount: 0,
       },
     );
     return node;
