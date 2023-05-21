@@ -84,12 +84,9 @@ impl InsertedRowPB {
     }
   }
 
-  pub fn with_index(row: RowPB, index: i32) -> Self {
-    Self {
-      row,
-      index: Some(index),
-      is_new: false,
-    }
+  pub fn with_index(mut self, index: i32) -> Self {
+    self.index = Some(index);
+    self
   }
 }
 
