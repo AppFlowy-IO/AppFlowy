@@ -51,9 +51,7 @@ impl DatabaseManager2 {
     *self.user_database.lock() = Some(InnerUserDatabase::new(
       user_id,
       db,
-      RocksDBConfig::default()
-        .enable_snapshot(true)
-        .snapshot_per_update(10),
+      RocksDBConfig::default(),
       UserDatabaseCollabBuilderImpl(self.collab_builder.clone()),
     ));
     // do nothing
