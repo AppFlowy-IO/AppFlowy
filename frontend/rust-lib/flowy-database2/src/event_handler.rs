@@ -602,3 +602,27 @@ pub(crate) async fn get_calendar_event_handler(
     Some(event) => data_result_ok(event),
   }
 }
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn move_calendar_event_handler(
+  data: AFPluginData<MoveCalendarEventPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> FlowyResult<()> {
+  let data = data.into_inner();
+  let cell_id: CellIdParams = data.cell_path.try_into()?;
+  let cell_changeset = DateCellChangeset {
+    date: Some(data.timestamp.to_string()),
+    time: None,
+    include_time: None,
+  };
+  let database_editor = manager.get_database(&cell_id.view_id).await?;
+  database_editor
+    .update_cell_with_changeset(
+      &cell_id.view_id,
+      cell_id.row_id,
+      &cell_id.field_id,
+      cell_changeset,
+    )
+    .await?;
+  Ok(())
+}

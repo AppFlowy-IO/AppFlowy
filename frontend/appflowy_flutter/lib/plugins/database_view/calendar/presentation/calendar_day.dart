@@ -13,6 +13,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 import '../../grid/presentation/layout/sizes.dart';
 import '../../widgets/row/cells/select_option_cell/extension.dart';
@@ -53,7 +54,6 @@ class CalendarDayCard extends StatelessWidget {
           create: (_) => _CardEnterNotifier(),
           builder: (context, child) {
             final child = Column(
-              mainAxisSize: MainAxisSize.min,
               children: [
                 _Header(
                   date: date,
@@ -80,29 +80,29 @@ class CalendarDayCard extends StatelessWidget {
               children: <Widget>[
                 GestureDetector(
                   onDoubleTap: () => onCreateEvent(date),
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.basic,
-                    onEnter: (p) => notifyEnter(context, true),
-                    onExit: (p) => notifyEnter(context, false),
-                    child: DragTarget<CalendarDayEvent>(
-                      builder: (context, _, __) =>
-                          Container(color: backgroundColor),
-                      onWillAccept: (CalendarDayEvent? event) {
-                        return true;
-                        // TODO: Implement logic
-                      },
-                      onAccept: (CalendarDayEvent event) {
-                        // TODO: Implement logic
-                        context
-                            .read<CalendarBloc>()
-                            .add(CalendarEvent.moveEvent(event, date));
-                      },
-                    ),
-                  ),
+                  child: Container(color: backgroundColor),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: child,
+                MouseRegion(
+                  cursor: SystemMouseCursors.basic,
+                  onEnter: (p) => notifyEnter(context, true),
+                  onExit: (p) => notifyEnter(context, false),
+                  child: DragTarget<CalendarDayEvent>(
+                    builder: (context, _, __) => Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: child,
+                    ),
+                    onWillAccept: (CalendarDayEvent? event) {
+                      if (event == null) {
+                        return false;
+                      }
+                      return !isSameDay(event.date, date);
+                    },
+                    onAccept: (CalendarDayEvent event) {
+                      context
+                          .read<CalendarBloc>()
+                          .add(CalendarEvent.moveEvent(event, date));
+                    },
+                  ),
                 ),
               ],
             );
@@ -375,14 +375,15 @@ class _EventCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Flexible(
-                child: FlowyText.regular(
-                  cellData.time,
-                  fontSize: 10,
-                  color: Theme.of(context).hintColor,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              )
+              if (cellData.includeTime)
+                Flexible(
+                  child: FlowyText.regular(
+                    cellData.time,
+                    fontSize: 10,
+                    color: Theme.of(context).hintColor,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                )
             ],
           ),
         ),

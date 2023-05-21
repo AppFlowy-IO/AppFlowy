@@ -8,6 +8,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:dartz/dartz.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -62,9 +63,8 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           createEvent: (DateTime date, String title) async {
             await _createEvent(date, title);
           },
-          moveEvent: (CalendarDayEvent event, DateTime date) {
-            // TODO: imlement logic
-            print("Hello world");
+          moveEvent: (CalendarDayEvent event, DateTime date) async {
+            await _moveEvent(event, date);
           },
           didCreateEvent: (CalendarEventData<CalendarDayEvent> event) {
             emit(
@@ -189,6 +189,29 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     );
   }
 
+  Future<void> _moveEvent(CalendarDayEvent event, DateTime date) async {
+    final time =
+        event.date.hour * 3600 + event.date.minute * 60 + event.date.second;
+    final timestamp = Int64(date.millisecondsSinceEpoch ~/ 1000 + time);
+    final payload = MoveCalendarEventPB(
+      cellPath: CellIdPB(
+        viewId: viewId,
+        rowId: event.eventId,
+        fieldId: event.dateFieldId,
+      ),
+      timestamp: timestamp,
+    );
+    return DatabaseEventMoveCalendarEvent(payload).send().then((result) {
+      return result.fold(
+        (_) {},
+        (err) {
+          Log.error(err);
+          return null;
+        },
+      );
+    });
+  }
+
   Future<void> _updateCalendarLayoutSetting(
     CalendarLayoutSettingPB layoutSetting,
   ) async {
@@ -243,17 +266,18 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   ) {
     final fieldInfo = fieldInfoByFieldId[eventPB.dateFieldId];
     if (fieldInfo != null) {
+      // timestamp is stored as seconds, but constructor requires milliseconds
+      final date = DateTime.fromMillisecondsSinceEpoch(
+        eventPB.timestamp.toInt() * 1000,
+      );
+
       final eventData = CalendarDayEvent(
         event: eventPB,
         eventId: eventPB.rowId,
         dateFieldId: eventPB.dateFieldId,
+        date: date,
       );
 
-      // The timestamp is using UTC in the backend, so we need to convert it
-      // to local time.
-      final date = DateTime.fromMillisecondsSinceEpoch(
-        eventPB.timestamp.toInt() * 1000,
-      );
       return CalendarEventData(
         title: eventPB.title,
         date: date,
@@ -451,10 +475,12 @@ class CalendarDayEvent {
   final CalendarEventPB event;
   final String dateFieldId;
   final String eventId;
+  final DateTime date;
 
   CalendarDayEvent({
     required this.dateFieldId,
     required this.eventId,
     required this.event,
+    required this.date,
   });
 }
