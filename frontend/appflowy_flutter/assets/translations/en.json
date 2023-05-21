@@ -21,6 +21,7 @@
   "signIn": {
     "loginTitle": "Login to @:appName",
     "loginButtonText": "Login",
+    "loginAsGuestButtonText": "Get Started",
     "buttonText": "Sign In",
     "forgotPassword": "Forgot Password?",
     "emailHint": "Email",
@@ -184,7 +185,8 @@
       "theme": "Theme"
     },
     "files": {
-      "defaultLocation": "Where your data is stored now",
+      "copy": "Copy",
+      "defaultLocation": "Read files and data storage location",
       "doubleTapToCopy": "Double tap to copy the path",
       "restoreLocation": "Restore to AppFlowy default path",
       "customizeLocation": "Open another folder",
@@ -203,7 +205,11 @@
       "create": "Create",
       "folderPath": "Path to store your folder",
       "locationCannotBeEmpty": "Path cannot be empty",
-      "pathCopiedSnackbar": "File storage path copied to clipboard!"
+      "pathCopiedSnackbar": "File storage path copied to clipboard!",
+      "changeLocationTooltips": "Change the files read the data directory",
+      "change": "Change",
+      "openLocationTooltips": "Open the files read the data directory",
+      "recoverLocationTooltips": "Recover the files read the data directory"
     },
     "user": {
       "name": "Name",

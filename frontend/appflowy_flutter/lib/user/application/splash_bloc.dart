@@ -1,5 +1,6 @@
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/domain/auth_state.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -10,16 +11,11 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
     on<SplashEvent>((event, emit) async {
       await event.map(
         getUser: (val) async {
-          final result = await UserEventCheckUser().send();
-          final authState = result.fold(
-            (userProfile) {
-              return AuthState.authenticated(userProfile);
-            },
-            (error) {
-              return AuthState.unauthenticated(error);
-            },
+          final response = await getIt<AuthService>().getUser();
+          final authState = response.fold(
+            (error) => AuthState.unauthenticated(error),
+            (user) => AuthState.authenticated(user),
           );
-
           emit(state.copyWith(auth: authState));
         },
       );

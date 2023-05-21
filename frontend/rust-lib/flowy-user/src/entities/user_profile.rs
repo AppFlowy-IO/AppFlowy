@@ -3,7 +3,7 @@ use std::convert::TryInto;
 use flowy_derive::ProtoBuf;
 
 use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
-use crate::entities::{UpdateUserProfileParams, UserProfile};
+use crate::entities::{AuthTypePB, UpdateUserProfileParams, UserProfile};
 use crate::errors::ErrorCode;
 
 #[derive(Default, ProtoBuf)]
@@ -71,6 +71,9 @@ pub struct UpdateUserProfilePayloadPB {
 
   #[pb(index = 6, one_of)]
   pub openai_key: Option<String>,
+
+  #[pb(index = 7)]
+  pub auth_type: AuthTypePB,
 }
 
 impl UpdateUserProfilePayloadPB {
@@ -138,6 +141,7 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
 
     Ok(UpdateUserProfileParams {
       id: self.id,
+      auth_type: self.auth_type.into(),
       name,
       email,
       password,

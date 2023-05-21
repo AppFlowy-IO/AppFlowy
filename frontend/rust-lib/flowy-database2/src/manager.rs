@@ -19,7 +19,7 @@ use crate::services::database::{DatabaseEditor, MutexDatabase};
 
 pub trait DatabaseUser2: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
-  fn token(&self) -> Result<String, FlowyError>;
+  fn token(&self) -> Result<Option<String>, FlowyError>;
   fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError>;
 }
 
@@ -46,7 +46,7 @@ impl DatabaseManager2 {
     }
   }
 
-  pub async fn initialize(&self, user_id: i64, _token: &str) -> FlowyResult<()> {
+  pub async fn initialize(&self, user_id: i64) -> FlowyResult<()> {
     let db = self.user.collab_db()?;
     *self.user_database.lock() = Some(InnerUserDatabase::new(
       user_id,
@@ -58,8 +58,8 @@ impl DatabaseManager2 {
     Ok(())
   }
 
-  pub async fn initialize_with_new_user(&self, user_id: i64, token: &str) -> FlowyResult<()> {
-    self.initialize(user_id, token).await?;
+  pub async fn initialize_with_new_user(&self, user_id: i64, _token: &str) -> FlowyResult<()> {
+    self.initialize(user_id).await?;
     Ok(())
   }
 

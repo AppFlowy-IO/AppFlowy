@@ -4,7 +4,6 @@ use std::sync::Arc;
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::RocksCollabDB;
-
 use collab_folder::core::{
   Folder as InnerFolder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, TrashRecord,
   View, ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
@@ -30,7 +29,7 @@ use crate::view_ext::{
 
 pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
-  fn token(&self) -> Result<String, FlowyError>;
+  fn token(&self) -> Result<Option<String>, FlowyError>;
   fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError>;
 }
 
@@ -92,32 +91,37 @@ impl Folder2Manager {
 
   /// Called immediately after the application launched fi the user already sign in/sign up.
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn initialize(&self, user_id: i64) -> FlowyResult<()> {
-    if let Ok(uid) = self.user.user_id() {
-      let folder_id = FolderId::new(uid);
-
-      if let Ok(kv_db) = self.user.collab_db() {
-        let collab = self.collab_builder.build(uid, folder_id.as_ref(), kv_db);
-        let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
-        let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
-        let folder_context = FolderContext {
-          view_change_tx: Some(view_tx),
-          trash_change_tx: Some(trash_tx),
-        };
-        *self.folder.lock() = Some(InnerFolder::get_or_create(collab, folder_context));
-        listen_on_trash_change(trash_rx, self.folder.clone());
-        listen_on_view_change(view_rx, self.folder.clone());
-      }
+  pub async fn initialize(&self, uid: i64, workspace_id: &str) -> FlowyResult<()> {
+    if let Ok(collab_db) = self.user.collab_db() {
+      let collab = self.collab_builder.build(uid, workspace_id, collab_db);
+      let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
+      let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
+      let folder_context = FolderContext {
+        view_change_tx: Some(view_tx),
+        trash_change_tx: Some(trash_tx),
+      };
+      *self.folder.lock() = Some(InnerFolder::get_or_create(collab, folder_context));
+      listen_on_trash_change(trash_rx, self.folder.clone());
+      listen_on_view_change(view_rx, self.folder.clone());
     }
 
     Ok(())
   }
 
   /// Called after the user sign up / sign in
-  pub async fn initialize_with_new_user(&self, user_id: i64, token: &str) -> FlowyResult<()> {
-    self.initialize(user_id).await?;
-    let (folder_data, workspace_pb) =
-      DefaultFolderBuilder::build(self.user.user_id()?, &self.view_processors).await;
+  pub async fn initialize_with_new_user(
+    &self,
+    user_id: i64,
+    token: &str,
+    workspace_id: &str,
+  ) -> FlowyResult<()> {
+    self.initialize(user_id, workspace_id).await?;
+    let (folder_data, workspace_pb) = DefaultFolderBuilder::build(
+      self.user.user_id()?,
+      workspace_id.to_string(),
+      &self.view_processors,
+    )
+    .await;
     self.with_folder((), |folder| {
       folder.create_with_data(folder_data);
     });
@@ -555,7 +559,7 @@ fn notify_parent_view_did_change<T: AsRef<str>>(
   for parent_view_id in parent_view_ids {
     let parent_view_id = parent_view_id.as_ref();
 
-    // if the view's bid is equal to workspace id. Then it will fetch the current
+    // if the view's parent id equal to workspace id. Then it will fetch the current
     // workspace views. Because the the workspace is not a view stored in the views map.
     if parent_view_id == workspace_id {
       let repeated_view: RepeatedViewPB = get_workspace_view_pbs(&workspace_id, folder).into();
@@ -585,19 +589,6 @@ fn folder_not_init_error() -> FlowyError {
   FlowyError::internal().context("Folder not initialized")
 }
 
-#[derive(Clone)]
-pub struct FolderId(String);
-impl FolderId {
-  pub fn new(uid: i64) -> Self {
-    Self(format!("{}:folder", uid))
-  }
-}
-
-impl AsRef<str> for FolderId {
-  fn as_ref(&self) -> &str {
-    &self.0
-  }
-}
 #[derive(Clone, Default)]
 pub struct Folder(Arc<Mutex<Option<InnerFolder>>>);
 

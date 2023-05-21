@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/main.dart' as app;
 import 'package:appflowy/startup/tasks/prelude.dart';
-import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,7 +21,7 @@ class TestFolder {
   static Future<void> setTestLocation(String? name) async {
     final location = await testLocation(name);
     SharedPreferences.setMockInitialValues({
-      kSettingsLocationDefaultLocation: location.path,
+      KVKeys.pathLocation: location.path,
     });
     return;
   }
@@ -36,7 +36,7 @@ class TestFolder {
   /// Get current using location.
   static Future<String> currentLocation() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(kSettingsLocationDefaultLocation)!;
+    return prefs.getString(KVKeys.pathLocation)!;
   }
 
   /// Get default location under development environment.

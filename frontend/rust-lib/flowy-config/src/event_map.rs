@@ -26,6 +26,8 @@ pub enum ConfigEvent {
   #[event(input = "KeyPB")]
   RemoveKeyValue = 2,
 
+  /// Set the supabase config. It will be written to the environment variables.
+  /// Check out the `write_to_env` of [SupabaseConfigPB].
   #[event(input = "SupabaseConfigPB")]
   SetSupabaseConfig = 3,
 }

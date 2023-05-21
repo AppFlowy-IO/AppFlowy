@@ -14,6 +14,7 @@ members = [
   "flowy-error",
   "flowy-database2",
   "flowy-task",
+  "flowy-server",
   "flowy-config",
 ]
 

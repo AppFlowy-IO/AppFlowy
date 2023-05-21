@@ -14,3 +14,4 @@ bin/
 **/resources/proto
 .idea/
 AppFlowy-Collab/
+.env

@@ -1,33 +1,17 @@
 import 'dart:io';
 
+import 'package:appflowy/env/env.dart';
+import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import '../workspace/application/settings/settings_location_cubit.dart';
 import 'deps_resolver.dart';
 import 'launch_configuration.dart';
 import 'plugin/plugin.dart';
 import 'tasks/prelude.dart';
 
-// [[diagram: flowy startup flow]]
-//                   ┌──────────┐
-//                   │ FlowyApp │
-//                   └──────────┘
-//                         │  impl
-//                         ▼
-// ┌────────┐  1.run ┌──────────┐
-// │ System │───┬───▶│EntryPoint│
-// └────────┘   │    └──────────┘         ┌─────────────────┐
-//              │                    ┌──▶ │ RustSDKInitTask │
-//              │    ┌───────────┐   │    └─────────────────┘
-//              └──▶ │AppLauncher│───┤
-//        2.launch   └───────────┘   │    ┌─────────────┐         ┌──────────────────┐      ┌───────────────┐
-//                                   └───▶│AppWidgetTask│────────▶│ApplicationWidget │─────▶│ SplashScreen  │
-//                                        └─────────────┘         └──────────────────┘      └───────────────┘
-//
-//                                                 3.build MaterialApp
 final getIt = GetIt.instance;
 
 abstract class EntryPoint {
@@ -48,9 +32,11 @@ class FlowyRunner {
     final env = integrationEnv();
     initGetIt(getIt, env, f, config);
 
-    final directory = getIt<SettingsLocationCubit>()
-        .fetchLocation()
+    final directory = await getIt<LocalFileStorage>()
+        .getPath()
         .then((value) => Directory(value));
+
+    // final directory = await appFlowyDocumentDirectory();
 
     // add task
     final launcher = getIt<AppLauncher>();
@@ -71,6 +57,12 @@ class FlowyRunner {
         // ignore in test mode
         if (!env.isTest()) ...[
           const HotKeyTask(),
+          InitSupabaseTask(
+            url: Env.supabaseUrl,
+            anonKey: Env.supabaseAnonKey,
+            key: Env.supabaseKey,
+            jwtSecret: Env.supabaseJwtSecret,
+          ),
           const InitAppWidgetTask(),
           const InitPlatformServiceTask()
         ],

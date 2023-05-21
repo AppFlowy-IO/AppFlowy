@@ -4,7 +4,7 @@ use collab_folder::core::{View, ViewLayout};
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
-use nanoid::nanoid;
+
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -68,5 +68,5 @@ pub fn view_from_create_view_params(params: CreateViewParams, layout: ViewLayout
   }
 }
 pub fn gen_view_id() -> String {
-  format!("v:{}", nanoid!(10))
+  uuid::Uuid::new_v4().to_string()
 }

@@ -4,14 +4,14 @@ use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
+
 use lib_dispatch::prelude::*;
+use lib_infra::box_any::BoxAny;
 use lib_infra::future::{Fut, FutureResult};
 
-use crate::entities::UserProfilePB;
-use crate::entities::{
-  SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
-};
+use crate::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 use crate::event_handler::*;
+use crate::services::AuthType;
 use crate::{errors::FlowyError, services::UserSession};
 
 pub fn init(user_session: Arc<UserSession>) -> AFPlugin {
@@ -28,41 +28,76 @@ pub fn init(user_session: Arc<UserSession>) -> AFPlugin {
     .event(UserEvent::SetAppearanceSetting, set_appearance_setting)
     .event(UserEvent::GetAppearanceSetting, get_appearance_setting)
     .event(UserEvent::GetUserSetting, get_user_setting)
+    .event(UserEvent::ThirdPartyAuth, third_party_auth_handler)
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {
-  fn did_sign_in(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
+  fn did_sign_in(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>>;
   fn did_sign_up(&self, user_profile: &UserProfile) -> Fut<FlowyResult<()>>;
   fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
-  fn will_migrated(&self, token: &str, old_user_id: &str, user_id: i64) -> Fut<FlowyResult<()>>;
 }
 
-pub trait UserCloudService: Send + Sync {
-  fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, FlowyError>;
-  fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError>;
-  fn sign_out(&self, token: &str) -> FutureResult<(), FlowyError>;
+/// The user cloud service provider.
+/// The provider can be supabase, firebase, aws, or any other cloud service.
+pub trait UserCloudServiceProvider: Send + Sync + 'static {
+  fn get_auth_service(&self, auth_type: &AuthType) -> Result<Arc<dyn UserAuthService>, FlowyError>;
+}
+
+impl<T> UserCloudServiceProvider for Arc<T>
+where
+  T: UserCloudServiceProvider,
+{
+  fn get_auth_service(&self, auth_type: &AuthType) -> Result<Arc<dyn UserAuthService>, FlowyError> {
+    (**self).get_auth_service(auth_type)
+  }
+}
+
+/// Provide the generic interface for the user cloud service
+/// The user cloud service is responsible for the user authentication and user profile management
+pub trait UserAuthService: Send + Sync {
+  /// Sign up a new account.
+  /// The type of the params is defined the this trait's implementation.
+  /// Use the `unbox_or_error` of the [BoxAny] to get the params.
+  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError>;
+
+  /// Sign in an account
+  /// The type of the params is defined the this trait's implementation.
+  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, FlowyError>;
+
+  /// Sign out an account
+  fn sign_out(&self, token: Option<String>) -> FutureResult<(), FlowyError>;
+
+  /// Using the user's token to update the user information
   fn update_user(
     &self,
-    token: &str,
+    uid: i64,
+    token: &Option<String>,
     params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError>;
-  fn get_user(&self, token: &str) -> FutureResult<UserProfilePB, FlowyError>;
-  fn ws_addr(&self) -> String;
+
+  /// Get the user information using the user's token
+  fn get_user_profile(
+    &self,
+    token: Option<String>,
+    uid: i64,
+  ) -> FutureResult<Option<UserProfile>, FlowyError>;
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum UserEvent {
+  /// Only use when the [AuthType] is Local or SelfHosted
   /// Logging into an account using a register email and password
   #[event(input = "SignInPayloadPB", output = "UserProfilePB")]
   SignIn = 0,
 
+  /// Only use when the [AuthType] is Local or SelfHosted
   /// Creating a new account
   #[event(input = "SignUpPayloadPB", output = "UserProfilePB")]
   SignUp = 1,
 
   /// Logging out fo an account
-  #[event(passthrough)]
+  #[event(input = "SignOutPB")]
   SignOut = 2,
 
   /// Update the user information
@@ -92,4 +127,7 @@ pub enum UserEvent {
   /// Get the settings of the user, such as the user storage folder
   #[event(output = "UserSettingPB")]
   GetUserSetting = 9,
+
+  #[event(input = "ThirdPartyAuthPB", output = "UserProfilePB")]
+  ThirdPartyAuth = 10,
 }
