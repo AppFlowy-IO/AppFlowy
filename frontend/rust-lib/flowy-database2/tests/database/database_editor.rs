@@ -263,7 +263,6 @@ impl TestRowBuilder {
     data: &str,
     time: Option<String>,
     include_time: Option<bool>,
-    timezone_id: Option<String>,
   ) -> String {
     let value = serde_json::to_string(&DateCellChangeset {
       date: Some(data.to_string()),

@@ -46,12 +46,7 @@ pub fn make_test_calendar() -> DatabaseData {
         for field_type in FieldType::iter() {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("A"),
-            FieldType::DateTime => row_builder.insert_date_cell(
-              "1678090778",
-              None,
-              None,
-              Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
-            ),
+            FieldType::DateTime => row_builder.insert_date_cell("1678090778", None, None),
             _ => "".to_owned(),
           };
         }
@@ -60,12 +55,7 @@ pub fn make_test_calendar() -> DatabaseData {
         for field_type in FieldType::iter() {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("B"),
-            FieldType::DateTime => row_builder.insert_date_cell(
-              "1677917978",
-              None,
-              None,
-              Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
-            ),
+            FieldType::DateTime => row_builder.insert_date_cell("1677917978", None, None),
             _ => "".to_owned(),
           };
         }
@@ -74,12 +64,7 @@ pub fn make_test_calendar() -> DatabaseData {
         for field_type in FieldType::iter() {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("C"),
-            FieldType::DateTime => row_builder.insert_date_cell(
-              "1679213978",
-              None,
-              None,
-              Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
-            ),
+            FieldType::DateTime => row_builder.insert_date_cell("1679213978", None, None),
             _ => "".to_owned(),
           };
         }
@@ -88,12 +73,7 @@ pub fn make_test_calendar() -> DatabaseData {
         for field_type in FieldType::iter() {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("D"),
-            FieldType::DateTime => row_builder.insert_date_cell(
-              "1678695578",
-              None,
-              None,
-              Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
-            ),
+            FieldType::DateTime => row_builder.insert_date_cell("1678695578", None, None),
             _ => "".to_owned(),
           };
         }
@@ -102,12 +82,7 @@ pub fn make_test_calendar() -> DatabaseData {
         for field_type in FieldType::iter() {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("E"),
-            FieldType::DateTime => row_builder.insert_date_cell(
-              "1678695578",
-              None,
-              None,
-              Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
-            ),
+            FieldType::DateTime => row_builder.insert_date_cell("1678695578", None, None),
             _ => "".to_owned(),
           };
         }
