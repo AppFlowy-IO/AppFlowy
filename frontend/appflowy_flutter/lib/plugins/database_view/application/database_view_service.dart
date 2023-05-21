@@ -43,7 +43,7 @@ class DatabaseViewBackendService {
     return DatabaseEventCreateRow(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> moveRow({
+  Future<Either<Unit, FlowyError>> moveGroupRow({
     required RowId fromRowId,
     required String toGroupId,
     RowId? toRowId,
@@ -58,6 +58,18 @@ class DatabaseViewBackendService {
     }
 
     return DatabaseEventMoveGroupRow(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> moveRow({
+    required String fromRowId,
+    required String toRowId,
+  }) {
+    var payload = MoveRowPayloadPB.create()
+      ..viewId = viewId
+      ..fromRowId = fromRowId
+      ..toRowId = toRowId;
+
+    return DatabaseEventMoveRow(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> moveGroup({

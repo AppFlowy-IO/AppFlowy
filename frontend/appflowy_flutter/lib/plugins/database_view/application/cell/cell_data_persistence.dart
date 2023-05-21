@@ -44,7 +44,6 @@ class DateCellDataPersistence implements CellDataPersistence<DateCellData> {
   @override
   Future<Option<FlowyError>> save(DateCellData data) {
     var payload = DateChangesetPB.create()..cellPath = _makeCellPath(cellId);
-
     if (data.dateTime != null) {
       final date = (data.dateTime!.millisecondsSinceEpoch ~/ 1000).toString();
       payload.date = date;

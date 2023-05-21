@@ -170,23 +170,24 @@ class HomeStackManager {
     return MultiProvider(
       providers: [ChangeNotifierProvider.value(value: _notifier)],
       child: Consumer(
-        builder: (ctx, HomeStackNotifier notifier, child) {
+        builder: (_, HomeStackNotifier notifier, __) {
           return FadingIndexedStack(
             index: getIt<PluginSandbox>().indexOf(notifier.plugin.ty),
-            children:
-                getIt<PluginSandbox>().supportPluginTypes.map((pluginType) {
-              if (pluginType == notifier.plugin.ty) {
-                final pluginWidget = notifier.plugin.display
-                    .buildWidget(PluginContext(onDeleted: onDeleted));
-                if (pluginType == PluginType.editor) {
-                  return pluginWidget;
-                } else {
+            children: getIt<PluginSandbox>().supportPluginTypes.map(
+              (pluginType) {
+                if (pluginType == notifier.plugin.ty) {
+                  final pluginWidget = notifier.plugin.display
+                      .buildWidget(PluginContext(onDeleted: onDeleted));
+                  if (pluginType == PluginType.editor) {
+                    return pluginWidget;
+                  }
+
                   return pluginWidget.padding(horizontal: 40, vertical: 28);
                 }
-              } else {
+
                 return const BlankPage();
-              }
-            }).toList(),
+              },
+            ).toList(),
           );
         },
       ),
@@ -204,30 +205,27 @@ class HomeTopBar extends StatelessWidget {
     return Container(
       color: Theme.of(context).colorScheme.onSecondaryContainer,
       height: HomeSizes.topBarHeight,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          HSpace(layout.menuSpacing),
-          const FlowyNavigation(),
-          const HSpace(16),
-          ChangeNotifierProvider.value(
-            value: Provider.of<HomeStackNotifier>(context, listen: false),
-            child: Consumer(
-              builder: (
-                BuildContext context,
-                HomeStackNotifier notifier,
-                Widget? child,
-              ) {
-                return notifier.plugin.display.rightBarItem ?? const SizedBox();
-              },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: HomeInsets.topBarTitlePadding,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            HSpace(layout.menuSpacing),
+            const FlowyNavigation(),
+            const HSpace(16),
+            ChangeNotifierProvider.value(
+              value: Provider.of<HomeStackNotifier>(context, listen: false),
+              child: Consumer(
+                builder: (_, HomeStackNotifier notifier, __) =>
+                    notifier.plugin.display.rightBarItem ??
+                    const SizedBox.shrink(),
+              ),
             ),
-          ) // _renderMoreButton(),
-        ],
-      )
-          .padding(
-            horizontal: HomeInsets.topBarTitlePadding,
-          )
-          .bottomBorder(color: Theme.of(context).dividerColor),
+          ],
+        ).bottomBorder(color: Theme.of(context).dividerColor),
+      ),
     );
   }
 }
