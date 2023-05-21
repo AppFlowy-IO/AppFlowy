@@ -85,6 +85,13 @@ jobs:
           cargo make appflowy-flutter-deps-tools
         shell: bash
 
+      - name: Set up Clang
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: egor-tensin/setup-clang@v1
+        with:
+          version: latest
+          platform: x64
+
       - name: Enable Flutter Desktop
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
