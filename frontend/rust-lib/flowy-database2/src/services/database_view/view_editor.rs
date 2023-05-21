@@ -465,8 +465,9 @@ impl DatabaseViewEditor {
 
   pub async fn v_delete_all_sorts(&self) -> FlowyResult<()> {
     let all_sorts = self.v_get_all_sorts().await;
-    self.delegate.remove_all_sorts(&self.view_id);
+    self.sort_controller.write().await.delete_all_sorts().await;
 
+    self.delegate.remove_all_sorts(&self.view_id);
     let mut notification = SortChangesetNotificationPB::new(self.view_id.clone());
     notification.delete_sorts = all_sorts.into_iter().map(SortPB::from).collect();
     notify_did_update_sort(notification).await;
