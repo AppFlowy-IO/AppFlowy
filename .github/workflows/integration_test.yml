@@ -19,108 +19,32 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  tests:
+  run-integration-tests:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        max-runs: [1, 2, 3]
+        max-runs: [1]
 
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: "stable-2022-04-07"
 
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-          flutter-version: "3.7.5"
-          cache: true
-
-      - name: Cache Cargo
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo
-          key: ${{ runner.os }}-cargo-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}
-
-      - name: Cache Rust
-        id: cache-rust-target
-        uses: actions/cache@v2
-        with:
-          path: |
-            frontend/rust-lib/target
-            shared-lib/target
-          key: ${{ runner.os }}-rust-rust-lib-share-lib-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}
-
-      - name: Setup Environment
-        run: |
-          cargo install --force cargo-make
-          cargo install --force duckscript_cli
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
-            sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
-            sudo apt-get update
-            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
-            sudo apt-get install keybinder-3.0
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            vcpkg integrate install
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            echo 'do nothing'
-          fi
-        shell: bash
-
-      - if: steps.cache-cargo.outputs.cache-hit != 'true'
-        name: Rust Deps
-        working-directory: frontend
-        run: |
-          cargo install cargo-make
-          cargo make appflowy-flutter-deps-tools
-
-      - name: Config Flutter
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            flutter config --enable-linux-desktop
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            flutter config --enable-macos-desktop
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            flutter config --enable-windows-desktop
-          fi
-        shell: bash
-
-      - name: Build Test lib
-        working-directory: frontend
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            cargo make --profile development-linux-x86_64 appflowy-dev
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            cargo make --profile development-mac-x86_64 appflowy-dev
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            cargo make --profile development-windows-x86 appflowy-dev
-          fi
-        shell: bash
+      # custom composite github action to build the test lib
+      - uses: ./.github/actions/build_test_lib
 
       - name: Run AppFlowy tests
-        id: appflowy-test
-        working-directory: frontend/appflowy_flutter
+        id: test-appflowy
+        working-directory: ./frontend/appflowy_flutter
         run: |
-          chmod +x run_tests.sh
-          ../scripts/run_tests.sh
+          chmod +x ../../.github/scripts/run_integration_test.sh
+          if ../../.github/scripts/run_integration_test.sh; then
+            echo "::set-output name=result::success"
+          else
+            echo "::set-output name=result::failure"
+            exit 1
+          fi
         shell: bash
-
-      - name: Retry failures to detect flakes
-        if: ${{ failure() && matrix.max-runs > 1 }}
-        run: |
-          echo "Retrying failed tests to deflake..."
-          chmod +x run_tests.sh
-          ../scripts/run_tests.sh
-
-      - name: Set test result
-        id: test-result
-        # Capture the test result
-        run: echo "::set-output name=result::${{ job.status }}"
 
       # - uses: codecov/codecov-action@v3
       #   with:
@@ -130,16 +54,85 @@ jobs:
       #     fail_ci_if_error: true
       #     verbose: true
 
-  final-check:
-    needs: tests
-    runs-on: ubuntu-latest
+  rerun-integration-tests:
+    needs: run-integration-tests
+    if: ${{ needs.run-integration-tests.result != 'success' }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        max-runs: [2, 3]
+
+    runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Check test result
+      - name: Rerun failed tests
+        id: rerun-on-failure
+        working-directory: ./frontend/appflowy_flutter
         run: |
-          test_result=$(echo "${{ needs.test.outputs.test-result }}") # Retrieve the test result
-          if [[ $test_result == "failure" ]]; then
-            exit 1 # Mark the test as failed if it consistently failed across all runs
+          chmod +x ../../.github/scripts/run_integration_test.sh
+          if ../../.github/scripts/run_integration_test.sh; then
+            echo "::set-output name=result::success"
           else
-            exit 0 # Mark the test as passed if it passed at least once
+            echo "::set-output name=result::failure"
+            exit 1
           fi
+
+  final-check:
+    needs: [run-integration-tests, rerun-integration-tests]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Check Test Result
+        run: |
+          test_results=$(echo "${{ needs.run-integration-tests.result }}")
+          rerun_results=$(echo "${{ needs.rerun-integration-tests.*.result }}")
+          all_results="$test_results $rerun_results"
+          if [[ "$all_results" =~ "success" ]]; then
+            echo "Tests passed"
+            exit 0
+          else
+            echo "Tests failed"
+            exit 1
+          fi
+
+  # check-test-result:
+  #   needs: [run-tests, rerun-tests]
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Check test result
+  #       id: check-result
+  #       run: |
+  #         test_results=(${{ needs.run-tests.outputs.result }})
+  #         for run in ${{ needs.rerun-tests.*.outputs.result }}; do
+  #           test_results+=($run)
+  #         done
+
+  #         has_failure=false
+  #         for result in "${test_results[@]}"; do
+  #           if [[ $result != 0 ]]; then
+  #             has_failure=true
+  #             break
+  #           fi
+  #         done
+
+  #         if [[ $has_failure == true ]]; then
+  #           echo "::set-output name=test-result::failure"
+  #         else
+  #           echo "::set-output name=test-result::success"
+  #         fi
+
+  # final-check:
+  #   needs: check-test-result
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Check test result
+  #       run: |
+  #         test_result=$(echo "${{ needs.check-result.outputs }}")
+  #         if [[ $test_result == "failure" ]]; then
+  #           exit 1
+  #         else
+  #           exit 0
+  #         fi
