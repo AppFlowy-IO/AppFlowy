@@ -180,7 +180,12 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("DA"),
             FieldType::Number => row_builder.insert_number_cell("14"),
-            FieldType::DateTime => row_builder.insert_date_cell("1668704685"),
+            FieldType::DateTime => row_builder.insert_date_cell(
+              "1668704685",
+              None,
+              None,
+              Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
+            ),
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(0))
             },
