@@ -4,8 +4,6 @@ use flowy_error::ErrorCode;
 use crate::entities::parser::NotEmptyStr;
 use crate::services::setting::{CalendarLayout, CalendarLayoutSetting};
 
-use super::DateCellDataPB;
-
 #[derive(Debug, Clone, Eq, PartialEq, Default, ProtoBuf)]
 pub struct CalendarLayoutSettingPB {
   #[pb(index = 1)]
@@ -117,7 +115,7 @@ pub struct CalendarEventPB {
   pub title: String,
 
   #[pb(index = 4)]
-  pub date: DateCellDataPB,
+  pub timestamp: i64,
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
