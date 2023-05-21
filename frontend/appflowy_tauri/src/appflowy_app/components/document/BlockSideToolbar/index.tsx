@@ -5,13 +5,17 @@ import DragIndicatorRoundedIcon from '@mui/icons-material/DragIndicatorRounded';
 import Portal from '../BlockPortal';
 import { IconButton } from '@mui/material';
 import BlockMenu from '../BlockMenu';
+import { useAppSelector } from '$app/stores/store';
 
 const sx = { height: 24, width: 24 };
 
 export default function BlockSideToolbar(props: { container: HTMLDivElement }) {
   const { nodeId, style, ref, menuOpen, handleToggleMenu } = useBlockSideToolbar(props);
+  const isDragging = useAppSelector(
+    (state) => state.documentRangeSelection.isDragging || state.documentRectSelection.isDragging
+  );
 
-  if (!nodeId) return null;
+  if (!nodeId || isDragging) return null;
   return (
     <>
       <Portal blockId={nodeId}>

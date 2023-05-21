@@ -1,4 +1,4 @@
-import { createEditor, Descendant, Editor } from 'slate';
+import { createEditor, Descendant, Editor, Transforms } from 'slate';
 import { withReact } from 'slate-react';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -8,12 +8,12 @@ import { useAppDispatch } from '$app/stores/store';
 import { updateNodeDeltaThunk } from '$app_reducers/document/async-actions/blocks/text/update';
 import { deltaToSlateValue, slateValueToDelta } from '$app/utils/document/blocks/common';
 import { isSameDelta } from '$app/utils/document/blocks/text/delta';
-import { debounce } from '$app/utils/tool';
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
 import { useTextSelections } from '$app/components/document/_shared/Text/TextSelection.hooks';
 
 export function useTextInput(id: string) {
   const { node } = useSubscribeNode(id);
+
   const [editor] = useState(() => withReact(createEditor()));
   const isComposition = useRef(false);
   const { setLastActiveSelection, ...selectionProps } = useTextSelections(id, editor);
@@ -24,16 +24,15 @@ export function useTextInput(id: string) {
     }
     return node.data.delta;
   }, [node]);
+  const [value, setValue] = useState<Descendant[]>(deltaToSlateValue(delta));
 
   const { sync, receive } = useUpdateDelta(id, editor);
-
-  const [value, setValue] = useState<Descendant[]>(deltaToSlateValue(delta));
 
   // Update the editor's value when the node's delta changes.
   useEffect(() => {
     // If composition is in progress, do nothing.
     if (isComposition.current) return;
-    receive(delta);
+    receive(delta, setValue);
   }, [delta, receive]);
 
   // Update the node's delta when the editor's value changes.
@@ -88,33 +87,30 @@ function useUpdateDelta(id: string, editor: Editor) {
   const dispatch = useAppDispatch();
   const penddingRef = useRef(false);
 
-  // when user input, update the node's delta after 200ms
-  const debounceUpdate = useMemo(() => {
-    return debounce(() => {
-      if (!controller) return;
-      const delta = slateValueToDelta(editor.children);
-      void (async () => {
-        await dispatch(
-          updateNodeDeltaThunk({
-            id,
-            delta,
-            controller,
-          })
-        );
-        // reset pendding flag
-        penddingRef.current = false;
-      })();
-    }, 200);
+  const update = useCallback(() => {
+    if (!controller) return;
+    const delta = slateValueToDelta(editor.children);
+    void (async () => {
+      await dispatch(
+        updateNodeDeltaThunk({
+          id,
+          delta,
+          controller,
+        })
+      );
+      // reset pendding flag
+      penddingRef.current = false;
+    })();
   }, [controller, dispatch, editor, id]);
 
   const sync = useCallback(() => {
     // set pendding flag
     penddingRef.current = true;
-    debounceUpdate();
-  }, [debounceUpdate]);
+    update();
+  }, [update]);
 
   const receive = useCallback(
-    (delta: TextDelta[]) => {
+    (delta: TextDelta[], setValue: (children: Descendant[]) => void) => {
       // if pendding, do nothing
       if (penddingRef.current) return;
 
@@ -123,17 +119,13 @@ function useUpdateDelta(id: string, editor: Editor) {
       const isSame = isSameDelta(delta, localDelta);
       if (isSame) return;
 
+      Transforms.deselect(editor);
       const slateValue = deltaToSlateValue(delta);
       editor.children = slateValue;
+      setValue(slateValue);
     },
     [editor]
   );
-
-  useEffect(() => {
-    return () => {
-      debounceUpdate.cancel();
-    };
-  });
 
   return {
     sync,

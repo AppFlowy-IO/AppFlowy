@@ -159,7 +159,7 @@ mod tests {
               date: Some("1653609600".to_owned()),
               time: Some("9:00 AM".to_owned()),
               include_time: Some(true),
-              timezone_id: None,
+              timezone_id: Some("Etc/UTC".to_owned()),
             },
             None,
             "May 27, 2022 09:00 AM",
@@ -213,7 +213,7 @@ mod tests {
         date: Some("1653609600".to_owned()),
         time: Some("1:".to_owned()),
         include_time: Some(true),
-        timezone_id: None,
+        timezone_id: Some("Etc/UTC".to_owned()),
       },
       None,
       "May 27, 2022 01:00",
@@ -252,14 +252,15 @@ mod tests {
         date: Some("1653609600".to_owned()),
         time: Some("00:00".to_owned()),
         include_time: Some(true),
-        timezone_id: None,
+        timezone_id: Some("Etc/UTC".to_owned()),
       },
       None,
       "May 27, 2022 00:00",
     );
   }
 
-  /// The default time format is TwentyFourHour, so the include_time_str in twelve_hours_format will cause parser error.
+  /// The default time format is TwentyFourHour, so the include_time_str in
+  /// twelve_hours_format will cause parser error.
   #[test]
   #[should_panic]
   fn date_type_option_twelve_hours_include_time_str_in_twenty_four_hours_format() {
@@ -272,14 +273,15 @@ mod tests {
         date: Some("1653609600".to_owned()),
         time: Some("1:00 am".to_owned()),
         include_time: Some(true),
-        timezone_id: None,
+        timezone_id: Some("Etc/UTC".to_owned()),
       },
       None,
       "May 27, 2022 01:00 AM",
     );
   }
 
-  // Attempting to parse include_time_str as TwelveHour when TwentyFourHour format is given should cause parser error.
+  /// Attempting to parse include_time_str as TwelveHour when TwentyFourHour
+  /// format is given should cause parser error.
   #[test]
   #[should_panic]
   fn date_type_option_twenty_four_hours_include_time_str_in_twelve_hours_format() {
@@ -370,7 +372,7 @@ mod tests {
         date: Some("1700006400".to_owned()),
         time: Some("08:00".to_owned()),
         include_time: Some(true),
-        timezone_id: None,
+        timezone_id: Some("Etc/UTC".to_owned()),
       },
     );
     assert_date(
@@ -380,7 +382,7 @@ mod tests {
         date: None,
         time: Some("14:00".to_owned()),
         include_time: None,
-        timezone_id: None,
+        timezone_id: Some("Etc/UTC".to_owned()),
       },
       Some(old_cell_data),
       "Nov 15, 2023 14:00",

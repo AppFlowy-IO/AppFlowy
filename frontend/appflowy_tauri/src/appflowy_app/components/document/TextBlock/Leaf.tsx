@@ -10,18 +10,10 @@ interface LeafProps extends RenderLeafProps {
     selectionHighlighted?: boolean;
   };
 }
-const Leaf = ({
-  attributes,
-  children,
-  leaf,
-}: LeafProps) => {
+const Leaf = ({ attributes, children, leaf }: LeafProps) => {
   let newChildren = children;
   if (leaf.bold) {
     newChildren = <strong>{children}</strong>;
-  }
-
-  if (leaf.code) {
-    newChildren = <code className='rounded-sm	 bg-[#F2FCFF] p-1'>{newChildren}</code>;
   }
 
   if (leaf.italic) {
@@ -32,16 +24,14 @@ const Leaf = ({
     newChildren = <u>{newChildren}</u>;
   }
 
-  let className = "";
-  if (leaf.strikethrough) {
-    className += "line-through";
-  }
-  if (leaf.selectionHighlighted) {
-    className += " bg-main-secondary";
-  }
+  const className = [
+    leaf.strikethrough && 'line-through',
+    leaf.selectionHighlighted && 'bg-main-secondary',
+    leaf.code && 'bg-main-selector',
+  ].filter(Boolean);
 
   return (
-    <span {...attributes} className={className}>
+    <span {...attributes} className={className.join(' ')}>
       {newChildren}
     </span>
   );

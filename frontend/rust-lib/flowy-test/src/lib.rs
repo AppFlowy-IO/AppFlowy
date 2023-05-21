@@ -1,4 +1,5 @@
 use nanoid::nanoid;
+use std::env::temp_dir;
 
 use flowy_core::{AppFlowyCore, AppFlowyCoreConfig};
 use flowy_user::entities::UserProfilePB;
@@ -35,7 +36,8 @@ impl std::default::Default for FlowySDKTest {
 
 impl FlowySDKTest {
   pub fn new() -> Self {
-    let config = AppFlowyCoreConfig::new(&root_dir(), nanoid!(6)).log_filter("info", vec![]);
+    let config =
+      AppFlowyCoreConfig::new(temp_dir().to_str().unwrap(), nanoid!(6)).log_filter("info", vec![]);
     let sdk = std::thread::spawn(|| AppFlowyCore::new(config))
       .join()
       .unwrap();

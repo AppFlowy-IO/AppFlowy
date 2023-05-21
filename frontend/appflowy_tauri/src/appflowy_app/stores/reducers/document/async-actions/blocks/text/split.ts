@@ -1,11 +1,11 @@
-import { DocumentState } from '$app/interfaces/document';
+import { DocumentState, SplitRelationship } from '$app/interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { setCursorBeforeThunk } from '../../cursor';
 import { newBlock } from '$app/utils/document/blocks/common';
-import { blockConfig, SplitRelationship } from '$app/constants/document/config';
+import { blockConfig } from '$app/constants/document/config';
 import { getSplitDelta } from '@/appflowy_app/utils/document/blocks/text/delta';
-import { ReactEditor } from "slate-react";
+import { ReactEditor } from 'slate-react';
 
 export const splitNodeThunk = createAsyncThunk(
   'document/splitNode',

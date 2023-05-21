@@ -11,7 +11,7 @@ import {
   canHandleUpKey,
 } from '$app/utils/document/blocks/text/hotkey';
 import { TextBlockKeyEventHandlerParams } from '$app/interfaces/document';
-import { ReactEditor } from "slate-react";
+import { ReactEditor } from 'slate-react';
 
 export function useDefaultTextInputEvents(id: string) {
   const dispatch = useAppDispatch();
@@ -81,11 +81,11 @@ export function useDefaultTextInputEvents(id: string) {
       triggerEventKey: keyBoardEventKeyMap.Backspace,
       canHandle: canHandleBackspaceKey,
       handler: (...args: TextBlockKeyEventHandlerParams) => {
-        const [e, _] = args;
+        const [e, editor] = args;
         e.preventDefault();
         void (async () => {
           if (!controller) return;
-          await dispatch(backspaceNodeThunk({ id, controller }));
+          await dispatch(backspaceNodeThunk({ id, controller, editor }));
         })();
       },
     },

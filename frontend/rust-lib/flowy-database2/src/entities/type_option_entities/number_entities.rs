@@ -13,9 +13,6 @@ pub struct NumberTypeOptionPB {
   #[pb(index = 3)]
   pub symbol: String,
 
-  #[pb(index = 4)]
-  pub sign_positive: bool,
-
   #[pb(index = 5)]
   pub name: String,
 }
@@ -26,7 +23,6 @@ impl From<NumberTypeOption> for NumberTypeOptionPB {
       format: data.format.into(),
       scale: data.scale,
       symbol: data.symbol,
-      sign_positive: data.sign_positive,
       name: data.name,
     }
   }
@@ -38,7 +34,6 @@ impl From<NumberTypeOptionPB> for NumberTypeOption {
       format: data.format.into(),
       scale: data.scale,
       symbol: data.symbol,
-      sign_positive: data.sign_positive,
       name: data.name,
     }
   }

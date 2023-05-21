@@ -176,15 +176,25 @@ class DatabaseController {
     );
   }
 
-  Future<Either<Unit, FlowyError>> moveRow({
+  Future<Either<Unit, FlowyError>> moveGroupRow({
     required RowPB fromRow,
     required String groupId,
     RowPB? toRow,
   }) {
-    return _databaseViewBackendSvc.moveRow(
+    return _databaseViewBackendSvc.moveGroupRow(
       fromRowId: fromRow.id,
       toGroupId: groupId,
       toRowId: toRow?.id,
+    );
+  }
+
+  Future<Either<Unit, FlowyError>> moveRow({
+    required RowPB fromRow,
+    required RowPB toRow,
+  }) {
+    return _databaseViewBackendSvc.moveRow(
+      fromRowId: fromRow.id,
+      toRowId: toRow.id,
     );
   }
 

@@ -257,15 +257,15 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
   }
 
   Widget _buildResultWidget(BuildContext context) {
-    final loading = Padding(
+    final loadingWidget = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
       child: SizedBox.fromSize(
         size: const Size.square(14),
         child: const CircularProgressIndicator(),
       ),
     );
-    if (result.isEmpty) {
-      return loading;
+    if (result.isEmpty || loading) {
+      return loadingWidget;
     }
     return Flexible(
       child: Text(
@@ -277,6 +277,18 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
   Widget _buildInputFooterWidget(BuildContext context) {
     return Row(
       children: [
+        FlowyRichTextButton(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: LocaleKeys.document_plugins_autoGeneratorRewrite.tr(),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
+          ),
+          onPressed: () => _requestCompletions(rewrite: true),
+        ),
+        const Space(10, 0),
         FlowyRichTextButton(
           TextSpan(
             children: [
@@ -402,7 +414,13 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
     );
   }
 
-  Future<void> _requestCompletions() async {
+  Future<void> _requestCompletions({bool rewrite = false}) async {
+    if (rewrite) {
+      setState(() {
+        loading = true;
+        result = "";
+      });
+    }
     final openAIRepository = await getIt.getAsync<OpenAIRepository>();
 
     var lines = content.split('\n\n');
