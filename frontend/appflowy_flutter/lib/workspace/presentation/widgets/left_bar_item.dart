@@ -17,12 +17,13 @@ class ViewLeftBarItem extends StatefulWidget {
 class _ViewLeftBarItemState extends State<ViewLeftBarItem> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
-  late ViewService _viewService;
-  late ViewListener _viewListener;
+  late final ViewService _viewService;
+  late final ViewListener _viewListener;
   late ViewPB view;
 
   @override
   void initState() {
+    super.initState();
     view = widget.view;
     _viewService = ViewService();
     _focusNode.addListener(_handleFocusChanged);
@@ -39,7 +40,8 @@ class _ViewLeftBarItemState extends State<ViewLeftBarItem> {
         );
       },
     );
-    super.initState();
+
+    _controller.text = view.name;
   }
 
   @override
@@ -53,30 +55,24 @@ class _ViewLeftBarItemState extends State<ViewLeftBarItem> {
 
   @override
   Widget build(BuildContext context) {
-    _controller.text = view.name;
-
-    return IntrinsicWidth(
+    return GestureDetector(
       key: ValueKey(_controller.text),
-      child: GestureDetector(
-        onDoubleTap: () {
-          _controller.selection = TextSelection(
-            baseOffset: 0,
-            extentOffset: _controller.text.length,
-          );
-        },
-        child: TextField(
-          controller: _controller,
-          focusNode: _focusNode,
-          scrollPadding: EdgeInsets.zero,
-          decoration: const InputDecoration(
-            contentPadding: EdgeInsets.symmetric(vertical: 4.0),
-            border: InputBorder.none,
-            isDense: true,
-          ),
-          style: Theme.of(context).textTheme.bodyMedium,
-          // cursorColor: widget.cursorColor,
-          // obscureText: widget.enableObscure,
+      onDoubleTap: () {
+        _controller.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: _controller.text.length,
+        );
+      },
+      child: TextField(
+        controller: _controller,
+        focusNode: _focusNode,
+        scrollPadding: EdgeInsets.zero,
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.symmetric(vertical: 4.0),
+          border: InputBorder.none,
+          isDense: true,
         ),
+        style: Theme.of(context).textTheme.bodyMedium,
       ),
     );
   }

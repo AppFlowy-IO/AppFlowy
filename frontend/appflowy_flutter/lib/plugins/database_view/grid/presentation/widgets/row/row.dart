@@ -25,29 +25,34 @@ class GridRow extends StatefulWidget {
   final GridCellBuilder cellBuilder;
   final void Function(BuildContext, GridCellBuilder) openDetailPage;
 
+  final int? index;
+  final bool isDraggable;
+
   const GridRow({
+    super.key,
     required this.rowInfo,
     required this.dataController,
     required this.cellBuilder,
     required this.openDetailPage,
-    Key? key,
-  }) : super(key: key);
+    this.index,
+    this.isDraggable = false,
+  });
 
   @override
   State<GridRow> createState() => _GridRowState();
 }
 
 class _GridRowState extends State<GridRow> {
-  late RowBloc _rowBloc;
+  late final RowBloc _rowBloc;
 
   @override
   void initState() {
+    super.initState();
     _rowBloc = RowBloc(
       rowInfo: widget.rowInfo,
       dataController: widget.dataController,
     );
     _rowBloc.add(const RowEvent.initial());
-    super.initState();
   }
 
   @override
@@ -70,9 +75,11 @@ class _GridRowState extends State<GridRow> {
 
             return Row(
               children: [
-                const _RowLeading(),
+                _RowLeading(
+                  index: widget.index,
+                  isDraggable: widget.isDraggable,
+                ),
                 content,
-                const _RowTrailing(),
               ],
             );
           },
@@ -89,19 +96,25 @@ class _GridRowState extends State<GridRow> {
 }
 
 class _RowLeading extends StatefulWidget {
-  const _RowLeading({Key? key}) : super(key: key);
+  final int? index;
+  final bool isDraggable;
+
+  const _RowLeading({
+    this.index,
+    this.isDraggable = false,
+  });
 
   @override
   State<_RowLeading> createState() => _RowLeadingState();
 }
 
 class _RowLeadingState extends State<_RowLeading> {
-  late PopoverController popoverController;
+  late final PopoverController popoverController;
 
   @override
   void initState() {
-    popoverController = PopoverController();
     super.initState();
+    popoverController = PopoverController();
   }
 
   @override
@@ -131,23 +144,28 @@ class _RowLeadingState extends State<_RowLeading> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const _InsertButton(),
-        _MenuButton(
-          openMenu: () {
-            popoverController.show();
-          },
-        ),
+        if (isDraggable) ...[
+          ReorderableDragStartListener(
+            index: widget.index!,
+            child: _MenuButton(
+              isDragEnabled: isDraggable,
+              openMenu: () {
+                popoverController.show();
+              },
+            ),
+          ),
+        ] else ...[
+          _MenuButton(
+            openMenu: () {
+              popoverController.show();
+            },
+          ),
+        ],
       ],
     );
   }
-}
 
-class _RowTrailing extends StatelessWidget {
-  const _RowTrailing({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox();
-  }
+  bool get isDraggable => widget.index != null && widget.isDraggable;
 }
 
 class _InsertButton extends StatelessWidget {
@@ -172,10 +190,12 @@ class _InsertButton extends StatelessWidget {
 
 class _MenuButton extends StatefulWidget {
   final VoidCallback openMenu;
+  final bool isDragEnabled;
+
   const _MenuButton({
     required this.openMenu,
-    Key? key,
-  }) : super(key: key);
+    this.isDragEnabled = false,
+  });
 
   @override
   State<_MenuButton> createState() => _MenuButtonState();
@@ -183,14 +203,18 @@ class _MenuButton extends StatefulWidget {
 
 class _MenuButtonState extends State<_MenuButton> {
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return FlowyIconButton(
-      tooltipText: LocaleKeys.tooltip_openMenu.tr(),
+      tooltipText:
+          widget.isDragEnabled ? null : LocaleKeys.tooltip_openMenu.tr(),
+      richTooltipText: widget.isDragEnabled
+          ? TextSpan(
+              children: [
+                TextSpan(text: '${LocaleKeys.tooltip_dragRow.tr()}\n'),
+                TextSpan(text: LocaleKeys.tooltip_openMenu.tr()),
+              ],
+            )
+          : null,
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       width: 20,
       height: 30,
@@ -258,6 +282,7 @@ class RowContent extends StatelessWidget {
             if (builder != null) {
               accessories.addAll(builder(buildContext));
             }
+
             return accessories;
           },
           child: child,
@@ -289,12 +314,12 @@ class _RowEnterRegion extends StatefulWidget {
 }
 
 class _RowEnterRegionState extends State<_RowEnterRegion> {
-  late RegionStateNotifier _rowStateNotifier;
+  late final RegionStateNotifier _rowStateNotifier;
 
   @override
   void initState() {
-    _rowStateNotifier = RegionStateNotifier();
     super.initState();
+    _rowStateNotifier = RegionStateNotifier();
   }
 
   @override
