@@ -6,18 +6,18 @@ on:
       - "main"
       - "develop"
       - "release/*"
-    paths:
-      - "frontend/**"
-      - "!frontend/appflowy_tauri/**"
+#    paths:
+#      - "frontend/**"
+#      - "!frontend/appflowy_tauri/**"
 
   pull_request:
     branches:
       - "main"
       - "develop"
       - "release/*"
-    paths:
-      - "frontend/**"
-      - "!frontend/appflowy_tauri/**"
+#    paths:
+#      - "frontend/**"
+#      - "!frontend/appflowy_tauri/**"
 
 env:
   FLUTTER_VERSION: "3.7.5"
