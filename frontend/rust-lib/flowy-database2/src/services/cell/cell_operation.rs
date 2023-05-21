@@ -3,6 +3,7 @@ use std::fmt::Debug;
 
 use collab_database::fields::Field;
 use collab_database::rows::{get_field_type_from_cell, Cell, Cells};
+use lib_infra::util::timestamp;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
@@ -365,23 +366,19 @@ impl CellBuilder {
       }
     }
 
-    let created_updated_at_fields = fields
-      .into_iter()
-      .filter(|f| {
-        (FieldType::from(f.field_type) == FieldType::CreatedAt
-          || FieldType::from(f.field_type) == FieldType::UpdatedAt)
-          && !cell_by_field_id.contains_key(&f.id)
-      })
-      .collect::<Vec<Field>>();
-    for field in created_updated_at_fields {
-      if let Some(field) = field_maps.get(&field.id) {
-        cells.insert(
-          field.id.clone(),
-          insert_date_cell(chrono::offset::Utc::now().timestamp(), Some(true), field),
-        );
+    // Auto insert the cell data if the field is not in the cell_by_field_id.
+    // Currently, the auto fill field type is `UpdatedAt` or `CreatedAt`.
+    for field in &fields {
+      if !cell_by_field_id.contains_key(&field.id) {
+        let field_type = FieldType::from(field.field_type);
+        if field_type == FieldType::UpdatedAt || field_type == FieldType::CreatedAt {
+          cells.insert(
+            field.id.clone(),
+            insert_date_cell(timestamp(), Some(true), field),
+          );
+        }
       }
     }
-
     CellBuilder { cells, field_maps }
   }
 
