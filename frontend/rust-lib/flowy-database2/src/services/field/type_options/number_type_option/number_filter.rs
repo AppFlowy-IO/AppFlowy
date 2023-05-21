@@ -47,13 +47,13 @@ mod tests {
     };
 
     for (num_str, visible) in [("123", true), ("1234", false), ("", false)] {
-      let data = NumberCellFormat::from_format_str(num_str, true, &NumberFormat::Num).unwrap();
+      let data = NumberCellFormat::from_format_str(num_str, &NumberFormat::Num).unwrap_or_default();
       assert_eq!(number_filter.is_visible(&data), visible);
     }
 
     let format = NumberFormat::USD;
     for (num_str, visible) in [("$123", true), ("1234", false), ("", false)] {
-      let data = NumberCellFormat::from_format_str(num_str, true, &format).unwrap();
+      let data = NumberCellFormat::from_format_str(num_str, &format).unwrap();
       assert_eq!(number_filter.is_visible(&data), visible);
     }
   }
@@ -64,7 +64,7 @@ mod tests {
       content: "12".to_owned(),
     };
     for (num_str, visible) in [("123", true), ("10", false), ("30", true), ("", false)] {
-      let data = NumberCellFormat::from_format_str(num_str, true, &NumberFormat::Num).unwrap();
+      let data = NumberCellFormat::from_format_str(num_str, &NumberFormat::Num).unwrap_or_default();
       assert_eq!(number_filter.is_visible(&data), visible);
     }
   }
@@ -76,7 +76,7 @@ mod tests {
       content: "100".to_owned(),
     };
     for (num_str, visible) in [("12", true), ("1234", false), ("30", true), ("", false)] {
-      let data = NumberCellFormat::from_format_str(num_str, true, &NumberFormat::Num).unwrap();
+      let data = NumberCellFormat::from_format_str(num_str, &NumberFormat::Num).unwrap_or_default();
       assert_eq!(number_filter.is_visible(&data), visible);
     }
   }
