@@ -32,9 +32,6 @@ opt-level = 3
 ## the amount of IO and the size of ./target, which make caching less effective.
 incremental = false
 
-[dependency]
-thiserror = '1.0.39'
-
 [patch.crates-io]
 collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "7a2e97"  }
 collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "7a2e97"  }

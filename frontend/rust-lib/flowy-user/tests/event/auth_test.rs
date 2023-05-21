@@ -12,7 +12,7 @@ async fn sign_up_with_invalid_email() {
       email: email.to_string(),
       name: valid_name(),
       password: login_password(),
-      auth_type: AuthTypePB::SelfHosted,
+      auth_type: AuthTypePB::Local,
     };
 
     assert_eq!(
@@ -35,7 +35,7 @@ async fn sign_up_with_invalid_password() {
       email: random_email(),
       name: valid_name(),
       password,
-      auth_type: AuthTypePB::SelfHosted,
+      auth_type: AuthTypePB::Local,
     };
 
     UserModuleEventBuilder::new(sdk)
@@ -59,7 +59,7 @@ async fn sign_in_success() {
     email: sign_up_context.user_profile.email.clone(),
     password: sign_up_context.password.clone(),
     name: "".to_string(),
-    auth_type: AuthTypePB::SelfHosted,
+    auth_type: AuthTypePB::Local,
   };
 
   let response = UserModuleEventBuilder::new(test.clone())
@@ -79,7 +79,7 @@ async fn sign_in_with_invalid_email() {
       email: email.to_string(),
       password: login_password(),
       name: "".to_string(),
-      auth_type: AuthTypePB::SelfHosted,
+      auth_type: AuthTypePB::Local,
     };
 
     assert_eq!(
@@ -104,7 +104,7 @@ async fn sign_in_with_invalid_password() {
       email: random_email(),
       password,
       name: "".to_string(),
-      auth_type: AuthTypePB::SelfHosted,
+      auth_type: AuthTypePB::Local,
     };
 
     UserModuleEventBuilder::new(sdk)

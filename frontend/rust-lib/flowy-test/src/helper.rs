@@ -1,4 +1,4 @@
-use std::{fs, path::PathBuf, sync::Arc};
+use std::sync::Arc;
 
 use flowy_folder2::entities::{
   CreateViewPayloadPB, CreateWorkspacePayloadPB, ViewLayoutPB, ViewPB, WorkspaceIdPB, WorkspacePB,
@@ -144,7 +144,7 @@ pub fn sign_up(dispatch: Arc<AFPluginDispatcher>) -> SignUpContext {
     email: random_email(),
     name: "app flowy".to_string(),
     password: password.clone(),
-    auth_type: AuthTypePB::SelfHosted,
+    auth_type: AuthTypePB::Local,
   }
   .into_bytes()
   .unwrap();
@@ -168,7 +168,7 @@ pub async fn async_sign_up(dispatch: Arc<AFPluginDispatcher>) -> SignUpContext {
     email,
     name: "app flowy".to_string(),
     password: password.clone(),
-    auth_type: AuthTypePB::SelfHosted,
+    auth_type: AuthTypePB::Local,
   }
   .into_bytes()
   .unwrap();
@@ -198,7 +198,7 @@ fn sign_in(dispatch: Arc<AFPluginDispatcher>) -> UserProfilePB {
     email: login_email(),
     password: login_password(),
     name: "rust".to_owned(),
-    auth_type: AuthTypePB::SelfHosted,
+    auth_type: AuthTypePB::Local,
   }
   .into_bytes()
   .unwrap();
