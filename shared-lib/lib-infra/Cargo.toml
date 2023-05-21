@@ -14,3 +14,4 @@ tokio = { version = "1.26", features = ["time", "rt"] }
 rand = "0.8.5"
 async-trait = "0.1.64"
 md5 = "0.7.0"
+anyhow = "1.0"

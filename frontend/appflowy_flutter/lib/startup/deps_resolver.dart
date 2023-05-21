@@ -1,3 +1,4 @@
+import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/network_monitor.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_action_sheet_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
@@ -5,6 +6,8 @@ import 'package:appflowy/plugins/database_view/application/field/field_service.d
 import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/application/auth/supabase_auth_service.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/util/file_picker/file_picker_impl.dart';
@@ -45,7 +48,10 @@ class DependencyResolver {
 }
 
 void _resolveCommonService(GetIt getIt) async {
+  // getIt.registerFactory<KeyValueStorage>(() => RustKeyValue());
+  getIt.registerFactory<KeyValueStorage>(() => DartKeyValue());
   getIt.registerFactory<FilePickerService>(() => FilePicker());
+  getIt.registerFactory<LocalFileStorage>(() => LocalFileStorage());
 
   getIt.registerFactoryAsync<OpenAIRepository>(
     () async {
@@ -66,11 +72,17 @@ void _resolveCommonService(GetIt getIt) async {
 }
 
 void _resolveUserDeps(GetIt getIt) {
-  getIt.registerFactory<AuthService>(() => AuthService());
+  // getIt.registerFactory<AuthService>(() => AppFlowyAuthService());
+  getIt.registerFactory<AuthService>(() => SupabaseAuthService());
+
   getIt.registerFactory<AuthRouter>(() => AuthRouter());
 
-  getIt.registerFactory<SignInBloc>(() => SignInBloc(getIt<AuthService>()));
-  getIt.registerFactory<SignUpBloc>(() => SignUpBloc(getIt<AuthService>()));
+  getIt.registerFactory<SignInBloc>(
+    () => SignInBloc(getIt<AuthService>()),
+  );
+  getIt.registerFactory<SignUpBloc>(
+    () => SignUpBloc(getIt<AuthService>()),
+  );
 
   getIt.registerFactory<SplashRoute>(() => SplashRoute());
   getIt.registerFactory<EditPanelBloc>(() => EditPanelBloc());
@@ -129,11 +141,6 @@ void _resolveFolderDeps(GetIt getIt) {
   //Settings
   getIt.registerFactoryParam<SettingsDialogBloc, UserProfilePB, void>(
     (user, _) => SettingsDialogBloc(user),
-  );
-
-  // Location
-  getIt.registerFactory<SettingsLocationCubit>(
-    () => SettingsLocationCubit(),
   );
 
   //User

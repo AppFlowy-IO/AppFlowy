@@ -29,7 +29,7 @@ impl DocumentUser for DocumentUserImpl {
       .map_err(|e| FlowyError::internal().context(e))
   }
 
-  fn token(&self) -> Result<String, FlowyError> {
+  fn token(&self) -> Result<Option<String>, FlowyError> {
     self
       .0
       .token()

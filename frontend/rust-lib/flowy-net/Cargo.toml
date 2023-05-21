@@ -9,44 +9,22 @@ edition = "2018"
 lib-dispatch = { path = "../lib-dispatch" }
 flowy-error = { path = "../flowy-error", features = ["adaptor_reqwest", "adaptor_server_error"] }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
-flowy-folder2 = { path = "../flowy-folder2" }
-flowy-document2 = { path = "../flowy-document2" }
-flowy-user = { path = "../flowy-user" }
-#flowy-document = { path = "../flowy-document" }
-lazy_static = "1.4.0"
-lib-infra = { path = "../../../shared-lib/lib-infra" }
 protobuf = {version = "2.28.0"}
-lib-ws = { path = "../../../shared-lib/lib-ws" }
-bytes = { version = "1.4" }
 anyhow = "1.0"
-tokio = { version = "1.26", features = ["sync"]}
-parking_lot = "0.12.1"
-strum = "0.21"
-strum_macros = "0.21"
-tracing = { version = "0.1", features = ["log"] }
-dashmap = "5"
-async-stream = "0.3.4"
-futures-util = "0.3.26"
-reqwest = "0.11.14"
-hyper = "0.14"
-config = { version = "0.10.1", default-features = false, features = ["yaml"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-serde-aux = "1.1.0"
-nanoid = "0.4.0"
 thiserror = "1.0"
+bytes = { version = "1.4" }
+strum_macros = "0.21"
+tracing = { version = "0.1"}
 
 [features]
 http_server = []
 dart = [
     "flowy-codegen/dart",
-    "flowy-user/dart",
     "flowy-error/dart",
 ]
 
 ts = [
     "flowy-codegen/ts",
-    "flowy-user/ts",
     "flowy-error/ts",
 ]
 

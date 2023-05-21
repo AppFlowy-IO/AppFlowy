@@ -347,7 +347,7 @@ pub(crate) async fn get_cell_handler(
   data_result_ok(cell)
 }
 
-#[tracing::instrument(level = "trace", skip_all, err)]
+#[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn update_cell_handler(
   data: AFPluginData<CellChangesetPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,

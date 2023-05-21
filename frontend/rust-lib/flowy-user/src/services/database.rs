@@ -112,20 +112,20 @@ pub struct UserTable {
   pub(crate) name: String,
   pub(crate) token: String,
   pub(crate) email: String,
-  pub(crate) workspace: String, // deprecated
+  pub(crate) workspace: String,
   pub(crate) icon_url: String,
   pub(crate) openai_key: String,
 }
 
 impl UserTable {
-  pub fn new(id: String, name: String, email: String, token: String) -> Self {
+  pub fn new(id: String, name: String, email: String, token: String, workspace_id: String) -> Self {
     Self {
       id,
       name,
       email,
       token,
       icon_url: "".to_owned(),
-      workspace: "".to_owned(),
+      workspace: workspace_id,
       openai_key: "".to_owned(),
     }
   }
@@ -138,13 +138,29 @@ impl UserTable {
 
 impl From<SignUpResponse> for UserTable {
   fn from(resp: SignUpResponse) -> Self {
-    UserTable::new(resp.user_id.to_string(), resp.name, resp.email, resp.token)
+    UserTable {
+      id: resp.user_id.to_string(),
+      name: resp.name,
+      token: resp.token.unwrap_or_default(),
+      email: resp.email.unwrap_or_default(),
+      workspace: resp.workspace_id,
+      icon_url: "".to_string(),
+      openai_key: "".to_string(),
+    }
   }
 }
 
 impl From<SignInResponse> for UserTable {
   fn from(resp: SignInResponse) -> Self {
-    UserTable::new(resp.user_id.to_string(), resp.name, resp.email, resp.token)
+    UserTable {
+      id: resp.user_id.to_string(),
+      name: resp.name,
+      token: resp.token.unwrap_or_default(),
+      email: resp.email.unwrap_or_default(),
+      workspace: resp.workspace_id,
+      icon_url: "".to_string(),
+      openai_key: "".to_string(),
+    }
   }
 }
 
@@ -157,6 +173,7 @@ impl From<UserTable> for UserProfile {
       token: table.token,
       icon_url: table.icon_url,
       openai_key: table.openai_key,
+      workspace_id: table.workspace,
     }
   }
 }

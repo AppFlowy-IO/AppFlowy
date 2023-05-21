@@ -178,7 +178,7 @@ impl TryInto<DeleteSortParams> for DeleteSortPayloadPB {
       .0;
 
     let sort_id = NotEmptyStr::parse(self.sort_id)
-      .map_err(|_| ErrorCode::UnexpectedEmptyString)?
+      .map_err(|_| ErrorCode::UnexpectedEmpty)?
       .0;
 
     let sort_type = SortType {

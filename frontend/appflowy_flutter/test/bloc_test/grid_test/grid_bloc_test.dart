@@ -13,9 +13,11 @@ void main() {
 
   group('Edit Grid:', () {
     late GridTestContext context;
+
     setUp(() async {
       context = await gridTest.createTestGrid();
     });
+
     // The initial number of rows is 3 for each grid.
     blocTest<GridBloc, GridState>(
       "create a row",
@@ -52,6 +54,35 @@ void main() {
           bloc.state.rowInfos.length == 2,
           "Expected 2, but receive ${bloc.state.rowInfos.length}",
         );
+      },
+    );
+
+    String? firstId;
+    String? secondId;
+    String? thirdId;
+
+    blocTest(
+      'reorder rows',
+      build: () => GridBloc(
+        view: context.gridView,
+        databaseController: DatabaseController(
+          view: context.gridView,
+          layoutType: DatabaseLayoutPB.Grid,
+        ),
+      )..add(const GridEvent.initial()),
+      act: (bloc) async {
+        await gridResponseFuture();
+
+        firstId = bloc.state.rowInfos[0].rowPB.id;
+        secondId = bloc.state.rowInfos[1].rowPB.id;
+        thirdId = bloc.state.rowInfos[2].rowPB.id;
+
+        bloc.add(const GridEvent.moveRow(0, 2));
+      },
+      verify: (bloc) {
+        expect(secondId, bloc.state.rowInfos[0].rowPB.id);
+        expect(thirdId, bloc.state.rowInfos[1].rowPB.id);
+        expect(firstId, bloc.state.rowInfos[2].rowPB.id);
       },
     );
   });

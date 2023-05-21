@@ -1,5 +1,4 @@
-use flowy_core::{ AppFlowyCore, AppFlowyCoreConfig, DEFAULT_NAME};
-use flowy_net::http_server::self_host::configuration::get_client_server_configuration;
+use flowy_core::{AppFlowyCore, AppFlowyCoreConfig, DEFAULT_NAME};
 
 pub fn init_flowy_core() -> AppFlowyCore {
   let config_json = include_str!("../tauri.conf.json");
@@ -12,12 +11,7 @@ pub fn init_flowy_core() -> AppFlowyCore {
   data_path.push("data");
 
   std::env::set_var("RUST_LOG", "trace");
-  let server_config = get_client_server_configuration().unwrap();
-  let config = AppFlowyCoreConfig::new(
-    data_path.to_str().unwrap(),
-    DEFAULT_NAME.to_string(),
-    server_config,
-  )
-  .log_filter("trace", vec!["appflowy_tauri".to_string()]);
+  let config = AppFlowyCoreConfig::new(data_path.to_str().unwrap(), DEFAULT_NAME.to_string())
+    .log_filter("trace", vec!["appflowy_tauri".to_string()]);
   AppFlowyCore::new(config)
 }

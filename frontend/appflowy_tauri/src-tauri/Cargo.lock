@@ -99,7 +99,7 @@ checksum = "9c7d0618f0e0b7e8ff11427422b64564d5fb0be1940354bfe2e0529b18a9d9b8"
 [[package]]
 name = "appflowy-integrate"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d074c9#d074c94471f222e2701fe451f13c51aab39d2bf8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7a2e97#7a2e97d9bfe746f5db18753ab0b59347ec5bf23f"
 dependencies = [
  "collab",
  "collab-database",
@@ -423,10 +423,10 @@ dependencies = [
  "http",
  "http-body",
  "hyper",
- "hyper-rustls",
+ "hyper-rustls 0.23.2",
  "lazy_static",
  "pin-project-lite",
- "rustls",
+ "rustls 0.20.8",
  "tokio",
  "tower",
  "tracing",
@@ -575,9 +575,9 @@ dependencies = [
 
 [[package]]
 name = "bindgen"
-version = "0.64.0"
+version = "0.65.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4243e6031260db77ede97ad86c27e501d646a27ab57b59a574f725d98ab1fb4"
+checksum = "cfdf7b466f9a4903edc73f95d6d2bcd5baf8ae620638762244d3f60143643cc5"
 dependencies = [
  "bitflags",
  "cexpr",
@@ -585,12 +585,13 @@ dependencies = [
  "lazy_static",
  "lazycell",
  "peeking_take_while",
+ "prettyplease",
  "proc-macro2",
  "quote",
  "regex",
  "rustc-hash",
  "shlex",
- "syn 1.0.109",
+ "syn 2.0.16",
 ]
 
 [[package]]
@@ -1020,7 +1021,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d074c9#d074c94471f222e2701fe451f13c51aab39d2bf8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7a2e97#7a2e97d9bfe746f5db18753ab0b59347ec5bf23f"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1037,7 +1038,7 @@ dependencies = [
 [[package]]
 name = "collab-client-ws"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d074c9#d074c94471f222e2701fe451f13c51aab39d2bf8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7a2e97#7a2e97d9bfe746f5db18753ab0b59347ec5bf23f"
 dependencies = [
  "bytes",
  "collab-sync",
@@ -1055,7 +1056,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d074c9#d074c94471f222e2701fe451f13c51aab39d2bf8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7a2e97#7a2e97d9bfe746f5db18753ab0b59347ec5bf23f"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1079,7 +1080,7 @@ dependencies = [
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d074c9#d074c94471f222e2701fe451f13c51aab39d2bf8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7a2e97#7a2e97d9bfe746f5db18753ab0b59347ec5bf23f"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1091,7 +1092,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d074c9#d074c94471f222e2701fe451f13c51aab39d2bf8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7a2e97#7a2e97d9bfe746f5db18753ab0b59347ec5bf23f"
 dependencies = [
  "anyhow",
  "collab",
@@ -1108,7 +1109,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d074c9#d074c94471f222e2701fe451f13c51aab39d2bf8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7a2e97#7a2e97d9bfe746f5db18753ab0b59347ec5bf23f"
 dependencies = [
  "anyhow",
  "collab",
@@ -1126,7 +1127,7 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d074c9#d074c94471f222e2701fe451f13c51aab39d2bf8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7a2e97#7a2e97d9bfe746f5db18753ab0b59347ec5bf23f"
 dependencies = [
  "bincode",
  "chrono",
@@ -1146,7 +1147,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d074c9#d074c94471f222e2701fe451f13c51aab39d2bf8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7a2e97#7a2e97d9bfe746f5db18753ab0b59347ec5bf23f"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1172,7 +1173,7 @@ dependencies = [
 [[package]]
 name = "collab-sync"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d074c9#d074c94471f222e2701fe451f13c51aab39d2bf8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7a2e97#7a2e97d9bfe746f5db18753ab0b59347ec5bf23f"
 dependencies = [
  "bytes",
  "collab",
@@ -1790,6 +1791,7 @@ dependencies = [
  "flowy-error",
  "flowy-folder2",
  "flowy-net",
+ "flowy-server",
  "flowy-sqlite",
  "flowy-task",
  "flowy-user",
@@ -1931,6 +1933,7 @@ dependencies = [
  "tokio",
  "tracing",
  "unicode-segmentation",
+ "uuid",
 ]
 
 [[package]]
@@ -1938,33 +1941,14 @@ name = "flowy-net"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "async-stream",
  "bytes",
- "config",
- "dashmap",
  "flowy-codegen",
  "flowy-derive",
- "flowy-document2",
  "flowy-error",
- "flowy-folder2",
- "flowy-user",
- "futures-util",
- "hyper",
- "lazy_static",
  "lib-dispatch",
- "lib-infra",
- "lib-ws",
- "nanoid",
- "parking_lot 0.12.1",
  "protobuf",
- "reqwest",
- "serde",
- "serde-aux",
- "serde_json",
- "strum",
  "strum_macros",
  "thiserror",
- "tokio",
  "tracing",
 ]
 
@@ -1980,6 +1964,34 @@ dependencies = [
  "protobuf",
  "serde",
  "tracing",
+]
+
+[[package]]
+name = "flowy-server"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bytes",
+ "config",
+ "flowy-config",
+ "flowy-error",
+ "flowy-user",
+ "futures-util",
+ "hyper",
+ "lazy_static",
+ "lib-infra",
+ "nanoid",
+ "parking_lot 0.12.1",
+ "postgrest",
+ "reqwest",
+ "serde",
+ "serde-aux",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tokio-retry",
+ "tracing",
+ "uuid",
 ]
 
 [[package]]
@@ -2035,6 +2047,7 @@ dependencies = [
  "protobuf",
  "serde",
  "serde_json",
+ "serde_repr",
  "strum",
  "strum_macros",
  "tokio",
@@ -2705,10 +2718,23 @@ dependencies = [
  "http",
  "hyper",
  "log",
- "rustls",
+ "rustls 0.20.8",
  "rustls-native-certs",
  "tokio",
- "tokio-rustls",
+ "tokio-rustls 0.23.4",
+]
+
+[[package]]
+name = "hyper-rustls"
+version = "0.24.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0646026eb1b3eea4cd9ba47912ea5ce9cc07713d105b1a14698f4e6433d348b7"
+dependencies = [
+ "http",
+ "hyper",
+ "rustls 0.21.1",
+ "tokio",
+ "tokio-rustls 0.24.0",
 ]
 
 [[package]]
@@ -3020,6 +3046,7 @@ dependencies = [
 name = "lib-infra"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "async-trait",
  "bytes",
  "chrono",
@@ -3107,9 +3134,9 @@ checksum = "f7012b1bbb0719e1097c47611d3898568c546d597c2e74d66f6087edd5233ff4"
 
 [[package]]
 name = "librocksdb-sys"
-version = "0.10.0+7.9.2"
+version = "0.11.0+8.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0fe4d5874f5ff2bc616e55e8c6086d478fcda13faf9495768a4aa1c22042d30b"
+checksum = "d3386f101bcb4bd252d8e9d2fb41ec3b0862a15a62b478c355b2982efa469e3e"
 dependencies = [
  "bindgen",
  "bzip2-sys",
@@ -3994,6 +4021,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "postgrest"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e66400cb23a379592bc8c8bdc9adda652eef4a969b74ab78454a8e8c11330c2b"
+dependencies = [
+ "reqwest",
+]
+
+[[package]]
 name = "ppv-lite86"
 version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4004,6 +4040,16 @@ name = "precomputed-hash"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "925383efa346730478fb4838dbe9137d2a47675ad789c546d150a6e1dd4ab31c"
+
+[[package]]
+name = "prettyplease"
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "617feabb81566b593beb4886fb8c1f38064169dae4dccad0e3220160c3b37203"
+dependencies = [
+ "proc-macro2",
+ "syn 2.0.16",
+]
 
 [[package]]
 name = "proc-macro-crate"
@@ -4408,6 +4454,7 @@ dependencies = [
  "http",
  "http-body",
  "hyper",
+ "hyper-rustls 0.24.0",
  "hyper-tls",
  "ipnet",
  "js-sys",
@@ -4417,16 +4464,20 @@ dependencies = [
  "once_cell",
  "percent-encoding",
  "pin-project-lite",
+ "rustls 0.21.1",
+ "rustls-pemfile",
  "serde",
  "serde_json",
  "serde_urlencoded",
  "tokio",
  "tokio-native-tls",
+ "tokio-rustls 0.24.0",
  "tower-service",
  "url",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
+ "webpki-roots",
  "winreg 0.10.1",
 ]
 
@@ -4475,9 +4526,9 @@ dependencies = [
 
 [[package]]
 name = "rocksdb"
-version = "0.20.1"
+version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "015439787fce1e75d55f279078d33ff14b4af5d93d995e8838ee4631301c8a99"
+checksum = "bb6f170a4041d50a0ce04b0d2e14916d6ca863ea2e422689a5b694395d299ffe"
 dependencies = [
  "libc",
  "librocksdb-sys",
@@ -4577,6 +4628,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "rustls"
+version = "0.21.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c911ba11bc8433e811ce56fde130ccf32f5127cab0e0194e9c68c5a5b671791e"
+dependencies = [
+ "log",
+ "ring",
+ "rustls-webpki",
+ "sct",
+]
+
+[[package]]
 name = "rustls-native-certs"
 version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4595,6 +4658,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d194b56d58803a43635bdc398cd17e383d6f71f9182b9a192c127ca42494a59b"
 dependencies = [
  "base64 0.21.0",
+]
+
+[[package]]
+name = "rustls-webpki"
+version = "0.100.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d6207cd5ed3d8dca7816f8f3725513a34609c0c765bf652b8c3cb4cfd87db46b"
+dependencies = [
+ "ring",
+ "untrusted",
 ]
 
 [[package]]
@@ -4743,9 +4816,9 @@ dependencies = [
 
 [[package]]
 name = "serde-aux"
-version = "1.1.0"
+version = "4.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "905f2fc9f3d1574e8b5923a58118240021f01d4e239673937ffb9f42707a4f22"
+checksum = "c3dfe1b7eb6f9dcf011bd6fad169cdeaae75eda0d61b1a99a3f015b41b0cae39"
 dependencies = [
  "chrono",
  "serde",
@@ -5630,9 +5703,19 @@ version = "0.23.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c43ee83903113e03984cb9e5cebe6c04a5116269e900e3ddba8f068a62adda59"
 dependencies = [
- "rustls",
+ "rustls 0.20.8",
  "tokio",
  "webpki",
+]
+
+[[package]]
+name = "tokio-rustls"
+version = "0.24.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e0d409377ff5b1e3ca6437aa86c1eb7d40c134bfec254e44c830defa92669db5"
+dependencies = [
+ "rustls 0.21.1",
+ "tokio",
 ]
 
 [[package]]
@@ -6316,6 +6399,15 @@ checksum = "f095d78192e208183081cc07bc5515ef55216397af48b873e5edcd72637fa1bd"
 dependencies = [
  "ring",
  "untrusted",
+]
+
+[[package]]
+name = "webpki-roots"
+version = "0.22.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b6c71e40d7d2c34a5106301fb632274ca37242cd0c9d3e64dbece371a40a2d87"
+dependencies = [
+ "webpki",
 ]
 
 [[package]]

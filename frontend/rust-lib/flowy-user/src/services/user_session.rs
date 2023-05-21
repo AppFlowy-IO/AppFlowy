@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use appflowy_integrate::RocksCollabDB;
 use serde::{Deserialize, Serialize};
+use serde_repr::*;
 use tokio::sync::RwLock;
 
 use flowy_error::internal_error;
@@ -12,15 +13,16 @@ use flowy_sqlite::{
   schema::{user_table, user_table::dsl},
   DBConnection, ExpressionMethods, UserDatabaseConnection,
 };
+use lib_infra::box_any::BoxAny;
 
 use crate::entities::{
-  SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
+  AuthTypePB, SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
 use crate::entities::{UserProfilePB, UserSettingPB};
-use crate::event_map::UserStatusCallback;
+use crate::event_map::{UserCloudServiceProvider, UserStatusCallback};
 use crate::{
   errors::FlowyError,
-  event_map::UserCloudService,
+  event_map::UserAuthService,
   notification::*,
   services::database::{UserDB, UserTable, UserTableChangeset},
 };
@@ -47,18 +49,21 @@ impl UserSessionConfig {
 pub struct UserSession {
   database: UserDB,
   session_config: UserSessionConfig,
-  cloud_service: Arc<dyn UserCloudService>,
+  cloud_services: Arc<dyn UserCloudServiceProvider>,
   user_status_callback: RwLock<Option<Arc<dyn UserStatusCallback>>>,
 }
 
 impl UserSession {
-  pub fn new(session_config: UserSessionConfig, cloud_service: Arc<dyn UserCloudService>) -> Self {
+  pub fn new(
+    session_config: UserSessionConfig,
+    cloud_services: Arc<dyn UserCloudServiceProvider>,
+  ) -> Self {
     let db = UserDB::new(&session_config.root_dir);
     let user_status_callback = RwLock::new(None);
     Self {
       database: db,
       session_config,
-      cloud_service,
+      cloud_services,
       user_status_callback,
     }
   }
@@ -66,7 +71,7 @@ impl UserSession {
   pub async fn init<C: UserStatusCallback + 'static>(&self, user_status_callback: C) {
     if let Ok(session) = self.get_session() {
       let _ = user_status_callback
-        .did_sign_in(&session.token, session.user_id)
+        .did_sign_in(session.user_id, &session.workspace_id)
         .await;
     }
     *self.user_status_callback.write().await = Some(Arc::new(user_status_callback));
@@ -93,77 +98,79 @@ impl UserSession {
     self.database.get_kv_db(user_id)
   }
 
-  #[tracing::instrument(level = "debug", skip(self))]
-  pub async fn sign_in(&self, params: SignInParams) -> Result<UserProfile, FlowyError> {
-    if self.is_user_login(&params.email) {
-      match self.get_user_profile().await {
-        Ok(profile) => {
-          send_sign_in_notification()
-            .payload::<UserProfilePB>(profile.clone().into())
-            .send();
-          Ok(profile)
-        },
-        Err(err) => Err(err),
-      }
-    } else {
-      let resp = self.cloud_service.sign_in(params).await?;
-      let session: Session = resp.clone().into();
-      self.set_session(Some(session))?;
-      let user_profile: UserProfile = self.save_user(resp.into()).await?.into();
-      let _ = self
-        .user_status_callback
-        .read()
-        .await
-        .as_ref()
-        .unwrap()
-        .did_sign_in(&user_profile.token, user_profile.id)
-        .await;
-      send_sign_in_notification()
-        .payload::<UserProfilePB>(user_profile.clone().into())
-        .send();
-      Ok(user_profile)
-    }
-  }
+  #[tracing::instrument(level = "debug", skip(self, params))]
+  pub async fn sign_in(
+    &self,
+    auth_type: &AuthType,
+    params: BoxAny,
+  ) -> Result<UserProfile, FlowyError> {
+    let resp = self
+      .cloud_services
+      .get_auth_service(auth_type)?
+      .sign_in(params)
+      .await?;
 
-  #[tracing::instrument(level = "debug", skip(self))]
-  pub async fn sign_up(&self, params: SignUpParams) -> Result<UserProfile, FlowyError> {
-    if self.is_user_login(&params.email) {
-      self.get_user_profile().await
-    } else {
-      let resp = self.cloud_service.sign_up(params).await?;
-      let session: Session = resp.clone().into();
-      self.set_session(Some(session))?;
-      let user_table = self.save_user(resp.into()).await?;
-      let user_profile: UserProfile = user_table.into();
-      let _ = self
-        .user_status_callback
-        .read()
-        .await
-        .as_ref()
-        .unwrap()
-        .did_sign_up(&user_profile)
-        .await;
-      Ok(user_profile)
-    }
-  }
-
-  #[tracing::instrument(level = "debug", skip(self))]
-  pub async fn sign_out(&self) -> Result<(), FlowyError> {
-    let session = self.get_session()?;
-    let uid = session.user_id.to_string();
-    let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&uid)))
-      .execute(&*(self.db_connection()?))?;
-    self.database.close_user_db(session.user_id)?;
-    self.set_session(None)?;
+    let session: Session = resp.clone().into();
+    self.set_session(Some(session))?;
+    let user_profile: UserProfile = self.save_user(resp.into()).await?.into();
     let _ = self
       .user_status_callback
       .read()
       .await
       .as_ref()
       .unwrap()
-      .did_expired(&session.token, session.user_id)
+      .did_sign_in(user_profile.id, &user_profile.workspace_id)
       .await;
-    self.sign_out_on_server(&session.token).await?;
+    send_sign_in_notification()
+      .payload::<UserProfilePB>(user_profile.clone().into())
+      .send();
+
+    Ok(user_profile)
+  }
+
+  #[tracing::instrument(level = "debug", skip(self, params))]
+  pub async fn sign_up(
+    &self,
+    auth_type: &AuthType,
+    params: BoxAny,
+  ) -> Result<UserProfile, FlowyError> {
+    let resp = self
+      .cloud_services
+      .get_auth_service(auth_type)?
+      .sign_up(params)
+      .await?;
+
+    let session: Session = resp.clone().into();
+    self.set_session(Some(session))?;
+    let user_table = self.save_user(resp.into()).await?;
+    let user_profile: UserProfile = user_table.into();
+    let _ = self
+      .user_status_callback
+      .read()
+      .await
+      .as_ref()
+      .unwrap()
+      .did_sign_up(&user_profile)
+      .await;
+    Ok(user_profile)
+  }
+
+  #[tracing::instrument(level = "debug", skip(self))]
+  pub async fn sign_out(&self, auth_type: &AuthType) -> Result<(), FlowyError> {
+    let session = self.get_session()?;
+    let uid = session.user_id.to_string();
+    let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&uid)))
+      .execute(&*(self.db_connection()?))?;
+    self.database.close_user_db(session.user_id)?;
+    self.set_session(None)?;
+    let server = self.cloud_services.get_auth_service(auth_type)?;
+    let token = session.token;
+    let _ = tokio::spawn(async move {
+      match server.sign_out(token).await {
+        Ok(_) => {},
+        Err(e) => tracing::error!("Sign out failed: {:?}", e),
+      }
+    });
 
     Ok(())
   }
@@ -173,16 +180,22 @@ impl UserSession {
     &self,
     params: UpdateUserProfileParams,
   ) -> Result<(), FlowyError> {
+    let auth_type = params.auth_type.clone();
     let session = self.get_session()?;
     let changeset = UserTableChangeset::new(params.clone());
     diesel_update_table!(user_table, changeset, &*self.db_connection()?);
 
     let user_profile = self.get_user_profile().await?;
     let profile_pb: UserProfilePB = user_profile.into();
-    send_notification(&session.token, UserNotification::DidUpdateUserProfile)
-      .payload(profile_pb)
-      .send();
-    self.update_user_on_server(&session.token, params).await?;
+    send_notification(
+      &session.user_id.to_string(),
+      UserNotification::DidUpdateUserProfile,
+    )
+    .payload(profile_pb)
+    .send();
+    self
+      .update_user(&auth_type, session.user_id, &session.token, params)
+      .await?;
     Ok(())
   }
 
@@ -191,24 +204,21 @@ impl UserSession {
   }
 
   pub async fn check_user(&self) -> Result<UserProfile, FlowyError> {
-    let (user_id, token) = self.get_session()?.into_part();
+    let (user_id, _token) = self.get_session()?.into_part();
     let user_id = user_id.to_string();
     let user = dsl::user_table
       .filter(user_table::id.eq(&user_id))
       .first::<UserTable>(&*(self.db_connection()?))?;
-
-    self.read_user_profile_on_server(&token)?;
     Ok(user.into())
   }
 
   pub async fn get_user_profile(&self) -> Result<UserProfile, FlowyError> {
-    let (user_id, token) = self.get_session()?.into_part();
+    let (user_id, _) = self.get_session()?.into_part();
     let user_id = user_id.to_string();
     let user = dsl::user_table
       .filter(user_table::id.eq(&user_id))
       .first::<UserTable>(&*(self.db_connection()?))?;
 
-    self.read_user_profile_on_server(&token)?;
     Ok(user.into())
   }
 
@@ -235,43 +245,28 @@ impl UserSession {
     Ok(self.get_session()?.name)
   }
 
-  pub fn token(&self) -> Result<String, FlowyError> {
+  pub fn token(&self) -> Result<Option<String>, FlowyError> {
     Ok(self.get_session()?.token)
   }
 }
 
 impl UserSession {
-  fn read_user_profile_on_server(&self, _token: &str) -> Result<(), FlowyError> {
-    Ok(())
-  }
-
-  async fn update_user_on_server(
+  async fn update_user(
     &self,
-    token: &str,
+    auth_type: &AuthType,
+    uid: i64,
+    token: &Option<String>,
     params: UpdateUserProfileParams,
   ) -> Result<(), FlowyError> {
-    let server = self.cloud_service.clone();
+    let server = self.cloud_services.get_auth_service(auth_type)?;
     let token = token.to_owned();
     let _ = tokio::spawn(async move {
-      match server.update_user(&token, params).await {
+      match server.update_user(uid, &token, params).await {
         Ok(_) => {},
         Err(e) => {
           // TODO: retry?
           tracing::error!("update user profile failed: {:?}", e);
         },
-      }
-    })
-    .await;
-    Ok(())
-  }
-
-  async fn sign_out_on_server(&self, token: &str) -> Result<(), FlowyError> {
-    let server = self.cloud_service.clone();
-    let token = token.to_owned();
-    let _ = tokio::spawn(async move {
-      match server.sign_out(&token).await {
-        Ok(_) => {},
-        Err(e) => tracing::error!("Sign out failed: {:?}", e),
       }
     })
     .await;
@@ -304,17 +299,10 @@ impl UserSession {
       Some(session) => Ok(session),
     }
   }
-
-  fn is_user_login(&self, email: &str) -> bool {
-    match self.get_session() {
-      Ok(session) => session.email == email,
-      Err(_) => false,
-    }
-  }
 }
 
 pub async fn update_user(
-  _cloud_service: Arc<dyn UserCloudService>,
+  _cloud_service: Arc<dyn UserAuthService>,
   pool: Arc<ConnectionPool>,
   params: UpdateUserProfileParams,
 ) -> Result<(), FlowyError> {
@@ -333,10 +321,17 @@ impl UserDatabaseConnection for UserSession {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 struct Session {
   user_id: i64,
-  token: String,
-  email: String,
+
+  workspace_id: String,
+
   #[serde(default)]
   name: String,
+
+  #[serde(default)]
+  token: Option<String>,
+
+  #[serde(default)]
+  email: Option<String>,
 }
 
 impl std::convert::From<SignInResponse> for Session {
@@ -346,6 +341,7 @@ impl std::convert::From<SignInResponse> for Session {
       token: resp.token,
       email: resp.email,
       name: resp.name,
+      workspace_id: resp.workspace_id,
     }
   }
 }
@@ -357,12 +353,13 @@ impl std::convert::From<SignUpResponse> for Session {
       token: resp.token,
       email: resp.email,
       name: resp.name,
+      workspace_id: resp.workspace_id,
     }
   }
 }
 
 impl Session {
-  pub fn into_part(self) -> (i64, String) {
+  pub fn into_part(self) -> (i64, Option<String>) {
     (self.user_id, self.token)
   }
 }
@@ -390,11 +387,30 @@ impl std::convert::From<Session> for String {
   }
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-struct OldSession {
-  user_id: String,
-  token: String,
-  email: String,
-  #[serde(default)]
-  name: String,
+#[derive(Debug, Clone, Hash, Serialize_repr, Deserialize_repr, Eq, PartialEq)]
+#[repr(u8)]
+pub enum AuthType {
+  /// It's a local server, we do fake sign in default.
+  Local = 0,
+  /// Currently not supported. It will be supported in the future when the
+  /// [AppFlowy-Server](https://github.com/AppFlowy-IO/AppFlowy-Server) ready.
+  SelfHosted = 1,
+  /// It uses Supabase as the backend.
+  Supabase = 2,
+}
+
+impl Default for AuthType {
+  fn default() -> Self {
+    Self::Local
+  }
+}
+
+impl From<AuthTypePB> for AuthType {
+  fn from(pb: AuthTypePB) -> Self {
+    match pb {
+      AuthTypePB::Supabase => AuthType::Supabase,
+      AuthTypePB::Local => AuthType::Local,
+      AuthTypePB::SelfHosted => AuthType::SelfHosted,
+    }
+  }
 }

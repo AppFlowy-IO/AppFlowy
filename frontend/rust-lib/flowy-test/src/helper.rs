@@ -1,15 +1,18 @@
-use crate::prelude::*;
+use std::sync::Arc;
+
 use flowy_folder2::entities::{
   CreateViewPayloadPB, CreateWorkspacePayloadPB, ViewLayoutPB, ViewPB, WorkspaceIdPB, WorkspacePB,
 };
 use flowy_folder2::event_map::FolderEvent::{CreateView, CreateWorkspace, OpenWorkspace};
+use flowy_user::entities::AuthTypePB;
 use flowy_user::{
   entities::{SignInPayloadPB, SignUpPayloadPB, UserProfilePB},
   errors::FlowyError,
   event_map::UserEvent::{InitUser, SignIn, SignOut, SignUp},
 };
 use lib_dispatch::prelude::{AFPluginDispatcher, AFPluginRequest, ToBytes};
-use std::{fs, path::PathBuf, sync::Arc};
+
+use crate::prelude::*;
 
 pub struct ViewTest {
   pub sdk: FlowySDKTest,
@@ -118,21 +121,6 @@ async fn create_view(
     .parse::<ViewPB>()
 }
 
-pub fn root_dir() -> String {
-  // https://doc.rust-lang.org/cargo/reference/environment-variables.html
-  let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap_or_else(|_| "./".to_owned());
-  let mut path_buf = fs::canonicalize(&PathBuf::from(&manifest_dir)).unwrap();
-  path_buf.pop(); // rust-lib
-  path_buf.push("temp");
-  path_buf.push("flowy");
-
-  let root_dir = path_buf.to_str().unwrap().to_string();
-  if !std::path::Path::new(&root_dir).exists() {
-    std::fs::create_dir_all(&root_dir).unwrap();
-  }
-  root_dir
-}
-
 pub fn random_email() -> String {
   format!("{}@appflowy.io", nanoid!(20))
 }
@@ -156,6 +144,7 @@ pub fn sign_up(dispatch: Arc<AFPluginDispatcher>) -> SignUpContext {
     email: random_email(),
     name: "app flowy".to_string(),
     password: password.clone(),
+    auth_type: AuthTypePB::Local,
   }
   .into_bytes()
   .unwrap();
@@ -179,6 +168,7 @@ pub async fn async_sign_up(dispatch: Arc<AFPluginDispatcher>) -> SignUpContext {
     email,
     name: "app flowy".to_string(),
     password: password.clone(),
+    auth_type: AuthTypePB::Local,
   }
   .into_bytes()
   .unwrap();
@@ -208,6 +198,7 @@ fn sign_in(dispatch: Arc<AFPluginDispatcher>) -> UserProfilePB {
     email: login_email(),
     password: login_password(),
     name: "rust".to_owned(),
+    auth_type: AuthTypePB::Local,
   }
   .into_bytes()
   .unwrap();

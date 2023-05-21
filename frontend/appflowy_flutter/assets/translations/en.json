@@ -21,6 +21,7 @@
   "signIn": {
     "loginTitle": "Login to @:appName",
     "loginButtonText": "Login",
+    "loginAsGuestButtonText": "Get Started",
     "buttonText": "Sign In",
     "forgotPassword": "Forgot Password?",
     "emailHint": "Email",
@@ -45,7 +46,8 @@
     "medium": "medium",
     "large": "large",
     "fontSize": "Font Size",
-    "import": "Import"
+    "import": "Import",
+    "moreOptions": "More options"
   },
   "disclosureAction": {
     "rename": "Rename",
@@ -108,6 +110,7 @@
     "openAsPage": "Open as a Page",
     "addNewRow": "Add a new row",
     "openMenu": "Click to open menu",
+    "dragRow": "Long press to reorder the row",
     "viewDataBase": "View database",
     "referencePage": "This {name} is referenced"
   },
@@ -182,7 +185,8 @@
       "theme": "Theme"
     },
     "files": {
-      "defaultLocation": "Where your data is stored now",
+      "copy": "Copy",
+      "defaultLocation": "Read files and data storage location",
       "doubleTapToCopy": "Double tap to copy the path",
       "restoreLocation": "Restore to AppFlowy default path",
       "customizeLocation": "Open another folder",
@@ -201,7 +205,11 @@
       "create": "Create",
       "folderPath": "Path to store your folder",
       "locationCannotBeEmpty": "Path cannot be empty",
-      "pathCopiedSnackbar": "File storage path copied to clipboard!"
+      "pathCopiedSnackbar": "File storage path copied to clipboard!",
+      "changeLocationTooltips": "Change the files read the data directory",
+      "change": "Change",
+      "openLocationTooltips": "Open the files read the data directory",
+      "recoverLocationTooltips": "Recover the files read the data directory"
     },
     "user": {
       "name": "Name",
@@ -360,12 +368,14 @@
       "autoGeneratorGenerate": "Generate",
       "autoGeneratorHintText": "Ask OpenAI ...",
       "autoGeneratorCantGetOpenAIKey": "Can't get OpenAI key",
+      "autoGeneratorRewrite": "Rewrite",
       "smartEdit": "AI Assistants",
       "openAI": "OpenAI",
       "smartEditFixSpelling": "Fix spelling",
       "warning": "⚠️ AI responses can be inaccurate or misleading.",
       "smartEditSummarize": "Summarize",
-      "smartEditImproveWriting": "Improve Writing",
+      "smartEditImproveWriting": "Improve writing",
+      "smartEditMakeLonger": "Make longer",
       "smartEditCouldNotFetchResult": "Could not fetch result from OpenAI",
       "smartEditCouldNotFetchKey": "Could not fetch OpenAI key",
       "smartEditDisabled": "Connect OpenAI in Settings",

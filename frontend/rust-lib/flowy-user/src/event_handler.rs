@@ -3,19 +3,23 @@ use std::{convert::TryInto, sync::Arc};
 use flowy_error::FlowyError;
 use flowy_sqlite::kv::KV;
 use lib_dispatch::prelude::*;
+use lib_infra::box_any::BoxAny;
 
 use crate::entities::*;
 use crate::entities::{SignInParams, SignUpParams, UpdateUserProfileParams};
-use crate::services::UserSession;
+use crate::services::{AuthType, UserSession};
 
-// tracing instrument 👉🏻 https://docs.rs/tracing/0.1.26/tracing/attr.instrument.html
 #[tracing::instrument(level = "debug", name = "sign_in", skip(data, session), fields(email = %data.email), err)]
 pub async fn sign_in(
   data: AFPluginData<SignInPayloadPB>,
   session: AFPluginState<Arc<UserSession>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
   let params: SignInParams = data.into_inner().try_into()?;
-  let user_profile: UserProfilePB = session.sign_in(params).await?.into();
+  let auth_type = params.auth_type.clone();
+  let user_profile: UserProfilePB = session
+    .sign_in(&auth_type, BoxAny::new(params))
+    .await?
+    .into();
   data_result_ok(user_profile)
 }
 
@@ -34,8 +38,11 @@ pub async fn sign_up(
   session: AFPluginState<Arc<UserSession>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
   let params: SignUpParams = data.into_inner().try_into()?;
-  let user_profile: UserProfilePB = session.sign_up(params).await?.into();
-
+  let auth_type = params.auth_type.clone();
+  let user_profile: UserProfilePB = session
+    .sign_up(&auth_type, BoxAny::new(params))
+    .await?
+    .into();
   data_result_ok(user_profile)
 }
 
@@ -61,9 +68,13 @@ pub async fn get_user_profile_handler(
   data_result_ok(user_profile)
 }
 
-#[tracing::instrument(level = "debug", name = "sign_out", skip(session))]
-pub async fn sign_out(session: AFPluginState<Arc<UserSession>>) -> Result<(), FlowyError> {
-  session.sign_out().await?;
+#[tracing::instrument(level = "debug", skip(data, session))]
+pub async fn sign_out(
+  data: AFPluginData<SignOutPB>,
+  session: AFPluginState<Arc<UserSession>>,
+) -> Result<(), FlowyError> {
+  let auth_type: AuthType = data.into_inner().auth_type.into();
+  session.sign_out(&auth_type).await?;
   Ok(())
 }
 
@@ -88,8 +99,7 @@ pub async fn set_appearance_setting(
     setting.theme = APPEARANCE_DEFAULT_THEME.to_string();
   }
 
-  let s = serde_json::to_string(&setting)?;
-  KV::set_str(APPEARANCE_SETTING_CACHE_KEY, s);
+  KV::set_object(APPEARANCE_SETTING_CACHE_KEY, setting)?;
   Ok(())
 }
 
@@ -119,4 +129,20 @@ pub async fn get_user_setting(
 ) -> DataResult<UserSettingPB, FlowyError> {
   let user_setting = session.user_setting()?;
   data_result_ok(user_setting)
+}
+
+/// Only used for third party auth.
+/// Use [UserEvent::SignIn] or [UserEvent::SignUp] If the [AuthType] is Local or SelfHosted
+#[tracing::instrument(level = "debug", skip(data, session), err)]
+pub async fn third_party_auth_handler(
+  data: AFPluginData<ThirdPartyAuthPB>,
+  session: AFPluginState<Arc<UserSession>>,
+) -> DataResult<UserProfilePB, FlowyError> {
+  let params = data.into_inner();
+  let auth_type: AuthType = params.auth_type.into();
+  let user_profile: UserProfilePB = session
+    .sign_up(&auth_type, BoxAny::new(params.map))
+    .await?
+    .into();
+  data_result_ok(user_profile)
 }

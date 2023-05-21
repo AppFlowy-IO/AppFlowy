@@ -1,8 +1,11 @@
-use crate::code::ErrorCode;
-use anyhow::Result;
-use flowy_derive::ProtoBuf;
 use std::fmt::Debug;
+
+use anyhow::Result;
 use thiserror::Error;
+
+use flowy_derive::ProtoBuf;
+
+use crate::code::ErrorCode;
 
 pub type FlowyResult<T> = anyhow::Result<T, FlowyError>;
 
@@ -26,10 +29,10 @@ macro_rules! static_flowy_error {
 }
 
 impl FlowyError {
-  pub fn new(code: ErrorCode, msg: &str) -> Self {
+  pub fn new<T: ToString>(code: ErrorCode, msg: T) -> Self {
     Self {
       code: code.value() as i32,
-      msg: msg.to_owned(),
+      msg: msg.to_string(),
     }
   }
   pub fn context<T: Debug>(mut self, error: T) -> Self {
@@ -80,7 +83,7 @@ impl FlowyError {
   static_flowy_error!(out_of_bounds, ErrorCode::OutOfBounds);
   static_flowy_error!(serde, ErrorCode::Serde);
   static_flowy_error!(field_record_not_found, ErrorCode::FieldRecordNotFound);
-  static_flowy_error!(payload_none, ErrorCode::UnexpectedEmptyPayload);
+  static_flowy_error!(payload_none, ErrorCode::UnexpectedEmpty);
   static_flowy_error!(http, ErrorCode::HttpError);
   static_flowy_error!(
     unexpect_calendar_field_type,
@@ -112,6 +115,12 @@ impl std::convert::From<std::io::Error> for FlowyError {
 
 impl std::convert::From<protobuf::ProtobufError> for FlowyError {
   fn from(e: protobuf::ProtobufError) -> Self {
+    FlowyError::internal().context(e)
+  }
+}
+
+impl From<anyhow::Error> for FlowyError {
+  fn from(e: anyhow::Error) -> Self {
     FlowyError::internal().context(e)
   }
 }

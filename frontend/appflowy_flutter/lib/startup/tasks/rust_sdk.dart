@@ -12,30 +12,23 @@ class InitRustSDKTask extends LaunchTask {
   });
 
   // Customize the RustSDK initialization path
-  final Future<Directory>? directory;
+  final Directory? directory;
 
   @override
   LaunchTaskType get type => LaunchTaskType.dataProcessing;
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    // use the custom directory
-    if (directory != null) {
-      return directory!.then((directory) async {
-        await context.getIt<FlowySDK>().init(directory);
-      });
-    } else {
-      return appFlowyDocumentDirectory().then((directory) async {
-        await context.getIt<FlowySDK>().init(directory);
-      });
-    }
+    final dir = directory ?? await appFlowyDocumentDirectory();
+    await context.getIt<FlowySDK>().init(dir);
   }
 }
 
 Future<Directory> appFlowyDocumentDirectory() async {
   switch (integrationEnv()) {
     case IntegrationMode.develop:
-      Directory documentsDir = await getApplicationDocumentsDirectory();
+      Directory documentsDir = await getApplicationDocumentsDirectory()
+        ..create();
       return Directory(path.join(documentsDir.path, 'data_dev')).create();
     case IntegrationMode.release:
       Directory documentsDir = await getApplicationDocumentsDirectory();

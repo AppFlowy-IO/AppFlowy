@@ -15,16 +15,33 @@ pub struct KeyPB {
   pub key: String,
 }
 
+pub const SUPABASE_URL: &str = "SUPABASE_URL";
+pub const SUPABASE_ANON_KEY: &str = "SUPABASE_ANON_KEY";
+pub const SUPABASE_KEY: &str = "SUPABASE_KEY";
+pub const SUPABASE_JWT_SECRET: &str = "SUPABASE_JWT_SECRET";
+
 #[derive(Default, ProtoBuf)]
 pub struct SupabaseConfigPB {
   #[pb(index = 1)]
   supabase_url: String,
 
   #[pb(index = 2)]
-  supabase_key: String,
+  anon_key: String,
 
   #[pb(index = 3)]
+  key: String,
+
+  #[pb(index = 4)]
   jwt_secret: String,
+}
+
+impl SupabaseConfigPB {
+  pub(crate) fn write_to_env(self) {
+    std::env::set_var(SUPABASE_URL, self.supabase_url);
+    std::env::set_var(SUPABASE_ANON_KEY, self.anon_key);
+    std::env::set_var(SUPABASE_KEY, self.key);
+    std::env::set_var(SUPABASE_JWT_SECRET, self.jwt_secret);
+  }
 }
 
 #[derive(Default, ProtoBuf)]
