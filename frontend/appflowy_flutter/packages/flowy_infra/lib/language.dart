@@ -16,6 +16,8 @@ String languageFromLocale(Locale locale) {
       }
 
     // Then in alphabetical order
+    case "ar":
+      return "العربية";
     case "ca":
       return "Català";
     case "de":
@@ -36,7 +38,7 @@ String languageFromLocale(Locale locale) {
     case "hu":
       return "Magyar";
     case "id":
-      return "Bahasa";
+      return "Bahasa Indonesia";
     case "it":
       return "Italiano";
     case "ja":

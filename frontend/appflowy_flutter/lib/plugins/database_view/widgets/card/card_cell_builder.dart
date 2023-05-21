@@ -15,15 +15,15 @@ import 'cells/url_card_cell.dart';
 // T represents as the Generic card data
 class CardCellBuilder<CustomCardData> {
   final CellCache cellCache;
+  final Map<FieldType, CardCellStyle>? styles;
 
-  CardCellBuilder(this.cellCache);
+  CardCellBuilder(this.cellCache, {this.styles});
 
   Widget buildCell({
     CustomCardData? cardData,
     required CellIdentifier cellId,
     EditableCardNotifier? cellNotifier,
-    CardConfiguration<CustomCardData>? cardConfiguration,
-    Map<FieldType, CardCellStyle>? styles,
+    RowCardRenderHook<CustomCardData>? renderHook,
   }) {
     final cellControllerBuilder = CellControllerBuilder(
       cellId: cellId,
@@ -39,20 +39,21 @@ class CardCellBuilder<CustomCardData> {
           key: key,
         );
       case FieldType.DateTime:
-        return DateCardCell(
+        return DateCardCell<CustomCardData>(
+          renderHook: renderHook?.renderHook[FieldType.DateTime],
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.SingleSelect:
         return SelectOptionCardCell<CustomCardData>(
-          renderHook: cardConfiguration?.renderHook[FieldType.SingleSelect],
+          renderHook: renderHook?.renderHook[FieldType.SingleSelect],
           cellControllerBuilder: cellControllerBuilder,
           cardData: cardData,
           key: key,
         );
       case FieldType.MultiSelect:
         return SelectOptionCardCell<CustomCardData>(
-          renderHook: cardConfiguration?.renderHook[FieldType.MultiSelect],
+          renderHook: renderHook?.renderHook[FieldType.MultiSelect],
           cellControllerBuilder: cellControllerBuilder,
           cardData: cardData,
           editableNotifier: cellNotifier,
@@ -64,19 +65,24 @@ class CardCellBuilder<CustomCardData> {
           key: key,
         );
       case FieldType.Number:
-        return NumberCardCell(
+        return NumberCardCell<CustomCardData>(
+          renderHook: renderHook?.renderHook[FieldType.Number],
+          style: isStyleOrNull<NumberCardCellStyle>(style),
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.RichText:
-        return TextCardCell(
+        return TextCardCell<CustomCardData>(
+          renderHook: renderHook?.renderHook[FieldType.RichText],
           cellControllerBuilder: cellControllerBuilder,
           editableNotifier: cellNotifier,
+          cardData: cardData,
           style: isStyleOrNull<TextCardCellStyle>(style),
           key: key,
         );
       case FieldType.URL:
-        return URLCardCell(
+        return URLCardCell<CustomCardData>(
+          style: isStyleOrNull<URLCardCellStyle>(style),
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );

@@ -1,6 +1,4 @@
-import 'package:appflowy/core/helpers/helpers.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -75,18 +73,7 @@ class _URLCellEditorState extends State<URLCellEditor> {
     if (mounted) {
       if (_cellBloc.isClosed == false &&
           _controller.text != _cellBloc.state.content) {
-        final parseResult = parseValidUrl(_controller.text);
-
-        parseResult.fold(
-          (_) {
-            showSnapBar(
-              context,
-              "Enter a valid URL",
-              Theme.of(context).colorScheme.error,
-            );
-          },
-          (_) => _cellBloc.add(URLCellEditorEvent.updateText(_controller.text)),
-        );
+        _cellBloc.add(URLCellEditorEvent.updateText(_controller.text));
       }
     }
   }

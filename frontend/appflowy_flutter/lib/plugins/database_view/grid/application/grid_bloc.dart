@@ -35,6 +35,17 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             );
             await rowService.deleteRow(rowInfo.rowPB.id);
           },
+          moveRow: (int from, int to) {
+            final List<RowInfo> rows = [...state.rowInfos];
+
+            final fromRow = rows[from].rowPB;
+            final toRow = rows[to].rowPB;
+
+            rows.insert(to, rows.removeAt(from));
+            emit(state.copyWith(rowInfos: rows));
+
+            databaseController.moveRow(fromRow: fromRow, toRow: toRow);
+          },
           didReceiveGridUpdate: (grid) {
             emit(state.copyWith(grid: Some(grid)));
           },
@@ -87,7 +98,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
         }
       },
     );
-    databaseController.addListener(onDatabaseChanged: onDatabaseChanged);
+    databaseController.setListener(onDatabaseChanged: onDatabaseChanged);
   }
 
   Future<void> _openGrid(Emitter<GridState> emit) async {
@@ -110,6 +121,7 @@ class GridEvent with _$GridEvent {
   const factory GridEvent.initial() = InitialGrid;
   const factory GridEvent.createRow() = _CreateRow;
   const factory GridEvent.deleteRow(RowInfo rowInfo) = _DeleteRow;
+  const factory GridEvent.moveRow(int from, int to) = _MoveRow;
   const factory GridEvent.didReceiveRowUpdate(
     List<RowInfo> rows,
     RowsChangedReason listState,

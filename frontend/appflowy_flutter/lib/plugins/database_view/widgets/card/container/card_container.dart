@@ -4,13 +4,13 @@ import 'package:styled_widget/styled_widget.dart';
 
 import 'accessory.dart';
 
-class BoardCardContainer extends StatelessWidget {
+class RowCardContainer extends StatelessWidget {
   final Widget child;
   final CardAccessoryBuilder? accessoryBuilder;
   final bool Function()? buildAccessoryWhen;
   final void Function(BuildContext) openCard;
   final void Function(AccessoryType) openAccessory;
-  const BoardCardContainer({
+  const RowCardContainer({
     required this.child,
     required this.openCard,
     required this.openAccessory,
@@ -43,6 +43,7 @@ class BoardCardContainer extends StatelessWidget {
           }
 
           return GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () => openCard(context),
             child: Padding(
               padding: const EdgeInsets.all(8),

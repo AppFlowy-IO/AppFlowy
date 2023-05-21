@@ -45,10 +45,10 @@ packages:
     dependency: "direct main"
     description:
       name: appflowy_editor
-      sha256: a1dbca3d7d33f4669f1d44bfa1e06b6646f46726c219921b8a59d9ee22bf252d
+      sha256: "6f7d2b0b54ca1049cb396229549d228b5bbd7ea6d09f1f7325a20db2d7586a5f"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.9"
+    version: "0.1.12"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -172,10 +172,10 @@ packages:
     dependency: "direct main"
     description:
       name: calendar_view
-      sha256: "7f2c460d38cda782e0852ca7706086c24f6e9407a9f0cfcdef034fb81e6d9f3e"
+      sha256: "58a8b851ac0a2d62770fd06ad30f06683bd40848a5dd1a1eca332f5a6064bd82"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.2"
+    version: "1.0.3"
   characters:
     dependency: transitive
     description:
@@ -809,7 +809,7 @@ packages:
     source: hosted
     version: "1.0.4"
   mocktail:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: mocktail
       sha256: "80a996cd9a69284b3dc521ce185ffe9150cde69767c2d3a0720147d93c0cef53"

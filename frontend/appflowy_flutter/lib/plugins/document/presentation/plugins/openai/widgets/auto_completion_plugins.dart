@@ -14,6 +14,7 @@ SelectionMenuItem autoGeneratorMenuItem = SelectionMenuItem.node(
       type: kAutoCompletionInputType,
       attributes: {
         kAutoCompletionInputString: '',
+        kAutoCompletionGenerationCount: 0,
       },
     );
     return node;

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 
 class FlowyIconButton extends StatelessWidget {
@@ -11,9 +12,11 @@ class FlowyIconButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final Color? fillColor;
   final Color? hoverColor;
+  final Color? iconColorOnHover;
   final EdgeInsets iconPadding;
   final BorderRadius? radius;
   final String? tooltipText;
+  final InlineSpan? richTooltipText;
   final bool preferBelow;
 
   const FlowyIconButton({
@@ -23,17 +26,25 @@ class FlowyIconButton extends StatelessWidget {
     this.onPressed,
     this.fillColor = Colors.transparent,
     this.hoverColor,
+    this.iconColorOnHover,
     this.iconPadding = EdgeInsets.zero,
     this.radius,
     this.tooltipText,
+    this.richTooltipText,
     this.preferBelow = true,
     required this.icon,
-  }) : super(key: key);
+  })  : assert((richTooltipText != null && tooltipText == null) ||
+            (richTooltipText == null && tooltipText != null) ||
+            (richTooltipText == null && tooltipText == null)),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
     Widget child = icon;
     final size = Size(width, height ?? width);
+
+    final tooltipMessage =
+        tooltipText == null && richTooltipText == null ? '' : tooltipText;
 
     assert(size.width > iconPadding.horizontal);
     assert(size.height > iconPadding.vertical);
@@ -43,11 +54,14 @@ class FlowyIconButton extends StatelessWidget {
     final childSize = Size(childWidth, childWidth);
 
     return ConstrainedBox(
-      constraints:
-          BoxConstraints.tightFor(width: size.width, height: size.height),
+      constraints: BoxConstraints.tightFor(
+        width: size.width,
+        height: size.height,
+      ),
       child: Tooltip(
         preferBelow: preferBelow,
-        message: tooltipText ?? '',
+        message: tooltipMessage,
+        richMessage: richTooltipText,
         showDuration: Duration.zero,
         child: RawMaterialButton(
           visualDensity: VisualDensity.compact,
@@ -62,9 +76,17 @@ class FlowyIconButton extends StatelessWidget {
           highlightColor: Colors.transparent,
           elevation: 0,
           onPressed: onPressed,
-          child: Padding(
-            padding: iconPadding,
-            child: SizedBox.fromSize(size: childSize, child: child),
+          child: FlowyHover(
+            style: HoverStyle(
+              hoverColor: hoverColor,
+              foregroundColorOnHover:
+                  iconColorOnHover ?? Theme.of(context).iconTheme.color,
+              backgroundColor: fillColor ?? Colors.transparent,
+            ),
+            child: Padding(
+              padding: iconPadding,
+              child: SizedBox.fromSize(size: childSize, child: child),
+            ),
           ),
         ),
       ),

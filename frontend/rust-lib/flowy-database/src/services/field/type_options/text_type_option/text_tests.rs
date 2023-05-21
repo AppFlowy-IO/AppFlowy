@@ -20,7 +20,7 @@ mod tests {
         &field_type,
         &field_rev
       ),
-      "Mar 14,2022"
+      "Mar 14, 2022"
     );
 
     let data = DateCellData {
@@ -35,7 +35,7 @@ mod tests {
         &field_type,
         &field_rev
       ),
-      "Mar 14,2022"
+      "Mar 14, 2022"
     );
   }
 

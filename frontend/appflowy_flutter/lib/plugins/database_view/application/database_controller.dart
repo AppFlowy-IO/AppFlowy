@@ -115,7 +115,7 @@ class DatabaseController {
     }
   }
 
-  void addListener({
+  void setListener({
     DatabaseCallbacks? onDatabaseChanged,
     LayoutCallbacks? onLayoutChanged,
     GroupCallbacks? onGroupChanged,
@@ -175,15 +175,25 @@ class DatabaseController {
     );
   }
 
-  Future<Either<Unit, FlowyError>> moveRow({
+  Future<Either<Unit, FlowyError>> moveGroupRow({
     required RowPB fromRow,
     required String groupId,
     RowPB? toRow,
   }) {
-    return _databaseViewBackendSvc.moveRow(
+    return _databaseViewBackendSvc.moveGroupRow(
       fromRowId: fromRow.id,
       toGroupId: groupId,
       toRowId: toRow?.id,
+    );
+  }
+
+  Future<Either<Unit, FlowyError>> moveRow({
+    required RowPB fromRow,
+    required RowPB toRow,
+  }) {
+    return _databaseViewBackendSvc.moveRow(
+      fromRowId: fromRow.id,
+      toRowId: toRow.id,
     );
   }
 
@@ -211,6 +221,11 @@ class DatabaseController {
     await _databaseViewBackendSvc.closeView();
     await fieldController.dispose();
     await groupListener.stop();
+    await _viewCache.dispose();
+    _databaseCallbacks = null;
+    _groupCallbacks = null;
+    _layoutCallbacks = null;
+    _calendarLayoutCallbacks = null;
   }
 
   Future<void> _loadGroups() async {
@@ -251,7 +266,7 @@ class DatabaseController {
         _databaseCallbacks?.onRowsCreated?.call(ids);
       },
     );
-    _viewCache.addListener(callbacks);
+    _viewCache.setListener(callbacks);
   }
 
   void _listenOnFieldsChanged() {
@@ -336,9 +351,10 @@ class RowDataBuilder {
     _cellDataByFieldId[fieldInfo.field.id] = num.toString();
   }
 
+  /// The date should use the UTC timezone. Becuase the backend uses UTC timezone to format the time string.
   void insertDate(FieldInfo fieldInfo, DateTime date) {
     assert(fieldInfo.fieldType == FieldType.DateTime);
-    final timestamp = (date.millisecondsSinceEpoch ~/ 1000);
+    final timestamp = (date.toUtc().millisecondsSinceEpoch ~/ 1000);
     _cellDataByFieldId[fieldInfo.field.id] = timestamp.toString();
   }
 

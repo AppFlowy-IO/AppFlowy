@@ -99,6 +99,7 @@ class HoverStyle {
   final Color borderColor;
   final double borderWidth;
   final Color? hoverColor;
+  final Color? foregroundColorOnHover;
   final BorderRadius borderRadius;
   final EdgeInsets contentMargin;
   final Color backgroundColor;
@@ -110,6 +111,7 @@ class HoverStyle {
     this.contentMargin = EdgeInsets.zero,
     this.backgroundColor = Colors.transparent,
     this.hoverColor,
+    this.foregroundColorOnHover,
   });
 }
 
@@ -130,6 +132,21 @@ class FlowyHoverContainer extends StatelessWidget {
       width: style.borderWidth,
     );
 
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final iconTheme = theme.iconTheme;
+    // override text's theme with foregroundColorOnHover when it is hovered
+    final hoverTheme = theme.copyWith(
+      textTheme: textTheme.copyWith(
+        bodyMedium: textTheme.bodyMedium?.copyWith(
+          color: style.foregroundColorOnHover ?? theme.colorScheme.onSurface,
+        ),
+      ),
+      iconTheme: iconTheme.copyWith(
+        color: style.foregroundColorOnHover ?? theme.colorScheme.onSurface,
+      ),
+    );
+
     return Container(
       margin: style.contentMargin,
       decoration: BoxDecoration(
@@ -137,20 +154,8 @@ class FlowyHoverContainer extends StatelessWidget {
         color: style.hoverColor ?? Theme.of(context).colorScheme.secondary,
         borderRadius: style.borderRadius,
       ),
-      child:
-          //override text's theme with new color when it is hovered
-          Theme(
-        data: Theme.of(context).copyWith(
-          textTheme: Theme.of(context).textTheme.copyWith(
-                bodyMedium: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
-              ),
-          iconTheme: Theme.of(context)
-              .iconTheme
-              .copyWith(color: Theme.of(context).colorScheme.onSurface),
-        ),
+      child: Theme(
+        data: hoverTheme,
         child: child,
       ),
     );

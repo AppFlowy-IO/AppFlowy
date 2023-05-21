@@ -45,7 +45,8 @@
     "medium": "medium",
     "large": "large",
     "fontSize": "Font Size",
-    "import": "Import"
+    "import": "Import",
+    "moreOptions": "More options"
   },
   "disclosureAction": {
     "rename": "Rename",
@@ -108,6 +109,7 @@
     "openAsPage": "Open as a Page",
     "addNewRow": "Add a new row",
     "openMenu": "Click to open menu",
+    "dragRow": "Long press to reorder the row",
     "viewDataBase": "View database",
     "referencePage": "This {name} is referenced"
   },
@@ -280,7 +282,7 @@
       "numberFormat": "Number format",
       "dateFormat": "Date format",
       "includeTime": "Include time",
-      "dateFormatFriendly": "Month Day,Year",
+      "dateFormatFriendly": "Month Day, Year",
       "dateFormatISO": "Year-Month-Day",
       "dateFormatLocal": "Month/Day/Year",
       "dateFormatUS": "Year/Month/Day",
@@ -308,7 +310,8 @@
       "textPlaceholder": "Empty",
       "copyProperty": "Copied property to clipboard",
       "count": "Count",
-      "newRow": "New row"
+      "newRow": "New row",
+      "action": "Action"
     },
     "selectOption": {
       "create": "Create",
@@ -357,11 +360,14 @@
       "autoGeneratorGenerate": "Generate",
       "autoGeneratorHintText": "Ask OpenAI ...",
       "autoGeneratorCantGetOpenAIKey": "Can't get OpenAI key",
+      "autoGeneratorRewrite": "Rewrite",
       "smartEdit": "AI Assistants",
       "openAI": "OpenAI",
       "smartEditFixSpelling": "Fix spelling",
       "warning": "⚠️ AI responses can be inaccurate or misleading.",
       "smartEditSummarize": "Summarize",
+      "smartEditImproveWriting": "Improve writing",
+      "smartEditMakeLonger": "Make longer",
       "smartEditCouldNotFetchResult": "Could not fetch result from OpenAI",
       "smartEditCouldNotFetchKey": "Could not fetch OpenAI key",
       "smartEditDisabled": "Connect OpenAI in Settings",
@@ -415,8 +421,10 @@
     "settings": {
       "showWeekNumbers": "Show week numbers",
       "showWeekends": "Show weekends",
-      "firstDayOfWeek": "First day of week",
-      "layoutDateField": "Layout calendar by"
+      "firstDayOfWeek": "Start week on",
+      "layoutDateField": "Layout calendar by",
+      "noDateTitle": "No Date",
+      "emptyNoDate": "No unscheduled events"
     }
   }
 }

@@ -35,9 +35,8 @@ class SettingsFileLocationCustomzierState
       child: BlocBuilder<SettingsLocationCubit, SettingsLocation>(
         builder: (context, state) {
           return ListTile(
-            title: FlowyText.regular(
+            title: FlowyText.medium(
               LocaleKeys.settings_files_defaultLocation.tr(),
-              fontSize: 15.0,
               overflow: TextOverflow.ellipsis,
             ),
             subtitle: Tooltip(
@@ -63,7 +62,6 @@ class SettingsFileLocationCustomzierState
                 },
                 child: FlowyText.regular(
                   state.path ?? '',
-                  fontSize: 10.0,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -74,7 +72,11 @@ class SettingsFileLocationCustomzierState
                 Tooltip(
                   message: LocaleKeys.settings_files_restoreLocation.tr(),
                   child: FlowyIconButton(
+                    height: 40,
+                    width: 40,
                     icon: const Icon(Icons.restore_outlined),
+                    hoverColor:
+                        Theme.of(context).colorScheme.secondaryContainer,
                     onPressed: () async {
                       final result = await appFlowyDocumentDirectory();
                       await _setCustomLocation(result.path);
@@ -96,7 +98,11 @@ class SettingsFileLocationCustomzierState
                 Tooltip(
                   message: LocaleKeys.settings_files_customizeLocation.tr(),
                   child: FlowyIconButton(
+                    height: 40,
+                    width: 40,
                     icon: const Icon(Icons.folder_open_outlined),
+                    hoverColor:
+                        Theme.of(context).colorScheme.secondaryContainer,
                     onPressed: () async {
                       final result =
                           await getIt<FilePickerService>().getDirectoryPath();
