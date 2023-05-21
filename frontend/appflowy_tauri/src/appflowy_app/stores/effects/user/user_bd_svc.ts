@@ -1,5 +1,7 @@
 import { nanoid } from '@reduxjs/toolkit';
 import {
+  AuthTypePB,
+  SignOutPB,
   UserEventCheckUser,
   UserEventGetUserProfile,
   UserEventSignIn,
@@ -8,13 +10,13 @@ import {
   UserEventUpdateUserProfile,
 } from '@/services/backend/events/flowy-user';
 import {
+  CreateWorkspacePayloadPB,
   SignInPayloadPB,
   SignUpPayloadPB,
   UpdateUserProfilePayloadPB,
   WorkspaceIdPB,
-  CreateWorkspacePayloadPB,
-  WorkspaceSettingPB,
   WorkspacePB,
+  WorkspaceSettingPB,
 } from '@/services/backend';
 import {
   FolderEventCreateWorkspace,
@@ -81,7 +83,8 @@ export class UserBackendService {
   };
 
   signOut = () => {
-    return UserEventSignOut();
+    const payload = SignOutPB.fromObject({ auth_type: AuthTypePB.Local });
+    return UserEventSignOut(payload);
   };
 }
 
@@ -97,7 +100,8 @@ export class AuthBackendService {
   };
 
   signOut = () => {
-    return UserEventSignOut();
+    const payload = SignOutPB.fromObject({ auth_type: AuthTypePB.Local });
+    return UserEventSignOut(payload);
   };
 
   autoSignUp = () => {
