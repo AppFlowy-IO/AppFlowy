@@ -43,12 +43,7 @@ export default function VirtualizedList({
               {virtualItems.map((virtualRow) => {
                 const id = childIds[virtualRow.index];
                 return (
-                  <div
-                    className='float-left w-[100%]'
-                    key={id}
-                    data-index={virtualRow.index}
-                    ref={virtualize.measureElement}
-                  >
+                  <div className='pt-0.5' key={id} data-index={virtualRow.index} ref={virtualize.measureElement}>
                     {virtualRow.index === 0 ? <DocumentTitle id={node.id} /> : null}
                     {renderNode(id)}
                   </div>

@@ -4,11 +4,11 @@ import {
   PointState,
   RangeSelectionState,
   RectSelectionState,
+  SlashCommandState,
 } from '@/appflowy_app/interfaces/document';
 import { BlockEventPayloadPB } from '@/services/backend';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { parseValue, matchChange } from '$app/utils/document/subscribe';
-import { getNodesInRange } from '$app/utils/document/blocks/common';
 
 const initialState: DocumentState = {
   nodes: {},
@@ -23,6 +23,10 @@ const rectSelectionInitialState: RectSelectionState = {
 const rangeSelectionInitialState: RangeSelectionState = {
   isDragging: false,
   selection: [],
+};
+
+const slashCommandInitialState: SlashCommandState = {
+  isSlashCommand: false,
 };
 
 export const documentSlice = createSlice({
@@ -126,12 +130,38 @@ export const rangeSelectionSlice = createSlice({
   },
 });
 
+export const slashCommandSlice = createSlice({
+  name: 'documentSlashCommand',
+  initialState: slashCommandInitialState,
+  reducers: {
+    openSlashCommand: (
+      state,
+      action: PayloadAction<{
+        blockId: string;
+      }>
+    ) => {
+      const { blockId } = action.payload;
+      return {
+        ...state,
+        isSlashCommand: true,
+        blockId,
+      };
+    },
+    closeSlashCommand: (state, _: PayloadAction) => {
+      return slashCommandInitialState;
+    },
+  },
+});
+
 export const documentReducers = {
   [documentSlice.name]: documentSlice.reducer,
   [rectSelectionSlice.name]: rectSelectionSlice.reducer,
   [rangeSelectionSlice.name]: rangeSelectionSlice.reducer,
+  [slashCommandSlice.name]: slashCommandSlice.reducer,
 };
 
 export const documentActions = documentSlice.actions;
 export const rectSelectionActions = rectSelectionSlice.actions;
 export const rangeSelectionActions = rangeSelectionSlice.actions;
+
+export const slashCommandActions = slashCommandSlice.actions;

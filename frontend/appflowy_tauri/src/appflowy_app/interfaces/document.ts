@@ -131,6 +131,10 @@ export interface DocumentState {
   // map of block id to children block ids
   children: Record<string, string[]>;
 }
+export interface SlashCommandState {
+  isSlashCommand: boolean;
+  blockId?: string;
+}
 
 export interface RectSelectionState {
   selection: string[];
