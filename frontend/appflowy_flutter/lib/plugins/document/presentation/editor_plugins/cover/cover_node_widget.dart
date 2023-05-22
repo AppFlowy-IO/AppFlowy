@@ -409,7 +409,7 @@ class _CoverImageState extends State<_CoverImage> {
   Widget _buildCoverOverlayButtons(BuildContext context) {
     return Positioned(
       bottom: 20,
-      right: 260,
+      right: EditorStyleCustomizer.horizontalPadding,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

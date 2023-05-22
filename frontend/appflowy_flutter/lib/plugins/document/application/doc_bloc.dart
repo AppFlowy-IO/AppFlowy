@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/migration/editor_migration.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/util/json_print.dart';
@@ -14,6 +15,7 @@ import 'package:appflowy_editor/appflowy_editor.dart'
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:dartz/dartz.dart';
@@ -140,7 +142,11 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       return;
     }
 
-    final editorState = EditorState(document: document);
+    // test: read from asset
+    final readme = await rootBundle.loadString('assets/template/readme.json');
+    final readmeDocument = EditorMigration.migrateDocument(readme);
+
+    final editorState = EditorState(document: readmeDocument);
     this.editorState = editorState;
 
     // subscribe to the document change from the editor
