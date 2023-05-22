@@ -175,7 +175,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
                   ),
                 ],
               ),
-              const Space(0, 10),
+              const VSpace(10),
             ],
           )
         : Container();
