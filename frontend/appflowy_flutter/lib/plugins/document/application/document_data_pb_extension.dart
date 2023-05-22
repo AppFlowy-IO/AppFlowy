@@ -4,28 +4,36 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show Document, Node, Attributes, Delta, ParagraphBlockKeys;
+import 'package:collection/collection.dart';
 
 extension AppFlowyEditor on DocumentDataPB2 {
   Document? toDocument() {
     final rootId = pageId;
     try {
       final root = buildNode(rootId);
-      return Document(root: root);
+
+      if (root != null) {
+        return Document(root: root);
+      }
+
+      return null;
     } catch (e) {
       Log.error('create document error: $e');
       return null;
     }
   }
 
-  Node buildNode(String id) {
-    final block = blocks[id]!; // TODO: don't use force unwrap
-    final childrenId = block.childrenId;
+  Node? buildNode(String id) {
+    final block = blocks[id];
+    final childrenId = block?.childrenId;
     final childrenIds = meta.childrenMap[childrenId]?.children;
+
     final children = <Node>[];
     if (childrenIds != null && childrenIds.isNotEmpty) {
-      children.addAll(childrenIds.map((e) => buildNode(e)));
+      children.addAll(childrenIds.map((e) => buildNode(e)).whereNotNull());
     }
-    return block.toNode(children: children);
+
+    return block?.toNode(children: children);
   }
 }
 
