@@ -36,13 +36,13 @@ class EditorStyleCustomizer {
       cursorColor: theme.colorScheme.primary,
       textStyleConfiguration: TextStyleConfiguration(
         text: TextStyle(
-          fontFamily: 'poppins',
+          fontFamily: 'Poppins',
           fontSize: fontSize,
           color: theme.colorScheme.onBackground,
           height: 1.5,
         ),
         bold: const TextStyle(
-          fontFamily: 'poppins-Bold',
+          fontFamily: 'Poppins-Bold',
           fontWeight: FontWeight.w600,
         ),
         italic: const TextStyle(fontStyle: FontStyle.italic),
