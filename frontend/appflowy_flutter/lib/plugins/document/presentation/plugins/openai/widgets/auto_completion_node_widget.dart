@@ -406,18 +406,26 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
     Selection selection = Selection.fromJson(
       jsonDecode(widget.node.attributes[kAutoCompletionSelectionRange]),
     );
-    List<TextNode> textNodesInselection = [];
-    for (int i = selection.start.path.last; i < selection.end.path.last; i++) {
-      try {
-        textNodesInselection
-            .add(widget.editorState.document.nodeAtPath([i]) as TextNode);
-      } catch (e) {
-        continue;
+    final startPath = selection.start.path;
+    final endPath = selection.end.path;
+    if (startPath.isEmpty || endPath.isEmpty) {
+      return '';
+    }
+    List<TextNode> textNodes = [];
+    for (int i = startPath.last; i < endPath.last; i++) {
+      final path = startPath
+        ..removeLast()
+        ..add(i);
+      final node = widget.editorState.document.nodeAtPath(path);
+      if (node is TextNode) {
+        textNodes.add(node);
       }
     }
-    final previousOutput =
-        widget.editorState.getTextInSelection(textNodesInselection, selection);
-    return previousOutput.join(" ");
+    final previousOutput = widget.editorState.getTextInSelection(
+      textNodes,
+      selection,
+    );
+    return previousOutput.join(' ');
   }
 
   Future<void> _onRewriteActionSelected(RewriteAction action) async {
