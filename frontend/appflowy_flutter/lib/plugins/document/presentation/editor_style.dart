@@ -28,10 +28,7 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     return EditorStyle.desktop(
-      padding: EdgeInsets.only(
-        left: horizontalPadding,
-        right: horizontalPadding,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       backgroundColor: theme.colorScheme.surface,
       cursorColor: theme.colorScheme.primary,
       textStyleConfiguration: TextStyleConfiguration(
