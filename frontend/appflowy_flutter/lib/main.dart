@@ -9,6 +9,8 @@ import 'startup/startup.dart';
 import 'user/presentation/splash_screen.dart';
 import 'window/window.dart';
 
+// TODO(a-wallen): Remove this once tests are deflaked.
+
 class FlowyApp implements EntryPoint {
   @override
   Widget create(LaunchConfiguration config) {
