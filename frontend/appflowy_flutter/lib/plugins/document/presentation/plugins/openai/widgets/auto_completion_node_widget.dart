@@ -142,7 +142,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildHeaderWidget(context),
-          const Space(0, 10),
+          const VSpace(10),
           _buildInputEditWidget(context),
           _buildFooterWidget(context),
         ],
@@ -175,10 +175,10 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
                   ),
                 ],
               ),
-              const Space(0, 10),
+              const VSpace(10),
             ],
           )
-        : Container();
+        : const SizedBox.shrink();
   }
 
   Widget _buildHeaderWidget(BuildContext context) {
@@ -314,8 +314,8 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
     loading.start();
     await _updateEditingText();
     final result = await UserBackendService.getCurrentUserProfile();
-    int? writeStartPath;
-    int? writeEndPath;
+    Path? writeStartPath;
+    Path? writeEndPath;
 
     result.fold((userProfile) async {
       BarrierDialog? barrierDialog;
@@ -326,8 +326,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
       await openAIRepository.getStreamedCompletions(
         prompt: controller.text,
         onStart: () async {
-          writeStartPath =
-              widget.editorState.document.root.children.last.path.last;
+          writeStartPath = widget.editorState.document.root.children.last.path;
           loading.stop();
           barrierDialog = BarrierDialog(context);
           barrierDialog?.show();
@@ -345,8 +344,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
           }
         },
         onEnd: () async {
-          writeEndPath =
-              widget.editorState.document.root.children.last.path.last;
+          writeEndPath = widget.editorState.document.root.children.last.path;
           await barrierDialog?.dismiss();
           widget.editorState.service.selectionService.currentSelection
               .addListener(_onCancelWhenSelectionChanged);
@@ -357,7 +355,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
           await _showError(error.message);
         },
       );
-      _updateSelection(writeStartPath, writeEndPath);
+      await _updateSelection(writeStartPath, writeEndPath);
 
       await _updateGenerationCount();
     }, (error) async {
@@ -369,8 +367,8 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
   }
 
   Future<void> _updateSelection(
-    start,
-    end,
+    Path? start,
+    Path? end,
   ) async {
     final transaction = widget.editorState.transaction;
     final Selection selection;
@@ -380,21 +378,21 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
       );
       selection = widget.editorState.getSelection(
         Selection(
-          end: Position(path: [end], offset: 0),
+          end: Position(path: end!, offset: 0),
           start: Position(path: previousSelection.start.path, offset: 0),
         ),
       );
     } else {
       selection = widget.editorState.getSelection(
         Selection(
-          end: Position(path: [end], offset: 0),
-          start: Position(path: [start], offset: 0),
+          end: Position(path: end!, offset: 0),
+          start: Position(path: start!, offset: 0),
         ),
       );
     }
 
     Selection updatedSelection =
-        selection.copyWith(end: Position(path: [end], offset: 0));
+        selection.copyWith(end: Position(path: end, offset: 0));
     transaction.updateNode(widget.node, {
       kAutoCompletionSelectionRange: json.encode(updatedSelection.toJson())
     });
@@ -406,26 +404,34 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
     Selection selection = Selection.fromJson(
       jsonDecode(widget.node.attributes[kAutoCompletionSelectionRange]),
     );
-    List<TextNode> textNodesInselection = [];
-    for (int i = selection.start.path.last; i < selection.end.path.last; i++) {
-      try {
-        textNodesInselection
-            .add(widget.editorState.document.nodeAtPath([i]) as TextNode);
-      } catch (e) {
-        continue;
+    final startPath = selection.start.path;
+    final endPath = selection.end.path;
+    if (startPath.isEmpty || endPath.isEmpty) {
+      return '';
+    }
+    List<TextNode> textNodes = [];
+    for (int i = startPath.last; i < endPath.last; i++) {
+      final path = startPath
+        ..removeLast()
+        ..add(i);
+      final node = widget.editorState.document.nodeAtPath(path);
+      if (node is TextNode) {
+        textNodes.add(node);
       }
     }
-    final previousOutput =
-        widget.editorState.getTextInSelection(textNodesInselection, selection);
-    return previousOutput.join(" ");
+    final previousOutput = widget.editorState.getTextInSelection(
+      textNodes,
+      selection,
+    );
+    return previousOutput.join(' ');
   }
 
   Future<void> _onRewriteActionSelected(RewriteAction action) async {
     String previousOutput = _getAllPreviousText();
     final loading = Loading(context);
     loading.start();
-    int? writeStartPath;
-    int? writeEndPath;
+    Path? writeStartPath;
+    Path? writeEndPath;
 
     if (action == RewriteAction.makeTextLonger) {
       // clear previous response
@@ -452,8 +458,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
         prompt: action
             .prompt(action == RewriteAction.editPrompt ? text : previousOutput),
         onStart: () async {
-          writeStartPath =
-              widget.editorState.document.root.children.last.path.last;
+          writeStartPath = widget.editorState.document.root.children.last.path;
           loading.stop();
           await _makeSurePreviousNodeIsEmptyTextNode();
         },
@@ -468,9 +473,8 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
           }
         },
         onEnd: () async {
-          writeEndPath =
-              widget.editorState.document.root.children.last.path.last;
-          _updateSelection(writeStartPath, writeEndPath);
+          writeEndPath = widget.editorState.document.root.children.last.path;
+          await _updateSelection(writeStartPath, writeEndPath);
           textFieldFocusNode.unfocus();
         },
         onError: (error) async {
