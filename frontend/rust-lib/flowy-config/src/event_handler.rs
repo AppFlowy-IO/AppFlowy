@@ -1,4 +1,4 @@
-use appflowy_integrate::config::{AWSDynamoDBConfig, CollabPluginConfig};
+use appflowy_integrate::config::AWSDynamoDBConfig;
 use appflowy_integrate::SupabaseDBConfig;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_server::supabase::SupabaseConfiguration;
@@ -48,12 +48,12 @@ pub(crate) async fn set_collab_plugin_config_handler(
 ) -> FlowyResult<()> {
   let config = data.into_inner();
   if let Some(aws_config_pb) = config.aws_config {
-    if let Some(aws_config) = AWSDynamoDBConfig::try_from(aws_config_pb) {
+    if let Ok(aws_config) = AWSDynamoDBConfig::try_from(aws_config_pb) {
       aws_config.write_env();
     }
   }
   if let Some(supabase_config_pb) = config.supabase_config {
-    if let Some(supabase_config) = SupabaseDBConfig::try_from(supabase_config_pb) {
+    if let Ok(supabase_config) = SupabaseDBConfig::try_from(supabase_config_pb) {
       supabase_config.write_env();
     }
   }

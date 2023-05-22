@@ -11,8 +11,9 @@ use flowy_database2::DatabaseManager2;
 use flowy_document2::document_data::DocumentDataWrapper;
 use flowy_document2::manager::DocumentManager;
 use flowy_error::FlowyError;
+use flowy_folder2::deps::{FolderCloudService, FolderUser};
 use flowy_folder2::entities::ViewLayoutPB;
-use flowy_folder2::manager::{Folder2Manager, FolderUser};
+use flowy_folder2::manager::Folder2Manager;
 use flowy_folder2::view_ext::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder2::ViewLayout;
 use flowy_user::services::UserSession;
@@ -25,13 +26,14 @@ impl Folder2DepsResolver {
     document_manager: &Arc<DocumentManager>,
     database_manager: &Arc<DatabaseManager2>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
+    folder_cloud: Arc<dyn FolderCloudService>,
   ) -> Arc<Folder2Manager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl(user_session.clone()));
 
-    let view_data_processor =
+    let view_processors =
       make_view_data_processor(document_manager.clone(), database_manager.clone());
     Arc::new(
-      Folder2Manager::new(user.clone(), collab_builder, view_data_processor)
+      Folder2Manager::new(user.clone(), collab_builder, view_processors, folder_cloud)
         .await
         .unwrap(),
     )

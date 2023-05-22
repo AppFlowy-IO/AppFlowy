@@ -113,9 +113,6 @@ impl TryFrom<SupabaseDBConfigPB> for SupabaseDBConfig {
 pub struct UpdateTableConfigPB {
   #[pb(index = 1)]
   pub table_name: String,
-
-  #[pb(index = 2)]
-  pub pkey: String,
 }
 
 impl TryFrom<UpdateTableConfigPB> for UpdateTableConfig {
@@ -124,7 +121,6 @@ impl TryFrom<UpdateTableConfigPB> for UpdateTableConfig {
   fn try_from(config: UpdateTableConfigPB) -> Result<Self, Self::Error> {
     Ok(UpdateTableConfig {
       table_name: config.table_name,
-      pkey: config.pkey,
       enable: true,
     })
   }

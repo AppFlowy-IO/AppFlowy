@@ -104,6 +104,7 @@ impl UserSession {
     auth_type: &AuthType,
     params: BoxAny,
   ) -> Result<UserProfile, FlowyError> {
+    self.cloud_services.set_auth_type(auth_type.clone());
     let resp = self
       .cloud_services
       .get_auth_service(auth_type)?
@@ -119,7 +120,7 @@ impl UserSession {
       .await
       .as_ref()
       .unwrap()
-      .did_sign_in(user_profile.id, &user_profile.workspace_id)
+      .did_sign_in(user_profile.id, &user_profile.workspace_ids)
       .await;
     send_sign_in_notification()
       .payload::<UserProfilePB>(user_profile.clone().into())
@@ -134,6 +135,7 @@ impl UserSession {
     auth_type: &AuthType,
     params: BoxAny,
   ) -> Result<UserProfile, FlowyError> {
+    self.cloud_services.set_auth_type(auth_type.clone());
     let resp = self
       .cloud_services
       .get_auth_service(auth_type)?
@@ -163,6 +165,7 @@ impl UserSession {
       .execute(&*(self.db_connection()?))?;
     self.database.close_user_db(session.user_id)?;
     self.set_session(None)?;
+
     let server = self.cloud_services.get_auth_service(auth_type)?;
     let token = session.token;
     let _ = tokio::spawn(async move {
@@ -341,7 +344,7 @@ impl std::convert::From<SignInResponse> for Session {
       token: resp.token,
       email: resp.email,
       name: resp.name,
-      workspace_id: resp.workspace_id,
+      workspace_id: resp.workspace_ids,
     }
   }
 }
@@ -353,7 +356,7 @@ impl std::convert::From<SignUpResponse> for Session {
       token: resp.token,
       email: resp.email,
       name: resp.name,
-      workspace_id: resp.workspace_id,
+      workspace_id: resp.workspace_ids,
     }
   }
 }

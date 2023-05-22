@@ -162,7 +162,7 @@ where
   ) {
     if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
       let field_type = FieldType::from(field.field_type);
-      let key = CellDataCacheKey::new(field, field_type.clone(), cell);
+      let key = CellDataCacheKey::new(field, field_type, cell);
       // tracing::trace!(
       //   "Cell cache update: field_type:{}, cell: {:?}, cell_data: {:?}",
       //   field_type,

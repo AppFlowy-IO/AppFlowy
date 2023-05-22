@@ -3,6 +3,7 @@ use crate::manager::Folder2Manager;
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 
 use lib_dispatch::prelude::*;
+
 use std::sync::Arc;
 use strum_macros::Display;
 

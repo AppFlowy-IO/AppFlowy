@@ -3,9 +3,10 @@ use std::sync::Arc;
 use postgrest::Postgrest;
 
 use flowy_error::{ErrorCode, FlowyError};
+use flowy_folder2::deps::FolderCloudService;
 use flowy_user::event_map::UserAuthService;
 
-use crate::supabase::user::PostgrestUserAuthServiceImpl;
+use crate::supabase::impls::PostgrestUserAuthServiceImpl;
 use crate::AppFlowyServer;
 
 pub const SUPABASE_URL: &str = "SUPABASE_URL";
@@ -62,5 +63,9 @@ impl SupabaseServer {
 impl AppFlowyServer for SupabaseServer {
   fn user_service(&self) -> Arc<dyn UserAuthService> {
     Arc::new(PostgrestUserAuthServiceImpl::new(self.postgres.clone()))
+  }
+
+  fn folder_service(&self) -> Arc<dyn FolderCloudService> {
+    todo!()
   }
 }

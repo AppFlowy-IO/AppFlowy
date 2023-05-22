@@ -31,7 +31,7 @@ impl UserAuthService for PostgrestUserAuthServiceImpl {
       let user = create_user_with_uuid(postgrest, uuid).await?;
       Ok(SignUpResponse {
         user_id: user.uid,
-        workspace_id: user.workspace_id,
+        workspace_ids: user.workspace_id,
         ..Default::default()
       })
     })
@@ -41,14 +41,16 @@ impl UserAuthService for PostgrestUserAuthServiceImpl {
     let postgrest = self.postgrest.clone();
     FutureResult::new(async move {
       let uuid = uuid_from_box_any(params)?;
-      match get_user_workspace_with_uuid(postgrest, uuid).await? {
-        None => Err(FlowyError::user_not_exist()),
-        Some(user) => Ok(SignInResponse {
-          user_id: user.uid,
-          workspace_id: user.workspace_id,
-          ..Default::default()
-        }),
-      }
+      let workspace_ids = get_user_workspace_with_uuid(postgrest, uuid)
+        .await?
+        .into_iter()
+        .map(|user_workspace| user_workspace.workspace_id)
+        .collect();
+      Ok(SignInResponse {
+        user_id: user.uid,
+        workspace_ids,
+        ..Default::default()
+      })
     })
   }
 
@@ -76,18 +78,23 @@ impl UserAuthService for PostgrestUserAuthServiceImpl {
   ) -> FutureResult<Option<UserProfile>, FlowyError> {
     let postgrest = self.postgrest.clone();
     FutureResult::new(async move {
-      let profile = get_user_workspace_with_uid(postgrest, uid)
+      let workspace_ids = get_user_workspace_with_uid(postgrest, uid)
         .await?
-        .map(|user_workspace| UserProfile {
-          id: user_workspace.uid,
-          email: "".to_string(),
-          name: user_workspace.name,
-          token: "".to_string(),
-          icon_url: "".to_string(),
-          openai_key: "".to_string(),
-          workspace_id: user_workspace.workspace_id,
-        });
-      Ok(profile)
+        .into_iter()
+        .map(|user_workspace| user_workspace.workspace_id)
+        .collect();
+
+      let profile = UserProfile {
+        id: user_workspace.uid,
+        email: "".to_string(),
+        name: user_workspace.name,
+        token: "".to_string(),
+        icon_url: "".to_string(),
+        openai_key: "".to_string(),
+        workspace_ids,
+      };
+
+      Ok(Some(profile))
     })
   }
 }
@@ -100,8 +107,10 @@ mod tests {
 
   use flowy_user::entities::UpdateUserProfileParams;
 
-  use crate::supabase::request::{get_user_profile, get_user_workspace_with_uid};
-  use crate::supabase::user::{create_user_with_uuid, get_user_id_with_uuid, update_user_profile};
+  use crate::supabase::request::{
+    create_user_with_uuid, get_user_id_with_uuid, get_user_profile, get_user_workspace_with_uid,
+    update_user_profile,
+  };
   use crate::supabase::{SupabaseConfiguration, SupabaseServer};
 
   #[tokio::test]
@@ -159,9 +168,8 @@ mod tests {
 
       let result = get_user_workspace_with_uid(server.postgres.clone(), uid)
         .await
-        .unwrap()
         .unwrap();
-      assert!(!result.workspace_id.is_empty());
+      assert!(!result.is_empty());
     }
   }
 }

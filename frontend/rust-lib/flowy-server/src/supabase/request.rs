@@ -5,13 +5,16 @@ use postgrest::Postgrest;
 use serde_json::json;
 
 use flowy_error::{ErrorCode, FlowyError};
+use flowy_folder2::deps::Workspace;
 use flowy_user::entities::UpdateUserProfileParams;
 use lib_infra::box_any::BoxAny;
 
+use crate::supabase::impls::{
+  USER_PROFILE_TABLE, USER_TABLE, USER_WORKSPACE_TABLE, WORKSPACE_NAME_COLUMN, WORKSPACE_TABLE,
+};
 use crate::supabase::response::{
   InsertResponse, PostgrestError, UserProfile, UserProfileList, UserWorkspace, UserWorkspaceList,
 };
-use crate::supabase::user::{USER_PROFILE_TABLE, USER_TABLE, USER_WORKSPACE_TABLE};
 
 const USER_ID: &str = "uid";
 const USER_UUID: &str = "uuid";
@@ -19,7 +22,7 @@ const USER_UUID: &str = "uuid";
 pub(crate) async fn create_user_with_uuid(
   postgrest: Arc<Postgrest>,
   uuid: String,
-) -> Result<UserWorkspace, FlowyError> {
+) -> Result<Vec<UserWorkspace>, FlowyError> {
   let insert = format!("{{\"{}\": \"{}\"}}", USER_UUID, &uuid);
 
   // Create a new user with uuid.
@@ -45,7 +48,7 @@ pub(crate) async fn create_user_with_uuid(
       .first_or_error()?;
 
     match get_user_workspace_with_uid(postgrest, record.uid).await {
-      Ok(Some(user)) => Ok(user),
+      Ok(user_workspace) => Ok(user_workspace),
       _ => Err(FlowyError::new(
         ErrorCode::Internal,
         "Failed to get user workspace",
@@ -137,7 +140,7 @@ pub(crate) async fn get_user_profile(
 pub(crate) async fn get_user_workspace_with_uuid(
   postgrest: Arc<Postgrest>,
   uuid: String,
-) -> Result<Option<UserWorkspace>, FlowyError> {
+) -> Result<Vec<UserWorkspace>, FlowyError> {
   let resp = postgrest
     .from(USER_WORKSPACE_TABLE)
     .eq(USER_UUID, uuid)
@@ -152,13 +155,39 @@ pub(crate) async fn get_user_workspace_with_uuid(
     .map_err(|e| FlowyError::new(ErrorCode::UnexpectedEmpty, e))?;
   let resp = serde_json::from_str::<UserWorkspaceList>(&content)
     .map_err(|_e| FlowyError::new(ErrorCode::Serde, "Deserialize UserWorkspaceList failed"))?;
-  Ok(resp.0.first().cloned())
+  Ok(resp.into_inner())
+}
+
+pub(crate) async fn create_workspace_with_uid(
+  postgrest: Arc<Postgrest>,
+  uid: i64,
+  name: &str,
+) -> Result<Workspace, FlowyError> {
+  let mut insert = serde_json::Map::new();
+  insert.insert(USER_ID.to_string(), json!(uid));
+  insert.insert(WORKSPACE_NAME_COLUMN.to_string(), json!(name));
+  let insert_query = serde_json::to_string(&insert).unwrap();
+
+  let resp = postgrest
+    .from(WORKSPACE_TABLE)
+    .insert(insert_query)
+    .execute()
+    .await
+    .map_err(|e| FlowyError::new(ErrorCode::HttpError, e))?;
+
+  let content = resp
+    .text()
+    .await
+    .map_err(|e| FlowyError::new(ErrorCode::UnexpectedEmpty, e))?;
+  let resp = serde_json::from_str::<UserWorkspaceList>(&content)
+    .map_err(|_e| FlowyError::new(ErrorCode::Serde, "Deserialize UserWorkspaceList failed"))?;
+  todo!()
 }
 
 pub(crate) async fn get_user_workspace_with_uid(
   postgrest: Arc<Postgrest>,
   uid: i64,
-) -> Result<Option<UserWorkspace>, FlowyError> {
+) -> Result<Vec<UserWorkspace>, FlowyError> {
   let resp = postgrest
     .from(USER_WORKSPACE_TABLE)
     .eq(USER_ID, uid.to_string())
@@ -173,7 +202,7 @@ pub(crate) async fn get_user_workspace_with_uid(
     .map_err(|e| FlowyError::new(ErrorCode::UnexpectedEmpty, e))?;
   let resp = serde_json::from_str::<UserWorkspaceList>(&content)
     .map_err(|_e| FlowyError::new(ErrorCode::Serde, "Deserialize UserWorkspaceList failed"))?;
-  Ok(resp.0.first().cloned())
+  Ok(resp.into_inner())
 }
 
 #[allow(dead_code)]

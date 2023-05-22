@@ -76,7 +76,13 @@ pub(crate) struct UserWorkspace {
 }
 
 #[derive(Debug, Deserialize)]
-pub(crate) struct UserWorkspaceList(pub Vec<UserWorkspace>);
+pub(crate) struct UserWorkspaceList(Vec<UserWorkspace>);
+
+impl UserWorkspaceList {
+  pub(crate) fn into_inner(self) -> Vec<UserWorkspace> {
+    self.0
+  }
+}
 
 /// Handles the case where the value is null. If the value is null, return the default value of the
 /// type. Otherwise, deserialize the value.

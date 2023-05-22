@@ -83,7 +83,7 @@ pub struct SignInParams {
 pub struct SignInResponse {
   pub user_id: i64,
   pub name: String,
-  pub workspace_id: String,
+  pub workspace_ids: Vec<String>,
   pub email: Option<String>,
   pub token: Option<String>,
 }
@@ -100,7 +100,7 @@ pub struct SignUpParams {
 pub struct SignUpResponse {
   pub user_id: i64,
   pub name: String,
-  pub workspace_id: String,
+  pub workspace_ids: Vec<String>,
   pub email: Option<String>,
   pub token: Option<String>,
 }
@@ -140,7 +140,7 @@ pub struct UserProfile {
   pub token: String,
   pub icon_url: String,
   pub openai_key: String,
-  pub workspace_id: String,
+  pub workspace_ids: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]

@@ -34,6 +34,7 @@ lib-ws = { path = "../../../shared-lib/lib-ws" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 serde = "1.0"
 serde_json = "1.0"
+serde_repr = "0.1"
 
 [features]
 default = ["rev-sqlite"]

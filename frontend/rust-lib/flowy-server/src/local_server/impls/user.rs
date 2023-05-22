@@ -26,7 +26,7 @@ impl UserAuthService for LocalServerUserAuthServiceImpl {
       Ok(SignUpResponse {
         user_id: uid,
         name: params.name,
-        workspace_id,
+        workspace_ids: workspace_id,
         email: Some(params.email),
         token: None,
       })
@@ -41,7 +41,7 @@ impl UserAuthService for LocalServerUserAuthServiceImpl {
       Ok(SignInResponse {
         user_id: uid,
         name: params.name,
-        workspace_id,
+        workspace_ids: workspace_id,
         email: Some(params.email),
         token: None,
       })

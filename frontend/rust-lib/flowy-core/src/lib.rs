@@ -173,6 +173,7 @@ impl AppFlowyCore {
           &document_manager2,
           &database_manager2,
           collab_builder.clone(),
+          server_provider.clone(),
         )
         .await;
 
@@ -291,7 +292,7 @@ impl UserStatusListener {
       .initialize_with_new_user(
         user_profile.id,
         &user_profile.token,
-        &user_profile.workspace_id,
+        &user_profile.workspace_ids,
       )
       .await?;
 

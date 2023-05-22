@@ -3,7 +3,7 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::RocksCollabDB;
+
 use collab_folder::core::{
   Folder as InnerFolder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, TrashRecord,
   View, ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
@@ -11,6 +11,7 @@ use collab_folder::core::{
 use parking_lot::Mutex;
 use tracing::{event, Level};
 
+use crate::deps::{FolderCloudService, FolderUser};
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::util::timestamp;
 
@@ -22,22 +23,17 @@ use crate::notification::{
   send_notification, send_workspace_notification, send_workspace_setting_notification,
   FolderNotification,
 };
-use crate::user_default::{gen_workspace_id, DefaultFolderBuilder};
+use crate::user_default::DefaultFolderBuilder;
 use crate::view_ext::{
   gen_view_id, view_from_create_view_params, ViewDataProcessor, ViewDataProcessorMap,
 };
-
-pub trait FolderUser: Send + Sync {
-  fn user_id(&self) -> Result<i64, FlowyError>;
-  fn token(&self) -> Result<Option<String>, FlowyError>;
-  fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError>;
-}
 
 pub struct Folder2Manager {
   folder: Folder,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   user: Arc<dyn FolderUser>,
   view_processors: ViewDataProcessorMap,
+  cloud_service: Arc<dyn FolderCloudService>,
 }
 
 unsafe impl Send for Folder2Manager {}
@@ -48,6 +44,7 @@ impl Folder2Manager {
     user: Arc<dyn FolderUser>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     view_processors: ViewDataProcessorMap,
+    cloud_service: Arc<dyn FolderCloudService>,
   ) -> FlowyResult<Self> {
     let folder = Folder::default();
     let manager = Self {
@@ -55,6 +52,7 @@ impl Folder2Manager {
       folder,
       collab_builder,
       view_processors,
+      cloud_service,
     };
 
     Ok(manager)
@@ -139,13 +137,10 @@ impl Folder2Manager {
   pub async fn clear(&self, _user_id: i64) {}
 
   pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> FlowyResult<Workspace> {
-    let workspace = Workspace {
-      id: gen_workspace_id(),
-      name: params.name,
-      belongings: Default::default(),
-      created_at: timestamp(),
-    };
-
+    let workspace = self
+      .cloud_service
+      .create_workspace(self.user.user_id()?, &params.name)
+      .await?;
     self.with_folder((), |folder| {
       folder.workspaces.create_workspace(workspace.clone());
       folder.set_current_workspace(&workspace.id);
