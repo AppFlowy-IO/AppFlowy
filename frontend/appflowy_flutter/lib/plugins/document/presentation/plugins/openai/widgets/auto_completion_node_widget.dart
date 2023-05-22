@@ -178,7 +178,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
               const VSpace(10),
             ],
           )
-        : Container();
+        : const SizedBox.shrink();
   }
 
   Widget _buildHeaderWidget(BuildContext context) {
