@@ -10,21 +10,21 @@ pub struct OpenDocumentPayloadPBV2 {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct CreateDocumentPayloadPBV2 {
+pub struct CreateDocumentPayloadPB {
   #[pb(index = 1)]
   pub document_id: String,
   // Support customize initial data
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct CloseDocumentPayloadPBV2 {
+pub struct CloseDocumentPayloadPB {
   #[pb(index = 1)]
   pub document_id: String,
   // Support customize initial data
 }
 
 #[derive(Default, ProtoBuf, Debug)]
-pub struct ApplyActionPayloadPBV2 {
+pub struct ApplyActionPayloadPB {
   #[pb(index = 1)]
   pub document_id: String,
 
@@ -33,14 +33,14 @@ pub struct ApplyActionPayloadPBV2 {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct GetDocumentDataPayloadPBV2 {
+pub struct GetDocumentDataPayloadPB {
   #[pb(index = 1)]
   pub document_id: String,
   // Support customize initial data
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct DocumentDataPB2 {
+pub struct DocumentDataPB {
   #[pb(index = 1)]
   pub page_id: String,
 
