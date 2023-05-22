@@ -67,9 +67,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
             await _moveEvent(event, date);
           },
           didCreateEvent: (CalendarEventData<CalendarDayEvent> event) {
-            emit(
-              state.copyWith(editEvent: event),
-            );
+            emit(state.copyWith(editingEvent: event));
           },
           updateCalendarLayoutSetting:
               (CalendarLayoutSettingPB layoutSetting) async {
@@ -83,11 +81,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
             if (index != -1) {
               allEvents[index] = eventData;
             }
-            emit(
-              state.copyWith(
-                allEvents: allEvents,
-              ),
-            );
+            emit(state.copyWith(allEvents: allEvents, updateEvent: eventData));
           },
           didDeleteEvents: (List<RowId> deletedRowIds) {
             var events = [...state.allEvents];
@@ -203,7 +197,11 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     );
     return DatabaseEventMoveCalendarEvent(payload).send().then((result) {
       return result.fold(
-        (_) {},
+        (_) async {
+          final modifiedEvent = await _loadEvent(event.eventId);
+          // add(CalendarEvent.didDeleteEvents([event.eventId]));
+          add(CalendarEvent.didUpdateEvent(modifiedEvent!));
+        },
         (err) {
           Log.error(err);
           return null;
@@ -265,27 +263,27 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     CalendarEventPB eventPB,
   ) {
     final fieldInfo = fieldInfoByFieldId[eventPB.dateFieldId];
-    if (fieldInfo != null) {
-      // timestamp is stored as seconds, but constructor requires milliseconds
-      final date = DateTime.fromMillisecondsSinceEpoch(
-        eventPB.timestamp.toInt() * 1000,
-      );
-
-      final eventData = CalendarDayEvent(
-        event: eventPB,
-        eventId: eventPB.rowId,
-        dateFieldId: eventPB.dateFieldId,
-        date: date,
-      );
-
-      return CalendarEventData(
-        title: eventPB.title,
-        date: date,
-        event: eventData,
-      );
-    } else {
+    if (fieldInfo == null) {
       return null;
     }
+
+    // timestamp is stored as seconds, but constructor requires milliseconds
+    final date = DateTime.fromMillisecondsSinceEpoch(
+      eventPB.timestamp.toInt() * 1000,
+    );
+
+    final eventData = CalendarDayEvent(
+      event: eventPB,
+      eventId: eventPB.rowId,
+      dateFieldId: eventPB.dateFieldId,
+      date: date,
+    );
+
+    return CalendarEventData(
+      title: eventPB.title,
+      date: date,
+      event: eventData,
+    );
   }
 
   void _startListening() {
@@ -294,28 +292,37 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         if (isClosed) return;
       },
       onFieldsChanged: (fieldInfos) {
-        if (isClosed) return;
+        if (isClosed) {
+          return;
+        }
         fieldInfoByFieldId = {
           for (var fieldInfo in fieldInfos) fieldInfo.field.id: fieldInfo
         };
       },
-      onRowsCreated: ((rowIds) async {
+      onRowsCreated: (rowIds) async {
+        if (isClosed) {
+          return;
+        }
         for (final id in rowIds) {
           final event = await _loadEvent(id);
           if (event != null && !isClosed) {
             add(CalendarEvent.didReceiveEvent(event));
           }
         }
-      }),
+      },
       onRowsDeleted: (rowIds) {
-        if (isClosed) return;
+        if (isClosed) {
+          return;
+        }
         add(CalendarEvent.didDeleteEvents(rowIds));
       },
       onRowsUpdated: (rowIds) async {
-        if (isClosed) return;
+        if (isClosed) {
+          return;
+        }
         for (final id in rowIds) {
           final event = await _loadEvent(id);
-          if (event != null && isEventDayChanged(event)) {
+          if (event != null) {
             if (isEventDayChanged(event)) {
               add(CalendarEvent.didDeleteEvents([id]));
               add(CalendarEvent.didReceiveEvent(event));
@@ -345,7 +352,9 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
 
   void _didReceiveLayoutSetting(LayoutSettingPB layoutSetting) {
     if (layoutSetting.hasCalendar()) {
-      if (isClosed) return;
+      if (isClosed) {
+        return;
+      }
       add(CalendarEvent.didReceiveCalendarSettings(layoutSetting.calendar));
     }
   }
@@ -357,17 +366,14 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     }
   }
 
-  bool isEventDayChanged(
-    CalendarEventData<CalendarDayEvent> event,
-  ) {
+  bool isEventDayChanged(CalendarEventData<CalendarDayEvent> event) {
     final index = state.allEvents.indexWhere(
       (element) => element.event!.eventId == event.event!.eventId,
     );
-    if (index != -1) {
-      return state.allEvents[index].date.day != event.date.day;
-    } else {
+    if (index == -1) {
       return false;
     }
+    return state.allEvents[index].date.day != event.date.day;
   }
 }
 
@@ -433,7 +439,7 @@ class CalendarState with _$CalendarState {
     // events by row id
     required Events allEvents,
     required Events initialEvents,
-    CalendarEventData<CalendarDayEvent>? editEvent,
+    CalendarEventData<CalendarDayEvent>? editingEvent,
     CalendarEventData<CalendarDayEvent>? newEvent,
     CalendarEventData<CalendarDayEvent>? updateEvent,
     required List<String> deleteEventIds,
@@ -471,16 +477,12 @@ class CalendarEditingRow {
   });
 }
 
-class CalendarDayEvent {
-  final CalendarEventPB event;
-  final String dateFieldId;
-  final String eventId;
-  final DateTime date;
-
-  CalendarDayEvent({
-    required this.dateFieldId,
-    required this.eventId,
-    required this.event,
-    required this.date,
-  });
+@freezed
+class CalendarDayEvent with _$CalendarDayEvent {
+  const factory CalendarDayEvent({
+    required CalendarEventPB event,
+    required String dateFieldId,
+    required String eventId,
+    required DateTime date,
+  }) = _CalendarDayEvent;
 }
