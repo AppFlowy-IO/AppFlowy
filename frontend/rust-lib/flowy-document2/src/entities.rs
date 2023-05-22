@@ -3,24 +3,24 @@ use std::collections::HashMap;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 #[derive(Default, ProtoBuf)]
-pub struct OpenDocumentPayloadPBV2 {
+pub struct OpenDocumentPayloadPB {
   #[pb(index = 1)]
   pub document_id: String,
-  // Support customize initial data
 }
 
 #[derive(Default, ProtoBuf)]
 pub struct CreateDocumentPayloadPB {
   #[pb(index = 1)]
   pub document_id: String,
-  // Support customize initial data
+
+  #[pb(index = 2, one_of)]
+  pub initial_data: Option<DocumentDataPB>,
 }
 
 #[derive(Default, ProtoBuf)]
 pub struct CloseDocumentPayloadPB {
   #[pb(index = 1)]
   pub document_id: String,
-  // Support customize initial data
 }
 
 #[derive(Default, ProtoBuf, Debug)]

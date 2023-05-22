@@ -17,10 +17,10 @@ pub fn init(document_manager: Arc<DocumentManager>) -> AFPlugin {
     .name(env!("CARGO_PKG_NAME"))
     .state(document_manager);
 
+  plugin = plugin.event(DocumentEvent::CreateDocument, create_document_handler);
   plugin = plugin.event(DocumentEvent::OpenDocument, open_document_handler);
   plugin = plugin.event(DocumentEvent::CloseDocument, close_document_handler);
   plugin = plugin.event(DocumentEvent::ApplyAction, apply_action_handler);
-  plugin = plugin.event(DocumentEvent::CreateDocument, create_document_handler);
   plugin = plugin.event(DocumentEvent::GetDocumentData, get_document_data_handler);
 
   plugin

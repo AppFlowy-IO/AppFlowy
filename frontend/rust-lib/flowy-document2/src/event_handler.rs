@@ -19,7 +19,7 @@ use crate::{
   entities::{
     ApplyActionPayloadPB, BlockActionPB, BlockActionPayloadPB, BlockActionTypePB, BlockEventPB,
     BlockEventPayloadPB, BlockPB, CloseDocumentPayloadPB, CreateDocumentPayloadPB, DeltaTypePB,
-    DocEventPB, DocumentDataPB, OpenDocumentPayloadPBV2,
+    DocEventPB, DocumentDataPB, OpenDocumentPayloadPB,
   },
   manager::DocumentManager,
 };
@@ -30,15 +30,17 @@ pub(crate) async fn create_document_handler(
   manager: AFPluginState<Arc<DocumentManager>>,
 ) -> FlowyResult<()> {
   let context = data.into_inner();
-  // Create a new document with a default content, one page block and one text block
-  let data = DocumentDataWrapper::default();
-  manager.create_document(context.document_id, data)?;
+  let initial_data: DocumentDataWrapper = context
+    .initial_data
+    .map(|data| data.into())
+    .unwrap_or_default();
+  manager.create_document(context.document_id, initial_data)?;
   Ok(())
 }
 
 // Handler for opening an existing document
 pub(crate) async fn open_document_handler(
-  data: AFPluginData<OpenDocumentPayloadPBV2>,
+  data: AFPluginData<OpenDocumentPayloadPB>,
   manager: AFPluginState<Arc<DocumentManager>>,
 ) -> DataResult<DocumentDataPB, FlowyError> {
   let context = data.into_inner();
@@ -59,7 +61,7 @@ pub(crate) async fn close_document_handler(
 // Get the content of the existing document,
 //  if the document does not exist, return an error.
 pub(crate) async fn get_document_data_handler(
-  data: AFPluginData<OpenDocumentPayloadPBV2>,
+  data: AFPluginData<OpenDocumentPayloadPB>,
   manager: AFPluginState<Arc<DocumentManager>>,
 ) -> DataResult<DocumentDataPB, FlowyError> {
   let context = data.into_inner();

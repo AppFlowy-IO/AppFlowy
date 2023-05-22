@@ -35,6 +35,31 @@ impl From<DocumentDataWrapper> for DocumentDataPB {
   }
 }
 
+impl From<DocumentDataPB> for DocumentDataWrapper {
+  fn from(data: DocumentDataPB) -> Self {
+    let blocks = data
+      .blocks
+      .into_iter()
+      .map(|(id, block)| (id, block.into()))
+      .collect();
+
+    let children_map = data
+      .meta
+      .children_map
+      .into_iter()
+      .map(|(id, children)| (id, children.children))
+      .collect();
+
+    let page_id = data.page_id;
+
+    Self(DocumentData {
+      page_id,
+      blocks,
+      meta: DocumentMeta { children_map },
+    })
+  }
+}
+
 // the default document data contains a page block and a text block
 impl Default for DocumentDataWrapper {
   fn default() -> Self {
