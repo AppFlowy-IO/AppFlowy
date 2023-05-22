@@ -6,7 +6,7 @@ import 'package:appflowy_editor/appflowy_editor.dart'
     show Document, Node, Attributes, Delta, ParagraphBlockKeys;
 import 'package:collection/collection.dart';
 
-extension AppFlowyEditor on DocumentDataPB2 {
+extension AppFlowyEditor on DocumentDataPB {
   Document? toDocument() {
     final rootId = pageId;
     try {

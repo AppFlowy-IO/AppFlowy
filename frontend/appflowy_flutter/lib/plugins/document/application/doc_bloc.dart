@@ -129,7 +129,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     );
   }
 
-  Future<void> _initAppFlowyEditorState(DocumentDataPB2 data) async {
+  Future<void> _initAppFlowyEditorState(DocumentDataPB data) async {
     if (kDebugMode) {
       prettyPrintJson(data.toProto3Json());
     }
@@ -189,6 +189,6 @@ class DocumentState with _$DocumentState {
 class DocumentLoadingState with _$DocumentLoadingState {
   const factory DocumentLoadingState.loading() = _Loading;
   const factory DocumentLoadingState.finish(
-    Either<FlowyError, DocumentDataPB2> successOrFail,
+    Either<FlowyError, DocumentDataPB> successOrFail,
   ) = _Finish;
 }

@@ -11,7 +11,7 @@ class EditorStyleCustomizer {
   });
 
   static double get horizontalPadding =>
-      PlatformExtension.isDesktop ? 100.0 : 10.0;
+      PlatformExtension.isDesktop ? 50.0 : 10.0;
 
   final BuildContext context;
 
@@ -29,7 +29,7 @@ class EditorStyleCustomizer {
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     return EditorStyle.desktop(
       padding: EdgeInsets.only(
-        left: horizontalPadding / 2.0,
+        left: horizontalPadding,
         right: horizontalPadding,
       ),
       backgroundColor: theme.colorScheme.surface,

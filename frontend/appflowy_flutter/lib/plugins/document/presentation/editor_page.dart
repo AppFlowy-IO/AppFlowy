@@ -225,6 +225,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         if (supportColorBuilderTypes.contains(entry.key)) ...colorAction,
       ];
 
+      builder.showActions = (_) => true;
       builder.actionBuilder = (context, state) => BlockActionList(
             blockComponentContext: context,
             blockComponentState: state,
