@@ -11,7 +11,7 @@ use std::{
 };
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::config::{AWSDynamoDBConfig, AppFlowyCollabConfig};
+use appflowy_integrate::config::{AWSDynamoDBConfig, CollabPluginConfig};
 use tokio::sync::RwLock;
 
 use flowy_database2::DatabaseManager2;
@@ -142,7 +142,7 @@ impl AppFlowyCore {
     inject_aws_env(collab_config.aws_config());
 
     /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
-    /// on demand based on the [AppFlowyCollabConfig].
+    /// on demand based on the [CollabPluginConfig].
     let collab_builder = Arc::new(AppFlowyCollabBuilder::new(collab_config));
 
     tracing::debug!("🔥 {:?}", config);
@@ -233,10 +233,10 @@ fn init_kv(root: &str) {
   }
 }
 
-fn get_collab_config() -> AppFlowyCollabConfig {
+fn get_collab_config() -> CollabPluginConfig {
   match KV::get_str("collab_config") {
-    None => AppFlowyCollabConfig::default(),
-    Some(s) => AppFlowyCollabConfig::from_str(&s).unwrap_or_default(),
+    None => CollabPluginConfig::default(),
+    Some(s) => CollabPluginConfig::from_str(&s).unwrap_or_default(),
   }
 }
 

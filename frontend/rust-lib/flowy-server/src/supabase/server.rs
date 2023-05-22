@@ -2,12 +2,16 @@ use std::sync::Arc;
 
 use postgrest::Postgrest;
 
-use flowy_config::entities::{SUPABASE_JWT_SECRET, SUPABASE_KEY, SUPABASE_URL};
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_user::event_map::UserAuthService;
 
 use crate::supabase::user::PostgrestUserAuthServiceImpl;
 use crate::AppFlowyServer;
+
+pub const SUPABASE_URL: &str = "SUPABASE_URL";
+pub const SUPABASE_ANON_KEY: &str = "SUPABASE_ANON_KEY";
+pub const SUPABASE_KEY: &str = "SUPABASE_KEY";
+pub const SUPABASE_JWT_SECRET: &str = "SUPABASE_JWT_SECRET";
 
 #[derive(Debug)]
 pub struct SupabaseConfiguration {
@@ -30,6 +34,12 @@ impl SupabaseConfiguration {
         FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_JWT_SECRET")
       })?,
     })
+  }
+
+  pub fn write_env(&self) {
+    std::env::set_var(SUPABASE_URL, &self.url);
+    std::env::set_var(SUPABASE_KEY, &self.key);
+    std::env::set_var(SUPABASE_JWT_SECRET, &self.jwt_secret);
   }
 }
 
