@@ -54,6 +54,7 @@ class CalendarDayCard extends StatelessWidget {
           create: (_) => _CardEnterNotifier(),
           builder: (context, child) {
             final child = Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 _Header(
                   date: date,
@@ -82,27 +83,40 @@ class CalendarDayCard extends StatelessWidget {
                   onDoubleTap: () => onCreateEvent(date),
                   child: Container(color: backgroundColor),
                 ),
+                DragTarget<CalendarDayEvent>(
+                  builder: (context, candidate, __) {
+                    return Stack(
+                      children: [
+                        if (candidate.isNotEmpty)
+                          Container(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .secondaryContainer,
+                          ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: child,
+                        )
+                      ],
+                    );
+                  },
+                  onWillAccept: (CalendarDayEvent? event) {
+                    if (event == null) {
+                      return false;
+                    }
+                    return !isSameDay(event.date, date);
+                  },
+                  onAccept: (CalendarDayEvent event) {
+                    context
+                        .read<CalendarBloc>()
+                        .add(CalendarEvent.moveEvent(event, date));
+                  },
+                ),
                 MouseRegion(
-                  cursor: SystemMouseCursors.basic,
                   onEnter: (p) => notifyEnter(context, true),
                   onExit: (p) => notifyEnter(context, false),
-                  child: DragTarget<CalendarDayEvent>(
-                    builder: (context, _, __) => Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: child,
-                    ),
-                    onWillAccept: (CalendarDayEvent? event) {
-                      if (event == null) {
-                        return false;
-                      }
-                      return !isSameDay(event.date, date);
-                    },
-                    onAccept: (CalendarDayEvent event) {
-                      context
-                          .read<CalendarBloc>()
-                          .add(CalendarEvent.moveEvent(event, date));
-                    },
-                  ),
+                  opaque: false,
+                  hitTestBehavior: HitTestBehavior.translucent,
                 ),
               ],
             );
@@ -253,6 +267,7 @@ class _EventList extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 8.0),
         separatorBuilder: (BuildContext context, int index) =>
             VSpace(GridSize.typeOptionSeparatorHeight),
+        shrinkWrap: true,
       ),
     );
   }
