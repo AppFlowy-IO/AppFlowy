@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::convert::TryFrom;
 use std::sync::Arc;
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
@@ -9,6 +10,7 @@ use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
 use flowy_database2::DatabaseManager2;
 use flowy_document2::document_data::DocumentDataWrapper;
+use flowy_document2::entities::DocumentDataPB;
 use flowy_document2::manager::DocumentManager;
 use flowy_error::FlowyError;
 use flowy_folder2::entities::ViewLayoutPB;
@@ -126,7 +128,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     _user_id: i64,
     view_id: &str,
     _name: &str,
-    _data: Vec<u8>,
+    data: Vec<u8>,
     layout: ViewLayout,
     _ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
@@ -134,9 +136,9 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     // TODO: implement read the document data from custom data.
     let view_id = view_id.to_string();
     let manager = self.0.clone();
-
     FutureResult::new(async move {
-      manager.create_document(view_id, DocumentDataWrapper::default())?;
+      let data = DocumentDataPB::try_from(Bytes::from(data))?;
+      manager.create_document(view_id, data.into())?;
       Ok(())
     })
   }

@@ -31,14 +31,14 @@ impl DefaultFolderBuilder {
     };
 
     // create the document
-    let data = initial_read_me().into_bytes();
+    // TODO: use the initial data from the view processor
+    // let data = initial_read_me().into_bytes();
     let processor = view_processors.get(&child_view_layout).unwrap();
     processor
-      .create_view_with_custom_data(
+      .create_view_with_built_in_data(
         uid,
         &child_view.id,
         &child_view.name,
-        data,
         child_view_layout.clone(),
         HashMap::default(),
       )
