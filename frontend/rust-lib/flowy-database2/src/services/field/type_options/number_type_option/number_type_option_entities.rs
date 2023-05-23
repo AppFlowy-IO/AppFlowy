@@ -27,7 +27,7 @@ impl NumberCellFormat {
       return Ok(Self::default());
     }
     // If the first char is not '-', then it is a sign.
-    let sign_positive = match num_str.find("-") {
+    let sign_positive = match num_str.find('-') {
       None => true,
       Some(offset) => offset != 0,
     };

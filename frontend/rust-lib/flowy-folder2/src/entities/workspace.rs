@@ -106,7 +106,7 @@ impl WorkspaceIdPB {
   }
 }
 
-#[derive(Default, ProtoBuf, Clone)]
+#[derive(Default, ProtoBuf, Debug, Clone)]
 pub struct WorkspaceSettingPB {
   #[pb(index = 1)]
   pub workspace: WorkspacePB,
