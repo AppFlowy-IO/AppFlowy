@@ -78,12 +78,17 @@ extension BlockToNode on BlockPB {
 }
 
 extension NodeToBlock on Node {
-  BlockPB toBlock() {
+  BlockPB toBlock({
+    String? childrenId,
+  }) {
     assert(id.isNotEmpty);
     final block = BlockPB.create()
       ..id = id
       ..ty = _typeAdapter(type)
       ..data = _dataAdapter(type, attributes);
+    if (childrenId != null && childrenId.isNotEmpty) {
+      block.childrenId = childrenId;
+    }
     return block;
   }
 
