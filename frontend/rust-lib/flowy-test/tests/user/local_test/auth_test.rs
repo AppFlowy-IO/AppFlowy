@@ -1,13 +1,15 @@
-use flowy_test::{event_builder::UserModuleEventBuilder, FlowySDKTest};
+use flowy_test::user_event::*;
+use flowy_test::{event_builder::EventBuilder, FlowyCoreTest};
 use flowy_user::entities::{AuthTypePB, SignInPayloadPB, SignUpPayloadPB, UserProfilePB};
-use flowy_user::{errors::ErrorCode, event_map::UserEvent::*};
+use flowy_user::errors::ErrorCode;
+use flowy_user::event_map::UserEvent::*;
 
-use crate::helper::*;
+use crate::user::local_test::helper::*;
 
 #[tokio::test]
 async fn sign_up_with_invalid_email() {
   for email in invalid_email_test_case() {
-    let sdk = FlowySDKTest::default();
+    let sdk = FlowyCoreTest::new();
     let request = SignUpPayloadPB {
       email: email.to_string(),
       name: valid_name(),
@@ -16,43 +18,45 @@ async fn sign_up_with_invalid_email() {
     };
 
     assert_eq!(
-      UserModuleEventBuilder::new(sdk)
+      EventBuilder::new(sdk)
         .event(SignUp)
         .payload(request)
         .async_send()
         .await
         .error()
+        .unwrap()
         .code,
       ErrorCode::EmailFormatInvalid.value()
     );
   }
 }
 #[tokio::test]
-async fn sign_up_with_invalid_password() {
-  for password in invalid_password_test_case() {
-    let sdk = FlowySDKTest::default();
-    let request = SignUpPayloadPB {
-      email: random_email(),
-      name: valid_name(),
-      password,
-      auth_type: AuthTypePB::Local,
-    };
+async fn sign_up_with_long_password() {
+  let sdk = FlowyCoreTest::new();
+  let request = SignUpPayloadPB {
+    email: random_email(),
+    name: valid_name(),
+    password: "1234".repeat(100).as_str().to_string(),
+    auth_type: AuthTypePB::Local,
+  };
 
-    UserModuleEventBuilder::new(sdk)
+  assert_eq!(
+    EventBuilder::new(sdk)
       .event(SignUp)
       .payload(request)
       .async_send()
       .await
-      .assert_error();
-  }
+      .error()
+      .unwrap()
+      .code,
+    ErrorCode::PasswordTooLong.value()
+  );
 }
 
 #[tokio::test]
 async fn sign_in_success() {
-  let test = FlowySDKTest::default();
-  let _ = UserModuleEventBuilder::new(test.clone())
-    .event(SignOut)
-    .sync_send();
+  let test = FlowyCoreTest::new();
+  let _ = EventBuilder::new(test.clone()).event(SignOut).sync_send();
   let sign_up_context = test.sign_up().await;
 
   let request = SignInPayloadPB {
@@ -62,7 +66,7 @@ async fn sign_in_success() {
     auth_type: AuthTypePB::Local,
   };
 
-  let response = UserModuleEventBuilder::new(test.clone())
+  let response = EventBuilder::new(test.clone())
     .event(SignIn)
     .payload(request)
     .async_send()
@@ -74,7 +78,7 @@ async fn sign_in_success() {
 #[tokio::test]
 async fn sign_in_with_invalid_email() {
   for email in invalid_email_test_case() {
-    let sdk = FlowySDKTest::default();
+    let sdk = FlowyCoreTest::new();
     let request = SignInPayloadPB {
       email: email.to_string(),
       password: login_password(),
@@ -83,12 +87,13 @@ async fn sign_in_with_invalid_email() {
     };
 
     assert_eq!(
-      UserModuleEventBuilder::new(sdk)
+      EventBuilder::new(sdk)
         .event(SignIn)
         .payload(request)
         .async_send()
         .await
         .error()
+        .unwrap()
         .code,
       ErrorCode::EmailFormatInvalid.value()
     );
@@ -98,7 +103,7 @@ async fn sign_in_with_invalid_email() {
 #[tokio::test]
 async fn sign_in_with_invalid_password() {
   for password in invalid_password_test_case() {
-    let sdk = FlowySDKTest::default();
+    let sdk = FlowyCoreTest::new();
 
     let request = SignInPayloadPB {
       email: random_email(),
@@ -107,11 +112,12 @@ async fn sign_in_with_invalid_password() {
       auth_type: AuthTypePB::Local,
     };
 
-    UserModuleEventBuilder::new(sdk)
+    assert!(EventBuilder::new(sdk)
       .event(SignIn)
       .payload(request)
       .async_send()
       .await
-      .assert_error();
+      .error()
+      .is_some())
   }
 }

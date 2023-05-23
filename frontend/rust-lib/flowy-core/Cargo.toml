@@ -11,12 +11,9 @@ lib-log = { path = "../lib-log" }
 flowy-user = { path = "../flowy-user" }
 flowy-net = { path = "../flowy-net" }
 flowy-folder2 = { path = "../flowy-folder2" }
-#flowy-database = { path = "../flowy-database" }
 flowy-database2 = { path = "../flowy-database2" }
 flowy-sqlite = { path = "../flowy-sqlite", optional = true }
-#flowy-document = { path = "../flowy-document" }
 flowy-document2 = { path = "../flowy-document2" }
-#flowy-revision = { path = "../flowy-revision" }
 flowy-error = { path = "../flowy-error" }
 flowy-task = { path = "../flowy-task" }
 flowy-server = { path = "../flowy-server" }
@@ -34,6 +31,7 @@ lib-ws = { path = "../../../shared-lib/lib-ws" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 serde = "1.0"
 serde_json = "1.0"
+serde_repr = "0.1"
 
 [features]
 default = ["rev-sqlite"]

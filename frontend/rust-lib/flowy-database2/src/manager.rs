@@ -3,7 +3,7 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::{RocksCollabDB, RocksDBConfig};
+use appflowy_integrate::{CollabPersistenceConfig, RocksCollabDB};
 use collab::core::collab::MutexCollab;
 use collab_database::database::DatabaseData;
 use collab_database::user::{UserDatabase as InnerUserDatabase, UserDatabaseCollabBuilder};
@@ -51,7 +51,7 @@ impl DatabaseManager2 {
     *self.user_database.lock() = Some(InnerUserDatabase::new(
       user_id,
       db,
-      RocksDBConfig::default(),
+      CollabPersistenceConfig::default(),
       UserDatabaseCollabBuilderImpl(self.collab_builder.clone()),
     ));
     // do nothing
@@ -229,7 +229,7 @@ impl UserDatabaseCollabBuilder for UserDatabaseCollabBuilderImpl {
     uid: i64,
     object_id: &str,
     db: Arc<RocksCollabDB>,
-    config: &RocksDBConfig,
+    config: &CollabPersistenceConfig,
   ) -> Arc<MutexCollab> {
     self.0.build_with_config(uid, object_id, db, config)
   }

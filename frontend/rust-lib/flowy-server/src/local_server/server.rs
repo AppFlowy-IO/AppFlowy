@@ -1,11 +1,14 @@
 use std::sync::Arc;
 
+use flowy_folder2::deps::FolderCloudService;
 use parking_lot::RwLock;
 use tokio::sync::mpsc;
 
 use flowy_user::event_map::UserAuthService;
 
-use crate::local_server::user::LocalServerUserAuthServiceImpl;
+use crate::local_server::impls::{
+  LocalServerFolderCloudServiceImpl, LocalServerUserAuthServiceImpl,
+};
 use crate::AppFlowyServer;
 
 #[derive(Default)]
@@ -30,5 +33,9 @@ impl LocalServer {
 impl AppFlowyServer for LocalServer {
   fn user_service(&self) -> Arc<dyn UserAuthService> {
     Arc::new(LocalServerUserAuthServiceImpl())
+  }
+
+  fn folder_service(&self) -> Arc<dyn FolderCloudService> {
+    Arc::new(LocalServerFolderCloudServiceImpl())
   }
 }

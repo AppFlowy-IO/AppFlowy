@@ -14,6 +14,7 @@ bytes = { version = "1.4" }
 flowy-error = { path = "../flowy-error" }
 strum_macros = "0.21"
 appflowy-integrate = {version = "0.1.0" }
+flowy-server = { path = "../flowy-server" }
 
 [build-dependencies]
 flowy-codegen = { path = "../../../shared-lib/flowy-codegen"}

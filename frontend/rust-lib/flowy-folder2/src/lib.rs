@@ -7,7 +7,9 @@ pub mod protobuf;
 mod user_default;
 pub mod view_ext;
 
+pub mod deps;
 #[cfg(feature = "test_helper")]
 mod test_helper;
 
 pub use collab_folder::core::ViewLayout;
+pub use user_default::gen_workspace_id;
