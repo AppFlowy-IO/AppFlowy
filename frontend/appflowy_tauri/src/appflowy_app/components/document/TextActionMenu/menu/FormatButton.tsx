@@ -12,7 +12,7 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
   const dispatch = useAppDispatch();
   const controller = useContext(DocumentControllerContext);
 
-  const focusId = useAppSelector((state) => state.documentRangeSelection.focus?.id || '');
+  const focusId = useAppSelector((state) => state.documentRange.focus?.id || '');
   const { node: focusNode } = useSubscribeNode(focusId);
 
   const [isActive, setIsActive] = React.useState(false);

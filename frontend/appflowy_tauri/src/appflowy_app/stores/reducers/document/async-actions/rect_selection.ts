@@ -1,7 +1,7 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import { getNextNodeId, getPrevNodeId } from "$app/utils/document/blocks/common";
-import { DocumentState } from "$app/interfaces/document";
-import { rectSelectionActions } from "$app_reducers/document/slice";
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import { getNextNodeId, getPrevNodeId } from '$app/utils/document/block';
+import { DocumentState } from '$app/interfaces/document';
+import { rectSelectionActions } from '$app_reducers/document/slice';
 
 export const setRectSelectionThunk = createAsyncThunk(
   'document/setRectSelection',
@@ -22,6 +22,6 @@ export const setRectSelectionThunk = createAsyncThunk(
         selected[node.parent] = true;
       }
     });
-    dispatch(rectSelectionActions.updateSelections(payload.filter((id) => selected[id])))
+    dispatch(rectSelectionActions.updateSelections(payload.filter((id) => selected[id])));
   }
 );

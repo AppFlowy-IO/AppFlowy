@@ -10,6 +10,7 @@ import {
   Lightbulb,
   TextFields,
   Title,
+  SafetyDivider,
 } from '@mui/icons-material';
 import { List } from '@mui/material';
 import { BlockData, BlockType } from '$app/interfaces/document';
@@ -106,6 +107,11 @@ function BlockSlashMenu({ id, onClose, searchText }: { id: string; onClose?: () 
           type: BlockType.CalloutBlock,
           title: 'Callout',
           icon: <Lightbulb />,
+        },
+        {
+          type: BlockType.DividerBlock,
+          title: 'Divider',
+          icon: <SafetyDivider />,
         },
       ],
     ],

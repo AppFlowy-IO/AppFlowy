@@ -14,7 +14,7 @@ import { DocumentObserver } from './document_observer';
 import * as Y from 'yjs';
 import { BLOCK_MAP_NAME, CHILDREN_MAP_NAME, META_NAME } from '$app/constants/document/block';
 import { get } from '@/appflowy_app/utils/tool';
-import { blockPB2Node } from '$app/utils/document/blocks/common';
+import { blockPB2Node } from '$app/utils/document/block';
 import { Log } from '$app/utils/log';
 
 export const DocumentControllerContext = createContext<DocumentController | null>(null);
