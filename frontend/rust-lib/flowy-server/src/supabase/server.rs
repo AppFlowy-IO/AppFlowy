@@ -25,6 +25,11 @@ pub struct SupabaseConfiguration {
 }
 
 impl SupabaseConfiguration {
+  /// Load the configuration from the environment variables.
+  /// SUPABASE_URL=https://<your-supabase-url>.supabase.co
+  /// SUPABASE_KEY=<your-supabase-key>
+  /// SUPABASE_JWT_SECRET=<your-supabase-jwt-secret>
+  ///
   pub fn from_env() -> Result<Self, FlowyError> {
     Ok(Self {
       url: std::env::var(SUPABASE_URL)

@@ -45,10 +45,7 @@ pub struct AppFlowyServerProvider {
 
 impl AppFlowyServerProvider {
   pub fn new() -> Self {
-    Self {
-      provider_type: RwLock::new(current_server_provider()),
-      providers: RwLock::new(HashMap::new()),
-    }
+    Self::default()
   }
 
   pub fn provider_type(&self) -> ServerProviderType {
@@ -70,6 +67,15 @@ impl AppFlowyServerProvider {
       .write()
       .insert(provider_type.clone(), server.clone());
     Ok(server)
+  }
+}
+
+impl Default for AppFlowyServerProvider {
+  fn default() -> Self {
+    Self {
+      provider_type: RwLock::new(current_server_provider()),
+      providers: RwLock::new(HashMap::new()),
+    }
   }
 }
 

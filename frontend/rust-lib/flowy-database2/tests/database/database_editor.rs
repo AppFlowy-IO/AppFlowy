@@ -13,13 +13,13 @@ use flowy_database2::services::field::{
   SelectOptionCellChangeset, SingleSelectTypeOption,
 };
 use flowy_error::FlowyResult;
-use flowy_test::helper::ViewTest;
-use flowy_test::FlowySDKTest;
+use flowy_test::folder_event::ViewTest;
+use flowy_test::FlowyCoreTest;
 
 use crate::database::mock_data::{make_test_board, make_test_calendar, make_test_grid};
 
 pub struct DatabaseEditorTest {
-  pub sdk: FlowySDKTest,
+  pub sdk: FlowyCoreTest,
   pub app_id: String,
   pub view_id: String,
   pub editor: Arc<DatabaseEditor>,
@@ -43,7 +43,7 @@ impl DatabaseEditorTest {
   }
 
   pub async fn new(layout: DatabaseLayoutPB) -> Self {
-    let sdk = FlowySDKTest::default();
+    let sdk = FlowyCoreTest::new();
     let _ = sdk.init_user().await;
     let test = match layout {
       DatabaseLayoutPB::Grid => {

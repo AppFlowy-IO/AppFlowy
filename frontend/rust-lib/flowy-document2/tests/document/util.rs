@@ -1,5 +1,5 @@
 use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CloudStorageType};
-use appflowy_integrate::config::CollabPluginConfig;
+
 use std::sync::Arc;
 
 use appflowy_integrate::RocksCollabDB;

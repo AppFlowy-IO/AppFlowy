@@ -334,7 +334,7 @@ pub(crate) async fn create_row_handler(
   }
 }
 
-#[tracing::instrument(level = "trace", skip_all, err)]
+// #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn get_cell_handler(
   data: AFPluginData<CellIdPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
@@ -560,7 +560,6 @@ pub(crate) async fn set_layout_setting_handler(
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_layout_setting_handler(
   data: AFPluginData<DatabaseLayoutIdPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,

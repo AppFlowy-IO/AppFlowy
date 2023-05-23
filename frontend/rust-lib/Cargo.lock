@@ -95,6 +95,7 @@ dependencies = [
  "collab-plugins",
  "serde",
  "serde_json",
+ "tracing",
 ]
 
 [[package]]
@@ -1407,16 +1408,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "env_logger"
-version = "0.8.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a19187fea3ac7e84da7dacf48de0c45d63c6a76f9490dae389aead16c243fce3"
-dependencies = [
- "log",
- "regex",
-]
-
-[[package]]
 name = "errno"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1455,15 +1446,6 @@ dependencies = [
  "bitflags",
  "libc",
  "winapi",
-]
-
-[[package]]
-name = "fake"
-version = "2.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d68f517805463f3a896a9d29c1d6ff09d3579ded64a7201b4069f8f9c0d52fd"
-dependencies = [
- "rand 0.8.5",
 ]
 
 [[package]]
@@ -1818,28 +1800,26 @@ name = "flowy-test"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "fake",
+ "dotenv",
  "flowy-core",
  "flowy-folder2",
  "flowy-net",
  "flowy-server",
  "flowy-user",
- "futures",
  "futures-util",
  "lib-dispatch",
  "lib-infra",
  "lib-ot",
- "log",
  "nanoid",
+ "parking_lot 0.12.1",
  "protobuf",
- "quickcheck",
- "quickcheck_macros 0.9.1",
  "serde",
  "serde_json",
- "serial_test",
  "tempdir",
  "thread-id",
  "tokio",
+ "tracing",
+ "uuid",
 ]
 
 [[package]]
@@ -1850,26 +1830,19 @@ dependencies = [
  "bytes",
  "diesel",
  "diesel_derives",
- "fake",
  "fancy-regex 0.11.0",
  "flowy-codegen",
  "flowy-derive",
  "flowy-error",
  "flowy-notification",
  "flowy-sqlite",
- "flowy-test",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
  "log",
- "nanoid",
  "once_cell",
  "parking_lot 0.12.1",
  "protobuf",
- "quickcheck",
- "quickcheck_macros 1.0.0",
- "rand 0.8.5",
- "rand_core 0.6.4",
  "serde",
  "serde_json",
  "serde_repr",
@@ -3471,39 +3444,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "quickcheck"
-version = "1.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "588f6378e4dd99458b60ec275b4477add41ce4fa9f64dcba6f15adccb19b50d6"
-dependencies = [
- "env_logger",
- "log",
- "rand 0.8.5",
-]
-
-[[package]]
-name = "quickcheck_macros"
-version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "608c156fd8e97febc07dc9c2e2c80bf74cfc6ef26893eae3daf8bc2bc94a4b7f"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "quickcheck_macros"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b22a693222d716a9587786f37ac3f6b4faedb5b80c23914e7303ff5a1d8016e9"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
 name = "quote"
 version = "1.0.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4117,28 +4057,6 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
-]
-
-[[package]]
-name = "serial_test"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e0bccbcf40c8938196944a3da0e133e031a33f4d6b72db3bda3cc556e361905d"
-dependencies = [
- "lazy_static",
- "parking_lot 0.11.2",
- "serial_test_derive",
-]
-
-[[package]]
-name = "serial_test_derive"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b2acd6defeddb41eb60bb468f8825d0cfd0c2a76bc03bfd235b6a1dc4f6a1ad5"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
 ]
 
 [[package]]

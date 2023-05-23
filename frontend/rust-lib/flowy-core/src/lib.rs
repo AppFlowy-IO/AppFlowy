@@ -1,6 +1,5 @@
 #![allow(unused_doc_comments)]
 
-use std::str::FromStr;
 use std::time::Duration;
 use std::{
   fmt,
@@ -11,7 +10,7 @@ use std::{
 };
 
 use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CloudStorageType};
-use appflowy_integrate::config::{AWSDynamoDBConfig, CollabPluginConfig};
+
 use tokio::sync::RwLock;
 
 use flowy_database2::DatabaseManager2;
@@ -92,10 +91,8 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   filters.push(format!("flowy_document2={}", level));
   filters.push(format!("flowy_database2={}", level));
   filters.push(format!("flowy_notification={}", "info"));
-  filters.push(format!("lib_ot={}", level));
   filters.push(format!("lib_infra={}", level));
   filters.push(format!("flowy_task={}", level));
-  // filters.push(format!("lib_dispatch={}", level));
 
   filters.push(format!("dart_ffi={}", "info"));
   filters.push(format!("flowy_sqlite={}", "info"));

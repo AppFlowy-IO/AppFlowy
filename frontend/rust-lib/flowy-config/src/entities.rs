@@ -92,33 +92,36 @@ pub struct SupabaseDBConfigPB {
   pub jwt_secret: String,
 
   #[pb(index = 4)]
-  pub update_table_config: UpdateTableConfigPB,
+  pub collab_table_config: CollabTableConfigPB,
 }
 
 impl TryFrom<SupabaseDBConfigPB> for SupabaseDBConfig {
   type Error = FlowyError;
 
   fn try_from(config: SupabaseDBConfigPB) -> Result<Self, Self::Error> {
-    let update_table_config = UpdateTableConfig::try_from(config.update_table_config)?;
+    let update_table_config = UpdateTableConfig::try_from(config.collab_table_config)?;
     Ok(SupabaseDBConfig {
       url: config.supabase_url,
       key: config.key,
       jwt_secret: config.jwt_secret,
-      update_table_config,
+      collab_table_config: update_table_config,
     })
   }
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct UpdateTableConfigPB {
+pub struct CollabTableConfigPB {
   #[pb(index = 1)]
   pub table_name: String,
 }
 
-impl TryFrom<UpdateTableConfigPB> for UpdateTableConfig {
+impl TryFrom<CollabTableConfigPB> for UpdateTableConfig {
   type Error = FlowyError;
 
-  fn try_from(config: UpdateTableConfigPB) -> Result<Self, Self::Error> {
+  fn try_from(config: CollabTableConfigPB) -> Result<Self, Self::Error> {
+    if config.table_name.is_empty() {
+      return Err(FlowyError::internal().context("table_name is empty"));
+    }
     Ok(UpdateTableConfig {
       table_name: config.table_name,
       enable: true,

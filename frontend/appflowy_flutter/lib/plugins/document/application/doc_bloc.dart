@@ -153,7 +153,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       editorState.logConfiguration
         ..level = LogLevel.all
         ..handler = (log) {
-          Log.debug(log);
+          // Log.debug(log);
         };
     }
   }

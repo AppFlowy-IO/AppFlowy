@@ -1,7 +1,7 @@
 use crate::script::{invalid_workspace_name_test_case, FolderScript::*, FolderTest};
 use collab_folder::core::ViewLayout;
 use flowy_folder2::entities::CreateWorkspacePayloadPB;
-use flowy_test::{event_builder::*, FlowySDKTest};
+use flowy_test::{event_builder::*, FlowyCoreTest};
 
 #[tokio::test]
 async fn workspace_read_all() {
@@ -63,18 +63,19 @@ async fn workspace_create_with_apps() {
 #[tokio::test]
 async fn workspace_create_with_invalid_name() {
   for (name, code) in invalid_workspace_name_test_case() {
-    let sdk = FlowySDKTest::default();
+    let sdk = FlowyCoreTest::new();
     let request = CreateWorkspacePayloadPB {
       name,
       desc: "".to_owned(),
     };
     assert_eq!(
-      Folder2EventBuilder::new(sdk)
+      EventBuilder::new(sdk)
         .event(flowy_folder2::event_map::FolderEvent::CreateWorkspace)
         .payload(request)
         .async_send()
         .await
         .error()
+        .unwrap()
         .code,
       code.value()
     )

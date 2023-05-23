@@ -88,7 +88,7 @@ impl Folder2Manager {
   }
 
   /// Called immediately after the application launched fi the user already sign in/sign up.
-  #[tracing::instrument(level = "trace", skip(self), err)]
+  #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn initialize(&self, uid: i64, workspace_id: &str) -> FlowyResult<()> {
     if let Ok(collab_db) = self.user.collab_db() {
       let collab = self.collab_builder.build(uid, workspace_id, collab_db);
