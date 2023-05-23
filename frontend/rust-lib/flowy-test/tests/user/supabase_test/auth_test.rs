@@ -1,10 +1,8 @@
 use crate::user::supabase_test::helper::get_supabase_config;
-use flowy_test::user_event::*;
+
 use flowy_test::{event_builder::EventBuilder, FlowyCoreTest};
-use flowy_user::entities::{
-  AuthTypePB, SignInPayloadPB, SignUpPayloadPB, ThirdPartyAuthPB, UserProfilePB,
-};
-use flowy_user::errors::ErrorCode;
+use flowy_user::entities::{AuthTypePB, ThirdPartyAuthPB, UserProfilePB};
+
 use flowy_user::event_map::UserEvent::*;
 use std::collections::HashMap;
 

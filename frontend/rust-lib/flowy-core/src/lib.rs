@@ -27,6 +27,7 @@ use lib_dispatch::runtime::tokio_default_runtime;
 use lib_infra::future::{to_fut, Fut};
 use module::make_plugins;
 pub use module::*;
+use tracing::debug;
 
 use crate::deps_resolve::*;
 use crate::integrate::server::{AppFlowyServerProvider, ServerProviderType};
@@ -133,7 +134,7 @@ impl AppFlowyCore {
     // Init the key value database
     init_kv(&config.storage_path);
 
-    dbg!("🔥 {:?}", &config);
+    debug!("🔥 {:?}", &config);
     let runtime = tokio_default_runtime().unwrap();
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
