@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part 'env_serde.g.dart';
+part 'env_serde.l.dart';
 
 @JsonSerializable()
 class AppFlowyEnv {
