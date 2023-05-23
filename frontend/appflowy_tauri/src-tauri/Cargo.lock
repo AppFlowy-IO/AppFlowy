@@ -99,8 +99,9 @@ checksum = "9c7d0618f0e0b7e8ff11427422b64564d5fb0be1940354bfe2e0529b18a9d9b8"
 [[package]]
 name = "appflowy-integrate"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7a2e97#7a2e97d9bfe746f5db18753ab0b59347ec5bf23f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=bff164#bff1647076b2370c34f19d57d8d0da4bbb80ee55"
 dependencies = [
+ "anyhow",
  "collab",
  "collab-database",
  "collab-document",
@@ -109,6 +110,7 @@ dependencies = [
  "collab-plugins",
  "serde",
  "serde_json",
+ "tracing",
 ]
 
 [[package]]
@@ -1021,7 +1023,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7a2e97#7a2e97d9bfe746f5db18753ab0b59347ec5bf23f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=bff164#bff1647076b2370c34f19d57d8d0da4bbb80ee55"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1038,7 +1040,7 @@ dependencies = [
 [[package]]
 name = "collab-client-ws"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7a2e97#7a2e97d9bfe746f5db18753ab0b59347ec5bf23f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=bff164#bff1647076b2370c34f19d57d8d0da4bbb80ee55"
 dependencies = [
  "bytes",
  "collab-sync",
@@ -1056,7 +1058,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7a2e97#7a2e97d9bfe746f5db18753ab0b59347ec5bf23f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=bff164#bff1647076b2370c34f19d57d8d0da4bbb80ee55"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1075,12 +1077,13 @@ dependencies = [
  "thiserror",
  "tokio",
  "tracing",
+ "uuid",
 ]
 
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7a2e97#7a2e97d9bfe746f5db18753ab0b59347ec5bf23f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=bff164#bff1647076b2370c34f19d57d8d0da4bbb80ee55"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1092,7 +1095,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7a2e97#7a2e97d9bfe746f5db18753ab0b59347ec5bf23f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=bff164#bff1647076b2370c34f19d57d8d0da4bbb80ee55"
 dependencies = [
  "anyhow",
  "collab",
@@ -1109,7 +1112,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7a2e97#7a2e97d9bfe746f5db18753ab0b59347ec5bf23f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=bff164#bff1647076b2370c34f19d57d8d0da4bbb80ee55"
 dependencies = [
  "anyhow",
  "collab",
@@ -1127,7 +1130,7 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7a2e97#7a2e97d9bfe746f5db18753ab0b59347ec5bf23f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=bff164#bff1647076b2370c34f19d57d8d0da4bbb80ee55"
 dependencies = [
  "bincode",
  "chrono",
@@ -1147,21 +1150,25 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7a2e97#7a2e97d9bfe746f5db18753ab0b59347ec5bf23f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=bff164#bff1647076b2370c34f19d57d8d0da4bbb80ee55"
 dependencies = [
  "anyhow",
  "async-trait",
  "aws-config",
  "aws-credential-types",
  "aws-sdk-dynamodb",
+ "base64 0.21.0",
  "collab",
  "collab-client-ws",
  "collab-persistence",
  "collab-sync",
  "futures-util",
  "parking_lot 0.12.1",
+ "postgrest",
  "rand 0.8.5",
  "rusoto_credential",
+ "serde",
+ "serde_json",
  "thiserror",
  "tokio",
  "tokio-retry",
@@ -1173,7 +1180,7 @@ dependencies = [
 [[package]]
 name = "collab-sync"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=7a2e97#7a2e97d9bfe746f5db18753ab0b59347ec5bf23f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=bff164#bff1647076b2370c34f19d57d8d0da4bbb80ee55"
 dependencies = [
  "bytes",
  "collab",
@@ -1773,6 +1780,7 @@ dependencies = [
  "flowy-codegen",
  "flowy-derive",
  "flowy-error",
+ "flowy-server",
  "flowy-sqlite",
  "lib-dispatch",
  "protobuf",
@@ -1803,6 +1811,7 @@ dependencies = [
  "parking_lot 0.12.1",
  "serde",
  "serde_json",
+ "serde_repr",
  "tokio",
  "tracing",
 ]
@@ -1972,9 +1981,10 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bytes",
+ "chrono",
  "config",
- "flowy-config",
  "flowy-error",
+ "flowy-folder2",
  "flowy-user",
  "futures-util",
  "hyper",

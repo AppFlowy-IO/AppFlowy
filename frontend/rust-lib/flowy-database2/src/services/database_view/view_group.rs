@@ -3,8 +3,9 @@ use std::sync::Arc;
 use collab_database::fields::Field;
 use collab_database::rows::RowId;
 
-use flowy_error::FlowyResult;
+use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::future::{to_fut, Fut};
+use tracing::trace;
 
 use crate::entities::FieldType;
 use crate::services::database_view::DatabaseViewData;
@@ -42,9 +43,10 @@ pub async fn new_group_controller(
   let fields = delegate.get_fields(&view_id, None).await;
   let rows = delegate.get_rows(&view_id).await;
   let layout = delegate.get_layout_for_view(&view_id);
+  trace!(?fields, ?rows, ?layout, "new_group_controller");
 
   // Read the grouping field or find a new grouping field
-  let grouping_field = setting_reader
+  let mut grouping_field = setting_reader
     .get_group_setting(&view_id)
     .await
     .and_then(|setting| {
@@ -52,17 +54,25 @@ pub async fn new_group_controller(
         .iter()
         .find(|field| field.id == setting.field_id)
         .cloned()
-    })
-    .unwrap_or_else(|| find_new_grouping_field(&fields, &layout).unwrap());
+    });
 
-  make_group_controller(
-    view_id,
-    grouping_field,
-    rows,
-    setting_reader,
-    setting_writer,
-  )
-  .await
+  if grouping_field.is_none() {
+    grouping_field = find_new_grouping_field(&fields, &layout);
+  }
+
+  match grouping_field {
+    None => Err(FlowyError::internal().context("No grouping field found".to_owned())),
+    Some(_) => {
+      make_group_controller(
+        view_id,
+        grouping_field.unwrap(),
+        rows,
+        setting_reader,
+        setting_writer,
+      )
+      .await
+    },
+  }
 }
 
 pub(crate) struct GroupSettingReaderImpl(pub Arc<dyn DatabaseViewData>);
