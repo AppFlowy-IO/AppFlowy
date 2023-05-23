@@ -131,9 +131,9 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildHeaderWidget(context),
-          const Space(0, 10),
+          const VSpace(10),
           _buildInputWidget(context),
-          const Space(0, 10),
+          const VSpace(10),
           _buildInputFooterWidget(context),
         ],
       );
