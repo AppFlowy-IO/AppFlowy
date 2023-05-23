@@ -15,10 +15,13 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
 
-const String kCoverType = 'cover';
-const String kCoverSelectionTypeAttribute = 'cover_selection_type';
-const String kCoverSelectionAttribute = 'cover_selection';
-const String kIconSelectionAttribute = 'selected_icon';
+class CoverBlockKeys {
+  const CoverBlockKeys._();
+
+  static const String selectionType = 'cover_selection_type';
+  static const String selection = 'cover_selection';
+  static const String iconSelection = 'selected_icon';
+}
 
 enum CoverSelectionType {
   initial,
@@ -69,7 +72,7 @@ class CoverImageNodeWidget extends StatefulWidget {
 
 class _CoverImageNodeWidgetState extends State<CoverImageNodeWidget> {
   CoverSelectionType get selectionType => CoverSelectionType.fromString(
-        widget.node.attributes[kCoverSelectionTypeAttribute],
+        widget.node.attributes[CoverBlockKeys.selectionType],
       );
 
   @override
@@ -105,9 +108,10 @@ class _CoverImageNodeWidgetState extends State<CoverImageNodeWidget> {
   Future<void> _insertCover(CoverSelectionType type, dynamic cover) async {
     final transaction = widget.editorState.transaction;
     transaction.updateNode(widget.node, {
-      kCoverSelectionTypeAttribute: type.toString(),
-      kCoverSelectionAttribute: cover,
-      kIconSelectionAttribute: widget.node.attributes[kIconSelectionAttribute]
+      CoverBlockKeys.selectionType: type.toString(),
+      CoverBlockKeys.selection: cover,
+      CoverBlockKeys.iconSelection:
+          widget.node.attributes[CoverBlockKeys.iconSelection]
     });
     return widget.editorState.apply(transaction);
   }
@@ -247,11 +251,11 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
   Future<void> _insertIcon(Emoji emoji) async {
     final transaction = widget.editorState.transaction;
     transaction.updateNode(widget.node, {
-      kCoverSelectionTypeAttribute:
-          widget.node.attributes[kCoverSelectionTypeAttribute],
-      kCoverSelectionAttribute:
-          widget.node.attributes[kCoverSelectionAttribute],
-      kIconSelectionAttribute: emoji.emoji,
+      CoverBlockKeys.selectionType:
+          widget.node.attributes[CoverBlockKeys.selectionType],
+      CoverBlockKeys.selection:
+          widget.node.attributes[CoverBlockKeys.selection],
+      CoverBlockKeys.iconSelection: emoji.emoji,
     });
     return widget.editorState.apply(transaction);
   }
@@ -259,11 +263,11 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
   Future<void> _removeIcon() async {
     final transaction = widget.editorState.transaction;
     transaction.updateNode(widget.node, {
-      kIconSelectionAttribute: "",
-      kCoverSelectionTypeAttribute:
-          widget.node.attributes[kCoverSelectionTypeAttribute],
-      kCoverSelectionAttribute:
-          widget.node.attributes[kCoverSelectionAttribute],
+      CoverBlockKeys.iconSelection: "",
+      CoverBlockKeys.selectionType:
+          widget.node.attributes[CoverBlockKeys.selectionType],
+      CoverBlockKeys.selection:
+          widget.node.attributes[CoverBlockKeys.selection],
     });
     return widget.editorState.apply(transaction);
   }
@@ -297,15 +301,16 @@ class _CoverImageState extends State<_CoverImage> {
   final popoverController = PopoverController();
 
   CoverSelectionType get selectionType => CoverSelectionType.fromString(
-        widget.node.attributes[kCoverSelectionTypeAttribute],
+        widget.node.attributes[CoverBlockKeys.selectionType],
       );
   Color get color => Color(
-        int.tryParse(widget.node.attributes[kCoverSelectionAttribute]) ??
+        int.tryParse(widget.node.attributes[CoverBlockKeys.selection]) ??
             0xFFFFFFFF,
       );
-  bool get hasIcon => widget.node.attributes[kIconSelectionAttribute] == null
-      ? false
-      : widget.node.attributes[kIconSelectionAttribute].isNotEmpty;
+  bool get hasIcon =>
+      widget.node.attributes[CoverBlockKeys.iconSelection] == null
+          ? false
+          : widget.node.attributes[CoverBlockKeys.iconSelection].isNotEmpty;
   bool isOverlayButtonsHidden = true;
   PopoverController iconPopoverController = PopoverController();
   bool get hasCover =>
@@ -336,7 +341,7 @@ class _CoverImageState extends State<_CoverImage> {
                   constraints: BoxConstraints.loose(const Size(320, 380)),
                   margin: EdgeInsets.zero,
                   child: EmojiIconWidget(
-                    emoji: widget.node.attributes[kIconSelectionAttribute],
+                    emoji: widget.node.attributes[CoverBlockKeys.iconSelection],
                   ),
                   popupBuilder: (BuildContext popoverContext) {
                     return EmojiPopover(
@@ -375,9 +380,10 @@ class _CoverImageState extends State<_CoverImage> {
   Future<void> _insertCover(CoverSelectionType type, dynamic cover) async {
     final transaction = widget.editorState.transaction;
     transaction.updateNode(widget.node, {
-      kCoverSelectionTypeAttribute: type.toString(),
-      kCoverSelectionAttribute: cover,
-      kIconSelectionAttribute: widget.node.attributes[kIconSelectionAttribute]
+      CoverBlockKeys.selectionType: type.toString(),
+      CoverBlockKeys.selection: cover,
+      CoverBlockKeys.iconSelection:
+          widget.node.attributes[CoverBlockKeys.iconSelection]
     });
     return widget.editorState.apply(transaction);
   }
@@ -385,11 +391,11 @@ class _CoverImageState extends State<_CoverImage> {
   Future<void> _insertIcon(Emoji emoji) async {
     final transaction = widget.editorState.transaction;
     transaction.updateNode(widget.node, {
-      kCoverSelectionTypeAttribute:
-          widget.node.attributes[kCoverSelectionTypeAttribute],
-      kCoverSelectionAttribute:
-          widget.node.attributes[kCoverSelectionAttribute],
-      kIconSelectionAttribute: emoji.emoji,
+      CoverBlockKeys.selectionType:
+          widget.node.attributes[CoverBlockKeys.selectionType],
+      CoverBlockKeys.selection:
+          widget.node.attributes[CoverBlockKeys.selection],
+      CoverBlockKeys.iconSelection: emoji.emoji,
     });
     return widget.editorState.apply(transaction);
   }
@@ -397,11 +403,11 @@ class _CoverImageState extends State<_CoverImage> {
   Future<void> _removeIcon() async {
     final transaction = widget.editorState.transaction;
     transaction.updateNode(widget.node, {
-      kIconSelectionAttribute: "",
-      kCoverSelectionTypeAttribute:
-          widget.node.attributes[kCoverSelectionTypeAttribute],
-      kCoverSelectionAttribute:
-          widget.node.attributes[kCoverSelectionAttribute],
+      CoverBlockKeys.iconSelection: "",
+      CoverBlockKeys.selectionType:
+          widget.node.attributes[CoverBlockKeys.selectionType],
+      CoverBlockKeys.selection:
+          widget.node.attributes[CoverBlockKeys.selection],
     });
     return widget.editorState.apply(transaction);
   }
@@ -480,7 +486,7 @@ class _CoverImageState extends State<_CoverImage> {
     switch (selectionType) {
       case CoverSelectionType.file:
         final imageFile =
-            File(widget.node.attributes[kCoverSelectionAttribute]);
+            File(widget.node.attributes[CoverBlockKeys.selection]);
         if (!imageFile.existsSync()) {
           // reset cover state
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -496,7 +502,7 @@ class _CoverImageState extends State<_CoverImage> {
         break;
       case CoverSelectionType.asset:
         coverImage = Image.asset(
-          widget.node.attributes[kCoverSelectionAttribute],
+          widget.node.attributes[CoverBlockKeys.selection],
           fit: BoxFit.cover,
         );
         break;

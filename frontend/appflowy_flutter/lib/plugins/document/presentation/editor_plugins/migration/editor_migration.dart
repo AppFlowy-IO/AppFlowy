@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:collection/collection.dart';
 
 class EditorMigration {
   // AppFlowy 0.1.x -> 0.2
@@ -29,22 +30,34 @@ class EditorMigration {
 
   static Node migrateNode(NodeV0 nodeV0) {
     Node? node;
-    final children = nodeV0.children.map((e) => migrateNode(e));
+    final children = nodeV0.children.map((e) => migrateNode(e)).toList();
     final id = nodeV0.id;
     if (id == 'editor') {
-      node = documentNode(children: children);
-    } else if (id == 'cover') {
-      node = paragraphNode(text: 'cover');
+      final coverNode = children.firstWhereOrNull(
+        (element) => element.id == 'cover',
+      );
+      if (coverNode != null) {
+        node = documentNode(
+          children: children,
+          attributes: coverNode.attributes,
+        );
+      } else {
+        node = documentNode(children: children);
+      }
     } else if (id == 'callout') {
       final emoji = nodeV0.attributes['emoji'] ?? '📌';
-      final text = children
-          .whereType<TextNodeV0>()
-          .fold('', (p, e) => p + e.toPlainText());
+      final delta =
+          nodeV0.children.whereType<TextNodeV0>().fold(Delta(), (p, e) {
+        final delta = migrateDelta(e.delta);
+        final textInserts = delta.whereType<TextInsert>();
+        for (final element in textInserts) {
+          p.add(element);
+        }
+        return p..insert('\n');
+      });
       node = calloutNode(
         emoji: emoji,
-        delta: Delta()
-          ..insert(text)
-          ..toJson(),
+        delta: delta,
       );
     } else if (id == 'divider') {
       // divider -> divider
@@ -53,17 +66,10 @@ class EditorMigration {
       // math_equation -> math_equation
       final formula = nodeV0.attributes['math_equation'] ?? '';
       node = mathEquationNode(formula: formula);
-    } else if (id == 'code_block') {
-      // code_block -> code
-      final code = nodeV0.attributes['code_block'] ?? '';
-      node = codeBlockNode(
-        delta: Delta()
-          ..insert(code)
-          ..toJson(),
-      );
     } else if (nodeV0 is TextNodeV0) {
-      final delta = migrateDelta(nodeV0.delta).toJson();
-      final attributes = {'delta': delta};
+      final delta = migrateDelta(nodeV0.delta);
+      final deltaJson = delta.toJson();
+      final attributes = {'delta': deltaJson};
       if (id == 'text') {
         // text -> paragraph
         node = paragraphNode(
@@ -101,10 +107,15 @@ class EditorMigration {
           attributes: attributes,
           children: children,
         );
+      } else if (id == 'text/code_block') {
+        // text/code_block -> code
+        final language = nodeV0.attributes['language'];
+        node = codeBlockNode(delta: delta, language: language);
       }
-    } else {
-      assert(node != null);
+    } else if (id == 'cover') {
+      node = paragraphNode();
     }
+
     return node ?? paragraphNode(text: jsonEncode(nodeV0.toJson()));
   }
 
@@ -112,23 +123,32 @@ class EditorMigration {
   // backgroundColor -> highlightColor
   // color -> textColor
   static Delta migrateDelta(Delta delta) {
-    final textInserts = delta.whereType<TextInsert>();
-    for (final element in textInserts) {
-      final attributes = element.attributes;
-      if (attributes == null) {
-        continue;
-      }
-      const backgroundColor = 'backgroundColor';
-      if (attributes.containsKey(backgroundColor)) {
-        attributes['highlightColor'] = attributes[backgroundColor];
-        attributes.remove(backgroundColor);
-      }
-      const color = 'color';
-      if (attributes.containsKey(color)) {
-        attributes['textColor'] = attributes[color];
-        attributes.remove(color);
-      }
-    }
+    final textInserts = delta
+        .whereType<TextInsert>()
+        .map(
+          (e) => TextInsert(
+            e.text,
+            attributes: migrateAttributes(e.attributes),
+          ),
+        )
+        .toList(growable: false);
     return Delta(operations: textInserts.toList());
+  }
+
+  static Attributes? migrateAttributes(Attributes? attributes) {
+    if (attributes == null) {
+      return null;
+    }
+    const backgroundColor = 'backgroundColor';
+    if (attributes.containsKey(backgroundColor)) {
+      attributes['highlightColor'] = attributes[backgroundColor];
+      attributes.remove(backgroundColor);
+    }
+    const color = 'color';
+    if (attributes.containsKey(color)) {
+      attributes['textColor'] = attributes[color];
+      attributes.remove(color);
+    }
+    return attributes;
   }
 }
