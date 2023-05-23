@@ -33,14 +33,16 @@ class _ViewLeftBarItemState extends State<ViewLeftBarItem> {
         result.fold(
           (updatedView) {
             if (mounted) {
-              setState(() => view = updatedView);
+              setState(() {
+                view = updatedView;
+                _controller.text = view.name;
+              });
             }
           },
           (err) => Log.error(err),
         );
       },
     );
-
     _controller.text = view.name;
   }
 
