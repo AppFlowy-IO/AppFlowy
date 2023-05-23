@@ -1647,6 +1647,7 @@ dependencies = [
 name = "flowy-document2"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "appflowy-integrate",
  "bytes",
  "collab",

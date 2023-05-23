@@ -15,10 +15,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
-const String kSmartEditType = 'smart_edit_input';
-const String kSmartEditInstructionType = 'smart_edit_instruction';
-const String kSmartEditInputType = 'smart_edit_input';
-
 class SmartEditBlockKeys {
   const SmartEditBlockKeys._();
 

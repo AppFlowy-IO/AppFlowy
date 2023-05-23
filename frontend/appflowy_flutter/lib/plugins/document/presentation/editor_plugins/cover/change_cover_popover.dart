@@ -150,7 +150,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
               fontColor: Theme.of(context).colorScheme.tertiary,
               onPressed: () async {
                 final hasFileImageCover = CoverSelectionType.fromString(
-                      widget.node.attributes[kCoverSelectionTypeAttribute],
+                      widget.node.attributes[CoverBlockKeys.selectionType],
                     ) ==
                     CoverSelectionType.file;
                 final changeCoverBloc = context.read<ChangeCoverPopoverBloc>();
@@ -220,9 +220,9 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
       pickerBackgroundColor: theme.cardColor,
       pickerItemHoverColor: theme.hoverColor,
       selectedBackgroundColorHex:
-          widget.node.attributes[kCoverSelectionTypeAttribute] ==
+          widget.node.attributes[CoverBlockKeys.selectionType] ==
                   CoverSelectionType.color.toString()
-              ? widget.node.attributes[kCoverSelectionAttribute]
+              ? widget.node.attributes[CoverBlockKeys.selection]
               : 'ffffff',
       backgroundColorOptions:
           _generateBackgroundColorOptions(widget.editorState),
@@ -284,7 +284,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
                   final changeCoverBloc =
                       context.read<ChangeCoverPopoverBloc>();
                   final deletingCurrentCover =
-                      widget.node.attributes[kCoverSelectionAttribute] ==
+                      widget.node.attributes[CoverBlockKeys.selection] ==
                           images[index - 1];
                   if (deletingCurrentCover) {
                     await showDialog(

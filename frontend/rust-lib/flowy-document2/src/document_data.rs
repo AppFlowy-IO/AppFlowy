@@ -3,12 +3,12 @@ use std::{collections::HashMap, vec};
 use collab_document::blocks::{Block, DocumentData, DocumentMeta};
 use nanoid::nanoid;
 
-use crate::entities::{BlockPB, ChildrenPB, DocumentDataPB2, MetaPB};
+use crate::entities::{BlockPB, ChildrenPB, DocumentDataPB, MetaPB};
 
 #[derive(Clone, Debug)]
 pub struct DocumentDataWrapper(pub DocumentData);
 
-impl From<DocumentDataWrapper> for DocumentDataPB2 {
+impl From<DocumentDataWrapper> for DocumentDataPB {
   fn from(data: DocumentDataWrapper) -> Self {
     let blocks = data
       .0
@@ -32,6 +32,31 @@ impl From<DocumentDataWrapper> for DocumentDataPB2 {
       blocks,
       meta: MetaPB { children_map },
     }
+  }
+}
+
+impl From<DocumentDataPB> for DocumentDataWrapper {
+  fn from(data: DocumentDataPB) -> Self {
+    let blocks = data
+      .blocks
+      .into_iter()
+      .map(|(id, block)| (id, block.into()))
+      .collect();
+
+    let children_map = data
+      .meta
+      .children_map
+      .into_iter()
+      .map(|(id, children)| (id, children.children))
+      .collect();
+
+    let page_id = data.page_id;
+
+    Self(DocumentData {
+      page_id,
+      blocks,
+      meta: DocumentMeta { children_map },
+    })
   }
 }
 

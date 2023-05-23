@@ -6,7 +6,19 @@ import 'package:appflowy_editor/appflowy_editor.dart'
     show Document, Node, Attributes, Delta, ParagraphBlockKeys;
 import 'package:collection/collection.dart';
 
-extension AppFlowyEditor on DocumentDataPB2 {
+extension AppFlowyEditor on DocumentDataPB {
+  DocumentDataPB? fromDocument(Document document) {
+    final blocks = <String, BlockPB>{};
+    final pageId = document.root.id;
+    final childrenMap = <String, ChildrenPB>{};
+    final meta = MetaPB(childrenMap: childrenMap);
+    return DocumentDataPB(
+      blocks: blocks,
+      pageId: pageId,
+      meta: meta,
+    );
+  }
+
   Document? toDocument() {
     final rootId = pageId;
     try {
@@ -78,12 +90,17 @@ extension BlockToNode on BlockPB {
 }
 
 extension NodeToBlock on Node {
-  BlockPB toBlock() {
+  BlockPB toBlock({
+    String? childrenId,
+  }) {
     assert(id.isNotEmpty);
     final block = BlockPB.create()
       ..id = id
       ..ty = _typeAdapter(type)
       ..data = _dataAdapter(type, attributes);
+    if (childrenId != null && childrenId.isNotEmpty) {
+      block.childrenId = childrenId;
+    }
     return block;
   }
 
