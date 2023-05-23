@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/migration/editor_migration.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -11,7 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-typedef ImportCallback = void Function(Document? document);
+typedef ImportCallback = void Function(ImportType type, List<int>? document);
 
 Future<void> showImportPanel(
   BuildContext context,
@@ -36,13 +38,19 @@ Future<void> showImportPanel(
   );
 }
 
-enum _ImportType {
+enum ImportType {
+  historyDocument,
+  historyDatabase,
   markdownOrText;
 
   @override
   String toString() {
     switch (this) {
-      case _ImportType.markdownOrText:
+      case ImportType.historyDocument:
+        return 'Document from v0.1';
+      case ImportType.historyDatabase:
+        return 'Database from v0.1';
+      case ImportType.markdownOrText:
         return 'Text & Markdown';
       default:
         assert(false, 'Unsupported Type $this');
@@ -50,23 +58,50 @@ enum _ImportType {
     }
   }
 
-  Widget? get icon {
-    switch (this) {
-      case _ImportType.markdownOrText:
-        return svgWidget('editor/documents');
-      default:
-        assert(false, 'Unsupported Type $this');
-        return null;
-    }
-  }
+  Widget? Function(BuildContext context) get icon => (context) {
+        switch (this) {
+          case ImportType.historyDocument:
+          case ImportType.historyDatabase:
+            return svgWidget(
+              'editor/documents',
+              color: Theme.of(context).iconTheme.color,
+            );
+          case ImportType.markdownOrText:
+            return svgWidget(
+              'editor/documents',
+              color: Theme.of(context).iconTheme.color,
+            );
+          default:
+            assert(false, 'Unsupported Type $this');
+            return null;
+        }
+      };
 
   List<String> get allowedExtensions {
     switch (this) {
-      case _ImportType.markdownOrText:
+      case ImportType.historyDocument:
+        return ['afdoc'];
+      case ImportType.historyDatabase:
+        // FIXME: @nathan.
+        return ['afdb'];
+      case ImportType.markdownOrText:
         return ['md', 'txt'];
       default:
         assert(false, 'Unsupported Type $this');
         return [];
+    }
+  }
+
+  bool get allowMultiSelect {
+    switch (this) {
+      case ImportType.historyDocument:
+        return true;
+      case ImportType.historyDatabase:
+      case ImportType.markdownOrText:
+        return false;
+      default:
+        assert(false, 'Unsupported Type $this');
+        return false;
     }
   }
 }
@@ -94,11 +129,11 @@ class _ImportPanelState extends State<_ImportPanel> {
       child: GridView.count(
         childAspectRatio: 1 / .2,
         crossAxisCount: 2,
-        children: _ImportType.values.map(
+        children: ImportType.values.map(
           (e) {
             return Card(
               child: FlowyButton(
-                leftIcon: e.icon,
+                leftIcon: e.icon(context),
                 leftIconSize: const Size.square(20),
                 text: FlowyText.medium(
                   e.toString(),
@@ -119,26 +154,37 @@ class _ImportPanelState extends State<_ImportPanel> {
     );
   }
 
-  Future<void> _importFile(_ImportType importType) async {
+  Future<void> _importFile(ImportType importType) async {
     final result = await getIt<FilePickerService>().pickFiles(
-      allowMultiple: false,
+      allowMultiple: importType.allowMultiSelect,
       type: FileType.custom,
       allowedExtensions: importType.allowedExtensions,
     );
     if (result == null || result.files.isEmpty) {
       return;
     }
-    final path = result.files.single.path!;
-    final plainText = await File(path).readAsString();
 
-    switch (importType) {
-      case _ImportType.markdownOrText:
-        final document = markdownToDocument(plainText);
-        widget.importCallback(document);
-        break;
-      default:
-        assert(false, 'Unsupported Type $importType');
-        widget.importCallback(null);
+    for (final file in result.files) {
+      final path = file.path;
+      if (path == null) {
+        continue;
+      }
+      final plainText = await File(path).readAsString();
+      Document? document;
+      switch (importType) {
+        case ImportType.markdownOrText:
+          document = markdownToDocument(plainText);
+          break;
+        case ImportType.historyDocument:
+          document = EditorMigration.migrateDocument(plainText);
+          break;
+        default:
+          assert(false, 'Unsupported Type $importType');
+      }
+      if (document != null) {
+        final data = DocumentDataPBFromTo.fromDocument(document);
+        widget.importCallback(importType, data?.writeToBuffer());
+      }
     }
   }
 }
