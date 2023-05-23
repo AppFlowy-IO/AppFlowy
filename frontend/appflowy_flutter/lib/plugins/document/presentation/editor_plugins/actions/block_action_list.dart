@@ -15,7 +15,7 @@ class BlockActionList extends StatelessWidget {
   });
 
   final BlockComponentContext blockComponentContext;
-  final BlockComponentState blockComponentState;
+  final BlockComponentActionState blockComponentState;
   final List<OptionAction> actions;
   final VoidCallback showSlashMenu;
   final EditorState editorState;

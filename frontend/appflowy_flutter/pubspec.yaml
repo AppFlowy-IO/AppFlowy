@@ -44,10 +44,10 @@ dependencies:
       ref: a183c57
   # appflowy_editor: ^0.1.9
   appflowy_editor:
-    # path: /Users/lucas.xu/Desktop/appflowy-editor
-    git:
-      url: https://github.com/LucasXu0/appflowy-editor.git
-      ref: 21f686
+    path: /Users/lucas.xu/Desktop/appflowy-editor
+    # git:
+    #   url: https://github.com/LucasXu0/appflowy-editor.git
+    #   ref: 21f686
   appflowy_popover:
     path: packages/appflowy_popover
 

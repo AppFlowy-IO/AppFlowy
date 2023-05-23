@@ -65,12 +65,17 @@ class CalloutBlockComponentBuilder extends BlockComponentBuilder {
   final BlockComponentConfiguration configuration;
 
   @override
-  Widget build(BlockComponentContext blockComponentContext) {
+  BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
     return CalloutBlockComponentWidget(
       key: node.key,
       node: node,
       configuration: configuration,
+      showActions: showActions(node),
+      actionBuilder: (context, state) => actionBuilder(
+        blockComponentContext,
+        state,
+      ),
     );
   }
 
@@ -84,15 +89,14 @@ class CalloutBlockComponentBuilder extends BlockComponentBuilder {
 }
 
 // the main widget for rendering the callout block
-class CalloutBlockComponentWidget extends StatefulWidget {
+class CalloutBlockComponentWidget extends BlockComponentStatefulWidget {
   const CalloutBlockComponentWidget({
     super.key,
-    required this.node,
-    required this.configuration,
+    required super.node,
+    super.showActions,
+    super.actionBuilder,
+    super.configuration = const BlockComponentConfiguration(),
   });
-
-  final Node node;
-  final BlockComponentConfiguration configuration;
 
   @override
   State<CalloutBlockComponentWidget> createState() =>
@@ -135,7 +139,7 @@ class _CalloutBlockComponentWidgetState
   // build the callout block widget
   @override
   Widget build(BuildContext context) {
-    return Container(
+    Widget child = Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
         color: backgroundColor,
@@ -168,6 +172,16 @@ class _CalloutBlockComponentWidgetState
         ],
       ),
     );
+
+    if (widget.actionBuilder != null) {
+      child = BlockComponentActionWrapper(
+        node: widget.node,
+        actionBuilder: widget.actionBuilder!,
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   // build the richtext child
