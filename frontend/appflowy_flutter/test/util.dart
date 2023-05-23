@@ -54,8 +54,10 @@ class AppFlowyUnitTest {
       password: password,
       email: userEmail,
     );
-    return result.fold(
-      (error) {},
+    result.fold(
+      (error) {
+        assert(false, 'Error: $error');
+      },
       (user) {
         userProfile = user;
         userService = UserBackendService(userId: userProfile.id);

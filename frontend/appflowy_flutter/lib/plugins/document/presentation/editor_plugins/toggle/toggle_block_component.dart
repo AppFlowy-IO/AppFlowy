@@ -73,7 +73,6 @@ class ToggleListBlockComponentWidget extends BlockComponentStatefulWidget {
     this.padding = const EdgeInsets.all(0),
   });
 
-  @override
   final EdgeInsets padding;
 
   @override
