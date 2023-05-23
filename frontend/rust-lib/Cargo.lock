@@ -1251,6 +1251,7 @@ name = "dart-ffi"
 version = "0.1.0"
 dependencies = [
  "allo-isolate",
+ "appflowy-integrate",
  "byteorder",
  "bytes",
  "crossbeam-utils",

@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use postgrest::Postgrest;
+use serde::Deserialize;
 
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_folder2::deps::FolderCloudService;
@@ -14,7 +15,7 @@ pub const SUPABASE_ANON_KEY: &str = "SUPABASE_ANON_KEY";
 pub const SUPABASE_KEY: &str = "SUPABASE_KEY";
 pub const SUPABASE_JWT_SECRET: &str = "SUPABASE_JWT_SECRET";
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct SupabaseConfiguration {
   /// The url of the supabase server.
   pub url: String,

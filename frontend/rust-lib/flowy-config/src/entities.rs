@@ -1,5 +1,5 @@
 use appflowy_integrate::config::AWSDynamoDBConfig;
-use appflowy_integrate::{SupabaseDBConfig, UpdateTableConfig};
+use appflowy_integrate::{CollabTableConfig, SupabaseDBConfig};
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
 use flowy_server::supabase::SupabaseConfiguration;
@@ -99,7 +99,7 @@ impl TryFrom<SupabaseDBConfigPB> for SupabaseDBConfig {
   type Error = FlowyError;
 
   fn try_from(config: SupabaseDBConfigPB) -> Result<Self, Self::Error> {
-    let update_table_config = UpdateTableConfig::try_from(config.collab_table_config)?;
+    let update_table_config = CollabTableConfig::try_from(config.collab_table_config)?;
     Ok(SupabaseDBConfig {
       url: config.supabase_url,
       key: config.key,
@@ -115,14 +115,14 @@ pub struct CollabTableConfigPB {
   pub table_name: String,
 }
 
-impl TryFrom<CollabTableConfigPB> for UpdateTableConfig {
+impl TryFrom<CollabTableConfigPB> for CollabTableConfig {
   type Error = FlowyError;
 
   fn try_from(config: CollabTableConfigPB) -> Result<Self, Self::Error> {
     if config.table_name.is_empty() {
       return Err(FlowyError::internal().context("table_name is empty"));
     }
-    Ok(UpdateTableConfig {
+    Ok(CollabTableConfig {
       table_name: config.table_name,
       enable: true,
     })

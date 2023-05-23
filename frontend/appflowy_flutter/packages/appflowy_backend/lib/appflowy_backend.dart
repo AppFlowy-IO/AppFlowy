@@ -34,4 +34,15 @@ class FlowySDK {
     ffi.store_dart_post_cobject(NativeApi.postCObject);
     ffi.init_sdk(sdkDir.path.toNativeUtf8());
   }
+
+  void setEnv(AppFlowyEnv env) {
+    ffi.set_env(env.toString().toNativeUtf8());
+  }
+}
+
+class AppFlowyEnv {
+  @override
+  String toString() {
+    return super.toString();
+  }
 }

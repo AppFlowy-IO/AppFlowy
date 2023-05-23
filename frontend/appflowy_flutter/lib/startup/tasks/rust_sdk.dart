@@ -20,6 +20,10 @@ class InitRustSDKTask extends LaunchTask {
   @override
   Future<void> initialize(LaunchContext context) async {
     final dir = directory ?? await appFlowyDocumentDirectory();
+
+    // TODO: lucas
+    // move setSupabaseCollabPluginConfig to here
+    //  context.getIt<FlowySDK>().setEnv(dir);
     await context.getIt<FlowySDK>().init(dir);
   }
 }
