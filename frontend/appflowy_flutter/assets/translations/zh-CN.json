@@ -45,7 +45,8 @@
     "medium": "中",
     "large": "大",
     "fontSize": "字号",
-    "import": "导入"
+    "import": "导入",
+    "moreOptions": "更多选项"
   },
   "disclosureAction": {
     "rename": "重命名",
@@ -60,8 +61,8 @@
     "deleteAll": "全部删除",
     "pageHeader": {
       "fileName": "文件名",
-      "lastModified": "最近修改",
-      "created": "创建"
+      "lastModified": "最近修改时间",
+      "created": "创建时间"
     }
   },
   "deletePagePrompt": {
@@ -71,18 +72,18 @@
   },
   "dialogCreatePageNameHint": "页面名称",
   "questionBubble": {
-    "whatsNew": "新功能?",
+    "whatsNew": "查看最新功能",
     "help": "帮助 & 支持",
     "shortcuts":"快捷键",
     "markdown":"markdown指南",
     "debug": {
       "name": "调试信息",
-      "success": "将调试信息复制到剪贴板！",
-      "fail": "无法将调试信息复制到剪贴板"
+      "success": "成功复制调试信息至剪贴板",
+      "fail": "复制调试信息至剪贴板失败！"
     }
   },
   "menuAppHeader": {
-    "addPageTooltip": "快速添加页面",
+    "addPageTooltip": "新增子页面",
     "defaultNewPageName": "未命名页面",
     "renameDialog": "重命名"
   },
@@ -183,10 +184,10 @@
       "theme": "主题"
     },
     "files": {
-      "defaultLocation": "AppFlowy 默认储存路径",
+      "defaultLocation": "Appflowy数据当前存储路径",
       "doubleTapToCopy": "双击复制路径",
       "restoreLocation": "恢复默认路径",
-      "customizeLocation": "打开其他文件夹",
+      "customizeLocation": "设置新存储路径",
       "restartApp": "请重启APP后使更改生效",
       "exportDatabase": "导出数据库",
       "selectFiles": "选择导出文件",
@@ -306,7 +307,7 @@
     "row": {
       "duplicate": "复制",
       "delete": "删除",
-      "textPlaceholder": "空",
+      "textPlaceholder": "无",
       "copyProperty": "复制列",
       "count": "数量",
       "newRow": "添加一行",
@@ -351,8 +352,8 @@
       }
     },
     "plugins": {
-      "referencedBoard": "参考看板",
-      "referencedGrid": "参考网格",
+      "referencedBoard": "引用看板",
+      "referencedGrid": "引用网格",
       "autoGeneratorMenuItemName": "OpenAI 写作助手",
       "autoGeneratorTitleName": "OpenAI: 请为AI输入指令...",
       "autoGeneratorLearnMore": "了解更多",
@@ -368,7 +369,7 @@
       "smartEditMakeLonger": "扩写",
       "smartEditCouldNotFetchResult": "无法从 OpenAI 获取结果",
       "smartEditCouldNotFetchKey": "获取 OpenAI 密钥失败",
-      "smartEditDisabled": "在“设置”中连接 OpenAI",
+      "smartEditDisabled": "请在“设置”中添加您的OpenAI 密钥后使用",
       "discardResponse": "是否弃用 AI 回答？",
       "cover": {
         "changeCover": "更换封面",
@@ -419,8 +420,8 @@
     "settings": {
       "showWeekNumbers": "显示周数",
       "showWeekends": "显示周末",
-      "firstDayOfWeek": "设置每周第一天",
-      "layoutDateField": "布局方式",
+      "firstDayOfWeek": "设置每周起始日",
+      "layoutDateField": "按该日期属性布局",
       "noDateTitle": "未安排事件",
       "emptyNoDate": "所有事件已安排"
     }
