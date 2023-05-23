@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 use thiserror::Error;
@@ -56,27 +57,33 @@ pub(crate) struct InsertRecord {
 
 #[allow(dead_code)]
 #[derive(Debug, Deserialize, Clone)]
-pub(crate) struct UserProfile {
+pub(crate) struct UserProfileResponse {
   pub uid: i64,
   #[serde(deserialize_with = "deserialize_null_or_default")]
   pub name: String,
+
   #[serde(deserialize_with = "deserialize_null_or_default")]
   pub email: String,
-}
 
-#[derive(Debug, Deserialize)]
-pub(crate) struct UserProfileList(pub Vec<UserProfile>);
-
-#[derive(Debug, Deserialize, Clone)]
-pub(crate) struct UserWorkspace {
-  pub uid: i64,
   #[serde(deserialize_with = "deserialize_null_or_default")]
-  pub name: String,
   pub workspace_id: String,
 }
 
 #[derive(Debug, Deserialize)]
-pub(crate) struct UserWorkspaceList(Vec<UserWorkspace>);
+pub(crate) struct UserProfileResponseList(pub Vec<UserProfileResponse>);
+
+#[derive(Debug, Deserialize, Clone)]
+pub(crate) struct UserWorkspace {
+  #[allow(dead_code)]
+  pub uid: i64,
+  #[serde(deserialize_with = "deserialize_null_or_default")]
+  pub workspace_name: String,
+  pub created_at: DateTime<Utc>,
+  pub workspace_id: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct UserWorkspaceList(pub(crate) Vec<UserWorkspace>);
 
 impl UserWorkspaceList {
   pub(crate) fn into_inner(self) -> Vec<UserWorkspace> {

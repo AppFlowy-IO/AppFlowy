@@ -120,7 +120,7 @@ impl UserSession {
       .await
       .as_ref()
       .unwrap()
-      .did_sign_in(user_profile.id, &user_profile.workspace_ids)
+      .did_sign_in(user_profile.id, &user_profile.workspace_id)
       .await;
     send_sign_in_notification()
       .payload::<UserProfilePB>(user_profile.clone().into())
@@ -344,7 +344,7 @@ impl std::convert::From<SignInResponse> for Session {
       token: resp.token,
       email: resp.email,
       name: resp.name,
-      workspace_id: resp.workspace_ids,
+      workspace_id: resp.workspace_id,
     }
   }
 }
@@ -356,7 +356,7 @@ impl std::convert::From<SignUpResponse> for Session {
       token: resp.token,
       email: resp.email,
       name: resp.name,
-      workspace_id: resp.workspace_ids,
+      workspace_id: resp.workspace_id,
     }
   }
 }

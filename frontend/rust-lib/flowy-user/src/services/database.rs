@@ -143,7 +143,7 @@ impl From<SignUpResponse> for UserTable {
       name: resp.name,
       token: resp.token.unwrap_or_default(),
       email: resp.email.unwrap_or_default(),
-      workspace: resp.workspace_ids,
+      workspace: resp.workspace_id,
       icon_url: "".to_string(),
       openai_key: "".to_string(),
     }
@@ -157,7 +157,7 @@ impl From<SignInResponse> for UserTable {
       name: resp.name,
       token: resp.token.unwrap_or_default(),
       email: resp.email.unwrap_or_default(),
-      workspace: resp.workspace_ids,
+      workspace: resp.workspace_id,
       icon_url: "".to_string(),
       openai_key: "".to_string(),
     }
@@ -173,7 +173,7 @@ impl From<UserTable> for UserProfile {
       token: table.token,
       icon_url: table.icon_url,
       openai_key: table.openai_key,
-      workspace_ids: table.workspace,
+      workspace_id: table.workspace,
     }
   }
 }

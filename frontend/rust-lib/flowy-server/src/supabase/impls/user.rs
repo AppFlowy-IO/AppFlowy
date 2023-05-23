@@ -12,7 +12,8 @@ use crate::supabase::request::*;
 
 pub(crate) const USER_TABLE: &str = "af_user";
 pub(crate) const USER_PROFILE_TABLE: &str = "af_user_profile";
-pub(crate) const USER_WORKSPACE_TABLE: &str = "af_user_workspace_view";
+#[allow(dead_code)]
+pub(crate) const USER_WORKSPACE_TABLE: &str = "af_workspace";
 pub(crate) struct PostgrestUserAuthServiceImpl {
   postgrest: Arc<Postgrest>,
 }
@@ -31,7 +32,7 @@ impl UserAuthService for PostgrestUserAuthServiceImpl {
       let user = create_user_with_uuid(postgrest, uuid).await?;
       Ok(SignUpResponse {
         user_id: user.uid,
-        workspace_ids: user.workspace_id,
+        workspace_id: user.workspace_id,
         ..Default::default()
       })
     })
@@ -41,14 +42,10 @@ impl UserAuthService for PostgrestUserAuthServiceImpl {
     let postgrest = self.postgrest.clone();
     FutureResult::new(async move {
       let uuid = uuid_from_box_any(params)?;
-      let workspace_ids = get_user_workspace_with_uuid(postgrest, uuid)
-        .await?
-        .into_iter()
-        .map(|user_workspace| user_workspace.workspace_id)
-        .collect();
+      let user_profile = get_user_profile(postgrest, GetUserProfileParams::Uuid(uuid)).await?;
       Ok(SignInResponse {
-        user_id: user.uid,
-        workspace_ids,
+        user_id: user_profile.uid,
+        workspace_id: user_profile.workspace_id,
         ..Default::default()
       })
     })
@@ -78,20 +75,16 @@ impl UserAuthService for PostgrestUserAuthServiceImpl {
   ) -> FutureResult<Option<UserProfile>, FlowyError> {
     let postgrest = self.postgrest.clone();
     FutureResult::new(async move {
-      let workspace_ids = get_user_workspace_with_uid(postgrest, uid)
-        .await?
-        .into_iter()
-        .map(|user_workspace| user_workspace.workspace_id)
-        .collect();
+      let user_profile_resp = get_user_profile(postgrest, GetUserProfileParams::Uid(uid)).await?;
 
       let profile = UserProfile {
-        id: user_workspace.uid,
-        email: "".to_string(),
-        name: user_workspace.name,
+        id: user_profile_resp.uid,
+        email: user_profile_resp.email,
+        name: user_profile_resp.name,
         token: "".to_string(),
         icon_url: "".to_string(),
         openai_key: "".to_string(),
-        workspace_ids,
+        workspace_id: user_profile_resp.workspace_id,
       };
 
       Ok(Some(profile))
@@ -109,7 +102,7 @@ mod tests {
 
   use crate::supabase::request::{
     create_user_with_uuid, get_user_id_with_uuid, get_user_profile, get_user_workspace_with_uid,
-    update_user_profile,
+    update_user_profile, GetUserProfileParams,
   };
   use crate::supabase::{SupabaseConfiguration, SupabaseServer};
 
@@ -160,9 +153,8 @@ mod tests {
         .unwrap();
       println!("result: {:?}", result);
 
-      let result = get_user_profile(server.postgres.clone(), uid)
+      let result = get_user_profile(server.postgres.clone(), GetUserProfileParams::Uid(uid))
         .await
-        .unwrap()
         .unwrap();
       assert_eq!(result.name, "nathan".to_string());
 

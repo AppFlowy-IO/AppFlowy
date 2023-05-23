@@ -10,7 +10,7 @@ use std::{
   },
 };
 
-use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
+use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CloudStorageType};
 use appflowy_integrate::config::{AWSDynamoDBConfig, CollabPluginConfig};
 use tokio::sync::RwLock;
 
@@ -30,7 +30,7 @@ use module::make_plugins;
 pub use module::*;
 
 use crate::deps_resolve::*;
-use crate::integrate::server::AppFlowyServerProvider;
+use crate::integrate::server::{AppFlowyServerProvider, ServerProviderType};
 
 mod deps_resolve;
 mod integrate;
@@ -136,15 +136,6 @@ impl AppFlowyCore {
     // Init the key value database
     init_kv(&config.storage_path);
 
-    // The collab config is used to build the [Collab] instance that used in document,
-    // database, folder, etc.
-    let collab_config = get_collab_config();
-    inject_aws_env(collab_config.aws_config());
-
-    /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
-    /// on demand based on the [CollabPluginConfig].
-    let collab_builder = Arc::new(AppFlowyCollabBuilder::new(collab_config));
-
     tracing::debug!("🔥 {:?}", config);
     let runtime = tokio_default_runtime().unwrap();
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
@@ -152,6 +143,12 @@ impl AppFlowyCore {
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
 
     let server_provider = Arc::new(AppFlowyServerProvider::new());
+    /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
+    /// on demand based on the [CollabPluginConfig].
+    let cloud_storage_type =
+      collab_storage_type_from_server_provider_type(&server_provider.provider_type());
+    let collab_builder = Arc::new(AppFlowyCollabBuilder::new(cloud_storage_type));
+
     let (user_session, folder_manager, server_provider, database_manager, document_manager2) =
       runtime.block_on(async {
         let user_session = mk_user_session(&config, server_provider.clone());
@@ -234,23 +231,6 @@ fn init_kv(root: &str) {
   }
 }
 
-fn get_collab_config() -> CollabPluginConfig {
-  match KV::get_str("collab_config") {
-    None => CollabPluginConfig::default(),
-    Some(s) => CollabPluginConfig::from_str(&s).unwrap_or_default(),
-  }
-}
-
-fn inject_aws_env(aws_config: Option<&AWSDynamoDBConfig>) {
-  if let Some(aws_config) = aws_config {
-    std::env::set_var("AWS_ACCESS_KEY_ID", aws_config.access_key_id.clone());
-    std::env::set_var(
-      "AWS_SECRET_ACCESS_KEY",
-      aws_config.secret_access_key.clone(),
-    );
-  }
-}
-
 fn init_log(config: &AppFlowyCoreConfig) {
   if !INIT_LOG.load(Ordering::SeqCst) {
     INIT_LOG.store(true, Ordering::SeqCst);
@@ -292,7 +272,7 @@ impl UserStatusListener {
       .initialize_with_new_user(
         user_profile.id,
         &user_profile.token,
-        &user_profile.workspace_ids,
+        &user_profile.workspace_id,
       )
       .await?;
 
@@ -333,5 +313,15 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let token = token.to_owned();
     let user_id = user_id.to_owned();
     to_fut(async move { listener.did_expired(&token, user_id).await })
+  }
+}
+
+fn collab_storage_type_from_server_provider_type(
+  server_provider_type: &ServerProviderType,
+) -> CloudStorageType {
+  match server_provider_type {
+    ServerProviderType::Local => CloudStorageType::Local,
+    ServerProviderType::SelfHosted => CloudStorageType::Local,
+    ServerProviderType::Supabase => CloudStorageType::Supabase,
   }
 }

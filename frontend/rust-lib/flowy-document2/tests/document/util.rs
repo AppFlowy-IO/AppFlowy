@@ -1,4 +1,4 @@
-use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
+use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CloudStorageType};
 use appflowy_integrate::config::CollabPluginConfig;
 use std::sync::Arc;
 
@@ -50,6 +50,6 @@ pub fn db() -> Arc<RocksCollabDB> {
 }
 
 pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
-  let builder = AppFlowyCollabBuilder::new(CollabPluginConfig::default());
+  let builder = AppFlowyCollabBuilder::new(CloudStorageType::Local);
   Arc::new(builder)
 }

@@ -43,10 +43,12 @@ mod tests {
         .await
         .unwrap();
 
-      let result = get_user_workspace_with_uid(server.postgres.clone(), uid)
+      let workspaces = get_user_workspace_with_uid(server.postgres.clone(), uid)
         .await
         .unwrap();
-      println!("result: {:?}", result);
+      assert_eq!(workspaces.len(), 2);
+      assert_eq!(workspaces[0].name, "My workspace");
+      assert_eq!(workspaces[1].name, "test");
     }
   }
 }
