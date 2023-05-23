@@ -181,15 +181,15 @@ impl CellDataChangeset for DateTypeOption {
     // update include_time if necessary
     let include_time = changeset.include_time.unwrap_or(include_time);
 
-    // Calculate the timezone-aware timestamp. If a new timestamp is included
-    // in the changeset without an accompanying time string, the old timestamp
-    // will simply be overwritten. Meaning, in order to change the day without
-    // changing the time, the old time string should be passed in as well.
+    // Calculate the timestamp in the current time zone. If a new timestamp is
+    // included in the changeset without an accompanying time string, the old
+    // timestamp will simply be overwritten. Meaning, in order to change the
+    // day without changing the time, the old time string should be passed in
+    // as well.
 
     let changeset_timestamp = changeset.date_timestamp();
 
-    // parse the time string, which is in the timezone corresponding to
-    // timezone_id or local
+    // parse the time string, which is in the local timezone
     let parsed_time = match (include_time, changeset.time) {
       (true, Some(time_str)) => {
         let result = NaiveTime::parse_from_str(&time_str, self.time_format.format_str());
@@ -203,20 +203,6 @@ impl CellDataChangeset for DateTypeOption {
       },
       _ => Ok(None),
     }?;
-
-    // // Tz timezone if provided, local timezone otherwise
-    // let current_timezone_offset = UTC
-    //   .offset_from_local_datetime(&Local::now().naive_local())
-    //   .unwrap();
-    // let current_timezone = Tz::from_offset(&current_timezone_offset);
-    // let timezone = if timezone_id.is_empty() {
-    //   current_timezone
-    // } else {
-    //   match Tz::from_str(&timezone_id) {
-    //     Ok(timezone) => timezone,
-    //     Err(_) => current_timezone,
-    //   }
-    // };
 
     let timestamp = self.timestamp_from_parsed_time_previous_and_new_timestamp(
       parsed_time,
