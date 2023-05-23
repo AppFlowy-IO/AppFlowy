@@ -7,6 +7,18 @@ import 'package:appflowy_editor/appflowy_editor.dart'
 import 'package:collection/collection.dart';
 
 extension AppFlowyEditor on DocumentDataPB {
+  DocumentDataPB? fromDocument(Document document) {
+    final blocks = <String, BlockPB>{};
+    final pageId = document.root.id;
+    final childrenMap = <String, ChildrenPB>{};
+    final meta = MetaPB(childrenMap: childrenMap);
+    return DocumentDataPB(
+      blocks: blocks,
+      pageId: pageId,
+      meta: meta,
+    );
+  }
+
   Document? toDocument() {
     final rootId = pageId;
     try {

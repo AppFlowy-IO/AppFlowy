@@ -36,6 +36,7 @@ class EmojiPickerButton extends StatelessWidget {
         padding: EdgeInsets.zero,
         constraints: const BoxConstraints(minWidth: 35.0),
         fillColor: Colors.transparent,
+        mainAxisAlignment: MainAxisAlignment.center,
         onPressed: () {
           popoverController.show();
         },
