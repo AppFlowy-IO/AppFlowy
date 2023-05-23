@@ -285,7 +285,7 @@ impl DatabaseEditor {
       database.index_of_row(view_id, &from),
       database.index_of_row(view_id, &to),
     ) {
-      database.views.update_view(view_id, |view| {
+      database.views.update_database_view(view_id, |view| {
         view.move_row_order(from_index as u32, to_index as u32);
       });
       drop(database);
@@ -381,7 +381,7 @@ impl DatabaseEditor {
   ) -> FlowyResult<()> {
     let (database_id, field) = {
       let database = self.database.lock();
-      database.views.update_view(view_id, |view_update| {
+      database.views.update_database_view(view_id, |view_update| {
         view_update.move_field_order(from as u32, to as u32);
       });
       let field = database.fields.get_field(field_id);
