@@ -86,6 +86,7 @@ class CalendarDayCard extends StatelessWidget {
                 DragTarget<CalendarDayEvent>(
                   builder: (context, candidate, __) {
                     return Stack(
+                      fit: StackFit.expand,
                       children: [
                         if (candidate.isNotEmpty)
                           Container(
