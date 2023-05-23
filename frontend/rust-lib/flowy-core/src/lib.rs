@@ -133,7 +133,7 @@ impl AppFlowyCore {
     // Init the key value database
     init_kv(&config.storage_path);
 
-    tracing::debug!("🔥 {:?}", config);
+    dbg!("🔥 {:?}", &config);
     let runtime = tokio_default_runtime().unwrap();
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));

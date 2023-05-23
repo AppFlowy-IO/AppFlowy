@@ -35,6 +35,7 @@ class InitSupabaseTask extends LaunchTask {
     await Supabase.initialize(
       url: url,
       anonKey: anonKey,
+      debug: false,
     );
     await Config.setSupabaseConfig(
       url: url,
