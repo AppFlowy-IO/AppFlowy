@@ -1,9 +1,11 @@
 export 'package:async/async.dart';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 import 'package:appflowy_backend/rust_stream.dart';
 import 'package:flutter/services.dart';
 import 'dart:ffi';
+import 'env_serde.dart';
 import 'ffi.dart' as ffi;
 import 'package:ffi/ffi.dart';
 
@@ -36,13 +38,7 @@ class FlowySDK {
   }
 
   void setEnv(AppFlowyEnv env) {
-    ffi.set_env(env.toString().toNativeUtf8());
-  }
-}
-
-class AppFlowyEnv {
-  @override
-  String toString() {
-    return super.toString();
+    final jsonStr = jsonEncode(env.toJson());
+    ffi.set_env(jsonStr.toNativeUtf8());
   }
 }

@@ -42,12 +42,6 @@ class InitSupabaseTask extends LaunchTask {
       secret: jwtSecret,
       anonKey: anonKey,
     );
-    await Config.setSupabaseCollabPluginConfig(
-      url: url,
-      key: key,
-      jwtSecret: jwtSecret,
-      collabTable: collabTable,
-    );
     isSupabaseEnable = true;
     isSupabaseInitialized = true;
   }

@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
+import 'package:appflowy_backend/env_serde.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
@@ -21,11 +23,32 @@ class InitRustSDKTask extends LaunchTask {
   Future<void> initialize(LaunchContext context) async {
     final dir = directory ?? await appFlowyDocumentDirectory();
 
-    // TODO: lucas
-    // move setSupabaseCollabPluginConfig to here
-    //  context.getIt<FlowySDK>().setEnv(dir);
+    context.getIt<FlowySDK>().setEnv(getAppFlowyEnv());
     await context.getIt<FlowySDK>().init(dir);
   }
+}
+
+AppFlowyEnv getAppFlowyEnv() {
+  final supabaseConfig = SupabaseConfiguration(
+    url: Env.supabaseUrl,
+    key: Env.supabaseKey,
+    jwt_secret: Env.supabaseJwtSecret,
+  );
+
+  final collabTableConfig =
+      CollabTableConfig(enable: true, table_name: Env.supabaseCollabTable);
+
+  final supbaseDBConfig = SupabaseDBConfig(
+    url: Env.supabaseUrl,
+    key: Env.supabaseKey,
+    jwt_secret: Env.supabaseJwtSecret,
+    collab_table_config: collabTableConfig,
+  );
+
+  return AppFlowyEnv(
+    supabase_config: supabaseConfig,
+    supabase_db_config: supbaseDBConfig,
+  );
 }
 
 Future<Directory> appFlowyDocumentDirectory() async {
