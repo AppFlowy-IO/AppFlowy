@@ -184,9 +184,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   }
 
   Future<void> _moveEvent(CalendarDayEvent event, DateTime date) async {
-    final time =
-        event.date.hour * 3600 + event.date.minute * 60 + event.date.second;
-    final timestamp = Int64(date.millisecondsSinceEpoch ~/ 1000 + time);
+    final timestamp = _eventTimestamp(event, date);
     final payload = MoveCalendarEventPB(
       cellPath: CellIdPB(
         viewId: viewId,
@@ -374,6 +372,12 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       return false;
     }
     return state.allEvents[index].date.day != event.date.day;
+  }
+
+  Int64 _eventTimestamp(CalendarDayEvent event, DateTime date) {
+    final time =
+        event.date.hour * 3600 + event.date.minute * 60 + event.date.second;
+    return Int64(date.millisecondsSinceEpoch ~/ 1000 + time);
   }
 }
 

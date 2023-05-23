@@ -17,7 +17,7 @@ use crate::services::cell::{
 };
 use crate::services::field::CELL_DATA;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct DateCellChangeset {
   pub date: Option<String>,
   pub time: Option<String>,

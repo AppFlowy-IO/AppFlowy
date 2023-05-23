@@ -612,8 +612,7 @@ pub(crate) async fn move_calendar_event_handler(
   let cell_id: CellIdParams = data.cell_path.try_into()?;
   let cell_changeset = DateCellChangeset {
     date: Some(data.timestamp.to_string()),
-    time: None,
-    include_time: None,
+    ..Default::default()
   };
   let database_editor = manager.get_database(&cell_id.view_id).await?;
   database_editor
