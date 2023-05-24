@@ -45,6 +45,9 @@ pub struct DateTypeOptionPB {
 
   #[pb(index = 2)]
   pub time_format: TimeFormatPB,
+
+  #[pb(index = 3)]
+  pub timezone_id: String,
 }
 
 impl From<DateTypeOption> for DateTypeOptionPB {
@@ -52,6 +55,7 @@ impl From<DateTypeOption> for DateTypeOptionPB {
     Self {
       date_format: data.date_format.into(),
       time_format: data.time_format.into(),
+      timezone_id: data.timezone_id.into(),
     }
   }
 }
@@ -61,6 +65,7 @@ impl From<DateTypeOptionPB> for DateTypeOption {
     Self {
       date_format: data.date_format.into(),
       time_format: data.time_format.into(),
+      timezone_id: data.timezone_id.into(),
     }
   }
 }

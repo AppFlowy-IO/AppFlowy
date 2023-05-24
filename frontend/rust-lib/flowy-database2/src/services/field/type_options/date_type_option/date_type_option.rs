@@ -5,19 +5,22 @@ use crate::services::field::{
   TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use chrono::format::strftime::StrftimeItems;
-use chrono::{DateTime, Local, NaiveDateTime, NaiveTime, TimeZone};
+use chrono::{DateTime, FixedOffset, Local, NaiveDateTime, NaiveTime, Offset, TimeZone};
+use chrono_tz::Tz;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
+use std::str::FromStr;
 
 // Date
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct DateTypeOption {
   pub date_format: DateFormat,
   pub time_format: TimeFormat,
+  pub timezone_id: String,
 }
 
 impl TypeOption for DateTypeOption {
@@ -37,9 +40,11 @@ impl From<TypeOptionData> for DateTypeOption {
       .get_i64_value("time_format")
       .map(TimeFormat::from)
       .unwrap_or_default();
+    let timezone_id = data.get_str_value("timezone_id").unwrap_or_default();
     Self {
       date_format,
       time_format,
+      timezone_id,
     }
   }
 }
@@ -49,6 +54,7 @@ impl From<DateTypeOption> for TypeOptionData {
     TypeOptionDataBuilder::new()
       .insert_i64_value("data_format", data.date_format.value())
       .insert_i64_value("time_format", data.time_format.value())
+      .insert_str_value("timezone_id", data.timezone_id)
       .build()
   }
 }
@@ -79,8 +85,7 @@ impl DateTypeOption {
     let (date, time) = match cell_data.timestamp {
       Some(timestamp) => {
         let naive = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
-        let offset = *Local::now().offset();
-
+        let offset = self.get_timezone_offset(naive);
         let date_time = DateTime::<Local>::from_utc(naive, offset);
 
         let fmt = self.date_format.format_str();
@@ -107,10 +112,15 @@ impl DateTypeOption {
     previous_timestamp: Option<i64>,
     changeset_timestamp: Option<i64>,
   ) -> Option<i64> {
-    let offset = *Local::now().offset();
     if let Some(time) = parsed_time {
       // a valid time is provided, so we replace the time component of old
       // (or new timestamp if provided) with it.
+      let utc_date = changeset_timestamp
+        .or(previous_timestamp)
+        .map(|timestamp| NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap())
+        .unwrap();
+      let offset = self.get_timezone_offset(utc_date);
+
       let local_date = changeset_timestamp.or(previous_timestamp).map(|timestamp| {
         offset
           .from_utc_datetime(&NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap())
@@ -129,6 +139,19 @@ impl DateTypeOption {
       }
     } else {
       changeset_timestamp.or(previous_timestamp)
+    }
+  }
+
+  /// returns offset of Tz timezone if provided or of the local timezone otherwise
+  fn get_timezone_offset(&self, date_time: NaiveDateTime) -> FixedOffset {
+    let current_timezone_offset = Local::now().offset().fix();
+    if self.timezone_id.is_empty() {
+      current_timezone_offset
+    } else {
+      match Tz::from_str(&self.timezone_id) {
+        Ok(timezone) => timezone.offset_from_utc_datetime(&date_time).fix(),
+        Err(_) => current_timezone_offset,
+      }
     }
   }
 }
@@ -181,11 +204,11 @@ impl CellDataChangeset for DateTypeOption {
     // update include_time if necessary
     let include_time = changeset.include_time.unwrap_or(include_time);
 
-    // Calculate the timestamp in the current time zone. If a new timestamp is
-    // included in the changeset without an accompanying time string, the old
-    // timestamp will simply be overwritten. Meaning, in order to change the
-    // day without changing the time, the old time string should be passed in
-    // as well.
+    // Calculate the timestamp in the time zone specified in type option. If
+    // a new timestamp is included in the changeset without an accompanying
+    // time string, the old timestamp will simply be overwritten. Meaning, in
+    // order to change the day without changing the time, the old time string
+    // should be passed in as well.
 
     let changeset_timestamp = changeset.date_timestamp();
 

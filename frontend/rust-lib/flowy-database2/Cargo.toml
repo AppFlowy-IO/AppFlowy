@@ -38,6 +38,7 @@ async-stream = "0.3.4"
 rayon = "1.6.1"
 nanoid = "0.4.0"
 async-trait = "0.1"
+chrono-tz = "0.8.2"
 
 strum = "0.21"
 strum_macros = "0.21"
