@@ -55,7 +55,7 @@ impl From<DateTypeOption> for DateTypeOptionPB {
     Self {
       date_format: data.date_format.into(),
       time_format: data.time_format.into(),
-      timezone_id: data.timezone_id.into(),
+      timezone_id: data.timezone_id,
     }
   }
 }
@@ -65,7 +65,7 @@ impl From<DateTypeOptionPB> for DateTypeOption {
     Self {
       date_format: data.date_format.into(),
       time_format: data.time_format.into(),
-      timezone_id: data.timezone_id.into(),
+      timezone_id: data.timezone_id,
     }
   }
 }
