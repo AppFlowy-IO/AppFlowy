@@ -124,4 +124,16 @@ class EditorStyleCustomizer {
       color: theme.colorScheme.onBackground,
     );
   }
+
+  SelectionMenuStyle selectionMenuStyleBuilder() {
+    final theme = Theme.of(context);
+    return SelectionMenuStyle(
+      selectionMenuBackgroundColor: theme.cardColor,
+      selectionMenuItemTextColor: theme.colorScheme.onBackground,
+      selectionMenuItemIconColor: theme.colorScheme.onBackground,
+      selectionMenuItemSelectedIconColor: theme.colorScheme.onSurface,
+      selectionMenuItemSelectedTextColor: theme.colorScheme.onSurface,
+      selectionMenuItemSelectedColor: theme.hoverColor,
+    );
+  }
 }

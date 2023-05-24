@@ -66,11 +66,16 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     // toggle list
     // formatGreaterToToggleList,
 
+    // customize the slash menu command
+    customSlashCommand(
+      slashMenuItems,
+      style: styleCustomizer.selectionMenuStyleBuilder(),
+    ),
+
     ...standardCharacterShortcutEvents
       ..removeWhere(
         (element) => element == slashCommand,
       ), // remove the default slash command.
-    customSlashCommand(slashMenuItems),
   ];
 
   late final showSlashMenu = customSlashCommand(
