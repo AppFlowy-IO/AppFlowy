@@ -1,4 +1,5 @@
 import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsFileExportState {
@@ -6,6 +7,20 @@ class SettingsFileExportState {
     required this.apps,
   }) {
     initialize();
+  }
+
+  List<ViewPB> get selectedViews {
+    final selectedViews = <ViewPB>[];
+    for (var i = 0; i < apps.length; i++) {
+      if (selectedApps[i]) {
+        for (var j = 0; j < apps[i].belongings.items.length; j++) {
+          if (selectedItems[i][j]) {
+            selectedViews.add(apps[i].belongings.items[j]);
+          }
+        }
+      }
+    }
+    return selectedViews;
   }
 
   List<AppPB> apps;

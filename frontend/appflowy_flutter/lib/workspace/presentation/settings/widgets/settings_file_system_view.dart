@@ -1,3 +1,4 @@
+import 'package:appflowy/workspace/presentation/settings/widgets/settings_export_file_widget.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_file_customize_location_view.dart';
 import 'package:flutter/material.dart';
 
@@ -18,15 +19,16 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
+      shrinkWrap: true,
       itemBuilder: (context, index) {
         if (index == 0) {
           return SettingsFileLocationCustomzier(
             cubit: _locationCubit,
           );
         } else if (index == 1) {
-          // return _buildExportDatabaseButton();
+          return const SettingsExportFileWidget();
         }
-        return Container();
+        return const SizedBox.shrink();
       },
       separatorBuilder: (context, index) => const Divider(),
       itemCount: 2, // make the divider taking effect.
