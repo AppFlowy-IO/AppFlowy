@@ -78,6 +78,13 @@ impl DateTypeOption {
     Self::default()
   }
 
+  pub fn test() -> Self {
+    Self {
+      timezone_id: "Etc/UTC".to_owned(),
+      ..Self::default()
+    }
+  }
+
   fn today_desc_from_timestamp(&self, cell_data: DateCellData) -> DateCellDataPB {
     let timestamp = cell_data.timestamp.unwrap_or_default();
     let include_time = cell_data.include_time;
