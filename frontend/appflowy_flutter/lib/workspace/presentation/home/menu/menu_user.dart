@@ -46,7 +46,8 @@ class MenuUser extends StatelessWidget {
     String iconUrl = context.read<MenuUserBloc>().state.userProfile.iconUrl;
     if (iconUrl.isEmpty) {
       iconUrl = defaultUserAvatar;
-      final String name = context.read<MenuUserBloc>().state.userProfile.name;
+      final String name =
+          userName(context.read<MenuUserBloc>().state.userProfile);
       final Color color = ColorGenerator().generateColorFromString(name);
       const initialsCount = 2;
       // Taking the first letters of the name components and limiting to 2 elements
@@ -85,10 +86,7 @@ class MenuUser extends StatelessWidget {
   }
 
   Widget _renderUserName(BuildContext context) {
-    String name = context.read<MenuUserBloc>().state.userProfile.name;
-    if (name.isEmpty) {
-      name = context.read<MenuUserBloc>().state.userProfile.email;
-    }
+    String name = userName(context.read<MenuUserBloc>().state.userProfile);
     return FlowyText.medium(
       name,
       overflow: TextOverflow.ellipsis,
@@ -119,13 +117,13 @@ class MenuUser extends StatelessWidget {
       ),
     );
   }
-  //ToDo: when the user is allowed to create another workspace,
-  //we get the below block back
-  // Widget _renderDropButton(BuildContext context) {
-  //   return FlowyDropdownButton(
-  //     onPressed: () {
-  //       debugPrint('show user profile');
-  //     },
-  //   );
-  // }
+
+  /// Return the user name, if the user name is empty, return the default user name.
+  String userName(UserProfilePB userProfile) {
+    String name = userProfile.name;
+    if (name.isEmpty) {
+      name = LocaleKeys.defaultUsername.tr();
+    }
+    return name;
+  }
 }
