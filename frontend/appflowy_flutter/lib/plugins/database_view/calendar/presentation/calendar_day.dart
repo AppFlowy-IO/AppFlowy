@@ -55,12 +55,12 @@ class CalendarDayCard extends StatelessWidget {
           builder: (context, child) {
             final child = Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 _Header(
                   date: date,
                   isInMonth: isInMonth,
                   isToday: isToday,
-                  onCreate: () => onCreateEvent(date),
                 ),
 
                 // Add a separator between the header and the content.
@@ -113,6 +113,7 @@ class CalendarDayCard extends StatelessWidget {
                         .add(CalendarEvent.moveEvent(event, date));
                   },
                 ),
+                _NewEventButton(onCreate: () => onCreateEvent(date)),
                 MouseRegion(
                   onEnter: (p) => notifyEnter(context, true),
                   onExit: (p) => notifyEnter(context, false),
@@ -139,55 +140,49 @@ class _Header extends StatelessWidget {
   final bool isToday;
   final bool isInMonth;
   final DateTime date;
-  final VoidCallback onCreate;
   const _Header({
     required this.isToday,
     required this.isInMonth,
     required this.date,
-    required this.onCreate,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<_CardEnterNotifier>(
-      builder: (context, notifier, _) {
-        final badge = _DayBadge(
-          isToday: isToday,
-          isInMonth: isInMonth,
-          date: date,
-        );
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Row(
-            children: [
-              if (notifier.onEnter) _NewEventButton(onClick: onCreate),
-              const Spacer(),
-              badge,
-            ],
-          ),
-        );
-      },
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: _DayBadge(
+        isToday: isToday,
+        isInMonth: isInMonth,
+        date: date,
+      ),
     );
   }
 }
 
 class _NewEventButton extends StatelessWidget {
-  final VoidCallback onClick;
-  const _NewEventButton({
-    required this.onClick,
-    Key? key,
-  }) : super(key: key);
+  final VoidCallback onCreate;
+  const _NewEventButton({required this.onCreate, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return FlowyIconButton(
-      onPressed: onClick,
-      iconPadding: EdgeInsets.zero,
-      icon: const FlowySvg(name: "home/add"),
-      hoverColor: AFThemeExtension.of(context).lightGreyHover,
-      width: 22,
+    return Consumer<_CardEnterNotifier>(
+      builder: (context, notifier, _) {
+        if (!notifier.onEnter) {
+          return const SizedBox.shrink();
+        }
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: FlowyIconButton(
+            onPressed: onCreate,
+            iconPadding: EdgeInsets.zero,
+            icon: const FlowySvg(name: "home/add"),
+            fillColor: Theme.of(context).colorScheme.background,
+            hoverColor: AFThemeExtension.of(context).lightGreyHover,
+            width: 22,
+          ),
+        );
+      },
     );
   }
 }
@@ -218,6 +213,7 @@ class _DayBadge extends StatelessWidget {
     }
 
     return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
         if (date.day == 1) FlowyText.medium(monthString),
         Container(
