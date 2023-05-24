@@ -42,7 +42,7 @@ impl DocumentManager {
     tracing::debug!("create a document: {:?}", &doc_id);
     let uid = self.user.user_id()?;
     let db = self.user.collab_db()?;
-    let collab = self.collab_builder.build(uid, &doc_id, db);
+    let collab = self.collab_builder.build(uid, &doc_id, "document", db);
     let document = Arc::new(Document::create_with_data(collab, data.0)?);
     Ok(document)
   }
@@ -55,7 +55,7 @@ impl DocumentManager {
     tracing::debug!("open_document: {:?}", &doc_id);
     let uid = self.user.user_id()?;
     let db = self.user.collab_db()?;
-    let collab = self.collab_builder.build(uid, &doc_id, db);
+    let collab = self.collab_builder.build(uid, &doc_id, "document", db);
     // read the existing document from the disk.
     let document = Arc::new(Document::new(collab)?);
     // save the document to the memory and read it from the memory if we open the same document again.
@@ -84,7 +84,7 @@ impl DocumentManager {
   pub fn get_document(&self, doc_id: String) -> FlowyResult<Arc<Document>> {
     let uid = self.user.user_id()?;
     let db = self.user.collab_db()?;
-    let collab = self.collab_builder.build(uid, &doc_id, db);
+    let collab = self.collab_builder.build(uid, &doc_id, "document", db);
     // read the existing document from the disk.
     let document = Arc::new(Document::new(collab)?);
     Ok(document)

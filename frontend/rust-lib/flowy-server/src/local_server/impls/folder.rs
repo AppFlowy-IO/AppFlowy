@@ -13,7 +13,7 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
       Ok(Workspace {
         id: gen_workspace_id(),
         name: name.to_string(),
-        belongings: Default::default(),
+        child_views: Default::default(),
         created_at: timestamp(),
       })
     })

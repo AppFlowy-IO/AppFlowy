@@ -91,12 +91,14 @@ impl Folder2Manager {
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn initialize(&self, uid: i64, workspace_id: &str) -> FlowyResult<()> {
     if let Ok(collab_db) = self.user.collab_db() {
-      let collab = self.collab_builder.build(uid, workspace_id, collab_db);
+      let collab = self
+        .collab_builder
+        .build(uid, workspace_id, "workspace", collab_db);
       let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
       let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
       let folder_context = FolderContext {
-        view_change_tx: Some(view_tx),
-        trash_change_tx: Some(trash_tx),
+        view_change_tx: view_tx,
+        trash_change_tx: trash_tx,
       };
       *self.folder.lock() = Some(InnerFolder::get_or_create(collab, folder_context));
       listen_on_trash_change(trash_rx, self.folder.clone());
@@ -279,7 +281,7 @@ impl Folder2Manager {
     match folder.views.get_view(&view_id) {
       None => Err(FlowyError::record_not_found()),
       Some(mut view) => {
-        view.belongings.retain(|b| !trash_ids.contains(&b.id));
+        view.children.retain(|b| !trash_ids.contains(&b.id));
         let child_views = folder
           .views
           .get_views_belong_to(&view.id)
@@ -369,10 +371,10 @@ impl Folder2Manager {
 
     let processor = self.get_data_processor(&view.layout)?;
     let view_data = processor.get_view_data(&view.id).await?;
-    let mut ext = HashMap::new();
-    if let Some(database_id) = view.database_id {
-      ext.insert("database_id".to_string(), database_id);
-    }
+    let ext = HashMap::new();
+    // if let Some(database_id) = view.database_id {
+    //   ext.insert("database_id".to_string(), database_id);
+    // }
     let duplicate_params = CreateViewParams {
       belong_to_id: view.bid.clone(),
       name: format!("{} (copy)", &view.name),
@@ -469,6 +471,7 @@ impl Folder2Manager {
 fn listen_on_view_change(mut rx: ViewChangeReceiver, folder: Folder) {
   tokio::spawn(async move {
     while let Ok(value) = rx.recv().await {
+      tracing::trace!("Did receive view change: {:?}", value);
       match value {
         ViewChange::DidCreateView { view } => {
           notify_parent_view_did_change(folder.clone(), vec![view.bid]);

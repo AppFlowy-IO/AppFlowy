@@ -61,10 +61,9 @@ pub fn view_from_create_view_params(params: CreateViewParams, layout: ViewLayout
     bid: params.belong_to_id,
     name: params.name,
     desc: params.desc,
-    belongings: Default::default(),
+    children: Default::default(),
     created_at: time,
     layout,
-    database_id: None,
   }
 }
 pub fn gen_view_id() -> String {

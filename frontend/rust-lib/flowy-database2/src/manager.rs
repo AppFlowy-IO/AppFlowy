@@ -220,17 +220,26 @@ unsafe impl Send for UserDatabase {}
 struct UserDatabaseCollabBuilderImpl(Arc<AppFlowyCollabBuilder>);
 
 impl UserDatabaseCollabBuilder for UserDatabaseCollabBuilderImpl {
-  fn build(&self, uid: i64, object_id: &str, db: Arc<RocksCollabDB>) -> Arc<MutexCollab> {
-    self.0.build(uid, object_id, db)
+  fn build(
+    &self,
+    uid: i64,
+    object_id: &str,
+    object_name: &str,
+    db: Arc<RocksCollabDB>,
+  ) -> Arc<MutexCollab> {
+    self.0.build(uid, object_id, object_name, db)
   }
 
   fn build_with_config(
     &self,
     uid: i64,
     object_id: &str,
+    object_name: &str,
     db: Arc<RocksCollabDB>,
     config: &CollabPersistenceConfig,
   ) -> Arc<MutexCollab> {
-    self.0.build_with_config(uid, object_id, db, config)
+    self
+      .0
+      .build_with_config(uid, object_id, object_name, db, config)
   }
 }
