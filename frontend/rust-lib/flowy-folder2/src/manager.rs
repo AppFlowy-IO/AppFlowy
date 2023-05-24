@@ -353,11 +353,11 @@ impl Folder2Manager {
       });
 
     if let Ok(view_pb) = self.get_view(&params.view_id).await {
+      notify_parent_view_did_change(self.folder.clone(), vec![view_pb.parent_view_id.clone()]);
       send_notification(&view_pb.id, FolderNotification::DidUpdateView)
         .payload(view_pb)
         .send();
     }
-
     Ok(())
   }
 
@@ -536,6 +536,7 @@ fn get_workspace_view_pbs(workspace_id: &str, folder: &InnerFolder) -> Vec<ViewP
     .collect()
 }
 
+/// Notify the the list of parent view ids that its child views were changed.
 #[tracing::instrument(level = "debug", skip(folder, parent_view_ids))]
 fn notify_parent_view_did_change<T: AsRef<str>>(
   folder: Folder,

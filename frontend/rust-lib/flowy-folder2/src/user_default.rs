@@ -100,8 +100,3 @@ fn workspace_pb_from_workspace(
     create_time: workspace.created_at,
   }
 }
-
-pub fn initial_read_me() -> String {
-  let document_content = include_str!("READ_ME.json");
-  document_content.to_string()
-}
