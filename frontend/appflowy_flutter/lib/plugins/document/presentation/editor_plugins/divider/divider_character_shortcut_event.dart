@@ -19,26 +19,47 @@ final CharacterShortcutEvent convertMinusesToDivider = CharacterShortcutEvent(
 CharacterShortcutEventHandler _convertMinusesToDividerHandler =
     (editorState) async {
   final selection = editorState.selection;
+  
   if (selection == null || !selection.isCollapsed) {
     return false;
   }
+
   final path = selection.end.path;
   final node = editorState.getNodeAtPath(path);
   final delta = node?.delta;
+
   if (node == null || delta == null) {
     return false;
   }
-  if (delta.toPlainText() != '--') {
+
+  if (!_hasTwoConsecutiveDashes(node.delta!.toPlainText(), selection.start.offset)) {
     return false;
   }
-  final transaction = editorState.transaction
-    ..insertNode(path, dividerNode())
-    ..insertNode(path, paragraphNode())
-    ..deleteNode(node)
-    ..afterSelection = Selection.collapse(path.next, 0);
+
+  final dashStartPosition = selection.start.offset - 2;
+  Transaction transaction;
+
+  if (node.delta!.length > 2) {
+    transaction = editorState.transaction
+      ..deleteText(node, dashStartPosition, 2)
+      ..insertNode(selection.end.path.next, dividerNode());
+  } else {
+    transaction = editorState.transaction
+      ..insertNode(path, dividerNode())
+      ..insertNode(path, paragraphNode())
+      ..deleteNode(node)
+      ..afterSelection = Selection.collapse(path.next, 0);
+  }
   editorState.apply(transaction);
   return true;
 };
+
+bool _hasTwoConsecutiveDashes(String text, int end) {
+  if (text.length < 2 || end > text.length) {
+    return false;
+  }
+  return text[end - 1] == '-' && text[end - 2] == '-';
+}
 
 SelectionMenuItem dividerMenuItem = SelectionMenuItem(
   name: 'Divider',
