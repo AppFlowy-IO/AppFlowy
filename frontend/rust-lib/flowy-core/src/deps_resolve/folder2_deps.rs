@@ -19,6 +19,7 @@ use flowy_folder2::manager::Folder2Manager;
 use flowy_folder2::view_ext::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder2::ViewLayout;
 use flowy_user::services::UserSession;
+use lib_dispatch::prelude::ToBytes;
 use lib_infra::future::FutureResult;
 
 pub struct Folder2DepsResolver();
@@ -99,8 +100,8 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     let view_id = view_id.to_string();
     FutureResult::new(async move {
       let document = manager.get_document(view_id)?;
-      let data = document.lock().get_document()?;
-      let data_bytes = serde_json::to_string(&data)?.as_bytes().to_vec();
+      let data: DocumentDataPB = DocumentDataWrapper(document.lock().get_document()?).into();
+      let data_bytes = data.into_bytes().map_err(|_| FlowyError::invalid_data())?;
       Ok(Bytes::from(data_bytes))
     })
   }

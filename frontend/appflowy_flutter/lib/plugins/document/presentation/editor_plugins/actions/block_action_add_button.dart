@@ -12,7 +12,7 @@ class BlockAddButton extends StatelessWidget {
   }) : super(key: key);
 
   final BlockComponentContext blockComponentContext;
-  final BlockComponentState blockComponentState;
+  final BlockComponentActionState blockComponentState;
 
   final EditorState editorState;
   final VoidCallback showSlashMenu;
