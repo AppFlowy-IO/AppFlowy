@@ -14,6 +14,7 @@ import 'package:easy_localization/easy_localization.dart';
 class AddButton extends StatelessWidget {
   final Function(
     PluginBuilder,
+    String? name,
     List<int>? initialDataBytes,
     bool openAfterCreated,
   ) onSelected;
@@ -71,20 +72,20 @@ class AddButton extends StatelessWidget {
       },
       onSelected: (action, controller) {
         if (action is AddButtonActionWrapper) {
-          onSelected(action.pluginBuilder, null, true);
+          onSelected(action.pluginBuilder, null, null, true);
         }
         if (action is ImportActionWrapper) {
-          showImportPanel(context, (type, initialDataBytes) {
+          showImportPanel(context, (type, name, initialDataBytes) {
             if (initialDataBytes == null) {
               return;
             }
             switch (type) {
               case ImportType.historyDocument:
               case ImportType.historyDatabase:
-                onSelected(action.pluginBuilder, initialDataBytes, false);
+                onSelected(action.pluginBuilder, name, initialDataBytes, false);
                 break;
               case ImportType.markdownOrText:
-                onSelected(action.pluginBuilder, initialDataBytes, true);
+                onSelected(action.pluginBuilder, name, initialDataBytes, true);
                 break;
             }
           });

@@ -7,9 +7,10 @@ import 'emoji_picker.dart';
 
 SelectionMenuItem emojiMenuItem = SelectionMenuItem(
   name: 'Emoji',
-  icon: (editorState, onSelected) => SelectableIconWidget(
+  icon: (editorState, onSelected, style) => SelectableIconWidget(
     icon: Icons.emoji_emotions_outlined,
     isSelected: onSelected,
+    style: style,
   ),
   keywords: ['emoji'],
   handler: (editorState, menuService, context) {

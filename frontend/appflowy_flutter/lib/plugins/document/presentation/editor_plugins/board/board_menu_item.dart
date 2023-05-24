@@ -8,9 +8,10 @@ import 'package:flutter/material.dart';
 
 SelectionMenuItem boardMenuItem = SelectionMenuItem(
   name: LocaleKeys.document_plugins_referencedBoard.tr(),
-  icon: (editorState, onSelected) => SelectableSvgWidget(
+  icon: (editorState, onSelected, style) => SelectableSvgWidget(
     name: 'editor/board',
     isSelected: onSelected,
+    style: style,
   ),
   keywords: ['referenced', 'board', 'kanban'],
   handler: (editorState, menuService, context) {

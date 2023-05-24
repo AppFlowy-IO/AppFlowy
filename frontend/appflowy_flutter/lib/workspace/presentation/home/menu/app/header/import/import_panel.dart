@@ -12,8 +12,13 @@ import 'package:flowy_infra_ui/style_widget/container.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:path/path.dart' as p;
 
-typedef ImportCallback = void Function(ImportType type, List<int>? document);
+typedef ImportCallback = void Function(
+  ImportType type,
+  String name,
+  List<int>? document,
+);
 
 Future<void> showImportPanel(
   BuildContext context,
@@ -183,7 +188,11 @@ class _ImportPanelState extends State<_ImportPanel> {
       }
       if (document != null) {
         final data = DocumentDataPBFromTo.fromDocument(document);
-        widget.importCallback(importType, data?.writeToBuffer());
+        widget.importCallback(
+          importType,
+          p.basenameWithoutExtension(path),
+          data?.writeToBuffer(),
+        );
       }
     }
   }
