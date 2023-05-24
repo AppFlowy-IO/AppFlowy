@@ -126,7 +126,7 @@ class _ToggleListBlockComponentWidgetState
 
   // build the richtext child
   Widget buildToggleListBlockComponent(BuildContext context) {
-    return Row(
+    Widget child = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // the emoji picker button for the note
@@ -158,6 +158,16 @@ class _ToggleListBlockComponentWidgetState
         ),
       ],
     );
+
+    if (widget.actionBuilder != null) {
+      child = BlockComponentActionWrapper(
+        node: node,
+        actionBuilder: widget.actionBuilder!,
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   Future<void> onCollapsed() async {

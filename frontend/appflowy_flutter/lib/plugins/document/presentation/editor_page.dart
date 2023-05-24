@@ -63,13 +63,14 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     // code block
     ...codeBlockCharacterEvents,
 
+    // toggle list
+    // formatGreaterToToggleList,
+
     ...standardCharacterShortcutEvents
       ..removeWhere(
         (element) => element == slashCommand,
       ), // remove the default slash command.
     customSlashCommand(slashMenuItems),
-
-    // formatGreaterToToggleList,
   ];
 
   late final showSlashMenu = customSlashCommand(
@@ -189,7 +190,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       ),
       AutoCompletionBlockKeys.type: AutoCompletionBlockComponentBuilder(),
       SmartEditBlockKeys.type: SmartEditBlockComponentBuilder(),
-      // ToggleListBlockKeys.type: ToggleListBlockComponentBuilder(),
+      ToggleListBlockKeys.type: ToggleListBlockComponentBuilder(),
     };
 
     final builders = {
