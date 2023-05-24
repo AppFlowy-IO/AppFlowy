@@ -20,12 +20,17 @@ class GridBlockComponentBuilder extends BlockComponentBuilder {
   final BlockComponentConfiguration configuration;
 
   @override
-  Widget build(BlockComponentContext blockComponentContext) {
+  BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
     return GridBlockComponentWidget(
       key: node.key,
       node: node,
       configuration: configuration,
+      showActions: showActions(node),
+      actionBuilder: (context, state) => actionBuilder(
+        blockComponentContext,
+        state,
+      ),
     );
   }
 
@@ -36,15 +41,14 @@ class GridBlockComponentBuilder extends BlockComponentBuilder {
       node.attributes[DatabaseBlockKeys.kViewID] is String;
 }
 
-class GridBlockComponentWidget extends StatefulWidget {
+class GridBlockComponentWidget extends BlockComponentStatefulWidget {
   const GridBlockComponentWidget({
     super.key,
-    required this.configuration,
-    required this.node,
+    required super.node,
+    super.showActions,
+    super.actionBuilder,
+    super.configuration = const BlockComponentConfiguration(),
   });
-
-  final Node node;
-  final BlockComponentConfiguration configuration;
 
   @override
   State<GridBlockComponentWidget> createState() =>
@@ -62,7 +66,7 @@ class _GridBlockComponentWidgetState extends State<GridBlockComponentWidget>
   @override
   Widget build(BuildContext context) {
     final editorState = Provider.of<EditorState>(context, listen: false);
-    return BuiltInPageWidget(
+    Widget child = BuiltInPageWidget(
       node: widget.node,
       editorState: editorState,
       builder: (viewPB) {
@@ -72,5 +76,15 @@ class _GridBlockComponentWidgetState extends State<GridBlockComponentWidget>
         );
       },
     );
+
+    if (widget.actionBuilder != null) {
+      child = BlockComponentActionWrapper(
+        node: widget.node,
+        actionBuilder: widget.actionBuilder!,
+        child: child,
+      );
+    }
+
+    return child;
   }
 }

@@ -46,11 +46,16 @@ class SmartEditBlockComponentBuilder extends BlockComponentBuilder {
   SmartEditBlockComponentBuilder();
 
   @override
-  Widget build(BlockComponentContext blockComponentContext) {
+  BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
     return SmartEditBlockComponentWidget(
       key: node.key,
       node: node,
+      showActions: showActions(node),
+      actionBuilder: (context, state) => actionBuilder(
+        blockComponentContext,
+        state,
+      ),
     );
   }
 
@@ -60,13 +65,14 @@ class SmartEditBlockComponentBuilder extends BlockComponentBuilder {
       node.attributes[SmartEditBlockKeys.content] is String;
 }
 
-class SmartEditBlockComponentWidget extends StatefulWidget {
+class SmartEditBlockComponentWidget extends BlockComponentStatefulWidget {
   const SmartEditBlockComponentWidget({
-    required super.key,
-    required this.node,
+    super.key,
+    required super.node,
+    super.showActions,
+    super.actionBuilder,
+    super.configuration = const BlockComponentConfiguration(),
   });
-
-  final Node node;
 
   @override
   State<SmartEditBlockComponentWidget> createState() =>
