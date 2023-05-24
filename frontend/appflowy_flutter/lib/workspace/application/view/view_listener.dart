@@ -79,8 +79,10 @@ class ViewListener {
     switch (ty) {
       case FolderNotification.DidUpdateView:
         result.fold(
-          (payload) =>
-              _updatedViewNotifier.value = left(ViewPB.fromBuffer(payload)),
+          (payload) {
+            final view = ViewPB.fromBuffer(payload);
+            _updatedViewNotifier.value = left(view);
+          },
           (error) => _updatedViewNotifier.value = right(error),
         );
         break;

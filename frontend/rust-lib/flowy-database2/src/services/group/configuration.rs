@@ -385,9 +385,9 @@ where
     if is_changed {
       let configuration = (*self.setting).clone();
       let writer = self.writer.clone();
-      let field_id = self.field.id.clone();
+      let view_id = self.view_id.clone();
       tokio::spawn(async move {
-        match writer.save_configuration(&field_id, configuration).await {
+        match writer.save_configuration(&view_id, configuration).await {
           Ok(_) => {},
           Err(e) => {
             tracing::error!("Save group configuration failed: {}", e);
