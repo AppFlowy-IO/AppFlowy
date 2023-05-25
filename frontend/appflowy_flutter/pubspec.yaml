@@ -81,6 +81,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   device_info_plus: ^9.0.1
   fluttertoast: ^8.2.2
+  json_annotation: ^4.8.1
   table_calendar: ^3.0.9
   reorderables: ^0.6.0
   linked_scroll_controller: ^0.2.0
@@ -115,7 +116,6 @@ dev_dependencies:
   build_runner: ^2.4.4
   freezed: ^2.3.4
   bloc_test: ^9.1.2
-  json_annotation: ^4.8.1
   json_serializable: ^6.7.0
   envied_generator: ^0.3.0+3
 
