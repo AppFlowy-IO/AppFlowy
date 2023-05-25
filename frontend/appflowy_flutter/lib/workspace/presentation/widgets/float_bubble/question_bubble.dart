@@ -111,8 +111,8 @@ class _DebugToast {
     final deviceInfo = deviceInfoPlugin.deviceInfo;
 
     return deviceInfo.then((info) {
-      var debugText = "";
-      info.toMap().forEach((key, value) {
+      String debugText = "";
+      info.data.forEach((key, value) {
         debugText = "$debugText$key: $value\n";
       });
       return debugText;

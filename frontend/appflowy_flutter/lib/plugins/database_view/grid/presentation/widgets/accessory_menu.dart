@@ -62,9 +62,9 @@ class _AccessoryMenu extends StatelessWidget {
                 color: AFThemeExtension.of(context).toggleOffFill,
               ),
               const VSpace(6),
-              IntrinsicHeight(
+              const IntrinsicHeight(
                 child: Row(
-                  children: const [
+                  children: [
                     SortMenu(),
                     HSpace(6),
                     FilterMenu(),

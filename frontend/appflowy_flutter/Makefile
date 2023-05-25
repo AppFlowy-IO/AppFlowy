@@ -1,7 +1,7 @@
 .PHONY: freeze_build, free_watch
 
 freeze_build:
-	flutter pub run build_runner build --delete-conflicting-outputs
+	dart run build_runner build -d
 
 watch:
-	flutter pub run build_runner watch
+	dart run build_runner watch

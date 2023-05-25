@@ -1,7 +1,7 @@
 name: appflowy_backend
 description: A new flutter plugin project.
 version: 0.0.1
-homepage:
+homepage: https://appflowy.io
 publish_to: "none"
 
 environment:

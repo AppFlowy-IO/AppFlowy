@@ -78,11 +78,11 @@ class _MyHomePageState extends State<MyHomePage> {
             direction: PopoverDirection.topWithLeftAligned,
           ),
         ]),
-        Expanded(
+        const Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const ExampleButton(
+            children: [
+              ExampleButton(
                 label: "Top",
                 offset: Offset(0, 10),
                 direction: PopoverDirection.bottomWithCenterAligned,
@@ -91,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  children: const [
+                  children: [
                     ExampleButton(
                       label: "Central",
                       offset: Offset(0, 10),
@@ -100,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ],
                 ),
               ),
-              const ExampleButton(
+              ExampleButton(
                 label: "Bottom",
                 offset: Offset(0, -10),
                 direction: PopoverDirection.topWithCenterAligned,
@@ -108,15 +108,15 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
         ),
-        Column(
+        const Column(
           children: [
-            const ExampleButton(
+            ExampleButton(
               label: "Right top",
               offset: Offset(0, 10),
               direction: PopoverDirection.bottomWithRightAligned,
             ),
-            Expanded(child: Container()),
-            const ExampleButton(
+            Expanded(child: SizedBox.shrink()),
+            ExampleButton(
               label: "Right bottom",
               offset: Offset(0, -10),
               direction: PopoverDirection.topWithRightAligned,

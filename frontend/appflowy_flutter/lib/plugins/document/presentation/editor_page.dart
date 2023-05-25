@@ -6,7 +6,6 @@ import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tuple/tuple.dart';
 
 /// Wrapper for the appflowy editor.
 class AppFlowyEditorPage extends StatefulWidget {
@@ -88,14 +87,16 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   @override
   Widget build(BuildContext context) {
-    final autoFocusParameters = _computeAutoFocusParameters();
+    final (bool autoFocus, Selection? selection) =
+        _computeAutoFocusParameters();
+
     final editor = AppFlowyEditor.custom(
       editorState: widget.editorState,
       editable: true,
       scrollController: scrollController,
       // setup the auto focus parameters
-      autoFocus: autoFocusParameters.item1,
-      focusedSelection: autoFocusParameters.item2,
+      autoFocus: autoFocus,
+      focusedSelection: selection,
       // setup the theme
       editorStyle: styleCustomizer.style(),
       // customize the block builder
@@ -107,7 +108,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     );
 
     return Center(
-      child: Container(
+      child: ConstrainedBox(
         constraints: const BoxConstraints(
           maxWidth: double.infinity,
         ),
@@ -246,17 +247,17 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     return builders;
   }
 
-  Tuple2<bool, Selection?> _computeAutoFocusParameters() {
+  (bool, Selection?) _computeAutoFocusParameters() {
     if (widget.editorState.document.isEmpty) {
-      return Tuple2(true, Selection.collapse([0], 0));
+      return (true, Selection.collapse([0], 0));
     }
     final nodes = widget.editorState.document.root.children
         .where((element) => element.delta != null);
     final isAllEmpty =
         nodes.isNotEmpty && nodes.every((element) => element.delta!.isEmpty);
     if (isAllEmpty) {
-      return Tuple2(true, Selection.collapse(nodes.first.path, 0));
+      return (true, Selection.collapse(nodes.first.path, 0));
     }
-    return const Tuple2(false, null);
+    return const (false, null);
   }
 }
