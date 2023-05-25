@@ -2,7 +2,7 @@ import { CellIdentifier } from '@/appflowy_app/stores/effects/database/cell/cell
 import { CellCache } from '@/appflowy_app/stores/effects/database/cell/cell_cache';
 import { FieldController } from '@/appflowy_app/stores/effects/database/field/field_controller';
 import { useCell } from '../../_shared/database-hooks/useCell';
-import { EditCellNumber } from '../../_shared/EditRow/EditCellNumber';
+import { EditCellNumber } from '../../_shared/EditRow/InlineEditFields/EditCellNumber';
 
 export const GridNumberCell = ({
   cellIdentifier,

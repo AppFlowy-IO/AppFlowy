@@ -4,7 +4,7 @@ import { ISelectOptionType } from '$app_reducers/database/slice';
 import { useAppSelector } from '$app/stores/store';
 import { CheckListProgress } from '$app/components/_shared/CheckListProgress';
 
-export const CheckListCell = ({
+export const CheckList = ({
   data,
   fieldId,
   onEditClick,
@@ -33,11 +33,7 @@ export const CheckListCell = ({
   };
 
   return (
-    <div
-      ref={ref}
-      onClick={() => onClick()}
-      className={'flex w-full flex-wrap items-center gap-2 px-4 py-1 text-xs text-black'}
-    >
+    <div ref={ref} onClick={onClick} className={'flex w-full flex-wrap items-center gap-2 px-4 py-1 text-xs text-black'}>
       <CheckListProgress completed={selectedOptionsCount} max={allOptionsCount} />
     </div>
   );

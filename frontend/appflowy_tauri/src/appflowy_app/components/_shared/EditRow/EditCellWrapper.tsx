@@ -4,17 +4,17 @@ import { CellCache } from '$app/stores/effects/database/cell/cell_cache';
 import { FieldController } from '$app/stores/effects/database/field/field_controller';
 import { DateCellDataPB, FieldType, SelectOptionCellDataPB, URLCellDataPB } from '@/services/backend';
 import { useAppSelector } from '$app/stores/store';
-import { EditCellText } from '$app/components/_shared/EditRow/EditCellText';
+import { EditCellText } from '$app/components/_shared/EditRow/InlineEditFields/EditCellText';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
-import { EditCellDate } from '$app/components/_shared/EditRow/EditCellDate';
+import { EditCellDate } from '$app/components/_shared/EditRow/Date/EditCellDate';
 import { useRef } from 'react';
-import { CellOptions } from '$app/components/_shared/EditRow/CellOptions';
-import { EditCellNumber } from '$app/components/_shared/EditRow/EditCellNumber';
-import { EditCheckboxCell } from '$app/components/_shared/EditRow/EditCheckboxCell';
-import { EditCellUrl } from '$app/components/_shared/EditRow/EditCellUrl';
+import { CellOptions } from '$app/components/_shared/EditRow/Options/CellOptions';
+import { EditCellNumber } from '$app/components/_shared/EditRow/InlineEditFields/EditCellNumber';
+import { EditCheckboxCell } from '$app/components/_shared/EditRow/InlineEditFields/EditCheckboxCell';
+import { EditCellUrl } from '$app/components/_shared/EditRow/InlineEditFields/EditCellUrl';
 import { Draggable } from 'react-beautiful-dnd';
 import { DragElementSvg } from '$app/components/_shared/svg/DragElementSvg';
-import { CheckListCell } from '$app/components/_shared/EditRow/CheckListCell';
+import { CheckList } from '$app/components/_shared/EditRow/CheckList/CheckList';
 
 export const EditCellWrapper = ({
   index,
@@ -82,11 +82,11 @@ export const EditCellWrapper = ({
               )}
 
             {cellIdentifier.fieldType === FieldType.Checklist && cellController && (
-              <CheckListCell
+              <CheckList
                 data={data as SelectOptionCellDataPB}
                 fieldId={cellIdentifier.fieldId}
                 onEditClick={(left, top) => onEditCheckListClick(cellIdentifier, left, top)}
-              ></CheckListCell>
+              ></CheckList>
             )}
 
             {cellIdentifier.fieldType === FieldType.Checkbox && cellController && (

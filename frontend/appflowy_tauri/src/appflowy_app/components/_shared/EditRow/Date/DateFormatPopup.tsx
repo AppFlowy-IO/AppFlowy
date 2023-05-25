@@ -4,10 +4,10 @@ import { PopupWindow } from '$app/components/_shared/PopupWindow';
 import { CheckmarkSvg } from '$app/components/_shared/svg/CheckmarkSvg';
 import { useTranslation } from 'react-i18next';
 import { DateFormatPB } from '@/services/backend';
-import { useDateTimeFormat } from '$app/components/_shared/EditRow/DateTimeFormat.hooks';
+import { useDateTimeFormat } from '$app/components/_shared/EditRow/Date/DateTimeFormat.hooks';
 import { useAppSelector } from '$app/stores/store';
 import { useEffect, useState } from 'react';
-import { IDateType } from '$app/stores/reducers/database/slice';
+import { IDateType } from '$app_reducers/database/slice';
 
 export const DateFormatPopup = ({
   left,

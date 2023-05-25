@@ -33,7 +33,7 @@ export const PopupWindow = ({
     } else {
       setAdjustedLeft(left);
     }
-  }, [ref, left, top, window]);
+  }, [ref, left, top]);
 
   return (
     <div

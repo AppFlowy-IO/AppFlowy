@@ -10,7 +10,7 @@ import { useAppSelector } from '$app/stores/store';
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { PopupWindow } from '$app/components/_shared/PopupWindow';
 import { FieldType } from '@/services/backend';
-import { DateTypeOptions } from '$app/components/_shared/EditRow/DateTypeOptions';
+import { DateTypeOptions } from '$app/components/_shared/EditRow/Date/DateTypeOptions';
 
 export const EditFieldPopup = ({
   top,

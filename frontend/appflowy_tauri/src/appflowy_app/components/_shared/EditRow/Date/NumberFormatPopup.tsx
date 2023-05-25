@@ -1,12 +1,12 @@
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { FieldController } from '$app/stores/effects/database/field/field_controller';
 import { PopupWindow } from '$app/components/_shared/PopupWindow';
-import { useNumberFormat } from '$app/components/_shared/EditRow/NumberFormat.hooks';
+import { useNumberFormat } from '$app/components/_shared/EditRow/Date/NumberFormat.hooks';
 import { NumberFormatPB } from '@/services/backend';
 import { CheckmarkSvg } from '$app/components/_shared/svg/CheckmarkSvg';
 import { useAppSelector } from '$app/stores/store';
 import { useEffect, useState } from 'react';
-import { INumberType } from '$app/stores/reducers/database/slice';
+import { INumberType } from '$app_reducers/database/slice';
 
 const list = [
   { format: NumberFormatPB.Num, title: 'Num' },
