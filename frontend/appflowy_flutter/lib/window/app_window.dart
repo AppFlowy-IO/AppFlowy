@@ -1,7 +1,10 @@
 import 'dart:ui';
 
 import 'package:appflowy/core/helpers/helpers.dart';
+import 'package:appflowy/window/app_window_listner.dart';
+import 'package:appflowy/window/app_window_size_manager.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
 /// Represents the main window of the app.
@@ -21,11 +24,19 @@ class AppWindow {
     }
 
     await windowManager.ensureInitialized();
+    final windowSize = await WindowSizeManager().getSize();
 
-    WindowOptions windowOptions = const WindowOptions(
-      minimumSize: Size(600, 400),
+    final WindowOptions windowOptions = WindowOptions(
+      size: windowSize,
+      minimumSize: const Size(
+        WindowSizeManager.minWindowWidth,
+        WindowSizeManager.minWindowHeight,
+      ),
+      center: true,
       title: 'AppFlowy',
     );
+
+    AppWindowListener().start();
 
     await windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
