@@ -40,10 +40,10 @@ impl TypeOptionTransform for CheckboxTypeOption {
   fn transform_type_option_cell(
     &self,
     cell: &Cell,
-    _decoded_field_type: &FieldType,
+    transformed_field_type: &FieldType,
     _field: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {
-    if _decoded_field_type.is_text() {
+    if transformed_field_type.is_text() {
       Some(CheckboxCellData::from(cell))
     } else {
       None

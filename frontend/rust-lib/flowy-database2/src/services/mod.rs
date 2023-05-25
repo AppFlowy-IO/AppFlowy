@@ -5,4 +5,5 @@ pub mod field;
 pub mod filter;
 pub mod group;
 pub mod setting;
+pub mod share;
 pub mod sort;

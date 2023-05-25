@@ -111,7 +111,7 @@ pub fn make_test_board() -> DatabaseData {
 
   // We have many assumptions base on the number of the rows, so do not change the number of the loop.
   for i in 0..5 {
-    let mut row_builder = TestRowBuilder::new(i.into(), fields.clone());
+    let mut row_builder = TestRowBuilder::new(i.into(), &fields);
     match i {
       0 => {
         for field_type in FieldType::iter() {

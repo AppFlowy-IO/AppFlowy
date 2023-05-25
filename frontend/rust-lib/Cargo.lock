@@ -85,7 +85,7 @@ checksum = "7de8ce5e0f9f8d88245311066a578d72b7af3e7088f32783804676302df237e4"
 [[package]]
 name = "appflowy-integrate"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6052d5#6052d509982f705c6d43a859c937a722a8c3358b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d6af3a#d6af3a7662a57202e4e5b0a297c28757a18f3372"
 dependencies = [
  "anyhow",
  "collab",
@@ -886,7 +886,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6052d5#6052d509982f705c6d43a859c937a722a8c3358b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d6af3a#d6af3a7662a57202e4e5b0a297c28757a18f3372"
 dependencies = [
  "anyhow",
  "bytes",
@@ -903,7 +903,7 @@ dependencies = [
 [[package]]
 name = "collab-client-ws"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6052d5#6052d509982f705c6d43a859c937a722a8c3358b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d6af3a#d6af3a7662a57202e4e5b0a297c28757a18f3372"
 dependencies = [
  "bytes",
  "collab-sync",
@@ -921,7 +921,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6052d5#6052d509982f705c6d43a859c937a722a8c3358b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d6af3a#d6af3a7662a57202e4e5b0a297c28757a18f3372"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -946,7 +946,7 @@ dependencies = [
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6052d5#6052d509982f705c6d43a859c937a722a8c3358b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d6af3a#d6af3a7662a57202e4e5b0a297c28757a18f3372"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -958,7 +958,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6052d5#6052d509982f705c6d43a859c937a722a8c3358b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d6af3a#d6af3a7662a57202e4e5b0a297c28757a18f3372"
 dependencies = [
  "anyhow",
  "collab",
@@ -975,7 +975,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6052d5#6052d509982f705c6d43a859c937a722a8c3358b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d6af3a#d6af3a7662a57202e4e5b0a297c28757a18f3372"
 dependencies = [
  "anyhow",
  "collab",
@@ -993,7 +993,7 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6052d5#6052d509982f705c6d43a859c937a722a8c3358b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d6af3a#d6af3a7662a57202e4e5b0a297c28757a18f3372"
 dependencies = [
  "bincode",
  "chrono",
@@ -1013,7 +1013,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6052d5#6052d509982f705c6d43a859c937a722a8c3358b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d6af3a#d6af3a7662a57202e4e5b0a297c28757a18f3372"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1043,7 +1043,7 @@ dependencies = [
 [[package]]
 name = "collab-sync"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=6052d5#6052d509982f705c6d43a859c937a722a8c3358b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d6af3a#d6af3a7662a57202e4e5b0a297c28757a18f3372"
 dependencies = [
  "bytes",
  "collab",
@@ -1210,6 +1210,27 @@ checksum = "1bfb12502f3fc46cca1bb51ac28df9d618d813cdc3d2f25b9fe775a34af26bb3"
 dependencies = [
  "generic-array",
  "typenum",
+]
+
+[[package]]
+name = "csv"
+version = "1.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b015497079b9a9d69c02ad25de6c0a6edef051ea6360a327d0bd05802ef64ad"
+dependencies = [
+ "csv-core",
+ "itoa",
+ "ryu",
+ "serde",
+]
+
+[[package]]
+name = "csv-core"
+version = "0.1.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b2466559f260f48ad25fe6317b3c8dac77b5bdb5763ac7d9d6103530663bc90"
+dependencies = [
+ "memchr",
 ]
 
 [[package]]
@@ -1609,6 +1630,7 @@ dependencies = [
  "chrono-tz 0.8.2",
  "collab",
  "collab-database",
+ "csv",
  "dashmap",
  "fancy-regex 0.10.0",
  "flowy-codegen",
