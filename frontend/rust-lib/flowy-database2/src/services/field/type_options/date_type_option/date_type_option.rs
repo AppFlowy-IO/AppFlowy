@@ -5,8 +5,7 @@ use crate::services::field::{
   TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
   TypeOptionTransform,
 };
-use chrono::format::strftime::StrftimeItems;
-use chrono::{DateTime, Local, NaiveDateTime, NaiveTime, Offset, TimeZone};
+use chrono::{DateTime, Local, NaiveDateTime, NaiveTime, TimeZone};
 use chrono_tz::{Tz, UTC};
 use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
@@ -90,22 +89,15 @@ impl DateTypeOption {
   fn today_desc_from_timestamp(&self, cell_data: DateCellData) -> DateCellDataPB {
     let timestamp = cell_data.timestamp.unwrap_or_default();
     let include_time = cell_data.include_time;
-    let timezone_id = cell_data.timezone_id;
 
     let (date, time) = match cell_data.timestamp {
-      Some(timestamp) => {
-        let naive = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
-        let offset = match Tz::from_str(&timezone_id) {
-          Ok(timezone) => timezone.offset_from_utc_datetime(&naive).fix(),
-          Err(_) => *Local::now().offset(),
-        };
-
-        let date_time = DateTime::<Local>::from_utc(naive, offset);
+      Some(_) => {
+        let date_time = DateTime::from(&cell_data);
 
         let fmt = self.date_format.format_str();
-        let date = format!("{}", date_time.format_with_items(StrftimeItems::new(fmt)));
+        let date = format!("{}", date_time.format(fmt));
         let fmt = self.time_format.format_str();
-        let time = format!("{}", date_time.format_with_items(StrftimeItems::new(fmt)));
+        let time = format!("{}", date_time.format(fmt));
 
         (date, time)
       },
@@ -117,7 +109,7 @@ impl DateTypeOption {
       time,
       include_time,
       timestamp,
-      timezone_id,
+      timezone_id: cell_data.timezone_id,
     }
   }
 

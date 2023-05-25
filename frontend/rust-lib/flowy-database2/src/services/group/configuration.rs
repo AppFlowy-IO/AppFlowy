@@ -370,6 +370,10 @@ where
       .await
   }
 
+  pub fn get_setting_content(&self) -> String {
+    self.setting.content.clone()
+  }
+
   fn mut_configuration(
     &mut self,
     mut_configuration_fn: impl FnOnce(&mut GroupSetting) -> bool,

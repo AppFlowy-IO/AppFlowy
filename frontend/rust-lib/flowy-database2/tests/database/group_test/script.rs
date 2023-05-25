@@ -61,6 +61,11 @@ pub enum GroupScript {
   GroupByField {
     field_id: String,
   },
+  AssertGroupIDName {
+    group_index: usize,
+    group_id: String,
+    group_name: String,
+  },
 }
 
 pub struct DatabaseGroupTest {
@@ -251,6 +256,15 @@ impl DatabaseGroupTest {
           .await
           .unwrap();
       },
+      GroupScript::AssertGroupIDName {
+        group_index,
+        group_id,
+        group_name,
+      } => {
+        let group = self.group_at_index(group_index).await;
+        assert_eq!(group.group_id, group_id);
+        assert_eq!(group.desc, group_name);
+      },
     }
   }
 
@@ -266,27 +280,11 @@ impl DatabaseGroupTest {
 
   #[allow(dead_code)]
   pub async fn get_multi_select_field(&self) -> Field {
-    self
-      .inner
-      .get_fields()
-      .into_iter()
-      .find(|field_rev| {
-        let field_type = FieldType::from(field_rev.field_type);
-        field_type.is_multi_select()
-      })
-      .unwrap()
+    self.get_field(FieldType::MultiSelect).await
   }
 
   pub async fn get_single_select_field(&self) -> Field {
-    self
-      .inner
-      .get_fields()
-      .into_iter()
-      .find(|field| {
-        let field_type = FieldType::from(field.field_type);
-        field_type.is_single_select()
-      })
-      .unwrap()
+    self.get_field(FieldType::SingleSelect).await
   }
 
   pub async fn edit_single_select_type_option(
@@ -305,13 +303,17 @@ impl DatabaseGroupTest {
   }
 
   pub async fn get_url_field(&self) -> Field {
+    self.get_field(FieldType::URL).await
+  }
+
+  pub async fn get_field(&self, field_type: FieldType) -> Field {
     self
       .inner
       .get_fields()
       .into_iter()
       .find(|field| {
-        let field_type = FieldType::from(field.field_type);
-        field_type.is_url()
+        let ft = FieldType::from(field.field_type);
+        ft == field_type
       })
       .unwrap()
   }

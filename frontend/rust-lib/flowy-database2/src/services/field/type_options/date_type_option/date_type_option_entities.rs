@@ -1,8 +1,11 @@
 #![allow(clippy::upper_case_acronyms)]
 
 use std::fmt;
+use std::str::FromStr;
 
 use bytes::Bytes;
+use chrono::{DateTime, Local, Offset, TimeZone};
+use chrono_tz::Tz;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::{new_cell_builder, Cell};
 use serde::de::Visitor;
@@ -67,6 +70,33 @@ impl From<&Cell> for DateCellData {
       timestamp,
       include_time,
       timezone_id,
+    }
+  }
+}
+
+impl From<&DateCellDataPB> for DateCellData {
+  fn from(data: &DateCellDataPB) -> Self {
+    Self {
+      timestamp: Some(data.timestamp),
+      include_time: data.include_time,
+      timezone_id: data.timezone_id.clone(),
+    }
+  }
+}
+
+impl From<&DateCellData> for DateTime<Local> {
+  fn from(data: &DateCellData) -> Self {
+    match data.timestamp {
+      Some(timestamp) => {
+        let naive = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
+        let offset = match Tz::from_str(&data.timezone_id) {
+          Ok(timezone) => timezone.offset_from_utc_datetime(&naive).fix(),
+          Err(_) => *Local::now().offset(),
+        };
+
+        DateTime::<Local>::from_utc(naive, offset)
+      },
+      None => DateTime::default(),
     }
   }
 }

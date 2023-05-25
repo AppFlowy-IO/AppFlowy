@@ -730,6 +730,7 @@ class FieldInfo {
   bool get canBeGroup {
     switch (_field.fieldType) {
       case FieldType.URL:
+      case FieldType.DateTime:
       case FieldType.Checkbox:
       case FieldType.MultiSelect:
       case FieldType.SingleSelect:
