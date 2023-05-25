@@ -62,7 +62,7 @@ impl DatabaseEditorTest {
 
     let editor = sdk
       .database_manager
-      .get_database(&test.child_view.id)
+      .get_database_with_view_id(&test.child_view.id)
       .await
       .unwrap();
     let fields = editor
@@ -222,6 +222,19 @@ impl DatabaseEditorTest {
 
     let cell_changeset = SelectOptionCellChangeset::from_insert_option_id(option_id);
     self.update_cell(&field.id, row_id, cell_changeset).await
+  }
+
+  pub async fn import(&self, s: String) -> String {
+    self.sdk.database_manager.import_csv(s).await.unwrap()
+  }
+
+  pub async fn get_database(&self, database_id: &str) -> Option<Arc<DatabaseEditor>> {
+    self
+      .sdk
+      .database_manager
+      .get_database(database_id)
+      .await
+      .ok()
   }
 }
 

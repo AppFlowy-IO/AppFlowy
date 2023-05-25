@@ -1,9 +1,7 @@
-use crate::entities::{DatabaseImportPB, FieldType};
+use crate::entities::FieldType;
 use crate::services::cell::CellBuilder;
 use crate::services::field::default_type_option_data_for_type;
-use collab_database::database::{
-  gen_database_id, gen_database_view_id, gen_field_id, gen_row_id, DatabaseData,
-};
+use collab_database::database::{gen_database_id, gen_database_view_id, gen_field_id, gen_row_id};
 use collab_database::fields::Field;
 use collab_database::rows::CreateRowParams;
 use collab_database::views::{CreateDatabaseParams, DatabaseLayout};

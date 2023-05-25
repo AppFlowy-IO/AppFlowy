@@ -74,7 +74,7 @@ pub fn apply_cell_changeset<C: ToCellChangeset>(
   }
 }
 
-pub fn get_type_cell_protobuf(
+pub fn get_cell_protobuf(
   cell: &Cell,
   field: &Field,
   cell_cache: Option<CellCache>,
@@ -99,25 +99,6 @@ pub fn get_type_cell_protobuf(
       CellProtobufBlob::default()
     },
   }
-}
-
-pub fn get_type_cell_data<Output>(
-  cell: &Cell,
-  field: &Field,
-  cell_data_cache: Option<CellCache>,
-) -> Option<Output>
-where
-  Output: Default + 'static,
-{
-  let from_field_type = get_field_type_from_cell(cell)?;
-  let to_field_type = FieldType::from(field.field_type);
-  try_decode_cell_to_cell_data(
-    cell,
-    &from_field_type,
-    &to_field_type,
-    field,
-    cell_data_cache,
-  )
 }
 
 /// Decode the opaque cell data from one field type to another using the corresponding `TypeOption`

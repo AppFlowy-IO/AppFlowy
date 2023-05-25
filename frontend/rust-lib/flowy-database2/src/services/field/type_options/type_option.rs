@@ -105,7 +105,7 @@ pub trait TypeOptionTransform: TypeOption {
   fn transform_type_option_cell(
     &self,
     _cell: &Cell,
-    transformed_field_type: &FieldType,
+    _transformed_field_type: &FieldType,
     _field: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {
     None

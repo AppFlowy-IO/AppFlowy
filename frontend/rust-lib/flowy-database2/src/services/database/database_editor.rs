@@ -10,7 +10,7 @@ use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use parking_lot::Mutex;
 use tokio::sync::{broadcast, RwLock};
 
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
 use lib_infra::future::{to_fut, Fut};
 
@@ -23,8 +23,7 @@ use crate::entities::{
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
-  apply_cell_changeset, get_type_cell_protobuf, AnyTypeCache, CellBuilder, CellCache,
-  ToCellChangeset,
+  apply_cell_changeset, get_cell_protobuf, AnyTypeCache, CellBuilder, CellCache, ToCellChangeset,
 };
 use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewData, DatabaseViews};
@@ -36,6 +35,7 @@ use crate::services::field::{
 };
 use crate::services::filter::Filter;
 use crate::services::group::{default_group_setting, GroupSetting, RowChangeset};
+use crate::services::share::csv::{CSVExport, ExportStyle};
 use crate::services::sort::Sort;
 
 #[derive(Clone)]
@@ -434,7 +434,7 @@ impl DatabaseEditor {
     match (field, cell) {
       (Some(field), Some(cell)) => {
         let field_type = FieldType::from(field.field_type);
-        let cell_bytes = get_type_cell_protobuf(&cell, &field, Some(self.cell_cache.clone()));
+        let cell_bytes = get_cell_protobuf(&cell, &field, Some(self.cell_cache.clone()));
         CellPB {
           field_id: field_id.to_string(),
           row_id: row_id.into(),
@@ -807,6 +807,18 @@ impl DatabaseEditor {
       fields,
       rows,
     }
+  }
+
+  pub async fn export_csv(&self, style: ExportStyle) -> FlowyResult<String> {
+    let database = self.database.clone();
+    let csv = tokio::task::spawn_blocking(move || {
+      let database_guard = database.lock();
+      let csv = CSVExport.export_database(&database_guard, style)?;
+      Ok::<String, FlowyError>(csv)
+    })
+    .await
+    .map_err(internal_error)??;
+    Ok(csv)
   }
 }
 

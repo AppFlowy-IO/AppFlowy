@@ -14,7 +14,7 @@ impl Default for ImportTypePB {
 #[derive(Clone, Debug, ProtoBuf, Default)]
 pub struct DatabaseImportPB {
   #[pb(index = 1, one_of)]
-  pub data: Option<Vec<u8>>,
+  pub data: Option<String>,
 
   #[pb(index = 2, one_of)]
   pub uri: Option<String>,
