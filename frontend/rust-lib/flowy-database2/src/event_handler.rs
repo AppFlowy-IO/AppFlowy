@@ -3,7 +3,7 @@ use std::sync::Arc;
 use collab_database::rows::RowId;
 use collab_database::views::DatabaseLayout;
 
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
 use crate::entities::*;
@@ -600,5 +600,30 @@ pub(crate) async fn get_calendar_event_handler(
   match event {
     None => Err(FlowyError::record_not_found()),
     Some(event) => data_result_ok(event),
+  }
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn import_data_handler(
+  data: AFPluginData<DatabaseImportPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> FlowyResult<()> {
+  let params = data.into_inner();
+
+  match params.import_type {
+    ImportTypePB::CSV => {
+      if let Some(data) = params.data {
+        return manager.import_csv_data_from_data(data).await;
+      }
+
+      if let Some(uri) = params.uri {
+        return manager.import_csv_data_from_uri(uri).await;
+      }
+
+      return Err(FlowyError::new(
+        ErrorCode::InvalidData,
+        "No data or uri provided",
+      ));
+    },
   }
 }

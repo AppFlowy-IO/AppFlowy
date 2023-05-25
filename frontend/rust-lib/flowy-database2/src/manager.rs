@@ -14,7 +14,9 @@ use tokio::sync::RwLock;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
 
-use crate::entities::{DatabaseDescriptionPB, DatabaseLayoutPB, RepeatedDatabaseDescriptionPB};
+use crate::entities::{
+  DatabaseDescriptionPB, DatabaseLayoutPB, ImportTypePB, RepeatedDatabaseDescriptionPB,
+};
 use crate::services::database::{DatabaseEditor, MutexDatabase};
 
 pub trait DatabaseUser2: Send + Sync {
@@ -188,6 +190,14 @@ impl DatabaseManager2 {
         Ok(())
       },
     )?;
+    Ok(())
+  }
+
+  pub async fn import_csv_data_from_data(&self, data: Vec<u8>) -> FlowyResult<()> {
+    Ok(())
+  }
+
+  pub async fn import_csv_data_from_uri(&self, uri: String) -> FlowyResult<()> {
     Ok(())
   }
 
