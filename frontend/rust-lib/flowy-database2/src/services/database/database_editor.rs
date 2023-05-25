@@ -493,6 +493,8 @@ impl DatabaseEditor {
   ) -> FlowyResult<()> {
     // Get the old row before updating the cell. It would be better to get the old cell
     let old_row = { self.database.lock().get_row(&row_id) };
+
+    // Get all the updated_at fields. We will update all of them.
     let updated_at_fields = self
       .database
       .lock()
@@ -500,23 +502,17 @@ impl DatabaseEditor {
       .into_iter()
       .filter(|f| FieldType::from(f.field_type) == FieldType::UpdatedAt)
       .collect::<Vec<Field>>();
+
     self.database.lock().update_row(&row_id, |row_update| {
       row_update.update_cells(|cell_update| {
         let mut cells_update = cell_update.insert(field_id, new_cell);
-        for field in updated_at_fields.clone() {
-          cells_update = cells_update.insert(
-            &field.id,
-            insert_date_cell(chrono::offset::Utc::now().timestamp(), Some(true), &field),
-          );
+        for field in &updated_at_fields {
+          cells_update =
+            cells_update.insert(&field.id, insert_date_cell(timestamp(), Some(true), field));
         }
       });
     });
 
-    let mut updated_field_ids = updated_at_fields
-      .into_iter()
-      .map(|f| f.id.to_string())
-      .collect::<Vec<String>>();
-    updated_field_ids.push(field_id.to_string());
     let option_row = self.database.lock().get_row(&row_id);
     if let Some(new_row) = option_row {
       for view in self.database_views.editors().await {
@@ -524,15 +520,22 @@ impl DatabaseEditor {
       }
     }
 
-    let mut cell_changesets = vec![];
-    for field_id in updated_field_ids {
-      cell_changesets.push(CellChangesetNotifyPB {
+    // Collect all the updated field's id. Notify the frontend that all of them have been updated.
+    let mut updated_field_ids = updated_at_fields
+      .into_iter()
+      .map(|field| field.id)
+      .collect::<Vec<String>>();
+    updated_field_ids.push(field_id.to_string());
+    let changeset = updated_field_ids
+      .into_iter()
+      .map(|field_id| CellChangesetNotifyPB {
         view_id: view_id.to_string(),
         row_id: row_id.clone().into_inner(),
-        field_id: field_id.to_string(),
-      });
-    }
-    notify_did_update_cell(cell_changesets).await;
+        field_id,
+      })
+      .collect();
+    notify_did_update_cell(changeset).await;
+
     Ok(())
   }
 

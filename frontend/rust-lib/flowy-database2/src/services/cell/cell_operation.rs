@@ -300,6 +300,7 @@ pub struct CellBuilder<'a> {
 }
 
 impl<'a> CellBuilder<'a> {
+  /// Build list of Cells from HashMap of cell string by field id.
   pub fn with_cells(cell_by_field_id: HashMap<String, String>, fields: &'a [Field]) -> Self {
     let field_maps = fields
       .clone()
