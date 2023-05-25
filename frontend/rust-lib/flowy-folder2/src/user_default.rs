@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use chrono::Utc;
-use collab_folder::core::{ChildView, ChildViews, FolderData, View, ViewLayout, Workspace};
+use collab_folder::core::{FolderData, RepeatedView, View, ViewIdentifier, ViewLayout, Workspace};
 use nanoid::nanoid;
 
 use crate::entities::{view_pb_with_child_views, WorkspacePB};
@@ -49,9 +49,8 @@ impl DefaultFolderBuilder {
       bid: workspace_id.clone(),
       name: "⭐️ Getting started".to_string(),
       desc: "".to_string(),
-      children: ChildViews::new(vec![ChildView {
+      children: RepeatedView::new(vec![ViewIdentifier {
         id: child_view.id.clone(),
-        name: child_view.name.clone(),
       }]),
       created_at: time,
       layout: ViewLayout::Document,
@@ -60,9 +59,8 @@ impl DefaultFolderBuilder {
     let workspace = Workspace {
       id: workspace_id,
       name: "Workspace".to_string(),
-      child_views: ChildViews::new(vec![ChildView {
+      child_views: RepeatedView::new(vec![ViewIdentifier {
         id: view.id.clone(),
-        name: view.name.clone(),
       }]),
       created_at: time,
     };

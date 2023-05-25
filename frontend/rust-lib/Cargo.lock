@@ -983,6 +983,7 @@ dependencies = [
  "serde_repr",
  "thiserror",
  "tokio",
+ "tokio-stream",
  "tracing",
 ]
 
@@ -1719,6 +1720,7 @@ dependencies = [
  "strum",
  "strum_macros",
  "tokio",
+ "tokio-stream",
  "tracing",
  "unicode-segmentation",
  "uuid",
