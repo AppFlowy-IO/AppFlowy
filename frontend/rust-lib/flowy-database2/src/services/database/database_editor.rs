@@ -303,7 +303,7 @@ impl DatabaseEditor {
   pub async fn create_row(&self, params: CreateRowParams) -> FlowyResult<Option<Row>> {
     let fields = self.database.lock().get_fields(&params.view_id, None);
     let mut cells =
-      CellBuilder::with_cells(params.cell_data_by_field_id.unwrap_or_default(), fields).build();
+      CellBuilder::with_cells(params.cell_data_by_field_id.unwrap_or_default(), &fields).build();
     for view in self.database_views.editors().await {
       view.v_will_create_row(&mut cells, &params.group_id).await;
     }

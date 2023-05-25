@@ -5,7 +5,13 @@ pub enum ImportTypePB {
   CSV = 0,
 }
 
-#[derive(Clone, Debug, ProtoBuf)]
+impl Default for ImportTypePB {
+  fn default() -> Self {
+    Self::CSV
+  }
+}
+
+#[derive(Clone, Debug, ProtoBuf, Default)]
 pub struct DatabaseImportPB {
   #[pb(index = 1, one_of)]
   pub data: Option<Vec<u8>>,

@@ -225,19 +225,19 @@ impl DatabaseEditorTest {
   }
 }
 
-pub struct TestRowBuilder {
+pub struct TestRowBuilder<'a> {
   row_id: RowId,
-  fields: Vec<Field>,
-  cell_build: CellBuilder,
+  fields: &'a [Field],
+  cell_build: CellBuilder<'a>,
 }
 
-impl TestRowBuilder {
-  pub fn new(row_id: RowId, fields: Vec<Field>) -> Self {
-    let inner_builder = CellBuilder::with_cells(Default::default(), fields.clone());
+impl<'a> TestRowBuilder<'a> {
+  pub fn new(row_id: RowId, fields: &'a [Field]) -> Self {
+    let cell_build = CellBuilder::with_cells(Default::default(), fields);
     Self {
       row_id,
       fields,
-      cell_build: inner_builder,
+      cell_build,
     }
   }
 

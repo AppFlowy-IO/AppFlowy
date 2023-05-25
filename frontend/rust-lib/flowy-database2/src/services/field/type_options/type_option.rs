@@ -99,13 +99,13 @@ pub trait TypeOptionTransform: TypeOption {
   /// # Arguments
   ///
   /// * `cell_str`: the cell string of the current field type
-  /// * `decoded_field_type`: the field type of the cell data that's going to be transformed into
+  /// * `transformed_field_type`: the cell will be transformed to the is field type's cell data.
   /// current `TypeOption` field type.
   ///
   fn transform_type_option_cell(
     &self,
     _cell: &Cell,
-    _decoded_field_type: &FieldType,
+    transformed_field_type: &FieldType,
     _field: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {
     None

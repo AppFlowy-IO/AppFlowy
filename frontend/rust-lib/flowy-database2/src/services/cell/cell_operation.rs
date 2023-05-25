@@ -174,22 +174,22 @@ pub fn try_decode_cell_to_cell_data<T: Default + 'static>(
 ///
 /// * `cell_str`: the opaque cell string that can be decoded by corresponding structs that implement the
 /// `FromCellString` trait.
-/// * `decoded_field_type`: the field_type of the cell_str
-/// * `field_type`: use this field type's `TypeOption` to stringify this cell_str
+/// * `to_field_type`: the cell will be decoded to this field type's cell data.
+/// * `from_field_type`: the original field type of the passed-in cell data.
 /// * `field_rev`: used to get the corresponding TypeOption for the specified field type.
 ///
 /// returns: String
 pub fn stringify_cell_data(
   cell: &Cell,
-  decoded_field_type: &FieldType,
-  field_type: &FieldType,
+  to_field_type: &FieldType,
+  from_field_type: &FieldType,
   field: &Field,
 ) -> String {
   match TypeOptionCellExt::new_with_cell_data_cache(field, None)
-    .get_type_option_cell_data_handler(field_type)
+    .get_type_option_cell_data_handler(from_field_type)
   {
     None => "".to_string(),
-    Some(handler) => handler.stringify_cell_str(cell, decoded_field_type, field),
+    Some(handler) => handler.stringify_cell_str(cell, to_field_type, field),
   }
 }
 
@@ -312,17 +312,17 @@ where
 //     }
 // }
 
-pub struct CellBuilder {
+pub struct CellBuilder<'a> {
   cells: Cells,
-  field_maps: HashMap<String, Field>,
+  field_maps: HashMap<String, &'a Field>,
 }
 
-impl CellBuilder {
-  pub fn with_cells(cell_by_field_id: HashMap<String, String>, fields: Vec<Field>) -> Self {
+impl<'a> CellBuilder<'a> {
+  pub fn with_cells(cell_by_field_id: HashMap<String, String>, fields: &'a [Field]) -> Self {
     let field_maps = fields
       .into_iter()
       .map(|field| (field.id.clone(), field))
-      .collect::<HashMap<String, Field>>();
+      .collect::<HashMap<String, &Field>>();
 
     let mut cells = Cells::new();
     for (field_id, cell_str) in cell_by_field_id {
