@@ -80,12 +80,16 @@ impl Default for AppFlowyServerProvider {
 }
 
 impl UserCloudServiceProvider for AppFlowyServerProvider {
-  /// When user login, the provider type is set by the [AuthType].
+  /// When user login, the provider type is set by the [AuthType] and save to disk for next use.
+  ///
   /// Each [AuthType] has a corresponding [ServerProviderType]. The [ServerProviderType] is used
   /// to create a new [AppFlowyServer] if it doesn't exist. Once the [ServerProviderType] is set,
   /// it will be used when user open the app again.
+  ///
   fn set_auth_type(&self, auth_type: AuthType) {
     let provider_type: ServerProviderType = auth_type.into();
+    *self.provider_type.write() = provider_type.clone();
+
     match KV::set_object(SERVER_PROVIDER_TYPE_KEY, provider_type.clone()) {
       Ok(_) => tracing::trace!("Update server provider type to: {:?}", provider_type),
       Err(e) => {
@@ -96,9 +100,12 @@ impl UserCloudServiceProvider for AppFlowyServerProvider {
 
   /// Returns the [UserAuthService] base on the current [ServerProviderType].
   /// Creates a new [AppFlowyServer] if it doesn't exist.
-  fn get_auth_service(&self, auth_type: &AuthType) -> Result<Arc<dyn UserAuthService>, FlowyError> {
-    let provider_type: ServerProviderType = auth_type.into();
-    Ok(self.get_provider(&provider_type)?.user_service())
+  fn get_auth_service(&self) -> Result<Arc<dyn UserAuthService>, FlowyError> {
+    Ok(
+      self
+        .get_provider(&self.provider_type.read())?
+        .user_service(),
+    )
   }
 }
 
@@ -129,7 +136,6 @@ fn server_from_auth_type(
       Ok(server)
     },
     ServerProviderType::Supabase => {
-      // init the SupabaseServerConfiguration from the environment variables.
       let config = SupabaseConfiguration::from_env()?;
       let server = Arc::new(SupabaseServer::new(config));
       Ok(server)

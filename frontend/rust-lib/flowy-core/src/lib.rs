@@ -21,7 +21,7 @@ use flowy_sqlite::kv::KV;
 use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::entities::UserProfile;
 use flowy_user::event_map::{UserCloudServiceProvider, UserStatusCallback};
-use flowy_user::services::{UserSession, UserSessionConfig};
+use flowy_user::services::{AuthType, UserSession, UserSessionConfig};
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::tokio_default_runtime;
 use lib_infra::future::{to_fut, Fut};
@@ -143,9 +143,9 @@ impl AppFlowyCore {
     let server_provider = Arc::new(AppFlowyServerProvider::new());
     /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
     /// on demand based on the [CollabPluginConfig].
-    let cloud_storage_type =
-      collab_storage_type_from_server_provider_type(&server_provider.provider_type());
-    let collab_builder = Arc::new(AppFlowyCollabBuilder::new(cloud_storage_type));
+    let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
+      server_provider.provider_type().into(),
+    ));
 
     let (user_session, folder_manager, server_provider, database_manager, document_manager2) =
       runtime.block_on(async {
@@ -181,19 +181,16 @@ impl AppFlowyCore {
         )
       });
 
-    let user_status_listener = UserStatusListener {
+    let user_status_listener = UserStatusCallbackImpl {
+      collab_builder,
       folder_manager: folder_manager.clone(),
       database_manager: database_manager.clone(),
       config: config.clone(),
     };
 
-    let user_status_callback = UserStatusCallbackImpl {
-      listener: Arc::new(user_status_listener),
-    };
-
     let cloned_user_session = user_session.clone();
     runtime.block_on(async move {
-      cloned_user_session.clone().init(user_status_callback).await;
+      cloned_user_session.clone().init(user_status_listener).await;
     });
 
     let event_dispatcher = Arc::new(AFPluginDispatcher::construct(runtime, || {
@@ -247,79 +244,71 @@ fn mk_user_session(
   Arc::new(UserSession::new(user_config, user_cloud_service_provider))
 }
 
-struct UserStatusListener {
+struct UserStatusCallbackImpl {
+  collab_builder: Arc<AppFlowyCollabBuilder>,
   folder_manager: Arc<Folder2Manager>,
   database_manager: Arc<DatabaseManager2>,
   #[allow(dead_code)]
   config: AppFlowyCoreConfig,
 }
 
-impl UserStatusListener {
-  async fn did_sign_in(&self, user_id: i64, workspace_id: &str) -> FlowyResult<()> {
-    self
-      .folder_manager
-      .initialize(user_id, workspace_id)
-      .await?;
-    self.database_manager.initialize(user_id).await?;
-    Ok(())
-  }
-
-  async fn did_sign_up(&self, user_profile: &UserProfile) -> FlowyResult<()> {
-    self
-      .folder_manager
-      .initialize_with_new_user(
-        user_profile.id,
-        &user_profile.token,
-        &user_profile.workspace_id,
-      )
-      .await?;
-
-    self
-      .database_manager
-      .initialize_with_new_user(user_profile.id, &user_profile.token)
-      .await?;
-
-    Ok(())
-  }
-
-  async fn did_expired(&self, _token: &str, user_id: i64) -> FlowyResult<()> {
-    self.folder_manager.clear(user_id).await;
-    Ok(())
-  }
-}
-
-struct UserStatusCallbackImpl {
-  listener: Arc<UserStatusListener>,
-}
-
 impl UserStatusCallback for UserStatusCallbackImpl {
+  fn auth_type_did_changed(&self, auth_type: AuthType) {
+    let provider_type: ServerProviderType = auth_type.into();
+    self
+      .collab_builder
+      .set_cloud_storage_type(provider_type.into());
+  }
+
   fn did_sign_in(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>> {
-    let listener = self.listener.clone();
     let user_id = user_id.to_owned();
     let workspace_id = workspace_id.to_owned();
-    to_fut(async move { listener.did_sign_in(user_id, &workspace_id).await })
+    let folder_manager = self.folder_manager.clone();
+    let database_manager = self.database_manager.clone();
+
+    to_fut(async move {
+      folder_manager.initialize(user_id, &workspace_id).await?;
+      database_manager.initialize(user_id).await?;
+      Ok(())
+    })
   }
 
   fn did_sign_up(&self, user_profile: &UserProfile) -> Fut<FlowyResult<()>> {
-    let listener = self.listener.clone();
     let user_profile = user_profile.clone();
-    to_fut(async move { listener.did_sign_up(&user_profile).await })
+    let folder_manager = self.folder_manager.clone();
+    let database_manager = self.database_manager.clone();
+    to_fut(async move {
+      folder_manager
+        .initialize_with_new_user(
+          user_profile.id,
+          &user_profile.token,
+          &user_profile.workspace_id,
+        )
+        .await?;
+
+      database_manager
+        .initialize_with_new_user(user_profile.id, &user_profile.token)
+        .await?;
+
+      Ok(())
+    })
   }
 
-  fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>> {
-    let listener = self.listener.clone();
-    let token = token.to_owned();
-    let user_id = user_id.to_owned();
-    to_fut(async move { listener.did_expired(&token, user_id).await })
+  fn did_expired(&self, _token: &str, user_id: i64) -> Fut<FlowyResult<()>> {
+    let folder_manager = self.folder_manager.clone();
+    to_fut(async move {
+      folder_manager.clear(user_id).await;
+      Ok(())
+    })
   }
 }
 
-fn collab_storage_type_from_server_provider_type(
-  server_provider_type: &ServerProviderType,
-) -> CloudStorageType {
-  match server_provider_type {
-    ServerProviderType::Local => CloudStorageType::Local,
-    ServerProviderType::SelfHosted => CloudStorageType::Local,
-    ServerProviderType::Supabase => CloudStorageType::Supabase,
+impl From<ServerProviderType> for CloudStorageType {
+  fn from(server_provider: ServerProviderType) -> Self {
+    match server_provider {
+      ServerProviderType::Local => CloudStorageType::Local,
+      ServerProviderType::SelfHosted => CloudStorageType::Local,
+      ServerProviderType::Supabase => CloudStorageType::Supabase,
+    }
   }
 }
