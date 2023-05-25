@@ -12,7 +12,6 @@ dependencies:
     sdk: flutter
   time: '>=2.0.0'
   uuid: ">=2.2.2"
-  textstyle_extensions: '2.0.0-nullsafety'
   flutter_svg: ^2.0.6
 
 dev_dependencies:
