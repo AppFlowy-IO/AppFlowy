@@ -23,7 +23,7 @@ export const useWorkspace = () => {
       for (const app of apps) {
         appDispatch(foldersActions.addFolder({ id: app.id, title: app.name }));
 
-        const views = app.belongings;
+        const views = app.child_views;
         for (const view of views) {
           appDispatch(pagesActions.addPage({ folderId: app.id, id: view.id, pageType: view.layout, title: view.name }));
         }

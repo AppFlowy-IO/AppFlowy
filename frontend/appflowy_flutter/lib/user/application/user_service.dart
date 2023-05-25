@@ -1,10 +1,10 @@
 import 'dart:async';
 
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:fixnum/fixnum.dart';
 
 class UserBackendService {
@@ -14,8 +14,10 @@ class UserBackendService {
 
   final Int64 userId;
 
-  static Future<Either<UserProfilePB, FlowyError>> getCurrentUserProfile() {
-    return UserEventGetUserProfile().send();
+  static Future<Either<FlowyError, UserProfilePB>>
+      getCurrentUserProfile() async {
+    final result = await UserEventGetUserProfile().send();
+    return result.swap();
   }
 
   Future<Either<Unit, FlowyError>> updateUserProfile({
@@ -56,8 +58,9 @@ class UserBackendService {
     throw UnimplementedError();
   }
 
-  Future<Either<Unit, FlowyError>> signOut() {
-    return UserEventSignOut().send();
+  Future<Either<Unit, FlowyError>> signOut(AuthTypePB authType) {
+    final payload = SignOutPB()..authType = authType;
+    return UserEventSignOut(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> initUser() async {

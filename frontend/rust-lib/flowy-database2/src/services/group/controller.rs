@@ -10,7 +10,7 @@ use serde::Serialize;
 use flowy_error::FlowyResult;
 
 use crate::entities::{FieldType, GroupChangesetPB, GroupRowsNotificationPB, InsertedRowPB};
-use crate::services::cell::{get_type_cell_protobuf, CellProtobufBlobParser, DecodedCellData};
+use crate::services::cell::{get_cell_protobuf, CellProtobufBlobParser, DecodedCellData};
 use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerActions, GroupCustomize,
 };
@@ -228,7 +228,7 @@ where
 
       if let Some(cell) = cell {
         let mut grouped_rows: Vec<GroupedRow> = vec![];
-        let cell_bytes = get_type_cell_protobuf(&cell, field, None);
+        let cell_bytes = get_cell_protobuf(&cell, field, None);
         let cell_data = cell_bytes.parser::<P>()?;
         for group in self.group_ctx.groups() {
           if self.can_group(&group.filter_content, &cell_data) {
@@ -311,7 +311,7 @@ where
       row_changesets: vec![],
     };
     if let Some(cell) = row.cells.get(&self.grouping_field_id) {
-      let cell_bytes = get_type_cell_protobuf(cell, field, None);
+      let cell_bytes = get_cell_protobuf(cell, field, None);
       let cell_data = cell_bytes.parser::<P>()?;
       if !cell_data.is_empty() {
         tracing::error!("did_delete_delete_row {:?}", cell);
@@ -349,7 +349,7 @@ where
     };
 
     if let Some(cell) = cell_rev {
-      let cell_bytes = get_type_cell_protobuf(&cell, context.field, None);
+      let cell_bytes = get_cell_protobuf(&cell, context.field, None);
       let cell_data = cell_bytes.parser::<P>()?;
       result.deleted_group = self.delete_group_when_move_row(context.row, &cell_data);
       result.row_changesets = self.move_row(&cell_data, context);
@@ -374,6 +374,6 @@ fn get_cell_data_from_row<P: CellProtobufBlobParser>(
   field: &Field,
 ) -> Option<P::Object> {
   let cell = row.and_then(|row| row.cells.get(&field.id))?;
-  let cell_bytes = get_type_cell_protobuf(cell, field, None);
+  let cell_bytes = get_cell_protobuf(cell, field, None);
   cell_bytes.parser::<P>().ok()
 }

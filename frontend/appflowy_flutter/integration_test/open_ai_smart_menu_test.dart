@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/presentation/plugins/openai/service/openai_client.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -29,7 +29,7 @@ class TextCellDataPersistence implements CellDataPersistence<String> {
 @freezed
 class DateCellData with _$DateCellData {
   const factory DateCellData({
-    required DateTime date,
+    DateTime? dateTime,
     String? time,
     required bool includeTime,
   }) = _DateCellData;
@@ -44,20 +44,14 @@ class DateCellDataPersistence implements CellDataPersistence<DateCellData> {
   @override
   Future<Option<FlowyError>> save(DateCellData data) {
     var payload = DateChangesetPB.create()..cellPath = _makeCellPath(cellId);
-
-    // This is a bit of a hack. This converts the data.date which is in
-    // UTC to Local but actually changes the timestamp instead of just
-    // changing the isUtc flag
-    final dateTime = DateTime(data.date.year, data.date.month, data.date.day);
-
-    final date = (dateTime.millisecondsSinceEpoch ~/ 1000).toString();
-    payload.date = date;
-    payload.isUtc = data.date.isUtc;
-    payload.includeTime = data.includeTime;
-
+    if (data.dateTime != null) {
+      final date = (data.dateTime!.millisecondsSinceEpoch ~/ 1000).toString();
+      payload.date = date;
+    }
     if (data.time != null) {
       payload.time = data.time!;
     }
+    payload.includeTime = data.includeTime;
 
     return DatabaseEventUpdateDateCell(payload).send().then((result) {
       return result.fold(

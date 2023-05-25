@@ -1,20 +1,20 @@
-use crate::entities::{ViewPB, WorkspacePB};
+use std::collections::HashMap;
 
-use crate::view_ext::{gen_view_id, ViewDataProcessorMap};
 use chrono::Utc;
 use collab_folder::core::{Belonging, Belongings, FolderData, View, ViewLayout, Workspace};
-use flowy_document::editor::initial_read_me;
 use nanoid::nanoid;
-use std::collections::HashMap;
+
+use crate::entities::{view_pb_with_child_views, WorkspacePB};
+use crate::view_ext::{gen_view_id, ViewDataProcessorMap};
 
 pub struct DefaultFolderBuilder();
 impl DefaultFolderBuilder {
   pub async fn build(
     uid: i64,
+    workspace_id: String,
     view_processors: &ViewDataProcessorMap,
   ) -> (FolderData, WorkspacePB) {
     let time = Utc::now().timestamp();
-    let workspace_id = gen_workspace_id();
     let view_id = gen_view_id();
     let child_view_id = gen_view_id();
 
@@ -31,14 +31,14 @@ impl DefaultFolderBuilder {
     };
 
     // create the document
-    let data = initial_read_me().into_bytes();
+    // TODO: use the initial data from the view processor
+    // let data = initial_read_me().into_bytes();
     let processor = view_processors.get(&child_view_layout).unwrap();
     processor
-      .create_view_with_custom_data(
+      .create_view_with_built_in_data(
         uid,
         &child_view.id,
         &child_view.name,
-        data,
         child_view_layout.clone(),
         HashMap::default(),
       )
@@ -92,10 +92,7 @@ fn workspace_pb_from_workspace(
   view: &View,
   child_view: &View,
 ) -> WorkspacePB {
-  let child_view_pb: ViewPB = child_view.clone().into();
-  let mut view_pb: ViewPB = view.clone().into();
-  view_pb.belongings.push(child_view_pb);
-
+  let view_pb = view_pb_with_child_views(view.clone(), vec![child_view.clone()]);
   WorkspacePB {
     id: workspace.id.clone(),
     name: workspace.name.clone(),

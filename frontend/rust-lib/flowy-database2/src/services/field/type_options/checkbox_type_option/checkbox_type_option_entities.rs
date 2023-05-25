@@ -1,12 +1,15 @@
-use crate::entities::FieldType;
-use crate::services::cell::{CellProtobufBlobParser, DecodedCellData, FromCellString};
-use crate::services::field::CELL_DATE;
+use std::str::FromStr;
+
 use bytes::Bytes;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::{new_cell_builder, Cell};
-use flowy_error::{FlowyError, FlowyResult};
 use protobuf::ProtobufError;
-use std::str::FromStr;
+
+use flowy_error::{FlowyError, FlowyResult};
+
+use crate::entities::FieldType;
+use crate::services::cell::{CellProtobufBlobParser, DecodedCellData, FromCellString};
+use crate::services::field::CELL_DATA;
 
 pub const CHECK: &str = "Yes";
 pub const UNCHECK: &str = "No";
@@ -36,7 +39,7 @@ impl AsRef<[u8]> for CheckboxCellData {
 
 impl From<&Cell> for CheckboxCellData {
   fn from(cell: &Cell) -> Self {
-    let value = cell.get_str_value(CELL_DATE).unwrap_or_default();
+    let value = cell.get_str_value(CELL_DATA).unwrap_or_default();
     CheckboxCellData::from_cell_str(&value).unwrap_or_default()
   }
 }
@@ -44,7 +47,7 @@ impl From<&Cell> for CheckboxCellData {
 impl From<CheckboxCellData> for Cell {
   fn from(data: CheckboxCellData) -> Self {
     new_cell_builder(FieldType::Checkbox)
-      .insert_str_value(CELL_DATE, data.to_string())
+      .insert_str_value(CELL_DATA, data.to_string())
       .build()
   }
 }

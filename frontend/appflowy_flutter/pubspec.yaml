@@ -15,7 +15,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.1.2
+version: 0.1.5
 
 environment:
   sdk: ">=2.19.0 <3.0.0"
@@ -42,7 +42,12 @@ dependencies:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
       ref: a183c57
-  appflowy_editor: ^0.1.9
+  # appflowy_editor: ^0.1.9
+  appflowy_editor:
+    # path: /Users/lucas.xu/Desktop/appflowy-editor
+    git:
+      url: https://github.com/LucasXu0/appflowy-editor.git
+      ref: 25eb16
   appflowy_popover:
     path: packages/appflowy_popover
 
@@ -101,6 +106,9 @@ dependencies:
   mocktail: ^0.3.0
   archive: ^3.3.0
   flutter_svg: ^2.0.5
+  nanoid: ^1.0.0
+  supabase_flutter: ^1.9.1
+  envied: ^0.3.0+3
 
 dev_dependencies:
   flutter_lints: ^2.0.1
@@ -109,10 +117,11 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
-  build_runner: ^2.2.0
+  build_runner: ^2.3.3
   freezed: ^2.1.0+1
   bloc_test: ^9.0.2
   json_serializable: ^6.5.4
+  envied_generator: ^0.3.0+3
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -167,10 +176,12 @@ flutter:
     - assets/images/emoji/
     - assets/images/grid/field/
     - assets/images/common/
+    - assets/images/login/
     - assets/images/grid/setting/
     - assets/translations/
 
     # The following assets will be excluded in release.
     # BEGIN: EXCLUDE_IN_RELEASE
     - assets/test/workspaces/
+    - assets/template/
     # END: EXCLUDE_IN_RELEASE

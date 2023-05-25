@@ -1,9 +1,13 @@
-use collab_persistence::kv::rocks_kv::RocksCollabDB;
-use flowy_document2::manager::DocumentUser;
-use parking_lot::Once;
+use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CloudStorageType};
+
 use std::sync::Arc;
+
+use appflowy_integrate::RocksCollabDB;
+use parking_lot::Once;
 use tempfile::TempDir;
 use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
+
+use flowy_document2::manager::DocumentUser;
 
 pub struct FakeUser {
   kv: Arc<RocksCollabDB>,
@@ -20,11 +24,11 @@ impl DocumentUser for FakeUser {
     Ok(1)
   }
 
-  fn token(&self) -> Result<String, flowy_error::FlowyError> {
-    Ok("1".to_string())
+  fn token(&self) -> Result<Option<String>, flowy_error::FlowyError> {
+    Ok(None)
   }
 
-  fn kv_db(&self) -> Result<std::sync::Arc<RocksCollabDB>, flowy_error::FlowyError> {
+  fn collab_db(&self) -> Result<std::sync::Arc<RocksCollabDB>, flowy_error::FlowyError> {
     Ok(self.kv.clone())
   }
 }
@@ -43,4 +47,9 @@ pub fn db() -> Arc<RocksCollabDB> {
   let tempdir = TempDir::new().unwrap();
   let path = tempdir.into_path();
   Arc::new(RocksCollabDB::open(path).unwrap())
+}
+
+pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
+  let builder = AppFlowyCollabBuilder::new(CloudStorageType::Local);
+  Arc::new(builder)
 }

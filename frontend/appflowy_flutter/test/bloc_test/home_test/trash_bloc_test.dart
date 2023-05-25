@@ -43,7 +43,7 @@ class TrashTestContext {
     );
     await blocResponseFuture();
 
-    allViews = [...appBloc.state.view.belongings];
+    allViews = [...appBloc.state.view.childViews];
     assert(allViews.length == 3, 'but receive ${allViews.length}');
   }
 }
@@ -68,17 +68,17 @@ void main() {
       await blocResponseFuture(millisecond: 200);
 
       // delete a view
-      final deletedView = context.appBloc.state.view.belongings[0];
+      final deletedView = context.appBloc.state.view.childViews[0];
       context.appBloc.add(AppEvent.deleteView(deletedView.id));
       await blocResponseFuture();
-      assert(context.appBloc.state.view.belongings.length == 2);
+      assert(context.appBloc.state.view.childViews.length == 2);
       assert(trashBloc.state.objects.length == 1);
       assert(trashBloc.state.objects.first.id == deletedView.id);
 
       // put back
       trashBloc.add(TrashEvent.putback(deletedView.id));
       await blocResponseFuture();
-      assert(context.appBloc.state.view.belongings.length == 3);
+      assert(context.appBloc.state.view.childViews.length == 3);
       assert(trashBloc.state.objects.isEmpty);
 
       // delete all views

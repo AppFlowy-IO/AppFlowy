@@ -30,7 +30,7 @@ abstract class RowCacheDelegate {
 class RowCache {
   final String viewId;
 
-  /// _rows containers the current block's rows
+  /// _rows contains the current block's rows
   /// Use List to reverse the order of the GridRow.
   final RowList _rowList = RowList();
 

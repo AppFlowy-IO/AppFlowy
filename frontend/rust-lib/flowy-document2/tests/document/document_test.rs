@@ -1,16 +1,18 @@
 use std::{collections::HashMap, sync::Arc, vec};
 
 use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
-use flowy_document2::{document::DocumentDataWrapper, manager::DocumentManager};
 use nanoid::nanoid;
 use serde_json::{json, to_value, Value};
+
+use crate::document::util::default_collab_builder;
+use flowy_document2::{document_data::DocumentDataWrapper, manager::DocumentManager};
 
 use super::util::FakeUser;
 
 #[test]
 fn restore_document() {
   let user = FakeUser::new();
-  let manager = DocumentManager::new(Arc::new(user));
+  let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
 
   // create a document
   let doc_id: String = nanoid!(10);
@@ -50,7 +52,7 @@ fn restore_document() {
 #[test]
 fn document_apply_insert_action() {
   let user = FakeUser::new();
-  let manager = DocumentManager::new(Arc::new(user));
+  let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
 
   let doc_id: String = nanoid!(10);
   let data = DocumentDataWrapper::default();
@@ -101,7 +103,7 @@ fn document_apply_insert_action() {
 #[test]
 fn document_apply_update_page_action() {
   let user = FakeUser::new();
-  let manager = DocumentManager::new(Arc::new(user));
+  let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
 
   let doc_id: String = nanoid!(10);
   let data = DocumentDataWrapper::default();
@@ -143,7 +145,7 @@ fn document_apply_update_page_action() {
 #[test]
 fn document_apply_update_action() {
   let user = FakeUser::new();
-  let manager = DocumentManager::new(Arc::new(user));
+  let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
 
   let doc_id: String = nanoid!(10);
   let data = DocumentDataWrapper::default();

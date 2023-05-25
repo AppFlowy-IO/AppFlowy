@@ -4,7 +4,7 @@ use std::fmt::Debug;
 use collab_database::fields::Field;
 use collab_database::rows::{get_field_type_from_cell, Cell, Cells};
 
-use flowy_error::{ErrorCode, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
 use crate::entities::FieldType;
 use crate::services::cell::{CellCache, CellProtobufBlob};
@@ -58,25 +58,23 @@ pub trait CellDataChangeset: TypeOption {
 ///         FieldType::SingleSelect => SelectOptionChangeset
 ///
 /// cell_rev: It will be None if the cell does not contain any data.
-pub fn apply_cell_data_changeset<C: ToCellChangeset>(
+pub fn apply_cell_changeset<C: ToCellChangeset>(
   changeset: C,
   cell: Option<Cell>,
   field: &Field,
   cell_data_cache: Option<CellCache>,
-) -> Cell {
+) -> Result<Cell, FlowyError> {
   let changeset = changeset.to_cell_changeset_str();
   let field_type = FieldType::from(field.field_type);
   match TypeOptionCellExt::new_with_cell_data_cache(field, cell_data_cache)
     .get_type_option_cell_data_handler(&field_type)
   {
-    None => Cell::default(),
-    Some(handler) => handler
-      .handle_cell_changeset(changeset, cell, field)
-      .unwrap_or_default(),
+    None => Ok(Cell::default()),
+    Some(handler) => Ok(handler.handle_cell_changeset(changeset, cell, field)?),
   }
 }
 
-pub fn get_type_cell_protobuf(
+pub fn get_cell_protobuf(
   cell: &Cell,
   field: &Field,
   cell_cache: Option<CellCache>,
@@ -101,25 +99,6 @@ pub fn get_type_cell_protobuf(
       CellProtobufBlob::default()
     },
   }
-}
-
-pub fn get_type_cell_data<Output>(
-  cell: &Cell,
-  field: &Field,
-  cell_data_cache: Option<CellCache>,
-) -> Option<Output>
-where
-  Output: Default + 'static,
-{
-  let from_field_type = get_field_type_from_cell(cell)?;
-  let to_field_type = FieldType::from(field.field_type);
-  try_decode_cell_to_cell_data(
-    cell,
-    &from_field_type,
-    &to_field_type,
-    field,
-    cell_data_cache,
-  )
 }
 
 /// Decode the opaque cell data from one field type to another using the corresponding `TypeOption`
@@ -176,31 +155,31 @@ pub fn try_decode_cell_to_cell_data<T: Default + 'static>(
 ///
 /// * `cell_str`: the opaque cell string that can be decoded by corresponding structs that implement the
 /// `FromCellString` trait.
-/// * `decoded_field_type`: the field_type of the cell_str
-/// * `field_type`: use this field type's `TypeOption` to stringify this cell_str
+/// * `to_field_type`: the cell will be decoded to this field type's cell data.
+/// * `from_field_type`: the original field type of the passed-in cell data.
 /// * `field_rev`: used to get the corresponding TypeOption for the specified field type.
 ///
 /// returns: String
 pub fn stringify_cell_data(
   cell: &Cell,
-  decoded_field_type: &FieldType,
-  field_type: &FieldType,
+  to_field_type: &FieldType,
+  from_field_type: &FieldType,
   field: &Field,
 ) -> String {
   match TypeOptionCellExt::new_with_cell_data_cache(field, None)
-    .get_type_option_cell_data_handler(field_type)
+    .get_type_option_cell_data_handler(from_field_type)
   {
     None => "".to_string(),
-    Some(handler) => handler.stringify_cell_str(cell, decoded_field_type, field),
+    Some(handler) => handler.stringify_cell_str(cell, to_field_type, field),
   }
 }
 
 pub fn insert_text_cell(s: String, field: &Field) -> Cell {
-  apply_cell_data_changeset(s, None, field, None)
+  apply_cell_changeset(s, None, field, None).unwrap()
 }
 
 pub fn insert_number_cell(num: i64, field: &Field) -> Cell {
-  apply_cell_data_changeset(num.to_string(), None, field, None)
+  apply_cell_changeset(num.to_string(), None, field, None).unwrap()
 }
 
 pub fn insert_url_cell(url: String, field: &Field) -> Cell {
@@ -214,7 +193,7 @@ pub fn insert_url_cell(url: String, field: &Field) -> Cell {
     _ => url,
   };
 
-  apply_cell_data_changeset(url, None, field, None)
+  apply_cell_changeset(url, None, field, None).unwrap()
 }
 
 pub fn insert_checkbox_cell(is_check: bool, field: &Field) -> Cell {
@@ -223,7 +202,7 @@ pub fn insert_checkbox_cell(is_check: bool, field: &Field) -> Cell {
   } else {
     UNCHECK.to_string()
   };
-  apply_cell_data_changeset(s, None, field, None)
+  apply_cell_changeset(s, None, field, None).unwrap()
 }
 
 pub fn insert_date_cell(timestamp: i64, field: &Field) -> Cell {
@@ -231,22 +210,22 @@ pub fn insert_date_cell(timestamp: i64, field: &Field) -> Cell {
     date: Some(timestamp.to_string()),
     time: None,
     include_time: Some(false),
-    is_utc: true,
+    timezone_id: None,
   })
   .unwrap();
-  apply_cell_data_changeset(cell_data, None, field, None)
+  apply_cell_changeset(cell_data, None, field, None).unwrap()
 }
 
 pub fn insert_select_option_cell(option_ids: Vec<String>, field: &Field) -> Cell {
   let changeset =
     SelectOptionCellChangeset::from_insert_options(option_ids).to_cell_changeset_str();
-  apply_cell_data_changeset(changeset, None, field, None)
+  apply_cell_changeset(changeset, None, field, None).unwrap()
 }
 
 pub fn delete_select_option_cell(option_ids: Vec<String>, field: &Field) -> Cell {
   let changeset =
     SelectOptionCellChangeset::from_delete_options(option_ids).to_cell_changeset_str();
-  apply_cell_data_changeset(changeset, None, field, None)
+  apply_cell_changeset(changeset, None, field, None).unwrap()
 }
 
 /// Deserialize the String into cell specific data type.
@@ -314,17 +293,17 @@ where
 //     }
 // }
 
-pub struct CellBuilder {
+pub struct CellBuilder<'a> {
   cells: Cells,
-  field_maps: HashMap<String, Field>,
+  field_maps: HashMap<String, &'a Field>,
 }
 
-impl CellBuilder {
-  pub fn with_cells(cell_by_field_id: HashMap<String, String>, fields: Vec<Field>) -> Self {
+impl<'a> CellBuilder<'a> {
+  pub fn with_cells(cell_by_field_id: HashMap<String, String>, fields: &'a [Field]) -> Self {
     let field_maps = fields
       .into_iter()
       .map(|field| (field.id.clone(), field))
-      .collect::<HashMap<String, Field>>();
+      .collect::<HashMap<String, &Field>>();
 
     let mut cells = Cells::new();
     for (field_id, cell_str) in cell_by_field_id {

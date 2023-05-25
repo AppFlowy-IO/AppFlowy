@@ -151,7 +151,6 @@ class RowList {
       (rowInfo) => rowInfo.rowPB.id == rowId,
     );
     if (index != -1) {
-      assert(index == oldIndex);
       final rowInfo = remove(rowId)!.rowInfo;
       insert(newIndex, rowInfo);
     }

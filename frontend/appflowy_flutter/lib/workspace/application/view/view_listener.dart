@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:appflowy/core/folder_notification.dart';
+import 'package:appflowy/core/notification/folder_notification.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -79,8 +79,10 @@ class ViewListener {
     switch (ty) {
       case FolderNotification.DidUpdateView:
         result.fold(
-          (payload) =>
-              _updatedViewNotifier.value = left(ViewPB.fromBuffer(payload)),
+          (payload) {
+            final view = ViewPB.fromBuffer(payload);
+            _updatedViewNotifier.value = left(view);
+          },
           (error) => _updatedViewNotifier.value = right(error),
         );
         break;

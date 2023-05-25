@@ -1,21 +1,26 @@
 use std::collections::HashMap;
+use std::convert::TryFrom;
 use std::sync::Arc;
 
+use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
+use appflowy_integrate::RocksCollabDB;
 use bytes::Bytes;
-use collab_persistence::kv::rocks_kv::RocksCollabDB;
+
 use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
 use flowy_database2::DatabaseManager2;
-use flowy_document::editor::make_transaction_from_document_content;
-use flowy_document::DocumentManager;
+use flowy_document2::document_data::DocumentDataWrapper;
+use flowy_document2::entities::DocumentDataPB;
+use flowy_document2::manager::DocumentManager;
 use flowy_error::FlowyError;
+use flowy_folder2::deps::{FolderCloudService, FolderUser};
 use flowy_folder2::entities::ViewLayoutPB;
-use flowy_folder2::manager::{Folder2Manager, FolderUser};
+use flowy_folder2::manager::Folder2Manager;
 use flowy_folder2::view_ext::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder2::ViewLayout;
 use flowy_user::services::UserSession;
+use lib_dispatch::prelude::ToBytes;
 use lib_infra::future::FutureResult;
-use revision_model::Revision;
 
 pub struct Folder2DepsResolver();
 impl Folder2DepsResolver {
@@ -23,13 +28,15 @@ impl Folder2DepsResolver {
     user_session: Arc<UserSession>,
     document_manager: &Arc<DocumentManager>,
     database_manager: &Arc<DatabaseManager2>,
+    collab_builder: Arc<AppFlowyCollabBuilder>,
+    folder_cloud: Arc<dyn FolderCloudService>,
   ) -> Arc<Folder2Manager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl(user_session.clone()));
 
-    let view_data_processor =
+    let view_processors =
       make_view_data_processor(document_manager.clone(), database_manager.clone());
     Arc::new(
-      Folder2Manager::new(user.clone(), view_data_processor)
+      Folder2Manager::new(user.clone(), collab_builder, view_processors, folder_cloud)
         .await
         .unwrap(),
     )
@@ -61,40 +68,46 @@ impl FolderUser for FolderUserImpl {
       .map_err(|e| FlowyError::internal().context(e))
   }
 
-  fn token(&self) -> Result<String, FlowyError> {
+  fn token(&self) -> Result<Option<String>, FlowyError> {
     self
       .0
       .token()
       .map_err(|e| FlowyError::internal().context(e))
   }
 
-  fn kv_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
-    self.0.get_kv_db()
+  fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
+    self.0.get_collab_db()
   }
 }
 
 struct DocumentViewDataProcessor(Arc<DocumentManager>);
 impl ViewDataProcessor for DocumentViewDataProcessor {
+  /// Close the document view.
   fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      manager.close_document_editor(view_id).await?;
+      manager.close_document(view_id)?;
       Ok(())
     })
   }
 
+  /// Get the view data.
+  ///
+  /// only use in the duplicate view.
   fn get_view_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      let editor = manager.open_document_editor(view_id).await?;
-      let document_data = Bytes::from(editor.duplicate().await?);
-      Ok(document_data)
+      let document = manager.get_document(view_id)?;
+      let data: DocumentDataPB = DocumentDataWrapper(document.lock().get_document()?).into();
+      let data_bytes = data.into_bytes().map_err(|_| FlowyError::invalid_data())?;
+      Ok(Bytes::from(data_bytes))
     })
   }
 
-  fn create_view_with_build_in_data(
+  /// Create a view with built-in data.
+  fn create_view_with_built_in_data(
     &self,
     _user_id: i64,
     view_id: &str,
@@ -103,13 +116,12 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     _ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayout::Document);
+
     let view_id = view_id.to_string();
     let manager = self.0.clone();
-    let document_content = self.0.initial_document_content();
+    // TODO: implement read the document data from json.
     FutureResult::new(async move {
-      let delta_data = Bytes::from(document_content);
-      let revision = Revision::initial_revision(&view_id, delta_data);
-      manager.create_document(view_id, vec![revision]).await?;
+      manager.create_document(view_id, DocumentDataWrapper::default())?;
       Ok(())
     })
   }
@@ -124,20 +136,12 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     _ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayout::Document);
-    let view_data = match String::from_utf8(data) {
-      Ok(content) => match make_transaction_from_document_content(&content) {
-        Ok(transaction) => transaction.to_bytes().unwrap_or_else(|_| vec![]),
-        Err(_) => vec![],
-      },
-      Err(_) => vec![],
-    };
-
-    let revision = Revision::initial_revision(view_id, Bytes::from(view_data));
+    // TODO: implement read the document data from custom data.
     let view_id = view_id.to_string();
     let manager = self.0.clone();
-
     FutureResult::new(async move {
-      manager.create_document(view_id, vec![revision]).await?;
+      let data = DocumentDataPB::try_from(Bytes::from(data))?;
+      manager.create_document(view_id, data.into())?;
       Ok(())
     })
   }
@@ -167,7 +171,7 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
   /// If the ext contains the {"database_id": "xx"}, then it will link to
   /// the existing database. The data of the database will be shared within
   /// these references views.
-  fn create_view_with_build_in_data(
+  fn create_view_with_built_in_data(
     &self,
     _user_id: i64,
     view_id: &str,

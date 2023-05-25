@@ -47,7 +47,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         },
         appDidUpdate: (e) async {
           final latestCreatedView = state.latestCreatedView;
-          final views = e.app.belongings;
+          final views = e.app.childViews;
           AppState newState = state.copyWith(
             views: views,
             view: e.app,
@@ -108,13 +108,13 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       name: value.name,
       desc: value.desc ?? "",
       layoutType: value.pluginBuilder.layoutType!,
-      initialData: value.initialData,
+      initialDataBytes: value.initialDataBytes,
       ext: value.ext ?? {},
     );
     result.fold(
       (view) => emit(
         state.copyWith(
-          latestCreatedView: view,
+          latestCreatedView: value.openAfterCreated ? view : null,
           successOrFailure: left(unit),
         ),
       ),
@@ -151,10 +151,17 @@ class AppEvent with _$AppEvent {
     PluginBuilder pluginBuilder, {
     String? desc,
 
-    /// The initial data should be the JSON of the document
-    /// For example: {"document":{"type":"editor","children":[]}}
-    String? initialData,
+    /// ~~The initial data should be the JSON of the document~~
+    /// ~~For example: {"document":{"type":"editor","children":[]}}~~
+    ///
+    /// - Document:
+    ///   the initial data should be the string that can be converted into [DocumentDataPB]
+    ///
+    List<int>? initialDataBytes,
     Map<String, String>? ext,
+
+    /// open the view after created
+    @Default(true) bool openAfterCreated,
   }) = CreateView;
   const factory AppEvent.loadViews() = LoadApp;
   const factory AppEvent.delete() = DeleteApp;
@@ -174,7 +181,7 @@ class AppState with _$AppState {
 
   factory AppState.initial(ViewPB view) => AppState(
         view: view,
-        views: view.belongings,
+        views: view.childViews,
         successOrFailure: left(unit),
       );
 }

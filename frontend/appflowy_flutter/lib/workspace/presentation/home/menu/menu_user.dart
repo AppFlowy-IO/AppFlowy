@@ -1,4 +1,5 @@
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
@@ -45,8 +46,31 @@ class MenuUser extends StatelessWidget {
     String iconUrl = context.read<MenuUserBloc>().state.userProfile.iconUrl;
     if (iconUrl.isEmpty) {
       iconUrl = defaultUserAvatar;
+      final String name = context.read<MenuUserBloc>().state.userProfile.name;
+      final Color color = ColorGenerator().generateColorFromString(name);
+      const initialsCount = 2;
+      // Taking the first letters of the name components and limiting to 2 elements
+      final nameInitials = name
+          .split(' ')
+          .where((element) => element.isNotEmpty)
+          .take(initialsCount)
+          .map((element) => element[0].toUpperCase())
+          .join('');
+      return Container(
+        width: 28,
+        height: 28,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+        ),
+        child: FlowyText.semibold(
+          nameInitials,
+          color: Colors.white,
+          fontSize: nameInitials.length == initialsCount ? 12 : 14,
+        ),
+      );
     }
-
     return SizedBox(
       width: 25,
       height: 25,

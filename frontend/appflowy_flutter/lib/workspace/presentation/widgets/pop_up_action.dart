@@ -1,5 +1,5 @@
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart' hide WidgetBuilder;
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -11,6 +11,7 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
   final BoxConstraints constraints;
   final PopoverDirection direction;
   final Widget Function(PopoverController) buildChild;
+  final VoidCallback? onPopupBuilder;
   final VoidCallback? onClosed;
   final bool asBarrier;
   final Offset offset;
@@ -21,6 +22,7 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
     required this.onSelected,
     this.mutex,
     this.onClosed,
+    this.onPopupBuilder,
     this.direction = PopoverDirection.rightWithTopAligned,
     this.asBarrier = false,
     this.offset = Offset.zero,
@@ -60,6 +62,7 @@ class _PopoverActionListState<T extends PopoverAction>
       triggerActions: PopoverTriggerFlags.none,
       onClose: widget.onClosed,
       popupBuilder: (BuildContext popoverContext) {
+        widget.onPopupBuilder?.call();
         final List<Widget> children = widget.actions.map((action) {
           if (action is ActionCell) {
             return ActionCellWidget<T>(
@@ -68,6 +71,13 @@ class _PopoverActionListState<T extends PopoverAction>
               onSelected: (action) {
                 widget.onSelected(action, popoverController);
               },
+            );
+          } else if (action is PopoverActionCell) {
+            return PopoverActionCellWidget<T>(
+              mutex: widget.mutex,
+              // popoverController: popoverController,
+              action: action,
+              itemHeight: ActionListSizes.itemHeight,
             );
           } else {
             final custom = action as CustomActionCell;
@@ -92,6 +102,15 @@ abstract class ActionCell extends PopoverAction {
   Widget? leftIcon(Color iconColor) => null;
   Widget? rightIcon(Color iconColor) => null;
   String get name;
+}
+
+abstract class PopoverActionCell extends PopoverAction {
+  Widget? leftIcon(Color iconColor) => null;
+  Widget? rightIcon(Color iconColor) => null;
+  String get name;
+
+  Widget Function(BuildContext context, PopoverController controller)
+      get builder;
 }
 
 abstract class CustomActionCell extends PopoverAction {
@@ -127,27 +146,95 @@ class ActionCellWidget<T extends PopoverAction> extends StatelessWidget {
     final rightIcon =
         actionCell.rightIcon(Theme.of(context).colorScheme.onSurface);
 
+    return _HoverButton(
+      itemHeight: itemHeight,
+      leftIcon: leftIcon,
+      rightIcon: rightIcon,
+      name: actionCell.name,
+      onTap: () => onSelected(action),
+    );
+  }
+}
+
+class PopoverActionCellWidget<T extends PopoverAction> extends StatelessWidget {
+  PopoverActionCellWidget({
+    Key? key,
+    this.mutex,
+    // required this.popoverController,
+    required this.action,
+    required this.itemHeight,
+  }) : super(key: key);
+
+  final T action;
+  final double itemHeight;
+
+  final PopoverMutex? mutex;
+  final PopoverController popoverController = PopoverController();
+
+  @override
+  Widget build(BuildContext context) {
+    final actionCell = action as PopoverActionCell;
+    final leftIcon =
+        actionCell.leftIcon(Theme.of(context).colorScheme.onSurface);
+    final rightIcon =
+        actionCell.rightIcon(Theme.of(context).colorScheme.onSurface);
+    return AppFlowyPopover(
+      // mutex: mutex,
+      controller: popoverController,
+      asBarrier: true,
+      popupBuilder: (context) => actionCell.builder(
+        context,
+        popoverController,
+      ),
+      child: _HoverButton(
+        itemHeight: itemHeight,
+        leftIcon: leftIcon,
+        rightIcon: rightIcon,
+        name: actionCell.name,
+        onTap: () => popoverController.show(),
+      ),
+    );
+  }
+}
+
+class _HoverButton extends StatelessWidget {
+  const _HoverButton({
+    required this.onTap,
+    required this.itemHeight,
+    required this.leftIcon,
+    required this.name,
+    required this.rightIcon,
+  });
+
+  final VoidCallback onTap;
+  final double itemHeight;
+  final Widget? leftIcon;
+  final Widget? rightIcon;
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
     return FlowyHover(
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => onSelected(action),
+        onTap: onTap,
         child: SizedBox(
           height: itemHeight,
           child: Row(
             children: [
               if (leftIcon != null) ...[
-                leftIcon,
+                leftIcon!,
                 HSpace(ActionListSizes.itemHPadding)
               ],
               Expanded(
                 child: FlowyText.medium(
-                  actionCell.name,
+                  name,
                   overflow: TextOverflow.visible,
                 ),
               ),
               if (rightIcon != null) ...[
                 HSpace(ActionListSizes.itemHPadding),
-                rightIcon,
+                rightIcon!,
               ],
             ],
           ),

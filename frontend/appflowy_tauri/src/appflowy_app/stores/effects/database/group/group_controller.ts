@@ -1,9 +1,9 @@
-import { DatabaseNotification, FlowyError, GroupPB, GroupRowsNotificationPB, RowPB } from '@/services/backend';
-import { ChangeNotifier } from '$app/utils/change_notifier';
-import { None, Ok, Option, Result, Some } from 'ts-results';
-import { DatabaseNotificationObserver } from '../notifications/observer';
-import { Log } from '$app/utils/log';
-import { DatabaseBackendService } from '../database_bd_svc';
+import { DatabaseNotification, FlowyError, GroupPB, GroupRowsNotificationPB, RowPB } from "@/services/backend";
+import { ChangeNotifier } from "$app/utils/change_notifier";
+import { None, Ok, Option, Result, Some } from "ts-results";
+import { DatabaseNotificationObserver } from "../notifications/observer";
+import { Log } from "$app/utils/log";
+import { DatabaseBackendService } from "../database_bd_svc";
 
 export type GroupDataCallbacks = {
   onRemoveRow: (groupId: string, rowId: string) => void;
@@ -83,7 +83,7 @@ export class DatabaseGroupController {
         } else {
           Log.error(result.val);
         }
-      },
+      }
     });
   };
 
@@ -111,11 +111,12 @@ class GroupDataObserver {
   private notifier?: ChangeNotifier<Result<GroupRowsNotificationPB, FlowyError>>;
   private listener?: DatabaseNotificationObserver;
 
-  constructor(public readonly groupId: string) {}
+  constructor(public readonly groupId: string) {
+  }
 
   subscribe = async (callbacks: { onRowsChanged: GroupRowsSubscribeCallback }) => {
     this.notifier = new ChangeNotifier();
-    this.notifier?.observer.subscribe(callbacks.onRowsChanged);
+    this.notifier?.observer?.subscribe(callbacks.onRowsChanged);
 
     this.listener = new DatabaseNotificationObserver({
       id: this.groupId,
@@ -131,7 +132,7 @@ class GroupDataObserver {
           default:
             break;
         }
-      },
+      }
     });
     await this.listener.start();
   };

@@ -10,7 +10,6 @@ lazy_static! {
   pub static ref CURRENCY_SYMBOL: Vec<String> = NumberFormat::iter()
     .map(|format| format.symbol())
     .collect::<Vec<String>>();
-  pub static ref STRIP_SYMBOL: Vec<String> = vec![",".to_owned(), ".".to_owned()];
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, EnumIter, Serialize, Deserialize)]

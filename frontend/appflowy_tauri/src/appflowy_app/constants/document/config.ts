@@ -1,44 +1,9 @@
-import { BlockData, BlockType } from '$app/interfaces/document';
+import { BlockConfig, BlockType, SplitRelationship, TextAction, TextActionMenuProps } from '$app/interfaces/document';
 
-export enum SplitRelationship {
-  NextSibling,
-  FirstChild,
-}
 /**
  * If the block type is not in the config, it will be thrown an error in development env
  */
-export const blockConfig: Record<
-  string,
-  {
-    /**
-     * Whether the block can have children
-     */
-    canAddChild: boolean;
-    /**
-     * The regexps that will be used to match the markdown flag
-     */
-    markdownRegexps?: RegExp[];
-
-    /**
-     * The default data of the block
-     */
-    defaultData?: BlockData<any>;
-
-    /**
-     * The props that will be passed to the text split function
-     */
-    splitProps?: {
-      /**
-       * The relationship between the next line block and the current block
-       */
-      nextLineRelationShip: SplitRelationship;
-      /**
-       * The type of the next line block
-       */
-      nextLineBlockType: BlockType;
-    };
-  }
-> = {
+export const blockConfig: Record<string, BlockConfig> = {
   [BlockType.TextBlock]: {
     canAddChild: true,
     defaultData: {
@@ -58,7 +23,7 @@ export const blockConfig: Record<
     /**
      * # or ## or ###
      */
-    markdownRegexps: [/^(#{1,3})$/],
+    markdownRegexps: [/^(#{1,3})(\s)+$/],
   },
   [BlockType.TodoListBlock]: {
     canAddChild: true,
@@ -73,7 +38,7 @@ export const blockConfig: Record<
     /**
      * -[] or -[x] or -[ ] or [] or [x] or [ ]
      */
-    markdownRegexps: [/^((-)?\[(x|\s)?\])$/],
+    markdownRegexps: [/^((-)?\[(x|\s)?\])(\s)+$/],
   },
   [BlockType.BulletedListBlock]: {
     canAddChild: true,
@@ -88,7 +53,7 @@ export const blockConfig: Record<
     /**
      * - or + or *
      */
-    markdownRegexps: [/^(\s*[-+*])$/],
+    markdownRegexps: [/^(\s*[-+*])(\s)+$/],
   },
   [BlockType.NumberedListBlock]: {
     canAddChild: true,
@@ -104,7 +69,7 @@ export const blockConfig: Record<
      * 1. or 2. or 3.
      * a. or b. or c.
      */
-    markdownRegexps: [/^(\s*[\d|a-zA-Z]+\.)$/],
+    markdownRegexps: [/^(\s*[\d|a-zA-Z]+\.)(\s)+$/],
   },
   [BlockType.QuoteBlock]: {
     canAddChild: true,
@@ -119,7 +84,22 @@ export const blockConfig: Record<
     /**
      * " or “ or ”
      */
-    markdownRegexps: [/^("|“|”)$/],
+    markdownRegexps: [/^("|“|”)(\s)+$/],
+  },
+  [BlockType.CalloutBlock]: {
+    canAddChild: true,
+    defaultData: {
+      delta: [],
+      icon: 'bulb',
+    },
+    splitProps: {
+      nextLineRelationShip: SplitRelationship.NextSibling,
+      nextLineBlockType: BlockType.TextBlock,
+    },
+    /**
+     * [!TIP] or [!INFO] or [!WARNING] or [!DANGER]
+     */
+    markdownRegexps: [/^(\[!)(TIP|INFO|WARNING|DANGER)(\])(\s)+$/],
   },
   [BlockType.ToggleListBlock]: {
     canAddChild: true,
@@ -134,13 +114,69 @@ export const blockConfig: Record<
     /**
      * >
      */
-    markdownRegexps: [/^(>)$/],
+    markdownRegexps: [/^(>)(\s)+$/],
   },
+  [BlockType.DividerBlock]: {
+    canAddChild: false,
+    /**
+     * ---
+     */
+    markdownRegexps: [/^(-{3,})$/],
+  },
+
   [BlockType.CodeBlock]: {
     canAddChild: false,
+    defaultData: {
+      delta: [],
+      language: 'javascript',
+    },
     /**
      * ```
      */
     markdownRegexps: [/^(```)$/],
+
+    textActionMenuProps: {
+      excludeItems: [TextAction.Code],
+    },
   },
 };
+
+export const defaultTextActionProps: TextActionMenuProps = {
+  customItems: [
+    TextAction.Turn,
+    TextAction.Bold,
+    TextAction.Italic,
+    TextAction.Underline,
+    TextAction.Strikethrough,
+    TextAction.Code,
+    TextAction.Equation,
+  ],
+  excludeItems: [],
+};
+
+export const multiLineTextActionProps: TextActionMenuProps = {
+  customItems: [TextAction.Bold, TextAction.Italic, TextAction.Underline, TextAction.Strikethrough, TextAction.Code],
+};
+
+export const multiLineTextActionGroups = [
+  [
+    TextAction.Bold,
+    TextAction.Italic,
+    TextAction.Underline,
+    TextAction.Strikethrough,
+    TextAction.Code,
+    TextAction.Equation,
+  ],
+];
+
+export const textActionGroups = [
+  [TextAction.Turn],
+  [
+    TextAction.Bold,
+    TextAction.Italic,
+    TextAction.Underline,
+    TextAction.Strikethrough,
+    TextAction.Code,
+    TextAction.Equation,
+  ],
+];

@@ -1,24 +1,23 @@
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/cells/card_cell.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/cells/number_card_cell.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/cells/url_card_cell.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../grid/presentation/layout/sizes.dart';
 import '../../widgets/row/cells/select_option_cell/extension.dart';
 import '../application/calendar_bloc.dart';
+import 'calendar_page.dart';
 
 class CalendarDayCard extends StatelessWidget {
   final String viewId;
@@ -102,7 +101,7 @@ class CalendarDayCard extends StatelessWidget {
     );
   }
 
-  GestureDetector _buildCard(BuildContext context, CalendarDayEvent event) {
+  Widget _buildCard(BuildContext context, CalendarDayEvent event) {
     final styles = <FieldType, CardCellStyle>{
       FieldType.Number: NumberCardCellStyle(10),
       FieldType.URL: URLCardCellStyle(10),
@@ -162,6 +161,9 @@ class CalendarDayCard extends StatelessWidget {
     });
 
     renderHook.addSelectOptionHook((selectedOptions, cardData, _) {
+      if (selectedOptions.isEmpty) {
+        return const SizedBox.shrink();
+      }
       final children = selectedOptions.map(
         (option) {
           return SelectOptionTag.fromOption(
@@ -193,7 +195,12 @@ class CalendarDayCard extends StatelessWidget {
       cardData: event.dateFieldId,
       isEditing: false,
       cellBuilder: cellBuilder,
-      openCard: (context) => _showRowDetailPage(event, context),
+      openCard: (context) => showEventDetails(
+        context: context,
+        event: event,
+        viewId: viewId,
+        rowCache: _rowCache,
+      ),
       styleConfiguration: const RowCardStyleConfiguration(
         showAccessory: false,
         cellPadding: EdgeInsets.zero,
@@ -203,44 +210,24 @@ class CalendarDayCard extends StatelessWidget {
       onEndEditing: () {},
     );
 
-    return GestureDetector(
-      onTap: () => _showRowDetailPage(event, context),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 2),
-          decoration: BoxDecoration(
-            border: Border.fromBorderSide(
-              BorderSide(
-                color: Theme.of(context).dividerColor,
-                width: 1.5,
-              ),
-            ),
-            borderRadius: Corners.s6Border,
-          ),
-          child: card,
-        ),
+    return FlowyHover(
+      style: HoverStyle(
+        hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
+        foregroundColorOnHover: Theme.of(context).colorScheme.onBackground,
       ),
-    );
-  }
-
-  void _showRowDetailPage(CalendarDayEvent event, BuildContext context) {
-    final dataController = RowController(
-      rowId: event.eventId,
-      viewId: viewId,
-      rowCache: _rowCache,
-    );
-
-    FlowyOverlay.show(
-      context: context,
-      builder: (BuildContext context) {
-        return RowDetailPage(
-          cellBuilder: GridCellBuilder(
-            cellCache: _rowCache.cellCache,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        decoration: BoxDecoration(
+          border: Border.fromBorderSide(
+            BorderSide(
+              color: Theme.of(context).dividerColor,
+              width: 1.5,
+            ),
           ),
-          dataController: dataController,
-        );
-      },
+          borderRadius: Corners.s6Border,
+        ),
+        child: card,
+      ),
     );
   }
 

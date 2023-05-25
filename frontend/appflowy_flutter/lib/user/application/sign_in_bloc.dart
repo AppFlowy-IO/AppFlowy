@@ -1,4 +1,4 @@
-import 'package:appflowy/user/application/auth_service.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -20,6 +20,16 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
             emit,
           );
         },
+        signedInWithOAuth: (value) async =>
+            await _performActionOnSignInWithOAuth(
+          state,
+          emit,
+          value.platform,
+        ),
+        signedInAsGuest: (value) async => await _performActionOnSignInAsGuest(
+          state,
+          emit,
+        ),
         emailChanged: (EmailChanged value) async {
           emit(
             state.copyWith(
@@ -46,6 +56,26 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     SignInState state,
     Emitter<SignInState> emit,
   ) async {
+    final result = await authService.signIn(
+      email: state.email ?? '',
+      password: state.password ?? '',
+    );
+    emit(
+      result.fold(
+        (error) => stateFromCode(error),
+        (userProfile) => state.copyWith(
+          isSubmitting: false,
+          successOrFail: some(left(userProfile)),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _performActionOnSignInWithOAuth(
+    SignInState state,
+    Emitter<SignInState> emit,
+    String platform,
+  ) async {
     emit(
       state.copyWith(
         isSubmitting: true,
@@ -55,17 +85,41 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       ),
     );
 
-    final result = await authService.signIn(
-      email: state.email,
-      password: state.password,
+    final result = await authService.signUpWithOAuth(
+      platform: platform,
     );
     emit(
       result.fold(
+        (error) => stateFromCode(error),
         (userProfile) => state.copyWith(
           isSubmitting: false,
           successOrFail: some(left(userProfile)),
         ),
+      ),
+    );
+  }
+
+  Future<void> _performActionOnSignInAsGuest(
+    SignInState state,
+    Emitter<SignInState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        isSubmitting: true,
+        emailError: none(),
+        passwordError: none(),
+        successOrFail: none(),
+      ),
+    );
+
+    final result = await authService.signUpAsGuest();
+    emit(
+      result.fold(
         (error) => stateFromCode(error),
+        (userProfile) => state.copyWith(
+          isSubmitting: false,
+          successOrFail: some(left(userProfile)),
+        ),
       ),
     );
   }
@@ -97,6 +151,9 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
 class SignInEvent with _$SignInEvent {
   const factory SignInEvent.signedInWithUserEmailAndPassword() =
       SignedInWithUserEmailAndPassword;
+  const factory SignInEvent.signedInWithOAuth(String platform) =
+      SignedInWithOAuth;
+  const factory SignInEvent.signedInAsGuest() = SignedInAsGuest;
   const factory SignInEvent.emailChanged(String email) = EmailChanged;
   const factory SignInEvent.passwordChanged(String password) = PasswordChanged;
 }

@@ -12,11 +12,11 @@ tracing = { version = "0.1", features = ["log"] }
 bytes = { version = "1.4" }
 serde = "1.0"
 
-flowy-derive = { path = "../flowy-derive" }
+flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 lib-dispatch = { path = "../lib-dispatch" }
 
 [build-dependencies]
-flowy-codegen = { path = "../flowy-codegen" }
+flowy-codegen = { path = "../../../shared-lib/flowy-codegen" }
 
 [features]
 dart = ["flowy-codegen/dart"]

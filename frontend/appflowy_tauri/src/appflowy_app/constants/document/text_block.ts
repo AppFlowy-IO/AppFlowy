@@ -7,4 +7,7 @@ export const keyBoardEventKeyMap = {
   Left: 'ArrowLeft',
   Right: 'ArrowRight',
   Space: ' ',
+  Reduce: '-',
+  Backquote: '`',
+  Slash: '/',
 };

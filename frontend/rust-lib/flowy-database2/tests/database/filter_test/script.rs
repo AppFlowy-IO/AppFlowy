@@ -131,12 +131,12 @@ impl DatabaseFilterTest {
             FilterScript::UpdateTextCell { row_id, text, changed} => {
                 self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 self.assert_future_changed(changed).await;
-                self.update_text_cell(row_id, &text).await;
+                self.update_text_cell(row_id, &text).await.unwrap();
             }
             FilterScript::UpdateSingleSelectCell { row_id, option_id, changed} => {
                 self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 self.assert_future_changed(changed).await;
-                self.update_single_select_cell(row_id, &option_id).await;
+                self.update_single_select_cell(row_id, &option_id).await.unwrap();
             }
             FilterScript::InsertFilter { payload } => {
                 self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());

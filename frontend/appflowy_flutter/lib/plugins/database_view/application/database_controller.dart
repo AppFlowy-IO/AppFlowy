@@ -176,15 +176,25 @@ class DatabaseController {
     );
   }
 
-  Future<Either<Unit, FlowyError>> moveRow({
+  Future<Either<Unit, FlowyError>> moveGroupRow({
     required RowPB fromRow,
     required String groupId,
     RowPB? toRow,
   }) {
-    return _databaseViewBackendSvc.moveRow(
+    return _databaseViewBackendSvc.moveGroupRow(
       fromRowId: fromRow.id,
       toGroupId: groupId,
       toRowId: toRow?.id,
+    );
+  }
+
+  Future<Either<Unit, FlowyError>> moveRow({
+    required RowPB fromRow,
+    required RowPB toRow,
+  }) {
+    return _databaseViewBackendSvc.moveRow(
+      fromRowId: fromRow.id,
+      toRowId: toRow.id,
     );
   }
 
@@ -342,10 +352,9 @@ class RowDataBuilder {
     _cellDataByFieldId[fieldInfo.field.id] = num.toString();
   }
 
-  /// The date should use the UTC timezone. Becuase the backend uses UTC timezone to format the time string.
   void insertDate(FieldInfo fieldInfo, DateTime date) {
     assert(fieldInfo.fieldType == FieldType.DateTime);
-    final timestamp = (date.toUtc().millisecondsSinceEpoch ~/ 1000);
+    final timestamp = date.millisecondsSinceEpoch ~/ 1000;
     _cellDataByFieldId[fieldInfo.field.id] = timestamp.toString();
   }
 

@@ -117,7 +117,7 @@ impl WorkspaceUser for WorkspaceUserImpl {
       .map_err(|e| FlowyError::internal().context(e))
   }
 
-  fn token(&self) -> Result<String, FlowyError> {
+  fn token(&self) -> Result<Option<String>, FlowyError> {
     self
       .0
       .token()
@@ -186,7 +186,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     })
   }
 
-  fn create_view_with_build_in_data(
+  fn create_view_with_built_in_data(
     &self,
     user_id: &str,
     view_id: &str,
@@ -199,7 +199,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     let _user_id = user_id.to_string();
     let view_id = view_id.to_string();
     let manager = self.0.clone();
-    let document_content = self.0.initial_document_content();
+    // todo: implement the default content
     FutureResult::new(async move {
       let delta_data = Bytes::from(document_content);
       let revision = Revision::initial_revision(&view_id, delta_data);
@@ -266,7 +266,7 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
   /// If the ext contains the {"database_id": "xx"}, then it will link to
   /// the existing database. The data of the database will be shared within
   /// these references views.
-  fn create_view_with_build_in_data(
+  fn create_view_with_built_in_data(
     &self,
     _user_id: &str,
     view_id: &str,

@@ -1,8 +1,7 @@
 import 'dart:async';
+import 'package:appflowy_backend/protobuf/flowy-document2/entities.pb.dart';
 import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 
 class ShareService {
@@ -10,12 +9,13 @@ class ShareService {
     ViewPB view,
     ExportType type,
   ) {
-    var payload = ExportPayloadPB.create()
-      ..viewId = view.id
-      ..exportType = type
-      ..documentVersion = DocumentVersionPB.V1;
+    // var payload = ExportPayloadPB.create()
+    //   ..viewId = view.id
+    //   ..exportType = type
+    //   ..documentVersion = DocumentVersionPB.V1;
 
-    return DocumentEventExportDocument(payload).send();
+    // return DocumentEventExportDocument(payload).send();
+    throw UnimplementedError();
   }
 
   Future<Either<ExportDataPB, FlowyError>> exportText(ViewPB view) {

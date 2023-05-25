@@ -1,7 +1,7 @@
 use crate::script::{invalid_workspace_name_test_case, FolderScript::*, FolderTest};
 use collab_folder::core::ViewLayout;
 use flowy_folder2::entities::CreateWorkspacePayloadPB;
-use flowy_test::{event_builder::*, FlowySDKTest};
+use flowy_test::{event_builder::*, FlowyCoreTest};
 
 #[tokio::test]
 async fn workspace_read_all() {
@@ -63,18 +63,19 @@ async fn workspace_create_with_apps() {
 #[tokio::test]
 async fn workspace_create_with_invalid_name() {
   for (name, code) in invalid_workspace_name_test_case() {
-    let sdk = FlowySDKTest::default();
+    let sdk = FlowyCoreTest::new();
     let request = CreateWorkspacePayloadPB {
       name,
       desc: "".to_owned(),
     };
     assert_eq!(
-      Folder2EventBuilder::new(sdk)
+      EventBuilder::new(sdk)
         .event(flowy_folder2::event_map::FolderEvent::CreateWorkspace)
         .payload(request)
         .async_send()
         .await
         .error()
+        .unwrap()
         .code,
       code.value()
     )
@@ -149,9 +150,9 @@ async fn app_create_with_view() {
     .await;
 
   app = test.parent_view.clone();
-  assert_eq!(app.belongings.len(), 3);
-  assert_eq!(app.belongings[1].name, "View A");
-  assert_eq!(app.belongings[2].name, "Grid")
+  assert_eq!(app.child_views.len(), 3);
+  assert_eq!(app.child_views[1].name, "View A");
+  assert_eq!(app.child_views[2].name, "Grid")
 }
 
 #[tokio::test]
@@ -216,13 +217,13 @@ async fn view_delete_all() {
     .await;
 
   assert_eq!(
-    test.parent_view.belongings.len(),
+    test.parent_view.child_views.len(),
     3,
     "num of belongings should be 3"
   );
   let view_ids = test
     .parent_view
-    .belongings
+    .child_views
     .iter()
     .map(|view| view.id.clone())
     .collect::<Vec<String>>();
@@ -234,7 +235,7 @@ async fn view_delete_all() {
     ])
     .await;
 
-  assert_eq!(test.parent_view.belongings.len(), 0);
+  assert_eq!(test.parent_view.child_views.len(), 0);
   assert_eq!(test.trash.len(), 3);
 }
 
@@ -255,7 +256,7 @@ async fn view_delete_all_permanent() {
 
   let view_ids = test
     .parent_view
-    .belongings
+    .child_views
     .iter()
     .map(|view| view.id.clone())
     .collect::<Vec<String>>();
@@ -268,6 +269,6 @@ async fn view_delete_all_permanent() {
     ])
     .await;
 
-  assert_eq!(test.parent_view.belongings.len(), 0);
+  assert_eq!(test.parent_view.child_views.len(), 0);
   assert_eq!(test.trash.len(), 0);
 }

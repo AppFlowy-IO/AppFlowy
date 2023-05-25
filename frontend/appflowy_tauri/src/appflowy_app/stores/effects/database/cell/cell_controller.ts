@@ -30,6 +30,7 @@ export class CellController<T, D> {
     this.cellDataNotifier = new CellDataNotifier(cellCache.get<T>(this.cacheKey));
     this.cellObserver = new CellObserver(cellIdentifier.rowId, cellIdentifier.fieldId);
     this.fieldNotifier = new DatabaseFieldObserver(cellIdentifier.fieldId);
+
     void this.cellObserver.subscribe({
       /// 1.Listen on user edit event and load the new cell data if needed.
       /// For example:
@@ -37,7 +38,11 @@ export class CellController<T, D> {
       ///  cell display: $12
       onCellChanged: async () => {
         this.cellCache.remove(this.cacheKey);
-        await this._loadCellData();
+        try {
+          await this._loadCellData();
+        } catch (e) {
+          Log.error(e);
+        }
       },
     });
 
@@ -57,7 +62,7 @@ export class CellController<T, D> {
 
   subscribeChanged = (callbacks: Callbacks<T>) => {
     this.subscribeCallbacks = callbacks;
-    this.cellDataNotifier.observer.subscribe((cellData) => {
+    this.cellDataNotifier.observer?.subscribe((cellData) => {
       if (cellData !== null) {
         callbacks.onCellChanged(Some(cellData));
       }
@@ -108,7 +113,6 @@ export class CellController<T, D> {
   };
 
   dispose = async () => {
-    this.cellDataNotifier.unsubscribe();
     await this.cellObserver.unsubscribe();
     await this.fieldNotifier.unsubscribe();
   };

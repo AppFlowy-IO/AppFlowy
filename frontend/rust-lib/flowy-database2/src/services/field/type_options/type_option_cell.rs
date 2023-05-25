@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::cmp::Ordering;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
@@ -7,6 +6,7 @@ use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, RowId};
 
 use flowy_error::FlowyResult;
+use lib_infra::box_any::BoxAny;
 
 use crate::entities::FieldType;
 use crate::services::cell::{
@@ -19,8 +19,9 @@ use crate::services::field::{
   TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform, URLTypeOption,
 };
 
-pub const CELL_DATE: &str = "data";
+pub const CELL_DATA: &str = "data";
 
+/// Each [FieldType] has its own [TypeOptionCellDataHandler].
 /// A helper trait that used to erase the `Self` of `TypeOption` trait to make it become a Object-safe trait
 /// Only object-safe traits can be made into trait objects.
 /// > Object-safe traits are traits with methods that follow these two rules:
@@ -46,19 +47,20 @@ pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
 
   fn handle_cell_filter(&self, field_type: &FieldType, field: &Field, cell: &Cell) -> bool;
 
-  /// Decode the cell_str to corresponding cell data, and then return the display string of the
-  /// cell data.
-  fn stringify_cell_str(
-    &self,
-    cell: &Cell,
-    decoded_field_type: &FieldType,
-    field: &Field,
-  ) -> String;
+  /// Format the cell to string using the passed-in [FieldType] and [Field].
+  /// The [Cell] is generic, so we need to know the [FieldType] and [Field] to format the cell.
+  ///
+  /// For example, the field type of the [TypeOptionCellDataHandler] is [FieldType::Date], and
+  /// the if field_type is [FieldType::RichText], then the string would be something like "Mar 14, 2022".
+  ///
+  fn stringify_cell_str(&self, cell: &Cell, field_type: &FieldType, field: &Field) -> String;
 
+  /// Format the cell to [BoxCellData] using the passed-in [FieldType] and [Field].
+  /// The caller can get the cell data by calling [BoxCellData::unbox_or_none].
   fn get_cell_data(
     &self,
     cell: &Cell,
-    decoded_field_type: &FieldType,
+    field_type: &FieldType,
     field: &Field,
   ) -> FlowyResult<BoxCellData>;
 }
@@ -141,12 +143,12 @@ where
 
     let cell_data = self.decode_cell_str(cell, decoded_field_type, field)?;
     if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
-      tracing::trace!(
-        "Cell cache update: field_type:{}, cell: {:?}, cell_data: {:?}",
-        decoded_field_type,
-        cell,
-        cell_data
-      );
+      // tracing::trace!(
+      //   "Cell cache update: field_type:{}, cell: {:?}, cell_data: {:?}",
+      //   decoded_field_type,
+      //   cell,
+      //   cell_data
+      // );
       cell_data_cache
         .write()
         .insert(key.as_ref(), cell_data.clone());
@@ -162,13 +164,13 @@ where
   ) {
     if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
       let field_type = FieldType::from(field.field_type);
-      let key = CellDataCacheKey::new(field, field_type.clone(), cell);
-      tracing::trace!(
-        "Cell cache update: field_type:{}, cell: {:?}, cell_data: {:?}",
-        field_type,
-        cell,
-        cell_data
-      );
+      let key = CellDataCacheKey::new(field, field_type, cell);
+      // tracing::trace!(
+      //   "Cell cache update: field_type:{}, cell: {:?}, cell_data: {:?}",
+      //   field_type,
+      //   cell,
+      //   cell_data
+      // );
       cell_data_cache.write().insert(key.as_ref(), cell_data);
     }
   }
@@ -252,14 +254,16 @@ where
     perform_filter().unwrap_or(true)
   }
 
-  fn stringify_cell_str(
-    &self,
-    cell: &Cell,
-    decoded_field_type: &FieldType,
-    field: &Field,
-  ) -> String {
+  /// Stringify [Cell] to string
+  /// if the [TypeOptionCellDataHandler] supports transform, it will try to transform the [Cell] to
+  /// the passed-in field type [Cell].
+  /// For example, the field type of the [TypeOptionCellDataHandler] is [FieldType::MultiSelect], the field_type
+  /// is [FieldType::RichText], then the string will be transformed to a string that separated by comma with the
+  /// option's name.
+  ///
+  fn stringify_cell_str(&self, cell: &Cell, field_type: &FieldType, field: &Field) -> String {
     if self.transformable() {
-      let cell_data = self.transform_type_option_cell(cell, decoded_field_type, field);
+      let cell_data = self.transform_type_option_cell(cell, field_type, field);
       if let Some(cell_data) = cell_data {
         return self.decode_cell_data_to_str(cell_data);
       }
@@ -270,17 +274,17 @@ where
   fn get_cell_data(
     &self,
     cell: &Cell,
-    decoded_field_type: &FieldType,
+    field_type: &FieldType,
     field: &Field,
   ) -> FlowyResult<BoxCellData> {
     // tracing::debug!("get_cell_data: {:?}", std::any::type_name::<Self>());
     let cell_data = if self.transformable() {
-      match self.transform_type_option_cell(cell, decoded_field_type, field) {
-        None => self.get_decoded_cell_data(cell, decoded_field_type, field)?,
+      match self.transform_type_option_cell(cell, field_type, field) {
+        None => self.get_decoded_cell_data(cell, field_type, field)?,
         Some(cell_data) => cell_data,
       }
     } else {
-      self.get_decoded_cell_data(cell, decoded_field_type, field)?
+      self.get_decoded_cell_data(cell, field_type, field)?
     };
     Ok(BoxCellData::new(cell_data))
   }
@@ -486,41 +490,7 @@ fn get_type_option_transform_handler(
   }
 }
 
-pub struct BoxCellData(Box<dyn Any + Send + Sync + 'static>);
-
-impl BoxCellData {
-  fn new<T>(value: T) -> Self
-  where
-    T: Send + Sync + 'static,
-  {
-    Self(Box::new(value))
-  }
-
-  fn unbox_or_default<T>(self) -> T
-  where
-    T: Default + 'static,
-  {
-    match self.0.downcast::<T>() {
-      Ok(value) => *value,
-      Err(_) => T::default(),
-    }
-  }
-
-  pub(crate) fn unbox_or_none<T>(self) -> Option<T>
-  where
-    T: Default + 'static,
-  {
-    match self.0.downcast::<T>() {
-      Ok(value) => Some(*value),
-      Err(_) => None,
-    }
-  }
-
-  #[allow(dead_code)]
-  fn downcast_ref<T: 'static>(&self) -> Option<&T> {
-    self.0.downcast_ref()
-  }
-}
+pub type BoxCellData = BoxAny;
 
 pub struct RowSingleCellData {
   pub row_id: RowId,

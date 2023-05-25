@@ -58,7 +58,9 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         .event(DatabaseEvent::GetCalendarEvent, get_calendar_event_handler)
         // Layout setting
         .event(DatabaseEvent::SetLayoutSetting, set_layout_setting_handler)
-        .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler);
+        .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler)
+        // import
+        .event(DatabaseEvent::ImportCSV, import_data_handler);
 
   plugin
 }
@@ -259,4 +261,7 @@ pub enum DatabaseEvent {
 
   #[event(input = "MoveCalendarEventPB")]
   MoveCalendarEvent = 119,
+
+  #[event(input = "DatabaseImportPB")]
+  ImportCSV = 120,
 }

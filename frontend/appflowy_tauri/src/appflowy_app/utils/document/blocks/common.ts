@@ -1,9 +1,29 @@
-import { BlockData, BlockType, DocumentState, NestedBlock, TextDelta } from '$app/interfaces/document';
-import { Descendant, Editor, Element, Text } from 'slate';
+import {
+  BlockData,
+  BlockType,
+  DocumentState,
+  NestedBlock,
+  RangeSelectionState,
+  TextDelta,
+  TextSelection,
+} from '$app/interfaces/document';
+import { Descendant, Element, Text } from 'slate';
 import { BlockPB } from '@/services/backend';
 import { Log } from '$app/utils/log';
 import { nanoid } from 'nanoid';
-import { getAfterRangeAt } from '$app/utils/document/slate/text';
+import { clone } from '$app/utils/tool';
+
+export function slateValueToDelta(slateNodes: Descendant[]) {
+  const element = slateNodes[0] as Element;
+  const children = element.children as Text[];
+  return children.map((child) => {
+    const { text, ...attributes } = child;
+    return {
+      insert: text,
+      attributes,
+    };
+  });
+}
 
 export function deltaToSlateValue(delta: TextDelta[]) {
   const slateNode = {
@@ -20,14 +40,6 @@ export function deltaToSlateValue(delta: TextDelta[]) {
     });
   }
   return slateNodes;
-}
-
-export function getDeltaAfterSelection(editor: Editor): TextDelta[] | undefined {
-  const selection = editor.selection;
-  if (!selection) return;
-  const slateNodes = Editor.fragment(editor, getAfterRangeAt(editor, selection));
-  const delta = getDeltaFromSlateNodes(slateNodes);
-  return delta;
 }
 
 export function getDeltaFromSlateNodes(slateNodes: Descendant[]) {
@@ -110,6 +122,16 @@ export function getNextNodeId(state: DocumentState, id: string) {
   return nextNodeId;
 }
 
+export function getPrevNodeId(state: DocumentState, id: string) {
+  const node = state.nodes[id];
+  if (!node.parent) return;
+  const parent = state.nodes[node.parent];
+  const children = state.children[parent.children];
+  const index = children.indexOf(id);
+  const prevNodeId = children[index - 1];
+  return prevNodeId;
+}
+
 export function newBlock<Type>(type: BlockType, parentId: string, data: BlockData<Type>): NestedBlock<Type> {
   return {
     id: generateId(),
@@ -118,4 +140,81 @@ export function newBlock<Type>(type: BlockType, parentId: string, data: BlockDat
     children: generateId(),
     data,
   };
+}
+
+export function getCollapsedRange(id: string, selection: TextSelection): RangeSelectionState {
+  const point = {
+    id,
+    selection,
+  };
+  return {
+    anchor: clone(point),
+    focus: clone(point),
+    isDragging: false,
+    selection: [],
+  };
+}
+
+export function iterateNodes(
+  range: {
+    startId: string;
+    endId: string;
+  },
+  isForward: boolean,
+  document: DocumentState,
+  callback: (nodeId?: string) => boolean
+) {
+  const { startId, endId } = range;
+  let currentId = startId;
+  while (currentId && currentId !== endId) {
+    if (isForward) {
+      currentId = getNextLineId(document, currentId) || '';
+    } else {
+      currentId = getPrevLineId(document, currentId) || '';
+    }
+    if (callback(currentId)) {
+      break;
+    }
+  }
+}
+export function getNodesInRange(
+  range: {
+    startId: string;
+    endId: string;
+  },
+  isForward: boolean,
+  document: DocumentState
+) {
+  const nodeIds: string[] = [];
+  nodeIds.push(range.startId);
+  iterateNodes(range, isForward, document, (nodeId) => {
+    if (nodeId) {
+      nodeIds.push(nodeId);
+      return false;
+    } else {
+      return true;
+    }
+  });
+  nodeIds.push(range.endId);
+  return nodeIds;
+}
+
+export function nodeInRange(
+  id: string,
+  range: {
+    startId: string;
+    endId: string;
+  },
+  isForward: boolean,
+  document: DocumentState
+) {
+  let match = false;
+  iterateNodes(range, isForward, document, (nodeId) => {
+    if (nodeId === id) {
+      match = true;
+      return true;
+    }
+    return false;
+  });
+  return match;
 }

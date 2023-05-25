@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import BlockSideToolbar from '../BlockSideToolbar';
 import BlockSelection from '../BlockSelection';
+import TextActionMenu from '$app/components/document/TextActionMenu';
+import BlockSlash from '$app/components/document/BlockSlash';
 
 export default function Overlay({ container }: { container: HTMLDivElement }) {
-  const [isDragging, setDragging] = useState(false);
   return (
     <>
-      {isDragging ? null : <BlockSideToolbar container={container} />}
-      <BlockSelection onDragging={setDragging} container={container} />
+      <BlockSideToolbar container={container} />
+      <TextActionMenu container={container} />
+      <BlockSelection container={container} />
+      <BlockSlash />
     </>
   );
 }

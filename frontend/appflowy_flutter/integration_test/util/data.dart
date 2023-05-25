@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:archive/archive_io.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
@@ -51,8 +51,7 @@ class TestWorkspaceService {
   Future<void> setUpAll() async {
     SharedPreferences.setMockInitialValues(
       {
-        kSettingsLocationDefaultLocation:
-            await workspace.root.then((value) => value.path),
+        KVKeys.pathLocation: await workspace.root.then((value) => value.path),
       },
     );
   }

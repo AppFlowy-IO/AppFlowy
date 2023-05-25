@@ -1,4 +1,4 @@
-import 'package:appflowy/user/application/auth_service.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
@@ -100,12 +100,13 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     );
 
     final result = await authService.signUp(
-      name: state.email,
-      password: state.password,
-      email: state.email,
+      name: state.email ?? '',
+      password: state.password ?? '',
+      email: state.email ?? '',
     );
     emit(
       result.fold(
+        (error) => stateFromCode(error),
         (profile) => state.copyWith(
           isSubmitting: false,
           successOrFail: some(left(profile)),
@@ -113,7 +114,6 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
           passwordError: none(),
           repeatPasswordError: none(),
         ),
-        (error) => stateFromCode(error),
       ),
     );
   }

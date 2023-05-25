@@ -3,28 +3,28 @@ use std::collections::HashMap;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 #[derive(Default, ProtoBuf)]
-pub struct OpenDocumentPayloadPBV2 {
+pub struct OpenDocumentPayloadPB {
   #[pb(index = 1)]
   pub document_id: String,
-  // Support customize initial data
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct CreateDocumentPayloadPBV2 {
+pub struct CreateDocumentPayloadPB {
   #[pb(index = 1)]
   pub document_id: String,
-  // Support customize initial data
+
+  #[pb(index = 2, one_of)]
+  pub initial_data: Option<DocumentDataPB>,
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct CloseDocumentPayloadPBV2 {
+pub struct CloseDocumentPayloadPB {
   #[pb(index = 1)]
   pub document_id: String,
-  // Support customize initial data
 }
 
 #[derive(Default, ProtoBuf, Debug)]
-pub struct ApplyActionPayloadPBV2 {
+pub struct ApplyActionPayloadPB {
   #[pb(index = 1)]
   pub document_id: String,
 
@@ -33,7 +33,14 @@ pub struct ApplyActionPayloadPBV2 {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct DocumentDataPB2 {
+pub struct GetDocumentDataPayloadPB {
+  #[pb(index = 1)]
+  pub document_id: String,
+  // Support customize initial data
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct DocumentDataPB {
   #[pb(index = 1)]
   pub page_id: String,
 
@@ -73,7 +80,6 @@ pub struct ChildrenPB {
   #[pb(index = 1)]
   pub children: Vec<String>,
 }
-
 // Actions
 #[derive(Default, ProtoBuf, Debug)]
 pub struct BlockActionPB {
@@ -150,4 +156,50 @@ pub struct BlockEventPayloadPB {
 
   #[pb(index = 4)]
   pub value: String,
+}
+
+#[derive(PartialEq, Eq, Debug, ProtoBuf_Enum, Clone)]
+pub enum ExportType {
+  Text = 0,
+  Markdown = 1,
+  Link = 2,
+}
+
+impl Default for ExportType {
+  fn default() -> Self {
+    ExportType::Text
+  }
+}
+
+impl From<i32> for ExportType {
+  fn from(val: i32) -> Self {
+    match val {
+      0 => ExportType::Text,
+      1 => ExportType::Markdown,
+      2 => ExportType::Link,
+      _ => {
+        tracing::error!("Invalid export type: {}", val);
+        ExportType::Text
+      },
+    }
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct EditPayloadPB {
+  #[pb(index = 1)]
+  pub doc_id: String,
+
+  // Encode in JSON format
+  #[pb(index = 2)]
+  pub operations: String,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct ExportDataPB {
+  #[pb(index = 1)]
+  pub data: String,
+
+  #[pb(index = 2)]
+  pub export_type: ExportType,
 }

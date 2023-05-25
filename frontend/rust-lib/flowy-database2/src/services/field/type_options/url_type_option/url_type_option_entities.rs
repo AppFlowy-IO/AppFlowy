@@ -1,11 +1,13 @@
-use crate::entities::{FieldType, URLCellDataPB};
-use crate::services::cell::{CellProtobufBlobParser, DecodedCellData, FromCellString};
-use crate::services::field::CELL_DATE;
 use bytes::Bytes;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::{new_cell_builder, Cell};
-use flowy_error::{internal_error, FlowyResult};
 use serde::{Deserialize, Serialize};
+
+use flowy_error::{internal_error, FlowyResult};
+
+use crate::entities::{FieldType, URLCellDataPB};
+use crate::services::cell::{CellProtobufBlobParser, DecodedCellData, FromCellString};
+use crate::services::field::CELL_DATA;
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct URLCellData {
@@ -29,7 +31,7 @@ impl URLCellData {
 impl From<&Cell> for URLCellData {
   fn from(cell: &Cell) -> Self {
     let url = cell.get_str_value("url").unwrap_or_default();
-    let content = cell.get_str_value(CELL_DATE).unwrap_or_default();
+    let content = cell.get_str_value(CELL_DATA).unwrap_or_default();
     Self { url, data: content }
   }
 }
@@ -38,7 +40,7 @@ impl From<URLCellData> for Cell {
   fn from(data: URLCellData) -> Self {
     new_cell_builder(FieldType::URL)
       .insert_str_value("url", data.url)
-      .insert_str_value(CELL_DATE, data.data)
+      .insert_str_value(CELL_DATA, data.data)
       .build()
   }
 }

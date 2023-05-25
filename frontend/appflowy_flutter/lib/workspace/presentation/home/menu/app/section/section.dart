@@ -61,6 +61,10 @@ class ViewSection extends StatelessWidget {
             .add(ViewSectionEvent.moveView(oldIndex, index));
       },
       ignorePrimaryScrollController: true,
+      buildDraggableFeedback: (context, constraints, child) => ConstrainedBox(
+        constraints: constraints,
+        child: Material(color: Colors.transparent, child: child),
+      ),
       children: children,
     );
   }

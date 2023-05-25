@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:appflowy/core/folder_notification.dart';
+import 'package:appflowy/core/notification/folder_notification.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/notifier.dart';

@@ -1,14 +1,15 @@
 use std::path::PathBuf;
 use std::{collections::HashMap, sync::Arc, time::Duration};
 
-use collab_persistence::kv::rocks_kv::RocksCollabDB;
+use appflowy_integrate::RocksCollabDB;
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
 
 use flowy_error::FlowyError;
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{schema::user_table, DBConnection, Database};
-use user_model::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
+
+use crate::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 
 pub struct UserDB {
   db_dir: String,
@@ -111,20 +112,20 @@ pub struct UserTable {
   pub(crate) name: String,
   pub(crate) token: String,
   pub(crate) email: String,
-  pub(crate) workspace: String, // deprecated
+  pub(crate) workspace: String,
   pub(crate) icon_url: String,
   pub(crate) openai_key: String,
 }
 
 impl UserTable {
-  pub fn new(id: String, name: String, email: String, token: String) -> Self {
+  pub fn new(id: String, name: String, email: String, token: String, workspace_id: String) -> Self {
     Self {
       id,
       name,
       email,
       token,
       icon_url: "".to_owned(),
-      workspace: "".to_owned(),
+      workspace: workspace_id,
       openai_key: "".to_owned(),
     }
   }
@@ -137,13 +138,29 @@ impl UserTable {
 
 impl From<SignUpResponse> for UserTable {
   fn from(resp: SignUpResponse) -> Self {
-    UserTable::new(resp.user_id.to_string(), resp.name, resp.email, resp.token)
+    UserTable {
+      id: resp.user_id.to_string(),
+      name: resp.name,
+      token: resp.token.unwrap_or_default(),
+      email: resp.email.unwrap_or_default(),
+      workspace: resp.workspace_id,
+      icon_url: "".to_string(),
+      openai_key: "".to_string(),
+    }
   }
 }
 
 impl From<SignInResponse> for UserTable {
   fn from(resp: SignInResponse) -> Self {
-    UserTable::new(resp.user_id.to_string(), resp.name, resp.email, resp.token)
+    UserTable {
+      id: resp.user_id.to_string(),
+      name: resp.name,
+      token: resp.token.unwrap_or_default(),
+      email: resp.email.unwrap_or_default(),
+      workspace: resp.workspace_id,
+      icon_url: "".to_string(),
+      openai_key: "".to_string(),
+    }
   }
 }
 
@@ -156,6 +173,7 @@ impl From<UserTable> for UserProfile {
       token: table.token,
       icon_url: table.icon_url,
       openai_key: table.openai_key,
+      workspace_id: table.workspace,
     }
   }
 }

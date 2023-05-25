@@ -2,42 +2,38 @@ use std::collections::{HashMap, HashSet};
 use std::ops::Deref;
 use std::sync::Arc;
 
-use collab::plugin_impl::rocks_disk::RocksDiskPlugin;
-use collab::preclude::CollabBuilder;
+use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
+
 use collab_folder::core::{
   Folder as InnerFolder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, TrashRecord,
   View, ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
 };
-use collab_persistence::kv::rocks_kv::RocksCollabDB;
 use parking_lot::Mutex;
 use tracing::{event, Level};
 
+use crate::deps::{FolderCloudService, FolderUser};
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::util::timestamp;
 
 use crate::entities::{
-  CreateViewParams, CreateWorkspaceParams, RepeatedTrashPB, RepeatedViewPB, RepeatedWorkspacePB,
-  UpdateViewParams, ViewPB,
+  view_pb_with_child_views, CreateViewParams, CreateWorkspaceParams, RepeatedTrashPB,
+  RepeatedViewPB, RepeatedWorkspacePB, UpdateViewParams, ViewPB,
 };
 use crate::notification::{
   send_notification, send_workspace_notification, send_workspace_setting_notification,
   FolderNotification,
 };
-use crate::user_default::{gen_workspace_id, DefaultFolderBuilder};
+use crate::user_default::DefaultFolderBuilder;
 use crate::view_ext::{
   gen_view_id, view_from_create_view_params, ViewDataProcessor, ViewDataProcessorMap,
 };
 
-pub trait FolderUser: Send + Sync {
-  fn user_id(&self) -> Result<i64, FlowyError>;
-  fn token(&self) -> Result<String, FlowyError>;
-  fn kv_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError>;
-}
-
 pub struct Folder2Manager {
   folder: Folder,
+  collab_builder: Arc<AppFlowyCollabBuilder>,
   user: Arc<dyn FolderUser>,
   view_processors: ViewDataProcessorMap,
+  cloud_service: Arc<dyn FolderCloudService>,
 }
 
 unsafe impl Send for Folder2Manager {}
@@ -46,14 +42,17 @@ unsafe impl Sync for Folder2Manager {}
 impl Folder2Manager {
   pub async fn new(
     user: Arc<dyn FolderUser>,
+    collab_builder: Arc<AppFlowyCollabBuilder>,
     view_processors: ViewDataProcessorMap,
+    cloud_service: Arc<dyn FolderCloudService>,
   ) -> FlowyResult<Self> {
-    // let folder = make_user_folder(user.clone())?;
     let folder = Folder::default();
     let manager = Self {
       user,
       folder,
+      collab_builder,
       view_processors,
+      cloud_service,
     };
 
     Ok(manager)
@@ -89,39 +88,38 @@ impl Folder2Manager {
   }
 
   /// Called immediately after the application launched fi the user already sign in/sign up.
-  #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn initialize(&self, user_id: i64) -> FlowyResult<()> {
-    if let Ok(uid) = self.user.user_id() {
-      let folder_id = FolderId::new(uid);
-
-      if let Ok(kv_db) = self.user.kv_db() {
-        let mut collab = CollabBuilder::new(uid, folder_id).build();
-        let disk_plugin = Arc::new(
-          RocksDiskPlugin::new(uid, kv_db).map_err(|err| FlowyError::internal().context(err))?,
-        );
-        collab.add_plugin(disk_plugin);
-        collab.initial();
-
-        let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
-        let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
-        let folder_context = FolderContext {
-          view_change_tx: Some(view_tx),
-          trash_change_tx: Some(trash_tx),
-        };
-        *self.folder.lock() = Some(InnerFolder::get_or_create(collab, folder_context));
-        listen_on_trash_change(trash_rx, self.folder.clone());
-        listen_on_view_change(view_rx, self.folder.clone());
-      }
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn initialize(&self, uid: i64, workspace_id: &str) -> FlowyResult<()> {
+    if let Ok(collab_db) = self.user.collab_db() {
+      let collab = self.collab_builder.build(uid, workspace_id, collab_db);
+      let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
+      let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
+      let folder_context = FolderContext {
+        view_change_tx: Some(view_tx),
+        trash_change_tx: Some(trash_tx),
+      };
+      *self.folder.lock() = Some(InnerFolder::get_or_create(collab, folder_context));
+      listen_on_trash_change(trash_rx, self.folder.clone());
+      listen_on_view_change(view_rx, self.folder.clone());
     }
 
     Ok(())
   }
 
   /// Called after the user sign up / sign in
-  pub async fn initialize_with_new_user(&self, user_id: i64, token: &str) -> FlowyResult<()> {
-    self.initialize(user_id).await?;
-    let (folder_data, workspace_pb) =
-      DefaultFolderBuilder::build(self.user.user_id()?, &self.view_processors).await;
+  pub async fn initialize_with_new_user(
+    &self,
+    user_id: i64,
+    token: &str,
+    workspace_id: &str,
+  ) -> FlowyResult<()> {
+    self.initialize(user_id, workspace_id).await?;
+    let (folder_data, workspace_pb) = DefaultFolderBuilder::build(
+      self.user.user_id()?,
+      workspace_id.to_string(),
+      &self.view_processors,
+    )
+    .await;
     self.with_folder((), |folder| {
       folder.create_with_data(folder_data);
     });
@@ -139,13 +137,10 @@ impl Folder2Manager {
   pub async fn clear(&self, _user_id: i64) {}
 
   pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> FlowyResult<Workspace> {
-    let workspace = Workspace {
-      id: gen_workspace_id(),
-      name: params.name,
-      belongings: Default::default(),
-      created_at: timestamp(),
-    };
-
+    let workspace = self
+      .cloud_service
+      .create_workspace(self.user.user_id()?, &params.name)
+      .await?;
     self.with_folder((), |folder| {
       folder.workspaces.create_workspace(workspace.clone());
       folder.set_current_workspace(&workspace.id);
@@ -199,7 +194,7 @@ impl Folder2Manager {
       true => {
         tracing::trace!("Create view with build-in data");
         processor
-          .create_view_with_build_in_data(
+          .create_view_with_built_in_data(
             user_id,
             &params.view_id,
             &params.name,
@@ -285,14 +280,13 @@ impl Folder2Manager {
       None => Err(FlowyError::record_not_found()),
       Some(mut view) => {
         view.belongings.retain(|b| !trash_ids.contains(&b.id));
-        let mut view_pb: ViewPB = view.into();
-        view_pb.belongings = folder
+        let child_views = folder
           .views
-          .get_views_belong_to(&view_pb.id)
+          .get_views_belong_to(&view.id)
           .into_iter()
           .filter(|view| !trash_ids.contains(&view.id))
-          .map(|view| view.into())
-          .collect::<Vec<ViewPB>>();
+          .collect::<Vec<View>>();
+        let view_pb = view_pb_with_child_views(view, child_views);
         Ok(view_pb)
       },
     }
@@ -344,8 +338,8 @@ impl Folder2Manager {
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn update_view_with_params(&self, params: UpdateViewParams) -> FlowyResult<View> {
-    let view = self
+  pub async fn update_view_with_params(&self, params: UpdateViewParams) -> FlowyResult<()> {
+    let _ = self
       .folder
       .lock()
       .as_ref()
@@ -358,18 +352,13 @@ impl Folder2Manager {
           .done()
       });
 
-    match view {
-      None => Err(FlowyError::record_not_found()),
-      Some(view) => {
-        let view_pb: ViewPB = view.clone().into();
-        send_notification(&view.id, FolderNotification::DidUpdateView)
-          .payload(view_pb)
-          .send();
-
-        notify_parent_view_did_change(self.folder.clone(), vec![view.bid.clone()]);
-        Ok(view)
-      },
+    if let Ok(view_pb) = self.get_view(&params.view_id).await {
+      notify_parent_view_did_change(self.folder.clone(), vec![view_pb.parent_view_id.clone()]);
+      send_notification(&view_pb.id, FolderNotification::DidUpdateView)
+        .payload(view_pb)
+        .send();
     }
+    Ok(())
   }
 
   #[tracing::instrument(level = "debug", skip(self), err)]
@@ -536,20 +525,18 @@ fn get_workspace_view_pbs(workspace_id: &str, folder: &InnerFolder) -> Vec<ViewP
   views
     .into_iter()
     .map(|view| {
-      let mut parent_view: ViewPB = view.into();
-
       // Get child views
-      parent_view.belongings = folder
+      let child_views = folder
         .views
-        .get_views_belong_to(&parent_view.id)
+        .get_views_belong_to(&view.id)
         .into_iter()
-        .map(|view| view.into())
         .collect();
-      parent_view
+      view_pb_with_child_views(view, child_views)
     })
     .collect()
 }
 
+/// Notify the the list of parent view ids that its child views were changed.
 #[tracing::instrument(level = "debug", skip(folder, parent_view_ids))]
 fn notify_parent_view_did_change<T: AsRef<str>>(
   folder: Folder,
@@ -568,7 +555,7 @@ fn notify_parent_view_did_change<T: AsRef<str>>(
   for parent_view_id in parent_view_ids {
     let parent_view_id = parent_view_id.as_ref();
 
-    // if the view's bid is equal to workspace id. Then it will fetch the current
+    // if the view's parent id equal to workspace id. Then it will fetch the current
     // workspace views. Because the the workspace is not a view stored in the views map.
     if parent_view_id == workspace_id {
       let repeated_view: RepeatedViewPB = get_workspace_view_pbs(&workspace_id, folder).into();
@@ -584,11 +571,7 @@ fn notify_parent_view_did_change<T: AsRef<str>>(
       event!(Level::DEBUG, child_views_count = child_views.len());
 
       // Post the notification
-      let mut parent_view_pb: ViewPB = parent_view.into();
-      parent_view_pb.belongings = child_views
-        .into_iter()
-        .map(|child_view| child_view.into())
-        .collect::<Vec<ViewPB>>();
+      let parent_view_pb = view_pb_with_child_views(parent_view, child_views);
       send_notification(parent_view_id, FolderNotification::DidUpdateChildViews)
         .payload(parent_view_pb)
         .send();
@@ -602,19 +585,6 @@ fn folder_not_init_error() -> FlowyError {
   FlowyError::internal().context("Folder not initialized")
 }
 
-#[derive(Clone)]
-pub struct FolderId(String);
-impl FolderId {
-  pub fn new(uid: i64) -> Self {
-    Self(format!("{}:folder", uid))
-  }
-}
-
-impl AsRef<str> for FolderId {
-  fn as_ref(&self) -> &str {
-    &self.0
-  }
-}
 #[derive(Clone, Default)]
 pub struct Folder(Arc<Mutex<Option<InnerFolder>>>);
 

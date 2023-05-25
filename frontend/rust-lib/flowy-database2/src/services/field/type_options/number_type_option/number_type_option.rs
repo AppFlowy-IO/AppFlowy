@@ -1,23 +1,25 @@
-use crate::entities::{FieldType, NumberFilterPB};
-use crate::services::cell::{CellDataChangeset, CellDataDecoder};
-use crate::services::field::type_options::number_type_option::format::*;
-use crate::services::field::{
-  NumberCellFormat, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter, TypeOptionTransform, CELL_DATE,
-};
-use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
-
-use crate::services::field::type_options::util::ProtobufStr;
-use collab::core::any_map::AnyMapExtension;
-use collab_database::rows::{new_cell_builder, Cell};
-use fancy_regex::Regex;
-use flowy_error::FlowyResult;
-use lazy_static::lazy_static;
-use rust_decimal::Decimal;
-use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::default::Default;
 use std::str::FromStr;
+
+use collab::core::any_map::AnyMapExtension;
+use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
+use collab_database::rows::{new_cell_builder, Cell};
+use fancy_regex::Regex;
+use lazy_static::lazy_static;
+use rust_decimal::Decimal;
+use serde::{Deserialize, Serialize};
+
+use flowy_error::FlowyResult;
+
+use crate::entities::{FieldType, NumberFilterPB};
+use crate::services::cell::{CellDataChangeset, CellDataDecoder};
+use crate::services::field::type_options::number_type_option::format::*;
+use crate::services::field::type_options::util::ProtobufStr;
+use crate::services::field::{
+  NumberCellFormat, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionTransform, CELL_DATA,
+};
 
 // Number
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -25,7 +27,6 @@ pub struct NumberTypeOption {
   pub format: NumberFormat,
   pub scale: u32,
   pub symbol: String,
-  pub sign_positive: bool,
   pub name: String,
 }
 
@@ -34,14 +35,14 @@ pub struct NumberCellData(pub String);
 
 impl From<&Cell> for NumberCellData {
   fn from(cell: &Cell) -> Self {
-    Self(cell.get_str_value(CELL_DATE).unwrap_or_default())
+    Self(cell.get_str_value(CELL_DATA).unwrap_or_default())
   }
 }
 
 impl From<NumberCellData> for Cell {
   fn from(data: NumberCellData) -> Self {
     new_cell_builder(FieldType::Number)
-      .insert_str_value(CELL_DATE, data.0)
+      .insert_str_value(CELL_DATA, data.0)
       .build()
   }
 }
@@ -73,13 +74,11 @@ impl From<TypeOptionData> for NumberTypeOption {
       .unwrap_or_default();
     let scale = data.get_i64_value("scale").unwrap_or_default() as u32;
     let symbol = data.get_str_value("symbol").unwrap_or_default();
-    let sign_positive = data.get_bool_value("sign_positive").unwrap_or_default();
     let name = data.get_str_value("name").unwrap_or_default();
     Self {
       format,
       scale,
       symbol,
-      sign_positive,
       name,
     }
   }
@@ -90,7 +89,6 @@ impl From<NumberTypeOption> for TypeOptionData {
     TypeOptionDataBuilder::new()
       .insert_i64_value("format", data.format.value())
       .insert_i64_value("scale", data.scale as i64)
-      .insert_bool_value("sign_positive", data.sign_positive)
       .insert_str_value("name", data.name)
       .insert_str_value("symbol", data.symbol)
       .build()
@@ -130,20 +128,21 @@ impl NumberTypeOption {
             Err(_) => Ok(NumberCellFormat::new()),
           }
         } else {
-          let num = match EXTRACT_NUM_REGEX.captures(&num_cell_data.0) {
+          let num_str = match EXTRACT_NUM_REGEX.captures(&num_cell_data.0) {
             Ok(Some(captures)) => captures
               .get(0)
               .map(|m| m.as_str().to_string())
               .unwrap_or_default(),
             _ => "".to_string(),
           };
-          match Decimal::from_str(&num) {
-            Ok(value, ..) => Ok(NumberCellFormat::from_decimal(value)),
+
+          match Decimal::from_str(&num_str) {
+            Ok(decimal, ..) => Ok(NumberCellFormat::from_decimal(decimal)),
             Err(_) => Ok(NumberCellFormat::new()),
           }
         }
       },
-      _ => NumberCellFormat::from_format_str(&num_cell_data.0, self.sign_positive, &self.format),
+      _ => NumberCellFormat::from_format_str(&num_cell_data.0, &self.format),
     }
   }
 
@@ -151,17 +150,6 @@ impl NumberTypeOption {
     self.format = format;
     self.symbol = format.symbol();
   }
-}
-
-pub(crate) fn strip_currency_symbol<T: ToString>(s: T) -> String {
-  let mut s = s.to_string();
-  for symbol in CURRENCY_SYMBOL.iter() {
-    if s.starts_with(symbol) {
-      s = s.strip_prefix(symbol).unwrap_or("").to_string();
-      break;
-    }
-  }
-  s
 }
 
 impl TypeOptionTransform for NumberTypeOption {}
@@ -204,9 +192,11 @@ impl CellDataChangeset for NumberTypeOption {
     changeset: <Self as TypeOption>::CellChangeset,
     _cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
-    let number_cell_data = NumberCellData(changeset.trim().to_string());
+    let num_str = changeset.trim().to_string();
+    let number_cell_data = NumberCellData(num_str);
     let formatter = self.format_cell_data(&number_cell_data)?;
 
+    tracing::trace!("number: {:?}", number_cell_data);
     match self.format {
       NumberFormat::Num => Ok((
         NumberCellData(formatter.to_string()).into(),
@@ -243,7 +233,16 @@ impl TypeOptionCellDataCompare for NumberTypeOption {
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
   ) -> Ordering {
-    cell_data.0.cmp(&other_cell_data.0)
+    let left = NumberCellFormat::from_format_str(&cell_data.0, &self.format);
+    let right = NumberCellFormat::from_format_str(&other_cell_data.0, &self.format);
+    match (left, right) {
+      (Ok(left), Ok(right)) => {
+        return left.decimal().cmp(right.decimal());
+      },
+      (Ok(_), Err(_)) => Ordering::Greater,
+      (Err(_), Ok(_)) => Ordering::Less,
+      (Err(_), Err(_)) => Ordering::Equal,
+    }
   }
 }
 impl std::default::Default for NumberTypeOption {
@@ -254,7 +253,6 @@ impl std::default::Default for NumberTypeOption {
       format,
       scale: 0,
       symbol,
-      sign_positive: true,
       name: "Number".to_string(),
     }
   }
@@ -262,5 +260,5 @@ impl std::default::Default for NumberTypeOption {
 
 lazy_static! {
   static ref SCIENTIFIC_NOTATION_REGEX: Regex = Regex::new(r"([+-]?\d*\.?\d+)e([+-]?\d+)").unwrap();
-  static ref EXTRACT_NUM_REGEX: Regex = Regex::new(r"-?\d+(\.\d+)?").unwrap();
+  pub(crate) static ref EXTRACT_NUM_REGEX: Regex = Regex::new(r"-?\d+(\.\d+)?").unwrap();
 }

@@ -1,33 +1,17 @@
 import 'dart:io';
 
+import 'package:appflowy/env/env.dart';
+import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import '../workspace/application/settings/settings_location_cubit.dart';
 import 'deps_resolver.dart';
 import 'launch_configuration.dart';
 import 'plugin/plugin.dart';
 import 'tasks/prelude.dart';
 
-// [[diagram: flowy startup flow]]
-//                   ┌──────────┐
-//                   │ FlowyApp │
-//                   └──────────┘
-//                         │  impl
-//                         ▼
-// ┌────────┐  1.run ┌──────────┐
-// │ System │───┬───▶│EntryPoint│
-// └────────┘   │    └──────────┘         ┌─────────────────┐
-//              │                    ┌──▶ │ RustSDKInitTask │
-//              │    ┌───────────┐   │    └─────────────────┘
-//              └──▶ │AppLauncher│───┤
-//        2.launch   └───────────┘   │    ┌─────────────┐         ┌──────────────────┐      ┌───────────────┐
-//                                   └───▶│AppWidgetTask│────────▶│ApplicationWidget │─────▶│ SplashScreen  │
-//                                        └─────────────┘         └──────────────────┘      └───────────────┘
-//
-//                                                 3.build MaterialApp
 final getIt = GetIt.instance;
 
 abstract class EntryPoint {
@@ -37,8 +21,9 @@ abstract class EntryPoint {
 class FlowyRunner {
   static Future<void> run(
     EntryPoint f, {
-    LaunchConfiguration config =
-        const LaunchConfiguration(autoRegistrationSupported: false),
+    LaunchConfiguration config = const LaunchConfiguration(
+      autoRegistrationSupported: false,
+    ),
   }) async {
     // Clear all the states in case of rebuilding.
     await getIt.reset();
@@ -47,21 +32,44 @@ class FlowyRunner {
     final env = integrationEnv();
     initGetIt(getIt, env, f, config);
 
-    final directory = getIt<SettingsLocationCubit>()
-        .fetchLocation()
+    final directory = await getIt<LocalFileStorage>()
+        .getPath()
         .then((value) => Directory(value));
 
+    // final directory = await appFlowyDocumentDirectory();
+
     // add task
-    getIt<AppLauncher>().addTask(InitRustSDKTask(directory: directory));
-    getIt<AppLauncher>().addTask(PluginLoadTask());
+    final launcher = getIt<AppLauncher>();
+    launcher.addTasks(
+      [
+        // handle platform errors.
+        const PlatformErrorCatcherTask(),
+        // localization
+        const InitLocalizationTask(),
+        // init the app window
+        const InitAppWindowTask(),
+        // Init Rust SDK
+        InitRustSDKTask(directory: directory),
+        // Load Plugins, like document, grid ...
+        const PluginLoadTask(),
 
-    if (!env.isTest()) {
-      getIt<AppLauncher>().addTask(InitAppWidgetTask());
-      getIt<AppLauncher>().addTask(InitPlatformServiceTask());
-    }
-
-    // execute the tasks
-    await getIt<AppLauncher>().launch();
+        // init the app widget
+        // ignore in test mode
+        if (!env.isTest()) ...[
+          const HotKeyTask(),
+          InitSupabaseTask(
+            url: Env.supabaseUrl,
+            anonKey: Env.supabaseAnonKey,
+            key: Env.supabaseKey,
+            jwtSecret: Env.supabaseJwtSecret,
+            collabTable: Env.supabaseCollabTable,
+          ),
+          const InitAppWidgetTask(),
+          const InitPlatformServiceTask()
+        ],
+      ],
+    );
+    await launcher.launch(); // execute the tasks
   }
 }
 
@@ -104,23 +112,31 @@ enum LaunchTaskType {
 /// The interface of an app launch task, which will trigger
 /// some nonresident indispensable task in app launching task.
 abstract class LaunchTask {
+  const LaunchTask();
+
   LaunchTaskType get type => LaunchTaskType.dataProcessing;
+
   Future<void> initialize(LaunchContext context);
 }
 
 class AppLauncher {
-  List<LaunchTask> tasks;
+  AppLauncher({
+    required this.context,
+  });
 
   final LaunchContext context;
-
-  AppLauncher({required this.context}) : tasks = List.from([]);
+  final List<LaunchTask> tasks = [];
 
   void addTask(LaunchTask task) {
     tasks.add(task);
   }
 
+  void addTasks(Iterable<LaunchTask> tasks) {
+    this.tasks.addAll(tasks);
+  }
+
   Future<void> launch() async {
-    for (var task in tasks) {
+    for (final task in tasks) {
       await task.initialize(context);
     }
   }

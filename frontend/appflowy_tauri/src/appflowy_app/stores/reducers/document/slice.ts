@@ -1,21 +1,39 @@
-import { DocumentState, Node, TextSelection } from '@/appflowy_app/interfaces/document';
+import {
+  DocumentState,
+  Node,
+  PointState,
+  RangeSelectionState,
+  RectSelectionState,
+  SlashCommandState,
+} from '@/appflowy_app/interfaces/document';
 import { BlockEventPayloadPB } from '@/services/backend';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RegionGrid } from '@/appflowy_app/utils/region_grid';
 import { parseValue, matchChange } from '$app/utils/document/subscribe';
-
-const regionGrid = new RegionGrid(50);
 
 const initialState: DocumentState = {
   nodes: {},
   children: {},
-  selections: [],
-  textSelections: {},
+};
+
+const rectSelectionInitialState: RectSelectionState = {
+  selection: [],
+  isDragging: false,
+};
+
+const rangeSelectionInitialState: RangeSelectionState = {
+  isDragging: false,
+  selection: [],
+};
+
+const slashCommandInitialState: SlashCommandState = {
+  isSlashCommand: false,
 };
 
 export const documentSlice = createSlice({
   name: 'document',
   initialState: initialState,
+  // Here we can't offer actions to update the document state.
+  // Because the document state is updated by the `onDataChange`
   reducers: {
     // initialize the document
     clear: () => {
@@ -34,98 +52,13 @@ export const documentSlice = createSlice({
       state.nodes = nodes;
       state.children = children;
     },
-
-    // update block selections
-    updateSelections: (state, action: PayloadAction<string[]>) => {
-      state.selections = action.payload;
-    },
-
-    // set block selected
-    setSelectionById: (state, action: PayloadAction<string>) => {
-      const id = action.payload;
-      state.selections = [id];
-    },
-
-    // set block selected by selection rect
-    setSelectionByRect: (
-      state,
-      action: PayloadAction<{
-        startX: number;
-        startY: number;
-        endX: number;
-        endY: number;
-      }>
-    ) => {
-      const { startX, startY, endX, endY } = action.payload;
-      const blocks = regionGrid.getIntersectBlocks(startX, startY, endX, endY);
-      state.selections = blocks.map((block) => block.id);
-    },
-
-    // update block position
-    updateNodePosition: (
-      state,
-      action: PayloadAction<{
-        id: string;
-        rect: {
-          x: number;
-          y: number;
-          width: number;
-          height: number;
-        };
-      }>
-    ) => {
-      const { id, rect } = action.payload;
-      const position = {
-        id,
-        ...rect,
-      };
-      regionGrid.updateBlock(id, position);
-    },
-
-    // update text selections
-    setTextSelection: (
-      state,
-      action: PayloadAction<{
-        blockId: string;
-        selection?: TextSelection;
-      }>
-    ) => {
-      const { blockId, selection } = action.payload;
-      const node = state.nodes[blockId];
-      const oldSelection = state.textSelections[blockId];
-      if (JSON.stringify(oldSelection) === JSON.stringify(selection)) return;
-      if (!node || !selection) {
-        delete state.textSelections[blockId];
-      } else {
-        state.textSelections = {
-          [blockId]: selection,
-        };
-      }
-    },
-
-    // remove text selections
-    removeTextSelection: (state, action: PayloadAction<string>) => {
-      const id = action.payload;
-      if (!state.textSelections[id]) return;
-      state.textSelections;
-    },
-
-    // We need this action to update the local state before `onDataChange` to make the UI more smooth,
-    // because we often use `debounce` to send the change to db, so the db data will be updated later.
-    updateNodeData: (state, action: PayloadAction<{ id: string; data: Record<string, any> }>) => {
-      const { id, data } = action.payload;
-      const node = state.nodes[id];
-      if (!node) return;
-      node.data = {
-        ...node.data,
-        ...data,
-      };
-    },
-
-    // when we use `onDataChange` to handle the change, we don't need care about the change is from which client,
-    // because the data is always from db state, and then to UI.
-    // Except the `updateNodeData` action, we will use it before `onDataChange` to update the local state,
-    // so we should skip update block's `data` field when the change is from local
+    /**
+     This function listens for changes in the data layer triggered by the data API,
+     and updates the UI state accordingly.
+     It enables a unidirectional data flow,
+     where changes in the data layer update the UI layer,
+     but not the other way around.
+     */
     onDataChange: (
       state,
       action: PayloadAction<{
@@ -134,15 +67,101 @@ export const documentSlice = createSlice({
       }>
     ) => {
       const { path, id, value, command } = action.payload.data;
-      const isRemote = action.payload.isRemote;
 
       const valueJson = parseValue(value);
       if (!valueJson) return;
 
       // match change
-      matchChange(state, { path, id, value: valueJson, command }, isRemote);
+      matchChange(state, { path, id, value: valueJson, command });
     },
   },
 });
 
+export const rectSelectionSlice = createSlice({
+  name: 'documentRectSelection',
+  initialState: rectSelectionInitialState,
+  reducers: {
+    // update block selections
+    updateSelections: (state, action: PayloadAction<string[]>) => {
+      state.selection = action.payload;
+    },
+
+    // set block selected
+    setSelectionById: (state, action: PayloadAction<string>) => {
+      const id = action.payload;
+      if (state.selection.includes(id)) return;
+      state.selection = [...state.selection, id];
+    },
+
+    setDragging: (state, action: PayloadAction<boolean>) => {
+      state.isDragging = action.payload;
+    },
+  },
+});
+
+export const rangeSelectionSlice = createSlice({
+  name: 'documentRangeSelection',
+  initialState: rangeSelectionInitialState,
+  reducers: {
+    setRange: (
+      state,
+      action: PayloadAction<{
+        anchor?: PointState;
+        focus?: PointState;
+      }>
+    ) => {
+      return {
+        ...state,
+        ...action.payload,
+      };
+    },
+    setSelection: (state, action: PayloadAction<string[]>) => {
+      state.selection = action.payload;
+    },
+    setDragging: (state, action: PayloadAction<boolean>) => {
+      state.isDragging = action.payload;
+    },
+    setForward: (state, action: PayloadAction<boolean>) => {
+      state.isForward = action.payload;
+    },
+    clearRange: (state, _: PayloadAction) => {
+      return rangeSelectionInitialState;
+    },
+  },
+});
+
+export const slashCommandSlice = createSlice({
+  name: 'documentSlashCommand',
+  initialState: slashCommandInitialState,
+  reducers: {
+    openSlashCommand: (
+      state,
+      action: PayloadAction<{
+        blockId: string;
+      }>
+    ) => {
+      const { blockId } = action.payload;
+      return {
+        ...state,
+        isSlashCommand: true,
+        blockId,
+      };
+    },
+    closeSlashCommand: (state, _: PayloadAction) => {
+      return slashCommandInitialState;
+    },
+  },
+});
+
+export const documentReducers = {
+  [documentSlice.name]: documentSlice.reducer,
+  [rectSelectionSlice.name]: rectSelectionSlice.reducer,
+  [rangeSelectionSlice.name]: rangeSelectionSlice.reducer,
+  [slashCommandSlice.name]: slashCommandSlice.reducer,
+};
+
 export const documentActions = documentSlice.actions;
+export const rectSelectionActions = rectSelectionSlice.actions;
+export const rangeSelectionActions = rangeSelectionSlice.actions;
+
+export const slashCommandActions = slashCommandSlice.actions;

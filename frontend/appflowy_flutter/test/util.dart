@@ -1,10 +1,9 @@
 import 'package:appflowy/startup/launch_configuration.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/auth_service.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -35,7 +34,6 @@ class AppFlowyUnitTest {
     SharedPreferences.setMockInitialValues({});
     _pathProviderInitialized();
 
-    await EasyLocalization.ensureInitialized();
     await FlowyRunner.run(FlowyTestApp());
 
     final test = AppFlowyUnitTest();
@@ -56,12 +54,14 @@ class AppFlowyUnitTest {
       password: password,
       email: userEmail,
     );
-    return result.fold(
+    result.fold(
+      (error) {
+        assert(false, 'Error: $error');
+      },
       (user) {
         userProfile = user;
         userService = UserBackendService(userId: userProfile.id);
       },
-      (error) {},
     );
   }
 

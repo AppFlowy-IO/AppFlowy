@@ -1,4 +1,3 @@
-use flowy_client_ws::NetworkType;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 #[derive(ProtoBuf_Enum, Debug, Clone, Eq, PartialEq)]
@@ -25,19 +24,6 @@ impl NetworkTypePB {
 impl std::default::Default for NetworkTypePB {
   fn default() -> Self {
     NetworkTypePB::Unknown
-  }
-}
-
-impl std::convert::From<NetworkTypePB> for NetworkType {
-  fn from(ty: NetworkTypePB) -> Self {
-    match ty {
-      NetworkTypePB::Unknown => NetworkType::Unknown,
-      NetworkTypePB::Wifi => NetworkType::Wifi,
-      NetworkTypePB::Cell => NetworkType::Cell,
-      NetworkTypePB::Ethernet => NetworkType::Ethernet,
-      NetworkTypePB::Bluetooth => NetworkType::Bluetooth,
-      NetworkTypePB::VPN => NetworkType::VPN,
-    }
   }
 }
 

@@ -12,13 +12,14 @@ use flowy_database2::services::field::{
   CheckboxTypeOption, ChecklistTypeOption, DateCellChangeset, MultiSelectTypeOption, SelectOption,
   SelectOptionCellChangeset, SingleSelectTypeOption,
 };
-use flowy_test::helper::ViewTest;
-use flowy_test::FlowySDKTest;
+use flowy_error::FlowyResult;
+use flowy_test::folder_event::ViewTest;
+use flowy_test::FlowyCoreTest;
 
 use crate::database::mock_data::{make_test_board, make_test_calendar, make_test_grid};
 
 pub struct DatabaseEditorTest {
-  pub sdk: FlowySDKTest,
+  pub sdk: FlowyCoreTest,
   pub app_id: String,
   pub view_id: String,
   pub editor: Arc<DatabaseEditor>,
@@ -42,7 +43,7 @@ impl DatabaseEditorTest {
   }
 
   pub async fn new(layout: DatabaseLayoutPB) -> Self {
-    let sdk = FlowySDKTest::default();
+    let sdk = FlowyCoreTest::new();
     let _ = sdk.init_user().await;
     let test = match layout {
       DatabaseLayoutPB::Grid => {
@@ -61,7 +62,7 @@ impl DatabaseEditorTest {
 
     let editor = sdk
       .database_manager
-      .get_database(&test.child_view.id)
+      .get_database_with_view_id(&test.child_view.id)
       .await
       .unwrap();
     let fields = editor
@@ -172,7 +173,7 @@ impl DatabaseEditorTest {
     field_id: &str,
     row_id: RowId,
     cell_changeset: T,
-  ) {
+  ) -> FlowyResult<()> {
     let field = self
       .editor
       .get_fields(&self.view_id, None)
@@ -183,10 +184,10 @@ impl DatabaseEditorTest {
     self
       .editor
       .update_cell_with_changeset(&self.view_id, row_id, &field.id, cell_changeset)
-      .await;
+      .await
   }
 
-  pub(crate) async fn update_text_cell(&mut self, row_id: RowId, content: &str) {
+  pub(crate) async fn update_text_cell(&mut self, row_id: RowId, content: &str) -> FlowyResult<()> {
     let field = self
       .editor
       .get_fields(&self.view_id, None)
@@ -200,10 +201,14 @@ impl DatabaseEditorTest {
 
     self
       .update_cell(&field.id, row_id, content.to_string())
-      .await;
+      .await
   }
 
-  pub(crate) async fn update_single_select_cell(&mut self, row_id: RowId, option_id: &str) {
+  pub(crate) async fn update_single_select_cell(
+    &mut self,
+    row_id: RowId,
+    option_id: &str,
+  ) -> FlowyResult<()> {
     let field = self
       .editor
       .get_fields(&self.view_id, None)
@@ -216,23 +221,36 @@ impl DatabaseEditorTest {
       .clone();
 
     let cell_changeset = SelectOptionCellChangeset::from_insert_option_id(option_id);
-    self.update_cell(&field.id, row_id, cell_changeset).await;
+    self.update_cell(&field.id, row_id, cell_changeset).await
+  }
+
+  pub async fn import(&self, s: String) -> String {
+    self.sdk.database_manager.import_csv(s).await.unwrap()
+  }
+
+  pub async fn get_database(&self, database_id: &str) -> Option<Arc<DatabaseEditor>> {
+    self
+      .sdk
+      .database_manager
+      .get_database(database_id)
+      .await
+      .ok()
   }
 }
 
-pub struct TestRowBuilder {
+pub struct TestRowBuilder<'a> {
   row_id: RowId,
-  fields: Vec<Field>,
-  cell_build: CellBuilder,
+  fields: &'a [Field],
+  cell_build: CellBuilder<'a>,
 }
 
-impl TestRowBuilder {
-  pub fn new(row_id: RowId, fields: Vec<Field>) -> Self {
-    let inner_builder = CellBuilder::with_cells(Default::default(), fields.clone());
+impl<'a> TestRowBuilder<'a> {
+  pub fn new(row_id: RowId, fields: &'a [Field]) -> Self {
+    let cell_build = CellBuilder::with_cells(Default::default(), fields);
     Self {
       row_id,
       fields,
-      cell_build: inner_builder,
+      cell_build,
     }
   }
 
@@ -253,12 +271,18 @@ impl TestRowBuilder {
     number_field.id.clone()
   }
 
-  pub fn insert_date_cell(&mut self, data: &str) -> String {
+  pub fn insert_date_cell(
+    &mut self,
+    data: &str,
+    time: Option<String>,
+    include_time: Option<bool>,
+    timezone_id: Option<String>,
+  ) -> String {
     let value = serde_json::to_string(&DateCellChangeset {
       date: Some(data.to_string()),
-      time: None,
-      is_utc: true,
-      include_time: Some(false),
+      time,
+      include_time,
+      timezone_id,
     })
     .unwrap();
     let date_field = self.field_with_type(&FieldType::DateTime);
