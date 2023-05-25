@@ -16,4 +16,23 @@ class Config {
         ..jwtSecret = secret,
     ).send();
   }
+
+  static Future<void> setSupabaseCollabPluginConfig({
+    required String url,
+    required String key,
+    required String jwtSecret,
+    required String collabTable,
+  }) async {
+    final payload = CollabPluginConfigPB.create();
+    final collabTableConfig = CollabTableConfigPB.create()
+      ..tableName = collabTable;
+
+    payload.supabaseConfig = SupabaseDBConfigPB.create()
+      ..supabaseUrl = url
+      ..key = key
+      ..jwtSecret = jwtSecret
+      ..collabTableConfig = collabTableConfig;
+
+    await ConfigEventSetCollabPluginConfig(payload).send();
+  }
 }

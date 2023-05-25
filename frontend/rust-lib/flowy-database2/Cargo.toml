@@ -39,6 +39,7 @@ rayon = "1.6.1"
 nanoid = "0.4.0"
 chrono-tz = "0.8.1"
 async-trait = "0.1"
+csv = "1.1.6"
 
 strum = "0.21"
 strum_macros = "0.21"

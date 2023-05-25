@@ -59,13 +59,18 @@ class CodeBlockComponentBuilder extends BlockComponentBuilder {
   final EdgeInsets padding;
 
   @override
-  Widget build(BlockComponentContext blockComponentContext) {
+  BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
     return CodeBlockComponentWidget(
       key: node.key,
       node: node,
       configuration: configuration,
       padding: padding,
+      showActions: showActions(node),
+      actionBuilder: (context, state) => actionBuilder(
+        blockComponentContext,
+        state,
+      ),
     );
   }
 
@@ -73,16 +78,16 @@ class CodeBlockComponentBuilder extends BlockComponentBuilder {
   bool validate(Node node) => node.delta != null;
 }
 
-class CodeBlockComponentWidget extends StatefulWidget {
+class CodeBlockComponentWidget extends BlockComponentStatefulWidget {
   const CodeBlockComponentWidget({
-    Key? key,
-    required this.node,
-    this.configuration = const BlockComponentConfiguration(),
+    super.key,
+    required super.node,
+    super.showActions,
+    super.actionBuilder,
+    super.configuration = const BlockComponentConfiguration(),
     this.padding = const EdgeInsets.all(0),
-  }) : super(key: key);
+  });
 
-  final Node node;
-  final BlockComponentConfiguration configuration;
   final EdgeInsets padding;
 
   @override
@@ -166,7 +171,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    Widget child = Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
         color: Colors.grey.withOpacity(0.1),
@@ -181,6 +186,16 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
         ],
       ),
     );
+
+    if (widget.actionBuilder != null) {
+      child = BlockComponentActionWrapper(
+        node: widget.node,
+        actionBuilder: widget.actionBuilder!,
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   Widget _buildCodeBlock(BuildContext context) {

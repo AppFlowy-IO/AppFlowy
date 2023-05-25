@@ -104,6 +104,7 @@ impl UserSession {
     auth_type: &AuthType,
     params: BoxAny,
   ) -> Result<UserProfile, FlowyError> {
+    self.cloud_services.set_auth_type(auth_type.clone());
     let resp = self
       .cloud_services
       .get_auth_service(auth_type)?
@@ -134,6 +135,7 @@ impl UserSession {
     auth_type: &AuthType,
     params: BoxAny,
   ) -> Result<UserProfile, FlowyError> {
+    self.cloud_services.set_auth_type(auth_type.clone());
     let resp = self
       .cloud_services
       .get_auth_service(auth_type)?
@@ -163,6 +165,7 @@ impl UserSession {
       .execute(&*(self.db_connection()?))?;
     self.database.close_user_db(session.user_id)?;
     self.set_session(None)?;
+
     let server = self.cloud_services.get_auth_service(auth_type)?;
     let token = session.token;
     let _ = tokio::spawn(async move {

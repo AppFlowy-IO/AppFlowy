@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:dartz/dartz.dart';
@@ -14,12 +13,9 @@ class AppBackendService {
     String? desc,
     required ViewLayoutPB layoutType,
 
-    /// The initial data should be the JSON of the document.
+    /// The initial data should be a JSON that represent the DocumentDataPB.
     /// Currently, only support create document with initial data.
-    ///
-    /// The initial data must be follow this format as shown below.
-    ///  {"document":{"type":"editor","children":[]}}
-    String? initialData,
+    List<int>? initialDataBytes,
 
     /// The [ext] is used to pass through the custom configuration
     /// to the backend.
@@ -33,9 +29,7 @@ class AppBackendService {
       ..name = name
       ..desc = desc ?? ""
       ..layout = layoutType
-      ..initialData = utf8.encode(
-        initialData ?? "",
-      );
+      ..initialData = initialDataBytes ?? [];
 
     if (ext.isNotEmpty) {
       payload.ext.addAll(ext);

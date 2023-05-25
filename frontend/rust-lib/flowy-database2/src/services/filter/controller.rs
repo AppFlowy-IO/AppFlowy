@@ -164,7 +164,7 @@ impl FilterController {
             let row_pb = RowPB::from(row.as_ref());
             notification
               .visible_rows
-              .push(InsertedRowPB::with_index(row_pb, index as i32))
+              .push(InsertedRowPB::new(row_pb).with_index(index as i32))
           }
         } else {
           notification.invisible_rows.push(row_id);
@@ -199,7 +199,7 @@ impl FilterController {
       ) {
         if is_visible {
           let row_pb = RowPB::from(row.as_ref());
-          visible_rows.push(InsertedRowPB::with_index(row_pb, index as i32))
+          visible_rows.push(InsertedRowPB::new(row_pb).with_index(index as i32))
         } else {
           invisible_rows.push(row_id);
         }

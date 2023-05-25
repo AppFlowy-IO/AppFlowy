@@ -95,11 +95,14 @@ where
   fn transform_type_option_cell(
     &self,
     cell: &Cell,
-    _decoded_field_type: &FieldType,
+    transformed_field_type: &FieldType,
     _field: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {
-    match _decoded_field_type {
-      FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => None,
+    match transformed_field_type {
+      FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => {
+        // If the transformed field type is SingleSelect, MultiSelect or Checklist, Do nothing.
+        None
+      },
       FieldType::Checkbox => {
         let cell_content = CheckboxCellData::from(cell).to_string();
         let mut transformed_ids = Vec::new();

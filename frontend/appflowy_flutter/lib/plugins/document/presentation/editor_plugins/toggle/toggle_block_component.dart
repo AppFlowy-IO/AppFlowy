@@ -44,13 +44,18 @@ class ToggleListBlockComponentBuilder extends BlockComponentBuilder {
   final EdgeInsets padding;
 
   @override
-  Widget build(BlockComponentContext blockComponentContext) {
+  BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
     return ToggleListBlockComponentWidget(
       key: node.key,
       node: node,
       configuration: configuration,
       padding: padding,
+      showActions: showActions(node),
+      actionBuilder: (context, state) => actionBuilder(
+        blockComponentContext,
+        state,
+      ),
     );
   }
 
@@ -58,16 +63,16 @@ class ToggleListBlockComponentBuilder extends BlockComponentBuilder {
   bool validate(Node node) => node.delta != null;
 }
 
-class ToggleListBlockComponentWidget extends StatefulWidget {
+class ToggleListBlockComponentWidget extends BlockComponentStatefulWidget {
   const ToggleListBlockComponentWidget({
-    Key? key,
-    required this.node,
-    this.configuration = const BlockComponentConfiguration(),
+    super.key,
+    required super.node,
+    super.showActions,
+    super.actionBuilder,
+    super.configuration = const BlockComponentConfiguration(),
     this.padding = const EdgeInsets.all(0),
-  }) : super(key: key);
+  });
 
-  final Node node;
-  final BlockComponentConfiguration configuration;
   final EdgeInsets padding;
 
   @override

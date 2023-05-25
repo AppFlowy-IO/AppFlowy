@@ -40,6 +40,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
 /// The user cloud service provider.
 /// The provider can be supabase, firebase, aws, or any other cloud service.
 pub trait UserCloudServiceProvider: Send + Sync + 'static {
+  fn set_auth_type(&self, auth_type: AuthType);
   fn get_auth_service(&self, auth_type: &AuthType) -> Result<Arc<dyn UserAuthService>, FlowyError>;
 }
 
@@ -47,6 +48,10 @@ impl<T> UserCloudServiceProvider for Arc<T>
 where
   T: UserCloudServiceProvider,
 {
+  fn set_auth_type(&self, auth_type: AuthType) {
+    (**self).set_auth_type(auth_type)
+  }
+
   fn get_auth_service(&self, auth_type: &AuthType) -> Result<Arc<dyn UserAuthService>, FlowyError> {
     (**self).get_auth_service(auth_type)
   }

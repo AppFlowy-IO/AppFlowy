@@ -16,6 +16,7 @@ pub async fn sign_in(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let params: SignInParams = data.into_inner().try_into()?;
   let auth_type = params.auth_type.clone();
+
   let user_profile: UserProfilePB = session
     .sign_in(&auth_type, BoxAny::new(params))
     .await?

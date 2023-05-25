@@ -9,7 +9,8 @@ import 'package:appflowy/plugins/document/presentation/export_page_widget.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/base64_string.dart';
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart'
+    hide DocumentEvent;
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -119,7 +120,7 @@ class _DocumentPageState extends State<DocumentPage> {
     );
   }
 
-  Future<void> _exportPage(DocumentDataPB2 data) async {
+  Future<void> _exportPage(DocumentDataPB data) async {
     final picker = getIt<FilePickerService>();
     final dir = await picker.getDirectoryPath();
     if (dir == null) {

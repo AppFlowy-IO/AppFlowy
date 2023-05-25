@@ -137,9 +137,7 @@ impl NumberTypeOption {
           };
 
           match Decimal::from_str(&num_str) {
-            Ok(decimal, ..) => {
-              return Ok(NumberCellFormat::from_decimal(decimal));
-            },
+            Ok(decimal, ..) => Ok(NumberCellFormat::from_decimal(decimal)),
             Err(_) => Ok(NumberCellFormat::new()),
           }
         }

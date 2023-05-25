@@ -117,7 +117,7 @@ pub fn make_test_grid() -> DatabaseData {
   }
 
   for i in 0..6 {
-    let mut row_builder = TestRowBuilder::new(i.into(), fields.clone());
+    let mut row_builder = TestRowBuilder::new(i.into(), &fields);
     match i {
       0 => {
         for field_type in FieldType::iter() {

@@ -10,7 +10,7 @@ use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use parking_lot::Mutex;
 use tokio::sync::{broadcast, RwLock};
 
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
 use lib_infra::future::{to_fut, Fut};
 
@@ -18,13 +18,13 @@ use crate::entities::{
   AlterFilterParams, AlterSortParams, CalendarEventPB, CellChangesetNotifyPB, CellPB,
   CreateRowParams, DatabaseFieldChangesetPB, DatabasePB, DatabaseViewSettingPB, DeleteFilterParams,
   DeleteGroupParams, DeleteSortParams, FieldChangesetParams, FieldIdPB, FieldPB, FieldType,
-  GroupPB, IndexFieldPB, InsertGroupParams, LayoutSettingParams, RepeatedFilterPB, RepeatedGroupPB,
-  RepeatedSortPB, RowPB, SelectOptionCellDataPB, SelectOptionPB,
+  GroupPB, IndexFieldPB, InsertGroupParams, InsertedRowPB, LayoutSettingParams, RepeatedFilterPB,
+  RepeatedGroupPB, RepeatedSortPB, RowPB, RowsChangesetPB, SelectOptionCellDataPB, SelectOptionPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
-  apply_cell_changeset, get_type_cell_protobuf, insert_date_cell, AnyTypeCache, CellBuilder,
-  CellCache, ToCellChangeset,
+  apply_cell_changeset, get_cell_protobuf, insert_date_cell, AnyTypeCache, CellBuilder, CellCache,
+  ToCellChangeset,
 };
 use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewData, DatabaseViews};
@@ -36,6 +36,7 @@ use crate::services::field::{
 };
 use crate::services::filter::Filter;
 use crate::services::group::{default_group_setting, GroupSetting, RowChangeset};
+use crate::services::share::csv::{CSVExport, ExportStyle};
 use crate::services::sort::Sort;
 
 #[derive(Clone)]
@@ -278,24 +279,32 @@ impl DatabaseEditor {
     let _ = self.database.lock().duplicate_row(view_id, row_id);
   }
 
-  pub async fn move_row(&self, _view_id: &str, _from: RowId, _to: RowId) {
-    // self.database.lock().views.update_view(view_id, |view| {
-    //   view.move_row_order(from as u32, to as u32);
-    // });
-    // let changeset = RowsChangesetPB::from_move(
-    //   view_id.to_string(),
-    //   vec![from.into_inner()],
-    //   vec![to.into()],
-    // );
-    // send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
-    //     .payload(changeset)
-    //     .send();
+  pub async fn move_row(&self, view_id: &str, from: RowId, to: RowId) {
+    let database = self.database.lock();
+    if let (Some(row), Some(from_index), Some(to_index)) = (
+      database.get_row(&from),
+      database.index_of_row(view_id, &from),
+      database.index_of_row(view_id, &to),
+    ) {
+      database.views.update_database_view(view_id, |view| {
+        view.move_row_order(from_index as u32, to_index as u32);
+      });
+      drop(database);
+
+      let delete_row_id = from.into_inner();
+      let insert_row = InsertedRowPB::from(&row).with_index(to_index as i32);
+      let changeset =
+        RowsChangesetPB::from_move(view_id.to_string(), vec![delete_row_id], vec![insert_row]);
+      send_notification(view_id, DatabaseNotification::DidUpdateViewRows)
+        .payload(changeset)
+        .send();
+    }
   }
 
   pub async fn create_row(&self, params: CreateRowParams) -> FlowyResult<Option<Row>> {
     let fields = self.database.lock().get_fields(&params.view_id, None);
     let mut cells =
-      CellBuilder::with_cells(params.cell_data_by_field_id.unwrap_or_default(), fields).build();
+      CellBuilder::with_cells(params.cell_data_by_field_id.unwrap_or_default(), &fields).build();
     for view in self.database_views.editors().await {
       view.v_will_create_row(&mut cells, &params.group_id).await;
     }
@@ -373,7 +382,7 @@ impl DatabaseEditor {
   ) -> FlowyResult<()> {
     let (database_id, field) = {
       let database = self.database.lock();
-      database.views.update_view(view_id, |view_update| {
+      database.views.update_database_view(view_id, |view_update| {
         view_update.move_field_order(from as u32, to as u32);
       });
       let field = database.fields.get_field(field_id);
@@ -426,7 +435,7 @@ impl DatabaseEditor {
     match (field, cell) {
       (Some(field), Some(cell)) => {
         let field_type = FieldType::from(field.field_type);
-        let cell_bytes = get_type_cell_protobuf(&cell, &field, Some(self.cell_cache.clone()));
+        let cell_bytes = get_cell_protobuf(&cell, &field, Some(self.cell_cache.clone()));
         CellPB {
           field_id: field_id.to_string(),
           row_id: row_id.into(),
@@ -820,6 +829,18 @@ impl DatabaseEditor {
       fields,
       rows,
     }
+  }
+
+  pub async fn export_csv(&self, style: ExportStyle) -> FlowyResult<String> {
+    let database = self.database.clone();
+    let csv = tokio::task::spawn_blocking(move || {
+      let database_guard = database.lock();
+      let csv = CSVExport.export_database(&database_guard, style)?;
+      Ok::<String, FlowyError>(csv)
+    })
+    .await
+    .map_err(internal_error)??;
+    Ok(csv)
   }
 }
 

@@ -24,13 +24,18 @@ class DividerBlockComponentBuilder extends BlockComponentBuilder {
   final Color lineColor;
 
   @override
-  Widget build(BlockComponentContext blockComponentContext) {
+  BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
     return DividerBlockComponentWidget(
       key: node.key,
       node: node,
       padding: padding,
       lineColor: lineColor,
+      showActions: showActions(node),
+      actionBuilder: (context, state) => actionBuilder(
+        blockComponentContext,
+        state,
+      ),
     );
   }
 
@@ -38,15 +43,17 @@ class DividerBlockComponentBuilder extends BlockComponentBuilder {
   bool validate(Node node) => node.children.isEmpty;
 }
 
-class DividerBlockComponentWidget extends StatefulWidget {
+class DividerBlockComponentWidget extends BlockComponentStatefulWidget {
   const DividerBlockComponentWidget({
-    Key? key,
-    required this.node,
+    super.key,
+    required super.node,
+    super.showActions,
+    super.actionBuilder,
+    super.configuration = const BlockComponentConfiguration(),
     this.padding = const EdgeInsets.symmetric(vertical: 8.0),
     this.lineColor = Colors.grey,
-  }) : super(key: key);
+  });
 
-  final Node node;
   final EdgeInsets padding;
   final Color lineColor;
 
@@ -61,13 +68,27 @@ class _DividerBlockComponentWidgetState
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    Widget child = Padding(
       padding: widget.padding,
       child: Container(
-        height: 1,
-        color: widget.lineColor,
+        height: 10,
+        alignment: Alignment.center,
+        child: Divider(
+          color: widget.lineColor,
+          thickness: 1,
+        ),
       ),
     );
+
+    if (widget.actionBuilder != null) {
+      child = BlockComponentActionWrapper(
+        node: widget.node,
+        actionBuilder: widget.actionBuilder!,
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   @override

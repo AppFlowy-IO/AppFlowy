@@ -151,3 +151,19 @@ typedef _invoke_log_Dart = void Function(
   int level,
   Pointer<ffi.Utf8>,
 );
+
+/// C function `set_env`.
+void set_env(
+  Pointer<ffi.Utf8> data,
+) {
+  _set_env(data);
+}
+
+final _set_env_Dart _set_env =
+    _dart_ffi_lib.lookupFunction<_set_env_C, _set_env_Dart>('set_env');
+typedef _set_env_C = Void Function(
+  Pointer<ffi.Utf8> data,
+);
+typedef _set_env_Dart = void Function(
+  Pointer<ffi.Utf8> data,
+);

@@ -15,6 +15,8 @@ import 'package:appflowy_editor/appflowy_editor.dart'
 import 'package:collection/collection.dart';
 import 'dart:async';
 
+import 'package:nanoid/nanoid.dart';
+
 /// Uses to adjust the data structure between the editor and the backend.
 ///
 /// The editor uses a tree structure to represent the document, while the backend uses a flat structure.
@@ -64,14 +66,20 @@ extension on InsertOperation {
     for (final node in nodes) {
       final parentId =
           node.parent?.id ?? editorState.getNodeAtPath(path.parent)?.id ?? '';
-      final prevId = previousNode?.id ??
+      var prevId = previousNode?.id ??
           editorState.getNodeAtPath(path.previous)?.id ??
           '';
-      assert(parentId.isNotEmpty && prevId.isNotEmpty);
+      assert(parentId.isNotEmpty);
+      if (path.equals(path.previous)) {
+        prevId = '';
+      } else {
+        assert(prevId.isNotEmpty && prevId != node.id);
+      }
       final payload = BlockActionPayloadPB()
-        ..block = node.toBlock()
+        ..block = node.toBlock(childrenId: nanoid(10))
         ..parentId = parentId
         ..prevId = prevId;
+      assert(payload.block.childrenId.isNotEmpty);
       actions.add(
         BlockActionPB()
           ..action = BlockActionTypePB.Insert

@@ -13,13 +13,13 @@ use flowy_database2::services::field::{
   SelectOptionCellChangeset, SingleSelectTypeOption,
 };
 use flowy_error::FlowyResult;
-use flowy_test::helper::ViewTest;
-use flowy_test::FlowySDKTest;
+use flowy_test::folder_event::ViewTest;
+use flowy_test::FlowyCoreTest;
 
 use crate::database::mock_data::{make_test_board, make_test_calendar, make_test_grid};
 
 pub struct DatabaseEditorTest {
-  pub sdk: FlowySDKTest,
+  pub sdk: FlowyCoreTest,
   pub app_id: String,
   pub view_id: String,
   pub editor: Arc<DatabaseEditor>,
@@ -43,7 +43,7 @@ impl DatabaseEditorTest {
   }
 
   pub async fn new(layout: DatabaseLayoutPB) -> Self {
-    let sdk = FlowySDKTest::default();
+    let sdk = FlowyCoreTest::new();
     let _ = sdk.init_user().await;
     let test = match layout {
       DatabaseLayoutPB::Grid => {
@@ -62,7 +62,7 @@ impl DatabaseEditorTest {
 
     let editor = sdk
       .database_manager
-      .get_database(&test.child_view.id)
+      .get_database_with_view_id(&test.child_view.id)
       .await
       .unwrap();
     let fields = editor
@@ -223,21 +223,34 @@ impl DatabaseEditorTest {
     let cell_changeset = SelectOptionCellChangeset::from_insert_option_id(option_id);
     self.update_cell(&field.id, row_id, cell_changeset).await
   }
+
+  pub async fn import(&self, s: String) -> String {
+    self.sdk.database_manager.import_csv(s).await.unwrap()
+  }
+
+  pub async fn get_database(&self, database_id: &str) -> Option<Arc<DatabaseEditor>> {
+    self
+      .sdk
+      .database_manager
+      .get_database(database_id)
+      .await
+      .ok()
+  }
 }
 
-pub struct TestRowBuilder {
+pub struct TestRowBuilder<'a> {
   row_id: RowId,
-  fields: Vec<Field>,
-  cell_build: CellBuilder,
+  fields: &'a [Field],
+  cell_build: CellBuilder<'a>,
 }
 
-impl TestRowBuilder {
-  pub fn new(row_id: RowId, fields: Vec<Field>) -> Self {
-    let inner_builder = CellBuilder::with_cells(Default::default(), fields.clone());
+impl<'a> TestRowBuilder<'a> {
+  pub fn new(row_id: RowId, fields: &'a [Field]) -> Self {
+    let cell_build = CellBuilder::with_cells(Default::default(), fields);
     Self {
       row_id,
       fields,
-      cell_build: inner_builder,
+      cell_build,
     }
   }
 

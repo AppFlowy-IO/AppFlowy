@@ -29,6 +29,13 @@ abstract class Env {
     defaultValue: '',
   )
   static final supabaseJwtSecret = _Env.supabaseJwtSecret;
+
+  @EnviedField(
+    obfuscate: true,
+    varName: 'SUPABASE_COLLAB_TABLE',
+    defaultValue: '',
+  )
+  static final supabaseCollabTable = _Env.supabaseCollabTable;
 }
 
 bool get isSupabaseEnable =>

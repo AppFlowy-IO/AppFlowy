@@ -1,49 +1,49 @@
 import {
   FlowyError,
-  DocumentDataPB2,
-  OpenDocumentPayloadPBV2,
-  CreateDocumentPayloadPBV2,
-  ApplyActionPayloadPBV2,
+  DocumentDataPB,
+  OpenDocumentPayloadPB,
+  CreateDocumentPayloadPB,
+  ApplyActionPayloadPB,
   BlockActionPB,
-  CloseDocumentPayloadPBV2,
+  CloseDocumentPayloadPB,
 } from '@/services/backend';
 import { Result } from 'ts-results';
 import {
-  DocumentEvent2ApplyAction,
-  DocumentEvent2CloseDocument,
-  DocumentEvent2OpenDocument,
-  DocumentEvent2CreateDocument,
+  DocumentEventApplyAction,
+  DocumentEventCloseDocument,
+  DocumentEventOpenDocument,
+  DocumentEventCreateDocument,
 } from '@/services/backend/events/flowy-document2';
 
 export class DocumentBackendService {
   constructor(public readonly viewId: string) {}
 
   create = (): Promise<Result<void, FlowyError>> => {
-    const payload = CreateDocumentPayloadPBV2.fromObject({
+    const payload = CreateDocumentPayloadPB.fromObject({
       document_id: this.viewId,
     });
-    return DocumentEvent2CreateDocument(payload);
+    return DocumentEventCreateDocument(payload);
   };
 
-  open = (): Promise<Result<DocumentDataPB2, FlowyError>> => {
-    const payload = OpenDocumentPayloadPBV2.fromObject({
+  open = (): Promise<Result<DocumentDataPB, FlowyError>> => {
+    const payload = OpenDocumentPayloadPB.fromObject({
       document_id: this.viewId,
     });
-    return DocumentEvent2OpenDocument(payload);
+    return DocumentEventOpenDocument(payload);
   };
 
   applyActions = (actions: ReturnType<typeof BlockActionPB.prototype.toObject>[]): Promise<Result<void, FlowyError>> => {
-    const payload = ApplyActionPayloadPBV2.fromObject({
+    const payload = ApplyActionPayloadPB.fromObject({
       document_id: this.viewId,
       actions: actions,
     });
-    return DocumentEvent2ApplyAction(payload);
+    return DocumentEventApplyAction(payload);
   };
 
   close = (): Promise<Result<void, FlowyError>> => {
-    const payload = CloseDocumentPayloadPBV2.fromObject({
+    const payload = CloseDocumentPayloadPB.fromObject({
       document_id: this.viewId,
     });
-    return DocumentEvent2CloseDocument(payload);
+    return DocumentEventCloseDocument(payload);
   };
 }

@@ -13,12 +13,14 @@ class InitSupabaseTask extends LaunchTask {
     required this.anonKey,
     required this.key,
     required this.jwtSecret,
+    this.collabTable = "",
   });
 
   final String url;
   final String anonKey;
   final String key;
   final String jwtSecret;
+  final String collabTable;
 
   @override
   Future<void> initialize(LaunchContext context) async {
@@ -33,6 +35,7 @@ class InitSupabaseTask extends LaunchTask {
     await Supabase.initialize(
       url: url,
       anonKey: anonKey,
+      debug: false,
     );
     await Config.setSupabaseConfig(
       url: url,

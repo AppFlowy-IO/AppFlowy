@@ -3,7 +3,6 @@ import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/header/import/import_panel.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' show Document;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -15,7 +14,8 @@ import 'package:easy_localization/easy_localization.dart';
 class AddButton extends StatelessWidget {
   final Function(
     PluginBuilder,
-    Document? document,
+    List<int>? initialDataBytes,
+    bool openAfterCreated,
   ) onSelected;
 
   const AddButton({
@@ -71,14 +71,22 @@ class AddButton extends StatelessWidget {
       },
       onSelected: (action, controller) {
         if (action is AddButtonActionWrapper) {
-          onSelected(action.pluginBuilder, null);
+          onSelected(action.pluginBuilder, null, true);
         }
         if (action is ImportActionWrapper) {
-          showImportPanel(context, (document) {
-            if (document == null) {
+          showImportPanel(context, (type, initialDataBytes) {
+            if (initialDataBytes == null) {
               return;
             }
-            onSelected(action.pluginBuilder, document);
+            switch (type) {
+              case ImportType.historyDocument:
+              case ImportType.historyDatabase:
+                onSelected(action.pluginBuilder, initialDataBytes, false);
+                break;
+              case ImportType.markdownOrText:
+                onSelected(action.pluginBuilder, initialDataBytes, true);
+                break;
+            }
           });
         }
         controller.close();
