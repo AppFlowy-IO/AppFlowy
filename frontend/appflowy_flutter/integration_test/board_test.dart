@@ -34,6 +34,8 @@ void main() {
   group('board', () {
     setUpAll(() async => await service.setUpAll());
     setUp(() async => await service.setUp());
+    tearDown(() async => await service.tearDown());
+    tearDownAll(() async => await service.tearDownAll());
 
     testWidgets(
         'integration test unzips the proper workspace and loads it correctly.',
