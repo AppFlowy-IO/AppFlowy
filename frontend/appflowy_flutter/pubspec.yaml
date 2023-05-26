@@ -42,12 +42,10 @@ dependencies:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
       ref: a183c57
-  # appflowy_editor: ^0.1.9
   appflowy_editor:
-    # path: /Users/lucas.xu/Desktop/appflowy-editor
     git:
-      url: https://github.com/Xazin/appflowy-editor.git
-      ref: e2cf098
+      url: https://github.com/AppFlowy-IO/appflowy-editor.git
+      ref: 30ce149
   appflowy_popover:
     path: packages/appflowy_popover
 
@@ -77,8 +75,6 @@ dependencies:
   connectivity_plus_platform_interface: ^1.2.2
   easy_localization: ^3.0.2
   textfield_tags: ^2.0.2
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
   device_info_plus: ^9.0.1
   fluttertoast: ^8.2.2
   json_annotation: ^4.8.1

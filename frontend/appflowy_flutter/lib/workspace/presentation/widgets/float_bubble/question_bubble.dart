@@ -108,15 +108,10 @@ class _DebugToast {
 
   Future<String> _getDeviceInfo() async {
     final deviceInfoPlugin = DeviceInfoPlugin();
-    final deviceInfo = deviceInfoPlugin.deviceInfo;
+    final deviceInfo = await deviceInfoPlugin.deviceInfo;
 
-    return deviceInfo.then((info) {
-      String debugText = "";
-      info.data.forEach((key, value) {
-        debugText = "$debugText$key: $value\n";
-      });
-      return debugText;
-    });
+    return deviceInfo.data.entries
+        .fold('', (prev, el) => "$prev${el.key}: ${el.value}");
   }
 
   Future<String> _getDocumentPath() async {
