@@ -613,7 +613,7 @@ pub(crate) async fn move_calendar_event_handler(
     date: Some(data.timestamp.to_string()),
     ..Default::default()
   };
-  let database_editor = manager.get_database(&cell_id.view_id).await?;
+  let database_editor = manager.get_database_with_view_id(&cell_id.view_id).await?;
   database_editor
     .update_cell_with_changeset(
       &cell_id.view_id,
