@@ -280,6 +280,8 @@
       "textFieldName": "Text",
       "checkboxFieldName": "Checkbox",
       "dateFieldName": "Date",
+      "updatedAtFieldName": "Updated At",
+      "createdAtFieldName": "Created At",
       "numberFieldName": "Numbers",
       "singleSelectFieldName": "Select",
       "multiSelectFieldName": "Multiselect",

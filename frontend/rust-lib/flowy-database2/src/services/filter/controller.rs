@@ -323,7 +323,7 @@ impl FilterController {
             .write()
             .insert(field_id, NumberFilterPB::from_filter(filter.as_ref()));
         },
-        FieldType::DateTime => {
+        FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
           self
             .cell_filter_cache
             .write()

@@ -23,15 +23,15 @@ use crate::entities::{
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
-  apply_cell_changeset, get_cell_protobuf, AnyTypeCache, CellBuilder, CellCache, ToCellChangeset,
+  apply_cell_changeset, get_cell_protobuf, insert_date_cell, AnyTypeCache, CellBuilder, CellCache,
+  ToCellChangeset,
 };
 use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewData, DatabaseViews};
 use crate::services::field::{
-  default_type_option_data_for_type, default_type_option_data_from_type,
-  select_type_option_from_field, transform_type_option, type_option_data_from_pb_or_default,
-  type_option_to_pb, SelectOptionCellChangeset, SelectOptionIds, TypeOptionCellDataHandler,
-  TypeOptionCellExt,
+  default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
+  type_option_data_from_pb_or_default, type_option_to_pb, SelectOptionCellChangeset,
+  SelectOptionIds, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
 use crate::services::filter::Filter;
 use crate::services::group::{default_group_setting, GroupSetting, RowChangeset};
@@ -237,7 +237,7 @@ impl DatabaseEditor {
         let old_type_option = field.get_any_type_option(old_field_type.clone());
         let new_type_option = field
           .get_any_type_option(new_field_type)
-          .unwrap_or_else(|| default_type_option_data_for_type(new_field_type));
+          .unwrap_or_else(|| default_type_option_data_from_type(new_field_type));
 
         let transformed_type_option = transform_type_option(
           &new_type_option,
@@ -352,7 +352,7 @@ impl DatabaseEditor {
   ) -> (Field, Bytes) {
     let name = field_type.default_name();
     let type_option_data = match type_option_data {
-      None => default_type_option_data_for_type(field_type),
+      None => default_type_option_data_from_type(field_type),
       Some(type_option_data) => type_option_data_from_pb_or_default(type_option_data, field_type),
     };
     let (index, field) =
@@ -492,9 +492,23 @@ impl DatabaseEditor {
   ) -> FlowyResult<()> {
     // Get the old row before updating the cell. It would be better to get the old cell
     let old_row = { self.database.lock().get_row(&row_id) };
+
+    // Get all the updated_at fields. We will update all of them.
+    let updated_at_fields = self
+      .database
+      .lock()
+      .get_fields(view_id, None)
+      .into_iter()
+      .filter(|f| FieldType::from(f.field_type) == FieldType::UpdatedAt)
+      .collect::<Vec<Field>>();
+
     self.database.lock().update_row(&row_id, |row_update| {
       row_update.update_cells(|cell_update| {
-        cell_update.insert(field_id, new_cell);
+        let mut cells_update = cell_update.insert(field_id, new_cell);
+        for field in &updated_at_fields {
+          cells_update =
+            cells_update.insert(&field.id, insert_date_cell(timestamp(), Some(true), field));
+        }
       });
     });
 
@@ -505,12 +519,22 @@ impl DatabaseEditor {
       }
     }
 
-    notify_did_update_cell(vec![CellChangesetNotifyPB {
-      view_id: view_id.to_string(),
-      row_id: row_id.into_inner(),
-      field_id: field_id.to_string(),
-    }])
-    .await;
+    // Collect all the updated field's id. Notify the frontend that all of them have been updated.
+    let mut updated_field_ids = updated_at_fields
+      .into_iter()
+      .map(|field| field.id)
+      .collect::<Vec<String>>();
+    updated_field_ids.push(field_id.to_string());
+    let changeset = updated_field_ids
+      .into_iter()
+      .map(|field_id| CellChangesetNotifyPB {
+        view_id: view_id.to_string(),
+        row_id: row_id.clone().into_inner(),
+        field_id,
+      })
+      .collect();
+    notify_did_update_cell(changeset).await;
+
     Ok(())
   }
 

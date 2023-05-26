@@ -3,6 +3,7 @@ use std::fmt::Debug;
 
 use collab_database::fields::Field;
 use collab_database::rows::{get_field_type_from_cell, Cell, Cells};
+use lib_infra::util::timestamp;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
@@ -205,11 +206,11 @@ pub fn insert_checkbox_cell(is_check: bool, field: &Field) -> Cell {
   apply_cell_changeset(s, None, field, None).unwrap()
 }
 
-pub fn insert_date_cell(timestamp: i64, field: &Field) -> Cell {
+pub fn insert_date_cell(timestamp: i64, include_time: Option<bool>, field: &Field) -> Cell {
   let cell_data = serde_json::to_string(&DateCellChangeset {
     date: Some(timestamp.to_string()),
     time: None,
-    include_time: Some(false),
+    include_time,
     timezone_id: None,
   })
   .unwrap();
@@ -299,6 +300,7 @@ pub struct CellBuilder<'a> {
 }
 
 impl<'a> CellBuilder<'a> {
+  /// Build list of Cells from HashMap of cell string by field id.
   pub fn with_cells(cell_by_field_id: HashMap<String, String>, fields: &'a [Field]) -> Self {
     let field_maps = fields
       .into_iter()
@@ -306,7 +308,7 @@ impl<'a> CellBuilder<'a> {
       .collect::<HashMap<String, &Field>>();
 
     let mut cells = Cells::new();
-    for (field_id, cell_str) in cell_by_field_id {
+    for (field_id, cell_str) in cell_by_field_id.clone() {
       if let Some(field) = field_maps.get(&field_id) {
         let field_type = FieldType::from(field.field_type);
         match field_type {
@@ -318,9 +320,9 @@ impl<'a> CellBuilder<'a> {
               cells.insert(field_id, insert_number_cell(num, field));
             }
           },
-          FieldType::DateTime => {
+          FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
             if let Ok(timestamp) = cell_str.parse::<i64>() {
-              cells.insert(field_id, insert_date_cell(timestamp, field));
+              cells.insert(field_id, insert_date_cell(timestamp, Some(false), field));
             }
           },
           FieldType::SingleSelect | FieldType::MultiSelect => {
@@ -345,6 +347,19 @@ impl<'a> CellBuilder<'a> {
       }
     }
 
+    // Auto insert the cell data if the field is not in the cell_by_field_id.
+    // Currently, the auto fill field type is `UpdatedAt` or `CreatedAt`.
+    for field in fields {
+      if !cell_by_field_id.contains_key(&field.id) {
+        let field_type = FieldType::from(field.field_type);
+        if field_type == FieldType::UpdatedAt || field_type == FieldType::CreatedAt {
+          cells.insert(
+            field.id.clone(),
+            insert_date_cell(timestamp(), Some(true), field),
+          );
+        }
+      }
+    }
     CellBuilder { cells, field_maps }
   }
 
@@ -400,9 +415,10 @@ impl<'a> CellBuilder<'a> {
     match self.field_maps.get(&field_id.to_owned()) {
       None => tracing::warn!("Can't find the date field with id: {}", field_id),
       Some(field) => {
-        self
-          .cells
-          .insert(field_id.to_owned(), insert_date_cell(timestamp, field));
+        self.cells.insert(
+          field_id.to_owned(),
+          insert_date_cell(timestamp, Some(false), field),
+        );
       },
     }
   }

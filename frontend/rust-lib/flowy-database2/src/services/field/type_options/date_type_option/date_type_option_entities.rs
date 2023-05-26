@@ -70,17 +70,40 @@ impl From<&Cell> for DateCellData {
   }
 }
 
-impl From<DateCellData> for Cell {
-  fn from(data: DateCellData) -> Self {
+/// Wrapper for DateCellData that also contains the field type.
+/// Handy struct to use when you need to convert a DateCellData to a Cell.
+pub struct DateCellDataWrapper {
+  data: DateCellData,
+  field_type: FieldType,
+}
+
+impl From<(FieldType, DateCellData)> for DateCellDataWrapper {
+  fn from((field_type, data): (FieldType, DateCellData)) -> Self {
+    Self { data, field_type }
+  }
+}
+
+impl From<DateCellDataWrapper> for Cell {
+  fn from(wrapper: DateCellDataWrapper) -> Self {
+    let (field_type, data) = (wrapper.field_type, wrapper.data);
     let timestamp_string = match data.timestamp {
       Some(timestamp) => timestamp.to_string(),
       None => "".to_owned(),
     };
-    new_cell_builder(FieldType::DateTime)
+    // Most of the case, don't use these keys in other places. Otherwise, we should define
+    // constants for them.
+    new_cell_builder(field_type)
       .insert_str_value(CELL_DATA, timestamp_string)
       .insert_bool_value("include_time", data.include_time)
       .insert_str_value("timezone_id", data.timezone_id)
       .build()
+  }
+}
+
+impl From<DateCellData> for Cell {
+  fn from(data: DateCellData) -> Self {
+    let data: DateCellDataWrapper = (FieldType::DateTime, data).into();
+    Cell::from(data)
   }
 }
 

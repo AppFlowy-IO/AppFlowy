@@ -1,6 +1,6 @@
 use crate::entities::FieldType;
 use crate::services::cell::CellBuilder;
-use crate::services::field::default_type_option_data_for_type;
+use crate::services::field::default_type_option_data_from_type;
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_field_id, gen_row_id};
 use collab_database::fields::Field;
 use collab_database::rows::CreateRowParams;
@@ -73,7 +73,7 @@ fn database_from_fields_and_rows(fields_and_rows: FieldsRows) -> CreateDatabaseP
         Ok(field) => field,
         Err(_) => {
           let field_type = FieldType::RichText;
-          let type_option_data = default_type_option_data_for_type(&field_type);
+          let type_option_data = default_type_option_data_from_type(&field_type);
           let is_primary = index == 0;
           Field::new(
             gen_field_id(),
