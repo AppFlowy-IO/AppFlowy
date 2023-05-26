@@ -16,6 +16,8 @@ void main() {
   group('integration tests for open-ai smart menu', () {
     setUpAll(() async => await service.setUpAll());
     setUp(() async => await service.setUp());
+    tearDown(() async => await service.tearDown());
+    tearDownAll(() async => await service.tearDownAll());
 
     testWidgets('testing selection on open-ai smart menu replace', (tester) async {
       final appFlowyEditor = await setUpOpenAITesting(tester);
