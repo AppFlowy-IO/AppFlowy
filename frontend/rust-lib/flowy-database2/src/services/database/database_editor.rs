@@ -29,10 +29,9 @@ use crate::services::cell::{
 use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewData, DatabaseViews};
 use crate::services::field::{
-  default_type_option_data_for_type, default_type_option_data_from_type,
-  select_type_option_from_field, transform_type_option, type_option_data_from_pb_or_default,
-  type_option_to_pb, SelectOptionCellChangeset, SelectOptionIds, TypeOptionCellDataHandler,
-  TypeOptionCellExt,
+  default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
+  type_option_data_from_pb_or_default, type_option_to_pb, SelectOptionCellChangeset,
+  SelectOptionIds, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
 use crate::services::filter::Filter;
 use crate::services::group::{default_group_setting, GroupSetting, RowChangeset};
@@ -238,7 +237,7 @@ impl DatabaseEditor {
         let old_type_option = field.get_any_type_option(old_field_type.clone());
         let new_type_option = field
           .get_any_type_option(new_field_type)
-          .unwrap_or_else(|| default_type_option_data_for_type(new_field_type));
+          .unwrap_or_else(|| default_type_option_data_from_type(new_field_type));
 
         let transformed_type_option = transform_type_option(
           &new_type_option,
@@ -353,7 +352,7 @@ impl DatabaseEditor {
   ) -> (Field, Bytes) {
     let name = field_type.default_name();
     let type_option_data = match type_option_data {
-      None => default_type_option_data_for_type(field_type),
+      None => default_type_option_data_from_type(field_type),
       Some(type_option_data) => type_option_data_from_pb_or_default(type_option_data, field_type),
     };
     let (index, field) =

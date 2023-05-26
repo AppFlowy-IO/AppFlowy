@@ -46,6 +46,7 @@ pub fn create_date_field(grid_id: &str, field_type: FieldType) -> (CreateFieldPa
   let date_type_option = DateTypeOption {
     date_format: DateFormat::US,
     time_format: TimeFormat::TwentyFourHour,
+    field_type: field_type.clone(),
   };
 
   let field: Field = match field_type {

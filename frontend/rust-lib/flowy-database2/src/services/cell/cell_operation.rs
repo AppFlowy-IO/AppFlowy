@@ -350,7 +350,7 @@ impl<'a> CellBuilder<'a> {
 
     // Auto insert the cell data if the field is not in the cell_by_field_id.
     // Currently, the auto fill field type is `UpdatedAt` or `CreatedAt`.
-    for field in &fields {
+    for field in fields {
       if !cell_by_field_id.contains_key(&field.id) {
         let field_type = FieldType::from(field.field_type);
         if field_type == FieldType::UpdatedAt || field_type == FieldType::CreatedAt {

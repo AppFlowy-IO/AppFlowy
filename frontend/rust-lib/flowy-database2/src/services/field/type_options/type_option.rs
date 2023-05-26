@@ -164,7 +164,7 @@ pub fn type_option_data_from_pb_or_default<T: Into<Bytes>>(
     },
   };
 
-  result.unwrap_or_else(|_| default_type_option_data_for_type(field_type))
+  result.unwrap_or_else(|_| default_type_option_data_from_type(field_type))
 }
 
 pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) -> Bytes {
@@ -216,13 +216,16 @@ pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) ->
   }
 }
 
-pub fn default_type_option_data_for_type(field_type: &FieldType) -> TypeOptionData {
+pub fn default_type_option_data_from_type(field_type: &FieldType) -> TypeOptionData {
   match field_type {
     FieldType::RichText => RichTextTypeOption::default().into(),
     FieldType::Number => NumberTypeOption::default().into(),
-    FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
-      DateTypeOption::default().into()
-    },
+    FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => DateTypeOption {
+      date_format: Default::default(),
+      time_format: Default::default(),
+      field_type: field_type.clone(),
+    }
+    .into(),
     FieldType::SingleSelect => SingleSelectTypeOption::default().into(),
     FieldType::MultiSelect => MultiSelectTypeOption::default().into(),
     FieldType::Checkbox => CheckboxTypeOption::default().into(),

@@ -533,6 +533,10 @@ impl From<&FieldType> for FieldType {
 }
 
 impl FieldType {
+  pub fn value(&self) -> i64 {
+    self.clone().into()
+  }
+
   pub fn default_cell_width(&self) -> i32 {
     match self {
       FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => 180,

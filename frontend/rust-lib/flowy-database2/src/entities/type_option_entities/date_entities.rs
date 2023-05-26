@@ -4,7 +4,7 @@ use strum_macros::EnumIter;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
-use crate::entities::CellIdPB;
+use crate::entities::{CellIdPB, FieldType};
 use crate::services::field::{DateFormat, DateTypeOption, TimeFormat};
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
@@ -51,6 +51,9 @@ pub struct DateTypeOptionPB {
 
   #[pb(index = 2)]
   pub time_format: TimeFormatPB,
+
+  #[pb(index = 3)]
+  pub field_type: FieldType,
 }
 
 impl From<DateTypeOption> for DateTypeOptionPB {
@@ -58,6 +61,7 @@ impl From<DateTypeOption> for DateTypeOptionPB {
     Self {
       date_format: data.date_format.into(),
       time_format: data.time_format.into(),
+      field_type: data.field_type,
     }
   }
 }
@@ -67,6 +71,7 @@ impl From<DateTypeOptionPB> for DateTypeOption {
     Self {
       date_format: data.date_format.into(),
       time_format: data.time_format.into(),
+      field_type: data.field_type,
     }
   }
 }
