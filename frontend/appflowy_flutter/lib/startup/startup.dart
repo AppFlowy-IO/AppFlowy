@@ -62,6 +62,7 @@ class FlowyRunner {
             anonKey: Env.supabaseAnonKey,
             key: Env.supabaseKey,
             jwtSecret: Env.supabaseJwtSecret,
+            collabTable: Env.supabaseCollabTable,
           ),
           const InitAppWidgetTask(),
           const InitPlatformServiceTask()

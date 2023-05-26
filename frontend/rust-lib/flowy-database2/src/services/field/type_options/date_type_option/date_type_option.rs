@@ -1,8 +1,9 @@
 use crate::entities::{DateCellDataPB, DateFilterPB, FieldType};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
-  default_order, DateCellChangeset, DateCellData, DateFormat, TimeFormat, TypeOption,
-  TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform,
+  default_order, DateCellChangeset, DateCellData, DateCellDataWrapper, DateFormat, TimeFormat,
+  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOptionTransform,
 };
 use chrono::format::strftime::StrftimeItems;
 use chrono::{DateTime, FixedOffset, Local, NaiveDateTime, NaiveTime, Offset, TimeZone};
@@ -15,12 +16,15 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::str::FromStr;
 
-// Date
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+/// The [DateTypeOption] is used by [FieldType::Date], [FieldType::UpdatedAt], and [FieldType::CreatedAt].
+/// So, storing the field type is necessary to distinguish the field type.
+/// Most of the cases, each [FieldType] has its own [TypeOption] implementation.
+#[derive(Clone, Default, Debug, Serialize, Deserialize)]
 pub struct DateTypeOption {
   pub date_format: DateFormat,
   pub time_format: TimeFormat,
   pub timezone_id: String,
+  pub field_type: FieldType,
 }
 
 impl TypeOption for DateTypeOption {
@@ -41,10 +45,15 @@ impl From<TypeOptionData> for DateTypeOption {
       .map(TimeFormat::from)
       .unwrap_or_default();
     let timezone_id = data.get_str_value("timezone_id").unwrap_or_default();
+    let field_type = data
+      .get_i64_value("field_type")
+      .map(FieldType::from)
+      .unwrap_or(FieldType::DateTime);
     Self {
       date_format,
       time_format,
       timezone_id,
+      field_type,
     }
   }
 }
@@ -55,6 +64,7 @@ impl From<DateTypeOption> for TypeOptionData {
       .insert_i64_value("data_format", data.date_format.value())
       .insert_i64_value("time_format", data.time_format.value())
       .insert_str_value("timezone_id", data.timezone_id)
+      .insert_i64_value("field_type", data.field_type.value())
       .build()
   }
 }
@@ -73,17 +83,19 @@ impl TypeOptionCellData for DateTypeOption {
 }
 
 impl DateTypeOption {
-  #[allow(dead_code)]
-  pub fn new() -> Self {
-    Self::default()
-  }
-
-  pub fn test() -> Self {
+  pub fn new(field_type: FieldType) -> Self {
     Self {
-      timezone_id: "Etc/UTC".to_owned(),
-      ..Self::default()
+      field_type,
+      ..Default::default()
     }
   }
+
+  // pub fn test() -> Self {
+  //   Self {
+  //     timezone_id: "Etc/UTC".to_owned(),
+  //     ..Self::default()
+  //   }
+  // }
 
   fn today_desc_from_timestamp(&self, cell_data: DateCellData) -> DateCellDataPB {
     let timestamp = cell_data.timestamp.unwrap_or_default();
@@ -201,11 +213,11 @@ impl CellDataChangeset for DateTypeOption {
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     // old date cell data
     let (previous_timestamp, include_time) = match cell {
-      None => (None, false),
-      Some(type_cell_data) => {
-        let cell_data = DateCellData::from(&type_cell_data);
+      Some(cell) => {
+        let cell_data = DateCellData::from(&cell);
         (cell_data.timestamp, cell_data.include_time)
       },
+      None => (None, false),
     };
 
     // update include_time if necessary
@@ -240,11 +252,13 @@ impl CellDataChangeset for DateTypeOption {
       changeset_timestamp,
     );
 
-    let date_cell_data = DateCellData {
+    let cell_data = DateCellData {
       timestamp,
       include_time,
     };
-    Ok((Cell::from(date_cell_data.clone()), date_cell_data))
+
+    let cell_wrapper: DateCellDataWrapper = (self.field_type.clone(), cell_data.clone()).into();
+    Ok((Cell::from(cell_wrapper), cell_data))
   }
 }
 

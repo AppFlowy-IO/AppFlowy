@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::convert::TryFrom;
 use std::sync::Arc;
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
@@ -9,13 +10,16 @@ use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
 use flowy_database2::DatabaseManager2;
 use flowy_document2::document_data::DocumentDataWrapper;
+use flowy_document2::entities::DocumentDataPB;
 use flowy_document2::manager::DocumentManager;
 use flowy_error::FlowyError;
+use flowy_folder2::deps::{FolderCloudService, FolderUser};
 use flowy_folder2::entities::ViewLayoutPB;
-use flowy_folder2::manager::{Folder2Manager, FolderUser};
+use flowy_folder2::manager::Folder2Manager;
 use flowy_folder2::view_ext::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder2::ViewLayout;
 use flowy_user::services::UserSession;
+use lib_dispatch::prelude::ToBytes;
 use lib_infra::future::FutureResult;
 
 pub struct Folder2DepsResolver();
@@ -25,13 +29,14 @@ impl Folder2DepsResolver {
     document_manager: &Arc<DocumentManager>,
     database_manager: &Arc<DatabaseManager2>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
+    folder_cloud: Arc<dyn FolderCloudService>,
   ) -> Arc<Folder2Manager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl(user_session.clone()));
 
-    let view_data_processor =
+    let view_processors =
       make_view_data_processor(document_manager.clone(), database_manager.clone());
     Arc::new(
-      Folder2Manager::new(user.clone(), collab_builder, view_data_processor)
+      Folder2Manager::new(user.clone(), collab_builder, view_processors, folder_cloud)
         .await
         .unwrap(),
     )
@@ -95,8 +100,8 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     let view_id = view_id.to_string();
     FutureResult::new(async move {
       let document = manager.get_document(view_id)?;
-      let data = document.lock().get_document()?;
-      let data_bytes = serde_json::to_string(&data)?.as_bytes().to_vec();
+      let data: DocumentDataPB = DocumentDataWrapper(document.lock().get_document()?).into();
+      let data_bytes = data.into_bytes().map_err(|_| FlowyError::invalid_data())?;
       Ok(Bytes::from(data_bytes))
     })
   }
@@ -126,7 +131,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     _user_id: i64,
     view_id: &str,
     _name: &str,
-    _data: Vec<u8>,
+    data: Vec<u8>,
     layout: ViewLayout,
     _ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
@@ -134,9 +139,9 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     // TODO: implement read the document data from custom data.
     let view_id = view_id.to_string();
     let manager = self.0.clone();
-
     FutureResult::new(async move {
-      manager.create_document(view_id, DocumentDataWrapper::default())?;
+      let data = DocumentDataPB::try_from(Bytes::from(data))?;
+      manager.create_document(view_id, data.into())?;
       Ok(())
     })
   }

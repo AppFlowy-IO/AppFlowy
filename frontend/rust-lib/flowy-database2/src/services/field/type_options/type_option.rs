@@ -36,7 +36,7 @@ pub trait TypeOption {
   /// Represents as the corresponding field type cell changeset.
   /// The changeset must implements the `FromCellChangesetString` and the `ToCellChangesetString` trait.
   /// These two traits are auto implemented for `String`.
-  ///  
+  ///
   type CellChangeset: FromCellChangeset + ToCellChangeset;
 
   ///  For the moment, the protobuf type only be used in the FFI of `Dart`. If the decoded cell
@@ -99,13 +99,13 @@ pub trait TypeOptionTransform: TypeOption {
   /// # Arguments
   ///
   /// * `cell_str`: the cell string of the current field type
-  /// * `decoded_field_type`: the field type of the cell data that's going to be transformed into
+  /// * `transformed_field_type`: the cell will be transformed to the is field type's cell data.
   /// current `TypeOption` field type.
   ///
   fn transform_type_option_cell(
     &self,
     _cell: &Cell,
-    _decoded_field_type: &FieldType,
+    _transformed_field_type: &FieldType,
     _field: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {
     None
@@ -146,7 +146,7 @@ pub fn type_option_data_from_pb_or_default<T: Into<Bytes>>(
     FieldType::Number => {
       NumberTypeOptionPB::try_from(bytes).map(|pb| NumberTypeOption::from(pb).into())
     },
-    FieldType::DateTime => {
+    FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
       DateTypeOptionPB::try_from(bytes).map(|pb| DateTypeOption::from(pb).into())
     },
     FieldType::SingleSelect => {
@@ -164,7 +164,7 @@ pub fn type_option_data_from_pb_or_default<T: Into<Bytes>>(
     },
   };
 
-  result.unwrap_or_else(|_| default_type_option_data_for_type(field_type))
+  result.unwrap_or_else(|_| default_type_option_data_from_type(field_type))
 }
 
 pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) -> Bytes {
@@ -181,7 +181,7 @@ pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) ->
         .try_into()
         .unwrap()
     },
-    FieldType::DateTime => {
+    FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
       let date_type_option: DateTypeOption = type_option.into();
       DateTypeOptionPB::from(date_type_option).try_into().unwrap()
     },
@@ -216,11 +216,15 @@ pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) ->
   }
 }
 
-pub fn default_type_option_data_for_type(field_type: &FieldType) -> TypeOptionData {
+pub fn default_type_option_data_from_type(field_type: &FieldType) -> TypeOptionData {
   match field_type {
     FieldType::RichText => RichTextTypeOption::default().into(),
     FieldType::Number => NumberTypeOption::default().into(),
-    FieldType::DateTime => DateTypeOption::default().into(),
+    FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => DateTypeOption {
+      field_type: field_type.clone(),
+      ..Default::default()
+    }
+    .into(),
     FieldType::SingleSelect => SingleSelectTypeOption::default().into(),
     FieldType::MultiSelect => MultiSelectTypeOption::default().into(),
     FieldType::Checkbox => CheckboxTypeOption::default().into(),

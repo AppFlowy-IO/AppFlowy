@@ -10,9 +10,10 @@ import 'package:easy_localization/easy_localization.dart';
 SelectionMenuItem boardViewMenuItem(DocumentBloc documentBloc) =>
     SelectionMenuItem(
       name: LocaleKeys.document_slashMenu_board_createANewBoard.tr(),
-      icon: (editorState, onSelected) => SelectableSvgWidget(
+      icon: (editorState, onSelected, style) => SelectableSvgWidget(
         name: 'editor/board',
         isSelected: onSelected,
+        style: style,
       ),
       keywords: ['board', 'kanban'],
       handler: (editorState, menuService, context) async {

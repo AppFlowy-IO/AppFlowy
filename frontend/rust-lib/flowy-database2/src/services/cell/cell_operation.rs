@@ -3,6 +3,7 @@ use std::fmt::Debug;
 
 use collab_database::fields::Field;
 use collab_database::rows::{get_field_type_from_cell, Cell, Cells};
+use lib_infra::util::timestamp;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
@@ -74,7 +75,7 @@ pub fn apply_cell_changeset<C: ToCellChangeset>(
   }
 }
 
-pub fn get_type_cell_protobuf(
+pub fn get_cell_protobuf(
   cell: &Cell,
   field: &Field,
   cell_cache: Option<CellCache>,
@@ -99,25 +100,6 @@ pub fn get_type_cell_protobuf(
       CellProtobufBlob::default()
     },
   }
-}
-
-pub fn get_type_cell_data<Output>(
-  cell: &Cell,
-  field: &Field,
-  cell_data_cache: Option<CellCache>,
-) -> Option<Output>
-where
-  Output: Default + 'static,
-{
-  let from_field_type = get_field_type_from_cell(cell)?;
-  let to_field_type = FieldType::from(field.field_type);
-  try_decode_cell_to_cell_data(
-    cell,
-    &from_field_type,
-    &to_field_type,
-    field,
-    cell_data_cache,
-  )
 }
 
 /// Decode the opaque cell data from one field type to another using the corresponding `TypeOption`
@@ -174,22 +156,22 @@ pub fn try_decode_cell_to_cell_data<T: Default + 'static>(
 ///
 /// * `cell_str`: the opaque cell string that can be decoded by corresponding structs that implement the
 /// `FromCellString` trait.
-/// * `decoded_field_type`: the field_type of the cell_str
-/// * `field_type`: use this field type's `TypeOption` to stringify this cell_str
+/// * `to_field_type`: the cell will be decoded to this field type's cell data.
+/// * `from_field_type`: the original field type of the passed-in cell data.
 /// * `field_rev`: used to get the corresponding TypeOption for the specified field type.
 ///
 /// returns: String
 pub fn stringify_cell_data(
   cell: &Cell,
-  decoded_field_type: &FieldType,
-  field_type: &FieldType,
+  to_field_type: &FieldType,
+  from_field_type: &FieldType,
   field: &Field,
 ) -> String {
   match TypeOptionCellExt::new_with_cell_data_cache(field, None)
-    .get_type_option_cell_data_handler(field_type)
+    .get_type_option_cell_data_handler(from_field_type)
   {
     None => "".to_string(),
-    Some(handler) => handler.stringify_cell_str(cell, decoded_field_type, field),
+    Some(handler) => handler.stringify_cell_str(cell, to_field_type, field),
   }
 }
 
@@ -224,11 +206,11 @@ pub fn insert_checkbox_cell(is_check: bool, field: &Field) -> Cell {
   apply_cell_changeset(s, None, field, None).unwrap()
 }
 
-pub fn insert_date_cell(timestamp: i64, field: &Field) -> Cell {
+pub fn insert_date_cell(timestamp: i64, include_time: Option<bool>, field: &Field) -> Cell {
   let cell_data = serde_json::to_string(&DateCellChangeset {
     date: Some(timestamp.to_string()),
     time: None,
-    include_time: Some(false),
+    include_time,
   })
   .unwrap();
   apply_cell_changeset(cell_data, None, field, None).unwrap()
@@ -311,20 +293,21 @@ where
 //     }
 // }
 
-pub struct CellBuilder {
+pub struct CellBuilder<'a> {
   cells: Cells,
-  field_maps: HashMap<String, Field>,
+  field_maps: HashMap<String, &'a Field>,
 }
 
-impl CellBuilder {
-  pub fn with_cells(cell_by_field_id: HashMap<String, String>, fields: Vec<Field>) -> Self {
+impl<'a> CellBuilder<'a> {
+  /// Build list of Cells from HashMap of cell string by field id.
+  pub fn with_cells(cell_by_field_id: HashMap<String, String>, fields: &'a [Field]) -> Self {
     let field_maps = fields
       .into_iter()
       .map(|field| (field.id.clone(), field))
-      .collect::<HashMap<String, Field>>();
+      .collect::<HashMap<String, &Field>>();
 
     let mut cells = Cells::new();
-    for (field_id, cell_str) in cell_by_field_id {
+    for (field_id, cell_str) in cell_by_field_id.clone() {
       if let Some(field) = field_maps.get(&field_id) {
         let field_type = FieldType::from(field.field_type);
         match field_type {
@@ -336,9 +319,9 @@ impl CellBuilder {
               cells.insert(field_id, insert_number_cell(num, field));
             }
           },
-          FieldType::DateTime => {
+          FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
             if let Ok(timestamp) = cell_str.parse::<i64>() {
-              cells.insert(field_id, insert_date_cell(timestamp, field));
+              cells.insert(field_id, insert_date_cell(timestamp, Some(false), field));
             }
           },
           FieldType::SingleSelect | FieldType::MultiSelect => {
@@ -363,6 +346,19 @@ impl CellBuilder {
       }
     }
 
+    // Auto insert the cell data if the field is not in the cell_by_field_id.
+    // Currently, the auto fill field type is `UpdatedAt` or `CreatedAt`.
+    for field in fields {
+      if !cell_by_field_id.contains_key(&field.id) {
+        let field_type = FieldType::from(field.field_type);
+        if field_type == FieldType::UpdatedAt || field_type == FieldType::CreatedAt {
+          cells.insert(
+            field.id.clone(),
+            insert_date_cell(timestamp(), Some(true), field),
+          );
+        }
+      }
+    }
     CellBuilder { cells, field_maps }
   }
 
@@ -418,9 +414,10 @@ impl CellBuilder {
     match self.field_maps.get(&field_id.to_owned()) {
       None => tracing::warn!("Can't find the date field with id: {}", field_id),
       Some(field) => {
-        self
-          .cells
-          .insert(field_id.to_owned(), insert_date_cell(timestamp, field));
+        self.cells.insert(
+          field_id.to_owned(),
+          insert_date_cell(timestamp, Some(false), field),
+        );
       },
     }
   }

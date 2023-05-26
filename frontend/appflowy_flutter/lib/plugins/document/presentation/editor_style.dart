@@ -11,7 +11,7 @@ class EditorStyleCustomizer {
   });
 
   static double get horizontalPadding =>
-      PlatformExtension.isDesktop ? 100.0 : 10.0;
+      PlatformExtension.isDesktop ? 50.0 : 10.0;
 
   final BuildContext context;
 
@@ -28,21 +28,18 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     return EditorStyle.desktop(
-      padding: EdgeInsets.only(
-        left: horizontalPadding / 2.0,
-        right: horizontalPadding,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       backgroundColor: theme.colorScheme.surface,
       cursorColor: theme.colorScheme.primary,
       textStyleConfiguration: TextStyleConfiguration(
         text: TextStyle(
-          fontFamily: 'poppins',
+          fontFamily: 'Poppins',
           fontSize: fontSize,
           color: theme.colorScheme.onBackground,
           height: 1.5,
         ),
         bold: const TextStyle(
-          fontFamily: 'poppins-Bold',
+          fontFamily: 'Poppins-Bold',
           fontWeight: FontWeight.w600,
         ),
         italic: const TextStyle(fontStyle: FontStyle.italic),
@@ -125,6 +122,18 @@ class EditorStyleCustomizer {
       fontSize: fontSize,
       height: 1.5,
       color: theme.colorScheme.onBackground,
+    );
+  }
+
+  SelectionMenuStyle selectionMenuStyleBuilder() {
+    final theme = Theme.of(context);
+    return SelectionMenuStyle(
+      selectionMenuBackgroundColor: theme.cardColor,
+      selectionMenuItemTextColor: theme.colorScheme.onBackground,
+      selectionMenuItemIconColor: theme.colorScheme.onBackground,
+      selectionMenuItemSelectedIconColor: theme.colorScheme.onSurface,
+      selectionMenuItemSelectedTextColor: theme.colorScheme.onSurface,
+      selectionMenuItemSelectedColor: theme.hoverColor,
     );
   }
 }

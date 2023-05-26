@@ -10,9 +10,10 @@ import 'package:easy_localization/easy_localization.dart';
 SelectionMenuItem gridViewMenuItem(DocumentBloc documentBloc) =>
     SelectionMenuItem(
       name: LocaleKeys.document_slashMenu_grid_createANewGrid.tr(),
-      icon: (editorState, onSelected) => SelectableSvgWidget(
+      icon: (editorState, onSelected, style) => SelectableSvgWidget(
         name: 'editor/grid',
         isSelected: onSelected,
+        style: style,
       ),
       keywords: ['grid'],
       handler: (editorState, menuService, context) async {

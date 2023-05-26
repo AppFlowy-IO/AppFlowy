@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../base/emoji_picker_button.dart';
@@ -64,12 +65,17 @@ class CalloutBlockComponentBuilder extends BlockComponentBuilder {
   final BlockComponentConfiguration configuration;
 
   @override
-  Widget build(BlockComponentContext blockComponentContext) {
+  BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
     return CalloutBlockComponentWidget(
       key: node.key,
       node: node,
       configuration: configuration,
+      showActions: showActions(node),
+      actionBuilder: (context, state) => actionBuilder(
+        blockComponentContext,
+        state,
+      ),
     );
   }
 
@@ -83,15 +89,14 @@ class CalloutBlockComponentBuilder extends BlockComponentBuilder {
 }
 
 // the main widget for rendering the callout block
-class CalloutBlockComponentWidget extends StatefulWidget {
+class CalloutBlockComponentWidget extends BlockComponentStatefulWidget {
   const CalloutBlockComponentWidget({
     super.key,
-    required this.node,
-    required this.configuration,
+    required super.node,
+    super.showActions,
+    super.actionBuilder,
+    super.configuration = const BlockComponentConfiguration(),
   });
-
-  final Node node;
-  final BlockComponentConfiguration configuration;
 
   @override
   State<CalloutBlockComponentWidget> createState() =>
@@ -134,7 +139,7 @@ class _CalloutBlockComponentWidgetState
   // build the callout block widget
   @override
   Widget build(BuildContext context) {
-    return Container(
+    Widget child = Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
         color: backgroundColor,
@@ -147,7 +152,9 @@ class _CalloutBlockComponentWidgetState
           Padding(
             padding: const EdgeInsets.all(2.0),
             child: EmojiPickerButton(
-              key: ValueKey(emoji), // force to refresh the popover state
+              key: ValueKey(
+                emoji.toString(),
+              ), // force to refresh the popover state
               emoji: emoji,
               onSubmitted: (emoji, controller) {
                 setEmoji(emoji.emoji);
@@ -157,16 +164,24 @@ class _CalloutBlockComponentWidgetState
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: buildCalloutBlockComponent(context),
             ),
           ),
-          const SizedBox(
-            width: 10.0,
-          )
+          const VSpace(10),
         ],
       ),
     );
+
+    if (widget.actionBuilder != null) {
+      child = BlockComponentActionWrapper(
+        node: widget.node,
+        actionBuilder: widget.actionBuilder!,
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   // build the richtext child

@@ -47,7 +47,7 @@ dependencies:
     # path: /Users/lucas.xu/Desktop/appflowy-editor
     git:
       url: https://github.com/LucasXu0/appflowy-editor.git
-      ref: b1a1b14
+      ref: 09e91c
   appflowy_popover:
     path: packages/appflowy_popover
 
@@ -183,4 +183,5 @@ flutter:
     # The following assets will be excluded in release.
     # BEGIN: EXCLUDE_IN_RELEASE
     - assets/test/workspaces/
+    - assets/template/
     # END: EXCLUDE_IN_RELEASE

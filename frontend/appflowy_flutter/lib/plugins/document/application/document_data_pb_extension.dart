@@ -3,10 +3,61 @@ import 'dart:convert';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
-    show Document, Node, Attributes, Delta, ParagraphBlockKeys;
+    show Document, Node, Attributes, Delta, ParagraphBlockKeys, NodeIterator;
 import 'package:collection/collection.dart';
+import 'package:nanoid/nanoid.dart';
 
-extension AppFlowyEditor on DocumentDataPB2 {
+extension DocumentDataPBFromTo on DocumentDataPB {
+  static DocumentDataPB? fromDocument(Document document) {
+    final startNode = document.first;
+    final endNode = document.last;
+    if (startNode == null || endNode == null) {
+      return null;
+    }
+    final pageId = document.root.id;
+
+    // generate the block
+    final blocks = <String, BlockPB>{};
+    final nodes = NodeIterator(
+      document: document,
+      startNode: startNode,
+      endNode: endNode,
+    ).toList();
+    for (final node in nodes) {
+      if (blocks.containsKey(node.id)) {
+        assert(false, 'duplicate node id: ${node.id}');
+      }
+      final parentId = node.parent?.id;
+      final childrenId = nanoid(10);
+      blocks[node.id] = node.toBlock(
+        parentId: parentId,
+        childrenId: childrenId,
+      );
+    }
+    // root
+    blocks[pageId] = document.root.toBlock(
+      parentId: '',
+      childrenId: pageId,
+    );
+
+    // generate the meta
+    final childrenMap = <String, ChildrenPB>{};
+    blocks.forEach((key, value) {
+      final parentId = value.parentId;
+      if (parentId.isNotEmpty) {
+        childrenMap[parentId] ??= ChildrenPB.create();
+        childrenMap[parentId]!.children.add(value.id);
+      }
+    });
+    final meta = MetaPB(childrenMap: childrenMap);
+
+    return DocumentDataPB(
+      blocks: blocks,
+      pageId: pageId,
+      meta: meta,
+    );
+  }
+
   Document? toDocument() {
     final rootId = pageId;
     try {
@@ -78,12 +129,21 @@ extension BlockToNode on BlockPB {
 }
 
 extension NodeToBlock on Node {
-  BlockPB toBlock() {
+  BlockPB toBlock({
+    String? parentId,
+    String? childrenId,
+  }) {
     assert(id.isNotEmpty);
     final block = BlockPB.create()
       ..id = id
       ..ty = _typeAdapter(type)
       ..data = _dataAdapter(type, attributes);
+    if (childrenId != null && childrenId.isNotEmpty) {
+      block.childrenId = childrenId;
+    }
+    if (parentId != null && parentId.isNotEmpty) {
+      block.parentId = parentId;
+    }
     return block;
   }
 

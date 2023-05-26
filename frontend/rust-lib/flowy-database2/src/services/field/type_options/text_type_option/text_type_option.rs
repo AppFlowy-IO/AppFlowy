@@ -64,19 +64,19 @@ impl TypeOptionTransform for RichTextTypeOption {
   fn transform_type_option_cell(
     &self,
     cell: &Cell,
-    _decoded_field_type: &FieldType,
+    transformed_field_type: &FieldType,
     _field: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {
-    if _decoded_field_type.is_date()
-      || _decoded_field_type.is_single_select()
-      || _decoded_field_type.is_multi_select()
-      || _decoded_field_type.is_number()
-      || _decoded_field_type.is_url()
+    if transformed_field_type.is_date()
+      || transformed_field_type.is_single_select()
+      || transformed_field_type.is_multi_select()
+      || transformed_field_type.is_number()
+      || transformed_field_type.is_url()
     {
       Some(StrCellData::from(stringify_cell_data(
         cell,
-        _decoded_field_type,
-        _decoded_field_type,
+        transformed_field_type,
+        transformed_field_type,
         _field,
       )))
     } else {

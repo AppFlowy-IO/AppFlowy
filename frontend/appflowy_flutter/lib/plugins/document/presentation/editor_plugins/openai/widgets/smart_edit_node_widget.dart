@@ -15,10 +15,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
-const String kSmartEditType = 'smart_edit_input';
-const String kSmartEditInstructionType = 'smart_edit_instruction';
-const String kSmartEditInputType = 'smart_edit_input';
-
 class SmartEditBlockKeys {
   const SmartEditBlockKeys._();
 
@@ -50,11 +46,16 @@ class SmartEditBlockComponentBuilder extends BlockComponentBuilder {
   SmartEditBlockComponentBuilder();
 
   @override
-  Widget build(BlockComponentContext blockComponentContext) {
+  BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
     return SmartEditBlockComponentWidget(
       key: node.key,
       node: node,
+      showActions: showActions(node),
+      actionBuilder: (context, state) => actionBuilder(
+        blockComponentContext,
+        state,
+      ),
     );
   }
 
@@ -64,13 +65,14 @@ class SmartEditBlockComponentBuilder extends BlockComponentBuilder {
       node.attributes[SmartEditBlockKeys.content] is String;
 }
 
-class SmartEditBlockComponentWidget extends StatefulWidget {
+class SmartEditBlockComponentWidget extends BlockComponentStatefulWidget {
   const SmartEditBlockComponentWidget({
-    required super.key,
-    required this.node,
+    super.key,
+    required super.node,
+    super.showActions,
+    super.actionBuilder,
+    super.configuration = const BlockComponentConfiguration(),
   });
-
-  final Node node;
 
   @override
   State<SmartEditBlockComponentWidget> createState() =>

@@ -82,6 +82,8 @@ impl TypeCellData {
 
   pub fn is_date(&self) -> bool {
     self.field_type == FieldType::DateTime
+      || self.field_type == FieldType::UpdatedAt
+      || self.field_type == FieldType::CreatedAt
   }
 
   pub fn is_single_select(&self) -> bool {

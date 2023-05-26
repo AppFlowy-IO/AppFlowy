@@ -10,6 +10,7 @@ use flowy_notification::register_notification_sender;
 use lib_dispatch::prelude::ToBytes;
 use lib_dispatch::prelude::*;
 
+use crate::env_serde::AppFlowyEnv;
 use crate::notification::DartNotificationSender;
 use crate::{
   c::{extend_front_four_bytes_into_bytes, forget_rust},
@@ -17,6 +18,7 @@ use crate::{
 };
 
 mod c;
+mod env_serde;
 mod model;
 mod notification;
 mod protobuf;
@@ -133,4 +135,11 @@ pub extern "C" fn backend_log(level: i64, data: *const c_char) {
     4 => tracing::error!("{}", log_str),
     _ => (),
   }
+}
+
+#[no_mangle]
+pub extern "C" fn set_env(data: *const c_char) {
+  let c_str = unsafe { CStr::from_ptr(data) };
+  let serde_str = c_str.to_str().unwrap();
+  AppFlowyEnv::parser(serde_str);
 }
