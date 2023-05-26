@@ -30,6 +30,8 @@ void main() {
   group('Tests on a workspace with only an empty document', () {
     setUpAll(() async => await service.setUpAll());
     setUp(() async => await service.setUp());
+    tearDown(() async => await service.tearDown());
+    tearDownAll(() async => await service.tearDownAll());
 
     testWidgets('/board shortcut creates a new board and view of the board',
         (tester) async {
@@ -69,6 +71,7 @@ void main() {
         ],
         tester: tester,
       );
+      await tester.pumpAndSettle();
 
       // Checks whether new board is referenced and properly on the page.
       expect(find.byType(BuiltInPageWidget), findsOneWidget);
@@ -113,7 +116,12 @@ void main() {
       expect(find.byType(SelectionMenuItemWidget), findsAtLeastNWidgets(2));
 
       // Finalizes the slash command that creates the board.
-      await simulateKeyDownEvent(LogicalKeyboardKey.enter);
+      await FlowyTestKeyboard.simulateKeyDownEvent(
+        [
+          LogicalKeyboardKey.enter,
+        ],
+        tester: tester,
+      );
       await tester.pumpAndSettle();
 
       // Checks whether new board is referenced and properly on the page.
