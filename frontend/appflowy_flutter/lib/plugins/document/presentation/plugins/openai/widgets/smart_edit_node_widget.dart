@@ -211,15 +211,15 @@ class _SmartEditInputState extends State<_SmartEditInput> {
   }
 
   Widget _buildResultWidget(BuildContext context) {
-    final loadingWidget = Padding(
+    final loading = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
       child: SizedBox.fromSize(
         size: const Size.square(14),
         child: const CircularProgressIndicator(),
       ),
     );
-    if (result.isEmpty || loading) {
-      return loadingWidget;
+    if (result.isEmpty) {
+      return loading;
     }
     return Flexible(
       child: Text(
@@ -231,18 +231,6 @@ class _SmartEditInputState extends State<_SmartEditInput> {
   Widget _buildInputFooterWidget(BuildContext context) {
     return Row(
       children: [
-        FlowyRichTextButton(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: LocaleKeys.document_plugins_autoGeneratorRewrite.tr(),
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-          ),
-          onPressed: () => _requestCompletions(rewrite: true),
-        ),
-        const Space(10, 0),
         FlowyRichTextButton(
           TextSpan(
             children: [
@@ -284,7 +272,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
           ),
           onPressed: () async => await _onExit(),
         ),
-        const Spacer(flex: 1),
+        const Spacer(flex: 2),
         Expanded(
           child: FlowyText.regular(
             overflow: TextOverflow.ellipsis,
@@ -371,13 +359,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
     );
   }
 
-  Future<void> _requestCompletions({bool rewrite = false}) async {
-    if (rewrite) {
-      setState(() {
-        loading = true;
-        result = "";
-      });
-    }
+  Future<void> _requestCompletions() async {
     final openAIRepository = await getIt.getAsync<OpenAIRepository>();
 
     var lines = input.split('\n\n');
