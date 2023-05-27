@@ -1,7 +1,7 @@
 #![allow(clippy::while_let_loop)]
 use crate::entities::{
   DatabaseViewSettingPB, FilterChangesetNotificationPB, GroupChangesetPB, GroupRowsNotificationPB,
-  ReorderAllRowsPB, ReorderSingleRowPB, RowsVisibilityChangesetPB, SortChangesetNotificationPB,
+  ReorderAllRowsPB, ReorderSingleRowPB, RowsVisibilityChangePB, SortChangesetNotificationPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::filter::FilterResultNotification;
@@ -38,7 +38,7 @@ impl DatabaseViewChangedReceiverRunner {
       .for_each(|changed| async {
         match changed {
           DatabaseViewChanged::FilterNotification(notification) => {
-            let changeset = RowsVisibilityChangesetPB {
+            let changeset = RowsVisibilityChangePB {
               view_id: notification.view_id,
               visible_rows: notification.visible_rows,
               invisible_rows: notification

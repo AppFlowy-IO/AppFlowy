@@ -19,7 +19,7 @@ use crate::entities::{
   CreateRowParams, DatabaseFieldChangesetPB, DatabasePB, DatabaseViewSettingPB, DeleteFilterParams,
   DeleteGroupParams, DeleteSortParams, FieldChangesetParams, FieldIdPB, FieldPB, FieldType,
   GroupPB, IndexFieldPB, InsertGroupParams, InsertedRowPB, LayoutSettingParams, RepeatedFilterPB,
-  RepeatedGroupPB, RepeatedSortPB, RowPB, RowsChangesetPB, SelectOptionCellDataPB, SelectOptionPB,
+  RepeatedGroupPB, RepeatedSortPB, RowPB, RowsChangesPB, SelectOptionCellDataPB, SelectOptionPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
@@ -292,10 +292,10 @@ impl DatabaseEditor {
 
       let delete_row_id = from.into_inner();
       let insert_row = InsertedRowPB::from(&row).with_index(to_index as i32);
-      let changeset =
-        RowsChangesetPB::from_move(view_id.to_string(), vec![delete_row_id], vec![insert_row]);
+      let changes =
+        RowsChangesPB::from_move(view_id.to_string(), vec![delete_row_id], vec![insert_row]);
       send_notification(view_id, DatabaseNotification::DidUpdateViewRows)
-        .payload(changeset)
+        .payload(changes)
         .send();
     }
   }
@@ -321,6 +321,7 @@ impl DatabaseEditor {
     );
 
     if let Some((index, row_order)) = result {
+      tracing::trace!("create row: {:?} at {}", row_order, index);
       let row = self.database.lock().get_row(&row_order.id);
       if let Some(row) = row {
         for view in self.database_views.editors().await {
