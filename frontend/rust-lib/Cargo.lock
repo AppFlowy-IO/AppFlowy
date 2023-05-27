@@ -1141,6 +1141,7 @@ dependencies = [
  "bytes",
  "chrono",
  "crossbeam-utils",
+ "csv",
  "dashmap",
  "database-model",
  "diesel",

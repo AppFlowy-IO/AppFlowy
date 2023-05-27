@@ -55,7 +55,8 @@ pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetCalendarEvent, get_calendar_event_handler)
         // Layout setting
         .event(DatabaseEvent::SetLayoutSetting, set_layout_setting_handler)
-        .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler);
+        .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler)
+        .event(DatabaseEvent::ExportCSV, export_csv_handler);
 
   plugin
 }
@@ -256,4 +257,7 @@ pub enum DatabaseEvent {
 
   #[event(input = "MoveCalendarEventPB")]
   MoveCalendarEvent = 119,
+
+  #[event(input = "DatabaseViewIdPB", output = "ExportCSVPB")]
+  ExportCSV = 120,
 }

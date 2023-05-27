@@ -1,6 +1,7 @@
 use crate::entities::*;
 use crate::manager::DatabaseManager;
 use crate::services::cell::{FromCellString, ToCellChangesetString, TypeCellData};
+use crate::services::export::CSVExport;
 use crate::services::field::{
   default_type_option_builder_from_type, select_type_option_from_field_rev,
   type_option_builder_from_json_str, DateCellChangeset, DateChangesetPB, SelectOptionCellChangeset,
@@ -643,4 +644,17 @@ pub(crate) async fn get_calendar_event_handler(
     None => Err(FlowyError::record_not_found()),
     Some(event) => data_result_ok(event),
   }
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn export_csv_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Arc<DatabaseManager>>,
+) -> DataResult<ExportCSVPB, FlowyError> {
+  let params = data.into_inner();
+  let database_editor = manager.get_database_editor(&params.value).await?;
+  let content = CSVExport
+    .export_database(&params.value, &database_editor)
+    .await?;
+  data_result_ok(ExportCSVPB { data: content })
 }
