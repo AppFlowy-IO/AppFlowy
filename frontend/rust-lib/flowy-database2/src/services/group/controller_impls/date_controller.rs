@@ -13,14 +13,13 @@ use crate::services::group::{
   make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroupContext, Group,
 };
 use chrono::{
-  DateTime, Datelike, Days, Duration, Local, Month, NaiveDate, NaiveDateTime, Offset, TimeZone,
+  DateTime, Datelike, Days, Duration, Local, NaiveDate, NaiveDateTime, Offset, TimeZone,
 };
 use chrono_tz::Tz;
 use collab_database::database::timestamp;
 use collab_database::fields::Field;
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
 use flowy_error::FlowyResult;
-use rust_decimal::prelude::FromPrimitive;
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use std::format;
@@ -333,7 +332,7 @@ fn group_name_from_id(group_id: &String, timezone_id: &String, setting_content: 
     DateCondition::Day => {
       tmp = format!(
         "{} {}, {}",
-        Month::from_u32(date.month()).unwrap().name(),
+        date.format("%b").to_string(),
         date.day(),
         date.year(),
       );
@@ -351,7 +350,7 @@ fn group_name_from_id(group_id: &String, timezone_id: &String, setting_content: 
 
       tmp = format!(
         "Week of {} {}-{} {}",
-        Month::from_u32(date.month()).unwrap().name(),
+        date.format("%b").to_string(),
         begin_of_week.to_string(),
         end_of_week.to_string(),
         date.year()
@@ -359,11 +358,7 @@ fn group_name_from_id(group_id: &String, timezone_id: &String, setting_content: 
       tmp
     },
     DateCondition::Month => {
-      tmp = format!(
-        "{} {}",
-        Month::from_u32(date.month()).unwrap().name(),
-        date.year(),
-      );
+      tmp = format!("{} {}", date.format("%b").to_string(), date.year(),);
       tmp
     },
     DateCondition::Year => date.year().to_string(),
@@ -385,11 +380,7 @@ fn group_name_from_id(group_id: &String, timezone_id: &String, setting_content: 
         -30 => "Last 30 days",
         8 => "Next 30 days",
         _ => {
-          tmp = format!(
-            "{} {}",
-            Month::from_u32(date.month()).unwrap().name(),
-            date.year(),
-          );
+          tmp = format!("{} {}", date.format("%b").to_string(), date.year(),);
           &tmp
         },
       };
@@ -433,7 +424,7 @@ mod tests {
         cell_data: mar_14_2022_cd.clone(),
         setting_content: r#"{"condition": 0, "hide_empty": false}"#.to_string(),
         exp_group_id: "2022/03/01".to_string(),
-        exp_group_name: "March 2022".to_string(),
+        exp_group_name: "Mar 2022".to_string(),
       },
       GroupIDTest {
         cell_data: DateCellData {
@@ -463,7 +454,7 @@ mod tests {
         cell_data: mar_14_2022_cd.clone(),
         setting_content: r#"{"condition": 1, "hide_empty": false}"#.to_string(),
         exp_group_id: "2022/03/14".to_string(),
-        exp_group_name: "March 14, 2022".to_string(),
+        exp_group_name: "Mar 14, 2022".to_string(),
       },
       GroupIDTest {
         cell_data: DateCellData {
@@ -478,13 +469,13 @@ mod tests {
         },
         setting_content: r#"{"condition": 2, "hide_empty": false}"#.to_string(),
         exp_group_id: "2022/03/14".to_string(),
-        exp_group_name: "Week of March 14-20 2022".to_string(),
+        exp_group_name: "Week of Mar 14-20 2022".to_string(),
       },
       GroupIDTest {
         cell_data: mar_14_2022_cd.clone(),
         setting_content: r#"{"condition": 3, "hide_empty": false}"#.to_string(),
         exp_group_id: "2022/03/01".to_string(),
-        exp_group_name: "March 2022".to_string(),
+        exp_group_name: "Mar 2022".to_string(),
       },
       GroupIDTest {
         cell_data: mar_14_2022_cd.clone(),

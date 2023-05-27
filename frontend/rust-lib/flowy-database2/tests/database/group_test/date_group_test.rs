@@ -61,7 +61,7 @@ async fn group_by_date_test() {
     AssertGroupIDName {
       group_index: 1,
       group_id: "2022/03/01".to_string(),
-      group_name: "March 2022".to_string(),
+      group_name: "Mar 2022".to_string(),
     },
     AssertGroupRowCount {
       group_index: 1,
@@ -71,7 +71,7 @@ async fn group_by_date_test() {
     AssertGroupIDName {
       group_index: 2,
       group_id: "2022/11/01".to_string(),
-      group_name: "November 2022".to_string(),
+      group_name: "Nov 2022".to_string(),
     },
     AssertGroupRowCount {
       group_index: 2,
@@ -178,7 +178,7 @@ async fn change_date_on_moving_row_to_another_group() {
     AssertGroupIDName {
       group_index: 2,
       group_id: "2022/11/01".to_string(),
-      group_name: "November 2022".to_string(),
+      group_name: "Nov 2022".to_string(),
     },
   ];
   test.run_scripts(scripts).await;
