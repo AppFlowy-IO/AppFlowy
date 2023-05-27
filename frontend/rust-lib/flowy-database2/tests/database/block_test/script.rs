@@ -1,5 +1,7 @@
 use crate::database::database_editor::DatabaseEditorTest;
-use flowy_database2::entities::CreateRowParams;
+use collab_database::database::gen_row_id;
+
+use lib_infra::util::timestamp;
 
 pub enum RowScript {
   CreateEmptyRow,
@@ -25,13 +27,17 @@ impl DatabaseRowTest {
   pub async fn run_script(&mut self, script: RowScript) {
     match script {
       RowScript::CreateEmptyRow => {
-        let params = CreateRowParams {
-          view_id: self.view_id.clone(),
-          start_row_id: None,
-          group_id: None,
-          cell_data_by_field_id: None,
+        let params = collab_database::rows::CreateRowParams {
+          id: gen_row_id(),
+          timestamp: timestamp(),
+          ..Default::default()
         };
-        let row_order = self.editor.create_row(params).await.unwrap().unwrap();
+        let row_order = self
+          .editor
+          .create_row(&self.view_id, None, params)
+          .await
+          .unwrap()
+          .unwrap();
         self
           .row_by_row_id
           .insert(row_order.id.to_string(), row_order.into());

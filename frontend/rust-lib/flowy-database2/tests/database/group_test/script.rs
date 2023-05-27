@@ -1,6 +1,7 @@
+use collab_database::database::gen_row_id;
 use collab_database::fields::Field;
-use collab_database::rows::RowId;
-use flowy_database2::entities::{CreateRowParams, FieldType, GroupPB, RowPB};
+use collab_database::rows::{CreateRowParams, RowId};
+use flowy_database2::entities::{FieldType, GroupPB, RowPB};
 use flowy_database2::services::cell::{
   delete_select_option_cell, insert_select_option_cell, insert_url_cell,
 };
@@ -8,6 +9,7 @@ use flowy_database2::services::field::{
   edit_single_select_type_option, SelectOption, SelectTypeOptionSharedAction,
   SingleSelectTypeOption,
 };
+use lib_infra::util::timestamp;
 
 use crate::database::database_editor::DatabaseEditorTest;
 
@@ -126,12 +128,15 @@ impl DatabaseGroupTest {
       GroupScript::CreateRow { group_index } => {
         let group = self.group_at_index(group_index).await;
         let params = CreateRowParams {
-          view_id: self.view_id.clone(),
-          start_row_id: None,
-          group_id: Some(group.group_id.clone()),
-          cell_data_by_field_id: None,
+          id: gen_row_id(),
+          timestamp: timestamp(),
+          ..Default::default()
         };
-        let _ = self.editor.create_row(params).await.unwrap();
+        let _ = self
+          .editor
+          .create_row(&self.view_id, Some(group.group_id.clone()), params)
+          .await
+          .unwrap();
       },
       GroupScript::DeleteRow {
         group_index,

@@ -3,9 +3,9 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use bytes::Bytes;
-use collab_database::database::{gen_row_id, timestamp, Database as InnerDatabase};
+use collab_database::database::{timestamp, Database as InnerDatabase};
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Cells, Row, RowCell, RowId};
+use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use parking_lot::Mutex;
 use tokio::sync::{broadcast, RwLock};
@@ -16,14 +16,14 @@ use lib_infra::future::{to_fut, Fut};
 
 use crate::entities::{
   AlterFilterParams, AlterSortParams, CalendarEventPB, CellChangesetNotifyPB, CellPB,
-  CreateRowParams, DatabaseFieldChangesetPB, DatabasePB, DatabaseViewSettingPB, DeleteFilterParams,
+  DatabaseFieldChangesetPB, DatabasePB, DatabaseViewSettingPB, DeleteFilterParams,
   DeleteGroupParams, DeleteSortParams, FieldChangesetParams, FieldIdPB, FieldPB, FieldType,
   GroupPB, IndexFieldPB, InsertGroupParams, InsertedRowPB, LayoutSettingParams, RepeatedFilterPB,
   RepeatedGroupPB, RepeatedSortPB, RowPB, RowsChangesPB, SelectOptionCellDataPB, SelectOptionPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
-  apply_cell_changeset, get_cell_protobuf, insert_date_cell, AnyTypeCache, CellBuilder, CellCache,
+  apply_cell_changeset, get_cell_protobuf, insert_date_cell, AnyTypeCache, CellCache,
   ToCellChangeset,
 };
 use crate::services::database::util::database_view_setting_pb_from_view;
@@ -274,8 +274,17 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  // consider returning a result. But most of the time, it should be fine to just ignore the error.
   pub async fn duplicate_row(&self, view_id: &str, row_id: &RowId) {
-    let _ = self.database.lock().duplicate_row(view_id, row_id);
+    let params = self.database.lock().duplicate_row(row_id);
+    match params {
+      None => {
+        tracing::warn!("Failed to duplicate row: {}", row_id);
+      },
+      Some(params) => {
+        let _ = self.create_row(view_id, None, params).await;
+      },
+    }
   }
 
   pub async fn move_row(&self, view_id: &str, from: RowId, to: RowId) {
@@ -300,32 +309,22 @@ impl DatabaseEditor {
     }
   }
 
-  pub async fn create_row(&self, params: CreateRowParams) -> FlowyResult<Option<Row>> {
-    let fields = self.database.lock().get_fields(&params.view_id, None);
-    let mut cells =
-      CellBuilder::with_cells(params.cell_data_by_field_id.unwrap_or_default(), &fields).build();
+  pub async fn create_row(
+    &self,
+    view_id: &str,
+    group_id: Option<String>,
+    mut params: CreateRowParams,
+  ) -> FlowyResult<Option<Row>> {
     for view in self.database_views.editors().await {
-      view.v_will_create_row(&mut cells, &params.group_id).await;
+      view.v_will_create_row(&mut params.cells, &group_id).await;
     }
-
-    let result = self.database.lock().create_row_in_view(
-      &params.view_id,
-      collab_database::rows::CreateRowParams {
-        id: gen_row_id(),
-        cells,
-        height: 60,
-        visibility: true,
-        prev_row_id: params.start_row_id,
-        timestamp: timestamp(),
-      },
-    );
-
+    let result = self.database.lock().create_row_in_view(view_id, params);
     if let Some((index, row_order)) = result {
       tracing::trace!("create row: {:?} at {}", row_order, index);
       let row = self.database.lock().get_row(&row_order.id);
       if let Some(row) = row {
         for view in self.database_views.editors().await {
-          view.v_did_create_row(&row, &params.group_id, index).await;
+          view.v_did_create_row(&row, &group_id, index).await;
         }
         return Ok(Some(row));
       }
