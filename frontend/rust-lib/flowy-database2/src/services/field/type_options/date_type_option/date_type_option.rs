@@ -36,7 +36,7 @@ impl TypeOption for DateTypeOption {
 impl From<TypeOptionData> for DateTypeOption {
   fn from(data: TypeOptionData) -> Self {
     let date_format = data
-      .get_i64_value("data_format")
+      .get_i64_value("date_format")
       .map(DateFormat::from)
       .unwrap_or_default();
     let time_format = data
@@ -58,7 +58,7 @@ impl From<TypeOptionData> for DateTypeOption {
 impl From<DateTypeOption> for TypeOptionData {
   fn from(data: DateTypeOption) -> Self {
     TypeOptionDataBuilder::new()
-      .insert_i64_value("data_format", data.date_format.value())
+      .insert_i64_value("date_format", data.date_format.value())
       .insert_i64_value("time_format", data.time_format.value())
       .insert_i64_value("field_type", data.field_type.value())
       .build()

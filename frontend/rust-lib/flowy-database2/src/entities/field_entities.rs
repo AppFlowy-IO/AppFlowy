@@ -606,24 +606,13 @@ impl_into_field_type!(u8);
 
 impl From<FieldType> for i64 {
   fn from(ty: FieldType) -> Self {
-    match ty {
-      FieldType::RichText => 0,
-      FieldType::Number => 1,
-      FieldType::DateTime => 2,
-      FieldType::SingleSelect => 3,
-      FieldType::MultiSelect => 4,
-      FieldType::Checkbox => 5,
-      FieldType::URL => 6,
-      FieldType::Checklist => 7,
-      FieldType::UpdatedAt => 8,
-      FieldType::CreatedAt => 9,
-    }
+    (ty as u8) as i64
   }
 }
 
 impl From<&FieldType> for i64 {
   fn from(ty: &FieldType) -> Self {
-    ty.clone() as i64
+    i64::from(ty.clone())
   }
 }
 

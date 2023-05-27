@@ -35,7 +35,7 @@ use crate::services::field::{
 };
 use crate::services::filter::Filter;
 use crate::services::group::{default_group_setting, GroupSetting, RowChangeset};
-use crate::services::share::csv::{CSVExport, ExportStyle};
+use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
 
 #[derive(Clone)]
@@ -833,7 +833,7 @@ impl DatabaseEditor {
     }
   }
 
-  pub async fn export_csv(&self, style: ExportStyle) -> FlowyResult<String> {
+  pub async fn export_csv(&self, style: CSVFormat) -> FlowyResult<String> {
     let database = self.database.clone();
     let csv = tokio::task::spawn_blocking(move || {
       let database_guard = database.lock();

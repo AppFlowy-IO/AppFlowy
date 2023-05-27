@@ -12,6 +12,7 @@ use flowy_database2::services::field::{
   CheckboxTypeOption, ChecklistTypeOption, DateCellChangeset, MultiSelectTypeOption, SelectOption,
   SelectOptionCellChangeset, SingleSelectTypeOption,
 };
+use flowy_database2::services::share::csv::{CSVFormat, ImportResult};
 use flowy_error::FlowyResult;
 use flowy_test::folder_event::ViewTest;
 use flowy_test::FlowyCoreTest;
@@ -224,8 +225,13 @@ impl DatabaseEditorTest {
     self.update_cell(&field.id, row_id, cell_changeset).await
   }
 
-  pub async fn import(&self, s: String) -> String {
-    self.sdk.database_manager.import_csv(s).await.unwrap()
+  pub async fn import(&self, s: String, format: CSVFormat) -> ImportResult {
+    self
+      .sdk
+      .database_manager
+      .import_csv(s, format)
+      .await
+      .unwrap()
   }
 
   pub async fn get_database(&self, database_id: &str) -> Option<Arc<DatabaseEditor>> {

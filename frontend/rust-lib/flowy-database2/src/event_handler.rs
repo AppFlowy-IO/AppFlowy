@@ -12,6 +12,7 @@ use crate::manager::DatabaseManager2;
 use crate::services::field::{
   type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
 };
+use crate::services::share::csv::CSVFormat;
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_database_data_handler(
@@ -613,9 +614,9 @@ pub(crate) async fn import_data_handler(
   match params.import_type {
     ImportTypePB::CSV => {
       if let Some(data) = params.data {
-        manager.import_csv(data).await?;
+        manager.import_csv(data, CSVFormat::META).await?;
       } else if let Some(uri) = params.uri {
-        manager.import_csv_data_from_uri(uri).await?;
+        manager.import_csv_from_uri(uri, CSVFormat::META).await?;
       } else {
         return Err(FlowyError::new(
           ErrorCode::InvalidData,
