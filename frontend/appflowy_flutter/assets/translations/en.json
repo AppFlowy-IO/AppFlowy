@@ -360,6 +360,7 @@
       "autoGeneratorGenerate": "Generate",
       "autoGeneratorHintText": "Ask OpenAI ...",
       "autoGeneratorCantGetOpenAIKey": "Can't get OpenAI key",
+      "autoGeneratorRewrite": "Rewrite",
       "smartEdit": "AI Assistants",
       "openAI": "OpenAI",
       "smartEditFixSpelling": "Fix spelling",
