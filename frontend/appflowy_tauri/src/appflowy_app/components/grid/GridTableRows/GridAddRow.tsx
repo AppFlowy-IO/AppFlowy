@@ -4,7 +4,7 @@ import { useGridAddRow } from './GridAddRow.hooks';
 import { useTranslation } from 'react-i18next';
 export const GridAddRow = ({ controller }: { controller: DatabaseController }) => {
   const { addRow } = useGridAddRow(controller);
-  const { t } = useTranslation('');
+  const { t } = useTranslation();
 
   return (
     <div>

@@ -1,10 +1,10 @@
-import { IPage, pagesActions } from '../../../stores/reducers/pages/slice';
-import { useAppDispatch } from '../../../stores/store';
+import { IPage, pagesActions } from '$app_reducers/pages/slice';
+import { useAppDispatch } from '$app/stores/store';
 import { useEffect, useState } from 'react';
 import { nanoid } from 'nanoid';
-import { ViewBackendService } from '../../../stores/effects/folder/view/view_bd_svc';
-import { useError } from '../../error/Error.hooks';
+import { ViewBackendService } from '$app/stores/effects/folder/view/view_bd_svc';
 import { useLocation } from 'react-router-dom';
+import { ViewPB } from '@/services/backend';
 
 export const usePageEvents = (page: IPage) => {
   const appDispatch = useAppDispatch();
@@ -41,8 +41,9 @@ export const usePageEvents = (page: IPage) => {
     appDispatch(pagesActions.deletePage({ id: page.id }));
   };
 
-  const duplicatePage = () => {
+  const duplicatePage = async () => {
     closePopup();
+    await viewBackendService.duplicate(ViewPB.fromObject({}));
     appDispatch(
       pagesActions.addPage({ id: nanoid(8), pageType: page.pageType, title: page.title, folderId: page.folderId })
     );

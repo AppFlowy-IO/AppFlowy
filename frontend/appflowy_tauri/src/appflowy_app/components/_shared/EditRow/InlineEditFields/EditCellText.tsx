@@ -12,12 +12,12 @@ export const EditCellText = ({
   const [contentRows, setContentRows] = useState(1);
 
   useEffect(() => {
-    setValue(data || '');
+    setValue(data ?? '');
   }, [data]);
 
   useEffect(() => {
     if (!value?.length) return;
-    setContentRows(Math.max(1, (value || '').split('\n').length));
+    setContentRows(Math.max(1, (value ?? '').split('\n').length));
   }, [value]);
 
   const onTextFieldChange = async (v: string) => {
@@ -29,9 +29,9 @@ export const EditCellText = ({
   };
 
   return (
-    <div className={''}>
+    <div>
       <textarea
-        className={'mt-0.5 h-full w-full resize-none px-4 py-2'}
+        className={'mt-0.5 h-full w-full resize-none px-4 py-1'}
         rows={contentRows}
         value={value}
         onChange={(e) => onTextFieldChange(e.target.value)}

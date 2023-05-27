@@ -14,5 +14,5 @@ export const BoardDateCell = ({
   fieldController: FieldController;
 }) => {
   const { data } = useCell(cellIdentifier, cellCache, fieldController);
-  return <div>{(data as DateCellDataPB | undefined)?.date || ''}</div>;
+  return <div>{(data as DateCellDataPB | undefined)?.date ?? ''}&nbsp;</div>;
 };

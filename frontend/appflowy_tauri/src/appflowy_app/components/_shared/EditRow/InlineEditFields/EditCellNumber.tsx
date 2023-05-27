@@ -1,23 +1,21 @@
-import { URLCellDataPB } from '@/services/backend';
 import { CellController } from '$app/stores/effects/database/cell/cell_controller';
 import { useEffect, useState } from 'react';
-import { URLCellController } from '$app/stores/effects/database/cell/controller_builder';
 
-export const EditCellUrl = ({
+export const EditCellNumber = ({
   data,
   cellController,
 }: {
-  data: URLCellDataPB | undefined;
+  data: string | undefined;
   cellController: CellController<any, any>;
 }) => {
   const [value, setValue] = useState('');
 
   useEffect(() => {
-    setValue((data as URLCellDataPB)?.url || '');
+    setValue(data ?? '');
   }, [data]);
 
   const save = async () => {
-    await (cellController as URLCellController)?.saveCellData(value);
+    await cellController?.saveCellData(value);
   };
 
   return (
@@ -25,7 +23,7 @@ export const EditCellUrl = ({
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onBlur={() => save()}
-      className={'w-full px-4 py-2'}
+      className={'w-full px-4 py-1'}
     ></input>
   );
 };

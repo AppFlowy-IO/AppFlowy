@@ -1,6 +1,6 @@
 import { SelectOptionCellDataPB } from '@/services/backend';
 import { getBgColor } from '$app/components/_shared/getColor';
-import { useRef } from 'react';
+import { MouseEventHandler, useRef } from 'react';
 
 export const CellOptions = ({
   data,
@@ -11,23 +11,19 @@ export const CellOptions = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 
-  const onClick = () => {
+  const onClick: MouseEventHandler = () => {
     if (!ref.current) return;
     const { left, top } = ref.current.getBoundingClientRect();
     onEditClick(left, top);
   };
 
   return (
-    <div
-      ref={ref}
-      onClick={() => onClick()}
-      className={'flex w-full flex-wrap items-center gap-2 px-4 py-2 text-xs text-black'}
-    >
+    <div ref={ref} onClick={onClick} className={'flex w-full flex-wrap items-center gap-2 px-4 py-1 text-xs text-black'}>
       {data?.select_options?.map((option, index) => (
         <div className={`${getBgColor(option.color)} rounded px-2 py-0.5`} key={index}>
-          {option?.name || ''}
+          {option?.name ?? ''}
         </div>
-      )) || ''}
+      ))}
       &nbsp;
     </div>
   );

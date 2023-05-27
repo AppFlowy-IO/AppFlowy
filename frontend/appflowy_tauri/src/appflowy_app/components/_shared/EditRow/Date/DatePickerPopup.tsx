@@ -8,7 +8,7 @@ import { useCell } from '$app/components/_shared/database-hooks/useCell';
 import { CalendarData } from '$app/stores/effects/database/cell/controller_builder';
 import { DateCellDataPB } from '@/services/backend';
 import { PopupWindow } from '$app/components/_shared/PopupWindow';
-import { DateTypeOptions } from '$app/components/_shared/EditRow/DateTypeOptions';
+import { DateTypeOptions } from '$app/components/_shared/EditRow/Date/DateTypeOptions';
 
 export const DatePickerPopup = ({
   left,

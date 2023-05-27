@@ -18,7 +18,7 @@ export const EditCheckboxCell = ({
   };
 
   return (
-    <div onClick={() => toggleValue()} className={'block px-4 py-2'}>
+    <div onClick={() => toggleValue()} className={'block px-4 py-1'}>
       <button className={'h-5 w-5'}>
         {data === 'Yes' ? <EditorCheckSvg></EditorCheckSvg> : <EditorUncheckSvg></EditorUncheckSvg>}
       </button>
