@@ -3,12 +3,13 @@ use crate::services::cell::stringify_cell_data;
 use collab_database::database::Database;
 
 use flowy_error::{FlowyError, FlowyResult};
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
-pub enum ExportStyle {
+#[derive(Debug, Clone, Copy)]
+pub enum CSVFormat {
   /// The export data will be pure data, without any meta data.
   /// Will lost the field type information.
-  SIMPLE,
+  Original,
   /// The export data contains meta data, such as field type.
   /// It can be used to fully restore the database.
   META,
@@ -16,7 +17,7 @@ pub enum ExportStyle {
 
 pub struct CSVExport;
 impl CSVExport {
-  pub fn export_database(&self, database: &Database, style: ExportStyle) -> FlowyResult<String> {
+  pub fn export_database(&self, database: &Database, style: CSVFormat) -> FlowyResult<String> {
     let mut wtr = csv::Writer::from_writer(vec![]);
     let inline_view_id = database.get_inline_view_id();
     let fields = database.get_fields(&inline_view_id, None);
@@ -25,8 +26,8 @@ impl CSVExport {
     let field_records = fields
       .iter()
       .map(|field| match &style {
-        ExportStyle::SIMPLE => field.name.clone(),
-        ExportStyle::META => serde_json::to_string(&field).unwrap(),
+        CSVFormat::Original => field.name.clone(),
+        CSVFormat::META => serde_json::to_string(&field).unwrap(),
       })
       .collect::<Vec<String>>();
     wtr
@@ -34,10 +35,10 @@ impl CSVExport {
       .map_err(|e| FlowyError::internal().context(e))?;
 
     // Write rows
-    let field_by_field_id = fields
-      .into_iter()
-      .map(|field| (field.id.clone(), field))
-      .collect::<HashMap<_, _>>();
+    let mut field_by_field_id = IndexMap::new();
+    fields.into_iter().for_each(|field| {
+      field_by_field_id.insert(field.id.clone(), field);
+    });
     let rows = database.get_rows_for_view(&inline_view_id);
     for row in rows {
       let cells = field_by_field_id
@@ -47,8 +48,8 @@ impl CSVExport {
           Some(cell) => {
             let field_type = FieldType::from(field.field_type);
             match style {
-              ExportStyle::SIMPLE => stringify_cell_data(cell, &field_type, &field_type, field),
-              ExportStyle::META => serde_json::to_string(cell).unwrap_or_else(|_| "".to_string()),
+              CSVFormat::Original => stringify_cell_data(cell, &field_type, &field_type, field),
+              CSVFormat::META => serde_json::to_string(cell).unwrap_or_else(|_| "".to_string()),
             }
           },
         })
