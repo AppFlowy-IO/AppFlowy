@@ -12,7 +12,9 @@ use crate::services::group::controller::{
 use crate::services::group::{
   make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroupContext, Group,
 };
-use chrono::{DateTime, Datelike, Days, Duration, Local, Month, Offset, TimeZone};
+use chrono::{
+  DateTime, Datelike, Days, Duration, Local, Month, NaiveDate, NaiveDateTime, Offset, TimeZone,
+};
 use chrono_tz::Tz;
 use collab_database::database::timestamp;
 use collab_database::fields::Field;
@@ -21,6 +23,7 @@ use flowy_error::FlowyResult;
 use rust_decimal::prelude::FromPrimitive;
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
+use std::format;
 use std::str::FromStr;
 
 pub trait GroupConfigurationContentSerde: Sized + Send + Sync {
@@ -217,7 +220,7 @@ impl GroupController for DateGroupController {
     match self.group_ctx.get_group(group_id) {
       None => tracing::warn!("Can not find the group: {}", group_id),
       Some((_, _)) => {
-        let date = chrono::DateTime::parse_from_str(&group_id, "%Y/%m/%d").unwrap();
+        let date = DateTime::parse_from_str(&group_id, "%Y/%m/%d").unwrap();
         let cell = insert_date_cell(date.timestamp(), None, field);
         cells.insert(field.id.clone(), cell);
       },
@@ -245,7 +248,7 @@ impl GroupGenerator for DateGroupGenerator {
     let cells = futures::executor::block_on(group_ctx.get_all_cells());
 
     // Generate the groups
-    let group_configs = cells
+    let mut group_configs: Vec<GeneratedGroupConfig> = cells
       .into_iter()
       .flat_map(|value| value.into_date_field_cell_data())
       .filter(|cell| cell.timestamp.is_some())
@@ -257,6 +260,7 @@ impl GroupGenerator for DateGroupGenerator {
         }
       })
       .collect();
+    group_configs.sort_by(|a, b| a.filter_content.cmp(&b.filter_content));
 
     let no_status_group = Some(make_no_status_group(field));
     GeneratedGroupContext {
@@ -275,7 +279,7 @@ fn make_group_from_date_cell(cell_data: &DateCellData, setting_content: &String)
 }
 
 fn group_id(cell_data: &DateCellData, setting_content: &String) -> String {
-  let config = DateGroupConfiguration::from_json(setting_content).unwrap();
+  let config = DateGroupConfiguration::from_json(setting_content).unwrap_or_default();
   let date_time = DateTime::from(cell_data);
 
   let date = match config.condition {
@@ -287,23 +291,30 @@ fn group_id(cell_data: &DateCellData, setting_content: &String) -> String {
       .unwrap()
       .format("%Y/%m/%d"),
     DateCondition::Relative => {
-      let naive = chrono::NaiveDateTime::from_timestamp_opt(timestamp(), 0).unwrap();
+      let naive = NaiveDateTime::from_timestamp_opt(timestamp(), 0).unwrap();
       let offset = match Tz::from_str(&cell_data.timezone_id) {
         Ok(timezone) => timezone.offset_from_utc_datetime(&naive).fix(),
         Err(_) => *Local::now().offset(),
       };
       let now = DateTime::<Local>::from_utc(naive, offset);
 
-      let diff = date_time.signed_duration_since(now);
-      let result = match diff.num_days() {
-        0 => Some(date_time),
-        -1 => date_time.checked_add_signed(Duration::days(-1)),
-        1 => date_time.checked_add_signed(Duration::days(1)),
-        -7 => date_time.checked_add_signed(Duration::days(-7)),
-        7 => date_time.checked_add_signed(Duration::days(7)),
-        -30 => date_time.checked_add_signed(Duration::days(-30)),
-        30 => date_time.checked_add_signed(Duration::days(30)),
-        _ => date_time.checked_sub_days(Days::new(date_time.day() as u64)),
+      let diff = date_time.signed_duration_since(now).num_days();
+      let result = if diff == 0 {
+        Some(now)
+      } else if diff == -1 {
+        now.checked_add_signed(Duration::days(-1))
+      } else if diff == 1 {
+        now.checked_add_signed(Duration::days(1))
+      } else if diff >= -7 && diff < -1 {
+        now.checked_add_signed(Duration::days(-7))
+      } else if diff > 1 && diff <= 7 {
+        now.checked_add_signed(Duration::days(2))
+      } else if diff >= -30 && diff < -7 {
+        now.checked_add_signed(Duration::days(-30))
+      } else if diff > 7 && diff <= 30 {
+        now.checked_add_signed(Duration::days(8))
+      } else {
+        date_time.checked_sub_days(Days::new(date_time.day() as u64 - 1))
       };
 
       result.unwrap().format("%Y/%m/%d")
@@ -314,32 +325,73 @@ fn group_id(cell_data: &DateCellData, setting_content: &String) -> String {
 }
 
 fn group_name_from_id(group_id: &String, timezone_id: &String, setting_content: &String) -> String {
-  let config = DateGroupConfiguration::from_json(setting_content).unwrap();
-  let date = chrono::DateTime::parse_from_str(group_id, "%Y/%m/%d").unwrap();
+  let config = DateGroupConfiguration::from_json(setting_content).unwrap_or_default();
+  let date = NaiveDate::parse_from_str(group_id, "%Y/%m/%d").unwrap();
 
+  let tmp;
   match config.condition {
-    DateCondition::Day => date.weekday().to_string(),
-    DateCondition::Week => date.iso_week().week().to_string(),
-    DateCondition::Month => Month::from_u32(date.month()).unwrap().name().to_string(),
+    DateCondition::Day => {
+      tmp = format!(
+        "{} {}, {}",
+        Month::from_u32(date.month()).unwrap().name(),
+        date.day(),
+        date.year(),
+      );
+      tmp
+    },
+    DateCondition::Week => {
+      let begin_of_week = date
+        .checked_sub_days(Days::new(date.weekday().num_days_from_monday() as u64))
+        .unwrap()
+        .format("%d");
+      let end_of_week = date
+        .checked_add_days(Days::new(6 - date.weekday().num_days_from_monday() as u64))
+        .unwrap()
+        .format("%d");
+
+      tmp = format!(
+        "Week of {} {}-{} {}",
+        Month::from_u32(date.month()).unwrap().name(),
+        begin_of_week.to_string(),
+        end_of_week.to_string(),
+        date.year()
+      );
+      tmp
+    },
+    DateCondition::Month => {
+      tmp = format!(
+        "{} {}",
+        Month::from_u32(date.month()).unwrap().name(),
+        date.year(),
+      );
+      tmp
+    },
     DateCondition::Year => date.year().to_string(),
     DateCondition::Relative => {
-      let naive = chrono::NaiveDateTime::from_timestamp_opt(timestamp(), 0).unwrap();
+      let naive = NaiveDateTime::from_timestamp_opt(timestamp(), 0).unwrap();
       let offset = match Tz::from_str(timezone_id) {
         Ok(timezone) => timezone.offset_from_utc_datetime(&naive).fix(),
         Err(_) => *Local::now().offset(),
       };
       let now = DateTime::<Local>::from_utc(naive, offset);
 
-      let diff = date.signed_duration_since(now);
+      let diff = date.signed_duration_since(now.date_naive());
       let result = match diff.num_days() {
         0 => "Today",
         -1 => "Yesterday",
         1 => "Tomorrow",
         -7 => "Last 7 days",
-        7 => "Next 7 days",
+        2 => "Next 7 days",
         -30 => "Last 30 days",
-        30 => "Next 30 days",
-        _ => Month::from_u32(date.month()).unwrap().name(),
+        8 => "Next 30 days",
+        _ => {
+          tmp = format!(
+            "{} {}",
+            Month::from_u32(date.month()).unwrap().name(),
+            date.year(),
+          );
+          &tmp
+        },
       };
 
       result.to_string()
@@ -349,9 +401,109 @@ fn group_name_from_id(group_id: &String, timezone_id: &String, setting_content: 
 
 #[cfg(test)]
 mod tests {
-  #[test]
-  fn group_id_test() {}
+  use std::vec;
+
+  use chrono::{offset, Days, Duration, NaiveDateTime};
+
+  use crate::services::{
+    field::DateCellData,
+    group::controller_impls::date_controller::{group_id, group_name_from_id},
+  };
 
   #[test]
-  fn group_name_from_id_test() {}
+  fn group_id_name_test() {
+    struct GroupIDTest {
+      cell_data: DateCellData,
+      setting_content: String,
+      exp_group_id: String,
+      exp_group_name: String,
+    }
+
+    let mar_14_2022 = NaiveDateTime::from_timestamp_opt(1647251762, 0).unwrap();
+    let mar_14_2022_cd = DateCellData {
+      timestamp: Some(mar_14_2022.timestamp()),
+      include_time: false,
+      timezone_id: "Etc/UTC".to_string(),
+    };
+    let today = offset::Local::now();
+    let three_days_before = today.checked_add_signed(Duration::days(-3)).unwrap();
+
+    let tests = vec![
+      GroupIDTest {
+        cell_data: mar_14_2022_cd.clone(),
+        setting_content: r#"{"condition": 0, "hide_empty": false}"#.to_string(),
+        exp_group_id: "2022/03/01".to_string(),
+        exp_group_name: "March 2022".to_string(),
+      },
+      GroupIDTest {
+        cell_data: DateCellData {
+          timestamp: Some(today.timestamp()),
+          include_time: false,
+          timezone_id: "Etc/UTC".to_string(),
+        },
+        setting_content: r#"{"condition": 0, "hide_empty": false}"#.to_string(),
+        exp_group_id: today.format("%Y/%m/%d").to_string(),
+        exp_group_name: "Today".to_string(),
+      },
+      GroupIDTest {
+        cell_data: DateCellData {
+          timestamp: Some(three_days_before.timestamp()),
+          include_time: false,
+          timezone_id: "Etc/UTC".to_string(),
+        },
+        setting_content: r#"{"condition": 0, "hide_empty": false}"#.to_string(),
+        exp_group_id: today
+          .checked_sub_days(Days::new(7))
+          .unwrap()
+          .format("%Y/%m/%d")
+          .to_string(),
+        exp_group_name: "Last 7 days".to_string(),
+      },
+      GroupIDTest {
+        cell_data: mar_14_2022_cd.clone(),
+        setting_content: r#"{"condition": 1, "hide_empty": false}"#.to_string(),
+        exp_group_id: "2022/03/14".to_string(),
+        exp_group_name: "March 14, 2022".to_string(),
+      },
+      GroupIDTest {
+        cell_data: DateCellData {
+          timestamp: Some(
+            mar_14_2022
+              .checked_add_signed(Duration::days(3))
+              .unwrap()
+              .timestamp(),
+          ),
+          include_time: false,
+          timezone_id: "Etc/UTC".to_string(),
+        },
+        setting_content: r#"{"condition": 2, "hide_empty": false}"#.to_string(),
+        exp_group_id: "2022/03/14".to_string(),
+        exp_group_name: "Week of March 14-20 2022".to_string(),
+      },
+      GroupIDTest {
+        cell_data: mar_14_2022_cd.clone(),
+        setting_content: r#"{"condition": 3, "hide_empty": false}"#.to_string(),
+        exp_group_id: "2022/03/01".to_string(),
+        exp_group_name: "March 2022".to_string(),
+      },
+      GroupIDTest {
+        cell_data: mar_14_2022_cd.clone(),
+        setting_content: r#"{"condition": 4, "hide_empty": false}"#.to_string(),
+        exp_group_id: "2022/01/01".to_string(),
+        exp_group_name: "2022".to_string(),
+      },
+    ];
+
+    for (i, test) in tests.iter().enumerate() {
+      let group_id = group_id(&test.cell_data, &test.setting_content);
+      assert_eq!(test.exp_group_id, group_id, "test {}", i);
+
+      let group_name = group_name_from_id(
+        &group_id,
+        &test.cell_data.timezone_id,
+        &test.setting_content,
+      );
+      assert_eq!(test.exp_group_name, group_name, "test {}", i);
+    }
+  }
 }

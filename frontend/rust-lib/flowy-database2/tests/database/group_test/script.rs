@@ -3,7 +3,7 @@ use collab_database::fields::Field;
 use collab_database::rows::{CreateRowParams, RowId};
 use flowy_database2::entities::{FieldType, GroupPB, RowPB};
 use flowy_database2::services::cell::{
-  delete_select_option_cell, insert_select_option_cell, insert_url_cell,
+  delete_select_option_cell, insert_date_cell, insert_select_option_cell, insert_url_cell,
 };
 use flowy_database2::services::field::{
   edit_single_select_type_option, SelectOption, SelectTypeOptionSharedAction,
@@ -207,6 +207,9 @@ impl DatabaseGroupTest {
         let field_type = FieldType::from(field.field_type);
         let cell = match field_type {
           FieldType::URL => insert_url_cell(cell_data, &field),
+          FieldType::DateTime => {
+            insert_date_cell(cell_data.parse::<i64>().unwrap(), Some(true), &field)
+          },
           _ => {
             panic!("Unsupported group field type");
           },
@@ -262,8 +265,8 @@ impl DatabaseGroupTest {
         group_name,
       } => {
         let group = self.group_at_index(group_index).await;
-        assert_eq!(group.group_id, group_id);
-        assert_eq!(group.desc, group_name);
+        assert_eq!(group_id, group.group_id, "group index: {}", group_index);
+        assert_eq!(group_name, group.desc, "group index: {}", group_index);
       },
     }
   }
