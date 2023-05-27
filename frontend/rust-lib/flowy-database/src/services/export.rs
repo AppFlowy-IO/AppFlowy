@@ -1,10 +1,19 @@
 use crate::entities::FieldType;
-use crate::services::cell::{stringify_cell_data, TypeCellData};
+
+use crate::services::cell::TypeCellData;
 use crate::services::database::DatabaseEditor;
-use database_model::FieldRevision;
+use crate::services::field::{
+  CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateCellData, DateTypeOptionPB,
+  MultiSelectTypeOptionPB, NumberTypeOptionPB, RichTextTypeOptionPB, SingleSelectTypeOptionPB,
+  URLCellData,
+};
+use database_model::{FieldRevision, TypeOptionDataDeserializer};
 use flowy_error::{FlowyError, FlowyResult};
+use indexmap::IndexMap;
 use serde::Serialize;
+use serde_json::{json, Map, Value};
 use std::collections::HashMap;
+
 use std::sync::Arc;
 
 #[derive(Debug, Clone, Serialize)]
@@ -14,17 +23,76 @@ pub struct ExportField {
   pub field_type: i64,
   pub visibility: bool,
   pub width: i64,
-  pub type_options: HashMap<String, String>,
+  pub type_options: HashMap<String, Value>,
   pub is_primary: bool,
+}
+
+#[derive(Debug, Clone, Serialize)]
+struct ExportCell {
+  data: String,
+  field_type: FieldType,
 }
 
 impl From<&Arc<FieldRevision>> for ExportField {
   fn from(field_rev: &Arc<FieldRevision>) -> Self {
-    let type_options = field_rev
-      .type_options
-      .iter()
-      .map(|(k, v)| (k.clone(), v.clone()))
-      .collect();
+    let field_type = FieldType::from(field_rev.ty);
+    let mut type_options: HashMap<String, Value> = HashMap::new();
+
+    field_rev.type_options.iter().for_each(|(k, s)| {
+      let value = match field_type {
+        FieldType::RichText => {
+          let pb = RichTextTypeOptionPB::from_json_str(s);
+          serde_json::to_value(pb).unwrap()
+        },
+        FieldType::Number => {
+          let pb = NumberTypeOptionPB::from_json_str(s);
+          let mut map = Map::new();
+          map.insert("format".to_string(), json!(pb.format as u8));
+          map.insert("scale".to_string(), json!(pb.scale));
+          map.insert("symbol".to_string(), json!(pb.symbol));
+          map.insert("name".to_string(), json!(pb.name));
+          Value::Object(map)
+        },
+        FieldType::DateTime => {
+          let pb = DateTypeOptionPB::from_json_str(s);
+          let mut map = Map::new();
+          map.insert("date_format".to_string(), json!(pb.date_format as u8));
+          map.insert("time_format".to_string(), json!(pb.time_format as u8));
+          map.insert("field_type".to_string(), json!(FieldType::DateTime as u8));
+          Value::Object(map)
+        },
+        FieldType::SingleSelect => {
+          let pb = SingleSelectTypeOptionPB::from_json_str(s);
+          let value = serde_json::to_string(&pb).unwrap();
+          let mut map = Map::new();
+          map.insert("content".to_string(), Value::String(value));
+          Value::Object(map)
+        },
+        FieldType::MultiSelect => {
+          let pb = MultiSelectTypeOptionPB::from_json_str(s);
+          let value = serde_json::to_string(&pb).unwrap();
+          let mut map = Map::new();
+          map.insert("content".to_string(), Value::String(value));
+          Value::Object(map)
+        },
+        FieldType::Checkbox => {
+          let pb = CheckboxTypeOptionPB::from_json_str(s);
+          serde_json::to_value(pb).unwrap()
+        },
+        FieldType::URL => {
+          let pb = RichTextTypeOptionPB::from_json_str(s);
+          serde_json::to_value(pb).unwrap()
+        },
+        FieldType::Checklist => {
+          let pb = ChecklistTypeOptionPB::from_json_str(s);
+          let value = serde_json::to_string(&pb).unwrap();
+          let mut map = Map::new();
+          map.insert("content".to_string(), Value::String(value));
+          Value::Object(map)
+        },
+      };
+      type_options.insert(k.clone(), value);
+    });
     Self {
       id: field_rev.id.clone(),
       name: field_rev.name.clone(),
@@ -60,22 +128,39 @@ impl CSVExport {
       .map_err(|e| FlowyError::internal().context(e))?;
 
     // Write rows
-    let field_by_field_id = field_revs
-      .into_iter()
-      .map(|field| (field.id.clone(), field))
-      .collect::<HashMap<_, _>>();
+    let mut field_by_field_id = IndexMap::new();
+    field_revs.into_iter().for_each(|field| {
+      field_by_field_id.insert(field.id.clone(), field);
+    });
     for row_rev in row_revs {
       let cells = field_by_field_id
         .iter()
-        .map(|(field_id, field)| match row_rev.cells.get(field_id) {
-          None => "".to_string(),
-          Some(cell) => match TypeCellData::try_from(cell) {
-            Ok(data) => {
-              let field_type = FieldType::from(field.ty);
-              stringify_cell_data(data.cell_str, &field_type, &field_type, field.as_ref())
-            },
-            Err(_) => "".to_string(),
-          },
+        .map(|(field_id, field)| {
+          let field_type = FieldType::from(field.ty);
+          let data = row_rev
+            .cells
+            .get(field_id)
+            .map(|cell| TypeCellData::try_from(cell))
+            .map(|data| {
+              data
+                .map(|data| match field_type {
+                  FieldType::DateTime => {
+                    match serde_json::from_str::<DateCellData>(&data.cell_str) {
+                      Ok(cell_data) => cell_data.timestamp.unwrap_or_default().to_string(),
+                      Err(_) => "".to_string(),
+                    }
+                  },
+                  FieldType::URL => match serde_json::from_str::<URLCellData>(&data.cell_str) {
+                    Ok(cell_data) => cell_data.content,
+                    Err(_) => "".to_string(),
+                  },
+                  _ => data.cell_str,
+                })
+                .unwrap_or_default()
+            })
+            .unwrap_or_else(|| "".to_string());
+          let cell = ExportCell { data, field_type };
+          serde_json::to_string(&cell).unwrap()
         })
         .collect::<Vec<_>>();
 

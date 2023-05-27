@@ -168,6 +168,7 @@ impl ToString for DateCellData {
 }
 
 #[derive(Clone, Debug, Copy, EnumIter, Serialize, Deserialize, ProtoBuf_Enum)]
+#[repr(u8)]
 pub enum DateFormat {
   Local = 0,
   US = 1,
@@ -216,6 +217,7 @@ impl DateFormat {
 #[derive(
   Clone, Copy, PartialEq, Eq, EnumIter, Debug, Hash, Serialize, Deserialize, ProtoBuf_Enum,
 )]
+#[repr(u8)]
 pub enum TimeFormat {
   TwelveHour = 0,
   TwentyFourHour = 1,
