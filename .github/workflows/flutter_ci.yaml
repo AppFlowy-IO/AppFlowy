@@ -22,7 +22,7 @@ on:
       - "!frontend/appflowy_tauri/**"
 
 env:
-  FLUTTER_VERSION: "3.7.5"
+  FLUTTER_VERSION: "3.10.1"
   RUST_TOOLCHAIN: "1.65"
 
 jobs:

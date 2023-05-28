@@ -4,7 +4,6 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tuple/tuple.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class FontSizeSwitcher extends StatefulWidget {
@@ -17,10 +16,10 @@ class FontSizeSwitcher extends StatefulWidget {
 }
 
 class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
-  final List<Tuple3<String, double, bool>> _fontSizes = [
-    Tuple3(LocaleKeys.moreAction_small.tr(), 14.0, false),
-    Tuple3(LocaleKeys.moreAction_medium.tr(), 18.0, true),
-    Tuple3(LocaleKeys.moreAction_large.tr(), 22.0, false),
+  final List<(String, double, bool)> _fontSizes = [
+    (LocaleKeys.moreAction_small.tr(), 14.0, false),
+    (LocaleKeys.moreAction_medium.tr(), 18.0, true),
+    (LocaleKeys.moreAction_large.tr(), 22.0, false),
   ];
 
   @override
@@ -42,9 +41,9 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
             ),
             ToggleButtons(
               isSelected:
-                  _fontSizes.map((e) => e.item2 == state.fontSize).toList(),
+                  _fontSizes.map((e) => e.$2 == state.fontSize).toList(),
               onPressed: (int index) {
-                _updateSelectedFontSize(_fontSizes[index].item2);
+                _updateSelectedFontSize(_fontSizes[index].$2);
               },
               color: foregroundColor,
               borderRadius: const BorderRadius.all(Radius.circular(5)),
@@ -63,8 +62,8 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
               children: _fontSizes
                   .map(
                     (e) => Text(
-                      e.item1,
-                      style: TextStyle(fontSize: e.item2),
+                      e.$1,
+                      style: TextStyle(fontSize: e.$2),
                     ),
                   )
                   .toList(),

@@ -17,7 +17,7 @@ abstract class RowFieldsDelegate {
   void onFieldsChanged(void Function(List<FieldInfo>) callback);
 }
 
-abstract class RowCacheDelegate {
+abstract mixin class RowCacheDelegate {
   UnmodifiableListView<FieldInfo> get fields;
   void onRowDispose();
 }

@@ -1,19 +1,18 @@
 name: flowy_infra
 description: A new Flutter package project.
 version: 0.0.1
-homepage:
+homepage: https://appflowy.io
 
 environment:
-  sdk: ">=2.18.0 <3.0.0"
-  flutter: ">=3.3.0"
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.1"
 
 dependencies:
   flutter:
     sdk: flutter
   time: '>=2.0.0'
   uuid: ">=2.2.2"
-  textstyle_extensions: '2.0.0-nullsafety'
-  flutter_svg: ^2.0.2
+  flutter_svg: ^2.0.6
 
 dev_dependencies:
   flutter_test:
