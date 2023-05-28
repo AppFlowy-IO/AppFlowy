@@ -74,7 +74,6 @@ pub type DateGroupContext = GroupContext<DateGroupConfiguration>;
 impl GroupCustomize for DateGroupController {
   type CellData = DateCellDataPB;
 
-  // TODO(.): check removing this fn
   fn placeholder_cell(&self) -> Option<Cell> {
     Some(
       new_cell_builder(FieldType::DateTime)
