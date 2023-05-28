@@ -37,7 +37,7 @@ impl TypeOptionBuilder for RichTextTypeOptionBuilder {
 pub struct RichTextTypeOptionPB {
   #[pb(index = 1)]
   #[serde(default)]
-  data: String,
+  pub data: String,
 }
 impl_type_option!(RichTextTypeOptionPB, FieldType::RichText);
 

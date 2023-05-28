@@ -161,6 +161,9 @@ class CalendarDayCard extends StatelessWidget {
     });
 
     renderHook.addSelectOptionHook((selectedOptions, cardData, _) {
+      if (selectedOptions.isEmpty) {
+        return const SizedBox.shrink();
+      }
       final children = selectedOptions.map(
         (option) {
           return SelectOptionTag.fromOption(

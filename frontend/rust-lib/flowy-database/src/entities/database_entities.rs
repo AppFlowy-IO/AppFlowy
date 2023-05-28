@@ -203,3 +203,9 @@ pub struct DatabaseLayoutIdPB {
   #[pb(index = 2)]
   pub layout: LayoutTypePB,
 }
+
+#[derive(Clone, ProtoBuf, Default, Debug)]
+pub struct ExportCSVPB {
+  #[pb(index = 1)]
+  pub data: String,
+}

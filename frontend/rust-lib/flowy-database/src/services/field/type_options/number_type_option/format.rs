@@ -14,6 +14,7 @@ lazy_static! {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, EnumIter, Serialize, Deserialize, ProtoBuf_Enum)]
+#[repr(u8)]
 pub enum NumberFormat {
   Num = 0,
   USD = 1,

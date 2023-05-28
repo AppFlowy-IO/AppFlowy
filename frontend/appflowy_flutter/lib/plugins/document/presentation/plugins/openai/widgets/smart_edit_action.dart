@@ -6,7 +6,8 @@ import 'package:easy_localization/easy_localization.dart';
 enum SmartEditAction {
   summarize,
   fixSpelling,
-  improveWriting;
+  improveWriting,
+  makeItLonger;
 
   String get toInstruction {
     switch (this) {
@@ -16,6 +17,8 @@ enum SmartEditAction {
         return 'Correct this to standard English:';
       case SmartEditAction.improveWriting:
         return 'Rewrite this in your own words:';
+      case SmartEditAction.makeItLonger:
+        return 'Make this text longer:';
     }
   }
 
@@ -27,6 +30,8 @@ enum SmartEditAction {
         return 'Correct this to standard English:\n\n$input';
       case SmartEditAction.improveWriting:
         return 'Rewrite this:\n\n$input';
+      case SmartEditAction.makeItLonger:
+        return 'Make this text longer:\n\n$input';
     }
   }
 
@@ -38,6 +43,8 @@ enum SmartEditAction {
         return SmartEditAction.fixSpelling;
       case 2:
         return SmartEditAction.improveWriting;
+      case 3:
+        return SmartEditAction.makeItLonger;
     }
     return SmartEditAction.fixSpelling;
   }
@@ -50,6 +57,8 @@ enum SmartEditAction {
         return LocaleKeys.document_plugins_smartEditFixSpelling.tr();
       case SmartEditAction.improveWriting:
         return LocaleKeys.document_plugins_smartEditImproveWriting.tr();
+      case SmartEditAction.makeItLonger:
+        return LocaleKeys.document_plugins_smartEditMakeLonger.tr();
     }
   }
 }
