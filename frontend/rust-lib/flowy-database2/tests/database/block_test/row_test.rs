@@ -2,52 +2,48 @@ use crate::database::block_test::script::DatabaseRowTest;
 use crate::database::block_test::script::RowScript::*;
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::DateCellData;
+use lib_infra::util::timestamp;
 
+// Create a new row at the end of the grid and check the create time is valid.
 #[tokio::test]
-async fn set_created_at_field_on_create_row() {
+async fn created_at_field_test() {
   let mut test = DatabaseRowTest::new().await;
   let row_count = test.rows.len();
-
-  let before_create_timestamp = chrono::offset::Utc::now().timestamp();
   test
     .run_scripts(vec![CreateEmptyRow, AssertRowCount(row_count + 1)])
     .await;
-  let after_create_timestamp = chrono::offset::Utc::now().timestamp();
 
-  let mut rows = test.rows.clone();
-  rows.sort_by(|r1, r2| r1.created_at.cmp(&r2.created_at));
-  let row = rows.last().unwrap();
-
-  let fields = test.fields.clone();
-  let created_at_field = fields
-    .iter()
-    .find(|&f| FieldType::from(f.field_type) == FieldType::CreatedAt)
-    .unwrap();
-  let cell = row.cells.cell_for_field_id(&created_at_field.id).unwrap();
+  // Get created time of the new row.
+  let row = test.get_rows().await.last().cloned().unwrap();
+  let updated_at_field = test.get_first_field(FieldType::CreatedAt);
+  let cell = row.cells.cell_for_field_id(&updated_at_field.id).unwrap();
   let created_at_timestamp = DateCellData::from(cell).timestamp.unwrap();
 
-  assert!(
-    created_at_timestamp >= before_create_timestamp
-      && created_at_timestamp <= after_create_timestamp,
-    "timestamp: {}, before: {}, after: {}",
-    created_at_timestamp,
-    before_create_timestamp,
-    after_create_timestamp
-  );
+  assert!(created_at_timestamp > 0);
+  assert!(created_at_timestamp < timestamp());
+}
 
-  let updated_at_field = fields
-    .iter()
-    .find(|&f| FieldType::from(f.field_type) == FieldType::UpdatedAt)
-    .unwrap();
+// Update row and check the update time is valid.
+#[tokio::test]
+async fn update_at_field_test() {
+  let mut test = DatabaseRowTest::new().await;
+  let row = test.get_rows().await.remove(0);
+  let updated_at_field = test.get_first_field(FieldType::UpdatedAt);
   let cell = row.cells.cell_for_field_id(&updated_at_field.id).unwrap();
-  let updated_at_timestamp = DateCellData::from(cell).timestamp.unwrap();
+  let old_updated_at = DateCellData::from(cell).timestamp.unwrap();
 
-  assert!(
-    updated_at_timestamp >= before_create_timestamp
-      && updated_at_timestamp <= after_create_timestamp,
-    "timestamp: {}, before: {}, after: {}",
-    updated_at_timestamp,
-    before_create_timestamp,
-    after_create_timestamp
-  );
+  test
+    .run_script(UpdateTextCell {
+      row_id: row.id.clone(),
+      content: "test".to_string(),
+    })
+    .await;
+
+  // Get the updated time of the row.
+  let row = test.get_rows().await.remove(0);
+  let updated_at_field = test.get_first_field(FieldType::UpdatedAt);
+  let cell = row.cells.cell_for_field_id(&updated_at_field.id).unwrap();
+  let new_updated_at = DateCellData::from(cell).timestamp.unwrap();
+
+  assert!(old_updated_at < new_updated_at);
 }

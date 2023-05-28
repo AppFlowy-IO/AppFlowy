@@ -264,14 +264,7 @@ pub fn make_test_grid() -> DatabaseData {
     database_id: gen_database_id(),
     name: "".to_string(),
     layout: DatabaseLayout::Grid,
-    layout_settings: Default::default(),
-    filters: vec![],
-    group_settings: vec![],
-    sorts: vec![],
-    row_orders: vec![],
-    field_orders: vec![],
-    created_at: 0,
-    modified_at: 0,
+    ..Default::default()
   };
 
   DatabaseData { view, fields, rows }
