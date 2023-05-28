@@ -1,8 +1,10 @@
 use crate::database::group_test::script::DatabaseGroupTest;
 use crate::database::group_test::script::GroupScript::*;
 use chrono::{offset, Duration};
-use flowy_database2::entities::CreateRowParams;
+use collab_database::database::gen_row_id;
+use collab_database::rows::CreateRowParams;
 use flowy_database2::entities::FieldType;
+use flowy_database2::services::cell::CellBuilder;
 use std::collections::HashMap;
 use std::vec;
 
@@ -20,14 +22,17 @@ async fn group_by_date_test() {
       .to_string();
     let mut cells = HashMap::new();
     cells.insert(date_field.id.clone(), timestamp);
+    let cells = CellBuilder::with_cells(cells, &[date_field.clone()]).build();
 
     let params = CreateRowParams {
-      view_id: test.view_id.clone(),
-      start_row_id: None,
-      group_id: None,
-      cell_data_by_field_id: Some(cells),
+      id: gen_row_id(),
+      cells,
+      height: 60,
+      visibility: true,
+      prev_row_id: None,
+      timestamp: 0,
     };
-    let res = test.editor.create_row(params).await;
+    let res = test.editor.create_row(&test.view_id, None, params).await;
     assert!(res.is_ok());
   }
 
