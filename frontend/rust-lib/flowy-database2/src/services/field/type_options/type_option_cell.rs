@@ -131,12 +131,12 @@ where
     if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
       let read_guard = cell_data_cache.read();
       if let Some(cell_data) = read_guard.get(key.as_ref()).cloned() {
-        tracing::trace!(
-          "Cell cache hit: field_type:{}, cell: {:?}, cell_data: {:?}",
-          decoded_field_type,
-          cell,
-          cell_data
-        );
+        // tracing::trace!(
+        //   "Cell cache hit: field_type:{}, cell: {:?}, cell_data: {:?}",
+        //   decoded_field_type,
+        //   cell,
+        //   cell_data
+        // );
         return Ok(cell_data);
       }
     }

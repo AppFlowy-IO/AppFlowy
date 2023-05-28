@@ -1,23 +1,24 @@
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database_view/application/setting/setting_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 
+import '../group/group_service.dart';
+
 part 'group_bloc.freezed.dart';
 
 class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
   final FieldController _fieldController;
-  final SettingBackendService _settingBackendSvc;
+  final GroupBackendService _groupBackendSvc;
   Function(List<FieldInfo>)? _onFieldsFn;
 
   DatabaseGroupBloc({
     required String viewId,
     required FieldController fieldController,
   })  : _fieldController = fieldController,
-        _settingBackendSvc = SettingBackendService(viewId: viewId),
+        _groupBackendSvc = GroupBackendService(viewId),
         super(DatabaseGroupState.initial(viewId, fieldController.fieldInfos)) {
     on<DatabaseGroupEvent>(
       (event, emit) async {
@@ -29,7 +30,7 @@ class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
             emit(state.copyWith(fieldContexts: fieldContexts));
           },
           setGroupByField: (String fieldId, FieldType fieldType) async {
-            final result = await _settingBackendSvc.groupByField(
+            final result = await _groupBackendSvc.groupByField(
               fieldId: fieldId,
               fieldType: fieldType,
             );

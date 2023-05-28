@@ -125,7 +125,7 @@ pub struct DeleteFilterParams {
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]
-pub struct AlterFilterPayloadPB {
+pub struct UpdateFilterPayloadPB {
   #[pb(index = 1)]
   pub field_id: String,
 
@@ -143,7 +143,7 @@ pub struct AlterFilterPayloadPB {
   pub view_id: String,
 }
 
-impl AlterFilterPayloadPB {
+impl UpdateFilterPayloadPB {
   #[allow(dead_code)]
   pub fn new<T: TryInto<Bytes, Error = ::protobuf::ProtobufError>>(
     view_id: &str,
@@ -162,10 +162,10 @@ impl AlterFilterPayloadPB {
   }
 }
 
-impl TryInto<AlterFilterParams> for AlterFilterPayloadPB {
+impl TryInto<UpdateFilterParams> for UpdateFilterPayloadPB {
   type Error = ErrorCode;
 
-  fn try_into(self) -> Result<AlterFilterParams, Self::Error> {
+  fn try_into(self) -> Result<UpdateFilterParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id)
       .map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?
       .0;
@@ -217,7 +217,7 @@ impl TryInto<AlterFilterParams> for AlterFilterPayloadPB {
       },
     }
 
-    Ok(AlterFilterParams {
+    Ok(UpdateFilterParams {
       view_id,
       field_id,
       filter_id,
@@ -229,7 +229,7 @@ impl TryInto<AlterFilterParams> for AlterFilterPayloadPB {
 }
 
 #[derive(Debug)]
-pub struct AlterFilterParams {
+pub struct UpdateFilterParams {
   pub view_id: String,
   pub field_id: String,
   /// Create a new filter if the filter_id is None

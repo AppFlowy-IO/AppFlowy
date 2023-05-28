@@ -15,11 +15,11 @@ use flowy_task::TaskDispatcher;
 use lib_infra::future::{to_fut, Fut};
 
 use crate::entities::{
-  AlterFilterParams, AlterSortParams, CalendarEventPB, CellChangesetNotifyPB, CellPB,
-  DatabaseFieldChangesetPB, DatabasePB, DatabaseViewSettingPB, DeleteFilterParams,
-  DeleteGroupParams, DeleteSortParams, FieldChangesetParams, FieldIdPB, FieldPB, FieldType,
-  GroupPB, IndexFieldPB, InsertGroupParams, InsertedRowPB, LayoutSettingParams, RepeatedFilterPB,
-  RepeatedGroupPB, RepeatedSortPB, RowPB, RowsChangePB, SelectOptionCellDataPB, SelectOptionPB,
+  CalendarEventPB, CellChangesetNotifyPB, CellPB, DatabaseFieldChangesetPB, DatabasePB,
+  DatabaseViewSettingPB, DeleteFilterParams, DeleteGroupParams, DeleteSortParams,
+  FieldChangesetParams, FieldIdPB, FieldPB, FieldType, GroupPB, IndexFieldPB, InsertedRowPB,
+  LayoutSettingParams, RepeatedFilterPB, RepeatedGroupPB, RepeatedSortPB, RowPB, RowsChangePB,
+  SelectOptionCellDataPB, SelectOptionPB, UpdateFilterParams, UpdateSortParams,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
@@ -34,7 +34,9 @@ use crate::services::field::{
   SelectOptionIds, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
 use crate::services::filter::Filter;
-use crate::services::group::{default_group_setting, GroupSetting, RowChangeset};
+use crate::services::group::{
+  default_group_setting, GroupSetting, GroupSettingChangeset, RowChangeset,
+};
 use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
 
@@ -85,18 +87,18 @@ impl DatabaseEditor {
     self.database.lock().fields.get_field(field_id)
   }
 
-  pub async fn insert_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
+  pub async fn set_group_by_field(&self, view_id: &str, field_id: &str) -> FlowyResult<()> {
     {
       let database = self.database.lock();
-      let field = database.fields.get_field(&params.field_id);
+      let field = database.fields.get_field(field_id);
       if let Some(field) = field {
         let group_setting = default_group_setting(&field);
-        database.insert_group_setting(&params.view_id, group_setting);
+        database.insert_group_setting(view_id, group_setting);
       }
     }
 
-    let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
-    view_editor.v_initialize_new_group(params).await?;
+    let view_editor = self.database_views.get_view_editor(view_id).await?;
+    view_editor.v_initialize_new_group(field_id).await?;
     Ok(())
   }
 
@@ -111,8 +113,20 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  pub async fn update_group_setting(
+    &self,
+    view_id: &str,
+    group_setting_changeset: GroupSettingChangeset,
+  ) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(view_id).await?;
+    view_editor
+      .update_group_setting(group_setting_changeset)
+      .await?;
+    Ok(())
+  }
+
   #[tracing::instrument(level = "trace", skip_all, err)]
-  pub async fn create_or_update_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
+  pub async fn create_or_update_filter(&self, params: UpdateFilterParams) -> FlowyResult<()> {
     let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
     view_editor.v_insert_filter(params).await?;
     Ok(())
@@ -124,7 +138,7 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn create_or_update_sort(&self, params: AlterSortParams) -> FlowyResult<Sort> {
+  pub async fn create_or_update_sort(&self, params: UpdateSortParams) -> FlowyResult<Sort> {
     let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
     let sort = view_editor.v_insert_sort(params).await?;
     Ok(sort)
@@ -549,6 +563,8 @@ impl DatabaseEditor {
     Some(SelectOptionPB::from(select_option))
   }
 
+  /// Insert the options into the field's type option and update the cell content with the new options.
+  /// Only used for single select and multiple select.
   pub async fn insert_select_options(
     &self,
     view_id: &str,
@@ -556,30 +572,25 @@ impl DatabaseEditor {
     row_id: RowId,
     options: Vec<SelectOptionPB>,
   ) -> FlowyResult<()> {
-    let field = match self.database.lock().fields.get_field(field_id) {
-      Some(field) => Ok(field),
-      None => {
-        let msg = format!("Field with id:{} not found", &field_id);
-        Err(FlowyError::internal().context(msg))
-      },
-    }?;
+    let field = self.database.lock().fields.get_field(field_id).ok_or(
+      FlowyError::record_not_found().context(format!("Field with id:{} not found", &field_id)),
+    )?;
+    debug_assert!(FieldType::from(field.field_type).is_select_option());
+
     let mut type_option = select_type_option_from_field(&field)?;
     let cell_changeset = SelectOptionCellChangeset {
       insert_option_ids: options.iter().map(|option| option.id.clone()).collect(),
       ..Default::default()
     };
+    options
+      .into_iter()
+      .for_each(|option| type_option.insert_option(option.into()));
 
-    for option in options {
-      type_option.insert_option(option.into());
-    }
+    // Update the field's type option
     self
-      .database
-      .lock()
-      .fields
-      .update_field(field_id, |update| {
-        update.set_type_option(field.field_type, Some(type_option.to_type_option_data()));
-      });
-
+      .update_field_type_option(view_id, field_id, type_option.to_type_option_data(), field)
+      .await?;
+    // Insert the options into the cell
     self
       .update_cell_with_changeset(view_id, row_id, field_id, cell_changeset)
       .await?;
@@ -709,7 +720,7 @@ impl DatabaseEditor {
 
   pub async fn group_by_field(&self, view_id: &str, field_id: &str) -> FlowyResult<()> {
     let view = self.database_views.get_view_editor(view_id).await?;
-    view.v_update_group_setting(field_id).await?;
+    view.v_update_grouping_field(field_id).await?;
     Ok(())
   }
 

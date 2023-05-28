@@ -15,9 +15,10 @@ use crate::services::cell::CellBuilder;
 use crate::services::field::{
   type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
 };
+use crate::services::group::{GroupChangeset, GroupSettingChangeset};
 use crate::services::share::csv::CSVFormat;
 
-#[tracing::instrument(level = "trace", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn get_database_data_handler(
   data: AFPluginData<DatabaseViewIdPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
@@ -49,24 +50,16 @@ pub(crate) async fn update_database_setting_handler(
   let params: DatabaseSettingChangesetParams = data.into_inner().try_into()?;
   let editor = manager.get_database_with_view_id(&params.view_id).await?;
 
-  if let Some(insert_params) = params.insert_group {
-    editor.insert_group(insert_params).await?;
-  }
-
-  if let Some(delete_params) = params.delete_group {
-    editor.delete_group(delete_params).await?;
-  }
-
-  if let Some(alter_filter) = params.insert_filter {
-    editor.create_or_update_filter(alter_filter).await?;
+  if let Some(update_filter) = params.insert_filter {
+    editor.create_or_update_filter(update_filter).await?;
   }
 
   if let Some(delete_filter) = params.delete_filter {
     editor.delete_filter(delete_filter).await?;
   }
 
-  if let Some(alter_sort) = params.alert_sort {
-    let _ = editor.create_or_update_sort(alter_sort).await?;
+  if let Some(update_sort) = params.alert_sort {
+    let _ = editor.create_or_update_sort(update_sort).await?;
   }
   if let Some(delete_sort) = params.delete_sort {
     editor.delete_sort(delete_sort).await?;
@@ -523,6 +516,36 @@ pub(crate) async fn get_group_handler(
     .get_group(&params.view_id, &params.group_id)
     .await?;
   data_result_ok(group)
+}
+
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn set_group_by_field_handler(
+  data: AFPluginData<GroupByFieldPayloadPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> FlowyResult<()> {
+  let params: GroupByFieldParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  database_editor
+    .set_group_by_field(&params.view_id, &params.field_id)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn update_group_handler(
+  data: AFPluginData<UpdateGroupPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> FlowyResult<()> {
+  let params: UpdateGroupParams = data.into_inner().try_into()?;
+  let view_id = params.view_id.clone();
+  let database_editor = manager.get_database_with_view_id(&view_id).await?;
+  let group_setting_changeset = GroupSettingChangeset {
+    update_groups: vec![GroupChangeset::from(params)],
+  };
+  database_editor
+    .update_group_setting(&view_id, group_setting_changeset)
+    .await?;
+  Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
