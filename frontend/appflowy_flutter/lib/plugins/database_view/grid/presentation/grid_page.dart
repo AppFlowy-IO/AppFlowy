@@ -348,7 +348,7 @@ class _GridRowsState extends State<_GridRows> {
       builder: (BuildContext context) {
         return RowDetailPage(
           cellBuilder: cellBuilder,
-          dataController: dataController,
+          rowController: dataController,
         );
       },
     );

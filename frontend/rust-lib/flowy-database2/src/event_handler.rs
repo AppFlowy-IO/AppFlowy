@@ -1,13 +1,16 @@
+use collab_database::database::gen_row_id;
 use std::sync::Arc;
 
 use collab_database::rows::RowId;
 use collab_database::views::DatabaseLayout;
+use lib_infra::util::timestamp;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
 use crate::entities::*;
 use crate::manager::DatabaseManager2;
+use crate::services::cell::CellBuilder;
 
 use crate::services::field::{
   type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
@@ -304,7 +307,7 @@ pub(crate) async fn duplicate_row_handler(
   let params: RowIdParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   database_editor
-    .duplicate_row(&params.view_id, &params.row_id)
+    .duplicate_row(&params.view_id, params.group_id, &params.row_id)
     .await;
   Ok(())
 }
@@ -329,7 +332,23 @@ pub(crate) async fn create_row_handler(
 ) -> DataResult<RowPB, FlowyError> {
   let params: CreateRowParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  match database_editor.create_row(params).await? {
+  let fields = database_editor.get_fields(&params.view_id, None);
+  let cells =
+    CellBuilder::with_cells(params.cell_data_by_field_id.unwrap_or_default(), &fields).build();
+  let view_id = params.view_id;
+  let group_id = params.group_id;
+  let params = collab_database::rows::CreateRowParams {
+    id: gen_row_id(),
+    cells,
+    height: 60,
+    visibility: true,
+    prev_row_id: params.start_row_id,
+    timestamp: timestamp(),
+  };
+  match database_editor
+    .create_row(&view_id, group_id, params)
+    .await?
+  {
     None => Err(FlowyError::internal().context("Create row fail")),
     Some(row) => data_result_ok(RowPB::from(row)),
   }

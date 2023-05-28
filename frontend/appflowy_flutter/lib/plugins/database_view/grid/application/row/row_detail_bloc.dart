@@ -38,8 +38,11 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
           deleteRow: (rowId) async {
             await rowService.deleteRow(rowId);
           },
-          duplicateRow: (String rowId) async {
-            await rowService.duplicateRow(rowId);
+          duplicateRow: (String rowId, String? groupId) async {
+            await rowService.duplicateRow(
+              rowId: rowId,
+              groupId: groupId,
+            );
           },
         );
       },
@@ -68,7 +71,8 @@ class RowDetailEvent with _$RowDetailEvent {
   const factory RowDetailEvent.initial() = _Initial;
   const factory RowDetailEvent.deleteField(String fieldId) = _DeleteField;
   const factory RowDetailEvent.deleteRow(String rowId) = _DeleteRow;
-  const factory RowDetailEvent.duplicateRow(String rowId) = _DuplicateRow;
+  const factory RowDetailEvent.duplicateRow(String rowId, String? groupId) =
+      _DuplicateRow;
   const factory RowDetailEvent.didReceiveCellDatas(
     List<CellIdentifier> gridCells,
   ) = _DidReceiveCellDatas;

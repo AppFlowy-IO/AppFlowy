@@ -128,12 +128,25 @@ impl NumberTypeOption {
             Err(_) => Ok(NumberCellFormat::new()),
           }
         } else {
-          let num_str = match EXTRACT_NUM_REGEX.captures(&num_cell_data.0) {
-            Ok(Some(captures)) => captures
-              .get(0)
-              .map(|m| m.as_str().to_string())
-              .unwrap_or_default(),
-            _ => "".to_string(),
+          // Test the input string is start with dot and only contains number.
+          // If it is, add a 0 before the dot. For example, ".123" -> "0.123"
+          let num_str = match START_WITH_DOT_NUM_REGEX.captures(&num_cell_data.0) {
+            Ok(Some(captures)) => match captures.get(0).map(|m| m.as_str().to_string()) {
+              Some(s) => {
+                format!("0{}", s)
+              },
+              None => "".to_string(),
+            },
+            // Extract the number from the string.
+            // For example, "123abc" -> "123". check out the number_type_option_input_test test for
+            // more examples.
+            _ => match EXTRACT_NUM_REGEX.captures(&num_cell_data.0) {
+              Ok(Some(captures)) => captures
+                .get(0)
+                .map(|m| m.as_str().to_string())
+                .unwrap_or_default(),
+              _ => "".to_string(),
+            },
           };
 
           match Decimal::from_str(&num_str) {
@@ -142,7 +155,10 @@ impl NumberTypeOption {
           }
         }
       },
-      _ => NumberCellFormat::from_format_str(&num_cell_data.0, &self.format),
+      _ => {
+        // If the format is not number, use the format string to format the number.
+        NumberCellFormat::from_format_str(&num_cell_data.0, &self.format)
+      },
     }
   }
 
@@ -261,4 +277,5 @@ impl std::default::Default for NumberTypeOption {
 lazy_static! {
   static ref SCIENTIFIC_NOTATION_REGEX: Regex = Regex::new(r"([+-]?\d*\.?\d+)e([+-]?\d+)").unwrap();
   pub(crate) static ref EXTRACT_NUM_REGEX: Regex = Regex::new(r"-?\d+(\.\d+)?").unwrap();
+  pub(crate) static ref START_WITH_DOT_NUM_REGEX: Regex = Regex::new(r"^\.\d+").unwrap();
 }
