@@ -1,4 +1,4 @@
-import { MouseEventHandler, useEffect, useRef, useState } from 'react';
+import { FocusEventHandler, MouseEventHandler, useEffect, useRef, useState } from 'react';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
 import { FieldTypeName } from '$app/components/_shared/EditRow/FieldTypeName';
 import { useTranslation } from 'react-i18next';
@@ -36,11 +36,23 @@ export const EditFieldPopup = ({
   const databaseStore = useAppSelector((state) => state.database);
   const { t } = useTranslation();
   const changeTypeButtonRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState('');
 
   useEffect(() => {
     setName(databaseStore.fields[cellIdentifier.fieldId].title);
   }, [databaseStore, cellIdentifier]);
+
+  // focus input on mount
+  useEffect(() => {
+    if (!inputRef.current || !name) return;
+    inputRef.current.focus();
+  }, [inputRef, name]);
+
+  const selectAll: FocusEventHandler<HTMLInputElement> = (e) => {
+    e.target.selectionStart = 0;
+    e.target.selectionEnd = e.target.value.length;
+  };
 
   const save = async () => {
     if (!fieldInfo) return;
@@ -80,6 +92,8 @@ export const EditFieldPopup = ({
     >
       <div className={'flex flex-col gap-2'}>
         <input
+          ref={inputRef}
+          onFocus={selectAll}
           value={name}
           onChange={(e) => setName(e.target.value)}
           onBlur={() => save()}
