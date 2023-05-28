@@ -13,10 +13,10 @@ use flowy_task::TaskDispatcher;
 use lib_infra::future::Fut;
 
 use crate::entities::{
-  AlterFilterParams, AlterSortParams, CalendarEventPB, DeleteFilterParams, DeleteGroupParams,
-  DeleteSortParams, FieldType, GroupChangesetPB, GroupPB, GroupRowsNotificationPB,
-  InsertGroupParams, InsertedGroupPB, InsertedRowPB, LayoutSettingPB, LayoutSettingParams, RowPB,
-  RowsChangePB, SortChangesetNotificationPB, SortPB,
+  CalendarEventPB, DeleteFilterParams, DeleteGroupParams, DeleteSortParams, FieldType,
+  GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedRowPB, LayoutSettingPB,
+  LayoutSettingParams, RowPB, RowsChangePB, SortChangesetNotificationPB, SortPB,
+  UpdateFilterParams, UpdateSortParams,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::CellCache;
@@ -27,7 +27,7 @@ use crate::services::database_view::view_group::{
 };
 use crate::services::database_view::view_sort::make_sort_controller;
 use crate::services::database_view::{
-  notify_did_update_filter, notify_did_update_group_rows, notify_did_update_groups,
+  notify_did_update_filter, notify_did_update_group_rows, notify_did_update_num_of_groups,
   notify_did_update_setting, notify_did_update_sort, DatabaseViewChangedNotifier,
   DatabaseViewChangedReceiverRunner,
 };
@@ -35,7 +35,9 @@ use crate::services::field::TypeOptionCellDataHandler;
 use crate::services::filter::{
   Filter, FilterChangeset, FilterController, FilterType, UpdatedFilterType,
 };
-use crate::services::group::{GroupController, GroupSetting, MoveGroupRowContext, RowChangeset};
+use crate::services::group::{
+  GroupController, GroupSetting, GroupSettingChangeset, MoveGroupRowContext, RowChangeset,
+};
 use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{DeletedSortType, Sort, SortChangeset, SortController, SortType};
 
@@ -237,26 +239,28 @@ impl DatabaseViewEditor {
       .await;
 
     if let Some(Ok(result)) = result {
-      let mut changeset = GroupChangesetPB {
+      let mut group_changes = GroupChangesPB {
         view_id: self.view_id.clone(),
         ..Default::default()
       };
       if let Some(inserted_group) = result.inserted_group {
         tracing::trace!("Create group after editing the row: {:?}", inserted_group);
-        changeset.inserted_groups.push(inserted_group);
+        group_changes.inserted_groups.push(inserted_group);
       }
       if let Some(delete_group) = result.deleted_group {
         tracing::trace!("Delete group after editing the row: {:?}", delete_group);
-        changeset.deleted_groups.push(delete_group.group_id);
+        group_changes.deleted_groups.push(delete_group.group_id);
       }
-      notify_did_update_groups(&self.view_id, changeset).await;
 
-      tracing::trace!(
-        "Group changesets after editing the row: {:?}",
-        result.row_changesets
-      );
+      if !group_changes.is_empty() {
+        notify_did_update_num_of_groups(&self.view_id, group_changes).await;
+      }
+
       for changeset in result.row_changesets {
-        notify_did_update_group_rows(changeset).await;
+        if !changeset.is_empty() {
+          tracing::trace!("Group change after editing the row: {:?}", changeset);
+          notify_did_update_group_rows(changeset).await;
+        }
       }
     } else {
       let update_row = UpdatedRow {
@@ -326,15 +330,15 @@ impl DatabaseViewEditor {
       .await;
 
     if let Some(result) = result {
-      let mut changeset = GroupChangesetPB {
-        view_id: self.view_id.clone(),
-        ..Default::default()
-      };
       if let Some(delete_group) = result.deleted_group {
-        tracing::info!("Delete group after moving the row: {:?}", delete_group);
-        changeset.deleted_groups.push(delete_group.group_id);
+        tracing::trace!("Delete group after moving the row: {:?}", delete_group);
+        let mut changes = GroupChangesPB {
+          view_id: self.view_id.clone(),
+          ..Default::default()
+        };
+        changes.deleted_groups.push(delete_group.group_id);
+        notify_did_update_num_of_groups(&self.view_id, changes).await;
       }
-      notify_did_update_groups(&self.view_id, changeset).await;
 
       for changeset in result.row_changesets {
         notify_did_update_group_rows(changeset).await;
@@ -371,25 +375,6 @@ impl DatabaseViewEditor {
       .write()
       .await
       .move_group(from_group, to_group)?;
-    match self.group_controller.read().await.get_group(from_group) {
-      None => tracing::warn!("Can not find the group with id: {}", from_group),
-      Some((index, group)) => {
-        let inserted_group = InsertedGroupPB {
-          group: GroupPB::from(group),
-          index: index as i32,
-        };
-
-        let changeset = GroupChangesetPB {
-          view_id: self.view_id.clone(),
-          inserted_groups: vec![inserted_group],
-          deleted_groups: vec![from_group.to_string()],
-          update_groups: vec![],
-          initial_groups: vec![],
-        };
-
-        notify_did_update_groups(&self.view_id, changeset).await;
-      },
-    }
     Ok(())
   }
 
@@ -397,9 +382,9 @@ impl DatabaseViewEditor {
     self.group_controller.read().await.field_id().to_string()
   }
 
-  pub async fn v_initialize_new_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
-    if self.group_controller.read().await.field_id() != params.field_id {
-      self.v_update_group_setting(&params.field_id).await?;
+  pub async fn v_initialize_new_group(&self, field_id: &str) -> FlowyResult<()> {
+    if self.group_controller.read().await.field_id() != field_id {
+      self.v_update_grouping_field(field_id).await?;
 
       if let Some(view) = self.delegate.get_view_setting(&self.view_id).await {
         let setting = database_view_setting_pb_from_view(view);
@@ -413,12 +398,20 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
+  pub async fn update_group_setting(&self, changeset: GroupSettingChangeset) -> FlowyResult<()> {
+    self
+      .group_controller
+      .write()
+      .await
+      .apply_group_setting_changeset(changeset)
+  }
+
   pub async fn v_get_all_sorts(&self) -> Vec<Sort> {
     self.delegate.get_all_sorts(&self.view_id)
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn v_insert_sort(&self, params: AlterSortParams) -> FlowyResult<Sort> {
+  pub async fn v_insert_sort(&self, params: UpdateSortParams) -> FlowyResult<Sort> {
     let is_exist = params.sort_id.is_some();
     let sort_id = match params.sort_id {
       None => gen_database_sort_id(),
@@ -479,7 +472,7 @@ impl DatabaseViewEditor {
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn v_insert_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
+  pub async fn v_insert_filter(&self, params: UpdateFilterParams) -> FlowyResult<()> {
     let is_exist = params.filter_id.is_some();
     let filter_id = match params.filter_id {
       None => gen_database_filter_id(),
@@ -634,8 +627,14 @@ impl DatabaseViewEditor {
         .sort_controller
         .read()
         .await
-        .did_update_view_field_type_option(&field)
+        .did_update_field_type_option(&field)
         .await;
+
+      self
+        .group_controller
+        .write()
+        .await
+        .did_update_field_type_option(&field);
 
       if let Some(filter) = self
         .delegate
@@ -660,14 +659,9 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
-  ///
-  ///
-  /// # Arguments
-  ///
-  /// * `field_id`:
-  ///
+  /// Called when a grouping field is updated.
   #[tracing::instrument(level = "debug", skip_all, err)]
-  pub async fn v_update_group_setting(&self, field_id: &str) -> FlowyResult<()> {
+  pub async fn v_update_grouping_field(&self, field_id: &str) -> FlowyResult<()> {
     if let Some(field) = self.delegate.get_field(field_id).await {
       let new_group_controller =
         new_group_controller_with_field(self.view_id.clone(), self.delegate.clone(), field).await?;
@@ -679,7 +673,7 @@ impl DatabaseViewEditor {
         .collect();
 
       *self.group_controller.write().await = new_group_controller;
-      let changeset = GroupChangesetPB {
+      let changeset = GroupChangesPB {
         view_id: self.view_id.clone(),
         initial_groups: new_groups,
         ..Default::default()

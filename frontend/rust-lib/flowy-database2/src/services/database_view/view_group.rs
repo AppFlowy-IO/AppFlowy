@@ -5,7 +5,6 @@ use collab_database::rows::RowId;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::future::{to_fut, Fut};
-use tracing::trace;
 
 use crate::entities::FieldType;
 use crate::services::database_view::DatabaseViewData;
@@ -43,7 +42,6 @@ pub async fn new_group_controller(
   let fields = delegate.get_fields(&view_id, None).await;
   let rows = delegate.get_rows(&view_id).await;
   let layout = delegate.get_layout_for_view(&view_id);
-  trace!(?fields, ?rows, ?layout, "new_group_controller");
 
   // Read the grouping field or find a new grouping field
   let mut grouping_field = setting_reader

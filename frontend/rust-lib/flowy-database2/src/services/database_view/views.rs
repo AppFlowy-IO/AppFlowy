@@ -94,7 +94,7 @@ impl DatabaseViews {
     // If the id of the grouping field is equal to the updated field's id, then we need to
     // update the group setting
     if view_editor.group_id().await == field_id {
-      view_editor.v_update_group_setting(field_id).await?;
+      view_editor.v_update_grouping_field(field_id).await?;
     }
     view_editor
       .v_did_update_field_type_option(field_id, old_field)
@@ -108,7 +108,6 @@ impl DatabaseViews {
       return Ok(editor.clone());
     }
 
-    tracing::trace!("{:p} create view:{} editor", self, view_id);
     let mut editor_map = self.editor_map.write().await;
     let editor = Arc::new(
       DatabaseViewEditor::new(
