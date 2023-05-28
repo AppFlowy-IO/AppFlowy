@@ -307,7 +307,7 @@ pub(crate) async fn duplicate_row_handler(
   let params: RowIdParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   database_editor
-    .duplicate_row(&params.view_id, &params.row_id)
+    .duplicate_row(&params.view_id, params.group_id, &params.row_id)
     .await;
   Ok(())
 }

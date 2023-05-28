@@ -36,10 +36,16 @@ class RowBackendService {
     return DatabaseEventDeleteRow(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> duplicateRow(RowId rowId) {
+  Future<Either<Unit, FlowyError>> duplicateRow({
+    required RowId rowId,
+    String? groupId,
+  }) {
     final payload = RowIdPB.create()
       ..viewId = viewId
       ..rowId = rowId;
+    if (groupId != null) {
+      payload.groupId = groupId;
+    }
 
     return DatabaseEventDuplicateRow(payload).send();
   }

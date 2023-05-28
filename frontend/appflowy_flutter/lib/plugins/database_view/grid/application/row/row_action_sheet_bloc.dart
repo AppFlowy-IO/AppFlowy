@@ -18,14 +18,14 @@ class RowActionSheetBloc
         super(RowActionSheetState.initial(rowInfo)) {
     on<RowActionSheetEvent>(
       (event, emit) async {
-        await event.map(
-          deleteRow: (_DeleteRow value) async {
+        await event.when(
+          deleteRow: () async {
             final result = await _rowService.deleteRow(state.rowData.rowPB.id);
             logResult(result);
           },
-          duplicateRow: (_DuplicateRow value) async {
+          duplicateRow: () async {
             final result =
-                await _rowService.duplicateRow(state.rowData.rowPB.id);
+                await _rowService.duplicateRow(rowId: state.rowData.rowPB.id);
             logResult(result);
           },
         );

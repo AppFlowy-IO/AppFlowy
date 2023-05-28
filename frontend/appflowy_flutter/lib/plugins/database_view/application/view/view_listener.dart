@@ -11,7 +11,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/view_entities.pb.dart'
 typedef RowsVisibilityNotifierValue
     = Either<RowsVisibilityChangePB, FlowyError>;
 
-typedef NumberOfRowsNotifierValue = Either<RowsChangesPB, FlowyError>;
+typedef NumberOfRowsNotifierValue = Either<RowsChangePB, FlowyError>;
 typedef ReorderAllRowsNotifierValue = Either<List<String>, FlowyError>;
 typedef SingleRowNotifierValue = Either<ReorderSingleRowPB, FlowyError>;
 
@@ -61,7 +61,7 @@ class DatabaseViewListener {
       case DatabaseNotification.DidUpdateViewRows:
         result.fold(
           (payload) =>
-              _rowsNotifier?.value = left(RowsChangesPB.fromBuffer(payload)),
+              _rowsNotifier?.value = left(RowsChangePB.fromBuffer(payload)),
           (error) => _rowsNotifier?.value = right(error),
         );
         break;

@@ -15,7 +15,7 @@ pub struct RowsVisibilityChangePB {
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
-pub struct RowsChangesPB {
+pub struct RowsChangePB {
   #[pb(index = 1)]
   pub view_id: String,
 
@@ -29,7 +29,7 @@ pub struct RowsChangesPB {
   pub updated_rows: Vec<UpdatedRowPB>,
 }
 
-impl RowsChangesPB {
+impl RowsChangePB {
   pub fn from_insert(view_id: String, inserted_row: InsertedRowPB) -> Self {
     Self {
       view_id,

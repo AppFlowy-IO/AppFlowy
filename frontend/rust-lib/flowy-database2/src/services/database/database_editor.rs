@@ -19,7 +19,7 @@ use crate::entities::{
   DatabaseFieldChangesetPB, DatabasePB, DatabaseViewSettingPB, DeleteFilterParams,
   DeleteGroupParams, DeleteSortParams, FieldChangesetParams, FieldIdPB, FieldPB, FieldType,
   GroupPB, IndexFieldPB, InsertGroupParams, InsertedRowPB, LayoutSettingParams, RepeatedFilterPB,
-  RepeatedGroupPB, RepeatedSortPB, RowPB, RowsChangesPB, SelectOptionCellDataPB, SelectOptionPB,
+  RepeatedGroupPB, RepeatedSortPB, RowPB, RowsChangePB, SelectOptionCellDataPB, SelectOptionPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
@@ -275,14 +275,14 @@ impl DatabaseEditor {
   }
 
   // consider returning a result. But most of the time, it should be fine to just ignore the error.
-  pub async fn duplicate_row(&self, view_id: &str, row_id: &RowId) {
+  pub async fn duplicate_row(&self, view_id: &str, group_id: Option<String>, row_id: &RowId) {
     let params = self.database.lock().duplicate_row(row_id);
     match params {
       None => {
         tracing::warn!("Failed to duplicate row: {}", row_id);
       },
       Some(params) => {
-        let _ = self.create_row(view_id, None, params).await;
+        let _ = self.create_row(view_id, group_id, params).await;
       },
     }
   }
@@ -302,7 +302,7 @@ impl DatabaseEditor {
       let delete_row_id = from.into_inner();
       let insert_row = InsertedRowPB::from(&row).with_index(to_index as i32);
       let changes =
-        RowsChangesPB::from_move(view_id.to_string(), vec![delete_row_id], vec![insert_row]);
+        RowsChangePB::from_move(view_id.to_string(), vec![delete_row_id], vec![insert_row]);
       send_notification(view_id, DatabaseNotification::DidUpdateViewRows)
         .payload(changes)
         .send();

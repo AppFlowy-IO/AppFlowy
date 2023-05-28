@@ -83,7 +83,7 @@ class RowCache {
     await _cellCache.dispose();
   }
 
-  void applyRowsChanged(RowsChangesPB changeset) {
+  void applyRowsChanged(RowsChangePB changeset) {
     _deleteRows(changeset.deletedRows);
     _insertRows(changeset.insertedRows);
     _updateRows(changeset.updatedRows);

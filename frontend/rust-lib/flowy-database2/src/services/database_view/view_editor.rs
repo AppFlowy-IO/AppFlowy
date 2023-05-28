@@ -16,7 +16,7 @@ use crate::entities::{
   AlterFilterParams, AlterSortParams, CalendarEventPB, DeleteFilterParams, DeleteGroupParams,
   DeleteSortParams, FieldType, GroupChangesetPB, GroupPB, GroupRowsNotificationPB,
   InsertGroupParams, InsertedGroupPB, InsertedRowPB, LayoutSettingPB, LayoutSettingParams, RowPB,
-  RowsChangesPB, SortChangesetNotificationPB, SortPB,
+  RowsChangePB, SortChangesetNotificationPB, SortPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::CellCache;
@@ -183,7 +183,7 @@ impl DatabaseViewEditor {
     match group_id.as_ref() {
       None => {
         let row = InsertedRowPB::from(row).with_index(index as i32);
-        let changes = RowsChangesPB::from_insert(self.view_id.clone(), row);
+        let changes = RowsChangePB::from_insert(self.view_id.clone(), row);
         send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
           .payload(changes)
           .send();
@@ -220,7 +220,7 @@ impl DatabaseViewEditor {
         notify_did_update_group_rows(changeset).await;
       }
     }
-    let changes = RowsChangesPB::from_delete(self.view_id.clone(), row.id.clone().into_inner());
+    let changes = RowsChangePB::from_delete(self.view_id.clone(), row.id.clone().into_inner());
     send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
       .payload(changes)
       .send();
@@ -228,7 +228,7 @@ impl DatabaseViewEditor {
 
   /// Notify the view that the row has been updated. If the view has groups,
   /// send the group notification with [GroupRowsNotificationPB]. Otherwise,
-  /// send the view notification with [RowsChangesPB]
+  /// send the view notification with [RowsChangePB]
   pub async fn v_did_update_row(&self, old_row: &Option<Row>, row: &Row, field_id: &str) {
     let result = self
       .mut_group_controller(|group_controller, field| {
@@ -263,7 +263,7 @@ impl DatabaseViewEditor {
         row: RowOrder::from(row),
         field_ids: vec![field_id.to_string()],
       };
-      let changeset = RowsChangesPB::from_update(self.view_id.clone(), update_row.into());
+      let changeset = RowsChangePB::from_update(self.view_id.clone(), update_row.into());
       send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
         .payload(changeset)
         .send();
@@ -784,18 +784,18 @@ impl DatabaseViewEditor {
   pub async fn handle_row_event(&self, event: Cow<'_, DatabaseRowEvent>) {
     let changeset = match event.into_owned() {
       DatabaseRowEvent::InsertRow(row) => {
-        RowsChangesPB::from_insert(self.view_id.clone(), row.into())
+        RowsChangePB::from_insert(self.view_id.clone(), row.into())
       },
       DatabaseRowEvent::UpdateRow(row) => {
-        RowsChangesPB::from_update(self.view_id.clone(), row.into())
+        RowsChangePB::from_update(self.view_id.clone(), row.into())
       },
       DatabaseRowEvent::DeleteRow(row_id) => {
-        RowsChangesPB::from_delete(self.view_id.clone(), row_id.into_inner())
+        RowsChangePB::from_delete(self.view_id.clone(), row_id.into_inner())
       },
       DatabaseRowEvent::Move {
         deleted_row_id,
         inserted_row,
-      } => RowsChangesPB::from_move(
+      } => RowsChangePB::from_move(
         self.view_id.clone(),
         vec![deleted_row_id.into_inner()],
         vec![inserted_row.into()],
