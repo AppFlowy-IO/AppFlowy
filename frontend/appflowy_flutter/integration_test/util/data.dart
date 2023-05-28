@@ -39,6 +39,13 @@ enum TestWorkspace {
     return root;
   }
 
+  Future<void> clean() async {
+    final Directory workspaceRoot = await root;
+    if (await workspaceRoot.exists()) {
+      workspaceRoot.delete(recursive: true);
+    }
+  }
+
   String get _asset => 'assets/test/workspaces/$_name.zip';
 }
 
@@ -66,5 +73,13 @@ class TestWorkspaceService {
       archive,
       await TestWorkspace._parent.then((value) => value.path),
     );
+  }
+
+  Future<void> tearDown() async {
+    await workspace.clean();
+  }
+
+  Future<void> tearDownAll() async {
+    await SharedPreferences.getInstance().then((value) => value.remove(kSettingsLocationDefaultLocation));
   }
 }
