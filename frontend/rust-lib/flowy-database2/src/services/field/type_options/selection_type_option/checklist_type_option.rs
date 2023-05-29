@@ -2,8 +2,7 @@ use crate::entities::{ChecklistFilterPB, FieldType, SelectOptionCellDataPB};
 use crate::services::cell::CellDataChangeset;
 use crate::services::field::{
   SelectOption, SelectOptionCellChangeset, SelectOptionIds, SelectTypeOptionSharedAction,
-  SelectedSelectOptions, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter,
+  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
 };
 
 use collab::core::any_map::AnyMapExtension;
@@ -46,14 +45,14 @@ impl From<ChecklistTypeOption> for TypeOptionData {
 }
 
 impl TypeOptionCellData for ChecklistTypeOption {
-  fn convert_to_protobuf(
+  fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     self.get_selected_options(cell_data).into()
   }
 
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
+  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     Ok(SelectOptionIds::from(cell))
   }
 }
@@ -123,11 +122,10 @@ impl TypeOptionCellDataFilter for ChecklistTypeOption {
     field_type: &FieldType,
     cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    if !field_type.is_check_list() {
+    if !field_type.is_checklist() {
       return true;
     }
-    let selected_options =
-      SelectedSelectOptions::from(self.get_selected_options(cell_data.clone()));
+    let selected_options = self.get_selected_options(cell_data.clone()).select_options;
     filter.is_visible(&self.options, &selected_options)
   }
 }

@@ -1,4 +1,5 @@
 pub mod checkbox_type_option;
+pub mod checklist_type_option;
 pub mod date_type_option;
 pub mod number_type_option;
 pub mod selection_type_option;

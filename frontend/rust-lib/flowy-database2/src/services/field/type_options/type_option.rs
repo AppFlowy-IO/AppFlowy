@@ -53,20 +53,19 @@ pub trait TypeOption {
 }
 
 pub trait TypeOptionCellData: TypeOption {
-  /// Convert the decoded cell data into corresponding `Protobuf struct`.
+  /// Encode the cell data into corresponding `Protobuf struct`.
   /// For example:
   ///    FieldType::URL => URLCellDataPB
   ///    FieldType::Date=> DateCellDataPB
-  fn convert_to_protobuf(
+  fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType;
 
-  /// Decodes the opaque cell string to corresponding data struct.
-  // For example, the cell data is timestamp if its field type is `FieldType::Date`. This cell
-  // data can not directly show to user. So it needs to be encode as the date string with custom
-  // format setting. Encode `1647251762` to `"Mar 14,2022`
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData>;
+  /// Parse the opaque [Cell] to corresponding data struct.
+  /// The [Cell] is a map that stores list of key/value data. Each [TypeOption::CellData]
+  /// should implement the From<&Cell> trait to parse the [Cell] to corresponding data struct.
+  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData>;
 }
 
 pub trait TypeOptionTransform: TypeOption {

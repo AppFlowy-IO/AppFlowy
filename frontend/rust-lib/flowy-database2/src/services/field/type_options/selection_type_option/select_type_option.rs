@@ -124,16 +124,16 @@ impl<T> CellDataDecoder for T
 where
   T: SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + TypeOptionCellData,
 {
-  fn decode_cell_str(
+  fn decode_cell(
     &self,
     cell: &Cell,
     _decoded_field_type: &FieldType,
     _field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    self.decode_cell(cell)
+    self.parse_cell(cell)
   }
 
-  fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+  fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     self
       .get_selected_options(cell_data)
       .select_options
@@ -143,9 +143,9 @@ where
       .join(SELECTION_IDS_SEPARATOR)
   }
 
-  fn decode_cell_to_str(&self, cell: &Cell) -> String {
+  fn stringify_cell(&self, cell: &Cell) -> String {
     let cell_data = Self::CellData::from(cell);
-    self.decode_cell_data_to_str(cell_data)
+    self.stringify_cell_data(cell_data)
   }
 }
 

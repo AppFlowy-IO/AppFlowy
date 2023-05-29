@@ -592,7 +592,7 @@ impl FieldType {
     self == &MULTI_SELECT_FIELD || self == &SINGLE_SELECT_FIELD
   }
 
-  pub fn is_check_list(&self) -> bool {
+  pub fn is_checklist(&self) -> bool {
     self == &CHECKLIST_FIELD
   }
 
