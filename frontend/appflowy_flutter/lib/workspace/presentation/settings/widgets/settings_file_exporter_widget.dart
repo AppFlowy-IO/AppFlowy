@@ -5,6 +5,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
 import 'package:appflowy/workspace/application/settings/settings_file_exporter_cubit.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/database_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
@@ -226,8 +227,13 @@ class _AppFlowyFileExporter {
           extension = 'afdoc';
           break;
         default:
-          // todo: @nathan, support other layout types
-          throw UnimplementedError();
+          final result = await exportDatabase(view.id);
+          result.fold(
+            (pb) => content = pb.data,
+            (r) => Log.error(r),
+          );
+          extension = 'afdb';
+          break;
       }
       if (content != null) {
         final file = File(p.join(path, '${view.name}.$extension'));
@@ -235,4 +241,11 @@ class _AppFlowyFileExporter {
       }
     }
   }
+}
+
+Future<dartz.Either<ExportCSVPB, FlowyError>> exportDatabase(
+  String viewId,
+) async {
+  final payload = DatabaseViewIdPB.create()..value = viewId;
+  return DatabaseEventExportCSV(payload).send();
 }
