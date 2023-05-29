@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 ///   - web
 ///   - mobile
 ///
+const dividerShortcutToken = '--';
+
 final CharacterShortcutEvent convertMinusesToDivider = CharacterShortcutEvent(
   key: 'insert a divider',
   character: '-',
@@ -19,29 +21,24 @@ final CharacterShortcutEvent convertMinusesToDivider = CharacterShortcutEvent(
 CharacterShortcutEventHandler _convertMinusesToDividerHandler =
     (editorState) async {
   final selection = editorState.selection;
-  
   if (selection == null || !selection.isCollapsed) {
     return false;
   }
-
   final path = selection.end.path;
   final node = editorState.getNodeAtPath(path);
   final delta = node?.delta;
-
   if (node == null || delta == null) {
     return false;
   }
-
-  if (!_hasTwoConsecutiveDashes(node.delta!.toPlainText(), selection.start.offset)) {
+  if (!_hasTwoConsecutiveDashes(delta.toPlainText(), selection.start.offset)) {
     return false;
   }
-
-  final dashStartPosition = selection.start.offset - 2;
+  final dashStartPosition = selection.start.offset - dividerShortcutToken.length;
   Transaction transaction;
 
-  if (node.delta!.length > 2) {
+  if (node.delta!.length > dividerShortcutToken.length) {
     transaction = editorState.transaction
-      ..deleteText(node, dashStartPosition, 2)
+      ..deleteText(node, dashStartPosition, dividerShortcutToken.length)
       ..insertNode(selection.end.path.next, dividerNode());
   } else {
     transaction = editorState.transaction
@@ -55,10 +52,11 @@ CharacterShortcutEventHandler _convertMinusesToDividerHandler =
 };
 
 bool _hasTwoConsecutiveDashes(String text, int end) {
-  if (text.length < 2 || end > text.length) {
+  if (text.length < dividerShortcutToken.length || end > text.length
+      || end < dividerShortcutToken.length) {
     return false;
   }
-  return text[end - 1] == '-' && text[end - 2] == '-';
+  return text[end - 1] == '-' && text[end - dividerShortcutToken.length] == '-';
 }
 
 SelectionMenuItem dividerMenuItem = SelectionMenuItem(
