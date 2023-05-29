@@ -102,8 +102,9 @@ class AppFlowyUnitTest {
 void _pathProviderInitialized() {
   const MethodChannel channel =
       MethodChannel('plugins.flutter.io/path_provider');
-  channel.setMockMethodCallHandler((MethodCall methodCall) async {
-    return ".";
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+    return '.';
   });
 }
 

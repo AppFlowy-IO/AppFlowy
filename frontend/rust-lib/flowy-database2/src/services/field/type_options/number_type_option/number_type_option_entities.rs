@@ -1,6 +1,6 @@
 use crate::services::cell::{CellBytesCustomParser, CellProtobufBlobParser, DecodedCellData};
 use crate::services::field::number_currency::Currency;
-use crate::services::field::{NumberFormat, EXTRACT_NUM_REGEX};
+use crate::services::field::{NumberFormat, EXTRACT_NUM_REGEX, START_WITH_DOT_NUM_REGEX};
 use bytes::Bytes;
 use flowy_error::FlowyResult;
 use rust_decimal::Decimal;
@@ -32,8 +32,8 @@ impl NumberCellFormat {
       Some(offset) => offset != 0,
     };
 
-    // Extract number from string.
-    let num_str = extract_number(num_str);
+    let num_str = auto_fill_zero_at_start_if_need(num_str);
+    let num_str = extract_number(&num_str);
     match Decimal::from_str(&num_str) {
       Ok(mut decimal) => {
         decimal.set_sign_positive(sign_positive);
@@ -67,6 +67,16 @@ impl NumberCellFormat {
 
   pub fn is_empty(&self) -> bool {
     self.decimal.is_none()
+  }
+}
+
+fn auto_fill_zero_at_start_if_need(num_str: &str) -> String {
+  match START_WITH_DOT_NUM_REGEX.captures(num_str) {
+    Ok(Some(captures)) => match captures.get(0).map(|m| m.as_str().to_string()) {
+      Some(s) => format!("0{}", s),
+      None => num_str.to_string(),
+    },
+    _ => num_str.to_string(),
   }
 }
 

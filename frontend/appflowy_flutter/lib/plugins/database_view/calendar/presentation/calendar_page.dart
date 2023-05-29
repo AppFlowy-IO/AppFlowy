@@ -255,7 +255,7 @@ void showEventDetails({
         cellBuilder: GridCellBuilder(
           cellCache: rowCache.cellCache,
         ),
-        dataController: dataController,
+        rowController: dataController,
       );
     },
   );

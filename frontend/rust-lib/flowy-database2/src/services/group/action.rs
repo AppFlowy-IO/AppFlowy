@@ -1,7 +1,7 @@
-use crate::entities::{GroupChangesetPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB};
+use crate::entities::{GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB};
 use crate::services::cell::DecodedCellData;
 use crate::services::group::controller::MoveGroupRowContext;
-use crate::services::group::GroupData;
+use crate::services::group::{GroupData, GroupSettingChangeset};
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Row};
 
@@ -65,7 +65,7 @@ pub trait GroupCustomize: Send + Sync {
 }
 
 /// Defines the shared actions any group controller can perform.
-pub trait GroupControllerActions: Send + Sync {
+pub trait GroupControllerOperation: Send + Sync {
   /// The field that is used for grouping the rows
   fn field_id(&self) -> &str;
 
@@ -100,7 +100,9 @@ pub trait GroupControllerActions: Send + Sync {
   fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<DidMoveGroupRowResult>;
 
   /// Update the group if the corresponding field is changed
-  fn did_update_group_field(&mut self, field: &Field) -> FlowyResult<Option<GroupChangesetPB>>;
+  fn did_update_group_field(&mut self, field: &Field) -> FlowyResult<Option<GroupChangesPB>>;
+
+  fn apply_group_setting_changeset(&mut self, changeset: GroupSettingChangeset) -> FlowyResult<()>;
 }
 
 #[derive(Debug)]

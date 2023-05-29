@@ -1,13 +1,13 @@
-import { DateFormatPopup } from '$app/components/_shared/EditRow/DateFormatPopup';
-import { TimeFormatPopup } from '$app/components/_shared/EditRow/TimeFormatPopup';
+import { DateFormatPopup } from '$app/components/_shared/EditRow/Date/DateFormatPopup';
+import { TimeFormatPopup } from '$app/components/_shared/EditRow/Date/TimeFormatPopup';
 import { MoreSvg } from '$app/components/_shared/svg/MoreSvg';
 import { EditorCheckSvg } from '$app/components/_shared/svg/EditorCheckSvg';
 import { EditorUncheckSvg } from '$app/components/_shared/svg/EditorUncheckSvg';
 import { MouseEventHandler, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IDateType } from '$app/stores/reducers/database/slice';
+import { IDateType } from '$app_reducers/database/slice';
 import { useAppSelector } from '$app/stores/store';
-import { useDateTimeFormat } from '$app/components/_shared/EditRow/DateTimeFormat.hooks';
+import { useDateTimeFormat } from '$app/components/_shared/EditRow/Date/DateTimeFormat.hooks';
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { FieldController } from '$app/stores/effects/database/field/field_controller';
 
@@ -18,7 +18,7 @@ export const DateTypeOptions = ({
   cellIdentifier: CellIdentifier;
   fieldController: FieldController;
 }) => {
-  const { t } = useTranslation('');
+  const { t } = useTranslation();
 
   const [showDateFormatPopup, setShowDateFormatPopup] = useState(false);
   const [dateFormatTop, setDateFormatTop] = useState(0);
@@ -105,9 +105,6 @@ export const DateTypeOptions = ({
         }
       >
         <div className={'flex items-center gap-2'}>
-          {/*<i className={'h-4 w-4'}>
-            <ClockSvg></ClockSvg>
-          </i>*/}
           <span>{t('grid.field.includeTime')}</span>
         </div>
         {/*<i className={'h-5 w-5'}>*/}

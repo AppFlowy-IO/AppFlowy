@@ -178,7 +178,7 @@ class FilterBackendService {
     required FieldType fieldType,
     required List<int> data,
   }) {
-    var insertFilterPayload = AlterFilterPayloadPB.create()
+    var insertFilterPayload = UpdateFilterPayloadPB.create()
       ..fieldId = fieldId
       ..fieldType = fieldType
       ..viewId = viewId
@@ -190,7 +190,7 @@ class FilterBackendService {
 
     final payload = DatabaseSettingChangesetPB.create()
       ..viewId = viewId
-      ..alterFilter = insertFilterPayload;
+      ..updateFilter = insertFilterPayload;
     return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),

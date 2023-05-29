@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { PopupWindow } from '$app/components/_shared/PopupWindow';
 import { TimeFormatPB } from '@/services/backend';
 import { CheckmarkSvg } from '$app/components/_shared/svg/CheckmarkSvg';
-import { useDateTimeFormat } from '$app/components/_shared/EditRow/DateTimeFormat.hooks';
+import { useDateTimeFormat } from '$app/components/_shared/EditRow/Date/DateTimeFormat.hooks';
 import { useAppSelector } from '$app/stores/store';
 import { useEffect, useState } from 'react';
-import { IDateType } from '$app/stores/reducers/database/slice';
+import { IDateType } from '$app_reducers/database/slice';
 
 export const TimeFormatPopup = ({
   left,
@@ -22,7 +22,7 @@ export const TimeFormatPopup = ({
   fieldController: FieldController;
   onOutsideClick: () => void;
 }) => {
-  const { t } = useTranslation('');
+  const { t } = useTranslation();
   const databaseStore = useAppSelector((state) => state.database);
   const [dateType, setDateType] = useState<IDateType | undefined>();
 

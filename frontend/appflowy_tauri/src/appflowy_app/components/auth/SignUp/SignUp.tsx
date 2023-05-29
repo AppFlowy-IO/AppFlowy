@@ -27,7 +27,7 @@ export const SignUp = () => {
     setRepeatedPassword,
     authError,
   } = useSignUp();
-  const { t } = useTranslation('');
+  const { t } = useTranslation();
   const [showLanguagePopup, setShowLanguagePopup] = useState(false);
 
   return (
@@ -45,7 +45,7 @@ export const SignUp = () => {
           <input
             type='text'
             className={`input w-full ${authError && 'error'}`}
-            placeholder={t('signUp.emailHint') || ''}
+            placeholder={t('signUp.emailHint') ?? ''}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -61,7 +61,7 @@ export const SignUp = () => {
             <input
               type={showPassword ? 'text' : 'password'}
               className={`input w-full !pr-10 ${authError && 'error'}`}
-              placeholder={t('signUp.passwordHint') || ''}
+              placeholder={t('signUp.passwordHint') ?? ''}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -79,7 +79,7 @@ export const SignUp = () => {
             <input
               type={showConfirmPassword ? 'text' : 'password'}
               className={`input w-full !pr-10 ${authError && 'error'}`}
-              placeholder={t('signUp.repeatPasswordHint') || ''}
+              placeholder={t('signUp.repeatPasswordHint') ?? ''}
               value={repeatedPassword}
               onChange={(e) => setRepeatedPassword(e.target.value)}
             />

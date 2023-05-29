@@ -85,10 +85,10 @@ class AppBackendService {
     return FolderEventMoveItem(payload).send();
   }
 
-  Future<List<Tuple2<ViewPB, List<ViewPB>>>> fetchViews(
+  Future<List<(ViewPB, List<ViewPB>)>> fetchViews(
     ViewLayoutPB layoutType,
   ) async {
-    final result = <Tuple2<ViewPB, List<ViewPB>>>[];
+    final result = <(ViewPB, List<ViewPB>)>[];
     return FolderEventReadCurrentWorkspace().send().then((value) async {
       final workspaces = value.getLeftOrNull<WorkspaceSettingPB>();
       if (workspaces != null) {
@@ -101,7 +101,7 @@ class AppBackendService {
                 .toList(),
           );
           if (childViews != null && childViews.isNotEmpty) {
-            result.add(Tuple2(view, childViews));
+            result.add((view, childViews));
           }
         }
       }

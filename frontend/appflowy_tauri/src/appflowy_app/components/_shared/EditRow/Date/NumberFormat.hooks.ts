@@ -3,10 +3,7 @@ import { FieldController } from '$app/stores/effects/database/field/field_contro
 import { FieldType, NumberFormatPB } from '@/services/backend';
 import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
 import { Some } from 'ts-results';
-import {
-  makeDateTypeOptionContext,
-  makeNumberTypeOptionContext,
-} from '$app/stores/effects/database/field/type_option/type_option_context';
+import { makeNumberTypeOptionContext } from '$app/stores/effects/database/field/type_option/type_option_context';
 
 export const useNumberFormat = (cellIdentifier: CellIdentifier, fieldController: FieldController) => {
   const changeNumberFormat = async (format: NumberFormatPB) => {

@@ -17,7 +17,7 @@ abstract class RowFieldsDelegate {
   void onFieldsChanged(void Function(List<FieldInfo>) callback);
 }
 
-abstract class RowCacheDelegate {
+abstract mixin class RowCacheDelegate {
   UnmodifiableListView<FieldInfo> get fields;
   void onRowDispose();
 }
@@ -83,13 +83,13 @@ class RowCache {
     await _cellCache.dispose();
   }
 
-  void applyRowsChanged(RowsChangesetPB changeset) {
+  void applyRowsChanged(RowsChangePB changeset) {
     _deleteRows(changeset.deletedRows);
     _insertRows(changeset.insertedRows);
     _updateRows(changeset.updatedRows);
   }
 
-  void applyRowsVisibility(RowsVisibilityChangesetPB changeset) {
+  void applyRowsVisibility(RowsVisibilityChangePB changeset) {
     _hideRows(changeset.invisibleRows);
     _showRows(changeset.visibleRows);
   }

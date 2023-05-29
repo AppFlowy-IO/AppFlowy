@@ -21,8 +21,8 @@ export const Breadcrumbs = ({ menuHidden, onShowMenuClick }: { menuHidden: boole
   useEffect(() => {
     const page = pagesStore.find((p) => p.id === activePageId);
     const folder = foldersStore.find((f) => f.id === page?.folderId);
-    setFolderName(folder?.title || '');
-    setPageName(page?.title || '');
+    setFolderName(folder?.title ?? '');
+    setPageName(page?.title ?? '');
   }, [pagesStore, foldersStore, activePageId]);
 
   return (

@@ -8,7 +8,6 @@ import 'package:appflowy_backend/protobuf/flowy-net/network_state.pb.dart';
 import 'package:isolates/isolates.dart';
 import 'package:isolates/ports.dart';
 import 'package:ffi/ffi.dart';
-// ignore: unused_import
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:typed_data';

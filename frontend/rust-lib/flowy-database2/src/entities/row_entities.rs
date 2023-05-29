@@ -142,11 +142,15 @@ pub struct RowIdPB {
 
   #[pb(index = 2)]
   pub row_id: String,
+
+  #[pb(index = 3, one_of)]
+  pub group_id: Option<String>,
 }
 
 pub struct RowIdParams {
   pub view_id: String,
   pub row_id: RowId,
+  pub group_id: Option<String>,
 }
 
 impl TryInto<RowIdParams> for RowIdPB {
@@ -154,10 +158,19 @@ impl TryInto<RowIdParams> for RowIdPB {
 
   fn try_into(self) -> Result<RowIdParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let group_id = match self.group_id {
+      Some(group_id) => Some(
+        NotEmptyStr::parse(group_id)
+          .map_err(|_| ErrorCode::GroupIdIsEmpty)?
+          .0,
+      ),
+      None => None,
+    };
 
     Ok(RowIdParams {
       view_id: view_id.0,
       row_id: RowId::from(self.row_id),
+      group_id,
     })
   }
 }

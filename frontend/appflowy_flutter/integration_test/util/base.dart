@@ -58,17 +58,21 @@ class TestFolder {
 
 extension AppFlowyTestBase on WidgetTester {
   Future<void> initializeAppFlowy() async {
-    const MethodChannel('hotkey_manager')
-        .setMockMethodCallHandler((MethodCall methodCall) async {
-      if (methodCall.method == 'unregisterAll') {
-        // do nothing
-      }
-    });
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('hotkey_manager'),
+      (MethodCall methodCall) async {
+        if (methodCall.method == 'unregisterAll') {
+          // do nothing
+        }
+
+        return;
+      },
+    );
 
     await app.main();
     await wait(3000);
     await pumpAndSettle(const Duration(seconds: 2));
-    return;
   }
 
   Future<void> tapButton(

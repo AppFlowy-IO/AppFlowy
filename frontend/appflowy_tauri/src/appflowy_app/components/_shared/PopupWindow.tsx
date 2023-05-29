@@ -9,7 +9,7 @@ export const PopupWindow = ({
   top,
 }: {
   children: ReactNode;
-  className: string;
+  className?: string;
   onOutsideClick: () => void;
   left: number;
   top: number;
@@ -33,7 +33,7 @@ export const PopupWindow = ({
     } else {
       setAdjustedLeft(left);
     }
-  }, [ref, left, top, window]);
+  }, [ref, left, top]);
 
   return (
     <div
@@ -41,7 +41,7 @@ export const PopupWindow = ({
       className={
         'fixed z-10 rounded-lg bg-white shadow-md transition-opacity duration-300 ' +
         (adjustedTop === -100 && adjustedLeft === -100 ? 'opacity-0 ' : 'opacity-100 ') +
-        (className || '')
+        (className ?? '')
       }
       style={{ top: `${adjustedTop}px`, left: `${adjustedLeft}px` }}
     >

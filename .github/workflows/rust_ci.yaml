@@ -22,7 +22,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
   RUST_TOOLCHAIN: "1.65"
-  FLUTTER_VERSION: "3.7.5"
+  FLUTTER_VERSION: "3.10.1"
 
 jobs:
   test-on-ubuntu:
@@ -80,7 +80,7 @@ jobs:
         working-directory: shared-lib
 
       - name: clippy shared-lib
-        run:  cargo clippy -- -D warnings
+        run: cargo clippy -- -D warnings
         working-directory: shared-lib
 
       - name: Run shared-lib tests

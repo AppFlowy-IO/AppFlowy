@@ -16,7 +16,7 @@ use flowy_task::TaskDispatcher;
 
 use crate::entities::{DatabaseDescriptionPB, DatabaseLayoutPB, RepeatedDatabaseDescriptionPB};
 use crate::services::database::{DatabaseEditor, MutexDatabase};
-use crate::services::share::csv::{CSVImporter, ExportStyle};
+use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
 
 pub trait DatabaseUser2: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -195,20 +195,24 @@ impl DatabaseManager2 {
     Ok(())
   }
 
-  pub async fn import_csv(&self, content: String) -> FlowyResult<String> {
-    let params = tokio::task::spawn_blocking(move || CSVImporter.import_csv_from_string(content))
-      .await
-      .map_err(internal_error)??;
-    let database_id = params.database_id.clone();
+  pub async fn import_csv(&self, content: String, format: CSVFormat) -> FlowyResult<ImportResult> {
+    let params =
+      tokio::task::spawn_blocking(move || CSVImporter.import_csv_from_string(content, format))
+        .await
+        .map_err(internal_error)??;
+    let result = ImportResult {
+      database_id: params.database_id.clone(),
+      view_id: params.view_id.clone(),
+    };
     self.create_database_with_params(params).await?;
-    Ok(database_id)
+    Ok(result)
   }
 
-  pub async fn import_csv_data_from_uri(&self, _uri: String) -> FlowyResult<()> {
+  pub async fn import_csv_from_uri(&self, _uri: String, _format: CSVFormat) -> FlowyResult<()> {
     Ok(())
   }
 
-  pub async fn export_csv(&self, view_id: &str, style: ExportStyle) -> FlowyResult<String> {
+  pub async fn export_csv(&self, view_id: &str, style: CSVFormat) -> FlowyResult<String> {
     let database = self.get_database_with_view_id(view_id).await?;
     database.export_csv(style).await
   }

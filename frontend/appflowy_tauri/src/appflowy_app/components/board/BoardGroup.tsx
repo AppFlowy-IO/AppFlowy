@@ -5,6 +5,7 @@ import { RowInfo } from '$app/stores/effects/database/row/row_cache';
 import { DatabaseController } from '$app/stores/effects/database/database_controller';
 import { Droppable } from 'react-beautiful-dnd';
 import { DatabaseGroupController } from '$app/stores/effects/database/group/group_controller';
+import { useTranslation } from 'react-i18next';
 
 export const BoardGroup = ({
   viewId,
@@ -23,6 +24,8 @@ export const BoardGroup = ({
   onOpenRow: (rowId: RowInfo) => void;
   group: DatabaseGroupController;
 }) => {
+  const { t } = useTranslation();
+
   return (
     <div className={'flex h-full w-[250px] flex-col rounded-lg bg-surface-1'}>
       <div className={'flex items-center justify-between p-4'}>
@@ -73,7 +76,7 @@ export const BoardGroup = ({
           <span className={'h-5 w-5'}>
             <AddSvg></AddSvg>
           </span>
-          <span>New</span>
+          <span>{t('board.column.create_new_card')}</span>
         </button>
       </div>
     </div>

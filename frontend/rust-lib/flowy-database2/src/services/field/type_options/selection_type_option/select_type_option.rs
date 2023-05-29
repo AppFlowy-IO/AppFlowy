@@ -22,6 +22,8 @@ pub trait SelectTypeOptionSharedAction: Send + Sync {
   fn number_of_max_options(&self) -> Option<usize>;
 
   /// Insert the `SelectOption` into corresponding type option.
+  /// If the option already exists, it will be updated.
+  /// If the option does not exist, it will be inserted at the beginning.
   fn insert_option(&mut self, new_option: SelectOption) {
     let options = self.mut_options();
     if let Some(index) = options

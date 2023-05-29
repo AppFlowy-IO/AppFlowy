@@ -10,32 +10,32 @@ abstract class Env {
     varName: 'SUPABASE_URL',
     defaultValue: '',
   )
-  static final supabaseUrl = _Env.supabaseUrl;
+  static final String supabaseUrl = _Env.supabaseUrl;
   @EnviedField(
     obfuscate: true,
     varName: 'SUPABASE_ANON_KEY',
     defaultValue: '',
   )
-  static final supabaseAnonKey = _Env.supabaseAnonKey;
+  static final String supabaseAnonKey = _Env.supabaseAnonKey;
   @EnviedField(
     obfuscate: true,
     varName: 'SUPABASE_KEY',
     defaultValue: '',
   )
-  static final supabaseKey = _Env.supabaseKey;
+  static final String supabaseKey = _Env.supabaseKey;
   @EnviedField(
     obfuscate: true,
     varName: 'SUPABASE_JWT_SECRET',
     defaultValue: '',
   )
-  static final supabaseJwtSecret = _Env.supabaseJwtSecret;
+  static final String supabaseJwtSecret = _Env.supabaseJwtSecret;
 
   @EnviedField(
     obfuscate: true,
     varName: 'SUPABASE_COLLAB_TABLE',
     defaultValue: '',
   )
-  static final supabaseCollabTable = _Env.supabaseCollabTable;
+  static final String supabaseCollabTable = _Env.supabaseCollabTable;
 }
 
 bool get isSupabaseEnable =>

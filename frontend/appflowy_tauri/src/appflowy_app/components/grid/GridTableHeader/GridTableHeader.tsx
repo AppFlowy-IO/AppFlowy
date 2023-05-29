@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 export const GridTableHeader = ({ controller }: { controller: DatabaseController }) => {
   const { fields, onAddField } = useGridTableHeaderHooks(controller);
-  const { t } = useTranslation('');
+  const { t } = useTranslation();
 
   return (
     <>

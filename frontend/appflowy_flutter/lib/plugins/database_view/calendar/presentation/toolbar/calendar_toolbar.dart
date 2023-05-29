@@ -17,11 +17,11 @@ class CalendarToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return const SizedBox(
       height: 40,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
-        children: const [
+        children: [
           _UnscheduleEventsButton(),
           _SettingButton(),
         ],

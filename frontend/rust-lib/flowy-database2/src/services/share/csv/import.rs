@@ -1,31 +1,38 @@
 use crate::entities::FieldType;
-use crate::services::cell::CellBuilder;
-use crate::services::field::default_type_option_data_from_type;
+
+use crate::services::field::{default_type_option_data_from_type, CELL_DATA};
+use crate::services::share::csv::CSVFormat;
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_field_id, gen_row_id};
 use collab_database::fields::Field;
-use collab_database::rows::CreateRowParams;
+use collab_database::rows::{new_cell_builder, Cell, CreateRowParams};
 use collab_database::views::{CreateDatabaseParams, DatabaseLayout};
 use flowy_error::{FlowyError, FlowyResult};
-use rayon::prelude::*;
-use std::collections::HashMap;
 use std::{fs::File, io::prelude::*};
 
 #[derive(Default)]
 pub struct CSVImporter;
 
 impl CSVImporter {
-  pub fn import_csv_from_file(&self, path: &str) -> FlowyResult<CreateDatabaseParams> {
+  pub fn import_csv_from_file(
+    &self,
+    path: &str,
+    style: CSVFormat,
+  ) -> FlowyResult<CreateDatabaseParams> {
     let mut file = File::open(path)?;
     let mut content = String::new();
     file.read_to_string(&mut content)?;
     let fields_with_rows = self.get_fields_and_rows(content)?;
-    let database_data = database_from_fields_and_rows(fields_with_rows);
+    let database_data = database_from_fields_and_rows(fields_with_rows, &style);
     Ok(database_data)
   }
 
-  pub fn import_csv_from_string(&self, content: String) -> FlowyResult<CreateDatabaseParams> {
+  pub fn import_csv_from_string(
+    &self,
+    content: String,
+    format: CSVFormat,
+  ) -> FlowyResult<CreateDatabaseParams> {
     let fields_with_rows = self.get_fields_and_rows(content)?;
-    let database_data = database_from_fields_and_rows(fields_with_rows);
+    let database_data = database_from_fields_and_rows(fields_with_rows, &format);
     Ok(database_data)
   }
 
@@ -60,7 +67,10 @@ impl CSVImporter {
   }
 }
 
-fn database_from_fields_and_rows(fields_and_rows: FieldsRows) -> CreateDatabaseParams {
+fn database_from_fields_and_rows(
+  fields_and_rows: FieldsRows,
+  format: &CSVFormat,
+) -> CreateDatabaseParams {
   let (fields, rows) = fields_and_rows.split();
   let view_id = gen_database_view_id();
   let database_id = gen_database_id();
@@ -68,36 +78,47 @@ fn database_from_fields_and_rows(fields_and_rows: FieldsRows) -> CreateDatabaseP
   let fields = fields
     .into_iter()
     .enumerate()
-    .map(
-      |(index, field_str)| match serde_json::from_str(&field_str) {
-        Ok(field) => field,
-        Err(_) => {
-          let field_type = FieldType::RichText;
-          let type_option_data = default_type_option_data_from_type(&field_type);
-          let is_primary = index == 0;
-          Field::new(
-            gen_field_id(),
-            field_str,
-            field_type.clone().into(),
-            is_primary,
-          )
-          .with_type_option_data(field_type, type_option_data)
-        },
+    .map(|(index, field_meta)| match format {
+      CSVFormat::Original => default_field(field_meta, index == 0),
+      CSVFormat::META => {
+        //
+        match serde_json::from_str(&field_meta) {
+          Ok(field) => {
+            //
+            field
+          },
+          Err(e) => {
+            dbg!(e);
+            default_field(field_meta, index == 0)
+          },
+        }
       },
-    )
+    })
     .collect::<Vec<Field>>();
 
   let created_rows = rows
-    .par_iter()
-    .map(|row| {
-      let mut cell_by_field_id = HashMap::new();
+    .iter()
+    .map(|cells| {
       let mut params = CreateRowParams::new(gen_row_id());
-      for (index, cell) in row.iter().enumerate() {
+      for (index, cell_content) in cells.iter().enumerate() {
         if let Some(field) = fields.get(index) {
-          cell_by_field_id.insert(field.id.clone(), cell.to_string());
+          let field_type = FieldType::from(field.field_type);
+
+          // Make the cell based on the style.
+          let cell = match format {
+            CSVFormat::Original => new_cell_builder(field_type)
+              .insert_str_value(CELL_DATA, cell_content.to_string())
+              .build(),
+            CSVFormat::META => match serde_json::from_str::<Cell>(cell_content) {
+              Ok(cell) => cell,
+              Err(_) => new_cell_builder(field_type)
+                .insert_str_value(CELL_DATA, "".to_string())
+                .build(),
+            },
+          };
+          params.cells.insert(field.id.clone(), cell);
         }
       }
-      params.cells = CellBuilder::with_cells(cell_by_field_id, &fields).build();
       params
     })
     .collect::<Vec<CreateRowParams>>();
@@ -116,6 +137,18 @@ fn database_from_fields_and_rows(fields_and_rows: FieldsRows) -> CreateDatabaseP
   }
 }
 
+fn default_field(field_str: String, is_primary: bool) -> Field {
+  let field_type = FieldType::RichText;
+  let type_option_data = default_type_option_data_from_type(&field_type);
+  Field::new(
+    gen_field_id(),
+    field_str,
+    field_type.clone().into(),
+    is_primary,
+  )
+  .with_type_option_data(field_type, type_option_data)
+}
+
 struct FieldsRows {
   fields: Vec<String>,
   rows: Vec<Vec<String>>,
@@ -126,9 +159,14 @@ impl FieldsRows {
   }
 }
 
+pub struct ImportResult {
+  pub database_id: String,
+  pub view_id: String,
+}
+
 #[cfg(test)]
 mod tests {
-  use crate::services::share::csv::CSVImporter;
+  use crate::services::share::csv::{CSVFormat, CSVImporter};
 
   #[test]
   fn test_import_csv_from_str() {
@@ -137,7 +175,9 @@ mod tests {
 2,tag 2,2,"May 22, 2023",No,
 ,,,,Yes,"#;
     let importer = CSVImporter;
-    let result = importer.import_csv_from_string(s.to_string()).unwrap();
+    let result = importer
+      .import_csv_from_string(s.to_string(), CSVFormat::Original)
+      .unwrap();
     assert_eq!(result.created_rows.len(), 3);
     assert_eq!(result.fields.len(), 6);
 

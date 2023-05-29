@@ -100,7 +100,7 @@ class FadingIndexedStackState extends State<FadingIndexedStack> {
   }
 }
 
-abstract class NavigationItem {
+abstract mixin class NavigationItem {
   Widget get leftBarItem;
   Widget? get rightBarItem => null;
 

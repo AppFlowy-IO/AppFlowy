@@ -13,7 +13,7 @@ const MESSAGE: &str = "msg";
 const LOG_MODULE_PATH: &str = "log.module_path";
 const LOG_TARGET_PATH: &str = "log.target";
 
-const FLOWY_RESERVED_FIELDS: [&str; 3] = [LEVEL, TIME, MESSAGE];
+const RESERVED_FIELDS: [&str; 3] = [LEVEL, TIME, MESSAGE];
 const IGNORE_FIELDS: [&str; 2] = [LOG_MODULE_PATH, LOG_TARGET_PATH];
 
 pub struct FlowyFormattingLayer<W: MakeWriter + 'static> {
@@ -29,7 +29,7 @@ impl<W: MakeWriter + 'static> FlowyFormattingLayer<W> {
     }
   }
 
-  fn serialize_flowy_folder_fields(
+  fn serialize_fields(
     &self,
     map_serializer: &mut impl SerializeMap<Error = serde_json::Error>,
     message: &str,
@@ -45,12 +45,13 @@ impl<W: MakeWriter + 'static> FlowyFormattingLayer<W> {
     &self,
     span: &SpanRef<S>,
     ty: Type,
+    ctx: &Context<'_, S>,
   ) -> Result<Vec<u8>, std::io::Error> {
     let mut buffer = Vec::new();
     let mut serializer = serde_json::Serializer::new(&mut buffer);
     let mut map_serializer = serializer.serialize_map(None)?;
-    let message = format_span_context(span, ty);
-    self.serialize_flowy_folder_fields(&mut map_serializer, &message, span.metadata().level())?;
+    let message = format_span_context(span, ty, ctx);
+    self.serialize_fields(&mut map_serializer, &message, span.metadata().level())?;
     if self.with_target {
       map_serializer.serialize_entry("target", &span.metadata().target())?;
     }
@@ -61,7 +62,7 @@ impl<W: MakeWriter + 'static> FlowyFormattingLayer<W> {
     let extensions = span.extensions();
     if let Some(visitor) = extensions.get::<JsonStorage>() {
       for (key, value) in visitor.values() {
-        if !FLOWY_RESERVED_FIELDS.contains(key) && !IGNORE_FIELDS.contains(key) {
+        if !RESERVED_FIELDS.contains(key) && !IGNORE_FIELDS.contains(key) {
           map_serializer.serialize_entry(key, value)?;
         } else {
           tracing::debug!(
@@ -93,9 +94,9 @@ pub enum Type {
 impl fmt::Display for Type {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     let repr = match self {
-      Type::EnterSpan => "START",
-      Type::ExitSpan => "END",
-      Type::Event => "EVENT",
+      Type::EnterSpan => "Start",
+      Type::ExitSpan => "End",
+      Type::Event => "Event",
     };
     write!(f, "{}", repr)
   }
@@ -104,14 +105,27 @@ impl fmt::Display for Type {
 fn format_span_context<S: Subscriber + for<'a> tracing_subscriber::registry::LookupSpan<'a>>(
   span: &SpanRef<S>,
   ty: Type,
+  context: &Context<'_, S>,
 ) -> String {
-  format!("[⛳ {} - {}]", span.metadata().name().to_uppercase(), ty)
+  match context.lookup_current() {
+    None => {
+      if matches!(ty, Type::EnterSpan) {
+        format!("[🟢 {} - {}]", span.metadata().name().to_uppercase(), ty)
+      } else {
+        format!("[🔵 {} - {}]", span.metadata().name().to_uppercase(), ty)
+      }
+    },
+    Some(_) => {
+      format!("[{} - {}]", span.metadata().name().to_uppercase(), ty)
+    },
+  }
 }
 
 fn format_event_message<S: Subscriber + for<'a> tracing_subscriber::registry::LookupSpan<'a>>(
   current_span: &Option<SpanRef<S>>,
   event: &Event,
   event_visitor: &JsonStorage<'_>,
+  context: &Context<'_, S>,
 ) -> String {
   // Extract the "message" field, if provided. Fallback to the target, if missing.
   let mut message = event_visitor
@@ -127,7 +141,11 @@ fn format_event_message<S: Subscriber + for<'a> tracing_subscriber::registry::Lo
   // If the event is in the context of a span, prepend the span name to the
   // message.
   if let Some(span) = &current_span {
-    message = format!("{} {}", format_span_context(span, Type::Event), message);
+    message = format!(
+      "{} {}",
+      format_span_context(span, Type::Event, context),
+      message
+    );
   }
 
   message
@@ -154,12 +172,8 @@ where
       let mut serializer = serde_json::Serializer::new(&mut buffer);
       let mut map_serializer = serializer.serialize_map(None)?;
 
-      let message = format_event_message(&current_span, event, &event_visitor);
-      self.serialize_flowy_folder_fields(
-        &mut map_serializer,
-        &message,
-        event.metadata().level(),
-      )?;
+      let message = format_event_message(&current_span, event, &event_visitor, &ctx);
+      self.serialize_fields(&mut map_serializer, &message, event.metadata().level())?;
       // Additional metadata useful for debugging
       // They should be nested under `src` (see https://github.com/trentm/node-bunyan#src )
       // but `tracing` does not support nested values yet
@@ -174,7 +188,7 @@ where
       // Add all the other fields associated with the event, expect the message we
       // already used.
       for (key, value) in event_visitor.values().iter().filter(|(&key, _)| {
-        key != "message" && !FLOWY_RESERVED_FIELDS.contains(&key) && !IGNORE_FIELDS.contains(&key)
+        key != "message" && !RESERVED_FIELDS.contains(&key) && !IGNORE_FIELDS.contains(&key)
       }) {
         map_serializer.serialize_entry(key, value)?;
       }
@@ -184,7 +198,7 @@ where
         let extensions = span.extensions();
         if let Some(visitor) = extensions.get::<JsonStorage>() {
           for (key, value) in visitor.values() {
-            if !FLOWY_RESERVED_FIELDS.contains(key) && !IGNORE_FIELDS.contains(key) {
+            if !RESERVED_FIELDS.contains(key) && !IGNORE_FIELDS.contains(key) {
               map_serializer.serialize_entry(key, value)?;
             } else {
               tracing::debug!(
@@ -207,14 +221,14 @@ where
 
   fn new_span(&self, _attrs: &Attributes, id: &Id, ctx: Context<'_, S>) {
     let span = ctx.span(id).expect("Span not found, this is a bug");
-    if let Ok(serialized) = self.serialize_span(&span, Type::EnterSpan) {
+    if let Ok(serialized) = self.serialize_span(&span, Type::EnterSpan, &ctx) {
       let _ = self.emit(serialized);
     }
   }
 
   fn on_close(&self, id: Id, ctx: Context<'_, S>) {
     let span = ctx.span(&id).expect("Span not found, this is a bug");
-    if let Ok(serialized) = self.serialize_span(&span, Type::ExitSpan) {
+    if let Ok(serialized) = self.serialize_span(&span, Type::ExitSpan, &ctx) {
       let _ = self.emit(serialized);
     }
   }

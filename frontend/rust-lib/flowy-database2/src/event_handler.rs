@@ -1,19 +1,24 @@
+use collab_database::database::gen_row_id;
 use std::sync::Arc;
 
 use collab_database::rows::RowId;
 use collab_database::views::DatabaseLayout;
+use lib_infra::util::timestamp;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
 use crate::entities::*;
 use crate::manager::DatabaseManager2;
+use crate::services::cell::CellBuilder;
 
 use crate::services::field::{
   type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
 };
+use crate::services::group::{GroupChangeset, GroupSettingChangeset};
+use crate::services::share::csv::CSVFormat;
 
-#[tracing::instrument(level = "trace", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn get_database_data_handler(
   data: AFPluginData<DatabaseViewIdPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
@@ -45,24 +50,16 @@ pub(crate) async fn update_database_setting_handler(
   let params: DatabaseSettingChangesetParams = data.into_inner().try_into()?;
   let editor = manager.get_database_with_view_id(&params.view_id).await?;
 
-  if let Some(insert_params) = params.insert_group {
-    editor.insert_group(insert_params).await?;
-  }
-
-  if let Some(delete_params) = params.delete_group {
-    editor.delete_group(delete_params).await?;
-  }
-
-  if let Some(alter_filter) = params.insert_filter {
-    editor.create_or_update_filter(alter_filter).await?;
+  if let Some(update_filter) = params.insert_filter {
+    editor.create_or_update_filter(update_filter).await?;
   }
 
   if let Some(delete_filter) = params.delete_filter {
     editor.delete_filter(delete_filter).await?;
   }
 
-  if let Some(alter_sort) = params.alert_sort {
-    let _ = editor.create_or_update_sort(alter_sort).await?;
+  if let Some(update_sort) = params.alert_sort {
+    let _ = editor.create_or_update_sort(update_sort).await?;
   }
   if let Some(delete_sort) = params.delete_sort {
     editor.delete_sort(delete_sort).await?;
@@ -303,7 +300,7 @@ pub(crate) async fn duplicate_row_handler(
   let params: RowIdParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   database_editor
-    .duplicate_row(&params.view_id, &params.row_id)
+    .duplicate_row(&params.view_id, params.group_id, &params.row_id)
     .await;
   Ok(())
 }
@@ -328,7 +325,23 @@ pub(crate) async fn create_row_handler(
 ) -> DataResult<RowPB, FlowyError> {
   let params: CreateRowParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  match database_editor.create_row(params).await? {
+  let fields = database_editor.get_fields(&params.view_id, None);
+  let cells =
+    CellBuilder::with_cells(params.cell_data_by_field_id.unwrap_or_default(), &fields).build();
+  let view_id = params.view_id;
+  let group_id = params.group_id;
+  let params = collab_database::rows::CreateRowParams {
+    id: gen_row_id(),
+    cells,
+    height: 60,
+    visibility: true,
+    prev_row_id: params.start_row_id,
+    timestamp: timestamp(),
+  };
+  match database_editor
+    .create_row(&view_id, group_id, params)
+    .await?
+  {
     None => Err(FlowyError::internal().context("Create row fail")),
     Some(row) => data_result_ok(RowPB::from(row)),
   }
@@ -504,6 +517,36 @@ pub(crate) async fn get_group_handler(
   data_result_ok(group)
 }
 
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn set_group_by_field_handler(
+  data: AFPluginData<GroupByFieldPayloadPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> FlowyResult<()> {
+  let params: GroupByFieldParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  database_editor
+    .set_group_by_field(&params.view_id, &params.field_id)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn update_group_handler(
+  data: AFPluginData<UpdateGroupPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> FlowyResult<()> {
+  let params: UpdateGroupParams = data.into_inner().try_into()?;
+  let view_id = params.view_id.clone();
+  let database_editor = manager.get_database_with_view_id(&view_id).await?;
+  let group_setting_changeset = GroupSettingChangeset {
+    update_groups: vec![GroupChangeset::from(params)],
+  };
+  database_editor
+    .update_group_setting(&view_id, group_setting_changeset)
+    .await?;
+  Ok(())
+}
+
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn move_group_handler(
   data: AFPluginData<MoveGroupPayloadPB>,
@@ -635,9 +678,9 @@ pub(crate) async fn import_data_handler(
   match params.import_type {
     ImportTypePB::CSV => {
       if let Some(data) = params.data {
-        manager.import_csv(data).await?;
+        manager.import_csv(data, CSVFormat::META).await?;
       } else if let Some(uri) = params.uri {
-        manager.import_csv_data_from_uri(uri).await?;
+        manager.import_csv_from_uri(uri, CSVFormat::META).await?;
       } else {
         return Err(FlowyError::new(
           ErrorCode::InvalidData,

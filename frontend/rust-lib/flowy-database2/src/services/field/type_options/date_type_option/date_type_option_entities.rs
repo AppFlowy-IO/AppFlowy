@@ -48,6 +48,7 @@ impl ToCellChangeset for DateCellChangeset {
 #[derive(Default, Clone, Debug, Serialize)]
 pub struct DateCellData {
   pub timestamp: Option<i64>,
+  #[serde(default)]
   pub include_time: bool,
 }
 
@@ -56,9 +57,7 @@ impl From<&Cell> for DateCellData {
     let timestamp = cell
       .get_str_value(CELL_DATA)
       .and_then(|data| data.parse::<i64>().ok());
-
     let include_time = cell.get_bool_value("include_time").unwrap_or_default();
-
     Self {
       timestamp,
       include_time,
