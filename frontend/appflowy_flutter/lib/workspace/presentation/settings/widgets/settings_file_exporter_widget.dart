@@ -91,9 +91,9 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
                 _showToast(LocaleKeys.settings_files_exportFileFail.tr());
               }
               if (mounted) {
-                Navigator.of(context)
-                  ..pop()
-                  ..pop();
+                Navigator.of(context).popUntil(
+                  (router) => router.settings.name == '/',
+                );
               }
             });
           },
@@ -213,10 +213,11 @@ extension AppFlowy on dartz.Either {
 
 class _AppFlowyFileExporter {
   static Future<void> exportToPath(String path, List<ViewPB> views) async {
+    final Map<String, int> names = {};
     final documentService = DocumentService();
     for (final view in views) {
       String? content;
-      String? extension;
+      String? fileExtension;
       switch (view.layout) {
         case ViewLayoutTypePB.Document:
           final document = await documentService.openDocument(view: view);
@@ -224,7 +225,7 @@ class _AppFlowyFileExporter {
             (l) => content = l.content,
             (r) => Log.error(r),
           );
-          extension = 'afdoc';
+          fileExtension = 'afdoc';
           break;
         default:
           final result = await exportDatabase(view.id);
@@ -232,12 +233,15 @@ class _AppFlowyFileExporter {
             (pb) => content = pb.data,
             (r) => Log.error(r),
           );
-          extension = 'afdb';
+          fileExtension = 'afdb';
           break;
       }
       if (content != null) {
-        final file = File(p.join(path, '${view.name}.$extension'));
+        final count = names.putIfAbsent(view.name, () => 0);
+        final name = count == 0 ? view.name : '${view.name}($count)';
+        final file = File(p.join(path, '$name.$fileExtension'));
         await file.writeAsString(content!);
+        names[view.name] = count + 1;
       }
     }
   }

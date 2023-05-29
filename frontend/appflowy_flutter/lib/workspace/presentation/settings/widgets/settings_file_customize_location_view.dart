@@ -12,8 +12,8 @@ import '../../../../startup/launch_configuration.dart';
 import '../../../../startup/startup.dart';
 import '../../../../startup/tasks/prelude.dart';
 
-class SettingsFileLocationCustomzier extends StatefulWidget {
-  const SettingsFileLocationCustomzier({
+class SettingsFileLocationCustomizer extends StatefulWidget {
+  const SettingsFileLocationCustomizer({
     super.key,
     required this.cubit,
   });
@@ -21,13 +21,13 @@ class SettingsFileLocationCustomzier extends StatefulWidget {
   final SettingsLocationCubit cubit;
 
   @override
-  State<SettingsFileLocationCustomzier> createState() =>
-      SettingsFileLocationCustomzierState();
+  State<SettingsFileLocationCustomizer> createState() =>
+      SettingsFileLocationCustomizerState();
 }
 
 @visibleForTesting
-class SettingsFileLocationCustomzierState
-    extends State<SettingsFileLocationCustomzier> {
+class SettingsFileLocationCustomizerState
+    extends State<SettingsFileLocationCustomizer> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SettingsLocationCubit>.value(
