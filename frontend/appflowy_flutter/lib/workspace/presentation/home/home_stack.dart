@@ -224,8 +224,8 @@ class HomeTopBar extends StatelessWidget {
               ),
             ),
           ],
-        ).bottomBorder(color: Theme.of(context).dividerColor),
-      ),
+        ),
+      ).bottomBorder(color: Theme.of(context).dividerColor),
     );
   }
 }
