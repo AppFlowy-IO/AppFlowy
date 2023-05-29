@@ -35,7 +35,9 @@ String languageFromLocale(Locale locale) {
         default:
           return locale.languageCode;
       }
-    case "hu":
+    case "hi":
+      return "हिंदी";
+      case "hu":
       return "Magyar";
     case "id":
       return "Bahasa Indonesia";
