@@ -502,9 +502,12 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
           dimension: isChecked ? 24 : 25,
           child: Container(
             decoration: BoxDecoration(
-              color: Color(int.tryParse("0x${option.colorHex}") ?? 0xFFFFFFFF),
+              color: option.colorHex.toColor(),
               border: isChecked
-                  ? Border.all(color: const Color(0xFFFFFFFF), width: 2.0)
+                  ? Border.all(
+                      color: const Color(0xFFFFFFFF),
+                      width: 2.0,
+                    )
                   : null,
               shape: BoxShape.circle,
             ),
@@ -514,8 +517,7 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
                     child: Container(
                       margin: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: Color(
-                            int.tryParse("0x${option.colorHex}") ?? 0xFFFFFFFF),
+                        color: option.colorHex.toColor(),
                         shape: BoxShape.circle,
                       ),
                     ),
