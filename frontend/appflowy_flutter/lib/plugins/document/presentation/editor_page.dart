@@ -80,6 +80,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   late final showSlashMenu = customSlashCommand(
     slashMenuItems,
     shouldInsertSlash: false,
+    style: styleCustomizer.selectionMenuStyleBuilder(),
   ).handler;
 
   late final styleCustomizer = EditorStyleCustomizer(context: context);
