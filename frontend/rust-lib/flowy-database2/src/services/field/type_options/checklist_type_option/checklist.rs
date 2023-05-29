@@ -1,9 +1,9 @@
-use crate::entities::{ChecklistFilterPB, FieldType, SelectOptionCellDataPB, SelectOptionPB};
+use crate::entities::{ChecklistCellDataPB, ChecklistFilterPB, FieldType, SelectOptionPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::checklist_type_option::{ChecklistCellChangeset, ChecklistCellData};
 use crate::services::field::{
-  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  SELECTION_IDS_SEPARATOR,
+  SelectOption, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
 };
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
@@ -11,33 +11,34 @@ use flowy_error::FlowyResult;
 use std::cmp::Ordering;
 
 #[derive(Debug, Clone, Default)]
-pub struct ChecklistTypeOption2;
+pub struct ChecklistTypeOption;
 
-impl TypeOption for ChecklistTypeOption2 {
+impl TypeOption for ChecklistTypeOption {
   type CellData = ChecklistCellData;
   type CellChangeset = ChecklistCellChangeset;
-  type CellProtobufType = SelectOptionCellDataPB;
+  type CellProtobufType = ChecklistCellDataPB;
   type CellFilter = ChecklistFilterPB;
 }
 
-impl From<TypeOptionData> for ChecklistTypeOption2 {
+impl From<TypeOptionData> for ChecklistTypeOption {
   fn from(_data: TypeOptionData) -> Self {
     Self
   }
 }
 
-impl From<ChecklistTypeOption2> for TypeOptionData {
-  fn from(_data: ChecklistTypeOption2) -> Self {
+impl From<ChecklistTypeOption> for TypeOptionData {
+  fn from(_data: ChecklistTypeOption) -> Self {
     TypeOptionDataBuilder::new().build()
   }
 }
 
-impl TypeOptionCellData for ChecklistTypeOption2 {
+impl TypeOptionCellData for ChecklistTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
-    let select_options = cell_data
+    let percentage = cell_data.percentage_complete();
+    let selected_options = cell_data
       .options
       .iter()
       .filter(|option| cell_data.selected_option_ids.contains(&option.id))
@@ -50,9 +51,10 @@ impl TypeOptionCellData for ChecklistTypeOption2 {
       .map(SelectOptionPB::from)
       .collect();
 
-    SelectOptionCellDataPB {
+    ChecklistCellDataPB {
       options,
-      select_options,
+      selected_options,
+      percentage,
     }
   }
 
@@ -61,17 +63,86 @@ impl TypeOptionCellData for ChecklistTypeOption2 {
   }
 }
 
-impl CellDataChangeset for ChecklistTypeOption2 {
+impl CellDataChangeset for ChecklistTypeOption {
   fn apply_changeset(
     &self,
-    _changeset: <Self as TypeOption>::CellChangeset,
-    _cell: Option<Cell>,
+    changeset: <Self as TypeOption>::CellChangeset,
+    cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
-    todo!()
+    match cell {
+      Some(cell) => {
+        let mut cell_data = self.parse_cell(&cell)?;
+        update_cell_data_with_changeset(&mut cell_data, changeset);
+        Ok((Cell::from(cell_data.clone()), cell_data))
+      },
+      None => {
+        let cell_data = ChecklistCellData::from_options(changeset.insert_options);
+        Ok((Cell::from(cell_data.clone()), cell_data))
+      },
+    }
   }
 }
 
-impl CellDataDecoder for ChecklistTypeOption2 {
+#[inline]
+fn update_cell_data_with_changeset(
+  cell_data: &mut ChecklistCellData,
+  mut changeset: ChecklistCellChangeset,
+) {
+  // Delete the options
+  cell_data
+    .options
+    .retain(|option| !changeset.delete_option_ids.contains(&option.id));
+  cell_data
+    .selected_option_ids
+    .retain(|option_id| !changeset.delete_option_ids.contains(option_id));
+
+  // Insert new options
+  changeset.insert_options.retain(|option_name| {
+    !cell_data
+      .options
+      .iter()
+      .any(|option| option.name == *option_name)
+  });
+  changeset
+    .insert_options
+    .into_iter()
+    .for_each(|option_name| {
+      let option = SelectOption::new(&option_name);
+      cell_data.options.push(option.clone());
+    });
+
+  // Update options
+  changeset
+    .update_options
+    .into_iter()
+    .for_each(|updated_option| {
+      if let Some(option) = cell_data
+        .options
+        .iter_mut()
+        .find(|option| option.id == updated_option.id)
+      {
+        option.name = updated_option.name;
+      }
+    });
+
+  // Select the options
+  changeset
+    .selected_option_ids
+    .into_iter()
+    .for_each(|option_id| {
+      if let Some(index) = cell_data
+        .selected_option_ids
+        .iter()
+        .position(|id| **id == option_id)
+      {
+        cell_data.selected_option_ids.remove(index);
+      } else {
+        cell_data.selected_option_ids.push(option_id);
+      }
+    });
+}
+
+impl CellDataDecoder for ChecklistTypeOption {
   fn decode_cell(
     &self,
     cell: &Cell,
@@ -100,7 +171,7 @@ impl CellDataDecoder for ChecklistTypeOption2 {
   }
 }
 
-impl TypeOptionCellDataFilter for ChecklistTypeOption2 {
+impl TypeOptionCellDataFilter for ChecklistTypeOption {
   fn apply_filter(
     &self,
     filter: &<Self as TypeOption>::CellFilter,
@@ -115,7 +186,7 @@ impl TypeOptionCellDataFilter for ChecklistTypeOption2 {
   }
 }
 
-impl TypeOptionCellDataCompare for ChecklistTypeOption2 {
+impl TypeOptionCellDataCompare for ChecklistTypeOption {
   fn apply_cmp(
     &self,
     cell_data: &<Self as TypeOption>::CellData,
@@ -132,3 +203,5 @@ impl TypeOptionCellDataCompare for ChecklistTypeOption2 {
     }
   }
 }
+
+impl TypeOptionTransform for ChecklistTypeOption {}

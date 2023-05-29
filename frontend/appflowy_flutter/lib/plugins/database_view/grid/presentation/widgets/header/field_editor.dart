@@ -17,7 +17,7 @@ import 'field_type_option_editor.dart';
 class FieldEditor extends StatefulWidget {
   final String viewId;
   final String fieldName;
-  final bool isGroupField;
+  final bool isGroupingField;
   final Function(String)? onDeleted;
   final IFieldTypeOptionLoader typeOptionLoader;
 
@@ -25,7 +25,7 @@ class FieldEditor extends StatefulWidget {
     required this.viewId,
     this.fieldName = "",
     required this.typeOptionLoader,
-    this.isGroupField = false,
+    this.isGroupingField = false,
     this.onDeleted,
     Key? key,
   }) : super(key: key);
@@ -61,7 +61,7 @@ class _FieldEditorState extends State<FieldEditor> {
       create: (context) => FieldEditorBloc(
         viewId: widget.viewId,
         fieldName: widget.fieldName,
-        isGroupField: widget.isGroupField,
+        isGroupField: widget.isGroupingField,
         loader: widget.typeOptionLoader,
       )..add(const FieldEditorEvent.initial()),
       child: ListView.builder(

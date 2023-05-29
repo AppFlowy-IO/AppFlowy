@@ -122,10 +122,7 @@ mod tests {
       filter.is_visible(&vec![option_1.clone()], FieldType::MultiSelect),
       true
     );
-    assert_eq!(
-      filter.is_visible(&vec![option_1.clone()], FieldType::MultiSelect),
-      false,
-    );
+    assert_eq!(filter.is_visible(&vec![], FieldType::MultiSelect), false,);
   }
 
   #[test]

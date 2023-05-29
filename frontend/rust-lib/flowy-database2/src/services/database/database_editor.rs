@@ -15,8 +15,8 @@ use flowy_task::TaskDispatcher;
 use lib_infra::future::{to_fut, Fut};
 
 use crate::entities::{
-  CalendarEventPB, CellChangesetNotifyPB, CellPB, DatabaseFieldChangesetPB, DatabasePB,
-  DatabaseViewSettingPB, DeleteFilterParams, DeleteGroupParams, DeleteSortParams,
+  CalendarEventPB, CellChangesetNotifyPB, CellPB, ChecklistCellDataPB, DatabaseFieldChangesetPB,
+  DatabasePB, DatabaseViewSettingPB, DeleteFilterParams, DeleteGroupParams, DeleteSortParams,
   FieldChangesetParams, FieldIdPB, FieldPB, FieldType, GroupPB, IndexFieldPB, InsertedRowPB,
   LayoutSettingParams, RepeatedFilterPB, RepeatedGroupPB, RepeatedSortPB, RowPB, RowsChangePB,
   SelectOptionCellDataPB, SelectOptionPB, UpdateFilterParams, UpdateSortParams,
@@ -28,6 +28,7 @@ use crate::services::cell::{
 };
 use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewData, DatabaseViews};
+use crate::services::field::checklist_type_option::{ChecklistCellChangeset, ChecklistCellData};
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
   type_option_data_from_pb_or_default, type_option_to_pb, SelectOptionCellChangeset,
@@ -552,6 +553,7 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  /// Just create an option for the field's type option. The option is save to the database.
   pub async fn create_select_option(
     &self,
     field_id: &str,
@@ -650,6 +652,33 @@ impl DatabaseEditor {
         }
       },
     }
+  }
+
+  pub async fn get_checklist_option(&self, row_id: RowId, field_id: &str) -> ChecklistCellDataPB {
+    let row_cell = self.database.lock().get_cell(field_id, &row_id);
+    let cell_data = match row_cell {
+      None => ChecklistCellData::default(),
+      Some(row_cell) => ChecklistCellData::from(&row_cell.cell),
+    };
+    ChecklistCellDataPB::from(cell_data)
+  }
+
+  pub async fn insert_checklist_options(
+    &self,
+    view_id: &str,
+    row_id: RowId,
+    field_id: &str,
+    changeset: ChecklistCellChangeset,
+  ) -> FlowyResult<()> {
+    let field = self.database.lock().fields.get_field(field_id).ok_or(
+      FlowyError::record_not_found().context(format!("Field with id:{} not found", &field_id)),
+    )?;
+    debug_assert!(FieldType::from(field.field_type).is_checklist());
+
+    self
+      .update_cell_with_changeset(view_id, row_id, field_id, changeset)
+      .await?;
+    Ok(())
   }
 
   #[tracing::instrument(level = "trace", skip_all, err)]

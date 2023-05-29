@@ -14,9 +14,10 @@ use crate::entities::{
   URLTypeOptionPB,
 };
 use crate::services::cell::{CellDataDecoder, FromCellChangeset, ToCellChangeset};
+use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::{
-  CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption,
-  RichTextTypeOption, SingleSelectTypeOption, URLTypeOption,
+  CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RichTextTypeOption,
+  SingleSelectTypeOption, URLTypeOption,
 };
 use crate::services::filter::FromFilterString;
 

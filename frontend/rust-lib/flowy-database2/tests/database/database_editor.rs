@@ -8,8 +8,9 @@ use strum::EnumCount;
 use flowy_database2::entities::{DatabaseLayoutPB, FieldType, FilterPB, RowPB};
 use flowy_database2::services::cell::{CellBuilder, ToCellChangeset};
 use flowy_database2::services::database::DatabaseEditor;
+use flowy_database2::services::field::checklist_type_option::ChecklistTypeOption;
 use flowy_database2::services::field::{
-  CheckboxTypeOption, ChecklistTypeOption, DateCellChangeset, MultiSelectTypeOption, SelectOption,
+  CheckboxTypeOption, DateCellChangeset, MultiSelectTypeOption, SelectOption,
   SelectOptionCellChangeset, SingleSelectTypeOption,
 };
 use flowy_database2::services::share::csv::{CSVFormat, ImportResult};
@@ -320,7 +321,7 @@ impl<'a> TestRowBuilder<'a> {
   {
     let single_select_field = self.field_with_type(&FieldType::SingleSelect);
     let type_option = single_select_field
-      .get_type_option::<ChecklistTypeOption>(FieldType::SingleSelect)
+      .get_type_option::<SingleSelectTypeOption>(FieldType::SingleSelect)
       .unwrap();
     let option = f(type_option.options);
     self
@@ -336,7 +337,7 @@ impl<'a> TestRowBuilder<'a> {
   {
     let multi_select_field = self.field_with_type(&FieldType::MultiSelect);
     let type_option = multi_select_field
-      .get_type_option::<ChecklistTypeOption>(FieldType::MultiSelect)
+      .get_type_option::<MultiSelectTypeOption>(FieldType::MultiSelect)
       .unwrap();
     let options = f(type_option.options);
     let ops_ids = options
@@ -350,23 +351,12 @@ impl<'a> TestRowBuilder<'a> {
     multi_select_field.id.clone()
   }
 
-  pub fn insert_checklist_cell<F>(&mut self, f: F) -> String
-  where
-    F: Fn(Vec<SelectOption>) -> Vec<SelectOption>,
-  {
+  #[allow(dead_code)]
+  pub fn insert_checklist_cell(&mut self, options: Vec<String>) -> String {
     let checklist_field = self.field_with_type(&FieldType::Checklist);
-    let type_option = checklist_field
-      .get_type_option::<ChecklistTypeOption>(FieldType::Checklist)
-      .unwrap();
-    let options = f(type_option.options);
-    let ops_ids = options
-      .iter()
-      .map(|option| option.id.clone())
-      .collect::<Vec<_>>();
     self
       .cell_build
-      .insert_select_option_cell(&checklist_field.id, ops_ids);
-
+      .insert_checklist_cell(&checklist_field.id, options);
     checklist_field.id.clone()
   }
 

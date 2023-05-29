@@ -9,11 +9,12 @@ use crate::entities::{FieldType, SelectOptionCellDataPB};
 use crate::services::cell::{
   CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellChangeset, ToCellChangeset,
 };
+
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
 use crate::services::field::{
-  make_selected_options, CheckboxCellData, ChecklistTypeOption, MultiSelectTypeOption,
-  SelectOption, SelectOptionCellData, SelectOptionColor, SelectOptionIds, SingleSelectTypeOption,
-  TypeOption, TypeOptionCellData, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
+  make_selected_options, CheckboxCellData, MultiSelectTypeOption, SelectOption,
+  SelectOptionCellData, SelectOptionColor, SelectOptionIds, SingleSelectTypeOption, TypeOption,
+  TypeOptionCellData, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
 };
 
 /// Defines the shared actions used by SingleSelect or Multi-Select.
@@ -150,25 +151,19 @@ where
 }
 
 pub fn select_type_option_from_field(
-  field_rev: &Field,
+  field: &Field,
 ) -> FlowyResult<Box<dyn SelectTypeOptionSharedAction>> {
-  let field_type = FieldType::from(field_rev.field_type);
+  let field_type = FieldType::from(field.field_type);
   match &field_type {
     FieldType::SingleSelect => {
-      let type_option = field_rev
+      let type_option = field
         .get_type_option::<SingleSelectTypeOption>(field_type)
         .unwrap_or_default();
       Ok(Box::new(type_option))
     },
     FieldType::MultiSelect => {
-      let type_option = field_rev
+      let type_option = field
         .get_type_option::<MultiSelectTypeOption>(&field_type)
-        .unwrap_or_default();
-      Ok(Box::new(type_option))
-    },
-    FieldType::Checklist => {
-      let type_option = field_rev
-        .get_type_option::<ChecklistTypeOption>(&field_type)
         .unwrap_or_default();
       Ok(Box::new(type_option))
     },

@@ -9,6 +9,7 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
 use crate::entities::FieldType;
 use crate::services::cell::{CellCache, CellProtobufBlob};
+use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::*;
 use crate::services::group::make_no_status_group;
 
@@ -45,7 +46,10 @@ pub trait CellDataChangeset: TypeOption {
   /// The changeset is able to parse into the concrete data struct if `TypeOption::CellChangeset`
   /// implements the `FromCellChangesetString` trait.
   /// For example,the SelectOptionCellChangeset,DateCellChangeset. etc.
+  /// # Arguments
   ///
+  /// * `changeset`: the cell changeset that represents the changes of the cell.
+  /// * `cell`: the data of the cell. It will be None if the cell does not contain any data.
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
@@ -218,6 +222,15 @@ pub fn insert_date_cell(timestamp: i64, include_time: Option<bool>, field: &Fiel
 pub fn insert_select_option_cell(option_ids: Vec<String>, field: &Field) -> Cell {
   let changeset =
     SelectOptionCellChangeset::from_insert_options(option_ids).to_cell_changeset_str();
+  apply_cell_changeset(changeset, None, field, None).unwrap()
+}
+
+pub fn insert_checklist_cell(option_ids: Vec<String>, field: &Field) -> Cell {
+  let changeset = ChecklistCellChangeset {
+    insert_options: option_ids,
+    ..Default::default()
+  }
+  .to_cell_changeset_str();
   apply_cell_changeset(changeset, None, field, None).unwrap()
 }
 
@@ -428,6 +441,17 @@ impl<'a> CellBuilder<'a> {
         self.cells.insert(
           field_id.to_owned(),
           insert_select_option_cell(option_ids, field),
+        );
+      },
+    }
+  }
+  pub fn insert_checklist_cell(&mut self, field_id: &str, option_ids: Vec<String>) {
+    match self.field_maps.get(&field_id.to_owned()) {
+      None => tracing::warn!("Can't find the field with id: {}", field_id),
+      Some(field) => {
+        self.cells.insert(
+          field_id.to_owned(),
+          insert_checklist_cell(option_ids, field),
         );
       },
     }

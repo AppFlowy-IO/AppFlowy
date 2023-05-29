@@ -84,6 +84,16 @@ class SelectOptionCellDataParser
   }
 }
 
+class ChecklistCellDataParser implements CellDataParser<ChecklistCellDataPB> {
+  @override
+  ChecklistCellDataPB? parserData(List<int> data) {
+    if (data.isEmpty) {
+      return null;
+    }
+    return ChecklistCellDataPB.fromBuffer(data);
+  }
+}
+
 class URLCellDataParser implements CellDataParser<URLCellDataPB> {
   @override
   URLCellDataPB? parserData(List<int> data) {
