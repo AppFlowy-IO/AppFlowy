@@ -197,7 +197,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       return result.fold(
         (_) async {
           final modifiedEvent = await _loadEvent(event.eventId);
-          // add(CalendarEvent.didDeleteEvents([event.eventId]));
           add(CalendarEvent.didUpdateEvent(modifiedEvent!));
         },
         (err) {
