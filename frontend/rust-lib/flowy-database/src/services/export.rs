@@ -38,61 +38,65 @@ impl From<&Arc<FieldRevision>> for ExportField {
     let field_type = FieldType::from(field_rev.ty);
     let mut type_options: HashMap<String, Value> = HashMap::new();
 
-    field_rev.type_options.iter().for_each(|(k, s)| {
-      let value = match field_type {
-        FieldType::RichText => {
-          let pb = RichTextTypeOptionPB::from_json_str(s);
-          serde_json::to_value(pb).unwrap()
-        },
-        FieldType::Number => {
-          let pb = NumberTypeOptionPB::from_json_str(s);
-          let mut map = Map::new();
-          map.insert("format".to_string(), json!(pb.format as u8));
-          map.insert("scale".to_string(), json!(pb.scale));
-          map.insert("symbol".to_string(), json!(pb.symbol));
-          map.insert("name".to_string(), json!(pb.name));
-          Value::Object(map)
-        },
-        FieldType::DateTime => {
-          let pb = DateTypeOptionPB::from_json_str(s);
-          let mut map = Map::new();
-          map.insert("date_format".to_string(), json!(pb.date_format as u8));
-          map.insert("time_format".to_string(), json!(pb.time_format as u8));
-          map.insert("field_type".to_string(), json!(FieldType::DateTime as u8));
-          Value::Object(map)
-        },
-        FieldType::SingleSelect => {
-          let pb = SingleSelectTypeOptionPB::from_json_str(s);
-          let value = serde_json::to_string(&pb).unwrap();
-          let mut map = Map::new();
-          map.insert("content".to_string(), Value::String(value));
-          Value::Object(map)
-        },
-        FieldType::MultiSelect => {
-          let pb = MultiSelectTypeOptionPB::from_json_str(s);
-          let value = serde_json::to_string(&pb).unwrap();
-          let mut map = Map::new();
-          map.insert("content".to_string(), Value::String(value));
-          Value::Object(map)
-        },
-        FieldType::Checkbox => {
-          let pb = CheckboxTypeOptionPB::from_json_str(s);
-          serde_json::to_value(pb).unwrap()
-        },
-        FieldType::URL => {
-          let pb = RichTextTypeOptionPB::from_json_str(s);
-          serde_json::to_value(pb).unwrap()
-        },
-        FieldType::Checklist => {
-          let pb = ChecklistTypeOptionPB::from_json_str(s);
-          let value = serde_json::to_string(&pb).unwrap();
-          let mut map = Map::new();
-          map.insert("content".to_string(), Value::String(value));
-          Value::Object(map)
-        },
-      };
-      type_options.insert(k.clone(), value);
-    });
+    field_rev
+      .type_options
+      .iter()
+      .filter(|(k, _)| k == &&field_rev.ty.to_string())
+      .for_each(|(k, s)| {
+        let value = match field_type {
+          FieldType::RichText => {
+            let pb = RichTextTypeOptionPB::from_json_str(s);
+            serde_json::to_value(pb).unwrap()
+          },
+          FieldType::Number => {
+            let pb = NumberTypeOptionPB::from_json_str(s);
+            let mut map = Map::new();
+            map.insert("format".to_string(), json!(pb.format as u8));
+            map.insert("scale".to_string(), json!(pb.scale));
+            map.insert("symbol".to_string(), json!(pb.symbol));
+            map.insert("name".to_string(), json!(pb.name));
+            Value::Object(map)
+          },
+          FieldType::DateTime => {
+            let pb = DateTypeOptionPB::from_json_str(s);
+            let mut map = Map::new();
+            map.insert("date_format".to_string(), json!(pb.date_format as u8));
+            map.insert("time_format".to_string(), json!(pb.time_format as u8));
+            map.insert("field_type".to_string(), json!(FieldType::DateTime as u8));
+            Value::Object(map)
+          },
+          FieldType::SingleSelect => {
+            let pb = SingleSelectTypeOptionPB::from_json_str(s);
+            let value = serde_json::to_string(&pb).unwrap();
+            let mut map = Map::new();
+            map.insert("content".to_string(), Value::String(value));
+            Value::Object(map)
+          },
+          FieldType::MultiSelect => {
+            let pb = MultiSelectTypeOptionPB::from_json_str(s);
+            let value = serde_json::to_string(&pb).unwrap();
+            let mut map = Map::new();
+            map.insert("content".to_string(), Value::String(value));
+            Value::Object(map)
+          },
+          FieldType::Checkbox => {
+            let pb = CheckboxTypeOptionPB::from_json_str(s);
+            serde_json::to_value(pb).unwrap()
+          },
+          FieldType::URL => {
+            let pb = RichTextTypeOptionPB::from_json_str(s);
+            serde_json::to_value(pb).unwrap()
+          },
+          FieldType::Checklist => {
+            let pb = ChecklistTypeOptionPB::from_json_str(s);
+            let value = serde_json::to_string(&pb).unwrap();
+            let mut map = Map::new();
+            map.insert("content".to_string(), Value::String(value));
+            Value::Object(map)
+          },
+        };
+        type_options.insert(k.clone(), value);
+      });
     Self {
       id: field_rev.id.clone(),
       name: field_rev.name.clone(),

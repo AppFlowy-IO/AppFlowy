@@ -185,6 +185,7 @@
     },
     "files": {
       "defaultLocation": "Where your data is stored now",
+      "exportData": "Export your data",
       "doubleTapToCopy": "Double tap to copy the path",
       "restoreLocation": "Restore to AppFlowy default path",
       "customizeLocation": "Open another folder",
@@ -203,7 +204,9 @@
       "create": "Create",
       "folderPath": "Path to store your folder",
       "locationCannotBeEmpty": "Path cannot be empty",
-      "pathCopiedSnackbar": "File storage path copied to clipboard!"
+      "pathCopiedSnackbar": "File storage path copied to clipboard!",
+      "exportFileSuccess": "Export file successfully!",
+      "exportFileFail": "Export file failed!"
     },
     "user": {
       "name": "Name",
