@@ -229,7 +229,6 @@ class _CreatePropertyButtonState extends State<_CreatePropertyButton> {
           typeOptionLoader: NewFieldTypeOptionLoader(viewId: widget.viewId),
           onDeleted: (fieldId) {
             popoverController.close();
-
             NavigatorAlertDialog(
               title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
               confirm: () {
@@ -314,6 +313,10 @@ class _PropertyCellState extends State<_PropertyCell> {
         viewId: widget.cellId.viewId,
         field: widget.cellId.fieldInfo.field,
       ),
+      onHidden: (fieldId) {
+        popover.close();
+        context.read<RowDetailBloc>().add(RowDetailEvent.hideField(fieldId));
+      },
       onDeleted: (fieldId) {
         popover.close();
 
