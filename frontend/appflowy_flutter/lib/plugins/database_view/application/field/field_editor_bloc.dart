@@ -15,7 +15,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
     required String viewId,
     required String fieldName,
     required bool isGroupField,
-    required IFieldTypeOptionLoader loader,
+    required ITypeOptionLoader loader,
   })  : dataController = TypeOptionController(viewId: viewId, loader: loader),
         super(FieldEditorState.initial(viewId, fieldName, isGroupField)) {
     on<FieldEditorEvent>(
@@ -28,6 +28,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
               }
             });
             await dataController.loadTypeOptionData();
+            add(FieldEditorEvent.didReceiveFieldChanged(dataController.field));
           },
           updateName: (name) {
             if (state.name != name) {

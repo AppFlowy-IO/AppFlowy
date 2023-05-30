@@ -16,15 +16,13 @@ import 'field_type_option_editor.dart';
 
 class FieldEditor extends StatefulWidget {
   final String viewId;
-  final String fieldName;
   final bool isGroupingField;
   final Function(String)? onDeleted;
   final Function(String)? onHidden;
-  final IFieldTypeOptionLoader typeOptionLoader;
+  final ITypeOptionLoader typeOptionLoader;
 
   const FieldEditor({
     required this.viewId,
-    this.fieldName = "",
     required this.typeOptionLoader,
     this.isGroupingField = false,
     this.onDeleted,
@@ -63,7 +61,7 @@ class _FieldEditorState extends State<FieldEditor> {
     return BlocProvider(
       create: (context) => FieldEditorBloc(
         viewId: widget.viewId,
-        fieldName: widget.fieldName,
+        fieldName: widget.typeOptionLoader.fieldName,
         isGroupField: widget.isGroupingField,
         loader: widget.typeOptionLoader,
       )..add(const FieldEditorEvent.initial()),
@@ -156,6 +154,7 @@ class _FieldNameTextField extends StatefulWidget {
 }
 
 class _FieldNameTextFieldState extends State<_FieldNameTextField> {
+  final textController = TextEditingController();
   FocusNode focusNode = FocusNode();
 
   @override
@@ -180,6 +179,7 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
     return BlocListener<FieldEditorBloc, FieldEditorState>(
       listenWhen: (p, c) => p.field == none(),
       listener: (context, state) {
+        textController.text = state.name;
         focusNode.requestFocus();
       },
       child: BlocBuilder<FieldEditorBloc, FieldEditorState>(
@@ -190,11 +190,10 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: FlowyTextField(
               focusNode: focusNode,
+              controller: textController,
               onSubmitted: (String _) => PopoverContainer.of(context).close(),
-              text: context.read<FieldEditorBloc>().state.name,
-              errorText: context.read<FieldEditorBloc>().state.errorText.isEmpty
-                  ? null
-                  : context.read<FieldEditorBloc>().state.errorText,
+              text: state.name,
+              errorText: state.errorText.isEmpty ? null : state.errorText,
               onChanged: (newName) {
                 context
                     .read<FieldEditorBloc>()

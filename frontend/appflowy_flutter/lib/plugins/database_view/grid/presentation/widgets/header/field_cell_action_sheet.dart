@@ -38,7 +38,6 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
         width: 400,
         child: FieldEditor(
           viewId: widget.cellContext.viewId,
-          fieldName: field.name,
           typeOptionLoader: FieldTypeOptionLoader(
             viewId: widget.cellContext.viewId,
             field: field,

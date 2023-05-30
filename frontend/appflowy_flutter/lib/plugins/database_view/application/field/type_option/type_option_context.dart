@@ -150,25 +150,14 @@ abstract class TypeOptionFieldDelegate {
   void dispose();
 }
 
-abstract class IFieldTypeOptionLoader {
+abstract class ITypeOptionLoader {
   String get viewId;
-  Future<Either<TypeOptionPB, FlowyError>> load();
-
-  Future<Either<Unit, FlowyError>> switchToField(
-    String fieldId,
-    FieldType fieldType,
-  ) {
-    final payload = UpdateFieldTypePayloadPB.create()
-      ..viewId = viewId
-      ..fieldId = fieldId
-      ..fieldType = fieldType;
-
-    return DatabaseEventUpdateFieldType(payload).send();
-  }
+  String get fieldName;
+  Future<Either<TypeOptionPB, FlowyError>> initialize();
 }
 
 /// Uses when creating a new field
-class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
+class NewFieldTypeOptionLoader extends ITypeOptionLoader {
   TypeOptionPB? fieldTypeOption;
 
   @override
@@ -180,7 +169,7 @@ class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
   /// Creates the field type option if the fieldTypeOption is null.
   /// Otherwise, it loads the type option data from the backend.
   @override
-  Future<Either<TypeOptionPB, FlowyError>> load() {
+  Future<Either<TypeOptionPB, FlowyError>> initialize() {
     if (fieldTypeOption != null) {
       final payload = TypeOptionPathPB.create()
         ..viewId = viewId
@@ -204,10 +193,13 @@ class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
       });
     }
   }
+
+  @override
+  String get fieldName => fieldTypeOption?.field_2.name ?? '';
 }
 
 /// Uses when editing a existing field
-class FieldTypeOptionLoader extends IFieldTypeOptionLoader {
+class FieldTypeOptionLoader extends ITypeOptionLoader {
   @override
   final String viewId;
   final FieldPB field;
@@ -218,7 +210,7 @@ class FieldTypeOptionLoader extends IFieldTypeOptionLoader {
   });
 
   @override
-  Future<Either<TypeOptionPB, FlowyError>> load() {
+  Future<Either<TypeOptionPB, FlowyError>> initialize() {
     final payload = TypeOptionPathPB.create()
       ..viewId = viewId
       ..fieldId = field.id
@@ -226,4 +218,7 @@ class FieldTypeOptionLoader extends IFieldTypeOptionLoader {
 
     return DatabaseEventGetTypeOption(payload).send();
   }
+
+  @override
+  String get fieldName => field.name;
 }

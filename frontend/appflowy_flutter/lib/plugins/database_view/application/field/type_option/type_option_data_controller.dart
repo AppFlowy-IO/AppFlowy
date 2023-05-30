@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -12,7 +13,7 @@ import 'type_option_context.dart';
 class TypeOptionController {
   final String viewId;
   late TypeOptionPB _typeOption;
-  final IFieldTypeOptionLoader loader;
+  final ITypeOptionLoader loader;
   final PublishNotifier<FieldPB> _fieldNotifier = PublishNotifier();
 
   /// Returns a [TypeOptionController] used to modify the specified
@@ -34,7 +35,7 @@ class TypeOptionController {
   }
 
   Future<Either<TypeOptionPB, FlowyError>> loadTypeOptionData() async {
-    final result = await loader.load();
+    final result = await loader.initialize();
     return result.fold(
       (data) {
         data.freeze();
@@ -85,7 +86,12 @@ class TypeOptionController {
   }
 
   Future<void> switchToField(FieldType newFieldType) async {
-    final result = await loader.switchToField(field.id, newFieldType);
+    final payload = UpdateFieldTypePayloadPB.create()
+      ..viewId = viewId
+      ..fieldId = field.id
+      ..fieldType = newFieldType;
+
+    final result = await DatabaseEventUpdateFieldType(payload).send();
     await result.fold(
       (_) {
         // Should load the type-option data after switching to a new field.
