@@ -42,7 +42,7 @@ class GridTestContext {
   FieldEditorBloc createFieldEditor({
     FieldInfo? fieldInfo,
   }) {
-    IFieldTypeOptionLoader loader;
+    ITypeOptionLoader loader;
     if (fieldInfo == null) {
       loader = NewFieldTypeOptionLoader(viewId: gridView.id);
     } else {
