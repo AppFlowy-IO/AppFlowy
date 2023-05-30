@@ -69,7 +69,7 @@ async fn open_workspace(sdk: &FlowyCoreTest, workspace_id: &str) {
 
 async fn create_app(sdk: &FlowyCoreTest, name: &str, desc: &str, workspace_id: &str) -> ViewPB {
   let create_app_request = CreateViewPayloadPB {
-    belong_to_id: workspace_id.to_owned(),
+    parent_view_id: workspace_id.to_owned(),
     name: name.to_string(),
     desc: desc.to_string(),
     thumbnail: None,
@@ -93,7 +93,7 @@ async fn create_view(
   data: Vec<u8>,
 ) -> ViewPB {
   let payload = CreateViewPayloadPB {
-    belong_to_id: app_id.to_string(),
+    parent_view_id: app_id.to_string(),
     name: "View A".to_string(),
     desc: "".to_string(),
     thumbnail: Some("http://1.png".to_string()),

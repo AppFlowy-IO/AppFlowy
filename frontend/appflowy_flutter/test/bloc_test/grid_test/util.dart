@@ -172,7 +172,7 @@ class AppFlowyGridTest {
     final builder = GridPluginBuilder();
     final context = await AppBackendService()
         .createView(
-      appId: app.id,
+      parentViewId: app.id,
       name: "Test Grid",
       layoutType: builder.layoutType!,
     )

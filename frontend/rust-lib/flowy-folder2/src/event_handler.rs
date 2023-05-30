@@ -1,12 +1,13 @@
 use crate::entities::{
   view_pb_without_child_views, CreateViewParams, CreateViewPayloadPB, CreateWorkspaceParams,
-  CreateWorkspacePayloadPB, MoveFolderItemPayloadPB, MoveViewParams, RepeatedTrashIdPB,
+  CreateWorkspacePayloadPB, ImportPB, MoveFolderItemPayloadPB, MoveViewParams, RepeatedTrashIdPB,
   RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, RepeatedWorkspacePB, TrashIdPB,
   UpdateViewParams, UpdateViewPayloadPB, ViewIdPB, ViewPB, WorkspaceIdPB, WorkspacePB,
   WorkspaceSettingPB,
 };
 use crate::manager::Folder2Manager;
 
+use crate::share::ImportParams;
 use flowy_error::FlowyError;
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use std::sync::Arc;
@@ -201,5 +202,15 @@ pub(crate) async fn delete_all_trash_handler(
   folder: AFPluginState<Arc<Folder2Manager>>,
 ) -> Result<(), FlowyError> {
   folder.delete_all_trash().await;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
+pub(crate) async fn import_data_handler(
+  data: AFPluginData<ImportPB>,
+  folder: AFPluginState<Arc<Folder2Manager>>,
+) -> Result<(), FlowyError> {
+  let params: ImportParams = data.into_inner().try_into()?;
+  folder.import(params).await?;
   Ok(())
 }

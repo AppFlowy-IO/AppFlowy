@@ -9,10 +9,10 @@ use crate::event_handler::*;
 use crate::manager::DatabaseManager2;
 
 pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
-  let mut plugin = AFPlugin::new()
+  let plugin = AFPlugin::new()
     .name(env!("CARGO_PKG_NAME"))
     .state(database_manager);
-  plugin = plugin
+  plugin
         .event(DatabaseEvent::GetDatabase, get_database_data_handler)
         .event(DatabaseEvent::GetDatabaseSetting, get_database_setting_handler)
         .event(DatabaseEvent::UpdateDatabaseSetting, update_database_setting_handler)
@@ -64,10 +64,7 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         // Layout setting
         .event(DatabaseEvent::SetLayoutSetting, set_layout_setting_handler)
         .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler)
-        // import
-        .event(DatabaseEvent::ImportCSV, import_data_handler);
-
-  plugin
+  // import
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)

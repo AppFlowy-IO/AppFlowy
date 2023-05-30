@@ -25,7 +25,7 @@ SelectionMenuItem gridViewMenuItem(DocumentBloc documentBloc) =>
         final service = AppBackendService();
 
         final result = (await service.createView(
-          appId: appId,
+          parentViewId: appId,
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
           layoutType: ViewLayoutPB.Grid,
         ))
