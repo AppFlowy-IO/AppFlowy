@@ -16,7 +16,7 @@ pub enum DatabaseNotification {
   /// Trigger after editing a field properties including rename,update type option, etc
   DidUpdateField = 50,
   /// Trigger after the number of groups is changed
-  DidUpdateGroups = 60,
+  DidUpdateNumOfGroups = 60,
   /// Trigger after inserting/deleting/updating/moving a row
   DidUpdateGroupRow = 61,
   /// Trigger when setting a new grouping field

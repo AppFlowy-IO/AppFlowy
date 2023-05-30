@@ -20,9 +20,9 @@ export const BoardOptionsCell = ({
     <div className={'flex flex-wrap items-center gap-2 py-2 text-xs text-black'}>
       {(data as SelectOptionCellDataPB)?.select_options?.map((option, index) => (
         <div className={`${getBgColor(option.color)} rounded px-2 py-0.5`} key={index}>
-          {option?.name || ''}
+          {option?.name ?? ''}
         </div>
-      )) || ''}
+      ))}
       &nbsp;
     </div>
   );

@@ -44,6 +44,9 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         .event(DatabaseEvent::DeleteSelectOption, delete_select_option_handler)
         .event(DatabaseEvent::GetSelectOptionCellData, get_select_option_handler)
         .event(DatabaseEvent::UpdateSelectOptionCell, update_select_option_cell_handler)
+        // Checklist
+        .event(DatabaseEvent::GetChecklistCellData, get_checklist_cell_data_handler)
+        .event(DatabaseEvent::UpdateChecklistCell, update_checklist_cell_handler)
         // Date
         .event(DatabaseEvent::UpdateDateCell, update_date_cell_handler)
         // Group
@@ -51,6 +54,8 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         .event(DatabaseEvent::MoveGroupRow, move_group_row_handler)
         .event(DatabaseEvent::GetGroups, get_groups_handler)
         .event(DatabaseEvent::GetGroup, get_group_handler)
+        .event(DatabaseEvent::SetGroupByField, set_group_by_field_handler)
+        .event(DatabaseEvent::UpdateGroup, update_group_handler)
         // Database
         .event(DatabaseEvent::GetDatabases, get_databases_handler)
         // Calendar
@@ -58,7 +63,9 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         .event(DatabaseEvent::GetCalendarEvent, get_calendar_event_handler)
         // Layout setting
         .event(DatabaseEvent::SetLayoutSetting, set_layout_setting_handler)
-        .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler);
+        .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler)
+        // import
+        .event(DatabaseEvent::ImportCSV, import_data_handler);
 
   plugin
 }
@@ -223,6 +230,12 @@ pub enum DatabaseEvent {
   #[event(input = "SelectOptionCellChangesetPB")]
   UpdateSelectOptionCell = 72,
 
+  #[event(input = "CellIdPB", output = "ChecklistCellDataPB")]
+  GetChecklistCellData = 73,
+
+  #[event(input = "ChecklistCellDataChangesetPB")]
+  UpdateChecklistCell = 74,
+
   /// [UpdateDateCell] event is used to update a date cell's data. [DateChangesetPB]
   /// contains the date and the time string. It can be cast to [CellChangesetPB] that
   /// will be used by the `update_cell` function.
@@ -241,22 +254,31 @@ pub enum DatabaseEvent {
   #[event(input = "MoveGroupRowPayloadPB")]
   MoveGroupRow = 112,
 
+  #[event(input = "GroupByFieldPayloadPB")]
+  SetGroupByField = 113,
+
+  #[event(input = "UpdateGroupPB")]
+  UpdateGroup = 114,
+
   /// Returns all the databases
   #[event(output = "RepeatedDatabaseDescriptionPB")]
-  GetDatabases = 114,
+  GetDatabases = 120,
 
   #[event(input = "LayoutSettingChangesetPB")]
-  SetLayoutSetting = 115,
+  SetLayoutSetting = 121,
 
   #[event(input = "DatabaseLayoutIdPB", output = "LayoutSettingPB")]
-  GetLayoutSetting = 116,
+  GetLayoutSetting = 122,
 
   #[event(input = "CalendarEventRequestPB", output = "RepeatedCalendarEventPB")]
-  GetAllCalendarEvents = 117,
+  GetAllCalendarEvents = 123,
 
   #[event(input = "RowIdPB", output = "CalendarEventPB")]
-  GetCalendarEvent = 118,
+  GetCalendarEvent = 124,
 
   #[event(input = "MoveCalendarEventPB")]
-  MoveCalendarEvent = 119,
+  MoveCalendarEvent = 125,
+
+  #[event(input = "DatabaseImportPB")]
+  ImportCSV = 130,
 }

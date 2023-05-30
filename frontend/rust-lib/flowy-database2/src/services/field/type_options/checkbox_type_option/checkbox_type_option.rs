@@ -40,10 +40,10 @@ impl TypeOptionTransform for CheckboxTypeOption {
   fn transform_type_option_cell(
     &self,
     cell: &Cell,
-    _decoded_field_type: &FieldType,
+    transformed_field_type: &FieldType,
     _field: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {
-    if _decoded_field_type.is_text() {
+    if transformed_field_type.is_text() {
       Some(CheckboxCellData::from(cell))
     } else {
       None
@@ -67,20 +67,20 @@ impl From<CheckboxTypeOption> for TypeOptionData {
 }
 
 impl TypeOptionCellData for CheckboxTypeOption {
-  fn convert_to_protobuf(
+  fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     cell_data
   }
 
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
+  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     Ok(CheckboxCellData::from(cell))
   }
 }
 
 impl CellDataDecoder for CheckboxTypeOption {
-  fn decode_cell_str(
+  fn decode_cell(
     &self,
     cell: &Cell,
     decoded_field_type: &FieldType,
@@ -90,14 +90,14 @@ impl CellDataDecoder for CheckboxTypeOption {
       return Ok(Default::default());
     }
 
-    self.decode_cell(cell)
+    self.parse_cell(cell)
   }
 
-  fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+  fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     cell_data.to_string()
   }
 
-  fn decode_cell_to_str(&self, cell: &Cell) -> String {
+  fn stringify_cell(&self, cell: &Cell) -> String {
     Self::CellData::from(cell).to_string()
   }
 }

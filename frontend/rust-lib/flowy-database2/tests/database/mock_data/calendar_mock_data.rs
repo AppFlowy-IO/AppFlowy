@@ -40,7 +40,7 @@ pub fn make_test_calendar() -> DatabaseData {
   let calendar_setting: LayoutSetting = CalendarLayoutSetting::new(date_field_id).into();
 
   for i in 0..5 {
-    let mut row_builder = TestRowBuilder::new(i.into(), fields.clone());
+    let mut row_builder = TestRowBuilder::new(i.into(), &fields);
     match i {
       0 => {
         for field_type in FieldType::iter() {
@@ -51,6 +51,7 @@ pub fn make_test_calendar() -> DatabaseData {
               None,
               None,
               Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
+              &field_type,
             ),
             _ => "".to_owned(),
           };
@@ -65,6 +66,7 @@ pub fn make_test_calendar() -> DatabaseData {
               None,
               None,
               Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
+              &field_type,
             ),
             _ => "".to_owned(),
           };
@@ -79,6 +81,7 @@ pub fn make_test_calendar() -> DatabaseData {
               None,
               None,
               Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
+              &field_type,
             ),
             _ => "".to_owned(),
           };
@@ -93,6 +96,7 @@ pub fn make_test_calendar() -> DatabaseData {
               None,
               None,
               Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
+              &field_type,
             ),
             _ => "".to_owned(),
           };
@@ -107,6 +111,7 @@ pub fn make_test_calendar() -> DatabaseData {
               None,
               None,
               Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
+              &field_type,
             ),
             _ => "".to_owned(),
           };

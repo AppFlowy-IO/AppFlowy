@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -29,17 +30,25 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
             emit(state.copyWith(gridCells: cells));
           },
           deleteField: (fieldId) {
-            final fieldService = FieldBackendService(
-              viewId: dataController.viewId,
-              fieldId: fieldId,
+            _fieldBackendService(fieldId).deleteField();
+          },
+          hideField: (fieldId) async {
+            final result = await _fieldBackendService(fieldId).updateField(
+              visibility: false,
             );
-            fieldService.deleteField();
+            result.fold(
+              (l) {},
+              (err) => Log.error(err),
+            );
           },
           deleteRow: (rowId) async {
             await rowService.deleteRow(rowId);
           },
-          duplicateRow: (String rowId) async {
-            await rowService.duplicateRow(rowId);
+          duplicateRow: (String rowId, String? groupId) async {
+            await rowService.duplicateRow(
+              rowId: rowId,
+              groupId: groupId,
+            );
           },
         );
       },
@@ -61,14 +70,23 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
       },
     );
   }
+
+  FieldBackendService _fieldBackendService(String fieldId) {
+    return FieldBackendService(
+      viewId: dataController.viewId,
+      fieldId: fieldId,
+    );
+  }
 }
 
 @freezed
 class RowDetailEvent with _$RowDetailEvent {
   const factory RowDetailEvent.initial() = _Initial;
   const factory RowDetailEvent.deleteField(String fieldId) = _DeleteField;
+  const factory RowDetailEvent.hideField(String fieldId) = _HideField;
   const factory RowDetailEvent.deleteRow(String rowId) = _DeleteRow;
-  const factory RowDetailEvent.duplicateRow(String rowId) = _DuplicateRow;
+  const factory RowDetailEvent.duplicateRow(String rowId, String? groupId) =
+      _DuplicateRow;
   const factory RowDetailEvent.didReceiveCellDatas(
     List<CellIdentifier> gridCells,
   ) = _DidReceiveCellDatas;

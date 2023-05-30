@@ -1,5 +1,4 @@
 import { MouseEventHandler, useEffect, useRef, useState } from 'react';
-import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
 import { FieldTypeName } from '$app/components/_shared/EditRow/FieldTypeName';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +10,7 @@ import { useAppSelector } from '$app/stores/store';
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { PopupWindow } from '$app/components/_shared/PopupWindow';
 import { FieldType } from '@/services/backend';
-import { DateTypeOptions } from '$app/components/_shared/EditRow/DateTypeOptions';
+import { DateTypeOptions } from '$app/components/_shared/EditRow/Date/DateTypeOptions';
 
 export const EditFieldPopup = ({
   top,
@@ -35,7 +34,7 @@ export const EditFieldPopup = ({
   onNumberFormat?: (buttonLeft: number, buttonTop: number) => void;
 }) => {
   const databaseStore = useAppSelector((state) => state.database);
-  const { t } = useTranslation('');
+  const { t } = useTranslation();
   const changeTypeButtonRef = useRef<HTMLDivElement>(null);
   const [name, setName] = useState('');
 
@@ -54,15 +53,6 @@ export const EditFieldPopup = ({
     if (!changeTypeButtonRef.current) return;
     const { top: buttonTop, right: buttonRight } = changeTypeButtonRef.current.getBoundingClientRect();
     changeFieldTypeClick(buttonTop, buttonRight);
-  };
-
-  // this is causing an error right now
-  const onDeleteFieldClick = async () => {
-    if (!fieldInfo) return;
-    const controller = new TypeOptionController(viewId, Some(fieldInfo));
-    await controller.initialize();
-    await controller.deleteField();
-    onOutsideClick();
   };
 
   const onNumberFormatClick: MouseEventHandler = (e) => {
@@ -95,18 +85,6 @@ export const EditFieldPopup = ({
           onBlur={() => save()}
           className={'border-shades-3 flex-1 rounded border bg-main-selector px-2 py-2'}
         />
-
-        <button
-          onClick={() => onDeleteFieldClick()}
-          className={'flex cursor-pointer items-center gap-2 rounded-lg py-2 text-main-alert hover:bg-main-secondary'}
-        >
-          <span className={'flex items-center gap-2 pl-2'}>
-            <i className={'block h-5 w-5'}>
-              <TrashSvg></TrashSvg>
-            </i>
-            <span>{t('grid.field.delete')}</span>
-          </span>
-        </button>
 
         <div
           ref={changeTypeButtonRef}

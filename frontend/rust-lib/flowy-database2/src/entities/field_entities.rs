@@ -492,6 +492,8 @@ pub enum FieldType {
   Checkbox = 5,
   URL = 6,
   Checklist = 7,
+  UpdatedAt = 8,
+  CreatedAt = 9,
 }
 
 pub const RICH_TEXT_FIELD: FieldType = FieldType::RichText;
@@ -502,6 +504,8 @@ pub const MULTI_SELECT_FIELD: FieldType = FieldType::MultiSelect;
 pub const CHECKBOX_FIELD: FieldType = FieldType::Checkbox;
 pub const URL_FIELD: FieldType = FieldType::URL;
 pub const CHECKLIST_FIELD: FieldType = FieldType::Checklist;
+pub const UPDATED_AT_FIELD: FieldType = FieldType::UpdatedAt;
+pub const CREATED_AT_FIELD: FieldType = FieldType::CreatedAt;
 
 impl std::default::Default for FieldType {
   fn default() -> Self {
@@ -529,9 +533,13 @@ impl From<&FieldType> for FieldType {
 }
 
 impl FieldType {
+  pub fn value(&self) -> i64 {
+    self.clone().into()
+  }
+
   pub fn default_cell_width(&self) -> i32 {
     match self {
-      FieldType::DateTime => 180,
+      FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => 180,
       _ => 150,
     }
   }
@@ -546,6 +554,8 @@ impl FieldType {
       FieldType::Checkbox => "Checkbox",
       FieldType::URL => "URL",
       FieldType::Checklist => "Checklist",
+      FieldType::UpdatedAt => "Updated At",
+      FieldType::CreatedAt => "Created At",
     };
     s.to_string()
   }
@@ -563,7 +573,7 @@ impl FieldType {
   }
 
   pub fn is_date(&self) -> bool {
-    self == &DATE_FIELD
+    self == &DATE_FIELD || self == &UPDATED_AT_FIELD || self == &CREATED_AT_FIELD
   }
 
   pub fn is_single_select(&self) -> bool {
@@ -582,7 +592,7 @@ impl FieldType {
     self == &MULTI_SELECT_FIELD || self == &SINGLE_SELECT_FIELD
   }
 
-  pub fn is_check_list(&self) -> bool {
+  pub fn is_checklist(&self) -> bool {
     self == &CHECKLIST_FIELD
   }
 
@@ -596,22 +606,13 @@ impl_into_field_type!(u8);
 
 impl From<FieldType> for i64 {
   fn from(ty: FieldType) -> Self {
-    match ty {
-      FieldType::RichText => 0,
-      FieldType::Number => 1,
-      FieldType::DateTime => 2,
-      FieldType::SingleSelect => 3,
-      FieldType::MultiSelect => 4,
-      FieldType::Checkbox => 5,
-      FieldType::URL => 6,
-      FieldType::Checklist => 7,
-    }
+    (ty as u8) as i64
   }
 }
 
 impl From<&FieldType> for i64 {
   fn from(ty: &FieldType) -> Self {
-    ty.clone() as i64
+    i64::from(ty.clone())
   }
 }
 

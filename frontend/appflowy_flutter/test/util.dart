@@ -54,8 +54,10 @@ class AppFlowyUnitTest {
       password: password,
       email: userEmail,
     );
-    return result.fold(
-      (error) {},
+    result.fold(
+      (error) {
+        assert(false, 'Error: $error');
+      },
       (user) {
         userProfile = user;
         userService = UserBackendService(userId: userProfile.id);
@@ -100,8 +102,9 @@ class AppFlowyUnitTest {
 void _pathProviderInitialized() {
   const MethodChannel channel =
       MethodChannel('plugins.flutter.io/path_provider');
-  channel.setMockMethodCallHandler((MethodCall methodCall) async {
-    return ".";
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+    return '.';
   });
 }
 

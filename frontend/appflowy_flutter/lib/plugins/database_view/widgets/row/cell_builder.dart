@@ -39,6 +39,14 @@ class GridCellBuilder {
           key: key,
           style: style,
         );
+      case FieldType.UpdatedAt:
+      case FieldType.CreatedAt:
+        return GridDateCell(
+          cellControllerBuilder: cellControllerBuilder,
+          key: key,
+          editable: false,
+          style: style,
+        );
       case FieldType.SingleSelect:
         return GridSingleSelectCell(
           cellControllerBuilder: cellControllerBuilder,

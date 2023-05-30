@@ -108,8 +108,8 @@ class _FlowyGridState extends State<FlowyGrid> {
 
   @override
   void initState() {
-    super.initState();
     headerScrollController = _scrollController.linkHorizontalController();
+    super.initState();
   }
 
   @override
@@ -348,7 +348,7 @@ class _GridRowsState extends State<_GridRows> {
       builder: (BuildContext context) {
         return RowDetailPage(
           cellBuilder: cellBuilder,
-          dataController: dataController,
+          rowController: dataController,
         );
       },
     );

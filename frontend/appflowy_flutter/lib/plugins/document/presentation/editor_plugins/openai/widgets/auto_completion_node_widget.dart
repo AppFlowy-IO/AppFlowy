@@ -56,11 +56,16 @@ class AutoCompletionBlockComponentBuilder extends BlockComponentBuilder {
   AutoCompletionBlockComponentBuilder();
 
   @override
-  Widget build(BlockComponentContext blockComponentContext) {
+  BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
     return AutoCompletionBlockComponent(
       key: node.key,
       node: node,
+      showActions: showActions(node),
+      actionBuilder: (context, state) => actionBuilder(
+        blockComponentContext,
+        state,
+      ),
     );
   }
 
@@ -72,13 +77,14 @@ class AutoCompletionBlockComponentBuilder extends BlockComponentBuilder {
   }
 }
 
-class AutoCompletionBlockComponent extends StatefulWidget {
+class AutoCompletionBlockComponent extends BlockComponentStatefulWidget {
   const AutoCompletionBlockComponent({
     super.key,
-    required this.node,
+    required super.node,
+    super.showActions,
+    super.actionBuilder,
+    super.configuration = const BlockComponentConfiguration(),
   });
-
-  final Node node;
 
   @override
   State<AutoCompletionBlockComponent> createState() =>

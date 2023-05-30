@@ -2,7 +2,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/inser
 import 'package:appflowy/workspace/application/app/app_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:dartz/dartz.dart' as dartz;
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -66,16 +65,16 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
   EditorStyle get style => widget.editorState.editorStyle;
   int _selectedIndex = 0;
   int _totalItems = 0;
-  Future<List<dartz.Tuple2<ViewPB, List<ViewPB>>>>? _availableLayout;
-  final Map<int, dartz.Tuple2<ViewPB, ViewPB>> _items = {};
+  Future<List<(ViewPB, List<ViewPB>)>>? _availableLayout;
+  final Map<int, (ViewPB, ViewPB)> _items = {};
 
-  Future<List<dartz.Tuple2<ViewPB, List<ViewPB>>>> fetchItems() async {
+  Future<List<(ViewPB, List<ViewPB>)>> fetchItems() async {
     final items = await AppBackendService().fetchViews(widget.layoutType);
 
     int index = 0;
-    for (final app in items) {
-      for (final view in app.value2) {
-        _items.putIfAbsent(index, () => dartz.Tuple2(app.value1, view));
+    for (final (app, children) in items) {
+      for (final view in children) {
+        _items.putIfAbsent(index, () => (app, view));
         index += 1;
       }
     }
@@ -158,8 +157,8 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
       newSelectedIndex %= _totalItems;
     } else if (event.logicalKey == LogicalKeyboardKey.enter) {
       widget.onSelected(
-        _items[_selectedIndex]!.value1,
-        _items[_selectedIndex]!.value2,
+        _items[_selectedIndex]!.$1,
+        _items[_selectedIndex]!.$2,
       );
     }
 
@@ -173,15 +172,15 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
   Widget _buildListWidget(
     BuildContext context,
     int selectedIndex,
-    Future<List<dartz.Tuple2<ViewPB, List<ViewPB>>>>? items,
+    Future<List<(ViewPB, List<ViewPB>)>>? items,
   ) {
     int index = 0;
-    return FutureBuilder<List<dartz.Tuple2<ViewPB, List<ViewPB>>>>(
+    return FutureBuilder<List<(ViewPB, List<ViewPB>)>>(
       builder: (context, snapshot) {
         if (snapshot.hasData &&
             snapshot.connectionState == ConnectionState.done) {
           final views = snapshot.data;
-          final children = <Widget>[
+          final List<Widget> children = [
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: FlowyText.regular(
@@ -191,18 +190,20 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
               ),
             ),
           ];
+
           if (views != null && views.isNotEmpty) {
-            for (final view in views) {
-              if (view.value2.isNotEmpty) {
+            for (final (view, viewChildren) in views) {
+              if (viewChildren.isNotEmpty) {
                 children.add(
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: FlowyText.regular(
-                      view.value1.name,
+                      view.name,
                     ),
                   ),
                 );
-                for (final value in view.value2) {
+
+                for (final value in viewChildren) {
                   children.add(
                     FlowyButton(
                       isSelected: index == _selectedIndex,
@@ -211,7 +212,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
                         color: Theme.of(context).iconTheme.color,
                       ),
                       text: FlowyText.regular(value.name),
-                      onTap: () => widget.onSelected(view.value1, value),
+                      onTap: () => widget.onSelected(view, value),
                     ),
                   );
 

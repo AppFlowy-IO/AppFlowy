@@ -16,8 +16,6 @@ mod tests {
 
     // Input is empty String
     assert_number(&type_option, "", "", &field_type, &field);
-
-    // Input is letter
     assert_number(&type_option, "abc", "", &field_type, &field);
     assert_number(&type_option, "-123", "-123", &field_type, &field);
     assert_number(&type_option, "abc-123", "-123", &field_type, &field);
@@ -25,6 +23,7 @@ mod tests {
     assert_number(&type_option, "0.2", "0.2", &field_type, &field);
     assert_number(&type_option, "-0.2", "-0.2", &field_type, &field);
     assert_number(&type_option, "-$0.2", "0.2", &field_type, &field);
+    assert_number(&type_option, ".2", "0.2", &field_type, &field);
   }
 
   #[test]
@@ -42,6 +41,7 @@ mod tests {
     assert_number(&type_option, "-0.2", "-$0.2", &field_type, &field);
     assert_number(&type_option, "-$0.2", "-$0.2", &field_type, &field);
     assert_number(&type_option, "-€0.2", "-$0.2", &field_type, &field);
+    assert_number(&type_option, ".2", "$0.2", &field_type, &field);
   }
 
   #[test]
@@ -89,7 +89,7 @@ mod tests {
   ) {
     assert_eq!(
       type_option
-        .decode_cell_str(
+        .decode_cell(
           &NumberCellData(input_str.to_owned()).into(),
           field_type,
           field

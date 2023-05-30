@@ -1,3 +1,4 @@
+import 'package:appflowy_backend/protobuf/flowy-database2/checklist_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
@@ -11,8 +12,7 @@ typedef CheckboxCellController = CellController<String, String>;
 typedef NumberCellController = CellController<String, String>;
 typedef SelectOptionCellController
     = CellController<SelectOptionCellDataPB, String>;
-typedef ChecklistCellController
-    = CellController<SelectOptionCellDataPB, String>;
+typedef ChecklistCellController = CellController<ChecklistCellDataPB, String>;
 typedef DateCellController = CellController<DateCellDataPB, DateCellData>;
 typedef URLCellController = CellController<URLCellDataPB, String>;
 
@@ -40,6 +40,8 @@ class CellControllerBuilder {
           cellDataPersistence: TextCellDataPersistence(cellId: _cellId),
         );
       case FieldType.DateTime:
+      case FieldType.UpdatedAt:
+      case FieldType.CreatedAt:
         final cellDataLoader = CellDataLoader(
           cellId: _cellId,
           parser: DateCellDataParser(),
@@ -77,7 +79,6 @@ class CellControllerBuilder {
         );
       case FieldType.MultiSelect:
       case FieldType.SingleSelect:
-      case FieldType.Checklist:
         final cellDataLoader = CellDataLoader(
           cellId: _cellId,
           parser: SelectOptionCellDataParser(),
@@ -91,6 +92,19 @@ class CellControllerBuilder {
           cellDataPersistence: TextCellDataPersistence(cellId: _cellId),
         );
 
+      case FieldType.Checklist:
+        final cellDataLoader = CellDataLoader(
+          cellId: _cellId,
+          parser: ChecklistCellDataParser(),
+          reloadOnFieldChanged: true,
+        );
+
+        return ChecklistCellController(
+          cellId: _cellId,
+          cellCache: _cellCache,
+          cellDataLoader: cellDataLoader,
+          cellDataPersistence: TextCellDataPersistence(cellId: _cellId),
+        );
       case FieldType.URL:
         final cellDataLoader = CellDataLoader(
           cellId: _cellId,

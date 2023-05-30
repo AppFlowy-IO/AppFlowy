@@ -8,10 +8,9 @@ use flowy_error::ErrorCode;
 
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
-  AlterFilterParams, AlterFilterPayloadPB, AlterSortParams, AlterSortPayloadPB,
-  CalendarLayoutSettingPB, DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams,
-  DeleteGroupPayloadPB, DeleteSortParams, DeleteSortPayloadPB, InsertGroupParams,
-  InsertGroupPayloadPB, RepeatedFilterPB, RepeatedGroupSettingPB, RepeatedSortPB,
+  CalendarLayoutSettingPB, DeleteFilterParams, DeleteFilterPayloadPB, DeleteSortParams,
+  DeleteSortPayloadPB, RepeatedFilterPB, RepeatedGroupSettingPB, RepeatedSortPB,
+  UpdateFilterParams, UpdateFilterPayloadPB, UpdateGroupPB, UpdateSortParams, UpdateSortPayloadPB,
 };
 use crate::services::setting::CalendarLayoutSetting;
 
@@ -77,21 +76,18 @@ pub struct DatabaseSettingChangesetPB {
   pub layout_type: DatabaseLayoutPB,
 
   #[pb(index = 3, one_of)]
-  pub alter_filter: Option<AlterFilterPayloadPB>,
+  pub update_filter: Option<UpdateFilterPayloadPB>,
 
   #[pb(index = 4, one_of)]
   pub delete_filter: Option<DeleteFilterPayloadPB>,
 
   #[pb(index = 5, one_of)]
-  pub insert_group: Option<InsertGroupPayloadPB>,
+  pub update_group: Option<UpdateGroupPB>,
 
   #[pb(index = 6, one_of)]
-  pub delete_group: Option<DeleteGroupPayloadPB>,
+  pub update_sort: Option<UpdateSortPayloadPB>,
 
   #[pb(index = 7, one_of)]
-  pub alter_sort: Option<AlterSortPayloadPB>,
-
-  #[pb(index = 8, one_of)]
   pub delete_sort: Option<DeleteSortPayloadPB>,
 }
 
@@ -103,7 +99,7 @@ impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
       .map_err(|_| ErrorCode::ViewIdIsInvalid)?
       .0;
 
-    let insert_filter = match self.alter_filter {
+    let insert_filter = match self.update_filter {
       None => None,
       Some(payload) => Some(payload.try_into()?),
     };
@@ -113,17 +109,7 @@ impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
       Some(payload) => Some(payload.try_into()?),
     };
 
-    let insert_group = match self.insert_group {
-      Some(payload) => Some(payload.try_into()?),
-      None => None,
-    };
-
-    let delete_group = match self.delete_group {
-      Some(payload) => Some(payload.try_into()?),
-      None => None,
-    };
-
-    let alert_sort = match self.alter_sort {
+    let alert_sort = match self.update_sort {
       None => None,
       Some(payload) => Some(payload.try_into()?),
     };
@@ -138,8 +124,6 @@ impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
       layout_type: self.layout_type.into(),
       insert_filter,
       delete_filter,
-      insert_group,
-      delete_group,
       alert_sort,
       delete_sort,
     })
@@ -149,11 +133,9 @@ impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
 pub struct DatabaseSettingChangesetParams {
   pub view_id: String,
   pub layout_type: DatabaseLayout,
-  pub insert_filter: Option<AlterFilterParams>,
+  pub insert_filter: Option<UpdateFilterParams>,
   pub delete_filter: Option<DeleteFilterParams>,
-  pub insert_group: Option<InsertGroupParams>,
-  pub delete_group: Option<DeleteGroupParams>,
-  pub alert_sort: Option<AlterSortParams>,
+  pub alert_sort: Option<UpdateSortParams>,
   pub delete_sort: Option<DeleteSortParams>,
 }
 

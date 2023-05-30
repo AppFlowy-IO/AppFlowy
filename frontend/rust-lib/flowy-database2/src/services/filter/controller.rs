@@ -219,12 +219,14 @@ impl FilterController {
   }
 
   pub async fn did_receive_row_changed(&self, row_id: RowId) {
-    self
-      .gen_task(
-        FilterEvent::RowDidChanged(row_id),
-        QualityOfService::UserInteractive,
-      )
-      .await
+    if !self.cell_filter_cache.read().is_empty() {
+      self
+        .gen_task(
+          FilterEvent::RowDidChanged(row_id),
+          QualityOfService::UserInteractive,
+        )
+        .await
+    }
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
@@ -323,7 +325,7 @@ impl FilterController {
             .write()
             .insert(field_id, NumberFilterPB::from_filter(filter.as_ref()));
         },
-        FieldType::DateTime => {
+        FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
           self
             .cell_filter_cache
             .write()

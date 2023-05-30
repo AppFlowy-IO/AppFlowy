@@ -1,6 +1,5 @@
 import { SearchInput } from '../_shared/SearchInput';
 import { BoardGroup } from './BoardGroup';
-import { NewBoardBlock } from './NewBoardBlock';
 import { useDatabase } from '../_shared/database-hooks/useDatabase';
 import { ViewLayoutPB } from '@/services/backend';
 import { DragDropContext } from 'react-beautiful-dnd';
@@ -45,7 +44,6 @@ export const Board = ({ viewId, title }: { viewId: string; title: string }) => {
                   onOpenRow={onOpenRow}
                 />
               ))}
-            <NewBoardBlock onClick={() => console.log('new block')}></NewBoardBlock>
           </div>
         </div>
       </DragDropContext>

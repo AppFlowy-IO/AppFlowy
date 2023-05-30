@@ -3,48 +3,53 @@ use std::fmt::Debug;
 
 use collab_database::fields::Field;
 use collab_database::rows::{get_field_type_from_cell, Cell, Cells};
+use lib_infra::util::timestamp;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
 use crate::entities::FieldType;
 use crate::services::cell::{CellCache, CellProtobufBlob};
+use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::*;
 use crate::services::group::make_no_status_group;
 
 /// Decode the opaque cell data into readable format content
 pub trait CellDataDecoder: TypeOption {
   ///
-  /// Tries to decode the opaque cell string to `decoded_field_type`'s cell data. Sometimes, the `field_type`
-  /// of the `FieldRevision` is not equal to the `decoded_field_type`(This happened When switching
-  /// the field type of the `FieldRevision` to another field type). So the cell data is need to do
+  /// Tries to decode the [Cell] to `decoded_field_type`'s cell data. Sometimes, the `field_type`
+  /// of the `Field` is not equal to the `decoded_field_type`(This happened When switching
+  /// the field type of the `Field` to another field type). So the cell data is need to do
   /// some transformation.
   ///
-  /// For example, the current field type of the `FieldRevision` is a checkbox. When switching the field
+  /// For example, the current field type of the `Field` is a checkbox. When switching the field
   /// type from the checkbox to single select, it will create two new options,`Yes` and `No`, if they don't exist.
   /// But the data of the cell doesn't change. We can't iterate all the rows to transform the cell
   /// data that can be parsed by the current field type. One approach is to transform the cell data
-  /// when it get read. For the moment, the cell data is a string, `Yes` or `No`. It needs to compare
-  /// with the option's name, if match return the id of the option.
-  fn decode_cell_str(
+  /// when reading.
+  fn decode_cell(
     &self,
     cell: &Cell,
     decoded_field_type: &FieldType,
     field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData>;
 
-  /// Same as `decode_cell_data` does but Decode the cell data to readable `String`
+  /// Decode the cell data to readable `String`
   /// For example, The string of the Multi-Select cell will be a list of the option's name
   /// separated by a comma.
-  fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String;
+  fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String;
 
-  fn decode_cell_to_str(&self, cell: &Cell) -> String;
+  /// Same as [CellDataDecoder::stringify_cell_data] but the input parameter is the [Cell]
+  fn stringify_cell(&self, cell: &Cell) -> String;
 }
 
 pub trait CellDataChangeset: TypeOption {
   /// The changeset is able to parse into the concrete data struct if `TypeOption::CellChangeset`
   /// implements the `FromCellChangesetString` trait.
   /// For example,the SelectOptionCellChangeset,DateCellChangeset. etc.
+  /// # Arguments
   ///
+  /// * `changeset`: the cell changeset that represents the changes of the cell.
+  /// * `cell`: the data of the cell. It will be None if the cell does not contain any data.
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
@@ -74,7 +79,7 @@ pub fn apply_cell_changeset<C: ToCellChangeset>(
   }
 }
 
-pub fn get_type_cell_protobuf(
+pub fn get_cell_protobuf(
   cell: &Cell,
   field: &Field,
   cell_cache: Option<CellCache>,
@@ -101,25 +106,6 @@ pub fn get_type_cell_protobuf(
   }
 }
 
-pub fn get_type_cell_data<Output>(
-  cell: &Cell,
-  field: &Field,
-  cell_data_cache: Option<CellCache>,
-) -> Option<Output>
-where
-  Output: Default + 'static,
-{
-  let from_field_type = get_field_type_from_cell(cell)?;
-  let to_field_type = FieldType::from(field.field_type);
-  try_decode_cell_to_cell_data(
-    cell,
-    &from_field_type,
-    &to_field_type,
-    field,
-    cell_data_cache,
-  )
-}
-
 /// Decode the opaque cell data from one field type to another using the corresponding `TypeOption`
 ///
 /// The cell data might become an empty string depends on the to_field_type's `TypeOption`
@@ -127,13 +113,12 @@ where
 ///
 /// # Arguments
 ///
-/// * `cell_str`: the opaque cell string that can be decoded by corresponding structs that implement the
-/// `FromCellString` trait.
+/// * `cell`: the opaque cell string that can be decoded by corresponding structs.
 /// * `from_field_type`: the original field type of the passed-in cell data. Check the `TypeCellData`
 /// that is used to save the origin field type of the cell data.
 /// * `to_field_type`: decode the passed-in cell data to this field type. It will use the to_field_type's
 /// TypeOption to decode this cell data.
-/// * `field_rev`: used to get the corresponding TypeOption for the specified field type.
+/// * `field`: used to get the corresponding TypeOption for the specified field type.
 ///
 /// returns: CellBytes
 ///
@@ -172,24 +157,23 @@ pub fn try_decode_cell_to_cell_data<T: Default + 'static>(
 ///
 /// # Arguments
 ///
-/// * `cell_str`: the opaque cell string that can be decoded by corresponding structs that implement the
-/// `FromCellString` trait.
-/// * `decoded_field_type`: the field_type of the cell_str
-/// * `field_type`: use this field type's `TypeOption` to stringify this cell_str
-/// * `field_rev`: used to get the corresponding TypeOption for the specified field type.
+/// * `cell`: the opaque cell string that can be decoded by corresponding structs
+/// * `to_field_type`: the cell will be decoded to this field type's cell data.
+/// * `from_field_type`: the original field type of the passed-in cell data.
+/// * `field`: used to get the corresponding TypeOption for the specified field type.
 ///
 /// returns: String
 pub fn stringify_cell_data(
   cell: &Cell,
-  decoded_field_type: &FieldType,
-  field_type: &FieldType,
+  to_field_type: &FieldType,
+  from_field_type: &FieldType,
   field: &Field,
 ) -> String {
   match TypeOptionCellExt::new_with_cell_data_cache(field, None)
-    .get_type_option_cell_data_handler(field_type)
+    .get_type_option_cell_data_handler(from_field_type)
   {
     None => "".to_string(),
-    Some(handler) => handler.stringify_cell_str(cell, decoded_field_type, field),
+    Some(handler) => handler.stringify_cell_str(cell, to_field_type, field),
   }
 }
 
@@ -224,11 +208,11 @@ pub fn insert_checkbox_cell(is_check: bool, field: &Field) -> Cell {
   apply_cell_changeset(s, None, field, None).unwrap()
 }
 
-pub fn insert_date_cell(timestamp: i64, field: &Field) -> Cell {
+pub fn insert_date_cell(timestamp: i64, include_time: Option<bool>, field: &Field) -> Cell {
   let cell_data = serde_json::to_string(&DateCellChangeset {
     date: Some(timestamp.to_string()),
     time: None,
-    include_time: Some(false),
+    include_time,
     timezone_id: None,
   })
   .unwrap();
@@ -238,6 +222,15 @@ pub fn insert_date_cell(timestamp: i64, field: &Field) -> Cell {
 pub fn insert_select_option_cell(option_ids: Vec<String>, field: &Field) -> Cell {
   let changeset =
     SelectOptionCellChangeset::from_insert_options(option_ids).to_cell_changeset_str();
+  apply_cell_changeset(changeset, None, field, None).unwrap()
+}
+
+pub fn insert_checklist_cell(insert_options: Vec<String>, field: &Field) -> Cell {
+  let changeset = ChecklistCellChangeset {
+    insert_options,
+    ..Default::default()
+  }
+  .to_cell_changeset_str();
   apply_cell_changeset(changeset, None, field, None).unwrap()
 }
 
@@ -312,20 +305,21 @@ where
 //     }
 // }
 
-pub struct CellBuilder {
+pub struct CellBuilder<'a> {
   cells: Cells,
-  field_maps: HashMap<String, Field>,
+  field_maps: HashMap<String, &'a Field>,
 }
 
-impl CellBuilder {
-  pub fn with_cells(cell_by_field_id: HashMap<String, String>, fields: Vec<Field>) -> Self {
+impl<'a> CellBuilder<'a> {
+  /// Build list of Cells from HashMap of cell string by field id.
+  pub fn with_cells(cell_by_field_id: HashMap<String, String>, fields: &'a [Field]) -> Self {
     let field_maps = fields
       .into_iter()
       .map(|field| (field.id.clone(), field))
-      .collect::<HashMap<String, Field>>();
+      .collect::<HashMap<String, &Field>>();
 
     let mut cells = Cells::new();
-    for (field_id, cell_str) in cell_by_field_id {
+    for (field_id, cell_str) in cell_by_field_id.clone() {
       if let Some(field) = field_maps.get(&field_id) {
         let field_type = FieldType::from(field.field_type);
         match field_type {
@@ -337,9 +331,9 @@ impl CellBuilder {
               cells.insert(field_id, insert_number_cell(num, field));
             }
           },
-          FieldType::DateTime => {
+          FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
             if let Ok(timestamp) = cell_str.parse::<i64>() {
-              cells.insert(field_id, insert_date_cell(timestamp, field));
+              cells.insert(field_id, insert_date_cell(timestamp, Some(false), field));
             }
           },
           FieldType::SingleSelect | FieldType::MultiSelect => {
@@ -364,6 +358,19 @@ impl CellBuilder {
       }
     }
 
+    // Auto insert the cell data if the field is not in the cell_by_field_id.
+    // Currently, the auto fill field type is `UpdatedAt` or `CreatedAt`.
+    for field in fields {
+      if !cell_by_field_id.contains_key(&field.id) {
+        let field_type = FieldType::from(field.field_type);
+        if field_type == FieldType::UpdatedAt || field_type == FieldType::CreatedAt {
+          cells.insert(
+            field.id.clone(),
+            insert_date_cell(timestamp(), Some(true), field),
+          );
+        }
+      }
+    }
     CellBuilder { cells, field_maps }
   }
 
@@ -419,9 +426,10 @@ impl CellBuilder {
     match self.field_maps.get(&field_id.to_owned()) {
       None => tracing::warn!("Can't find the date field with id: {}", field_id),
       Some(field) => {
-        self
-          .cells
-          .insert(field_id.to_owned(), insert_date_cell(timestamp, field));
+        self.cells.insert(
+          field_id.to_owned(),
+          insert_date_cell(timestamp, Some(false), field),
+        );
       },
     }
   }
@@ -433,6 +441,17 @@ impl CellBuilder {
         self.cells.insert(
           field_id.to_owned(),
           insert_select_option_cell(option_ids, field),
+        );
+      },
+    }
+  }
+  pub fn insert_checklist_cell(&mut self, field_id: &str, option_names: Vec<String>) {
+    match self.field_maps.get(&field_id.to_owned()) {
+      None => tracing::warn!("Can't find the field with id: {}", field_id),
+      Some(field) => {
+        self.cells.insert(
+          field_id.to_owned(),
+          insert_checklist_cell(option_names, field),
         );
       },
     }

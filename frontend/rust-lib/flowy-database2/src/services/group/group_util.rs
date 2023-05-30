@@ -42,7 +42,7 @@ where
   W: GroupSettingWriter,
 {
   let grouping_field_type = FieldType::from(grouping_field.field_type);
-  tracing::Span::current().record("grouping_field_type", &grouping_field_type.default_name());
+  tracing::Span::current().record("grouping_field", &grouping_field_type.default_name());
 
   let mut group_controller: Box<dyn GroupController>;
   let configuration_reader = Arc::new(setting_reader);
@@ -139,17 +139,7 @@ pub fn find_new_grouping_field(
 ///
 pub fn default_group_setting(field: &Field) -> GroupSetting {
   let field_id = field.id.clone();
-  let field_type = FieldType::from(field.field_type);
-  match field_type {
-    FieldType::RichText => GroupSetting::new(field_id, field.field_type, "".to_owned()),
-    FieldType::Number => GroupSetting::new(field_id, field.field_type, "".to_owned()),
-    FieldType::DateTime => GroupSetting::new(field_id, field.field_type, "".to_owned()),
-    FieldType::SingleSelect => GroupSetting::new(field_id, field.field_type, "".to_owned()),
-    FieldType::MultiSelect => GroupSetting::new(field_id, field.field_type, "".to_owned()),
-    FieldType::Checklist => GroupSetting::new(field_id, field.field_type, "".to_owned()),
-    FieldType::Checkbox => GroupSetting::new(field_id, field.field_type, "".to_owned()),
-    FieldType::URL => GroupSetting::new(field_id, field.field_type, "".to_owned()),
-  }
+  GroupSetting::new(field_id, field.field_type, "".to_owned())
 }
 
 pub fn make_no_status_group(field: &Field) -> Group {

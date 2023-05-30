@@ -17,7 +17,7 @@ class BlockOptionButton extends StatelessWidget {
   }) : super(key: key);
 
   final BlockComponentContext blockComponentContext;
-  final BlockComponentState blockComponentState;
+  final BlockComponentActionState blockComponentState;
   final List<OptionAction> actions;
   final EditorState editorState;
 

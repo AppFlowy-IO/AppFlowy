@@ -8,7 +8,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:flutter/services.dart';
 import 'package:textfield_tags/textfield_tags.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 import 'extension.dart';
 
@@ -126,7 +125,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
               hintStyle: Theme.of(context)
                   .textTheme
                   .bodySmall!
-                  .textColor(Theme.of(context).hintColor),
+                  .copyWith(color: Theme.of(context).hintColor),
               suffixText: _suffixText(),
               counterText: "",
               prefixIconConstraints:

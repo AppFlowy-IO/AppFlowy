@@ -5,7 +5,7 @@ import { WorkspaceBackendService } from '../../../stores/effects/folder/workspac
 export const useNewFolder = () => {
   const appDispatch = useAppDispatch();
   const workspace = useAppSelector((state) => state.workspace);
-  const workspaceBackendService = new WorkspaceBackendService(workspace.id || '');
+  const workspaceBackendService = new WorkspaceBackendService(workspace.id ?? '');
 
   const onNewFolder = async () => {
     const newApp = await workspaceBackendService.createApp({

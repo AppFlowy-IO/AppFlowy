@@ -189,8 +189,8 @@ script = [
   cd appflowy_flutter
   flutter clean
   flutter packages pub get
-  flutter packages pub run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
-  flutter packages pub run build_runner build --delete-conflicting-outputs
+  dart run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
+  dart run build_runner build -d
   """,
 ]
 
@@ -201,8 +201,8 @@ script = [
   cd ./appflowy_flutter/
   exec cmd.exe /c flutter clean
   exec cmd.exe /c flutter packages pub get
-  exec cmd.exe /c flutter packages pub run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
-  exec cmd.exe /c flutter packages pub run build_runner build --delete-conflicting-outputs
+  exec cmd.exe /c dart run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
+  exec cmd.exe /c dart run build_runner build -d
   """,
 ]
 
@@ -211,8 +211,8 @@ script_runner = "@shell"
 script = [
   """
   cd appflowy_flutter
-  flutter packages pub run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
-  flutter packages pub run build_runner build --delete-conflicting-outputs
+  dart run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
+  dart run build_runner build -d
   """,
 ]
 
@@ -221,7 +221,7 @@ script_runner = "@duckscript"
 script = [
   """
   cd ./appflowy_flutter/
-  exec cmd.exe /c flutter packages pub run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
-  exec cmd.exe /c flutter packages pub run build_runner build --delete-conflicting-outputs
+  exec cmd.exe /c dart run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
+  exec cmd.exe /c dart run build_runner build -d
   """,
 ]

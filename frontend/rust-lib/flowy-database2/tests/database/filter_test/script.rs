@@ -10,8 +10,9 @@ use collab_database::rows::{Row, RowId};
 use futures::TryFutureExt;
 use tokio::sync::broadcast::Receiver;
 
-use flowy_database2::entities::{AlterFilterParams, AlterFilterPayloadPB, CheckboxFilterConditionPB, CheckboxFilterPB, ChecklistFilterConditionPB, ChecklistFilterPB, DatabaseViewSettingPB, DateFilterConditionPB, DateFilterPB, DeleteFilterParams, FieldType, FilterPB, NumberFilterConditionPB, NumberFilterPB, SelectOptionConditionPB, SelectOptionFilterPB, TextFilterConditionPB, TextFilterPB};
+use flowy_database2::entities::{UpdateFilterParams, UpdateFilterPayloadPB, CheckboxFilterConditionPB, CheckboxFilterPB, ChecklistFilterConditionPB, ChecklistFilterPB, DatabaseViewSettingPB, DateFilterConditionPB, DateFilterPB, DeleteFilterParams, FieldType, FilterPB, NumberFilterConditionPB, NumberFilterPB, SelectOptionConditionPB, SelectOptionFilterPB, TextFilterConditionPB, TextFilterPB, SelectOptionPB};
 use flowy_database2::services::database_view::DatabaseViewChanged;
+use flowy_database2::services::field::SelectOption;
 use flowy_database2::services::filter::FilterType;
 
 use crate::database::database_editor::DatabaseEditorTest;
@@ -27,13 +28,17 @@ pub enum FilterScript {
         text: String,
        changed: Option<FilterRowChanged>,
     },
+    UpdateChecklistCell{
+        row_id: RowId,
+        f: Box<dyn FnOnce(Vec<SelectOptionPB>) -> Vec<String>> ,
+    },
     UpdateSingleSelectCell {
         row_id: RowId,
         option_id: String,
         changed: Option<FilterRowChanged>,
     },
     InsertFilter {
-        payload: AlterFilterPayloadPB,
+        payload: UpdateFilterPayloadPB,
     },
     CreateTextFilter {
         condition: TextFilterConditionPB,
@@ -133,6 +138,9 @@ impl DatabaseFilterTest {
                 self.assert_future_changed(changed).await;
                 self.update_text_cell(row_id, &text).await.unwrap();
             }
+            FilterScript::UpdateChecklistCell { row_id, f } => {
+                self.set_checklist_cell( row_id, f).await.unwrap();
+            }
             FilterScript::UpdateSingleSelectCell { row_id, option_id, changed} => {
                 self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 self.assert_future_changed(changed).await;
@@ -151,7 +159,7 @@ impl DatabaseFilterTest {
                     content
                 };
                 let payload =
-                    AlterFilterPayloadPB::new(
+                    UpdateFilterPayloadPB::new(
                         & self.view_id(),
                         &field, text_filter);
                 self.insert_filter(payload).await;
@@ -159,7 +167,7 @@ impl DatabaseFilterTest {
             FilterScript::UpdateTextFilter { filter, condition, content, changed} => {
                 self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 self.assert_future_changed(changed).await;
-                let params = AlterFilterParams {
+                let params = UpdateFilterParams {
                     view_id: self.view_id(),
                     field_id: filter.field_id,
                     filter_id: Some(filter.id),
@@ -178,7 +186,7 @@ impl DatabaseFilterTest {
                     content
                 };
                 let payload =
-                    AlterFilterPayloadPB::new(
+                    UpdateFilterPayloadPB::new(
                         &self.view_id(),
                         &field, number_filter);
                 self.insert_filter(payload).await;
@@ -191,7 +199,7 @@ impl DatabaseFilterTest {
                     condition
                 };
                 let payload =
-                    AlterFilterPayloadPB::new(& self.view_id(), &field, checkbox_filter);
+                    UpdateFilterPayloadPB::new(& self.view_id(), &field, checkbox_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateDateFilter { condition, start, end, timestamp, changed} => {
@@ -206,7 +214,7 @@ impl DatabaseFilterTest {
                 };
 
                 let payload =
-                    AlterFilterPayloadPB::new(&self.view_id(), &field, date_filter);
+                    UpdateFilterPayloadPB::new(&self.view_id(), &field, date_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateMultiSelectFilter { condition, option_ids} => {
@@ -214,7 +222,7 @@ impl DatabaseFilterTest {
                 let field = self.get_first_field(FieldType::MultiSelect);
                 let filter = SelectOptionFilterPB { condition, option_ids };
                 let payload =
-                    AlterFilterPayloadPB::new(&self.view_id(), &field, filter);
+                    UpdateFilterPayloadPB::new(&self.view_id(), &field, filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateSingleSelectFilter { condition, option_ids, changed} => {
@@ -223,7 +231,7 @@ impl DatabaseFilterTest {
                 let field = self.get_first_field(FieldType::SingleSelect);
                 let filter = SelectOptionFilterPB { condition, option_ids };
                 let payload =
-                    AlterFilterPayloadPB::new(& self.view_id(), &field, filter);
+                    UpdateFilterPayloadPB::new(& self.view_id(), &field, filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateChecklistFilter { condition,changed} => {
@@ -233,7 +241,7 @@ impl DatabaseFilterTest {
                 // let type_option = self.get_checklist_type_option(&field_rev.id);
                 let filter = ChecklistFilterPB { condition };
                 let payload =
-                    AlterFilterPayloadPB::new(& self.view_id(), &field, filter);
+                    UpdateFilterPayloadPB::new(& self.view_id(), &field, filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::AssertFilterCount { count } => {
@@ -289,8 +297,8 @@ impl DatabaseFilterTest {
 
     }
 
-    async fn insert_filter(&self, payload: AlterFilterPayloadPB) {
-        let params: AlterFilterParams = payload.try_into().unwrap();
+    async fn insert_filter(&self, payload: UpdateFilterPayloadPB) {
+        let params: UpdateFilterParams = payload.try_into().unwrap();
         let _ = self.editor.create_or_update_filter(params).await.unwrap();
     }
 

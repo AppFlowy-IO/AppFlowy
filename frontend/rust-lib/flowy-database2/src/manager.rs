@@ -11,11 +11,12 @@ use collab_database::views::{CreateDatabaseParams, CreateViewParams};
 use parking_lot::Mutex;
 use tokio::sync::RwLock;
 
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
 
 use crate::entities::{DatabaseDescriptionPB, DatabaseLayoutPB, RepeatedDatabaseDescriptionPB};
 use crate::services::database::{DatabaseEditor, MutexDatabase};
+use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
 
 pub trait DatabaseUser2: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -77,14 +78,17 @@ impl DatabaseManager2 {
     }
   }
 
-  pub async fn get_database(&self, view_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
+  pub async fn get_database_with_view_id(&self, view_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
     let database_id = self.with_user_database(Err(FlowyError::internal()), |database| {
       database
         .get_database_id_with_view_id(view_id)
         .ok_or_else(FlowyError::record_not_found)
     })?;
+    self.get_database(&database_id).await
+  }
 
-    if let Some(editor) = self.editors.read().await.get(&database_id) {
+  pub async fn get_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
+    if let Some(editor) = self.editors.read().await.get(database_id) {
       return Ok(editor.clone());
     }
 
@@ -93,7 +97,7 @@ impl DatabaseManager2 {
       Err(FlowyError::record_not_found()),
       |database| {
         database
-          .get_database(&database_id)
+          .get_database(database_id)
           .ok_or_else(FlowyError::record_not_found)
       },
     )?);
@@ -189,6 +193,28 @@ impl DatabaseManager2 {
       },
     )?;
     Ok(())
+  }
+
+  pub async fn import_csv(&self, content: String, format: CSVFormat) -> FlowyResult<ImportResult> {
+    let params =
+      tokio::task::spawn_blocking(move || CSVImporter.import_csv_from_string(content, format))
+        .await
+        .map_err(internal_error)??;
+    let result = ImportResult {
+      database_id: params.database_id.clone(),
+      view_id: params.view_id.clone(),
+    };
+    self.create_database_with_params(params).await?;
+    Ok(result)
+  }
+
+  pub async fn import_csv_from_uri(&self, _uri: String, _format: CSVFormat) -> FlowyResult<()> {
+    Ok(())
+  }
+
+  pub async fn export_csv(&self, view_id: &str, style: CSVFormat) -> FlowyResult<String> {
+    let database = self.get_database_with_view_id(view_id).await?;
+    database.export_csv(style).await
   }
 
   fn with_user_database<F, Output>(&self, default_value: Output, f: F) -> Output

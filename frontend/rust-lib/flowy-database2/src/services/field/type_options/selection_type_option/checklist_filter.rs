@@ -1,14 +1,13 @@
 use crate::entities::{ChecklistFilterConditionPB, ChecklistFilterPB};
-use crate::services::field::{SelectOption, SelectedSelectOptions};
+use crate::services::field::SelectOption;
 
 impl ChecklistFilterPB {
   pub fn is_visible(
     &self,
     all_options: &[SelectOption],
-    selected_options: &SelectedSelectOptions,
+    selected_options: &[SelectOption],
   ) -> bool {
     let selected_option_ids = selected_options
-      .options
       .iter()
       .map(|option| option.id.as_str())
       .collect::<Vec<&str>>();

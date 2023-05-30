@@ -14,6 +14,16 @@ pub struct GroupSetting {
   pub content: String,
 }
 
+pub struct GroupSettingChangeset {
+  pub update_groups: Vec<GroupChangeset>,
+}
+
+pub struct GroupChangeset {
+  pub group_id: String,
+  pub name: Option<String>,
+  pub visible: Option<bool>,
+}
+
 impl GroupSetting {
   pub fn new(field_id: String, field_type: i64, content: String) -> Self {
     Self {
@@ -75,7 +85,7 @@ impl From<GroupSetting> for GroupSettingMap {
 pub struct Group {
   pub id: String,
   pub name: String,
-  #[serde(default = "GROUP_REV_VISIBILITY")]
+  #[serde(default = "GROUP_VISIBILITY")]
   pub visible: bool,
 }
 
@@ -104,7 +114,7 @@ impl From<Group> for GroupMap {
   }
 }
 
-const GROUP_REV_VISIBILITY: fn() -> bool = || true;
+const GROUP_VISIBILITY: fn() -> bool = || true;
 
 impl Group {
   pub fn new(id: String, name: String) -> Self {

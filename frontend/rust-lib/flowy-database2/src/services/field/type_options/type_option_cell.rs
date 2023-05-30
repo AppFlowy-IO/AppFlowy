@@ -13,14 +13,16 @@ use crate::services::cell::{
   CellCache, CellDataChangeset, CellDataDecoder, CellFilterCache, CellProtobufBlob,
   FromCellChangeset,
 };
+use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::{
-  CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption,
-  RichTextTypeOption, SingleSelectTypeOption, TypeOption, TypeOptionCellData,
-  TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform, URLTypeOption,
+  CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RichTextTypeOption,
+  SingleSelectTypeOption, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionTransform, URLTypeOption,
 };
 
 pub const CELL_DATA: &str = "data";
 
+/// Each [FieldType] has its own [TypeOptionCellDataHandler].
 /// A helper trait that used to erase the `Self` of `TypeOption` trait to make it become a Object-safe trait
 /// Only object-safe traits can be made into trait objects.
 /// > Object-safe traits are traits with methods that follow these two rules:
@@ -35,6 +37,7 @@ pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
     field_rev: &Field,
   ) -> FlowyResult<CellProtobufBlob>;
 
+  // TODO(nathan): replace cell_changeset with BoxAny to get rid of the serde process.
   fn handle_cell_changeset(
     &self,
     cell_changeset: String,
@@ -46,19 +49,20 @@ pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
 
   fn handle_cell_filter(&self, field_type: &FieldType, field: &Field, cell: &Cell) -> bool;
 
-  /// Decode the cell_str to corresponding cell data, and then return the display string of the
-  /// cell data.
-  fn stringify_cell_str(
-    &self,
-    cell: &Cell,
-    decoded_field_type: &FieldType,
-    field: &Field,
-  ) -> String;
+  /// Format the cell to string using the passed-in [FieldType] and [Field].
+  /// The [Cell] is generic, so we need to know the [FieldType] and [Field] to format the cell.
+  ///
+  /// For example, the field type of the [TypeOptionCellDataHandler] is [FieldType::Date], and
+  /// the if field_type is [FieldType::RichText], then the string would be something like "Mar 14, 2022".
+  ///
+  fn stringify_cell_str(&self, cell: &Cell, field_type: &FieldType, field: &Field) -> String;
 
+  /// Format the cell to [BoxCellData] using the passed-in [FieldType] and [Field].
+  /// The caller can get the cell data by calling [BoxCellData::unbox_or_none].
   fn get_cell_data(
     &self,
     cell: &Cell,
-    decoded_field_type: &FieldType,
+    field_type: &FieldType,
     field: &Field,
   ) -> FlowyResult<BoxCellData>;
 }
@@ -129,17 +133,17 @@ where
     if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
       let read_guard = cell_data_cache.read();
       if let Some(cell_data) = read_guard.get(key.as_ref()).cloned() {
-        tracing::trace!(
-          "Cell cache hit: field_type:{}, cell: {:?}, cell_data: {:?}",
-          decoded_field_type,
-          cell,
-          cell_data
-        );
+        // tracing::trace!(
+        //   "Cell cache hit: field_type:{}, cell: {:?}, cell_data: {:?}",
+        //   decoded_field_type,
+        //   cell,
+        //   cell_data
+        // );
         return Ok(cell_data);
       }
     }
 
-    let cell_data = self.decode_cell_str(cell, decoded_field_type, field)?;
+    let cell_data = self.decode_cell(cell, decoded_field_type, field)?;
     if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
       // tracing::trace!(
       //   "Cell cache update: field_type:{}, cell: {:?}, cell_data: {:?}",
@@ -215,7 +219,7 @@ where
       .get_cell_data(cell, decoded_field_type, field_rev)?
       .unbox_or_default::<<Self as TypeOption>::CellData>();
 
-    CellProtobufBlob::from(self.convert_to_protobuf(cell_data))
+    CellProtobufBlob::from(self.protobuf_encode(cell_data))
   }
 
   fn handle_cell_changeset(
@@ -252,35 +256,37 @@ where
     perform_filter().unwrap_or(true)
   }
 
-  fn stringify_cell_str(
-    &self,
-    cell: &Cell,
-    decoded_field_type: &FieldType,
-    field: &Field,
-  ) -> String {
+  /// Stringify [Cell] to string
+  /// if the [TypeOptionCellDataHandler] supports transform, it will try to transform the [Cell] to
+  /// the passed-in field type [Cell].
+  /// For example, the field type of the [TypeOptionCellDataHandler] is [FieldType::MultiSelect], the field_type
+  /// is [FieldType::RichText], then the string will be transformed to a string that separated by comma with the
+  /// option's name.
+  ///
+  fn stringify_cell_str(&self, cell: &Cell, field_type: &FieldType, field: &Field) -> String {
     if self.transformable() {
-      let cell_data = self.transform_type_option_cell(cell, decoded_field_type, field);
+      let cell_data = self.transform_type_option_cell(cell, field_type, field);
       if let Some(cell_data) = cell_data {
-        return self.decode_cell_data_to_str(cell_data);
+        return self.stringify_cell_data(cell_data);
       }
     }
-    self.decode_cell_to_str(cell)
+    self.stringify_cell(cell)
   }
 
   fn get_cell_data(
     &self,
     cell: &Cell,
-    decoded_field_type: &FieldType,
+    field_type: &FieldType,
     field: &Field,
   ) -> FlowyResult<BoxCellData> {
     // tracing::debug!("get_cell_data: {:?}", std::any::type_name::<Self>());
     let cell_data = if self.transformable() {
-      match self.transform_type_option_cell(cell, decoded_field_type, field) {
-        None => self.get_decoded_cell_data(cell, decoded_field_type, field)?,
+      match self.transform_type_option_cell(cell, field_type, field) {
+        None => self.get_decoded_cell_data(cell, field_type, field)?,
         Some(cell_data) => cell_data,
       }
     } else {
-      self.get_decoded_cell_data(cell, decoded_field_type, field)?
+      self.get_decoded_cell_data(cell, field_type, field)?
     };
     Ok(BoxCellData::new(cell_data))
   }
@@ -346,7 +352,7 @@ impl<'a> TypeOptionCellExt<'a> {
             self.cell_data_cache.clone(),
           )
         }),
-      FieldType::DateTime => self
+      FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => self
         .field
         .get_type_option::<DateTypeOption>(field_type)
         .map(|type_option| {
@@ -466,7 +472,7 @@ fn get_type_option_transform_handler(
     FieldType::Number => {
       Box::new(NumberTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
     },
-    FieldType::DateTime => {
+    FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
       Box::new(DateTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
     },
     FieldType::SingleSelect => Box::new(SingleSelectTypeOption::from(type_option_data))

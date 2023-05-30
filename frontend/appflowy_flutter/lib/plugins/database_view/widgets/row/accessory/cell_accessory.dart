@@ -41,7 +41,7 @@ class GridCellAccessoryBuilder {
   }
 }
 
-abstract class GridCellAccessoryState {
+abstract mixin class GridCellAccessoryState {
   void onTap();
 
   // The accessory will be hidden if enable() return false;

@@ -100,7 +100,7 @@ class FadingIndexedStackState extends State<FadingIndexedStack> {
   }
 }
 
-abstract class NavigationItem {
+abstract mixin class NavigationItem {
   Widget get leftBarItem;
   Widget? get rightBarItem => null;
 
@@ -224,8 +224,8 @@ class HomeTopBar extends StatelessWidget {
               ),
             ),
           ],
-        ).bottomBorder(color: Theme.of(context).dividerColor),
-      ),
+        ),
+      ).bottomBorder(color: Theme.of(context).dividerColor),
     );
   }
 }

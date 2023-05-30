@@ -73,7 +73,7 @@ TransitionBuilder overlayManagerBuilder() {
   };
 }
 
-abstract class FlowyOverlayDelegate {
+abstract mixin class FlowyOverlayDelegate {
   bool asBarrier() => false;
   void didRemove() => {};
 }

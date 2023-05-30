@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_svg_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/divider/divider_node_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -41,9 +42,10 @@ CharacterShortcutEventHandler _convertMinusesToDividerHandler =
 
 SelectionMenuItem dividerMenuItem = SelectionMenuItem(
   name: 'Divider',
-  icon: (editorState, onSelected) => const Icon(
-    Icons.horizontal_rule,
-    size: 18.0,
+  icon: (editorState, onSelected, style) => SelectableIconWidget(
+    icon: Icons.horizontal_rule,
+    isSelected: onSelected,
+    style: style,
   ),
   keywords: ['horizontal rule', 'divider'],
   handler: (editorState, _, __) {

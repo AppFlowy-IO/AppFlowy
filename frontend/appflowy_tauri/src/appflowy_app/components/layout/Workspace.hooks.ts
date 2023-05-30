@@ -9,7 +9,7 @@ export const useWorkspace = () => {
 
   const appDispatch = useAppDispatch();
 
-  const userBackendService: UserBackendService = new UserBackendService(currentUser.id || 0);
+  const userBackendService: UserBackendService = new UserBackendService(currentUser.id ?? 0);
 
   const loadWorkspaceItems = async () => {
     try {

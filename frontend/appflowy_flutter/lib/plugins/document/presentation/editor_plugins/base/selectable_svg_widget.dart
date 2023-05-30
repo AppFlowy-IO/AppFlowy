@@ -1,3 +1,4 @@
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
 
@@ -6,20 +7,21 @@ class SelectableSvgWidget extends StatelessWidget {
     super.key,
     required this.name,
     required this.isSelected,
+    required this.style,
   });
 
   final String name;
   final bool isSelected;
+  final SelectionMenuStyle style;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return svgWidget(
       name,
       size: const Size.square(18.0),
       color: isSelected
-          ? theme.colorScheme.onSurface
-          : theme.colorScheme.onBackground,
+          ? style.selectionMenuItemSelectedIconColor
+          : style.selectionMenuItemIconColor,
     );
   }
 }
@@ -29,20 +31,21 @@ class SelectableIconWidget extends StatelessWidget {
     super.key,
     required this.icon,
     required this.isSelected,
+    required this.style,
   });
 
   final IconData icon;
   final bool isSelected;
+  final SelectionMenuStyle style;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Icon(
       icon,
       size: 18.0,
       color: isSelected
-          ? theme.colorScheme.onSurface
-          : theme.colorScheme.onBackground,
+          ? style.selectionMenuItemSelectedIconColor
+          : style.selectionMenuItemIconColor,
     );
   }
 }

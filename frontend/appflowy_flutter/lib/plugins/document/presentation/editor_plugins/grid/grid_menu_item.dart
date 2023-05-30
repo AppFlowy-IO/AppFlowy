@@ -8,9 +8,10 @@ import 'package:flutter/material.dart';
 
 SelectionMenuItem gridMenuItem = SelectionMenuItem(
   name: LocaleKeys.document_plugins_referencedGrid.tr(),
-  icon: (editorState, onSelected) => SelectableSvgWidget(
+  icon: (editorState, onSelected, style) => SelectableSvgWidget(
     name: 'editor/board',
     isSelected: onSelected,
+    style: style,
   ),
   keywords: ['referenced', 'grid'],
   handler: (editorState, menuService, context) {

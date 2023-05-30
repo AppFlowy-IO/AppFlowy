@@ -4,17 +4,17 @@ import {
   UpdatedRowPB,
   RowIdPB,
   OptionalRowPB,
-  RowsChangesetPB,
-  RowsVisibilityChangesetPB,
-  ReorderSingleRowPB
-} from "@/services/backend";
-import { ChangeNotifier } from "$app/utils/change_notifier";
-import { FieldInfo } from "../field/field_controller";
-import { CellCache, CellCacheKey } from "../cell/cell_cache";
-import { CellIdentifier } from "../cell/cell_bd_svc";
-import { DatabaseEventGetRow } from "@/services/backend/events/flowy-database2";
-import { None, Option, Some } from "ts-results";
-import { Log } from "$app/utils/log";
+  RowsChangePB,
+  RowsVisibilityChangePB,
+  ReorderSingleRowPB,
+} from '@/services/backend';
+import { ChangeNotifier } from '$app/utils/change_notifier';
+import { FieldInfo } from '../field/field_controller';
+import { CellCache, CellCacheKey } from '../cell/cell_cache';
+import { CellIdentifier } from '../cell/cell_bd_svc';
+import { DatabaseEventGetRow } from '@/services/backend/events/flowy-database2';
+import { None, Option, Some } from 'ts-results';
+import { Log } from '$app/utils/log';
 
 export type CellByFieldId = Map<string, CellIdentifier>;
 
@@ -82,13 +82,13 @@ export class RowCache {
     this.notifier.withChange(RowChangedReason.ReorderRows);
   };
 
-  applyRowsChanged = (changeset: RowsChangesetPB) => {
+  applyRowsChanged = (changeset: RowsChangePB) => {
     this._deleteRows(changeset.deleted_rows);
     this._insertRows(changeset.inserted_rows);
     this._updateRows(changeset.updated_rows);
   };
 
-  applyRowsVisibility = (changeset: RowsVisibilityChangesetPB) => {
+  applyRowsVisibility = (changeset: RowsVisibilityChangePB) => {
     this._hideRows(changeset.invisible_rows);
     this._displayRows(changeset.visible_rows);
   };
@@ -339,8 +339,7 @@ export class RowInfo {
     public readonly viewId: string,
     public readonly fieldInfos: readonly FieldInfo[],
     public readonly row: RowPB
-  ) {
-  }
+  ) {}
 
   copyWith = (params: { row?: RowPB; fieldInfos?: readonly FieldInfo[] }) => {
     return new RowInfo(this.viewId, params.fieldInfos || this.fieldInfos, params.row || this.row);
@@ -348,18 +347,15 @@ export class RowInfo {
 }
 
 export class DeletedRow {
-  constructor(public readonly index: number, public readonly rowInfo: RowInfo) {
-  }
+  constructor(public readonly index: number, public readonly rowInfo: RowInfo) {}
 }
 
 export class InsertedRow {
-  constructor(public readonly index: number, public readonly rowId: string) {
-  }
+  constructor(public readonly index: number, public readonly rowId: string) {}
 }
 
 export class RowChanged {
-  constructor(public readonly reason: RowChangedReason, public readonly rowId?: string) {
-  }
+  constructor(public readonly reason: RowChangedReason, public readonly rowId?: string) {}
 }
 
 // eslint-disable-next-line no-shadow

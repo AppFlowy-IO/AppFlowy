@@ -2,7 +2,6 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_controller_
 import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 import '../bloc/url_card_cell_bloc.dart';
 import '../define.dart';
@@ -60,12 +59,11 @@ class _URLCardCellState extends State<URLCardCell> {
                   textAlign: TextAlign.left,
                   text: TextSpan(
                     text: state.content,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium!
-                        .size(widget.style?.fontSize ?? FontSizes.s14)
-                        .textColor(Theme.of(context).colorScheme.primary)
-                        .underline,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontSize: widget.style?.fontSize ?? FontSizes.s14,
+                          color: Theme.of(context).colorScheme.primary,
+                          decoration: TextDecoration.underline,
+                        ),
                   ),
                 ),
               ),

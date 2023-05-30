@@ -5,13 +5,17 @@ use collab_database::fields::Field;
 use collab_database::rows::{CreateRowParams, Row, RowId};
 use strum::EnumCount;
 
-use flowy_database2::entities::{DatabaseLayoutPB, FieldType, FilterPB, RowPB};
+use flowy_database2::entities::{DatabaseLayoutPB, FieldType, FilterPB, RowPB, SelectOptionPB};
 use flowy_database2::services::cell::{CellBuilder, ToCellChangeset};
 use flowy_database2::services::database::DatabaseEditor;
+use flowy_database2::services::field::checklist_type_option::{
+  ChecklistCellChangeset, ChecklistTypeOption,
+};
 use flowy_database2::services::field::{
-  CheckboxTypeOption, ChecklistTypeOption, DateCellChangeset, MultiSelectTypeOption, SelectOption,
+  CheckboxTypeOption, DateCellChangeset, MultiSelectTypeOption, SelectOption,
   SelectOptionCellChangeset, SingleSelectTypeOption,
 };
+use flowy_database2::services::share::csv::{CSVFormat, ImportResult};
 use flowy_error::FlowyResult;
 use flowy_test::folder_event::ViewTest;
 use flowy_test::FlowyCoreTest;
@@ -62,7 +66,7 @@ impl DatabaseEditorTest {
 
     let editor = sdk
       .database_manager
-      .get_database(&test.child_view.id)
+      .get_database_with_view_id(&test.child_view.id)
       .await
       .unwrap();
     let fields = editor
@@ -204,6 +208,36 @@ impl DatabaseEditorTest {
       .await
   }
 
+  pub(crate) async fn set_checklist_cell(
+    &mut self,
+    row_id: RowId,
+    f: Box<dyn FnOnce(Vec<SelectOptionPB>) -> Vec<String>>,
+  ) -> FlowyResult<()> {
+    let field = self
+      .editor
+      .get_fields(&self.view_id, None)
+      .iter()
+      .find(|field| {
+        let field_type = FieldType::from(field.field_type);
+        field_type == FieldType::Checklist
+      })
+      .unwrap()
+      .clone();
+    let options = self
+      .editor
+      .get_checklist_option(row_id.clone(), &field.id)
+      .await
+      .options;
+    let cell_changeset = ChecklistCellChangeset {
+      selected_option_ids: f(options),
+      ..Default::default()
+    };
+    self
+      .editor
+      .set_checklist_options(&self.view_id, row_id, &field.id, cell_changeset)
+      .await
+  }
+
   pub(crate) async fn update_single_select_cell(
     &mut self,
     row_id: RowId,
@@ -223,21 +257,39 @@ impl DatabaseEditorTest {
     let cell_changeset = SelectOptionCellChangeset::from_insert_option_id(option_id);
     self.update_cell(&field.id, row_id, cell_changeset).await
   }
+
+  pub async fn import(&self, s: String, format: CSVFormat) -> ImportResult {
+    self
+      .sdk
+      .database_manager
+      .import_csv(s, format)
+      .await
+      .unwrap()
+  }
+
+  pub async fn get_database(&self, database_id: &str) -> Option<Arc<DatabaseEditor>> {
+    self
+      .sdk
+      .database_manager
+      .get_database(database_id)
+      .await
+      .ok()
+  }
 }
 
-pub struct TestRowBuilder {
+pub struct TestRowBuilder<'a> {
   row_id: RowId,
-  fields: Vec<Field>,
-  cell_build: CellBuilder,
+  fields: &'a [Field],
+  cell_build: CellBuilder<'a>,
 }
 
-impl TestRowBuilder {
-  pub fn new(row_id: RowId, fields: Vec<Field>) -> Self {
-    let inner_builder = CellBuilder::with_cells(Default::default(), fields.clone());
+impl<'a> TestRowBuilder<'a> {
+  pub fn new(row_id: RowId, fields: &'a [Field]) -> Self {
+    let cell_build = CellBuilder::with_cells(Default::default(), fields);
     Self {
       row_id,
       fields,
-      cell_build: inner_builder,
+      cell_build,
     }
   }
 
@@ -264,6 +316,7 @@ impl TestRowBuilder {
     time: Option<String>,
     include_time: Option<bool>,
     timezone_id: Option<String>,
+    field_type: &FieldType,
   ) -> String {
     let value = serde_json::to_string(&DateCellChangeset {
       date: Some(data.to_string()),
@@ -272,7 +325,7 @@ impl TestRowBuilder {
       timezone_id,
     })
     .unwrap();
-    let date_field = self.field_with_type(&FieldType::DateTime);
+    let date_field = self.field_with_type(field_type);
     self.cell_build.insert_text_cell(&date_field.id, value);
     date_field.id.clone()
   }
@@ -300,7 +353,7 @@ impl TestRowBuilder {
   {
     let single_select_field = self.field_with_type(&FieldType::SingleSelect);
     let type_option = single_select_field
-      .get_type_option::<ChecklistTypeOption>(FieldType::SingleSelect)
+      .get_type_option::<SingleSelectTypeOption>(FieldType::SingleSelect)
       .unwrap();
     let option = f(type_option.options);
     self
@@ -316,7 +369,7 @@ impl TestRowBuilder {
   {
     let multi_select_field = self.field_with_type(&FieldType::MultiSelect);
     let type_option = multi_select_field
-      .get_type_option::<ChecklistTypeOption>(FieldType::MultiSelect)
+      .get_type_option::<MultiSelectTypeOption>(FieldType::MultiSelect)
       .unwrap();
     let options = f(type_option.options);
     let ops_ids = options
@@ -330,23 +383,11 @@ impl TestRowBuilder {
     multi_select_field.id.clone()
   }
 
-  pub fn insert_checklist_cell<F>(&mut self, f: F) -> String
-  where
-    F: Fn(Vec<SelectOption>) -> Vec<SelectOption>,
-  {
+  pub fn insert_checklist_cell(&mut self, option_names: Vec<String>) -> String {
     let checklist_field = self.field_with_type(&FieldType::Checklist);
-    let type_option = checklist_field
-      .get_type_option::<ChecklistTypeOption>(FieldType::Checklist)
-      .unwrap();
-    let options = f(type_option.options);
-    let ops_ids = options
-      .iter()
-      .map(|option| option.id.clone())
-      .collect::<Vec<_>>();
     self
       .cell_build
-      .insert_select_option_cell(&checklist_field.id, ops_ids);
-
+      .insert_checklist_cell(&checklist_field.id, option_names);
     checklist_field.id.clone()
   }
 

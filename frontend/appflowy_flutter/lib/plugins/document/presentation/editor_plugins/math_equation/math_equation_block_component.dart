@@ -61,12 +61,17 @@ class MathEquationBlockComponentBuilder extends BlockComponentBuilder {
   final BlockComponentConfiguration configuration;
 
   @override
-  Widget build(BlockComponentContext blockComponentContext) {
+  BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
     return MathEquationBlockComponentWidget(
       key: node.key,
       node: node,
       configuration: configuration,
+      showActions: showActions(node),
+      actionBuilder: (context, state) => actionBuilder(
+        blockComponentContext,
+        state,
+      ),
     );
   }
 
@@ -76,15 +81,14 @@ class MathEquationBlockComponentBuilder extends BlockComponentBuilder {
       node.attributes[MathEquationBlockKeys.formula] is String;
 }
 
-class MathEquationBlockComponentWidget extends StatefulWidget {
+class MathEquationBlockComponentWidget extends BlockComponentStatefulWidget {
   const MathEquationBlockComponentWidget({
-    Key? key,
-    required this.node,
-    this.configuration = const BlockComponentConfiguration(),
-  }) : super(key: key);
-
-  final Node node;
-  final BlockComponentConfiguration configuration;
+    super.key,
+    required super.node,
+    super.showActions,
+    super.actionBuilder,
+    super.configuration = const BlockComponentConfiguration(),
+  });
 
   @override
   State<MathEquationBlockComponentWidget> createState() =>
@@ -116,7 +120,7 @@ class _MathEquationBlockComponentWidgetState
   }
 
   Widget _buildMathEquation(BuildContext context) {
-    return Container(
+    Widget child = Container(
       width: double.infinity,
       constraints: const BoxConstraints(minHeight: 50),
       padding: padding,
@@ -139,6 +143,16 @@ class _MathEquationBlockComponentWidgetState
               ),
       ),
     );
+
+    if (widget.actionBuilder != null) {
+      child = BlockComponentActionWrapper(
+        node: node,
+        actionBuilder: widget.actionBuilder!,
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   void showEditingDialog() {

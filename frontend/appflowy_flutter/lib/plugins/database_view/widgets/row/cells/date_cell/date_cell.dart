@@ -21,12 +21,14 @@ abstract class GridCellDelegate {
 }
 
 class GridDateCell extends GridCellWidget {
+  final bool editable;
   final CellControllerBuilder cellControllerBuilder;
   late final DateCellStyle? cellStyle;
 
   GridDateCell({
     GridCellStyle? style,
     required this.cellControllerBuilder,
+    this.editable = true,
     Key? key,
   }) : super(key: key) {
     if (style != null) {
@@ -63,35 +65,41 @@ class _DateCellState extends GridCellState<GridDateCell> {
       value: _cellBloc,
       child: BlocBuilder<DateCellBloc, DateCellState>(
         builder: (context, state) {
-          return AppFlowyPopover(
-            controller: _popover,
-            triggerActions: PopoverTriggerFlags.none,
-            direction: PopoverDirection.bottomWithLeftAligned,
-            constraints: BoxConstraints.loose(const Size(260, 500)),
-            margin: EdgeInsets.zero,
-            child: SizedBox.expand(
-              child: Align(
-                alignment: alignment,
-                child: Padding(
-                  padding: GridSize.cellContentInsets,
-                  child: FlowyText.medium(
-                    state.dateStr,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+          Widget dateTextWidget = SizedBox.expand(
+            child: Align(
+              alignment: alignment,
+              child: Padding(
+                padding: GridSize.cellContentInsets,
+                child: FlowyText.medium(
+                  state.dateStr,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
-            popupBuilder: (BuildContext popoverContent) {
-              return DateCellEditor(
-                cellController:
-                    widget.cellControllerBuilder.build() as DateCellController,
-                onDismissed: () => widget.onCellEditing.value = false,
-              );
-            },
-            onClose: () {
-              widget.onCellEditing.value = false;
-            },
           );
+
+          // If the cell is editable, wrap it in a popover.
+          if (widget.editable) {
+            dateTextWidget = AppFlowyPopover(
+              controller: _popover,
+              triggerActions: PopoverTriggerFlags.none,
+              direction: PopoverDirection.bottomWithLeftAligned,
+              constraints: BoxConstraints.loose(const Size(260, 500)),
+              margin: EdgeInsets.zero,
+              child: dateTextWidget,
+              popupBuilder: (BuildContext popoverContent) {
+                return DateCellEditor(
+                  cellController: widget.cellControllerBuilder.build()
+                      as DateCellController,
+                  onDismissed: () => widget.onCellEditing.value = false,
+                );
+              },
+              onClose: () {
+                widget.onCellEditing.value = false;
+              },
+            );
+          }
+          return dateTextWidget;
         },
       ),
     );
@@ -106,7 +114,10 @@ class _DateCellState extends GridCellState<GridDateCell> {
   @override
   void requestBeginFocus() {
     _popover.show();
-    widget.onCellEditing.value = true;
+
+    if (widget.editable) {
+      widget.onCellEditing.value = true;
+    }
   }
 
   @override
