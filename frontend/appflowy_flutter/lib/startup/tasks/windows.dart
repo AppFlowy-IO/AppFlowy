@@ -2,10 +2,12 @@ import 'dart:ui';
 
 import 'package:appflowy/core/helpers/helpers.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
-class InitAppWindowTask extends LaunchTask {
+class InitAppWindowTask extends LaunchTask with WindowListener {
   const InitAppWindowTask({
     this.minimumSize = const Size(800, 600),
     this.title = 'AppFlowy',
@@ -22,9 +24,17 @@ class InitAppWindowTask extends LaunchTask {
     }
 
     await windowManager.ensureInitialized();
+    windowManager.addListener(this);
 
-    WindowOptions windowOptions = WindowOptions(
-      minimumSize: minimumSize,
+    final windowSize = await WindowSizeManager().getSize();
+
+    final windowOptions = WindowOptions(
+      size: windowSize,
+      minimumSize: const Size(
+        WindowSizeManager.minWindowWidth,
+        WindowSizeManager.minWindowHeight,
+      ),
+      center: true,
       title: title,
     );
 
@@ -32,5 +42,11 @@ class InitAppWindowTask extends LaunchTask {
       await windowManager.show();
       await windowManager.focus();
     });
+  }
+
+  @override
+  Future<void> onWindowResize() async {
+    final currentWindowSize = await windowManager.getSize();
+    WindowSizeManager().saveSize(currentWindowSize);
   }
 }
