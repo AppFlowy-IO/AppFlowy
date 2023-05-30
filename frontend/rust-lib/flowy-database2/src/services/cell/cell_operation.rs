@@ -225,9 +225,9 @@ pub fn insert_select_option_cell(option_ids: Vec<String>, field: &Field) -> Cell
   apply_cell_changeset(changeset, None, field, None).unwrap()
 }
 
-pub fn insert_checklist_cell(option_ids: Vec<String>, field: &Field) -> Cell {
+pub fn insert_checklist_cell(insert_options: Vec<String>, field: &Field) -> Cell {
   let changeset = ChecklistCellChangeset {
-    insert_options: option_ids,
+    insert_options,
     ..Default::default()
   }
   .to_cell_changeset_str();
@@ -445,13 +445,13 @@ impl<'a> CellBuilder<'a> {
       },
     }
   }
-  pub fn insert_checklist_cell(&mut self, field_id: &str, option_ids: Vec<String>) {
+  pub fn insert_checklist_cell(&mut self, field_id: &str, option_names: Vec<String>) {
     match self.field_maps.get(&field_id.to_owned()) {
       None => tracing::warn!("Can't find the field with id: {}", field_id),
       Some(field) => {
         self.cells.insert(
           field_id.to_owned(),
-          insert_checklist_cell(option_ids, field),
+          insert_checklist_cell(option_names, field),
         );
       },
     }

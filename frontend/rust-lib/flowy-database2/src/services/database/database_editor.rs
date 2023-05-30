@@ -663,7 +663,7 @@ impl DatabaseEditor {
     ChecklistCellDataPB::from(cell_data)
   }
 
-  pub async fn insert_checklist_options(
+  pub async fn set_checklist_options(
     &self,
     view_id: &str,
     row_id: RowId,

@@ -137,6 +137,9 @@ pub fn make_test_grid() -> DatabaseData {
             FieldType::URL => {
               row_builder.insert_url_cell("AppFlowy website - https://www.appflowy.io")
             },
+            FieldType::Checklist => {
+              row_builder.insert_checklist_cell(vec!["First thing".to_string()])
+            },
             _ => "".to_owned(),
           };
         }

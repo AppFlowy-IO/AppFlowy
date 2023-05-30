@@ -497,7 +497,7 @@ pub(crate) async fn update_checklist_cell_handler(
     update_options: params.update_options,
   };
   database_editor
-    .insert_checklist_options(&params.view_id, params.row_id, &params.field_id, changeset)
+    .set_checklist_options(&params.view_id, params.row_id, &params.field_id, changeset)
     .await?;
   Ok(())
 }

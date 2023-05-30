@@ -5,10 +5,12 @@ use collab_database::fields::Field;
 use collab_database::rows::{CreateRowParams, Row, RowId};
 use strum::EnumCount;
 
-use flowy_database2::entities::{DatabaseLayoutPB, FieldType, FilterPB, RowPB};
+use flowy_database2::entities::{DatabaseLayoutPB, FieldType, FilterPB, RowPB, SelectOptionPB};
 use flowy_database2::services::cell::{CellBuilder, ToCellChangeset};
 use flowy_database2::services::database::DatabaseEditor;
-use flowy_database2::services::field::checklist_type_option::ChecklistTypeOption;
+use flowy_database2::services::field::checklist_type_option::{
+  ChecklistCellChangeset, ChecklistTypeOption,
+};
 use flowy_database2::services::field::{
   CheckboxTypeOption, DateCellChangeset, MultiSelectTypeOption, SelectOption,
   SelectOptionCellChangeset, SingleSelectTypeOption,
@@ -206,6 +208,36 @@ impl DatabaseEditorTest {
       .await
   }
 
+  pub(crate) async fn set_checklist_cell(
+    &mut self,
+    row_id: RowId,
+    f: Box<dyn FnOnce(Vec<SelectOptionPB>) -> Vec<String>>,
+  ) -> FlowyResult<()> {
+    let field = self
+      .editor
+      .get_fields(&self.view_id, None)
+      .iter()
+      .find(|field| {
+        let field_type = FieldType::from(field.field_type);
+        field_type == FieldType::Checklist
+      })
+      .unwrap()
+      .clone();
+    let options = self
+      .editor
+      .get_checklist_option(row_id.clone(), &field.id)
+      .await
+      .options;
+    let cell_changeset = ChecklistCellChangeset {
+      selected_option_ids: f(options),
+      ..Default::default()
+    };
+    self
+      .editor
+      .set_checklist_options(&self.view_id, row_id, &field.id, cell_changeset)
+      .await
+  }
+
   pub(crate) async fn update_single_select_cell(
     &mut self,
     row_id: RowId,
@@ -351,12 +383,11 @@ impl<'a> TestRowBuilder<'a> {
     multi_select_field.id.clone()
   }
 
-  #[allow(dead_code)]
-  pub fn insert_checklist_cell(&mut self, options: Vec<String>) -> String {
+  pub fn insert_checklist_cell(&mut self, option_names: Vec<String>) -> String {
     let checklist_field = self.field_with_type(&FieldType::Checklist);
     self
       .cell_build
-      .insert_checklist_cell(&checklist_field.id, options);
+      .insert_checklist_cell(&checklist_field.id, option_names);
     checklist_field.id.clone()
   }
 
