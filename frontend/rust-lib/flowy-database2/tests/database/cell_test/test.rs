@@ -134,7 +134,7 @@ async fn update_updated_at_field_on_other_cell_update() {
     .editor
     .get_cells_for_field(&test.view_id, &updated_at_field.id)
     .await;
-  assert!(cells.len() > 0);
+  assert!(!cells.is_empty());
   for (i, cell) in cells.into_iter().enumerate() {
     let timestamp = DateCellData::from(cell.as_ref()).timestamp.unwrap();
     println!(

@@ -112,7 +112,7 @@ pub trait DatabaseViewData: Send + Sync + 'static {
 pub struct DatabaseViewEditor {
   pub view_id: String,
   delegate: Arc<dyn DatabaseViewData>,
-  group_controller: Arc<RwLock<Box<dyn GroupController>>>,
+  group_controller: Arc<RwLock<Option<Box<dyn GroupController>>>>,
   filter_controller: Arc<FilterController>,
   sort_controller: Arc<RwLock<SortController>>,
   pub notifier: DatabaseViewChangedNotifier,
@@ -192,10 +192,12 @@ impl DatabaseViewEditor {
       },
       Some(group_id) => {
         self
-          .group_controller
-          .write()
-          .await
-          .did_create_row(row, group_id);
+          .mut_group_controller(|group_controller, _| {
+            group_controller.did_create_row(row, group_id);
+            Ok(())
+          })
+          .await;
+
         let inserted_row = InsertedRowPB {
           row: RowPB::from(row),
           index: Some(index as i32),
@@ -347,22 +349,29 @@ impl DatabaseViewEditor {
   }
   /// Only call once after database view editor initialized
   #[tracing::instrument(level = "trace", skip(self))]
-  pub async fn v_load_groups(&self) -> FlowyResult<Vec<GroupPB>> {
+  pub async fn v_load_groups(&self) -> Option<Vec<GroupPB>> {
     let groups = self
       .group_controller
       .read()
       .await
+      .as_ref()?
       .groups()
       .into_iter()
       .map(|group_data| GroupPB::from(group_data.clone()))
       .collect::<Vec<_>>();
     tracing::trace!("Number of groups: {}", groups.len());
-    Ok(groups)
+    Some(groups)
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub async fn v_get_group(&self, group_id: &str) -> FlowyResult<GroupPB> {
-    match self.group_controller.read().await.get_group(group_id) {
+    match self
+      .group_controller
+      .read()
+      .await
+      .as_ref()
+      .and_then(|group| group.get_group(group_id))
+    {
       None => Err(FlowyError::record_not_found().context("Can't find the group")),
       Some((_, group)) => Ok(GroupPB::from(group)),
     }
@@ -371,19 +380,22 @@ impl DatabaseViewEditor {
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn v_move_group(&self, from_group: &str, to_group: &str) -> FlowyResult<()> {
     self
-      .group_controller
-      .write()
-      .await
-      .move_group(from_group, to_group)?;
+      .mut_group_controller(|group_controller, _| group_controller.move_group(from_group, to_group))
+      .await;
     Ok(())
   }
 
-  pub async fn group_id(&self) -> String {
-    self.group_controller.read().await.field_id().to_string()
+  pub async fn is_grouping_field(&self, field_id: &str) -> bool {
+    match self.group_controller.read().await.as_ref() {
+      Some(group_controller) => group_controller.field_id() == field_id,
+      None => false,
+    }
   }
 
+  /// Called when the user changes the grouping field
   pub async fn v_initialize_new_group(&self, field_id: &str) -> FlowyResult<()> {
-    if self.group_controller.read().await.field_id() != field_id {
+    let is_grouping_field = self.is_grouping_field(field_id).await;
+    if !is_grouping_field {
       self.v_update_grouping_field(field_id).await?;
 
       if let Some(view) = self.delegate.get_view_setting(&self.view_id).await {
@@ -400,10 +412,11 @@ impl DatabaseViewEditor {
 
   pub async fn update_group_setting(&self, changeset: GroupSettingChangeset) -> FlowyResult<()> {
     self
-      .group_controller
-      .write()
-      .await
-      .apply_group_setting_changeset(changeset)
+      .mut_group_controller(|group_controller, _| {
+        group_controller.apply_group_setting_changeset(changeset)
+      })
+      .await;
+    Ok(())
   }
 
   pub async fn v_get_all_sorts(&self) -> Vec<Sort> {
@@ -631,10 +644,11 @@ impl DatabaseViewEditor {
         .await;
 
       self
-        .group_controller
-        .write()
-        .await
-        .did_update_field_type_option(&field);
+        .mut_group_controller(|group_controller, _| {
+          group_controller.did_update_field_type_option(&field);
+          Ok(())
+        })
+        .await;
 
       if let Some(filter) = self
         .delegate
@@ -672,7 +686,7 @@ impl DatabaseViewEditor {
         .map(|group| GroupPB::from(group.clone()))
         .collect();
 
-      *self.group_controller.write().await = new_group_controller;
+      *self.group_controller.write().await = Some(new_group_controller);
       let changeset = GroupChangesPB {
         view_id: self.view_id.clone(),
         initial_groups: new_groups,
@@ -805,13 +819,19 @@ impl DatabaseViewEditor {
   where
     F: FnOnce(&mut Box<dyn GroupController>, Arc<Field>) -> FlowyResult<T>,
   {
-    let group_field_id = self.group_controller.read().await.field_id().to_owned();
-    match self.delegate.get_field(&group_field_id).await {
-      None => None,
-      Some(field) => {
-        let mut write_guard = self.group_controller.write().await;
-        f(&mut write_guard, field).ok()
-      },
+    let group_field_id = self
+      .group_controller
+      .read()
+      .await
+      .as_ref()
+      .map(|group| group.field_id().to_owned())?;
+    let field = self.delegate.get_field(&group_field_id).await?;
+
+    let mut write_guard = self.group_controller.write().await;
+    if let Some(group_controller) = &mut *write_guard {
+      f(group_controller, field).ok()
+    } else {
+      None
     }
   }
 }

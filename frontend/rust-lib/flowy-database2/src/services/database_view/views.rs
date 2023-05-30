@@ -93,7 +93,7 @@ impl DatabaseViews {
     let view_editor = self.get_view_editor(view_id).await?;
     // If the id of the grouping field is equal to the updated field's id, then we need to
     // update the group setting
-    if view_editor.group_id().await == field_id {
+    if view_editor.is_grouping_field(field_id).await {
       view_editor.v_update_grouping_field(field_id).await?;
     }
     view_editor

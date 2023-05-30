@@ -3,7 +3,7 @@ use std::sync::Arc;
 use collab_database::fields::Field;
 use collab_database::rows::RowId;
 
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::FlowyResult;
 use lib_infra::future::{to_fut, Fut};
 
 use crate::entities::FieldType;
@@ -35,13 +35,9 @@ pub async fn new_group_controller_with_field(
 pub async fn new_group_controller(
   view_id: String,
   delegate: Arc<dyn DatabaseViewData>,
-) -> FlowyResult<Box<dyn GroupController>> {
-  let setting_reader = GroupSettingReaderImpl(delegate.clone());
-  let setting_writer = GroupSettingWriterImpl(delegate.clone());
-
+) -> FlowyResult<Option<Box<dyn GroupController>>> {
   let fields = delegate.get_fields(&view_id, None).await;
-  let rows = delegate.get_rows(&view_id).await;
-  let layout = delegate.get_layout_for_view(&view_id);
+  let setting_reader = GroupSettingReaderImpl(delegate.clone());
 
   // Read the grouping field or find a new grouping field
   let mut grouping_field = setting_reader
@@ -54,22 +50,29 @@ pub async fn new_group_controller(
         .cloned()
     });
 
-  if grouping_field.is_none() {
-    grouping_field = find_new_grouping_field(&fields, &layout);
+  let layout = delegate.get_layout_for_view(&view_id);
+  // If the view is a board and the grouping field is empty, we need to find a new grouping field
+  if layout.is_board() {
+    if grouping_field.is_none() {
+      grouping_field = find_new_grouping_field(&fields, &layout);
+    }
   }
 
-  match grouping_field {
-    None => Err(FlowyError::internal().context("No grouping field found".to_owned())),
-    Some(_) => {
+  if let Some(grouping_field) = grouping_field {
+    let rows = delegate.get_rows(&view_id).await;
+    let setting_writer = GroupSettingWriterImpl(delegate.clone());
+    Ok(Some(
       make_group_controller(
         view_id,
-        grouping_field.unwrap(),
+        grouping_field,
         rows,
         setting_reader,
         setting_writer,
       )
-      .await
-    },
+      .await?,
+    ))
+  } else {
+    Ok(None)
   }
 }
 
