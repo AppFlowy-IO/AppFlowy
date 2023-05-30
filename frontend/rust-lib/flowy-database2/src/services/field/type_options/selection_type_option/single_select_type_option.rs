@@ -1,8 +1,8 @@
 use crate::entities::{FieldType, SelectOptionCellDataPB, SelectOptionFilterPB};
 use crate::services::cell::CellDataChangeset;
 use crate::services::field::{
-  default_order, SelectOption, SelectedSelectOptions, TypeOption, TypeOptionCellData,
-  TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  default_order, SelectOption, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter,
 };
 use crate::services::field::{
   SelectOptionCellChangeset, SelectOptionIds, SelectTypeOptionSharedAction,
@@ -47,14 +47,14 @@ impl From<SingleSelectTypeOption> for TypeOptionData {
 }
 
 impl TypeOptionCellData for SingleSelectTypeOption {
-  fn convert_to_protobuf(
+  fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     self.get_selected_options(cell_data).into()
   }
 
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
+  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     Ok(SelectOptionIds::from(cell))
   }
 }
@@ -121,8 +121,7 @@ impl TypeOptionCellDataFilter for SingleSelectTypeOption {
     if !field_type.is_single_select() {
       return true;
     }
-    let selected_options =
-      SelectedSelectOptions::from(self.get_selected_options(cell_data.clone()));
+    let selected_options = self.get_selected_options(cell_data.clone()).select_options;
     filter.is_visible(&selected_options, FieldType::SingleSelect)
   }
 }

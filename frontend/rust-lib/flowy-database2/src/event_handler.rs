@@ -12,6 +12,7 @@ use crate::entities::*;
 use crate::manager::DatabaseManager2;
 use crate::services::cell::CellBuilder;
 
+use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
   type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
 };
@@ -465,6 +466,38 @@ pub(crate) async fn update_select_option_cell_handler(
       &params.cell_identifier.field_id,
       changeset,
     )
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn get_checklist_cell_data_handler(
+  data: AFPluginData<CellIdPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> DataResult<ChecklistCellDataPB, FlowyError> {
+  let params: CellIdParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  let data = database_editor
+    .get_checklist_option(params.row_id, &params.field_id)
+    .await;
+  data_result_ok(data)
+}
+
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn update_checklist_cell_handler(
+  data: AFPluginData<ChecklistCellDataChangesetPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> Result<(), FlowyError> {
+  let params: ChecklistCellDataChangesetParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  let changeset = ChecklistCellChangeset {
+    insert_options: params.insert_options,
+    selected_option_ids: params.selected_option_ids,
+    delete_option_ids: params.delete_option_ids,
+    update_options: params.update_options,
+  };
+  database_editor
+    .set_checklist_options(&params.view_id, params.row_id, &params.field_id, changeset)
     .await?;
   Ok(())
 }

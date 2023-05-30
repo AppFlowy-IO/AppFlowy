@@ -9,43 +9,47 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
 use crate::entities::FieldType;
 use crate::services::cell::{CellCache, CellProtobufBlob};
+use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::*;
 use crate::services::group::make_no_status_group;
 
 /// Decode the opaque cell data into readable format content
 pub trait CellDataDecoder: TypeOption {
   ///
-  /// Tries to decode the opaque cell string to `decoded_field_type`'s cell data. Sometimes, the `field_type`
-  /// of the `FieldRevision` is not equal to the `decoded_field_type`(This happened When switching
-  /// the field type of the `FieldRevision` to another field type). So the cell data is need to do
+  /// Tries to decode the [Cell] to `decoded_field_type`'s cell data. Sometimes, the `field_type`
+  /// of the `Field` is not equal to the `decoded_field_type`(This happened When switching
+  /// the field type of the `Field` to another field type). So the cell data is need to do
   /// some transformation.
   ///
-  /// For example, the current field type of the `FieldRevision` is a checkbox. When switching the field
+  /// For example, the current field type of the `Field` is a checkbox. When switching the field
   /// type from the checkbox to single select, it will create two new options,`Yes` and `No`, if they don't exist.
   /// But the data of the cell doesn't change. We can't iterate all the rows to transform the cell
   /// data that can be parsed by the current field type. One approach is to transform the cell data
-  /// when it get read. For the moment, the cell data is a string, `Yes` or `No`. It needs to compare
-  /// with the option's name, if match return the id of the option.
-  fn decode_cell_str(
+  /// when reading.
+  fn decode_cell(
     &self,
     cell: &Cell,
     decoded_field_type: &FieldType,
     field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData>;
 
-  /// Same as `decode_cell_data` does but Decode the cell data to readable `String`
+  /// Decode the cell data to readable `String`
   /// For example, The string of the Multi-Select cell will be a list of the option's name
   /// separated by a comma.
-  fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String;
+  fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String;
 
-  fn decode_cell_to_str(&self, cell: &Cell) -> String;
+  /// Same as [CellDataDecoder::stringify_cell_data] but the input parameter is the [Cell]
+  fn stringify_cell(&self, cell: &Cell) -> String;
 }
 
 pub trait CellDataChangeset: TypeOption {
   /// The changeset is able to parse into the concrete data struct if `TypeOption::CellChangeset`
   /// implements the `FromCellChangesetString` trait.
   /// For example,the SelectOptionCellChangeset,DateCellChangeset. etc.
+  /// # Arguments
   ///
+  /// * `changeset`: the cell changeset that represents the changes of the cell.
+  /// * `cell`: the data of the cell. It will be None if the cell does not contain any data.
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
@@ -109,13 +113,12 @@ pub fn get_cell_protobuf(
 ///
 /// # Arguments
 ///
-/// * `cell_str`: the opaque cell string that can be decoded by corresponding structs that implement the
-/// `FromCellString` trait.
+/// * `cell`: the opaque cell string that can be decoded by corresponding structs.
 /// * `from_field_type`: the original field type of the passed-in cell data. Check the `TypeCellData`
 /// that is used to save the origin field type of the cell data.
 /// * `to_field_type`: decode the passed-in cell data to this field type. It will use the to_field_type's
 /// TypeOption to decode this cell data.
-/// * `field_rev`: used to get the corresponding TypeOption for the specified field type.
+/// * `field`: used to get the corresponding TypeOption for the specified field type.
 ///
 /// returns: CellBytes
 ///
@@ -154,11 +157,10 @@ pub fn try_decode_cell_to_cell_data<T: Default + 'static>(
 ///
 /// # Arguments
 ///
-/// * `cell_str`: the opaque cell string that can be decoded by corresponding structs that implement the
-/// `FromCellString` trait.
+/// * `cell`: the opaque cell string that can be decoded by corresponding structs
 /// * `to_field_type`: the cell will be decoded to this field type's cell data.
 /// * `from_field_type`: the original field type of the passed-in cell data.
-/// * `field_rev`: used to get the corresponding TypeOption for the specified field type.
+/// * `field`: used to get the corresponding TypeOption for the specified field type.
 ///
 /// returns: String
 pub fn stringify_cell_data(
@@ -220,6 +222,15 @@ pub fn insert_date_cell(timestamp: i64, include_time: Option<bool>, field: &Fiel
 pub fn insert_select_option_cell(option_ids: Vec<String>, field: &Field) -> Cell {
   let changeset =
     SelectOptionCellChangeset::from_insert_options(option_ids).to_cell_changeset_str();
+  apply_cell_changeset(changeset, None, field, None).unwrap()
+}
+
+pub fn insert_checklist_cell(insert_options: Vec<String>, field: &Field) -> Cell {
+  let changeset = ChecklistCellChangeset {
+    insert_options,
+    ..Default::default()
+  }
+  .to_cell_changeset_str();
   apply_cell_changeset(changeset, None, field, None).unwrap()
 }
 
@@ -430,6 +441,17 @@ impl<'a> CellBuilder<'a> {
         self.cells.insert(
           field_id.to_owned(),
           insert_select_option_cell(option_ids, field),
+        );
+      },
+    }
+  }
+  pub fn insert_checklist_cell(&mut self, field_id: &str, option_names: Vec<String>) {
+    match self.field_maps.get(&field_id.to_owned()) {
+      None => tracing::warn!("Can't find the field with id: {}", field_id),
+      Some(field) => {
+        self.cells.insert(
+          field_id.to_owned(),
+          insert_checklist_cell(option_names, field),
         );
       },
     }

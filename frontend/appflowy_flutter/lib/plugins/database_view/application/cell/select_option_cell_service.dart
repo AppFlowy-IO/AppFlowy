@@ -7,9 +7,9 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/cell_entities.pb.dart';
 
-class SelectOptionBackendService {
+class SelectOptionCellBackendService {
   final CellIdentifier cellId;
-  SelectOptionBackendService({required this.cellId});
+  SelectOptionCellBackendService({required this.cellId});
 
   String get viewId => cellId.viewId;
   String get fieldId => cellId.fieldInfo.id;

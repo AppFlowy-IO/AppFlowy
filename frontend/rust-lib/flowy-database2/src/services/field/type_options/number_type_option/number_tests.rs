@@ -89,7 +89,7 @@ mod tests {
   ) {
     assert_eq!(
       type_option
-        .decode_cell_str(
+        .decode_cell(
           &NumberCellData(input_str.to_owned()).into(),
           field_type,
           field

@@ -13,10 +13,11 @@ use crate::services::cell::{
   CellCache, CellDataChangeset, CellDataDecoder, CellFilterCache, CellProtobufBlob,
   FromCellChangeset,
 };
+use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::{
-  CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption,
-  RichTextTypeOption, SingleSelectTypeOption, TypeOption, TypeOptionCellData,
-  TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform, URLTypeOption,
+  CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RichTextTypeOption,
+  SingleSelectTypeOption, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionTransform, URLTypeOption,
 };
 
 pub const CELL_DATA: &str = "data";
@@ -36,6 +37,7 @@ pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
     field_rev: &Field,
   ) -> FlowyResult<CellProtobufBlob>;
 
+  // TODO(nathan): replace cell_changeset with BoxAny to get rid of the serde process.
   fn handle_cell_changeset(
     &self,
     cell_changeset: String,
@@ -141,7 +143,7 @@ where
       }
     }
 
-    let cell_data = self.decode_cell_str(cell, decoded_field_type, field)?;
+    let cell_data = self.decode_cell(cell, decoded_field_type, field)?;
     if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
       // tracing::trace!(
       //   "Cell cache update: field_type:{}, cell: {:?}, cell_data: {:?}",
@@ -217,7 +219,7 @@ where
       .get_cell_data(cell, decoded_field_type, field_rev)?
       .unbox_or_default::<<Self as TypeOption>::CellData>();
 
-    CellProtobufBlob::from(self.convert_to_protobuf(cell_data))
+    CellProtobufBlob::from(self.protobuf_encode(cell_data))
   }
 
   fn handle_cell_changeset(
@@ -265,10 +267,10 @@ where
     if self.transformable() {
       let cell_data = self.transform_type_option_cell(cell, field_type, field);
       if let Some(cell_data) = cell_data {
-        return self.decode_cell_data_to_str(cell_data);
+        return self.stringify_cell_data(cell_data);
       }
     }
-    self.decode_cell_to_str(cell)
+    self.stringify_cell(cell)
   }
 
   fn get_cell_data(

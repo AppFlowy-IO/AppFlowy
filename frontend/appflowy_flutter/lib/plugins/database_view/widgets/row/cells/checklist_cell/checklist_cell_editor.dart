@@ -48,33 +48,33 @@ class _GridChecklistCellEditorState extends State<GridChecklistCellEditor> {
           final List<Widget> slivers = [
             const SliverChecklistProgressBar(),
             SliverToBoxAdapter(
-              child: Padding(
-                padding: GridSize.typeOptionContentInsets,
-                child: ListView.separated(
-                  controller: ScrollController(),
-                  shrinkWrap: true,
-                  itemCount: state.allOptions.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return _ChecklistOptionCell(
-                      option: state.allOptions[index],
-                      popoverMutex: popoverMutex,
-                    );
-                  },
-                  separatorBuilder: (BuildContext context, int index) {
-                    return VSpace(GridSize.typeOptionSeparatorHeight);
-                  },
-                ),
+              child: ListView.separated(
+                controller: ScrollController(),
+                shrinkWrap: true,
+                itemCount: state.allOptions.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return _ChecklistOptionCell(
+                    option: state.allOptions[index],
+                    popoverMutex: popoverMutex,
+                  );
+                },
+                separatorBuilder: (BuildContext context, int index) {
+                  return VSpace(GridSize.typeOptionSeparatorHeight);
+                },
               ),
             ),
           ];
 
-          return ScrollConfiguration(
-            behavior: const ScrollBehavior().copyWith(scrollbars: false),
-            child: CustomScrollView(
-              shrinkWrap: true,
-              slivers: slivers,
-              controller: ScrollController(),
-              physics: StyledScrollPhysics(),
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ScrollConfiguration(
+              behavior: const ScrollBehavior().copyWith(scrollbars: false),
+              child: CustomScrollView(
+                shrinkWrap: true,
+                slivers: slivers,
+                controller: ScrollController(),
+                physics: StyledScrollPhysics(),
+              ),
             ),
           );
         },

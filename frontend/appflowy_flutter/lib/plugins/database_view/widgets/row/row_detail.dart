@@ -309,7 +309,7 @@ class _PropertyCellState extends State<_PropertyCell> {
     return FieldEditor(
       viewId: widget.cellId.viewId,
       fieldName: widget.cellId.fieldInfo.field.name,
-      isGroupField: widget.cellId.fieldInfo.isGroupField,
+      isGroupingField: widget.cellId.fieldInfo.isGroupField,
       typeOptionLoader: FieldTypeOptionLoader(
         viewId: widget.cellId.viewId,
         field: widget.cellId.fieldInfo.field,

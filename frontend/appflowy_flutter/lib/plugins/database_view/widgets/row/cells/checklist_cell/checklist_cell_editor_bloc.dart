@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/select_option_service.dart';
+import 'package:appflowy/plugins/database_view/application/cell/checklist_cell_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/checklist_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/log.dart';
@@ -12,13 +13,13 @@ part 'checklist_cell_editor_bloc.freezed.dart';
 
 class ChecklistCellEditorBloc
     extends Bloc<ChecklistCellEditorEvent, ChecklistCellEditorState> {
-  final SelectOptionBackendService _selectOptionService;
+  final ChecklistCellBackendService _checklistCellService;
   final ChecklistCellController cellController;
 
   ChecklistCellEditorBloc({
     required this.cellController,
-  })  : _selectOptionService =
-            SelectOptionBackendService(cellId: cellController.cellId),
+  })  : _checklistCellService =
+            ChecklistCellBackendService(cellId: cellController.cellId),
         super(ChecklistCellEditorState.initial(cellController)) {
     on<ChecklistCellEditorEvent>(
       (event, emit) async {
@@ -31,7 +32,7 @@ class ChecklistCellEditorBloc
             emit(
               state.copyWith(
                 allOptions: _makeChecklistSelectOptions(data, state.predicate),
-                percent: percentFromSelectOptionCellData(data),
+                percent: data.percentage,
               ),
             );
           },
@@ -50,11 +51,7 @@ class ChecklistCellEditorBloc
             _updateOption(option);
           },
           selectOption: (option) async {
-            if (option.isSelected) {
-              await _selectOptionService.unSelect(optionIds: [option.data.id]);
-            } else {
-              await _selectOptionService.select(optionIds: [option.data.id]);
-            }
+            await _checklistCellService.select(optionId: option.data.id);
           },
           filterOption: (String predicate) {},
         );
@@ -69,20 +66,19 @@ class ChecklistCellEditorBloc
   }
 
   void _createOption(String name) async {
-    final result = await _selectOptionService.create(
-      name: name,
-      isSelected: false,
-    );
+    final result = await _checklistCellService.create(name: name);
     result.fold((l) => {}, (err) => Log.error(err));
   }
 
   void _deleteOption(List<SelectOptionPB> options) async {
-    final result = await _selectOptionService.delete(options: options);
+    final result = await _checklistCellService.delete(
+      optionIds: options.map((e) => e.id).toList(),
+    );
     result.fold((l) => null, (err) => Log.error(err));
   }
 
   void _updateOption(SelectOptionPB option) async {
-    final result = await _selectOptionService.update(
+    final result = await _checklistCellService.update(
       option: option,
     );
 
@@ -90,7 +86,7 @@ class ChecklistCellEditorBloc
   }
 
   void _loadOptions() {
-    _selectOptionService.getCellData().then((result) {
+    _checklistCellService.getCellData().then((result) {
       if (isClosed) return;
 
       return result.fold(
@@ -118,7 +114,7 @@ class ChecklistCellEditorBloc
 class ChecklistCellEditorEvent with _$ChecklistCellEditorEvent {
   const factory ChecklistCellEditorEvent.initial() = _Initial;
   const factory ChecklistCellEditorEvent.didReceiveOptions(
-    SelectOptionCellDataPB data,
+    ChecklistCellDataPB data,
   ) = _DidReceiveOptions;
   const factory ChecklistCellEditorEvent.newOption(String optionName) =
       _NewOption;
@@ -142,34 +138,20 @@ class ChecklistCellEditorState with _$ChecklistCellEditorState {
     required String predicate,
   }) = _ChecklistCellEditorState;
 
-  factory ChecklistCellEditorState.initial(SelectOptionCellController context) {
+  factory ChecklistCellEditorState.initial(ChecklistCellController context) {
     final data = context.getCellData(loadIfNotExist: true);
 
     return ChecklistCellEditorState(
       allOptions: _makeChecklistSelectOptions(data, ''),
       createOption: none(),
-      percent: percentFromSelectOptionCellData(data),
+      percent: data?.percentage ?? 0,
       predicate: '',
     );
   }
 }
 
-double percentFromSelectOptionCellData(SelectOptionCellDataPB? data) {
-  if (data == null) return 0;
-
-  final b = data.options.length.toDouble();
-  if (b == 0) {
-    return 0;
-  }
-
-  final a = data.selectOptions.length.toDouble();
-  if (a > b) return 1.0;
-
-  return a / b;
-}
-
 List<ChecklistSelectOption> _makeChecklistSelectOptions(
-  SelectOptionCellDataPB? data,
+  ChecklistCellDataPB? data,
   String predicate,
 ) {
   if (data == null) {
@@ -181,7 +163,7 @@ List<ChecklistSelectOption> _makeChecklistSelectOptions(
   if (predicate.isNotEmpty) {
     allOptions.retainWhere((element) => element.name.contains(predicate));
   }
-  final selectedOptionIds = data.selectOptions.map((e) => e.id).toList();
+  final selectedOptionIds = data.selectedOptions.map((e) => e.id).toList();
 
   for (final option in allOptions) {
     options.add(

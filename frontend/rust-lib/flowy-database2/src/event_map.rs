@@ -44,6 +44,9 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         .event(DatabaseEvent::DeleteSelectOption, delete_select_option_handler)
         .event(DatabaseEvent::GetSelectOptionCellData, get_select_option_handler)
         .event(DatabaseEvent::UpdateSelectOptionCell, update_select_option_cell_handler)
+        // Checklist
+        .event(DatabaseEvent::GetChecklistCellData, get_checklist_cell_data_handler)
+        .event(DatabaseEvent::UpdateChecklistCell, update_checklist_cell_handler)
         // Date
         .event(DatabaseEvent::UpdateDateCell, update_date_cell_handler)
         // Group
@@ -226,6 +229,12 @@ pub enum DatabaseEvent {
   /// will be used by the `update_cell` function.
   #[event(input = "SelectOptionCellChangesetPB")]
   UpdateSelectOptionCell = 72,
+
+  #[event(input = "CellIdPB", output = "ChecklistCellDataPB")]
+  GetChecklistCellData = 73,
+
+  #[event(input = "ChecklistCellDataChangesetPB")]
+  UpdateChecklistCell = 74,
 
   /// [UpdateDateCell] event is used to update a date cell's data. [DateChangesetPB]
   /// contains the date and the time string. It can be cast to [CellChangesetPB] that

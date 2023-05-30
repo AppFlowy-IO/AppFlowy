@@ -22,10 +22,9 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
 
   switch (field.field_type) {
     case FieldType.SingleSelect:
-    case FieldType.MultiSelect:
-    case FieldType.Checklist: {
+    case FieldType.MultiSelect: {
       let selectOptions: ISelectOption[] = [];
-      let typeOption: SingleSelectTypeOptionPB | MultiSelectTypeOptionPB | ChecklistTypeOptionPB | undefined;
+      let typeOption: SingleSelectTypeOptionPB | MultiSelectTypeOptionPB | undefined;
 
       if (field.field_type === FieldType.SingleSelect) {
         typeOption = (await makeSingleSelectTypeOptionContext(typeOptionController).getTypeOption()).unwrap();
@@ -38,9 +37,6 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
       }
       if (field.field_type === FieldType.MultiSelect) {
         typeOption = (await makeMultiSelectTypeOptionContext(typeOptionController).getTypeOption()).unwrap();
-      }
-      if (field.field_type === FieldType.Checklist) {
-        typeOption = (await makeChecklistTypeOptionContext(typeOptionController).getTypeOption()).unwrap();
       }
 
       if (typeOption) {
