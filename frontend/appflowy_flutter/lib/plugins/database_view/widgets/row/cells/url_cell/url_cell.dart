@@ -19,6 +19,8 @@ import 'url_cell_bloc.dart';
 
 class GridURLCellStyle extends GridCellStyle {
   String? placeholder;
+  TextStyle? textStyle;
+  bool? autofocus;
 
   List<GridURLCellAccessoryType> accessoryTypes;
 
@@ -29,8 +31,8 @@ class GridURLCellStyle extends GridCellStyle {
 }
 
 enum GridURLCellAccessoryType {
-  edit,
   copyURL,
+  visitURL,
 }
 
 class GridURLCell extends GridCellWidget {
@@ -56,15 +58,14 @@ class GridURLCell extends GridCellWidget {
     GridCellAccessoryBuildContext buildContext,
   ) {
     switch (ty) {
-      case GridURLCellAccessoryType.edit:
+      case GridURLCellAccessoryType.visitURL:
+        final cellContext = cellControllerBuilder.build() as URLCellController;
         return GridCellAccessoryBuilder(
-          builder: (Key key) => _EditURLAccessory(
+          builder: (Key key) => _VisitURLAccessory(
             key: key,
-            anchorContext: buildContext.anchorContext,
-            cellControllerBuilder: cellControllerBuilder,
+            cellContext: cellContext,
           ),
         );
-
       case GridURLCellAccessoryType.copyURL:
         final cellContext = cellControllerBuilder.build() as URLCellController;
         return GridCellAccessoryBuilder(
@@ -89,11 +90,11 @@ class GridURLCell extends GridCellWidget {
           );
         }
 
-        // If the accessories is empty then the default accessory will be GridURLCellAccessoryType.edit
+        // If the accessories is empty then the default accessory will be GridURLCellAccessoryType.visitURL
         if (accessories.isEmpty) {
           accessories.add(
             accessoryFromType(
-              GridURLCellAccessoryType.edit,
+              GridURLCellAccessoryType.visitURL,
               buildContext,
             ),
           );
@@ -106,6 +107,8 @@ class GridURLCell extends GridCellWidget {
 class _GridURLCellState extends GridCellState<GridURLCell> {
   final _popoverController = PopoverController();
   late URLCellBloc _cellBloc;
+  late TextEditingController _controller;
+  late FocusNode _focusNode;
 
   @override
   void initState() {
@@ -113,6 +116,8 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
         widget.cellControllerBuilder.build() as URLCellController;
     _cellBloc = URLCellBloc(cellController: cellController);
     _cellBloc.add(const URLCellEvent.initial());
+    _controller = TextEditingController(text: _cellBloc.state.content);
+    _focusNode = FocusNode();
     super.initState();
   }
 
@@ -122,58 +127,59 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
       value: _cellBloc,
       child: BlocBuilder<URLCellBloc, URLCellState>(
         builder: (context, state) {
-          final richText = Padding(
-            padding: GridSize.cellContentInsets,
-            child: FlowyText.medium(
-              state.content,
-              color: Theme.of(context).colorScheme.primary,
-              decoration: TextDecoration.underline,
+          final urlEditor = Padding(
+            padding: EdgeInsets.only(
+              left: GridSize.cellContentInsets.left,
+              right: GridSize.cellContentInsets.right,
             ),
-          );
-
-          return AppFlowyPopover(
-            margin: EdgeInsets.zero,
-            controller: _popoverController,
-            constraints: BoxConstraints.loose(const Size(300, 160)),
-            direction: PopoverDirection.bottomWithLeftAligned,
-            triggerActions: PopoverTriggerFlags.none,
-            offset: const Offset(0, 8),
-            child: SizedBox.expand(
-              child: GestureDetector(
-                child: Align(alignment: Alignment.centerLeft, child: richText),
-                onTap: () async {
-                  final url = context.read<URLCellBloc>().state.url;
-                  await _openUrlOrEdit(url);
-                },
+            child: TextField(
+              controller: _controller,
+              focusNode: _focusNode,
+              maxLines: 1,
+              style: (widget.cellStyle?.textStyle ??
+                      Theme.of(context).textTheme.bodyMedium)
+                  ?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                decoration: TextDecoration.underline,
+              ),
+              autofocus: false,
+              onEditingComplete: focusChanged,
+              onSubmitted: (value) => focusChanged(isUrlSubmitted: true),
+              decoration: InputDecoration(
+                contentPadding: EdgeInsets.only(
+                  top: GridSize.cellContentInsets.top,
+                  bottom: GridSize.cellContentInsets.bottom,
+                ),
+                border: InputBorder.none,
+                hintText: widget.cellStyle?.placeholder,
+                isDense: true,
               ),
             ),
-            popupBuilder: (BuildContext popoverContext) {
-              return URLEditorPopover(
-                cellController:
-                    widget.cellControllerBuilder.build() as URLCellController,
-                onExit: () => _popoverController.close(),
-              );
-            },
-            onClose: () {
-              widget.onCellEditing.value = false;
-            },
           );
+          return urlEditor;
         },
       ),
     );
+  }
+
+  void focusChanged({
+    bool isUrlSubmitted = false,
+  }) {
+    if (mounted) {
+      if (_cellBloc.isClosed == false &&
+          _controller.text != _cellBloc.state.content) {
+        _cellBloc.add(URLCellEvent.updateURL(_controller.text));
+      }
+      if (isUrlSubmitted) {
+        _focusNode.unfocus();
+      }
+    }
   }
 
   @override
   Future<void> dispose() async {
     _cellBloc.close();
     super.dispose();
-  }
-
-  Future<void> _openUrlOrEdit(String url) async {
-    final uri = Uri.parse(url);
-    if (url.isNotEmpty && await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    }
   }
 
   @override
@@ -267,5 +273,38 @@ class _CopyURLAccessoryState extends State<_CopyURLAccessory>
         widget.cellContext.getCellData(loadIfNotExist: false)?.content ?? "";
     Clipboard.setData(ClipboardData(text: content));
     showMessageToast(LocaleKeys.grid_row_copyProperty.tr());
+  }
+}
+
+class _VisitURLAccessory extends StatefulWidget {
+  final URLCellController cellContext;
+  const _VisitURLAccessory({required this.cellContext, Key? key})
+      : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => _VisitURLAccessoryState();
+}
+
+class _VisitURLAccessoryState extends State<_VisitURLAccessory>
+    with GridCellAccessoryState {
+  @override
+  Widget build(BuildContext context) {
+    return svgWidget(
+      "editor/link",
+      color: AFThemeExtension.of(context).textColor,
+    );
+  }
+
+  @override
+  void onTap() {
+    var content =
+        widget.cellContext.getCellData(loadIfNotExist: false)?.content ?? "";
+    if (!content.contains('http://')) {
+      content = 'http://$content';
+    }
+    final uri = Uri.parse(content);
+    if (content.isNotEmpty) {
+      canLaunchUrl(uri).then((value) => launchUrl(uri));
+    }
   }
 }
