@@ -33,15 +33,15 @@ CharacterShortcutEventHandler _convertMinusesToDividerHandler =
   if (!_hasTwoConsecutiveDashes(delta.toPlainText(), selection.start.offset)) {
     return false;
   }
-  final dashStartPosition = selection.start.offset - dividerShortcutToken.length;
-  Transaction transaction;
-
-  if (node.delta!.length > dividerShortcutToken.length) {
-    transaction = editorState.transaction
+  final dashStartPosition =
+      selection.start.offset - dividerShortcutToken.length;
+  final transaction = editorState.transaction;
+  if (delta.length > dividerShortcutToken.length) {
+    transaction
       ..deleteText(node, dashStartPosition, dividerShortcutToken.length)
       ..insertNode(selection.end.path.next, dividerNode());
   } else {
-    transaction = editorState.transaction
+    transaction
       ..insertNode(path, dividerNode())
       ..insertNode(path, paragraphNode())
       ..deleteNode(node)
@@ -52,11 +52,11 @@ CharacterShortcutEventHandler _convertMinusesToDividerHandler =
 };
 
 bool _hasTwoConsecutiveDashes(String text, int end) {
-  if (text.length < dividerShortcutToken.length || end > text.length
-      || end < dividerShortcutToken.length) {
+  if (end < dividerShortcutToken.length) {
     return false;
   }
-  return text[end - 1] == '-' && text[end - dividerShortcutToken.length] == '-';
+  return text.substring(end - dividerShortcutToken.length, end) ==
+      dividerShortcutToken;
 }
 
 SelectionMenuItem dividerMenuItem = SelectionMenuItem(
