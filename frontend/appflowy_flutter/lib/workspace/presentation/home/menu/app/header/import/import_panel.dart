@@ -87,7 +87,6 @@ enum ImportType {
       case ImportType.historyDocument:
         return ['afdoc'];
       case ImportType.historyDatabase:
-        // FIXME: @nathan.
         return ['afdb'];
       case ImportType.markdownOrText:
         return ['md', 'txt'];

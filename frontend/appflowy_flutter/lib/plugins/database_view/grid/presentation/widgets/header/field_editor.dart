@@ -19,6 +19,7 @@ class FieldEditor extends StatefulWidget {
   final String fieldName;
   final bool isGroupingField;
   final Function(String)? onDeleted;
+  final Function(String)? onHidden;
   final IFieldTypeOptionLoader typeOptionLoader;
 
   const FieldEditor({
@@ -27,6 +28,7 @@ class FieldEditor extends StatefulWidget {
     required this.typeOptionLoader,
     this.isGroupingField = false,
     this.onDeleted,
+    this.onHidden,
     Key? key,
   }) : super(key: key);
 
@@ -55,6 +57,7 @@ class _FieldEditorState extends State<FieldEditor> {
       _FieldNameTextField(popoverMutex: popoverMutex),
       const VSpace(10),
       if (widget.onDeleted != null) _addDeleteFieldButton(),
+      if (widget.onHidden != null) _addHideFieldButton(),
       _FieldTypeOptionCell(popoverMutex: popoverMutex),
     ];
     return BlocProvider(
@@ -84,6 +87,25 @@ class _FieldEditorState extends State<FieldEditor> {
               state.field.fold(
                 () => Log.error('Can not delete the field'),
                 (field) => widget.onDeleted?.call(field.id),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _addHideFieldButton() {
+    return BlocBuilder<FieldEditorBloc, FieldEditorState>(
+      builder: (context, state) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: _HideFieldButton(
+            popoverMutex: popoverMutex,
+            onHidden: () {
+              state.field.fold(
+                () => Log.error('Can not hidden the field'),
+                (field) => widget.onHidden?.call(field.id),
               );
             },
           ),
@@ -211,6 +233,37 @@ class _DeleteFieldButton extends StatelessWidget {
           onTap: () {
             if (enable) onDeleted?.call();
           },
+          onHover: (_) => popoverMutex.close(),
+        );
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 4.0),
+          child: SizedBox(height: GridSize.popoverItemHeight, child: button),
+        );
+      },
+    );
+  }
+}
+
+class _HideFieldButton extends StatelessWidget {
+  final PopoverMutex popoverMutex;
+  final VoidCallback? onHidden;
+
+  const _HideFieldButton({
+    required this.popoverMutex,
+    required this.onHidden,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<FieldEditorBloc, FieldEditorState>(
+      buildWhen: (previous, current) => previous != current,
+      builder: (context, state) {
+        Widget button = FlowyButton(
+          text: FlowyText.medium(
+            LocaleKeys.grid_field_hide.tr(),
+          ),
+          onTap: () => onHidden?.call(),
           onHover: (_) => popoverMutex.close(),
         );
         return Padding(

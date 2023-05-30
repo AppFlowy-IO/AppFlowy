@@ -108,8 +108,8 @@ class _FlowyGridState extends State<FlowyGrid> {
 
   @override
   void initState() {
-    super.initState();
     headerScrollController = _scrollController.linkHorizontalController();
+    super.initState();
   }
 
   @override
