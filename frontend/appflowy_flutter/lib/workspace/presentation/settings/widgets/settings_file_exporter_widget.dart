@@ -16,6 +16,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as p;
+import 'package:tuple/tuple.dart';
 import '../../../../generated/locale_keys.g.dart';
 
 class FileExporterWidget extends StatefulWidget {
@@ -84,9 +85,17 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
                 .then((exportPath) async {
               if (exportPath != null && cubit != null) {
                 final views = cubit!.state.selectedViews;
-                await _AppFlowyFileExporter.exportToPath(exportPath, views);
-                Log.debug(views);
-                _showToast(LocaleKeys.settings_files_exportFileSuccess.tr());
+                final result =
+                    await _AppFlowyFileExporter.exportToPath(exportPath, views);
+                if (result.item1) {
+                  // success
+                  _showToast(LocaleKeys.settings_files_exportFileSuccess.tr());
+                } else {
+                  _showToast(
+                    LocaleKeys.settings_files_exportFileFail.tr() +
+                        result.item2.join('\n'),
+                  );
+                }
               } else {
                 _showToast(LocaleKeys.settings_files_exportFileFail.tr());
               }
@@ -212,7 +221,11 @@ extension AppFlowy on dartz.Either {
 }
 
 class _AppFlowyFileExporter {
-  static Future<void> exportToPath(String path, List<ViewPB> views) async {
+  static Future<Tuple2<bool, List<String>>> exportToPath(
+    String path,
+    List<ViewPB> views,
+  ) async {
+    final failedFileNames = <String>[];
     final Map<String, int> names = {};
     final documentService = DocumentService();
     for (final view in views) {
@@ -242,8 +255,12 @@ class _AppFlowyFileExporter {
         final file = File(p.join(path, '$name.$fileExtension'));
         await file.writeAsString(content!);
         names[view.name] = count + 1;
+      } else {
+        failedFileNames.add(view.name);
       }
     }
+
+    return Tuple2(failedFileNames.isEmpty, failedFileNames);
   }
 }
 
