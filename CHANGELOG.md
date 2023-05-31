@@ -1,5 +1,10 @@
 # Release Notes
 
+## Version 0.1.6 - 30/05/2023
+
+### New features
+- Support exporting your document and database data.
+
 ## Version 0.1.5 - 11/05/2023
 
 ### Bug Fixes
