@@ -61,6 +61,7 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         // Calendar
         .event(DatabaseEvent::GetAllCalendarEvents, get_calendar_events_handler)
         .event(DatabaseEvent::GetCalendarEvent, get_calendar_event_handler)
+        .event(DatabaseEvent::MoveCalendarEvent, move_calendar_event_handler)
         // Layout setting
         .event(DatabaseEvent::SetLayoutSetting, set_layout_setting_handler)
         .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler)

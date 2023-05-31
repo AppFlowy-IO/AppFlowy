@@ -316,14 +316,12 @@ impl<'a> TestRowBuilder<'a> {
     data: &str,
     time: Option<String>,
     include_time: Option<bool>,
-    timezone_id: Option<String>,
     field_type: &FieldType,
   ) -> String {
     let value = serde_json::to_string(&DateCellChangeset {
       date: Some(data.to_string()),
       time,
       include_time,
-      timezone_id,
     })
     .unwrap();
     let date_field = self.field_with_type(field_type);

@@ -39,11 +39,6 @@ class _SettingButton extends StatefulWidget {
 
 class _SettingButtonState extends State<_SettingButton> {
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       direction: PopoverDirection.bottomWithRightAligned,
@@ -111,6 +106,7 @@ class _UnscheduleEventsButtonState extends State<_UnscheduleEventsButton> {
           direction: PopoverDirection.bottomWithCenterAligned,
           controller: _controller,
           offset: const Offset(0, 8),
+          constraints: const BoxConstraints(maxWidth: 300, maxHeight: 600),
           child: FlowyTextButton(
             "${LocaleKeys.calendar_settings_noDateTitle.tr()} (${unscheduledEvents.length})",
             fillColor: Colors.transparent,
@@ -118,31 +114,31 @@ class _UnscheduleEventsButtonState extends State<_UnscheduleEventsButton> {
             padding: GridSize.typeOptionContentInsets,
           ),
           popupBuilder: (context) {
-            if (unscheduledEvents.isEmpty) {
-              return SizedBox(
-                height: GridSize.popoverItemHeight,
-                child: Center(
-                  child: FlowyText.medium(
-                    LocaleKeys.calendar_settings_emptyNoDate.tr(),
-                    color: Theme.of(context).hintColor,
-                  ),
-                ),
-              );
-            }
-            return ListView.separated(
-              itemBuilder: (context, index) => _UnscheduledEventItem(
-                event: unscheduledEvents[index],
-                onPressed: () {
-                  showEventDetails(
-                    context: context,
-                    event: unscheduledEvents[index].event!,
-                    viewId: viewId,
-                    rowCache: rowCache,
-                  );
-                  _controller.close();
-                },
+            final cells = <Widget>[
+              FlowyText.medium(
+                LocaleKeys.calendar_settings_noDateHint.tr(),
+                color: Theme.of(context).hintColor,
+                overflow: TextOverflow.ellipsis,
               ),
-              itemCount: unscheduledEvents.length,
+              const VSpace(10),
+              ...unscheduledEvents.map(
+                (e) => _UnscheduledEventItem(
+                  event: e,
+                  onPressed: () {
+                    showEventDetails(
+                      context: context,
+                      event: e.event!,
+                      viewId: viewId,
+                      rowCache: rowCache,
+                    );
+                    _controller.close();
+                  },
+                ),
+              )
+            ];
+            return ListView.separated(
+              itemBuilder: (context, index) => cells[index],
+              itemCount: cells.length,
               separatorBuilder: (context, index) =>
                   VSpace(GridSize.typeOptionSeparatorHeight),
               shrinkWrap: true,
@@ -167,12 +163,9 @@ class _UnscheduledEventItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: GridSize.popoverItemHeight,
-      child: FlowyTextButton(
-        event.title,
-        fillColor: Colors.transparent,
-        hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        padding: GridSize.typeOptionContentInsets,
-        onPressed: onPressed,
+      child: FlowyButton(
+        text: FlowyText.medium(event.title),
+        onTap: onPressed,
       ),
     );
   }
