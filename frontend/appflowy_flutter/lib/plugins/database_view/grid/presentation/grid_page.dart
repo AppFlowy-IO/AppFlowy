@@ -91,6 +91,21 @@ class _GridPageState extends State<GridPage> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+  }
+
+  @override
+  void didUpdateWidget(covariant GridPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+  }
 }
 
 class FlowyGrid extends StatefulWidget {
@@ -104,12 +119,12 @@ class _FlowyGridState extends State<FlowyGrid> {
   final _scrollController = GridScrollController(
     scrollGroupController: LinkedScrollControllerGroup(),
   );
-  late final ScrollController headerScrollController;
+  late ScrollController headerScrollController;
 
   @override
   void initState() {
-    super.initState();
     headerScrollController = _scrollController.linkHorizontalController();
+    super.initState();
   }
 
   @override
@@ -201,78 +216,49 @@ class _GridRowsState extends State<_GridRows> {
 
   @override
   Widget build(BuildContext context) {
-    return Builder(
-      builder: (context) {
-        final filterState = context.watch<GridFilterMenuBloc>().state;
-        final sortState = context.watch<SortMenuBloc>().state;
-
-        return BlocConsumer<GridBloc, GridState>(
-          listenWhen: (previous, current) => previous.reason != current.reason,
-          listener: (context, state) {
-            state.reason.whenOrNull(
-              insert: (item) {
-                _key.currentState?.insertItem(item.index);
-              },
-              delete: (item) {
-                _key.currentState?.removeItem(
-                  item.index,
-                  (context, animation) => _renderRow(
-                    context,
-                    item.rowInfo,
-                    animation: animation,
-                  ),
-                );
-              },
+    return BlocConsumer<GridBloc, GridState>(
+      listenWhen: (previous, current) => previous.reason != current.reason,
+      listener: (context, state) {
+        state.reason.whenOrNull(
+          insert: (item) {
+            _key.currentState?.insertItem(item.index);
+          },
+          delete: (item) {
+            _key.currentState?.removeItem(
+              item.index,
+              (context, animation) =>
+                  _renderRow(context, item.rowInfo, animation),
             );
           },
-          buildWhen: (previous, current) {
-            return current.reason.maybeWhen(
+          reorderSingleRow: (reorderRow, rowInfo) {
+            // _key.currentState?.removeItem(
+            //   reorderRow.oldIndex,
+            //   (context, animation) => _renderRow(context, rowInfo, animation),
+            // );
+            // _key.currentState?.insertItem(reorderRow.newIndex);
+          },
+        );
+      },
+      buildWhen: (previous, current) {
+        return current.reason.whenOrNull(
               reorderRows: () => true,
               reorderSingleRow: (reorderRow, rowInfo) => true,
-              delete: (item) => true,
-              insert: (item) => true,
-              orElse: () => false,
-            );
-          },
-          builder: (context, state) {
-            final rowInfos = context.watch<GridBloc>().state.rowInfos;
-
-            return SliverFillRemaining(
-              child: ReorderableListView.builder(
-                key: _key,
-                buildDefaultDragHandles: false,
-                proxyDecorator: (child, index, animation) => Material(
-                  color: Colors.white.withOpacity(.1),
-                  child: Opacity(
-                    opacity: .5,
-                    child: child,
-                  ),
-                ),
-                onReorder: (fromIndex, newIndex) {
-                  final toIndex =
-                      newIndex > fromIndex ? newIndex - 1 : newIndex;
-
-                  if (fromIndex == toIndex) {
-                    return;
-                  }
-
-                  context
-                      .read<GridBloc>()
-                      .add(GridEvent.moveRow(fromIndex, toIndex));
-                },
-                itemCount: rowInfos.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final RowInfo rowInfo = rowInfos[index];
-                  return _renderRow(
-                    context,
-                    rowInfo,
-                    index: index,
-                    isSortEnabled: sortState.sortInfos.isNotEmpty,
-                    isFilterEnabled: filterState.filters.isNotEmpty,
-                  );
-                },
-              ),
-            );
+            ) ??
+            false;
+      },
+      builder: (context, state) {
+        return SliverAnimatedList(
+          key: _key,
+          initialItemCount: context.read<GridBloc>().state.rowInfos.length,
+          itemBuilder:
+              (BuildContext context, int index, Animation<double> animation) {
+            final rowInfos = context.read<GridBloc>().state.rowInfos;
+            if (index >= rowInfos.length) {
+              return const SizedBox();
+            } else {
+              final RowInfo rowInfo = rowInfos[index];
+              return _renderRow(context, rowInfo, animation);
+            }
           },
         );
       },
@@ -281,19 +267,16 @@ class _GridRowsState extends State<_GridRows> {
 
   Widget _renderRow(
     BuildContext context,
-    RowInfo rowInfo, {
-    int? index,
-    bool isSortEnabled = false,
-    bool isFilterEnabled = false,
-    Animation<double>? animation,
-  }) {
+    RowInfo rowInfo,
+    Animation<double> animation,
+  ) {
     final rowCache = context.read<GridBloc>().getRowCache(
           rowInfo.rowPB.blockId,
           rowInfo.rowPB.id,
         );
 
     /// Return placeholder widget if the rowCache is null.
-    if (rowCache == null) return const SizedBox.shrink();
+    if (rowCache == null) return const SizedBox();
 
     final fieldController =
         context.read<GridBloc>().databaseController.fieldController;
@@ -303,32 +286,24 @@ class _GridRowsState extends State<_GridRows> {
       rowCache: rowCache,
     );
 
-    final child = GridRow(
-      key: ValueKey(rowInfo.rowPB.id),
-      index: index,
-      isDraggable: !isSortEnabled && !isFilterEnabled,
-      rowInfo: rowInfo,
-      dataController: dataController,
-      cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
-      openDetailPage: (context, cellBuilder) {
-        _openRowDetailPage(
-          context,
-          rowInfo,
-          fieldController,
-          rowCache,
-          cellBuilder,
-        );
-      },
+    return SizeTransition(
+      sizeFactor: animation,
+      child: GridRow(
+        rowInfo: rowInfo,
+        dataController: dataController,
+        cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
+        openDetailPage: (context, cellBuilder) {
+          _openRowDetailPage(
+            context,
+            rowInfo,
+            fieldController,
+            rowCache,
+            cellBuilder,
+          );
+        },
+        key: ValueKey(rowInfo.rowPB.id),
+      ),
     );
-
-    if (animation != null) {
-      return SizeTransition(
-        sizeFactor: animation,
-        child: child,
-      );
-    }
-
-    return child;
   }
 
   void _openRowDetailPage(

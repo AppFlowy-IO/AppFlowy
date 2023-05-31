@@ -17,13 +17,12 @@ class ViewLeftBarItem extends StatefulWidget {
 class _ViewLeftBarItemState extends State<ViewLeftBarItem> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
-  late final ViewService _viewService;
-  late final ViewListener _viewListener;
+  late ViewService _viewService;
+  late ViewListener _viewListener;
   late ViewPB view;
 
   @override
   void initState() {
-    super.initState();
     view = widget.view;
     _viewService = ViewService();
     _focusNode.addListener(_handleFocusChanged);
@@ -40,8 +39,7 @@ class _ViewLeftBarItemState extends State<ViewLeftBarItem> {
         );
       },
     );
-
-    _controller.text = view.name;
+    super.initState();
   }
 
   @override
@@ -55,24 +53,30 @@ class _ViewLeftBarItemState extends State<ViewLeftBarItem> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    _controller.text = view.name;
+
+    return IntrinsicWidth(
       key: ValueKey(_controller.text),
-      onDoubleTap: () {
-        _controller.selection = TextSelection(
-          baseOffset: 0,
-          extentOffset: _controller.text.length,
-        );
-      },
-      child: TextField(
-        controller: _controller,
-        focusNode: _focusNode,
-        scrollPadding: EdgeInsets.zero,
-        decoration: const InputDecoration(
-          contentPadding: EdgeInsets.symmetric(vertical: 4.0),
-          border: InputBorder.none,
-          isDense: true,
+      child: GestureDetector(
+        onDoubleTap: () {
+          _controller.selection = TextSelection(
+            baseOffset: 0,
+            extentOffset: _controller.text.length,
+          );
+        },
+        child: TextField(
+          controller: _controller,
+          focusNode: _focusNode,
+          scrollPadding: EdgeInsets.zero,
+          decoration: const InputDecoration(
+            contentPadding: EdgeInsets.symmetric(vertical: 4.0),
+            border: InputBorder.none,
+            isDense: true,
+          ),
+          style: Theme.of(context).textTheme.bodyMedium,
+          // cursorColor: widget.cursorColor,
+          // obscureText: widget.enableObscure,
         ),
-        style: Theme.of(context).textTheme.bodyMedium,
       ),
     );
   }

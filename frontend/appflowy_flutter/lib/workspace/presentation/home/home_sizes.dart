@@ -1,10 +1,10 @@
 class HomeSizes {
-  static const double menuAddButtonHeight = 60;
-  static const double topBarHeight = 60;
-  static const double editPanelTopBarHeight = 60;
-  static const double editPanelWidth = 400;
+  static double get menuAddButtonHeight => 60;
+  static double get topBarHeight => 60;
+  static double get editPanelTopBarHeight => 60;
+  static double get editPanelWidth => 400;
 }
 
 class HomeInsets {
-  static const double topBarTitlePadding = 12;
+  static double get topBarTitlePadding => 12;
 }

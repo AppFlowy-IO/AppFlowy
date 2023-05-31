@@ -74,7 +74,6 @@ class GridCellBuilder {
           key: key,
         );
     }
-
     throw UnimplementedError;
   }
 }
@@ -84,7 +83,7 @@ class BlankCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox.shrink();
+    return Container();
   }
 }
 
