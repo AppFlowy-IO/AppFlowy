@@ -1,8 +1,9 @@
 use flowy_database2::entities::{CellChangesetPB, FieldType};
 use flowy_database2::services::cell::ToCellChangeset;
+use flowy_database2::services::field::checklist_type_option::ChecklistCellChangeset;
 use flowy_database2::services::field::{
-  ChecklistTypeOption, DateCellData, MultiSelectTypeOption, SelectOptionCellChangeset,
-  SingleSelectTypeOption, StrCellData, URLCellData,
+  DateCellData, MultiSelectTypeOption, SelectOptionCellChangeset, SingleSelectTypeOption,
+  StrCellData, URLCellData,
 };
 
 use crate::database::cell_test::script::CellScript::UpdateCell;
@@ -39,13 +40,11 @@ async fn grid_cell_update() {
           SelectOptionCellChangeset::from_insert_option_id(&type_option.options.first().unwrap().id)
             .to_cell_changeset_str()
         },
-        FieldType::Checklist => {
-          let type_option = field
-            .get_type_option::<ChecklistTypeOption>(field.field_type)
-            .unwrap();
-          SelectOptionCellChangeset::from_insert_option_id(&type_option.options.first().unwrap().id)
-            .to_cell_changeset_str()
-        },
+        FieldType::Checklist => ChecklistCellChangeset {
+          insert_options: vec!["new option".to_string()],
+          ..Default::default()
+        }
+        .to_cell_changeset_str(),
         FieldType::Checkbox => "1".to_string(),
         FieldType::URL => "1".to_string(),
       };

@@ -17,9 +17,9 @@ import '../menu_app.dart';
 import 'add_button.dart';
 
 class MenuAppHeader extends StatelessWidget {
-  final ViewPB app;
+  final ViewPB parentView;
   const MenuAppHeader(
-    this.app, {
+    this.parentView, {
     Key? key,
   }) : super(key: key);
 
@@ -108,6 +108,7 @@ class MenuAppHeader extends StatelessWidget {
     return Tooltip(
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       child: AddButton(
+        parentViewId: parentView.id,
         onSelected: (pluginBuilder, name, initialDataBytes, openAfterCreated) {
           context.read<AppBloc>().add(
                 AppEvent.createView(

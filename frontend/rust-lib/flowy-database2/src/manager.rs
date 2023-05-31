@@ -195,11 +195,17 @@ impl DatabaseManager2 {
     Ok(())
   }
 
-  pub async fn import_csv(&self, content: String, format: CSVFormat) -> FlowyResult<ImportResult> {
-    let params =
-      tokio::task::spawn_blocking(move || CSVImporter.import_csv_from_string(content, format))
-        .await
-        .map_err(internal_error)??;
+  pub async fn import_csv(
+    &self,
+    view_id: String,
+    content: String,
+    format: CSVFormat,
+  ) -> FlowyResult<ImportResult> {
+    let params = tokio::task::spawn_blocking(move || {
+      CSVImporter.import_csv_from_string(view_id, content, format)
+    })
+    .await
+    .map_err(internal_error)??;
     let result = ImportResult {
       database_id: params.database_id.clone(),
       view_id: params.view_id.clone(),
@@ -208,7 +214,12 @@ impl DatabaseManager2 {
     Ok(result)
   }
 
-  pub async fn import_csv_from_uri(&self, _uri: String, _format: CSVFormat) -> FlowyResult<()> {
+  // will implement soon
+  pub async fn import_csv_from_file(
+    &self,
+    _file_path: String,
+    _format: CSVFormat,
+  ) -> FlowyResult<()> {
     Ok(())
   }
 

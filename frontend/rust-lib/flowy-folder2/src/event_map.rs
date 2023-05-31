@@ -33,6 +33,7 @@ pub fn init(folder: Arc<Folder2Manager>) -> AFPlugin {
     .event(FolderEvent::DeleteTrash, delete_trash_handler)
     .event(FolderEvent::RestoreAllTrash, restore_all_trash_handler)
     .event(FolderEvent::DeleteAllTrash, delete_all_trash_handler)
+    .event(FolderEvent::ImportData, import_data_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -64,57 +65,60 @@ pub enum FolderEvent {
 
   /// Create a new view in the corresponding app
   #[event(input = "CreateViewPayloadPB", output = "ViewPB")]
-  CreateView = 201,
+  CreateView = 10,
 
   /// Return the view info
   #[event(input = "ViewIdPB", output = "ViewPB")]
-  ReadView = 202,
+  ReadView = 11,
 
   /// Update the view's properties including the name,description, etc.
   #[event(input = "UpdateViewPayloadPB", output = "ViewPB")]
-  UpdateView = 203,
+  UpdateView = 12,
 
   /// Move the view to the trash folder
   #[event(input = "RepeatedViewIdPB")]
-  DeleteView = 204,
+  DeleteView = 13,
 
   /// Duplicate the view
   #[event(input = "ViewPB")]
-  DuplicateView = 205,
+  DuplicateView = 14,
 
   /// Close and release the resources that are used by this view.
   /// It should get called when the 'View' page get destroy
   #[event(input = "ViewIdPB")]
-  CloseView = 206,
+  CloseView = 15,
 
   #[event()]
-  CopyLink = 220,
+  CopyLink = 20,
 
   /// Set the current visiting view
   #[event(input = "ViewIdPB")]
-  SetLatestView = 221,
+  SetLatestView = 21,
 
   /// Move the view or app to another place
   #[event(input = "MoveFolderItemPayloadPB")]
-  MoveItem = 230,
+  MoveItem = 22,
 
   /// Read the trash that was deleted by the user
   #[event(output = "RepeatedTrashPB")]
-  ReadTrash = 300,
+  ReadTrash = 23,
 
   /// Put back the trash to the origin folder
   #[event(input = "TrashIdPB")]
-  PutbackTrash = 301,
+  PutbackTrash = 24,
 
   /// Delete the trash from the disk
   #[event(input = "RepeatedTrashIdPB")]
-  DeleteTrash = 302,
+  DeleteTrash = 25,
 
   /// Put back all the trash to its original folder
   #[event()]
-  RestoreAllTrash = 303,
+  RestoreAllTrash = 26,
 
   /// Delete all the trash from the disk
   #[event()]
-  DeleteAllTrash = 304,
+  DeleteAllTrash = 27,
+
+  #[event(input = "ImportPB")]
+  ImportData = 30,
 }

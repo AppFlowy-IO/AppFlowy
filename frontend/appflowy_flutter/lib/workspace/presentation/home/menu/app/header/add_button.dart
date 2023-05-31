@@ -12,6 +12,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class AddButton extends StatelessWidget {
+  final String parentViewId;
   final Function(
     PluginBuilder,
     String? name,
@@ -20,6 +21,7 @@ class AddButton extends StatelessWidget {
   ) onSelected;
 
   const AddButton({
+    required this.parentViewId,
     Key? key,
     required this.onSelected,
   }) : super(key: key);
@@ -75,20 +77,34 @@ class AddButton extends StatelessWidget {
           onSelected(action.pluginBuilder, null, null, true);
         }
         if (action is ImportActionWrapper) {
-          showImportPanel(context, (type, name, initialDataBytes) {
-            if (initialDataBytes == null) {
-              return;
-            }
-            switch (type) {
-              case ImportType.historyDocument:
-              case ImportType.historyDatabase:
-                onSelected(action.pluginBuilder, name, initialDataBytes, false);
-                break;
-              case ImportType.markdownOrText:
-                onSelected(action.pluginBuilder, name, initialDataBytes, true);
-                break;
-            }
-          });
+          showImportPanel(
+            parentViewId,
+            context,
+            (type, name, initialDataBytes) {
+              if (initialDataBytes == null) {
+                return;
+              }
+              switch (type) {
+                case ImportType.historyDocument:
+                case ImportType.historyDatabase:
+                  onSelected(
+                    action.pluginBuilder,
+                    name,
+                    initialDataBytes,
+                    false,
+                  );
+                  break;
+                case ImportType.markdownOrText:
+                  onSelected(
+                    action.pluginBuilder,
+                    name,
+                    initialDataBytes,
+                    true,
+                  );
+                  break;
+              }
+            },
+          );
         }
         controller.close();
       },

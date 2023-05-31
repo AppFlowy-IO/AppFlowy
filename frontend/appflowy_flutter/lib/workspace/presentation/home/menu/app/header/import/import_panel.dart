@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/migration/editor_migration.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
+import 'package:appflowy/workspace/application/settings/share/import_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flowy_infra/image.dart';
@@ -21,6 +23,7 @@ typedef ImportCallback = void Function(
 );
 
 Future<void> showImportPanel(
+  String parentViewId,
   BuildContext context,
   ImportCallback callback,
 ) async {
@@ -33,7 +36,10 @@ Future<void> showImportPanel(
           fontSize: 20,
           color: Theme.of(context).colorScheme.tertiary,
         ),
-        content: _ImportPanel(importCallback: callback),
+        content: _ImportPanel(
+          parentViewId: parentViewId,
+          importCallback: callback,
+        ),
         contentPadding: const EdgeInsets.symmetric(
           vertical: 10.0,
           horizontal: 20.0,
@@ -87,7 +93,6 @@ enum ImportType {
       case ImportType.historyDocument:
         return ['afdoc'];
       case ImportType.historyDatabase:
-        // FIXME: @nathan.
         return ['afdb'];
       case ImportType.markdownOrText:
         return ['md', 'txt'];
@@ -113,9 +118,11 @@ enum ImportType {
 
 class _ImportPanel extends StatefulWidget {
   const _ImportPanel({
+    required this.parentViewId,
     required this.importCallback,
   });
 
+  final String parentViewId;
   final ImportCallback importCallback;
 
   @override
@@ -146,7 +153,7 @@ class _ImportPanelState extends State<_ImportPanel> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 onTap: () async {
-                  await _importFile(e);
+                  await _importFile(widget.parentViewId, e);
                   if (mounted) {
                     Navigator.of(context).pop();
                   }
@@ -159,7 +166,7 @@ class _ImportPanelState extends State<_ImportPanel> {
     );
   }
 
-  Future<void> _importFile(ImportType importType) async {
+  Future<void> _importFile(String parentViewId, ImportType importType) async {
     final result = await getIt<FilePickerService>().pickFiles(
       allowMultiple: importType.allowMultiSelect,
       type: FileType.custom,
@@ -174,26 +181,45 @@ class _ImportPanelState extends State<_ImportPanel> {
       if (path == null) {
         continue;
       }
-      final plainText = await File(path).readAsString();
-      Document? document;
+      final data = await File(path).readAsString();
+      final name = p.basenameWithoutExtension(path);
+
       switch (importType) {
         case ImportType.markdownOrText:
-          document = markdownToDocument(plainText);
-          break;
         case ImportType.historyDocument:
-          document = EditorMigration.migrateDocument(plainText);
+          final bytes = _documentDataFrom(importType, data);
+          if (bytes != null) {
+            await ImportBackendService.importHistoryDocument(
+              bytes,
+              name,
+              parentViewId,
+            );
+          }
+          break;
+        case ImportType.historyDatabase:
+          await ImportBackendService.importHistoryDatabase(
+            data,
+            name,
+            parentViewId,
+          );
           break;
         default:
           assert(false, 'Unsupported Type $importType');
       }
-      if (document != null) {
-        final data = DocumentDataPBFromTo.fromDocument(document);
-        widget.importCallback(
-          importType,
-          p.basenameWithoutExtension(path),
-          data?.writeToBuffer(),
-        );
-      }
     }
+  }
+}
+
+Uint8List? _documentDataFrom(ImportType importType, String data) {
+  switch (importType) {
+    case ImportType.markdownOrText:
+      final document = markdownToDocument(data);
+      return DocumentDataPBFromTo.fromDocument(document)?.writeToBuffer();
+    case ImportType.historyDocument:
+      final document = EditorMigration.migrateDocument(data);
+      return DocumentDataPBFromTo.fromDocument(document)?.writeToBuffer();
+    default:
+      assert(false, 'Unsupported Type $importType');
+      return null;
   }
 }

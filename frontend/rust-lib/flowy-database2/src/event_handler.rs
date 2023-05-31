@@ -5,18 +5,18 @@ use collab_database::rows::RowId;
 use collab_database::views::DatabaseLayout;
 use lib_infra::util::timestamp;
 
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
 use crate::entities::*;
 use crate::manager::DatabaseManager2;
 use crate::services::cell::CellBuilder;
 
+use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
   type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
 };
 use crate::services::group::{GroupChangeset, GroupSettingChangeset};
-use crate::services::share::csv::CSVFormat;
 
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn get_database_data_handler(
@@ -470,6 +470,38 @@ pub(crate) async fn update_select_option_cell_handler(
 }
 
 #[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn get_checklist_cell_data_handler(
+  data: AFPluginData<CellIdPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> DataResult<ChecklistCellDataPB, FlowyError> {
+  let params: CellIdParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  let data = database_editor
+    .get_checklist_option(params.row_id, &params.field_id)
+    .await;
+  data_result_ok(data)
+}
+
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn update_checklist_cell_handler(
+  data: AFPluginData<ChecklistCellDataChangesetPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> Result<(), FlowyError> {
+  let params: ChecklistCellDataChangesetParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  let changeset = ChecklistCellChangeset {
+    insert_options: params.insert_options,
+    selected_option_ids: params.selected_option_ids,
+    delete_option_ids: params.delete_option_ids,
+    update_options: params.update_options,
+  };
+  database_editor
+    .set_checklist_options(&params.view_id, params.row_id, &params.field_id, changeset)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_date_cell_handler(
   data: AFPluginData<DateChangesetPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
@@ -665,29 +697,5 @@ pub(crate) async fn move_calendar_event_handler(
       cell_changeset,
     )
     .await?;
-  Ok(())
-}
-
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn import_data_handler(
-  data: AFPluginData<DatabaseImportPB>,
-  manager: AFPluginState<Arc<DatabaseManager2>>,
-) -> FlowyResult<()> {
-  let params = data.into_inner();
-
-  match params.import_type {
-    ImportTypePB::CSV => {
-      if let Some(data) = params.data {
-        manager.import_csv(data, CSVFormat::META).await?;
-      } else if let Some(uri) = params.uri {
-        manager.import_csv_from_uri(uri, CSVFormat::META).await?;
-      } else {
-        return Err(FlowyError::new(
-          ErrorCode::InvalidData,
-          "No data or uri provided",
-        ));
-      }
-    },
-  }
   Ok(())
 }

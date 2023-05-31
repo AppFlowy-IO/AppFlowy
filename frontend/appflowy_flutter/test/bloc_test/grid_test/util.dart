@@ -42,7 +42,7 @@ class GridTestContext {
   FieldEditorBloc createFieldEditor({
     FieldInfo? fieldInfo,
   }) {
-    IFieldTypeOptionLoader loader;
+    ITypeOptionLoader loader;
     if (fieldInfo == null) {
       loader = NewFieldTypeOptionLoader(viewId: gridView.id);
     } else {
@@ -172,7 +172,7 @@ class AppFlowyGridTest {
     final builder = GridPluginBuilder();
     final context = await AppBackendService()
         .createView(
-      appId: app.id,
+      parentViewId: app.id,
       name: "Test Grid",
       layoutType: builder.layoutType!,
     )

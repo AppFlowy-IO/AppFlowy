@@ -73,7 +73,8 @@ class ColorOptionAction extends PopoverActionCell {
                 final transaction = editorState.transaction;
                 for (final node in nodes) {
                   transaction.updateNode(node, {
-                    blockComponentBackgroundColor: color.make(context).toHex(),
+                    blockComponentBackgroundColor:
+                        color.toColor(context).toHex(),
                   });
                 }
                 editorState.apply(transaction);
@@ -91,7 +92,7 @@ class ColorOptionAction extends PopoverActionCell {
       return null;
     }
     for (final value in SelectOptionColorPB.values) {
-      if (value.make(context).toHex() == hexColor) {
+      if (value.toColor(context).toHex() == hexColor) {
         return value;
       }
     }

@@ -37,7 +37,7 @@ extension InsertDatabase on EditorState {
 
     final prefix = _referencedDatabasePrefix(viewPB.layout);
     final ref = await AppBackendService().createView(
-      appId: appPB.id,
+      parentViewId: appPB.id,
       name: "$prefix ${viewPB.name}",
       layoutType: viewPB.layout,
       ext: {

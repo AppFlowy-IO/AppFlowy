@@ -86,20 +86,20 @@ impl TypeOptionTransform for RichTextTypeOption {
 }
 
 impl TypeOptionCellData for RichTextTypeOption {
-  fn convert_to_protobuf(
+  fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     ProtobufStr::from(cell_data.0)
   }
 
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
+  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     Ok(StrCellData::from(cell))
   }
 }
 
 impl CellDataDecoder for RichTextTypeOption {
-  fn decode_cell_str(
+  fn decode_cell(
     &self,
     cell: &Cell,
     _decoded_field_type: &FieldType,
@@ -108,11 +108,11 @@ impl CellDataDecoder for RichTextTypeOption {
     Ok(StrCellData::from(cell))
   }
 
-  fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+  fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     cell_data.to_string()
   }
 
-  fn decode_cell_to_str(&self, cell: &Cell) -> String {
+  fn stringify_cell(&self, cell: &Cell) -> String {
     Self::CellData::from(cell).to_string()
   }
 }

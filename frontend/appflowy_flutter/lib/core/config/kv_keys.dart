@@ -12,4 +12,10 @@ class KVKeys {
   /// - local
   /// - supabase
   static const String loginType = '$prefix.login_type';
+
+  /// The key for saving the window size
+  ///
+  /// The value is a json string with the following format:
+  ///   {'height': 600.0, 'width': 800.0}
+  static const String windowSize = 'windowSize';
 }

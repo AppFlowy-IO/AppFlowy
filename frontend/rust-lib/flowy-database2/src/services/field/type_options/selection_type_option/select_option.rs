@@ -83,15 +83,3 @@ pub fn make_selected_options(ids: SelectOptionIds, options: &[SelectOption]) -> 
     })
     .collect()
 }
-
-pub struct SelectedSelectOptions {
-  pub(crate) options: Vec<SelectOption>,
-}
-
-impl std::convert::From<SelectOptionCellData> for SelectedSelectOptions {
-  fn from(data: SelectOptionCellData) -> Self {
-    Self {
-      options: data.select_options,
-    }
-  }
-}

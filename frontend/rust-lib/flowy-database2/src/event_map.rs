@@ -9,10 +9,10 @@ use crate::event_handler::*;
 use crate::manager::DatabaseManager2;
 
 pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
-  let mut plugin = AFPlugin::new()
+  let plugin = AFPlugin::new()
     .name(env!("CARGO_PKG_NAME"))
     .state(database_manager);
-  plugin = plugin
+  plugin
         .event(DatabaseEvent::GetDatabase, get_database_data_handler)
         .event(DatabaseEvent::GetDatabaseSetting, get_database_setting_handler)
         .event(DatabaseEvent::UpdateDatabaseSetting, update_database_setting_handler)
@@ -44,6 +44,9 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         .event(DatabaseEvent::DeleteSelectOption, delete_select_option_handler)
         .event(DatabaseEvent::GetSelectOptionCellData, get_select_option_handler)
         .event(DatabaseEvent::UpdateSelectOptionCell, update_select_option_cell_handler)
+        // Checklist
+        .event(DatabaseEvent::GetChecklistCellData, get_checklist_cell_data_handler)
+        .event(DatabaseEvent::UpdateChecklistCell, update_checklist_cell_handler)
         // Date
         .event(DatabaseEvent::UpdateDateCell, update_date_cell_handler)
         // Group
@@ -62,10 +65,7 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         // Layout setting
         .event(DatabaseEvent::SetLayoutSetting, set_layout_setting_handler)
         .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler)
-        // import
-        .event(DatabaseEvent::ImportCSV, import_data_handler);
-
-  plugin
+  // import
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -228,6 +228,12 @@ pub enum DatabaseEvent {
   #[event(input = "SelectOptionCellChangesetPB")]
   UpdateSelectOptionCell = 72,
 
+  #[event(input = "CellIdPB", output = "ChecklistCellDataPB")]
+  GetChecklistCellData = 73,
+
+  #[event(input = "ChecklistCellDataChangesetPB")]
+  UpdateChecklistCell = 74,
+
   /// [UpdateDateCell] event is used to update a date cell's data. [DateChangesetPB]
   /// contains the date and the time string. It can be cast to [CellChangesetPB] that
   /// will be used by the `update_cell` function.
@@ -270,7 +276,4 @@ pub enum DatabaseEvent {
 
   #[event(input = "MoveCalendarEventPB")]
   MoveCalendarEvent = 125,
-
-  #[event(input = "DatabaseImportPB")]
-  ImportCSV = 130,
 }

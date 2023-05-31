@@ -395,9 +395,9 @@ mod tests {
     field: &Field,
   ) -> String {
     let decoded_data = type_option
-      .decode_cell_str(cell, &FieldType::DateTime, field)
+      .decode_cell(cell, &FieldType::DateTime, field)
       .unwrap();
-    let decoded_data = type_option.convert_to_protobuf(decoded_data);
+    let decoded_data = type_option.protobuf_encode(decoded_data);
     if include_time {
       format!("{} {}", decoded_data.date, decoded_data.time)
         .trim_end()

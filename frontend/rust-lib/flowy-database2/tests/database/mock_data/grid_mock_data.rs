@@ -1,16 +1,14 @@
-use crate::database::mock_data::{
-  COMPLETED, FACEBOOK, FIRST_THING, GOOGLE, PAUSED, PLANNED, SECOND_THING, THIRD_THING, TWITTER,
-};
+use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, TWITTER};
 use collab_database::database::{gen_database_id, gen_database_view_id, DatabaseData};
 
 use collab_database::views::{DatabaseLayout, DatabaseView};
 
 use crate::database::database_editor::TestRowBuilder;
 use flowy_database2::entities::FieldType;
+use flowy_database2::services::field::checklist_type_option::ChecklistTypeOption;
 use flowy_database2::services::field::{
-  ChecklistTypeOption, DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption,
-  NumberFormat, NumberTypeOption, SelectOption, SelectOptionColor, SingleSelectTypeOption,
-  TimeFormat,
+  DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption, NumberFormat, NumberTypeOption,
+  SelectOption, SelectOptionColor, SingleSelectTypeOption, TimeFormat,
 };
 use strum::IntoEnumIterator;
 
@@ -104,11 +102,11 @@ pub fn make_test_grid() -> DatabaseData {
         fields.push(url);
       },
       FieldType::Checklist => {
-        let option1 = SelectOption::with_color(FIRST_THING, SelectOptionColor::Purple);
-        let option2 = SelectOption::with_color(SECOND_THING, SelectOptionColor::Orange);
-        let option3 = SelectOption::with_color(THIRD_THING, SelectOptionColor::Yellow);
-        let mut type_option = ChecklistTypeOption::default();
-        type_option.options.extend(vec![option1, option2, option3]);
+        // let option1 = SelectOption::with_color(FIRST_THING, SelectOptionColor::Purple);
+        // let option2 = SelectOption::with_color(SECOND_THING, SelectOptionColor::Orange);
+        // let option3 = SelectOption::with_color(THIRD_THING, SelectOptionColor::Yellow);
+        let type_option = ChecklistTypeOption::default();
+        // type_option.options.extend(vec![option1, option2, option3]);
         let checklist_field = FieldBuilder::new(field_type.clone(), type_option)
           .name("TODO")
           .visibility(true)
@@ -131,10 +129,12 @@ pub fn make_test_grid() -> DatabaseData {
             },
             FieldType::MultiSelect => row_builder
               .insert_multi_select_cell(|mut options| vec![options.remove(0), options.remove(0)]),
-            FieldType::Checklist => row_builder.insert_checklist_cell(|options| options),
             FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
             FieldType::URL => {
               row_builder.insert_url_cell("AppFlowy website - https://www.appflowy.io")
+            },
+            FieldType::Checklist => {
+              row_builder.insert_checklist_cell(vec!["First thing".to_string()])
             },
             _ => "".to_owned(),
           };

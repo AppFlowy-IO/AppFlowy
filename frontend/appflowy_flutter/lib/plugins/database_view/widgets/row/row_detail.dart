@@ -229,7 +229,6 @@ class _CreatePropertyButtonState extends State<_CreatePropertyButton> {
           typeOptionLoader: NewFieldTypeOptionLoader(viewId: widget.viewId),
           onDeleted: (fieldId) {
             popoverController.close();
-
             NavigatorAlertDialog(
               title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
               confirm: () {
@@ -308,12 +307,15 @@ class _PropertyCellState extends State<_PropertyCell> {
   Widget buildFieldEditor() {
     return FieldEditor(
       viewId: widget.cellId.viewId,
-      fieldName: widget.cellId.fieldInfo.field.name,
-      isGroupField: widget.cellId.fieldInfo.isGroupField,
+      isGroupingField: widget.cellId.fieldInfo.isGroupField,
       typeOptionLoader: FieldTypeOptionLoader(
         viewId: widget.cellId.viewId,
         field: widget.cellId.fieldInfo.field,
       ),
+      onHidden: (fieldId) {
+        popover.close();
+        context.read<RowDetailBloc>().add(RowDetailEvent.hideField(fieldId));
+      },
       onDeleted: (fieldId) {
         popover.close();
 
@@ -363,8 +365,8 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
       return GridURLCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
         accessoryTypes: [
-          GridURLCellAccessoryType.edit,
           GridURLCellAccessoryType.copyURL,
+          GridURLCellAccessoryType.visitURL,
         ],
       );
   }

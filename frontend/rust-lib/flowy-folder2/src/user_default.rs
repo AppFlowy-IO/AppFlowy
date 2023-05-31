@@ -5,14 +5,14 @@ use collab_folder::core::{Belonging, Belongings, FolderData, View, ViewLayout, W
 use nanoid::nanoid;
 
 use crate::entities::{view_pb_with_child_views, WorkspacePB};
-use crate::view_ext::{gen_view_id, ViewDataProcessorMap};
+use crate::view_ext::{gen_view_id, FolderOperationHandlers};
 
 pub struct DefaultFolderBuilder();
 impl DefaultFolderBuilder {
   pub async fn build(
     uid: i64,
     workspace_id: String,
-    view_processors: &ViewDataProcessorMap,
+    handlers: &FolderOperationHandlers,
   ) -> (FolderData, WorkspacePB) {
     let time = Utc::now().timestamp();
     let view_id = gen_view_id();
@@ -33,9 +33,9 @@ impl DefaultFolderBuilder {
     // create the document
     // TODO: use the initial data from the view processor
     // let data = initial_read_me().into_bytes();
-    let processor = view_processors.get(&child_view_layout).unwrap();
-    processor
-      .create_view_with_built_in_data(
+    let handler = handlers.get(&child_view_layout).unwrap();
+    handler
+      .create_built_in_view(
         uid,
         &child_view.id,
         &child_view.name,

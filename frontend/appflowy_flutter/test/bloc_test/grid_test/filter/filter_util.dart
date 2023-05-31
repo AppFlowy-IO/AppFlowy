@@ -10,7 +10,7 @@ Future<GridTestContext> createTestFilterGrid(AppFlowyGridTest gridTest) async {
   final builder = GridPluginBuilder();
   final context = await AppBackendService()
       .createView(
-    appId: app.id,
+    parentViewId: app.id,
     name: "Filter Grid",
     layoutType: builder.layoutType!,
   )

@@ -32,7 +32,7 @@ class AppFlowyBoardTest {
     final builder = BoardPluginBuilder();
     return AppBackendService()
         .createView(
-      appId: app.id,
+      parentViewId: app.id,
       name: "Test Board",
       layoutType: builder.layoutType!,
     )
@@ -85,7 +85,7 @@ class BoardTestContext {
   FieldEditorBloc createFieldEditor({
     FieldInfo? fieldInfo,
   }) {
-    IFieldTypeOptionLoader loader;
+    ITypeOptionLoader loader;
     if (fieldInfo == null) {
       loader = NewFieldTypeOptionLoader(viewId: gridView.id);
     } else {
