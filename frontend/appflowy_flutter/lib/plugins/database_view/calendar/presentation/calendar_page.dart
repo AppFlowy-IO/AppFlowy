@@ -74,12 +74,12 @@ class _CalendarPageState extends State<CalendarPage> {
               },
             ),
             BlocListener<CalendarBloc, CalendarState>(
-              listenWhen: (p, c) => p.editEvent != c.editEvent,
+              listenWhen: (p, c) => p.editingEvent != c.editingEvent,
               listener: (context, state) {
-                if (state.editEvent != null) {
+                if (state.editingEvent != null) {
                   showEventDetails(
                     context: context,
-                    event: state.editEvent!.event!,
+                    event: state.editingEvent!.event!,
                     viewId: widget.view.id,
                     rowCache: _calendarBloc.rowCache,
                   );
@@ -93,6 +93,20 @@ class _CalendarPageState extends State<CalendarPage> {
               listener: (context, state) {
                 if (state.newEvent != null) {
                   _eventController.add(state.newEvent!);
+                }
+              },
+            ),
+            BlocListener<CalendarBloc, CalendarState>(
+              // When an event is rescheduled
+              listenWhen: (p, c) => p.updateEvent != c.updateEvent,
+              listener: (context, state) {
+                if (state.updateEvent != null) {
+                  _eventController.removeWhere(
+                    (element) =>
+                        element.event!.eventId ==
+                        state.updateEvent!.event!.eventId,
+                  );
+                  _eventController.add(state.updateEvent!);
                 }
               },
             ),

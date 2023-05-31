@@ -46,6 +46,7 @@ pub fn create_date_field(grid_id: &str, field_type: FieldType) -> (CreateFieldPa
   let date_type_option = DateTypeOption {
     date_format: DateFormat::US,
     time_format: TimeFormat::TwentyFourHour,
+    timezone_id: "Etc/UTC".to_owned(),
     field_type: field_type.clone(),
   };
 
@@ -82,7 +83,6 @@ pub fn make_date_cell_string(s: &str) -> String {
     date: Some(s.to_string()),
     time: None,
     include_time: Some(false),
-    timezone_id: None,
   })
   .unwrap()
 }

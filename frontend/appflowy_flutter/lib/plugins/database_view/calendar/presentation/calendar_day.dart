@@ -13,6 +13,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 import '../../grid/presentation/layout/sizes.dart';
 import '../../widgets/row/cells/select_option_cell/extension.dart';
@@ -47,187 +48,83 @@ class CalendarDayCard extends StatelessWidget {
       backgroundColor = AFThemeExtension.of(context).lightGreyHover;
     }
 
-    return ChangeNotifierProvider(
-      create: (_) => _CardEnterNotifier(),
-      builder: (context, child) {
-        Widget? multipleCards;
-        if (events.isNotEmpty) {
-          multipleCards = Flexible(
-            child: ListView.separated(
-              itemBuilder: (BuildContext context, int index) =>
-                  _buildCard(context, events[index]),
-              itemCount: events.length,
-              padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 8.0),
-              separatorBuilder: (BuildContext context, int index) =>
-                  VSpace(GridSize.typeOptionSeparatorHeight),
-            ),
-          );
-        }
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return ChangeNotifierProvider(
+          create: (_) => _CardEnterNotifier(),
+          builder: (context, child) {
+            final child = Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                _Header(
+                  date: date,
+                  isInMonth: isInMonth,
+                  isToday: isToday,
+                ),
 
-        final child = Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _Header(
-              date: date,
-              isInMonth: isInMonth,
-              isToday: isToday,
-              onCreate: () => onCreateEvent(date),
-            ),
+                // Add a separator between the header and the content.
+                VSpace(GridSize.typeOptionSeparatorHeight),
 
-            // Add a separator between the header and the content.
-            VSpace(GridSize.typeOptionSeparatorHeight),
+                // List of cards or empty space
+                if (events.isNotEmpty)
+                  _EventList(
+                    events: events,
+                    viewId: viewId,
+                    rowCache: _rowCache,
+                    constraints: constraints,
+                  ),
+              ],
+            );
 
-            // Use SizedBox instead of ListView if there are no cards.
-            multipleCards ?? const SizedBox(),
-          ],
-        );
-
-        return Container(
-          color: backgroundColor,
-          child: GestureDetector(
-            onDoubleTap: () => onCreateEvent(date),
-            child: MouseRegion(
-              cursor: SystemMouseCursors.basic,
-              onEnter: (p) => notifyEnter(context, true),
-              onExit: (p) => notifyEnter(context, false),
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: child,
-              ),
-            ),
-          ),
+            return Stack(
+              children: <Widget>[
+                GestureDetector(
+                  onDoubleTap: () => onCreateEvent(date),
+                  child: Container(color: backgroundColor),
+                ),
+                DragTarget<CalendarDayEvent>(
+                  builder: (context, candidate, __) {
+                    return Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        if (candidate.isNotEmpty)
+                          Container(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .secondaryContainer,
+                          ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: child,
+                        )
+                      ],
+                    );
+                  },
+                  onWillAccept: (CalendarDayEvent? event) {
+                    if (event == null) {
+                      return false;
+                    }
+                    return !isSameDay(event.date, date);
+                  },
+                  onAccept: (CalendarDayEvent event) {
+                    context
+                        .read<CalendarBloc>()
+                        .add(CalendarEvent.moveEvent(event, date));
+                  },
+                ),
+                _NewEventButton(onCreate: () => onCreateEvent(date)),
+                MouseRegion(
+                  onEnter: (p) => notifyEnter(context, true),
+                  onExit: (p) => notifyEnter(context, false),
+                  opaque: false,
+                  hitTestBehavior: HitTestBehavior.translucent,
+                ),
+              ],
+            );
+          },
         );
       },
-    );
-  }
-
-  Widget _buildCard(BuildContext context, CalendarDayEvent event) {
-    final styles = <FieldType, CardCellStyle>{
-      FieldType.Number: NumberCardCellStyle(10),
-      FieldType.URL: URLCardCellStyle(10),
-    };
-
-    final cellBuilder = CardCellBuilder<String>(
-      _rowCache.cellCache,
-      styles: styles,
-    );
-
-    final rowInfo = _rowCache.getRow(event.eventId);
-    final renderHook = RowCardRenderHook<String>();
-    renderHook.addTextCellHook((cellData, primaryFieldId, _) {
-      if (cellData.isEmpty) {
-        return const SizedBox();
-      }
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: FlowyText.medium(
-          cellData,
-          textAlign: TextAlign.left,
-          fontSize: 11,
-          maxLines: null, // Enable multiple lines
-        ),
-      );
-    });
-
-    renderHook.addDateCellHook((cellData, cardData, _) {
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                flex: 3,
-                child: FlowyText.regular(
-                  cellData.date,
-                  fontSize: 10,
-                  color: Theme.of(context).hintColor,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              Flexible(
-                child: FlowyText.regular(
-                  cellData.time,
-                  fontSize: 10,
-                  color: Theme.of(context).hintColor,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              )
-            ],
-          ),
-        ),
-      );
-    });
-
-    renderHook.addSelectOptionHook((selectedOptions, cardData, _) {
-      if (selectedOptions.isEmpty) {
-        return const SizedBox.shrink();
-      }
-      final children = selectedOptions.map(
-        (option) {
-          return SelectOptionTag.fromOption(
-            context: context,
-            option: option,
-          );
-        },
-      ).toList();
-
-      return IntrinsicHeight(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
-          child: SizedBox.expand(
-            child: Wrap(spacing: 4, runSpacing: 4, children: children),
-          ),
-        ),
-      );
-    });
-
-    // renderHook.addDateFieldHook((cellData, cardData) {
-
-    final card = RowCard<String>(
-      // Add the key here to make sure the card is rebuilt when the cells
-      // in this row are updated.
-      key: ValueKey(event.eventId),
-      row: rowInfo!.rowPB,
-      viewId: viewId,
-      rowCache: _rowCache,
-      cardData: event.dateFieldId,
-      isEditing: false,
-      cellBuilder: cellBuilder,
-      openCard: (context) => showEventDetails(
-        context: context,
-        event: event,
-        viewId: viewId,
-        rowCache: _rowCache,
-      ),
-      styleConfiguration: const RowCardStyleConfiguration(
-        showAccessory: false,
-        cellPadding: EdgeInsets.zero,
-      ),
-      renderHook: renderHook,
-      onStartEditing: () {},
-      onEndEditing: () {},
-    );
-
-    return FlowyHover(
-      style: HoverStyle(
-        hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
-        foregroundColorOnHover: Theme.of(context).colorScheme.onBackground,
-      ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 2),
-        decoration: BoxDecoration(
-          border: Border.fromBorderSide(
-            BorderSide(
-              color: Theme.of(context).dividerColor,
-              width: 1.5,
-            ),
-          ),
-          borderRadius: Corners.s6Border,
-        ),
-        child: card,
-      ),
     );
   }
 
@@ -243,55 +140,49 @@ class _Header extends StatelessWidget {
   final bool isToday;
   final bool isInMonth;
   final DateTime date;
-  final VoidCallback onCreate;
   const _Header({
     required this.isToday,
     required this.isInMonth,
     required this.date,
-    required this.onCreate,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<_CardEnterNotifier>(
-      builder: (context, notifier, _) {
-        final badge = _DayBadge(
-          isToday: isToday,
-          isInMonth: isInMonth,
-          date: date,
-        );
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Row(
-            children: [
-              if (notifier.onEnter) _NewEventButton(onClick: onCreate),
-              const Spacer(),
-              badge,
-            ],
-          ),
-        );
-      },
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: _DayBadge(
+        isToday: isToday,
+        isInMonth: isInMonth,
+        date: date,
+      ),
     );
   }
 }
 
 class _NewEventButton extends StatelessWidget {
-  final VoidCallback onClick;
-  const _NewEventButton({
-    required this.onClick,
-    Key? key,
-  }) : super(key: key);
+  final VoidCallback onCreate;
+  const _NewEventButton({required this.onCreate, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return FlowyIconButton(
-      onPressed: onClick,
-      iconPadding: EdgeInsets.zero,
-      icon: const FlowySvg(name: "home/add"),
-      hoverColor: AFThemeExtension.of(context).lightGreyHover,
-      width: 22,
+    return Consumer<_CardEnterNotifier>(
+      builder: (context, notifier, _) {
+        if (!notifier.onEnter) {
+          return const SizedBox.shrink();
+        }
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: FlowyIconButton(
+            onPressed: onCreate,
+            iconPadding: EdgeInsets.zero,
+            icon: const FlowySvg(name: "home/add"),
+            fillColor: Theme.of(context).colorScheme.background,
+            hoverColor: AFThemeExtension.of(context).lightGreyHover,
+            width: 22,
+          ),
+        );
+      },
     );
   }
 }
@@ -322,6 +213,7 @@ class _DayBadge extends StatelessWidget {
     }
 
     return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
         if (date.day == 1) FlowyText.medium(monthString),
         Container(
@@ -341,6 +233,199 @@ class _DayBadge extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class _EventList extends StatelessWidget {
+  final List<CalendarDayEvent> events;
+  final String viewId;
+  final RowCache rowCache;
+  final BoxConstraints constraints;
+
+  const _EventList({
+    required this.events,
+    required this.viewId,
+    required this.rowCache,
+    required this.constraints,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      child: ListView.separated(
+        itemBuilder: (BuildContext context, int index) => _EventCard(
+          event: events[index],
+          viewId: viewId,
+          rowCache: rowCache,
+          constraints: constraints,
+        ),
+        itemCount: events.length,
+        padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 8.0),
+        separatorBuilder: (BuildContext context, int index) =>
+            VSpace(GridSize.typeOptionSeparatorHeight),
+        shrinkWrap: true,
+      ),
+    );
+  }
+}
+
+class _EventCard extends StatelessWidget {
+  final CalendarDayEvent event;
+  final String viewId;
+  final RowCache rowCache;
+  final BoxConstraints constraints;
+
+  const _EventCard({
+    required this.event,
+    required this.viewId,
+    required this.rowCache,
+    required this.constraints,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final rowInfo = rowCache.getRow(event.eventId);
+    final styles = <FieldType, CardCellStyle>{
+      FieldType.Number: NumberCardCellStyle(10),
+      FieldType.URL: URLCardCellStyle(10),
+    };
+    final cellBuilder = CardCellBuilder<String>(
+      rowCache.cellCache,
+      styles: styles,
+    );
+    final renderHook = _calendarEventCardRenderHook(context);
+
+    final card = RowCard<String>(
+      // Add the key here to make sure the card is rebuilt when the cells
+      // in this row are updated.
+      key: ValueKey(event.eventId),
+      row: rowInfo!.rowPB,
+      viewId: viewId,
+      rowCache: rowCache,
+      cardData: event.dateFieldId,
+      isEditing: false,
+      cellBuilder: cellBuilder,
+      openCard: (context) => showEventDetails(
+        context: context,
+        event: event,
+        viewId: viewId,
+        rowCache: rowCache,
+      ),
+      styleConfiguration: RowCardStyleConfiguration(
+        showAccessory: false,
+        cellPadding: EdgeInsets.zero,
+        hoverStyle: HoverStyle(
+          hoverColor: AFThemeExtension.of(context).lightGreyHover,
+          foregroundColorOnHover: Theme.of(context).colorScheme.onBackground,
+        ),
+      ),
+      renderHook: renderHook,
+      onStartEditing: () {},
+      onEndEditing: () {},
+    );
+
+    final decoration = BoxDecoration(
+      border: Border.fromBorderSide(
+        BorderSide(color: Theme.of(context).dividerColor),
+      ),
+      borderRadius: Corners.s6Border,
+    );
+
+    return Draggable<CalendarDayEvent>(
+      data: event,
+      feedback: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: constraints.maxWidth - 16.0,
+        ),
+        child: Container(
+          decoration: decoration.copyWith(
+            color: AFThemeExtension.of(context).lightGreyHover,
+          ),
+          child: card,
+        ),
+      ),
+      child: Container(
+        decoration: decoration,
+        child: card,
+      ),
+    );
+  }
+
+  RowCardRenderHook<String> _calendarEventCardRenderHook(BuildContext context) {
+    final renderHook = RowCardRenderHook<String>();
+    renderHook.addTextCellHook((cellData, primaryFieldId, _) {
+      if (cellData.isEmpty) {
+        return const SizedBox.shrink();
+      }
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: FlowyText.medium(
+          cellData,
+          textAlign: TextAlign.left,
+          fontSize: 11,
+          maxLines: null, // Enable multiple lines
+        ),
+      );
+    });
+
+    renderHook.addDateCellHook((cellData, cardData, _) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                flex: 3,
+                child: FlowyText.regular(
+                  cellData.date,
+                  fontSize: 10,
+                  color: Theme.of(context).hintColor,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              if (cellData.includeTime)
+                Flexible(
+                  child: FlowyText.regular(
+                    cellData.time,
+                    fontSize: 10,
+                    color: Theme.of(context).hintColor,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                )
+            ],
+          ),
+        ),
+      );
+    });
+
+    renderHook.addSelectOptionHook((selectedOptions, cardData, _) {
+      if (selectedOptions.isEmpty) {
+        return const SizedBox.shrink();
+      }
+      final children = selectedOptions.map(
+        (option) {
+          return SelectOptionTag.fromOption(
+            context: context,
+            option: option,
+          );
+        },
+      ).toList();
+
+      return IntrinsicHeight(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: SizedBox.expand(
+            child: Wrap(spacing: 4, runSpacing: 4, children: children),
+          ),
+        ),
+      );
+    });
+
+    return renderHook;
   }
 }
 

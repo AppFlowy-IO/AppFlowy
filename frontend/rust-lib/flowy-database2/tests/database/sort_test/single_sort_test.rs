@@ -184,7 +184,7 @@ async fn sort_date_by_descending_test() {
         "2022/03/14",
         "2022/11/17",
         "2022/11/13",
-        "2022/12/24",
+        "2022/12/25",
       ],
     },
     InsertSort {
@@ -194,7 +194,7 @@ async fn sort_date_by_descending_test() {
     AssertCellContentOrder {
       field_id: date_field.id.clone(),
       orders: vec![
-        "2022/12/24",
+        "2022/12/25",
         "2022/11/17",
         "2022/11/13",
         "2022/03/14",
