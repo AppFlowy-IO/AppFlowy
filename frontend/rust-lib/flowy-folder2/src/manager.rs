@@ -1,4 +1,5 @@
 use std::collections::{HashMap, HashSet};
+
 use std::ops::Deref;
 use std::sync::{Arc, Weak};
 
@@ -13,7 +14,7 @@ use parking_lot::Mutex;
 use tracing::{event, Level};
 
 use crate::deps::{FolderCloudService, FolderUser};
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_infra::util::timestamp;
 use tokio_stream::wrappers::WatchStream;
 use tokio_stream::StreamExt;
@@ -26,16 +27,15 @@ use crate::notification::{
   send_notification, send_workspace_notification, send_workspace_setting_notification,
   FolderNotification,
 };
+use crate::share::ImportParams;
 use crate::user_default::DefaultFolderBuilder;
-use crate::view_ext::{
-  gen_view_id, view_from_create_view_params, ViewDataProcessor, ViewDataProcessorMap,
-};
+use crate::view_ext::{create_view, gen_view_id, FolderOperationHandler, FolderOperationHandlers};
 
 pub struct Folder2Manager {
   mutex_folder: Arc<MutexFolder>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   user: Arc<dyn FolderUser>,
-  view_processors: ViewDataProcessorMap,
+  operation_handlers: FolderOperationHandlers,
   cloud_service: Arc<dyn FolderCloudService>,
 }
 
@@ -46,7 +46,7 @@ impl Folder2Manager {
   pub async fn new(
     user: Arc<dyn FolderUser>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
-    view_processors: ViewDataProcessorMap,
+    operation_handlers: FolderOperationHandlers,
     cloud_service: Arc<dyn FolderCloudService>,
   ) -> FlowyResult<Self> {
     let mutex_folder = Arc::new(MutexFolder::default());
@@ -54,7 +54,7 @@ impl Folder2Manager {
       user,
       mutex_folder,
       collab_builder,
-      view_processors,
+      operation_handlers,
       cloud_service,
     };
 
@@ -128,7 +128,7 @@ impl Folder2Manager {
     let (folder_data, workspace_pb) = DefaultFolderBuilder::build(
       self.user.user_id()?,
       workspace_id.to_string(),
-      &self.view_processors,
+      &self.operation_handlers,
     )
     .await;
     self.with_folder((), |folder| {
@@ -198,14 +198,14 @@ impl Folder2Manager {
 
   pub async fn create_view_with_params(&self, params: CreateViewParams) -> FlowyResult<View> {
     let view_layout: ViewLayout = params.layout.clone().into();
-    let processor = self.get_data_processor(&view_layout)?;
+    let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
-    let ext = params.ext.clone();
+    let ext = params.meta.clone();
     match params.initial_data.is_empty() {
       true => {
         tracing::trace!("Create view with build-in data");
-        processor
-          .create_view_with_built_in_data(
+        handler
+          .create_built_in_view(
             user_id,
             &params.view_id,
             &params.name,
@@ -216,8 +216,8 @@ impl Folder2Manager {
       },
       false => {
         tracing::trace!("Create view with view data");
-        processor
-          .create_view_with_custom_data(
+        handler
+          .create_view_with_view_data(
             user_id,
             &params.view_id,
             &params.name,
@@ -228,7 +228,7 @@ impl Folder2Manager {
           .await?;
       },
     }
-    let view = view_from_create_view_params(params, view_layout);
+    let view = create_view(params, view_layout);
     self.with_folder((), |folder| {
       folder.insert_view(view.clone());
     });
@@ -244,12 +244,12 @@ impl Folder2Manager {
       .ok_or_else(|| {
         FlowyError::record_not_found().context("Can't find the view when closing the view")
       })?;
-    let processor = self.get_data_processor(&view.layout)?;
-    processor.close_view(view_id).await?;
+    let handler = self.get_handler(&view.layout)?;
+    handler.close_view(view_id).await?;
     Ok(())
   }
 
-  pub async fn create_view_data(
+  pub async fn create_view_with_data(
     &self,
     view_id: &str,
     name: &str,
@@ -257,9 +257,9 @@ impl Folder2Manager {
     data: Vec<u8>,
   ) -> FlowyResult<()> {
     let user_id = self.user.user_id()?;
-    let processor = self.get_data_processor(&view_layout)?;
-    processor
-      .create_view_with_custom_data(
+    let handler = self.get_handler(&view_layout)?;
+    handler
+      .create_view_with_view_data(
         user_id,
         view_id,
         name,
@@ -381,20 +381,20 @@ impl Folder2Manager {
       .with_folder(None, |folder| folder.views.get_view(view_id))
       .ok_or_else(|| FlowyError::record_not_found().context("Can't duplicate the view"))?;
 
-    let processor = self.get_data_processor(&view.layout)?;
-    let view_data = processor.get_view_data(&view.id).await?;
-    let ext = HashMap::new();
+    let handler = self.get_handler(&view.layout)?;
+    let view_data = handler.duplicate_view(&view.id).await?;
+    let meta = HashMap::new();
     // if let Some(database_id) = view.database_id {
-    //   ext.insert("database_id".to_string(), database_id);
+    //   meta.insert("database_id".to_string(), database_id);
     // }
     let duplicate_params = CreateViewParams {
-      belong_to_id: view.bid.clone(),
+      parent_view_id: view.bid.clone(),
       name: format!("{} (copy)", &view.name),
       desc: view.desc,
       layout: view.layout.into(),
       initial_data: view_data.to_vec(),
       view_id: gen_view_id(),
-      ext,
+      meta,
     };
 
     let _ = self.create_view_with_params(duplicate_params).await?;
@@ -465,11 +465,52 @@ impl Folder2Manager {
       .send();
   }
 
-  fn get_data_processor(
+  pub(crate) async fn import(&self, import_data: ImportParams) -> FlowyResult<View> {
+    if import_data.data.is_none() && import_data.file_path.is_none() {
+      return Err(FlowyError::new(
+        ErrorCode::InvalidData,
+        "data or file_path is required",
+      ));
+    }
+
+    let handler = self.get_handler(&import_data.view_layout)?;
+    let view_id = gen_view_id();
+    if let Some(data) = import_data.data {
+      handler
+        .import_from_bytes(&view_id, &import_data.name, data)
+        .await?;
+    }
+
+    if let Some(file_path) = import_data.file_path {
+      handler
+        .import_from_file_path(&view_id, &import_data.name, file_path)
+        .await?;
+    }
+
+    let params = CreateViewParams {
+      parent_view_id: import_data.parent_view_id,
+      name: import_data.name,
+      desc: "".to_string(),
+      layout: import_data.view_layout.clone().into(),
+      initial_data: vec![],
+      view_id,
+      meta: Default::default(),
+    };
+
+    let view = create_view(params, import_data.view_layout);
+    self.with_folder((), |folder| {
+      folder.insert_view(view.clone());
+    });
+    notify_parent_view_did_change(self.mutex_folder.clone(), vec![view.bid.clone()]);
+    Ok(view)
+  }
+
+  /// Returns a handler that implements the [FolderOperationHandler] trait
+  fn get_handler(
     &self,
     view_layout: &ViewLayout,
-  ) -> FlowyResult<Arc<dyn ViewDataProcessor + Send + Sync>> {
-    match self.view_processors.get(view_layout) {
+  ) -> FlowyResult<Arc<dyn FolderOperationHandler + Send + Sync>> {
+    match self.operation_handlers.get(view_layout) {
       None => Err(FlowyError::internal().context(format!(
         "Get data processor failed. Unknown layout type: {:?}",
         view_layout

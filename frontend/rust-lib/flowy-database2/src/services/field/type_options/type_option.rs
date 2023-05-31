@@ -37,7 +37,7 @@ pub trait TypeOption {
   /// Represents as the corresponding field type cell changeset.
   /// The changeset must implements the `FromCellChangesetString` and the `ToCellChangesetString` trait.
   /// These two traits are auto implemented for `String`.
-  ///  
+  ///
   type CellChangeset: FromCellChangeset + ToCellChangeset;
 
   ///  For the moment, the protobuf type only be used in the FFI of `Dart`. If the decoded cell
@@ -221,9 +221,8 @@ pub fn default_type_option_data_from_type(field_type: &FieldType) -> TypeOptionD
     FieldType::RichText => RichTextTypeOption::default().into(),
     FieldType::Number => NumberTypeOption::default().into(),
     FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => DateTypeOption {
-      date_format: Default::default(),
-      time_format: Default::default(),
       field_type: field_type.clone(),
+      ..Default::default()
     }
     .into(),
     FieldType::SingleSelect => SingleSelectTypeOption::default().into(),

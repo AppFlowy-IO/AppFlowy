@@ -307,7 +307,6 @@ class _PropertyCellState extends State<_PropertyCell> {
   Widget buildFieldEditor() {
     return FieldEditor(
       viewId: widget.cellId.viewId,
-      fieldName: widget.cellId.fieldInfo.field.name,
       isGroupingField: widget.cellId.fieldInfo.isGroupField,
       typeOptionLoader: FieldTypeOptionLoader(
         viewId: widget.cellId.viewId,
@@ -366,8 +365,8 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
       return GridURLCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
         accessoryTypes: [
-          GridURLCellAccessoryType.edit,
           GridURLCellAccessoryType.copyURL,
+          GridURLCellAccessoryType.visitURL,
         ],
       );
   }

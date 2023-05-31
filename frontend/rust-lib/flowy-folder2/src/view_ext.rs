@@ -8,29 +8,22 @@ use lib_infra::util::timestamp;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-pub trait ViewDataProcessor {
+pub type ViewData = Bytes;
+
+/// The handler will be used to handler the folder operation for a specific
+/// view layout. Each [ViewLayout] will have a handler. So when creating a new
+/// view, the [ViewLayout] will be used to get the handler.
+///
+pub trait FolderOperationHandler {
   /// Closes the view and releases the resources that this view has in
   /// the backend
   fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError>;
 
-  /// Gets the data of the this view.
-  /// For example, the data can be used to duplicate the view.
-  fn get_view_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError>;
-
-  /// Create a view with the pre-defined data.
-  /// For example, the initial data of the grid/calendar/kanban board when
-  /// you create a new view.
-  fn create_view_with_built_in_data(
-    &self,
-    user_id: i64,
-    view_id: &str,
-    name: &str,
-    layout: ViewLayout,
-    ext: HashMap<String, String>,
-  ) -> FutureResult<(), FlowyError>;
+  /// Returns the [ViewData] that can be used to create the same view.
+  fn duplicate_view(&self, view_id: &str) -> FutureResult<ViewData, FlowyError>;
 
   /// Create a view with custom data
-  fn create_view_with_custom_data(
+  fn create_view_with_view_data(
     &self,
     user_id: i64,
     view_id: &str,
@@ -39,9 +32,38 @@ pub trait ViewDataProcessor {
     layout: ViewLayout,
     ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError>;
+
+  /// Create a view with the pre-defined data.
+  /// For example, the initial data of the grid/calendar/kanban board when
+  /// you create a new view.
+  fn create_built_in_view(
+    &self,
+    user_id: i64,
+    view_id: &str,
+    name: &str,
+    layout: ViewLayout,
+    meta: HashMap<String, String>,
+  ) -> FutureResult<(), FlowyError>;
+
+  /// Create a view by importing data
+  fn import_from_bytes(
+    &self,
+    view_id: &str,
+    name: &str,
+    bytes: Vec<u8>,
+  ) -> FutureResult<(), FlowyError>;
+
+  /// Create a view by importing data from a file
+  fn import_from_file_path(
+    &self,
+    view_id: &str,
+    name: &str,
+    path: String,
+  ) -> FutureResult<(), FlowyError>;
 }
 
-pub type ViewDataProcessorMap = Arc<HashMap<ViewLayout, Arc<dyn ViewDataProcessor + Send + Sync>>>;
+pub type FolderOperationHandlers =
+  Arc<HashMap<ViewLayout, Arc<dyn FolderOperationHandler + Send + Sync>>>;
 
 impl From<ViewLayoutPB> for ViewLayout {
   fn from(pb: ViewLayoutPB) -> Self {
@@ -54,11 +76,11 @@ impl From<ViewLayoutPB> for ViewLayout {
   }
 }
 
-pub fn view_from_create_view_params(params: CreateViewParams, layout: ViewLayout) -> View {
+pub(crate) fn create_view(params: CreateViewParams, layout: ViewLayout) -> View {
   let time = timestamp();
   View {
     id: params.view_id,
-    bid: params.belong_to_id,
+    bid: params.parent_view_id,
     name: params.name,
     desc: params.desc,
     children: Default::default(),

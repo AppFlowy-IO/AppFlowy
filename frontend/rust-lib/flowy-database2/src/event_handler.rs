@@ -5,7 +5,7 @@ use collab_database::rows::RowId;
 use collab_database::views::DatabaseLayout;
 use lib_infra::util::timestamp;
 
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
 use crate::entities::*;
@@ -17,7 +17,6 @@ use crate::services::field::{
   type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
 };
 use crate::services::group::{GroupChangeset, GroupSettingChangeset};
-use crate::services::share::csv::CSVFormat;
 
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn get_database_data_handler(
@@ -513,7 +512,6 @@ pub(crate) async fn update_date_cell_handler(
     date: data.date,
     time: data.time,
     include_time: data.include_time,
-    timezone_id: data.timezone_id,
   };
   let database_editor = manager.get_database_with_view_id(&cell_id.view_id).await?;
   database_editor
@@ -680,25 +678,24 @@ pub(crate) async fn get_calendar_event_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn import_data_handler(
-  data: AFPluginData<DatabaseImportPB>,
+pub(crate) async fn move_calendar_event_handler(
+  data: AFPluginData<MoveCalendarEventPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> FlowyResult<()> {
-  let params = data.into_inner();
-
-  match params.import_type {
-    ImportTypePB::CSV => {
-      if let Some(data) = params.data {
-        manager.import_csv(data, CSVFormat::META).await?;
-      } else if let Some(uri) = params.uri {
-        manager.import_csv_from_uri(uri, CSVFormat::META).await?;
-      } else {
-        return Err(FlowyError::new(
-          ErrorCode::InvalidData,
-          "No data or uri provided",
-        ));
-      }
-    },
-  }
+  let data = data.into_inner();
+  let cell_id: CellIdParams = data.cell_path.try_into()?;
+  let cell_changeset = DateCellChangeset {
+    date: Some(data.timestamp.to_string()),
+    ..Default::default()
+  };
+  let database_editor = manager.get_database_with_view_id(&cell_id.view_id).await?;
+  database_editor
+    .update_cell_with_changeset(
+      &cell_id.view_id,
+      cell_id.row_id,
+      &cell_id.field_id,
+      cell_changeset,
+    )
+    .await?;
   Ok(())
 }

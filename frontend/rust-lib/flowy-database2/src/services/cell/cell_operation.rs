@@ -213,7 +213,6 @@ pub fn insert_date_cell(timestamp: i64, include_time: Option<bool>, field: &Fiel
     date: Some(timestamp.to_string()),
     time: None,
     include_time,
-    timezone_id: None,
   })
   .unwrap();
   apply_cell_changeset(cell_data, None, field, None).unwrap()

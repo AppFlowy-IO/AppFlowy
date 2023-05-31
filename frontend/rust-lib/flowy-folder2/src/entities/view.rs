@@ -123,7 +123,7 @@ pub struct RepeatedViewIdPB {
 #[derive(Default, ProtoBuf)]
 pub struct CreateViewPayloadPB {
   #[pb(index = 1)]
-  pub belong_to_id: String,
+  pub parent_view_id: String,
 
   #[pb(index = 2)]
   pub name: String,
@@ -146,13 +146,13 @@ pub struct CreateViewPayloadPB {
 
 #[derive(Debug, Clone)]
 pub struct CreateViewParams {
-  pub belong_to_id: String,
+  pub parent_view_id: String,
   pub name: String,
   pub desc: String,
   pub layout: ViewLayoutPB,
   pub view_id: String,
   pub initial_data: Vec<u8>,
-  pub ext: HashMap<String, String>,
+  pub meta: HashMap<String, String>,
 }
 
 impl TryInto<CreateViewParams> for CreateViewPayloadPB {
@@ -160,17 +160,17 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
 
   fn try_into(self) -> Result<CreateViewParams, Self::Error> {
     let name = ViewName::parse(self.name)?.0;
-    let belong_to_id = ViewIdentify::parse(self.belong_to_id)?.0;
+    let belong_to_id = ViewIdentify::parse(self.parent_view_id)?.0;
     let view_id = gen_view_id();
 
     Ok(CreateViewParams {
-      belong_to_id,
+      parent_view_id: belong_to_id,
       name,
       desc: self.desc,
       layout: self.layout,
       view_id,
       initial_data: self.initial_data,
-      ext: self.ext,
+      meta: self.ext,
     })
   }
 }
