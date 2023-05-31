@@ -5,6 +5,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -68,9 +69,9 @@ class RowCard<CustomCardData> extends StatefulWidget {
 }
 
 class _RowCardState<T> extends State<RowCard<T>> {
-  late CardBloc _cardBloc;
-  late EditableRowNotifier rowNotifier;
-  late PopoverController popoverController;
+  late final CardBloc _cardBloc;
+  late final EditableRowNotifier rowNotifier;
+  late final PopoverController popoverController;
   AccessoryType? accessoryType;
 
   @override
@@ -209,9 +210,24 @@ class _CardContent<CustomCardData> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: _makeCells(context, cells),
+    if (styleConfiguration.hoverStyle != null) {
+      return FlowyHover(
+        style: styleConfiguration.hoverStyle,
+        child: Padding(
+          padding: styleConfiguration.cardPadding,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: _makeCells(context, cells),
+          ),
+        ),
+      );
+    }
+    return Padding(
+      padding: styleConfiguration.cardPadding,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: _makeCells(context, cells),
+      ),
     );
   }
 
@@ -298,9 +314,13 @@ class _CardEditOption extends StatelessWidget with CardAccessory {
 class RowCardStyleConfiguration {
   final bool showAccessory;
   final EdgeInsets cellPadding;
+  final EdgeInsets cardPadding;
+  final HoverStyle? hoverStyle;
 
   const RowCardStyleConfiguration({
     this.showAccessory = true,
     this.cellPadding = const EdgeInsets.only(left: 4, right: 4),
+    this.cardPadding = const EdgeInsets.all(8),
+    this.hoverStyle,
   });
 }
