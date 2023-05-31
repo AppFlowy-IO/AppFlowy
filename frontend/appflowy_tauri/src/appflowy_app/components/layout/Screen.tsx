@@ -3,7 +3,7 @@ import { NavigationPanel } from './NavigationPanel/NavigationPanel';
 import { MainPanel } from './MainPanel';
 import { useNavigationPanelHooks } from './NavigationPanel/NavigationPanel.hooks';
 import { useWorkspace } from './Workspace.hooks';
-import { useAppSelector } from '../../stores/store';
+import { useAppSelector } from '$app/stores/store';
 
 export const Screen = ({ children }: { children: ReactNode }) => {
   const currentUser = useAppSelector((state) => state.currentUser);

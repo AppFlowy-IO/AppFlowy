@@ -1,6 +1,6 @@
-import { useAppSelector } from '../../../stores/store';
+import { useAppSelector } from '$app/stores/store';
 import { useNavigate } from 'react-router-dom';
-import { IPage } from '../../../stores/reducers/pages/slice';
+import { IPage } from '$app_reducers/pages/slice';
 import { ViewLayoutPB } from '@/services/backend';
 import { useState } from 'react';
 

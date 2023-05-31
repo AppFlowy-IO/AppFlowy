@@ -1,8 +1,8 @@
-import { foldersActions } from '../../stores/reducers/folders/slice';
-import { useAppDispatch, useAppSelector } from '../../stores/store';
-import { pagesActions } from '../../stores/reducers/pages/slice';
-import { workspaceActions } from '../../stores/reducers/workspace/slice';
-import { UserBackendService } from '../../stores/effects/user/user_bd_svc';
+import { foldersActions } from '$app_reducers/folders/slice';
+import { useAppDispatch, useAppSelector } from '$app/stores/store';
+import { pagesActions } from '$app_reducers/pages/slice';
+import { workspaceActions } from '$app_reducers/workspace/slice';
+import { UserBackendService } from '$app/stores/effects/user/user_bd_svc';
 
 export const useWorkspace = () => {
   const currentUser = useAppSelector((state) => state.currentUser);
