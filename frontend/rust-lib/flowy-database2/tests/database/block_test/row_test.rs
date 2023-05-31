@@ -15,7 +15,7 @@ async fn created_at_field_test() {
 
   // Get created time of the new row.
   let row = test.get_rows().await.last().cloned().unwrap();
-  let updated_at_field = test.get_first_field(FieldType::CreatedAt);
+  let updated_at_field = test.get_first_field(FieldType::CreatedTime);
   let cell = row.cells.cell_for_field_id(&updated_at_field.id).unwrap();
   let created_at_timestamp = DateCellData::from(cell).timestamp.unwrap();
 
@@ -28,7 +28,7 @@ async fn created_at_field_test() {
 async fn update_at_field_test() {
   let mut test = DatabaseRowTest::new().await;
   let row = test.get_rows().await.remove(0);
-  let updated_at_field = test.get_first_field(FieldType::UpdatedAt);
+  let updated_at_field = test.get_first_field(FieldType::LastEditedTime);
   let cell = row.cells.cell_for_field_id(&updated_at_field.id).unwrap();
   let old_updated_at = DateCellData::from(cell).timestamp.unwrap();
 
@@ -41,7 +41,7 @@ async fn update_at_field_test() {
 
   // Get the updated time of the row.
   let row = test.get_rows().await.remove(0);
-  let updated_at_field = test.get_first_field(FieldType::UpdatedAt);
+  let updated_at_field = test.get_first_field(FieldType::LastEditedTime);
   let cell = row.cells.cell_for_field_id(&updated_at_field.id).unwrap();
   let new_updated_at = DateCellData::from(cell).timestamp.unwrap();
 

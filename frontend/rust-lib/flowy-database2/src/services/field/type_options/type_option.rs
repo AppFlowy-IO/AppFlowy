@@ -146,7 +146,7 @@ pub fn type_option_data_from_pb_or_default<T: Into<Bytes>>(
     FieldType::Number => {
       NumberTypeOptionPB::try_from(bytes).map(|pb| NumberTypeOption::from(pb).into())
     },
-    FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
+    FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
       DateTypeOptionPB::try_from(bytes).map(|pb| DateTypeOption::from(pb).into())
     },
     FieldType::SingleSelect => {
@@ -181,7 +181,7 @@ pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) ->
         .try_into()
         .unwrap()
     },
-    FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
+    FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
       let date_type_option: DateTypeOption = type_option.into();
       DateTypeOptionPB::from(date_type_option).try_into().unwrap()
     },
@@ -220,7 +220,7 @@ pub fn default_type_option_data_from_type(field_type: &FieldType) -> TypeOptionD
   match field_type {
     FieldType::RichText => RichTextTypeOption::default().into(),
     FieldType::Number => NumberTypeOption::default().into(),
-    FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => DateTypeOption {
+    FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => DateTypeOption {
       date_format: Default::default(),
       time_format: Default::default(),
       field_type: field_type.clone(),

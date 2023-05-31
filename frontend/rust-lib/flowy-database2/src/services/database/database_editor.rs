@@ -514,7 +514,7 @@ impl DatabaseEditor {
       .lock()
       .get_fields(view_id, None)
       .into_iter()
-      .filter(|f| FieldType::from(f.field_type) == FieldType::UpdatedAt)
+      .filter(|f| FieldType::from(f.field_type) == FieldType::LastEditedTime)
       .collect::<Vec<Field>>();
 
     self.database.lock().update_row(&row_id, |row_update| {

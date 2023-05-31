@@ -37,7 +37,7 @@ pub fn make_test_board() -> DatabaseData {
           .build();
         fields.push(number_field);
       },
-      FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
+      FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
         // Date
         let date_type_option = DateTypeOption {
           date_format: DateFormat::US,
@@ -46,8 +46,8 @@ pub fn make_test_board() -> DatabaseData {
         };
         let name = match field_type {
           FieldType::DateTime => "Time",
-          FieldType::UpdatedAt => "Updated At",
-          FieldType::CreatedAt => "Created At",
+          FieldType::LastEditedTime => "Updated At",
+          FieldType::CreatedTime => "Created At",
           _ => "",
         };
         let date_field = FieldBuilder::new(field_type.clone(), date_type_option)
@@ -125,7 +125,7 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("A"),
             FieldType::Number => row_builder.insert_number_cell("1"),
             // 1647251762 => Mar 14,2022
-            FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => row_builder
+            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => row_builder
               .insert_date_cell(
                 "1647251762",
                 None,
@@ -150,7 +150,7 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("B"),
             FieldType::Number => row_builder.insert_number_cell("2"),
             // 1647251762 => Mar 14,2022
-            FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => row_builder
+            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => row_builder
               .insert_date_cell(
                 "1647251762",
                 None,
@@ -174,7 +174,7 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("C"),
             FieldType::Number => row_builder.insert_number_cell("3"),
             // 1647251762 => Mar 14,2022
-            FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => row_builder
+            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => row_builder
               .insert_date_cell(
                 "1647251762",
                 None,
@@ -201,7 +201,7 @@ pub fn make_test_board() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("DA"),
             FieldType::Number => row_builder.insert_number_cell("4"),
-            FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => row_builder
+            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => row_builder
               .insert_date_cell(
                 "1668704685",
                 None,
@@ -223,7 +223,7 @@ pub fn make_test_board() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("AE"),
             FieldType::Number => row_builder.insert_number_cell(""),
-            FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => row_builder
+            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => row_builder
               .insert_date_cell(
                 "1668359085",
                 None,

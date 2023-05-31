@@ -365,8 +365,8 @@ Widget? _buildHeaderIcon(GroupData customData) {
       }
       break;
     case FieldType.DateTime:
-    case FieldType.UpdatedAt:
-    case FieldType.CreatedAt:
+    case FieldType.LastEditedTime:
+    case FieldType.CreatedTime:
       break;
     case FieldType.MultiSelect:
       break;

@@ -37,7 +37,7 @@ pub fn make_test_grid() -> DatabaseData {
           .build();
         fields.push(number_field);
       },
-      FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
+      FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
         // Date
         let date_type_option = DateTypeOption {
           date_format: DateFormat::US,
@@ -46,8 +46,8 @@ pub fn make_test_grid() -> DatabaseData {
         };
         let name = match field_type {
           FieldType::DateTime => "Time",
-          FieldType::UpdatedAt => "Updated At",
-          FieldType::CreatedAt => "Created At",
+          FieldType::LastEditedTime => "Updated At",
+          FieldType::CreatedTime => "Created At",
           _ => "",
         };
         let date_field = FieldBuilder::new(field_type.clone(), date_type_option)
@@ -123,7 +123,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("A"),
             FieldType::Number => row_builder.insert_number_cell("1"),
-            FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => row_builder
+            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => row_builder
               .insert_date_cell(
                 "1647251762",
                 None,
@@ -149,7 +149,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell(""),
             FieldType::Number => row_builder.insert_number_cell("2"),
-            FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => row_builder
+            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => row_builder
               .insert_date_cell(
                 "1647251762",
                 None,
@@ -169,7 +169,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("C"),
             FieldType::Number => row_builder.insert_number_cell("3"),
-            FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => row_builder
+            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => row_builder
               .insert_date_cell(
                 "1647251762",
                 None,
@@ -193,7 +193,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("DA"),
             FieldType::Number => row_builder.insert_number_cell("14"),
-            FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => row_builder
+            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => row_builder
               .insert_date_cell(
                 "1668704685",
                 None,
@@ -214,7 +214,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("AE"),
             FieldType::Number => row_builder.insert_number_cell(""),
-            FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => row_builder
+            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => row_builder
               .insert_date_cell(
                 "1668359085",
                 None,
@@ -236,7 +236,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("AE"),
             FieldType::Number => row_builder.insert_number_cell("5"),
-            FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => row_builder
+            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => row_builder
               .insert_date_cell(
                 "1671938394",
                 None,

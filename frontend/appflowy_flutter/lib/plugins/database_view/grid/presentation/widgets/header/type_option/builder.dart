@@ -73,8 +73,8 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
         ),
       );
     case FieldType.DateTime:
-    case FieldType.UpdatedAt:
-    case FieldType.CreatedAt:
+    case FieldType.LastEditedTime:
+    case FieldType.CreatedTime:
       return DateTypeOptionWidgetBuilder(
         makeTypeOptionContextWithDataController<DateTypeOptionPB>(
           viewId: viewId,
@@ -204,8 +204,8 @@ TypeOptionContext<T>
         dataParser: CheckboxTypeOptionWidgetDataParser(),
       ) as TypeOptionContext<T>;
     case FieldType.DateTime:
-    case FieldType.UpdatedAt:
-    case FieldType.CreatedAt:
+    case FieldType.LastEditedTime:
+    case FieldType.CreatedTime:
       return DateTypeOptionContext(
         dataController: dataController,
         dataParser: DateTypeOptionDataParser(),

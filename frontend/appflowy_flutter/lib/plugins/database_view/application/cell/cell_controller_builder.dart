@@ -40,8 +40,8 @@ class CellControllerBuilder {
           cellDataPersistence: TextCellDataPersistence(cellId: _cellId),
         );
       case FieldType.DateTime:
-      case FieldType.UpdatedAt:
-      case FieldType.CreatedAt:
+      case FieldType.LastEditedTime:
+      case FieldType.CreatedTime:
         final cellDataLoader = CellDataLoader(
           cellId: _cellId,
           parser: DateCellDataParser(),

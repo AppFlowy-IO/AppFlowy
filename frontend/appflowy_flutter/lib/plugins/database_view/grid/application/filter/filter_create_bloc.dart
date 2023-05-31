@@ -93,8 +93,8 @@ class GridCreateFilterBloc
           condition: CheckboxFilterConditionPB.IsChecked,
         );
       case FieldType.DateTime:
-      case FieldType.UpdatedAt:
-      case FieldType.CreatedAt:
+      case FieldType.LastEditedTime:
+      case FieldType.CreatedTime:
         final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
         return _filterBackendSvc.insertDateFilter(
           fieldId: fieldId,

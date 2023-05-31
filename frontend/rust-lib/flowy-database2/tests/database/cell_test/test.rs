@@ -23,7 +23,7 @@ async fn grid_cell_update() {
       let cell_changeset = match field_type {
         FieldType::RichText => "".to_string(),
         FieldType::Number => "123".to_string(),
-        FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
+        FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
           make_date_cell_string("123")
         },
         FieldType::SingleSelect => {
@@ -108,7 +108,7 @@ async fn url_cell_data_test() {
 #[tokio::test]
 async fn update_updated_at_field_on_other_cell_update() {
   let mut test = DatabaseCellTest::new().await;
-  let updated_at_field = test.get_first_field(FieldType::UpdatedAt);
+  let updated_at_field = test.get_first_field(FieldType::LastEditedTime);
 
   let text_field = test
     .fields

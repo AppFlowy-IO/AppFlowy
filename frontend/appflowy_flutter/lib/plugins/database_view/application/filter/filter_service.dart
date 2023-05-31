@@ -92,8 +92,8 @@ class FilterBackendService {
     assert(
       [
         FieldType.DateTime,
-        FieldType.UpdatedAt,
-        FieldType.CreatedAt,
+        FieldType.LastEditedTime,
+        FieldType.CreatedTime,
       ].contains(fieldType),
     );
 
