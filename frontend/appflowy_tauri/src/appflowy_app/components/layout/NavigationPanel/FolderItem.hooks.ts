@@ -36,6 +36,7 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
 
   useEffect(() => {
     void appObserver.subscribe({
+      /* these event is not firing */
       onAppChanged: (change) => {
         if (change.ok) {
           const views = change.val;
