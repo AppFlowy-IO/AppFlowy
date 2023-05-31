@@ -20,11 +20,33 @@ class AppTheme {
     required this.darkTheme,
   });
 
-  factory AppTheme.fromName(String themeName) {
-    return AppTheme(
-      themeName: themeName,
-      lightTheme: FlowyColorScheme.builtIn(themeName, Brightness.light),
-      darkTheme: FlowyColorScheme.builtIn(themeName, Brightness.dark),
-    );
+  static Future<Iterable<AppTheme>> get _plugins async =>
+      (await FlowyPluginService.instance)
+          .plugins
+          .map((plugin) => plugin.themes)
+          .expand((element) => element);
+
+  static Iterable<AppTheme> get _builtins => themeMap.entries
+      .map(
+        (entry) => AppTheme(
+          themeName: entry.key,
+          lightTheme: entry.value[0],
+          darkTheme: entry.value[1],
+        ),
+      )
+      .toList();
+
+  static Future<Iterable<AppTheme>> get themes async => [
+        ..._builtins,
+        ...(await _plugins),
+      ];
+
+  static Future<AppTheme> fromName(String themeName) async {
+    for (final theme in await themes) {
+      if (theme.themeName == themeName) {
+        return theme;
+      }
+    }
+    throw ArgumentError('The theme $themeName does not exist.');
   }
 }
