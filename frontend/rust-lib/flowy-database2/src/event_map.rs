@@ -65,7 +65,7 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         // Layout setting
         .event(DatabaseEvent::SetLayoutSetting, set_layout_setting_handler)
         .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler)
-  // import
+        .event(DatabaseEvent::CreateDatabaseView, create_database_view)
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -265,7 +265,7 @@ pub enum DatabaseEvent {
   #[event(input = "LayoutSettingChangesetPB")]
   SetLayoutSetting = 121,
 
-  #[event(input = "DatabaseLayoutIdPB", output = "LayoutSettingPB")]
+  #[event(input = "DatabaseLayoutMetaPB", output = "LayoutSettingPB")]
   GetLayoutSetting = 122,
 
   #[event(input = "CalendarEventRequestPB", output = "RepeatedCalendarEventPB")]
@@ -276,4 +276,7 @@ pub enum DatabaseEvent {
 
   #[event(input = "MoveCalendarEventPB")]
   MoveCalendarEvent = 125,
+
+  #[event(input = "CreateDatabaseViewPayloadPB")]
+  CreateDatabaseView = 126,
 }

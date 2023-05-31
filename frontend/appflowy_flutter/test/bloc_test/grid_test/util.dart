@@ -11,7 +11,6 @@ import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dar
 import 'package:appflowy/plugins/database_view/grid/grid.dart';
 import 'package:appflowy/workspace/application/app/app_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -181,10 +180,7 @@ class AppFlowyGridTest {
         (view) async {
           final context = GridTestContext(
             view,
-            DatabaseController(
-              view: view,
-              layoutType: DatabaseLayoutPB.Grid,
-            ),
+            DatabaseController(view: view),
           );
           final result = await context.gridController.open();
           result.fold((l) => null, (r) => throw Exception(r));

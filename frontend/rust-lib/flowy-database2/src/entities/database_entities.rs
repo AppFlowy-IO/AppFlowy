@@ -3,10 +3,11 @@ use collab_database::user::DatabaseRecord;
 use collab_database::views::DatabaseLayout;
 
 use flowy_derive::ProtoBuf;
-use flowy_error::ErrorCode;
+use flowy_error::{ErrorCode, FlowyError};
 
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{DatabaseLayoutPB, FieldIdPB, RowPB};
+use crate::services::database::CreateDatabaseViewParams;
 
 /// [DatabasePB] describes how many fields and blocks the grid has
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -19,12 +20,34 @@ pub struct DatabasePB {
 
   #[pb(index = 3)]
   pub rows: Vec<RowPB>,
+  
+  #[pb(index = 4)]
+  pub layout_type: DatabaseLayoutPB,
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct CreateDatabasePayloadPB {
+pub struct CreateDatabaseViewPayloadPB {
   #[pb(index = 1)]
   pub name: String,
+
+  #[pb(index = 2)]
+  pub view_id: String,
+
+  #[pb(index = 3)]
+  pub layout_type: DatabaseLayoutPB,
+}
+
+impl TryInto<CreateDatabaseViewParams> for CreateDatabaseViewPayloadPB {
+  type Error = FlowyError;
+
+  fn try_into(self) -> Result<CreateDatabaseViewParams, Self::Error> {
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
+    Ok(CreateDatabaseViewParams {
+      name: self.name,
+      view_id: view_id.0,
+      layout_type: self.layout_type.into(),
+    })
+  }
 }
 
 #[derive(Clone, ProtoBuf, Default, Debug)]

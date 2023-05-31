@@ -31,7 +31,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   BoardBloc({required ViewPB view})
       : _databaseController = DatabaseController(
           view: view,
-          layoutType: DatabaseLayoutPB.Board,
         ),
         super(BoardState.initial(view.id)) {
     boardController = AppFlowyBoardController(

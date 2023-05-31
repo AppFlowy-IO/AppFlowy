@@ -1,7 +1,6 @@
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/grid.dart';
 import 'package:appflowy/workspace/application/app/app_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 
 import '../util.dart';
 
@@ -19,10 +18,7 @@ Future<GridTestContext> createTestFilterGrid(AppFlowyGridTest gridTest) async {
       (view) async {
         final context = GridTestContext(
           view,
-          DatabaseController(
-            view: view,
-            layoutType: DatabaseLayoutPB.Grid,
-          ),
+          DatabaseController(view: view),
         );
         final result = await context.gridController.open();
 

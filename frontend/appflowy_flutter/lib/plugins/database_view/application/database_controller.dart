@@ -79,8 +79,8 @@ class DatabaseController {
   final String viewId;
   final DatabaseViewBackendService _databaseViewBackendSvc;
   final FieldController fieldController;
+  DatabaseLayoutPB? layoutType;
   late DatabaseViewCache _viewCache;
-  final DatabaseLayoutPB layoutType;
 
   // Callbacks
   DatabaseCallbacks? _databaseCallbacks;
@@ -96,7 +96,7 @@ class DatabaseController {
   final DatabaseLayoutListener layoutListener;
   final DatabaseCalendarLayoutListener calendarLayoutListener;
 
-  DatabaseController({required ViewPB view, required this.layoutType})
+  DatabaseController({required ViewPB view})
       : viewId = view.id,
         _databaseViewBackendSvc = DatabaseViewBackendService(viewId: view.id),
         fieldController = FieldController(viewId: view.id),
@@ -111,9 +111,6 @@ class DatabaseController {
     _listenOnFieldsChanged();
     _listenOnGroupChanged();
     _listenOnLayoutChanged();
-    if (layoutType == DatabaseLayoutPB.Calendar) {
-      _listenOnCalendarLayoutChanged();
-    }
   }
 
   void setListener({
@@ -132,6 +129,12 @@ class DatabaseController {
     return _databaseViewBackendSvc.openGrid().then((result) {
       return result.fold(
         (database) async {
+          layoutType = database.layoutType;
+
+          if (database.layoutType == DatabaseLayoutPB.Calendar) {
+            _listenOnCalendarLayoutChanged();
+          }
+
           _databaseCallbacks?.onDatabaseChanged?.call(database);
           _viewCache.rowCache.setInitialRows(database.rows);
           return await fieldController
@@ -242,14 +245,16 @@ class DatabaseController {
   }
 
   Future<void> _loadLayoutSetting() async {
-    _databaseViewBackendSvc.getLayoutSetting(layoutType).then((result) {
-      result.fold(
-        (l) {
-          _layoutCallbacks?.onLoadLayout(l);
-        },
-        (r) => Log.error(r),
-      );
-    });
+    if (layoutType != null) {
+      _databaseViewBackendSvc.getLayoutSetting(layoutType!).then((result) {
+        result.fold(
+          (l) {
+            _layoutCallbacks?.onLoadLayout(l);
+          },
+          (r) => Log.error(r),
+        );
+      });
+    }
   }
 
   void _listenOnRowsChanged() {

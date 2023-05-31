@@ -13,8 +13,8 @@ use flowy_task::TaskDispatcher;
 use lib_infra::future::Fut;
 
 use crate::entities::{
-  CalendarEventPB, DeleteFilterParams, DeleteGroupParams, DeleteSortParams, FieldType,
-  GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedRowPB, LayoutSettingPB,
+  CalendarEventPB, DatabaseLayoutMetaPB, DeleteFilterParams, DeleteGroupParams, DeleteSortParams,
+  FieldType, GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedRowPB, LayoutSettingPB,
   LayoutSettingParams, RowPB, RowsChangePB, SortChangesetNotificationPB, SortPB,
   UpdateFilterParams, UpdateSortParams,
 };
@@ -42,7 +42,7 @@ use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{DeletedSortType, Sort, SortChangeset, SortController, SortType};
 
 pub trait DatabaseViewData: Send + Sync + 'static {
-  fn get_view_setting(&self, view_id: &str) -> Fut<Option<DatabaseView>>;
+  fn get_view(&self, view_id: &str) -> Fut<Option<DatabaseView>>;
   /// If the field_ids is None, then it will return all the field revisions
   fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
 
@@ -167,6 +167,10 @@ impl DatabaseViewEditor {
   pub async fn close(&self) {
     self.sort_controller.write().await.close().await;
     self.filter_controller.close().await;
+  }
+
+  pub async fn get_view(&self) -> Option<DatabaseView> {
+    self.delegate.get_view(&self.view_id).await
   }
 
   pub async fn v_will_create_row(&self, cells: &mut Cells, group_id: &Option<String>) {
@@ -400,7 +404,7 @@ impl DatabaseViewEditor {
     if !is_grouping_field {
       self.v_update_grouping_field(field_id).await?;
 
-      if let Some(view) = self.delegate.get_view_setting(&self.view_id).await {
+      if let Some(view) = self.delegate.get_view(&self.view_id).await {
         let setting = database_view_setting_pb_from_view(view);
         notify_did_update_setting(&self.view_id, setting).await;
       }
@@ -792,8 +796,16 @@ impl DatabaseViewEditor {
   pub async fn v_update_layout_type(&self, layout_type: DatabaseLayout) {
     self
       .delegate
-      .update_layout_type(&self.view_id, &layout_type)
-      .await;
+      .update_layout_type(&self.view_id, &layout_type);
+
+    let payload = DatabaseLayoutMetaPB {
+      view_id: self.view_id.clone(),
+      layout: layout_type.into(),
+    };
+
+    send_notification(&self.view_id, DatabaseNotification::DidUpdateDatabaseLayout)
+      .payload(payload)
+      .send();
   }
 
   pub async fn handle_row_event(&self, event: Cow<'_, DatabaseRowEvent>) {

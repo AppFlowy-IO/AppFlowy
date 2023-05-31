@@ -121,7 +121,7 @@ impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
 
     Ok(DatabaseSettingChangesetParams {
       view_id,
-      layout_type: self.layout_type.into(),
+      layout_type: self.layout_type.map(|ty| ty.into()),
       insert_filter,
       delete_filter,
       alert_sort,

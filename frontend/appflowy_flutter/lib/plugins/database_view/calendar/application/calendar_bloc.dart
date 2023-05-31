@@ -28,10 +28,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   RowCache get rowCache => _databaseController.rowCache;
 
   CalendarBloc({required ViewPB view})
-      : _databaseController = DatabaseController(
-          view: view,
-          layoutType: DatabaseLayoutPB.Calendar,
-        ),
+      : _databaseController = DatabaseController(view: view),
         super(CalendarState.initial()) {
     on<CalendarEvent>(
       (event, emit) async {

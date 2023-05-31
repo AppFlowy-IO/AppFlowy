@@ -2,7 +2,6 @@ import 'package:appflowy/plugins/database_view/application/filter/filter_service
 import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checkbox_filter.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -55,7 +54,6 @@ void main() {
     final service = FilterBackendService(viewId: context.gridView.id);
     final gridController = DatabaseController(
       view: context.gridView,
-      layoutType: DatabaseLayoutPB.Grid,
     );
     final gridBloc = GridBloc(
       view: context.gridView,
@@ -80,7 +78,6 @@ void main() {
     final service = FilterBackendService(viewId: context.gridView.id);
     final gridController = DatabaseController(
       view: context.gridView,
-      layoutType: DatabaseLayoutPB.Grid,
     );
     final gridBloc = GridBloc(
       view: context.gridView,
@@ -126,7 +123,6 @@ void main() {
     final service = FilterBackendService(viewId: context.gridView.id);
     final gridController = DatabaseController(
       view: context.gridView,
-      layoutType: DatabaseLayoutPB.Grid,
     );
     final gridBloc = GridBloc(
       view: context.gridView,
@@ -148,7 +144,6 @@ void main() {
     final service = FilterBackendService(viewId: context.gridView.id);
     final gridController = DatabaseController(
       view: context.gridView,
-      layoutType: DatabaseLayoutPB.Grid,
     );
     final gridBloc = GridBloc(
       view: context.gridView,

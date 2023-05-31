@@ -77,9 +77,14 @@ impl DatabaseEditor {
   pub async fn close(&self) {}
 
   #[tracing::instrument(level = "debug", skip_all)]
-  pub async fn update_layout_type(&self, view_id: &str, layout_type: DatabaseLayout) {
+  pub async fn update_layout_type(
+    &self,
+    view_id: &str,
+    layout_type: DatabaseLayout,
+  ) -> FlowyResult<()> {
     let view_editor = self.database_views.get_view_editor(view_id).await?;
-    view_editor.v_update_layout_type(layout_type).await?;
+    view_editor.v_update_layout_type(layout_type).await;
+    Ok(())
   }
 
   pub async fn subscribe_view_changed(
@@ -864,8 +869,13 @@ impl DatabaseEditor {
     Ok(database_view_setting_pb_from_view(view))
   }
 
-  pub async fn get_database_data(&self, view_id: &str) -> DatabasePB {
-    let rows = self.get_rows(view_id).await.unwrap_or_default();
+  pub async fn get_database_data(&self, view_id: &str) -> FlowyResult<DatabasePB> {
+    let database_view = self.database_views.get_view_editor(view_id).await?;
+    let view = database_view
+      .get_view()
+      .await
+      .ok_or(FlowyError::record_not_found())?;
+    let rows = database_view.v_get_rows().await;
     let (database_id, fields) = {
       let database = self.database.lock();
       let database_id = database.get_database_id();
@@ -882,11 +892,12 @@ impl DatabaseEditor {
       .into_iter()
       .map(|row| RowPB::from(row.as_ref()))
       .collect::<Vec<RowPB>>();
-    DatabasePB {
+    Ok(DatabasePB {
       id: database_id,
       fields,
       rows,
-    }
+      layout_type: view.layout.into(),
+    })
   }
 
   pub async fn export_csv(&self, style: CSVFormat) -> FlowyResult<String> {
@@ -952,7 +963,7 @@ struct DatabaseViewDataImpl {
 }
 
 impl DatabaseViewData for DatabaseViewDataImpl {
-  fn get_view_setting(&self, view_id: &str) -> Fut<Option<DatabaseView>> {
+  fn get_view(&self, view_id: &str) -> Fut<Option<DatabaseView>> {
     let view = self.database.lock().get_view(view_id);
     to_fut(async move { view })
   }

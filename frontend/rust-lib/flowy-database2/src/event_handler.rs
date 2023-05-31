@@ -11,6 +11,7 @@ use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataRes
 use crate::entities::*;
 use crate::manager::DatabaseManager2;
 use crate::services::cell::CellBuilder;
+use crate::services::database::CreateDatabaseViewParams;
 
 use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
@@ -25,7 +26,7 @@ pub(crate) async fn get_database_data_handler(
 ) -> DataResult<DatabasePB, FlowyError> {
   let view_id: DatabaseViewIdPB = data.into_inner();
   let database_editor = manager.get_database_with_view_id(view_id.as_ref()).await?;
-  let data = database_editor.get_database_data(view_id.as_ref()).await;
+  let data = database_editor.get_database_data(view_id.as_ref()).await?;
   data_result_ok(data)
 }
 
@@ -703,5 +704,14 @@ pub(crate) async fn move_calendar_event_handler(
       cell_changeset,
     )
     .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn create_database_view(
+  data: AFPluginData<CreateDatabaseViewPayloadPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> FlowyResult<()> {
+  let data: CreateDatabaseViewParams = data.into_inner().try_into()?;
   Ok(())
 }

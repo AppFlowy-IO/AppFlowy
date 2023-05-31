@@ -40,7 +40,6 @@ class DatabaseSettingState with _$DatabaseSettingState {
 }
 
 enum DatabaseSettingAction {
-  showFilters,
-  sortBy,
+  showLayout,
   showProperties,
 }
