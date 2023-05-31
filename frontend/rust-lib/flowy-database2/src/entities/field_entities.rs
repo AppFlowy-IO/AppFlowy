@@ -492,8 +492,8 @@ pub enum FieldType {
   Checkbox = 5,
   URL = 6,
   Checklist = 7,
-  UpdatedAt = 8,
-  CreatedAt = 9,
+  LastEditedTime = 8,
+  CreatedTime = 9,
 }
 
 pub const RICH_TEXT_FIELD: FieldType = FieldType::RichText;
@@ -504,8 +504,8 @@ pub const MULTI_SELECT_FIELD: FieldType = FieldType::MultiSelect;
 pub const CHECKBOX_FIELD: FieldType = FieldType::Checkbox;
 pub const URL_FIELD: FieldType = FieldType::URL;
 pub const CHECKLIST_FIELD: FieldType = FieldType::Checklist;
-pub const UPDATED_AT_FIELD: FieldType = FieldType::UpdatedAt;
-pub const CREATED_AT_FIELD: FieldType = FieldType::CreatedAt;
+pub const UPDATED_AT_FIELD: FieldType = FieldType::LastEditedTime;
+pub const CREATED_AT_FIELD: FieldType = FieldType::CreatedTime;
 
 impl std::default::Default for FieldType {
   fn default() -> Self {
@@ -539,7 +539,7 @@ impl FieldType {
 
   pub fn default_cell_width(&self) -> i32 {
     match self {
-      FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => 180,
+      FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => 180,
       _ => 150,
     }
   }
@@ -554,8 +554,8 @@ impl FieldType {
       FieldType::Checkbox => "Checkbox",
       FieldType::URL => "URL",
       FieldType::Checklist => "Checklist",
-      FieldType::UpdatedAt => "Updated At",
-      FieldType::CreatedAt => "Created At",
+      FieldType::LastEditedTime => "Last edited time",
+      FieldType::CreatedTime => "Created time",
     };
     s.to_string()
   }

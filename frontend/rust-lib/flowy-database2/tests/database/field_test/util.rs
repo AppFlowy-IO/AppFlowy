@@ -55,11 +55,11 @@ pub fn create_date_field(grid_id: &str, field_type: FieldType) -> (CreateFieldPa
       .name("Date")
       .visibility(true)
       .build(),
-    FieldType::UpdatedAt => FieldBuilder::new(field_type.clone(), date_type_option.clone())
+    FieldType::LastEditedTime => FieldBuilder::new(field_type.clone(), date_type_option.clone())
       .name("Updated At")
       .visibility(true)
       .build(),
-    FieldType::CreatedAt => FieldBuilder::new(field_type.clone(), date_type_option.clone())
+    FieldType::CreatedTime => FieldBuilder::new(field_type.clone(), date_type_option.clone())
       .name("Created At")
       .visibility(true)
       .build(),

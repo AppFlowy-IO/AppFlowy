@@ -356,8 +356,8 @@ class RowDataBuilder {
     assert(
       [
         FieldType.DateTime,
-        FieldType.UpdatedAt,
-        FieldType.CreatedAt,
+        FieldType.LastEditedTime,
+        FieldType.CreatedTime,
       ].contains(fieldInfo.fieldType),
     );
     final timestamp = date.millisecondsSinceEpoch ~/ 1000;

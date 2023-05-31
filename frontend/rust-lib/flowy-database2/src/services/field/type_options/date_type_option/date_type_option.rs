@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::str::FromStr;
 
-/// The [DateTypeOption] is used by [FieldType::Date], [FieldType::UpdatedAt], and [FieldType::CreatedAt].
+/// The [DateTypeOption] is used by [FieldType::Date], [FieldType::LastEditedTime], and [FieldType::CreatedTime].
 /// So, storing the field type is necessary to distinguish the field type.
 /// Most of the cases, each [FieldType] has its own [TypeOption] implementation.
 #[derive(Clone, Default, Debug, Serialize, Deserialize)]
