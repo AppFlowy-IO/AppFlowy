@@ -6,7 +6,7 @@ use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::{CollabPersistenceConfig, RocksCollabDB};
 use collab::core::collab::MutexCollab;
 use collab_database::database::DatabaseData;
-use collab_database::user::{UserDatabase as InnerUserDatabase, UserDatabaseCollabBuilder};
+use collab_database::user::{DatabaseCollabBuilder, UserDatabase as InnerUserDatabase};
 use collab_database::views::{CreateDatabaseParams, CreateViewParams};
 use parking_lot::Mutex;
 use tokio::sync::RwLock;
@@ -183,7 +183,7 @@ impl DatabaseManager2 {
         match duplicated_view_id {
           None => {
             let params = CreateViewParams::new(database_id, target_view_id, name, layout.into());
-            database.create_linked_view(params);
+            database.create_linked_view(params)?;
           },
           Some(duplicated_view_id) => {
             database.duplicate_linked_view(&duplicated_view_id);
@@ -256,18 +256,27 @@ unsafe impl Send for UserDatabase {}
 
 struct UserDatabaseCollabBuilderImpl(Arc<AppFlowyCollabBuilder>);
 
-impl UserDatabaseCollabBuilder for UserDatabaseCollabBuilderImpl {
-  fn build(&self, uid: i64, object_id: &str, db: Arc<RocksCollabDB>) -> Arc<MutexCollab> {
-    self.0.build(uid, object_id, db)
+impl DatabaseCollabBuilder for UserDatabaseCollabBuilderImpl {
+  fn build(
+    &self,
+    uid: i64,
+    object_id: &str,
+    object_name: &str,
+    db: Arc<RocksCollabDB>,
+  ) -> Arc<MutexCollab> {
+    self.0.build(uid, object_id, object_name, db)
   }
 
   fn build_with_config(
     &self,
     uid: i64,
     object_id: &str,
+    object_name: &str,
     db: Arc<RocksCollabDB>,
     config: &CollabPersistenceConfig,
   ) -> Arc<MutexCollab> {
-    self.0.build_with_config(uid, object_id, db, config)
+    self
+      .0
+      .build_with_config(uid, object_id, object_name, db, config)
   }
 }

@@ -99,7 +99,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
       let document = manager.get_document(view_id)?;
       let data: DocumentDataPB = DocumentDataWrapper(document.lock().get_document()?).into();
       let data_bytes = data.into_bytes().map_err(|_| FlowyError::invalid_data())?;
-      Ok(Bytes::from(data_bytes))
+      Ok(data_bytes)
     })
   }
 

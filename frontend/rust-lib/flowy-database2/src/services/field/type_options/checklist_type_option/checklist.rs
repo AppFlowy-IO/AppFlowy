@@ -108,7 +108,7 @@ fn update_cell_data_with_changeset(
     .into_iter()
     .for_each(|option_name| {
       let option = SelectOption::new(&option_name);
-      cell_data.options.push(option.clone());
+      cell_data.options.push(option);
     });
 
   // Update options

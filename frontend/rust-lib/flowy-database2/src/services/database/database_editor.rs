@@ -580,9 +580,14 @@ impl DatabaseEditor {
     row_id: RowId,
     options: Vec<SelectOptionPB>,
   ) -> FlowyResult<()> {
-    let field = self.database.lock().fields.get_field(field_id).ok_or(
-      FlowyError::record_not_found().context(format!("Field with id:{} not found", &field_id)),
-    )?;
+    let field = self
+      .database
+      .lock()
+      .fields
+      .get_field(field_id)
+      .ok_or_else(|| {
+        FlowyError::record_not_found().context(format!("Field with id:{} not found", &field_id))
+      })?;
     debug_assert!(FieldType::from(field.field_type).is_select_option());
 
     let mut type_option = select_type_option_from_field(&field)?;
@@ -676,9 +681,14 @@ impl DatabaseEditor {
     field_id: &str,
     changeset: ChecklistCellChangeset,
   ) -> FlowyResult<()> {
-    let field = self.database.lock().fields.get_field(field_id).ok_or(
-      FlowyError::record_not_found().context(format!("Field with id:{} not found", &field_id)),
-    )?;
+    let field = self
+      .database
+      .lock()
+      .fields
+      .get_field(field_id)
+      .ok_or_else(|| {
+        FlowyError::record_not_found().context(format!("Field with id:{} not found", &field_id))
+      })?;
     debug_assert!(FieldType::from(field.field_type).is_checklist());
 
     self
@@ -690,7 +700,7 @@ impl DatabaseEditor {
   #[tracing::instrument(level = "trace", skip_all, err)]
   pub async fn load_groups(&self, view_id: &str) -> FlowyResult<RepeatedGroupPB> {
     let view = self.database_views.get_view_editor(view_id).await?;
-    let groups = view.v_load_groups().await?;
+    let groups = view.v_load_groups().await.unwrap_or_default();
     Ok(RepeatedGroupPB { items: groups })
   }
 

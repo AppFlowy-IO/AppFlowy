@@ -83,10 +83,9 @@ pub(crate) fn create_view(params: CreateViewParams, layout: ViewLayout) -> View 
     bid: params.parent_view_id,
     name: params.name,
     desc: params.desc,
-    belongings: Default::default(),
+    children: Default::default(),
     created_at: time,
     layout,
-    database_id: None,
   }
 }
 pub fn gen_view_id() -> String {

@@ -187,7 +187,7 @@ pub(crate) async fn create_workspace_with_uid(
   Ok(Workspace {
     id: user_workspace.workspace_id,
     name: user_workspace.workspace_name,
-    belongings: Default::default(),
+    child_views: Default::default(),
     created_at: user_workspace.created_at.timestamp(),
   })
 }
@@ -218,7 +218,7 @@ pub(crate) async fn get_user_workspace_with_uid(
       .map(|user_workspace| Workspace {
         id: user_workspace.workspace_id,
         name: user_workspace.workspace_name,
-        belongings: Default::default(),
+        child_views: Default::default(),
         created_at: user_workspace.created_at.timestamp(),
       })
       .collect(),
