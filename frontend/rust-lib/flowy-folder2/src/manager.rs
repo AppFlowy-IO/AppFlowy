@@ -1,13 +1,14 @@
 use std::collections::{HashMap, HashSet};
 
 use std::ops::Deref;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab::core::collab_state::CollabState;
 
 use collab_folder::core::{
-  Folder as InnerFolder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, TrashRecord,
-  View, ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
+  Folder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, TrashRecord, View,
+  ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
 };
 use parking_lot::Mutex;
 use tracing::{event, Level};
@@ -15,6 +16,8 @@ use tracing::{event, Level};
 use crate::deps::{FolderCloudService, FolderUser};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_infra::util::timestamp;
+use tokio_stream::wrappers::WatchStream;
+use tokio_stream::StreamExt;
 
 use crate::entities::{
   view_pb_with_child_views, CreateViewParams, CreateWorkspaceParams, RepeatedTrashPB,
@@ -29,7 +32,7 @@ use crate::user_default::DefaultFolderBuilder;
 use crate::view_ext::{create_view, gen_view_id, FolderOperationHandler, FolderOperationHandlers};
 
 pub struct Folder2Manager {
-  folder: Folder,
+  mutex_folder: Arc<MutexFolder>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   user: Arc<dyn FolderUser>,
   operation_handlers: FolderOperationHandlers,
@@ -46,10 +49,10 @@ impl Folder2Manager {
     operation_handlers: FolderOperationHandlers,
     cloud_service: Arc<dyn FolderCloudService>,
   ) -> FlowyResult<Self> {
-    let folder = Folder::default();
+    let mutex_folder = Arc::new(MutexFolder::default());
     let manager = Self {
       user,
-      folder,
+      mutex_folder,
       collab_builder,
       operation_handlers,
       cloud_service,
@@ -67,7 +70,7 @@ impl Folder2Manager {
 
   pub async fn get_current_workspace_views(&self) -> FlowyResult<Vec<ViewPB>> {
     let workspace_id = self
-      .folder
+      .mutex_folder
       .lock()
       .as_ref()
       .map(|folder| folder.get_current_workspace_id());
@@ -90,17 +93,25 @@ impl Folder2Manager {
   /// Called immediately after the application launched fi the user already sign in/sign up.
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn initialize(&self, uid: i64, workspace_id: &str) -> FlowyResult<()> {
+    let workspace_id = workspace_id.to_string();
     if let Ok(collab_db) = self.user.collab_db() {
-      let collab = self.collab_builder.build(uid, workspace_id, collab_db);
+      let collab = self
+        .collab_builder
+        .build(uid, &workspace_id, "workspace", collab_db);
       let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
       let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
       let folder_context = FolderContext {
-        view_change_tx: Some(view_tx),
-        trash_change_tx: Some(trash_tx),
+        view_change_tx: view_tx,
+        trash_change_tx: trash_tx,
       };
-      *self.folder.lock() = Some(InnerFolder::get_or_create(collab, folder_context));
-      listen_on_trash_change(trash_rx, self.folder.clone());
-      listen_on_view_change(view_rx, self.folder.clone());
+      let folder = Folder::get_or_create(collab, folder_context);
+      let folder_state_rx = folder.subscribe_state_change();
+      *self.mutex_folder.lock() = Some(folder);
+
+      let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
+      listen_on_folder_state_change(workspace_id, folder_state_rx, &weak_mutex_folder);
+      listen_on_trash_change(trash_rx, &weak_mutex_folder);
+      listen_on_view_change(view_rx, &weak_mutex_folder);
     }
 
     Ok(())
@@ -172,9 +183,9 @@ impl Folder2Manager {
 
   fn with_folder<F, Output>(&self, default_value: Output, f: F) -> Output
   where
-    F: FnOnce(&InnerFolder) -> Output,
+    F: FnOnce(&Folder) -> Output,
   {
-    let folder = self.folder.lock();
+    let folder = self.mutex_folder.lock();
     match &*folder {
       None => default_value,
       Some(folder) => f(folder),
@@ -222,7 +233,7 @@ impl Folder2Manager {
       folder.insert_view(view.clone());
     });
 
-    notify_parent_view_did_change(self.folder.clone(), vec![view.bid.clone()]);
+    notify_parent_view_did_change(self.mutex_folder.clone(), vec![view.bid.clone()]);
     Ok(view)
   }
 
@@ -263,7 +274,7 @@ impl Folder2Manager {
   #[tracing::instrument(level = "debug", skip(self, view_id), err)]
   pub async fn get_view(&self, view_id: &str) -> FlowyResult<ViewPB> {
     let view_id = view_id.to_string();
-    let folder = self.folder.lock();
+    let folder = self.mutex_folder.lock();
     let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
     let trash_ids = folder
       .trash
@@ -279,7 +290,7 @@ impl Folder2Manager {
     match folder.views.get_view(&view_id) {
       None => Err(FlowyError::record_not_found()),
       Some(mut view) => {
-        view.belongings.retain(|b| !trash_ids.contains(&b.id));
+        view.children.retain(|b| !trash_ids.contains(&b.id));
         let child_views = folder
           .views
           .get_views_belong_to(&view.id)
@@ -325,7 +336,7 @@ impl Folder2Manager {
     match view {
       None => tracing::error!("Couldn't find the view. It should not be empty"),
       Some(view) => {
-        notify_parent_view_did_change(self.folder.clone(), vec![view.bid]);
+        notify_parent_view_did_change(self.mutex_folder.clone(), vec![view.bid]);
       },
     }
     Ok(())
@@ -340,7 +351,7 @@ impl Folder2Manager {
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn update_view_with_params(&self, params: UpdateViewParams) -> FlowyResult<()> {
     let _ = self
-      .folder
+      .mutex_folder
       .lock()
       .as_ref()
       .ok_or_else(folder_not_init_error)?
@@ -353,7 +364,10 @@ impl Folder2Manager {
       });
 
     if let Ok(view_pb) = self.get_view(&params.view_id).await {
-      notify_parent_view_did_change(self.folder.clone(), vec![view_pb.parent_view_id.clone()]);
+      notify_parent_view_did_change(
+        self.mutex_folder.clone(),
+        vec![view_pb.parent_view_id.clone()],
+      );
       send_notification(&view_pb.id, FolderNotification::DidUpdateView)
         .payload(view_pb)
         .send();
@@ -369,10 +383,10 @@ impl Folder2Manager {
 
     let handler = self.get_handler(&view.layout)?;
     let view_data = handler.duplicate_view(&view.id).await?;
-    let mut ext = HashMap::new();
-    if let Some(database_id) = view.database_id {
-      ext.insert("database_id".to_string(), database_id);
-    }
+    let meta = HashMap::new();
+    // if let Some(database_id) = view.database_id {
+    //   meta.insert("database_id".to_string(), database_id);
+    // }
     let duplicate_params = CreateViewParams {
       parent_view_id: view.bid.clone(),
       name: format!("{} (copy)", &view.name),
@@ -380,7 +394,7 @@ impl Folder2Manager {
       layout: view.layout.into(),
       initial_data: view_data.to_vec(),
       view_id: gen_view_id(),
-      meta: ext,
+      meta,
     };
 
     let _ = self.create_view_with_params(duplicate_params).await?;
@@ -389,7 +403,7 @@ impl Folder2Manager {
 
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub(crate) async fn set_current_view(&self, view_id: &str) -> Result<(), FlowyError> {
-    let folder = self.folder.lock();
+    let folder = self.mutex_folder.lock();
     let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
     folder.set_current_view(view_id);
 
@@ -487,7 +501,7 @@ impl Folder2Manager {
     self.with_folder((), |folder| {
       folder.insert_view(view.clone());
     });
-    notify_parent_view_did_change(self.folder.clone(), vec![view.bid.clone()]);
+    notify_parent_view_did_change(self.mutex_folder.clone(), vec![view.bid.clone()]);
     Ok(view)
   }
 
@@ -507,52 +521,82 @@ impl Folder2Manager {
 }
 
 /// Listen on the [ViewChange] after create/delete/update events happened
-fn listen_on_view_change(mut rx: ViewChangeReceiver, folder: Folder) {
+fn listen_on_view_change(mut rx: ViewChangeReceiver, weak_mutex_folder: &Weak<MutexFolder>) {
+  let weak_mutex_folder = weak_mutex_folder.clone();
   tokio::spawn(async move {
     while let Ok(value) = rx.recv().await {
-      match value {
-        ViewChange::DidCreateView { view } => {
-          notify_parent_view_did_change(folder.clone(), vec![view.bid]);
-        },
-        ViewChange::DidDeleteView { views: _ } => {},
-        ViewChange::DidUpdate { view } => {
-          notify_parent_view_did_change(folder.clone(), vec![view.bid]);
-        },
-      };
+      if let Some(folder) = weak_mutex_folder.upgrade() {
+        tracing::trace!("Did receive view change: {:?}", value);
+        match value {
+          ViewChange::DidCreateView { view } => {
+            notify_parent_view_did_change(folder.clone(), vec![view.bid]);
+          },
+          ViewChange::DidDeleteView { views: _ } => {},
+          ViewChange::DidUpdate { view } => {
+            notify_parent_view_did_change(folder.clone(), vec![view.bid]);
+          },
+        };
+      }
+    }
+  });
+}
+
+fn listen_on_folder_state_change(
+  workspace_id: String,
+  mut folder_state_rx: WatchStream<CollabState>,
+  weak_mutex_folder: &Weak<MutexFolder>,
+) {
+  let weak_mutex_folder = weak_mutex_folder.clone();
+  tokio::spawn(async move {
+    while let Some(state) = folder_state_rx.next().await {
+      if state.is_root_changed() {
+        if let Some(mutex_folder) = weak_mutex_folder.upgrade() {
+          let folder = mutex_folder.lock().take();
+          if let Some(folder) = folder {
+            tracing::trace!("🔥Reload folder");
+            let reload_folder = folder.reload();
+            notify_did_update_workspace(&workspace_id, &reload_folder);
+            *mutex_folder.lock() = Some(reload_folder);
+          }
+        }
+      }
     }
   });
 }
 
 /// Listen on the [TrashChange]s and notify the frontend some views were changed.
-fn listen_on_trash_change(mut rx: TrashChangeReceiver, folder: Folder) {
+fn listen_on_trash_change(mut rx: TrashChangeReceiver, weak_mutex_folder: &Weak<MutexFolder>) {
+  let weak_mutex_folder = weak_mutex_folder.clone();
   tokio::spawn(async move {
     while let Ok(value) = rx.recv().await {
-      let mut unique_ids = HashSet::new();
-      tracing::trace!("Did receive trash change: {:?}", value);
-      let ids = match value {
-        TrashChange::DidCreateTrash { ids } => ids,
-        TrashChange::DidDeleteTrash { ids } => ids,
-      };
+      if let Some(folder) = weak_mutex_folder.upgrade() {
+        let mut unique_ids = HashSet::new();
+        tracing::trace!("Did receive trash change: {:?}", value);
+        let ids = match value {
+          TrashChange::DidCreateTrash { ids } => ids,
+          TrashChange::DidDeleteTrash { ids } => ids,
+        };
 
-      if let Some(folder) = folder.lock().as_ref() {
-        let views = folder.views.get_views(&ids);
-        for view in views {
-          unique_ids.insert(view.bid);
+        if let Some(folder) = folder.lock().as_ref() {
+          let views = folder.views.get_views(&ids);
+          for view in views {
+            unique_ids.insert(view.bid);
+          }
+
+          let repeated_trash: RepeatedTrashPB = folder.trash.get_all_trash().into();
+          send_notification("trash", FolderNotification::DidUpdateTrash)
+            .payload(repeated_trash)
+            .send();
         }
 
-        let repeated_trash: RepeatedTrashPB = folder.trash.get_all_trash().into();
-        send_notification("trash", FolderNotification::DidUpdateTrash)
-          .payload(repeated_trash)
-          .send();
+        let parent_view_ids = unique_ids.into_iter().collect();
+        notify_parent_view_did_change(folder.clone(), parent_view_ids);
       }
-
-      let parent_view_ids = unique_ids.into_iter().collect();
-      notify_parent_view_did_change(folder.clone(), parent_view_ids);
     }
   });
 }
 
-fn get_workspace_view_pbs(workspace_id: &str, folder: &InnerFolder) -> Vec<ViewPB> {
+fn get_workspace_view_pbs(workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
   let trash_ids = folder
     .trash
     .get_all_trash()
@@ -577,10 +621,18 @@ fn get_workspace_view_pbs(workspace_id: &str, folder: &InnerFolder) -> Vec<ViewP
     .collect()
 }
 
+fn notify_did_update_workspace(workspace_id: &str, folder: &Folder) {
+  let repeated_view: RepeatedViewPB = get_workspace_view_pbs(workspace_id, folder).into();
+  tracing::trace!("Did update workspace views: {:?}", repeated_view);
+  send_notification(workspace_id, FolderNotification::DidUpdateWorkspaceViews)
+    .payload(repeated_view)
+    .send();
+}
+
 /// Notify the the list of parent view ids that its child views were changed.
 #[tracing::instrument(level = "debug", skip(folder, parent_view_ids))]
 fn notify_parent_view_did_change<T: AsRef<str>>(
-  folder: Folder,
+  folder: Arc<MutexFolder>,
   parent_view_ids: Vec<T>,
 ) -> Option<()> {
   let folder = folder.lock();
@@ -599,10 +651,7 @@ fn notify_parent_view_did_change<T: AsRef<str>>(
     // if the view's parent id equal to workspace id. Then it will fetch the current
     // workspace views. Because the the workspace is not a view stored in the views map.
     if parent_view_id == workspace_id {
-      let repeated_view: RepeatedViewPB = get_workspace_view_pbs(&workspace_id, folder).into();
-      send_notification(&workspace_id, FolderNotification::DidUpdateWorkspaceViews)
-        .payload(repeated_view)
-        .send();
+      notify_did_update_workspace(&workspace_id, folder)
     } else {
       // Parent view can contain a list of child views. Currently, only get the first level
       // child views.
@@ -627,15 +676,12 @@ fn folder_not_init_error() -> FlowyError {
 }
 
 #[derive(Clone, Default)]
-pub struct Folder(Arc<Mutex<Option<InnerFolder>>>);
-
-impl Deref for Folder {
-  type Target = Arc<Mutex<Option<InnerFolder>>>;
+pub struct MutexFolder(Arc<Mutex<Option<Folder>>>);
+impl Deref for MutexFolder {
+  type Target = Arc<Mutex<Option<Folder>>>;
   fn deref(&self) -> &Self::Target {
     &self.0
   }
 }
-
-unsafe impl Sync for Folder {}
-
-unsafe impl Send for Folder {}
+unsafe impl Sync for MutexFolder {}
+unsafe impl Send for MutexFolder {}

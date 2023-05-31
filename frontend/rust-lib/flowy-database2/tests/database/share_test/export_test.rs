@@ -11,7 +11,7 @@ async fn export_meta_csv_test() {
   let database = test.editor.clone();
   let s = database.export_csv(CSVFormat::META).await.unwrap();
   let mut reader = csv::Reader::from_reader(s.as_bytes());
-  for header in reader.headers() {
+  for header in reader.headers().unwrap() {
     dbg!(header);
   }
 

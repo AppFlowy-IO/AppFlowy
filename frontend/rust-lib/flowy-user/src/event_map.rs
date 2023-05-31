@@ -7,7 +7,7 @@ use flowy_error::FlowyResult;
 
 use lib_dispatch::prelude::*;
 use lib_infra::box_any::BoxAny;
-use lib_infra::future::{Fut, FutureResult};
+use lib_infra::future::{to_fut, Fut, FutureResult};
 
 use crate::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 use crate::event_handler::*;
@@ -31,7 +31,25 @@ pub fn init(user_session: Arc<UserSession>) -> AFPlugin {
     .event(UserEvent::ThirdPartyAuth, third_party_auth_handler)
 }
 
+pub(crate) struct DefaultUserStatusCallback;
+impl UserStatusCallback for DefaultUserStatusCallback {
+  fn auth_type_did_changed(&self, _auth_type: AuthType) {}
+
+  fn did_sign_in(&self, _user_id: i64, _workspace_id: &str) -> Fut<FlowyResult<()>> {
+    to_fut(async { Ok(()) })
+  }
+
+  fn did_sign_up(&self, _user_profile: &UserProfile) -> Fut<FlowyResult<()>> {
+    to_fut(async { Ok(()) })
+  }
+
+  fn did_expired(&self, _token: &str, _user_id: i64) -> Fut<FlowyResult<()>> {
+    to_fut(async { Ok(()) })
+  }
+}
+
 pub trait UserStatusCallback: Send + Sync + 'static {
+  fn auth_type_did_changed(&self, auth_type: AuthType);
   fn did_sign_in(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>>;
   fn did_sign_up(&self, user_profile: &UserProfile) -> Fut<FlowyResult<()>>;
   fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
@@ -41,7 +59,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
 /// The provider can be supabase, firebase, aws, or any other cloud service.
 pub trait UserCloudServiceProvider: Send + Sync + 'static {
   fn set_auth_type(&self, auth_type: AuthType);
-  fn get_auth_service(&self, auth_type: &AuthType) -> Result<Arc<dyn UserAuthService>, FlowyError>;
+  fn get_auth_service(&self) -> Result<Arc<dyn UserAuthService>, FlowyError>;
 }
 
 impl<T> UserCloudServiceProvider for Arc<T>
@@ -52,8 +70,8 @@ where
     (**self).set_auth_type(auth_type)
   }
 
-  fn get_auth_service(&self, auth_type: &AuthType) -> Result<Arc<dyn UserAuthService>, FlowyError> {
-    (**self).get_auth_service(auth_type)
+  fn get_auth_service(&self) -> Result<Arc<dyn UserAuthService>, FlowyError> {
+    (**self).get_auth_service()
   }
 }
 
