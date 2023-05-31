@@ -1,3 +1,4 @@
+use collab_database::database::gen_database_view_id;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -262,7 +263,7 @@ impl DatabaseEditorTest {
     self
       .sdk
       .database_manager
-      .import_csv(s, format)
+      .import_csv(gen_database_view_id(), s, format)
       .await
       .unwrap()
   }

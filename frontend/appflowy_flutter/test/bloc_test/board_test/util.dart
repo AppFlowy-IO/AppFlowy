@@ -32,7 +32,7 @@ class AppFlowyBoardTest {
     final builder = BoardPluginBuilder();
     return AppBackendService()
         .createView(
-      appId: app.id,
+      parentViewId: app.id,
       name: "Test Board",
       layoutType: builder.layoutType!,
     )

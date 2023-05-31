@@ -2,7 +2,7 @@ use crate::entities::FieldType;
 
 use crate::services::field::{default_type_option_data_from_type, CELL_DATA};
 use crate::services::share::csv::CSVFormat;
-use collab_database::database::{gen_database_id, gen_database_view_id, gen_field_id, gen_row_id};
+use collab_database::database::{gen_database_id, gen_field_id, gen_row_id};
 use collab_database::fields::Field;
 use collab_database::rows::{new_cell_builder, Cell, CreateRowParams};
 use collab_database::views::{CreateDatabaseParams, DatabaseLayout};
@@ -15,6 +15,7 @@ pub struct CSVImporter;
 impl CSVImporter {
   pub fn import_csv_from_file(
     &self,
+    view_id: &str,
     path: &str,
     style: CSVFormat,
   ) -> FlowyResult<CreateDatabaseParams> {
@@ -22,17 +23,18 @@ impl CSVImporter {
     let mut content = String::new();
     file.read_to_string(&mut content)?;
     let fields_with_rows = self.get_fields_and_rows(content)?;
-    let database_data = database_from_fields_and_rows(fields_with_rows, &style);
+    let database_data = database_from_fields_and_rows(view_id, fields_with_rows, &style);
     Ok(database_data)
   }
 
   pub fn import_csv_from_string(
     &self,
+    view_id: String,
     content: String,
     format: CSVFormat,
   ) -> FlowyResult<CreateDatabaseParams> {
     let fields_with_rows = self.get_fields_and_rows(content)?;
-    let database_data = database_from_fields_and_rows(fields_with_rows, &format);
+    let database_data = database_from_fields_and_rows(&view_id, fields_with_rows, &format);
     Ok(database_data)
   }
 
@@ -68,11 +70,11 @@ impl CSVImporter {
 }
 
 fn database_from_fields_and_rows(
+  view_id: &str,
   fields_and_rows: FieldsRows,
   format: &CSVFormat,
 ) -> CreateDatabaseParams {
   let (fields, rows) = fields_and_rows.split();
-  let view_id = gen_database_view_id();
   let database_id = gen_database_id();
 
   let fields = fields
@@ -125,7 +127,7 @@ fn database_from_fields_and_rows(
 
   CreateDatabaseParams {
     database_id,
-    view_id,
+    view_id: view_id.to_string(),
     name: "".to_string(),
     layout: DatabaseLayout::Grid,
     layout_settings: Default::default(),
@@ -167,6 +169,7 @@ pub struct ImportResult {
 #[cfg(test)]
 mod tests {
   use crate::services::share::csv::{CSVFormat, CSVImporter};
+  use collab_database::database::gen_database_view_id;
 
   #[test]
   fn test_import_csv_from_str() {
@@ -176,7 +179,7 @@ mod tests {
 ,,,,Yes,"#;
     let importer = CSVImporter;
     let result = importer
-      .import_csv_from_string(s.to_string(), CSVFormat::Original)
+      .import_csv_from_string(gen_database_view_id(), s.to_string(), CSVFormat::Original)
       .unwrap();
     assert_eq!(result.created_rows.len(), 3);
     assert_eq!(result.fields.len(), 6);

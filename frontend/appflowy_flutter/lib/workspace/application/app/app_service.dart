@@ -8,7 +8,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 
 class AppBackendService {
   Future<Either<ViewPB, FlowyError>> createView({
-    required String appId,
+    required String parentViewId,
     required String name,
     String? desc,
     required ViewLayoutPB layoutType,
@@ -25,7 +25,7 @@ class AppBackendService {
     Map<String, String> ext = const {},
   }) {
     final payload = CreateViewPayloadPB.create()
-      ..belongToId = appId
+      ..parentViewId = parentViewId
       ..name = name
       ..desc = desc ?? ""
       ..layout = layoutType

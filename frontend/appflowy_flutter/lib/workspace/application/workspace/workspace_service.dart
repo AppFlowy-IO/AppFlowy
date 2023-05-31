@@ -25,7 +25,7 @@ class WorkspaceService {
     String? desc,
   }) {
     final payload = CreateViewPayloadPB.create()
-      ..belongToId = workspaceId
+      ..parentViewId = workspaceId
       ..name = name
       ..desc = desc ?? ""
       ..layout = ViewLayoutPB.Document;
