@@ -72,8 +72,8 @@ pub struct DatabaseSettingChangesetPB {
   #[pb(index = 1)]
   pub view_id: String,
 
-  #[pb(index = 2)]
-  pub layout_type: DatabaseLayoutPB,
+  #[pb(index = 2, one_of)]
+  pub layout_type: Option<DatabaseLayoutPB>,
 
   #[pb(index = 3, one_of)]
   pub update_filter: Option<UpdateFilterPayloadPB>,
@@ -132,7 +132,7 @@ impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
 
 pub struct DatabaseSettingChangesetParams {
   pub view_id: String,
-  pub layout_type: DatabaseLayout,
+  pub layout_type: Option<DatabaseLayout>,
   pub insert_filter: Option<UpdateFilterParams>,
   pub delete_filter: Option<DeleteFilterParams>,
   pub alert_sort: Option<UpdateSortParams>,

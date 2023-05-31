@@ -76,6 +76,12 @@ impl DatabaseEditor {
 
   pub async fn close(&self) {}
 
+  #[tracing::instrument(level = "debug", skip_all)]
+  pub async fn update_layout_type(&self, view_id: &str, layout_type: DatabaseLayout) {
+    let view_editor = self.database_views.get_view_editor(view_id).await?;
+    view_editor.v_update_layout_type(layout_type).await?;
+  }
+
   pub async fn subscribe_view_changed(
     &self,
     view_id: &str,
@@ -1067,11 +1073,7 @@ impl DatabaseViewData for DatabaseViewDataImpl {
   }
 
   fn get_layout_setting(&self, view_id: &str, layout_ty: &DatabaseLayout) -> Option<LayoutSetting> {
-    self
-      .database
-      .lock()
-      .views
-      .get_layout_setting(view_id, layout_ty)
+    self.database.lock().get_layout_setting(view_id, layout_ty)
   }
 
   fn insert_layout_setting(
@@ -1084,6 +1086,13 @@ impl DatabaseViewData for DatabaseViewDataImpl {
       .database
       .lock()
       .insert_layout_setting(view_id, layout_ty, layout_setting);
+  }
+
+  fn update_layout_type(&self, view_id: &str, layout_type: &DatabaseLayout) {
+    self
+      .database
+      .lock()
+      .update_layout_type(view_id, layout_type);
   }
 
   fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>> {

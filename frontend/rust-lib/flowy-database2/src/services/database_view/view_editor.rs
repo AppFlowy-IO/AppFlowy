@@ -99,6 +99,8 @@ pub trait DatabaseViewData: Send + Sync + 'static {
     layout_setting: LayoutSetting,
   );
 
+  fn update_layout_type(&self, view_id: &str, layout_type: &DatabaseLayout);
+
   /// Returns a `TaskDispatcher` used to poll a `Task`
   fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>>;
 
@@ -565,7 +567,7 @@ impl DatabaseViewEditor {
   /// Update the calendar settings and send the notification to refresh the UI
   pub async fn v_set_layout_settings(
     &self,
-    _layout_ty: &DatabaseLayout,
+    layout_ty: &DatabaseLayout,
     params: LayoutSettingParams,
   ) -> FlowyResult<()> {
     // Maybe it needs no send notification to refresh the UI
@@ -580,7 +582,6 @@ impl DatabaseViewEditor {
           return Err(FlowyError::unexpect_calendar_field_type());
         }
 
-        let layout_ty = DatabaseLayout::Calendar;
         let old_calender_setting = self.v_get_layout_settings(&layout_ty).await.calendar;
 
         self.delegate.insert_layout_setting(
@@ -773,6 +774,13 @@ impl DatabaseViewEditor {
       events.push(event);
     }
     Some(events)
+  }
+
+  pub async fn v_update_layout_type(&self, layout_type: DatabaseLayout) {
+    self
+      .delegate
+      .update_layout_type(&self.view_id, &layout_type)
+      .await;
   }
 
   pub async fn handle_row_event(&self, event: Cow<'_, DatabaseRowEvent>) {

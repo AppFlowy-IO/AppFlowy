@@ -64,6 +64,12 @@ pub(crate) async fn update_database_setting_handler(
   if let Some(delete_sort) = params.delete_sort {
     editor.delete_sort(delete_sort).await?;
   }
+
+  if let Some(layout_type) = params.layout_type {
+    editor
+      .update_layout_type(&params.view_id, layout_type)
+      .await?;
+  }
   Ok(())
 }
 
@@ -636,10 +642,10 @@ pub(crate) async fn set_layout_setting_handler(
 }
 
 pub(crate) async fn get_layout_setting_handler(
-  data: AFPluginData<DatabaseLayoutIdPB>,
+  data: AFPluginData<DatabaseLayoutMetaPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> DataResult<LayoutSettingPB, FlowyError> {
-  let params: DatabaseLayoutId = data.into_inner().try_into()?;
+  let params: DatabaseLayoutMeta = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   let layout_setting_pb = database_editor
     .get_layout_setting(&params.view_id, params.layout)

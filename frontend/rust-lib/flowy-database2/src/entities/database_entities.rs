@@ -198,7 +198,7 @@ impl TryInto<DatabaseGroupIdParams> for DatabaseGroupIdPB {
   }
 }
 #[derive(Clone, ProtoBuf, Default, Debug)]
-pub struct DatabaseLayoutIdPB {
+pub struct DatabaseLayoutMetaPB {
   #[pb(index = 1)]
   pub view_id: String,
 
@@ -207,18 +207,18 @@ pub struct DatabaseLayoutIdPB {
 }
 
 #[derive(Clone, Debug)]
-pub struct DatabaseLayoutId {
+pub struct DatabaseLayoutMeta {
   pub view_id: String,
   pub layout: DatabaseLayout,
 }
 
-impl TryInto<DatabaseLayoutId> for DatabaseLayoutIdPB {
+impl TryInto<DatabaseLayoutMeta> for DatabaseLayoutMetaPB {
   type Error = ErrorCode;
 
-  fn try_into(self) -> Result<DatabaseLayoutId, Self::Error> {
+  fn try_into(self) -> Result<DatabaseLayoutMeta, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
     let layout = self.layout.into();
-    Ok(DatabaseLayoutId {
+    Ok(DatabaseLayoutMeta {
       view_id: view_id.0,
       layout,
     })
