@@ -275,7 +275,4 @@ pub enum DatabaseEvent {
 
   #[event(input = "MoveCalendarEventPB")]
   MoveCalendarEvent = 125,
-
-  #[event(input = "DatabaseImportPB")]
-  ImportCSV = 130,
 }

@@ -33,7 +33,7 @@ pub fn init(folder: Arc<Folder2Manager>) -> AFPlugin {
     .event(FolderEvent::DeleteTrash, delete_trash_handler)
     .event(FolderEvent::RestoreAllTrash, restore_all_trash_handler)
     .event(FolderEvent::DeleteAllTrash, delete_all_trash_handler)
-      .event(FolderEvent::ImportData, import_data_handler)
+    .event(FolderEvent::ImportData, import_data_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
