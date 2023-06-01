@@ -23,11 +23,11 @@ impl JsonToDocumentParser {
     // generate the children map
     let children_map = Self::generate_children_map(&blocks);
 
-    return Ok(DocumentDataPB {
+    Ok(DocumentDataPB {
       page_id,
       blocks: blocks.into_iter().collect(),
       meta: MetaPB { children_map },
-    });
+    })
   }
 
   fn generate_blocks(
@@ -37,12 +37,12 @@ impl JsonToDocumentParser {
   ) -> IndexMap<String, BlockPB> {
     let block_pb = Self::block_to_block_pb(block, id, parent_id);
     let mut blocks = IndexMap::new();
-    for child in block.children.iter() {
+    for child in &block.children {
       let child_blocks = Self::generate_blocks(child, None, block_pb.id.clone());
       blocks.extend(child_blocks);
     }
     blocks.insert(block_pb.id.clone(), block_pb);
-    return blocks;
+    blocks
   }
 
   fn generate_children_map(blocks: &IndexMap<String, BlockPB>) -> HashMap<String, ChildrenPB> {
@@ -52,25 +52,30 @@ impl JsonToDocumentParser {
       if block.parent_id.is_empty() {
         continue;
       }
-      let children = children_map
-        .entry(block.parent_id.clone())
-        .or_insert(ChildrenPB { children: vec![] });
-      children.children.push(id.clone());
-      // create a children map entry for itself
-      children_map.insert(id.clone(), ChildrenPB { children: vec![] });
+      let parent_block = blocks.get(&block.parent_id);
+      if let Some(parent_block) = parent_block {
+        // insert itself to it's parent's children
+        let children_pb = children_map
+          .entry(parent_block.children_id.clone())
+          .or_insert_with(|| ChildrenPB { children: vec![] });
+        children_pb.children.push(id.clone());
+        // create a children map entry for itself
+        children_map
+          .entry(block.children_id.clone())
+          .or_insert_with(|| ChildrenPB { children: vec![] });
+      }
     }
-    return children_map;
+    children_map
   }
 
   fn block_to_block_pb(block: &Block, id: Option<String>, parent_id: String) -> BlockPB {
     let id = id.unwrap_or(nanoid!(10));
-    let block_pb = BlockPB {
+    BlockPB {
       id: id.clone(),
       ty: block.ty.clone(),
       data: serde_json::to_string(&block.data).unwrap(),
       parent_id: parent_id.clone(),
-      children_id: id.clone(),
-    };
-    return block_pb;
+      children_id: nanoid!(10),
+    }
   }
 }
