@@ -18,7 +18,6 @@ export class AppObserver {
     this._listener = new FolderNotificationObserver({
       viewId: this.appId,
       parserHandler: (notification, result) => {
-        console.log('AppObserver: notification', notification, result);
         switch (notification) {
           case FolderNotification.DidUpdateWorkspaceViews:
             if (result.ok) {
