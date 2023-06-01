@@ -38,8 +38,8 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
   late Future<dartz.Either<FlowyError, ViewPB>> future;
   final focusNode = FocusNode();
 
-  String get parentViewId => widget.node.attributes[DatabaseBlockKeys.kAppID];
-  String get childViewId => widget.node.attributes[DatabaseBlockKeys.kViewID];
+  String get parentViewId => widget.node.attributes[DatabaseBlockKeys.parentID];
+  String get childViewId => widget.node.attributes[DatabaseBlockKeys.viewID];
 
   @override
   void initState() {

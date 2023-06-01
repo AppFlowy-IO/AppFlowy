@@ -131,7 +131,7 @@ class DatabaseController {
         (database) async {
           databaseLayout = database.layoutType;
 
-          if (database.layoutType == DatabaseLayoutPB.Calendar) {
+          if (databaseLayout == DatabaseLayoutPB.Calendar) {
             _listenOnCalendarLayoutChanged();
           }
 
@@ -248,9 +248,7 @@ class DatabaseController {
     if (databaseLayout != null) {
       _databaseViewBackendSvc.getLayoutSetting(databaseLayout!).then((result) {
         result.fold(
-          (l) {
-            _layoutCallbacks?.onLoadLayout(l);
-          },
+          (l) => _layoutCallbacks?.onLoadLayout(l),
           (r) => Log.error(r),
         );
       });

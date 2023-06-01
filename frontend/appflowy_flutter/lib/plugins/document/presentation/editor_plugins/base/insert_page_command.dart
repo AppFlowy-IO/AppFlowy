@@ -10,8 +10,8 @@ import 'package:easy_localization/easy_localization.dart';
 class DatabaseBlockKeys {
   const DatabaseBlockKeys._();
 
-  static const String kAppID = 'app_id';
-  static const String kViewID = 'view_id';
+  static const String parentID = 'parent_id';
+  static const String viewID = 'view_id';
 }
 
 extension InsertDatabase on EditorState {
@@ -55,8 +55,8 @@ extension InsertDatabase on EditorState {
       Node(
         type: _convertPageType(childView),
         attributes: {
-          DatabaseBlockKeys.kAppID: parentView.id,
-          DatabaseBlockKeys.kViewID: ref.id,
+          DatabaseBlockKeys.parentID: parentView.id,
+          DatabaseBlockKeys.viewID: ref.id,
         },
       ),
     );
