@@ -1,6 +1,6 @@
 use crate::entities::{CreateViewParams, ViewLayoutPB};
 use crate::manager::Folder2Manager;
-use crate::view_ext::gen_view_id;
+use crate::view_operation::gen_view_id;
 use std::collections::HashMap;
 
 #[cfg(feature = "test_helper")]

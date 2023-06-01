@@ -240,3 +240,80 @@ pub fn make_test_grid() -> DatabaseData {
 
   DatabaseData { view, fields, rows }
 }
+
+pub fn make_no_date_test_grid() -> DatabaseData {
+  let mut fields = vec![];
+  let mut rows = vec![];
+  // Iterate through the FieldType to create the corresponding Field.
+  for field_type in FieldType::iter() {
+    match field_type {
+      FieldType::RichText => {
+        let text_field = FieldBuilder::from_field_type(field_type.clone())
+          .name("Name")
+          .visibility(true)
+          .primary(true)
+          .build();
+        fields.push(text_field);
+      },
+      FieldType::Number => {
+        // Number
+        let mut type_option = NumberTypeOption::default();
+        type_option.set_format(NumberFormat::USD);
+
+        let number_field = FieldBuilder::new(field_type.clone(), type_option)
+          .name("Price")
+          .visibility(true)
+          .build();
+        fields.push(number_field);
+      },
+      _ => {},
+    }
+  }
+
+  for i in 0..3 {
+    let mut row_builder = TestRowBuilder::new(i.into(), &fields);
+    match i {
+      0 => {
+        for field_type in FieldType::iter() {
+          match field_type {
+            FieldType::RichText => row_builder.insert_text_cell("A"),
+            FieldType::Number => row_builder.insert_number_cell("1"),
+            _ => "".to_owned(),
+          };
+        }
+      },
+      1 => {
+        for field_type in FieldType::iter() {
+          match field_type {
+            FieldType::RichText => row_builder.insert_text_cell(""),
+            FieldType::Number => row_builder.insert_number_cell("2"),
+            _ => "".to_owned(),
+          };
+        }
+      },
+      2 => {
+        for field_type in FieldType::iter() {
+          match field_type {
+            FieldType::RichText => row_builder.insert_text_cell("C"),
+            FieldType::Number => row_builder.insert_number_cell("3"),
+            _ => "".to_owned(),
+          };
+        }
+      },
+      _ => {},
+    }
+
+    let row = row_builder.build();
+    rows.push(row);
+  }
+
+  let view = DatabaseView {
+    id: gen_database_view_id(),
+    database_id: gen_database_id(),
+    name: "".to_string(),
+    layout: DatabaseLayout::Grid,
+    ..Default::default()
+  };
+
+  DatabaseData { view, fields, rows }
+}

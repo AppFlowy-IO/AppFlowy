@@ -28,16 +28,17 @@ class BlankPluginConfig implements PluginConfig {
 
 class BlankPagePlugin extends Plugin {
   @override
-  PluginDisplay get display => BlankPagePluginDisplay();
+  PluginWidgetBuilder get widgetBuilder => BlankPagePluginWidgetBuilder();
 
   @override
   PluginId get id => "BlankStack";
 
   @override
-  PluginType get ty => PluginType.blank;
+  PluginType get pluginType => PluginType.blank;
 }
 
-class BlankPagePluginDisplay extends PluginDisplay with NavigationItem {
+class BlankPagePluginWidgetBuilder extends PluginWidgetBuilder
+    with NavigationItem {
   @override
   Widget get leftBarItem => FlowyText.medium(LocaleKeys.blankPageTitle.tr());
 

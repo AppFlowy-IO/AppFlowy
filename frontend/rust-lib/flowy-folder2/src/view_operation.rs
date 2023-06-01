@@ -1,6 +1,6 @@
 use crate::entities::{CreateViewParams, ViewLayoutPB};
 use bytes::Bytes;
-use collab_folder::core::{View, ViewLayout};
+use collab_folder::core::ViewLayout;
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 pub type ViewData = Bytes;
+pub use collab_folder::core::View;
 
 /// The handler will be used to handler the folder operation for a specific
 /// view layout. Each [ViewLayout] will have a handler. So when creating a new
@@ -22,7 +23,18 @@ pub trait FolderOperationHandler {
   /// Returns the [ViewData] that can be used to create the same view.
   fn duplicate_view(&self, view_id: &str) -> FutureResult<ViewData, FlowyError>;
 
-  /// Create a view with custom data
+  /// Create a view with the data.
+  ///
+  /// # Arguments
+  ///
+  /// * `user_id`: the user id
+  /// * `view_id`: the view id
+  /// * `name`: the name of the view
+  /// * `data`: initial data of the view. The data should be parsed by the [FolderOperationHandler]
+  /// implementation. For example, the data of the database will be [DatabaseData].
+  /// * `layout`: the layout of the view
+  /// * `meta`: use to carry extra information. For example, the database view will use this
+  /// to carry the reference database id.
   fn create_view_with_view_data(
     &self,
     user_id: i64,
@@ -30,7 +42,7 @@ pub trait FolderOperationHandler {
     name: &str,
     data: Vec<u8>,
     layout: ViewLayout,
-    ext: HashMap<String, String>,
+    meta: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError>;
 
   /// Create a view with the pre-defined data.
@@ -42,7 +54,6 @@ pub trait FolderOperationHandler {
     view_id: &str,
     name: &str,
     layout: ViewLayout,
-    meta: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError>;
 
   /// Create a view by importing data
@@ -60,6 +71,11 @@ pub trait FolderOperationHandler {
     name: &str,
     path: String,
   ) -> FutureResult<(), FlowyError>;
+
+  /// Called when the view is updated. The handler is the `old` registered handler.
+  fn did_update_view(&self, _old: &View, _new: &View) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async move { Ok(()) })
+  }
 }
 
 pub type FolderOperationHandlers =
@@ -80,7 +96,7 @@ pub(crate) fn create_view(params: CreateViewParams, layout: ViewLayout) -> View 
   let time = timestamp();
   View {
     id: params.view_id,
-    bid: params.parent_view_id,
+    parent_view_id: params.parent_view_id,
     name: params.name,
     desc: params.desc,
     children: Default::default(),

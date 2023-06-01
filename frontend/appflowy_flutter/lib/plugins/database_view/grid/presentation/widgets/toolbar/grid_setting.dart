@@ -1,6 +1,6 @@
-import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/setting/setting_bloc.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -9,36 +9,29 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 
-import 'package:appflowy/generated/locale_keys.g.dart';
 import '../../layout/sizes.dart';
 
-class GridSettingContext {
-  final String viewId;
-  final FieldController fieldController;
-
-  GridSettingContext({
-    required this.viewId,
-    required this.fieldController,
-  });
-}
-
-class GridSettingList extends StatelessWidget {
-  final GridSettingContext settingContext;
-  final Function(DatabaseSettingAction, GridSettingContext) onAction;
-  const GridSettingList({
-    required this.settingContext,
+class DatabaseSettingList extends StatelessWidget {
+  final DatabaseController databaseContoller;
+  final Function(DatabaseSettingAction, DatabaseController) onAction;
+  const DatabaseSettingList({
+    required this.databaseContoller,
     required this.onAction,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final cells = DatabaseSettingAction.values
-        .where((value) => value.enable())
-        .map((action) {
+    final cells = DatabaseSettingAction.values.where((element) {
+      if (element == DatabaseSettingAction.showGroup) {
+        return databaseContoller.databaseLayout == DatabaseLayoutPB.Board;
+      } else {
+        return true;
+      }
+    }).map((action) {
       return _SettingItem(
         action: action,
-        onAction: (action) => onAction(action, settingContext),
+        onAction: (action) => onAction(action, databaseContoller),
       );
     }).toList();
 
@@ -78,9 +71,7 @@ class _SettingItem extends StatelessWidget {
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         text: FlowyText.medium(
           action.title(),
-          color: action.enable()
-              ? AFThemeExtension.of(context).textColor
-              : Theme.of(context).disabledColor,
+          color: AFThemeExtension.of(context).textColor,
         ),
         onTap: () => onAction(action),
         leftIcon: svgWidget(
@@ -89,38 +80,5 @@ class _SettingItem extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-extension _GridSettingExtension on DatabaseSettingAction {
-  String iconName() {
-    switch (this) {
-      case DatabaseSettingAction.showFilters:
-        return 'grid/setting/filter';
-      case DatabaseSettingAction.sortBy:
-        return 'grid/setting/sort';
-      case DatabaseSettingAction.showProperties:
-        return 'grid/setting/properties';
-    }
-  }
-
-  String title() {
-    switch (this) {
-      case DatabaseSettingAction.showFilters:
-        return LocaleKeys.grid_settings_filter.tr();
-      case DatabaseSettingAction.sortBy:
-        return LocaleKeys.grid_settings_sortBy.tr();
-      case DatabaseSettingAction.showProperties:
-        return LocaleKeys.grid_settings_Properties.tr();
-    }
-  }
-
-  bool enable() {
-    switch (this) {
-      case DatabaseSettingAction.showProperties:
-        return true;
-      default:
-        return false;
-    }
   }
 }

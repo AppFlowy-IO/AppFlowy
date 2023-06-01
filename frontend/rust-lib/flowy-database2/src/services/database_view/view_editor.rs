@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use collab_database::database::{gen_database_filter_id, gen_database_sort_id};
-use collab_database::fields::Field;
+use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowCell, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, RowOrder};
 use tokio::sync::{broadcast, RwLock};
@@ -13,9 +13,9 @@ use flowy_task::TaskDispatcher;
 use lib_infra::future::Fut;
 
 use crate::entities::{
-  CalendarEventPB, DeleteFilterParams, DeleteGroupParams, DeleteSortParams, FieldType,
-  GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedRowPB, LayoutSettingPB,
-  LayoutSettingParams, RowPB, RowsChangePB, SortChangesetNotificationPB, SortPB,
+  CalendarEventPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB, DeleteFilterParams,
+  DeleteGroupParams, DeleteSortParams, FieldType, GroupChangesPB, GroupPB, GroupRowsNotificationPB,
+  InsertedRowPB, LayoutSettingParams, RowPB, RowsChangePB, SortChangesetNotificationPB, SortPB,
   UpdateFilterParams, UpdateSortParams,
 };
 use crate::notification::{send_notification, DatabaseNotification};
@@ -31,7 +31,7 @@ use crate::services::database_view::{
   notify_did_update_setting, notify_did_update_sort, DatabaseViewChangedNotifier,
   DatabaseViewChangedReceiverRunner,
 };
-use crate::services::field::TypeOptionCellDataHandler;
+use crate::services::field::{DateTypeOption, TypeOptionCellDataHandler};
 use crate::services::filter::{
   Filter, FilterChangeset, FilterController, FilterType, UpdatedFilterType,
 };
@@ -42,12 +42,20 @@ use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{DeletedSortType, Sort, SortChangeset, SortController, SortType};
 
 pub trait DatabaseViewData: Send + Sync + 'static {
-  fn get_view_setting(&self, view_id: &str) -> Fut<Option<DatabaseView>>;
+  fn get_view(&self, view_id: &str) -> Fut<Option<DatabaseView>>;
   /// If the field_ids is None, then it will return all the field revisions
   fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
 
   /// Returns the field with the field_id
   fn get_field(&self, field_id: &str) -> Fut<Option<Arc<Field>>>;
+
+  fn create_field(
+    &self,
+    view_id: &str,
+    name: &str,
+    field_type: FieldType,
+    type_option_data: TypeOptionData,
+  ) -> Fut<Field>;
 
   fn get_primary_field(&self) -> Fut<Option<Arc<Field>>>;
 
@@ -62,7 +70,7 @@ pub trait DatabaseViewData: Send + Sync + 'static {
 
   fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>>;
 
-  fn get_cell_in_row(&self, field_id: &str, row_id: &RowId) -> Fut<Option<Arc<RowCell>>>;
+  fn get_cell_in_row(&self, field_id: &str, row_id: &RowId) -> Fut<Arc<RowCell>>;
 
   fn get_layout_for_view(&self, view_id: &str) -> DatabaseLayout;
 
@@ -98,6 +106,12 @@ pub trait DatabaseViewData: Send + Sync + 'static {
     layout_ty: &DatabaseLayout,
     layout_setting: LayoutSetting,
   );
+
+  /// Return the database layout type for the view with given view_id
+  /// The default layout type is [DatabaseLayout::Grid]
+  fn get_layout_type(&self, view_id: &str) -> DatabaseLayout;
+
+  fn update_layout_type(&self, view_id: &str, layout_type: &DatabaseLayout);
 
   /// Returns a `TaskDispatcher` used to poll a `Task`
   fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>>;
@@ -165,6 +179,10 @@ impl DatabaseViewEditor {
   pub async fn close(&self) {
     self.sort_controller.write().await.close().await;
     self.filter_controller.close().await;
+  }
+
+  pub async fn get_view(&self) -> Option<DatabaseView> {
+    self.delegate.get_view(&self.view_id).await
   }
 
   pub async fn v_will_create_row(&self, cells: &mut Cells, group_id: &Option<String>) {
@@ -398,7 +416,7 @@ impl DatabaseViewEditor {
     if !is_grouping_field {
       self.v_update_grouping_field(field_id).await?;
 
-      if let Some(view) = self.delegate.get_view_setting(&self.view_id).await {
+      if let Some(view) = self.delegate.get_view(&self.view_id).await {
         let setting = database_view_setting_pb_from_view(view);
         notify_did_update_setting(&self.view_id, setting).await;
       }
@@ -571,16 +589,11 @@ impl DatabaseViewEditor {
       },
     }
 
-    tracing::debug!("{:?}", layout_setting);
     layout_setting
   }
 
   /// Update the calendar settings and send the notification to refresh the UI
-  pub async fn v_set_layout_settings(
-    &self,
-    _layout_ty: &DatabaseLayout,
-    params: LayoutSettingParams,
-  ) -> FlowyResult<()> {
+  pub async fn v_set_layout_settings(&self, params: LayoutSettingParams) -> FlowyResult<()> {
     // Maybe it needs no send notification to refresh the UI
     if let Some(new_calendar_setting) = params.calendar {
       if let Some(field) = self
@@ -593,16 +606,19 @@ impl DatabaseViewEditor {
           return Err(FlowyError::unexpect_calendar_field_type());
         }
 
-        let layout_ty = DatabaseLayout::Calendar;
-        let old_calender_setting = self.v_get_layout_settings(&layout_ty).await.calendar;
+        let old_calender_setting = self
+          .v_get_layout_settings(&params.layout_type)
+          .await
+          .calendar;
 
         self.delegate.insert_layout_setting(
           &self.view_id,
-          &layout_ty,
+          &params.layout_type,
           new_calendar_setting.clone().into(),
         );
         let new_field_id = new_calendar_setting.field_id.clone();
-        let layout_setting_pb: LayoutSettingPB = LayoutSettingParams {
+        let layout_setting_pb: DatabaseLayoutSettingPB = LayoutSettingParams {
+          layout_type: params.layout_type,
           calendar: Some(new_calendar_setting),
         }
         .into();
@@ -620,8 +636,6 @@ impl DatabaseViewEditor {
               .payload(layout_setting_pb)
               .send();
           }
-        } else {
-          tracing::warn!("Calendar setting should not be empty")
         }
       }
     }
@@ -786,6 +800,66 @@ impl DatabaseViewEditor {
       events.push(event);
     }
     Some(events)
+  }
+
+  #[tracing::instrument(level = "trace", skip_all)]
+  pub async fn v_update_layout_type(&self, layout_type: DatabaseLayout) -> FlowyResult<()> {
+    self
+      .delegate
+      .update_layout_type(&self.view_id, &layout_type);
+
+    // Update the layout type in the database might add a new field to the database. If the new
+    // layout type is a calendar and there is not date field in the database, it will add a new
+    // date field to the database and create the corresponding layout setting.
+    //
+    let fields = self.delegate.get_fields(&self.view_id, None).await;
+    let date_field_id = match fields
+      .into_iter()
+      .find(|field| FieldType::from(field.field_type) == FieldType::DateTime)
+    {
+      None => {
+        tracing::trace!("Create a new date field after layout type change");
+        let default_date_type_option = DateTypeOption::default();
+        let field = self
+          .delegate
+          .create_field(
+            &self.view_id,
+            "Date",
+            FieldType::DateTime,
+            default_date_type_option.into(),
+          )
+          .await;
+        field.id
+      },
+      Some(date_field) => date_field.id.clone(),
+    };
+
+    let layout_setting = self.v_get_layout_settings(&layout_type).await;
+    match layout_type {
+      DatabaseLayout::Grid => {},
+      DatabaseLayout::Board => {},
+      DatabaseLayout::Calendar => {
+        if layout_setting.calendar.is_none() {
+          let layout_setting = CalendarLayoutSetting::new(date_field_id.clone());
+          self
+            .v_set_layout_settings(LayoutSettingParams {
+              layout_type,
+              calendar: Some(layout_setting),
+            })
+            .await?;
+        }
+      },
+    }
+
+    let payload = DatabaseLayoutMetaPB {
+      view_id: self.view_id.clone(),
+      layout: layout_type.into(),
+    };
+    send_notification(&self.view_id, DatabaseNotification::DidUpdateDatabaseLayout)
+      .payload(payload)
+      .send();
+
+    Ok(())
   }
 
   pub async fn handle_row_event(&self, event: Cow<'_, DatabaseRowEvent>) {

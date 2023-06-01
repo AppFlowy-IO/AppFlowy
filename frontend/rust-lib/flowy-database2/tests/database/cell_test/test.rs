@@ -74,8 +74,8 @@ async fn text_cell_data_test() {
     .get_cells_for_field(&test.view_id, &text_field.id)
     .await;
 
-  for (i, cell) in cells.into_iter().enumerate() {
-    let text = StrCellData::from(cell.as_ref());
+  for (i, row_cell) in cells.into_iter().enumerate() {
+    let text = StrCellData::from(row_cell.cell.as_ref().unwrap());
     match i {
       0 => assert_eq!(text.as_str(), "A"),
       1 => assert_eq!(text.as_str(), ""),
@@ -97,10 +97,12 @@ async fn url_cell_data_test() {
     .get_cells_for_field(&test.view_id, &url_field.id)
     .await;
 
-  for (i, cell) in cells.into_iter().enumerate() {
-    let cell = URLCellData::from(cell.as_ref());
-    if i == 0 {
-      assert_eq!(cell.url.as_str(), "https://www.appflowy.io/");
+  for (i, row_cell) in cells.into_iter().enumerate() {
+    if let Some(cell) = row_cell.cell.as_ref() {
+      let cell = URLCellData::from(cell);
+      if i == 0 {
+        assert_eq!(cell.url.as_str(), "https://www.appflowy.io/");
+      }
     }
   }
 }
@@ -135,8 +137,10 @@ async fn update_updated_at_field_on_other_cell_update() {
     .get_cells_for_field(&test.view_id, &updated_at_field.id)
     .await;
   assert!(!cells.is_empty());
-  for (i, cell) in cells.into_iter().enumerate() {
-    let timestamp = DateCellData::from(cell.as_ref()).timestamp.unwrap();
+  for (i, row_cell) in cells.into_iter().enumerate() {
+    let timestamp = DateCellData::from(row_cell.cell.as_ref().unwrap())
+      .timestamp
+      .unwrap();
     println!(
       "{}, bf: {}, af: {}",
       timestamp, before_update_timestamp, after_update_timestamp

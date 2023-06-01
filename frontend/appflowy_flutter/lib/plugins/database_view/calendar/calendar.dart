@@ -49,18 +49,19 @@ class CalendarPlugin extends Plugin {
         notifier = ViewPluginNotifier(view: view);
 
   @override
-  PluginDisplay get display => CalendarPluginDisplay(notifier: notifier);
+  PluginWidgetBuilder get widgetBuilder =>
+      CalendarPluginWidgetBuilder(notifier: notifier);
 
   @override
   PluginId get id => notifier.view.id;
 
   @override
-  PluginType get ty => _pluginType;
+  PluginType get pluginType => _pluginType;
 }
 
-class CalendarPluginDisplay extends PluginDisplay {
+class CalendarPluginWidgetBuilder extends PluginWidgetBuilder {
   final ViewPluginNotifier notifier;
-  CalendarPluginDisplay({required this.notifier, Key? key});
+  CalendarPluginWidgetBuilder({required this.notifier, Key? key});
 
   ViewPB get view => notifier.view;
 

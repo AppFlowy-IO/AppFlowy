@@ -1,5 +1,5 @@
 use collab_database::rows::RowId;
-use collab_database::views::RowOrder;
+use collab_database::views::{DatabaseLayout, RowOrder};
 
 #[derive(Debug, Clone)]
 pub enum DatabaseRowEvent {
@@ -24,4 +24,11 @@ pub struct UpdatedRow {
   pub row: RowOrder,
   // represents as the cells that were updated in this row.
   pub field_ids: Vec<String>,
+}
+
+#[derive(Debug, Clone)]
+pub struct CreateDatabaseViewParams {
+  pub name: String,
+  pub view_id: String,
+  pub layout_type: DatabaseLayout,
 }

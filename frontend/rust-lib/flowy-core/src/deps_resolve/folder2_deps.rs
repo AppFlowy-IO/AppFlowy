@@ -18,7 +18,7 @@ use flowy_error::FlowyError;
 use flowy_folder2::deps::{FolderCloudService, FolderUser};
 use flowy_folder2::entities::ViewLayoutPB;
 use flowy_folder2::manager::Folder2Manager;
-use flowy_folder2::view_ext::{FolderOperationHandler, FolderOperationHandlers};
+use flowy_folder2::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
 use flowy_folder2::ViewLayout;
 use flowy_user::services::UserSession;
 use lib_dispatch::prelude::ToBytes;
@@ -111,7 +111,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     _name: &str,
     data: Vec<u8>,
     layout: ViewLayout,
-    _ext: HashMap<String, String>,
+    _meta: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayout::Document);
     let view_id = view_id.to_string();
@@ -130,7 +130,6 @@ impl FolderOperationHandler for DocumentFolderOperation {
     view_id: &str,
     _name: &str,
     layout: ViewLayout,
-    _ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayout::Document);
 
@@ -200,9 +199,9 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     name: &str,
     data: Vec<u8>,
     layout: ViewLayout,
-    ext: HashMap<String, String>,
+    meta: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
-    match CreateDatabaseExtParams::from_map(ext) {
+    match CreateDatabaseExtParams::from_map(meta) {
       None => {
         let database_manager = self.0.clone();
         let view_id = view_id.to_string();
@@ -217,17 +216,11 @@ impl FolderOperationHandler for DatabaseFolderOperation {
         let database_manager = self.0.clone();
         let layout = layout_type_from_view_layout(layout.into());
         let name = name.to_string();
-        let target_view_id = view_id.to_string();
+        let database_view_id = view_id.to_string();
 
         FutureResult::new(async move {
           database_manager
-            .create_linked_view(
-              name,
-              layout,
-              params.database_id,
-              target_view_id,
-              params.duplicated_view_id,
-            )
+            .create_linked_view(name, layout, params.database_id, database_view_id)
             .await?;
           Ok(())
         })
@@ -245,7 +238,6 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     view_id: &str,
     name: &str,
     layout: ViewLayout,
-    _meta: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
     let name = name.to_string();
     let database_manager = self.0.clone();
@@ -296,12 +288,37 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       Ok(())
     })
   }
+
+  fn did_update_view(&self, old: &View, new: &View) -> FutureResult<(), FlowyError> {
+    let database_layout = match new.layout {
+      ViewLayout::Document => {
+        return FutureResult::new(async {
+          Err(FlowyError::internal().context("Can't handle document layout type"))
+        });
+      },
+      ViewLayout::Grid => DatabaseLayoutPB::Grid,
+      ViewLayout::Board => DatabaseLayoutPB::Board,
+      ViewLayout::Calendar => DatabaseLayoutPB::Calendar,
+    };
+
+    let database_manager = self.0.clone();
+    let view_id = new.id.clone();
+    if old.layout != new.layout {
+      FutureResult::new(async move {
+        database_manager
+          .update_database_layout(&view_id, database_layout)
+          .await?;
+        Ok(())
+      })
+    } else {
+      FutureResult::new(async move { Ok(()) })
+    }
+  }
 }
 
 #[derive(Debug, serde::Deserialize)]
 struct CreateDatabaseExtParams {
   database_id: String,
-  duplicated_view_id: Option<String>,
 }
 
 impl CreateDatabaseExtParams {

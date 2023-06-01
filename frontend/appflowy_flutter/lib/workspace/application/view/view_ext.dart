@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database_view/database_view.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -56,7 +57,14 @@ extension ViewExtension on ViewPB {
   }
 
   Plugin plugin() {
-    final plugin = makePlugin(pluginType: pluginType, data: this);
-    return plugin;
+    switch (layout) {
+      case ViewLayoutPB.Board:
+      case ViewLayoutPB.Calendar:
+      case ViewLayoutPB.Grid:
+        return DatabaseViewPlugin(view: this);
+      case ViewLayoutPB.Document:
+        return makePlugin(pluginType: pluginType, data: this);
+    }
+    throw UnimplementedError;
   }
 }

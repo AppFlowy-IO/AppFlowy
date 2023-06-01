@@ -6,19 +6,19 @@ import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:dartz/dartz.dart';
 
-typedef NewLayoutFieldValue = Either<DatabaseLayoutSettingPB, FlowyError>;
-
-class DatabaseCalendarLayoutListener {
+/// Listener for database layout changes.
+class DatabaseLayoutListener {
   final String viewId;
-  PublishNotifier<NewLayoutFieldValue>? _newLayoutFieldNotifier =
+  PublishNotifier<Either<DatabaseLayoutPB, FlowyError>>? _layoutNotifier =
       PublishNotifier();
   DatabaseNotificationListener? _listener;
-  DatabaseCalendarLayoutListener(this.viewId);
+  DatabaseLayoutListener(this.viewId);
 
   void start({
-    required void Function(NewLayoutFieldValue) onCalendarLayoutChanged,
+    required void Function(Either<DatabaseLayoutPB, FlowyError>)
+        onLayoutChanged,
   }) {
-    _newLayoutFieldNotifier?.addPublishListener(onCalendarLayoutChanged);
+    _layoutNotifier?.addPublishListener(onLayoutChanged);
     _listener = DatabaseNotificationListener(
       objectId: viewId,
       handler: _handler,
@@ -30,11 +30,11 @@ class DatabaseCalendarLayoutListener {
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case DatabaseNotification.DidSetNewLayoutField:
+      case DatabaseNotification.DidUpdateDatabaseLayout:
         result.fold(
-          (payload) => _newLayoutFieldNotifier?.value =
-              left(DatabaseLayoutSettingPB.fromBuffer(payload)),
-          (error) => _newLayoutFieldNotifier?.value = right(error),
+          (payload) => _layoutNotifier?.value =
+              left(DatabaseLayoutMetaPB.fromBuffer(payload).layout),
+          (error) => _layoutNotifier?.value = right(error),
         );
         break;
       default:
@@ -44,7 +44,7 @@ class DatabaseCalendarLayoutListener {
 
   Future<void> stop() async {
     await _listener?.stop();
-    _newLayoutFieldNotifier?.dispose();
-    _newLayoutFieldNotifier = null;
+    _layoutNotifier?.dispose();
+    _layoutNotifier = null;
   }
 }

@@ -22,11 +22,11 @@ typedef PluginId = String;
 abstract class Plugin<T> {
   PluginId get id;
 
-  PluginDisplay get display;
+  PluginWidgetBuilder get widgetBuilder;
 
   PluginNotifier? get notifier => null;
 
-  PluginType get ty;
+  PluginType get pluginType;
 
   void dispose() {
     notifier?.dispose();
@@ -37,7 +37,7 @@ abstract class PluginNotifier<T> {
   /// Notify if the plugin get deleted
   ValueNotifier<T> get isDeleted;
 
-  /// Notify if the [PluginDisplay]'s content was changed
+  /// Notify if the [PluginWidgetBuilder]'s content was changed
   ValueNotifier<int> get isDisplayChanged;
 
   void dispose() {}
@@ -50,8 +50,11 @@ abstract class PluginBuilder {
 
   String get menuIcon;
 
+  /// The type of this [Plugin]. Each [Plugin] should have a unique [PluginType]
   PluginType get pluginType;
 
+  /// The layoutType is used in the backend to determine the layout of the view.
+  /// Currrently, AppFlowy supports 4 layout types: Document, Grid, Board, Calendar.
   ViewLayoutPB? get layoutType => ViewLayoutPB.Document;
 }
 
@@ -60,8 +63,11 @@ abstract class PluginConfig {
   bool get creatable => true;
 }
 
-abstract class PluginDisplay with NavigationItem {
+abstract class PluginWidgetBuilder with NavigationItem {
   List<NavigationItem> get navigationItems;
+
+  EdgeInsets get contentPadding =>
+      const EdgeInsets.symmetric(horizontal: 40, vertical: 28);
 
   Widget buildWidget(PluginContext context);
 }
@@ -78,6 +84,8 @@ void registerPlugin({required PluginBuilder builder, PluginConfig? config}) {
       .registerPlugin(builder.pluginType, builder, config: config);
 }
 
+/// Make the correct plugin from the [pluginType] and [data]. If the plugin
+///  is not registered, it will return a blank plugin.
 Plugin makePlugin({required PluginType pluginType, dynamic data}) {
   final plugin = getIt<PluginSandbox>().buildPlugin(pluginType, data);
   return plugin;

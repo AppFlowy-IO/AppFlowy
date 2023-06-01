@@ -1,5 +1,5 @@
 use crate::entities::parser::view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail};
-use crate::view_ext::gen_view_id;
+use crate::view_operation::gen_view_id;
 use collab_folder::core::{View, ViewLayout};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -31,7 +31,7 @@ pub struct ViewPB {
 pub fn view_pb_without_child_views(view: View) -> ViewPB {
   ViewPB {
     id: view.id,
-    parent_view_id: view.bid,
+    parent_view_id: view.parent_view_id,
     name: view.name,
     create_time: view.created_at,
     child_views: Default::default(),
@@ -43,7 +43,7 @@ pub fn view_pb_without_child_views(view: View) -> ViewPB {
 pub fn view_pb_with_child_views(view: View, child_views: Vec<View>) -> ViewPB {
   ViewPB {
     id: view.id,
-    parent_view_id: view.bid,
+    parent_view_id: view.parent_view_id,
     name: view.name,
     create_time: view.created_at,
     child_views: child_views
@@ -219,6 +219,9 @@ pub struct UpdateViewPayloadPB {
 
   #[pb(index = 4, one_of)]
   pub thumbnail: Option<String>,
+
+  #[pb(index = 5, one_of)]
+  pub layout: Option<ViewLayoutPB>,
 }
 
 #[derive(Clone, Debug)]
@@ -227,6 +230,7 @@ pub struct UpdateViewParams {
   pub name: Option<String>,
   pub desc: Option<String>,
   pub thumbnail: Option<String>,
+  pub layout: Option<ViewLayout>,
 }
 
 impl TryInto<UpdateViewParams> for UpdateViewPayloadPB {
@@ -255,6 +259,7 @@ impl TryInto<UpdateViewParams> for UpdateViewPayloadPB {
       name,
       desc,
       thumbnail,
+      layout: self.layout.map(|ty| ty.into()),
     })
   }
 }

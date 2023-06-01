@@ -340,15 +340,7 @@ class _ToolbarBlocAdaptor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<BoardBloc, BoardState>(
-      builder: (context, state) {
-        final bloc = context.read<BoardBloc>();
-        final toolbarContext = BoardToolbarContext(
-          viewId: bloc.viewId,
-          fieldController: bloc.fieldController,
-        );
-
-        return BoardToolbar(toolbarContext: toolbarContext);
-      },
+      builder: (context, state) => const BoardToolbar(),
     );
   }
 }

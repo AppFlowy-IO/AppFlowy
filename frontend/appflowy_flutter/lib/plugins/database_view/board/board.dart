@@ -49,18 +49,19 @@ class BoardPlugin extends Plugin {
         notifier = ViewPluginNotifier(view: view);
 
   @override
-  PluginDisplay get display => GridPluginDisplay(notifier: notifier);
+  PluginWidgetBuilder get widgetBuilder =>
+      BoardPluginWidgetBuilder(notifier: notifier);
 
   @override
   PluginId get id => notifier.view.id;
 
   @override
-  PluginType get ty => _pluginType;
+  PluginType get pluginType => _pluginType;
 }
 
-class GridPluginDisplay extends PluginDisplay {
+class BoardPluginWidgetBuilder extends PluginWidgetBuilder {
   final ViewPluginNotifier notifier;
-  GridPluginDisplay({required this.notifier, Key? key});
+  BoardPluginWidgetBuilder({required this.notifier, Key? key});
 
   ViewPB get view => notifier.view;
 

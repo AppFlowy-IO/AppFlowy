@@ -1,6 +1,6 @@
 use crate::entities::{
-  CalendarLayoutSettingPB, DatabaseLayoutPB, DatabaseViewSettingPB, FilterPB, GroupSettingPB,
-  LayoutSettingPB, SortPB,
+  CalendarLayoutSettingPB, DatabaseLayoutPB, DatabaseLayoutSettingPB, DatabaseViewSettingPB,
+  FilterPB, GroupSettingPB, SortPB,
 };
 use crate::services::filter::Filter;
 use crate::services::group::GroupSetting;
@@ -9,17 +9,18 @@ use crate::services::sort::Sort;
 use collab_database::views::DatabaseView;
 
 pub(crate) fn database_view_setting_pb_from_view(view: DatabaseView) -> DatabaseViewSettingPB {
+  let layout_type: DatabaseLayoutPB = view.layout.clone().into();
   let layout_setting = if let Some(layout_setting) = view.layout_settings.get(&view.layout) {
     let calendar_setting =
       CalendarLayoutSettingPB::from(CalendarLayoutSetting::from(layout_setting.clone()));
-    LayoutSettingPB {
+    DatabaseLayoutSettingPB {
+      layout_type: layout_type.clone(),
       calendar: Some(calendar_setting),
     }
   } else {
-    LayoutSettingPB::default()
+    DatabaseLayoutSettingPB::default()
   };
 
-  let current_layout: DatabaseLayoutPB = view.layout.into();
   let filters = view
     .filters
     .into_iter()
@@ -47,7 +48,7 @@ pub(crate) fn database_view_setting_pb_from_view(view: DatabaseView) -> Database
     .collect::<Vec<SortPB>>();
 
   DatabaseViewSettingPB {
-    current_layout,
+    layout_type,
     filters: filters.into(),
     group_settings: group_settings.into(),
     sorts: sorts.into(),

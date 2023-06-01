@@ -35,6 +35,8 @@ pub enum DatabaseNotification {
   DidUpdateLayoutSettings = 80,
   // Trigger when the layout field of the database is changed
   DidSetNewLayoutField = 81,
+  // Trigger when the layout of the database is changed
+  DidUpdateDatabaseLayout = 82,
 }
 
 impl std::default::Default for DatabaseNotification {

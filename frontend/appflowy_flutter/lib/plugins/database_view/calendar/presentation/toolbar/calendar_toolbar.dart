@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -17,13 +18,15 @@ class CalendarToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
+    return SizedBox(
       height: 40,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          _UnscheduleEventsButton(),
-          _SettingButton(),
+          const _UnscheduleEventsButton(),
+          SettingButton(
+            databaseController: context.read<CalendarBloc>().databaseController,
+          ),
         ],
       ),
     );
@@ -115,12 +118,16 @@ class _UnscheduleEventsButtonState extends State<_UnscheduleEventsButton> {
           ),
           popupBuilder: (context) {
             final cells = <Widget>[
-              FlowyText.medium(
-                LocaleKeys.calendar_settings_noDateHint.tr(),
-                color: Theme.of(context).hintColor,
-                overflow: TextOverflow.ellipsis,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: FlowyText.medium(
+                  // LocaleKeys.calendar_settings_noDateHint.tr(),
+                  LocaleKeys.calendar_settings_clickToAdd.tr(),
+                  color: Theme.of(context).hintColor,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              const VSpace(10),
+              const VSpace(6),
               ...unscheduledEvents.map(
                 (e) => _UnscheduledEventItem(
                   event: e,
@@ -164,7 +171,11 @@ class _UnscheduledEventItem extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(event.title),
+        text: FlowyText.medium(
+          event.title.isEmpty
+              ? LocaleKeys.calendar_defaultNewCalendarTitle.tr()
+              : event.title,
+        ),
         onTap: onPressed,
       ),
     );

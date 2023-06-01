@@ -498,14 +498,14 @@ pub struct RowSingleCellData {
   pub row_id: RowId,
   pub field_id: String,
   pub field_type: FieldType,
-  pub cell_data: BoxCellData,
+  pub cell_data: Option<BoxCellData>,
 }
 
 macro_rules! into_cell_data {
   ($func_name:ident,$return_ty:ty) => {
     #[allow(dead_code)]
     pub fn $func_name(self) -> Option<$return_ty> {
-      self.cell_data.unbox_or_none()
+      self.cell_data?.unbox_or_none()
     }
   };
 }

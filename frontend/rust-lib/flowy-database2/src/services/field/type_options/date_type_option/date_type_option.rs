@@ -19,12 +19,23 @@ use std::str::FromStr;
 /// The [DateTypeOption] is used by [FieldType::Date], [FieldType::LastEditedTime], and [FieldType::CreatedTime].
 /// So, storing the field type is necessary to distinguish the field type.
 /// Most of the cases, each [FieldType] has its own [TypeOption] implementation.
-#[derive(Clone, Default, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DateTypeOption {
   pub date_format: DateFormat,
   pub time_format: TimeFormat,
   pub timezone_id: String,
   pub field_type: FieldType,
+}
+
+impl Default for DateTypeOption {
+  fn default() -> Self {
+    Self {
+      date_format: Default::default(),
+      time_format: Default::default(),
+      timezone_id: Default::default(),
+      field_type: FieldType::DateTime,
+    }
+  }
 }
 
 impl TypeOption for DateTypeOption {

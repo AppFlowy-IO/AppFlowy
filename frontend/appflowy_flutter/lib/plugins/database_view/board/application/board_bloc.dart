@@ -20,18 +20,17 @@ import 'group_controller.dart';
 part 'board_bloc.freezed.dart';
 
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
-  final DatabaseController _databaseController;
+  final DatabaseController databaseController;
   late final AppFlowyBoardController boardController;
   final LinkedHashMap<String, GroupController> groupControllers =
       LinkedHashMap();
 
-  FieldController get fieldController => _databaseController.fieldController;
-  String get viewId => _databaseController.viewId;
+  FieldController get fieldController => databaseController.fieldController;
+  String get viewId => databaseController.viewId;
 
   BoardBloc({required ViewPB view})
-      : _databaseController = DatabaseController(
+      : databaseController = DatabaseController(
           view: view,
-          layoutType: DatabaseLayoutPB.Board,
         ),
         super(BoardState.initial(view.id)) {
     boardController = AppFlowyBoardController(
@@ -41,7 +40,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         toGroupId,
         toIndex,
       ) {
-        _databaseController.moveGroup(
+        databaseController.moveGroup(
           fromGroupId: fromGroupId,
           toGroupId: toGroupId,
         );
@@ -54,7 +53,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         final fromRow = groupControllers[groupId]?.rowAtIndex(fromIndex);
         final toRow = groupControllers[groupId]?.rowAtIndex(toIndex);
         if (fromRow != null) {
-          _databaseController.moveGroupRow(
+          databaseController.moveGroupRow(
             fromRow: fromRow,
             toRow: toRow,
             groupId: groupId,
@@ -70,7 +69,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         final fromRow = groupControllers[fromGroupId]?.rowAtIndex(fromIndex);
         final toRow = groupControllers[toGroupId]?.rowAtIndex(toIndex);
         if (fromRow != null) {
-          _databaseController.moveGroupRow(
+          databaseController.moveGroupRow(
             fromRow: fromRow,
             toRow: toRow,
             groupId: toGroupId,
@@ -88,7 +87,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           },
           createBottomRow: (groupId) async {
             final startRowId = groupControllers[groupId]?.lastRow()?.id;
-            final result = await _databaseController.createRow(
+            final result = await databaseController.createRow(
               groupId: groupId,
               startRowId: startRowId,
             );
@@ -98,8 +97,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             );
           },
           createHeaderRow: (String groupId) async {
-            final result =
-                await _databaseController.createRow(groupId: groupId);
+            final result = await databaseController.createRow(groupId: groupId);
             result.fold(
               (_) {},
               (err) => Log.error(err),
@@ -170,7 +168,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   @override
   Future<void> close() async {
-    await _databaseController.dispose();
+    await databaseController.dispose();
     for (final controller in groupControllers.values) {
       controller.dispose();
     }
@@ -198,7 +196,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   RowCache? getRowCache() {
-    return _databaseController.rowCache;
+    return databaseController.rowCache;
   }
 
   void _startListening() {
@@ -237,7 +235,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       },
     );
 
-    _databaseController.setListener(
+    databaseController.setListener(
       onDatabaseChanged: onDatabaseChanged,
       onGroupChanged: onGroupChanged,
     );
@@ -256,7 +254,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   Future<void> _openGrid(Emitter<BoardState> emit) async {
-    final result = await _databaseController.open();
+    final result = await databaseController.open();
     result.fold(
       (grid) => emit(
         state.copyWith(loadingState: GridLoadingState.finish(left(unit))),

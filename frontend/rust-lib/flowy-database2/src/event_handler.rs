@@ -2,7 +2,6 @@ use collab_database::database::gen_row_id;
 use std::sync::Arc;
 
 use collab_database::rows::RowId;
-use collab_database::views::DatabaseLayout;
 use lib_infra::util::timestamp;
 
 use flowy_error::{FlowyError, FlowyResult};
@@ -25,7 +24,7 @@ pub(crate) async fn get_database_data_handler(
 ) -> DataResult<DatabasePB, FlowyError> {
   let view_id: DatabaseViewIdPB = data.into_inner();
   let database_editor = manager.get_database_with_view_id(view_id.as_ref()).await?;
-  let data = database_editor.get_database_data(view_id.as_ref()).await;
+  let data = database_editor.get_database_data(view_id.as_ref()).await?;
   data_result_ok(data)
 }
 
@@ -63,6 +62,12 @@ pub(crate) async fn update_database_setting_handler(
   }
   if let Some(delete_sort) = params.delete_sort {
     editor.delete_sort(delete_sort).await?;
+  }
+
+  if let Some(layout_type) = params.layout_type {
+    editor
+      .update_view_layout(&params.view_id, layout_type)
+      .await?;
   }
   Ok(())
 }
@@ -626,24 +631,25 @@ pub(crate) async fn set_layout_setting_handler(
   let params: LayoutSettingChangeset = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   let layout_params = LayoutSettingParams {
+    layout_type: params.layout_type,
     calendar: params.calendar,
   };
   database_editor
-    .set_layout_setting(&params.view_id, DatabaseLayout::Calendar, layout_params)
+    .set_layout_setting(&params.view_id, layout_params)
     .await;
   Ok(())
 }
 
 pub(crate) async fn get_layout_setting_handler(
-  data: AFPluginData<DatabaseLayoutIdPB>,
+  data: AFPluginData<DatabaseLayoutMetaPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
-) -> DataResult<LayoutSettingPB, FlowyError> {
-  let params: DatabaseLayoutId = data.into_inner().try_into()?;
+) -> DataResult<DatabaseLayoutSettingPB, FlowyError> {
+  let params: DatabaseLayoutMeta = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   let layout_setting_pb = database_editor
     .get_layout_setting(&params.view_id, params.layout)
     .await
-    .map(LayoutSettingPB::from)
+    .map(DatabaseLayoutSettingPB::from)
     .unwrap_or_default();
   data_result_ok(layout_setting_pb)
 }
@@ -659,6 +665,19 @@ pub(crate) async fn get_calendar_events_handler(
     .get_all_calendar_events(&params.view_id)
     .await;
   data_result_ok(RepeatedCalendarEventPB { items: events })
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn get_no_date_calendar_events_handler(
+  data: AFPluginData<CalendarEventRequestPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> DataResult<RepeatedNoDateCalendarEventPB, FlowyError> {
+  let params: CalendarEventRequestParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  let _events = database_editor
+    .get_all_no_date_calendar_events(&params.view_id)
+    .await;
+  todo!()
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
@@ -697,5 +716,14 @@ pub(crate) async fn move_calendar_event_handler(
       cell_changeset,
     )
     .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn create_database_view(
+  _data: AFPluginData<CreateDatabaseViewPayloadPB>,
+  _manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> FlowyResult<()> {
+  // let data: CreateDatabaseViewParams = data.into_inner().try_into()?;
   Ok(())
 }

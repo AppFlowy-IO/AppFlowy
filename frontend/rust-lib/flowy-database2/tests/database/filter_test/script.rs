@@ -265,7 +265,7 @@ impl DatabaseFilterTest {
                 assert_eq!(expected_setting, setting);
             }
             FilterScript::AssertNumberOfVisibleRows { expected } => {
-                let grid = self.editor.get_database_data(&self.view_id).await;
+                let grid = self.editor.get_database_data(&self.view_id).await.unwrap();
                 assert_eq!(grid.rows.len(), expected);
             }
             FilterScript::Wait { millisecond } => {

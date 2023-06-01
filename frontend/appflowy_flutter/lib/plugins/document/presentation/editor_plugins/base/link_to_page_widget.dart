@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/insert_page_command.dart';
-import 'package:appflowy/workspace/application/app/app_service.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/image.dart';
@@ -69,7 +69,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
   final Map<int, (ViewPB, ViewPB)> _items = {};
 
   Future<List<(ViewPB, List<ViewPB>)>> fetchItems() async {
-    final items = await AppBackendService().fetchViews(widget.layoutType);
+    final items = await ViewBackendService().fetchViews(widget.layoutType);
 
     int index = 0;
     for (final (app, children) in items) {

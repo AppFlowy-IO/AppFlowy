@@ -18,20 +18,17 @@ import '../../application/row/row_cache.dart';
 part 'calendar_bloc.freezed.dart';
 
 class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
-  final DatabaseController _databaseController;
+  final DatabaseController databaseController;
   Map<String, FieldInfo> fieldInfoByFieldId = {};
 
   // Getters
-  String get viewId => _databaseController.viewId;
-  FieldController get fieldController => _databaseController.fieldController;
-  CellCache get cellCache => _databaseController.rowCache.cellCache;
-  RowCache get rowCache => _databaseController.rowCache;
+  String get viewId => databaseController.viewId;
+  FieldController get fieldController => databaseController.fieldController;
+  CellCache get cellCache => databaseController.rowCache.cellCache;
+  RowCache get rowCache => databaseController.rowCache;
 
   CalendarBloc({required ViewPB view})
-      : _databaseController = DatabaseController(
-          view: view,
-          layoutType: DatabaseLayoutPB.Calendar,
-        ),
+      : databaseController = DatabaseController(view: view),
         super(CalendarState.initial()) {
     on<CalendarEvent>(
       (event, emit) async {
@@ -110,12 +107,12 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
 
   @override
   Future<void> close() async {
-    await _databaseController.dispose();
+    await databaseController.dispose();
     return super.close();
   }
 
   FieldInfo? _getCalendarFieldInfo(String fieldId) {
-    final fieldInfos = _databaseController.fieldController.fieldInfos;
+    final fieldInfos = databaseController.fieldController.fieldInfos;
     final index = fieldInfos.indexWhere(
       (element) => element.field.id == fieldId,
     );
@@ -127,7 +124,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   }
 
   FieldInfo? _getTitleFieldInfo() {
-    final fieldInfos = _databaseController.fieldController.fieldInfos;
+    final fieldInfos = databaseController.fieldController.fieldInfos;
     final index = fieldInfos.indexWhere(
       (element) => element.field.isPrimary,
     );
@@ -139,7 +136,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   }
 
   Future<void> _openDatabase(Emitter<CalendarState> emit) async {
-    final result = await _databaseController.open();
+    final result = await databaseController.open();
     result.fold(
       (database) => emit(
         state.copyWith(loadingState: DatabaseLoadingState.finish(left(unit))),
@@ -157,7 +154,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         final dateField = _getCalendarFieldInfo(settings.fieldId);
         final titleField = _getTitleFieldInfo();
         if (dateField != null && titleField != null) {
-          final newRow = await _databaseController.createRow(
+          final newRow = await databaseController.createRow(
             withCells: (builder) {
               builder.insertDate(dateField, date);
               builder.insertText(titleField, title);
@@ -210,7 +207,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   Future<void> _updateCalendarLayoutSetting(
     CalendarLayoutSettingPB layoutSetting,
   ) async {
-    return _databaseController.updateCalenderLayoutSetting(layoutSetting);
+    return databaseController.updateCalenderLayoutSetting(layoutSetting);
   }
 
   Future<CalendarEventData<CalendarDayEvent>?> _loadEvent(RowId rowId) async {
@@ -331,7 +328,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       },
     );
 
-    final onLayoutChanged = LayoutCallbacks(
+    final onLayoutChanged = DatabaseLayoutSettingCallbacks(
       onLayoutChanged: _didReceiveLayoutSetting,
       onLoadLayout: _didReceiveLayoutSetting,
     );
@@ -340,14 +337,14 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       onCalendarLayoutChanged: _didReceiveNewLayoutField,
     );
 
-    _databaseController.setListener(
+    databaseController.setListener(
       onDatabaseChanged: onDatabaseChanged,
       onLayoutChanged: onLayoutChanged,
       onCalendarLayoutChanged: onCalendarLayoutFieldChanged,
     );
   }
 
-  void _didReceiveLayoutSetting(LayoutSettingPB layoutSetting) {
+  void _didReceiveLayoutSetting(DatabaseLayoutSettingPB layoutSetting) {
     if (layoutSetting.hasCalendar()) {
       if (isClosed) {
         return;
@@ -356,7 +353,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     }
   }
 
-  void _didReceiveNewLayoutField(LayoutSettingPB layoutSetting) {
+  void _didReceiveNewLayoutField(DatabaseLayoutSettingPB layoutSetting) {
     if (layoutSetting.hasCalendar()) {
       if (isClosed) return;
       add(CalendarEvent.didReceiveNewLayoutField(layoutSetting.calendar));

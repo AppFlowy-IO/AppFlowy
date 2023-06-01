@@ -2,7 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_setting_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_property.dart';
+import 'package:appflowy/plugins/database_view/widgets/field/grid_property.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -41,7 +41,7 @@ class CalendarSetting extends StatelessWidget {
               state.selectedAction.foldLeft(null, (previous, action) => action);
           switch (action) {
             case CalendarSettingAction.properties:
-              return GridPropertyList(
+              return DatabasePropertyList(
                 viewId: settingContext.viewId,
                 fieldController: settingContext.fieldController,
               );
