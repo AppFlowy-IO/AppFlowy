@@ -128,9 +128,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final standardActions = [
       OptionAction.delete,
       OptionAction.duplicate,
-      OptionAction.divider,
-      OptionAction.moveUp,
-      OptionAction.moveDown,
+      // OptionAction.divider,
+      // OptionAction.moveUp,
+      // OptionAction.moveDown,
     ];
 
     final configuration = BlockComponentConfiguration(
@@ -208,7 +208,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
     // customize the action builder. actually, we can customize them in their own builder. Put them here just for convenience.
     for (final entry in builders.entries) {
-      if (entry.key == 'document') {
+      if (entry.key == PageBlockKeys.type) {
         continue;
       }
       final builder = entry.value;
@@ -230,12 +230,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       ];
 
       final List<OptionAction> actions = [
-        ...standardActions
-          ..removeWhere(
-            (element) => [OptionAction.moveUp, OptionAction.moveDown].contains(
-              element,
-            ),
-          ),
+        ...standardActions,
         if (supportColorBuilderTypes.contains(entry.key)) ...colorAction,
       ];
 
