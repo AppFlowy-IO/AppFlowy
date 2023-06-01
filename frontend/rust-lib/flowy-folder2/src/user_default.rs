@@ -5,7 +5,7 @@ use collab_folder::core::{FolderData, RepeatedView, View, ViewIdentifier, ViewLa
 use nanoid::nanoid;
 
 use crate::entities::{view_pb_with_child_views, WorkspacePB};
-use crate::view_ext::{gen_view_id, FolderOperationHandlers};
+use crate::view_operation::{gen_view_id, FolderOperationHandlers};
 
 pub struct DefaultFolderBuilder();
 impl DefaultFolderBuilder {
@@ -21,7 +21,7 @@ impl DefaultFolderBuilder {
     let child_view_layout = ViewLayout::Document;
     let child_view = View {
       id: child_view_id.clone(),
-      bid: view_id.clone(),
+      parent_view_id: view_id.clone(),
       name: "Read me".to_string(),
       desc: "".to_string(),
       created_at: time,
@@ -46,7 +46,7 @@ impl DefaultFolderBuilder {
 
     let view = View {
       id: view_id,
-      bid: workspace_id.clone(),
+      parent_view_id: workspace_id.clone(),
       name: "⭐️ Getting started".to_string(),
       desc: "".to_string(),
       children: RepeatedView::new(vec![ViewIdentifier {

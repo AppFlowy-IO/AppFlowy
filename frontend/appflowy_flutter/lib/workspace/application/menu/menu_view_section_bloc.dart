@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/workspace/application/app/app_bloc.dart';
-import 'package:appflowy/workspace/application/app/app_service.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -13,11 +13,11 @@ class ViewSectionBloc extends Bloc<ViewSectionEvent, ViewSectionState> {
   void Function()? _viewsListener;
   void Function()? _selectedViewlistener;
   final AppViewDataContext _appViewData;
-  late final AppBackendService _appService;
+  late final ViewBackendService _viewBackendSvc;
 
   ViewSectionBloc({
     required AppViewDataContext appViewData,
-  })  : _appService = AppBackendService(),
+  })  : _viewBackendSvc = ViewBackendService(),
         _appViewData = appViewData,
         super(ViewSectionState.initial(appViewData)) {
     on<ViewSectionEvent>((event, emit) async {
@@ -69,7 +69,7 @@ class ViewSectionBloc extends Bloc<ViewSectionEvent, ViewSectionState> {
       views.insert(value.toIndex, views.removeAt(value.fromIndex));
       emit(state.copyWith(views: views));
 
-      final result = await _appService.moveView(
+      final result = await _viewBackendSvc.moveView(
         viewId: viewId,
         fromIndex: value.fromIndex,
         toIndex: value.toIndex,

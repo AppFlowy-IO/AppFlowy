@@ -3,7 +3,7 @@ import 'dart:collection';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/app/app_listener.dart';
-import 'package:appflowy/workspace/application/app/app_service.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:expandable/expandable.dart';
 import 'package:appflowy_backend/log.dart';
@@ -17,11 +17,11 @@ import 'package:dartz/dartz.dart';
 part 'app_bloc.freezed.dart';
 
 class AppBloc extends Bloc<AppEvent, AppState> {
-  final AppBackendService appService;
+  final ViewBackendService appService;
   final AppListener appListener;
 
   AppBloc({required ViewPB view})
-      : appService = AppBackendService(),
+      : appService = ViewBackendService(),
         appListener = AppListener(viewId: view.id),
         super(AppState.initial(view)) {
     on<AppEvent>((event, emit) async {
@@ -78,7 +78,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   Future<void> _renameView(Rename e, Emitter<AppState> emit) async {
     final result =
-        await appService.updateApp(appId: state.view.id, name: e.newName);
+        await appService.updateView(viewId: state.view.id, name: e.newName);
     result.fold(
       (l) => emit(state.copyWith(successOrFailure: left(unit))),
       (error) => emit(state.copyWith(successOrFailure: right(error))),

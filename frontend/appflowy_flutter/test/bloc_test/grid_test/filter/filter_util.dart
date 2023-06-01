@@ -1,13 +1,13 @@
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/grid.dart';
-import 'package:appflowy/workspace/application/app/app_service.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 
 import '../util.dart';
 
 Future<GridTestContext> createTestFilterGrid(AppFlowyGridTest gridTest) async {
   final app = await gridTest.unitTest.createTestApp();
   final builder = GridPluginBuilder();
-  final context = await AppBackendService()
+  final context = await ViewBackendService()
       .createView(
     parentViewId: app.id,
     name: "Filter Grid",

@@ -9,7 +9,7 @@ import 'package:appflowy/plugins/database_view/application/row/row_data_controll
 import 'package:appflowy/plugins/database_view/board/board.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
-import 'package:appflowy/workspace/application/app/app_service.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 
@@ -29,7 +29,7 @@ class AppFlowyBoardTest {
   Future<BoardTestContext> createTestBoard() async {
     final app = await unitTest.createTestApp();
     final builder = BoardPluginBuilder();
-    return AppBackendService()
+    return ViewBackendService()
         .createView(
       parentViewId: app.id,
       name: "Test Board",

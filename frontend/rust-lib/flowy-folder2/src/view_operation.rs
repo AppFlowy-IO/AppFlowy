@@ -1,6 +1,6 @@
 use crate::entities::{CreateViewParams, ViewLayoutPB};
 use bytes::Bytes;
-use collab_folder::core::{View, ViewLayout};
+use collab_folder::core::ViewLayout;
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 pub type ViewData = Bytes;
+pub use collab_folder::core::View;
 
 /// The handler will be used to handler the folder operation for a specific
 /// view layout. Each [ViewLayout] will have a handler. So when creating a new
@@ -60,6 +61,11 @@ pub trait FolderOperationHandler {
     name: &str,
     path: String,
   ) -> FutureResult<(), FlowyError>;
+
+  /// Called when the view is updated. The handler is the `old` registered handler.
+  fn did_update_view(&self, old: &View, new: &View) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async move { Ok(()) })
+  }
 }
 
 pub type FolderOperationHandlers =
@@ -80,7 +86,7 @@ pub(crate) fn create_view(params: CreateViewParams, layout: ViewLayout) -> View 
   let time = timestamp();
   View {
     id: params.view_id,
-    bid: params.parent_view_id,
+    parent_view_id: params.parent_view_id,
     name: params.name,
     desc: params.desc,
     children: Default::default(),

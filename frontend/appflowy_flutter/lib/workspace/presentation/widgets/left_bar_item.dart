@@ -17,7 +17,7 @@ class ViewLeftBarItem extends StatefulWidget {
 class _ViewLeftBarItemState extends State<ViewLeftBarItem> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
-  late final ViewService _viewService;
+  late final ViewBackendService _viewBackendSvc;
   late final ViewListener _viewListener;
   late ViewPB view;
 
@@ -25,7 +25,7 @@ class _ViewLeftBarItemState extends State<ViewLeftBarItem> {
   void initState() {
     super.initState();
     view = widget.view;
-    _viewService = ViewService();
+    _viewBackendSvc = ViewBackendService();
     _focusNode.addListener(_handleFocusChanged);
     _viewListener = ViewListener(view: widget.view);
     _viewListener.start(
@@ -86,7 +86,7 @@ class _ViewLeftBarItemState extends State<ViewLeftBarItem> {
     }
 
     if (_controller.text != view.name) {
-      _viewService.updateView(viewId: view.id, name: _controller.text);
+      _viewBackendSvc.updateView(viewId: view.id, name: _controller.text);
     }
   }
 }

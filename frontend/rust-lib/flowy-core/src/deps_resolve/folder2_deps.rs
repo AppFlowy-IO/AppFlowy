@@ -17,7 +17,7 @@ use flowy_error::FlowyError;
 use flowy_folder2::deps::{FolderCloudService, FolderUser};
 use flowy_folder2::entities::ViewLayoutPB;
 use flowy_folder2::manager::Folder2Manager;
-use flowy_folder2::view_ext::{FolderOperationHandler, FolderOperationHandlers};
+use flowy_folder2::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
 use flowy_folder2::ViewLayout;
 use flowy_user::services::UserSession;
 use lib_dispatch::prelude::ToBytes;
@@ -294,6 +294,32 @@ impl FolderOperationHandler for DatabaseFolderOperation {
         .await?;
       Ok(())
     })
+  }
+
+  fn did_update_view(&self, old: &View, new: &View) -> FutureResult<(), FlowyError> {
+    let database_layout = match new.layout {
+      ViewLayout::Document => {
+        return FutureResult::new(async {
+          Err(FlowyError::internal().context("Can't handle document layout type"))
+        });
+      },
+      ViewLayout::Grid => DatabaseLayoutPB::Grid,
+      ViewLayout::Board => DatabaseLayoutPB::Board,
+      ViewLayout::Calendar => DatabaseLayoutPB::Calendar,
+    };
+
+    let database_manager = self.0.clone();
+    let view_id = new.id.clone();
+    if old.layout != new.layout {
+      FutureResult::new(async move {
+        database_manager
+          .update_database_layout(&view_id, database_layout)
+          .await?;
+        Ok(())
+      })
+    } else {
+      FutureResult::new(async move { Ok(()) })
+    }
   }
 }
 

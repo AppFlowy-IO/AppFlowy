@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:flutter/services.dart';
 
 import '../plugin.dart';
@@ -28,9 +29,11 @@ class PluginSandbox {
     return index;
   }
 
+  /// Build a plugin from [data] with [pluginType]
+  /// If the [pluginType] is not registered, it will return a blank plugin
   Plugin buildPlugin(PluginType pluginType, dynamic data) {
-    final plugin = _pluginBuilders[pluginType]!.build(data);
-    return plugin;
+    final builder = _pluginBuilders[pluginType] ?? BlankPluginBuilder();
+    return builder.build(data);
   }
 
   void registerPlugin(

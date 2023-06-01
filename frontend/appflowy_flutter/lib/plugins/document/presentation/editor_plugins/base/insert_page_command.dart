@@ -2,8 +2,8 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/database_view_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/board/board_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/grid/grid_node_widget.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:appflowy/workspace/application/app/app_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -36,7 +36,7 @@ extension InsertDatabase on EditorState {
     }
 
     final prefix = _referencedDatabasePrefix(viewPB.layout);
-    final ref = await AppBackendService().createView(
+    final ref = await ViewBackendService().createView(
       parentViewId: appPB.id,
       name: "$prefix ${viewPB.name}",
       layoutType: viewPB.layout,

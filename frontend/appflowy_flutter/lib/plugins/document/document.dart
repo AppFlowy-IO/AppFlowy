@@ -61,31 +61,35 @@ class DocumentPlugin extends Plugin<int> {
   }
 
   @override
-  PluginDisplay get display {
-    return DocumentPluginDisplay(
+  PluginWidgetBuilder get widgetBuilder {
+    return DocumentPluginWidgetBuilder(
       notifier: notifier,
       documentAppearanceCubit: _documentAppearanceCubit,
     );
   }
 
   @override
-  PluginType get ty => _pluginType;
+  PluginType get pluginType => _pluginType;
 
   @override
   PluginId get id => notifier.view.id;
 }
 
-class DocumentPluginDisplay extends PluginDisplay with NavigationItem {
+class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
+    with NavigationItem {
   final ViewPluginNotifier notifier;
   ViewPB get view => notifier.view;
   int? deletedViewIndex;
   DocumentAppearanceCubit documentAppearanceCubit;
 
-  DocumentPluginDisplay({
+  DocumentPluginWidgetBuilder({
     required this.notifier,
     required this.documentAppearanceCubit,
     Key? key,
   });
+
+  @override
+  EdgeInsets get contentPadding => EdgeInsets.zero;
 
   @override
   Widget buildWidget(PluginContext context) {

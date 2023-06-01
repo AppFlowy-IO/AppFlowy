@@ -1,7 +1,7 @@
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:dartz/dartz.dart';
 
 class DatabaseLayoutBackendService {
@@ -9,22 +9,27 @@ class DatabaseLayoutBackendService {
 
   DatabaseLayoutBackendService(this.viewId);
 
-  Future<Either<Unit, FlowyError>> updateLayout({
+  Future<Either<ViewPB, FlowyError>> updateLayout({
     required String fieldId,
     required DatabaseLayoutPB layout,
   }) {
-    final payload = DatabaseSettingChangesetPB.create()
+    var payload = UpdateViewPayloadPB.create()
       ..viewId = viewId
-      ..layoutType = layout;
+      ..layout = _viewLayoutFromDatabaseLayout(layout);
 
-    return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
-      return result.fold(
-        (l) => left(l),
-        (err) {
-          Log.error(err);
-          return right(err);
-        },
-      );
-    });
+    return FolderEventUpdateView(payload).send();
+  }
+}
+
+ViewLayoutPB _viewLayoutFromDatabaseLayout(DatabaseLayoutPB databaseLayout) {
+  switch (databaseLayout) {
+    case DatabaseLayoutPB.Board:
+      return ViewLayoutPB.Board;
+    case DatabaseLayoutPB.Calendar:
+      return ViewLayoutPB.Calendar;
+    case DatabaseLayoutPB.Grid:
+      return ViewLayoutPB.Grid;
+    default:
+      throw UnimplementedError;
   }
 }

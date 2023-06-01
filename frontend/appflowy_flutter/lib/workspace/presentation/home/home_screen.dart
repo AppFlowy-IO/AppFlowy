@@ -76,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (view != null) {
                     // Only open the last opened view if the [HomeStackManager] current opened plugin is blank and the last opened view is not null.
                     // All opened widgets that display on the home screen are in the form of plugins. There is a list of built-in plugins defined in the [PluginType] enum, including board, grid and trash.
-                    if (getIt<HomeStackManager>().plugin.ty ==
+                    if (getIt<HomeStackManager>().plugin.pluginType ==
                         PluginType.blank) {
                       final plugin = makePlugin(
                         pluginType: view.pluginType,

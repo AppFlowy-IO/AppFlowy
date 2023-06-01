@@ -29,7 +29,9 @@ use crate::notification::{
 };
 use crate::share::ImportParams;
 use crate::user_default::DefaultFolderBuilder;
-use crate::view_ext::{create_view, gen_view_id, FolderOperationHandler, FolderOperationHandlers};
+use crate::view_operation::{
+  create_view, gen_view_id, FolderOperationHandler, FolderOperationHandlers,
+};
 
 pub struct Folder2Manager {
   mutex_folder: Arc<MutexFolder>,
@@ -233,7 +235,7 @@ impl Folder2Manager {
       folder.insert_view(view.clone());
     });
 
-    notify_parent_view_did_change(self.mutex_folder.clone(), vec![view.bid.clone()]);
+    notify_parent_view_did_change(self.mutex_folder.clone(), vec![view.parent_view_id.clone()]);
     Ok(view)
   }
 
@@ -336,7 +338,7 @@ impl Folder2Manager {
     match view {
       None => tracing::error!("Couldn't find the view. It should not be empty"),
       Some(view) => {
-        notify_parent_view_did_change(self.mutex_folder.clone(), vec![view.bid]);
+        notify_parent_view_did_change(self.mutex_folder.clone(), vec![view.parent_view_id]);
       },
     }
     Ok(())
@@ -350,18 +352,22 @@ impl Folder2Manager {
 
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn update_view_with_params(&self, params: UpdateViewParams) -> FlowyResult<()> {
-    let _ = self
-      .mutex_folder
-      .lock()
-      .as_ref()
-      .ok_or_else(folder_not_init_error)?
-      .views
-      .update_view(&params.view_id, |update| {
+    self.with_folder((), |folder| {
+      let old_view = folder.views.get_view(&params.view_id);
+      let new_view = folder.views.update_view(&params.view_id, |update| {
         update
           .set_name_if_not_none(params.name)
           .set_desc_if_not_none(params.desc)
+          .set_layout_if_not_none(params.layout)
           .done()
       });
+
+      if let (Some(old_view), Some(new_view)) = (old_view, new_view) {
+        if let Ok(handler) = self.get_handler(&old_view.layout) {
+          handler.did_update_view(&old_view, &new_view);
+        }
+      }
+    });
 
     if let Ok(view_pb) = self.get_view(&params.view_id).await {
       notify_parent_view_did_change(
@@ -388,7 +394,7 @@ impl Folder2Manager {
     //   meta.insert("database_id".to_string(), database_id);
     // }
     let duplicate_params = CreateViewParams {
-      parent_view_id: view.bid.clone(),
+      parent_view_id: view.parent_view_id.clone(),
       name: format!("{} (copy)", &view.name),
       desc: view.desc,
       layout: view.layout.into(),
@@ -501,7 +507,7 @@ impl Folder2Manager {
     self.with_folder((), |folder| {
       folder.insert_view(view.clone());
     });
-    notify_parent_view_did_change(self.mutex_folder.clone(), vec![view.bid.clone()]);
+    notify_parent_view_did_change(self.mutex_folder.clone(), vec![view.parent_view_id.clone()]);
     Ok(view)
   }
 
@@ -529,11 +535,11 @@ fn listen_on_view_change(mut rx: ViewChangeReceiver, weak_mutex_folder: &Weak<Mu
         tracing::trace!("Did receive view change: {:?}", value);
         match value {
           ViewChange::DidCreateView { view } => {
-            notify_parent_view_did_change(folder.clone(), vec![view.bid]);
+            notify_parent_view_did_change(folder.clone(), vec![view.parent_view_id]);
           },
           ViewChange::DidDeleteView { views: _ } => {},
           ViewChange::DidUpdate { view } => {
-            notify_parent_view_did_change(folder.clone(), vec![view.bid]);
+            notify_parent_view_did_change(folder.clone(), vec![view.parent_view_id]);
           },
         };
       }
@@ -580,7 +586,7 @@ fn listen_on_trash_change(mut rx: TrashChangeReceiver, weak_mutex_folder: &Weak<
         if let Some(folder) = folder.lock().as_ref() {
           let views = folder.views.get_views(&ids);
           for view in views {
-            unique_ids.insert(view.bid);
+            unique_ids.insert(view.parent_view_id);
           }
 
           let repeated_trash: RepeatedTrashPB = folder.trash.get_all_trash().into();
