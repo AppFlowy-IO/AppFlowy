@@ -68,7 +68,7 @@ pub(crate) async fn update_database_setting_handler(
 
   if let Some(layout_type) = params.layout_type {
     editor
-      .update_layout_type(&params.view_id, layout_type)
+      .update_view_layout(&params.view_id, layout_type)
       .await?;
   }
   Ok(())

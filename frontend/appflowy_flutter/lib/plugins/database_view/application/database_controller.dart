@@ -79,7 +79,7 @@ class DatabaseController {
   final String viewId;
   final DatabaseViewBackendService _databaseViewBackendSvc;
   final FieldController fieldController;
-  DatabaseLayoutPB? layoutType;
+  DatabaseLayoutPB? databaseLayout;
   late DatabaseViewCache _viewCache;
 
   // Callbacks
@@ -129,7 +129,7 @@ class DatabaseController {
     return _databaseViewBackendSvc.openGrid().then((result) {
       return result.fold(
         (database) async {
-          layoutType = database.layoutType;
+          databaseLayout = database.layoutType;
 
           if (database.layoutType == DatabaseLayoutPB.Calendar) {
             _listenOnCalendarLayoutChanged();
@@ -245,8 +245,8 @@ class DatabaseController {
   }
 
   Future<void> _loadLayoutSetting() async {
-    if (layoutType != null) {
-      _databaseViewBackendSvc.getLayoutSetting(layoutType!).then((result) {
+    if (databaseLayout != null) {
+      _databaseViewBackendSvc.getLayoutSetting(databaseLayout!).then((result) {
         result.fold(
           (l) {
             _layoutCallbacks?.onLoadLayout(l);

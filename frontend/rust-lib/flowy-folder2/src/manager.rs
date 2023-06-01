@@ -352,7 +352,7 @@ impl Folder2Manager {
 
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn update_view_with_params(&self, params: UpdateViewParams) -> FlowyResult<()> {
-    self.with_folder((), |folder| {
+    let value = self.with_folder(None, |folder| {
       let old_view = folder.views.get_view(&params.view_id);
       let new_view = folder.views.update_view(&params.view_id, |update| {
         update
@@ -361,13 +361,14 @@ impl Folder2Manager {
           .set_layout_if_not_none(params.layout)
           .done()
       });
-
-      if let (Some(old_view), Some(new_view)) = (old_view, new_view) {
-        if let Ok(handler) = self.get_handler(&old_view.layout) {
-          handler.did_update_view(&old_view, &new_view);
-        }
-      }
+      Some((old_view, new_view))
     });
+
+    if let Some((Some(old_view), Some(new_view))) = value {
+      if let Ok(handler) = self.get_handler(&old_view.layout) {
+        handler.did_update_view(&old_view, &new_view).await?;
+      }
+    }
 
     if let Ok(view_pb) = self.get_view(&params.view_id).await {
       notify_parent_view_did_change(

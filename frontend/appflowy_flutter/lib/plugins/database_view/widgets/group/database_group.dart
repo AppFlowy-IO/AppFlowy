@@ -11,11 +11,11 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class GridGroupList extends StatelessWidget {
+class DatabaseGroupList extends StatelessWidget {
   final String viewId;
   final FieldController fieldController;
   final VoidCallback onDismissed;
-  const GridGroupList({
+  const DatabaseGroupList({
     required this.viewId,
     required this.fieldController,
     required this.onDismissed,

@@ -63,7 +63,7 @@ pub trait FolderOperationHandler {
   ) -> FutureResult<(), FlowyError>;
 
   /// Called when the view is updated. The handler is the `old` registered handler.
-  fn did_update_view(&self, old: &View, new: &View) -> FutureResult<(), FlowyError> {
+  fn did_update_view(&self, _old: &View, _new: &View) -> FutureResult<(), FlowyError> {
     FutureResult::new(async move { Ok(()) })
   }
 }

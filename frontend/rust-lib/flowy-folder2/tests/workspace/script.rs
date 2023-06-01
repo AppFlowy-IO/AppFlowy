@@ -274,6 +274,7 @@ pub async fn update_view(
     name,
     desc,
     thumbnail: None,
+    layout: None,
   };
   EventBuilder::new(sdk.clone())
     .event(UpdateView)

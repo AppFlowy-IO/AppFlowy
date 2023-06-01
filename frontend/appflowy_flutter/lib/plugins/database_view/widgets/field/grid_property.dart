@@ -11,23 +11,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
-import '../../layout/sizes.dart';
-import '../header/field_editor.dart';
+import '../../grid/presentation/layout/sizes.dart';
+import '../../grid/presentation/widgets/header/field_editor.dart';
 
-class GridPropertyList extends StatefulWidget {
+class DatabasePropertyList extends StatefulWidget {
   final String viewId;
   final FieldController fieldController;
-  const GridPropertyList({
+  const DatabasePropertyList({
     required this.viewId,
     required this.fieldController,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _GridPropertyListState();
+  State<StatefulWidget> createState() => _DatabasePropertyListState();
 }
 
-class _GridPropertyListState extends State<GridPropertyList> {
+class _DatabasePropertyListState extends State<DatabasePropertyList> {
   late PopoverMutex _popoverMutex;
 
   @override

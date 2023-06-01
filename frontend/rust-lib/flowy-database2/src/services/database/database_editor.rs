@@ -77,7 +77,7 @@ impl DatabaseEditor {
   pub async fn close(&self) {}
 
   #[tracing::instrument(level = "debug", skip_all)]
-  pub async fn update_layout_type(
+  pub async fn update_view_layout(
     &self,
     view_id: &str,
     layout_type: DatabaseLayout,

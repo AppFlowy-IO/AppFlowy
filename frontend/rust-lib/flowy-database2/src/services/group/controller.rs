@@ -254,6 +254,7 @@ where
           continue;
         }
       }
+
       match self.context.get_mut_no_status_group() {
         None => {},
         Some(no_status_group) => no_status_group.add_row((*row).clone()),

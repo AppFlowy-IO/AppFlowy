@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -17,13 +18,15 @@ class CalendarToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
+    return SizedBox(
       height: 40,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          _UnscheduleEventsButton(),
-          _SettingButton(),
+          const _UnscheduleEventsButton(),
+          SettingButton(
+            databaseController: context.read<CalendarBloc>().databaseController,
+          ),
         ],
       ),
     );

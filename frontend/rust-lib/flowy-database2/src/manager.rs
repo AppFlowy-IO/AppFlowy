@@ -234,7 +234,7 @@ impl DatabaseManager2 {
     layout: DatabaseLayoutPB,
   ) -> FlowyResult<()> {
     let database = self.get_database_with_view_id(view_id).await?;
-    database.update_layout_type(view_id, layout.into()).await
+    database.update_view_layout(view_id, layout.into()).await
   }
 
   fn with_user_database<F, Output>(&self, default_value: Output, f: F) -> Output

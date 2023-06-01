@@ -228,8 +228,9 @@
       "addFilter": "Add Filter",
       "deleteFilter": "Delete filter",
       "filterBy": "Filter by...",
-      "typeAValue": "Type a value...",
-      "layout": "Layout"
+      "typeAValue": "Type a value...", 
+      "layout": "Layout",
+      "databaseLayout": "Layout"
     },
     "textFilter": {
       "contains": "Contains",

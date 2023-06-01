@@ -11,20 +11,20 @@ import 'package:styled_widget/styled_widget.dart';
 
 import '../../layout/sizes.dart';
 
-class GridLayoutList extends StatefulWidget {
+class DatabaseLayoutList extends StatefulWidget {
   final String viewId;
   final DatabaseLayoutPB currentLayout;
-  const GridLayoutList({
+  const DatabaseLayoutList({
     required this.viewId,
     required this.currentLayout,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _GridLayoutListState();
+  State<StatefulWidget> createState() => _DatabaseLayoutListState();
 }
 
-class _GridLayoutListState extends State<GridLayoutList> {
+class _DatabaseLayoutListState extends State<DatabaseLayoutList> {
   @override
   void initState() {
     super.initState();
