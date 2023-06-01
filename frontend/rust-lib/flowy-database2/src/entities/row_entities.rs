@@ -121,7 +121,7 @@ pub struct UpdatedRowPB {
   #[pb(index = 1)]
   pub row: RowPB,
 
-  // represents as the cells that were updated in this row.
+  // Indicates the field ids of the cells that were updated in this row.
   #[pb(index = 2)]
   pub field_ids: Vec<String>,
 }

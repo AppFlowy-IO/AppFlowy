@@ -1,9 +1,9 @@
-use crate::entities::{GroupRowsNotificationPB, SelectOptionCellDataPB};
+use crate::entities::{FieldType, GroupRowsNotificationPB, SelectOptionCellDataPB};
 use crate::services::cell::insert_select_option_cell;
 use crate::services::field::{SelectOptionCellDataParser, SingleSelectTypeOption};
 use crate::services::group::action::GroupCustomize;
 use collab_database::fields::Field;
-use collab_database::rows::{Cells, Row};
+use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
 use std::sync::Arc;
 
 use crate::services::group::controller::{
@@ -37,6 +37,14 @@ impl GroupCustomize for SingleSelectGroupController {
       .select_options
       .iter()
       .any(|option| option.id == content)
+  }
+
+  fn placeholder_cell(&self) -> Option<Cell> {
+    Some(
+      new_cell_builder(FieldType::SingleSelect)
+        .insert_str_value("data", "")
+        .build(),
+    )
   }
 
   fn add_or_remove_row_when_cell_changed(

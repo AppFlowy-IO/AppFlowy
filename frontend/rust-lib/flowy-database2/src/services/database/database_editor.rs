@@ -20,7 +20,7 @@ use crate::entities::{
   FieldChangesetParams, FieldIdPB, FieldPB, FieldType, GroupPB, IndexFieldPB, InsertedRowPB,
   LayoutSettingParams, NoDateCalendarEventPB, RepeatedFilterPB, RepeatedGroupPB, RepeatedSortPB,
   RowPB, RowsChangePB, SelectOptionCellDataPB, SelectOptionPB, UpdateFilterParams,
-  UpdateSortParams,
+  UpdateSortParams, UpdatedRowPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
@@ -537,6 +537,15 @@ impl DatabaseEditor {
 
     let option_row = self.database.lock().get_row(&row_id);
     if let Some(new_row) = option_row {
+      let updated_row = UpdatedRowPB {
+        row: RowPB::from(&new_row),
+        field_ids: vec![field_id.to_string()],
+      };
+      let changes = RowsChangePB::from_update(view_id.to_string(), updated_row);
+      send_notification(view_id, DatabaseNotification::DidUpdateViewRows)
+        .payload(changes)
+        .send();
+
       for view in self.database_views.editors().await {
         view.v_did_update_row(&old_row, &new_row, field_id).await;
       }

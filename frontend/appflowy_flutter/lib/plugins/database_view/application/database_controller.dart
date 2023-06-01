@@ -59,14 +59,14 @@ class DatabaseCallbacks {
   OnDatabaseChanged? onDatabaseChanged;
   OnFieldsChanged? onFieldsChanged;
   OnFiltersChanged? onFiltersChanged;
-  OnRowsChanged? onRowsChanged;
+  OnNumOfRowsChanged? onNumOfRowsChanged;
   OnRowsDeleted? onRowsDeleted;
   OnRowsUpdated? onRowsUpdated;
   OnRowsCreated? onRowsCreated;
 
   DatabaseCallbacks({
     this.onDatabaseChanged,
-    this.onRowsChanged,
+    this.onNumOfRowsChanged,
     this.onFieldsChanged,
     this.onFiltersChanged,
     this.onRowsUpdated,
@@ -257,8 +257,8 @@ class DatabaseController {
 
   void _listenOnRowsChanged() {
     final callbacks = DatabaseViewCallbacks(
-      onRowsChanged: (rows, rowByRowId, reason) {
-        _databaseCallbacks?.onRowsChanged?.call(rows, rowByRowId, reason);
+      onNumOfRowsChanged: (rows, rowByRowId, reason) {
+        _databaseCallbacks?.onNumOfRowsChanged?.call(rows, rowByRowId, reason);
       },
       onRowsDeleted: (ids) {
         _databaseCallbacks?.onRowsDeleted?.call(ids);

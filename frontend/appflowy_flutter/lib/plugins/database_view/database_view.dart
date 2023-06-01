@@ -36,9 +36,11 @@ class DatabaseViewPlugin extends Plugin {
       onViewUpdated: (result) {
         result.fold(
           (updatedView) {
+            if (_view.layout != updatedView.layout) {
+              _innerPlugin = _makeInnerPlugin(updatedView);
+              getIt<HomeStackManager>().setPlugin(_innerPlugin);
+            }
             _view = updatedView;
-            _innerPlugin = _makeInnerPlugin(_view);
-            getIt<HomeStackManager>().setPlugin(_innerPlugin);
           },
           (r) => null,
         );
