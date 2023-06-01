@@ -994,7 +994,7 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     let (_, field) = self.database.lock().create_default_field(
       view_id,
       name.to_string(),
-      field_type.into(),
+      field_type.clone().into(),
       |field| {
         field
           .type_options

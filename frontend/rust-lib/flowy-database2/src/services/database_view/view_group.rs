@@ -52,10 +52,8 @@ pub async fn new_group_controller(
 
   let layout = delegate.get_layout_for_view(&view_id);
   // If the view is a board and the grouping field is empty, we need to find a new grouping field
-  if layout.is_board() {
-    if grouping_field.is_none() {
-      grouping_field = find_new_grouping_field(&fields, &layout);
-    }
+  if layout.is_board() && grouping_field.is_none() {
+    grouping_field = find_new_grouping_field(&fields, &layout);
   }
 
   if let Some(grouping_field) = grouping_field {

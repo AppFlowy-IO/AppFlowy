@@ -105,12 +105,12 @@ impl FolderOperationHandler for DocumentFolderOperation {
 
   fn create_view_with_view_data(
     &self,
-    user_id: i64,
+    _user_id: i64,
     view_id: &str,
-    name: &str,
+    _name: &str,
     data: Vec<u8>,
     layout: ViewLayout,
-    meta: HashMap<String, String>,
+    _meta: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayout::Document);
     // TODO: implement read the document data from custom data.
@@ -193,7 +193,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
   /// to the existing database.
   fn create_view_with_view_data(
     &self,
-    user_id: i64,
+    _user_id: i64,
     view_id: &str,
     name: &str,
     data: Vec<u8>,

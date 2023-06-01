@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use chrono::Utc;
 use collab_folder::core::{FolderData, RepeatedView, View, ViewIdentifier, ViewLayout, Workspace};
 use nanoid::nanoid;
