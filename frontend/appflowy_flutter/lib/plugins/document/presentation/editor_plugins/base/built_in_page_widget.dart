@@ -158,6 +158,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
               switch (action.inner) {
                 case _ActionType.viewDatabase:
                   getIt<MenuSharedState>().latestOpenView = viewPB;
+
                   getIt<HomeStackManager>().setPlugin(viewPB.plugin());
                   break;
                 case _ActionType.delete:

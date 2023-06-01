@@ -774,14 +774,9 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn set_layout_setting(
-    &self,
-    view_id: &str,
-    layout_ty: DatabaseLayout,
-    layout_setting: LayoutSettingParams,
-  ) {
+  pub async fn set_layout_setting(&self, view_id: &str, layout_setting: LayoutSettingParams) {
     if let Ok(view) = self.database_views.get_view_editor(view_id).await {
-      let _ = view.v_set_layout_settings(&layout_ty, layout_setting).await;
+      let _ = view.v_set_layout_settings(layout_setting).await;
     }
   }
 

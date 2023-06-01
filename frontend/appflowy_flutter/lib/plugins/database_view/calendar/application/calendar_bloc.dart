@@ -328,7 +328,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       },
     );
 
-    final onLayoutChanged = LayoutCallbacks(
+    final onLayoutChanged = DatabaseLayoutSettingCallbacks(
       onLayoutChanged: _didReceiveLayoutSetting,
       onLoadLayout: _didReceiveLayoutSetting,
     );
@@ -344,7 +344,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     );
   }
 
-  void _didReceiveLayoutSetting(LayoutSettingPB layoutSetting) {
+  void _didReceiveLayoutSetting(DatabaseLayoutSettingPB layoutSetting) {
     if (layoutSetting.hasCalendar()) {
       if (isClosed) {
         return;
@@ -353,7 +353,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     }
   }
 
-  void _didReceiveNewLayoutField(LayoutSettingPB layoutSetting) {
+  void _didReceiveNewLayoutField(DatabaseLayoutSettingPB layoutSetting) {
     if (layoutSetting.hasCalendar()) {
       if (isClosed) return;
       add(CalendarEvent.didReceiveNewLayoutField(layoutSetting.calendar));

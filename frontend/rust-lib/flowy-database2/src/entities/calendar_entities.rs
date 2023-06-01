@@ -134,3 +134,18 @@ pub struct MoveCalendarEventPB {
   #[pb(index = 2)]
   pub timestamp: i64,
 }
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct NoDateCalendarEventPB {
+  #[pb(index = 1)]
+  pub row_id: String,
+
+  #[pb(index = 2)]
+  pub title: String,
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct RepeatedNoDateCalendarEventPB {
+  #[pb(index = 1)]
+  pub items: Vec<NoDateCalendarEventPB>,
+}

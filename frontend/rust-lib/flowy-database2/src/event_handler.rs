@@ -2,7 +2,6 @@ use collab_database::database::gen_row_id;
 use std::sync::Arc;
 
 use collab_database::rows::RowId;
-use collab_database::views::DatabaseLayout;
 use lib_infra::util::timestamp;
 
 use flowy_error::{FlowyError, FlowyResult};
@@ -633,10 +632,11 @@ pub(crate) async fn set_layout_setting_handler(
   let params: LayoutSettingChangeset = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   let layout_params = LayoutSettingParams {
+    layout_type: params.layout_type,
     calendar: params.calendar,
   };
   database_editor
-    .set_layout_setting(&params.view_id, DatabaseLayout::Calendar, layout_params)
+    .set_layout_setting(&params.view_id, layout_params)
     .await;
   Ok(())
 }
@@ -644,13 +644,13 @@ pub(crate) async fn set_layout_setting_handler(
 pub(crate) async fn get_layout_setting_handler(
   data: AFPluginData<DatabaseLayoutMetaPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
-) -> DataResult<LayoutSettingPB, FlowyError> {
+) -> DataResult<DatabaseLayoutSettingPB, FlowyError> {
   let params: DatabaseLayoutMeta = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   let layout_setting_pb = database_editor
     .get_layout_setting(&params.view_id, params.layout)
     .await
-    .map(LayoutSettingPB::from)
+    .map(DatabaseLayoutSettingPB::from)
     .unwrap_or_default();
   data_result_ok(layout_setting_pb)
 }
@@ -666,6 +666,14 @@ pub(crate) async fn get_calendar_events_handler(
     .get_all_calendar_events(&params.view_id)
     .await;
   data_result_ok(RepeatedCalendarEventPB { items: events })
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn get_no_date_calendar_events_handler(
+  data: AFPluginData<CalendarEventRequestPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> DataResult<RepeatedNoDateCalendarEventPB, FlowyError> {
+  todo!()
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
@@ -707,11 +715,11 @@ pub(crate) async fn move_calendar_event_handler(
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn create_database_view(
-  data: AFPluginData<CreateDatabaseViewPayloadPB>,
-  manager: AFPluginState<Arc<DatabaseManager2>>,
+  _data: AFPluginData<CreateDatabaseViewPayloadPB>,
+  _manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> FlowyResult<()> {
-  let data: CreateDatabaseViewParams = data.into_inner().try_into()?;
+  // let data: CreateDatabaseViewParams = data.into_inner().try_into()?;
   Ok(())
 }

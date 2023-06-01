@@ -60,6 +60,7 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         .event(DatabaseEvent::GetDatabases, get_databases_handler)
         // Calendar
         .event(DatabaseEvent::GetAllCalendarEvents, get_calendar_events_handler)
+        .event(DatabaseEvent::GetNoDateCalendarEvents, get_no_date_calendar_events_handler)
         .event(DatabaseEvent::GetCalendarEvent, get_calendar_event_handler)
         .event(DatabaseEvent::MoveCalendarEvent, move_calendar_event_handler)
         // Layout setting
@@ -265,18 +266,24 @@ pub enum DatabaseEvent {
   #[event(input = "LayoutSettingChangesetPB")]
   SetLayoutSetting = 121,
 
-  #[event(input = "DatabaseLayoutMetaPB", output = "LayoutSettingPB")]
+  #[event(input = "DatabaseLayoutMetaPB", output = "DatabaseLayoutSettingPB")]
   GetLayoutSetting = 122,
 
   #[event(input = "CalendarEventRequestPB", output = "RepeatedCalendarEventPB")]
   GetAllCalendarEvents = 123,
 
+  #[event(
+    input = "CalendarEventRequestPB",
+    output = "RepeatedNoDateCalendarEventPB"
+  )]
+  GetNoDateCalendarEvents = 124,
+
   #[event(input = "RowIdPB", output = "CalendarEventPB")]
-  GetCalendarEvent = 124,
+  GetCalendarEvent = 125,
 
   #[event(input = "MoveCalendarEventPB")]
-  MoveCalendarEvent = 125,
+  MoveCalendarEvent = 126,
 
   #[event(input = "CreateDatabaseViewPayloadPB")]
-  CreateDatabaseView = 126,
+  CreateDatabaseView = 130,
 }

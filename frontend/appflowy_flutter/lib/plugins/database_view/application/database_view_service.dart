@@ -97,7 +97,7 @@ class DatabaseViewBackendService {
     });
   }
 
-  Future<Either<LayoutSettingPB, FlowyError>> getLayoutSetting(
+  Future<Either<DatabaseLayoutSettingPB, FlowyError>> getLayoutSetting(
     DatabaseLayoutPB layoutType,
   ) {
     final payload = DatabaseLayoutMetaPB.create()

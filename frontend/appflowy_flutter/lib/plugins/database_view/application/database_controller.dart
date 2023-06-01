@@ -39,18 +39,18 @@ class GroupCallbacks {
   });
 }
 
-class LayoutCallbacks {
-  final void Function(LayoutSettingPB) onLayoutChanged;
-  final void Function(LayoutSettingPB) onLoadLayout;
+class DatabaseLayoutSettingCallbacks {
+  final void Function(DatabaseLayoutSettingPB) onLayoutChanged;
+  final void Function(DatabaseLayoutSettingPB) onLoadLayout;
 
-  LayoutCallbacks({
+  DatabaseLayoutSettingCallbacks({
     required this.onLayoutChanged,
     required this.onLoadLayout,
   });
 }
 
 class CalendarLayoutCallbacks {
-  final void Function(LayoutSettingPB) onCalendarLayoutChanged;
+  final void Function(DatabaseLayoutSettingPB) onCalendarLayoutChanged;
 
   CalendarLayoutCallbacks({required this.onCalendarLayoutChanged});
 }
@@ -85,7 +85,7 @@ class DatabaseController {
   // Callbacks
   DatabaseCallbacks? _databaseCallbacks;
   GroupCallbacks? _groupCallbacks;
-  LayoutCallbacks? _layoutCallbacks;
+  DatabaseLayoutSettingCallbacks? _layoutCallbacks;
   CalendarLayoutCallbacks? _calendarLayoutCallbacks;
 
   // Getters
@@ -93,7 +93,7 @@ class DatabaseController {
 
   // Listener
   final DatabaseGroupListener groupListener;
-  final DatabaseLayoutListener layoutListener;
+  final DatabaseLayoutSettingListener layoutListener;
   final DatabaseCalendarLayoutListener calendarLayoutListener;
 
   DatabaseController({required ViewPB view})
@@ -101,7 +101,7 @@ class DatabaseController {
         _databaseViewBackendSvc = DatabaseViewBackendService(viewId: view.id),
         fieldController = FieldController(viewId: view.id),
         groupListener = DatabaseGroupListener(view.id),
-        layoutListener = DatabaseLayoutListener(view.id),
+        layoutListener = DatabaseLayoutSettingListener(view.id),
         calendarLayoutListener = DatabaseCalendarLayoutListener(view.id) {
     _viewCache = DatabaseViewCache(
       viewId: viewId,
@@ -115,7 +115,7 @@ class DatabaseController {
 
   void setListener({
     DatabaseCallbacks? onDatabaseChanged,
-    LayoutCallbacks? onLayoutChanged,
+    DatabaseLayoutSettingCallbacks? onLayoutChanged,
     GroupCallbacks? onGroupChanged,
     CalendarLayoutCallbacks? onCalendarLayoutChanged,
   }) {

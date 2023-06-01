@@ -117,11 +117,9 @@ class HomeStackNotifier extends ChangeNotifier {
   HomeStackNotifier({Plugin? plugin})
       : _plugin = plugin ?? makePlugin(pluginType: PluginType.blank);
 
+  /// This is the only place where the plugin is set.
+  /// No need compare the old plugin with the new plugin. Just set it.
   set plugin(Plugin newPlugin) {
-    if (newPlugin.id == _plugin.id) {
-      return;
-    }
-
     _plugin.notifier?.isDisplayChanged.addListener(notifyListeners);
     _plugin.dispose();
 
@@ -176,13 +174,13 @@ class HomeStackManager {
             children: getIt<PluginSandbox>().supportPluginTypes.map(
               (pluginType) {
                 if (pluginType == notifier.plugin.pluginType) {
-                  final pluginWidget =
-                      notifier.plugin.widgetBuilder.buildWidget(
+                  final builder = notifier.plugin.widgetBuilder;
+                  final pluginWidget = builder.buildWidget(
                     PluginContext(onDeleted: onDeleted),
                   );
 
                   return Padding(
-                    padding: notifier.plugin.widgetBuilder.contentPadding,
+                    padding: builder.contentPadding,
                     child: pluginWidget,
                   );
                 } else {
