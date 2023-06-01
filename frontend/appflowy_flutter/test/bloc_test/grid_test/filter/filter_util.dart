@@ -7,13 +7,11 @@ import '../util.dart';
 Future<GridTestContext> createTestFilterGrid(AppFlowyGridTest gridTest) async {
   final app = await gridTest.unitTest.createTestApp();
   final builder = GridPluginBuilder();
-  final context = await ViewBackendService()
-      .createView(
+  final context = await ViewBackendService.createView(
     parentViewId: app.id,
     name: "Filter Grid",
     layoutType: builder.layoutType!,
-  )
-      .then((result) {
+  ).then((result) {
     return result.fold(
       (view) async {
         final context = GridTestContext(

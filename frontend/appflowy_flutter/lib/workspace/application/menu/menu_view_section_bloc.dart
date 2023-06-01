@@ -13,12 +13,10 @@ class ViewSectionBloc extends Bloc<ViewSectionEvent, ViewSectionState> {
   void Function()? _viewsListener;
   void Function()? _selectedViewlistener;
   final AppViewDataContext _appViewData;
-  late final ViewBackendService _viewBackendSvc;
 
   ViewSectionBloc({
     required AppViewDataContext appViewData,
-  })  : _viewBackendSvc = ViewBackendService(),
-        _appViewData = appViewData,
+  })  : _appViewData = appViewData,
         super(ViewSectionState.initial(appViewData)) {
     on<ViewSectionEvent>((event, emit) async {
       await event.map(
@@ -69,7 +67,7 @@ class ViewSectionBloc extends Bloc<ViewSectionEvent, ViewSectionState> {
       views.insert(value.toIndex, views.removeAt(value.fromIndex));
       emit(state.copyWith(views: views));
 
-      final result = await _viewBackendSvc.moveView(
+      final result = await ViewBackendService.moveView(
         viewId: viewId,
         fromIndex: value.fromIndex,
         toIndex: value.toIndex,

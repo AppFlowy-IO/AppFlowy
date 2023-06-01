@@ -15,7 +15,7 @@ class DatabaseBlockKeys {
 }
 
 extension InsertDatabase on EditorState {
-  Future<void> insertPage(ViewPB appPB, ViewPB viewPB) async {
+  Future<void> insertPage(ViewPB parentView, ViewPB childView) async {
     final selection = this.selection;
     if (selection == null || !selection.isCollapsed) {
       return;
@@ -26,23 +26,22 @@ extension InsertDatabase on EditorState {
     }
 
     // get the database that the view is associated with
-    final database = await DatabaseViewBackendService(viewId: viewPB.id)
+    final database = await DatabaseViewBackendService(viewId: childView.id)
         .openGrid()
         .then((value) => value.swap().toOption().toNullable());
+
     if (database == null) {
       throw StateError(
-        'The database associated with ${viewPB.id} could not be found while attempting to create a referenced ${viewPB.layout.name}.',
+        'The database associated with ${childView.id} could not be found while attempting to create a referenced ${childView.layout.name}.',
       );
     }
 
-    final prefix = _referencedDatabasePrefix(viewPB.layout);
-    final ref = await ViewBackendService().createView(
-      parentViewId: appPB.id,
-      name: "$prefix ${viewPB.name}",
-      layoutType: viewPB.layout,
-      ext: {
-        'database_id': database.id,
-      },
+    final prefix = _referencedDatabasePrefix(childView.layout);
+    final ref = await ViewBackendService.createDatabaseReferenceView(
+      parentViewId: parentView.id,
+      name: "$prefix ${childView.name}",
+      layoutType: childView.layout,
+      databaseId: database.id,
     ).then((value) => value.swap().toOption().toNullable());
 
     // TODO(a-wallen): Show error dialog here.
@@ -54,9 +53,9 @@ extension InsertDatabase on EditorState {
     transaction.insertNode(
       selection.end.path,
       Node(
-        type: _convertPageType(viewPB),
+        type: _convertPageType(childView),
         attributes: {
-          DatabaseBlockKeys.kAppID: appPB.id,
+          DatabaseBlockKeys.kAppID: parentView.id,
           DatabaseBlockKeys.kViewID: ref.id,
         },
       ),

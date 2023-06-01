@@ -105,12 +105,12 @@ impl FolderOperationHandler for DocumentFolderOperation {
 
   fn create_view_with_view_data(
     &self,
-    _user_id: i64,
+    user_id: i64,
     view_id: &str,
-    _name: &str,
+    name: &str,
     data: Vec<u8>,
     layout: ViewLayout,
-    _ext: HashMap<String, String>,
+    meta: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayout::Document);
     // TODO: implement read the document data from custom data.
@@ -130,7 +130,6 @@ impl FolderOperationHandler for DocumentFolderOperation {
     view_id: &str,
     _name: &str,
     layout: ViewLayout,
-    _ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayout::Document);
 
@@ -194,14 +193,14 @@ impl FolderOperationHandler for DatabaseFolderOperation {
   /// to the existing database.
   fn create_view_with_view_data(
     &self,
-    _user_id: i64,
+    user_id: i64,
     view_id: &str,
     name: &str,
     data: Vec<u8>,
     layout: ViewLayout,
-    ext: HashMap<String, String>,
+    meta: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
-    match CreateDatabaseExtParams::from_map(ext) {
+    match CreateDatabaseExtParams::from_map(meta) {
       None => {
         let database_manager = self.0.clone();
         let view_id = view_id.to_string();
@@ -216,17 +215,11 @@ impl FolderOperationHandler for DatabaseFolderOperation {
         let database_manager = self.0.clone();
         let layout = layout_type_from_view_layout(layout.into());
         let name = name.to_string();
-        let target_view_id = view_id.to_string();
+        let database_view_id = view_id.to_string();
 
         FutureResult::new(async move {
           database_manager
-            .create_linked_view(
-              name,
-              layout,
-              params.database_id,
-              target_view_id,
-              params.duplicated_view_id,
-            )
+            .create_linked_view(name, layout, params.database_id, database_view_id)
             .await?;
           Ok(())
         })
@@ -244,7 +237,6 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     view_id: &str,
     name: &str,
     layout: ViewLayout,
-    _meta: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
     let name = name.to_string();
     let database_manager = self.0.clone();
@@ -326,7 +318,6 @@ impl FolderOperationHandler for DatabaseFolderOperation {
 #[derive(Debug, serde::Deserialize)]
 struct CreateDatabaseExtParams {
   database_id: String,
-  duplicated_view_id: Option<String>,
 }
 
 impl CreateDatabaseExtParams {

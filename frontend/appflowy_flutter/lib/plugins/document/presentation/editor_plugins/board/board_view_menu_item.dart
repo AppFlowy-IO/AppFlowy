@@ -24,7 +24,7 @@ SelectionMenuItem boardViewMenuItem(DocumentBloc documentBloc) =>
         final appId = documentBloc.view.parentViewId;
         final service = ViewBackendService();
 
-        final result = (await service.createView(
+        final result = (await ViewBackendService.createView(
           parentViewId: appId,
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
           layoutType: ViewLayoutPB.Board,

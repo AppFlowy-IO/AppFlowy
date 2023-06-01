@@ -29,13 +29,11 @@ class AppFlowyBoardTest {
   Future<BoardTestContext> createTestBoard() async {
     final app = await unitTest.createTestApp();
     final builder = BoardPluginBuilder();
-    return ViewBackendService()
-        .createView(
+    return ViewBackendService.createView(
       parentViewId: app.id,
       name: "Test Board",
       layoutType: builder.layoutType!,
-    )
-        .then((result) {
+    ).then((result) {
       return result.fold(
         (view) async {
           final context = BoardTestContext(

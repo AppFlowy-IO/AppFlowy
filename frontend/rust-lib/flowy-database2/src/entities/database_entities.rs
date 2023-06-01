@@ -20,7 +20,7 @@ pub struct DatabasePB {
 
   #[pb(index = 3)]
   pub rows: Vec<RowPB>,
-  
+
   #[pb(index = 4)]
   pub layout_type: DatabaseLayoutPB,
 }

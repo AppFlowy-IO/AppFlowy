@@ -7,7 +7,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 
 class ViewBackendService {
-  Future<Either<ViewPB, FlowyError>> createView({
+  static Future<Either<ViewPB, FlowyError>> createView({
     required ViewLayoutPB layoutType,
     required String parentViewId,
     required String name,
@@ -38,7 +38,25 @@ class ViewBackendService {
     return FolderEventCreateView(payload).send();
   }
 
-  Future<Either<List<ViewPB>, FlowyError>> getViews({required String viewId}) {
+  static Future<Either<ViewPB, FlowyError>> createDatabaseReferenceView({
+    required String parentViewId,
+    required String databaseId,
+    required ViewLayoutPB layoutType,
+    required String name,
+  }) {
+    return ViewBackendService.createView(
+      layoutType: layoutType,
+      parentViewId: parentViewId,
+      name: name,
+      ext: {
+        'database_id': databaseId,
+      },
+    );
+  }
+
+  static Future<Either<List<ViewPB>, FlowyError>> getViews({
+    required String viewId,
+  }) {
     final payload = ViewIdPB.create()..value = viewId;
 
     return FolderEventReadView(payload).send().then((result) {
@@ -49,21 +67,21 @@ class ViewBackendService {
     });
   }
 
-  Future<Either<Unit, FlowyError>> delete({required String viewId}) {
+  static Future<Either<Unit, FlowyError>> delete({required String viewId}) {
     final request = RepeatedViewIdPB.create()..items.add(viewId);
     return FolderEventDeleteView(request).send();
   }
 
-  Future<Either<Unit, FlowyError>> deleteView({required String viewId}) {
+  static Future<Either<Unit, FlowyError>> deleteView({required String viewId}) {
     final request = RepeatedViewIdPB.create()..items.add(viewId);
     return FolderEventDeleteView(request).send();
   }
 
-  Future<Either<Unit, FlowyError>> duplicate({required ViewPB view}) {
+  static Future<Either<Unit, FlowyError>> duplicate({required ViewPB view}) {
     return FolderEventDuplicateView(view).send();
   }
 
-  Future<Either<ViewPB, FlowyError>> updateView({
+  static Future<Either<ViewPB, FlowyError>> updateView({
     required String viewId,
     String? name,
   }) {
@@ -75,7 +93,7 @@ class ViewBackendService {
     return FolderEventUpdateView(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> moveView({
+  static Future<Either<Unit, FlowyError>> moveView({
     required String viewId,
     required int fromIndex,
     required int toIndex,

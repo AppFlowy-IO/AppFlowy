@@ -169,13 +169,11 @@ class AppFlowyGridTest {
   Future<GridTestContext> createTestGrid() async {
     final app = await unitTest.createTestApp();
     final builder = GridPluginBuilder();
-    final context = await ViewBackendService()
-        .createView(
+    final context = await ViewBackendService.createView(
       parentViewId: app.id,
       name: "Test Grid",
       layoutType: builder.layoutType!,
-    )
-        .then((result) {
+    ).then((result) {
       return result.fold(
         (view) async {
           final context = GridTestContext(

@@ -42,7 +42,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           );
         },
         rename: (e) async {
-          final result = await viewBackendSvc.updateView(
+          final result = await ViewBackendService.updateView(
             viewId: view.id,
             name: e.newName,
           );
@@ -54,7 +54,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           );
         },
         delete: (e) async {
-          final result = await viewBackendSvc.delete(viewId: view.id);
+          final result = await ViewBackendService.delete(viewId: view.id);
           emit(
             result.fold(
               (l) => state.copyWith(successOrFailure: left(unit)),
@@ -63,7 +63,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           );
         },
         duplicate: (e) async {
-          final result = await viewBackendSvc.duplicate(view: view);
+          final result = await ViewBackendService.duplicate(view: view);
           emit(
             result.fold(
               (l) => state.copyWith(successOrFailure: left(unit)),

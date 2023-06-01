@@ -77,8 +77,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   }
 
   Future<void> _renameView(Rename e, Emitter<AppState> emit) async {
-    final result =
-        await appService.updateView(viewId: state.view.id, name: e.newName);
+    final result = await ViewBackendService.updateView(
+        viewId: state.view.id, name: e.newName);
     result.fold(
       (l) => emit(state.copyWith(successOrFailure: left(unit))),
       (error) => emit(state.copyWith(successOrFailure: right(error))),
@@ -87,7 +87,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
 // Delete the current app
   Future<void> _deleteApp(Emitter<AppState> emit) async {
-    final result = await appService.delete(viewId: state.view.id);
+    final result = await ViewBackendService.delete(viewId: state.view.id);
     result.fold(
       (unit) => emit(state.copyWith(successOrFailure: left(unit))),
       (error) => emit(state.copyWith(successOrFailure: right(error))),
@@ -95,7 +95,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   }
 
   Future<void> _deleteView(Emitter<AppState> emit, String viewId) async {
-    final result = await appService.deleteView(viewId: viewId);
+    final result = await ViewBackendService.deleteView(viewId: viewId);
     result.fold(
       (unit) => emit(state.copyWith(successOrFailure: left(unit))),
       (error) => emit(state.copyWith(successOrFailure: right(error))),
@@ -103,7 +103,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   }
 
   Future<void> _createView(CreateView value, Emitter<AppState> emit) async {
-    final result = await appService.createView(
+    final result = await ViewBackendService.createView(
       parentViewId: state.view.id,
       name: value.name,
       desc: value.desc ?? "",
@@ -132,7 +132,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   }
 
   Future<void> _loadViews(Emitter<AppState> emit) async {
-    final viewsOrFailed = await appService.getViews(viewId: state.view.id);
+    final viewsOrFailed =
+        await ViewBackendService.getViews(viewId: state.view.id);
     viewsOrFailed.fold(
       (views) => emit(state.copyWith(views: views)),
       (error) {

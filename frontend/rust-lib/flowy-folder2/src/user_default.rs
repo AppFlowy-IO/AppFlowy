@@ -39,7 +39,6 @@ impl DefaultFolderBuilder {
         &child_view.id,
         &child_view.name,
         child_view_layout.clone(),
-        HashMap::default(),
       )
       .await
       .unwrap();

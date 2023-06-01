@@ -171,8 +171,7 @@ impl DatabaseManager2 {
     name: String,
     layout: DatabaseLayoutPB,
     database_id: String,
-    target_view_id: String,
-    duplicated_view_id: Option<String>,
+    database_view_id: String,
   ) -> FlowyResult<()> {
     self.with_user_database(
       Err(FlowyError::internal().context("Create database view failed")),
@@ -180,15 +179,8 @@ impl DatabaseManager2 {
         let database = user_database
           .get_database(&database_id)
           .ok_or_else(FlowyError::record_not_found)?;
-        match duplicated_view_id {
-          None => {
-            let params = CreateViewParams::new(database_id, target_view_id, name, layout.into());
-            database.create_linked_view(params)?;
-          },
-          Some(duplicated_view_id) => {
-            database.duplicate_linked_view(&duplicated_view_id);
-          },
-        }
+        let params = CreateViewParams::new(database_id, database_view_id, name, layout.into());
+        database.create_linked_view(params)?;
         Ok(())
       },
     )?;
