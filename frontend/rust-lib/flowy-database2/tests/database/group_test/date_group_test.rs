@@ -1,10 +1,12 @@
 use crate::database::group_test::script::DatabaseGroupTest;
 use crate::database::group_test::script::GroupScript::*;
+use chrono::NaiveDateTime;
 use chrono::{offset, Duration};
 use collab_database::database::gen_row_id;
 use collab_database::rows::CreateRowParams;
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::cell::CellBuilder;
+use flowy_database2::services::field::DateCellData;
 use std::collections::HashMap;
 use std::vec;
 
@@ -187,4 +189,20 @@ async fn change_date_on_moving_row_to_another_group() {
     },
   ];
   test.run_scripts(scripts).await;
+
+  let group = test.group_at_index(2).await;
+  let rows = group.clone().rows;
+  let row_id = &rows.get(0).unwrap().id;
+  let row = test
+    .get_rows()
+    .await
+    .into_iter()
+    .find(|r| r.id.to_string() == row_id.to_string())
+    .unwrap();
+  let cell = row.cells.get(&date_field.id.clone()).unwrap();
+  let date_cell = DateCellData::from(cell);
+
+  let date_time =
+    NaiveDateTime::parse_from_str("2022/11/01 00:00:00", "%Y/%m/%d %H:%M:%S").unwrap();
+  assert_eq!(date_time.timestamp(), date_cell.timestamp.unwrap());
 }
