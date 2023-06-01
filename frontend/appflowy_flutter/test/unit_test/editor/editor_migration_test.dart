@@ -13,7 +13,7 @@ void main() {
       final readme = await rootBundle.loadString('assets/template/readme.json');
       final oldDocument = DocumentV0.fromJson(json.decode(readme));
       final document = EditorMigration.migrateDocument(readme);
-      expect(document.root.type, 'document');
+      expect(document.root.type, 'page');
       expect(oldDocument.root.children.length, document.root.children.length);
     });
   });
