@@ -78,7 +78,9 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   Future<void> _renameView(Rename e, Emitter<AppState> emit) async {
     final result = await ViewBackendService.updateView(
-        viewId: state.view.id, name: e.newName);
+      viewId: state.view.id,
+      name: e.newName,
+    );
     result.fold(
       (l) => emit(state.copyWith(successOrFailure: left(unit))),
       (error) => emit(state.copyWith(successOrFailure: right(error))),
