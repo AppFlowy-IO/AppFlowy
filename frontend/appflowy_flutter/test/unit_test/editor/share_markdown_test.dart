@@ -12,11 +12,11 @@ void main() {
       const text = '''
 {
     "document":{
-        "type":"document",
+        "type":"page",
         "children":[
             {
                 "type":"math_equation",
-                "attributes":{
+                "data":{
                     "math_equation":"E = MC^2"
                 }
             }
@@ -40,11 +40,11 @@ void main() {
       const text = '''
 {
     "document":{
-        "type":"editor",
+        "type":"page",
         "children":[
             {
                 "type":"code_block",
-                "attributes":{
+                "data":{
                     "code_block":"Some Code"
                 }
             }
@@ -67,7 +67,7 @@ void main() {
       const text = '''
 {
     "document":{
-        "type":"editor",
+        "type":"page",
         "children":[
             {
                 "type":"divider"
