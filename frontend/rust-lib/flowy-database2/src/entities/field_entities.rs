@@ -473,6 +473,7 @@ pub struct FieldChangesetParams {
 #[derive(
   Debug,
   Clone,
+  Copy,
   PartialEq,
   Hash,
   Eq,

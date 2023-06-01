@@ -104,21 +104,20 @@ pub(crate) async fn get_cell_for_row(
   row_id: &RowId,
 ) -> Option<RowSingleCellData> {
   let field = delegate.get_field(field_id).await?;
-  let cell = delegate.get_cell_in_row(field_id, row_id).await?;
+  let row_cell = delegate.get_cell_in_row(field_id, row_id).await;
   let field_type = FieldType::from(field.field_type);
+  let handler = delegate.get_type_option_cell_handler(&field, &field_type)?;
 
-  if let Some(handler) = delegate.get_type_option_cell_handler(&field, &field_type) {
-    return match handler.get_cell_data(&cell, &field_type, &field) {
-      Ok(cell_data) => Some(RowSingleCellData {
-        row_id: cell.row_id.clone(),
-        field_id: field.id.clone(),
-        field_type: field_type.clone(),
-        cell_data,
-      }),
-      Err(_) => None,
-    };
-  }
-  None
+  let cell_data = match &row_cell.cell {
+    None => None,
+    Some(cell) => handler.get_cell_data(&cell, &field_type, &field).ok(),
+  };
+  Some(RowSingleCellData {
+    row_id: row_cell.row_id.clone(),
+    field_id: field.id.clone(),
+    field_type: field_type.clone(),
+    cell_data,
+  })
 }
 
 // Returns the list of cells corresponding to the given field.
@@ -133,17 +132,18 @@ pub(crate) async fn get_cells_for_field(
       let cells = delegate.get_cells_for_field(view_id, field_id).await;
       return cells
         .iter()
-        .flat_map(
-          |cell| match handler.get_cell_data(cell, &field_type, &field) {
-            Ok(cell_data) => Some(RowSingleCellData {
-              row_id: cell.row_id.clone(),
-              field_id: field.id.clone(),
-              field_type: field_type.clone(),
-              cell_data,
-            }),
-            Err(_) => None,
-          },
-        )
+        .map(|row_cell| {
+          let cell_data = match &row_cell.cell {
+            None => None,
+            Some(cell) => handler.get_cell_data(&cell, &field_type, &field).ok(),
+          };
+          RowSingleCellData {
+            row_id: row_cell.row_id.clone(),
+            field_id: field.id.clone(),
+            field_type: field_type.clone(),
+            cell_data,
+          }
+        })
         .collect();
     }
   }

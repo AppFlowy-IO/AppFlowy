@@ -118,12 +118,16 @@ class _UnscheduleEventsButtonState extends State<_UnscheduleEventsButton> {
           ),
           popupBuilder: (context) {
             final cells = <Widget>[
-              FlowyText.medium(
-                LocaleKeys.calendar_settings_noDateHint.tr(),
-                color: Theme.of(context).hintColor,
-                overflow: TextOverflow.ellipsis,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: FlowyText.medium(
+                  // LocaleKeys.calendar_settings_noDateHint.tr(),
+                  LocaleKeys.calendar_settings_clickToAdd.tr(),
+                  color: Theme.of(context).hintColor,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              const VSpace(10),
+              const VSpace(6),
               ...unscheduledEvents.map(
                 (e) => _UnscheduledEventItem(
                   event: e,
@@ -167,7 +171,11 @@ class _UnscheduledEventItem extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(event.title),
+        text: FlowyText.medium(
+          event.title.isEmpty
+              ? LocaleKeys.calendar_defaultNewCalendarTitle.tr()
+              : event.title,
+        ),
         onTap: onPressed,
       ),
     );

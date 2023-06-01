@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use collab_database::database::{gen_database_filter_id, gen_database_sort_id};
-use collab_database::fields::Field;
+use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowCell, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, RowOrder};
 use tokio::sync::{broadcast, RwLock};
@@ -31,7 +31,7 @@ use crate::services::database_view::{
   notify_did_update_setting, notify_did_update_sort, DatabaseViewChangedNotifier,
   DatabaseViewChangedReceiverRunner,
 };
-use crate::services::field::TypeOptionCellDataHandler;
+use crate::services::field::{DateTypeOption, TypeOptionCellDataHandler};
 use crate::services::filter::{
   Filter, FilterChangeset, FilterController, FilterType, UpdatedFilterType,
 };
@@ -49,6 +49,14 @@ pub trait DatabaseViewData: Send + Sync + 'static {
   /// Returns the field with the field_id
   fn get_field(&self, field_id: &str) -> Fut<Option<Arc<Field>>>;
 
+  fn create_field(
+    &self,
+    view_id: &str,
+    name: &str,
+    field_type: FieldType,
+    type_option_data: TypeOptionData,
+  ) -> Fut<Field>;
+
   fn get_primary_field(&self) -> Fut<Option<Arc<Field>>>;
 
   /// Returns the index of the row with row_id
@@ -62,7 +70,7 @@ pub trait DatabaseViewData: Send + Sync + 'static {
 
   fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>>;
 
-  fn get_cell_in_row(&self, field_id: &str, row_id: &RowId) -> Fut<Option<Arc<RowCell>>>;
+  fn get_cell_in_row(&self, field_id: &str, row_id: &RowId) -> Fut<Arc<RowCell>>;
 
   fn get_layout_for_view(&self, view_id: &str) -> DatabaseLayout;
 
@@ -98,6 +106,10 @@ pub trait DatabaseViewData: Send + Sync + 'static {
     layout_ty: &DatabaseLayout,
     layout_setting: LayoutSetting,
   );
+
+  /// Return the database layout type for the view with given view_id
+  /// The default layout type is [DatabaseLayout::Grid]
+  fn get_layout_type(&self, view_id: &str) -> DatabaseLayout;
 
   fn update_layout_type(&self, view_id: &str, layout_type: &DatabaseLayout);
 
@@ -577,7 +589,6 @@ impl DatabaseViewEditor {
       },
     }
 
-    tracing::debug!("{:?}", layout_setting);
     layout_setting
   }
 
@@ -625,8 +636,6 @@ impl DatabaseViewEditor {
               .payload(layout_setting_pb)
               .send();
           }
-        } else {
-          tracing::warn!("Calendar setting should not be empty")
         }
       }
     }
@@ -793,10 +802,54 @@ impl DatabaseViewEditor {
     Some(events)
   }
 
-  pub async fn v_update_layout_type(&self, layout_type: DatabaseLayout) {
+  #[tracing::instrument(level = "trace", skip_all)]
+  pub async fn v_update_layout_type(&self, layout_type: DatabaseLayout) -> FlowyResult<()> {
     self
       .delegate
       .update_layout_type(&self.view_id, &layout_type);
+
+    // Update the layout type in the database might add a new field to the database. If the new
+    // layout type is a calendar and there is not date field in the database, it will add a new
+    // date field to the database and create the corresponding layout setting.
+    //
+    let fields = self.delegate.get_fields(&self.view_id, None).await;
+    let date_field_id = match fields
+      .into_iter()
+      .find(|field| FieldType::from(field.field_type) == FieldType::DateTime)
+    {
+      None => {
+        tracing::trace!("Create a new date field after layout type change");
+        let default_date_type_option = DateTypeOption::default();
+        let field = self
+          .delegate
+          .create_field(
+            &self.view_id,
+            "Date",
+            FieldType::DateTime,
+            default_date_type_option.into(),
+          )
+          .await;
+        field.id
+      },
+      Some(date_field) => date_field.id.clone(),
+    };
+
+    let layout_setting = self.v_get_layout_settings(&layout_type).await;
+    match layout_type {
+      DatabaseLayout::Grid => {},
+      DatabaseLayout::Board => {},
+      DatabaseLayout::Calendar => {
+        if layout_setting.calendar.is_none() {
+          let layout_setting = CalendarLayoutSetting::new(date_field_id.clone());
+          self
+            .v_set_layout_settings(LayoutSettingParams {
+              layout_type,
+              calendar: Some(layout_setting),
+            })
+            .await?;
+        }
+      },
+    }
 
     let payload = DatabaseLayoutMetaPB {
       view_id: self.view_id.clone(),
@@ -805,6 +858,8 @@ impl DatabaseViewEditor {
     send_notification(&self.view_id, DatabaseNotification::DidUpdateDatabaseLayout)
       .payload(payload)
       .send();
+
+    Ok(())
   }
 
   pub async fn handle_row_event(&self, event: Cow<'_, DatabaseRowEvent>) {

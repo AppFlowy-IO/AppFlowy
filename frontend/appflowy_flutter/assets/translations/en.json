@@ -437,7 +437,8 @@
       "firstDayOfWeek": "Start week on",
       "layoutDateField": "Layout calendar by",
       "noDateTitle": "No Date",
-      "noDateHint": "Unscheduled events will show up here"
+      "noDateHint": "Unscheduled events will show up here",
+      "clickToAdd": "Click to add to the calendar"
     }
   }
 }

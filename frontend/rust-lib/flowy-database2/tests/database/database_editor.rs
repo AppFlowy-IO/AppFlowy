@@ -6,7 +6,7 @@ use collab_database::fields::Field;
 use collab_database::rows::{CreateRowParams, Row, RowId};
 use strum::EnumCount;
 
-use flowy_database2::entities::{DatabaseLayoutPB, FieldType, FilterPB, RowPB, SelectOptionPB};
+use flowy_database2::entities::{FieldType, FilterPB, RowPB, SelectOptionPB};
 use flowy_database2::services::cell::{CellBuilder, ToCellChangeset};
 use flowy_database2::services::database::DatabaseEditor;
 use flowy_database2::services::field::checklist_type_option::{
@@ -21,7 +21,9 @@ use flowy_error::FlowyResult;
 use flowy_test::folder_event::ViewTest;
 use flowy_test::FlowyCoreTest;
 
-use crate::database::mock_data::{make_test_board, make_test_calendar, make_test_grid};
+use crate::database::mock_data::{
+  make_no_date_test_grid, make_test_board, make_test_calendar, make_test_grid,
+};
 
 pub struct DatabaseEditorTest {
   pub sdk: FlowyCoreTest,
@@ -36,35 +38,42 @@ pub struct DatabaseEditorTest {
 
 impl DatabaseEditorTest {
   pub async fn new_grid() -> Self {
-    Self::new(DatabaseLayoutPB::Grid).await
+    let sdk = FlowyCoreTest::new();
+    let _ = sdk.init_user().await;
+
+    let params = make_test_grid();
+    let view_test = ViewTest::new_grid_view(&sdk, params.to_json_bytes().unwrap()).await;
+    Self::new(sdk, view_test).await
+  }
+
+  pub async fn new_no_date_grid() -> Self {
+    let sdk = FlowyCoreTest::new();
+    let _ = sdk.init_user().await;
+
+    let params = make_no_date_test_grid();
+    let view_test = ViewTest::new_grid_view(&sdk, params.to_json_bytes().unwrap()).await;
+    Self::new(sdk, view_test).await
   }
 
   pub async fn new_board() -> Self {
-    Self::new(DatabaseLayoutPB::Board).await
+    let sdk = FlowyCoreTest::new();
+    let _ = sdk.init_user().await;
+
+    let params = make_test_board();
+    let view_test = ViewTest::new_grid_view(&sdk, params.to_json_bytes().unwrap()).await;
+    Self::new(sdk, view_test).await
   }
 
   pub async fn new_calendar() -> Self {
-    Self::new(DatabaseLayoutPB::Calendar).await
-  }
-
-  pub async fn new(layout: DatabaseLayoutPB) -> Self {
     let sdk = FlowyCoreTest::new();
     let _ = sdk.init_user().await;
-    let test = match layout {
-      DatabaseLayoutPB::Grid => {
-        let params = make_test_grid();
-        ViewTest::new_grid_view(&sdk, params.to_json_bytes().unwrap()).await
-      },
-      DatabaseLayoutPB::Board => {
-        let data = make_test_board();
-        ViewTest::new_board_view(&sdk, data.to_json_bytes().unwrap()).await
-      },
-      DatabaseLayoutPB::Calendar => {
-        let data = make_test_calendar();
-        ViewTest::new_calendar_view(&sdk, data.to_json_bytes().unwrap()).await
-      },
-    };
 
+    let params = make_test_calendar();
+    let view_test = ViewTest::new_grid_view(&sdk, params.to_json_bytes().unwrap()).await;
+    Self::new(sdk, view_test).await
+  }
+
+  pub async fn new(sdk: FlowyCoreTest, test: ViewTest) -> Self {
     let editor = sdk
       .database_manager
       .get_database_with_view_id(&test.child_view.id)

@@ -10,7 +10,6 @@ use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataRes
 use crate::entities::*;
 use crate::manager::DatabaseManager2;
 use crate::services::cell::CellBuilder;
-use crate::services::database::CreateDatabaseViewParams;
 
 use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
@@ -673,6 +672,11 @@ pub(crate) async fn get_no_date_calendar_events_handler(
   data: AFPluginData<CalendarEventRequestPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> DataResult<RepeatedNoDateCalendarEventPB, FlowyError> {
+  let params: CalendarEventRequestParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  let _events = database_editor
+    .get_all_no_date_calendar_events(&params.view_id)
+    .await;
   todo!()
 }
 
