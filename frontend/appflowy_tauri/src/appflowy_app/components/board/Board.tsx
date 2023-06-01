@@ -9,7 +9,7 @@ import { EditRow } from '$app/components/_shared/EditRow/EditRow';
 import { BoardToolbar } from '$app/components/board/BoardToolbar';
 
 export const Board = ({ viewId, title }: { viewId: string; title: string }) => {
-  const { controller, rows, groups, groupByFieldId, onNewRowClick, onDragEnd } = useDatabase(viewId, ViewLayoutPB.Board);
+  const { controller, groups, groupByFieldId, onNewRowClick, onDragEnd } = useDatabase(viewId, ViewLayoutPB.Board);
   const [showBoardRow, setShowBoardRow] = useState(false);
   const [boardRowInfo, setBoardRowInfo] = useState<RowInfo>();
 
@@ -38,7 +38,6 @@ export const Board = ({ viewId, title }: { viewId: string; title: string }) => {
                   viewId={viewId}
                   controller={controller}
                   group={group}
-                  allRows={rows}
                   groupByFieldId={groupByFieldId}
                   onNewRowClick={() => onNewRowClick(index)}
                   onOpenRow={onOpenRow}

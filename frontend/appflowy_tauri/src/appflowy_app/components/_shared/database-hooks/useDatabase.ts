@@ -50,7 +50,8 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
     void (async () => {
       controller.subscribe({
         onRowsChanged: (rowInfos) => {
-          setRows(rowInfos);
+          // TODO: this is a hack to make sure that the row cache is updated
+          setRows([...rowInfos]);
         },
         onFieldsChanged: (fieldInfos) => {
           void loadFields(fieldInfos);

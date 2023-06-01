@@ -49,6 +49,18 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
           appDispatch(pagesActions.didReceivePages(updatedPages));
         }
       },
+      onViewsChanged: async () => {
+        const result = await appBackendService.getAllViews();
+        if (!result.ok) return;
+        const views = result.val;
+        const updatedPages: IPage[] = views.map((view) => ({
+          id: view.id,
+          folderId: view.parent_view_id,
+          pageType: view.layout,
+          title: view.name,
+        }));
+        appDispatch(pagesActions.didReceivePages(updatedPages));
+      },
     });
     return () => {
       // Unsubscribe when the component is unmounted.

@@ -42,7 +42,7 @@ export const usePageEvents = (page: IPage) => {
 
   const duplicatePage = async () => {
     closePopup();
-    await viewBackendService.duplicate(ViewPB.fromObject({}));
+    await viewBackendService.duplicate(ViewPB.fromObject(page));
   };
 
   const closePopup = () => {
