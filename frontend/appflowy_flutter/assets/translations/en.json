@@ -187,6 +187,7 @@
     "files": {
       "copy": "Copy",
       "defaultLocation": "Read files and data storage location",
+      "exportData": "Export your data",
       "doubleTapToCopy": "Double tap to copy the path",
       "restoreLocation": "Restore to AppFlowy default path",
       "customizeLocation": "Open another folder",
@@ -209,7 +210,9 @@
       "changeLocationTooltips": "Change the files read the data directory",
       "change": "Change",
       "openLocationTooltips": "Open the files read the data directory",
-      "recoverLocationTooltips": "Recover the files read the data directory"
+      "recoverLocationTooltips": "Recover the files read the data directory",
+      "exportFileSuccess": "Export file successfully!",
+      "exportFileFail": "Export file failed!"
     },
     "user": {
       "name": "Name",

@@ -39,7 +39,7 @@ pub struct GetDocumentDataPayloadPB {
   // Support customize initial data
 }
 
-#[derive(Default, ProtoBuf)]
+#[derive(Default, Debug, ProtoBuf)]
 pub struct DocumentDataPB {
   #[pb(index = 1)]
   pub page_id: String,
@@ -69,13 +69,13 @@ pub struct BlockPB {
   pub children_id: String,
 }
 
-#[derive(Default, ProtoBuf)]
+#[derive(Default, ProtoBuf, Debug)]
 pub struct MetaPB {
   #[pb(index = 1)]
   pub children_map: HashMap<String, ChildrenPB>,
 }
 
-#[derive(Default, ProtoBuf)]
+#[derive(Default, ProtoBuf, Debug)]
 pub struct ChildrenPB {
   #[pb(index = 1)]
   pub children: Vec<String>,

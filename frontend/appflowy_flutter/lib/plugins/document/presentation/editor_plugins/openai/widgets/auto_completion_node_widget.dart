@@ -375,7 +375,7 @@ class _AutoCompletionBlockComponentState
     final previous = widget.node.previous;
     final Selection selection;
     if (previous == null ||
-        previous.type != 'paragraph' ||
+        previous.type != ParagraphBlockKeys.type ||
         (previous.delta?.toPlainText().isNotEmpty ?? false)) {
       selection = Selection.single(
         path: widget.node.path,

@@ -120,9 +120,6 @@ class BlockOptionButton extends StatelessWidget {
         transaction.moveNode(node.path.next.next, node);
         break;
       case OptionAction.color:
-        // show the color picker
-
-        break;
       case OptionAction.divider:
         throw UnimplementedError();
     }
