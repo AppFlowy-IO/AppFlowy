@@ -17,8 +17,8 @@ impl JsonToDocumentParser {
     let page_id = nanoid!(10);
 
     // generate the blocks
-    // the root's parent id is itself
-    let blocks = Self::generate_blocks(&root, Some(page_id.clone()), "".to_owned());
+    // the root's parent id is empty
+    let blocks = Self::generate_blocks(&root, Some(page_id.clone()), "".to_string());
 
     // generate the children map
     let children_map = Self::generate_children_map(&blocks);
