@@ -114,6 +114,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           maxWidth: double.infinity,
         ),
         child: FloatingToolbar(
+          style: styleCustomizer.floatingToolbarStyleBuilder(),
           items: toolbarItems,
           editorState: widget.editorState,
           scrollController: scrollController,
