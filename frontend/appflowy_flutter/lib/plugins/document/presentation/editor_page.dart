@@ -224,12 +224,17 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       ];
 
       final colorAction = [
-        OptionAction.divider,
+        // OptionAction.divider,
         OptionAction.color,
       ];
 
       final List<OptionAction> actions = [
-        ...standardActions,
+        ...standardActions
+          ..removeWhere(
+            (element) => [OptionAction.moveUp, OptionAction.moveDown].contains(
+              element,
+            ),
+          ),
         if (supportColorBuilderTypes.contains(entry.key)) ...colorAction,
       ];
 
