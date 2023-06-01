@@ -29,7 +29,7 @@ class BlockActionButton extends StatelessWidget {
               behavior: HitTestBehavior.deferToChild,
               child: svgWidget(
                 svgName,
-                size: const Size.square(14.0),
+                size: const Size.square(18.0),
                 color: Theme.of(context).iconTheme.color,
               ),
             ),

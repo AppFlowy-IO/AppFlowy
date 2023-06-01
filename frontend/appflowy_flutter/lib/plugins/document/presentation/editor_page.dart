@@ -136,7 +136,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       padding: (_) => const EdgeInsets.symmetric(vertical: 4.0),
     );
     final customBlockComponentBuilderMap = {
-      'document': DocumentComponentBuilder(),
+      PageBlockKeys.type: PageBlockComponentBuilder(),
       ParagraphBlockKeys.type: TextBlockComponentBuilder(
         configuration: configuration,
       ),
