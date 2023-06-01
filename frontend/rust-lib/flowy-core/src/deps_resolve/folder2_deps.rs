@@ -13,6 +13,7 @@ use flowy_database2::DatabaseManager2;
 use flowy_document2::document_data::DocumentDataWrapper;
 use flowy_document2::entities::DocumentDataPB;
 use flowy_document2::manager::DocumentManager;
+use flowy_document2::parser::json::parser::JsonToDocumentParser;
 use flowy_error::FlowyError;
 use flowy_folder2::deps::{FolderCloudService, FolderUser};
 use flowy_folder2::entities::ViewLayoutPB;
@@ -113,7 +114,6 @@ impl FolderOperationHandler for DocumentFolderOperation {
     _ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayout::Document);
-    // TODO: implement read the document data from custom data.
     let view_id = view_id.to_string();
     let manager = self.0.clone();
     FutureResult::new(async move {
@@ -134,11 +134,12 @@ impl FolderOperationHandler for DocumentFolderOperation {
   ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayout::Document);
 
+    let json_str = include_str!("../../assets/read_me.json");
     let view_id = view_id.to_string();
     let manager = self.0.clone();
-    // TODO: implement read the document data from json.
     FutureResult::new(async move {
-      manager.create_document(view_id, DocumentDataWrapper::default())?;
+      let document_pb = JsonToDocumentParser::json_str_to_document(json_str)?;
+      manager.create_document(view_id, document_pb.into())?;
       Ok(())
     })
   }

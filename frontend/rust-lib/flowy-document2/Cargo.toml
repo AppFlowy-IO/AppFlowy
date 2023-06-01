@@ -26,6 +26,7 @@ serde_json = {version = "1.0"}
 tracing = { version = "0.1", features = ["log"] }
 tokio = { version = "1.26", features = ["full"] }
 anyhow = "1.0"
+indexmap = {version = "1.9.2", features = ["serde"]}
 
 [dev-dependencies]
 tempfile = "3.4.0"
