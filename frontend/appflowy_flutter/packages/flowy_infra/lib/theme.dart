@@ -1,5 +1,10 @@
 import 'package:flowy_infra/colorscheme/colorscheme.dart';
+<<<<<<< HEAD
 import 'package:flutter/material.dart';
+=======
+import 'package:flowy_infra/colorscheme/default_colorscheme.dart';
+import 'package:flowy_infra/plugins/plugin_service.dart';
+>>>>>>> 03d40166d (fix: analyzer (unused imports))
 
 class BuiltInTheme {
   static const String defaultTheme = 'Default';
