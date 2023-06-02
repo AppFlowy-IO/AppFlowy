@@ -1911,6 +1911,7 @@ dependencies = [
  "flowy-derive",
  "flowy-error",
  "flowy-notification",
+ "indexmap",
  "lib-dispatch",
  "nanoid",
  "parking_lot 0.12.1",

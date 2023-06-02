@@ -67,6 +67,7 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         .event(DatabaseEvent::SetLayoutSetting, set_layout_setting_handler)
         .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler)
         .event(DatabaseEvent::CreateDatabaseView, create_database_view)
+        .event(DatabaseEvent::ExportCSV, export_csv_handler)
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -286,4 +287,7 @@ pub enum DatabaseEvent {
 
   #[event(input = "CreateDatabaseViewPayloadPB")]
   CreateDatabaseView = 130,
+
+  #[event(input = "DatabaseViewIdPB", output = "DatabaseExportDataPB")]
+  ExportCSV = 141,
 }
