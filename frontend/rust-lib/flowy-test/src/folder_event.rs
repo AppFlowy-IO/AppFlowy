@@ -76,6 +76,7 @@ async fn create_app(sdk: &FlowyCoreTest, name: &str, desc: &str, workspace_id: &
     layout: ViewLayoutPB::Document,
     initial_data: vec![],
     meta: Default::default(),
+    set_as_current: true,
   };
 
   EventBuilder::new(sdk.clone())
@@ -100,6 +101,7 @@ async fn create_view(
     layout,
     initial_data: data,
     meta: Default::default(),
+    set_as_current: true,
   };
 
   EventBuilder::new(sdk.clone())

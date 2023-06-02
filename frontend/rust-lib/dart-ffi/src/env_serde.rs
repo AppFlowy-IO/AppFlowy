@@ -11,7 +11,7 @@ pub struct AppFlowyEnv {
 impl AppFlowyEnv {
   pub fn parser(env_str: &str) {
     if let Ok(env) = serde_json::from_str::<AppFlowyEnv>(env_str) {
-      dbg!(&env);
+      tracing::trace!("{:?}", env);
       env.supabase_config.write_env();
       env.supabase_db_config.write_env();
     }
