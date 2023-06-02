@@ -6,15 +6,14 @@ import { RowInfo } from '$app/stores/effects/database/row/row_cache';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
 import { useAppSelector } from '$app/stores/store';
 import { Switch } from '$app/components/_shared/Switch';
-import { FieldPB, FieldType } from '@/services/backend';
+import { FieldType } from '@/services/backend';
 import { FieldTypeName } from '$app/components/_shared/EditRow/FieldTypeName';
 import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
 import { MultiSelectTypeSvg } from '$app/components/_shared/svg/MultiSelectTypeSvg';
 import { DocumentSvg } from '$app/components/_shared/svg/DocumentSvg';
 import { SingleSelectTypeSvg } from '$app/components/_shared/svg/SingleSelectTypeSvg';
 import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
-import { Option, Some } from 'ts-results';
-import { FieldInfo } from '$app/stores/effects/database/field/field_controller';
+import { Some } from 'ts-results';
 import { useTranslation } from 'react-i18next';
 
 const typesOrder: FieldType[] = [
