@@ -6,14 +6,16 @@ import { RowInfo } from '$app/stores/effects/database/row/row_cache';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
 import { useAppSelector } from '$app/stores/store';
 import { Switch } from '$app/components/_shared/Switch';
-import { FieldType } from '@/services/backend';
+import { FieldPB, FieldType } from '@/services/backend';
 import { FieldTypeName } from '$app/components/_shared/EditRow/FieldTypeName';
 import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
 import { MultiSelectTypeSvg } from '$app/components/_shared/svg/MultiSelectTypeSvg';
 import { DocumentSvg } from '$app/components/_shared/svg/DocumentSvg';
 import { SingleSelectTypeSvg } from '$app/components/_shared/svg/SingleSelectTypeSvg';
 import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
-import { Some } from 'ts-results';
+import { Option, Some } from 'ts-results';
+import { FieldInfo } from '$app/stores/effects/database/field/field_controller';
+import { useTranslation } from 'react-i18next';
 
 const typesOrder: FieldType[] = [
   FieldType.RichText,
@@ -31,14 +33,17 @@ export const PropertiesPanel = ({
   controller,
   rowInfo,
   onDeletePropertyClick,
+  onNewColumnClick,
 }: {
   viewId: string;
   controller: DatabaseController;
   rowInfo: RowInfo;
   onDeletePropertyClick: (fieldId: string) => void;
+  onNewColumnClick: (initialFieldType: FieldType, name?: string) => Promise<void>;
 }) => {
   const { cells } = useRow(viewId, controller, rowInfo);
   const databaseStore = useAppSelector((state) => state.database);
+  const { t } = useTranslation();
 
   const [showAddedProperties, setShowAddedProperties] = useState(true);
   const [showBasicProperties, setShowBasicProperties] = useState(false);
@@ -57,6 +62,38 @@ export const PropertiesPanel = ({
         await typeController.showField();
       }
     }
+  };
+
+  const addSelectedFieldType = async (fieldType: FieldType) => {
+    let name = 'New Field';
+    switch (fieldType) {
+      case FieldType.RichText:
+        name = t('grid.field.textFieldName');
+        break;
+      case FieldType.Number:
+        name = t('grid.field.numberFieldName');
+        break;
+      case FieldType.DateTime:
+        name = t('grid.field.dateFieldName');
+        break;
+      case FieldType.SingleSelect:
+        name = t('grid.field.singleSelectFieldName');
+        break;
+      case FieldType.MultiSelect:
+        name = t('grid.field.multiSelectFieldName');
+        break;
+      case FieldType.Checklist:
+        name = t('grid.field.checklistFieldName');
+        break;
+      case FieldType.URL:
+        name = t('grid.field.urlFieldName');
+        break;
+      case FieldType.Checkbox:
+        name = t('grid.field.checkboxFieldName');
+        break;
+    }
+
+    await onNewColumnClick(fieldType, name);
   };
 
   return (
@@ -98,7 +135,7 @@ export const PropertiesPanel = ({
                   <TrashSvg></TrashSvg>
                 </i>
                 <Switch
-                  value={databaseStore.fields[cell.cellIdentifier.fieldId].visible}
+                  value={!!databaseStore.fields[cell.cellIdentifier.fieldId]?.visible}
                   setValue={(v) => toggleHideProperty(v, cellIndex)}
                 ></Switch>
               </div>
@@ -117,17 +154,17 @@ export const PropertiesPanel = ({
       <div className={'flex flex-col gap-2 text-xs'}>
         {showBasicProperties && (
           <div className={'flex flex-col'}>
-            {typesOrder.map((t, i) => (
+            {typesOrder.map((type, i) => (
               <button
-                onClick={() => console.log('type clicked')}
+                onClick={() => addSelectedFieldType(type)}
                 key={i}
                 className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-main-secondary'}
               >
                 <i className={'h-5 w-5'}>
-                  <FieldTypeIcon fieldType={t}></FieldTypeIcon>
+                  <FieldTypeIcon fieldType={type}></FieldTypeIcon>
                 </i>
                 <span>
-                  <FieldTypeName fieldType={t}></FieldTypeName>
+                  <FieldTypeName fieldType={type}></FieldTypeName>
                 </span>
               </button>
             ))}

@@ -265,6 +265,7 @@ export const EditRow = ({
               controller={controller}
               rowInfo={rowInfo}
               onDeletePropertyClick={onDeletePropertyClick}
+              onNewColumnClick={onNewColumnClick}
             ></PropertiesPanel>
           </div>
 
