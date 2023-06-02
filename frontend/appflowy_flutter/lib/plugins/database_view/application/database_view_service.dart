@@ -17,6 +17,14 @@ class DatabaseViewBackendService {
     required this.viewId,
   });
 
+  /// Returns the datbaase id associated with the view.
+  Future<Either<String, FlowyError>> getDatabaseId() async {
+    final payload = DatabaseViewIdPB(value: viewId);
+    return DatabaseEventGetDatabaseId(payload)
+        .send()
+        .then((value) => value.leftMap((l) => l.value));
+  }
+
   Future<Either<DatabasePB, FlowyError>> openGrid() async {
     await FolderEventSetLatestView(ViewIdPB(value: viewId)).send();
 

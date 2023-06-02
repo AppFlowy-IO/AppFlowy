@@ -25,12 +25,12 @@ extension InsertDatabase on EditorState {
       return;
     }
 
-    // get the database that the view is associated with
-    final database = await DatabaseViewBackendService(viewId: childView.id)
-        .openGrid()
+    // get the database id that the view is associated with
+    final databaseId = await DatabaseViewBackendService(viewId: childView.id)
+        .getDatabaseId()
         .then((value) => value.swap().toOption().toNullable());
 
-    if (database == null) {
+    if (databaseId == null) {
       throw StateError(
         'The database associated with ${childView.id} could not be found while attempting to create a referenced ${childView.layout.name}.',
       );
@@ -41,7 +41,7 @@ extension InsertDatabase on EditorState {
       parentViewId: childView.id,
       name: "$prefix ${childView.name}",
       layoutType: childView.layout,
-      databaseId: database.id,
+      databaseId: databaseId,
     ).then((value) => value.swap().toOption().toNullable());
 
     // TODO(a-wallen): Show error dialog here.
