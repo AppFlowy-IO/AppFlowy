@@ -136,4 +136,11 @@ class EditorStyleCustomizer {
       selectionMenuItemSelectedColor: theme.hoverColor,
     );
   }
+
+  FloatingToolbarStyle floatingToolbarStyleBuilder() {
+    final theme = Theme.of(context);
+    return FloatingToolbarStyle(
+      backgroundColor: theme.cardColor,
+    );
+  }
 }

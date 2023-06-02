@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { useBlockSideToolbar, usePopover } from './BlockSideToolbar.hooks';
 import Portal from '../BlockPortal';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
@@ -15,9 +15,7 @@ export default function BlockSideToolbar({ container }: { container: HTMLDivElem
   const dispatch = useAppDispatch();
   const controller = useContext(DocumentControllerContext);
   const { nodeId, style, ref } = useBlockSideToolbar({ container });
-  const isDragging = useAppSelector(
-    (state) => state.documentRangeSelection.isDragging || state.documentRectSelection.isDragging
-  );
+  const isDragging = useAppSelector((state) => state.documentRange.isDragging || state.documentRectSelection.isDragging);
   const { handleOpen, ...popoverProps } = usePopover();
 
   // prevent popover from showing when anchorEl is not in DOM

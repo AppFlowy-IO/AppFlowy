@@ -6,7 +6,7 @@ use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::{CollabPersistenceConfig, RocksCollabDB};
 use collab::core::collab::MutexCollab;
 use collab_database::database::DatabaseData;
-use collab_database::user::{UserDatabase as InnerUserDatabase, UserDatabaseCollabBuilder};
+use collab_database::user::{DatabaseCollabBuilder, UserDatabase as InnerUserDatabase};
 use collab_database::views::{CreateDatabaseParams, CreateViewParams};
 use parking_lot::Mutex;
 use tokio::sync::RwLock;
@@ -79,12 +79,17 @@ impl DatabaseManager2 {
   }
 
   pub async fn get_database_with_view_id(&self, view_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
+    let database_id = self.get_database_id_with_view_id(view_id).await?;
+    self.get_database(&database_id).await
+  }
+
+  pub async fn get_database_id_with_view_id(&self, view_id: &str) -> FlowyResult<String> {
     let database_id = self.with_user_database(Err(FlowyError::internal()), |database| {
       database
         .get_database_id_with_view_id(view_id)
         .ok_or_else(FlowyError::record_not_found)
     })?;
-    self.get_database(&database_id).await
+    Ok(database_id)
   }
 
   pub async fn get_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
@@ -171,8 +176,7 @@ impl DatabaseManager2 {
     name: String,
     layout: DatabaseLayoutPB,
     database_id: String,
-    target_view_id: String,
-    duplicated_view_id: Option<String>,
+    database_view_id: String,
   ) -> FlowyResult<()> {
     self.with_user_database(
       Err(FlowyError::internal().context("Create database view failed")),
@@ -180,26 +184,25 @@ impl DatabaseManager2 {
         let database = user_database
           .get_database(&database_id)
           .ok_or_else(FlowyError::record_not_found)?;
-        match duplicated_view_id {
-          None => {
-            let params = CreateViewParams::new(database_id, target_view_id, name, layout.into());
-            database.create_linked_view(params);
-          },
-          Some(duplicated_view_id) => {
-            database.duplicate_linked_view(&duplicated_view_id);
-          },
-        }
+        let params = CreateViewParams::new(database_id, database_view_id, name, layout.into());
+        database.create_linked_view(params)?;
         Ok(())
       },
     )?;
     Ok(())
   }
 
-  pub async fn import_csv(&self, content: String, format: CSVFormat) -> FlowyResult<ImportResult> {
-    let params =
-      tokio::task::spawn_blocking(move || CSVImporter.import_csv_from_string(content, format))
-        .await
-        .map_err(internal_error)??;
+  pub async fn import_csv(
+    &self,
+    view_id: String,
+    content: String,
+    format: CSVFormat,
+  ) -> FlowyResult<ImportResult> {
+    let params = tokio::task::spawn_blocking(move || {
+      CSVImporter.import_csv_from_string(view_id, content, format)
+    })
+    .await
+    .map_err(internal_error)??;
     let result = ImportResult {
       database_id: params.database_id.clone(),
       view_id: params.view_id.clone(),
@@ -208,13 +211,27 @@ impl DatabaseManager2 {
     Ok(result)
   }
 
-  pub async fn import_csv_from_uri(&self, _uri: String, _format: CSVFormat) -> FlowyResult<()> {
+  // will implement soon
+  pub async fn import_csv_from_file(
+    &self,
+    _file_path: String,
+    _format: CSVFormat,
+  ) -> FlowyResult<()> {
     Ok(())
   }
 
   pub async fn export_csv(&self, view_id: &str, style: CSVFormat) -> FlowyResult<String> {
     let database = self.get_database_with_view_id(view_id).await?;
     database.export_csv(style).await
+  }
+
+  pub async fn update_database_layout(
+    &self,
+    view_id: &str,
+    layout: DatabaseLayoutPB,
+  ) -> FlowyResult<()> {
+    let database = self.get_database_with_view_id(view_id).await?;
+    database.update_view_layout(view_id, layout.into()).await
   }
 
   fn with_user_database<F, Output>(&self, default_value: Output, f: F) -> Output
@@ -245,18 +262,27 @@ unsafe impl Send for UserDatabase {}
 
 struct UserDatabaseCollabBuilderImpl(Arc<AppFlowyCollabBuilder>);
 
-impl UserDatabaseCollabBuilder for UserDatabaseCollabBuilderImpl {
-  fn build(&self, uid: i64, object_id: &str, db: Arc<RocksCollabDB>) -> Arc<MutexCollab> {
-    self.0.build(uid, object_id, db)
+impl DatabaseCollabBuilder for UserDatabaseCollabBuilderImpl {
+  fn build(
+    &self,
+    uid: i64,
+    object_id: &str,
+    object_name: &str,
+    db: Arc<RocksCollabDB>,
+  ) -> Arc<MutexCollab> {
+    self.0.build(uid, object_id, object_name, db)
   }
 
   fn build_with_config(
     &self,
     uid: i64,
     object_id: &str,
+    object_name: &str,
     db: Arc<RocksCollabDB>,
     config: &CollabPersistenceConfig,
   ) -> Arc<MutexCollab> {
-    self.0.build_with_config(uid, object_id, db, config)
+    self
+      .0
+      .build_with_config(uid, object_id, object_name, db, config)
   }
 }

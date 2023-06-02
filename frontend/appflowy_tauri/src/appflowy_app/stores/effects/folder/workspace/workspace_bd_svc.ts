@@ -19,7 +19,7 @@ export class WorkspaceBackendService {
 
   createApp = async (params: { name: string; desc?: string }) => {
     const payload = CreateViewPayloadPB.fromObject({
-      belong_to_id: this.workspaceId,
+      parent_view_id: this.workspaceId,
       name: params.name,
       desc: params.desc || '',
       layout: ViewLayoutPB.Document,

@@ -1,15 +1,11 @@
 #![allow(clippy::upper_case_acronyms)]
 
-use std::fmt;
-use std::str::FromStr;
-
 use bytes::Bytes;
-use chrono::{DateTime, Local, Offset, TimeZone};
-use chrono_tz::Tz;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::{new_cell_builder, Cell};
 use serde::de::Visitor;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 use strum_macros::EnumIter;
 
 use flowy_error::{internal_error, FlowyResult};
@@ -20,12 +16,11 @@ use crate::services::cell::{
 };
 use crate::services::field::CELL_DATA;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct DateCellChangeset {
   pub date: Option<String>,
   pub time: Option<String>,
   pub include_time: Option<bool>,
-  pub timezone_id: Option<String>,
 }
 
 impl DateCellChangeset {
@@ -54,8 +49,6 @@ pub struct DateCellData {
   pub timestamp: Option<i64>,
   #[serde(default)]
   pub include_time: bool,
-  #[serde(default)]
-  pub timezone_id: String,
 }
 
 impl From<&Cell> for DateCellData {
@@ -63,13 +56,10 @@ impl From<&Cell> for DateCellData {
     let timestamp = cell
       .get_str_value(CELL_DATA)
       .and_then(|data| data.parse::<i64>().ok());
-
     let include_time = cell.get_bool_value("include_time").unwrap_or_default();
-    let timezone_id = cell.get_str_value("timezone_id").unwrap_or_default();
     Self {
       timestamp,
       include_time,
-      timezone_id,
     }
   }
 }
@@ -79,24 +69,6 @@ impl From<&DateCellDataPB> for DateCellData {
     Self {
       timestamp: Some(data.timestamp),
       include_time: data.include_time,
-      timezone_id: data.timezone_id.clone(),
-    }
-  }
-}
-
-impl From<&DateCellData> for DateTime<Local> {
-  fn from(data: &DateCellData) -> Self {
-    match data.timestamp {
-      Some(timestamp) => {
-        let naive = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
-        let offset = match Tz::from_str(&data.timezone_id) {
-          Ok(timezone) => timezone.offset_from_utc_datetime(&naive).fix(),
-          Err(_) => *Local::now().offset(),
-        };
-
-        DateTime::<Local>::from_utc(naive, offset)
-      },
-      None => DateTime::default(),
     }
   }
 }
@@ -126,7 +98,6 @@ impl From<DateCellDataWrapper> for Cell {
     new_cell_builder(field_type)
       .insert_str_value(CELL_DATA, timestamp_string)
       .insert_bool_value("include_time", data.include_time)
-      .insert_str_value("timezone_id", data.timezone_id)
       .build()
   }
 }
@@ -161,7 +132,6 @@ impl<'de> serde::Deserialize<'de> for DateCellData {
         Ok(DateCellData {
           timestamp: Some(value),
           include_time: false,
-          timezone_id: "".to_owned(),
         })
       }
 
@@ -178,7 +148,6 @@ impl<'de> serde::Deserialize<'de> for DateCellData {
       {
         let mut timestamp: Option<i64> = None;
         let mut include_time: Option<bool> = None;
-        let mut timezone_id: Option<String> = None;
 
         while let Some(key) = map.next_key()? {
           match key {
@@ -188,20 +157,15 @@ impl<'de> serde::Deserialize<'de> for DateCellData {
             "include_time" => {
               include_time = map.next_value()?;
             },
-            "timezone_id" => {
-              timezone_id = map.next_value()?;
-            },
             _ => {},
           }
         }
 
         let include_time = include_time.unwrap_or_default();
-        let timezone_id = timezone_id.unwrap_or_default();
 
         Ok(DateCellData {
           timestamp,
           include_time,
-          timezone_id,
         })
       }
     }

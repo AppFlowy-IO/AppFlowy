@@ -34,17 +34,17 @@ default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
 
 [patch.crates-io]
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "173661" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "173661" }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "173661" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "173661" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "173661" }
-appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "173661" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "12e373" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "12e373" }
+collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "12e373" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "12e373" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "12e373" }
+appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "12e373" }
 
 #collab = { path = "../../AppFlowy-Collab/collab" }
 #collab-folder = { path = "../../AppFlowy-Collab/collab-folder" }
 #collab-document = { path = "../../AppFlowy-Collab/collab-document" }
-#collab-database= { path = "../../AppFlowy-Collab/collab-database" }
+#collab-database = { path = "../../AppFlowy-Collab/collab-database" }
 #appflowy-integrate = { path = "../../AppFlowy-Collab/appflowy-integrate" }
 
 

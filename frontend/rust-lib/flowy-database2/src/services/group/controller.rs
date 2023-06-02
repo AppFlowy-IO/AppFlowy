@@ -254,6 +254,7 @@ where
           continue;
         }
       }
+
       match self.context.get_mut_no_status_group() {
         None => {},
         Some(no_status_group) => no_status_group.add_row((*row).clone()),
@@ -349,12 +350,12 @@ where
       deleted_group: None,
       row_changesets: vec![],
     };
-    let cell_rev = match context.row.cells.get(&self.grouping_field_id) {
-      Some(cell_rev) => Some(cell_rev.clone()),
+    let cell = match context.row.cells.get(&self.grouping_field_id) {
+      Some(cell) => Some(cell.clone()),
       None => self.placeholder_cell(),
     };
 
-    if let Some(cell) = cell_rev {
+    if let Some(cell) = cell {
       let cell_bytes = get_cell_protobuf(&cell, context.field, None);
       let cell_data = cell_bytes.parser::<P>()?;
       result.deleted_group = self.delete_group_when_move_row(context.row, &cell_data);

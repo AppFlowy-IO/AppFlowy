@@ -1,5 +1,5 @@
 use crate::entities::parser::view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail};
-use crate::view_ext::gen_view_id;
+use crate::view_operation::gen_view_id;
 use collab_folder::core::{View, ViewLayout};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -31,7 +31,7 @@ pub struct ViewPB {
 pub fn view_pb_without_child_views(view: View) -> ViewPB {
   ViewPB {
     id: view.id,
-    parent_view_id: view.bid,
+    parent_view_id: view.parent_view_id,
     name: view.name,
     create_time: view.created_at,
     child_views: Default::default(),
@@ -43,7 +43,7 @@ pub fn view_pb_without_child_views(view: View) -> ViewPB {
 pub fn view_pb_with_child_views(view: View, child_views: Vec<View>) -> ViewPB {
   ViewPB {
     id: view.id,
-    parent_view_id: view.bid,
+    parent_view_id: view.parent_view_id,
     name: view.name,
     create_time: view.created_at,
     child_views: child_views
@@ -123,7 +123,7 @@ pub struct RepeatedViewIdPB {
 #[derive(Default, ProtoBuf)]
 pub struct CreateViewPayloadPB {
   #[pb(index = 1)]
-  pub belong_to_id: String,
+  pub parent_view_id: String,
 
   #[pb(index = 2)]
   pub name: String,
@@ -146,13 +146,13 @@ pub struct CreateViewPayloadPB {
 
 #[derive(Debug, Clone)]
 pub struct CreateViewParams {
-  pub belong_to_id: String,
+  pub parent_view_id: String,
   pub name: String,
   pub desc: String,
   pub layout: ViewLayoutPB,
   pub view_id: String,
   pub initial_data: Vec<u8>,
-  pub ext: HashMap<String, String>,
+  pub meta: HashMap<String, String>,
 }
 
 impl TryInto<CreateViewParams> for CreateViewPayloadPB {
@@ -160,17 +160,17 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
 
   fn try_into(self) -> Result<CreateViewParams, Self::Error> {
     let name = ViewName::parse(self.name)?.0;
-    let belong_to_id = ViewIdentify::parse(self.belong_to_id)?.0;
+    let belong_to_id = ViewIdentify::parse(self.parent_view_id)?.0;
     let view_id = gen_view_id();
 
     Ok(CreateViewParams {
-      belong_to_id,
+      parent_view_id: belong_to_id,
       name,
       desc: self.desc,
       layout: self.layout,
       view_id,
       initial_data: self.initial_data,
-      ext: self.ext,
+      meta: self.ext,
     })
   }
 }
@@ -219,6 +219,9 @@ pub struct UpdateViewPayloadPB {
 
   #[pb(index = 4, one_of)]
   pub thumbnail: Option<String>,
+
+  #[pb(index = 5, one_of)]
+  pub layout: Option<ViewLayoutPB>,
 }
 
 #[derive(Clone, Debug)]
@@ -227,6 +230,7 @@ pub struct UpdateViewParams {
   pub name: Option<String>,
   pub desc: Option<String>,
   pub thumbnail: Option<String>,
+  pub layout: Option<ViewLayout>,
 }
 
 impl TryInto<UpdateViewParams> for UpdateViewPayloadPB {
@@ -255,6 +259,7 @@ impl TryInto<UpdateViewParams> for UpdateViewPayloadPB {
       name,
       desc,
       thumbnail,
+      layout: self.layout.map(|ty| ty.into()),
     })
   }
 }

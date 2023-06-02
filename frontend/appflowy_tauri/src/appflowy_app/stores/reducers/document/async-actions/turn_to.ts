@@ -1,10 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
-import { BlockData, BlockType, DocumentState, NestedBlock, TextDelta } from '$app/interfaces/document';
-import { setCursorBeforeThunk } from '$app_reducers/document/async-actions/cursor';
+import { BlockData, BlockType, DocumentState } from '$app/interfaces/document';
 import { blockConfig } from '$app/constants/document/config';
-import { newBlock } from '$app/utils/document/blocks/common';
-import { insertAfterNodeThunk } from '$app_reducers/document/async-actions/blocks';
+import { newBlock } from '$app/utils/document/block';
+import { rangeActions } from '$app_reducers/document/slice';
 
 /**
  * transform to block
@@ -27,10 +26,15 @@ export const turnToBlockThunk = createAsyncThunk(
     const parent = state.nodes[node.parent];
     const children = state.children[node.children].map((id) => state.nodes[id]);
 
-    const block = newBlock<any>(type, parent.id, data);
+    const block = newBlock<any>(type, parent.id, type === BlockType.DividerBlock ? {} : data);
+    let caretId = block.id;
     // insert new block after current block
-    const insertHeadingAction = controller.getInsertAction(block, node.id);
-
+    let insertActions = [controller.getInsertAction(block, node.id)];
+    if (type === BlockType.DividerBlock) {
+      const newTextNode = newBlock<any>(BlockType.TextBlock, parent.id, data);
+      insertActions.push(controller.getInsertAction(newTextNode, block.id));
+      caretId = newTextNode.id;
+    }
     // check if prev node is allowed to have children
     const config = blockConfig[block.type];
     // if new block is not allowed to have children, move children to parent
@@ -43,34 +47,36 @@ export const turnToBlockThunk = createAsyncThunk(
     const deleteAction = controller.getDeleteAction(node);
 
     // submit actions
-    await controller.applyActions([insertHeadingAction, ...moveChildrenActions, deleteAction]);
+    await controller.applyActions([...insertActions, ...moveChildrenActions, deleteAction]);
     // set cursor in new block
-    await dispatch(setCursorBeforeThunk({ id: block.id }));
+    dispatch(rangeActions.setCaret({ id: caretId, index: 0, length: 0 }));
   }
 );
 
 /**
- * turn to divider block
- * 1. insert text block with delta after current block
- * 2. turn current block to divider block
+ * transform to text block
+ * 1. insert text block after current block
+ * 2. move children to text block
+ * 3. delete current block
  */
-export const turnToDividerBlockThunk = createAsyncThunk(
-  'document/turnToDividerBlock',
-  async (payload: { id: string; controller: DocumentController; delta: TextDelta[] }, thunkAPI) => {
-    const { id, controller, delta } = payload;
-    const { dispatch } = thunkAPI;
-    const { payload: newNodeId } = await dispatch(
-      insertAfterNodeThunk({
+export const turnToTextBlockThunk = createAsyncThunk(
+  'document/turnToTextBlock',
+  async (payload: { id: string; controller: DocumentController }, thunkAPI) => {
+    const { id, controller } = payload;
+    const { dispatch, getState } = thunkAPI;
+    const state = (getState() as { document: DocumentState }).document;
+    const node = state.nodes[id];
+    const data = {
+      delta: node.data.delta,
+    };
+
+    await dispatch(
+      turnToBlockThunk({
         id,
         controller,
         type: BlockType.TextBlock,
-        data: {
-          delta,
-        },
+        data,
       })
     );
-    if (!newNodeId) return;
-    await dispatch(turnToBlockThunk({ id, type: BlockType.DividerBlock, controller, data: {} }));
-    dispatch(setCursorBeforeThunk({ id: newNodeId as string }));
   }
 );

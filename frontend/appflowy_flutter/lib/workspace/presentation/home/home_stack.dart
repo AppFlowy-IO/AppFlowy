@@ -112,16 +112,14 @@ abstract mixin class NavigationItem {
 class HomeStackNotifier extends ChangeNotifier {
   Plugin _plugin;
 
-  Widget get titleWidget => _plugin.display.leftBarItem;
+  Widget get titleWidget => _plugin.widgetBuilder.leftBarItem;
 
   HomeStackNotifier({Plugin? plugin})
       : _plugin = plugin ?? makePlugin(pluginType: PluginType.blank);
 
+  /// This is the only place where the plugin is set.
+  /// No need compare the old plugin with the new plugin. Just set it.
   set plugin(Plugin newPlugin) {
-    if (newPlugin.id == _plugin.id) {
-      return;
-    }
-
     _plugin.notifier?.isDisplayChanged.addListener(notifyListeners);
     _plugin.dispose();
 
@@ -139,7 +137,7 @@ class HomeStackManager {
   HomeStackManager();
 
   Widget title() {
-    return _notifier.plugin.display.leftBarItem;
+    return _notifier.plugin.widgetBuilder.leftBarItem;
   }
 
   Plugin get plugin => _notifier.plugin;
@@ -172,20 +170,22 @@ class HomeStackManager {
       child: Consumer(
         builder: (_, HomeStackNotifier notifier, __) {
           return FadingIndexedStack(
-            index: getIt<PluginSandbox>().indexOf(notifier.plugin.ty),
+            index: getIt<PluginSandbox>().indexOf(notifier.plugin.pluginType),
             children: getIt<PluginSandbox>().supportPluginTypes.map(
               (pluginType) {
-                if (pluginType == notifier.plugin.ty) {
-                  final pluginWidget = notifier.plugin.display
-                      .buildWidget(PluginContext(onDeleted: onDeleted));
-                  if (pluginType == PluginType.editor) {
-                    return pluginWidget;
-                  }
+                if (pluginType == notifier.plugin.pluginType) {
+                  final builder = notifier.plugin.widgetBuilder;
+                  final pluginWidget = builder.buildWidget(
+                    PluginContext(onDeleted: onDeleted),
+                  );
 
-                  return pluginWidget.padding(horizontal: 40, vertical: 28);
+                  return Padding(
+                    padding: builder.contentPadding,
+                    child: pluginWidget,
+                  );
+                } else {
+                  return const BlankPage();
                 }
-
-                return const BlankPage();
               },
             ).toList(),
           );
@@ -219,13 +219,13 @@ class HomeTopBar extends StatelessWidget {
               value: Provider.of<HomeStackNotifier>(context, listen: false),
               child: Consumer(
                 builder: (_, HomeStackNotifier notifier, __) =>
-                    notifier.plugin.display.rightBarItem ??
+                    notifier.plugin.widgetBuilder.rightBarItem ??
                     const SizedBox.shrink(),
               ),
             ),
           ],
-        ).bottomBorder(color: Theme.of(context).dividerColor),
-      ),
+        ),
+      ).bottomBorder(color: Theme.of(context).dividerColor),
     );
   }
 }

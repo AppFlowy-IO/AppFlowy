@@ -1,31 +1,28 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from '$app/stores/store';
-import { TextAction, TextDelta, TextSelection } from '$app/interfaces/document';
-import { getAfterRangeDelta, getBeforeRangeDelta, getRangeDelta } from '$app/utils/document/blocks/text/delta';
+import { TextAction } from '$app/interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
+import Delta from 'quill-delta';
+import { rangeActions } from '$app_reducers/document/slice';
 
 export const getFormatActiveThunk = createAsyncThunk<boolean, TextAction>(
   'document/getFormatActive',
   async (format, thunkAPI) => {
     const { getState } = thunkAPI;
     const state = getState() as RootState;
-    const { document } = state;
-    const { selection, anchor, focus } = state.documentRangeSelection;
-
-    const match = (delta: TextDelta[], format: TextAction) => {
-      return delta.every((op) => op.attributes?.[format] === true);
+    const { document, documentRange } = state;
+    const { ranges } = documentRange;
+    const match = (delta: Delta, format: TextAction) => {
+      return delta.ops.every((op) => op.attributes?.[format] === true);
     };
-    return selection.every((id) => {
+    return Object.entries(ranges).every(([id, range]) => {
       const node = document.nodes[id];
-      let delta = node.data?.delta as TextDelta[];
-      if (!delta) return false;
+      const delta = new Delta(node.data?.delta);
+      const index = range?.index || 0;
+      const length = range?.length || 0;
+      const rangeDelta = delta.slice(index, index + length);
 
-      if (id === anchor?.id) {
-        delta = getRangeDelta(delta, anchor.selection);
-      } else if (id === focus?.id) {
-        delta = getRangeDelta(delta, focus.selection);
-      }
-      return match(delta, format);
+      return match(rangeDelta, format);
     });
   }
 );
@@ -33,15 +30,14 @@ export const getFormatActiveThunk = createAsyncThunk<boolean, TextAction>(
 export const toggleFormatThunk = createAsyncThunk(
   'document/toggleFormat',
   async (payload: { format: TextAction; controller: DocumentController; isActive: boolean }, thunkAPI) => {
-    const { getState } = thunkAPI;
+    const { getState, dispatch } = thunkAPI;
     const { format, controller, isActive } = payload;
     const state = getState() as RootState;
     const { document } = state;
-    const { selection, anchor, focus } = state.documentRangeSelection;
-    const ids = Array.from(new Set(selection));
+    const { ranges, caret } = state.documentRange;
 
-    const toggle = (delta: TextDelta[], format: TextAction) => {
-      return delta.map((op) => {
+    const toggle = (delta: Delta, format: TextAction) => {
+      const newOps = delta.ops.map((op) => {
         const attributes = {
           ...op.attributes,
           [format]: isActive ? undefined : true,
@@ -51,36 +47,25 @@ export const toggleFormatThunk = createAsyncThunk(
           attributes: attributes,
         };
       });
+      return new Delta(newOps);
     };
 
-    const splitDelta = (delta: TextDelta[], selection: TextSelection) => {
-      const before = getBeforeRangeDelta(delta, selection);
-      const after = getAfterRangeDelta(delta, selection);
-      let middle = getRangeDelta(delta, selection);
-
-      middle = toggle(middle, format);
-
-      return [...before, ...middle, ...after];
-    };
-
-    const actions = ids.map((id) => {
+    const actions = Object.entries(ranges).map(([id, range]) => {
       const node = document.nodes[id];
-      let delta = node.data?.delta as TextDelta[];
-      if (!delta) return controller.getUpdateAction(node);
-
-      if (id === anchor?.id) {
-        delta = splitDelta(delta, anchor.selection);
-      } else if (id === focus?.id) {
-        delta = splitDelta(delta, focus.selection);
-      } else {
-        delta = toggle(delta, format);
-      }
+      const delta = new Delta(node.data?.delta);
+      const index = range?.index || 0;
+      const length = range?.length || 0;
+      const beforeDelta = delta.slice(0, index);
+      const afterDelta = delta.slice(index + length);
+      const rangeDelta = delta.slice(index, index + length);
+      const toggleFormatDelta = toggle(rangeDelta, format);
+      const newDelta = beforeDelta.concat(toggleFormatDelta).concat(afterDelta);
 
       return controller.getUpdateAction({
         ...node,
         data: {
           ...node.data,
-          delta,
+          delta: newDelta.ops,
         },
       });
     });

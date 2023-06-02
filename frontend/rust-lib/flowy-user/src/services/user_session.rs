@@ -19,7 +19,7 @@ use crate::entities::{
   AuthTypePB, SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
 use crate::entities::{UserProfilePB, UserSettingPB};
-use crate::event_map::{UserCloudServiceProvider, UserStatusCallback};
+use crate::event_map::{DefaultUserStatusCallback, UserCloudServiceProvider, UserStatusCallback};
 use crate::{
   errors::FlowyError,
   event_map::UserAuthService,
@@ -50,7 +50,7 @@ pub struct UserSession {
   database: UserDB,
   session_config: UserSessionConfig,
   cloud_services: Arc<dyn UserCloudServiceProvider>,
-  user_status_callback: RwLock<Option<Arc<dyn UserStatusCallback>>>,
+  user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
 }
 
 impl UserSession {
@@ -59,7 +59,8 @@ impl UserSession {
     cloud_services: Arc<dyn UserCloudServiceProvider>,
   ) -> Self {
     let db = UserDB::new(&session_config.root_dir);
-    let user_status_callback = RwLock::new(None);
+    let user_status_callback: RwLock<Arc<dyn UserStatusCallback>> =
+      RwLock::new(Arc::new(DefaultUserStatusCallback));
     Self {
       database: db,
       session_config,
@@ -74,7 +75,7 @@ impl UserSession {
         .did_sign_in(session.user_id, &session.workspace_id)
         .await;
     }
-    *self.user_status_callback.write().await = Some(Arc::new(user_status_callback));
+    *self.user_status_callback.write().await = Arc::new(user_status_callback);
   }
 
   pub fn db_connection(&self) -> Result<DBConnection, FlowyError> {
@@ -104,10 +105,16 @@ impl UserSession {
     auth_type: &AuthType,
     params: BoxAny,
   ) -> Result<UserProfile, FlowyError> {
+    self
+      .user_status_callback
+      .read()
+      .await
+      .auth_type_did_changed(auth_type.clone());
+
     self.cloud_services.set_auth_type(auth_type.clone());
     let resp = self
       .cloud_services
-      .get_auth_service(auth_type)?
+      .get_auth_service()?
       .sign_in(params)
       .await?;
 
@@ -118,8 +125,6 @@ impl UserSession {
       .user_status_callback
       .read()
       .await
-      .as_ref()
-      .unwrap()
       .did_sign_in(user_profile.id, &user_profile.workspace_id)
       .await;
     send_sign_in_notification()
@@ -135,10 +140,16 @@ impl UserSession {
     auth_type: &AuthType,
     params: BoxAny,
   ) -> Result<UserProfile, FlowyError> {
+    self
+      .user_status_callback
+      .read()
+      .await
+      .auth_type_did_changed(auth_type.clone());
+
     self.cloud_services.set_auth_type(auth_type.clone());
     let resp = self
       .cloud_services
-      .get_auth_service(auth_type)?
+      .get_auth_service()?
       .sign_up(params)
       .await?;
 
@@ -150,8 +161,6 @@ impl UserSession {
       .user_status_callback
       .read()
       .await
-      .as_ref()
-      .unwrap()
       .did_sign_up(&user_profile)
       .await;
     Ok(user_profile)
@@ -166,7 +175,7 @@ impl UserSession {
     self.database.close_user_db(session.user_id)?;
     self.set_session(None)?;
 
-    let server = self.cloud_services.get_auth_service(auth_type)?;
+    let server = self.cloud_services.get_auth_service()?;
     let token = session.token;
     let _ = tokio::spawn(async move {
       match server.sign_out(token).await {
@@ -256,12 +265,12 @@ impl UserSession {
 impl UserSession {
   async fn update_user(
     &self,
-    auth_type: &AuthType,
+    _auth_type: &AuthType,
     uid: i64,
     token: &Option<String>,
     params: UpdateUserProfileParams,
   ) -> Result<(), FlowyError> {
-    let server = self.cloud_services.get_auth_service(auth_type)?;
+    let server = self.cloud_services.get_auth_service()?;
     let token = token.to_owned();
     let _ = tokio::spawn(async move {
       match server.update_user(uid, &token, params).await {

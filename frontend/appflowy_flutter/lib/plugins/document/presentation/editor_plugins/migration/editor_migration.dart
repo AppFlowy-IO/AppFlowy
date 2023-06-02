@@ -37,12 +37,12 @@ class EditorMigration {
         (element) => element.id == 'cover',
       );
       if (coverNode != null) {
-        node = documentNode(
+        node = pageNode(
           children: children,
           attributes: coverNode.attributes,
         );
       } else {
-        node = documentNode(children: children);
+        node = pageNode(children: children);
       }
     } else if (id == 'callout') {
       final emoji = nodeV0.attributes['emoji'] ?? '📌';
@@ -141,12 +141,13 @@ class EditorMigration {
     }
     const backgroundColor = 'backgroundColor';
     if (attributes.containsKey(backgroundColor)) {
-      attributes['highlightColor'] = attributes[backgroundColor];
+      attributes[FlowyRichTextKeys.highlightColor] =
+          attributes[backgroundColor];
       attributes.remove(backgroundColor);
     }
     const color = 'color';
     if (attributes.containsKey(color)) {
-      attributes['textColor'] = attributes[color];
+      attributes[FlowyRichTextKeys.textColor] = attributes[color];
       attributes.remove(color);
     }
     return attributes;

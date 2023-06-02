@@ -2,16 +2,16 @@ use collab_database::database::gen_row_id;
 use std::sync::Arc;
 
 use collab_database::rows::RowId;
-use collab_database::views::DatabaseLayout;
 use lib_infra::util::timestamp;
 
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
 use crate::entities::*;
 use crate::manager::DatabaseManager2;
 use crate::services::cell::CellBuilder;
 
+use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
   type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
 };
@@ -25,8 +25,20 @@ pub(crate) async fn get_database_data_handler(
 ) -> DataResult<DatabasePB, FlowyError> {
   let view_id: DatabaseViewIdPB = data.into_inner();
   let database_editor = manager.get_database_with_view_id(view_id.as_ref()).await?;
-  let data = database_editor.get_database_data(view_id.as_ref()).await;
+  let data = database_editor.get_database_data(view_id.as_ref()).await?;
   data_result_ok(data)
+}
+
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn get_database_id_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> DataResult<DatabaseIdPB, FlowyError> {
+  let view_id: DatabaseViewIdPB = data.into_inner();
+  let database_id = manager
+    .get_database_id_with_view_id(view_id.as_ref())
+    .await?;
+  data_result_ok(DatabaseIdPB { value: database_id })
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
@@ -63,6 +75,12 @@ pub(crate) async fn update_database_setting_handler(
   }
   if let Some(delete_sort) = params.delete_sort {
     editor.delete_sort(delete_sort).await?;
+  }
+
+  if let Some(layout_type) = params.layout_type {
+    editor
+      .update_view_layout(&params.view_id, layout_type)
+      .await?;
   }
   Ok(())
 }
@@ -470,6 +488,38 @@ pub(crate) async fn update_select_option_cell_handler(
 }
 
 #[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn get_checklist_cell_data_handler(
+  data: AFPluginData<CellIdPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> DataResult<ChecklistCellDataPB, FlowyError> {
+  let params: CellIdParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  let data = database_editor
+    .get_checklist_option(params.row_id, &params.field_id)
+    .await;
+  data_result_ok(data)
+}
+
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn update_checklist_cell_handler(
+  data: AFPluginData<ChecklistCellDataChangesetPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> Result<(), FlowyError> {
+  let params: ChecklistCellDataChangesetParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  let changeset = ChecklistCellChangeset {
+    insert_options: params.insert_options,
+    selected_option_ids: params.selected_option_ids,
+    delete_option_ids: params.delete_option_ids,
+    update_options: params.update_options,
+  };
+  database_editor
+    .set_checklist_options(&params.view_id, params.row_id, &params.field_id, changeset)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_date_cell_handler(
   data: AFPluginData<DateChangesetPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
@@ -480,7 +530,6 @@ pub(crate) async fn update_date_cell_handler(
     date: data.date,
     time: data.time,
     include_time: data.include_time,
-    timezone_id: data.timezone_id,
   };
   let database_editor = manager.get_database_with_view_id(&cell_id.view_id).await?;
   database_editor
@@ -595,24 +644,25 @@ pub(crate) async fn set_layout_setting_handler(
   let params: LayoutSettingChangeset = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   let layout_params = LayoutSettingParams {
+    layout_type: params.layout_type,
     calendar: params.calendar,
   };
   database_editor
-    .set_layout_setting(&params.view_id, DatabaseLayout::Calendar, layout_params)
+    .set_layout_setting(&params.view_id, layout_params)
     .await;
   Ok(())
 }
 
 pub(crate) async fn get_layout_setting_handler(
-  data: AFPluginData<DatabaseLayoutIdPB>,
+  data: AFPluginData<DatabaseLayoutMetaPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
-) -> DataResult<LayoutSettingPB, FlowyError> {
-  let params: DatabaseLayoutId = data.into_inner().try_into()?;
+) -> DataResult<DatabaseLayoutSettingPB, FlowyError> {
+  let params: DatabaseLayoutMeta = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   let layout_setting_pb = database_editor
     .get_layout_setting(&params.view_id, params.layout)
     .await
-    .map(LayoutSettingPB::from)
+    .map(DatabaseLayoutSettingPB::from)
     .unwrap_or_default();
   data_result_ok(layout_setting_pb)
 }
@@ -628,6 +678,19 @@ pub(crate) async fn get_calendar_events_handler(
     .get_all_calendar_events(&params.view_id)
     .await;
   data_result_ok(RepeatedCalendarEventPB { items: events })
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn get_no_date_calendar_events_handler(
+  data: AFPluginData<CalendarEventRequestPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> DataResult<RepeatedNoDateCalendarEventPB, FlowyError> {
+  let params: CalendarEventRequestParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  let _events = database_editor
+    .get_all_no_date_calendar_events(&params.view_id)
+    .await;
+  todo!()
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
@@ -647,25 +710,47 @@ pub(crate) async fn get_calendar_event_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn import_data_handler(
-  data: AFPluginData<DatabaseImportPB>,
+pub(crate) async fn move_calendar_event_handler(
+  data: AFPluginData<MoveCalendarEventPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> FlowyResult<()> {
-  let params = data.into_inner();
-
-  match params.import_type {
-    ImportTypePB::CSV => {
-      if let Some(data) = params.data {
-        manager.import_csv(data, CSVFormat::META).await?;
-      } else if let Some(uri) = params.uri {
-        manager.import_csv_from_uri(uri, CSVFormat::META).await?;
-      } else {
-        return Err(FlowyError::new(
-          ErrorCode::InvalidData,
-          "No data or uri provided",
-        ));
-      }
-    },
-  }
+  let data = data.into_inner();
+  let cell_id: CellIdParams = data.cell_path.try_into()?;
+  let cell_changeset = DateCellChangeset {
+    date: Some(data.timestamp.to_string()),
+    ..Default::default()
+  };
+  let database_editor = manager.get_database_with_view_id(&cell_id.view_id).await?;
+  database_editor
+    .update_cell_with_changeset(
+      &cell_id.view_id,
+      cell_id.row_id,
+      &cell_id.field_id,
+      cell_changeset,
+    )
+    .await?;
   Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn create_database_view(
+  _data: AFPluginData<CreateDatabaseViewPayloadPB>,
+  _manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> FlowyResult<()> {
+  // let data: CreateDatabaseViewParams = data.into_inner().try_into()?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn export_csv_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> DataResult<DatabaseExportDataPB, FlowyError> {
+  let view_id = data.into_inner().value;
+  let database = manager.get_database_with_view_id(&view_id).await?;
+  let data = database.export_csv(CSVFormat::Original).await?;
+  data_result_ok(DatabaseExportDataPB {
+    export_type: DatabaseExportDataType::CSV,
+    data,
+  })
 }

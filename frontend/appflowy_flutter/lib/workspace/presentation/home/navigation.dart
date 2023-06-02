@@ -21,8 +21,8 @@ class NavigationNotifier with ChangeNotifier {
 
   void update(HomeStackNotifier notifier) {
     bool shouldNotify = false;
-    if (navigationItems != notifier.plugin.display.navigationItems) {
-      navigationItems = notifier.plugin.display.navigationItems;
+    if (navigationItems != notifier.plugin.widgetBuilder.navigationItems) {
+      navigationItems = notifier.plugin.widgetBuilder.navigationItems;
       shouldNotify = true;
     }
 
@@ -41,7 +41,7 @@ class FlowyNavigation extends StatelessWidget {
       create: (_) {
         final notifier = Provider.of<HomeStackNotifier>(context, listen: false);
         return NavigationNotifier(
-          navigationItems: notifier.plugin.display.navigationItems,
+          navigationItems: notifier.plugin.widgetBuilder.navigationItems,
         );
       },
       update: (_, notifier, controller) => controller!..update(notifier),

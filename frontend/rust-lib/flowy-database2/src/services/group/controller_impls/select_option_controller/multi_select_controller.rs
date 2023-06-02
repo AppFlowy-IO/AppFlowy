@@ -1,4 +1,4 @@
-use crate::entities::{GroupRowsNotificationPB, SelectOptionCellDataPB};
+use crate::entities::{FieldType, GroupRowsNotificationPB, SelectOptionCellDataPB};
 use crate::services::cell::insert_select_option_cell;
 use crate::services::field::{MultiSelectTypeOption, SelectOptionCellDataParser};
 use crate::services::group::action::GroupCustomize;
@@ -10,7 +10,7 @@ use crate::services::group::{
   move_group_row, remove_select_option_row, GeneratedGroups, GroupContext,
 };
 use collab_database::fields::Field;
-use collab_database::rows::{Cells, Row};
+use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
@@ -37,6 +37,14 @@ impl GroupCustomize for MultiSelectGroupController {
       .select_options
       .iter()
       .any(|option| option.id == content)
+  }
+
+  fn placeholder_cell(&self) -> Option<Cell> {
+    Some(
+      new_cell_builder(FieldType::MultiSelect)
+        .insert_str_value("data", "")
+        .build(),
+    )
   }
 
   fn add_or_remove_row_when_cell_changed(

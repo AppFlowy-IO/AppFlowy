@@ -1,18 +1,16 @@
-use std::collections::HashMap;
-
 use chrono::Utc;
-use collab_folder::core::{Belonging, Belongings, FolderData, View, ViewLayout, Workspace};
+use collab_folder::core::{FolderData, RepeatedView, View, ViewIdentifier, ViewLayout, Workspace};
 use nanoid::nanoid;
 
 use crate::entities::{view_pb_with_child_views, WorkspacePB};
-use crate::view_ext::{gen_view_id, ViewDataProcessorMap};
+use crate::view_operation::{gen_view_id, FolderOperationHandlers};
 
 pub struct DefaultFolderBuilder();
 impl DefaultFolderBuilder {
   pub async fn build(
     uid: i64,
     workspace_id: String,
-    view_processors: &ViewDataProcessorMap,
+    handlers: &FolderOperationHandlers,
   ) -> (FolderData, WorkspacePB) {
     let time = Utc::now().timestamp();
     let view_id = gen_view_id();
@@ -21,50 +19,45 @@ impl DefaultFolderBuilder {
     let child_view_layout = ViewLayout::Document;
     let child_view = View {
       id: child_view_id.clone(),
-      bid: view_id.clone(),
+      parent_view_id: view_id.clone(),
       name: "Read me".to_string(),
       desc: "".to_string(),
-      belongings: Default::default(),
       created_at: time,
       layout: child_view_layout.clone(),
-      database_id: None,
+      children: Default::default(),
     };
 
     // create the document
     // TODO: use the initial data from the view processor
     // let data = initial_read_me().into_bytes();
-    let processor = view_processors.get(&child_view_layout).unwrap();
-    processor
-      .create_view_with_built_in_data(
+    let handler = handlers.get(&child_view_layout).unwrap();
+    handler
+      .create_built_in_view(
         uid,
         &child_view.id,
         &child_view.name,
         child_view_layout.clone(),
-        HashMap::default(),
       )
       .await
       .unwrap();
 
     let view = View {
       id: view_id,
-      bid: workspace_id.clone(),
+      parent_view_id: workspace_id.clone(),
       name: "⭐️ Getting started".to_string(),
       desc: "".to_string(),
-      belongings: Belongings::new(vec![Belonging {
+      children: RepeatedView::new(vec![ViewIdentifier {
         id: child_view.id.clone(),
-        name: child_view.name.clone(),
       }]),
       created_at: time,
       layout: ViewLayout::Document,
-      database_id: None,
     };
 
     let workspace = Workspace {
       id: workspace_id,
       name: "Workspace".to_string(),
-      belongings: Belongings::new(vec![Belonging {
+      child_views: RepeatedView::new(vec![ViewIdentifier {
         id: view.id.clone(),
-        name: view.name.clone(),
       }]),
       created_at: time,
     };

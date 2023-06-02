@@ -9,9 +9,8 @@ import 'package:appflowy/plugins/database_view/application/row/row_data_controll
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/grid.dart';
-import 'package:appflowy/workspace/application/app/app_service.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -42,7 +41,7 @@ class GridTestContext {
   FieldEditorBloc createFieldEditor({
     FieldInfo? fieldInfo,
   }) {
-    IFieldTypeOptionLoader loader;
+    ITypeOptionLoader loader;
     if (fieldInfo == null) {
       loader = NewFieldTypeOptionLoader(viewId: gridView.id);
     } else {
@@ -170,21 +169,16 @@ class AppFlowyGridTest {
   Future<GridTestContext> createTestGrid() async {
     final app = await unitTest.createTestApp();
     final builder = GridPluginBuilder();
-    final context = await AppBackendService()
-        .createView(
-      appId: app.id,
+    final context = await ViewBackendService.createView(
+      parentViewId: app.id,
       name: "Test Grid",
       layoutType: builder.layoutType!,
-    )
-        .then((result) {
+    ).then((result) {
       return result.fold(
         (view) async {
           final context = GridTestContext(
             view,
-            DatabaseController(
-              view: view,
-              layoutType: DatabaseLayoutPB.Grid,
-            ),
+            DatabaseController(view: view),
           );
           final result = await context.gridController.open();
           result.fold((l) => null, (r) => throw Exception(r));

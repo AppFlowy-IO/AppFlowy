@@ -8,6 +8,20 @@ class SettingsFileExportState {
     initialize();
   }
 
+  List<ViewPB> get selectedViews {
+    final selectedViews = <ViewPB>[];
+    for (var i = 0; i < views.length; i++) {
+      if (selectedApps[i]) {
+        for (var j = 0; j < views[i].childViews.length; j++) {
+          if (selectedItems[i][j]) {
+            selectedViews.add(views[i].childViews[j]);
+          }
+        }
+      }
+    }
+    return selectedViews;
+  }
+
   List<ViewPB> views;
   List<bool> expanded = [];
   List<bool> selectedApps = [];

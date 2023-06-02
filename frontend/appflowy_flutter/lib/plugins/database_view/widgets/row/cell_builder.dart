@@ -34,11 +34,17 @@ class GridCellBuilder {
           key: key,
         );
       case FieldType.DateTime:
-      case FieldType.UpdatedAt:
-      case FieldType.CreatedAt:
         return GridDateCell(
           cellControllerBuilder: cellControllerBuilder,
           key: key,
+          style: style,
+        );
+      case FieldType.LastEditedTime:
+      case FieldType.CreatedTime:
+        return GridDateCell(
+          cellControllerBuilder: cellControllerBuilder,
+          key: key,
+          editable: false,
           style: style,
         );
       case FieldType.SingleSelect:

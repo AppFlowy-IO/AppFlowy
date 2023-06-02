@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -17,13 +18,15 @@ class CalendarToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
+    return SizedBox(
       height: 40,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          _UnscheduleEventsButton(),
-          _SettingButton(),
+          const _UnscheduleEventsButton(),
+          SettingButton(
+            databaseController: context.read<CalendarBloc>().databaseController,
+          ),
         ],
       ),
     );
@@ -38,11 +41,6 @@ class _SettingButton extends StatefulWidget {
 }
 
 class _SettingButtonState extends State<_SettingButton> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
@@ -111,6 +109,7 @@ class _UnscheduleEventsButtonState extends State<_UnscheduleEventsButton> {
           direction: PopoverDirection.bottomWithCenterAligned,
           controller: _controller,
           offset: const Offset(0, 8),
+          constraints: const BoxConstraints(maxWidth: 300, maxHeight: 600),
           child: FlowyTextButton(
             "${LocaleKeys.calendar_settings_noDateTitle.tr()} (${unscheduledEvents.length})",
             fillColor: Colors.transparent,
@@ -118,31 +117,35 @@ class _UnscheduleEventsButtonState extends State<_UnscheduleEventsButton> {
             padding: GridSize.typeOptionContentInsets,
           ),
           popupBuilder: (context) {
-            if (unscheduledEvents.isEmpty) {
-              return SizedBox(
-                height: GridSize.popoverItemHeight,
-                child: Center(
-                  child: FlowyText.medium(
-                    LocaleKeys.calendar_settings_emptyNoDate.tr(),
-                    color: Theme.of(context).hintColor,
-                  ),
+            final cells = <Widget>[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: FlowyText.medium(
+                  // LocaleKeys.calendar_settings_noDateHint.tr(),
+                  LocaleKeys.calendar_settings_clickToAdd.tr(),
+                  color: Theme.of(context).hintColor,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              );
-            }
-            return ListView.separated(
-              itemBuilder: (context, index) => _UnscheduledEventItem(
-                event: unscheduledEvents[index],
-                onPressed: () {
-                  showEventDetails(
-                    context: context,
-                    event: unscheduledEvents[index].event!,
-                    viewId: viewId,
-                    rowCache: rowCache,
-                  );
-                  _controller.close();
-                },
               ),
-              itemCount: unscheduledEvents.length,
+              const VSpace(6),
+              ...unscheduledEvents.map(
+                (e) => _UnscheduledEventItem(
+                  event: e,
+                  onPressed: () {
+                    showEventDetails(
+                      context: context,
+                      event: e.event!,
+                      viewId: viewId,
+                      rowCache: rowCache,
+                    );
+                    _controller.close();
+                  },
+                ),
+              )
+            ];
+            return ListView.separated(
+              itemBuilder: (context, index) => cells[index],
+              itemCount: cells.length,
               separatorBuilder: (context, index) =>
                   VSpace(GridSize.typeOptionSeparatorHeight),
               shrinkWrap: true,
@@ -167,12 +170,13 @@ class _UnscheduledEventItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: GridSize.popoverItemHeight,
-      child: FlowyTextButton(
-        event.title,
-        fillColor: Colors.transparent,
-        hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        padding: GridSize.typeOptionContentInsets,
-        onPressed: onPressed,
+      child: FlowyButton(
+        text: FlowyText.medium(
+          event.title.isEmpty
+              ? LocaleKeys.calendar_defaultNewCalendarTitle.tr()
+              : event.title,
+        ),
+        onTap: onPressed,
       ),
     );
   }

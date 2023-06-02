@@ -14,9 +14,10 @@ use crate::entities::{
   URLTypeOptionPB,
 };
 use crate::services::cell::{CellDataDecoder, FromCellChangeset, ToCellChangeset};
+use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::{
-  CheckboxTypeOption, ChecklistTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption,
-  RichTextTypeOption, SingleSelectTypeOption, URLTypeOption,
+  CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RichTextTypeOption,
+  SingleSelectTypeOption, URLTypeOption,
 };
 use crate::services::filter::FromFilterString;
 
@@ -36,7 +37,7 @@ pub trait TypeOption {
   /// Represents as the corresponding field type cell changeset.
   /// The changeset must implements the `FromCellChangesetString` and the `ToCellChangesetString` trait.
   /// These two traits are auto implemented for `String`.
-  ///  
+  ///
   type CellChangeset: FromCellChangeset + ToCellChangeset;
 
   ///  For the moment, the protobuf type only be used in the FFI of `Dart`. If the decoded cell
@@ -53,20 +54,19 @@ pub trait TypeOption {
 }
 
 pub trait TypeOptionCellData: TypeOption {
-  /// Convert the decoded cell data into corresponding `Protobuf struct`.
+  /// Encode the cell data into corresponding `Protobuf struct`.
   /// For example:
   ///    FieldType::URL => URLCellDataPB
   ///    FieldType::Date=> DateCellDataPB
-  fn convert_to_protobuf(
+  fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType;
 
-  /// Decodes the opaque cell string to corresponding data struct.
-  // For example, the cell data is timestamp if its field type is `FieldType::Date`. This cell
-  // data can not directly show to user. So it needs to be encode as the date string with custom
-  // format setting. Encode `1647251762` to `"Mar 14,2022`
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData>;
+  /// Parse the opaque [Cell] to corresponding data struct.
+  /// The [Cell] is a map that stores list of key/value data. Each [TypeOption::CellData]
+  /// should implement the From<&Cell> trait to parse the [Cell] to corresponding data struct.
+  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData>;
 }
 
 pub trait TypeOptionTransform: TypeOption {
@@ -146,7 +146,7 @@ pub fn type_option_data_from_pb_or_default<T: Into<Bytes>>(
     FieldType::Number => {
       NumberTypeOptionPB::try_from(bytes).map(|pb| NumberTypeOption::from(pb).into())
     },
-    FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
+    FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
       DateTypeOptionPB::try_from(bytes).map(|pb| DateTypeOption::from(pb).into())
     },
     FieldType::SingleSelect => {
@@ -181,7 +181,7 @@ pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) ->
         .try_into()
         .unwrap()
     },
-    FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
+    FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
       let date_type_option: DateTypeOption = type_option.into();
       DateTypeOptionPB::from(date_type_option).try_into().unwrap()
     },
@@ -220,10 +220,9 @@ pub fn default_type_option_data_from_type(field_type: &FieldType) -> TypeOptionD
   match field_type {
     FieldType::RichText => RichTextTypeOption::default().into(),
     FieldType::Number => NumberTypeOption::default().into(),
-    FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => DateTypeOption {
-      date_format: Default::default(),
-      time_format: Default::default(),
+    FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => DateTypeOption {
       field_type: field_type.clone(),
+      ..Default::default()
     }
     .into(),
     FieldType::SingleSelect => SingleSelectTypeOption::default().into(),

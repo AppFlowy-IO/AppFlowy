@@ -18,10 +18,10 @@ use crate::services::setting::CalendarLayoutSetting;
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct DatabaseViewSettingPB {
   #[pb(index = 1)]
-  pub current_layout: DatabaseLayoutPB,
+  pub layout_type: DatabaseLayoutPB,
 
   #[pb(index = 2)]
-  pub layout_setting: LayoutSettingPB,
+  pub layout_setting: DatabaseLayoutSettingPB,
 
   #[pb(index = 3)]
   pub filters: RepeatedFilterPB,
@@ -72,8 +72,8 @@ pub struct DatabaseSettingChangesetPB {
   #[pb(index = 1)]
   pub view_id: String,
 
-  #[pb(index = 2)]
-  pub layout_type: DatabaseLayoutPB,
+  #[pb(index = 2, one_of)]
+  pub layout_type: Option<DatabaseLayoutPB>,
 
   #[pb(index = 3, one_of)]
   pub update_filter: Option<UpdateFilterPayloadPB>,
@@ -121,7 +121,7 @@ impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
 
     Ok(DatabaseSettingChangesetParams {
       view_id,
-      layout_type: self.layout_type.into(),
+      layout_type: self.layout_type.map(|ty| ty.into()),
       insert_filter,
       delete_filter,
       alert_sort,
@@ -132,7 +132,7 @@ impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
 
 pub struct DatabaseSettingChangesetParams {
   pub view_id: String,
-  pub layout_type: DatabaseLayout,
+  pub layout_type: Option<DatabaseLayout>,
   pub insert_filter: Option<UpdateFilterParams>,
   pub delete_filter: Option<DeleteFilterParams>,
   pub alert_sort: Option<UpdateSortParams>,
@@ -146,19 +146,24 @@ impl DatabaseSettingChangesetParams {
 }
 
 #[derive(Debug, Eq, PartialEq, Default, ProtoBuf, Clone)]
-pub struct LayoutSettingPB {
-  #[pb(index = 1, one_of)]
+pub struct DatabaseLayoutSettingPB {
+  #[pb(index = 1)]
+  pub layout_type: DatabaseLayoutPB,
+
+  #[pb(index = 2, one_of)]
   pub calendar: Option<CalendarLayoutSettingPB>,
 }
 
 #[derive(Debug, Clone, Default)]
 pub struct LayoutSettingParams {
+  pub layout_type: DatabaseLayout,
   pub calendar: Option<CalendarLayoutSetting>,
 }
 
-impl From<LayoutSettingParams> for LayoutSettingPB {
+impl From<LayoutSettingParams> for DatabaseLayoutSettingPB {
   fn from(data: LayoutSettingParams) -> Self {
     Self {
+      layout_type: data.layout_type.into(),
       calendar: data.calendar.map(|calendar| calendar.into()),
     }
   }
@@ -169,13 +174,17 @@ pub struct LayoutSettingChangesetPB {
   #[pb(index = 1)]
   pub view_id: String,
 
-  #[pb(index = 2, one_of)]
+  #[pb(index = 2)]
+  pub layout_type: DatabaseLayoutPB,
+
+  #[pb(index = 3, one_of)]
   pub calendar: Option<CalendarLayoutSettingPB>,
 }
 
 #[derive(Debug)]
 pub struct LayoutSettingChangeset {
   pub view_id: String,
+  pub layout_type: DatabaseLayout,
   pub calendar: Option<CalendarLayoutSetting>,
 }
 
@@ -189,6 +198,7 @@ impl TryInto<LayoutSettingChangeset> for LayoutSettingChangesetPB {
 
     Ok(LayoutSettingChangeset {
       view_id,
+      layout_type: self.layout_type.into(),
       calendar: self.calendar.map(|calendar| calendar.into()),
     })
   }

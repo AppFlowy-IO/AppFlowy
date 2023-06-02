@@ -91,7 +91,6 @@ extension DocumentDataPBFromTo on DocumentDataPB {
 class _BackendKeys {
   const _BackendKeys._();
 
-  static const String page = 'page';
   static const String text = 'text';
 }
 
@@ -109,7 +108,6 @@ extension BlockToNode on BlockPB {
 
   String _typeAdapter(String ty) {
     final adapter = {
-      _BackendKeys.page: 'document',
       _BackendKeys.text: ParagraphBlockKeys.type,
     };
     return adapter[ty] ?? ty;
@@ -149,7 +147,6 @@ extension NodeToBlock on Node {
 
   String _typeAdapter(String type) {
     final adapter = {
-      'document': 'page',
       'paragraph': 'text',
     };
     return adapter[type] ?? type;

@@ -11,7 +11,7 @@ async fn export_meta_csv_test() {
   let database = test.editor.clone();
   let s = database.export_csv(CSVFormat::META).await.unwrap();
   let mut reader = csv::Reader::from_reader(s.as_bytes());
-  for header in reader.headers() {
+  for header in reader.headers().unwrap() {
     dbg!(header);
   }
 
@@ -28,13 +28,14 @@ async fn export_csv_test() {
   let database = test.editor.clone();
   let s = database.export_csv(CSVFormat::Original).await.unwrap();
   let expected = r#"Name,Price,Time,Status,Platform,is urgent,link,TODO,Updated At,Created At
-A,$1,2022/03/14,,"Google,Facebook",Yes,AppFlowy website - https://www.appflowy.io,"Wake up at 6:00 am,Get some coffee,Start working",2022/03/14,2022/03/14
+A,$1,2022/03/14,,"Google,Facebook",Yes,AppFlowy website - https://www.appflowy.io,,2022/03/14,2022/03/14
 ,$2,2022/03/14,,"Google,Twitter",Yes,,,2022/03/14,2022/03/14
 C,$3,2022/03/14,Completed,Facebook,No,,,2022/03/14,2022/03/14
 DA,$14,2022/11/17,Completed,,No,,,2022/11/17,2022/11/17
 AE,,2022/11/13,Planned,,No,,,2022/11/13,2022/11/13
-AE,$5,2022/12/24,Planned,,Yes,,,2022/12/24,2022/12/24
+AE,$5,2022/12/25,Planned,,Yes,,,2022/12/25,2022/12/25
 "#;
+  println!("{}", s);
   assert_eq!(s, expected);
 }
 
@@ -95,8 +96,8 @@ async fn export_and_then_import_meta_csv_test() {
           FieldType::Checkbox => {},
           FieldType::URL => {},
           FieldType::Checklist => {},
-          FieldType::UpdatedAt => {},
-          FieldType::CreatedAt => {},
+          FieldType::LastEditedTime => {},
+          FieldType::CreatedTime => {},
         }
       } else {
         panic!(
@@ -176,8 +177,8 @@ async fn history_database_import_test() {
             }
           },
           FieldType::Checklist => {},
-          FieldType::UpdatedAt => {},
-          FieldType::CreatedAt => {},
+          FieldType::LastEditedTime => {},
+          FieldType::CreatedTime => {},
         }
       } else {
         panic!(

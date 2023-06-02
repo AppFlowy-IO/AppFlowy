@@ -8,6 +8,10 @@ async fn grid_filter_checklist_is_incomplete_test() {
   let expected = 5;
   let row_count = test.rows.len();
   let scripts = vec![
+    UpdateChecklistCell {
+      row_id: test.rows[0].id.clone(),
+      f: Box::new(|options| options.into_iter().map(|option| option.id).collect()),
+    },
     CreateChecklistFilter {
       condition: ChecklistFilterConditionPB::IsIncomplete,
       changed: Some(FilterRowChanged {
@@ -26,6 +30,10 @@ async fn grid_filter_checklist_is_complete_test() {
   let expected = 1;
   let row_count = test.rows.len();
   let scripts = vec![
+    UpdateChecklistCell {
+      row_id: test.rows[0].id.clone(),
+      f: Box::new(|options| options.into_iter().map(|option| option.id).collect()),
+    },
     CreateChecklistFilter {
       condition: ChecklistFilterConditionPB::IsComplete,
       changed: Some(FilterRowChanged {

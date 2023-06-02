@@ -5,8 +5,8 @@ use crate::services::field::{
   TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
   TypeOptionTransform,
 };
-use chrono::{DateTime, Local, NaiveDateTime, NaiveTime, TimeZone};
-use chrono_tz::{Tz, UTC};
+use chrono::{DateTime, FixedOffset, Local, NaiveDateTime, NaiveTime, Offset, TimeZone};
+use chrono_tz::Tz;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
@@ -15,14 +15,26 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::str::FromStr;
 
-/// The [DateTypeOption] is used by [FieldType::Date], [FieldType::UpdatedAt], and [FieldType::CreatedAt].
+/// The [DateTypeOption] is used by [FieldType::Date], [FieldType::LastEditedTime], and [FieldType::CreatedTime].
 /// So, storing the field type is necessary to distinguish the field type.
 /// Most of the cases, each [FieldType] has its own [TypeOption] implementation.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DateTypeOption {
   pub date_format: DateFormat,
   pub time_format: TimeFormat,
+  pub timezone_id: String,
   pub field_type: FieldType,
+}
+
+impl Default for DateTypeOption {
+  fn default() -> Self {
+    Self {
+      date_format: Default::default(),
+      time_format: Default::default(),
+      timezone_id: Default::default(),
+      field_type: FieldType::DateTime,
+    }
+  }
 }
 
 impl TypeOption for DateTypeOption {
@@ -42,6 +54,7 @@ impl From<TypeOptionData> for DateTypeOption {
       .get_i64_value("time_format")
       .map(TimeFormat::from)
       .unwrap_or_default();
+    let timezone_id = data.get_str_value("timezone_id").unwrap_or_default();
     let field_type = data
       .get_i64_value("field_type")
       .map(FieldType::from)
@@ -49,6 +62,7 @@ impl From<TypeOptionData> for DateTypeOption {
     Self {
       date_format,
       time_format,
+      timezone_id,
       field_type,
     }
   }
@@ -59,20 +73,21 @@ impl From<DateTypeOption> for TypeOptionData {
     TypeOptionDataBuilder::new()
       .insert_i64_value("date_format", data.date_format.value())
       .insert_i64_value("time_format", data.time_format.value())
+      .insert_str_value("timezone_id", data.timezone_id)
       .insert_i64_value("field_type", data.field_type.value())
       .build()
   }
 }
 
 impl TypeOptionCellData for DateTypeOption {
-  fn convert_to_protobuf(
+  fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     self.today_desc_from_timestamp(cell_data)
   }
 
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
+  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     Ok(DateCellData::from(cell))
   }
 }
@@ -80,9 +95,16 @@ impl TypeOptionCellData for DateTypeOption {
 impl DateTypeOption {
   pub fn new(field_type: FieldType) -> Self {
     Self {
-      date_format: Default::default(),
-      time_format: Default::default(),
       field_type,
+      ..Default::default()
+    }
+  }
+
+  pub fn test() -> Self {
+    Self {
+      timezone_id: "Etc/UTC".to_owned(),
+      field_type: FieldType::DateTime,
+      ..Self::default()
     }
   }
 
@@ -91,8 +113,10 @@ impl DateTypeOption {
     let include_time = cell_data.include_time;
 
     let (date, time) = match cell_data.timestamp {
-      Some(_) => {
-        let date_time = DateTime::from(&cell_data);
+      Some(timestamp) => {
+        let naive = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
+        let offset = self.get_timezone_offset(naive);
+        let date_time = DateTime::<Local>::from_utc(naive, offset);
 
         let fmt = self.date_format.format_str();
         let date = format!("{}", date_time.format(fmt));
@@ -109,13 +133,11 @@ impl DateTypeOption {
       time,
       include_time,
       timestamp,
-      timezone_id: cell_data.timezone_id,
     }
   }
 
   fn timestamp_from_parsed_time_previous_and_new_timestamp(
     &self,
-    timezone: Tz,
     parsed_time: Option<NaiveTime>,
     previous_timestamp: Option<i64>,
     changeset_timestamp: Option<i64>,
@@ -123,15 +145,21 @@ impl DateTypeOption {
     if let Some(time) = parsed_time {
       // a valid time is provided, so we replace the time component of old
       // (or new timestamp if provided) with it.
+      let utc_date = changeset_timestamp
+        .or(previous_timestamp)
+        .map(|timestamp| NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap())
+        .unwrap();
+      let offset = self.get_timezone_offset(utc_date);
+
       let local_date = changeset_timestamp.or(previous_timestamp).map(|timestamp| {
-        timezone
+        offset
           .from_utc_datetime(&NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap())
           .date_naive()
       });
 
       match local_date {
         Some(date) => {
-          let local_datetime = timezone
+          let local_datetime = offset
             .from_local_datetime(&NaiveDateTime::new(date, time))
             .unwrap();
 
@@ -143,12 +171,25 @@ impl DateTypeOption {
       changeset_timestamp.or(previous_timestamp)
     }
   }
+
+  /// returns offset of Tz timezone if provided or of the local timezone otherwise
+  fn get_timezone_offset(&self, date_time: NaiveDateTime) -> FixedOffset {
+    let current_timezone_offset = Local::now().offset().fix();
+    if self.timezone_id.is_empty() {
+      current_timezone_offset
+    } else {
+      match Tz::from_str(&self.timezone_id) {
+        Ok(timezone) => timezone.offset_from_utc_datetime(&date_time).fix(),
+        Err(_) => current_timezone_offset,
+      }
+    }
+  }
 }
 
 impl TypeOptionTransform for DateTypeOption {}
 
 impl CellDataDecoder for DateTypeOption {
-  fn decode_cell_str(
+  fn decode_cell(
     &self,
     cell: &Cell,
     decoded_field_type: &FieldType,
@@ -162,16 +203,16 @@ impl CellDataDecoder for DateTypeOption {
       return Ok(Default::default());
     }
 
-    self.decode_cell(cell)
+    self.parse_cell(cell)
   }
 
-  fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+  fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     self.today_desc_from_timestamp(cell_data).date
   }
 
-  fn decode_cell_to_str(&self, cell: &Cell) -> String {
+  fn stringify_cell(&self, cell: &Cell) -> String {
     let cell_data = Self::CellData::from(cell);
-    self.decode_cell_data_to_str(cell_data)
+    self.stringify_cell_data(cell_data)
   }
 }
 
@@ -182,34 +223,26 @@ impl CellDataChangeset for DateTypeOption {
     cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     // old date cell data
-    let (previous_timestamp, include_time, timezone_id) = match cell {
-      None => (None, false, "".to_owned()),
+    let (previous_timestamp, include_time) = match cell {
       Some(cell) => {
         let cell_data = DateCellData::from(&cell);
-        (
-          cell_data.timestamp,
-          cell_data.include_time,
-          cell_data.timezone_id,
-        )
+        (cell_data.timestamp, cell_data.include_time)
       },
+      None => (None, false),
     };
 
-    // update include_time and timezone_id if necessary
+    // update include_time if necessary
     let include_time = changeset.include_time.unwrap_or(include_time);
-    let timezone_id = changeset
-      .timezone_id
-      .as_ref()
-      .map(|timezone_id| timezone_id.to_owned())
-      .unwrap_or_else(|| timezone_id);
 
-    // Calculate the timezone-aware timestamp. If a new timestamp is included
-    // in the changeset without an accompanying time string, the old timestamp
-    // will simply be overwritten. Meaning, in order to change the day without
-    // changing the time, the old time string should be passed in as well.
+    // Calculate the timestamp in the time zone specified in type option. If
+    // a new timestamp is included in the changeset without an accompanying
+    // time string, the old timestamp will simply be overwritten. Meaning, in
+    // order to change the day without changing the time, the old time string
+    // should be passed in as well.
+
     let changeset_timestamp = changeset.date_timestamp();
 
-    // parse the time string, which is in the timezone corresponding to
-    // timezone_id or local
+    // parse the time string, which is in the local timezone
     let parsed_time = match (include_time, changeset.time) {
       (true, Some(time_str)) => {
         let result = NaiveTime::parse_from_str(&time_str, self.time_format.format_str());
@@ -224,22 +257,7 @@ impl CellDataChangeset for DateTypeOption {
       _ => Ok(None),
     }?;
 
-    // Tz timezone if provided, local timezone otherwise
-    let current_timezone_offset = UTC
-      .offset_from_local_datetime(&Local::now().naive_local())
-      .unwrap();
-    let current_timezone = Tz::from_offset(&current_timezone_offset);
-    let timezone = if timezone_id.is_empty() {
-      current_timezone
-    } else {
-      match Tz::from_str(&timezone_id) {
-        Ok(timezone) => timezone,
-        Err(_) => current_timezone,
-      }
-    };
-
     let timestamp = self.timestamp_from_parsed_time_previous_and_new_timestamp(
-      timezone,
       parsed_time,
       previous_timestamp,
       changeset_timestamp,
@@ -248,7 +266,6 @@ impl CellDataChangeset for DateTypeOption {
     let cell_data = DateCellData {
       timestamp,
       include_time,
-      timezone_id,
     };
 
     let cell_wrapper: DateCellDataWrapper = (self.field_type.clone(), cell_data.clone()).into();

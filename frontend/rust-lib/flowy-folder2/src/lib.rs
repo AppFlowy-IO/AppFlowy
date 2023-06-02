@@ -5,9 +5,10 @@ pub mod manager;
 mod notification;
 pub mod protobuf;
 mod user_default;
-pub mod view_ext;
+pub mod view_operation;
 
 pub mod deps;
+mod share;
 #[cfg(feature = "test_helper")]
 mod test_helper;
 

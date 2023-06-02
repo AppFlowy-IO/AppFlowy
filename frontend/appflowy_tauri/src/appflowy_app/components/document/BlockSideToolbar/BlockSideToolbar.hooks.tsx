@@ -1,13 +1,13 @@
-import { BlockType, HeadingBlockData, NestedBlock } from '@/appflowy_app/interfaces/document';
+import { BlockType, HeadingBlockData } from '@/appflowy_app/interfaces/document';
 import { useAppDispatch } from '@/appflowy_app/stores/store';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { getBlockByIdThunk } from '$app_reducers/document/async-actions';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { PopoverOrigin } from '@mui/material/Popover/Popover';
+import { getBlock } from '$app/components/document/_shared/SubscribeNode.hooks';
 
 const headingBlockTopOffset: Record<number, number> = {
   1: 7,
-  2: 6,
-  3: 3,
+  2: 5,
+  3: 4,
 };
 export function useBlockSideToolbar({ container }: { container: HTMLDivElement }) {
   const [nodeId, setHoverNodeId] = useState<string | null>(null);
@@ -19,9 +19,7 @@ export function useBlockSideToolbar({ container }: { container: HTMLDivElement }
     const el = ref.current;
     if (!el || !nodeId) return;
     void (async () => {
-      const { payload: node } = (await dispatch(getBlockByIdThunk(nodeId))) as {
-        payload: NestedBlock;
-      };
+      const node = getBlock(nodeId);
       if (!node) {
         setStyle({
           opacity: '0',
@@ -29,7 +27,7 @@ export function useBlockSideToolbar({ container }: { container: HTMLDivElement }
         });
         return;
       } else {
-        let top = 1;
+        let top = 2;
 
         if (node.type === BlockType.HeadingBlock) {
           const nodeData = node.data as HeadingBlockData;

@@ -212,7 +212,7 @@ pub async fn read_workspace(sdk: &FlowyCoreTest, workspace_id: Option<String>) -
 
 pub async fn create_app(sdk: &FlowyCoreTest, workspace_id: &str, name: &str, desc: &str) -> ViewPB {
   let create_view_request = CreateViewPayloadPB {
-    belong_to_id: workspace_id.to_owned(),
+    parent_view_id: workspace_id.to_owned(),
     name: name.to_string(),
     desc: desc.to_string(),
     thumbnail: None,
@@ -237,7 +237,7 @@ pub async fn create_view(
   layout: ViewLayout,
 ) -> ViewPB {
   let request = CreateViewPayloadPB {
-    belong_to_id: app_id.to_string(),
+    parent_view_id: app_id.to_string(),
     name: name.to_string(),
     desc: desc.to_string(),
     thumbnail: None,
@@ -274,6 +274,7 @@ pub async fn update_view(
     name,
     desc,
     thumbnail: None,
+    layout: None,
   };
   EventBuilder::new(sdk.clone())
     .event(UpdateView)

@@ -3,7 +3,7 @@ import 'dart:collection';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/app/app_listener.dart';
-import 'package:appflowy/workspace/application/app/app_service.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:expandable/expandable.dart';
 import 'package:appflowy_backend/log.dart';
@@ -17,11 +17,11 @@ import 'package:dartz/dartz.dart';
 part 'app_bloc.freezed.dart';
 
 class AppBloc extends Bloc<AppEvent, AppState> {
-  final AppBackendService appService;
+  final ViewBackendService appService;
   final AppListener appListener;
 
   AppBloc({required ViewPB view})
-      : appService = AppBackendService(),
+      : appService = ViewBackendService(),
         appListener = AppListener(viewId: view.id),
         super(AppState.initial(view)) {
     on<AppEvent>((event, emit) async {
@@ -77,8 +77,10 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   }
 
   Future<void> _renameView(Rename e, Emitter<AppState> emit) async {
-    final result =
-        await appService.updateApp(appId: state.view.id, name: e.newName);
+    final result = await ViewBackendService.updateView(
+      viewId: state.view.id,
+      name: e.newName,
+    );
     result.fold(
       (l) => emit(state.copyWith(successOrFailure: left(unit))),
       (error) => emit(state.copyWith(successOrFailure: right(error))),
@@ -87,7 +89,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
 // Delete the current app
   Future<void> _deleteApp(Emitter<AppState> emit) async {
-    final result = await appService.delete(viewId: state.view.id);
+    final result = await ViewBackendService.delete(viewId: state.view.id);
     result.fold(
       (unit) => emit(state.copyWith(successOrFailure: left(unit))),
       (error) => emit(state.copyWith(successOrFailure: right(error))),
@@ -95,7 +97,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   }
 
   Future<void> _deleteView(Emitter<AppState> emit, String viewId) async {
-    final result = await appService.deleteView(viewId: viewId);
+    final result = await ViewBackendService.deleteView(viewId: viewId);
     result.fold(
       (unit) => emit(state.copyWith(successOrFailure: left(unit))),
       (error) => emit(state.copyWith(successOrFailure: right(error))),
@@ -103,8 +105,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   }
 
   Future<void> _createView(CreateView value, Emitter<AppState> emit) async {
-    final result = await appService.createView(
-      appId: state.view.id,
+    final result = await ViewBackendService.createView(
+      parentViewId: state.view.id,
       name: value.name,
       desc: value.desc ?? "",
       layoutType: value.pluginBuilder.layoutType!,
@@ -132,7 +134,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   }
 
   Future<void> _loadViews(Emitter<AppState> emit) async {
-    final viewsOrFailed = await appService.getViews(viewId: state.view.id);
+    final viewsOrFailed =
+        await ViewBackendService.getViews(viewId: state.view.id);
     viewsOrFailed.fold(
       (views) => emit(state.copyWith(views: views)),
       (error) {

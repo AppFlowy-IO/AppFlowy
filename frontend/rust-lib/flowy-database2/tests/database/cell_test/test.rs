@@ -1,8 +1,9 @@
 use flowy_database2::entities::{CellChangesetPB, FieldType};
 use flowy_database2::services::cell::ToCellChangeset;
+use flowy_database2::services::field::checklist_type_option::ChecklistCellChangeset;
 use flowy_database2::services::field::{
-  ChecklistTypeOption, DateCellData, MultiSelectTypeOption, SelectOptionCellChangeset,
-  SingleSelectTypeOption, StrCellData, URLCellData,
+  DateCellData, MultiSelectTypeOption, SelectOptionCellChangeset, SingleSelectTypeOption,
+  StrCellData, URLCellData,
 };
 
 use crate::database::cell_test::script::CellScript::UpdateCell;
@@ -22,7 +23,7 @@ async fn grid_cell_update() {
       let cell_changeset = match field_type {
         FieldType::RichText => "".to_string(),
         FieldType::Number => "123".to_string(),
-        FieldType::DateTime | FieldType::UpdatedAt | FieldType::CreatedAt => {
+        FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
           make_date_cell_string("123")
         },
         FieldType::SingleSelect => {
@@ -39,13 +40,11 @@ async fn grid_cell_update() {
           SelectOptionCellChangeset::from_insert_option_id(&type_option.options.first().unwrap().id)
             .to_cell_changeset_str()
         },
-        FieldType::Checklist => {
-          let type_option = field
-            .get_type_option::<ChecklistTypeOption>(field.field_type)
-            .unwrap();
-          SelectOptionCellChangeset::from_insert_option_id(&type_option.options.first().unwrap().id)
-            .to_cell_changeset_str()
-        },
+        FieldType::Checklist => ChecklistCellChangeset {
+          insert_options: vec!["new option".to_string()],
+          ..Default::default()
+        }
+        .to_cell_changeset_str(),
         FieldType::Checkbox => "1".to_string(),
         FieldType::URL => "1".to_string(),
       };
@@ -75,8 +74,8 @@ async fn text_cell_data_test() {
     .get_cells_for_field(&test.view_id, &text_field.id)
     .await;
 
-  for (i, cell) in cells.into_iter().enumerate() {
-    let text = StrCellData::from(cell.as_ref());
+  for (i, row_cell) in cells.into_iter().enumerate() {
+    let text = StrCellData::from(row_cell.cell.as_ref().unwrap());
     match i {
       0 => assert_eq!(text.as_str(), "A"),
       1 => assert_eq!(text.as_str(), ""),
@@ -98,10 +97,12 @@ async fn url_cell_data_test() {
     .get_cells_for_field(&test.view_id, &url_field.id)
     .await;
 
-  for (i, cell) in cells.into_iter().enumerate() {
-    let cell = URLCellData::from(cell.as_ref());
-    if i == 0 {
-      assert_eq!(cell.url.as_str(), "https://www.appflowy.io/");
+  for (i, row_cell) in cells.into_iter().enumerate() {
+    if let Some(cell) = row_cell.cell.as_ref() {
+      let cell = URLCellData::from(cell);
+      if i == 0 {
+        assert_eq!(cell.url.as_str(), "https://www.appflowy.io/");
+      }
     }
   }
 }
@@ -109,7 +110,7 @@ async fn url_cell_data_test() {
 #[tokio::test]
 async fn update_updated_at_field_on_other_cell_update() {
   let mut test = DatabaseCellTest::new().await;
-  let updated_at_field = test.get_first_field(FieldType::UpdatedAt);
+  let updated_at_field = test.get_first_field(FieldType::LastEditedTime);
 
   let text_field = test
     .fields
@@ -135,9 +136,11 @@ async fn update_updated_at_field_on_other_cell_update() {
     .editor
     .get_cells_for_field(&test.view_id, &updated_at_field.id)
     .await;
-  assert!(cells.len() > 0);
-  for (i, cell) in cells.into_iter().enumerate() {
-    let timestamp = DateCellData::from(cell.as_ref()).timestamp.unwrap();
+  assert!(!cells.is_empty());
+  for (i, row_cell) in cells.into_iter().enumerate() {
+    let timestamp = DateCellData::from(row_cell.cell.as_ref().unwrap())
+      .timestamp
+      .unwrap();
     println!(
       "{}, bf: {}, af: {}",
       timestamp, before_update_timestamp, after_update_timestamp

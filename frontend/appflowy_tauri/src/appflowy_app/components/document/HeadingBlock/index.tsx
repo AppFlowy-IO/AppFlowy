@@ -1,4 +1,4 @@
-import TextBlock from '../TextBlock';
+import TextBlock from '$app/components/document/TextBlock';
 import { BlockType, NestedBlock } from '@/appflowy_app/interfaces/document';
 
 const fontSize: Record<string, string> = {

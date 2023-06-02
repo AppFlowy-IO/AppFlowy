@@ -1,6 +1,6 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/insert_page_command.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/app/app_service.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -38,13 +38,18 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
   late Future<dartz.Either<FlowyError, ViewPB>> future;
   final focusNode = FocusNode();
 
-  String get appId => widget.node.attributes[DatabaseBlockKeys.kAppID];
-  String get viewId => widget.node.attributes[DatabaseBlockKeys.kViewID];
+  String get parentViewId => widget.node.attributes[DatabaseBlockKeys.parentID];
+  String get childViewId => widget.node.attributes[DatabaseBlockKeys.viewID];
 
   @override
   void initState() {
     super.initState();
-    future = AppBackendService().getChildView(viewId, appId).then(
+    future = ViewBackendService()
+        .getChildView(
+          parentViewId: parentViewId,
+          childViewId: childViewId,
+        )
+        .then(
           (value) => value.swap(),
         );
   }
@@ -153,6 +158,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
               switch (action.inner) {
                 case _ActionType.viewDatabase:
                   getIt<MenuSharedState>().latestOpenView = viewPB;
+
                   getIt<HomeStackManager>().setPlugin(viewPB.plugin());
                   break;
                 case _ActionType.delete:

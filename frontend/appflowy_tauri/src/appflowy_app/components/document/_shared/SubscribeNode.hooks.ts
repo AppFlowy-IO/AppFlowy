@@ -1,8 +1,6 @@
-import { useAppSelector } from '@/appflowy_app/stores/store';
-import { useMemo, useRef } from 'react';
-import { DocumentState, Node, RangeSelectionState } from '$app/interfaces/document';
-import { nodeInRange } from '$app/utils/document/blocks/common';
-import { getNodeEndSelection } from '$app/utils/document/blocks/text/delta';
+import { store, useAppSelector } from '@/appflowy_app/stores/store';
+import { useEffect, useMemo, useRef } from 'react';
+import { Node } from '$app/interfaces/document';
 
 /**
  * Subscribe node information
@@ -34,55 +32,6 @@ export function useSubscribeNode(id: string) {
   };
 }
 
-/**
- * Subscribe selection information
- * @param id
- */
-export function useSubscribeRangeSelection(id: string) {
-  const rangeRef = useRef<RangeSelectionState>();
-
-  const currentSelection = useAppSelector((state) => {
-    const range = state.documentRangeSelection;
-    rangeRef.current = range;
-    if (range.anchor?.id === id) {
-      return range.anchor.selection;
-    }
-    if (range.focus?.id === id) {
-      return range.focus.selection;
-    }
-
-    return getAmendInRangeNodeSelection(id, range, state.document);
-  });
-
-  return {
-    rangeRef,
-    currentSelection,
-  };
-}
-
-function getAmendInRangeNodeSelection(id: string, range: RangeSelectionState, document: DocumentState) {
-  if (!range.anchor || !range.focus || range.anchor.id === range.focus.id || range.isForward === undefined) {
-    return null;
-  }
-
-  const isNodeInRange = nodeInRange(
-    id,
-    {
-      startId: range.anchor.id,
-      endId: range.focus.id,
-    },
-    range.isForward,
-    document
-  );
-
-  if (isNodeInRange) {
-    const delta = document.nodes[id].data.delta;
-    return {
-      anchor: {
-        path: [0, 0],
-        offset: 0,
-      },
-      focus: getNodeEndSelection(delta).anchor,
-    };
-  }
+export function getBlock(id: string) {
+  return store.getState().document.nodes[id];
 }

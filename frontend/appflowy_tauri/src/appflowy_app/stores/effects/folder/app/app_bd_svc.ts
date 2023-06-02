@@ -36,7 +36,7 @@ export class AppBackendService {
   }) => {
     const encoder = new TextEncoder();
     const payload = CreateViewPayloadPB.fromObject({
-      belong_to_id: this.appId,
+      parent_view_id: this.appId,
       name: params.name,
       desc: params.desc || '',
       layout: params.layoutType,

@@ -1,22 +1,23 @@
 import { DocumentState } from '$app/interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { newBlock } from '$app/utils/document/blocks/common';
+import { newBlock } from '$app/utils/document/block';
+import { rectSelectionActions } from '$app_reducers/document/slice';
+import { getDuplicateActions } from '$app/utils/document/action';
 
 export const duplicateBelowNodeThunk = createAsyncThunk(
   'document/duplicateBelowNode',
   async (payload: { id: string; controller: DocumentController }, thunkAPI) => {
     const { id, controller } = payload;
-    const { getState } = thunkAPI;
+    const { getState, dispatch } = thunkAPI;
     const state = getState() as { document: DocumentState };
     const node = state.document.nodes[id];
-    if (!node) return;
-    const parentId = node.parent;
-    if (!parentId) return;
-    // duplicate new node
-    const newNode = newBlock<any>(node.type, parentId, node.data);
-    await controller.applyActions([controller.getInsertAction(newNode, node.id)]);
+    if (!node || !node.parent) return;
+    const duplicateActions = getDuplicateActions(id, node.parent, state.document, controller);
 
-    return newNode.id;
+    if (!duplicateActions) return;
+    await controller.applyActions(duplicateActions.actions);
+
+    dispatch(rectSelectionActions.updateSelections([duplicateActions.newNodeId]));
   }
 );

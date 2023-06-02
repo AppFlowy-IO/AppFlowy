@@ -80,6 +80,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   late final showSlashMenu = customSlashCommand(
     slashMenuItems,
     shouldInsertSlash: false,
+    style: styleCustomizer.selectionMenuStyleBuilder(),
   ).handler;
 
   late final styleCustomizer = EditorStyleCustomizer(context: context);
@@ -113,6 +114,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           maxWidth: double.infinity,
         ),
         child: FloatingToolbar(
+          style: styleCustomizer.floatingToolbarStyleBuilder(),
           items: toolbarItems,
           editorState: widget.editorState,
           scrollController: scrollController,
@@ -126,16 +128,16 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final standardActions = [
       OptionAction.delete,
       OptionAction.duplicate,
-      OptionAction.divider,
-      OptionAction.moveUp,
-      OptionAction.moveDown,
+      // OptionAction.divider,
+      // OptionAction.moveUp,
+      // OptionAction.moveDown,
     ];
 
     final configuration = BlockComponentConfiguration(
       padding: (_) => const EdgeInsets.symmetric(vertical: 4.0),
     );
     final customBlockComponentBuilderMap = {
-      'document': DocumentComponentBuilder(),
+      PageBlockKeys.type: PageBlockComponentBuilder(),
       ParagraphBlockKeys.type: TextBlockComponentBuilder(
         configuration: configuration,
       ),
@@ -206,7 +208,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
     // customize the action builder. actually, we can customize them in their own builder. Put them here just for convenience.
     for (final entry in builders.entries) {
-      if (entry.key == 'document') {
+      if (entry.key == PageBlockKeys.type) {
         continue;
       }
       final builder = entry.value;
@@ -223,7 +225,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       ];
 
       final colorAction = [
-        OptionAction.divider,
+        // OptionAction.divider,
         OptionAction.color,
       ];
 

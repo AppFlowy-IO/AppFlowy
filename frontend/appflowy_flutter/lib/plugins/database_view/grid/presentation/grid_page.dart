@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
@@ -36,10 +35,7 @@ class GridPage extends StatefulWidget {
     required this.view,
     this.onDeleted,
     Key? key,
-  })  : databaseController = DatabaseController(
-          view: view,
-          layoutType: DatabaseLayoutPB.Grid,
-        ),
+  })  : databaseController = DatabaseController(view: view),
         super(key: key);
 
   final ViewPB view;
@@ -108,8 +104,8 @@ class _FlowyGridState extends State<FlowyGrid> {
 
   @override
   void initState() {
-    super.initState();
     headerScrollController = _scrollController.linkHorizontalController();
+    super.initState();
   }
 
   @override

@@ -2,10 +2,11 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide FlowySvg;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
+import 'package:styled_widget/styled_widget.dart';
 
 enum OptionAction {
   delete,
@@ -36,10 +37,10 @@ class ColorOptionAction extends PopoverActionCell {
 
   @override
   Widget? leftIcon(Color iconColor) {
-    return svgWidget(
-      'editor/color_formatter',
-      color: iconColor,
-    );
+    return const FlowySvg(
+      name: 'editor/color_formatter',
+      size: Size.square(12),
+    ).padding(all: 2.0);
   }
 
   @override
@@ -73,7 +74,8 @@ class ColorOptionAction extends PopoverActionCell {
                 final transaction = editorState.transaction;
                 for (final node in nodes) {
                   transaction.updateNode(node, {
-                    blockComponentBackgroundColor: color.make(context).toHex(),
+                    blockComponentBackgroundColor:
+                        color.toColor(context).toHex(),
                   });
                 }
                 editorState.apply(transaction);
@@ -91,7 +93,7 @@ class ColorOptionAction extends PopoverActionCell {
       return null;
     }
     for (final value in SelectOptionColorPB.values) {
-      if (value.make(context).toHex() == hexColor) {
+      if (value.toColor(context).toHex() == hexColor) {
         return value;
       }
     }
@@ -124,18 +126,13 @@ class OptionActionWrapper extends ActionCell {
       case OptionAction.moveDown:
         name = 'editor/move_down';
         break;
-      case OptionAction.color:
-        throw UnimplementedError();
-      case OptionAction.divider:
+      default:
         throw UnimplementedError();
     }
     if (name.isEmpty) {
       return null;
     }
-    return svgWidget(
-      name,
-      color: iconColor,
-    );
+    return FlowySvg(name: name);
   }
 
   @override

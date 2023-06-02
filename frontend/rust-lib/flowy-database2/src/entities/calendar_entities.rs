@@ -4,6 +4,8 @@ use flowy_error::ErrorCode;
 use crate::entities::parser::NotEmptyStr;
 use crate::services::setting::{CalendarLayout, CalendarLayoutSetting};
 
+use super::CellIdPB;
+
 #[derive(Debug, Clone, Eq, PartialEq, Default, ProtoBuf)]
 pub struct CalendarLayoutSettingPB {
   #[pb(index = 1)]
@@ -127,11 +129,23 @@ pub struct RepeatedCalendarEventPB {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct MoveCalendarEventPB {
   #[pb(index = 1)]
+  pub cell_path: CellIdPB,
+
+  #[pb(index = 2)]
+  pub timestamp: i64,
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct NoDateCalendarEventPB {
+  #[pb(index = 1)]
   pub row_id: String,
 
   #[pb(index = 2)]
-  pub field_id: String,
+  pub title: String,
+}
 
-  #[pb(index = 3)]
-  pub timestamp: i64,
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct RepeatedNoDateCalendarEventPB {
+  #[pb(index = 1)]
+  pub items: Vec<NoDateCalendarEventPB>,
 }

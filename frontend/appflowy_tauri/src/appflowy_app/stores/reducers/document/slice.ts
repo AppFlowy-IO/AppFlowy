@@ -1,10 +1,10 @@
 import {
   DocumentState,
   Node,
-  PointState,
-  RangeSelectionState,
   RectSelectionState,
   SlashCommandState,
+  RangeState,
+  RangeStatic,
 } from '@/appflowy_app/interfaces/document';
 import { BlockEventPayloadPB } from '@/services/backend';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
@@ -20,9 +20,9 @@ const rectSelectionInitialState: RectSelectionState = {
   isDragging: false,
 };
 
-const rangeSelectionInitialState: RangeSelectionState = {
+const rangeInitialState: RangeState = {
   isDragging: false,
-  selection: [],
+  ranges: {},
 };
 
 const slashCommandInitialState: SlashCommandState = {
@@ -99,37 +99,81 @@ export const rectSelectionSlice = createSlice({
   },
 });
 
-export const rangeSelectionSlice = createSlice({
-  name: 'documentRangeSelection',
-  initialState: rangeSelectionInitialState,
+export const rangeSlice = createSlice({
+  name: 'documentRange',
+  initialState: rangeInitialState,
   reducers: {
+    setRanges: (state, action: PayloadAction<RangeState['ranges']>) => {
+      state.ranges = action.payload;
+    },
     setRange: (
       state,
       action: PayloadAction<{
-        anchor?: PointState;
-        focus?: PointState;
+        id: string;
+        rangeStatic: {
+          index: number;
+          length: number;
+        };
       }>
     ) => {
-      return {
-        ...state,
+      const { id, rangeStatic } = action.payload;
+      state.ranges[id] = rangeStatic;
+    },
+    removeRange: (state, action: PayloadAction<string>) => {
+      const id = action.payload;
+      delete state.ranges[id];
+    },
+    setAnchorPoint: (
+      state,
+      action: PayloadAction<{
+        id: string;
+        point: { x: number; y: number };
+      }>
+    ) => {
+      state.anchor = action.payload;
+    },
+    setAnchorPointRange: (
+      state,
+      action: PayloadAction<{
+        index: number;
+        length: number;
+      }>
+    ) => {
+      const anchor = state.anchor;
+      if (!anchor) return;
+      anchor.point = {
+        ...anchor.point,
         ...action.payload,
       };
     },
-    setSelection: (state, action: PayloadAction<string[]>) => {
-      state.selection = action.payload;
+    setFocusPoint: (
+      state,
+      action: PayloadAction<{
+        id: string;
+        point: { x: number; y: number };
+      }>
+    ) => {
+      state.focus = action.payload;
     },
     setDragging: (state, action: PayloadAction<boolean>) => {
       state.isDragging = action.payload;
     },
-    setForward: (state, action: PayloadAction<boolean>) => {
-      state.isForward = action.payload;
+    setCaret: (state, action: PayloadAction<RangeStatic>) => {
+      const id = action.payload.id;
+      state.ranges[id] = {
+        index: action.payload.index,
+        length: action.payload.length,
+      };
+      state.caret = action.payload;
     },
     clearRange: (state, _: PayloadAction) => {
-      return rangeSelectionInitialState;
+      state.isDragging = false;
+      state.ranges = {};
+      state.anchor = undefined;
+      state.focus = undefined;
     },
   },
 });
-
 export const slashCommandSlice = createSlice({
   name: 'documentSlashCommand',
   initialState: slashCommandInitialState,
@@ -156,12 +200,11 @@ export const slashCommandSlice = createSlice({
 export const documentReducers = {
   [documentSlice.name]: documentSlice.reducer,
   [rectSelectionSlice.name]: rectSelectionSlice.reducer,
-  [rangeSelectionSlice.name]: rangeSelectionSlice.reducer,
+  [rangeSlice.name]: rangeSlice.reducer,
   [slashCommandSlice.name]: slashCommandSlice.reducer,
 };
 
 export const documentActions = documentSlice.actions;
 export const rectSelectionActions = rectSelectionSlice.actions;
-export const rangeSelectionActions = rangeSelectionSlice.actions;
-
+export const rangeActions = rangeSlice.actions;
 export const slashCommandActions = slashCommandSlice.actions;

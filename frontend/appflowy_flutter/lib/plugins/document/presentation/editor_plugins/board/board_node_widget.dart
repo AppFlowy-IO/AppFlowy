@@ -37,8 +37,8 @@ class BoardBlockComponentBuilder extends BlockComponentBuilder {
   @override
   bool validate(Node node) =>
       node.children.isEmpty &&
-      node.attributes[DatabaseBlockKeys.kAppID] is String &&
-      node.attributes[DatabaseBlockKeys.kViewID] is String;
+      node.attributes[DatabaseBlockKeys.parentID] is String &&
+      node.attributes[DatabaseBlockKeys.viewID] is String;
 }
 
 class BoardBlockComponentWidget extends BlockComponentStatefulWidget {
