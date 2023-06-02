@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
 import 'package:appflowy/workspace/application/settings/settings_file_exporter_cubit.dart';
+import 'package:appflowy/workspace/application/settings/share/export_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:dartz/dartz.dart' as dartz;
@@ -243,8 +244,13 @@ class _AppFlowyFileExporter {
           fileExtension = 'afdocument';
           break;
         default:
-          // TODO(nathan): export the new databse data to json
-          content = null;
+          final result =
+              await BackendExportService.exportDatabaseAsCSV(view.id);
+          result.fold(
+            (l) => content = l.data,
+            (r) => Log.error(r),
+          );
+          fileExtension = 'csv';
           break;
       }
       if (content != null) {

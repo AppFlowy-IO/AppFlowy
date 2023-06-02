@@ -16,6 +16,7 @@ use crate::services::field::{
   type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
 };
 use crate::services::group::{GroupChangeset, GroupSettingChangeset};
+use crate::services::share::csv::CSVFormat;
 
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn get_database_data_handler(
@@ -726,4 +727,18 @@ pub(crate) async fn create_database_view(
 ) -> FlowyResult<()> {
   // let data: CreateDatabaseViewParams = data.into_inner().try_into()?;
   Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn export_csv_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> DataResult<DatabaseExportDataPB, FlowyError> {
+  let view_id = data.into_inner().value;
+  let database = manager.get_database_with_view_id(&view_id).await?;
+  let data = database.export_csv(CSVFormat::Original).await?;
+  data_result_ok(DatabaseExportDataPB {
+    export_type: DatabaseExportDataType::CSV,
+    data,
+  })
 }
