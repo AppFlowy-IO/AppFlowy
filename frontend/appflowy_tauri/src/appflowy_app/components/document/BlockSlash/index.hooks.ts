@@ -2,7 +2,7 @@ import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { slashCommandActions } from '$app_reducers/document/slice';
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
-import { TextDelta } from '$app/interfaces/document';
+import { Op } from 'quill-delta';
 
 export function useBlockSlash() {
   const dispatch = useAppDispatch();
@@ -54,7 +54,7 @@ export function useSubscribeSlash() {
     if (!node) return '';
     const delta = node.data.delta || [];
     return delta
-      .map((op: TextDelta) => {
+      .map((op: Op) => {
         if (typeof op.insert === 'string') {
           return op.insert;
         } else {

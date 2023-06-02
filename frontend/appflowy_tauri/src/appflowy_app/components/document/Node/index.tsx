@@ -14,6 +14,7 @@ import NumberedListBlock from '$app/components/document/NumberedListBlock';
 import ToggleListBlock from '$app/components/document/ToggleListBlock';
 import DividerBlock from '$app/components/document/DividerBlock';
 import CalloutBlock from '$app/components/document/CalloutBlock';
+import BlockOverlay from '$app/components/document/Overlay/BlockOverlay';
 import CodeBlock from '$app/components/document/CodeBlock';
 
 function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<HTMLDivElement>) {
@@ -55,12 +56,13 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
     }
   }, [node, childIds]);
 
+  const className = props.className ? ` ${props.className}` : '';
   if (!node) return null;
 
   return (
-    <div {...props} ref={ref} data-block-id={node.id} className={`relative ${props.className}`}>
+    <div {...props} ref={ref} data-block-id={node.id} className={`relative ${className}`}>
       {renderBlock()}
-      <div className='block-overlay' />
+      <BlockOverlay id={id} />
       {isSelected ? (
         <div className='pointer-events-none absolute inset-0 z-[-1] m-[1px] rounded-[4px] bg-[#E0F8FF]' />
       ) : null}

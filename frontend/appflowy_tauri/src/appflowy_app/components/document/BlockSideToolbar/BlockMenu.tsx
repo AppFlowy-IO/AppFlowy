@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { List } from '@mui/material';
 import { ContentCopy, Delete } from '@mui/icons-material';
 import MenuItem from './MenuItem';
@@ -8,7 +8,7 @@ import BlockMenuTurnInto from '$app/components/document/BlockSideToolbar/BlockMe
 function BlockMenu({ id, onClose }: { id: string; onClose: () => void }) {
   const { handleDelete, handleDuplicate } = useBlockMenu(id);
 
-  const [turnIntoPup, setTurnIntoPup] = React.useState<boolean>(false);
+  const [turnIntoOptionHovered, setTurnIntoOptionHorvered] = useState<boolean>(false);
   const handleClick = useCallback(
     async ({ operate }: { operate: () => Promise<void> }) => {
       await operate();
@@ -20,10 +20,12 @@ function BlockMenu({ id, onClose }: { id: string; onClose: () => void }) {
   return (
     <List
       onMouseDown={(e) => {
+        // Prevent the block from being selected.
         e.preventDefault();
         e.stopPropagation();
       }}
     >
+      {/** Delete option in the BlockMenu. */}
       <MenuItem
         title='Delete'
         icon={<Delete />}
@@ -34,10 +36,11 @@ function BlockMenu({ id, onClose }: { id: string; onClose: () => void }) {
         }
         onHover={(isHovered) => {
           if (isHovered) {
-            setTurnIntoPup(false);
+            setTurnIntoOptionHorvered(false);
           }
         }}
       />
+      {/** Duplicate option in the BlockMenu. */}
       <MenuItem
         title='Duplicate'
         icon={<ContentCopy />}
@@ -48,11 +51,17 @@ function BlockMenu({ id, onClose }: { id: string; onClose: () => void }) {
         }
         onHover={(isHovered) => {
           if (isHovered) {
-            setTurnIntoPup(false);
+            setTurnIntoOptionHorvered(false);
           }
         }}
       />
-      <BlockMenuTurnInto onHovered={() => setTurnIntoPup(true)} isHovered={turnIntoPup} onClose={onClose} id={id} />
+      {/** Turn Into option in the BlockMenu. */}
+      <BlockMenuTurnInto
+        onHovered={() => setTurnIntoOptionHorvered(true)}
+        isHovered={turnIntoOptionHovered}
+        onClose={onClose}
+        id={id}
+      />
     </List>
   );
 }

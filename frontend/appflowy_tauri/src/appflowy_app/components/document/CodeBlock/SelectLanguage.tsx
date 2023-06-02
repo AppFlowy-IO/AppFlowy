@@ -30,7 +30,12 @@ function SelectLanguage({ id, language }: { id: string; language: string }) {
 
   return (
     <FormControl variant='standard'>
-      <Select className={'h-[28px] w-[150px]'} value={language} onChange={onLanguageSelect} label='Language'>
+      <Select
+        className={'h-[28px] w-[150px]'}
+        value={language || 'javascript'}
+        onChange={onLanguageSelect}
+        label='Language'
+      >
         {supportLanguage.map((item) => (
           <MenuItem key={item.id} value={item.id}>
             {item.title}

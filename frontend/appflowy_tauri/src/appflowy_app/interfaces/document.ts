@@ -1,6 +1,13 @@
-import { Editor } from 'slate';
-import { RegionGrid } from '$app/utils/region_grid';
-import { ReactEditor } from 'slate-react';
+import Delta, { Op } from 'quill-delta';
+import { BlockActionTypePB } from '@/services/backend';
+import { Sources } from 'quill';
+import React from 'react';
+
+export interface RangeStatic {
+  id: string;
+  length: number;
+  index: number;
+}
 
 export enum BlockType {
   PageBlock = 'page',
@@ -50,7 +57,7 @@ export interface CalloutBlockData extends TextBlockData {
 }
 
 export interface TextBlockData {
-  delta: TextDelta[];
+  delta: Op[];
 }
 
 export interface DividerBlockData {}
@@ -86,37 +93,8 @@ export interface NestedBlock<Type = any> {
   parent: string | null;
   children: string;
 }
-export interface TextDelta {
-  insert: string;
-  attributes?: Record<string, string | boolean | undefined>;
-}
-
-export enum BlockActionType {
-  Insert = 0,
-  Update = 1,
-  Delete = 2,
-  Move = 3,
-}
-
-export interface DeltaItem {
-  action: 'inserted' | 'removed' | 'updated';
-  payload: {
-    id: string;
-    value?: NestedBlock | string[];
-  };
-}
 
 export type Node = NestedBlock;
-
-export interface SelectionPoint {
-  path: [number, number];
-  offset: number;
-}
-
-export interface TextSelection {
-  anchor: SelectionPoint;
-  focus: SelectionPoint;
-}
 
 export interface DocumentData {
   rootId: string;
@@ -140,17 +118,35 @@ export interface RectSelectionState {
   selection: string[];
   isDragging: boolean;
 }
-export interface RangeSelectionState {
-  anchor?: PointState;
-  focus?: PointState;
-  isForward?: boolean;
-  isDragging: boolean;
-  selection: string[];
-}
 
-export interface PointState {
-  id: string;
-  selection: TextSelection;
+export interface RangeState {
+  anchor?: {
+    id: string;
+    point: {
+      x: number;
+      y: number;
+      index?: number;
+      length?: number;
+    };
+  };
+  focus?: {
+    id: string;
+    point: {
+      x: number;
+      y: number;
+    };
+  };
+  ranges: Partial<
+    Record<
+      string,
+      {
+        index: number;
+        length: number;
+      }
+    >
+  >;
+  isDragging: boolean;
+  caret?: RangeStatic;
 }
 
 export enum ChangeType {
@@ -170,8 +166,6 @@ export interface BlockPBValue {
   data: string;
 }
 
-export type TextBlockKeyEventHandlerParams = [React.KeyboardEvent<HTMLDivElement>, ReactEditor & Editor];
-
 export enum SplitRelationship {
   NextSibling,
   FirstChild,
@@ -180,7 +174,7 @@ export enum TextAction {
   Turn = 'turn',
   Bold = 'bold',
   Italic = 'italic',
-  Underline = 'underlined',
+  Underline = 'underline',
   Strikethrough = 'strikethrough',
   Code = 'code',
   Equation = 'equation',
@@ -229,4 +223,32 @@ export interface BlockConfig {
    * The props that will be passed to the text action menu
    */
   textActionMenuProps?: TextActionMenuProps;
+}
+
+export interface ControllerAction {
+  action: BlockActionTypePB;
+  payload: {
+    block: { id: string; parent_id: string; children_id: string; data: string; ty: BlockType };
+    parent_id: string;
+    prev_id: string;
+  };
+}
+
+export interface RangeStaticNoId {
+  index: number;
+  length: number;
+}
+
+export interface CodeEditorProps extends EditorProps {
+  language: string;
+}
+export interface EditorProps {
+  isCodeBlock?: boolean;
+  placeholder?: string;
+  value?: Delta;
+  selection?: RangeStaticNoId;
+  lastSelection?: RangeStaticNoId;
+  onSelectionChange?: (range: RangeStaticNoId | null, oldRange: RangeStaticNoId | null, source?: Sources) => void;
+  onChange?: (delta: Delta, oldDelta: Delta, source?: Sources) => void;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
 }

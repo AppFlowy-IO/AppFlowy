@@ -1,17 +1,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAppDispatch } from '$app/stores/store';
 import { rectSelectionActions } from '@/appflowy_app/stores/reducers/document/slice';
-import { useNodesRect } from '$app/components/document/BlockSelection/NodesRect.hooks';
 import { setRectSelectionThunk } from '$app_reducers/document/async-actions/rect_selection';
-import { isPointInBlock } from '$app/utils/document/blocks/selection';
 
-export function useBlockRectSelection({ container }: { container: HTMLDivElement }) {
+import { isPointInBlock } from '$app/utils/document/node';
+
+export interface BlockRectSelectionProps {
+  container: HTMLDivElement;
+  getIntersectedBlockIds: (rect: { startX: number; startY: number; endX: number; endY: number }) => string[];
+}
+
+export function useBlockRectSelection({ container, getIntersectedBlockIds }: BlockRectSelectionProps) {
   const dispatch = useAppDispatch();
 
   const [isDragging, setDragging] = useState(false);
   const startPointRef = useRef<number[]>([]);
-
-  const { getIntersectedBlockIds } = useNodesRect(container);
 
   useEffect(() => {
     dispatch(rectSelectionActions.setDragging(isDragging));

@@ -1,7 +1,7 @@
 import { BlockData, BlockType, DocumentState } from '$app/interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { newBlock } from '$app/utils/document/blocks/common';
+import { newBlock } from '$app/utils/document/block';
 
 export const insertAfterNodeThunk = createAsyncThunk(
   'document/insertAfterNode',
@@ -21,8 +21,17 @@ export const insertAfterNodeThunk = createAsyncThunk(
     if (!parentId) return;
     // create new node
     const newNode = newBlock<any>(type, parentId, data);
-    await controller.applyActions([controller.getInsertAction(newNode, node.id)]);
+    let nodeId = newNode.id;
+    const actions = [controller.getInsertAction(newNode, node.id)];
+    if (type === BlockType.DividerBlock) {
+      const newTextNode = newBlock<any>(BlockType.TextBlock, parentId, {
+        delta: [],
+      });
+      nodeId = newTextNode.id;
+      actions.push(controller.getInsertAction(newTextNode, newNode.id));
+    }
+    await controller.applyActions(actions);
 
-    return newNode.id;
+    return nodeId;
   }
 );

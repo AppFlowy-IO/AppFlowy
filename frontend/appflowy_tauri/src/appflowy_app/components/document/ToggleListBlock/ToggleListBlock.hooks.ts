@@ -1,7 +1,7 @@
 import { useAppDispatch } from '$app/stores/store';
 import { useCallback, useContext } from 'react';
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
-import { updateNodeDataThunk } from '$app_reducers/document/async-actions/blocks/text/update';
+import { updateNodeDataThunk } from '$app_reducers/document/async-actions/blocks/update';
 import { BlockData, BlockType } from '$app/interfaces/document';
 import isHotkey from 'is-hotkey';
 

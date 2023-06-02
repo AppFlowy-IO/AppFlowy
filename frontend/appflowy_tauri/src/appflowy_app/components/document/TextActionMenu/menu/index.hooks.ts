@@ -11,17 +11,17 @@ import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode
 import { TextAction } from '$app/interfaces/document';
 
 export function useTextActionMenu() {
-  const range = useAppSelector((state) => state.documentRangeSelection);
-
-  const id = useMemo(() => {
-    return range.anchor?.id === range.focus?.id ? range.anchor?.id : undefined;
+  const range = useAppSelector((state) => state.documentRange);
+  const isSingleLine = useMemo(() => {
+    return range.focus?.id === range.anchor?.id;
   }, [range]);
+  const focusId = range.focus?.id;
 
-  const { node } = useSubscribeNode(id || '');
+  const { node } = useSubscribeNode(focusId || '');
 
   const items = useMemo(() => {
-    if (node) {
-      const config = blockConfig[node.type];
+    if (isSingleLine) {
+      const config = blockConfig[node?.type];
       const { customItems, excludeItems } = {
         ...defaultTextActionProps,
         ...config.textActionMenuProps,
@@ -30,7 +30,7 @@ export function useTextActionMenu() {
     } else {
       return multiLineTextActionProps.customItems || [];
     }
-  }, [node]);
+  }, [isSingleLine, node?.type]);
 
   // the groups have default items, so we need to filter the items if this node has excluded items
   const groupItems: TextAction[][] = useMemo(() => {
@@ -42,6 +42,7 @@ export function useTextActionMenu() {
 
   return {
     groupItems,
-    id,
+    isSingleLine,
+    focusId,
   };
 }

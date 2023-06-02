@@ -1,11 +1,13 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { BlockData, BlockType, DocumentState, TextDelta } from '$app/interfaces/document';
+import { BlockData, BlockType, DocumentState } from '$app/interfaces/document';
 import { insertAfterNodeThunk } from '$app_reducers/document/async-actions/blocks';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
-import { slashCommandActions } from '$app_reducers/document/slice';
-import { setCursorBeforeThunk } from '$app_reducers/document/async-actions/cursor';
+import { rangeActions, slashCommandActions } from '$app_reducers/document/slice';
 import { turnToBlockThunk } from '$app_reducers/document/async-actions/turn_to';
 import { blockConfig } from '$app/constants/document/config';
+import Delta, { Op } from 'quill-delta';
+import { getDeltaText } from '$app/utils/document/delta';
+import { RootState } from '$app/stores/store';
 
 /**
  * add block below click
@@ -20,7 +22,7 @@ export const addBlockBelowClickThunk = createAsyncThunk(
     const state = (getState() as { document: DocumentState }).document;
     const node = state.nodes[id];
     if (!node) return;
-    const delta = (node.data.delta as TextDelta[]) || [];
+    const delta = (node.data.delta as Op[]) || [];
     const text = delta.map((d) => d.insert).join('');
 
     // if current block is not empty, insert a new block after current block
@@ -29,13 +31,14 @@ export const addBlockBelowClickThunk = createAsyncThunk(
         insertAfterNodeThunk({ id: id, type: BlockType.TextBlock, controller, data: { delta: [] } })
       );
       if (newBlockId) {
-        await dispatch(setCursorBeforeThunk({ id: newBlockId as string }));
+        dispatch(rangeActions.setCaret({ id: newBlockId as string, index: 0, length: 0 }));
         dispatch(slashCommandActions.openSlashCommand({ blockId: newBlockId as string }));
       }
       return;
     }
     // if current block is empty, open slash command
-    await dispatch(setCursorBeforeThunk({ id }));
+    dispatch(rangeActions.setCaret({ id, index: 0, length: 0 }));
+
     dispatch(slashCommandActions.openSlashCommand({ blockId: id }));
   }
 );
@@ -60,12 +63,14 @@ export const triggerSlashCommandActionThunk = createAsyncThunk(
   ) => {
     const { id, controller, props } = payload;
     const { dispatch, getState } = thunkAPI;
-    const state = (getState() as { document: DocumentState }).document;
-    const node = state.nodes[id];
+    const state = getState() as RootState;
+    const { document } = state;
+    const node = document.nodes[id];
     if (!node) return;
-    const delta = (node.data.delta as TextDelta[]) || [];
-    const text = delta.map((d) => d.insert).join('');
+    const delta = new Delta(node.data.delta);
+    const text = getDeltaText(delta);
     const defaultData = blockConfig[props.type].defaultData;
+
     if (node.type === BlockType.TextBlock && (text === '' || text === '/')) {
       dispatch(
         turnToBlockThunk({
@@ -80,7 +85,20 @@ export const triggerSlashCommandActionThunk = createAsyncThunk(
       );
       return;
     }
-    const { payload: newBlockId } = await dispatch(
+
+    // if current block has slash command, remove slash command
+    if (text.slice(0, 1) === '/') {
+      const updateNode = {
+        ...node,
+        data: {
+          ...node.data,
+          delta: delta.slice(1, delta.length()).ops,
+        },
+      };
+      await controller.applyActions([controller.getUpdateAction(updateNode)]);
+    }
+
+    const insertNodePayload = await dispatch(
       insertAfterNodeThunk({
         id,
         controller,
@@ -91,6 +109,8 @@ export const triggerSlashCommandActionThunk = createAsyncThunk(
         },
       })
     );
-    dispatch(setCursorBeforeThunk({ id: newBlockId as string }));
+    const newBlockId = insertNodePayload.payload as string;
+
+    dispatch(rangeActions.setCaret({ id: newBlockId, index: 0, length: 0 }));
   }
 );

@@ -1,0 +1,23 @@
+.ql-container.ql-snow {
+    border: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: inherit;
+    line-height: inherit;
+}
+.ql-editor {
+    outline: none;
+    max-width: 100%;
+    white-space: pre-wrap;
+    word-break: break-word;
+    padding: 4px 2px;
+    text-align: left;
+    flex-grow: 1;
+}
+
+.ql-editor.ql-blank::before {
+    left: 2px;
+    right: 2px;
+    font-style: normal;
+}
+
+

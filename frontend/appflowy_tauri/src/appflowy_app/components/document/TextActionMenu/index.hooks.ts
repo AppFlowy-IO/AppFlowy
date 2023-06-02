@@ -1,20 +1,21 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { calcToolbarPosition } from '$app/utils/document/toolbar';
 import { useAppSelector } from '$app/stores/store';
+import { getNode } from '$app/utils/document/node';
+import { debounce } from '$app/utils/tool';
 
 export function useMenuStyle(container: HTMLDivElement) {
   const ref = useRef<HTMLDivElement | null>(null);
-  const range = useAppSelector((state) => state.documentRangeSelection);
+  const id = useAppSelector((state) => state.documentRange.focus?.id);
+  const [isScrolling, setIsScrolling] = useState(false);
 
-  const [scrollTop, setScrollTop] = useState(container.scrollTop);
-  useEffect(() => {
+  const reCalculatePosition = useCallback(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || !id) return;
 
-    const id = range.focus?.id;
-    if (!id) return;
-
-    const position = calcToolbarPosition(el);
+    const node = getNode(id);
+    if (!node) return;
+    const position = calcToolbarPosition(el, node, container);
 
     if (!position) {
       el.style.opacity = '0';
@@ -22,22 +23,38 @@ export function useMenuStyle(container: HTMLDivElement) {
     } else {
       el.style.opacity = '1';
       el.style.pointerEvents = 'auto';
-      el.style.top = position.top;
-      el.style.left = position.left;
+      el.style.top = position.top + 'px';
+      el.style.left = position.left + 'px';
     }
-  });
+  }, [container, id]);
+
+  useEffect(() => {
+    // recalculating toolbar position when scrolling is finished
+    if (isScrolling) return;
+    reCalculatePosition();
+  }, [container, id, isScrolling, reCalculatePosition]);
+
+  const debounceScrollEnd = useMemo(() => {
+    return debounce(() => {
+      // set isScrolling to false after 20ms
+      setIsScrolling(false);
+    }, 20);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrollTop(container.scrollTop);
+      setIsScrolling(true);
+      debounceScrollEnd();
     };
     container.addEventListener('scroll', handleScroll);
     return () => {
+      debounceScrollEnd.cancel();
       container.removeEventListener('scroll', handleScroll);
     };
-  }, [container]);
+  }, [container, debounceScrollEnd]);
 
   return {
     ref,
+    id,
   };
 }
