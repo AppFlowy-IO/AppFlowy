@@ -127,12 +127,8 @@ abstract class FlowyColorScheme {
     required this.toggleButtonBGColor,
   });
 
-  factory FlowyColorScheme.builtIn(String themeName, Brightness brightness) {
-    switch (brightness) {
-      case Brightness.light:
-        return themeMap[themeName]?[0] ?? const DefaultColorScheme.light();
-      case Brightness.dark:
-        return themeMap[themeName]?[1] ?? const DefaultColorScheme.dark();
-    }
-  }
+  factory FlowyColorScheme.fromJson(Map<String, dynamic> json) =>
+      _$FlowyColorSchemeFromJson(json);
+
+  Map<String, dynamic> toJson() => _$FlowyColorSchemeToJson(this);
 }
