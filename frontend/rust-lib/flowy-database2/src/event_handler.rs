@@ -29,6 +29,18 @@ pub(crate) async fn get_database_data_handler(
   data_result_ok(data)
 }
 
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn get_database_id_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> DataResult<DatabaseIdPB, FlowyError> {
+  let view_id: DatabaseViewIdPB = data.into_inner();
+  let database_id = manager
+    .get_database_id_with_view_id(view_id.as_ref())
+    .await?;
+  data_result_ok(DatabaseIdPB { value: database_id })
+}
+
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_database_setting_handler(
   data: AFPluginData<DatabaseViewIdPB>,

@@ -67,7 +67,7 @@ impl DocumentManager {
 
     // subscribe to the document changes.
     document.lock().open(move |events, is_remote| {
-      tracing::debug!(
+      tracing::trace!(
         "document changed: {:?}, from remote: {}",
         &events,
         is_remote

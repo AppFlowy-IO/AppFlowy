@@ -14,6 +14,7 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
     .state(database_manager);
   plugin
         .event(DatabaseEvent::GetDatabase, get_database_data_handler)
+        .event(DatabaseEvent::GetDatabaseId, get_database_id_handler)
         .event(DatabaseEvent::GetDatabaseSetting, get_database_setting_handler)
         .event(DatabaseEvent::UpdateDatabaseSetting, update_database_setting_handler)
         .event(DatabaseEvent::GetAllFilters, get_all_filters_handler)
@@ -80,6 +81,9 @@ pub enum DatabaseEvent {
   /// The event handler accepts a [DatabaseViewIdPB] and returns a [DatabasePB] if there are no errors.
   #[event(input = "DatabaseViewIdPB", output = "DatabasePB")]
   GetDatabase = 0,
+
+  #[event(input = "DatabaseViewIdPB", output = "DatabaseIdPB")]
+  GetDatabaseId = 1,
 
   /// [GetDatabaseSetting] event is used to get the database's settings.
   ///
