@@ -25,6 +25,7 @@ export interface INumberType {
 export interface IDatabaseField {
   fieldId: string;
   title: string;
+  visible: boolean;
   fieldType: FieldType;
   fieldOptions?: ISelectOptionType | IDateType | INumberType;
 }

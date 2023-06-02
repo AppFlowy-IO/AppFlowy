@@ -45,9 +45,8 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
   };
 
   useEffect(() => {
-    if (!controller) return;
-
     void (async () => {
+      if (!controller) return;
       controller.subscribe({
         onRowsChanged: (rowInfos) => {
           // TODO: this is a hack to make sure that the row cache is updated
@@ -73,6 +72,10 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
         setGroups(controller.groups.value);
       }
     })();
+
+    return () => {
+      void controller?.dispose();
+    };
   }, [controller]);
 
   const onNewRowClick = async (index: number) => {

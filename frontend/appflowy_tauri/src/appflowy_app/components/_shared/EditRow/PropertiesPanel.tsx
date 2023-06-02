@@ -1,5 +1,5 @@
 import { DropDownShowSvg } from '$app/components/_shared/svg/DropDownShowSvg';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRow } from '$app/components/_shared/database-hooks/useRow';
 import { DatabaseController } from '$app/stores/effects/database/database_controller';
 import { RowInfo } from '$app/stores/effects/database/row/row_cache';
@@ -12,6 +12,8 @@ import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
 import { MultiSelectTypeSvg } from '$app/components/_shared/svg/MultiSelectTypeSvg';
 import { DocumentSvg } from '$app/components/_shared/svg/DocumentSvg';
 import { SingleSelectTypeSvg } from '$app/components/_shared/svg/SingleSelectTypeSvg';
+import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
+import { Some } from 'ts-results';
 
 const typesOrder: FieldType[] = [
   FieldType.RichText,
@@ -43,14 +45,18 @@ export const PropertiesPanel = ({
   const [showAdvancedProperties, setShowAdvancedProperties] = useState(false);
 
   const [hoveredPropertyIndex, setHoveredPropertyIndex] = useState(-1);
-  const [hiddenProperties, setHiddenProperties] = useState<boolean[]>([]);
 
-  useEffect(() => {
-    setHiddenProperties(cells.map(() => false));
-  }, [cells]);
-
-  const toggleHideProperty = (v: boolean, index: number) => {
-    setHiddenProperties(hiddenProperties.map((h, i) => (i === index ? !v : h)));
+  const toggleHideProperty = async (v: boolean, index: number) => {
+    const fieldInfo = controller.fieldController.getField(cells[index].fieldId);
+    if (fieldInfo) {
+      const typeController = new TypeOptionController(viewId, Some(fieldInfo));
+      await typeController.initialize();
+      if (fieldInfo.field.visibility) {
+        await typeController.hideField();
+      } else {
+        await typeController.showField();
+      }
+    }
   };
 
   return (
@@ -91,7 +97,10 @@ export const PropertiesPanel = ({
                 >
                   <TrashSvg></TrashSvg>
                 </i>
-                <Switch value={!hiddenProperties[cellIndex]} setValue={(v) => toggleHideProperty(v, cellIndex)}></Switch>
+                <Switch
+                  value={databaseStore.fields[cell.cellIdentifier.fieldId].visible}
+                  setValue={(v) => toggleHideProperty(v, cellIndex)}
+                ></Switch>
               </div>
             </div>
           ))}

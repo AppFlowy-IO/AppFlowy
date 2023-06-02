@@ -9,6 +9,7 @@ import { PopupWindow } from '$app/components/_shared/PopupWindow';
 import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
 import { RowBackendService } from '$app/stores/effects/database/row/row_bd_svc';
 import { useTranslation } from 'react-i18next';
+import { useAppSelector } from '$app/stores/store';
 
 export const BoardCard = ({
   index,
@@ -25,6 +26,7 @@ export const BoardCard = ({
   groupByFieldId: string;
   onOpenRow: (rowId: RowInfo) => void;
 }) => {
+  const databaseStore = useAppSelector((state) => state.database);
   const { t } = useTranslation();
 
   const { cells } = useRow(viewId, controller, rowInfo);
@@ -70,7 +72,9 @@ export const BoardCard = ({
             </button>
             <div className={'flex flex-col gap-3'}>
               {cells
-                .filter((cell) => cell.fieldId !== groupByFieldId)
+                .filter(
+                  (cell) => cell.fieldId !== groupByFieldId && databaseStore.fields[cell.cellIdentifier.fieldId].visible
+                )
                 .map((cell, cellIndex) => (
                   <BoardCell
                     key={cellIndex}
