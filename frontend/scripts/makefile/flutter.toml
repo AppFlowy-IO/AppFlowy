@@ -195,6 +195,7 @@ script = [
   """,
 ]
 
+# TODO(a-wallen): refactor generation commands into separate task.
 [tasks.code_generation.windows]
 script_runner = "@duckscript"
 script = [
