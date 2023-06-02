@@ -75,7 +75,7 @@ async fn create_app(sdk: &FlowyCoreTest, name: &str, desc: &str, workspace_id: &
     thumbnail: None,
     layout: ViewLayoutPB::Document,
     initial_data: vec![],
-    ext: Default::default(),
+    meta: Default::default(),
   };
 
   EventBuilder::new(sdk.clone())
@@ -99,7 +99,7 @@ async fn create_view(
     thumbnail: Some("http://1.png".to_string()),
     layout,
     initial_data: data,
-    ext: Default::default(),
+    meta: Default::default(),
   };
 
   EventBuilder::new(sdk.clone())

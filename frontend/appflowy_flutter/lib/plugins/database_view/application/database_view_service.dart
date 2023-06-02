@@ -26,8 +26,6 @@ class DatabaseViewBackendService {
   }
 
   Future<Either<DatabasePB, FlowyError>> openGrid() async {
-    await FolderEventSetLatestView(ViewIdPB(value: viewId)).send();
-
     final payload = DatabaseViewIdPB(value: viewId);
     return DatabaseEventGetDatabase(payload).send();
   }

@@ -23,7 +23,7 @@ pub(crate) async fn create_workspace_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
-pub(crate) async fn read_workspace_apps_handler(
+pub(crate) async fn read_workspace_views_handler(
   folder: AFPluginState<Arc<Folder2Manager>>,
 ) -> DataResult<RepeatedViewPB, FlowyError> {
   let child_views = folder.get_current_workspace_views().await?;
@@ -85,8 +85,11 @@ pub(crate) async fn create_view_handler(
   folder: AFPluginState<Arc<Folder2Manager>>,
 ) -> DataResult<ViewPB, FlowyError> {
   let params: CreateViewParams = data.into_inner().try_into()?;
+  let set_as_current = params.set_as_current;
   let view = folder.create_view_with_params(params).await?;
-  let _ = folder.set_current_view(&view.id).await;
+  if set_as_current {
+    let _ = folder.set_current_view(&view.id).await;
+  }
   data_result_ok(view_pb_without_child_views(view))
 }
 
