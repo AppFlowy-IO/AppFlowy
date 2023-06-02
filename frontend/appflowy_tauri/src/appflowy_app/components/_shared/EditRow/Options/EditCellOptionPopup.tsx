@@ -67,6 +67,7 @@ export const EditCellOptionPopup = ({
   const onDeleteOptionClick = async () => {
     const svc = new SelectOptionCellBackendService(cellIdentifier);
     await svc.deleteOption([editingSelectOption]);
+    onOutsideClick();
   };
 
   return (

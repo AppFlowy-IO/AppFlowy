@@ -292,7 +292,7 @@ export const EditRow = ({
               cellIdentifier={editingCell}
               cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
               fieldController={controller.fieldController}
-              onOutsideClick={() => setShowChangeOptionsPopup(false)}
+              onOutsideClick={() => !showEditCellOption && setShowChangeOptionsPopup(false)}
               openOptionDetail={onOpenOptionDetailClick}
             ></CellOptionsPopup>
           )}
@@ -335,7 +335,7 @@ export const EditRow = ({
               cellIdentifier={editingCell}
               cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
               fieldController={controller.fieldController}
-              onOutsideClick={() => setShowCheckListPopup(false)}
+              onOutsideClick={() => !showEditCheckList && setShowCheckListPopup(false)}
               openCheckListDetail={onOpenCheckListDetailClick}
             ></CheckListPopup>
           )}
