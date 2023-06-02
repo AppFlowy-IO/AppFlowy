@@ -192,6 +192,10 @@
         "dark": "Dark Mode",
         "system": "Adapt to System"
       },
+      "upload": {
+        "hintText": "Upload a new theme.",
+        "label": "Upload"
+      },
       "theme": "Theme"
     },
     "files": {
