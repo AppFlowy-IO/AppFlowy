@@ -112,11 +112,10 @@ export const databaseSlice = createSlice({
       });
     },*/
 
-    /*updateField: (state, action: PayloadAction<{ field: IDatabaseField }>) => {
+    updateField: (state, action: PayloadAction<{ field: IDatabaseField }>) => {
       const { field } = action.payload;
-
       state.fields[field.fieldId] = field;
-    },*/
+    },
 
     /*addFieldSelectOption: (state, action: PayloadAction<{ fieldId: string; option: ISelectOption }>) => {
       const { fieldId, option } = action.payload;

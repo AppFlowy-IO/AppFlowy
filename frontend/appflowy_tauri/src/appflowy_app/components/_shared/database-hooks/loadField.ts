@@ -1,6 +1,6 @@
-import { TypeOptionController } from '../../../stores/effects/database/field/type_option/type_option_controller';
+import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
 import { Some } from 'ts-results';
-import { IDatabaseField, ISelectOption } from '../../../stores/reducers/database/slice';
+import { IDatabaseField, ISelectOption } from '$app_reducers/database/slice';
 import { ChecklistTypeOptionPB, FieldType, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB } from '@/services/backend';
 import {
   makeChecklistTypeOptionContext,
@@ -8,10 +8,10 @@ import {
   makeMultiSelectTypeOptionContext,
   makeNumberTypeOptionContext,
   makeSingleSelectTypeOptionContext,
-} from '../../../stores/effects/database/field/type_option/type_option_context';
-import { boardActions } from '../../../stores/reducers/board/slice';
-import { FieldInfo } from '../../../stores/effects/database/field/field_controller';
-import { AppDispatch } from '../../../stores/store';
+} from '$app/stores/effects/database/field/type_option/type_option_context';
+import { boardActions } from '$app_reducers/board/slice';
+import { FieldInfo } from '$app/stores/effects/database/field/field_controller';
+import { AppDispatch } from '$app/stores/store';
 
 export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: AppDispatch): Promise<IDatabaseField> {
   const field = fieldInfo.field;
