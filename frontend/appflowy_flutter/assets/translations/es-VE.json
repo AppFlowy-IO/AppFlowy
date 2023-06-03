@@ -286,5 +286,6 @@
   "grid.singleSelectOptionFilter.isNot": "No es",
   "grid.settings.group": "Grupo",
   "settings.files.create": "Crear",
-  "settings.files.browser": "Navegar"
+  "settings.files.browser": "Navegar",
+  "settings.files.locationDesc": "Elija un nombre para su carpeta de datos de AppFlowy"
 }
