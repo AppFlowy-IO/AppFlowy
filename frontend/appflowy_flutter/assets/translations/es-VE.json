@@ -241,5 +241,6 @@
   "tooltip.openMenu": "Haz click para abrir el menú",
   "tooltip.viewDataBase": "Ver base de datos",
   "button.Done": "Hecho",
-  "button.generate": "Generar"
+  "button.generate": "Generar",
+  "button.tryAgain": "Prueba otra vez"
 }
