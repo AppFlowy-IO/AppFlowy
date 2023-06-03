@@ -244,5 +244,6 @@
   "button.generate": "Generar",
   "button.tryAgain": "Prueba otra vez",
   "button.discard": "Descartar",
-  "button.replace": "Reemplazar"
+  "button.replace": "Reemplazar",
+  "button.insertBelow": "Insertar debajo"
 }
