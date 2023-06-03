@@ -358,5 +358,6 @@
   "grid.textFilter.isEmpty": "Está vacío",
   "grid.settings.typeAValue": "Escribe un valor...",
   "settings.user.pleaseInputYourOpenAIKey": "por favor ingrese su clave de OpenAI",
-  "settings.files.pathCopiedSnackbar": "¡La ruta de almacenamiento de archivos se copió al portapapeles!"
+  "settings.files.pathCopiedSnackbar": "¡La ruta de almacenamiento de archivos se copió al portapapeles!",
+  "settings.files.locationCannotBeEmpty": "La ruta no puede estar vacía"
 }
