@@ -284,5 +284,6 @@
   "grid.multiSelectOptionFilter.doesNotContain": "No contiene",
   "grid.singleSelectOptionFilter.is": "Es",
   "grid.singleSelectOptionFilter.isNot": "No es",
-  "grid.settings.group": "Grupo"
+  "grid.settings.group": "Grupo",
+  "settings.files.create": "Crear"
 }
