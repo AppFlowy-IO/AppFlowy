@@ -266,5 +266,6 @@
   "settings.user.name": "Nombre",
   "grid.settings.sort": "Ordenar",
   "grid.settings.filterBy": "Filtrar por...",
-  "grid.field.dateFormatDayMonthYear": "Día/Mes/Año"
+  "grid.field.dateFormatDayMonthYear": "Día/Mes/Año",
+  "grid.sort.ascending": "Ascendente"
 }
