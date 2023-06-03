@@ -25,7 +25,7 @@
     "forgotPassword": "¿Olvidó su contraseña?",
     "emailHint": "Correo",
     "passwordHint": "Contraseña",
-    "dontHaveAnAccount": "¿No posee credenciales?",
+    "dontHaveAnAccount": "¿No tienes una cuenta?",
     "repeatPasswordEmptyError": "La contraseña no puede estar en blanco",
     "unmatchedPasswordError": "Las contraseñas no coinciden"
   },
