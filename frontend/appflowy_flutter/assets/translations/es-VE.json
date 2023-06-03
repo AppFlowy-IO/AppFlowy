@@ -258,5 +258,6 @@
   "settings.user.icon": "Icono",
   "settings.user.selectAnIcon": "Selecciona un icono",
   "grid.settings.addFilter": "Añadir filtro",
-  "grid.settings.deleteFilter": "Eliminar filtro"
+  "grid.settings.deleteFilter": "Eliminar filtro",
+  "grid.textFilter.contains": "Contiene"
 }
