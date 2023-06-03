@@ -8,7 +8,7 @@ use std::sync::Arc;
 
 use collab_document::blocks::{
   json_str_to_hashmap, Block, BlockAction, BlockActionPayload, BlockActionType, BlockEvent,
-  BlockEventPayload, DeltaType, DocumentData,
+  BlockEventPayload, DeltaType,
 };
 
 use flowy_error::{FlowyError, FlowyResult};
@@ -32,7 +32,7 @@ pub(crate) async fn create_document_handler(
   let data = data.into_inner();
   let initial_data = data
     .initial_data
-    .map(|data| DocumentData::from(data))
+    .map(|data| data.into())
     .unwrap_or_else(default_document_data);
   manager.create_document(data.document_id, initial_data)?;
   Ok(())
