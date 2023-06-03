@@ -228,5 +228,6 @@
       "create_new_card": "Nuevo"
     }
   },
-  "settings.files.customizeLocation": "Abrir otra carpeta"
+  "settings.files.customizeLocation": "Abrir otra carpeta",
+  "moreAction.small": "pequeno"
 }
