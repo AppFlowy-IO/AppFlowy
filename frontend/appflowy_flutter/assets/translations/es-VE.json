@@ -289,5 +289,6 @@
   "settings.files.browser": "Navegar",
   "settings.files.locationDesc": "Elija un nombre para su carpeta de datos de AppFlowy",
   "settings.files.folderHintText": "nombre de la carpeta",
-  "document.plugins.smartEditImproveWriting": "Mejorar la escritura"
+  "document.plugins.smartEditImproveWriting": "Mejorar la escritura",
+  "settings.files.doubleTapToCopy": "Toca dos veces para copiar la ruta"
 }
