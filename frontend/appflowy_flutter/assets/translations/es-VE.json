@@ -296,5 +296,6 @@
   "grid.textFilter.startWith": "Comienza con",
   "grid.textFilter.isNot": "No es",
   "grid.textFilter.is": "Es",
-  "grid.textFilter.choicechipPrefix.startWith": "Comienza con"
+  "grid.textFilter.choicechipPrefix.startWith": "Comienza con",
+  "grid.textFilter.choicechipPrefix.endWith": "Termina con"
 }
