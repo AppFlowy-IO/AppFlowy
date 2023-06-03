@@ -345,5 +345,6 @@
   "document.plugins.cover.invalidImageUrl": "URL de imagen no válida",
   "document.plugins.cover.clearAll": "Limpiar todo",
   "document.plugins.discardResponse": "¿Quieres descartar las respuestas de la IA?",
-  "document.plugins.smartEditDisabled": "Conectar a OpenAI en Ajustes"
+  "document.plugins.smartEditDisabled": "Conectar a OpenAI en Ajustes",
+  "document.plugins.autoGeneratorCantGetOpenAIKey": "No se pudo obtener la clave de OpenAI"
 }
