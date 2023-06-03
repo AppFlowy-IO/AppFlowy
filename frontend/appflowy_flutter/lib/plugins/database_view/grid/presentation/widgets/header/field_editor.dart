@@ -53,10 +53,10 @@ class _FieldEditorState extends State<FieldEditor> {
   Widget build(BuildContext context) {
     List<Widget> children = [
       _FieldNameTextField(popoverMutex: popoverMutex),
-      const VSpace(10),
       if (widget.onDeleted != null) _addDeleteFieldButton(),
       if (widget.onHidden != null) _addHideFieldButton(),
-      _FieldTypeOptionCell(popoverMutex: popoverMutex),
+      if (!widget.typeOptionLoader.field.isPrimary)
+        _FieldTypeOptionCell(popoverMutex: popoverMutex),
     ];
     return BlocProvider(
       create: (context) {
@@ -66,10 +66,12 @@ class _FieldEditorState extends State<FieldEditor> {
           field: widget.typeOptionLoader.field,
         )..add(const FieldEditorEvent.initial());
       },
-      child: ListView.builder(
+      child: ListView.separated(
         shrinkWrap: true,
         itemCount: children.length,
         itemBuilder: (context, index) => children[index],
+        separatorBuilder: (context, index) =>
+            VSpace(GridSize.typeOptionSeparatorHeight),
         padding: const EdgeInsets.symmetric(vertical: 12.0),
       ),
     );

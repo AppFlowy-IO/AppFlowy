@@ -196,16 +196,27 @@ impl DatabaseEditor {
   }
 
   pub async fn update_field(&self, params: FieldChangesetParams) -> FlowyResult<()> {
+    let is_primary = self
+      .database
+      .lock()
+      .fields
+      .get_field(&params.field_id)
+      .map(|field| field.is_primary)
+      .unwrap_or(false);
     self
       .database
       .lock()
       .fields
-      .update_field(&params.field_id, |update| {
-        update
+      .update_field(&params.field_id, |mut update| {
+        update = update
           .set_name_if_not_none(params.name)
-          .set_field_type_if_not_none(params.field_type.map(|field_type| field_type.into()))
           .set_width_at_if_not_none(params.width.map(|value| value as i64))
           .set_visibility_if_not_none(params.visibility);
+        if is_primary {
+          tracing::warn!("Cannot update primary field type");
+        } else {
+          update.set_field_type_if_not_none(params.field_type.map(|field_type| field_type.into()));
+        }
       });
     self
       .notify_did_update_database_field(&params.field_id)
@@ -238,10 +249,15 @@ impl DatabaseEditor {
       .lock()
       .fields
       .update_field(field_id, |update| {
-        update.update_type_options(|type_options_update| {
-          type_options_update.insert(&field_type.to_string(), type_option_data);
-        });
+        if old_field.is_primary {
+          tracing::warn!("Cannot update primary field type");
+        } else {
+          update.update_type_options(|type_options_update| {
+            type_options_update.insert(&field_type.to_string(), type_option_data);
+          });
+        }
       });
+
     self
       .database_views
       .did_update_field_type_option(view_id, field_id, &old_field)
