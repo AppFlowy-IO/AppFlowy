@@ -10,7 +10,7 @@ use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
 use flowy_database2::DatabaseManager2;
-use flowy_document2::document_data::DocumentDataWrapper;
+use flowy_document2::document_data::default_document_data;
 use flowy_document2::entities::DocumentDataPB;
 use flowy_document2::manager::DocumentManager;
 use flowy_document2::parser::json::parser::JsonToDocumentParser;
@@ -18,11 +18,14 @@ use flowy_error::FlowyError;
 use flowy_folder2::deps::{FolderCloudService, FolderUser};
 use flowy_folder2::entities::ViewLayoutPB;
 use flowy_folder2::manager::Folder2Manager;
-use flowy_folder2::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
+use flowy_folder2::view_operation::{
+  FolderOperationHandler, FolderOperationHandlers, View, WorkspaceViewBuilder,
+};
 use flowy_folder2::ViewLayout;
 use flowy_user::services::UserSession;
 use lib_dispatch::prelude::ToBytes;
 use lib_infra::future::FutureResult;
+use tokio::sync::RwLock;
 
 pub struct Folder2DepsResolver();
 impl Folder2DepsResolver {
@@ -83,6 +86,37 @@ impl FolderUser for FolderUserImpl {
 
 struct DocumentFolderOperation(Arc<DocumentManager>);
 impl FolderOperationHandler for DocumentFolderOperation {
+  fn create_workspace_view(
+    &self,
+    workspace_view_builder: Arc<RwLock<WorkspaceViewBuilder>>,
+  ) -> FutureResult<(), FlowyError> {
+    let manager = self.0.clone();
+    FutureResult::new(async move {
+      let mut write_guard = workspace_view_builder.write().await;
+
+      // Create a parent view named "⭐️ Getting started". and a child view named "Read me".
+      // Don't modify this code unless you know what you are doing.
+      write_guard
+        .with_view_builder(|view_builder| async {
+          view_builder
+            .with_name("⭐️ Getting started")
+            .with_child_view_builder(|child_view_builder| async {
+              let view = child_view_builder.with_name("Read me").build();
+              let json_str = include_str!("../../assets/read_me.json");
+              let document_pb = JsonToDocumentParser::json_str_to_document(json_str).unwrap();
+              manager
+                .create_document(view.parent_view.id.clone(), document_pb.into())
+                .unwrap();
+              view
+            })
+            .await
+            .build()
+        })
+        .await;
+      Ok(())
+    })
+  }
+
   /// Close the document view.
   fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
     let manager = self.0.clone();
@@ -98,7 +132,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let view_id = view_id.to_string();
     FutureResult::new(async move {
       let document = manager.get_document(view_id)?;
-      let data: DocumentDataPB = DocumentDataWrapper(document.lock().get_document()?).into();
+      let data: DocumentDataPB = document.lock().get_document()?.into();
       let data_bytes = data.into_bytes().map_err(|_| FlowyError::invalid_data())?;
       Ok(data_bytes)
     })
@@ -132,13 +166,10 @@ impl FolderOperationHandler for DocumentFolderOperation {
     layout: ViewLayout,
   ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayout::Document);
-
-    let json_str = include_str!("../../assets/read_me.json");
     let view_id = view_id.to_string();
     let manager = self.0.clone();
     FutureResult::new(async move {
-      let document_pb = JsonToDocumentParser::json_str_to_document(json_str)?;
-      manager.create_document(view_id, document_pb.into())?;
+      manager.create_document(view_id, default_document_data())?;
       Ok(())
     })
   }

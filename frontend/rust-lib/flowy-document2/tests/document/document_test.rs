@@ -5,7 +5,8 @@ use nanoid::nanoid;
 use serde_json::{json, to_value, Value};
 
 use crate::document::util::default_collab_builder;
-use flowy_document2::{document_data::DocumentDataWrapper, manager::DocumentManager};
+use flowy_document2::document_data::default_document_data;
+use flowy_document2::manager::DocumentManager;
 
 use super::util::FakeUser;
 
@@ -16,12 +17,12 @@ fn restore_document() {
 
   // create a document
   let doc_id: String = nanoid!(10);
-  let data = DocumentDataWrapper::default();
+  let data = default_document_data();
   let document_a = manager
     .create_document(doc_id.clone(), data.clone())
     .unwrap();
   let data_a = document_a.lock().get_document().unwrap();
-  assert_eq!(data_a, data.0);
+  assert_eq!(data_a, data);
 
   // open a document
   let data_b = manager
@@ -32,7 +33,7 @@ fn restore_document() {
     .unwrap();
   // close a document
   _ = manager.close_document(doc_id.clone());
-  assert_eq!(data_b, data.0);
+  assert_eq!(data_b, data);
 
   // restore
   _ = manager.create_document(doc_id.clone(), data.clone());
@@ -46,7 +47,7 @@ fn restore_document() {
   // close a document
   _ = manager.close_document(doc_id);
 
-  assert_eq!(data_b, data.0);
+  assert_eq!(data_b, data);
 }
 
 #[test]
@@ -55,14 +56,14 @@ fn document_apply_insert_action() {
   let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
 
   let doc_id: String = nanoid!(10);
-  let data = DocumentDataWrapper::default();
+  let data = default_document_data();
 
   // create a document
   _ = manager.create_document(doc_id.clone(), data.clone());
 
   // open a document
   let document = manager.open_document(doc_id.clone()).unwrap();
-  let page_block = document.lock().get_block(&data.0.page_id).unwrap();
+  let page_block = document.lock().get_block(&data.page_id).unwrap();
 
   // insert a text block
   let text_block = Block {
@@ -106,14 +107,14 @@ fn document_apply_update_page_action() {
   let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
 
   let doc_id: String = nanoid!(10);
-  let data = DocumentDataWrapper::default();
+  let data = default_document_data();
 
   // create a document
   _ = manager.create_document(doc_id.clone(), data.clone());
 
   // open a document
   let document = manager.open_document(doc_id.clone()).unwrap();
-  let page_block = document.lock().get_block(&data.0.page_id).unwrap();
+  let page_block = document.lock().get_block(&data.page_id).unwrap();
 
   let mut page_block_clone = page_block;
   page_block_clone.data = HashMap::new();
@@ -132,12 +133,12 @@ fn document_apply_update_page_action() {
   let actions = vec![action];
   tracing::trace!("{:?}", &actions);
   document.lock().apply_action(actions);
-  let page_block_old = document.lock().get_block(&data.0.page_id).unwrap();
+  let page_block_old = document.lock().get_block(&data.page_id).unwrap();
   _ = manager.close_document(doc_id.clone());
 
   // re-open the document
   let document = manager.open_document(doc_id).unwrap();
-  let page_block_new = document.lock().get_block(&data.0.page_id).unwrap();
+  let page_block_new = document.lock().get_block(&data.page_id).unwrap();
   assert_eq!(page_block_old, page_block_new);
   assert!(page_block_new.data.contains_key("delta"));
 }
@@ -148,14 +149,14 @@ fn document_apply_update_action() {
   let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
 
   let doc_id: String = nanoid!(10);
-  let data = DocumentDataWrapper::default();
+  let data = default_document_data();
 
   // create a document
   _ = manager.create_document(doc_id.clone(), data.clone());
 
   // open a document
   let document = manager.open_document(doc_id.clone()).unwrap();
-  let page_block = document.lock().get_block(&data.0.page_id).unwrap();
+  let page_block = document.lock().get_block(&data.page_id).unwrap();
 
   // insert a text block
   let text_block_id = nanoid!(10);
