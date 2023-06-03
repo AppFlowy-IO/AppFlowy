@@ -333,5 +333,6 @@
   "calendar.settings.firstDayOfWeek": "Empezar la semana en",
   "settings.files.exportData": "Exporta tus datos",
   "grid.row.action": "Acción",
-  "document.plugins.smartEditMakeLonger": "Hacer más largo"
+  "document.plugins.smartEditMakeLonger": "Hacer más largo",
+  "calendar.settings.emptyNoDate": "Sin eventos programados"
 }
