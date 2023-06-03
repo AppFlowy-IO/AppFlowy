@@ -3,7 +3,10 @@ use std::{collections::HashMap, vec};
 use collab_document::blocks::{Block, DocumentData, DocumentMeta};
 use nanoid::nanoid;
 
-use crate::entities::{BlockPB, ChildrenPB, DocumentDataPB, MetaPB};
+use crate::{
+  document_block_keys::{PAGE, PARAGRAPH_BLOCK_TYPE},
+  entities::{BlockPB, ChildrenPB, DocumentDataPB, MetaPB},
+};
 
 impl From<DocumentData> for DocumentDataPB {
   fn from(data: DocumentData) -> Self {
@@ -58,8 +61,8 @@ impl From<DocumentDataPB> for DocumentData {
 /// The default document data.
 /// The default document data is a document with a page block and a text block.
 pub fn default_document_data() -> DocumentData {
-  let page_type = "page".to_string();
-  let text_type = "text".to_string();
+  let page_type = PAGE.to_string();
+  let text_type = PARAGRAPH_BLOCK_TYPE.to_string();
 
   let mut blocks: HashMap<String, Block> = HashMap::new();
   let mut meta: HashMap<String, Vec<String>> = HashMap::new();

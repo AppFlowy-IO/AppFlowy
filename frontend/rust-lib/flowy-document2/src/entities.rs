@@ -203,3 +203,36 @@ pub struct ExportDataPB {
   #[pb(index = 2)]
   pub export_type: ExportType,
 }
+#[derive(PartialEq, Eq, Debug, ProtoBuf_Enum, Clone)]
+pub enum ConvertType {
+  Json = 0,
+}
+
+impl Default for ConvertType {
+  fn default() -> Self {
+    ConvertType::Json
+  }
+}
+
+impl From<i32> for ConvertType {
+  fn from(val: i32) -> Self {
+    match val {
+      0 => ConvertType::Json,
+      _ => {
+        tracing::error!("Invalid export type: {}", val);
+        ConvertType::Json
+      },
+    }
+  }
+}
+
+/// for the json type
+/// the data is the json string
+#[derive(Default, ProtoBuf, Debug)]
+pub struct ConvertDataPayloadPB {
+  #[pb(index = 1)]
+  pub convert_type: ConvertType,
+
+  #[pb(index = 2)]
+  pub data: Vec<u8>,
+}
