@@ -263,5 +263,6 @@
   "grid.textFilter.doesNotContain": "No contiene",
   "document.plugins.autoGeneratorLearnMore": "Saber más",
   "settings.files.location": "Creando una nueva carpeta",
-  "settings.user.name": "Nombre"
+  "settings.user.name": "Nombre",
+  "grid.settings.sort": "Ordenar"
 }
