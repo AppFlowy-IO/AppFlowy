@@ -274,5 +274,6 @@
   "document.plugins.cover.addIcon": "Añadir icono",
   "calendar.menuName": "Calendario",
   "calendar.defaultNewCalendarTitle": "Sin título",
-  "calendar.navigation.today": "Hoy"
+  "calendar.navigation.today": "Hoy",
+  "calendar.navigation.previousMonth": "Mes anterior"
 }
