@@ -367,5 +367,6 @@
   "tooltip.referencePage": "Este {nombre} está referenciado",
   "grid.settings.layout": "Disposición",
   "settings.files.exportFileSuccess": "¡El archivo ha sido exportado con éxito!",
-  "settings.files.exportFileFail": "¡Error al exportar el archivo!"
+  "settings.files.exportFileFail": "¡Error al exportar el archivo!",
+  "grid.row.count": "Recuento"
 }
