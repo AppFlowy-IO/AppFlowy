@@ -255,5 +255,6 @@
   "settings.files.createNewFolderDesc": "Dinos donde quieres guardar tus datos",
   "settings.files.open": "Abrir",
   "settings.files.openFolder": "Abrir una carpeta existente",
-  "settings.user.icon": "Icono"
+  "settings.user.icon": "Icono",
+  "settings.user.selectAnIcon": "Selecciona un icono"
 }
