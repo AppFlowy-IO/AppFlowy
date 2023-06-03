@@ -240,5 +240,6 @@
   "tooltip.openAsPage": "Abrir como página",
   "tooltip.openMenu": "Haz click para abrir el menú",
   "tooltip.viewDataBase": "Ver base de datos",
-  "button.Done": "Hecho"
+  "button.Done": "Hecho",
+  "button.generate": "Generar"
 }
