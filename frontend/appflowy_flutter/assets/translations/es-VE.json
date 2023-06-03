@@ -264,5 +264,6 @@
   "document.plugins.autoGeneratorLearnMore": "Saber más",
   "settings.files.location": "Creando una nueva carpeta",
   "settings.user.name": "Nombre",
-  "grid.settings.sort": "Ordenar"
+  "grid.settings.sort": "Ordenar",
+  "grid.settings.filterBy": "Filtrar por..."
 }
