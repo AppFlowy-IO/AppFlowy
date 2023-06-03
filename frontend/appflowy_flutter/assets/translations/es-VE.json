@@ -357,5 +357,6 @@
   "grid.textFilter.choicechipPrefix.isNot": "No",
   "grid.textFilter.isEmpty": "Está vacío",
   "grid.settings.typeAValue": "Escribe un valor...",
-  "settings.user.pleaseInputYourOpenAIKey": "por favor ingrese su clave de OpenAI"
+  "settings.user.pleaseInputYourOpenAIKey": "por favor ingrese su clave de OpenAI",
+  "settings.files.pathCopiedSnackbar": "¡La ruta de almacenamiento de archivos se copió al portapapeles!"
 }
