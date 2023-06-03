@@ -325,7 +325,8 @@ fn group_id(
       .unwrap()
       .format("%Y/%m/%d"),
     DateCondition::Relative => {
-      let now = date_time_from_timestamp(Some(timestamp()), &type_option.timezone_id);
+      let now = date_time_from_timestamp(Some(timestamp()), &type_option.timezone_id).date_naive();
+      let date_time = date_time.date_naive();
 
       let diff = date_time.signed_duration_since(now).num_days();
       let result = if diff == 0 {
@@ -438,14 +439,12 @@ fn date_time_from_timestamp(timestamp: Option<i64>, timezone_id: &String) -> Dat
 
 #[cfg(test)]
 mod tests {
-  use std::vec;
-
-  use chrono::{offset, Days, Duration, NaiveDateTime};
-
   use crate::services::{
     field::{date_type_option::DateTypeOption, DateCellData},
     group::controller_impls::date_controller::{group_id, group_name_from_id},
   };
+  use chrono::{offset, Days, Duration, NaiveDateTime};
+  use std::vec;
 
   #[test]
   fn group_id_name_test() {
@@ -457,9 +456,6 @@ mod tests {
       type_option: &'a DateTypeOption,
     }
 
-    let mut date_type_option = DateTypeOption::default();
-    date_type_option.timezone_id = "Etc/UTC".to_string();
-
     let mar_14_2022 = NaiveDateTime::from_timestamp_opt(1647251762, 0).unwrap();
     let mar_14_2022_cd = DateCellData {
       timestamp: Some(mar_14_2022.timestamp()),
@@ -468,10 +464,15 @@ mod tests {
     let today = offset::Local::now();
     let three_days_before = today.checked_add_signed(Duration::days(-3)).unwrap();
 
+    let mut local_date_type_option = DateTypeOption::default();
+    local_date_type_option.timezone_id = today.offset().to_string();
+    let mut default_date_type_option = DateTypeOption::default();
+    default_date_type_option.timezone_id = "".to_string();
+
     let tests = vec![
       GroupIDTest {
         cell_data: mar_14_2022_cd.clone(),
-        type_option: &date_type_option,
+        type_option: &local_date_type_option,
         setting_content: r#"{"condition": 0, "hide_empty": false}"#.to_string(),
         exp_group_id: "2022/03/01".to_string(),
         exp_group_name: "Mar 2022".to_string(),
@@ -481,7 +482,7 @@ mod tests {
           timestamp: Some(today.timestamp()),
           include_time: false,
         },
-        type_option: &date_type_option,
+        type_option: &local_date_type_option,
         setting_content: r#"{"condition": 0, "hide_empty": false}"#.to_string(),
         exp_group_id: today.format("%Y/%m/%d").to_string(),
         exp_group_name: "Today".to_string(),
@@ -491,7 +492,7 @@ mod tests {
           timestamp: Some(three_days_before.timestamp()),
           include_time: false,
         },
-        type_option: &date_type_option,
+        type_option: &local_date_type_option,
         setting_content: r#"{"condition": 0, "hide_empty": false}"#.to_string(),
         exp_group_id: today
           .checked_sub_days(Days::new(7))
@@ -502,7 +503,7 @@ mod tests {
       },
       GroupIDTest {
         cell_data: mar_14_2022_cd.clone(),
-        type_option: &date_type_option,
+        type_option: &local_date_type_option,
         setting_content: r#"{"condition": 1, "hide_empty": false}"#.to_string(),
         exp_group_id: "2022/03/14".to_string(),
         exp_group_name: "Mar 14, 2022".to_string(),
@@ -517,24 +518,44 @@ mod tests {
           ),
           include_time: false,
         },
-        type_option: &date_type_option,
+        type_option: &local_date_type_option,
         setting_content: r#"{"condition": 2, "hide_empty": false}"#.to_string(),
         exp_group_id: "2022/03/14".to_string(),
         exp_group_name: "Week of Mar 14-20 2022".to_string(),
       },
       GroupIDTest {
         cell_data: mar_14_2022_cd.clone(),
-        type_option: &date_type_option,
+        type_option: &local_date_type_option,
         setting_content: r#"{"condition": 3, "hide_empty": false}"#.to_string(),
         exp_group_id: "2022/03/01".to_string(),
         exp_group_name: "Mar 2022".to_string(),
       },
       GroupIDTest {
         cell_data: mar_14_2022_cd.clone(),
-        type_option: &date_type_option,
+        type_option: &local_date_type_option,
         setting_content: r#"{"condition": 4, "hide_empty": false}"#.to_string(),
         exp_group_id: "2022/01/01".to_string(),
         exp_group_name: "2022".to_string(),
+      },
+      GroupIDTest {
+        cell_data: DateCellData {
+          timestamp: Some(1685715999),
+          include_time: false,
+        },
+        type_option: &default_date_type_option,
+        setting_content: r#"{"condition": 1, "hide_empty": false}"#.to_string(),
+        exp_group_id: "2023/06/02".to_string(),
+        exp_group_name: "".to_string(),
+      },
+      GroupIDTest {
+        cell_data: DateCellData {
+          timestamp: Some(1685802386),
+          include_time: false,
+        },
+        type_option: &default_date_type_option,
+        setting_content: r#"{"condition": 1, "hide_empty": false}"#.to_string(),
+        exp_group_id: "2023/06/03".to_string(),
+        exp_group_name: "".to_string(),
       },
     ];
 
@@ -546,8 +567,11 @@ mod tests {
       );
       assert_eq!(test.exp_group_id, group_id, "test {}", i);
 
-      let group_name = group_name_from_id(&group_id, Some(test.type_option), &test.setting_content);
-      assert_eq!(test.exp_group_name, group_name, "test {}", i);
+      if test.exp_group_name != "" {
+        let group_name =
+          group_name_from_id(&group_id, Some(test.type_option), &test.setting_content);
+        assert_eq!(test.exp_group_name, group_name, "test {}", i);
+      }
     }
   }
 }
