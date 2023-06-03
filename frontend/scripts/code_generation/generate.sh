@@ -9,6 +9,8 @@ cd "$(dirname "$0")"
 # Call the script in the 'freezed' folder
 echo "Generating files using build_runner"
 cd freezed
+# Allow execution permissions on CI
+chmod +x ./generate_freezed.sh
 ./generate_freezed.sh "$@"
 
 # Return to the main script directory
@@ -17,6 +19,8 @@ cd ..
 # Call the script in the 'language_files' folder
 echo "Generating files using easy_localization"
 cd language_files
+# Allow execution permissions on CI
+chmod +x ./generate_language_files.sh
 ./generate_language_files.sh "$@"
 
 # Return to the original directory
