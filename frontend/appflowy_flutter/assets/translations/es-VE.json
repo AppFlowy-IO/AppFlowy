@@ -356,5 +356,6 @@
   "grid.textFilter.isNotEmpty": "No está vacío",
   "grid.textFilter.choicechipPrefix.isNot": "No",
   "grid.textFilter.isEmpty": "Está vacío",
-  "grid.settings.typeAValue": "Escribe un valor..."
+  "grid.settings.typeAValue": "Escribe un valor...",
+  "settings.user.pleaseInputYourOpenAIKey": "por favor ingrese su clave de OpenAI"
 }
