@@ -306,5 +306,6 @@
   "grid.multiSelectOptionFilter.isNotEmpty": "No está vacío",
   "grid.checkboxFilter.choicechipPrefix.is": "es",
   "grid.field.newProperty": "Nueva propiedad",
-  "grid.field.deleteFieldPromptMessage": "¿Estás seguro? Esta propiedad será eliminada"
+  "grid.field.deleteFieldPromptMessage": "¿Estás seguro? Esta propiedad será eliminada",
+  "grid.checklist.panelTitle": "Agregar un elemento"
 }
