@@ -54,9 +54,9 @@ class WorkspaceService {
     });
   }
 
-  Future<Either<List<ViewPB>, FlowyError>> getApps() {
+  Future<Either<List<ViewPB>, FlowyError>> getViews() {
     final payload = WorkspaceIdPB.create()..value = workspaceId;
-    return FolderEventReadWorkspaceApps(payload).send().then((result) {
+    return FolderEventReadWorkspaceViews(payload).send().then((result) {
       return result.fold(
         (apps) => left(apps.items),
         (error) => right(error),

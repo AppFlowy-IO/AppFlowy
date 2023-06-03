@@ -43,6 +43,7 @@ impl Folder2Manager {
       view_id: view_id.clone(),
       initial_data: vec![],
       meta: ext,
+      set_as_current: true,
     };
     self.create_view_with_params(params).await.unwrap();
     view_id
