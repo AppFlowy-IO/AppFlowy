@@ -336,5 +336,6 @@
   "document.plugins.smartEditMakeLonger": "Hacer más largo",
   "calendar.settings.emptyNoDate": "Sin eventos programados",
   "document.plugins.mathEquation.addMathEquation": "Agregar fórmula matemática",
-  "document.plugins.mathEquation.editMathEquation": "Editar fórmula matemática"
+  "document.plugins.mathEquation.editMathEquation": "Editar fórmula matemática",
+  "document.plugins.cover.alertDialogConfirmation": "¿Estás seguro de querer continuar?"
 }
