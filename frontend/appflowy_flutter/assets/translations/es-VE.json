@@ -283,5 +283,6 @@
   "grid.multiSelectOptionFilter.contains": "Contiene",
   "grid.multiSelectOptionFilter.doesNotContain": "No contiene",
   "grid.singleSelectOptionFilter.is": "Es",
-  "grid.singleSelectOptionFilter.isNot": "No es"
+  "grid.singleSelectOptionFilter.isNot": "No es",
+  "grid.settings.group": "Grupo"
 }
