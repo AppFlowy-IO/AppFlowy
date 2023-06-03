@@ -273,5 +273,6 @@
   "document.plugins.cover.images": "Imágenes",
   "document.plugins.cover.addIcon": "Añadir icono",
   "calendar.menuName": "Calendario",
-  "calendar.defaultNewCalendarTitle": "Sin título"
+  "calendar.defaultNewCalendarTitle": "Sin título",
+  "calendar.navigation.today": "Hoy"
 }
