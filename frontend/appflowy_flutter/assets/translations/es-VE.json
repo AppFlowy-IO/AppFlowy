@@ -342,5 +342,6 @@
   "document.plugins.cover.pasteImageUrl": "Pegar URL de imagen",
   "document.plugins.cover.saveToGallery": "Guardar en la galería",
   "document.plugins.cover.enterImageUrl": "Introducir URL de la imagen",
-  "document.plugins.cover.invalidImageUrl": "URL de imagen no válida"
+  "document.plugins.cover.invalidImageUrl": "URL de imagen no válida",
+  "document.plugins.cover.clearAll": "Limpiar todo"
 }
