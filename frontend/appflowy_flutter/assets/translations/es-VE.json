@@ -282,5 +282,6 @@
   "grid.row.newRow": "Nueva línea",
   "grid.multiSelectOptionFilter.contains": "Contiene",
   "grid.multiSelectOptionFilter.doesNotContain": "No contiene",
-  "grid.singleSelectOptionFilter.is": "Es"
+  "grid.singleSelectOptionFilter.is": "Es",
+  "grid.singleSelectOptionFilter.isNot": "No es"
 }
