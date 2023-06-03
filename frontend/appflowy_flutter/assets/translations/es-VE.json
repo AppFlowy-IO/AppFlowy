@@ -364,5 +364,6 @@
   "settings.files.selectFiles": "Seleccione los archivos que necesiten ser exportados",
   "grid.checkboxFilter.isChecked": "Comprobado",
   "grid.checkboxFilter.isUnchecked": "No comprobado",
-  "tooltip.referencePage": "Este {nombre} está referenciado"
+  "tooltip.referencePage": "Este {nombre} está referenciado",
+  "grid.settings.layout": "Disposición"
 }
