@@ -280,5 +280,6 @@
   "moreAction.moreOptions": "Más opciones",
   "calendar.settings.noDateTitle": "Sin fecha",
   "grid.row.newRow": "Nueva línea",
-  "grid.multiSelectOptionFilter.contains": "Contiene"
+  "grid.multiSelectOptionFilter.contains": "Contiene",
+  "grid.multiSelectOptionFilter.doesNotContain": "No contiene"
 }
