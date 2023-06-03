@@ -195,7 +195,7 @@ script = [
 script_runner = "@duckscript"
 script = [
   """
-  fs chmod --file="scripts/code_generation/generate.cmd" --mode=755
+  chmod --file="scripts/code_generation/generate.cmd" --mode=755
   """,
   "scripts/code_generation/generate.cmd"
 ]
