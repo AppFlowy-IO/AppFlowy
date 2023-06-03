@@ -303,5 +303,6 @@
   "grid.singleSelectOptionFilter.isEmpty": "Está vacio",
   "grid.singleSelectOptionFilter.isNotEmpty": "No está vacío",
   "grid.multiSelectOptionFilter.isEmpty": "Está vacío",
-  "grid.multiSelectOptionFilter.isNotEmpty": "No está vacío"
+  "grid.multiSelectOptionFilter.isNotEmpty": "No está vacío",
+  "grid.checkboxFilter.choicechipPrefix.is": "es"
 }
