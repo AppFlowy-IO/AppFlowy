@@ -369,5 +369,6 @@
   "settings.files.exportFileSuccess": "¡El archivo ha sido exportado con éxito!",
   "settings.files.exportFileFail": "¡Error al exportar el archivo!",
   "grid.row.count": "Recuento",
-  "settings.files.restoreLocation": "Restaurar a la ruta predeterminada de AppFlowy"
+  "settings.files.restoreLocation": "Restaurar a la ruta predeterminada de AppFlowy",
+  "document.slashMenu.board.selectABoardToLinkTo": "Seleccione un tablero para vincular"
 }
