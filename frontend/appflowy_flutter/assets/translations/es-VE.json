@@ -254,5 +254,6 @@
   "settings.files.createNewFolder": "Crear nueva carpeta",
   "settings.files.createNewFolderDesc": "Dinos donde quieres guardar tus datos",
   "settings.files.open": "Abrir",
-  "settings.files.openFolder": "Abrir una carpeta existente"
+  "settings.files.openFolder": "Abrir una carpeta existente",
+  "settings.user.icon": "Icono"
 }
