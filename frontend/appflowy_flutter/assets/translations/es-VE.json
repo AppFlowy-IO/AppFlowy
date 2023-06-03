@@ -231,5 +231,6 @@
   "settings.files.customizeLocation": "Abrir otra carpeta",
   "moreAction.small": "pequeno",
   "moreAction.medium": "mediano",
-  "moreAction.large": "grande"
+  "moreAction.large": "grande",
+  "moreAction.fontSize": "Tamaño de letra"
 }
