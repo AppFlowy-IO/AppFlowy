@@ -8,20 +8,20 @@ use std::sync::Arc;
 
 use collab_document::blocks::{
   json_str_to_hashmap, Block, BlockAction, BlockActionPayload, BlockActionType, BlockEvent,
-  BlockEventPayload, DeltaType, DocumentData,
+  BlockEventPayload, DeltaType,
 };
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
-use crate::document_data::default_document_data;
 use crate::{
   entities::{
     ApplyActionPayloadPB, BlockActionPB, BlockActionPayloadPB, BlockActionTypePB, BlockEventPB,
-    BlockEventPayloadPB, BlockPB, CloseDocumentPayloadPB, CreateDocumentPayloadPB, DeltaTypePB,
-    DocEventPB, DocumentDataPB, OpenDocumentPayloadPB,
+    BlockEventPayloadPB, BlockPB, CloseDocumentPayloadPB, ConvertDataPayloadPB, ConvertType,
+    CreateDocumentPayloadPB, DeltaTypePB, DocEventPB, DocumentDataPB, OpenDocumentPayloadPB,
   },
   manager::DocumentManager,
+  parser::json::parser::JsonToDocumentParser,
 };
 
 // Handler for creating a new document
@@ -30,10 +30,7 @@ pub(crate) async fn create_document_handler(
   manager: AFPluginState<Arc<DocumentManager>>,
 ) -> FlowyResult<()> {
   let data = data.into_inner();
-  let initial_data = data
-    .initial_data
-    .map(|data| DocumentData::from(data))
-    .unwrap_or_else(default_document_data);
+  let initial_data = data.initial_data.map(|data| data.into());
   manager.create_document(data.document_id, initial_data)?;
   Ok(())
 }
@@ -81,6 +78,29 @@ pub(crate) async fn apply_action_handler(
   let actions = context.actions.into_iter().map(BlockAction::from).collect();
   document.lock().apply_action(actions);
   Ok(())
+}
+
+pub(crate) async fn convert_data_to_document(
+  data: AFPluginData<ConvertDataPayloadPB>,
+  _manager: AFPluginState<Arc<DocumentManager>>,
+) -> DataResult<DocumentDataPB, FlowyError> {
+  let payload = data.into_inner();
+  let document = convert_data_to_document_internal(payload)?;
+  data_result_ok(document)
+}
+
+pub fn convert_data_to_document_internal(
+  payload: ConvertDataPayloadPB,
+) -> Result<DocumentDataPB, FlowyError> {
+  let convert_type = payload.convert_type;
+  let data = payload.data;
+  match convert_type {
+    ConvertType::Json => {
+      let json_str = String::from_utf8(data).map_err(|_| FlowyError::invalid_data())?;
+      let document = JsonToDocumentParser::json_str_to_document(&json_str)?;
+      Ok(document)
+    },
+  }
 }
 
 impl From<BlockActionPB> for BlockAction {

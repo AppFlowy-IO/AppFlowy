@@ -2,6 +2,7 @@ use std::{collections::HashMap, sync::Arc, vec};
 
 use crate::document::util::default_collab_builder;
 use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
+use flowy_document2::document_block_keys::PARAGRAPH_BLOCK_TYPE;
 use flowy_document2::document_data::default_document_data;
 use flowy_document2::{document::Document, manager::DocumentManager};
 use nanoid::nanoid;
@@ -16,7 +17,7 @@ fn document_apply_insert_block_with_empty_parent_id() {
   let text_block_id = nanoid!(10);
   let text_block = Block {
     id: text_block_id.clone(),
-    ty: "text".to_string(),
+    ty: PARAGRAPH_BLOCK_TYPE.to_string(),
     parent: "".to_string(),
     children: nanoid!(10),
     external_id: None,
@@ -47,7 +48,7 @@ fn create_and_open_empty_document() -> (DocumentManager, Arc<Document>, String) 
 
   // create a document
   _ = manager
-    .create_document(doc_id.clone(), data.clone())
+    .create_document(doc_id.clone(), Some(data.clone()))
     .unwrap();
 
   let document = manager.open_document(doc_id).unwrap();

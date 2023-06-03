@@ -1,6 +1,7 @@
 use std::{collections::HashMap, sync::Arc, vec};
 
 use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
+use flowy_document2::document_block_keys::PARAGRAPH_BLOCK_TYPE;
 use nanoid::nanoid;
 use serde_json::{json, to_value, Value};
 
@@ -19,7 +20,7 @@ fn restore_document() {
   let doc_id: String = nanoid!(10);
   let data = default_document_data();
   let document_a = manager
-    .create_document(doc_id.clone(), data.clone())
+    .create_document(doc_id.clone(), Some(data.clone()))
     .unwrap();
   let data_a = document_a.lock().get_document().unwrap();
   assert_eq!(data_a, data);
@@ -36,7 +37,7 @@ fn restore_document() {
   assert_eq!(data_b, data);
 
   // restore
-  _ = manager.create_document(doc_id.clone(), data.clone());
+  _ = manager.create_document(doc_id.clone(), Some(data.clone()));
   // open a document
   let data_b = manager
     .open_document(doc_id.clone())
@@ -59,7 +60,7 @@ fn document_apply_insert_action() {
   let data = default_document_data();
 
   // create a document
-  _ = manager.create_document(doc_id.clone(), data.clone());
+  _ = manager.create_document(doc_id.clone(), Some(data.clone()));
 
   // open a document
   let document = manager.open_document(doc_id.clone()).unwrap();
@@ -68,7 +69,7 @@ fn document_apply_insert_action() {
   // insert a text block
   let text_block = Block {
     id: nanoid!(10),
-    ty: "text".to_string(),
+    ty: PARAGRAPH_BLOCK_TYPE.to_string(),
     parent: page_block.id,
     children: nanoid!(10),
     external_id: None,
@@ -110,7 +111,7 @@ fn document_apply_update_page_action() {
   let data = default_document_data();
 
   // create a document
-  _ = manager.create_document(doc_id.clone(), data.clone());
+  _ = manager.create_document(doc_id.clone(), Some(data.clone()));
 
   // open a document
   let document = manager.open_document(doc_id.clone()).unwrap();
@@ -152,7 +153,7 @@ fn document_apply_update_action() {
   let data = default_document_data();
 
   // create a document
-  _ = manager.create_document(doc_id.clone(), data.clone());
+  _ = manager.create_document(doc_id.clone(), Some(data.clone()));
 
   // open a document
   let document = manager.open_document(doc_id.clone()).unwrap();
@@ -162,7 +163,7 @@ fn document_apply_update_action() {
   let text_block_id = nanoid!(10);
   let text_block = Block {
     id: text_block_id.clone(),
-    ty: "text".to_string(),
+    ty: PARAGRAPH_BLOCK_TYPE.to_string(),
     parent: page_block.id,
     children: nanoid!(10),
     external_id: None,
