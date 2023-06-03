@@ -316,5 +316,6 @@
   "document.plugins.autoGeneratorHintText": "Pregúntale a OpenAI...",
   "document.plugins.openAI": "OpenAI",
   "document.plugins.warning": "⚠️ Las respuestas de la IA pueden ser inexactas o engañosas.",
-  "document.plugins.smartEditSummarize": "Resumir"
+  "document.plugins.smartEditSummarize": "Resumir",
+  "document.plugins.smartEditCouldNotFetchKey": "No se pudo obtener la clave de OpenAI"
 }
