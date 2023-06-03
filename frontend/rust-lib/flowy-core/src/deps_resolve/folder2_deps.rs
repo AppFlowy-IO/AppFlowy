@@ -10,7 +10,6 @@ use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
 use flowy_database2::DatabaseManager2;
-use flowy_document2::document_data::default_document_data;
 use flowy_document2::entities::DocumentDataPB;
 use flowy_document2::manager::DocumentManager;
 use flowy_document2::parser::json::parser::JsonToDocumentParser;
@@ -105,7 +104,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
               let json_str = include_str!("../../assets/read_me.json");
               let document_pb = JsonToDocumentParser::json_str_to_document(json_str).unwrap();
               manager
-                .create_document(view.parent_view.id.clone(), document_pb.into())
+                .create_document(view.parent_view.id.clone(), Some(document_pb.into()))
                 .unwrap();
               view
             })
@@ -152,7 +151,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     FutureResult::new(async move {
       let data = DocumentDataPB::try_from(Bytes::from(data))?;
-      manager.create_document(view_id, data.into())?;
+      manager.create_document(view_id, Some(data.into()))?;
       Ok(())
     })
   }
@@ -169,7 +168,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let view_id = view_id.to_string();
     let manager = self.0.clone();
     FutureResult::new(async move {
-      manager.create_document(view_id, default_document_data())?;
+      manager.create_document(view_id, None)?;
       Ok(())
     })
   }
@@ -184,7 +183,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     FutureResult::new(async move {
       let data = DocumentDataPB::try_from(Bytes::from(bytes))?;
-      manager.create_document(view_id, data.into())?;
+      manager.create_document(view_id, Some(data.into()))?;
       Ok(())
     })
   }
