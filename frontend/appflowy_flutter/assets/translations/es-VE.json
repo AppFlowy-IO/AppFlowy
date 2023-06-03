@@ -324,5 +324,6 @@
   "document.plugins.cover.back": "Atrás",
   "document.plugins.cover.removeIcon": "Eliminar icono",
   "document.plugins.cover.or": "O",
-  "document.plugins.cover.imageSavingFailed": "Error al guardar la imagen"
+  "document.plugins.cover.imageSavingFailed": "Error al guardar la imagen",
+  "board.menuName": "Tablero"
 }
