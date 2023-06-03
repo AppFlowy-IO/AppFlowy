@@ -353,5 +353,6 @@
   "grid.sort.deleteSort": "Eliminar clasificación",
   "grid.textFilter.choicechipPrefix.isNotEmpty": "no está vacío",
   "grid.textFilter.choicechipPrefix.isEmpty": "está vacío",
-  "grid.textFilter.isNotEmpty": "No está vacío"
+  "grid.textFilter.isNotEmpty": "No está vacío",
+  "grid.textFilter.choicechipPrefix.isNot": "No"
 }
