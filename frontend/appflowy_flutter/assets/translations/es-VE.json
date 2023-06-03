@@ -329,5 +329,6 @@
   "board.referencedBoardPrefix": "Vista de",
   "calendar.navigation.jumpToday": "Saltar a hoy",
   "calendar.settings.showWeekNumbers": "Mostrar números de semana",
-  "calendar.settings.showWeekends": "Mostrar fines de semana"
+  "calendar.settings.showWeekends": "Mostrar fines de semana",
+  "calendar.settings.firstDayOfWeek": "Empezar la semana en"
 }
