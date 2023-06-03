@@ -379,5 +379,6 @@
   "document.plugins.autoGeneratorMenuItemName": "Escritor de OpenAI",
   "document.plugins.smartEditFixSpelling": "Corregir ortografía",
   "document.plugins.cover.coverRemoveAlert": "Se quitará de la portada después de ser eliminado.",
-  "document.plugins.cover.pickFromFiles": "Seleccionar desde archivos"
+  "document.plugins.cover.pickFromFiles": "Seleccionar desde archivos",
+  "calendar.settings.layoutDateField": "Disposición del calendario por"
 }
