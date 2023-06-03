@@ -228,7 +228,6 @@ impl From<i32> for ConvertType {
 
 /// for the json type
 /// the data is the json string
-
 #[derive(Default, ProtoBuf, Debug)]
 pub struct ConvertDataPayloadPB {
   #[pb(index = 1)]

@@ -48,7 +48,7 @@ impl DocumentManager {
     let uid = self.user.user_id()?;
     let db = self.user.collab_db()?;
     let collab = self.collab_builder.build(uid, &doc_id, "document", db);
-    let data = data.unwrap_or(default_document_data());
+    let data = data.unwrap_or_else(|| default_document_data());
     let document = Arc::new(Document::create_with_data(collab, data)?);
     Ok(document)
   }
