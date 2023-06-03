@@ -307,5 +307,6 @@
   "grid.checkboxFilter.choicechipPrefix.is": "es",
   "grid.field.newProperty": "Nueva propiedad",
   "grid.field.deleteFieldPromptMessage": "¿Estás seguro? Esta propiedad será eliminada",
-  "grid.checklist.panelTitle": "Agregar un elemento"
+  "grid.checklist.panelTitle": "Agregar un elemento",
+  "grid.referencedGridPrefix": "Vista de"
 }
