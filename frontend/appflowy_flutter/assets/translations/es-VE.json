@@ -238,5 +238,6 @@
   "questionBubble.markdown": "Markdown",
   "tooltip.addNewRow": "Añadir nueva línea",
   "tooltip.openAsPage": "Abrir como página",
-  "tooltip.openMenu": "Haz click para abrir el menú"
+  "tooltip.openMenu": "Haz click para abrir el menú",
+  "tooltip.viewDataBase": "Ver base de datos"
 }
