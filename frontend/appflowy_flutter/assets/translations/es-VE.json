@@ -268,5 +268,6 @@
   "grid.settings.filterBy": "Filtrar por...",
   "grid.field.dateFormatDayMonthYear": "Día/Mes/Año",
   "grid.sort.ascending": "Ascendente",
-  "grid.sort.descending": "Descendente"
+  "grid.sort.descending": "Descendente",
+  "document.plugins.cover.colors": "Colores"
 }
