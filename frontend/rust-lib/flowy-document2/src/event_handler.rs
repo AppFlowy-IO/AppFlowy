@@ -85,13 +85,20 @@ pub(crate) async fn convert_data_to_document(
   _manager: AFPluginState<Arc<DocumentManager>>,
 ) -> DataResult<DocumentDataPB, FlowyError> {
   let payload = data.into_inner();
+  let document = convert_data_to_document_internal(payload)?;
+  data_result_ok(document)
+}
+
+pub fn convert_data_to_document_internal(
+  payload: ConvertDataPayloadPB,
+) -> Result<DocumentDataPB, FlowyError> {
   let convert_type = payload.convert_type;
   let data = payload.data;
   match convert_type {
     ConvertType::Json => {
       let json_str = String::from_utf8(data).map_err(|_| FlowyError::invalid_data())?;
       let document = JsonToDocumentParser::json_str_to_document(&json_str)?;
-      data_result_ok(document)
+      Ok(document)
     },
   }
 }
