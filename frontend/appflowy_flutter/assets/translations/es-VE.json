@@ -380,5 +380,6 @@
   "document.plugins.smartEditFixSpelling": "Corregir ortografía",
   "document.plugins.cover.coverRemoveAlert": "Se quitará de la portada después de ser eliminado.",
   "document.plugins.cover.pickFromFiles": "Seleccionar desde archivos",
-  "calendar.settings.layoutDateField": "Disposición del calendario por"
+  "calendar.settings.layoutDateField": "Disposición del calendario por",
+  "document.plugins.cover.addCover": "Agregar portada"
 }
