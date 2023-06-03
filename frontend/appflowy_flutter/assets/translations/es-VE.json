@@ -285,5 +285,6 @@
   "grid.singleSelectOptionFilter.is": "Es",
   "grid.singleSelectOptionFilter.isNot": "No es",
   "grid.settings.group": "Grupo",
-  "settings.files.create": "Crear"
+  "settings.files.create": "Crear",
+  "settings.files.browser": "Navegar"
 }
