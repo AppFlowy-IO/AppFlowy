@@ -279,5 +279,6 @@
   "calendar.navigation.nextMonth": "Próximo mes",
   "moreAction.moreOptions": "Más opciones",
   "calendar.settings.noDateTitle": "Sin fecha",
-  "grid.row.newRow": "Nueva línea"
+  "grid.row.newRow": "Nueva línea",
+  "grid.multiSelectOptionFilter.contains": "Contiene"
 }
