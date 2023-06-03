@@ -299,5 +299,6 @@
   "grid.textFilter.choicechipPrefix.startWith": "Comienza con",
   "grid.textFilter.choicechipPrefix.endWith": "Termina con",
   "grid.checklistFilter.isComplete": "está completo",
-  "grid.checklistFilter.isIncomplted": "está incompleto"
+  "grid.checklistFilter.isIncomplted": "está incompleto",
+  "grid.singleSelectOptionFilter.isEmpty": "Está vacio"
 }
