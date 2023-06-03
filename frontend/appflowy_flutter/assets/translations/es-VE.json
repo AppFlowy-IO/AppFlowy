@@ -382,5 +382,6 @@
   "document.plugins.cover.pickFromFiles": "Seleccionar desde archivos",
   "calendar.settings.layoutDateField": "Disposición del calendario por",
   "document.plugins.cover.addCover": "Agregar portada",
-  "settings.files.defaultLocation": "Donde se almacenan sus datos ahora"
+  "settings.files.defaultLocation": "Donde se almacenan sus datos ahora",
+  "document.plugins.smartEdit": "Asistentes de IA"
 }
