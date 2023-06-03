@@ -68,7 +68,7 @@
     "help": "Ayuda y Soporte",
     "debug": {
       "name": "Información de depuración",
-      "success": "¡Información copiada!",
+      "success": "¡Información de depuración copiada al portapapeles!",
       "fail": "No fue posible copiar la información"
     }
   },
