@@ -308,5 +308,6 @@
   "grid.field.newProperty": "Nueva propiedad",
   "grid.field.deleteFieldPromptMessage": "¿Estás seguro? Esta propiedad será eliminada",
   "grid.checklist.panelTitle": "Agregar un elemento",
-  "grid.referencedGridPrefix": "Vista de"
+  "grid.referencedGridPrefix": "Vista de",
+  "document.slashMenu.grid.createANewGrid": "Crear una nueva cuadrícula"
 }
