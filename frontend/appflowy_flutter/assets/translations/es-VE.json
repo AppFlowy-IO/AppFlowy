@@ -384,5 +384,6 @@
   "document.plugins.cover.addCover": "Agregar portada",
   "settings.files.defaultLocation": "Donde se almacenan sus datos ahora",
   "document.plugins.smartEdit": "Asistentes de IA",
-  "document.plugins.cover.changeCover": "Cambiar portada"
+  "document.plugins.cover.changeCover": "Cambiar portada",
+  "document.plugins.cover.abstract": "Resumen"
 }
