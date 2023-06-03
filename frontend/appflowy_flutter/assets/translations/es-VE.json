@@ -232,5 +232,6 @@
   "moreAction.small": "pequeno",
   "moreAction.medium": "mediano",
   "moreAction.large": "grande",
-  "moreAction.fontSize": "Tamaño de letra"
+  "moreAction.fontSize": "Tamaño de letra",
+  "moreAction.import": "Importar"
 }
