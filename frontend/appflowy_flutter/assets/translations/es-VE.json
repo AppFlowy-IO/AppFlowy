@@ -320,5 +320,6 @@
   "document.plugins.smartEditCouldNotFetchKey": "No se pudo obtener la clave de OpenAI",
   "document.plugins.smartEditCouldNotFetchResult": "No se pudo obtener el resultado de OpenAI",
   "document.plugins.cover.addLocalImage": "Agregar imagen local",
-  "document.plugins.cover.add": "Agregar"
+  "document.plugins.cover.add": "Agregar",
+  "document.plugins.cover.back": "Atrás"
 }
