@@ -311,5 +311,6 @@
   "grid.referencedGridPrefix": "Vista de",
   "document.slashMenu.grid.createANewGrid": "Crear una nueva cuadrícula",
   "document.plugins.referencedGrid": "Cuadrícula referenciada",
-  "document.plugins.referencedBoard": "Tablero referenciado"
+  "document.plugins.referencedBoard": "Tablero referenciado",
+  "document.plugins.autoGeneratorGenerate": "Generar"
 }
