@@ -14,7 +14,6 @@ use collab_document::blocks::{
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
-use crate::document_data::default_document_data;
 use crate::{
   entities::{
     ApplyActionPayloadPB, BlockActionPB, BlockActionPayloadPB, BlockActionTypePB, BlockEventPB,
@@ -30,10 +29,7 @@ pub(crate) async fn create_document_handler(
   manager: AFPluginState<Arc<DocumentManager>>,
 ) -> FlowyResult<()> {
   let data = data.into_inner();
-  let initial_data = data
-    .initial_data
-    .map(|data| data.into())
-    .unwrap_or_else(default_document_data);
+  let initial_data = data.initial_data.map(|data| data.into());
   manager.create_document(data.document_id, initial_data)?;
   Ok(())
 }

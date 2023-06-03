@@ -9,6 +9,7 @@ use flowy_error::{FlowyError, FlowyResult};
 
 use crate::{
   document::Document,
+  document_data::default_document_data,
   entities::DocEventPB,
   notification::{send_notification, DocumentNotification},
 };
@@ -34,11 +35,20 @@ impl DocumentManager {
     }
   }
 
-  pub fn create_document(&self, doc_id: String, data: DocumentData) -> FlowyResult<Arc<Document>> {
+  /// Create a new document.
+  ///
+  /// if the document already exists, return the existing document.
+  /// if the data is None, will create a document with default data.
+  pub fn create_document(
+    &self,
+    doc_id: String,
+    data: Option<DocumentData>,
+  ) -> FlowyResult<Arc<Document>> {
     tracing::debug!("create a document: {:?}", &doc_id);
     let uid = self.user.user_id()?;
     let db = self.user.collab_db()?;
     let collab = self.collab_builder.build(uid, &doc_id, "document", db);
+    let data = data.unwrap_or(default_document_data());
     let document = Arc::new(Document::create_with_data(collab, data)?);
     Ok(document)
   }
