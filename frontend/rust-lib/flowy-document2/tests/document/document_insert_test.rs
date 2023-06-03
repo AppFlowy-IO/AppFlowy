@@ -2,9 +2,8 @@ use std::{collections::HashMap, sync::Arc, vec};
 
 use crate::document::util::default_collab_builder;
 use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
-use flowy_document2::{
-  document::Document, document_data::DocumentDataWrapper, manager::DocumentManager,
-};
+use flowy_document2::document_data::default_document_data;
+use flowy_document2::{document::Document, manager::DocumentManager};
 use nanoid::nanoid;
 
 use super::util::FakeUser;
@@ -44,7 +43,7 @@ fn create_and_open_empty_document() -> (DocumentManager, Arc<Document>, String) 
   let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
 
   let doc_id: String = nanoid!(10);
-  let data = DocumentDataWrapper::default();
+  let data = default_document_data();
 
   // create a document
   _ = manager
@@ -53,5 +52,5 @@ fn create_and_open_empty_document() -> (DocumentManager, Arc<Document>, String) 
 
   let document = manager.open_document(doc_id).unwrap();
 
-  (manager, document, data.0.page_id)
+  (manager, document, data.page_id)
 }

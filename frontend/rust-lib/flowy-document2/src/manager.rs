@@ -2,11 +2,11 @@ use std::{collections::HashMap, sync::Arc};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::RocksCollabDB;
+use collab_document::blocks::DocumentData;
 use parking_lot::RwLock;
 
 use flowy_error::{FlowyError, FlowyResult};
 
-use crate::document_data::DocumentDataWrapper;
 use crate::{
   document::Document,
   entities::DocEventPB,
@@ -34,16 +34,12 @@ impl DocumentManager {
     }
   }
 
-  pub fn create_document(
-    &self,
-    doc_id: String,
-    data: DocumentDataWrapper,
-  ) -> FlowyResult<Arc<Document>> {
+  pub fn create_document(&self, doc_id: String, data: DocumentData) -> FlowyResult<Arc<Document>> {
     tracing::debug!("create a document: {:?}", &doc_id);
     let uid = self.user.user_id()?;
     let db = self.user.collab_db()?;
     let collab = self.collab_builder.build(uid, &doc_id, "document", db);
-    let document = Arc::new(Document::create_with_data(collab, data.0)?);
+    let document = Arc::new(Document::create_with_data(collab, data)?);
     Ok(document)
   }
 

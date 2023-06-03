@@ -10,7 +10,7 @@ use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
 use flowy_database2::DatabaseManager2;
-use flowy_document2::document_data::DocumentDataWrapper;
+use flowy_document2::document_data::default_document_data;
 use flowy_document2::entities::DocumentDataPB;
 use flowy_document2::manager::DocumentManager;
 use flowy_document2::parser::json::parser::JsonToDocumentParser;
@@ -129,7 +129,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let view_id = view_id.to_string();
     FutureResult::new(async move {
       let document = manager.get_document(view_id)?;
-      let data: DocumentDataPB = DocumentDataWrapper(document.lock().get_document()?).into();
+      let data: DocumentDataPB = document.lock().get_document()?.into();
       let data_bytes = data.into_bytes().map_err(|_| FlowyError::invalid_data())?;
       Ok(data_bytes)
     })
@@ -166,7 +166,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let view_id = view_id.to_string();
     let manager = self.0.clone();
     FutureResult::new(async move {
-      manager.create_document(view_id, DocumentDataWrapper::default())?;
+      manager.create_document(view_id, default_document_data())?;
       Ok(())
     })
   }
