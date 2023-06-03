@@ -271,5 +271,6 @@
   "grid.sort.descending": "Descendente",
   "document.plugins.cover.colors": "Colores",
   "document.plugins.cover.images": "Imágenes",
-  "document.plugins.cover.addIcon": "Añadir icono"
+  "document.plugins.cover.addIcon": "Añadir icono",
+  "calendar.menuName": "Calendario"
 }
