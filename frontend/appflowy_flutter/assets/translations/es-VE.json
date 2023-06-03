@@ -233,5 +233,6 @@
   "moreAction.medium": "mediano",
   "moreAction.large": "grande",
   "moreAction.fontSize": "Tamaño de letra",
-  "moreAction.import": "Importar"
+  "moreAction.import": "Importar",
+  "questionBubble.shortcuts": "Atajos"
 }
