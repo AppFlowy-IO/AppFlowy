@@ -246,5 +246,6 @@
   "button.discard": "Descartar",
   "button.replace": "Reemplazar",
   "button.insertBelow": "Insertar debajo",
-  "settings.menu.user": "Usuario"
+  "settings.menu.user": "Usuario",
+  "settings.menu.files": "Archivos"
 }
