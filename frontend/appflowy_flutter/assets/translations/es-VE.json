@@ -247,5 +247,6 @@
   "button.replace": "Reemplazar",
   "button.insertBelow": "Insertar debajo",
   "settings.menu.user": "Usuario",
-  "settings.menu.files": "Archivos"
+  "settings.menu.files": "Archivos",
+  "settings.appearance.theme": "Tema"
 }
