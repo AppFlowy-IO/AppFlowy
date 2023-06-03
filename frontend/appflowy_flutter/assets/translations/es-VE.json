@@ -252,5 +252,6 @@
   "settings.files.restartApp": "Por favor reinicie la app para que los cambios tengan efecto.",
   "settings.files.exportDatabase": "Exportar base de datos",
   "settings.files.createNewFolder": "Crear nueva carpeta",
-  "settings.files.createNewFolderDesc": "Dinos donde quieres guardar tus datos"
+  "settings.files.createNewFolderDesc": "Dinos donde quieres guardar tus datos",
+  "settings.files.open": "Abrir"
 }
