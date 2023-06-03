@@ -229,5 +229,6 @@
     }
   },
   "settings.files.customizeLocation": "Abrir otra carpeta",
-  "moreAction.small": "pequeno"
+  "moreAction.small": "pequeno",
+  "moreAction.medium": "mediano"
 }
