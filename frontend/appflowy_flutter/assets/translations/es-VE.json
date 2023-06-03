@@ -249,5 +249,6 @@
   "settings.menu.user": "Usuario",
   "settings.menu.files": "Archivos",
   "settings.appearance.theme": "Tema",
-  "settings.files.restartApp": "Por favor reinicie la app para que los cambios tengan efecto."
+  "settings.files.restartApp": "Por favor reinicie la app para que los cambios tengan efecto.",
+  "settings.files.exportDatabase": "Exportar base de datos"
 }
