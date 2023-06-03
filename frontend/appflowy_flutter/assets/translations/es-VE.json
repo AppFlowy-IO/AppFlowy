@@ -237,5 +237,6 @@
   "questionBubble.shortcuts": "Atajos",
   "questionBubble.markdown": "Markdown",
   "tooltip.addNewRow": "Añadir nueva línea",
-  "tooltip.openAsPage": "Abrir como página"
+  "tooltip.openAsPage": "Abrir como página",
+  "tooltip.openMenu": "Haz click para abrir el menú"
 }
