@@ -365,5 +365,6 @@
   "grid.checkboxFilter.isChecked": "Comprobado",
   "grid.checkboxFilter.isUnchecked": "No comprobado",
   "tooltip.referencePage": "Este {nombre} está referenciado",
-  "grid.settings.layout": "Disposición"
+  "grid.settings.layout": "Disposición",
+  "settings.files.exportFileSuccess": "¡El archivo ha sido exportado con éxito!"
 }
