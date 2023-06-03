@@ -350,5 +350,6 @@
   "document.slashMenu.grid.selectAGridToLinkTo": "Seleccione una cuadrícula para vincular",
   "document.slashMenu.board.createANewBoard": "Crear un nuevo tablero",
   "grid.sort.addSort": "Agregar clasificación",
-  "grid.sort.deleteSort": "Eliminar clasificación"
+  "grid.sort.deleteSort": "Eliminar clasificación",
+  "grid.textFilter.choicechipPrefix.isNotEmpty": "no está vacío"
 }
