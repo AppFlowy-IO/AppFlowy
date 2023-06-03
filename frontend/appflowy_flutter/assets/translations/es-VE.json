@@ -294,5 +294,6 @@
   "button.keep": "Mantener",
   "grid.textFilter.endsWith": "Termina con",
   "grid.textFilter.startWith": "Comienza con",
-  "grid.textFilter.isNot": "No es"
+  "grid.textFilter.isNot": "No es",
+  "grid.textFilter.is": "Es"
 }
