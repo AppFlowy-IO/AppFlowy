@@ -332,5 +332,6 @@
   "calendar.settings.showWeekends": "Mostrar fines de semana",
   "calendar.settings.firstDayOfWeek": "Empezar la semana en",
   "settings.files.exportData": "Exporta tus datos",
-  "grid.row.action": "Acción"
+  "grid.row.action": "Acción",
+  "document.plugins.smartEditMakeLonger": "Hacer más largo"
 }
