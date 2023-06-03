@@ -293,5 +293,6 @@
   "settings.files.doubleTapToCopy": "Toca dos veces para copiar la ruta",
   "button.keep": "Mantener",
   "grid.textFilter.endsWith": "Termina con",
-  "grid.textFilter.startWith": "Comienza con"
+  "grid.textFilter.startWith": "Comienza con",
+  "grid.textFilter.isNot": "No es"
 }
