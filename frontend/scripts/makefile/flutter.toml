@@ -185,6 +185,7 @@ script_runner = "@duckscript"
 [tasks.code_generation]
 script_runner = "@shell"
 script = [
+<<<<<<< HEAD
   """
   cd appflowy_flutter
   flutter clean
@@ -193,20 +194,17 @@ script = [
   dart run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
   dart run build_runner build -d
   """,
+=======
+  "../code_generation/generate.sh"
+>>>>>>> 4546317e2 (feat: call directly into script)
 ]
 
 [tasks.code_generation.windows]
 script_runner = "@duckscript"
 script = [
-  """
-  cd ./appflowy_flutter/
-  exec cmd.exe /c flutter clean
-  exec cmd.exe /c flutter pub get
-  exec cmd.exe /c flutter packages pub get
-  exec cmd.exe /c dart run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
-  exec cmd.exe /c dart run build_runner build -d
-  """,
+  "../code_generation/generate.cmd"
 ]
+
 
 [tasks.dry_code_generation]
 script_runner = "@shell"
