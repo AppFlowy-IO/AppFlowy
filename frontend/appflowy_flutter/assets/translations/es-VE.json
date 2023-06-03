@@ -261,5 +261,6 @@
   "grid.settings.deleteFilter": "Eliminar filtro",
   "grid.textFilter.contains": "Contiene",
   "grid.textFilter.doesNotContain": "No contiene",
-  "document.plugins.autoGeneratorLearnMore": "Saber más"
+  "document.plugins.autoGeneratorLearnMore": "Saber más",
+  "settings.files.location": "Creando una nueva carpeta"
 }
