@@ -248,5 +248,6 @@
   "button.insertBelow": "Insertar debajo",
   "settings.menu.user": "Usuario",
   "settings.menu.files": "Archivos",
-  "settings.appearance.theme": "Tema"
+  "settings.appearance.theme": "Tema",
+  "settings.files.restartApp": "Por favor reinicie la app para que los cambios tengan efecto."
 }
