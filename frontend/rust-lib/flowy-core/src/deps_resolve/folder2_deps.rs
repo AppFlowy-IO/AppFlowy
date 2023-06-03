@@ -93,6 +93,9 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     FutureResult::new(async move {
       let mut write_guard = workspace_view_builder.write().await;
+
+      // Create a parent view named "⭐️ Getting started". and a child view named "Read me".
+      // Don't modify this code unless you know what you are doing.
       write_guard
         .with_view_builder(|view_builder| async {
           view_builder
