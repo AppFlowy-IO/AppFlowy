@@ -330,5 +330,6 @@
   "calendar.navigation.jumpToday": "Saltar a hoy",
   "calendar.settings.showWeekNumbers": "Mostrar números de semana",
   "calendar.settings.showWeekends": "Mostrar fines de semana",
-  "calendar.settings.firstDayOfWeek": "Empezar la semana en"
+  "calendar.settings.firstDayOfWeek": "Empezar la semana en",
+  "settings.files.exportData": "Exporta tus datos"
 }
