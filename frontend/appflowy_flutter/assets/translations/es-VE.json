@@ -260,5 +260,6 @@
   "grid.settings.addFilter": "Añadir filtro",
   "grid.settings.deleteFilter": "Eliminar filtro",
   "grid.textFilter.contains": "Contiene",
-  "grid.textFilter.doesNotContain": "No contiene"
+  "grid.textFilter.doesNotContain": "No contiene",
+  "document.plugins.autoGeneratorLearnMore": "Saber más"
 }
