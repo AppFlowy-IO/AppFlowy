@@ -371,5 +371,6 @@
   "grid.row.count": "Recuento",
   "settings.files.restoreLocation": "Restaurar a la ruta predeterminada de AppFlowy",
   "document.slashMenu.board.selectABoardToLinkTo": "Seleccione un tablero para vincular",
-  "document.plugins.autoGeneratorTitleName": "OpenAI: Pídele a la IA que escriba algo..."
+  "document.plugins.autoGeneratorTitleName": "OpenAI: Pídele a la IA que escriba algo...",
+  "document.plugins.cover.failedToAddImageToGallery": "No se pudo agregar la imagen a la galería"
 }
