@@ -326,5 +326,6 @@
   "document.plugins.cover.or": "O",
   "document.plugins.cover.imageSavingFailed": "Error al guardar la imagen",
   "board.menuName": "Tablero",
-  "board.referencedBoardPrefix": "Vista de"
+  "board.referencedBoardPrefix": "Vista de",
+  "calendar.navigation.jumpToday": "Saltar a hoy"
 }
