@@ -17,10 +17,11 @@ use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataRes
 use crate::{
   entities::{
     ApplyActionPayloadPB, BlockActionPB, BlockActionPayloadPB, BlockActionTypePB, BlockEventPB,
-    BlockEventPayloadPB, BlockPB, CloseDocumentPayloadPB, CreateDocumentPayloadPB, DeltaTypePB,
-    DocEventPB, DocumentDataPB, OpenDocumentPayloadPB,
+    BlockEventPayloadPB, BlockPB, CloseDocumentPayloadPB, ConvertDataPayloadPB, ConvertType,
+    CreateDocumentPayloadPB, DeltaTypePB, DocEventPB, DocumentDataPB, OpenDocumentPayloadPB,
   },
   manager::DocumentManager,
+  parser::json::parser::JsonToDocumentParser,
 };
 
 // Handler for creating a new document
@@ -77,6 +78,22 @@ pub(crate) async fn apply_action_handler(
   let actions = context.actions.into_iter().map(BlockAction::from).collect();
   document.lock().apply_action(actions);
   Ok(())
+}
+
+pub(crate) async fn convert_data_to_document(
+  data: AFPluginData<ConvertDataPayloadPB>,
+  _manager: AFPluginState<Arc<DocumentManager>>,
+) -> DataResult<DocumentDataPB, FlowyError> {
+  let payload = data.into_inner();
+  let convert_type = payload.convert_type;
+  let data = payload.data;
+  match convert_type {
+    ConvertType::Json => {
+      let json_str = String::from_utf8(data).map_err(|_| FlowyError::invalid_data())?;
+      let document = JsonToDocumentParser::json_str_to_document(&json_str)?;
+      data_result_ok(document)
+    },
+  }
 }
 
 impl From<BlockActionPB> for BlockAction {
