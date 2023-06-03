@@ -291,5 +291,6 @@
   "settings.files.folderHintText": "nombre de la carpeta",
   "document.plugins.smartEditImproveWriting": "Mejorar la escritura",
   "settings.files.doubleTapToCopy": "Toca dos veces para copiar la ruta",
-  "button.keep": "Mantener"
+  "button.keep": "Mantener",
+  "grid.textFilter.endsWith": "Termina con"
 }
