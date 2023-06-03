@@ -242,5 +242,6 @@
   "tooltip.viewDataBase": "Ver base de datos",
   "button.Done": "Hecho",
   "button.generate": "Generar",
-  "button.tryAgain": "Prueba otra vez"
+  "button.tryAgain": "Prueba otra vez",
+  "button.discard": "Descartar"
 }
