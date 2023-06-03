@@ -300,5 +300,6 @@
   "grid.textFilter.choicechipPrefix.endWith": "Termina con",
   "grid.checklistFilter.isComplete": "está completo",
   "grid.checklistFilter.isIncomplted": "está incompleto",
-  "grid.singleSelectOptionFilter.isEmpty": "Está vacio"
+  "grid.singleSelectOptionFilter.isEmpty": "Está vacio",
+  "grid.singleSelectOptionFilter.isNotEmpty": "No está vacío"
 }
