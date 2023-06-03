@@ -449,7 +449,27 @@ impl DatabaseEditor {
     }
   }
 
-  pub async fn get_cell(&self, field_id: &str, row_id: &RowId) -> Option<CellPB> {
+  pub async fn get_cell(&self, field_id: &str, row_id: &RowId) -> Option<Cell> {
+    let database = self.database.lock();
+    let field = database.fields.get_field(field_id)?;
+    let field_type = FieldType::from(field.field_type);
+    // If the cell data is referenced, return the reference data. Otherwise, return an empty cell.
+    match field_type {
+      FieldType::LastEditedTime | FieldType::CreatedTime => database
+        .get_row(row_id)
+        .map(|row| {
+          if field_type.is_created_time() {
+            DateCellData::new(row.created_at, true)
+          } else {
+            DateCellData::new(row.modified_at, true)
+          }
+        })
+        .map(Cell::from),
+      _ => database.get_cell(field_id, row_id).cell,
+    }
+  }
+
+  pub async fn get_cell_pb(&self, field_id: &str, row_id: &RowId) -> Option<CellPB> {
     let (field, cell) = {
       let database = self.database.lock();
       let field = database.fields.get_field(field_id)?;
@@ -483,7 +503,30 @@ impl DatabaseEditor {
   }
 
   pub async fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Vec<RowCell> {
-    self.database.lock().get_cells_for_field(view_id, field_id)
+    let database = self.database.lock();
+    if let Some(field) = database.fields.get_field(field_id) {
+      let field_type = FieldType::from(field.field_type);
+      match field_type {
+        FieldType::LastEditedTime | FieldType::CreatedTime => database
+          .get_rows_for_view(view_id)
+          .into_iter()
+          .map(|row| {
+            let data = if field_type.is_created_time() {
+              DateCellData::new(row.created_at, true)
+            } else {
+              DateCellData::new(row.modified_at, true)
+            };
+            RowCell {
+              row_id: row.id,
+              cell: Some(Cell::from(data)),
+            }
+          })
+          .collect(),
+        _ => database.get_cells_for_field(view_id, field_id),
+      }
+    } else {
+      vec![]
+    }
   }
 
   pub async fn update_cell_with_changeset<T>(

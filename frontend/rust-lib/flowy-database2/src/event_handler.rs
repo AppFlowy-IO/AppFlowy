@@ -372,7 +372,7 @@ pub(crate) async fn get_cell_handler(
   let params: CellIdParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   let cell = database_editor
-    .get_cell(&params.field_id, &params.row_id)
+    .get_cell_pb(&params.field_id, &params.row_id)
     .await
     .unwrap_or_else(|| CellPB::empty(&params.field_id, params.row_id.into_inner()));
   data_result_ok(cell)
