@@ -275,5 +275,6 @@
   "calendar.menuName": "Calendario",
   "calendar.defaultNewCalendarTitle": "Sin título",
   "calendar.navigation.today": "Hoy",
-  "calendar.navigation.previousMonth": "Mes anterior"
+  "calendar.navigation.previousMonth": "Mes anterior",
+  "calendar.navigation.nextMonth": "Próximo mes"
 }
