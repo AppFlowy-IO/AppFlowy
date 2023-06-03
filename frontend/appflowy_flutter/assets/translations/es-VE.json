@@ -362,5 +362,6 @@
   "settings.files.locationCannotBeEmpty": "La ruta no puede estar vacía",
   "settings.files.folderPath": "Ruta para almacenar tu carpeta",
   "settings.files.selectFiles": "Seleccione los archivos que necesiten ser exportados",
-  "grid.checkboxFilter.isChecked": "Comprobado"
+  "grid.checkboxFilter.isChecked": "Comprobado",
+  "grid.checkboxFilter.isUnchecked": "No comprobado"
 }
