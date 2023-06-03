@@ -376,5 +376,6 @@
   "button.esc": "ESC",
   "settings.files.openFolderDesc": "Lee y escribe en tu carpeta de AppFlowy existente",
   "grid.field.checklistFieldName": "Lista de verificación",
-  "document.plugins.autoGeneratorMenuItemName": "Escritor de OpenAI"
+  "document.plugins.autoGeneratorMenuItemName": "Escritor de OpenAI",
+  "document.plugins.smartEditFixSpelling": "Corregir ortografía"
 }
