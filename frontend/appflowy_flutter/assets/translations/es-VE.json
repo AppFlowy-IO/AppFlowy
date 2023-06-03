@@ -235,5 +235,6 @@
   "moreAction.fontSize": "Tamaño de letra",
   "moreAction.import": "Importar",
   "questionBubble.shortcuts": "Atajos",
-  "questionBubble.markdown": "Markdown"
+  "questionBubble.markdown": "Markdown",
+  "tooltip.addNewRow": "Añadir nueva línea"
 }
