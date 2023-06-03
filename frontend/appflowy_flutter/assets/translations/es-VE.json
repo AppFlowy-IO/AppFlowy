@@ -298,5 +298,6 @@
   "grid.textFilter.is": "Es",
   "grid.textFilter.choicechipPrefix.startWith": "Comienza con",
   "grid.textFilter.choicechipPrefix.endWith": "Termina con",
-  "grid.checklistFilter.isComplete": "está completo"
+  "grid.checklistFilter.isComplete": "está completo",
+  "grid.checklistFilter.isIncomplted": "está incompleto"
 }
