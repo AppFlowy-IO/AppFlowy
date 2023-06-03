@@ -334,5 +334,6 @@
   "settings.files.exportData": "Exporta tus datos",
   "grid.row.action": "Acción",
   "document.plugins.smartEditMakeLonger": "Hacer más largo",
-  "calendar.settings.emptyNoDate": "Sin eventos programados"
+  "calendar.settings.emptyNoDate": "Sin eventos programados",
+  "document.plugins.mathEquation.addMathEquation": "Agregar fórmula matemática"
 }
