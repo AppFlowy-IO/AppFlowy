@@ -354,5 +354,6 @@
   "grid.textFilter.choicechipPrefix.isNotEmpty": "no está vacío",
   "grid.textFilter.choicechipPrefix.isEmpty": "está vacío",
   "grid.textFilter.isNotEmpty": "No está vacío",
-  "grid.textFilter.choicechipPrefix.isNot": "No"
+  "grid.textFilter.choicechipPrefix.isNot": "No",
+  "grid.textFilter.isEmpty": "Está vacío"
 }
