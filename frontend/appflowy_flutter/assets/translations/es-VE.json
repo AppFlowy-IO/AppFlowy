@@ -276,5 +276,6 @@
   "calendar.defaultNewCalendarTitle": "Sin título",
   "calendar.navigation.today": "Hoy",
   "calendar.navigation.previousMonth": "Mes anterior",
-  "calendar.navigation.nextMonth": "Próximo mes"
+  "calendar.navigation.nextMonth": "Próximo mes",
+  "moreAction.moreOptions": "Más opciones"
 }
