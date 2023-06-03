@@ -19,7 +19,7 @@ class FieldEditor extends StatefulWidget {
   final bool isGroupingField;
   final Function(String)? onDeleted;
   final Function(String)? onHidden;
-  final ITypeOptionLoader typeOptionLoader;
+  final FieldTypeOptionLoader typeOptionLoader;
 
   const FieldEditor({
     required this.viewId,
@@ -59,12 +59,13 @@ class _FieldEditorState extends State<FieldEditor> {
       _FieldTypeOptionCell(popoverMutex: popoverMutex),
     ];
     return BlocProvider(
-      create: (context) => FieldEditorBloc(
-        viewId: widget.viewId,
-        fieldName: widget.typeOptionLoader.fieldName,
-        isGroupField: widget.isGroupingField,
-        loader: widget.typeOptionLoader,
-      )..add(const FieldEditorEvent.initial()),
+      create: (context) {
+        return FieldEditorBloc(
+          isGroupField: widget.isGroupingField,
+          loader: widget.typeOptionLoader,
+          field: widget.typeOptionLoader.field,
+        )..add(const FieldEditorEvent.initial());
+      },
       child: ListView.builder(
         shrinkWrap: true,
         itemCount: children.length,

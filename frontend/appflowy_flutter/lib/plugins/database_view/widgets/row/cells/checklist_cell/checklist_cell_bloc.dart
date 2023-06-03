@@ -15,8 +15,9 @@ class ChecklistCardCellBloc
   void Function()? _onCellChangedFn;
   ChecklistCardCellBloc({
     required this.cellController,
-  })  : _checklistCellSvc =
-            ChecklistCellBackendService(cellId: cellController.cellId),
+  })  : _checklistCellSvc = ChecklistCellBackendService(
+          cellContext: cellController.cellContext,
+        ),
         super(ChecklistCellState.initial(cellController)) {
     on<ChecklistCellEvent>(
       (event, emit) async {

@@ -1,6 +1,6 @@
 part of 'cell_service.dart';
 
-typedef CellByFieldId = LinkedHashMap<String, CellIdentifier>;
+typedef CellContextByFieldId = LinkedHashMap<String, DatabaseCellContext>;
 
 class DatabaseCell {
   dynamic object;

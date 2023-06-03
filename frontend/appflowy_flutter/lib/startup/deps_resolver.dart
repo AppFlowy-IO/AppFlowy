@@ -171,7 +171,7 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<FieldActionSheetBloc, FieldCellContext, void>(
+  getIt.registerFactoryParam<FieldActionSheetBloc, FieldContext, void>(
     (data, _) => FieldActionSheetBloc(fieldCellContext: data),
   );
 

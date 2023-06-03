@@ -41,10 +41,9 @@ void main() {
     );
 
     final editorBloc = FieldEditorBloc(
-      viewId: context.gridView.id,
-      fieldName: textField.field.name,
       isGroupField: false,
       loader: loader,
+      field: textField.field,
     )..add(const FieldEditorEvent.initial());
     await gridResponseFuture();
 
