@@ -318,5 +318,6 @@
   "document.plugins.warning": "⚠️ Las respuestas de la IA pueden ser inexactas o engañosas.",
   "document.plugins.smartEditSummarize": "Resumir",
   "document.plugins.smartEditCouldNotFetchKey": "No se pudo obtener la clave de OpenAI",
-  "document.plugins.smartEditCouldNotFetchResult": "No se pudo obtener el resultado de OpenAI"
+  "document.plugins.smartEditCouldNotFetchResult": "No se pudo obtener el resultado de OpenAI",
+  "document.plugins.cover.addLocalImage": "Agregar imagen local"
 }
