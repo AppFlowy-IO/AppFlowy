@@ -262,5 +262,6 @@
   "grid.textFilter.contains": "Contiene",
   "grid.textFilter.doesNotContain": "No contiene",
   "document.plugins.autoGeneratorLearnMore": "Saber más",
-  "settings.files.location": "Creando una nueva carpeta"
+  "settings.files.location": "Creando una nueva carpeta",
+  "settings.user.name": "Nombre"
 }
