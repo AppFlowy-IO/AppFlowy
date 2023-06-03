@@ -1,7 +1,7 @@
-use collab_database::database::gen_database_view_id;
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use collab_database::database::{gen_database_view_id, timestamp};
 use collab_database::fields::Field;
 use collab_database::rows::{CreateRowParams, Row, RowId};
 use strum::EnumCount;
@@ -418,7 +418,7 @@ impl<'a> TestRowBuilder<'a> {
       height: 60,
       visibility: true,
       prev_row_id: None,
-      timestamp: 0,
+      timestamp: timestamp(),
     }
   }
 }

@@ -2,7 +2,7 @@ import { Err, Ok } from 'ts-results';
 import {
   FolderEventCreateView,
   FolderEventMoveItem,
-  FolderEventReadWorkspaceApps,
+  FolderEventReadWorkspaceViews,
   FolderEventReadWorkspaces,
 } from '@/services/backend/events/flowy-folder2';
 import {
@@ -52,7 +52,7 @@ export class WorkspaceBackendService {
 
   getApps = () => {
     const payload = WorkspaceIdPB.fromObject({ value: this.workspaceId });
-    return FolderEventReadWorkspaceApps(payload).then((result) => result.map((val) => val.items));
+    return FolderEventReadWorkspaceViews(payload).then((result) => result.map((val) => val.items));
   };
 
   moveApp = (params: { appId: string; fromIndex: number; toIndex: number }) => {

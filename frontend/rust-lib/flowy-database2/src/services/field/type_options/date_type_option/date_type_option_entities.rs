@@ -51,6 +51,15 @@ pub struct DateCellData {
   pub include_time: bool,
 }
 
+impl DateCellData {
+  pub fn new(timestamp: i64, include_time: bool) -> Self {
+    Self {
+      timestamp: Some(timestamp),
+      include_time,
+    }
+  }
+}
+
 impl From<&Cell> for DateCellData {
   fn from(cell: &Cell) -> Self {
     let timestamp = cell

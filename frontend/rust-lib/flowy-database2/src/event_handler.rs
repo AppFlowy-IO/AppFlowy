@@ -1,16 +1,15 @@
-use collab_database::database::gen_row_id;
 use std::sync::Arc;
 
+use collab_database::database::gen_row_id;
 use collab_database::rows::RowId;
-use lib_infra::util::timestamp;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+use lib_infra::util::timestamp;
 
 use crate::entities::*;
 use crate::manager::DatabaseManager2;
 use crate::services::cell::CellBuilder;
-
 use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
   type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
@@ -373,8 +372,9 @@ pub(crate) async fn get_cell_handler(
   let params: CellIdParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   let cell = database_editor
-    .get_cell(&params.field_id, params.row_id)
-    .await;
+    .get_cell_pb(&params.field_id, &params.row_id)
+    .await
+    .unwrap_or_else(|| CellPB::empty(&params.field_id, params.row_id.into_inner()));
   data_result_ok(cell)
 }
 

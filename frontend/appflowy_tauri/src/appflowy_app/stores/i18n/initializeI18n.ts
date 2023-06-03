@@ -2,6 +2,7 @@ import i18n from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
 import en from '../../../../../appflowy_flutter/assets/translations/en.json';
+import ar_SA from '../../../../../appflowy_flutter/assets/translations/ar-SA.json';
 import ca_ES from '../../../../../appflowy_flutter/assets/translations/ca-ES.json';
 import de_DE from '../../../../../appflowy_flutter/assets/translations/de-DE.json';
 import es_VE from '../../../../../appflowy_flutter/assets/translations/es-VE.json';
@@ -29,6 +30,7 @@ export default function () {
     .init({
       resources: {
         en: { translation: en },
+        'ar-SA': { translation: ar_SA },
         'ca-ES': { translation: ca_ES },
         'de-DE': { translation: de_DE },
         'es-VE': { translation: es_VE },

@@ -15,13 +15,13 @@ use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
 use crate::{
-  document_data::DocumentDataWrapper,
   entities::{
     ApplyActionPayloadPB, BlockActionPB, BlockActionPayloadPB, BlockActionTypePB, BlockEventPB,
-    BlockEventPayloadPB, BlockPB, CloseDocumentPayloadPB, CreateDocumentPayloadPB, DeltaTypePB,
-    DocEventPB, DocumentDataPB, OpenDocumentPayloadPB,
+    BlockEventPayloadPB, BlockPB, CloseDocumentPayloadPB, ConvertDataPayloadPB, ConvertType,
+    CreateDocumentPayloadPB, DeltaTypePB, DocEventPB, DocumentDataPB, OpenDocumentPayloadPB,
   },
   manager::DocumentManager,
+  parser::json::parser::JsonToDocumentParser,
 };
 
 // Handler for creating a new document
@@ -29,12 +29,9 @@ pub(crate) async fn create_document_handler(
   data: AFPluginData<CreateDocumentPayloadPB>,
   manager: AFPluginState<Arc<DocumentManager>>,
 ) -> FlowyResult<()> {
-  let context = data.into_inner();
-  let initial_data: DocumentDataWrapper = context
-    .initial_data
-    .map(|data| data.into())
-    .unwrap_or_default();
-  manager.create_document(context.document_id, initial_data)?;
+  let data = data.into_inner();
+  let initial_data = data.initial_data.map(|data| data.into());
+  manager.create_document(data.document_id, initial_data)?;
   Ok(())
 }
 
@@ -46,7 +43,7 @@ pub(crate) async fn open_document_handler(
   let context = data.into_inner();
   let document = manager.open_document(context.document_id)?;
   let document_data = document.lock().get_document()?;
-  data_result_ok(DocumentDataPB::from(DocumentDataWrapper(document_data)))
+  data_result_ok(DocumentDataPB::from(document_data))
 }
 
 pub(crate) async fn close_document_handler(
@@ -67,7 +64,7 @@ pub(crate) async fn get_document_data_handler(
   let context = data.into_inner();
   let document = manager.get_document(context.document_id)?;
   let document_data = document.lock().get_document()?;
-  data_result_ok(DocumentDataPB::from(DocumentDataWrapper(document_data)))
+  data_result_ok(DocumentDataPB::from(document_data))
 }
 
 // Handler for applying an action to a document
@@ -81,6 +78,29 @@ pub(crate) async fn apply_action_handler(
   let actions = context.actions.into_iter().map(BlockAction::from).collect();
   document.lock().apply_action(actions);
   Ok(())
+}
+
+pub(crate) async fn convert_data_to_document(
+  data: AFPluginData<ConvertDataPayloadPB>,
+  _manager: AFPluginState<Arc<DocumentManager>>,
+) -> DataResult<DocumentDataPB, FlowyError> {
+  let payload = data.into_inner();
+  let document = convert_data_to_document_internal(payload)?;
+  data_result_ok(document)
+}
+
+pub fn convert_data_to_document_internal(
+  payload: ConvertDataPayloadPB,
+) -> Result<DocumentDataPB, FlowyError> {
+  let convert_type = payload.convert_type;
+  let data = payload.data;
+  match convert_type {
+    ConvertType::Json => {
+      let json_str = String::from_utf8(data).map_err(|_| FlowyError::invalid_data())?;
+      let document = JsonToDocumentParser::json_str_to_document(&json_str)?;
+      Ok(document)
+    },
+  }
 }
 
 impl From<BlockActionPB> for BlockAction {

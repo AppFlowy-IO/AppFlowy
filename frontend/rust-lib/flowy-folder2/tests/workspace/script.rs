@@ -218,7 +218,8 @@ pub async fn create_app(sdk: &FlowyCoreTest, workspace_id: &str, name: &str, des
     thumbnail: None,
     layout: ViewLayout::Document.into(),
     initial_data: vec![],
-    ext: Default::default(),
+    meta: Default::default(),
+    set_as_current: true,
   };
 
   EventBuilder::new(sdk.clone())
@@ -243,7 +244,8 @@ pub async fn create_view(
     thumbnail: None,
     layout: layout.into(),
     initial_data: vec![],
-    ext: Default::default(),
+    meta: Default::default(),
+    set_as_current: true,
   };
   EventBuilder::new(sdk.clone())
     .event(CreateView)

@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use flowy_database2::entities::{CellChangesetPB, FieldType};
 use flowy_database2::services::cell::ToCellChangeset;
 use flowy_database2::services::field::checklist_type_option::ChecklistCellChangeset;
@@ -130,12 +132,14 @@ async fn update_updated_at_field_on_other_cell_update() {
       is_err: false,
     })
     .await;
-  let after_update_timestamp = chrono::offset::Utc::now().timestamp();
 
   let cells = test
     .editor
     .get_cells_for_field(&test.view_id, &updated_at_field.id)
     .await;
+
+  tokio::time::sleep(Duration::from_millis(500)).await;
+  let after_update_timestamp = chrono::offset::Utc::now().timestamp();
   assert!(!cells.is_empty());
   for (i, row_cell) in cells.into_iter().enumerate() {
     let timestamp = DateCellData::from(row_cell.cell.as_ref().unwrap())

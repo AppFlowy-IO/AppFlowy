@@ -22,9 +22,6 @@ class DocumentService {
   Future<Either<FlowyError, DocumentDataPB>> openDocument({
     required ViewPB view,
   }) async {
-    // set the latest view
-    await FolderEventSetLatestView(ViewIdPB(value: view.id)).send();
-
     final payload = OpenDocumentPayloadPB()..documentId = view.id;
     final result = await DocumentEventOpenDocument(payload).send();
     return result.swap();

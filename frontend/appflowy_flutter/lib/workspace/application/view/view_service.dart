@@ -8,10 +8,18 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 
 class ViewBackendService {
   static Future<Either<ViewPB, FlowyError>> createView({
+    /// The [layoutType] is the type of the view.
     required ViewLayoutPB layoutType,
+
+    /// The [parentViewId] is the parent view id.
     required String parentViewId,
+
+    /// The [name] is the name of the view.
     required String name,
     String? desc,
+
+    /// If [openAfterCreate] is true, the view will be opened after created.
+    bool openAfterCreate = true,
 
     /// The initial data should be a JSON that represent the DocumentDataPB.
     /// Currently, only support create document with initial data.
@@ -29,10 +37,11 @@ class ViewBackendService {
       ..name = name
       ..desc = desc ?? ""
       ..layout = layoutType
+      ..setAsCurrent = openAfterCreate
       ..initialData = initialDataBytes ?? [];
 
     if (ext.isNotEmpty) {
-      payload.ext.addAll(ext);
+      payload.meta.addAll(ext);
     }
 
     return FolderEventCreateView(payload).send();
@@ -48,12 +57,14 @@ class ViewBackendService {
       layoutType: layoutType,
       parentViewId: parentViewId,
       name: name,
+      openAfterCreate: false,
       ext: {
         'database_id': databaseId,
       },
     );
   }
 
+  /// Returns a list of views that are the children of the given [viewId].
   static Future<Either<List<ViewPB>, FlowyError>> getViews({
     required String viewId,
   }) {

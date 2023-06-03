@@ -2,13 +2,14 @@ use std::{collections::HashMap, sync::Arc};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::RocksCollabDB;
+use collab_document::blocks::DocumentData;
 use parking_lot::RwLock;
 
 use flowy_error::{FlowyError, FlowyResult};
 
-use crate::document_data::DocumentDataWrapper;
 use crate::{
   document::Document,
+  document_data::default_document_data,
   entities::DocEventPB,
   notification::{send_notification, DocumentNotification},
 };
@@ -34,16 +35,21 @@ impl DocumentManager {
     }
   }
 
+  /// Create a new document.
+  ///
+  /// if the document already exists, return the existing document.
+  /// if the data is None, will create a document with default data.
   pub fn create_document(
     &self,
     doc_id: String,
-    data: DocumentDataWrapper,
+    data: Option<DocumentData>,
   ) -> FlowyResult<Arc<Document>> {
     tracing::debug!("create a document: {:?}", &doc_id);
     let uid = self.user.user_id()?;
     let db = self.user.collab_db()?;
     let collab = self.collab_builder.build(uid, &doc_id, "document", db);
-    let document = Arc::new(Document::create_with_data(collab, data.0)?);
+    let data = data.unwrap_or_else(|| default_document_data());
+    let document = Arc::new(Document::create_with_data(collab, data)?);
     Ok(document)
   }
 

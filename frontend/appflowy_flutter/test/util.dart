@@ -90,7 +90,7 @@ class AppFlowyUnitTest {
   }
 
   Future<List<ViewPB>> loadApps() async {
-    final result = await workspaceService.getApps();
+    final result = await workspaceService.getViews();
 
     return result.fold(
       (apps) => apps,

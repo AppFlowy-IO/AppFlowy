@@ -141,7 +141,11 @@ pub struct CreateViewPayloadPB {
   pub initial_data: Vec<u8>,
 
   #[pb(index = 7)]
-  pub ext: HashMap<String, String>,
+  pub meta: HashMap<String, String>,
+
+  /// Mark the view as current view after creation.
+  #[pb(index = 8)]
+  pub set_as_current: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -153,6 +157,8 @@ pub struct CreateViewParams {
   pub view_id: String,
   pub initial_data: Vec<u8>,
   pub meta: HashMap<String, String>,
+  /// Mark the view as current view after creation.
+  pub set_as_current: bool,
 }
 
 impl TryInto<CreateViewParams> for CreateViewPayloadPB {
@@ -170,7 +176,8 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
       layout: self.layout,
       view_id,
       initial_data: self.initial_data,
-      meta: self.ext,
+      meta: self.meta,
+      set_as_current: self.set_as_current,
     })
   }
 }

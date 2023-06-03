@@ -267,6 +267,9 @@ impl Folder2Manager {
     Ok(())
   }
 
+  /// Returns the view with the given view id.
+  /// The child views of the view will only access the first. So if you want to get the child view's
+  /// child view, you need to call this method again.
   #[tracing::instrument(level = "debug", skip(self, view_id), err)]
   pub async fn get_view(&self, view_id: &str) -> FlowyResult<ViewPB> {
     let view_id = view_id.to_string();
@@ -305,6 +308,8 @@ impl Folder2Manager {
     Ok(())
   }
 
+  /// Move the view to trash. If the view is the current view, then set the current view to empty.
+  /// When the view is moved to trash, all the child views will be moved to trash as well.
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn move_view_to_trash(&self, view_id: &str) -> FlowyResult<()> {
     self.with_folder((), |folder| {
@@ -323,6 +328,7 @@ impl Folder2Manager {
     Ok(())
   }
 
+  /// Move the view from one position to another position.
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn move_view(&self, view_id: &str, from: usize, to: usize) -> FlowyResult<()> {
     let view = self.with_folder(None, |folder| {
@@ -338,12 +344,16 @@ impl Folder2Manager {
     Ok(())
   }
 
-  #[tracing::instrument(level = "debug", skip(self, bid), err)]
-  pub async fn get_views_belong_to(&self, bid: &str) -> FlowyResult<Vec<View>> {
-    let views = self.with_folder(vec![], |folder| folder.views.get_views_belong_to(bid));
+  /// Return a list of views that belong to the given parent view id.
+  #[tracing::instrument(level = "debug", skip(self, parent_view_id), err)]
+  pub async fn get_views_belong_to(&self, parent_view_id: &str) -> FlowyResult<Vec<View>> {
+    let views = self.with_folder(vec![], |folder| {
+      folder.views.get_views_belong_to(parent_view_id)
+    });
     Ok(views)
   }
 
+  /// Update the view with the given params.
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn update_view_with_params(&self, params: UpdateViewParams) -> FlowyResult<()> {
     let value = self.with_folder(None, |folder| {
@@ -376,6 +386,7 @@ impl Folder2Manager {
     Ok(())
   }
 
+  /// Duplicate the view with the given view id.
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub(crate) async fn duplicate_view(&self, view_id: &str) -> Result<(), FlowyError> {
     let view = self
@@ -384,10 +395,6 @@ impl Folder2Manager {
 
     let handler = self.get_handler(&view.layout)?;
     let view_data = handler.duplicate_view(&view.id).await?;
-    let meta = HashMap::new();
-    // if let Some(database_id) = view.database_id {
-    //   meta.insert("database_id".to_string(), database_id);
-    // }
     let duplicate_params = CreateViewParams {
       parent_view_id: view.parent_view_id.clone(),
       name: format!("{} (copy)", &view.name),
@@ -395,7 +402,8 @@ impl Folder2Manager {
       layout: view.layout.into(),
       initial_data: view_data.to_vec(),
       view_id: gen_view_id(),
-      meta,
+      meta: Default::default(),
+      set_as_current: true,
     };
 
     let _ = self.create_view_with_params(duplicate_params).await?;
@@ -496,6 +504,7 @@ impl Folder2Manager {
       initial_data: vec![],
       view_id,
       meta: Default::default(),
+      set_as_current: false,
     };
 
     let view = create_view(params, import_data.view_layout);

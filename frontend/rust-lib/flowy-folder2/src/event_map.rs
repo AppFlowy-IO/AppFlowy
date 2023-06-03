@@ -17,7 +17,7 @@ pub fn init(folder: Arc<Folder2Manager>) -> AFPlugin {
     )
     .event(FolderEvent::ReadWorkspaces, read_workspaces_handler)
     .event(FolderEvent::OpenWorkspace, open_workspace_handler)
-    .event(FolderEvent::ReadWorkspaceApps, read_workspace_apps_handler)
+    .event(FolderEvent::ReadWorkspaceViews, read_workspace_views_handler)
      // View
     .event(FolderEvent::CreateView, create_view_handler)
     .event(FolderEvent::ReadView, read_view_handler)
@@ -43,11 +43,11 @@ pub enum FolderEvent {
   #[event(input = "CreateWorkspacePayloadPB", output = "WorkspacePB")]
   CreateWorkspace = 0,
 
-  /// Read the current opening workspace
+  /// Read the current opening workspace. Currently, we only support one workspace
   #[event(output = "WorkspaceSettingPB")]
   ReadCurrentWorkspace = 1,
 
-  /// Open the workspace and mark it as the current workspace
+  /// Return a list of workspaces that the current user can access
   #[event(input = "WorkspaceIdPB", output = "RepeatedWorkspacePB")]
   ReadWorkspaces = 2,
 
@@ -59,9 +59,9 @@ pub enum FolderEvent {
   #[event(input = "WorkspaceIdPB", output = "WorkspacePB")]
   OpenWorkspace = 4,
 
-  /// Return a list of apps that belong to this workspace
+  /// Return a list of views that belong to this workspace.
   #[event(input = "WorkspaceIdPB", output = "RepeatedViewPB")]
-  ReadWorkspaceApps = 5,
+  ReadWorkspaceViews = 5,
 
   /// Create a new view in the corresponding app
   #[event(input = "CreateViewPayloadPB", output = "ViewPB")]
