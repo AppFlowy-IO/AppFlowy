@@ -344,5 +344,6 @@
   "document.plugins.cover.enterImageUrl": "Introducir URL de la imagen",
   "document.plugins.cover.invalidImageUrl": "URL de imagen no válida",
   "document.plugins.cover.clearAll": "Limpiar todo",
-  "document.plugins.discardResponse": "¿Quieres descartar las respuestas de la IA?"
+  "document.plugins.discardResponse": "¿Quieres descartar las respuestas de la IA?",
+  "document.plugins.smartEditDisabled": "Conectar a OpenAI en Ajustes"
 }
