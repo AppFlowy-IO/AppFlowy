@@ -315,5 +315,6 @@
   "document.plugins.autoGeneratorGenerate": "Generar",
   "document.plugins.autoGeneratorHintText": "Pregúntale a OpenAI...",
   "document.plugins.openAI": "OpenAI",
-  "document.plugins.warning": "⚠️ Las respuestas de la IA pueden ser inexactas o engañosas."
+  "document.plugins.warning": "⚠️ Las respuestas de la IA pueden ser inexactas o engañosas.",
+  "document.plugins.smartEditSummarize": "Resumir"
 }
