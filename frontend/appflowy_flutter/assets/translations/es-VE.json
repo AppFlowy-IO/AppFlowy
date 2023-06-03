@@ -256,5 +256,6 @@
   "settings.files.open": "Abrir",
   "settings.files.openFolder": "Abrir una carpeta existente",
   "settings.user.icon": "Icono",
-  "settings.user.selectAnIcon": "Selecciona un icono"
+  "settings.user.selectAnIcon": "Selecciona un icono",
+  "grid.settings.addFilter": "Añadir filtro"
 }
