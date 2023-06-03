@@ -146,7 +146,7 @@
     },
     "appearance": {
       "themeMode": {
-        "label": "Theme Mode",
+        "label": "Tema",
         "light": "Modo Claro",
         "dark": "Modo Oscuro",
         "system": "Adaptar al sistema"
