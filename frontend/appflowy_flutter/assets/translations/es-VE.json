@@ -288,5 +288,6 @@
   "settings.files.create": "Crear",
   "settings.files.browser": "Navegar",
   "settings.files.locationDesc": "Elija un nombre para su carpeta de datos de AppFlowy",
-  "settings.files.folderHintText": "nombre de la carpeta"
+  "settings.files.folderHintText": "nombre de la carpeta",
+  "document.plugins.smartEditImproveWriting": "Mejorar la escritura"
 }
