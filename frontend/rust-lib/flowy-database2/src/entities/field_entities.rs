@@ -496,17 +496,6 @@ pub enum FieldType {
   CreatedTime = 9,
 }
 
-pub const RICH_TEXT_FIELD: FieldType = FieldType::RichText;
-pub const NUMBER_FIELD: FieldType = FieldType::Number;
-pub const DATE_FIELD: FieldType = FieldType::DateTime;
-pub const SINGLE_SELECT_FIELD: FieldType = FieldType::SingleSelect;
-pub const MULTI_SELECT_FIELD: FieldType = FieldType::MultiSelect;
-pub const CHECKBOX_FIELD: FieldType = FieldType::Checkbox;
-pub const URL_FIELD: FieldType = FieldType::URL;
-pub const CHECKLIST_FIELD: FieldType = FieldType::Checklist;
-pub const UPDATED_AT_FIELD: FieldType = FieldType::LastEditedTime;
-pub const CREATED_AT_FIELD: FieldType = FieldType::CreatedTime;
-
 impl std::default::Default for FieldType {
   fn default() -> Self {
     FieldType::RichText
@@ -561,43 +550,57 @@ impl FieldType {
   }
 
   pub fn is_number(&self) -> bool {
-    self == &NUMBER_FIELD
+    matches!(self, FieldType::Number)
   }
 
   pub fn is_text(&self) -> bool {
-    self == &RICH_TEXT_FIELD
+    matches!(self, FieldType::RichText)
   }
 
   pub fn is_checkbox(&self) -> bool {
-    self == &CHECKBOX_FIELD
+    matches!(self, FieldType::Checkbox)
   }
 
   pub fn is_date(&self) -> bool {
-    self == &DATE_FIELD || self == &UPDATED_AT_FIELD || self == &CREATED_AT_FIELD
+    matches!(self, FieldType::DateTime)
+      || matches!(self, FieldType::LastEditedTime)
+      || matches!(self, FieldType::CreatedTime)
   }
 
   pub fn is_single_select(&self) -> bool {
-    self == &SINGLE_SELECT_FIELD
+    matches!(self, FieldType::SingleSelect)
   }
 
   pub fn is_multi_select(&self) -> bool {
-    self == &MULTI_SELECT_FIELD
+    matches!(self, FieldType::MultiSelect)
+  }
+
+  pub fn is_last_edited_time(&self) -> bool {
+    matches!(self, FieldType::LastEditedTime)
+  }
+
+  pub fn is_created_time(&self) -> bool {
+    matches!(self, FieldType::CreatedTime)
   }
 
   pub fn is_url(&self) -> bool {
-    self == &URL_FIELD
+    matches!(self, FieldType::URL)
   }
 
   pub fn is_select_option(&self) -> bool {
-    self == &MULTI_SELECT_FIELD || self == &SINGLE_SELECT_FIELD
+    self.is_single_select() || self.is_multi_select()
   }
 
   pub fn is_checklist(&self) -> bool {
-    self == &CHECKLIST_FIELD
+    matches!(self, FieldType::Checklist)
   }
 
   pub fn can_be_group(&self) -> bool {
     self.is_select_option() || self.is_checkbox() || self.is_url()
+  }
+
+  pub fn is_auto_update(&self) -> bool {
+    self.is_last_edited_time()
   }
 }
 
