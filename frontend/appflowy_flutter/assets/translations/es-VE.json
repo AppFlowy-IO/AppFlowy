@@ -272,5 +272,6 @@
   "document.plugins.cover.colors": "Colores",
   "document.plugins.cover.images": "Imágenes",
   "document.plugins.cover.addIcon": "Añadir icono",
-  "calendar.menuName": "Calendario"
+  "calendar.menuName": "Calendario",
+  "calendar.defaultNewCalendarTitle": "Sin título"
 }
