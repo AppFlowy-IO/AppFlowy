@@ -245,5 +245,6 @@
   "button.tryAgain": "Prueba otra vez",
   "button.discard": "Descartar",
   "button.replace": "Reemplazar",
-  "button.insertBelow": "Insertar debajo"
+  "button.insertBelow": "Insertar debajo",
+  "settings.menu.user": "Usuario"
 }
