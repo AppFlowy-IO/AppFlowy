@@ -339,5 +339,6 @@
   "document.plugins.mathEquation.editMathEquation": "Editar fórmula matemática",
   "document.plugins.cover.alertDialogConfirmation": "¿Estás seguro de querer continuar?",
   "document.plugins.cover.couldNotFetchImage": "No se pudo obtener la imagen",
-  "document.plugins.cover.pasteImageUrl": "Pegar URL de imagen"
+  "document.plugins.cover.pasteImageUrl": "Pegar URL de imagen",
+  "document.plugins.cover.saveToGallery": "Guardar en la galería"
 }
