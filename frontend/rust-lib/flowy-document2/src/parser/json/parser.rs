@@ -1,8 +1,9 @@
 use std::{collections::HashMap, vec};
 
-use flowy_error::FlowyResult;
 use indexmap::IndexMap;
 use nanoid::nanoid;
+
+use flowy_error::FlowyResult;
 
 use crate::entities::{BlockPB, ChildrenPB, DocumentDataPB, MetaPB};
 
@@ -69,12 +70,12 @@ impl JsonToDocumentParser {
   }
 
   fn block_to_block_pb(block: &Block, id: Option<String>, parent_id: String) -> BlockPB {
-    let id = id.unwrap_or(nanoid!(10));
+    let id = id.unwrap_or_else(|| nanoid!(10));
     BlockPB {
-      id: id.clone(),
+      id,
       ty: block.ty.clone(),
       data: serde_json::to_string(&block.data).unwrap(),
-      parent_id: parent_id.clone(),
+      parent_id,
       children_id: nanoid!(10),
     }
   }

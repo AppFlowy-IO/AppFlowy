@@ -3,7 +3,7 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use bytes::Bytes;
-use collab_database::database::{timestamp, Database as InnerDatabase};
+use collab_database::database::Database as InnerDatabase;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
@@ -24,22 +24,20 @@ use crate::entities::{
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
-  apply_cell_changeset, get_cell_protobuf, insert_date_cell, AnyTypeCache, CellCache,
-  ToCellChangeset,
+  apply_cell_changeset, get_cell_protobuf, AnyTypeCache, CellCache, ToCellChangeset,
 };
 use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewData, DatabaseViews};
 use crate::services::field::checklist_type_option::{ChecklistCellChangeset, ChecklistCellData};
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
-  type_option_data_from_pb_or_default, type_option_to_pb, SelectOptionCellChangeset,
+  type_option_data_from_pb_or_default, type_option_to_pb, DateCellData, SelectOptionCellChangeset,
   SelectOptionIds, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
 use crate::services::filter::Filter;
 use crate::services::group::{
   default_group_setting, GroupSetting, GroupSettingChangeset, RowChangeset,
 };
-
 use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
 
@@ -451,31 +449,84 @@ impl DatabaseEditor {
     }
   }
 
-  pub async fn get_cell(&self, field_id: &str, row_id: RowId) -> CellPB {
-    let (field, cell) = {
-      let database = self.database.lock();
-      let field = database.fields.get_field(field_id);
-      let cell = database.get_cell(field_id, &row_id).cell;
-      (field, cell)
-    };
-
-    match (field, cell) {
-      (Some(field), Some(cell)) => {
-        let field_type = FieldType::from(field.field_type);
-        let cell_bytes = get_cell_protobuf(&cell, &field, Some(self.cell_cache.clone()));
-        CellPB {
-          field_id: field_id.to_string(),
-          row_id: row_id.into(),
-          data: cell_bytes.to_vec(),
-          field_type: Some(field_type),
-        }
-      },
-      _ => CellPB::empty(field_id, row_id.into_inner()),
+  pub async fn get_cell(&self, field_id: &str, row_id: &RowId) -> Option<Cell> {
+    let database = self.database.lock();
+    let field = database.fields.get_field(field_id)?;
+    let field_type = FieldType::from(field.field_type);
+    // If the cell data is referenced, return the reference data. Otherwise, return an empty cell.
+    match field_type {
+      FieldType::LastEditedTime | FieldType::CreatedTime => database
+        .get_row(row_id)
+        .map(|row| {
+          if field_type.is_created_time() {
+            DateCellData::new(row.created_at, true)
+          } else {
+            DateCellData::new(row.modified_at, true)
+          }
+        })
+        .map(Cell::from),
+      _ => database.get_cell(field_id, row_id).cell,
     }
   }
 
+  pub async fn get_cell_pb(&self, field_id: &str, row_id: &RowId) -> Option<CellPB> {
+    let (field, cell) = {
+      let database = self.database.lock();
+      let field = database.fields.get_field(field_id)?;
+      let field_type = FieldType::from(field.field_type);
+      // If the cell data is referenced, return the reference data. Otherwise, return an empty cell.
+      let cell = match field_type {
+        FieldType::LastEditedTime | FieldType::CreatedTime => database
+          .get_row(row_id)
+          .map(|row| {
+            if field_type.is_created_time() {
+              DateCellData::new(row.created_at, true)
+            } else {
+              DateCellData::new(row.modified_at, true)
+            }
+          })
+          .map(Cell::from),
+        _ => database.get_cell(field_id, row_id).cell,
+      }?;
+
+      (field, cell)
+    };
+
+    let field_type = FieldType::from(field.field_type);
+    let cell_bytes = get_cell_protobuf(&cell, &field, Some(self.cell_cache.clone()));
+    Some(CellPB {
+      field_id: field_id.to_string(),
+      row_id: row_id.clone().into(),
+      data: cell_bytes.to_vec(),
+      field_type: Some(field_type),
+    })
+  }
+
   pub async fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Vec<RowCell> {
-    self.database.lock().get_cells_for_field(view_id, field_id)
+    let database = self.database.lock();
+    if let Some(field) = database.fields.get_field(field_id) {
+      let field_type = FieldType::from(field.field_type);
+      match field_type {
+        FieldType::LastEditedTime | FieldType::CreatedTime => database
+          .get_rows_for_view(view_id)
+          .into_iter()
+          .map(|row| {
+            let data = if field_type.is_created_time() {
+              DateCellData::new(row.created_at, true)
+            } else {
+              DateCellData::new(row.modified_at, true)
+            };
+            RowCell {
+              row_id: row.id,
+              cell: Some(Cell::from(data)),
+            }
+          })
+          .collect(),
+        _ => database.get_cells_for_field(view_id, field_id),
+      }
+    } else {
+      vec![]
+    }
   }
 
   pub async fn update_cell_with_changeset<T>(
@@ -516,22 +567,13 @@ impl DatabaseEditor {
     // Get the old row before updating the cell. It would be better to get the old cell
     let old_row = { self.database.lock().get_row(&row_id) };
 
-    // Get all the updated_at fields. We will update all of them.
-    let updated_at_fields = self
-      .database
-      .lock()
-      .get_fields(view_id, None)
-      .into_iter()
-      .filter(|f| FieldType::from(f.field_type) == FieldType::LastEditedTime)
-      .collect::<Vec<Field>>();
+    // Get all auto updated fields. It will be used to notify the frontend
+    // that the fields have been updated.
+    let auto_updated_fields = self.get_auto_updated_fields(view_id);
 
     self.database.lock().update_row(&row_id, |row_update| {
       row_update.update_cells(|cell_update| {
-        let mut cells_update = cell_update.insert(field_id, new_cell);
-        for field in &updated_at_fields {
-          cells_update =
-            cells_update.insert(&field.id, insert_date_cell(timestamp(), Some(true), field));
-        }
+        cell_update.insert(field_id, new_cell);
       });
     });
 
@@ -552,12 +594,12 @@ impl DatabaseEditor {
     }
 
     // Collect all the updated field's id. Notify the frontend that all of them have been updated.
-    let mut updated_field_ids = updated_at_fields
+    let mut auto_updated_field_ids = auto_updated_fields
       .into_iter()
       .map(|field| field.id)
       .collect::<Vec<String>>();
-    updated_field_ids.push(field_id.to_string());
-    let changeset = updated_field_ids
+    auto_updated_field_ids.push(field_id.to_string());
+    let changeset = auto_updated_field_ids
       .into_iter()
       .map(|field_id| CellChangesetNotifyPB {
         view_id: view_id.to_string(),
@@ -884,7 +926,7 @@ impl DatabaseEditor {
     let view = database_view
       .get_view()
       .await
-      .ok_or(FlowyError::record_not_found())?;
+      .ok_or_else(|| FlowyError::record_not_found())?;
     let rows = database_view.v_get_rows().await;
     let (database_id, fields) = {
       let database = self.database.lock();
@@ -920,6 +962,16 @@ impl DatabaseEditor {
     .await
     .map_err(internal_error)??;
     Ok(csv)
+  }
+
+  fn get_auto_updated_fields(&self, view_id: &str) -> Vec<Field> {
+    self
+      .database
+      .lock()
+      .get_fields(view_id, None)
+      .into_iter()
+      .filter(|f| FieldType::from(f.field_type).is_auto_update())
+      .collect::<Vec<Field>>()
   }
 }
 

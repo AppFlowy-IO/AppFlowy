@@ -1,8 +1,10 @@
-use collab_folder::core::{FolderData, RepeatedView, ViewIdentifier, Workspace};
-use lib_infra::util::timestamp;
-use nanoid::nanoid;
 use std::sync::Arc;
+
+use collab_folder::core::{FolderData, RepeatedView, ViewIdentifier, Workspace};
+use nanoid::nanoid;
 use tokio::sync::RwLock;
+
+use lib_infra::util::timestamp;
 
 use crate::entities::{view_pb_with_child_views, ViewPB, WorkspacePB};
 use crate::view_operation::{
@@ -49,10 +51,7 @@ impl DefaultFolderBuilder {
       created_at: timestamp(),
     };
 
-    let first_level_view_pbs = views
-      .iter()
-      .map(|value| ViewPB::from(value))
-      .collect::<Vec<_>>();
+    let first_level_view_pbs = views.iter().map(ViewPB::from).collect::<Vec<_>>();
 
     let workspace_pb = WorkspacePB {
       id: workspace.id.clone(),
