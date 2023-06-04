@@ -317,5 +317,5 @@
   "grid.checklistFilter.isComplete": "est complet",
   "grid.checklistFilter.isIncomplted": "est incomplet",
   "grid.textFilter.choicechipPrefix.startWith": "Commence avec",
-  "settings.user.name": "Nom"
+  "settings.user.name": "Prénom"
 }
