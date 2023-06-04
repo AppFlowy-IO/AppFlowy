@@ -250,5 +250,6 @@
   "grid.sort.descending": "Descendant",
   "grid.checklist.panelTitle": "Ajouter un élément",
   "document.slashMenu.board.createANewBoard": "Créer un nouveau tableau",
-  "document.slashMenu.grid.createANewGrid": "Créer une nouvelle grille"
+  "document.slashMenu.grid.createANewGrid": "Créer une nouvelle grille",
+  "document.plugins.autoGeneratorLearnMore": "Savoir plus"
 }
