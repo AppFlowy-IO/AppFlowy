@@ -244,5 +244,6 @@
   "settings.user.icon": "Icône",
   "settings.user.selectAnIcon": "Sélectionnez une icône",
   "grid.settings.addFilter": "Ajouter un filtre",
-  "grid.settings.deleteFilter": "Supprimer filtre"
+  "grid.settings.deleteFilter": "Supprimer filtre",
+  "grid.field.dateFormatDayMonthYear": "Jour/Mois/Année"
 }
