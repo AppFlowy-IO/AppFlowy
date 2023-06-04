@@ -272,5 +272,6 @@
   "calendar.navigation.nextMonth": "Mois prochain",
   "calendar.settings.showWeekNumbers": "Afficher les numéros de semaine",
   "calendar.settings.showWeekends": "Afficher les week-ends",
-  "calendar.settings.firstDayOfWeek": "Commencer la semaine le"
+  "calendar.settings.firstDayOfWeek": "Commencer la semaine le",
+  "settings.files.exportData": "Exportez vos données"
 }
