@@ -285,5 +285,6 @@
   "moreAction.large": "grand",
   "moreAction.import": "Importer",
   "questionBubble.shortcuts": "Raccourcis",
-  "toolbar.color": "Couleur"
+  "toolbar.color": "Couleur",
+  "questionBubble.markdown": "Markdown"
 }
