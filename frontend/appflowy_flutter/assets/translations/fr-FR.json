@@ -249,5 +249,6 @@
   "grid.sort.ascending": "Ascendant",
   "grid.sort.descending": "Descendant",
   "grid.checklist.panelTitle": "Ajouter un élément",
-  "document.slashMenu.board.createANewBoard": "Créer un nouveau tableau"
+  "document.slashMenu.board.createANewBoard": "Créer un nouveau tableau",
+  "document.slashMenu.grid.createANewGrid": "Créer une nouvelle grille"
 }
