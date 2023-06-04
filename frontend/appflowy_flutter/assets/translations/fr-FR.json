@@ -286,5 +286,6 @@
   "moreAction.import": "Importer",
   "questionBubble.shortcuts": "Raccourcis",
   "toolbar.color": "Couleur",
-  "questionBubble.markdown": "Markdown"
+  "questionBubble.markdown": "Markdown",
+  "tooltip.viewDataBase": "Voir la base de données"
 }
