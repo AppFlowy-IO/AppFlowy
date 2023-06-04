@@ -309,5 +309,6 @@
   "grid.multiSelectOptionFilter.contains": "Contient",
   "grid.multiSelectOptionFilter.doesNotContain": "Ne contient pas",
   "grid.multiSelectOptionFilter.isEmpty": "Est vide",
-  "grid.multiSelectOptionFilter.isNotEmpty": "N'est pas vide"
+  "grid.multiSelectOptionFilter.isNotEmpty": "N'est pas vide",
+  "grid.sort.addSort": "Ajouter un tri"
 }
