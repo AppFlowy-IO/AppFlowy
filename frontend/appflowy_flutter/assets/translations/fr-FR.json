@@ -277,5 +277,6 @@
   "moreAction.moreOptions": "Plus d'options",
   "document.plugins.cover.coverRemoveAlert": "Il sera retiré de la couverture après sa suppression.",
   "settings.files.folderHintText": "nom du dossier",
-  "settings.appearance.theme": "Thème"
+  "settings.appearance.theme": "Thème",
+  "button.replace": "Remplacer"
 }
