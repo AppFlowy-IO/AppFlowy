@@ -257,5 +257,6 @@
   "document.plugins.cover.images": "Images",
   "document.plugins.cover.clearAll": "Tout effacer",
   "document.plugins.cover.addCover": "Ajouter une couverture",
-  "document.plugins.cover.abstract": "Résumé"
+  "document.plugins.cover.abstract": "Résumé",
+  "document.plugins.cover.changeCover": "Changer couverture"
 }
