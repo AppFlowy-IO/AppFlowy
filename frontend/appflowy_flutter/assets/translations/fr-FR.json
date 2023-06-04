@@ -280,5 +280,6 @@
   "settings.appearance.theme": "Thème",
   "button.replace": "Remplacer",
   "button.esc": "ESC",
-  "moreAction.small": "petit"
+  "moreAction.small": "petit",
+  "moreAction.medium": "moyen"
 }
