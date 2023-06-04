@@ -287,5 +287,6 @@
   "questionBubble.shortcuts": "Raccourcis",
   "toolbar.color": "Couleur",
   "questionBubble.markdown": "Markdown",
-  "tooltip.viewDataBase": "Voir la base de données"
+  "tooltip.viewDataBase": "Voir la base de données",
+  "button.generate": "Générer"
 }
