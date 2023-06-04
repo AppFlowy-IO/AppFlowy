@@ -289,5 +289,6 @@
   "questionBubble.markdown": "Markdown",
   "tooltip.viewDataBase": "Voir la base de données",
   "button.generate": "Générer",
-  "grid.settings.sort": "Trier"
+  "grid.settings.sort": "Trier",
+  "grid.settings.filterBy": "Filtrer par..."
 }
