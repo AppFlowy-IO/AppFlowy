@@ -263,5 +263,6 @@
   "document.plugins.cover.or": "OU",
   "document.plugins.cover.addIcon": "Ajouter une icône",
   "board.menuName": "Tableau",
-  "board.referencedBoardPrefix": "Vue de"
+  "board.referencedBoardPrefix": "Vue de",
+  "calendar.menuName": "Calendrier"
 }
