@@ -298,5 +298,6 @@
   "grid.textFilter.startWith": "Commence avec",
   "grid.textFilter.isNot": "N'est pas",
   "grid.textFilter.isEmpty": "Est vide",
-  "grid.textFilter.isNotEmpty": "N'est pas vide"
+  "grid.textFilter.isNotEmpty": "N'est pas vide",
+  "grid.textFilter.choicechipPrefix.endWith": "Se termine par"
 }
