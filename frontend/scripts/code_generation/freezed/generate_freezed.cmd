@@ -11,7 +11,7 @@ cd ..\..\..\appflowy_flutter
 
 REM Navigate to the appflowy_flutter directory and generate files
 echo Generating files for appflowy_flutter
-call flutter clean >nul 2>&1 && call flutter packages pub get >nul 2>&1 && call flutter pub run build_runner clean call flutter pub run build_runner build --delete-conflicting-outputs
+call flutter clean >nul 2>&1 && call flutter packages pub get >nul 2>&1 && call flutter pub run build_runner clean && call flutter pub run build_runner build --delete-conflicting-outputs
 echo Done generating files for appflowy_flutter
 
 echo Generating files for packages
@@ -24,7 +24,7 @@ for /D %%d in (*) do (
     if exist "pubspec.yaml" (
         echo Generating freezed files in %%d...
         echo Please wait while we clean the project and fetch the dependencies.
-        call flutter clean >nul 2>&1 && call flutter packages pub get >nul 2>&1 && call flutter pub run build_runner clean call flutter pub run build_runner build --delete-conflicting-outputs
+        call flutter clean >nul 2>&1 && call flutter packages pub get >nul 2>&1 && call flutter pub run build_runner clean && call flutter pub run build_runner build --delete-conflicting-outputs
         echo Done running build command in %%d
     ) else (
         echo No pubspec.yaml found in %%d, it can't be a Dart project. Skipping.
