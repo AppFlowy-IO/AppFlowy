@@ -269,5 +269,6 @@
   "calendar.navigation.today": "Aujourd'hui",
   "calendar.navigation.jumpToday": "Aller à aujourd'hui",
   "calendar.navigation.previousMonth": "Mois précédent",
-  "calendar.navigation.nextMonth": "Mois prochain"
+  "calendar.navigation.nextMonth": "Mois prochain",
+  "calendar.settings.showWeekNumbers": "Afficher les numéros de semaine"
 }
