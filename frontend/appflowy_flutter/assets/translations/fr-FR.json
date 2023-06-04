@@ -235,5 +235,6 @@
     "column": {
       "create_new_card": "Nouveau"
     }
-  }
+  },
+  "settings.files.exportDatabase": "Exporter la base de données"
 }
