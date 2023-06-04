@@ -259,5 +259,6 @@
   "document.plugins.cover.addCover": "Ajouter une couverture",
   "document.plugins.cover.abstract": "Résumé",
   "document.plugins.cover.changeCover": "Changer couverture",
-  "document.plugins.cover.removeIcon": "Supprimer l'icône"
+  "document.plugins.cover.removeIcon": "Supprimer l'icône",
+  "document.plugins.cover.or": "OU"
 }
