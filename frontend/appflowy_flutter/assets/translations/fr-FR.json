@@ -239,5 +239,6 @@
   "settings.files.exportDatabase": "Exporter la base de données",
   "settings.files.open": "Ouvrir",
   "settings.files.openFolder": "Ouvrir un dossier existant",
-  "settings.files.location": "Création d'un nouveau dossier"
+  "settings.files.location": "Création d'un nouveau dossier",
+  "settings.files.create": "Créer"
 }
