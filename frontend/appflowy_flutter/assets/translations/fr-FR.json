@@ -315,5 +315,6 @@
   "grid.sort.deleteSort": "Supprimer le tri",
   "grid.checkboxFilter.choicechipPrefix.is": "est",
   "grid.checklistFilter.isComplete": "est complet",
-  "grid.checklistFilter.isIncomplted": "est incomplet"
+  "grid.checklistFilter.isIncomplted": "est incomplet",
+  "grid.textFilter.choicechipPrefix.startWith": "Commence avec"
 }
