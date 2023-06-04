@@ -248,5 +248,6 @@
   "grid.field.dateFormatDayMonthYear": "Jour/Mois/Année",
   "grid.sort.ascending": "Ascendant",
   "grid.sort.descending": "Descendant",
-  "grid.checklist.panelTitle": "Ajouter un élément"
+  "grid.checklist.panelTitle": "Ajouter un élément",
+  "document.slashMenu.board.createANewBoard": "Créer un nouveau tableau"
 }
