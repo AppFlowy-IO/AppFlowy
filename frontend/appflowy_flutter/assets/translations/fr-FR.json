@@ -242,5 +242,6 @@
   "settings.files.location": "Création d'un nouveau dossier",
   "settings.files.create": "Créer",
   "settings.user.icon": "Icône",
-  "settings.user.selectAnIcon": "Sélectionnez une icône"
+  "settings.user.selectAnIcon": "Sélectionnez une icône",
+  "grid.settings.addFilter": "Ajouter un filtre"
 }
