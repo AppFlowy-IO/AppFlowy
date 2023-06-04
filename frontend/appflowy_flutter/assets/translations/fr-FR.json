@@ -304,5 +304,6 @@
   "grid.textFilter.choicechipPrefix.isEmpty": "est vide",
   "grid.singleSelectOptionFilter.is": "Est",
   "grid.singleSelectOptionFilter.isNot": "N'est pas",
-  "grid.singleSelectOptionFilter.isEmpty": "Est vide"
+  "grid.singleSelectOptionFilter.isEmpty": "Est vide",
+  "grid.singleSelectOptionFilter.isNotEmpty": "N'est pas vide"
 }
