@@ -302,5 +302,6 @@
   "grid.textFilter.choicechipPrefix.endWith": "Se termine par",
   "grid.textFilter.choicechipPrefix.isNotEmpty": "n'est pas vide",
   "grid.textFilter.choicechipPrefix.isEmpty": "est vide",
-  "grid.singleSelectOptionFilter.is": "Est"
+  "grid.singleSelectOptionFilter.is": "Est",
+  "grid.singleSelectOptionFilter.isNot": "N'est pas"
 }
