@@ -243,5 +243,6 @@
   "settings.files.create": "Créer",
   "settings.user.icon": "Icône",
   "settings.user.selectAnIcon": "Sélectionnez une icône",
-  "grid.settings.addFilter": "Ajouter un filtre"
+  "grid.settings.addFilter": "Ajouter un filtre",
+  "grid.settings.deleteFilter": "Supprimer filtre"
 }
