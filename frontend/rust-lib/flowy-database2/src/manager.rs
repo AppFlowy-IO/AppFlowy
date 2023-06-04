@@ -132,6 +132,12 @@ impl DatabaseManager2 {
     Ok(())
   }
 
+  pub async fn delete_database_view(&self, view_id: &str) -> FlowyResult<()> {
+    let database = self.get_database_with_view_id(view_id).await?;
+    let _ = database.delete_database_view(view_id).await?;
+    Ok(())
+  }
+
   pub async fn duplicate_database(&self, view_id: &str) -> FlowyResult<Vec<u8>> {
     let database_data = self.with_user_database(Err(FlowyError::internal()), |database| {
       let data = database.get_database_duplicated_data(view_id)?;

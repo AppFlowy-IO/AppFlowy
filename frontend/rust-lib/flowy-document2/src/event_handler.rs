@@ -51,7 +51,7 @@ pub(crate) async fn close_document_handler(
   manager: AFPluginState<Arc<DocumentManager>>,
 ) -> FlowyResult<()> {
   let context = data.into_inner();
-  manager.close_document(context.document_id)?;
+  manager.close_document(&context.document_id)?;
   Ok(())
 }
 

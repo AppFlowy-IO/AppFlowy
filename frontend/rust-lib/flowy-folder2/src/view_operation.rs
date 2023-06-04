@@ -1,17 +1,19 @@
-use crate::entities::{CreateViewParams, ViewLayoutPB};
-use bytes::Bytes;
-use collab_folder::core::{RepeatedView, ViewIdentifier, ViewLayout};
-use flowy_error::FlowyError;
-use lib_infra::future::FutureResult;
-use lib_infra::util::timestamp;
-
 use std::collections::HashMap;
 use std::future::Future;
 use std::sync::Arc;
 
-pub type ViewData = Bytes;
+use bytes::Bytes;
 pub use collab_folder::core::View;
+use collab_folder::core::{RepeatedView, ViewIdentifier, ViewLayout};
 use tokio::sync::RwLock;
+
+use flowy_error::FlowyError;
+use lib_infra::future::FutureResult;
+use lib_infra::util::timestamp;
+
+use crate::entities::{CreateViewParams, ViewLayoutPB};
+
+pub type ViewData = Bytes;
 
 /// A builder for creating a view for a workspace.
 /// The views created by this builder will be the first level views of the workspace.
@@ -156,6 +158,10 @@ pub trait FolderOperationHandler {
   /// Closes the view and releases the resources that this view has in
   /// the backend
   fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError>;
+
+  /// Called when the view is deleted.
+  /// This will called after the view is deleted from the trash.
+  fn delete_view(&self, view_id: &str) -> FutureResult<(), FlowyError>;
 
   /// Returns the [ViewData] that can be used to create the same view.
   fn duplicate_view(&self, view_id: &str) -> FutureResult<ViewData, FlowyError>;

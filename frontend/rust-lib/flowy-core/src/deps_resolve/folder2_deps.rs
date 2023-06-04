@@ -5,6 +5,7 @@ use std::sync::Arc;
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::RocksCollabDB;
 use bytes::Bytes;
+use tokio::sync::RwLock;
 
 use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::services::share::csv::CSVFormat;
@@ -24,7 +25,6 @@ use flowy_folder2::ViewLayout;
 use flowy_user::services::UserSession;
 use lib_dispatch::prelude::ToBytes;
 use lib_infra::future::FutureResult;
-use tokio::sync::RwLock;
 
 pub struct Folder2DepsResolver();
 impl Folder2DepsResolver {
@@ -121,7 +121,19 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      manager.close_document(view_id)?;
+      manager.close_document(&view_id)?;
+      Ok(())
+    })
+  }
+
+  fn delete_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
+    let manager = self.0.clone();
+    let view_id = view_id.to_string();
+    FutureResult::new(async move {
+      match manager.delete_document(&view_id) {
+        Ok(_) => tracing::trace!("Delete document: {}", view_id),
+        Err(e) => tracing::error!("Failed to delete document: {}", e),
+      }
       Ok(())
     })
   }
@@ -206,6 +218,18 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     let view_id = view_id.to_string();
     FutureResult::new(async move {
       database_manager.close_database_view(view_id).await?;
+      Ok(())
+    })
+  }
+
+  fn delete_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
+    let database_manager = self.0.clone();
+    let view_id = view_id.to_string();
+    FutureResult::new(async move {
+      match database_manager.delete_database_view(&view_id).await {
+        Ok(_) => tracing::trace!("Delete database view: {}", view_id),
+        Err(e) => tracing::error!("Failed to delete database: {}", e),
+      }
       Ok(())
     })
   }

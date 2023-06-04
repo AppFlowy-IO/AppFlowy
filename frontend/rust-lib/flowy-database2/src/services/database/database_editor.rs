@@ -125,6 +125,14 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  /// Returns the delete view ids.
+  /// If the view is inline view, all the reference views will be deleted. So the return value
+  /// will be the reference view ids and the inline view id. Otherwise, the return value will
+  /// be the view id.
+  pub async fn delete_database_view(&self, view_id: &str) -> FlowyResult<Vec<String>> {
+    Ok(self.database.lock().delete_view(view_id))
+  }
+
   pub async fn update_group_setting(
     &self,
     view_id: &str,
@@ -942,7 +950,7 @@ impl DatabaseEditor {
     let view = database_view
       .get_view()
       .await
-      .ok_or_else(|| FlowyError::record_not_found())?;
+      .ok_or_else(FlowyError::record_not_found)?;
     let rows = database_view.v_get_rows().await;
     let (database_id, fields) = {
       let database = self.database.lock();

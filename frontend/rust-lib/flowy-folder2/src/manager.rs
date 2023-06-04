@@ -1,24 +1,22 @@
 use std::collections::{HashMap, HashSet};
-
 use std::ops::Deref;
 use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab::core::collab_state::CollabState;
-
 use collab_folder::core::{
   Folder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, TrashRecord, View,
   ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
 };
 use parking_lot::Mutex;
-use tracing::{event, Level};
-
-use crate::deps::{FolderCloudService, FolderUser};
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use lib_infra::util::timestamp;
 use tokio_stream::wrappers::WatchStream;
 use tokio_stream::StreamExt;
+use tracing::{event, Level};
 
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use lib_infra::util::timestamp;
+
+use crate::deps::{FolderCloudService, FolderUser};
 use crate::entities::{
   view_pb_with_child_views, CreateViewParams, CreateWorkspaceParams, RepeatedTrashPB,
   RepeatedViewPB, RepeatedWorkspacePB, UpdateViewParams, ViewPB,
@@ -302,12 +300,6 @@ impl Folder2Manager {
     }
   }
 
-  #[tracing::instrument(level = "debug", skip(self, view_id), err)]
-  pub async fn delete_view(&self, view_id: &str) -> FlowyResult<()> {
-    self.with_folder((), |folder| folder.views.delete_views(vec![view_id]));
-    Ok(())
-  }
-
   /// Move the view to trash. If the view is the current view, then set the current view to empty.
   /// When the view is moved to trash, all the child views will be moved to trash as well.
   #[tracing::instrument(level = "debug", skip(self), err)]
@@ -453,25 +445,34 @@ impl Folder2Manager {
     });
   }
 
-  #[tracing::instrument(level = "trace", skip(self))]
-  pub(crate) async fn delete_trash(&self, trash_id: &str) {
-    self.with_folder((), |folder| {
-      folder.trash.delete_trash(vec![trash_id]);
-      folder.views.delete_views(vec![trash_id]);
-    })
-  }
-
+  /// Delete all the trash permanently.
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn delete_all_trash(&self) {
-    self.with_folder((), |folder| {
-      let trash = folder.trash.get_all_trash();
-      folder.trash.clear();
-      folder.views.delete_views(trash);
-    });
-
+    let deleted_trash = self.with_folder(vec![], |folder| folder.trash.get_all_trash());
+    for trash in deleted_trash {
+      let _ = self.delete_trash(&trash.id).await;
+    }
     send_notification("trash", FolderNotification::DidUpdateTrash)
       .payload(RepeatedTrashPB { items: vec![] })
       .send();
+  }
+
+  /// Delete the trash permanently.
+  /// Delete the view will delete all the resources that the view holds. For example, if the view
+  /// is a database view. Then the database will be deleted as well.
+  #[tracing::instrument(level = "debug", skip(self, view_id), err)]
+  pub async fn delete_trash(&self, view_id: &str) -> FlowyResult<()> {
+    let view = self.with_folder(None, |folder| folder.views.get_view(view_id));
+    self.with_folder((), |folder| {
+      folder.trash.delete_trash(vec![view_id]);
+      folder.views.delete_views(vec![view_id]);
+    });
+    if let Some(view) = view {
+      if let Ok(handler) = self.get_handler(&view.layout) {
+        handler.delete_view(view_id).await?;
+      }
+    }
+    Ok(())
   }
 
   pub(crate) async fn import(&self, import_data: ImportParams) -> FlowyResult<View> {

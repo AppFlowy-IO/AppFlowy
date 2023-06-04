@@ -312,7 +312,7 @@ impl<'a> CellBuilder<'a> {
       .collect::<HashMap<String, &Field>>();
 
     let mut cells = Cells::new();
-    for (field_id, cell_str) in cell_by_field_id.clone() {
+    for (field_id, cell_str) in cell_by_field_id {
       if let Some(field) = field_maps.get(&field_id) {
         let field_type = FieldType::from(field.field_type);
         match field_type {
