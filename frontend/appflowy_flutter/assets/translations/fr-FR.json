@@ -292,5 +292,6 @@
   "grid.settings.sort": "Trier",
   "grid.settings.filterBy": "Filtrer par...",
   "grid.textFilter.contains": "Contient",
-  "grid.textFilter.doesNotContain": "Ne contient pas"
+  "grid.textFilter.doesNotContain": "Ne contient pas",
+  "grid.textFilter.endsWith": "Se termine par"
 }
