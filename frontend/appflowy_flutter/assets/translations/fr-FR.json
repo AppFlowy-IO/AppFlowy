@@ -293,5 +293,6 @@
   "grid.settings.filterBy": "Filtrer par...",
   "grid.textFilter.contains": "Contient",
   "grid.textFilter.doesNotContain": "Ne contient pas",
-  "grid.textFilter.endsWith": "Se termine par"
+  "grid.textFilter.endsWith": "Se termine par",
+  "grid.textFilter.is": "Est"
 }
