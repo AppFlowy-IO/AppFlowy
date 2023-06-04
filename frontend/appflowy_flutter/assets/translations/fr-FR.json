@@ -311,5 +311,6 @@
   "grid.multiSelectOptionFilter.isEmpty": "Est vide",
   "grid.multiSelectOptionFilter.isNotEmpty": "N'est pas vide",
   "grid.sort.addSort": "Ajouter un tri",
-  "grid.referencedGridPrefix": "Vue de"
+  "grid.referencedGridPrefix": "Vue de",
+  "grid.sort.deleteSort": "Supprimer le tri"
 }
