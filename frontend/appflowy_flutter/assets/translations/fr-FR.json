@@ -314,5 +314,6 @@
   "grid.referencedGridPrefix": "Vue de",
   "grid.sort.deleteSort": "Supprimer le tri",
   "grid.checkboxFilter.choicechipPrefix.is": "est",
-  "grid.checklistFilter.isComplete": "est complet"
+  "grid.checklistFilter.isComplete": "est complet",
+  "grid.checklistFilter.isIncomplted": "est incomplet"
 }
