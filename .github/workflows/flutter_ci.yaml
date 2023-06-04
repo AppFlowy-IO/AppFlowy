@@ -66,12 +66,15 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: ${{ matrix.job.os }}
+          prefix-key: ${{ matrix.os }}
+
+      - uses: davidB/rust-cargo-make@v1
+        with:
+          version: '0.36.6'
 
       - name: Install prerequisites
         working-directory: frontend
         run: |
-          cargo install --force cargo-make
           cargo install --force duckscript_cli
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
