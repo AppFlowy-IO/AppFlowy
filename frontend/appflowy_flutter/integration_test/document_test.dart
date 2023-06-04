@@ -43,5 +43,48 @@ void main() {
       // and with one paragraph block
       expect(find.byType(TextBlockComponentWidget), findsOneWidget);
     });
+
+    testWidgets('delete the readme page and restore it', (tester) async {
+      await tester.initializeAppFlowy();
+
+      await tester.tapGoButton();
+
+      // delete the readme page
+      await tester.hoverOnPageName(readme);
+      await tester.tapDeletePageButton();
+
+      // the banner should show up and the readme page should be gone
+      tester.expectToSeeDocumentBanner();
+      tester.expectNotToSeePageName(readme);
+
+      // restore the readme page
+      await tester.tapRestoreButton();
+
+      // the banner should be gone and the readme page should be back
+      tester.expectNotToSeeDocumentBanner();
+      tester.expectToSeePageName(readme);
+    });
+
+    testWidgets('delete the readme page and delete it permanently',
+        (tester) async {
+      await tester.initializeAppFlowy();
+
+      await tester.tapGoButton();
+
+      // delete the readme page
+      await tester.hoverOnPageName(readme);
+      await tester.tapDeletePageButton();
+
+      // the banner should show up and the readme page should be gone
+      tester.expectToSeeDocumentBanner();
+      tester.expectNotToSeePageName(readme);
+
+      // restore the readme page
+      await tester.tapDeletePermanentlyButton();
+
+      // the banner should be gone and the readme page should be back
+      tester.expectNotToSeeDocumentBanner();
+      tester.expectNotToSeePageName(readme);
+    });
   });
 }

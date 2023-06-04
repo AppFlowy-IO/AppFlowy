@@ -20,8 +20,8 @@ use tokio_stream::wrappers::WatchStream;
 use tokio_stream::StreamExt;
 
 use crate::entities::{
-  view_pb_with_child_views, CreateViewParams, CreateWorkspaceParams, RepeatedTrashPB,
-  RepeatedViewPB, RepeatedWorkspacePB, UpdateViewParams, ViewPB,
+  view_pb_with_child_views, CreateViewParams, CreateWorkspaceParams, DeletedViewPB,
+  RepeatedTrashPB, RepeatedViewPB, RepeatedWorkspacePB, UpdateViewParams, ViewPB,
 };
 use crate::notification::{
   send_notification, send_workspace_notification, send_workspace_setting_notification,
@@ -323,6 +323,14 @@ impl Folder2Manager {
           folder.set_current_view("");
         }
       }
+
+      // notify the parent view that the view is moved to trash
+      send_notification(view_id, FolderNotification::DidMoveViewToTrash)
+        .payload(DeletedViewPB {
+          view_id: view_id.to_string(),
+          index: None,
+        })
+        .send();
     });
 
     Ok(())
