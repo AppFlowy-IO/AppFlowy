@@ -265,5 +265,6 @@
   "board.menuName": "Tableau",
   "board.referencedBoardPrefix": "Vue de",
   "calendar.menuName": "Calendrier",
-  "calendar.defaultNewCalendarTitle": "Sans titre"
+  "calendar.defaultNewCalendarTitle": "Sans titre",
+  "calendar.navigation.today": "Aujourd'hui"
 }
