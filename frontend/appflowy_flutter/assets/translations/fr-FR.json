@@ -240,5 +240,6 @@
   "settings.files.open": "Ouvrir",
   "settings.files.openFolder": "Ouvrir un dossier existant",
   "settings.files.location": "Création d'un nouveau dossier",
-  "settings.files.create": "Créer"
+  "settings.files.create": "Créer",
+  "settings.user.icon": "Icône"
 }
