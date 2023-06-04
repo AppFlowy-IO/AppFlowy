@@ -8,12 +8,12 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/cell_entities.pb.dart';
 
 class SelectOptionCellBackendService {
-  final CellIdentifier cellId;
-  SelectOptionCellBackendService({required this.cellId});
+  final DatabaseCellContext cellContext;
+  SelectOptionCellBackendService({required this.cellContext});
 
-  String get viewId => cellId.viewId;
-  String get fieldId => cellId.fieldInfo.id;
-  RowId get rowId => cellId.rowId;
+  String get viewId => cellContext.viewId;
+  String get fieldId => cellContext.fieldInfo.id;
+  RowId get rowId => cellContext.rowId;
 
   Future<Either<Unit, FlowyError>> create({
     required String name,

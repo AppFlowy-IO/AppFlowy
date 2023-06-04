@@ -185,7 +185,7 @@ class RowCache {
 
   RowUpdateCallback addListener({
     required RowId rowId,
-    void Function(CellByFieldId, RowsChangedReason)? onCellUpdated,
+    void Function(CellContextByFieldId, RowsChangedReason)? onCellUpdated,
     bool Function()? listenWhen,
   }) {
     listenerHandler() async {
@@ -197,7 +197,7 @@ class RowCache {
         if (onCellUpdated != null) {
           final rowInfo = _rowList.get(rowId);
           if (rowInfo != null) {
-            final CellByFieldId cellDataMap =
+            final CellContextByFieldId cellDataMap =
                 _makeGridCells(rowId, rowInfo.rowPB);
             onCellUpdated(cellDataMap, _rowChangeReasonNotifier.reason);
           }
@@ -220,7 +220,7 @@ class RowCache {
     _rowChangeReasonNotifier.removeListener(callback);
   }
 
-  CellByFieldId loadGridCells(RowId rowId) {
+  CellContextByFieldId loadGridCells(RowId rowId) {
     final RowPB? data = _rowList.get(rowId)?.rowPB;
     if (data == null) {
       _loadRow(rowId);
@@ -240,12 +240,12 @@ class RowCache {
     );
   }
 
-  CellByFieldId _makeGridCells(RowId rowId, RowPB? row) {
+  CellContextByFieldId _makeGridCells(RowId rowId, RowPB? row) {
     // ignore: prefer_collection_literals
-    var cellDataMap = CellByFieldId();
+    var cellDataMap = CellContextByFieldId();
     for (final field in _delegate.fields) {
       if (field.visibility) {
-        cellDataMap[field.id] = CellIdentifier(
+        cellDataMap[field.id] = DatabaseCellContext(
           rowId: rowId,
           viewId: viewId,
           fieldInfo: field,

@@ -1,8 +1,10 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/image.dart';
@@ -134,7 +136,7 @@ class _PropertyColumn extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _RowTitle(
-              cellId: state.gridCells
+              cellContext: state.gridCells
                   .firstWhereOrNull((e) => e.fieldInfo.isPrimary),
               cellBuilder: cellBuilder,
             ),
@@ -145,7 +147,7 @@ class _PropertyColumn extends StatelessWidget {
                   (cell) => Padding(
                     padding: const EdgeInsets.only(bottom: 4.0),
                     child: _PropertyCell(
-                      cellId: cell,
+                      cellContext: cell,
                       cellBuilder: cellBuilder,
                     ),
                   ),
@@ -161,14 +163,14 @@ class _PropertyColumn extends StatelessWidget {
 }
 
 class _RowTitle extends StatelessWidget {
-  final CellIdentifier? cellId;
+  final DatabaseCellContext? cellContext;
   final GridCellBuilder cellBuilder;
-  const _RowTitle({this.cellId, required this.cellBuilder, Key? key})
+  const _RowTitle({this.cellContext, required this.cellBuilder, Key? key})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (cellId == null) {
+    if (cellContext == null) {
       return const SizedBox();
     }
     final style = GridTextCellStyle(
@@ -176,7 +178,7 @@ class _RowTitle extends StatelessWidget {
       textStyle: Theme.of(context).textTheme.titleLarge,
       autofocus: true,
     );
-    return cellBuilder.build(cellId!, style: style);
+    return cellBuilder.build(cellContext!, style: style);
   }
 }
 
@@ -194,6 +196,7 @@ class _CreatePropertyButton extends StatefulWidget {
 
 class _CreatePropertyButtonState extends State<_CreatePropertyButton> {
   late PopoverController popoverController;
+  late TypeOptionPB typeOption;
 
   @override
   void initState() {
@@ -207,6 +210,7 @@ class _CreatePropertyButtonState extends State<_CreatePropertyButton> {
       constraints: BoxConstraints.loose(const Size(240, 200)),
       controller: popoverController,
       direction: PopoverDirection.topWithLeftAligned,
+      triggerActions: PopoverTriggerFlags.none,
       margin: EdgeInsets.zero,
       child: SizedBox(
         height: 40,
@@ -216,7 +220,18 @@ class _CreatePropertyButtonState extends State<_CreatePropertyButton> {
             color: AFThemeExtension.of(context).textColor,
           ),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
-          onTap: () {},
+          onTap: () async {
+            final result = await TypeOptionBackendService.createFieldTypeOption(
+              viewId: widget.viewId,
+            );
+            result.fold(
+              (l) {
+                typeOption = l;
+                popoverController.show();
+              },
+              (r) => Log.error("Failed to create field type option: $r"),
+            );
+          },
           leftIcon: svgWidget(
             "home/add",
             color: AFThemeExtension.of(context).textColor,
@@ -226,7 +241,10 @@ class _CreatePropertyButtonState extends State<_CreatePropertyButton> {
       popupBuilder: (BuildContext popOverContext) {
         return FieldEditor(
           viewId: widget.viewId,
-          typeOptionLoader: NewFieldTypeOptionLoader(viewId: widget.viewId),
+          typeOptionLoader: FieldTypeOptionLoader(
+            viewId: widget.viewId,
+            field: typeOption.field_2,
+          ),
           onDeleted: (fieldId) {
             popoverController.close();
             NavigatorAlertDialog(
@@ -245,10 +263,10 @@ class _CreatePropertyButtonState extends State<_CreatePropertyButton> {
 }
 
 class _PropertyCell extends StatefulWidget {
-  final CellIdentifier cellId;
+  final DatabaseCellContext cellContext;
   final GridCellBuilder cellBuilder;
   const _PropertyCell({
-    required this.cellId,
+    required this.cellContext,
     required this.cellBuilder,
     Key? key,
   }) : super(key: key);
@@ -262,8 +280,8 @@ class _PropertyCellState extends State<_PropertyCell> {
 
   @override
   Widget build(BuildContext context) {
-    final style = _customCellStyle(widget.cellId.fieldType);
-    final cell = widget.cellBuilder.build(widget.cellId, style: style);
+    final style = _customCellStyle(widget.cellContext.fieldType);
+    final cell = widget.cellBuilder.build(widget.cellContext, style: style);
 
     final gesture = GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -290,7 +308,7 @@ class _PropertyCellState extends State<_PropertyCell> {
               child: SizedBox(
                 width: 150,
                 child: FieldCellButton(
-                  field: widget.cellId.fieldInfo.field,
+                  field: widget.cellContext.fieldInfo.field,
                   onTap: () => popover.show(),
                   radius: BorderRadius.circular(6),
                 ),
@@ -306,11 +324,11 @@ class _PropertyCellState extends State<_PropertyCell> {
 
   Widget buildFieldEditor() {
     return FieldEditor(
-      viewId: widget.cellId.viewId,
-      isGroupingField: widget.cellId.fieldInfo.isGroupField,
+      viewId: widget.cellContext.viewId,
+      isGroupingField: widget.cellContext.fieldInfo.isGroupField,
       typeOptionLoader: FieldTypeOptionLoader(
-        viewId: widget.cellId.viewId,
-        field: widget.cellId.fieldInfo.field,
+        viewId: widget.cellContext.viewId,
+        field: widget.cellContext.fieldInfo.field,
       ),
       onHidden: (fieldId) {
         popover.close();

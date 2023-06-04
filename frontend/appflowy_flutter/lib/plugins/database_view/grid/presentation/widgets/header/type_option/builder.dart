@@ -60,7 +60,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
   required TypeOptionController dataController,
   required PopoverMutex popoverMutex,
 }) {
-  final viewId = dataController.viewId;
+  final viewId = dataController.loader.viewId;
   final fieldType = dataController.field.fieldType;
 
   switch (dataController.field.fieldType) {
@@ -146,9 +146,8 @@ TypeOptionContext<T> makeTypeOptionContext<T extends GeneratedMessage>({
 }) {
   final loader = FieldTypeOptionLoader(viewId: viewId, field: fieldInfo.field);
   final dataController = TypeOptionController(
-    viewId: viewId,
     loader: loader,
-    fieldInfo: fieldInfo,
+    field: fieldInfo.field,
   );
   return makeTypeOptionContextWithDataController(
     viewId: viewId,
@@ -180,8 +179,8 @@ TypeOptionContext<T> makeSelectTypeOptionContext<T extends GeneratedMessage>({
     field: fieldPB,
   );
   final dataController = TypeOptionController(
-    viewId: viewId,
     loader: loader,
+    field: fieldPB,
   );
   final typeOptionContext = makeTypeOptionContextWithDataController<T>(
     viewId: viewId,

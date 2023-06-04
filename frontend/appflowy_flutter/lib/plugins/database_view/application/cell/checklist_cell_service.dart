@@ -7,17 +7,17 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 
 class ChecklistCellBackendService {
-  final CellIdentifier cellId;
+  final DatabaseCellContext cellContext;
 
-  ChecklistCellBackendService({required this.cellId});
+  ChecklistCellBackendService({required this.cellContext});
 
   Future<Either<Unit, FlowyError>> create({
     required String name,
   }) {
     final payload = ChecklistCellDataChangesetPB.create()
-      ..viewId = cellId.viewId
-      ..fieldId = cellId.fieldInfo.id
-      ..rowId = cellId.rowId
+      ..viewId = cellContext.viewId
+      ..fieldId = cellContext.fieldInfo.id
+      ..rowId = cellContext.rowId
       ..insertOptions.add(name);
 
     return DatabaseEventUpdateChecklistCell(payload).send();
@@ -27,9 +27,9 @@ class ChecklistCellBackendService {
     required List<String> optionIds,
   }) {
     final payload = ChecklistCellDataChangesetPB.create()
-      ..viewId = cellId.viewId
-      ..fieldId = cellId.fieldInfo.id
-      ..rowId = cellId.rowId
+      ..viewId = cellContext.viewId
+      ..fieldId = cellContext.fieldInfo.id
+      ..rowId = cellContext.rowId
       ..deleteOptionIds.addAll(optionIds);
 
     return DatabaseEventUpdateChecklistCell(payload).send();
@@ -39,9 +39,9 @@ class ChecklistCellBackendService {
     required String optionId,
   }) {
     final payload = ChecklistCellDataChangesetPB.create()
-      ..viewId = cellId.viewId
-      ..fieldId = cellId.fieldInfo.id
-      ..rowId = cellId.rowId
+      ..viewId = cellContext.viewId
+      ..fieldId = cellContext.fieldInfo.id
+      ..rowId = cellContext.rowId
       ..selectedOptionIds.add(optionId);
 
     return DatabaseEventUpdateChecklistCell(payload).send();
@@ -51,9 +51,9 @@ class ChecklistCellBackendService {
     required SelectOptionPB option,
   }) {
     final payload = ChecklistCellDataChangesetPB.create()
-      ..viewId = cellId.viewId
-      ..fieldId = cellId.fieldInfo.id
-      ..rowId = cellId.rowId
+      ..viewId = cellContext.viewId
+      ..fieldId = cellContext.fieldInfo.id
+      ..rowId = cellContext.rowId
       ..updateOptions.add(option);
 
     return DatabaseEventUpdateChecklistCell(payload).send();
@@ -61,10 +61,10 @@ class ChecklistCellBackendService {
 
   Future<Either<ChecklistCellDataPB, FlowyError>> getCellData() {
     final payload = CellIdPB.create()
-      ..fieldId = cellId.fieldInfo.id
-      ..viewId = cellId.viewId
-      ..rowId = cellId.rowId
-      ..rowId = cellId.rowId;
+      ..fieldId = cellContext.fieldInfo.id
+      ..viewId = cellContext.viewId
+      ..rowId = cellContext.rowId
+      ..rowId = cellContext.rowId;
 
     return DatabaseEventGetChecklistCellData(payload).send();
   }

@@ -70,7 +70,7 @@ class RowEvent with _$RowEvent {
   const factory RowEvent.initial() = _InitialRow;
   const factory RowEvent.createRow() = _CreateRow;
   const factory RowEvent.didReceiveCells(
-    CellByFieldId cellsByFieldId,
+    CellContextByFieldId cellsByFieldId,
     RowsChangedReason reason,
   ) = _DidReceiveCells;
 }
@@ -79,12 +79,15 @@ class RowEvent with _$RowEvent {
 class RowState with _$RowState {
   const factory RowState({
     required RowInfo rowInfo,
-    required CellByFieldId cellByFieldId,
+    required CellContextByFieldId cellByFieldId,
     required UnmodifiableListView<GridCellEquatable> cells,
     RowsChangedReason? changeReason,
   }) = _RowState;
 
-  factory RowState.initial(RowInfo rowInfo, CellByFieldId cellByFieldId) =>
+  factory RowState.initial(
+    RowInfo rowInfo,
+    CellContextByFieldId cellByFieldId,
+  ) =>
       RowState(
         rowInfo: rowInfo,
         cellByFieldId: cellByFieldId,

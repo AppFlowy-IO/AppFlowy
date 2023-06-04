@@ -19,7 +19,7 @@ class FieldEditor extends StatefulWidget {
   final bool isGroupingField;
   final Function(String)? onDeleted;
   final Function(String)? onHidden;
-  final ITypeOptionLoader typeOptionLoader;
+  final FieldTypeOptionLoader typeOptionLoader;
 
   const FieldEditor({
     required this.viewId,
@@ -53,22 +53,25 @@ class _FieldEditorState extends State<FieldEditor> {
   Widget build(BuildContext context) {
     List<Widget> children = [
       _FieldNameTextField(popoverMutex: popoverMutex),
-      const VSpace(10),
       if (widget.onDeleted != null) _addDeleteFieldButton(),
       if (widget.onHidden != null) _addHideFieldButton(),
-      _FieldTypeOptionCell(popoverMutex: popoverMutex),
+      if (!widget.typeOptionLoader.field.isPrimary)
+        _FieldTypeOptionCell(popoverMutex: popoverMutex),
     ];
     return BlocProvider(
-      create: (context) => FieldEditorBloc(
-        viewId: widget.viewId,
-        fieldName: widget.typeOptionLoader.fieldName,
-        isGroupField: widget.isGroupingField,
-        loader: widget.typeOptionLoader,
-      )..add(const FieldEditorEvent.initial()),
-      child: ListView.builder(
+      create: (context) {
+        return FieldEditorBloc(
+          isGroupField: widget.isGroupingField,
+          loader: widget.typeOptionLoader,
+          field: widget.typeOptionLoader.field,
+        )..add(const FieldEditorEvent.initial());
+      },
+      child: ListView.separated(
         shrinkWrap: true,
         itemCount: children.length,
         itemBuilder: (context, index) => children[index],
+        separatorBuilder: (context, index) =>
+            VSpace(GridSize.typeOptionSeparatorHeight),
         padding: const EdgeInsets.symmetric(vertical: 12.0),
       ),
     );

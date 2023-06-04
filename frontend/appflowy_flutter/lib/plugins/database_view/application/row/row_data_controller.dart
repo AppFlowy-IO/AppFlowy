@@ -3,7 +3,7 @@ import '../cell/cell_service.dart';
 import 'row_cache.dart';
 import 'row_service.dart';
 
-typedef OnRowChanged = void Function(CellByFieldId, RowsChangedReason);
+typedef OnRowChanged = void Function(CellContextByFieldId, RowsChangedReason);
 
 class RowController {
   final RowId rowId;
@@ -21,7 +21,7 @@ class RowController {
     this.groupId,
   }) : _rowCache = rowCache;
 
-  CellByFieldId loadData() {
+  CellContextByFieldId loadData() {
     return _rowCache.loadGridCells(rowId);
   }
 

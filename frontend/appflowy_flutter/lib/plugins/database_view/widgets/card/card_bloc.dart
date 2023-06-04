@@ -87,11 +87,11 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
   }
 }
 
-List<CellIdentifier> _makeCells(
+List<DatabaseCellContext> _makeCells(
   String? groupFieldId,
-  CellByFieldId originalCellMap,
+  CellContextByFieldId originalCellMap,
 ) {
-  List<CellIdentifier> cells = [];
+  List<DatabaseCellContext> cells = [];
   for (final entry in originalCellMap.entries) {
     // Filter out the cell if it's fieldId equal to the groupFieldId
     if (groupFieldId != null) {
@@ -110,7 +110,7 @@ class RowCardEvent with _$RowCardEvent {
   const factory RowCardEvent.initial() = _InitialRow;
   const factory RowCardEvent.setIsEditing(bool isEditing) = _IsEditing;
   const factory RowCardEvent.didReceiveCells(
-    List<CellIdentifier> cells,
+    List<DatabaseCellContext> cells,
     RowsChangedReason reason,
   ) = _DidReceiveCells;
 }
@@ -119,14 +119,14 @@ class RowCardEvent with _$RowCardEvent {
 class RowCardState with _$RowCardState {
   const factory RowCardState({
     required RowPB rowPB,
-    required List<CellIdentifier> cells,
+    required List<DatabaseCellContext> cells,
     required bool isEditing,
     RowsChangedReason? changeReason,
   }) = _RowCardState;
 
   factory RowCardState.initial(
     RowPB rowPB,
-    List<CellIdentifier> cells,
+    List<DatabaseCellContext> cells,
     bool isEditing,
   ) =>
       RowCardState(

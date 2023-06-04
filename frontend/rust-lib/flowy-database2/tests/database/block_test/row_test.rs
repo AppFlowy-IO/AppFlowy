@@ -43,7 +43,7 @@ async fn update_at_field_test() {
     .unwrap();
   let old_updated_at = DateCellData::from(&cell).timestamp.unwrap();
 
-  tokio::time::sleep(Duration::from_millis(500)).await;
+  tokio::time::sleep(Duration::from_millis(1000)).await;
   test
     .run_script(UpdateTextCell {
       row_id: row.id.clone(),

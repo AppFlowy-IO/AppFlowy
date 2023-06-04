@@ -22,7 +22,7 @@ import 'cell_service.dart';
 ///
 // ignore: must_be_immutable
 class CellController<T, D> extends Equatable {
-  final CellIdentifier cellId;
+  final DatabaseCellContext cellContext;
   final CellCache _cellCache;
   final CellCacheKey _cacheKey;
   final FieldBackendService _fieldBackendSvc;
@@ -37,37 +37,37 @@ class CellController<T, D> extends Equatable {
   Timer? _loadDataOperation;
   Timer? _saveDataOperation;
 
-  String get viewId => cellId.viewId;
+  String get viewId => cellContext.viewId;
 
-  RowId get rowId => cellId.rowId;
+  RowId get rowId => cellContext.rowId;
 
-  String get fieldId => cellId.fieldInfo.id;
+  String get fieldId => cellContext.fieldInfo.id;
 
-  FieldInfo get fieldInfo => cellId.fieldInfo;
+  FieldInfo get fieldInfo => cellContext.fieldInfo;
 
-  FieldType get fieldType => cellId.fieldInfo.fieldType;
+  FieldType get fieldType => cellContext.fieldInfo.fieldType;
 
   CellController({
-    required this.cellId,
+    required this.cellContext,
     required CellCache cellCache,
     required CellDataLoader<T> cellDataLoader,
     required CellDataPersistence<D> cellDataPersistence,
   })  : _cellCache = cellCache,
         _cellDataLoader = cellDataLoader,
         _cellDataPersistence = cellDataPersistence,
-        _fieldListener = SingleFieldListener(fieldId: cellId.fieldId),
+        _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId),
         _fieldBackendSvc = FieldBackendService(
-          viewId: cellId.viewId,
-          fieldId: cellId.fieldInfo.id,
+          viewId: cellContext.viewId,
+          fieldId: cellContext.fieldInfo.id,
         ),
         _cacheKey = CellCacheKey(
-          rowId: cellId.rowId,
-          fieldId: cellId.fieldInfo.id,
+          rowId: cellContext.rowId,
+          fieldId: cellContext.fieldInfo.id,
         ) {
     _cellDataNotifier = CellDataNotifier(value: _cellCache.get(_cacheKey));
     _cellListener = CellListener(
-      rowId: cellId.rowId,
-      fieldId: cellId.fieldInfo.id,
+      rowId: cellContext.rowId,
+      fieldId: cellContext.fieldInfo.id,
     );
 
     /// 1.Listen on user edit event and load the new cell data if needed.
@@ -195,8 +195,10 @@ class CellController<T, D> extends Equatable {
   }
 
   @override
-  List<Object> get props =>
-      [_cellCache.get(_cacheKey) ?? "", cellId.rowId + cellId.fieldInfo.id];
+  List<Object> get props => [
+        _cellCache.get(_cacheKey) ?? "",
+        cellContext.rowId + cellContext.fieldInfo.id
+      ];
 }
 
 class CellDataNotifier<T> extends ChangeNotifier {

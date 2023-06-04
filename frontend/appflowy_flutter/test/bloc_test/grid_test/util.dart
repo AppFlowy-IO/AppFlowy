@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/database_view/application/field/field_controlle
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
@@ -38,26 +39,6 @@ class GridTestContext {
     return gridController.createRow();
   }
 
-  FieldEditorBloc createFieldEditor({
-    FieldInfo? fieldInfo,
-  }) {
-    ITypeOptionLoader loader;
-    if (fieldInfo == null) {
-      loader = NewFieldTypeOptionLoader(viewId: gridView.id);
-    } else {
-      loader =
-          FieldTypeOptionLoader(viewId: gridView.id, field: fieldInfo.field);
-    }
-
-    final editorBloc = FieldEditorBloc(
-      fieldName: fieldInfo?.name ?? '',
-      isGroupField: fieldInfo?.isGroupField ?? false,
-      loader: loader,
-      viewId: gridView.id,
-    );
-    return editorBloc;
-  }
-
   Future<CellController> makeCellController(
     String fieldId,
     int rowIndex,
@@ -86,13 +67,13 @@ class GridTestContext {
     await gridResponseFuture();
 
     return CellControllerBuilder(
-      cellId: rowBloc.state.cellByFieldId[fieldId]!,
+      cellContext: rowBloc.state.cellByFieldId[fieldId]!,
       cellCache: rowCache.cellCache,
     );
   }
 
   Future<FieldEditorBloc> createField(FieldType fieldType) async {
-    final editorBloc = createFieldEditor()
+    final editorBloc = await createFieldEditor(viewId: gridView.id)
       ..add(const FieldEditorEvent.initial());
     await gridResponseFuture();
     editorBloc.add(FieldEditorEvent.switchToField(fieldType));
@@ -106,9 +87,9 @@ class GridTestContext {
     return fieldInfo;
   }
 
-  FieldCellContext singleSelectFieldCellContext() {
+  FieldContext singleSelectFieldCellContext() {
     final field = singleSelectFieldContext().field;
-    return FieldCellContext(viewId: gridView.id, field: field);
+    return FieldContext(viewId: gridView.id, field: field);
   }
 
   FieldInfo textFieldContext() {
@@ -153,6 +134,28 @@ class GridTestContext {
         await makeCellController(field.id, rowIndex) as TextCellController;
     return cellController;
   }
+}
+
+Future<FieldEditorBloc> createFieldEditor({
+  required String viewId,
+}) async {
+  final result = await TypeOptionBackendService.createFieldTypeOption(
+    viewId: viewId,
+  );
+  return result.fold(
+    (data) {
+      final loader = FieldTypeOptionLoader(
+        viewId: viewId,
+        field: data.field_2,
+      );
+      return FieldEditorBloc(
+        isGroupField: FieldInfo(field: data.field_2).isGroupField,
+        loader: loader,
+        field: data.field_2,
+      );
+    },
+    (err) => throw Exception(err),
+  );
 }
 
 /// Create a empty Grid for test

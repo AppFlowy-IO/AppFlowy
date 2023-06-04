@@ -106,7 +106,7 @@ class EditableRowNotifier {
       : isEditing = ValueNotifier(isEditing);
 
   void bindCell(
-    CellIdentifier cellIdentifier,
+    DatabaseCellContext cellIdentifier,
     EditableCardNotifier notifier,
   ) {
     assert(
@@ -171,7 +171,8 @@ class EditableCellId {
 
   EditableCellId(this.rowId, this.fieldId);
 
-  factory EditableCellId.from(CellIdentifier cellIdentifier) => EditableCellId(
+  factory EditableCellId.from(DatabaseCellContext cellIdentifier) =>
+      EditableCellId(
         cellIdentifier.rowId,
         cellIdentifier.fieldId,
       );

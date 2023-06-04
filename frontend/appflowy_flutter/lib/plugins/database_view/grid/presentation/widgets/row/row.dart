@@ -255,7 +255,10 @@ class RowContent extends StatelessWidget {
     );
   }
 
-  List<Widget> _makeCells(BuildContext context, CellByFieldId cellByFieldId) {
+  List<Widget> _makeCells(
+    BuildContext context,
+    CellContextByFieldId cellByFieldId,
+  ) {
     return cellByFieldId.values.map(
       (cellId) {
         final GridCellWidget child = builder.build(cellId);
