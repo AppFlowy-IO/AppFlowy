@@ -299,5 +299,6 @@
   "grid.textFilter.isNot": "N'est pas",
   "grid.textFilter.isEmpty": "Est vide",
   "grid.textFilter.isNotEmpty": "N'est pas vide",
-  "grid.textFilter.choicechipPrefix.endWith": "Se termine par"
+  "grid.textFilter.choicechipPrefix.endWith": "Se termine par",
+  "grid.textFilter.choicechipPrefix.isNotEmpty": "n'est pas vide"
 }
