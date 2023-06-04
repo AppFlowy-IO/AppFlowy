@@ -267,5 +267,6 @@
   "calendar.menuName": "Calendrier",
   "calendar.defaultNewCalendarTitle": "Sans titre",
   "calendar.navigation.today": "Aujourd'hui",
-  "calendar.navigation.jumpToday": "Aller à aujourd'hui"
+  "calendar.navigation.jumpToday": "Aller à aujourd'hui",
+  "calendar.navigation.previousMonth": "Mois précédent"
 }
