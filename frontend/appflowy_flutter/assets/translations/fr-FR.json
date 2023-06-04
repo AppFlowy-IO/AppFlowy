@@ -279,5 +279,6 @@
   "settings.files.folderHintText": "nom du dossier",
   "settings.appearance.theme": "Thème",
   "button.replace": "Remplacer",
-  "button.esc": "ESC"
+  "button.esc": "ESC",
+  "moreAction.small": "petit"
 }
