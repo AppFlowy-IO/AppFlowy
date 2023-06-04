@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
@@ -13,6 +15,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:async';
 import 'package:protobuf/protobuf.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 part 'date_cal_bloc.freezed.dart';
 
@@ -63,6 +66,9 @@ class DateCellCalendarBloc
           },
           setFocusedDay: (focusedDay) {
             emit(state.copyWith(focusedDay: focusedDay));
+          },
+          clearDate: () async {
+            // TODO: handle clear date
           },
         );
       },
@@ -237,6 +243,8 @@ class DateCellCalendarEvent with _$DateCellCalendarEvent {
       _TimeFormat;
   const factory DateCellCalendarEvent.setDateFormat(DateFormatPB dateFormat) =
       _DateFormat;
+
+  const factory DateCellCalendarEvent.clearDate() = _ClearDate;
 }
 
 @freezed
