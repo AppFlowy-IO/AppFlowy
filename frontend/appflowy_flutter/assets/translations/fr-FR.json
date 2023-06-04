@@ -282,5 +282,6 @@
   "button.esc": "ESC",
   "moreAction.small": "petit",
   "moreAction.medium": "moyen",
-  "moreAction.large": "grand"
+  "moreAction.large": "grand",
+  "moreAction.import": "Importer"
 }
