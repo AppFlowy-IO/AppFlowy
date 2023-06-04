@@ -116,6 +116,30 @@
       }
     },
     {
+      "label": "AF: Generate Files (Freezed & Language)",
+      "type": "shell",
+      "command": "sh ./scripts/code_generation/generate.sh",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "windows": {
+        "options": {
+          "shell": {
+            "executable": "cmd.exe",
+            "args": [
+              "/d",
+              "/c",
+              ".\\scripts\\code_generation\\generate.cmd"
+            ]
+          }
+        }
+      },
+    },
+    {
       "label": "AF: Generate Freezed Files",
       "type": "shell",
       "command": "sh ./scripts/code_generation/freezed/generate_freezed.sh",
