@@ -261,5 +261,6 @@
   "document.plugins.cover.changeCover": "Changer couverture",
   "document.plugins.cover.removeIcon": "Supprimer l'icône",
   "document.plugins.cover.or": "OU",
-  "document.plugins.cover.addIcon": "Ajouter une icône"
+  "document.plugins.cover.addIcon": "Ajouter une icône",
+  "board.menuName": "Tableau"
 }
