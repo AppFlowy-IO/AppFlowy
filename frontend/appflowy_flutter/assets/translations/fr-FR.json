@@ -237,5 +237,6 @@
     }
   },
   "settings.files.exportDatabase": "Exporter la base de données",
-  "settings.files.open": "Ouvrir"
+  "settings.files.open": "Ouvrir",
+  "settings.files.openFolder": "Ouvrir un dossier existant"
 }
