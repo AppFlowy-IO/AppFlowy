@@ -313,5 +313,6 @@
   "grid.sort.addSort": "Ajouter un tri",
   "grid.referencedGridPrefix": "Vue de",
   "grid.sort.deleteSort": "Supprimer le tri",
-  "grid.checkboxFilter.choicechipPrefix.is": "est"
+  "grid.checkboxFilter.choicechipPrefix.is": "est",
+  "grid.checklistFilter.isComplete": "est complet"
 }
