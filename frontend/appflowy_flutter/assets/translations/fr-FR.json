@@ -253,5 +253,6 @@
   "document.slashMenu.grid.createANewGrid": "Créer une nouvelle grille",
   "document.plugins.autoGeneratorLearnMore": "Savoir plus",
   "document.plugins.autoGeneratorGenerate": "Générer",
-  "document.plugins.cover.colors": "Couleurs"
+  "document.plugins.cover.colors": "Couleurs",
+  "document.plugins.cover.images": "Images"
 }
