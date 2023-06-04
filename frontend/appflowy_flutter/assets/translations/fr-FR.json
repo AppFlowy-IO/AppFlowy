@@ -283,5 +283,6 @@
   "moreAction.small": "petit",
   "moreAction.medium": "moyen",
   "moreAction.large": "grand",
-  "moreAction.import": "Importer"
+  "moreAction.import": "Importer",
+  "questionBubble.shortcuts": "Raccourcis"
 }
