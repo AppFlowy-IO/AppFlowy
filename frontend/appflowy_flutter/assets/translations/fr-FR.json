@@ -274,5 +274,6 @@
   "calendar.settings.showWeekends": "Afficher les week-ends",
   "calendar.settings.firstDayOfWeek": "Commencer la semaine le",
   "settings.files.exportData": "Exportez vos données",
-  "moreAction.moreOptions": "Plus d'options"
+  "moreAction.moreOptions": "Plus d'options",
+  "document.plugins.cover.coverRemoveAlert": "Il sera retiré de la couverture après sa suppression."
 }
