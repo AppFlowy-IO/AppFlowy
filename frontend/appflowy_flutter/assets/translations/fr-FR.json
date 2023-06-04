@@ -294,5 +294,6 @@
   "grid.textFilter.contains": "Contient",
   "grid.textFilter.doesNotContain": "Ne contient pas",
   "grid.textFilter.endsWith": "Se termine par",
-  "grid.textFilter.is": "Est"
+  "grid.textFilter.is": "Est",
+  "grid.textFilter.startWith": "Commence avec"
 }
