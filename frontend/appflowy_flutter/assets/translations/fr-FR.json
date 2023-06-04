@@ -264,5 +264,6 @@
   "document.plugins.cover.addIcon": "Ajouter une icône",
   "board.menuName": "Tableau",
   "board.referencedBoardPrefix": "Vue de",
-  "calendar.menuName": "Calendrier"
+  "calendar.menuName": "Calendrier",
+  "calendar.defaultNewCalendarTitle": "Sans titre"
 }
