@@ -270,5 +270,6 @@
   "calendar.navigation.jumpToday": "Aller à aujourd'hui",
   "calendar.navigation.previousMonth": "Mois précédent",
   "calendar.navigation.nextMonth": "Mois prochain",
-  "calendar.settings.showWeekNumbers": "Afficher les numéros de semaine"
+  "calendar.settings.showWeekNumbers": "Afficher les numéros de semaine",
+  "calendar.settings.showWeekends": "Afficher les week-ends"
 }
