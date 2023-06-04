@@ -281,5 +281,6 @@
   "button.replace": "Remplacer",
   "button.esc": "ESC",
   "moreAction.small": "petit",
-  "moreAction.medium": "moyen"
+  "moreAction.medium": "moyen",
+  "moreAction.large": "grand"
 }
