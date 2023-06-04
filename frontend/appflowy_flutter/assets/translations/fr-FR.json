@@ -247,5 +247,6 @@
   "grid.settings.deleteFilter": "Supprimer filtre",
   "grid.field.dateFormatDayMonthYear": "Jour/Mois/Année",
   "grid.sort.ascending": "Ascendant",
-  "grid.sort.descending": "Descendant"
+  "grid.sort.descending": "Descendant",
+  "grid.checklist.panelTitle": "Ajouter un élément"
 }
