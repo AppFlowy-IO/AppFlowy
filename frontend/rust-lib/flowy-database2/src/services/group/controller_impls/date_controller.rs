@@ -344,7 +344,18 @@ fn group_id(
       } else if diff > 7 && diff <= 30 {
         now.checked_add_signed(Duration::days(8))
       } else {
-        date_time.checked_sub_days(Days::new(date_time.day() as u64 - 1))
+        let mut res = date_time
+          .checked_sub_days(Days::new(date_time.day() as u64 - 1))
+          .unwrap();
+        // if beginning of the month is within next 30 days of current day, change to
+        // first day which is greater than 30 days far from current day.
+        let diff = res.signed_duration_since(now).num_days();
+        if diff > 7 && diff <= 30 {
+          res = res
+            .checked_add_days(Days::new((30 - diff + 1) as u64))
+            .unwrap();
+        }
+        Some(res)
       };
 
       result.unwrap().format("%Y/%m/%d")
