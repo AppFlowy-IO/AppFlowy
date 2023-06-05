@@ -79,10 +79,10 @@ void main() {
       tester.expectToSeeDocumentBanner();
       tester.expectNotToSeePageName(readme);
 
-      // restore the readme page
+      // delete the page permanently
       await tester.tapDeletePermanentlyButton();
 
-      // the banner should be gone and the readme page should be back
+      // the banner should be gone and the readme page should be gone
       tester.expectNotToSeeDocumentBanner();
       tester.expectNotToSeePageName(readme);
     });
