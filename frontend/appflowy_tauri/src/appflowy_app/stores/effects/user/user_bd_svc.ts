@@ -22,7 +22,7 @@ import {
   FolderEventCreateWorkspace,
   FolderEventOpenWorkspace,
   FolderEventReadCurrentWorkspace,
-  FolderEventReadWorkspaces,
+  FolderEventReadAllWorkspaces,
 } from '@/services/backend/events/flowy-folder2';
 
 export class UserBackendService {
@@ -64,7 +64,7 @@ export class UserBackendService {
 
   getWorkspaces = () => {
     const payload = WorkspaceIdPB.fromObject({});
-    return FolderEventReadWorkspaces(payload);
+    return FolderEventReadAllWorkspaces(payload);
   };
 
   openWorkspace = (workspaceId: string) => {

@@ -50,7 +50,7 @@ class AuthRouter {
     BuildContext context,
     UserProfilePB userProfile,
   ) async {
-    final result = await FolderEventReadCurrentWorkspace().send();
+    final result = await FolderEventGetCurrentWorkspace().send();
     result.fold(
       (workspaceSettingPB) => pushHomeScreenWithWorkSpace(
         context,
@@ -75,7 +75,7 @@ class SplashRoute {
       ),
     );
 
-    FolderEventReadCurrentWorkspace().send().then((result) {
+    FolderEventGetCurrentWorkspace().send().then((result) {
       result.fold(
         (workspaceSettingPB) =>
             pushHomeScreen(context, userProfile, workspaceSettingPB),

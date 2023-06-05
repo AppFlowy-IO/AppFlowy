@@ -15,7 +15,7 @@ void main() {
   });
 
   test('initi home screen', () async {
-    final workspaceSetting = await FolderEventReadCurrentWorkspace()
+    final workspaceSetting = await FolderEventGetCurrentWorkspace()
         .send()
         .then((result) => result.fold((l) => l, (r) => throw Exception()));
     await blocResponseFuture();
@@ -28,7 +28,7 @@ void main() {
   });
 
   test('open the document', () async {
-    final workspaceSetting = await FolderEventReadCurrentWorkspace()
+    final workspaceSetting = await FolderEventGetCurrentWorkspace()
         .send()
         .then((result) => result.fold((l) => l, (r) => throw Exception()));
     await blocResponseFuture();

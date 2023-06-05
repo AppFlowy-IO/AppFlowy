@@ -35,7 +35,7 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<dartz.Either<WorkspaceSettingPB, FlowyError>>(
-      future: FolderEventReadCurrentWorkspace().send(),
+      future: FolderEventGetCurrentWorkspace().send(),
       builder: (context, snapshot) {
         if (snapshot.hasData &&
             snapshot.connectionState == ConnectionState.done) {

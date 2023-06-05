@@ -3,7 +3,7 @@ import {
   FolderEventCreateView,
   FolderEventMoveItem,
   FolderEventReadWorkspaceViews,
-  FolderEventReadWorkspaces,
+  FolderEventReadAllWorkspaces,
 } from '@/services/backend/events/flowy-folder2';
 import {
   CreateViewPayloadPB,
@@ -35,7 +35,7 @@ export class WorkspaceBackendService {
 
   getWorkspace = () => {
     const payload = WorkspaceIdPB.fromObject({ value: this.workspaceId });
-    return FolderEventReadWorkspaces(payload).then((result) => {
+    return FolderEventReadAllWorkspaces(payload).then((result) => {
       if (result.ok) {
         const workspaces = result.val.items;
         if (workspaces.length === 0) {

@@ -126,7 +126,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
         Log.error(error);
       },
       (user) {
-        FolderEventReadCurrentWorkspace().send().then((result) {
+        FolderEventGetCurrentWorkspace().send().then((result) {
           _openCurrentWorkspace(context, user, result);
         });
       },

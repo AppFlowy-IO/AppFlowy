@@ -70,7 +70,7 @@ class SplashScreen extends StatelessWidget {
     Authenticated authenticated,
   ) async {
     final userProfile = authenticated.userProfile;
-    final result = await FolderEventReadCurrentWorkspace().send();
+    final result = await FolderEventGetCurrentWorkspace().send();
     result.fold(
       (workspaceSetting) {
         getIt<SplashRoute>().pushHomeScreen(
