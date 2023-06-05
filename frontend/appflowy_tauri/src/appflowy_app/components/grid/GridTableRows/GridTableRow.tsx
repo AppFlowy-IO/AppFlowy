@@ -9,6 +9,7 @@ import { useGridTableRow } from './GridTableRow.hooks';
 import { useRef } from 'react';
 import useOutsideClick from '../../_shared/useOutsideClick';
 import { Draggable, DraggableProvided, DraggableStateSnapshot, Droppable } from 'react-beautiful-dnd';
+import { GridRowActions } from './GridRowActions';
 
 export const GridTableRow = ({
   viewId,
@@ -25,48 +26,36 @@ export const GridTableRow = ({
 }) => {
   const { cells } = useRow(viewId, controller, row);
   const { setShowMenu, showMenu } = useGridTableRow();
-  const ref = useRef<HTMLDivElement>(null);
-  useOutsideClick(ref, () => setShowMenu(false));
 
   return (
     <Draggable draggableId={row.row.id} key={row.row.id} index={index}>
       {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
         <tr
-          className={`group ${snapshot.isDragging ? 'flex bg-white' : ''}`}
+          className={`group ${snapshot.isDragging ? 'flex items-center bg-white' : ''}`}
           ref={provided.innerRef}
           {...provided.draggableProps}
         >
           <td className='w-8'>
-            <button className=' hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-main-secondary group-hover:flex'>
+            <button
+              className={`hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-main-secondary group-hover:flex ${
+                snapshot.isDragging ? '!flex' : ''
+              }  `}
+            >
               <AddSvg />
             </button>
           </td>
-          <td {...provided.dragHandleProps} className='w-8'>
+          <td className='w-8'>
             <button
-              className=' hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-main-secondary group-hover:flex'
+              className={`hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-main-secondary group-hover:flex ${
+                snapshot.isDragging ? '!flex' : ''
+              }`}
               onClick={() => setShowMenu(true)}
+              {...provided.dragHandleProps}
             >
               <DragSvg />
             </button>
 
-            {showMenu && (
-              <div className='absolute  w-32 bg-white ' ref={ref}>
-                <div className='flex flex-col gap-3 rounded-lg bg-white shadow-md'>
-                  <button className='flex cursor-pointer items-center rounded  text-gray-500 hover:bg-main-secondary hover:text-black'>
-                    <span>Insert Record</span>
-                  </button>
-                  <button className='flex cursor-pointer items-center rounded  text-gray-500 hover:bg-main-secondary hover:text-black'>
-                    <span>Copy Link</span>
-                  </button>
-                  <button className='flex cursor-pointer items-center rounded  text-gray-500 hover:bg-main-secondary hover:text-black'>
-                    <span>Duplicate</span>
-                  </button>
-                  <button className='flex cursor-pointer items-center rounded  text-gray-500 hover:bg-main-secondary hover:text-black'>
-                    <span>Delete</span>
-                  </button>
-                </div>
-              </div>
-            )}
+            {showMenu && <GridRowActions onOutsideClick={() => setShowMenu(false)} />}
           </td>
 
           {cells.map((cell, cellIndex) => {

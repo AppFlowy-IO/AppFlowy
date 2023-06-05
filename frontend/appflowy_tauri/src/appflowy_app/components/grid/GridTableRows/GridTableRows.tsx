@@ -23,16 +23,14 @@ export const GridTableRows = ({
           <tbody ref={droppableProvided.innerRef} {...droppableProvided.droppableProps}>
             {[...allRows].reverse().map((row, i) => {
               return (
-                <>
-                  <GridTableRow
-                    onOpenRow={onOpenRow}
-                    row={row}
-                    key={i}
-                    index={i}
-                    viewId={viewId}
-                    controller={controller}
-                  />
-                </>
+                <GridTableRow
+                  onOpenRow={onOpenRow}
+                  row={row}
+                  key={i}
+                  index={i}
+                  viewId={viewId}
+                  controller={controller}
+                />
               );
             })}
             {droppableProvided.placeholder}
