@@ -35,7 +35,7 @@ CharacterShortcutEventHandler _convertMinusesToDividerHandler =
     ..insertNode(path, dividerNode())
     ..insertNode(path, paragraphNode())
     ..deleteNode(node)
-    ..afterSelection = Selection.collapse(path.next, 0);
+    ..afterSelection = Selection.collapse(path, 0);
   editorState.apply(transaction);
   return true;
 };
@@ -61,7 +61,9 @@ SelectionMenuItem dividerMenuItem = SelectionMenuItem(
     }
     final insertedPath = delta.isEmpty ? path : path.next;
     final transaction = editorState.transaction
-      ..insertNode(insertedPath, dividerNode());
+      ..insertNode(insertedPath, dividerNode())
+      ..insertNode(insertedPath, paragraphNode())
+      ..afterSelection = Selection.collapse(insertedPath.next, 0);
     editorState.apply(transaction);
   },
 );

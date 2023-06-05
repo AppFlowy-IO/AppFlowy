@@ -112,6 +112,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       child: ConstrainedBox(
         constraints: const BoxConstraints(
           maxWidth: double.infinity,
+          maxHeight: double.infinity,
         ),
         child: FloatingToolbar(
           style: styleCustomizer.floatingToolbarStyleBuilder(),
@@ -225,7 +226,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       ];
 
       final colorAction = [
-        // OptionAction.divider,
+        OptionAction.divider,
         OptionAction.color,
       ];
 

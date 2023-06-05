@@ -179,7 +179,6 @@ class PopoverActionCellWidget<T extends PopoverAction> extends StatelessWidget {
     final rightIcon =
         actionCell.rightIcon(Theme.of(context).colorScheme.onSurface);
     return AppFlowyPopover(
-      // mutex: mutex,
       controller: popoverController,
       asBarrier: true,
       popupBuilder: (context) => actionCell.builder(
