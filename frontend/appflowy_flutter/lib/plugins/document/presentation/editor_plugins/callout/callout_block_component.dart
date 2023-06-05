@@ -51,7 +51,7 @@ SelectionMenuItem calloutItem = SelectionMenuItem.node(
   nodeBuilder: (editorState) => calloutNode(),
   replace: (_, node) => node.delta?.isEmpty ?? false,
   updateSelection: (_, path, __, ___) {
-    return Selection.single(path: [...path, 0], startOffset: 0);
+    return Selection.single(path: path, startOffset: 0);
   },
 );
 
