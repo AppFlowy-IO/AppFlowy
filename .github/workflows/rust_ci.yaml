@@ -56,7 +56,9 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: ${{ matrix.job.os }}
+          prefix-key: 'ubuntu-latest'
+          workspaces: |
+            frontend/rust-lib 
 
       - name: Build FlowySDK
         working-directory: frontend

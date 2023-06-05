@@ -67,6 +67,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: ${{ matrix.os }}
+          workspaces: |
+            frontend/rust-lib 
 
       - uses: davidB/rust-cargo-make@v1
         with:
