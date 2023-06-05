@@ -55,15 +55,26 @@ class ThemeSetting extends StatelessWidget {
             onPressed: () {},
           ),
           popupBuilder: (BuildContext context) {
-            return IntrinsicWidth(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _themeItemButton(context, BuiltInTheme.defaultTheme),
-                  _themeItemButton(context, BuiltInTheme.dandelion),
-                  _themeItemButton(context, BuiltInTheme.lavender),
-                ],
+            return FutureBuilder<Iterable<String>>(
+              future: AppTheme.themes.then(
+                (value) => value.map((e) => e.themeName),
               ),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return IntrinsicWidth(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        for (final theme in snapshot.data!)
+                          _themeItemButton(context, theme),
+                      ],
+                    ),
+                  );
+                } else {
+                  // return indicator
+                  return const SizedBox();
+                }
+              },
             );
           },
         ),

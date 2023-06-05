@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'location_service.dart';
-import 'package:path/path.dart' as p;
 
 import 'flowy_dynamic_plugin.dart';
 
