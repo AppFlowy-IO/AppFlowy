@@ -163,8 +163,8 @@ flutter:
   assets:
     - assets/images/
     - assets/images/home/
-    - assets/images/editor/
     - assets/images/editor/align/
+    - assets/images/editor/
     - assets/images/grid/
     - assets/images/emoji/
     - assets/images/grid/field/
