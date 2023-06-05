@@ -21,7 +21,7 @@ import {
 import {
   FolderEventCreateWorkspace,
   FolderEventOpenWorkspace,
-  FolderEventReadCurrentWorkspace,
+  FolderEventGetCurrentWorkspace,
   FolderEventReadAllWorkspaces,
 } from '@/services/backend/events/flowy-folder2';
 
@@ -54,7 +54,7 @@ export class UserBackendService {
   };
 
   getCurrentWorkspace = async (): Promise<WorkspaceSettingPB> => {
-    const result = await FolderEventReadCurrentWorkspace();
+    const result = await FolderEventGetCurrentWorkspace();
     if (result.ok) {
       return result.val;
     } else {
