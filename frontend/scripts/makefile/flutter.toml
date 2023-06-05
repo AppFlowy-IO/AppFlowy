@@ -195,9 +195,9 @@ script = [
 script_runner = "@duckscript"
 script = [
   """
-  exec cmd.exe chmod +x scripts/code_generation/generate.cmd
+  chmod +x "scripts/code_generation/generate.cmd"
+  exec "scripts/code_generation/generate.cmd"
   """,
-  "scripts/code_generation/generate.cmd"
 ]
 
 
