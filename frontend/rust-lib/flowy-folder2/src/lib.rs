@@ -8,7 +8,7 @@ mod user_default;
 pub mod view_operation;
 
 pub mod deps;
-mod share;
+pub mod share;
 #[cfg(feature = "test_helper")]
 mod test_helper;
 

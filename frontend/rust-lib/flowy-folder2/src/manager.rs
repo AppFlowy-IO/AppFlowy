@@ -497,7 +497,7 @@ impl Folder2Manager {
     let view_id = gen_view_id();
     if let Some(data) = import_data.data {
       handler
-        .import_from_bytes(&view_id, &import_data.name, data)
+        .import_from_bytes(&view_id, &import_data.name, import_data.import_type, data)
         .await?;
     }
 
