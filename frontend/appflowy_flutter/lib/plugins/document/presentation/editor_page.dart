@@ -24,16 +24,6 @@ class AppFlowyEditorPage extends StatefulWidget {
 
 class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   final scrollController = ScrollController();
-  final slashMenuItems = [
-    boardMenuItem,
-    gridMenuItem,
-    calloutItem,
-    dividerMenuItem,
-    mathEquationItem,
-    codeBlockItem,
-    emojiMenuItem,
-    autoGeneratorMenuItem,
-  ];
 
   final List<CommandShortcutEvent> commandShortcutEvents = [
     ...codeBlockCommands,
@@ -51,6 +41,19 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     linkItem,
     textColorItem,
     highlightColorItem,
+  ];
+
+  late final slashMenuItems = [
+    dividerMenuItem,
+    inlineGridMenuItem(documentBloc),
+    referenceGridMenuItem,
+    inlineBoardMenuItem(documentBloc),
+    boardMenuItem,
+    calloutItem,
+    mathEquationItem,
+    codeBlockItem,
+    emojiMenuItem,
+    autoGeneratorMenuItem,
   ];
 
   late final Map<String, BlockComponentBuilder> blockComponentBuilders =
