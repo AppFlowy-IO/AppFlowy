@@ -14,8 +14,8 @@ export function useKeyDown(id: string) {
   const customEvents = useMemo(() => {
     return [
       ...commonKeyEvents,
-
       {
+        // rewrite only shift + enter key and no other key is pressed
         canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => {
           return isHotkey(Keyboard.keys.SHIFT_ENTER, e);
         },

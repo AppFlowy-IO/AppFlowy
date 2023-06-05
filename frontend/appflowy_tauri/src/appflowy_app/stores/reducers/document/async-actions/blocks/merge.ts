@@ -3,6 +3,7 @@ import { DocumentController } from '$app/stores/effects/document/document_contro
 import { DocumentState } from '$app/interfaces/document';
 import Delta from 'quill-delta';
 import { blockConfig } from '$app/constants/document/config';
+import { getMoveChildrenActions } from '$app/utils/document/action';
 
 /**
  * Merge two blocks
@@ -33,12 +34,12 @@ export const mergeDeltaThunk = createAsyncThunk(
 
     const actions = [updateAction];
     // move children
-    const config = blockConfig[target.type];
     const children = state.children[source.children].map((id) => state.nodes[id]);
-    const targetParentId = config.canAddChild ? target.id : target.parent;
-    if (!targetParentId) return;
-    const targetPrevId = targetParentId === target.id ? '' : target.id;
-    const moveActions = controller.getMoveChildrenAction(children, targetParentId, targetPrevId);
+    const moveActions = getMoveChildrenActions({
+      controller,
+      children,
+      target,
+    });
     actions.push(...moveActions);
     // delete current block
     const deleteAction = controller.getDeleteAction(source);

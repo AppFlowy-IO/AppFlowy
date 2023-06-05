@@ -20,7 +20,7 @@ export function useKeyDown(id: string) {
     return [
       ...commonKeyEvents,
       {
-        // Prevent all enter key
+        // Prevent all enter key unless it be rewritten
         canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => {
           return e.key === Keyboard.keys.ENTER;
         },
@@ -29,7 +29,7 @@ export function useKeyDown(id: string) {
         },
       },
       {
-        // handle enter key and no other key is pressed
+        // rewrite only enter key and no other key is pressed
         canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => {
           return isHotkey(Keyboard.keys.ENTER, e);
         },
@@ -43,9 +43,8 @@ export function useKeyDown(id: string) {
           );
         },
       },
-
       {
-        // Prevent tab key from indenting
+        // Prevent all tab key unless it be rewritten
         canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => {
           return e.key === Keyboard.keys.TAB;
         },
@@ -54,7 +53,7 @@ export function useKeyDown(id: string) {
         },
       },
       {
-        // handle tab key and no other key is pressed
+        // rewrite only tab key and no other key is pressed
         canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => {
           return isHotkey(Keyboard.keys.TAB, e);
         },
@@ -69,7 +68,7 @@ export function useKeyDown(id: string) {
         },
       },
       {
-        // handle shift + tab key and no other key is pressed
+        // rewrite only shift+tab key and no other key is pressed
         canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => {
           return isHotkey(Keyboard.keys.SHIFT_TAB, e);
         },
@@ -83,14 +82,12 @@ export function useKeyDown(id: string) {
           );
         },
       },
-
       ...turnIntoEvents,
     ];
   }, [commonKeyEvents, controller, dispatch, id, turnIntoEvents]);
 
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
-
       e.stopPropagation();
 
       const filteredEvents = interceptEvents.filter((event) => event.canHandle(e));

@@ -145,7 +145,7 @@ export function isPointInBlock(target: HTMLElement | null) {
 
 export function findTextNode(
   node: Element,
-  index: number,
+  index: number
 ): {
   node?: Node;
   offset?: number;
@@ -190,7 +190,6 @@ export function focusNodeByIndex(node: Element, index: number, length: number) {
   selection?.removeAllRanges();
   selection?.addRange(range);
 }
-
 
 export function getNodeTextBoxByBlockId(blockId: string) {
   const node = getNode(blockId);

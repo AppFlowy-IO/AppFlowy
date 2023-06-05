@@ -1,15 +1,15 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from '$app/stores/store';
 import { rangeActions } from '$app_reducers/document/slice';
-import { getNextLineId } from '$app/utils/document/block';
 import Delta from 'quill-delta';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import {
   getAfterMergeCaretByRange,
   getInsertEnterNodeAction,
   getMergeEndDeltaToStartActionsByRange,
+  getMiddleIds,
   getMiddleIdsByRange,
-  getStartAndEndDeltaExpectRange,
+  getStartAndEndExtentDelta,
 } from '$app/utils/document/action';
 import { RangeState, SplitRelationship } from '$app/interfaces/document';
 import { blockConfig } from '$app/constants/document/config';
@@ -74,25 +74,19 @@ export const storeRangeThunk = createAsyncThunk('document/storeRange', (payload:
   const startId = isForward ? anchor.id : focus.id;
   const endId = isForward ? focus.id : anchor.id;
 
-  let currentId: string | undefined = startId;
-  while (currentId && currentId !== endId) {
-    const nextId = getNextLineId(state.document, currentId);
-    if (nextId && nextId !== endId) {
-      const node = state.document.nodes[nextId];
+  const middleIds = getMiddleIds(state.document, startId, endId);
+  middleIds.forEach((id) => {
+    const node = state.document.nodes[id];
 
-      if (!node || !node.data.delta) return;
-      const delta = new Delta(node.data.delta);
+    if (!node || !node.data.delta) return;
+    const delta = new Delta(node.data.delta);
+    const rangeStatic = {
+      index: 0,
+      length: delta.length(),
+    };
 
-      // set full range
-      const rangeStatic = {
-        index: 0,
-        length: delta.length(),
-      };
-
-      ranges[nextId] = rangeStatic;
-    }
-    currentId = nextId;
-  }
+    ranges[id] = rangeStatic;
+  });
 
   dispatch(rangeActions.setRanges(ranges));
 });
@@ -110,6 +104,8 @@ export const deleteRangeAndInsertThunk = createAsyncThunk(
     const { getState, dispatch } = thunkAPI;
     const state = getState() as RootState;
     const rangeState = state.documentRange;
+    // if no range, just return
+    if (rangeState.caret && rangeState.caret.length === 0) return;
     const actions = [];
     // get merge actions
     const mergeActions = getMergeEndDeltaToStartActionsByRange(state, controller, insertDelta);
@@ -153,11 +149,11 @@ export const deleteRangeAndInsertEnterThunk = createAsyncThunk(
     const rangeState = state.documentRange;
     const actions = [];
 
-    const { startDelta, endDelta, endNode, startNode } = getStartAndEndDeltaExpectRange(state) || {};
+    const { startDelta, endDelta, endNode, startNode } = getStartAndEndExtentDelta(state) || {};
     if (!startDelta || !endDelta || !endNode || !startNode) return;
 
     // get middle nodes
-    const middleIds = getMiddleIdsByRange(rangeState, state.document);
+    const middleIds = getMiddleIds(state.document, startNode.id, endNode.id);
 
     let newStartDelta = new Delta(startDelta);
     let caret = null;

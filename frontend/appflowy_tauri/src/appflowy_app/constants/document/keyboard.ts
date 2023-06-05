@@ -28,5 +28,15 @@ export const Keyboard = {
     Space: ' ',
     Reduce: '-',
     BackQuote: '`',
+    FORMAT: {
+      BOLD: 'Mod+b',
+      ITALIC: 'Mod+i',
+      UNDERLINE: 'Mod+u',
+      STRIKE: 'Mod+Shift+s',
+      CODE: 'Mod+Shift+c',
+    },
+    COPY: 'Mod+c',
+    CUT: 'Mod+x',
+    PASTE: 'Mod+v',
   },
 };

@@ -10,6 +10,8 @@ import { useContext, useMemo } from 'react';
 import { useFocused } from '$app/components/document/_shared/SubscribeSelection.hooks';
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { useAppDispatch } from '$app/stores/store';
+import { isFormatHotkey, parseFormat } from '$app/utils/document/format';
+import { toggleFormatThunk } from '$app_reducers/document/async-actions/format';
 
 export function useCommonKeyEvents(id: string) {
   const { focused, caretRef } = useFocused(id);
@@ -71,6 +73,21 @@ export function useCommonKeyEvents(id: string) {
         handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
           e.preventDefault();
           dispatch(rightActionForBlockThunk({ id }));
+        },
+      },
+      {
+        // handle format shortcuts
+        canHandle: isFormatHotkey,
+        handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
+          if (!controller) return;
+          const format = parseFormat(e);
+          if (!format) return;
+          dispatch(
+            toggleFormatThunk({
+              format,
+              controller,
+            })
+          );
         },
       },
     ];

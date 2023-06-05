@@ -1,19 +1,19 @@
-import { EditorProps } from "$app/interfaces/document";
-import { useCallback, useEffect, useMemo, useRef } from "react";
-import { ReactEditor } from "slate-react";
-import { BaseRange, Descendant, Editor, NodeEntry, Range, Selection } from "slate";
+import { EditorProps } from '$app/interfaces/document';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { ReactEditor } from 'slate-react';
+import { BaseRange, Descendant, Editor, NodeEntry, Range, Selection, Transforms } from 'slate';
 import {
   converToIndexLength,
   convertToDelta,
   convertToSlateSelection,
   indent,
-  outdent
-} from "$app/utils/document/slate_editor";
-import { focusNodeByIndex } from "$app/utils/document/node";
-import { Keyboard } from "$app/constants/document/keyboard";
-import Delta from "quill-delta";
-import isHotkey from "is-hotkey";
-import { useSlateYjs } from "$app/components/document/_shared/SlateEditor/useSlateYjs";
+  outdent,
+} from '$app/utils/document/slate_editor';
+import { focusNodeByIndex } from '$app/utils/document/node';
+import { Keyboard } from '$app/constants/document/keyboard';
+import Delta from 'quill-delta';
+import isHotkey from 'is-hotkey';
+import { useSlateYjs } from '$app/components/document/_shared/SlateEditor/useSlateYjs';
 
 export function useEditor({
   onChange,
@@ -109,7 +109,6 @@ export function useEditor({
     [editor, onKeyDown, isCodeBlock]
   );
 
-
   const onBlur = useCallback(
     (_event: React.FocusEvent<HTMLDivElement>) => {
       editor.deselect();
@@ -122,10 +121,9 @@ export function useEditor({
     const slateSelection = convertToSlateSelection(selection.index, selection.length, editor.children);
     if (!slateSelection) return;
     const isFocused = ReactEditor.isFocused(editor);
-
     if (isFocused && JSON.stringify(slateSelection) === JSON.stringify(editor.selection)) return;
-
     focusNodeByIndex(ref.current, selection.index, selection.length);
+    Transforms.select(editor, slateSelection);
   }, [editor, selection]);
 
   return {
@@ -139,4 +137,3 @@ export function useEditor({
     onBlur,
   };
 }
-
