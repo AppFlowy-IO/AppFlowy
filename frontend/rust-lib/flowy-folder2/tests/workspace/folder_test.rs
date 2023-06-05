@@ -1,7 +1,5 @@
-use crate::script::{invalid_workspace_name_test_case, FolderScript::*, FolderTest};
+use crate::script::{FolderScript::*, FolderTest};
 use collab_folder::core::ViewLayout;
-use flowy_folder2::entities::CreateWorkspacePayloadPB;
-use flowy_test::{event_builder::*, FlowyCoreTest};
 
 #[tokio::test]
 async fn read_all_workspace_test() {

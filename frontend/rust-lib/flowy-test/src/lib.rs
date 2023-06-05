@@ -3,7 +3,9 @@ use parking_lot::RwLock;
 use std::env::temp_dir;
 use std::sync::Arc;
 
+use crate::event_builder::EventBuilder;
 use flowy_core::{AppFlowyCore, AppFlowyCoreConfig};
+use flowy_folder2::entities::{CreateViewPayloadPB, RepeatedViewIdPB, ViewPB, WorkspaceSettingPB};
 use flowy_user::entities::{AuthTypePB, UserProfilePB};
 
 use crate::user_event::{async_sign_up, init_user_setting, SignUpContext};
@@ -56,6 +58,46 @@ impl FlowyCoreTest {
     let context = async_sign_up(self.inner.dispatcher(), auth_type).await;
     init_user_setting(self.inner.dispatcher()).await;
     context.user_profile
+  }
+
+  pub async fn get_current_workspace(&self) -> WorkspaceSettingPB {
+    EventBuilder::new(self.clone())
+      .event(flowy_folder2::event_map::FolderEvent::GetCurrentWorkspace)
+      .async_send()
+      .await
+      .parse::<flowy_folder2::entities::WorkspaceSettingPB>()
+  }
+
+  pub async fn delete_view(&self, view_id: &str) {
+    let payload = RepeatedViewIdPB {
+      items: vec![view_id.to_string()],
+    };
+
+    // delete the view. the view will be moved to trash
+    EventBuilder::new(self.clone())
+      .event(flowy_folder2::event_map::FolderEvent::DeleteView)
+      .payload(payload)
+      .async_send()
+      .await;
+  }
+
+  pub async fn create_view(&self, parent_id: &str, name: String) -> ViewPB {
+    let payload = CreateViewPayloadPB {
+      parent_view_id: parent_id.to_string(),
+      name,
+      desc: "".to_string(),
+      thumbnail: None,
+      layout: Default::default(),
+      initial_data: vec![],
+      meta: Default::default(),
+      set_as_current: false,
+    };
+    EventBuilder::new(self.clone())
+      .event(flowy_folder2::event_map::FolderEvent::CreateView)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<flowy_folder2::entities::ViewPB>()
   }
 }
 

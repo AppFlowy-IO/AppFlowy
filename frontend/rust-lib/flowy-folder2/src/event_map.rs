@@ -26,7 +26,7 @@ pub fn init(folder: Arc<Folder2Manager>) -> AFPlugin {
     .event(FolderEvent::DuplicateView, duplicate_view_handler)
     .event(FolderEvent::SetLatestView, set_latest_view_handler)
     .event(FolderEvent::CloseView, close_view_handler)
-    .event(FolderEvent::MoveItem, move_view_handler)
+    .event(FolderEvent::MoveView, move_view_handler)
     // Trash
     .event(FolderEvent::ReadTrash, read_trash_handler)
     .event(FolderEvent::PutbackTrash, putback_trash_handler)
@@ -97,8 +97,8 @@ pub enum FolderEvent {
   SetLatestView = 21,
 
   /// Move the view or app to another place
-  #[event(input = "MoveFolderItemPayloadPB")]
-  MoveItem = 22,
+  #[event(input = "MoveViewPayloadPB")]
+  MoveView = 22,
 
   /// Read the trash that was deleted by the user
   #[event(output = "RepeatedTrashPB")]

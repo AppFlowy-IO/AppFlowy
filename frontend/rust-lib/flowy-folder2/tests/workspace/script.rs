@@ -1,5 +1,5 @@
 use collab_folder::core::ViewLayout;
-use flowy_error::ErrorCode;
+
 use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent::*;
 use flowy_test::event_builder::EventBuilder;
@@ -161,14 +161,6 @@ impl FolderTest {
     }
   }
 }
-
-pub fn invalid_workspace_name_test_case() -> Vec<(String, ErrorCode)> {
-  vec![
-    ("".to_owned(), ErrorCode::WorkspaceNameInvalid),
-    ("1234".repeat(100), ErrorCode::WorkspaceNameTooLong),
-  ]
-}
-
 pub async fn create_workspace(sdk: &FlowyCoreTest, name: &str, desc: &str) -> WorkspacePB {
   let request = CreateWorkspacePayloadPB {
     name: name.to_owned(),

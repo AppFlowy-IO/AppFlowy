@@ -1,7 +1,7 @@
 import {
   FolderEventCreateView,
   FolderEventDeleteView,
-  FolderEventMoveItem,
+  FolderEventMoveView,
   FolderEventReadView,
   FolderEventUpdateView,
   ViewLayoutPB,
@@ -10,8 +10,7 @@ import {
   CreateViewPayloadPB,
   RepeatedViewIdPB,
   ViewPB,
-  MoveFolderItemPayloadPB,
-  MoveFolderItemType,
+  MoveViewPayloadPB,
   FlowyError,
   ViewIdPB,
   UpdateViewPayloadPB,
@@ -95,13 +94,12 @@ export class AppBackendService {
   };
 
   moveView = (params: { view_id: string; fromIndex: number; toIndex: number }) => {
-    const payload = MoveFolderItemPayloadPB.fromObject({
-      item_id: params.view_id,
+    const payload = MoveViewPayloadPB.fromObject({
+      view_id: params.view_id,
       from: params.fromIndex,
       to: params.toIndex,
-      ty: MoveFolderItemType.MoveView,
     });
 
-    return FolderEventMoveItem(payload);
+    return FolderEventMoveView(payload);
   };
 }

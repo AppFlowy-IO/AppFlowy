@@ -5,7 +5,7 @@ use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataRes
 
 use crate::entities::{
   view_pb_without_child_views, CreateViewParams, CreateViewPayloadPB, CreateWorkspaceParams,
-  CreateWorkspacePayloadPB, ImportPB, MoveFolderItemPayloadPB, MoveViewParams, RepeatedTrashIdPB,
+  CreateWorkspacePayloadPB, ImportPB, MoveViewParams, MoveViewPayloadPB, RepeatedTrashIdPB,
   RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, RepeatedWorkspacePB, TrashIdPB,
   UpdateViewParams, UpdateViewPayloadPB, ViewIdPB, ViewPB, WorkspaceIdPB, WorkspacePB,
   WorkspaceSettingPB,
@@ -144,7 +144,7 @@ pub(crate) async fn close_view_handler(
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn move_view_handler(
-  data: AFPluginData<MoveFolderItemPayloadPB>,
+  data: AFPluginData<MoveViewPayloadPB>,
   folder: AFPluginState<Arc<Folder2Manager>>,
 ) -> Result<(), FlowyError> {
   let params: MoveViewParams = data.into_inner().try_into()?;
