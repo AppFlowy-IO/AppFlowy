@@ -51,7 +51,7 @@ void main() {
       // Click create button again
       await tester.tapCreateButton();
 
-      await tester.expectToSeeWelcomePage();
+      tester.expectToSeeWelcomePage();
 
       await TestFolder.cleanTestLocation(folderName);
     });
@@ -69,7 +69,7 @@ void main() {
       await tester.tapOpenFolderButton();
 
       await tester.wait(1000);
-      await tester.expectToSeeWelcomePage();
+      tester.expectToSeeWelcomePage();
 
       await TestFolder.cleanTestLocation(folderName);
     });
@@ -84,7 +84,7 @@ void main() {
       await tester.initializeAppFlowy();
 
       await tester.tapGoButton();
-      await tester.expectToSeeWelcomePage();
+      tester.expectToSeeWelcomePage();
 
       // switch to user B
       {
@@ -99,7 +99,7 @@ void main() {
         await mockGetDirectoryPath(userB);
         await tester.tapCustomLocationButton();
         await tester.pumpAndSettle();
-        await tester.expectToSeeWelcomePage();
+        tester.expectToSeeWelcomePage();
       }
 
       // switch to the userA
@@ -116,7 +116,7 @@ void main() {
         await tester.tapCustomLocationButton();
 
         await tester.pumpAndSettle();
-        await tester.expectToSeeWelcomePage();
+        tester.expectToSeeWelcomePage();
         expect(find.textContaining(userA), findsOneWidget);
       }
 
@@ -131,7 +131,7 @@ void main() {
         await tester.tapCustomLocationButton();
 
         await tester.pumpAndSettle();
-        await tester.expectToSeeWelcomePage();
+        tester.expectToSeeWelcomePage();
         expect(find.textContaining(userB), findsOneWidget);
       }
 
@@ -145,7 +145,7 @@ void main() {
       await tester.tapGoButton();
 
       // home and readme document
-      await tester.expectToSeeWelcomePage();
+      tester.expectToSeeWelcomePage();
 
       // open settings and restore the location
       await tester.openSettings();

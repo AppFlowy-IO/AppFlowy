@@ -1,6 +1,6 @@
 use crate::user::supabase_test::helper::get_supabase_config;
 use flowy_folder2::entities::WorkspaceSettingPB;
-use flowy_folder2::event_map::FolderEvent::ReadCurrentWorkspace;
+use flowy_folder2::event_map::FolderEvent::GetCurrentWorkspace;
 
 use flowy_test::{event_builder::EventBuilder, FlowyCoreTest};
 use flowy_user::entities::{AuthTypePB, ThirdPartyAuthPB, UserProfilePB};
@@ -27,7 +27,7 @@ async fn initial_workspace_test() {
       .parse::<UserProfilePB>();
 
     let workspace_settings = EventBuilder::new(test.clone())
-      .event(ReadCurrentWorkspace)
+      .event(GetCurrentWorkspace)
       .async_send()
       .await
       .parse::<WorkspaceSettingPB>();

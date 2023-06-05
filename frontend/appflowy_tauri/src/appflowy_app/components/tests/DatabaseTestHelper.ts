@@ -5,7 +5,7 @@ import {
   ViewPB,
   WorkspaceSettingPB,
 } from '../../../services/backend';
-import { FolderEventReadCurrentWorkspace } from '../../../services/backend/events/flowy-folder2';
+import { FolderEventGetCurrentWorkspace } from '../../../services/backend/events/flowy-folder2';
 import { AppBackendService } from '../../stores/effects/folder/app/app_bd_svc';
 import { DatabaseController } from '../../stores/effects/database/database_controller';
 import { RowInfo } from '../../stores/effects/database/row/row_cache';
@@ -31,7 +31,7 @@ import { Log } from '$app/utils/log';
 // Create a database view for specific layout type
 // Do not use it production code. Just for testing
 export async function createTestDatabaseView(layout: ViewLayoutPB): Promise<ViewPB> {
-  const workspaceSetting: WorkspaceSettingPB = await FolderEventReadCurrentWorkspace().then((result) => result.unwrap());
+  const workspaceSetting: WorkspaceSettingPB = await FolderEventGetCurrentWorkspace().then((result) => result.unwrap());
   const appService = new AppBackendService(workspaceSetting.workspace.id);
   return await appService.createView({ name: 'New Grid', layoutType: layout });
 }

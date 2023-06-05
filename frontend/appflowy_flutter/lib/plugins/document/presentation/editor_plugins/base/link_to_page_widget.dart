@@ -23,7 +23,8 @@ void showLinkToPageMenu(
   final top = alignment == Alignment.bottomLeft ? offset.dy : null;
   final bottom = alignment == Alignment.topLeft ? offset.dy : null;
 
-  final linkToPageMenuEntry = FullScreenOverlayEntry(
+  late OverlayEntry linkToPageMenuEntry;
+  linkToPageMenuEntry = FullScreenOverlayEntry(
     top: top,
     bottom: bottom,
     left: offset.dx,
@@ -35,6 +36,7 @@ void showLinkToPageMenu(
         hintText: pageType.toHintText(),
         onSelected: (appPB, viewPB) {
           editorState.insertPage(appPB, viewPB);
+          linkToPageMenuEntry.remove();
         },
       ),
     ),

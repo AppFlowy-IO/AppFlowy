@@ -91,7 +91,7 @@ extension AppFlowyTestBase on WidgetTester {
     String tr, {
     int milliseconds = 500,
   }) async {
-    final button = find.text(tr);
+    final button = find.text(tr, findRichText: true);
     await tapButton(
       button,
       milliseconds: milliseconds,

@@ -35,7 +35,7 @@ class WorkspaceService {
 
   Future<Either<WorkspacePB, FlowyError>> getWorkspace() {
     final payload = WorkspaceIdPB.create()..value = workspaceId;
-    return FolderEventReadWorkspaces(payload).send().then((result) {
+    return FolderEventReadAllWorkspaces(payload).send().then((result) {
       return result.fold(
         (workspaces) {
           assert(workspaces.items.length == 1);

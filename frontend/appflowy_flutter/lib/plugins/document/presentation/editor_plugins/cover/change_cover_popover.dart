@@ -465,17 +465,11 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
           },
           platform: TargetPlatform.windows,
         ),
-        child: ListView.builder(
-          controller: scrollController,
-          shrinkWrap: true,
-          itemCount: widget.backgroundColorOptions.length,
-          scrollDirection: Axis.horizontal,
-          itemBuilder: (context, index) {
-            return _buildColorItems(
-              widget.backgroundColorOptions,
-              widget.selectedBackgroundColorHex,
-            );
-          },
+        child: SingleChildScrollView(
+          child: _buildColorItems(
+            widget.backgroundColorOptions,
+            widget.selectedBackgroundColorHex,
+          ),
         ),
       ),
     );
