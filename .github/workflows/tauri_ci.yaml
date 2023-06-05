@@ -15,8 +15,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-#        platform: [macos-latest, ubuntu-20.04, windows-latest]
-         platform: [ubuntu-20.04]
+#        platform: [macos-latest, ubuntu-latest, windows-latest]
+         platform: [ubuntu-latest]
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -36,7 +36,9 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: ${{ matrix.platform }}
+          prefix-key: 'ubuntu-latest'
+          workspaces: |
+            frontend/rust-lib 
 
       - name: install dependencies (windows only)
         if: matrix.platform == 'windows-latest'

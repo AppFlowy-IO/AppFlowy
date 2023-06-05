@@ -1853,6 +1853,7 @@ dependencies = [
  "flowy-core",
  "flowy-folder2",
  "flowy-net",
+ "flowy-notification",
  "flowy-server",
  "flowy-user",
  "futures-util",

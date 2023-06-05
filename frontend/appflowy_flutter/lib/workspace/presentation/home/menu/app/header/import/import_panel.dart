@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -6,6 +7,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/migration/
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
 import 'package:appflowy/workspace/application/settings/share/import_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flowy_infra/image.dart';
@@ -52,7 +54,8 @@ Future<void> showImportPanel(
 enum ImportType {
   historyDocument,
   historyDatabase,
-  markdownOrText;
+  markdownOrText,
+  databaseCSV;
 
   @override
   String toString() {
@@ -63,6 +66,8 @@ enum ImportType {
         return 'Database from v0.1';
       case ImportType.markdownOrText:
         return 'Text & Markdown';
+      case ImportType.databaseCSV:
+        return 'CSV';
       default:
         assert(false, 'Unsupported Type $this');
         return '';
@@ -70,22 +75,24 @@ enum ImportType {
   }
 
   Widget? Function(BuildContext context) get icon => (context) {
+        var name = '';
         switch (this) {
           case ImportType.historyDocument:
+            name = 'editor/board';
           case ImportType.historyDatabase:
-            return svgWidget(
-              'editor/documents',
-              color: Theme.of(context).iconTheme.color,
-            );
+            name = 'editor/documents';
+          case ImportType.databaseCSV:
+            name = 'editor/board';
           case ImportType.markdownOrText:
-            return svgWidget(
-              'editor/documents',
-              color: Theme.of(context).iconTheme.color,
-            );
+            name = 'editor/text';
           default:
             assert(false, 'Unsupported Type $this');
             return null;
         }
+        return svgWidget(
+          name,
+          color: Theme.of(context).iconTheme.color,
+        );
       };
 
   List<String> get allowedExtensions {
@@ -96,6 +103,8 @@ enum ImportType {
         return ['afdb'];
       case ImportType.markdownOrText:
         return ['md', 'txt'];
+      case ImportType.databaseCSV:
+        return ['csv'];
       default:
         assert(false, 'Unsupported Type $this');
         return [];
@@ -105,6 +114,7 @@ enum ImportType {
   bool get allowMultiSelect {
     switch (this) {
       case ImportType.historyDocument:
+      case ImportType.databaseCSV:
         return true;
       case ImportType.historyDatabase:
       case ImportType.markdownOrText:
@@ -189,18 +199,28 @@ class _ImportPanelState extends State<_ImportPanel> {
         case ImportType.historyDocument:
           final bytes = _documentDataFrom(importType, data);
           if (bytes != null) {
-            await ImportBackendService.importHistoryDocument(
+            await ImportBackendService.importData(
               bytes,
               name,
               parentViewId,
+              ImportTypePB.HistoryDocument,
             );
           }
           break;
         case ImportType.historyDatabase:
-          await ImportBackendService.importHistoryDatabase(
-            data,
+          await ImportBackendService.importData(
+            utf8.encode(data),
             name,
             parentViewId,
+            ImportTypePB.HistoryDatabase,
+          );
+          break;
+        case ImportType.databaseCSV:
+          await ImportBackendService.importData(
+            utf8.encode(data),
+            name,
+            parentViewId,
+            ImportTypePB.CSV,
           );
           break;
         default:

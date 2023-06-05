@@ -105,16 +105,18 @@ lazy_static! {
   static ref COLLAB_DB_MAP: RwLock<HashMap<i64, Arc<RocksCollabDB>>> = RwLock::new(HashMap::new());
 }
 
+/// The order of the fields in the struct must be the same as the order of the fields in the table.
+/// Check out the [schema.rs] for table schema.
 #[derive(Clone, Default, Queryable, Identifiable, Insertable)]
 #[table_name = "user_table"]
 pub struct UserTable {
   pub(crate) id: String,
   pub(crate) name: String,
-  pub(crate) token: String,
-  pub(crate) email: String,
   pub(crate) workspace: String,
   pub(crate) icon_url: String,
   pub(crate) openai_key: String,
+  pub(crate) token: String,
+  pub(crate) email: String,
 }
 
 impl UserTable {

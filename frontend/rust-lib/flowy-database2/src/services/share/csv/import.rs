@@ -85,10 +85,7 @@ fn database_from_fields_and_rows(
       CSVFormat::META => {
         //
         match serde_json::from_str(&field_meta) {
-          Ok(field) => {
-            //
-            field
-          },
+          Ok(field) => field,
           Err(e) => {
             dbg!(e);
             default_field(field_meta, index == 0)
@@ -196,5 +193,14 @@ mod tests {
     assert_eq!(result.created_rows[2].cells.len(), 6);
 
     println!("{:?}", result);
+  }
+
+  #[test]
+  fn import_empty_csv_data_test() {
+    let s = r#""#;
+    let importer = CSVImporter;
+    let result =
+      importer.import_csv_from_string(gen_database_view_id(), s.to_string(), CSVFormat::Original);
+    assert!(result.is_err());
   }
 }

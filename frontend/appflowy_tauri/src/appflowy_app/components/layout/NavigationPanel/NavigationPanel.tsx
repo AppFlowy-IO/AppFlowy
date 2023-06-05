@@ -4,11 +4,11 @@ import { FolderItem } from './FolderItem';
 import { TrashButton } from './TrashButton';
 import { NewFolderButton } from './NewFolderButton';
 import { NavigationResizer } from './NavigationResizer';
-import { IFolder } from '../../../stores/reducers/folders/slice';
-import { IPage } from '../../../stores/reducers/pages/slice';
+import { IFolder } from '$app_reducers/folders/slice';
+import { IPage } from '$app_reducers/pages/slice';
 import { useLocation, useNavigate } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
-import { useAppSelector } from '../../../stores/store';
+import { useAppSelector } from '$app/stores/store';
 import {
   ANIMATION_DURATION,
   FOLDER_MARGIN,
@@ -59,7 +59,7 @@ export const NavigationPanel = ({
       let height = 0;
       for (let i = 0; i < folderIndex; i++) {
         height += INITIAL_FOLDER_HEIGHT + FOLDER_MARGIN;
-        if (foldersStore[i].showPages === true) {
+        if (foldersStore[i].showPages) {
           height += pagesStore.filter((p) => p.folderId === foldersStore[i].id).length * PAGE_ITEM_HEIGHT;
         }
       }

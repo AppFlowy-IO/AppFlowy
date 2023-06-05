@@ -1,17 +1,11 @@
 import { Err, Ok } from 'ts-results';
 import {
   FolderEventCreateView,
-  FolderEventMoveItem,
+  FolderEventMoveView,
   FolderEventReadWorkspaceViews,
   FolderEventReadAllWorkspaces,
 } from '@/services/backend/events/flowy-folder2';
-import {
-  CreateViewPayloadPB,
-  FlowyError,
-  MoveFolderItemPayloadPB,
-  ViewLayoutPB,
-  WorkspaceIdPB,
-} from '@/services/backend';
+import { CreateViewPayloadPB, FlowyError, MoveViewPayloadPB, ViewLayoutPB, WorkspaceIdPB } from '@/services/backend';
 import assert from 'assert';
 
 export class WorkspaceBackendService {
@@ -56,11 +50,11 @@ export class WorkspaceBackendService {
   };
 
   moveApp = (params: { appId: string; fromIndex: number; toIndex: number }) => {
-    const payload = MoveFolderItemPayloadPB.fromObject({
-      item_id: params.appId,
+    const payload = MoveViewPayloadPB.fromObject({
+      view_id: params.appId,
       from: params.fromIndex,
       to: params.toIndex,
     });
-    return FolderEventMoveItem(payload);
+    return FolderEventMoveView(payload);
   };
 }
