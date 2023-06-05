@@ -70,6 +70,8 @@ impl Folder2Manager {
     }
   }
 
+  /// Return a list of views of the current workspace.
+  /// Only the first level of child views are included.
   pub async fn get_current_workspace_views(&self) -> FlowyResult<Vec<ViewPB>> {
     let workspace_id = self
       .mutex_folder

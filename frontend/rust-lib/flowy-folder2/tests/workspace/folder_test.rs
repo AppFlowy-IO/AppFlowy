@@ -4,14 +4,14 @@ use flowy_folder2::entities::CreateWorkspacePayloadPB;
 use flowy_test::{event_builder::*, FlowyCoreTest};
 
 #[tokio::test]
-async fn workspace_read_all() {
+async fn read_all_workspace_test() {
   let mut test = FolderTest::new().await;
   test.run_scripts(vec![ReadAllWorkspaces]).await;
   assert!(!test.all_workspace.is_empty());
 }
 
 #[tokio::test]
-async fn workspace_create() {
+async fn create_workspace_test() {
   let mut test = FolderTest::new().await;
   let name = "My new workspace".to_owned();
   let desc = "Daily routines".to_owned();
@@ -34,7 +34,7 @@ async fn workspace_create() {
 }
 
 #[tokio::test]
-async fn workspace_read() {
+async fn get_workspace_test() {
   let mut test = FolderTest::new().await;
   let workspace = test.workspace.clone();
 
@@ -47,21 +47,21 @@ async fn workspace_read() {
 }
 
 #[tokio::test]
-async fn workspace_create_with_apps() {
+async fn create_parent_view_test() {
   let mut test = FolderTest::new().await;
   test
-    .run_scripts(vec![CreateApp {
+    .run_scripts(vec![CreateParentView {
       name: "App".to_string(),
       desc: "App description".to_string(),
     }])
     .await;
 
   let app = test.parent_view.clone();
-  test.run_scripts(vec![RefreshRootView(app.id)]).await;
+  test.run_scripts(vec![ReloadParentView(app.id)]).await;
 }
 
 #[tokio::test]
-async fn workspace_create_with_invalid_name() {
+async fn create_parent_view_with_invalid_name() {
   for (name, code) in invalid_workspace_name_test_case() {
     let sdk = FlowyCoreTest::new();
     let request = CreateWorkspacePayloadPB {
@@ -84,46 +84,46 @@ async fn workspace_create_with_invalid_name() {
 
 #[tokio::test]
 #[should_panic]
-async fn app_delete() {
+async fn delete_parent_view_test() {
   let mut test = FolderTest::new().await;
-  let app = test.parent_view.clone();
+  let parent_view = test.parent_view.clone();
   test
-    .run_scripts(vec![DeleteRootView, RefreshRootView(app.id)])
+    .run_scripts(vec![DeleteParentView, ReloadParentView(parent_view.id)])
     .await;
 }
 
 #[tokio::test]
-async fn app_delete_then_restore() {
+async fn delete_parent_view_then_restore() {
   let mut test = FolderTest::new().await;
   test
-    .run_scripts(vec![RefreshRootView(test.parent_view.id.clone())])
+    .run_scripts(vec![ReloadParentView(test.parent_view.id.clone())])
     .await;
 
   let parent_view = test.parent_view.clone();
   test
     .run_scripts(vec![
-      DeleteRootView,
+      DeleteParentView,
       RestoreAppFromTrash,
-      RefreshRootView(parent_view.id.clone()),
-      AssertRootView(parent_view),
+      ReloadParentView(parent_view.id.clone()),
+      AssertParentView(parent_view),
     ])
     .await;
 }
 
 #[tokio::test]
-async fn app_update() {
+async fn update_parent_view_test() {
   let mut test = FolderTest::new().await;
-  let app = test.parent_view.clone();
+  let parent_view = test.parent_view.clone();
   let new_name = "😁 hell world".to_owned();
-  assert_ne!(app.name, new_name);
+  assert_ne!(parent_view.name, new_name);
 
   test
     .run_scripts(vec![
-      UpdateRootView {
+      UpdateParentView {
         name: Some(new_name.clone()),
         desc: None,
       },
-      RefreshRootView(app.id),
+      ReloadParentView(parent_view.id),
     ])
     .await;
   assert_eq!(test.parent_view.name, new_name);
@@ -145,7 +145,7 @@ async fn app_create_with_view() {
         desc: "Grid description".to_owned(),
         layout: ViewLayout::Grid,
       },
-      RefreshRootView(app.id),
+      ReloadParentView(app.id),
     ])
     .await;
 
@@ -212,7 +212,7 @@ async fn view_delete_all() {
         desc: "Grid description".to_owned(),
         layout: ViewLayout::Grid,
       },
-      RefreshRootView(parent_view.id.clone()),
+      ReloadParentView(parent_view.id.clone()),
     ])
     .await;
 
@@ -230,7 +230,7 @@ async fn view_delete_all() {
   test
     .run_scripts(vec![
       DeleteViews(view_ids),
-      RefreshRootView(parent_view.id),
+      ReloadParentView(parent_view.id),
       ReadTrash,
     ])
     .await;
@@ -242,7 +242,7 @@ async fn view_delete_all() {
 #[tokio::test]
 async fn view_delete_all_permanent() {
   let mut test = FolderTest::new().await;
-  let app = test.parent_view.clone();
+  let parent_view = test.parent_view.clone();
   test
     .run_scripts(vec![
       CreateView {
@@ -250,7 +250,7 @@ async fn view_delete_all_permanent() {
         desc: "View A description".to_owned(),
         layout: ViewLayout::Document,
       },
-      RefreshRootView(app.id.clone()),
+      ReloadParentView(parent_view.id.clone()),
     ])
     .await;
 
@@ -263,7 +263,7 @@ async fn view_delete_all_permanent() {
   test
     .run_scripts(vec![
       DeleteViews(view_ids),
-      RefreshRootView(app.id),
+      ReloadParentView(parent_view.id),
       DeleteAllTrash,
       ReadTrash,
     ])
