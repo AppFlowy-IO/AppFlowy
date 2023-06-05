@@ -21,19 +21,19 @@ class FilterBackendService {
   Future<Either<List<FilterPB>, FlowyError>> getAllFilters() {
     final payload = DatabaseViewIdPB()..value = viewId;
 
-    return DatabaseEventGetAllFilters(payload).send().then((result) {
+    return DatabaseEventGetAllFilters(payload).send().then((final result) {
       return result.fold(
-        (repeated) => left(repeated.items),
-        (r) => right(r),
+        (final repeated) => left(repeated.items),
+        (final r) => right(r),
       );
     });
   }
 
   Future<Either<Unit, FlowyError>> insertTextFilter({
-    required String fieldId,
-    String? filterId,
-    required TextFilterConditionPB condition,
-    required String content,
+    required final String fieldId,
+    final String? filterId,
+    required final TextFilterConditionPB condition,
+    required final String content,
   }) {
     final filter = TextFilterPB()
       ..condition = condition
@@ -48,9 +48,9 @@ class FilterBackendService {
   }
 
   Future<Either<Unit, FlowyError>> insertCheckboxFilter({
-    required String fieldId,
-    String? filterId,
-    required CheckboxFilterConditionPB condition,
+    required final String fieldId,
+    final String? filterId,
+    required final CheckboxFilterConditionPB condition,
   }) {
     final filter = CheckboxFilterPB()..condition = condition;
 
@@ -63,10 +63,10 @@ class FilterBackendService {
   }
 
   Future<Either<Unit, FlowyError>> insertNumberFilter({
-    required String fieldId,
-    String? filterId,
-    required NumberFilterConditionPB condition,
-    String content = "",
+    required final String fieldId,
+    final String? filterId,
+    required final NumberFilterConditionPB condition,
+    final String content = "",
   }) {
     final filter = NumberFilterPB()
       ..condition = condition
@@ -81,14 +81,14 @@ class FilterBackendService {
   }
 
   Future<Either<Unit, FlowyError>> insertDateFilter({
-    required String fieldId,
-    String? filterId,
-    required DateFilterConditionPB condition,
-    int? start,
-    int? end,
-    int? timestamp,
+    required final String fieldId,
+    final String? filterId,
+    required final DateFilterConditionPB condition,
+    final int? start,
+    final int? end,
+    final int? timestamp,
   }) {
-    var filter = DateFilterPB();
+    final filter = DateFilterPB();
     if (timestamp != null) {
       filter.timestamp = $fixnum.Int64(timestamp);
     } else {
@@ -111,10 +111,10 @@ class FilterBackendService {
   }
 
   Future<Either<Unit, FlowyError>> insertURLFilter({
-    required String fieldId,
-    String? filterId,
-    required TextFilterConditionPB condition,
-    String content = "",
+    required final String fieldId,
+    final String? filterId,
+    required final TextFilterConditionPB condition,
+    final String content = "",
   }) {
     final filter = TextFilterPB()
       ..condition = condition
@@ -129,11 +129,11 @@ class FilterBackendService {
   }
 
   Future<Either<Unit, FlowyError>> insertSelectOptionFilter({
-    required String fieldId,
-    required FieldType fieldType,
-    required SelectOptionConditionPB condition,
-    String? filterId,
-    List<String> optionIds = const [],
+    required final String fieldId,
+    required final FieldType fieldType,
+    required final SelectOptionConditionPB condition,
+    final String? filterId,
+    final List<String> optionIds = const [],
   }) {
     final filter = SelectOptionFilterPB()
       ..condition = condition
@@ -148,10 +148,10 @@ class FilterBackendService {
   }
 
   Future<Either<Unit, FlowyError>> insertChecklistFilter({
-    required String fieldId,
-    required ChecklistFilterConditionPB condition,
-    String? filterId,
-    List<String> optionIds = const [],
+    required final String fieldId,
+    required final ChecklistFilterConditionPB condition,
+    final String? filterId,
+    final List<String> optionIds = const [],
   }) {
     final filter = ChecklistFilterPB()..condition = condition;
 
@@ -164,12 +164,12 @@ class FilterBackendService {
   }
 
   Future<Either<Unit, FlowyError>> insertFilter({
-    required String fieldId,
-    String? filterId,
-    required FieldType fieldType,
-    required List<int> data,
+    required final String fieldId,
+    final String? filterId,
+    required final FieldType fieldType,
+    required final List<int> data,
   }) {
-    var insertFilterPayload = AlterFilterPayloadPB.create()
+    final insertFilterPayload = AlterFilterPayloadPB.create()
       ..fieldId = fieldId
       ..fieldType = fieldType
       ..viewId = viewId
@@ -182,10 +182,10 @@ class FilterBackendService {
     final payload = DatabaseSettingChangesetPB.create()
       ..viewId = viewId
       ..alterFilter = insertFilterPayload;
-    return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
+    return DatabaseEventUpdateDatabaseSetting(payload).send().then((final result) {
       return result.fold(
-        (l) => left(l),
-        (err) {
+        (final l) => left(l),
+        (final err) {
           Log.error(err);
           return right(err);
         },
@@ -194,9 +194,9 @@ class FilterBackendService {
   }
 
   Future<Either<Unit, FlowyError>> deleteFilter({
-    required String fieldId,
-    required String filterId,
-    required FieldType fieldType,
+    required final String fieldId,
+    required final String filterId,
+    required final FieldType fieldType,
   }) {
     final deleteFilterPayload = DeleteFilterPayloadPB.create()
       ..fieldId = fieldId
@@ -208,10 +208,10 @@ class FilterBackendService {
       ..viewId = viewId
       ..deleteFilter = deleteFilterPayload;
 
-    return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
+    return DatabaseEventUpdateDatabaseSetting(payload).send().then((final result) {
       return result.fold(
-        (l) => left(l),
-        (err) {
+        (final l) => left(l),
+        (final err) {
           Log.error(err);
           return right(err);
         },

@@ -17,15 +17,15 @@ class DateTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
   final DateTypeOptionWidget _widget;
 
   DateTypeOptionWidgetBuilder(
-    DateTypeOptionContext typeOptionContext,
-    PopoverMutex popoverMutex,
+    final DateTypeOptionContext typeOptionContext,
+    final PopoverMutex popoverMutex,
   ) : _widget = DateTypeOptionWidget(
           typeOptionContext: typeOptionContext,
           popoverMutex: popoverMutex,
         );
 
   @override
-  Widget? build(BuildContext context) {
+  Widget? build(final BuildContext context) {
     return _widget;
   }
 }
@@ -36,18 +36,18 @@ class DateTypeOptionWidget extends TypeOptionWidget {
   const DateTypeOptionWidget({
     required this.typeOptionContext,
     required this.popoverMutex,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) =>
+      create: (final context) =>
           DateTypeOptionBloc(typeOptionContext: typeOptionContext),
       child: BlocConsumer<DateTypeOptionBloc, DateTypeOptionState>(
-        listener: (context, state) =>
+        listener: (final context, final state) =>
             typeOptionContext.typeOption = state.typeOption,
-        builder: (context, state) {
+        builder: (final context, final state) {
           final List<Widget> children = [
             const TypeOptionSeparator(),
             _renderDateFormatButton(context, state.typeOption.dateFormat),
@@ -57,7 +57,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
           return ListView.separated(
             shrinkWrap: true,
             controller: ScrollController(),
-            separatorBuilder: (context, index) {
+            separatorBuilder: (final context, final index) {
               if (index == 0) {
                 return const SizedBox();
               } else {
@@ -65,24 +65,24 @@ class DateTypeOptionWidget extends TypeOptionWidget {
               }
             },
             itemCount: children.length,
-            itemBuilder: (BuildContext context, int index) => children[index],
+            itemBuilder: (final BuildContext context, final int index) => children[index],
           );
         },
       ),
     );
   }
 
-  Widget _renderDateFormatButton(BuildContext context, DateFormat dataFormat) {
+  Widget _renderDateFormatButton(final BuildContext context, final DateFormat dataFormat) {
     return AppFlowyPopover(
       mutex: popoverMutex,
       asBarrier: true,
       triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
       offset: const Offset(8, 0),
       constraints: BoxConstraints.loose(const Size(460, 440)),
-      popupBuilder: (popoverContext) {
+      popupBuilder: (final popoverContext) {
         return DateFormatList(
           selectedFormat: dataFormat,
-          onSelected: (format) {
+          onSelected: (final format) {
             context
                 .read<DateTypeOptionBloc>()
                 .add(DateTypeOptionEvent.didSelectDateFormat(format));
@@ -99,17 +99,17 @@ class DateTypeOptionWidget extends TypeOptionWidget {
     );
   }
 
-  Widget _renderTimeFormatButton(BuildContext context, TimeFormat timeFormat) {
+  Widget _renderTimeFormatButton(final BuildContext context, final TimeFormat timeFormat) {
     return AppFlowyPopover(
       mutex: popoverMutex,
       asBarrier: true,
       triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
       offset: const Offset(8, 0),
       constraints: BoxConstraints.loose(const Size(460, 440)),
-      popupBuilder: (BuildContext popoverContext) {
+      popupBuilder: (final BuildContext popoverContext) {
         return TimeFormatList(
           selectedFormat: timeFormat,
-          onSelected: (format) {
+          onSelected: (final format) {
             context
                 .read<DateTypeOptionBloc>()
                 .add(DateTypeOptionEvent.didSelectTimeFormat(format));
@@ -136,11 +136,11 @@ class DateFormatButton extends StatelessWidget {
     this.onTap,
     this.onHover,
     this.buttonMargins,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
@@ -164,11 +164,11 @@ class TimeFormatButton extends StatelessWidget {
     this.onTap,
     this.onHover,
     this.buttonMargins,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
@@ -188,12 +188,12 @@ class DateFormatList extends StatelessWidget {
   const DateFormatList({
     required this.selectedFormat,
     required this.onSelected,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final cells = DateFormat.values.map((format) {
+  Widget build(final BuildContext context) {
+    final cells = DateFormat.values.map((final format) {
       return DateFormatCell(
         dateFormat: format,
         onSelected: onSelected,
@@ -206,11 +206,11 @@ class DateFormatList extends StatelessWidget {
       child: ListView.separated(
         shrinkWrap: true,
         controller: ScrollController(),
-        separatorBuilder: (context, index) {
+        separatorBuilder: (final context, final index) {
           return VSpace(GridSize.typeOptionSeparatorHeight);
         },
         itemCount: cells.length,
-        itemBuilder: (BuildContext context, int index) {
+        itemBuilder: (final BuildContext context, final int index) {
           return cells[index];
         },
       ),
@@ -226,11 +226,11 @@ class DateFormatCell extends StatelessWidget {
     required this.dateFormat,
     required this.onSelected,
     required this.isSelected,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Widget? checkmark;
     if (isSelected) {
       checkmark = const FlowySvg(name: 'grid/checkmark');
@@ -272,12 +272,12 @@ class TimeFormatList extends StatelessWidget {
   const TimeFormatList({
     required this.selectedFormat,
     required this.onSelected,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final cells = TimeFormat.values.map((format) {
+  Widget build(final BuildContext context) {
+    final cells = TimeFormat.values.map((final format) {
       return TimeFormatCell(
         isSelected: format == selectedFormat,
         timeFormat: format,
@@ -290,11 +290,11 @@ class TimeFormatList extends StatelessWidget {
       child: ListView.separated(
         shrinkWrap: true,
         controller: ScrollController(),
-        separatorBuilder: (context, index) {
+        separatorBuilder: (final context, final index) {
           return VSpace(GridSize.typeOptionSeparatorHeight);
         },
         itemCount: cells.length,
-        itemBuilder: (BuildContext context, int index) {
+        itemBuilder: (final BuildContext context, final int index) {
           return cells[index];
         },
       ),
@@ -310,11 +310,11 @@ class TimeFormatCell extends StatelessWidget {
     required this.timeFormat,
     required this.onSelected,
     required this.isSelected,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Widget? checkmark;
     if (isSelected) {
       checkmark = const FlowySvg(name: 'grid/checkmark');

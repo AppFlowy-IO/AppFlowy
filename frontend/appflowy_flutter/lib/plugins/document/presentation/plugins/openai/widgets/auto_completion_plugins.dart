@@ -9,7 +9,7 @@ SelectionMenuItem autoGeneratorMenuItem = SelectionMenuItem.node(
   name: LocaleKeys.document_plugins_autoGeneratorMenuItemName.tr(),
   iconData: Icons.generating_tokens,
   keywords: ['ai', 'openai' 'writer', 'autogenerator'],
-  nodeBuilder: (editorState) {
+  nodeBuilder: (final editorState) {
     final node = Node(
       type: kAutoCompletionInputType,
       attributes: {
@@ -18,6 +18,6 @@ SelectionMenuItem autoGeneratorMenuItem = SelectionMenuItem.node(
     );
     return node;
   },
-  replace: (_, textNode) => textNode.toPlainText().isEmpty,
+  replace: (final _, final textNode) => textNode.toPlainText().isEmpty,
   updateSelection: null,
 );

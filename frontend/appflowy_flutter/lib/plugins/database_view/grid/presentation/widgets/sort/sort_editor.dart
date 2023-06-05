@@ -26,7 +26,7 @@ class SortEditor extends StatefulWidget {
     required this.viewId,
     required this.fieldController,
     required this.sortInfos,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -37,15 +37,15 @@ class _SortEditorState extends State<SortEditor> {
   final popoverMutex = PopoverMutex();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) => SortEditorBloc(
+      create: (final context) => SortEditorBloc(
         viewId: widget.viewId,
         fieldController: widget.fieldController,
         sortInfos: widget.sortInfos,
       )..add(const SortEditorEvent.initial()),
       child: BlocBuilder<SortEditorBloc, SortEditorState>(
-        builder: (context, state) {
+        builder: (final context, final state) {
           return IntrinsicWidth(
             child: IntrinsicHeight(
               child: Column(
@@ -69,15 +69,15 @@ class _SortEditorState extends State<SortEditor> {
 
 class _SortList extends StatelessWidget {
   final PopoverMutex popoverMutex;
-  const _SortList({required this.popoverMutex, Key? key}) : super(key: key);
+  const _SortList({required this.popoverMutex, final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<SortEditorBloc, SortEditorState>(
-      builder: (context, state) {
+      builder: (final context, final state) {
         final List<Widget> children = state.sortInfos
             .map(
-              (info) => Padding(
+              (final info) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 6),
                 child: _SortItem(
                   sortInfo: info,
@@ -101,11 +101,11 @@ class _SortItem extends StatelessWidget {
   const _SortItem({
     required this.popoverMutex,
     required this.sortInfo,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final nameButton = SortChoiceButton(
       text: sortInfo.fieldInfo.name,
       editable: false,
@@ -142,7 +142,7 @@ class _SortItem extends StatelessWidget {
     );
   }
 
-  String textFromCondition(SortConditionPB condition) {
+  String textFromCondition(final SortConditionPB condition) {
     switch (condition) {
       case SortConditionPB.Ascending:
         return LocaleKeys.grid_sort_ascending.tr();
@@ -161,7 +161,7 @@ class _AddSortButton extends StatefulWidget {
     required this.viewId,
     required this.fieldController,
     required this.popoverMutex,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -172,7 +172,7 @@ class _AddSortButtonState extends State<_AddSortButton> {
   final _popoverController = PopoverController();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return AppFlowyPopover(
       controller: _popoverController,
       mutex: widget.popoverMutex,
@@ -191,7 +191,7 @@ class _AddSortButtonState extends State<_AddSortButton> {
           leftIcon: const FlowySvg(name: 'home/add'),
         ),
       ),
-      popupBuilder: (BuildContext context) {
+      popupBuilder: (final BuildContext context) {
         return GridCreateSortList(
           viewId: widget.viewId,
           fieldController: widget.fieldController,
@@ -204,13 +204,13 @@ class _AddSortButtonState extends State<_AddSortButton> {
 
 class _DeleteSortButton extends StatelessWidget {
   final PopoverMutex popoverMutex;
-  const _DeleteSortButton({required this.popoverMutex, Key? key})
+  const _DeleteSortButton({required this.popoverMutex, final Key? key})
       : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<SortEditorBloc, SortEditorState>(
-      builder: (context, state) {
+      builder: (final context, final state) {
         return SizedBox(
           height: GridSize.popoverItemHeight,
           child: FlowyButton(
@@ -234,7 +234,7 @@ class _OrderButton extends StatefulWidget {
   const _OrderButton({
     required this.popoverMutex,
     required this.sortInfo,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -245,7 +245,7 @@ class _OrderButtonState extends State<_OrderButton> {
   final PopoverController popoverController = PopoverController();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final arrow = Transform.rotate(
       angle: -math.pi / 2,
       child: svgWidget("home/arrow_left"),
@@ -257,9 +257,9 @@ class _OrderButtonState extends State<_OrderButton> {
       constraints: BoxConstraints.loose(const Size(340, 200)),
       direction: PopoverDirection.bottomWithLeftAligned,
       triggerActions: PopoverTriggerFlags.none,
-      popupBuilder: (BuildContext popoverContext) {
+      popupBuilder: (final BuildContext popoverContext) {
         return OrderPanel(
-          onCondition: (condition) {
+          onCondition: (final condition) {
             context
                 .read<SortEditorBloc>()
                 .add(SortEditorEvent.setCondition(widget.sortInfo, condition));
@@ -275,7 +275,7 @@ class _OrderButtonState extends State<_OrderButton> {
     );
   }
 
-  String textFromCondition(SortConditionPB condition) {
+  String textFromCondition(final SortConditionPB condition) {
     switch (condition) {
       case SortConditionPB.Ascending:
         return LocaleKeys.grid_sort_ascending.tr();

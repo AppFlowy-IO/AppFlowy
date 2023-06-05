@@ -11,11 +11,11 @@ class RowList {
   /// Use Map for faster access the raw row data.
   final HashMap<String, RowInfo> rowInfoByRowId = HashMap();
 
-  RowInfo? get(String rowId) {
+  RowInfo? get(final String rowId) {
     return rowInfoByRowId[rowId];
   }
 
-  int? indexOfRow(String rowId) {
+  int? indexOfRow(final String rowId) {
     final rowInfo = rowInfoByRowId[rowId];
     if (rowInfo != null) {
       return _rowInfos.indexOf(rowInfo);
@@ -23,11 +23,11 @@ class RowList {
     return null;
   }
 
-  void add(RowInfo rowInfo) {
+  void add(final RowInfo rowInfo) {
     final rowId = rowInfo.rowPB.id;
     if (contains(rowId)) {
       final index =
-          _rowInfos.indexWhere((element) => element.rowPB.id == rowId);
+          _rowInfos.indexWhere((final element) => element.rowPB.id == rowId);
       _rowInfos.removeAt(index);
       _rowInfos.insert(index, rowInfo);
     } else {
@@ -36,7 +36,7 @@ class RowList {
     rowInfoByRowId[rowId] = rowInfo;
   }
 
-  InsertedIndex? insert(int index, RowInfo rowInfo) {
+  InsertedIndex? insert(final int index, final RowInfo rowInfo) {
     final rowId = rowInfo.rowPB.id;
     var insertedIndex = index;
     if (_rowInfos.length <= insertedIndex) {
@@ -56,7 +56,7 @@ class RowList {
     }
   }
 
-  DeletedIndex? remove(String rowId) {
+  DeletedIndex? remove(final String rowId) {
     final rowInfo = rowInfoByRowId[rowId];
     if (rowInfo != null) {
       final index = _rowInfos.indexOf(rowInfo);
@@ -71,10 +71,10 @@ class RowList {
   }
 
   InsertedIndexs insertRows(
-    List<InsertedRowPB> insertedRows,
-    RowInfo Function(RowPB) builder,
+    final List<InsertedRowPB> insertedRows,
+    final RowInfo Function(RowPB) builder,
   ) {
-    InsertedIndexs insertIndexs = [];
+    final InsertedIndexs insertIndexs = [];
     for (final insertRow in insertedRows) {
       final isContains = contains(insertRow.row.id);
 
@@ -96,14 +96,14 @@ class RowList {
     return insertIndexs;
   }
 
-  DeletedIndexs removeRows(List<String> rowIds) {
+  DeletedIndexs removeRows(final List<String> rowIds) {
     final List<RowInfo> newRows = [];
     final DeletedIndexs deletedIndex = [];
     final Map<String, String> deletedRowByRowId = {
       for (var rowId in rowIds) rowId: rowId
     };
 
-    _rowInfos.asMap().forEach((index, RowInfo rowInfo) {
+    _rowInfos.asMap().forEach((final index, final RowInfo rowInfo) {
       if (deletedRowByRowId[rowInfo.rowPB.id] == null) {
         newRows.add(rowInfo);
       } else {
@@ -116,14 +116,14 @@ class RowList {
   }
 
   UpdatedIndexMap updateRows(
-    List<RowPB> updatedRows,
-    RowInfo Function(RowPB) builder,
+    final List<RowPB> updatedRows,
+    final RowInfo Function(RowPB) builder,
   ) {
     final UpdatedIndexMap updatedIndexs = UpdatedIndexMap();
     for (final RowPB updatedRow in updatedRows) {
       final rowId = updatedRow.id;
       final index = _rowInfos.indexWhere(
-        (rowInfo) => rowInfo.rowPB.id == rowId,
+        (final rowInfo) => rowInfo.rowPB.id == rowId,
       );
       if (index != -1) {
         final rowInfo = builder(updatedRow);
@@ -134,7 +134,7 @@ class RowList {
     return updatedIndexs;
   }
 
-  void reorderWithRowIds(List<String> rowIds) {
+  void reorderWithRowIds(final List<String> rowIds) {
     _rowInfos.clear();
 
     for (final rowId in rowIds) {
@@ -145,9 +145,9 @@ class RowList {
     }
   }
 
-  void moveRow(String rowId, int oldIndex, int newIndex) {
+  void moveRow(final String rowId, final int oldIndex, final int newIndex) {
     final index = _rowInfos.indexWhere(
-      (rowInfo) => rowInfo.rowPB.id == rowId,
+      (final rowInfo) => rowInfo.rowPB.id == rowId,
     );
     if (index != -1) {
       assert(index == oldIndex);
@@ -156,7 +156,7 @@ class RowList {
     }
   }
 
-  bool contains(String rowId) {
+  bool contains(final String rowId) {
     return rowInfoByRowId[rowId] != null;
   }
 }

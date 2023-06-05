@@ -28,28 +28,28 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
           workspaceId: workspace.id,
         ),
         super(MenuState.initial(workspace)) {
-    on<MenuEvent>((event, emit) async {
+    on<MenuEvent>((final event, final emit) async {
       await event.map(
-        initial: (e) async {
+        initial: (final e) async {
           _listener.start(appsChanged: _handleAppsOrFail);
           await _fetchApps(emit);
         },
-        openPage: (e) async {
+        openPage: (final e) async {
           emit(state.copyWith(plugin: e.plugin));
         },
-        createApp: (_CreateApp event) async {
+        createApp: (final _CreateApp event) async {
           await _performActionOnCreateApp(event, emit);
         },
-        didReceiveApps: (e) async {
+        didReceiveApps: (final e) async {
           emit(
             e.appsOrFail.fold(
-              (apps) =>
+              (final apps) =>
                   state.copyWith(apps: apps, successOrFailure: left(unit)),
-              (err) => state.copyWith(successOrFailure: right(err)),
+              (final err) => state.copyWith(successOrFailure: right(err)),
             ),
           );
         },
-        moveApp: (_MoveApp value) {
+        moveApp: (final _MoveApp value) {
           if (state.apps.length > value.fromIndex) {
             final app = state.apps[value.fromIndex];
             _workspaceService.moveApp(
@@ -73,16 +73,16 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   }
 
   Future<void> _performActionOnCreateApp(
-    _CreateApp event,
-    Emitter<MenuState> emit,
+    final _CreateApp event,
+    final Emitter<MenuState> emit,
   ) async {
     final result = await _workspaceService.createApp(
       name: event.name,
       desc: event.desc ?? "",
     );
     result.fold(
-      (app) => {},
-      (error) {
+      (final app) => {},
+      (final error) {
         Log.error(error);
         emit(state.copyWith(successOrFailure: right(error)));
       },
@@ -90,12 +90,12 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   }
 
   // ignore: unused_element
-  Future<void> _fetchApps(Emitter<MenuState> emit) async {
+  Future<void> _fetchApps(final Emitter<MenuState> emit) async {
     final appsOrFail = await _workspaceService.getApps();
     emit(
       appsOrFail.fold(
-        (apps) => state.copyWith(apps: apps),
-        (error) {
+        (final apps) => state.copyWith(apps: apps),
+        (final error) {
           Log.error(error);
           return state.copyWith(successOrFailure: right(error));
         },
@@ -103,10 +103,10 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
     );
   }
 
-  void _handleAppsOrFail(Either<List<AppPB>, FlowyError> appsOrFail) {
+  void _handleAppsOrFail(final Either<List<AppPB>, FlowyError> appsOrFail) {
     appsOrFail.fold(
-      (apps) => add(MenuEvent.didReceiveApps(left(apps))),
-      (error) => add(MenuEvent.didReceiveApps(right(error))),
+      (final apps) => add(MenuEvent.didReceiveApps(left(apps))),
+      (final error) => add(MenuEvent.didReceiveApps(right(error))),
     );
   }
 }
@@ -114,23 +114,23 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
 @freezed
 class MenuEvent with _$MenuEvent {
   const factory MenuEvent.initial() = _Initial;
-  const factory MenuEvent.openPage(Plugin plugin) = _OpenPage;
-  const factory MenuEvent.createApp(String name, {String? desc}) = _CreateApp;
-  const factory MenuEvent.moveApp(int fromIndex, int toIndex) = _MoveApp;
+  const factory MenuEvent.openPage(final Plugin plugin) = _OpenPage;
+  const factory MenuEvent.createApp(final String name, {final String? desc}) = _CreateApp;
+  const factory MenuEvent.moveApp(final int fromIndex, final int toIndex) = _MoveApp;
   const factory MenuEvent.didReceiveApps(
-    Either<List<AppPB>, FlowyError> appsOrFail,
+    final Either<List<AppPB>, FlowyError> appsOrFail,
   ) = _ReceiveApps;
 }
 
 @freezed
 class MenuState with _$MenuState {
   const factory MenuState({
-    required List<AppPB> apps,
-    required Either<Unit, FlowyError> successOrFailure,
-    required Plugin plugin,
+    required final List<AppPB> apps,
+    required final Either<Unit, FlowyError> successOrFailure,
+    required final Plugin plugin,
   }) = _MenuState;
 
-  factory MenuState.initial(WorkspacePB workspace) => MenuState(
+  factory MenuState.initial(final WorkspacePB workspace) => MenuState(
         apps: workspace.apps.items,
         successOrFailure: left(unit),
         plugin: makePlugin(pluginType: PluginType.blank),

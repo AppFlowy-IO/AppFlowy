@@ -3,22 +3,22 @@ import 'package:file_picker/file_picker.dart' as fp;
 
 class FilePicker implements FilePickerService {
   @override
-  Future<String?> getDirectoryPath({String? title}) {
+  Future<String?> getDirectoryPath({final String? title}) {
     return fp.FilePicker.platform.getDirectoryPath();
   }
 
   @override
   Future<FilePickerResult?> pickFiles({
-    String? dialogTitle,
-    String? initialDirectory,
-    fp.FileType type = fp.FileType.any,
-    List<String>? allowedExtensions,
-    Function(fp.FilePickerStatus p1)? onFileLoading,
-    bool allowCompression = true,
-    bool allowMultiple = false,
-    bool withData = false,
-    bool withReadStream = false,
-    bool lockParentWindow = false,
+    final String? dialogTitle,
+    final String? initialDirectory,
+    final fp.FileType type = fp.FileType.any,
+    final List<String>? allowedExtensions,
+    final Function(fp.FilePickerStatus p1)? onFileLoading,
+    final bool allowCompression = true,
+    final bool allowMultiple = false,
+    final bool withData = false,
+    final bool withReadStream = false,
+    final bool lockParentWindow = false,
   }) async {
     final result = await fp.FilePicker.platform.pickFiles(
       dialogTitle: dialogTitle,

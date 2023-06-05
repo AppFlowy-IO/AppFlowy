@@ -10,7 +10,7 @@ import 'section/section.dart';
 
 class MenuApp extends StatefulWidget {
   final AppPB app;
-  const MenuApp(this.app, {Key? key}) : super(key: key);
+  const MenuApp(this.app, {final Key? key}) : super(key: key);
 
   @override
   State<MenuApp> createState() => _MenuAppState();
@@ -26,11 +26,11 @@ class _MenuAppState extends State<MenuApp> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AppBloc>(
-          create: (context) {
+          create: (final context) {
             final appBloc = getIt<AppBloc>(param1: widget.app);
             appBloc.add(const AppEvent.initial());
             return appBloc;
@@ -40,8 +40,8 @@ class _MenuAppState extends State<MenuApp> {
       child: MultiBlocListener(
         listeners: [
           BlocListener<AppBloc, AppState>(
-            listenWhen: (p, c) => p.latestCreatedView != c.latestCreatedView,
-            listener: (context, state) {
+            listenWhen: (final p, final c) => p.latestCreatedView != c.latestCreatedView,
+            listener: (final context, final state) {
               if (state.latestCreatedView != null) {
                 getIt<MenuSharedState>().latestOpenView =
                     state.latestCreatedView;
@@ -49,15 +49,15 @@ class _MenuAppState extends State<MenuApp> {
             },
           ),
           BlocListener<AppBloc, AppState>(
-            listener: (context, state) => viewDataContext.views = state.views,
+            listener: (final context, final state) => viewDataContext.views = state.views,
           ),
         ],
         child: BlocBuilder<AppBloc, AppState>(
-          builder: (context, state) {
+          builder: (final context, final state) {
             return ChangeNotifierProvider.value(
               value: viewDataContext,
               child: Consumer<AppViewDataContext>(
-                builder: (context, viewDataContext, _) {
+                builder: (final context, final viewDataContext, final _) {
                   return expandableWrapper(context, viewDataContext);
                 },
               ),
@@ -69,8 +69,8 @@ class _MenuAppState extends State<MenuApp> {
   }
 
   ExpandableNotifier expandableWrapper(
-    BuildContext context,
-    AppViewDataContext viewDataContext,
+    final BuildContext context,
+    final AppViewDataContext viewDataContext,
   ) {
     return ExpandableNotifier(
       controller: viewDataContext.expandController,
@@ -99,7 +99,7 @@ class _MenuAppState extends State<MenuApp> {
   }
 
   @override
-  void didUpdateWidget(covariant MenuApp oldWidget) {
+  void didUpdateWidget(covariant final MenuApp oldWidget) {
     super.didUpdateWidget(oldWidget);
   }
 

@@ -6,7 +6,7 @@ abstract class IGridCellDataConfig {
 }
 
 abstract class CellDataParser<T> {
-  T? parserData(List<int> data);
+  T? parserData(final List<int> data);
 }
 
 class CellDataLoader<T> {
@@ -24,8 +24,8 @@ class CellDataLoader<T> {
   Future<T?> loadData() {
     final fut = service.getCell(cellId: cellId);
     return fut.then(
-      (result) => result.fold(
-        (CellPB cell) {
+      (final result) => result.fold(
+        (final CellPB cell) {
           try {
             // Return null the data of the cell is empty.
             if (cell.data.isEmpty) {
@@ -39,7 +39,7 @@ class CellDataLoader<T> {
             return null;
           }
         },
-        (err) {
+        (final err) {
           Log.error(err);
           return null;
         },
@@ -50,7 +50,7 @@ class CellDataLoader<T> {
 
 class StringCellDataParser implements CellDataParser<String> {
   @override
-  String? parserData(List<int> data) {
+  String? parserData(final List<int> data) {
     final s = utf8.decode(data);
     return s;
   }
@@ -58,14 +58,14 @@ class StringCellDataParser implements CellDataParser<String> {
 
 class NumberCellDataParser implements CellDataParser<String> {
   @override
-  String? parserData(List<int> data) {
+  String? parserData(final List<int> data) {
     return utf8.decode(data);
   }
 }
 
 class DateCellDataParser implements CellDataParser<DateCellDataPB> {
   @override
-  DateCellDataPB? parserData(List<int> data) {
+  DateCellDataPB? parserData(final List<int> data) {
     if (data.isEmpty) {
       return null;
     }
@@ -76,7 +76,7 @@ class DateCellDataParser implements CellDataParser<DateCellDataPB> {
 class SelectOptionCellDataParser
     implements CellDataParser<SelectOptionCellDataPB> {
   @override
-  SelectOptionCellDataPB? parserData(List<int> data) {
+  SelectOptionCellDataPB? parserData(final List<int> data) {
     if (data.isEmpty) {
       return null;
     }
@@ -86,7 +86,7 @@ class SelectOptionCellDataParser
 
 class URLCellDataParser implements CellDataParser<URLCellDataPB> {
   @override
-  URLCellDataPB? parserData(List<int> data) {
+  URLCellDataPB? parserData(final List<int> data) {
     if (data.isEmpty) {
       return null;
     }

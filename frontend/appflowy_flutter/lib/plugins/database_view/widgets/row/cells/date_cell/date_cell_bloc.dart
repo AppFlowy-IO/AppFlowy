@@ -13,10 +13,10 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
   DateCellBloc({required this.cellController})
       : super(DateCellState.initial(cellController)) {
     on<DateCellEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.when(
           initial: () => _startListening(),
-          didReceiveCellUpdate: (DateCellDataPB? cellData) {
+          didReceiveCellUpdate: (final DateCellDataPB? cellData) {
             emit(
               state.copyWith(
                 data: cellData,
@@ -41,7 +41,7 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
 
   void _startListening() {
     _onCellChangedFn = cellController.startListening(
-      onCellChanged: ((data) {
+      onCellChanged: ((final data) {
         if (!isClosed) {
           add(DateCellEvent.didReceiveCellUpdate(data));
         }
@@ -53,19 +53,19 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
 @freezed
 class DateCellEvent with _$DateCellEvent {
   const factory DateCellEvent.initial() = _InitialCell;
-  const factory DateCellEvent.didReceiveCellUpdate(DateCellDataPB? data) =
+  const factory DateCellEvent.didReceiveCellUpdate(final DateCellDataPB? data) =
       _DidReceiveCellUpdate;
 }
 
 @freezed
 class DateCellState with _$DateCellState {
   const factory DateCellState({
-    required DateCellDataPB? data,
-    required String dateStr,
-    required FieldInfo fieldInfo,
+    required final DateCellDataPB? data,
+    required final String dateStr,
+    required final FieldInfo fieldInfo,
   }) = _DateCellState;
 
-  factory DateCellState.initial(DateCellController context) {
+  factory DateCellState.initial(final DateCellController context) {
     final cellData = context.getCellData();
 
     return DateCellState(
@@ -76,7 +76,7 @@ class DateCellState with _$DateCellState {
   }
 }
 
-String _dateStrFromCellData(DateCellDataPB? cellData) {
+String _dateStrFromCellData(final DateCellDataPB? cellData) {
   String dateStr = "";
   if (cellData != null) {
     dateStr = "${cellData.date} ${cellData.time}";

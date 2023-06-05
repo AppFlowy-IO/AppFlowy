@@ -18,18 +18,18 @@ class ChangeCoverPopoverBloc
   final _initCompleter = Completer<void>();
   ChangeCoverPopoverBloc({required this.editorState, required this.node})
       : super(const ChangeCoverPopoverState.initial()) {
-    SharedPreferences.getInstance().then((prefs) {
+    SharedPreferences.getInstance().then((final prefs) {
       _prefs = prefs;
       _initCompleter.complete();
     });
-    on<ChangeCoverPopoverEvent>((event, emit) async {
+    on<ChangeCoverPopoverEvent>((final event, final emit) async {
       await event.map(
         fetchPickedImagePaths:
-            (FetchPickedImagePaths fetchPickedImagePaths) async {
+            (final FetchPickedImagePaths fetchPickedImagePaths) async {
           final imageNames = await _getPreviouslyPickedImagePaths();
           emit(ChangeCoverPopoverState.loaded(imageNames));
         },
-        deleteImage: (DeleteImage deleteImage) async {
+        deleteImage: (final DeleteImage deleteImage) async {
           final currentState = state;
           final currentlySelectedImage =
               node.attributes[kCoverSelectionAttribute];
@@ -39,13 +39,13 @@ class ChangeCoverPopoverBloc
               _removeCoverImageFromNode();
             }
             final updateImageList = currentState.imageNames
-                .where((path) => path != deleteImage.path)
+                .where((final path) => path != deleteImage.path)
                 .toList();
             await _updateImagePathsInStorage(updateImageList);
             emit(Loaded(updateImageList));
           }
         },
-        clearAllImages: (ClearAllImages clearAllImages) async {
+        clearAllImages: (final ClearAllImages clearAllImages) async {
           final currentState = state;
           final currentlySelectedImage =
               node.attributes[kCoverSelectionAttribute];
@@ -71,18 +71,18 @@ class ChangeCoverPopoverBloc
     if (imageNames.isEmpty) {
       return imageNames;
     }
-    imageNames.removeWhere((name) => !File(name).existsSync());
+    imageNames.removeWhere((final name) => !File(name).existsSync());
     _prefs.setStringList(kLocalImagesKey, imageNames);
     return imageNames;
   }
 
-  Future<void> _updateImagePathsInStorage(List<String> imagePaths) async {
+  Future<void> _updateImagePathsInStorage(final List<String> imagePaths) async {
     await _initCompleter.future;
     _prefs.setStringList(kLocalImagesKey, imagePaths);
     return;
   }
 
-  Future<void> _deleteImageInStorage(String path) async {
+  Future<void> _deleteImageInStorage(final String path) async {
     final imageFile = File(path);
     await imageFile.delete();
   }
@@ -102,7 +102,7 @@ class ChangeCoverPopoverEvent with _$ChangeCoverPopoverEvent {
   const factory ChangeCoverPopoverEvent.fetchPickedImagePaths() =
       FetchPickedImagePaths;
 
-  const factory ChangeCoverPopoverEvent.deleteImage(String path) = DeleteImage;
+  const factory ChangeCoverPopoverEvent.deleteImage(final String path) = DeleteImage;
   const factory ChangeCoverPopoverEvent.clearAllImages() = ClearAllImages;
 }
 
@@ -111,6 +111,6 @@ class ChangeCoverPopoverState with _$ChangeCoverPopoverState {
   const factory ChangeCoverPopoverState.initial() = Initial;
   const factory ChangeCoverPopoverState.loading() = Loading;
   const factory ChangeCoverPopoverState.loaded(
-    List<String> imageNames,
+    final List<String> imageNames,
   ) = Loaded;
 }

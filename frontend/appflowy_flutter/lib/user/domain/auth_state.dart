@@ -6,8 +6,8 @@ part 'auth_state.freezed.dart';
 
 @freezed
 class AuthState with _$AuthState {
-  const factory AuthState.authenticated(UserProfilePB userProfile) =
+  const factory AuthState.authenticated(final UserProfilePB userProfile) =
       Authenticated;
-  const factory AuthState.unauthenticated(FlowyError error) = Unauthenticated;
+  const factory AuthState.unauthenticated(final FlowyError error) = Unauthenticated;
   const factory AuthState.initial() = _Initial;
 }

@@ -18,14 +18,14 @@ class InitRustSDKTask extends LaunchTask {
   LaunchTaskType get type => LaunchTaskType.dataProcessing;
 
   @override
-  Future<void> initialize(LaunchContext context) async {
+  Future<void> initialize(final LaunchContext context) async {
     // use the custom directory
     if (directory != null) {
-      return directory!.then((directory) async {
+      return directory!.then((final directory) async {
         await context.getIt<FlowySDK>().init(directory);
       });
     } else {
-      return appFlowyDocumentDirectory().then((directory) async {
+      return appFlowyDocumentDirectory().then((final directory) async {
         await context.getIt<FlowySDK>().init(directory);
       });
     }
@@ -35,10 +35,10 @@ class InitRustSDKTask extends LaunchTask {
 Future<Directory> appFlowyDocumentDirectory() async {
   switch (integrationEnv()) {
     case IntegrationMode.develop:
-      Directory documentsDir = await getApplicationDocumentsDirectory();
+      final Directory documentsDir = await getApplicationDocumentsDirectory();
       return Directory(path.join(documentsDir.path, 'flowy_dev')).create();
     case IntegrationMode.release:
-      Directory documentsDir = await getApplicationDocumentsDirectory();
+      final Directory documentsDir = await getApplicationDocumentsDirectory();
       return Directory(path.join(documentsDir.path, 'flowy')).create();
     case IntegrationMode.test:
       return Directory(path.join(Directory.current.path, '.sandbox'));

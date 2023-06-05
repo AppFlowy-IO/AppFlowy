@@ -32,13 +32,13 @@ class CalendarSetting extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider<CalendarSettingBloc>(
-      create: (context) => CalendarSettingBloc(layoutSettings: layoutSettings),
+      create: (final context) => CalendarSettingBloc(layoutSettings: layoutSettings),
       child: BlocBuilder<CalendarSettingBloc, CalendarSettingState>(
-        builder: (context, state) {
+        builder: (final context, final state) {
           final CalendarSettingAction? action =
-              state.selectedAction.foldLeft(null, (previous, action) => action);
+              state.selectedAction.foldLeft(null, (final previous, final action) => action);
           switch (action) {
             case CalendarSettingAction.properties:
               return GridPropertyList(
@@ -65,9 +65,9 @@ class AllCalendarSettings extends StatelessWidget {
   const AllCalendarSettings({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final items = CalendarSettingAction.values
-        .map((e) => _settingItem(context, e))
+        .map((final e) => _settingItem(context, e))
         .toList();
 
     return SizedBox(
@@ -76,15 +76,15 @@ class AllCalendarSettings extends StatelessWidget {
         shrinkWrap: true,
         controller: ScrollController(),
         itemCount: items.length,
-        separatorBuilder: (context, index) =>
+        separatorBuilder: (final context, final index) =>
             VSpace(GridSize.typeOptionSeparatorHeight),
         physics: StyledScrollPhysics(),
-        itemBuilder: (BuildContext context, int index) => items[index],
+        itemBuilder: (final BuildContext context, final int index) => items[index],
       ),
     );
   }
 
-  Widget _settingItem(BuildContext context, CalendarSettingAction action) {
+  Widget _settingItem(final BuildContext context, final CalendarSettingAction action) {
     Widget? icon;
     if (action.iconName() != null) {
       icon = FlowySvg(

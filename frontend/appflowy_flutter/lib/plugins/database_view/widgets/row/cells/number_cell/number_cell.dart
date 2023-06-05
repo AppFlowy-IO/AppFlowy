@@ -12,7 +12,7 @@ class GridNumberCell extends GridCellWidget {
 
   GridNumberCell({
     required this.cellControllerBuilder,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -34,14 +34,14 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
       child: MultiBlocListener(
         listeners: [
           BlocListener<NumberCellBloc, NumberCellState>(
-            listenWhen: (p, c) => p.cellContent != c.cellContent,
-            listener: (context, state) => _controller.text = state.cellContent,
+            listenWhen: (final p, final c) => p.cellContent != c.cellContent,
+            listener: (final context, final state) => _controller.text = state.cellContent,
           ),
         ],
         child: Padding(
@@ -50,7 +50,7 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
             controller: _controller,
             focusNode: focusNode,
             onEditingComplete: () => focusNode.unfocus(),
-            onSubmitted: (_) => focusNode.unfocus(),
+            onSubmitted: (final _) => focusNode.unfocus(),
             maxLines: 1,
             style: Theme.of(context).textTheme.bodyMedium,
             textInputAction: TextInputAction.done,
@@ -87,7 +87,7 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
   }
 
   @override
-  void onInsert(String value) {
+  void onInsert(final String value) {
     _cellBloc.add(NumberCellEvent.updateCell(value));
   }
 }

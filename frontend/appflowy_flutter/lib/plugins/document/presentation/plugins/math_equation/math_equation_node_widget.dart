@@ -13,7 +13,7 @@ const String kMathEquationAttr = 'math_equation';
 
 SelectionMenuItem mathEquationMenuItem = SelectionMenuItem(
   name: 'Math Equation',
-  icon: (editorState, onSelected) => Icon(
+  icon: (final editorState, final onSelected) => Icon(
     Icons.text_fields_rounded,
     color: onSelected
         ? editorState.editorStyle.selectionMenuItemSelectedIconColor
@@ -21,7 +21,7 @@ SelectionMenuItem mathEquationMenuItem = SelectionMenuItem(
     size: 18.0,
   ),
   keywords: ['tex, latex, katex', 'math equation'],
-  handler: (editorState, _, __) {
+  handler: (final editorState, final _, final __) {
     final selection =
         editorState.service.selectionService.currentSelection.value;
     final textNodes = editorState.service.selectionService.currentSelectedNodes
@@ -46,7 +46,7 @@ SelectionMenuItem mathEquationMenuItem = SelectionMenuItem(
     editorState.apply(transaction);
 
     // tricy to show the editing dialog.
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((final timeStamp) {
       final mathEquationState = editorState.document
           .nodeAtPath(mathEquationNodePath)
           ?.key
@@ -62,7 +62,7 @@ SelectionMenuItem mathEquationMenuItem = SelectionMenuItem(
 class MathEquationNodeWidgetBuidler extends NodeWidgetBuilder<Node>
     with ActionProvider<Node> {
   @override
-  Widget build(NodeWidgetContext<Node> context) {
+  Widget build(final NodeWidgetContext<Node> context) {
     return _MathEquationNodeWidget(
       key: context.node.key,
       node: context.node,
@@ -72,10 +72,10 @@ class MathEquationNodeWidgetBuidler extends NodeWidgetBuilder<Node>
 
   @override
   NodeValidator<Node> get nodeValidator =>
-      (node) => node.attributes[kMathEquationAttr] is String;
+      (final node) => node.attributes[kMathEquationAttr] is String;
 
   @override
-  List<ActionMenuItem> actions(NodeWidgetContext<Node> context) {
+  List<ActionMenuItem> actions(final NodeWidgetContext<Node> context) {
     return [
       ActionMenuItem.svg(
         name: "delete",
@@ -91,7 +91,7 @@ class MathEquationNodeWidgetBuidler extends NodeWidgetBuilder<Node>
 
 class _MathEquationNodeWidget extends StatefulWidget {
   const _MathEquationNodeWidget({
-    Key? key,
+    final Key? key,
     required this.node,
     required this.editorState,
   }) : super(key: key);
@@ -110,9 +110,9 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
   bool _isHover = false;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return InkWell(
-      onHover: (value) {
+      onHover: (final value) {
         setState(() {
           _isHover = value;
         });
@@ -128,7 +128,7 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
     );
   }
 
-  Widget _buildMathEquation(BuildContext context) {
+  Widget _buildMathEquation(final BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width,
       constraints: const BoxConstraints(minHeight: 50),
@@ -157,7 +157,7 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
   void showEditingDialog() {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (final context) {
         final controller = TextEditingController(text: _mathEquation);
         return AlertDialog(
           backgroundColor: Theme.of(context).canvasColor,
@@ -166,7 +166,7 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
           ),
           content: RawKeyboardListener(
             focusNode: FocusNode(),
-            onKey: (key) {
+            onKey: (final key) {
               if (key is! RawKeyDownEvent) return;
               if (key.logicalKey == LogicalKeyboardKey.enter &&
                   !key.isShiftPressed) {
@@ -202,7 +202,7 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
     );
   }
 
-  void _updateMathEquation(String mathEquation, BuildContext context) {
+  void _updateMathEquation(final String mathEquation, final BuildContext context) {
     if (mathEquation == _mathEquation) {
       _dismiss(context);
       return;
@@ -218,7 +218,7 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
     _dismiss(context);
   }
 
-  void _dismiss(BuildContext context) {
+  void _dismiss(final BuildContext context) {
     Navigator.of(context).pop();
   }
 }

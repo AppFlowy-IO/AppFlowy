@@ -28,33 +28,33 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
     required this.onUpdated,
     this.showOptions = true,
     this.autoFocus = true,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   static String get identifier => (SelectOptionTypeOptionEditor).toString();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) => EditSelectOptionBloc(option: option),
+      create: (final context) => EditSelectOptionBloc(option: option),
       child: MultiBlocListener(
         listeners: [
           BlocListener<EditSelectOptionBloc, EditSelectOptionState>(
-            listenWhen: (p, c) => p.deleted != c.deleted,
-            listener: (context, state) {
-              state.deleted.fold(() => null, (_) => onDeleted());
+            listenWhen: (final p, final c) => p.deleted != c.deleted,
+            listener: (final context, final state) {
+              state.deleted.fold(() => null, (final _) => onDeleted());
             },
           ),
           BlocListener<EditSelectOptionBloc, EditSelectOptionState>(
-            listenWhen: (p, c) => p.option != c.option,
-            listener: (context, state) {
+            listenWhen: (final p, final c) => p.option != c.option,
+            listener: (final context, final state) {
               onUpdated(state.option);
             },
           ),
         ],
         child: BlocBuilder<EditSelectOptionBloc, EditSelectOptionState>(
-          builder: (context, state) {
-            List<Widget> cells = [
+          builder: (final context, final state) {
+            final List<Widget> cells = [
               _OptionNameTextField(
                 name: state.option.name,
                 autoFocus: autoFocus,
@@ -77,7 +77,7 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
                 controller: ScrollController(),
                 physics: StyledScrollPhysics(),
                 itemCount: cells.length,
-                itemBuilder: (context, index) {
+                itemBuilder: (final context, final index) {
                   if (cells[index] is TypeOptionSeparator) {
                     return cells[index];
                   } else {
@@ -98,10 +98,10 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
 }
 
 class _DeleteTag extends StatelessWidget {
-  const _DeleteTag({Key? key}) : super(key: key);
+  const _DeleteTag({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
@@ -125,17 +125,17 @@ class _OptionNameTextField extends StatelessWidget {
   const _OptionNameTextField({
     required this.name,
     required this.autoFocus,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FlowyTextField(
       autoFocus: autoFocus,
       text: name,
       maxLength: 30,
       submitOnLeave: true,
-      onSubmitted: (newName) {
+      onSubmitted: (final newName) {
         if (name != newName) {
           context
               .read<EditSelectOptionBloc>()
@@ -148,12 +148,12 @@ class _OptionNameTextField extends StatelessWidget {
 
 class SelectOptionColorList extends StatelessWidget {
   final SelectOptionColorPB selectedColor;
-  const SelectOptionColorList({required this.selectedColor, Key? key})
+  const SelectOptionColorList({required this.selectedColor, final Key? key})
       : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final cells = SelectOptionColorPB.values.map((color) {
+  Widget build(final BuildContext context) {
+    final cells = SelectOptionColorPB.values.map((final color) {
       return _SelectOptionColorCell(
         color: color,
         isSelected: selectedColor == color,
@@ -178,12 +178,12 @@ class SelectOptionColorList extends StatelessWidget {
         ListView.separated(
           shrinkWrap: true,
           controller: ScrollController(),
-          separatorBuilder: (context, index) {
+          separatorBuilder: (final context, final index) {
             return VSpace(GridSize.typeOptionSeparatorHeight);
           },
           itemCount: cells.length,
           physics: StyledScrollPhysics(),
-          itemBuilder: (BuildContext context, int index) {
+          itemBuilder: (final BuildContext context, final int index) {
             return cells[index];
           },
         ),
@@ -198,11 +198,11 @@ class _SelectOptionColorCell extends StatelessWidget {
   const _SelectOptionColorCell({
     required this.color,
     required this.isSelected,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Widget? checkmark;
     if (isSelected) {
       checkmark = svgWidget("grid/checkmark");

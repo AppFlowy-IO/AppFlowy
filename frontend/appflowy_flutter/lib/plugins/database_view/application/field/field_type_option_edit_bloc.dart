@@ -11,21 +11,21 @@ class FieldTypeOptionEditBloc
   final TypeOptionController _dataController;
   void Function()? _fieldListenFn;
 
-  FieldTypeOptionEditBloc(TypeOptionController dataController)
+  FieldTypeOptionEditBloc(final TypeOptionController dataController)
       : _dataController = dataController,
         super(FieldTypeOptionEditState.initial(dataController)) {
     on<FieldTypeOptionEditEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.when(
           initial: () {
-            _fieldListenFn = dataController.addFieldListener((field) {
+            _fieldListenFn = dataController.addFieldListener((final field) {
               add(FieldTypeOptionEditEvent.didReceiveFieldUpdated(field));
             });
           },
-          didReceiveFieldUpdated: (field) {
+          didReceiveFieldUpdated: (final field) {
             emit(state.copyWith(field: field));
           },
-          switchToField: (FieldType fieldType) async {
+          switchToField: (final FieldType fieldType) async {
             await _dataController.switchToField(fieldType);
           },
         );
@@ -45,20 +45,20 @@ class FieldTypeOptionEditBloc
 @freezed
 class FieldTypeOptionEditEvent with _$FieldTypeOptionEditEvent {
   const factory FieldTypeOptionEditEvent.initial() = _Initial;
-  const factory FieldTypeOptionEditEvent.switchToField(FieldType fieldType) =
+  const factory FieldTypeOptionEditEvent.switchToField(final FieldType fieldType) =
       _SwitchToField;
-  const factory FieldTypeOptionEditEvent.didReceiveFieldUpdated(FieldPB field) =
+  const factory FieldTypeOptionEditEvent.didReceiveFieldUpdated(final FieldPB field) =
       _DidReceiveFieldUpdated;
 }
 
 @freezed
 class FieldTypeOptionEditState with _$FieldTypeOptionEditState {
   const factory FieldTypeOptionEditState({
-    required FieldPB field,
+    required final FieldPB field,
   }) = _FieldTypeOptionEditState;
 
   factory FieldTypeOptionEditState.initial(
-    TypeOptionController typeOptionController,
+    final TypeOptionController typeOptionController,
   ) =>
       FieldTypeOptionEditState(
         field: typeOptionController.field,

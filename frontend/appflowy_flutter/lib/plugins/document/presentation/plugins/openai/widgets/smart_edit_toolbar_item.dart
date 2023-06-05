@@ -13,12 +13,12 @@ import 'package:easy_localization/easy_localization.dart';
 ToolbarItem smartEditItem = ToolbarItem(
   id: 'appflowy.toolbar.smart_edit',
   type: 0, // headmost
-  validator: (editorState) {
+  validator: (final editorState) {
     // All selected nodes must be text.
     final nodes = editorState.service.selectionService.currentSelectedNodes;
     return nodes.whereType<TextNode>().length == nodes.length;
   },
-  itemBuilder: (context, editorState) {
+  itemBuilder: (final context, final editorState) {
     return _SmartEditWidget(
       editorState: editorState,
     );
@@ -43,22 +43,22 @@ class _SmartEditWidgetState extends State<_SmartEditWidget> {
   void initState() {
     super.initState();
 
-    UserBackendService.getCurrentUserProfile().then((value) {
+    UserBackendService.getCurrentUserProfile().then((final value) {
       setState(() {
         isOpenAIEnabled =
-            value.fold((l) => l.openaiKey.isNotEmpty, (r) => false);
+            value.fold((final l) => l.openaiKey.isNotEmpty, (final r) => false);
       });
     });
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return PopoverActionList<SmartEditActionWrapper>(
       direction: PopoverDirection.bottomWithLeftAligned,
       actions: SmartEditAction.values
-          .map((action) => SmartEditActionWrapper(action))
+          .map((final action) => SmartEditActionWrapper(action))
           .toList(),
-      buildChild: (controller) {
+      buildChild: (final controller) {
         return FlowyIconButton(
           hoverColor: Colors.transparent,
           tooltipText: isOpenAIEnabled
@@ -79,7 +79,7 @@ class _SmartEditWidgetState extends State<_SmartEditWidget> {
           },
         );
       },
-      onSelected: (action, controller) {
+      onSelected: (final action, final controller) {
         controller.close();
         _insertSmartEditNode(action);
       },
@@ -87,7 +87,7 @@ class _SmartEditWidgetState extends State<_SmartEditWidget> {
   }
 
   Future<void> _insertSmartEditNode(
-    SmartEditActionWrapper actionWrapper,
+    final SmartEditActionWrapper actionWrapper,
   ) async {
     final selection =
         widget.editorState.service.selectionService.currentSelection.value;
@@ -126,7 +126,7 @@ class _SmartEditWidgetState extends State<_SmartEditWidget> {
     );
   }
 
-  Future<void> _showError(String message) async {
+  Future<void> _showError(final String message) async {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         action: SnackBarAction(

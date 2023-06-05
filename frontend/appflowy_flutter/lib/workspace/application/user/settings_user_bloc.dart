@@ -18,36 +18,36 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
       : _userListener = UserListener(userProfile: userProfile),
         _userService = UserBackendService(userId: userProfile.id),
         super(SettingsUserState.initial(userProfile)) {
-    on<SettingsUserEvent>((event, emit) async {
+    on<SettingsUserEvent>((final event, final emit) async {
       await event.when(
         initial: () async {
           _userListener.start(onProfileUpdated: _profileUpdated);
           await _initUser();
         },
-        didReceiveUserProfile: (UserProfilePB newUserProfile) {
+        didReceiveUserProfile: (final UserProfilePB newUserProfile) {
           emit(state.copyWith(userProfile: newUserProfile));
         },
-        updateUserName: (String name) {
-          _userService.updateUserProfile(name: name).then((result) {
+        updateUserName: (final String name) {
+          _userService.updateUserProfile(name: name).then((final result) {
             result.fold(
-              (l) => null,
-              (err) => Log.error(err),
+              (final l) => null,
+              (final err) => Log.error(err),
             );
           });
         },
-        updateUserIcon: (String iconUrl) {
-          _userService.updateUserProfile(iconUrl: iconUrl).then((result) {
+        updateUserIcon: (final String iconUrl) {
+          _userService.updateUserProfile(iconUrl: iconUrl).then((final result) {
             result.fold(
-              (l) => null,
-              (err) => Log.error(err),
+              (final l) => null,
+              (final err) => Log.error(err),
             );
           });
         },
-        updateUserOpenAIKey: (openAIKey) {
-          _userService.updateUserProfile(openAIKey: openAIKey).then((result) {
+        updateUserOpenAIKey: (final openAIKey) {
+          _userService.updateUserProfile(openAIKey: openAIKey).then((final result) {
             result.fold(
-              (l) => null,
-              (err) => Log.error(err),
+              (final l) => null,
+              (final err) => Log.error(err),
             );
           });
         },
@@ -63,14 +63,14 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
 
   Future<void> _initUser() async {
     final result = await _userService.initUser();
-    result.fold((l) => null, (error) => Log.error(error));
+    result.fold((final l) => null, (final error) => Log.error(error));
   }
 
-  void _profileUpdated(Either<UserProfilePB, FlowyError> userProfileOrFailed) {
+  void _profileUpdated(final Either<UserProfilePB, FlowyError> userProfileOrFailed) {
     userProfileOrFailed.fold(
-      (newUserProfile) =>
+      (final newUserProfile) =>
           add(SettingsUserEvent.didReceiveUserProfile(newUserProfile)),
-      (err) => Log.error(err),
+      (final err) => Log.error(err),
     );
   }
 }
@@ -78,24 +78,24 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
 @freezed
 class SettingsUserEvent with _$SettingsUserEvent {
   const factory SettingsUserEvent.initial() = _Initial;
-  const factory SettingsUserEvent.updateUserName(String name) = _UpdateUserName;
-  const factory SettingsUserEvent.updateUserIcon(String iconUrl) =
+  const factory SettingsUserEvent.updateUserName(final String name) = _UpdateUserName;
+  const factory SettingsUserEvent.updateUserIcon(final String iconUrl) =
       _UpdateUserIcon;
-  const factory SettingsUserEvent.updateUserOpenAIKey(String openAIKey) =
+  const factory SettingsUserEvent.updateUserOpenAIKey(final String openAIKey) =
       _UpdateUserOpenaiKey;
   const factory SettingsUserEvent.didReceiveUserProfile(
-    UserProfilePB newUserProfile,
+    final UserProfilePB newUserProfile,
   ) = _DidReceiveUserProfile;
 }
 
 @freezed
 class SettingsUserState with _$SettingsUserState {
   const factory SettingsUserState({
-    required UserProfilePB userProfile,
-    required Either<Unit, String> successOrFailure,
+    required final UserProfilePB userProfile,
+    required final Either<Unit, String> successOrFailure,
   }) = _SettingsUserState;
 
-  factory SettingsUserState.initial(UserProfilePB userProfile) =>
+  factory SettingsUserState.initial(final UserProfilePB userProfile) =>
       SettingsUserState(
         userProfile: userProfile,
         successOrFailure: left(unit),

@@ -38,17 +38,17 @@ class HomeMenu extends StatelessWidget {
   final WorkspaceSettingPB workspaceSetting;
 
   const HomeMenu({
-    Key? key,
+    final Key? key,
     required this.user,
     required this.workspaceSetting,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider<MenuBloc>(
-          create: (context) {
+          create: (final context) {
             final menuBloc = MenuBloc(
               user: user,
               workspace: workspaceSetting.workspace,
@@ -61,20 +61,20 @@ class HomeMenu extends StatelessWidget {
       child: MultiBlocListener(
         listeners: [
           BlocListener<MenuBloc, MenuState>(
-            listenWhen: (p, c) => p.plugin.id != c.plugin.id,
-            listener: (context, state) {
+            listenWhen: (final p, final c) => p.plugin.id != c.plugin.id,
+            listener: (final context, final state) {
               getIt<HomeStackManager>().setPlugin(state.plugin);
             },
           ),
         ],
         child: BlocBuilder<MenuBloc, MenuState>(
-          builder: (context, state) => _renderBody(context),
+          builder: (final context, final state) => _renderBody(context),
         ),
       ),
     );
   }
 
-  Widget _renderBody(BuildContext context) {
+  Widget _renderBody(final BuildContext context) {
     // nested column: https://siddharthmolleti.com/flutter-box-constraints-nested-column-s-row-s-3dfacada7361
     return Container(
       decoration: BoxDecoration(
@@ -104,7 +104,7 @@ class HomeMenu extends StatelessWidget {
     );
   }
 
-  Widget _renderApps(BuildContext context) {
+  Widget _renderApps(final BuildContext context) {
     return ExpandableTheme(
       data: ExpandableThemeData(
         useInkWell: true,
@@ -114,10 +114,10 @@ class HomeMenu extends StatelessWidget {
         child: ScrollConfiguration(
           behavior: const ScrollBehavior().copyWith(scrollbars: false),
           child: BlocSelector<MenuBloc, MenuState, List<Widget>>(
-            selector: (state) => state.apps
-                .map((app) => MenuApp(app, key: ValueKey(app.id)))
+            selector: (final state) => state.apps
+                .map((final app) => MenuApp(app, key: ValueKey(app.id)))
                 .toList(),
-            builder: (context, menuItems) {
+            builder: (final context, final menuItems) {
               return ReorderableListView.builder(
                 itemCount: menuItems.length,
                 buildDefaultDragHandles: false,
@@ -126,18 +126,19 @@ class HomeMenu extends StatelessWidget {
                       EdgeInsets.only(bottom: 20.0 - MenuAppSizes.appVPadding),
                   child: MenuUser(user),
                 ),
-                onReorder: (oldIndex, newIndex) {
+                onReorder: (final oldIndex, final newIndex) {
                   // Moving item1 from index 0 to index 1
                   //  expect:   oldIndex: 0, newIndex: 1
                   //  receive:  oldIndex: 0, newIndex: 2
                   //  Workaround: if newIndex > oldIndex, we just minus one
-                  int index = newIndex > oldIndex ? newIndex - 1 : newIndex;
+                  final int index =
+                      newIndex > oldIndex ? newIndex - 1 : newIndex;
                   context
                       .read<MenuBloc>()
                       .add(MenuEvent.moveApp(oldIndex, index));
                 },
                 physics: StyledScrollPhysics(),
-                itemBuilder: (BuildContext context, int index) {
+                itemBuilder: (final BuildContext context, final int index) {
                   return ReorderableDragStartListener(
                     key: ValueKey(menuItems[index].key),
                     index: index,
@@ -149,7 +150,7 @@ class HomeMenu extends StatelessWidget {
                     ),
                   );
                 },
-                proxyDecorator: (child, index, animation) =>
+                proxyDecorator: (final child, final index, final animation) =>
                     Material(color: Colors.transparent, child: child),
               );
             },
@@ -159,9 +160,9 @@ class HomeMenu extends StatelessWidget {
     );
   }
 
-  Widget _renderNewAppButton(BuildContext context) {
+  Widget _renderNewAppButton(final BuildContext context) {
     return NewAppButton(
-      press: (appName) =>
+      press: (final appName) =>
           context.read<MenuBloc>().add(MenuEvent.createApp(appName, desc: "")),
     );
   }
@@ -170,20 +171,20 @@ class HomeMenu extends StatelessWidget {
 class MenuSharedState {
   final ValueNotifier<ViewPB?> _latestOpenView = ValueNotifier<ViewPB?>(null);
 
-  MenuSharedState({ViewPB? view}) {
+  MenuSharedState({final ViewPB? view}) {
     _latestOpenView.value = view;
   }
 
   ViewPB? get latestOpenView => _latestOpenView.value;
   ValueNotifier<ViewPB?> get notifier => _latestOpenView;
 
-  set latestOpenView(ViewPB? view) {
+  set latestOpenView(final ViewPB? view) {
     if (_latestOpenView.value != view) {
       _latestOpenView.value = view;
     }
   }
 
-  VoidCallback addLatestViewListener(void Function(ViewPB?) callback) {
+  VoidCallback addLatestViewListener(final void Function(ViewPB?) callback) {
     listener() {
       callback(_latestOpenView.value);
     }
@@ -192,15 +193,15 @@ class MenuSharedState {
     return listener;
   }
 
-  void removeLatestViewListener(VoidCallback listener) {
+  void removeLatestViewListener(final VoidCallback listener) {
     _latestOpenView.removeListener(listener);
   }
 }
 
 class MenuTopBar extends StatelessWidget {
-  const MenuTopBar({Key? key}) : super(key: key);
+  const MenuTopBar({final Key? key}) : super(key: key);
 
-  Widget renderIcon(BuildContext context) {
+  Widget renderIcon(final BuildContext context) {
     if (Platform.isMacOS) {
       return Container();
     }
@@ -210,9 +211,9 @@ class MenuTopBar extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<MenuBloc, MenuState>(
-      builder: (context, state) {
+      builder: (final context, final state) {
         return SizedBox(
           height: HomeSizes.topBarHeight,
           child: MoveWindowDetector(

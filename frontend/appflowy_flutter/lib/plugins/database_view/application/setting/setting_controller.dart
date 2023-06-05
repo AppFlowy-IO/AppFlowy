@@ -20,27 +20,27 @@ class SettingController {
   })  : _settingBackendSvc = SettingBackendService(viewId: viewId),
         _listener = DatabaseSettingListener(viewId: viewId) {
     // Load setting
-    _settingBackendSvc.getSetting().then((result) {
+    _settingBackendSvc.getSetting().then((final result) {
       result.fold(
-        (newSetting) => updateSetting(newSetting),
-        (err) => _onError?.call(err),
+        (final newSetting) => updateSetting(newSetting),
+        (final err) => _onError?.call(err),
       );
     });
 
     // Listen on the setting changes
     _listener.start(
-      onSettingUpdated: (result) {
+      onSettingUpdated: (final result) {
         result.fold(
-          (newSetting) => updateSetting(newSetting),
-          (err) => _onError?.call(err),
+          (final newSetting) => updateSetting(newSetting),
+          (final err) => _onError?.call(err),
         );
       },
     );
   }
 
   void startListening({
-    required OnSettingUpdated onSettingUpdated,
-    required OnError onError,
+    required final OnSettingUpdated onSettingUpdated,
+    required final OnError onError,
   }) {
     assert(_onSettingUpdated == null, 'Should call once');
     assert(_onError == null, 'Should call once');
@@ -48,7 +48,7 @@ class SettingController {
     _onError = onError;
   }
 
-  void updateSetting(DatabaseViewSettingPB newSetting) {
+  void updateSetting(final DatabaseViewSettingPB newSetting) {
     _setting = newSetting;
     _onSettingUpdated?.call(newSetting);
   }

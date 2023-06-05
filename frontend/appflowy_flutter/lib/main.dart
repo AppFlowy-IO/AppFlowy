@@ -11,7 +11,7 @@ import 'window/window.dart';
 
 class FlowyApp implements EntryPoint {
   @override
-  Widget create(LaunchConfiguration config) {
+  Widget create(final LaunchConfiguration config) {
     return SplashScreen(
       autoRegister: config.autoRegistrationSupported,
     );
@@ -23,7 +23,7 @@ Future<void> main() async {
 
   // Handle platform errors not caught by Flutter.
   // Reduces the likelihood of the app crashing, and logs the error.
-  PlatformDispatcher.instance.onError = (error, stack) {
+  PlatformDispatcher.instance.onError = (final error, final stack) {
     Log.error('Uncaught platform error', error, stack);
     return true;
   };

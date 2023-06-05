@@ -12,7 +12,7 @@ class Loading {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
+      builder: (final BuildContext context) {
         loadingContext = context;
         return const SimpleDialog(
           elevation: 0.0,
@@ -46,7 +46,7 @@ class BarrierDialog {
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.transparent,
-      builder: (BuildContext context) {
+      builder: (final BuildContext context) {
         loadingContext = context;
         return Container();
       },

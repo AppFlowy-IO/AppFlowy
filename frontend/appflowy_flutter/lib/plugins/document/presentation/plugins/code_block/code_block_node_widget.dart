@@ -12,7 +12,7 @@ const String kCodeBlockAttrLanguage = 'language';
 class CodeBlockNodeWidgetBuilder extends NodeWidgetBuilder<TextNode>
     with ActionProvider<TextNode> {
   @override
-  Widget build(NodeWidgetContext<TextNode> context) {
+  Widget build(final NodeWidgetContext<TextNode> context) {
     return _CodeBlockNodeWidge(
       key: context.node.key,
       textNode: context.node,
@@ -21,13 +21,13 @@ class CodeBlockNodeWidgetBuilder extends NodeWidgetBuilder<TextNode>
   }
 
   @override
-  NodeValidator<Node> get nodeValidator => (node) {
+  NodeValidator<Node> get nodeValidator => (final node) {
         return node is TextNode &&
             node.attributes[kCodeBlockAttrTheme] is String;
       };
 
   @override
-  List<ActionMenuItem> actions(NodeWidgetContext<TextNode> context) {
+  List<ActionMenuItem> actions(final NodeWidgetContext<TextNode> context) {
     return [
       ActionMenuItem.svg(
         name: 'delete',
@@ -43,7 +43,7 @@ class CodeBlockNodeWidgetBuilder extends NodeWidgetBuilder<TextNode>
 
 class _CodeBlockNodeWidge extends StatefulWidget {
   const _CodeBlockNodeWidge({
-    Key? key,
+    final Key? key,
     required this.textNode,
     required this.editorState,
   }) : super(key: key);
@@ -74,7 +74,7 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
   Offset get baseOffset => super.baseOffset + _padding.topLeft;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Stack(
       children: [
         _buildCodeBlock(context),
@@ -83,7 +83,7 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
     );
   }
 
-  Widget _buildCodeBlock(BuildContext context) {
+  Widget _buildCodeBlock(final BuildContext context) {
     final result = highlight.highlight.parse(
       widget.textNode.toPlainText(),
       language: _language,
@@ -105,7 +105,7 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
         editorState: widget.editorState,
         lineHeight: 1.0,
         cursorHeight: 15.0,
-        textSpanDecorator: (textSpan) => TextSpan(
+        textSpanDecorator: (final textSpan) => TextSpan(
           style: widget.editorState.editorStyle.textStyle,
           children: codeTextSpan,
         ),
@@ -113,7 +113,7 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
     );
   }
 
-  Widget _buildSwitchCodeButton(BuildContext context) {
+  Widget _buildSwitchCodeButton(final BuildContext context) {
     return Positioned(
       top: -5,
       left: 10,
@@ -122,15 +122,15 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
         child: DropdownButton<String>(
           value: _detectLanguage,
           iconSize: 14.0,
-          onChanged: (value) {
+          onChanged: (final value) {
             final transaction = widget.editorState.transaction
               ..updateNode(widget.textNode, {
                 kCodeBlockAttrLanguage: value,
               });
             widget.editorState.apply(transaction);
           },
-          items:
-              allLanguages.keys.map<DropdownMenuItem<String>>((String value) {
+          items: allLanguages.keys
+              .map<DropdownMenuItem<String>>((final String value) {
             return DropdownMenuItem<String>(
               value: value,
               child: FlowyText.medium(
@@ -146,26 +146,33 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
 
   // Copy from flutter.highlight package.
   // https://github.com/git-touch/highlight.dart/blob/master/flutter_highlight/lib/flutter_highlight.dart
-  List<TextSpan> _convert(List<highlight.Node> nodes) {
-    List<TextSpan> spans = [];
+  List<TextSpan> _convert(final List<highlight.Node> nodes) {
+    final List<TextSpan> spans = [];
     var currentSpans = spans;
-    List<List<TextSpan>> stack = [];
+    final List<List<TextSpan>> stack = [];
 
-    void traverse(highlight.Node node) {
+    void traverse(final highlight.Node node) {
       if (node.value != null) {
-        currentSpans.add(node.className == null
-            ? TextSpan(text: node.value)
-            : TextSpan(
-                text: node.value,
-                style: _builtInCodeBlockTheme[node.className!],),);
+        currentSpans.add(
+          node.className == null
+              ? TextSpan(text: node.value)
+              : TextSpan(
+                  text: node.value,
+                  style: _builtInCodeBlockTheme[node.className!],
+                ),
+        );
       } else if (node.children != null) {
-        List<TextSpan> tmp = [];
-        currentSpans.add(TextSpan(
-            children: tmp, style: _builtInCodeBlockTheme[node.className!],),);
+        final List<TextSpan> tmp = [];
+        currentSpans.add(
+          TextSpan(
+            children: tmp,
+            style: _builtInCodeBlockTheme[node.className!],
+          ),
+        );
         stack.add(currentSpans);
         currentSpans = tmp;
 
-        for (var n in node.children!) {
+        for (final n in node.children!) {
           traverse(n);
           if (n == node.children!.last) {
             currentSpans = stack.isEmpty ? spans : stack.removeLast();
@@ -174,7 +181,7 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
       }
     }
 
-    for (var node in nodes) {
+    for (final node in nodes) {
       traverse(node);
     }
 
@@ -213,7 +220,9 @@ const _builtInCodeBlockTheme = {
   'attr': TextStyle(color: Color(0xff836C28)),
   'subst': TextStyle(color: Color(0xff000000)),
   'formula': TextStyle(
-      backgroundColor: Color(0xffeeeeee), fontStyle: FontStyle.italic,),
+    backgroundColor: Color(0xffeeeeee),
+    fontStyle: FontStyle.italic,
+  ),
   'addition': TextStyle(backgroundColor: Color(0xffbaeeba)),
   'deletion': TextStyle(backgroundColor: Color(0xffffc8bd)),
   'selector-id': TextStyle(color: Color(0xff9b703f)),

@@ -20,8 +20,8 @@ class URLCardCell<CustomCardData>
 
   const URLCardCell({
     required this.cellControllerBuilder,
-    URLCardCellStyle? style,
-    Key? key,
+    final URLCardCellStyle? style,
+    final Key? key,
   }) : super(key: key, style: style);
 
   @override
@@ -41,12 +41,12 @@ class _URLCardCellState extends State<URLCardCell> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<URLCardCellBloc, URLCardCellState>(
-        buildWhen: (previous, current) => previous.content != current.content,
-        builder: (context, state) {
+        buildWhen: (final previous, final current) => previous.content != current.content,
+        builder: (final context, final state) {
           if (state.content.isEmpty) {
             return const SizedBox();
           } else {

@@ -10,19 +10,19 @@ class SelectOptionFilterListBloc<T>
     extends Bloc<SelectOptionFilterListEvent, SelectOptionFilterListState> {
   final SelectOptionFilterDelegate delegate;
   SelectOptionFilterListBloc({
-    required String viewId,
-    required FieldPB fieldPB,
+    required final String viewId,
+    required final FieldPB fieldPB,
     required this.delegate,
-    required List<String> selectedOptionIds,
+    required final List<String> selectedOptionIds,
   }) : super(SelectOptionFilterListState.initial(selectedOptionIds)) {
     on<SelectOptionFilterListEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.when(
           initial: () async {
             _startListening();
             _loadOptions();
           },
-          selectOption: (option) {
+          selectOption: (final option) {
             final selectedOptionIds = Set<String>.from(state.selectedOptionIds);
             selectedOptionIds.add(option.id);
 
@@ -31,7 +31,7 @@ class SelectOptionFilterListBloc<T>
               emit: emit,
             );
           },
-          unselectOption: (option) {
+          unselectOption: (final option) {
             final selectedOptionIds = Set<String>.from(state.selectedOptionIds);
             selectedOptionIds.remove(option.id);
 
@@ -40,13 +40,13 @@ class SelectOptionFilterListBloc<T>
               emit: emit,
             );
           },
-          didReceiveOptions: (newOptions) {
-            List<SelectOptionPB> options = List.from(newOptions);
+          didReceiveOptions: (final newOptions) {
+            final List<SelectOptionPB> options = List.from(newOptions);
             options.retainWhere(
-              (element) => element.name.contains(state.predicate),
+              (final element) => element.name.contains(state.predicate),
             );
 
-            final visibleOptions = options.map((option) {
+            final visibleOptions = options.map((final option) {
               return VisibleSelectOption(
                 option,
                 state.selectedOptionIds.contains(option.id),
@@ -60,7 +60,7 @@ class SelectOptionFilterListBloc<T>
               ),
             );
           },
-          filterOption: (optionName) {
+          filterOption: (final optionName) {
             _updateSelectOptions(predicate: optionName, emit: emit);
           },
         );
@@ -69,9 +69,9 @@ class SelectOptionFilterListBloc<T>
   }
 
   void _updateSelectOptions({
-    String? predicate,
-    Set<String>? selectedOptionIds,
-    required Emitter<SelectOptionFilterListState> emit,
+    final String? predicate,
+    final Set<String>? selectedOptionIds,
+    required final Emitter<SelectOptionFilterListState> emit,
   }) {
     final List<VisibleSelectOption> visibleOptions = _makeVisibleOptions(
       predicate ?? state.predicate,
@@ -88,19 +88,19 @@ class SelectOptionFilterListBloc<T>
   }
 
   List<VisibleSelectOption> _makeVisibleOptions(
-    String predicate,
-    Set<String> selectedOptionIds,
+    final String predicate,
+    final Set<String> selectedOptionIds,
   ) {
-    List<SelectOptionPB> options = List.from(state.options);
-    options.retainWhere((element) => element.name.contains(predicate));
+    final List<SelectOptionPB> options = List.from(state.options);
+    options.retainWhere((final element) => element.name.contains(predicate));
 
-    return options.map((option) {
+    return options.map((final option) {
       return VisibleSelectOption(option, selectedOptionIds.contains(option.id));
     }).toList();
   }
 
   void _loadOptions() {
-    delegate.loadOptions().then((options) {
+    delegate.loadOptions().then((final options) {
       if (!isClosed) {
         add(SelectOptionFilterListEvent.didReceiveOptions(options));
       }
@@ -114,28 +114,31 @@ class SelectOptionFilterListBloc<T>
 class SelectOptionFilterListEvent with _$SelectOptionFilterListEvent {
   const factory SelectOptionFilterListEvent.initial() = _Initial;
   const factory SelectOptionFilterListEvent.selectOption(
-    SelectOptionPB option,
+    final SelectOptionPB option,
   ) = _SelectOption;
   const factory SelectOptionFilterListEvent.unselectOption(
-    SelectOptionPB option,
+    final SelectOptionPB option,
   ) = _UnSelectOption;
   const factory SelectOptionFilterListEvent.didReceiveOptions(
-    List<SelectOptionPB> options,
+    final List<SelectOptionPB> options,
   ) = _DidReceiveOptions;
-  const factory SelectOptionFilterListEvent.filterOption(String optionName) =
-      _SelectOptionFilter;
+  const factory SelectOptionFilterListEvent.filterOption(
+    final String optionName,
+  ) = _SelectOptionFilter;
 }
 
 @freezed
 class SelectOptionFilterListState with _$SelectOptionFilterListState {
   const factory SelectOptionFilterListState({
-    required List<SelectOptionPB> options,
-    required List<VisibleSelectOption> visibleOptions,
-    required Set<String> selectedOptionIds,
-    required String predicate,
+    required final List<SelectOptionPB> options,
+    required final List<VisibleSelectOption> visibleOptions,
+    required final Set<String> selectedOptionIds,
+    required final String predicate,
   }) = _SelectOptionFilterListState;
 
-  factory SelectOptionFilterListState.initial(List<String> selectedOptionIds) {
+  factory SelectOptionFilterListState.initial(
+    final List<String> selectedOptionIds,
+  ) {
     return SelectOptionFilterListState(
       options: [],
       predicate: '',

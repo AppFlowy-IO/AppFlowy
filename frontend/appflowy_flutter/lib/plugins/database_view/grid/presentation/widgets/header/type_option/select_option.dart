@@ -25,20 +25,20 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
     required this.beginEdit,
     required this.typeOptionAction,
     this.popoverMutex,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) => SelectOptionTypeOptionBloc(
+      create: (final context) => SelectOptionTypeOptionBloc(
         options: options,
         typeOptionAction: typeOptionAction,
       ),
       child:
           BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
-        builder: (context, state) {
-          List<Widget> children = [
+        builder: (final context, final state) {
+          final List<Widget> children = [
             const TypeOptionSeparator(),
             const OptionTitle(),
             if (state.isEditingOption)
@@ -53,7 +53,7 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
           return ListView.builder(
             shrinkWrap: true,
             itemCount: children.length,
-            itemBuilder: (context, index) {
+            itemBuilder: (final context, final index) {
               return children[index];
             },
           );
@@ -64,13 +64,13 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
 }
 
 class OptionTitle extends StatelessWidget {
-  const OptionTitle({Key? key}) : super(key: key);
+  const OptionTitle({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
-      builder: (context, state) {
-        List<Widget> children = [
+      builder: (final context, final state) {
+        final List<Widget> children = [
           Padding(
             padding: const EdgeInsets.only(left: 9),
             child: FlowyText.medium(
@@ -96,10 +96,10 @@ class OptionTitle extends StatelessWidget {
 }
 
 class _OptionTitleButton extends StatelessWidget {
-  const _OptionTitleButton({Key? key}) : super(key: key);
+  const _OptionTitleButton({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       width: 100,
       height: 26,
@@ -120,16 +120,16 @@ class _OptionTitleButton extends StatelessWidget {
 
 class _OptionList extends StatelessWidget {
   final PopoverMutex? popoverMutex;
-  const _OptionList({Key? key, this.popoverMutex}) : super(key: key);
+  const _OptionList({final Key? key, this.popoverMutex}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
-      buildWhen: (previous, current) {
+      buildWhen: (final previous, final current) {
         return previous.options != current.options;
       },
-      builder: (context, state) {
-        final cells = state.options.map((option) {
+      builder: (final context, final state) {
+        final cells = state.options.map((final option) {
           return _makeOptionCell(
             context: context,
             option: option,
@@ -140,11 +140,11 @@ class _OptionList extends StatelessWidget {
         return ListView.separated(
           shrinkWrap: true,
           controller: ScrollController(),
-          separatorBuilder: (context, index) {
+          separatorBuilder: (final context, final index) {
             return VSpace(GridSize.typeOptionSeparatorHeight);
           },
           itemCount: cells.length,
-          itemBuilder: (BuildContext context, int index) {
+          itemBuilder: (final BuildContext context, final int index) {
             return cells[index];
           },
         );
@@ -153,9 +153,9 @@ class _OptionList extends StatelessWidget {
   }
 
   _OptionCell _makeOptionCell({
-    required BuildContext context,
-    required SelectOptionPB option,
-    PopoverMutex? popoverMutex,
+    required final BuildContext context,
+    required final SelectOptionPB option,
+    final PopoverMutex? popoverMutex,
   }) {
     return _OptionCell(
       option: option,
@@ -167,7 +167,7 @@ class _OptionList extends StatelessWidget {
 class _OptionCell extends StatefulWidget {
   final SelectOptionPB option;
   final PopoverMutex? popoverMutex;
-  const _OptionCell({required this.option, Key? key, this.popoverMutex})
+  const _OptionCell({required this.option, final Key? key, this.popoverMutex})
       : super(key: key);
 
   @override
@@ -184,12 +184,12 @@ class _OptionCellState extends State<_OptionCell> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final child = SizedBox(
       height: GridSize.popoverItemHeight,
       child: SelectOptionTagCell(
         option: widget.option,
-        onSelected: (SelectOptionPB pb) {
+        onSelected: (final SelectOptionPB pb) {
           _popoverController.show();
         },
         children: [
@@ -214,7 +214,7 @@ class _OptionCellState extends State<_OptionCell> {
         padding: const EdgeInsets.symmetric(horizontal: 12.0),
         child: child,
       ),
-      popupBuilder: (BuildContext popoverContext) {
+      popupBuilder: (final BuildContext popoverContext) {
         return SelectOptionTypeOptionEditor(
           option: widget.option,
           onDeleted: () {
@@ -223,7 +223,7 @@ class _OptionCellState extends State<_OptionCell> {
                 .add(SelectOptionTypeOptionEvent.deleteOption(widget.option));
             PopoverContainer.of(popoverContext).close();
           },
-          onUpdated: (updatedOption) {
+          onUpdated: (final updatedOption) {
             context
                 .read<SelectOptionTypeOptionBloc>()
                 .add(SelectOptionTypeOptionEvent.updateOption(updatedOption));
@@ -237,10 +237,10 @@ class _OptionCellState extends State<_OptionCell> {
 }
 
 class _AddOptionButton extends StatelessWidget {
-  const _AddOptionButton({Key? key}) : super(key: key);
+  const _AddOptionButton({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: SizedBox(
@@ -269,7 +269,7 @@ class _AddOptionButton extends StatelessWidget {
 class _CreateOptionTextField extends StatefulWidget {
   final PopoverMutex? popoverMutex;
   const _CreateOptionTextField({
-    Key? key,
+    final Key? key,
     this.popoverMutex,
   }) : super(key: key);
 
@@ -297,10 +297,11 @@ class _CreateOptionTextFieldState extends State<_CreateOptionTextField> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
-      builder: (context, state) {
-        final text = state.newOptionName.foldRight("", (a, previous) => a);
+      builder: (final context, final state) {
+        final text =
+            state.newOptionName.foldRight("", (final a, final previous) => a);
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: FlowyTextField(
@@ -314,7 +315,7 @@ class _CreateOptionTextFieldState extends State<_CreateOptionTextField> {
                   .add(const SelectOptionTypeOptionEvent.endAddingOption());
             },
             onEditingComplete: () {},
-            onSubmitted: (optionName) {
+            onSubmitted: (final optionName) {
               context
                   .read<SelectOptionTypeOptionBloc>()
                   .add(SelectOptionTypeOptionEvent.createOption(optionName));

@@ -3,7 +3,7 @@ part of 'cell_service.dart';
 /// Save the cell data to disk
 /// You can extend this class to do custom operations. For example, the DateCellDataPersistence.
 abstract class CellDataPersistence<D> {
-  Future<Option<FlowyError>> save(D data);
+  Future<Option<FlowyError>> save(final D data);
 }
 
 class TextCellDataPersistence implements CellDataPersistence<String> {
@@ -15,12 +15,12 @@ class TextCellDataPersistence implements CellDataPersistence<String> {
   });
 
   @override
-  Future<Option<FlowyError>> save(String data) async {
+  Future<Option<FlowyError>> save(final String data) async {
     final fut = _cellBackendSvc.updateCell(cellId: cellId, data: data);
-    return fut.then((result) {
+    return fut.then((final result) {
       return result.fold(
-        (l) => none(),
-        (err) => Some(err),
+        (final l) => none(),
+        (final err) => Some(err),
       );
     });
   }
@@ -29,9 +29,9 @@ class TextCellDataPersistence implements CellDataPersistence<String> {
 @freezed
 class DateCellData with _$DateCellData {
   const factory DateCellData({
-    required DateTime date,
-    String? time,
-    required bool includeTime,
+    required final DateTime date,
+    final String? time,
+    required final bool includeTime,
   }) = _DateCellData;
 }
 
@@ -42,8 +42,8 @@ class DateCellDataPersistence implements CellDataPersistence<DateCellData> {
   });
 
   @override
-  Future<Option<FlowyError>> save(DateCellData data) {
-    var payload = DateChangesetPB.create()..cellPath = _makeCellPath(cellId);
+  Future<Option<FlowyError>> save(final DateCellData data) {
+    final payload = DateChangesetPB.create()..cellPath = _makeCellPath(cellId);
 
     final date = (data.date.millisecondsSinceEpoch ~/ 1000).toString();
     payload.date = date;
@@ -54,16 +54,16 @@ class DateCellDataPersistence implements CellDataPersistence<DateCellData> {
       payload.time = data.time!;
     }
 
-    return DatabaseEventUpdateDateCell(payload).send().then((result) {
+    return DatabaseEventUpdateDateCell(payload).send().then((final result) {
       return result.fold(
-        (l) => none(),
-        (err) => Some(err),
+        (final l) => none(),
+        (final err) => Some(err),
       );
     });
   }
 }
 
-CellIdPB _makeCellPath(CellIdentifier cellId) {
+CellIdPB _makeCellPath(final CellIdentifier cellId) {
   return CellIdPB.create()
     ..viewId = cellId.viewId
     ..fieldId = cellId.fieldId

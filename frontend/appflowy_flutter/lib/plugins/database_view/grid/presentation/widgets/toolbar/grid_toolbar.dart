@@ -16,10 +16,10 @@ class GridToolbarContext {
 }
 
 class GridToolbar extends StatelessWidget {
-  const GridToolbar({Key? key}) : super(key: key);
+  const GridToolbar({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       height: 40,
       child: Row(

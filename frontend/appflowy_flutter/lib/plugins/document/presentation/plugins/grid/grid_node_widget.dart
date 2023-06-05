@@ -8,7 +8,7 @@ const String kGridType = 'grid';
 
 class GridNodeWidgetBuilder extends NodeWidgetBuilder<Node> {
   @override
-  Widget build(NodeWidgetContext<Node> context) {
+  Widget build(final NodeWidgetContext<Node> context) {
     return _GridWidget(
       key: context.node.key,
       node: context.node,
@@ -17,7 +17,7 @@ class GridNodeWidgetBuilder extends NodeWidgetBuilder<Node> {
   }
 
   @override
-  NodeValidator<Node> get nodeValidator => (node) {
+  NodeValidator<Node> get nodeValidator => (final node) {
         return node.attributes[kAppID] is String &&
             node.attributes[kViewID] is String;
       };
@@ -25,7 +25,7 @@ class GridNodeWidgetBuilder extends NodeWidgetBuilder<Node> {
 
 class _GridWidget extends StatefulWidget {
   const _GridWidget({
-    Key? key,
+    final Key? key,
     required this.node,
     required this.editorState,
   }) : super(key: key);
@@ -39,11 +39,11 @@ class _GridWidget extends StatefulWidget {
 
 class _GridWidgetState extends State<_GridWidget> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BuiltInPageWidget(
       node: widget.node,
       editorState: widget.editorState,
-      builder: (viewPB) {
+      builder: (final viewPB) {
         return GridPage(
           key: ValueKey(viewPB.id),
           view: viewPB,

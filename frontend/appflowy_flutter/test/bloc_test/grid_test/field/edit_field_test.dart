@@ -4,7 +4,7 @@ import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart'
 import 'package:flutter_test/flutter_test.dart';
 import '../util.dart';
 
-Future<FieldEditorBloc> createEditorBloc(AppFlowyGridTest gridTest) async {
+Future<FieldEditorBloc> createEditorBloc(final AppFlowyGridTest gridTest) async {
   final context = await gridTest.createTestGrid();
   final fieldInfo = context.singleSelectFieldContext();
   final loader = FieldTypeOptionLoader(
@@ -34,7 +34,7 @@ void main() {
 
     editorBloc.state.field.fold(
       () => throw Exception("The field should not be none"),
-      (field) {
+      (final field) {
         assert(field.name == 'Hello world');
       },
     );
@@ -48,7 +48,7 @@ void main() {
 
     editorBloc.state.field.fold(
       () => throw Exception("The field should not be none"),
-      (field) {
+      (final field) {
         // The default length of the fields is 3. The length of the fields
         // should not change after switching to other field type
         // assert(gridTest.fieldContexts.length == 3);
@@ -64,7 +64,7 @@ void main() {
 
     editorBloc.state.field.fold(
       () => throw Exception("The field should not be none"),
-      (field) {
+      (final field) {
         // The default length of the fields is 3. The length of the fields
         // should not change after switching to other field type
         // assert(gridTest.fieldContexts.length == 3);
@@ -74,7 +74,7 @@ void main() {
   });
 }
 
-Future<FieldEditorBloc> makeEditorBloc(AppFlowyGridTest gridTest) async {
+Future<FieldEditorBloc> makeEditorBloc(final AppFlowyGridTest gridTest) async {
   final context = await gridTest.createTestGrid();
   final fieldInfo = context.singleSelectFieldContext();
   final loader = FieldTypeOptionLoader(

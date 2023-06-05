@@ -95,7 +95,7 @@ class DatabaseController {
   final DatabaseLayoutListener layoutListener;
   final DatabaseCalendarLayoutListener calendarLayoutListener;
 
-  DatabaseController({required ViewPB view, required this.layoutType})
+  DatabaseController({required final ViewPB view, required this.layoutType})
       : viewId = view.id,
         _databaseViewBackendSvc = DatabaseViewBackendService(viewId: view.id),
         fieldController = FieldController(viewId: view.id),
@@ -116,10 +116,10 @@ class DatabaseController {
   }
 
   void setListener({
-    DatabaseCallbacks? onDatabaseChanged,
-    LayoutCallbacks? onLayoutChanged,
-    GroupCallbacks? onGroupChanged,
-    CalendarLayoutCallbacks? onCalendarLayoutChanged,
+    final DatabaseCallbacks? onDatabaseChanged,
+    final LayoutCallbacks? onLayoutChanged,
+    final GroupCallbacks? onGroupChanged,
+    final CalendarLayoutCallbacks? onCalendarLayoutChanged,
   }) {
     _layoutCallbacks = onLayoutChanged;
     _databaseCallbacks = onDatabaseChanged;
@@ -128,9 +128,9 @@ class DatabaseController {
   }
 
   Future<Either<Unit, FlowyError>> open() async {
-    return _databaseViewBackendSvc.openGrid().then((result) {
+    return _databaseViewBackendSvc.openGrid().then((final result) {
       return result.fold(
-        (database) async {
+        (final database) async {
           _databaseCallbacks?.onDatabaseChanged?.call(database);
           _viewCache.rowCache.setInitialRows(database.rows);
           return await fieldController
@@ -138,27 +138,27 @@ class DatabaseController {
             fieldIds: database.fields,
           )
               .then(
-            (result) {
+            (final result) {
               return result.fold(
-                (l) => Future(() async {
+                (final l) => Future(() async {
                   await _loadGroups();
                   await _loadLayoutSetting();
                   return left(l);
                 }),
-                (err) => right(err),
+                (final err) => right(err),
               );
             },
           );
         },
-        (err) => right(err),
+        (final err) => right(err),
       );
     });
   }
 
   Future<Either<RowPB, FlowyError>> createRow({
-    String? startRowId,
-    String? groupId,
-    void Function(RowDataBuilder builder)? withCells,
+    final String? startRowId,
+    final String? groupId,
+    final void Function(RowDataBuilder builder)? withCells,
   }) {
     Map<String, String>? cellDataByFieldId;
 
@@ -176,9 +176,9 @@ class DatabaseController {
   }
 
   Future<Either<Unit, FlowyError>> moveRow({
-    required RowPB fromRow,
-    required String groupId,
-    RowPB? toRow,
+    required final RowPB fromRow,
+    required final String groupId,
+    final RowPB? toRow,
   }) {
     return _databaseViewBackendSvc.moveRow(
       fromRowId: fromRow.id,
@@ -188,8 +188,8 @@ class DatabaseController {
   }
 
   Future<Either<Unit, FlowyError>> moveGroup({
-    required String fromGroupId,
-    required String toGroupId,
+    required final String fromGroupId,
+    required final String toGroupId,
   }) {
     return _databaseViewBackendSvc.moveGroup(
       fromGroupId: fromGroupId,
@@ -198,12 +198,12 @@ class DatabaseController {
   }
 
   Future<void> updateCalenderLayoutSetting(
-    CalendarLayoutSettingsPB layoutSetting,
+    final CalendarLayoutSettingsPB layoutSetting,
   ) async {
     await _databaseViewBackendSvc
         .updateLayoutSetting(calendarLayoutSetting: layoutSetting)
-        .then((result) {
-      result.fold((l) => null, (r) => Log.error(r));
+        .then((final result) {
+      result.fold((final l) => null, (final r) => Log.error(r));
     });
   }
 
@@ -222,37 +222,37 @@ class DatabaseController {
     final result = await _databaseViewBackendSvc.loadGroups();
     return Future(
       () => result.fold(
-        (groups) {
+        (final groups) {
           _groupCallbacks?.onGroupByField?.call(groups.items);
         },
-        (err) => Log.error(err),
+        (final err) => Log.error(err),
       ),
     );
   }
 
   Future<void> _loadLayoutSetting() async {
-    _databaseViewBackendSvc.getLayoutSetting(layoutType).then((result) {
+    _databaseViewBackendSvc.getLayoutSetting(layoutType).then((final result) {
       result.fold(
-        (l) {
+        (final l) {
           _layoutCallbacks?.onLoadLayout(l);
         },
-        (r) => Log.error(r),
+        (final r) => Log.error(r),
       );
     });
   }
 
   void _listenOnRowsChanged() {
     final callbacks = DatabaseViewCallbacks(
-      onRowsChanged: (rows, rowByRowId, reason) {
+      onRowsChanged: (final rows, final rowByRowId, final reason) {
         _databaseCallbacks?.onRowsChanged?.call(rows, rowByRowId, reason);
       },
-      onRowsDeleted: (ids) {
+      onRowsDeleted: (final ids) {
         _databaseCallbacks?.onRowsDeleted?.call(ids);
       },
-      onRowsUpdated: (ids) {
+      onRowsUpdated: (final ids) {
         _databaseCallbacks?.onRowsUpdated?.call(ids);
       },
-      onRowsCreated: (ids) {
+      onRowsCreated: (final ids) {
         _databaseCallbacks?.onRowsCreated?.call(ids);
       },
     );
@@ -261,10 +261,10 @@ class DatabaseController {
 
   void _listenOnFieldsChanged() {
     fieldController.addListener(
-      onReceiveFields: (fields) {
+      onReceiveFields: (final fields) {
         _databaseCallbacks?.onFieldsChanged?.call(UnmodifiableListView(fields));
       },
-      onFilters: (filters) {
+      onFilters: (final filters) {
         _databaseCallbacks?.onFiltersChanged?.call(filters);
       },
     );
@@ -272,9 +272,9 @@ class DatabaseController {
 
   void _listenOnGroupChanged() {
     groupListener.start(
-      onNumOfGroupsChanged: (result) {
+      onNumOfGroupsChanged: (final result) {
         result.fold(
-          (changeset) {
+          (final changeset) {
             if (changeset.updateGroups.isNotEmpty) {
               _groupCallbacks?.onUpdateGroup?.call(changeset.updateGroups);
             }
@@ -287,15 +287,15 @@ class DatabaseController {
               _groupCallbacks?.onInsertGroup?.call(insertedGroup);
             }
           },
-          (r) => Log.error(r),
+          (final r) => Log.error(r),
         );
       },
-      onGroupByNewField: (result) {
+      onGroupByNewField: (final result) {
         result.fold(
-          (groups) {
+          (final groups) {
             _groupCallbacks?.onGroupByField?.call(groups);
           },
-          (r) => Log.error(r),
+          (final r) => Log.error(r),
         );
       },
     );
@@ -303,12 +303,12 @@ class DatabaseController {
 
   void _listenOnLayoutChanged() {
     layoutListener.start(
-      onLayoutChanged: (result) {
+      onLayoutChanged: (final result) {
         result.fold(
-          (l) {
+          (final l) {
             _layoutCallbacks?.onLayoutChanged(l);
           },
-          (r) => Log.error(r),
+          (final r) => Log.error(r),
         );
       },
     );
@@ -316,12 +316,12 @@ class DatabaseController {
 
   void _listenOnCalendarLayoutChanged() {
     calendarLayoutListener.start(
-      onCalendarLayoutChanged: (result) {
+      onCalendarLayoutChanged: (final result) {
         result.fold(
-          (l) {
+          (final l) {
             _calendarLayoutCallbacks?.onCalendarLayoutChanged(l);
           },
-          (r) => Log.error(r),
+          (final r) => Log.error(r),
         );
       },
     );
@@ -331,18 +331,18 @@ class DatabaseController {
 class RowDataBuilder {
   final _cellDataByFieldId = <String, String>{};
 
-  void insertText(FieldInfo fieldInfo, String text) {
+  void insertText(final FieldInfo fieldInfo, final String text) {
     assert(fieldInfo.fieldType == FieldType.RichText);
     _cellDataByFieldId[fieldInfo.field.id] = text;
   }
 
-  void insertNumber(FieldInfo fieldInfo, int num) {
+  void insertNumber(final FieldInfo fieldInfo, final int num) {
     assert(fieldInfo.fieldType == FieldType.Number);
     _cellDataByFieldId[fieldInfo.field.id] = num.toString();
   }
 
   /// The date should use the UTC timezone. Becuase the backend uses UTC timezone to format the time string.
-  void insertDate(FieldInfo fieldInfo, DateTime date) {
+  void insertDate(final FieldInfo fieldInfo, final DateTime date) {
     assert(fieldInfo.fieldType == FieldType.DateTime);
     final timestamp = (date.toUtc().millisecondsSinceEpoch ~/ 1000);
     _cellDataByFieldId[fieldInfo.field.id] = timestamp.toString();

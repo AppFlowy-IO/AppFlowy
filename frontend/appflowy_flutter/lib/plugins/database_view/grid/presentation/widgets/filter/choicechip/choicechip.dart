@@ -14,14 +14,14 @@ class ChoiceChipButton extends StatelessWidget {
   final String filterDesc;
 
   const ChoiceChipButton({
-    Key? key,
+    final Key? key,
     required this.filterInfo,
     this.filterDesc = '',
     this.onTap,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final borderSide = BorderSide(
       color: AFThemeExtension.of(context).toggleOffFill,
       width: 1.0,
@@ -58,11 +58,11 @@ class ChoiceChipButton extends StatelessWidget {
 
 class _ChoicechipFilterDesc extends StatelessWidget {
   final String filterDesc;
-  const _ChoicechipFilterDesc({this.filterDesc = '', Key? key})
+  const _ChoicechipFilterDesc({this.filterDesc = '', final Key? key})
       : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final arrow = Transform.rotate(
       angle: -math.pi / 2,
       child: svgWidget(

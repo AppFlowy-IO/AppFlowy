@@ -12,7 +12,7 @@ class GridCheckboxCell extends GridCellWidget {
   final CellControllerBuilder cellControllerBuilder;
   GridCheckboxCell({
     required this.cellControllerBuilder,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -34,11 +34,11 @@ class _CheckboxCellState extends GridCellState<GridCheckboxCell> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<CheckboxCellBloc, CheckboxCellState>(
-        builder: (context, state) {
+        builder: (final context, final state) {
           final icon = state.isSelected
               ? svgWidget('editor/editor_check')
               : svgWidget('editor/editor_uncheck');

@@ -24,7 +24,7 @@ class TypeOptionController {
   TypeOptionController({
     required this.viewId,
     required this.loader,
-    FieldInfo? fieldInfo,
+    final FieldInfo? fieldInfo,
   }) {
     if (fieldInfo != null) {
       _typeOption = TypeOptionPB.create()
@@ -36,13 +36,13 @@ class TypeOptionController {
   Future<Either<TypeOptionPB, FlowyError>> loadTypeOptionData() async {
     final result = await loader.load();
     return result.fold(
-      (data) {
+      (final data) {
         data.freeze();
         _typeOption = data;
         _fieldNotifier.value = data.field_2;
         return left(data);
       },
-      (err) {
+      (final err) {
         Log.error(err);
         return right(err);
       },
@@ -53,13 +53,13 @@ class TypeOptionController {
     return _typeOption.field_2;
   }
 
-  T getTypeOption<T>(TypeOptionParser<T> parser) {
+  T getTypeOption<T>(final TypeOptionParser<T> parser) {
     return parser.fromBuffer(_typeOption.typeOptionData);
   }
 
-  set fieldName(String name) {
-    _typeOption = _typeOption.rebuild((rebuildData) {
-      rebuildData.field_2 = rebuildData.field_2.rebuild((rebuildField) {
+  set fieldName(final String name) {
+    _typeOption = _typeOption.rebuild((final rebuildData) {
+      rebuildData.field_2 = rebuildData.field_2.rebuild((final rebuildField) {
         rebuildField.name = name;
       });
     });
@@ -70,8 +70,8 @@ class TypeOptionController {
         .updateField(name: name);
   }
 
-  set typeOptionData(List<int> typeOptionData) {
-    _typeOption = _typeOption.rebuild((rebuildData) {
+  set typeOptionData(final List<int> typeOptionData) {
+    _typeOption = _typeOption.rebuild((final rebuildData) {
       if (typeOptionData.isNotEmpty) {
         rebuildData.typeOptionData = typeOptionData;
       }
@@ -84,20 +84,20 @@ class TypeOptionController {
     );
   }
 
-  Future<void> switchToField(FieldType newFieldType) async {
+  Future<void> switchToField(final FieldType newFieldType) async {
     final result = await loader.switchToField(field.id, newFieldType);
     await result.fold(
-      (_) {
+      (final _) {
         // Should load the type-option data after switching to a new field.
         // After loading the type-option data, the editor widget that uses
         // the type-option data will be rebuild.
         loadTypeOptionData();
       },
-      (err) => Future(() => Log.error(err)),
+      (final err) => Future(() => Log.error(err)),
     );
   }
 
-  void Function() addFieldListener(void Function(FieldPB) callback) {
+  void Function() addFieldListener(final void Function(FieldPB) callback) {
     listener() {
       callback(field);
     }
@@ -106,7 +106,7 @@ class TypeOptionController {
     return listener;
   }
 
-  void removeFieldListener(void Function() listener) {
+  void removeFieldListener(final void Function() listener) {
     _fieldNotifier.removeListener(listener);
   }
 }

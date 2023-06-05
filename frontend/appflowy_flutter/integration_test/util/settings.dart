@@ -40,7 +40,7 @@ extension AppFlowySettings on WidgetTester {
   }
 
   /// Open the page that insides the settings page
-  Future<void> openSettingsPage(SettingsPage page) async {
+  Future<void> openSettingsPage(final SettingsPage page) async {
     final button = find.text(page.name, findRichText: true);
     expect(button, findsOneWidget);
     await tapButton(button);
@@ -72,7 +72,7 @@ extension AppFlowySettings on WidgetTester {
   }
 
   /// Enter user name
-  Future<void> enterUserName(String name) async {
+  Future<void> enterUserName(final String name) async {
     final uni = find.byType(UserNameInput);
     expect(uni, findsOneWidget);
     await tap(uni);

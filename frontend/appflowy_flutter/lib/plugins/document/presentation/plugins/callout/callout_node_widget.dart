@@ -14,13 +14,13 @@ SelectionMenuItem calloutMenuItem = SelectionMenuItem.node(
   name: 'Callout',
   iconData: Icons.note,
   keywords: ['callout'],
-  nodeBuilder: (editorState) {
+  nodeBuilder: (final editorState) {
     final node = Node(type: kCalloutType);
     node.insert(TextNode.empty());
     return node;
   },
-  replace: (_, textNode) => textNode.toPlainText().isEmpty,
-  updateSelection: (_, path, __, ___) {
+  replace: (final _, final textNode) => textNode.toPlainText().isEmpty,
+  updateSelection: (final _, final path, final __, final ___) {
     return Selection.single(path: [...path, 0], startOffset: 0);
   },
 );
@@ -28,7 +28,7 @@ SelectionMenuItem calloutMenuItem = SelectionMenuItem.node(
 class CalloutNodeWidgetBuilder extends NodeWidgetBuilder<Node>
     with ActionProvider<Node> {
   @override
-  Widget build(NodeWidgetContext<Node> context) {
+  Widget build(final NodeWidgetContext<Node> context) {
     return _CalloutWidget(
       key: context.node.key,
       node: context.node,
@@ -37,18 +37,18 @@ class CalloutNodeWidgetBuilder extends NodeWidgetBuilder<Node>
   }
 
   @override
-  NodeValidator<Node> get nodeValidator => (node) => node.type == kCalloutType;
+  NodeValidator<Node> get nodeValidator => (final node) => node.type == kCalloutType;
 
-  _CalloutWidgetState? _getState(NodeWidgetContext<Node> context) {
+  _CalloutWidgetState? _getState(final NodeWidgetContext<Node> context) {
     return context.node.key.currentState as _CalloutWidgetState?;
   }
 
-  BuildContext? _getBuildContext(NodeWidgetContext<Node> context) {
+  BuildContext? _getBuildContext(final NodeWidgetContext<Node> context) {
     return context.node.key.currentContext;
   }
 
   @override
-  List<ActionMenuItem> actions(NodeWidgetContext<Node> context) {
+  List<ActionMenuItem> actions(final NodeWidgetContext<Node> context) {
     return [
       ActionMenuItem.icon(
         iconData: Icons.color_lens_outlined,
@@ -62,7 +62,7 @@ class CalloutNodeWidgetBuilder extends NodeWidgetBuilder<Node>
           menuState.isPinned = true;
           state.colorPopoverController.show();
         },
-        itemWrapper: (item) {
+        itemWrapper: (final item) {
           final state = _getState(context);
           final ctx = _getBuildContext(context);
           if (state == null || ctx == null) {
@@ -70,7 +70,7 @@ class CalloutNodeWidgetBuilder extends NodeWidgetBuilder<Node>
           }
           return AppFlowyPopover(
             controller: state.colorPopoverController,
-            popupBuilder: (context) => state._buildColorPicker(),
+            popupBuilder: (final context) => state._buildColorPicker(),
             constraints: BoxConstraints.loose(const Size(200, 460)),
             triggerActions: 0,
             offset: const Offset(0, 30),
@@ -133,7 +133,7 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
@@ -150,7 +150,7 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: widget.node.children
                   .map(
-                    (child) => widget.editorState.service.renderPluginService
+                    (final child) => widget.editorState.service.renderPluginService
                         .buildPluginWidget(
                       child is TextNode
                           ? NodeWidgetContext<TextNode>(
@@ -174,10 +174,10 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
   }
 
   Widget _popover({
-    required PopoverController controller,
-    required Widget Function(BuildContext context) popupBuilder,
-    required Widget child,
-    Size size = const Size(200, 460),
+    required final PopoverController controller,
+    required final Widget Function(BuildContext context) popupBuilder,
+    required final Widget child,
+    final Size size = const Size(200, 460),
   }) {
     return AppFlowyPopover(
       controller: controller,
@@ -192,14 +192,14 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
     return FlowyColorPicker(
       colors: FlowyTint.values
           .map(
-            (t) => ColorOption(
+            (final t) => ColorOption(
               color: t.color(context),
               name: t.tintName(AppFlowyEditorLocalizations.current),
             ),
           )
           .toList(),
       selected: tint.color(context),
-      onTap: (color, index) {
+      onTap: (final color, final index) {
         setColor(FlowyTint.values[index]);
         colorPopoverController.close();
       },
@@ -209,7 +209,7 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
   Widget _buildEmoji() {
     return _popover(
       controller: emojiPopoverController,
-      popupBuilder: (context) => _buildEmojiPicker(),
+      popupBuilder: (final context) => _buildEmojiPicker(),
       size: const Size(300, 200),
       child: FlowyTextButton(
         emoji,
@@ -225,7 +225,7 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
   Widget _buildEmojiPicker() {
     return EmojiSelectionMenu(
       editorState: widget.editorState,
-      onSubmitted: (emoji) {
+      onSubmitted: (final emoji) {
         setEmoji(emoji.emoji);
         emojiPopoverController.close();
       },
@@ -233,7 +233,7 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
     );
   }
 
-  void setColor(FlowyTint tint) {
+  void setColor(final FlowyTint tint) {
     final transaction = widget.editorState.transaction
       ..updateNode(widget.node, {
         kCalloutAttrColor: tint.name,
@@ -241,7 +241,7 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
     widget.editorState.apply(transaction);
   }
 
-  void setEmoji(String emoji) {
+  void setEmoji(final String emoji) {
     final transaction = widget.editorState.transaction
       ..updateNode(widget.node, {
         kCalloutAttrEmoji: emoji,
@@ -270,7 +270,7 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
   Position end() => Position(path: widget.node.path, offset: 1);
 
   @override
-  Position getPositionInOffset(Offset start) => end();
+  Position getPositionInOffset(final Offset start) => end();
 
   @override
   bool get shouldCursorBlink => false;
@@ -279,22 +279,22 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
   CursorStyle get cursorStyle => CursorStyle.borderLine;
 
   @override
-  Rect? getCursorRectInPosition(Position position) {
+  Rect? getCursorRectInPosition(final Position position) {
     final size = _renderBox.size;
     return Rect.fromLTWH(-size.width / 2.0, 0, size.width, size.height);
   }
 
   @override
-  List<Rect> getRectsInSelection(Selection selection) =>
+  List<Rect> getRectsInSelection(final Selection selection) =>
       [Offset.zero & _renderBox.size];
 
   @override
-  Selection getSelectionInRange(Offset start, Offset end) => Selection.single(
+  Selection getSelectionInRange(final Offset start, final Offset end) => Selection.single(
         path: widget.node.path,
         startOffset: 0,
         endOffset: 1,
       );
 
   @override
-  Offset localToGlobal(Offset offset) => _renderBox.localToGlobal(offset);
+  Offset localToGlobal(final Offset offset) => _renderBox.localToGlobal(offset);
 }

@@ -14,7 +14,7 @@ import 'grid_property.dart';
 import 'grid_setting.dart';
 
 class SettingButton extends StatefulWidget {
-  const SettingButton({Key? key}) : super(key: key);
+  const SettingButton({final Key? key}) : super(key: key);
 
   @override
   State<SettingButton> createState() => _SettingButtonState();
@@ -30,9 +30,9 @@ class _SettingButtonState extends State<SettingButton> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocSelector<GridBloc, GridState, GridSettingContext>(
-      selector: (state) {
+      selector: (final state) {
         final fieldController =
             context.read<GridBloc>().databaseController.fieldController;
         return GridSettingContext(
@@ -40,7 +40,7 @@ class _SettingButtonState extends State<SettingButton> {
           fieldController: fieldController,
         );
       },
-      builder: (context, settingContext) {
+      builder: (final context, final settingContext) {
         return SizedBox(
           height: 26,
           child: AppFlowyPopover(
@@ -58,7 +58,7 @@ class _SettingButtonState extends State<SettingButton> {
               padding: GridSize.typeOptionContentInsets,
               onPressed: () => _popoverController.show(),
             ),
-            popupBuilder: (BuildContext context) {
+            popupBuilder: (final BuildContext context) {
               return _GridSettingListPopover(settingContext: settingContext);
             },
           ),
@@ -71,7 +71,7 @@ class _SettingButtonState extends State<SettingButton> {
 class _GridSettingListPopover extends StatefulWidget {
   final GridSettingContext settingContext;
 
-  const _GridSettingListPopover({Key? key, required this.settingContext})
+  const _GridSettingListPopover({final Key? key, required this.settingContext})
       : super(key: key);
 
   @override
@@ -82,7 +82,7 @@ class _GridSettingListPopoverState extends State<_GridSettingListPopover> {
   DatabaseSettingAction? _action;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     if (_action == DatabaseSettingAction.showProperties) {
       return GridPropertyList(
         viewId: widget.settingContext.viewId,
@@ -92,7 +92,7 @@ class _GridSettingListPopoverState extends State<_GridSettingListPopover> {
 
     return GridSettingList(
       settingContext: widget.settingContext,
-      onAction: (action, settingContext) {
+      onAction: (final action, final settingContext) {
         setState(() {
           _action = action;
         });

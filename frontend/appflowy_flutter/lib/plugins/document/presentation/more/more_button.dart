@@ -8,16 +8,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DocumentMoreButton extends StatelessWidget {
   const DocumentMoreButton({
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return PopupMenuButton<int>(
       color: Theme.of(context).colorScheme.surfaceVariant,
       offset: const Offset(0, 30),
       tooltip: LocaleKeys.moreAction_moreOptions.tr(),
-      itemBuilder: (context) {
+      itemBuilder: (final context) {
         return [
           PopupMenuItem(
             value: 1,

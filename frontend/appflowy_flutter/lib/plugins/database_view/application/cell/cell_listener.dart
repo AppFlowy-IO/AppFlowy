@@ -16,7 +16,7 @@ class CellListener {
   DatabaseNotificationListener? _listener;
   CellListener({required this.rowId, required this.fieldId});
 
-  void start({required void Function(UpdateFieldNotifiedValue) onCellChanged}) {
+  void start({required final void Function(UpdateFieldNotifiedValue) onCellChanged}) {
     _updateCellNotifier?.addPublishListener(onCellChanged);
     _listener = DatabaseNotificationListener(
       objectId: "$rowId:$fieldId",
@@ -24,12 +24,12 @@ class CellListener {
     );
   }
 
-  void _handler(DatabaseNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handler(final DatabaseNotification ty, final Either<Uint8List, FlowyError> result) {
     switch (ty) {
       case DatabaseNotification.DidUpdateCell:
         result.fold(
-          (payload) => _updateCellNotifier?.value = left(unit),
-          (error) => _updateCellNotifier?.value = right(error),
+          (final payload) => _updateCellNotifier?.value = left(unit),
+          (final error) => _updateCellNotifier?.value = right(error),
         );
         break;
       default:

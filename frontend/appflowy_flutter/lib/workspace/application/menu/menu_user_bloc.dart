@@ -22,7 +22,7 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
             UserWorkspaceListener(userProfile: userProfile),
         _userService = UserBackendService(userId: userProfile.id),
         super(MenuUserState.initial(userProfile)) {
-    on<MenuUserEvent>((event, emit) async {
+    on<MenuUserEvent>((final event, final emit) async {
       await event.when(
         initial: () async {
           _userListener.start(onProfileUpdated: _profileUpdated);
@@ -34,14 +34,14 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
         fetchWorkspaces: () async {
           //
         },
-        didReceiveUserProfile: (UserProfilePB newUserProfile) {
+        didReceiveUserProfile: (final UserProfilePB newUserProfile) {
           emit(state.copyWith(userProfile: newUserProfile));
         },
-        updateUserName: (String name) {
-          _userService.updateUserProfile(name: name).then((result) {
+        updateUserName: (final String name) {
+          _userService.updateUserProfile(name: name).then((final result) {
             result.fold(
-              (l) => null,
-              (err) => Log.error(err),
+              (final l) => null,
+              (final err) => Log.error(err),
             );
           });
         },
@@ -58,19 +58,19 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
 
   Future<void> _initUser() async {
     final result = await _userService.initUser();
-    result.fold((l) => null, (error) => Log.error(error));
+    result.fold((final l) => null, (final error) => Log.error(error));
   }
 
-  void _profileUpdated(Either<UserProfilePB, FlowyError> userProfileOrFailed) {
+  void _profileUpdated(final Either<UserProfilePB, FlowyError> userProfileOrFailed) {
     userProfileOrFailed.fold(
-      (newUserProfile) =>
+      (final newUserProfile) =>
           add(MenuUserEvent.didReceiveUserProfile(newUserProfile)),
-      (err) => Log.error(err),
+      (final err) => Log.error(err),
     );
   }
 
   void _workspaceListUpdated(
-    Either<List<WorkspacePB>, FlowyError> workspacesOrFailed,
+    final Either<List<WorkspacePB>, FlowyError> workspacesOrFailed,
   ) {
     // Do nothing by now
   }
@@ -80,21 +80,21 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
 class MenuUserEvent with _$MenuUserEvent {
   const factory MenuUserEvent.initial() = _Initial;
   const factory MenuUserEvent.fetchWorkspaces() = _FetchWorkspaces;
-  const factory MenuUserEvent.updateUserName(String name) = _UpdateUserName;
+  const factory MenuUserEvent.updateUserName(final String name) = _UpdateUserName;
   const factory MenuUserEvent.didReceiveUserProfile(
-    UserProfilePB newUserProfile,
+    final UserProfilePB newUserProfile,
   ) = _DidReceiveUserProfile;
 }
 
 @freezed
 class MenuUserState with _$MenuUserState {
   const factory MenuUserState({
-    required UserProfilePB userProfile,
-    required Option<List<WorkspacePB>> workspaces,
-    required Either<Unit, String> successOrFailure,
+    required final UserProfilePB userProfile,
+    required final Option<List<WorkspacePB>> workspaces,
+    required final Either<Unit, String> successOrFailure,
   }) = _MenuUserState;
 
-  factory MenuUserState.initial(UserProfilePB userProfile) => MenuUserState(
+  factory MenuUserState.initial(final UserProfilePB userProfile) => MenuUserState(
         userProfile: userProfile,
         workspaces: none(),
         successOrFailure: left(unit),

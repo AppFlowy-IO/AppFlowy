@@ -29,7 +29,7 @@ class EmojiPopover extends StatefulWidget {
 
 class _EmojiPopoverState extends State<EmojiPopover> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(15),
       child: Column(
@@ -44,7 +44,7 @@ class _EmojiPopoverState extends State<EmojiPopover> {
             ),
           Expanded(
             child: EmojiPicker(
-              onEmojiSelected: (category, emoji) {
+              onEmojiSelected: (final category, final emoji) {
                 widget.onEmojiChanged(emoji);
               },
               config: Config(
@@ -68,10 +68,10 @@ class _EmojiPopoverState extends State<EmojiPopover> {
 
 class DeleteButton extends StatelessWidget {
   final VoidCallback onPressed;
-  const DeleteButton({required this.onPressed, Key? key}) : super(key: key);
+  const DeleteButton({required this.onPressed, final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FlowyButton(
       onTap: onPressed,
       useIntrinsicWidth: true,

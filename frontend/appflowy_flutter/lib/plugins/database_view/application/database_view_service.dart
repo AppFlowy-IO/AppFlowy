@@ -24,11 +24,11 @@ class DatabaseViewBackendService {
   }
 
   Future<Either<RowPB, FlowyError>> createRow({
-    String? startRowId,
-    String? groupId,
-    Map<String, String>? cellDataByFieldId,
+    final String? startRowId,
+    final String? groupId,
+    final Map<String, String>? cellDataByFieldId,
   }) {
-    var payload = CreateRowPayloadPB.create()..viewId = viewId;
+    final payload = CreateRowPayloadPB.create()..viewId = viewId;
     if (startRowId != null) {
       payload.startRowId = startRowId;
     }
@@ -45,11 +45,11 @@ class DatabaseViewBackendService {
   }
 
   Future<Either<Unit, FlowyError>> moveRow({
-    required String fromRowId,
-    required String toGroupId,
-    String? toRowId,
+    required final String fromRowId,
+    required final String toGroupId,
+    final String? toRowId,
   }) {
-    var payload = MoveGroupRowPayloadPB.create()
+    final payload = MoveGroupRowPayloadPB.create()
       ..viewId = viewId
       ..fromRowId = fromRowId
       ..toGroupId = toGroupId;
@@ -62,8 +62,8 @@ class DatabaseViewBackendService {
   }
 
   Future<Either<Unit, FlowyError>> moveGroup({
-    required String fromGroupId,
-    required String toGroupId,
+    required final String fromGroupId,
+    required final String toGroupId,
   }) {
     final payload = MoveGroupPayloadPB.create()
       ..viewId = viewId
@@ -74,20 +74,20 @@ class DatabaseViewBackendService {
   }
 
   Future<Either<List<FieldPB>, FlowyError>> getFields({
-    List<FieldIdPB>? fieldIds,
+    final List<FieldIdPB>? fieldIds,
   }) {
-    var payload = GetFieldPayloadPB.create()..viewId = viewId;
+    final payload = GetFieldPayloadPB.create()..viewId = viewId;
 
     if (fieldIds != null) {
       payload.fieldIds = RepeatedFieldIdPB(items: fieldIds);
     }
-    return DatabaseEventGetFields(payload).send().then((result) {
-      return result.fold((l) => left(l.items), (r) => right(r));
+    return DatabaseEventGetFields(payload).send().then((final result) {
+      return result.fold((final l) => left(l.items), (final r) => right(r));
     });
   }
 
   Future<Either<LayoutSettingPB, FlowyError>> getLayoutSetting(
-    LayoutTypePB layoutType,
+    final LayoutTypePB layoutType,
   ) {
     final payload = DatabaseLayoutIdPB.create()
       ..viewId = viewId
@@ -96,7 +96,7 @@ class DatabaseViewBackendService {
   }
 
   Future<Either<Unit, FlowyError>> updateLayoutSetting({
-    CalendarLayoutSettingsPB? calendarLayoutSetting,
+    final CalendarLayoutSettingsPB? calendarLayoutSetting,
   }) {
     final layoutSetting = LayoutSettingPB.create();
     if (calendarLayoutSetting != null) {

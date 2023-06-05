@@ -19,15 +19,15 @@ class NumberTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
   final NumberTypeOptionWidget _widget;
 
   NumberTypeOptionWidgetBuilder(
-    NumberTypeOptionContext typeOptionContext,
-    PopoverMutex popoverMutex,
+    final NumberTypeOptionContext typeOptionContext,
+    final PopoverMutex popoverMutex,
   ) : _widget = NumberTypeOptionWidget(
           typeOptionContext: typeOptionContext,
           popoverMutex: popoverMutex,
         );
 
   @override
-  Widget? build(BuildContext context) {
+  Widget? build(final BuildContext context) {
     return Column(
       children: [
         VSpace(GridSize.typeOptionSeparatorHeight),
@@ -44,18 +44,18 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
   const NumberTypeOptionWidget({
     required this.typeOptionContext,
     required this.popoverMutex,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) =>
+      create: (final context) =>
           NumberTypeOptionBloc(typeOptionContext: typeOptionContext),
       child: BlocConsumer<NumberTypeOptionBloc, NumberTypeOptionState>(
-        listener: (context, state) =>
+        listener: (final context, final state) =>
             typeOptionContext.typeOption = state.typeOption,
-        builder: (context, state) {
+        builder: (final context, final state) {
           final selectNumUnitButton = SizedBox(
             height: GridSize.popoverItemHeight,
             child: FlowyButton(
@@ -89,9 +89,9 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
                   constraints: BoxConstraints.loose(const Size(460, 440)),
                   margin: EdgeInsets.zero,
                   child: selectNumUnitButton,
-                  popupBuilder: (BuildContext popoverContext) {
+                  popupBuilder: (final BuildContext popoverContext) {
                     return NumberFormatList(
-                      onSelected: (format) {
+                      onSelected: (final format) {
                         context
                             .read<NumberTypeOptionBloc>()
                             .add(NumberTypeOptionEvent.didSelectFormat(format));
@@ -118,13 +118,13 @@ class NumberFormatList extends StatelessWidget {
   const NumberFormatList({
     required this.selectedFormat,
     required this.onSelected,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) => NumberFormatBloc(),
+      create: (final context) => NumberFormatBloc(),
       child: SizedBox(
         width: 180,
         child: Column(
@@ -133,12 +133,12 @@ class NumberFormatList extends StatelessWidget {
             const _FilterTextField(),
             const TypeOptionSeparator(spacing: 0.0),
             BlocBuilder<NumberFormatBloc, NumberFormatState>(
-              builder: (context, state) {
-                final cells = state.formats.map((format) {
+              builder: (final context, final state) {
+                final cells = state.formats.map((final format) {
                   return NumberFormatCell(
                     isSelected: format == selectedFormat,
                     format: format,
-                    onSelected: (format) {
+                    onSelected: (final format) {
                       onSelected(format);
                     },
                   );
@@ -147,11 +147,11 @@ class NumberFormatList extends StatelessWidget {
                 final list = ListView.separated(
                   shrinkWrap: true,
                   controller: ScrollController(),
-                  separatorBuilder: (context, index) {
+                  separatorBuilder: (final context, final index) {
                     return VSpace(GridSize.typeOptionSeparatorHeight);
                   },
                   itemCount: cells.length,
-                  itemBuilder: (BuildContext context, int index) {
+                  itemBuilder: (final BuildContext context, final int index) {
                     return cells[index];
                   },
                   padding: const EdgeInsets.all(6.0),
@@ -174,11 +174,11 @@ class NumberFormatCell extends StatelessWidget {
     required this.isSelected,
     required this.format,
     required this.onSelected,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Widget? checkmark;
     if (isSelected) {
       checkmark = const FlowySvg(
@@ -198,13 +198,13 @@ class NumberFormatCell extends StatelessWidget {
 }
 
 class _FilterTextField extends StatelessWidget {
-  const _FilterTextField({Key? key}) : super(key: key);
+  const _FilterTextField({final Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(6.0),
       child: FlowyTextField(
-        onChanged: (text) => context
+        onChanged: (final text) => context
             .read<NumberFormatBloc>()
             .add(NumberFormatEvent.setFilter(text)),
       ),

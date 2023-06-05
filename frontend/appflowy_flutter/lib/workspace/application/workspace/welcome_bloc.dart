@@ -15,30 +15,30 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
   WelcomeBloc({required this.userService, required this.userWorkspaceListener})
       : super(WelcomeState.initial()) {
     on<WelcomeEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.map(
-          initial: (e) async {
+          initial: (final e) async {
             userWorkspaceListener.start(
-              onWorkspacesUpdated: (result) =>
+              onWorkspacesUpdated: (final result) =>
                   add(WelcomeEvent.workspacesReveived(result)),
             );
             //
             await _fetchWorkspaces(emit);
           },
-          openWorkspace: (e) async {
+          openWorkspace: (final e) async {
             await _openWorkspace(e.workspace, emit);
           },
-          createWorkspace: (e) async {
+          createWorkspace: (final e) async {
             await _createWorkspace(e.name, e.desc, emit);
           },
-          workspacesReveived: (e) async {
+          workspacesReveived: (final e) async {
             emit(
               e.workspacesOrFail.fold(
-                (workspaces) => state.copyWith(
+                (final workspaces) => state.copyWith(
                   workspaces: workspaces,
                   successOrFailure: left(unit),
                 ),
-                (error) => state.copyWith(successOrFailure: right(error)),
+                (final error) => state.copyWith(successOrFailure: right(error)),
               ),
             );
           },
@@ -53,15 +53,15 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
     super.close();
   }
 
-  Future<void> _fetchWorkspaces(Emitter<WelcomeState> emit) async {
+  Future<void> _fetchWorkspaces(final Emitter<WelcomeState> emit) async {
     final workspacesOrFailed = await userService.getWorkspaces();
     emit(
       workspacesOrFailed.fold(
-        (workspaces) => state.copyWith(
+        (final workspaces) => state.copyWith(
           workspaces: workspaces,
           successOrFailure: left(unit),
         ),
-        (error) {
+        (final error) {
           Log.error(error);
           return state.copyWith(successOrFailure: right(error));
         },
@@ -70,14 +70,14 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
   }
 
   Future<void> _openWorkspace(
-    WorkspacePB workspace,
-    Emitter<WelcomeState> emit,
+    final WorkspacePB workspace,
+    final Emitter<WelcomeState> emit,
   ) async {
     final result = await userService.openWorkspace(workspace.id);
     emit(
       result.fold(
-        (workspaces) => state.copyWith(successOrFailure: left(unit)),
-        (error) {
+        (final workspaces) => state.copyWith(successOrFailure: left(unit)),
+        (final error) {
           Log.error(error);
           return state.copyWith(successOrFailure: right(error));
         },
@@ -86,17 +86,17 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
   }
 
   Future<void> _createWorkspace(
-    String name,
-    String desc,
-    Emitter<WelcomeState> emit,
+    final String name,
+    final String desc,
+    final Emitter<WelcomeState> emit,
   ) async {
     final result = await userService.createWorkspace(name, desc);
     emit(
       result.fold(
-        (workspace) {
+        (final workspace) {
           return state.copyWith(successOrFailure: left(unit));
         },
-        (error) {
+        (final error) {
           Log.error(error);
           return state.copyWith(successOrFailure: right(error));
         },
@@ -109,21 +109,21 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
 class WelcomeEvent with _$WelcomeEvent {
   const factory WelcomeEvent.initial() = Initial;
   // const factory WelcomeEvent.fetchWorkspaces() = FetchWorkspace;
-  const factory WelcomeEvent.createWorkspace(String name, String desc) =
+  const factory WelcomeEvent.createWorkspace(final String name, final String desc) =
       CreateWorkspace;
-  const factory WelcomeEvent.openWorkspace(WorkspacePB workspace) =
+  const factory WelcomeEvent.openWorkspace(final WorkspacePB workspace) =
       OpenWorkspace;
   const factory WelcomeEvent.workspacesReveived(
-    Either<List<WorkspacePB>, FlowyError> workspacesOrFail,
+    final Either<List<WorkspacePB>, FlowyError> workspacesOrFail,
   ) = WorkspacesReceived;
 }
 
 @freezed
 class WelcomeState with _$WelcomeState {
   const factory WelcomeState({
-    required bool isLoading,
-    required List<WorkspacePB> workspaces,
-    required Either<Unit, FlowyError> successOrFailure,
+    required final bool isLoading,
+    required final List<WorkspacePB> workspaces,
+    required final Either<Unit, FlowyError> successOrFailure,
   }) = _WelcomeState;
 
   factory WelcomeState.initial() => WelcomeState(

@@ -16,7 +16,7 @@ import 'choicechip.dart';
 
 class CheckboxFilterChoicechip extends StatefulWidget {
   final FilterInfo filterInfo;
-  const CheckboxFilterChoicechip({required this.filterInfo, Key? key})
+  const CheckboxFilterChoicechip({required this.filterInfo, final Key? key})
       : super(key: key);
 
   @override
@@ -41,16 +41,16 @@ class _CheckboxFilterChoicechipState extends State<CheckboxFilterChoicechip> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: bloc,
       child: BlocBuilder<CheckboxFilterEditorBloc, CheckboxFilterEditorState>(
-        builder: (blocContext, state) {
+        builder: (final blocContext, final state) {
           return AppFlowyPopover(
             controller: PopoverController(),
             constraints: BoxConstraints.loose(const Size(200, 76)),
             direction: PopoverDirection.bottomWithCenterAligned,
-            popupBuilder: (BuildContext context) {
+            popupBuilder: (final BuildContext context) {
               return CheckboxFilterEditor(bloc: bloc);
             },
             child: ChoiceChipButton(
@@ -63,7 +63,7 @@ class _CheckboxFilterChoicechipState extends State<CheckboxFilterChoicechip> {
     );
   }
 
-  String _makeFilterDesc(CheckboxFilterEditorState state) {
+  String _makeFilterDesc(final CheckboxFilterEditorState state) {
     final prefix = LocaleKeys.grid_checkboxFilter_choicechipPrefix_is.tr();
     return "$prefix ${state.filter.condition.filterName}";
   }
@@ -71,7 +71,7 @@ class _CheckboxFilterChoicechipState extends State<CheckboxFilterChoicechip> {
 
 class CheckboxFilterEditor extends StatefulWidget {
   final CheckboxFilterEditorBloc bloc;
-  const CheckboxFilterEditor({required this.bloc, Key? key}) : super(key: key);
+  const CheckboxFilterEditor({required this.bloc, final Key? key}) : super(key: key);
 
   @override
   State<CheckboxFilterEditor> createState() => _CheckboxFilterEditorState();
@@ -81,11 +81,11 @@ class _CheckboxFilterEditorState extends State<CheckboxFilterEditor> {
   final popoverMutex = PopoverMutex();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: widget.bloc,
       child: BlocBuilder<CheckboxFilterEditorBloc, CheckboxFilterEditorState>(
-        builder: (context, state) {
+        builder: (final context, final state) {
           final List<Widget> children = [
             _buildFilterPanel(context, state),
           ];
@@ -100,8 +100,8 @@ class _CheckboxFilterEditorState extends State<CheckboxFilterEditor> {
   }
 
   Widget _buildFilterPanel(
-    BuildContext context,
-    CheckboxFilterEditorState state,
+    final BuildContext context,
+    final CheckboxFilterEditorState state,
   ) {
     return SizedBox(
       height: 20,
@@ -112,7 +112,7 @@ class _CheckboxFilterEditorState extends State<CheckboxFilterEditor> {
           CheckboxFilterConditionPBList(
             filterInfo: state.filterInfo,
             popoverMutex: popoverMutex,
-            onCondition: (condition) {
+            onCondition: (final condition) {
               context
                   .read<CheckboxFilterEditorBloc>()
                   .add(CheckboxFilterEditorEvent.updateCondition(condition));
@@ -121,7 +121,7 @@ class _CheckboxFilterEditorState extends State<CheckboxFilterEditor> {
           const Spacer(),
           DisclosureButton(
             popoverMutex: popoverMutex,
-            onAction: (action) {
+            onAction: (final action) {
               switch (action) {
                 case FilterDisclosureAction.delete:
                   context
@@ -145,11 +145,11 @@ class CheckboxFilterConditionPBList extends StatelessWidget {
     required this.filterInfo,
     required this.popoverMutex,
     required this.onCondition,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final checkboxFilter = filterInfo.checkboxFilter()!;
     return PopoverActionList<ConditionWrapper>(
       asBarrier: true,
@@ -157,19 +157,19 @@ class CheckboxFilterConditionPBList extends StatelessWidget {
       direction: PopoverDirection.bottomWithCenterAligned,
       actions: CheckboxFilterConditionPB.values
           .map(
-            (action) => ConditionWrapper(
+            (final action) => ConditionWrapper(
               action,
               checkboxFilter.condition == action,
             ),
           )
           .toList(),
-      buildChild: (controller) {
+      buildChild: (final controller) {
         return ConditionButton(
           conditionName: checkboxFilter.condition.filterName,
           onTap: () => controller.show(),
         );
       },
-      onSelected: (action, controller) async {
+      onSelected: (final action, final controller) async {
         onCondition(action.inner);
         controller.close();
       },
@@ -184,7 +184,7 @@ class ConditionWrapper extends ActionCell {
   ConditionWrapper(this.inner, this.isSelected);
 
   @override
-  Widget? rightIcon(Color iconColor) {
+  Widget? rightIcon(final Color iconColor) {
     if (isSelected) {
       return svgWidget("grid/checkmark");
     } else {

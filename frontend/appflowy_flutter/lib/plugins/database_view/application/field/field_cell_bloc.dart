@@ -14,7 +14,7 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
   final FieldBackendService _fieldBackendSvc;
 
   FieldCellBloc({
-    required FieldCellContext cellContext,
+    required final FieldCellContext cellContext,
   })  : _fieldListener = SingleFieldListener(fieldId: cellContext.field.id),
         _fieldBackendSvc = FieldBackendService(
           viewId: cellContext.viewId,
@@ -22,15 +22,15 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
         ),
         super(FieldCellState.initial(cellContext)) {
     on<FieldCellEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.when(
           initial: () {
             _startListening();
           },
-          didReceiveFieldUpdate: (field) {
+          didReceiveFieldUpdate: (final field) {
             emit(state.copyWith(field: cellContext.field));
           },
-          startUpdateWidth: (offset) {
+          startUpdateWidth: (final offset) {
             final width = state.width + offset;
             emit(state.copyWith(width: width));
           },
@@ -52,13 +52,13 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
 
   void _startListening() {
     _fieldListener.start(
-      onFieldChanged: (result) {
+      onFieldChanged: (final result) {
         if (isClosed) {
           return;
         }
         result.fold(
-          (field) => add(FieldCellEvent.didReceiveFieldUpdate(field)),
-          (err) => Log.error(err),
+          (final field) => add(FieldCellEvent.didReceiveFieldUpdate(field)),
+          (final err) => Log.error(err),
         );
       },
     );
@@ -68,9 +68,9 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
 @freezed
 class FieldCellEvent with _$FieldCellEvent {
   const factory FieldCellEvent.initial() = _InitialCell;
-  const factory FieldCellEvent.didReceiveFieldUpdate(FieldPB field) =
+  const factory FieldCellEvent.didReceiveFieldUpdate(final FieldPB field) =
       _DidReceiveFieldUpdate;
-  const factory FieldCellEvent.startUpdateWidth(double offset) =
+  const factory FieldCellEvent.startUpdateWidth(final double offset) =
       _StartUpdateWidth;
   const factory FieldCellEvent.endUpdateWidth() = _EndUpdateWidth;
 }
@@ -78,12 +78,12 @@ class FieldCellEvent with _$FieldCellEvent {
 @freezed
 class FieldCellState with _$FieldCellState {
   const factory FieldCellState({
-    required String viewId,
-    required FieldPB field,
-    required double width,
+    required final String viewId,
+    required final FieldPB field,
+    required final double width,
   }) = _FieldCellState;
 
-  factory FieldCellState.initial(FieldCellContext cellContext) =>
+  factory FieldCellState.initial(final FieldCellContext cellContext) =>
       FieldCellState(
         viewId: cellContext.viewId,
         field: cellContext.field,

@@ -15,12 +15,12 @@ class SelectOptionCardCellBloc
     required this.cellController,
   }) : super(SelectOptionCardCellState.initial(cellController)) {
     on<SelectOptionCardCellEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.when(
           initial: () async {
             _startListening();
           },
-          didReceiveOptions: (List<SelectOptionPB> selectedOptions) {
+          didReceiveOptions: (final List<SelectOptionPB> selectedOptions) {
             emit(state.copyWith(selectedOptions: selectedOptions));
           },
         );
@@ -40,7 +40,7 @@ class SelectOptionCardCellBloc
 
   void _startListening() {
     _onCellChangedFn = cellController.startListening(
-      onCellChanged: ((selectOptionContext) {
+      onCellChanged: ((final selectOptionContext) {
         if (!isClosed) {
           add(
             SelectOptionCardCellEvent.didReceiveOptions(
@@ -57,18 +57,18 @@ class SelectOptionCardCellBloc
 class SelectOptionCardCellEvent with _$SelectOptionCardCellEvent {
   const factory SelectOptionCardCellEvent.initial() = _InitialCell;
   const factory SelectOptionCardCellEvent.didReceiveOptions(
-    List<SelectOptionPB> selectedOptions,
+    final List<SelectOptionPB> selectedOptions,
   ) = _DidReceiveOptions;
 }
 
 @freezed
 class SelectOptionCardCellState with _$SelectOptionCardCellState {
   const factory SelectOptionCardCellState({
-    required List<SelectOptionPB> selectedOptions,
+    required final List<SelectOptionPB> selectedOptions,
   }) = _SelectOptionCardCellState;
 
   factory SelectOptionCardCellState.initial(
-    SelectOptionCellController context,
+    final SelectOptionCellController context,
   ) {
     final data = context.getCellData();
     return SelectOptionCardCellState(

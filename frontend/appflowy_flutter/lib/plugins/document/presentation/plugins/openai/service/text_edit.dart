@@ -5,20 +5,20 @@ part 'text_edit.g.dart';
 @freezed
 class TextEditChoice with _$TextEditChoice {
   factory TextEditChoice({
-    required String text,
-    required int index,
+    required final String text,
+    required final int index,
   }) = _TextEditChoice;
 
-  factory TextEditChoice.fromJson(Map<String, Object?> json) =>
+  factory TextEditChoice.fromJson(final Map<String, Object?> json) =>
       _$TextEditChoiceFromJson(json);
 }
 
 @freezed
 class TextEditResponse with _$TextEditResponse {
   const factory TextEditResponse({
-    required List<TextEditChoice> choices,
+    required final List<TextEditChoice> choices,
   }) = _TextEditResponse;
 
-  factory TextEditResponse.fromJson(Map<String, Object?> json) =>
+  factory TextEditResponse.fromJson(final Map<String, Object?> json) =>
       _$TextEditResponseFromJson(json);
 }

@@ -16,10 +16,10 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
 class QuestionBubble extends StatelessWidget {
-  const QuestionBubble({Key? key}) : super(key: key);
+  const QuestionBubble({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return const SizedBox(
       width: 30,
       height: 30,
@@ -29,13 +29,13 @@ class QuestionBubble extends StatelessWidget {
 }
 
 class BubbleActionList extends StatelessWidget {
-  const BubbleActionList({Key? key}) : super(key: key);
+  const BubbleActionList({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final List<PopoverAction> actions = [];
     actions.addAll(
-      BubbleAction.values.map((action) => BubbleActionWrapper(action)),
+      BubbleAction.values.map((final action) => BubbleActionWrapper(action)),
     );
     actions.add(FlowyVersionDescription());
 
@@ -43,7 +43,7 @@ class BubbleActionList extends StatelessWidget {
       direction: PopoverDirection.topWithRightAligned,
       actions: actions,
       offset: const Offset(0, -8),
-      buildChild: (controller) {
+      buildChild: (final controller) {
         return FlowyTextButton(
           '?',
           tooltip: LocaleKeys.questionBubble_help.tr(),
@@ -56,7 +56,7 @@ class BubbleActionList extends StatelessWidget {
           onPressed: () => controller.show(),
         );
       },
-      onSelected: (action, controller) {
+      onSelected: (final action, final controller) {
         if (action is BubbleActionWrapper) {
           switch (action.inner) {
             case BubbleAction.whatsNews:
@@ -86,7 +86,7 @@ class BubbleActionList extends StatelessWidget {
     );
   }
 
-  _launchURL(String url) async {
+  _launchURL(final String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
@@ -110,9 +110,9 @@ class _DebugToast {
     final deviceInfoPlugin = DeviceInfoPlugin();
     final deviceInfo = deviceInfoPlugin.deviceInfo;
 
-    return deviceInfo.then((info) {
+    return deviceInfo.then((final info) {
       var debugText = "";
-      info.toMap().forEach((key, value) {
+      info.toMap().forEach((final key, final value) {
         debugText = "$debugText$key: $value\n";
       });
       return debugText;
@@ -120,7 +120,7 @@ class _DebugToast {
   }
 
   Future<String> _getDocumentPath() async {
-    return appFlowyDocumentDirectory().then((directory) {
+    return appFlowyDocumentDirectory().then((final directory) {
       final path = directory.path.toString();
       return "Document: $path\n";
     });
@@ -129,10 +129,11 @@ class _DebugToast {
 
 class FlowyVersionDescription extends CustomActionCell {
   @override
-  Widget buildWithContext(BuildContext context) {
+  Widget buildWithContext(final BuildContext context) {
     return FutureBuilder(
       future: PackageInfo.fromPlatform(),
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+      builder:
+          (final BuildContext context, final AsyncSnapshot<dynamic> snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
             return FlowyText(
@@ -141,9 +142,9 @@ class FlowyVersionDescription extends CustomActionCell {
             );
           }
 
-          PackageInfo packageInfo = snapshot.data;
-          String appName = packageInfo.appName;
-          String version = packageInfo.version;
+          final PackageInfo packageInfo = snapshot.data;
+          final String appName = packageInfo.appName;
+          final String version = packageInfo.version;
 
           return SizedBox(
             height: 30,
@@ -181,7 +182,7 @@ class BubbleActionWrapper extends ActionCell {
 
   BubbleActionWrapper(this.inner);
   @override
-  Widget? leftIcon(Color iconColor) => FlowyText.regular(inner.emoji);
+  Widget? leftIcon(final Color iconColor) => FlowyText.regular(inner.emoji);
 
   @override
   String get name => inner.name;

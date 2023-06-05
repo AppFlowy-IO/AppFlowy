@@ -13,19 +13,19 @@ class EditPanel extends StatelessWidget {
   final EditPanelContext panelContext;
   final VoidCallback onEndEdit;
   const EditPanel({
-    Key? key,
+    final Key? key,
     required this.panelContext,
     required this.onEndEdit,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Container(
       color: Theme.of(context).colorScheme.secondary,
       child: BlocProvider(
-        create: (context) => getIt<EditPanelBloc>(),
+        create: (final context) => getIt<EditPanelBloc>(),
         child: BlocBuilder<EditPanelBloc, EditPanelState>(
-          builder: (context, state) {
+          builder: (final context, final state) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -44,9 +44,9 @@ class EditPanel extends StatelessWidget {
 
 class EditPanelTopBar extends StatelessWidget {
   final VoidCallback onClose;
-  const EditPanelTopBar({Key? key, required this.onClose}) : super(key: key);
+  const EditPanelTopBar({final Key? key, required this.onClose}) : super(key: key);
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       height: HomeSizes.editPanelTopBarHeight,
       child: Padding(

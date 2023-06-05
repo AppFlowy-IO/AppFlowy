@@ -39,11 +39,11 @@ class DatabaseViewCache {
   UnmodifiableListView<RowInfo> get rowInfos => _rowCache.rowInfos;
   RowCache get rowCache => _rowCache;
 
-  RowInfo? getRow(String rowId) => _rowCache.getRow(rowId);
+  RowInfo? getRow(final String rowId) => _rowCache.getRow(rowId);
 
   DatabaseViewCache({
     required this.viewId,
-    required FieldController fieldController,
+    required final FieldController fieldController,
   }) : _databaseViewListener = DatabaseViewListener(viewId: viewId) {
     final delegate = RowDelegatesImpl(fieldController);
     _rowCache = RowCache(
@@ -53,9 +53,9 @@ class DatabaseViewCache {
     );
 
     _databaseViewListener.start(
-      onRowsChanged: (result) {
+      onRowsChanged: (final result) {
         result.fold(
-          (changeset) {
+          (final changeset) {
             // Update the cache
             _rowCache.applyRowsChanged(changeset);
 
@@ -65,42 +65,42 @@ class DatabaseViewCache {
 
             if (changeset.updatedRows.isNotEmpty) {
               _callbacks?.onRowsUpdated
-                  ?.call(changeset.updatedRows.map((e) => e.row.id).toList());
+                  ?.call(changeset.updatedRows.map((final e) => e.row.id).toList());
             }
 
             if (changeset.insertedRows.isNotEmpty) {
               _callbacks?.onRowsCreated?.call(
                 changeset.insertedRows
-                    .map((insertedRow) => insertedRow.row.id)
+                    .map((final insertedRow) => insertedRow.row.id)
                     .toList(),
               );
             }
           },
-          (err) => Log.error(err),
+          (final err) => Log.error(err),
         );
       },
-      onRowsVisibilityChanged: (result) {
+      onRowsVisibilityChanged: (final result) {
         result.fold(
-          (changeset) => _rowCache.applyRowsVisibility(changeset),
-          (err) => Log.error(err),
+          (final changeset) => _rowCache.applyRowsVisibility(changeset),
+          (final err) => Log.error(err),
         );
       },
-      onReorderAllRows: (result) {
+      onReorderAllRows: (final result) {
         result.fold(
-          (rowIds) => _rowCache.reorderAllRows(rowIds),
-          (err) => Log.error(err),
+          (final rowIds) => _rowCache.reorderAllRows(rowIds),
+          (final err) => Log.error(err),
         );
       },
-      onReorderSingleRow: (result) {
+      onReorderSingleRow: (final result) {
         result.fold(
-          (reorderRow) => _rowCache.reorderSingleRow(reorderRow),
-          (err) => Log.error(err),
+          (final reorderRow) => _rowCache.reorderSingleRow(reorderRow),
+          (final err) => Log.error(err),
         );
       },
     );
 
     _rowCache.onRowsChanged(
-      (reason) => _callbacks?.onRowsChanged?.call(
+      (final reason) => _callbacks?.onRowsChanged?.call(
         rowInfos,
         _rowCache.rowByRowId,
         reason,
@@ -114,7 +114,7 @@ class DatabaseViewCache {
     _callbacks = null;
   }
 
-  void setListener(DatabaseViewCallbacks callbacks) {
+  void setListener(final DatabaseViewCallbacks callbacks) {
     _callbacks = callbacks;
   }
 }

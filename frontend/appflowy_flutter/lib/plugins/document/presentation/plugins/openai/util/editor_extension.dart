@@ -7,9 +7,9 @@ enum TextRobotInputType {
 
 extension TextRobot on EditorState {
   Future<void> autoInsertText(
-    String text, {
-    TextRobotInputType inputType = TextRobotInputType.word,
-    Duration delay = const Duration(milliseconds: 10),
+    final String text, {
+    final TextRobotInputType inputType = TextRobotInputType.word,
+    final Duration delay = const Duration(milliseconds: 10),
   }) async {
     if (text == '\n') {
       await insertNewLineAtCurrentSelection();
@@ -40,7 +40,7 @@ extension TextRobot on EditorState {
               line,
             );
           } else {
-            for (final word in words.map((e) => '$e ')) {
+            for (final word in words.map((final e) => '$e ')) {
               await insertTextAtCurrentSelection(
                 word,
               );

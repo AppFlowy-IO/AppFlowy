@@ -16,7 +16,7 @@ void main() {
   test('initi home screen', () async {
     final workspaceSetting = await FolderEventReadCurrentWorkspace()
         .send()
-        .then((result) => result.fold((l) => l, (r) => throw Exception()));
+        .then((final result) => result.fold((final l) => l, (final r) => throw Exception()));
     await blocResponseFuture();
 
     final homeBloc = HomeBloc(testContext.userProfile, workspaceSetting)
@@ -29,7 +29,7 @@ void main() {
   test('open the document', () async {
     final workspaceSetting = await FolderEventReadCurrentWorkspace()
         .send()
-        .then((result) => result.fold((l) => l, (r) => throw Exception()));
+        .then((final result) => result.fold((final l) => l, (final r) => throw Exception()));
     await blocResponseFuture();
 
     final homeBloc = HomeBloc(testContext.userProfile, workspaceSetting)

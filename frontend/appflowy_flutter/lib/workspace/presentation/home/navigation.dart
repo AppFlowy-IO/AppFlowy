@@ -19,7 +19,7 @@ class NavigationNotifier with ChangeNotifier {
   List<NavigationItem> navigationItems;
   NavigationNotifier({required this.navigationItems});
 
-  void update(HomeStackNotifier notifier) {
+  void update(final HomeStackNotifier notifier) {
     bool shouldNotify = false;
     if (navigationItems != notifier.plugin.display.navigationItems) {
       navigationItems = notifier.plugin.display.navigationItems;
@@ -33,25 +33,27 @@ class NavigationNotifier with ChangeNotifier {
 }
 
 class FlowyNavigation extends StatelessWidget {
-  const FlowyNavigation({Key? key}) : super(key: key);
+  const FlowyNavigation({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return ChangeNotifierProxyProvider<HomeStackNotifier, NavigationNotifier>(
-      create: (_) {
+      create: (final _) {
         final notifier = Provider.of<HomeStackNotifier>(context, listen: false);
         return NavigationNotifier(
           navigationItems: notifier.plugin.display.navigationItems,
         );
       },
-      update: (_, notifier, controller) => controller!..update(notifier),
+      update: (final _, final notifier, final controller) =>
+          controller!..update(notifier),
       child: Expanded(
         child: Row(
           children: [
             _renderCollapse(context),
             Selector<NavigationNotifier, List<NavigationItem>>(
-              selector: (context, notifier) => notifier.navigationItems,
-              builder: (ctx, items, child) => Expanded(
+              selector: (final context, final notifier) =>
+                  notifier.navigationItems,
+              builder: (final ctx, final items, final child) => Expanded(
                 child: Row(
                   children: _renderNavigationItems(items),
                   // crossAxisAlignment: WrapCrossAlignment.start,
@@ -64,10 +66,10 @@ class FlowyNavigation extends StatelessWidget {
     );
   }
 
-  Widget _renderCollapse(BuildContext context) {
+  Widget _renderCollapse(final BuildContext context) {
     return BlocBuilder<HomeSettingBloc, HomeSettingState>(
-      buildWhen: (p, c) => p.isMenuCollapsed != c.isMenuCollapsed,
-      builder: (context, state) {
+      buildWhen: (final p, final c) => p.isMenuCollapsed != c.isMenuCollapsed,
+      builder: (final context, final state) {
         if (state.isMenuCollapsed) {
           return RotationTransition(
             turns: const AlwaysStoppedAnimation(180 / 360),
@@ -99,15 +101,15 @@ class FlowyNavigation extends StatelessWidget {
     );
   }
 
-  List<Widget> _renderNavigationItems(List<NavigationItem> items) {
+  List<Widget> _renderNavigationItems(final List<NavigationItem> items) {
     if (items.isEmpty) {
       return [];
     }
 
-    List<NavigationItem> newItems = _filter(items);
-    Widget last = NaviItemWidget(newItems.removeLast());
+    final List<NavigationItem> newItems = _filter(items);
+    final Widget last = NaviItemWidget(newItems.removeLast());
 
-    List<Widget> widgets = List.empty(growable: true);
+    final List<Widget> widgets = List.empty(growable: true);
     // widgets.addAll(newItems.map((item) => NaviItemDivider(child: NaviItemWidget(item))).toList());
 
     for (final item in newItems) {
@@ -120,7 +122,7 @@ class FlowyNavigation extends StatelessWidget {
     return widgets;
   }
 
-  List<NavigationItem> _filter(List<NavigationItem> items) {
+  List<NavigationItem> _filter(final List<NavigationItem> items) {
     final length = items.length;
     if (length > 4) {
       final first = items[0];
@@ -139,10 +141,10 @@ class FlowyNavigation extends StatelessWidget {
 
 class NaviItemWidget extends StatelessWidget {
   final NavigationItem item;
-  const NaviItemWidget(this.item, {Key? key}) : super(key: key);
+  const NaviItemWidget(this.item, {final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Expanded(
       child: item.leftBarItem.padding(horizontal: 2, vertical: 2),
     );
@@ -151,10 +153,11 @@ class NaviItemWidget extends StatelessWidget {
 
 class NaviItemDivider extends StatelessWidget {
   final Widget child;
-  const NaviItemDivider({Key? key, required this.child}) : super(key: key);
+  const NaviItemDivider({final Key? key, required this.child})
+      : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Row(
       children: [child, const Text('/')],
     );
@@ -174,10 +177,13 @@ class EllipsisNaviItem extends NavigationItem {
       );
 
   @override
-  NavigationCallback get action => (id) {};
+  NavigationCallback get action => (final id) {};
 }
 
-TextSpan sidebarTooltipTextSpan(BuildContext context, String hintText) =>
+TextSpan sidebarTooltipTextSpan(
+  final BuildContext context,
+  final String hintText,
+) =>
     TextSpan(
       children: [
         TextSpan(

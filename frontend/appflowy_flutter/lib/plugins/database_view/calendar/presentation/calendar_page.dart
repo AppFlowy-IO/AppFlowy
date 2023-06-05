@@ -46,7 +46,7 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return CalendarControllerProvider(
       controller: _eventController,
       child: MultiBlocProvider(
@@ -58,24 +58,24 @@ class _CalendarPageState extends State<CalendarPage> {
         child: MultiBlocListener(
           listeners: [
             BlocListener<CalendarBloc, CalendarState>(
-              listenWhen: (p, c) => p.initialEvents != c.initialEvents,
-              listener: (context, state) {
-                _eventController.removeWhere((_) => true);
+              listenWhen: (final p, final c) => p.initialEvents != c.initialEvents,
+              listener: (final context, final state) {
+                _eventController.removeWhere((final _) => true);
                 _eventController.addAll(state.initialEvents);
               },
             ),
             BlocListener<CalendarBloc, CalendarState>(
-              listenWhen: (p, c) => p.deleteEventIds != c.deleteEventIds,
-              listener: (context, state) {
+              listenWhen: (final p, final c) => p.deleteEventIds != c.deleteEventIds,
+              listener: (final context, final state) {
                 _eventController.removeWhere(
-                  (element) =>
+                  (final element) =>
                       state.deleteEventIds.contains(element.event!.eventId),
                 );
               },
             ),
             BlocListener<CalendarBloc, CalendarState>(
-              listenWhen: (p, c) => p.editEvent != c.editEvent,
-              listener: (context, state) {
+              listenWhen: (final p, final c) => p.editEvent != c.editEvent,
+              listener: (final context, final state) {
                 if (state.editEvent != null) {
                   showEventDetails(
                     context: context,
@@ -89,8 +89,8 @@ class _CalendarPageState extends State<CalendarPage> {
             BlocListener<CalendarBloc, CalendarState>(
               // Event create by click the + button or double click on the
               // calendar
-              listenWhen: (p, c) => p.newEvent != c.newEvent,
-              listener: (context, state) {
+              listenWhen: (final p, final c) => p.newEvent != c.newEvent,
+              listener: (final context, final state) {
                 if (state.newEvent != null) {
                   _eventController.add(state.newEvent!);
                 }
@@ -98,7 +98,7 @@ class _CalendarPageState extends State<CalendarPage> {
             ),
           ],
           child: BlocBuilder<CalendarBloc, CalendarState>(
-            builder: (context, state) {
+            builder: (final context, final state) {
               return Column(
                 children: [
                   // const _ToolbarBlocAdaptor(),
@@ -106,7 +106,7 @@ class _CalendarPageState extends State<CalendarPage> {
                   _buildCalendar(
                     _eventController,
                     state.settings
-                        .foldLeft(0, (previous, a) => a.firstDayOfWeek),
+                        .foldLeft(0, (final previous, final a) => a.firstDayOfWeek),
                   ),
                 ],
               );
@@ -117,7 +117,7 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
-  Widget _buildCalendar(EventController eventController, int firstDayOfWeek) {
+  Widget _buildCalendar(final EventController eventController, final int firstDayOfWeek) {
     return Expanded(
       child: MonthView(
         key: _calendarState,
@@ -132,7 +132,7 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
-  Widget _headerNavigatorBuilder(DateTime currentMonth) {
+  Widget _headerNavigatorBuilder(final DateTime currentMonth) {
     return Row(
       children: [
         FlowyText.medium(
@@ -170,7 +170,7 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
-  Widget _headerWeekDayBuilder(day) {
+  Widget _headerWeekDayBuilder(final day) {
     // incoming day starts from Monday, the symbols start from Sunday
     final symbols = DateFormat.EEEE(context.locale.toLanguageTag()).dateSymbols;
     final weekDayString = symbols.WEEKDAYS[(day + 1) % 7];
@@ -186,17 +186,17 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   Widget _calendarDayBuilder(
-    DateTime date,
-    List<CalendarEventData<CalendarDayEvent>> calenderEvents,
-    isToday,
-    isInMonth,
+    final DateTime date,
+    final List<CalendarEventData<CalendarDayEvent>> calenderEvents,
+    final isToday,
+    final isInMonth,
   ) {
-    final events = calenderEvents.map((value) => value.event!).toList();
+    final events = calenderEvents.map((final value) => value.event!).toList();
     // Sort the events by timestamp. Because the database view is not
     // reserving the order of the events. Reserving the order of the rows/events
     // is implemnted in the develop branch(WIP). Will be replaced with that.
     events.sort(
-      (a, b) => a.event.timestamp.compareTo(b.event.timestamp),
+      (final a, final b) => a.event.timestamp.compareTo(b.event.timestamp),
     );
     return CalendarDayCard(
       viewId: widget.view.id,
@@ -205,7 +205,7 @@ class _CalendarPageState extends State<CalendarPage> {
       events: events,
       date: date,
       rowCache: _calendarBloc.rowCache,
-      onCreateEvent: (date) {
+      onCreateEvent: (final date) {
         _calendarBloc.add(
           CalendarEvent.createEvent(
             date,
@@ -216,17 +216,17 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
-  WeekDays _weekdayFromInt(int dayOfWeek) {
+  WeekDays _weekdayFromInt(final int dayOfWeek) {
     // dayOfWeek starts from Sunday, WeekDays starts from Monday
     return WeekDays.values[(dayOfWeek - 1) % 7];
   }
 }
 
 void showEventDetails({
-  required BuildContext context,
-  required CalendarDayEvent event,
-  required String viewId,
-  required RowCache rowCache,
+  required final BuildContext context,
+  required final CalendarDayEvent event,
+  required final String viewId,
+  required final RowCache rowCache,
 }) {
   final dataController = RowController(
     rowId: event.eventId,
@@ -236,7 +236,7 @@ void showEventDetails({
 
   FlowyOverlay.show(
     context: context,
-    builder: (BuildContext context) {
+    builder: (final BuildContext context) {
       return RowDetailPage(
         cellBuilder: GridCellBuilder(
           cellCache: rowCache.cellCache,

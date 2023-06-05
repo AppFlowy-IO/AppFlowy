@@ -20,13 +20,13 @@ class SelectOptionFilterList extends StatelessWidget {
     required this.filterInfo,
     required this.selectedOptionIds,
     required this.onSelectedOptions,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) {
+      create: (final context) {
         late SelectOptionFilterListBloc bloc;
         if (filterInfo.fieldInfo.fieldType == FieldType.SingleSelect) {
           bloc = SelectOptionFilterListBloc(
@@ -49,23 +49,23 @@ class SelectOptionFilterList extends StatelessWidget {
       },
       child:
           BlocListener<SelectOptionFilterListBloc, SelectOptionFilterListState>(
-        listenWhen: (previous, current) =>
+        listenWhen: (final previous, final current) =>
             previous.selectedOptionIds != current.selectedOptionIds,
-        listener: (context, state) {
+        listener: (final context, final state) {
           onSelectedOptions(state.selectedOptionIds.toList());
         },
         child: BlocBuilder<SelectOptionFilterListBloc,
             SelectOptionFilterListState>(
-          builder: (context, state) {
+          builder: (final context, final state) {
             return ListView.separated(
               shrinkWrap: true,
               controller: ScrollController(),
               itemCount: state.visibleOptions.length,
-              separatorBuilder: (context, index) {
+              separatorBuilder: (final context, final index) {
                 return VSpace(GridSize.typeOptionSeparatorHeight);
               },
               physics: StyledScrollPhysics(),
-              itemBuilder: (BuildContext context, int index) {
+              itemBuilder: (final BuildContext context, final int index) {
                 final option = state.visibleOptions[index];
                 return _SelectOptionFilterCell(
                   option: option.optionPB,
@@ -86,7 +86,7 @@ class _SelectOptionFilterCell extends StatefulWidget {
   const _SelectOptionFilterCell({
     required this.option,
     required this.isSelected,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -96,12 +96,12 @@ class _SelectOptionFilterCell extends StatefulWidget {
 
 class _SelectOptionFilterCellState extends State<_SelectOptionFilterCell> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: SelectOptionTagCell(
         option: widget.option,
-        onSelected: (option) {
+        onSelected: (final option) {
           if (widget.isSelected) {
             context
                 .read<SelectOptionFilterListBloc>()

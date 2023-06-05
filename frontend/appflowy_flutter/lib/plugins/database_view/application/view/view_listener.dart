@@ -29,10 +29,10 @@ class DatabaseViewListener {
   DatabaseViewListener({required this.viewId});
 
   void start({
-    required void Function(NumberOfRowsNotifierValue) onRowsChanged,
-    required void Function(ReorderAllRowsNotifierValue) onReorderAllRows,
-    required void Function(SingleRowNotifierValue) onReorderSingleRow,
-    required void Function(RowsVisibilityNotifierValue) onRowsVisibilityChanged,
+    required final void Function(NumberOfRowsNotifierValue) onRowsChanged,
+    required final void Function(ReorderAllRowsNotifierValue) onReorderAllRows,
+    required final void Function(SingleRowNotifierValue) onReorderSingleRow,
+    required final void Function(RowsVisibilityNotifierValue) onRowsVisibilityChanged,
   }) {
     if (_listener != null) {
       _listener?.stop();
@@ -49,34 +49,34 @@ class DatabaseViewListener {
     _reorderSingleRow?.addPublishListener(onReorderSingleRow);
   }
 
-  void _handler(DatabaseNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handler(final DatabaseNotification ty, final Either<Uint8List, FlowyError> result) {
     switch (ty) {
       case DatabaseNotification.DidUpdateViewRowsVisibility:
         result.fold(
-          (payload) => _rowsVisibility?.value =
+          (final payload) => _rowsVisibility?.value =
               left(RowsVisibilityChangesetPB.fromBuffer(payload)),
-          (error) => _rowsVisibility?.value = right(error),
+          (final error) => _rowsVisibility?.value = right(error),
         );
         break;
       case DatabaseNotification.DidUpdateViewRows:
         result.fold(
-          (payload) =>
+          (final payload) =>
               _rowsNotifier?.value = left(RowsChangesetPB.fromBuffer(payload)),
-          (error) => _rowsNotifier?.value = right(error),
+          (final error) => _rowsNotifier?.value = right(error),
         );
         break;
       case DatabaseNotification.DidReorderRows:
         result.fold(
-          (payload) => _reorderAllRows?.value =
+          (final payload) => _reorderAllRows?.value =
               left(ReorderAllRowsPB.fromBuffer(payload).rowOrders),
-          (error) => _reorderAllRows?.value = right(error),
+          (final error) => _reorderAllRows?.value = right(error),
         );
         break;
       case DatabaseNotification.DidReorderSingleRow:
         result.fold(
-          (payload) => _reorderSingleRow?.value =
+          (final payload) => _reorderSingleRow?.value =
               left(ReorderSingleRowPB.fromBuffer(payload)),
-          (error) => _reorderSingleRow?.value = right(error),
+          (final error) => _reorderSingleRow?.value = right(error),
         );
         break;
       default:

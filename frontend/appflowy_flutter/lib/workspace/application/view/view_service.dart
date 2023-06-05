@@ -6,9 +6,9 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 
 class ViewService {
   Future<Either<ViewPB, FlowyError>> updateView({
-    required String viewId,
-    String? name,
-    String? desc,
+    required final String viewId,
+    final String? name,
+    final String? desc,
   }) {
     final request = UpdateViewPayloadPB.create()..viewId = viewId;
 
@@ -23,12 +23,12 @@ class ViewService {
     return FolderEventUpdateView(request).send();
   }
 
-  Future<Either<Unit, FlowyError>> delete({required String viewId}) {
+  Future<Either<Unit, FlowyError>> delete({required final String viewId}) {
     final request = RepeatedViewIdPB.create()..items.add(viewId);
     return FolderEventDeleteView(request).send();
   }
 
-  Future<Either<Unit, FlowyError>> duplicate({required ViewPB view}) {
+  Future<Either<Unit, FlowyError>> duplicate({required final ViewPB view}) {
     return FolderEventDuplicateView(view).send();
   }
 }

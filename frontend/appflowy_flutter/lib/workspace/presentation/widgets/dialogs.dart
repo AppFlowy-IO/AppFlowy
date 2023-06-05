@@ -22,7 +22,7 @@ class NavigatorTextFieldDialog extends StatefulWidget {
     required this.value,
     required this.confirm,
     this.cancel,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -39,7 +39,7 @@ class _CreateTextFieldDialog extends State<NavigatorTextFieldDialog> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return StyledDialog(
       child: Column(
         children: <Widget>[
@@ -57,7 +57,7 @@ class _CreateTextFieldDialog extends State<NavigatorTextFieldDialog> {
                   fontSize: FontSizes.s16,
                 ),
             autoFocus: true,
-            onChanged: (text) {
+            onChanged: (final text) {
               newValue = text;
             },
             onEditingComplete: () {
@@ -93,7 +93,7 @@ class NavigatorAlertDialog extends StatefulWidget {
     required this.title,
     this.confirm,
     this.cancel,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -107,7 +107,7 @@ class _CreateFlowyAlertDialog extends State<NavigatorAlertDialog> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return StyledDialog(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,7 +149,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
   final double? maxWidth;
 
   const NavigatorOkCancelDialog({
-    Key? key,
+    final Key? key,
     this.onOkPressed,
     this.onCancelPressed,
     this.okTitle,
@@ -160,7 +160,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return StyledDialog(
       maxWidth: maxWidth ?? 500,
       child: Column(
@@ -207,7 +207,7 @@ class OkCancelButton extends StatelessWidget {
   final MainAxisAlignment alignment;
 
   const OkCancelButton({
-    Key? key,
+    final Key? key,
     this.onOkPressed,
     this.onCancelPressed,
     this.okTitle,
@@ -217,7 +217,7 @@ class OkCancelButton extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       height: 48,
       child: Row(

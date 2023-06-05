@@ -12,12 +12,12 @@ const String kSettingsLocationDefaultLocation =
 
 class SettingsLocation {
   SettingsLocation({
-    String? path,
+    final String? path,
   }) : _path = path;
 
   String? _path;
 
-  set path(String? path) {
+  set path(final String? path) {
     _path = path;
   }
 
@@ -31,7 +31,7 @@ class SettingsLocation {
     return _path;
   }
 
-  SettingsLocation copyWith({String? path}) {
+  SettingsLocation copyWith({final String? path}) {
     return SettingsLocation(
       path: path ?? this.path,
     );

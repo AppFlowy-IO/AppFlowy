@@ -11,9 +11,9 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 class NewAppButton extends StatelessWidget {
   final Function(String)? press;
 
-  const NewAppButton({this.press, Key? key}) : super(key: key);
+  const NewAppButton({this.press, final Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final child = FlowyTextButton(
       LocaleKeys.newPageText.tr(),
       fillColor: Colors.transparent,
@@ -38,11 +38,11 @@ class NewAppButton extends StatelessWidget {
     ).topBorder(color: Theme.of(context).dividerColor);
   }
 
-  Future<void> _showCreateAppDialog(BuildContext context) async {
+  Future<void> _showCreateAppDialog(final BuildContext context) async {
     return NavigatorTextFieldDialog(
       title: LocaleKeys.newPageText.tr(),
       value: "",
-      confirm: (newValue) {
+      confirm: (final newValue) {
         if (newValue.isNotEmpty && press != null) {
           press!(newValue);
         }

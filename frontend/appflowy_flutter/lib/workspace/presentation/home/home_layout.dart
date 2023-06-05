@@ -20,7 +20,7 @@ class HomeLayout {
   late double menuSpacing;
   late Duration animDuration;
 
-  HomeLayout(BuildContext context, BoxConstraints homeScreenConstraint) {
+  HomeLayout(final BuildContext context, final BoxConstraints homeScreenConstraint) {
     final homeSetting = context.read<HomeSettingBloc>().state;
 
     showEditPanel = homeSetting.panelContext.isSome();

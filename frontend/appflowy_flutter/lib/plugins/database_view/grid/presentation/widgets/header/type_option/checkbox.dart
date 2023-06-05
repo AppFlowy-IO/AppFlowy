@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'builder.dart';
 
 class CheckboxTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
-  CheckboxTypeOptionWidgetBuilder(CheckboxTypeOptionContext typeOptionContext);
+  CheckboxTypeOptionWidgetBuilder(final CheckboxTypeOptionContext typeOptionContext);
 
   @override
-  Widget? build(BuildContext context) => null;
+  Widget? build(final BuildContext context) => null;
 }

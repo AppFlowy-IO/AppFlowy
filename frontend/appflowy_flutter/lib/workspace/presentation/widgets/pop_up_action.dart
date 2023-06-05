@@ -29,7 +29,7 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
       maxWidth: 460,
       maxHeight: 300,
     ),
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -47,7 +47,7 @@ class _PopoverActionListState<T extends PopoverAction>
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final child = widget.buildChild(popoverController);
 
     return AppFlowyPopover(
@@ -59,13 +59,13 @@ class _PopoverActionListState<T extends PopoverAction>
       offset: widget.offset,
       triggerActions: PopoverTriggerFlags.none,
       onClose: widget.onClosed,
-      popupBuilder: (BuildContext popoverContext) {
-        final List<Widget> children = widget.actions.map((action) {
+      popupBuilder: (final BuildContext popoverContext) {
+        final List<Widget> children = widget.actions.map((final action) {
           if (action is ActionCell) {
             return ActionCellWidget<T>(
               action: action,
               itemHeight: ActionListSizes.itemHeight,
-              onSelected: (action) {
+              onSelected: (final action) {
                 widget.onSelected(action, popoverController);
               },
             );
@@ -89,13 +89,13 @@ class _PopoverActionListState<T extends PopoverAction>
 }
 
 abstract class ActionCell extends PopoverAction {
-  Widget? leftIcon(Color iconColor) => null;
-  Widget? rightIcon(Color iconColor) => null;
+  Widget? leftIcon(final Color iconColor) => null;
+  Widget? rightIcon(final Color iconColor) => null;
   String get name;
 }
 
 abstract class CustomActionCell extends PopoverAction {
-  Widget buildWithContext(BuildContext context);
+  Widget buildWithContext(final BuildContext context);
 }
 
 abstract class PopoverAction {}
@@ -112,14 +112,14 @@ class ActionCellWidget<T extends PopoverAction> extends StatelessWidget {
   final Function(T) onSelected;
   final double itemHeight;
   const ActionCellWidget({
-    Key? key,
+    final Key? key,
     required this.action,
     required this.onSelected,
     required this.itemHeight,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final actionCell = action as ActionCell;
     final leftIcon =
         actionCell.leftIcon(Theme.of(context).colorScheme.onSurface);

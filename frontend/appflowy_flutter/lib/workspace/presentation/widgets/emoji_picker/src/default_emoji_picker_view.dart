@@ -12,8 +12,11 @@ import 'emoji_picker_builder.dart';
 import 'emoji_view_state.dart';
 
 class DefaultEmojiPickerView extends EmojiPickerBuilder {
-  const DefaultEmojiPickerView(Config config, EmojiViewState state, {Key? key})
-      : super(config, state, key: key);
+  const DefaultEmojiPickerView(
+    final Config config,
+    final EmojiViewState state, {
+    final Key? key,
+  }) : super(config, state, key: key);
 
   @override
   DefaultEmojiPickerViewState createState() => DefaultEmojiPickerViewState();
@@ -32,7 +35,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
   @override
   void initState() {
     var initCategory = widget.state.categoryEmoji.indexWhere(
-      (element) => element.category == widget.config.initCategory,
+      (final element) => element.category == widget.config.initCategory,
     );
     if (initCategory == -1) {
       initCategory = 0;
@@ -46,7 +49,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
     _emojiFocusNode.requestFocus();
 
     _emojiController.addListener(() {
-      String query = _emojiController.text.toLowerCase();
+      final String query = _emojiController.text.toLowerCase();
       if (query.isEmpty) {
         searchEmojiList.emoji.clear();
         _pageController!.jumpToPage(
@@ -54,9 +57,9 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
         );
       } else {
         searchEmojiList.emoji.clear();
-        for (var element in widget.state.categoryEmoji) {
+        for (final element in widget.state.categoryEmoji) {
           searchEmojiList.emoji.addAll(
-            element.emoji.where((item) {
+            element.emoji.where((final item) {
               return item.name.toLowerCase().contains(query);
             }).toList(),
           );
@@ -94,16 +97,16 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
   }
 
   bool isEmojiSearching() {
-    bool result =
+    final bool result =
         searchEmojiList.emoji.isNotEmpty || _emojiController.text.isNotEmpty;
 
     return result;
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return LayoutBuilder(
-      builder: (context, constraints) {
+      builder: (final context, final constraints) {
         final emojiSize = widget.config.getEmojiSize(constraints.maxWidth);
 
         return Container(
@@ -160,7 +163,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
                         borderRadius: BorderRadius.circular(4.0),
                         color: widget.config.selectedHoverColor,
                       ),
-                      onTap: (index) {
+                      onTap: (final index) {
                         _pageController!.animateToPage(
                           index,
                           duration: widget.config.tabIndicatorAnimDuration,
@@ -173,7 +176,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
                               .asMap()
                               .entries
                               .map<Widget>(
-                                (item) => _buildCategory(
+                                (final item) => _buildCategory(
                                   item.value.category,
                                   emojiSize,
                                 ),
@@ -197,8 +200,8 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
                   //     duration: widget.config.tabIndicatorAnimDuration,
                   //   );
                   // },
-                  itemBuilder: (context, index) {
-                    CategoryEmoji catEmoji = isEmojiSearching()
+                  itemBuilder: (final context, final index) {
+                    final CategoryEmoji catEmoji = isEmojiSearching()
                         ? searchEmojiList
                         : widget.state.categoryEmoji[index];
                     return _buildPage(emojiSize, catEmoji);
@@ -212,7 +215,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
     );
   }
 
-  Widget _buildCategory(Category category, double categorySize) {
+  Widget _buildCategory(final Category category, final double categorySize) {
     return Tab(
       height: categorySize,
       child: Icon(
@@ -223,8 +226,8 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
   }
 
   Widget _buildButtonWidget({
-    required VoidCallback onPressed,
-    required Widget child,
+    required final VoidCallback onPressed,
+    required final Widget child,
   }) {
     if (widget.config.buttonMode == ButtonMode.MATERIAL) {
       return TextButton(
@@ -240,7 +243,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
     );
   }
 
-  Widget _buildPage(double emojiSize, CategoryEmoji categoryEmoji) {
+  Widget _buildPage(final double emojiSize, final CategoryEmoji categoryEmoji) {
     // Display notice if recent has no entries yet
     final scrollController = ScrollController();
 
@@ -273,11 +276,13 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
           crossAxisSpacing: widget.config.horizontalSpacing,
           children: _categoryEmoji.emoji.isNotEmpty
               ? _categoryEmoji.emoji
-                  .map<Widget>((e) => _buildEmoji(emojiSize, categoryEmoji, e))
+                  .map<Widget>(
+                    (final e) => _buildEmoji(emojiSize, categoryEmoji, e),
+                  )
                   .toList()
               : categoryEmoji.emoji
                   .map<Widget>(
-                    (item) => _buildEmoji(emojiSize, categoryEmoji, item),
+                    (final item) => _buildEmoji(emojiSize, categoryEmoji, item),
                   )
                   .toList(),
         ),
@@ -286,9 +291,9 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
   }
 
   Widget _buildEmoji(
-    double emojiSize,
-    CategoryEmoji categoryEmoji,
-    Emoji emoji,
+    final double emojiSize,
+    final CategoryEmoji categoryEmoji,
+    final Emoji emoji,
   ) {
     return _buildButtonWidget(
       onPressed: () {

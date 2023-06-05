@@ -26,7 +26,7 @@ class GridCreateFilterList extends StatefulWidget {
     required this.fieldController,
     required this.onClosed,
     this.onCreateFilter,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -46,28 +46,28 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: editBloc,
       child: BlocListener<GridCreateFilterBloc, GridCreateFilterState>(
-        listener: (context, state) {
+        listener: (final context, final state) {
           if (state.didCreateFilter) {
             widget.onClosed();
           }
         },
         child: BlocBuilder<GridCreateFilterBloc, GridCreateFilterState>(
-          builder: (context, state) {
-            final cells = state.creatableFields.map((fieldInfo) {
+          builder: (final context, final state) {
+            final cells = state.creatableFields.map((final fieldInfo) {
               return SizedBox(
                 height: GridSize.popoverItemHeight,
                 child: _FilterPropertyCell(
                   fieldInfo: fieldInfo,
-                  onTap: (fieldInfo) => createFilter(fieldInfo),
+                  onTap: (final fieldInfo) => createFilter(fieldInfo),
                 ),
               );
             }).toList();
 
-            List<Widget> slivers = [
+            final List<Widget> slivers = [
               SliverPersistentHeader(
                 pinned: true,
                 delegate: _FilterTextFieldDelegate(),
@@ -77,10 +77,11 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
                   controller: ScrollController(),
                   shrinkWrap: true,
                   itemCount: cells.length,
-                  itemBuilder: (BuildContext context, int index) {
+                  itemBuilder: (final BuildContext context, final int index) {
                     return cells[index];
                   },
-                  separatorBuilder: (BuildContext context, int index) {
+                  separatorBuilder:
+                      (final BuildContext context, final int index) {
                     return VSpace(GridSize.typeOptionSeparatorHeight);
                   },
                 ),
@@ -104,7 +105,7 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
     super.dispose();
   }
 
-  void createFilter(FieldInfo field) {
+  void createFilter(final FieldInfo field) {
     editBloc.add(GridCreateFilterEvent.createDefaultFilter(field));
     widget.onCreateFilter?.call();
   }
@@ -117,16 +118,16 @@ class _FilterTextFieldDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
+    final BuildContext context,
+    final double shrinkOffset,
+    final bool overlapsContent,
   ) {
     return Container(
       padding: const EdgeInsets.only(top: 4),
       height: fixHeight,
       child: FlowyTextField(
         hintText: LocaleKeys.grid_settings_filterBy.tr(),
-        onChanged: (text) {
+        onChanged: (final text) {
           context
               .read<GridCreateFilterBloc>()
               .add(GridCreateFilterEvent.didReceiveFilterText(text));
@@ -142,7 +143,9 @@ class _FilterTextFieldDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent => fixHeight;
 
   @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
+  bool shouldRebuild(
+    covariant final SliverPersistentHeaderDelegate oldDelegate,
+  ) {
     return false;
   }
 }
@@ -153,11 +156,11 @@ class _FilterPropertyCell extends StatelessWidget {
   const _FilterPropertyCell({
     required this.fieldInfo,
     required this.onTap,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FlowyButton(
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       text: FlowyText.medium(

@@ -40,8 +40,8 @@ class GridURLCell extends GridCellWidget {
   late final GridURLCellStyle? cellStyle;
   GridURLCell({
     required this.cellControllerBuilder,
-    GridCellStyle? style,
-    Key? key,
+    final GridCellStyle? style,
+    final Key? key,
   }) : super(key: key) {
     if (style != null) {
       cellStyle = (style as GridURLCellStyle);
@@ -54,14 +54,14 @@ class GridURLCell extends GridCellWidget {
   GridCellState<GridURLCell> createState() => _GridURLCellState();
 
   GridCellAccessoryBuilder accessoryFromType(
-    GridURLCellAccessoryType ty,
-    GridCellAccessoryBuildContext buildContext,
+    final GridURLCellAccessoryType ty,
+    final GridCellAccessoryBuildContext buildContext,
   ) {
     switch (ty) {
       case GridURLCellAccessoryType.visitURL:
         final cellContext = cellControllerBuilder.build() as URLCellController;
         return GridCellAccessoryBuilder(
-          builder: (Key key) => _VisitURLAccessory(
+          builder: (final Key key) => _VisitURLAccessory(
             key: key,
             cellContext: cellContext,
           ),
@@ -69,7 +69,7 @@ class GridURLCell extends GridCellWidget {
       case GridURLCellAccessoryType.copyURL:
         final cellContext = cellControllerBuilder.build() as URLCellController;
         return GridCellAccessoryBuilder(
-          builder: (Key key) => _CopyURLAccessory(
+          builder: (final Key key) => _CopyURLAccessory(
             key: key,
             cellContext: cellContext,
           ),
@@ -80,11 +80,11 @@ class GridURLCell extends GridCellWidget {
   @override
   List<GridCellAccessoryBuilder> Function(
     GridCellAccessoryBuildContext buildContext,
-  ) get accessoryBuilder => (buildContext) {
+  ) get accessoryBuilder => (final buildContext) {
         final List<GridCellAccessoryBuilder> accessories = [];
         if (cellStyle != null) {
           accessories.addAll(
-            cellStyle!.accessoryTypes.map((ty) {
+            cellStyle!.accessoryTypes.map((final ty) {
               return accessoryFromType(ty, buildContext);
             }),
           );
@@ -122,11 +122,11 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<URLCellBloc, URLCellState>(
-        builder: (context, state) {
+        builder: (final context, final state) {
           final urlEditor = Padding(
             padding: EdgeInsets.only(
               left: GridSize.cellContentInsets.left,
@@ -144,7 +144,7 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
               ),
               autofocus: false,
               onEditingComplete: focusChanged,
-              onSubmitted: (value) => focusChanged(isUrlSubmitted: true),
+              onSubmitted: (final value) => focusChanged(isUrlSubmitted: true),
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.only(
                   top: GridSize.cellContentInsets.top,
@@ -163,7 +163,7 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
   }
 
   void focusChanged({
-    bool isUrlSubmitted = false,
+    final bool isUrlSubmitted = false,
   }) {
     if (mounted) {
       if (_cellBloc.isClosed == false &&
@@ -192,7 +192,7 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
   String? onCopy() => _cellBloc.state.content;
 
   @override
-  void onInsert(String value) {
+  void onInsert(final String value) {
     _cellBloc.add(URLCellEvent.updateURL(value));
   }
 }
@@ -203,7 +203,7 @@ class _EditURLAccessory extends StatefulWidget {
   const _EditURLAccessory({
     required this.cellControllerBuilder,
     required this.anchorContext,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -221,7 +221,7 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return AppFlowyPopover(
       margin: EdgeInsets.zero,
       constraints: BoxConstraints.loose(const Size(300, 160)),
@@ -232,7 +232,7 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
         "editor/edit",
         color: AFThemeExtension.of(context).textColor,
       ),
-      popupBuilder: (BuildContext popoverContext) {
+      popupBuilder: (final BuildContext popoverContext) {
         return URLEditorPopover(
           cellController:
               widget.cellControllerBuilder.build() as URLCellController,
@@ -250,7 +250,7 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
 
 class _CopyURLAccessory extends StatefulWidget {
   final URLCellController cellContext;
-  const _CopyURLAccessory({required this.cellContext, Key? key})
+  const _CopyURLAccessory({required this.cellContext, final Key? key})
       : super(key: key);
 
   @override
@@ -260,7 +260,7 @@ class _CopyURLAccessory extends StatefulWidget {
 class _CopyURLAccessoryState extends State<_CopyURLAccessory>
     with GridCellAccessoryState {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return svgWidget(
       "editor/copy",
       color: AFThemeExtension.of(context).textColor,
@@ -278,7 +278,7 @@ class _CopyURLAccessoryState extends State<_CopyURLAccessory>
 
 class _VisitURLAccessory extends StatefulWidget {
   final URLCellController cellContext;
-  const _VisitURLAccessory({required this.cellContext, Key? key})
+  const _VisitURLAccessory({required this.cellContext, final Key? key})
       : super(key: key);
 
   @override
@@ -288,7 +288,7 @@ class _VisitURLAccessory extends StatefulWidget {
 class _VisitURLAccessoryState extends State<_VisitURLAccessory>
     with GridCellAccessoryState {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return svgWidget(
       "editor/link",
       color: AFThemeExtension.of(context).textColor,
@@ -304,7 +304,7 @@ class _VisitURLAccessoryState extends State<_VisitURLAccessory>
     }
     final uri = Uri.parse(content);
     if (content.isNotEmpty) {
-      canLaunchUrl(uri).then((value) => launchUrl(uri));
+      canLaunchUrl(uri).then((final value) => launchUrl(uri));
     }
   }
 }

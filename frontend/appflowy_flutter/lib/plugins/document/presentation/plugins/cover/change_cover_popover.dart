@@ -74,14 +74,14 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
   bool isAddingImage = false;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) => ChangeCoverPopoverBloc(
+      create: (final context) => ChangeCoverPopoverBloc(
         editorState: widget.editorState,
         node: widget.node,
       )..add(const ChangeCoverPopoverEvent.fetchPickedImagePaths()),
       child: BlocBuilder<ChangeCoverPopoverBloc, ChangeCoverPopoverState>(
-        builder: (context, state) {
+        builder: (final context, final state) {
           return Padding(
             padding: const EdgeInsets.all(15),
             child: SingleChildScrollView(
@@ -90,7 +90,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
                       onBackPressed: () => setState(() {
                         isAddingImage = false;
                       }),
-                      onFileSubmit: (List<String> path) {
+                      onFileSubmit: (final List<String> path) {
                         context.read<ChangeCoverPopoverBloc>().add(
                               const ChangeCoverPopoverEvent
                                   .fetchPickedImagePaths(),
@@ -135,7 +135,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
 
   Widget _buildImageHeader() {
     return BlocBuilder<ChangeCoverPopoverBloc, ChangeCoverPopoverState>(
-      builder: (context, state) {
+      builder: (final context, final state) {
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -157,7 +157,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
                 if (hasFileImageCover) {
                   await showDialog(
                     context: context,
-                    builder: (context) {
+                    builder: (final context) {
                       return DeleteImageAlertDialog(
                         onSubmit: () {
                           changeCoverBloc.add(
@@ -192,7 +192,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
         mainAxisSpacing: 7,
       ),
       itemCount: builtInAssetImages.length,
-      itemBuilder: (BuildContext ctx, index) {
+      itemBuilder: (final BuildContext ctx, final index) {
         return InkWell(
           onTap: () {
             widget.onCoverChanged(
@@ -229,7 +229,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
               : "ffffff",
       backgroundColorOptions:
           _generateBackgroundColorOptions(widget.editorState),
-      onSubmittedbackgroundColorHex: (color) {
+      onSubmittedbackgroundColorHex: (final color) {
         widget.onCoverChanged(CoverSelectionType.color, color);
         setState(() {});
       },
@@ -238,9 +238,9 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
 
   Widget _buildFileImagePicker() {
     return BlocBuilder<ChangeCoverPopoverBloc, ChangeCoverPopoverState>(
-      builder: (context, state) {
+      builder: (final context, final state) {
         if (state is Loaded) {
-          List<String> images = state.imageNames;
+          final List<String> images = state.imageNames;
           return GridView.builder(
             shrinkWrap: true,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -250,7 +250,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
               mainAxisSpacing: 7,
             ),
             itemCount: images.length + 1,
-            itemBuilder: (BuildContext ctx, index) {
+            itemBuilder: (final BuildContext ctx, final index) {
               if (index == 0) {
                 return Container(
                   decoration: BoxDecoration(
@@ -292,7 +292,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
                   if (deletingCurrentCover) {
                     await showDialog(
                       context: context,
-                      builder: (context) {
+                      builder: (final context) {
                         return DeleteImageAlertDialog(
                           onSubmit: () {
                             changeCoverBloc.add(
@@ -319,10 +319,12 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
     );
   }
 
-  List<ColorOption> _generateBackgroundColorOptions(EditorState editorState) {
+  List<ColorOption> _generateBackgroundColorOptions(
+    final EditorState editorState,
+  ) {
     return FlowyTint.values
         .map(
-          (t) => ColorOption(
+          (final t) => ColorOption(
             colorHex: t.color(context).toHex(),
             name: t.tintName(AppFlowyEditorLocalizations.current),
           ),
@@ -333,14 +335,14 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
 
 class DeleteImageAlertDialog extends StatelessWidget {
   const DeleteImageAlertDialog({
-    Key? key,
+    final Key? key,
     required this.onSubmit,
   }) : super(key: key);
 
   final Function() onSubmit;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return AlertDialog(
       title: FlowyText.semibold(
         "Image is used in cover",
@@ -385,7 +387,7 @@ class DeleteImageAlertDialog extends StatelessWidget {
 
 class ImageGridItem extends StatefulWidget {
   const ImageGridItem({
-    Key? key,
+    final Key? key,
     required this.onImageSelect,
     required this.onImageDelete,
     required this.imagePath,
@@ -402,14 +404,14 @@ class ImageGridItem extends StatefulWidget {
 class _ImageGridItemState extends State<ImageGridItem> {
   bool showDeleteButton = false;
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return MouseRegion(
-      onEnter: (_) {
+      onEnter: (final _) {
         setState(() {
           showDeleteButton = true;
         });
       },
-      onExit: (_) {
+      onExit: (final _) {
         setState(() {
           showDeleteButton = false;
         });
@@ -456,7 +458,7 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
   final scrollController = ScrollController();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Container(
       height: 30,
       alignment: Alignment.center,
@@ -473,7 +475,7 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
           shrinkWrap: true,
           itemCount: widget.backgroundColorOptions.length,
           scrollDirection: Axis.horizontal,
-          itemBuilder: (context, index) {
+          itemBuilder: (final context, final index) {
             return _buildColorItems(
               widget.backgroundColorOptions,
               widget.selectedBackgroundColorHex,
@@ -490,7 +492,7 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
     scrollController.dispose();
   }
 
-  Widget _buildColorItem(ColorOption option, bool isChecked) {
+  Widget _buildColorItem(final ColorOption option, final bool isChecked) {
     return InkWell(
       customBorder: const RoundedRectangleBorder(
         borderRadius: Corners.s6Border,
@@ -534,12 +536,15 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
     );
   }
 
-  Widget _buildColorItems(List<ColorOption> options, String? selectedColor) {
+  Widget _buildColorItems(
+    final List<ColorOption> options,
+    final String? selectedColor,
+  ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: options
-          .map((e) => _buildColorItem(e, e.colorHex == selectedColor))
+          .map((final e) => _buildColorItem(e, e.colorHex == selectedColor))
           .toList(),
     );
   }

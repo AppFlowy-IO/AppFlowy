@@ -19,13 +19,13 @@ class ChecklistCardCellBloc
             SelectOptionBackendService(cellId: cellController.cellId),
         super(ChecklistCellState.initial(cellController)) {
     on<ChecklistCellEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.when(
           initial: () async {
             _startListening();
             _loadOptions();
           },
-          didReceiveOptions: (data) {
+          didReceiveOptions: (final data) {
             emit(
               state.copyWith(
                 allOptions: data.options,
@@ -54,7 +54,7 @@ class ChecklistCardCellBloc
       onCellFieldChanged: () {
         _loadOptions();
       },
-      onCellChanged: (data) {
+      onCellChanged: (final data) {
         if (!isClosed && data != null) {
           add(ChecklistCellEvent.didReceiveOptions(data));
         }
@@ -63,12 +63,12 @@ class ChecklistCardCellBloc
   }
 
   void _loadOptions() {
-    _selectOptionSvc.getCellData().then((result) {
+    _selectOptionSvc.getCellData().then((final result) {
       if (isClosed) return;
 
       return result.fold(
-        (data) => add(ChecklistCellEvent.didReceiveOptions(data)),
-        (err) => Log.error(err),
+        (final data) => add(ChecklistCellEvent.didReceiveOptions(data)),
+        (final err) => Log.error(err),
       );
     });
   }
@@ -78,19 +78,19 @@ class ChecklistCardCellBloc
 class ChecklistCellEvent with _$ChecklistCellEvent {
   const factory ChecklistCellEvent.initial() = _InitialCell;
   const factory ChecklistCellEvent.didReceiveOptions(
-    SelectOptionCellDataPB data,
+    final SelectOptionCellDataPB data,
   ) = _DidReceiveCellUpdate;
 }
 
 @freezed
 class ChecklistCellState with _$ChecklistCellState {
   const factory ChecklistCellState({
-    required List<SelectOptionPB> allOptions,
-    required List<SelectOptionPB> selectedOptions,
-    required double percent,
+    required final List<SelectOptionPB> allOptions,
+    required final List<SelectOptionPB> selectedOptions,
+    required final double percent,
   }) = _ChecklistCellState;
 
-  factory ChecklistCellState.initial(ChecklistCellController cellController) {
+  factory ChecklistCellState.initial(final ChecklistCellController cellController) {
     return const ChecklistCellState(
       allOptions: [],
       selectedOptions: [],

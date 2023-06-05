@@ -9,13 +9,13 @@ import 'package:flowy_infra/language.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsLanguageView extends StatelessWidget {
-  const SettingsLanguageView({Key? key}) : super(key: key);
+  const SettingsLanguageView({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SingleChildScrollView(
       child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-        builder: (context, state) => Row(
+        builder: (final context, final state) => Row(
           children: [
             Expanded(
               child: FlowyText.medium(
@@ -38,7 +38,7 @@ class LanguageSelector extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return AppFlowyPopover(
       direction: PopoverDirection.bottomWithRightAligned,
       child: FlowyTextButton(
@@ -47,7 +47,7 @@ class LanguageSelector extends StatelessWidget {
         fillColor: Colors.transparent,
         onPressed: () {},
       ),
-      popupBuilder: (BuildContext context) {
+      popupBuilder: (final BuildContext context) {
         final allLocales = EasyLocalization.of(context)!.supportedLocales;
 
         return LanguageItemsListView(
@@ -70,11 +70,11 @@ class LanguageItemsListView extends StatelessWidget {
   final Locale currentLocale;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxHeight: 400),
       child: ListView.builder(
-        itemBuilder: (context, index) {
+        itemBuilder: (final context, final index) {
           final locale = allLocales[index];
           return LanguageItem(locale: locale, currentLocale: currentLocale);
         },
@@ -94,7 +94,7 @@ class LanguageItem extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       height: 32,
       child: FlowyButton(

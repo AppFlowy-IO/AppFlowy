@@ -14,13 +14,13 @@ import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:flutter/material.dart';
 
 class AuthRouter {
-  void pushForgetPasswordScreen(BuildContext context) {}
+  void pushForgetPasswordScreen(final BuildContext context) {}
 
-  void pushWelcomeScreen(BuildContext context, UserProfilePB userProfile) {
+  void pushWelcomeScreen(final BuildContext context, final UserProfilePB userProfile) {
     getIt<SplashRoute>().pushWelcomeScreen(context, userProfile);
   }
 
-  void pushSignUpScreen(BuildContext context) {
+  void pushSignUpScreen(final BuildContext context) {
     Navigator.of(context).push(
       PageRoutes.fade(
         () => SignUpScreen(router: getIt<AuthRouter>()),
@@ -29,9 +29,9 @@ class AuthRouter {
   }
 
   void pushHomeScreen(
-    BuildContext context,
-    UserProfilePB profile,
-    WorkspaceSettingPB workspaceSetting,
+    final BuildContext context,
+    final UserProfilePB profile,
+    final WorkspaceSettingPB workspaceSetting,
   ) {
     Navigator.push(
       context,
@@ -49,8 +49,8 @@ class AuthRouter {
 
 class SplashRoute {
   Future<void> pushWelcomeScreen(
-    BuildContext context,
-    UserProfilePB userProfile,
+    final BuildContext context,
+    final UserProfilePB userProfile,
   ) async {
     final screen = WelcomeScreen(userProfile: userProfile);
     await Navigator.of(context).push(
@@ -60,19 +60,19 @@ class SplashRoute {
       ),
     );
 
-    FolderEventReadCurrentWorkspace().send().then((result) {
+    FolderEventReadCurrentWorkspace().send().then((final result) {
       result.fold(
-        (workspaceSettingPB) =>
+        (final workspaceSettingPB) =>
             pushHomeScreen(context, userProfile, workspaceSettingPB),
-        (r) => null,
+        (final r) => null,
       );
     });
   }
 
   void pushHomeScreen(
-    BuildContext context,
-    UserProfilePB userProfile,
-    WorkspaceSettingPB workspaceSetting,
+    final BuildContext context,
+    final UserProfilePB userProfile,
+    final WorkspaceSettingPB workspaceSetting,
   ) {
     Navigator.push(
       context,
@@ -87,7 +87,7 @@ class SplashRoute {
     );
   }
 
-  void pushSignInScreen(BuildContext context) {
+  void pushSignInScreen(final BuildContext context) {
     Navigator.push(
       context,
       PageRoutes.fade(
@@ -97,7 +97,7 @@ class SplashRoute {
     );
   }
 
-  void pushSkipLoginScreen(BuildContext context) {
+  void pushSkipLoginScreen(final BuildContext context) {
     Navigator.push(
       context,
       PageRoutes.fade(

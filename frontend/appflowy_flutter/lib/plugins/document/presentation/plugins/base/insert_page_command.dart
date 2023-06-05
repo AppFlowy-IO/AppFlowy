@@ -12,7 +12,7 @@ const String kAppID = 'app_id';
 const String kViewID = 'view_id';
 
 extension InsertPage on EditorState {
-  Future<void> insertPage(AppPB appPB, ViewPB viewPB) async {
+  Future<void> insertPage(final AppPB appPB, final ViewPB viewPB) async {
     final selection = service.selectionService.currentSelection.value;
     final textNodes =
         service.selectionService.currentSelectedNodes.whereType<TextNode>();
@@ -23,7 +23,7 @@ extension InsertPage on EditorState {
     // get the database that the view is associated with
     final database =
         await DatabaseViewBackendService(viewId: viewPB.id).openGrid().then(
-              (value) => value.getLeftOrNull(),
+              (final value) => value.getLeftOrNull(),
             );
 
     if (database == null) {
@@ -43,7 +43,7 @@ extension InsertPage on EditorState {
         'database_id': database.id,
       },
     ).then(
-      (value) => value.getLeftOrNull(),
+      (final value) => value.getLeftOrNull(),
     );
 
     // TODO(a-wallen): Show error dialog here.
@@ -65,7 +65,7 @@ extension InsertPage on EditorState {
     apply(transaction);
   }
 
-  String referencedBoardPrefix(ViewLayoutTypePB layout) {
+  String referencedBoardPrefix(final ViewLayoutTypePB layout) {
     switch (layout) {
       case ViewLayoutTypePB.Grid:
         return LocaleKeys.grid_referencedGridPrefix.tr();
@@ -76,7 +76,7 @@ extension InsertPage on EditorState {
     }
   }
 
-  String _convertPageType(ViewPB viewPB) {
+  String _convertPageType(final ViewPB viewPB) {
     switch (viewPB.layout) {
       case ViewLayoutTypePB.Grid:
         return kGridType;

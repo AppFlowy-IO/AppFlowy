@@ -20,10 +20,10 @@ class NumberCardCell<CustomCardData>
 
   const NumberCardCell({
     required this.cellControllerBuilder,
-    CustomCardData? cardData,
-    NumberCardCellStyle? style,
+    final CustomCardData? cardData,
+    final NumberCardCellStyle? style,
     this.renderHook,
-    Key? key,
+    final Key? key,
   }) : super(key: key, style: style, cardData: cardData);
 
   @override
@@ -44,16 +44,17 @@ class _NumberCardCellState extends State<NumberCardCell> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<NumberCardCellBloc, NumberCardCellState>(
-        buildWhen: (previous, current) => previous.content != current.content,
-        builder: (context, state) {
+        buildWhen: (final previous, final current) =>
+            previous.content != current.content,
+        builder: (final context, final state) {
           if (state.content.isEmpty) {
             return const SizedBox();
           } else {
-            Widget? custom = widget.renderHook?.call(
+            final Widget? custom = widget.renderHook?.call(
               state.content,
               widget.cardData,
               context,

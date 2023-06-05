@@ -7,7 +7,7 @@ class CodeBlockNodeParser extends NodeParser {
   String get id => 'code_block';
 
   @override
-  String transform(Node node) {
+  String transform(final Node node) {
     return '```\n${node.attributes['code_block']}\n```';
   }
 }

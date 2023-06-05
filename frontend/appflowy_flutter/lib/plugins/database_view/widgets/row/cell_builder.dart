@@ -20,7 +20,7 @@ class GridCellBuilder {
     required this.cellCache,
   });
 
-  GridCellWidget build(CellIdentifier cellId, {GridCellStyle? style}) {
+  GridCellWidget build(final CellIdentifier cellId, {final GridCellStyle? style}) {
     final cellControllerBuilder = CellControllerBuilder(
       cellId: cellId,
       cellCache: cellCache,
@@ -79,10 +79,10 @@ class GridCellBuilder {
 }
 
 class BlankCell extends StatelessWidget {
-  const BlankCell({Key? key}) : super(key: key);
+  const BlankCell({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Container();
   }
 }
@@ -100,7 +100,7 @@ typedef AccessoryBuilder = List<GridCellAccessoryBuilder> Function(
 );
 
 abstract class CellAccessory extends Widget {
-  const CellAccessory({Key? key}) : super(key: key);
+  const CellAccessory({final Key? key}) : super(key: key);
 
   // The hover will show if the isHover's value is true
   ValueNotifier<bool>? get onAccessoryHover;
@@ -110,7 +110,7 @@ abstract class CellAccessory extends Widget {
 
 abstract class GridCellWidget extends StatefulWidget
     implements CellAccessory, CellEditable, CellShortcuts {
-  GridCellWidget({Key? key}) : super(key: key) {
+  GridCellWidget({final Key? key}) : super(key: key) {
     onCellEditing.addListener(() {
       onCellFocus.value = onCellEditing.value;
     });
@@ -144,7 +144,7 @@ abstract class GridCellState<T extends GridCellWidget> extends State<T> {
     widget.beginFocus.setListener(() => requestBeginFocus());
     widget.shortcutHandlers[CellKeyboardKey.onCopy] = () => onCopy();
     widget.shortcutHandlers[CellKeyboardKey.onInsert] = () {
-      Clipboard.getData("text/plain").then((data) {
+      Clipboard.getData("text/plain").then((final data) {
         final s = data?.text;
         if (s is String) {
           onInsert(s);
@@ -155,7 +155,7 @@ abstract class GridCellState<T extends GridCellWidget> extends State<T> {
   }
 
   @override
-  void didUpdateWidget(covariant T oldWidget) {
+  void didUpdateWidget(covariant final T oldWidget) {
     if (oldWidget != this) {
       widget.beginFocus.setListener(() => requestBeginFocus());
     }
@@ -172,7 +172,7 @@ abstract class GridCellState<T extends GridCellWidget> extends State<T> {
 
   String? onCopy() => null;
 
-  void onInsert(String value) {}
+  void onInsert(final String value) {}
 }
 
 abstract class GridFocusNodeCellState<T extends GridCellWidget>
@@ -188,7 +188,7 @@ abstract class GridFocusNodeCellState<T extends GridCellWidget>
   }
 
   @override
-  void didUpdateWidget(covariant T oldWidget) {
+  void didUpdateWidget(covariant final T oldWidget) {
     if (oldWidget != this) {
       _listenOnFocusNodeChanged();
     }
@@ -224,7 +224,7 @@ abstract class GridFocusNodeCellState<T extends GridCellWidget>
 class GridCellFocusListener extends ChangeNotifier {
   VoidCallback? _listener;
 
-  void setListener(VoidCallback listener) {
+  void setListener(final VoidCallback listener) {
     if (_listener != null) {
       removeListener(_listener!);
     }
@@ -249,7 +249,7 @@ abstract class GridCellStyle {}
 class SingleListenerFocusNode extends FocusNode {
   VoidCallback? _listener;
 
-  void setListener(VoidCallback listener) {
+  void setListener(final VoidCallback listener) {
     if (_listener != null) {
       removeListener(_listener!);
     }

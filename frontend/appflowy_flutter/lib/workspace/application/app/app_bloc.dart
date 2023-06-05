@@ -21,32 +21,32 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   final AppBackendService appService;
   final AppListener appListener;
 
-  AppBloc({required AppPB app})
+  AppBloc({required final AppPB app})
       : appService = AppBackendService(),
         appListener = AppListener(appId: app.id),
         super(AppState.initial(app)) {
-    on<AppEvent>((event, emit) async {
+    on<AppEvent>((final event, final emit) async {
       await event.map(
-        initial: (e) async {
+        initial: (final e) async {
           _startListening();
           await _loadViews(emit);
         },
-        createView: (CreateView value) async {
+        createView: (final CreateView value) async {
           await _createView(value, emit);
         },
-        loadViews: (_) async {
+        loadViews: (final _) async {
           await _loadViews(emit);
         },
-        delete: (e) async {
+        delete: (final e) async {
           await _deleteApp(emit);
         },
-        deleteView: (deletedView) async {
+        deleteView: (final deletedView) async {
           await _deleteView(emit, deletedView.viewId);
         },
-        rename: (e) async {
+        rename: (final e) async {
           await _renameView(e, emit);
         },
-        appDidUpdate: (e) async {
+        appDidUpdate: (final e) async {
           final latestCreatedView = state.latestCreatedView;
           final views = e.app.belongings.items;
           AppState newState = state.copyWith(
@@ -55,7 +55,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
           );
           if (latestCreatedView != null) {
             final index = views
-                .indexWhere((element) => element.id == latestCreatedView.id);
+                .indexWhere((final element) => element.id == latestCreatedView.id);
             if (index == -1) {
               newState = newState.copyWith(latestCreatedView: null);
             }
@@ -68,7 +68,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   void _startListening() {
     appListener.start(
-      onAppUpdated: (app) {
+      onAppUpdated: (final app) {
         if (!isClosed) {
           add(AppEvent.appDidUpdate(app));
         }
@@ -76,33 +76,33 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     );
   }
 
-  Future<void> _renameView(Rename e, Emitter<AppState> emit) async {
+  Future<void> _renameView(final Rename e, final Emitter<AppState> emit) async {
     final result =
         await appService.updateApp(appId: state.app.id, name: e.newName);
     result.fold(
-      (l) => emit(state.copyWith(successOrFailure: left(unit))),
-      (error) => emit(state.copyWith(successOrFailure: right(error))),
+      (final l) => emit(state.copyWith(successOrFailure: left(unit))),
+      (final error) => emit(state.copyWith(successOrFailure: right(error))),
     );
   }
 
 // Delete the current app
-  Future<void> _deleteApp(Emitter<AppState> emit) async {
+  Future<void> _deleteApp(final Emitter<AppState> emit) async {
     final result = await appService.delete(appId: state.app.id);
     result.fold(
-      (unit) => emit(state.copyWith(successOrFailure: left(unit))),
-      (error) => emit(state.copyWith(successOrFailure: right(error))),
+      (final unit) => emit(state.copyWith(successOrFailure: left(unit))),
+      (final error) => emit(state.copyWith(successOrFailure: right(error))),
     );
   }
 
-  Future<void> _deleteView(Emitter<AppState> emit, String viewId) async {
+  Future<void> _deleteView(final Emitter<AppState> emit, final String viewId) async {
     final result = await appService.deleteView(viewId: viewId);
     result.fold(
-      (unit) => emit(state.copyWith(successOrFailure: left(unit))),
-      (error) => emit(state.copyWith(successOrFailure: right(error))),
+      (final unit) => emit(state.copyWith(successOrFailure: left(unit))),
+      (final error) => emit(state.copyWith(successOrFailure: right(error))),
     );
   }
 
-  Future<void> _createView(CreateView value, Emitter<AppState> emit) async {
+  Future<void> _createView(final CreateView value, final Emitter<AppState> emit) async {
     final result = await appService.createView(
       appId: state.app.id,
       name: value.name,
@@ -112,13 +112,13 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       ext: value.ext ?? {},
     );
     result.fold(
-      (view) => emit(
+      (final view) => emit(
         state.copyWith(
           latestCreatedView: view,
           successOrFailure: left(unit),
         ),
       ),
-      (error) {
+      (final error) {
         Log.error(error);
         emit(state.copyWith(successOrFailure: right(error)));
       },
@@ -131,11 +131,11 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     return super.close();
   }
 
-  Future<void> _loadViews(Emitter<AppState> emit) async {
+  Future<void> _loadViews(final Emitter<AppState> emit) async {
     final viewsOrFailed = await appService.getViews(appId: state.app.id);
     viewsOrFailed.fold(
-      (views) => emit(state.copyWith(views: views)),
-      (error) {
+      (final views) => emit(state.copyWith(views: views)),
+      (final error) {
         Log.error(error);
         emit(state.copyWith(successOrFailure: right(error)));
       },
@@ -147,32 +147,32 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 class AppEvent with _$AppEvent {
   const factory AppEvent.initial() = Initial;
   const factory AppEvent.createView(
-    String name,
-    PluginBuilder pluginBuilder, {
-    String? desc,
+    final String name,
+    final PluginBuilder pluginBuilder, {
+    final String? desc,
 
     /// The initial data should be the JSON of the document
     /// For example: {"document":{"type":"editor","children":[]}}
-    String? initialData,
-    Map<String, String>? ext,
+    final String? initialData,
+    final Map<String, String>? ext,
   }) = CreateView;
   const factory AppEvent.loadViews() = LoadApp;
   const factory AppEvent.delete() = DeleteApp;
-  const factory AppEvent.deleteView(String viewId) = DeleteView;
-  const factory AppEvent.rename(String newName) = Rename;
-  const factory AppEvent.appDidUpdate(AppPB app) = AppDidUpdate;
+  const factory AppEvent.deleteView(final String viewId) = DeleteView;
+  const factory AppEvent.rename(final String newName) = Rename;
+  const factory AppEvent.appDidUpdate(final AppPB app) = AppDidUpdate;
 }
 
 @freezed
 class AppState with _$AppState {
   const factory AppState({
-    required AppPB app,
-    required List<ViewPB> views,
-    ViewPB? latestCreatedView,
-    required Either<Unit, FlowyError> successOrFailure,
+    required final AppPB app,
+    required final List<ViewPB> views,
+    final ViewPB? latestCreatedView,
+    required final Either<Unit, FlowyError> successOrFailure,
   }) = _AppState;
 
-  factory AppState.initial(AppPB app) => AppState(
+  factory AppState.initial(final AppPB app) => AppState(
         app: app,
         views: app.belongings.items,
         successOrFailure: left(unit),
@@ -190,12 +190,12 @@ class AppViewDataContext extends ChangeNotifier {
   AppViewDataContext({required this.appId}) {
     _setLatestView(getIt<MenuSharedState>().latestOpenView);
     _menuSharedStateListener =
-        getIt<MenuSharedState>().addLatestViewListener((view) {
+        getIt<MenuSharedState>().addLatestViewListener((final view) {
       _setLatestView(view);
     });
   }
 
-  VoidCallback addSelectedViewChangeListener(void Function(ViewPB?) callback) {
+  VoidCallback addSelectedViewChangeListener(final void Function(ViewPB?) callback) {
     listener() {
       callback(_selectedViewNotifier.value);
     }
@@ -204,11 +204,11 @@ class AppViewDataContext extends ChangeNotifier {
     return listener;
   }
 
-  void removeSelectedViewListener(VoidCallback listener) {
+  void removeSelectedViewListener(final VoidCallback listener) {
     _selectedViewNotifier.removeListener(listener);
   }
 
-  void _setLatestView(ViewPB? view) {
+  void _setLatestView(final ViewPB? view) {
     view?.freeze();
 
     if (_selectedViewNotifier.value != view) {
@@ -220,7 +220,7 @@ class AppViewDataContext extends ChangeNotifier {
 
   ViewPB? get selectedView => _selectedViewNotifier.value;
 
-  set views(List<ViewPB> views) {
+  set views(final List<ViewPB> views) {
     if (_viewsNotifier.value != views) {
       _viewsNotifier.value = views;
       _expandIfNeed();
@@ -232,7 +232,7 @@ class AppViewDataContext extends ChangeNotifier {
       UnmodifiableListView(_viewsNotifier.value);
 
   VoidCallback addViewsChangeListener(
-    void Function(UnmodifiableListView<ViewPB>) callback,
+    final void Function(UnmodifiableListView<ViewPB>) callback,
   ) {
     listener() {
       callback(views);
@@ -242,7 +242,7 @@ class AppViewDataContext extends ChangeNotifier {
     return listener;
   }
 
-  void removeViewsListener(VoidCallback listener) {
+  void removeViewsListener(final VoidCallback listener) {
     _viewsNotifier.removeListener(listener);
   }
 

@@ -9,14 +9,14 @@ class CocoaWindowChannel {
 
   static final CocoaWindowChannel instance = CocoaWindowChannel._();
 
-  Future<void> setWindowPosition(Offset offset) async {
+  Future<void> setWindowPosition(final Offset offset) async {
     await _channel.invokeMethod("setWindowPosition", [offset.dx, offset.dy]);
   }
 
   Future<List<double>> getWindowPosition() async {
     final raw = await _channel.invokeMethod("getWindowPosition");
     final arr = raw as List<dynamic>;
-    final List<double> result = arr.map((s) => s as double).toList();
+    final List<double> result = arr.map((final s) => s as double).toList();
     return result;
   }
 
@@ -26,7 +26,7 @@ class CocoaWindowChannel {
 }
 
 class MoveWindowDetector extends StatefulWidget {
-  const MoveWindowDetector({Key? key, this.child}) : super(key: key);
+  const MoveWindowDetector({final Key? key, this.child}) : super(key: key);
 
   final Widget? child;
 
@@ -39,7 +39,7 @@ class MoveWindowDetectorState extends State<MoveWindowDetector> {
   double winY = 0;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     if (!Platform.isMacOS) {
       return widget.child ?? Container();
     }
@@ -49,11 +49,11 @@ class MoveWindowDetectorState extends State<MoveWindowDetector> {
       onDoubleTap: () async {
         await CocoaWindowChannel.instance.zoom();
       },
-      onPanStart: (DragStartDetails details) {
+      onPanStart: (final DragStartDetails details) {
         winX = details.globalPosition.dx;
         winY = details.globalPosition.dy;
       },
-      onPanUpdate: (DragUpdateDetails details) async {
+      onPanUpdate: (final DragUpdateDetails details) async {
         final windowPos = await CocoaWindowChannel.instance.getWindowPosition();
         final double dx = windowPos[0];
         final double dy = windowPos[1];

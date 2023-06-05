@@ -12,30 +12,30 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   final TypeOptionController dataController;
 
   FieldEditorBloc({
-    required String viewId,
-    required String fieldName,
-    required bool isGroupField,
-    required IFieldTypeOptionLoader loader,
+    required final String viewId,
+    required final String fieldName,
+    required final bool isGroupField,
+    required final IFieldTypeOptionLoader loader,
   })  : dataController = TypeOptionController(viewId: viewId, loader: loader),
         super(FieldEditorState.initial(viewId, fieldName, isGroupField)) {
     on<FieldEditorEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.when(
           initial: () async {
-            dataController.addFieldListener((field) {
+            dataController.addFieldListener((final field) {
               if (!isClosed) {
                 add(FieldEditorEvent.didReceiveFieldChanged(field));
               }
             });
             await dataController.loadTypeOptionData();
           },
-          updateName: (name) {
+          updateName: (final name) {
             if (state.name != name) {
               dataController.fieldName = name;
               emit(state.copyWith(name: name));
             }
           },
-          didReceiveFieldChanged: (FieldPB field) {
+          didReceiveFieldChanged: (final FieldPB field) {
             emit(
               state.copyWith(
                 field: Some(field),
@@ -47,7 +47,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
           deleteField: () {
             state.field.fold(
               () => null,
-              (field) {
+              (final field) {
                 final fieldService = FieldBackendService(
                   viewId: viewId,
                   fieldId: field.id,
@@ -56,7 +56,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
               },
             );
           },
-          switchToField: (FieldType fieldType) async {
+          switchToField: (final FieldType fieldType) async {
             await dataController.switchToField(fieldType);
           },
         );
@@ -68,29 +68,29 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
 @freezed
 class FieldEditorEvent with _$FieldEditorEvent {
   const factory FieldEditorEvent.initial() = _InitialField;
-  const factory FieldEditorEvent.updateName(String name) = _UpdateName;
+  const factory FieldEditorEvent.updateName(final String name) = _UpdateName;
   const factory FieldEditorEvent.deleteField() = _DeleteField;
-  const factory FieldEditorEvent.switchToField(FieldType fieldType) =
+  const factory FieldEditorEvent.switchToField(final FieldType fieldType) =
       _SwitchToField;
-  const factory FieldEditorEvent.didReceiveFieldChanged(FieldPB field) =
+  const factory FieldEditorEvent.didReceiveFieldChanged(final FieldPB field) =
       _DidReceiveFieldChanged;
 }
 
 @freezed
 class FieldEditorState with _$FieldEditorState {
   const factory FieldEditorState({
-    required String viewId,
-    required String errorText,
-    required String name,
-    required Option<FieldPB> field,
-    required bool canDelete,
-    required bool isGroupField,
+    required final String viewId,
+    required final String errorText,
+    required final String name,
+    required final Option<FieldPB> field,
+    required final bool canDelete,
+    required final bool isGroupField,
   }) = _FieldEditorState;
 
   factory FieldEditorState.initial(
-    String viewId,
-    String fieldName,
-    bool isGroupField,
+    final String viewId,
+    final String fieldName,
+    final bool isGroupField,
   ) =>
       FieldEditorState(
         viewId: viewId,

@@ -10,11 +10,11 @@ import 'package:percent_indicator/percent_indicator.dart';
 
 class ChecklistProgressBar extends StatelessWidget {
   final double percent;
-  const ChecklistProgressBar({required this.percent, Key? key})
+  const ChecklistProgressBar({required this.percent, final Key? key})
       : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return LinearPercentIndicator(
       lineHeight: 10.0,
       percent: percent,
@@ -27,10 +27,10 @@ class ChecklistProgressBar extends StatelessWidget {
 }
 
 class SliverChecklistProgressBar extends StatelessWidget {
-  const SliverChecklistProgressBar({Key? key}) : super(key: key);
+  const SliverChecklistProgressBar({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SliverPersistentHeader(
       pinned: true,
       delegate: _SliverChecklistProgressBarDelegate(),
@@ -46,12 +46,12 @@ class _SliverChecklistProgressBarDelegate
 
   @override
   Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
+    final BuildContext context,
+    final double shrinkOffset,
+    final bool overlapsContent,
   ) {
     return BlocBuilder<ChecklistCellEditorBloc, ChecklistCellEditorState>(
-      builder: (context, state) {
+      builder: (final context, final state) {
         return Padding(
           padding: GridSize.typeOptionContentInsets,
           child: Column(
@@ -60,12 +60,12 @@ class _SliverChecklistProgressBarDelegate
                 autoClearWhenDone: true,
                 submitOnLeave: true,
                 hintText: LocaleKeys.grid_checklist_panelTitle.tr(),
-                onChanged: (text) {
+                onChanged: (final text) {
                   context
                       .read<ChecklistCellEditorBloc>()
                       .add(ChecklistCellEditorEvent.filterOption(text));
                 },
-                onSubmitted: (text) {
+                onSubmitted: (final text) {
                   context
                       .read<ChecklistCellEditorBloc>()
                       .add(ChecklistCellEditorEvent.newOption(text));
@@ -89,7 +89,7 @@ class _SliverChecklistProgressBarDelegate
   double get minExtent => fixHeight;
 
   @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
+  bool shouldRebuild(covariant final SliverPersistentHeaderDelegate oldDelegate) {
     return true;
   }
 }

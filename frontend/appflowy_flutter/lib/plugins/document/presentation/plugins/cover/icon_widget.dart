@@ -20,12 +20,12 @@ class _EmojiIconWidgetState extends State<EmojiIconWidget> {
   bool hover = true;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return MouseRegion(
-      onEnter: (event) {
+      onEnter: (final event) {
         setHidden(false);
       },
-      onExit: (event) {
+      onExit: (final event) {
         setHidden(true);
       },
       child: Container(
@@ -52,7 +52,7 @@ class _EmojiIconWidgetState extends State<EmojiIconWidget> {
     );
   }
 
-  void setHidden(bool value) {
+  void setHidden(final bool value) {
     if (hover == value) return;
     setState(() {
       hover = value;

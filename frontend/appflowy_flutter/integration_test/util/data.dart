@@ -59,7 +59,7 @@ class TestWorkspaceService {
     SharedPreferences.setMockInitialValues(
       {
         kSettingsLocationDefaultLocation:
-            await workspace.root.then((value) => value.path),
+            await workspace.root.then((final value) => value.path),
       },
     );
   }
@@ -67,11 +67,11 @@ class TestWorkspaceService {
   /// Workspaces that are checked into source are compressed. [TestWorkspaceService.setUp()] decompresses the file into an ephemeral directory that will be ignored by source control.
   Future<void> setUp() async {
     final inputStream =
-        InputFileStream(await workspace.zip.then((value) => value.path));
+        InputFileStream(await workspace.zip.then((final value) => value.path));
     final archive = ZipDecoder().decodeBuffer(inputStream);
     extractArchiveToDisk(
       archive,
-      await TestWorkspace._parent.then((value) => value.path),
+      await TestWorkspace._parent.then((final value) => value.path),
     );
   }
 
@@ -80,6 +80,7 @@ class TestWorkspaceService {
   }
 
   Future<void> tearDownAll() async {
-    await SharedPreferences.getInstance().then((value) => value.remove(kSettingsLocationDefaultLocation));
+    await SharedPreferences.getInstance()
+        .then((final value) => value.remove(kSettingsLocationDefaultLocation));
   }
 }

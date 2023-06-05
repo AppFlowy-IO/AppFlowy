@@ -35,22 +35,22 @@ abstract class OpenAIRepository {
   /// [temperature] is the temperature of the model
   ///
   Future<Either<OpenAIError, TextCompletionResponse>> getCompletions({
-    required String prompt,
-    String? suffix,
-    int maxTokens = 2048,
-    double temperature = .3,
+    required final String prompt,
+    final String? suffix,
+    final int maxTokens = 2048,
+    final double temperature = .3,
   });
 
   Future<void> getStreamedCompletions({
-    required String prompt,
-    required Future<void> Function() onStart,
-    required Future<void> Function(TextCompletionResponse response) onProcess,
-    required Future<void> Function() onEnd,
-    required void Function(OpenAIError error) onError,
-    String? suffix,
-    int maxTokens = 2048,
-    double temperature = 0.3,
-    bool useAction = false,
+    required final String prompt,
+    required final Future<void> Function() onStart,
+    required final Future<void> Function(TextCompletionResponse response) onProcess,
+    required final Future<void> Function() onEnd,
+    required final void Function(OpenAIError error) onError,
+    final String? suffix,
+    final int maxTokens = 2048,
+    final double temperature = 0.3,
+    final bool useAction = false,
   });
 
   ///  Get edits from GPT-3
@@ -60,9 +60,9 @@ abstract class OpenAIRepository {
   /// [temperature] is the temperature of the model
   ///
   Future<Either<OpenAIError, TextEditResponse>> getEdits({
-    required String input,
-    required String instruction,
-    double temperature = 0.3,
+    required final String input,
+    required final String instruction,
+    final double temperature = 0.3,
   });
 }
 
@@ -82,10 +82,10 @@ class HttpOpenAIRepository implements OpenAIRepository {
 
   @override
   Future<Either<OpenAIError, TextCompletionResponse>> getCompletions({
-    required String prompt,
-    String? suffix,
-    int maxTokens = 2048,
-    double temperature = 0.3,
+    required final String prompt,
+    final String? suffix,
+    final int maxTokens = 2048,
+    final double temperature = 0.3,
   }) async {
     final parameters = {
       'model': 'text-davinci-003',
@@ -117,15 +117,15 @@ class HttpOpenAIRepository implements OpenAIRepository {
 
   @override
   Future<void> getStreamedCompletions({
-    required String prompt,
-    required Future<void> Function() onStart,
-    required Future<void> Function(TextCompletionResponse response) onProcess,
-    required Future<void> Function() onEnd,
-    required void Function(OpenAIError error) onError,
-    String? suffix,
-    int maxTokens = 2048,
-    double temperature = 0.3,
-    bool useAction = false,
+    required final String prompt,
+    required final Future<void> Function() onStart,
+    required final Future<void> Function(TextCompletionResponse response) onProcess,
+    required final Future<void> Function() onEnd,
+    required final void Function(OpenAIError error) onError,
+    final String? suffix,
+    final int maxTokens = 2048,
+    final double temperature = 0.3,
+    final bool useAction = false,
   }) async {
     final parameters = {
       'model': 'text-davinci-003',
@@ -197,10 +197,10 @@ class HttpOpenAIRepository implements OpenAIRepository {
 
   @override
   Future<Either<OpenAIError, TextEditResponse>> getEdits({
-    required String input,
-    required String instruction,
-    double temperature = 0.3,
-    int n = 1,
+    required final String input,
+    required final String instruction,
+    final double temperature = 0.3,
+    final int n = 1,
   }) async {
     final parameters = {
       'model': 'text-davinci-edit-001',

@@ -20,19 +20,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DocumentShareButton extends StatelessWidget {
   final ViewPB view;
-  DocumentShareButton({Key? key, required this.view})
+  DocumentShareButton({final Key? key, required this.view})
       : super(key: ValueKey(view.hashCode));
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<DocShareBloc>(param1: view),
+      create: (final context) => getIt<DocShareBloc>(param1: view),
       child: BlocListener<DocShareBloc, DocShareState>(
-        listener: (context, state) {
+        listener: (final context, final state) {
           state.map(
-            initial: (_) {},
-            loading: (_) {},
-            finish: (state) {
+            initial: (final _) {},
+            loading: (final _) {},
+            finish: (final state) {
               state.successOrFail.fold(
                 _handleExportData,
                 _handleExportError,
@@ -41,7 +41,7 @@ class DocumentShareButton extends StatelessWidget {
           );
         },
         child: BlocBuilder<DocShareBloc, DocShareState>(
-          builder: (context, state) => ConstrainedBox(
+          builder: (final context, final state) => ConstrainedBox(
             constraints: const BoxConstraints.expand(
               height: 30,
               width: 100,
@@ -53,46 +53,46 @@ class DocumentShareButton extends StatelessWidget {
     );
   }
 
-  void _handleExportData(ExportDataPB exportData) {
+  void _handleExportData(final ExportDataPB exportData) {
     switch (exportData.exportType) {
       case ExportType.Link:
         break;
       case ExportType.Markdown:
         FlutterClipboard.copy(exportData.data)
-            .then((value) => Log.info('copied to clipboard'));
+            .then((final value) => Log.info('copied to clipboard'));
         break;
       case ExportType.Text:
         break;
     }
   }
 
-  void _handleExportError(FlowyError error) {}
+  void _handleExportError(final FlowyError error) {}
 }
 
 class ShareActionList extends StatelessWidget {
   const ShareActionList({
-    Key? key,
+    final Key? key,
     required this.view,
   }) : super(key: key);
 
   final ViewPB view;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final docShareBloc = context.read<DocShareBloc>();
     return PopoverActionList<ShareActionWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,
       offset: const Offset(0, 8),
       actions: ShareAction.values
-          .map((action) => ShareActionWrapper(action))
+          .map((final action) => ShareActionWrapper(action))
           .toList(),
-      buildChild: (controller) {
+      buildChild: (final controller) {
         return RoundedTextButton(
           title: LocaleKeys.shareAction_buttonText.tr(),
           onPressed: () => controller.show(),
         );
       },
-      onSelected: (action, controller) async {
+      onSelected: (final action, final controller) async {
         switch (action.inner) {
           case ShareAction.markdown:
             final exportPath = await FilePicker.platform.saveFile(
@@ -126,7 +126,7 @@ class ShareActionWrapper extends ActionCell {
 
   ShareActionWrapper(this.inner);
 
-  Widget? icon(Color iconColor) => null;
+  Widget? icon(final Color iconColor) => null;
 
   @override
   String get name {

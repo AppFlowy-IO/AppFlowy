@@ -8,7 +8,7 @@ const String kBoardType = 'board';
 
 class BoardNodeWidgetBuilder extends NodeWidgetBuilder<Node> {
   @override
-  Widget build(NodeWidgetContext<Node> context) {
+  Widget build(final NodeWidgetContext<Node> context) {
     return _BoardWidget(
       key: context.node.key,
       node: context.node,
@@ -17,7 +17,7 @@ class BoardNodeWidgetBuilder extends NodeWidgetBuilder<Node> {
   }
 
   @override
-  NodeValidator<Node> get nodeValidator => (node) {
+  NodeValidator<Node> get nodeValidator => (final node) {
         return node.attributes[kViewID] is String &&
             node.attributes[kAppID] is String;
       };
@@ -25,7 +25,7 @@ class BoardNodeWidgetBuilder extends NodeWidgetBuilder<Node> {
 
 class _BoardWidget extends StatefulWidget {
   const _BoardWidget({
-    Key? key,
+    final Key? key,
     required this.node,
     required this.editorState,
   }) : super(key: key);
@@ -39,11 +39,11 @@ class _BoardWidget extends StatefulWidget {
 
 class _BoardWidgetState extends State<_BoardWidget> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BuiltInPageWidget(
       node: widget.node,
       editorState: widget.editorState,
-      builder: (viewPB) {
+      builder: (final viewPB) {
         return BoardPage(
           key: ValueKey(viewPB.id),
           view: viewPB,

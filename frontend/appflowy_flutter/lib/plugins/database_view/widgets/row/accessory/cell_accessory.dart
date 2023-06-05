@@ -24,7 +24,7 @@ class GridCellAccessoryBuilder {
 
   final Widget Function(Key key) _builder;
 
-  GridCellAccessoryBuilder({required Widget Function(Key key) builder})
+  GridCellAccessoryBuilder({required final Widget Function(Key key) builder})
       : _builder = builder;
 
   Widget build() => _builder(_key);
@@ -54,7 +54,7 @@ class PrimaryCellAccessory extends StatefulWidget {
   const PrimaryCellAccessory({
     required this.onTapCallback,
     required this.isCellEditing,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -64,7 +64,7 @@ class PrimaryCellAccessory extends StatefulWidget {
 class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
     with GridCellAccessoryState {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Tooltip(
       message: LocaleKeys.tooltip_openAsPage.tr(),
       child: svgWidget(
@@ -87,7 +87,7 @@ class AccessoryHover extends StatefulWidget {
   const AccessoryHover({
     required this.child,
     this.contentPadding = EdgeInsets.zero,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -120,8 +120,8 @@ class _AccessoryHoverState extends State<AccessoryHover> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    List<Widget> children = [
+  Widget build(final BuildContext context) {
+    final List<Widget> children = [
       Padding(padding: widget.contentPadding, child: widget.child),
     ];
 
@@ -146,8 +146,8 @@ class _AccessoryHoverState extends State<AccessoryHover> {
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         opaque: false,
-        onEnter: (p) => setState(() => _hoverState.onHover = true),
-        onExit: (p) => setState(() => _hoverState.onHover = false),
+        onEnter: (final p) => setState(() => _hoverState.onHover = true),
+        onExit: (final p) => setState(() => _hoverState.onHover = false),
         child: Stack(
           fit: StackFit.loose,
           alignment: AlignmentDirectional.center,
@@ -161,7 +161,7 @@ class _AccessoryHoverState extends State<AccessoryHover> {
 class AccessoryHoverState extends ChangeNotifier {
   bool _onHover = false;
 
-  set onHover(bool value) {
+  set onHover(final bool value) {
     if (_onHover != value) {
       _onHover = value;
       notifyListeners();
@@ -173,17 +173,18 @@ class AccessoryHoverState extends ChangeNotifier {
 
 class CellAccessoryContainer extends StatelessWidget {
   final List<GridCellAccessoryBuilder> accessories;
-  const CellAccessoryContainer({required this.accessories, Key? key})
+  const CellAccessoryContainer({required this.accessories, final Key? key})
       : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final children =
-        accessories.where((accessory) => accessory.enable()).map((accessory) {
+  Widget build(final BuildContext context) {
+    final children = accessories
+        .where((final accessory) => accessory.enable())
+        .map((final accessory) {
       final hover = FlowyHover(
         style:
             HoverStyle(hoverColor: AFThemeExtension.of(context).lightGreyHover),
-        builder: (_, onHover) => Container(
+        builder: (final _, final onHover) => Container(
           width: 26,
           height: 26,
           padding: const EdgeInsets.all(3),

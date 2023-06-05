@@ -13,12 +13,12 @@ class CheckboxCardCellBloc
     required this.cellController,
   }) : super(CheckboxCardCellState.initial(cellController)) {
     on<CheckboxCardCellEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.when(
           initial: () async {
             _startListening();
           },
-          didReceiveCellUpdate: (cellData) {
+          didReceiveCellUpdate: (final cellData) {
             emit(state.copyWith(isSelected: _isSelected(cellData)));
           },
           select: () async {
@@ -41,7 +41,7 @@ class CheckboxCardCellBloc
 
   void _startListening() {
     _onCellChangedFn = cellController.startListening(
-      onCellChanged: ((cellContent) {
+      onCellChanged: ((final cellContent) {
         if (!isClosed) {
           add(CheckboxCardCellEvent.didReceiveCellUpdate(cellContent ?? ""));
         }
@@ -54,23 +54,23 @@ class CheckboxCardCellBloc
 class CheckboxCardCellEvent with _$CheckboxCardCellEvent {
   const factory CheckboxCardCellEvent.initial() = _InitialCell;
   const factory CheckboxCardCellEvent.select() = _Selected;
-  const factory CheckboxCardCellEvent.didReceiveCellUpdate(String cellContent) =
+  const factory CheckboxCardCellEvent.didReceiveCellUpdate(final String cellContent) =
       _DidReceiveCellUpdate;
 }
 
 @freezed
 class CheckboxCardCellState with _$CheckboxCardCellState {
   const factory CheckboxCardCellState({
-    required bool isSelected,
+    required final bool isSelected,
   }) = _CheckboxCellState;
 
-  factory CheckboxCardCellState.initial(TextCellController context) {
+  factory CheckboxCardCellState.initial(final TextCellController context) {
     return CheckboxCardCellState(
       isSelected: _isSelected(context.getCellData()),
     );
   }
 }
 
-bool _isSelected(String? cellData) {
+bool _isSelected(final String? cellData) {
   return cellData == "Yes";
 }

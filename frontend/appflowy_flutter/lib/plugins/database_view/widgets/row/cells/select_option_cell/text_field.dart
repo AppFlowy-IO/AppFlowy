@@ -38,9 +38,9 @@ class SelectOptionTextField extends StatefulWidget {
     required this.textSeparators,
     this.onClick,
     this.maxLength,
-    TextEditingController? textController,
-    FocusNode? focusNode,
-    Key? key,
+    final TextEditingController? textController,
+    final FocusNode? focusNode,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -56,7 +56,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
     focusNode = FocusNode();
     controller = TextEditingController();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((final _) {
       focusNode.requestFocus();
     });
     super.initState();
@@ -71,7 +71,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return TextFieldTags(
       textEditingController: controller,
       textfieldTagsController: widget.tagController,
@@ -79,25 +79,25 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
       focusNode: focusNode,
       textSeparators: widget.textSeparators,
       inputfieldBuilder: (
-        BuildContext context,
-        editController,
-        focusNode,
-        error,
-        onChanged,
-        onSubmitted,
+        final BuildContext context,
+        final editController,
+        final focusNode,
+        final error,
+        final onChanged,
+        final onSubmitted,
       ) {
-        return ((context, sc, tags, onTagDelegate) {
+        return ((final context, final sc, final tags, final onTagDelegate) {
           return TextField(
             controller: editController,
             focusNode: focusNode,
             onTap: widget.onClick,
-            onChanged: (text) {
+            onChanged: (final text) {
               if (onChanged != null) {
                 onChanged(text);
               }
               _newText(text, editController);
             },
-            onSubmitted: (text) {
+            onSubmitted: (final text) {
               if (onSubmitted != null) {
                 onSubmitted(text);
               }
@@ -145,7 +145,10 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
     );
   }
 
-  void _newText(String text, TextEditingController editingController) {
+  void _newText(
+    final String text,
+    final TextEditingController editingController,
+  ) {
     if (text.isEmpty) {
       widget.newText('');
       return;
@@ -159,17 +162,17 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
     widget.onPaste(result[0], result[1]);
   }
 
-  Widget? _renderTags(BuildContext context, ScrollController sc) {
+  Widget? _renderTags(final BuildContext context, final ScrollController sc) {
     if (widget.selectedOptionMap.isEmpty) {
       return null;
     }
 
     final children = widget.selectedOptionMap.values
         .map(
-          (option) => SelectOptionTag.fromOption(
+          (final option) => SelectOptionTag.fromOption(
             context: context,
             option: option,
-            onRemove: (option) => widget.onRemove(option),
+            onRemove: (final option) => widget.onRemove(option),
           ),
         )
         .toList();
@@ -199,8 +202,8 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
 }
 
 @visibleForTesting
-List splitInput(String input, List<String> textSeparators) {
-  List<String> splits = [];
+List splitInput(final String input, final List<String> textSeparators) {
+  final List<String> splits = [];
   String currentString = '';
 
   // split the string into tokens

@@ -20,10 +20,10 @@ class CardCellBuilder<CustomCardData> {
   CardCellBuilder(this.cellCache, {this.styles});
 
   Widget buildCell({
-    CustomCardData? cardData,
-    required CellIdentifier cellId,
-    EditableCardNotifier? cellNotifier,
-    RowCardRenderHook<CustomCardData>? renderHook,
+    final CustomCardData? cardData,
+    required final CellIdentifier cellId,
+    final EditableCardNotifier? cellNotifier,
+    final RowCardRenderHook<CustomCardData>? renderHook,
   }) {
     final cellControllerBuilder = CellControllerBuilder(
       cellId: cellId,

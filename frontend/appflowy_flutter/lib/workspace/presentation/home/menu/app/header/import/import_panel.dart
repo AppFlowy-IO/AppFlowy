@@ -14,12 +14,12 @@ import 'package:easy_localization/easy_localization.dart';
 typedef ImportCallback = void Function(Document? document);
 
 Future<void> showImportPanel(
-  BuildContext context,
-  ImportCallback callback,
+  final BuildContext context,
+  final ImportCallback callback,
 ) async {
   await showDialog(
     context: context,
-    builder: (context) {
+    builder: (final context) {
       return AlertDialog(
         title: FlowyText.semibold(
           LocaleKeys.moreAction_import.tr(),
@@ -84,7 +84,7 @@ class _ImportPanel extends StatefulWidget {
 
 class _ImportPanelState extends State<_ImportPanel> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final width = MediaQuery.of(context).size.width * 0.7;
     final height = width * 0.5;
     return FlowyContainer(
@@ -95,7 +95,7 @@ class _ImportPanelState extends State<_ImportPanel> {
         childAspectRatio: 1 / .2,
         crossAxisCount: 2,
         children: _ImportType.values.map(
-          (e) {
+          (final e) {
             return Card(
               child: FlowyButton(
                 leftIcon: e.icon,
@@ -119,7 +119,7 @@ class _ImportPanelState extends State<_ImportPanel> {
     );
   }
 
-  Future<void> _importFile(_ImportType importType) async {
+  Future<void> _importFile(final _ImportType importType) async {
     final result = await getIt<FilePickerService>().pickFiles(
       allowMultiple: false,
       type: FileType.custom,

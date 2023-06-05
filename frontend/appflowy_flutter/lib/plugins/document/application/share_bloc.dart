@@ -19,36 +19,36 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
   ViewPB view;
   DocShareBloc({required this.view, required this.service})
       : super(const DocShareState.initial()) {
-    on<DocShareEvent>((event, emit) async {
+    on<DocShareEvent>((final event, final emit) async {
       await event.map(
-        shareMarkdown: (ShareMarkdown shareMarkdown) async {
-          await service.exportMarkdown(view).then((result) {
+        shareMarkdown: (final ShareMarkdown shareMarkdown) async {
+          await service.exportMarkdown(view).then((final result) {
             result.fold(
-              (value) => emit(
+              (final value) => emit(
                 DocShareState.finish(
                   left(_saveMarkdown(value, shareMarkdown.path)),
                 ),
               ),
-              (error) => emit(DocShareState.finish(right(error))),
+              (final error) => emit(DocShareState.finish(right(error))),
             );
           });
 
           emit(const DocShareState.loading());
         },
-        shareLink: (ShareLink value) {},
-        shareText: (ShareText value) {},
+        shareLink: (final ShareLink value) {},
+        shareText: (final ShareText value) {},
       );
     });
   }
 
-  ExportDataPB _saveMarkdown(ExportDataPB value, String path) {
+  ExportDataPB _saveMarkdown(final ExportDataPB value, final String path) {
     final markdown = _convertDocumentToMarkdown(value);
     value.data = markdown;
     File(path).writeAsStringSync(markdown);
     return value;
   }
 
-  String _convertDocumentToMarkdown(ExportDataPB value) {
+  String _convertDocumentToMarkdown(final ExportDataPB value) {
     final json = jsonDecode(value.data);
     final document = Document.fromJson(json);
     return documentToMarkdown(
@@ -64,7 +64,7 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
 
 @freezed
 class DocShareEvent with _$DocShareEvent {
-  const factory DocShareEvent.shareMarkdown(String path) = ShareMarkdown;
+  const factory DocShareEvent.shareMarkdown(final String path) = ShareMarkdown;
   const factory DocShareEvent.shareText() = ShareText;
   const factory DocShareEvent.shareLink() = ShareLink;
 }
@@ -74,6 +74,6 @@ class DocShareState with _$DocShareState {
   const factory DocShareState.initial() = _Initial;
   const factory DocShareState.loading() = _Loading;
   const factory DocShareState.finish(
-    Either<ExportDataPB, FlowyError> successOrFail,
+    final Either<ExportDataPB, FlowyError> successOrFail,
   ) = _Finish;
 }

@@ -23,11 +23,11 @@ class TextCardCell<CustomCardData>
 
   const TextCardCell({
     required this.cellControllerBuilder,
-    required CustomCardData? cardData,
+    required final CustomCardData? cardData,
     this.editableNotifier,
     this.renderHook,
-    TextCardCellStyle? style,
-    Key? key,
+    final TextCardCellStyle? style,
+    final Key? key,
   }) : super(key: key, style: style, cardData: cardData);
 
   @override
@@ -72,7 +72,7 @@ class _TextCardCellState extends State<TextCardCell> {
 
       final isEditing = widget.editableNotifier?.isCellEditing.value ?? false;
       if (isEditing) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((final _) {
           focusNode.requestFocus();
         });
       }
@@ -81,23 +81,23 @@ class _TextCardCellState extends State<TextCardCell> {
   }
 
   @override
-  void didUpdateWidget(covariant TextCardCell oldWidget) {
+  void didUpdateWidget(covariant final TextCardCell oldWidget) {
     _bindEditableNotifier();
     super.didUpdateWidget(oldWidget);
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocListener<TextCardCellBloc, TextCardCellState>(
-        listener: (context, state) {
+        listener: (final context, final state) {
           if (_controller.text != state.content) {
             _controller.text = state.content;
           }
         },
         child: BlocBuilder<TextCardCellBloc, TextCardCellState>(
-          buildWhen: (previous, current) {
+          buildWhen: (final previous, final current) {
             if (previous.content != current.content &&
                 _controller.text == current.content &&
                 current.enableEdit) {
@@ -106,9 +106,9 @@ class _TextCardCellState extends State<TextCardCell> {
 
             return previous != current;
           },
-          builder: (context, state) {
+          builder: (final context, final state) {
             // Returns a custom render widget
-            Widget? custom = widget.renderHook?.call(
+            final Widget? custom = widget.renderHook?.call(
               state.content,
               widget.cardData,
               context,
@@ -157,7 +157,7 @@ class _TextCardCellState extends State<TextCardCell> {
     }
   }
 
-  Widget _buildText(TextCardCellState state) {
+  Widget _buildText(final TextCardCellState state) {
     return Padding(
       padding: EdgeInsets.symmetric(
         vertical: CardSizes.cardCellVPadding,
@@ -175,7 +175,7 @@ class _TextCardCellState extends State<TextCardCell> {
       child: TextField(
         controller: _controller,
         focusNode: focusNode,
-        onChanged: (value) => focusChanged(),
+        onChanged: (final value) => focusChanged(),
         onEditingComplete: () => focusNode.unfocus(),
         maxLines: null,
         style: Theme.of(context).textTheme.bodyMedium!.size(_fontSize()),

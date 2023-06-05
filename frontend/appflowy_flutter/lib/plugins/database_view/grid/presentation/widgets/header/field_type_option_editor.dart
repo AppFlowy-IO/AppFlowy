@@ -26,28 +26,28 @@ class FieldTypeOptionEditor extends StatelessWidget {
   final PopoverMutex popoverMutex;
 
   const FieldTypeOptionEditor({
-    required TypeOptionController dataController,
+    required final TypeOptionController dataController,
     required this.popoverMutex,
-    Key? key,
+    final Key? key,
   })  : _dataController = dataController,
         super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) {
+      create: (final context) {
         final bloc = FieldTypeOptionEditBloc(_dataController);
         bloc.add(const FieldTypeOptionEditEvent.initial());
         return bloc;
       },
       child: BlocBuilder<FieldTypeOptionEditBloc, FieldTypeOptionEditState>(
-        builder: (context, state) {
+        builder: (final context, final state) {
           final typeOptionWidget = _typeOptionWidget(
             context: context,
             state: state,
           );
 
-          List<Widget> children = [
+          final List<Widget> children = [
             _SwitchFieldButton(popoverMutex: popoverMutex),
             if (typeOptionWidget != null) typeOptionWidget
           ];
@@ -62,8 +62,8 @@ class FieldTypeOptionEditor extends StatelessWidget {
   }
 
   Widget? _typeOptionWidget({
-    required BuildContext context,
-    required FieldTypeOptionEditState state,
+    required final BuildContext context,
+    required final FieldTypeOptionEditState state,
   }) {
     return makeTypeOptionWidget(
       context: context,
@@ -77,20 +77,20 @@ class _SwitchFieldButton extends StatelessWidget {
   final PopoverMutex popoverMutex;
   const _SwitchFieldButton({
     required this.popoverMutex,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final widget = AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(460, 540)),
       asBarrier: true,
       triggerActions: PopoverTriggerFlags.click,
       mutex: popoverMutex,
       offset: const Offset(8, 0),
-      popupBuilder: (popOverContext) {
+      popupBuilder: (final popOverContext) {
         return FieldTypeList(
-          onSelectField: (newFieldType) {
+          onSelectField: (final newFieldType) {
             context
                 .read<FieldTypeOptionEditBloc>()
                 .add(FieldTypeOptionEditEvent.switchToField(newFieldType));
@@ -109,7 +109,7 @@ class _SwitchFieldButton extends StatelessWidget {
     );
   }
 
-  Widget _buildMoreButton(BuildContext context) {
+  Widget _buildMoreButton(final BuildContext context) {
     final bloc = context.read<FieldTypeOptionEditBloc>();
     return FlowyButton(
       text: FlowyText.medium(
@@ -123,5 +123,5 @@ class _SwitchFieldButton extends StatelessWidget {
 }
 
 abstract class TypeOptionWidget extends StatelessWidget {
-  const TypeOptionWidget({Key? key}) : super(key: key);
+  const TypeOptionWidget({final Key? key}) : super(key: key);
 }

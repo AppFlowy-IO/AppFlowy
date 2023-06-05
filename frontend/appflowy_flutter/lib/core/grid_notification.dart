@@ -17,13 +17,13 @@ typedef DatabaseNotificationCallback = void Function(
 class DatabaseNotificationParser
     extends NotificationParser<DatabaseNotification, FlowyError> {
   DatabaseNotificationParser({
-    String? id,
-    required DatabaseNotificationCallback callback,
+    final String? id,
+    required final DatabaseNotificationCallback callback,
   }) : super(
           id: id,
           callback: callback,
-          tyParser: (ty) => DatabaseNotification.valueOf(ty),
-          errorParser: (bytes) => FlowyError.fromBuffer(bytes),
+          tyParser: (final ty) => DatabaseNotification.valueOf(ty),
+          errorParser: (final bytes) => FlowyError.fromBuffer(bytes),
         );
 }
 
@@ -37,11 +37,11 @@ class DatabaseNotificationListener {
   DatabaseNotificationParser? _parser;
 
   DatabaseNotificationListener({
-    required String objectId,
-    required DatabaseNotificationHandler handler,
+    required final String objectId,
+    required final DatabaseNotificationHandler handler,
   }) : _parser = DatabaseNotificationParser(id: objectId, callback: handler) {
     _subscription =
-        RustStreamReceiver.listen((observable) => _parser?.parse(observable));
+        RustStreamReceiver.listen((final observable) => _parser?.parse(observable));
   }
 
   Future<void> stop() async {

@@ -25,12 +25,12 @@ class GridCreateFilterBloc
       : _filterBackendSvc = FilterBackendService(viewId: viewId),
         super(GridCreateFilterState.initial(fieldController.fieldInfos)) {
     on<GridCreateFilterEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.when(
           initial: () async {
             _startListening();
           },
-          didReceiveFields: (List<FieldInfo> fields) {
+          didReceiveFields: (final List<FieldInfo> fields) {
             emit(
               state.copyWith(
                 allFields: fields,
@@ -38,7 +38,7 @@ class GridCreateFilterBloc
               ),
             );
           },
-          didReceiveFilterText: (String text) {
+          didReceiveFilterText: (final String text) {
             emit(
               state.copyWith(
                 filterText: text,
@@ -46,7 +46,7 @@ class GridCreateFilterBloc
               ),
             );
           },
-          createDefaultFilter: (FieldInfo field) {
+          createDefaultFilter: (final FieldInfo field) {
             emit(state.copyWith(didCreateFilter: true));
             _createDefaultFilter(field);
           },
@@ -56,12 +56,12 @@ class GridCreateFilterBloc
   }
 
   List<FieldInfo> _filterFields(
-    List<FieldInfo> fields,
-    String filterText,
+    final List<FieldInfo> fields,
+    final String filterText,
   ) {
     final List<FieldInfo> allFields = List.from(fields);
     final keyword = filterText.toLowerCase();
-    allFields.retainWhere((field) {
+    allFields.retainWhere((final field) {
       if (!field.canCreateFilter) {
         return false;
       }
@@ -77,14 +77,14 @@ class GridCreateFilterBloc
   }
 
   void _startListening() {
-    _onFieldFn = (fields) {
-      fields.retainWhere((field) => field.canCreateFilter);
+    _onFieldFn = (final fields) {
+      fields.retainWhere((final field) => field.canCreateFilter);
       add(GridCreateFilterEvent.didReceiveFields(fields));
     };
     fieldController.addListener(onReceiveFields: _onFieldFn);
   }
 
-  Future<Either<Unit, FlowyError>> _createDefaultFilter(FieldInfo field) async {
+  Future<Either<Unit, FlowyError>> _createDefaultFilter(final FieldInfo field) async {
     final fieldId = field.id;
     switch (field.fieldType) {
       case FieldType.Checkbox:
@@ -151,26 +151,26 @@ class GridCreateFilterBloc
 @freezed
 class GridCreateFilterEvent with _$GridCreateFilterEvent {
   const factory GridCreateFilterEvent.initial() = _Initial;
-  const factory GridCreateFilterEvent.didReceiveFields(List<FieldInfo> fields) =
+  const factory GridCreateFilterEvent.didReceiveFields(final List<FieldInfo> fields) =
       _DidReceiveFields;
 
-  const factory GridCreateFilterEvent.createDefaultFilter(FieldInfo field) =
+  const factory GridCreateFilterEvent.createDefaultFilter(final FieldInfo field) =
       _CreateDefaultFilter;
 
-  const factory GridCreateFilterEvent.didReceiveFilterText(String text) =
+  const factory GridCreateFilterEvent.didReceiveFilterText(final String text) =
       _DidReceiveFilterText;
 }
 
 @freezed
 class GridCreateFilterState with _$GridCreateFilterState {
   const factory GridCreateFilterState({
-    required String filterText,
-    required List<FieldInfo> creatableFields,
-    required List<FieldInfo> allFields,
-    required bool didCreateFilter,
+    required final String filterText,
+    required final List<FieldInfo> creatableFields,
+    required final List<FieldInfo> allFields,
+    required final bool didCreateFilter,
   }) = _GridFilterState;
 
-  factory GridCreateFilterState.initial(List<FieldInfo> fields) {
+  factory GridCreateFilterState.initial(final List<FieldInfo> fields) {
     return GridCreateFilterState(
       filterText: "",
       creatableFields: getCreatableFilter(fields),
@@ -180,8 +180,8 @@ class GridCreateFilterState with _$GridCreateFilterState {
   }
 }
 
-List<FieldInfo> getCreatableFilter(List<FieldInfo> fieldInfos) {
+List<FieldInfo> getCreatableFilter(final List<FieldInfo> fieldInfos) {
   final List<FieldInfo> creatableFields = List.from(fieldInfos);
-  creatableFields.retainWhere((element) => element.canCreateFilter);
+  creatableFields.retainWhere((final element) => element.canCreateFilter);
   return creatableFields;
 }

@@ -9,8 +9,11 @@ import 'models/category_models.dart';
 import 'models/emoji_model.dart';
 
 class DefaultEmojiPickerView extends EmojiPickerBuilder {
-  const DefaultEmojiPickerView(Config config, EmojiViewState state, {Key? key})
-      : super(config, state, key: key);
+  const DefaultEmojiPickerView(
+    final Config config,
+    final EmojiViewState state, {
+    final Key? key,
+  }) : super(config, state, key: key);
 
   @override
   DefaultEmojiPickerViewState createState() => DefaultEmojiPickerViewState();
@@ -27,19 +30,21 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
   @override
   void initState() {
     var initCategory = widget.state.categoryEmoji.indexWhere(
-        (element) => element.category == widget.config.initCategory,);
+      (final element) => element.category == widget.config.initCategory,
+    );
     if (initCategory == -1) {
       initCategory = 0;
     }
     _tabController = TabController(
-        initialIndex: initCategory,
-        length: widget.state.categoryEmoji.length,
-        vsync: this,);
+      initialIndex: initCategory,
+      length: widget.state.categoryEmoji.length,
+      vsync: this,
+    );
     _pageController = PageController(initialPage: initCategory);
     _emojiFocusNode.requestFocus();
 
     _emojiController.addListener(() {
-      String query = _emojiController.text.toLowerCase();
+      final String query = _emojiController.text.toLowerCase();
       if (query.isEmpty) {
         searchEmojiList.emoji.clear();
         _pageController!.jumpToPage(
@@ -47,9 +52,9 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
         );
       } else {
         searchEmojiList.emoji.clear();
-        for (var element in widget.state.categoryEmoji) {
+        for (final element in widget.state.categoryEmoji) {
           searchEmojiList.emoji.addAll(
-            element.emoji.where((item) {
+            element.emoji.where((final item) {
               return item.name.toLowerCase().contains(query);
             }).toList(),
           );
@@ -72,30 +77,31 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
       return Material(
         type: MaterialType.transparency,
         child: IconButton(
-            padding: const EdgeInsets.only(bottom: 2),
-            icon: Icon(
-              Icons.backspace,
-              color: widget.config.backspaceColor,
-            ),
-            onPressed: () {
-              widget.state.onBackspacePressed!();
-            },),
+          padding: const EdgeInsets.only(bottom: 2),
+          icon: Icon(
+            Icons.backspace,
+            color: widget.config.backspaceColor,
+          ),
+          onPressed: () {
+            widget.state.onBackspacePressed!();
+          },
+        ),
       );
     }
     return Container();
   }
 
   bool isEmojiSearching() {
-    bool result =
+    final bool result =
         searchEmojiList.emoji.isNotEmpty || _emojiController.text.isNotEmpty;
 
     return result;
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return LayoutBuilder(
-      builder: (context, constraints) {
+      builder: (final context, final constraints) {
         final emojiSize = widget.config.getEmojiSize(constraints.maxWidth);
 
         return Container(
@@ -148,7 +154,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
                         borderRadius: BorderRadius.circular(4.0),
                         color: Colors.grey.withOpacity(0.5),
                       ),
-                      onTap: (index) {
+                      onTap: (final index) {
                         _pageController!.animateToPage(
                           index,
                           duration: widget.config.tabIndicatorAnimDuration,
@@ -160,8 +166,12 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
                           : widget.state.categoryEmoji
                               .asMap()
                               .entries
-                              .map<Widget>((item) => _buildCategory(
-                                  item.value.category, emojiSize,),)
+                              .map<Widget>(
+                                (final item) => _buildCategory(
+                                  item.value.category,
+                                  emojiSize,
+                                ),
+                              )
                               .toList(),
                     ),
                   ),
@@ -181,8 +191,8 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
                   //     duration: widget.config.tabIndicatorAnimDuration,
                   //   );
                   // },
-                  itemBuilder: (context, index) {
-                    CategoryEmoji catEmoji = isEmojiSearching()
+                  itemBuilder: (final context, final index) {
+                    final CategoryEmoji catEmoji = isEmojiSearching()
                         ? searchEmojiList
                         : widget.state.categoryEmoji[index];
                     return _buildPage(emojiSize, catEmoji);
@@ -196,7 +206,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
     );
   }
 
-  Widget _buildCategory(Category category, double categorySize) {
+  Widget _buildCategory(final Category category, final double categorySize) {
     return Tab(
       height: categorySize,
       child: Icon(
@@ -206,8 +216,10 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
     );
   }
 
-  Widget _buildButtonWidget(
-      {required VoidCallback onPressed, required Widget child,}) {
+  Widget _buildButtonWidget({
+    required final VoidCallback onPressed,
+    required final Widget child,
+  }) {
     if (widget.config.buttonMode == ButtonMode.MATERIAL) {
       return InkWell(
         onTap: onPressed,
@@ -220,7 +232,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
     );
   }
 
-  Widget _buildPage(double emojiSize, CategoryEmoji categoryEmoji) {
+  Widget _buildPage(final double emojiSize, final CategoryEmoji categoryEmoji) {
     // Display notice if recent has no entries yet
     final scrollController = ScrollController();
 
@@ -250,7 +262,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
             crossAxisSpacing: widget.config.horizontalSpacing,
           ),
           itemCount: categoryEmoji.emoji.length,
-          itemBuilder: (context, index) {
+          itemBuilder: (final context, final index) {
             final item = categoryEmoji.emoji[index];
             return _buildEmoji(emojiSize, categoryEmoji, item);
           },
@@ -261,33 +273,35 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
   }
 
   Widget _buildEmoji(
-    double emojiSize,
-    CategoryEmoji categoryEmoji,
-    Emoji emoji,
+    final double emojiSize,
+    final CategoryEmoji categoryEmoji,
+    final Emoji emoji,
   ) {
     return _buildButtonWidget(
-        onPressed: () {
-          widget.state.onEmojiSelected(categoryEmoji.category, emoji);
-        },
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            emoji.emoji,
-            textScaleFactor: 1.0,
-            style: TextStyle(
-              fontSize: emojiSize,
-              backgroundColor: Colors.transparent,
-            ),
+      onPressed: () {
+        widget.state.onEmojiSelected(categoryEmoji.category, emoji);
+      },
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          emoji.emoji,
+          textScaleFactor: 1.0,
+          style: TextStyle(
+            fontSize: emojiSize,
+            backgroundColor: Colors.transparent,
           ),
-        ),);
+        ),
+      ),
+    );
   }
 
   Widget _buildNoRecent() {
     return Center(
-        child: Text(
-      widget.config.noRecentsText,
-      style: widget.config.noRecentsStyle,
-      textAlign: TextAlign.center,
-    ),);
+      child: Text(
+        widget.config.noRecentsText,
+        style: widget.config.noRecentsStyle,
+        textAlign: TextAlign.center,
+      ),
+    );
   }
 }

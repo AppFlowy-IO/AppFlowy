@@ -5,10 +5,10 @@ part 'error.g.dart';
 @freezed
 class OpenAIError with _$OpenAIError {
   const factory OpenAIError({
-    String? code,
-    required String message,
+    final String? code,
+    required final String message,
   }) = _OpenAIError;
 
-  factory OpenAIError.fromJson(Map<String, Object?> json) =>
+  factory OpenAIError.fromJson(final Map<String, Object?> json) =>
       _$OpenAIErrorFromJson(json);
 }

@@ -30,7 +30,7 @@ class GridRow extends StatefulWidget {
     required this.dataController,
     required this.cellBuilder,
     required this.openDetailPage,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -51,13 +51,14 @@ class _GridRowState extends State<GridRow> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: _rowBloc,
       child: _RowEnterRegion(
         child: BlocBuilder<RowBloc, RowState>(
-          buildWhen: (p, c) => p.rowInfo.rowPB.height != c.rowInfo.rowPB.height,
-          builder: (context, state) {
+          buildWhen: (final p, final c) =>
+              p.rowInfo.rowPB.height != c.rowInfo.rowPB.height,
+          builder: (final context, final state) {
             final content = Expanded(
               child: RowContent(
                 builder: widget.cellBuilder,
@@ -89,7 +90,7 @@ class _GridRowState extends State<GridRow> {
 }
 
 class _RowLeading extends StatefulWidget {
-  const _RowLeading({Key? key}) : super(key: key);
+  const _RowLeading({final Key? key}) : super(key: key);
 
   @override
   State<_RowLeading> createState() => _RowLeadingState();
@@ -105,18 +106,18 @@ class _RowLeadingState extends State<_RowLeading> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return AppFlowyPopover(
       controller: popoverController,
       triggerActions: PopoverTriggerFlags.none,
       constraints: BoxConstraints.loose(const Size(140, 200)),
       direction: PopoverDirection.rightWithCenterAligned,
       margin: const EdgeInsets.all(6),
-      popupBuilder: (BuildContext popoverContext) {
+      popupBuilder: (final BuildContext popoverContext) {
         return RowActions(rowData: context.read<RowBloc>().state.rowInfo);
       },
       child: Consumer<RegionStateNotifier>(
-        builder: (context, state, _) {
+        builder: (final context, final state, final _) {
           return SizedBox(
             width: GridSize.leadingHeaderPadding,
             child: state.onEnter ? _activeWidget() : null,
@@ -142,19 +143,19 @@ class _RowLeadingState extends State<_RowLeading> {
 }
 
 class _RowTrailing extends StatelessWidget {
-  const _RowTrailing({Key? key}) : super(key: key);
+  const _RowTrailing({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return const SizedBox();
   }
 }
 
 class _InsertButton extends StatelessWidget {
-  const _InsertButton({Key? key}) : super(key: key);
+  const _InsertButton({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FlowyIconButton(
       tooltipText: LocaleKeys.tooltip_addNewRow.tr(),
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
@@ -174,7 +175,7 @@ class _MenuButton extends StatefulWidget {
   final VoidCallback openMenu;
   const _MenuButton({
     required this.openMenu,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -188,7 +189,7 @@ class _MenuButtonState extends State<_MenuButton> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FlowyIconButton(
       tooltipText: LocaleKeys.tooltip_openMenu.tr(),
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
@@ -210,15 +211,15 @@ class RowContent extends StatelessWidget {
   const RowContent({
     required this.builder,
     required this.onExpand,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<RowBloc, RowState>(
-      buildWhen: (previous, current) =>
+      buildWhen: (final previous, final current) =>
           !listEquals(previous.cells, current.cells),
-      builder: (context, state) {
+      builder: (final context, final state) {
         return IntrinsicHeight(
           child: Row(
             mainAxisSize: MainAxisSize.max,
@@ -231,22 +232,25 @@ class RowContent extends StatelessWidget {
     );
   }
 
-  List<Widget> _makeCells(BuildContext context, CellByFieldId cellByFieldId) {
+  List<Widget> _makeCells(
+    final BuildContext context,
+    final CellByFieldId cellByFieldId,
+  ) {
     return cellByFieldId.values.map(
-      (cellId) {
+      (final cellId) {
         final GridCellWidget child = builder.build(cellId);
 
         return CellContainer(
           width: cellId.fieldInfo.width.toDouble(),
           isPrimary: cellId.fieldInfo.isPrimary,
           cellContainerNotifier: CellContainerNotifier(child),
-          accessoryBuilder: (buildContext) {
+          accessoryBuilder: (final buildContext) {
             final builder = child.accessoryBuilder;
-            List<GridCellAccessoryBuilder> accessories = [];
+            final List<GridCellAccessoryBuilder> accessories = [];
             if (cellId.fieldInfo.isPrimary) {
               accessories.add(
                 GridCellAccessoryBuilder(
-                  builder: (key) => PrimaryCellAccessory(
+                  builder: (final key) => PrimaryCellAccessory(
                     key: key,
                     onTapCallback: onExpand,
                     isCellEditing: buildContext.isCellEditing,
@@ -270,7 +274,7 @@ class RowContent extends StatelessWidget {
 class RegionStateNotifier extends ChangeNotifier {
   bool _onEnter = false;
 
-  set onEnter(bool value) {
+  set onEnter(final bool value) {
     if (_onEnter != value) {
       _onEnter = value;
       notifyListeners();
@@ -282,7 +286,8 @@ class RegionStateNotifier extends ChangeNotifier {
 
 class _RowEnterRegion extends StatefulWidget {
   final Widget child;
-  const _RowEnterRegion({required this.child, Key? key}) : super(key: key);
+  const _RowEnterRegion({required this.child, final Key? key})
+      : super(key: key);
 
   @override
   State<_RowEnterRegion> createState() => _RowEnterRegionState();
@@ -298,13 +303,13 @@ class _RowEnterRegionState extends State<_RowEnterRegion> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return ChangeNotifierProvider.value(
       value: _rowStateNotifier,
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
-        onEnter: (p) => _rowStateNotifier.onEnter = true,
-        onExit: (p) => _rowStateNotifier.onEnter = false,
+        onEnter: (final p) => _rowStateNotifier.onEnter = true,
+        onExit: (final p) => _rowStateNotifier.onEnter = false,
         child: widget.child,
       ),
     );

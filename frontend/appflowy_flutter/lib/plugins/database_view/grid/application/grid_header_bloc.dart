@@ -17,21 +17,21 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
     required this.fieldController,
   }) : super(GridHeaderState.initial(fieldController.fieldInfos)) {
     on<GridHeaderEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.map(
-          initial: (_InitialHeader value) async {
+          initial: (final _InitialHeader value) async {
             _startListening();
           },
-          didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
+          didReceiveFieldUpdate: (final _DidReceiveFieldUpdate value) {
             emit(
               state.copyWith(
                 fields: value.fields
-                    .where((element) => element.visibility)
+                    .where((final element) => element.visibility)
                     .toList(),
               ),
             );
           },
-          moveField: (_MoveField value) async {
+          moveField: (final _MoveField value) async {
             await _moveField(value, emit);
           },
         );
@@ -40,8 +40,8 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   }
 
   Future<void> _moveField(
-    _MoveField value,
-    Emitter<GridHeaderState> emit,
+    final _MoveField value,
+    final Emitter<GridHeaderState> emit,
   ) async {
     final fields = List<FieldInfo>.from(state.fields);
     fields.insert(value.toIndex, fields.removeAt(value.fromIndex));
@@ -53,12 +53,12 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
       value.fromIndex,
       value.toIndex,
     );
-    result.fold((l) {}, (err) => Log.error(err));
+    result.fold((final l) {}, (final err) => Log.error(err));
   }
 
   Future<void> _startListening() async {
     fieldController.addListener(
-      onReceiveFields: (fields) =>
+      onReceiveFields: (final fields) =>
           add(GridHeaderEvent.didReceiveFieldUpdate(fields)),
       listenWhen: () => !isClosed,
     );
@@ -68,21 +68,21 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
 @freezed
 class GridHeaderEvent with _$GridHeaderEvent {
   const factory GridHeaderEvent.initial() = _InitialHeader;
-  const factory GridHeaderEvent.didReceiveFieldUpdate(List<FieldInfo> fields) =
+  const factory GridHeaderEvent.didReceiveFieldUpdate(final List<FieldInfo> fields) =
       _DidReceiveFieldUpdate;
   const factory GridHeaderEvent.moveField(
-    FieldPB field,
-    int fromIndex,
-    int toIndex,
+    final FieldPB field,
+    final int fromIndex,
+    final int toIndex,
   ) = _MoveField;
 }
 
 @freezed
 class GridHeaderState with _$GridHeaderState {
-  const factory GridHeaderState({required List<FieldInfo> fields}) =
+  const factory GridHeaderState({required final List<FieldInfo> fields}) =
       _GridHeaderState;
 
-  factory GridHeaderState.initial(List<FieldInfo> fields) {
+  factory GridHeaderState.initial(final List<FieldInfo> fields) {
     // final List<FieldPB> newFields = List.from(fields);
     // newFields.retainWhere((field) => field.visibility);
     return GridHeaderState(fields: fields);

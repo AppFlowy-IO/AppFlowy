@@ -27,13 +27,13 @@ void main() {
       "switch to text field",
       build: () => editorBloc,
       wait: boardResponseDuration(),
-      act: (bloc) async {
+      act: (final bloc) async {
         bloc.add(const FieldEditorEvent.switchToField(FieldType.RichText));
       },
-      verify: (bloc) {
+      verify: (final bloc) {
         bloc.state.field.fold(
           () => throw Exception(),
-          (field) => field.fieldType == FieldType.RichText,
+          (final field) => field.fieldType == FieldType.RichText,
         );
       },
     );
@@ -42,7 +42,7 @@ void main() {
       build: () =>
           BoardBloc(view: context.gridView)..add(const BoardEvent.initial()),
       wait: boardResponseDuration(),
-      verify: (bloc) {
+      verify: (final bloc) {
         assert(
           bloc.groupControllers.values.length == 1,
           "Expected 1, but receive ${bloc.groupControllers.values.length}",

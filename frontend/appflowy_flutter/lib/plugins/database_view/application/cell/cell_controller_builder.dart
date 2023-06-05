@@ -21,8 +21,8 @@ class CellControllerBuilder {
   final CellCache _cellCache;
 
   CellControllerBuilder({
-    required CellIdentifier cellId,
-    required CellCache cellCache,
+    required final CellIdentifier cellId,
+    required final CellCache cellCache,
   })  : _cellCache = cellCache,
         _cellId = cellId;
 

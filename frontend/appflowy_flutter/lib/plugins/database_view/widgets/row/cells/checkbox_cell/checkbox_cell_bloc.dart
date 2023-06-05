@@ -11,11 +11,11 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
   void Function()? _onCellChangedFn;
 
   CheckboxCellBloc({
-    required CellBackendService service,
+    required final CellBackendService service,
     required this.cellController,
   }) : super(CheckboxCellState.initial(cellController)) {
     on<CheckboxCellEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.when(
           initial: () {
             _startListening();
@@ -23,7 +23,7 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
           select: () async {
             cellController.saveCellData(!state.isSelected ? "Yes" : "No");
           },
-          didReceiveCellUpdate: (cellData) {
+          didReceiveCellUpdate: (final cellData) {
             emit(state.copyWith(isSelected: _isSelected(cellData)));
           },
         );
@@ -44,7 +44,7 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
 
   void _startListening() {
     _onCellChangedFn = cellController.startListening(
-      onCellChanged: ((cellData) {
+      onCellChanged: ((final cellData) {
         if (!isClosed) {
           add(CheckboxCellEvent.didReceiveCellUpdate(cellData));
         }
@@ -57,21 +57,21 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
 class CheckboxCellEvent with _$CheckboxCellEvent {
   const factory CheckboxCellEvent.initial() = _Initial;
   const factory CheckboxCellEvent.select() = _Selected;
-  const factory CheckboxCellEvent.didReceiveCellUpdate(String? cellData) =
+  const factory CheckboxCellEvent.didReceiveCellUpdate(final String? cellData) =
       _DidReceiveCellUpdate;
 }
 
 @freezed
 class CheckboxCellState with _$CheckboxCellState {
   const factory CheckboxCellState({
-    required bool isSelected,
+    required final bool isSelected,
   }) = _CheckboxCellState;
 
-  factory CheckboxCellState.initial(TextCellController context) {
+  factory CheckboxCellState.initial(final TextCellController context) {
     return CheckboxCellState(isSelected: _isSelected(context.getCellData()));
   }
 }
 
-bool _isSelected(String? cellData) {
+bool _isSelected(final String? cellData) {
   return cellData == "Yes";
 }

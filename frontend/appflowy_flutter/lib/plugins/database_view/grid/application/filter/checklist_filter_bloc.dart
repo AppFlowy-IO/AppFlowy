@@ -24,12 +24,12 @@ class ChecklistFilterEditorBloc
         ),
         super(ChecklistFilterEditorState.initial(filterInfo)) {
     on<ChecklistFilterEditorEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.when(
           initial: () async {
             _startListening();
           },
-          updateCondition: (ChecklistFilterConditionPB condition) {
+          updateCondition: (final ChecklistFilterConditionPB condition) {
             _filterBackendSvc.insertChecklistFilter(
               filterId: filterInfo.filter.id,
               fieldId: filterInfo.fieldInfo.id,
@@ -43,7 +43,7 @@ class ChecklistFilterEditorBloc
               fieldType: filterInfo.fieldInfo.fieldType,
             );
           },
-          didReceiveFilter: (FilterPB filter) {
+          didReceiveFilter: (final FilterPB filter) {
             final filterInfo = state.filterInfo.copyWith(filter: filter);
             final checklistFilter = filterInfo.checklistFilter()!;
             emit(
@@ -63,7 +63,7 @@ class ChecklistFilterEditorBloc
       onDeleted: () {
         if (!isClosed) add(const ChecklistFilterEditorEvent.delete());
       },
-      onUpdated: (filter) {
+      onUpdated: (final filter) {
         if (!isClosed) {
           add(ChecklistFilterEditorEvent.didReceiveFilter(filter));
         }
@@ -81,10 +81,10 @@ class ChecklistFilterEditorBloc
 @freezed
 class ChecklistFilterEditorEvent with _$ChecklistFilterEditorEvent {
   const factory ChecklistFilterEditorEvent.initial() = _Initial;
-  const factory ChecklistFilterEditorEvent.didReceiveFilter(FilterPB filter) =
+  const factory ChecklistFilterEditorEvent.didReceiveFilter(final FilterPB filter) =
       _DidReceiveFilter;
   const factory ChecklistFilterEditorEvent.updateCondition(
-    ChecklistFilterConditionPB condition,
+    final ChecklistFilterConditionPB condition,
   ) = _UpdateCondition;
   const factory ChecklistFilterEditorEvent.delete() = _Delete;
 }
@@ -92,12 +92,12 @@ class ChecklistFilterEditorEvent with _$ChecklistFilterEditorEvent {
 @freezed
 class ChecklistFilterEditorState with _$ChecklistFilterEditorState {
   const factory ChecklistFilterEditorState({
-    required FilterInfo filterInfo,
-    required ChecklistFilterPB filter,
-    required String filterDesc,
+    required final FilterInfo filterInfo,
+    required final ChecklistFilterPB filter,
+    required final String filterDesc,
   }) = _GridFilterState;
 
-  factory ChecklistFilterEditorState.initial(FilterInfo filterInfo) {
+  factory ChecklistFilterEditorState.initial(final FilterInfo filterInfo) {
     return ChecklistFilterEditorState(
       filterInfo: filterInfo,
       filter: filterInfo.checklistFilter()!,

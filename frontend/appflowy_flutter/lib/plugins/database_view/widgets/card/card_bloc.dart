@@ -21,9 +21,9 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
   CardBloc({
     required this.row,
     required this.groupFieldId,
-    required String viewId,
-    required RowCache rowCache,
-    required bool isEditing,
+    required final String viewId,
+    required final RowCache rowCache,
+    required final bool isEditing,
   })  : _rowBackendSvc = RowBackendService(viewId: viewId),
         _rowCache = rowCache,
         super(
@@ -34,12 +34,12 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
           ),
         ) {
     on<RowCardEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.when(
           initial: () async {
             await _startListening();
           },
-          didReceiveCells: (cells, reason) async {
+          didReceiveCells: (final cells, final reason) async {
             emit(
               state.copyWith(
                 cells: cells,
@@ -47,7 +47,7 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
               ),
             );
           },
-          setIsEditing: (bool isEditing) {
+          setIsEditing: (final bool isEditing) {
             emit(state.copyWith(isEditing: isEditing));
           },
         );
@@ -68,7 +68,7 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
     return RowInfo(
       viewId: _rowBackendSvc.viewId,
       fields: UnmodifiableListView(
-        state.cells.map((cell) => cell.fieldInfo).toList(),
+        state.cells.map((final cell) => cell.fieldInfo).toList(),
       ),
       rowPB: state.rowPB,
     );
@@ -77,7 +77,7 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
   Future<void> _startListening() async {
     _rowCallback = _rowCache.addListener(
       rowId: row.id,
-      onCellUpdated: (cellMap, reason) {
+      onCellUpdated: (final cellMap, final reason) {
         if (!isClosed) {
           final cells = _makeCells(groupFieldId, cellMap);
           add(RowCardEvent.didReceiveCells(cells, reason));
@@ -88,10 +88,10 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
 }
 
 List<CellIdentifier> _makeCells(
-  String? groupFieldId,
-  CellByFieldId originalCellMap,
+  final String? groupFieldId,
+  final CellByFieldId originalCellMap,
 ) {
-  List<CellIdentifier> cells = [];
+  final List<CellIdentifier> cells = [];
   for (final entry in originalCellMap.entries) {
     // Filter out the cell if it's fieldId equal to the groupFieldId
     if (groupFieldId != null) {
@@ -108,26 +108,26 @@ List<CellIdentifier> _makeCells(
 @freezed
 class RowCardEvent with _$RowCardEvent {
   const factory RowCardEvent.initial() = _InitialRow;
-  const factory RowCardEvent.setIsEditing(bool isEditing) = _IsEditing;
+  const factory RowCardEvent.setIsEditing(final bool isEditing) = _IsEditing;
   const factory RowCardEvent.didReceiveCells(
-    List<CellIdentifier> cells,
-    RowsChangedReason reason,
+    final List<CellIdentifier> cells,
+    final RowsChangedReason reason,
   ) = _DidReceiveCells;
 }
 
 @freezed
 class RowCardState with _$RowCardState {
   const factory RowCardState({
-    required RowPB rowPB,
-    required List<CellIdentifier> cells,
-    required bool isEditing,
-    RowsChangedReason? changeReason,
+    required final RowPB rowPB,
+    required final List<CellIdentifier> cells,
+    required final bool isEditing,
+    final RowsChangedReason? changeReason,
   }) = _RowCardState;
 
   factory RowCardState.initial(
-    RowPB rowPB,
-    List<CellIdentifier> cells,
-    bool isEditing,
+    final RowPB rowPB,
+    final List<CellIdentifier> cells,
+    final bool isEditing,
   ) =>
       RowCardState(
         rowPB: rowPB,

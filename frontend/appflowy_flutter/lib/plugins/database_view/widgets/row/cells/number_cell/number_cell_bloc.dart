@@ -14,15 +14,15 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
     required this.cellController,
   }) : super(NumberCellState.initial(cellController)) {
     on<NumberCellEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.when(
           initial: () {
             _startListening();
           },
-          didReceiveCellUpdate: (cellContent) {
+          didReceiveCellUpdate: (final cellContent) {
             emit(state.copyWith(cellContent: cellContent ?? ""));
           },
-          updateCell: (text) async {
+          updateCell: (final text) async {
             if (state.cellContent != text) {
               emit(state.copyWith(cellContent: text));
               await cellController.saveCellData(text);
@@ -54,7 +54,7 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
 
   void _startListening() {
     _onCellChangedFn = cellController.startListening(
-      onCellChanged: ((cellContent) {
+      onCellChanged: ((final cellContent) {
         if (!isClosed) {
           add(NumberCellEvent.didReceiveCellUpdate(cellContent));
         }
@@ -66,18 +66,18 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
 @freezed
 class NumberCellEvent with _$NumberCellEvent {
   const factory NumberCellEvent.initial() = _Initial;
-  const factory NumberCellEvent.updateCell(String text) = _UpdateCell;
-  const factory NumberCellEvent.didReceiveCellUpdate(String? cellContent) =
+  const factory NumberCellEvent.updateCell(final String text) = _UpdateCell;
+  const factory NumberCellEvent.didReceiveCellUpdate(final String? cellContent) =
       _DidReceiveCellUpdate;
 }
 
 @freezed
 class NumberCellState with _$NumberCellState {
   const factory NumberCellState({
-    required String cellContent,
+    required final String cellContent,
   }) = _NumberCellState;
 
-  factory NumberCellState.initial(TextCellController context) {
+  factory NumberCellState.initial(final TextCellController context) {
     return NumberCellState(
       cellContent: context.getCellData() ?? "",
     );

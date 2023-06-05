@@ -26,7 +26,7 @@ class SelectOptionCellEditor extends StatefulWidget {
   final SelectOptionCellController cellController;
   static double editorPanelWidth = 300;
 
-  const SelectOptionCellEditor({required this.cellController, Key? key})
+  const SelectOptionCellEditor({required this.cellController, final Key? key})
       : super(key: key);
 
   @override
@@ -43,13 +43,13 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) => SelectOptionCellEditorBloc(
+      create: (final context) => SelectOptionCellEditorBloc(
         cellController: widget.cellController,
       )..add(const SelectOptionEditorEvent.initial()),
       child: BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
-        builder: (context, state) {
+        builder: (final context, final state) {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -68,17 +68,17 @@ class _OptionList extends StatelessWidget {
   final PopoverMutex popoverMutex;
   const _OptionList({
     required this.popoverMutex,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
-      builder: (context, state) {
-        List<Widget> cells = [];
+      builder: (final context, final state) {
+        final List<Widget> cells = [];
         cells.add(const _Title());
         cells.addAll(
-          state.options.map((option) {
+          state.options.map((final option) {
             return _SelectOptionCell(
               option: option,
               isSelected: state.selectedOptions.contains(option),
@@ -89,7 +89,7 @@ class _OptionList extends StatelessWidget {
 
         state.createOption.fold(
           () => null,
-          (createOption) {
+          (final createOption) {
             cells.add(_CreateOptionCell(name: createOption));
           },
         );
@@ -98,11 +98,12 @@ class _OptionList extends StatelessWidget {
           shrinkWrap: true,
           controller: ScrollController(),
           itemCount: cells.length,
-          separatorBuilder: (context, index) {
+          separatorBuilder: (final context, final index) {
             return VSpace(GridSize.typeOptionSeparatorHeight);
           },
           physics: StyledScrollPhysics(),
-          itemBuilder: (BuildContext context, int index) => cells[index],
+          itemBuilder: (final BuildContext context, final int index) =>
+              cells[index],
           padding: const EdgeInsets.only(top: 6.0, bottom: 12.0),
         );
 
@@ -118,17 +119,17 @@ class _TextField extends StatelessWidget {
 
   _TextField({
     required this.popoverMutex,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
-      builder: (context, state) {
+      builder: (final context, final state) {
         final optionMap = LinkedHashMap<String, SelectOptionPB>.fromIterable(
           state.selectedOptions,
-          key: (option) => option.name,
-          value: (option) => option,
+          key: (final option) => option.name,
+          value: (final option) => option,
         );
 
         return Padding(
@@ -141,17 +142,17 @@ class _TextField extends StatelessWidget {
             tagController: _tagController,
             textSeparators: const [','],
             onClick: () => popoverMutex.close(),
-            newText: (text) {
+            newText: (final text) {
               context
                   .read<SelectOptionCellEditorBloc>()
                   .add(SelectOptionEditorEvent.filterOption(text));
             },
-            onSubmitted: (tagName) {
+            onSubmitted: (final tagName) {
               context
                   .read<SelectOptionCellEditorBloc>()
                   .add(SelectOptionEditorEvent.trySelectOption(tagName));
             },
-            onPaste: (tagNames, remainder) {
+            onPaste: (final tagNames, final remainder) {
               context.read<SelectOptionCellEditorBloc>().add(
                     SelectOptionEditorEvent.selectMultipleOptions(
                       tagNames,
@@ -159,7 +160,7 @@ class _TextField extends StatelessWidget {
                     ),
                   );
             },
-            onRemove: (optionName) {
+            onRemove: (final optionName) {
               context.read<SelectOptionCellEditorBloc>().add(
                     SelectOptionEditorEvent.unSelectOption(
                       optionMap[optionName]!.id,
@@ -174,10 +175,10 @@ class _TextField extends StatelessWidget {
 }
 
 class _Title extends StatelessWidget {
-  const _Title({Key? key}) : super(key: key);
+  const _Title({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: SizedBox(
@@ -193,10 +194,11 @@ class _Title extends StatelessWidget {
 
 class _CreateOptionCell extends StatelessWidget {
   final String name;
-  const _CreateOptionCell({required this.name, Key? key}) : super(key: key);
+  const _CreateOptionCell({required this.name, final Key? key})
+      : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: SizedBox(
@@ -235,7 +237,7 @@ class _SelectOptionCell extends StatefulWidget {
     required this.option,
     required this.isSelected,
     required this.popoverMutex,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -252,12 +254,12 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final child = SizedBox(
       height: GridSize.popoverItemHeight,
       child: SelectOptionTagCell(
         option: widget.option,
-        onSelected: (option) {
+        onSelected: (final option) {
           if (widget.isSelected) {
             context
                 .read<SelectOptionCellEditorBloc>()
@@ -297,7 +299,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
         padding: const EdgeInsets.symmetric(horizontal: 12.0),
         child: child,
       ),
-      popupBuilder: (BuildContext popoverContext) {
+      popupBuilder: (final BuildContext popoverContext) {
         return SelectOptionTypeOptionEditor(
           option: widget.option,
           onDeleted: () {
@@ -306,7 +308,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
                 .add(SelectOptionEditorEvent.deleteOption(widget.option));
             PopoverContainer.of(popoverContext).close();
           },
-          onUpdated: (updatedOption) {
+          onUpdated: (final updatedOption) {
             context
                 .read<SelectOptionCellEditorBloc>()
                 .add(SelectOptionEditorEvent.updateOption(updatedOption));

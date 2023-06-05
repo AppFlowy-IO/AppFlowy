@@ -15,7 +15,7 @@ class InitAppWidgetTask extends LaunchTask {
   LaunchTaskType get type => LaunchTaskType.appLauncher;
 
   @override
-  Future<void> initialize(LaunchContext context) async {
+  Future<void> initialize(final LaunchContext context) async {
     final widget = context.getIt<EntryPoint>().create(context.config);
     final appearanceSetting =
         await UserSettingsBackendService().getAppearanceSetting();
@@ -66,20 +66,20 @@ class ApplicationWidget extends StatelessWidget {
   final AppearanceSettingsPB appearanceSetting;
 
   const ApplicationWidget({
-    Key? key,
+    final Key? key,
     required this.child,
     required this.appearanceSetting,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final cubit = AppearanceSettingsCubit(appearanceSetting)
       ..readLocaleWhenAppLaunch(context);
 
     return BlocProvider(
-      create: (context) => cubit,
+      create: (final context) => cubit,
       child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-        builder: (context, state) => MaterialApp(
+        builder: (final context, final state) => MaterialApp(
           builder: overlayManagerBuilder(),
           debugShowCheckedModeBanner: false,
           theme: state.lightTheme,
@@ -105,14 +105,14 @@ class AppGlobals {
 class ApplicationBlocObserver extends BlocObserver {
   @override
   // ignore: unnecessary_overrides
-  void onTransition(Bloc bloc, Transition transition) {
+  void onTransition(final Bloc bloc, final Transition transition) {
     // Log.debug("[current]: ${transition.currentState} \n\n[next]: ${transition.nextState}");
     // Log.debug("${transition.nextState}");
     super.onTransition(bloc, transition);
   }
 
   @override
-  void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
+  void onError(final BlocBase bloc, final Object error, final StackTrace stackTrace) {
     Log.debug(error);
     super.onError(bloc, error, stackTrace);
   }

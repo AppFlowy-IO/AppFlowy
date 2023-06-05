@@ -18,7 +18,7 @@ class SingleFieldListener {
   SingleFieldListener({required this.fieldId});
 
   void start({
-    required void Function(UpdateFieldNotifiedValue) onFieldChanged,
+    required final void Function(UpdateFieldNotifiedValue) onFieldChanged,
   }) {
     _updateFieldNotifier?.addPublishListener(onFieldChanged);
     _listener = DatabaseNotificationListener(
@@ -28,15 +28,15 @@ class SingleFieldListener {
   }
 
   void _handler(
-    DatabaseNotification ty,
-    Either<Uint8List, FlowyError> result,
+    final DatabaseNotification ty,
+    final Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case DatabaseNotification.DidUpdateField:
         result.fold(
-          (payload) =>
+          (final payload) =>
               _updateFieldNotifier?.value = left(FieldPB.fromBuffer(payload)),
-          (error) => _updateFieldNotifier?.value = right(error),
+          (final error) => _updateFieldNotifier?.value = right(error),
         );
         break;
       default:
@@ -62,7 +62,7 @@ class FieldsListener {
   FieldsListener({required this.viewId});
 
   void start({
-    required void Function(UpdateFieldsNotifiedValue) onFieldsChanged,
+    required final void Function(UpdateFieldsNotifiedValue) onFieldsChanged,
   }) {
     updateFieldsNotifier?.addPublishListener(onFieldsChanged);
     _listener = DatabaseNotificationListener(
@@ -71,13 +71,13 @@ class FieldsListener {
     );
   }
 
-  void _handler(DatabaseNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handler(final DatabaseNotification ty, final Either<Uint8List, FlowyError> result) {
     switch (ty) {
       case DatabaseNotification.DidUpdateFields:
         result.fold(
-          (payload) => updateFieldsNotifier?.value =
+          (final payload) => updateFieldsNotifier?.value =
               left(DatabaseFieldChangesetPB.fromBuffer(payload)),
-          (error) => updateFieldsNotifier?.value = right(error),
+          (final error) => updateFieldsNotifier?.value = right(error),
         );
         break;
       default:

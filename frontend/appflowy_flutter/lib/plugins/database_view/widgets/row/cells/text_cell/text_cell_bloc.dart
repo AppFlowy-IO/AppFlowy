@@ -12,18 +12,18 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
     required this.cellController,
   }) : super(TextCellState.initial(cellController)) {
     on<TextCellEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.when(
           initial: () async {
             _startListening();
           },
-          updateText: (text) {
+          updateText: (final text) {
             if (state.content != text) {
               cellController.saveCellData(text);
               emit(state.copyWith(content: text));
             }
           },
-          didReceiveCellUpdate: (content) {
+          didReceiveCellUpdate: (final content) {
             emit(state.copyWith(content: content));
           },
         );
@@ -43,7 +43,7 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
 
   void _startListening() {
     _onCellChangedFn = cellController.startListening(
-      onCellChanged: ((cellContent) {
+      onCellChanged: ((final cellContent) {
         if (!isClosed) {
           add(TextCellEvent.didReceiveCellUpdate(cellContent ?? ""));
         }
@@ -55,18 +55,18 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
 @freezed
 class TextCellEvent with _$TextCellEvent {
   const factory TextCellEvent.initial() = _InitialCell;
-  const factory TextCellEvent.didReceiveCellUpdate(String cellContent) =
+  const factory TextCellEvent.didReceiveCellUpdate(final String cellContent) =
       _DidReceiveCellUpdate;
-  const factory TextCellEvent.updateText(String text) = _UpdateText;
+  const factory TextCellEvent.updateText(final String text) = _UpdateText;
 }
 
 @freezed
 class TextCellState with _$TextCellState {
   const factory TextCellState({
-    required String content,
+    required final String content,
   }) = _TextCellState;
 
-  factory TextCellState.initial(TextCellController context) => TextCellState(
+  factory TextCellState.initial(final TextCellController context) => TextCellState(
         content: context.getCellData() ?? "",
       );
 }

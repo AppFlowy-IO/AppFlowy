@@ -11,7 +11,7 @@ import 'presentation/grid_page.dart';
 
 class GridPluginBuilder implements PluginBuilder {
   @override
-  Plugin build(dynamic data) {
+  Plugin build(final dynamic data) {
     if (data is ViewPB) {
       return GridPlugin(pluginType: pluginType, view: data);
     } else {
@@ -43,8 +43,8 @@ class GridPlugin extends Plugin {
   final PluginType _pluginType;
 
   GridPlugin({
-    required ViewPB view,
-    required PluginType pluginType,
+    required final ViewPB view,
+    required final PluginType pluginType,
   })  : _pluginType = pluginType,
         notifier = ViewPluginNotifier(view: view);
 
@@ -62,15 +62,15 @@ class GridPluginDisplay extends PluginDisplay {
   final ViewPluginNotifier notifier;
   ViewPB get view => notifier.view;
 
-  GridPluginDisplay({required this.notifier, Key? key});
+  GridPluginDisplay({required this.notifier, final Key? key});
 
   @override
   Widget get leftBarItem => ViewLeftBarItem(view: view);
 
   @override
-  Widget buildWidget(PluginContext context) {
+  Widget buildWidget(final PluginContext context) {
     notifier.isDeleted.addListener(() {
-      notifier.isDeleted.value.fold(() => null, (deletedView) {
+      notifier.isDeleted.value.fold(() => null, (final deletedView) {
         if (deletedView.hasIndex()) {
           context.onDeleted(view, deletedView.index);
         }

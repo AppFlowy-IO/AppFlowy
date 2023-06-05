@@ -19,19 +19,19 @@ class AddButton extends StatelessWidget {
   ) onSelected;
 
   const AddButton({
-    Key? key,
+    final Key? key,
     required this.onSelected,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final List<PopoverAction> actions = [];
 
     // Plugins
     actions.addAll(
       pluginBuilders()
           .map(
-            (pluginBuilder) =>
+            (final pluginBuilder) =>
                 AddButtonActionWrapper(pluginBuilder: pluginBuilder),
           )
           .toList(),
@@ -43,7 +43,7 @@ class AddButton extends StatelessWidget {
           .builders
           .whereType<DocumentPluginBuilder>()
           .map(
-            (pluginBuilder) =>
+            (final pluginBuilder) =>
                 ImportActionWrapper(pluginBuilder: pluginBuilder),
           )
           .toList(),
@@ -53,7 +53,7 @@ class AddButton extends StatelessWidget {
       direction: PopoverDirection.bottomWithLeftAligned,
       actions: actions,
       offset: const Offset(0, 8),
-      buildChild: (controller) {
+      buildChild: (final controller) {
         return SizedBox(
           width: 22,
           child: InkWell(
@@ -62,19 +62,19 @@ class AddButton extends StatelessWidget {
               style: HoverStyle(
                 hoverColor: AFThemeExtension.of(context).greySelect,
               ),
-              builder: (context, onHover) => const FlowySvg(
+              builder: (final context, final onHover) => const FlowySvg(
                 name: 'home/add',
               ),
             ),
           ),
         );
       },
-      onSelected: (action, controller) {
+      onSelected: (final action, final controller) {
         if (action is AddButtonActionWrapper) {
           onSelected(action.pluginBuilder, null);
         }
         if (action is ImportActionWrapper) {
-          showImportPanel(context, (document) {
+          showImportPanel(context, (final document) {
             if (document == null) {
               return;
             }
@@ -93,7 +93,7 @@ class AddButtonActionWrapper extends ActionCell {
   AddButtonActionWrapper({required this.pluginBuilder});
 
   @override
-  Widget? leftIcon(Color iconColor) => FlowySvg(name: pluginBuilder.menuIcon);
+  Widget? leftIcon(final Color iconColor) => FlowySvg(name: pluginBuilder.menuIcon);
 
   @override
   String get name => pluginBuilder.menuName;
@@ -109,7 +109,7 @@ class ImportActionWrapper extends ActionCell {
   });
 
   @override
-  Widget? leftIcon(Color iconColor) => const FlowySvg(
+  Widget? leftIcon(final Color iconColor) => const FlowySvg(
         name: 'editor/import',
       );
 

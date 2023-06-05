@@ -12,29 +12,29 @@ import 'sort/sort_menu.dart';
 
 class GridAccessoryMenu extends StatelessWidget {
   final String viewId;
-  const GridAccessoryMenu({required this.viewId, Key? key}) : super(key: key);
+  const GridAccessoryMenu({required this.viewId, final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) => GridAccessoryMenuBloc(viewId: viewId),
+      create: (final context) => GridAccessoryMenuBloc(viewId: viewId),
       child: MultiBlocListener(
         listeners: [
           BlocListener<GridFilterMenuBloc, GridFilterMenuState>(
-            listenWhen: (p, c) => p.isVisible != c.isVisible,
-            listener: (context, state) => context
+            listenWhen: (final p, final c) => p.isVisible != c.isVisible,
+            listener: (final context, final state) => context
                 .read<GridAccessoryMenuBloc>()
                 .add(const GridAccessoryMenuEvent.toggleMenu()),
           ),
           BlocListener<SortMenuBloc, SortMenuState>(
-            listenWhen: (p, c) => p.isVisible != c.isVisible,
-            listener: (context, state) => context
+            listenWhen: (final p, final c) => p.isVisible != c.isVisible,
+            listener: (final context, final state) => context
                 .read<GridAccessoryMenuBloc>()
                 .add(const GridAccessoryMenuEvent.toggleMenu()),
           ),
         ],
         child: BlocBuilder<GridAccessoryMenuBloc, GridAccessoryMenuState>(
-          builder: (context, state) {
+          builder: (final context, final state) {
             if (state.isVisible) {
               return const _AccessoryMenu();
             } else {
@@ -48,12 +48,12 @@ class GridAccessoryMenu extends StatelessWidget {
 }
 
 class _AccessoryMenu extends StatelessWidget {
-  const _AccessoryMenu({Key? key}) : super(key: key);
+  const _AccessoryMenu({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<GridAccessoryMenuBloc, GridAccessoryMenuState>(
-      builder: (context, state) {
+      builder: (final context, final state) {
         return _wrapPadding(
           Column(
             children: [
@@ -78,7 +78,7 @@ class _AccessoryMenu extends StatelessWidget {
     );
   }
 
-  Widget _wrapPadding(Widget child) {
+  Widget _wrapPadding(final Widget child) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: GridSize.leadingHeaderPadding,

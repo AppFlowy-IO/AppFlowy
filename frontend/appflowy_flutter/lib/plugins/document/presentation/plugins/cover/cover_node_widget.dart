@@ -25,12 +25,12 @@ enum CoverSelectionType {
   file,
   asset;
 
-  static CoverSelectionType fromString(String? value) {
+  static CoverSelectionType fromString(final String? value) {
     if (value == null) {
       return CoverSelectionType.initial;
     }
     return CoverSelectionType.values.firstWhere(
-      (e) => e.toString() == value,
+      (final e) => e.toString() == value,
       orElse: () => CoverSelectionType.initial,
     );
   }
@@ -38,7 +38,7 @@ enum CoverSelectionType {
 
 class CoverNodeWidgetBuilder implements NodeWidgetBuilder {
   @override
-  Widget build(NodeWidgetContext<Node> context) {
+  Widget build(final NodeWidgetContext<Node> context) {
     return _CoverImageNodeWidget(
       key: context.node.key,
       node: context.node,
@@ -47,14 +47,14 @@ class CoverNodeWidgetBuilder implements NodeWidgetBuilder {
   }
 
   @override
-  NodeValidator<Node> get nodeValidator => (node) {
+  NodeValidator<Node> get nodeValidator => (final node) {
         return true;
       };
 }
 
 class _CoverImageNodeWidget extends StatefulWidget {
   const _CoverImageNodeWidget({
-    Key? key,
+    final Key? key,
     required this.node,
     required this.editorState,
   }) : super(key: key);
@@ -73,17 +73,17 @@ class _CoverImageNodeWidgetState extends State<_CoverImageNodeWidget> {
 
   PopoverController iconPopoverController = PopoverController();
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return _CoverImage(
       editorState: widget.editorState,
       node: widget.node,
-      onCoverChanged: (type, value) {
+      onCoverChanged: (final type, final value) {
         _insertCover(type, value);
       },
     );
   }
 
-  Future<void> _insertCover(CoverSelectionType type, dynamic cover) async {
+  Future<void> _insertCover(final CoverSelectionType type, final dynamic cover) async {
     final transaction = widget.editorState.transaction;
     transaction.updateNode(widget.node, {
       kCoverSelectionTypeAttribute: type.toString(),
@@ -128,12 +128,12 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return MouseRegion(
-      onEnter: (event) {
+      onEnter: (final event) {
         setHidden(false);
       },
-      onExit: (event) {
+      onExit: (final event) {
         setHidden(isPopoverOpen ? false : true);
       },
       opaque: false,
@@ -201,14 +201,14 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
                               LocaleKeys.document_plugins_cover_addIcon.tr(),
                             ),
                           ),
-                          popupBuilder: (BuildContext popoverContext) {
+                          popupBuilder: (final BuildContext popoverContext) {
                             isPopoverOpen = true;
                             return EmojiPopover(
                               showRemoveButton: widget.hasIcon,
                               removeIcon: _removeIcon,
                               node: widget.node,
                               editorState: widget.editorState,
-                              onEmojiChanged: (Emoji emoji) {
+                              onEmojiChanged: (final Emoji emoji) {
                                 _insertIcon(emoji);
                                 widget.iconPopoverController.close();
                               },
@@ -221,7 +221,7 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
     );
   }
 
-  Future<void> _insertIcon(Emoji emoji) async {
+  Future<void> _insertIcon(final Emoji emoji) async {
     final transaction = widget.editorState.transaction;
     transaction.updateNode(widget.node, {
       kCoverSelectionTypeAttribute:
@@ -245,7 +245,7 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
     return widget.editorState.apply(transaction);
   }
 
-  void setHidden(bool value) {
+  void setHidden(final bool value) {
     if (isHidden == value) return;
     setState(() {
       isHidden = value;
@@ -289,7 +289,7 @@ class _CoverImageState extends State<_CoverImage> {
       selectionType == CoverSelectionType.initial ? false : true;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Stack(
       alignment: Alignment.bottomLeft,
       children: [
@@ -317,13 +317,13 @@ class _CoverImageState extends State<_CoverImage> {
                       iconPopoverController.show();
                     },
                   ),
-                  popupBuilder: (BuildContext popoverContext) {
+                  popupBuilder: (final BuildContext popoverContext) {
                     return EmojiPopover(
                       node: widget.node,
                       showRemoveButton: hasIcon,
                       removeIcon: _removeIcon,
                       editorState: widget.editorState,
-                      onEmojiChanged: (Emoji emoji) {
+                      onEmojiChanged: (final Emoji emoji) {
                         _insertIcon(emoji);
                         iconPopoverController.close();
                       },
@@ -351,7 +351,7 @@ class _CoverImageState extends State<_CoverImage> {
     );
   }
 
-  Future<void> _insertCover(CoverSelectionType type, dynamic cover) async {
+  Future<void> _insertCover(final CoverSelectionType type, final dynamic cover) async {
     final transaction = widget.editorState.transaction;
     transaction.updateNode(widget.node, {
       kCoverSelectionTypeAttribute: type.toString(),
@@ -361,7 +361,7 @@ class _CoverImageState extends State<_CoverImage> {
     return widget.editorState.apply(transaction);
   }
 
-  Future<void> _insertIcon(Emoji emoji) async {
+  Future<void> _insertIcon(final Emoji emoji) async {
     final transaction = widget.editorState.transaction;
     transaction.updateNode(widget.node, {
       kCoverSelectionTypeAttribute:
@@ -385,7 +385,7 @@ class _CoverImageState extends State<_CoverImage> {
     return widget.editorState.apply(transaction);
   }
 
-  Widget _buildCoverOverlayButtons(BuildContext context) {
+  Widget _buildCoverOverlayButtons(final BuildContext context) {
     return Positioned(
       bottom: 20,
       right: 260,
@@ -420,7 +420,7 @@ class _CoverImageState extends State<_CoverImage> {
                 title: LocaleKeys.document_plugins_cover_changeCover.tr(),
               ),
             ),
-            popupBuilder: (BuildContext popoverContext) {
+            popupBuilder: (final BuildContext popoverContext) {
               return ChangeCoverPopover(
                 node: widget.node,
                 editorState: widget.editorState,
@@ -453,7 +453,7 @@ class _CoverImageState extends State<_CoverImage> {
     );
   }
 
-  Widget _buildCoverImage(BuildContext context, EditorState editorState) {
+  Widget _buildCoverImage(final BuildContext context, final EditorState editorState) {
     final screenSize = MediaQuery.of(context).size;
     const height = 250.0;
     final Widget coverImage;
@@ -463,7 +463,7 @@ class _CoverImageState extends State<_CoverImage> {
             File(widget.node.attributes[kCoverSelectionAttribute]);
         if (!imageFile.existsSync()) {
           // reset cover state
-          WidgetsBinding.instance.addPostFrameCallback((_) {
+          WidgetsBinding.instance.addPostFrameCallback((final _) {
             widget.onCoverChanged(CoverSelectionType.initial, null);
           });
           coverImage = const SizedBox();
@@ -495,10 +495,10 @@ class _CoverImageState extends State<_CoverImage> {
     }
 //OverflowBox needs to be wraped by a widget with constraints(or from its parent) first,otherwise it will occur an error
     return MouseRegion(
-      onEnter: (event) {
+      onEnter: (final event) {
         setOverlayButtonsHidden(false);
       },
-      onExit: (event) {
+      onExit: (final event) {
         setOverlayButtonsHidden(true);
       },
       child: SizedBox(
@@ -523,7 +523,7 @@ class _CoverImageState extends State<_CoverImage> {
     );
   }
 
-  void setOverlayButtonsHidden(bool value) {
+  void setOverlayButtonsHidden(final bool value) {
     if (isOverlayButtonsHidden == value) return;
     setState(() {
       isOverlayButtonsHidden = value;

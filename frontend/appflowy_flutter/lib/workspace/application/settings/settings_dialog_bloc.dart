@@ -23,15 +23,15 @@ class SettingsDialogBloc
   SettingsDialogBloc(this.userProfile)
       : _userListener = UserListener(userProfile: userProfile),
         super(SettingsDialogState.initial(userProfile)) {
-    on<SettingsDialogEvent>((event, emit) async {
+    on<SettingsDialogEvent>((final event, final emit) async {
       await event.when(
         initial: () async {
           _userListener.start(onProfileUpdated: _profileUpdated);
         },
-        didReceiveUserProfile: (UserProfilePB newUserProfile) {
+        didReceiveUserProfile: (final UserProfilePB newUserProfile) {
           emit(state.copyWith(userProfile: newUserProfile));
         },
-        setSelectedPage: (SettingsPage page) {
+        setSelectedPage: (final SettingsPage page) {
           emit(state.copyWith(page: page));
         },
       );
@@ -44,11 +44,11 @@ class SettingsDialogBloc
     super.close();
   }
 
-  void _profileUpdated(Either<UserProfilePB, FlowyError> userProfileOrFailed) {
+  void _profileUpdated(final Either<UserProfilePB, FlowyError> userProfileOrFailed) {
     userProfileOrFailed.fold(
-      (newUserProfile) =>
+      (final newUserProfile) =>
           add(SettingsDialogEvent.didReceiveUserProfile(newUserProfile)),
-      (err) => Log.error(err),
+      (final err) => Log.error(err),
     );
   }
 }
@@ -57,21 +57,21 @@ class SettingsDialogBloc
 class SettingsDialogEvent with _$SettingsDialogEvent {
   const factory SettingsDialogEvent.initial() = _Initial;
   const factory SettingsDialogEvent.didReceiveUserProfile(
-    UserProfilePB newUserProfile,
+    final UserProfilePB newUserProfile,
   ) = _DidReceiveUserProfile;
-  const factory SettingsDialogEvent.setSelectedPage(SettingsPage page) =
+  const factory SettingsDialogEvent.setSelectedPage(final SettingsPage page) =
       _SetViewIndex;
 }
 
 @freezed
 class SettingsDialogState with _$SettingsDialogState {
   const factory SettingsDialogState({
-    required UserProfilePB userProfile,
-    required Either<Unit, String> successOrFailure,
-    required SettingsPage page,
+    required final UserProfilePB userProfile,
+    required final Either<Unit, String> successOrFailure,
+    required final SettingsPage page,
   }) = _SettingsDialogState;
 
-  factory SettingsDialogState.initial(UserProfilePB userProfile) =>
+  factory SettingsDialogState.initial(final UserProfilePB userProfile) =>
       SettingsDialogState(
         userProfile: userProfile,
         successOrFailure: left(unit),

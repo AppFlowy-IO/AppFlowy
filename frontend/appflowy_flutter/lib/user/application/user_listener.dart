@@ -24,12 +24,12 @@ class UserListener {
   UserNotificationParser? _userParser;
   final UserProfilePB _userProfile;
   UserListener({
-    required UserProfilePB userProfile,
+    required final UserProfilePB userProfile,
   }) : _userProfile = userProfile;
 
   void start({
-    void Function(AuthNotifyValue)? onAuthChanged,
-    void Function(UserProfileNotifyValue)? onProfileUpdated,
+    final void Function(AuthNotifyValue)? onAuthChanged,
+    final void Function(UserProfileNotifyValue)? onProfileUpdated,
   }) {
     if (onProfileUpdated != null) {
       _profileNotifier?.addPublishListener(onProfileUpdated);
@@ -43,7 +43,7 @@ class UserListener {
       id: _userProfile.token,
       callback: _userNotificationCallback,
     );
-    _subscription = RustStreamReceiver.listen((observable) {
+    _subscription = RustStreamReceiver.listen((final observable) {
       _userParser?.parse(observable);
     });
   }
@@ -59,15 +59,15 @@ class UserListener {
   }
 
   void _userNotificationCallback(
-    user.UserNotification ty,
-    Either<Uint8List, FlowyError> result,
+    final user.UserNotification ty,
+    final Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case user.UserNotification.DidUpdateUserProfile:
         result.fold(
-          (payload) =>
+          (final payload) =>
               _profileNotifier?.value = left(UserProfilePB.fromBuffer(payload)),
-          (error) => _profileNotifier?.value = right(error),
+          (final error) => _profileNotifier?.value = right(error),
         );
         break;
       default:
@@ -89,13 +89,13 @@ class UserWorkspaceListener {
   FolderNotificationListener? _listener;
 
   UserWorkspaceListener({
-    required UserProfilePB userProfile,
+    required final UserProfilePB userProfile,
   });
 
   void start({
-    void Function(AuthNotifyValue)? onAuthChanged,
-    void Function(WorkspaceListNotifyValue)? onWorkspacesUpdated,
-    void Function(WorkspaceSettingNotifyValue)? onSettingUpdated,
+    final void Function(AuthNotifyValue)? onAuthChanged,
+    final void Function(WorkspaceListNotifyValue)? onWorkspacesUpdated,
+    final void Function(WorkspaceSettingNotifyValue)? onSettingUpdated,
   }) {
     if (onAuthChanged != null) {
       _authNotifier?.addPublishListener(onAuthChanged);
@@ -118,23 +118,23 @@ class UserWorkspaceListener {
   }
 
   void _handleObservableType(
-    FolderNotification ty,
-    Either<Uint8List, FlowyError> result,
+    final FolderNotification ty,
+    final Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case FolderNotification.DidCreateWorkspace:
       case FolderNotification.DidDeleteWorkspace:
         result.fold(
-          (payload) => _workspacesChangedNotifier?.value =
+          (final payload) => _workspacesChangedNotifier?.value =
               left(RepeatedWorkspacePB.fromBuffer(payload).items),
-          (error) => _workspacesChangedNotifier?.value = right(error),
+          (final error) => _workspacesChangedNotifier?.value = right(error),
         );
         break;
       case FolderNotification.DidUpdateWorkspaceSetting:
         result.fold(
-          (payload) => _settingChangedNotifier?.value =
+          (final payload) => _settingChangedNotifier?.value =
               left(WorkspaceSettingPB.fromBuffer(payload)),
-          (error) => _settingChangedNotifier?.value = right(error),
+          (final error) => _settingChangedNotifier?.value = right(error),
         );
         break;
       default:

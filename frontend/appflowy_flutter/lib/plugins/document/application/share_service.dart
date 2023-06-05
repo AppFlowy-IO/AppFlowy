@@ -7,10 +7,10 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 
 class ShareService {
   Future<Either<ExportDataPB, FlowyError>> export(
-    ViewPB view,
-    ExportType type,
+    final ViewPB view,
+    final ExportType type,
   ) {
-    var payload = ExportPayloadPB.create()
+    final payload = ExportPayloadPB.create()
       ..viewId = view.id
       ..exportType = type
       ..documentVersion = DocumentVersionPB.V1;
@@ -18,15 +18,15 @@ class ShareService {
     return DocumentEventExportDocument(payload).send();
   }
 
-  Future<Either<ExportDataPB, FlowyError>> exportText(ViewPB view) {
+  Future<Either<ExportDataPB, FlowyError>> exportText(final ViewPB view) {
     return export(view, ExportType.Text);
   }
 
-  Future<Either<ExportDataPB, FlowyError>> exportMarkdown(ViewPB view) {
+  Future<Either<ExportDataPB, FlowyError>> exportMarkdown(final ViewPB view) {
     return export(view, ExportType.Markdown);
   }
 
-  Future<Either<ExportDataPB, FlowyError>> exportURL(ViewPB view) {
+  Future<Either<ExportDataPB, FlowyError>> exportURL(final ViewPB view) {
     return export(view, ExportType.Link);
   }
 }

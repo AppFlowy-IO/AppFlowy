@@ -27,7 +27,7 @@ import 'menu/menu.dart';
 class HomeScreen extends StatefulWidget {
   final UserProfilePB user;
   final WorkspaceSettingPB workspaceSetting;
-  const HomeScreen(this.user, this.workspaceSetting, {Key? key})
+  const HomeScreen(this.user, this.workspaceSetting, {final Key? key})
       : super(key: key);
 
   @override
@@ -36,17 +36,17 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider<HomeBloc>(
-          create: (context) {
+          create: (final context) {
             return HomeBloc(widget.user, widget.workspaceSetting)
               ..add(const HomeEvent.initial());
           },
         ),
         BlocProvider<HomeSettingBloc>(
-          create: (context) {
+          create: (final context) {
             return HomeSettingBloc(
               widget.user,
               widget.workspaceSetting,
@@ -60,8 +60,8 @@ class _HomeScreenState extends State<HomeScreen> {
           body: MultiBlocListener(
             listeners: [
               BlocListener<HomeBloc, HomeState>(
-                listenWhen: (p, c) => p.unauthorized != c.unauthorized,
-                listener: (context, state) {
+                listenWhen: (final p, final c) => p.unauthorized != c.unauthorized,
+                listener: (final context, final state) {
                   if (state.unauthorized) {
                     Log.error(
                       "Push to login screen when user token was invalid",
@@ -70,8 +70,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
               ),
               BlocListener<HomeBloc, HomeState>(
-                listenWhen: (p, c) => p.latestView != c.latestView,
-                listener: (context, state) {
+                listenWhen: (final p, final c) => p.latestView != c.latestView,
+                listener: (final context, final state) {
                   final view = state.latestView;
                   if (view != null) {
                     // Only open the last opened view if the [HomeStackManager] current opened plugin is blank and the last opened view is not null.
@@ -90,8 +90,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
             child: BlocBuilder<HomeSettingBloc, HomeSettingState>(
-              buildWhen: (previous, current) => previous != current,
-              builder: (context, state) {
+              buildWhen: (final previous, final current) => previous != current,
+              builder: (final context, final state) {
                 return FlowyContainer(
                   Theme.of(context).colorScheme.surface,
                   child: _buildBody(context),
@@ -104,9 +104,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildBody(BuildContext context) {
+  Widget _buildBody(final BuildContext context) {
     return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
+      builder: (final BuildContext context, final BoxConstraints constraints) {
         final layout = HomeLayout(context, constraints);
         final homeStack = HomeStack(
           layout: layout,
@@ -137,8 +137,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHomeMenu({
-    required HomeLayout layout,
-    required BuildContext context,
+    required final HomeLayout layout,
+    required final BuildContext context,
   }) {
     final workspaceSetting = widget.workspaceSetting;
     final homeMenu = HomeMenu(
@@ -150,17 +150,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildEditPanel({
-    required BuildContext context,
-    required HomeLayout layout,
+    required final BuildContext context,
+    required final HomeLayout layout,
   }) {
     final homeBloc = context.read<HomeSettingBloc>();
     return BlocBuilder<HomeSettingBloc, HomeSettingState>(
-      buildWhen: (previous, current) =>
+      buildWhen: (final previous, final current) =>
           previous.panelContext != current.panelContext,
-      builder: (context, state) {
+      builder: (final context, final state) {
         return state.panelContext.fold(
           () => const SizedBox(),
-          (panelContext) => FocusTraversalGroup(
+          (final panelContext) => FocusTraversalGroup(
             child: RepaintBoundary(
               child: EditPanel(
                 panelContext: panelContext,
@@ -175,19 +175,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHomeMenuResizer({
-    required BuildContext context,
+    required final BuildContext context,
   }) {
     return MouseRegion(
       cursor: SystemMouseCursors.resizeLeftRight,
       child: GestureDetector(
         dragStartBehavior: DragStartBehavior.down,
-        onHorizontalDragStart: (details) => context
+        onHorizontalDragStart: (final details) => context
             .read<HomeSettingBloc>()
             .add(const HomeSettingEvent.editPanelResizeStart()),
-        onHorizontalDragUpdate: (details) => context
+        onHorizontalDragUpdate: (final details) => context
             .read<HomeSettingBloc>()
             .add(HomeSettingEvent.editPanelResized(details.localPosition.dx)),
-        onHorizontalDragEnd: (details) => context
+        onHorizontalDragEnd: (final details) => context
             .read<HomeSettingBloc>()
             .add(const HomeSettingEvent.editPanelResizeEnd()),
         onHorizontalDragCancel: () => context
@@ -203,12 +203,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _layoutWidgets({
-    required HomeLayout layout,
-    required Widget homeMenu,
-    required Widget homeStack,
-    required Widget editPanel,
-    required Widget bubble,
-    required Widget homeMenuResizer,
+    required final HomeLayout layout,
+    required final Widget homeMenu,
+    required final Widget homeStack,
+    required final Widget editPanel,
+    required final Widget bubble,
+    required final Widget homeMenuResizer,
   }) {
     return Stack(
       children: [
@@ -270,11 +270,11 @@ class HomeScreenStackAdaptor extends HomeStackDelegate {
   });
 
   @override
-  void didDeleteStackWidget(ViewPB view, int? index) {
+  void didDeleteStackWidget(final ViewPB view, final int? index) {
     final homeService = HomeService();
-    homeService.readApp(appId: view.appId).then((result) {
+    homeService.readApp(appId: view.appId).then((final result) {
       result.fold(
-        (appPB) {
+        (final appPB) {
           final List<ViewPB> views = appPB.belongings.items;
           if (views.isNotEmpty) {
             var lastView = views.last;
@@ -293,7 +293,7 @@ class HomeScreenStackAdaptor extends HomeStackDelegate {
             getIt<HomeStackManager>().setPlugin(BlankPagePlugin());
           }
         },
-        (err) => Log.error(err),
+        (final err) => Log.error(err),
       );
     });
   }

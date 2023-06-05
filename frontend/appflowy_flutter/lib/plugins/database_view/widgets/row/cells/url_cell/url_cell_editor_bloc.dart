@@ -13,12 +13,12 @@ class URLCellEditorBloc extends Bloc<URLCellEditorEvent, URLCellEditorState> {
     required this.cellController,
   }) : super(URLCellEditorState.initial(cellController)) {
     on<URLCellEditorEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.when(
           initial: () {
             _startListening();
           },
-          updateText: (text) async {
+          updateText: (final text) async {
             await cellController.saveCellData(text);
             emit(
               state.copyWith(
@@ -27,7 +27,7 @@ class URLCellEditorBloc extends Bloc<URLCellEditorEvent, URLCellEditorState> {
               ),
             );
           },
-          didReceiveCellUpdate: (cellData) {
+          didReceiveCellUpdate: (final cellData) {
             emit(state.copyWith(content: cellData?.content ?? ""));
           },
         );
@@ -47,7 +47,7 @@ class URLCellEditorBloc extends Bloc<URLCellEditorEvent, URLCellEditorState> {
 
   void _startListening() {
     _onCellChangedFn = cellController.startListening(
-      onCellChanged: ((cellData) {
+      onCellChanged: ((final cellData) {
         if (!isClosed) {
           add(URLCellEditorEvent.didReceiveCellUpdate(cellData));
         }
@@ -59,19 +59,19 @@ class URLCellEditorBloc extends Bloc<URLCellEditorEvent, URLCellEditorState> {
 @freezed
 class URLCellEditorEvent with _$URLCellEditorEvent {
   const factory URLCellEditorEvent.initial() = _InitialCell;
-  const factory URLCellEditorEvent.didReceiveCellUpdate(URLCellDataPB? cell) =
+  const factory URLCellEditorEvent.didReceiveCellUpdate(final URLCellDataPB? cell) =
       _DidReceiveCellUpdate;
-  const factory URLCellEditorEvent.updateText(String text) = _UpdateText;
+  const factory URLCellEditorEvent.updateText(final String text) = _UpdateText;
 }
 
 @freezed
 class URLCellEditorState with _$URLCellEditorState {
   const factory URLCellEditorState({
-    required String content,
-    required bool isFinishEditing,
+    required final String content,
+    required final bool isFinishEditing,
   }) = _URLCellEditorState;
 
-  factory URLCellEditorState.initial(URLCellController context) {
+  factory URLCellEditorState.initial(final URLCellController context) {
     final cellData = context.getCellData();
     return URLCellEditorState(
       content: cellData?.content ?? "",

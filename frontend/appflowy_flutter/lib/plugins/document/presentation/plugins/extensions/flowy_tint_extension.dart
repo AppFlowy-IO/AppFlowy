@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 
 extension FlowyTintExtension on FlowyTint {
   String tintName(
-    AppFlowyEditorLocalizations l10n, {
-    ThemeMode? themeMode,
-    String? theme,
+    final AppFlowyEditorLocalizations l10n, {
+    final ThemeMode? themeMode,
+    final String? theme,
   }) {
     switch (this) {
       case FlowyTint.tint1:

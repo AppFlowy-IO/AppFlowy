@@ -19,7 +19,8 @@ void main() {
     tearDown(() async => await service.tearDown());
     tearDownAll(() async => await service.tearDownAll());
 
-    testWidgets('testing selection on open-ai smart menu replace', (tester) async {
+    testWidgets('testing selection on open-ai smart menu replace',
+        (final tester) async {
       final appFlowyEditor = await setUpOpenAITesting(tester);
       final editorState = appFlowyEditor.editorState;
 
@@ -40,7 +41,8 @@ void main() {
       await tester.tap(find.text('Summarize'));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byType(FlowyRichTextButton, skipOffstage: false).first);
+      await tester
+          .tap(find.byType(FlowyRichTextButton, skipOffstage: false).first);
       await tester.pumpAndSettle();
 
       expect(
@@ -51,7 +53,8 @@ void main() {
         ),
       );
     });
-    testWidgets('testing selection on open-ai smart menu insert', (tester) async {
+    testWidgets('testing selection on open-ai smart menu insert',
+        (final tester) async {
       final appFlowyEditor = await setUpOpenAITesting(tester);
       final editorState = appFlowyEditor.editorState;
 
@@ -71,7 +74,8 @@ void main() {
       await tester.tap(find.text('Summarize'));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byType(FlowyRichTextButton, skipOffstage: false).at(1));
+      await tester
+          .tap(find.byType(FlowyRichTextButton, skipOffstage: false).at(1));
       await tester.pumpAndSettle();
 
       expect(
@@ -85,7 +89,7 @@ void main() {
   });
 }
 
-Future<AppFlowyEditor> setUpOpenAITesting(WidgetTester tester) async {
+Future<AppFlowyEditor> setUpOpenAITesting(final WidgetTester tester) async {
   await tester.initializeAppFlowy();
   await mockOpenAIRepository();
 

@@ -18,15 +18,15 @@ const _iconSize = Size(60, 60);
 
 class SettingsUserView extends StatelessWidget {
   final UserProfilePB user;
-  SettingsUserView(this.user, {Key? key}) : super(key: ValueKey(user.id));
+  SettingsUserView(this.user, {final Key? key}) : super(key: ValueKey(user.id));
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider<SettingsUserViewBloc>(
-      create: (context) => getIt<SettingsUserViewBloc>(param1: user)
+      create: (final context) => getIt<SettingsUserViewBloc>(param1: user)
         ..add(const SettingsUserEvent.initial()),
       child: BlocBuilder<SettingsUserViewBloc, SettingsUserState>(
-        builder: (context, state) => SingleChildScrollView(
+        builder: (final context, final state) => SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -42,12 +42,13 @@ class SettingsUserView extends StatelessWidget {
     );
   }
 
-  Widget _renderUserNameInput(BuildContext context) {
-    String name = context.read<SettingsUserViewBloc>().state.userProfile.name;
+  Widget _renderUserNameInput(final BuildContext context) {
+    final String name =
+        context.read<SettingsUserViewBloc>().state.userProfile.name;
     return UserNameInput(name);
   }
 
-  Widget _renderCurrentIcon(BuildContext context) {
+  Widget _renderCurrentIcon(final BuildContext context) {
     String iconUrl =
         context.read<SettingsUserViewBloc>().state.userProfile.iconUrl;
     if (iconUrl.isEmpty) {
@@ -56,8 +57,8 @@ class SettingsUserView extends StatelessWidget {
     return _CurrentIcon(iconUrl);
   }
 
-  Widget _renderCurrentOpenaiKey(BuildContext context) {
-    String openAIKey =
+  Widget _renderCurrentOpenaiKey(final BuildContext context) {
+    final String openAIKey =
         context.read<SettingsUserViewBloc>().state.userProfile.openaiKey;
     return _OpenaiKeyInput(openAIKey);
   }
@@ -69,7 +70,7 @@ class UserNameInput extends StatefulWidget {
 
   const UserNameInput(
     this.name, {
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -89,7 +90,7 @@ class UserNameInputState extends State<UserNameInput> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return TextField(
       controller: _controller,
       decoration: InputDecoration(
@@ -106,7 +107,7 @@ class UserNameInputState extends State<UserNameInput> {
           borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
         ),
       ),
-      onChanged: (val) {
+      onChanged: (final val) {
         if (_debounce?.isActive ?? false) {
           _debounce!.cancel();
         }
@@ -131,7 +132,7 @@ class _OpenaiKeyInput extends StatefulWidget {
   final String openAIKey;
   const _OpenaiKeyInput(
     this.openAIKey, {
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -151,7 +152,7 @@ class _OpenaiKeyInputState extends State<_OpenaiKeyInput> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return TextField(
       controller: textEditingController,
       obscureText: !visible,
@@ -183,7 +184,7 @@ class _OpenaiKeyInputState extends State<_OpenaiKeyInput> {
           },
         ),
       ),
-      onChanged: (value) {
+      onChanged: (final value) {
         debounce.call(() {
           context
               .read<SettingsUserViewBloc>()
@@ -202,11 +203,11 @@ class _OpenaiKeyInputState extends State<_OpenaiKeyInput> {
 
 class _CurrentIcon extends StatelessWidget {
   final String iconUrl;
-  const _CurrentIcon(this.iconUrl, {Key? key}) : super(key: key);
+  const _CurrentIcon(this.iconUrl, {final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    void setIcon(String iconUrl) {
+  Widget build(final BuildContext context) {
+    void setIcon(final String iconUrl) {
       context
           .read<SettingsUserViewBloc>()
           .add(SettingsUserEvent.updateUserIcon(iconUrl));
@@ -229,7 +230,7 @@ class _CurrentIcon extends StatelessWidget {
           onTap: () {
             showDialog(
               context: context,
-              builder: (BuildContext context) {
+              builder: (final BuildContext context) {
                 return SimpleDialog(
                   title: FlowyText.medium(
                     LocaleKeys.settings_user_selectAnIcon.tr(),
@@ -261,9 +262,9 @@ class _CurrentIcon extends StatelessWidget {
 
 class IconGallery extends StatelessWidget {
   final Function setIcon;
-  const IconGallery(this.setIcon, {Key? key}) : super(key: key);
+  const IconGallery(this.setIcon, {final Key? key}) : super(key: key);
 
-  Future<List<String>> _getIcons(BuildContext context) async {
+  Future<List<String>> _getIcons(final BuildContext context) async {
     final manifestContent =
         await DefaultAssetBundle.of(context).loadString('AssetManifest.json');
 
@@ -271,25 +272,28 @@ class IconGallery extends StatelessWidget {
 
     final iconUrls = manifestMap.keys
         .where(
-          (String key) =>
+          (final String key) =>
               key.startsWith('assets/images/emoji/') && key.endsWith('.svg'),
         )
-        .map((String key) => key.split('/').last.split('.').first)
+        .map((final String key) => key.split('/').last.split('.').first)
         .toList();
 
     return iconUrls;
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FutureBuilder<List<String>>(
       future: _getIcons(context),
-      builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
+      builder: (
+        final BuildContext context,
+        final AsyncSnapshot<List<String>> snapshot,
+      ) {
         if (snapshot.hasData) {
           return GridView.count(
             padding: const EdgeInsets.all(20),
             crossAxisCount: 5,
-            children: (snapshot.data ?? []).map((String iconUrl) {
+            children: (snapshot.data ?? []).map((final String iconUrl) {
               return IconOption(iconUrl, setIcon);
             }).toList(),
           );
@@ -307,11 +311,11 @@ class IconOption extends StatelessWidget {
   final String iconUrl;
   final Function setIcon;
 
-  IconOption(this.iconUrl, this.setIcon, {Key? key})
+  IconOption(this.iconUrl, this.setIcon, {final Key? key})
       : super(key: ValueKey(iconUrl));
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return InkWell(
       borderRadius: Corners.s6Border,
       hoverColor: Theme.of(context).colorScheme.tertiaryContainer,

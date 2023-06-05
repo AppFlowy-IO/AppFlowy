@@ -48,9 +48,9 @@ class CellController<T, D> extends Equatable {
 
   CellController({
     required this.cellId,
-    required CellCache cellCache,
-    required CellDataLoader<T> cellDataLoader,
-    required CellDataPersistence<D> cellDataPersistence,
+    required final CellCache cellCache,
+    required final CellDataLoader<T> cellDataLoader,
+    required final CellDataPersistence<D> cellDataPersistence,
   })  : _cellCache = cellCache,
         _cellDataLoader = cellDataLoader,
         _cellDataPersistence = cellDataPersistence,
@@ -74,19 +74,19 @@ class CellController<T, D> extends Equatable {
     ///  user input: 12
     ///  cell display: $12
     _cellListener?.start(
-      onCellChanged: (result) {
+      onCellChanged: (final result) {
         result.fold(
-          (_) => _loadData(),
-          (err) => Log.error(err),
+          (final _) => _loadData(),
+          (final err) => Log.error(err),
         );
       },
     );
 
     /// 2.Listen on the field event and load the cell data if needed.
     _fieldListener.start(
-      onFieldChanged: (result) {
+      onFieldChanged: (final result) {
         result.fold(
-          (fieldPB) {
+          (final fieldPB) {
             /// reloadOnFieldChanged should be true if you need to load the data when the corresponding field is changed
             /// For example:
             ///   ￥12 -> $12
@@ -95,7 +95,7 @@ class CellController<T, D> extends Equatable {
             }
             _onCellFieldChanged?.call();
           },
-          (err) => Log.error(err),
+          (final err) => Log.error(err),
         );
       },
     );
@@ -103,8 +103,8 @@ class CellController<T, D> extends Equatable {
 
   /// Listen on the cell content or field changes
   VoidCallback? startListening({
-    required void Function(T?) onCellChanged,
-    VoidCallback? onCellFieldChanged,
+    required final void Function(T?) onCellChanged,
+    final VoidCallback? onCellFieldChanged,
   }) {
     _onCellFieldChanged = onCellFieldChanged;
 
@@ -116,14 +116,14 @@ class CellController<T, D> extends Equatable {
     return onCellChangedFn;
   }
 
-  void removeListener(VoidCallback fn) {
+  void removeListener(final VoidCallback fn) {
     _cellDataNotifier?.removeListener(fn);
   }
 
   /// Return the cell data.
   /// The cell data will be read from the Cache first, and load from disk if it does not exist.
   /// You can set [loadIfNotExist] to false (default is true) to disable loading the cell data.
-  T? getCellData({bool loadIfNotExist = true}) {
+  T? getCellData({final bool loadIfNotExist = true}) {
     final data = _cellCache.get(_cacheKey);
     if (data == null && loadIfNotExist) {
       _loadData();
@@ -134,14 +134,14 @@ class CellController<T, D> extends Equatable {
   /// Return the TypeOptionPB that can be parsed into corresponding class using the [parser].
   /// [PD] is the type that the parser return.
   Future<Either<PD, FlowyError>> getTypeOption<PD, P extends TypeOptionParser>(
-    P parser,
+    final P parser,
   ) {
     return _fieldBackendSvc
         .getFieldTypeOptionData(fieldType: fieldType)
-        .then((result) {
+        .then((final result) {
       return result.fold(
-        (data) => left(parser.fromBuffer(data.typeOptionData)),
-        (err) => right(err),
+        (final data) => left(parser.fromBuffer(data.typeOptionData)),
+        (final err) => right(err),
       );
     });
   }
@@ -151,9 +151,9 @@ class CellController<T, D> extends Equatable {
   /// It's useful when you call this method when user editing the [TextField].
   /// The default debounce interval is 300 milliseconds.
   Future<void> saveCellData(
-    D data, {
-    bool deduplicate = false,
-    void Function(Option<FlowyError>)? onFinish,
+    final D data, {
+    final bool deduplicate = false,
+    final void Function(Option<FlowyError>)? onFinish,
   }) async {
     _loadDataOperation?.cancel();
     if (deduplicate) {
@@ -173,7 +173,7 @@ class CellController<T, D> extends Equatable {
     _loadDataOperation?.cancel();
 
     _loadDataOperation = Timer(const Duration(milliseconds: 10), () {
-      _cellDataLoader.loadData().then((data) {
+      _cellDataLoader.loadData().then((final data) {
         if (data != null) {
           _cellCache.insert(_cacheKey, DatabaseCell(object: data));
         } else {
@@ -201,9 +201,9 @@ class CellController<T, D> extends Equatable {
 class CellDataNotifier<T> extends ChangeNotifier {
   T _value;
   bool Function(T? oldValue, T? newValue)? listenWhen;
-  CellDataNotifier({required T value, this.listenWhen}) : _value = value;
+  CellDataNotifier({required final T value, this.listenWhen}) : _value = value;
 
-  set value(T newValue) {
+  set value(final T newValue) {
     if (listenWhen?.call(_value, newValue) ?? false) {
       _value = newValue;
       notifyListeners();

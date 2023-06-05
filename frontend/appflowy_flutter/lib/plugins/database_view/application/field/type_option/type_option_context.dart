@@ -15,7 +15,7 @@ import 'package:protobuf/protobuf.dart';
 import 'type_option_data_controller.dart';
 
 abstract class TypeOptionParser<T> {
-  T fromBuffer(List<int> buffer);
+  T fromBuffer(final List<int> buffer);
 }
 
 // Number
@@ -24,7 +24,7 @@ typedef NumberTypeOptionContext = TypeOptionContext<NumberTypeOptionPB>;
 class NumberTypeOptionWidgetDataParser
     extends TypeOptionParser<NumberTypeOptionPB> {
   @override
-  NumberTypeOptionPB fromBuffer(List<int> buffer) {
+  NumberTypeOptionPB fromBuffer(final List<int> buffer) {
     return NumberTypeOptionPB.fromBuffer(buffer);
   }
 }
@@ -35,7 +35,7 @@ typedef RichTextTypeOptionContext = TypeOptionContext<RichTextTypeOptionPB>;
 class RichTextTypeOptionWidgetDataParser
     extends TypeOptionParser<RichTextTypeOptionPB> {
   @override
-  RichTextTypeOptionPB fromBuffer(List<int> buffer) {
+  RichTextTypeOptionPB fromBuffer(final List<int> buffer) {
     return RichTextTypeOptionPB.fromBuffer(buffer);
   }
 }
@@ -46,7 +46,7 @@ typedef CheckboxTypeOptionContext = TypeOptionContext<CheckboxTypeOptionPB>;
 class CheckboxTypeOptionWidgetDataParser
     extends TypeOptionParser<CheckboxTypeOptionPB> {
   @override
-  CheckboxTypeOptionPB fromBuffer(List<int> buffer) {
+  CheckboxTypeOptionPB fromBuffer(final List<int> buffer) {
     return CheckboxTypeOptionPB.fromBuffer(buffer);
   }
 }
@@ -56,7 +56,7 @@ typedef URLTypeOptionContext = TypeOptionContext<URLTypeOptionPB>;
 
 class URLTypeOptionWidgetDataParser extends TypeOptionParser<URLTypeOptionPB> {
   @override
-  URLTypeOptionPB fromBuffer(List<int> buffer) {
+  URLTypeOptionPB fromBuffer(final List<int> buffer) {
     return URLTypeOptionPB.fromBuffer(buffer);
   }
 }
@@ -66,7 +66,7 @@ typedef DateTypeOptionContext = TypeOptionContext<DateTypeOptionPB>;
 
 class DateTypeOptionDataParser extends TypeOptionParser<DateTypeOptionPB> {
   @override
-  DateTypeOptionPB fromBuffer(List<int> buffer) {
+  DateTypeOptionPB fromBuffer(final List<int> buffer) {
     return DateTypeOptionPB.fromBuffer(buffer);
   }
 }
@@ -78,7 +78,7 @@ typedef SingleSelectTypeOptionContext
 class SingleSelectTypeOptionWidgetDataParser
     extends TypeOptionParser<SingleSelectTypeOptionPB> {
   @override
-  SingleSelectTypeOptionPB fromBuffer(List<int> buffer) {
+  SingleSelectTypeOptionPB fromBuffer(final List<int> buffer) {
     return SingleSelectTypeOptionPB.fromBuffer(buffer);
   }
 }
@@ -90,7 +90,7 @@ typedef MultiSelectTypeOptionContext
 class MultiSelectTypeOptionWidgetDataParser
     extends TypeOptionParser<MultiSelectTypeOptionPB> {
   @override
-  MultiSelectTypeOptionPB fromBuffer(List<int> buffer) {
+  MultiSelectTypeOptionPB fromBuffer(final List<int> buffer) {
     return MultiSelectTypeOptionPB.fromBuffer(buffer);
   }
 }
@@ -101,7 +101,7 @@ typedef ChecklistTypeOptionContext = TypeOptionContext<ChecklistTypeOptionPB>;
 class ChecklistTypeOptionWidgetDataParser
     extends TypeOptionParser<ChecklistTypeOptionPB> {
   @override
-  ChecklistTypeOptionPB fromBuffer(List<int> buffer) {
+  ChecklistTypeOptionPB fromBuffer(final List<int> buffer) {
     return ChecklistTypeOptionPB.fromBuffer(buffer);
   }
 }
@@ -113,7 +113,7 @@ class TypeOptionContext<T extends GeneratedMessage> {
 
   TypeOptionContext({
     required this.dataParser,
-    required TypeOptionController dataController,
+    required final TypeOptionController dataController,
   }) : _dataController = dataController;
 
   String get viewId => _dataController.viewId;
@@ -121,11 +121,11 @@ class TypeOptionContext<T extends GeneratedMessage> {
   String get fieldId => _dataController.field.id;
 
   Future<T> loadTypeOptionData({
-    void Function(T)? onCompleted,
-    required void Function(FlowyError) onError,
+    final void Function(T)? onCompleted,
+    required final void Function(FlowyError) onError,
   }) async {
-    await _dataController.loadTypeOptionData().then((result) {
-      result.fold((l) => null, (err) => onError(err));
+    await _dataController.loadTypeOptionData().then((final result) {
+      result.fold((final l) => null, (final err) => onError(err));
     });
 
     onCompleted?.call(typeOption);
@@ -142,14 +142,14 @@ class TypeOptionContext<T extends GeneratedMessage> {
     return object;
   }
 
-  set typeOption(T typeOption) {
+  set typeOption(final T typeOption) {
     _dataController.typeOptionData = typeOption.writeToBuffer();
     _typeOptionObject = typeOption;
   }
 }
 
 abstract class TypeOptionFieldDelegate {
-  void onFieldChanged(void Function(String) callback);
+  void onFieldChanged(final void Function(String) callback);
   void dispose();
 }
 
@@ -158,8 +158,8 @@ abstract class IFieldTypeOptionLoader {
   Future<Either<TypeOptionPB, FlowyError>> load();
 
   Future<Either<Unit, FlowyError>> switchToField(
-    String fieldId,
-    FieldType fieldType,
+    final String fieldId,
+    final FieldType fieldType,
   ) {
     final payload = UpdateFieldTypePayloadPB.create()
       ..viewId = viewId
@@ -196,13 +196,13 @@ class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
         ..viewId = viewId
         ..fieldType = FieldType.RichText;
 
-      return DatabaseEventCreateTypeOption(payload).send().then((result) {
+      return DatabaseEventCreateTypeOption(payload).send().then((final result) {
         return result.fold(
-          (newFieldTypeOption) {
+          (final newFieldTypeOption) {
             fieldTypeOption = newFieldTypeOption;
             return left(newFieldTypeOption);
           },
-          (err) => right(err),
+          (final err) => right(err),
         );
       });
     }

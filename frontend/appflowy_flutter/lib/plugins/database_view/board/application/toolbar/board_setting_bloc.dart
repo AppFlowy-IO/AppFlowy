@@ -9,9 +9,9 @@ class BoardSettingBloc extends Bloc<BoardSettingEvent, BoardSettingState> {
   BoardSettingBloc({required this.viewId})
       : super(BoardSettingState.initial()) {
     on<BoardSettingEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.when(
-          performAction: (action) {
+          performAction: (final action) {
             emit(state.copyWith(selectedAction: Some(action)));
           },
         );
@@ -22,14 +22,14 @@ class BoardSettingBloc extends Bloc<BoardSettingEvent, BoardSettingState> {
 
 @freezed
 class BoardSettingEvent with _$BoardSettingEvent {
-  const factory BoardSettingEvent.performAction(BoardSettingAction action) =
+  const factory BoardSettingEvent.performAction(final BoardSettingAction action) =
       _PerformAction;
 }
 
 @freezed
 class BoardSettingState with _$BoardSettingState {
   const factory BoardSettingState({
-    required Option<BoardSettingAction> selectedAction,
+    required final Option<BoardSettingAction> selectedAction,
   }) = _BoardSettingState;
 
   factory BoardSettingState.initial() => BoardSettingState(

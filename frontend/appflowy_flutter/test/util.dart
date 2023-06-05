@@ -57,11 +57,11 @@ class AppFlowyUnitTest {
       email: userEmail,
     );
     return result.fold(
-      (user) {
+      (final user) {
         userProfile = user;
         userService = UserBackendService(userId: userProfile.id);
       },
-      (error) {},
+      (final error) {},
     );
   }
 
@@ -70,8 +70,8 @@ class AppFlowyUnitTest {
   Future<void> _loadWorkspace() async {
     final result = await userService.getWorkspaces();
     result.fold(
-      (value) => workspaces = value,
-      (error) {
+      (final value) => workspaces = value,
+      (final error) {
         throw Exception(error);
       },
     );
@@ -84,8 +84,8 @@ class AppFlowyUnitTest {
   Future<AppPB> createTestApp() async {
     final result = await workspaceService.createApp(name: "Test App");
     return result.fold(
-      (app) => app,
-      (error) => throw Exception(error),
+      (final app) => app,
+      (final error) => throw Exception(error),
     );
   }
 
@@ -93,8 +93,8 @@ class AppFlowyUnitTest {
     final result = await workspaceService.getApps();
 
     return result.fold(
-      (apps) => apps,
-      (error) => throw Exception(error),
+      (final apps) => apps,
+      (final error) => throw Exception(error),
     );
   }
 }
@@ -102,22 +102,22 @@ class AppFlowyUnitTest {
 void _pathProviderInitialized() {
   const MethodChannel channel =
       MethodChannel('plugins.flutter.io/path_provider');
-  channel.setMockMethodCallHandler((MethodCall methodCall) async {
+  channel.setMockMethodCallHandler((final MethodCall methodCall) async {
     return ".";
   });
 }
 
 class FlowyTestApp implements EntryPoint {
   @override
-  Widget create(LaunchConfiguration config) {
+  Widget create(final LaunchConfiguration config) {
     return Container();
   }
 }
 
-Future<void> blocResponseFuture({int millisecond = 200}) {
+Future<void> blocResponseFuture({final int millisecond = 200}) {
   return Future.delayed(Duration(milliseconds: millisecond));
 }
 
-Duration blocResponseDuration({int milliseconds = 200}) {
+Duration blocResponseDuration({final int milliseconds = 200}) {
   return Duration(milliseconds: milliseconds);
 }

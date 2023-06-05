@@ -23,11 +23,11 @@ ShortcutEvent pasteInCodeBlock = ShortcutEvent(
   handler: _pasteHandler,
 );
 
-ShortcutEventHandler _enterInCodeBlockHandler = (editorState, event) {
+ShortcutEventHandler _enterInCodeBlockHandler = (final editorState, final event) {
   final selection = editorState.service.selectionService.currentSelection.value;
   final nodes = editorState.service.selectionService.currentSelectedNodes;
   final codeBlockNode =
-      nodes.whereType<TextNode>().where((node) => node.id == kCodeBlockType);
+      nodes.whereType<TextNode>().where((final node) => node.id == kCodeBlockType);
   if (codeBlockNode.length != 1 ||
       selection == null ||
       !selection.isCollapsed) {
@@ -44,25 +44,25 @@ ShortcutEventHandler _enterInCodeBlockHandler = (editorState, event) {
   return KeyEventResult.handled;
 };
 
-ShortcutEventHandler _ignorekHandler = (editorState, event) {
+ShortcutEventHandler _ignorekHandler = (final editorState, final event) {
   final nodes = editorState.service.selectionService.currentSelectedNodes;
   final codeBlockNodes =
-      nodes.whereType<TextNode>().where((node) => node.id == kCodeBlockType);
+      nodes.whereType<TextNode>().where((final node) => node.id == kCodeBlockType);
   if (codeBlockNodes.length == 1) {
     return KeyEventResult.skipRemainingHandlers;
   }
   return KeyEventResult.ignored;
 };
 
-ShortcutEventHandler _pasteHandler = (editorState, event) {
+ShortcutEventHandler _pasteHandler = (final editorState, final event) {
   final selection = editorState.service.selectionService.currentSelection.value;
   final nodes = editorState.service.selectionService.currentSelectedNodes;
   final codeBlockNodes =
-      nodes.whereType<TextNode>().where((node) => node.id == kCodeBlockType);
+      nodes.whereType<TextNode>().where((final node) => node.id == kCodeBlockType);
   if (selection != null &&
       selection.isCollapsed &&
       codeBlockNodes.length == 1) {
-    Clipboard.getData(Clipboard.kTextPlain).then((value) {
+    Clipboard.getData(Clipboard.kTextPlain).then((final value) {
       final text = value?.text;
       if (text == null) return;
       final transaction = editorState.transaction;
@@ -80,7 +80,7 @@ ShortcutEventHandler _pasteHandler = (editorState, event) {
 
 SelectionMenuItem codeBlockMenuItem = SelectionMenuItem(
   name: 'Code Block',
-  icon: (editorState, onSelected) => Icon(
+  icon: (final editorState, final onSelected) => Icon(
     Icons.abc,
     color: onSelected
         ? editorState.editorStyle.selectionMenuItemSelectedIconColor
@@ -88,7 +88,7 @@ SelectionMenuItem codeBlockMenuItem = SelectionMenuItem(
     size: 18.0,
   ),
   keywords: ['code block', 'code snippet'],
-  handler: (editorState, _, __) {
+  handler: (final editorState, final _, final __) {
     final selection =
         editorState.service.selectionService.currentSelection.value;
     final textNodes = editorState.service.selectionService.currentSelectedNodes

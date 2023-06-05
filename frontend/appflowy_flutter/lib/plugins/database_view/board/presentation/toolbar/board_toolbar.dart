@@ -23,11 +23,11 @@ class BoardToolbar extends StatelessWidget {
   final BoardToolbarContext toolbarContext;
   const BoardToolbar({
     required this.toolbarContext,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       height: 40,
       child: Row(
@@ -44,7 +44,7 @@ class BoardToolbar extends StatelessWidget {
 
 class _SettingButton extends StatefulWidget {
   final BoardSettingContext settingContext;
-  const _SettingButton({required this.settingContext, Key? key})
+  const _SettingButton({required this.settingContext, final Key? key})
       : super(key: key);
 
   @override
@@ -61,7 +61,7 @@ class _SettingButtonState extends State<_SettingButton> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return AppFlowyPopover(
       controller: popoverController,
       direction: PopoverDirection.leftWithTopAligned,
@@ -79,7 +79,7 @@ class _SettingButtonState extends State<_SettingButton> {
           popoverController.show();
         },
       ),
-      popupBuilder: (BuildContext popoverContext) {
+      popupBuilder: (final BuildContext popoverContext) {
         return BoardSettingListPopover(
           settingContext: widget.settingContext,
           popoverController: popoverController,

@@ -3,10 +3,10 @@ import 'package:flutter/services.dart';
 
 class GridShortcuts extends StatelessWidget {
   final Widget child;
-  const GridShortcuts({required this.child, Key? key}) : super(key: key);
+  const GridShortcuts({required this.child, final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Shortcuts(
       shortcuts: bindKeys([]),
       child: Actions(
@@ -18,7 +18,7 @@ class GridShortcuts extends StatelessWidget {
   }
 }
 
-Map<ShortcutActivator, Intent> bindKeys(List<LogicalKeyboardKey> keys) {
+Map<ShortcutActivator, Intent> bindKeys(final List<LogicalKeyboardKey> keys) {
   return {for (var key in keys) LogicalKeySet(key): KeyboardKeyIdent(key)};
 }
 
@@ -38,7 +38,7 @@ class KeyboardBindingAction extends Action<KeyboardKeyIdent> {
   KeyboardBindingAction();
 
   @override
-  void invoke(covariant KeyboardKeyIdent intent) {
+  void invoke(covariant final KeyboardKeyIdent intent) {
     // print(intent);
   }
 }
@@ -46,9 +46,9 @@ class KeyboardBindingAction extends Action<KeyboardKeyIdent> {
 class LoggingActionDispatcher extends ActionDispatcher {
   @override
   Object? invokeAction(
-    covariant Action<Intent> action,
-    covariant Intent intent, [
-    BuildContext? context,
+    covariant final Action<Intent> action,
+    covariant final Intent intent, [
+    final BuildContext? context,
   ]) {
     // print('Action invoked: $action($intent) from $context');
     super.invokeAction(action, intent, context);

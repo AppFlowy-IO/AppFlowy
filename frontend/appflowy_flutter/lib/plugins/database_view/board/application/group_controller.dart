@@ -10,10 +10,10 @@ import 'package:dartz/dartz.dart';
 typedef OnGroupError = void Function(FlowyError);
 
 abstract class GroupControllerDelegate {
-  void removeRow(GroupPB group, String rowId);
-  void insertRow(GroupPB group, RowPB row, int? index);
-  void updateRow(GroupPB group, RowPB row);
-  void addNewRow(GroupPB group, RowPB row, int? index);
+  void removeRow(final GroupPB group, final String rowId);
+  void insertRow(final GroupPB group, final RowPB row, final int? index);
+  void updateRow(final GroupPB group, final RowPB row);
+  void addNewRow(final GroupPB group, final RowPB row, final int? index);
 }
 
 class GroupController {
@@ -22,12 +22,12 @@ class GroupController {
   final GroupControllerDelegate delegate;
 
   GroupController({
-    required String viewId,
+    required final String viewId,
     required this.group,
     required this.delegate,
   }) : _listener = SingleGroupListener(group);
 
-  RowPB? rowAtIndex(int index) {
+  RowPB? rowAtIndex(final int index) {
     if (index < group.rows.length) {
       return group.rows[index];
     } else {
@@ -42,11 +42,11 @@ class GroupController {
 
   void startListening() {
     _listener.start(
-      onGroupChanged: (result) {
+      onGroupChanged: (final result) {
         result.fold(
-          (GroupRowsNotificationPB changeset) {
+          (final GroupRowsNotificationPB changeset) {
             for (final deletedRow in changeset.deletedRows) {
-              group.rows.removeWhere((rowPB) => rowPB.id == deletedRow);
+              group.rows.removeWhere((final rowPB) => rowPB.id == deletedRow);
               delegate.removeRow(group, deletedRow);
             }
 
@@ -68,7 +68,7 @@ class GroupController {
 
             for (final updatedRow in changeset.updatedRows) {
               final index = group.rows.indexWhere(
-                (rowPB) => rowPB.id == updatedRow.id,
+                (final rowPB) => rowPB.id == updatedRow.id,
               );
 
               if (index != -1) {
@@ -77,7 +77,7 @@ class GroupController {
               }
             }
           },
-          (err) => Log.error(err),
+          (final err) => Log.error(err),
         );
       },
     );
@@ -97,7 +97,7 @@ class SingleGroupListener {
   SingleGroupListener(this.group);
 
   void start({
-    required void Function(UpdateGroupNotifiedValue) onGroupChanged,
+    required final void Function(UpdateGroupNotifiedValue) onGroupChanged,
   }) {
     _groupNotifier?.addPublishListener(onGroupChanged);
     _listener = DatabaseNotificationListener(
@@ -107,15 +107,15 @@ class SingleGroupListener {
   }
 
   void _handler(
-    DatabaseNotification ty,
-    Either<Uint8List, FlowyError> result,
+    final DatabaseNotification ty,
+    final Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case DatabaseNotification.DidUpdateGroupRow:
         result.fold(
-          (payload) => _groupNotifier?.value =
+          (final payload) => _groupNotifier?.value =
               left(GroupRowsNotificationPB.fromBuffer(payload)),
-          (error) => _groupNotifier?.value = right(error),
+          (final error) => _groupNotifier?.value = right(error),
         );
         break;
       default:

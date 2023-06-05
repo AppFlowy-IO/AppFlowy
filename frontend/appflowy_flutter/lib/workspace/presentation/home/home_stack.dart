@@ -17,7 +17,7 @@ import 'home_layout.dart';
 typedef NavigationCallback = void Function(String id);
 
 abstract class HomeStackDelegate {
-  void didDeleteStackWidget(ViewPB view, int? index);
+  void didDeleteStackWidget(final ViewPB view, final int? index);
 }
 
 class HomeStack extends StatelessWidget {
@@ -26,11 +26,11 @@ class HomeStack extends StatelessWidget {
   const HomeStack({
     required this.delegate,
     required this.layout,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -40,7 +40,7 @@ class HomeStack extends StatelessWidget {
             color: Theme.of(context).colorScheme.surface,
             child: FocusTraversalGroup(
               child: getIt<HomeStackManager>().stackWidget(
-                onDeleted: (view, index) {
+                onDeleted: (final view, final index) {
                   delegate.didDeleteStackWidget(view, index);
                 },
               ),
@@ -58,7 +58,7 @@ class FadingIndexedStack extends StatefulWidget {
   final Duration duration;
 
   const FadingIndexedStack({
-    Key? key,
+    final Key? key,
     required this.index,
     required this.children,
     this.duration = const Duration(
@@ -80,7 +80,7 @@ class FadingIndexedStackState extends State<FadingIndexedStack> {
   }
 
   @override
-  void didUpdateWidget(FadingIndexedStack oldWidget) {
+  void didUpdateWidget(final FadingIndexedStack oldWidget) {
     if (oldWidget.index == widget.index) return;
     setState(() => _targetOpacity = 0);
     Future.delayed(1.milliseconds, () => setState(() => _targetOpacity = 1));
@@ -88,11 +88,11 @@ class FadingIndexedStackState extends State<FadingIndexedStack> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return TweenAnimationBuilder<double>(
       duration: _targetOpacity > 0 ? widget.duration : 0.milliseconds,
       tween: Tween(begin: 0, end: _targetOpacity),
-      builder: (_, value, child) {
+      builder: (final _, final value, final child) {
         return Opacity(opacity: value, child: child);
       },
       child: IndexedStack(index: widget.index, children: widget.children),
@@ -104,7 +104,7 @@ abstract class NavigationItem {
   Widget get leftBarItem;
   Widget? get rightBarItem => null;
 
-  NavigationCallback get action => (id) {
+  NavigationCallback get action => (final id) {
         getIt<HomeStackManager>().setStackWithId(id);
       };
 }
@@ -114,10 +114,10 @@ class HomeStackNotifier extends ChangeNotifier {
 
   Widget get titleWidget => _plugin.display.leftBarItem;
 
-  HomeStackNotifier({Plugin? plugin})
+  HomeStackNotifier({final Plugin? plugin})
       : _plugin = plugin ?? makePlugin(pluginType: PluginType.blank);
 
-  set plugin(Plugin newPlugin) {
+  set plugin(final Plugin newPlugin) {
     if (newPlugin.id == _plugin.id) {
       return;
     }
@@ -144,37 +144,37 @@ class HomeStackManager {
 
   Plugin get plugin => _notifier.plugin;
 
-  void setPlugin(Plugin newPlugin) {
+  void setPlugin(final Plugin newPlugin) {
     _notifier.plugin = newPlugin;
   }
 
-  void setStackWithId(String id) {
+  void setStackWithId(final String id) {
     // Navigate to the page with id
   }
 
-  Widget stackTopBar({required HomeLayout layout}) {
+  Widget stackTopBar({required final HomeLayout layout}) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: _notifier),
       ],
       child: Selector<HomeStackNotifier, Widget>(
-        selector: (context, notifier) => notifier.titleWidget,
-        builder: (context, widget, child) {
+        selector: (final context, final notifier) => notifier.titleWidget,
+        builder: (final context, final widget, final child) {
           return MoveWindowDetector(child: HomeTopBar(layout: layout));
         },
       ),
     );
   }
 
-  Widget stackWidget({required Function(ViewPB, int?) onDeleted}) {
+  Widget stackWidget({required final Function(ViewPB, int?) onDeleted}) {
     return MultiProvider(
       providers: [ChangeNotifierProvider.value(value: _notifier)],
       child: Consumer(
-        builder: (ctx, HomeStackNotifier notifier, child) {
+        builder: (final ctx, final HomeStackNotifier notifier, final child) {
           return FadingIndexedStack(
             index: getIt<PluginSandbox>().indexOf(notifier.plugin.ty),
             children:
-                getIt<PluginSandbox>().supportPluginTypes.map((pluginType) {
+                getIt<PluginSandbox>().supportPluginTypes.map((final pluginType) {
               if (pluginType == notifier.plugin.ty) {
                 final pluginWidget = notifier.plugin.display
                     .buildWidget(PluginContext(onDeleted: onDeleted));
@@ -195,12 +195,12 @@ class HomeStackManager {
 }
 
 class HomeTopBar extends StatelessWidget {
-  const HomeTopBar({Key? key, required this.layout}) : super(key: key);
+  const HomeTopBar({final Key? key, required this.layout}) : super(key: key);
 
   final HomeLayout layout;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Container(
       color: Theme.of(context).colorScheme.onSecondaryContainer,
       height: HomeSizes.topBarHeight,
@@ -214,9 +214,9 @@ class HomeTopBar extends StatelessWidget {
             value: Provider.of<HomeStackNotifier>(context, listen: false),
             child: Consumer(
               builder: (
-                BuildContext context,
-                HomeStackNotifier notifier,
-                Widget? child,
+                final BuildContext context,
+                final HomeStackNotifier notifier,
+                final Widget? child,
               ) {
                 return notifier.plugin.display.rightBarItem ?? const SizedBox();
               },

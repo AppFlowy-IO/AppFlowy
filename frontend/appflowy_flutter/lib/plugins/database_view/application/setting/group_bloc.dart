@@ -14,26 +14,26 @@ class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
   Function(List<FieldInfo>)? _onFieldsFn;
 
   DatabaseGroupBloc({
-    required String viewId,
-    required FieldController fieldController,
+    required final String viewId,
+    required final FieldController fieldController,
   })  : _fieldController = fieldController,
         _settingBackendSvc = SettingBackendService(viewId: viewId),
         super(DatabaseGroupState.initial(viewId, fieldController.fieldInfos)) {
     on<DatabaseGroupEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.when(
           initial: () {
             _startListening();
           },
-          didReceiveFieldUpdate: (fieldContexts) {
+          didReceiveFieldUpdate: (final fieldContexts) {
             emit(state.copyWith(fieldContexts: fieldContexts));
           },
-          setGroupByField: (String fieldId, FieldType fieldType) async {
+          setGroupByField: (final String fieldId, final FieldType fieldType) async {
             final result = await _settingBackendSvc.groupByField(
               fieldId: fieldId,
               fieldType: fieldType,
             );
-            result.fold((l) => null, (err) => Log.error(err));
+            result.fold((final l) => null, (final err) => Log.error(err));
           },
         );
       },
@@ -50,7 +50,7 @@ class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
   }
 
   void _startListening() {
-    _onFieldsFn = (fieldContexts) =>
+    _onFieldsFn = (final fieldContexts) =>
         add(DatabaseGroupEvent.didReceiveFieldUpdate(fieldContexts));
     _fieldController.addListener(
       onReceiveFields: _onFieldsFn,
@@ -63,24 +63,24 @@ class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
 class DatabaseGroupEvent with _$DatabaseGroupEvent {
   const factory DatabaseGroupEvent.initial() = _Initial;
   const factory DatabaseGroupEvent.setGroupByField(
-    String fieldId,
-    FieldType fieldType,
+    final String fieldId,
+    final FieldType fieldType,
   ) = _DatabaseGroupEvent;
   const factory DatabaseGroupEvent.didReceiveFieldUpdate(
-    List<FieldInfo> fields,
+    final List<FieldInfo> fields,
   ) = _DidReceiveFieldUpdate;
 }
 
 @freezed
 class DatabaseGroupState with _$DatabaseGroupState {
   const factory DatabaseGroupState({
-    required String viewId,
-    required List<FieldInfo> fieldContexts,
+    required final String viewId,
+    required final List<FieldInfo> fieldContexts,
   }) = _DatabaseGroupState;
 
   factory DatabaseGroupState.initial(
-    String viewId,
-    List<FieldInfo> fieldContexts,
+    final String viewId,
+    final List<FieldInfo> fieldContexts,
   ) =>
       DatabaseGroupState(
         viewId: viewId,

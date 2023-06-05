@@ -28,8 +28,8 @@ class WorkspaceListener {
   });
 
   void start({
-    void Function(AppListNotifyValue)? appsChanged,
-    void Function(WorkspaceNotifyValue)? onWorkspaceUpdated,
+    final void Function(AppListNotifyValue)? appsChanged,
+    final void Function(WorkspaceNotifyValue)? onWorkspaceUpdated,
   }) {
     if (appsChanged != null) {
       _appsChangedNotifier?.addPublishListener(appsChanged);
@@ -46,22 +46,22 @@ class WorkspaceListener {
   }
 
   void _handleObservableType(
-    FolderNotification ty,
-    Either<Uint8List, FlowyError> result,
+    final FolderNotification ty,
+    final Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case FolderNotification.DidUpdateWorkspace:
         result.fold(
-          (payload) => _workspaceUpdatedNotifier?.value =
+          (final payload) => _workspaceUpdatedNotifier?.value =
               left(WorkspacePB.fromBuffer(payload)),
-          (error) => _workspaceUpdatedNotifier?.value = right(error),
+          (final error) => _workspaceUpdatedNotifier?.value = right(error),
         );
         break;
       case FolderNotification.DidUpdateWorkspaceApps:
         result.fold(
-          (payload) => _appsChangedNotifier?.value =
+          (final payload) => _appsChangedNotifier?.value =
               left(RepeatedAppPB.fromBuffer(payload).items),
-          (error) => _appsChangedNotifier?.value = right(error),
+          (final error) => _appsChangedNotifier?.value = right(error),
         );
         break;
       default:

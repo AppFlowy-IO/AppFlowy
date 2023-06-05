@@ -15,17 +15,17 @@ import '../../layout/sizes.dart';
 
 class RowActions extends StatelessWidget {
   final RowInfo rowData;
-  const RowActions({required this.rowData, Key? key}) : super(key: key);
+  const RowActions({required this.rowData, final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) => RowActionSheetBloc(rowInfo: rowData),
+      create: (final context) => RowActionSheetBloc(rowInfo: rowData),
       child: BlocBuilder<RowActionSheetBloc, RowActionSheetState>(
-        builder: (context, state) {
+        builder: (final context, final state) {
           final cells = _RowAction.values
-              .where((value) => value.enable())
-              .map((action) => _ActionCell(action: action))
+              .where((final value) => value.enable())
+              .map((final action) => _ActionCell(action: action))
               .toList();
 
           //
@@ -33,11 +33,11 @@ class RowActions extends StatelessWidget {
             shrinkWrap: true,
             controller: ScrollController(),
             itemCount: cells.length,
-            separatorBuilder: (context, index) {
+            separatorBuilder: (final context, final index) {
               return VSpace(GridSize.typeOptionSeparatorHeight);
             },
             physics: StyledScrollPhysics(),
-            itemBuilder: (BuildContext context, int index) {
+            itemBuilder: (final BuildContext context, final int index) {
               return cells[index];
             },
           );
@@ -50,10 +50,10 @@ class RowActions extends StatelessWidget {
 
 class _ActionCell extends StatelessWidget {
   final _RowAction action;
-  const _ActionCell({required this.action, Key? key}) : super(key: key);
+  const _ActionCell({required this.action, final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
@@ -111,7 +111,7 @@ extension _RowActionExtension on _RowAction {
     }
   }
 
-  void performAction(BuildContext context) {
+  void performAction(final BuildContext context) {
     switch (this) {
       case _RowAction.duplicate:
         context

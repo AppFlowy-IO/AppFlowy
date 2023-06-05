@@ -22,7 +22,7 @@ enum SmartEditAction {
     }
   }
 
-  String prompt(String input) {
+  String prompt(final String input) {
     switch (this) {
       case SmartEditAction.summarize:
         return '$input\n\nTl;dr';
@@ -35,7 +35,7 @@ enum SmartEditAction {
     }
   }
 
-  static SmartEditAction from(int index) {
+  static SmartEditAction from(final int index) {
     switch (index) {
       case 0:
         return SmartEditAction.summarize;
@@ -68,7 +68,7 @@ class SmartEditActionWrapper extends ActionCell {
 
   SmartEditActionWrapper(this.inner);
 
-  Widget? icon(Color iconColor) => null;
+  Widget? icon(final Color iconColor) => null;
 
   @override
   String get name {

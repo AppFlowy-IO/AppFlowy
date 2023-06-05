@@ -21,17 +21,17 @@ class SingleSelectAction with ISelectOptionAction {
 
   SingleSelectTypeOptionPB get typeOption => typeOptionContext.typeOption;
 
-  set typeOption(SingleSelectTypeOptionPB newTypeOption) {
+  set typeOption(final SingleSelectTypeOptionPB newTypeOption) {
     typeOptionContext.typeOption = newTypeOption;
   }
 
   @override
   List<SelectOptionPB> Function(SelectOptionPB) get deleteOption {
-    return (SelectOptionPB option) {
+    return (final SelectOptionPB option) {
       typeOption.freeze();
-      typeOption = typeOption.rebuild((typeOption) {
+      typeOption = typeOption.rebuild((final typeOption) {
         final index =
-            typeOption.options.indexWhere((element) => element.id == option.id);
+            typeOption.options.indexWhere((final element) => element.id == option.id);
         if (index != -1) {
           typeOption.options.removeAt(index);
         }
@@ -42,14 +42,14 @@ class SingleSelectAction with ISelectOptionAction {
 
   @override
   Future<List<SelectOptionPB>> Function(String) get insertOption {
-    return (String optionName) {
-      return service.newOption(name: optionName).then((result) {
+    return (final String optionName) {
+      return service.newOption(name: optionName).then((final result) {
         return result.fold(
-          (option) {
+          (final option) {
             typeOption.freeze();
-            typeOption = typeOption.rebuild((typeOption) {
+            typeOption = typeOption.rebuild((final typeOption) {
               final exists = typeOption.options
-                  .any((element) => element.name == option.name);
+                  .any((final element) => element.name == option.name);
               if (!exists) {
                 typeOption.options.insert(0, option);
               }
@@ -57,7 +57,7 @@ class SingleSelectAction with ISelectOptionAction {
 
             return typeOption.options;
           },
-          (err) {
+          (final err) {
             Log.error(err);
             return typeOption.options;
           },
@@ -68,11 +68,11 @@ class SingleSelectAction with ISelectOptionAction {
 
   @override
   List<SelectOptionPB> Function(SelectOptionPB) get updateOption {
-    return (SelectOptionPB option) {
+    return (final SelectOptionPB option) {
       typeOption.freeze();
-      typeOption = typeOption.rebuild((typeOption) {
+      typeOption = typeOption.rebuild((final typeOption) {
         final index =
-            typeOption.options.indexWhere((element) => element.id == option.id);
+            typeOption.options.indexWhere((final element) => element.id == option.id);
         if (index != -1) {
           typeOption.options[index] = option;
         }

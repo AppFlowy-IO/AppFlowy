@@ -18,7 +18,7 @@ class SettingsExportFileWidget extends StatefulWidget {
 @visibleForTesting
 class SettingsExportFileWidgetState extends State<SettingsExportFileWidget> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return ListTile(
       title: FlowyText.medium(
         LocaleKeys.settings_files_exportData.tr(),
@@ -37,7 +37,7 @@ class SettingsExportFileWidgetState extends State<SettingsExportFileWidget> {
               onPressed: () async {
                 await showDialog(
                   context: context,
-                  builder: (context) {
+                  builder: (final context) {
                     return const FlowyDialog(
                       child: Padding(
                         padding: EdgeInsets.symmetric(

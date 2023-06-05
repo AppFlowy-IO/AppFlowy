@@ -14,12 +14,12 @@ part 'sign_up_bloc.freezed.dart';
 class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
   final AuthService authService;
   SignUpBloc(this.authService) : super(SignUpState.initial()) {
-    on<SignUpEvent>((event, emit) async {
+    on<SignUpEvent>((final event, final emit) async {
       await event.map(
-        signUpWithUserEmailAndPassword: (e) async {
+        signUpWithUserEmailAndPassword: (final e) async {
           await _performActionOnSignUp(emit);
         },
-        emailChanged: (_EmailChanged value) async {
+        emailChanged: (final _EmailChanged value) async {
           emit(
             state.copyWith(
               email: value.email,
@@ -28,7 +28,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
             ),
           );
         },
-        passwordChanged: (_PasswordChanged value) async {
+        passwordChanged: (final _PasswordChanged value) async {
           emit(
             state.copyWith(
               password: value.password,
@@ -37,7 +37,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
             ),
           );
         },
-        repeatPasswordChanged: (_RepeatPasswordChanged value) async {
+        repeatPasswordChanged: (final _RepeatPasswordChanged value) async {
           emit(
             state.copyWith(
               repeatedPassword: value.password,
@@ -50,7 +50,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     });
   }
 
-  Future<void> _performActionOnSignUp(Emitter<SignUpState> emit) async {
+  Future<void> _performActionOnSignUp(final Emitter<SignUpState> emit) async {
     emit(
       state.copyWith(
         isSubmitting: true,
@@ -106,19 +106,19 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     );
     emit(
       result.fold(
-        (profile) => state.copyWith(
+        (final profile) => state.copyWith(
           isSubmitting: false,
           successOrFail: some(left(profile)),
           emailError: none(),
           passwordError: none(),
           repeatPasswordError: none(),
         ),
-        (error) => stateFromCode(error),
+        (final error) => stateFromCode(error),
       ),
     );
   }
 
-  SignUpState stateFromCode(FlowyError error) {
+  SignUpState stateFromCode(final FlowyError error) {
     switch (ErrorCode.valueOf(error.code)!) {
       case ErrorCode.EmailFormatInvalid:
         return state.copyWith(
@@ -147,23 +147,23 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
 class SignUpEvent with _$SignUpEvent {
   const factory SignUpEvent.signUpWithUserEmailAndPassword() =
       SignUpWithUserEmailAndPassword;
-  const factory SignUpEvent.emailChanged(String email) = _EmailChanged;
-  const factory SignUpEvent.passwordChanged(String password) = _PasswordChanged;
-  const factory SignUpEvent.repeatPasswordChanged(String password) =
+  const factory SignUpEvent.emailChanged(final String email) = _EmailChanged;
+  const factory SignUpEvent.passwordChanged(final String password) = _PasswordChanged;
+  const factory SignUpEvent.repeatPasswordChanged(final String password) =
       _RepeatPasswordChanged;
 }
 
 @freezed
 class SignUpState with _$SignUpState {
   const factory SignUpState({
-    String? email,
-    String? password,
-    String? repeatedPassword,
-    required bool isSubmitting,
-    required Option<String> passwordError,
-    required Option<String> repeatPasswordError,
-    required Option<String> emailError,
-    required Option<Either<UserProfilePB, FlowyError>> successOrFail,
+    final String? email,
+    final String? password,
+    final String? repeatedPassword,
+    required final bool isSubmitting,
+    required final Option<String> passwordError,
+    required final Option<String> repeatPasswordError,
+    required final Option<String> emailError,
+    required final Option<Either<UserProfilePB, FlowyError>> successOrFail,
   }) = _SignUpState;
 
   factory SignUpState.initial() => SignUpState(

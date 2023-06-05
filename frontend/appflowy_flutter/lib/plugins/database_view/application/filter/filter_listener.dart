@@ -20,7 +20,7 @@ class FiltersListener {
   FiltersListener({required this.viewId});
 
   void start({
-    required void Function(UpdateFilterNotifiedValue) onFilterChanged,
+    required final void Function(UpdateFilterNotifiedValue) onFilterChanged,
   }) {
     _filterNotifier?.addPublishListener(onFilterChanged);
     _listener = DatabaseNotificationListener(
@@ -30,15 +30,15 @@ class FiltersListener {
   }
 
   void _handler(
-    DatabaseNotification ty,
-    Either<Uint8List, FlowyError> result,
+    final DatabaseNotification ty,
+    final Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case DatabaseNotification.DidUpdateFilter:
         result.fold(
-          (payload) => _filterNotifier?.value =
+          (final payload) => _filterNotifier?.value =
               left(FilterChangesetNotificationPB.fromBuffer(payload)),
-          (error) => _filterNotifier?.value = right(error),
+          (final error) => _filterNotifier?.value = right(error),
         );
         break;
       default:
@@ -64,14 +64,14 @@ class FilterListener {
   FilterListener({required this.viewId, required this.filterId});
 
   void start({
-    void Function()? onDeleted,
-    void Function(FilterPB)? onUpdated,
+    final void Function()? onDeleted,
+    final void Function(FilterPB)? onUpdated,
   }) {
-    _onDeleteNotifier?.addPublishListener((_) {
+    _onDeleteNotifier?.addPublishListener((final _) {
       onDeleted?.call();
     });
 
-    _onUpdateNotifier?.addPublishListener((filter) {
+    _onUpdateNotifier?.addPublishListener((final filter) {
       onUpdated?.call(filter);
     });
 
@@ -81,10 +81,10 @@ class FilterListener {
     );
   }
 
-  void handleChangeset(FilterChangesetNotificationPB changeset) {
+  void handleChangeset(final FilterChangesetNotificationPB changeset) {
     // check the delete filter
     final deletedIndex = changeset.deleteFilters.indexWhere(
-      (element) => element.id == filterId,
+      (final element) => element.id == filterId,
     );
     if (deletedIndex != -1) {
       _onDeleteNotifier?.value = changeset.deleteFilters[deletedIndex];
@@ -92,7 +92,7 @@ class FilterListener {
 
     // check the updated filter
     final updatedIndex = changeset.updateFilters.indexWhere(
-      (element) => element.filter.id == filterId,
+      (final element) => element.filter.id == filterId,
     );
     if (updatedIndex != -1) {
       _onUpdateNotifier?.value = changeset.updateFilters[updatedIndex].filter;
@@ -100,16 +100,16 @@ class FilterListener {
   }
 
   void _handler(
-    DatabaseNotification ty,
-    Either<Uint8List, FlowyError> result,
+    final DatabaseNotification ty,
+    final Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case DatabaseNotification.DidUpdateFilter:
         result.fold(
-          (payload) => handleChangeset(
+          (final payload) => handleChangeset(
             FilterChangesetNotificationPB.fromBuffer(payload),
           ),
-          (error) {},
+          (final error) {},
         );
         break;
       default:

@@ -13,12 +13,12 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
     required this.cellController,
   }) : super(URLCellState.initial(cellController)) {
     on<URLCellEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.when(
           initial: () {
             _startListening();
           },
-          didReceiveCellUpdate: (cellData) {
+          didReceiveCellUpdate: (final cellData) {
             emit(
               state.copyWith(
                 content: cellData?.content ?? "",
@@ -26,7 +26,7 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
               ),
             );
           },
-          updateURL: (String url) {
+          updateURL: (final String url) {
             cellController.saveCellData(url, deduplicate: true);
           },
         );
@@ -46,7 +46,7 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
 
   void _startListening() {
     _onCellChangedFn = cellController.startListening(
-      onCellChanged: ((cellData) {
+      onCellChanged: ((final cellData) {
         if (!isClosed) {
           add(URLCellEvent.didReceiveCellUpdate(cellData));
         }
@@ -58,19 +58,19 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
 @freezed
 class URLCellEvent with _$URLCellEvent {
   const factory URLCellEvent.initial() = _InitialCell;
-  const factory URLCellEvent.updateURL(String url) = _UpdateURL;
-  const factory URLCellEvent.didReceiveCellUpdate(URLCellDataPB? cell) =
+  const factory URLCellEvent.updateURL(final String url) = _UpdateURL;
+  const factory URLCellEvent.didReceiveCellUpdate(final URLCellDataPB? cell) =
       _DidReceiveCellUpdate;
 }
 
 @freezed
 class URLCellState with _$URLCellState {
   const factory URLCellState({
-    required String content,
-    required String url,
+    required final String content,
+    required final String url,
   }) = _URLCellState;
 
-  factory URLCellState.initial(URLCellController context) {
+  factory URLCellState.initial(final URLCellController context) {
     final cellData = context.getCellData();
     return URLCellState(
       content: cellData?.content ?? "",

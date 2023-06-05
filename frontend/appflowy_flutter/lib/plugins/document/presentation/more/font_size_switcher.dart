@@ -24,11 +24,11 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final selectedBgColor = AFThemeExtension.of(context).toggleButtonBGColor;
     final foregroundColor = Theme.of(context).colorScheme.onBackground;
     return BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
-      builder: (context, state) {
+      builder: (final context, final state) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -42,8 +42,8 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
             ),
             ToggleButtons(
               isSelected:
-                  _fontSizes.map((e) => e.item2 == state.fontSize).toList(),
-              onPressed: (int index) {
+                  _fontSizes.map((final e) => e.item2 == state.fontSize).toList(),
+              onPressed: (final int index) {
                 _updateSelectedFontSize(_fontSizes[index].item2);
               },
               color: foregroundColor,
@@ -62,7 +62,7 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
               ),
               children: _fontSizes
                   .map(
-                    (e) => Text(
+                    (final e) => Text(
                       e.item1,
                       style: TextStyle(fontSize: e.item2),
                     ),
@@ -75,7 +75,7 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
     );
   }
 
-  void _updateSelectedFontSize(double fontSize) {
+  void _updateSelectedFontSize(final double fontSize) {
     context.read<DocumentAppearanceCubit>().syncFontSize(fontSize);
   }
 }

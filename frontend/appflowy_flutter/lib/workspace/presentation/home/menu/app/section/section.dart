@@ -12,27 +12,27 @@ import 'item.dart';
 
 class ViewSection extends StatelessWidget {
   final AppViewDataContext appViewData;
-  const ViewSection({Key? key, required this.appViewData}) : super(key: key);
+  const ViewSection({final Key? key, required this.appViewData}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) {
+      create: (final context) {
         final bloc = ViewSectionBloc(appViewData: appViewData);
         bloc.add(const ViewSectionEvent.initial());
         return bloc;
       },
       child: BlocListener<ViewSectionBloc, ViewSectionState>(
-        listenWhen: (p, c) => p.selectedView != c.selectedView,
-        listener: (context, state) {
+        listenWhen: (final p, final c) => p.selectedView != c.selectedView,
+        listener: (final context, final state) {
           if (state.selectedView != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
+            WidgetsBinding.instance.addPostFrameCallback((final _) {
               getIt<HomeStackManager>().setPlugin(state.selectedView!.plugin());
             });
           }
         },
         child: BlocBuilder<ViewSectionBloc, ViewSectionState>(
-          builder: (context, state) {
+          builder: (final context, final state) {
             return _reorderableColumn(context, state);
           },
         ),
@@ -41,27 +41,27 @@ class ViewSection extends StatelessWidget {
   }
 
   ReorderableColumn _reorderableColumn(
-    BuildContext context,
-    ViewSectionState state,
+    final BuildContext context,
+    final ViewSectionState state,
   ) {
-    final children = state.views.map((view) {
+    final children = state.views.map((final view) {
       return ViewSectionItem(
         key: ValueKey(view.id),
         view: view,
         isSelected: _isViewSelected(state, view.id),
-        onSelected: (view) => getIt<MenuSharedState>().latestOpenView = view,
+        onSelected: (final view) => getIt<MenuSharedState>().latestOpenView = view,
       );
     }).toList();
 
     return ReorderableColumn(
       needsLongPressDraggable: false,
-      onReorder: (oldIndex, index) {
+      onReorder: (final oldIndex, final index) {
         context
             .read<ViewSectionBloc>()
             .add(ViewSectionEvent.moveView(oldIndex, index));
       },
       ignorePrimaryScrollController: true,
-      buildDraggableFeedback: (context, constraints, child) => ConstrainedBox(
+      buildDraggableFeedback: (final context, final constraints, final child) => ConstrainedBox(
         constraints: constraints,
         child: Material(color: Colors.transparent, child: child),
       ),
@@ -69,7 +69,7 @@ class ViewSection extends StatelessWidget {
     );
   }
 
-  bool _isViewSelected(ViewSectionState state, String viewId) {
+  bool _isViewSelected(final ViewSectionState state, final String viewId) {
     final view = state.selectedView;
     if (view == null) {
       return false;

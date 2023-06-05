@@ -17,13 +17,13 @@ typedef UserNotificationCallback = void Function(
 class UserNotificationParser
     extends NotificationParser<UserNotification, FlowyError> {
   UserNotificationParser({
-    required String id,
-    required UserNotificationCallback callback,
+    required final String id,
+    required final UserNotificationCallback callback,
   }) : super(
           id: id,
           callback: callback,
-          tyParser: (ty) => UserNotification.valueOf(ty),
-          errorParser: (bytes) => FlowyError.fromBuffer(bytes),
+          tyParser: (final ty) => UserNotification.valueOf(ty),
+          errorParser: (final bytes) => FlowyError.fromBuffer(bytes),
         );
 }
 
@@ -37,11 +37,11 @@ class UserNotificationListener {
   UserNotificationParser? _parser;
 
   UserNotificationListener({
-    required String objectId,
-    required UserNotificationHandler handler,
+    required final String objectId,
+    required final UserNotificationHandler handler,
   }) : _parser = UserNotificationParser(id: objectId, callback: handler) {
     _subscription =
-        RustStreamReceiver.listen((observable) => _parser?.parse(observable));
+        RustStreamReceiver.listen((final observable) => _parser?.parse(observable));
   }
 
   Future<void> stop() async {

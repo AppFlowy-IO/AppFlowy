@@ -10,17 +10,17 @@ enum CellKeyboardKey {
 }
 
 abstract class CellShortcuts extends Widget {
-  const CellShortcuts({Key? key}) : super(key: key);
+  const CellShortcuts({final Key? key}) : super(key: key);
 
   Map<CellKeyboardKey, CellKeyboardAction> get shortcutHandlers;
 }
 
 class GridCellShortcuts extends StatelessWidget {
   final CellShortcuts child;
-  const GridCellShortcuts({required this.child, Key? key}) : super(key: key);
+  const GridCellShortcuts({required this.child, final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Shortcuts(
       shortcuts: {
         LogicalKeySet(LogicalKeyboardKey.enter): const GridCellEnterIdent(),
@@ -50,7 +50,7 @@ class GridCellEnterAction extends Action<GridCellEnterIdent> {
   GridCellEnterAction({required this.child});
 
   @override
-  void invoke(covariant GridCellEnterIdent intent) {
+  void invoke(covariant final GridCellEnterIdent intent) {
     final callback = child.shortcutHandlers[CellKeyboardKey.onEnter];
     if (callback != null) {
       callback();
@@ -67,7 +67,7 @@ class GridCellCopyAction extends Action<GridCellCopyIntent> {
   GridCellCopyAction({required this.child});
 
   @override
-  void invoke(covariant GridCellCopyIntent intent) {
+  void invoke(covariant final GridCellCopyIntent intent) {
     final callback = child.shortcutHandlers[CellKeyboardKey.onCopy];
     if (callback == null) {
       return;
@@ -89,7 +89,7 @@ class GridCellPasteAction extends Action<GridCellPasteIntent> {
   GridCellPasteAction({required this.child});
 
   @override
-  void invoke(covariant GridCellPasteIntent intent) {
+  void invoke(covariant final GridCellPasteIntent intent) {
     final callback = child.shortcutHandlers[CellKeyboardKey.onInsert];
     if (callback != null) {
       callback();

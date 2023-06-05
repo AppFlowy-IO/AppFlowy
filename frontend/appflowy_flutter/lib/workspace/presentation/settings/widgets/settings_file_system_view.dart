@@ -23,11 +23,11 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return ListView.separated(
       shrinkWrap: true,
-      itemBuilder: (context, index) => _items[index],
-      separatorBuilder: (context, index) => const Divider(),
+      itemBuilder: (final context, final index) => _items[index],
+      separatorBuilder: (final context, final index) => const Divider(),
       itemCount: _items.length,
     );
   }

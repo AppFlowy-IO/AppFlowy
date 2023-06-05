@@ -21,20 +21,20 @@ import 'router.dart';
 //           4. Show HomeScreen or SignIn      3.return AuthState
 class SplashScreen extends StatelessWidget {
   const SplashScreen({
-    Key? key,
+    final Key? key,
     required this.autoRegister,
   }) : super(key: key);
 
   final bool autoRegister;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     if (!autoRegister) {
       return _buildChild(context);
     } else {
       return FutureBuilder<void>(
         future: _registerIfNeeded(),
-        builder: (context, snapshot) {
+        builder: (final context, final snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
             return Container();
           }
@@ -44,18 +44,18 @@ class SplashScreen extends StatelessWidget {
     }
   }
 
-  BlocProvider<SplashBloc> _buildChild(BuildContext context) {
+  BlocProvider<SplashBloc> _buildChild(final BuildContext context) {
     return BlocProvider(
-      create: (context) {
+      create: (final context) {
         return getIt<SplashBloc>()..add(const SplashEvent.getUser());
       },
       child: Scaffold(
         body: BlocListener<SplashBloc, SplashState>(
-          listener: (context, state) {
+          listener: (final context, final state) {
             state.auth.map(
-              authenticated: (r) => _handleAuthenticated(context, r),
-              unauthenticated: (r) => _handleUnauthenticated(context, r),
-              initial: (r) => {},
+              authenticated: (final r) => _handleAuthenticated(context, r),
+              unauthenticated: (final r) => _handleUnauthenticated(context, r),
+              initial: (final r) => {},
             );
           },
           child: const Body(),
@@ -64,16 +64,16 @@ class SplashScreen extends StatelessWidget {
     );
   }
 
-  void _handleAuthenticated(BuildContext context, Authenticated result) {
+  void _handleAuthenticated(final BuildContext context, final Authenticated result) {
     final userProfile = result.userProfile;
     FolderEventReadCurrentWorkspace().send().then(
-      (result) {
+      (final result) {
         return result.fold(
-          (workspaceSetting) {
+          (final workspaceSetting) {
             getIt<SplashRoute>()
                 .pushHomeScreen(context, userProfile, workspaceSetting);
           },
-          (error) async {
+          (final error) async {
             Log.error(error);
             getIt<SplashRoute>().pushWelcomeScreen(context, userProfile);
           },
@@ -82,7 +82,7 @@ class SplashScreen extends StatelessWidget {
     );
   }
 
-  void _handleUnauthenticated(BuildContext context, Unauthenticated result) {
+  void _handleUnauthenticated(final BuildContext context, final Unauthenticated result) {
     // getIt<SplashRoute>().pushSignInScreen(context);
     getIt<SplashRoute>().pushSkipLoginScreen(context);
   }
@@ -96,10 +96,10 @@ class SplashScreen extends StatelessWidget {
 }
 
 class Body extends StatelessWidget {
-  const Body({Key? key}) : super(key: key);
+  const Body({final Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
+  Widget build(final BuildContext context) {
+    final size = MediaQuery.of(context).size;
 
     return Container(
       alignment: Alignment.center,

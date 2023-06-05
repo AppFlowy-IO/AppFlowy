@@ -17,26 +17,26 @@ class TrashListener {
   TrashUpdatedCallback? _trashUpdated;
   FolderNotificationParser? _parser;
 
-  void start({TrashUpdatedCallback? trashUpdated}) {
+  void start({final TrashUpdatedCallback? trashUpdated}) {
     _trashUpdated = trashUpdated;
     _parser = FolderNotificationParser(callback: _observableCallback);
     _subscription =
-        RustStreamReceiver.listen((observable) => _parser?.parse(observable));
+        RustStreamReceiver.listen((final observable) => _parser?.parse(observable));
   }
 
   void _observableCallback(
-    FolderNotification ty,
-    Either<Uint8List, FlowyError> result,
+    final FolderNotification ty,
+    final Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case FolderNotification.DidUpdateTrash:
         if (_trashUpdated != null) {
           result.fold(
-            (payload) {
+            (final payload) {
               final repeatedTrash = RepeatedTrashPB.fromBuffer(payload);
               _trashUpdated!(left(repeatedTrash.items));
             },
-            (error) => _trashUpdated!(right(error)),
+            (final error) => _trashUpdated!(right(error)),
           );
         }
         break;

@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 
 SelectionMenuItem boardMenuItem = SelectionMenuItem(
   name: LocaleKeys.document_plugins_referencedBoard.tr(),
-  icon: (editorState, onSelected) {
+  icon: (final editorState, final onSelected) {
     return svgWidget(
       'editor/board',
       size: const Size.square(18.0),
@@ -19,7 +19,7 @@ SelectionMenuItem boardMenuItem = SelectionMenuItem(
   },
   // TODO(a-wallen): Translate keywords
   keywords: ['referenced', 'board', 'kanban'],
-  handler: (editorState, menuService, context) {
+  handler: (final editorState, final menuService, final context) {
     showLinkToPageMenu(
       editorState,
       menuService,

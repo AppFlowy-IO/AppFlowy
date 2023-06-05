@@ -23,19 +23,19 @@ void main() {
       selectedOptionMap: LinkedHashMap<String, SelectOptionPB>(),
       distanceToText: 0.0,
       tagController: TextfieldTagsController(),
-      onSubmitted: (text) => submit = text,
-      onPaste: (options, remaining) {
+      onSubmitted: (final text) => submit = text,
+      onPaste: (final options, final remaining) {
         remainder = remaining;
         select = options;
       },
-      onRemove: (_) {},
-      newText: (text) => remainder = text,
+      onRemove: (final _) {},
+      newText: (final text) => remainder = text,
       textSeparators: const [','],
       textController: TextEditingController(),
     );
 
     testWidgets('SelectOptionTextField callback outputs',
-        (WidgetTester tester) async {
+        (final WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Material(

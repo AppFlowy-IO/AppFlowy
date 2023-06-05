@@ -26,7 +26,7 @@ class BoardSettingContext {
     required this.fieldController,
   });
 
-  factory BoardSettingContext.from(BoardToolbarContext toolbarContext) =>
+  factory BoardSettingContext.from(final BoardToolbarContext toolbarContext) =>
       BoardSettingContext(
         viewId: toolbarContext.viewId,
         fieldController: toolbarContext.fieldController,
@@ -39,23 +39,23 @@ class BoardSettingList extends StatelessWidget {
   const BoardSettingList({
     required this.settingContext,
     required this.onAction,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) => BoardSettingBloc(viewId: settingContext.viewId),
+      create: (final context) => BoardSettingBloc(viewId: settingContext.viewId),
       child: BlocListener<BoardSettingBloc, BoardSettingState>(
-        listenWhen: (previous, current) =>
+        listenWhen: (final previous, final current) =>
             previous.selectedAction != current.selectedAction,
-        listener: (context, state) {
-          state.selectedAction.foldLeft(null, (_, action) {
+        listener: (final context, final state) {
+          state.selectedAction.foldLeft(null, (final _, final action) {
             onAction(action, settingContext);
           });
         },
         child: BlocBuilder<BoardSettingBloc, BoardSettingState>(
-          builder: (context, state) {
+          builder: (final context, final state) {
             return _renderList();
           },
         ),
@@ -64,7 +64,7 @@ class BoardSettingList extends StatelessWidget {
   }
 
   Widget _renderList() {
-    final cells = BoardSettingAction.values.map((action) {
+    final cells = BoardSettingAction.values.map((final action) {
       return _SettingItem(action: action);
     }).toList();
 
@@ -74,11 +74,11 @@ class BoardSettingList extends StatelessWidget {
         shrinkWrap: true,
         controller: ScrollController(),
         itemCount: cells.length,
-        separatorBuilder: (context, index) {
+        separatorBuilder: (final context, final index) {
           return VSpace(GridSize.typeOptionSeparatorHeight);
         },
         physics: StyledScrollPhysics(),
-        itemBuilder: (BuildContext context, int index) {
+        itemBuilder: (final BuildContext context, final int index) {
           return cells[index];
         },
       ),
@@ -91,16 +91,16 @@ class _SettingItem extends StatelessWidget {
 
   const _SettingItem({
     required this.action,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final isSelected = context
         .read<BoardSettingBloc>()
         .state
         .selectedAction
-        .foldLeft(false, (_, selectedAction) => selectedAction == action);
+        .foldLeft(false, (final _, final selectedAction) => selectedAction == action);
 
     return SizedBox(
       height: 30,
@@ -150,7 +150,7 @@ class BoardSettingListPopover extends StatefulWidget {
   final BoardSettingContext settingContext;
 
   const BoardSettingListPopover({
-    Key? key,
+    final Key? key,
     required this.popoverController,
     required this.settingContext,
   }) : super(key: key);
@@ -163,7 +163,7 @@ class _BoardSettingListPopoverState extends State<BoardSettingListPopover> {
   BoardSettingAction? _action;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     if (_action != null) {
       switch (_action!) {
         case BoardSettingAction.groups:
@@ -184,7 +184,7 @@ class _BoardSettingListPopoverState extends State<BoardSettingListPopover> {
 
     return BoardSettingList(
       settingContext: widget.settingContext,
-      onAction: (action, settingContext) {
+      onAction: (final action, final settingContext) {
         setState(() => _action = action);
       },
     ).padding(all: 6.0);

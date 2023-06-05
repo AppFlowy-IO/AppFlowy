@@ -12,15 +12,15 @@ import 'filter_info.dart';
 
 class FilterMenuItem extends StatelessWidget {
   final FilterInfo filterInfo;
-  const FilterMenuItem({required this.filterInfo, Key? key}) : super(key: key);
+  const FilterMenuItem({required this.filterInfo, final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return buildFilterChoicechip(filterInfo);
   }
 }
 
-Widget buildFilterChoicechip(FilterInfo filterInfo) {
+Widget buildFilterChoicechip(final FilterInfo filterInfo) {
   switch (filterInfo.fieldInfo.fieldType) {
     case FieldType.Checkbox:
       return CheckboxFilterChoicechip(filterInfo: filterInfo);

@@ -6,7 +6,7 @@ class BoardGroupService {
 
   BoardGroupService(this.viewId);
 
-  void setGroupField(FieldPB field) {
+  void setGroupField(final FieldPB field) {
     groupField = field;
   }
 }

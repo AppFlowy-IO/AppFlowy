@@ -11,7 +11,7 @@ import '../../layout/sizes.dart';
 import '../filter/create_filter_list.dart';
 
 class FilterButton extends StatefulWidget {
-  const FilterButton({Key? key}) : super(key: key);
+  const FilterButton({final Key? key}) : super(key: key);
 
   @override
   State<FilterButton> createState() => _FilterButtonState();
@@ -21,9 +21,9 @@ class _FilterButtonState extends State<FilterButton> {
   final _popoverController = PopoverController();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<GridFilterMenuBloc, GridFilterMenuState>(
-      builder: (context, state) {
+      builder: (final context, final state) {
         final textColor = state.filters.isEmpty
             ? AFThemeExtension.of(context).textColor
             : Theme.of(context).colorScheme.primary;
@@ -53,7 +53,7 @@ class _FilterButtonState extends State<FilterButton> {
     );
   }
 
-  Widget _wrapPopover(BuildContext buildContext, Widget child) {
+  Widget _wrapPopover(final BuildContext buildContext, final Widget child) {
     return AppFlowyPopover(
       controller: _popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
@@ -61,7 +61,7 @@ class _FilterButtonState extends State<FilterButton> {
       offset: const Offset(0, 8),
       triggerActions: PopoverTriggerFlags.none,
       child: child,
-      popupBuilder: (BuildContext context) {
+      popupBuilder: (final BuildContext context) {
         final bloc = buildContext.read<GridFilterMenuBloc>();
         return GridCreateFilterList(
           viewId: bloc.viewId,

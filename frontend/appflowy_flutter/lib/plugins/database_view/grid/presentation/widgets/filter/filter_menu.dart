@@ -12,16 +12,16 @@ import 'create_filter_list.dart';
 import 'filter_menu_item.dart';
 
 class FilterMenu extends StatelessWidget {
-  const FilterMenu({Key? key}) : super(key: key);
+  const FilterMenu({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<GridFilterMenuBloc, GridFilterMenuState>(
-      builder: (context, state) {
+      builder: (final context, final state) {
         final List<Widget> children = [];
         children.addAll(
           state.filters
-              .map((filterInfo) => FilterMenuItem(filterInfo: filterInfo))
+              .map((final filterInfo) => FilterMenuItem(filterInfo: filterInfo))
               .toList(),
         );
 
@@ -49,7 +49,7 @@ class FilterMenu extends StatelessWidget {
 
 class AddFilterButton extends StatefulWidget {
   final String viewId;
-  const AddFilterButton({required this.viewId, Key? key}) : super(key: key);
+  const AddFilterButton({required this.viewId, final Key? key}) : super(key: key);
 
   @override
   State<AddFilterButton> createState() => _AddFilterButtonState();
@@ -65,7 +65,7 @@ class _AddFilterButtonState extends State<AddFilterButton> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return wrapPopover(
       context,
       SizedBox(
@@ -87,14 +87,14 @@ class _AddFilterButtonState extends State<AddFilterButton> {
     );
   }
 
-  Widget wrapPopover(BuildContext buildContext, Widget child) {
+  Widget wrapPopover(final BuildContext buildContext, final Widget child) {
     return AppFlowyPopover(
       controller: popoverController,
       constraints: BoxConstraints.loose(const Size(200, 300)),
       margin: const EdgeInsets.all(6),
       triggerActions: PopoverTriggerFlags.none,
       child: child,
-      popupBuilder: (BuildContext context) {
+      popupBuilder: (final BuildContext context) {
         final bloc = buildContext.read<GridFilterMenuBloc>();
         return GridCreateFilterList(
           viewId: widget.viewId,

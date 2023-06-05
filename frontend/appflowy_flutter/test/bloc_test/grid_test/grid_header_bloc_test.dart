@@ -31,12 +31,12 @@ void main() {
         )..add(const GridHeaderEvent.initial());
         return bloc;
       },
-      act: (bloc) async {
+      act: (final bloc) async {
         actionSheetBloc.add(const FieldActionSheetEvent.hideField());
         await Future.delayed(gridResponseDuration());
       },
       wait: gridResponseDuration(),
-      verify: (bloc) {
+      verify: (final bloc) {
         assert(bloc.state.fields.length == 2);
       },
     );
@@ -50,14 +50,14 @@ void main() {
         )..add(const GridHeaderEvent.initial());
         return bloc;
       },
-      act: (bloc) async {
+      act: (final bloc) async {
         actionSheetBloc.add(const FieldActionSheetEvent.hideField());
         await Future.delayed(gridResponseDuration());
         actionSheetBloc.add(const FieldActionSheetEvent.showField());
         await Future.delayed(gridResponseDuration());
       },
       wait: gridResponseDuration(),
-      verify: (bloc) {
+      verify: (final bloc) {
         assert(bloc.state.fields.length == 3);
       },
     );
@@ -71,12 +71,12 @@ void main() {
         )..add(const GridHeaderEvent.initial());
         return bloc;
       },
-      act: (bloc) async {
+      act: (final bloc) async {
         actionSheetBloc.add(const FieldActionSheetEvent.duplicateField());
         await Future.delayed(gridResponseDuration());
       },
       wait: gridResponseDuration(),
-      verify: (bloc) {
+      verify: (final bloc) {
         expect(bloc.state.fields.length, 4);
       },
     );
@@ -90,12 +90,12 @@ void main() {
         )..add(const GridHeaderEvent.initial());
         return bloc;
       },
-      act: (bloc) async {
+      act: (final bloc) async {
         actionSheetBloc.add(const FieldActionSheetEvent.deleteField());
         await Future.delayed(gridResponseDuration());
       },
       wait: gridResponseDuration(),
-      verify: (bloc) {
+      verify: (final bloc) {
         expect(bloc.state.fields.length, 2);
       },
     );
@@ -109,15 +109,15 @@ void main() {
         )..add(const GridHeaderEvent.initial());
         return bloc;
       },
-      act: (bloc) async {
+      act: (final bloc) async {
         actionSheetBloc
             .add(const FieldActionSheetEvent.updateFieldName("Hello world"));
         await Future.delayed(gridResponseDuration());
       },
       wait: gridResponseDuration(),
-      verify: (bloc) {
+      verify: (final bloc) {
         final field = bloc.state.fields.firstWhere(
-          (element) => element.id == actionSheetBloc.fieldService.fieldId,
+          (final element) => element.id == actionSheetBloc.fieldService.fieldId,
         );
 
         expect(field.name, "Hello world");

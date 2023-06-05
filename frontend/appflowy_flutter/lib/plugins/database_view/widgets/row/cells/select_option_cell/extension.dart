@@ -10,7 +10,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
 extension SelectOptionColorExtension on SelectOptionColorPB {
-  Color make(BuildContext context) {
+  Color make(final BuildContext context) {
     switch (this) {
       case SelectOptionColorPB.Purple:
         return AFThemeExtension.of(context).tint1;
@@ -71,14 +71,14 @@ class SelectOptionTag extends StatelessWidget {
     required this.color,
     this.onSelected,
     this.onRemove,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   factory SelectOptionTag.fromOption({
-    required BuildContext context,
-    required SelectOptionPB option,
-    VoidCallback? onSelected,
-    Function(String)? onRemove,
+    required final BuildContext context,
+    required final SelectOptionPB option,
+    final VoidCallback? onSelected,
+    final Function(String)? onRemove,
   }) {
     return SelectOptionTag(
       name: option.name,
@@ -89,7 +89,7 @@ class SelectOptionTag extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     EdgeInsets padding =
         const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0);
     if (onRemove != null) {
@@ -137,11 +137,11 @@ class SelectOptionTagCell extends StatelessWidget {
     required this.option,
     required this.onSelected,
     this.children = const [],
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FlowyHover(
       style: HoverStyle(
         hoverColor: AFThemeExtension.of(context).lightGreyHover,

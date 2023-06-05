@@ -25,26 +25,26 @@ class AppListener {
     required this.appId,
   });
 
-  void start({AppDidUpdateCallback? onAppUpdated}) {
+  void start({final AppDidUpdateCallback? onAppUpdated}) {
     _updated = onAppUpdated;
     _parser = FolderNotificationParser(id: appId, callback: _handleCallback);
     _subscription =
-        RustStreamReceiver.listen((observable) => _parser?.parse(observable));
+        RustStreamReceiver.listen((final observable) => _parser?.parse(observable));
   }
 
   void _handleCallback(
-    FolderNotification ty,
-    Either<Uint8List, FlowyError> result,
+    final FolderNotification ty,
+    final Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case FolderNotification.DidUpdateApp:
         if (_updated != null) {
           result.fold(
-            (payload) {
+            (final payload) {
               final app = AppPB.fromBuffer(payload);
               _updated!(app);
             },
-            (error) => Log.error(error),
+            (final error) => Log.error(error),
           );
         }
         break;

@@ -14,7 +14,7 @@ class FilterInfo {
 
   FilterInfo(this.viewId, this.filter, this.fieldInfo);
 
-  FilterInfo copyWith({FilterPB? filter, FieldInfo? fieldInfo}) {
+  FilterInfo copyWith({final FilterPB? filter, final FieldInfo? fieldInfo}) {
     return FilterInfo(
       viewId,
       filter ?? this.filter,

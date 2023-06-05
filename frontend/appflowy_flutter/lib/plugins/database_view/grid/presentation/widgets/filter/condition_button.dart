@@ -11,11 +11,11 @@ class ConditionButton extends StatelessWidget {
   const ConditionButton({
     required this.conditionName,
     required this.onTap,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final arrow = Transform.rotate(
       angle: -math.pi / 2,
       child: svgWidget(

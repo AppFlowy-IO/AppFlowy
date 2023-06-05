@@ -15,11 +15,11 @@ class TrashCell extends StatelessWidget {
     required this.object,
     required this.onRestore,
     required this.onDelete,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Row(
       children: [
         SizedBox(
@@ -54,7 +54,7 @@ class TrashCell extends StatelessWidget {
     );
   }
 
-  String dateFormatter($fixnum.Int64 inputTimestamps) {
+  String dateFormatter(final $fixnum.Int64 inputTimestamps) {
     final outputFormat = DateFormat('MM/dd/yyyy hh:mm a');
     final date = DateTime.fromMillisecondsSinceEpoch(
       inputTimestamps.toInt() * 1000,

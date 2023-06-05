@@ -8,7 +8,7 @@ import 'dart:async';
 
 class MyMockClient extends Mock implements http.Client {
   @override
-  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+  Future<http.StreamedResponse> send(final http.BaseRequest request) async {
     final requestType = request.method;
     final requestUri = request.url;
 
@@ -36,15 +36,15 @@ class MockOpenAIRepository extends HttpOpenAIRepository {
 
   @override
   Future<void> getStreamedCompletions({
-    required String prompt,
-    required Future<void> Function() onStart,
-    required Future<void> Function(TextCompletionResponse response) onProcess,
-    required Future<void> Function() onEnd,
-    required void Function(OpenAIError error) onError,
-    String? suffix,
-    int maxTokens = 2048,
-    double temperature = 0.3,
-    bool useAction = false,
+    required final String prompt,
+    required final Future<void> Function() onStart,
+    required final Future<void> Function(TextCompletionResponse response) onProcess,
+    required final Future<void> Function() onEnd,
+    required final void Function(OpenAIError error) onError,
+    final String? suffix,
+    final int maxTokens = 2048,
+    final double temperature = 0.3,
+    final bool useAction = false,
   }) async {
     final request = http.Request('POST', OpenAIRequestType.textCompletion.uri);
     final response = await client.send(request);

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 class SettingsMenuElement extends StatelessWidget {
   const SettingsMenuElement({
-    Key? key,
+    final Key? key,
     required this.page,
     required this.label,
     required this.icon,
@@ -21,7 +21,7 @@ class SettingsMenuElement extends StatelessWidget {
   final Function changeSelectedPage;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FlowyHover(
       style: HoverStyle(
         hoverColor: Theme.of(context).colorScheme.primary,

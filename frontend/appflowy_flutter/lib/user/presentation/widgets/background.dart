@@ -9,12 +9,12 @@ import 'package:flutter/material.dart';
 class AuthFormContainer extends StatelessWidget {
   final List<Widget> children;
   const AuthFormContainer({
-    Key? key,
+    final Key? key,
     required this.children,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final size = MediaQuery.of(context).size;
     return SizedBox(
       width: min(size.width, 340),
@@ -30,13 +30,13 @@ class FlowyLogoTitle extends StatelessWidget {
   final String title;
   final Size logoSize;
   const FlowyLogoTitle({
-    Key? key,
+    final Key? key,
     required this.title,
     this.logoSize = const Size.square(40),
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

@@ -23,8 +23,8 @@ class CellBackendService {
   CellBackendService();
 
   Future<Either<void, FlowyError>> updateCell({
-    required CellIdentifier cellId,
-    required String data,
+    required final CellIdentifier cellId,
+    required final String data,
   }) {
     final payload = CellChangesetPB.create()
       ..viewId = cellId.viewId
@@ -35,7 +35,7 @@ class CellBackendService {
   }
 
   Future<Either<CellPB, FlowyError>> getCell({
-    required CellIdentifier cellId,
+    required final CellIdentifier cellId,
   }) {
     final payload = CellIdPB.create()
       ..viewId = cellId.viewId
@@ -50,9 +50,9 @@ class CellBackendService {
 @freezed
 class CellIdentifier with _$CellIdentifier {
   const factory CellIdentifier({
-    required String viewId,
-    required String rowId,
-    required FieldInfo fieldInfo,
+    required final String viewId,
+    required final String rowId,
+    required final FieldInfo fieldInfo,
   }) = _CellIdentifier;
 
   // ignore: unused_element

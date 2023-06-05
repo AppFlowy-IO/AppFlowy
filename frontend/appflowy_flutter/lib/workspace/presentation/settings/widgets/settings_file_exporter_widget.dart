@@ -20,7 +20,7 @@ import 'package:tuple/tuple.dart';
 import '../../../../generated/locale_keys.g.dart';
 
 class FileExporterWidget extends StatefulWidget {
-  const FileExporterWidget({Key? key}) : super(key: key);
+  const FileExporterWidget({final Key? key}) : super(key: key);
 
   @override
   State<FileExporterWidget> createState() => _FileExporterWidgetState();
@@ -32,10 +32,10 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
   SettingsFileExporterCubit? cubit;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FutureBuilder<dartz.Either<WorkspaceSettingPB, FlowyError>>(
       future: FolderEventReadCurrentWorkspace().send(),
-      builder: (context, snapshot) {
+      builder: (final context, final snapshot) {
         if (snapshot.hasData &&
             snapshot.connectionState == ConnectionState.done) {
           final workspaces = snapshot.data?.getLeftOrNull<WorkspaceSettingPB>();
@@ -82,7 +82,7 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
           onPressed: () async {
             await getIt<FilePickerService>()
                 .getDirectoryPath()
-                .then((exportPath) async {
+                .then((final exportPath) async {
               if (exportPath != null && cubit != null) {
                 final views = cubit!.state.selectedViews;
                 final result =
@@ -101,7 +101,7 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
               }
               if (mounted) {
                 Navigator.of(context).popUntil(
-                  (router) => router.settings.name == '/',
+                  (final router) => router.settings.name == '/',
                 );
               }
             });
@@ -111,7 +111,7 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
     );
   }
 
-  void _showToast(String message) {
+  void _showToast(final String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: FlowyText(
@@ -125,7 +125,7 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
 
 class _ExpandedList extends StatefulWidget {
   const _ExpandedList({
-    Key? key,
+    final Key? key,
     // required this.apps,
     // required this.onChanged,
   }) : super(key: key);
@@ -139,9 +139,9 @@ class _ExpandedList extends StatefulWidget {
 
 class _ExpandedListState extends State<_ExpandedList> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<SettingsFileExporterCubit, SettingsFileExportState>(
-      builder: (context, state) {
+      builder: (final context, final state) {
         return Material(
           color: Colors.transparent,
           child: SingleChildScrollView(
@@ -154,28 +154,28 @@ class _ExpandedListState extends State<_ExpandedList> {
     );
   }
 
-  List<Widget> _buildChildren(BuildContext context) {
+  List<Widget> _buildChildren(final BuildContext context) {
     final apps = context.read<SettingsFileExporterCubit>().state.apps;
-    List<Widget> children = [];
+    final List<Widget> children = [];
     for (var i = 0; i < apps.length; i++) {
       children.add(_buildExpandedItem(context, i));
     }
     return children;
   }
 
-  Widget _buildExpandedItem(BuildContext context, int index) {
+  Widget _buildExpandedItem(final BuildContext context, final int index) {
     final state = context.read<SettingsFileExporterCubit>().state;
     final apps = state.apps;
     final expanded = state.expanded;
     final selectedItems = state.selectedItems;
     final isExpanded = expanded[index] == true;
-    List<Widget> expandedChildren = [];
+    final List<Widget> expandedChildren = [];
     if (isExpanded) {
       for (var i = 0; i < selectedItems[index].length; i++) {
         final name = apps[index].belongings.items[i].name;
         final checkbox = CheckboxListTile(
           value: selectedItems[index][i],
-          onChanged: (value) {
+          onChanged: (final value) {
             // update selected item
             context
                 .read<SettingsFileExporterCubit>()
@@ -212,7 +212,7 @@ class _ExpandedListState extends State<_ExpandedList> {
 extension AppFlowy on dartz.Either {
   T? getLeftOrNull<T>() {
     if (isLeft()) {
-      final result = fold<T?>((l) => l, (r) => null);
+      final result = fold<T?>((final l) => l, (final r) => null);
       return result;
     }
 
@@ -222,8 +222,8 @@ extension AppFlowy on dartz.Either {
 
 class _AppFlowyFileExporter {
   static Future<Tuple2<bool, List<String>>> exportToPath(
-    String path,
-    List<ViewPB> views,
+    final String path,
+    final List<ViewPB> views,
   ) async {
     final failedFileNames = <String>[];
     final Map<String, int> names = {};
@@ -235,16 +235,16 @@ class _AppFlowyFileExporter {
         case ViewLayoutTypePB.Document:
           final document = await documentService.openDocument(view: view);
           document.fold(
-            (l) => content = l.content,
-            (r) => Log.error(r),
+            (final l) => content = l.content,
+            (final r) => Log.error(r),
           );
           fileExtension = 'afdoc';
           break;
         default:
           final result = await exportDatabase(view.id);
           result.fold(
-            (pb) => content = pb.data,
-            (r) => Log.error(r),
+            (final pb) => content = pb.data,
+            (final r) => Log.error(r),
           );
           fileExtension = 'afdb';
           break;
@@ -265,7 +265,7 @@ class _AppFlowyFileExporter {
 }
 
 Future<dartz.Either<ExportCSVPB, FlowyError>> exportDatabase(
-  String viewId,
+  final String viewId,
 ) async {
   final payload = DatabaseViewIdPB.create()..value = viewId;
   return DatabaseEventExportCSV(payload).send();

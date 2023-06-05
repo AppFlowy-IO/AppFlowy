@@ -31,7 +31,7 @@ class DateCellEditor extends StatefulWidget {
   final DateCellController cellController;
 
   const DateCellEditor({
-    Key? key,
+    final Key? key,
     required this.onDismissed,
     required this.cellController,
   }) : super(key: key);
@@ -42,12 +42,12 @@ class DateCellEditor extends StatefulWidget {
 
 class _DateCellEditor extends State<DateCellEditor> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FutureBuilder<Either<dynamic, FlowyError>>(
       future: widget.cellController.getTypeOption(
         DateTypeOptionDataParser(),
       ),
-      builder: (BuildContext context, snapshot) {
+      builder: (final BuildContext context, final snapshot) {
         if (snapshot.hasData) {
           return _buildWidget(snapshot);
         } else {
@@ -57,15 +57,17 @@ class _DateCellEditor extends State<DateCellEditor> {
     );
   }
 
-  Widget _buildWidget(AsyncSnapshot<Either<dynamic, FlowyError>> snapshot) {
+  Widget _buildWidget(
+    final AsyncSnapshot<Either<dynamic, FlowyError>> snapshot,
+  ) {
     return snapshot.data!.fold(
-      (dateTypeOptionPB) {
+      (final dateTypeOptionPB) {
         return _CellCalendarWidget(
           cellContext: widget.cellController,
           dateTypeOptionPB: dateTypeOptionPB,
         );
       },
-      (err) {
+      (final err) {
         Log.error(err);
         return const SizedBox();
       },
@@ -80,7 +82,7 @@ class _CellCalendarWidget extends StatefulWidget {
   const _CellCalendarWidget({
     required this.cellContext,
     required this.dateTypeOptionPB,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -104,15 +106,15 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: bloc,
       child: BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
-        buildWhen: (p, c) => p != c,
-        builder: (context, state) {
-          bool includeTime = state.dateCellData
-              .fold(() => false, (dateData) => dateData.includeTime);
-          List<Widget> children = [
+        buildWhen: (final p, final c) => p != c,
+        builder: (final context, final state) {
+          final bool includeTime = state.dateCellData
+              .fold(() => false, (final dateData) => dateData.includeTime);
+          final List<Widget> children = [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: _buildCalendar(context),
@@ -134,7 +136,8 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             shrinkWrap: true,
             controller: ScrollController(),
             itemCount: children.length,
-            itemBuilder: (BuildContext context, int index) => children[index],
+            itemBuilder: (final BuildContext context, final int index) =>
+                children[index],
             padding: const EdgeInsets.symmetric(vertical: 12.0),
           );
         },
@@ -149,9 +152,9 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
     super.dispose();
   }
 
-  Widget _buildCalendar(BuildContext context) {
+  Widget _buildCalendar(final BuildContext context) {
     return BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
-      builder: (context, state) {
+      builder: (final context, final state) {
         final textStyle = Theme.of(context).textTheme.bodyMedium!;
         final boxDecoration = BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
@@ -184,7 +187,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             headerMargin: const EdgeInsets.only(bottom: 8.0),
           ),
           daysOfWeekStyle: DaysOfWeekStyle(
-            dowTextFormatter: (date, locale) =>
+            dowTextFormatter: (final date, final locale) =>
                 DateFormat.E(locale).format(date).toUpperCase(),
             weekdayStyle: AFThemeExtension.of(context).caption,
             weekendStyle: AFThemeExtension.of(context).caption,
@@ -208,23 +211,23 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             outsideTextStyle:
                 textStyle.textColor(Theme.of(context).disabledColor),
           ),
-          selectedDayPredicate: (day) {
+          selectedDayPredicate: (final day) {
             return state.dateCellData.fold(
               () => false,
-              (dateData) => isSameDay(dateData.date, day),
+              (final dateData) => isSameDay(dateData.date, day),
             );
           },
-          onDaySelected: (selectedDay, focusedDay) {
+          onDaySelected: (final selectedDay, final focusedDay) {
             context
                 .read<DateCellCalendarBloc>()
                 .add(DateCellCalendarEvent.selectDay(selectedDay));
           },
-          onFormatChanged: (format) {
+          onFormatChanged: (final format) {
             context
                 .read<DateCellCalendarBloc>()
                 .add(DateCellCalendarEvent.setCalFormat(format));
           },
-          onPageChanged: (focusedDay) {
+          onPageChanged: (final focusedDay) {
             context
                 .read<DateCellCalendarBloc>()
                 .add(DateCellCalendarEvent.setFocusedDay(focusedDay));
@@ -236,16 +239,16 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
 }
 
 class _IncludeTimeButton extends StatelessWidget {
-  const _IncludeTimeButton({Key? key}) : super(key: key);
+  const _IncludeTimeButton({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocSelector<DateCellCalendarBloc, DateCellCalendarState, bool>(
-      selector: (state) => state.dateCellData.fold(
+      selector: (final state) => state.dateCellData.fold(
         () => false,
-        (dateData) => dateData.includeTime,
+        (final dateData) => dateData.includeTime,
       ),
-      builder: (context, includeTime) {
+      builder: (final context, final includeTime) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: SizedBox(
@@ -263,7 +266,7 @@ class _IncludeTimeButton extends StatelessWidget {
                   const Spacer(),
                   Toggle(
                     value: includeTime,
-                    onChanged: (value) => context
+                    onChanged: (final value) => context
                         .read<DateCellCalendarBloc>()
                         .add(DateCellCalendarEvent.setIncludeTime(!value)),
                     style: ToggleStyle.big,
@@ -286,7 +289,7 @@ class _TimeTextField extends StatefulWidget {
   const _TimeTextField({
     required this.bloc,
     required this.popoverMutex,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -324,7 +327,7 @@ class _TimeTextFieldState extends State<_TimeTextField> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     _controller.text = widget.bloc.state.time ?? "";
     _controller.selection =
         TextSelection.collapsed(offset: _controller.text.length);
@@ -344,8 +347,8 @@ class _TimeTextFieldState extends State<_TimeTextField> {
           focusBorderColor: Theme.of(context).colorScheme.primary,
           cursorColor: Theme.of(context).colorScheme.primary,
           errorText: widget.bloc.state.timeFormatError
-              .fold(() => "", (error) => error),
-          onEditingComplete: (value) =>
+              .fold(() => "", (final error) => error),
+          onEditingComplete: (final value) =>
               widget.bloc.add(DateCellCalendarEvent.setTime(value)),
         ),
       ),
@@ -363,17 +366,17 @@ class _DateTypeOptionButton extends StatelessWidget {
   final PopoverMutex popoverMutex;
   const _DateTypeOptionButton({
     required this.popoverMutex,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final title =
         "${LocaleKeys.grid_field_dateFormat.tr()} & ${LocaleKeys.grid_field_timeFormat.tr()}";
     return BlocSelector<DateCellCalendarBloc, DateCellCalendarState,
         DateTypeOptionPB>(
-      selector: (state) => state.dateTypeOptionPB,
-      builder: (context, dateTypeOptionPB) {
+      selector: (final state) => state.dateTypeOptionPB,
+      builder: (final context, final dateTypeOptionPB) {
         return AppFlowyPopover(
           mutex: popoverMutex,
           triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
@@ -391,10 +394,10 @@ class _DateTypeOptionButton extends StatelessWidget {
               ),
             ),
           ),
-          popupBuilder: (BuildContext popContext) {
+          popupBuilder: (final BuildContext popContext) {
             return _CalDateTimeSetting(
               dateTypeOptionPB: dateTypeOptionPB,
-              onEvent: (event) {
+              onEvent: (final event) {
                 context.read<DateCellCalendarBloc>().add(event);
                 popoverMutex.close();
               },
@@ -412,7 +415,7 @@ class _CalDateTimeSetting extends StatefulWidget {
   const _CalDateTimeSetting({
     required this.dateTypeOptionPB,
     required this.onEvent,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -424,16 +427,16 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
   String? overlayIdentifier;
 
   @override
-  Widget build(BuildContext context) {
-    List<Widget> children = [
+  Widget build(final BuildContext context) {
+    final List<Widget> children = [
       AppFlowyPopover(
         mutex: timeSettingPopoverMutex,
         triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
         offset: const Offset(8, 0),
-        popupBuilder: (BuildContext context) {
+        popupBuilder: (final BuildContext context) {
           return DateFormatList(
             selectedFormat: widget.dateTypeOptionPB.dateFormat,
-            onSelected: (format) {
+            onSelected: (final format) {
               widget.onEvent(DateCellCalendarEvent.setDateFormat(format));
               timeSettingPopoverMutex.close();
             },
@@ -448,10 +451,10 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
         mutex: timeSettingPopoverMutex,
         triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
         offset: const Offset(8, 0),
-        popupBuilder: (BuildContext context) {
+        popupBuilder: (final BuildContext context) {
           return TimeFormatList(
             selectedFormat: widget.dateTypeOptionPB.timeFormat,
-            onSelected: (format) {
+            onSelected: (final format) {
               widget.onEvent(DateCellCalendarEvent.setTimeFormat(format));
               timeSettingPopoverMutex.close();
             },
@@ -470,10 +473,11 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
       child: ListView.separated(
         shrinkWrap: true,
         controller: ScrollController(),
-        separatorBuilder: (context, index) =>
+        separatorBuilder: (final context, final index) =>
             VSpace(GridSize.typeOptionSeparatorHeight),
         itemCount: children.length,
-        itemBuilder: (BuildContext context, int index) => children[index],
+        itemBuilder: (final BuildContext context, final int index) =>
+            children[index],
         padding: const EdgeInsets.symmetric(vertical: 6.0),
       ),
     );

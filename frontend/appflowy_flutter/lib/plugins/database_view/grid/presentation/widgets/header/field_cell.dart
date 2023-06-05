@@ -16,7 +16,7 @@ import 'field_type_extension.dart';
 class GridFieldCell extends StatefulWidget {
   final FieldCellContext cellContext;
   const GridFieldCell({
-    Key? key,
+    final Key? key,
     required this.cellContext,
   }) : super(key: key);
 
@@ -34,20 +34,20 @@ class _GridFieldCellState extends State<GridFieldCell> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) {
+      create: (final context) {
         return FieldCellBloc(cellContext: widget.cellContext);
       },
       child: BlocBuilder<FieldCellBloc, FieldCellState>(
-        builder: (context, state) {
+        builder: (final context, final state) {
           final button = AppFlowyPopover(
             triggerActions: PopoverTriggerFlags.none,
             constraints: const BoxConstraints(),
             margin: EdgeInsets.zero,
             direction: PopoverDirection.bottomWithLeftAligned,
             controller: popoverController,
-            popupBuilder: (BuildContext context) {
+            popupBuilder: (final BuildContext context) {
               return GridFieldCellActionSheet(
                 cellContext: widget.cellContext,
               );
@@ -85,11 +85,11 @@ class _GridHeaderCellContainer extends StatelessWidget {
   const _GridHeaderCellContainer({
     required this.child,
     required this.width,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final borderSide = BorderSide(
       color: Theme.of(context).dividerColor,
       width: 1.0,
@@ -115,21 +115,21 @@ class _GridHeaderCellContainer extends StatelessWidget {
 
 class _DragToExpandLine extends StatelessWidget {
   const _DragToExpandLine({
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return InkWell(
       onTap: () {},
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onHorizontalDragUpdate: (value) {
+        onHorizontalDragUpdate: (final value) {
           context
               .read<FieldCellBloc>()
               .add(FieldCellEvent.startUpdateWidth(value.delta.dx));
         },
-        onHorizontalDragEnd: (end) {
+        onHorizontalDragEnd: (final end) {
           context
               .read<FieldCellBloc>()
               .add(const FieldCellEvent.endUpdateWidth());
@@ -158,11 +158,11 @@ class FieldCellButton extends StatelessWidget {
     required this.onTap,
     this.maxLines = 1,
     this.radius = BorderRadius.zero,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     // Using this technique to have proper text ellipsis
     // https://github.com/flutter/flutter/issues/18761#issuecomment-812390920
     final text = Characters(field.name)

@@ -44,23 +44,23 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<CalendarSettingBloc, CalendarSettingState>(
-      builder: (context, state) {
+      builder: (final context, final state) {
         final CalendarLayoutSettingsPB? settings = state.layoutSetting
-            .foldLeft(null, (previous, settings) => settings);
+            .foldLeft(null, (final previous, final settings) => settings);
 
         if (settings == null) {
           return const CircularProgressIndicator();
         }
         final availableSettings = _availableCalendarSettings(settings);
 
-        final items = availableSettings.map((setting) {
+        final items = availableSettings.map((final setting) {
           switch (setting) {
             case CalendarLayoutSettingAction.showWeekNumber:
               return ShowWeekNumber(
                 showWeekNumbers: settings.showWeekNumbers,
-                onUpdated: (showWeekNumbers) {
+                onUpdated: (final showWeekNumbers) {
                   _updateLayoutSettings(
                     context,
                     showWeekNumbers: showWeekNumbers,
@@ -71,7 +71,7 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
             case CalendarLayoutSettingAction.showWeekends:
               return ShowWeekends(
                 showWeekends: settings.showWeekends,
-                onUpdated: (showWeekends) {
+                onUpdated: (final showWeekends) {
                   _updateLayoutSettings(
                     context,
                     showWeekends: showWeekends,
@@ -83,7 +83,7 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
               return FirstDayOfWeek(
                 firstDayOfWeek: settings.firstDayOfWeek,
                 popoverMutex: popoverMutex,
-                onUpdated: (firstDayOfWeek) {
+                onUpdated: (final firstDayOfWeek) {
                   _updateLayoutSettings(
                     context,
                     onUpdated: widget.onUpdated,
@@ -97,7 +97,7 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
                 viewId: widget.settingContext.viewId,
                 fieldId: settings.layoutFieldId,
                 popoverMutex: popoverMutex,
-                onUpdated: (fieldId) {
+                onUpdated: (final fieldId) {
                   _updateLayoutSettings(
                     context,
                     onUpdated: widget.onUpdated,
@@ -116,10 +116,11 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
             shrinkWrap: true,
             controller: ScrollController(),
             itemCount: items.length,
-            separatorBuilder: (context, index) =>
+            separatorBuilder: (final context, final index) =>
                 VSpace(GridSize.typeOptionSeparatorHeight),
             physics: StyledScrollPhysics(),
-            itemBuilder: (BuildContext context, int index) => items[index],
+            itemBuilder: (final BuildContext context, final int index) =>
+                items[index],
             padding: const EdgeInsets.all(6.0),
           ),
         );
@@ -128,9 +129,9 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
   }
 
   List<CalendarLayoutSettingAction> _availableCalendarSettings(
-    CalendarLayoutSettingsPB layoutSettings,
+    final CalendarLayoutSettingsPB layoutSettings,
   ) {
-    List<CalendarLayoutSettingAction> settings = [
+    final List<CalendarLayoutSettingAction> settings = [
       CalendarLayoutSettingAction.layoutField,
       // CalendarLayoutSettingAction.layoutType,
       // CalendarLayoutSettingAction.showWeekNumber,
@@ -161,20 +162,20 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
   }
 
   void _updateLayoutSettings(
-    BuildContext context, {
-    required Function(CalendarLayoutSettingsPB? layoutSettings) onUpdated,
-    bool? showWeekends,
-    bool? showWeekNumbers,
-    int? firstDayOfWeek,
-    String? layoutFieldId,
+    final BuildContext context, {
+    required final Function(CalendarLayoutSettingsPB? layoutSettings) onUpdated,
+    final bool? showWeekends,
+    final bool? showWeekNumbers,
+    final int? firstDayOfWeek,
+    final String? layoutFieldId,
   }) {
     CalendarLayoutSettingsPB setting = context
         .read<CalendarSettingBloc>()
         .state
         .layoutSetting
-        .foldLeft(null, (previous, settings) => settings)!;
+        .foldLeft(null, (final previous, final settings) => settings)!;
     setting.freeze();
-    setting = setting.rebuild((setting) {
+    setting = setting.rebuild((final setting) {
       if (showWeekends != null) {
         setting.showWeekends = !showWeekends;
       }
@@ -212,24 +213,24 @@ class LayoutDateField extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return AppFlowyPopover(
       direction: PopoverDirection.leftWithTopAligned,
       constraints: BoxConstraints.loose(const Size(300, 400)),
       mutex: popoverMutex,
       offset: const Offset(-16, 0),
-      popupBuilder: (context) {
+      popupBuilder: (final context) {
         return BlocProvider(
-          create: (context) => getIt<DatabasePropertyBloc>(
+          create: (final context) => getIt<DatabasePropertyBloc>(
             param1: viewId,
             param2: fieldController,
           )..add(const DatabasePropertyEvent.initial()),
           child: BlocBuilder<DatabasePropertyBloc, DatabasePropertyState>(
-            builder: (context, state) {
+            builder: (final context, final state) {
               final items = state.fieldContexts
-                  .where((field) => field.fieldType == FieldType.DateTime)
+                  .where((final field) => field.fieldType == FieldType.DateTime)
                   .map(
-                (fieldInfo) {
+                (final fieldInfo) {
                   return SizedBox(
                     height: GridSize.popoverItemHeight,
                     child: FlowyButton(
@@ -251,8 +252,8 @@ class LayoutDateField extends StatelessWidget {
                 width: 200,
                 child: ListView.separated(
                   shrinkWrap: true,
-                  itemBuilder: (context, index) => items[index],
-                  separatorBuilder: (context, index) =>
+                  itemBuilder: (final context, final index) => items[index],
+                  separatorBuilder: (final context, final index) =>
                       VSpace(GridSize.typeOptionSeparatorHeight),
                   itemCount: items.length,
                 ),
@@ -285,9 +286,9 @@ class ShowWeekNumber extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return _toggleItem(
-      onToggle: (showWeekNumbers) {
+      onToggle: (final showWeekNumbers) {
         onUpdated(!showWeekNumbers);
       },
       value: showWeekNumbers,
@@ -306,9 +307,9 @@ class ShowWeekends extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return _toggleItem(
-      onToggle: (showWeekends) {
+      onToggle: (final showWeekends) {
         onUpdated(!showWeekends);
       },
       value: showWeekends,
@@ -329,17 +330,17 @@ class FirstDayOfWeek extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return AppFlowyPopover(
       direction: PopoverDirection.leftWithTopAligned,
       constraints: BoxConstraints.loose(const Size(300, 400)),
       mutex: popoverMutex,
       offset: const Offset(-16, 0),
-      popupBuilder: (context) {
+      popupBuilder: (final context) {
         final symbols =
             DateFormat.EEEE(context.locale.toLanguageTag()).dateSymbols;
         // starts from sunday
-        final items = symbols.WEEKDAYS.asMap().entries.map((entry) {
+        final items = symbols.WEEKDAYS.asMap().entries.map((final entry) {
           final index = entry.key;
           final string = entry.value;
           return SizedBox(
@@ -361,8 +362,8 @@ class FirstDayOfWeek extends StatelessWidget {
           width: 100,
           child: ListView.separated(
             shrinkWrap: true,
-            itemBuilder: (context, index) => items[index],
-            separatorBuilder: (context, index) =>
+            itemBuilder: (final context, final index) => items[index],
+            separatorBuilder: (final context, final index) =>
                 VSpace(GridSize.typeOptionSeparatorHeight),
             itemCount: 2,
           ),
@@ -382,9 +383,9 @@ class FirstDayOfWeek extends StatelessWidget {
 }
 
 Widget _toggleItem({
-  required String text,
-  required bool value,
-  required void Function(bool) onToggle,
+  required final String text,
+  required final bool value,
+  required final void Function(bool) onToggle,
 }) {
   return SizedBox(
     height: GridSize.popoverItemHeight,
@@ -396,7 +397,7 @@ Widget _toggleItem({
           const Spacer(),
           Toggle(
             value: value,
-            onChanged: (value) => onToggle(!value),
+            onChanged: (final value) => onToggle(!value),
             style: ToggleStyle.big,
             padding: EdgeInsets.zero,
           ),

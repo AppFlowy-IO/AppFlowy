@@ -20,7 +20,7 @@ const _white = Color(0xFFFFFFFF);
 class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   final AppearanceSettingsPB _setting;
 
-  AppearanceSettingsCubit(AppearanceSettingsPB setting)
+  AppearanceSettingsCubit(final AppearanceSettingsPB setting)
       : _setting = setting,
         super(
           AppearanceSettingsState.initial(
@@ -36,14 +36,14 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
 
   /// Update selected theme in the user's settings and emit an updated state
   /// with the AppTheme named [themeName].
-  void setTheme(String themeName) {
+  void setTheme(final String themeName) {
     _setting.theme = themeName;
     _saveAppearanceSettings();
     emit(state.copyWith(appTheme: AppTheme.fromName(themeName)));
   }
 
   /// Update the theme mode in the user's settings and emit an updated state.
-  void setThemeMode(ThemeMode themeMode) {
+  void setThemeMode(final ThemeMode themeMode) {
     _setting.themeMode = _themeModeToPB(themeMode);
     _saveAppearanceSettings();
     emit(state.copyWith(themeMode: themeMode));
@@ -51,7 +51,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
 
   /// Updates the current locale and notify the listeners the locale was
   /// changed. Fallback to [en] locale if [newLocale] is not supported.
-  void setLocale(BuildContext context, Locale newLocale) {
+  void setLocale(final BuildContext context, Locale newLocale) {
     if (!context.supportedLocales.contains(newLocale)) {
       Log.warn("Unsupported locale: $newLocale, Fallback to locale: en");
       newLocale = const Locale('en');
@@ -69,20 +69,20 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   }
 
   // Saves the menus current visibility
-  void saveIsMenuCollapsed(bool collapsed) {
+  void saveIsMenuCollapsed(final bool collapsed) {
     _setting.isMenuCollapsed = collapsed;
     _saveAppearanceSettings();
   }
 
   // Saves the current resize offset of the menu
-  void saveMenuOffset(double offset) {
+  void saveMenuOffset(final double offset) {
     _setting.menuOffset = offset;
     _saveAppearanceSettings();
   }
 
   /// Saves key/value setting to disk.
   /// Removes the key if the passed in value is null
-  void setKeyValue(String key, String? value) {
+  void setKeyValue(final String key, final String? value) {
     if (key.isEmpty) {
       Log.warn("The key should not be empty");
       return;
@@ -102,7 +102,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     _saveAppearanceSettings();
   }
 
-  String? getValue(String key) {
+  String? getValue(final String key) {
     if (key.isEmpty) {
       Log.warn("The key should not be empty");
       return null;
@@ -112,7 +112,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
 
   /// Called when the application launches.
   /// Uses the device locale when the application is opened for the first time.
-  void readLocaleWhenAppLaunch(BuildContext context) {
+  void readLocaleWhenAppLaunch(final BuildContext context) {
     if (_setting.resetToDefault) {
       _setting.resetToDefault = false;
       _saveAppearanceSettings();
@@ -124,16 +124,16 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   }
 
   Future<void> _saveAppearanceSettings() async {
-    UserSettingsBackendService().setAppearanceSetting(_setting).then((result) {
+    UserSettingsBackendService().setAppearanceSetting(_setting).then((final result) {
       result.fold(
-        (l) => null,
-        (error) => Log.error(error),
+        (final l) => null,
+        (final error) => Log.error(error),
       );
     });
   }
 }
 
-ThemeMode _themeModeFromPB(ThemeModePB themeModePB) {
+ThemeMode _themeModeFromPB(final ThemeModePB themeModePB) {
   switch (themeModePB) {
     case ThemeModePB.Light:
       return ThemeMode.light;
@@ -145,7 +145,7 @@ ThemeMode _themeModeFromPB(ThemeModePB themeModePB) {
   }
 }
 
-ThemeModePB _themeModeToPB(ThemeMode themeMode) {
+ThemeModePB _themeModeToPB(final ThemeMode themeMode) {
   switch (themeMode) {
     case ThemeMode.light:
       return ThemeModePB.Light;
@@ -162,23 +162,23 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
   const AppearanceSettingsState._();
 
   const factory AppearanceSettingsState({
-    required AppTheme appTheme,
-    required ThemeMode themeMode,
-    required String font,
-    required String monospaceFont,
-    required Locale locale,
-    required bool isMenuCollapsed,
-    required double menuOffset,
+    required final AppTheme appTheme,
+    required final ThemeMode themeMode,
+    required final String font,
+    required final String monospaceFont,
+    required final Locale locale,
+    required final bool isMenuCollapsed,
+    required final double menuOffset,
   }) = _AppearanceSettingsState;
 
   factory AppearanceSettingsState.initial(
-    String themeName,
-    ThemeModePB themeModePB,
-    String font,
-    String monospaceFont,
-    LocaleSettingsPB localePB,
-    bool isMenuCollapsed,
-    double menuOffset,
+    final String themeName,
+    final ThemeModePB themeModePB,
+    final String font,
+    final String monospaceFont,
+    final LocaleSettingsPB localePB,
+    final bool isMenuCollapsed,
+    final double menuOffset,
   ) {
     return AppearanceSettingsState(
       appTheme: AppTheme.fromName(themeName),
@@ -194,7 +194,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
   ThemeData get lightTheme => _getThemeData(Brightness.light);
   ThemeData get darkTheme => _getThemeData(Brightness.dark);
 
-  ThemeData _getThemeData(Brightness brightness) {
+  ThemeData _getThemeData(final Brightness brightness) {
     // Poppins and SF Mono are not well supported in some languages, so use the
     // built-in font for the following languages.
     final useBuiltInFontLanguages = [
@@ -271,13 +271,13 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         contentTextStyle: TextStyle(color: colorScheme.onSurface),
       ),
       scrollbarTheme: ScrollbarThemeData(
-        thumbColor: MaterialStateProperty.resolveWith((states) {
+        thumbColor: MaterialStateProperty.resolveWith((final states) {
           if (states.any(scrollbarInteractiveStates.contains)) {
             return theme.shader7;
           }
           return theme.shader5;
         }),
-        thickness: MaterialStateProperty.resolveWith((states) {
+        thickness: MaterialStateProperty.resolveWith((final states) {
           if (states.any(scrollbarInteractiveStates.contains)) {
             return 4;
           }
@@ -340,12 +340,12 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
   }
 
   TextStyle _getFontStyle({
-    String? fontFamily,
-    double? fontSize,
-    FontWeight? fontWeight,
-    Color? fontColor,
-    double? letterSpacing,
-    double? lineHeight,
+    final String? fontFamily,
+    final double? fontSize,
+    final FontWeight? fontWeight,
+    final Color? fontColor,
+    final double? letterSpacing,
+    final double? lineHeight,
   }) =>
       TextStyle(
         fontFamily: fontFamily,
@@ -358,8 +358,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       );
 
   TextTheme _getTextTheme({
-    required String fontFamily,
-    required Color fontColor,
+    required final String fontFamily,
+    required final Color fontColor,
   }) {
     return TextTheme(
       displayLarge: _getFontStyle(

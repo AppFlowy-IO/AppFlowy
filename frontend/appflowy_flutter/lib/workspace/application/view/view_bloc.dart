@@ -18,56 +18,56 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
   })  : service = ViewService(),
         listener = ViewListener(view: view),
         super(ViewState.init(view)) {
-    on<ViewEvent>((event, emit) async {
+    on<ViewEvent>((final event, final emit) async {
       await event.map(
-        initial: (e) {
+        initial: (final e) {
           listener.start(
-            onViewUpdated: (result) {
+            onViewUpdated: (final result) {
               add(ViewEvent.viewDidUpdate(result));
             },
           );
           emit(state);
         },
-        setIsEditing: (e) {
+        setIsEditing: (final e) {
           emit(state.copyWith(isEditing: e.isEditing));
         },
-        viewDidUpdate: (e) {
+        viewDidUpdate: (final e) {
           e.result.fold(
-            (view) => emit(
+            (final view) => emit(
               state.copyWith(view: view, successOrFailure: left(unit)),
             ),
-            (error) => emit(
+            (final error) => emit(
               state.copyWith(successOrFailure: right(error)),
             ),
           );
         },
-        rename: (e) async {
+        rename: (final e) async {
           final result = await service.updateView(
             viewId: view.id,
             name: e.newName,
           );
           emit(
             result.fold(
-              (l) => state.copyWith(successOrFailure: left(unit)),
-              (error) => state.copyWith(successOrFailure: right(error)),
+              (final l) => state.copyWith(successOrFailure: left(unit)),
+              (final error) => state.copyWith(successOrFailure: right(error)),
             ),
           );
         },
-        delete: (e) async {
+        delete: (final e) async {
           final result = await service.delete(viewId: view.id);
           emit(
             result.fold(
-              (l) => state.copyWith(successOrFailure: left(unit)),
-              (error) => state.copyWith(successOrFailure: right(error)),
+              (final l) => state.copyWith(successOrFailure: left(unit)),
+              (final error) => state.copyWith(successOrFailure: right(error)),
             ),
           );
         },
-        duplicate: (e) async {
+        duplicate: (final e) async {
           final result = await service.duplicate(view: view);
           emit(
             result.fold(
-              (l) => state.copyWith(successOrFailure: left(unit)),
-              (error) => state.copyWith(successOrFailure: right(error)),
+              (final l) => state.copyWith(successOrFailure: left(unit)),
+              (final error) => state.copyWith(successOrFailure: right(error)),
             ),
           );
         },
@@ -85,23 +85,23 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
 @freezed
 class ViewEvent with _$ViewEvent {
   const factory ViewEvent.initial() = Initial;
-  const factory ViewEvent.setIsEditing(bool isEditing) = SetEditing;
-  const factory ViewEvent.rename(String newName) = Rename;
+  const factory ViewEvent.setIsEditing(final bool isEditing) = SetEditing;
+  const factory ViewEvent.rename(final String newName) = Rename;
   const factory ViewEvent.delete() = Delete;
   const factory ViewEvent.duplicate() = Duplicate;
-  const factory ViewEvent.viewDidUpdate(Either<ViewPB, FlowyError> result) =
+  const factory ViewEvent.viewDidUpdate(final Either<ViewPB, FlowyError> result) =
       ViewDidUpdate;
 }
 
 @freezed
 class ViewState with _$ViewState {
   const factory ViewState({
-    required ViewPB view,
-    required bool isEditing,
-    required Either<Unit, FlowyError> successOrFailure,
+    required final ViewPB view,
+    required final bool isEditing,
+    required final Either<Unit, FlowyError> successOrFailure,
   }) = _ViewState;
 
-  factory ViewState.init(ViewPB view) => ViewState(
+  factory ViewState.init(final ViewPB view) => ViewState(
         view: view,
         isEditing: false,
         successOrFailure: left(unit),

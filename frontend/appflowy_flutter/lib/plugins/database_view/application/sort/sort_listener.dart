@@ -17,7 +17,7 @@ class SortsListener {
   SortsListener({required this.viewId});
 
   void start({
-    required void Function(SortNotifiedValue) onSortChanged,
+    required final void Function(SortNotifiedValue) onSortChanged,
   }) {
     _notifier?.addPublishListener(onSortChanged);
     _listener = DatabaseNotificationListener(
@@ -27,15 +27,15 @@ class SortsListener {
   }
 
   void _handler(
-    DatabaseNotification ty,
-    Either<Uint8List, FlowyError> result,
+    final DatabaseNotification ty,
+    final Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case DatabaseNotification.DidUpdateSort:
         result.fold(
-          (payload) => _notifier?.value =
+          (final payload) => _notifier?.value =
               left(SortChangesetNotificationPB.fromBuffer(payload)),
-          (error) => _notifier?.value = right(error),
+          (final error) => _notifier?.value = right(error),
         );
         break;
       default:

@@ -17,8 +17,8 @@ class WorkspaceService {
     required this.workspaceId,
   });
   Future<Either<AppPB, FlowyError>> createApp({
-    required String name,
-    String? desc,
+    required final String name,
+    final String? desc,
   }) {
     final payload = CreateAppPayloadPB.create()
       ..name = name
@@ -29,9 +29,9 @@ class WorkspaceService {
 
   Future<Either<WorkspacePB, FlowyError>> getWorkspace() {
     final payload = WorkspaceIdPB.create()..value = workspaceId;
-    return FolderEventReadWorkspaces(payload).send().then((result) {
+    return FolderEventReadWorkspaces(payload).send().then((final result) {
       return result.fold(
-        (workspaces) {
+        (final workspaces) {
           assert(workspaces.items.length == 1);
 
           if (workspaces.items.isEmpty) {
@@ -43,25 +43,25 @@ class WorkspaceService {
             return left(workspaces.items[0]);
           }
         },
-        (error) => right(error),
+        (final error) => right(error),
       );
     });
   }
 
   Future<Either<List<AppPB>, FlowyError>> getApps() {
     final payload = WorkspaceIdPB.create()..value = workspaceId;
-    return FolderEventReadWorkspaceApps(payload).send().then((result) {
+    return FolderEventReadWorkspaceApps(payload).send().then((final result) {
       return result.fold(
-        (apps) => left(apps.items),
-        (error) => right(error),
+        (final apps) => left(apps.items),
+        (final error) => right(error),
       );
     });
   }
 
   Future<Either<Unit, FlowyError>> moveApp({
-    required String appId,
-    required int fromIndex,
-    required int toIndex,
+    required final String appId,
+    required final int fromIndex,
+    required final int toIndex,
   }) {
     final payload = MoveFolderItemPayloadPB.create()
       ..itemId = appId

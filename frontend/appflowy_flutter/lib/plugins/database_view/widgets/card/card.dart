@@ -59,7 +59,7 @@ class RowCard<CustomCardData> extends StatefulWidget {
       showAccessory: true,
     ),
     this.renderHook,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -100,11 +100,11 @@ class _RowCardState<T> extends State<RowCard<T>> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: _cardBloc,
       child: BlocBuilder<CardBloc, RowCardState>(
-        buildWhen: (previous, current) {
+        buildWhen: (final previous, final current) {
           // Rebuild when:
           // 1.If the length of the cells is not the same
           // 2.isEditing changed
@@ -117,20 +117,20 @@ class _RowCardState<T> extends State<RowCard<T>> {
           // list of [BoardCellEquatable] that extends the [Equatable].
           return !listEquals(previous.cells, current.cells);
         },
-        builder: (context, state) {
+        builder: (final context, final state) {
           return AppFlowyPopover(
             controller: popoverController,
             triggerActions: PopoverTriggerFlags.none,
             constraints: BoxConstraints.loose(const Size(140, 200)),
             margin: const EdgeInsets.all(6),
             direction: PopoverDirection.rightWithCenterAligned,
-            popupBuilder: (popoverContext) => _handlePopoverBuilder(
+            popupBuilder: (final popoverContext) => _handlePopoverBuilder(
               context,
               popoverContext,
             ),
             child: RowCardContainer(
               buildAccessoryWhen: () => state.isEditing == false,
-              accessoryBuilder: (context) {
+              accessoryBuilder: (final context) {
                 if (widget.styleConfiguration.showAccessory == false) {
                   return [];
                 } else {
@@ -141,7 +141,7 @@ class _RowCardState<T> extends State<RowCard<T>> {
                 }
               },
               openAccessory: _handleOpenAccessory,
-              openCard: (context) => widget.openCard(context),
+              openCard: (final context) => widget.openCard(context),
               child: _CardContent<T>(
                 rowNotifier: rowNotifier,
                 cellBuilder: widget.cellBuilder,
@@ -157,7 +157,7 @@ class _RowCardState<T> extends State<RowCard<T>> {
     );
   }
 
-  void _handleOpenAccessory(AccessoryType newAccessoryType) {
+  void _handleOpenAccessory(final AccessoryType newAccessoryType) {
     accessoryType = newAccessoryType;
     switch (newAccessoryType) {
       case AccessoryType.edit:
@@ -169,8 +169,8 @@ class _RowCardState<T> extends State<RowCard<T>> {
   }
 
   Widget _handlePopoverBuilder(
-    BuildContext context,
-    BuildContext popoverContext,
+    final BuildContext context,
+    final BuildContext popoverContext,
   ) {
     switch (accessoryType!) {
       case AccessoryType.edit:
@@ -204,11 +204,11 @@ class _CardContent<CustomCardData> extends StatelessWidget {
     required this.cardData,
     required this.styleConfiguration,
     this.renderHook,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: _makeCells(context, cells),
@@ -216,15 +216,15 @@ class _CardContent<CustomCardData> extends StatelessWidget {
   }
 
   List<Widget> _makeCells(
-    BuildContext context,
-    List<CellIdentifier> cells,
+    final BuildContext context,
+    final List<CellIdentifier> cells,
   ) {
     final List<Widget> children = [];
     // Remove all the cell listeners.
     rowNotifier.unbind();
 
     cells.asMap().forEach(
-      (int index, CellIdentifier cell) {
+      (final int index, final CellIdentifier cell) {
         final isEditing = index == 0 ? rowNotifier.isEditing.value : false;
         final cellNotifier = EditableCardNotifier(isEditing: isEditing);
 
@@ -253,10 +253,10 @@ class _CardContent<CustomCardData> extends StatelessWidget {
 }
 
 class _CardMoreOption extends StatelessWidget with CardAccessory {
-  _CardMoreOption({Key? key}) : super(key: key);
+  _CardMoreOption({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(3.0),
       child: svgWidget(
@@ -274,11 +274,11 @@ class _CardEditOption extends StatelessWidget with CardAccessory {
   final EditableRowNotifier rowNotifier;
   const _CardEditOption({
     required this.rowNotifier,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(3.0),
       child: svgWidget(
@@ -289,7 +289,7 @@ class _CardEditOption extends StatelessWidget with CardAccessory {
   }
 
   @override
-  void onTap(BuildContext context) => rowNotifier.becomeFirstResponder();
+  void onTap(final BuildContext context) => rowNotifier.becomeFirstResponder();
 
   @override
   AccessoryType get type => AccessoryType.edit;

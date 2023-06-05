@@ -13,7 +13,7 @@ class SingleSelectOptionFilterDelegateImpl
     implements SelectOptionFilterDelegate {
   final SingleSelectTypeOptionContext typeOptionContext;
 
-  SingleSelectOptionFilterDelegateImpl(FilterInfo filterInfo)
+  SingleSelectOptionFilterDelegateImpl(final FilterInfo filterInfo)
       : typeOptionContext = makeSingleSelectTypeOptionContext(
           viewId: filterInfo.viewId,
           fieldPB: filterInfo.fieldInfo.field,
@@ -23,9 +23,9 @@ class SingleSelectOptionFilterDelegateImpl
   Future<List<SelectOptionPB>> loadOptions() {
     return typeOptionContext
         .loadTypeOptionData(
-          onError: (error) => Log.error(error),
+          onError: (final error) => Log.error(error),
         )
-        .then((value) => value.options);
+        .then((final value) => value.options);
   }
 }
 
@@ -33,7 +33,7 @@ class MultiSelectOptionFilterDelegateImpl
     implements SelectOptionFilterDelegate {
   final MultiSelectTypeOptionContext typeOptionContext;
 
-  MultiSelectOptionFilterDelegateImpl(FilterInfo filterInfo)
+  MultiSelectOptionFilterDelegateImpl(final FilterInfo filterInfo)
       : typeOptionContext = makeMultiSelectTypeOptionContext(
           viewId: filterInfo.viewId,
           fieldPB: filterInfo.fieldInfo.field,
@@ -43,8 +43,8 @@ class MultiSelectOptionFilterDelegateImpl
   Future<List<SelectOptionPB>> loadOptions() {
     return typeOptionContext
         .loadTypeOptionData(
-          onError: (error) => Log.error(error),
+          onError: (final error) => Log.error(error),
         )
-        .then((value) => value.options);
+        .then((final value) => value.options);
   }
 }

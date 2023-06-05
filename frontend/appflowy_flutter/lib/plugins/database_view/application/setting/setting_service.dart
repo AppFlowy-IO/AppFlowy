@@ -17,8 +17,8 @@ class SettingBackendService {
   }
 
   Future<Either<Unit, FlowyError>> groupByField({
-    required String fieldId,
-    required FieldType fieldType,
+    required final String fieldId,
+    required final FieldType fieldType,
   }) {
     final insertGroupPayload = InsertGroupPayloadPB.create()
       ..viewId = viewId

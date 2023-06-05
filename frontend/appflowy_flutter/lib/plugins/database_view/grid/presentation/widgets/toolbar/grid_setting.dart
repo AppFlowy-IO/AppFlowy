@@ -28,17 +28,17 @@ class GridSettingList extends StatelessWidget {
   const GridSettingList({
     required this.settingContext,
     required this.onAction,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final cells = DatabaseSettingAction.values
-        .where((value) => value.enable())
-        .map((action) {
+        .where((final value) => value.enable())
+        .map((final action) {
       return _SettingItem(
         action: action,
-        onAction: (action) => onAction(action, settingContext),
+        onAction: (final action) => onAction(action, settingContext),
       );
     }).toList();
 
@@ -48,11 +48,11 @@ class GridSettingList extends StatelessWidget {
         shrinkWrap: true,
         controller: ScrollController(),
         itemCount: cells.length,
-        separatorBuilder: (context, index) {
+        separatorBuilder: (final context, final index) {
           return VSpace(GridSize.typeOptionSeparatorHeight);
         },
         physics: StyledScrollPhysics(),
-        itemBuilder: (BuildContext context, int index) {
+        itemBuilder: (final BuildContext context, final int index) {
           return cells[index];
         },
       ),
@@ -67,11 +67,11 @@ class _SettingItem extends StatelessWidget {
   const _SettingItem({
     required this.action,
     required this.onAction,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(

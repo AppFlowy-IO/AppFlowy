@@ -10,9 +10,9 @@ class DatabaseSettingBloc
   DatabaseSettingBloc({required this.viewId})
       : super(DatabaseSettingState.initial()) {
     on<DatabaseSettingEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.map(
-          performAction: (_PerformAction value) {
+          performAction: (final _PerformAction value) {
             emit(state.copyWith(selectedAction: Some(value.action)));
           },
         );
@@ -24,14 +24,14 @@ class DatabaseSettingBloc
 @freezed
 class DatabaseSettingEvent with _$DatabaseSettingEvent {
   const factory DatabaseSettingEvent.performAction(
-    DatabaseSettingAction action,
+    final DatabaseSettingAction action,
   ) = _PerformAction;
 }
 
 @freezed
 class DatabaseSettingState with _$DatabaseSettingState {
   const factory DatabaseSettingState({
-    required Option<DatabaseSettingAction> selectedAction,
+    required final Option<DatabaseSettingAction> selectedAction,
   }) = _DatabaseSettingState;
 
   factory DatabaseSettingState.initial() => DatabaseSettingState(

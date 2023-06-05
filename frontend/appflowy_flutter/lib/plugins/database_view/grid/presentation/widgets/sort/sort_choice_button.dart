@@ -18,11 +18,11 @@ class SortChoiceButton extends StatelessWidget {
     this.leftIcon,
     this.rightIcon,
     this.editable = true,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final borderSide = BorderSide(
       color: AFThemeExtension.of(context).toggleOffFill,
       width: 1.0,

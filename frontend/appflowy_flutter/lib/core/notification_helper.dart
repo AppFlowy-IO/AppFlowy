@@ -15,7 +15,7 @@ class NotificationParser<T, E> {
     required this.errorParser,
     required this.tyParser,
   });
-  void parse(SubscribeObject subject) {
+  void parse(final SubscribeObject subject) {
     if (id != null) {
       if (subject.id != id) {
         return;

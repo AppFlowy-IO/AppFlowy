@@ -34,31 +34,31 @@ class CalendarDayCard extends StatelessWidget {
     required this.isInMonth,
     required this.date,
     required this.onCreateEvent,
-    required RowCache rowCache,
+    required final RowCache rowCache,
     required this.events,
-    Key? key,
+    final Key? key,
   })  : _rowCache = rowCache,
         super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Color backgroundColor = Theme.of(context).colorScheme.surface;
     if (!isInMonth) {
       backgroundColor = AFThemeExtension.of(context).lightGreyHover;
     }
 
     return ChangeNotifierProvider(
-      create: (_) => _CardEnterNotifier(),
-      builder: (context, child) {
+      create: (final _) => _CardEnterNotifier(),
+      builder: (final context, final child) {
         Widget? multipleCards;
         if (events.isNotEmpty) {
           multipleCards = Flexible(
             child: ListView.separated(
-              itemBuilder: (BuildContext context, int index) =>
+              itemBuilder: (final BuildContext context, final int index) =>
                   _buildCard(context, events[index]),
               itemCount: events.length,
               padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 8.0),
-              separatorBuilder: (BuildContext context, int index) =>
+              separatorBuilder: (final BuildContext context, final int index) =>
                   VSpace(GridSize.typeOptionSeparatorHeight),
             ),
           );
@@ -88,8 +88,8 @@ class CalendarDayCard extends StatelessWidget {
             onDoubleTap: () => onCreateEvent(date),
             child: MouseRegion(
               cursor: SystemMouseCursors.basic,
-              onEnter: (p) => notifyEnter(context, true),
-              onExit: (p) => notifyEnter(context, false),
+              onEnter: (final p) => notifyEnter(context, true),
+              onExit: (final p) => notifyEnter(context, false),
               child: Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: child,
@@ -101,7 +101,7 @@ class CalendarDayCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCard(BuildContext context, CalendarDayEvent event) {
+  Widget _buildCard(final BuildContext context, final CalendarDayEvent event) {
     final styles = <FieldType, CardCellStyle>{
       FieldType.Number: NumberCardCellStyle(10),
       FieldType.URL: URLCardCellStyle(10),
@@ -114,7 +114,7 @@ class CalendarDayCard extends StatelessWidget {
 
     final rowInfo = _rowCache.getRow(event.eventId);
     final renderHook = RowCardRenderHook<String>();
-    renderHook.addTextCellHook((cellData, primaryFieldId, _) {
+    renderHook.addTextCellHook((final cellData, final primaryFieldId, final _) {
       if (cellData.isEmpty) {
         return const SizedBox();
       }
@@ -129,7 +129,7 @@ class CalendarDayCard extends StatelessWidget {
       );
     });
 
-    renderHook.addDateCellHook((cellData, cardData, _) {
+    renderHook.addDateCellHook((final cellData, final cardData, final _) {
       return Align(
         alignment: Alignment.centerLeft,
         child: Padding(
@@ -160,12 +160,13 @@ class CalendarDayCard extends StatelessWidget {
       );
     });
 
-    renderHook.addSelectOptionHook((selectedOptions, cardData, _) {
+    renderHook
+        .addSelectOptionHook((final selectedOptions, final cardData, final _) {
       if (selectedOptions.isEmpty) {
         return const SizedBox.shrink();
       }
       final children = selectedOptions.map(
-        (option) {
+        (final option) {
           return SelectOptionTag.fromOption(
             context: context,
             option: option,
@@ -195,7 +196,7 @@ class CalendarDayCard extends StatelessWidget {
       cardData: event.dateFieldId,
       isEditing: false,
       cellBuilder: cellBuilder,
-      openCard: (context) => showEventDetails(
+      openCard: (final context) => showEventDetails(
         context: context,
         event: event,
         viewId: viewId,
@@ -231,7 +232,7 @@ class CalendarDayCard extends StatelessWidget {
     );
   }
 
-  notifyEnter(BuildContext context, bool isEnter) {
+  notifyEnter(final BuildContext context, final bool isEnter) {
     Provider.of<_CardEnterNotifier>(
       context,
       listen: false,
@@ -249,13 +250,13 @@ class _Header extends StatelessWidget {
     required this.isInMonth,
     required this.date,
     required this.onCreate,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Consumer<_CardEnterNotifier>(
-      builder: (context, notifier, _) {
+      builder: (final context, final notifier, final _) {
         final badge = _DayBadge(
           isToday: isToday,
           isInMonth: isInMonth,
@@ -281,11 +282,11 @@ class _NewEventButton extends StatelessWidget {
   final VoidCallback onClick;
   const _NewEventButton({
     required this.onClick,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FlowyIconButton(
       onPressed: onClick,
       iconPadding: EdgeInsets.zero,
@@ -304,15 +305,15 @@ class _DayBadge extends StatelessWidget {
     required this.isToday,
     required this.isInMonth,
     required this.date,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Color dayTextColor = Theme.of(context).colorScheme.onBackground;
-    String monthString =
+    final String monthString =
         DateFormat("MMM ", context.locale.toLanguageTag()).format(date);
-    String dayString = date.day.toString();
+    final String dayString = date.day.toString();
 
     if (!isInMonth) {
       dayTextColor = Theme.of(context).disabledColor;
@@ -349,7 +350,7 @@ class _CardEnterNotifier extends ChangeNotifier {
 
   _CardEnterNotifier();
 
-  set onEnter(bool value) {
+  set onEnter(final bool value) {
     if (_onEnter != value) {
       _onEnter = value;
       notifyListeners();

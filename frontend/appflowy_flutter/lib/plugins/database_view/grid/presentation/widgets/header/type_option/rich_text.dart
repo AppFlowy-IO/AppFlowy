@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'builder.dart';
 
 class RichTextTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
-  RichTextTypeOptionWidgetBuilder(RichTextTypeOptionContext typeOptionContext);
+  RichTextTypeOptionWidgetBuilder(final RichTextTypeOptionContext typeOptionContext);
 
   @override
-  Widget? build(BuildContext context) => null;
+  Widget? build(final BuildContext context) => null;
 }

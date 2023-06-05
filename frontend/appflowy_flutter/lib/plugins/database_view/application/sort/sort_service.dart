@@ -15,21 +15,21 @@ class SortBackendService {
   Future<Either<List<SortPB>, FlowyError>> getAllSorts() {
     final payload = DatabaseViewIdPB()..value = viewId;
 
-    return DatabaseEventGetAllSorts(payload).send().then((result) {
+    return DatabaseEventGetAllSorts(payload).send().then((final result) {
       return result.fold(
-        (repeated) => left(repeated.items),
-        (r) => right(r),
+        (final repeated) => left(repeated.items),
+        (final r) => right(r),
       );
     });
   }
 
   Future<Either<Unit, FlowyError>> updateSort({
-    required String fieldId,
-    required String sortId,
-    required FieldType fieldType,
-    required SortConditionPB condition,
+    required final String fieldId,
+    required final String sortId,
+    required final FieldType fieldType,
+    required final SortConditionPB condition,
   }) {
-    var insertSortPayload = AlterSortPayloadPB.create()
+    final insertSortPayload = AlterSortPayloadPB.create()
       ..fieldId = fieldId
       ..fieldType = fieldType
       ..viewId = viewId
@@ -39,10 +39,10 @@ class SortBackendService {
     final payload = DatabaseSettingChangesetPB.create()
       ..viewId = viewId
       ..alterSort = insertSortPayload;
-    return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
+    return DatabaseEventUpdateDatabaseSetting(payload).send().then((final result) {
       return result.fold(
-        (l) => left(l),
-        (err) {
+        (final l) => left(l),
+        (final err) {
           Log.error(err);
           return right(err);
         },
@@ -51,11 +51,11 @@ class SortBackendService {
   }
 
   Future<Either<Unit, FlowyError>> insertSort({
-    required String fieldId,
-    required FieldType fieldType,
-    required SortConditionPB condition,
+    required final String fieldId,
+    required final FieldType fieldType,
+    required final SortConditionPB condition,
   }) {
-    var insertSortPayload = AlterSortPayloadPB.create()
+    final insertSortPayload = AlterSortPayloadPB.create()
       ..fieldId = fieldId
       ..fieldType = fieldType
       ..viewId = viewId
@@ -64,10 +64,10 @@ class SortBackendService {
     final payload = DatabaseSettingChangesetPB.create()
       ..viewId = viewId
       ..alterSort = insertSortPayload;
-    return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
+    return DatabaseEventUpdateDatabaseSetting(payload).send().then((final result) {
       return result.fold(
-        (l) => left(l),
-        (err) {
+        (final l) => left(l),
+        (final err) {
           Log.error(err);
           return right(err);
         },
@@ -76,9 +76,9 @@ class SortBackendService {
   }
 
   Future<Either<Unit, FlowyError>> deleteSort({
-    required String fieldId,
-    required String sortId,
-    required FieldType fieldType,
+    required final String fieldId,
+    required final String sortId,
+    required final FieldType fieldType,
   }) {
     final deleteFilterPayload = DeleteSortPayloadPB.create()
       ..fieldId = fieldId
@@ -90,10 +90,10 @@ class SortBackendService {
       ..viewId = viewId
       ..deleteSort = deleteFilterPayload;
 
-    return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
+    return DatabaseEventUpdateDatabaseSetting(payload).send().then((final result) {
       return result.fold(
-        (l) => left(l),
-        (err) {
+        (final l) => left(l),
+        (final err) {
           Log.error(err);
           return right(err);
         },
@@ -103,10 +103,10 @@ class SortBackendService {
 
   Future<Either<Unit, FlowyError>> deleteAllSorts() {
     final payload = DatabaseViewIdPB(value: viewId);
-    return DatabaseEventDeleteAllSorts(payload).send().then((result) {
+    return DatabaseEventDeleteAllSorts(payload).send().then((final result) {
       return result.fold(
-        (l) => left(l),
-        (err) {
+        (final l) => left(l),
+        (final err) {
           Log.error(err);
           return right(err);
         },

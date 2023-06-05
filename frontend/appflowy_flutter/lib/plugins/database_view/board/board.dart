@@ -11,7 +11,7 @@ import 'presentation/board_page.dart';
 
 class BoardPluginBuilder implements PluginBuilder {
   @override
-  Plugin build(dynamic data) {
+  Plugin build(final dynamic data) {
     if (data is ViewPB) {
       return BoardPlugin(pluginType: pluginType, view: data);
     } else {
@@ -43,8 +43,8 @@ class BoardPlugin extends Plugin {
   final PluginType _pluginType;
 
   BoardPlugin({
-    required ViewPB view,
-    required PluginType pluginType,
+    required final ViewPB view,
+    required final PluginType pluginType,
   })  : _pluginType = pluginType,
         notifier = ViewPluginNotifier(view: view);
 
@@ -60,7 +60,7 @@ class BoardPlugin extends Plugin {
 
 class GridPluginDisplay extends PluginDisplay {
   final ViewPluginNotifier notifier;
-  GridPluginDisplay({required this.notifier, Key? key});
+  GridPluginDisplay({required this.notifier, final Key? key});
 
   ViewPB get view => notifier.view;
 
@@ -68,9 +68,9 @@ class GridPluginDisplay extends PluginDisplay {
   Widget get leftBarItem => ViewLeftBarItem(view: view);
 
   @override
-  Widget buildWidget(PluginContext context) {
+  Widget buildWidget(final PluginContext context) {
     notifier.isDeleted.addListener(() {
-      notifier.isDeleted.value.fold(() => null, (deletedView) {
+      notifier.isDeleted.value.fold(() => null, (final deletedView) {
         if (deletedView.hasIndex()) {
           context.onDeleted(view, deletedView.index);
         }

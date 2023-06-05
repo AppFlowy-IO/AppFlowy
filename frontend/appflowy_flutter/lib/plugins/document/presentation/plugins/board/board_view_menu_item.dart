@@ -8,10 +8,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
 
-SelectionMenuItem boardViewMenuItem(DocumentBloc documentBloc) =>
+SelectionMenuItem boardViewMenuItem(final DocumentBloc documentBloc) =>
     SelectionMenuItem(
       name: LocaleKeys.document_slashMenu_board_createANewBoard.tr(),
-      icon: (editorState, onSelected) {
+      icon: (final editorState, final onSelected) {
         return svgWidget(
           'editor/board',
           size: const Size.square(18.0),
@@ -22,7 +22,7 @@ SelectionMenuItem boardViewMenuItem(DocumentBloc documentBloc) =>
       },
       // TODO(a-wallen): Translate keywords.
       keywords: ['board', 'kanban'],
-      handler: (editorState, menuService, context) async {
+      handler: (final editorState, final menuService, final context) async {
         if (!documentBloc.view.hasAppId()) {
           return;
         }

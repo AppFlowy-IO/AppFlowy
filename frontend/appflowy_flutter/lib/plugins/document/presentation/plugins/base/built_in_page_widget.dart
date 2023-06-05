@@ -20,7 +20,7 @@ import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 
 class BuiltInPageWidget extends StatefulWidget {
   const BuiltInPageWidget({
-    Key? key,
+    final Key? key,
     required this.node,
     required this.editorState,
     required this.builder,
@@ -46,9 +46,9 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FutureBuilder<dartz.Either<ViewPB, FlowyError>>(
-      builder: (context, snapshot) {
+      builder: (final context, final snapshot) {
         if (snapshot.hasData) {
           final board = snapshot.data?.getLeftOrNull<ViewPB>();
           if (board != null) {
@@ -69,12 +69,12 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
     super.dispose();
   }
 
-  Widget _build(BuildContext context, ViewPB viewPB) {
+  Widget _build(final BuildContext context, final ViewPB viewPB) {
     return MouseRegion(
-      onEnter: (event) {
+      onEnter: (final event) {
         widget.editorState.service.scrollService?.disable();
       },
-      onExit: (event) {
+      onExit: (final event) {
         widget.editorState.service.scrollService?.enable();
       },
       child: SizedBox(
@@ -89,10 +89,10 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
     );
   }
 
-  Widget _buildGrid(BuildContext context, ViewPB viewPB) {
+  Widget _buildGrid(final BuildContext context, final ViewPB viewPB) {
     return Focus(
       focusNode: focusNode,
-      onFocusChange: (value) {
+      onFocusChange: (final value) {
         if (value) {
           widget.editorState.service.selectionService.clearSelection();
         }
@@ -101,7 +101,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
     );
   }
 
-  Widget _buildMenu(BuildContext context, ViewPB viewPB) {
+  Widget _buildMenu(final BuildContext context, final ViewPB viewPB) {
     return Positioned(
       top: 5,
       left: 5,
@@ -135,9 +135,9 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
           PopoverActionList<_ActionWrapper>(
             direction: PopoverDirection.bottomWithCenterAligned,
             actions: _ActionType.values
-                .map((action) => _ActionWrapper(action))
+                .map((final action) => _ActionWrapper(action))
                 .toList(),
-            buildChild: (controller) {
+            buildChild: (final controller) {
               return FlowyIconButton(
                 tooltipText: LocaleKeys.tooltip_openMenu.tr(),
                 width: 24,
@@ -150,7 +150,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
                 onPressed: () => controller.show(),
               );
             },
-            onSelected: (action, controller) async {
+            onSelected: (final action, final controller) async {
               switch (action.inner) {
                 case _ActionType.viewDatabase:
                   getIt<MenuSharedState>().latestOpenView = viewPB;
@@ -181,7 +181,7 @@ class _ActionWrapper extends ActionCell {
 
   _ActionWrapper(this.inner);
 
-  Widget? icon(Color iconColor) => null;
+  Widget? icon(final Color iconColor) => null;
 
   @override
   String get name {

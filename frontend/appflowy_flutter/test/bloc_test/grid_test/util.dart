@@ -40,7 +40,7 @@ class GridTestContext {
   }
 
   FieldEditorBloc createFieldEditor({
-    FieldInfo? fieldInfo,
+    final FieldInfo? fieldInfo,
   }) {
     IFieldTypeOptionLoader loader;
     if (fieldInfo == null) {
@@ -60,16 +60,16 @@ class GridTestContext {
   }
 
   Future<CellController> makeCellController(
-    String fieldId,
-    int rowIndex,
+    final String fieldId,
+    final int rowIndex,
   ) async {
     final builder = await makeCellControllerBuilder(fieldId, rowIndex);
     return builder.build();
   }
 
   Future<CellControllerBuilder> makeCellControllerBuilder(
-    String fieldId,
-    int rowIndex,
+    final String fieldId,
+    final int rowIndex,
   ) async {
     final RowInfo rowInfo = rowInfos[rowIndex];
     final rowCache = gridController.rowCache;
@@ -92,7 +92,7 @@ class GridTestContext {
     );
   }
 
-  Future<FieldEditorBloc> createField(FieldType fieldType) async {
+  Future<FieldEditorBloc> createField(final FieldType fieldType) async {
     final editorBloc = createFieldEditor()
       ..add(const FieldEditorEvent.initial());
     await gridResponseFuture();
@@ -103,7 +103,7 @@ class GridTestContext {
 
   FieldInfo singleSelectFieldContext() {
     final fieldInfo = fieldContexts
-        .firstWhere((element) => element.fieldType == FieldType.SingleSelect);
+        .firstWhere((final element) => element.fieldType == FieldType.SingleSelect);
     return fieldInfo;
   }
 
@@ -114,42 +114,42 @@ class GridTestContext {
 
   FieldInfo textFieldContext() {
     final fieldInfo = fieldContexts
-        .firstWhere((element) => element.fieldType == FieldType.RichText);
+        .firstWhere((final element) => element.fieldType == FieldType.RichText);
     return fieldInfo;
   }
 
   FieldInfo checkboxFieldContext() {
     final fieldInfo = fieldContexts
-        .firstWhere((element) => element.fieldType == FieldType.Checkbox);
+        .firstWhere((final element) => element.fieldType == FieldType.Checkbox);
     return fieldInfo;
   }
 
   Future<SelectOptionCellController> makeSelectOptionCellController(
-    FieldType fieldType,
-    int rowIndex,
+    final FieldType fieldType,
+    final int rowIndex,
   ) async {
     assert(
       fieldType == FieldType.SingleSelect || fieldType == FieldType.MultiSelect,
     );
 
     final field =
-        fieldContexts.firstWhere((element) => element.fieldType == fieldType);
+        fieldContexts.firstWhere((final element) => element.fieldType == fieldType);
     final cellController = await makeCellController(field.id, rowIndex)
         as SelectOptionCellController;
     return cellController;
   }
 
-  Future<TextCellController> makeTextCellController(int rowIndex) async {
+  Future<TextCellController> makeTextCellController(final int rowIndex) async {
     final field = fieldContexts
-        .firstWhere((element) => element.fieldType == FieldType.RichText);
+        .firstWhere((final element) => element.fieldType == FieldType.RichText);
     final cellController =
         await makeCellController(field.id, rowIndex) as TextCellController;
     return cellController;
   }
 
-  Future<TextCellController> makeCheckboxCellController(int rowIndex) async {
+  Future<TextCellController> makeCheckboxCellController(final int rowIndex) async {
     final field = fieldContexts
-        .firstWhere((element) => element.fieldType == FieldType.Checkbox);
+        .firstWhere((final element) => element.fieldType == FieldType.Checkbox);
     final cellController =
         await makeCellController(field.id, rowIndex) as TextCellController;
     return cellController;
@@ -176,9 +176,9 @@ class AppFlowyGridTest {
       name: "Test Grid",
       layoutType: builder.layoutType!,
     )
-        .then((result) {
+        .then((final result) {
       return result.fold(
-        (view) async {
+        (final view) async {
           final context = GridTestContext(
             view,
             DatabaseController(
@@ -187,10 +187,10 @@ class AppFlowyGridTest {
             ),
           );
           final result = await context.gridController.open();
-          result.fold((l) => null, (r) => throw Exception(r));
+          result.fold((final l) => null, (final r) => throw Exception(r));
           return context;
         },
-        (error) {
+        (final error) {
           throw Exception();
         },
       );
@@ -220,17 +220,17 @@ class AppFlowyGridCellTest {
   }
 
   Future<SelectOptionCellController> makeSelectOptionCellController(
-    FieldType fieldType,
-    int rowIndex,
+    final FieldType fieldType,
+    final int rowIndex,
   ) async {
     return await context.makeSelectOptionCellController(fieldType, rowIndex);
   }
 }
 
-Future<void> gridResponseFuture({int milliseconds = 200}) {
+Future<void> gridResponseFuture({final int milliseconds = 200}) {
   return Future.delayed(gridResponseDuration(milliseconds: milliseconds));
 }
 
-Duration gridResponseDuration({int milliseconds = 200}) {
+Duration gridResponseDuration({final int milliseconds = 200}) {
   return Duration(milliseconds: milliseconds);
 }

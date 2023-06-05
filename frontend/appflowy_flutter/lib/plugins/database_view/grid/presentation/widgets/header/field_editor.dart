@@ -27,7 +27,7 @@ class FieldEditor extends StatefulWidget {
     required this.typeOptionLoader,
     this.isGroupField = false,
     this.onDeleted,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -50,15 +50,15 @@ class _FieldEditorState extends State<FieldEditor> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    List<Widget> children = [
+  Widget build(final BuildContext context) {
+    final List<Widget> children = [
       _FieldNameTextField(popoverMutex: popoverMutex),
       const VSpace(10),
       if (widget.onDeleted != null) _addDeleteFieldButton(),
       _FieldTypeOptionCell(popoverMutex: popoverMutex),
     ];
     return BlocProvider(
-      create: (context) => FieldEditorBloc(
+      create: (final context) => FieldEditorBloc(
         viewId: widget.viewId,
         fieldName: widget.fieldName,
         isGroupField: widget.isGroupField,
@@ -67,7 +67,7 @@ class _FieldEditorState extends State<FieldEditor> {
       child: ListView.builder(
         shrinkWrap: true,
         itemCount: children.length,
-        itemBuilder: (context, index) => children[index],
+        itemBuilder: (final context, final index) => children[index],
         padding: const EdgeInsets.symmetric(vertical: 12.0),
       ),
     );
@@ -75,7 +75,7 @@ class _FieldEditorState extends State<FieldEditor> {
 
   Widget _addDeleteFieldButton() {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
-      builder: (context, state) {
+      builder: (final context, final state) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: _DeleteFieldButton(
@@ -83,7 +83,7 @@ class _FieldEditorState extends State<FieldEditor> {
             onDeleted: () {
               state.field.fold(
                 () => Log.error('Can not delete the field'),
-                (field) => widget.onDeleted?.call(field.id),
+                (final field) => widget.onDeleted?.call(field.id),
               );
             },
           ),
@@ -97,18 +97,18 @@ class _FieldTypeOptionCell extends StatelessWidget {
   final PopoverMutex popoverMutex;
 
   const _FieldTypeOptionCell({
-    Key? key,
+    final Key? key,
     required this.popoverMutex,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
-      buildWhen: (p, c) => p.field != c.field,
-      builder: (context, state) {
+      buildWhen: (final p, final c) => p.field != c.field,
+      builder: (final context, final state) {
         return state.field.fold(
           () => const SizedBox(),
-          (fieldInfo) {
+          (final fieldInfo) {
             final dataController =
                 context.read<FieldEditorBloc>().dataController;
             return FieldTypeOptionEditor(
@@ -126,7 +126,7 @@ class _FieldNameTextField extends StatefulWidget {
   final PopoverMutex popoverMutex;
   const _FieldNameTextField({
     required this.popoverMutex,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -154,26 +154,27 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocListener<FieldEditorBloc, FieldEditorState>(
-      listenWhen: (p, c) => p.field == none(),
-      listener: (context, state) {
+      listenWhen: (final p, final c) => p.field == none(),
+      listener: (final context, final state) {
         focusNode.requestFocus();
       },
       child: BlocBuilder<FieldEditorBloc, FieldEditorState>(
-        buildWhen: (previous, current) =>
+        buildWhen: (final previous, final current) =>
             previous.errorText != current.errorText,
-        builder: (context, state) {
+        builder: (final context, final state) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: FlowyTextField(
               focusNode: focusNode,
-              onSubmitted: (String _) => PopoverContainer.of(context).close(),
+              onSubmitted: (final String _) =>
+                  PopoverContainer.of(context).close(),
               text: context.read<FieldEditorBloc>().state.name,
               errorText: context.read<FieldEditorBloc>().state.errorText.isEmpty
                   ? null
                   : context.read<FieldEditorBloc>().state.errorText,
-              onChanged: (newName) {
+              onChanged: (final newName) {
                 context
                     .read<FieldEditorBloc>()
                     .add(FieldEditorEvent.updateName(newName));
@@ -193,16 +194,16 @@ class _DeleteFieldButton extends StatelessWidget {
   const _DeleteFieldButton({
     required this.popoverMutex,
     required this.onDeleted,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
-      buildWhen: (previous, current) => previous != current,
-      builder: (context, state) {
+      buildWhen: (final previous, final current) => previous != current,
+      builder: (final context, final state) {
         final enable = !state.canDelete && !state.isGroupField;
-        Widget button = FlowyButton(
+        final Widget button = FlowyButton(
           disable: !enable,
           text: FlowyText.medium(
             LocaleKeys.grid_field_delete.tr(),
@@ -211,7 +212,7 @@ class _DeleteFieldButton extends StatelessWidget {
           onTap: () {
             if (enable) onDeleted?.call();
           },
-          onHover: (_) => popoverMutex.close(),
+          onHover: (final _) => popoverMutex.close(),
         );
         return Padding(
           padding: const EdgeInsets.only(bottom: 4.0),

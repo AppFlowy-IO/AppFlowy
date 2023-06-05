@@ -34,7 +34,7 @@ void main() {
     tearDownAll(() async => await service.tearDownAll());
 
     testWidgets('/board shortcut creates a new board and view of the board',
-        (tester) async {
+        (final tester) async {
       await tester.initializeAppFlowy();
 
       // Needs tab to obtain focus for the app flowy editor.
@@ -86,7 +86,7 @@ void main() {
     });
 
     testWidgets('/grid shortcut creates a new grid and view of the grid',
-        (tester) async {
+        (final tester) async {
       await tester.initializeAppFlowy();
 
       // Needs tab to obtain focus for the app flowy editor.

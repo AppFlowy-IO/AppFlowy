@@ -44,7 +44,7 @@ abstract class PluginNotifier<T> {
 }
 
 abstract class PluginBuilder {
-  Plugin build(dynamic data);
+  Plugin build(final dynamic data);
 
   String get menuName;
 
@@ -63,7 +63,7 @@ abstract class PluginConfig {
 abstract class PluginDisplay with NavigationItem {
   List<NavigationItem> get navigationItems;
 
-  Widget buildWidget(PluginContext context);
+  Widget buildWidget(final PluginContext context);
 }
 
 class PluginContext {
@@ -73,12 +73,12 @@ class PluginContext {
   PluginContext({required this.onDeleted});
 }
 
-void registerPlugin({required PluginBuilder builder, PluginConfig? config}) {
+void registerPlugin({required final PluginBuilder builder, final PluginConfig? config}) {
   getIt<PluginSandbox>()
       .registerPlugin(builder.pluginType, builder, config: config);
 }
 
-Plugin makePlugin({required PluginType pluginType, dynamic data}) {
+Plugin makePlugin({required final PluginType pluginType, final dynamic data}) {
   final plugin = getIt<PluginSandbox>().buildPlugin(pluginType, data);
   return plugin;
 }
@@ -87,7 +87,7 @@ List<PluginBuilder> pluginBuilders() {
   final pluginBuilders = getIt<PluginSandbox>().builders;
   final pluginConfigs = getIt<PluginSandbox>().pluginConfigs;
   return pluginBuilders.where(
-    (builder) {
+    (final builder) {
       final config = pluginConfigs[builder.pluginType]?.creatable;
       return config ?? true;
     },

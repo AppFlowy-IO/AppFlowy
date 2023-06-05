@@ -12,7 +12,7 @@ class CheckboxCardCell extends CardCell {
 
   const CheckboxCardCell({
     required this.cellControllerBuilder,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -32,13 +32,13 @@ class _CheckboxCardCellState extends State<CheckboxCardCell> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<CheckboxCardCellBloc, CheckboxCardCellState>(
-        buildWhen: (previous, current) =>
+        buildWhen: (final previous, final current) =>
             previous.isSelected != current.isSelected,
-        builder: (context, state) {
+        builder: (final context, final state) {
           final icon = state.isSelected
               ? svgWidget('editor/editor_check')
               : svgWidget('editor/editor_uncheck');

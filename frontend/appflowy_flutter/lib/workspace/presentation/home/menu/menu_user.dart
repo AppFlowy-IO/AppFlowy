@@ -16,15 +16,15 @@ import 'package:easy_localization/easy_localization.dart';
 
 class MenuUser extends StatelessWidget {
   final UserProfilePB user;
-  MenuUser(this.user, {Key? key}) : super(key: ValueKey(user.id));
+  MenuUser(this.user, {final Key? key}) : super(key: ValueKey(user.id));
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider<MenuUserBloc>(
-      create: (context) =>
+      create: (final context) =>
           getIt<MenuUserBloc>(param1: user)..add(const MenuUserEvent.initial()),
       child: BlocBuilder<MenuUserBloc, MenuUserState>(
-        builder: (context, state) => Row(
+        builder: (final context, final state) => Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _renderAvatar(context),
@@ -42,7 +42,7 @@ class MenuUser extends StatelessWidget {
     );
   }
 
-  Widget _renderAvatar(BuildContext context) {
+  Widget _renderAvatar(final BuildContext context) {
     String iconUrl = context.read<MenuUserBloc>().state.userProfile.iconUrl;
     if (iconUrl.isEmpty) {
       iconUrl = defaultUserAvatar;
@@ -52,9 +52,9 @@ class MenuUser extends StatelessWidget {
       // Taking the first letters of the name components and limiting to 2 elements
       final nameInitials = name
           .split(' ')
-          .where((element) => element.isNotEmpty)
+          .where((final element) => element.isNotEmpty)
           .take(initialsCount)
-          .map((element) => element[0].toUpperCase())
+          .map((final element) => element[0].toUpperCase())
           .join('');
       return Container(
         width: 28,
@@ -84,7 +84,7 @@ class MenuUser extends StatelessWidget {
     );
   }
 
-  Widget _renderUserName(BuildContext context) {
+  Widget _renderUserName(final BuildContext context) {
     String name = context.read<MenuUserBloc>().state.userProfile.name;
     if (name.isEmpty) {
       name = context.read<MenuUserBloc>().state.userProfile.email;
@@ -96,7 +96,7 @@ class MenuUser extends StatelessWidget {
     );
   }
 
-  Widget _renderSettingsButton(BuildContext context) {
+  Widget _renderSettingsButton(final BuildContext context) {
     final userProfile = context.read<MenuUserBloc>().state.userProfile;
     return Tooltip(
       message: LocaleKeys.settings_menu_open.tr(),
@@ -104,7 +104,7 @@ class MenuUser extends StatelessWidget {
         onPressed: () {
           showDialog(
             context: context,
-            builder: (context) {
+            builder: (final context) {
               return SettingsDialog(userProfile);
             },
           );

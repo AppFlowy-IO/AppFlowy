@@ -25,25 +25,25 @@ class ViewSectionItem extends StatelessWidget {
   final void Function(ViewPB) onSelected;
 
   ViewSectionItem({
-    Key? key,
+    final Key? key,
     required this.view,
     required this.isSelected,
     required this.onSelected,
   }) : super(key: ValueKey('$view.hashCode/$isSelected'));
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (ctx) => getIt<ViewBloc>(param1: view)
+          create: (final ctx) => getIt<ViewBloc>(param1: view)
             ..add(
               const ViewEvent.initial(),
             ),
         ),
       ],
       child: BlocBuilder<ViewBloc, ViewState>(
-        builder: (blocContext, state) {
+        builder: (final blocContext, final state) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 2),
             child: InkWell(
@@ -55,7 +55,7 @@ class ViewSectionItem extends StatelessWidget {
                 // If current state.isEditing is true, the hover should not
                 // rebuild when onEnter/onExit events happened.
                 buildWhenOnHover: () => !state.isEditing,
-                builder: (_, onHover) => _render(
+                builder: (final _, final onHover) => _render(
                   blocContext,
                   onHover,
                   state,
@@ -70,11 +70,11 @@ class ViewSectionItem extends StatelessWidget {
   }
 
   Widget _render(
-    BuildContext blocContext,
-    bool onHover,
-    ViewState state,
+    final BuildContext blocContext,
+    final bool onHover,
+    final ViewState state,
   ) {
-    List<Widget> children = [
+    final List<Widget> children = [
       SizedBox(
         width: 16,
         height: 16,
@@ -92,15 +92,15 @@ class ViewSectionItem extends StatelessWidget {
     if (onHover || state.isEditing) {
       children.add(
         ViewDisclosureButton(
-          onEdit: (isEdit) =>
+          onEdit: (final isEdit) =>
               blocContext.read<ViewBloc>().add(ViewEvent.setIsEditing(isEdit)),
-          onAction: (action) {
+          onAction: (final action) {
             switch (action) {
               case ViewDisclosureAction.rename:
                 NavigatorTextFieldDialog(
                   title: LocaleKeys.disclosureAction_rename.tr(),
                   value: blocContext.read<ViewBloc>().state.view.name,
-                  confirm: (newValue) {
+                  confirm: (final newValue) {
                     blocContext
                         .read<ViewBloc>()
                         .add(ViewEvent.rename(newValue));
@@ -148,7 +148,7 @@ extension ViewDisclosureExtension on ViewDisclosureAction {
     }
   }
 
-  Widget icon(Color iconColor) {
+  Widget icon(final Color iconColor) {
     switch (this) {
       case ViewDisclosureAction.rename:
         return const FlowySvg(name: 'editor/edit');
@@ -166,17 +166,17 @@ class ViewDisclosureButton extends StatelessWidget {
   const ViewDisclosureButton({
     required this.onEdit,
     required this.onAction,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return PopoverActionList<ViewDisclosureActionWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,
       actions: ViewDisclosureAction.values
-          .map((action) => ViewDisclosureActionWrapper(action))
+          .map((final action) => ViewDisclosureActionWrapper(action))
           .toList(),
-      buildChild: (controller) {
+      buildChild: (final controller) {
         return FlowyIconButton(
           hoverColor: Colors.transparent,
           iconPadding: const EdgeInsets.all(5),
@@ -191,7 +191,7 @@ class ViewDisclosureButton extends StatelessWidget {
           },
         );
       },
-      onSelected: (action, controller) {
+      onSelected: (final action, final controller) {
         onEdit(false);
         onAction(action.inner);
         controller.close();
@@ -208,7 +208,7 @@ class ViewDisclosureActionWrapper extends ActionCell {
 
   ViewDisclosureActionWrapper(this.inner);
   @override
-  Widget? leftIcon(Color iconColor) => inner.icon(iconColor);
+  Widget? leftIcon(final Color iconColor) => inner.icon(iconColor);
 
   @override
   String get name => inner.name;

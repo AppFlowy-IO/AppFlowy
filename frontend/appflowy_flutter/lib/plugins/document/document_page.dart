@@ -19,7 +19,7 @@ class DocumentPage extends StatefulWidget {
   DocumentPage({
     required this.view,
     required this.onDeleted,
-    Key? key,
+    final Key? key,
   }) : super(key: ValueKey(view.id));
 
   @override
@@ -45,19 +45,19 @@ class _DocumentPageState extends State<DocumentPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider<DocumentBloc>.value(value: documentBloc),
       ],
       child: BlocBuilder<DocumentBloc, DocumentState>(
-        builder: (context, state) {
+        builder: (final context, final state) {
           return state.loadingState.map(
-            loading: (_) => SizedBox.expand(
+            loading: (final _) => SizedBox.expand(
               child: Container(color: Colors.transparent),
             ),
-            finish: (result) => result.successOrFail.fold(
-              (_) {
+            finish: (final result) => result.successOrFail.fold(
+              (final _) {
                 if (state.forceClose) {
                   widget.onDeleted();
                   return const SizedBox();
@@ -67,7 +67,7 @@ class _DocumentPageState extends State<DocumentPage> {
                   return _renderDocument(context, state);
                 }
               },
-              (err) => FlowyErrorPage(err.toString()),
+              (final err) => FlowyErrorPage(err.toString()),
             ),
           );
         },
@@ -75,7 +75,7 @@ class _DocumentPageState extends State<DocumentPage> {
     );
   }
 
-  Widget _renderDocument(BuildContext context, DocumentState state) {
+  Widget _renderDocument(final BuildContext context, final DocumentState state) {
     return Column(
       children: [
         if (state.isDeleted) _renderBanner(context),
@@ -85,7 +85,7 @@ class _DocumentPageState extends State<DocumentPage> {
     );
   }
 
-  Widget _renderBanner(BuildContext context) {
+  Widget _renderBanner(final BuildContext context) {
     return DocumentBanner(
       onRestore: () =>
           context.read<DocumentBloc>().add(const DocumentEvent.restorePage()),
@@ -98,7 +98,7 @@ class _DocumentPageState extends State<DocumentPage> {
 
 class _AppFlowyEditorPage extends StatefulWidget {
   const _AppFlowyEditorPage({
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -118,7 +118,7 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final theme = Theme.of(context);
     final autoFocusParameters = _autoFocusParameters();
     final editor = AppFlowyEditor(
@@ -240,7 +240,7 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
       return dartz.Tuple2(true, Selection.single(path: [0], startOffset: 0));
     }
     final texts = editorState.document.root.children.whereType<TextNode>();
-    if (texts.every((element) => element.toPlainText().isEmpty)) {
+    if (texts.every((final element) => element.toPlainText().isEmpty)) {
       return dartz.Tuple2(
         true,
         Selection.single(path: texts.first.path, startOffset: 0),

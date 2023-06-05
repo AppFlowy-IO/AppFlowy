@@ -10,7 +10,7 @@ class Debounce {
     this.duration = const Duration(milliseconds: 1000),
   });
 
-  void call(VoidCallback action) {
+  void call(final VoidCallback action) {
     dispose();
     _timer = Timer(duration, () {
       action();

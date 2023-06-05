@@ -6,7 +6,7 @@ import 'emoji_picker.dart';
 
 SelectionMenuItem emojiMenuItem = SelectionMenuItem(
   name: 'Emoji',
-  icon: (editorState, onSelected) => Icon(
+  icon: (final editorState, final onSelected) => Icon(
     Icons.emoji_emotions_outlined,
     color: onSelected
         ? editorState.editorStyle.selectionMenuItemSelectedIconColor
@@ -20,9 +20,9 @@ SelectionMenuItem emojiMenuItem = SelectionMenuItem(
 OverlayEntry? _emojiSelectionMenu;
 EditorState? _editorState;
 void _showEmojiSelectionMenu(
-  EditorState editorState,
-  SelectionMenuService menuService,
-  BuildContext context,
+  final EditorState editorState,
+  final SelectionMenuService menuService,
+  final BuildContext context,
 ) {
   final alignment = menuService.alignment;
   final offset = menuService.offset;
@@ -30,7 +30,7 @@ void _showEmojiSelectionMenu(
 
   _emojiSelectionMenu?.remove();
   _emojiSelectionMenu = OverlayEntry(
-    builder: (context) {
+    builder: (final context) {
       return Positioned(
         top: alignment == Alignment.bottomLeft ? offset.dy : null,
         bottom: alignment == Alignment.topLeft ? offset.dy : null,
@@ -38,7 +38,7 @@ void _showEmojiSelectionMenu(
         child: Material(
           child: EmojiSelectionMenu(
             editorState: editorState,
-            onSubmitted: (text) {
+            onSubmitted: (final text) {
               // insert emoji
               editorState.insertEmoji(text);
             },
@@ -71,7 +71,7 @@ void _dismissEmojiSelectionMenu() {
 
 class EmojiSelectionMenu extends StatefulWidget {
   const EmojiSelectionMenu({
-    Key? key,
+    final Key? key,
     required this.onSubmitted,
     required this.onExit,
     required this.editorState,
@@ -94,7 +94,7 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
     super.initState();
   }
 
-  bool _handleGlobalKeyEvent(KeyEvent event) {
+  bool _handleGlobalKeyEvent(final KeyEvent event) {
     if (event.logicalKey == LogicalKeyboardKey.escape &&
         event is KeyDownEvent) {
       //triggers on esc
@@ -117,7 +117,7 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Container(
       width: 300,
       padding: const EdgeInsets.all(8.0),
@@ -136,11 +136,11 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
     );
   }
 
-  Widget _buildEmojiBox(BuildContext context) {
+  Widget _buildEmojiBox(final BuildContext context) {
     return SizedBox(
       height: 200,
       child: EmojiPicker(
-        onEmojiSelected: (category, emoji) => widget.onSubmitted(emoji),
+        onEmojiSelected: (final category, final emoji) => widget.onSubmitted(emoji),
         config: Config(
           columns: 8,
           emojiSizeMax: 28,
@@ -159,7 +159,7 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
 }
 
 extension on EditorState {
-  void insertEmoji(Emoji emoji) {
+  void insertEmoji(final Emoji emoji) {
     final selectionService = service.selectionService;
     final currentSelection = selectionService.currentSelection.value;
     final nodes = selectionService.currentSelectedNodes;

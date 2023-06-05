@@ -23,8 +23,8 @@ class GridTextCell extends GridCellWidget {
   late final GridTextCellStyle? cellStyle;
   GridTextCell({
     required this.cellControllerBuilder,
-    GridCellStyle? style,
-    Key? key,
+    final GridCellStyle? style,
+    final Key? key,
   }) : super(key: key) {
     if (style != null) {
       cellStyle = (style as GridTextCellStyle);
@@ -52,11 +52,11 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocListener<TextCellBloc, TextCellState>(
-        listener: (context, state) {
+        listener: (final context, final state) {
           if (_controller.text != state.content) {
             _controller.text = state.content;
           }
@@ -98,7 +98,7 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
   String? onCopy() => _cellBloc.state.content;
 
   @override
-  void onInsert(String value) {
+  void onInsert(final String value) {
     _cellBloc.add(TextCellEvent.updateText(value));
   }
 

@@ -7,7 +7,7 @@ import 'package:appflowy/startup/plugin/plugin.dart';
 
 class BlankPluginBuilder extends PluginBuilder {
   @override
-  Plugin build(dynamic data) {
+  Plugin build(final dynamic data) {
     return BlankPagePlugin();
   }
 
@@ -42,14 +42,14 @@ class BlankPagePluginDisplay extends PluginDisplay with NavigationItem {
   Widget get leftBarItem => FlowyText.medium(LocaleKeys.blankPageTitle.tr());
 
   @override
-  Widget buildWidget(PluginContext context) => const BlankPage();
+  Widget buildWidget(final PluginContext context) => const BlankPage();
 
   @override
   List<NavigationItem> get navigationItems => [this];
 }
 
 class BlankPage extends StatefulWidget {
-  const BlankPage({Key? key}) : super(key: key);
+  const BlankPage({final Key? key}) : super(key: key);
 
   @override
   State<BlankPage> createState() => _BlankPageState();
@@ -57,7 +57,7 @@ class BlankPage extends StatefulWidget {
 
 class _BlankPageState extends State<BlankPage> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox.expand(
       child: Container(
         color: Theme.of(context).colorScheme.surface,

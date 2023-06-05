@@ -10,15 +10,15 @@ typedef SelectFieldCallback = void Function(FieldType);
 
 class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {
   final SelectFieldCallback onSelectField;
-  const FieldTypeList({required this.onSelectField, Key? key})
+  const FieldTypeList({required this.onSelectField, final Key? key})
       : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final cells = FieldType.values.map((fieldType) {
+  Widget build(final BuildContext context) {
+    final cells = FieldType.values.map((final fieldType) {
       return FieldTypeCell(
         fieldType: fieldType,
-        onSelectField: (fieldType) {
+        onSelectField: (final fieldType) {
           onSelectField(fieldType);
           PopoverContainer.of(context).closeAll();
         },
@@ -31,11 +31,11 @@ class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {
         shrinkWrap: true,
         controller: ScrollController(),
         itemCount: cells.length,
-        separatorBuilder: (context, index) {
+        separatorBuilder: (final context, final index) {
           return VSpace(GridSize.typeOptionSeparatorHeight);
         },
         physics: StyledScrollPhysics(),
-        itemBuilder: (BuildContext context, int index) {
+        itemBuilder: (final BuildContext context, final int index) {
           return cells[index];
         },
       ),
@@ -49,11 +49,11 @@ class FieldTypeCell extends StatelessWidget {
   const FieldTypeCell({
     required this.fieldType,
     required this.onSelectField,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(

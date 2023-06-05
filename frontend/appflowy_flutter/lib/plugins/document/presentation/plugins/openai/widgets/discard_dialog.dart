@@ -16,7 +16,7 @@ class DiscardDialog extends StatelessWidget {
   final VoidCallback onCancel;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return NavigatorOkCancelDialog(
       message: LocaleKeys.document_plugins_discardResponse.tr(),
       okTitle: LocaleKeys.button_discard.tr(),

@@ -9,10 +9,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class GridAddRowButton extends StatelessWidget {
-  const GridAddRowButton({Key? key}) : super(key: key);
+  const GridAddRowButton({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FlowyButton(
       text: FlowyText.medium(
         LocaleKeys.grid_row_newRow.tr(),

@@ -22,10 +22,10 @@ class SelectOptionCardCell<CustomCardData>
 
   SelectOptionCardCell({
     required this.cellControllerBuilder,
-    required CustomCardData? cardData,
+    required final CustomCardData? cardData,
     this.renderHook,
     this.editableNotifier,
-    Key? key,
+    final Key? key,
   }) : super(key: key, cardData: cardData);
 
   @override
@@ -47,15 +47,15 @@ class _SelectOptionCardCellState extends State<SelectOptionCardCell> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<SelectOptionCardCellBloc, SelectOptionCardCellState>(
-        buildWhen: (previous, current) {
+        buildWhen: (final previous, final current) {
           return previous.selectedOptions != current.selectedOptions;
         },
-        builder: (context, state) {
-          Widget? custom = widget.renderHook?.call(
+        builder: (final context, final state) {
+          final Widget? custom = widget.renderHook?.call(
             state.selectedOptions,
             widget.cardData,
             context,
@@ -65,7 +65,7 @@ class _SelectOptionCardCellState extends State<SelectOptionCardCell> {
           }
 
           final children = state.selectedOptions.map(
-            (option) {
+            (final option) {
               final tag = SelectOptionTag.fromOption(
                 context: context,
                 option: option,
@@ -88,7 +88,7 @@ class _SelectOptionCardCellState extends State<SelectOptionCardCell> {
     );
   }
 
-  Widget _wrapPopover(Widget child) {
+  Widget _wrapPopover(final Widget child) {
     final constraints = BoxConstraints.loose(
       Size(
         SelectOptionCellEditor.editorPanelWidth,
@@ -99,7 +99,7 @@ class _SelectOptionCardCellState extends State<SelectOptionCardCell> {
       controller: _popover,
       constraints: constraints,
       direction: PopoverDirection.bottomWithLeftAligned,
-      popupBuilder: (BuildContext context) {
+      popupBuilder: (final BuildContext context) {
         return SelectOptionCellEditor(
           cellController: widget.cellControllerBuilder.build()
               as SelectOptionCellController,

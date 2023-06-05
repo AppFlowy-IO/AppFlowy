@@ -9,26 +9,26 @@ part 'date_bloc.freezed.dart';
 
 class DateTypeOptionBloc
     extends Bloc<DateTypeOptionEvent, DateTypeOptionState> {
-  DateTypeOptionBloc({required DateTypeOptionContext typeOptionContext})
+  DateTypeOptionBloc({required final DateTypeOptionContext typeOptionContext})
       : super(DateTypeOptionState.initial(typeOptionContext.typeOption)) {
     on<DateTypeOptionEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.map(
-          didSelectDateFormat: (_DidSelectDateFormat value) {
+          didSelectDateFormat: (final _DidSelectDateFormat value) {
             emit(
               state.copyWith(
                 typeOption: _updateTypeOption(dateFormat: value.format),
               ),
             );
           },
-          didSelectTimeFormat: (_DidSelectTimeFormat value) {
+          didSelectTimeFormat: (final _DidSelectTimeFormat value) {
             emit(
               state.copyWith(
                 typeOption: _updateTypeOption(timeFormat: value.format),
               ),
             );
           },
-          includeTime: (_IncludeTime value) {
+          includeTime: (final _IncludeTime value) {
             emit(
               state.copyWith(
                 typeOption: _updateTypeOption(includeTime: value.includeTime),
@@ -41,12 +41,12 @@ class DateTypeOptionBloc
   }
 
   DateTypeOptionPB _updateTypeOption({
-    DateFormat? dateFormat,
-    TimeFormat? timeFormat,
-    bool? includeTime,
+    final DateFormat? dateFormat,
+    final TimeFormat? timeFormat,
+    final bool? includeTime,
   }) {
     state.typeOption.freeze();
-    return state.typeOption.rebuild((typeOption) {
+    return state.typeOption.rebuild((final typeOption) {
       if (dateFormat != null) {
         typeOption.dateFormat = dateFormat;
       }
@@ -64,20 +64,20 @@ class DateTypeOptionBloc
 
 @freezed
 class DateTypeOptionEvent with _$DateTypeOptionEvent {
-  const factory DateTypeOptionEvent.didSelectDateFormat(DateFormat format) =
+  const factory DateTypeOptionEvent.didSelectDateFormat(final DateFormat format) =
       _DidSelectDateFormat;
-  const factory DateTypeOptionEvent.didSelectTimeFormat(TimeFormat format) =
+  const factory DateTypeOptionEvent.didSelectTimeFormat(final TimeFormat format) =
       _DidSelectTimeFormat;
-  const factory DateTypeOptionEvent.includeTime(bool includeTime) =
+  const factory DateTypeOptionEvent.includeTime(final bool includeTime) =
       _IncludeTime;
 }
 
 @freezed
 class DateTypeOptionState with _$DateTypeOptionState {
   const factory DateTypeOptionState({
-    required DateTypeOptionPB typeOption,
+    required final DateTypeOptionPB typeOption,
   }) = _DateTypeOptionState;
 
-  factory DateTypeOptionState.initial(DateTypeOptionPB typeOption) =>
+  factory DateTypeOptionState.initial(final DateTypeOptionPB typeOption) =>
       DateTypeOptionState(typeOption: typeOption);
 }

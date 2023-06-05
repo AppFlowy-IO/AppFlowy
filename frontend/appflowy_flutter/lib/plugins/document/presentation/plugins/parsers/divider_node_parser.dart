@@ -7,7 +7,7 @@ class DividerNodeParser extends NodeParser {
   String get id => 'divider';
 
   @override
-  String transform(Node node) {
+  String transform(final Node node) {
     return '---\n';
   }
 }

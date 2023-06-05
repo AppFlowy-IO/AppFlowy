@@ -14,13 +14,13 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
 class MenuTrash extends StatelessWidget {
-  const MenuTrash({Key? key}) : super(key: key);
+  const MenuTrash({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: getIt<MenuSharedState>().notifier,
-      builder: (context, value, child) {
+      builder: (final context, final value, final child) {
         return FlowyHover(
           style: HoverStyle(
             hoverColor: AFThemeExtension.of(context).greySelect,
@@ -42,7 +42,7 @@ class MenuTrash extends StatelessWidget {
     );
   }
 
-  Widget _render(BuildContext context) {
+  Widget _render(final BuildContext context) {
     return Row(
       children: [
         const FlowySvg(

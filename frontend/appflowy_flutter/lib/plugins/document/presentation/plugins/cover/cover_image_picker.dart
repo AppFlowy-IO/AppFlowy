@@ -29,12 +29,12 @@ class CoverImagePicker extends StatefulWidget {
 
 class _CoverImagePickerState extends State<CoverImagePicker> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) => CoverImagePickerBloc()
+      create: (final context) => CoverImagePickerBloc()
         ..add(const CoverImagePickerEvent.initialEvent()),
       child: BlocListener<CoverImagePickerBloc, CoverImagePickerState>(
-        listener: (context, state) {
+        listener: (final context, final state) {
           if (state is NetworkImagePicked) {
             state.successOrFail.isRight()
                 ? showSnapBar(
@@ -45,8 +45,8 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
           }
           if (state is Done) {
             state.successOrFail.fold(
-              (l) => widget.onFileSubmit(l),
-              (r) => showSnapBar(
+              (final l) => widget.onFileSubmit(l),
+              (final r) => showSnapBar(
                 context,
                 LocaleKeys.document_plugins_cover_failedToAddImageToGallery
                     .tr(),
@@ -55,7 +55,7 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
           }
         },
         child: BlocBuilder<CoverImagePickerBloc, CoverImagePickerState>(
-          builder: (context, state) {
+          builder: (final context, final state) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -71,7 +71,7 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
                   height: 10,
                 ),
                 NetworkImageUrlInput(
-                  onAdd: (url) {
+                  onAdd: (final url) {
                     context.read<CoverImagePickerBloc>().add(UrlSubmit(url));
                   },
                 ),
@@ -122,7 +122,7 @@ class _NetworkImageUrlInputState extends State<NetworkImageUrlInput> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Row(
       children: [
         Expanded(
@@ -168,7 +168,7 @@ class ImagePickerActionButtons extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -203,7 +203,7 @@ class CoverImagePreviewWidget extends StatefulWidget {
 }
 
 class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
-  _buildFilePickerWidget(BuildContext ctx) {
+  _buildFilePickerWidget(final BuildContext ctx) {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
@@ -262,7 +262,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
     );
   }
 
-  _buildImageDeleteButton(BuildContext ctx) {
+  _buildImageDeleteButton(final BuildContext ctx) {
     return Positioned(
       right: 10,
       top: 10,
@@ -285,7 +285,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Stack(
       children: [
         Container(
@@ -298,11 +298,11 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
                 ? null
                 : widget.state is NetworkImagePicked
                     ? widget.state.successOrFail.fold(
-                        (path) => DecorationImage(
+                        (final path) => DecorationImage(
                           image: NetworkImage(path),
                           fit: BoxFit.cover,
                         ),
-                        (r) => null,
+                        (final r) => null,
                       )
                     : widget.state is FileImagePicked
                         ? DecorationImage(
@@ -315,8 +315,8 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
               ? _buildFilePickerWidget(context)
               : (widget.state is NetworkImagePicked)
                   ? widget.state.successOrFail.fold(
-                      (l) => null,
-                      (r) => _buildFilePickerWidget(
+                      (final l) => null,
+                      (final r) => _buildFilePickerWidget(
                         context,
                       ),
                     )
@@ -326,8 +326,8 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
             ? _buildImageDeleteButton(context)
             : (widget.state is NetworkImagePicked)
                 ? widget.state.successOrFail.fold(
-                    (l) => _buildImageDeleteButton(context),
-                    (r) => Container(),
+                    (final l) => _buildImageDeleteButton(context),
+                    (final r) => Container(),
                   )
                 : Container()
       ],

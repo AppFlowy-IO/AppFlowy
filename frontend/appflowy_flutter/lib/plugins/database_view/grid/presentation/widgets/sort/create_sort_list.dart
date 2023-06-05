@@ -25,7 +25,7 @@ class GridCreateSortList extends StatefulWidget {
     required this.fieldController,
     required this.onClosed,
     this.onCreateSort,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -45,28 +45,28 @@ class _GridCreateSortListState extends State<GridCreateSortList> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: editBloc,
       child: BlocListener<CreateSortBloc, CreateSortState>(
-        listener: (context, state) {
+        listener: (final context, final state) {
           if (state.didCreateSort) {
             widget.onClosed();
           }
         },
         child: BlocBuilder<CreateSortBloc, CreateSortState>(
-          builder: (context, state) {
-            final cells = state.creatableFields.map((fieldInfo) {
+          builder: (final context, final state) {
+            final cells = state.creatableFields.map((final fieldInfo) {
               return SizedBox(
                 height: GridSize.popoverItemHeight,
                 child: _SortPropertyCell(
                   fieldInfo: fieldInfo,
-                  onTap: (fieldInfo) => createSort(fieldInfo),
+                  onTap: (final fieldInfo) => createSort(fieldInfo),
                 ),
               );
             }).toList();
 
-            List<Widget> slivers = [
+            final List<Widget> slivers = [
               SliverPersistentHeader(
                 pinned: true,
                 delegate: _FilterTextFieldDelegate(),
@@ -76,10 +76,11 @@ class _GridCreateSortListState extends State<GridCreateSortList> {
                   controller: ScrollController(),
                   shrinkWrap: true,
                   itemCount: cells.length,
-                  itemBuilder: (BuildContext context, int index) {
+                  itemBuilder: (final BuildContext context, final int index) {
                     return cells[index];
                   },
-                  separatorBuilder: (BuildContext context, int index) {
+                  separatorBuilder:
+                      (final BuildContext context, final int index) {
                     return VSpace(GridSize.typeOptionSeparatorHeight);
                   },
                 ),
@@ -103,7 +104,7 @@ class _GridCreateSortListState extends State<GridCreateSortList> {
     super.dispose();
   }
 
-  void createSort(FieldInfo field) {
+  void createSort(final FieldInfo field) {
     editBloc.add(CreateSortEvent.createDefaultSort(field));
     widget.onCreateSort?.call();
   }
@@ -116,16 +117,16 @@ class _FilterTextFieldDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
+    final BuildContext context,
+    final double shrinkOffset,
+    final bool overlapsContent,
   ) {
     return Container(
       padding: const EdgeInsets.only(top: 4),
       height: fixHeight,
       child: FlowyTextField(
         hintText: LocaleKeys.grid_settings_sortBy.tr(),
-        onChanged: (text) {
+        onChanged: (final text) {
           context
               .read<CreateSortBloc>()
               .add(CreateSortEvent.didReceiveFilterText(text));
@@ -141,7 +142,9 @@ class _FilterTextFieldDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent => fixHeight;
 
   @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
+  bool shouldRebuild(
+    covariant final SliverPersistentHeaderDelegate oldDelegate,
+  ) {
     return false;
   }
 }
@@ -152,11 +155,11 @@ class _SortPropertyCell extends StatelessWidget {
   const _SortPropertyCell({
     required this.fieldInfo,
     required this.onTap,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FlowyButton(
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       text: FlowyText.medium(

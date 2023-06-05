@@ -14,12 +14,12 @@ class NumberCardCellBloc
     required this.cellController,
   }) : super(NumberCardCellState.initial(cellController)) {
     on<NumberCardCellEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.when(
           initial: () async {
             _startListening();
           },
-          didReceiveCellUpdate: (content) {
+          didReceiveCellUpdate: (final content) {
             emit(state.copyWith(content: content));
           },
         );
@@ -39,7 +39,7 @@ class NumberCardCellBloc
 
   void _startListening() {
     _onCellChangedFn = cellController.startListening(
-      onCellChanged: ((cellContent) {
+      onCellChanged: ((final cellContent) {
         if (!isClosed) {
           add(NumberCardCellEvent.didReceiveCellUpdate(cellContent ?? ""));
         }
@@ -51,17 +51,17 @@ class NumberCardCellBloc
 @freezed
 class NumberCardCellEvent with _$NumberCardCellEvent {
   const factory NumberCardCellEvent.initial() = _InitialCell;
-  const factory NumberCardCellEvent.didReceiveCellUpdate(String cellContent) =
+  const factory NumberCardCellEvent.didReceiveCellUpdate(final String cellContent) =
       _DidReceiveCellUpdate;
 }
 
 @freezed
 class NumberCardCellState with _$NumberCardCellState {
   const factory NumberCardCellState({
-    required String content,
+    required final String content,
   }) = _NumberCardCellState;
 
-  factory NumberCardCellState.initial(TextCellController context) =>
+  factory NumberCardCellState.initial(final TextCellController context) =>
       NumberCardCellState(
         content: context.getCellData() ?? "",
       );

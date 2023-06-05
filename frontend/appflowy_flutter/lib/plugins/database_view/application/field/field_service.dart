@@ -17,7 +17,7 @@ class FieldBackendService {
 
   FieldBackendService({required this.viewId, required this.fieldId});
 
-  Future<Either<Unit, FlowyError>> moveField(int fromIndex, int toIndex) {
+  Future<Either<Unit, FlowyError>> moveField(final int fromIndex, final int toIndex) {
     final payload = MoveFieldPayloadPB.create()
       ..viewId = viewId
       ..fieldId = fieldId
@@ -28,13 +28,13 @@ class FieldBackendService {
   }
 
   Future<Either<Unit, FlowyError>> updateField({
-    String? name,
-    FieldType? fieldType,
-    bool? frozen,
-    bool? visibility,
-    double? width,
+    final String? name,
+    final FieldType? fieldType,
+    final bool? frozen,
+    final bool? visibility,
+    final double? width,
   }) {
-    var payload = FieldChangesetPB.create()
+    final payload = FieldChangesetPB.create()
       ..viewId = viewId
       ..fieldId = fieldId;
 
@@ -62,11 +62,11 @@ class FieldBackendService {
   }
 
   static Future<Either<Unit, FlowyError>> updateFieldTypeOption({
-    required String viewId,
-    required String fieldId,
-    required List<int> typeOptionData,
+    required final String viewId,
+    required final String fieldId,
+    required final List<int> typeOptionData,
   }) {
-    var payload = TypeOptionChangesetPB.create()
+    final payload = TypeOptionChangesetPB.create()
       ..viewId = viewId
       ..fieldId = fieldId
       ..typeOptionData = typeOptionData;
@@ -91,16 +91,16 @@ class FieldBackendService {
   }
 
   Future<Either<TypeOptionPB, FlowyError>> getFieldTypeOptionData({
-    required FieldType fieldType,
+    required final FieldType fieldType,
   }) {
     final payload = TypeOptionPathPB.create()
       ..viewId = viewId
       ..fieldId = fieldId
       ..fieldType = fieldType;
-    return DatabaseEventGetTypeOption(payload).send().then((result) {
+    return DatabaseEventGetTypeOption(payload).send().then((final result) {
       return result.fold(
-        (data) => left(data),
-        (err) => right(err),
+        (final data) => left(data),
+        (final err) => right(err),
       );
     });
   }
@@ -109,7 +109,7 @@ class FieldBackendService {
 @freezed
 class FieldCellContext with _$FieldCellContext {
   const factory FieldCellContext({
-    required String viewId,
-    required FieldPB field,
+    required final String viewId,
+    required final FieldPB field,
   }) = _FieldCellContext;
 }

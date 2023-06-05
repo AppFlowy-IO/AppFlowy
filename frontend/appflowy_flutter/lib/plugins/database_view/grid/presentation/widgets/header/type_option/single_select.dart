@@ -10,8 +10,8 @@ class SingleSelectTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
   final SingleSelectTypeOptionWidget _widget;
 
   SingleSelectTypeOptionWidgetBuilder(
-    SingleSelectTypeOptionContext singleSelectTypeOption,
-    PopoverMutex popoverMutex,
+    final SingleSelectTypeOptionContext singleSelectTypeOption,
+    final PopoverMutex popoverMutex,
   ) : _widget = SingleSelectTypeOptionWidget(
           selectOptionAction: SingleSelectAction(
             fieldId: singleSelectTypeOption.fieldId,
@@ -22,7 +22,7 @@ class SingleSelectTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
         );
 
   @override
-  Widget? build(BuildContext context) => _widget;
+  Widget? build(final BuildContext context) => _widget;
 }
 
 class SingleSelectTypeOptionWidget extends TypeOptionWidget {
@@ -30,13 +30,13 @@ class SingleSelectTypeOptionWidget extends TypeOptionWidget {
   final PopoverMutex? popoverMutex;
 
   const SingleSelectTypeOptionWidget({
-    Key? key,
+    final Key? key,
     required this.selectOptionAction,
     this.popoverMutex,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SelectOptionTypeOptionWidget(
       options: selectOptionAction.typeOption.options,
       beginEdit: () {

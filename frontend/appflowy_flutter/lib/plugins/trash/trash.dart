@@ -13,7 +13,7 @@ import 'trash_page.dart';
 
 class TrashPluginBuilder extends PluginBuilder {
   @override
-  Plugin build(dynamic data) {
+  Plugin build(final dynamic data) {
     return TrashPlugin(pluginType: pluginType);
   }
 
@@ -35,7 +35,7 @@ class TrashPluginConfig implements PluginConfig {
 class TrashPlugin extends Plugin {
   final PluginType _pluginType;
 
-  TrashPlugin({required PluginType pluginType}) : _pluginType = pluginType;
+  TrashPlugin({required final PluginType pluginType}) : _pluginType = pluginType;
 
   @override
   PluginDisplay get display => TrashPluginDisplay();
@@ -55,7 +55,7 @@ class TrashPluginDisplay extends PluginDisplay {
   Widget? get rightBarItem => null;
 
   @override
-  Widget buildWidget(PluginContext context) => const TrashPage(
+  Widget buildWidget(final PluginContext context) => const TrashPage(
         key: ValueKey('TrashPage'),
       );
 

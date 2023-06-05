@@ -17,13 +17,13 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   final RowController _dataController;
 
   RowBloc({
-    required RowInfo rowInfo,
-    required RowController dataController,
+    required final RowInfo rowInfo,
+    required final RowController dataController,
   })  : _rowBackendSvc = RowBackendService(viewId: rowInfo.viewId),
         _dataController = dataController,
         super(RowState.initial(rowInfo, dataController.loadData())) {
     on<RowEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.when(
           initial: () async {
             await _startListening();
@@ -31,9 +31,9 @@ class RowBloc extends Bloc<RowEvent, RowState> {
           createRow: () {
             _rowBackendSvc.createRow(rowInfo.rowPB.id);
           },
-          didReceiveCells: (cellByFieldId, reason) async {
+          didReceiveCells: (final cellByFieldId, final reason) async {
             final cells = cellByFieldId.values
-                .map((e) => GridCellEquatable(e.fieldInfo))
+                .map((final e) => GridCellEquatable(e.fieldInfo))
                 .toList();
             emit(
               state.copyWith(
@@ -56,7 +56,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 
   Future<void> _startListening() async {
     _dataController.addListener(
-      onRowChanged: (cells, reason) {
+      onRowChanged: (final cells, final reason) {
         if (!isClosed) {
           add(RowEvent.didReceiveCells(cells, reason));
         }
@@ -70,27 +70,27 @@ class RowEvent with _$RowEvent {
   const factory RowEvent.initial() = _InitialRow;
   const factory RowEvent.createRow() = _CreateRow;
   const factory RowEvent.didReceiveCells(
-    CellByFieldId cellsByFieldId,
-    RowsChangedReason reason,
+    final CellByFieldId cellsByFieldId,
+    final RowsChangedReason reason,
   ) = _DidReceiveCells;
 }
 
 @freezed
 class RowState with _$RowState {
   const factory RowState({
-    required RowInfo rowInfo,
-    required CellByFieldId cellByFieldId,
-    required UnmodifiableListView<GridCellEquatable> cells,
-    RowsChangedReason? changeReason,
+    required final RowInfo rowInfo,
+    required final CellByFieldId cellByFieldId,
+    required final UnmodifiableListView<GridCellEquatable> cells,
+    final RowsChangedReason? changeReason,
   }) = _RowState;
 
-  factory RowState.initial(RowInfo rowInfo, CellByFieldId cellByFieldId) =>
+  factory RowState.initial(final RowInfo rowInfo, final CellByFieldId cellByFieldId) =>
       RowState(
         rowInfo: rowInfo,
         cellByFieldId: cellByFieldId,
         cells: UnmodifiableListView(
           cellByFieldId.values
-              .map((e) => GridCellEquatable(e.fieldInfo))
+              .map((final e) => GridCellEquatable(e.fieldInfo))
               .toList(),
         ),
       );
@@ -99,7 +99,7 @@ class RowState with _$RowState {
 class GridCellEquatable extends Equatable {
   final FieldInfo _fieldContext;
 
-  const GridCellEquatable(FieldInfo field) : _fieldContext = field;
+  const GridCellEquatable(final FieldInfo field) : _fieldContext = field;
 
   @override
   List<Object?> get props => [

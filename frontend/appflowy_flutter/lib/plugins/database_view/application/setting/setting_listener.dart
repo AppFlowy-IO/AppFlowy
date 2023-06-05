@@ -18,21 +18,21 @@ class DatabaseSettingListener {
   DatabaseSettingListener({required this.viewId});
 
   void start({
-    required void Function(UpdateSettingNotifiedValue) onSettingUpdated,
+    required final void Function(UpdateSettingNotifiedValue) onSettingUpdated,
   }) {
     _updateSettingNotifier?.addPublishListener(onSettingUpdated);
     _listener =
         DatabaseNotificationListener(objectId: viewId, handler: _handler);
   }
 
-  void _handler(DatabaseNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handler(final DatabaseNotification ty, final Either<Uint8List, FlowyError> result) {
     switch (ty) {
       case DatabaseNotification.DidUpdateSettings:
         result.fold(
-          (payload) => _updateSettingNotifier?.value = left(
+          (final payload) => _updateSettingNotifier?.value = left(
             DatabaseViewSettingPB.fromBuffer(payload),
           ),
-          (error) => _updateSettingNotifier?.value = right(error),
+          (final error) => _updateSettingNotifier?.value = right(error),
         );
         break;
       default:

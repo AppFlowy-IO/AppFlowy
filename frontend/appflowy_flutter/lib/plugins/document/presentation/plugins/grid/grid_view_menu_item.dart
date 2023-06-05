@@ -8,10 +8,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
 
-SelectionMenuItem gridViewMenuItem(DocumentBloc documentBloc) =>
+SelectionMenuItem gridViewMenuItem(final DocumentBloc documentBloc) =>
     SelectionMenuItem(
       name: LocaleKeys.document_slashMenu_grid_createANewGrid.tr(),
-      icon: (editorState, onSelected) {
+      icon: (final editorState, final onSelected) {
         return svgWidget(
           'editor/grid',
           size: const Size.square(18.0),
@@ -21,7 +21,7 @@ SelectionMenuItem gridViewMenuItem(DocumentBloc documentBloc) =>
         );
       },
       keywords: ['grid'],
-      handler: (editorState, menuService, context) async {
+      handler: (final editorState, final menuService, final context) async {
         if (!documentBloc.view.hasAppId()) {
           return;
         }

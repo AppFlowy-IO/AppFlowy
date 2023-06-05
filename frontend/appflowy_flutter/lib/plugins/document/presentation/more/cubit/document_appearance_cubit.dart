@@ -12,7 +12,7 @@ class DocumentAppearance {
   // Will be supported...
   // final String fontName;
 
-  DocumentAppearance copyWith({double? fontSize}) {
+  DocumentAppearance copyWith({final double? fontSize}) {
     return DocumentAppearance(
       fontSize: fontSize ?? this.fontSize,
     );
@@ -32,7 +32,7 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
     );
   }
 
-  void syncFontSize(double fontSize) async {
+  void syncFontSize(final double fontSize) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setDouble(_kDocumentAppearanceFontSize, fontSize);
     emit(

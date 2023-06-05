@@ -29,7 +29,7 @@ import 'toolbar/board_toolbar.dart';
 class BoardPage extends StatelessWidget {
   BoardPage({
     required this.view,
-    Key? key,
+    final Key? key,
     this.onEditStateChanged,
   }) : super(key: ValueKey(view.id));
 
@@ -39,22 +39,22 @@ class BoardPage extends StatelessWidget {
   final VoidCallback? onEditStateChanged;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) =>
+      create: (final context) =>
           BoardBloc(view: view)..add(const BoardEvent.initial()),
       child: BlocBuilder<BoardBloc, BoardState>(
-        buildWhen: (p, c) => p.loadingState != c.loadingState,
-        builder: (context, state) {
+        buildWhen: (final p, final c) => p.loadingState != c.loadingState,
+        builder: (final context, final state) {
           return state.loadingState.map(
-            loading: (_) =>
+            loading: (final _) =>
                 const Center(child: CircularProgressIndicator.adaptive()),
-            finish: (result) {
+            finish: (final result) {
               return result.successOrFail.fold(
-                (_) => BoardContent(
+                (final _) => BoardContent(
                   onEditStateChanged: onEditStateChanged,
                 ),
-                (err) => FlowyErrorPage(err.toString()),
+                (final err) => FlowyErrorPage(err.toString()),
               );
             },
           );
@@ -66,7 +66,7 @@ class BoardPage extends StatelessWidget {
 
 class BoardContent extends StatefulWidget {
   const BoardContent({
-    Key? key,
+    final Key? key,
     this.onEditStateChanged,
   }) : super(key: key);
 
@@ -87,10 +87,10 @@ class _BoardContentState extends State<BoardContent> {
   @override
   void initState() {
     scrollManager = AppFlowyBoardScrollController();
-    renderHook.addSelectOptionHook((options, groupId, _) {
+    renderHook.addSelectOptionHook((final options, final groupId, final _) {
       // The cell should hide if the option id is equal to the groupId.
       final isInGroup =
-          options.where((element) => element.id == groupId).isNotEmpty;
+          options.where((final element) => element.id == groupId).isNotEmpty;
       if (isInGroup || options.isEmpty) {
         return const SizedBox();
       }
@@ -101,15 +101,15 @@ class _BoardContentState extends State<BoardContent> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocListener<BoardBloc, BoardState>(
-      listener: (context, state) {
+      listener: (final context, final state) {
         _handleEditStateChanged(state, context);
         widget.onEditStateChanged?.call();
       },
       child: BlocBuilder<BoardBloc, BoardState>(
-        buildWhen: (previous, current) => previous.groupIds != current.groupIds,
-        builder: (context, state) {
+        buildWhen: (final previous, final current) => previous.groupIds != current.groupIds,
+        builder: (final context, final state) {
           final column = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [const _ToolbarBlocAdaptor(), _buildBoard(context)],
@@ -124,7 +124,7 @@ class _BoardContentState extends State<BoardContent> {
     );
   }
 
-  Widget _buildBoard(BuildContext context) {
+  Widget _buildBoard(final BuildContext context) {
     return Expanded(
       child: AppFlowyBoard(
         boardScrollController: scrollManager,
@@ -132,7 +132,7 @@ class _BoardContentState extends State<BoardContent> {
         controller: context.read<BoardBloc>().boardController,
         headerBuilder: _buildHeader,
         footerBuilder: _buildFooter,
-        cardBuilder: (_, column, columnItem) => _buildCard(
+        cardBuilder: (final _, final column, final columnItem) => _buildCard(
           context,
           column,
           columnItem,
@@ -145,11 +145,11 @@ class _BoardContentState extends State<BoardContent> {
     );
   }
 
-  void _handleEditStateChanged(BoardState state, BuildContext context) {
+  void _handleEditStateChanged(final BoardState state, final BuildContext context) {
     state.editingRow.fold(
       () => null,
-      (editingRow) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+      (final editingRow) {
+        WidgetsBinding.instance.addPostFrameCallback((final _) {
           if (editingRow.index != null) {
           } else {
             scrollManager.scrollToBottom(editingRow.group.groupId);
@@ -165,8 +165,8 @@ class _BoardContentState extends State<BoardContent> {
   }
 
   Widget _buildHeader(
-    BuildContext context,
-    AppFlowyGroupData groupData,
+    final BuildContext context,
+    final AppFlowyGroupData groupData,
   ) {
     final boardCustomData = groupData.customData as GroupData;
     return AppFlowyGroupHeader(
@@ -197,7 +197,7 @@ class _BoardContentState extends State<BoardContent> {
     );
   }
 
-  Widget _buildFooter(BuildContext context, AppFlowyGroupData columnData) {
+  Widget _buildFooter(final BuildContext context, final AppFlowyGroupData columnData) {
     // final boardCustomData = columnData.customData as BoardCustomData;
     // final group = boardCustomData.group;
 
@@ -225,9 +225,9 @@ class _BoardContentState extends State<BoardContent> {
   }
 
   Widget _buildCard(
-    BuildContext context,
-    AppFlowyGroupData afGroupData,
-    AppFlowyGroupItem afGroupItem,
+    final BuildContext context,
+    final AppFlowyGroupData afGroupData,
+    final AppFlowyGroupItem afGroupItem,
   ) {
     final groupItem = afGroupItem as GroupItem;
     final groupData = afGroupData.customData as GroupData;
@@ -244,7 +244,7 @@ class _BoardContentState extends State<BoardContent> {
     bool isEditing = false;
     context.read<BoardBloc>().state.editingRow.fold(
       () => null,
-      (editingRow) {
+      (final editingRow) {
         isEditing = editingRow.row.id == groupItem.row.id;
       },
     );
@@ -263,7 +263,7 @@ class _BoardContentState extends State<BoardContent> {
         isEditing: isEditing,
         cellBuilder: cellBuilder,
         renderHook: renderHook,
-        openCard: (context) => _openCard(
+        openCard: (final context) => _openCard(
           viewId,
           fieldController,
           rowPB,
@@ -287,7 +287,7 @@ class _BoardContentState extends State<BoardContent> {
     );
   }
 
-  BoxDecoration _makeBoxDecoration(BuildContext context) {
+  BoxDecoration _makeBoxDecoration(final BuildContext context) {
     final borderSide = BorderSide(
       color: Theme.of(context).dividerColor,
       width: 1.0,
@@ -301,11 +301,11 @@ class _BoardContentState extends State<BoardContent> {
   }
 
   void _openCard(
-    String viewId,
-    FieldController fieldController,
-    RowPB rowPB,
-    RowCache rowCache,
-    BuildContext context,
+    final String viewId,
+    final FieldController fieldController,
+    final RowPB rowPB,
+    final RowCache rowCache,
+    final BuildContext context,
   ) {
     final rowInfo = RowInfo(
       viewId: viewId,
@@ -321,7 +321,7 @@ class _BoardContentState extends State<BoardContent> {
 
     FlowyOverlay.show(
       context: context,
-      builder: (BuildContext context) {
+      builder: (final BuildContext context) {
         return RowDetailPage(
           cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
           dataController: dataController,
@@ -332,12 +332,12 @@ class _BoardContentState extends State<BoardContent> {
 }
 
 class _ToolbarBlocAdaptor extends StatelessWidget {
-  const _ToolbarBlocAdaptor({Key? key}) : super(key: key);
+  const _ToolbarBlocAdaptor({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<BoardBloc, BoardState>(
-      builder: (context, state) {
+      builder: (final context, final state) {
         final bloc = context.read<BoardBloc>();
         final toolbarContext = BoardToolbarContext(
           viewId: bloc.viewId,
@@ -350,7 +350,7 @@ class _ToolbarBlocAdaptor extends StatelessWidget {
   }
 }
 
-Widget? _buildHeaderIcon(GroupData customData) {
+Widget? _buildHeaderIcon(final GroupData customData) {
   Widget? widget;
   switch (customData.fieldType) {
     case FieldType.Checkbox:

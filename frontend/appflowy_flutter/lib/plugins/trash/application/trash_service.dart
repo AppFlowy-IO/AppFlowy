@@ -9,16 +9,16 @@ class TrashService {
     return FolderEventReadTrash().send();
   }
 
-  Future<Either<Unit, FlowyError>> putback(String trashId) {
+  Future<Either<Unit, FlowyError>> putback(final String trashId) {
     final id = TrashIdPB.create()..id = trashId;
 
     return FolderEventPutbackTrash(id).send();
   }
 
   Future<Either<Unit, FlowyError>> deleteViews(
-    List<Tuple2<String, TrashType>> trashList,
+    final List<Tuple2<String, TrashType>> trashList,
   ) {
-    final items = trashList.map((trash) {
+    final items = trashList.map((final trash) {
       return TrashIdPB.create()
         ..id = trash.value1
         ..ty = trash.value2;

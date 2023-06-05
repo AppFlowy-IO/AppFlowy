@@ -14,7 +14,7 @@ class TypeOptionBackendService {
   });
 
   Future<Either<SelectOptionPB, FlowyError>> newOption({
-    required String name,
+    required final String name,
   }) {
     final payload = CreateSelectOptionPayloadPB.create()
       ..optionName = name

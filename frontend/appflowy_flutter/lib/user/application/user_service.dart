@@ -18,13 +18,13 @@ class UserBackendService {
   }
 
   Future<Either<Unit, FlowyError>> updateUserProfile({
-    String? name,
-    String? password,
-    String? email,
-    String? iconUrl,
-    String? openAIKey,
+    final String? name,
+    final String? password,
+    final String? email,
+    final String? iconUrl,
+    final String? openAIKey,
   }) {
-    var payload = UpdateUserProfilePayloadPB.create()..id = userId;
+    final payload = UpdateUserProfilePayloadPB.create()..id = userId;
 
     if (name != null) {
       payload.name = name;
@@ -50,7 +50,7 @@ class UserBackendService {
   }
 
   Future<Either<Unit, FlowyError>> deleteWorkspace({
-    required String workspaceId,
+    required final String workspaceId,
   }) {
     throw UnimplementedError();
   }
@@ -66,35 +66,35 @@ class UserBackendService {
   Future<Either<List<WorkspacePB>, FlowyError>> getWorkspaces() {
     final request = WorkspaceIdPB.create();
 
-    return FolderEventReadWorkspaces(request).send().then((result) {
+    return FolderEventReadWorkspaces(request).send().then((final result) {
       return result.fold(
-        (workspaces) => left(workspaces.items),
-        (error) => right(error),
+        (final workspaces) => left(workspaces.items),
+        (final error) => right(error),
       );
     });
   }
 
-  Future<Either<WorkspacePB, FlowyError>> openWorkspace(String workspaceId) {
+  Future<Either<WorkspacePB, FlowyError>> openWorkspace(final String workspaceId) {
     final request = WorkspaceIdPB.create()..value = workspaceId;
-    return FolderEventOpenWorkspace(request).send().then((result) {
+    return FolderEventOpenWorkspace(request).send().then((final result) {
       return result.fold(
-        (workspace) => left(workspace),
-        (error) => right(error),
+        (final workspace) => left(workspace),
+        (final error) => right(error),
       );
     });
   }
 
   Future<Either<WorkspacePB, FlowyError>> createWorkspace(
-    String name,
-    String desc,
+    final String name,
+    final String desc,
   ) {
     final request = CreateWorkspacePayloadPB.create()
       ..name = name
       ..desc = desc;
-    return FolderEventCreateWorkspace(request).send().then((result) {
+    return FolderEventCreateWorkspace(request).send().then((final result) {
       return result.fold(
-        (workspace) => left(workspace),
-        (error) => right(error),
+        (final workspace) => left(workspace),
+        (final error) => right(error),
       );
     });
   }

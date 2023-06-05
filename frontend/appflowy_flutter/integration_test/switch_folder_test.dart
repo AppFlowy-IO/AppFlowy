@@ -27,7 +27,7 @@ void main() {
 
     testWidgets(
         'customize folder name and path when launching app in first time',
-        (tester) async {
+        (final tester) async {
       const folderName = 'appflowy';
       await TestFolder.cleanTestLocation(folderName);
 
@@ -57,7 +57,7 @@ void main() {
     });
 
     testWidgets('open a new folder when launching app in first time',
-        (tester) async {
+        (final tester) async {
       const folderName = 'appflowy';
       await TestFolder.cleanTestLocation(folderName);
       await TestFolder.setTestLocation(folderName);
@@ -74,7 +74,8 @@ void main() {
       await TestFolder.cleanTestLocation(folderName);
     });
 
-    testWidgets('switch to B from A, then switch to A again', (tester) async {
+    testWidgets('switch to B from A, then switch to A again',
+        (final tester) async {
       const String userA = 'userA';
       const String userB = 'userB';
 
@@ -139,7 +140,7 @@ void main() {
       await TestFolder.cleanTestLocation(userB);
     });
 
-    testWidgets('reset to default location', (tester) async {
+    testWidgets('reset to default location', (final tester) async {
       await tester.initializeAppFlowy();
 
       await tester.tapGoButton();

@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 class ViewLeftBarItem extends StatefulWidget {
   final ViewPB view;
 
-  ViewLeftBarItem({required this.view, Key? key})
+  ViewLeftBarItem({required this.view, final Key? key})
       : super(key: ValueKey(view.hashCode));
 
   @override
@@ -28,14 +28,14 @@ class _ViewLeftBarItemState extends State<ViewLeftBarItem> {
     _focusNode.addListener(_handleFocusChanged);
     _viewListener = ViewListener(view: widget.view);
     _viewListener.start(
-      onViewUpdated: (result) {
+      onViewUpdated: (final result) {
         result.fold(
-          (updatedView) {
+          (final updatedView) {
             if (mounted) {
               setState(() => view = updatedView);
             }
           },
-          (err) => Log.error(err),
+          (final err) => Log.error(err),
         );
       },
     );
@@ -52,7 +52,7 @@ class _ViewLeftBarItemState extends State<ViewLeftBarItem> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     _controller.text = view.name;
 
     return IntrinsicWidth(

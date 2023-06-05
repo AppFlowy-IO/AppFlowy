@@ -9,7 +9,7 @@ class GridScrollController {
   final List<ScrollController> _linkHorizontalControllers = [];
 
   GridScrollController({
-    required LinkedScrollControllerGroup scrollGroupController,
+    required final LinkedScrollControllerGroup scrollGroupController,
   })  : _scrollGroupController = scrollGroupController,
         verticalController = ScrollController(),
         horizontalController = scrollGroupController.addAndGet();

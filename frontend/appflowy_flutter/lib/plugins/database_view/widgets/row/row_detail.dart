@@ -32,7 +32,7 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
   const RowDetailPage({
     required this.dataController,
     required this.cellBuilder,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -45,10 +45,10 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
 
 class _RowDetailPageState extends State<RowDetailPage> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FlowyDialog(
       child: BlocProvider(
-        create: (context) {
+        create: (final context) {
           return RowDetailBloc(dataController: widget.dataController)
             ..add(const RowDetailEvent.initial());
         },
@@ -121,28 +121,28 @@ class _PropertyColumn extends StatelessWidget {
   const _PropertyColumn({
     required this.viewId,
     required this.cellBuilder,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<RowDetailBloc, RowDetailState>(
-      buildWhen: (previous, current) => previous.gridCells != current.gridCells,
-      builder: (context, state) {
+      buildWhen: (final previous, final current) => previous.gridCells != current.gridCells,
+      builder: (final context, final state) {
         return Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _RowTitle(
               cellId: state.gridCells
-                  .firstWhereOrNull((e) => e.fieldInfo.isPrimary),
+                  .firstWhereOrNull((final e) => e.fieldInfo.isPrimary),
               cellBuilder: cellBuilder,
             ),
             const VSpace(20),
             ...state.gridCells
-                .where((element) => !element.fieldInfo.isPrimary)
+                .where((final element) => !element.fieldInfo.isPrimary)
                 .map(
-                  (cell) => Padding(
+                  (final cell) => Padding(
                     padding: const EdgeInsets.only(bottom: 4.0),
                     child: _PropertyCell(
                       cellId: cell,
@@ -163,11 +163,11 @@ class _PropertyColumn extends StatelessWidget {
 class _RowTitle extends StatelessWidget {
   final CellIdentifier? cellId;
   final GridCellBuilder cellBuilder;
-  const _RowTitle({this.cellId, required this.cellBuilder, Key? key})
+  const _RowTitle({this.cellId, required this.cellBuilder, final Key? key})
       : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     if (cellId == null) {
       return const SizedBox();
     }
@@ -185,7 +185,7 @@ class _CreatePropertyButton extends StatefulWidget {
 
   const _CreatePropertyButton({
     required this.viewId,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -202,7 +202,7 @@ class _CreatePropertyButtonState extends State<_CreatePropertyButton> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(240, 200)),
       controller: popoverController,
@@ -223,11 +223,11 @@ class _CreatePropertyButtonState extends State<_CreatePropertyButton> {
           ),
         ),
       ),
-      popupBuilder: (BuildContext popOverContext) {
+      popupBuilder: (final BuildContext popOverContext) {
         return FieldEditor(
           viewId: widget.viewId,
           typeOptionLoader: NewFieldTypeOptionLoader(viewId: widget.viewId),
-          onDeleted: (fieldId) {
+          onDeleted: (final fieldId) {
             popoverController.close();
 
             NavigatorAlertDialog(
@@ -251,7 +251,7 @@ class _PropertyCell extends StatefulWidget {
   const _PropertyCell({
     required this.cellId,
     required this.cellBuilder,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -262,7 +262,7 @@ class _PropertyCellState extends State<_PropertyCell> {
   final PopoverController popover = PopoverController();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final style = _customCellStyle(widget.cellId.fieldType);
     final cell = widget.cellBuilder.build(widget.cellId, style: style);
 
@@ -287,7 +287,7 @@ class _PropertyCellState extends State<_PropertyCell> {
               constraints: BoxConstraints.loose(const Size(240, 600)),
               margin: EdgeInsets.zero,
               triggerActions: PopoverTriggerFlags.none,
-              popupBuilder: (popoverContext) => buildFieldEditor(),
+              popupBuilder: (final popoverContext) => buildFieldEditor(),
               child: SizedBox(
                 width: 150,
                 child: FieldCellButton(
@@ -314,7 +314,7 @@ class _PropertyCellState extends State<_PropertyCell> {
         viewId: widget.cellId.viewId,
         field: widget.cellId.fieldInfo.field,
       ),
-      onDeleted: (fieldId) {
+      onDeleted: (final fieldId) {
         popover.close();
 
         NavigatorAlertDialog(
@@ -330,7 +330,7 @@ class _PropertyCellState extends State<_PropertyCell> {
   }
 }
 
-GridCellStyle? _customCellStyle(FieldType fieldType) {
+GridCellStyle? _customCellStyle(final FieldType fieldType) {
   switch (fieldType) {
     case FieldType.Checkbox:
       return null;
@@ -372,13 +372,13 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
 class _RowOptionColumn extends StatelessWidget {
   final String rowId;
   const _RowOptionColumn({
-    required String viewId,
+    required final String viewId,
     required this.rowId,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -397,10 +397,10 @@ class _RowOptionColumn extends StatelessWidget {
 
 class _DeleteButton extends StatelessWidget {
   final String rowId;
-  const _DeleteButton({required this.rowId, Key? key}) : super(key: key);
+  const _DeleteButton({required this.rowId, final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
@@ -417,10 +417,10 @@ class _DeleteButton extends StatelessWidget {
 
 class _DuplicateButton extends StatelessWidget {
   final String rowId;
-  const _DuplicateButton({required this.rowId, Key? key}) : super(key: key);
+  const _DuplicateButton({required this.rowId, final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(

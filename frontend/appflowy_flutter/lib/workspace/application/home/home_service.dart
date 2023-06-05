@@ -6,7 +6,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
 
 class HomeService {
-  Future<Either<AppPB, FlowyError>> readApp({required String appId}) {
+  Future<Either<AppPB, FlowyError>> readApp({required final String appId}) {
     final payload = AppIdPB.create()..value = appId;
 
     return FolderEventReadApp(payload).send();

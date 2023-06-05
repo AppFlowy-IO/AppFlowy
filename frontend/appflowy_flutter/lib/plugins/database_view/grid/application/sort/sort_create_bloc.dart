@@ -21,12 +21,12 @@ class CreateSortBloc extends Bloc<CreateSortEvent, CreateSortState> {
       : _sortBackendSvc = SortBackendService(viewId: viewId),
         super(CreateSortState.initial(fieldController.fieldInfos)) {
     on<CreateSortEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.when(
           initial: () async {
             _startListening();
           },
-          didReceiveFields: (List<FieldInfo> fields) {
+          didReceiveFields: (final List<FieldInfo> fields) {
             emit(
               state.copyWith(
                 allFields: fields,
@@ -34,7 +34,7 @@ class CreateSortBloc extends Bloc<CreateSortEvent, CreateSortState> {
               ),
             );
           },
-          didReceiveFilterText: (String text) {
+          didReceiveFilterText: (final String text) {
             emit(
               state.copyWith(
                 filterText: text,
@@ -42,7 +42,7 @@ class CreateSortBloc extends Bloc<CreateSortEvent, CreateSortState> {
               ),
             );
           },
-          createDefaultSort: (FieldInfo field) {
+          createDefaultSort: (final FieldInfo field) {
             emit(state.copyWith(didCreateSort: true));
             _createDefaultSort(field);
           },
@@ -52,12 +52,12 @@ class CreateSortBloc extends Bloc<CreateSortEvent, CreateSortState> {
   }
 
   List<FieldInfo> _filterFields(
-    List<FieldInfo> fields,
-    String filterText,
+    final List<FieldInfo> fields,
+    final String filterText,
   ) {
     final List<FieldInfo> allFields = List.from(fields);
     final keyword = filterText.toLowerCase();
-    allFields.retainWhere((field) {
+    allFields.retainWhere((final field) {
       if (!field.canCreateSort) {
         return false;
       }
@@ -73,14 +73,14 @@ class CreateSortBloc extends Bloc<CreateSortEvent, CreateSortState> {
   }
 
   void _startListening() {
-    _onFieldFn = (fields) {
-      fields.retainWhere((field) => field.canCreateSort);
+    _onFieldFn = (final fields) {
+      fields.retainWhere((final field) => field.canCreateSort);
       add(CreateSortEvent.didReceiveFields(fields));
     };
     fieldController.addListener(onReceiveFields: _onFieldFn);
   }
 
-  Future<Either<Unit, FlowyError>> _createDefaultSort(FieldInfo field) async {
+  Future<Either<Unit, FlowyError>> _createDefaultSort(final FieldInfo field) async {
     final result = await _sortBackendSvc.insertSort(
       fieldId: field.id,
       fieldType: field.fieldType,
@@ -103,26 +103,26 @@ class CreateSortBloc extends Bloc<CreateSortEvent, CreateSortState> {
 @freezed
 class CreateSortEvent with _$CreateSortEvent {
   const factory CreateSortEvent.initial() = _Initial;
-  const factory CreateSortEvent.didReceiveFields(List<FieldInfo> fields) =
+  const factory CreateSortEvent.didReceiveFields(final List<FieldInfo> fields) =
       _DidReceiveFields;
 
-  const factory CreateSortEvent.createDefaultSort(FieldInfo field) =
+  const factory CreateSortEvent.createDefaultSort(final FieldInfo field) =
       _CreateDefaultSort;
 
-  const factory CreateSortEvent.didReceiveFilterText(String text) =
+  const factory CreateSortEvent.didReceiveFilterText(final String text) =
       _DidReceiveFilterText;
 }
 
 @freezed
 class CreateSortState with _$CreateSortState {
   const factory CreateSortState({
-    required String filterText,
-    required List<FieldInfo> creatableFields,
-    required List<FieldInfo> allFields,
-    required bool didCreateSort,
+    required final String filterText,
+    required final List<FieldInfo> creatableFields,
+    required final List<FieldInfo> allFields,
+    required final bool didCreateSort,
   }) = _CreateSortState;
 
-  factory CreateSortState.initial(List<FieldInfo> fields) {
+  factory CreateSortState.initial(final List<FieldInfo> fields) {
     return CreateSortState(
       filterText: "",
       creatableFields: getCreatableSorts(fields),

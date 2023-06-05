@@ -11,7 +11,7 @@ class URLCellEditor extends StatefulWidget {
   const URLCellEditor({
     required this.cellController,
     required this.onExit,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -32,11 +32,11 @@ class _URLCellEditorState extends State<URLCellEditor> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocListener<URLCellEditorBloc, URLCellEditorState>(
-        listener: (context, state) {
+        listener: (final context, final state) {
           if (_controller.text != state.content) {
             _controller.text = state.content;
           }
@@ -48,7 +48,7 @@ class _URLCellEditorState extends State<URLCellEditor> {
         child: TextField(
           autofocus: true,
           controller: _controller,
-          onSubmitted: (value) => focusChanged(),
+          onSubmitted: (final value) => focusChanged(),
           onEditingComplete: () => focusChanged(),
           maxLines: 1,
           style: Theme.of(context).textTheme.bodyMedium,
@@ -85,11 +85,11 @@ class URLEditorPopover extends StatelessWidget {
   const URLEditorPopover({
     required this.cellController,
     required this.onExit,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,

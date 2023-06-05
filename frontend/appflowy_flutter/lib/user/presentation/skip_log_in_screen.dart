@@ -25,7 +25,7 @@ class SkipLogInScreen extends StatefulWidget {
   final AuthService authService;
 
   const SkipLogInScreen({
-    Key? key,
+    final Key? key,
     required this.router,
     required this.authService,
   }) : super(key: key);
@@ -36,7 +36,7 @@ class SkipLogInScreen extends StatefulWidget {
 
 class _SkipLogInScreenState extends State<SkipLogInScreen> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Scaffold(
       appBar: const _SkipLoginMoveWindow(),
       body: Center(
@@ -45,7 +45,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
     );
   }
 
-  Widget _renderBody(BuildContext context) {
+  Widget _renderBody(final BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -82,7 +82,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
     );
   }
 
-  Row _buildSubscribeButtons(BuildContext context) {
+  Row _buildSubscribeButtons(final BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -110,7 +110,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
     );
   }
 
-  _launchURL(String url) async {
+  _launchURL(final String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
@@ -119,30 +119,30 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
     }
   }
 
-  Future<void> _autoRegister(BuildContext context) async {
+  Future<void> _autoRegister(final BuildContext context) async {
     final result = await widget.authService.autoSignUp();
     result.fold(
-      (user) {
-        FolderEventReadCurrentWorkspace().send().then((result) {
+      (final user) {
+        FolderEventReadCurrentWorkspace().send().then((final result) {
           _openCurrentWorkspace(context, user, result);
         });
       },
-      (error) {
+      (final error) {
         Log.error(error);
       },
     );
   }
 
   void _openCurrentWorkspace(
-    BuildContext context,
-    UserProfilePB user,
-    dartz.Either<WorkspaceSettingPB, FlowyError> workspacesOrError,
+    final BuildContext context,
+    final UserProfilePB user,
+    final dartz.Either<WorkspaceSettingPB, FlowyError> workspacesOrError,
   ) {
     workspacesOrError.fold(
-      (workspaceSetting) {
+      (final workspaceSetting) {
         widget.router.pushHomeScreen(context, user, workspaceSetting);
       },
-      (error) {
+      (final error) {
         Log.error(error);
       },
     );
@@ -158,7 +158,7 @@ class GoButton extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FlowyTextButton(
       LocaleKeys.letsGoButtonText.tr(),
       fontSize: FontSizes.s16,
@@ -176,7 +176,7 @@ class _SkipLoginMoveWindow extends StatelessWidget
   const _SkipLoginMoveWindow();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Row(
       children: const [
         Expanded(

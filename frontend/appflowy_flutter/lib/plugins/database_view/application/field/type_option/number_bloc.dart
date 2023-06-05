@@ -9,12 +9,12 @@ part 'number_bloc.freezed.dart';
 
 class NumberTypeOptionBloc
     extends Bloc<NumberTypeOptionEvent, NumberTypeOptionState> {
-  NumberTypeOptionBloc({required NumberTypeOptionContext typeOptionContext})
+  NumberTypeOptionBloc({required final NumberTypeOptionContext typeOptionContext})
       : super(NumberTypeOptionState.initial(typeOptionContext.typeOption)) {
     on<NumberTypeOptionEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.map(
-          didSelectFormat: (_DidSelectFormat value) {
+          didSelectFormat: (final _DidSelectFormat value) {
             emit(state.copyWith(typeOption: _updateNumberFormat(value.format)));
           },
         );
@@ -22,9 +22,9 @@ class NumberTypeOptionBloc
     );
   }
 
-  NumberTypeOptionPB _updateNumberFormat(NumberFormat format) {
+  NumberTypeOptionPB _updateNumberFormat(final NumberFormat format) {
     state.typeOption.freeze();
-    return state.typeOption.rebuild((typeOption) {
+    return state.typeOption.rebuild((final typeOption) {
       typeOption.format = format;
     });
   }
@@ -32,17 +32,17 @@ class NumberTypeOptionBloc
 
 @freezed
 class NumberTypeOptionEvent with _$NumberTypeOptionEvent {
-  const factory NumberTypeOptionEvent.didSelectFormat(NumberFormat format) =
+  const factory NumberTypeOptionEvent.didSelectFormat(final NumberFormat format) =
       _DidSelectFormat;
 }
 
 @freezed
 class NumberTypeOptionState with _$NumberTypeOptionState {
   const factory NumberTypeOptionState({
-    required NumberTypeOptionPB typeOption,
+    required final NumberTypeOptionPB typeOption,
   }) = _NumberTypeOptionState;
 
-  factory NumberTypeOptionState.initial(NumberTypeOptionPB typeOption) =>
+  factory NumberTypeOptionState.initial(final NumberTypeOptionPB typeOption) =>
       NumberTypeOptionState(
         typeOption: typeOption,
       );

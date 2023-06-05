@@ -10,21 +10,21 @@ class FilePickerResult {
 /// Abstract file picker as a service to implement dependency injection.
 abstract class FilePickerService {
   Future<String?> getDirectoryPath({
-    String? title,
+    final String? title,
   }) async =>
       throw UnimplementedError('getDirectoryPath() has not been implemented.');
 
   Future<FilePickerResult?> pickFiles({
-    String? dialogTitle,
-    String? initialDirectory,
-    FileType type = FileType.any,
-    List<String>? allowedExtensions,
-    Function(FilePickerStatus)? onFileLoading,
-    bool allowCompression = true,
-    bool allowMultiple = false,
-    bool withData = false,
-    bool withReadStream = false,
-    bool lockParentWindow = false,
+    final String? dialogTitle,
+    final String? initialDirectory,
+    final FileType type = FileType.any,
+    final List<String>? allowedExtensions,
+    final Function(FilePickerStatus)? onFileLoading,
+    final bool allowCompression = true,
+    final bool allowMultiple = false,
+    final bool withData = false,
+    final bool withReadStream = false,
+    final bool lockParentWindow = false,
   }) async =>
       throw UnimplementedError('pickFiles() has not been implemented.');
 }

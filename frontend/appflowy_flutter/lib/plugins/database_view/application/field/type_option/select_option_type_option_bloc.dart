@@ -18,13 +18,13 @@ class SelectOptionTypeOptionBloc
   final ISelectOptionAction typeOptionAction;
 
   SelectOptionTypeOptionBloc({
-    required List<SelectOptionPB> options,
+    required final List<SelectOptionPB> options,
     required this.typeOptionAction,
   }) : super(SelectOptionTypeOptionState.initial(options)) {
     on<SelectOptionTypeOptionEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.when(
-          createOption: (optionName) async {
+          createOption: (final optionName) async {
             final List<SelectOptionPB> options =
                 await typeOptionAction.insertOption(optionName);
             emit(state.copyWith(options: options));
@@ -35,12 +35,12 @@ class SelectOptionTypeOptionBloc
           endAddingOption: () {
             emit(state.copyWith(isEditingOption: false, newOptionName: none()));
           },
-          updateOption: (option) {
+          updateOption: (final option) {
             final List<SelectOptionPB> options =
                 typeOptionAction.updateOption(option);
             emit(state.copyWith(options: options));
           },
-          deleteOption: (option) {
+          deleteOption: (final option) {
             final List<SelectOptionPB> options =
                 typeOptionAction.deleteOption(option);
             emit(state.copyWith(options: options));
@@ -53,28 +53,28 @@ class SelectOptionTypeOptionBloc
 
 @freezed
 class SelectOptionTypeOptionEvent with _$SelectOptionTypeOptionEvent {
-  const factory SelectOptionTypeOptionEvent.createOption(String optionName) =
+  const factory SelectOptionTypeOptionEvent.createOption(final String optionName) =
       _CreateOption;
   const factory SelectOptionTypeOptionEvent.addingOption() = _AddingOption;
   const factory SelectOptionTypeOptionEvent.endAddingOption() =
       _EndAddingOption;
   const factory SelectOptionTypeOptionEvent.updateOption(
-    SelectOptionPB option,
+    final SelectOptionPB option,
   ) = _UpdateOption;
   const factory SelectOptionTypeOptionEvent.deleteOption(
-    SelectOptionPB option,
+    final SelectOptionPB option,
   ) = _DeleteOption;
 }
 
 @freezed
 class SelectOptionTypeOptionState with _$SelectOptionTypeOptionState {
   const factory SelectOptionTypeOptionState({
-    required List<SelectOptionPB> options,
-    required bool isEditingOption,
-    required Option<String> newOptionName,
+    required final List<SelectOptionPB> options,
+    required final bool isEditingOption,
+    required final Option<String> newOptionName,
   }) = _SelectOptionTypeOptionState;
 
-  factory SelectOptionTypeOptionState.initial(List<SelectOptionPB> options) =>
+  factory SelectOptionTypeOptionState.initial(final List<SelectOptionPB> options) =>
       SelectOptionTypeOptionState(
         options: options,
         isEditingOption: false,

@@ -39,7 +39,7 @@ void main() {
 
     testWidgets(
         'integration test unzips the proper workspace and loads it correctly.',
-        (tester) async {
+        (final tester) async {
       await tester.initializeAppFlowy();
       expect(find.byType(AppFlowyBoard), findsOneWidget);
     });

@@ -25,7 +25,7 @@ void main() {
     blocTest<AppearanceSettingsCubit, AppearanceSettingsState>(
       'default theme',
       build: () => AppearanceSettingsCubit(appearanceSetting),
-      verify: (bloc) {
+      verify: (final bloc) {
         // expect(bloc.state.appTheme.info.name, "light");
         expect(bloc.state.font, 'Poppins');
         expect(bloc.state.monospaceFont, 'SF Mono');
@@ -36,10 +36,10 @@ void main() {
     blocTest<AppearanceSettingsCubit, AppearanceSettingsState>(
       'save key/value',
       build: () => AppearanceSettingsCubit(appearanceSetting),
-      act: (bloc) {
+      act: (final bloc) {
         bloc.setKeyValue("123", "456");
       },
-      verify: (bloc) {
+      verify: (final bloc) {
         expect(bloc.getValue("123"), "456");
       },
     );
@@ -47,10 +47,10 @@ void main() {
     blocTest<AppearanceSettingsCubit, AppearanceSettingsState>(
       'remove key/value',
       build: () => AppearanceSettingsCubit(appearanceSetting),
-      act: (bloc) {
+      act: (final bloc) {
         bloc.setKeyValue("123", null);
       },
-      verify: (bloc) {
+      verify: (final bloc) {
         expect(bloc.getValue("123"), null);
       },
     );

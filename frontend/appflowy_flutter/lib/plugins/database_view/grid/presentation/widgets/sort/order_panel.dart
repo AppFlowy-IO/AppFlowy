@@ -8,11 +8,11 @@ import 'package:flutter/material.dart';
 
 class OrderPanel extends StatelessWidget {
   final Function(SortConditionPB) onCondition;
-  const OrderPanel({required this.onCondition, Key? key}) : super(key: key);
+  const OrderPanel({required this.onCondition, final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final List<Widget> children = SortConditionPB.values.map((condition) {
+  Widget build(final BuildContext context) {
+    final List<Widget> children = SortConditionPB.values.map((final condition) {
       return SizedBox(
         height: GridSize.popoverItemHeight,
         child: FlowyButton(
@@ -34,7 +34,7 @@ class OrderPanel extends StatelessWidget {
     );
   }
 
-  String textFromCondition(SortConditionPB condition) {
+  String textFromCondition(final SortConditionPB condition) {
     switch (condition) {
       case SortConditionPB.Ascending:
         return LocaleKeys.grid_sort_ascending.tr();

@@ -7,15 +7,15 @@ part 'splash_bloc.freezed.dart';
 
 class SplashBloc extends Bloc<SplashEvent, SplashState> {
   SplashBloc() : super(SplashState.initial()) {
-    on<SplashEvent>((event, emit) async {
+    on<SplashEvent>((final event, final emit) async {
       await event.map(
-        getUser: (val) async {
+        getUser: (final val) async {
           final result = await UserEventCheckUser().send();
           final authState = result.fold(
-            (userProfile) {
+            (final userProfile) {
               return AuthState.authenticated(userProfile);
             },
-            (error) {
+            (final error) {
               return AuthState.unauthenticated(error);
             },
           );
@@ -35,7 +35,7 @@ class SplashEvent with _$SplashEvent {
 @freezed
 class SplashState with _$SplashState {
   const factory SplashState({
-    required AuthState auth,
+    required final AuthState auth,
   }) = _SplashState;
 
   factory SplashState.initial() => const SplashState(

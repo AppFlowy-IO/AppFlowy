@@ -21,7 +21,7 @@ class RowCardRenderHook<CustomCardData> {
 
   /// Add render hook for the FieldType.SingleSelect and FieldType.MultiSelect
   void addSelectOptionHook(
-    CellRenderHook<List<SelectOptionPB>, CustomCardData?> hook,
+    final CellRenderHook<List<SelectOptionPB>, CustomCardData?> hook,
   ) {
     final hookFn = _typeSafeHook<List<SelectOptionPB>>(hook);
     renderHook[FieldType.SingleSelect] = hookFn;
@@ -30,29 +30,29 @@ class RowCardRenderHook<CustomCardData> {
 
   /// Add a render hook for the [FieldType.RichText]
   void addTextCellHook(
-    CellRenderHook<String, CustomCardData?> hook,
+    final CellRenderHook<String, CustomCardData?> hook,
   ) {
     renderHook[FieldType.RichText] = _typeSafeHook<String>(hook);
   }
 
   /// Add a render hook for the [FieldType.Number]
   void addNumberCellHook(
-    CellRenderHook<String, CustomCardData?> hook,
+    final CellRenderHook<String, CustomCardData?> hook,
   ) {
     renderHook[FieldType.Number] = _typeSafeHook<String>(hook);
   }
 
   /// Add a render hook for the [FieldType.Date]
   void addDateCellHook(
-    CellRenderHook<DateCellDataPB, CustomCardData?> hook,
+    final CellRenderHook<DateCellDataPB, CustomCardData?> hook,
   ) {
     renderHook[FieldType.DateTime] = _typeSafeHook<DateCellDataPB>(hook);
   }
 
   CellRenderHook<dynamic, CustomCardData> _typeSafeHook<C>(
-    CellRenderHook<C, CustomCardData?> hook,
+    final CellRenderHook<C, CustomCardData?> hook,
   ) {
-    hookFn(cellData, cardData, buildContext) {
+    hookFn(final cellData, final cardData, final buildContext) {
       if (cellData == null) {
         return null;
       }
@@ -71,7 +71,7 @@ class RowCardRenderHook<CustomCardData> {
 
 abstract class CardCellStyle {}
 
-S? isStyleOrNull<S>(CardCellStyle? style) {
+S? isStyleOrNull<S>(final CardCellStyle? style) {
   if (style is S) {
     return style as S;
   } else {
@@ -89,7 +89,7 @@ abstract class CardCell<T, S extends CardCellStyle> extends StatefulWidget {
 class EditableCardNotifier {
   final ValueNotifier<bool> isCellEditing;
 
-  EditableCardNotifier({bool isEditing = false})
+  EditableCardNotifier({final bool isEditing = false})
       : isCellEditing = ValueNotifier(isEditing);
 
   void dispose() {
@@ -101,12 +101,12 @@ class EditableRowNotifier {
   final Map<EditableCellId, EditableCardNotifier> _cells = {};
   final ValueNotifier<bool> isEditing;
 
-  EditableRowNotifier({required bool isEditing})
+  EditableRowNotifier({required final bool isEditing})
       : isEditing = ValueNotifier(isEditing);
 
   void bindCell(
-    CellIdentifier cellIdentifier,
-    EditableCardNotifier notifier,
+    final CellIdentifier cellIdentifier,
+    final EditableCardNotifier notifier,
   ) {
     assert(
       _cells.values.isEmpty,
@@ -170,7 +170,7 @@ class EditableCellId {
 
   EditableCellId(this.rowId, this.fieldId);
 
-  factory EditableCellId.from(CellIdentifier cellIdentifier) => EditableCellId(
+  factory EditableCellId.from(final CellIdentifier cellIdentifier) => EditableCellId(
         cellIdentifier.rowId,
         cellIdentifier.fieldId,
       );

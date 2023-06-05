@@ -23,12 +23,12 @@ class CoverImagePickerBloc
 
   CoverImagePickerBloc() : super(const CoverImagePickerState.initial()) {
     on<CoverImagePickerEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.map(
-          initialEvent: (InitialEvent initialEvent) {
+          initialEvent: (final InitialEvent initialEvent) {
             emit(const CoverImagePickerState.initial());
           },
-          urlSubmit: (UrlSubmit urlSubmit) async {
+          urlSubmit: (final UrlSubmit urlSubmit) async {
             emit(const CoverImagePickerState.loading());
             final validateImage = await _validateURL(urlSubmit.path);
             if (validateImage) {
@@ -46,7 +46,7 @@ class CoverImagePickerBloc
               );
             }
           },
-          pickFileImage: (PickFileImage pickFileImage) async {
+          pickFileImage: (final PickFileImage pickFileImage) async {
             final imagePickerResults = await _pickImages();
             if (imagePickerResults != null) {
               emit(CoverImagePickerState.fileImage(imagePickerResults));
@@ -54,10 +54,10 @@ class CoverImagePickerBloc
               emit(const CoverImagePickerState.initial());
             }
           },
-          deleteImage: (DeleteImage deleteImage) {
+          deleteImage: (final DeleteImage deleteImage) {
             emit(const CoverImagePickerState.initial());
           },
-          saveToGallery: (SaveToGallery saveToGallery) async {
+          saveToGallery: (final SaveToGallery saveToGallery) async {
             emit(const CoverImagePickerState.loading());
             final saveImage = await _saveToGallery(saveToGallery.previousState);
             if (saveImage != null) {
@@ -81,9 +81,9 @@ class CoverImagePickerBloc
     );
   }
 
-  _saveToGallery(CoverImagePickerState state) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> imagePaths = prefs.getStringList(kLocalImagesKey) ?? [];
+  _saveToGallery(final CoverImagePickerState state) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final List<String> imagePaths = prefs.getStringList(kLocalImagesKey) ?? [];
     final directory = await _coverPath();
 
     if (state is FileImagePicked) {
@@ -97,7 +97,8 @@ class CoverImagePickerBloc
       }
     } else if (state is NetworkImagePicked) {
       try {
-        final url = state.successOrFail.fold((path) => path, (r) => null);
+        final url =
+            state.successOrFail.fold((final path) => path, (final r) => null);
         if (url != null) {
           final response = await http.get(Uri.parse(url));
           final newPath = p.join(directory, _networkImageName(url));
@@ -133,10 +134,10 @@ class CoverImagePickerBloc
     final directory = await getIt<SettingsLocationCubit>().fetchLocation();
     return Directory(p.join(directory, 'covers'))
         .create(recursive: true)
-        .then((value) => value.path);
+        .then((final value) => value.path);
   }
 
-  String _networkImageName(String url) {
+  String _networkImageName(final String url) {
     return 'IMG_${DateTime.now().millisecondsSinceEpoch.toString()}.${_getExtention(
       url,
       fromNetwork: true,
@@ -144,8 +145,8 @@ class CoverImagePickerBloc
   }
 
   String? _getExtention(
-    String path, {
-    bool fromNetwork = false,
+    final String path, {
+    final bool fromNetwork = false,
   }) {
     String? ext;
     if (!fromNetwork) {
@@ -168,7 +169,7 @@ class CoverImagePickerBloc
     return null;
   }
 
-  Future<bool> _validateURL(String path) async {
+  Future<bool> _validateURL(final String path) async {
     final extension = _getExtention(path, fromNetwork: true);
     if (extension == null) {
       return false;
@@ -184,11 +185,11 @@ class CoverImagePickerBloc
 
 @freezed
 class CoverImagePickerEvent with _$CoverImagePickerEvent {
-  const factory CoverImagePickerEvent.urlSubmit(String path) = UrlSubmit;
+  const factory CoverImagePickerEvent.urlSubmit(final String path) = UrlSubmit;
   const factory CoverImagePickerEvent.pickFileImage() = PickFileImage;
   const factory CoverImagePickerEvent.deleteImage() = DeleteImage;
   const factory CoverImagePickerEvent.saveToGallery(
-    CoverImagePickerState previousState,
+    final CoverImagePickerState previousState,
   ) = SaveToGallery;
   const factory CoverImagePickerEvent.initialEvent() = InitialEvent;
 }
@@ -198,11 +199,12 @@ class CoverImagePickerState with _$CoverImagePickerState {
   const factory CoverImagePickerState.initial() = Initial;
   const factory CoverImagePickerState.loading() = Loading;
   const factory CoverImagePickerState.networkImage(
-    Either<String, FlowyError> successOrFail,
+    final Either<String, FlowyError> successOrFail,
   ) = NetworkImagePicked;
-  const factory CoverImagePickerState.fileImage(String path) = FileImagePicked;
+  const factory CoverImagePickerState.fileImage(final String path) =
+      FileImagePicked;
 
   const factory CoverImagePickerState.done(
-    Either<List<String>, FlowyError> successOrFail,
+    final Either<List<String>, FlowyError> successOrFail,
   ) = Done;
 }

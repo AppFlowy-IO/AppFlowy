@@ -3,7 +3,7 @@ import 'package:flutter_svg/svg.dart';
 
 class Svg extends StatelessWidget {
   const Svg({
-    Key? key,
+    final Key? key,
     this.name,
     this.width,
     this.height,
@@ -23,7 +23,7 @@ class Svg extends StatelessWidget {
   final _defaultHeight = 20.0;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Padding(
       padding: padding ?? const EdgeInsets.all(0),
       child: _buildSvg(),

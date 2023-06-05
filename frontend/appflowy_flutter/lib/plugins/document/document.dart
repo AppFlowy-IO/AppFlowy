@@ -16,7 +16,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DocumentPluginBuilder extends PluginBuilder {
   @override
-  Plugin build(dynamic data) {
+  Plugin build(final dynamic data) {
     if (data is ViewPB) {
       return DocumentPlugin(pluginType: pluginType, view: data);
     } else {
@@ -46,9 +46,9 @@ class DocumentPlugin extends Plugin<int> {
   final ViewPluginNotifier notifier;
 
   DocumentPlugin({
-    required PluginType pluginType,
-    required ViewPB view,
-    Key? key,
+    required final PluginType pluginType,
+    required final ViewPB view,
+    final Key? key,
   }) : notifier = ViewPluginNotifier(view: view) {
     _pluginType = pluginType;
     _documentAppearanceCubit.fetch();
@@ -84,13 +84,13 @@ class DocumentPluginDisplay extends PluginDisplay with NavigationItem {
   DocumentPluginDisplay({
     required this.notifier,
     required this.documentAppearanceCubit,
-    Key? key,
+    final Key? key,
   });
 
   @override
-  Widget buildWidget(PluginContext context) {
+  Widget buildWidget(final PluginContext context) {
     notifier.isDeleted.addListener(() {
-      notifier.isDeleted.value.fold(() => null, (deletedView) {
+      notifier.isDeleted.value.fold(() => null, (final deletedView) {
         if (deletedView.hasIndex()) {
           deletedViewIndex = deletedView.index;
         }
@@ -100,7 +100,7 @@ class DocumentPluginDisplay extends PluginDisplay with NavigationItem {
     return BlocProvider.value(
       value: documentAppearanceCubit,
       child: BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
-        builder: (_, state) {
+        builder: (final _, final state) {
           return DocumentPage(
             view: view,
             onDeleted: () => context.onDeleted(view, deletedViewIndex),

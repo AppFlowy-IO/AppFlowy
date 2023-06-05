@@ -9,14 +9,14 @@ typedef DayOfWeek = int;
 
 class CalendarSettingBloc
     extends Bloc<CalendarSettingEvent, CalendarSettingState> {
-  CalendarSettingBloc({required CalendarLayoutSettingsPB? layoutSettings})
+  CalendarSettingBloc({required final CalendarLayoutSettingsPB? layoutSettings})
       : super(CalendarSettingState.initial(layoutSettings)) {
-    on<CalendarSettingEvent>((event, emit) {
+    on<CalendarSettingEvent>((final event, final emit) {
       event.when(
-        performAction: (action) {
+        performAction: (final action) {
           emit(state.copyWith(selectedAction: Some(action)));
         },
-        updateLayoutSetting: (setting) {
+        updateLayoutSetting: (final setting) {
           emit(state.copyWith(layoutSetting: Some(setting)));
         },
       );
@@ -27,12 +27,12 @@ class CalendarSettingBloc
 @freezed
 class CalendarSettingState with _$CalendarSettingState {
   const factory CalendarSettingState({
-    required Option<CalendarSettingAction> selectedAction,
-    required Option<CalendarLayoutSettingsPB> layoutSetting,
+    required final Option<CalendarSettingAction> selectedAction,
+    required final Option<CalendarLayoutSettingsPB> layoutSetting,
   }) = _CalendarSettingState;
 
   factory CalendarSettingState.initial(
-    CalendarLayoutSettingsPB? layoutSettings,
+    final CalendarLayoutSettingsPB? layoutSettings,
   ) =>
       CalendarSettingState(
         selectedAction: none(),
@@ -43,10 +43,10 @@ class CalendarSettingState with _$CalendarSettingState {
 @freezed
 class CalendarSettingEvent with _$CalendarSettingEvent {
   const factory CalendarSettingEvent.performAction(
-    CalendarSettingAction action,
+    final CalendarSettingAction action,
   ) = _PerformAction;
   const factory CalendarSettingEvent.updateLayoutSetting(
-    CalendarLayoutSettingsPB setting,
+    final CalendarLayoutSettingsPB setting,
   ) = _UpdateLayoutSetting;
 }
 

@@ -16,9 +16,9 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
   final AppearanceSettingsCubit _appearanceSettingsCubit;
 
   HomeSettingBloc(
-    UserProfilePB user,
-    WorkspaceSettingPB workspaceSetting,
-    AppearanceSettingsCubit appearanceSettingsCubit,
+    final UserProfilePB user,
+    final WorkspaceSettingPB workspaceSetting,
+    final AppearanceSettingsCubit appearanceSettingsCubit,
   )   : _listener = UserWorkspaceListener(userProfile: user),
         _appearanceSettingsCubit = appearanceSettingsCubit,
         super(
@@ -28,24 +28,24 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
           ),
         ) {
     on<HomeSettingEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.map(
-          initial: (_Initial value) {},
-          setEditPanel: (e) async {
+          initial: (final _Initial value) {},
+          setEditPanel: (final e) async {
             emit(state.copyWith(panelContext: some(e.editContext)));
           },
-          dismissEditPanel: (value) async {
+          dismissEditPanel: (final value) async {
             emit(state.copyWith(panelContext: none()));
           },
-          didReceiveWorkspaceSetting: (_DidReceiveWorkspaceSetting value) {
+          didReceiveWorkspaceSetting: (final _DidReceiveWorkspaceSetting value) {
             emit(state.copyWith(workspaceSetting: value.setting));
           },
-          collapseMenu: (_CollapseMenu e) {
-            var isMenuCollapsed = !state.isMenuCollapsed;
+          collapseMenu: (final _CollapseMenu e) {
+            final isMenuCollapsed = !state.isMenuCollapsed;
             _appearanceSettingsCubit.saveIsMenuCollapsed(isMenuCollapsed);
             emit(state.copyWith(isMenuCollapsed: isMenuCollapsed));
           },
-          editPanelResizeStart: (_EditPanelResizeStart e) {
+          editPanelResizeStart: (final _EditPanelResizeStart e) {
             emit(
               state.copyWith(
                 resizeType: MenuResizeType.drag,
@@ -53,14 +53,14 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
               ),
             );
           },
-          editPanelResized: (_EditPanelResized e) {
+          editPanelResized: (final _EditPanelResized e) {
             final newPosition =
                 (e.offset + state.resizeStart).clamp(-50, 200).toDouble();
             if (state.resizeOffset != newPosition) {
               emit(state.copyWith(resizeOffset: newPosition));
             }
           },
-          editPanelResizeEnd: (_EditPanelResizeEnd e) {
+          editPanelResizeEnd: (final _EditPanelResizeEnd e) {
             _appearanceSettingsCubit.saveMenuOffset(state.resizeOffset);
             emit(state.copyWith(resizeType: MenuResizeType.slide));
           },
@@ -95,14 +95,14 @@ extension MenuResizeTypeExtension on MenuResizeType {
 @freezed
 class HomeSettingEvent with _$HomeSettingEvent {
   const factory HomeSettingEvent.initial() = _Initial;
-  const factory HomeSettingEvent.setEditPanel(EditPanelContext editContext) =
+  const factory HomeSettingEvent.setEditPanel(final EditPanelContext editContext) =
       _ShowEditPanel;
   const factory HomeSettingEvent.dismissEditPanel() = _DismissEditPanel;
   const factory HomeSettingEvent.didReceiveWorkspaceSetting(
-    WorkspaceSettingPB setting,
+    final WorkspaceSettingPB setting,
   ) = _DidReceiveWorkspaceSetting;
   const factory HomeSettingEvent.collapseMenu() = _CollapseMenu;
-  const factory HomeSettingEvent.editPanelResized(double offset) =
+  const factory HomeSettingEvent.editPanelResized(final double offset) =
       _EditPanelResized;
   const factory HomeSettingEvent.editPanelResizeStart() = _EditPanelResizeStart;
   const factory HomeSettingEvent.editPanelResizeEnd() = _EditPanelResizeEnd;
@@ -111,18 +111,18 @@ class HomeSettingEvent with _$HomeSettingEvent {
 @freezed
 class HomeSettingState with _$HomeSettingState {
   const factory HomeSettingState({
-    required Option<EditPanelContext> panelContext,
-    required WorkspaceSettingPB workspaceSetting,
-    required bool unauthorized,
-    required bool isMenuCollapsed,
-    required double resizeOffset,
-    required double resizeStart,
-    required MenuResizeType resizeType,
+    required final Option<EditPanelContext> panelContext,
+    required final WorkspaceSettingPB workspaceSetting,
+    required final bool unauthorized,
+    required final bool isMenuCollapsed,
+    required final double resizeOffset,
+    required final double resizeStart,
+    required final MenuResizeType resizeType,
   }) = _HomeSettingState;
 
   factory HomeSettingState.initial(
-    WorkspaceSettingPB workspaceSetting,
-    AppearanceSettingsState appearanceSettingsState,
+    final WorkspaceSettingPB workspaceSetting,
+    final AppearanceSettingsState appearanceSettingsState,
   ) =>
       HomeSettingState(
         panelContext: none(),

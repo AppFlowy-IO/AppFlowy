@@ -16,7 +16,7 @@ class DateCellStyle extends GridCellStyle {
 }
 
 abstract class GridCellDelegate {
-  void onFocus(bool isFocus);
+  void onFocus(final bool isFocus);
   GridCellDelegate get delegate;
 }
 
@@ -25,9 +25,9 @@ class GridDateCell extends GridCellWidget {
   late final DateCellStyle? cellStyle;
 
   GridDateCell({
-    GridCellStyle? style,
+    final GridCellStyle? style,
     required this.cellControllerBuilder,
-    Key? key,
+    final Key? key,
   }) : super(key: key) {
     if (style != null) {
       cellStyle = (style as DateCellStyle);
@@ -55,14 +55,14 @@ class _DateCellState extends GridCellState<GridDateCell> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final alignment = widget.cellStyle != null
         ? widget.cellStyle!.alignment
         : Alignment.centerLeft;
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<DateCellBloc, DateCellState>(
-        builder: (context, state) {
+        builder: (final context, final state) {
           return AppFlowyPopover(
             controller: _popover,
             triggerActions: PopoverTriggerFlags.none,
@@ -81,7 +81,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
                 ),
               ),
             ),
-            popupBuilder: (BuildContext popoverContent) {
+            popupBuilder: (final BuildContext popoverContent) {
               return DateCellEditor(
                 cellController:
                     widget.cellControllerBuilder.build() as DateCellController,

@@ -13,7 +13,7 @@ class DisclosureButton extends StatefulWidget {
   const DisclosureButton({
     required this.popoverMutex,
     required this.onAction,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -22,15 +22,15 @@ class DisclosureButton extends StatefulWidget {
 
 class _DisclosureButtonState extends State<DisclosureButton> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return PopoverActionList<FilterDisclosureActionWrapper>(
       asBarrier: true,
       mutex: widget.popoverMutex,
       direction: PopoverDirection.rightWithTopAligned,
       actions: FilterDisclosureAction.values
-          .map((action) => FilterDisclosureActionWrapper(action))
+          .map((final action) => FilterDisclosureActionWrapper(action))
           .toList(),
-      buildChild: (controller) {
+      buildChild: (final controller) {
         return FlowyIconButton(
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           width: 20,
@@ -41,7 +41,7 @@ class _DisclosureButtonState extends State<DisclosureButton> {
           onPressed: () => controller.show(),
         );
       },
-      onSelected: (action, controller) async {
+      onSelected: (final action, final controller) async {
         widget.onAction(action.inner);
         controller.close();
       },
@@ -59,7 +59,7 @@ class FilterDisclosureActionWrapper extends ActionCell {
   FilterDisclosureActionWrapper(this.inner);
 
   @override
-  Widget? leftIcon(Color iconColor) => null;
+  Widget? leftIcon(final Color iconColor) => null;
 
   @override
   String get name => inner.name;

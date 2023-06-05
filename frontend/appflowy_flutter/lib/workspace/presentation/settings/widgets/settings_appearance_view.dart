@@ -9,13 +9,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsAppearanceView extends StatelessWidget {
-  const SettingsAppearanceView({Key? key}) : super(key: key);
+  const SettingsAppearanceView({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SingleChildScrollView(
       child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-        builder: (context, state) {
+        builder: (final context, final state) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -37,7 +37,7 @@ class ThemeSetting extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Row(
       children: [
         Expanded(
@@ -54,7 +54,7 @@ class ThemeSetting extends StatelessWidget {
             fillColor: Colors.transparent,
             onPressed: () {},
           ),
-          popupBuilder: (BuildContext context) {
+          popupBuilder: (final BuildContext context) {
             return IntrinsicWidth(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -71,7 +71,7 @@ class ThemeSetting extends StatelessWidget {
     );
   }
 
-  Widget _themeItemButton(BuildContext context, String theme) {
+  Widget _themeItemButton(final BuildContext context, final String theme) {
     return SizedBox(
       height: 32,
       child: FlowyButton(
@@ -94,7 +94,7 @@ class ThemeModeSetting extends StatelessWidget {
   const ThemeModeSetting({required this.currentThemeMode, super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Row(
       children: [
         Expanded(
@@ -111,7 +111,7 @@ class ThemeModeSetting extends StatelessWidget {
             fillColor: Colors.transparent,
             onPressed: () {},
           ),
-          popupBuilder: (BuildContext context) {
+          popupBuilder: (final BuildContext context) {
             return IntrinsicWidth(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -128,7 +128,7 @@ class ThemeModeSetting extends StatelessWidget {
     );
   }
 
-  Widget _themeModeItemButton(BuildContext context, ThemeMode themeMode) {
+  Widget _themeModeItemButton(final BuildContext context, final ThemeMode themeMode) {
     return SizedBox(
       height: 32,
       child: FlowyButton(
@@ -145,7 +145,7 @@ class ThemeModeSetting extends StatelessWidget {
     );
   }
 
-  String _themeModeLabelText(ThemeMode themeMode) {
+  String _themeModeLabelText(final ThemeMode themeMode) {
     switch (themeMode) {
       case (ThemeMode.light):
         return LocaleKeys.settings_appearance_themeMode_light.tr();

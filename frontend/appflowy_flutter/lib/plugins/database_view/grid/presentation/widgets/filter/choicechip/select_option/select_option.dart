@@ -15,7 +15,7 @@ import 'select_option_loader.dart';
 
 class SelectOptionFilterChoicechip extends StatefulWidget {
   final FilterInfo filterInfo;
-  const SelectOptionFilterChoicechip({required this.filterInfo, Key? key})
+  const SelectOptionFilterChoicechip({required this.filterInfo, final Key? key})
       : super(key: key);
 
   @override
@@ -51,17 +51,17 @@ class _SelectOptionFilterChoicechipState
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: bloc,
       child: BlocBuilder<SelectOptionFilterEditorBloc,
           SelectOptionFilterEditorState>(
-        builder: (blocContext, state) {
+        builder: (final blocContext, final state) {
           return AppFlowyPopover(
             controller: PopoverController(),
             constraints: BoxConstraints.loose(const Size(240, 160)),
             direction: PopoverDirection.bottomWithCenterAligned,
-            popupBuilder: (BuildContext context) {
+            popupBuilder: (final BuildContext context) {
               return SelectOptionFilterEditor(bloc: bloc);
             },
             child: ChoiceChipButton(
@@ -77,7 +77,7 @@ class _SelectOptionFilterChoicechipState
 
 class SelectOptionFilterEditor extends StatefulWidget {
   final SelectOptionFilterEditorBloc bloc;
-  const SelectOptionFilterEditor({required this.bloc, Key? key})
+  const SelectOptionFilterEditor({required this.bloc, final Key? key})
       : super(key: key);
 
   @override
@@ -89,13 +89,13 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
   final popoverMutex = PopoverMutex();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: widget.bloc,
       child: BlocBuilder<SelectOptionFilterEditorBloc,
           SelectOptionFilterEditorState>(
-        builder: (context, state) {
-          List<Widget> slivers = [
+        builder: (final context, final state) {
+          final List<Widget> slivers = [
             SliverToBoxAdapter(child: _buildFilterPanel(context, state)),
           ];
 
@@ -108,7 +108,7 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
                 child: SelectOptionFilterList(
                   filterInfo: state.filterInfo,
                   selectedOptionIds: state.filter.optionIds,
-                  onSelectedOptions: (optionIds) {
+                  onSelectedOptions: (final optionIds) {
                     context.read<SelectOptionFilterEditorBloc>().add(
                           SelectOptionFilterEditorEvent.updateContent(
                             optionIds,
@@ -135,8 +135,8 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
   }
 
   Widget _buildFilterPanel(
-    BuildContext context,
-    SelectOptionFilterEditorState state,
+    final BuildContext context,
+    final SelectOptionFilterEditorState state,
   ) {
     return SizedBox(
       height: 20,
@@ -147,7 +147,7 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
           SelectOptionFilterConditionList(
             filterInfo: state.filterInfo,
             popoverMutex: popoverMutex,
-            onCondition: (condition) {
+            onCondition: (final condition) {
               context.read<SelectOptionFilterEditorBloc>().add(
                     SelectOptionFilterEditorEvent.updateCondition(condition),
                   );
@@ -156,7 +156,7 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
           const Spacer(),
           DisclosureButton(
             popoverMutex: popoverMutex,
-            onAction: (action) {
+            onAction: (final action) {
               switch (action) {
                 case FilterDisclosureAction.delete:
                   context

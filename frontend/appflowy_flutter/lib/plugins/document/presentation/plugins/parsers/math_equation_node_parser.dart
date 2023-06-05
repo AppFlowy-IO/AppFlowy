@@ -7,7 +7,7 @@ class MathEquationNodeParser extends NodeParser {
   String get id => 'math_equation';
 
   @override
-  String transform(Node node) {
+  String transform(final Node node) {
     return '\$\$${node.attributes[id]}\$\$';
   }
 }

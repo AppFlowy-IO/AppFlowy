@@ -33,7 +33,7 @@ void main() {
     await blocResponseFuture();
 
     final apps = await testContext.loadApps();
-    assert(apps.where((element) => element.id == app.id).isEmpty);
+    assert(apps.where((final element) => element.id == app.id).isEmpty);
   });
 
   test('create documents in order', () async {
@@ -129,7 +129,7 @@ void main() {
 
     final workspaceSetting = await FolderEventReadCurrentWorkspace()
         .send()
-        .then((result) => result.fold((l) => l, (r) => throw Exception()));
+        .then((final result) => result.fold((final l) => l, (final r) => throw Exception()));
     workspaceSetting.latestView.id == document1.id;
   });
 
@@ -150,7 +150,7 @@ void main() {
 
     var workspaceSetting = await FolderEventReadCurrentWorkspace()
         .send()
-        .then((result) => result.fold((l) => l, (r) => throw Exception()));
+        .then((final result) => result.fold((final l) => l, (final r) => throw Exception()));
     workspaceSetting.latestView.id == grid!.id;
 
     // Open grid 1
@@ -161,7 +161,7 @@ void main() {
 
     workspaceSetting = await FolderEventReadCurrentWorkspace()
         .send()
-        .then((result) => result.fold((l) => l, (r) => throw Exception()));
+        .then((final result) => result.fold((final l) => l, (final r) => throw Exception()));
     workspaceSetting.latestView.id == document.id;
   });
 }

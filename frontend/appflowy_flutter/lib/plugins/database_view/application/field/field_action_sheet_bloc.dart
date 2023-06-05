@@ -10,7 +10,7 @@ class FieldActionSheetBloc
     extends Bloc<FieldActionSheetEvent, FieldActionSheetState> {
   final FieldBackendService fieldService;
 
-  FieldActionSheetBloc({required FieldCellContext fieldCellContext})
+  FieldActionSheetBloc({required final FieldCellContext fieldCellContext})
       : fieldService = FieldBackendService(
           viewId: fieldCellContext.viewId,
           fieldId: fieldCellContext.field.id,
@@ -21,44 +21,44 @@ class FieldActionSheetBloc
           ),
         ) {
     on<FieldActionSheetEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.map(
-          updateFieldName: (_UpdateFieldName value) async {
+          updateFieldName: (final _UpdateFieldName value) async {
             final result = await fieldService.updateField(name: value.name);
             result.fold(
-              (l) => null,
-              (err) => Log.error(err),
+              (final l) => null,
+              (final err) => Log.error(err),
             );
           },
-          hideField: (_HideField value) async {
+          hideField: (final _HideField value) async {
             final result = await fieldService.updateField(visibility: false);
             result.fold(
-              (l) => null,
-              (err) => Log.error(err),
+              (final l) => null,
+              (final err) => Log.error(err),
             );
           },
-          showField: (_ShowField value) async {
+          showField: (final _ShowField value) async {
             final result = await fieldService.updateField(visibility: true);
             result.fold(
-              (l) => null,
-              (err) => Log.error(err),
+              (final l) => null,
+              (final err) => Log.error(err),
             );
           },
-          deleteField: (_DeleteField value) async {
+          deleteField: (final _DeleteField value) async {
             final result = await fieldService.deleteField();
             result.fold(
-              (l) => null,
-              (err) => Log.error(err),
+              (final l) => null,
+              (final err) => Log.error(err),
             );
           },
-          duplicateField: (_DuplicateField value) async {
+          duplicateField: (final _DuplicateField value) async {
             final result = await fieldService.duplicateField();
             result.fold(
-              (l) => null,
-              (err) => Log.error(err),
+              (final l) => null,
+              (final err) => Log.error(err),
             );
           },
-          saveField: (_SaveField value) {},
+          saveField: (final _SaveField value) {},
         );
       },
     );
@@ -67,7 +67,7 @@ class FieldActionSheetBloc
 
 @freezed
 class FieldActionSheetEvent with _$FieldActionSheetEvent {
-  const factory FieldActionSheetEvent.updateFieldName(String name) =
+  const factory FieldActionSheetEvent.updateFieldName(final String name) =
       _UpdateFieldName;
   const factory FieldActionSheetEvent.hideField() = _HideField;
   const factory FieldActionSheetEvent.showField() = _ShowField;
@@ -79,12 +79,12 @@ class FieldActionSheetEvent with _$FieldActionSheetEvent {
 @freezed
 class FieldActionSheetState with _$FieldActionSheetState {
   const factory FieldActionSheetState({
-    required TypeOptionPB fieldTypeOptionData,
-    required String errorText,
-    required String fieldName,
+    required final TypeOptionPB fieldTypeOptionData,
+    required final String errorText,
+    required final String fieldName,
   }) = _FieldActionSheetState;
 
-  factory FieldActionSheetState.initial(TypeOptionPB data) =>
+  factory FieldActionSheetState.initial(final TypeOptionPB data) =>
       FieldActionSheetState(
         fieldTypeOptionData: data,
         errorText: '',

@@ -15,14 +15,14 @@ class RowController {
   RowController({
     required this.rowId,
     required this.viewId,
-    required RowCache rowCache,
+    required final RowCache rowCache,
   }) : _rowCache = rowCache;
 
   CellByFieldId loadData() {
     return _rowCache.loadGridCells(rowId);
   }
 
-  void addListener({OnRowChanged? onRowChanged}) {
+  void addListener({final OnRowChanged? onRowChanged}) {
     _onRowChangedListeners.add(
       _rowCache.addListener(
         rowId: rowId,

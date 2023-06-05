@@ -25,7 +25,7 @@ class GridHeaderSliverAdaptor extends StatefulWidget {
     required this.viewId,
     required this.fieldController,
     required this.anchorScrollController,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -35,9 +35,9 @@ class GridHeaderSliverAdaptor extends StatefulWidget {
 
 class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) {
+      create: (final context) {
         final bloc = getIt<GridHeaderBloc>(
           param1: widget.viewId,
           param2: widget.fieldController,
@@ -46,9 +46,9 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
         return bloc;
       },
       child: BlocBuilder<GridHeaderBloc, GridHeaderState>(
-        buildWhen: (previous, current) =>
+        buildWhen: (final previous, final current) =>
             previous.fields.length != current.fields.length,
-        builder: (context, state) {
+        builder: (final context, final state) {
           return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             controller: widget.anchorScrollController,
@@ -71,7 +71,7 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
 
 class _GridHeader extends StatefulWidget {
   final String viewId;
-  const _GridHeader({Key? key, required this.viewId}) : super(key: key);
+  const _GridHeader({final Key? key, required this.viewId}) : super(key: key);
 
   @override
   State<_GridHeader> createState() => _GridHeaderState();
@@ -84,7 +84,7 @@ class _GridHeaderState extends State<_GridHeader> {
   /// [ReorderableRow] warps the child's key with a [GlobalKey].
   /// It will trigger the child's widget's to recreate.
   /// The state will lose.
-  _getKeyById(String id) {
+  _getKeyById(final String id) {
     if (_gridMap.containsKey(id)) {
       return _gridMap[id];
     }
@@ -94,18 +94,18 @@ class _GridHeaderState extends State<_GridHeader> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<GridHeaderBloc, GridHeaderState>(
-      buildWhen: (previous, current) => previous.fields != current.fields,
-      builder: (context, state) {
+      buildWhen: (final previous, final current) => previous.fields != current.fields,
+      builder: (final context, final state) {
         final cells = state.fields
-            .where((field) => field.visibility)
+            .where((final field) => field.visibility)
             .map(
-              (field) =>
+              (final field) =>
                   FieldCellContext(viewId: widget.viewId, field: field.field),
             )
             .map(
-              (ctx) => GridFieldCell(
+              (final ctx) => GridFieldCell(
                 key: _getKeyById(ctx.field.id),
                 cellContext: ctx,
               ),
@@ -121,7 +121,7 @@ class _GridHeaderState extends State<_GridHeader> {
               header: const _CellLeading(),
               needsLongPressDraggable: false,
               footer: _CellTrailing(viewId: widget.viewId),
-              onReorder: (int oldIndex, int newIndex) {
+              onReorder: (final int oldIndex, final int newIndex) {
                 _onReorder(cells, oldIndex, context, newIndex);
               },
               children: cells,
@@ -133,10 +133,10 @@ class _GridHeaderState extends State<_GridHeader> {
   }
 
   void _onReorder(
-    List<GridFieldCell> cells,
-    int oldIndex,
-    BuildContext context,
-    int newIndex,
+    final List<GridFieldCell> cells,
+    final int oldIndex,
+    final BuildContext context,
+    final int newIndex,
   ) {
     if (cells.length > oldIndex) {
       final field = cells[oldIndex].cellContext.field;
@@ -148,10 +148,10 @@ class _GridHeaderState extends State<_GridHeader> {
 }
 
 class _CellLeading extends StatelessWidget {
-  const _CellLeading({Key? key}) : super(key: key);
+  const _CellLeading({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       width: GridSize.leadingHeaderPadding,
     );
@@ -160,10 +160,10 @@ class _CellLeading extends StatelessWidget {
 
 class _CellTrailing extends StatelessWidget {
   final String viewId;
-  const _CellTrailing({required this.viewId, Key? key}) : super(key: key);
+  const _CellTrailing({required this.viewId, final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final borderSide =
         BorderSide(color: Theme.of(context).dividerColor, width: 1.0);
     return Container(
@@ -179,10 +179,10 @@ class _CellTrailing extends StatelessWidget {
 
 class CreateFieldButton extends StatelessWidget {
   final String viewId;
-  const CreateFieldButton({required this.viewId, Key? key}) : super(key: key);
+  const CreateFieldButton({required this.viewId, final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return AppFlowyPopover(
       direction: PopoverDirection.bottomWithRightAligned,
       asBarrier: true,
@@ -195,7 +195,7 @@ class CreateFieldButton extends StatelessWidget {
         onTap: () {},
         leftIcon: const FlowySvg(name: 'home/add'),
       ),
-      popupBuilder: (BuildContext popover) {
+      popupBuilder: (final BuildContext popover) {
         return FieldEditor(
           viewId: viewId,
           typeOptionLoader: NewFieldTypeOptionLoader(viewId: viewId),
@@ -217,9 +217,9 @@ class SliverHeaderDelegateImplementation
 
   @override
   Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
+    final BuildContext context,
+    final double shrinkOffset,
+    final bool overlapsContent,
   ) {
     return _GridHeader(viewId: gridId);
   }
@@ -231,7 +231,7 @@ class SliverHeaderDelegateImplementation
   double get minExtent => GridSize.headerHeight;
 
   @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
+  bool shouldRebuild(covariant final SliverPersistentHeaderDelegate oldDelegate) {
     if (oldDelegate is SliverHeaderDelegateImplementation) {
       return fields.length != oldDelegate.fields.length;
     }

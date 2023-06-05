@@ -11,7 +11,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.da
 import '../sort/create_sort_list.dart';
 
 class SortButton extends StatefulWidget {
-  const SortButton({Key? key}) : super(key: key);
+  const SortButton({final Key? key}) : super(key: key);
 
   @override
   State<SortButton> createState() => _SortButtonState();
@@ -21,9 +21,9 @@ class _SortButtonState extends State<SortButton> {
   final _popoverController = PopoverController();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<SortMenuBloc, SortMenuState>(
-      builder: (context, state) {
+      builder: (final context, final state) {
         final textColor = state.sortInfos.isEmpty
             ? AFThemeExtension.of(context).textColor
             : Theme.of(context).colorScheme.primary;
@@ -53,7 +53,7 @@ class _SortButtonState extends State<SortButton> {
     );
   }
 
-  Widget wrapPopover(BuildContext buildContext, Widget child) {
+  Widget wrapPopover(final BuildContext buildContext, final Widget child) {
     return AppFlowyPopover(
       controller: _popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
@@ -62,7 +62,7 @@ class _SortButtonState extends State<SortButton> {
       margin: const EdgeInsets.all(6),
       triggerActions: PopoverTriggerFlags.none,
       child: child,
-      popupBuilder: (BuildContext context) {
+      popupBuilder: (final BuildContext context) {
         final bloc = buildContext.read<SortMenuBloc>();
         return GridCreateSortList(
           viewId: bloc.viewId,

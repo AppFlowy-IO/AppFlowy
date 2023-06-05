@@ -16,7 +16,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
   })  : rowService = RowBackendService(viewId: dataController.viewId),
         super(RowDetailState.initial()) {
     on<RowDetailEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.when(
           initial: () async {
             await _startListening();
@@ -25,20 +25,20 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
               add(RowDetailEvent.didReceiveCellDatas(cells.values.toList()));
             }
           },
-          didReceiveCellDatas: (cells) {
+          didReceiveCellDatas: (final cells) {
             emit(state.copyWith(gridCells: cells));
           },
-          deleteField: (fieldId) {
+          deleteField: (final fieldId) {
             final fieldService = FieldBackendService(
               viewId: dataController.viewId,
               fieldId: fieldId,
             );
             fieldService.deleteField();
           },
-          deleteRow: (rowId) async {
+          deleteRow: (final rowId) async {
             await rowService.deleteRow(rowId);
           },
-          duplicateRow: (String rowId) async {
+          duplicateRow: (final String rowId) async {
             await rowService.duplicateRow(rowId);
           },
         );
@@ -54,7 +54,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
 
   Future<void> _startListening() async {
     dataController.addListener(
-      onRowChanged: (cells, reason) {
+      onRowChanged: (final cells, final reason) {
         if (!isClosed) {
           add(RowDetailEvent.didReceiveCellDatas(cells.values.toList()));
         }
@@ -66,18 +66,18 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
 @freezed
 class RowDetailEvent with _$RowDetailEvent {
   const factory RowDetailEvent.initial() = _Initial;
-  const factory RowDetailEvent.deleteField(String fieldId) = _DeleteField;
-  const factory RowDetailEvent.deleteRow(String rowId) = _DeleteRow;
-  const factory RowDetailEvent.duplicateRow(String rowId) = _DuplicateRow;
+  const factory RowDetailEvent.deleteField(final String fieldId) = _DeleteField;
+  const factory RowDetailEvent.deleteRow(final String rowId) = _DeleteRow;
+  const factory RowDetailEvent.duplicateRow(final String rowId) = _DuplicateRow;
   const factory RowDetailEvent.didReceiveCellDatas(
-    List<CellIdentifier> gridCells,
+    final List<CellIdentifier> gridCells,
   ) = _DidReceiveCellDatas;
 }
 
 @freezed
 class RowDetailState with _$RowDetailState {
   const factory RowDetailState({
-    required List<CellIdentifier> gridCells,
+    required final List<CellIdentifier> gridCells,
   }) = _RowDetailState;
 
   factory RowDetailState.initial() => RowDetailState(

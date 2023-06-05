@@ -7,18 +7,18 @@ part 'edit_select_option_bloc.freezed.dart';
 
 class EditSelectOptionBloc
     extends Bloc<EditSelectOptionEvent, EditSelectOptionState> {
-  EditSelectOptionBloc({required SelectOptionPB option})
+  EditSelectOptionBloc({required final SelectOptionPB option})
       : super(EditSelectOptionState.initial(option)) {
     on<EditSelectOptionEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.map(
-          updateName: (_UpdateName value) {
+          updateName: (final _UpdateName value) {
             emit(state.copyWith(option: _updateName(value.name)));
           },
-          updateColor: (_UpdateColor value) {
+          updateColor: (final _UpdateColor value) {
             emit(state.copyWith(option: _updateColor(value.color)));
           },
-          delete: (_Delete value) {
+          delete: (final _Delete value) {
             emit(state.copyWith(deleted: const Some(true)));
           },
         );
@@ -26,16 +26,16 @@ class EditSelectOptionBloc
     );
   }
 
-  SelectOptionPB _updateColor(SelectOptionColorPB color) {
+  SelectOptionPB _updateColor(final SelectOptionColorPB color) {
     state.option.freeze();
-    return state.option.rebuild((option) {
+    return state.option.rebuild((final option) {
       option.color = color;
     });
   }
 
-  SelectOptionPB _updateName(String name) {
+  SelectOptionPB _updateName(final String name) {
     state.option.freeze();
-    return state.option.rebuild((option) {
+    return state.option.rebuild((final option) {
       option.name = name;
     });
   }
@@ -43,8 +43,8 @@ class EditSelectOptionBloc
 
 @freezed
 class EditSelectOptionEvent with _$EditSelectOptionEvent {
-  const factory EditSelectOptionEvent.updateName(String name) = _UpdateName;
-  const factory EditSelectOptionEvent.updateColor(SelectOptionColorPB color) =
+  const factory EditSelectOptionEvent.updateName(final String name) = _UpdateName;
+  const factory EditSelectOptionEvent.updateColor(final SelectOptionColorPB color) =
       _UpdateColor;
   const factory EditSelectOptionEvent.delete() = _Delete;
 }
@@ -52,11 +52,11 @@ class EditSelectOptionEvent with _$EditSelectOptionEvent {
 @freezed
 class EditSelectOptionState with _$EditSelectOptionState {
   const factory EditSelectOptionState({
-    required SelectOptionPB option,
-    required Option<bool> deleted,
+    required final SelectOptionPB option,
+    required final Option<bool> deleted,
   }) = _EditSelectOptionState;
 
-  factory EditSelectOptionState.initial(SelectOptionPB option) =>
+  factory EditSelectOptionState.initial(final SelectOptionPB option) =>
       EditSelectOptionState(
         option: option,
         deleted: none(),

@@ -10,8 +10,8 @@ import '../../generated/locale_keys.g.dart';
 
 class AuthService {
   Future<Either<UserProfilePB, FlowyError>> signIn({
-    required String? email,
-    required String? password,
+    required final String? email,
+    required final String? password,
   }) {
     //
     final request = SignInPayloadPB.create()
@@ -22,9 +22,9 @@ class AuthService {
   }
 
   Future<Either<UserProfilePB, FlowyError>> signUp({
-    required String? name,
-    required String? password,
-    required String? email,
+    required final String? name,
+    required final String? password,
+    required final String? email,
   }) {
     final request = SignUpPayloadPB.create()
       ..email = email ?? ''

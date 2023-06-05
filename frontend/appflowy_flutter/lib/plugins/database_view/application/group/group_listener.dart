@@ -20,8 +20,8 @@ class DatabaseGroupListener {
   DatabaseGroupListener(this.viewId);
 
   void start({
-    required void Function(GroupUpdateValue) onNumOfGroupsChanged,
-    required void Function(GroupByNewFieldValue) onGroupByNewField,
+    required final void Function(GroupUpdateValue) onNumOfGroupsChanged,
+    required final void Function(GroupByNewFieldValue) onGroupByNewField,
   }) {
     _numOfGroupsNotifier?.addPublishListener(onNumOfGroupsChanged);
     _groupByFieldNotifier?.addPublishListener(onGroupByNewField);
@@ -32,22 +32,22 @@ class DatabaseGroupListener {
   }
 
   void _handler(
-    DatabaseNotification ty,
-    Either<Uint8List, FlowyError> result,
+    final DatabaseNotification ty,
+    final Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case DatabaseNotification.DidUpdateGroups:
         result.fold(
-          (payload) => _numOfGroupsNotifier?.value =
+          (final payload) => _numOfGroupsNotifier?.value =
               left(GroupChangesetPB.fromBuffer(payload)),
-          (error) => _numOfGroupsNotifier?.value = right(error),
+          (final error) => _numOfGroupsNotifier?.value = right(error),
         );
         break;
       case DatabaseNotification.DidGroupByField:
         result.fold(
-          (payload) => _groupByFieldNotifier?.value =
+          (final payload) => _groupByFieldNotifier?.value =
               left(GroupChangesetPB.fromBuffer(payload).initialGroups),
-          (error) => _groupByFieldNotifier?.value = right(error),
+          (final error) => _groupByFieldNotifier?.value = right(error),
         );
         break;
       default:

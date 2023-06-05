@@ -16,10 +16,10 @@ EditorState? _editorState;
 OverlayEntry? _linkToPageMenu;
 
 void showLinkToPageMenu(
-  EditorState editorState,
-  SelectionMenuService menuService,
-  BuildContext context,
-  ViewLayoutTypePB pageType,
+  final EditorState editorState,
+  final SelectionMenuService menuService,
+  final BuildContext context,
+  final ViewLayoutTypePB pageType,
 ) {
   final alignment = menuService.alignment;
   final offset = menuService.offset;
@@ -41,7 +41,7 @@ void showLinkToPageMenu(
 
   _linkToPageMenu?.remove();
   _linkToPageMenu = OverlayEntry(
-    builder: (context) {
+    builder: (final context) {
       return Positioned(
         top: alignment == Alignment.bottomLeft ? offset.dy : null,
         bottom: alignment == Alignment.topLeft ? offset.dy : null,
@@ -52,7 +52,7 @@ void showLinkToPageMenu(
             editorState: editorState,
             layoutType: pageType,
             hintText: hintText,
-            onSelected: (appPB, viewPB) {
+            onSelected: (final appPB, final viewPB) {
               editorState.insertPage(appPB, viewPB);
             },
           ),
@@ -120,7 +120,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
   @override
   void initState() {
     _availableLayout = fetchItems();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((final _) {
       _focusNode.requestFocus();
     });
     super.initState();
@@ -133,7 +133,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Focus(
       focusNode: _focusNode,
       onKey: _onKey,
@@ -156,7 +156,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
     );
   }
 
-  KeyEventResult _onKey(FocusNode node, RawKeyEvent event) {
+  KeyEventResult _onKey(final FocusNode node, final RawKeyEvent event) {
     if (event is! RawKeyDownEvent ||
         _availableLayout == null ||
         _items.isEmpty) {
@@ -199,13 +199,13 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
   }
 
   Widget _buildListWidget(
-    BuildContext context,
-    int selectedIndex,
-    Future<List<dartz.Tuple2<AppPB, List<ViewPB>>>>? items,
+    final BuildContext context,
+    final int selectedIndex,
+    final Future<List<dartz.Tuple2<AppPB, List<ViewPB>>>>? items,
   ) {
     int index = 0;
     return FutureBuilder<List<dartz.Tuple2<AppPB, List<ViewPB>>>>(
-      builder: (context, snapshot) {
+      builder: (final context, final snapshot) {
         if (snapshot.hasData &&
             snapshot.connectionState == ConnectionState.done) {
           final apps = snapshot.data;
@@ -262,7 +262,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
     );
   }
 
-  String _iconName(ViewPB viewPB) {
+  String _iconName(final ViewPB viewPB) {
     switch (viewPB.layout) {
       case ViewLayoutTypePB.Grid:
         return 'editor/grid';

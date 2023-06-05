@@ -16,9 +16,9 @@ class PluginSandbox {
     pluginRunner = PluginRunner();
   }
 
-  int indexOf(PluginType pluginType) {
+  int indexOf(final PluginType pluginType) {
     final index =
-        _pluginBuilders.keys.toList().indexWhere((ty) => ty == pluginType);
+        _pluginBuilders.keys.toList().indexWhere((final ty) => ty == pluginType);
     if (index == -1) {
       throw PlatformException(
         code: '-1',
@@ -28,15 +28,15 @@ class PluginSandbox {
     return index;
   }
 
-  Plugin buildPlugin(PluginType pluginType, dynamic data) {
+  Plugin buildPlugin(final PluginType pluginType, final dynamic data) {
     final plugin = _pluginBuilders[pluginType]!.build(data);
     return plugin;
   }
 
   void registerPlugin(
-    PluginType pluginType,
-    PluginBuilder builder, {
-    PluginConfig? config,
+    final PluginType pluginType,
+    final PluginBuilder builder, {
+    final PluginConfig? config,
   }) {
     if (_pluginBuilders.containsKey(pluginType)) {
       throw PlatformException(

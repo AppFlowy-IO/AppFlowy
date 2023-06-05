@@ -18,7 +18,7 @@ class TestFolder {
   ///
   /// The file_picker is a system component and can't be tapped, so using logic instead of tapping.
   ///
-  static Future<void> setTestLocation(String? name) async {
+  static Future<void> setTestLocation(final String? name) async {
     final location = await testLocation(name);
     SharedPreferences.setMockInitialValues({
       kSettingsLocationDefaultLocation: location.path,
@@ -27,7 +27,7 @@ class TestFolder {
   }
 
   /// Clean the location.
-  static Future<void> cleanTestLocation(String? name) async {
+  static Future<void> cleanTestLocation(final String? name) async {
     final dir = await testLocation(name);
     await dir.delete(recursive: true);
     return;
@@ -46,7 +46,7 @@ class TestFolder {
   }
 
   /// Get default location under test environment.
-  static Future<Directory> testLocation(String? name) async {
+  static Future<Directory> testLocation(final String? name) async {
     final dir = await getApplicationDocumentsDirectory();
     var path = '${dir.path}/flowy_test';
     if (name != null) {
@@ -59,7 +59,7 @@ class TestFolder {
 extension AppFlowyTestBase on WidgetTester {
   Future<void> initializeAppFlowy() async {
     const MethodChannel('hotkey_manager')
-        .setMockMethodCallHandler((MethodCall methodCall) async {
+        .setMockMethodCallHandler((final MethodCall methodCall) async {
       if (methodCall.method == 'unregisterAll') {
         // do nothing
       }
@@ -72,11 +72,11 @@ extension AppFlowyTestBase on WidgetTester {
   }
 
   Future<void> tapButton(
-    Finder finder, {
-    int? pointer,
-    int buttons = kPrimaryButton,
-    bool warnIfMissed = true,
-    int milliseconds = 500,
+    final Finder finder, {
+    final int? pointer,
+    final int buttons = kPrimaryButton,
+    final bool warnIfMissed = true,
+    final int milliseconds = 500,
   }) async {
     await tap(finder);
     await pumpAndSettle(Duration(milliseconds: milliseconds));
@@ -84,8 +84,8 @@ extension AppFlowyTestBase on WidgetTester {
   }
 
   Future<void> tapButtonWithName(
-    String tr, {
-    int milliseconds = 500,
+    final String tr, {
+    final int milliseconds = 500,
   }) async {
     final button = find.text(tr);
     await tapButton(
@@ -96,8 +96,8 @@ extension AppFlowyTestBase on WidgetTester {
   }
 
   Future<void> tapButtonWithTooltip(
-    String tr, {
-    int milliseconds = 500,
+    final String tr, {
+    final int milliseconds = 500,
   }) async {
     final button = find.byTooltip(tr);
     await tapButton(
@@ -107,7 +107,7 @@ extension AppFlowyTestBase on WidgetTester {
     return;
   }
 
-  Future<void> wait(int milliseconds) async {
+  Future<void> wait(final int milliseconds) async {
     await pumpAndSettle(Duration(milliseconds: milliseconds));
     return;
   }

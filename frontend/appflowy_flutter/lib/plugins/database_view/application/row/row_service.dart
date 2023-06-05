@@ -10,7 +10,7 @@ class RowBackendService {
     required this.viewId,
   });
 
-  Future<Either<RowPB, FlowyError>> createRow(String rowId) {
+  Future<Either<RowPB, FlowyError>> createRow(final String rowId) {
     final payload = CreateRowPayloadPB.create()
       ..viewId = viewId
       ..startRowId = rowId;
@@ -18,7 +18,7 @@ class RowBackendService {
     return DatabaseEventCreateRow(payload).send();
   }
 
-  Future<Either<OptionalRowPB, FlowyError>> getRow(String rowId) {
+  Future<Either<OptionalRowPB, FlowyError>> getRow(final String rowId) {
     final payload = RowIdPB.create()
       ..viewId = viewId
       ..rowId = rowId;
@@ -26,7 +26,7 @@ class RowBackendService {
     return DatabaseEventGetRow(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> deleteRow(String rowId) {
+  Future<Either<Unit, FlowyError>> deleteRow(final String rowId) {
     final payload = RowIdPB.create()
       ..viewId = viewId
       ..rowId = rowId;
@@ -34,7 +34,7 @@ class RowBackendService {
     return DatabaseEventDeleteRow(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> duplicateRow(String rowId) {
+  Future<Either<Unit, FlowyError>> duplicateRow(final String rowId) {
     final payload = RowIdPB.create()
       ..viewId = viewId
       ..rowId = rowId;

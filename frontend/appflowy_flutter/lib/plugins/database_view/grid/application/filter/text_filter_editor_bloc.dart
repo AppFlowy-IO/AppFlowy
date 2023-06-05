@@ -23,12 +23,12 @@ class TextFilterEditorBloc
         ),
         super(TextFilterEditorState.initial(filterInfo)) {
     on<TextFilterEditorEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.when(
           initial: () async {
             _startListening();
           },
-          updateCondition: (TextFilterConditionPB condition) {
+          updateCondition: (final TextFilterConditionPB condition) {
             _filterBackendSvc.insertTextFilter(
               filterId: filterInfo.filter.id,
               fieldId: filterInfo.fieldInfo.id,
@@ -36,7 +36,7 @@ class TextFilterEditorBloc
               content: state.filter.content,
             );
           },
-          updateContent: (content) {
+          updateContent: (final content) {
             _filterBackendSvc.insertTextFilter(
               filterId: filterInfo.filter.id,
               fieldId: filterInfo.fieldInfo.id,
@@ -51,7 +51,7 @@ class TextFilterEditorBloc
               fieldType: filterInfo.fieldInfo.fieldType,
             );
           },
-          didReceiveFilter: (FilterPB filter) {
+          didReceiveFilter: (final FilterPB filter) {
             final filterInfo = state.filterInfo.copyWith(filter: filter);
             final textFilter = filterInfo.textFilter()!;
             emit(
@@ -71,7 +71,7 @@ class TextFilterEditorBloc
       onDeleted: () {
         if (!isClosed) add(const TextFilterEditorEvent.delete());
       },
-      onUpdated: (filter) {
+      onUpdated: (final filter) {
         if (!isClosed) add(TextFilterEditorEvent.didReceiveFilter(filter));
       },
     );
@@ -87,12 +87,12 @@ class TextFilterEditorBloc
 @freezed
 class TextFilterEditorEvent with _$TextFilterEditorEvent {
   const factory TextFilterEditorEvent.initial() = _Initial;
-  const factory TextFilterEditorEvent.didReceiveFilter(FilterPB filter) =
+  const factory TextFilterEditorEvent.didReceiveFilter(final FilterPB filter) =
       _DidReceiveFilter;
   const factory TextFilterEditorEvent.updateCondition(
-    TextFilterConditionPB condition,
+    final TextFilterConditionPB condition,
   ) = _UpdateCondition;
-  const factory TextFilterEditorEvent.updateContent(String content) =
+  const factory TextFilterEditorEvent.updateContent(final String content) =
       _UpdateContent;
   const factory TextFilterEditorEvent.delete() = _Delete;
 }
@@ -100,11 +100,11 @@ class TextFilterEditorEvent with _$TextFilterEditorEvent {
 @freezed
 class TextFilterEditorState with _$TextFilterEditorState {
   const factory TextFilterEditorState({
-    required FilterInfo filterInfo,
-    required TextFilterPB filter,
+    required final FilterInfo filterInfo,
+    required final TextFilterPB filter,
   }) = _GridFilterState;
 
-  factory TextFilterEditorState.initial(FilterInfo filterInfo) {
+  factory TextFilterEditorState.initial(final FilterInfo filterInfo) {
     return TextFilterEditorState(
       filterInfo: filterInfo,
       filter: filterInfo.textFilter()!,

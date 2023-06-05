@@ -12,21 +12,21 @@ class TextCardCellBloc extends Bloc<TextCardCellEvent, TextCardCellState> {
     required this.cellController,
   }) : super(TextCardCellState.initial(cellController)) {
     on<TextCardCellEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.when(
           initial: () async {
             _startListening();
           },
-          didReceiveCellUpdate: (content) {
+          didReceiveCellUpdate: (final content) {
             emit(state.copyWith(content: content));
           },
-          updateText: (text) {
+          updateText: (final text) {
             if (text != state.content) {
               cellController.saveCellData(text);
               emit(state.copyWith(content: text));
             }
           },
-          enableEdit: (bool enabled) {
+          enableEdit: (final bool enabled) {
             emit(state.copyWith(enableEdit: enabled));
           },
         );
@@ -46,7 +46,7 @@ class TextCardCellBloc extends Bloc<TextCardCellEvent, TextCardCellState> {
 
   void _startListening() {
     _onCellChangedFn = cellController.startListening(
-      onCellChanged: ((cellContent) {
+      onCellChanged: ((final cellContent) {
         if (!isClosed) {
           add(TextCardCellEvent.didReceiveCellUpdate(cellContent ?? ""));
         }
@@ -58,20 +58,20 @@ class TextCardCellBloc extends Bloc<TextCardCellEvent, TextCardCellState> {
 @freezed
 class TextCardCellEvent with _$TextCardCellEvent {
   const factory TextCardCellEvent.initial() = _InitialCell;
-  const factory TextCardCellEvent.updateText(String text) = _UpdateContent;
-  const factory TextCardCellEvent.enableEdit(bool enabled) = _EnableEdit;
-  const factory TextCardCellEvent.didReceiveCellUpdate(String cellContent) =
+  const factory TextCardCellEvent.updateText(final String text) = _UpdateContent;
+  const factory TextCardCellEvent.enableEdit(final bool enabled) = _EnableEdit;
+  const factory TextCardCellEvent.didReceiveCellUpdate(final String cellContent) =
       _DidReceiveCellUpdate;
 }
 
 @freezed
 class TextCardCellState with _$TextCardCellState {
   const factory TextCardCellState({
-    required String content,
-    required bool enableEdit,
+    required final String content,
+    required final bool enableEdit,
   }) = _TextCardCellState;
 
-  factory TextCardCellState.initial(TextCellController context) =>
+  factory TextCardCellState.initial(final TextCellController context) =>
       TextCardCellState(
         content: context.getCellData() ?? "",
         enableEdit: false,

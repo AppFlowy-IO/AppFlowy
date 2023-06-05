@@ -14,10 +14,10 @@ class DateCardCellBloc extends Bloc<DateCardCellEvent, DateCardCellState> {
   DateCardCellBloc({required this.cellController})
       : super(DateCardCellState.initial(cellController)) {
     on<DateCardCellEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.when(
           initial: () => _startListening(),
-          didReceiveCellUpdate: (DateCellDataPB? cellData) {
+          didReceiveCellUpdate: (final DateCellDataPB? cellData) {
             emit(
               state.copyWith(
                 data: cellData,
@@ -42,7 +42,7 @@ class DateCardCellBloc extends Bloc<DateCardCellEvent, DateCardCellState> {
 
   void _startListening() {
     _onCellChangedFn = cellController.startListening(
-      onCellChanged: ((data) {
+      onCellChanged: ((final data) {
         if (!isClosed) {
           add(DateCardCellEvent.didReceiveCellUpdate(data));
         }
@@ -54,19 +54,19 @@ class DateCardCellBloc extends Bloc<DateCardCellEvent, DateCardCellState> {
 @freezed
 class DateCardCellEvent with _$DateCardCellEvent {
   const factory DateCardCellEvent.initial() = _InitialCell;
-  const factory DateCardCellEvent.didReceiveCellUpdate(DateCellDataPB? data) =
+  const factory DateCardCellEvent.didReceiveCellUpdate(final DateCellDataPB? data) =
       _DidReceiveCellUpdate;
 }
 
 @freezed
 class DateCardCellState with _$DateCardCellState {
   const factory DateCardCellState({
-    required DateCellDataPB? data,
-    required String dateStr,
-    required FieldInfo fieldInfo,
+    required final DateCellDataPB? data,
+    required final String dateStr,
+    required final FieldInfo fieldInfo,
   }) = _DateCardCellState;
 
-  factory DateCardCellState.initial(DateCellController context) {
+  factory DateCardCellState.initial(final DateCellController context) {
     final cellData = context.getCellData();
 
     return DateCardCellState(
@@ -77,7 +77,7 @@ class DateCardCellState with _$DateCardCellState {
   }
 }
 
-String _dateStrFromCellData(DateCellDataPB? cellData) {
+String _dateStrFromCellData(final DateCellDataPB? cellData) {
   String dateStr = "";
   if (cellData != null) {
     dateStr = "${cellData.date} ${cellData.time}";

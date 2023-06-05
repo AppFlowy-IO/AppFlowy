@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 
 SelectionMenuItem gridMenuItem = SelectionMenuItem(
   name: LocaleKeys.document_plugins_referencedGrid.tr(),
-  icon: (editorState, onSelected) {
+  icon: (final editorState, final onSelected) {
     return svgWidget(
       'editor/grid',
       size: const Size.square(18.0),
@@ -18,7 +18,7 @@ SelectionMenuItem gridMenuItem = SelectionMenuItem(
     );
   },
   keywords: ['referenced', 'grid'],
-  handler: (editorState, menuService, context) {
+  handler: (final editorState, final menuService, final context) {
     showLinkToPageMenu(
       editorState,
       menuService,

@@ -9,7 +9,7 @@ class AnimatedPanel extends StatefulWidget {
   final Widget? child;
 
   const AnimatedPanel({
-    Key? key,
+    final Key? key,
     this.isClosed = false,
     this.closedX = 0.0,
     this.closedY = 0.0,
@@ -26,9 +26,9 @@ class AnimatedPanelState extends State<AnimatedPanel> {
   bool _isHidden = true;
 
   @override
-  Widget build(BuildContext context) {
-    Offset closePos = Offset(widget.closedX, widget.closedY);
-    double duration = _isHidden && widget.isClosed ? 0 : widget.duration;
+  Widget build(final BuildContext context) {
+    final Offset closePos = Offset(widget.closedX, widget.closedY);
+    final double duration = _isHidden && widget.isClosed ? 0 : widget.duration;
     return TweenAnimationBuilder(
       curve: widget.curve ?? Curves.easeOut,
       tween: Tween<Offset>(
@@ -36,7 +36,7 @@ class AnimatedPanelState extends State<AnimatedPanel> {
         end: !widget.isClosed ? Offset.zero : closePos,
       ),
       duration: Duration(milliseconds: (duration * 1000).round()),
-      builder: (_, Offset value, Widget? c) {
+      builder: (final _, final Offset value, final Widget? c) {
         _isHidden =
             widget.isClosed && value == Offset(widget.closedX, widget.closedY);
         return _isHidden
@@ -50,10 +50,10 @@ class AnimatedPanelState extends State<AnimatedPanel> {
 
 extension AnimatedPanelExtensions on Widget {
   Widget animatedPanelX({
-    double closeX = 0.0,
-    bool? isClosed,
-    double? duration,
-    Curve? curve,
+    final double closeX = 0.0,
+    final bool? isClosed,
+    final double? duration,
+    final Curve? curve,
   }) =>
       animatedPanel(
         closePos: Offset(closeX, 0),
@@ -63,10 +63,10 @@ extension AnimatedPanelExtensions on Widget {
       );
 
   Widget animatedPanelY({
-    double closeY = 0.0,
-    bool? isClosed,
-    double? duration,
-    Curve? curve,
+    final double closeY = 0.0,
+    final bool? isClosed,
+    final double? duration,
+    final Curve? curve,
   }) =>
       animatedPanel(
         closePos: Offset(0, closeY),
@@ -76,10 +76,10 @@ extension AnimatedPanelExtensions on Widget {
       );
 
   Widget animatedPanel({
-    required Offset closePos,
-    bool? isClosed,
-    double? duration,
-    Curve? curve,
+    required final Offset closePos,
+    final bool? isClosed,
+    final double? duration,
+    final Curve? curve,
   }) {
     return AnimatedPanel(
       closedX: closePos.dx,

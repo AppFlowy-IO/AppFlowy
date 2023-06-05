@@ -5,7 +5,7 @@ import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pbenum
 
 import '../util.dart';
 
-Future<GridTestContext> createTestFilterGrid(AppFlowyGridTest gridTest) async {
+Future<GridTestContext> createTestFilterGrid(final AppFlowyGridTest gridTest) async {
   final app = await gridTest.unitTest.createTestApp();
   final builder = GridPluginBuilder();
   final context = await AppBackendService()
@@ -14,9 +14,9 @@ Future<GridTestContext> createTestFilterGrid(AppFlowyGridTest gridTest) async {
     name: "Filter Grid",
     layoutType: builder.layoutType!,
   )
-      .then((result) {
+      .then((final result) {
     return result.fold(
-      (view) async {
+      (final view) async {
         final context = GridTestContext(
           view,
           DatabaseController(
@@ -28,17 +28,17 @@ Future<GridTestContext> createTestFilterGrid(AppFlowyGridTest gridTest) async {
 
         await editCells(context);
         await gridResponseFuture(milliseconds: 500);
-        result.fold((l) => null, (r) => throw Exception(r));
+        result.fold((final l) => null, (final r) => throw Exception(r));
         return context;
       },
-      (error) => throw Exception(),
+      (final error) => throw Exception(),
     );
   });
 
   return context;
 }
 
-Future<void> editCells(GridTestContext context) async {
+Future<void> editCells(final GridTestContext context) async {
   final controller0 = await context.makeTextCellController(0);
   final controller1 = await context.makeTextCellController(1);
 

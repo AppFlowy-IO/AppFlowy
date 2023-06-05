@@ -10,7 +10,7 @@ ShortcutEvent insertDividerEvent = ShortcutEvent(
   handler: _insertDividerHandler,
 );
 
-ShortcutEventHandler _insertDividerHandler = (editorState, event) {
+ShortcutEventHandler _insertDividerHandler = (final editorState, final event) {
   final selection = editorState.service.selectionService.currentSelection.value;
   final textNodes = editorState.service.selectionService.currentSelectedNodes
       .whereType<TextNode>();
@@ -35,7 +35,7 @@ ShortcutEventHandler _insertDividerHandler = (editorState, event) {
 
 SelectionMenuItem dividerMenuItem = SelectionMenuItem(
   name: 'Divider',
-  icon: (editorState, onSelected) => Icon(
+  icon: (final editorState, final onSelected) => Icon(
     Icons.horizontal_rule,
     color: onSelected
         ? editorState.editorStyle.selectionMenuItemSelectedIconColor
@@ -43,7 +43,7 @@ SelectionMenuItem dividerMenuItem = SelectionMenuItem(
     size: 18.0,
   ),
   keywords: ['horizontal rule', 'divider'],
-  handler: (editorState, _, __) {
+  handler: (final editorState, final _, final __) {
     final selection =
         editorState.service.selectionService.currentSelection.value;
     final textNodes = editorState.service.selectionService.currentSelectedNodes

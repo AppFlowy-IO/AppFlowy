@@ -6,10 +6,10 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 class FlowyMessageToast extends StatelessWidget {
   final String message;
-  const FlowyMessageToast({required this.message, Key? key}) : super(key: key);
+  const FlowyMessageToast({required this.message, final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(4)),
@@ -26,11 +26,11 @@ class FlowyMessageToast extends StatelessWidget {
   }
 }
 
-void initToastWithContext(BuildContext context) {
+void initToastWithContext(final BuildContext context) {
   getIt<FToast>().init(context);
 }
 
-void showMessageToast(String message) {
+void showMessageToast(final String message) {
   final child = FlowyMessageToast(message: message);
 
   getIt<FToast>().showToast(

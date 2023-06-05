@@ -14,17 +14,17 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 class WelcomeScreen extends StatelessWidget {
   final UserProfilePB userProfile;
   const WelcomeScreen({
-    Key? key,
+    final Key? key,
     required this.userProfile,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (_) => getIt<WelcomeBloc>(param1: userProfile)
+      create: (final _) => getIt<WelcomeBloc>(param1: userProfile)
         ..add(const WelcomeEvent.initial()),
       child: BlocBuilder<WelcomeBloc, WelcomeState>(
-        builder: (context, state) {
+        builder: (final context, final state) {
           return Scaffold(
             body: Padding(
               padding: const EdgeInsets.all(60.0),
@@ -41,15 +41,15 @@ class WelcomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _renderBody(WelcomeState state) {
+  Widget _renderBody(final WelcomeState state) {
     final body = state.successOrFailure.fold(
-      (_) => _renderList(state.workspaces),
-      (error) => FlowyErrorPage(error.toString()),
+      (final _) => _renderList(state.workspaces),
+      (final error) => FlowyErrorPage(error.toString()),
     );
     return body;
   }
 
-  Widget _renderCreateButton(BuildContext context) {
+  Widget _renderCreateButton(final BuildContext context) {
     return SizedBox(
       width: 200,
       height: 40,
@@ -69,14 +69,14 @@ class WelcomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _renderList(List<WorkspacePB> workspaces) {
+  Widget _renderList(final List<WorkspacePB> workspaces) {
     return Expanded(
       child: StyledListView(
-        itemBuilder: (BuildContext context, int index) {
+        itemBuilder: (final BuildContext context, final int index) {
           final workspace = workspaces[index];
           return WorkspaceItem(
             workspace: workspace,
-            onPressed: (workspace) => _handleOnPress(context, workspace),
+            onPressed: (final workspace) => _handleOnPress(context, workspace),
           );
         },
         itemCount: workspaces.length,
@@ -84,7 +84,7 @@ class WelcomeScreen extends StatelessWidget {
     );
   }
 
-  void _handleOnPress(BuildContext context, WorkspacePB workspace) {
+  void _handleOnPress(final BuildContext context, final WorkspacePB workspace) {
     context.read<WelcomeBloc>().add(WelcomeEvent.openWorkspace(workspace));
 
     Navigator.of(context).pop(workspace.id);
@@ -95,13 +95,13 @@ class WorkspaceItem extends StatelessWidget {
   final WorkspacePB workspace;
   final void Function(WorkspacePB workspace) onPressed;
   const WorkspaceItem({
-    Key? key,
+    final Key? key,
     required this.workspace,
     required this.onPressed,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       height: 46,
       child: FlowyTextButton(

@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 part 'url_validator.freezed.dart';
 
-Either<UriFailure, Uri> parseValidUrl(String url) {
+Either<UriFailure, Uri> parseValidUrl(final String url) {
   try {
     final uri = Uri.parse(url);
     if (uri.scheme.isEmpty || uri.host.isEmpty) {

@@ -32,10 +32,10 @@ class ViewListener {
   });
 
   void start({
-    void Function(UpdateViewNotifiedValue)? onViewUpdated,
-    void Function(DeleteViewNotifyValue)? onViewDeleted,
-    void Function(RestoreViewNotifiedValue)? onViewRestored,
-    void Function(MoveToTrashNotifiedValue)? onViewMoveToTrash,
+    final void Function(UpdateViewNotifiedValue)? onViewUpdated,
+    final void Function(DeleteViewNotifyValue)? onViewDeleted,
+    final void Function(RestoreViewNotifiedValue)? onViewRestored,
+    final void Function(MoveToTrashNotifiedValue)? onViewMoveToTrash,
   }) {
     if (onViewUpdated != null) {
       _updatedViewNotifier.addListener(() {
@@ -63,46 +63,46 @@ class ViewListener {
 
     _parser = FolderNotificationParser(
       id: view.id,
-      callback: (ty, result) {
+      callback: (final ty, final result) {
         _handleObservableType(ty, result);
       },
     );
 
     _subscription =
-        RustStreamReceiver.listen((observable) => _parser?.parse(observable));
+        RustStreamReceiver.listen((final observable) => _parser?.parse(observable));
   }
 
   void _handleObservableType(
-    FolderNotification ty,
-    Either<Uint8List, FlowyError> result,
+    final FolderNotification ty,
+    final Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case FolderNotification.DidUpdateView:
         result.fold(
-          (payload) =>
+          (final payload) =>
               _updatedViewNotifier.value = left(ViewPB.fromBuffer(payload)),
-          (error) => _updatedViewNotifier.value = right(error),
+          (final error) => _updatedViewNotifier.value = right(error),
         );
         break;
       case FolderNotification.DidDeleteView:
         result.fold(
-          (payload) =>
+          (final payload) =>
               _deletedNotifier.value = left(ViewPB.fromBuffer(payload)),
-          (error) => _deletedNotifier.value = right(error),
+          (final error) => _deletedNotifier.value = right(error),
         );
         break;
       case FolderNotification.DidRestoreView:
         result.fold(
-          (payload) =>
+          (final payload) =>
               _restoredNotifier.value = left(ViewPB.fromBuffer(payload)),
-          (error) => _restoredNotifier.value = right(error),
+          (final error) => _restoredNotifier.value = right(error),
         );
         break;
       case FolderNotification.DidMoveViewToTrash:
         result.fold(
-          (payload) => _moveToTrashNotifier.value =
+          (final payload) => _moveToTrashNotifier.value =
               left(DeletedViewPB.fromBuffer(payload)),
-          (error) => _moveToTrashNotifier.value = right(error),
+          (final error) => _moveToTrashNotifier.value = right(error),
         );
         break;
       default:

@@ -14,7 +14,7 @@ class DateCardCell<CustomCardData> extends CardCell {
   const DateCardCell({
     required this.cellControllerBuilder,
     this.renderHook,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -35,16 +35,17 @@ class _DateCardCellState extends State<DateCardCell> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<DateCardCellBloc, DateCardCellState>(
-        buildWhen: (previous, current) => previous.dateStr != current.dateStr,
-        builder: (context, state) {
+        buildWhen: (final previous, final current) =>
+            previous.dateStr != current.dateStr,
+        builder: (final context, final state) {
           if (state.dateStr.isEmpty) {
             return const SizedBox();
           } else {
-            Widget? custom = widget.renderHook?.call(
+            final Widget? custom = widget.renderHook?.call(
               state.data,
               widget.cardData,
               context,

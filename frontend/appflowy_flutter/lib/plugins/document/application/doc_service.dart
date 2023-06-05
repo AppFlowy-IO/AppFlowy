@@ -7,7 +7,7 @@ import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 
 class DocumentService {
   Future<Either<DocumentDataPB, FlowyError>> openDocument({
-    required ViewPB view,
+    required final ViewPB view,
   }) async {
     await FolderEventSetLatestView(ViewIdPB(value: view.id)).send();
 
@@ -26,8 +26,8 @@ class DocumentService {
   }
 
   Future<Either<Unit, FlowyError>> applyEdit({
-    required String docId,
-    required String operations,
+    required final String docId,
+    required final String operations,
   }) {
     final payload = EditPayloadPB.create()
       ..docId = docId
@@ -35,7 +35,7 @@ class DocumentService {
     return DocumentEventApplyEdit(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> closeDocument({required String docId}) {
+  Future<Either<Unit, FlowyError>> closeDocument({required final String docId}) {
     final payload = ViewIdPB(value: docId);
     return FolderEventCloseView(payload).send();
   }

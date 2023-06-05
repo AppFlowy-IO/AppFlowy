@@ -26,12 +26,12 @@ const String kAutoCompletionInputStartSelection =
 
 class AutoCompletionInputBuilder extends NodeWidgetBuilder<Node> {
   @override
-  NodeValidator<Node> get nodeValidator => (node) {
+  NodeValidator<Node> get nodeValidator => (final node) {
         return node.attributes[kAutoCompletionInputString] is String;
       };
 
   @override
-  Widget build(NodeWidgetContext<Node> context) {
+  Widget build(final NodeWidgetContext<Node> context) {
     return _AutoCompletionInput(
       key: context.node.key,
       node: context.node,
@@ -45,7 +45,7 @@ class _AutoCompletionInput extends StatefulWidget {
 
   final EditorState editorState;
   const _AutoCompletionInput({
-    Key? key,
+    final Key? key,
     required this.node,
     required this.editorState,
   });
@@ -70,14 +70,14 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
     textFieldFocusNode.requestFocus();
     widget.editorState.service.selectionService.register(
       interceptor
-        ..canTap = (details) {
+        ..canTap = (final details) {
           final renderBox = context.findRenderObject() as RenderBox?;
           if (renderBox != null) {
             if (!isTapDownDetailsInRenderBox(details, renderBox)) {
               if (text.isNotEmpty || controller.text.isNotEmpty) {
                 showDialog(
                   context: context,
-                  builder: (context) {
+                  builder: (final context) {
                     return DiscardDialog(
                       onConfirm: () => _onDiscard(),
                       onCancel: () {},
@@ -94,10 +94,10 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
     );
   }
 
-  bool isTapDownDetailsInRenderBox(TapDownDetails details, RenderBox box) {
-    var result = BoxHitTestResult();
+  bool isTapDownDetailsInRenderBox(final TapDownDetails details, final RenderBox box) {
+    final result = BoxHitTestResult();
     box.hitTest(result, position: box.globalToLocal(details.globalPosition));
-    return result.path.any((entry) => entry.target == box);
+    return result.path.any((final entry) => entry.target == box);
   }
 
   @override
@@ -112,7 +112,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Card(
       elevation: 5,
       color: Theme.of(context).colorScheme.surface,
@@ -123,7 +123,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
     );
   }
 
-  Widget _buildAutoGeneratorPanel(BuildContext context) {
+  Widget _buildAutoGeneratorPanel(final BuildContext context) {
     if (text.isEmpty) {
       return Column(
         mainAxisSize: MainAxisSize.min,
@@ -147,7 +147,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
     }
   }
 
-  Widget _buildHeaderWidget(BuildContext context) {
+  Widget _buildHeaderWidget(final BuildContext context) {
     return Row(
       children: [
         FlowyText.medium(
@@ -168,7 +168,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
     );
   }
 
-  Widget _buildInputWidget(BuildContext context) {
+  Widget _buildInputWidget(final BuildContext context) {
     return FlowyTextField(
       hintText: LocaleKeys.document_plugins_autoGeneratorHintText.tr(),
       controller: controller,
@@ -178,7 +178,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
     );
   }
 
-  Widget _buildInputFooterWidget(BuildContext context) {
+  Widget _buildInputFooterWidget(final BuildContext context) {
     return Row(
       children: [
         PrimaryTextButton(
@@ -204,7 +204,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
     );
   }
 
-  Widget _buildFooterWidget(BuildContext context) {
+  Widget _buildFooterWidget(final BuildContext context) {
     return Row(
       children: [
         PrimaryTextButton(
@@ -238,7 +238,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
     await _updateEditingText();
     final result = await UserBackendService.getCurrentUserProfile();
 
-    result.fold((userProfile) async {
+    result.fold((final userProfile) async {
       BarrierDialog? barrierDialog;
       final openAIRepository = HttpOpenAIRepository(
         client: http.Client(),
@@ -252,7 +252,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
           barrierDialog?.show();
           await _makeSurePreviousNodeIsEmptyTextNode();
         },
-        onProcess: (response) async {
+        onProcess: (final response) async {
           if (response.choices.isNotEmpty) {
             final text = response.choices.first.text;
             await widget.editorState.autoInsertText(
@@ -267,12 +267,12 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
           widget.editorState.service.selectionService.currentSelection
               .addListener(_onCancelWhenSelectionChanged);
         },
-        onError: (error) async {
+        onError: (final error) async {
           loading.stop();
           await _showError(error.message);
         },
       );
-    }, (error) async {
+    }, (final error) async {
       loading.stop();
       await _showError(
         LocaleKeys.document_plugins_autoGeneratorCantGetOpenAIKey.tr(),
@@ -338,7 +338,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
     await widget.editorState.apply(transaction);
   }
 
-  Future<void> _showError(String message) async {
+  Future<void> _showError(final String message) async {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         action: SnackBarAction(

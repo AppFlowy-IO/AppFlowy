@@ -6,13 +6,13 @@ part 'number_format_bloc.freezed.dart';
 class NumberFormatBloc extends Bloc<NumberFormatEvent, NumberFormatState> {
   NumberFormatBloc() : super(NumberFormatState.initial()) {
     on<NumberFormatEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.map(
-          setFilter: (_SetFilter value) {
+          setFilter: (final _SetFilter value) {
             final List<NumberFormat> formats = List.from(NumberFormat.values);
             if (value.filter.isNotEmpty) {
               formats.retainWhere(
-                (element) => element
+                (final element) => element
                     .title()
                     .toLowerCase()
                     .contains(value.filter.toLowerCase()),
@@ -28,14 +28,14 @@ class NumberFormatBloc extends Bloc<NumberFormatEvent, NumberFormatState> {
 
 @freezed
 class NumberFormatEvent with _$NumberFormatEvent {
-  const factory NumberFormatEvent.setFilter(String filter) = _SetFilter;
+  const factory NumberFormatEvent.setFilter(final String filter) = _SetFilter;
 }
 
 @freezed
 class NumberFormatState with _$NumberFormatState {
   const factory NumberFormatState({
-    required List<NumberFormat> formats,
-    required String filter,
+    required final List<NumberFormat> formats,
+    required final String filter,
   }) = _NumberFormatState;
 
   factory NumberFormatState.initial() {

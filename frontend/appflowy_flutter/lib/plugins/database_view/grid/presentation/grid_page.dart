@@ -35,7 +35,7 @@ class GridPage extends StatefulWidget {
   GridPage({
     required this.view,
     this.onDeleted,
-    Key? key,
+    final Key? key,
   })  : databaseController = DatabaseController(
           view: view,
           layoutType: LayoutTypePB.Grid,
@@ -52,39 +52,39 @@ class GridPage extends StatefulWidget {
 
 class _GridPageState extends State<GridPage> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider<GridBloc>(
-          create: (context) => GridBloc(
+          create: (final context) => GridBloc(
             view: widget.view,
             databaseController: widget.databaseController,
           )..add(const GridEvent.initial()),
         ),
         BlocProvider<GridFilterMenuBloc>(
-          create: (context) => GridFilterMenuBloc(
+          create: (final context) => GridFilterMenuBloc(
             viewId: widget.view.id,
             fieldController: widget.databaseController.fieldController,
           )..add(const GridFilterMenuEvent.initial()),
         ),
         BlocProvider<SortMenuBloc>(
-          create: (context) => SortMenuBloc(
+          create: (final context) => SortMenuBloc(
             viewId: widget.view.id,
             fieldController: widget.databaseController.fieldController,
           )..add(const SortMenuEvent.initial()),
         ),
         BlocProvider<DatabaseSettingBloc>(
-          create: (context) => DatabaseSettingBloc(viewId: widget.view.id),
+          create: (final context) => DatabaseSettingBloc(viewId: widget.view.id),
         ),
       ],
       child: BlocBuilder<GridBloc, GridState>(
-        builder: (context, state) {
+        builder: (final context, final state) {
           return state.loadingState.map(
-            loading: (_) =>
+            loading: (final _) =>
                 const Center(child: CircularProgressIndicator.adaptive()),
-            finish: (result) => result.successOrFail.fold(
-              (_) => const GridShortcuts(child: FlowyGrid()),
-              (err) => FlowyErrorPage(err.toString()),
+            finish: (final result) => result.successOrFail.fold(
+              (final _) => const GridShortcuts(child: FlowyGrid()),
+              (final err) => FlowyErrorPage(err.toString()),
             ),
           );
         },
@@ -103,13 +103,13 @@ class _GridPageState extends State<GridPage> {
   }
 
   @override
-  void didUpdateWidget(covariant GridPage oldWidget) {
+  void didUpdateWidget(covariant final GridPage oldWidget) {
     super.didUpdateWidget(oldWidget);
   }
 }
 
 class FlowyGrid extends StatefulWidget {
-  const FlowyGrid({Key? key}) : super(key: key);
+  const FlowyGrid({final Key? key}) : super(key: key);
 
   @override
   State<FlowyGrid> createState() => _FlowyGridState();
@@ -134,10 +134,10 @@ class _FlowyGridState extends State<FlowyGrid> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<GridBloc, GridState>(
-      buildWhen: (previous, current) => previous.fields != current.fields,
-      builder: (context, state) {
+      buildWhen: (final previous, final current) => previous.fields != current.fields,
+      builder: (final context, final state) {
         final contentWidth = GridLayout.headerWidth(state.fields.value);
         final child = _wrapScrollView(
           contentWidth,
@@ -162,8 +162,8 @@ class _FlowyGridState extends State<FlowyGrid> {
   }
 
   Widget _wrapScrollView(
-    double contentWidth,
-    List<Widget> slivers,
+    final double contentWidth,
+    final List<Widget> slivers,
   ) {
     final verticalScrollView = ScrollConfiguration(
       behavior: const ScrollBehavior().copyWith(scrollbars: false),
@@ -193,7 +193,7 @@ class _FlowyGridState extends State<FlowyGrid> {
     );
   }
 
-  Widget _gridHeader(BuildContext context, String viewId) {
+  Widget _gridHeader(final BuildContext context, final String viewId) {
     final fieldController =
         context.read<GridBloc>().databaseController.fieldController;
     return GridHeaderSliverAdaptor(
@@ -205,7 +205,7 @@ class _FlowyGridState extends State<FlowyGrid> {
 }
 
 class _GridRows extends StatefulWidget {
-  const _GridRows({Key? key}) : super(key: key);
+  const _GridRows({final Key? key}) : super(key: key);
 
   @override
   State<_GridRows> createState() => _GridRowsState();
@@ -215,22 +215,22 @@ class _GridRowsState extends State<_GridRows> {
   final _key = GlobalKey<SliverAnimatedListState>();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocConsumer<GridBloc, GridState>(
-      listenWhen: (previous, current) => previous.reason != current.reason,
-      listener: (context, state) {
+      listenWhen: (final previous, final current) => previous.reason != current.reason,
+      listener: (final context, final state) {
         state.reason.whenOrNull(
-          insert: (item) {
+          insert: (final item) {
             _key.currentState?.insertItem(item.index);
           },
-          delete: (item) {
+          delete: (final item) {
             _key.currentState?.removeItem(
               item.index,
-              (context, animation) =>
+              (final context, final animation) =>
                   _renderRow(context, item.rowInfo, animation),
             );
           },
-          reorderSingleRow: (reorderRow, rowInfo) {
+          reorderSingleRow: (final reorderRow, final rowInfo) {
             // _key.currentState?.removeItem(
             //   reorderRow.oldIndex,
             //   (context, animation) => _renderRow(context, rowInfo, animation),
@@ -239,19 +239,19 @@ class _GridRowsState extends State<_GridRows> {
           },
         );
       },
-      buildWhen: (previous, current) {
+      buildWhen: (final previous, final current) {
         return current.reason.whenOrNull(
               reorderRows: () => true,
-              reorderSingleRow: (reorderRow, rowInfo) => true,
+              reorderSingleRow: (final reorderRow, final rowInfo) => true,
             ) ??
             false;
       },
-      builder: (context, state) {
+      builder: (final context, final state) {
         return SliverAnimatedList(
           key: _key,
           initialItemCount: context.read<GridBloc>().state.rowInfos.length,
           itemBuilder:
-              (BuildContext context, int index, Animation<double> animation) {
+              (final BuildContext context, final int index, final Animation<double> animation) {
             final rowInfos = context.read<GridBloc>().state.rowInfos;
             if (index >= rowInfos.length) {
               return const SizedBox();
@@ -266,9 +266,9 @@ class _GridRowsState extends State<_GridRows> {
   }
 
   Widget _renderRow(
-    BuildContext context,
-    RowInfo rowInfo,
-    Animation<double> animation,
+    final BuildContext context,
+    final RowInfo rowInfo,
+    final Animation<double> animation,
   ) {
     final rowCache = context.read<GridBloc>().getRowCache(
           rowInfo.rowPB.blockId,
@@ -292,7 +292,7 @@ class _GridRowsState extends State<_GridRows> {
         rowInfo: rowInfo,
         dataController: dataController,
         cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
-        openDetailPage: (context, cellBuilder) {
+        openDetailPage: (final context, final cellBuilder) {
           _openRowDetailPage(
             context,
             rowInfo,
@@ -307,11 +307,11 @@ class _GridRowsState extends State<_GridRows> {
   }
 
   void _openRowDetailPage(
-    BuildContext context,
-    RowInfo rowInfo,
-    FieldController fieldController,
-    RowCache rowCache,
-    GridCellBuilder cellBuilder,
+    final BuildContext context,
+    final RowInfo rowInfo,
+    final FieldController fieldController,
+    final RowCache rowCache,
+    final GridCellBuilder cellBuilder,
   ) {
     final dataController = RowController(
       viewId: rowInfo.viewId,
@@ -321,7 +321,7 @@ class _GridRowsState extends State<_GridRows> {
 
     FlowyOverlay.show(
       context: context,
-      builder: (BuildContext context) {
+      builder: (final BuildContext context) {
         return RowDetailPage(
           cellBuilder: cellBuilder,
           dataController: dataController,
@@ -332,10 +332,10 @@ class _GridRowsState extends State<_GridRows> {
 }
 
 class _GridFooter extends StatelessWidget {
-  const _GridFooter({Key? key}) : super(key: key);
+  const _GridFooter({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SliverPadding(
       padding: const EdgeInsets.only(bottom: 200),
       sliver: SliverToBoxAdapter(
@@ -352,13 +352,13 @@ class _GridFooter extends StatelessWidget {
 }
 
 class RowCountBadge extends StatelessWidget {
-  const RowCountBadge({Key? key}) : super(key: key);
+  const RowCountBadge({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocSelector<GridBloc, GridState, int>(
-      selector: (state) => state.rowCount,
-      builder: (context, rowCount) {
+      selector: (final state) => state.rowCount,
+      builder: (final context, final rowCount) {
         return Padding(
           padding: GridSize.footerContentInsets,
           child: Row(

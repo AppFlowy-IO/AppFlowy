@@ -16,7 +16,7 @@ class CalendarToolbar extends StatelessWidget {
   const CalendarToolbar({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       height: 40,
       child: Row(
@@ -31,7 +31,7 @@ class CalendarToolbar extends StatelessWidget {
 }
 
 class _SettingButton extends StatefulWidget {
-  const _SettingButton({Key? key}) : super(key: key);
+  const _SettingButton({final Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _SettingButtonState();
@@ -44,7 +44,7 @@ class _SettingButtonState extends State<_SettingButton> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return AppFlowyPopover(
       direction: PopoverDirection.bottomWithRightAligned,
       constraints: BoxConstraints.loose(const Size(300, 400)),
@@ -55,7 +55,7 @@ class _SettingButtonState extends State<_SettingButton> {
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         padding: GridSize.typeOptionContentInsets,
       ),
-      popupBuilder: (BuildContext popoverContext) {
+      popupBuilder: (final BuildContext popoverContext) {
         final bloc = context.watch<CalendarBloc>();
         final settingContext = CalendarSettingContext(
           viewId: bloc.viewId,
@@ -65,9 +65,9 @@ class _SettingButtonState extends State<_SettingButton> {
           settingContext: settingContext,
           layoutSettings: bloc.state.settings.fold(
             () => null,
-            (settings) => settings,
+            (final settings) => settings,
           ),
-          onUpdated: (layoutSettings) {
+          onUpdated: (final layoutSettings) {
             if (layoutSettings == null) {
               return;
             }
@@ -82,7 +82,7 @@ class _SettingButtonState extends State<_SettingButton> {
 }
 
 class _UnscheduleEventsButton extends StatefulWidget {
-  const _UnscheduleEventsButton({Key? key}) : super(key: key);
+  const _UnscheduleEventsButton({final Key? key}) : super(key: key);
 
   @override
   State<_UnscheduleEventsButton> createState() =>
@@ -99,11 +99,11 @@ class _UnscheduleEventsButtonState extends State<_UnscheduleEventsButton> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<CalendarBloc, CalendarState>(
-      builder: (context, state) {
+      builder: (final context, final state) {
         final unscheduledEvents = state.allEvents
-            .where((e) => e.date == DateTime.fromMillisecondsSinceEpoch(0))
+            .where((final e) => e.date == DateTime.fromMillisecondsSinceEpoch(0))
             .toList();
         final viewId = context.read<CalendarBloc>().viewId;
         final rowCache = context.read<CalendarBloc>().rowCache;
@@ -117,7 +117,7 @@ class _UnscheduleEventsButtonState extends State<_UnscheduleEventsButton> {
             hoverColor: AFThemeExtension.of(context).lightGreyHover,
             padding: GridSize.typeOptionContentInsets,
           ),
-          popupBuilder: (context) {
+          popupBuilder: (final context) {
             if (unscheduledEvents.isEmpty) {
               return SizedBox(
                 height: GridSize.popoverItemHeight,
@@ -130,7 +130,7 @@ class _UnscheduleEventsButtonState extends State<_UnscheduleEventsButton> {
               );
             }
             return ListView.separated(
-              itemBuilder: (context, index) => _UnscheduledEventItem(
+              itemBuilder: (final context, final index) => _UnscheduledEventItem(
                 event: unscheduledEvents[index],
                 onPressed: () {
                   showEventDetails(
@@ -143,7 +143,7 @@ class _UnscheduleEventsButtonState extends State<_UnscheduleEventsButton> {
                 },
               ),
               itemCount: unscheduledEvents.length,
-              separatorBuilder: (context, index) =>
+              separatorBuilder: (final context, final index) =>
                   VSpace(GridSize.typeOptionSeparatorHeight),
               shrinkWrap: true,
             );
@@ -160,11 +160,11 @@ class _UnscheduledEventItem extends StatelessWidget {
   const _UnscheduledEventItem({
     required this.event,
     required this.onPressed,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyTextButton(

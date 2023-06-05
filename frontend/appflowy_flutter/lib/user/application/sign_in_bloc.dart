@@ -12,15 +12,15 @@ part 'sign_in_bloc.freezed.dart';
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
   final AuthService authService;
   SignInBloc(this.authService) : super(SignInState.initial()) {
-    on<SignInEvent>((event, emit) async {
+    on<SignInEvent>((final event, final emit) async {
       await event.map(
-        signedInWithUserEmailAndPassword: (e) async {
+        signedInWithUserEmailAndPassword: (final e) async {
           await _performActionOnSignIn(
             state,
             emit,
           );
         },
-        emailChanged: (EmailChanged value) async {
+        emailChanged: (final EmailChanged value) async {
           emit(
             state.copyWith(
               email: value.email,
@@ -29,7 +29,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
             ),
           );
         },
-        passwordChanged: (PasswordChanged value) async {
+        passwordChanged: (final PasswordChanged value) async {
           emit(
             state.copyWith(
               password: value.password,
@@ -43,8 +43,8 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   }
 
   Future<void> _performActionOnSignIn(
-    SignInState state,
-    Emitter<SignInState> emit,
+    final SignInState state,
+    final Emitter<SignInState> emit,
   ) async {
     emit(
       state.copyWith(
@@ -61,16 +61,16 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     );
     emit(
       result.fold(
-        (userProfile) => state.copyWith(
+        (final userProfile) => state.copyWith(
           isSubmitting: false,
           successOrFail: some(left(userProfile)),
         ),
-        (error) => stateFromCode(error),
+        (final error) => stateFromCode(error),
       ),
     );
   }
 
-  SignInState stateFromCode(FlowyError error) {
+  SignInState stateFromCode(final FlowyError error) {
     switch (ErrorCode.valueOf(error.code)!) {
       case ErrorCode.EmailFormatInvalid:
         return state.copyWith(
@@ -97,19 +97,19 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
 class SignInEvent with _$SignInEvent {
   const factory SignInEvent.signedInWithUserEmailAndPassword() =
       SignedInWithUserEmailAndPassword;
-  const factory SignInEvent.emailChanged(String email) = EmailChanged;
-  const factory SignInEvent.passwordChanged(String password) = PasswordChanged;
+  const factory SignInEvent.emailChanged(final String email) = EmailChanged;
+  const factory SignInEvent.passwordChanged(final String password) = PasswordChanged;
 }
 
 @freezed
 class SignInState with _$SignInState {
   const factory SignInState({
-    String? email,
-    String? password,
-    required bool isSubmitting,
-    required Option<String> passwordError,
-    required Option<String> emailError,
-    required Option<Either<UserProfilePB, FlowyError>> successOrFail,
+    final String? email,
+    final String? password,
+    required final bool isSubmitting,
+    required final Option<String> passwordError,
+    required final Option<String> emailError,
+    required final Option<Either<UserProfilePB, FlowyError>> successOrFail,
   }) = _SignInState;
 
   factory SignInState.initial() => SignInState(

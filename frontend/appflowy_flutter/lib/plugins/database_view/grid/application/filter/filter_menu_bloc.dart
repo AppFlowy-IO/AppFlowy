@@ -22,19 +22,19 @@ class GridFilterMenuBloc
           ),
         ) {
     on<GridFilterMenuEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.when(
           initial: () {
             _startListening();
           },
-          didReceiveFilters: (filters) {
+          didReceiveFilters: (final filters) {
             emit(state.copyWith(filters: filters));
           },
           toggleMenu: () {
             final isVisible = !state.isVisible;
             emit(state.copyWith(isVisible: isVisible));
           },
-          didReceiveFields: (List<FieldInfo> fields) {
+          didReceiveFields: (final List<FieldInfo> fields) {
             emit(
               state.copyWith(
                 fields: fields,
@@ -48,19 +48,19 @@ class GridFilterMenuBloc
   }
 
   void _startListening() {
-    _onFilterFn = (filters) {
+    _onFilterFn = (final filters) {
       add(GridFilterMenuEvent.didReceiveFilters(filters));
     };
 
-    _onFieldFn = (fields) {
+    _onFieldFn = (final fields) {
       add(GridFilterMenuEvent.didReceiveFields(fields));
     };
 
     fieldController.addListener(
-      onFilters: (filters) {
+      onFilters: (final filters) {
         _onFilterFn?.call(filters);
       },
-      onReceiveFields: (fields) {
+      onReceiveFields: (final fields) {
         _onFieldFn?.call(fields);
       },
     );
@@ -84,9 +84,9 @@ class GridFilterMenuBloc
 class GridFilterMenuEvent with _$GridFilterMenuEvent {
   const factory GridFilterMenuEvent.initial() = _Initial;
   const factory GridFilterMenuEvent.didReceiveFilters(
-    List<FilterInfo> filters,
+    final List<FilterInfo> filters,
   ) = _DidReceiveFilters;
-  const factory GridFilterMenuEvent.didReceiveFields(List<FieldInfo> fields) =
+  const factory GridFilterMenuEvent.didReceiveFields(final List<FieldInfo> fields) =
       _DidReceiveFields;
   const factory GridFilterMenuEvent.toggleMenu() = _SetMenuVisibility;
 }
@@ -94,17 +94,17 @@ class GridFilterMenuEvent with _$GridFilterMenuEvent {
 @freezed
 class GridFilterMenuState with _$GridFilterMenuState {
   const factory GridFilterMenuState({
-    required String viewId,
-    required List<FilterInfo> filters,
-    required List<FieldInfo> fields,
-    required List<FieldInfo> creatableFields,
-    required bool isVisible,
+    required final String viewId,
+    required final List<FilterInfo> filters,
+    required final List<FieldInfo> fields,
+    required final List<FieldInfo> creatableFields,
+    required final bool isVisible,
   }) = _GridFilterMenuState;
 
   factory GridFilterMenuState.initial(
-    String viewId,
-    List<FilterInfo> filterInfos,
-    List<FieldInfo> fields,
+    final String viewId,
+    final List<FilterInfo> filterInfos,
+    final List<FieldInfo> fields,
   ) =>
       GridFilterMenuState(
         viewId: viewId,
@@ -115,8 +115,8 @@ class GridFilterMenuState with _$GridFilterMenuState {
       );
 }
 
-List<FieldInfo> getCreatableFilter(List<FieldInfo> fieldInfos) {
+List<FieldInfo> getCreatableFilter(final List<FieldInfo> fieldInfos) {
   final List<FieldInfo> creatableFields = List.from(fieldInfos);
-  creatableFields.retainWhere((element) => element.canCreateFilter);
+  creatableFields.retainWhere((final element) => element.canCreateFilter);
   return creatableFields;
 }

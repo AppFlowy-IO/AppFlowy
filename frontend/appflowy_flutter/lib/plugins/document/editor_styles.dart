@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-EditorStyle customEditorTheme(BuildContext context) {
+EditorStyle customEditorTheme(final BuildContext context) {
   final documentStyle = context.watch<DocumentAppearanceCubit>().state;
   final theme = Theme.of(context);
 
-  var editorStyle = EditorStyle(
+  final editorStyle = EditorStyle(
     // Editor styles
     padding: const EdgeInsets.symmetric(horizontal: 100),
     backgroundColor: theme.colorScheme.surface,
@@ -61,7 +61,7 @@ EditorStyle customEditorTheme(BuildContext context) {
   return editorStyle;
 }
 
-Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
+Iterable<ThemeExtension<dynamic>> customPluginTheme(final BuildContext context) {
   final documentStyle = context.watch<DocumentAppearanceCubit>().state;
   final baseFontSize = documentStyle.fontSize;
   const basePadding = 12.0;
@@ -69,7 +69,7 @@ Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
       ? HeadingPluginStyle.dark
       : HeadingPluginStyle.light;
   headingPluginStyle = headingPluginStyle.copyWith(
-    textStyle: (EditorState editorState, Node node) {
+    textStyle: (final EditorState editorState, final Node node) {
       final headingToFontSize = {
         'h1': baseFontSize + 12,
         'h2': baseFontSize + 8,
@@ -82,7 +82,7 @@ Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
           headingToFontSize[node.attributes.heading] ?? baseFontSize;
       return TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600);
     },
-    padding: (EditorState editorState, Node node) {
+    padding: (final EditorState editorState, final Node node) {
       final headingToPadding = {
         'h1': basePadding + 6,
         'h2': basePadding + 4,
@@ -100,7 +100,7 @@ Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
       : NumberListPluginStyle.light;
 
   numberListPluginStyle = numberListPluginStyle.copyWith(
-    icon: (_, textNode) {
+    icon: (final _, final textNode) {
       const iconPadding = EdgeInsets.only(left: 5.0, right: 5.0);
       return Container(
         padding: iconPadding,
@@ -116,7 +116,7 @@ Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
       : lightPluginStyleExtension;
   return pluginTheme.toList()
     ..removeWhere(
-      (element) =>
+      (final element) =>
           element is HeadingPluginStyle || element is NumberListPluginStyle,
     )
     ..add(headingPluginStyle)

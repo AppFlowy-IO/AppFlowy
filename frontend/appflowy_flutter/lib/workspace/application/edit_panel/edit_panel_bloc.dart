@@ -7,12 +7,12 @@ part 'edit_panel_bloc.freezed.dart';
 
 class EditPanelBloc extends Bloc<EditPanelEvent, EditPanelState> {
   EditPanelBloc() : super(EditPanelState.initial()) {
-    on<EditPanelEvent>((event, emit) async {
+    on<EditPanelEvent>((final event, final emit) async {
       await event.map(
-        startEdit: (e) async {
+        startEdit: (final e) async {
           emit(state.copyWith(isEditing: true, editContext: some(e.context)));
         },
-        endEdit: (value) async {
+        endEdit: (final value) async {
           emit(state.copyWith(isEditing: false, editContext: none()));
         },
       );
@@ -22,16 +22,16 @@ class EditPanelBloc extends Bloc<EditPanelEvent, EditPanelState> {
 
 @freezed
 class EditPanelEvent with _$EditPanelEvent {
-  const factory EditPanelEvent.startEdit(EditPanelContext context) = _StartEdit;
+  const factory EditPanelEvent.startEdit(final EditPanelContext context) = _StartEdit;
 
-  const factory EditPanelEvent.endEdit(EditPanelContext context) = _EndEdit;
+  const factory EditPanelEvent.endEdit(final EditPanelContext context) = _EndEdit;
 }
 
 @freezed
 class EditPanelState with _$EditPanelState {
   const factory EditPanelState({
-    required bool isEditing,
-    required Option<EditPanelContext> editContext,
+    required final bool isEditing,
+    required final Option<EditPanelContext> editContext,
   }) = _EditPanelState;
 
   factory EditPanelState.initial() => EditPanelState(

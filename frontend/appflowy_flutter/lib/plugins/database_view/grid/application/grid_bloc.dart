@@ -17,10 +17,10 @@ part 'grid_bloc.freezed.dart';
 class GridBloc extends Bloc<GridEvent, GridState> {
   final DatabaseController databaseController;
 
-  GridBloc({required ViewPB view, required this.databaseController})
+  GridBloc({required final ViewPB view, required this.databaseController})
       : super(GridState.initial(view.id)) {
     on<GridEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.when(
           initial: () async {
             _startListening();
@@ -29,23 +29,23 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           createRow: () {
             databaseController.createRow();
           },
-          deleteRow: (rowInfo) async {
+          deleteRow: (final rowInfo) async {
             final rowService = RowBackendService(
               viewId: rowInfo.viewId,
             );
             await rowService.deleteRow(rowInfo.rowPB.id);
           },
-          didReceiveGridUpdate: (grid) {
+          didReceiveGridUpdate: (final grid) {
             emit(state.copyWith(grid: Some(grid)));
           },
-          didReceiveFieldUpdate: (fields) {
+          didReceiveFieldUpdate: (final fields) {
             emit(
               state.copyWith(
                 fields: GridFieldEquatable(fields),
               ),
             );
           },
-          didReceiveRowUpdate: (newRowInfos, reason) {
+          didReceiveRowUpdate: (final newRowInfos, final reason) {
             emit(
               state.copyWith(
                 rowInfos: newRowInfos,
@@ -65,23 +65,23 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     return super.close();
   }
 
-  RowCache? getRowCache(String blockId, String rowId) {
+  RowCache? getRowCache(final String blockId, final String rowId) {
     return databaseController.rowCache;
   }
 
   void _startListening() {
     final onDatabaseChanged = DatabaseCallbacks(
-      onDatabaseChanged: (database) {
+      onDatabaseChanged: (final database) {
         if (!isClosed) {
           add(GridEvent.didReceiveGridUpdate(database));
         }
       },
-      onRowsChanged: (rowInfos, _, reason) {
+      onRowsChanged: (final rowInfos, final _, final reason) {
         if (!isClosed) {
           add(GridEvent.didReceiveRowUpdate(rowInfos, reason));
         }
       },
-      onFieldsChanged: (fields) {
+      onFieldsChanged: (final fields) {
         if (!isClosed) {
           add(GridEvent.didReceiveFieldUpdate(fields));
         }
@@ -90,15 +90,15 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     databaseController.setListener(onDatabaseChanged: onDatabaseChanged);
   }
 
-  Future<void> _openGrid(Emitter<GridState> emit) async {
+  Future<void> _openGrid(final Emitter<GridState> emit) async {
     final result = await databaseController.open();
     result.fold(
-      (grid) {
+      (final grid) {
         emit(
           state.copyWith(loadingState: GridLoadingState.finish(left(unit))),
         );
       },
-      (err) => emit(
+      (final err) => emit(
         state.copyWith(loadingState: GridLoadingState.finish(right(err))),
       ),
     );
@@ -109,33 +109,33 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 class GridEvent with _$GridEvent {
   const factory GridEvent.initial() = InitialGrid;
   const factory GridEvent.createRow() = _CreateRow;
-  const factory GridEvent.deleteRow(RowInfo rowInfo) = _DeleteRow;
+  const factory GridEvent.deleteRow(final RowInfo rowInfo) = _DeleteRow;
   const factory GridEvent.didReceiveRowUpdate(
-    List<RowInfo> rows,
-    RowsChangedReason listState,
+    final List<RowInfo> rows,
+    final RowsChangedReason listState,
   ) = _DidReceiveRowUpdate;
   const factory GridEvent.didReceiveFieldUpdate(
-    List<FieldInfo> fields,
+    final List<FieldInfo> fields,
   ) = _DidReceiveFieldUpdate;
 
   const factory GridEvent.didReceiveGridUpdate(
-    DatabasePB grid,
+    final DatabasePB grid,
   ) = _DidReceiveGridUpdate;
 }
 
 @freezed
 class GridState with _$GridState {
   const factory GridState({
-    required String viewId,
-    required Option<DatabasePB> grid,
-    required GridFieldEquatable fields,
-    required List<RowInfo> rowInfos,
-    required int rowCount,
-    required GridLoadingState loadingState,
-    required RowsChangedReason reason,
+    required final String viewId,
+    required final Option<DatabasePB> grid,
+    required final GridFieldEquatable fields,
+    required final List<RowInfo> rowInfos,
+    required final int rowCount,
+    required final GridLoadingState loadingState,
+    required final RowsChangedReason reason,
   }) = _GridState;
 
-  factory GridState.initial(String viewId) => GridState(
+  factory GridState.initial(final String viewId) => GridState(
         fields: GridFieldEquatable(UnmodifiableListView([])),
         rowInfos: [],
         rowCount: 0,
@@ -150,14 +150,14 @@ class GridState with _$GridState {
 class GridLoadingState with _$GridLoadingState {
   const factory GridLoadingState.loading() = _Loading;
   const factory GridLoadingState.finish(
-    Either<Unit, FlowyError> successOrFail,
+    final Either<Unit, FlowyError> successOrFail,
   ) = _Finish;
 }
 
 class GridFieldEquatable extends Equatable {
   final List<FieldInfo> _fields;
   const GridFieldEquatable(
-    List<FieldInfo> fields,
+    final List<FieldInfo> fields,
   ) : _fields = fields;
 
   @override
@@ -169,8 +169,8 @@ class GridFieldEquatable extends Equatable {
     return [
       _fields.length,
       _fields
-          .map((field) => field.width)
-          .reduce((value, element) => value + element),
+          .map((final field) => field.width)
+          .reduce((final value, final element) => value + element),
     ];
   }
 

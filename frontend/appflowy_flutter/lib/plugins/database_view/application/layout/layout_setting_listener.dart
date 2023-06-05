@@ -16,7 +16,7 @@ class DatabaseLayoutListener {
   DatabaseLayoutListener(this.viewId);
 
   void start({
-    required void Function(LayoutSettingsValue<LayoutSettingPB>)
+    required final void Function(LayoutSettingsValue<LayoutSettingPB>)
         onLayoutChanged,
   }) {
     _settingNotifier?.addPublishListener(onLayoutChanged);
@@ -27,15 +27,15 @@ class DatabaseLayoutListener {
   }
 
   void _handler(
-    DatabaseNotification ty,
-    Either<Uint8List, FlowyError> result,
+    final DatabaseNotification ty,
+    final Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case DatabaseNotification.DidUpdateLayoutSettings:
         result.fold(
-          (payload) => _settingNotifier?.value =
+          (final payload) => _settingNotifier?.value =
               left(LayoutSettingPB.fromBuffer(payload)),
-          (error) => _settingNotifier?.value = right(error),
+          (final error) => _settingNotifier?.value = right(error),
         );
         break;
       default:

@@ -26,9 +26,9 @@ void main() {
           layoutType: LayoutTypePB.Grid,
         ),
       )..add(const GridEvent.initial()),
-      act: (bloc) => bloc.add(const GridEvent.createRow()),
+      act: (final bloc) => bloc.add(const GridEvent.createRow()),
       wait: const Duration(milliseconds: 300),
-      verify: (bloc) {
+      verify: (final bloc) {
         assert(bloc.state.rowInfos.length == 4);
       },
     );
@@ -42,12 +42,12 @@ void main() {
           layoutType: LayoutTypePB.Grid,
         ),
       )..add(const GridEvent.initial()),
-      act: (bloc) async {
+      act: (final bloc) async {
         await gridResponseFuture();
         bloc.add(GridEvent.deleteRow(bloc.state.rowInfos.last));
       },
       wait: const Duration(milliseconds: 300),
-      verify: (bloc) {
+      verify: (final bloc) {
         assert(
           bloc.state.rowInfos.length == 2,
           "Expected 2, but receive ${bloc.state.rowInfos.length}",

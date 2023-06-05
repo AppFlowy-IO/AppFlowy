@@ -19,7 +19,7 @@ import 'application/trash_bloc.dart';
 import 'src/trash_cell.dart';
 
 class TrashPage extends StatefulWidget {
-  const TrashPage({Key? key}) : super(key: key);
+  const TrashPage({final Key? key}) : super(key: key);
 
   @override
   State<TrashPage> createState() => _TrashPageState();
@@ -28,12 +28,12 @@ class TrashPage extends StatefulWidget {
 class _TrashPageState extends State<TrashPage> {
   final ScrollController _scrollController = ScrollController();
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     const horizontalPadding = 80.0;
     return BlocProvider(
-      create: (context) => getIt<TrashBloc>()..add(const TrashEvent.initial()),
+      create: (final context) => getIt<TrashBloc>()..add(const TrashEvent.initial()),
       child: BlocBuilder<TrashBloc, TrashState>(
-        builder: (context, state) {
+        builder: (final context, final state) {
           return SizedBox.expand(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -49,7 +49,7 @@ class _TrashPageState extends State<TrashPage> {
     );
   }
 
-  Widget _renderTrashList(BuildContext context, TrashState state) {
+  Widget _renderTrashList(final BuildContext context, final TrashState state) {
     const barSize = 6.0;
     return Expanded(
       child: ScrollbarListStack(
@@ -81,7 +81,7 @@ class _TrashPageState extends State<TrashPage> {
     );
   }
 
-  Widget _renderTopBar(BuildContext context, TrashState state) {
+  Widget _renderTopBar(final BuildContext context, final TrashState state) {
     return SizedBox(
       height: 36,
       child: Row(
@@ -116,7 +116,7 @@ class _TrashPageState extends State<TrashPage> {
     );
   }
 
-  Widget _renderListHeader(BuildContext context, TrashState state) {
+  Widget _renderListHeader(final BuildContext context, final TrashState state) {
     return SliverPersistentHeader(
       delegate: TrashHeaderDelegate(),
       floating: true,
@@ -124,10 +124,10 @@ class _TrashPageState extends State<TrashPage> {
     );
   }
 
-  Widget _renderListBody(BuildContext context, TrashState state) {
+  Widget _renderListBody(final BuildContext context, final TrashState state) {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
-        (BuildContext context, int index) {
+        (final BuildContext context, final int index) {
           final object = state.objects[index];
           return SizedBox(
             height: 42,

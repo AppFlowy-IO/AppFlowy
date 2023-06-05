@@ -16,14 +16,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final UserWorkspaceListener _listener;
 
   HomeBloc(
-    UserProfilePB user,
-    WorkspaceSettingPB workspaceSetting,
+    final UserProfilePB user,
+    final WorkspaceSettingPB workspaceSetting,
   )   : _listener = UserWorkspaceListener(userProfile: user),
         super(HomeState.initial(workspaceSetting)) {
     on<HomeEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.map(
-          initial: (_Initial value) {
+          initial: (final _Initial value) {
             Future.delayed(const Duration(milliseconds: 300), () {
               if (!isClosed) {
                 add(HomeEvent.didReceiveWorkspaceSetting(workspaceSetting));
@@ -31,20 +31,20 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             });
 
             _listener.start(
-              onAuthChanged: (result) => _authDidChanged(result),
-              onSettingUpdated: (result) {
+              onAuthChanged: (final result) => _authDidChanged(result),
+              onSettingUpdated: (final result) {
                 result.fold(
-                  (setting) =>
+                  (final setting) =>
                       add(HomeEvent.didReceiveWorkspaceSetting(setting)),
-                  (r) => Log.error(r),
+                  (final r) => Log.error(r),
                 );
               },
             );
           },
-          showLoading: (e) async {
+          showLoading: (final e) async {
             emit(state.copyWith(isLoading: e.isLoading));
           },
-          didReceiveWorkspaceSetting: (_DidReceiveWorkspaceSetting value) {
+          didReceiveWorkspaceSetting: (final _DidReceiveWorkspaceSetting value) {
             final latestView = workspaceSetting.hasLatestView()
                 ? workspaceSetting.latestView
                 : state.latestView;
@@ -56,7 +56,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
               ),
             );
           },
-          unauthorized: (_Unauthorized value) {
+          unauthorized: (final _Unauthorized value) {
             emit(state.copyWith(unauthorized: true));
           },
         );
@@ -70,8 +70,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     return super.close();
   }
 
-  void _authDidChanged(Either<Unit, FlowyError> errorOrNothing) {
-    errorOrNothing.fold((_) {}, (error) {
+  void _authDidChanged(final Either<Unit, FlowyError> errorOrNothing) {
+    errorOrNothing.fold((final _) {}, (final error) {
       if (error.code == ErrorCode.UserUnauthorized.value) {
         add(HomeEvent.unauthorized(error.msg));
       }
@@ -98,23 +98,23 @@ extension MenuResizeTypeExtension on MenuResizeType {
 @freezed
 class HomeEvent with _$HomeEvent {
   const factory HomeEvent.initial() = _Initial;
-  const factory HomeEvent.showLoading(bool isLoading) = _ShowLoading;
+  const factory HomeEvent.showLoading(final bool isLoading) = _ShowLoading;
   const factory HomeEvent.didReceiveWorkspaceSetting(
-    WorkspaceSettingPB setting,
+    final WorkspaceSettingPB setting,
   ) = _DidReceiveWorkspaceSetting;
-  const factory HomeEvent.unauthorized(String msg) = _Unauthorized;
+  const factory HomeEvent.unauthorized(final String msg) = _Unauthorized;
 }
 
 @freezed
 class HomeState with _$HomeState {
   const factory HomeState({
-    required bool isLoading,
-    required WorkspaceSettingPB workspaceSetting,
-    ViewPB? latestView,
-    required bool unauthorized,
+    required final bool isLoading,
+    required final WorkspaceSettingPB workspaceSetting,
+    final ViewPB? latestView,
+    required final bool unauthorized,
   }) = _HomeState;
 
-  factory HomeState.initial(WorkspaceSettingPB workspaceSetting) => HomeState(
+  factory HomeState.initial(final WorkspaceSettingPB workspaceSetting) => HomeState(
         isLoading: false,
         workspaceSetting: workspaceSetting,
         latestView: null,

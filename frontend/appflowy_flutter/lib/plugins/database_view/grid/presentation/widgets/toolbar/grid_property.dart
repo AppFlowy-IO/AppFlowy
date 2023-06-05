@@ -20,7 +20,7 @@ class GridPropertyList extends StatefulWidget {
   const GridPropertyList({
     required this.viewId,
     required this.fieldController,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -37,15 +37,15 @@ class _GridPropertyListState extends State<GridPropertyList> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<DatabasePropertyBloc>(
+      create: (final context) => getIt<DatabasePropertyBloc>(
         param1: widget.viewId,
         param2: widget.fieldController,
       )..add(const DatabasePropertyEvent.initial()),
       child: BlocBuilder<DatabasePropertyBloc, DatabasePropertyState>(
-        builder: (context, state) {
-          final cells = state.fieldContexts.map((field) {
+        builder: (final context, final state) {
+          final cells = state.fieldContexts.map((final field) {
             return _GridPropertyCell(
               popoverMutex: _popoverMutex,
               viewId: widget.viewId,
@@ -58,8 +58,8 @@ class _GridPropertyListState extends State<GridPropertyList> {
             controller: ScrollController(),
             shrinkWrap: true,
             itemCount: cells.length,
-            itemBuilder: (BuildContext context, int index) => cells[index],
-            separatorBuilder: (BuildContext context, int index) =>
+            itemBuilder: (final BuildContext context, final int index) => cells[index],
+            separatorBuilder: (final BuildContext context, final int index) =>
                 VSpace(GridSize.typeOptionSeparatorHeight),
             padding: const EdgeInsets.symmetric(vertical: 6.0),
           );
@@ -78,7 +78,7 @@ class _GridPropertyCell extends StatefulWidget {
     required this.viewId,
     required this.fieldInfo,
     required this.popoverMutex,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -95,7 +95,7 @@ class _GridPropertyCellState extends State<_GridPropertyCell> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final checkmark = svgWidget(
       widget.fieldInfo.visibility ? 'home/show' : 'home/hide',
       color: Theme.of(context).iconTheme.color,
@@ -107,7 +107,7 @@ class _GridPropertyCellState extends State<_GridPropertyCell> {
     );
   }
 
-  Widget _editFieldButton(BuildContext context, Widget checkmark) {
+  Widget _editFieldButton(final BuildContext context, final Widget checkmark) {
     return AppFlowyPopover(
       mutex: widget.popoverMutex,
       controller: _popoverController,
@@ -140,7 +140,7 @@ class _GridPropertyCellState extends State<_GridPropertyCell> {
         ),
         onTap: () => _popoverController.show(),
       ).padding(horizontal: 6.0),
-      popupBuilder: (BuildContext context) {
+      popupBuilder: (final BuildContext context) {
         return FieldEditor(
           viewId: widget.viewId,
           fieldName: widget.fieldInfo.name,

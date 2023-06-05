@@ -43,13 +43,13 @@ class TypeOptionOverlayDelegate {
 }
 
 abstract class TypeOptionWidgetBuilder {
-  Widget? build(BuildContext context);
+  Widget? build(final BuildContext context);
 }
 
 Widget? makeTypeOptionWidget({
-  required BuildContext context,
-  required TypeOptionController dataController,
-  required PopoverMutex popoverMutex,
+  required final BuildContext context,
+  required final TypeOptionController dataController,
+  required final PopoverMutex popoverMutex,
 }) {
   final builder = makeTypeOptionWidgetBuilder(
     dataController: dataController,
@@ -59,8 +59,8 @@ Widget? makeTypeOptionWidget({
 }
 
 TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
-  required TypeOptionController dataController,
-  required PopoverMutex popoverMutex,
+  required final TypeOptionController dataController,
+  required final PopoverMutex popoverMutex,
 }) {
   final viewId = dataController.viewId;
   final fieldType = dataController.field.fieldType;
@@ -141,8 +141,8 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
 }
 
 TypeOptionContext<T> makeTypeOptionContext<T extends GeneratedMessage>({
-  required String viewId,
-  required FieldInfo fieldInfo,
+  required final String viewId,
+  required final FieldInfo fieldInfo,
 }) {
   final loader = FieldTypeOptionLoader(viewId: viewId, field: fieldInfo.field);
   final dataController = TypeOptionController(
@@ -158,22 +158,22 @@ TypeOptionContext<T> makeTypeOptionContext<T extends GeneratedMessage>({
 }
 
 TypeOptionContext<SingleSelectTypeOptionPB> makeSingleSelectTypeOptionContext({
-  required String viewId,
-  required FieldPB fieldPB,
+  required final String viewId,
+  required final FieldPB fieldPB,
 }) {
   return makeSelectTypeOptionContext(viewId: viewId, fieldPB: fieldPB);
 }
 
 TypeOptionContext<MultiSelectTypeOptionPB> makeMultiSelectTypeOptionContext({
-  required String viewId,
-  required FieldPB fieldPB,
+  required final String viewId,
+  required final FieldPB fieldPB,
 }) {
   return makeSelectTypeOptionContext(viewId: viewId, fieldPB: fieldPB);
 }
 
 TypeOptionContext<T> makeSelectTypeOptionContext<T extends GeneratedMessage>({
-  required String viewId,
-  required FieldPB fieldPB,
+  required final String viewId,
+  required final FieldPB fieldPB,
 }) {
   final loader = FieldTypeOptionLoader(
     viewId: viewId,
@@ -193,9 +193,9 @@ TypeOptionContext<T> makeSelectTypeOptionContext<T extends GeneratedMessage>({
 
 TypeOptionContext<T>
     makeTypeOptionContextWithDataController<T extends GeneratedMessage>({
-  required String viewId,
-  required FieldType fieldType,
-  required TypeOptionController dataController,
+  required final String viewId,
+  required final FieldType fieldType,
+  required final TypeOptionController dataController,
 }) {
   switch (fieldType) {
     case FieldType.Checkbox:

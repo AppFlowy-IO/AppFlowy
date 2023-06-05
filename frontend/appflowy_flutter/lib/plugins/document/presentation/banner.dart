@@ -12,11 +12,11 @@ class DocumentBanner extends StatelessWidget {
   const DocumentBanner({
     required this.onRestore,
     required this.onDelete,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 60),
       child: Container(

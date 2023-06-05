@@ -31,7 +31,7 @@ class NetworkListener {
     _connectivitySubscription.cancel();
   }
 
-  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+  Future<void> _updateConnectionStatus(final ConnectivityResult result) async {
     final networkType = () {
       switch (result) {
         case ConnectivityResult.wifi:
@@ -51,10 +51,10 @@ class NetworkListener {
     }();
     Log.info("Network type: $networkType");
     final state = NetworkStatePB.create()..ty = networkType;
-    NetworkEventUpdateNetworkType(state).send().then((result) {
+    NetworkEventUpdateNetworkType(state).send().then((final result) {
       result.fold(
-        (l) {},
-        (e) => Log.error(e),
+        (final l) {},
+        (final e) => Log.error(e),
       );
     });
   }

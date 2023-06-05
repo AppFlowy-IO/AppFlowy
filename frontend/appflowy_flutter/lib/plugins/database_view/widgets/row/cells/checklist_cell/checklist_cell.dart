@@ -12,7 +12,7 @@ import 'checklist_progress_bar.dart';
 
 class GridChecklistCell extends GridCellWidget {
   final CellControllerBuilder cellControllerBuilder;
-  GridChecklistCell({required this.cellControllerBuilder, Key? key})
+  GridChecklistCell({required this.cellControllerBuilder, final Key? key})
       : super(key: key);
 
   @override
@@ -34,7 +34,7 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
       child: AppFlowyPopover(
@@ -43,8 +43,8 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
         constraints: BoxConstraints.loose(const Size(260, 400)),
         direction: PopoverDirection.bottomWithLeftAligned,
         triggerActions: PopoverTriggerFlags.none,
-        popupBuilder: (BuildContext context) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
+        popupBuilder: (final BuildContext context) {
+          WidgetsBinding.instance.addPostFrameCallback((final _) {
             widget.onCellEditing.value = true;
           });
           return GridChecklistCellEditor(
@@ -56,7 +56,7 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
         child: Padding(
           padding: GridSize.cellContentInsets,
           child: BlocBuilder<ChecklistCardCellBloc, ChecklistCellState>(
-            builder: (context, state) =>
+            builder: (final context, final state) =>
                 ChecklistProgressBar(percent: state.percent),
           ),
         ),

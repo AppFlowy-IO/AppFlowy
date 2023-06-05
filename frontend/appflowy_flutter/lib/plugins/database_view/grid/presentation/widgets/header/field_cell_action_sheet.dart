@@ -20,7 +20,7 @@ import 'field_editor.dart';
 
 class GridFieldCellActionSheet extends StatefulWidget {
   final FieldCellContext cellContext;
-  const GridFieldCellActionSheet({required this.cellContext, Key? key})
+  const GridFieldCellActionSheet({required this.cellContext, final Key? key})
       : super(key: key);
 
   @override
@@ -31,7 +31,7 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
   bool _showFieldEditor = false;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     if (_showFieldEditor) {
       final field = widget.cellContext.field;
       return SizedBox(
@@ -47,7 +47,7 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
       );
     }
     return BlocProvider(
-      create: (context) =>
+      create: (final context) =>
           getIt<FieldActionSheetBloc>(param1: widget.cellContext),
       child: IntrinsicWidth(
         child: Column(
@@ -72,13 +72,13 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
 class _EditFieldButton extends StatelessWidget {
   final FieldCellContext cellContext;
   final void Function()? onTap;
-  const _EditFieldButton({required this.cellContext, Key? key, this.onTap})
+  const _EditFieldButton({required this.cellContext, final Key? key, this.onTap})
       : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<FieldActionSheetBloc, FieldActionSheetState>(
-      builder: (context, state) {
+      builder: (final context, final state) {
         return SizedBox(
           height: GridSize.popoverItemHeight,
           child: FlowyButton(
@@ -97,10 +97,10 @@ class _EditFieldButton extends StatelessWidget {
 
 class _FieldOperationList extends StatelessWidget {
   final FieldCellContext fieldInfo;
-  const _FieldOperationList(this.fieldInfo, {Key? key}) : super(key: key);
+  const _FieldOperationList(this.fieldInfo, {final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Column(
       children: [
         Flex(
@@ -124,7 +124,7 @@ class _FieldOperationList extends StatelessWidget {
     );
   }
 
-  Widget _actionCell(FieldAction action) {
+  Widget _actionCell(final FieldAction action) {
     return Flexible(
       child: SizedBox(
         height: GridSize.popoverItemHeight,
@@ -147,11 +147,11 @@ class FieldActionCell extends StatelessWidget {
     required this.fieldInfo,
     required this.action,
     required this.enable,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FlowyButton(
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       text: FlowyText.medium(
@@ -204,7 +204,7 @@ extension _FieldActionExtension on FieldAction {
     }
   }
 
-  void run(BuildContext context, FieldCellContext fieldInfo) {
+  void run(final BuildContext context, final FieldCellContext fieldInfo) {
     switch (this) {
       case FieldAction.hide:
         context

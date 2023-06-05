@@ -19,7 +19,7 @@ enum _FolderPage {
 
 class FolderWidget extends StatefulWidget {
   const FolderWidget({
-    Key? key,
+    final Key? key,
     required this.createFolderCallback,
   }) : super(key: key);
 
@@ -33,11 +33,11 @@ class _FolderWidgetState extends State<FolderWidget> {
   var page = _FolderPage.options;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return _mapIndexToWidget(context);
   }
 
-  Widget _mapIndexToWidget(BuildContext context) {
+  Widget _mapIndexToWidget(final BuildContext context) {
     switch (page) {
       case _FolderPage.options:
         return FolderOptionsWidget(
@@ -71,7 +71,7 @@ class _FolderWidgetState extends State<FolderWidget> {
 
 class FolderOptionsWidget extends StatelessWidget {
   const FolderOptionsWidget({
-    Key? key,
+    final Key? key,
     required this.onPressedCreate,
     required this.onPressedOpen,
   }) : super(key: key);
@@ -80,7 +80,7 @@ class FolderOptionsWidget extends StatelessWidget {
   final VoidCallback onPressedOpen;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Column(
       children: [
         _FolderCard(
@@ -108,7 +108,7 @@ class FolderOptionsWidget extends StatelessWidget {
 
 class CreateFolderWidget extends StatefulWidget {
   const CreateFolderWidget({
-    Key? key,
+    final Key? key,
     required this.onPressedBack,
     required this.onPressedCreate,
   }) : super(key: key);
@@ -135,7 +135,7 @@ class CreateFolderWidgetState extends State<CreateFolderWidget> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Column(
       children: [
         Align(
@@ -153,8 +153,8 @@ class CreateFolderWidgetState extends State<CreateFolderWidget> {
             width: 120,
             child: FlowyTextField(
               hintText: LocaleKeys.settings_files_folderHintText.tr(),
-              onChanged: (name) => _folderName = name,
-              onSubmitted: (name) => setState(
+              onChanged: (final name) => _folderName = name,
+              onSubmitted: (final name) => setState(
                 () => _folderName = name,
               ),
             ),
@@ -211,7 +211,7 @@ class CreateFolderWidgetState extends State<CreateFolderWidget> {
     return '$path/$_folderName';
   }
 
-  void _showToast(String message) {
+  void _showToast(final String message) {
     _fToast.showToast(
       child: FlowyMessageToast(message: message),
       gravity: ToastGravity.CENTER,
@@ -220,9 +220,9 @@ class CreateFolderWidgetState extends State<CreateFolderWidget> {
 }
 
 Widget _buildTextButton(
-  BuildContext context,
-  String title,
-  VoidCallback onPressed,
+  final BuildContext context,
+  final String title,
+  final VoidCallback onPressed,
 ) {
   return FlowyTextButton(
     title,
@@ -235,7 +235,7 @@ Widget _buildTextButton(
 
 class _FolderCard extends StatelessWidget {
   const _FolderCard({
-    Key? key,
+    final Key? key,
     required this.title,
     required this.subtitle,
     this.trailing,
@@ -248,7 +248,7 @@ class _FolderCard extends StatelessWidget {
   final Widget? trailing;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(

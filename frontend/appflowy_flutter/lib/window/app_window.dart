@@ -22,7 +22,7 @@ class AppWindow {
 
     await windowManager.ensureInitialized();
 
-    WindowOptions windowOptions = const WindowOptions(
+    const WindowOptions windowOptions = WindowOptions(
       minimumSize: Size(600, 400),
       title: 'AppFlowy',
     );

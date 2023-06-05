@@ -22,11 +22,11 @@ class MenuAppHeader extends StatelessWidget {
   final AppPB app;
   const MenuAppHeader(
     this.app, {
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return SizedBox(
       height: MenuAppSizes.headerHeight,
       child: Row(
@@ -42,7 +42,7 @@ class MenuAppHeader extends StatelessWidget {
     );
   }
 
-  Widget _renderExpandedIcon(BuildContext context) {
+  Widget _renderExpandedIcon(final BuildContext context) {
     return SizedBox(
       width: MenuAppSizes.headerHeight,
       height: MenuAppSizes.headerHeight,
@@ -68,12 +68,12 @@ class MenuAppHeader extends StatelessWidget {
     );
   }
 
-  Widget _renderTitle(BuildContext context) {
+  Widget _renderTitle(final BuildContext context) {
     return Expanded(
       child: BlocListener<AppBloc, AppState>(
-        listenWhen: (p, c) =>
+        listenWhen: (final p, final c) =>
             (p.latestCreatedView == null && c.latestCreatedView != null),
-        listener: (context, state) {
+        listener: (final context, final state) {
           final expandableController = ExpandableController.of(
             context,
             rebuildOnChange: false,
@@ -84,13 +84,13 @@ class MenuAppHeader extends StatelessWidget {
           }
         },
         child: AppActionList(
-          onSelected: (action) {
+          onSelected: (final action) {
             switch (action) {
               case AppDisclosureAction.rename:
                 NavigatorTextFieldDialog(
                   title: LocaleKeys.menuAppHeader_renameDialog.tr(),
                   value: context.read<AppBloc>().state.app.name,
-                  confirm: (newValue) {
+                  confirm: (final newValue) {
                     context.read<AppBloc>().add(AppEvent.rename(newValue));
                   },
                 ).show(context);
@@ -106,11 +106,11 @@ class MenuAppHeader extends StatelessWidget {
     );
   }
 
-  Widget _renderCreateViewButton(BuildContext context) {
+  Widget _renderCreateViewButton(final BuildContext context) {
     return Tooltip(
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       child: AddButton(
-        onSelected: (pluginBuilder, document) {
+        onSelected: (final pluginBuilder, final document) {
           context.read<AppBloc>().add(
                 AppEvent.createView(
                   LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
@@ -140,7 +140,7 @@ extension AppDisclosureExtension on AppDisclosureAction {
     }
   }
 
-  Widget icon(Color iconColor) {
+  Widget icon(final Color iconColor) {
     switch (this) {
       case AppDisclosureAction.rename:
         return const FlowySvg(name: 'editor/edit');
@@ -154,17 +154,17 @@ class AppActionList extends StatelessWidget {
   final Function(AppDisclosureAction) onSelected;
   const AppActionList({
     required this.onSelected,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return PopoverActionList<DisclosureActionWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,
       actions: AppDisclosureAction.values
-          .map((action) => DisclosureActionWrapper(action))
+          .map((final action) => DisclosureActionWrapper(action))
           .toList(),
-      buildChild: (controller) {
+      buildChild: (final controller) {
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => ExpandableController.of(
@@ -176,8 +176,8 @@ class AppActionList extends StatelessWidget {
             controller.show();
           },
           child: BlocSelector<AppBloc, AppState, AppPB>(
-            selector: (state) => state.app,
-            builder: (context, app) => FlowyText.medium(
+            selector: (final state) => state.app,
+            builder: (final context, final app) => FlowyText.medium(
               app.name,
               overflow: TextOverflow.ellipsis,
               color: Theme.of(context).colorScheme.tertiary,
@@ -185,7 +185,7 @@ class AppActionList extends StatelessWidget {
           ),
         );
       },
-      onSelected: (action, controller) {
+      onSelected: (final action, final controller) {
         onSelected(action.inner);
         controller.close();
       },
@@ -198,7 +198,7 @@ class DisclosureActionWrapper extends ActionCell {
 
   DisclosureActionWrapper(this.inner);
   @override
-  Widget? leftIcon(Color iconColor) => inner.icon(iconColor);
+  Widget? leftIcon(final Color iconColor) => inner.icon(iconColor);
 
   @override
   String get name => inner.name;

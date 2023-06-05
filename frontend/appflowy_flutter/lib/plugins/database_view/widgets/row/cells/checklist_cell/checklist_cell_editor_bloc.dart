@@ -21,13 +21,13 @@ class ChecklistCellEditorBloc
             SelectOptionBackendService(cellId: cellController.cellId),
         super(ChecklistCellEditorState.initial(cellController)) {
     on<ChecklistCellEditorEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         await event.when(
           initial: () async {
             _startListening();
             _loadOptions();
           },
-          didReceiveOptions: (data) {
+          didReceiveOptions: (final data) {
             emit(
               state.copyWith(
                 allOptions: _makeChecklistSelectOptions(data, state.predicate),
@@ -35,7 +35,7 @@ class ChecklistCellEditorBloc
               ),
             );
           },
-          newOption: (optionName) {
+          newOption: (final optionName) {
             _createOption(optionName);
             emit(
               state.copyWith(
@@ -43,20 +43,20 @@ class ChecklistCellEditorBloc
               ),
             );
           },
-          deleteOption: (option) {
+          deleteOption: (final option) {
             _deleteOption([option]);
           },
-          updateOption: (option) {
+          updateOption: (final option) {
             _updateOption(option);
           },
-          selectOption: (option) async {
+          selectOption: (final option) async {
             if (option.isSelected) {
               await _selectOptionService.unSelect(optionIds: [option.data.id]);
             } else {
               await _selectOptionService.select(optionIds: [option.data.id]);
             }
           },
-          filterOption: (String predicate) {},
+          filterOption: (final String predicate) {},
         );
       },
     );
@@ -68,41 +68,41 @@ class ChecklistCellEditorBloc
     return super.close();
   }
 
-  void _createOption(String name) async {
+  void _createOption(final String name) async {
     final result = await _selectOptionService.create(
       name: name,
       isSelected: false,
     );
-    result.fold((l) => {}, (err) => Log.error(err));
+    result.fold((final l) => {}, (final err) => Log.error(err));
   }
 
-  void _deleteOption(List<SelectOptionPB> options) async {
+  void _deleteOption(final List<SelectOptionPB> options) async {
     final result = await _selectOptionService.delete(options: options);
-    result.fold((l) => null, (err) => Log.error(err));
+    result.fold((final l) => null, (final err) => Log.error(err));
   }
 
-  void _updateOption(SelectOptionPB option) async {
+  void _updateOption(final SelectOptionPB option) async {
     final result = await _selectOptionService.update(
       option: option,
     );
 
-    result.fold((l) => null, (err) => Log.error(err));
+    result.fold((final l) => null, (final err) => Log.error(err));
   }
 
   void _loadOptions() {
-    _selectOptionService.getCellData().then((result) {
+    _selectOptionService.getCellData().then((final result) {
       if (isClosed) return;
 
       return result.fold(
-        (data) => add(ChecklistCellEditorEvent.didReceiveOptions(data)),
-        (err) => Log.error(err),
+        (final data) => add(ChecklistCellEditorEvent.didReceiveOptions(data)),
+        (final err) => Log.error(err),
       );
     });
   }
 
   void _startListening() {
     cellController.startListening(
-      onCellChanged: ((data) {
+      onCellChanged: ((final data) {
         if (!isClosed && data != null) {
           add(ChecklistCellEditorEvent.didReceiveOptions(data));
         }
@@ -118,31 +118,31 @@ class ChecklistCellEditorBloc
 class ChecklistCellEditorEvent with _$ChecklistCellEditorEvent {
   const factory ChecklistCellEditorEvent.initial() = _Initial;
   const factory ChecklistCellEditorEvent.didReceiveOptions(
-    SelectOptionCellDataPB data,
+    final SelectOptionCellDataPB data,
   ) = _DidReceiveOptions;
-  const factory ChecklistCellEditorEvent.newOption(String optionName) =
+  const factory ChecklistCellEditorEvent.newOption(final String optionName) =
       _NewOption;
   const factory ChecklistCellEditorEvent.selectOption(
-    ChecklistSelectOption option,
+    final ChecklistSelectOption option,
   ) = _SelectOption;
-  const factory ChecklistCellEditorEvent.updateOption(SelectOptionPB option) =
+  const factory ChecklistCellEditorEvent.updateOption(final SelectOptionPB option) =
       _UpdateOption;
-  const factory ChecklistCellEditorEvent.deleteOption(SelectOptionPB option) =
+  const factory ChecklistCellEditorEvent.deleteOption(final SelectOptionPB option) =
       _DeleteOption;
-  const factory ChecklistCellEditorEvent.filterOption(String predicate) =
+  const factory ChecklistCellEditorEvent.filterOption(final String predicate) =
       _FilterOption;
 }
 
 @freezed
 class ChecklistCellEditorState with _$ChecklistCellEditorState {
   const factory ChecklistCellEditorState({
-    required List<ChecklistSelectOption> allOptions,
-    required Option<String> createOption,
-    required double percent,
-    required String predicate,
+    required final List<ChecklistSelectOption> allOptions,
+    required final Option<String> createOption,
+    required final double percent,
+    required final String predicate,
   }) = _ChecklistCellEditorState;
 
-  factory ChecklistCellEditorState.initial(SelectOptionCellController context) {
+  factory ChecklistCellEditorState.initial(final SelectOptionCellController context) {
     final data = context.getCellData(loadIfNotExist: true);
 
     return ChecklistCellEditorState(
@@ -154,7 +154,7 @@ class ChecklistCellEditorState with _$ChecklistCellEditorState {
   }
 }
 
-double percentFromSelectOptionCellData(SelectOptionCellDataPB? data) {
+double percentFromSelectOptionCellData(final SelectOptionCellDataPB? data) {
   if (data == null) return 0;
 
   final b = data.options.length.toDouble();
@@ -169,8 +169,8 @@ double percentFromSelectOptionCellData(SelectOptionCellDataPB? data) {
 }
 
 List<ChecklistSelectOption> _makeChecklistSelectOptions(
-  SelectOptionCellDataPB? data,
-  String predicate,
+  final SelectOptionCellDataPB? data,
+  final String predicate,
 ) {
   if (data == null) {
     return [];
@@ -179,9 +179,9 @@ List<ChecklistSelectOption> _makeChecklistSelectOptions(
   final List<ChecklistSelectOption> options = [];
   final List<SelectOptionPB> allOptions = List.from(data.options);
   if (predicate.isNotEmpty) {
-    allOptions.retainWhere((element) => element.name.contains(predicate));
+    allOptions.retainWhere((final element) => element.name.contains(predicate));
   }
-  final selectedOptionIds = data.selectOptions.map((e) => e.id).toList();
+  final selectedOptionIds = data.selectOptions.map((final e) => e.id).toList();
 
   for (final option in allOptions) {
     options.add(

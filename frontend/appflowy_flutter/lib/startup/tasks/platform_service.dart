@@ -6,7 +6,7 @@ class InitPlatformServiceTask extends LaunchTask {
   LaunchTaskType get type => LaunchTaskType.dataProcessing;
 
   @override
-  Future<void> initialize(LaunchContext context) async {
+  Future<void> initialize(final LaunchContext context) async {
     getIt<NetworkListener>().start();
   }
 }

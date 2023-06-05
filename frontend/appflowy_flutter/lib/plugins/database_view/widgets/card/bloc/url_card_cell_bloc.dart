@@ -13,12 +13,12 @@ class URLCardCellBloc extends Bloc<URLCardCellEvent, URLCardCellState> {
     required this.cellController,
   }) : super(URLCardCellState.initial(cellController)) {
     on<URLCardCellEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.when(
           initial: () {
             _startListening();
           },
-          didReceiveCellUpdate: (cellData) {
+          didReceiveCellUpdate: (final cellData) {
             emit(
               state.copyWith(
                 content: cellData?.content ?? "",
@@ -26,7 +26,7 @@ class URLCardCellBloc extends Bloc<URLCardCellEvent, URLCardCellState> {
               ),
             );
           },
-          updateURL: (String url) {
+          updateURL: (final String url) {
             cellController.saveCellData(url, deduplicate: true);
           },
         );
@@ -46,7 +46,7 @@ class URLCardCellBloc extends Bloc<URLCardCellEvent, URLCardCellState> {
 
   void _startListening() {
     _onCellChangedFn = cellController.startListening(
-      onCellChanged: ((cellData) {
+      onCellChanged: ((final cellData) {
         if (!isClosed) {
           add(URLCardCellEvent.didReceiveCellUpdate(cellData));
         }
@@ -58,19 +58,19 @@ class URLCardCellBloc extends Bloc<URLCardCellEvent, URLCardCellState> {
 @freezed
 class URLCardCellEvent with _$URLCardCellEvent {
   const factory URLCardCellEvent.initial() = _InitialCell;
-  const factory URLCardCellEvent.updateURL(String url) = _UpdateURL;
-  const factory URLCardCellEvent.didReceiveCellUpdate(URLCellDataPB? cell) =
+  const factory URLCardCellEvent.updateURL(final String url) = _UpdateURL;
+  const factory URLCardCellEvent.didReceiveCellUpdate(final URLCellDataPB? cell) =
       _DidReceiveCellUpdate;
 }
 
 @freezed
 class URLCardCellState with _$URLCardCellState {
   const factory URLCardCellState({
-    required String content,
-    required String url,
+    required final String content,
+    required final String url,
   }) = _URLCardCellState;
 
-  factory URLCardCellState.initial(URLCellController context) {
+  factory URLCardCellState.initial(final URLCellController context) {
     final cellData = context.getCellData();
     return URLCardCellState(
       content: cellData?.content ?? "",

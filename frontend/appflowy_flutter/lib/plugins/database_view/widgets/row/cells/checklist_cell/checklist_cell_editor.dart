@@ -13,7 +13,7 @@ import 'checklist_progress_bar.dart';
 
 class GridChecklistCellEditor extends StatefulWidget {
   final ChecklistCellController cellController;
-  const GridChecklistCellEditor({required this.cellController, Key? key})
+  const GridChecklistCellEditor({required this.cellController, final Key? key})
       : super(key: key);
 
   @override
@@ -40,11 +40,11 @@ class _GridChecklistCellEditorState extends State<GridChecklistCellEditor> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: bloc,
       child: BlocBuilder<ChecklistCellEditorBloc, ChecklistCellEditorState>(
-        builder: (context, state) {
+        builder: (final context, final state) {
           final List<Widget> slivers = [
             const SliverChecklistProgressBar(),
             SliverToBoxAdapter(
@@ -54,13 +54,13 @@ class _GridChecklistCellEditorState extends State<GridChecklistCellEditor> {
                   controller: ScrollController(),
                   shrinkWrap: true,
                   itemCount: state.allOptions.length,
-                  itemBuilder: (BuildContext context, int index) {
+                  itemBuilder: (final BuildContext context, final int index) {
                     return _ChecklistOptionCell(
                       option: state.allOptions[index],
                       popoverMutex: popoverMutex,
                     );
                   },
-                  separatorBuilder: (BuildContext context, int index) {
+                  separatorBuilder: (final BuildContext context, final int index) {
                     return VSpace(GridSize.typeOptionSeparatorHeight);
                   },
                 ),
@@ -89,7 +89,7 @@ class _ChecklistOptionCell extends StatefulWidget {
   const _ChecklistOptionCell({
     required this.option,
     required this.popoverMutex,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -106,7 +106,7 @@ class _ChecklistOptionCellState extends State<_ChecklistOptionCell> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final icon = widget.option.isSelected
         ? svgWidget('editor/editor_check')
         : svgWidget('editor/editor_uncheck');
@@ -148,7 +148,7 @@ class _ChecklistOptionCellState extends State<_ChecklistOptionCell> {
     );
   }
 
-  Widget _wrapPopover(Widget child) {
+  Widget _wrapPopover(final Widget child) {
     return AppFlowyPopover(
       controller: _popoverController,
       offset: const Offset(8, 0),
@@ -157,7 +157,7 @@ class _ChecklistOptionCellState extends State<_ChecklistOptionCell> {
       mutex: widget.popoverMutex,
       triggerActions: PopoverTriggerFlags.none,
       child: child,
-      popupBuilder: (BuildContext popoverContext) {
+      popupBuilder: (final BuildContext popoverContext) {
         return SelectOptionTypeOptionEditor(
           option: widget.option.data,
           onDeleted: () {
@@ -167,7 +167,7 @@ class _ChecklistOptionCellState extends State<_ChecklistOptionCell> {
 
             _popoverController.close();
           },
-          onUpdated: (updatedOption) {
+          onUpdated: (final updatedOption) {
             context.read<ChecklistCellEditorBloc>().add(
                   ChecklistCellEditorEvent.updateOption(updatedOption),
                 );

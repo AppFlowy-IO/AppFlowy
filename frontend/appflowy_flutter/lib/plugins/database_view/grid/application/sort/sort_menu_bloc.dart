@@ -22,19 +22,19 @@ class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
           ),
         ) {
     on<SortMenuEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.when(
           initial: () {
             _startListening();
           },
-          didReceiveSortInfos: (sortInfos) {
+          didReceiveSortInfos: (final sortInfos) {
             emit(state.copyWith(sortInfos: sortInfos));
           },
           toggleMenu: () {
             final isVisible = !state.isVisible;
             emit(state.copyWith(isVisible: isVisible));
           },
-          didReceiveFields: (List<FieldInfo> fields) {
+          didReceiveFields: (final List<FieldInfo> fields) {
             emit(
               state.copyWith(
                 fields: fields,
@@ -48,19 +48,19 @@ class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
   }
 
   void _startListening() {
-    _onSortChangeFn = (sortInfos) {
+    _onSortChangeFn = (final sortInfos) {
       add(SortMenuEvent.didReceiveSortInfos(sortInfos));
     };
 
-    _onFieldFn = (fields) {
+    _onFieldFn = (final fields) {
       add(SortMenuEvent.didReceiveFields(fields));
     };
 
     fieldController.addListener(
-      onSorts: (sortInfos) {
+      onSorts: (final sortInfos) {
         _onSortChangeFn?.call(sortInfos);
       },
-      onReceiveFields: (fields) {
+      onReceiveFields: (final fields) {
         _onFieldFn?.call(fields);
       },
     );
@@ -83,9 +83,9 @@ class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
 @freezed
 class SortMenuEvent with _$SortMenuEvent {
   const factory SortMenuEvent.initial() = _Initial;
-  const factory SortMenuEvent.didReceiveSortInfos(List<SortInfo> sortInfos) =
+  const factory SortMenuEvent.didReceiveSortInfos(final List<SortInfo> sortInfos) =
       _DidReceiveSortInfos;
-  const factory SortMenuEvent.didReceiveFields(List<FieldInfo> fields) =
+  const factory SortMenuEvent.didReceiveFields(final List<FieldInfo> fields) =
       _DidReceiveFields;
   const factory SortMenuEvent.toggleMenu() = _SetMenuVisibility;
 }
@@ -93,17 +93,17 @@ class SortMenuEvent with _$SortMenuEvent {
 @freezed
 class SortMenuState with _$SortMenuState {
   const factory SortMenuState({
-    required String viewId,
-    required List<SortInfo> sortInfos,
-    required List<FieldInfo> fields,
-    required List<FieldInfo> creatableFields,
-    required bool isVisible,
+    required final String viewId,
+    required final List<SortInfo> sortInfos,
+    required final List<FieldInfo> fields,
+    required final List<FieldInfo> creatableFields,
+    required final bool isVisible,
   }) = _SortMenuState;
 
   factory SortMenuState.initial(
-    String viewId,
-    List<SortInfo> sortInfos,
-    List<FieldInfo> fields,
+    final String viewId,
+    final List<SortInfo> sortInfos,
+    final List<FieldInfo> fields,
   ) =>
       SortMenuState(
         viewId: viewId,

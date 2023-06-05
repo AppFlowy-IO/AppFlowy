@@ -25,8 +25,8 @@ class GridSingleSelectCell extends GridCellWidget {
 
   GridSingleSelectCell({
     required this.cellControllerBuilder,
-    GridCellStyle? style,
-    Key? key,
+    final GridCellStyle? style,
+    final Key? key,
   }) : super(key: key) {
     if (style != null) {
       cellStyle = (style as SelectOptionCellStyle);
@@ -54,11 +54,11 @@ class _SingleSelectCellState extends GridCellState<GridSingleSelectCell> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<SelectOptionCellBloc, SelectOptionCellState>(
-        builder: (context, state) {
+        builder: (final context, final state) {
           return SelectOptionWrap(
             selectOptions: state.selectedOptions,
             cellStyle: widget.cellStyle,
@@ -88,8 +88,8 @@ class GridMultiSelectCell extends GridCellWidget {
 
   GridMultiSelectCell({
     required this.cellControllerBuilder,
-    GridCellStyle? style,
-    Key? key,
+    final GridCellStyle? style,
+    final Key? key,
   }) : super(key: key) {
     if (style != null) {
       cellStyle = (style as SelectOptionCellStyle);
@@ -117,11 +117,11 @@ class _MultiSelectCellState extends GridCellState<GridMultiSelectCell> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<SelectOptionCellBloc, SelectOptionCellState>(
-        builder: (context, state) {
+        builder: (final context, final state) {
           return SelectOptionWrap(
             selectOptions: state.selectedOptions,
             cellStyle: widget.cellStyle,
@@ -157,7 +157,7 @@ class SelectOptionWrap extends StatefulWidget {
     required this.onCellEditing,
     required this.popoverController,
     this.cellStyle,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
@@ -166,8 +166,8 @@ class SelectOptionWrap extends StatefulWidget {
 
 class _SelectOptionWrapState extends State<SelectOptionWrap> {
   @override
-  Widget build(BuildContext context) {
-    Widget child = _buildOptions(context);
+  Widget build(final BuildContext context) {
+    final Widget child = _buildOptions(context);
 
     final constraints = BoxConstraints.loose(
       Size(
@@ -180,8 +180,8 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
       constraints: constraints,
       margin: EdgeInsets.zero,
       direction: PopoverDirection.bottomWithLeftAligned,
-      popupBuilder: (BuildContext context) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+      popupBuilder: (final BuildContext context) {
+        WidgetsBinding.instance.addPostFrameCallback((final _) {
           widget.onCellEditing.value = true;
         });
         return SelectOptionCellEditor(
@@ -197,7 +197,7 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
     );
   }
 
-  Widget _buildOptions(BuildContext context) {
+  Widget _buildOptions(final BuildContext context) {
     final Widget child;
     if (widget.selectOptions.isEmpty && widget.cellStyle != null) {
       child = FlowyText.medium(
@@ -206,7 +206,7 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
       );
     } else {
       final children = widget.selectOptions.map(
-        (option) {
+        (final option) {
           return Padding(
             padding: const EdgeInsets.only(right: 4),
             child: SelectOptionTag.fromOption(

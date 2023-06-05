@@ -36,9 +36,9 @@ class AppFlowyBoardTest {
       name: "Test Board",
       layoutType: builder.layoutType!,
     )
-        .then((result) {
+        .then((final result) {
       return result.fold(
-        (view) async {
+        (final view) async {
           final context = BoardTestContext(
             view,
             DatabaseController(
@@ -47,10 +47,10 @@ class AppFlowyBoardTest {
             ),
           );
           final result = await context._boardDataController.open();
-          result.fold((l) => null, (r) => throw Exception(r));
+          result.fold((final l) => null, (final r) => throw Exception(r));
           return context;
         },
-        (error) {
+        (final error) {
           throw Exception();
         },
       );
@@ -62,7 +62,7 @@ Future<void> boardResponseFuture() {
   return Future.delayed(boardResponseDuration(milliseconds: 200));
 }
 
-Duration boardResponseDuration({int milliseconds = 200}) {
+Duration boardResponseDuration({final int milliseconds = 200}) {
   return Duration(milliseconds: milliseconds);
 }
 
@@ -83,7 +83,7 @@ class BoardTestContext {
   }
 
   FieldEditorBloc createFieldEditor({
-    FieldInfo? fieldInfo,
+    final FieldInfo? fieldInfo,
   }) {
     IFieldTypeOptionLoader loader;
     if (fieldInfo == null) {
@@ -102,13 +102,13 @@ class BoardTestContext {
     return editorBloc;
   }
 
-  Future<CellController> makeCellController(String fieldId) async {
+  Future<CellController> makeCellController(final String fieldId) async {
     final builder = await makeCellControllerBuilder(fieldId);
     return builder.build();
   }
 
   Future<CellControllerBuilder> makeCellControllerBuilder(
-    String fieldId,
+    final String fieldId,
   ) async {
     final RowInfo rowInfo = rowInfos.last;
     final rowCache = _boardDataController.rowCache;
@@ -131,7 +131,7 @@ class BoardTestContext {
     );
   }
 
-  Future<FieldEditorBloc> createField(FieldType fieldType) async {
+  Future<FieldEditorBloc> createField(final FieldType fieldType) async {
     final editorBloc = createFieldEditor()
       ..add(const FieldEditorEvent.initial());
     await gridResponseFuture();
@@ -142,7 +142,7 @@ class BoardTestContext {
 
   FieldInfo singleSelectFieldContext() {
     final fieldInfo = fieldContexts
-        .firstWhere((element) => element.fieldType == FieldType.SingleSelect);
+        .firstWhere((final element) => element.fieldType == FieldType.SingleSelect);
     return fieldInfo;
   }
 
@@ -153,13 +153,13 @@ class BoardTestContext {
 
   FieldInfo textFieldContext() {
     final fieldInfo = fieldContexts
-        .firstWhere((element) => element.fieldType == FieldType.RichText);
+        .firstWhere((final element) => element.fieldType == FieldType.RichText);
     return fieldInfo;
   }
 
   FieldInfo checkboxFieldContext() {
     final fieldInfo = fieldContexts
-        .firstWhere((element) => element.fieldType == FieldType.Checkbox);
+        .firstWhere((final element) => element.fieldType == FieldType.Checkbox);
     return fieldInfo;
   }
 }

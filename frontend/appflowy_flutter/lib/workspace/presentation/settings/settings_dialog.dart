@@ -17,15 +17,15 @@ const _contentInsetPadding = EdgeInsets.fromLTRB(0.0, 12.0, 0.0, 16.0);
 
 class SettingsDialog extends StatelessWidget {
   final UserProfilePB user;
-  SettingsDialog(this.user, {Key? key}) : super(key: ValueKey(user.id));
+  SettingsDialog(this.user, {final Key? key}) : super(key: ValueKey(user.id));
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider<SettingsDialogBloc>(
-      create: (context) => getIt<SettingsDialogBloc>(param1: user)
+      create: (final context) => getIt<SettingsDialogBloc>(param1: user)
         ..add(const SettingsDialogEvent.initial()),
       child: BlocBuilder<SettingsDialogBloc, SettingsDialogState>(
-        builder: (context, state) => FlowyDialog(
+        builder: (final context, final state) => FlowyDialog(
           title: Padding(
             padding: _dialogHorizontalPadding + _contentInsetPadding,
             child: FlowyText(
@@ -46,7 +46,7 @@ class SettingsDialog extends StatelessWidget {
                     SizedBox(
                       width: 200,
                       child: SettingsMenu(
-                        changeSelectedPage: (index) {
+                        changeSelectedPage: (final index) {
                           context
                               .read<SettingsDialogBloc>()
                               .add(SettingsDialogEvent.setSelectedPage(index));
@@ -75,7 +75,7 @@ class SettingsDialog extends StatelessWidget {
     );
   }
 
-  Widget getSettingsView(SettingsPage page, UserProfilePB user) {
+  Widget getSettingsView(final SettingsPage page, final UserProfilePB user) {
     switch (page) {
       case SettingsPage.appearance:
         return const SettingsAppearanceView();

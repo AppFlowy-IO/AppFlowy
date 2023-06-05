@@ -13,18 +13,18 @@ import 'sort_editor.dart';
 import 'sort_info.dart';
 
 class SortMenu extends StatelessWidget {
-  const SortMenu({Key? key}) : super(key: key);
+  const SortMenu({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<SortMenuBloc, SortMenuState>(
-      builder: (context, state) {
+      builder: (final context, final state) {
         if (state.sortInfos.isNotEmpty) {
           return AppFlowyPopover(
             controller: PopoverController(),
             constraints: BoxConstraints.loose(const Size(340, 200)),
             direction: PopoverDirection.bottomWithLeftAligned,
-            popupBuilder: (BuildContext popoverContext) {
+            popupBuilder: (final BuildContext popoverContext) {
               return SortEditor(
                 viewId: state.viewId,
                 fieldController: context.read<SortMenuBloc>().fieldController,
@@ -46,13 +46,13 @@ class SortChoiceChip extends StatelessWidget {
   final VoidCallback? onTap;
 
   const SortChoiceChip({
-    Key? key,
+    final Key? key,
     required this.sortInfos,
     this.onTap,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final arrow = Transform.rotate(
       angle: -math.pi / 2,
       child: svgWidget(

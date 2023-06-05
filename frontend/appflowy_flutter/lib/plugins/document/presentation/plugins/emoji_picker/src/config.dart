@@ -86,13 +86,13 @@ class Config {
   final ButtonMode buttonMode;
 
   /// Get Emoji size based on properties and screen width
-  double getEmojiSize(double width) {
+  double getEmojiSize(final double width) {
     final maxSize = width / columns;
     return min(maxSize, emojiSizeMax);
   }
 
   /// Returns the icon for the category
-  IconData getIconForCategory(Category category) {
+  IconData getIconForCategory(final Category category) {
     switch (category) {
       case Category.RECENT:
         return categoryIcons.recentIcon;
@@ -120,7 +120,7 @@ class Config {
   }
 
   @override
-  bool operator ==(other) {
+  bool operator ==(final other) {
     return (other is Config) &&
         other.columns == columns &&
         other.emojiSizeMax == emojiSizeMax &&

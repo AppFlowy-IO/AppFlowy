@@ -14,7 +14,7 @@ class GridAccessoryMenuBloc
           ),
         ) {
     on<GridAccessoryMenuEvent>(
-      (event, emit) async {
+      (final event, final emit) async {
         event.when(
           initial: () {},
           toggleMenu: () {
@@ -35,12 +35,12 @@ class GridAccessoryMenuEvent with _$GridAccessoryMenuEvent {
 @freezed
 class GridAccessoryMenuState with _$GridAccessoryMenuState {
   const factory GridAccessoryMenuState({
-    required String viewId,
-    required bool isVisible,
+    required final String viewId,
+    required final bool isVisible,
   }) = _GridAccessoryMenuState;
 
   factory GridAccessoryMenuState.initial(
-    String viewId,
+    final String viewId,
   ) =>
       GridAccessoryMenuState(
         viewId: viewId,

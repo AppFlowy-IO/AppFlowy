@@ -33,10 +33,10 @@ extension FlowyPluginExtension on FlowyPlugin {
 }
 
 extension ViewExtension on ViewPB {
-  Widget renderThumbnail({Color? iconColor}) {
-    String thumbnail = "file_icon";
+  Widget renderThumbnail({final Color? iconColor}) {
+    const String thumbnail = "file_icon";
 
-    final Widget widget = FlowySvg(name: thumbnail);
+    const Widget widget = FlowySvg(name: thumbnail);
     return widget;
   }
 

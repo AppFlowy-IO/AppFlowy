@@ -29,11 +29,11 @@ class SettingsFileLocationCustomizer extends StatefulWidget {
 class SettingsFileLocationCustomizerState
     extends State<SettingsFileLocationCustomizer> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider<SettingsLocationCubit>.value(
       value: widget.cubit,
       child: BlocBuilder<SettingsLocationCubit, SettingsLocation>(
-        builder: (context, state) {
+        builder: (final context, final state) {
           return ListTile(
             title: FlowyText.medium(
               LocaleKeys.settings_files_defaultLocation.tr(),
@@ -47,7 +47,7 @@ class SettingsFileLocationCustomizerState
                     ClipboardData(
                       text: state.path,
                     ),
-                  ).then((_) {
+                  ).then((final _) {
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -121,7 +121,7 @@ class SettingsFileLocationCustomizerState
     );
   }
 
-  Future<void> _setCustomLocation(String? path) async {
+  Future<void> _setCustomLocation(final String? path) async {
     // Using default location if path equals null.
     final location = path ?? (await appFlowyDocumentDirectory()).path;
     if (mounted) {

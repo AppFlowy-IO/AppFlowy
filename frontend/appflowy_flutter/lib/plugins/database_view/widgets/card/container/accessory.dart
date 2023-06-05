@@ -8,7 +8,7 @@ enum AccessoryType {
 
 abstract class CardAccessory implements Widget {
   AccessoryType get type;
-  void onTap(BuildContext context) {}
+  void onTap(final BuildContext context) {}
 }
 
 typedef CardAccessoryBuilder = List<CardAccessory> Function(
@@ -21,12 +21,12 @@ class CardAccessoryContainer extends StatelessWidget {
   const CardAccessoryContainer({
     required this.accessories,
     required this.onTapAccessory,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final children = accessories.map((accessory) {
+  Widget build(final BuildContext context) {
+    final children = accessories.map((final accessory) {
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
@@ -39,13 +39,13 @@ class CardAccessoryContainer extends StatelessWidget {
     return _wrapDecoration(context, Row(children: children));
   }
 
-  FlowyHover _wrapHover(BuildContext context, CardAccessory accessory) {
+  FlowyHover _wrapHover(final BuildContext context, final CardAccessory accessory) {
     return FlowyHover(
       style: HoverStyle(
         backgroundColor: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.zero,
       ),
-      builder: (_, onHover) => SizedBox(
+      builder: (final _, final onHover) => SizedBox(
         width: 24,
         height: 24,
         child: accessory,
@@ -53,7 +53,7 @@ class CardAccessoryContainer extends StatelessWidget {
     );
   }
 
-  Widget _wrapDecoration(BuildContext context, Widget child) {
+  Widget _wrapDecoration(final BuildContext context, final Widget child) {
     final borderSide = BorderSide(
       color: Theme.of(context).dividerColor,
       width: 1.0,

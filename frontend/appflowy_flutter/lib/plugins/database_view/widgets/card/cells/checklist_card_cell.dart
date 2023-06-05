@@ -8,7 +8,7 @@ import 'card_cell.dart';
 
 class ChecklistCardCell extends CardCell {
   final CellControllerBuilder cellControllerBuilder;
-  const ChecklistCardCell({required this.cellControllerBuilder, Key? key})
+  const ChecklistCardCell({required this.cellControllerBuilder, final Key? key})
       : super(key: key);
 
   @override
@@ -28,11 +28,11 @@ class _ChecklistCardCellState extends State<ChecklistCardCell> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<ChecklistCardCellBloc, ChecklistCellState>(
-        builder: (context, state) =>
+        builder: (final context, final state) =>
             ChecklistProgressBar(percent: state.percent),
       ),
     );

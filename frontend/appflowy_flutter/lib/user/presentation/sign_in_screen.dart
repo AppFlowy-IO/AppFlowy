@@ -20,17 +20,17 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 
 class SignInScreen extends StatelessWidget {
   final AuthRouter router;
-  const SignInScreen({Key? key, required this.router}) : super(key: key);
+  const SignInScreen({final Key? key, required this.router}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<SignInBloc>(),
+      create: (final context) => getIt<SignInBloc>(),
       child: BlocListener<SignInBloc, SignInState>(
-        listener: (context, state) {
+        listener: (final context, final state) {
           state.successOrFail.fold(
             () => null,
-            (result) => _handleSuccessOrFail(result, context),
+            (final result) => _handleSuccessOrFail(result, context),
           );
         },
         child: Scaffold(
@@ -41,12 +41,12 @@ class SignInScreen extends StatelessWidget {
   }
 
   void _handleSuccessOrFail(
-    Either<UserProfilePB, FlowyError> result,
-    BuildContext context,
+    final Either<UserProfilePB, FlowyError> result,
+    final BuildContext context,
   ) {
     result.fold(
-      (user) => router.pushWelcomeScreen(context, user),
-      (error) => showSnapBar(context, error.msg),
+      (final user) => router.pushWelcomeScreen(context, user),
+      (final error) => showSnapBar(context, error.msg),
     );
   }
 }
@@ -54,12 +54,12 @@ class SignInScreen extends StatelessWidget {
 class SignInForm extends StatelessWidget {
   final AuthRouter router;
   const SignInForm({
-    Key? key,
+    final Key? key,
     required this.router,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Align(
       alignment: Alignment.center,
       child: AuthFormContainer(
@@ -88,14 +88,14 @@ class SignInForm extends StatelessWidget {
 
 class SignUpPrompt extends StatelessWidget {
   const SignUpPrompt({
-    Key? key,
+    final Key? key,
     required this.router,
   }) : super(key: key);
 
   final AuthRouter router;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -120,11 +120,11 @@ class SignUpPrompt extends StatelessWidget {
 
 class LoginButton extends StatelessWidget {
   const LoginButton({
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return RoundedTextButton(
       title: LocaleKeys.signIn_loginButtonText.tr(),
       height: 48,
@@ -138,14 +138,14 @@ class LoginButton extends StatelessWidget {
 
 class ForgetPasswordButton extends StatelessWidget {
   const ForgetPasswordButton({
-    Key? key,
+    final Key? key,
     required this.router,
   }) : super(key: key);
 
   final AuthRouter router;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return TextButton(
       style: TextButton.styleFrom(
         textStyle: Theme.of(context).textTheme.bodyMedium,
@@ -161,15 +161,15 @@ class ForgetPasswordButton extends StatelessWidget {
 
 class PasswordTextField extends StatelessWidget {
   const PasswordTextField({
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<SignInBloc, SignInState>(
-      buildWhen: (previous, current) =>
+      buildWhen: (final previous, final current) =>
           previous.passwordError != current.passwordError,
-      builder: (context, state) {
+      builder: (final context, final state) {
         return RoundedInputField(
           obscureText: true,
           obscureIcon: svgWidget("home/hide"),
@@ -179,8 +179,8 @@ class PasswordTextField extends StatelessWidget {
               .read<SignInBloc>()
               .state
               .passwordError
-              .fold(() => "", (error) => error),
-          onChanged: (value) => context
+              .fold(() => "", (final error) => error),
+          onChanged: (final value) => context
               .read<SignInBloc>()
               .add(SignInEvent.passwordChanged(value)),
         );
@@ -191,23 +191,23 @@ class PasswordTextField extends StatelessWidget {
 
 class EmailTextField extends StatelessWidget {
   const EmailTextField({
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocBuilder<SignInBloc, SignInState>(
-      buildWhen: (previous, current) =>
+      buildWhen: (final previous, final current) =>
           previous.emailError != current.emailError,
-      builder: (context, state) {
+      builder: (final context, final state) {
         return RoundedInputField(
           hintText: LocaleKeys.signIn_emailHint.tr(),
           errorText: context
               .read<SignInBloc>()
               .state
               .emailError
-              .fold(() => "", (error) => error),
-          onChanged: (value) =>
+              .fold(() => "", (final error) => error),
+          onChanged: (final value) =>
               context.read<SignInBloc>().add(SignInEvent.emailChanged(value)),
         );
       },

@@ -33,18 +33,18 @@ class CellCache {
     required this.viewId,
   });
 
-  void removeCellWithFieldId(String fieldId) {
+  void removeCellWithFieldId(final String fieldId) {
     _cellDataByFieldId.remove(fieldId);
   }
 
-  void remove(CellCacheKey key) {
-    var map = _cellDataByFieldId[key.fieldId];
+  void remove(final CellCacheKey key) {
+    final map = _cellDataByFieldId[key.fieldId];
     if (map != null) {
       map.remove(key.rowId);
     }
   }
 
-  void insert<T extends DatabaseCell>(CellCacheKey key, T value) {
+  void insert<T extends DatabaseCell>(final CellCacheKey key, final T value) {
     var map = _cellDataByFieldId[key.fieldId];
     if (map == null) {
       _cellDataByFieldId[key.fieldId] = {};
@@ -54,7 +54,7 @@ class CellCache {
     map![key.rowId] = value.object;
   }
 
-  T? get<T>(CellCacheKey key) {
+  T? get<T>(final CellCacheKey key) {
     final map = _cellDataByFieldId[key.fieldId];
     if (map == null) {
       return null;

@@ -10,10 +10,10 @@ class UserSettingsBackendService {
     final result = await UserEventGetAppearanceSetting().send();
 
     return result.fold(
-      (AppearanceSettingsPB setting) {
+      (final AppearanceSettingsPB setting) {
         return setting;
       },
-      (error) {
+      (final error) {
         throw FlowySDKException(ExceptionType.AppearanceSettingsIsEmpty);
       },
     );
@@ -24,7 +24,7 @@ class UserSettingsBackendService {
   }
 
   Future<Either<Unit, FlowyError>> setAppearanceSetting(
-    AppearanceSettingsPB setting,
+    final AppearanceSettingsPB setting,
   ) {
     return UserEventSetAppearanceSetting(setting).send();
   }

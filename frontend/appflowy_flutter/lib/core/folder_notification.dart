@@ -17,13 +17,13 @@ typedef FolderNotificationCallback = void Function(
 class FolderNotificationParser
     extends NotificationParser<FolderNotification, FlowyError> {
   FolderNotificationParser({
-    String? id,
-    required FolderNotificationCallback callback,
+    final String? id,
+    required final FolderNotificationCallback callback,
   }) : super(
           id: id,
           callback: callback,
-          tyParser: (ty) => FolderNotification.valueOf(ty),
-          errorParser: (bytes) => FlowyError.fromBuffer(bytes),
+          tyParser: (final ty) => FolderNotification.valueOf(ty),
+          errorParser: (final bytes) => FlowyError.fromBuffer(bytes),
         );
 }
 
@@ -37,14 +37,14 @@ class FolderNotificationListener {
   FolderNotificationParser? _parser;
 
   FolderNotificationListener({
-    required String objectId,
-    required FolderNotificationHandler handler,
+    required final String objectId,
+    required final FolderNotificationHandler handler,
   }) : _parser = FolderNotificationParser(
           id: objectId,
           callback: handler,
         ) {
     _subscription =
-        RustStreamReceiver.listen((observable) => _parser?.parse(observable));
+        RustStreamReceiver.listen((final observable) => _parser?.parse(observable));
   }
 
   Future<void> stop() async {

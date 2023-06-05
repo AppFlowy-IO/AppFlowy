@@ -19,19 +19,19 @@ class GridGroupList extends StatelessWidget {
     required this.viewId,
     required this.fieldController,
     required this.onDismissed,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return BlocProvider(
-      create: (context) => DatabaseGroupBloc(
+      create: (final context) => DatabaseGroupBloc(
         viewId: viewId,
         fieldController: fieldController,
       )..add(const DatabaseGroupEvent.initial()),
       child: BlocBuilder<DatabaseGroupBloc, DatabaseGroupState>(
-        builder: (context, state) {
-          final cells = state.fieldContexts.map((fieldInfo) {
+        builder: (final context, final state) {
+          final cells = state.fieldContexts.map((final fieldInfo) {
             Widget cell = _GridGroupCell(
               fieldInfo: fieldInfo,
               onSelected: () => onDismissed(),
@@ -47,8 +47,8 @@ class GridGroupList extends StatelessWidget {
           return ListView.separated(
             shrinkWrap: true,
             itemCount: cells.length,
-            itemBuilder: (BuildContext context, int index) => cells[index],
-            separatorBuilder: (BuildContext context, int index) =>
+            itemBuilder: (final BuildContext context, final int index) => cells[index],
+            separatorBuilder: (final BuildContext context, final int index) =>
                 VSpace(GridSize.typeOptionSeparatorHeight),
             padding: const EdgeInsets.all(6.0),
           );
@@ -64,11 +64,11 @@ class _GridGroupCell extends StatelessWidget {
   const _GridGroupCell({
     required this.fieldInfo,
     required this.onSelected,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Widget? rightIcon;
     if (fieldInfo.isGroupField) {
       rightIcon = Padding(

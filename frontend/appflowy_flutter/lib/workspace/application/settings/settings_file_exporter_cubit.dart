@@ -29,10 +29,10 @@ class SettingsFileExportState {
   List<List<bool>> selectedItems = [];
 
   SettingsFileExportState copyWith({
-    List<AppPB>? apps,
-    List<bool>? expanded,
-    List<bool>? selectedApps,
-    List<List<bool>>? selectedItems,
+    final List<AppPB>? apps,
+    final List<bool>? expanded,
+    final List<bool>? selectedApps,
+    final List<List<bool>>? selectedItems,
   }) {
     final state = SettingsFileExportState(
       apps: apps ?? this.apps,
@@ -44,26 +44,27 @@ class SettingsFileExportState {
   }
 
   void initialize() {
-    expanded = apps.map((e) => true).toList();
-    selectedApps = apps.map((e) => true).toList();
-    selectedItems =
-        apps.map((e) => e.belongings.items.map((e) => true).toList()).toList();
+    expanded = apps.map((final e) => true).toList();
+    selectedApps = apps.map((final e) => true).toList();
+    selectedItems = apps
+        .map((final e) => e.belongings.items.map((final e) => true).toList())
+        .toList();
   }
 }
 
 class SettingsFileExporterCubit extends Cubit<SettingsFileExportState> {
   SettingsFileExporterCubit({
-    required List<AppPB> apps,
+    required final List<AppPB> apps,
   }) : super(SettingsFileExportState(apps: apps));
 
-  void selectOrDeselectItem(int outerIndex, int innerIndex) {
+  void selectOrDeselectItem(final int outerIndex, final int innerIndex) {
     final selectedItems = state.selectedItems;
     selectedItems[outerIndex][innerIndex] =
         !selectedItems[outerIndex][innerIndex];
     emit(state.copyWith(selectedItems: selectedItems));
   }
 
-  void expandOrUnexpandApp(int outerIndex) {
+  void expandOrUnexpandApp(final int outerIndex) {
     final expanded = state.expanded;
     expanded[outerIndex] = !expanded[outerIndex];
     emit(state.copyWith(expanded: expanded));
@@ -72,7 +73,7 @@ class SettingsFileExporterCubit extends Cubit<SettingsFileExportState> {
   Map<String, List<String>> fetchSelectedPages() {
     final apps = state.apps;
     final selectedItems = state.selectedItems;
-    Map<String, List<String>> result = {};
+    final Map<String, List<String>> result = {};
     for (var i = 0; i < selectedItems.length; i++) {
       final selectedItem = selectedItems[i];
       final ids = <String>[];

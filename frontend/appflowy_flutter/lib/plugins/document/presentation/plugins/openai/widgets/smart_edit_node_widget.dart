@@ -20,15 +20,15 @@ const String kSmartEditInputType = 'smart_edit_input';
 
 class SmartEditInputBuilder extends NodeWidgetBuilder<Node> {
   @override
-  NodeValidator<Node> get nodeValidator => (node) {
+  NodeValidator<Node> get nodeValidator => (final node) {
         return SmartEditAction.values
-                .map((e) => e.index)
+                .map((final e) => e.index)
                 .contains(node.attributes[kSmartEditInstructionType]) &&
             node.attributes[kSmartEditInputType] is String;
       };
 
   @override
-  Widget build(NodeWidgetContext<Node> context) {
+  Widget build(final NodeWidgetContext<Node> context) {
     return _HoverSmartInput(
       key: context.node.key,
       node: context.node,
@@ -58,13 +58,13 @@ class _HoverSmartInputState extends State<_HoverSmartInput> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((final timeStamp) {
       popoverController.show();
     });
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final width = _maxWidth();
 
     return AppFlowyPopover(
@@ -88,7 +88,7 @@ class _HoverSmartInputState extends State<_HoverSmartInput> {
         } else {
           showDialog(
             context: context,
-            builder: (context) {
+            builder: (final context) {
               return DiscardDialog(
                 onConfirm: () => completer.complete(true),
                 onCancel: () => completer.complete(false),
@@ -98,7 +98,7 @@ class _HoverSmartInputState extends State<_HoverSmartInput> {
         }
         return completer.future;
       },
-      popupBuilder: (BuildContext popoverContext) {
+      popupBuilder: (final BuildContext popoverContext) {
         return _SmartEditInput(
           key: key,
           node: widget.node,
@@ -164,7 +164,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Card(
       elevation: 5,
       color: Theme.of(context).colorScheme.surface,
@@ -175,7 +175,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
     );
   }
 
-  Widget _buildSmartEditPanel(BuildContext context) {
+  Widget _buildSmartEditPanel(final BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,7 +189,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
     );
   }
 
-  Widget _buildHeaderWidget(BuildContext context) {
+  Widget _buildHeaderWidget(final BuildContext context) {
     return Row(
       children: [
         FlowyText.medium(
@@ -210,7 +210,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
     );
   }
 
-  Widget _buildResultWidget(BuildContext context) {
+  Widget _buildResultWidget(final BuildContext context) {
     final loading = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
       child: SizedBox.fromSize(
@@ -228,7 +228,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
     );
   }
 
-  Widget _buildInputFooterWidget(BuildContext context) {
+  Widget _buildInputFooterWidget(final BuildContext context) {
     return Row(
       children: [
         FlowyRichTextButton(
@@ -294,7 +294,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
       return;
     }
 
-    final texts = result.split('\n')..removeWhere((element) => element.isEmpty);
+    final texts = result.split('\n')..removeWhere((final element) => element.isEmpty);
     final transaction = widget.editorState.transaction;
     transaction.replaceTexts(
       selectedNodes.toList(growable: false),
@@ -325,12 +325,12 @@ class _SmartEditInputState extends State<_SmartEditInput> {
     if (selection == null || result.isEmpty) {
       return;
     }
-    final texts = result.split('\n')..removeWhere((element) => element.isEmpty);
+    final texts = result.split('\n')..removeWhere((final element) => element.isEmpty);
     final transaction = widget.editorState.transaction;
     transaction.insertNodes(
       selection.normalized.end.path.next,
       texts.map(
-        (e) => TextNode(
+        (final e) => TextNode(
           delta: Delta()..insert(e),
         ),
       ),
@@ -376,7 +376,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
             loading = false;
           });
         },
-        onProcess: (response) async {
+        onProcess: (final response) async {
           setState(() {
             if (response.choices.first.text != '\n') {
               result += response.choices.first.text;
@@ -390,7 +390,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
             }
           });
         },
-        onError: (error) async {
+        onError: (final error) async {
           await _showError(error.message);
           await _onExit();
         },
@@ -398,7 +398,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
     }
   }
 
-  Future<void> _showError(String message) async {
+  Future<void> _showError(final String message) async {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         action: SnackBarAction(

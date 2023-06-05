@@ -10,9 +10,9 @@ class TrashHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
+    final BuildContext context,
+    final double shrinkOffset,
+    final bool overlapsContent,
   ) {
     return TrashHeader();
   }
@@ -24,7 +24,7 @@ class TrashHeaderDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent => TrashSizes.headerHeight;
 
   @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
+  bool shouldRebuild(covariant final SliverPersistentHeaderDelegate oldDelegate) {
     return false;
   }
 }
@@ -52,12 +52,12 @@ class TrashHeader extends StatelessWidget {
     ),
   ];
 
-  TrashHeader({Key? key}) : super(key: key);
+  TrashHeader({final Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final headerItems = List<Widget>.empty(growable: true);
-    items.asMap().forEach((index, item) {
+    items.asMap().forEach((final index, final item) {
       headerItems.add(
         SizedBox(
           width: item.width,

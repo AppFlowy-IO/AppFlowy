@@ -11,7 +11,7 @@ import 'presentation/calendar_page.dart';
 
 class CalendarPluginBuilder extends PluginBuilder {
   @override
-  Plugin build(dynamic data) {
+  Plugin build(final dynamic data) {
     if (data is ViewPB) {
       return CalendarPlugin(pluginType: pluginType, view: data);
     } else {
@@ -43,8 +43,8 @@ class CalendarPlugin extends Plugin {
   final PluginType _pluginType;
 
   CalendarPlugin({
-    required ViewPB view,
-    required PluginType pluginType,
+    required final ViewPB view,
+    required final PluginType pluginType,
   })  : _pluginType = pluginType,
         notifier = ViewPluginNotifier(view: view);
 
@@ -60,7 +60,7 @@ class CalendarPlugin extends Plugin {
 
 class CalendarPluginDisplay extends PluginDisplay {
   final ViewPluginNotifier notifier;
-  CalendarPluginDisplay({required this.notifier, Key? key});
+  CalendarPluginDisplay({required this.notifier, final Key? key});
 
   ViewPB get view => notifier.view;
 
@@ -68,9 +68,9 @@ class CalendarPluginDisplay extends PluginDisplay {
   Widget get leftBarItem => ViewLeftBarItem(view: view);
 
   @override
-  Widget buildWidget(PluginContext context) {
+  Widget buildWidget(final PluginContext context) {
     notifier.isDeleted.addListener(() {
-      notifier.isDeleted.value.fold(() => null, (deletedView) {
+      notifier.isDeleted.value.fold(() => null, (final deletedView) {
         if (deletedView.hasIndex()) {
           context.onDeleted(view, deletedView.index);
         }

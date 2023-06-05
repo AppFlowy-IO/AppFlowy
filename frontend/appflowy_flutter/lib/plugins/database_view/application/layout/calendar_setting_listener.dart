@@ -16,7 +16,7 @@ class DatabaseCalendarLayoutListener {
   DatabaseCalendarLayoutListener(this.viewId);
 
   void start({
-    required void Function(NewLayoutFieldValue) onCalendarLayoutChanged,
+    required final void Function(NewLayoutFieldValue) onCalendarLayoutChanged,
   }) {
     _newLayoutFieldNotifier?.addPublishListener(onCalendarLayoutChanged);
     _listener = DatabaseNotificationListener(
@@ -26,15 +26,15 @@ class DatabaseCalendarLayoutListener {
   }
 
   void _handler(
-    DatabaseNotification ty,
-    Either<Uint8List, FlowyError> result,
+    final DatabaseNotification ty,
+    final Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case DatabaseNotification.DidSetNewLayoutField:
         result.fold(
-          (payload) => _newLayoutFieldNotifier?.value =
+          (final payload) => _newLayoutFieldNotifier?.value =
               left(LayoutSettingPB.fromBuffer(payload)),
-          (error) => _newLayoutFieldNotifier?.value = right(error),
+          (final error) => _newLayoutFieldNotifier?.value = right(error),
         );
         break;
       default:

@@ -18,11 +18,11 @@ class SelectOptionFilterConditionList extends StatelessWidget {
     required this.filterInfo,
     required this.popoverMutex,
     required this.onCondition,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final selectOptionFilter = filterInfo.selectOptionFilter()!;
     return PopoverActionList<ConditionWrapper>(
       asBarrier: true,
@@ -30,27 +30,27 @@ class SelectOptionFilterConditionList extends StatelessWidget {
       direction: PopoverDirection.bottomWithCenterAligned,
       actions: SelectOptionConditionPB.values
           .map(
-            (action) => ConditionWrapper(
+            (final action) => ConditionWrapper(
               action,
               selectOptionFilter.condition == action,
               filterInfo.fieldInfo.fieldType,
             ),
           )
           .toList(),
-      buildChild: (controller) {
+      buildChild: (final controller) {
         return ConditionButton(
           conditionName: filterName(selectOptionFilter),
           onTap: () => controller.show(),
         );
       },
-      onSelected: (action, controller) async {
+      onSelected: (final action, final controller) async {
         onCondition(action.inner);
         controller.close();
       },
     );
   }
 
-  String filterName(SelectOptionFilterPB filter) {
+  String filterName(final SelectOptionFilterPB filter) {
     if (filterInfo.fieldInfo.fieldType == FieldType.SingleSelect) {
       return filter.condition.singleSelectFilterName;
     } else {
@@ -67,7 +67,7 @@ class ConditionWrapper extends ActionCell {
   ConditionWrapper(this.inner, this.isSelected, this.fieldType);
 
   @override
-  Widget? rightIcon(Color iconColor) {
+  Widget? rightIcon(final Color iconColor) {
     if (isSelected) {
       return svgWidget("grid/checkmark");
     } else {

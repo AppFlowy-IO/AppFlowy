@@ -36,33 +36,33 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         _listener = ViewListener(view: view),
         _trashService = TrashService(),
         super(DocumentState.initial()) {
-    on<DocumentEvent>((event, emit) async {
+    on<DocumentEvent>((final event, final emit) async {
       await event.map(
-        initial: (Initial value) async {
+        initial: (final Initial value) async {
           await _initial(value, emit);
           _listenOnViewChange();
         },
-        deleted: (Deleted value) async {
+        deleted: (final Deleted value) async {
           emit(state.copyWith(isDeleted: true));
         },
-        restore: (Restore value) async {
+        restore: (final Restore value) async {
           emit(state.copyWith(isDeleted: false));
         },
-        deletePermanently: (DeletePermanently value) async {
+        deletePermanently: (final DeletePermanently value) async {
           final result = await _trashService
               .deleteViews([Tuple2(view.id, TrashType.TrashView)]);
 
           final newState = result.fold(
-            (l) => state.copyWith(forceClose: true),
-            (r) => state,
+            (final l) => state.copyWith(forceClose: true),
+            (final r) => state,
           );
           emit(newState);
         },
-        restorePage: (RestorePage value) async {
+        restorePage: (final RestorePage value) async {
           final result = await _trashService.putback(view.id);
           final newState = result.fold(
-            (l) => state.copyWith(isDeleted: false),
-            (r) => state,
+            (final l) => state.copyWith(isDeleted: false),
+            (final r) => state,
           );
           emit(newState);
         },
@@ -82,7 +82,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     return super.close();
   }
 
-  Future<void> _initial(Initial value, Emitter<DocumentState> emit) async {
+  Future<void> _initial(final Initial value, final Emitter<DocumentState> emit) async {
     final userProfile = await UserBackendService.getCurrentUserProfile();
     if (userProfile.isRight()) {
       return emit(
@@ -95,7 +95,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     }
     final result = await _documentService.openDocument(view: view);
     return result.fold(
-      (documentData) async {
+      (final documentData) async {
         await _initEditorState(documentData).whenComplete(() {
           emit(
             state.copyWith(
@@ -105,7 +105,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           );
         });
       },
-      (err) async {
+      (final err) async {
         emit(
           state.copyWith(
             loadingState: DocumentLoadingState.finish(right(err)),
@@ -117,41 +117,41 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
   void _listenOnViewChange() {
     _listener.start(
-      onViewDeleted: (result) {
+      onViewDeleted: (final result) {
         result.fold(
-          (view) => add(const DocumentEvent.deleted()),
-          (error) {},
+          (final view) => add(const DocumentEvent.deleted()),
+          (final error) {},
         );
       },
-      onViewRestored: (result) {
+      onViewRestored: (final result) {
         result.fold(
-          (view) => add(const DocumentEvent.restore()),
-          (error) {},
+          (final view) => add(const DocumentEvent.restore()),
+          (final error) {},
         );
       },
     );
   }
 
-  Future<void> _initEditorState(DocumentDataPB documentData) async {
+  Future<void> _initEditorState(final DocumentDataPB documentData) async {
     final document = Document.fromJson(jsonDecode(documentData.content));
     final editorState = EditorState(document: document);
     this.editorState = editorState;
 
     // listen on document change
-    _subscription = editorState.transactionStream.listen((transaction) {
+    _subscription = editorState.transactionStream.listen((final transaction) {
       final json = jsonEncode(TransactionAdaptor(transaction).toJson());
       _documentService
           .applyEdit(docId: view.id, operations: json)
-          .then((result) {
+          .then((final result) {
         result.fold(
-          (l) => null,
-          (err) => Log.error(err),
+          (final l) => null,
+          (final err) => Log.error(err),
         );
       });
     });
     // log
     if (kDebugMode) {
-      editorState.logConfiguration.handler = (log) {
+      editorState.logConfiguration.handler = (final log) {
         Log.debug(log);
       };
     }
@@ -173,10 +173,10 @@ class DocumentEvent with _$DocumentEvent {
 @freezed
 class DocumentState with _$DocumentState {
   const factory DocumentState({
-    required DocumentLoadingState loadingState,
-    required bool isDeleted,
-    required bool forceClose,
-    UserProfilePB? userProfilePB,
+    required final DocumentLoadingState loadingState,
+    required final bool isDeleted,
+    required final bool forceClose,
+    final UserProfilePB? userProfilePB,
   }) = _DocumentState;
 
   factory DocumentState.initial() => const DocumentState(
@@ -191,7 +191,7 @@ class DocumentState with _$DocumentState {
 class DocumentLoadingState with _$DocumentLoadingState {
   const factory DocumentLoadingState.loading() = _Loading;
   const factory DocumentLoadingState.finish(
-    Either<Unit, FlowyError> successOrFail,
+    final Either<Unit, FlowyError> successOrFail,
   ) = _Finish;
 }
 
@@ -207,7 +207,7 @@ class TransactionAdaptor {
       // So it needs to extend the path by inserting `0` at the head for all
       // operations before passing to the backend.
       json['operations'] = transaction.operations
-          .map((e) => e.copyWith(path: [0, ...e.path]).toJson())
+          .map((final e) => e.copyWith(path: [0, ...e.path]).toJson())
           .toList();
     }
     if (transaction.afterSelection != null) {

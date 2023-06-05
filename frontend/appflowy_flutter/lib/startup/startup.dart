@@ -31,13 +31,13 @@ import 'tasks/prelude.dart';
 final getIt = GetIt.instance;
 
 abstract class EntryPoint {
-  Widget create(LaunchConfiguration config);
+  Widget create(final LaunchConfiguration config);
 }
 
 class FlowyRunner {
   static Future<void> run(
-    EntryPoint f, {
-    LaunchConfiguration config =
+    final EntryPoint f, {
+    final LaunchConfiguration config =
         const LaunchConfiguration(autoRegistrationSupported: false),
   }) async {
     // Clear all the states in case of rebuilding.
@@ -49,7 +49,7 @@ class FlowyRunner {
 
     final directory = getIt<SettingsLocationCubit>()
         .fetchLocation()
-        .then((value) => Directory(value));
+        .then((final value) => Directory(value));
 
     // add task
     getIt<AppLauncher>().addTask(InitRustSDKTask(directory: directory));
@@ -66,10 +66,10 @@ class FlowyRunner {
 }
 
 Future<void> initGetIt(
-  GetIt getIt,
-  IntegrationMode env,
-  EntryPoint f,
-  LaunchConfiguration config,
+  final GetIt getIt,
+  final IntegrationMode env,
+  final EntryPoint f,
+  final LaunchConfiguration config,
 ) async {
   getIt.registerFactory<EntryPoint>(() => f);
   getIt.registerLazySingleton<FlowySDK>(() {
@@ -105,7 +105,7 @@ enum LaunchTaskType {
 /// some nonresident indispensable task in app launching task.
 abstract class LaunchTask {
   LaunchTaskType get type => LaunchTaskType.dataProcessing;
-  Future<void> initialize(LaunchContext context);
+  Future<void> initialize(final LaunchContext context);
 }
 
 class AppLauncher {
@@ -115,12 +115,12 @@ class AppLauncher {
 
   AppLauncher({required this.context}) : tasks = List.from([]);
 
-  void addTask(LaunchTask task) {
+  void addTask(final LaunchTask task) {
     tasks.add(task);
   }
 
   Future<void> launch() async {
-    for (var task in tasks) {
+    for (final task in tasks) {
       await task.initialize(context);
     }
   }
