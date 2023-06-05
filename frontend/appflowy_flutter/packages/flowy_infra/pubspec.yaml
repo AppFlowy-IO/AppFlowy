@@ -11,6 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_svg: ^2.0.2
+  json_annotation: ^4.7.0
   path_provider: ^2.0.15
   path: ^1.8.2
   textstyle_extensions: "2.0.0-nullsafety"
@@ -21,8 +22,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.1
   build_runner: ^2.2.0
+  flutter_lints: ^2.0.1
   json_serializable: ^6.5.4
 
 # For information on the generic Dart part of this file, see the
