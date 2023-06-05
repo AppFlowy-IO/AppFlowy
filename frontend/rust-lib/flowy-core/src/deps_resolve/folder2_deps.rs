@@ -18,6 +18,7 @@ use flowy_error::FlowyError;
 use flowy_folder2::deps::{FolderCloudService, FolderUser};
 use flowy_folder2::entities::ViewLayoutPB;
 use flowy_folder2::manager::Folder2Manager;
+use flowy_folder2::share::ImportType;
 use flowy_folder2::view_operation::{
   FolderOperationHandler, FolderOperationHandlers, View, WorkspaceViewBuilder,
 };
@@ -189,6 +190,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     &self,
     view_id: &str,
     _name: &str,
+    _import_type: ImportType,
     bytes: Vec<u8>,
   ) -> FutureResult<(), FlowyError> {
     let view_id = view_id.to_string();
@@ -315,14 +317,20 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     &self,
     view_id: &str,
     _name: &str,
+    import_type: ImportType,
     bytes: Vec<u8>,
   ) -> FutureResult<(), FlowyError> {
     let database_manager = self.0.clone();
     let view_id = view_id.to_string();
+    let format = match import_type {
+      ImportType::CSV => CSVFormat::Original,
+      ImportType::HistoryDatabase => CSVFormat::META,
+      _ => CSVFormat::Original,
+    };
     FutureResult::new(async move {
       let content = String::from_utf8(bytes).map_err(|err| FlowyError::internal().context(err))?;
       database_manager
-        .import_csv(view_id, content, CSVFormat::META)
+        .import_csv(view_id, content, format)
         .await?;
       Ok(())
     })

@@ -9,6 +9,7 @@ use flowy_error::FlowyError;
 pub enum ImportTypePB {
   HistoryDocument = 0,
   HistoryDatabase = 1,
+  CSV = 2,
 }
 
 impl From<ImportTypePB> for ImportType {
@@ -16,6 +17,7 @@ impl From<ImportTypePB> for ImportType {
     match pb {
       ImportTypePB::HistoryDocument => ImportType::HistoryDocument,
       ImportTypePB::HistoryDatabase => ImportType::HistoryDatabase,
+      ImportTypePB::CSV => ImportType::CSV,
     }
   }
 }

@@ -87,6 +87,7 @@ class AddButton extends StatelessWidget {
               switch (type) {
                 case ImportType.historyDocument:
                 case ImportType.historyDatabase:
+                case ImportType.databaseCSV:
                   onSelected(
                     action.pluginBuilder,
                     name,

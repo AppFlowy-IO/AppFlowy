@@ -12,6 +12,7 @@ use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 
 use crate::entities::{CreateViewParams, ViewLayoutPB};
+use crate::share::ImportType;
 
 pub type ViewData = Bytes;
 
@@ -204,6 +205,7 @@ pub trait FolderOperationHandler {
     &self,
     view_id: &str,
     name: &str,
+    import_type: ImportType,
     bytes: Vec<u8>,
   ) -> FutureResult<(), FlowyError>;
 
