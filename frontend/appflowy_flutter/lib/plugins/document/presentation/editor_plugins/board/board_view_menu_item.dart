@@ -21,15 +21,15 @@ SelectionMenuItem inlineBoardMenuItem(DocumentBloc documentBloc) =>
           return;
         }
 
-        final parentView = documentBloc.view;
         final parentViewId = documentBloc.view.parentViewId;
         await ViewBackendService.createView(
           parentViewId: parentViewId,
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
           layoutType: ViewLayoutPB.Board,
         ).then(
-          (value) =>
-              value.swap().map((r) => editorState.insertPage(parentView, r)),
+          (value) => value
+              .swap()
+              .map((r) => editorState.insertInlinePage(parentViewId, r)),
         );
       },
     );

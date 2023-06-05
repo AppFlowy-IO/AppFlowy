@@ -15,7 +15,31 @@ class DatabaseBlockKeys {
 }
 
 extension InsertDatabase on EditorState {
-  Future<void> insertPage(ViewPB parentView, ViewPB childView) async {
+  Future<void> insertInlinePage(String parentViewId, ViewPB childView) async {
+    final selection = this.selection;
+    if (selection == null || !selection.isCollapsed) {
+      return;
+    }
+    final node = getNodeAtPath(selection.end.path);
+    if (node == null) {
+      return;
+    }
+
+    final transaction = this.transaction;
+    transaction.insertNode(
+      selection.end.path,
+      Node(
+        type: _convertPageType(childView),
+        attributes: {
+          DatabaseBlockKeys.parentID: parentViewId,
+          DatabaseBlockKeys.viewID: childView.id,
+        },
+      ),
+    );
+    await apply(transaction);
+  }
+
+  Future<void> insertReferencePage(ViewPB childView) async {
     final selection = this.selection;
     if (selection == null || !selection.isCollapsed) {
       return;
