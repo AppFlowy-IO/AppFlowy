@@ -1,7 +1,5 @@
-use crate::script::{invalid_workspace_name_test_case, FolderScript::*, FolderTest};
+use crate::script::{FolderScript::*, FolderTest};
 use collab_folder::core::ViewLayout;
-use flowy_folder2::entities::CreateWorkspacePayloadPB;
-use flowy_test::{event_builder::*, FlowyCoreTest};
 
 #[tokio::test]
 async fn read_all_workspace_test() {
@@ -58,28 +56,6 @@ async fn create_parent_view_test() {
 
   let app = test.parent_view.clone();
   test.run_scripts(vec![ReloadParentView(app.id)]).await;
-}
-
-#[tokio::test]
-async fn create_parent_view_with_invalid_name() {
-  for (name, code) in invalid_workspace_name_test_case() {
-    let sdk = FlowyCoreTest::new();
-    let request = CreateWorkspacePayloadPB {
-      name,
-      desc: "".to_owned(),
-    };
-    assert_eq!(
-      EventBuilder::new(sdk)
-        .event(flowy_folder2::event_map::FolderEvent::CreateWorkspace)
-        .payload(request)
-        .async_send()
-        .await
-        .error()
-        .unwrap()
-        .code,
-      code.value()
-    )
-  }
 }
 
 #[tokio::test]

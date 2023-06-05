@@ -109,13 +109,12 @@ class ViewBackendService {
     required int fromIndex,
     required int toIndex,
   }) {
-    final payload = MoveFolderItemPayloadPB.create()
-      ..itemId = viewId
+    final payload = MoveViewPayloadPB.create()
+      ..viewId = viewId
       ..from = fromIndex
-      ..to = toIndex
-      ..ty = MoveFolderItemType.MoveView;
+      ..to = toIndex;
 
-    return FolderEventMoveItem(payload).send();
+    return FolderEventMoveView(payload).send();
   }
 
   Future<List<(ViewPB, List<ViewPB>)>> fetchViews(
