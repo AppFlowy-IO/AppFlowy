@@ -1,1 +1,0 @@
-ALTER TABLE user_table ADD COLUMN icon_url TEXT NOT NULL DEFAULT '';
