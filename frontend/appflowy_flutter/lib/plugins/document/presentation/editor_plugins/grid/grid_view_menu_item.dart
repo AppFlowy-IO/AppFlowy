@@ -24,6 +24,7 @@ SelectionMenuItem inlineGridMenuItem(DocumentBloc documentBloc) =>
         final parentViewId = documentBloc.view.parentViewId;
         await ViewBackendService.createView(
           parentViewId: parentViewId,
+          openAfterCreate: false,
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
           layoutType: ViewLayoutPB.Grid,
         ).then(
