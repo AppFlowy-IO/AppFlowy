@@ -6,11 +6,11 @@ import { DatabaseController } from '$app/stores/effects/database/database_contro
 import { Droppable } from 'react-beautiful-dnd';
 import { DatabaseGroupController } from '$app/stores/effects/database/group/group_controller';
 import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react';
 
 export const BoardGroup = ({
   viewId,
   controller,
-  allRows,
   groupByFieldId,
   onNewRowClick,
   onOpenRow,
@@ -18,13 +18,29 @@ export const BoardGroup = ({
 }: {
   viewId: string;
   controller: DatabaseController;
-  allRows: readonly RowInfo[];
   groupByFieldId: string;
   onNewRowClick: () => void;
   onOpenRow: (rowId: RowInfo) => void;
   group: DatabaseGroupController;
 }) => {
   const { t } = useTranslation();
+
+  const [rows, setRows] = useState<RowInfo[]>([]);
+  useEffect(() => {
+    const reloadRows = () => {
+      setRows(group.rows.map((rowPB) => new RowInfo(viewId, controller.fieldController.fieldInfos, rowPB)));
+    };
+    reloadRows();
+    group.subscribe({
+      onRemoveRow: reloadRows,
+      onInsertRow: reloadRows,
+      onUpdateRow: reloadRows,
+      onCreateRow: reloadRows,
+    });
+    return () => {
+      group.unsubscribe();
+    };
+  }, [controller, group, viewId]);
 
   return (
     <div className={'flex h-full w-[250px] flex-col rounded-lg bg-surface-1'}>
@@ -49,9 +65,8 @@ export const BoardGroup = ({
             {...provided.droppableProps}
             ref={provided.innerRef}
           >
-            {group.rows.map((row_pb, index) => {
-              const row = allRows.find((r) => r.row.id === row_pb.id);
-              return row ? (
+            {rows.map((row, index) => {
+              return (
                 <BoardCard
                   viewId={viewId}
                   controller={controller}
@@ -61,8 +76,6 @@ export const BoardGroup = ({
                   groupByFieldId={groupByFieldId}
                   onOpenRow={onOpenRow}
                 ></BoardCard>
-              ) : (
-                <span key={index}></span>
               );
             })}
           </div>

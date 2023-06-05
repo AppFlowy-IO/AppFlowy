@@ -22,6 +22,7 @@ import { EditCheckListPopup } from '$app/components/_shared/EditRow/CheckList/Ed
 import { PropertiesPanel } from '$app/components/_shared/EditRow/PropertiesPanel';
 import { ImageSvg } from '$app/components/_shared/svg/ImageSvg';
 import { PromptWindow } from '$app/components/_shared/PromptWindow';
+import { useAppSelector } from '$app/stores/store';
 
 export const EditRow = ({
   onClose,
@@ -34,6 +35,7 @@ export const EditRow = ({
   controller: DatabaseController;
   rowInfo: RowInfo;
 }) => {
+  const databaseStore = useAppSelector((state) => state.database);
   const { cells, onNewColumnClick } = useRow(viewId, controller, rowInfo);
   const { t } = useTranslation();
   const [unveil, setUnveil] = useState(false);
@@ -226,19 +228,21 @@ export const EditRow = ({
                         showFieldEditor || showChangeOptionsPopup || showDatePicker ? 'overflow-hidden' : 'overflow-auto'
                       }`}
                     >
-                      {cells.map((cell, cellIndex) => (
-                        <EditCellWrapper
-                          index={cellIndex}
-                          key={cellIndex}
-                          cellIdentifier={cell.cellIdentifier}
-                          cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
-                          fieldController={controller.fieldController}
-                          onEditFieldClick={onEditFieldClick}
-                          onEditOptionsClick={onEditOptionsClick}
-                          onEditDateClick={onEditDateClick}
-                          onEditCheckListClick={onEditCheckListClick}
-                        ></EditCellWrapper>
-                      ))}
+                      {cells
+                        .filter((cell) => databaseStore.fields[cell.cellIdentifier.fieldId].visible)
+                        .map((cell, cellIndex) => (
+                          <EditCellWrapper
+                            index={cellIndex}
+                            key={cellIndex}
+                            cellIdentifier={cell.cellIdentifier}
+                            cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
+                            fieldController={controller.fieldController}
+                            onEditFieldClick={onEditFieldClick}
+                            onEditOptionsClick={onEditOptionsClick}
+                            onEditDateClick={onEditDateClick}
+                            onEditCheckListClick={onEditCheckListClick}
+                          ></EditCellWrapper>
+                        ))}
                     </div>
                   )}
                 </Droppable>
@@ -261,6 +265,7 @@ export const EditRow = ({
               controller={controller}
               rowInfo={rowInfo}
               onDeletePropertyClick={onDeletePropertyClick}
+              onNewColumnClick={onNewColumnClick}
             ></PropertiesPanel>
           </div>
 
@@ -292,7 +297,7 @@ export const EditRow = ({
               cellIdentifier={editingCell}
               cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
               fieldController={controller.fieldController}
-              onOutsideClick={() => setShowChangeOptionsPopup(false)}
+              onOutsideClick={() => !showEditCellOption && setShowChangeOptionsPopup(false)}
               openOptionDetail={onOpenOptionDetailClick}
             ></CellOptionsPopup>
           )}
@@ -335,7 +340,7 @@ export const EditRow = ({
               cellIdentifier={editingCell}
               cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
               fieldController={controller.fieldController}
-              onOutsideClick={() => setShowCheckListPopup(false)}
+              onOutsideClick={() => !showEditCheckList && setShowCheckListPopup(false)}
               openCheckListDetail={onOpenCheckListDetailClick}
             ></CheckListPopup>
           )}

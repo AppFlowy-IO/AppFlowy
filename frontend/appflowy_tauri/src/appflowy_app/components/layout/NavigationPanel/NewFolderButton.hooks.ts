@@ -1,6 +1,6 @@
-import { useAppDispatch, useAppSelector } from '../../../stores/store';
-import { foldersActions } from '../../../stores/reducers/folders/slice';
-import { WorkspaceBackendService } from '../../../stores/effects/folder/workspace/workspace_bd_svc';
+import { useAppDispatch, useAppSelector } from '$app/stores/store';
+import { foldersActions } from '$app_reducers/folders/slice';
+import { WorkspaceBackendService } from '$app/stores/effects/folder/workspace/workspace_bd_svc';
 
 export const useNewFolder = () => {
   const appDispatch = useAppDispatch();

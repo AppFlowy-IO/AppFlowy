@@ -1,5 +1,5 @@
 import { DropDownShowSvg } from '$app/components/_shared/svg/DropDownShowSvg';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRow } from '$app/components/_shared/database-hooks/useRow';
 import { DatabaseController } from '$app/stores/effects/database/database_controller';
 import { RowInfo } from '$app/stores/effects/database/row/row_cache';
@@ -12,6 +12,9 @@ import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
 import { MultiSelectTypeSvg } from '$app/components/_shared/svg/MultiSelectTypeSvg';
 import { DocumentSvg } from '$app/components/_shared/svg/DocumentSvg';
 import { SingleSelectTypeSvg } from '$app/components/_shared/svg/SingleSelectTypeSvg';
+import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
+import { Some } from 'ts-results';
+import { useTranslation } from 'react-i18next';
 
 const typesOrder: FieldType[] = [
   FieldType.RichText,
@@ -29,28 +32,67 @@ export const PropertiesPanel = ({
   controller,
   rowInfo,
   onDeletePropertyClick,
+  onNewColumnClick,
 }: {
   viewId: string;
   controller: DatabaseController;
   rowInfo: RowInfo;
   onDeletePropertyClick: (fieldId: string) => void;
+  onNewColumnClick: (initialFieldType: FieldType, name?: string) => Promise<void>;
 }) => {
   const { cells } = useRow(viewId, controller, rowInfo);
   const databaseStore = useAppSelector((state) => state.database);
+  const { t } = useTranslation();
 
   const [showAddedProperties, setShowAddedProperties] = useState(true);
   const [showBasicProperties, setShowBasicProperties] = useState(false);
   const [showAdvancedProperties, setShowAdvancedProperties] = useState(false);
 
   const [hoveredPropertyIndex, setHoveredPropertyIndex] = useState(-1);
-  const [hiddenProperties, setHiddenProperties] = useState<boolean[]>([]);
 
-  useEffect(() => {
-    setHiddenProperties(cells.map(() => false));
-  }, [cells]);
+  const toggleHideProperty = async (v: boolean, index: number) => {
+    const fieldInfo = controller.fieldController.getField(cells[index].fieldId);
+    if (fieldInfo) {
+      const typeController = new TypeOptionController(viewId, Some(fieldInfo));
+      await typeController.initialize();
+      if (fieldInfo.field.visibility) {
+        await typeController.hideField();
+      } else {
+        await typeController.showField();
+      }
+    }
+  };
 
-  const toggleHideProperty = (v: boolean, index: number) => {
-    setHiddenProperties(hiddenProperties.map((h, i) => (i === index ? !v : h)));
+  const addSelectedFieldType = async (fieldType: FieldType) => {
+    let name = 'New Field';
+    switch (fieldType) {
+      case FieldType.RichText:
+        name = t('grid.field.textFieldName');
+        break;
+      case FieldType.Number:
+        name = t('grid.field.numberFieldName');
+        break;
+      case FieldType.DateTime:
+        name = t('grid.field.dateFieldName');
+        break;
+      case FieldType.SingleSelect:
+        name = t('grid.field.singleSelectFieldName');
+        break;
+      case FieldType.MultiSelect:
+        name = t('grid.field.multiSelectFieldName');
+        break;
+      case FieldType.Checklist:
+        name = t('grid.field.checklistFieldName');
+        break;
+      case FieldType.URL:
+        name = t('grid.field.urlFieldName');
+        break;
+      case FieldType.Checkbox:
+        name = t('grid.field.checkboxFieldName');
+        break;
+    }
+
+    await onNewColumnClick(fieldType, name);
   };
 
   return (
@@ -91,7 +133,10 @@ export const PropertiesPanel = ({
                 >
                   <TrashSvg></TrashSvg>
                 </i>
-                <Switch value={!hiddenProperties[cellIndex]} setValue={(v) => toggleHideProperty(v, cellIndex)}></Switch>
+                <Switch
+                  value={!!databaseStore.fields[cell.cellIdentifier.fieldId]?.visible}
+                  setValue={(v) => toggleHideProperty(v, cellIndex)}
+                ></Switch>
               </div>
             </div>
           ))}
@@ -108,17 +153,17 @@ export const PropertiesPanel = ({
       <div className={'flex flex-col gap-2 text-xs'}>
         {showBasicProperties && (
           <div className={'flex flex-col'}>
-            {typesOrder.map((t, i) => (
+            {typesOrder.map((type, i) => (
               <button
-                onClick={() => console.log('type clicked')}
+                onClick={() => addSelectedFieldType(type)}
                 key={i}
                 className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-main-secondary'}
               >
                 <i className={'h-5 w-5'}>
-                  <FieldTypeIcon fieldType={t}></FieldTypeIcon>
+                  <FieldTypeIcon fieldType={type}></FieldTypeIcon>
                 </i>
                 <span>
-                  <FieldTypeName fieldType={t}></FieldTypeName>
+                  <FieldTypeName fieldType={type}></FieldTypeName>
                 </span>
               </button>
             ))}
