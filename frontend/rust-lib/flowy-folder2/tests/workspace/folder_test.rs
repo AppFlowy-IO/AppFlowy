@@ -59,6 +59,7 @@ async fn workspace_create_with_apps() {
   let app = test.parent_view.clone();
   test.run_scripts(vec![RefreshRootView(app.id)]).await;
 }
+<<<<<<< Updated upstream
 
 #[tokio::test]
 async fn workspace_create_with_invalid_name() {
@@ -82,6 +83,8 @@ async fn workspace_create_with_invalid_name() {
   }
 }
 
+=======
+>>>>>>> Stashed changes
 #[tokio::test]
 #[should_panic]
 async fn app_delete() {

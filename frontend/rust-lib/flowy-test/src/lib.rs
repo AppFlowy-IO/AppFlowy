@@ -36,6 +36,12 @@ impl FlowyCoreTest {
     Self::default()
   }
 
+  pub async fn new_with_user() -> Self {
+    let test = Self::default();
+    test.sign_up().await;
+    test
+  }
+
   pub async fn sign_up(&self) -> SignUpContext {
     let auth_type = self.auth_type.read().clone();
     async_sign_up(self.inner.dispatcher(), auth_type).await
@@ -60,3 +66,13 @@ impl std::ops::Deref for FlowyCoreTest {
     &self.inner
   }
 }
+
+// pub struct TestNotificationSender {
+//   pub(crate) sender: tokio::sync::mpsc::Sender<()>,
+// }
+//
+// impl NotificationSender for TestNotificationSender {
+//   fn send_subject(&self, subject: SubscribeObject) -> Result<(), String> {
+//     todo!()
+//   }
+// }
