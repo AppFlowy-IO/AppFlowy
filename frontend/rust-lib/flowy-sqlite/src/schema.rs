@@ -1,6 +1,16 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    collab_snapshot (id) {
+        id -> Text,
+        object_id -> Text,
+        desc -> Text,
+        timestamp -> BigInt,
+        data -> Binary,
+    }
+}
+
+diesel::table! {
     user_table (id) {
         id -> Text,
         name -> Text,
@@ -11,3 +21,8 @@ diesel::table! {
         email -> Text,
     }
 }
+
+diesel::allow_tables_to_appear_in_same_query!(
+    collab_snapshot,
+    user_table,
+);

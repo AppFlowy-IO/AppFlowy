@@ -1588,6 +1588,7 @@ dependencies = [
  "appflowy-integrate",
  "bytes",
  "console-subscriber",
+ "diesel",
  "flowy-config",
  "flowy-database2",
  "flowy-document2",
@@ -1609,6 +1610,7 @@ dependencies = [
  "serde_repr",
  "tokio",
  "tracing",
+ "uuid",
 ]
 
 [[package]]
