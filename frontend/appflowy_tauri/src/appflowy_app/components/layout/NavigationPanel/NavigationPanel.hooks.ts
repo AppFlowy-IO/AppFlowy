@@ -21,11 +21,10 @@ export const useNavigationPanelHooks = function () {
   };
 
   const onPageClick = (page: IPage) => {
-    let pageTypeRoute = (() => {
+    const pageTypeRoute = (() => {
       switch (page.pageType) {
         case ViewLayoutPB.Document:
           return 'document';
-          break;
         case ViewLayoutPB.Grid:
           return 'grid';
         case ViewLayoutPB.Board:

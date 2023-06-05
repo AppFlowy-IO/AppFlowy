@@ -32,23 +32,9 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
 
   // Backend services
   const appBackendService = new AppBackendService(folder.id);
-  const workspaceBackendService = new WorkspaceBackendService(workspace.id ?? '');
 
   useEffect(() => {
     void appObserver.subscribe({
-      /* these event is not firing */
-      onAppChanged: (change) => {
-        if (change.ok) {
-          const views = change.val;
-          const updatedPages: IPage[] = views.items.map((view) => ({
-            id: view.id,
-            folderId: view.parent_view_id,
-            pageType: view.layout,
-            title: view.name,
-          }));
-          appDispatch(pagesActions.didReceivePages(updatedPages));
-        }
-      },
       onViewsChanged: async () => {
         const result = await appBackendService.getAllViews();
         if (!result.ok) return;
@@ -59,7 +45,7 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
           pageType: view.layout,
           title: view.name,
         }));
-        appDispatch(pagesActions.didReceivePages(updatedPages));
+        appDispatch(pagesActions.didReceivePages({ pages: updatedPages, folderId: folder.id }));
       },
     });
     return () => {
@@ -113,6 +99,7 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
 
   const duplicateFolder = async () => {
     closePopup();
+    const workspaceBackendService = new WorkspaceBackendService(workspace.id ?? '');
     const newApp = await workspaceBackendService.createApp({
       name: folder.title,
     });

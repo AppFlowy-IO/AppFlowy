@@ -14,8 +14,8 @@ export const pagesSlice = createSlice({
   name: 'pages',
   initialState: initialState,
   reducers: {
-    didReceivePages(state, action: PayloadAction<IPage[]>) {
-      return action.payload;
+    didReceivePages(state, action: PayloadAction<{ pages: IPage[]; folderId: string }>) {
+      return state.filter((page) => page.folderId !== action.payload.folderId).concat(action.payload.pages);
     },
     addPage(state, action: PayloadAction<IPage>) {
       state.push(action.payload);

@@ -59,7 +59,7 @@ export const NavigationPanel = ({
       let height = 0;
       for (let i = 0; i < folderIndex; i++) {
         height += INITIAL_FOLDER_HEIGHT + FOLDER_MARGIN;
-        if (foldersStore[i].showPages === true) {
+        if (foldersStore[i].showPages) {
           height += pagesStore.filter((p) => p.folderId === foldersStore[i].id).length * PAGE_ITEM_HEIGHT;
         }
       }
