@@ -141,45 +141,53 @@ impl AppFlowyCore {
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
 
     let server_provider = Arc::new(AppFlowyServerProvider::new());
-    /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
-    /// on demand based on the [CollabPluginConfig].
-    let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
-      server_provider.provider_type().into(),
-    ));
 
-    let (user_session, folder_manager, server_provider, database_manager, document_manager2) =
-      runtime.block_on(async {
-        let user_session = mk_user_session(&config, server_provider.clone());
-        let database_manager2 = Database2DepsResolver::resolve(
-          user_session.clone(),
-          task_dispatcher.clone(),
-          collab_builder.clone(),
-        )
-        .await;
+    let (
+      user_session,
+      folder_manager,
+      server_provider,
+      database_manager,
+      document_manager2,
+      collab_builder,
+    ) = runtime.block_on(async {
+      let user_session = mk_user_session(&config, server_provider.clone());
+      /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
+      /// on demand based on the [CollabPluginConfig].
+      let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
+        server_provider.provider_type().into(),
+      ));
 
-        let document_manager2 = Document2DepsResolver::resolve(
-          user_session.clone(),
-          &database_manager2,
-          collab_builder.clone(),
-        );
+      let database_manager2 = Database2DepsResolver::resolve(
+        user_session.clone(),
+        task_dispatcher.clone(),
+        collab_builder.clone(),
+      )
+      .await;
 
-        let folder_manager = Folder2DepsResolver::resolve(
-          user_session.clone(),
-          &document_manager2,
-          &database_manager2,
-          collab_builder.clone(),
-          server_provider.clone(),
-        )
-        .await;
+      let document_manager2 = Document2DepsResolver::resolve(
+        user_session.clone(),
+        &database_manager2,
+        collab_builder.clone(),
+      );
 
-        (
-          user_session,
-          folder_manager,
-          server_provider,
-          database_manager2,
-          document_manager2,
-        )
-      });
+      let folder_manager = Folder2DepsResolver::resolve(
+        user_session.clone(),
+        &document_manager2,
+        &database_manager2,
+        collab_builder.clone(),
+        server_provider.clone(),
+      )
+      .await;
+
+      (
+        user_session,
+        folder_manager,
+        server_provider,
+        database_manager2,
+        document_manager2,
+        collab_builder,
+      )
+    });
 
     let user_status_listener = UserStatusCallbackImpl {
       collab_builder,
