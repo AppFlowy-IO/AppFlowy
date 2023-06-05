@@ -4,7 +4,15 @@ import { GroupBySvg } from '../../_shared/svg/GroupBySvg';
 import { PropertiesSvg } from '../../_shared/svg/PropertiesSvg';
 import { SortSvg } from '../../_shared/svg/SortSvg';
 
-export const GridTitleOptionsPopup = ({ onClose }: { onClose?: () => void }) => {
+export const GridTitleOptionsPopup = ({
+  onClose,
+  onFilterClick,
+  onSortClick,
+}: {
+  onClose?: () => void;
+  onFilterClick: () => void;
+  onSortClick: () => void;
+}) => {
   const items: IPopupItem[] = [
     {
       icon: (
@@ -13,7 +21,8 @@ export const GridTitleOptionsPopup = ({ onClose }: { onClose?: () => void }) => 
         </i>
       ),
       onClick: () => {
-        console.log('filter');
+        onFilterClick && onFilterClick();
+        onClose && onClose();
       },
       title: 'Filter',
     },
@@ -24,9 +33,10 @@ export const GridTitleOptionsPopup = ({ onClose }: { onClose?: () => void }) => 
         </i>
       ),
       onClick: () => {
-        console.log('sort');
+        onSortClick && onSortClick();
+        onClose && onClose();
       },
-      title: 'Sort',
+      title: 'Sort By',
     },
     {
       icon: (

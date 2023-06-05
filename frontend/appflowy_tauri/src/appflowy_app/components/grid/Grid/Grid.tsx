@@ -40,7 +40,7 @@ export const Grid = ({ viewId }: { viewId: string }) => {
               <GridAddRow controller={controller} />
             </div>
 
-            <GridTableCount />
+            <GridTableCount allRows={rows} />
           </div>
           {showGridRow && boardRowInfo && (
             <EditRow

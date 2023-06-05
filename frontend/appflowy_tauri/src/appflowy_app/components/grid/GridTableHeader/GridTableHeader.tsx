@@ -14,10 +14,11 @@ export const GridTableHeader = ({ controller }: { controller: DatabaseController
     <>
       <thead>
         <tr>
+          <th className='m-0 w-8  p-0'></th>
+          <th className='m-0 w-8  p-0'></th>
           {fields.map((field, i) => {
             return <GridTableHeaderItem field={field} controller={controller} key={i} />;
           })}
-
           <th className='m-0 w-40 border border-r-0 border-shade-6 p-0'>
             <div
               className='flex cursor-pointer items-center px-4 py-2 text-shade-3 hover:bg-main-secondary hover:text-black'
