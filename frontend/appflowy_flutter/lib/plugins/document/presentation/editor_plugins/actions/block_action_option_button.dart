@@ -30,6 +30,10 @@ class BlockOptionButton extends StatelessWidget {
         return ColorOptionAction(
           editorState: editorState,
         );
+      } else if (e == OptionAction.align) {
+        return AlignOptionAction(
+          editorState: editorState,
+        );
       } else {
         return OptionActionWrapper(e);
       }
@@ -119,6 +123,7 @@ class BlockOptionButton extends StatelessWidget {
       case OptionAction.moveDown:
         transaction.moveNode(node.path.next.next, node);
         break;
+      case OptionAction.align:
       case OptionAction.color:
       case OptionAction.divider:
         throw UnimplementedError();

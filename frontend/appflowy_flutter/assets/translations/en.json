@@ -420,7 +420,11 @@
         "turnInto": "Turn into",
         "moveUp": "Move up",
         "moveDown": "Move down",
-        "color": "Color"
+        "color": "Color",
+        "align": "Align",
+        "left": "Left",
+        "center": "Center",
+        "right": "Right"
       }
     }
   },

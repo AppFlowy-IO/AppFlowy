@@ -42,7 +42,7 @@ dependencies:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
       ref: a183c57
-  appflowy_editor: 1.0.0-dev.1
+  appflowy_editor: 1.0.0-dev.2
   appflowy_popover:
     path: packages/appflowy_popover
 
@@ -164,6 +164,7 @@ flutter:
     - assets/images/
     - assets/images/home/
     - assets/images/editor/
+    - assets/images/editor/align/
     - assets/images/grid/
     - assets/images/emoji/
     - assets/images/grid/field/

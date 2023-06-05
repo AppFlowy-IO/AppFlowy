@@ -53,10 +53,10 @@ packages:
     dependency: "direct main"
     description:
       name: appflowy_editor
-      sha256: "3561bd7bd99541508353034130a98ab2d9be54f690bb982f85c2b3eedb8fe63e"
+      sha256: d463a37ef5d2483ec45f864785de22f441cd69c05282cc1383c8d42e19a9c427
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0-dev.1"
+    version: "1.0.0-dev.2"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -1605,6 +1605,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  visibility_detector:
+    dependency: transitive
+    description:
+      name: visibility_detector
+      sha256: dd5cc11e13494f432d15939c3aa8ae76844c42b723398643ce9addb88a5ed420
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.0+2"
   vm_service:
     dependency: transitive
     description:

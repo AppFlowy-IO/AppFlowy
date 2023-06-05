@@ -170,7 +170,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         ),
         textStyleBuilder: (level) => styleCustomizer.headingStyleBuilder(level),
       ),
-      ImageBlockKeys.type: ImageBlockComponentBuilder(),
+      ImageBlockKeys.type: ImageBlockComponentBuilder(
+        configuration: configuration,
+      ),
       BoardBlockKeys.type: BoardBlockComponentBuilder(
         configuration: configuration,
       ),
@@ -225,14 +227,24 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         CalloutBlockKeys.type
       ];
 
+      final supportAlignBuilderType = [
+        ImageBlockKeys.type,
+      ];
+
       final colorAction = [
         OptionAction.divider,
         OptionAction.color,
       ];
 
+      final alignAction = [
+        OptionAction.divider,
+        OptionAction.align,
+      ];
+
       final List<OptionAction> actions = [
         ...standardActions,
         if (supportColorBuilderTypes.contains(entry.key)) ...colorAction,
+        if (supportAlignBuilderType.contains(entry.key)) ...alignAction,
       ];
 
       builder.showActions = (_) => true;

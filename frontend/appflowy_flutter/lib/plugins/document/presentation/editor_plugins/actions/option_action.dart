@@ -18,6 +18,24 @@ enum OptionAction {
   moveDown,
   color,
   divider,
+  align,
+}
+
+enum OptionAlignType {
+  left,
+  center,
+  right;
+
+  String get name {
+    switch (this) {
+      case OptionAlignType.left:
+        return 'left';
+      case OptionAlignType.center:
+        return 'center';
+      case OptionAlignType.right:
+        return 'right';
+    }
+  }
 }
 
 class DividerOptionAction extends CustomActionCell {
@@ -27,6 +45,98 @@ class DividerOptionAction extends CustomActionCell {
       height: 1.0,
       thickness: 1.0,
     );
+  }
+}
+
+class AlignOptionAction extends PopoverActionCell {
+  AlignOptionAction({
+    required this.editorState,
+  });
+
+  final EditorState editorState;
+
+  @override
+  Widget? leftIcon(Color iconColor) {
+    return FlowySvg(
+      name: 'editor/align/$align',
+      size: const Size.square(12),
+    ).padding(all: 2.0);
+  }
+
+  @override
+  String get name {
+    return LocaleKeys.document_plugins_optionAction_align.tr();
+  }
+
+  @override
+  Widget Function(
+    BuildContext context,
+    PopoverController parentController,
+    PopoverController controller,
+  ) get builder => (context, parentController, controller) {
+        final selection = editorState.selection?.normalized;
+        if (selection == null) {
+          return const SizedBox.shrink();
+        }
+        final node = editorState.getNodeAtPath(selection.start.path);
+        if (node == null) {
+          return const SizedBox.shrink();
+        }
+        final List<Widget> children =
+            OptionAlignType.values.map((e) => OptionAlignWrapper(e)).map((e) {
+          final leftIcon = e.leftIcon(Theme.of(context).colorScheme.onSurface);
+          final rightIcon =
+              e.rightIcon(Theme.of(context).colorScheme.onSurface);
+          return HoverButton(
+            onTap: () async {
+              await onAlignChanged(e.inner);
+              controller.close();
+              parentController.close();
+            },
+            itemHeight: ActionListSizes.itemHeight,
+            leftIcon: leftIcon,
+            name: e.name,
+            rightIcon: rightIcon,
+          );
+        }).toList();
+
+        return IntrinsicHeight(
+          child: IntrinsicWidth(
+            child: Column(
+              children: children,
+            ),
+          ),
+        );
+      };
+
+  String get align {
+    final selection = editorState.selection;
+    if (selection == null) {
+      return 'center';
+    }
+    final node = editorState.getNodeAtPath(selection.start.path);
+    final align = node?.attributes['align'];
+    return align ?? 'center';
+  }
+
+  Future<void> onAlignChanged(OptionAlignType align) async {
+    final name = align.name;
+    if (name == this.align) {
+      return;
+    }
+    final selection = editorState.selection;
+    if (selection == null) {
+      return;
+    }
+    final node = editorState.getNodeAtPath(selection.start.path);
+    if (node == null) {
+      return;
+    }
+    final transaction = editorState.transaction;
+    transaction.updateNode(node, {
+      'align': name,
+    });
+    await editorState.apply(transaction);
   }
 }
 
@@ -47,44 +157,47 @@ class ColorOptionAction extends PopoverActionCell {
 
   @override
   String get name {
-    return LocaleKeys.toolbar_color.tr();
+    return LocaleKeys.document_plugins_optionAction_color.tr();
   }
 
   @override
-  Widget Function(BuildContext context, PopoverController controller)
-      get builder => (context, controller) {
-            final selection = editorState.selection?.normalized;
-            if (selection == null) {
-              return const SizedBox.shrink();
-            }
-            final node = editorState.getNodeAtPath(selection.start.path);
-            if (node == null) {
-              return const SizedBox.shrink();
-            }
-            final bgColor =
-                node.attributes[blockComponentBackgroundColor] as String?;
-            final selectedColor = convertHexToSelectOptionColorPB(
-              bgColor,
-              context,
-            );
+  Widget Function(
+    BuildContext context,
+    PopoverController parentController,
+    PopoverController controller,
+  ) get builder => (context, parentController, controller) {
+        final selection = editorState.selection?.normalized;
+        if (selection == null) {
+          return const SizedBox.shrink();
+        }
+        final node = editorState.getNodeAtPath(selection.start.path);
+        if (node == null) {
+          return const SizedBox.shrink();
+        }
+        final bgColor =
+            node.attributes[blockComponentBackgroundColor] as String?;
+        final selectedColor = convertHexToSelectOptionColorPB(
+          bgColor,
+          context,
+        );
 
-            return SelectOptionColorList(
-              selectedColor: selectedColor,
-              onSelectedColor: (color) {
-                controller.close();
+        return SelectOptionColorList(
+          selectedColor: selectedColor,
+          onSelectedColor: (color) async {
+            final nodes = editorState.getNodesInSelection(selection);
+            final transaction = editorState.transaction;
+            for (final node in nodes) {
+              transaction.updateNode(node, {
+                blockComponentBackgroundColor: color.toColor(context).toHex(),
+              });
+            }
+            await editorState.apply(transaction);
 
-                final nodes = editorState.getNodesInSelection(selection);
-                final transaction = editorState.transaction;
-                for (final node in nodes) {
-                  transaction.updateNode(node, {
-                    blockComponentBackgroundColor:
-                        color.toColor(context).toHex(),
-                  });
-                }
-                editorState.apply(transaction);
-              },
-            );
-          };
+            controller.close();
+            parentController.close();
+          },
+        );
+      };
 
   SelectOptionColorPB? convertHexToSelectOptionColorPB(
     String? hexColor,
@@ -127,6 +240,8 @@ class OptionActionWrapper extends ActionCell {
       case OptionAction.moveDown:
         name = 'editor/move_down';
         break;
+      case OptionAction.align:
+        name = 'editor/align/center';
       default:
         throw UnimplementedError();
     }
@@ -140,7 +255,6 @@ class OptionActionWrapper extends ActionCell {
   String get name {
     var description = '';
     switch (inner) {
-      // TODO: l10n
       case OptionAction.delete:
         description = LocaleKeys.document_plugins_optionAction_delete.tr();
         break;
@@ -159,7 +273,59 @@ class OptionActionWrapper extends ActionCell {
       case OptionAction.color:
         description = LocaleKeys.document_plugins_optionAction_color.tr();
         break;
+      case OptionAction.align:
+        description = LocaleKeys.document_plugins_optionAction_align.tr();
+        break;
       case OptionAction.divider:
+        throw UnimplementedError();
+    }
+    return description;
+  }
+}
+
+class OptionAlignWrapper extends ActionCell {
+  OptionAlignWrapper(this.inner);
+
+  final OptionAlignType inner;
+
+  @override
+  Widget? leftIcon(Color iconColor) {
+    var name = '';
+    // TODO: add icons.
+    switch (inner) {
+      case OptionAlignType.left:
+        name = 'editor/align/left';
+        break;
+      case OptionAlignType.center:
+        name = 'editor/align/center';
+        break;
+      case OptionAlignType.right:
+        name = 'editor/align/right';
+        break;
+      default:
+        throw UnimplementedError();
+    }
+    if (name.isEmpty) {
+      return null;
+    }
+    return FlowySvg(name: name);
+  }
+
+  @override
+  String get name {
+    var description = '';
+    switch (inner) {
+      case OptionAlignType.left:
+        description = LocaleKeys.document_plugins_optionAction_left.tr();
+        break;
+      case OptionAlignType.center:
+        description = LocaleKeys.document_plugins_optionAction_center.tr();
+        break;
+      case OptionAlignType.right:
+        description = LocaleKeys.document_plugins_optionAction_right.tr();
+        {}
+        break;
+      default:
         throw UnimplementedError();
     }
     return description;
