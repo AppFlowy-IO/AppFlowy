@@ -1,3 +1,8 @@
+use std::sync::Arc;
+
+use flowy_error::FlowyError;
+use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+
 use crate::entities::{
   view_pb_without_child_views, CreateViewParams, CreateViewPayloadPB, CreateWorkspaceParams,
   CreateWorkspacePayloadPB, ImportPB, MoveFolderItemPayloadPB, MoveViewParams, RepeatedTrashIdPB,
@@ -6,11 +11,7 @@ use crate::entities::{
   WorkspaceSettingPB,
 };
 use crate::manager::Folder2Manager;
-
 use crate::share::ImportParams;
-use flowy_error::FlowyError;
-use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
-use std::sync::Arc;
 
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn create_workspace_handler(
@@ -187,7 +188,7 @@ pub(crate) async fn delete_trash_handler(
 ) -> Result<(), FlowyError> {
   let trash_ids = identifiers.into_inner().items;
   for trash_id in trash_ids {
-    folder.delete_trash(&trash_id.id).await;
+    let _ = folder.delete_trash(&trash_id.id).await;
   }
   Ok(())
 }

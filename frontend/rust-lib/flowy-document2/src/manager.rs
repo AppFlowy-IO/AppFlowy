@@ -3,6 +3,7 @@ use std::{collections::HashMap, sync::Arc};
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::RocksCollabDB;
 use collab_document::blocks::DocumentData;
+use collab_document::YrsDocAction;
 use parking_lot::RwLock;
 
 use flowy_error::{FlowyError, FlowyResult};
@@ -96,8 +97,19 @@ impl DocumentManager {
     Ok(document)
   }
 
-  pub fn close_document(&self, doc_id: String) -> FlowyResult<()> {
-    self.documents.write().remove(&doc_id);
+  pub fn close_document(&self, doc_id: &str) -> FlowyResult<()> {
+    self.documents.write().remove(doc_id);
+    Ok(())
+  }
+
+  pub fn delete_document(&self, doc_id: &str) -> FlowyResult<()> {
+    let uid = self.user.user_id()?;
+    let db = self.user.collab_db()?;
+    let _ = db.with_write_txn(|txn| {
+      txn.delete_doc(uid, &doc_id)?;
+      Ok(())
+    });
+    self.documents.write().remove(doc_id);
     Ok(())
   }
 }
