@@ -66,7 +66,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         await _subscribe(state);
         emit(state);
       },
-      deleted: (Deleted value) async {
+      moveToTrash: (MoveToTrash value) async {
         emit(state.copyWith(isDeleted: true));
       },
       restore: (Restore value) async {
@@ -74,11 +74,13 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       },
       deletePermanently: (DeletePermanently value) async {
         final result = await _trashService.deleteViews([view.id]);
-        emit(state.copyWith(forceClose: result.swap().isLeft()));
+        final forceClose = result.fold((l) => true, (r) => false);
+        emit(state.copyWith(forceClose: forceClose));
       },
       restorePage: (RestorePage value) async {
         final result = await _trashService.putback(view.id);
-        emit(state.copyWith(isDeleted: result.swap().isRight()));
+        final isDeleted = result.fold((l) => false, (r) => true);
+        emit(state.copyWith(isDeleted: isDeleted));
       },
     );
   }
@@ -98,8 +100,12 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   /// subscribe to the view(document page) change
   void _onViewChanged() {
     _viewListener.start(
-      onViewDeleted: (r) =>
-          r.swap().map((r) => add(const DocumentEvent.deleted())),
+      onViewMoveToTrash: (r) {
+        r.swap().map((r) => add(const DocumentEvent.moveToTrash()));
+      },
+      onViewDeleted: (r) {
+        r.swap().map((r) => add(const DocumentEvent.moveToTrash()));
+      },
       onViewRestored: (r) =>
           r.swap().map((r) => add(const DocumentEvent.restore())),
     );
@@ -161,7 +167,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 @freezed
 class DocumentEvent with _$DocumentEvent {
   const factory DocumentEvent.initial() = Initial;
-  const factory DocumentEvent.deleted() = Deleted;
+  const factory DocumentEvent.moveToTrash() = MoveToTrash;
   const factory DocumentEvent.restore() = Restore;
   const factory DocumentEvent.restorePage() = RestorePage;
   const factory DocumentEvent.deletePermanently() = DeletePermanently;

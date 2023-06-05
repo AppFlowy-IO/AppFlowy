@@ -303,10 +303,11 @@ class _CoverImageState extends State<_CoverImage> {
   CoverSelectionType get selectionType => CoverSelectionType.fromString(
         widget.node.attributes[CoverBlockKeys.selectionType],
       );
-  Color get color => Color(
-        int.tryParse(widget.node.attributes[CoverBlockKeys.selection]) ??
-            0xFFFFFFFF,
-      );
+  Color get color {
+    final hex = widget.node.attributes[CoverBlockKeys.selection] as String?;
+    return hex?.toColor() ?? Colors.white;
+  }
+
   bool get hasIcon =>
       widget.node.attributes[CoverBlockKeys.iconSelection] == null
           ? false

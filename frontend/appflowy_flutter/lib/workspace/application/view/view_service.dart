@@ -122,7 +122,7 @@ class ViewBackendService {
     ViewLayoutPB layoutType,
   ) async {
     final result = <(ViewPB, List<ViewPB>)>[];
-    return FolderEventReadCurrentWorkspace().send().then((value) async {
+    return FolderEventGetCurrentWorkspace().send().then((value) async {
       final workspaces = value.getLeftOrNull<WorkspaceSettingPB>();
       if (workspaces != null) {
         final views = workspaces.workspace.views;

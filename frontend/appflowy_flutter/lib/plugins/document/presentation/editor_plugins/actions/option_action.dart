@@ -1,9 +1,11 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/select_option_editor.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide FlowySvg;
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -45,7 +47,7 @@ class ColorOptionAction extends PopoverActionCell {
 
   @override
   String get name {
-    return 'Color'; // todo: l10n
+    return LocaleKeys.toolbar_color.tr();
   }
 
   @override
@@ -55,7 +57,6 @@ class ColorOptionAction extends PopoverActionCell {
             if (selection == null) {
               return const SizedBox.shrink();
             }
-            // TODO: should we support multiple selection?
             final node = editorState.getNodeAtPath(selection.start.path);
             if (node == null) {
               return const SizedBox.shrink();
@@ -70,6 +71,8 @@ class ColorOptionAction extends PopoverActionCell {
             return SelectOptionColorList(
               selectedColor: selectedColor,
               onSelectedColor: (color) {
+                controller.close();
+
                 final nodes = editorState.getNodesInSelection(selection);
                 final transaction = editorState.transaction;
                 for (final node in nodes) {
@@ -79,8 +82,6 @@ class ColorOptionAction extends PopoverActionCell {
                   });
                 }
                 editorState.apply(transaction);
-
-                controller.close();
               },
             );
           };
@@ -141,22 +142,22 @@ class OptionActionWrapper extends ActionCell {
     switch (inner) {
       // TODO: l10n
       case OptionAction.delete:
-        description = 'Delete';
+        description = LocaleKeys.document_plugins_optionAction_delete.tr();
         break;
       case OptionAction.duplicate:
-        description = 'Duplicate';
+        description = LocaleKeys.document_plugins_optionAction_duplicate.tr();
         break;
       case OptionAction.turnInto:
-        description = 'Turn into';
+        description = LocaleKeys.document_plugins_optionAction_turnInto.tr();
         break;
       case OptionAction.moveUp:
-        description = 'Move up';
+        description = LocaleKeys.document_plugins_optionAction_moveUp.tr();
         break;
       case OptionAction.moveDown:
-        description = 'Move down';
+        description = LocaleKeys.document_plugins_optionAction_moveDown.tr();
         break;
       case OptionAction.color:
-        description = 'Color';
+        description = LocaleKeys.document_plugins_optionAction_color.tr();
         break;
       case OptionAction.divider:
         throw UnimplementedError();

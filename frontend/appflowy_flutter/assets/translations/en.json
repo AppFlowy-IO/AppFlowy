@@ -231,7 +231,7 @@
       "addFilter": "Add Filter",
       "deleteFilter": "Delete filter",
       "filterBy": "Filter by...",
-      "typeAValue": "Type a value...", 
+      "typeAValue": "Type a value...",
       "layout": "Layout",
       "databaseLayout": "Layout"
     },
@@ -414,7 +414,13 @@
       },
       "optionAction": {
         "click": "Click",
-        "toOpenMenu": " to open menu"
+        "toOpenMenu": " to open menu",
+        "delete": "Delete",
+        "duplicate": "Duplicate",
+        "turnInto": "Turn into",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "color": "Color"
       }
     }
   },

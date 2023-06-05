@@ -69,6 +69,10 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
           return _build(context, page);
         }
         if (snapshot.connectionState == ConnectionState.done) {
+          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+            // just delete the page if it is not found
+            _deletePage();
+          });
           return const Center(
             child: FlowyText('Cannot load the page'),
           );
@@ -173,6 +177,12 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
         ],
       ),
     );
+  }
+
+  Future<void> _deletePage() async {
+    final transaction = widget.editorState.transaction;
+    transaction.deleteNode(widget.node);
+    widget.editorState.apply(transaction);
   }
 }
 
