@@ -1,6 +1,5 @@
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/doc_service.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show
@@ -35,7 +34,7 @@ class TransactionAdapter {
         .map((op) => op.toBlockAction(editorState))
         .whereNotNull()
         .expand((element) => element);
-    Log.debug('actions => $actions');
+    // Log.debug('actions => $actions');
     await documentService.applyAction(
       documentId: documentId,
       actions: actions,

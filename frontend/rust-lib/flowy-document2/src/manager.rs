@@ -55,7 +55,6 @@ impl DocumentManager {
   }
 
   pub fn open_document(&self, doc_id: String) -> FlowyResult<Arc<Document>> {
-    tracing::debug!("open a document: {:?}", &doc_id);
     if let Some(doc) = self.documents.read().get(&doc_id) {
       return Ok(doc.clone());
     }
