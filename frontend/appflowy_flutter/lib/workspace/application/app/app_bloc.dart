@@ -105,8 +105,9 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   }
 
   Future<void> _createView(CreateView value, Emitter<AppState> emit) async {
+    // create a child view for the current view
     final result = await ViewBackendService.createView(
-      parentViewId: state.view.parentViewId,
+      parentViewId: state.view.id,
       name: value.name,
       desc: value.desc ?? "",
       layoutType: value.pluginBuilder.layoutType!,
