@@ -434,7 +434,7 @@
 					"@executable_path/../Frameworks",
 				);
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.appflowy.macos;
+				PRODUCT_BUNDLE_IDENTIFIER = com.appflowy.appflowy.flutter;
 				PRODUCT_NAME = AppFlowy;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRIP_STYLE = "non-global";
@@ -567,7 +567,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.appflowy.macos;
+				PRODUCT_BUNDLE_IDENTIFIER = com.appflowy.appflowy.flutter;
 				PRODUCT_NAME = AppFlowy;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRIP_STYLE = "non-global";
@@ -593,7 +593,7 @@
 					"@executable_path/../Frameworks",
 				);
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.appflowy.macos;
+				PRODUCT_BUNDLE_IDENTIFIER = com.appflowy.appflowy.flutter;
 				PRODUCT_NAME = AppFlowy;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRIP_STYLE = "non-global";
