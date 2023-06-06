@@ -1,31 +1,35 @@
+#[macro_use]
+pub extern crate diesel;
+#[macro_use]
+pub extern crate diesel_derives;
+#[macro_use]
+extern crate diesel_migrations;
+
+use std::{fmt::Debug, io, path::Path};
+
 pub use diesel::*;
 pub use diesel_derives::*;
 use diesel_migrations::*;
-use std::{fmt::Debug, io, path::Path};
-pub mod kv;
-mod sqlite;
 
 use crate::sqlite::PoolConfig;
 pub use crate::sqlite::{ConnectionPool, DBConnection, Database};
+
+pub mod kv;
+mod sqlite;
 
 pub mod schema;
 
 #[macro_use]
 pub mod macros;
 
-#[macro_use]
-extern crate diesel;
-#[macro_use]
-extern crate diesel_derives;
-#[macro_use]
-extern crate diesel_migrations;
-
 pub type Error = diesel::result::Error;
 pub mod prelude {
-  pub use super::UserDatabaseConnection;
-  pub use crate::*;
   pub use diesel::SqliteConnection;
   pub use diesel::{query_dsl::*, BelongingToDsl, ExpressionMethods, RunQueryDsl};
+
+  pub use crate::*;
+
+  pub use super::UserDatabaseConnection;
 }
 
 embed_migrations!("../flowy-sqlite/migrations/");

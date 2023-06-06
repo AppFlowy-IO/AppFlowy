@@ -96,7 +96,7 @@ impl UserSession {
 
   pub fn get_collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
     let user_id = self.get_session()?.user_id;
-    self.database.get_kv_db(user_id)
+    self.database.get_collab_db(user_id)
   }
 
   #[tracing::instrument(level = "debug", skip(self, params))]

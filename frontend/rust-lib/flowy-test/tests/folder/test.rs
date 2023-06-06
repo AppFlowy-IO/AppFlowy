@@ -54,7 +54,7 @@ async fn create_view_event_test() {
   let test = FlowyCoreTest::new_with_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let view = test
-    .create_view(&current_workspace.id, format!("My first view"))
+    .create_view(&current_workspace.id, "My first view".to_string())
     .await;
   assert_eq!(view.parent_view_id, current_workspace.id);
   assert_eq!(view.name, "My first view");
@@ -66,7 +66,7 @@ async fn delete_view_event_test() {
   let test = FlowyCoreTest::new_with_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let view = test
-    .create_view(&current_workspace.id, format!("My first view"))
+    .create_view(&current_workspace.id, "My first view".to_string())
     .await;
   test.delete_view(&view.id).await;
 
@@ -89,7 +89,7 @@ async fn put_back_trash_event_test() {
   let test = FlowyCoreTest::new_with_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let view = test
-    .create_view(&current_workspace.id, format!("My first view"))
+    .create_view(&current_workspace.id, "My first view".to_string())
     .await;
   test.delete_view(&view.id).await;
 
@@ -132,7 +132,7 @@ async fn delete_view_permanently_event_test() {
   let test = FlowyCoreTest::new_with_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let view = test
-    .create_view(&current_workspace.id, format!("My first view"))
+    .create_view(&current_workspace.id, "My first view".to_string())
     .await;
   let payload = RepeatedViewIdPB {
     items: vec![view.id.clone()],

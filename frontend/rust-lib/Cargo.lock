@@ -85,7 +85,7 @@ checksum = "7de8ce5e0f9f8d88245311066a578d72b7af3e7088f32783804676302df237e4"
 [[package]]
 name = "appflowy-integrate"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=cbc2e0#cbc2e0acb8420dc997921bb3f56b99f9975c2aab"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c519e#5c519e988e93f6fbc7d98ce4373c5ff30a547fb1"
 dependencies = [
  "anyhow",
  "collab",
@@ -887,7 +887,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=cbc2e0#cbc2e0acb8420dc997921bb3f56b99f9975c2aab"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c519e#5c519e988e93f6fbc7d98ce4373c5ff30a547fb1"
 dependencies = [
  "anyhow",
  "bytes",
@@ -905,7 +905,7 @@ dependencies = [
 [[package]]
 name = "collab-client-ws"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=cbc2e0#cbc2e0acb8420dc997921bb3f56b99f9975c2aab"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c519e#5c519e988e93f6fbc7d98ce4373c5ff30a547fb1"
 dependencies = [
  "bytes",
  "collab-sync",
@@ -923,7 +923,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=cbc2e0#cbc2e0acb8420dc997921bb3f56b99f9975c2aab"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c519e#5c519e988e93f6fbc7d98ce4373c5ff30a547fb1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -949,7 +949,7 @@ dependencies = [
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=cbc2e0#cbc2e0acb8420dc997921bb3f56b99f9975c2aab"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c519e#5c519e988e93f6fbc7d98ce4373c5ff30a547fb1"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -961,7 +961,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=cbc2e0#cbc2e0acb8420dc997921bb3f56b99f9975c2aab"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c519e#5c519e988e93f6fbc7d98ce4373c5ff30a547fb1"
 dependencies = [
  "anyhow",
  "collab",
@@ -978,7 +978,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=cbc2e0#cbc2e0acb8420dc997921bb3f56b99f9975c2aab"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c519e#5c519e988e93f6fbc7d98ce4373c5ff30a547fb1"
 dependencies = [
  "anyhow",
  "collab",
@@ -997,7 +997,7 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=cbc2e0#cbc2e0acb8420dc997921bb3f56b99f9975c2aab"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c519e#5c519e988e93f6fbc7d98ce4373c5ff30a547fb1"
 dependencies = [
  "bincode",
  "chrono",
@@ -1017,7 +1017,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=cbc2e0#cbc2e0acb8420dc997921bb3f56b99f9975c2aab"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c519e#5c519e988e93f6fbc7d98ce4373c5ff30a547fb1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1036,6 +1036,7 @@ dependencies = [
  "rusoto_credential",
  "serde",
  "serde_json",
+ "similar 2.2.1",
  "thiserror",
  "tokio",
  "tokio-retry",
@@ -1047,7 +1048,7 @@ dependencies = [
 [[package]]
 name = "collab-sync"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=cbc2e0#cbc2e0acb8420dc997921bb3f56b99f9975c2aab"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5c519e#5c519e988e93f6fbc7d98ce4373c5ff30a547fb1"
 dependencies = [
  "bytes",
  "collab",
@@ -1568,7 +1569,7 @@ dependencies = [
  "quote",
  "serde",
  "serde_json",
- "similar",
+ "similar 1.3.0",
  "syn 1.0.109",
  "tera",
  "toml",
@@ -1598,6 +1599,7 @@ dependencies = [
  "appflowy-integrate",
  "bytes",
  "console-subscriber",
+ "diesel",
  "flowy-config",
  "flowy-database2",
  "flowy-document2",
@@ -1619,6 +1621,7 @@ dependencies = [
  "serde_repr",
  "tokio",
  "tracing",
+ "uuid",
 ]
 
 [[package]]
@@ -4217,6 +4220,12 @@ name = "similar"
 version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1ad1d488a557b235fc46dae55512ffbfc429d2482b08b4d9435ab07384ca8aec"
+
+[[package]]
+name = "similar"
+version = "2.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "420acb44afdae038210c99e69aae24109f32f15500aa708e81d46c9f29d55fcf"
 
 [[package]]
 name = "siphasher"
