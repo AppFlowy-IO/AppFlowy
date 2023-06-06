@@ -1,5 +1,7 @@
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/startup/entry_point.dart';
+import 'package:appflowy/startup/launch_configuration.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
@@ -11,11 +13,10 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../generated/locale_keys.g.dart';
-import '../../startup/launch_configuration.dart';
-import '../../startup/startup.dart';
 import 'folder/folder_widget.dart';
 import 'router.dart';
 import 'widgets/background.dart';
@@ -35,6 +36,8 @@ class SkipLogInScreen extends StatefulWidget {
 }
 
 class _SkipLogInScreenState extends State<SkipLogInScreen> {
+  var _didCustomizeFolder = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,60 +51,64 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   Widget _renderBody(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         FlowyLogoTitle(
           title: LocaleKeys.welcomeText.tr(),
-          logoSize: const Size.square(60),
+          logoSize: const Size.square(40),
         ),
-        const VSpace(40),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            GoButton(
-              onPressed: () => _autoRegister(context),
-            ),
-          ],
+        const VSpace(32),
+        GoButton(
+          onPressed: () {
+            if (_didCustomizeFolder) {
+              _relaunchAppAndAutoRegister();
+            } else {
+              _autoRegister(context);
+            }
+          },
         ),
-        const VSpace(20),
+        const VSpace(32),
+        _buildSubscribeButtons(context),
+        const VSpace(32),
         SizedBox(
-          width: MediaQuery.of(context).size.width * 0.8,
+          width: MediaQuery.of(context).size.width * 0.5,
           child: FolderWidget(
             createFolderCallback: () async {
-              await FlowyRunner.run(
-                FlowyApp(),
-                config: const LaunchConfiguration(
-                  autoRegistrationSupported: true,
-                ),
-              );
+              _didCustomizeFolder = true;
             },
           ),
         ),
-        const Spacer(),
-        _buildSubscribeButtons(context),
+        const VSpace(64),
       ],
     );
   }
 
-  Row _buildSubscribeButtons(BuildContext context) {
+  Widget _buildSubscribeButtons(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        FlowyText.regular(
+          LocaleKeys.youCanAlso.tr(),
+          fontSize: FontSizes.s12,
+        ),
         FlowyTextButton(
           LocaleKeys.githubStarText.tr(),
           fontWeight: FontWeight.w500,
           fontColor: Theme.of(context).colorScheme.primary,
-          decoration: TextDecoration.underline,
           hoverColor: Colors.transparent,
           fillColor: Colors.transparent,
-          onPressed: () =>
-              _launchURL('https://github.com/AppFlowy-IO/appflowy'),
+          onPressed: () => _launchURL(
+            'https://github.com/AppFlowy-IO/appflowy',
+          ),
         ),
-        const HSpace(20),
+        FlowyText.regular(
+          LocaleKeys.and.tr(),
+          fontSize: FontSizes.s12,
+        ),
         FlowyTextButton(
           LocaleKeys.subscribeNewsletterText.tr(),
           fontWeight: FontWeight.w500,
           fontColor: Theme.of(context).colorScheme.primary,
-          decoration: TextDecoration.underline,
           hoverColor: Colors.transparent,
           fillColor: Colors.transparent,
           onPressed: () => _launchURL('https://www.appflowy.io/blog'),
@@ -110,7 +117,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
     );
   }
 
-  _launchURL(String url) async {
+  Future<void> _launchURL(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
@@ -130,6 +137,15 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
           _openCurrentWorkspace(context, user, result);
         });
       },
+    );
+  }
+
+  Future<void> _relaunchAppAndAutoRegister() async {
+    await FlowyRunner.run(
+      FlowyApp(),
+      config: const LaunchConfiguration(
+        autoRegistrationSupported: true,
+      ),
     );
   }
 
@@ -162,8 +178,14 @@ class GoButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyTextButton(
       LocaleKeys.letsGoButtonText.tr(),
-      fontSize: FontSizes.s16,
-      padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 12.0),
+      constraints: const BoxConstraints(
+        maxWidth: 340,
+        maxHeight: 48,
+      ),
+      mainAxisAlignment: MainAxisAlignment.center,
+      fontSize: FontSizes.s14,
+      fontFamily: GoogleFonts.poppins(fontWeight: FontWeight.w500).fontFamily,
+      padding: const EdgeInsets.symmetric(vertical: 14.0),
       onPressed: onPressed,
       fillColor: Theme.of(context).colorScheme.primary,
       fontColor: Theme.of(context).colorScheme.onPrimary,
