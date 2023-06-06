@@ -18,7 +18,49 @@ enum OptionAction {
   moveDown,
   color,
   divider,
-  align,
+  align;
+
+  String get assetName {
+    switch (this) {
+      case OptionAction.delete:
+        return 'editor/delete';
+      case OptionAction.duplicate:
+        return 'editor/duplicate';
+      case OptionAction.turnInto:
+        return 'editor/turn_into';
+      case OptionAction.moveUp:
+        return 'editor/move_up';
+      case OptionAction.moveDown:
+        return 'editor/move_down';
+      case OptionAction.color:
+        return 'editor/color';
+      case OptionAction.divider:
+        return 'editor/divider';
+      case OptionAction.align:
+        return 'editor/align/center';
+    }
+  }
+
+  String get description {
+    switch (this) {
+      case OptionAction.delete:
+        return LocaleKeys.document_plugins_optionAction_delete.tr();
+      case OptionAction.duplicate:
+        return LocaleKeys.document_plugins_optionAction_duplicate.tr();
+      case OptionAction.turnInto:
+        return LocaleKeys.document_plugins_optionAction_turnInto.tr();
+      case OptionAction.moveUp:
+        return LocaleKeys.document_plugins_optionAction_moveUp.tr();
+      case OptionAction.moveDown:
+        return LocaleKeys.document_plugins_optionAction_moveDown.tr();
+      case OptionAction.color:
+        return LocaleKeys.document_plugins_optionAction_color.tr();
+      case OptionAction.align:
+        return LocaleKeys.document_plugins_optionAction_align.tr();
+      case OptionAction.divider:
+        throw UnsupportedError('Divider does not have description');
+    }
+  }
 }
 
 enum OptionAlignType {
@@ -26,14 +68,38 @@ enum OptionAlignType {
   center,
   right;
 
-  String get name {
+  static OptionAlignType fromString(String? value) {
+    switch (value) {
+      case 'left':
+        return OptionAlignType.left;
+      case 'center':
+        return OptionAlignType.center;
+      case 'right':
+        return OptionAlignType.right;
+      default:
+        return OptionAlignType.center;
+    }
+  }
+
+  String get assetName {
     switch (this) {
       case OptionAlignType.left:
-        return 'left';
+        return 'editor/align/left';
       case OptionAlignType.center:
-        return 'center';
+        return 'editor/align/center';
       case OptionAlignType.right:
-        return 'right';
+        return 'editor/align/right';
+    }
+  }
+
+  String get description {
+    switch (this) {
+      case OptionAlignType.left:
+        return LocaleKeys.document_plugins_optionAction_left.tr();
+      case OptionAlignType.center:
+        return LocaleKeys.document_plugins_optionAction_center.tr();
+      case OptionAlignType.right:
+        return LocaleKeys.document_plugins_optionAction_right.tr();
     }
   }
 }
@@ -58,7 +124,7 @@ class AlignOptionAction extends PopoverActionCell {
   @override
   Widget? leftIcon(Color iconColor) {
     return FlowySvg(
-      name: 'editor/align/$align',
+      name: align.assetName,
       size: const Size.square(12),
     ).padding(all: 2.0);
   }
@@ -69,11 +135,8 @@ class AlignOptionAction extends PopoverActionCell {
   }
 
   @override
-  Widget Function(
-    BuildContext context,
-    PopoverController parentController,
-    PopoverController controller,
-  ) get builder => (context, parentController, controller) {
+  PopoverActionCellBuilder get builder =>
+      (context, parentController, controller) {
         final selection = editorState.selection?.normalized;
         if (selection == null) {
           return const SizedBox.shrink();
@@ -82,24 +145,11 @@ class AlignOptionAction extends PopoverActionCell {
         if (node == null) {
           return const SizedBox.shrink();
         }
-        final List<Widget> children =
-            OptionAlignType.values.map((e) => OptionAlignWrapper(e)).map((e) {
-          final leftIcon = e.leftIcon(Theme.of(context).colorScheme.onSurface);
-          final rightIcon =
-              e.rightIcon(Theme.of(context).colorScheme.onSurface);
-          return HoverButton(
-            onTap: () async {
-              await onAlignChanged(e.inner);
-              controller.close();
-              parentController.close();
-            },
-            itemHeight: ActionListSizes.itemHeight,
-            leftIcon: leftIcon,
-            name: e.name,
-            rightIcon: rightIcon,
-          );
-        }).toList();
-
+        final children = buildAlignOptions(context, (align) async {
+          await onAlignChanged(align);
+          controller.close();
+          parentController.close();
+        });
         return IntrinsicHeight(
           child: IntrinsicWidth(
             child: Column(
@@ -109,19 +159,35 @@ class AlignOptionAction extends PopoverActionCell {
         );
       };
 
-  String get align {
+  List<Widget> buildAlignOptions(
+    BuildContext context,
+    void Function(OptionAlignType) onTap,
+  ) {
+    return OptionAlignType.values.map((e) => OptionAlignWrapper(e)).map((e) {
+      final leftIcon = e.leftIcon(Theme.of(context).colorScheme.onSurface);
+      final rightIcon = e.rightIcon(Theme.of(context).colorScheme.onSurface);
+      return HoverButton(
+        onTap: () => onTap(e.inner),
+        itemHeight: ActionListSizes.itemHeight,
+        leftIcon: leftIcon,
+        name: e.name,
+        rightIcon: rightIcon,
+      );
+    }).toList();
+  }
+
+  OptionAlignType get align {
     final selection = editorState.selection;
     if (selection == null) {
-      return 'center';
+      return OptionAlignType.center;
     }
     final node = editorState.getNodeAtPath(selection.start.path);
     final align = node?.attributes['align'];
-    return align ?? 'center';
+    return OptionAlignType.fromString(align);
   }
 
   Future<void> onAlignChanged(OptionAlignType align) async {
-    final name = align.name;
-    if (name == this.align) {
+    if (align == this.align) {
       return;
     }
     final selection = editorState.selection;
@@ -134,7 +200,7 @@ class AlignOptionAction extends PopoverActionCell {
     }
     final transaction = editorState.transaction;
     transaction.updateNode(node, {
-      'align': name,
+      'align': align.name,
     });
     await editorState.apply(transaction);
   }
@@ -156,9 +222,7 @@ class ColorOptionAction extends PopoverActionCell {
   }
 
   @override
-  String get name {
-    return LocaleKeys.document_plugins_optionAction_color.tr();
-  }
+  String get name => LocaleKeys.document_plugins_optionAction_color.tr();
 
   @override
   Widget Function(
@@ -221,66 +285,10 @@ class OptionActionWrapper extends ActionCell {
   final OptionAction inner;
 
   @override
-  Widget? leftIcon(Color iconColor) {
-    var name = '';
-    // TODO: add icons.
-    switch (inner) {
-      case OptionAction.delete:
-        name = 'editor/delete';
-        break;
-      case OptionAction.duplicate:
-        name = 'editor/duplicate';
-        break;
-      case OptionAction.turnInto:
-        name = 'editor/turn_into';
-        break;
-      case OptionAction.moveUp:
-        name = 'editor/move_up';
-        break;
-      case OptionAction.moveDown:
-        name = 'editor/move_down';
-        break;
-      case OptionAction.align:
-        name = 'editor/align/center';
-      default:
-        throw UnimplementedError();
-    }
-    if (name.isEmpty) {
-      return null;
-    }
-    return FlowySvg(name: name);
-  }
+  Widget? leftIcon(Color iconColor) => FlowySvg(name: inner.assetName);
 
   @override
-  String get name {
-    var description = '';
-    switch (inner) {
-      case OptionAction.delete:
-        description = LocaleKeys.document_plugins_optionAction_delete.tr();
-        break;
-      case OptionAction.duplicate:
-        description = LocaleKeys.document_plugins_optionAction_duplicate.tr();
-        break;
-      case OptionAction.turnInto:
-        description = LocaleKeys.document_plugins_optionAction_turnInto.tr();
-        break;
-      case OptionAction.moveUp:
-        description = LocaleKeys.document_plugins_optionAction_moveUp.tr();
-        break;
-      case OptionAction.moveDown:
-        description = LocaleKeys.document_plugins_optionAction_moveDown.tr();
-        break;
-      case OptionAction.color:
-        description = LocaleKeys.document_plugins_optionAction_color.tr();
-        break;
-      case OptionAction.align:
-        description = LocaleKeys.document_plugins_optionAction_align.tr();
-        break;
-      case OptionAction.divider:
-        throw UnimplementedError();
-    }
-    return description;
-  }
+  String get name => inner.description;
 }
 
 class OptionAlignWrapper extends ActionCell {
@@ -289,45 +297,8 @@ class OptionAlignWrapper extends ActionCell {
   final OptionAlignType inner;
 
   @override
-  Widget? leftIcon(Color iconColor) {
-    var name = '';
-    // TODO: add icons.
-    switch (inner) {
-      case OptionAlignType.left:
-        name = 'editor/align/left';
-        break;
-      case OptionAlignType.center:
-        name = 'editor/align/center';
-        break;
-      case OptionAlignType.right:
-        name = 'editor/align/right';
-        break;
-      default:
-        throw UnimplementedError();
-    }
-    if (name.isEmpty) {
-      return null;
-    }
-    return FlowySvg(name: name);
-  }
+  Widget? leftIcon(Color iconColor) => FlowySvg(name: inner.assetName);
 
   @override
-  String get name {
-    var description = '';
-    switch (inner) {
-      case OptionAlignType.left:
-        description = LocaleKeys.document_plugins_optionAction_left.tr();
-        break;
-      case OptionAlignType.center:
-        description = LocaleKeys.document_plugins_optionAction_center.tr();
-        break;
-      case OptionAlignType.right:
-        description = LocaleKeys.document_plugins_optionAction_right.tr();
-        {}
-        break;
-      default:
-        throw UnimplementedError();
-    }
-    return description;
-  }
+  String get name => inner.description;
 }

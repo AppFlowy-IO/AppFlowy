@@ -103,16 +103,18 @@ abstract class ActionCell extends PopoverAction {
   String get name;
 }
 
+typedef PopoverActionCellBuilder = Widget Function(
+  BuildContext context,
+  PopoverController parentController,
+  PopoverController controller,
+);
+
 abstract class PopoverActionCell extends PopoverAction {
   Widget? leftIcon(Color iconColor) => null;
   Widget? rightIcon(Color iconColor) => null;
   String get name;
 
-  Widget Function(
-    BuildContext context,
-    PopoverController parentController,
-    PopoverController controller,
-  ) get builder;
+  PopoverActionCellBuilder get builder;
 }
 
 abstract class CustomActionCell extends PopoverAction {
@@ -160,11 +162,11 @@ class ActionCellWidget<T extends PopoverAction> extends StatelessWidget {
 
 class PopoverActionCellWidget<T extends PopoverAction> extends StatefulWidget {
   const PopoverActionCellWidget({
-    Key? key,
+    super.key,
     required this.popoverController,
     required this.action,
     required this.itemHeight,
-  }) : super(key: key);
+  });
 
   final T action;
   final double itemHeight;

@@ -22,7 +22,7 @@ SelectionMenuItem inlineBoardMenuItem(DocumentBloc documentBloc) =>
         }
 
         final parentViewId = documentBloc.view.parentViewId;
-        await ViewBackendService.createView(
+        ViewBackendService.createView(
           parentViewId: parentViewId,
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
           layoutType: ViewLayoutPB.Board,

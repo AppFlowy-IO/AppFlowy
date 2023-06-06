@@ -24,18 +24,15 @@ class BlockOptionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final popoverActions = actions.map((e) {
-      if (e == OptionAction.divider) {
-        return DividerOptionAction();
-      } else if (e == OptionAction.color) {
-        return ColorOptionAction(
-          editorState: editorState,
-        );
-      } else if (e == OptionAction.align) {
-        return AlignOptionAction(
-          editorState: editorState,
-        );
-      } else {
-        return OptionActionWrapper(e);
+      switch (e) {
+        case OptionAction.divider:
+          return DividerOptionAction();
+        case OptionAction.color:
+          return ColorOptionAction(editorState: editorState);
+        case OptionAction.align:
+          return AlignOptionAction(editorState: editorState);
+        default:
+          return OptionActionWrapper(e);
       }
     }).toList();
 
