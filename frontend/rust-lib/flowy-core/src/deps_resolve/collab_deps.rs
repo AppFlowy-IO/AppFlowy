@@ -25,7 +25,7 @@ impl SnapshotDB for SnapshotDBImpl {
       .and_then(|pool| Ok(pool.get()?))
       .and_then(|conn| {
         CollabSnapshotTableSql::get_all_snapshots(object_id, &conn)
-          .and_then(|rows| Ok(rows.into_iter().map(|row| row.into()).collect()))
+          .map(|rows| rows.into_iter().map(|row| row.into()).collect())
       })
       .unwrap_or_else(|_| vec![])
   }
@@ -34,6 +34,8 @@ impl SnapshotDB for SnapshotDBImpl {
     &self,
     uid: i64,
     object_id: &str,
+    title: String,
+    collab_type: String,
     snapshot: Snapshot,
     collab: Arc<MutexCollab>,
   ) -> Result<(), PersistenceError> {
@@ -74,7 +76,9 @@ impl SnapshotDB for SnapshotDBImpl {
             CollabSnapshotRow {
               id: uuid::Uuid::new_v4().to_string(),
               object_id: object_id.clone(),
+              title,
               desc,
+              collab_type,
               timestamp: timestamp(),
               data: new_snapshot_data,
             },
@@ -97,7 +101,9 @@ impl SnapshotDB for SnapshotDBImpl {
 struct CollabSnapshotRow {
   id: String,
   object_id: String,
+  title: String,
   desc: String,
+  collab_type: String,
   timestamp: i64,
   data: Vec<u8>,
 }
@@ -118,7 +124,9 @@ impl CollabSnapshotTableSql {
     let values = (
       dsl::id.eq(row.id),
       dsl::object_id.eq(row.object_id),
+      dsl::title.eq(row.title),
       dsl::desc.eq(row.desc),
+      dsl::collab_type.eq(row.collab_type),
       dsl::data.eq(row.data),
       dsl::timestamp.eq(row.timestamp),
     );

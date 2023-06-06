@@ -240,13 +240,7 @@ async fn multiple_hierarchy_view_test() {
     }
   }
 
-  let mut views = EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::ReadWorkspaceViews)
-    .async_send()
-    .await
-    .parse::<flowy_folder2::entities::RepeatedViewPB>()
-    .items;
-
+  let mut views = test.get_all_workspace_views().await;
   // There will be one default view when AppFlowy is initialized. So there will be 4 views in total
   assert_eq!(views.len(), 4);
   views.remove(0);
@@ -294,15 +288,7 @@ async fn multiple_hierarchy_view_test() {
 
       for (k, _child_view) in child_view.child_views.into_iter().enumerate() {
         // Get the last level view
-        let sub_child = EventBuilder::new(test.clone())
-          .event(flowy_folder2::event_map::FolderEvent::ReadView)
-          .payload(ViewIdPB {
-            value: child.id.clone(),
-          })
-          .async_send()
-          .await
-          .parse::<flowy_folder2::entities::ViewPB>();
-
+        let sub_child = test.get_view(&child.id).await;
         assert_eq!(child.name, format!("My {}-{}-{} view", i + 1, j + 1, k + 1));
         assert!(sub_child.child_views.is_empty());
       }
@@ -324,13 +310,7 @@ async fn move_view_event_test() {
         .await;
     }
   }
-  let views = EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::ReadWorkspaceViews)
-    .async_send()
-    .await
-    .parse::<flowy_folder2::entities::RepeatedViewPB>()
-    .items;
-
+  let views = test.get_all_workspace_views().await;
   // There will be one default view when AppFlowy is initialized. So there will be 4 views in total
   assert_eq!(views.len(), 4);
   assert_eq!(views[1].name, "My 1 view");
@@ -348,16 +328,93 @@ async fn move_view_event_test() {
     .async_send()
     .await;
 
-  let views = EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::ReadWorkspaceViews)
-    .async_send()
-    .await
-    .parse::<flowy_folder2::entities::RepeatedViewPB>()
-    .items;
-
+  let views = test.get_all_workspace_views().await;
   assert_eq!(views[1].name, "My 2 view");
   assert_eq!(views[2].name, "My 1 view");
   assert_eq!(views[3].name, "My 3 view");
+}
+
+#[tokio::test]
+async fn move_view_event_after_delete_view_test() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  for i in 1..6 {
+    let _ = test
+      .create_view(&current_workspace.id, format!("My {} view", i))
+      .await;
+  }
+  let views = test.get_all_workspace_views().await;
+  assert_eq!(views[1].name, "My 1 view");
+  assert_eq!(views[2].name, "My 2 view");
+  assert_eq!(views[3].name, "My 3 view");
+  assert_eq!(views[4].name, "My 4 view");
+  assert_eq!(views[5].name, "My 5 view");
+  test.delete_view(&views[3].id).await;
+
+  // There will be one default view when AppFlowy is initialized. So there will be 4 views in total
+  let views = test.get_all_workspace_views().await;
+  assert_eq!(views[1].name, "My 1 view");
+  assert_eq!(views[2].name, "My 2 view");
+  assert_eq!(views[3].name, "My 4 view");
+  assert_eq!(views[4].name, "My 5 view");
+
+  let payload = MoveViewPayloadPB {
+    view_id: views[1].id.clone(),
+    from: 1,
+    to: 3,
+  };
+  let _ = EventBuilder::new(test.clone())
+    .event(flowy_folder2::event_map::FolderEvent::MoveView)
+    .payload(payload)
+    .async_send()
+    .await;
+
+  let views = test.get_all_workspace_views().await;
+  assert_eq!(views[1].name, "My 2 view");
+  assert_eq!(views[2].name, "My 4 view");
+  assert_eq!(views[3].name, "My 1 view");
+  assert_eq!(views[4].name, "My 5 view");
+}
+
+#[tokio::test]
+async fn move_view_event_after_delete_view_test2() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let parent = test
+    .create_view(&current_workspace.id, "My view".to_string())
+    .await;
+
+  for j in 1..6 {
+    let _ = test
+      .create_view(&parent.id, format!("My 1-{} view", j))
+      .await;
+  }
+
+  let views = test.get_view(&parent.id).await.child_views;
+  assert_eq!(views.len(), 5);
+  assert_eq!(views[0].name, "My 1-1 view");
+  assert_eq!(views[1].name, "My 1-2 view");
+  assert_eq!(views[2].name, "My 1-3 view");
+  assert_eq!(views[3].name, "My 1-4 view");
+  assert_eq!(views[4].name, "My 1-5 view");
+  test.delete_view(&views[2].id).await;
+
+  let payload = MoveViewPayloadPB {
+    view_id: views[0].id.clone(),
+    from: 0,
+    to: 2,
+  };
+  let _ = EventBuilder::new(test.clone())
+    .event(flowy_folder2::event_map::FolderEvent::MoveView)
+    .payload(payload)
+    .async_send()
+    .await;
+
+  let views = test.get_view(&parent.id).await.child_views;
+  assert_eq!(views[0].name, "My 1-2 view");
+  assert_eq!(views[1].name, "My 1-4 view");
+  assert_eq!(views[2].name, "My 1-1 view");
+  assert_eq!(views[3].name, "My 1-5 view");
 }
 
 #[tokio::test]
