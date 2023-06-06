@@ -178,13 +178,6 @@ class ScrollbarState extends State<StyledScrollbar> {
     );
   }
 
-  @override
-  void dispose() {
-    widget.controller.position.isScrollingNotifier
-        .removeListener(_hideScrollbarInTime);
-    super.dispose();
-  }
-
   void _hideScrollbarInTime() {
     if (!mounted || !widget.autoHideScrollbar) return;
 
