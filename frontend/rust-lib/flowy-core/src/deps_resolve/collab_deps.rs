@@ -1,7 +1,8 @@
 use std::sync::Arc;
 
 use appflowy_integrate::{
-  try_encode_snapshot, CollabSnapshot, MutexCollab, PersistenceError, SnapshotDB,
+  calculate_snapshot_diff, try_encode_snapshot, CollabSnapshot, MutexCollab, PersistenceError,
+  Snapshot, SnapshotDB,
 };
 use diesel::SqliteConnection;
 
@@ -21,7 +22,7 @@ impl SnapshotDB for SnapshotDBImpl {
     match self.0.db_pool() {
       Ok(pool) => match pool.get() {
         Ok(conn) => {
-          let rows = CollabSnapshotTableSql::read_snapshots(object_id, &conn).unwrap();
+          let rows = CollabSnapshotTableSql::get_all_snapshots(object_id, &conn).unwrap();
           rows.into_iter().map(|row| row.into()).collect()
         },
         Err(_) => vec![],
@@ -32,8 +33,9 @@ impl SnapshotDB for SnapshotDBImpl {
 
   fn create_snapshot(
     &self,
-    _uid: i64,
+    uid: i64,
     object_id: &str,
+    snapshot: Snapshot,
     collab: Arc<MutexCollab>,
   ) -> Result<(), PersistenceError> {
     let object_id = object_id.to_string();
@@ -47,21 +49,29 @@ impl SnapshotDB for SnapshotDBImpl {
     let _ = tokio::task::spawn_blocking(move || {
       if let Some(pool) = weak_pool.upgrade() {
         let conn = pool.get()?;
-        let result = try_encode_snapshot(&collab.lock().transact());
-        match result.and_then(|data| {
+        let result = try_encode_snapshot(&collab.lock().transact(), snapshot);
+        match result.and_then(|new_snapshot_data| {
+          let desc = match CollabSnapshotTableSql::get_latest_snapshot(&object_id, &conn) {
+            None => Ok("".to_string()),
+            Some(old_snapshot) => {
+              calculate_snapshot_diff(uid, &object_id, &old_snapshot.data, &new_snapshot_data)
+            },
+          }
+          .map_err(|e| PersistenceError::InvalidData(format!("{:?}", e)))?;
+
           CollabSnapshotTableSql::create(
             CollabSnapshotRow {
               id: uuid::Uuid::new_v4().to_string(),
               object_id: object_id.clone(),
-              desc: "".to_string(),
+              desc,
               timestamp: timestamp(),
-              data,
+              data: new_snapshot_data,
             },
             &conn,
           )
           .map_err(|e| PersistenceError::Internal(Box::new(e)))
         }) {
-          Ok(_) => tracing::trace!("create {} snapshot success", object_id),
+          Ok(_) => {},
           Err(e) => tracing::error!("create snapshot error: {:?}", e),
         }
       }
@@ -108,7 +118,7 @@ impl CollabSnapshotTableSql {
     Ok(())
   }
 
-  fn read_snapshots(
+  fn get_all_snapshots(
     object_id: &str,
     conn: &SqliteConnection,
   ) -> Result<Vec<CollabSnapshotRow>, FlowyError> {
@@ -121,6 +131,17 @@ impl CollabSnapshotTableSql {
       .load::<CollabSnapshotRow>(conn)?;
 
     Ok(rows)
+  }
+
+  fn get_latest_snapshot(object_id: &str, conn: &SqliteConnection) -> Option<CollabSnapshotRow> {
+    let sql = dsl::collab_snapshot
+      .filter(dsl::object_id.eq(object_id))
+      .into_boxed();
+
+    sql
+      .order(dsl::timestamp.desc())
+      .first::<CollabSnapshotRow>(conn)
+      .ok()
   }
 
   #[allow(dead_code)]

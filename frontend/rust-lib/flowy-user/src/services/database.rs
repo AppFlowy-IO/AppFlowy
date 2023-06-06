@@ -65,7 +65,7 @@ impl UserDB {
     let mut dir = PathBuf::new();
     dir.push(&self.db_dir);
     dir.push(user_id.to_string());
-    dir.push("collab_db".to_string());
+    dir.push("collab_db");
 
     tracing::trace!("open collab db {} at path: {:?}", user_id, dir);
     let db = RocksCollabDB::open(dir).map_err(|err| FlowyError::internal().context(err))?;
