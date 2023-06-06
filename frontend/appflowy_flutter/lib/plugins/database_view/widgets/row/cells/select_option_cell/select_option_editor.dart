@@ -39,8 +39,8 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
 
   @override
   void initState() {
-    popoverMutex = PopoverMutex();
     super.initState();
+    popoverMutex = PopoverMutex();
   }
 
   @override
@@ -105,6 +105,7 @@ class _OptionList extends StatelessWidget {
                     );
                 textEditingController.clear();
               }
+            },
           ),
         );
         cells.addAll(
