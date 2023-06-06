@@ -23,6 +23,7 @@ class GridHeaderSliverAdaptor extends StatefulWidget {
   final String viewId;
   final FieldController fieldController;
   final ScrollController anchorScrollController;
+
   const GridHeaderSliverAdaptor({
     required this.viewId,
     required this.fieldController,
@@ -59,12 +60,6 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
               child: _GridHeader(viewId: widget.viewId),
             ),
           );
-
-          // return SliverPersistentHeader(
-          //   delegate: SliverHeaderDelegateImplementation(gridId: gridId, fields: state.fields),
-          //   floating: true,
-          //   pinned: true,
-          // );
         },
       ),
     );

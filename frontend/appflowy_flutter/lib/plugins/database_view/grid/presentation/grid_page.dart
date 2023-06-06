@@ -2,7 +2,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
-import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -122,10 +121,9 @@ class _FlowyGridState extends State<FlowyGrid> {
         final contentWidth = GridLayout.headerWidth(state.fields.value);
         final child = _wrapScrollView(
           contentWidth,
-          [
-            const _GridRows(),
-            const _GridFooter(),
-          ],
+          _GridRows(
+            verticalScrollController: _scrollController.verticalController,
+          ),
         );
 
         return Column(
@@ -144,20 +142,11 @@ class _FlowyGridState extends State<FlowyGrid> {
 
   Widget _wrapScrollView(
     double contentWidth,
-    List<Widget> slivers,
+    Widget child,
   ) {
-    final verticalScrollView = ScrollConfiguration(
-      behavior: const ScrollBehavior().copyWith(scrollbars: false),
-      child: CustomScrollView(
-        physics: StyledScrollPhysics(),
-        controller: _scrollController.verticalController,
-        slivers: slivers,
-      ),
-    );
-
     final sizedVerticalScrollView = SizedBox(
       width: contentWidth,
-      child: verticalScrollView,
+      child: child,
     );
 
     final horizontalScrollView = StyledSingleChildScrollView(
@@ -170,6 +159,7 @@ class _FlowyGridState extends State<FlowyGrid> {
       axis: Axis.vertical,
       controller: _scrollController.verticalController,
       barSize: GridSize.scrollBarSize,
+      autoHideScrollbar: false,
       child: horizontalScrollView,
     );
   }
@@ -186,7 +176,9 @@ class _FlowyGridState extends State<FlowyGrid> {
 }
 
 class _GridRows extends StatefulWidget {
-  const _GridRows({Key? key}) : super(key: key);
+  final ScrollController verticalScrollController;
+
+  const _GridRows({required this.verticalScrollController});
 
   @override
   State<_GridRows> createState() => _GridRowsState();
@@ -221,28 +213,29 @@ class _GridRowsState extends State<_GridRows> {
               },
             );
           },
-          buildWhen: (previous, current) {
-            return current.reason.maybeWhen(
-              reorderRows: () => true,
-              reorderSingleRow: (reorderRow, rowInfo) => true,
-              delete: (item) => true,
-              insert: (item) => true,
-              orElse: () => false,
-            );
-          },
+          buildWhen: (previous, current) => current.reason.maybeWhen(
+            reorderRows: () => true,
+            reorderSingleRow: (reorderRow, rowInfo) => true,
+            delete: (item) => true,
+            insert: (item) => true,
+            orElse: () => false,
+          ),
           builder: (context, state) {
             final rowInfos = context.watch<GridBloc>().state.rowInfos;
 
-            return SliverFillRemaining(
+            return ScrollConfiguration(
+              behavior:
+                  ScrollConfiguration.of(context).copyWith(scrollbars: false),
               child: ReorderableListView.builder(
+                /// This is a workaround related to
+                /// https://github.com/flutter/flutter/issues/25652
+                cacheExtent: 5000,
                 key: _key,
+                scrollController: widget.verticalScrollController,
                 buildDefaultDragHandles: false,
                 proxyDecorator: (child, index, animation) => Material(
                   color: Colors.white.withOpacity(.1),
-                  child: Opacity(
-                    opacity: .5,
-                    child: child,
-                  ),
+                  child: Opacity(opacity: .5, child: child),
                 ),
                 onReorder: (fromIndex, newIndex) {
                   final toIndex =
@@ -256,16 +249,21 @@ class _GridRowsState extends State<_GridRows> {
                       .read<GridBloc>()
                       .add(GridEvent.moveRow(fromIndex, toIndex));
                 },
-                itemCount: rowInfos.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final RowInfo rowInfo = rowInfos[index];
-                  return _renderRow(
-                    context,
-                    rowInfo,
-                    index: index,
-                    isSortEnabled: sortState.sortInfos.isNotEmpty,
-                    isFilterEnabled: filterState.filters.isNotEmpty,
-                  );
+                itemCount: rowInfos.length + 1,
+                itemBuilder: (context, index) {
+                  if (index < rowInfos.length) {
+                    final rowInfo = rowInfos[index];
+
+                    return _renderRow(
+                      context,
+                      rowInfo,
+                      index: index,
+                      isSortEnabled: sortState.sortInfos.isNotEmpty,
+                      isFilterEnabled: filterState.filters.isNotEmpty,
+                    );
+                  }
+
+                  return const _GridFooter(key: Key('gridFooter'));
                 },
               ),
             );
@@ -356,15 +354,13 @@ class _GridFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverPadding(
+    return Padding(
       padding: const EdgeInsets.only(bottom: 200),
-      sliver: SliverToBoxAdapter(
-        child: SizedBox(
-          height: GridSize.footerHeight,
-          child: Padding(
-            padding: GridSize.footerContentInsets,
-            child: const SizedBox(height: 40, child: GridAddRowButton()),
-          ),
+      child: SizedBox(
+        height: GridSize.footerHeight,
+        child: Padding(
+          padding: GridSize.footerContentInsets,
+          child: const SizedBox(height: 40, child: GridAddRowButton()),
         ),
       ),
     );
