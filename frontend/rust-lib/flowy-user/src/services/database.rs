@@ -50,7 +50,7 @@ impl UserDB {
     Ok(pool)
   }
 
-  fn open_kv_db_if_need(&self, user_id: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
+  fn open_collab_db_if_need(&self, user_id: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
     if let Some(kv) = COLLAB_DB_MAP.read().get(&user_id) {
       return Ok(kv.clone());
     }
@@ -65,8 +65,9 @@ impl UserDB {
     let mut dir = PathBuf::new();
     dir.push(&self.db_dir);
     dir.push(user_id.to_string());
+    dir.push("collab_db".to_string());
 
-    tracing::trace!("open kv db {} at path: {:?}", user_id, dir);
+    tracing::trace!("open collab db {} at path: {:?}", user_id, dir);
     let db = RocksCollabDB::open(dir).map_err(|err| FlowyError::internal().context(err))?;
     let db = Arc::new(db);
     write_guard.insert(user_id.to_owned(), db.clone());
@@ -94,9 +95,9 @@ impl UserDB {
     Ok(pool)
   }
 
-  pub(crate) fn get_kv_db(&self, user_id: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
-    let kv_db = self.open_kv_db_if_need(user_id)?;
-    Ok(kv_db)
+  pub(crate) fn get_collab_db(&self, user_id: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
+    let collab_db = self.open_collab_db_if_need(user_id)?;
+    Ok(collab_db)
   }
 }
 

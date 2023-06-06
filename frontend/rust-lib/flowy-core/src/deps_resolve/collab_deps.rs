@@ -7,21 +7,18 @@ use diesel::SqliteConnection;
 
 use flowy_error::FlowyError;
 use flowy_sqlite::{
-  impl_sql_integer_expression, insert_or_ignore_into,
+  insert_or_ignore_into,
   prelude::*,
   schema::{collab_snapshot, collab_snapshot::dsl},
-  ConnectionPool,
 };
 use flowy_user::services::UserSession;
 use lib_infra::util::timestamp;
 
-pub struct SnapshotDBImpl {
-  user_session: Arc<UserSession>,
-}
+pub struct SnapshotDBImpl(pub Arc<UserSession>);
 
 impl SnapshotDB for SnapshotDBImpl {
   fn get_snapshots(&self, _uid: i64, object_id: &str) -> Vec<CollabSnapshot> {
-    match self.user_session.db_pool() {
+    match self.0.db_pool() {
       Ok(pool) => match pool.get() {
         Ok(conn) => {
           let rows = CollabSnapshotTableSql::read_snapshots(object_id, &conn).unwrap();
@@ -40,33 +37,35 @@ impl SnapshotDB for SnapshotDBImpl {
     collab: Arc<MutexCollab>,
   ) -> Result<(), PersistenceError> {
     let object_id = object_id.to_string();
-    let pool = self
-      .user_session
-      .db_pool()
-      .map_err(|_| PersistenceError::InternalError)?;
+    let weak_pool = Arc::downgrade(
+      &self
+        .0
+        .db_pool()
+        .map_err(|e| PersistenceError::Internal(Box::new(e)))?,
+    );
 
     let _ = tokio::task::spawn_blocking(move || {
-      let conn = pool.get()?;
-      let result = try_encode_snapshot(&collab.lock().transact());
-      match result {
-        Ok(data) => {
-          if let Err(e) = CollabSnapshotTableSql::create(
+      if let Some(pool) = weak_pool.upgrade() {
+        let conn = pool.get()?;
+        let result = try_encode_snapshot(&collab.lock().transact());
+        match result.and_then(|data| {
+          CollabSnapshotTableSql::create(
             CollabSnapshotRow {
               id: uuid::Uuid::new_v4().to_string(),
-              object_id,
+              object_id: object_id.clone(),
               desc: "".to_string(),
               timestamp: timestamp(),
               data,
             },
             &conn,
-          ) {
-            tracing::error!("create snapshot error: {:?}", e);
-          }
-        },
-        Err(e) => {
-          tracing::error!("Failed to encode snapshot: {:?}", e);
-        },
+          )
+          .map_err(|e| PersistenceError::Internal(Box::new(e)))
+        }) {
+          Ok(_) => tracing::trace!("create {} snapshot success", object_id),
+          Err(e) => tracing::error!("create snapshot error: {:?}", e),
+        }
       }
+
       Ok::<(), FlowyError>(())
     });
     Ok(())
@@ -124,6 +123,7 @@ impl CollabSnapshotTableSql {
     Ok(rows)
   }
 
+  #[allow(dead_code)]
   fn delete(
     object_id: &str,
     snapshot_ids: Option<Vec<String>>,

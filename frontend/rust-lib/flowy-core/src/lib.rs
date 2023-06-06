@@ -10,8 +10,8 @@ use std::{
 };
 
 use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CloudStorageType};
-
 use tokio::sync::RwLock;
+use tracing::debug;
 
 use flowy_database2::DatabaseManager2;
 use flowy_document2::manager::DocumentManager as DocumentManager2;
@@ -27,7 +27,6 @@ use lib_dispatch::runtime::tokio_default_runtime;
 use lib_infra::future::{to_fut, Fut};
 use module::make_plugins;
 pub use module::*;
-use tracing::debug;
 
 use crate::deps_resolve::*;
 use crate::integrate::server::{AppFlowyServerProvider, ServerProviderType};
@@ -155,6 +154,7 @@ impl AppFlowyCore {
       /// on demand based on the [CollabPluginConfig].
       let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
         server_provider.provider_type().into(),
+        Some(Arc::new(SnapshotDBImpl(user_session.clone()))),
       ));
 
       let database_manager2 = Database2DepsResolver::resolve(

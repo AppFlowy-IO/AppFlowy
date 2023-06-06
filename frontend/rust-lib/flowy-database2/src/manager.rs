@@ -48,11 +48,12 @@ impl DatabaseManager2 {
   }
 
   pub async fn initialize(&self, user_id: i64) -> FlowyResult<()> {
+    let config = CollabPersistenceConfig::new().snapshot_per_update(10);
     let db = self.user.collab_db()?;
     *self.user_database.lock() = Some(InnerUserDatabase::new(
       user_id,
       db,
-      CollabPersistenceConfig::default(),
+      config,
       UserDatabaseCollabBuilderImpl(self.collab_builder.clone()),
     ));
     // do nothing
@@ -269,16 +270,6 @@ unsafe impl Send for UserDatabase {}
 struct UserDatabaseCollabBuilderImpl(Arc<AppFlowyCollabBuilder>);
 
 impl DatabaseCollabBuilder for UserDatabaseCollabBuilderImpl {
-  fn build(
-    &self,
-    uid: i64,
-    object_id: &str,
-    object_name: &str,
-    db: Arc<RocksCollabDB>,
-  ) -> Arc<MutexCollab> {
-    self.0.build(uid, object_id, object_name, db)
-  }
-
   fn build_with_config(
     &self,
     uid: i64,
