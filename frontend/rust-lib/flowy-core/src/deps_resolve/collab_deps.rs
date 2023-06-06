@@ -19,16 +19,15 @@ pub struct SnapshotDBImpl(pub Arc<UserSession>);
 
 impl SnapshotDB for SnapshotDBImpl {
   fn get_snapshots(&self, _uid: i64, object_id: &str) -> Vec<CollabSnapshot> {
-    match self.0.db_pool() {
-      Ok(pool) => match pool.get() {
-        Ok(conn) => {
-          let rows = CollabSnapshotTableSql::get_all_snapshots(object_id, &conn).unwrap();
-          rows.into_iter().map(|row| row.into()).collect()
-        },
-        Err(_) => vec![],
-      },
-      Err(_) => vec![],
-    }
+    self
+      .0
+      .db_pool()
+      .and_then(|pool| Ok(pool.get()?))
+      .and_then(|conn| {
+        CollabSnapshotTableSql::get_all_snapshots(object_id, &conn)
+          .and_then(|rows| Ok(rows.into_iter().map(|row| row.into()).collect()))
+      })
+      .unwrap_or_else(|_| vec![])
   }
 
   fn create_snapshot(
@@ -48,8 +47,19 @@ impl SnapshotDB for SnapshotDBImpl {
 
     let _ = tokio::task::spawn_blocking(move || {
       if let Some(pool) = weak_pool.upgrade() {
-        let conn = pool.get()?;
-        let result = try_encode_snapshot(&collab.lock().transact(), snapshot);
+        let conn = pool
+          .get()
+          .map_err(|e| PersistenceError::Internal(Box::new(e)))?;
+
+        // Try to acquire a txn lock, if failed, it means there is a txn running, so we just ignore this snapshot
+        let result = try_encode_snapshot(
+          &collab
+            .lock()
+            .try_transaction()
+            .map_err(|e| PersistenceError::Internal(Box::new(e)))?,
+          snapshot,
+        );
+
         match result.and_then(|new_snapshot_data| {
           let desc = match CollabSnapshotTableSql::get_latest_snapshot(&object_id, &conn) {
             None => Ok("".to_string()),
@@ -59,6 +69,7 @@ impl SnapshotDB for SnapshotDBImpl {
           }
           .map_err(|e| PersistenceError::InvalidData(format!("{:?}", e)))?;
 
+          // Save the snapshot to disk
           CollabSnapshotTableSql::create(
             CollabSnapshotRow {
               id: uuid::Uuid::new_v4().to_string(),
@@ -75,8 +86,7 @@ impl SnapshotDB for SnapshotDBImpl {
           Err(e) => tracing::error!("create snapshot error: {:?}", e),
         }
       }
-
-      Ok::<(), FlowyError>(())
+      Ok::<(), PersistenceError>(())
     });
     Ok(())
   }
