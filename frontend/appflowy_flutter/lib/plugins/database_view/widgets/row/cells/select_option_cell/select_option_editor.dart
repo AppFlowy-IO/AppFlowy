@@ -97,15 +97,14 @@ class _OptionList extends StatelessWidget {
         cells.add(
           _Title(
             onPressed: () {
-              if (tagController.textEditingController?.text != null) {
+              final textEditingController = tagController.textEditingController;
+              final text = textEditingController?.text;
+              if (textEditingController != null && text != null) {
                 context.read<SelectOptionCellEditorBloc>().add(
-                      SelectOptionEditorEvent.trySelectOption(
-                        tagController.textEditingController!.text,
-                      ),
+                      SelectOptionEditorEvent.trySelectOption(text),
                     );
-                tagController.textEditingController!.clear();
+                textEditingController.clear();
               }
-            },
           ),
         );
         cells.addAll(
