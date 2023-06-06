@@ -299,7 +299,7 @@ class _VisitURLAccessoryState extends State<_VisitURLAccessory>
   void onTap() {
     var content =
         widget.cellContext.getCellData(loadIfNotExist: false)?.content ?? "";
-    if (!content.contains('http://')) {
+    if (!content.startsWith('http://') && !content.startsWith('https://')) {
       content = 'http://$content';
     }
     final uri = Uri.parse(content);
