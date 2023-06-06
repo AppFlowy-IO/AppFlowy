@@ -41,6 +41,7 @@ class ChecklistCellEditorBloc
             _createOption(optionName);
             emit(
               state.copyWith(
+                createOption: Some(optionName),
                 predicate: '',
               ),
             );
