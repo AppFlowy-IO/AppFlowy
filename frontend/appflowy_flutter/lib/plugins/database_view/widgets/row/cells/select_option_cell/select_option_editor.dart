@@ -208,7 +208,7 @@ class _TextField extends StatelessWidget {
 class _Title extends StatelessWidget {
   const _Title({Key? key, required this.onPressed}) : super(key: key);
 
-  final void Function() onPressed;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
