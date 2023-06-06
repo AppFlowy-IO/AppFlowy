@@ -30,6 +30,7 @@ class TransactionAdapter {
   final String documentId;
 
   Future<void> apply(Transaction transaction, EditorState editorState) async {
+    // Log.debug('transaction => ${transaction.toJson()}');
     final actions = transaction.operations
         .map((op) => op.toBlockAction(editorState))
         .whereNotNull()
@@ -84,6 +85,12 @@ extension on InsertOperation {
           ..action = BlockActionTypePB.Insert
           ..payload = payload,
       );
+      if (node.children.isNotEmpty) {
+        final childrenActions = node.children
+            .map((e) => InsertOperation(e.path, [e]).toBlockAction(editorState))
+            .expand((element) => element);
+        actions.addAll(childrenActions);
+      }
       previousNode = node;
     }
     return actions;
