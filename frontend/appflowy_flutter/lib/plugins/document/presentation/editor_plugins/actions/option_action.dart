@@ -1,12 +1,12 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/select_option_editor.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide FlowySvg;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
 
@@ -240,21 +240,36 @@ class ColorOptionAction extends PopoverActionCell {
         }
         final bgColor =
             node.attributes[blockComponentBackgroundColor] as String?;
-        final selectedColor = convertHexToSelectOptionColorPB(
-          bgColor,
-          context,
-        );
+        final selectedColor = bgColor?.toColor();
 
-        return SelectOptionColorList(
-          selectedColor: selectedColor,
-          onSelectedColor: (color) async {
-            final nodes = editorState.getNodesInSelection(selection);
+        final colors = [
+          // clear background color.
+          FlowyColorOption(
+            color: Colors.transparent,
+            name: LocaleKeys.document_plugins_optionAction_defaultColor.tr(),
+          ),
+          ...FlowyTint.values.map(
+            (e) => FlowyColorOption(
+              color: e.color(context),
+              name: e.tintName(AppFlowyEditorLocalizations.current),
+            ),
+          ),
+        ];
+
+        return FlowyColorPicker(
+          colors: colors,
+          selected: selectedColor,
+          border: Border.all(
+            color: Theme.of(context).colorScheme.onBackground,
+            width: 1,
+          ),
+          onTap: (color, index) async {
             final transaction = editorState.transaction;
-            for (final node in nodes) {
-              transaction.updateNode(node, {
-                blockComponentBackgroundColor: color.toColor(context).toHex(),
-              });
-            }
+            final backgroundColor =
+                color == Colors.transparent ? null : color.toHex();
+            transaction.updateNode(node, {
+              blockComponentBackgroundColor: backgroundColor,
+            });
             await editorState.apply(transaction);
 
             controller.close();
@@ -262,21 +277,6 @@ class ColorOptionAction extends PopoverActionCell {
           },
         );
       };
-
-  SelectOptionColorPB? convertHexToSelectOptionColorPB(
-    String? hexColor,
-    BuildContext context,
-  ) {
-    if (hexColor == null) {
-      return null;
-    }
-    for (final value in SelectOptionColorPB.values) {
-      if (value.toColor(context).toHex() == hexColor) {
-        return value;
-      }
-    }
-    return null;
-  }
 }
 
 class OptionActionWrapper extends ActionCell {

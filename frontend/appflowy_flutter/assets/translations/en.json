@@ -428,7 +428,8 @@
         "align": "Align",
         "left": "Left",
         "center": "Center",
-        "right": "Right"
+        "right": "Right",
+        "defaultColor": "Default"
       }
     }
   },
