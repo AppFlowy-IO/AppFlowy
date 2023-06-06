@@ -51,7 +51,7 @@ jobs:
           npm install -g pnpm@${{ env.PNPM_VERSION }}
 
       - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.platform == 'ubuntu-latest'
         working-directory: frontend
         run: |
           sudo apt-get update
