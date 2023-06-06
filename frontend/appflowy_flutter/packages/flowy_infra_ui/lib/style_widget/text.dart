@@ -10,6 +10,7 @@ class FlowyText extends StatelessWidget {
   final Color? color;
   final TextDecoration? decoration;
   final bool selectable;
+  final String? fontFamily;
 
   const FlowyText(
     this.title, {
@@ -22,6 +23,7 @@ class FlowyText extends StatelessWidget {
     this.maxLines = 1,
     this.decoration,
     this.selectable = false,
+    this.fontFamily,
   }) : super(key: key);
 
   const FlowyText.regular(
@@ -34,6 +36,7 @@ class FlowyText extends StatelessWidget {
     this.maxLines = 1,
     this.decoration,
     this.selectable = false,
+    this.fontFamily,
   })  : fontWeight = FontWeight.w400,
         super(key: key);
 
@@ -47,6 +50,7 @@ class FlowyText extends StatelessWidget {
     this.maxLines = 1,
     this.decoration,
     this.selectable = false,
+    this.fontFamily,
   })  : fontWeight = FontWeight.w500,
         super(key: key);
 
@@ -60,6 +64,7 @@ class FlowyText extends StatelessWidget {
     this.maxLines = 1,
     this.decoration,
     this.selectable = false,
+    this.fontFamily,
   })  : fontWeight = FontWeight.w600,
         super(key: key);
 
@@ -78,6 +83,7 @@ class FlowyText extends StatelessWidget {
               fontWeight: fontWeight,
               color: color,
               decoration: decoration,
+              fontFamily: fontFamily,
             ),
       );
     } else {
@@ -91,6 +97,7 @@ class FlowyText extends StatelessWidget {
               fontWeight: fontWeight,
               color: color,
               decoration: decoration,
+              fontFamily: fontFamily,
             ),
       );
     }

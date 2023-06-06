@@ -34,7 +34,6 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
         WindowSizeManager.minWindowWidth,
         WindowSizeManager.minWindowHeight,
       ),
-      center: true,
       title: title,
     );
 

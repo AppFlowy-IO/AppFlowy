@@ -84,6 +84,7 @@ impl DatabaseManager2 {
     self.get_database(&database_id).await
   }
 
+  #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn get_database_id_with_view_id(&self, view_id: &str) -> FlowyResult<String> {
     let database_id = self.with_user_database(Err(FlowyError::internal()), |database| {
       database
@@ -98,6 +99,7 @@ impl DatabaseManager2 {
       return Ok(editor.clone());
     }
 
+    tracing::trace!("create new editor for database {}", database_id);
     let mut editors = self.editors.write().await;
     let database = MutexDatabase::new(self.with_user_database(
       Err(FlowyError::record_not_found()),
@@ -178,6 +180,7 @@ impl DatabaseManager2 {
     Ok(())
   }
 
+  #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn create_linked_view(
     &self,
     name: String,
@@ -188,11 +191,8 @@ impl DatabaseManager2 {
     self.with_user_database(
       Err(FlowyError::internal().context("Create database view failed")),
       |user_database| {
-        let database = user_database
-          .get_database(&database_id)
-          .ok_or_else(FlowyError::record_not_found)?;
         let params = CreateViewParams::new(database_id, database_view_id, name, layout.into());
-        database.create_linked_view(params)?;
+        user_database.create_database_linked_view(params)?;
         Ok(())
       },
     )?;

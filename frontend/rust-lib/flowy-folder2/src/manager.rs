@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::ops::Deref;
 use std::sync::{Arc, Weak};
 
@@ -203,27 +203,26 @@ impl Folder2Manager {
     let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
     let meta = params.meta.clone();
-    match params.initial_data.is_empty() {
-      true => {
-        tracing::trace!("Create view with build-in data");
-        handler
-          .create_built_in_view(user_id, &params.view_id, &params.name, view_layout.clone())
-          .await?;
-      },
-      false => {
-        tracing::trace!("Create view with view data");
-        handler
-          .create_view_with_view_data(
-            user_id,
-            &params.view_id,
-            &params.name,
-            params.initial_data.clone(),
-            view_layout.clone(),
-            meta,
-          )
-          .await?;
-      },
+
+    if meta.is_empty() && params.initial_data.is_empty() {
+      tracing::trace!("Create view with build-in data");
+      handler
+        .create_built_in_view(user_id, &params.view_id, &params.name, view_layout.clone())
+        .await?;
+    } else {
+      tracing::trace!("Create view with view data");
+      handler
+        .create_view_with_view_data(
+          user_id,
+          &params.view_id,
+          &params.name,
+          params.initial_data.clone(),
+          view_layout.clone(),
+          meta,
+        )
+        .await?;
     }
+
     let view = create_view(params, view_layout);
     self.with_folder((), |folder| {
       folder.insert_view(view.clone());
@@ -242,28 +241,6 @@ impl Folder2Manager {
       })?;
     let handler = self.get_handler(&view.layout)?;
     handler.close_view(view_id).await?;
-    Ok(())
-  }
-
-  pub async fn create_view_with_data(
-    &self,
-    view_id: &str,
-    name: &str,
-    view_layout: ViewLayout,
-    data: Vec<u8>,
-  ) -> FlowyResult<()> {
-    let user_id = self.user.user_id()?;
-    let handler = self.get_handler(&view_layout)?;
-    handler
-      .create_view_with_view_data(
-        user_id,
-        view_id,
-        name,
-        data,
-        view_layout,
-        HashMap::default(),
-      )
-      .await?;
     Ok(())
   }
 

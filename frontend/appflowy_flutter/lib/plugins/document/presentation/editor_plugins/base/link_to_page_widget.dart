@@ -35,7 +35,7 @@ void showLinkToPageMenu(
         layoutType: pageType,
         hintText: pageType.toHintText(),
         onSelected: (appPB, viewPB) {
-          editorState.insertPage(appPB, viewPB);
+          editorState.insertReferencePage(viewPB);
           linkToPageMenuEntry.remove();
         },
       ),
