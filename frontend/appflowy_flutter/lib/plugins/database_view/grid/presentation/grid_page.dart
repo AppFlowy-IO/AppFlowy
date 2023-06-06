@@ -103,8 +103,8 @@ class _FlowyGridState extends State<FlowyGrid> {
 
   @override
   void initState() {
-    headerScrollController = _scrollController.linkHorizontalController();
     super.initState();
+    headerScrollController = _scrollController.linkHorizontalController();
   }
 
   @override
@@ -227,8 +227,9 @@ class _GridRowsState extends State<_GridRows> {
               behavior:
                   ScrollConfiguration.of(context).copyWith(scrollbars: false),
               child: ReorderableListView.builder(
-                /// This is a workaround related to
-                /// https://github.com/flutter/flutter/issues/25652
+                /// TODO(Xazin): Resolve inconsistent scrollbar behavior
+                ///  This is a workaround related to
+                ///  https://github.com/flutter/flutter/issues/25652
                 cacheExtent: 5000,
                 key: _key,
                 scrollController: widget.verticalScrollController,
@@ -354,15 +355,11 @@ class _GridFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 200),
-      child: SizedBox(
-        height: GridSize.footerHeight,
-        child: Padding(
-          padding: GridSize.footerContentInsets,
-          child: const SizedBox(height: 40, child: GridAddRowButton()),
-        ),
-      ),
+    return Container(
+      padding: GridSize.footerContentInsets,
+      height: GridSize.footerHeight,
+      margin: const EdgeInsets.only(bottom: 200),
+      child: const GridAddRowButton(),
     );
   }
 }
