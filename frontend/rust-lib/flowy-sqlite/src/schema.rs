@@ -4,7 +4,9 @@ diesel::table! {
     collab_snapshot (id) {
         id -> Text,
         object_id -> Text,
+        title -> Text,
         desc -> Text,
+        collab_type -> Text,
         timestamp -> BigInt,
         data -> Binary,
     }
@@ -22,4 +24,7 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(collab_snapshot, user_table,);
+diesel::allow_tables_to_appear_in_same_query!(
+    collab_snapshot,
+    user_table,
+);

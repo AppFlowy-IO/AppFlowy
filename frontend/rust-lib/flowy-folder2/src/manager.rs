@@ -19,7 +19,7 @@ use lib_infra::util::timestamp;
 use crate::deps::{FolderCloudService, FolderUser};
 use crate::entities::{
   view_pb_with_child_views, CreateViewParams, CreateWorkspaceParams, DeletedViewPB,
-  RepeatedTrashPB, RepeatedViewPB, RepeatedWorkspacePB, UpdateViewParams, ViewPB,
+  RepeatedTrashPB, RepeatedViewPB, RepeatedWorkspacePB, UpdateViewParams, ViewPB, WorkspacePB,
 };
 use crate::notification::{
   send_notification, send_workspace_notification, send_workspace_setting_notification,
@@ -61,11 +61,17 @@ impl Folder2Manager {
     Ok(manager)
   }
 
-  pub async fn get_current_workspace(&self) -> FlowyResult<Workspace> {
-    match self.with_folder(None, |folder| folder.get_current_workspace()) {
-      None => Err(FlowyError::record_not_found().context("Can not find the workspace")),
-      Some(workspace) => Ok(workspace),
-    }
+  pub async fn get_current_workspace(&self) -> FlowyResult<WorkspacePB> {
+    self.with_folder(Err(FlowyError::internal()), |folder| {
+      match folder.get_current_workspace() {
+        None => Err(FlowyError::record_not_found().context("Can not find the workspace")),
+        Some(workspace) => {
+          let views = get_workspace_view_pbs(&workspace.id, folder);
+          let workspace: WorkspacePB = (workspace, views).into();
+          Ok(workspace)
+        },
+      }
+    })
   }
 
   /// Return a list of views of the current workspace.
@@ -307,18 +313,48 @@ impl Folder2Manager {
     Ok(())
   }
 
-  /// Move the view from one position to another position.
-  #[tracing::instrument(level = "debug", skip(self), err)]
+  /// Move the view with given id from one position to another position.
+  /// The view will be moved to the new position in the same parent view.
+  /// The passed in index is the index of the view that displayed in the UI.
+  /// We need to convert the index to the real index of the view in the parent view.
+  #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn move_view(&self, view_id: &str, from: usize, to: usize) -> FlowyResult<()> {
-    let view = self.with_folder(None, |folder| {
-      folder.move_view(view_id, from as u32, to as u32)
-    });
+    if let Some((is_workspace, parent_view_id, child_views)) = self.get_view_relation(view_id).await
+    {
+      // The display parent view is the view that is displayed in the UI
+      let display_views = if is_workspace {
+        self
+          .get_current_workspace()
+          .await?
+          .views
+          .into_iter()
+          .map(|view| view.id)
+          .collect::<Vec<_>>()
+      } else {
+        self
+          .get_view(&parent_view_id)
+          .await?
+          .child_views
+          .into_iter()
+          .map(|view| view.id)
+          .collect::<Vec<_>>()
+      };
 
-    match view {
-      None => tracing::error!("Couldn't find the view. It should not be empty"),
-      Some(view) => {
-        notify_parent_view_did_change(self.mutex_folder.clone(), vec![view.parent_view_id]);
-      },
+      if display_views.len() > to {
+        let to_view_id = display_views[to].clone();
+
+        // Find the actual index of the view in the parent view
+        let actual_from_index = child_views.iter().position(|id| id == view_id);
+        let actual_to_index = child_views.iter().position(|id| id == &to_view_id);
+        if let (Some(actual_from_index), Some(actual_to_index)) =
+          (actual_from_index, actual_to_index)
+        {
+          self.with_folder((), |folder| {
+            folder.move_view(view_id, actual_from_index as u32, actual_to_index as u32);
+          });
+          notify_parent_view_did_change(self.mutex_folder.clone(), vec![parent_view_id]);
+        }
+      }
     }
     Ok(())
   }
@@ -516,6 +552,40 @@ impl Folder2Manager {
       Some(processor) => Ok(processor.clone()),
     }
   }
+
+  /// Returns the relation of the view. The relation is a tuple of (is_workspace, parent_view_id,
+  /// child_view_ids). If the view is a workspace, then the parent_view_id is the workspace id.
+  /// Otherwise, the parent_view_id is the parent view id of the view. The child_view_ids is the
+  /// child view ids of the view.
+  async fn get_view_relation(&self, view_id: &str) -> Option<(bool, String, Vec<String>)> {
+    self.with_folder(None, |folder| {
+      let view = folder.views.get_view(view_id)?;
+      match folder.views.get_view(&view.parent_view_id) {
+        None => folder.get_current_workspace().map(|workspace| {
+          (
+            true,
+            workspace.id,
+            workspace
+              .child_views
+              .items
+              .into_iter()
+              .map(|view| view.id)
+              .collect::<Vec<String>>(),
+          )
+        }),
+        Some(parent_view) => Some((
+          false,
+          parent_view.id,
+          parent_view
+            .children
+            .items
+            .into_iter()
+            .map(|view| view.id)
+            .collect::<Vec<String>>(),
+        )),
+      }
+    })
+  }
 }
 
 /// Listen on the [ViewChange] after create/delete/update events happened
@@ -594,6 +664,7 @@ fn listen_on_trash_change(mut rx: TrashChangeReceiver, weak_mutex_folder: &Weak<
   });
 }
 
+/// Return the views that belong to the workspace. The views are filtered by the trash.
 fn get_workspace_view_pbs(workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
   let trash_ids = folder
     .trash

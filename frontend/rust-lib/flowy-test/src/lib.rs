@@ -1,14 +1,18 @@
-use nanoid::nanoid;
-use parking_lot::RwLock;
 use std::env::temp_dir;
 use std::sync::Arc;
 
-use crate::event_builder::EventBuilder;
+use nanoid::nanoid;
+use parking_lot::RwLock;
+
 use flowy_core::{AppFlowyCore, AppFlowyCoreConfig};
-use flowy_folder2::entities::{CreateViewPayloadPB, RepeatedViewIdPB, ViewPB, WorkspaceSettingPB};
+use flowy_folder2::entities::{
+  CreateViewPayloadPB, RepeatedViewIdPB, ViewIdPB, ViewPB, WorkspaceSettingPB,
+};
 use flowy_user::entities::{AuthTypePB, UserProfilePB};
 
+use crate::event_builder::EventBuilder;
 use crate::user_event::{async_sign_up, init_user_setting, SignUpContext};
+
 pub mod event_builder;
 pub mod folder_event;
 pub mod user_event;
@@ -68,6 +72,15 @@ impl FlowyCoreTest {
       .parse::<flowy_folder2::entities::WorkspaceSettingPB>()
   }
 
+  pub async fn get_all_workspace_views(&self) -> Vec<ViewPB> {
+    EventBuilder::new(self.clone())
+      .event(flowy_folder2::event_map::FolderEvent::ReadWorkspaceViews)
+      .async_send()
+      .await
+      .parse::<flowy_folder2::entities::RepeatedViewPB>()
+      .items
+  }
+
   pub async fn delete_view(&self, view_id: &str) {
     let payload = RepeatedViewIdPB {
       items: vec![view_id.to_string()],
@@ -95,6 +108,17 @@ impl FlowyCoreTest {
     EventBuilder::new(self.clone())
       .event(flowy_folder2::event_map::FolderEvent::CreateView)
       .payload(payload)
+      .async_send()
+      .await
+      .parse::<flowy_folder2::entities::ViewPB>()
+  }
+
+  pub async fn get_view(&self, view_id: &str) -> ViewPB {
+    EventBuilder::new(self.clone())
+      .event(flowy_folder2::event_map::FolderEvent::ReadView)
+      .payload(ViewIdPB {
+        value: view_id.to_string(),
+      })
       .async_send()
       .await
       .parse::<flowy_folder2::entities::ViewPB>()

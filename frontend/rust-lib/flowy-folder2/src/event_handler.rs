@@ -72,8 +72,6 @@ pub async fn read_cur_workspace_setting_handler(
   folder: AFPluginState<Arc<Folder2Manager>>,
 ) -> DataResult<WorkspaceSettingPB, FlowyError> {
   let workspace = folder.get_current_workspace().await?;
-  let views = folder.get_workspace_views(&workspace.id).await?;
-  let workspace: WorkspacePB = (workspace, views).into();
   let latest_view: Option<ViewPB> = folder.get_current_view().await;
   data_result_ok(WorkspaceSettingPB {
     workspace,
@@ -149,7 +147,7 @@ pub(crate) async fn move_view_handler(
 ) -> Result<(), FlowyError> {
   let params: MoveViewParams = data.into_inner().try_into()?;
   folder
-    .move_view(&params.item_id, params.from, params.to)
+    .move_view(&params.view_id, params.from, params.to)
     .await?;
   Ok(())
 }

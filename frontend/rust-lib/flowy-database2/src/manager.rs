@@ -84,7 +84,6 @@ impl DatabaseManager2 {
     self.get_database(&database_id).await
   }
 
-  #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn get_database_id_with_view_id(&self, view_id: &str) -> FlowyResult<String> {
     let database_id = self.with_user_database(Err(FlowyError::internal()), |database| {
       database

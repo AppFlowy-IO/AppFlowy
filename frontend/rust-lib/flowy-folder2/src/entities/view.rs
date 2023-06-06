@@ -1,11 +1,14 @@
-use crate::entities::parser::view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail};
-use crate::view_operation::gen_view_id;
-use collab_folder::core::{View, ViewLayout};
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error::ErrorCode;
 use std::collections::HashMap;
 use std::convert::TryInto;
 use std::ops::{Deref, DerefMut};
+
+use collab_folder::core::{View, ViewLayout};
+
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_error::ErrorCode;
+
+use crate::entities::parser::view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail};
+use crate::view_operation::gen_view_id;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct ViewPB {
@@ -284,7 +287,7 @@ pub struct MoveViewPayloadPB {
 }
 
 pub struct MoveViewParams {
-  pub item_id: String,
+  pub view_id: String,
   pub from: usize,
   pub to: usize,
 }
@@ -295,7 +298,7 @@ impl TryInto<MoveViewParams> for MoveViewPayloadPB {
   fn try_into(self) -> Result<MoveViewParams, Self::Error> {
     let view_id = ViewIdentify::parse(self.view_id)?.0;
     Ok(MoveViewParams {
-      item_id: view_id,
+      view_id,
       from: self.from as usize,
       to: self.to as usize,
     })
