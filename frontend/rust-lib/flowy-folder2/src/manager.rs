@@ -125,7 +125,7 @@ impl Folder2Manager {
         collab_db,
         &CollabPersistenceConfig::new()
           .enable_snapshot(true)
-          .snapshot_per_update(100),
+          .snapshot_per_update(5),
       );
       let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
       let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
