@@ -65,6 +65,10 @@ jobs:
         run: |
           cargo make --profile development-linux-x86_64 appflowy-core-dev
 
+      - name: Run rust-lib tests
+        working-directory: frontend/rust-lib
+        run: RUST_LOG=info RUST_BACKTRACE=1 cargo test --no-default-features --features="rev-sqlite"
+
       - name: rustfmt rust-lib
         run: cargo fmt --all -- --check
         working-directory: frontend/rust-lib/
@@ -72,10 +76,6 @@ jobs:
       - name: clippy rust-lib
         run: cargo clippy --features="rev-sqlite"
         working-directory: frontend/rust-lib
-
-      - name: Run rust-lib tests
-        working-directory: frontend/rust-lib
-        run: RUST_LOG=info cargo test --no-default-features --features="rev-sqlite"
 
       - name: rustfmt shared-lib
         run: cargo fmt --all -- --check

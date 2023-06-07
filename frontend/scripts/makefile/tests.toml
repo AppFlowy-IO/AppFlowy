@@ -44,7 +44,7 @@ env = { RUST_LOG = "info" }
 description = "Run rust-lib unit tests"
 script = '''
 cd rust-lib
-cargo test --no-default-features --features="rev-sqlite"
+RUST_LOG=info RUST_BACKTRACE=1 cargo test --no-default-features --features="rev-sqlite"
 '''
 
 [tasks.shared_lib_unit_test]

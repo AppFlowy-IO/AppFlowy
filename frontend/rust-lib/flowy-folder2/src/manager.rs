@@ -64,13 +64,27 @@ impl Folder2Manager {
 
   pub async fn get_current_workspace(&self) -> FlowyResult<WorkspacePB> {
     self.with_folder(Err(FlowyError::internal()), |folder| {
+      let workspace_pb_from_workspace = |workspace: Workspace, folder: &Folder| {
+        let views = get_workspace_view_pbs(&workspace.id, folder);
+        let workspace: WorkspacePB = (workspace.clone(), views).into();
+        Ok::<WorkspacePB, FlowyError>(workspace)
+      };
+
       match folder.get_current_workspace() {
-        None => Err(FlowyError::record_not_found().context("Can not find the workspace")),
-        Some(workspace) => {
-          let views = get_workspace_view_pbs(&workspace.id, folder);
-          let workspace: WorkspacePB = (workspace, views).into();
-          Ok(workspace)
+        None => {
+          // The current workspace should always exist. If not, try to find the first workspace.
+          // from the folder. Otherwise, return an error.
+          let mut workspaces = folder.workspaces.get_all_workspaces();
+          if workspaces.is_empty() {
+            Err(FlowyError::record_not_found().context("Can not find the workspace"))
+          } else {
+            tracing::error!("Can't find the current workspace, use the first workspace");
+            let workspace = workspaces.remove(0);
+            folder.set_current_workspace(&workspace.id);
+            workspace_pb_from_workspace(workspace, folder)
+          }
         },
+        Some(workspace) => workspace_pb_from_workspace(workspace, folder),
       }
     })
   }
@@ -167,6 +181,7 @@ impl Folder2Manager {
       .cloud_service
       .create_workspace(self.user.user_id()?, &params.name)
       .await?;
+
     self.with_folder((), |folder| {
       folder.workspaces.create_workspace(workspace.clone());
       folder.set_current_workspace(&workspace.id);
@@ -187,7 +202,7 @@ impl Folder2Manager {
         .ok_or_else(|| {
           FlowyError::record_not_found().context("Can't open not existing workspace")
         })?;
-      folder.set_current_workspace(workspace_id);
+      folder.set_current_workspace(&workspace.id);
       Ok::<Workspace, FlowyError>(workspace)
     })
   }

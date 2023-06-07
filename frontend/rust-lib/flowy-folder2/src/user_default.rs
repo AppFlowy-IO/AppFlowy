@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use collab_folder::core::{FolderData, RepeatedView, ViewIdentifier, Workspace};
-use nanoid::nanoid;
 use tokio::sync::RwLock;
 
 use lib_infra::util::timestamp;
@@ -73,7 +72,7 @@ impl DefaultFolderBuilder {
 }
 
 pub fn gen_workspace_id() -> String {
-  nanoid!(10)
+  uuid::Uuid::new_v4().to_string()
 }
 
 impl From<&ParentChildViews> for ViewPB {
