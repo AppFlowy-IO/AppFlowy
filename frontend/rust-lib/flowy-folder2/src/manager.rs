@@ -3,6 +3,7 @@ use std::ops::Deref;
 use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
+use appflowy_integrate::CollabPersistenceConfig;
 use collab::core::collab_state::CollabState;
 use collab_folder::core::{
   Folder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, TrashRecord, View,
@@ -103,9 +104,15 @@ impl Folder2Manager {
   pub async fn initialize(&self, uid: i64, workspace_id: &str) -> FlowyResult<()> {
     let workspace_id = workspace_id.to_string();
     if let Ok(collab_db) = self.user.collab_db() {
-      let collab = self
-        .collab_builder
-        .build(uid, &workspace_id, "workspace", collab_db);
+      let collab = self.collab_builder.build_with_config(
+        uid,
+        &workspace_id,
+        "workspace",
+        collab_db,
+        &CollabPersistenceConfig::new()
+          .enable_snapshot(true)
+          .snapshot_per_update(5),
+      );
       let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
       let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
       let folder_context = FolderContext {
