@@ -21,7 +21,6 @@ export function useSelection(id: string) {
   const onSelectionChange = useCallback(
     (range: RangeStatic | null, _oldRange: RangeStatic | null, _source?: string) => {
       if (!range) return;
-
       dispatch(
         rangeActions.setCaret({
           id,
@@ -36,14 +35,13 @@ export function useSelection(id: string) {
 
   useEffect(() => {
     if (rangeRef.current && rangeRef.current?.isDragging) return;
-    const caret = focusCaret;
-    if (!caret) {
+    if (!focusCaret) {
+      setSelection(undefined);
       return;
     }
-
     setSelection({
-      index: caret.index,
-      length: caret.length,
+      index: focusCaret.index,
+      length: focusCaret.length,
     });
   }, [rangeRef, focusCaret]);
 

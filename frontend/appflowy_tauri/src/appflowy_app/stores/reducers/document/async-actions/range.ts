@@ -104,8 +104,7 @@ export const deleteRangeAndInsertThunk = createAsyncThunk(
     const { getState, dispatch } = thunkAPI;
     const state = getState() as RootState;
     const rangeState = state.documentRange;
-    // if no range, just return
-    if (rangeState.caret && rangeState.caret.length === 0) return;
+
     const actions = [];
     // get merge actions
     const mergeActions = getMergeEndDeltaToStartActionsByRange(state, controller, insertDelta);

@@ -144,6 +144,7 @@ export const blockConfig: Record<string, BlockConfig> = {
 export const defaultTextActionProps: TextActionMenuProps = {
   customItems: [
     TextAction.Turn,
+    TextAction.Link,
     TextAction.Bold,
     TextAction.Italic,
     TextAction.Underline,
@@ -154,29 +155,24 @@ export const defaultTextActionProps: TextActionMenuProps = {
   excludeItems: [],
 };
 
+const groupKeys = {
+  comment: [],
+  format: [
+    TextAction.Bold,
+    TextAction.Italic,
+    TextAction.Underline,
+    TextAction.Strikethrough,
+    TextAction.Code,
+    TextAction.Equation,
+  ],
+  link: [TextAction.Link],
+  turn: [TextAction.Turn],
+};
+
 export const multiLineTextActionProps: TextActionMenuProps = {
   customItems: [TextAction.Bold, TextAction.Italic, TextAction.Underline, TextAction.Strikethrough, TextAction.Code],
 };
 
-export const multiLineTextActionGroups = [
-  [
-    TextAction.Bold,
-    TextAction.Italic,
-    TextAction.Underline,
-    TextAction.Strikethrough,
-    TextAction.Code,
-    TextAction.Equation,
-  ],
-];
+export const multiLineTextActionGroups = [groupKeys.format];
 
-export const textActionGroups = [
-  [TextAction.Turn],
-  [
-    TextAction.Bold,
-    TextAction.Italic,
-    TextAction.Underline,
-    TextAction.Strikethrough,
-    TextAction.Code,
-    TextAction.Equation,
-  ],
-];
+export const textActionGroups = [groupKeys.turn, groupKeys.format, groupKeys.link];

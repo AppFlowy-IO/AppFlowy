@@ -184,6 +184,7 @@ export enum TextAction {
   Strikethrough = 'strikethrough',
   Code = 'code',
   Equation = 'equation',
+  Link = 'link',
 }
 export interface TextActionMenuProps {
   /**
@@ -263,4 +264,16 @@ export interface BlockCopyData {
   json: string;
   text: string;
   html: string;
+}
+
+export interface LinkPopoverState {
+  anchorPosition?: { top: number; left: number };
+  id?: string;
+  selection?: {
+    index: number;
+    length: number;
+  };
+  open?: boolean;
+  href?: string;
+  title?: string;
 }

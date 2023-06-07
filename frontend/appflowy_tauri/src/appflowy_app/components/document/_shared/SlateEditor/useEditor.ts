@@ -24,7 +24,7 @@ export function useEditor({
   onKeyDown,
   isCodeBlock,
 }: EditorProps) {
-  const editor = useSlateYjs({ delta });
+  const { editor } = useSlateYjs({ delta });
   const ref = useRef<HTMLDivElement | null>(null);
 
   const newValue = useMemo(() => [], []);
@@ -42,7 +42,7 @@ export function useEditor({
       onChange?.(convertToDelta(slateValue), oldContents);
       onSelectionChangeHandler(editor.selection);
     },
-    [delta, editor.selection, onChange, onSelectionChangeHandler]
+    [delta, editor, onChange, onSelectionChangeHandler]
   );
 
   const onDOMBeforeInput = useCallback((e: InputEvent) => {
@@ -57,8 +57,11 @@ export function useEditor({
   const decorate = useCallback(
     (entry: NodeEntry) => {
       const [node, path] = entry;
-      if (!lastSelection) return [];
-      const slateSelection = convertToSlateSelection(lastSelection.index, lastSelection.length, editor.children);
+      const slateSelection = convertToSlateSelection(
+        lastSelection?.index ?? 0,
+        lastSelection?.length ?? 0,
+        editor.children
+      );
       if (slateSelection && !Range.isCollapsed(slateSelection as BaseRange)) {
         const intersection = Range.intersection(slateSelection, Editor.range(editor, path));
 
@@ -116,14 +119,37 @@ export function useEditor({
     [editor]
   );
 
+  // This is a hack to fix the bug that the editor decoration is updated cause selection is lost
+  const onMouseDownCapture = useCallback(
+    (event: React.MouseEvent) => {
+      editor.deselect();
+
+      requestAnimationFrame(() => {
+        const range = document.caretRangeFromPoint(event.clientX, event.clientY);
+        if (!range) return;
+        const selection = window.getSelection();
+        if (!selection) return;
+        selection.removeAllRanges();
+        selection.addRange(range);
+      });
+    },
+    [editor]
+  );
+
   useEffect(() => {
-    if (!selection || !ref.current) return;
+    if (!ref.current) return;
+    const isFocused = ReactEditor.isFocused(editor);
+    if (!selection) {
+      isFocused && editor.deselect();
+      return;
+    }
     const slateSelection = convertToSlateSelection(selection.index, selection.length, editor.children);
     if (!slateSelection) return;
-    const isFocused = ReactEditor.isFocused(editor);
     if (isFocused && JSON.stringify(slateSelection) === JSON.stringify(editor.selection)) return;
-    focusNodeByIndex(ref.current, selection.index, selection.length);
-    Transforms.select(editor, slateSelection);
+    const isSuccess = focusNodeByIndex(ref.current, selection.index, selection.length);
+    if (!isSuccess) {
+      Transforms.select(editor, slateSelection);
+    }
   }, [editor, selection]);
 
   return {
@@ -135,5 +161,6 @@ export function useEditor({
     ref,
     onKeyDown: onKeyDownRewrite,
     onBlur,
+    onMouseDownCapture,
   };
 }

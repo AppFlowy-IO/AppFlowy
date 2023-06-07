@@ -12,7 +12,7 @@ export function exclude(node: Element) {
   return isPlaceholder;
 }
 
-function findFirstTextNode(node: Node): Node | null {
+export function findFirstTextNode(node: Node): Node | null {
   if (isTextNode(node)) {
     return node;
   }
@@ -45,7 +45,7 @@ export function setCursorAtStartOfNode(node: Node): void {
   selection?.addRange(range);
 }
 
-function findLastTextNode(node: Node): Node | null {
+export function findLastTextNode(node: Node): Node | null {
   if (isTextNode(node)) {
     return node;
   }
@@ -174,7 +174,7 @@ export function findTextNode(
   return { remainingIndex };
 }
 
-export function focusNodeByIndex(node: Element, index: number, length: number) {
+export function getRangeByIndex(node: Element, index: number, length: number) {
   const textBoxNode = node.querySelector(`[role="textbox"]`);
   if (!textBoxNode) return;
   const anchorNode = findTextNode(textBoxNode, index);
@@ -185,10 +185,15 @@ export function focusNodeByIndex(node: Element, index: number, length: number) {
   const range = document.createRange();
   range.setStart(anchorNode.node, anchorNode.offset || 0);
   range.setEnd(focusNode.node, focusNode.offset || 0);
-
+  return range;
+}
+export function focusNodeByIndex(node: Element, index: number, length: number) {
+  const range = getRangeByIndex(node, index, length);
+  if (!range) return false;
   const selection = window.getSelection();
   selection?.removeAllRanges();
   selection?.addRange(range);
+  return true;
 }
 
 export function getNodeTextBoxByBlockId(blockId: string) {

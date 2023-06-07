@@ -60,6 +60,7 @@ export const backspaceDeleteActionForBlockThunk = createAsyncThunk(
           controller,
         })
       );
+      dispatch(rangeActions.clearRange());
       dispatch(rangeActions.setCaret(caret));
       return;
     }
@@ -99,7 +100,6 @@ export const enterActionForBlockThunk = createAsyncThunk(
 
     const children = state.document.children[node.children];
     const needMoveChildren = blockConfig[node.type].splitProps?.nextLineRelationShip === SplitRelationship.NextSibling;
-    console.log('needMoveChildren', needMoveChildren);
     const moveChildrenAction = needMoveChildren
       ? controller.getMoveChildrenAction(
           children.map((id) => state.document.nodes[id]),
@@ -150,6 +150,7 @@ export const upDownActionForBlockThunk = createAsyncThunk(
     if (!newCaret) {
       return;
     }
+    dispatch(rangeActions.clearRange());
     dispatch(rangeActions.setCaret(newCaret));
   }
 );
@@ -193,6 +194,7 @@ export const leftActionForBlockThunk = createAsyncThunk(
     if (!newCaret) {
       return;
     }
+    dispatch(rangeActions.clearRange());
     dispatch(rangeActions.setCaret(newCaret));
   }
 );
@@ -238,6 +240,8 @@ export const rightActionForBlockThunk = createAsyncThunk(
     if (!newCaret) {
       return;
     }
+    dispatch(rangeActions.clearRange());
+
     dispatch(rangeActions.setCaret(newCaret));
   }
 );

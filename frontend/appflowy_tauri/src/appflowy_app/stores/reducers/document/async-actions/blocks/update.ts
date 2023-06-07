@@ -1,4 +1,4 @@
-import { DocumentState, BlockData } from '$app/interfaces/document';
+import { BlockData, DocumentState } from '$app/interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import Delta, { Op } from 'quill-delta';
