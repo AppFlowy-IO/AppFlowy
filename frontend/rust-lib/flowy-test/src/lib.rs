@@ -219,6 +219,104 @@ impl FlowyCoreTest {
       .error()
   }
 
+  pub async fn create_row(
+    &self,
+    view_id: &str,
+    start_row_id: Option<String>,
+    data: Option<RowDataPB>,
+  ) -> RowPB {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::CreateRow)
+      .payload(CreateRowPayloadPB {
+        view_id: view_id.to_string(),
+        start_row_id,
+        group_id: None,
+        data,
+      })
+      .async_send()
+      .await
+      .parse::<RowPB>()
+  }
+
+  pub async fn get_row(&self, view_id: &str, row_id: &str) -> RowPB {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::GetRow)
+      .payload(RowIdPB {
+        view_id: view_id.to_string(),
+        row_id: row_id.to_string(),
+        group_id: None,
+      })
+      .async_send()
+      .await
+      .parse::<RowPB>()
+  }
+
+  pub async fn duplicate_row(&self, view_id: &str, row_id: &str) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::DuplicateRow)
+      .payload(RowIdPB {
+        view_id: view_id.to_string(),
+        row_id: row_id.to_string(),
+        group_id: None,
+      })
+      .async_send()
+      .await
+      .error()
+  }
+
+  pub async fn update_cell(&self, changeset: CellChangesetPB) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::UpdateCell)
+      .payload(changeset)
+      .async_send()
+      .await
+      .error()
+  }
+
+  pub async fn get_cell(&self, view_id: &str, row_id: &str, field_id: &str) -> CellPB {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::GetCell)
+      .payload(CellIdPB {
+        view_id: view_id.to_string(),
+        row_id: row_id.to_string(),
+        field_id: field_id.to_string(),
+      })
+      .async_send()
+      .await
+      .parse::<CellPB>()
+  }
+
+  pub async fn insert_option(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    row_id: &str,
+    name: &str,
+  ) -> Option<FlowyError> {
+    let option = EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::CreateSelectOption)
+      .payload(CreateSelectOptionPayloadPB {
+        field_id: field_id.to_string(),
+        view_id: view_id.to_string(),
+        option_name: name.to_string(),
+      })
+      .async_send()
+      .await
+      .parse::<SelectOptionPB>();
+
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::InsertOrUpdateSelectOption)
+      .payload(RepeatedSelectOptionPayload {
+        view_id: view_id.to_string(),
+        field_id: field_id.to_string(),
+        row_id: row_id.to_string(),
+        items: vec![option],
+      })
+      .async_send()
+      .await
+      .error()
+  }
+
   pub async fn get_view(&self, view_id: &str) -> ViewPB {
     EventBuilder::new(self.clone())
       .event(flowy_folder2::event_map::FolderEvent::ReadView)

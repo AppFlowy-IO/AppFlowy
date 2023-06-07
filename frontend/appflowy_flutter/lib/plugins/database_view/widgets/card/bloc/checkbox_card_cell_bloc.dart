@@ -72,5 +72,6 @@ class CheckboxCardCellState with _$CheckboxCardCellState {
 }
 
 bool _isSelected(String? cellData) {
+  // The backend use "Yes" and "No" to represent the checkbox cell data.
   return cellData == "Yes";
 }

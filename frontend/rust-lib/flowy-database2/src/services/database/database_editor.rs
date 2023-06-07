@@ -199,8 +199,20 @@ impl DatabaseEditor {
     }
   }
 
+  /// Returns a list of fields of the view.
+  /// If `field_ids` is not provided, all the fields will be returned in the order of the field that
+  /// defined in the view. Otherwise, the fields will be returned in the order of the `field_ids`.
   pub fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Vec<Field> {
-    self.database.lock().get_fields(view_id, field_ids)
+    let database = self.database.lock();
+    let field_ids = field_ids.unwrap_or_else(|| {
+      database
+        .fields
+        .get_all_field_orders()
+        .into_iter()
+        .map(|field| field.id)
+        .collect()
+    });
+    database.get_fields(view_id, Some(field_ids))
   }
 
   pub async fn update_field(&self, params: FieldChangesetParams) -> FlowyResult<()> {
@@ -289,7 +301,7 @@ impl DatabaseEditor {
         if field.is_primary {
           return Err(FlowyError::new(
             ErrorCode::Internal,
-            "Can not update primary field type",
+            "Can not update primary field's field type",
           ));
         }
 

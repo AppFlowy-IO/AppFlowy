@@ -90,7 +90,9 @@ impl CellDataDecoder for CheckboxTypeOption {
       return Ok(Default::default());
     }
 
-    self.parse_cell(cell)
+    let cell = self.parse_cell(cell);
+    println!("cell: {:?}", cell);
+    return cell;
   }
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {

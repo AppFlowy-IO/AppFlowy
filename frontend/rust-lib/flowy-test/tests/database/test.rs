@@ -1,6 +1,10 @@
-use flowy_database2::entities::{DatabaseLayoutPB, DatabaseViewIdPB, FieldType};
+use bytes::Bytes;
+use flowy_database2::entities::{
+  CellChangesetPB, DatabaseLayoutPB, DatabaseViewIdPB, FieldType, SelectOptionCellDataPB,
+};
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
+use std::convert::TryFrom;
 
 #[tokio::test]
 async fn get_database_id_event_test() {
@@ -168,4 +172,120 @@ async fn duplicate_primary_field_test() {
   // the primary field is not allowed to be duplicated.
   let error = test.duplicate_field(&grid_view.id, &fields[0].id).await;
   assert!(error.is_some());
+}
+
+#[tokio::test]
+async fn create_row_event_test() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let grid_view = test
+    .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
+    .await;
+
+  let _ = test.create_row(&grid_view.id, None, None).await;
+  let database = test.get_database(&grid_view.id).await;
+  assert_eq!(database.rows.len(), 4);
+}
+
+#[tokio::test]
+async fn duplicate_row_event_test() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let grid_view = test
+    .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
+    .await;
+  let database = test.get_database(&grid_view.id).await;
+  let error = test
+    .duplicate_row(&grid_view.id, &database.rows[0].id)
+    .await;
+  assert!(error.is_none());
+
+  let database = test.get_database(&grid_view.id).await;
+  assert_eq!(database.rows.len(), 4);
+}
+
+#[tokio::test]
+async fn update_text_cell_event_test() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let grid_view = test
+    .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
+    .await;
+  let database = test.get_database(&grid_view.id).await;
+  let fields = test.get_all_database_fields(&grid_view.id).await.items;
+
+  let row_id = database.rows[0].id.clone();
+  let field_id = fields[0].id.clone();
+  assert_eq!(fields[0].field_type, FieldType::RichText);
+
+  // Update the first cell of the first row.
+  let error = test
+    .update_cell(CellChangesetPB {
+      view_id: grid_view.id.clone(),
+      row_id: row_id.clone(),
+      field_id: field_id.clone(),
+      cell_changeset: "hello world".to_string(),
+    })
+    .await;
+  assert!(error.is_none());
+
+  let cell = test.get_cell(&grid_view.id, &row_id, &field_id).await;
+  let s = String::from_utf8(cell.data).unwrap();
+  assert_eq!(s, "hello world");
+}
+
+#[tokio::test]
+async fn update_checkbox_cell_event_test() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let grid_view = test
+    .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
+    .await;
+  let database = test.get_database(&grid_view.id).await;
+  let fields = test.get_all_database_fields(&grid_view.id).await.items;
+
+  let row_id = database.rows[0].id.clone();
+  let field_id = fields[2].id.clone();
+  assert_eq!(fields[2].field_type, FieldType::Checkbox);
+
+  for input in vec!["yes", "true", "1"] {
+    let error = test
+      .update_cell(CellChangesetPB {
+        view_id: grid_view.id.clone(),
+        row_id: row_id.clone(),
+        field_id: field_id.clone(),
+        cell_changeset: input.to_string(),
+      })
+      .await;
+    assert!(error.is_none());
+
+    let cell = test.get_cell(&grid_view.id, &row_id, &field_id).await;
+    let output = String::from_utf8(cell.data).unwrap();
+    assert_eq!(output, "Yes");
+  }
+}
+
+#[tokio::test]
+async fn update_single_select_cell_event_test() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let grid_view = test
+    .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
+    .await;
+  let database = test.get_database(&grid_view.id).await;
+  let fields = test.get_all_database_fields(&grid_view.id).await.items;
+  let row_id = database.rows[0].id.clone();
+  let field_id = fields[1].id.clone();
+  assert_eq!(fields[1].field_type, FieldType::SingleSelect);
+
+  let error = test
+    .insert_option(&grid_view.id, &field_id, &row_id, "task 1")
+    .await;
+  assert!(error.is_none());
+
+  let cell = test.get_cell(&grid_view.id, &row_id, &field_id).await;
+  let select_option_cell = SelectOptionCellDataPB::try_from(Bytes::from(cell.data)).unwrap();
+
+  assert_eq!(select_option_cell.options.len(), 1);
+  assert_eq!(select_option_cell.select_options.len(), 1);
 }
