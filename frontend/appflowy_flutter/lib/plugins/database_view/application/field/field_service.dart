@@ -33,7 +33,7 @@ class FieldBackendService {
     bool? visibility,
     double? width,
   }) {
-    var payload = FieldChangesetPB.create()
+    final payload = FieldChangesetPB.create()
       ..viewId = viewId
       ..fieldId = fieldId;
 
@@ -61,7 +61,7 @@ class FieldBackendService {
     required String fieldId,
     required List<int> typeOptionData,
   }) {
-    var payload = TypeOptionChangesetPB.create()
+    final payload = TypeOptionChangesetPB.create()
       ..viewId = viewId
       ..fieldId = fieldId
       ..typeOptionData = typeOptionData;

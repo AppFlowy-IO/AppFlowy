@@ -39,7 +39,7 @@ class RowCache {
   final RowChangesetNotifier _rowChangeReasonNotifier;
 
   UnmodifiableListView<RowInfo> get rowInfos {
-    var visibleRows = [..._rowList.rows];
+    final visibleRows = [..._rowList.rows];
     return UnmodifiableListView(visibleRows);
   }
 
@@ -242,7 +242,7 @@ class RowCache {
 
   CellContextByFieldId _makeGridCells(RowId rowId, RowPB? row) {
     // ignore: prefer_collection_literals
-    var cellDataMap = CellContextByFieldId();
+    final cellDataMap = CellContextByFieldId();
     for (final field in _delegate.fields) {
       if (field.visibility) {
         cellDataMap[field.id] = DatabaseCellContext(

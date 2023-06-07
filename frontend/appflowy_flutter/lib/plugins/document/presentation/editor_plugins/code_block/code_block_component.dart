@@ -307,7 +307,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
         stack.add(currentSpans);
         currentSpans = tmp;
 
-        for (var n in node.children!) {
+        for (final n in node.children!) {
           traverse(n);
           if (n == node.children!.last) {
             currentSpans = stack.isEmpty ? spans : stack.removeLast();
@@ -316,7 +316,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
       }
     }
 
-    for (var node in nodes) {
+    for (final node in nodes) {
       traverse(node);
     }
 

@@ -295,7 +295,7 @@ DateCellData _dateDataFromCellData(DateCellDataPB? cellData) {
     dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp.toInt());
     time = cellData.time;
   }
-  bool includeTime = cellData.includeTime;
+  final bool includeTime = cellData.includeTime;
 
   return DateCellData(dateTime: dateTime, time: time, includeTime: includeTime);
 }

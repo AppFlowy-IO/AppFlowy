@@ -82,7 +82,7 @@ class CoverImagePickerBloc
   }
 
   _saveToGallery(CoverImagePickerState state) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> imagePaths = prefs.getStringList(kLocalImagesKey) ?? [];
     final directory = await _coverPath();
 

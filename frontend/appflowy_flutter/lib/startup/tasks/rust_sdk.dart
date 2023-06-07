@@ -54,11 +54,11 @@ AppFlowyEnv getAppFlowyEnv() {
 Future<Directory> appFlowyDocumentDirectory() async {
   switch (integrationEnv()) {
     case IntegrationMode.develop:
-      Directory documentsDir = await getApplicationSupportDirectory()
+      final Directory documentsDir = await getApplicationSupportDirectory()
         ..create();
       return Directory(path.join(documentsDir.path, 'data_dev')).create();
     case IntegrationMode.release:
-      Directory documentsDir = await getApplicationSupportDirectory();
+      final Directory documentsDir = await getApplicationSupportDirectory();
       return Directory(path.join(documentsDir.path, 'data')).create();
     case IntegrationMode.test:
       return Directory(path.join(Directory.current.path, '.sandbox'));

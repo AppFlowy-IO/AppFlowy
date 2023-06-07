@@ -75,7 +75,7 @@ class RowList {
     List<InsertedRowPB> insertedRows,
     RowInfo Function(RowPB) builder,
   ) {
-    InsertedIndexs insertIndexs = [];
+    final InsertedIndexs insertIndexs = [];
     for (final insertRow in insertedRows) {
       final isContains = contains(insertRow.row.id);
 

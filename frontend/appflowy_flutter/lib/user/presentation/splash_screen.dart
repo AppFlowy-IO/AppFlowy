@@ -107,7 +107,7 @@ class Body extends StatelessWidget {
   const Body({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
+    final size = MediaQuery.of(context).size;
 
     return Container(
       alignment: Alignment.center,

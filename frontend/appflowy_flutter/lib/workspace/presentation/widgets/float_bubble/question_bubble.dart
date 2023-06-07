@@ -136,9 +136,9 @@ class FlowyVersionDescription extends CustomActionCell {
             );
           }
 
-          PackageInfo packageInfo = snapshot.data;
-          String appName = packageInfo.appName;
-          String version = packageInfo.version;
+          final PackageInfo packageInfo = snapshot.data;
+          final String appName = packageInfo.appName;
+          final String version = packageInfo.version;
 
           return SizedBox(
             height: 30,
