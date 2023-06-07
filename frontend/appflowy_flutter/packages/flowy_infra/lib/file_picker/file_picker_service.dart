@@ -1,3 +1,5 @@
+export 'package:file_picker/file_picker.dart' show FileType;
+
 import 'package:file_picker/file_picker.dart';
 
 export 'package:file_picker/file_picker.dart' show FileType;
