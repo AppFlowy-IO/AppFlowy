@@ -1,4 +1,4 @@
-import 'package:appflowy/util/file_picker/file_picker_service.dart';
+import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:file_picker/file_picker.dart' as fp;
 
 class FilePicker implements FilePickerService {
