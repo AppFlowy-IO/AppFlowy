@@ -1,8 +1,8 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_bloc.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_state.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -21,7 +21,7 @@ class ThemeUploadWidget extends StatefulWidget {
   static const Size iconSize = Size.square(48);
   static const Widget elementSpacer = SizedBox(height: 12);
   static const double fadeOpacity = 0.5;
-  static const Duration fadeDuration = Duration(milliseconds: 250);
+  static const Duration fadeDuration = Duration(milliseconds: 750);
 
   @override
   State<ThemeUploadWidget> createState() => _ThemeUploadWidgetState();
@@ -29,32 +29,46 @@ class ThemeUploadWidget extends StatefulWidget {
 
 class _ThemeUploadWidgetState extends State<ThemeUploadWidget> {
   void listen(BuildContext context, DynamicPluginState state) {
-    state.when(
-      ready: () => null,
-      processing: () => null,
-      compilationFailure: (path) => null,
-      compilationSuccess: () => showMessageToast(
-        LocaleKeys.settings_appearance_themeUpload_uploadSuccess.tr(),
-      ),
-    );
+    setState(() {
+      state.when(
+        ready: () {
+          child = const UploadNewThemeWidget();
+        },
+        processing: () {
+          child = const ThemeUploadLoadingWidget();
+        },
+        compilationFailure: (path) {
+          child = const ThemeUploadFailureWidget();
+        },
+        compilationSuccess: () async {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: FlowyText.medium(
+                color: Theme.of(context).colorScheme.onPrimary,
+                LocaleKeys.settings_appearance_themeUpload_uploadSuccess.tr(),
+              ),
+            ),
+          );
+        },
+      );
+    });
   }
+
+  Widget child = const UploadNewThemeWidget();
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<DynamicPluginBloc>(
       create: (_) => DynamicPluginBloc(),
-      child: BlocConsumer<DynamicPluginBloc, DynamicPluginState>(
+      child: BlocListener<DynamicPluginBloc, DynamicPluginState>(
         listener: listen,
-        builder: (context, state) {
-          return ThemeUploadDecoration(
-            child: state.when(
-              ready: () => const UploadNewThemeWidget(),
-              processing: () => const ThemeUploadLoadingWidget(),
-              compilationFailure: (path) => const ThemeUploadFailureWidget(),
-              compilationSuccess: () => const UploadNewThemeWidget(),
-            ),
-          );
-        },
+        child: ThemeUploadDecoration(
+          child: AnimatedSwitcher(
+            duration: ThemeUploadWidget.fadeDuration,
+            switchInCurve: Curves.easeInOutCubicEmphasized,
+            child: child,
+          ),
+        ),
       ),
     );
   }
