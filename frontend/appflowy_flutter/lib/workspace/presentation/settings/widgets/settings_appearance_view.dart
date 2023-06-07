@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/theme_upload_view.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -7,6 +8,7 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dotted_border/dotted_border.dart';
 
 class SettingsAppearanceView extends StatelessWidget {
   const SettingsAppearanceView({Key? key}) : super(key: key);
@@ -17,10 +19,11 @@ class SettingsAppearanceView extends StatelessWidget {
       child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
         builder: (context, state) {
           return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               ThemeModeSetting(currentThemeMode: state.themeMode),
               ThemeSetting(currentTheme: state.appTheme.themeName),
+              const ThemeUploadWidget(),
             ],
           );
         },
