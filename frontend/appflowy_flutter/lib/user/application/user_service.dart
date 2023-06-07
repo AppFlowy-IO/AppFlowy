@@ -27,7 +27,7 @@ class UserBackendService {
     String? iconUrl,
     String? openAIKey,
   }) {
-    var payload = UpdateUserProfilePayloadPB.create()..id = userId;
+    final payload = UpdateUserProfilePayloadPB.create()..id = userId;
 
     if (name != null) {
       payload.name = name;

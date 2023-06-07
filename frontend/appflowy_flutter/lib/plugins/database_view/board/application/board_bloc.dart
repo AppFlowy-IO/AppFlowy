@@ -176,7 +176,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   void initializeGroups(List<GroupPB> groups) {
-    for (var controller in groupControllers.values) {
+    for (final controller in groupControllers.values) {
       controller.dispose();
     }
     groupControllers.clear();

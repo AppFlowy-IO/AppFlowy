@@ -45,7 +45,7 @@ void main() {
 
       final TestPointer pointer = TestPointer(1, PointerDeviceKind.mouse);
       final imageFinder = find.byType(Image);
-      Offset offset = tester.getCenter(imageFinder);
+      final Offset offset = tester.getCenter(imageFinder);
 
       pointer.hover(offset);
       expect(find.byType(RoundedTextButton), findsOneWidget);

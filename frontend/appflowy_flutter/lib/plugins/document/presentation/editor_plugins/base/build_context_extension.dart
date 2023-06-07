@@ -8,7 +8,7 @@ extension BuildContextExtension on BuildContext {
     if (box == null) {
       return false;
     }
-    var result = BoxHitTestResult();
+    final result = BoxHitTestResult();
     box.hitTest(result, position: box.globalToLocal(offset));
     return result.path.any((entry) => entry.target == box);
   }

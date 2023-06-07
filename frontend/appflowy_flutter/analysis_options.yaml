@@ -30,6 +30,10 @@ linter:
   rules:
     - require_trailing_commas
 
+    - prefer_final_fields
+    - prefer_final_in_for_each
+    - prefer_final_locals
+
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
 

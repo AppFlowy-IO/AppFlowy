@@ -13,7 +13,7 @@ class DatabaseLayoutBackendService {
     required String fieldId,
     required DatabaseLayoutPB layout,
   }) {
-    var payload = UpdateViewPayloadPB.create()
+    final payload = UpdateViewPayloadPB.create()
       ..viewId = viewId
       ..layout = _viewLayoutFromDatabaseLayout(layout);
 

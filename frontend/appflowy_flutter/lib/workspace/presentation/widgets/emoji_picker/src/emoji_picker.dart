@@ -151,7 +151,7 @@ class EmojiPickerState extends State<EmojiPicker> {
           recentEmoji.map((e) => e.emoji).toList().cast<Emoji>();
     }
 
-    var state = EmojiViewState(
+    final state = EmojiViewState(
       categoryEmoji,
       _getOnEmojiListener(),
       widget.onBackspacePressed,
@@ -259,15 +259,15 @@ class EmojiPickerState extends State<EmojiPicker> {
   ) async {
     if (Platform.isAndroid) {
       Map<String, String>? filtered = {};
-      var delimiter = '|';
+      const delimiter = '|';
       try {
-        var entries = emoji.values.join(delimiter);
-        var keys = emoji.keys.join(delimiter);
-        var result = (await platform.invokeMethod<String>(
+        final entries = emoji.values.join(delimiter);
+        final keys = emoji.keys.join(delimiter);
+        final result = (await platform.invokeMethod<String>(
           'checkAvailability',
           {'emojiKeys': keys, 'emojiEntries': entries},
         )) as String;
-        var resultKeys = result.split(delimiter);
+        final resultKeys = result.split(delimiter);
         for (var i = 0; i < resultKeys.length; i++) {
           filtered[resultKeys[i]] = emoji[resultKeys[i]]!;
         }
@@ -283,11 +283,11 @@ class EmojiPickerState extends State<EmojiPicker> {
   // Restore locally cached emoji
   Future<Map<String, String>?> _restoreFilteredEmojis(String title) async {
     final prefs = await SharedPreferences.getInstance();
-    var emojiJson = prefs.getString(title);
+    final emojiJson = prefs.getString(title);
     if (emojiJson == null) {
       return null;
     }
-    var emojis =
+    final emojis =
         Map<String, String>.from(jsonDecode(emojiJson) as Map<String, dynamic>);
     return emojis;
   }
@@ -298,25 +298,25 @@ class EmojiPickerState extends State<EmojiPicker> {
     Map<String, String> emojis,
   ) async {
     final prefs = await SharedPreferences.getInstance();
-    var emojiJson = jsonEncode(emojis);
+    final emojiJson = jsonEncode(emojis);
     prefs.setString(title, emojiJson);
   }
 
   // Returns list of recently used emoji from cache
   Future<List<RecentEmoji>> _getRecentEmojis() async {
     final prefs = await SharedPreferences.getInstance();
-    var emojiJson = prefs.getString('recent');
+    final emojiJson = prefs.getString('recent');
     if (emojiJson == null) {
       return [];
     }
-    var json = jsonDecode(emojiJson) as List<dynamic>;
+    final json = jsonDecode(emojiJson) as List<dynamic>;
     return json.map<RecentEmoji>(RecentEmoji.fromJson).toList();
   }
 
   // Add an emoji to recently used list or increase its counter
   Future<void> _addEmojiToRecentlyUsed(Emoji emoji) async {
     final prefs = await SharedPreferences.getInstance();
-    var recentEmojiIndex =
+    final recentEmojiIndex =
         recentEmoji.indexWhere((element) => element.emoji.emoji == emoji.emoji);
     if (recentEmojiIndex != -1) {
       // Already exist in recent list

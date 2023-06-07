@@ -418,7 +418,7 @@ class FieldController {
 
   void _updateFieldInfos() {
     if (_fieldNotifier != null) {
-      for (var field in _fieldNotifier!.fieldInfos) {
+      for (final field in _fieldNotifier!.fieldInfos) {
         field._isGroupField = _groupConfigurationByFieldId[field.id] != null;
         field._hasFilter = _filterPBByFieldId[field.id] != null;
         field._hasSort = _sortPBByFieldId[field.id] != null;

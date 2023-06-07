@@ -41,7 +41,7 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
             emit(state.copyWith(workspaceSetting: value.setting));
           },
           collapseMenu: (_CollapseMenu e) {
-            var isMenuCollapsed = !state.isMenuCollapsed;
+            final isMenuCollapsed = !state.isMenuCollapsed;
             _appearanceSettingsCubit.saveIsMenuCollapsed(isMenuCollapsed);
             emit(state.copyWith(isMenuCollapsed: isMenuCollapsed));
           },

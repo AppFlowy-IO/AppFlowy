@@ -237,7 +237,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
     return BlocBuilder<ChangeCoverPopoverBloc, ChangeCoverPopoverState>(
       builder: (context, state) {
         if (state is Loaded) {
-          List<String> images = state.imageNames;
+          final List<String> images = state.imageNames;
           return GridView.builder(
             shrinkWrap: true,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

@@ -66,7 +66,7 @@ class _GridCreateSortListState extends State<GridCreateSortList> {
               );
             }).toList();
 
-            List<Widget> slivers = [
+            final List<Widget> slivers = [
               SliverPersistentHeader(
                 pinned: true,
                 delegate: _FilterTextFieldDelegate(),

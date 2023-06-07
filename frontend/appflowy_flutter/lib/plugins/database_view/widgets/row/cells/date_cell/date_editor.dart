@@ -106,7 +106,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
       )..add(const DateCellCalendarEvent.initial()),
       child: BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
         builder: (context, state) {
-          List<Widget> children = [
+          final List<Widget> children = [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: _buildCalendar(context),
@@ -403,7 +403,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> children = [
+    final List<Widget> children = [
       AppFlowyPopover(
         mutex: timeSettingPopoverMutex,
         triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,

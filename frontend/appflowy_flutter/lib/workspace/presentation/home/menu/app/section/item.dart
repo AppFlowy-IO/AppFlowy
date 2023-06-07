@@ -74,7 +74,7 @@ class ViewSectionItem extends StatelessWidget {
     bool onHover,
     ViewState state,
   ) {
-    List<Widget> children = [
+    final List<Widget> children = [
       SizedBox(
         width: 16,
         height: 16,

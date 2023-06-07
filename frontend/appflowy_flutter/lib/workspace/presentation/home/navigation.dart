@@ -104,10 +104,10 @@ class FlowyNavigation extends StatelessWidget {
       return [];
     }
 
-    List<NavigationItem> newItems = _filter(items);
-    Widget last = NaviItemWidget(newItems.removeLast());
+    final List<NavigationItem> newItems = _filter(items);
+    final Widget last = NaviItemWidget(newItems.removeLast());
 
-    List<Widget> widgets = List.empty(growable: true);
+    final List<Widget> widgets = List.empty(growable: true);
     // widgets.addAll(newItems.map((item) => NaviItemDivider(child: NaviItemWidget(item))).toList());
 
     for (final item in newItems) {

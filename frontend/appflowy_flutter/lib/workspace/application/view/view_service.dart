@@ -96,7 +96,7 @@ class ViewBackendService {
     required String viewId,
     String? name,
   }) {
-    var payload = UpdateViewPayloadPB.create()..viewId = viewId;
+    final payload = UpdateViewPayloadPB.create()..viewId = viewId;
 
     if (name != null) {
       payload.name = name;
@@ -125,7 +125,7 @@ class ViewBackendService {
       final workspaces = value.getLeftOrNull<WorkspaceSettingPB>();
       if (workspaces != null) {
         final views = workspaces.workspace.views;
-        for (var view in views) {
+        for (final view in views) {
           final childViews = await getViews(viewId: view.id).then(
             (value) => value
                 .getLeftOrNull<List<ViewPB>>()

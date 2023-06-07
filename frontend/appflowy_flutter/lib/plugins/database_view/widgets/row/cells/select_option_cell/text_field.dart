@@ -199,7 +199,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
 
 @visibleForTesting
 List splitInput(String input, List<String> textSeparators) {
-  List<String> splits = [];
+  final List<String> splits = [];
   String currentString = '';
 
   // split the string into tokens

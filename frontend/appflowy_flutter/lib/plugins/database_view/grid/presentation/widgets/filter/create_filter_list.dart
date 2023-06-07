@@ -67,7 +67,7 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
               );
             }).toList();
 
-            List<Widget> slivers = [
+            final List<Widget> slivers = [
               SliverPersistentHeader(
                 pinned: true,
                 delegate: _FilterTextFieldDelegate(),
