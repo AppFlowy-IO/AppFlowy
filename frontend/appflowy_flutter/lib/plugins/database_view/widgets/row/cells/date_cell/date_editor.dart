@@ -471,7 +471,7 @@ class _ClearDateFieldButton extends StatelessWidget {
       child: SizedBox(
         height: GridSize.popoverItemHeight,
         child: FlowyButton(
-          text: FlowyText.medium(LocaleKeys.grid_field_delete.tr()),
+          text: FlowyText.medium(LocaleKeys.grid_field_clearDate.tr()),
           onTap: () => context
               .read<DateCellCalendarBloc>()
               .add(const DateCellCalendarEvent.clearDate()),
