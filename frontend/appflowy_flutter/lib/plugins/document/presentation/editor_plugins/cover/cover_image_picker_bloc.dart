@@ -137,13 +137,13 @@ class CoverImagePickerBloc
   }
 
   String _networkImageName(String url) {
-    return 'IMG_${DateTime.now().millisecondsSinceEpoch.toString()}.${_getExtention(
+    return 'IMG_${DateTime.now().millisecondsSinceEpoch.toString()}.${_getExtension(
       url,
       fromNetwork: true,
     )}';
   }
 
-  String? _getExtention(
+  String? _getExtension(
     String path, {
     bool fromNetwork = false,
   }) {
@@ -153,14 +153,21 @@ class CoverImagePickerBloc
       if (extension.isEmpty) {
         return null;
       }
-      ext = extension.substring(1);
+      ext = extension;
     } else {
       final uri = Uri.parse(path);
-      final paramters = uri.queryParameters;
-      final dl = paramters['dl'];
-      if (dl != null) {
-        ext = p.extension(dl).substring(1);
+      final parameters = uri.queryParameters;
+      if (path.contains('unsplash')) {
+        final dl = parameters['dl'];
+        if (dl != null) {
+          ext = p.extension(dl);
+        }
+      } else {
+        ext = p.extension(path);
       }
+    }
+    if (ext != null && ext.isNotEmpty) {
+      ext = ext.substring(1);
     }
     if (allowedExtensions.contains(ext)) {
       return ext;
@@ -169,7 +176,7 @@ class CoverImagePickerBloc
   }
 
   Future<bool> _validateURL(String path) async {
-    final extension = _getExtention(path, fromNetwork: true);
+    final extension = _getExtension(path, fromNetwork: true);
     if (extension == null) {
       return false;
     }
