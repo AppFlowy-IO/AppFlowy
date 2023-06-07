@@ -16,7 +16,7 @@ r2d2 = "0.8.10"
 libsqlite3-sys = { version = ">=0.8.0, <0.24.0", features = ["bundled"] }
 scheduled-thread-pool = "0.2.6"
 error-chain = "=0.12.0"
-openssl = { version = "0.10.45", optional = true, features = ["vendored"] }
+openssl = { version = "0.10.48", optional = true, features = ["vendored"] }
 openssl-sys = { version = "0.9.80", optional = true, features = ["vendored"] }
 
 [features]
