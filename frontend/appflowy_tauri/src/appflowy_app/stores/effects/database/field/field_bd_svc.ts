@@ -21,21 +21,11 @@ export abstract class TypeOptionParser<T> {
 export class FieldBackendService {
   constructor(public readonly viewId: string, public readonly fieldId: string) {}
 
-  updateField = (data: {
-    name?: string;
-    fieldType?: FieldType;
-    frozen?: boolean;
-    visibility?: boolean;
-    width?: number;
-  }) => {
+  updateField = (data: { name?: string; frozen?: boolean; visibility?: boolean; width?: number }) => {
     const payload = FieldChangesetPB.fromObject({ view_id: this.viewId, field_id: this.fieldId });
 
     if (data.name !== undefined) {
       payload.name = data.name;
-    }
-
-    if (data.fieldType !== undefined) {
-      payload.field_type = data.fieldType;
     }
 
     if (data.frozen !== undefined) {
