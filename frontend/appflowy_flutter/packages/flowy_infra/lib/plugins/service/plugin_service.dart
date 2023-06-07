@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'location_service.dart';
 
-import 'flowy_dynamic_plugin.dart';
+import '../models/flowy_dynamic_plugin.dart';
 
 /// Singleton class which can only be constructed asynchronously
 ///
@@ -13,7 +13,6 @@ class FlowyPluginService {
   FlowyPluginService._();
 
   static final Completer _completer = Completer();
-
   static FlowyPluginService? _instance;
 
   /// A factory constructor that returns the singleton instance of this class
@@ -24,7 +23,7 @@ class FlowyPluginService {
       // the service is initialized.
       final location = await PluginLocationService.location;
       // evaluate plugins here
-      await _instance!._compile();
+      await _instance!._initialize();
       location.watch().listen(_listen);
       _completer.complete();
     } else if (!_completer.isCompleted) {
@@ -36,7 +35,7 @@ class FlowyPluginService {
   static Future<void> _listen(FileSystemEvent event) async {
     // TODO(a-wallen): Invalidate plugins that are removed.
     // TODO(a-wallen): Only compile new plugins that were just added.
-    await _instance!._compile();
+    await _instance!._initialize();
   }
 
   Future<Iterable<Directory>> get _srcs async =>
@@ -46,11 +45,13 @@ class FlowyPluginService {
           .map<Directory>((entity) => entity as Directory)
           .toList();
 
-  Future<void> _compile() async {
-    final compiled = [];
+  Future<void> _initialize() async {
+    final List<FlowyDynamicPlugin> compiled = [];
     for (final src in await _srcs) {
-      final plugin = await FlowyDynamicPlugin.compile(src: src);
-      compiled.add(plugin);
+      final plugin = await FlowyDynamicPlugin.tryCompile(src: src);
+      if (plugin != null) {
+        compiled.add(plugin);
+      }
     }
     _plugins = List.from(compiled);
   }
