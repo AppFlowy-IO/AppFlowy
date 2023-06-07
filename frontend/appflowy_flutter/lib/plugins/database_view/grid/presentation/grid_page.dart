@@ -89,7 +89,9 @@ class _GridPageState extends State<GridPage> {
 }
 
 class FlowyGrid extends StatefulWidget {
-  const FlowyGrid({Key? key}) : super(key: key);
+  const FlowyGrid({
+    super.key,
+  });
 
   @override
   State<FlowyGrid> createState() => _FlowyGridState();
@@ -119,9 +121,10 @@ class _FlowyGridState extends State<FlowyGrid> {
       buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
         final contentWidth = GridLayout.headerWidth(state.fields.value);
-        final child = _wrapScrollView(
-          contentWidth,
-          _GridRows(
+        final child = _WrapScrollView(
+          scrollController: _scrollController,
+          contentWidth: contentWidth,
+          child: _GridRows(
             verticalScrollController: _scrollController.verticalController,
           ),
         );
@@ -133,34 +136,10 @@ class _FlowyGridState extends State<FlowyGrid> {
             GridAccessoryMenu(viewId: state.viewId),
             _gridHeader(context, state.viewId),
             Flexible(child: child),
-            const RowCountBadge(),
+            const _RowCountBadge(),
           ],
         );
       },
-    );
-  }
-
-  Widget _wrapScrollView(
-    double contentWidth,
-    Widget child,
-  ) {
-    final sizedVerticalScrollView = SizedBox(
-      width: contentWidth,
-      child: child,
-    );
-
-    final horizontalScrollView = StyledSingleChildScrollView(
-      controller: _scrollController.horizontalController,
-      axis: Axis.horizontal,
-      child: sizedVerticalScrollView,
-    );
-
-    return ScrollbarListStack(
-      axis: Axis.vertical,
-      controller: _scrollController.verticalController,
-      barSize: GridSize.scrollBarSize,
-      autoHideScrollbar: false,
-      child: horizontalScrollView,
     );
   }
 
@@ -175,100 +154,68 @@ class _FlowyGridState extends State<FlowyGrid> {
   }
 }
 
-class _GridRows extends StatefulWidget {
+class _GridRows extends StatelessWidget {
+  const _GridRows({
+    required this.verticalScrollController,
+  });
+
   final ScrollController verticalScrollController;
-
-  const _GridRows({required this.verticalScrollController});
-
-  @override
-  State<_GridRows> createState() => _GridRowsState();
-}
-
-class _GridRowsState extends State<_GridRows> {
-  final _key = GlobalKey<SliverAnimatedListState>();
 
   @override
   Widget build(BuildContext context) {
-    return Builder(
-      builder: (context) {
-        final filterState = context.watch<GridFilterMenuBloc>().state;
-        final sortState = context.watch<SortMenuBloc>().state;
+    final filterState = context.watch<GridFilterMenuBloc>().state;
+    final sortState = context.watch<SortMenuBloc>().state;
 
-        return BlocConsumer<GridBloc, GridState>(
-          listenWhen: (previous, current) => previous.reason != current.reason,
-          listener: (context, state) {
-            state.reason.whenOrNull(
-              insert: (item) {
-                _key.currentState?.insertItem(item.index);
-              },
-              delete: (item) {
-                _key.currentState?.removeItem(
-                  item.index,
-                  (context, animation) => _renderRow(
-                    context,
-                    item.rowInfo,
-                    animation: animation,
-                  ),
+    return BlocBuilder<GridBloc, GridState>(
+      buildWhen: (previous, current) => current.reason.maybeWhen(
+        reorderRows: () => true,
+        reorderSingleRow: (reorderRow, rowInfo) => true,
+        delete: (item) => true,
+        insert: (item) => true,
+        orElse: () => false,
+      ),
+      builder: (context, state) {
+        final rowInfos = state.rowInfos;
+        final behavior = ScrollConfiguration.of(context).copyWith(
+          scrollbars: false,
+        );
+        return ScrollConfiguration(
+          behavior: behavior,
+          child: ReorderableListView.builder(
+            /// TODO(Xazin): Resolve inconsistent scrollbar behavior
+            ///  This is a workaround related to
+            ///  https://github.com/flutter/flutter/issues/25652
+            cacheExtent: 5000,
+            scrollController: verticalScrollController,
+            buildDefaultDragHandles: false,
+            proxyDecorator: (child, index, animation) => Material(
+              color: Colors.white.withOpacity(.1),
+              child: Opacity(opacity: .5, child: child),
+            ),
+            onReorder: (fromIndex, newIndex) {
+              final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
+              if (fromIndex == toIndex) {
+                return;
+              }
+              context
+                  .read<GridBloc>()
+                  .add(GridEvent.moveRow(fromIndex, toIndex));
+            },
+            itemCount: rowInfos.length + 1, // the extra item is the footer
+            itemBuilder: (context, index) {
+              if (index < rowInfos.length) {
+                final rowInfo = rowInfos[index];
+                return _renderRow(
+                  context,
+                  rowInfo,
+                  index: index,
+                  isSortEnabled: sortState.sortInfos.isNotEmpty,
+                  isFilterEnabled: filterState.filters.isNotEmpty,
                 );
-              },
-            );
-          },
-          buildWhen: (previous, current) => current.reason.maybeWhen(
-            reorderRows: () => true,
-            reorderSingleRow: (reorderRow, rowInfo) => true,
-            delete: (item) => true,
-            insert: (item) => true,
-            orElse: () => false,
+              }
+              return const _GridFooter(key: Key('gridFooter'));
+            },
           ),
-          builder: (context, state) {
-            final rowInfos = context.watch<GridBloc>().state.rowInfos;
-
-            return ScrollConfiguration(
-              behavior:
-                  ScrollConfiguration.of(context).copyWith(scrollbars: false),
-              child: ReorderableListView.builder(
-                /// TODO(Xazin): Resolve inconsistent scrollbar behavior
-                ///  This is a workaround related to
-                ///  https://github.com/flutter/flutter/issues/25652
-                cacheExtent: 5000,
-                key: _key,
-                scrollController: widget.verticalScrollController,
-                buildDefaultDragHandles: false,
-                proxyDecorator: (child, index, animation) => Material(
-                  color: Colors.white.withOpacity(.1),
-                  child: Opacity(opacity: .5, child: child),
-                ),
-                onReorder: (fromIndex, newIndex) {
-                  final toIndex =
-                      newIndex > fromIndex ? newIndex - 1 : newIndex;
-
-                  if (fromIndex == toIndex) {
-                    return;
-                  }
-
-                  context
-                      .read<GridBloc>()
-                      .add(GridEvent.moveRow(fromIndex, toIndex));
-                },
-                itemCount: rowInfos.length + 1,
-                itemBuilder: (context, index) {
-                  if (index < rowInfos.length) {
-                    final rowInfo = rowInfos[index];
-
-                    return _renderRow(
-                      context,
-                      rowInfo,
-                      index: index,
-                      isSortEnabled: sortState.sortInfos.isNotEmpty,
-                      isFilterEnabled: filterState.filters.isNotEmpty,
-                    );
-                  }
-
-                  return const _GridFooter(key: Key('gridFooter'));
-                },
-              ),
-            );
-          },
         );
       },
     );
@@ -351,7 +298,9 @@ class _GridRowsState extends State<_GridRows> {
 }
 
 class _GridFooter extends StatelessWidget {
-  const _GridFooter({Key? key}) : super(key: key);
+  const _GridFooter({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -364,8 +313,38 @@ class _GridFooter extends StatelessWidget {
   }
 }
 
-class RowCountBadge extends StatelessWidget {
-  const RowCountBadge({Key? key}) : super(key: key);
+class _WrapScrollView extends StatelessWidget {
+  const _WrapScrollView({
+    required this.contentWidth,
+    required this.scrollController,
+    required this.child,
+  });
+
+  final GridScrollController scrollController;
+  final double contentWidth;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ScrollbarListStack(
+      axis: Axis.vertical,
+      controller: scrollController.verticalController,
+      barSize: GridSize.scrollBarSize,
+      autoHideScrollbar: false,
+      child: StyledSingleChildScrollView(
+        controller: scrollController.horizontalController,
+        axis: Axis.horizontal,
+        child: SizedBox(
+          width: contentWidth,
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class _RowCountBadge extends StatelessWidget {
+  const _RowCountBadge();
 
   @override
   Widget build(BuildContext context) {
