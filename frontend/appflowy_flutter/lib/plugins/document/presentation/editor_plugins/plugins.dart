@@ -7,8 +7,6 @@ export 'code_block/code_block_shortcut_event.dart';
 export 'cover/change_cover_popover_bloc.dart';
 export 'cover/cover_node_widget.dart';
 export 'cover/cover_image_picker.dart';
-export 'divider/divider_node_widget.dart';
-export 'divider/divider_character_shortcut_event.dart';
 export 'emoji_picker/emoji_menu_item.dart';
 export 'extensions/flowy_tint_extension.dart';
 export 'grid/grid_menu_item.dart';
