@@ -38,12 +38,11 @@ class FlowyPluginService {
     await _instance!._initialize();
   }
 
-  Future<Iterable<Directory>> get _srcs async =>
-      (await PluginLocationService.location)
-          .listSync()
-          .where(FlowyDynamicPlugin.isPlugin)
-          .map<Directory>((entity) => entity as Directory)
-          .toList();
+  Future<Iterable<Directory>> get _srcs async {
+    final location = await PluginLocationService.location;
+    final targets = location.listSync().where(FlowyDynamicPlugin.isPlugin);
+    return targets.map<Directory>((entity) => entity as Directory).toList();
+  }
 
   Future<void> _initialize() async {
     final List<FlowyDynamicPlugin> compiled = [];
