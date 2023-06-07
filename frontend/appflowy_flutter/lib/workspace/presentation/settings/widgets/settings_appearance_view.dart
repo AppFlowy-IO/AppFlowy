@@ -8,7 +8,6 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:dotted_border/dotted_border.dart';
 
 class SettingsAppearanceView extends StatelessWidget {
   const SettingsAppearanceView({Key? key}) : super(key: key);
