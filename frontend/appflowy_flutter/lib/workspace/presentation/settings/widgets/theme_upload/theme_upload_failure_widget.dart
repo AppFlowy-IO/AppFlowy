@@ -27,6 +27,7 @@ class ThemeUploadFailureWidget extends StatelessWidget {
           ),
           FlowyText.medium(
             LocaleKeys.settings_appearance_themeUpload_failure.tr(),
+            overflow: TextOverflow.ellipsis,
           ),
           ThemeUploadWidget.elementSpacer,
           ThemeUploadButton(color: Theme.of(context).colorScheme.error),
