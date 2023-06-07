@@ -1,5 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 
+export 'package:file_picker/file_picker.dart' show FileType;
+
 class FilePickerResult {
   const FilePickerResult(this.files);
 
