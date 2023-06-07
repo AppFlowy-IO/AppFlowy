@@ -2,7 +2,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
-import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -90,7 +89,9 @@ class _GridPageState extends State<GridPage> {
 }
 
 class FlowyGrid extends StatefulWidget {
-  const FlowyGrid({Key? key}) : super(key: key);
+  const FlowyGrid({
+    super.key,
+  });
 
   @override
   State<FlowyGrid> createState() => _FlowyGridState();
@@ -104,8 +105,8 @@ class _FlowyGridState extends State<FlowyGrid> {
 
   @override
   void initState() {
-    headerScrollController = _scrollController.linkHorizontalController();
     super.initState();
+    headerScrollController = _scrollController.linkHorizontalController();
   }
 
   @override
@@ -120,12 +121,12 @@ class _FlowyGridState extends State<FlowyGrid> {
       buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
         final contentWidth = GridLayout.headerWidth(state.fields.value);
-        final child = _wrapScrollView(
-          contentWidth,
-          [
-            const _GridRows(),
-            const _GridFooter(),
-          ],
+        final child = _WrapScrollView(
+          scrollController: _scrollController,
+          contentWidth: contentWidth,
+          child: _GridRows(
+            verticalScrollController: _scrollController.verticalController,
+          ),
         );
 
         return Column(
@@ -135,42 +136,10 @@ class _FlowyGridState extends State<FlowyGrid> {
             GridAccessoryMenu(viewId: state.viewId),
             _gridHeader(context, state.viewId),
             Flexible(child: child),
-            const RowCountBadge(),
+            const _RowCountBadge(),
           ],
         );
       },
-    );
-  }
-
-  Widget _wrapScrollView(
-    double contentWidth,
-    List<Widget> slivers,
-  ) {
-    final verticalScrollView = ScrollConfiguration(
-      behavior: const ScrollBehavior().copyWith(scrollbars: false),
-      child: CustomScrollView(
-        physics: StyledScrollPhysics(),
-        controller: _scrollController.verticalController,
-        slivers: slivers,
-      ),
-    );
-
-    final sizedVerticalScrollView = SizedBox(
-      width: contentWidth,
-      child: verticalScrollView,
-    );
-
-    final horizontalScrollView = StyledSingleChildScrollView(
-      controller: _scrollController.horizontalController,
-      axis: Axis.horizontal,
-      child: sizedVerticalScrollView,
-    );
-
-    return ScrollbarListStack(
-      axis: Axis.vertical,
-      controller: _scrollController.verticalController,
-      barSize: GridSize.scrollBarSize,
-      child: horizontalScrollView,
     );
   }
 
@@ -185,91 +154,68 @@ class _FlowyGridState extends State<FlowyGrid> {
   }
 }
 
-class _GridRows extends StatefulWidget {
-  const _GridRows({Key? key}) : super(key: key);
+class _GridRows extends StatelessWidget {
+  const _GridRows({
+    required this.verticalScrollController,
+  });
 
-  @override
-  State<_GridRows> createState() => _GridRowsState();
-}
-
-class _GridRowsState extends State<_GridRows> {
-  final _key = GlobalKey<SliverAnimatedListState>();
+  final ScrollController verticalScrollController;
 
   @override
   Widget build(BuildContext context) {
-    return Builder(
-      builder: (context) {
-        final filterState = context.watch<GridFilterMenuBloc>().state;
-        final sortState = context.watch<SortMenuBloc>().state;
+    final filterState = context.watch<GridFilterMenuBloc>().state;
+    final sortState = context.watch<SortMenuBloc>().state;
 
-        return BlocConsumer<GridBloc, GridState>(
-          listenWhen: (previous, current) => previous.reason != current.reason,
-          listener: (context, state) {
-            state.reason.whenOrNull(
-              insert: (item) {
-                _key.currentState?.insertItem(item.index);
-              },
-              delete: (item) {
-                _key.currentState?.removeItem(
-                  item.index,
-                  (context, animation) => _renderRow(
-                    context,
-                    item.rowInfo,
-                    animation: animation,
-                  ),
+    return BlocBuilder<GridBloc, GridState>(
+      buildWhen: (previous, current) => current.reason.maybeWhen(
+        reorderRows: () => true,
+        reorderSingleRow: (reorderRow, rowInfo) => true,
+        delete: (item) => true,
+        insert: (item) => true,
+        orElse: () => false,
+      ),
+      builder: (context, state) {
+        final rowInfos = state.rowInfos;
+        final behavior = ScrollConfiguration.of(context).copyWith(
+          scrollbars: false,
+        );
+        return ScrollConfiguration(
+          behavior: behavior,
+          child: ReorderableListView.builder(
+            /// TODO(Xazin): Resolve inconsistent scrollbar behavior
+            ///  This is a workaround related to
+            ///  https://github.com/flutter/flutter/issues/25652
+            cacheExtent: 5000,
+            scrollController: verticalScrollController,
+            buildDefaultDragHandles: false,
+            proxyDecorator: (child, index, animation) => Material(
+              color: Colors.white.withOpacity(.1),
+              child: Opacity(opacity: .5, child: child),
+            ),
+            onReorder: (fromIndex, newIndex) {
+              final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
+              if (fromIndex == toIndex) {
+                return;
+              }
+              context
+                  .read<GridBloc>()
+                  .add(GridEvent.moveRow(fromIndex, toIndex));
+            },
+            itemCount: rowInfos.length + 1, // the extra item is the footer
+            itemBuilder: (context, index) {
+              if (index < rowInfos.length) {
+                final rowInfo = rowInfos[index];
+                return _renderRow(
+                  context,
+                  rowInfo,
+                  index: index,
+                  isSortEnabled: sortState.sortInfos.isNotEmpty,
+                  isFilterEnabled: filterState.filters.isNotEmpty,
                 );
-              },
-            );
-          },
-          buildWhen: (previous, current) {
-            return current.reason.maybeWhen(
-              reorderRows: () => true,
-              reorderSingleRow: (reorderRow, rowInfo) => true,
-              delete: (item) => true,
-              insert: (item) => true,
-              orElse: () => false,
-            );
-          },
-          builder: (context, state) {
-            final rowInfos = context.watch<GridBloc>().state.rowInfos;
-
-            return SliverFillRemaining(
-              child: ReorderableListView.builder(
-                key: _key,
-                buildDefaultDragHandles: false,
-                proxyDecorator: (child, index, animation) => Material(
-                  color: Colors.white.withOpacity(.1),
-                  child: Opacity(
-                    opacity: .5,
-                    child: child,
-                  ),
-                ),
-                onReorder: (fromIndex, newIndex) {
-                  final toIndex =
-                      newIndex > fromIndex ? newIndex - 1 : newIndex;
-
-                  if (fromIndex == toIndex) {
-                    return;
-                  }
-
-                  context
-                      .read<GridBloc>()
-                      .add(GridEvent.moveRow(fromIndex, toIndex));
-                },
-                itemCount: rowInfos.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final RowInfo rowInfo = rowInfos[index];
-                  return _renderRow(
-                    context,
-                    rowInfo,
-                    index: index,
-                    isSortEnabled: sortState.sortInfos.isNotEmpty,
-                    isFilterEnabled: filterState.filters.isNotEmpty,
-                  );
-                },
-              ),
-            );
-          },
+              }
+              return const _GridFooter(key: Key('gridFooter'));
+            },
+          ),
         );
       },
     );
@@ -352,27 +298,53 @@ class _GridRowsState extends State<_GridRows> {
 }
 
 class _GridFooter extends StatelessWidget {
-  const _GridFooter({Key? key}) : super(key: key);
+  const _GridFooter({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return SliverPadding(
-      padding: const EdgeInsets.only(bottom: 200),
-      sliver: SliverToBoxAdapter(
+    return Container(
+      padding: GridSize.footerContentInsets,
+      height: GridSize.footerHeight,
+      margin: const EdgeInsets.only(bottom: 200),
+      child: const GridAddRowButton(),
+    );
+  }
+}
+
+class _WrapScrollView extends StatelessWidget {
+  const _WrapScrollView({
+    required this.contentWidth,
+    required this.scrollController,
+    required this.child,
+  });
+
+  final GridScrollController scrollController;
+  final double contentWidth;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ScrollbarListStack(
+      axis: Axis.vertical,
+      controller: scrollController.verticalController,
+      barSize: GridSize.scrollBarSize,
+      autoHideScrollbar: false,
+      child: StyledSingleChildScrollView(
+        controller: scrollController.horizontalController,
+        axis: Axis.horizontal,
         child: SizedBox(
-          height: GridSize.footerHeight,
-          child: Padding(
-            padding: GridSize.footerContentInsets,
-            child: const SizedBox(height: 40, child: GridAddRowButton()),
-          ),
+          width: contentWidth,
+          child: child,
         ),
       ),
     );
   }
 }
 
-class RowCountBadge extends StatelessWidget {
-  const RowCountBadge({Key? key}) : super(key: key);
+class _RowCountBadge extends StatelessWidget {
+  const _RowCountBadge();
 
   @override
   Widget build(BuildContext context) {
