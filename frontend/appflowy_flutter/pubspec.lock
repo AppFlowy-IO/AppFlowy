@@ -53,10 +53,10 @@ packages:
     dependency: "direct main"
     description:
       name: appflowy_editor
-      sha256: "5fa08d19842b402482aff5044b25d164dbef3eb6155015d123ef02925ba5b52d"
+      sha256: "559906bc150994c433ceb312333629d0f9a551ad95b4ce577352d6a007343cdc"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0-dev.3"
+    version: "1.0.0"
   appflowy_popover:
     dependency: "direct main"
     description:
