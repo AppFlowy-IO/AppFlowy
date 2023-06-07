@@ -71,7 +71,7 @@ class SettingsFileExporterCubit extends Cubit<SettingsFileExportState> {
   Map<String, List<String>> fetchSelectedPages() {
     final apps = state.views;
     final selectedItems = state.selectedItems;
-    Map<String, List<String>> result = {};
+    final Map<String, List<String>> result = {};
     for (var i = 0; i < selectedItems.length; i++) {
       final selectedItem = selectedItems[i];
       final ids = <String>[];

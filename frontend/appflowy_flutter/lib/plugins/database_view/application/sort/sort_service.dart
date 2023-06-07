@@ -29,7 +29,7 @@ class SortBackendService {
     required FieldType fieldType,
     required SortConditionPB condition,
   }) {
-    var insertSortPayload = UpdateSortPayloadPB.create()
+    final insertSortPayload = UpdateSortPayloadPB.create()
       ..fieldId = fieldId
       ..fieldType = fieldType
       ..viewId = viewId
@@ -55,7 +55,7 @@ class SortBackendService {
     required FieldType fieldType,
     required SortConditionPB condition,
   }) {
-    var insertSortPayload = UpdateSortPayloadPB.create()
+    final insertSortPayload = UpdateSortPayloadPB.create()
       ..fieldId = fieldId
       ..fieldType = fieldType
       ..viewId = viewId

@@ -38,7 +38,7 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
       child:
           BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
         builder: (context, state) {
-          List<Widget> children = [
+          final List<Widget> children = [
             const TypeOptionSeparator(),
             const OptionTitle(),
             if (state.isEditingOption)
@@ -70,7 +70,7 @@ class OptionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
       builder: (context, state) {
-        List<Widget> children = [
+        final List<Widget> children = [
           Padding(
             padding: const EdgeInsets.only(left: 9),
             child: FlowyText.medium(

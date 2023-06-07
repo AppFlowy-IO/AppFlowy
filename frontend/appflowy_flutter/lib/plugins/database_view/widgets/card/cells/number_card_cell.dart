@@ -53,7 +53,7 @@ class _NumberCardCellState extends State<NumberCardCell> {
           if (state.content.isEmpty) {
             return const SizedBox();
           } else {
-            Widget? custom = widget.renderHook?.call(
+            final Widget? custom = widget.renderHook?.call(
               state.content,
               widget.cardData,
               context,

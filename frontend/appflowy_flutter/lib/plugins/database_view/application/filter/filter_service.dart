@@ -97,7 +97,7 @@ class FilterBackendService {
       ].contains(fieldType),
     );
 
-    var filter = DateFilterPB();
+    final filter = DateFilterPB();
     if (timestamp != null) {
       filter.timestamp = $fixnum.Int64(timestamp);
     } else {
@@ -178,7 +178,7 @@ class FilterBackendService {
     required FieldType fieldType,
     required List<int> data,
   }) {
-    var insertFilterPayload = UpdateFilterPayloadPB.create()
+    final insertFilterPayload = UpdateFilterPayloadPB.create()
       ..fieldId = fieldId
       ..fieldType = fieldType
       ..viewId = viewId

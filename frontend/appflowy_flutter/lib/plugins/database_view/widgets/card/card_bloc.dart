@@ -91,7 +91,7 @@ List<DatabaseCellContext> _makeCells(
   String? groupFieldId,
   CellContextByFieldId originalCellMap,
 ) {
-  List<DatabaseCellContext> cells = [];
+  final List<DatabaseCellContext> cells = [];
   for (final entry in originalCellMap.entries) {
     // Filter out the cell if it's fieldId equal to the groupFieldId
     if (groupFieldId != null) {

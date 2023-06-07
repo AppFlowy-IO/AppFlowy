@@ -51,7 +51,7 @@ class _FieldEditorState extends State<FieldEditor> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> children = [
+    final List<Widget> children = [
       _FieldNameTextField(popoverMutex: popoverMutex),
       if (widget.onDeleted != null) _addDeleteFieldButton(),
       if (widget.onHidden != null) _addHideFieldButton(),
@@ -226,7 +226,7 @@ class _DeleteFieldButton extends StatelessWidget {
       buildWhen: (previous, current) => previous != current,
       builder: (context, state) {
         final enable = !state.canDelete && !state.isGroupField;
-        Widget button = FlowyButton(
+        final Widget button = FlowyButton(
           disable: !enable,
           text: FlowyText.medium(
             LocaleKeys.grid_field_delete.tr(),
@@ -261,7 +261,7 @@ class _HideFieldButton extends StatelessWidget {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
       buildWhen: (previous, current) => previous != current,
       builder: (context, state) {
-        Widget button = FlowyButton(
+        final Widget button = FlowyButton(
           text: FlowyText.medium(
             LocaleKeys.grid_field_hide.tr(),
           ),

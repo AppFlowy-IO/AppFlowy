@@ -129,7 +129,7 @@ class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
   List<CalendarLayoutSettingAction> _availableCalendarSettings(
     CalendarLayoutSettingPB layoutSettings,
   ) {
-    List<CalendarLayoutSettingAction> settings = [
+    final List<CalendarLayoutSettingAction> settings = [
       CalendarLayoutSettingAction.layoutField,
       // CalendarLayoutSettingAction.layoutType,
       // CalendarLayoutSettingAction.showWeekNumber,

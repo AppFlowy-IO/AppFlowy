@@ -35,7 +35,7 @@ class DatabaseViewBackendService {
     String? groupId,
     Map<String, String>? cellDataByFieldId,
   }) {
-    var payload = CreateRowPayloadPB.create()..viewId = viewId;
+    final payload = CreateRowPayloadPB.create()..viewId = viewId;
     payload.startRowId = startRowId ?? "";
 
     if (groupId != null) {
@@ -54,7 +54,7 @@ class DatabaseViewBackendService {
     required String toGroupId,
     RowId? toRowId,
   }) {
-    var payload = MoveGroupRowPayloadPB.create()
+    final payload = MoveGroupRowPayloadPB.create()
       ..viewId = viewId
       ..fromRowId = fromRowId
       ..toGroupId = toGroupId;
@@ -70,7 +70,7 @@ class DatabaseViewBackendService {
     required String fromRowId,
     required String toRowId,
   }) {
-    var payload = MoveRowPayloadPB.create()
+    final payload = MoveRowPayloadPB.create()
       ..viewId = viewId
       ..fromRowId = fromRowId
       ..toRowId = toRowId;
@@ -93,7 +93,7 @@ class DatabaseViewBackendService {
   Future<Either<List<FieldPB>, FlowyError>> getFields({
     List<FieldIdPB>? fieldIds,
   }) {
-    var payload = GetFieldPayloadPB.create()..viewId = viewId;
+    final payload = GetFieldPayloadPB.create()..viewId = viewId;
 
     if (fieldIds != null) {
       payload.fieldIds = RepeatedFieldIdPB(items: fieldIds);

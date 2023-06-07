@@ -47,7 +47,7 @@ class FieldTypeOptionEditor extends StatelessWidget {
             state: state,
           );
 
-          List<Widget> children = [
+          final List<Widget> children = [
             _SwitchFieldButton(popoverMutex: popoverMutex),
             if (typeOptionWidget != null) typeOptionWidget
           ];

@@ -27,8 +27,8 @@ class AnimatedPanelState extends State<AnimatedPanel> {
 
   @override
   Widget build(BuildContext context) {
-    Offset closePos = Offset(widget.closedX, widget.closedY);
-    double duration = _isHidden && widget.isClosed ? 0 : widget.duration;
+    final Offset closePos = Offset(widget.closedX, widget.closedY);
+    final double duration = _isHidden && widget.isClosed ? 0 : widget.duration;
     return TweenAnimationBuilder(
       curve: widget.curve ?? Curves.easeOut,
       tween: Tween<Offset>(

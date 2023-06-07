@@ -71,7 +71,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
             await _updateCalendarLayoutSetting(layoutSetting);
           },
           didUpdateEvent: (CalendarEventData<CalendarDayEvent> eventData) {
-            var allEvents = [...state.allEvents];
+            final allEvents = [...state.allEvents];
             final index = allEvents.indexWhere(
               (element) => element.event!.eventId == eventData.event!.eventId,
             );
@@ -81,7 +81,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
             emit(state.copyWith(allEvents: allEvents, updateEvent: eventData));
           },
           didDeleteEvents: (List<RowId> deletedRowIds) {
-            var events = [...state.allEvents];
+            final events = [...state.allEvents];
             events.retainWhere(
               (element) => !deletedRowIds.contains(element.event!.eventId),
             );

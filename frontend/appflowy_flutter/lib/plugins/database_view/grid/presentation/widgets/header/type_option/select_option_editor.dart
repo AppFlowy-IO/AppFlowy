@@ -54,7 +54,7 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
         ],
         child: BlocBuilder<EditSelectOptionBloc, EditSelectOptionState>(
           builder: (context, state) {
-            List<Widget> cells = [
+            final List<Widget> cells = [
               _OptionNameTextField(
                 name: state.option.name,
                 autoFocus: autoFocus,

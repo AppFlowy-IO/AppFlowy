@@ -201,9 +201,9 @@ class _DayBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color dayTextColor = Theme.of(context).colorScheme.onBackground;
-    String monthString =
+    final String monthString =
         DateFormat("MMM ", context.locale.toLanguageTag()).format(date);
-    String dayString = date.day.toString();
+    final String dayString = date.day.toString();
 
     if (!isInMonth) {
       dayTextColor = Theme.of(context).disabledColor;
