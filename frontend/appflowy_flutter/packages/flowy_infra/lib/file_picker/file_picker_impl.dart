@@ -40,11 +40,11 @@ class FilePicker implements FilePickerService {
     String? dialogTitle,
     String? fileName,
     String? initialDirectory,
-    fp.FileType type = fp.FileType.any,
+    FileType type = FileType.any,
     List<String>? allowedExtensions,
     bool lockParentWindow = false,
-  }) {
-    return fp.FilePicker.platform.saveFile(
+  }) async {
+    final result = await fp.FilePicker.platform.saveFile(
       dialogTitle: dialogTitle,
       fileName: fileName,
       initialDirectory: initialDirectory,
@@ -52,5 +52,7 @@ class FilePicker implements FilePickerService {
       allowedExtensions: allowedExtensions,
       lockParentWindow: lockParentWindow,
     );
+
+    return result;
   }
 }
