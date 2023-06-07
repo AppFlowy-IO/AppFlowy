@@ -121,7 +121,7 @@ class _AccessoryHoverState extends State<AccessoryHover> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> children = [
+    final List<Widget> children = [
       Padding(padding: widget.contentPadding, child: widget.child),
     ];
 

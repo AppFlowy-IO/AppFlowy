@@ -51,7 +51,7 @@ class _FieldEditorState extends State<FieldEditor> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> children = [
+    final List<Widget> children = [
       _FieldNameTextField(popoverMutex: popoverMutex),
       if (widget.onDeleted != null) _addDeleteFieldButton(),
       if (widget.onHidden != null) _addHideFieldButton(),

@@ -81,7 +81,7 @@ class DateCellCalendarBloc
           date == null && time != null ||
           date != null && time == null,
     );
-    String? newTime = time ?? state.time;
+    final String? newTime = time ?? state.time;
     DateTime? newDate = _utcToLocalAddTime(date);
     if (time != null && time.isNotEmpty) {
       newDate = state.dateTime ?? DateTime.now();

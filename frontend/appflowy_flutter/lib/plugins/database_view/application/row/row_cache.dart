@@ -138,7 +138,7 @@ class RowCache {
 
   void _updateRows(List<UpdatedRowPB> updatedRows) {
     if (updatedRows.isEmpty) return;
-    List<RowPB> rowPBs = [];
+    final List<RowPB> rowPBs = [];
     for (final updatedRow in updatedRows) {
       for (final fieldId in updatedRow.fieldIds) {
         final key = CellCacheKey(

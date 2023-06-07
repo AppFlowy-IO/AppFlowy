@@ -98,7 +98,7 @@ class _GridCellEnterRegion extends StatelessWidget {
           !cellNotifier.isFocus &&
           (cellNotifier.onEnter || regionNotifier.onEnter && isPrimary),
       builder: (context, showAccessory, _) {
-        List<Widget> children = [child];
+        final List<Widget> children = [child];
         if (showAccessory) {
           children.add(
             CellAccessoryContainer(accessories: accessories).positioned(

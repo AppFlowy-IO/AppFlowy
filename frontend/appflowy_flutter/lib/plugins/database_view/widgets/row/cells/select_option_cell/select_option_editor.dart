@@ -75,7 +75,7 @@ class _OptionList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
       builder: (context, state) {
-        List<Widget> cells = [];
+        final List<Widget> cells = [];
         cells.add(const _Title());
         cells.addAll(
           state.options.map((option) {

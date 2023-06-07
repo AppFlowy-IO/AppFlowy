@@ -282,9 +282,9 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
   // Copy from flutter.highlight package.
   // https://github.com/git-touch/highlight.dart/blob/master/flutter_highlight/lib/flutter_highlight.dart
   List<TextSpan> _convert(List<highlight.Node> nodes) {
-    List<TextSpan> spans = [];
+    final List<TextSpan> spans = [];
     var currentSpans = spans;
-    List<List<TextSpan>> stack = [];
+    final List<List<TextSpan>> stack = [];
 
     void traverse(highlight.Node node) {
       if (node.value != null) {
@@ -297,7 +297,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
                 ),
         );
       } else if (node.children != null) {
-        List<TextSpan> tmp = [];
+        final List<TextSpan> tmp = [];
         currentSpans.add(
           TextSpan(
             children: tmp,

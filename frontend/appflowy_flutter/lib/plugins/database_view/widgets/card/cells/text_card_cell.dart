@@ -107,7 +107,7 @@ class _TextCardCellState extends State<TextCardCell> {
           },
           builder: (context, state) {
             // Returns a custom render widget
-            Widget? custom = widget.renderHook?.call(
+            final Widget? custom = widget.renderHook?.call(
               state.content,
               widget.cardData,
               context,

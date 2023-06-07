@@ -71,7 +71,7 @@ class _CardEnterRegion extends StatelessWidget {
     return Selector<_CardContainerNotifier, bool>(
       selector: (context, notifier) => notifier.onEnter,
       builder: (context, onEnter, _) {
-        List<Widget> children = [child];
+        final List<Widget> children = [child];
         if (onEnter) {
           children.add(
             Positioned(

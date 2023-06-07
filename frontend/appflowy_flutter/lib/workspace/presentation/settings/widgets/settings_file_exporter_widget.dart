@@ -157,7 +157,7 @@ class _ExpandedListState extends State<_ExpandedList> {
 
   List<Widget> _buildChildren(BuildContext context) {
     final apps = context.read<SettingsFileExporterCubit>().state.views;
-    List<Widget> children = [];
+    final List<Widget> children = [];
     for (var i = 0; i < apps.length; i++) {
       children.add(_buildExpandedItem(context, i));
     }
@@ -170,7 +170,7 @@ class _ExpandedListState extends State<_ExpandedList> {
     final expanded = state.expanded;
     final selectedItems = state.selectedItems;
     final isExpanded = expanded[index] == true;
-    List<Widget> expandedChildren = [];
+    final List<Widget> expandedChildren = [];
     if (isExpanded) {
       for (var i = 0; i < selectedItems[index].length; i++) {
         final name = apps[index].childViews[i].name;
