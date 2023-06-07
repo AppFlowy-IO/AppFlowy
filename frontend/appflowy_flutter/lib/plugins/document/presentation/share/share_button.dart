@@ -4,7 +4,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/plugins/document/application/share_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -104,11 +103,11 @@ class ShareActionList extends StatelessWidget {
               showMessageToast('Exported to: $exportPath');
             }
             break;
-          case ShareAction.copyLink:
-            NavigatorAlertDialog(
-              title: LocaleKeys.shareAction_workInProgress.tr(),
-            ).show(context);
-            break;
+          // case ShareAction.copyLink:
+          //   NavigatorAlertDialog(
+          //     title: LocaleKeys.shareAction_workInProgress.tr(),
+          //   ).show(context);
+          //   break;
         }
         controller.close();
       },
@@ -118,7 +117,7 @@ class ShareActionList extends StatelessWidget {
 
 enum ShareAction {
   markdown,
-  copyLink,
+  // copyLink,
 }
 
 class ShareActionWrapper extends ActionCell {
@@ -133,8 +132,8 @@ class ShareActionWrapper extends ActionCell {
     switch (inner) {
       case ShareAction.markdown:
         return LocaleKeys.shareAction_markdown.tr();
-      case ShareAction.copyLink:
-        return LocaleKeys.shareAction_copyLink.tr();
+      // case ShareAction.copyLink:
+      //   return LocaleKeys.shareAction_copyLink.tr();
     }
   }
 }
