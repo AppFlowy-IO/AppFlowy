@@ -249,7 +249,7 @@ pub(crate) async fn get_field_type_option_data_handler(
   }
 }
 
-/// Create FieldMeta and save it. Return the FieldTypeOptionData.
+/// Create TypeOptionPB and save it. Return the FieldTypeOptionData.
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn create_field_type_option_data_handler(
   data: AFPluginData<CreateFieldPayloadPB>,

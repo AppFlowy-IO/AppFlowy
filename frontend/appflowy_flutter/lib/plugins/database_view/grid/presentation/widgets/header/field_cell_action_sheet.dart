@@ -124,13 +124,29 @@ class _FieldOperationList extends StatelessWidget {
   }
 
   Widget _actionCell(FieldAction action) {
+    bool enable = true;
+
+    // If the field is primary, delete and duplicate are disabled.
+    if (fieldInfo.field.isPrimary) {
+      switch (action) {
+        case FieldAction.hide:
+          break;
+        case FieldAction.duplicate:
+          enable = false;
+          break;
+        case FieldAction.delete:
+          enable = false;
+          break;
+      }
+    }
+
     return Flexible(
       child: SizedBox(
         height: GridSize.popoverItemHeight,
         child: FieldActionCell(
           fieldInfo: fieldInfo,
           action: action,
-          enable: action != FieldAction.delete || !fieldInfo.field.isPrimary,
+          enable: enable,
         ),
       ),
     );

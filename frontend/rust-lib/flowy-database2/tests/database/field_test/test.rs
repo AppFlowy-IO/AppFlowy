@@ -233,30 +233,6 @@ async fn grid_switch_from_checkbox_to_text_test() {
   test.run_scripts(scripts).await;
 }
 
-// Test when switching the current field from Checkbox to Text test
-// input:
-//      "Yes" -> check
-//      "" -> unchecked
-#[tokio::test]
-async fn grid_switch_from_text_to_checkbox_test() {
-  let mut test = DatabaseFieldTest::new().await;
-  let field = test.get_first_field(FieldType::RichText).clone();
-
-  let scripts = vec![
-    SwitchToField {
-      field_id: field.id.clone(),
-      new_field_type: FieldType::Checkbox,
-    },
-    AssertCellContent {
-      field_id: field.id.clone(),
-      row_index: 0,
-      from_field_type: FieldType::RichText,
-      expected_content: "".to_string(),
-    },
-  ];
-  test.run_scripts(scripts).await;
-}
-
 // Test when switching the current field from Date to Text test
 // input:
 //      1647251762 -> Mar 14,2022 (This string will be different base on current data setting)

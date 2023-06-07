@@ -29,7 +29,6 @@ class FieldBackendService {
 
   Future<Either<Unit, FlowyError>> updateField({
     String? name,
-    FieldType? fieldType,
     bool? frozen,
     bool? visibility,
     double? width,
@@ -40,10 +39,6 @@ class FieldBackendService {
 
     if (name != null) {
       payload.name = name;
-    }
-
-    if (fieldType != null) {
-      payload.fieldType = fieldType;
     }
 
     if (frozen != null) {

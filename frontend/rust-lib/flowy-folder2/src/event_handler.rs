@@ -41,10 +41,14 @@ pub(crate) async fn open_workspace_handler(
   match params.value {
     None => Err(FlowyError::workspace_id().context("workspace id should not be empty")),
     Some(workspace_id) => {
-      let workspace = folder.open_workspace(&workspace_id).await?;
-      let views = folder.get_workspace_views(&workspace_id).await?;
-      let workspace_pb: WorkspacePB = (workspace, views).into();
-      data_result_ok(workspace_pb)
+      if workspace_id.is_empty() {
+        return Err(FlowyError::workspace_id().context("workspace id should not be empty"));
+      } else {
+        let workspace = folder.open_workspace(&workspace_id).await?;
+        let views = folder.get_workspace_views(&workspace_id).await?;
+        let workspace_pb: WorkspacePB = (workspace, views).into();
+        data_result_ok(workspace_pb)
+      }
     },
   }
 }
@@ -68,7 +72,7 @@ pub(crate) async fn read_workspaces_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
-pub async fn read_cur_workspace_setting_handler(
+pub async fn read_current_workspace_setting_handler(
   folder: AFPluginState<Arc<Folder2Manager>>,
 ) -> DataResult<WorkspaceSettingPB, FlowyError> {
   let workspace = folder.get_current_workspace().await?;

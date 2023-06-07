@@ -16,8 +16,10 @@ class TextCellDataPersistence implements CellDataPersistence<String> {
 
   @override
   Future<Option<FlowyError>> save(String data) async {
-    final fut =
-        _cellBackendSvc.updateCell(cellContext: cellContext, data: data);
+    final fut = _cellBackendSvc.updateCell(
+      cellContext: cellContext,
+      data: data,
+    );
     return fut.then((result) {
       return result.fold(
         (l) => none(),
