@@ -462,7 +462,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
 }
 
 class _ClearDateButton extends StatelessWidget {
-  const _ClearDateButton({super.key});
+  const _ClearDateButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
