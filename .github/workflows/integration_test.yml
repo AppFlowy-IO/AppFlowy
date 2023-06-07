@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - "main"
-      - "develop"
       - "release/*"
     paths:
       - "frontend/appflowy_flutter/**"
@@ -12,7 +11,6 @@ on:
   pull_request:
     branches:
       - "main"
-      - "develop"
       - "release/*"
     paths:
       - "frontend/appflowy_flutter/**"
