@@ -34,18 +34,13 @@ class SelectOptionCellEditor extends StatefulWidget {
 }
 
 class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
-  late PopoverMutex popoverMutex;
-  final TextfieldTagsController _tagController = TextfieldTagsController();
-
-  @override
-  void initState() {
-    super.initState();
-    popoverMutex = PopoverMutex();
-  }
+  final popoverMutex = PopoverMutex();
+  final tagController = TextfieldTagsController();
 
   @override
   void dispose() {
-    _tagController.dispose();
+    popoverMutex.dispose();
+    tagController.dispose();
     super.dispose();
   }
 
@@ -62,13 +57,13 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
             children: [
               _TextField(
                 popoverMutex: popoverMutex,
-                tagController: _tagController,
+                tagController: tagController,
               ),
               const TypeOptionSeparator(spacing: 0.0),
               Flexible(
                 child: _OptionList(
                   popoverMutex: popoverMutex,
-                  tagController: _tagController,
+                  tagController: tagController,
                 ),
               ),
             ],
@@ -93,30 +88,16 @@ class _OptionList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
       builder: (context, state) {
-        List<Widget> cells = [];
-        cells.add(
-          _Title(
-            onPressed: () {
-              final textEditingController = tagController.textEditingController;
-              final text = textEditingController?.text;
-              if (textEditingController != null && text != null) {
-                context.read<SelectOptionCellEditorBloc>().add(
-                      SelectOptionEditorEvent.trySelectOption(text),
-                    );
-                textEditingController.clear();
-              }
-            },
-          ),
-        );
-        cells.addAll(
-          state.options.map((option) {
-            return _SelectOptionCell(
+        final cells = [
+          _Title(onPressedAddButton: () => onPressedAddButton(context)),
+          ...state.options.map(
+            (option) => _SelectOptionCell(
               option: option,
               isSelected: state.selectedOptions.contains(option),
               popoverMutex: popoverMutex,
-            );
-          }).toList(),
-        );
+            ),
+          ),
+        ];
 
         state.createOption.fold(
           () => null,
@@ -125,21 +106,28 @@ class _OptionList extends StatelessWidget {
           },
         );
 
-        final list = ListView.separated(
+        return ListView.separated(
           shrinkWrap: true,
           controller: ScrollController(),
           itemCount: cells.length,
-          separatorBuilder: (context, index) {
-            return VSpace(GridSize.typeOptionSeparatorHeight);
-          },
+          separatorBuilder: (_, __) =>
+              VSpace(GridSize.typeOptionSeparatorHeight),
           physics: StyledScrollPhysics(),
-          itemBuilder: (BuildContext context, int index) => cells[index],
+          itemBuilder: (_, int index) => cells[index],
           padding: const EdgeInsets.only(top: 6.0, bottom: 12.0),
         );
-
-        return list;
       },
     );
+  }
+
+  void onPressedAddButton(BuildContext context) {
+    final text = tagController.textEditingController?.text;
+    if (text != null) {
+      context.read<SelectOptionCellEditorBloc>().add(
+            SelectOptionEditorEvent.trySelectOption(text),
+          );
+    }
+    tagController.textEditingController?.clear();
   }
 }
 
@@ -207,10 +195,10 @@ class _TextField extends StatelessWidget {
 
 class _Title extends StatelessWidget {
   const _Title({
-    required this.onPressed,
+    required this.onPressedAddButton,
   });
 
-  final VoidCallback onPressed;
+  final VoidCallback onPressedAddButton;
 
   @override
   Widget build(BuildContext context) {
@@ -225,15 +213,17 @@ class _Title extends StatelessWidget {
               LocaleKeys.grid_selectOption_panelTitle.tr(),
               color: Theme.of(context).hintColor,
             ),
-            FlowyIconButton(
-              onPressed: onPressed,
-              hoverColor: Colors.transparent,
-              iconPadding: const EdgeInsets.symmetric(
-                horizontal: 6.0,
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 4.0,
               ),
-              icon: svgWidget(
-                "home/add",
-                color: Theme.of(context).iconTheme.color,
+              child: FlowyIconButton(
+                onPressed: onPressedAddButton,
+                width: 18,
+                icon: svgWidget(
+                  'home/add',
+                  color: Theme.of(context).iconTheme.color,
+                ),
               ),
             ),
           ],
@@ -244,9 +234,11 @@ class _Title extends StatelessWidget {
 }
 
 class _CreateOptionCell extends StatelessWidget {
-  final String name;
+  const _CreateOptionCell({
+    required this.name,
+  });
 
-  const _CreateOptionCell({required this.name, Key? key}) : super(key: key);
+  final String name;
 
   @override
   Widget build(BuildContext context) {
