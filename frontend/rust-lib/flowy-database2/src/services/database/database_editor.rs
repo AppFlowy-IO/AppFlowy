@@ -10,7 +10,7 @@ use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use parking_lot::Mutex;
 use tokio::sync::{broadcast, RwLock};
 
-use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
 use lib_infra::future::{to_fut, Fut};
 
@@ -204,27 +204,15 @@ impl DatabaseEditor {
   }
 
   pub async fn update_field(&self, params: FieldChangesetParams) -> FlowyResult<()> {
-    let is_primary = self
-      .database
-      .lock()
-      .fields
-      .get_field(&params.field_id)
-      .map(|field| field.is_primary)
-      .unwrap_or(false);
     self
       .database
       .lock()
       .fields
-      .update_field(&params.field_id, |mut update| {
-        update = update
+      .update_field(&params.field_id, |update| {
+        update
           .set_name_if_not_none(params.name)
           .set_width_at_if_not_none(params.width.map(|value| value as i64))
           .set_visibility_if_not_none(params.visibility);
-        if is_primary {
-          tracing::warn!("Cannot update primary field type");
-        } else {
-          update.set_field_type_if_not_none(params.field_type.map(|field_type| field_type.into()));
-        }
       });
     self
       .notify_did_update_database_field(&params.field_id)
@@ -233,6 +221,21 @@ impl DatabaseEditor {
   }
 
   pub async fn delete_field(&self, field_id: &str) -> FlowyResult<()> {
+    let is_primary = self
+      .database
+      .lock()
+      .fields
+      .get_field(field_id)
+      .map(|field| field.is_primary)
+      .unwrap_or(false);
+
+    if is_primary {
+      return Err(FlowyError::new(
+        ErrorCode::Internal,
+        "Can not delete primary field",
+      ));
+    }
+
     let database_id = {
       let database = self.database.lock();
       database.delete_field(field_id);
@@ -283,6 +286,13 @@ impl DatabaseEditor {
     match field {
       None => {},
       Some(field) => {
+        if field.is_primary {
+          return Err(FlowyError::new(
+            ErrorCode::Internal,
+            "Can not update primary field type",
+          ));
+        }
+
         let old_field_type = FieldType::from(field.field_type);
         let old_type_option = field.get_any_type_option(old_field_type.clone());
         let new_type_option = field
@@ -312,6 +322,21 @@ impl DatabaseEditor {
   }
 
   pub async fn duplicate_field(&self, view_id: &str, field_id: &str) -> FlowyResult<()> {
+    let is_primary = self
+      .database
+      .lock()
+      .fields
+      .get_field(field_id)
+      .map(|field| field.is_primary)
+      .unwrap_or(false);
+
+    if is_primary {
+      return Err(FlowyError::new(
+        ErrorCode::Internal,
+        "Can not duplicate primary field",
+      ));
+    }
+
     let value = self
       .database
       .lock()

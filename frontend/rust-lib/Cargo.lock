@@ -1864,6 +1864,7 @@ dependencies = [
  "bytes",
  "dotenv",
  "flowy-core",
+ "flowy-database2",
  "flowy-folder2",
  "flowy-net",
  "flowy-notification",
