@@ -17,13 +17,16 @@ dependencies:
   textstyle_extensions: "2.0.0-nullsafety"
   time: ">=2.0.0"
   uuid: ">=2.2.2"
-  flutter_svg: ^2.0.6
+  bloc: ^8.1.2
+  freezed_annotation: ^2.1.0
+  file_picker: <=5.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: ^2.2.0
   flutter_lints: ^2.0.1
+  freezed: 2.2.0
   json_serializable: ^6.5.4
 
 # For information on the generic Dart part of this file, see the
