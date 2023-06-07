@@ -56,10 +56,15 @@ class DynamicPluginBloc extends Bloc<DynamicPluginEvent, DynamicPluginState> {
     }
 
     // add the plugin to the registry
-    final destination = await PluginLocationService.location;
-    copyDirectorySync(directory, destination);
+    final path = [
+      (await PluginLocationService.location).path,
+      p.basename(directory.path),
+    ].join(Platform.pathSeparator);
+
+    copyDirectorySync(directory, Directory(path));
 
     emit(const DynamicPluginState.compilationSuccess());
+    await Future.delayed(const Duration(seconds: 1));
     emit(const DynamicPluginState.ready());
   }
 
@@ -72,8 +77,10 @@ class DynamicPluginBloc extends Bloc<DynamicPluginEvent, DynamicPluginState> {
     /// get all files from source (recursive: false is important here)
     source.listSync(recursive: false).forEach(
       (entity) {
-        final newPath =
-            destination.path + Platform.pathSeparator + p.basename(entity.path);
+        final newPath = [
+          destination.path,
+          p.basename(entity.path),
+        ].join(Platform.pathSeparator);
         if (entity is File) {
           entity.copySync(newPath);
         } else if (entity is Directory) {
