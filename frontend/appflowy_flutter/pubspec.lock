@@ -693,10 +693,10 @@ packages:
     dependency: transitive
     description:
       name: intl_utils
-      sha256: db392393fbf891e3eb32f6beb1928b00cdb33e3c54597fd5f5dc5c43e5ba601c
+      sha256: a509a2ada4d12c4dc70f9ca35c2fddf75f8b402409ac1a9e1b3dd8065681986b
       url: "https://pub.dev"
     source: hosted
-    version: "2.8.2"
+    version: "2.8.3"
   io:
     dependency: transitive
     description:
