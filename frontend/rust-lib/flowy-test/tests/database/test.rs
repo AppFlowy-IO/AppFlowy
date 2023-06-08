@@ -1,10 +1,12 @@
+use std::convert::TryFrom;
+
 use bytes::Bytes;
+
 use flowy_database2::entities::{
   CellChangesetPB, DatabaseLayoutPB, DatabaseViewIdPB, FieldType, SelectOptionCellDataPB,
 };
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
-use std::convert::TryFrom;
 
 #[tokio::test]
 async fn get_database_id_event_test() {
@@ -248,7 +250,7 @@ async fn update_checkbox_cell_event_test() {
   let field_id = fields[2].id.clone();
   assert_eq!(fields[2].field_type, FieldType::Checkbox);
 
-  for input in vec!["yes", "true", "1"] {
+  for input in &["yes", "true", "1"] {
     let error = test
       .update_cell(CellChangesetPB {
         view_id: grid_view.id.clone(),
