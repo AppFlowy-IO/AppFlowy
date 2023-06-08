@@ -140,7 +140,7 @@ class EditorStyleCustomizer {
   FloatingToolbarStyle floatingToolbarStyleBuilder() {
     final theme = Theme.of(context);
     return FloatingToolbarStyle(
-      backgroundColor: theme.cardColor,
+      backgroundColor: theme.colorScheme.onTertiary,
     );
   }
 }

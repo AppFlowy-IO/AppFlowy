@@ -57,24 +57,24 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final Map<String, BlockComponentBuilder> blockComponentBuilders =
       _customAppFlowyBlockComponentBuilders();
-  late final List<CharacterShortcutEvent> characterShortcutEvents = [
-    // code block
-    ...codeBlockCharacterEvents,
+  List<CharacterShortcutEvent> get characterShortcutEvents => [
+        // code block
+        ...codeBlockCharacterEvents,
 
-    // toggle list
-    // formatGreaterToToggleList,
+        // toggle list
+        // formatGreaterToToggleList,
 
-    // customize the slash menu command
-    customSlashCommand(
-      slashMenuItems,
-      style: styleCustomizer.selectionMenuStyleBuilder(),
-    ),
+        // customize the slash menu command
+        customSlashCommand(
+          slashMenuItems,
+          style: styleCustomizer.selectionMenuStyleBuilder(),
+        ),
 
-    ...standardCharacterShortcutEvents
-      ..removeWhere(
-        (element) => element == slashCommand,
-      ), // remove the default slash command.
-  ];
+        ...standardCharacterShortcutEvents
+          ..removeWhere(
+            (element) => element == slashCommand,
+          ), // remove the default slash command.
+      ];
 
   late final showSlashMenu = customSlashCommand(
     slashMenuItems,
@@ -82,7 +82,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     style: styleCustomizer.selectionMenuStyleBuilder(),
   ).handler;
 
-  late final styleCustomizer = EditorStyleCustomizer(context: context);
+  EditorStyleCustomizer get styleCustomizer => EditorStyleCustomizer(
+        context: context,
+      );
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
 
   @override
