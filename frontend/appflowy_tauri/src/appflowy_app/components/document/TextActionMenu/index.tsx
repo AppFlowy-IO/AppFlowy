@@ -29,15 +29,18 @@ const TextActionComponent = ({ container }: { container: HTMLDivElement }) => {
 const TextActionMenu = ({ container }: { container: HTMLDivElement }) => {
   const canShow = useAppSelector((state) => {
     const { isDragging, focus, anchor, ranges, caret } = state.documentRange;
-    // prevent showing link popover when dragging
+
+    // don't show if dragging
     if (isDragging) return false;
-    // prevent showing link popover when there is no selection
+    // don't show if no focus or anchor
     if (!focus || !anchor || !caret) return false;
-    // prevent showing link popover when selection is collapsed
     const isSameLine = anchor.id === focus.id;
     const anchorRange = ranges[anchor.id];
+    // don't show if no anchor range
     if (!anchorRange) return false;
+    // show toolbar if range has multiple nodes
     if (!isSameLine) return true;
+    // show toolbar if range is not collapsed
     return anchorRange.length > 0;
   });
   if (!canShow) return null;

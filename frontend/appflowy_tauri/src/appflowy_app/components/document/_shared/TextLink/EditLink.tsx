@@ -28,6 +28,9 @@ function EditLink({
             const newValue = e.target.value;
             setVal(newValue);
           }}
+          onBlur={(e) => {
+            onComplete?.(val);
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault();

@@ -9,7 +9,7 @@ import {
   indent,
   outdent,
 } from '$app/utils/document/slate_editor';
-import { focusNodeByIndex } from '$app/utils/document/node';
+import { focusNodeByIndex, getWordIndices } from '$app/utils/document/node';
 import { Keyboard } from '$app/constants/document/keyboard';
 import Delta from 'quill-delta';
 import isHotkey from 'is-hotkey';
@@ -20,13 +20,13 @@ export function useEditor({
   onSelectionChange,
   selection,
   value: delta,
-  lastSelection,
+  decorateSelection,
   onKeyDown,
   isCodeBlock,
+  linkDecorateSelection,
 }: EditorProps) {
   const { editor } = useSlateYjs({ delta });
   const ref = useRef<HTMLDivElement | null>(null);
-
   const newValue = useMemo(() => [], []);
   const onSelectionChangeHandler = useCallback(
     (slateSelection: Selection) => {
@@ -54,30 +54,45 @@ export function useEditor({
     }
   }, []);
 
+  const getDecorateRange = useCallback(
+    (
+      path: number[],
+      selection:
+        | {
+            index: number;
+            length: number;
+          }
+        | undefined,
+      key: string
+    ) => {
+      if (!selection) return null;
+      const range = convertToSlateSelection(selection.index, selection.length, editor.children) as BaseRange;
+      if (range && !Range.isCollapsed(range)) {
+        const intersection = Range.intersection(range, Editor.range(editor, path));
+        if (intersection) {
+          return {
+            [key]: true,
+            ...intersection,
+          };
+        }
+      }
+      return null;
+    },
+    [editor]
+  );
+
   const decorate = useCallback(
     (entry: NodeEntry) => {
       const [node, path] = entry;
-      const slateSelection = convertToSlateSelection(
-        lastSelection?.index ?? 0,
-        lastSelection?.length ?? 0,
-        editor.children
-      );
-      if (slateSelection && !Range.isCollapsed(slateSelection as BaseRange)) {
-        const intersection = Range.intersection(slateSelection, Editor.range(editor, path));
 
-        if (!intersection) {
-          return [];
-        }
-        const range = {
-          selection_high_lighted: true,
-          ...intersection,
-        };
+      const ranges: Range[] = [
+        getDecorateRange(path, decorateSelection, 'selection_high_lighted'),
+        getDecorateRange(path, linkDecorateSelection, 'link_selection_lighted'),
+      ].filter((range) => range !== null) as Range[];
 
-        return [range];
-      }
-      return [];
+      return ranges;
     },
-    [editor, lastSelection]
+    [decorateSelection, linkDecorateSelection, getDecorateRange]
   );
 
   const onKeyDownRewrite = useCallback(
@@ -123,7 +138,6 @@ export function useEditor({
   const onMouseDownCapture = useCallback(
     (event: React.MouseEvent) => {
       editor.deselect();
-
       requestAnimationFrame(() => {
         const range = document.caretRangeFromPoint(event.clientX, event.clientY);
         if (!range) return;
@@ -135,6 +149,23 @@ export function useEditor({
     },
     [editor]
   );
+
+  // double click to select a word
+  // This is a hack to fix the bug that mouse down event deselect the selection
+  const onDoubleClick = useCallback((event: React.MouseEvent) => {
+    const selection = window.getSelection();
+    if (!selection) return;
+    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+    if (!range) return;
+    const node = range.startContainer;
+    const offset = range.startOffset;
+    const wordIndices = getWordIndices(node, offset);
+    if (wordIndices.length === 0) return;
+    range.setStart(node, wordIndices[0].startIndex);
+    range.setEnd(node, wordIndices[0].endIndex);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }, []);
 
   useEffect(() => {
     if (!ref.current) return;
@@ -162,5 +193,6 @@ export function useEditor({
     onKeyDown: onKeyDownRewrite,
     onBlur,
     onMouseDownCapture,
+    onDoubleClick,
   };
 }

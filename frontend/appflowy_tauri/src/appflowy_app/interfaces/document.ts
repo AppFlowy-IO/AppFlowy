@@ -184,7 +184,7 @@ export enum TextAction {
   Strikethrough = 'strikethrough',
   Code = 'code',
   Equation = 'equation',
-  Link = 'link',
+  Link = 'href',
 }
 export interface TextActionMenuProps {
   /**
@@ -254,7 +254,11 @@ export interface EditorProps {
   placeholder?: string;
   value?: Delta;
   selection?: RangeStaticNoId;
-  lastSelection?: RangeStaticNoId;
+  decorateSelection?: RangeStaticNoId;
+  linkDecorateSelection?: {
+    index: number;
+    length: number;
+  };
   onSelectionChange?: (range: RangeStaticNoId | null, oldRange: RangeStaticNoId | null, source?: Sources) => void;
   onChange?: (delta: Delta, oldDelta: Delta, source?: Sources) => void;
   onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;

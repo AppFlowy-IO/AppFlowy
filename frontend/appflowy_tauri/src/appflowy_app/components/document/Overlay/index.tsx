@@ -5,7 +5,7 @@ import TextActionMenu from '$app/components/document/TextActionMenu';
 import BlockSlash from '$app/components/document/BlockSlash';
 import { useCopy } from '$app/components/document/_shared/CopyPasteHooks/useCopy';
 import { usePaste } from '$app/components/document/_shared/CopyPasteHooks/usePaste';
-import EditPopover from '$app/components/document/_shared/TextLink/EditPopover';
+import LinkEditPopover from '$app/components/document/_shared/TextLink/LinkEditPopover';
 
 export default function Overlay({ container }: { container: HTMLDivElement }) {
   useCopy(container);
@@ -16,7 +16,7 @@ export default function Overlay({ container }: { container: HTMLDivElement }) {
       <TextActionMenu container={container} />
       <BlockSelection container={container} />
       <BlockSlash />
-      <EditPopover />
+      <LinkEditPopover />
     </>
   );
 }

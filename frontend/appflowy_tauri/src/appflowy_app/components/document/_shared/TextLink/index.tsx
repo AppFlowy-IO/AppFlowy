@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { NodeIdContext } from '$app/components/document/_shared/SubscribeNode.hooks';
 import { useTextLink } from '$app/components/document/_shared/TextLink/TextLink.hooks';
 import EditLinkToolbar from '$app/components/document/_shared/TextLink/EditLinkToolbar';

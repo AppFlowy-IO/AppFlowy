@@ -2,12 +2,17 @@ import { useCallback, useEffect, useState } from 'react';
 import { RangeStatic } from 'quill';
 import { useAppDispatch } from '$app/stores/store';
 import { rangeActions } from '$app_reducers/document/slice';
-import { useFocused, useRangeRef } from '$app/components/document/_shared/SubscribeSelection.hooks';
+import {
+  useFocused,
+  useRangeRef,
+  useSubscribeDecorate,
+} from '$app/components/document/_shared/SubscribeSelection.hooks';
 import { storeRangeThunk } from '$app_reducers/document/async-actions/range';
 
 export function useSelection(id: string) {
   const rangeRef = useRangeRef();
-  const { focusCaret, lastSelection } = useFocused(id);
+  const { focusCaret } = useFocused(id);
+  const decorateProps = useSubscribeDecorate(id);
   const [selection, setSelection] = useState<RangeStatic | undefined>(undefined);
   const dispatch = useAppDispatch();
 
@@ -48,6 +53,6 @@ export function useSelection(id: string) {
   return {
     onSelectionChange,
     selection,
-    lastSelection,
+    ...decorateProps,
   };
 }

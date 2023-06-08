@@ -13,6 +13,7 @@ interface Attributes {
   selection_high_lighted?: boolean;
   href?: string;
   prism_token?: string;
+  link_selection_lighted?: boolean;
 }
 interface TextLeafProps extends RenderLeafProps {
   leaf: BaseText & Attributes;
@@ -78,6 +79,7 @@ const TextLeaf = (props: TextLeafProps) => {
     leaf.strikethrough && 'line-through',
     leaf.selection_high_lighted && 'bg-main-secondary',
     leaf.code && 'inline-code',
+    leaf.link_selection_lighted && 'bg-main-secondary rounded px-[4px] mx-[-4px]',
   ].filter(Boolean);
 
   return (

@@ -3,7 +3,6 @@ import React, { useCallback } from 'react';
 import TurnIntoSelect from '$app/components/document/TextActionMenu/menu/TurnIntoSelect';
 import FormatButton from '$app/components/document/TextActionMenu/menu/FormatButton';
 import { useTextActionMenu } from '$app/components/document/TextActionMenu/menu/index.hooks';
-import LinkButton from '$app/components/document/TextActionMenu/menu/LinkButton';
 
 function TextActionMenuList() {
   const { groupItems, isSingleLine, focusId } = useTextActionMenu();
@@ -13,7 +12,6 @@ function TextActionMenuList() {
         case TextAction.Turn:
           return isSingleLine && focusId ? <TurnIntoSelect id={focusId} /> : null;
         case TextAction.Link:
-          return <LinkButton />;
         case TextAction.Bold:
         case TextAction.Italic:
         case TextAction.Underline:

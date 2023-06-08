@@ -2,6 +2,22 @@ import { useAppSelector } from '$app/stores/store';
 import { RangeState, RangeStatic } from '$app/interfaces/document';
 import { useMemo, useRef } from 'react';
 
+export function useSubscribeDecorate(id: string) {
+  const decorateSelection = useAppSelector((state) => {
+    return state.documentRange.ranges[id];
+  });
+
+  const linkDecorateSelection = useAppSelector((state) => {
+    const linkPopoverState = state.documentLinkPopover;
+    if (!linkPopoverState.open || linkPopoverState.id !== id) return null;
+    return linkPopoverState.selection;
+  });
+
+  return {
+    decorateSelection,
+    linkDecorateSelection,
+  };
+}
 export function useFocused(id: string) {
   const caretRef = useRef<RangeStatic>();
   const focusCaret = useAppSelector((state) => {
@@ -13,23 +29,14 @@ export function useFocused(id: string) {
     return null;
   });
 
-  const lastSelection = useAppSelector((state) => {
-    return state.documentRange.ranges[id];
-  });
-
   const focused = useMemo(() => {
     return focusCaret && focusCaret?.id === id;
   }, [focusCaret, id]);
-
-  const memoizedLastSelection = useMemo(() => {
-    return lastSelection;
-  }, [JSON.stringify(lastSelection)]);
 
   return {
     focused,
     caretRef,
     focusCaret,
-    lastSelection: memoizedLastSelection,
   };
 }
 

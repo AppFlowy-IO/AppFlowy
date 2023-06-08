@@ -234,3 +234,41 @@ export function findParent(node: Element, parentSelector: string) {
   }
   return null;
 }
+
+export function getWordIndices(startContainer: Node, startOffset: number) {
+  const textNode = startContainer;
+  const textContent = textNode.textContent || '';
+
+  const wordRegex = /\b\w+\b/g;
+  let match;
+  const wordIndices = [];
+
+  while ((match = wordRegex.exec(textContent)) !== null) {
+    const word = match[0];
+    const wordIndex = match.index;
+    const wordEndIndex = wordIndex + word.length;
+
+    // If the startOffset is less than the wordIndex, then the startOffset is
+    if (startOffset <= wordIndex) {
+      wordIndices.push({
+        word: word,
+        startIndex: wordIndex,
+        endIndex: wordEndIndex,
+      });
+      break;
+    }
+
+    // If the startOffset is greater than the wordIndex and less than the wordEndIndex, then the startOffset is
+    if (startOffset > wordIndex && startOffset <= wordEndIndex) {
+      wordIndices.push({
+        word: word,
+        startIndex: wordIndex,
+        endIndex: wordEndIndex,
+      });
+      break;
+    }
+  }
+
+  // If there are no matches, then the startOffset is greater than the last wordEndIndex
+  return wordIndices;
+}

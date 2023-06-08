@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect } from 'react';
+import React, { useCallback, useContext } from 'react';
 import Popover from '@mui/material/Popover';
 import { Divider } from '@mui/material';
 import Button from '@mui/material/Button';
@@ -7,43 +7,30 @@ import EditLink from '$app/components/document/_shared/TextLink/EditLink';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { linkPopoverActions, rangeActions } from '$app_reducers/document/slice';
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
-import { getNode, getRangeByIndex } from '$app/utils/document/node';
 import { updateLinkThunk } from '$app_reducers/document/async-actions';
 
-function EditPopover() {
+function LinkEditPopover() {
   const dispatch = useAppDispatch();
   const controller = useContext(DocumentControllerContext);
   const popoverState = useAppSelector((state) => state.documentLinkPopover);
   const { anchorPosition, id, selection, title = '', href = '', open = false } = popoverState;
 
-  useEffect(() => {
-    // when popover is open, we need to set the range to null but painting the selection
-    if (open) {
-      dispatch(rangeActions.setCaret(null));
-      if (id && selection) {
-        dispatch(
-          rangeActions.setRange({
-            rangeStatic: selection,
-            id,
-          })
-        );
-      }
-    } else if (id && selection) {
-      // when popover is closed, we need to set the range to last painted range
-      const node = getNode(id);
-      if (!node) return;
-      const range = getRangeByIndex(node, selection.index, selection.length);
-      if (!range) return;
-      const windowSelection = window.getSelection();
-      windowSelection?.removeAllRanges();
-      windowSelection?.addRange(range);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, dispatch]);
-
   const onClose = useCallback(() => {
+    if (!id || !selection) return;
+    dispatch(
+      rangeActions.setRange({
+        id,
+        rangeStatic: selection,
+      })
+    );
+    dispatch(
+      rangeActions.setCaret({
+        id,
+        ...selection,
+      })
+    );
     dispatch(linkPopoverActions.closeLinkPopover());
-  }, [dispatch]);
+  }, [dispatch, id, selection]);
 
   const onChange = useCallback(
     (newVal: { href?: string; title: string }) => {
@@ -66,6 +53,7 @@ function EditPopover() {
     <Popover
       onMouseDown={(e) => e.stopPropagation()}
       open={open}
+      disableAutoFocus={true}
       anchorReference='anchorPosition'
       anchorPosition={anchorPosition}
       onClose={onClose}
@@ -128,4 +116,4 @@ function EditPopover() {
   );
 }
 
-export default EditPopover;
+export default LinkEditPopover;
