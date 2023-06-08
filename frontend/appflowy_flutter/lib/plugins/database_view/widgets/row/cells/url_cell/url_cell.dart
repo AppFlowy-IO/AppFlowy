@@ -105,11 +105,10 @@ class GridURLCell extends GridCellWidget {
       };
 }
 
-class _GridURLCellState extends GridCellState<GridURLCell> {
+class _GridURLCellState extends GridFocusNodeCellState<GridURLCell> {
   final _popoverController = PopoverController();
   late final URLCellBloc _cellBloc;
   late final TextEditingController _controller;
-  late final FocusNode _focusNode;
 
   @override
   void initState() {
@@ -120,7 +119,6 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
     _cellBloc = URLCellBloc(cellController: cellController)
       ..add(const URLCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
-    _focusNode = FocusNode();
   }
 
   @override
@@ -133,7 +131,9 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
-      child: BlocBuilder<URLCellBloc, URLCellState>(
+      child: BlocConsumer<URLCellBloc, URLCellState>(
+        listenWhen: (previous, current) => previous.content != current.content,
+        listener: (context, state) => _controller.text = state.content,
         builder: (context, state) {
           final urlEditor = Padding(
             padding: EdgeInsets.only(
@@ -142,7 +142,7 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
             ),
             child: TextField(
               controller: _controller,
-              focusNode: _focusNode,
+              focusNode: focusNode,
               maxLines: 1,
               style: (widget.cellStyle?.textStyle ??
                       Theme.of(context).textTheme.bodyMedium)
@@ -151,8 +151,6 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
                 decoration: TextDecoration.underline,
               ),
               autofocus: false,
-              onEditingComplete: focusChanged,
-              onSubmitted: (value) => focusChanged(isUrlSubmitted: true),
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.only(
                   top: GridSize.cellContentInsets.top,
@@ -170,18 +168,10 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
     );
   }
 
-  void focusChanged({
-    bool isUrlSubmitted = false,
-  }) {
-    if (mounted) {
-      if (_cellBloc.isClosed == false &&
-          _controller.text != _cellBloc.state.content) {
-        _cellBloc.add(URLCellEvent.updateURL(_controller.text));
-      }
-      if (isUrlSubmitted) {
-        _focusNode.unfocus();
-      }
-    }
+  @override
+  Future<void> focusChanged() async {
+    _cellBloc.add(URLCellEvent.updateURL(_controller.text));
+    return super.focusChanged();
   }
 
   @override
