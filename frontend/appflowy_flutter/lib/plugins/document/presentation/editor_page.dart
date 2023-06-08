@@ -44,7 +44,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   ];
 
   late final slashMenuItems = [
-    dividerMenuItem,
     inlineGridMenuItem(documentBloc),
     referenceGridMenuItem,
     inlineBoardMenuItem(documentBloc),
@@ -59,9 +58,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   late final Map<String, BlockComponentBuilder> blockComponentBuilders =
       _customAppFlowyBlockComponentBuilders();
   late final List<CharacterShortcutEvent> characterShortcutEvents = [
-    // divider
-    convertMinusesToDivider,
-
     // code block
     ...codeBlockCharacterEvents,
 
