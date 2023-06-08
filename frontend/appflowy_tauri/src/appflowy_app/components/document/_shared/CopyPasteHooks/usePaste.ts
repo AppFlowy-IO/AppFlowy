@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect } from 'react';
 import { useAppDispatch } from '$app/stores/store';
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { pasteThunk } from '$app_reducers/document/async-actions/copyPaste';
+import { clipboardTypes } from '$app/constants/document/copy_paste';
 
 export function usePaste(container: HTMLDivElement) {
   const dispatch = useAppDispatch();
@@ -16,9 +17,9 @@ export function usePaste(container: HTMLDivElement) {
         pasteThunk({
           controller,
           data: {
-            json: e.clipboardData?.getData('application/json') || '',
-            text: e.clipboardData?.getData('text/plain') || '',
-            html: e.clipboardData?.getData('text/html') || '',
+            json: e.clipboardData?.getData(clipboardTypes.JSON) || '',
+            text: e.clipboardData?.getData(clipboardTypes.TEXT) || '',
+            html: e.clipboardData?.getData(clipboardTypes.HTML) || '',
           },
         })
       );

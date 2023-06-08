@@ -126,7 +126,11 @@ export function useRangeKeyDown() {
       }
       e.stopPropagation();
       const filteredEvents = interceptEvents.filter((event) => event.canHandle(e));
-      const lastEvent = filteredEvents[filteredEvents.length - 1];
+      const lastIndex = filteredEvents.length - 1;
+      if (lastIndex < 0) {
+        return;
+      }
+      const lastEvent = filteredEvents[lastIndex];
       lastEvent?.handler(e);
     },
     [interceptEvents, rangeRef]
