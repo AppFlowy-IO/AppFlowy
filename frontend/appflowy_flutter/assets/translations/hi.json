@@ -10,9 +10,9 @@
     "buttonText": "साईन करे",
     "title": "साईन करे @:appName",
     "getStartedText": "शुरू करे",
-    "emptyPasswordError": "पासवर्ड खाली नहीं रख सकते.",
-    "repeatPasswordEmptyError": "रिपीट पासवर्ड खाली नहीं रख सकते.",
-    "unmatchedPasswordError": "रिपीट पासवर्ड और पहला पासवर्ड सामान नहीं है.",
+    "emptyPasswordError": "पासवर्ड खाली नहीं रख सकते",
+    "repeatPasswordEmptyError": "रिपीट पासवर्ड खाली नहीं रख सकते",
+    "unmatchedPasswordError": "रिपीट पासवर्ड और पहला पासवर्ड सामान नहीं है",
     "alreadyHaveAnAccount": "क्या आपके पास पहले से ही खाता है ?",
     "emailHint": "ईमेल",
     "passwordHint": "पासवर्ड",
@@ -27,13 +27,13 @@
     "emailHint": "ईमेल",
     "passwordHint": "पासवर्ड",
     "dontHaveAnAccount": "क्या आपके पास पहले से ही खाता है ?",
-    "repeatPasswordEmptyError": "रिपीट पासवर्ड खाली नहीं रख सकते.",
-    "unmatchedPasswordError": "रिपीट पासवर्ड और पहला पासवर्ड सामान नहीं है."
+    "repeatPasswordEmptyError": "रिपीट पासवर्ड खाली नहीं रख सकते",
+    "unmatchedPasswordError": "रिपीट पासवर्ड और पहला पासवर्ड सामान नहीं है"
   },
   "workspace": {
-    "create": "काम करने की जगह बनाये.",
-    "hint": "काम करने की जगह.",
-    "notFoundError": "काम करने की जगह नहीं मिली."
+    "create": "काम करने की जगह बनाये",
+    "hint": "काम करने की जगह",
+    "notFoundError": "काम करने की जगह नहीं मिली"
   },
   "shareAction": {
     "buttonText": "शेयर करे",
@@ -115,7 +115,7 @@
     "referencePage": "This {name} is referenced"
   },
   "sideBar": {
-    "closeSidebar": "बंध करे",
+    "closeSidebar": "बंद करे",
     "openSidebar": "ओपन करे"
   },
   "notifications": {
@@ -161,9 +161,9 @@
     "google": {
       "title": "Google साइन-इन",
       "instruction1": "अपने Google संपर्कों को आयात करने के लिए, आपको अपने वेब ब्राउज़र का उपयोग करके इस एप्लिकेशन को अधिकृत करना होगा।",
-      "instruction2": "आइकन पर क्लिक करके या पाठ का चयन करके इस कोड को अपने क्लिपबोर्ड पर कॉपी करें:",
-      "instruction3": "अपने वेब ब्राउज़र में निम्न लिंक पर नेविगेट करें, और उपरोक्त कोड दर्ज करें:",
-      "instruction4": "जब आप साइनअप पूरा कर लेते हैं तो नीचे दिए गए बटन को दबाएं:"
+      "instruction2": "आइकन पर क्लिक करके या पाठ का चयन करके इस कोड को अपने क्लिपबोर्ड पर कॉपी करें",
+      "instruction3": "अपने वेब ब्राउज़र में निम्न लिंक पर नेविगेट करें, और उपरोक्त कोड दर्ज करें",
+      "instruction4": "जब आप साइनअप पूरा कर लेते हैं तो नीचे दिए गए बटन को दबाएं"
     }
   },
   "settings": {
@@ -178,7 +178,7 @@
     "appearance": {
       "themeMode": {
         "label": "थीम मोड",
-        "light": "प्रकाश विधा",
+        "light": "लाइट मोड",
         "dark": "डार्क मोड",
         "system": "प्रणाली"
       },
@@ -232,7 +232,7 @@
       "layout": "विन्यास"
     },
     "textFilter": {
-      "contains": "रोकना",
+      "contains": "शामिल है",
       "doesNotContain": "शामिल नहीं है",
       "endsWith": "इसी के साथ समाप्त होता है",
       "startWith": "इसके साथ आरंभ होता है",
@@ -266,15 +266,15 @@
       "isNotEmpty": "खाली नहीं है"
     },
     "multiSelectOptionFilter": {
-      "contains": "रोकना",
+      "contains": "शामिल है",
       "doesNotContain": "शामिल नहीं है",
       "isEmpty": "खाली है",
       "isNotEmpty": "खाली नहीं है"
     },
     "field": {
       "hide": "छिपाना",
-      "insertLeft": "छोड़ दिया",
-      "insertRight": "अधिकार सम्मिलित करें",
+      "insertLeft": "बाएँ डालें",
+      "insertRight": "दाएँ डालें",
       "duplicate": "डुप्लिकेट",
       "delete": "मिटाना",
       "textFieldName": "मूलपाठ",
@@ -338,7 +338,7 @@
     "checklist": {
       "panelTitle": "एक आइटम जोड़ें"
     },
-    "menuName": "जाल",
+    "menuName": "ग्रिड",
     "referencedGridPrefix": "देखना"
   },
   "document": {
@@ -360,7 +360,7 @@
     "plugins": {
       "referencedBoard": "संदर्भित बोर्ड",
       "referencedGrid": "संदर्भित ग्रिड",
-      "autoGeneratorMenuItemName": "ओपनई लेखक",
+      "autoGeneratorMenuItemName": "ओपन एआई लेखक",
       "autoGeneratorTitleName": "Openai: AI से कुछ भी लिखने के लिए कहें ...",
       "autoGeneratorLearnMore": "और अधिक जानें",
       "autoGeneratorGenerate": "बनाना",
@@ -368,7 +368,7 @@
       "autoGeneratorCantGetOpenAIKey": "Openai कुंजी नहीं मिल सकता",
       "autoGeneratorRewrite": "पुनर्लेखन",
       "smartEdit": "एआई सहायक",
-      "openAI": "ओपनई",
+      "openAI": "ओपन एआई",
       "smartEditFixSpelling": "वर्तनी को ठीक करें",
       "warning": "⚠️ AI प्रतिक्रियाएं गलत या भ्रामक हो सकती हैं।",
       "smartEditSummarize": "संक्षेप",
@@ -379,21 +379,21 @@
       "smartEditDisabled": "सेटिंग्स में Openai कनेक्ट करें",
       "discardResponse": "क्या आप एआई प्रतिक्रियाओं को छोड़ना चाहते हैं?",
       "cover": {
-        "changeCover": "कवर परिवर्तन करें",
+        "changeCover": "कवर बदलें",
         "colors": "रंग की",
         "images": "इमेजिस",
         "clearAll": "सभी साफ करें",
         "abstract": "अमूर्त",
         "addCover": "कवर जोड़ें",
         "addLocalImage": "स्थानीय छवि जोड़ें",
-        "invalidImageUrl": "अमान्य छवि url",
+        "invalidImageUrl": "अमान्य चित्र URL",
         "failedToAddImageToGallery": "गैलरी में छवि जोड़ने में विफल",
         "enterImageUrl": "छवि url दर्ज करें",
         "add": "जोड़ना",
         "back": "पीछे",
         "saveToGallery": "गैलरी में सहेजें",
         "removeIcon": "आइकन निकालें",
-        "pasteImageUrl": "पेस्ट इमेज यूआरएल",
+        "pasteImageUrl": "चित्र URL पेस्ट करें",
         "or": "या",
         "pickFromFiles": "फ़ाइलों से उठाओ",
         "couldNotFetchImage": "छवि नहीं ला सका",
@@ -414,13 +414,13 @@
   },
   "board": {
     "column": {
-      "create_new_card": "नया"
+      "create_new_card": "नया कार्ड बनाएं"
     },
-    "menuName": "तख़्ता",
+    "menuName": "बोर्ड",
     "referencedBoardPrefix": "देखना"
   },
   "calendar": {
-    "menuName": "पंचांग",
+    "menuName": "कैलेंडर",
     "defaultNewCalendarTitle": "शीर्षकहीन",
     "navigation": {
       "today": "आज",
