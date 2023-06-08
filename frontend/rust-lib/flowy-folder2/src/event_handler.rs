@@ -42,7 +42,7 @@ pub(crate) async fn open_workspace_handler(
     None => Err(FlowyError::workspace_id().context("workspace id should not be empty")),
     Some(workspace_id) => {
       if workspace_id.is_empty() {
-        return Err(FlowyError::workspace_id().context("workspace id should not be empty"));
+        Err(FlowyError::workspace_id().context("workspace id should not be empty"))
       } else {
         let workspace = folder.open_workspace(&workspace_id).await?;
         let views = folder.get_workspace_views(&workspace_id).await?;

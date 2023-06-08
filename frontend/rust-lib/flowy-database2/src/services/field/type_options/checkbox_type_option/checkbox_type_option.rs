@@ -1,17 +1,19 @@
+use std::cmp::Ordering;
+use std::str::FromStr;
+
+use collab::core::any_map::AnyMapExtension;
+use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
+use collab_database::rows::Cell;
+use serde::{Deserialize, Serialize};
+
+use flowy_error::FlowyResult;
+
 use crate::entities::{CheckboxFilterPB, FieldType};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
   default_order, CheckboxCellData, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
   TypeOptionCellDataFilter, TypeOptionTransform,
 };
-
-use collab::core::any_map::AnyMapExtension;
-use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
-use collab_database::rows::Cell;
-use flowy_error::FlowyResult;
-use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
-use std::str::FromStr;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct CheckboxTypeOption {
@@ -89,10 +91,7 @@ impl CellDataDecoder for CheckboxTypeOption {
     if !decoded_field_type.is_checkbox() {
       return Ok(Default::default());
     }
-
-    let cell = self.parse_cell(cell);
-    println!("cell: {:?}", cell);
-    return cell;
+    self.parse_cell(cell)
   }
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {

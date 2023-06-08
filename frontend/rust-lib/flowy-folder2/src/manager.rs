@@ -66,7 +66,7 @@ impl Folder2Manager {
     self.with_folder(Err(FlowyError::internal()), |folder| {
       let workspace_pb_from_workspace = |workspace: Workspace, folder: &Folder| {
         let views = get_workspace_view_pbs(&workspace.id, folder);
-        let workspace: WorkspacePB = (workspace.clone(), views).into();
+        let workspace: WorkspacePB = (workspace, views).into();
         Ok::<WorkspacePB, FlowyError>(workspace)
       };
 
@@ -316,12 +316,6 @@ impl Folder2Manager {
         id: view_id.to_string(),
         created_at: timestamp(),
       }]);
-
-      if let Some(view) = folder.get_current_view() {
-        if view == view_id {
-          folder.set_current_view("");
-        }
-      }
 
       // notify the parent view that the view is moved to trash
       send_notification(view_id, FolderNotification::DidMoveViewToTrash)
