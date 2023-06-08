@@ -6,8 +6,8 @@ use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::CollabPersistenceConfig;
 use collab::core::collab_state::CollabState;
 use collab_folder::core::{
-  Folder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, TrashRecord, View,
-  ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
+  Folder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, View, ViewChange,
+  ViewChangeReceiver, ViewLayout, Workspace,
 };
 use parking_lot::Mutex;
 use tokio_stream::wrappers::WatchStream;
@@ -15,7 +15,6 @@ use tokio_stream::StreamExt;
 use tracing::{event, Level};
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use lib_infra::util::timestamp;
 
 use crate::deps::{FolderCloudService, FolderUser};
 use crate::entities::{
@@ -114,7 +113,7 @@ impl Folder2Manager {
   }
 
   /// Called immediately after the application launched fi the user already sign in/sign up.
-  #[tracing::instrument(level = "debug", skip(self), err)]
+  #[tracing::instrument(level = "info", skip(self), err)]
   pub async fn initialize(&self, uid: i64, workspace_id: &str) -> FlowyResult<()> {
     let workspace_id = workspace_id.to_string();
     if let Ok(collab_db) = self.user.collab_db() {
@@ -176,6 +175,7 @@ impl Folder2Manager {
   ///
   pub async fn clear(&self, _user_id: i64) {}
 
+  #[tracing::instrument(level = "info", skip_all, err)]
   pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> FlowyResult<Workspace> {
     let workspace = self
       .cloud_service
@@ -194,6 +194,7 @@ impl Folder2Manager {
     Ok(workspace)
   }
 
+  #[tracing::instrument(level = "info", skip_all, err)]
   pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<Workspace> {
     self.with_folder(Err(FlowyError::internal()), |folder| {
       let workspace = folder
@@ -281,7 +282,6 @@ impl Folder2Manager {
     let folder = self.mutex_folder.lock();
     let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
     let trash_ids = folder
-      .trash
       .get_all_trash()
       .into_iter()
       .map(|trash| trash.id)
@@ -312,10 +312,7 @@ impl Folder2Manager {
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn move_view_to_trash(&self, view_id: &str) -> FlowyResult<()> {
     self.with_folder((), |folder| {
-      folder.trash.add_trash(vec![TrashRecord {
-        id: view_id.to_string(),
-        created_at: timestamp(),
-      }]);
+      folder.add_trash(vec![view_id.to_string()]);
 
       // notify the parent view that the view is moved to trash
       send_notification(view_id, FolderNotification::DidMoveViewToTrash)
@@ -463,13 +460,13 @@ impl Folder2Manager {
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn get_all_trash(&self) -> Vec<TrashInfo> {
-    self.with_folder(vec![], |folder| folder.trash.get_all_trash())
+    self.with_folder(vec![], |folder| folder.get_all_trash())
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn restore_all_trash(&self) {
     self.with_folder((), |folder| {
-      folder.trash.clear();
+      folder.remote_all_trash();
     });
 
     send_notification("trash", FolderNotification::DidUpdateTrash)
@@ -480,14 +477,14 @@ impl Folder2Manager {
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn restore_trash(&self, trash_id: &str) {
     self.with_folder((), |folder| {
-      folder.trash.delete_trash(vec![trash_id]);
+      folder.delete_trash(vec![trash_id.to_string()]);
     });
   }
 
   /// Delete all the trash permanently.
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn delete_all_trash(&self) {
-    let deleted_trash = self.with_folder(vec![], |folder| folder.trash.get_all_trash());
+    let deleted_trash = self.with_folder(vec![], |folder| folder.get_all_trash());
     for trash in deleted_trash {
       let _ = self.delete_trash(&trash.id).await;
     }
@@ -503,7 +500,7 @@ impl Folder2Manager {
   pub async fn delete_trash(&self, view_id: &str) -> FlowyResult<()> {
     let view = self.with_folder(None, |folder| folder.views.get_view(view_id));
     self.with_folder((), |folder| {
-      folder.trash.delete_trash(vec![view_id]);
+      folder.delete_trash(vec![view_id.to_string()]);
       folder.views.delete_views(vec![view_id]);
     });
     if let Some(view) = view {
@@ -667,7 +664,7 @@ fn listen_on_trash_change(mut rx: TrashChangeReceiver, weak_mutex_folder: &Weak<
             unique_ids.insert(view.parent_view_id);
           }
 
-          let repeated_trash: RepeatedTrashPB = folder.trash.get_all_trash().into();
+          let repeated_trash: RepeatedTrashPB = folder.get_all_trash().into();
           send_notification("trash", FolderNotification::DidUpdateTrash)
             .payload(repeated_trash)
             .send();
@@ -683,7 +680,6 @@ fn listen_on_trash_change(mut rx: TrashChangeReceiver, weak_mutex_folder: &Weak<
 /// Return the views that belong to the workspace. The views are filtered by the trash.
 fn get_workspace_view_pbs(workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
   let trash_ids = folder
-    .trash
     .get_all_trash()
     .into_iter()
     .map(|trash| trash.id)
@@ -724,7 +720,6 @@ fn notify_parent_view_did_change<T: AsRef<str>>(
   let folder = folder.as_ref()?;
   let workspace_id = folder.get_current_workspace_id()?;
   let trash_ids = folder
-    .trash
     .get_all_trash()
     .into_iter()
     .map(|trash| trash.id)

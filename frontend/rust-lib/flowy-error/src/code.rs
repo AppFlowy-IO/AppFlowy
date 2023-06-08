@@ -199,6 +199,9 @@ pub enum ErrorCode {
 
   #[error("Missing auth field")]
   MissingAuthField = 65,
+
+  #[error("Only one application can access the database")]
+  MultipleDBInstance = 66,
 }
 
 impl ErrorCode {

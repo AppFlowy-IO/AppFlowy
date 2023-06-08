@@ -79,8 +79,7 @@ class RustKeyValue implements KeyValueStorage {
   }
 
   @override
-  Future<void> clear() {
-    // TODO: implement clear
-    throw UnimplementedError();
+  Future<void> clear() async {
+    // TODO(Lucas): implement clear
   }
 }

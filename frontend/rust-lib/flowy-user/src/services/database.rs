@@ -5,7 +5,7 @@ use appflowy_integrate::RocksCollabDB;
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
 
-use flowy_error::FlowyError;
+use flowy_error::{ErrorCode, FlowyError};
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{schema::user_table, DBConnection, Database};
 
@@ -41,8 +41,8 @@ impl UserDB {
 
     tracing::trace!("open user db {} at path: {}", user_id, dir);
     let db = flowy_sqlite::init(&dir).map_err(|e| {
-      tracing::error!("open user: {} db failed, {:?}", user_id, e);
-      FlowyError::internal().context(e)
+      tracing::error!("open user db failed, {:?}", e);
+      FlowyError::new(ErrorCode::MultipleDBInstance, e)
     })?;
     let pool = db.get_pool();
     write_guard.insert(user_id.to_owned(), db);
@@ -68,7 +68,14 @@ impl UserDB {
     dir.push("collab_db");
 
     tracing::trace!("open collab db {} at path: {:?}", user_id, dir);
-    let db = RocksCollabDB::open(dir).map_err(|err| FlowyError::internal().context(err))?;
+    let db = match RocksCollabDB::open(dir) {
+      Ok(db) => Ok(db),
+      Err(err) => {
+        tracing::error!("open collab db failed, {:?}", err);
+        Err(FlowyError::new(ErrorCode::MultipleDBInstance, err))
+      },
+    }?;
+
     let db = Arc::new(db);
     write_guard.insert(user_id.to_owned(), db.clone());
     drop(write_guard);
