@@ -3,6 +3,12 @@ import { BlockActionTypePB } from '@/services/backend';
 import { Sources } from 'quill';
 import React from 'react';
 
+export interface DocumentBlockJSON {
+  type: BlockType;
+  data: BlockData<any>;
+  children: DocumentBlockJSON[];
+}
+
 export interface RangeStatic {
   id: string;
   length: number;
@@ -12,7 +18,7 @@ export interface RangeStatic {
 export enum BlockType {
   PageBlock = 'page',
   HeadingBlock = 'heading',
-  TextBlock = 'text',
+  TextBlock = 'paragraph',
   TodoListBlock = 'todo_list',
   BulletedListBlock = 'bulleted_list',
   NumberedListBlock = 'numbered_list',
@@ -251,4 +257,10 @@ export interface EditorProps {
   onSelectionChange?: (range: RangeStaticNoId | null, oldRange: RangeStaticNoId | null, source?: Sources) => void;
   onChange?: (delta: Delta, oldDelta: Delta, source?: Sources) => void;
   onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
+}
+
+export interface BlockCopyData {
+  json: string;
+  text: string;
+  html: string;
 }

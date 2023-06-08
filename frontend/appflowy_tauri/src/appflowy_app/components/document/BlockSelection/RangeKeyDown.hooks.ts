@@ -8,6 +8,8 @@ import isHotkey from 'is-hotkey';
 import { deleteRangeAndInsertEnterThunk } from '$app_reducers/document/async-actions/range';
 import { useRangeRef } from '$app/components/document/_shared/SubscribeSelection.hooks';
 import { isPrintableKeyEvent } from '$app/utils/document/action';
+import { toggleFormatThunk } from '$app_reducers/document/async-actions/format';
+import { isFormatHotkey, parseFormat } from '$app/utils/document/format';
 
 export function useRangeKeyDown() {
   const rangeRef = useRangeRef();
@@ -33,7 +35,7 @@ export function useRangeKeyDown() {
       {
         // handle char input
         canHandle: (e: KeyboardEvent) => {
-          return isPrintableKeyEvent(e);
+          return isPrintableKeyEvent(e) && !e.shiftKey && !e.ctrlKey && !e.metaKey;
         },
         handler: (e: KeyboardEvent) => {
           if (!controller) return;
@@ -94,11 +96,26 @@ export function useRangeKeyDown() {
           );
         },
       },
+      {
+        // handle format shortcuts
+        canHandle: isFormatHotkey,
+        handler: (e: KeyboardEvent) => {
+          if (!controller) return;
+          const format = parseFormat(e);
+          if (!format) return;
+          dispatch(
+            toggleFormatThunk({
+              format,
+              controller,
+            })
+          );
+        },
+      },
     ],
     [controller, dispatch]
   );
 
-  const onKeyDown = useCallback(
+  const onKeyDownCapture = useCallback(
     (e: KeyboardEvent) => {
       if (!rangeRef.current) {
         return;
@@ -108,12 +125,16 @@ export function useRangeKeyDown() {
         return;
       }
       e.stopPropagation();
-      e.preventDefault();
       const filteredEvents = interceptEvents.filter((event) => event.canHandle(e));
-      filteredEvents.forEach((event) => event.handler(e));
+      const lastIndex = filteredEvents.length - 1;
+      if (lastIndex < 0) {
+        return;
+      }
+      const lastEvent = filteredEvents[lastIndex];
+      lastEvent?.handler(e);
     },
     [interceptEvents, rangeRef]
   );
 
-  return onKeyDown;
+  return onKeyDownCapture;
 }

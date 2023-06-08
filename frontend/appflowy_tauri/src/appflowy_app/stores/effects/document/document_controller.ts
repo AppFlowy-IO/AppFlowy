@@ -1,4 +1,4 @@
-import { DocumentData, Node } from '@/appflowy_app/interfaces/document';
+import { DocumentBlockJSON, DocumentData, Node } from '@/appflowy_app/interfaces/document';
 import { createContext } from 'react';
 import { DocumentBackendService } from './document_bd_svc';
 import {

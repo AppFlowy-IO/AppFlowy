@@ -15,6 +15,8 @@ import { blockConfig } from '$app/constants/document/config';
 import {
   caretInBottomEdgeByDelta,
   caretInTopEdgeByDelta,
+  getAfterExtentDeltaByRange,
+  getBeofreExtentDeltaByRange,
   getDeltaText,
   getIndexRelativeEnter,
   getLastLineIndex,
@@ -22,25 +24,34 @@ import {
   transformIndexToPrevLine,
 } from '$app/utils/document/delta';
 
-export function getMiddleIdsByRange(rangeState: RangeState, document: DocumentState) {
-  const { anchor, focus } = rangeState;
-  if (!anchor || !focus) return;
-  if (anchor.id === focus.id) return;
-  const isForward = anchor.point.y < focus.point.y;
-  // get all ids between anchor and focus
-  const amendIds = [];
-  const startId = isForward ? anchor.id : focus.id;
-  const endId = isForward ? focus.id : anchor.id;
-
+export function getMiddleIds(document: DocumentState, startId: string, endId: string) {
+  const middleIds = [];
   let currentId: string | undefined = startId;
   while (currentId && currentId !== endId) {
     const nextId = getNextLineId(document, currentId);
     if (nextId && nextId !== endId) {
-      amendIds.push(nextId);
+      middleIds.push(nextId);
     }
     currentId = nextId;
   }
-  return amendIds;
+  return middleIds;
+}
+
+export function getStartAndEndIdsByRange(rangeState: RangeState) {
+  const { anchor, focus } = rangeState;
+  if (!anchor || !focus) return [];
+  if (anchor.id === focus.id) return [anchor.id];
+  const isForward = anchor.point.y < focus.point.y;
+  const startId = isForward ? anchor.id : focus.id;
+  const endId = isForward ? focus.id : anchor.id;
+  return [startId, endId];
+}
+
+export function getMiddleIdsByRange(rangeState: RangeState, document: DocumentState) {
+  const ids = getStartAndEndIdsByRange(rangeState);
+  if (ids.length < 2) return;
+  const [startId, endId] = ids;
+  return getMiddleIds(document, startId, endId);
 }
 
 export function getAfterMergeCaretByRange(rangeState: RangeState, insertDelta?: Delta) {
@@ -61,42 +72,40 @@ export function getAfterMergeCaretByRange(rangeState: RangeState, insertDelta?: 
   };
 }
 
-export function getStartAndEndDeltaExpectRange(state: RootState) {
+export function getStartAndEndExtentDelta(state: RootState) {
   const rangeState = state.documentRange;
-  const { anchor, focus, ranges } = rangeState;
-  if (!anchor || !focus) return;
-  if (anchor.id === focus.id) return;
-
-  const isForward = anchor.point.y < focus.point.y;
-  const startId = isForward ? anchor.id : focus.id;
-  const endId = isForward ? focus.id : anchor.id;
-
+  const ids = getStartAndEndIdsByRange(rangeState);
+  if (ids.length === 0) return;
+  const startId = ids[0];
+  const endId = ids[ids.length - 1];
+  const { ranges } = rangeState;
   // get start and end delta
   const startRange = ranges[startId];
   const endRange = ranges[endId];
   if (!startRange || !endRange) return;
   const startNode = state.document.nodes[startId];
-  let startDelta = new Delta(startNode.data.delta);
-  startDelta = startDelta.slice(0, startRange.index);
+  const startNodeDelta = new Delta(startNode.data.delta);
+  const startBeforeExtentDelta = getBeofreExtentDeltaByRange(startNodeDelta, startRange);
 
   const endNode = state.document.nodes[endId];
-  let endDelta = new Delta(endNode.data.delta);
-  endDelta = endDelta.slice(endRange.index + endRange.length);
+  const endNodeDelta = new Delta(endNode.data.delta);
+  const endAfterExtentDelta = getAfterExtentDeltaByRange(endNodeDelta, endRange);
 
   return {
     startNode,
     endNode,
-    startDelta,
-    endDelta,
+    startDelta: startBeforeExtentDelta,
+    endDelta: endAfterExtentDelta,
   };
 }
+
 export function getMergeEndDeltaToStartActionsByRange(
   state: RootState,
   controller: DocumentController,
   insertDelta?: Delta
 ) {
   const actions = [];
-  const { startDelta, endDelta, endNode, startNode } = getStartAndEndDeltaExpectRange(state) || {};
+  const { startDelta, endDelta, endNode, startNode } = getStartAndEndExtentDelta(state) || {};
   if (!startDelta || !endDelta || !endNode || !startNode) return;
   // merge start and end nodes
   const mergeDelta = startDelta.concat(insertDelta || new Delta()).concat(endDelta);
@@ -109,11 +118,39 @@ export function getMergeEndDeltaToStartActionsByRange(
     })
   );
   if (endNode.id !== startNode.id) {
+    const children = state.document.children[endNode.children].map((id) => state.document.nodes[id]);
+
+    const moveChildrenActions = getMoveChildrenActions({
+      target: startNode,
+      children,
+      controller,
+    });
+    actions.push(...moveChildrenActions);
     // delete end node
     actions.push(controller.getDeleteAction(endNode));
   }
 
   return actions;
+}
+
+export function getMoveChildrenActions({
+  target,
+  children,
+  controller,
+  prevId = '',
+}: {
+  target: NestedBlock;
+  children: NestedBlock[];
+  controller: DocumentController;
+  prevId?: string;
+}) {
+  // move children
+  const config = blockConfig[target.type];
+  const targetParentId = config.canAddChild ? target.id : target.parent;
+  if (!targetParentId) return [];
+  const targetPrevId = targetParentId === target.id ? prevId : target.id;
+  const moveActions = controller.getMoveChildrenAction(children, targetParentId, targetPrevId);
+  return moveActions;
 }
 
 export function getInsertEnterNodeFields(sourceNode: NestedBlock) {

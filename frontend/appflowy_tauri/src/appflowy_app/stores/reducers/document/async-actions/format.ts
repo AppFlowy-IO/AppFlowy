@@ -3,7 +3,6 @@ import { RootState } from '$app/stores/store';
 import { TextAction } from '$app/interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import Delta from 'quill-delta';
-import { rangeActions } from '$app_reducers/document/slice';
 
 export const getFormatActiveThunk = createAsyncThunk<boolean, TextAction>(
   'document/getFormatActive',
@@ -29,12 +28,17 @@ export const getFormatActiveThunk = createAsyncThunk<boolean, TextAction>(
 
 export const toggleFormatThunk = createAsyncThunk(
   'document/toggleFormat',
-  async (payload: { format: TextAction; controller: DocumentController; isActive: boolean }, thunkAPI) => {
+  async (payload: { format: TextAction; controller: DocumentController; isActive?: boolean }, thunkAPI) => {
     const { getState, dispatch } = thunkAPI;
-    const { format, controller, isActive } = payload;
+    const { format, controller } = payload;
+    let isActive = payload.isActive;
+    if (isActive === undefined) {
+      const { payload: active } = await dispatch(getFormatActiveThunk(format));
+      isActive = !!active;
+    }
     const state = getState() as RootState;
     const { document } = state;
-    const { ranges, caret } = state.documentRange;
+    const { ranges } = state.documentRange;
 
     const toggle = (delta: Delta, format: TextAction) => {
       const newOps = delta.ops.map((op) => {
