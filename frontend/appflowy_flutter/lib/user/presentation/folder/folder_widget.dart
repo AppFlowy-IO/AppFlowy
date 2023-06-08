@@ -218,10 +218,13 @@ Widget _buildTextButton(
   String title,
   VoidCallback onPressed,
 ) {
-  return SecondaryTextButton(
-    title,
-    mode: SecondaryTextButtonMode.small,
-    onPressed: onPressed,
+  return SizedBox(
+    width: 60,
+    child: SecondaryTextButton(
+      title,
+      mode: SecondaryTextButtonMode.small,
+      onPressed: onPressed,
+    ),
   );
 }
 
