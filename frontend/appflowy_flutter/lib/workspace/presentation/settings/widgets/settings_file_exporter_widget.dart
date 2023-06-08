@@ -49,9 +49,29 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  FlowyText.medium(
-                    LocaleKeys.settings_files_selectFiles.tr(),
-                    fontSize: 16.0,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      FlowyText.medium(
+                        LocaleKeys.settings_files_selectFiles.tr(),
+                        fontSize: 16.0,
+                      ),
+                      BlocBuilder<SettingsFileExporterCubit,
+                          SettingsFileExportState>(
+                        builder: (context, state) => FlowyTextButton(
+                          state.selectedItems
+                                  .expand((element) => element)
+                                  .every((element) => element)
+                              ? LocaleKeys.settings_files_deselectAll.tr()
+                              : LocaleKeys.settings_files_selectAll.tr(),
+                          onPressed: () {
+                            context
+                                .read<SettingsFileExporterCubit>()
+                                .selectOrDeselectAllItems();
+                          },
+                        ),
+                      )
+                    ],
                   ),
                   const VSpace(8),
                   const Expanded(child: _ExpandedList()),
