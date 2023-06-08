@@ -113,7 +113,7 @@ impl Folder2Manager {
   }
 
   /// Called immediately after the application launched fi the user already sign in/sign up.
-  #[tracing::instrument(level = "debug", skip(self), err)]
+  #[tracing::instrument(level = "info", skip(self), err)]
   pub async fn initialize(&self, uid: i64, workspace_id: &str) -> FlowyResult<()> {
     let workspace_id = workspace_id.to_string();
     if let Ok(collab_db) = self.user.collab_db() {
@@ -175,6 +175,7 @@ impl Folder2Manager {
   ///
   pub async fn clear(&self, _user_id: i64) {}
 
+  #[tracing::instrument(level = "info", skip_all, err)]
   pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> FlowyResult<Workspace> {
     let workspace = self
       .cloud_service
@@ -193,6 +194,7 @@ impl Folder2Manager {
     Ok(workspace)
   }
 
+  #[tracing::instrument(level = "info", skip_all, err)]
   pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<Workspace> {
     self.with_folder(Err(FlowyError::internal()), |folder| {
       let workspace = folder
