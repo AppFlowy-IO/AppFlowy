@@ -10,7 +10,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import '../../../../grid/presentation/layout/sizes.dart';
 import '../../accessory/cell_accessory.dart';
 import '../../cell_builder.dart';
@@ -36,19 +36,20 @@ enum GridURLCellAccessoryType {
 }
 
 class GridURLCell extends GridCellWidget {
-  final CellControllerBuilder cellControllerBuilder;
-  late final GridURLCellStyle? cellStyle;
   GridURLCell({
+    super.key,
     required this.cellControllerBuilder,
     GridCellStyle? style,
-    Key? key,
-  }) : super(key: key) {
+  }) {
     if (style != null) {
       cellStyle = (style as GridURLCellStyle);
     } else {
       cellStyle = null;
     }
   }
+
+  final CellControllerBuilder cellControllerBuilder;
+  late final GridURLCellStyle? cellStyle;
 
   @override
   GridCellState<GridURLCell> createState() => _GridURLCellState();
@@ -104,28 +105,35 @@ class GridURLCell extends GridCellWidget {
       };
 }
 
-class _GridURLCellState extends GridCellState<GridURLCell> {
+class _GridURLCellState extends GridFocusNodeCellState<GridURLCell> {
   final _popoverController = PopoverController();
-  late URLCellBloc _cellBloc;
-  late TextEditingController _controller;
-  late FocusNode _focusNode;
+  late final URLCellBloc _cellBloc;
+  late final TextEditingController _controller;
 
   @override
   void initState() {
+    super.initState();
+
     final cellController =
         widget.cellControllerBuilder.build() as URLCellController;
-    _cellBloc = URLCellBloc(cellController: cellController);
-    _cellBloc.add(const URLCellEvent.initial());
+    _cellBloc = URLCellBloc(cellController: cellController)
+      ..add(const URLCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
-    _focusNode = FocusNode();
-    super.initState();
+  }
+
+  @override
+  Future<void> dispose() async {
+    _cellBloc.close();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
-      child: BlocBuilder<URLCellBloc, URLCellState>(
+      child: BlocConsumer<URLCellBloc, URLCellState>(
+        listenWhen: (previous, current) => previous.content != current.content,
+        listener: (context, state) => _controller.text = state.content,
         builder: (context, state) {
           final urlEditor = Padding(
             padding: EdgeInsets.only(
@@ -134,7 +142,7 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
             ),
             child: TextField(
               controller: _controller,
-              focusNode: _focusNode,
+              focusNode: focusNode,
               maxLines: 1,
               style: (widget.cellStyle?.textStyle ??
                       Theme.of(context).textTheme.bodyMedium)
@@ -143,8 +151,6 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
                 decoration: TextDecoration.underline,
               ),
               autofocus: false,
-              onEditingComplete: focusChanged,
-              onSubmitted: (value) => focusChanged(isUrlSubmitted: true),
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.only(
                   top: GridSize.cellContentInsets.top,
@@ -162,24 +168,10 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
     );
   }
 
-  void focusChanged({
-    bool isUrlSubmitted = false,
-  }) {
-    if (mounted) {
-      if (_cellBloc.isClosed == false &&
-          _controller.text != _cellBloc.state.content) {
-        _cellBloc.add(URLCellEvent.updateURL(_controller.text));
-      }
-      if (isUrlSubmitted) {
-        _focusNode.unfocus();
-      }
-    }
-  }
-
   @override
-  Future<void> dispose() async {
-    _cellBloc.close();
-    super.dispose();
+  Future<void> focusChanged() async {
+    _cellBloc.add(URLCellEvent.updateURL(_controller.text));
+    return super.focusChanged();
   }
 
   @override
@@ -192,19 +184,17 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
   String? onCopy() => _cellBloc.state.content;
 
   @override
-  void onInsert(String value) {
-    _cellBloc.add(URLCellEvent.updateURL(value));
-  }
+  void onInsert(String value) => _cellBloc.add(URLCellEvent.updateURL(value));
 }
 
 class _EditURLAccessory extends StatefulWidget {
-  final CellControllerBuilder cellControllerBuilder;
-  final BuildContext anchorContext;
   const _EditURLAccessory({
     required this.cellControllerBuilder,
     required this.anchorContext,
-    Key? key,
-  }) : super(key: key);
+  });
+
+  final CellControllerBuilder cellControllerBuilder;
+  final BuildContext anchorContext;
 
   @override
   State<StatefulWidget> createState() => _EditURLAccessoryState();
@@ -212,20 +202,14 @@ class _EditURLAccessory extends StatefulWidget {
 
 class _EditURLAccessoryState extends State<_EditURLAccessory>
     with GridCellAccessoryState {
-  late PopoverController _popoverController;
-
-  @override
-  void initState() {
-    _popoverController = PopoverController();
-    super.initState();
-  }
+  final popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       margin: EdgeInsets.zero,
       constraints: BoxConstraints.loose(const Size(300, 160)),
-      controller: _popoverController,
+      controller: popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(0, 8),
       child: svgWidget(
@@ -236,7 +220,7 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
         return URLEditorPopover(
           cellController:
               widget.cellControllerBuilder.build() as URLCellController,
-          onExit: () => _popoverController.close(),
+          onExit: () => popoverController.close(),
         );
       },
     );
@@ -244,14 +228,17 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
 
   @override
   void onTap() {
-    _popoverController.show();
+    popoverController.show();
   }
 }
 
 class _CopyURLAccessory extends StatefulWidget {
+  const _CopyURLAccessory({
+    super.key,
+    required this.cellContext,
+  });
+
   final URLCellController cellContext;
-  const _CopyURLAccessory({required this.cellContext, Key? key})
-      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _CopyURLAccessoryState();
@@ -270,16 +257,22 @@ class _CopyURLAccessoryState extends State<_CopyURLAccessory>
   @override
   void onTap() {
     final content =
-        widget.cellContext.getCellData(loadIfNotExist: false)?.content ?? "";
+        widget.cellContext.getCellData(loadIfNotExist: false)?.content;
+    if (content == null) {
+      return;
+    }
     Clipboard.setData(ClipboardData(text: content));
     showMessageToast(LocaleKeys.grid_row_copyProperty.tr());
   }
 }
 
 class _VisitURLAccessory extends StatefulWidget {
+  const _VisitURLAccessory({
+    super.key,
+    required this.cellContext,
+  });
+
   final URLCellController cellContext;
-  const _VisitURLAccessory({required this.cellContext, Key? key})
-      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _VisitURLAccessoryState();
@@ -297,14 +290,14 @@ class _VisitURLAccessoryState extends State<_VisitURLAccessory>
 
   @override
   void onTap() {
-    var content =
-        widget.cellContext.getCellData(loadIfNotExist: false)?.content ?? "";
-    if (!content.startsWith('http://') && !content.startsWith('https://')) {
-      content = 'http://$content';
+    final content =
+        widget.cellContext.getCellData(loadIfNotExist: false)?.content;
+    if (content == null) {
+      return;
     }
-    final uri = Uri.parse(content);
-    if (content.isNotEmpty) {
-      canLaunchUrl(uri).then((value) => launchUrl(uri));
-    }
+    final shouldAddScheme =
+        !['http', 'https'].any((pattern) => content.startsWith(pattern));
+    final url = shouldAddScheme ? 'http://$content' : content;
+    canLaunchUrlString(url).then((value) => launchUrlString(url));
   }
 }

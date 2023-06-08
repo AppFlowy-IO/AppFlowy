@@ -55,6 +55,18 @@ class SettingsFileExporterCubit extends Cubit<SettingsFileExportState> {
     required List<ViewPB> views,
   }) : super(SettingsFileExportState(views: views));
 
+  void selectOrDeselectAllItems() {
+    final List<List<bool>> selectedItems = state.selectedItems;
+    final isSelectAll =
+        selectedItems.expand((element) => element).every((element) => element);
+    for (var i = 0; i < selectedItems.length; i++) {
+      for (var j = 0; j < selectedItems[i].length; j++) {
+        selectedItems[i][j] = !isSelectAll;
+      }
+    }
+    emit(state.copyWith(selectedItems: selectedItems));
+  }
+
   void selectOrDeselectItem(int outerIndex, int innerIndex) {
     final selectedItems = state.selectedItems;
     selectedItems[outerIndex][innerIndex] =
@@ -69,7 +81,7 @@ class SettingsFileExporterCubit extends Cubit<SettingsFileExportState> {
   }
 
   Map<String, List<String>> fetchSelectedPages() {
-    final apps = state.views;
+    final views = state.views;
     final selectedItems = state.selectedItems;
     final Map<String, List<String>> result = {};
     for (var i = 0; i < selectedItems.length; i++) {
@@ -77,11 +89,11 @@ class SettingsFileExporterCubit extends Cubit<SettingsFileExportState> {
       final ids = <String>[];
       for (var j = 0; j < selectedItem.length; j++) {
         if (selectedItem[j]) {
-          ids.add(apps[i].childViews[j].id);
+          ids.add(views[i].childViews[j].id);
         }
       }
       if (ids.isNotEmpty) {
-        result[apps[i].id] = ids;
+        result[views[i].id] = ids;
       }
     }
     return result;

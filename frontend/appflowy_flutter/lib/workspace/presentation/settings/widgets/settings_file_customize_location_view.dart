@@ -129,12 +129,14 @@ class _CopyableText extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                if (onHover)
+                if (onHover) ...[
+                  const HSpace(5),
                   FlowyText.regular(
                     LocaleKeys.settings_files_copy.tr(),
                     fontSize: 12,
                     color: Theme.of(context).colorScheme.primary,
-                  )
+                  ),
+                ],
               ],
             ),
           ),

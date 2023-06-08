@@ -53,6 +53,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        const Spacer(),
         FlowyLogoTitle(
           title: LocaleKeys.welcomeText.tr(),
           logoSize: const Size.square(40),
@@ -68,8 +69,6 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
           },
         ),
         const VSpace(32),
-        _buildSubscribeButtons(context),
-        const VSpace(32),
         SizedBox(
           width: MediaQuery.of(context).size.width * 0.5,
           child: FolderWidget(
@@ -78,7 +77,10 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
             },
           ),
         ),
-        const VSpace(64),
+        const Spacer(),
+        const VSpace(48),
+        _buildSubscribeButtons(context),
+        const VSpace(24),
       ],
     );
   }
@@ -182,6 +184,7 @@ class GoButton extends StatelessWidget {
         maxWidth: 340,
         maxHeight: 48,
       ),
+      radius: BorderRadius.circular(12),
       mainAxisAlignment: MainAxisAlignment.center,
       fontSize: FontSizes.s14,
       fontFamily: GoogleFonts.poppins(fontWeight: FontWeight.w500).fontFamily,

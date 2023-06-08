@@ -3,6 +3,7 @@ import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:styled_widget/styled_widget.dart';
 
 import '../../../../generated/locale_keys.g.dart';
 
@@ -25,8 +26,9 @@ class SettingsExportFileWidgetState extends State<SettingsExportFileWidget> {
       children: [
         FlowyText.medium(
           LocaleKeys.settings_files_exportData.tr(),
+          fontSize: 13,
           overflow: TextOverflow.ellipsis,
-        ),
+        ).padding(horizontal: 5.0),
         const Spacer(),
         _OpenExportedDirectoryButton(
           onTap: () async {
@@ -62,7 +64,7 @@ class _OpenExportedDirectoryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyIconButton(
       hoverColor: Theme.of(context).colorScheme.secondaryContainer,
-      tooltipText: LocaleKeys.settings_files_open.tr(),
+      tooltipText: LocaleKeys.settings_files_export.tr(),
       icon: svgWidget(
         'common/open_folder',
         color: Theme.of(context).iconTheme.color,

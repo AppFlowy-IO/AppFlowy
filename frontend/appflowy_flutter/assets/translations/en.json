@@ -196,6 +196,8 @@
       "restartApp": "Please restart app for the changes to take effect.",
       "exportDatabase": "Export database",
       "selectFiles": "Select the files that need to be export",
+      "selectAll": "Select all",
+      "deselectAll": "Deselect all",
       "createNewFolder": "Create a new folder",
       "createNewFolderDesc": "Tell us where you want to store your data",
       "defineWhereYourDataIsStored": "Define where your data is stored",
@@ -211,12 +213,13 @@
       "folderPath": "Path to store your folder",
       "locationCannotBeEmpty": "Path cannot be empty",
       "pathCopiedSnackbar": "File storage path copied to clipboard!",
-      "changeLocationTooltips": "Change the files read the data directory",
+      "changeLocationTooltips": "Change the data directory",
       "change": "Change",
-      "openLocationTooltips": "Open the files read the data directory",
-      "recoverLocationTooltips": "Recover the files read the data directory",
+      "openLocationTooltips": "Open another data directory",
+      "recoverLocationTooltips": "Reset to AppFlowy's default data directory",
       "exportFileSuccess": "Export file successfully!",
-      "exportFileFail": "Export file failed!"
+      "exportFileFail": "Export file failed!",
+      "export": "Export"
     },
     "user": {
       "name": "Name",
