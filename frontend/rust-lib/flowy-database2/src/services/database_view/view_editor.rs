@@ -375,6 +375,7 @@ impl DatabaseViewEditor {
       .as_ref()?
       .groups()
       .into_iter()
+      .filter(|group| group.is_visible)
       .map(|group_data| GroupPB::from(group_data.clone()))
       .collect::<Vec<_>>();
     tracing::trace!("Number of groups: {}", groups.len());

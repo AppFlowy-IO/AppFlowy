@@ -527,7 +527,7 @@ pub(crate) async fn update_date_cell_handler(
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> Result<(), FlowyError> {
   let data = data.into_inner();
-  let cell_id: CellIdParams = data.cell_path.try_into()?;
+  let cell_id: CellIdParams = data.cell_id.try_into()?;
   let cell_changeset = DateCellChangeset {
     date: data.date,
     time: data.time,

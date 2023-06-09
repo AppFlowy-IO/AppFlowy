@@ -1,3 +1,5 @@
+use bytes::Bytes;
+use std::convert::TryFrom;
 use std::env::temp_dir;
 use std::sync::Arc;
 
@@ -139,6 +141,30 @@ impl FlowyCoreTest {
       desc: "".to_string(),
       thumbnail: None,
       layout: ViewLayoutPB::Board,
+      initial_data,
+      meta: Default::default(),
+      set_as_current: true,
+    };
+    EventBuilder::new(self.clone())
+      .event(flowy_folder2::event_map::FolderEvent::CreateView)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<flowy_folder2::entities::ViewPB>()
+  }
+
+  pub async fn create_calendar(
+    &self,
+    parent_id: &str,
+    name: String,
+    initial_data: Vec<u8>,
+  ) -> ViewPB {
+    let payload = CreateViewPayloadPB {
+      parent_view_id: parent_id.to_string(),
+      name,
+      desc: "".to_string(),
+      thumbnail: None,
+      layout: ViewLayoutPB::Calendar,
       initial_data,
       meta: Default::default(),
       set_as_current: true,
@@ -318,6 +344,15 @@ impl FlowyCoreTest {
       .error()
   }
 
+  pub async fn update_date_cell(&self, changeset: DateChangesetPB) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::UpdateDateCell)
+      .payload(changeset)
+      .async_send()
+      .await
+      .error()
+  }
+
   pub async fn get_cell(&self, view_id: &str, row_id: &str, field_id: &str) -> CellPB {
     EventBuilder::new(self.clone())
       .event(flowy_database2::event_map::DatabaseEvent::GetCell)
@@ -329,6 +364,11 @@ impl FlowyCoreTest {
       .async_send()
       .await
       .parse::<CellPB>()
+  }
+
+  pub async fn get_date_cell(&self, view_id: &str, row_id: &str, field_id: &str) -> DateCellDataPB {
+    let cell = self.get_cell(view_id, row_id, field_id).await;
+    DateCellDataPB::try_from(Bytes::from(cell.data)).unwrap()
   }
 
   pub async fn get_checklist_cell(
@@ -456,6 +496,18 @@ impl FlowyCoreTest {
       .async_send()
       .await
       .error()
+  }
+
+  pub async fn get_all_calendar_events(&self, view_id: &str) -> Vec<CalendarEventPB> {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::GetAllCalendarEvents)
+      .payload(CalendarEventRequestPB {
+        view_id: view_id.to_string(),
+      })
+      .async_send()
+      .await
+      .parse::<RepeatedCalendarEventPB>()
+      .items
   }
 
   pub async fn get_view(&self, view_id: &str) -> ViewPB {

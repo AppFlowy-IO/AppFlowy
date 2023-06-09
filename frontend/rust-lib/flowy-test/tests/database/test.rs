@@ -1,10 +1,11 @@
 use std::convert::TryFrom;
 
 use bytes::Bytes;
+use lib_infra::util::timestamp;
 
 use flowy_database2::entities::{
-  CellChangesetPB, ChecklistCellDataChangesetPB, DatabaseLayoutPB, DatabaseSettingChangesetPB,
-  DatabaseViewIdPB, FieldType, SelectOptionCellDataPB,
+  CellChangesetPB, CellIdPB, ChecklistCellDataChangesetPB, DatabaseLayoutPB,
+  DatabaseSettingChangesetPB, DatabaseViewIdPB, DateChangesetPB, FieldType, SelectOptionCellDataPB,
 };
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
@@ -401,16 +402,93 @@ async fn update_single_select_cell_event_test() {
   let field_id = fields[1].id.clone();
   assert_eq!(fields[1].field_type, FieldType::SingleSelect);
 
+  // Insert a new option. This should update the cell with the new option.
   let error = test
     .insert_option(&grid_view.id, &field_id, &row_id, "task 1")
     .await;
   assert!(error.is_none());
 
+  // Check that the cell data is updated.
   let cell = test.get_cell(&grid_view.id, &row_id, &field_id).await;
   let select_option_cell = SelectOptionCellDataPB::try_from(Bytes::from(cell.data)).unwrap();
 
   assert_eq!(select_option_cell.options.len(), 1);
   assert_eq!(select_option_cell.select_options.len(), 1);
+}
+
+#[tokio::test]
+async fn update_date_cell_event_test() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let grid_view = test
+    .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
+    .await;
+  let database = test.get_database(&grid_view.id).await;
+
+  // Create a date field
+  let date_field = test.create_field(&grid_view.id, FieldType::DateTime).await;
+
+  let cell_path = CellIdPB {
+    view_id: grid_view.id.clone(),
+    field_id: date_field.id.clone(),
+    row_id: database.rows[0].id.clone(),
+  };
+
+  // Insert data into the date cell of the first row.
+  let timestamp = 1686300557;
+  let timestamp_str = 1686300557.to_string();
+  let error = test
+    .update_date_cell(DateChangesetPB {
+      cell_id: cell_path,
+      date: Some(timestamp_str.clone()),
+      time: None,
+      include_time: None,
+    })
+    .await;
+  assert!(error.is_none());
+
+  // Check that the cell data is updated.
+  let cell = test
+    .get_date_cell(&grid_view.id, &database.rows[0].id, &date_field.id)
+    .await;
+  assert_eq!(cell.date, "Jun 09, 2023");
+  assert_eq!(cell.timestamp, timestamp);
+}
+
+#[tokio::test]
+async fn update_date_cell_event_with_empty_time_str_test() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let grid_view = test
+    .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
+    .await;
+  let database = test.get_database(&grid_view.id).await;
+  let row_id = database.rows[0].id.clone();
+
+  // Create a date field
+  let date_field = test.create_field(&grid_view.id, FieldType::DateTime).await;
+  let cell_path = CellIdPB {
+    view_id: grid_view.id.clone(),
+    field_id: date_field.id.clone(),
+    row_id: row_id.clone(),
+  };
+
+  // Insert empty timestamp string
+  let error = test
+    .update_date_cell(DateChangesetPB {
+      cell_id: cell_path,
+      date: Some("".to_string()),
+      ..Default::default()
+    })
+    .await;
+  assert!(error.is_none());
+
+  // Check that the cell data is updated.
+  let cell = test
+    .get_date_cell(&grid_view.id, &row_id, &date_field.id)
+    .await;
+  assert_eq!(cell.date, "");
+  assert_eq!(cell.timestamp, 0);
 }
 
 #[tokio::test]
@@ -571,29 +649,50 @@ async fn move_group_event_with_invalid_id_test() {
   assert!(error.is_some());
 }
 
-// #[tokio::test]
-// async fn update_group_event_test() {
-//   let test = FlowyCoreTest::new_with_user().await;
-//   let current_workspace = test.get_current_workspace().await.workspace;
-//   let board_view = test
-//     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
-//     .await;
-//
-//   // Empty to group id
-//   let groups = test.get_groups(&board_view.id).await;
-//   let error = test
-//     .update_group(
-//       &board_view.id,
-//       &groups[0].group_id,
-//       Some("new name".to_owned()),
-//       None,
-//     )
-//     .await;
-//   assert!(error.is_none());
-//
-//   let groups = test.get_groups(&board_view.id).await;
-//   assert_eq!(groups[0].group_name, "new name".to_owned());
-// }
+#[tokio::test]
+async fn rename_group_event_test() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let board_view = test
+    .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
+    .await;
+
+  // Empty to group id
+  let groups = test.get_groups(&board_view.id).await;
+  let error = test
+    .update_group(
+      &board_view.id,
+      &groups[0].group_id,
+      Some("new name".to_owned()),
+      None,
+    )
+    .await;
+  assert!(error.is_none());
+
+  let groups = test.get_groups(&board_view.id).await;
+  assert_eq!(groups[0].group_name, "new name".to_owned());
+}
+
+#[tokio::test]
+async fn hide_group_event_test2() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let board_view = test
+    .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
+    .await;
+
+  // Empty to group id
+  let groups = test.get_groups(&board_view.id).await;
+  assert_eq!(groups.len(), 4);
+
+  let error = test
+    .update_group(&board_view.id, &groups[0].group_id, None, Some(false))
+    .await;
+  assert!(error.is_none());
+
+  let groups = test.get_groups(&board_view.id).await;
+  assert_eq!(groups.len(), 3);
+}
 
 // Update the database layout type from grid to board
 #[tokio::test]
@@ -665,4 +764,53 @@ async fn set_group_by_checkbox_field_test() {
 
   let groups = test.get_groups(&board_view.id).await;
   assert_eq!(groups.len(), 2);
+}
+
+#[tokio::test]
+async fn get_all_calendar_event_test() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let calendar_view = test
+    .create_calendar(&current_workspace.id, "my calendar view".to_owned(), vec![])
+    .await;
+
+  // By default, there should be no events
+  let events = test.get_all_calendar_events(&calendar_view.id).await;
+  assert!(events.is_empty());
+}
+
+#[tokio::test]
+async fn create_calendar_event_test() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let calendar_view = test
+    .create_calendar(&current_workspace.id, "my calendar view".to_owned(), vec![])
+    .await;
+  let fields = test.get_all_database_fields(&calendar_view.id).await.items;
+  let date_field = fields
+    .iter()
+    .find(|field| field.field_type == FieldType::DateTime)
+    .unwrap();
+
+  // create a new row
+  let row = test.create_row(&calendar_view.id, None, None).await;
+
+  // Insert data into the date cell of the first row.
+  let timestamp_str = timestamp().to_string();
+  let error = test
+    .update_date_cell(DateChangesetPB {
+      cell_id: CellIdPB {
+        view_id: calendar_view.id.clone(),
+        field_id: date_field.id.clone(),
+        row_id: row.id,
+      },
+      date: Some(timestamp_str.clone()),
+      time: None,
+      include_time: None,
+    })
+    .await;
+  assert!(error.is_none());
+
+  let events = test.get_all_calendar_events(&calendar_view.id).await;
+  assert_eq!(events.len(), 1);
 }
