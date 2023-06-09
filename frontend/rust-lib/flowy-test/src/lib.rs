@@ -417,6 +417,47 @@ impl FlowyCoreTest {
       .error()
   }
 
+  pub async fn set_group_by_field(&self, view_id: &str, field_id: &str) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::SetGroupByField)
+      .payload(GroupByFieldPayloadPB {
+        field_id: field_id.to_string(),
+        view_id: view_id.to_string(),
+      })
+      .async_send()
+      .await
+      .error()
+  }
+
+  pub async fn update_group(
+    &self,
+    view_id: &str,
+    group_id: &str,
+    name: Option<String>,
+    visible: Option<bool>,
+  ) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::UpdateGroup)
+      .payload(UpdateGroupPB {
+        view_id: view_id.to_string(),
+        group_id: group_id.to_string(),
+        name,
+        visible,
+      })
+      .async_send()
+      .await
+      .error()
+  }
+
+  pub async fn update_setting(&self, changeset: DatabaseSettingChangesetPB) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::UpdateDatabaseSetting)
+      .payload(changeset)
+      .async_send()
+      .await
+      .error()
+  }
+
   pub async fn get_view(&self, view_id: &str) -> ViewPB {
     EventBuilder::new(self.clone())
       .event(flowy_folder2::event_map::FolderEvent::ReadView)

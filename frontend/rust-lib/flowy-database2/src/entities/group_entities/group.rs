@@ -76,7 +76,7 @@ pub struct GroupPB {
   pub group_id: String,
 
   #[pb(index = 3)]
-  pub desc: String,
+  pub group_name: String,
 
   #[pb(index = 4)]
   pub rows: Vec<RowPB>,
@@ -93,7 +93,7 @@ impl std::convert::From<GroupData> for GroupPB {
     Self {
       field_id: group_data.field_id,
       group_id: group_data.id,
-      desc: group_data.name,
+      group_name: group_data.name,
       rows: group_data.rows.into_iter().map(RowPB::from).collect(),
       is_default: group_data.is_default,
       is_visible: group_data.is_visible,
@@ -108,9 +108,6 @@ pub struct GroupByFieldPayloadPB {
 
   #[pb(index = 2)]
   pub view_id: String,
-
-  #[pb(index = 3)]
-  pub field_type: FieldType,
 }
 
 impl TryInto<GroupByFieldParams> for GroupByFieldPayloadPB {
@@ -124,18 +121,13 @@ impl TryInto<GroupByFieldParams> for GroupByFieldPayloadPB {
       .map_err(|_| ErrorCode::ViewIdIsInvalid)?
       .0;
 
-    Ok(GroupByFieldParams {
-      field_id,
-      view_id,
-      field_type: self.field_type,
-    })
+    Ok(GroupByFieldParams { field_id, view_id })
   }
 }
 
 pub struct GroupByFieldParams {
   pub field_id: String,
   pub view_id: String,
-  pub field_type: FieldType,
 }
 
 pub struct DeleteGroupParams {

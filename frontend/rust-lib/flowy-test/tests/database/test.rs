@@ -3,8 +3,8 @@ use std::convert::TryFrom;
 use bytes::Bytes;
 
 use flowy_database2::entities::{
-  CellChangesetPB, ChecklistCellDataChangesetPB, DatabaseLayoutPB, DatabaseViewIdPB, FieldType,
-  SelectOptionCellDataPB,
+  CellChangesetPB, ChecklistCellDataChangesetPB, DatabaseLayoutPB, DatabaseSettingChangesetPB,
+  DatabaseViewIdPB, FieldType, SelectOptionCellDataPB,
 };
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
@@ -490,7 +490,7 @@ async fn update_checklist_cell_test() {
   assert_eq!(cell.percentage, 0.6666666666666666);
 }
 
-// The number of groups should be 1 if there is no group by field in grid
+// The number of groups should be 0 if there is no group by field in grid
 #[tokio::test]
 async fn get_groups_event_with_grid_test() {
   let test = FlowyCoreTest::new_with_user().await;
@@ -569,4 +569,100 @@ async fn move_group_event_with_invalid_id_test() {
     .move_group(&board_view.id, "", &groups[1].group_id)
     .await;
   assert!(error.is_some());
+}
+
+// #[tokio::test]
+// async fn update_group_event_test() {
+//   let test = FlowyCoreTest::new_with_user().await;
+//   let current_workspace = test.get_current_workspace().await.workspace;
+//   let board_view = test
+//     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
+//     .await;
+//
+//   // Empty to group id
+//   let groups = test.get_groups(&board_view.id).await;
+//   let error = test
+//     .update_group(
+//       &board_view.id,
+//       &groups[0].group_id,
+//       Some("new name".to_owned()),
+//       None,
+//     )
+//     .await;
+//   assert!(error.is_none());
+//
+//   let groups = test.get_groups(&board_view.id).await;
+//   assert_eq!(groups[0].group_name, "new name".to_owned());
+// }
+
+// Update the database layout type from grid to board
+#[tokio::test]
+async fn update_database_layout_event_test() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let grid_view = test
+    .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
+    .await;
+
+  let error = test
+    .update_setting(DatabaseSettingChangesetPB {
+      view_id: grid_view.id.clone(),
+      layout_type: Some(DatabaseLayoutPB::Board),
+      ..Default::default()
+    })
+    .await;
+  assert!(error.is_none());
+
+  let database = test.get_database(&grid_view.id).await;
+  assert_eq!(database.layout_type, DatabaseLayoutPB::Board);
+}
+
+// Update the database layout type from grid to board. Set the checkbox field as the grouping field
+#[tokio::test]
+async fn update_database_layout_event_test2() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let grid_view = test
+    .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
+    .await;
+  let fields = test.get_all_database_fields(&grid_view.id).await.items;
+
+  let checkbox_field = fields
+    .iter()
+    .find(|field| field.field_type == FieldType::Checkbox)
+    .unwrap();
+  test
+    .set_group_by_field(&grid_view.id, &checkbox_field.id)
+    .await;
+
+  let error = test
+    .update_setting(DatabaseSettingChangesetPB {
+      view_id: grid_view.id.clone(),
+      layout_type: Some(DatabaseLayoutPB::Board),
+      ..Default::default()
+    })
+    .await;
+  assert!(error.is_none());
+
+  // Empty to group id
+  let groups = test.get_groups(&grid_view.id).await;
+  assert_eq!(groups.len(), 2);
+}
+
+// Create a checkbox field in the default board and then set it as the grouping field.
+#[tokio::test]
+async fn set_group_by_checkbox_field_test() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let board_view = test
+    .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
+    .await;
+
+  let checkbox_field = test.create_field(&board_view.id, FieldType::Checkbox).await;
+  test
+    .set_group_by_field(&board_view.id, &checkbox_field.id)
+    .await;
+
+  let groups = test.get_groups(&board_view.id).await;
+  assert_eq!(groups.len(), 2);
 }

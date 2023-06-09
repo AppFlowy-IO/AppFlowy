@@ -230,7 +230,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         for (final group in updatedGroups) {
           final columnController =
               boardController.getGroupController(group.groupId);
-          columnController?.updateGroupName(group.desc);
+          columnController?.updateGroupName(group.groupName);
         }
       },
     );
@@ -285,7 +285,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   AppFlowyGroupData initializeGroupData(GroupPB group) {
     return AppFlowyGroupData(
       id: group.groupId,
-      name: group.desc,
+      name: group.groupName,
       items: _buildGroupItems(group),
       customData: GroupData(
         group: group,
