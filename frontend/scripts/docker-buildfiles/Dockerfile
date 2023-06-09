@@ -2,10 +2,12 @@
 # BUILDER
 #================
 
-FROM archlinux/archlinux:base as builder
+FROM archlinux/archlinux:base-devel as builder
 
 # Upgrade the system
 RUN pacman -Syyu --noconfirm
+RUN sudo pacman -Syu
+
 
 # Set up makepkg user and workdir
 ARG user=makepkg
