@@ -9,26 +9,29 @@ class BuiltInTheme {
 
 class AppTheme {
   // metadata member
+  final bool builtIn;
   final String themeName;
   final FlowyColorScheme lightTheme;
   final FlowyColorScheme darkTheme;
   // static final Map<String, dynamic> _cachedJsonData = {};
 
   const AppTheme({
+    required this.builtIn,
     required this.themeName,
     required this.lightTheme,
     required this.darkTheme,
   });
 
-  static Future<Iterable<AppTheme>> get _plugins async =>
-      (await FlowyPluginService.instance)
-          .plugins
-          .map((plugin) => plugin.themes)
-          .expand((element) => element);
+  static Future<Iterable<AppTheme>> get _plugins async {
+    final instance = await FlowyPluginService.instance;
+    final plugins = await instance.plugins;
+    return plugins.map((plugin) => plugin.themes).expand((element) => element);
+  }
 
-  static Iterable<AppTheme> get _builtins => themeMap.entries
+  static Iterable<AppTheme> get builtins => themeMap.entries
       .map(
         (entry) => AppTheme(
+          builtIn: true,
           themeName: entry.key,
           lightTheme: entry.value[0],
           darkTheme: entry.value[1],
@@ -37,7 +40,7 @@ class AppTheme {
       .toList();
 
   static Future<Iterable<AppTheme>> get themes async => [
-        ..._builtins,
+        ...builtins,
         ...(await _plugins),
       ];
 
