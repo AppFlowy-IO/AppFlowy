@@ -14,7 +14,7 @@ import 'upload_new_theme_widget.dart';
 class ThemeUploadWidget extends StatefulWidget {
   const ThemeUploadWidget({super.key});
 
-  static const double borderRadius = 14;
+  static const double borderRadius = 8;
   static const double buttonFontSize = 14;
   static const Size buttonSize = Size(72, 28);
   static const EdgeInsets padding = EdgeInsets.all(12.0);
@@ -31,7 +31,11 @@ class _ThemeUploadWidgetState extends State<ThemeUploadWidget> {
   void listen(BuildContext context, DynamicPluginState state) {
     setState(() {
       state.when(
-        ready: () {
+        uninitialized: () => null,
+        ready: (plugins) {
+          child = const UploadNewThemeWidget();
+        },
+        deletionSuccess: () {
           child = const UploadNewThemeWidget();
         },
         processing: () {
@@ -40,7 +44,7 @@ class _ThemeUploadWidgetState extends State<ThemeUploadWidget> {
         compilationFailure: (path) {
           child = const ThemeUploadFailureWidget();
         },
-        compilationSuccess: () async {
+        compilationSuccess: () {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: FlowyText.medium(
@@ -50,6 +54,16 @@ class _ThemeUploadWidgetState extends State<ThemeUploadWidget> {
             ),
           );
         },
+        deletionFailure: (path) {
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(
+          //     content: FlowyText.medium(
+          //       color: Theme.of(context).colorScheme.onPrimary,
+          //       "${LocaleKeys.settings_appearance_themeUpload_deletionFailure.tr()} $path",
+          //     ),
+          //   ),
+          // );
+        },
       );
     });
   }
@@ -58,16 +72,13 @@ class _ThemeUploadWidgetState extends State<ThemeUploadWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<DynamicPluginBloc>(
-      create: (_) => DynamicPluginBloc(),
-      child: BlocListener<DynamicPluginBloc, DynamicPluginState>(
-        listener: listen,
-        child: ThemeUploadDecoration(
-          child: AnimatedSwitcher(
-            duration: ThemeUploadWidget.fadeDuration,
-            switchInCurve: Curves.easeInOutCubicEmphasized,
-            child: child,
-          ),
+    return BlocListener<DynamicPluginBloc, DynamicPluginState>(
+      listener: listen,
+      child: ThemeUploadDecoration(
+        child: AnimatedSwitcher(
+          duration: ThemeUploadWidget.fadeDuration,
+          switchInCurve: Curves.easeInOutCubicEmphasized,
+          child: child,
         ),
       ),
     );

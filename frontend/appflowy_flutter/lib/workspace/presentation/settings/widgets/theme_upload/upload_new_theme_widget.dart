@@ -18,19 +18,28 @@ class UploadNewThemeWidget extends StatelessWidget {
           .background
           .withOpacity(ThemeUploadWidget.fadeOpacity),
       padding: ThemeUploadWidget.padding,
-      child: Column(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          svgWidget(
-            'folder',
-            size: ThemeUploadWidget.iconSize,
-            color: Theme.of(context).colorScheme.onBackground,
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                svgWidget(
+                  'folder',
+                  size: ThemeUploadWidget.iconSize,
+                  color: Theme.of(context).colorScheme.onBackground,
+                ),
+                FlowyText.medium(
+                  LocaleKeys.settings_appearance_themeUpload_description.tr(),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const Divider(),
+                ThemeUploadWidget.elementSpacer,
+                const ThemeUploadButton(),
+              ],
+            ),
           ),
-          FlowyText.medium(
-            LocaleKeys.settings_appearance_themeUpload_description.tr(),
-            overflow: TextOverflow.ellipsis,
-          ),
-          ThemeUploadWidget.elementSpacer,
-          const ThemeUploadButton(),
         ],
       ),
     );

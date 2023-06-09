@@ -14,6 +14,11 @@ class ThemeUploadDecoration extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(ThemeUploadWidget.borderRadius),
         color: Theme.of(context).colorScheme.surface,
+        border: Border.all(
+          color: Theme.of(context).colorScheme.onBackground.withOpacity(
+                ThemeUploadWidget.fadeOpacity,
+              ),
+        ),
       ),
       padding: ThemeUploadWidget.padding,
       child: DottedBorder(
