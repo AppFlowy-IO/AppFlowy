@@ -17,7 +17,7 @@ USER $user
 WORKDIR /home/$user
 
 # Install yay
-RUN sudo pacman -S --needed --noconfirm curl tar
+RUN pacman -S --needed --noconfirm curl tar
 RUN curl -sSfL \
     --output yay.tar.gz \
     https://github.com/Jguer/yay/releases/download/v12.0.2/yay_12.0.2_x86_64.tar.gz && \
