@@ -294,7 +294,9 @@ pub(crate) async fn get_row_handler(
 ) -> DataResult<OptionalRowPB, FlowyError> {
   let params: RowIdParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  let row = database_editor.get_row(&params.row_id).map(RowPB::from);
+  let row = database_editor
+    .get_row(&params.view_id, &params.row_id)
+    .map(RowPB::from);
   data_result_ok(OptionalRowPB { row })
 }
 
@@ -525,7 +527,7 @@ pub(crate) async fn update_date_cell_handler(
   manager: AFPluginState<Arc<DatabaseManager2>>,
 ) -> Result<(), FlowyError> {
   let data = data.into_inner();
-  let cell_id: CellIdParams = data.cell_path.try_into()?;
+  let cell_id: CellIdParams = data.cell_id.try_into()?;
   let cell_changeset = DateCellChangeset {
     date: data.date,
     time: data.time,

@@ -80,17 +80,11 @@ impl std::convert::From<CalendarLayout> for CalendarLayoutPB {
 pub struct CalendarEventRequestPB {
   #[pb(index = 1)]
   pub view_id: String,
-
-  // Currently, requesting the events within the specified month
-  // is not supported
-  #[pb(index = 2)]
-  pub month: String,
 }
 
 #[derive(Debug, Clone, Default)]
 pub struct CalendarEventRequestParams {
   pub view_id: String,
-  pub month: String,
 }
 
 impl TryInto<CalendarEventRequestParams> for CalendarEventRequestPB {
@@ -98,10 +92,7 @@ impl TryInto<CalendarEventRequestParams> for CalendarEventRequestPB {
 
   fn try_into(self) -> Result<CalendarEventRequestParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::ViewIdIsInvalid)?;
-    Ok(CalendarEventRequestParams {
-      view_id: view_id.0,
-      month: self.month,
-    })
+    Ok(CalendarEventRequestParams { view_id: view_id.0 })
   }
 }
 

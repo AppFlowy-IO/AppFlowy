@@ -351,15 +351,21 @@ where
   }
 
   pub(crate) fn update_group(&mut self, group_changeset: GroupChangeset) -> FlowyResult<()> {
-    self.mut_group(&group_changeset.group_id, |group| {
+    let update_group = self.mut_group(&group_changeset.group_id, |group| {
       if let Some(visible) = group_changeset.visible {
         group.visible = visible;
       }
-
       if let Some(name) = &group_changeset.name {
         group.name = name.clone();
       }
     })?;
+
+    if let Some(group) = update_group {
+      self.group_by_id.get_mut(&group.id).map(|group_data| {
+        group_data.name = group.name.clone();
+        group_data.is_visible = group.visible;
+      });
+    }
     Ok(())
   }
 
@@ -370,6 +376,11 @@ where
       .await
   }
 
+  /// # Arguments
+  ///
+  /// * `mut_configuration_fn`: mutate the [GroupSetting] and return whether the [GroupSetting] is
+  /// changed. If the [GroupSetting] is changed, the [GroupSetting] will be saved to the storage.
+  ///
   fn mut_configuration(
     &mut self,
     mut_configuration_fn: impl FnOnce(&mut GroupSetting) -> bool,
@@ -392,7 +403,12 @@ where
     Ok(())
   }
 
-  fn mut_group(&mut self, group_id: &str, mut_groups_fn: impl Fn(&mut Group)) -> FlowyResult<()> {
+  fn mut_group(
+    &mut self,
+    group_id: &str,
+    mut_groups_fn: impl Fn(&mut Group),
+  ) -> FlowyResult<Option<Group>> {
+    let mut updated_group = None;
     self.mut_configuration(|configuration| {
       match configuration
         .groups
@@ -402,10 +418,12 @@ where
         None => false,
         Some(group) => {
           mut_groups_fn(group);
+          updated_group = Some(group.clone());
           true
         },
       }
-    })
+    })?;
+    Ok(updated_group)
   }
 }
 

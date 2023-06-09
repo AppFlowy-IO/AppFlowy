@@ -25,7 +25,7 @@ pub struct DateCellDataPB {
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct DateChangesetPB {
   #[pb(index = 1)]
-  pub cell_path: CellIdPB,
+  pub cell_id: CellIdPB,
 
   #[pb(index = 2, one_of)]
   pub date: Option<String>,

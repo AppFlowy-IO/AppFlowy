@@ -135,11 +135,13 @@ impl TryInto<MoveRowParams> for MoveRowPayloadPB {
 
   fn try_into(self) -> Result<MoveRowParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
+    let from_row_id = NotEmptyStr::parse(self.from_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
+    let to_row_id = NotEmptyStr::parse(self.to_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
 
     Ok(MoveRowParams {
       view_id: view_id.0,
-      from_row_id: RowId::from(self.from_row_id),
-      to_row_id: RowId::from(self.to_row_id),
+      from_row_id: RowId::from(from_row_id.0),
+      to_row_id: RowId::from(to_row_id.0),
     })
   }
 }

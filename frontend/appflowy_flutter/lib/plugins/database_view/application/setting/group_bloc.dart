@@ -32,7 +32,6 @@ class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
           setGroupByField: (String fieldId, FieldType fieldType) async {
             final result = await _groupBackendSvc.groupByField(
               fieldId: fieldId,
-              fieldType: fieldType,
             );
             result.fold((l) => null, (err) => Log.error(err));
           },
