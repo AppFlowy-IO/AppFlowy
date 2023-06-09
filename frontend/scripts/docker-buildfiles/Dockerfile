@@ -3,6 +3,7 @@
 #================
 
 FROM archlinux/archlinux:base-devel as builder
+RUN chown root:root /usr/bin/sudo && chmod 4755 /usr/bin/sudo
 
 # Upgrade the system
 RUN pacman -Syyu --noconfirm
