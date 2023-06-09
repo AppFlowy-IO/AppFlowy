@@ -7,6 +7,7 @@ import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/header/add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/section/item.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,7 +16,7 @@ import 'base.dart';
 
 const String readme = 'Read me';
 
-extension AppFlowyLaunch on WidgetTester {
+extension CommonOperations on WidgetTester {
   Future<void> tapGoButton() async {
     final goButton = find.byType(GoButton);
     await tapButton(goButton);
@@ -27,7 +28,7 @@ extension AppFlowyLaunch on WidgetTester {
 
   void expectToSeeWelcomePage() {
     expect(find.byType(HomeStack), findsOneWidget);
-    expect(find.textContaining('Read me'), findsNWidgets(2));
+    expect(find.textContaining('Read me'), findsOneWidget);
   }
 
   Future<void> tapAddButton() async {
@@ -121,5 +122,37 @@ extension AppFlowyLaunch on WidgetTester {
           widget.title == LocaleKeys.settings_files_exportFileSuccess.tr(),
     );
     expect(exportSuccess, findsOneWidget);
+  }
+
+  Future<void> hoverOnCoverPluginAddButton() async {
+    final editor = find.byWidgetPredicate(
+      (widget) => widget is AppFlowyEditor,
+    );
+
+    final gesture = await createGesture(kind: PointerDeviceKind.mouse);
+    await gesture.addPointer(location: Offset.zero);
+    addTearDown(gesture.removePointer);
+    await pump();
+    final topLeft = getTopLeft(editor).translate(20, 20);
+    await gesture.moveTo(topLeft);
+    await pumpAndSettle();
+  }
+
+  Future<void> expectToSeePluginAddCoverAndIconButton() async {
+    final addCover = find.textContaining(
+      LocaleKeys.document_plugins_cover_addCover.tr(),
+    );
+    final addIcon = find.textContaining(
+      LocaleKeys.document_plugins_cover_addIcon.tr(),
+    );
+    expect(addCover, findsOneWidget);
+    expect(addIcon, findsOneWidget);
+  }
+
+  void expectToSeeUserName(String name) {
+    final userName = find.byWidgetPredicate(
+      (widget) => widget is FlowyText && widget.title == name,
+    );
+    expect(userName, findsOneWidget);
   }
 }
