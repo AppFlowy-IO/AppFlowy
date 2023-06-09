@@ -4,10 +4,15 @@ import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/th
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/plugins/bloc/dynamic_plugin_bloc.dart';
+import 'package:flowy_infra/plugins/bloc/dynamic_plugin_state.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'theme_upload/theme_preview.dart';
+import 'utils/form_factor.dart';
 
 class SettingsAppearanceView extends StatelessWidget {
   const SettingsAppearanceView({Key? key}) : super(key: key);
@@ -15,67 +20,71 @@ class SettingsAppearanceView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-        builder: (context, state) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              ThemeModeSetting(currentThemeMode: state.themeMode),
-              ThemeSetting(currentTheme: state.appTheme.themeName),
-              const ThemeUploadWidget(),
-            ],
-          );
-        },
+      child: BlocProvider<DynamicPluginBloc>(
+        create: (_) => DynamicPluginBloc(),
+        child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+          builder: (context, state) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ThemeModeSetting(currentThemeMode: state.themeMode),
+                const ThemeUploadWidget(),
+                const SizedBox(height: ThemeSetting.mainAxisSpacing),
+                ThemeSetting(currentTheme: state.appTheme.themeName),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
 }
-
-class ThemeSetting extends StatelessWidget {
-  final String currentTheme;
+class ThemeSetting extends StatefulWidget {
   const ThemeSetting({
     super.key,
     required this.currentTheme,
   });
 
+  final String currentTheme;
+  static const double crossAxisSpacing = 16;
+  static const double mainAxisSpacing = 16;
+
+  @override
+  State<ThemeSetting> createState() => _ThemeSettingState();
+}
+
+class _ThemeSettingState extends State<ThemeSetting> {
+  late final crossAxisCount =
+      FormFactor.fromWidth(MediaQuery.of(context).size.width).crossAxisCount;
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: FlowyText.medium(
-            LocaleKeys.settings_appearance_theme.tr(),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        AppFlowyPopover(
-          direction: PopoverDirection.bottomWithRightAligned,
-          child: FlowyTextButton(
-            currentTheme,
-            fontColor: Theme.of(context).colorScheme.onBackground,
-            fillColor: Colors.transparent,
-            onPressed: () {},
-          ),
-          popupBuilder: (BuildContext context) {
-            return FutureBuilder<Iterable<String>>(
-              future: AppTheme.themes.then(
-                (value) => value.map((e) => e.themeName),
+        BlocBuilder<DynamicPluginBloc, DynamicPluginState>(
+          buildWhen: (previous, current) => current is Ready,
+          builder: (context, state) {
+            if (state is! Ready) {
+              return const SizedBox.shrink();
+            }
+            final themes = [
+              ...AppTheme.builtins,
+              ...state.plugins.map((plugin) => plugin.themes.first),
+            ];
+            return GridView.builder(
+              shrinkWrap: true,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: ThemeSetting.crossAxisSpacing,
+                mainAxisSpacing: ThemeSetting.mainAxisSpacing,
               ),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return IntrinsicWidth(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        for (final theme in snapshot.data!)
-                          _themeItemButton(context, theme),
-                      ],
-                    ),
-                  );
-                } else {
-                  // return indicator
-                  return const SizedBox();
-                }
+              itemCount: themes.length,
+              itemBuilder: (context, index) {
+                final theme = themes.elementAt(index);
+                return ThemePreview(
+                  // TODO(a-wallen): bad there could be multiple themes
+                  theme: theme,
+                  isCurrentTheme: theme.themeName == widget.currentTheme,
+                );
               },
             );
           },
@@ -89,11 +98,11 @@ class ThemeSetting extends StatelessWidget {
       height: 32,
       child: FlowyButton(
         text: FlowyText.medium(theme),
-        rightIcon: currentTheme == theme
+        rightIcon: widget.currentTheme == theme
             ? const FlowySvg(name: 'grid/checkmark')
             : null,
         onTap: () {
-          if (currentTheme != theme) {
+          if (widget.currentTheme != theme) {
             context.read<AppearanceSettingsCubit>().setTheme(theme);
           }
         },
