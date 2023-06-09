@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_list.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/outline/outline_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -53,6 +54,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     codeBlockItem,
     emojiMenuItem,
     autoGeneratorMenuItem,
+    outlineItem,
   ];
 
   late final Map<String, BlockComponentBuilder> blockComponentBuilders =
@@ -203,6 +205,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       AutoCompletionBlockKeys.type: AutoCompletionBlockComponentBuilder(),
       SmartEditBlockKeys.type: SmartEditBlockComponentBuilder(),
       ToggleListBlockKeys.type: ToggleListBlockComponentBuilder(),
+      OutlineBlockKeys.type: OutlineBlockComponentBuilder(),
     };
 
     final builders = {
