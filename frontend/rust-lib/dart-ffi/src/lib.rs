@@ -58,7 +58,7 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
     },
     Some(e) => e.event_dispatcher.clone(),
   };
-  let _ = AFPluginDispatcher::async_send_with_callback(
+  AFPluginDispatcher::async_send_with_callback(
     dispatcher,
     request,
     move |resp: AFPluginEventResponse| {

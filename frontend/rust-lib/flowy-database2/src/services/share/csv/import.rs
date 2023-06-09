@@ -55,7 +55,6 @@ impl CSVImporter {
 
     let rows = reader
       .records()
-      .into_iter()
       .flat_map(|r| r.ok())
       .map(|record| {
         record

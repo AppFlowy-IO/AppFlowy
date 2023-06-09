@@ -8,7 +8,7 @@ on:
 env:
   NODE_VERSION: "18.16.0"
   PNPM_VERSION: "8.5.0"
-  RUST_TOOLCHAIN: "1.65"
+  RUST_TOOLCHAIN: "1.70"
 
 jobs:
   tauri-build:

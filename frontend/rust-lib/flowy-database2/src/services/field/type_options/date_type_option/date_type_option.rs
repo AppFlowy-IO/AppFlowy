@@ -251,7 +251,7 @@ impl CellDataChangeset for DateTypeOption {
           Ok(time) => Ok(Some(time)),
           Err(_e) => {
             let msg = format!("Parse {} failed", time_str);
-            Err(FlowyError::new(ErrorCode::InvalidDateTimeFormat, &msg))
+            Err(FlowyError::new(ErrorCode::InvalidDateTimeFormat, msg))
           },
         }
       },

@@ -39,8 +39,9 @@ impl From<NumberTypeOptionPB> for NumberTypeOption {
   }
 }
 
-#[derive(Clone, Copy, Debug, ProtoBuf_Enum)]
+#[derive(Clone, Copy, Debug, ProtoBuf_Enum, Default)]
 pub enum NumberFormatPB {
+  #[default]
   Num = 0,
   USD = 1,
   CanadianDollar = 2,
@@ -77,12 +78,6 @@ pub enum NumberFormatPB {
   ArgentinePeso = 34,
   UruguayanPeso = 35,
   Percent = 36,
-}
-
-impl std::default::Default for NumberFormatPB {
-  fn default() -> Self {
-    NumberFormatPB::Num
-  }
 }
 
 impl From<NumberFormat> for NumberFormatPB {

@@ -158,17 +158,12 @@ pub struct BlockEventPayloadPB {
   pub value: String,
 }
 
-#[derive(PartialEq, Eq, Debug, ProtoBuf_Enum, Clone)]
+#[derive(PartialEq, Eq, Debug, ProtoBuf_Enum, Clone, Default)]
 pub enum ExportType {
+  #[default]
   Text = 0,
   Markdown = 1,
   Link = 2,
-}
-
-impl Default for ExportType {
-  fn default() -> Self {
-    ExportType::Text
-  }
 }
 
 impl From<i32> for ExportType {
@@ -203,15 +198,10 @@ pub struct ExportDataPB {
   #[pb(index = 2)]
   pub export_type: ExportType,
 }
-#[derive(PartialEq, Eq, Debug, ProtoBuf_Enum, Clone)]
+#[derive(PartialEq, Eq, Debug, ProtoBuf_Enum, Clone, Default)]
 pub enum ConvertType {
+  #[default]
   Json = 0,
-}
-
-impl Default for ConvertType {
-  fn default() -> Self {
-    ConvertType::Json
-  }
 }
 
 impl From<i32> for ConvertType {

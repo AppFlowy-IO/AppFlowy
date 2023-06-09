@@ -1059,8 +1059,8 @@ fn cell_changesets_from_cell_by_field_id(
 ) -> Vec<CellChangesetNotifyPB> {
   let row_id = row_id.into_inner();
   cell_by_field_id
-    .into_iter()
-    .map(|(field_id, _cell)| CellChangesetNotifyPB {
+    .into_keys()
+    .map(|field_id| CellChangesetNotifyPB {
       view_id: view_id.to_string(),
       row_id: row_id.clone(),
       field_id,

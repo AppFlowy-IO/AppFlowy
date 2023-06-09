@@ -475,7 +475,9 @@ pub struct FieldChangesetParams {
   Deserialize_repr,
 )]
 #[repr(u8)]
+#[derive(Default)]
 pub enum FieldType {
+  #[default]
   RichText = 0,
   Number = 1,
   DateTime = 2,
@@ -486,12 +488,6 @@ pub enum FieldType {
   Checklist = 7,
   LastEditedTime = 8,
   CreatedTime = 9,
-}
-
-impl std::default::Default for FieldType {
-  fn default() -> Self {
-    FieldType::RichText
-  }
 }
 
 impl Display for FieldType {

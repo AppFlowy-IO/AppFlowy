@@ -1,17 +1,12 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use lib_dispatch::prelude::{AFPluginEventResponse, Payload, StatusCode};
 
-#[derive(ProtoBuf_Enum, Clone, Copy)]
+#[derive(ProtoBuf_Enum, Clone, Copy, Default)]
 pub enum FFIStatusCode {
+  #[default]
   Ok = 0,
   Err = 1,
   Internal = 2,
-}
-
-impl std::default::Default for FFIStatusCode {
-  fn default() -> FFIStatusCode {
-    FFIStatusCode::Ok
-  }
 }
 
 #[derive(ProtoBuf, Default)]

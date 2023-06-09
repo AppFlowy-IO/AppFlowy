@@ -31,7 +31,9 @@ impl SelectOption {
 
 #[derive(PartialEq, Eq, Serialize, Deserialize, Debug, Clone)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum SelectOptionColor {
+  #[default]
   Purple = 0,
   Pink = 1,
   LightPink = 2,
@@ -41,12 +43,6 @@ pub enum SelectOptionColor {
   Green = 6,
   Aqua = 7,
   Blue = 8,
-}
-
-impl std::default::Default for SelectOptionColor {
-  fn default() -> Self {
-    SelectOptionColor::Purple
-  }
 }
 
 #[derive(Debug)]

@@ -245,7 +245,7 @@ fn check_bound(current: usize, target: usize) -> Result<(), OTError> {
     let msg = format!("{} should be greater than current: {}", target, current);
     return Err(
       ErrorBuilder::new(OTErrorCode::IncompatibleLength)
-        .msg(&msg)
+        .msg(msg)
         .build(),
     );
   }

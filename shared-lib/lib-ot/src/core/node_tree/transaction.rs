@@ -94,19 +94,14 @@ impl Transaction {
   }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub enum Extension {
+  #[default]
   Empty,
   TextSelection {
     before_selection: Selection,
     after_selection: Selection,
   },
-}
-
-impl std::default::Default for Extension {
-  fn default() -> Self {
-    Extension::Empty
-  }
 }
 
 impl Extension {

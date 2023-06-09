@@ -191,18 +191,14 @@ impl ToString for DateCellData {
   }
 }
 
-#[derive(Clone, Debug, Copy, EnumIter, Serialize, Deserialize)]
+#[derive(Clone, Debug, Copy, EnumIter, Serialize, Deserialize, Default)]
 pub enum DateFormat {
   Local = 0,
   US = 1,
   ISO = 2,
+  #[default]
   Friendly = 3,
   DayMonthYear = 4,
-}
-impl std::default::Default for DateFormat {
-  fn default() -> Self {
-    DateFormat::Friendly
-  }
 }
 
 impl std::convert::From<i64> for DateFormat {
@@ -237,9 +233,10 @@ impl DateFormat {
   }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, EnumIter, Debug, Hash, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, EnumIter, Debug, Hash, Serialize, Deserialize, Default)]
 pub enum TimeFormat {
   TwelveHour = 0,
+  #[default]
   TwentyFourHour = 1,
 }
 
@@ -267,12 +264,6 @@ impl TimeFormat {
       TimeFormat::TwelveHour => "%I:%M %p",
       TimeFormat::TwentyFourHour => "%R",
     }
-  }
-}
-
-impl std::default::Default for TimeFormat {
-  fn default() -> Self {
-    TimeFormat::TwentyFourHour
   }
 }
 
