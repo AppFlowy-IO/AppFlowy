@@ -94,8 +94,7 @@ impl Transaction {
   }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub enum Extension {
   #[default]
   Empty,
@@ -104,8 +103,6 @@ pub enum Extension {
     after_selection: Selection,
   },
 }
-
-
 
 impl Extension {
   fn is_empty(&self) -> bool {

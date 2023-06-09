@@ -13,7 +13,9 @@ pub struct NumberFilterPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum NumberFilterConditionPB {
+  #[default]
   Equal = 0,
   NotEqual = 1,
   GreaterThan = 2,
@@ -22,12 +24,6 @@ pub enum NumberFilterConditionPB {
   LessThanOrEqualTo = 5,
   NumberIsEmpty = 6,
   NumberIsNotEmpty = 7,
-}
-
-impl std::default::Default for NumberFilterConditionPB {
-  fn default() -> Self {
-    NumberFilterConditionPB::Equal
-  }
 }
 
 impl std::convert::From<NumberFilterConditionPB> for u32 {

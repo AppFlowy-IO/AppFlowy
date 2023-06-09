@@ -61,8 +61,6 @@ pub enum ErrorCode {
   Unauthorized = 2,
 }
 
-
-
 impl std::convert::From<url::ParseError> for WSError {
   fn from(error: ParseError) -> Self {
     WSError::internal().context(error)

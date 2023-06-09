@@ -674,7 +674,7 @@ impl DatabaseViewEditor {
         let filter_type = UpdatedFilterType::new(Some(old), new);
         let filter_changeset = FilterChangeset::from_update(filter_type);
         let filter_controller = self.filter_controller.clone();
-        let _ = tokio::spawn(async move {
+        tokio::spawn(async move {
           if let Some(notification) = filter_controller
             .did_receive_changes(filter_changeset)
             .await

@@ -177,7 +177,7 @@ impl UserSession {
 
     let server = self.cloud_services.get_auth_service()?;
     let token = session.token;
-    let _ = tokio::spawn(async move {
+    tokio::spawn(async move {
       match server.sign_out(token).await {
         Ok(_) => {},
         Err(e) => tracing::error!("Sign out failed: {:?}", e),

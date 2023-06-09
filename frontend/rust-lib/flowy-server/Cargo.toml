@@ -24,7 +24,7 @@ postgrest = "1.0"
 tokio-retry = "0.3"
 anyhow = "1.0"
 uuid = { version = "1.3.3", features = ["v4"] }
-chrono = "0.4.24"
+chrono = { version = "0.4.22", default-features = false, features = ["clock"] }
 
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-user = { path = "../flowy-user" }

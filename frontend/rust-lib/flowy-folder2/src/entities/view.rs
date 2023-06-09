@@ -57,18 +57,13 @@ pub fn view_pb_with_child_views(view: View, child_views: Vec<View>) -> ViewPB {
   }
 }
 
-#[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone)]
+#[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Default)]
 pub enum ViewLayoutPB {
+  #[default]
   Document = 0,
   Grid = 1,
   Board = 2,
   Calendar = 3,
-}
-
-impl std::default::Default for ViewLayoutPB {
-  fn default() -> Self {
-    ViewLayoutPB::Document
-  }
 }
 
 impl ViewLayoutPB {

@@ -29,8 +29,6 @@ pub enum WSChannel {
   Database = 2,
 }
 
-
-
 impl ToString for WSChannel {
   fn to_string(&self) -> String {
     match self {

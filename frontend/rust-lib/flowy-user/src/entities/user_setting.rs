@@ -49,17 +49,12 @@ pub struct AppearanceSettingsPB {
 
 const DEFAULT_RESET_VALUE: fn() -> bool = || APPEARANCE_RESET_AS_DEFAULT;
 
-#[derive(ProtoBuf_Enum, Serialize, Deserialize, Clone, Debug)]
+#[derive(ProtoBuf_Enum, Serialize, Deserialize, Clone, Debug, Default)]
 pub enum ThemeModePB {
   Light = 0,
   Dark = 1,
+  #[default]
   System = 2,
-}
-
-impl std::default::Default for ThemeModePB {
-  fn default() -> Self {
-    ThemeModePB::System
-  }
 }
 
 #[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone)]
