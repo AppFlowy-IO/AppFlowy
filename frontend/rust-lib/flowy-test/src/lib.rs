@@ -132,6 +132,25 @@ impl FlowyCoreTest {
       .parse::<flowy_folder2::entities::ViewPB>()
   }
 
+  pub async fn create_board(&self, parent_id: &str, name: String, initial_data: Vec<u8>) -> ViewPB {
+    let payload = CreateViewPayloadPB {
+      parent_view_id: parent_id.to_string(),
+      name,
+      desc: "".to_string(),
+      thumbnail: None,
+      layout: ViewLayoutPB::Board,
+      initial_data,
+      meta: Default::default(),
+      set_as_current: true,
+    };
+    EventBuilder::new(self.clone())
+      .event(flowy_folder2::event_map::FolderEvent::CreateView)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<flowy_folder2::entities::ViewPB>()
+  }
+
   pub async fn get_database(&self, view_id: &str) -> DatabasePB {
     EventBuilder::new(self.clone())
       .event(flowy_database2::event_map::DatabaseEvent::GetDatabase)
@@ -238,7 +257,20 @@ impl FlowyCoreTest {
       .parse::<RowPB>()
   }
 
-  pub async fn get_row(&self, view_id: &str, row_id: &str) -> RowPB {
+  pub async fn delete_row(&self, view_id: &str, row_id: &str) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::DeleteRow)
+      .payload(RowIdPB {
+        view_id: view_id.to_string(),
+        row_id: row_id.to_string(),
+        group_id: None,
+      })
+      .async_send()
+      .await
+      .error()
+  }
+
+  pub async fn get_row(&self, view_id: &str, row_id: &str) -> OptionalRowPB {
     EventBuilder::new(self.clone())
       .event(flowy_database2::event_map::DatabaseEvent::GetRow)
       .payload(RowIdPB {
@@ -248,7 +280,7 @@ impl FlowyCoreTest {
       })
       .async_send()
       .await
-      .parse::<RowPB>()
+      .parse::<OptionalRowPB>()
   }
 
   pub async fn duplicate_row(&self, view_id: &str, row_id: &str) -> Option<FlowyError> {
@@ -258,6 +290,19 @@ impl FlowyCoreTest {
         view_id: view_id.to_string(),
         row_id: row_id.to_string(),
         group_id: None,
+      })
+      .async_send()
+      .await
+      .error()
+  }
+
+  pub async fn move_row(&self, view_id: &str, row_id: &str, to_row_id: &str) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::MoveRow)
+      .payload(MoveRowPayloadPB {
+        view_id: view_id.to_string(),
+        from_row_id: row_id.to_string(),
+        to_row_id: to_row_id.to_string(),
       })
       .async_send()
       .await
@@ -286,6 +331,36 @@ impl FlowyCoreTest {
       .parse::<CellPB>()
   }
 
+  pub async fn get_checklist_cell(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    row_id: &str,
+  ) -> ChecklistCellDataPB {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::GetChecklistCellData)
+      .payload(CellIdPB {
+        view_id: view_id.to_string(),
+        row_id: row_id.to_string(),
+        field_id: field_id.to_string(),
+      })
+      .async_send()
+      .await
+      .parse::<ChecklistCellDataPB>()
+  }
+
+  pub async fn update_checklist_cell(
+    &self,
+    changeset: ChecklistCellDataChangesetPB,
+  ) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::UpdateChecklistCell)
+      .payload(changeset)
+      .async_send()
+      .await
+      .error()
+  }
+
   pub async fn insert_option(
     &self,
     view_id: &str,
@@ -311,6 +386,31 @@ impl FlowyCoreTest {
         field_id: field_id.to_string(),
         row_id: row_id.to_string(),
         items: vec![option],
+      })
+      .async_send()
+      .await
+      .error()
+  }
+
+  pub async fn get_groups(&self, view_id: &str) -> Vec<GroupPB> {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::GetGroups)
+      .payload(DatabaseViewIdPB {
+        value: view_id.to_string(),
+      })
+      .async_send()
+      .await
+      .parse::<RepeatedGroupPB>()
+      .items
+  }
+
+  pub async fn move_group(&self, view_id: &str, from_id: &str, to_id: &str) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::MoveGroup)
+      .payload(MoveGroupPayloadPB {
+        view_id: view_id.to_string(),
+        from_group_id: from_id.to_string(),
+        to_group_id: to_id.to_string(),
       })
       .async_send()
       .await

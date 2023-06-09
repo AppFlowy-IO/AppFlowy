@@ -294,7 +294,9 @@ pub(crate) async fn get_row_handler(
 ) -> DataResult<OptionalRowPB, FlowyError> {
   let params: RowIdParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  let row = database_editor.get_row(&params.row_id).map(RowPB::from);
+  let row = database_editor
+    .get_row(&params.view_id, &params.row_id)
+    .map(RowPB::from);
   data_result_ok(OptionalRowPB { row })
 }
 

@@ -496,8 +496,12 @@ impl DatabaseEditor {
     Ok(view_editor.v_get_rows().await)
   }
 
-  pub fn get_row(&self, row_id: &RowId) -> Option<Row> {
-    self.database.lock().get_row(row_id)
+  pub fn get_row(&self, view_id: &str, row_id: &RowId) -> Option<Row> {
+    if self.database.lock().views.is_row_exist(view_id, row_id) {
+      return None;
+    } else {
+      self.database.lock().get_row(row_id)
+    }
   }
 
   pub async fn delete_row(&self, row_id: &RowId) {
@@ -832,6 +836,11 @@ impl DatabaseEditor {
     from_group: &str,
     to_group: &str,
   ) -> FlowyResult<()> {
+    // Do nothing if the group is the same
+    if from_group == to_group {
+      return Ok(());
+    }
+
     let view = self.database_views.get_view_editor(view_id).await?;
     view.v_move_group(from_group, to_group).await?;
     Ok(())

@@ -158,6 +158,7 @@ impl TryInto<RowIdParams> for RowIdPB {
 
   fn try_into(self) -> Result<RowIdParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let row_id = NotEmptyStr::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
     let group_id = match self.group_id {
       Some(group_id) => Some(
         NotEmptyStr::parse(group_id)
@@ -169,7 +170,7 @@ impl TryInto<RowIdParams> for RowIdPB {
 
     Ok(RowIdParams {
       view_id: view_id.0,
-      row_id: RowId::from(self.row_id),
+      row_id: RowId::from(row_id.0),
       group_id,
     })
   }
