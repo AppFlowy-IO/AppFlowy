@@ -5,10 +5,8 @@
 FROM archlinux/archlinux:base-devel as builder
 RUN chown root:root /usr/bin/sudo && chmod 4755 /usr/bin/sudo
 
-
 # Upgrade the system
 RUN pacman -Syyu --noconfirm
-RUN sudo pacman -Syu
 
 # Set up makepkg user and workdir
 ARG user=makepkg
@@ -18,7 +16,6 @@ RUN useradd --system --create-home $user && \
 ENV PATH="/home/$user/.pub-cache/bin:/home/$user/flutter/bin:/home/$user/flutter/bin/cache/dart-sdk/bin:${PATH}"
 USER $user
 WORKDIR /home/$user
-
 
 # Install yay
 RUN sudo pacman -S --needed --noconfirm curl tar
