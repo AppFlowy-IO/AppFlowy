@@ -9,7 +9,6 @@ use std::{fmt::Debug, io, path::Path};
 
 pub use diesel::*;
 pub use diesel_derives::*;
-use diesel_migrations::*;
 
 use crate::sqlite::PoolConfig;
 pub use crate::sqlite::{ConnectionPool, DBConnection, Database};
