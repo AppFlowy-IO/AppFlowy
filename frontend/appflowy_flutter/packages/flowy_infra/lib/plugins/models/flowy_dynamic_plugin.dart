@@ -5,6 +5,8 @@ import 'package:flowy_infra/colorscheme/colorscheme.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:path/path.dart' as p;
 
+typedef DynamicPluginLibrary = Iterable<FlowyDynamicPlugin>;
+
 /// A class that encapsulates dynamically loaded plugins for AppFlowy.
 ///
 /// This class can be modified to support loading node widget builders and other
@@ -21,9 +23,12 @@ class FlowyDynamicPlugin {
   String get name => _name;
   late final String _name;
 
+  final String path;
+
   final Iterable<AppTheme> themes;
 
   FlowyDynamicPlugin._({
+    required this.path,
     required String name,
     this.themes = const [],
   }) : _name = name;
@@ -87,6 +92,7 @@ class FlowyDynamicPlugin {
         .first as File;
 
     final theme = AppTheme(
+      builtIn: false,
       themeName: name,
       lightTheme:
           FlowyColorScheme.fromJson(jsonDecode(await light.readAsString())),
@@ -96,6 +102,7 @@ class FlowyDynamicPlugin {
 
     return FlowyDynamicPlugin._(
       name: name,
+      path: src.path,
       themes: [
         theme,
       ],

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:flowy_infra/plugins/models/flowy_dynamic_plugin.dart';
 import 'package:flowy_infra/plugins/service/location_service.dart';
+import 'package:flowy_infra/plugins/service/plugin_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
@@ -14,9 +15,9 @@ import 'dynamic_plugin_state.dart';
 class DynamicPluginBloc extends Bloc<DynamicPluginEvent, DynamicPluginState> {
   DynamicPluginBloc({FilePicker? filePicker})
       : _filePicker = filePicker ?? FilePicker(),
-        super(const DynamicPluginState.ready()) {
-    // register the dispatcher
+        super(const DynamicPluginState.uninitialized()) {
     on<DynamicPluginEvent>(dispatch);
+    add(DynamicPluginEvent.load());
   }
 
   final FilePicker _filePicker;
@@ -25,7 +26,18 @@ class DynamicPluginBloc extends Bloc<DynamicPluginEvent, DynamicPluginState> {
       DynamicPluginEvent event, Emitter<DynamicPluginState> emit) async {
     await event.when(
       addPlugin: () => addPlugin(emit),
+      removePlugin: (name) => removePlugin(emit, name),
+      load: () => onLoadRequested(emit),
     );
+  }
+
+  Future<void> onLoadRequested(Emitter<DynamicPluginState> emit) async {
+    await emitReady(emit);
+  }
+
+  Future<void> emitReady(Emitter<DynamicPluginState> emit) async {
+    final service = await FlowyPluginService.instance;
+    emit(DynamicPluginState.ready(plugins: await service.plugins));
   }
 
   Future<void> addPlugin(Emitter<DynamicPluginState> emit) async {
@@ -41,7 +53,7 @@ class DynamicPluginBloc extends Bloc<DynamicPluginEvent, DynamicPluginState> {
     final result = await _filePicker.getDirectoryPath();
 
     if (result == null) {
-      emit(const DynamicPluginState.ready());
+      await emitReady(emit);
       return;
     }
 
@@ -62,10 +74,40 @@ class DynamicPluginBloc extends Bloc<DynamicPluginEvent, DynamicPluginState> {
     ].join(Platform.pathSeparator);
 
     copyDirectorySync(directory, Directory(path));
-
     emit(const DynamicPluginState.compilationSuccess());
-    await Future.delayed(const Duration(seconds: 1));
-    emit(const DynamicPluginState.ready());
+    await emitReady(emit);
+  }
+
+  Future<void> removePlugin(
+      Emitter<DynamicPluginState> emit, String name) async {
+    if (kIsWeb) {
+      throw PlatformException(
+        code: "Exception: Picking files is not supported on the web",
+      );
+    }
+
+    emit(const DynamicPluginState.processing());
+
+    final service = await FlowyPluginService.instance;
+    final plugins = await service.plugins;
+    final targets = plugins.where((element) => element.name == name);
+    // this shouldn't happen, but if it does, we consider the plugin to be removed.
+    if (targets.isEmpty) {
+      return;
+    }
+
+    // There should only be one plugin available, but iterate through them anyway.
+    for (final target in targets) {
+      try {
+        final directory = Directory(target.path);
+        await directory.delete(recursive: true);
+      } on Exception {
+        emit(DynamicPluginState.deletionFailure(path: target.path));
+        return;
+      }
+    }
+    emit(const DynamicPluginState.deletionSuccess());
+    await emitReady(emit);
   }
 
   void copyDirectorySync(Directory source, Directory destination) {
