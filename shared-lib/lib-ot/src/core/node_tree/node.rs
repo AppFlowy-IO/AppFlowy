@@ -121,16 +121,14 @@ impl NodeDataBuilder {
 /// compose, transform and invert.
 ///
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Default)]
 pub enum Body {
+  #[default]
   Empty,
   Delta(DeltaTextOperations),
 }
 
-impl std::default::Default for Body {
-  fn default() -> Self {
-    Body::Empty
-  }
-}
+
 
 impl Body {
   fn is_empty(&self) -> bool {

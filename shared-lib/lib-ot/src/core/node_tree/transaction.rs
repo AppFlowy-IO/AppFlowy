@@ -95,7 +95,9 @@ impl Transaction {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Default)]
 pub enum Extension {
+  #[default]
   Empty,
   TextSelection {
     before_selection: Selection,
@@ -103,11 +105,7 @@ pub enum Extension {
   },
 }
 
-impl std::default::Default for Extension {
-  fn default() -> Self {
-    Extension::Empty
-  }
-}
+
 
 impl Extension {
   fn is_empty(&self) -> bool {
