@@ -2,6 +2,7 @@ import { useMenuStyle } from './index.hooks';
 import { useAppSelector } from '$app/stores/store';
 import TextActionMenuList from '$app/components/document/TextActionMenu/menu';
 import BlockPortal from '$app/components/document/BlockPortal';
+import { useMemo } from 'react';
 
 const TextActionComponent = ({ container }: { container: HTMLDivElement }) => {
   const { ref, id } = useMenuStyle(container);
@@ -27,22 +28,24 @@ const TextActionComponent = ({ container }: { container: HTMLDivElement }) => {
   );
 };
 const TextActionMenu = ({ container }: { container: HTMLDivElement }) => {
-  const canShow = useAppSelector((state) => {
-    const { isDragging, focus, anchor, ranges, caret } = state.documentRange;
-
+  const range = useAppSelector((state) => state.documentRange);
+  const canShow = useMemo(() => {
+    const { isDragging, focus, anchor, ranges, caret } = range;
     // don't show if dragging
     if (isDragging) return false;
     // don't show if no focus or anchor
-    if (!focus || !anchor || !caret) return false;
-    const isSameLine = anchor.id === focus.id;
-    const anchorRange = ranges[anchor.id];
-    // don't show if no anchor range
-    if (!anchorRange) return false;
+    if (!caret) return false;
+    const isSameLine = anchor?.id === focus?.id;
+
     // show toolbar if range has multiple nodes
     if (!isSameLine) return true;
+    const caretRange = ranges[caret.id];
+    // don't show if no caret range
+    if (!caretRange) return false;
     // show toolbar if range is not collapsed
-    return anchorRange.length > 0;
-  });
+    return caretRange.length > 0;
+  }, [range]);
+
   if (!canShow) return null;
 
   return <TextActionComponent container={container} />;

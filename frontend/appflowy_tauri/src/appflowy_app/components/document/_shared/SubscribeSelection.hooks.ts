@@ -10,7 +10,10 @@ export function useSubscribeDecorate(id: string) {
   const linkDecorateSelection = useAppSelector((state) => {
     const linkPopoverState = state.documentLinkPopover;
     if (!linkPopoverState.open || linkPopoverState.id !== id) return null;
-    return linkPopoverState.selection;
+    return {
+      selection: linkPopoverState.selection,
+      placeholder: linkPopoverState.title,
+    };
   });
 
   return {

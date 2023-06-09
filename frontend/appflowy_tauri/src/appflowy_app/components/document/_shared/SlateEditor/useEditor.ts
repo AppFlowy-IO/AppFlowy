@@ -63,7 +63,7 @@ export function useEditor({
             length: number;
           }
         | undefined,
-      key: string
+      value: Record<string, boolean | string | undefined>
     ) => {
       if (!selection) return null;
       const range = convertToSlateSelection(selection.index, selection.length, editor.children) as BaseRange;
@@ -71,8 +71,8 @@ export function useEditor({
         const intersection = Range.intersection(range, Editor.range(editor, path));
         if (intersection) {
           return {
-            [key]: true,
             ...intersection,
+            ...value,
           };
         }
       }
@@ -86,8 +86,13 @@ export function useEditor({
       const [node, path] = entry;
 
       const ranges: Range[] = [
-        getDecorateRange(path, decorateSelection, 'selection_high_lighted'),
-        getDecorateRange(path, linkDecorateSelection, 'link_selection_lighted'),
+        getDecorateRange(path, decorateSelection, {
+          selection_high_lighted: true,
+        }),
+        getDecorateRange(path, linkDecorateSelection?.selection, {
+          link_selection_lighted: true,
+          link_placeholder: linkDecorateSelection?.placeholder,
+        }),
       ].filter((range) => range !== null) as Range[];
 
       return ranges;

@@ -1,53 +1,69 @@
 import React, { useCallback, useContext } from 'react';
 import Popover from '@mui/material/Popover';
 import { Divider } from '@mui/material';
-import Button from '@mui/material/Button';
-import { DeleteOutline } from '@mui/icons-material';
+import { DeleteOutline, Done } from '@mui/icons-material';
 import EditLink from '$app/components/document/_shared/TextLink/EditLink';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { linkPopoverActions, rangeActions } from '$app_reducers/document/slice';
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { updateLinkThunk } from '$app_reducers/document/async-actions';
+import { formatLinkThunk } from '$app_reducers/document/async-actions/link';
+import LinkButton from '$app/components/document/_shared/TextLink/LinkButton';
 
 function LinkEditPopover() {
   const dispatch = useAppDispatch();
   const controller = useContext(DocumentControllerContext);
   const popoverState = useAppSelector((state) => state.documentLinkPopover);
-  const { anchorPosition, id, selection, title = '', href = '', open = false } = popoverState;
+  const { source, anchorPosition, id, selection, title = '', href = '', open = false } = popoverState;
 
   const onClose = useCallback(() => {
+    dispatch(linkPopoverActions.closeLinkPopover());
+  }, [dispatch]);
+
+  const onExited = useCallback(() => {
     if (!id || !selection) return;
+    const newSelection = {
+      index: selection.index,
+      length: title.length,
+    };
     dispatch(
       rangeActions.setRange({
         id,
-        rangeStatic: selection,
+        rangeStatic: newSelection,
       })
     );
     dispatch(
       rangeActions.setCaret({
         id,
-        ...selection,
+        ...newSelection,
       })
     );
-    dispatch(linkPopoverActions.closeLinkPopover());
-  }, [dispatch, id, selection]);
+  }, [id, selection, title, dispatch]);
 
   const onChange = useCallback(
     (newVal: { href?: string; title: string }) => {
-      if (!controller || !id || !selection) return;
+      if (!id) return;
       if (newVal.title === title && newVal.href === href) return;
       dispatch(
         updateLinkThunk({
           id,
           href: newVal.href,
           title: newVal.title,
-          selection,
-          controller,
         })
       );
     },
-    [controller, dispatch, href, id, selection, title]
+    [dispatch, href, id, title]
   );
+
+  const onDone = useCallback(async () => {
+    if (!controller) return;
+    await dispatch(
+      formatLinkThunk({
+        controller,
+      })
+    );
+    onClose();
+  }, [controller, dispatch, onClose]);
 
   return (
     <Popover
@@ -56,6 +72,9 @@ function LinkEditPopover() {
       disableAutoFocus={true}
       anchorReference='anchorPosition'
       anchorPosition={anchorPosition}
+      TransitionProps={{
+        onExited,
+      }}
       onClose={onClose}
       anchorOrigin={{
         vertical: 'bottom',
@@ -75,12 +94,11 @@ function LinkEditPopover() {
         <EditLink
           text={'URL'}
           value={href}
-          onComplete={(link) => {
+          onChange={(link) => {
             onChange({
               href: link,
               title,
             });
-            onClose();
           }}
         />
         <EditLink
@@ -94,23 +112,17 @@ function LinkEditPopover() {
           }
         />
         <Divider />
-        <div className={'pt-1'}>
-          <Button
-            className={'w-[100%]'}
-            style={{
-              justifyContent: 'flex-start',
-            }}
-            startIcon={<DeleteOutline />}
-            onClick={() => {
-              onChange({
-                title,
-              });
-              onClose();
-            }}
-          >
-            Remove link
-          </Button>
-        </div>
+        <LinkButton
+          title={'Remove link'}
+          icon={<DeleteOutline />}
+          onClick={() => {
+            onChange({
+              title,
+            });
+            onDone();
+          }}
+        />
+        <LinkButton title={'Done'} icon={<Done />} onClick={onDone} />
       </div>
     </Popover>
   );

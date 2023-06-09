@@ -15,13 +15,14 @@ export function useTextActionMenu() {
   const isSingleLine = useMemo(() => {
     return range.focus?.id === range.anchor?.id;
   }, [range]);
-  const focusId = range.focus?.id;
+  const focusId = range.caret?.id;
 
   const { node } = useSubscribeNode(focusId || '');
 
   const items = useMemo(() => {
+    if (!node) return [];
     if (isSingleLine) {
-      const config = blockConfig[node?.type];
+      const config = blockConfig[node.type];
       const { customItems, excludeItems } = {
         ...defaultTextActionProps,
         ...config.textActionMenuProps,
@@ -30,7 +31,7 @@ export function useTextActionMenu() {
     } else {
       return multiLineTextActionProps.customItems || [];
     }
-  }, [isSingleLine, node?.type]);
+  }, [isSingleLine, node]);
 
   // the groups have default items, so we need to filter the items if this node has excluded items
   const groupItems: TextAction[][] = useMemo(() => {

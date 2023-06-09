@@ -256,8 +256,11 @@ export interface EditorProps {
   selection?: RangeStaticNoId;
   decorateSelection?: RangeStaticNoId;
   linkDecorateSelection?: {
-    index: number;
-    length: number;
+    selection: {
+      index: number;
+      length: number;
+    };
+    placeholder?: string;
   };
   onSelectionChange?: (range: RangeStaticNoId | null, oldRange: RangeStaticNoId | null, source?: Sources) => void;
   onChange?: (delta: Delta, oldDelta: Delta, source?: Sources) => void;

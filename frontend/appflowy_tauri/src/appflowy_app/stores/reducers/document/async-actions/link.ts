@@ -1,48 +1,37 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
-import { DocumentState } from '$app/interfaces/document';
 import Delta from 'quill-delta';
-import { linkPopoverActions } from '$app_reducers/document/slice';
-import { getDeltaByRange, getDeltaText } from '$app/utils/document/delta';
+import { linkPopoverActions, rangeActions } from '$app_reducers/document/slice';
 import { RootState } from '$app/stores/store';
 
-export const updateLinkThunk = createAsyncThunk<
-  void,
+export const formatLinkThunk = createAsyncThunk<
+  boolean,
   {
-    id: string;
-    href?: string;
-    title: string;
-    selection: {
-      index: number;
-      length: number;
-    };
     controller: DocumentController;
   }
->('document/updateLink', async (payload, thunkAPI) => {
-  const { id, href, title, controller, selection } = payload;
-  const { getState, dispatch } = thunkAPI;
-  const state = (getState() as { document: DocumentState }).document;
-  const node = state.nodes[id];
-  const delta = new Delta(node.data?.delta);
+>('document/formatLink', async (payload, thunkAPI) => {
+  const { controller } = payload;
+  const { getState } = thunkAPI;
+  const state = getState() as RootState;
+  const linkPopover = state.documentLinkPopover;
+  if (!linkPopover) return false;
+  const { selection, id, href, title = '' } = linkPopover;
+  if (!selection || !id) return false;
+  const document = state.document;
+  const node = document.nodes[id];
+  const nodeDelta = new Delta(node.data?.delta);
   const index = selection.index || 0;
   const length = selection.length || 0;
-  const beforeDelta = delta.slice(0, index);
-  const afterDelta = delta.slice(index + length);
-  const rangeDelta = delta.slice(index, index + length);
-  const toggleFormatDelta = new Delta(
-    rangeDelta.ops.map((op) => {
-      const attributes = {
-        ...op.attributes,
-        href: href,
-        title: title,
-      };
-      return {
-        insert: op.insert,
-        attributes: attributes,
-      };
-    })
-  );
-  const newDelta = beforeDelta.concat(toggleFormatDelta).concat(afterDelta);
+  const regex = new RegExp(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/);
+  if (href !== undefined && !regex.test(href)) {
+    return false;
+  }
+
+  const diffDelta = new Delta().retain(index).delete(length).insert(title, {
+    href,
+  });
+
+  const newDelta = nodeDelta.compose(diffDelta);
 
   const updateAction = controller.getUpdateAction({
     ...node,
@@ -51,17 +40,26 @@ export const updateLinkThunk = createAsyncThunk<
       delta: newDelta.ops,
     },
   });
-  const newSelection = {
-    index: selection.index,
-    length: title.length,
-  };
   await controller.applyActions([updateAction]);
+  return true;
+});
+
+export const updateLinkThunk = createAsyncThunk<
+  void,
+  {
+    id: string;
+    href?: string;
+    title: string;
+  }
+>('document/updateLink', async (payload, thunkAPI) => {
+  const { id, href, title } = payload;
+  const { dispatch } = thunkAPI;
+
   dispatch(
     linkPopoverActions.updateLinkPopover({
       id,
       href,
       title,
-      selection: newSelection,
     })
   );
 });
@@ -75,25 +73,22 @@ export const newLinkThunk = createAsyncThunk<void>('document/newLink', async (pa
   const { index, length, id } = caret;
 
   const block = document.nodes[id];
-  const delta = getDeltaByRange(new Delta(block.data.delta), {
-    index,
-    length,
-  });
+  const delta = new Delta(block.data.delta).slice(index, index + length);
   const op = delta.ops.find((op) => op.attributes?.href);
-  const href = (op?.attributes?.href as string) || 'https://';
-  const rangeDelta = delta.slice(index, index + length);
-  const title = getDeltaText(rangeDelta);
+  const href = op?.attributes?.href as string;
+
   const domSelection = window.getSelection();
   if (!domSelection) return;
   const domRange = domSelection.rangeCount > 0 ? domSelection.getRangeAt(0) : null;
   if (!domRange) return;
-  const domRect = domRange.getBoundingClientRect();
-
+  const title = domSelection.toString();
+  const { top, left, height, width } = domRange.getBoundingClientRect();
+  dispatch(rangeActions.clearRange());
   dispatch(
     linkPopoverActions.setLinkPopover({
       anchorPosition: {
-        top: domRect.top + domRect.height,
-        left: domRect.left + domRect.width / 2,
+        top: top + height,
+        left: left + width / 2,
       },
       id,
       selection: {
