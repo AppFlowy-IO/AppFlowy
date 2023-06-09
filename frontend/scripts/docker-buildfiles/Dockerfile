@@ -2,7 +2,7 @@
 # BUILDER
 #================
 
-FROM archlinux/archlinux:base-devel as builder
+FROM archlinux/archlinux:base as builder
 
 # Upgrade the system
 RUN pacman -Syyu --noconfirm
@@ -18,8 +18,7 @@ WORKDIR /home/$user
 
 
 # Install yay
-RUN pacman -Syu --noconfirm
-RUN pacman -S --needed curl tar --noconfirm
+RUN pacman -S --needed --noconfirm curl tar
 RUN curl -sSfL \
     --output yay.tar.gz \
     https://github.com/Jguer/yay/releases/download/v12.0.2/yay_12.0.2_x86_64.tar.gz && \
