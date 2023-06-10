@@ -92,7 +92,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   EdgeInsets get contentPadding => EdgeInsets.zero;
 
   @override
-  Widget buildWidget(PluginContext context) {
+  Widget buildWidget({PluginContext? context}) {
     notifier.isDeleted.addListener(() {
       notifier.isDeleted.value.fold(() => null, (deletedView) {
         if (deletedView.hasIndex()) {
@@ -107,7 +107,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
         builder: (_, state) {
           return DocumentPage(
             view: view,
-            onDeleted: () => context.onDeleted(view, deletedViewIndex),
+            onDeleted: () => context?.onDeleted(view, deletedViewIndex),
             key: ValueKey(view.id),
           );
         },

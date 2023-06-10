@@ -69,11 +69,11 @@ class GridPluginWidgetBuilder extends PluginWidgetBuilder {
   Widget get leftBarItem => ViewLeftBarItem(view: view);
 
   @override
-  Widget buildWidget(PluginContext context) {
+  Widget buildWidget({PluginContext? context}) {
     notifier.isDeleted.addListener(() {
       notifier.isDeleted.value.fold(() => null, (deletedView) {
         if (deletedView.hasIndex()) {
-          context.onDeleted(view, deletedView.index);
+          context?.onDeleted(view, deletedView.index);
         }
       });
     });

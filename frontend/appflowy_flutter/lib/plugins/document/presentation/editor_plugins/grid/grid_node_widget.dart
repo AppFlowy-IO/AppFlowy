@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
+import 'package:appflowy/plugins/database_view/widgets/database_view_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/built_in_page_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/insert_page_command.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -11,8 +11,8 @@ class GridBlockKeys {
   static const String type = 'grid';
 }
 
-class GridBlockComponentBuilder extends BlockComponentBuilder {
-  GridBlockComponentBuilder({
+class DatabaseViewBlockComponentBuilder extends BlockComponentBuilder {
+  DatabaseViewBlockComponentBuilder({
     this.configuration = const BlockComponentConfiguration(),
   });
 
@@ -70,7 +70,7 @@ class _GridBlockComponentWidgetState extends State<GridBlockComponentWidget>
       node: widget.node,
       editorState: editorState,
       builder: (viewPB) {
-        return GridPage(
+        return DatabaseViewWidget(
           key: ValueKey(viewPB.id),
           view: viewPB,
         );

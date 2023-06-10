@@ -174,10 +174,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       ImageBlockKeys.type: ImageBlockComponentBuilder(
         configuration: configuration,
       ),
-      BoardBlockKeys.type: BoardBlockComponentBuilder(
+      BoardBlockKeys.type: DatabaseViewBlockComponentBuilder(
         configuration: configuration,
       ),
-      GridBlockKeys.type: GridBlockComponentBuilder(
+      GridBlockKeys.type: DatabaseViewBlockComponentBuilder(
         configuration: configuration,
       ),
       CalloutBlockKeys.type: CalloutBlockComponentBuilder(
