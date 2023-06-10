@@ -16,11 +16,11 @@ use lib_infra::future::{to_fut, Fut};
 
 use crate::entities::{
   CalendarEventPB, CellChangesetNotifyPB, CellPB, ChecklistCellDataPB, DatabaseFieldChangesetPB,
-  DatabasePB, DatabaseViewSettingPB, DeleteFilterParams, DeleteGroupParams, DeleteSortParams,
-  FieldChangesetParams, FieldIdPB, FieldPB, FieldType, GroupPB, IndexFieldPB, InsertedRowPB,
-  LayoutSettingParams, NoDateCalendarEventPB, RepeatedFilterPB, RepeatedGroupPB, RepeatedSortPB,
-  RowPB, RowsChangePB, SelectOptionCellDataPB, SelectOptionPB, UpdateFilterParams,
-  UpdateSortParams, UpdatedRowPB,
+  DatabaseLayoutSettingPB, DatabasePB, DatabaseViewSettingPB, DeleteFilterParams,
+  DeleteGroupParams, DeleteSortParams, FieldChangesetParams, FieldIdPB, FieldPB, FieldType,
+  GroupPB, IndexFieldPB, InsertedRowPB, LayoutSettingParams, NoDateCalendarEventPB,
+  RepeatedFilterPB, RepeatedGroupPB, RepeatedSortPB, RowPB, RowsChangePB, SelectOptionCellDataPB,
+  SelectOptionPB, UpdateFilterParams, UpdateSortParams, UpdatedRowPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
@@ -895,7 +895,7 @@ impl DatabaseEditor {
   pub async fn set_layout_setting(&self, view_id: &str, layout_setting: LayoutSettingParams) {
     if let Ok(view) = self.database_views.get_view_editor(view_id).await {
       let _ = view.v_set_layout_settings(layout_setting).await;
-    }
+    };
   }
 
   pub async fn get_layout_setting(

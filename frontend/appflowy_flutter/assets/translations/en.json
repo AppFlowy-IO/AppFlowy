@@ -459,7 +459,8 @@
       "layoutDateField": "Layout calendar by",
       "noDateTitle": "No Date",
       "noDateHint": "Unscheduled events will show up here",
-      "clickToAdd": "Click to add to the calendar"
+      "clickToAdd": "Click to add to the calendar",
+      "name": "Calendar layout"
     }
   }
 }

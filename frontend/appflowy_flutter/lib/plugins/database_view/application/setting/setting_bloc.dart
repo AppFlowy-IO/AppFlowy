@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -45,6 +46,7 @@ enum DatabaseSettingAction {
   showProperties,
   showLayout,
   showGroup,
+  showCalendarLayout,
 }
 
 extension DatabaseSettingActionExtension on DatabaseSettingAction {
@@ -56,6 +58,8 @@ extension DatabaseSettingActionExtension on DatabaseSettingAction {
         return 'grid/setting/database_layout';
       case DatabaseSettingAction.showGroup:
         return 'grid/setting/group';
+      case DatabaseSettingAction.showCalendarLayout:
+        return 'grid/setting/calendar_layout';
     }
   }
 
@@ -67,6 +71,33 @@ extension DatabaseSettingActionExtension on DatabaseSettingAction {
         return LocaleKeys.grid_settings_databaseLayout.tr();
       case DatabaseSettingAction.showGroup:
         return LocaleKeys.grid_settings_group.tr();
+      case DatabaseSettingAction.showCalendarLayout:
+        return LocaleKeys.calendar_settings_name.tr();
     }
+  }
+}
+
+/// Returns the list of actions that should be shown for the given database layout.
+List<DatabaseSettingAction> actionsForDatabaseLayout(DatabaseLayoutPB? layout) {
+  switch (layout) {
+    case DatabaseLayoutPB.Board:
+      return [
+        DatabaseSettingAction.showProperties,
+        DatabaseSettingAction.showLayout,
+        DatabaseSettingAction.showGroup,
+      ];
+    case DatabaseLayoutPB.Calendar:
+      return [
+        DatabaseSettingAction.showProperties,
+        DatabaseSettingAction.showLayout,
+        DatabaseSettingAction.showCalendarLayout,
+      ];
+    case DatabaseLayoutPB.Grid:
+      return [
+        DatabaseSettingAction.showProperties,
+        DatabaseSettingAction.showLayout,
+      ];
+    default:
+      return [];
   }
 }
