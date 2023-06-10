@@ -243,6 +243,8 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
         return 'editor/grid';
       case ViewLayoutPB.Board:
         return 'editor/board';
+      case ViewLayoutPB.Calendar:
+        return 'editor/calendar';
       default:
         throw Exception('Unknown layout type');
     }
@@ -257,6 +259,10 @@ extension on ViewLayoutPB {
 
       case ViewLayoutPB.Board:
         return LocaleKeys.document_slashMenu_board_selectABoardToLinkTo.tr();
+
+      case ViewLayoutPB.Calendar:
+        return LocaleKeys.document_slashMenu_calendar_selectACalendarToLinkTo
+            .tr();
 
       default:
         throw Exception('Unknown layout type');

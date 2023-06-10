@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/database_view_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/board/board_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/calendar/calendar_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/grid/grid_node_widget.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -93,6 +94,8 @@ extension InsertDatabase on EditorState {
         return LocaleKeys.grid_referencedGridPrefix.tr();
       case ViewLayoutPB.Board:
         return LocaleKeys.board_referencedBoardPrefix.tr();
+      case ViewLayoutPB.Calendar:
+        return LocaleKeys.calendar_referencedCalendarPrefix.tr();
       default:
         throw UnimplementedError();
     }
@@ -104,6 +107,8 @@ extension InsertDatabase on EditorState {
         return GridBlockKeys.type;
       case ViewLayoutPB.Board:
         return BoardBlockKeys.type;
+      case ViewLayoutPB.Calendar:
+        return CalendarBlockKeys.type;
       default:
         throw Exception('Unknown layout type');
     }
