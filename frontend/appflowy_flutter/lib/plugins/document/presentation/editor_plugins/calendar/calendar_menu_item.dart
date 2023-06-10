@@ -15,9 +15,8 @@ SelectionMenuItem calendarMenuItem = SelectionMenuItem(
   ),
   keywords: ['referenced', 'calendar', 'database'],
   handler: (editorState, menuService, context) {
-    final container = Overlay.of(context);
     showLinkToPageMenu(
-      container,
+      Overlay.of(context),
       editorState,
       menuService,
       ViewLayoutPB.Calendar,
