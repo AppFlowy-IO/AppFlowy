@@ -2,11 +2,13 @@ import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
+import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/header/add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/section/item.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'base.dart';
@@ -96,5 +98,28 @@ extension AppFlowyLaunch on WidgetTester {
       LocaleKeys.deletePagePrompt_deletePermanent.tr(),
     );
     await tapButton(restoreButton);
+  }
+
+  Future<void> tapShareButton() async {
+    final shareButton = find.byWidgetPredicate(
+      (widget) => widget is DocumentShareButton,
+    );
+    await tapButton(shareButton);
+  }
+
+  Future<void> tapMarkdownButton() async {
+    final markdownButton = find.textContaining(
+      LocaleKeys.shareAction_markdown.tr(),
+    );
+    await tapButton(markdownButton);
+  }
+
+  void expectToExportSuccess() {
+    final exportSuccess = find.byWidgetPredicate(
+      (widget) =>
+          widget is FlowyText &&
+          widget.title == LocaleKeys.settings_files_exportFileSuccess.tr(),
+    );
+    expect(exportSuccess, findsOneWidget);
   }
 }
