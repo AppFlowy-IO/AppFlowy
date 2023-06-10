@@ -31,6 +31,12 @@ class DatabaseViewPlugin extends Plugin {
   @override
   PluginWidgetBuilder get widgetBuilder => _innerPlugin.widgetBuilder;
 
+  @override
+  void dispose() {
+    _viewListener.stop();
+    super.dispose();
+  }
+
   void _listenOnLayoutChanged() {
     _viewListener.start(
       onViewUpdated: (result) {

@@ -8,7 +8,6 @@ export 'emoji_picker/emoji_menu_item.dart';
 export 'extensions/flowy_tint_extension.dart';
 export 'database/inline_database_menu_item.dart';
 export 'database/database_view_block_component.dart';
-export 'database/inline_database_menu_item.dart';
 export 'math_equation/math_equation_block_component.dart';
 export 'openai/widgets/auto_completion_node_widget.dart';
 export 'openai/widgets/smart_edit_node_widget.dart';
