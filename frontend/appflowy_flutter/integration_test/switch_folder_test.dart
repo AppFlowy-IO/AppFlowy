@@ -29,6 +29,7 @@ void main() {
       const String userB = 'userB';
 
       await TestFolder.cleanTestLocation(userA);
+      await TestFolder.cleanTestLocation(userB);
       await TestFolder.setTestLocation(userA);
 
       await tester.initializeAppFlowy();
@@ -38,6 +39,7 @@ void main() {
 
       // switch to user B
       {
+        // set user name to userA
         await tester.openSettings();
         await tester.openSettingsPage(SettingsPage.user);
         await tester.enterUserName(userA);
@@ -50,14 +52,15 @@ void main() {
         await tester.tapCustomLocationButton();
         await tester.pumpAndSettle();
         tester.expectToSeeWelcomePage();
+
+        // set user name to userB
+        await tester.openSettings();
+        await tester.openSettingsPage(SettingsPage.user);
+        await tester.enterUserName(userB);
       }
 
       // switch to the userA
       {
-        await tester.openSettings();
-        await tester.openSettingsPage(SettingsPage.user);
-        await tester.enterUserName(userB);
-
         await tester.openSettingsPage(SettingsPage.files);
         await tester.pumpAndSettle();
 

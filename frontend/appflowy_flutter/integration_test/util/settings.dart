@@ -32,7 +32,7 @@ extension AppFlowySettings on WidgetTester {
   /// Restore the AppFlowy data storage location
   Future<void> restoreLocation() async {
     final button =
-        find.byTooltip(LocaleKeys.settings_files_restoreLocation.tr());
+        find.byTooltip(LocaleKeys.settings_files_recoverLocationTooltips.tr());
     expect(button, findsOneWidget);
     await tapButton(button);
     return;
