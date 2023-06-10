@@ -56,10 +56,11 @@ class DatabaseBlockComponentWidget extends BlockComponentStatefulWidget {
 
   @override
   State<DatabaseBlockComponentWidget> createState() =>
-      _GridBlockComponentWidgetState();
+      _DatabaseBlockComponentWidgetState();
 }
 
-class _GridBlockComponentWidgetState extends State<DatabaseBlockComponentWidget>
+class _DatabaseBlockComponentWidgetState
+    extends State<DatabaseBlockComponentWidget>
     with BlockComponentConfigurable {
   @override
   Node get node => widget.node;
