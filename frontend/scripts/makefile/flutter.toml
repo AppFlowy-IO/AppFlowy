@@ -169,7 +169,7 @@ script = ["""
   cd appflowy_flutter/
   flutter clean
   flutter pub get
-  flutter build ${TARGET_OS} --${BUILD_FLAG}
+  flutter build ${TARGET_OS} --${BUILD_FLAG} --verbose
   """]
 script_runner = "@shell"
 
