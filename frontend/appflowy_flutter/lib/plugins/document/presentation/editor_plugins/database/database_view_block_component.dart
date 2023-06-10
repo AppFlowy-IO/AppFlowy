@@ -1,18 +1,22 @@
-import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
+import 'package:appflowy/plugins/database_view/widgets/database_view_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/built_in_page_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/base/insert_page_command.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class BoardBlockKeys {
-  const BoardBlockKeys._();
+class DatabaseBlockKeys {
+  const DatabaseBlockKeys._();
 
-  static const String type = 'board';
+  static const String gridType = 'grid';
+  static const String boardType = 'board';
+  static const String calendarType = 'calendar';
+
+  static const String parentID = 'parent_id';
+  static const String viewID = 'view_id';
 }
 
-class BoardBlockComponentBuilder extends BlockComponentBuilder {
-  BoardBlockComponentBuilder({
+class DatabaseViewBlockComponentBuilder extends BlockComponentBuilder {
+  DatabaseViewBlockComponentBuilder({
     this.configuration = const BlockComponentConfiguration(),
   });
 
@@ -22,7 +26,7 @@ class BoardBlockComponentBuilder extends BlockComponentBuilder {
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
-    return BoardBlockComponentWidget(
+    return DatabaseBlockComponentWidget(
       key: node.key,
       node: node,
       configuration: configuration,
@@ -41,8 +45,8 @@ class BoardBlockComponentBuilder extends BlockComponentBuilder {
       node.attributes[DatabaseBlockKeys.viewID] is String;
 }
 
-class BoardBlockComponentWidget extends BlockComponentStatefulWidget {
-  const BoardBlockComponentWidget({
+class DatabaseBlockComponentWidget extends BlockComponentStatefulWidget {
+  const DatabaseBlockComponentWidget({
     super.key,
     required super.node,
     super.showActions,
@@ -51,11 +55,11 @@ class BoardBlockComponentWidget extends BlockComponentStatefulWidget {
   });
 
   @override
-  State<BoardBlockComponentWidget> createState() =>
-      _BoardBlockComponentWidgetState();
+  State<DatabaseBlockComponentWidget> createState() =>
+      _GridBlockComponentWidgetState();
 }
 
-class _BoardBlockComponentWidgetState extends State<BoardBlockComponentWidget>
+class _GridBlockComponentWidgetState extends State<DatabaseBlockComponentWidget>
     with BlockComponentConfigurable {
   @override
   Node get node => widget.node;
@@ -70,7 +74,7 @@ class _BoardBlockComponentWidgetState extends State<BoardBlockComponentWidget>
       node: widget.node,
       editorState: editorState,
       builder: (viewPB) {
-        return BoardPage(
+        return DatabaseViewWidget(
           key: ValueKey(viewPB.id),
           view: viewPB,
         );

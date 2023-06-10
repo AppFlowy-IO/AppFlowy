@@ -1,15 +1,12 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_list.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/database/referenced_database_menu_tem.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'editor_plugins/calendar/calendar_node_widget.dart';
-import 'editor_plugins/calendar/calendar_view_menu_item.dart';
-import 'editor_plugins/calendar/calendar_menu_item.dart';
 
 /// Wrapper for the appflowy editor.
 class AppFlowyEditorPage extends StatefulWidget {
@@ -49,11 +46,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final slashMenuItems = [
     inlineGridMenuItem(documentBloc),
-    referenceGridMenuItem,
+    referencedGridMenuItem,
     inlineBoardMenuItem(documentBloc),
-    boardMenuItem,
+    referencedBoardMenuItem,
     inlineCalendarMenuItem(documentBloc),
-    calendarMenuItem,
+    referencedCalendarMenuItem,
     calloutItem,
     mathEquationItem,
     codeBlockItem,
@@ -180,13 +177,13 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       ImageBlockKeys.type: ImageBlockComponentBuilder(
         configuration: configuration,
       ),
-      BoardBlockKeys.type: DatabaseViewBlockComponentBuilder(
+      DatabaseBlockKeys.gridType: DatabaseViewBlockComponentBuilder(
         configuration: configuration,
       ),
-      GridBlockKeys.type: DatabaseViewBlockComponentBuilder(
+      DatabaseBlockKeys.boardType: DatabaseViewBlockComponentBuilder(
         configuration: configuration,
       ),
-      CalendarBlockKeys.type: DatabaseViewBlockComponentBuilder(
+      DatabaseBlockKeys.calendarType: DatabaseViewBlockComponentBuilder(
         configuration: configuration,
       ),
       CalloutBlockKeys.type: CalloutBlockComponentBuilder(
