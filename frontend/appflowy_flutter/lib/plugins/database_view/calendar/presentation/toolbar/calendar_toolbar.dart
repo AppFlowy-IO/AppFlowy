@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../application/calendar_bloc.dart';
-import 'calendar_setting.dart';
 
 class CalendarToolbar extends StatelessWidget {
   const CalendarToolbar({super.key});
@@ -29,52 +28,6 @@ class CalendarToolbar extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _SettingButton extends StatefulWidget {
-  const _SettingButton({Key? key}) : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() => _SettingButtonState();
-}
-
-class _SettingButtonState extends State<_SettingButton> {
-  @override
-  Widget build(BuildContext context) {
-    return AppFlowyPopover(
-      direction: PopoverDirection.bottomWithRightAligned,
-      constraints: BoxConstraints.loose(const Size(300, 400)),
-      margin: EdgeInsets.zero,
-      child: FlowyTextButton(
-        LocaleKeys.settings_title.tr(),
-        fillColor: Colors.transparent,
-        hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        padding: GridSize.typeOptionContentInsets,
-      ),
-      popupBuilder: (BuildContext popoverContext) {
-        final bloc = context.watch<CalendarBloc>();
-        final settingContext = CalendarSettingContext(
-          viewId: bloc.viewId,
-          fieldController: bloc.fieldController,
-        );
-        return CalendarSetting(
-          settingContext: settingContext,
-          layoutSettings: bloc.state.settings.fold(
-            () => null,
-            (settings) => settings,
-          ),
-          onUpdated: (layoutSettings) {
-            if (layoutSettings == null) {
-              return;
-            }
-            context
-                .read<CalendarBloc>()
-                .add(CalendarEvent.updateCalendarLayoutSetting(layoutSettings));
-          },
-        );
-      }, // use blocbuilder
     );
   }
 }

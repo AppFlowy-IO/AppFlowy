@@ -630,14 +630,14 @@ impl DatabaseViewEditor {
           // if equal, send the  DidUpdateLayoutSettings notification
           if old_calendar_setting.field_id != new_field_id {
             send_notification(&self.view_id, DatabaseNotification::DidSetNewLayoutField)
-              .payload(layout_setting_pb)
-              .send();
-          } else {
-            send_notification(&self.view_id, DatabaseNotification::DidUpdateLayoutSettings)
-              .payload(layout_setting_pb)
+              .payload(layout_setting_pb.clone())
               .send();
           }
         }
+
+        send_notification(&self.view_id, DatabaseNotification::DidUpdateLayoutSettings)
+          .payload(layout_setting_pb)
+          .send();
       }
     }
 

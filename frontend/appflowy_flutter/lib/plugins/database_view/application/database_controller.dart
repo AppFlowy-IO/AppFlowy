@@ -80,6 +80,7 @@ class DatabaseController {
   final DatabaseViewBackendService _databaseViewBackendSvc;
   final FieldController fieldController;
   DatabaseLayoutPB? databaseLayout;
+  DatabaseLayoutSettingPB? databaseLayoutSetting;
   late DatabaseViewCache _viewCache;
 
   // Callbacks
@@ -92,17 +93,17 @@ class DatabaseController {
   RowCache get rowCache => _viewCache.rowCache;
 
   // Listener
-  final DatabaseGroupListener groupListener;
-  final DatabaseLayoutSettingListener layoutListener;
-  final DatabaseCalendarLayoutListener calendarLayoutListener;
+  final DatabaseGroupListener _groupListener;
+  final DatabaseLayoutSettingListener _layoutListener;
+  final DatabaseCalendarLayoutListener _calendarLayoutListener;
 
   DatabaseController({required ViewPB view})
       : viewId = view.id,
         _databaseViewBackendSvc = DatabaseViewBackendService(viewId: view.id),
         fieldController = FieldController(viewId: view.id),
-        groupListener = DatabaseGroupListener(view.id),
-        layoutListener = DatabaseLayoutSettingListener(view.id),
-        calendarLayoutListener = DatabaseCalendarLayoutListener(view.id) {
+        _groupListener = DatabaseGroupListener(view.id),
+        _layoutListener = DatabaseLayoutSettingListener(view.id),
+        _calendarLayoutListener = DatabaseCalendarLayoutListener(view.id) {
     _viewCache = DatabaseViewCache(
       viewId: viewId,
       fieldController: fieldController,
@@ -224,7 +225,7 @@ class DatabaseController {
   Future<void> dispose() async {
     await _databaseViewBackendSvc.closeView();
     await fieldController.dispose();
-    await groupListener.stop();
+    await _groupListener.stop();
     await _viewCache.dispose();
     _databaseCallbacks = null;
     _groupCallbacks = null;
@@ -248,7 +249,12 @@ class DatabaseController {
     if (databaseLayout != null) {
       _databaseViewBackendSvc.getLayoutSetting(databaseLayout!).then((result) {
         result.fold(
-          (l) => _layoutCallbacks?.onLoadLayout(l),
+          (newDatabaseLayoutSetting) {
+            databaseLayoutSetting = newDatabaseLayoutSetting;
+            databaseLayoutSetting?.freeze();
+
+            _layoutCallbacks?.onLoadLayout(newDatabaseLayoutSetting);
+          },
           (r) => Log.error(r),
         );
       });
@@ -285,7 +291,7 @@ class DatabaseController {
   }
 
   void _listenOnGroupChanged() {
-    groupListener.start(
+    _groupListener.start(
       onNumOfGroupsChanged: (result) {
         result.fold(
           (changeset) {
@@ -316,11 +322,14 @@ class DatabaseController {
   }
 
   void _listenOnLayoutChanged() {
-    layoutListener.start(
+    _layoutListener.start(
       onLayoutChanged: (result) {
         result.fold(
-          (l) {
-            _layoutCallbacks?.onLayoutChanged(l);
+          (newDatabaseLayoutSetting) {
+            databaseLayoutSetting = newDatabaseLayoutSetting;
+            databaseLayoutSetting?.freeze();
+
+            _layoutCallbacks?.onLayoutChanged(newDatabaseLayoutSetting);
           },
           (r) => Log.error(r),
         );
@@ -329,7 +338,7 @@ class DatabaseController {
   }
 
   void _listenOnCalendarLayoutChanged() {
-    calendarLayoutListener.start(
+    _calendarLayoutListener.start(
       onCalendarLayoutChanged: (result) {
         result.fold(
           (l) {
