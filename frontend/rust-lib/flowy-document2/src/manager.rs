@@ -111,4 +111,42 @@ impl DocumentManager {
     self.documents.write().remove(doc_id);
     Ok(())
   }
+
+  pub fn redo(&self, doc_id: &str) -> FlowyResult<bool> {
+    let uid = self.user.user_id()?;
+    let db = self.user.collab_db()?;
+    let collab = self.collab_builder.build(uid, &doc_id, "document", db);
+    let redo = collab.lock().redo();
+    if let Ok(redo) = redo {
+      return Ok(redo);
+    }
+    Ok(false)
+  }
+
+  pub fn undo(&self, doc_id: &str) -> FlowyResult<bool> {
+    let uid = self.user.user_id()?;
+    let db = self.user.collab_db()?;
+    let collab = self.collab_builder.build(uid, &doc_id, "document", db);
+    let undo = collab.lock().undo();
+    if let Ok(undo) = undo {
+      return Ok(undo);
+    }
+    Ok(false)
+  }
+
+  pub fn can_redo(&self, doc_id: &str) -> FlowyResult<bool> {
+    let uid = self.user.user_id()?;
+    let db = self.user.collab_db()?;
+    let collab = self.collab_builder.build(uid, &doc_id, "document", db);
+    let can_redo = collab.lock().can_redo();
+    Ok(can_redo)
+  }
+
+  pub fn can_undo(&self, doc_id: &str) -> FlowyResult<bool> {
+    let uid = self.user.user_id()?;
+    let db = self.user.collab_db()?;
+    let collab = self.collab_builder.build(uid, &doc_id, "document", db);
+    let can_undo = collab.lock().can_undo();
+    Ok(can_undo)
+  }
 }

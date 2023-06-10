@@ -18,7 +18,8 @@ use crate::{
   entities::{
     ApplyActionPayloadPB, BlockActionPB, BlockActionPayloadPB, BlockActionTypePB, BlockEventPB,
     BlockEventPayloadPB, BlockPB, CloseDocumentPayloadPB, ConvertDataPayloadPB, ConvertType,
-    CreateDocumentPayloadPB, DeltaTypePB, DocEventPB, DocumentDataPB, OpenDocumentPayloadPB,
+    CreateDocumentPayloadPB, DeltaTypePB, DocEventPB, DocumentDataPB, DocumentRedoUndoPayloadPB,
+    OpenDocumentPayloadPB,
   },
   manager::DocumentManager,
   parser::json::parser::JsonToDocumentParser,
@@ -101,6 +102,46 @@ pub fn convert_data_to_document_internal(
       Ok(document)
     },
   }
+}
+
+pub(crate) async fn document_redo(
+  data: AFPluginData<DocumentRedoUndoPayloadPB>,
+  manager: AFPluginState<Arc<DocumentManager>>,
+) -> FlowyResult<String> {
+  let context = data.into_inner();
+  let doc_id = context.document_id;
+  let redo = manager.redo(&doc_id)?;
+  Ok(redo.to_string())
+}
+
+pub(crate) async fn document_undo(
+  data: AFPluginData<DocumentRedoUndoPayloadPB>,
+  manager: AFPluginState<Arc<DocumentManager>>,
+) -> FlowyResult<String> {
+  let context = data.into_inner();
+  let doc_id = context.document_id;
+  let undo = manager.undo(&doc_id)?;
+  Ok(undo.to_string())
+}
+
+pub(crate) async fn document_can_redo(
+  data: AFPluginData<DocumentRedoUndoPayloadPB>,
+  manager: AFPluginState<Arc<DocumentManager>>,
+) -> FlowyResult<String> {
+  let context = data.into_inner();
+  let doc_id = context.document_id;
+  let can_redo = manager.can_redo(&doc_id)?;
+  Ok(can_redo.to_string())
+}
+
+pub(crate) async fn document_can_undo(
+  data: AFPluginData<DocumentRedoUndoPayloadPB>,
+  manager: AFPluginState<Arc<DocumentManager>>,
+) -> FlowyResult<String> {
+  let context = data.into_inner();
+  let doc_id = context.document_id;
+  let can_undo = manager.can_undo(&doc_id)?;
+  Ok(can_undo.to_string())
 }
 
 impl From<BlockActionPB> for BlockAction {

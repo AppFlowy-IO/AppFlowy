@@ -3,11 +3,14 @@ use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CloudStorageType
 use std::sync::Arc;
 
 use appflowy_integrate::RocksCollabDB;
+use flowy_document2::document::Document;
 use parking_lot::Once;
 use tempfile::TempDir;
 use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
 
-use flowy_document2::manager::DocumentUser;
+use flowy_document2::document_data::default_document_data;
+use flowy_document2::manager::{DocumentManager, DocumentUser};
+use nanoid::nanoid;
 
 pub struct FakeUser {
   kv: Arc<RocksCollabDB>,
@@ -52,4 +55,21 @@ pub fn db() -> Arc<RocksCollabDB> {
 pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
   let builder = AppFlowyCollabBuilder::new(CloudStorageType::Local, None);
   Arc::new(builder)
+}
+
+pub fn create_and_open_empty_document() -> (DocumentManager, Arc<Document>, String) {
+  let user = FakeUser::new();
+  let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
+
+  let doc_id: String = nanoid!(10);
+  let data = default_document_data();
+
+  // create a document
+  _ = manager
+    .create_document(doc_id.clone(), Some(data.clone()))
+    .unwrap();
+
+  let document = manager.open_document(doc_id).unwrap();
+
+  (manager, document, data.page_id)
 }

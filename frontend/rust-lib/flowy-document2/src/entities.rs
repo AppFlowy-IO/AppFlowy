@@ -9,6 +9,12 @@ pub struct OpenDocumentPayloadPB {
 }
 
 #[derive(Default, ProtoBuf)]
+pub struct DocumentRedoUndoPayloadPB {
+  #[pb(index = 1)]
+  pub document_id: String,
+}
+
+#[derive(Default, ProtoBuf)]
 pub struct CreateDocumentPayloadPB {
   #[pb(index = 1)]
   pub document_id: String,

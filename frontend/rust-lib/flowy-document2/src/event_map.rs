@@ -7,7 +7,8 @@ use lib_dispatch::prelude::AFPlugin;
 use crate::{
   event_handler::{
     apply_action_handler, close_document_handler, convert_data_to_document,
-    create_document_handler, get_document_data_handler, open_document_handler,
+    create_document_handler, document_can_redo, document_can_undo, document_redo, document_undo,
+    get_document_data_handler, open_document_handler,
   },
   manager::DocumentManager,
 };
@@ -26,6 +27,10 @@ pub fn init(document_manager: Arc<DocumentManager>) -> AFPlugin {
     DocumentEvent::ConvertDataToDocument,
     convert_data_to_document,
   );
+  plugin = plugin.event(DocumentEvent::DocumentRedo, document_redo);
+  plugin = plugin.event(DocumentEvent::DocumentUndo, document_undo);
+  plugin = plugin.event(DocumentEvent::DocumentCanRedo, document_can_redo);
+  plugin = plugin.event(DocumentEvent::DocumentCanUndo, document_can_undo);
 
   plugin
 }
@@ -50,4 +55,16 @@ pub enum DocumentEvent {
 
   #[event(input = "ConvertDataPayloadPB", output = "DocumentDataPB")]
   ConvertDataToDocument = 5,
+
+  #[event(input = "DocumentRedoUndoPayloadPB", output = "String")]
+  DocumentRedo = 6,
+
+  #[event(input = "DocumentRedoUndoPayloadPB", output = "String")]
+  DocumentUndo = 7,
+
+  #[event(input = "DocumentRedoUndoPayloadPB", output = "String")]
+  DocumentCanRedo = 8,
+
+  #[event(input = "DocumentRedoUndoPayloadPB", output = "String")]
+  DocumentCanUndo = 9,
 }
