@@ -6,14 +6,18 @@ on:
       - "main"
       - "release/*"
     paths:
-      - "frontend/appflowy_flutter/**"
+      - ".github/workflows/flutter_ci.yaml"
+      - "frontend/**"
+      - "!frontend/appflowy_tauri/**"
 
   pull_request:
     branches:
       - "main"
       - "release/*"
     paths:
-      - "frontend/appflowy_flutter/**"
+      - ".github/workflows/flutter_ci.yaml"
+      - "frontend/**"
+      - "!frontend/appflowy_tauri/**"
 
 env:
   CARGO_TERM_COLOR: always
