@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/base/insert_page_command.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';

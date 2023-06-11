@@ -180,7 +180,7 @@ class HomeStackManager {
                 if (pluginType == notifier.plugin.pluginType) {
                   final builder = notifier.plugin.widgetBuilder;
                   final pluginWidget = builder.buildWidget(
-                    PluginContext(onDeleted: onDeleted),
+                    context: PluginContext(onDeleted: onDeleted),
                   );
 
                   return Padding(
