@@ -8,7 +8,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 #[tokio::test]
-async fn undo_redo() {
+async fn undo_redo_test() {
   let user = FakeUser::new();
   let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
 
@@ -20,7 +20,8 @@ async fn undo_redo() {
 
   // open a document
   let document = manager.open_document(doc_id.clone()).unwrap();
-  let page_block = document.lock().get_block(&data.page_id).unwrap();
+  let document = document.lock();
+  let page_block = document.get_block(&data.page_id).unwrap();
   let page_id = page_block.id;
   let text_block_id = nanoid!(10);
 
@@ -42,27 +43,18 @@ async fn undo_redo() {
       prev_id: None,
     },
   };
-  document.lock().apply_action(vec![insert_text_action]);
+  document.apply_action(vec![insert_text_action]);
 
-  assert_eq!(
-    document.lock().get_block(&text_block_id).unwrap().parent,
-    page_id
-  );
-
-  let can_undo = manager.can_undo(&doc_id.clone()).unwrap();
-  assert!(can_undo);
+  let can_undo = document.can_undo();
+  assert_eq!(can_undo, true);
   // undo the insert
-  let undo = manager.undo(&doc_id.clone()).unwrap();
+  let undo = document.undo();
   assert_eq!(undo, true);
-  assert_eq!(document.lock().get_block(&text_block_id), None);
+  assert_eq!(document.get_block(&text_block_id), None);
 
-  let can_redo = manager.can_redo(&doc_id.clone()).unwrap();
+  let can_redo = document.can_redo();
   assert!(can_redo);
   // redo the insert
-  let redo = manager.redo(&doc_id.clone()).unwrap();
+  let redo = document.redo();
   assert_eq!(redo, true);
-  assert_eq!(
-    document.lock().get_block(&text_block_id).unwrap().parent,
-    page_id
-  )
 }

@@ -14,6 +14,18 @@ pub struct DocumentRedoUndoPayloadPB {
   pub document_id: String,
 }
 
+#[derive(Default, Debug, ProtoBuf)]
+pub struct DocumentRedoUndoResponsePB {
+  #[pb(index = 1)]
+  pub can_undo: bool,
+
+  #[pb(index = 2)]
+  pub can_redo: bool,
+
+  #[pb(index = 3)]
+  pub is_success: bool,
+}
+
 #[derive(Default, ProtoBuf)]
 pub struct CreateDocumentPayloadPB {
   #[pb(index = 1)]
