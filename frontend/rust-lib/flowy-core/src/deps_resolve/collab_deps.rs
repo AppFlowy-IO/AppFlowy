@@ -45,7 +45,7 @@ impl SnapshotPersistence for SnapshotDBImpl {
         .map_err(|e| PersistenceError::Internal(Box::new(e)))?,
     );
 
-    let _ = tokio::task::spawn_blocking(move || {
+    tokio::task::spawn_blocking(move || {
       if let Some(pool) = weak_pool.upgrade() {
         let conn = pool
           .get()

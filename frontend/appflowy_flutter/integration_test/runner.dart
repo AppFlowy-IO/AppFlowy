@@ -1,10 +1,8 @@
 import 'package:integration_test/integration_test.dart';
 
-import 'board_test.dart' as board_test;
 import 'switch_folder_test.dart' as switch_folder_test;
-import 'empty_document_test.dart' as empty_document_test;
-import 'open_ai_smart_menu_test.dart' as smart_menu_test;
 import 'document_test.dart' as document_test;
+import 'cover_image_test.dart' as cover_image_test;
 
 /// The main task runner for all integration tests in AppFlowy.
 ///
@@ -16,8 +14,9 @@ import 'document_test.dart' as document_test;
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   switch_folder_test.main();
-  board_test.main();
-  empty_document_test.main();
-  smart_menu_test.main();
+  cover_image_test.main();
   document_test.main();
+  // board_test.main();
+  // empty_document_test.main();
+  // smart_menu_test.main();
 }

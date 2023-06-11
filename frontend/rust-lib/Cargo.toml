@@ -33,11 +33,11 @@ opt-level = 3
 incremental = false
 
 [patch.crates-io]
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "c382b1" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "c382b1" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "c382b1" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "c382b1" }
-appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "c382b1" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4f5837" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4f5837" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4f5837" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4f5837" }
+appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "4f5837" }
 
 #collab = { path = "../AppFlowy-Collab/collab" }
 #collab-folder = { path = "../AppFlowy-Collab/collab-folder" }

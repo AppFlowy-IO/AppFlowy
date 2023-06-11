@@ -1,6 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/setting/setting_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -9,7 +8,7 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 
-import '../../layout/sizes.dart';
+import '../../grid/presentation/layout/sizes.dart';
 
 class DatabaseSettingList extends StatelessWidget {
   final DatabaseController databaseContoller;
@@ -22,33 +21,25 @@ class DatabaseSettingList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cells = DatabaseSettingAction.values.where((element) {
-      if (element == DatabaseSettingAction.showGroup) {
-        return databaseContoller.databaseLayout == DatabaseLayoutPB.Board;
-      } else {
-        return true;
-      }
-    }).map((action) {
+    final cells = actionsForDatabaseLayout(databaseContoller.databaseLayout)
+        .map((action) {
       return _SettingItem(
         action: action,
         onAction: (action) => onAction(action, databaseContoller),
       );
     }).toList();
 
-    return SizedBox(
-      width: 140,
-      child: ListView.separated(
-        shrinkWrap: true,
-        controller: ScrollController(),
-        itemCount: cells.length,
-        separatorBuilder: (context, index) {
-          return VSpace(GridSize.typeOptionSeparatorHeight);
-        },
-        physics: StyledScrollPhysics(),
-        itemBuilder: (BuildContext context, int index) {
-          return cells[index];
-        },
-      ),
+    return ListView.separated(
+      shrinkWrap: true,
+      controller: ScrollController(),
+      itemCount: cells.length,
+      separatorBuilder: (context, index) {
+        return VSpace(GridSize.typeOptionSeparatorHeight);
+      },
+      physics: StyledScrollPhysics(),
+      itemBuilder: (BuildContext context, int index) {
+        return cells[index];
+      },
     );
   }
 }

@@ -43,7 +43,7 @@ class BlankPagePluginWidgetBuilder extends PluginWidgetBuilder
   Widget get leftBarItem => FlowyText.medium(LocaleKeys.blankPageTitle.tr());
 
   @override
-  Widget buildWidget(PluginContext context) => const BlankPage();
+  Widget buildWidget({PluginContext? context}) => const BlankPage();
 
   @override
   List<NavigationItem> get navigationItems => [this];

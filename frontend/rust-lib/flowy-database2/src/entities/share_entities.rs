@@ -1,14 +1,9 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
-#[derive(Debug, ProtoBuf_Enum, Clone)]
+#[derive(Debug, ProtoBuf_Enum, Clone, Default)]
 pub enum DatabaseExportDataType {
+  #[default]
   CSV = 0,
-}
-
-impl Default for DatabaseExportDataType {
-  fn default() -> Self {
-    DatabaseExportDataType::CSV
-  }
 }
 
 #[derive(Debug, ProtoBuf, Default, Clone)]

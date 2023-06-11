@@ -630,14 +630,14 @@ impl DatabaseViewEditor {
           // if equal, send the  DidUpdateLayoutSettings notification
           if old_calendar_setting.field_id != new_field_id {
             send_notification(&self.view_id, DatabaseNotification::DidSetNewLayoutField)
-              .payload(layout_setting_pb)
-              .send();
-          } else {
-            send_notification(&self.view_id, DatabaseNotification::DidUpdateLayoutSettings)
-              .payload(layout_setting_pb)
+              .payload(layout_setting_pb.clone())
               .send();
           }
         }
+
+        send_notification(&self.view_id, DatabaseNotification::DidUpdateLayoutSettings)
+          .payload(layout_setting_pb)
+          .send();
       }
     }
 
@@ -675,7 +675,7 @@ impl DatabaseViewEditor {
         let filter_type = UpdatedFilterType::new(Some(old), new);
         let filter_changeset = FilterChangeset::from_update(filter_type);
         let filter_controller = self.filter_controller.clone();
-        let _ = tokio::spawn(async move {
+        tokio::spawn(async move {
           if let Some(notification) = filter_controller
             .did_receive_changes(filter_changeset)
             .await

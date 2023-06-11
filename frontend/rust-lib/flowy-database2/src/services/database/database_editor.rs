@@ -895,7 +895,7 @@ impl DatabaseEditor {
   pub async fn set_layout_setting(&self, view_id: &str, layout_setting: LayoutSettingParams) {
     if let Ok(view) = self.database_views.get_view_editor(view_id).await {
       let _ = view.v_set_layout_settings(layout_setting).await;
-    }
+    };
   }
 
   pub async fn get_layout_setting(
@@ -1059,8 +1059,8 @@ fn cell_changesets_from_cell_by_field_id(
 ) -> Vec<CellChangesetNotifyPB> {
   let row_id = row_id.into_inner();
   cell_by_field_id
-    .into_iter()
-    .map(|(field_id, _cell)| CellChangesetNotifyPB {
+    .into_keys()
+    .map(|field_id| CellChangesetNotifyPB {
       view_id: view_id.to_string(),
       row_id: row_id.clone(),
       field_id,

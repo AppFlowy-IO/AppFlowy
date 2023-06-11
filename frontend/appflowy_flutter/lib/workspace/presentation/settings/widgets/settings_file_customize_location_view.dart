@@ -70,8 +70,10 @@ class SettingsFileLocationCustomizerState
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        _ChangeStoragePathButton(
-                          usingPath: path,
+                        Flexible(
+                          child: _ChangeStoragePathButton(
+                            usingPath: path,
+                          ),
                         ),
                         const HSpace(10),
                         _OpenStorageButton(

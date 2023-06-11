@@ -3,17 +3,12 @@ use flowy_notification::NotificationBuilder;
 
 const OBSERVABLE_CATEGORY: &str = "Document";
 
-#[derive(ProtoBuf_Enum, Debug)]
+#[derive(ProtoBuf_Enum, Debug, Default)]
 pub(crate) enum DocumentNotification {
+  #[default]
   Unknown = 0,
 
   DidReceiveUpdate = 1,
-}
-
-impl std::default::Default for DocumentNotification {
-  fn default() -> Self {
-    DocumentNotification::Unknown
-  }
 }
 
 impl std::convert::From<DocumentNotification> for i32 {

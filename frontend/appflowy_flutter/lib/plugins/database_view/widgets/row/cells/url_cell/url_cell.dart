@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -35,12 +36,14 @@ enum GridURLCellAccessoryType {
   visitURL,
 }
 
+typedef URLCellDataNotifier = CellDataNotifier<String>;
+
 class GridURLCell extends GridCellWidget {
   GridURLCell({
     super.key,
     required this.cellControllerBuilder,
     GridCellStyle? style,
-  }) {
+  }) : _cellDataNotifier = CellDataNotifier(value: '') {
     if (style != null) {
       cellStyle = (style as GridURLCellStyle);
     } else {
@@ -48,35 +51,13 @@ class GridURLCell extends GridCellWidget {
     }
   }
 
+  /// Use
+  final URLCellDataNotifier _cellDataNotifier;
   final CellControllerBuilder cellControllerBuilder;
   late final GridURLCellStyle? cellStyle;
 
   @override
   GridCellState<GridURLCell> createState() => _GridURLCellState();
-
-  GridCellAccessoryBuilder accessoryFromType(
-    GridURLCellAccessoryType ty,
-    GridCellAccessoryBuildContext buildContext,
-  ) {
-    switch (ty) {
-      case GridURLCellAccessoryType.visitURL:
-        final cellContext = cellControllerBuilder.build() as URLCellController;
-        return GridCellAccessoryBuilder(
-          builder: (Key key) => _VisitURLAccessory(
-            key: key,
-            cellContext: cellContext,
-          ),
-        );
-      case GridURLCellAccessoryType.copyURL:
-        final cellContext = cellControllerBuilder.build() as URLCellController;
-        return GridCellAccessoryBuilder(
-          builder: (Key key) => _CopyURLAccessory(
-            key: key,
-            cellContext: cellContext,
-          ),
-        );
-    }
-  }
 
   @override
   List<GridCellAccessoryBuilder> Function(
@@ -86,7 +67,7 @@ class GridURLCell extends GridCellWidget {
         if (cellStyle != null) {
           accessories.addAll(
             cellStyle!.accessoryTypes.map((ty) {
-              return accessoryFromType(ty, buildContext);
+              return _accessoryFromType(ty, buildContext);
             }),
           );
         }
@@ -94,7 +75,7 @@ class GridURLCell extends GridCellWidget {
         // If the accessories is empty then the default accessory will be GridURLCellAccessoryType.visitURL
         if (accessories.isEmpty) {
           accessories.add(
-            accessoryFromType(
+            _accessoryFromType(
               GridURLCellAccessoryType.visitURL,
               buildContext,
             ),
@@ -103,6 +84,28 @@ class GridURLCell extends GridCellWidget {
 
         return accessories;
       };
+
+  GridCellAccessoryBuilder _accessoryFromType(
+    GridURLCellAccessoryType ty,
+    GridCellAccessoryBuildContext buildContext,
+  ) {
+    switch (ty) {
+      case GridURLCellAccessoryType.visitURL:
+        return VisitURLCellAccessoryBuilder(
+          builder: (Key key) => _VisitURLAccessory(
+            key: key,
+            cellDataNotifier: _cellDataNotifier,
+          ),
+        );
+      case GridURLCellAccessoryType.copyURL:
+        return CopyURLCellAccessoryBuilder(
+          builder: (Key key) => _CopyURLAccessory(
+            key: key,
+            cellDataNotifier: _cellDataNotifier,
+          ),
+        );
+    }
+  }
 }
 
 class _GridURLCellState extends GridFocusNodeCellState<GridURLCell> {
@@ -133,8 +136,11 @@ class _GridURLCellState extends GridFocusNodeCellState<GridURLCell> {
       value: _cellBloc,
       child: BlocConsumer<URLCellBloc, URLCellState>(
         listenWhen: (previous, current) => previous.content != current.content,
-        listener: (context, state) => _controller.text = state.content,
+        listener: (context, state) {
+          _controller.text = state.content;
+        },
         builder: (context, state) {
+          widget._cellDataNotifier.value = state.content;
           final urlEditor = Padding(
             padding: EdgeInsets.only(
               left: GridSize.cellContentInsets.left,
@@ -232,33 +238,41 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
   }
 }
 
+typedef CopyURLCellAccessoryBuilder
+    = GridCellAccessoryBuilder<State<_CopyURLAccessory>>;
+
 class _CopyURLAccessory extends StatefulWidget {
   const _CopyURLAccessory({
     super.key,
-    required this.cellContext,
+    required this.cellDataNotifier,
   });
 
-  final URLCellController cellContext;
+  final URLCellDataNotifier cellDataNotifier;
 
   @override
-  State<StatefulWidget> createState() => _CopyURLAccessoryState();
+  State<_CopyURLAccessory> createState() => _CopyURLAccessoryState();
 }
 
 class _CopyURLAccessoryState extends State<_CopyURLAccessory>
     with GridCellAccessoryState {
   @override
   Widget build(BuildContext context) {
-    return svgWidget(
-      "editor/copy",
-      color: AFThemeExtension.of(context).textColor,
-    );
+    if (widget.cellDataNotifier.value.isNotEmpty) {
+      return _URLAccessoryIconContainer(
+        child: svgWidget(
+          "editor/copy",
+          color: AFThemeExtension.of(context).textColor,
+        ),
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
   }
 
   @override
   void onTap() {
-    final content =
-        widget.cellContext.getCellData(loadIfNotExist: false)?.content;
-    if (content == null) {
+    final content = widget.cellDataNotifier.value;
+    if (content.isEmpty) {
       return;
     }
     Clipboard.setData(ClipboardData(text: content));
@@ -266,38 +280,69 @@ class _CopyURLAccessoryState extends State<_CopyURLAccessory>
   }
 }
 
+typedef VisitURLCellAccessoryBuilder
+    = GridCellAccessoryBuilder<State<_VisitURLAccessory>>;
+
 class _VisitURLAccessory extends StatefulWidget {
   const _VisitURLAccessory({
     super.key,
-    required this.cellContext,
+    required this.cellDataNotifier,
   });
 
-  final URLCellController cellContext;
+  final URLCellDataNotifier cellDataNotifier;
 
   @override
-  State<StatefulWidget> createState() => _VisitURLAccessoryState();
+  State<_VisitURLAccessory> createState() => _VisitURLAccessoryState();
 }
 
 class _VisitURLAccessoryState extends State<_VisitURLAccessory>
     with GridCellAccessoryState {
   @override
   Widget build(BuildContext context) {
-    return svgWidget(
-      "editor/link",
-      color: AFThemeExtension.of(context).textColor,
-    );
+    if (widget.cellDataNotifier.value.isNotEmpty) {
+      return _URLAccessoryIconContainer(
+        child: svgWidget(
+          "editor/link",
+          color: AFThemeExtension.of(context).textColor,
+        ),
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
+  }
+
+  @override
+  bool enable() {
+    return widget.cellDataNotifier.value.isNotEmpty;
   }
 
   @override
   void onTap() {
-    final content =
-        widget.cellContext.getCellData(loadIfNotExist: false)?.content;
-    if (content == null) {
+    final content = widget.cellDataNotifier.value;
+    if (content.isEmpty) {
       return;
     }
     final shouldAddScheme =
         !['http', 'https'].any((pattern) => content.startsWith(pattern));
     final url = shouldAddScheme ? 'http://$content' : content;
     canLaunchUrlString(url).then((value) => launchUrlString(url));
+  }
+}
+
+class _URLAccessoryIconContainer extends StatelessWidget {
+  const _URLAccessoryIconContainer({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 26,
+      height: 26,
+      child: Padding(
+        padding: const EdgeInsets.all(3.0),
+        child: child,
+      ),
+    );
   }
 }

@@ -53,16 +53,12 @@ where
 
 #[derive(Debug, Clone, Serialize_repr, Deserialize_repr, Display, PartialEq, Eq)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum ErrorCode {
+  #[default]
   InternalError = 0,
   UnsupportedMessage = 1,
   Unauthorized = 2,
-}
-
-impl std::default::Default for ErrorCode {
-  fn default() -> Self {
-    ErrorCode::InternalError
-  }
 }
 
 impl std::convert::From<url::ParseError> for WSError {

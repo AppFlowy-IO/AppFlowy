@@ -133,6 +133,8 @@ fn write_rust_crate_mod_file(crate_contexts: &[ProtobufCrateContext]) {
         let mut mod_file_content = String::new();
 
         mod_file_content.push_str("#![cfg_attr(rustfmt, rustfmt::skip)]\n");
+        mod_file_content.push_str(" #![allow(ambiguous_glob_reexports)]\n");
+
         mod_file_content.push_str("// Auto-generated, do not edit\n");
         walk_dir(
           context.protobuf_crate.proto_output_path(),

@@ -57,7 +57,9 @@ pub struct RepeatedSelectOptionPayload {
 
 #[derive(ProtoBuf_Enum, PartialEq, Eq, Debug, Clone)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum SelectOptionColorPB {
+  #[default]
   Purple = 0,
   Pink = 1,
   LightPink = 2,
@@ -67,12 +69,6 @@ pub enum SelectOptionColorPB {
   Green = 6,
   Aqua = 7,
   Blue = 8,
-}
-
-impl std::default::Default for SelectOptionColorPB {
-  fn default() -> Self {
-    SelectOptionColorPB::Purple
-  }
 }
 
 impl From<SelectOptionColor> for SelectOptionColorPB {

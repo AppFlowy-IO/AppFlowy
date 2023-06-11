@@ -6,8 +6,9 @@ use lib_dispatch::prelude::ToBytes;
 
 const OBSERVABLE_CATEGORY: &str = "Workspace";
 
-#[derive(ProtoBuf_Enum, Debug)]
+#[derive(ProtoBuf_Enum, Debug, Default)]
 pub(crate) enum FolderNotification {
+  #[default]
   Unknown = 0,
   /// Trigger after creating a workspace
   DidCreateWorkspace = 1,
@@ -29,12 +30,6 @@ pub(crate) enum FolderNotification {
   DidMoveViewToTrash = 33,
   /// Trigger when the number of trash is changed
   DidUpdateTrash = 34,
-}
-
-impl std::default::Default for FolderNotification {
-  fn default() -> Self {
-    FolderNotification::Unknown
-  }
 }
 
 impl std::convert::From<FolderNotification> for i32 {

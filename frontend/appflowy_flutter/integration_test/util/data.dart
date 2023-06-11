@@ -49,9 +49,11 @@ class TestWorkspaceService {
 
   /// Instructs the application to read workspace data from the workspace found under this [TestWorkspace]'s path.
   Future<void> setUpAll() async {
+    final root = await workspace.root;
+    final path = root.path;
     SharedPreferences.setMockInitialValues(
       {
-        KVKeys.pathLocation: await workspace.root.then((value) => value.path),
+        KVKeys.pathLocation: path,
       },
     );
   }
