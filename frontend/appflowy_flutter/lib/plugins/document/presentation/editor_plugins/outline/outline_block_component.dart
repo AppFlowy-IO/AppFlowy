@@ -73,161 +73,160 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
   @override
   Node get node => widget.node;
 
-  List<Node> _headings = [];
-
-  late StreamSubscription transactionSubscription;
+  late EditorState editorState = context.read<EditorState>();
+  late Stream<Transaction> stream;
 
   @override
   void initState() {
     super.initState();
-    getHeadings();
 
-    transactionSubscription =
-        context.read<EditorState>().transactionStream.listen((event) {
-      // Listen to document changes and update outline accordingly
-      getHeadings();
-    });
-  }
-
-  @override
-  void dispose() {
-    transactionSubscription.cancel();
-    super.dispose();
-  }
-
-  void getHeadings() {
-    final data = context.read<EditorState>();
-
-    final List<Node> children = data.document.root.children.toList();
-
-    final List<Node> newHeadingList = [];
-    for (final Node e in children) {
-      if (e.type == "heading") {
-        newHeadingList.add(e);
-      }
-    }
-
-    _headings = newHeadingList;
-    setState(() {});
+    stream = editorState.transactionStream;
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlockComponentActionWrapper(
-      node: widget.node,
-      actionBuilder: widget.actionBuilder!,
-      child: StreamBuilder(
-        stream: context.read<EditorState>().transactionStream,
-        builder: (context, snapshot) {
-          return Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 15.0, vertical: 20.0),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.white54),
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "TABLE OF CONTENTS: ",
-                  style: context
-                      .read<EditorState>()
-                      .editorStyle
-                      .textStyleConfiguration
-                      .text,
-                ),
-                const Divider(
-                  color: Colors.white54,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: _headings.map(
-                    (e) {
-                      return OutlineItemWidget(
-                        text: getHeadingText(e),
-                        headingLevel: getHeadingLevel(e),
-                        node: e,
-                      );
-                    },
-                  ).toList(),
-                )
-              ],
-            ),
+    Widget child = _buildOutlineBlock();
+
+    return StreamBuilder(
+      stream: stream,
+      builder: (context, snapshot) {
+        if (widget.showActions && widget.actionBuilder != null) {
+          child = BlockComponentActionWrapper(
+            node: widget.node,
+            actionBuilder: widget.actionBuilder!,
+            child: _buildOutlineBlock(),
           );
-        },
+        }
+        return child;
+      },
+    );
+  }
+
+  Widget _buildOutlineBlock() {
+    final headingNodes = getHeadingNodes();
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 15.0,
+        vertical: 20.0,
+      ),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.white54),
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "TABLE OF CONTENTS: ",
+            style: editorState.editorStyle.textStyleConfiguration.text,
+          ),
+          const Divider(
+            color: Colors.white54,
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: headingNodes
+                .map(
+                  (e) => OutlineItemWidget(node: e),
+                )
+                .toList(),
+          )
+        ],
       ),
     );
   }
 
-  int getHeadingLevel(Node node) {
-    return node.attributes["level"] as int;
-  }
-
-  String getHeadingText(Node node) {
-    try {
-      return node.attributes["delta"][0]["insert"] as String;
-    } catch (e) {
-      return "";
-    }
+  Iterable<Node> getHeadingNodes() {
+    final children = editorState.document.root.children;
+    return children.where((element) => element.type == HeadingBlockKeys.type);
   }
 }
 
 class OutlineItemWidget extends StatelessWidget {
-  final String text;
-  final int headingLevel;
-  final Node node;
-  const OutlineItemWidget({
+  OutlineItemWidget({
     super.key,
-    required this.text,
-    required this.headingLevel,
     required this.node,
-  });
+  }) {
+    assert(node.type == HeadingBlockKeys.type);
+  }
+
+  final Node node;
 
   @override
   Widget build(BuildContext context) {
+    final editorState = context.read<EditorState>();
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
           // when clicked scroll the view to the heading
-          context.read<EditorState>().updateSelectionWithReason(
-                Selection.single(path: node.path, startOffset: 0),
-                reason: SelectionUpdateReason.uiEvent,
-              );
+
+          editorState.updateSelectionWithReason(
+            Selection.single(
+              path: node.path,
+              startOffset: node.delta?.length ?? 0,
+            ),
+            reason: SelectionUpdateReason.uiEvent,
+          );
         },
         child: Container(
-          margin: EdgeInsets.only(top: getVerticalSpacing()),
-          padding: EdgeInsets.only(left: getLeftIndent()),
+          margin: EdgeInsets.only(top: node.verticalSpacing),
+          padding: EdgeInsets.only(left: node.leftIndent),
           child: Text(
-            getOutlineItemText(),
-            style: context
-                .read<EditorState>()
-                .editorStyle
-                .textStyleConfiguration
-                .text,
+            node.outlineItemText,
+            style: editorState.editorStyle.textStyleConfiguration.text,
           ),
         ),
       ),
     );
   }
+}
 
-  double getVerticalSpacing() {
-    if (headingLevel == 1) return 10;
-    if (headingLevel == 2) return 8;
-
+extension on Node {
+  double get verticalSpacing {
+    if (type != HeadingBlockKeys.type) {
+      assert(false);
+      return 0.0;
+    }
+    final level = attributes[HeadingBlockKeys.level];
+    if (level == 1) {
+      return 10;
+    } else if (level == 2) {
+      return 8;
+    }
     return 5;
   }
 
-  double getLeftIndent() {
-    if (headingLevel == 2) return 15;
-    if (headingLevel == 3) return 60;
+  double get leftIndent {
+    if (type != HeadingBlockKeys.type) {
+      assert(false);
+      return 0.0;
+    }
+    final level = attributes[HeadingBlockKeys.level];
+    if (level == 2) {
+      return 15;
+    } else if (level == 3) {
+      return 60;
+    }
     return 0;
   }
 
-  String getOutlineItemText() {
-    if (headingLevel == 2) return "∘ $text";
-    if (headingLevel == 3) return "- $text";
+  String get outlineItemText {
+    if (type != HeadingBlockKeys.type) {
+      assert(false);
+      return '';
+    }
+    final delta = this.delta;
+    if (delta == null) {
+      return '';
+    }
+    final text = delta.toPlainText();
+    final level = attributes[HeadingBlockKeys.level];
+    if (level == 2) {
+      return '∘ $text';
+    } else if (level == 3) {
+      return '- $text';
+    }
     return text;
   }
 }
