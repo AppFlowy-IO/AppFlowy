@@ -70,3 +70,5 @@ windows/flutter/dart_ffi/
 **/.vscode/
 
 *.env
+
+coverage/

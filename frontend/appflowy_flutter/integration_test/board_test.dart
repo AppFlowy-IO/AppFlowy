@@ -35,9 +35,7 @@ void main() {
     setUpAll(() async => await service.setUpAll());
     setUp(() async => await service.setUp());
 
-    testWidgets(
-        'integration test unzips the proper workspace and loads it correctly.',
-        (tester) async {
+    testWidgets('open the board with data structure in v0.2.0', (tester) async {
       await tester.initializeAppFlowy();
       expect(find.byType(AppFlowyBoard), findsOneWidget);
     });
