@@ -7,7 +7,7 @@ import { Button } from '../../_shared/Button';
 import { RenamePopup } from './RenamePopup';
 import { useEffect, useRef, useState } from 'react';
 import { DropDownShowSvg } from '../../_shared/svg/DropDownShowSvg';
-import {ANIMATION_DURATION, PAGE_ITEM_HEIGHT} from '../../_shared/constants';
+import { ANIMATION_DURATION, PAGE_ITEM_HEIGHT } from '../../_shared/constants';
 import { useNavItem } from '$app/components/layout/NavigationPanel/NavItem.hooks';
 import { useAppSelector } from '$app/stores/store';
 
@@ -57,11 +57,14 @@ export const NavItemWrapper = ({ page }: { page: IPage }) => {
         className={`overflow-hidden transition-all`}
         style={{ height: folderHeight, transitionDuration: `${ANIMATION_DURATION}ms` }}
       >
-        <div style={{height: PAGE_ITEM_HEIGHT}} className={'flex cursor-pointer items-center justify-between rounded-lg px-4 hover:bg-surface-2'}>
+        <div
+          style={{ height: PAGE_ITEM_HEIGHT }}
+          className={'flex cursor-pointer items-center justify-between rounded-lg px-4 hover:bg-surface-2'}
+        >
           <button className={'flex min-w-0 flex-1 items-center'}>
             <i
               onClick={() => onUnfoldClick()}
-              className={`mr-2 h-5 w-5 transition-transform duration-500 ${page.showPagesInside && 'rotate-180'}`}
+              className={`mr-2 h-5 w-5 transition-transform duration-200 ${page.showPagesInside && 'rotate-180'}`}
             >
               <DropDownShowSvg></DropDownShowSvg>
             </i>

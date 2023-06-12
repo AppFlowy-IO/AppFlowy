@@ -77,7 +77,7 @@ export const NavigationPanel = ({
 
   useEffect(() => {
     // setMaxHeight(pagesStore.length * (INITIAL_FOLDER_HEIGHT + FOLDER_MARGIN) + pagesStore.length * PAGE_ITEM_HEIGHT);
-    setMaxHeight(pages.length * (INITIAL_FOLDER_HEIGHT + FOLDER_MARGIN));
+    setMaxHeight(pages.length * INITIAL_FOLDER_HEIGHT);
   }, [pages]);
 
   const scrollDown = () => {

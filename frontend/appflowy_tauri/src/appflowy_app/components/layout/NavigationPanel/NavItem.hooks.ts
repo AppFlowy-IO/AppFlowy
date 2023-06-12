@@ -50,7 +50,6 @@ export const useNavItem = (page: IPage) => {
     void loadInsidePages();
     void observer.subscribe({
       onChildViewsChanged: () => {
-        console.log('onChildViewsChanged: ', page.title);
         void loadInsidePages();
       },
     });
@@ -69,15 +68,25 @@ export const useNavItem = (page: IPage) => {
 
   useEffect(() => {
     if (page.showPagesInside) {
-      setFolderHeight(
-        `${INITIAL_FOLDER_HEIGHT + pages.filter((p) => p.parentPageId === page.id).length * PAGE_ITEM_HEIGHT}px`
-      );
+      setFolderHeight(`${INITIAL_FOLDER_HEIGHT + getChildCount(page) * PAGE_ITEM_HEIGHT}px`);
     } else {
       setFolderHeight(`${INITIAL_FOLDER_HEIGHT}px`);
     }
   }, [page, pages]);
 
-  const viewBackendService: ViewBackendService = new ViewBackendService(page.id);
+  // recursively get all unfolded childpages
+  const getChildCount: (startPage: IPage) => number = (startPage: IPage) => {
+    let count = 0;
+    count = pages.filter((p) => p.parentPageId === startPage.id).length;
+    pages
+      .filter((p) => p.parentPageId === startPage.id)
+      .forEach((p) => {
+        if (p.showPagesInside) {
+          count += getChildCount(p);
+        }
+      });
+    return count;
+  };
 
   const onUnfoldClick = () => {
     appDispatch(pagesActions.toggleShowPages({ id: page.id }));
@@ -97,7 +106,7 @@ export const useNavItem = (page: IPage) => {
   };
 
   const changePageTitle = async (newTitle: string) => {
-    await viewBackendService.update({ name: newTitle });
+    await service.update({ name: newTitle });
     appDispatch(pagesActions.renamePage({ id: page.id, newTitle }));
   };
 
@@ -107,13 +116,13 @@ export const useNavItem = (page: IPage) => {
 
   const deletePage = async () => {
     closePopup();
-    await viewBackendService.delete();
+    await service.delete();
     appDispatch(pagesActions.deletePage({ id: page.id }));
   };
 
   const duplicatePage = async () => {
     closePopup();
-    await viewBackendService.duplicate();
+    await service.duplicate();
   };
 
   const closePopup = () => {
@@ -162,7 +171,9 @@ export const useNavItem = (page: IPage) => {
             showPagesInside: false,
           })
         );
-        appDispatch(pagesActions.toggleShowPages({ id: page.id }));
+        if (!page.showPagesInside) {
+          // appDispatch(pagesActions.toggleShowPages({ id: page.id }));
+        }
 
         navigate(`/page/document/${newView.id}`);
       } catch (e) {
