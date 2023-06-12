@@ -4,12 +4,25 @@ import AddSvg from '../../_shared/svg/AddSvg';
 import { CopySvg } from '../../_shared/svg/CopySvg';
 import { TrashSvg } from '../../_shared/svg/TrashSvg';
 import { ShareSvg } from '../../_shared/svg/ShareSvg';
+import { DatabaseController } from '@/appflowy_app/stores/effects/database/database_controller';
+import { useGridRowActions } from './GridRowActions.hooks';
 
-export const GridRowActions = ({ onOutsideClick }: { onOutsideClick: () => void }) => {
+export const GridRowActions = ({
+  onOutsideClick,
+  controller,
+  rowId,
+}: {
+  onOutsideClick: () => void;
+  controller: DatabaseController;
+  rowId: string;
+}) => {
   const ref = useRef<HTMLDivElement>(null);
   useOutsideClick(ref, onOutsideClick);
+
+  const { deleteRow } = useGridRowActions(controller);
+
   return (
-    <div className='absolute  w-40 bg-white ' ref={ref}>
+    <div className='absolute left-20 ml-1 mt-2 w-44 bg-white ' ref={ref}>
       <div className='flex flex-col gap-3 rounded-lg bg-white p-2 shadow-md'>
         <button className='flex cursor-pointer items-center rounded  p-1 text-gray-500 hover:bg-main-secondary hover:text-black'>
           <div className='flex gap-2'>
@@ -35,7 +48,12 @@ export const GridRowActions = ({ onOutsideClick }: { onOutsideClick: () => void 
             <span>Duplicate</span>
           </div>
         </button>
-        <button className='flex cursor-pointer items-center rounded  p-1 text-gray-500 hover:bg-main-secondary hover:text-black'>
+        <button
+          className='flex cursor-pointer items-center rounded  p-1 text-gray-500 hover:bg-main-secondary hover:text-black'
+          onClick={async () => {
+            await deleteRow(rowId);
+          }}
+        >
           <div className='flex gap-2'>
             <div className='h-5 w-5'>
               <TrashSvg />

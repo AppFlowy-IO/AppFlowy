@@ -25,37 +25,44 @@ export const GridTableRow = ({
   index: number;
 }) => {
   const { cells } = useRow(viewId, controller, row);
-  const { setShowMenu, showMenu } = useGridTableRow();
+  const { setShowMenu, showMenu, addRowAt } = useGridTableRow(controller);
 
   return (
     <Draggable draggableId={row.row.id} key={row.row.id} index={index}>
       {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
         <tr
-          className={`group ${snapshot.isDragging ? 'flex items-center bg-white' : ''}`}
+          className={`group cursor-pointer ${snapshot.isDragging ? 'flex items-center bg-white' : ''}`}
           ref={provided.innerRef}
           {...provided.draggableProps}
+          onClick={() => setShowMenu(true)}
         >
           <td className='w-8'>
             <button
               className={`hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-main-secondary group-hover:flex ${
                 snapshot.isDragging ? '!flex' : ''
               }  `}
+              onClick={async () => {
+                await addRowAt(index);
+              }}
             >
               <AddSvg />
             </button>
           </td>
           <td className='w-8'>
+            <div className={`flex h-5 w-5 group-hover:hidden`}></div>
             <button
               className={`hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-main-secondary group-hover:flex ${
                 snapshot.isDragging ? '!flex' : ''
               }`}
-              onClick={() => setShowMenu(true)}
+              // onClick={() => setShowMenu(true)}
               {...provided.dragHandleProps}
             >
               <DragSvg />
             </button>
 
-            {showMenu && <GridRowActions onOutsideClick={() => setShowMenu(false)} />}
+            {showMenu && (
+              <GridRowActions controller={controller} rowId={row.row.id} onOutsideClick={() => setShowMenu(false)} />
+            )}
           </td>
 
           {cells.map((cell, cellIndex) => {
