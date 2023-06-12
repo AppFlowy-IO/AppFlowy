@@ -26,18 +26,13 @@ class FlowyPluginService {
     return _instance!;
   }
 
-  Future<Iterable<Directory>> get _targets async {
+  static Future<Iterable<Directory>> get _targets async {
     final location = await PluginLocationService.location;
     final targets = location.listSync().where(FlowyDynamicPlugin.isPlugin);
     return targets.map<Directory>((entity) => entity as Directory).toList();
   }
 
-  /// When an awaited instance of [FlowyPluginService] is available, the plugins should
-  /// also be initialized, and we can get a list of all libraries that are dynamically
-  /// added to the applciation
-  ///
-  /// This is a copy of the backing property, the plugins should not be modifiable by the user.
-  Future<DynamicPluginLibrary> get plugins async {
+  static Future<DynamicPluginLibrary> get plugins async {
     final List<FlowyDynamicPlugin> compiled = [];
     for (final src in await _targets) {
       final plugin = await FlowyDynamicPlugin.tryCompile(src: src);
