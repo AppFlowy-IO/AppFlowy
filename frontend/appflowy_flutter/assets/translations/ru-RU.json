@@ -45,7 +45,14 @@
     "medium": "средний",
     "large": "большой",
     "fontSize": "Размер шрифта",
-    "import": "Импортировать"
+    "import": "Импортировать",
+    "moreOptions": ""
+  },
+  "importPanel": {
+    "textAndMarkdown": "Text & Markdown",
+    "documentFromV010": "Document from v0.1.0",
+    "databaseFromV010": "Database from v0.1.0",
+    "csv": "CSV"
   },
   "disclosureAction": {
     "rename": "Переименовать",
@@ -108,8 +115,9 @@
     "openAsPage": "Открыть как страницу",
     "addNewRow": "Добавить новую строку",
     "openMenu": "Открыть меню",
-    "viewDataBase": "Просмотр базы данных",
-    "referencePage": "Ссылаются на {name}"
+    "dragRow": "Long press to reorder the row",
+    "viewDataBase": "View database",
+    "referencePage": "This {name} is referenced"
   },
   "sideBar": {
     "closeSidebar": "Закрыть боковое меню",
@@ -123,7 +131,7 @@
   },
   "contactsPage": {
     "title": "Контакты",
-    "whatsHappening": "Какие события на этой неделе?",
+    "whatsHappening": "Что нового на этой неделе?",
     "addContact": "Добавить контакт",
     "editContact": "Редактировать контакт"
   },
@@ -182,15 +190,20 @@
       "theme": "Тема"
     },
     "files": {
+      "copy": "Copy",
       "defaultLocation": "Где сейчас хранятся ваши данные",
+      "exportData": "Export your data",
       "doubleTapToCopy": "Нажмите дважды, чтобы скопировать путь",
       "restoreLocation": "Восстановить путь AppFlowy по умолчанию",
       "customizeLocation": "Открыть другую папку",
       "restartApp": "Пожалуйста, перезапустите приложение, чтобы изменения вступили в силу.",
       "exportDatabase": "Экспорт базы данных",
       "selectFiles": "Выбрать файлы, которые необходимо экспортировать",
+      "selectAll": "Select all",
+      "deselectAll": "Deselect all",
       "createNewFolder": "Создать новую папку",
       "createNewFolderDesc": "Указать, где хранить свои данные ...",
+      "defineWhereYourDataIsStored": "Define where your data is stored",
       "open": "Открыть",
       "openFolder": "Открыть существующую папку",
       "openFolderDesc": "Чтение и запись в существующую папку AppFlowy ...",
@@ -199,9 +212,17 @@
       "locationDesc": "Выбрать имя папки данных AppFlowy",
       "browser": "Обзор",
       "create": "Создать",
+      "set": "Set",
       "folderPath": "Путь к вашей папке",
       "locationCannotBeEmpty": "Путь не может быть пустым",
-      "pathCopiedSnackbar": "Путь скопирован в буфер обмена!"
+      "pathCopiedSnackbar": "Путь скопирован в буфер обмена!",
+      "changeLocationTooltips": "Change the data directory",
+      "change": "Change",
+      "openLocationTooltips": "Open another data directory",
+      "recoverLocationTooltips": "Reset to AppFlowy's default data directory",
+      "exportFileSuccess": "Export file successfully!",
+      "exportFileFail": "Export file failed!",
+      "export": "Export"
     },
     "user": {
       "name": "Имя",
@@ -221,7 +242,8 @@
       "deleteFilter": "Удалить фильтр",
       "filterBy": "Фильтровать по...",
       "typeAValue": "Введите значение...",
-      "layout": "Раскладка"
+      "layout": "Раскладка",
+      "databaseLayout": "Layout"
     },
     "textFilter": {
       "contains": "Содержит",
@@ -272,6 +294,8 @@
       "textFieldName": "Текст",
       "checkboxFieldName": "Чекбокс",
       "dateFieldName": "Дата",
+      "updatedAtFieldName": "Last modified time",
+      "createdAtFieldName": "Created time",
       "numberFieldName": "Число",
       "singleSelectFieldName": "Выбор",
       "multiSelectFieldName": "Выбор нескольких",
@@ -347,6 +371,10 @@
       "grid": {
         "selectAGridToLinkTo": "Выберите сетку для связи с",
         "createANewGrid": "Создать сетку"
+      },
+      "calendar": {
+        "selectACalendarToLinkTo": "Select a Calendar to link to",
+        "createANewCalendar": "Create a new Calendar"
       }
     },
     "plugins": {
@@ -363,6 +391,8 @@
       "smartEditFixSpelling": "Исправить правописание",
       "warning": "⚠️ Ответы ИИ могут быть неправильными или неточными.",
       "smartEditSummarize": "Выделить суть",
+      "smartEditImproveWriting": "Improve writing",
+      "smartEditMakeLonger": "Make longer",
       "smartEditCouldNotFetchResult": "Не могу получить ответ от OpenAI",
       "smartEditCouldNotFetchKey": "Не могу получить токен OpenAI",
       "smartEditDisabled": "Подключить OpenAI",
@@ -394,6 +424,21 @@
       "mathEquation": {
         "addMathEquation": "Добавить математическое выражение",
         "editMathEquation": "Редактировать математическое выражение"
+      },
+      "optionAction": {
+        "click": "Click",
+        "toOpenMenu": " to open menu",
+        "delete": "Delete",
+        "duplicate": "Duplicate",
+        "turnInto": "Turn into",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "color": "Color",
+        "align": "Align",
+        "left": "Left",
+        "center": "Center",
+        "right": "Right",
+        "defaultColor": "Default"
       }
     }
   },
@@ -417,7 +462,12 @@
       "showWeekNumbers": "Показывать номера недель",
       "showWeekends": "Показывать выходные",
       "firstDayOfWeek": "Первый день недели",
-      "layoutDateField": "Вид календаря"
-    }
+      "layoutDateField": "Вид календаря",
+      "noDateTitle": "No Date",
+      "noDateHint": "Unscheduled events will show up here",
+      "clickToAdd": "Click to add to the calendar",
+      "name": "Calendar layout"
+    },
+    "referencedCalendarPrefix": "View of"
   }
 }
