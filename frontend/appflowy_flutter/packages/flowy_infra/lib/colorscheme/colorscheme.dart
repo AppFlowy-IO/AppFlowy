@@ -1,9 +1,13 @@
+import 'package:flowy_infra/utils/color_converter.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flowy_infra/theme.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'default_colorscheme.dart';
 import 'dandelion.dart';
 import 'lavender.dart';
+
+part 'colorscheme.g.dart';
 
 /// A map of all the built-in themes.
 ///
@@ -25,8 +29,12 @@ const Map<String, List<FlowyColorScheme>> themeMap = {
   ],
 };
 
-@immutable
-abstract class FlowyColorScheme {
+@JsonSerializable(
+  converters: [
+    ColorConverter(),
+  ],
+)
+class FlowyColorScheme {
   final Color surface;
   final Color hover;
   final Color selector;
