@@ -1,12 +1,24 @@
-import { UpdateViewPayloadPB, RepeatedViewIdPB, ViewPB } from '@/services/backend';
+import { UpdateViewPayloadPB, RepeatedViewIdPB, ViewPB, FlowyError, ViewIdPB } from '@/services/backend';
 import {
   FolderEventDeleteView,
   FolderEventDuplicateView,
+  FolderEventReadView,
   FolderEventUpdateView,
 } from '@/services/backend/events/flowy-folder2';
+import { Ok, Result } from 'ts-results';
 
 export class ViewBackendService {
   constructor(public readonly viewId: string) {}
+
+  getChildViews = async (): Promise<Result<ViewPB[], FlowyError>> => {
+    const payload = ViewIdPB.fromObject({ value: this.viewId });
+    const result = await FolderEventReadView(payload);
+    if (result.ok) {
+      return Ok(result.val.child_views);
+    } else {
+      return result;
+    }
+  };
 
   update = (params: { name?: string; desc?: string }) => {
     const payload = UpdateViewPayloadPB.fromObject({ view_id: this.viewId });
@@ -26,7 +38,12 @@ export class ViewBackendService {
     return FolderEventDeleteView(payload);
   };
 
-  duplicate = (view: ViewPB) => {
-    return FolderEventDuplicateView(view);
+  duplicate = async () => {
+    const view = await FolderEventReadView(ViewIdPB.fromObject({ value: this.viewId }));
+    if (view.ok) {
+      return FolderEventDuplicateView(view.val);
+    } else {
+      return view;
+    }
   };
 }

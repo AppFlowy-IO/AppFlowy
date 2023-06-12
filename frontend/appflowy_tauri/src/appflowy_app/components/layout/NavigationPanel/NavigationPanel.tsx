@@ -1,14 +1,13 @@
 import { WorkspaceUser } from '../WorkspaceUser';
 import { AppLogo } from '../AppLogo';
-import { FolderItem } from './FolderItem';
 import { TrashButton } from './TrashButton';
 import { NewFolderButton } from './NewFolderButton';
 import { NavigationResizer } from './NavigationResizer';
-import { IFolder } from '$app_reducers/folders/slice';
 import { IPage } from '$app_reducers/pages/slice';
 import { useLocation, useNavigate } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
 import { useAppSelector } from '$app/stores/store';
+import { NavItemWrapper } from '$app/components/layout/NavigationPanel/NavItemWrapper';
 import {
   ANIMATION_DURATION,
   FOLDER_MARGIN,
@@ -21,20 +20,14 @@ export const NavigationPanel = ({
   onHideMenuClick,
   menuHidden,
   width,
-  folders,
-  pages,
-  onPageClick,
 }: {
   onHideMenuClick: () => void;
   menuHidden: boolean;
   width: number;
-  folders: IFolder[];
-  pages: IPage[];
-  onPageClick: (page: IPage) => void;
 }) => {
   const el = useRef<HTMLDivElement>(null);
-  const foldersStore = useAppSelector((state) => state.folders);
-  const pagesStore = useAppSelector((state) => state.pages);
+  const pages = useAppSelector((state) => state.pages);
+  const workspace = useAppSelector((state) => state.workspace);
   const [activePageId, setActivePageId] = useState<string>('');
   const currentLocation = useLocation();
   const [maxHeight, setMaxHeight] = useState(0);
@@ -47,27 +40,27 @@ export const NavigationPanel = ({
   }, [currentLocation]);
 
   useEffect(() => {
-    setTimeout(() => {
+    /*setTimeout(() => {
       if (!el.current) return;
       if (!activePageId?.length) return;
       const activePage = pagesStore.find((page) => page.id === activePageId);
       if (!activePage) return;
 
-      const folderIndex = foldersStore.findIndex((folder) => folder.id === activePage.folderId);
+      const folderIndex = foldersStore.findIndex((folder) => folder.id === activePage.parentPageId);
       if (folderIndex === -1) return;
 
       let height = 0;
       for (let i = 0; i < folderIndex; i++) {
         height += INITIAL_FOLDER_HEIGHT + FOLDER_MARGIN;
         if (foldersStore[i].showPages) {
-          height += pagesStore.filter((p) => p.folderId === foldersStore[i].id).length * PAGE_ITEM_HEIGHT;
+          height += pagesStore.filter((p) => p.parentPageId === foldersStore[i].id).length * PAGE_ITEM_HEIGHT;
         }
       }
 
       height += INITIAL_FOLDER_HEIGHT + FOLDER_MARGIN / 2;
 
       const pageIndex = pagesStore
-        .filter((p) => p.folderId === foldersStore[folderIndex].id)
+        .filter((p) => p.parentPageId === foldersStore[folderIndex].id)
         .findIndex((p) => p.id === activePageId);
       for (let i = 0; i <= pageIndex; i++) {
         height += PAGE_ITEM_HEIGHT;
@@ -79,12 +72,13 @@ export const NavigationPanel = ({
       if (scrollTop + elHeight < height || scrollTop > height) {
         el.current.scrollTo({ top: height - elHeight, behavior: 'smooth' });
       }
-    }, ANIMATION_DURATION);
+    }, ANIMATION_DURATION);*/
   }, [activePageId]);
 
   useEffect(() => {
-    setMaxHeight(foldersStore.length * (INITIAL_FOLDER_HEIGHT + FOLDER_MARGIN) + pagesStore.length * PAGE_ITEM_HEIGHT);
-  }, [foldersStore, pagesStore]);
+    // setMaxHeight(pagesStore.length * (INITIAL_FOLDER_HEIGHT + FOLDER_MARGIN) + pagesStore.length * PAGE_ITEM_HEIGHT);
+    setMaxHeight(pages.length * (INITIAL_FOLDER_HEIGHT + FOLDER_MARGIN));
+  }, [pages]);
 
   const scrollDown = () => {
     setTimeout(() => {
@@ -113,7 +107,7 @@ export const NavigationPanel = ({
               }}
               ref={el}
             >
-              <WorkspaceApps folders={folders} pages={pages} onPageClick={onPageClick} />
+              <WorkspaceApps pages={pages.filter((p) => p.parentPageId === workspace.id)} />
             </div>
           </div>
         </div>
@@ -139,21 +133,10 @@ export const NavigationPanel = ({
   );
 };
 
-type AppsContext = {
-  folders: IFolder[];
-  pages: IPage[];
-  onPageClick: (page: IPage) => void;
-};
-
-const WorkspaceApps: React.FC<AppsContext> = ({ folders, pages, onPageClick }) => (
+const WorkspaceApps: React.FC<{ pages: IPage[] }> = ({ pages }) => (
   <>
-    {folders.map((folder, index) => (
-      <FolderItem
-        key={index}
-        folder={folder}
-        pages={pages.filter((page) => page.folderId === folder.id)}
-        onPageClick={onPageClick}
-      ></FolderItem>
+    {pages.map((page, index) => (
+      <NavItemWrapper key={index} page={page}></NavItemWrapper>
     ))}
   </>
 );

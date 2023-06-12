@@ -17,7 +17,7 @@ export const NewFolderButton = ({ scrollDown }: { scrollDown: () => void }) => {
           <AddSvg></AddSvg>
         </div>
       </div>
-      <span>New Folder</span>
+      <span>New View</span>
     </button>
   );
 };
