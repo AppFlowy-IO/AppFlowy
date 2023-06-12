@@ -268,7 +268,17 @@ impl Folder2Manager {
     &self,
     params: CreateViewParams,
   ) -> FlowyResult<View> {
-    todo!()
+    let view_layout: ViewLayout = params.layout.clone().into();
+    let handler = self.get_handler(&view_layout)?;
+    let user_id = self.user.user_id()?;
+    handler
+      .create_built_in_view(user_id, &params.view_id, &params.name, view_layout.clone())
+      .await?;
+    let view = create_view(params, view_layout);
+    self.with_folder((), |folder| {
+      folder.insert_view(view.clone());
+    });
+    Ok(view)
   }
 
   #[tracing::instrument(level = "debug", skip(self), err)]
@@ -401,6 +411,8 @@ impl Folder2Manager {
           .set_name_if_not_none(params.name)
           .set_desc_if_not_none(params.desc)
           .set_layout_if_not_none(params.layout)
+          .set_icon_url_if_not_none(params.icon_url)
+          .set_cover_url_if_not_none(params.cover_url)
           .done()
       });
       Some((old_view, new_view))

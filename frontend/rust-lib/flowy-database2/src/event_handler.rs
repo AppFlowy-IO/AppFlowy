@@ -300,16 +300,27 @@ pub(crate) async fn get_row_handler(
   data_result_ok(OptionalRowPB { row })
 }
 
-pub(crate) async fn get_row_detail_handler(
+pub(crate) async fn get_row_meta_handler(
   data: AFPluginData<RowIdPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
-) -> DataResult<RowDetailPB, FlowyError> {
+) -> DataResult<RowMetaPB, FlowyError> {
   let params: RowIdParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  match database_editor.get_row_detail(&params.view_id, &params.row_id) {
+  match database_editor.get_row_meta(&params.view_id, &params.row_id) {
     None => Err(FlowyError::record_not_found()),
     Some(row) => data_result_ok(row),
   }
+}
+
+pub(crate) async fn update_row_meta_handler(
+  data: AFPluginData<UpdateRowMetaChangesetPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> FlowyResult<()> {
+  let params: UpdateRowMetaParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  let row_id = RowId::from(params.id.clone());
+  database_editor.update_row_meta(&row_id, params).await;
+  Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]

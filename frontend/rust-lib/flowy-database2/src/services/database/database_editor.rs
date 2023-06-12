@@ -3,9 +3,9 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use bytes::Bytes;
-use collab_database::database::{gen_row_document_id, Database as InnerDatabase};
+use collab_database::database::Database as InnerDatabase;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowId, RowMeta};
+use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowId, RowMetaKey};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use parking_lot::Mutex;
 use tokio::sync::{broadcast, RwLock};
@@ -16,11 +16,11 @@ use lib_infra::future::{to_fut, Fut};
 
 use crate::entities::{
   CalendarEventPB, CellChangesetNotifyPB, CellPB, ChecklistCellDataPB, DatabaseFieldChangesetPB,
-  DatabaseLayoutSettingPB, DatabasePB, DatabaseViewSettingPB, DeleteFilterParams,
-  DeleteGroupParams, DeleteSortParams, FieldChangesetParams, FieldIdPB, FieldPB, FieldType,
-  GroupPB, IndexFieldPB, InsertedRowPB, LayoutSettingParams, NoDateCalendarEventPB,
-  RepeatedFilterPB, RepeatedGroupPB, RepeatedSortPB, RowDetailPB, RowPB, RowsChangePB,
-  SelectOptionCellDataPB, SelectOptionPB, UpdateFilterParams, UpdateSortParams, UpdatedRowPB,
+  DatabasePB, DatabaseViewSettingPB, DeleteFilterParams, DeleteGroupParams, DeleteSortParams,
+  FieldChangesetParams, FieldIdPB, FieldPB, FieldType, GroupPB, IndexFieldPB, InsertedRowPB,
+  LayoutSettingParams, NoDateCalendarEventPB, RepeatedFilterPB, RepeatedGroupPB, RepeatedSortPB,
+  RowMetaPB, RowPB, RowsChangePB, SelectOptionCellDataPB, SelectOptionPB, UpdateFilterParams,
+  UpdateRowMetaParams, UpdateSortParams, UpdatedRowPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
@@ -498,22 +498,25 @@ impl DatabaseEditor {
 
   pub fn get_row(&self, view_id: &str, row_id: &RowId) -> Option<Row> {
     if self.database.lock().views.is_row_exist(view_id, row_id) {
-      return None;
-    } else {
       self.database.lock().get_row(row_id)
+    } else {
+      return None;
     }
   }
 
-  pub fn get_row_detail(&self, view_id: &str, row_id: &RowId) -> Option<RowDetailPB> {
+  pub fn get_row_meta(&self, view_id: &str, row_id: &RowId) -> Option<RowMetaPB> {
     if self.database.lock().views.is_row_exist(view_id, row_id) {
-      return None;
-    } else {
-      let row = self.database.lock().get_row(row_id)?;
-      let document_id = row.document_id();
-      Some(RowDetailPB {
-        id: row.id.into_inner(),
-        document_id,
+      let row_meta = self.database.lock().get_row_meta(row_id)?;
+
+      Some(RowMetaPB {
+        id: row_id.clone().into_inner(),
+        document_id: row_meta.document_id,
+        icon: row_meta.icon_url,
+        cover: row_meta.cover_url,
       })
+    } else {
+      tracing::warn!("the row:{} is exist in view:{}", row_id.as_str(), view_id);
+      return None;
     }
   }
 
@@ -527,14 +530,15 @@ impl DatabaseEditor {
     }
   }
 
-  pub async fn update_row(&self, row_id: &RowId) {
-    let row = self.database.lock().remove_row(row_id);
-    if let Some(row) = row {
-      tracing::trace!("Did delete row:{:?}", row);
-      for view in self.database_views.editors().await {
-        view.v_did_delete_row(&row).await;
-      }
-    }
+  pub async fn update_row_meta(&self, row_id: &RowId, changeset: UpdateRowMetaParams) {
+    self
+      .database
+      .lock()
+      .update_row_meta(&row_id, |meta_update| {
+        meta_update
+          .insert_cover_if_not_none(changeset.cover)
+          .insert_icon_if_not_none(changeset.icon);
+      });
   }
 
   pub async fn get_cell(&self, field_id: &str, row_id: &RowId) -> Option<Cell> {

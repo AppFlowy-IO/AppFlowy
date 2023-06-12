@@ -44,9 +44,14 @@ class _RowDetailPageState extends State<RowDetailPage> {
             // - lower rich text area
             IntrinsicHeight(child: _responsiveRowInfo()),
             const Divider(height: 1.0),
-            RowDocument(
-              viewId: widget.rowController.viewId,
-              rowId: widget.rowController.rowId,
+
+// TODO(lucas): expand the document
+            SizedBox(
+              height: 200,
+              child: RowDocument(
+                viewId: widget.rowController.viewId,
+                rowId: widget.rowController.rowId,
+              ),
             ),
           ],
         ),

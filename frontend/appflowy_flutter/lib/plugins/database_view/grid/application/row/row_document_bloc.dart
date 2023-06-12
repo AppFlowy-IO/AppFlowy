@@ -1,12 +1,13 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:dartz/dartz.dart';
 
 import '../../../application/row/row_service.dart';
 
@@ -27,9 +28,20 @@ class RowDocumentBloc extends Bloc<RowDocumentEvent, RowDocumentState> {
           initial: () async {
             _getRowDocumentView();
           },
-          getRowDetail: () {},
           didReceiveRowDocument: (view) {
-            emit(state.copyWith(viewPB: view));
+            emit(
+              state.copyWith(
+                viewPB: view,
+                loadingState: const LoadingState.finish(),
+              ),
+            );
+          },
+          didReceiveError: (FlowyError error) {
+            emit(
+              state.copyWith(
+                loadingState: LoadingState.error(error),
+              ),
+            );
           },
         );
       },
@@ -44,29 +56,37 @@ class RowDocumentBloc extends Bloc<RowDocumentEvent, RowDocumentState> {
             await ViewBackendService.getView(rowDetail.documentId);
         viewsOrError.fold(
           (view) => add(RowDocumentEvent.didReceiveRowDocument(view)),
-          (error) => Log.error(error),
+          (error) async {
+            if (error.code == ErrorCode.RecordNotFound.value) {
+              // By default, the document of the row is not exist. So creating a
+              // new document for the given document id of the row.
+              final documentView =
+                  await _createRowDocumentView(rowDetail.documentId);
+              if (documentView != null) {
+                add(RowDocumentEvent.didReceiveRowDocument(documentView));
+              }
+            } else {
+              add(RowDocumentEvent.didReceiveError(error));
+            }
+          },
         );
       },
-      (err) {
-        if (err.code == ErrorCode.RecordNotFound.value) {
-          // By default, the document of the row is not exist. So creating a
-          // new document for the given document id of the row.
-        }
-      },
+      (err) => Log.error('Failed to get row detail: $err'),
     );
   }
 
-  Future<void> _createRowDocumentView(String viewId) async {
-    final result = await ViewBackendService.createView(
-      parentViewId: viewId,
-      name: '',
+  Future<ViewPB?> _createRowDocumentView(String viewId) async {
+    final result = await ViewBackendService.createOrphanView(
+      viewId: viewId,
+      name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
       desc: '',
       layoutType: ViewLayoutPB.Document,
     );
-    result.fold(
-      (view) {},
+    return result.fold(
+      (view) => view,
       (error) {
         Log.error(error);
+        return null;
       },
     );
   }
@@ -77,7 +97,8 @@ class RowDocumentEvent with _$RowDocumentEvent {
   const factory RowDocumentEvent.initial() = _InitialRow;
   const factory RowDocumentEvent.didReceiveRowDocument(ViewPB view) =
       _DidReceiveRowDocument;
-  const factory RowDocumentEvent.getRowDetail() = _GetRowDetail;
+  const factory RowDocumentEvent.didReceiveError(FlowyError error) =
+      _DidReceiveError;
 }
 
 @freezed

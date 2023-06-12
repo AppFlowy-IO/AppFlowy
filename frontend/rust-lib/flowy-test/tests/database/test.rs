@@ -6,6 +6,7 @@ use lib_infra::util::timestamp;
 use flowy_database2::entities::{
   CellChangesetPB, CellIdPB, ChecklistCellDataChangesetPB, DatabaseLayoutPB,
   DatabaseSettingChangesetPB, DatabaseViewIdPB, DateChangesetPB, FieldType, SelectOptionCellDataPB,
+  UpdateRowMetaChangesetPB,
 };
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
@@ -212,6 +213,78 @@ async fn delete_row_event_test() {
   // get the row again and check if it is deleted.
   let optional_row = test.get_row(&grid_view.id, &database.rows[0].id).await;
   assert!(optional_row.row.is_none());
+}
+
+#[tokio::test]
+async fn get_row_event_test() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let grid_view = test
+    .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
+    .await;
+  let database = test.get_database(&grid_view.id).await;
+
+  let row = test.get_row(&grid_view.id, &database.rows[0].id).await.row;
+  assert!(row.is_some());
+
+  let row = test.get_row_meta(&grid_view.id, &database.rows[0].id).await;
+  assert!(!row.document_id.is_empty());
+}
+
+#[tokio::test]
+async fn update_row_meta_event_with_url_test() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let grid_view = test
+    .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
+    .await;
+  let database = test.get_database(&grid_view.id).await;
+
+  // By default the row icon is None.
+  let row = test.get_row_meta(&grid_view.id, &database.rows[0].id).await;
+  assert_eq!(row.icon, None);
+
+  // Insert icon url to the row.
+  let changeset = UpdateRowMetaChangesetPB {
+    id: database.rows[0].id.clone(),
+    view_id: grid_view.id.clone(),
+    icon: Some("icon_url".to_owned()),
+    cover: None,
+  };
+  let error = test.update_row_meta(changeset).await;
+  assert!(error.is_none());
+
+  // Check if the icon is updated.
+  let row = test.get_row_meta(&grid_view.id, &database.rows[0].id).await;
+  assert_eq!(row.icon, Some("icon_url".to_owned()));
+}
+
+#[tokio::test]
+async fn update_row_meta_event_with_cover_test() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let grid_view = test
+    .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
+    .await;
+  let database = test.get_database(&grid_view.id).await;
+
+  // By default the row icon is None.
+  let row = test.get_row_meta(&grid_view.id, &database.rows[0].id).await;
+  assert_eq!(row.cover, None);
+
+  // Insert cover to the row.
+  let changeset = UpdateRowMetaChangesetPB {
+    id: database.rows[0].id.clone(),
+    view_id: grid_view.id.clone(),
+    cover: Some("cover url".to_owned()),
+    icon: None,
+  };
+  let error = test.update_row_meta(changeset).await;
+  assert!(error.is_none());
+
+  // Check if the icon is updated.
+  let row = test.get_row_meta(&grid_view.id, &database.rows[0].id).await;
+  assert_eq!(row.cover, Some("cover url".to_owned()));
 }
 
 #[tokio::test]

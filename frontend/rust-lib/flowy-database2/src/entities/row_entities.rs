@@ -46,13 +46,62 @@ impl From<RowOrder> for RowPB {
   }
 }
 
-#[derive(Debug, Default, Clone, ProtoBuf, Eq, PartialEq)]
-pub struct RowDetailPB {
+#[derive(Debug, Default, Clone, ProtoBuf)]
+pub struct RowMetaPB {
   #[pb(index = 1)]
   pub id: String,
 
   #[pb(index = 2)]
   pub document_id: String,
+
+  #[pb(index = 3, one_of)]
+  pub icon: Option<String>,
+
+  #[pb(index = 4, one_of)]
+  pub cover: Option<String>,
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf)]
+pub struct UpdateRowMetaChangesetPB {
+  #[pb(index = 1)]
+  pub id: String,
+
+  #[pb(index = 2)]
+  pub view_id: String,
+
+  #[pb(index = 3, one_of)]
+  pub icon: Option<String>,
+
+  #[pb(index = 4, one_of)]
+  pub cover: Option<String>,
+}
+
+#[derive(Debug)]
+pub struct UpdateRowMetaParams {
+  pub id: String,
+  pub view_id: String,
+  pub icon: Option<String>,
+  pub cover: Option<String>,
+}
+
+impl TryInto<UpdateRowMetaParams> for UpdateRowMetaChangesetPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<UpdateRowMetaParams, Self::Error> {
+    let view_id = NotEmptyStr::parse(self.view_id)
+      .map_err(|_| ErrorCode::ViewIdIsInvalid)?
+      .0;
+    let row_id = NotEmptyStr::parse(self.id)
+      .map_err(|_| ErrorCode::RowIdIsEmpty)?
+      .0;
+
+    Ok(UpdateRowMetaParams {
+      id: row_id,
+      view_id,
+      icon: self.icon,
+      cover: self.cover,
+    })
+  }
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]

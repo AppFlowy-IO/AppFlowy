@@ -33,7 +33,8 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         // Row
         .event(DatabaseEvent::CreateRow, create_row_handler)
         .event(DatabaseEvent::GetRow, get_row_handler)
-        .event(DatabaseEvent::GetRowDetail, get_row_detail_handler)
+        .event(DatabaseEvent::GetRowMeta, get_row_meta_handler)
+        .event(DatabaseEvent::UpdateRowMeta, update_row_meta_handler)
         .event(DatabaseEvent::DeleteRow, delete_row_handler)
         .event(DatabaseEvent::DuplicateRow, duplicate_row_handler)
         .event(DatabaseEvent::MoveRow, move_row_handler)
@@ -213,8 +214,11 @@ pub enum DatabaseEvent {
   #[event(input = "MoveRowPayloadPB")]
   MoveRow = 54,
 
-  #[event(input = "RowIdPB", output = "RowDetailPB")]
-  GetRowDetail = 55,
+  #[event(input = "RowIdPB", output = "RowMetaPB")]
+  GetRowMeta = 55,
+
+  #[event(input = "UpdateRowMetaChangesetPB")]
+  UpdateRowMeta = 56,
 
   #[event(input = "CellIdPB", output = "CellPB")]
   GetCell = 70,

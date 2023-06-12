@@ -15,6 +15,8 @@ pub struct ViewPB {
   #[pb(index = 1)]
   pub id: String,
 
+  /// The parent view id of the view.
+  /// Each view should have a parent view except the orphan view.
   #[pb(index = 2)]
   pub parent_view_id: String,
 
@@ -24,11 +26,22 @@ pub struct ViewPB {
   #[pb(index = 4)]
   pub create_time: i64,
 
+  /// Each view can have multiple child views.
   #[pb(index = 5)]
   pub child_views: Vec<ViewPB>,
 
+  /// The layout of the view. It will be used to determine how the view should be rendered.
   #[pb(index = 6)]
   pub layout: ViewLayoutPB,
+
+  /// The icon url of the view.
+  /// It can be used to save the emoji icon of the view.
+  #[pb(index = 7, one_of)]
+  pub icon_url: Option<String>,
+
+  /// The cover url of the view.
+  #[pb(index = 8, one_of)]
+  pub cover_url: Option<String>,
 }
 
 pub fn view_pb_without_child_views(view: View) -> ViewPB {
@@ -39,6 +52,8 @@ pub fn view_pb_without_child_views(view: View) -> ViewPB {
     create_time: view.created_at,
     child_views: Default::default(),
     layout: view.layout.into(),
+    icon_url: view.icon_url,
+    cover_url: view.cover_url,
   }
 }
 
@@ -54,6 +69,8 @@ pub fn view_pb_with_child_views(view: View, child_views: Vec<View>) -> ViewPB {
       .map(view_pb_without_child_views)
       .collect(),
     layout: view.layout.into(),
+    icon_url: view.icon_url,
+    cover_url: view.cover_url,
   }
 }
 
@@ -151,6 +168,7 @@ pub struct CreateViewPayloadPB {
 /// the view list.
 #[derive(Default, ProtoBuf)]
 pub struct CreateOrphanViewPayloadPB {
+  #[pb(index = 1)]
   pub view_id: String,
 
   #[pb(index = 2)]
@@ -267,6 +285,12 @@ pub struct UpdateViewPayloadPB {
 
   #[pb(index = 5, one_of)]
   pub layout: Option<ViewLayoutPB>,
+
+  #[pb(index = 6, one_of)]
+  pub icon_url: Option<String>,
+
+  #[pb(index = 7, one_of)]
+  pub cover_url: Option<String>,
 }
 
 #[derive(Clone, Debug)]
@@ -276,6 +300,12 @@ pub struct UpdateViewParams {
   pub desc: Option<String>,
   pub thumbnail: Option<String>,
   pub layout: Option<ViewLayout>,
+
+  /// The icon url can be empty, which means the view has no icon.
+  pub icon_url: Option<String>,
+
+  /// The cover url can be empty, which means the view has no icon.
+  pub cover_url: Option<String>,
 }
 
 impl TryInto<UpdateViewParams> for UpdateViewPayloadPB {
@@ -305,6 +335,8 @@ impl TryInto<UpdateViewParams> for UpdateViewPayloadPB {
       desc,
       thumbnail,
       layout: self.layout.map(|ty| ty.into()),
+      icon_url: self.icon_url,
+      cover_url: self.cover_url,
     })
   }
 }

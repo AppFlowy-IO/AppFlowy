@@ -96,6 +96,16 @@ impl FlowyCoreTest {
       .await;
   }
 
+  pub async fn update_view(&self, changeset: UpdateViewPayloadPB) -> Option<FlowyError> {
+    // delete the view. the view will be moved to trash
+    EventBuilder::new(self.clone())
+      .event(flowy_folder2::event_map::FolderEvent::UpdateView)
+      .payload(changeset)
+      .async_send()
+      .await
+      .error()
+  }
+
   pub async fn create_view(&self, parent_id: &str, name: String) -> ViewPB {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
@@ -307,6 +317,28 @@ impl FlowyCoreTest {
       .async_send()
       .await
       .parse::<OptionalRowPB>()
+  }
+
+  pub async fn get_row_meta(&self, view_id: &str, row_id: &str) -> RowMetaPB {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::GetRowMeta)
+      .payload(RowIdPB {
+        view_id: view_id.to_string(),
+        row_id: row_id.to_string(),
+        group_id: None,
+      })
+      .async_send()
+      .await
+      .parse::<RowMetaPB>()
+  }
+
+  pub async fn update_row_meta(&self, changeset: UpdateRowMetaChangesetPB) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::UpdateRowMeta)
+      .payload(changeset)
+      .async_send()
+      .await
+      .error()
   }
 
   pub async fn duplicate_row(&self, view_id: &str, row_id: &str) -> Option<FlowyError> {
