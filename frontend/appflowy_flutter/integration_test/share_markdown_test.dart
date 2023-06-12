@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -47,6 +48,38 @@ void main() {
       final markdown = file.readAsStringSync();
       expect(markdown, expectedMarkdown);
     });
+
+    testWidgets(
+      'share the markdown after renaming the document name',
+      (tester) async {
+        await tester.initializeAppFlowy();
+        await tester.tapGoButton();
+
+        // expect to see a readme page
+        tester.expectToSeePageName(readme);
+
+        // rename the document
+        await tester.hoverOnPageName(readme);
+        await tester.renamePage('example');
+
+        final shareButton = find.byType(ShareActionList);
+        final shareButtonState =
+            tester.state(shareButton) as ShareActionListState;
+        final path =
+            await mockSaveFilePath(location, '${shareButtonState.name}.md');
+
+        // click the share button and select markdown
+        await tester.tapShareButton();
+        await tester.tapMarkdownButton();
+
+        // expect to see the success dialog
+        tester.expectToExportSuccess();
+
+        final file = File(path);
+        final isExist = file.existsSync();
+        expect(isExist, true);
+      },
+    );
   });
 }
 

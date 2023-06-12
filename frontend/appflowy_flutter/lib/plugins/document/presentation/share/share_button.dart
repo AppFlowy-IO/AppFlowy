@@ -78,10 +78,11 @@ class ShareActionList extends StatefulWidget {
   final ViewPB view;
 
   @override
-  State<ShareActionList> createState() => _ShareActionListState();
+  State<ShareActionList> createState() => ShareActionListState();
 }
 
-class _ShareActionListState extends State<ShareActionList> {
+@visibleForTesting
+class ShareActionListState extends State<ShareActionList> {
   late String name;
   late final ViewListener viewListener = ViewListener(view: widget.view);
 

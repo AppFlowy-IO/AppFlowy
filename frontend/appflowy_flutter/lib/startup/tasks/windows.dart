@@ -37,7 +37,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
       title: title,
     );
 
-    await windowManager.waitUntilReadyToShow(windowOptions, () async {
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
       await windowManager.focus();
     });
