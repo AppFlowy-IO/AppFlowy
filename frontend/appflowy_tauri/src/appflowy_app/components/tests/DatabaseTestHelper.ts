@@ -32,14 +32,14 @@ import { WorkspaceBackendService } from '$app/stores/effects/folder/workspace/wo
 
 // Create a database view for specific layout type
 // Do not use it production code. Just for testing
-export async function createTestDatabaseView(layout: ViewLayoutPB): Promise<Result<ViewPB, FlowyError>> {
+export async function createTestDatabaseView(layout: ViewLayoutPB): Promise<ViewPB> {
   const workspaceSetting: WorkspaceSettingPB = await FolderEventGetCurrentWorkspace().then((result) => result.unwrap());
   const wsSvc = new WorkspaceBackendService(workspaceSetting.workspace.id);
   const viewRes = await wsSvc.createView({ name: 'New Grid', layoutType: layout });
   if (viewRes.ok) {
-    return Ok(viewRes.val);
+    return viewRes.val;
   } else {
-    return viewRes;
+    throw Error(viewRes.val.msg);
   }
 }
 
