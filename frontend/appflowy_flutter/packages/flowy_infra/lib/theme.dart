@@ -23,8 +23,7 @@ class AppTheme {
   });
 
   static Future<Iterable<AppTheme>> get _plugins async {
-    final instance = await FlowyPluginService.instance;
-    final plugins = await instance.plugins;
+    final plugins = await FlowyPluginService.plugins;
     return plugins.map((plugin) => plugin.themes).expand((element) => element);
   }
 

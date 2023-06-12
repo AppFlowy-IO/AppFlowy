@@ -36,8 +36,7 @@ class DynamicPluginBloc extends Bloc<DynamicPluginEvent, DynamicPluginState> {
   }
 
   Future<void> emitReady(Emitter<DynamicPluginState> emit) async {
-    final service = await FlowyPluginService.instance;
-    emit(DynamicPluginState.ready(plugins: await service.plugins));
+    emit(DynamicPluginState.ready(plugins: await FlowyPluginService.plugins));
   }
 
   Future<void> addPlugin(Emitter<DynamicPluginState> emit) async {
@@ -88,8 +87,7 @@ class DynamicPluginBloc extends Bloc<DynamicPluginEvent, DynamicPluginState> {
 
     emit(const DynamicPluginState.processing());
 
-    final service = await FlowyPluginService.instance;
-    final plugins = await service.plugins;
+    final plugins = await FlowyPluginService.plugins;
     final targets = plugins.where((element) => element.name == name);
     // this shouldn't happen, but if it does, we consider the plugin to be removed.
     if (targets.isEmpty) {

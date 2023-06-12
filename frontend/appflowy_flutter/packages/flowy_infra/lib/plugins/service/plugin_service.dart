@@ -12,20 +12,6 @@ import '../models/flowy_dynamic_plugin.dart';
 class FlowyPluginService {
   FlowyPluginService._();
 
-  static final Completer _completer = Completer();
-  static FlowyPluginService? _instance;
-
-  /// A factory constructor that returns the singleton instance of this class
-  static Future<FlowyPluginService> get instance async {
-    if (_instance == null) {
-      _instance = FlowyPluginService._();
-      _completer.complete();
-    } else if (!_completer.isCompleted) {
-      await _completer.future;
-    }
-    return _instance!;
-  }
-
   static Future<Iterable<Directory>> get _targets async {
     final location = await PluginLocationService.location;
     final targets = location.listSync().where(FlowyDynamicPlugin.isPlugin);
