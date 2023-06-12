@@ -5,7 +5,7 @@ use std::sync::Arc;
 use bytes::Bytes;
 use collab_database::database::Database as InnerDatabase;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowId, RowMetaKey};
+use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use parking_lot::Mutex;
 use tokio::sync::{broadcast, RwLock};
@@ -500,7 +500,7 @@ impl DatabaseEditor {
     if self.database.lock().views.is_row_exist(view_id, row_id) {
       self.database.lock().get_row(row_id)
     } else {
-      return None;
+      None
     }
   }
 
@@ -516,7 +516,7 @@ impl DatabaseEditor {
       })
     } else {
       tracing::warn!("the row:{} is exist in view:{}", row_id.as_str(), view_id);
-      return None;
+      None
     }
   }
 
@@ -530,15 +530,13 @@ impl DatabaseEditor {
     }
   }
 
+  #[tracing::instrument(level = "trace", skip_all)]
   pub async fn update_row_meta(&self, row_id: &RowId, changeset: UpdateRowMetaParams) {
-    self
-      .database
-      .lock()
-      .update_row_meta(&row_id, |meta_update| {
-        meta_update
-          .insert_cover_if_not_none(changeset.cover_url)
-          .insert_icon_if_not_none(changeset.icon_url);
-      });
+    self.database.lock().update_row_meta(row_id, |meta_update| {
+      meta_update
+        .insert_cover_if_not_none(changeset.cover_url)
+        .insert_icon_if_not_none(changeset.icon_url);
+    });
 
     if let Some(row_meta) = self.database.lock().get_row_meta(row_id) {
       let row_meta_pb = RowMetaPB {

@@ -122,7 +122,19 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
     String? iconURL,
     String? coverURL,
   }) async {
-    _rowBackendSvc.updateMeta(iconURL: iconURL, coverURL: coverURL);
+    await _rowBackendSvc
+        .updateMeta(
+      iconURL: iconURL,
+      coverURL: coverURL,
+      rowId: rowId,
+    )
+        .then((result) {
+      result.fold(
+        (l) => null,
+        (err) => Log.error(err),
+      );
+    });
+
     ViewBackendService.updateView(
       viewId: viewId,
       iconURL: iconURL,

@@ -79,7 +79,9 @@ class _BannerAction extends StatelessWidget {
               final children = <Widget>[];
               final rowMeta = state.rowMetaPB;
               if (rowMeta != null) {
-                if (!rowMeta.hasIcon()) {
+                if (rowMeta.hasIcon()) {
+                  children.add(const SizedBox(height: _kBannerActionHeight));
+                } else {
                   children.add(
                     EmojiPickerButton(
                       showEmojiPicker: () => popoverController.show(),
@@ -147,6 +149,7 @@ class _BannerTitleState extends State<_BannerTitle> {
             context
                 .read<RowBannerBloc>()
                 .add(RowBannerEvent.setIcon(emoji.emoji));
+            widget.popoverController.close();
           }),
           child: Row(children: children),
         );
@@ -156,7 +159,7 @@ class _BannerTitleState extends State<_BannerTitle> {
 }
 
 typedef OnSubmittedEmoji = void Function(Emoji emoji);
-const _kBannerActionHeight = 30.0;
+const _kBannerActionHeight = 40.0;
 
 class EmojiButton extends StatelessWidget {
   final String emoji;
@@ -172,9 +175,13 @@ class EmojiButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: _kBannerActionHeight,
-      width: 50,
+      width: _kBannerActionHeight,
       child: FlowyButton(
-        text: FlowyText.medium(emoji),
+        margin: const EdgeInsets.all(4),
+        text: FlowyText.medium(
+          emoji,
+          fontSize: 30,
+        ),
         onTap: showEmojiPicker,
       ),
     );

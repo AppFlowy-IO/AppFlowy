@@ -37,10 +37,13 @@ class RowBackendService {
   }
 
   Future<Either<Unit, FlowyError>> updateMeta({
+    required String rowId,
     String? iconURL,
     String? coverURL,
   }) {
-    final payload = UpdateRowMetaChangesetPB.create()..viewId = viewId;
+    final payload = UpdateRowMetaChangesetPB.create()
+      ..viewId = viewId
+      ..id = rowId;
 
     if (iconURL != null) {
       payload.iconUrl = iconURL;

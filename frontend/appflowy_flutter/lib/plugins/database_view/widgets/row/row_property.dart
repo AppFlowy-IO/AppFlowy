@@ -190,26 +190,3 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
   }
   throw UnimplementedError;
 }
-
-class _RowTitle extends StatelessWidget {
-  final DatabaseCellContext? cellContext;
-  final GridCellBuilder cellBuilder;
-  const _RowTitle({
-    required this.cellContext,
-    required this.cellBuilder,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    if (cellContext == null) {
-      return const SizedBox();
-    }
-    final style = GridTextCellStyle(
-      placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-      textStyle: Theme.of(context).textTheme.titleLarge,
-      autofocus: true,
-    );
-    return cellBuilder.build(cellContext!, style: style);
-  }
-}

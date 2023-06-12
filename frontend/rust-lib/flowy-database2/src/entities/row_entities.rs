@@ -88,13 +88,13 @@ impl TryInto<UpdateRowMetaParams> for UpdateRowMetaChangesetPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<UpdateRowMetaParams, Self::Error> {
-    let view_id = NotEmptyStr::parse(self.view_id)
-      .map_err(|_| ErrorCode::ViewIdIsInvalid)?
-      .0;
     let row_id = NotEmptyStr::parse(self.id)
       .map_err(|_| ErrorCode::RowIdIsEmpty)?
       .0;
 
+    let view_id = NotEmptyStr::parse(self.view_id)
+      .map_err(|_| ErrorCode::ViewIdIsInvalid)?
+      .0;
     Ok(UpdateRowMetaParams {
       id: row_id,
       view_id,

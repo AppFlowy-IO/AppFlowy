@@ -150,7 +150,7 @@ pub(crate) async fn get_primary_field_handler(
   if fields.is_empty() {
     // The primary field should not be empty. Because it is created when the database is created.
     // If it is empty, it must be a bug.
-    return Err(FlowyError::record_not_found());
+    Err(FlowyError::record_not_found())
   } else {
     if fields.len() > 1 {
       // The primary field should not be more than one. If it is more than one,
