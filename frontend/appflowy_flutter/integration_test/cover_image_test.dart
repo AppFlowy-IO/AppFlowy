@@ -29,7 +29,8 @@ void main() {
 
       await tester.tapGoButton();
       await tester.hoverOnCoverPluginAddButton();
-      await tester.expectToSeePluginAddCoverAndIconButton();
+
+      tester.expectToSeePluginAddCoverAndIconButton();
     });
   });
 }

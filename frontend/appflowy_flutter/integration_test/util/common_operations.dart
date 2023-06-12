@@ -1,103 +1,102 @@
 import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
-import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/header/add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/section/item.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'base.dart';
-
-const String readme = 'Read me';
+import 'util.dart';
 
 extension CommonOperations on WidgetTester {
+  /// Get current file location of AppFlowy.
   Future<String> currentFileLocation() async {
     return TestFolder.currentLocation();
   }
 
+  /// Tap the GetStart button on the launch page.
   Future<void> tapGoButton() async {
     final goButton = find.byType(GoButton);
     await tapButton(goButton);
   }
 
-  Future<void> tapCreateButton() async {
-    await tapButtonWithName(LocaleKeys.settings_files_create.tr());
-  }
-
-  void expectToSeeWelcomePage() {
-    expect(find.byType(HomeStack), findsOneWidget);
-    expect(find.textContaining('Read me'), findsOneWidget);
-  }
-
+  /// Tap the + button on the home page.
   Future<void> tapAddButton() async {
     final addButton = find.byType(AddButton);
     await tapButton(addButton);
   }
 
+  /// Tap the create document button.
+  ///
+  /// Must call [tapAddButton] first.
   Future<void> tapCreateDocumentButton() async {
     await tapButtonWithName(LocaleKeys.document_menuName.tr());
   }
 
+  /// Tap the import button.
+  ///
+  /// Must call [tapAddButton] first.
   Future<void> tapImportButton() async {
     await tapButtonWithName(LocaleKeys.moreAction_import.tr());
   }
 
+  /// Tap the import from text & markdown button.
+  ///
+  /// Must call [tapImportButton] first.
   Future<void> tapTextAndMarkdownButton() async {
     await tapButtonWithName(LocaleKeys.importPanel_textAndMarkdown.tr());
   }
 
-  Finder findPageName(String name) {
-    return find.byWidgetPredicate(
-      (widget) => widget is ViewSectionItem && widget.view.name == name,
-    );
-  }
-
-  void expectToSeePageName(String name) {
-    final pageName = findPageName(name);
-    expect(pageName, findsOneWidget);
-  }
-
-  void expectNotToSeePageName(String name) {
-    final pageName = findPageName(name);
-    expect(pageName, findsNothing);
-  }
-
-  Future<void> hoverOnPageName(String name) async {
-    final pageName = find.byWidgetPredicate(
-      (widget) => widget is ViewSectionItem && widget.view.name == name,
-    );
-
+  /// Hover on the widget.
+  Future<void> hoverOnWidget(
+    Finder finder, {
+    Offset? offset,
+  }) async {
     final gesture = await createGesture(kind: PointerDeviceKind.mouse);
     await gesture.addPointer(location: Offset.zero);
     addTearDown(gesture.removePointer);
     await pump();
-    await gesture.moveTo(getCenter(pageName));
+    await gesture.moveTo(offset ?? getCenter(finder));
     await pumpAndSettle();
   }
 
+  /// Hover on the page name.
+  Future<void> hoverOnPageName(String name) async {
+    await hoverOnWidget(findPageName(name));
+  }
+
+  /// Tap the ... button beside the page name.
+  ///
+  /// Must call [hoverOnPageName] first.
   Future<void> tapPageOptionButton() async {
     final optionButton = find.byType(ViewDisclosureButton);
     await tapButton(optionButton);
   }
 
+  /// Tap the delete page button.
+  ///
+  /// Must call [tapPageOptionButton] first.
   Future<void> tapDeletePageButton() async {
     await tapPageOptionButton();
     await tapButtonWithName(ViewDisclosureAction.delete.name);
   }
 
+  /// Tap the rename page button.
+  ///
+  /// Must call [tapPageOptionButton] first.
   Future<void> tapRenamePageButton() async {
     await tapPageOptionButton();
     await tapButtonWithName(ViewDisclosureAction.rename.name);
   }
 
+  /// Rename the page.
+  ///
+  /// Must call [tapPageOptionButton] first.
   Future<void> renamePage(String name) async {
     await tapRenamePageButton();
     await enterText(find.byType(TextFormField), name);
@@ -113,14 +112,9 @@ extension CommonOperations on WidgetTester {
     await tapButton(okButton);
   }
 
-  void expectToSeeDocumentBanner() {
-    expect(find.byType(DocumentBanner), findsOneWidget);
-  }
-
-  void expectNotToSeeDocumentBanner() {
-    expect(find.byType(DocumentBanner), findsNothing);
-  }
-
+  /// Tap the restore button.
+  ///
+  /// the restore button will show after the current page is deleted.
   Future<void> tapRestoreButton() async {
     final restoreButton = find.textContaining(
       LocaleKeys.deletePagePrompt_restore.tr(),
@@ -128,6 +122,9 @@ extension CommonOperations on WidgetTester {
     await tapButton(restoreButton);
   }
 
+  /// Tap the delete permanently button.
+  ///
+  /// the restore button will show after the current page is deleted.
   Future<void> tapDeletePermanentlyButton() async {
     final restoreButton = find.textContaining(
       LocaleKeys.deletePagePrompt_deletePermanent.tr(),
@@ -135,6 +132,7 @@ extension CommonOperations on WidgetTester {
     await tapButton(restoreButton);
   }
 
+  /// Tap the share button above the document page.
   Future<void> tapShareButton() async {
     final shareButton = find.byWidgetPredicate(
       (widget) => widget is DocumentShareButton,
@@ -142,6 +140,9 @@ extension CommonOperations on WidgetTester {
     await tapButton(shareButton);
   }
 
+  /// Tap the export markdown button
+  ///
+  /// Must call [tapShareButton] first.
   Future<void> tapMarkdownButton() async {
     final markdownButton = find.textContaining(
       LocaleKeys.shareAction_markdown.tr(),
@@ -149,44 +150,14 @@ extension CommonOperations on WidgetTester {
     await tapButton(markdownButton);
   }
 
-  void expectToExportSuccess() {
-    final exportSuccess = find.byWidgetPredicate(
-      (widget) =>
-          widget is FlowyText &&
-          widget.title == LocaleKeys.settings_files_exportFileSuccess.tr(),
-    );
-    expect(exportSuccess, findsOneWidget);
-  }
-
+  /// Hover on cover plugin button above the document
   Future<void> hoverOnCoverPluginAddButton() async {
     final editor = find.byWidgetPredicate(
       (widget) => widget is AppFlowyEditor,
     );
-
-    final gesture = await createGesture(kind: PointerDeviceKind.mouse);
-    await gesture.addPointer(location: Offset.zero);
-    addTearDown(gesture.removePointer);
-    await pump();
-    final topLeft = getTopLeft(editor).translate(20, 20);
-    await gesture.moveTo(topLeft);
-    await pumpAndSettle();
-  }
-
-  Future<void> expectToSeePluginAddCoverAndIconButton() async {
-    final addCover = find.textContaining(
-      LocaleKeys.document_plugins_cover_addCover.tr(),
+    await hoverOnWidget(
+      editor,
+      offset: getTopLeft(editor).translate(20, 20),
     );
-    final addIcon = find.textContaining(
-      LocaleKeys.document_plugins_cover_addIcon.tr(),
-    );
-    expect(addCover, findsOneWidget);
-    expect(addIcon, findsOneWidget);
-  }
-
-  void expectToSeeUserName(String name) {
-    final userName = find.byWidgetPredicate(
-      (widget) => widget is FlowyText && widget.title == name,
-    );
-    expect(userName, findsOneWidget);
   }
 }
