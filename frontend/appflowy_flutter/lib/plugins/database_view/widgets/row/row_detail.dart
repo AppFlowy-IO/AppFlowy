@@ -13,7 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'cell_builder.dart';
 import 'cells/text_cell/text_cell.dart';
 import 'row_action.dart';
-import 'row_banner/banner_action.dart';
+import 'row_banner.dart';
 import 'row_property.dart';
 
 class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
