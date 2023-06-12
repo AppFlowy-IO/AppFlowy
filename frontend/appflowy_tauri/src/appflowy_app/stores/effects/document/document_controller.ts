@@ -151,8 +151,6 @@ export class DocumentController {
     await this.backendService.close();
   };
 
-  can_redo_undo = async () => {};
-
   private getActionPayloadByNode = (node: Node, prevId: string | null) => {
     return {
       block: this.getBlockByNode(node),
