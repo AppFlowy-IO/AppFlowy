@@ -19,6 +19,10 @@ import 'base.dart';
 const String readme = 'Read me';
 
 extension CommonOperations on WidgetTester {
+  Future<String> currentFileLocation() async {
+    return TestFolder.currentLocation();
+  }
+
   Future<void> tapGoButton() async {
     final goButton = find.byType(GoButton);
     await tapButton(goButton);
@@ -40,6 +44,14 @@ extension CommonOperations on WidgetTester {
 
   Future<void> tapCreateDocumentButton() async {
     await tapButtonWithName(LocaleKeys.document_menuName.tr());
+  }
+
+  Future<void> tapImportButton() async {
+    await tapButtonWithName(LocaleKeys.moreAction_import.tr());
+  }
+
+  Future<void> tapTextAndMarkdownButton() async {
+    await tapButtonWithName(LocaleKeys.importPanel_textAndMarkdown.tr());
   }
 
   Finder findPageName(String name) {

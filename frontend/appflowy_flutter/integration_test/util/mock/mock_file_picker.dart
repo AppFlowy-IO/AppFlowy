@@ -1,15 +1,19 @@
+import 'dart:io';
+
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
-import 'package:file_picker/src/file_picker.dart' as fp;
+import 'package:file_picker/file_picker.dart' as fp;
 import 'package:path/path.dart' as p;
 import '../util.dart';
 
 class MockFilePicker implements FilePickerService {
   MockFilePicker({
-    required this.mockPath,
+    this.mockPath = '',
+    this.mockPaths = const [],
   });
 
   final String mockPath;
+  final List<String> mockPaths;
 
   @override
   Future<String?> getDirectoryPath({String? title}) {
@@ -41,7 +45,14 @@ class MockFilePicker implements FilePickerService {
     bool withReadStream = false,
     bool lockParentWindow = false,
   }) {
-    throw UnimplementedError();
+    final platformFiles = mockPaths
+        .map((e) => fp.PlatformFile(path: e, name: '', size: 0))
+        .toList();
+    return Future.value(
+      FilePickerResult(
+        platformFiles,
+      ),
+    );
   }
 }
 
@@ -66,4 +77,25 @@ Future<String> mockSaveFilePath(String? name, String fileName) async {
     ),
   );
   return path;
+}
+
+Future<List<String>> mockPickFilePaths(
+  List<String> fileNames, {
+  String? name,
+  String? customPath,
+}) async {
+  late final Directory dir;
+  if (customPath != null) {
+    dir = Directory(customPath);
+  } else {
+    dir = await TestFolder.testLocation(name);
+  }
+  final paths = fileNames.map((e) => p.join(dir.path, e)).toList();
+  getIt.unregister<FilePickerService>();
+  getIt.registerFactory<FilePickerService>(
+    () => MockFilePicker(
+      mockPaths: paths,
+    ),
+  );
+  return paths;
 }
