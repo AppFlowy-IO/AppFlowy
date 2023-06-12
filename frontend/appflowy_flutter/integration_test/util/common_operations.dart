@@ -10,6 +10,8 @@ import 'package:appflowy/workspace/presentation/home/menu/app/section/item.dart'
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'base.dart';
@@ -77,6 +79,26 @@ extension CommonOperations on WidgetTester {
   Future<void> tapDeletePageButton() async {
     await tapPageOptionButton();
     await tapButtonWithName(ViewDisclosureAction.delete.name);
+  }
+
+  Future<void> tapRenamePageButton() async {
+    await tapPageOptionButton();
+    await tapButtonWithName(ViewDisclosureAction.rename.name);
+  }
+
+  Future<void> renamePage(String name) async {
+    await tapRenamePageButton();
+    await enterText(find.byType(TextFormField), name);
+    await tapOKButton();
+  }
+
+  Future<void> tapOKButton() async {
+    final okButton = find.byWidgetPredicate(
+      (widget) =>
+          widget is PrimaryTextButton &&
+          widget.label == LocaleKeys.button_OK.tr(),
+    );
+    await tapButton(okButton);
   }
 
   void expectToSeeDocumentBanner() {
