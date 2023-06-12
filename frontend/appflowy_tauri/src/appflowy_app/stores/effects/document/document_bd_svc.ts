@@ -6,6 +6,8 @@ import {
   ApplyActionPayloadPB,
   BlockActionPB,
   CloseDocumentPayloadPB,
+  DocumentRedoUndoPayloadPB,
+  DocumentRedoUndoResponsePB,
 } from '@/services/backend';
 import { Result } from 'ts-results';
 import {
@@ -13,6 +15,9 @@ import {
   DocumentEventCloseDocument,
   DocumentEventOpenDocument,
   DocumentEventCreateDocument,
+  DocumentEventCanUndoRedo,
+  DocumentEventRedo,
+  DocumentEventUndo,
 } from '@/services/backend/events/flowy-document2';
 
 export class DocumentBackendService {
@@ -45,5 +50,26 @@ export class DocumentBackendService {
       document_id: this.viewId,
     });
     return DocumentEventCloseDocument(payload);
+  };
+
+  canUndoRedo = (): Promise<Result<DocumentRedoUndoResponsePB, FlowyError>> => {
+    const payload = DocumentRedoUndoPayloadPB.fromObject({
+      document_id: this.viewId,
+    });
+    return DocumentEventCanUndoRedo(payload);
+  };
+
+  undo = (): Promise<Result<DocumentRedoUndoResponsePB, FlowyError>> => {
+    const payload = DocumentRedoUndoPayloadPB.fromObject({
+      document_id: this.viewId,
+    });
+    return DocumentEventUndo(payload);
+  };
+
+  redo = (): Promise<Result<DocumentRedoUndoResponsePB, FlowyError>> => {
+    const payload = DocumentRedoUndoPayloadPB.fromObject({
+      document_id: this.viewId,
+    });
+    return DocumentEventRedo(payload);
   };
 }

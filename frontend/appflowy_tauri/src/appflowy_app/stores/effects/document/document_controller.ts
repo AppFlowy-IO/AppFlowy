@@ -114,10 +114,44 @@ export class DocumentController {
     };
   };
 
+  canUndo = async () => {
+    const result = await this.backendService.canUndoRedo();
+    if (result.ok) {
+      return result.val.can_undo;
+    }
+    return false;
+  };
+
+  canRedo = async () => {
+    const result = await this.backendService.canUndoRedo();
+    if (result.ok) {
+      return result.val.can_redo;
+    }
+    return false;
+  };
+
+  undo = async () => {
+    const result = await this.backendService.undo();
+    if (result.ok) {
+      return result.val.is_success;
+    }
+    return false;
+  };
+
+  redo = async () => {
+    const result = await this.backendService.redo();
+    if (result.ok) {
+      return result.val.is_success;
+    }
+    return false;
+  };
+
   dispose = async () => {
     this.onDocChange = undefined;
     await this.backendService.close();
   };
+
+  can_redo_undo = async () => {};
 
   private getActionPayloadByNode = (node: Node, prevId: string | null) => {
     return {

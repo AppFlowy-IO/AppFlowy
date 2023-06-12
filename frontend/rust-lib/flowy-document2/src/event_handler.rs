@@ -111,10 +111,15 @@ pub(crate) async fn document_redo(
   let context = data.into_inner();
   let doc_id = context.document_id;
   let document = manager.open_document(doc_id)?;
+  let document = document.lock();
+  let redo = document.redo();
+  let can_redo = document.can_redo();
+  let can_undo = document.can_undo();
+  drop(document);
   data_result_ok(DocumentRedoUndoResponsePB {
-    can_redo: document.clone().lock().can_redo(),
-    can_undo: document.clone().lock().can_undo(),
-    is_success: document.clone().lock().redo(),
+    can_redo,
+    can_undo,
+    is_success: redo,
   })
 }
 
@@ -125,10 +130,15 @@ pub(crate) async fn document_undo(
   let context = data.into_inner();
   let doc_id = context.document_id;
   let document = manager.open_document(doc_id)?;
+  let document = document.lock();
+  let undo = document.undo();
+  let can_redo = document.can_redo();
+  let can_undo = document.can_undo();
+  drop(document);
   data_result_ok(DocumentRedoUndoResponsePB {
-    can_redo: document.clone().lock().can_redo(),
-    can_undo: document.clone().lock().can_undo(),
-    is_success: document.clone().lock().undo(),
+    can_redo,
+    can_undo,
+    is_success: undo,
   })
 }
 
@@ -139,9 +149,13 @@ pub(crate) async fn document_can_undo_redo(
   let context = data.into_inner();
   let doc_id = context.document_id;
   let document = manager.open_document(doc_id)?;
+  let document = document.lock();
+  let can_redo = document.can_redo();
+  let can_undo = document.can_undo();
+  drop(document);
   data_result_ok(DocumentRedoUndoResponsePB {
-    can_redo: document.clone().lock().can_redo(),
-    can_undo: document.clone().lock().can_undo(),
+    can_redo,
+    can_undo,
     is_success: true,
   })
 }

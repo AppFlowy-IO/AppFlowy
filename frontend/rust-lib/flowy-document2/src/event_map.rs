@@ -27,9 +27,9 @@ pub fn init(document_manager: Arc<DocumentManager>) -> AFPlugin {
     DocumentEvent::ConvertDataToDocument,
     convert_data_to_document,
   );
-  plugin = plugin.event(DocumentEvent::DocumentRedo, document_redo);
-  plugin = plugin.event(DocumentEvent::DocumentUndo, document_undo);
-  plugin = plugin.event(DocumentEvent::DocumentCanUndoRedo, document_can_undo_redo);
+  plugin = plugin.event(DocumentEvent::Redo, document_redo);
+  plugin = plugin.event(DocumentEvent::Undo, document_undo);
+  plugin = plugin.event(DocumentEvent::CanUndoRedo, document_can_undo_redo);
 
   plugin
 }
@@ -59,17 +59,17 @@ pub enum DocumentEvent {
     input = "DocumentRedoUndoPayloadPB",
     output = "DocumentRedoUndoResponsePB"
   )]
-  DocumentRedo = 6,
+  Redo = 6,
 
   #[event(
     input = "DocumentRedoUndoPayloadPB",
     output = "DocumentRedoUndoResponsePB"
   )]
-  DocumentUndo = 7,
+  Undo = 7,
 
   #[event(
     input = "DocumentRedoUndoPayloadPB",
     output = "DocumentRedoUndoResponsePB"
   )]
-  DocumentCanUndoRedo = 8,
+  CanUndoRedo = 8,
 }
