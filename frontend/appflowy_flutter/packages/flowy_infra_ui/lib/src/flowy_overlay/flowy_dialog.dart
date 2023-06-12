@@ -6,22 +6,19 @@ const overlayContainerMaxWidth = 760.0;
 const overlayContainerMinWidth = 320.0;
 
 class FlowyDialog extends StatelessWidget {
-  const FlowyDialog({
-    super.key,
-    required this.child,
-    this.title,
-    this.shape,
-    this.constraints,
-    this.padding = _overlayContainerPadding,
-    this.backgroundColor,
-  });
-
   final Widget? title;
   final ShapeBorder? shape;
   final Widget child;
   final BoxConstraints? constraints;
   final EdgeInsets padding;
-  final Color? backgroundColor;
+  const FlowyDialog({
+    required this.child,
+    this.title,
+    this.shape,
+    this.constraints,
+    this.padding = _overlayContainerPadding,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +26,7 @@ class FlowyDialog extends StatelessWidget {
     final size = windowSize * 0.7;
     return SimpleDialog(
         contentPadding: EdgeInsets.zero,
-        backgroundColor: backgroundColor ?? Theme.of(context).cardColor,
+        backgroundColor: Theme.of(context).cardColor,
         title: title,
         shape: shape ??
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

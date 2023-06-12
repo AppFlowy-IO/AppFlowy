@@ -2,7 +2,6 @@ import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/header/import/import_panel.dart';
-import 'package:appflowy/workspace/presentation/home/menu/app/header/import/import_type.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
