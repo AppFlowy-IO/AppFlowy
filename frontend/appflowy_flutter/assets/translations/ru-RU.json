@@ -49,9 +49,9 @@
     "moreOptions": ""
   },
   "importPanel": {
-    "textAndMarkdown": "Text & Markdown",
-    "documentFromV010": "Document from v0.1.0",
-    "databaseFromV010": "Database from v0.1.0",
+    "textAndMarkdown": "Текст и Markdown",
+    "documentFromV010": "Документ из v0.1.0",
+    "databaseFromV010": "База данных из v0.1.0",
     "csv": "CSV"
   },
   "disclosureAction": {
@@ -115,9 +115,9 @@
     "openAsPage": "Открыть как страницу",
     "addNewRow": "Добавить новую строку",
     "openMenu": "Открыть меню",
-    "dragRow": "Long press to reorder the row",
-    "viewDataBase": "View database",
-    "referencePage": "This {name} is referenced"
+    "dragRow": "Долгое нажатие для изменения порядка строк",
+    "viewDataBase": "Открыть базу данных",
+    "referencePage": "Ссылки на {name}"
   },
   "sideBar": {
     "closeSidebar": "Закрыть боковое меню",
@@ -190,20 +190,20 @@
       "theme": "Тема"
     },
     "files": {
-      "copy": "Copy",
+      "copy": "Копировать",
       "defaultLocation": "Где сейчас хранятся ваши данные",
-      "exportData": "Export your data",
+      "exportData": "Экспорт данных",
       "doubleTapToCopy": "Нажмите дважды, чтобы скопировать путь",
       "restoreLocation": "Восстановить путь AppFlowy по умолчанию",
       "customizeLocation": "Открыть другую папку",
       "restartApp": "Пожалуйста, перезапустите приложение, чтобы изменения вступили в силу.",
       "exportDatabase": "Экспорт базы данных",
       "selectFiles": "Выбрать файлы, которые необходимо экспортировать",
-      "selectAll": "Select all",
-      "deselectAll": "Deselect all",
+      "selectAll": "Выбрать всё",
+      "deselectAll": "Снять выделение",
       "createNewFolder": "Создать новую папку",
       "createNewFolderDesc": "Указать, где хранить свои данные ...",
-      "defineWhereYourDataIsStored": "Define where your data is stored",
+      "defineWhereYourDataIsStored": "Указать хранилище данных",
       "open": "Открыть",
       "openFolder": "Открыть существующую папку",
       "openFolderDesc": "Чтение и запись в существующую папку AppFlowy ...",
@@ -216,13 +216,13 @@
       "folderPath": "Путь к вашей папке",
       "locationCannotBeEmpty": "Путь не может быть пустым",
       "pathCopiedSnackbar": "Путь скопирован в буфер обмена!",
-      "changeLocationTooltips": "Change the data directory",
-      "change": "Change",
-      "openLocationTooltips": "Open another data directory",
-      "recoverLocationTooltips": "Reset to AppFlowy's default data directory",
-      "exportFileSuccess": "Export file successfully!",
-      "exportFileFail": "Export file failed!",
-      "export": "Export"
+      "changeLocationTooltips": "Сменить местоположения",
+      "change": "Изменить",
+      "openLocationTooltips": "Открыть другую директорию данных",
+      "recoverLocationTooltips": "Сбросить к местоположению по умолчанию",
+      "exportFileSuccess": "Экспорт завершён!",
+      "exportFileFail": "Не удалость экспортировать!",
+      "export": "Экспорт"
     },
     "user": {
       "name": "Имя",
@@ -242,8 +242,8 @@
       "deleteFilter": "Удалить фильтр",
       "filterBy": "Фильтровать по...",
       "typeAValue": "Введите значение...",
-      "layout": "Раскладка",
-      "databaseLayout": "Layout"
+      "layout": "Вид",
+      "databaseLayout": "Вид базы данных"
     },
     "textFilter": {
       "contains": "Содержит",
@@ -294,8 +294,8 @@
       "textFieldName": "Текст",
       "checkboxFieldName": "Чекбокс",
       "dateFieldName": "Дата",
-      "updatedAtFieldName": "Last modified time",
-      "createdAtFieldName": "Created time",
+      "updatedAtFieldName": "Последнее изменение",
+      "createdAtFieldName": "Создано",
       "numberFieldName": "Число",
       "singleSelectFieldName": "Выбор",
       "multiSelectFieldName": "Выбор нескольких",
@@ -365,16 +365,16 @@
     },
     "slashMenu": {
       "board": {
-        "selectABoardToLinkTo": "Выбрать доску для связи с",
+        "selectABoardToLinkTo": "Выбрать доску",
         "createANewBoard": "Создать доску"
       },
       "grid": {
-        "selectAGridToLinkTo": "Выберите сетку для связи с",
+        "selectAGridToLinkTo": "Выберите сетку",
         "createANewGrid": "Создать сетку"
       },
       "calendar": {
-        "selectACalendarToLinkTo": "Select a Calendar to link to",
-        "createANewCalendar": "Create a new Calendar"
+        "selectACalendarToLinkTo": "Выбрать календарь",
+        "createANewCalendar": "Создать календарь"
       }
     },
     "plugins": {
@@ -391,8 +391,8 @@
       "smartEditFixSpelling": "Исправить правописание",
       "warning": "⚠️ Ответы ИИ могут быть неправильными или неточными.",
       "smartEditSummarize": "Выделить суть",
-      "smartEditImproveWriting": "Improve writing",
-      "smartEditMakeLonger": "Make longer",
+      "smartEditImproveWriting": "Улучшить",
+      "smartEditMakeLonger": "Продолжить",
       "smartEditCouldNotFetchResult": "Не могу получить ответ от OpenAI",
       "smartEditCouldNotFetchKey": "Не могу получить токен OpenAI",
       "smartEditDisabled": "Подключить OpenAI",
@@ -426,19 +426,19 @@
         "editMathEquation": "Редактировать математическое выражение"
       },
       "optionAction": {
-        "click": "Click",
-        "toOpenMenu": " to open menu",
-        "delete": "Delete",
-        "duplicate": "Duplicate",
-        "turnInto": "Turn into",
-        "moveUp": "Move up",
-        "moveDown": "Move down",
-        "color": "Color",
-        "align": "Align",
-        "left": "Left",
-        "center": "Center",
-        "right": "Right",
-        "defaultColor": "Default"
+        "click": "Кликните",
+        "toOpenMenu": " чтобы открыть меню",
+        "delete": "Удалить",
+        "duplicate": "Дублировать",
+        "turnInto": "Превратить",
+        "moveUp": "Поднять",
+        "moveDown": "Опустить",
+        "color": "Цвет",
+        "align": "Выравнивание",
+        "left": "По левому краю",
+        "center": "По центру",
+        "right": "По правому краю",
+        "defaultColor": "Цвет по умолчанию"
       }
     }
   },
@@ -468,6 +468,6 @@
       "clickToAdd": "Click to add to the calendar",
       "name": "Calendar layout"
     },
-    "referencedCalendarPrefix": "View of"
+    "referencedCalendarPrefix": "Вид"
   }
 }
