@@ -11,7 +11,7 @@ import { ANIMATION_DURATION, PAGE_ITEM_HEIGHT } from '../../_shared/constants';
 import { useNavItem } from '$app/components/layout/NavigationPanel/NavItem.hooks';
 import { useAppSelector } from '$app/stores/store';
 
-export const NavItemWrapper = ({ page }: { page: IPage }) => {
+export const NavItem = ({ page }: { page: IPage }) => {
   const pages = useAppSelector((state) => state.pages);
   const {
     onUnfoldClick,
@@ -92,7 +92,7 @@ export const NavItemWrapper = ({ page }: { page: IPage }) => {
           {pages
             .filter((insidePage) => insidePage.parentPageId === page.id)
             .map((insidePage, index) => (
-              <NavItemWrapper key={index} page={insidePage}></NavItemWrapper>
+              <NavItem key={index} page={insidePage}></NavItem>
             ))}
         </div>
       </div>

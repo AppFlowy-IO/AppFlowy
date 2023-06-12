@@ -7,12 +7,8 @@ import { IPage } from '$app_reducers/pages/slice';
 import { useLocation, useNavigate } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
 import { useAppSelector } from '$app/stores/store';
-import { NavItemWrapper } from '$app/components/layout/NavigationPanel/NavItemWrapper';
-import {
-  ANIMATION_DURATION,
-  NAV_PANEL_MINIMUM_WIDTH,
-  PAGE_ITEM_HEIGHT,
-} from '../../_shared/constants';
+import { NavItem } from '$app/components/layout/NavigationPanel/NavItem';
+import { ANIMATION_DURATION, NAV_PANEL_MINIMUM_WIDTH, PAGE_ITEM_HEIGHT } from '../../_shared/constants';
 
 export const NavigationPanel = ({
   onHideMenuClick,
@@ -133,7 +129,7 @@ export const NavigationPanel = ({
 const WorkspaceApps: React.FC<{ pages: IPage[] }> = ({ pages }) => (
   <>
     {pages.map((page, index) => (
-      <NavItemWrapper key={index} page={page}></NavItemWrapper>
+      <NavItem key={index} page={page}></NavItem>
     ))}
   </>
 );
