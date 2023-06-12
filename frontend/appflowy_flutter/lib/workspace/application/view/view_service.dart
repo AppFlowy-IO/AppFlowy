@@ -18,10 +18,10 @@ class ViewBackendService {
     required String name,
     String? desc,
 
-    ///The default value of [openAfterCreate] is false, meaning the view will
-    ///not be opened nor set as the current view. However, if set to true, the
-    ///view will be opened and set as the current view. Upon relaunching the
-    ///app, this view will be opened
+    /// The default value of [openAfterCreate] is false, meaning the view will
+    /// not be opened nor set as the current view. However, if set to true, the
+    /// view will be opened and set as the current view. Upon relaunching the
+    /// app, this view will be opened
     bool openAfterCreate = false,
 
     /// The initial data should be a JSON that represent the DocumentDataPB.
