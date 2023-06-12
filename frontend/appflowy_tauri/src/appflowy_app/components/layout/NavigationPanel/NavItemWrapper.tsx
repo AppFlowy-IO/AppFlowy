@@ -59,7 +59,9 @@ export const NavItemWrapper = ({ page }: { page: IPage }) => {
       >
         <div
           style={{ height: PAGE_ITEM_HEIGHT }}
-          className={'flex cursor-pointer items-center justify-between rounded-lg px-4 hover:bg-surface-2'}
+          className={`flex cursor-pointer items-center justify-between rounded-lg px-4 hover:bg-surface-2 ${
+            activePageId === page.id ? 'bg-surface-2' : ''
+          }`}
         >
           <button className={'flex min-w-0 flex-1 items-center'}>
             <i

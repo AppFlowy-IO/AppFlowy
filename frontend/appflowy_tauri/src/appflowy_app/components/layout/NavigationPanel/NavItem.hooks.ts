@@ -172,7 +172,7 @@ export const useNavItem = (page: IPage) => {
           })
         );
         if (!page.showPagesInside) {
-          // appDispatch(pagesActions.toggleShowPages({ id: page.id }));
+          appDispatch(pagesActions.toggleShowPages({ id: page.id }));
         }
 
         navigate(`/page/document/${newView.id}`);
@@ -194,7 +194,9 @@ export const useNavItem = (page: IPage) => {
 
     if (newViewResult.ok) {
       const newView = newViewResult.val;
-      appDispatch(pagesActions.toggleShowPages({ id: page.id }));
+      if (!page.showPagesInside) {
+        appDispatch(pagesActions.toggleShowPages({ id: page.id }));
+      }
 
       appDispatch(
         pagesActions.addPage({
@@ -222,7 +224,9 @@ export const useNavItem = (page: IPage) => {
 
     if (newViewResult.ok) {
       const newView = newViewResult.val;
-      appDispatch(pagesActions.toggleShowPages({ id: page.id }));
+      if (!page.showPagesInside) {
+        appDispatch(pagesActions.toggleShowPages({ id: page.id }));
+      }
 
       appDispatch(
         pagesActions.addPage({
