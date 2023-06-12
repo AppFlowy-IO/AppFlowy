@@ -1,3 +1,5 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
 
@@ -11,13 +13,13 @@ enum ImportType {
   String toString() {
     switch (this) {
       case ImportType.historyDocument:
-        return 'Document from v0.1';
+        return LocaleKeys.importPanel_documentFromV010.tr();
       case ImportType.historyDatabase:
-        return 'Database from v0.1';
+        return LocaleKeys.importPanel_databaseFromV010.tr();
       case ImportType.markdownOrText:
-        return 'Text & Markdown';
+        return LocaleKeys.importPanel_textAndMarkdown.tr();
       case ImportType.databaseCSV:
-        return 'CSV';
+        return LocaleKeys.importPanel_csv.tr();
     }
   }
 

@@ -181,4 +181,5 @@ flutter:
     # BEGIN: EXCLUDE_IN_RELEASE
     - assets/test/workspaces/
     - assets/template/
+    - assets/test/workspaces/markdowns/
     # END: EXCLUDE_IN_RELEASE
