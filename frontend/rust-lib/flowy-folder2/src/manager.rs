@@ -261,6 +261,16 @@ impl Folder2Manager {
     Ok(view)
   }
 
+  /// The orphan view is meant to be a view that is not attached to any parent view. By default, this
+  /// view will not be shown in the view list unless it is attached to a parent view that is shown in
+  /// the view list.
+  pub async fn create_orphan_view_with_params(
+    &self,
+    params: CreateViewParams,
+  ) -> FlowyResult<View> {
+    todo!()
+  }
+
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub(crate) async fn close_view(&self, view_id: &str) -> Result<(), FlowyError> {
     let view = self

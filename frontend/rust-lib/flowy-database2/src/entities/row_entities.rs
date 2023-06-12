@@ -36,12 +36,89 @@ impl std::convert::From<Row> for RowPB {
     }
   }
 }
+
 impl From<RowOrder> for RowPB {
   fn from(data: RowOrder) -> Self {
     Self {
       id: data.id.into_inner(),
       height: data.height,
     }
+  }
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf, Eq, PartialEq)]
+pub struct RowDetailPB {
+  #[pb(index = 1)]
+  pub id: String,
+
+  #[pb(index = 2)]
+  pub document_id: String,
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf)]
+pub struct UpdateRowPayloadPB {
+  #[pb(index = 1)]
+  pub row_id: String,
+
+  #[pb(index = 2, one_of)]
+  pub insert_document: Option<bool>,
+
+  #[pb(index = 3, one_of)]
+  pub insert_comment: Option<RowCommentPayloadPB>,
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct UpdateRowParams {
+  pub row_id: String,
+  pub insert_comment: Option<RowCommentParams>,
+}
+
+impl TryInto<UpdateRowParams> for UpdateRowPayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<UpdateRowParams, Self::Error> {
+    let row_id = NotEmptyStr::parse(self.row_id)
+      .map_err(|_| ErrorCode::RowIdIsEmpty)?
+      .0;
+    let insert_comment = self
+      .insert_comment
+      .map(|comment| comment.try_into())
+      .transpose()?;
+
+    Ok(UpdateRowParams {
+      row_id,
+      insert_comment,
+    })
+  }
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf)]
+pub struct RowCommentPayloadPB {
+  #[pb(index = 1)]
+  pub uid: String,
+
+  #[pb(index = 2)]
+  pub comment: String,
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct RowCommentParams {
+  pub uid: String,
+  pub comment: String,
+}
+
+impl TryInto<RowCommentParams> for RowCommentPayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<RowCommentParams, Self::Error> {
+    let uid = NotEmptyStr::parse(self.uid)
+      .map_err(|_| ErrorCode::RowIdIsEmpty)?
+      .0;
+    let comment = NotEmptyStr::parse(self.comment)
+      .map_err(|_| ErrorCode::RowIdIsEmpty)?
+      .0;
+
+    Ok(RowCommentParams { uid, comment })
   }
 }
 

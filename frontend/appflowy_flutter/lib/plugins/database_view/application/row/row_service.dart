@@ -28,6 +28,14 @@ class RowBackendService {
     return DatabaseEventGetRow(payload).send();
   }
 
+  Future<Either<RowDetailPB, FlowyError>> getRowDetail(RowId rowId) {
+    final payload = RowIdPB.create()
+      ..viewId = viewId
+      ..rowId = rowId;
+
+    return DatabaseEventGetRowDetail(payload).send();
+  }
+
   Future<Either<Unit, FlowyError>> deleteRow(RowId rowId) {
     final payload = RowIdPB.create()
       ..viewId = viewId

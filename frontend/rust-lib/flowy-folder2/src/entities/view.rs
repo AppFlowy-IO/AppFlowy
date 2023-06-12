@@ -146,6 +146,26 @@ pub struct CreateViewPayloadPB {
   pub set_as_current: bool,
 }
 
+/// The orphan view is meant to be a view that is not attached to any parent view. By default, this
+/// view will not be shown in the view list unless it is attached to a parent view that is shown in
+/// the view list.
+#[derive(Default, ProtoBuf)]
+pub struct CreateOrphanViewPayloadPB {
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub name: String,
+
+  #[pb(index = 3)]
+  pub desc: String,
+
+  #[pb(index = 4)]
+  pub layout: ViewLayoutPB,
+
+  #[pb(index = 5)]
+  pub initial_data: Vec<u8>,
+}
+
 #[derive(Debug, Clone)]
 pub struct CreateViewParams {
   pub parent_view_id: String,
@@ -164,11 +184,11 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
 
   fn try_into(self) -> Result<CreateViewParams, Self::Error> {
     let name = ViewName::parse(self.name)?.0;
-    let belong_to_id = ViewIdentify::parse(self.parent_view_id)?.0;
+    let parent_view_id = ViewIdentify::parse(self.parent_view_id)?.0;
     let view_id = gen_view_id();
 
     Ok(CreateViewParams {
-      parent_view_id: belong_to_id,
+      parent_view_id,
       name,
       desc: self.desc,
       layout: self.layout,
@@ -176,6 +196,26 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
       initial_data: self.initial_data,
       meta: self.meta,
       set_as_current: self.set_as_current,
+    })
+  }
+}
+
+impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<CreateViewParams, Self::Error> {
+    let name = ViewName::parse(self.name)?.0;
+    let parent_view_id = ViewIdentify::parse(self.view_id.clone())?.0;
+
+    Ok(CreateViewParams {
+      parent_view_id,
+      name,
+      desc: self.desc,
+      layout: self.layout,
+      view_id: self.view_id,
+      initial_data: self.initial_data,
+      meta: Default::default(),
+      set_as_current: false,
     })
   }
 }

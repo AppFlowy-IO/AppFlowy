@@ -141,7 +141,7 @@ class ViewBackendService {
     });
   }
 
-  Future<Either<ViewPB, FlowyError>> getView(
+  static Future<Either<ViewPB, FlowyError>> getView(
     String viewID,
   ) async {
     final payload = ViewIdPB.create()..value = viewID;

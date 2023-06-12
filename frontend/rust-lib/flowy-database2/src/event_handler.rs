@@ -300,6 +300,18 @@ pub(crate) async fn get_row_handler(
   data_result_ok(OptionalRowPB { row })
 }
 
+pub(crate) async fn get_row_detail_handler(
+  data: AFPluginData<RowIdPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> DataResult<RowDetailPB, FlowyError> {
+  let params: RowIdParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  match database_editor.get_row_detail(&params.view_id, &params.row_id) {
+    None => Err(FlowyError::record_not_found()),
+    Some(row) => data_result_ok(row),
+  }
+}
+
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn delete_row_handler(
   data: AFPluginData<RowIdPB>,

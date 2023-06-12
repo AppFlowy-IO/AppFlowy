@@ -3,9 +3,9 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use bytes::Bytes;
-use collab_database::database::Database as InnerDatabase;
+use collab_database::database::{gen_row_document_id, Database as InnerDatabase};
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowId};
+use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowId, RowMeta};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use parking_lot::Mutex;
 use tokio::sync::{broadcast, RwLock};
@@ -19,8 +19,8 @@ use crate::entities::{
   DatabaseLayoutSettingPB, DatabasePB, DatabaseViewSettingPB, DeleteFilterParams,
   DeleteGroupParams, DeleteSortParams, FieldChangesetParams, FieldIdPB, FieldPB, FieldType,
   GroupPB, IndexFieldPB, InsertedRowPB, LayoutSettingParams, NoDateCalendarEventPB,
-  RepeatedFilterPB, RepeatedGroupPB, RepeatedSortPB, RowPB, RowsChangePB, SelectOptionCellDataPB,
-  SelectOptionPB, UpdateFilterParams, UpdateSortParams, UpdatedRowPB,
+  RepeatedFilterPB, RepeatedGroupPB, RepeatedSortPB, RowDetailPB, RowPB, RowsChangePB,
+  SelectOptionCellDataPB, SelectOptionPB, UpdateFilterParams, UpdateSortParams, UpdatedRowPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
@@ -504,7 +504,30 @@ impl DatabaseEditor {
     }
   }
 
+  pub fn get_row_detail(&self, view_id: &str, row_id: &RowId) -> Option<RowDetailPB> {
+    if self.database.lock().views.is_row_exist(view_id, row_id) {
+      return None;
+    } else {
+      let row = self.database.lock().get_row(row_id)?;
+      let document_id = row.document_id();
+      Some(RowDetailPB {
+        id: row.id.into_inner(),
+        document_id,
+      })
+    }
+  }
+
   pub async fn delete_row(&self, row_id: &RowId) {
+    let row = self.database.lock().remove_row(row_id);
+    if let Some(row) = row {
+      tracing::trace!("Did delete row:{:?}", row);
+      for view in self.database_views.editors().await {
+        view.v_did_delete_row(&row).await;
+      }
+    }
+  }
+
+  pub async fn update_row(&self, row_id: &RowId) {
     let row = self.database.lock().remove_row(row_id);
     if let Some(row) = row {
       tracing::trace!("Did delete row:{:?}", row);
