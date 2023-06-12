@@ -134,6 +134,34 @@ pub(crate) async fn get_fields_handler(
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
+pub(crate) async fn get_primary_field_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> DataResult<FieldPB, FlowyError> {
+  let view_id = data.into_inner().value;
+  let database_editor = manager.get_database_with_view_id(&view_id).await?;
+  let mut fields = database_editor
+    .get_fields(&view_id, None)
+    .into_iter()
+    .filter(|field| field.is_primary)
+    .map(FieldPB::from)
+    .collect::<Vec<FieldPB>>();
+
+  if fields.is_empty() {
+    // The primary field should not be empty. Because it is created when the database is created.
+    // If it is empty, it must be a bug.
+    return Err(FlowyError::record_not_found());
+  } else {
+    if fields.len() > 1 {
+      // The primary field should not be more than one. If it is more than one,
+      // it must be a bug.
+      tracing::error!("The primary field is more than one");
+    }
+    data_result_ok(fields.remove(0))
+  }
+}
+
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn update_field_handler(
   data: AFPluginData<FieldChangesetPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,

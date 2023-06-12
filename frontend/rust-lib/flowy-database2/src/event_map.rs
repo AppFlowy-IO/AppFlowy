@@ -22,6 +22,7 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         .event(DatabaseEvent::DeleteAllSorts, delete_all_sorts_handler)
         // Field
         .event(DatabaseEvent::GetFields, get_fields_handler)
+        .event(DatabaseEvent::GetPrimaryField, get_primary_field_handler)
         .event(DatabaseEvent::UpdateField, update_field_handler)
         .event(DatabaseEvent::UpdateFieldTypeOption, update_field_type_option_handler)
         .event(DatabaseEvent::DeleteField, delete_field_handler)
@@ -173,6 +174,9 @@ pub enum DatabaseEvent {
   /// [CreateTypeOption] event is used to create a new FieldTypeOptionData.
   #[event(input = "CreateFieldPayloadPB", output = "TypeOptionPB")]
   CreateTypeOption = 24,
+
+  #[event(input = "DatabaseViewIdPB", output = "FieldPB")]
+  GetPrimaryField = 25,
 
   /// [CreateSelectOption] event is used to create a new select option. Returns a [SelectOptionPB] if
   /// there are no errors.

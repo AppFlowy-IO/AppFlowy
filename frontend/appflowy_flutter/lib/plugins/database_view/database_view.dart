@@ -18,7 +18,7 @@ class DatabaseViewPlugin extends Plugin {
     required ViewPB view,
   })  : _view = view,
         _innerPlugin = _makeInnerPlugin(view),
-        _viewListener = ViewListener(view: view) {
+        _viewListener = ViewListener(viewId: view.id) {
     _listenOnLayoutChanged();
   }
 
@@ -33,18 +33,12 @@ class DatabaseViewPlugin extends Plugin {
 
   void _listenOnLayoutChanged() {
     _viewListener.start(
-      onViewUpdated: (result) {
-        result.fold(
-          (updatedView) {
-            if (_view.layout != updatedView.layout) {
-              _innerPlugin = _makeInnerPlugin(updatedView);
-
-              getIt<HomeStackManager>().setPlugin(_innerPlugin);
-            }
-            _view = updatedView;
-          },
-          (r) => null,
-        );
+      onViewUpdated: (updatedView) {
+        if (_view.layout != updatedView.layout) {
+          _innerPlugin = _makeInnerPlugin(updatedView);
+          getIt<HomeStackManager>().setPlugin(_innerPlugin);
+        }
+        _view = updatedView;
       },
     );
   }

@@ -85,19 +85,14 @@ class CellController<T, D> extends Equatable {
 
     /// 2.Listen on the field event and load the cell data if needed.
     _fieldListener.start(
-      onFieldChanged: (result) {
-        result.fold(
-          (fieldPB) {
-            /// reloadOnFieldChanged should be true if you need to load the data when the corresponding field is changed
-            /// For example:
-            ///   ￥12 -> $12
-            if (_cellDataLoader.reloadOnFieldChanged) {
-              _loadData();
-            }
-            _onCellFieldChanged?.call();
-          },
-          (err) => Log.error(err),
-        );
+      onFieldChanged: (fieldPB) {
+        /// reloadOnFieldChanged should be true if you need to load the data when the corresponding field is changed
+        /// For example:
+        ///   ￥12 -> $12
+        if (_cellDataLoader.reloadOnFieldChanged) {
+          _loadData();
+        }
+        _onCellFieldChanged?.call();
       },
     );
   }

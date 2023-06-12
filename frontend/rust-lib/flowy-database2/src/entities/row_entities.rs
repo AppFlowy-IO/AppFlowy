@@ -70,18 +70,18 @@ pub struct UpdateRowMetaChangesetPB {
   pub view_id: String,
 
   #[pb(index = 3, one_of)]
-  pub icon: Option<String>,
+  pub icon_url: Option<String>,
 
   #[pb(index = 4, one_of)]
-  pub cover: Option<String>,
+  pub cover_url: Option<String>,
 }
 
 #[derive(Debug)]
 pub struct UpdateRowMetaParams {
   pub id: String,
   pub view_id: String,
-  pub icon: Option<String>,
-  pub cover: Option<String>,
+  pub icon_url: Option<String>,
+  pub cover_url: Option<String>,
 }
 
 impl TryInto<UpdateRowMetaParams> for UpdateRowMetaChangesetPB {
@@ -98,8 +98,8 @@ impl TryInto<UpdateRowMetaParams> for UpdateRowMetaChangesetPB {
     Ok(UpdateRowMetaParams {
       id: row_id,
       view_id,
-      icon: self.icon,
-      cover: self.cover,
+      icon_url: self.icon_url,
+      cover_url: self.cover_url,
     })
   }
 }

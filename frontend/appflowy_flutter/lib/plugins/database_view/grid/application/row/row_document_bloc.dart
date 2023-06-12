@@ -49,11 +49,16 @@ class RowDocumentBloc extends Bloc<RowDocumentEvent, RowDocumentState> {
   }
 
   Future<void> _getRowDocumentView() async {
-    final rowDetailOrError = await _rowBackendSvc.getRowDetail(rowId);
+    final rowDetailOrError = await _rowBackendSvc.getRowMeta(rowId);
     rowDetailOrError.fold(
-      (rowDetail) async {
+      (RowMetaPB rowMeta) async {
         final viewsOrError =
-            await ViewBackendService.getView(rowDetail.documentId);
+            await ViewBackendService.getView(rowMeta.documentId);
+
+        if (isClosed) {
+          return;
+        }
+
         viewsOrError.fold(
           (view) => add(RowDocumentEvent.didReceiveRowDocument(view)),
           (error) async {
@@ -61,7 +66,7 @@ class RowDocumentBloc extends Bloc<RowDocumentEvent, RowDocumentState> {
               // By default, the document of the row is not exist. So creating a
               // new document for the given document id of the row.
               final documentView =
-                  await _createRowDocumentView(rowDetail.documentId);
+                  await _createRowDocumentView(rowMeta.documentId);
               if (documentView != null) {
                 add(RowDocumentEvent.didReceiveRowDocument(documentView));
               }
@@ -104,7 +109,6 @@ class RowDocumentEvent with _$RowDocumentEvent {
 @freezed
 class RowDocumentState with _$RowDocumentState {
   const factory RowDocumentState({
-    RowDetailPB? rowDetailPB,
     ViewPB? viewPB,
     required LoadingState loadingState,
   }) = _RowDocumentState;

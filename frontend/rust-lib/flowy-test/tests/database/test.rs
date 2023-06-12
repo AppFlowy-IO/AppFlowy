@@ -182,6 +182,19 @@ async fn duplicate_primary_field_test() {
 }
 
 #[tokio::test]
+async fn get_primary_field_event_test() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let grid_view = test
+    .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
+    .await;
+
+  // By default the primary field type is RichText.
+  let field = test.get_primary_field(&grid_view.id).await;
+  assert_eq!(field.field_type, FieldType::RichText);
+}
+
+#[tokio::test]
 async fn create_row_event_test() {
   let test = FlowyCoreTest::new_with_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
@@ -248,8 +261,8 @@ async fn update_row_meta_event_with_url_test() {
   let changeset = UpdateRowMetaChangesetPB {
     id: database.rows[0].id.clone(),
     view_id: grid_view.id.clone(),
-    icon: Some("icon_url".to_owned()),
-    cover: None,
+    icon_url: Some("icon_url".to_owned()),
+    cover_url: None,
   };
   let error = test.update_row_meta(changeset).await;
   assert!(error.is_none());
@@ -276,8 +289,8 @@ async fn update_row_meta_event_with_cover_test() {
   let changeset = UpdateRowMetaChangesetPB {
     id: database.rows[0].id.clone(),
     view_id: grid_view.id.clone(),
-    cover: Some("cover url".to_owned()),
-    icon: None,
+    cover_url: Some("cover url".to_owned()),
+    icon_url: None,
   };
   let error = test.update_row_meta(changeset).await;
   assert!(error.is_none());

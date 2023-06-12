@@ -8,7 +8,6 @@ import 'package:appflowy/plugins/database_view/widgets/row/row_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -42,15 +41,6 @@ class RowPropertyList extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Using the primary field as the row title. There should be only
-            // one primary field.
-            _RowTitle(
-              cellContext:
-                  state.cells.firstWhereOrNull((e) => e.fieldInfo.isPrimary),
-              cellBuilder: cellBuilder,
-            ),
-            const VSpace(20),
-
             // The rest of the fields are displayed in the order of the field
             // list
             ...state.cells
@@ -125,7 +115,6 @@ class _PropertyCellState extends State<_PropertyCell> {
                 ),
               ),
             ),
-            const HSpace(10),
             Expanded(child: gesture),
           ],
         ),
@@ -205,8 +194,11 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
 class _RowTitle extends StatelessWidget {
   final DatabaseCellContext? cellContext;
   final GridCellBuilder cellBuilder;
-  const _RowTitle({this.cellContext, required this.cellBuilder, Key? key})
-      : super(key: key);
+  const _RowTitle({
+    required this.cellContext,
+    required this.cellBuilder,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

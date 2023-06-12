@@ -17,16 +17,11 @@ class ViewPluginNotifier extends PluginNotifier<Option<DeletedViewPB>> {
 
   ViewPluginNotifier({
     required this.view,
-  }) : _viewListener = ViewListener(view: view) {
+  }) : _viewListener = ViewListener(viewId: view.id) {
     _viewListener?.start(
-      onViewUpdated: (result) {
-        result.fold(
-          (updatedView) {
-            view = updatedView;
-            isDisplayChanged.value = updatedView.hashCode;
-          },
-          (err) => Log.error(err),
-        );
+      onViewUpdated: (updatedView) {
+        view = updatedView;
+        isDisplayChanged.value = updatedView.hashCode;
       },
       onViewMoveToTrash: (result) {
         result.fold(

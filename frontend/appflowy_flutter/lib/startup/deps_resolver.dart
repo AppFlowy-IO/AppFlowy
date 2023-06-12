@@ -123,11 +123,6 @@ void _resolveFolderDeps(GetIt getIt) {
         WorkspaceListener(user: user, workspaceId: workspaceId),
   );
 
-  // ViewPB
-  getIt.registerFactoryParam<ViewListener, ViewPB, void>(
-    (view, _) => ViewListener(view: view),
-  );
-
   getIt.registerFactoryParam<ViewBloc, ViewPB, void>(
     (view, _) => ViewBloc(
       view: view,

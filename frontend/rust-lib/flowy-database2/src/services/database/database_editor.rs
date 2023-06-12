@@ -536,9 +536,22 @@ impl DatabaseEditor {
       .lock()
       .update_row_meta(&row_id, |meta_update| {
         meta_update
-          .insert_cover_if_not_none(changeset.cover)
-          .insert_icon_if_not_none(changeset.icon);
+          .insert_cover_if_not_none(changeset.cover_url)
+          .insert_icon_if_not_none(changeset.icon_url);
       });
+
+    if let Some(row_meta) = self.database.lock().get_row_meta(row_id) {
+      let row_meta_pb = RowMetaPB {
+        id: row_id.clone().into_inner(),
+        document_id: row_meta.document_id,
+        icon: row_meta.icon_url,
+        cover: row_meta.cover_url,
+      };
+
+      send_notification(row_id.as_str(), DatabaseNotification::DidUpdateRowMeta)
+        .payload(row_meta_pb)
+        .send();
+    }
   }
 
   pub async fn get_cell(&self, field_id: &str, row_id: &RowId) -> Option<Cell> {

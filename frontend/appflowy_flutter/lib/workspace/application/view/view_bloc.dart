@@ -16,14 +16,14 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
   ViewBloc({
     required this.view,
   })  : viewBackendSvc = ViewBackendService(),
-        listener = ViewListener(view: view),
+        listener = ViewListener(viewId: view.id),
         super(ViewState.init(view)) {
     on<ViewEvent>((event, emit) async {
       await event.map(
         initial: (e) {
           listener.start(
             onViewUpdated: (result) {
-              add(ViewEvent.viewDidUpdate(result));
+              add(ViewEvent.viewDidUpdate(left(result)));
             },
           );
           emit(state);

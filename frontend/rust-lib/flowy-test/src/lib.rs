@@ -274,6 +274,17 @@ impl FlowyCoreTest {
       .error()
   }
 
+  pub async fn get_primary_field(&self, database_view_id: &str) -> FieldPB {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::GetPrimaryField)
+      .payload(DatabaseViewIdPB {
+        value: database_view_id.to_string(),
+      })
+      .async_send()
+      .await
+      .parse::<FieldPB>()
+  }
+
   pub async fn create_row(
     &self,
     view_id: &str,

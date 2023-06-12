@@ -28,12 +28,28 @@ class RowBackendService {
     return DatabaseEventGetRow(payload).send();
   }
 
-  Future<Either<RowDetailPB, FlowyError>> getRowDetail(RowId rowId) {
+  Future<Either<RowMetaPB, FlowyError>> getRowMeta(RowId rowId) {
     final payload = RowIdPB.create()
       ..viewId = viewId
       ..rowId = rowId;
 
-    return DatabaseEventGetRowDetail(payload).send();
+    return DatabaseEventGetRowMeta(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> updateMeta({
+    String? iconURL,
+    String? coverURL,
+  }) {
+    final payload = UpdateRowMetaChangesetPB.create()..viewId = viewId;
+
+    if (iconURL != null) {
+      payload.iconUrl = iconURL;
+    }
+    if (coverURL != null) {
+      payload.coverUrl = coverURL;
+    }
+
+    return DatabaseEventUpdateRowMeta(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> deleteRow(RowId rowId) {
