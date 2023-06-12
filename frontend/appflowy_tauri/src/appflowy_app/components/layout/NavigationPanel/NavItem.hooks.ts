@@ -68,13 +68,13 @@ export const useNavItem = (page: IPage) => {
 
   useEffect(() => {
     if (page.showPagesInside) {
-      setFolderHeight(`${INITIAL_FOLDER_HEIGHT + getChildCount(page) * PAGE_ITEM_HEIGHT}px`);
+      setFolderHeight(`${PAGE_ITEM_HEIGHT + getChildCount(page) * PAGE_ITEM_HEIGHT}px`);
     } else {
-      setFolderHeight(`${INITIAL_FOLDER_HEIGHT}px`);
+      setFolderHeight(`${PAGE_ITEM_HEIGHT}px`);
     }
   }, [page, pages]);
 
-  // recursively get all unfolded childpages
+  // recursively get all unfolded child pages
   const getChildCount: (startPage: IPage) => number = (startPage: IPage) => {
     let count = 0;
     count = pages.filter((p) => p.parentPageId === startPage.id).length;

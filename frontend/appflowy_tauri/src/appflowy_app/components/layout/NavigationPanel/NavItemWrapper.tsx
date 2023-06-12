@@ -63,20 +63,22 @@ export const NavItemWrapper = ({ page }: { page: IPage }) => {
             activePageId === page.id ? 'bg-surface-2' : ''
           }`}
         >
-          <button className={'flex min-w-0 flex-1 items-center'}>
-            <i
+          <div className={'flex h-full min-w-0 flex-1 items-center'}>
+            <button
               onClick={() => onUnfoldClick()}
               className={`mr-2 h-5 w-5 transition-transform duration-200 ${page.showPagesInside && 'rotate-180'}`}
             >
               <DropDownShowSvg></DropDownShowSvg>
-            </i>
-            <span
+            </button>
+            <div
               onClick={() => onPageClick(page)}
-              className={'min-w-0 flex-1 overflow-hidden overflow-ellipsis whitespace-nowrap text-left'}
+              className={
+                'flex h-full min-w-0 flex-1 items-center overflow-hidden overflow-ellipsis whitespace-nowrap text-left'
+              }
             >
               {page.title}
-            </span>
-          </button>
+            </div>
+          </div>
           <div className={'flex items-center'}>
             <Button size={'box-small-transparent'} onClick={() => onPageOptionsClick()}>
               <Details2Svg></Details2Svg>

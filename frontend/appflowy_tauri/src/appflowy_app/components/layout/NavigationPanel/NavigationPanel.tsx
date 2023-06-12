@@ -10,8 +10,6 @@ import { useAppSelector } from '$app/stores/store';
 import { NavItemWrapper } from '$app/components/layout/NavigationPanel/NavItemWrapper';
 import {
   ANIMATION_DURATION,
-  FOLDER_MARGIN,
-  INITIAL_FOLDER_HEIGHT,
   NAV_PANEL_MINIMUM_WIDTH,
   PAGE_ITEM_HEIGHT,
 } from '../../_shared/constants';
@@ -76,8 +74,7 @@ export const NavigationPanel = ({
   }, [activePageId]);
 
   useEffect(() => {
-    // setMaxHeight(pagesStore.length * (INITIAL_FOLDER_HEIGHT + FOLDER_MARGIN) + pagesStore.length * PAGE_ITEM_HEIGHT);
-    setMaxHeight(pages.length * INITIAL_FOLDER_HEIGHT);
+    setMaxHeight(pages.length * PAGE_ITEM_HEIGHT);
   }, [pages]);
 
   const scrollDown = () => {
