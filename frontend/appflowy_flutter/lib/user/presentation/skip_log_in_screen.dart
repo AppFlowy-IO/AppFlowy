@@ -3,8 +3,12 @@ import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/launch_configuration.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -13,6 +17,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -49,6 +54,10 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   }
 
   Widget _renderBody(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    //The width should be fit to the longest language name
+    const double languageSelectorWidth = 160;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -70,7 +79,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
         ),
         const VSpace(32),
         SizedBox(
-          width: MediaQuery.of(context).size.width * 0.5,
+          width: size.width * 0.5,
           child: FolderWidget(
             createFolderCallback: () async {
               _didCustomizeFolder = true;
@@ -78,9 +87,41 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
           ),
         ),
         const Spacer(),
-        const VSpace(48),
-        _buildSubscribeButtons(context),
-        const VSpace(24),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+//Add the width of the language selector to make SubscribeButtons centered to the screen
+                    const SizedBox(
+                      width: languageSelectorWidth,
+                    ),
+                    Column(
+                      children: [
+                        _buildSubscribeButtons(context),
+                        const HSpace(4),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: languageSelectorWidth,
+                height: 28,
+                child: BlocBuilder<AppearanceSettingsCubit,
+                    AppearanceSettingsState>(
+                  builder: (context, state) {
+                    return const LanguageSelectorOnWelcomePage();
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+        const VSpace(20),
       ],
     );
   }
@@ -163,6 +204,51 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
       },
       (error) {
         Log.error(error);
+      },
+    );
+  }
+}
+
+class LanguageSelectorOnWelcomePage extends StatelessWidget {
+  const LanguageSelectorOnWelcomePage({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.watch<AppearanceSettingsCubit>().state;
+
+    return AppFlowyPopover(
+      offset: const Offset(0, -450),
+      direction: PopoverDirection.bottomWithRightAligned,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          const Icon(
+            Icons.language_rounded,
+            weight: 200,
+            grade: 200,
+            size: 20,
+          ),
+          const HSpace(4),
+          Text(
+            languageFromLocale(state.locale),
+          ),
+          const HSpace(4),
+          const Icon(
+            Icons.arrow_drop_up,
+            weight: 200,
+            grade: 200,
+            size: 20,
+          ),
+        ],
+      ),
+      popupBuilder: (BuildContext context) {
+        final allLocales = EasyLocalization.of(context)!.supportedLocales;
+
+        return LanguageItemsListView(
+          allLocales: allLocales,
+        );
       },
     );
   }
