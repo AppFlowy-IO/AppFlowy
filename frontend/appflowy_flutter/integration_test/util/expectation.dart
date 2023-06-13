@@ -42,7 +42,7 @@ extension Expectation on WidgetTester {
     final exportSuccess = find.byWidgetPredicate(
       (widget) =>
           widget is FlowyText &&
-          widget.title == LocaleKeys.settings_files_exportFileSuccess.tr(),
+          widget.text == LocaleKeys.settings_files_exportFileSuccess.tr(),
     );
     expect(exportSuccess, findsOneWidget);
   }
@@ -62,7 +62,7 @@ extension Expectation on WidgetTester {
   /// Expect to see the user name on the home page
   void expectToSeeUserName(String name) {
     final userName = find.byWidgetPredicate(
-      (widget) => widget is FlowyText && widget.title == name,
+      (widget) => widget is FlowyText && widget.text == name,
     );
     expect(userName, findsOneWidget);
   }

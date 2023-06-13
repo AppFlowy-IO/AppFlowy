@@ -99,7 +99,7 @@ extension AppFlowyTestBase on WidgetTester {
     );
     if (button.evaluate().isEmpty) {
       button = find.byWidgetPredicate(
-        (widget) => widget is FlowyText && widget.title == tr,
+        (widget) => widget is FlowyText && widget.text == tr,
       );
     }
     await tapButton(

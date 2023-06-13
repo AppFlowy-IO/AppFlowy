@@ -337,7 +337,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
       offset: const Offset(8, 0),
       margin: EdgeInsets.zero,
       asBarrier: true,
-      constraints: BoxConstraints.loose(const Size(200, 460)),
+      constraints: BoxConstraints.loose(const Size(200, 470)),
       mutex: widget.popoverMutex,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12.0),

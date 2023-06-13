@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/database_view/application/field/type_option/typ
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show none;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
@@ -232,15 +233,16 @@ class _DeleteFieldButton extends StatelessWidget {
             LocaleKeys.grid_field_delete.tr(),
             color: enable ? null : Theme.of(context).disabledColor,
           ),
+          leftIcon: svgWidget(
+            'grid/delete',
+            color: enable ? null : Theme.of(context).disabledColor,
+          ),
           onTap: () {
             if (enable) onDeleted?.call();
           },
           onHover: (_) => popoverMutex.close(),
         );
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 4.0),
-          child: SizedBox(height: GridSize.popoverItemHeight, child: button),
-        );
+        return SizedBox(height: GridSize.popoverItemHeight, child: button);
       },
     );
   }
@@ -265,13 +267,11 @@ class _HideFieldButton extends StatelessWidget {
           text: FlowyText.medium(
             LocaleKeys.grid_field_hide.tr(),
           ),
+          leftIcon: svgWidget('grid/hide'),
           onTap: () => onHidden?.call(),
           onHover: (_) => popoverMutex.close(),
         );
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 4.0),
-          child: SizedBox(height: GridSize.popoverItemHeight, child: button),
-        );
+        return SizedBox(height: GridSize.popoverItemHeight, child: button);
       },
     );
   }
