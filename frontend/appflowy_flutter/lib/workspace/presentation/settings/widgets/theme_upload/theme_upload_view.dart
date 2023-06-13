@@ -54,16 +54,7 @@ class _ThemeUploadWidgetState extends State<ThemeUploadWidget> {
             ),
           );
         },
-        deletionFailure: (path) {
-          // ScaffoldMessenger.of(context).showSnackBar(
-          //   SnackBar(
-          //     content: FlowyText.medium(
-          //       color: Theme.of(context).colorScheme.onPrimary,
-          //       "${LocaleKeys.settings_appearance_themeUpload_deletionFailure.tr()} $path",
-          //     ),
-          //   ),
-          // );
-        },
+        deletionFailure: (path) {},
       );
     });
   }
