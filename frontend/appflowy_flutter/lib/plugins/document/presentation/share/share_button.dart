@@ -84,7 +84,7 @@ class ShareActionList extends StatefulWidget {
 @visibleForTesting
 class ShareActionListState extends State<ShareActionList> {
   late String name;
-  late final ViewListener viewListener = ViewListener(view: widget.view);
+  late final ViewListener viewListener = ViewListener(viewId: widget.view.id);
 
   @override
   void initState() {
@@ -134,7 +134,7 @@ class ShareActionListState extends State<ShareActionList> {
     name = widget.view.name;
     viewListener.start(
       onViewUpdated: (view) {
-        name = view.fold((l) => l.name, (r) => '');
+        name = view.name;
       },
     );
   }

@@ -78,7 +78,7 @@ class _BannerAction extends StatelessWidget {
           return BlocBuilder<RowBannerBloc, RowBannerState>(
             builder: (context, state) {
               final children = <Widget>[];
-              final rowMeta = state.rowMetaPB;
+              final rowMeta = state.rowMeta;
               if (rowMeta.hasIcon()) {
                 children.add(const SizedBox(height: _kBannerActionHeight));
               } else {
@@ -122,10 +122,10 @@ class _BannerTitleState extends State<_BannerTitle> {
       builder: (context, state) {
         final children = <Widget>[];
 
-        if (state.rowMetaPB.icon.isNotEmpty) {
+        if (state.rowMeta.icon.isNotEmpty) {
           children.add(
             EmojiButton(
-              emoji: state.rowMetaPB.icon,
+              emoji: state.rowMeta.icon,
               showEmojiPicker: () => widget.popoverController.show(),
             ),
           );

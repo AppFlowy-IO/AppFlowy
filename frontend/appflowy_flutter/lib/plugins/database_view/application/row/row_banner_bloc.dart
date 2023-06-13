@@ -36,7 +36,7 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
           didReceiveRowMeta: (RowMetaPB rowMeta) {
             emit(
               state.copyWith(
-                rowMetaPB: rowMeta,
+                rowMeta: rowMeta,
                 loadingState: _currentState(),
               ),
             );
@@ -69,8 +69,7 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
   }
 
   Future<void> _loadRowMeta() async {
-    final rowDetailOrError =
-        await _rowBackendSvc.getRowMeta(state.rowMetaPB.id);
+    final rowDetailOrError = await _rowBackendSvc.getRowMeta(state.rowMeta.id);
     rowDetailOrError.fold(
       (rowDetail) {
         add(RowBannerEvent.didReceiveRowMeta(rowDetail));
@@ -126,7 +125,7 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
         .updateMeta(
       iconURL: iconURL,
       coverURL: coverURL,
-      rowId: state.rowMetaPB.id,
+      rowId: state.rowMeta.id,
     )
         .then((result) {
       result.fold(
@@ -164,12 +163,12 @@ class RowBannerState with _$RowBannerState {
   const factory RowBannerState({
     ViewPB? view,
     FieldPB? primaryField,
-    required RowMetaPB rowMetaPB,
+    required RowMetaPB rowMeta,
     required LoadingState loadingState,
   }) = _RowBannerState;
 
   factory RowBannerState.initial(RowMetaPB rowMetaPB) => RowBannerState(
-        rowMetaPB: rowMetaPB,
+        rowMeta: rowMetaPB,
         loadingState: const LoadingState.loading(),
       );
 }

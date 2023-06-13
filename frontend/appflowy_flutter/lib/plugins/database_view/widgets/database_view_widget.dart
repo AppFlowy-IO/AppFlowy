@@ -55,18 +55,13 @@ class _DatabaseViewWidgetState extends State<DatabaseViewWidget> {
   }
 
   void _listenOnViewUpdated() {
-    _listener = ViewListener(view: widget.view)
+    _listener = ViewListener(viewId: widget.view.id)
       ..start(
-        onViewUpdated: (result) {
-          result.fold(
-            (updatedView) {
-              if (mounted) {
-                view = updatedView;
-                _layoutTypeChangeNotifier.value = view.layout;
-              }
-            },
-            (r) => null,
-          );
+        onViewUpdated: (updatedView) {
+          if (mounted) {
+            view = updatedView;
+            _layoutTypeChangeNotifier.value = view.layout;
+          }
         },
       );
 
