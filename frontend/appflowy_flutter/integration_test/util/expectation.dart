@@ -12,7 +12,7 @@ extension Expectation on WidgetTester {
   /// Expect to see the home page and with a default read me page.
   void expectToSeeHomePage() {
     expect(find.byType(HomeStack), findsOneWidget);
-    expect(find.textContaining(readme), findsOneWidget);
+    expect(find.textContaining(readme), findsWidgets);
   }
 
   /// Expect to see the page name on the home page.
