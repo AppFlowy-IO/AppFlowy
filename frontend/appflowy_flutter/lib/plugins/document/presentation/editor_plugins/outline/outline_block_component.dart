@@ -1,19 +1,21 @@
 import 'dart:async';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class OutlineBlockKeys {
   const OutlineBlockKeys._();
 
-  static const String type = 'outline_block';
+  static const String type = 'outline';
 }
 
 // defining the callout block menu item for selection
 SelectionMenuItem outlineItem = SelectionMenuItem.node(
-  name: 'Outline',
-  iconData: Icons.clear_all,
+  name: LocaleKeys.document_plugins_outline.tr(),
+  iconData: Icons.list_alt,
   keywords: ['outline', 'table of contents'],
   nodeBuilder: (editorState) => outlineBlockNode(),
   replace: (_, node) => node.delta?.isEmpty ?? false,
@@ -49,7 +51,7 @@ class OutlineBlockComponentBuilder extends BlockComponentBuilder {
   }
 
   @override
-  bool validate(Node node) => true;
+  bool validate(Node node) => node.children.isEmpty;
 }
 
 class OutlineBlockWidget extends BlockComponentStatefulWidget {
@@ -74,36 +76,26 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
   Node get node => widget.node;
 
   late EditorState editorState = context.read<EditorState>();
-  late Stream<Transaction> stream;
-
-  @override
-  void initState() {
-    super.initState();
-
-    stream = editorState.transactionStream;
-  }
+  late Stream<Transaction> stream = editorState.transactionStream;
 
   @override
   Widget build(BuildContext context) {
-    Widget child = _buildOutlineBlock();
-
     return StreamBuilder(
       stream: stream,
       builder: (context, snapshot) {
         if (widget.showActions && widget.actionBuilder != null) {
-          child = BlockComponentActionWrapper(
+          return BlockComponentActionWrapper(
             node: widget.node,
             actionBuilder: widget.actionBuilder!,
             child: _buildOutlineBlock(),
           );
         }
-        return child;
+        return _buildOutlineBlock();
       },
     );
   }
 
   Widget _buildOutlineBlock() {
-    final headingNodes = getHeadingNodes();
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 15.0,
@@ -117,20 +109,13 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "TABLE OF CONTENTS: ",
+            LocaleKeys.document_plugins_outline_heading.tr(),
             style: editorState.editorStyle.textStyleConfiguration.text,
           ),
           const Divider(
             color: Colors.white54,
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: headingNodes
-                .map(
-                  (e) => OutlineItemWidget(node: e),
-                )
-                .toList(),
-          )
+          ...getHeadingNodes().map((e) => OutlineItemWidget(node: e)).toList(),
         ],
       ),
     );
@@ -160,7 +145,6 @@ class OutlineItemWidget extends StatelessWidget {
       child: GestureDetector(
         onTap: () {
           // when clicked scroll the view to the heading
-
           editorState.updateSelectionWithReason(
             Selection.single(
               path: node.path,

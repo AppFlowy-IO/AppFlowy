@@ -374,6 +374,9 @@
         "createANewCalendar": "Create a new Calendar"
       }
     },
+    "selectionMenu": {
+      "outline": "Outline"
+    },
     "plugins": {
       "referencedBoard": "Referenced Board",
       "referencedGrid": "Referenced Grid",
@@ -423,6 +426,9 @@
       "mathEquation": {
         "addMathEquation": "Add Math Equation",
         "editMathEquation": "Edit Math Equation"
+      },
+      "outline": {
+        "heading": "TABLE OF CONTENTS:"
       },
       "optionAction": {
         "click": "Click",
