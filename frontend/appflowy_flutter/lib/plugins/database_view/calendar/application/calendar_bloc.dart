@@ -310,7 +310,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         }
         add(CalendarEvent.didDeleteEvents(rowIds));
       },
-      onRowsUpdated: (rowIds) async {
+      onRowsUpdated: (rowIds, reason) async {
         if (isClosed) {
           return;
         }

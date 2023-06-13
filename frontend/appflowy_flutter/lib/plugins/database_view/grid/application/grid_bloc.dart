@@ -56,7 +56,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
               ),
             );
           },
-          didReceiveRowUpdate: (newRowInfos, reason) {
+          didLoadRows: (newRowInfos, reason) {
             emit(
               state.copyWith(
                 rowInfos: newRowInfos,
@@ -76,7 +76,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     return super.close();
   }
 
-  RowCache? getRowCache(RowId rowId) {
+  RowCache getRowCache(RowId rowId) {
     return databaseController.rowCache;
   }
 
@@ -89,8 +89,13 @@ class GridBloc extends Bloc<GridEvent, GridState> {
       },
       onNumOfRowsChanged: (rowInfos, _, reason) {
         if (!isClosed) {
-          add(GridEvent.didReceiveRowUpdate(rowInfos, reason));
+          add(GridEvent.didLoadRows(rowInfos, reason));
         }
+      },
+      onRowsUpdated: (rows, reason) {
+        add(
+          GridEvent.didLoadRows(databaseController.rowCache.rowInfos, reason),
+        );
       },
       onFieldsChanged: (fields) {
         if (!isClosed) {
@@ -122,9 +127,9 @@ class GridEvent with _$GridEvent {
   const factory GridEvent.createRow() = _CreateRow;
   const factory GridEvent.deleteRow(RowInfo rowInfo) = _DeleteRow;
   const factory GridEvent.moveRow(int from, int to) = _MoveRow;
-  const factory GridEvent.didReceiveRowUpdate(
+  const factory GridEvent.didLoadRows(
     List<RowInfo> rows,
-    RowsChangedReason listState,
+    RowsChangedReason reason,
   ) = _DidReceiveRowUpdate;
   const factory GridEvent.didReceiveFieldUpdate(
     List<FieldInfo> fields,

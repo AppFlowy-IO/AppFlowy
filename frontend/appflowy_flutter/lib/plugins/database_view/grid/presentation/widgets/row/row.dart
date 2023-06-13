@@ -1,6 +1,6 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -20,7 +20,8 @@ import "package:appflowy/generated/locale_keys.g.dart";
 import 'package:easy_localization/easy_localization.dart';
 
 class GridRow extends StatefulWidget {
-  final RowInfo rowInfo;
+  final RowId viewId;
+  final RowId rowId;
   final RowController dataController;
   final GridCellBuilder cellBuilder;
   final void Function(BuildContext, GridCellBuilder) openDetailPage;
@@ -30,7 +31,8 @@ class GridRow extends StatefulWidget {
 
   const GridRow({
     super.key,
-    required this.rowInfo,
+    required this.viewId,
+    required this.rowId,
     required this.dataController,
     required this.cellBuilder,
     required this.openDetailPage,
@@ -49,8 +51,9 @@ class _GridRowState extends State<GridRow> {
   void initState() {
     super.initState();
     _rowBloc = RowBloc(
-      rowInfo: widget.rowInfo,
+      rowId: widget.rowId,
       dataController: widget.dataController,
+      viewId: widget.viewId,
     );
     _rowBloc.add(const RowEvent.initial());
   }
@@ -126,7 +129,11 @@ class _RowLeadingState extends State<_RowLeading> {
       direction: PopoverDirection.rightWithCenterAligned,
       margin: const EdgeInsets.all(6),
       popupBuilder: (BuildContext popoverContext) {
-        return RowActions(rowData: context.read<RowBloc>().state.rowInfo);
+        final bloc = context.read<RowBloc>();
+        return RowActions(
+          viewId: bloc.viewId,
+          rowId: bloc.rowId,
+        );
       },
       child: Consumer<RegionStateNotifier>(
         builder: (context, state, _) {

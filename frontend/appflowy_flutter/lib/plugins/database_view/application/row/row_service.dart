@@ -12,7 +12,7 @@ class RowBackendService {
     required this.viewId,
   });
 
-  Future<Either<RowMetaPB, FlowyError>> createRow(RowId rowId) {
+  Future<Either<RowMetaPB, FlowyError>> createRowAfterRow(RowId rowId) {
     final payload = CreateRowPayloadPB.create()
       ..viewId = viewId
       ..startRowId = rowId;

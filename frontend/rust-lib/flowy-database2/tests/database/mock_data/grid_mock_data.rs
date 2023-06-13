@@ -271,7 +271,7 @@ pub fn make_no_date_test_grid() -> DatabaseData {
   }
 
   for i in 0..3 {
-    let mut row_builder = TestRowBuilder::new(i.into(), &fields);
+    let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
     match i {
       0 => {
         for field_type in FieldType::iter() {

@@ -111,8 +111,9 @@ class BoardTestContext {
     );
 
     final rowBloc = RowBloc(
-      rowInfo: rowInfo,
+      viewId: rowInfo.viewId,
       dataController: rowDataController,
+      rowId: rowInfo.rowMeta.id,
     )..add(const RowEvent.initial());
     await gridResponseFuture();
 

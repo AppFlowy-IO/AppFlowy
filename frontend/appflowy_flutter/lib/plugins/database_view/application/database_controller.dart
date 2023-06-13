@@ -269,8 +269,8 @@ class DatabaseController {
       onRowsDeleted: (ids) {
         _databaseCallbacks?.onRowsDeleted?.call(ids);
       },
-      onRowsUpdated: (ids) {
-        _databaseCallbacks?.onRowsUpdated?.call(ids);
+      onRowsUpdated: (ids, reason) {
+        _databaseCallbacks?.onRowsUpdated?.call(ids, reason);
       },
       onRowsCreated: (ids) {
         _databaseCallbacks?.onRowsCreated?.call(ids);

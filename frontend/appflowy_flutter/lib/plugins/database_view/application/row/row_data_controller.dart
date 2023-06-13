@@ -24,16 +24,17 @@ class RowController {
   }) : _rowCache = rowCache;
 
   CellContextByFieldId loadData() {
-    return _rowCache.loadGridCells(rowMeta.id);
+    return _rowCache.loadGridCells(rowMeta);
   }
 
   void addListener({OnRowChanged? onRowChanged}) {
-    _onRowChangedListeners.add(
-      _rowCache.addListener(
-        rowId: rowMeta.id,
-        onCellUpdated: onRowChanged,
-      ),
+    final fn = _rowCache.addListener(
+      rowId: rowMeta.id,
+      onCellUpdated: onRowChanged,
     );
+
+    // Add the listener to the list so that we can remove it later.
+    _onRowChangedListeners.add(fn);
   }
 
   void dispose() {

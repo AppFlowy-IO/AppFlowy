@@ -17,18 +17,19 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
   final RowBackendService _rowBackendSvc;
   final RowCache _rowCache;
   VoidCallback? _rowCallback;
+  final String viewId;
 
   CardBloc({
     required this.rowMeta,
     required this.groupFieldId,
-    required String viewId,
+    required this.viewId,
     required RowCache rowCache,
     required bool isEditing,
   })  : _rowBackendSvc = RowBackendService(viewId: viewId),
         _rowCache = rowCache,
         super(
           RowCardState.initial(
-            _makeCells(groupFieldId, rowCache.loadGridCells(rowMeta.id)),
+            _makeCells(groupFieldId, rowCache.loadGridCells(rowMeta)),
             isEditing,
           ),
         ) {

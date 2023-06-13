@@ -87,11 +87,12 @@ class _RowDetailPageState extends State<RowDetailPage> {
                 final style = GridTextCellStyle(
                   placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
                   textStyle: Theme.of(context).textTheme.titleLarge,
+                  showEmoji: false,
                   autofocus: true,
                 );
                 final cellContext = DatabaseCellContext(
                   viewId: widget.rowController.viewId,
-                  rowId: widget.rowController.rowId,
+                  rowMeta: widget.rowController.rowMeta,
                   fieldInfo: fieldInfo,
                 );
                 return widget.cellBuilder.build(cellContext, style: style);

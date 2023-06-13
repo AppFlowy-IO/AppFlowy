@@ -51,6 +51,8 @@ class RowCache {
 
   CellCache get cellCache => _cellCache;
 
+  RowsChangedReason get changeReason => _rowChangeReasonNotifier.reason;
+
   RowCache({
     required this.viewId,
     required RowFieldsDelegate fieldsDelegate,
@@ -202,7 +204,9 @@ class RowCache {
         if (onCellUpdated != null) {
           final rowInfo = _rowList.get(rowId);
           if (rowInfo != null) {
-            final CellContextByFieldId cellDataMap = _makeGridCells(rowId);
+            final CellContextByFieldId cellDataMap = _makeGridCells(
+              rowInfo.rowMeta,
+            );
             onCellUpdated(cellDataMap, _rowChangeReasonNotifier.reason);
           }
         }
@@ -224,12 +228,12 @@ class RowCache {
     _rowChangeReasonNotifier.removeListener(callback);
   }
 
-  CellContextByFieldId loadGridCells(RowId rowId) {
-    final rowInfo = _rowList.get(rowId);
+  CellContextByFieldId loadGridCells(RowMetaPB rowMeta) {
+    final rowInfo = _rowList.get(rowMeta.id);
     if (rowInfo == null) {
-      _loadRow(rowId);
+      _loadRow(rowMeta.id);
     }
-    return _makeGridCells(rowId);
+    return _makeGridCells(rowMeta);
   }
 
   Future<void> _loadRow(RowId rowId) async {
@@ -261,19 +265,19 @@ class RowCache {
     );
   }
 
-  CellContextByFieldId _makeGridCells(RowId rowId) {
+  CellContextByFieldId _makeGridCells(RowMetaPB rowMeta) {
     // ignore: prefer_collection_literals
-    final cellDataMap = CellContextByFieldId();
+    final cellContextMap = CellContextByFieldId();
     for (final field in _delegate.fields) {
       if (field.visibility) {
-        cellDataMap[field.id] = DatabaseCellContext(
-          rowId: rowId,
+        cellContextMap[field.id] = DatabaseCellContext(
+          rowMeta: rowMeta,
           viewId: viewId,
           fieldInfo: field,
         );
       }
     }
-    return cellDataMap;
+    return cellContextMap;
   }
 
   RowInfo buildGridRow(RowMetaPB rowMetaPB) {

@@ -178,7 +178,8 @@ class _RowCardState<T> extends State<RowCard<T>> {
         throw UnimplementedError();
       case AccessoryType.more:
         return RowActions(
-          rowData: context.read<CardBloc>().rowInfo(),
+          viewId: context.read<CardBloc>().viewId,
+          rowId: context.read<CardBloc>().rowMeta.id,
         );
     }
   }

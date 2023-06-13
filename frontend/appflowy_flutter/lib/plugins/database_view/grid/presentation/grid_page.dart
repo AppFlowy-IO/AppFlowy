@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
@@ -78,7 +80,11 @@ class _GridPageState extends State<GridPage> {
             loading: (_) =>
                 const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) => result.successOrFail.fold(
-              (_) => const GridShortcuts(child: FlowyGrid()),
+              (_) => GridShortcuts(
+                child: FlowyGrid(
+                  viewId: widget.view.id,
+                ),
+              ),
               (err) => FlowyErrorPage(err.toString()),
             ),
           );
@@ -89,7 +95,9 @@ class _GridPageState extends State<GridPage> {
 }
 
 class FlowyGrid extends StatefulWidget {
+  final String viewId;
   const FlowyGrid({
+    required this.viewId,
     super.key,
   });
 
@@ -125,6 +133,7 @@ class _FlowyGridState extends State<FlowyGrid> {
           scrollController: _scrollController,
           contentWidth: contentWidth,
           child: _GridRows(
+            viewId: widget.viewId,
             verticalScrollController: _scrollController.verticalController,
           ),
         );
@@ -155,7 +164,9 @@ class _FlowyGridState extends State<FlowyGrid> {
 }
 
 class _GridRows extends StatelessWidget {
+  final String viewId;
   const _GridRows({
+    required this.viewId,
     required this.verticalScrollController,
   });
 
@@ -207,7 +218,7 @@ class _GridRows extends StatelessWidget {
                 final rowInfo = rowInfos[index];
                 return _renderRow(
                   context,
-                  rowInfo,
+                  rowInfo.rowId,
                   index: index,
                   isSortEnabled: sortState.sortInfos.isNotEmpty,
                   isFilterEnabled: filterState.filters.isNotEmpty,
@@ -223,38 +234,38 @@ class _GridRows extends StatelessWidget {
 
   Widget _renderRow(
     BuildContext context,
-    RowInfo rowInfo, {
+    RowId rowId, {
     int? index,
     bool isSortEnabled = false,
     bool isFilterEnabled = false,
     Animation<double>? animation,
   }) {
-    final rowCache = context.read<GridBloc>().getRowCache(
-          rowInfo.rowId,
-        );
+    final rowCache = context.read<GridBloc>().getRowCache(rowId);
+    final rowMeta = rowCache.getRow(rowId)?.rowMeta;
 
-    /// Return placeholder widget if the rowCache is null.
-    if (rowCache == null) return const SizedBox.shrink();
+    /// Return placeholder widget if the rowMeta is null.
+    if (rowMeta == null) return const SizedBox.shrink();
 
     final fieldController =
         context.read<GridBloc>().databaseController.fieldController;
     final dataController = RowController(
-      rowMeta: rowInfo.rowMeta,
-      viewId: rowInfo.viewId,
+      rowMeta: rowMeta,
+      viewId: viewId,
       rowCache: rowCache,
     );
 
     final child = GridRow(
-      key: ValueKey(rowInfo.rowId),
+      key: ValueKey(rowMeta.id),
+      rowId: rowId,
+      viewId: viewId,
       index: index,
       isDraggable: !isSortEnabled && !isFilterEnabled,
-      rowInfo: rowInfo,
       dataController: dataController,
       cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
       openDetailPage: (context, cellBuilder) {
         _openRowDetailPage(
           context,
-          rowInfo,
+          rowId,
           fieldController,
           rowCache,
           cellBuilder,
@@ -274,26 +285,31 @@ class _GridRows extends StatelessWidget {
 
   void _openRowDetailPage(
     BuildContext context,
-    RowInfo rowInfo,
+    RowId rowId,
     FieldController fieldController,
     RowCache rowCache,
     GridCellBuilder cellBuilder,
   ) {
-    final dataController = RowController(
-      viewId: rowInfo.viewId,
-      rowMeta: rowInfo.rowMeta,
-      rowCache: rowCache,
-    );
+    final rowMeta = rowCache.getRow(rowId)?.rowMeta;
+    if (rowMeta != null) {
+      final dataController = RowController(
+        viewId: viewId,
+        rowMeta: rowMeta,
+        rowCache: rowCache,
+      );
 
-    FlowyOverlay.show(
-      context: context,
-      builder: (BuildContext context) {
-        return RowDetailPage(
-          cellBuilder: cellBuilder,
-          rowController: dataController,
-        );
-      },
-    );
+      FlowyOverlay.show(
+        context: context,
+        builder: (BuildContext context) {
+          return RowDetailPage(
+            cellBuilder: cellBuilder,
+            rowController: dataController,
+          );
+        },
+      );
+    } else {
+      Log.warn('RowMeta is null for rowId: $rowId');
+    }
   }
 }
 
