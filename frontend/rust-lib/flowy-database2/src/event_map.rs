@@ -201,7 +201,7 @@ pub enum DatabaseEvent {
   #[event(input = "RepeatedSelectOptionPayload")]
   DeleteSelectOption = 33,
 
-  #[event(input = "CreateRowPayloadPB", output = "RowPB")]
+  #[event(input = "CreateRowPayloadPB", output = "RowMetaPB")]
   CreateRow = 50,
 
   /// [GetRow] event is used to get the row data,[RowPB]. [OptionalRowPB] is a wrapper that enables

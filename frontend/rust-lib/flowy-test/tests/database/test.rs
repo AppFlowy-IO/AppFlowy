@@ -1,7 +1,6 @@
 use std::convert::TryFrom;
 
 use bytes::Bytes;
-use lib_infra::util::timestamp;
 
 use flowy_database2::entities::{
   CellChangesetPB, CellIdPB, ChecklistCellDataChangesetPB, DatabaseLayoutPB,
@@ -10,6 +9,7 @@ use flowy_database2::entities::{
 };
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
+use lib_infra::util::timestamp;
 
 #[tokio::test]
 async fn get_database_id_event_test() {
@@ -217,14 +217,16 @@ async fn delete_row_event_test() {
 
   // delete the row
   let database = test.get_database(&grid_view.id).await;
-  let error = test.delete_row(&grid_view.id, &database.rows[0].id).await;
+  let remove_row_id = database.rows[0].id.clone();
+  assert_eq!(database.rows.len(), 3);
+  let error = test.delete_row(&grid_view.id, &remove_row_id).await;
   assert!(error.is_none());
 
   let database = test.get_database(&grid_view.id).await;
   assert_eq!(database.rows.len(), 2);
 
   // get the row again and check if it is deleted.
-  let optional_row = test.get_row(&grid_view.id, &database.rows[0].id).await;
+  let optional_row = test.get_row(&grid_view.id, &remove_row_id).await;
   assert!(optional_row.row.is_none());
 }
 

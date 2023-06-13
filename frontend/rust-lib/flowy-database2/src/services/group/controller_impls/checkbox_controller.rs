@@ -1,10 +1,12 @@
+use std::sync::Arc;
+
 use collab_database::fields::Field;
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 
-use crate::entities::{FieldType, GroupRowsNotificationPB, InsertedRowPB, RowPB};
+use crate::entities::{FieldType, GroupRowsNotificationPB, InsertedRowPB, RowMetaPB};
 use crate::services::cell::insert_checkbox_cell;
+use crate::services::database::RowDetail;
 use crate::services::field::{
   CheckboxCellData, CheckboxCellDataParser, CheckboxTypeOption, CHECK, UNCHECK,
 };
@@ -49,25 +51,27 @@ impl GroupCustomize for CheckboxGroupController {
 
   fn add_or_remove_row_when_cell_changed(
     &mut self,
-    row: &Row,
+    row_detail: &RowDetail,
     cell_data: &Self::CellData,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
     self.context.iter_mut_status_groups(|group| {
       let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
-      let is_not_contained = !group.contains_row(&row.id);
+      let is_not_contained = !group.contains_row(&row_detail.row.id);
       if group.id == CHECK {
         if cell_data.is_uncheck() {
           // Remove the row if the group.id is CHECK but the cell_data is UNCHECK
-          changeset.deleted_rows.push(row.id.clone().into_inner());
-          group.remove_row(&row.id);
+          changeset
+            .deleted_rows
+            .push(row_detail.row.id.clone().into_inner());
+          group.remove_row(&row_detail.row.id);
         } else {
           // Add the row to the group if the group didn't contain the row
           if is_not_contained {
             changeset
               .inserted_rows
-              .push(InsertedRowPB::new(RowPB::from(row)));
-            group.add_row(row.clone());
+              .push(InsertedRowPB::new(RowMetaPB::from(&row_detail.meta)));
+            group.add_row(row_detail.clone());
           }
         }
       }
@@ -75,15 +79,17 @@ impl GroupCustomize for CheckboxGroupController {
       if group.id == UNCHECK {
         if cell_data.is_check() {
           // Remove the row if the group.id is UNCHECK but the cell_data is CHECK
-          changeset.deleted_rows.push(row.id.clone().into_inner());
-          group.remove_row(&row.id);
+          changeset
+            .deleted_rows
+            .push(row_detail.row.id.clone().into_inner());
+          group.remove_row(&row_detail.row.id);
         } else {
           // Add the row to the group if the group didn't contain the row
           if is_not_contained {
             changeset
               .inserted_rows
-              .push(InsertedRowPB::new(RowPB::from(row)));
-            group.add_row(row.clone());
+              .push(InsertedRowPB::new(RowMetaPB::from(&row_detail.meta)));
+            group.add_row(row_detail.clone());
           }
         }
       }
@@ -142,9 +148,9 @@ impl GroupController for CheckboxGroupController {
     }
   }
 
-  fn did_create_row(&mut self, row: &Row, group_id: &str) {
+  fn did_create_row(&mut self, row_detail: &RowDetail, group_id: &str) {
     if let Some(group) = self.context.get_mut_group(group_id) {
-      group.add_row(row.clone())
+      group.add_row(row_detail.clone())
     }
   }
 }

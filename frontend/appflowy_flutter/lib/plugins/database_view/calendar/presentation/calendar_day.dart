@@ -301,7 +301,7 @@ class _EventCard extends StatelessWidget {
       // Add the key here to make sure the card is rebuilt when the cells
       // in this row are updated.
       key: ValueKey(event.eventId),
-      row: rowInfo!.rowPB,
+      rowMeta: rowInfo!.rowMeta,
       viewId: viewId,
       rowCache: rowCache,
       cardData: event.dateFieldId,

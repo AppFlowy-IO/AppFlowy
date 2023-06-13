@@ -1,5 +1,4 @@
 use std::cmp::min;
-
 use std::time::Duration;
 
 use async_stream::stream;
@@ -103,8 +102,8 @@ impl DatabaseSortTest {
         let rows = self.editor.get_rows(&self.view_id).await.unwrap();
         let field = self.editor.get_field(&field_id).unwrap();
         let field_type = FieldType::from(field.field_type);
-        for row in rows {
-          if let Some(cell) = row.cells.get(&field_id) {
+        for row_detail in rows {
+          if let Some(cell) = row_detail.row.cells.get(&field_id) {
             let content = stringify_cell_data(cell, &field_type, &field_type, &field);
             cells.push(content);
           } else {

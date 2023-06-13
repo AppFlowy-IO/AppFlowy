@@ -66,13 +66,13 @@ class DatabaseViewCache {
 
             if (changeset.updatedRows.isNotEmpty) {
               _callbacks?.onRowsUpdated
-                  ?.call(changeset.updatedRows.map((e) => e.row.id).toList());
+                  ?.call(changeset.updatedRows.map((e) => e.rowId).toList());
             }
 
             if (changeset.insertedRows.isNotEmpty) {
               _callbacks?.onRowsCreated?.call(
                 changeset.insertedRows
-                    .map((insertedRow) => insertedRow.row.id)
+                    .map((insertedRow) => insertedRow.rowMeta.id)
                     .toList(),
               );
             }

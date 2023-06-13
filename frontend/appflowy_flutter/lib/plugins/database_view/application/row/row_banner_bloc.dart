@@ -15,18 +15,16 @@ part 'row_banner_bloc.freezed.dart';
 
 class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
   final String viewId;
-  final String rowId;
   final RowBackendService _rowBackendSvc;
-
   final RowMetaListener _metaListener;
   SingleFieldListener? _fieldListener;
 
   RowBannerBloc({
     required this.viewId,
-    required this.rowId,
+    required RowMetaPB rowMeta,
   })  : _rowBackendSvc = RowBackendService(viewId: viewId),
-        _metaListener = RowMetaListener(rowId),
-        super(RowBannerState.initial()) {
+        _metaListener = RowMetaListener(rowMeta.id),
+        super(RowBannerState.initial(rowMeta)) {
     on<RowBannerEvent>(
       (event, emit) async {
         event.when(
@@ -65,12 +63,14 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
   @override
   Future<void> close() async {
     await _metaListener.stop();
+    await _fieldListener?.stop();
 
     return super.close();
   }
 
   Future<void> _loadRowMeta() async {
-    final rowDetailOrError = await _rowBackendSvc.getRowMeta(rowId);
+    final rowDetailOrError =
+        await _rowBackendSvc.getRowMeta(state.rowMetaPB.id);
     rowDetailOrError.fold(
       (rowDetail) {
         add(RowBannerEvent.didReceiveRowMeta(rowDetail));
@@ -109,24 +109,24 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
   }
 
   LoadingState _currentState() {
-    if (state.primaryField != null && state.rowMetaPB != null) {
+    if (state.primaryField != null) {
       return const LoadingState.finish();
     } else {
       return const LoadingState.loading();
     }
   }
 
-  /// Update the meta of the row.
-  /// It will also update the meta of the view.
+  /// Update the meta of the row and the view
   Future<void> _updateMeta({
     String? iconURL,
     String? coverURL,
   }) async {
+    // Most of the time, the result is success, so we don't need to handle it.
     await _rowBackendSvc
         .updateMeta(
       iconURL: iconURL,
       coverURL: coverURL,
-      rowId: rowId,
+      rowId: state.rowMetaPB.id,
     )
         .then((result) {
       result.fold(
@@ -140,7 +140,6 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
       iconURL: iconURL,
       coverURL: coverURL,
     ).then((result) {
-      // Most of the time, the result is success, so we don't need to handle it.
       result.fold(
         (l) => null,
         (err) => Log.error(err),
@@ -164,13 +163,14 @@ class RowBannerEvent with _$RowBannerEvent {
 class RowBannerState with _$RowBannerState {
   const factory RowBannerState({
     ViewPB? view,
-    RowMetaPB? rowMetaPB,
     FieldPB? primaryField,
+    required RowMetaPB rowMetaPB,
     required LoadingState loadingState,
   }) = _RowBannerState;
 
-  factory RowBannerState.initial() => const RowBannerState(
-        loadingState: LoadingState.loading(),
+  factory RowBannerState.initial(RowMetaPB rowMetaPB) => RowBannerState(
+        rowMetaPB: rowMetaPB,
+        loadingState: const LoadingState.loading(),
       );
 }
 

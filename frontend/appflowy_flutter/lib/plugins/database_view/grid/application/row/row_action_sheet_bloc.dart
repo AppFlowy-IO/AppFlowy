@@ -20,12 +20,12 @@ class RowActionSheetBloc
       (event, emit) async {
         await event.when(
           deleteRow: () async {
-            final result = await _rowService.deleteRow(state.rowData.rowPB.id);
+            final result = await _rowService.deleteRow(state.rowData.rowId);
             logResult(result);
           },
           duplicateRow: () async {
             final result =
-                await _rowService.duplicateRow(rowId: state.rowData.rowPB.id);
+                await _rowService.duplicateRow(rowId: state.rowData.rowId);
             logResult(result);
           },
         );

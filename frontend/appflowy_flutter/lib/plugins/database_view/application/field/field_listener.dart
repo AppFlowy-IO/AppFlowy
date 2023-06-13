@@ -46,7 +46,6 @@ class SingleFieldListener {
   Future<void> stop() async {
     await _listener?.stop();
     _updateFieldNotifier = null;
-    _updateFieldNotifier = null;
   }
 }
 

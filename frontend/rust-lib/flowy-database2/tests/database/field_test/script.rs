@@ -128,9 +128,9 @@ impl DatabaseFieldTest {
         let field_type = FieldType::from(field.field_type);
 
         let rows = self.editor.get_rows(&self.view_id()).await.unwrap();
-        let row = rows.get(row_index).unwrap();
+        let row_detail = rows.get(row_index).unwrap();
 
-        let cell = row.cells.get(&field_id).unwrap().clone();
+        let cell = row_detail.row.cells.get(&field_id).unwrap().clone();
         let content = stringify_cell_data(&cell, &from_field_type, &field_type, &field);
         assert_eq!(content, expected_content);
       },

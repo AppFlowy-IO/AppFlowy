@@ -61,7 +61,7 @@ class _GridRowState extends State<GridRow> {
       value: _rowBloc,
       child: _RowEnterRegion(
         child: BlocBuilder<RowBloc, RowState>(
-          buildWhen: (p, c) => p.rowInfo.rowPB.height != c.rowInfo.rowPB.height,
+          // buildWhen: (p, c) => p.rowInfo.rowHeight != c.rowInfo.rowHeight,
           builder: (context, state) {
             final content = Expanded(
               child: RowContent(

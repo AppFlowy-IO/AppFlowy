@@ -1,4 +1,12 @@
+use std::sync::Arc;
+
+use collab_database::fields::Field;
+use collab_database::views::DatabaseLayout;
+
+use flowy_error::FlowyResult;
+
 use crate::entities::FieldType;
+use crate::services::database::RowDetail;
 use crate::services::group::configuration::GroupSettingReader;
 use crate::services::group::controller::GroupController;
 use crate::services::group::{
@@ -6,12 +14,6 @@ use crate::services::group::{
   GroupSettingWriter, MultiSelectGroupController, MultiSelectOptionGroupContext,
   SingleSelectGroupController, SingleSelectOptionGroupContext, URLGroupContext, URLGroupController,
 };
-use collab_database::fields::Field;
-use collab_database::rows::Row;
-use collab_database::views::DatabaseLayout;
-
-use flowy_error::FlowyResult;
-use std::sync::Arc;
 
 /// Returns a group controller.
 ///
@@ -33,7 +35,7 @@ use std::sync::Arc;
 pub async fn make_group_controller<R, W>(
   view_id: String,
   grouping_field: Arc<Field>,
-  rows: Vec<Arc<Row>>,
+  row_details: Vec<Arc<RowDetail>>,
   setting_reader: R,
   setting_writer: W,
 ) -> FlowyResult<Box<dyn GroupController>>
@@ -99,7 +101,10 @@ where
   }
 
   // Separates the rows into different groups
-  let rows = rows.iter().map(|row| row.as_ref()).collect::<Vec<&Row>>();
+  let rows = row_details
+    .iter()
+    .map(|row| row.as_ref())
+    .collect::<Vec<&RowDetail>>();
   group_controller.fill_groups(rows.as_slice(), &grouping_field)?;
   Ok(group_controller)
 }

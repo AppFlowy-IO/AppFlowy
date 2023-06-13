@@ -392,7 +392,7 @@ pub(crate) async fn move_row_handler(
 pub(crate) async fn create_row_handler(
   data: AFPluginData<CreateRowPayloadPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
-) -> DataResult<RowPB, FlowyError> {
+) -> DataResult<RowMetaPB, FlowyError> {
   let params: CreateRowParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   let fields = database_editor.get_fields(&params.view_id, None);
@@ -413,7 +413,7 @@ pub(crate) async fn create_row_handler(
     .await?
   {
     None => Err(FlowyError::internal().context("Create row fail")),
-    Some(row) => data_result_ok(RowPB::from(row)),
+    Some(row) => data_result_ok(RowMetaPB::from(row.meta)),
   }
 }
 

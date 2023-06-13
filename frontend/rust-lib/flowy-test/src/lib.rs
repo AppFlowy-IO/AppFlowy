@@ -1,8 +1,8 @@
-use bytes::Bytes;
 use std::convert::TryFrom;
 use std::env::temp_dir;
 use std::sync::Arc;
 
+use bytes::Bytes;
 use nanoid::nanoid;
 use parking_lot::RwLock;
 
@@ -290,7 +290,7 @@ impl FlowyCoreTest {
     view_id: &str,
     start_row_id: Option<String>,
     data: Option<RowDataPB>,
-  ) -> RowPB {
+  ) -> RowMetaPB {
     EventBuilder::new(self.clone())
       .event(flowy_database2::event_map::DatabaseEvent::CreateRow)
       .payload(CreateRowPayloadPB {
@@ -301,7 +301,7 @@ impl FlowyCoreTest {
       })
       .async_send()
       .await
-      .parse::<RowPB>()
+      .parse::<RowMetaPB>()
   }
 
   pub async fn delete_row(&self, view_id: &str, row_id: &str) -> Option<FlowyError> {

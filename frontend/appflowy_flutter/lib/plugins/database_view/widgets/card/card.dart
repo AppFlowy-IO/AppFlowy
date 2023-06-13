@@ -17,7 +17,7 @@ import 'container/card_container.dart';
 
 /// Edit a database row with card style widget
 class RowCard<CustomCardData> extends StatefulWidget {
-  final RowPB row;
+  final RowMetaPB rowMeta;
   final String viewId;
   final String? groupingFieldId;
 
@@ -46,7 +46,7 @@ class RowCard<CustomCardData> extends StatefulWidget {
   final RowCardStyleConfiguration styleConfiguration;
 
   const RowCard({
-    required this.row,
+    required this.rowMeta,
     required this.viewId,
     this.groupingFieldId,
     required this.isEditing,
@@ -81,7 +81,7 @@ class _RowCardState<T> extends State<RowCard<T>> {
       viewId: widget.viewId,
       groupFieldId: widget.groupingFieldId,
       isEditing: widget.isEditing,
-      row: widget.row,
+      rowMeta: widget.rowMeta,
       rowCache: widget.rowCache,
     )..add(const RowCardEvent.initial());
 

@@ -29,7 +29,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
             await _startListening();
           },
           createRow: () {
-            _rowBackendSvc.createRow(rowInfo.rowPB.id);
+            _rowBackendSvc.createRow(rowInfo.rowId);
           },
           didReceiveCells: (cellByFieldId, reason) async {
             final cells = cellByFieldId.values

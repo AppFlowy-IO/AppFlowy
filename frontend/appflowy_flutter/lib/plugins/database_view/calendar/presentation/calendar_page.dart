@@ -243,7 +243,7 @@ void showEventDetails({
   required RowCache rowCache,
 }) {
   final dataController = RowController(
-    rowId: event.eventId,
+    rowMeta: event.event.rowMeta,
     viewId: viewId,
     rowCache: rowCache,
   );

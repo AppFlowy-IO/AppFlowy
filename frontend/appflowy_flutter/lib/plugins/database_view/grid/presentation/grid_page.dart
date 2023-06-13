@@ -230,7 +230,7 @@ class _GridRows extends StatelessWidget {
     Animation<double>? animation,
   }) {
     final rowCache = context.read<GridBloc>().getRowCache(
-          rowInfo.rowPB.id,
+          rowInfo.rowId,
         );
 
     /// Return placeholder widget if the rowCache is null.
@@ -239,13 +239,13 @@ class _GridRows extends StatelessWidget {
     final fieldController =
         context.read<GridBloc>().databaseController.fieldController;
     final dataController = RowController(
-      rowId: rowInfo.rowPB.id,
+      rowMeta: rowInfo.rowMeta,
       viewId: rowInfo.viewId,
       rowCache: rowCache,
     );
 
     final child = GridRow(
-      key: ValueKey(rowInfo.rowPB.id),
+      key: ValueKey(rowInfo.rowId),
       index: index,
       isDraggable: !isSortEnabled && !isFilterEnabled,
       rowInfo: rowInfo,
@@ -281,7 +281,7 @@ class _GridRows extends StatelessWidget {
   ) {
     final dataController = RowController(
       viewId: rowInfo.viewId,
-      rowId: rowInfo.rowPB.id,
+      rowMeta: rowInfo.rowMeta,
       rowCache: rowCache,
     );
 

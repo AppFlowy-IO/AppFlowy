@@ -35,7 +35,7 @@ class GridTestContext {
     return gridController.fieldController;
   }
 
-  Future<Either<RowPB, FlowyError>> createRow() async {
+  Future<Either<RowMetaPB, FlowyError>> createRow() async {
     return gridController.createRow();
   }
 
@@ -55,7 +55,7 @@ class GridTestContext {
     final rowCache = gridController.rowCache;
 
     final rowDataController = RowController(
-      rowId: rowInfo.rowPB.id,
+      rowMeta: rowInfo.rowMeta,
       viewId: rowInfo.viewId,
       rowCache: rowCache,
     );

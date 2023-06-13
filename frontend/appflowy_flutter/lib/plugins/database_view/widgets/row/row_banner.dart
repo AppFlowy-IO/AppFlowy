@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_banner_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/emoji_picker/emoji_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -12,11 +13,11 @@ typedef RowBannerCellBuilder = Widget Function(String fieldId);
 
 class RowBanner extends StatefulWidget {
   final String viewId;
-  final String rowId;
+  final RowMetaPB rowMeta;
   final RowBannerCellBuilder cellBuilder;
   const RowBanner({
     required this.viewId,
-    required this.rowId,
+    required this.rowMeta,
     required this.cellBuilder,
     super.key,
   });
@@ -34,7 +35,7 @@ class _RowBannerState extends State<RowBanner> {
     return BlocProvider<RowBannerBloc>(
       create: (context) => RowBannerBloc(
         viewId: widget.viewId,
-        rowId: widget.rowId,
+        rowMeta: widget.rowMeta,
       )..add(const RowBannerEvent.initial()),
       child: MouseRegion(
         onEnter: (event) => _isHovering.value = true,
@@ -78,16 +79,14 @@ class _BannerAction extends StatelessWidget {
             builder: (context, state) {
               final children = <Widget>[];
               final rowMeta = state.rowMetaPB;
-              if (rowMeta != null) {
-                if (rowMeta.hasIcon()) {
-                  children.add(const SizedBox(height: _kBannerActionHeight));
-                } else {
-                  children.add(
-                    EmojiPickerButton(
-                      showEmojiPicker: () => popoverController.show(),
-                    ),
-                  );
-                }
+              if (rowMeta.hasIcon()) {
+                children.add(const SizedBox(height: _kBannerActionHeight));
+              } else {
+                children.add(
+                  EmojiPickerButton(
+                    showEmojiPicker: () => popoverController.show(),
+                  ),
+                );
               }
               return Row(
                 mainAxisSize: MainAxisSize.min,
@@ -123,11 +122,10 @@ class _BannerTitleState extends State<_BannerTitle> {
       builder: (context, state) {
         final children = <Widget>[];
 
-        final icon = state.rowMetaPB?.icon;
-        if (icon != null && icon.isNotEmpty) {
+        if (state.rowMetaPB.icon.isNotEmpty) {
           children.add(
             EmojiButton(
-              emoji: icon,
+              emoji: state.rowMetaPB.icon,
               showEmojiPicker: () => widget.popoverController.show(),
             ),
           );
@@ -181,6 +179,7 @@ class EmojiButton extends StatelessWidget {
         text: FlowyText.medium(
           emoji,
           fontSize: 30,
+          textAlign: TextAlign.center,
         ),
         onTap: showEmojiPicker,
       ),

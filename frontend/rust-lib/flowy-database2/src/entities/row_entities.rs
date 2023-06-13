@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use collab_database::rows::{Row, RowId};
+use collab_database::rows::{Row, RowId, RowMeta};
 use collab_database::views::RowOrder;
 
 use flowy_derive::ProtoBuf;
@@ -59,6 +59,28 @@ pub struct RowMetaPB {
 
   #[pb(index = 4, one_of)]
   pub cover: Option<String>,
+}
+
+impl std::convert::From<&RowMeta> for RowMetaPB {
+  fn from(row_meta: &RowMeta) -> Self {
+    Self {
+      id: row_meta.row_id.clone(),
+      document_id: row_meta.document_id.clone(),
+      icon: row_meta.icon_url.clone(),
+      cover: row_meta.cover_url.clone(),
+    }
+  }
+}
+
+impl std::convert::From<RowMeta> for RowMetaPB {
+  fn from(row_meta: RowMeta) -> Self {
+    Self {
+      id: row_meta.row_id,
+      document_id: row_meta.document_id,
+      icon: row_meta.icon_url,
+      cover: row_meta.cover_url,
+    }
+  }
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
@@ -192,7 +214,7 @@ impl std::convert::From<Vec<RowPB>> for RepeatedRowPB {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct InsertedRowPB {
   #[pb(index = 1)]
-  pub row: RowPB,
+  pub row_meta: RowMetaPB,
 
   #[pb(index = 2, one_of)]
   pub index: Option<i32>,
@@ -202,9 +224,9 @@ pub struct InsertedRowPB {
 }
 
 impl InsertedRowPB {
-  pub fn new(row: RowPB) -> Self {
+  pub fn new(row_meta: RowMetaPB) -> Self {
     Self {
-      row,
+      row_meta,
       index: None,
       is_new: false,
     }
@@ -216,26 +238,20 @@ impl InsertedRowPB {
   }
 }
 
-impl std::convert::From<RowPB> for InsertedRowPB {
-  fn from(row: RowPB) -> Self {
+impl std::convert::From<RowMetaPB> for InsertedRowPB {
+  fn from(row_meta: RowMetaPB) -> Self {
     Self {
-      row,
+      row_meta,
       index: None,
       is_new: false,
     }
   }
 }
 
-impl std::convert::From<&Row> for InsertedRowPB {
-  fn from(row: &Row) -> Self {
-    Self::from(RowPB::from(row))
-  }
-}
-
 impl From<InsertedRow> for InsertedRowPB {
   fn from(data: InsertedRow) -> Self {
     Self {
-      row: data.row.into(),
+      row_meta: data.row_meta.into(),
       index: data.index,
       is_new: data.is_new,
     }
@@ -245,18 +261,24 @@ impl From<InsertedRow> for InsertedRowPB {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct UpdatedRowPB {
   #[pb(index = 1)]
-  pub row: RowPB,
+  pub row_id: String,
 
   // Indicates the field ids of the cells that were updated in this row.
   #[pb(index = 2)]
   pub field_ids: Vec<String>,
+
+  /// The meta of row was updated if this is Some.
+  #[pb(index = 3, one_of)]
+  pub row_meta: Option<RowMetaPB>,
 }
 
 impl From<UpdatedRow> for UpdatedRowPB {
   fn from(data: UpdatedRow) -> Self {
+    let row_meta = data.row_meta.map(RowMetaPB::from);
     Self {
-      row: data.row.into(),
+      row_id: data.row_id,
       field_ids: data.field_ids,
+      row_meta,
     }
   }
 }

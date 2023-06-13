@@ -63,16 +63,16 @@ void main() {
       act: (bloc) async {
         await gridResponseFuture();
 
-        firstId = bloc.state.rowInfos[0].rowPB.id;
-        secondId = bloc.state.rowInfos[1].rowPB.id;
-        thirdId = bloc.state.rowInfos[2].rowPB.id;
+        firstId = bloc.state.rowInfos[0].rowId;
+        secondId = bloc.state.rowInfos[1].rowId;
+        thirdId = bloc.state.rowInfos[2].rowId;
 
         bloc.add(const GridEvent.moveRow(0, 2));
       },
       verify: (bloc) {
-        expect(secondId, bloc.state.rowInfos[0].rowPB.id);
-        expect(thirdId, bloc.state.rowInfos[1].rowPB.id);
-        expect(firstId, bloc.state.rowInfos[2].rowPB.id);
+        expect(secondId, bloc.state.rowInfos[0].rowId);
+        expect(thirdId, bloc.state.rowInfos[1].rowId);
+        expect(firstId, bloc.state.rowInfos[2].rowId);
       },
     );
   });

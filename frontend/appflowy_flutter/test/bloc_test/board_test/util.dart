@@ -105,7 +105,7 @@ class BoardTestContext {
 
     final rowDataController = RowController(
       viewId: rowInfo.viewId,
-      rowId: rowInfo.rowPB.id,
+      rowMeta: rowInfo.rowMeta,
       rowCache: rowCache,
     );
 

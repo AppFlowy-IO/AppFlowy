@@ -268,7 +268,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
 
     final eventData = CalendarDayEvent(
       event: eventPB,
-      eventId: eventPB.rowId,
+      eventId: eventPB.rowMeta.id,
       dateFieldId: eventPB.dateFieldId,
       date: date,
     );

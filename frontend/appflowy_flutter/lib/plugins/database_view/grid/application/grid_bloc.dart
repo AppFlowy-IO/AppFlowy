@@ -33,18 +33,18 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             final rowService = RowBackendService(
               viewId: rowInfo.viewId,
             );
-            await rowService.deleteRow(rowInfo.rowPB.id);
+            await rowService.deleteRow(rowInfo.rowId);
           },
           moveRow: (int from, int to) {
             final List<RowInfo> rows = [...state.rowInfos];
 
-            final fromRow = rows[from].rowPB;
-            final toRow = rows[to].rowPB;
+            final fromRow = rows[from].rowId;
+            final toRow = rows[to].rowId;
 
             rows.insert(to, rows.removeAt(from));
             emit(state.copyWith(rowInfos: rows));
 
-            databaseController.moveRow(fromRow: fromRow, toRow: toRow);
+            databaseController.moveRow(fromRowId: fromRow, toRowId: toRow);
           },
           didReceiveGridUpdate: (grid) {
             emit(state.copyWith(grid: Some(grid)));

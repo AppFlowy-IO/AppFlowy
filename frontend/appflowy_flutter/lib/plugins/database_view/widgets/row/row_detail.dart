@@ -74,7 +74,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
             top: 20,
           ),
           child: RowBanner(
-            rowId: widget.rowController.rowId,
+            rowMeta: widget.rowController.rowMeta,
             viewId: widget.rowController.viewId,
             cellBuilder: (fieldId) {
               final fieldInfo = state.cells
