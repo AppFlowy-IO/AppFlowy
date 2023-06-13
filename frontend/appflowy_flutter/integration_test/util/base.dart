@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/main.dart' as app;
 import 'package:appflowy/startup/tasks/prelude.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -91,7 +92,16 @@ extension AppFlowyTestBase on WidgetTester {
     String tr, {
     int milliseconds = 500,
   }) async {
-    final button = find.text(tr, findRichText: true);
+    Finder button = find.text(
+      tr,
+      findRichText: true,
+      skipOffstage: false,
+    );
+    if (button.evaluate().isEmpty) {
+      button = find.byWidgetPredicate(
+        (widget) => widget is FlowyText && widget.title == tr,
+      );
+    }
     await tapButton(
       button,
       milliseconds: milliseconds,

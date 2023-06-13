@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_list.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/database/referenced_database_menu_tem.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -45,9 +46,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final slashMenuItems = [
     inlineGridMenuItem(documentBloc),
-    referenceGridMenuItem,
+    referencedGridMenuItem,
     inlineBoardMenuItem(documentBloc),
-    boardMenuItem,
+    referencedBoardMenuItem,
+    inlineCalendarMenuItem(documentBloc),
+    referencedCalendarMenuItem,
     calloutItem,
     mathEquationItem,
     codeBlockItem,
@@ -174,10 +177,13 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       ImageBlockKeys.type: ImageBlockComponentBuilder(
         configuration: configuration,
       ),
-      BoardBlockKeys.type: BoardBlockComponentBuilder(
+      DatabaseBlockKeys.gridType: DatabaseViewBlockComponentBuilder(
         configuration: configuration,
       ),
-      GridBlockKeys.type: GridBlockComponentBuilder(
+      DatabaseBlockKeys.boardType: DatabaseViewBlockComponentBuilder(
+        configuration: configuration,
+      ),
+      DatabaseBlockKeys.calendarType: DatabaseViewBlockComponentBuilder(
         configuration: configuration,
       ),
       CalloutBlockKeys.type: CalloutBlockComponentBuilder(

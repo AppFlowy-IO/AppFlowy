@@ -51,6 +51,12 @@
     "import": "Import",
     "moreOptions": "More options"
   },
+  "importPanel": {
+    "textAndMarkdown": "Text & Markdown",
+    "documentFromV010": "Document from v0.1.0",
+    "databaseFromV010": "Database from v0.1.0",
+    "csv": "CSV"
+  },
   "disclosureAction": {
     "rename": "Rename",
     "delete": "Delete",
@@ -368,11 +374,16 @@
       "grid": {
         "selectAGridToLinkTo": "Select a Grid to link to",
         "createANewGrid": "Create a new Grid"
+      },
+      "calendar": {
+        "selectACalendarToLinkTo": "Select a Calendar to link to",
+        "createANewCalendar": "Create a new Calendar"
       }
     },
     "plugins": {
       "referencedBoard": "Referenced Board",
       "referencedGrid": "Referenced Grid",
+      "referencedCalendar": "Referenced Calendar",
       "autoGeneratorMenuItemName": "OpenAI Writer",
       "autoGeneratorTitleName": "OpenAI: Ask AI to write anything...",
       "autoGeneratorLearnMore": "Learn more",
@@ -461,6 +472,7 @@
       "noDateHint": "Unscheduled events will show up here",
       "clickToAdd": "Click to add to the calendar",
       "name": "Calendar layout"
-    }
+    },
+    "referencedCalendarPrefix": "View of"
   }
 }

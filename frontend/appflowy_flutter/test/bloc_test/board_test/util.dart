@@ -33,6 +33,7 @@ class AppFlowyBoardTest {
       parentViewId: app.id,
       name: "Test Board",
       layoutType: builder.layoutType!,
+      openAfterCreate: true,
     ).then((result) {
       return result.fold(
         (view) async {

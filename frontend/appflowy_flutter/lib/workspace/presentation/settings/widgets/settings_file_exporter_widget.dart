@@ -1,10 +1,8 @@
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
-import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
+import 'package:appflowy/workspace/application/export/document_exporter.dart';
 import 'package:appflowy/workspace/application/settings/settings_file_exporter_cubit.dart';
 import 'package:appflowy/workspace/application/settings/share/export_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -248,18 +246,17 @@ class _AppFlowyFileExporter {
   ) async {
     final failedFileNames = <String>[];
     final Map<String, int> names = {};
-    final documentService = DocumentService();
     for (final view in views) {
       String? content;
       String? fileExtension;
       switch (view.layout) {
         case ViewLayoutPB.Document:
-          final document = await documentService.openDocument(view: view);
-          document.fold((l) => Log.error(l), (r) {
-            final json = r.toDocument()?.toJson();
-            if (json != null) {
-              content = jsonEncode(json);
-            }
+          final documentExporter = DocumentExporter(view);
+          final result = await documentExporter.export(
+            DocumentExportType.json,
+          );
+          result.fold((l) => Log.error(l), (json) {
+            content = json;
           });
           fileExtension = 'afdocument';
           break;

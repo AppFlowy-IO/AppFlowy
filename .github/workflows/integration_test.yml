@@ -6,14 +6,18 @@ on:
       - "main"
       - "release/*"
     paths:
-      - "frontend/appflowy_flutter/**"
+      - ".github/workflows/flutter_ci.yaml"
+      - "frontend/**"
+      - "!frontend/appflowy_tauri/**"
 
   pull_request:
     branches:
       - "main"
       - "release/*"
     paths:
-      - "frontend/appflowy_flutter/**"
+      - ".github/workflows/flutter_ci.yaml"
+      - "frontend/**"
+      - "!frontend/appflowy_tauri/**"
 
 env:
   CARGO_TERM_COLOR: always
@@ -116,10 +120,9 @@ jobs:
           fi
         shell: bash
 
-      # - uses: codecov/codecov-action@v3
-      #   with:
-      #     name: appflowy
-      #     flags: appflowy
-      #     env_vars: ${{ matrix.os }}
-      #     fail_ci_if_error: true
-      #     verbose: true
+      - uses: codecov/codecov-action@v3
+        with:
+          name: appflowy
+          flags: appflowy_flutter_integrateion_test
+          fail_ci_if_error: true
+          verbose: true

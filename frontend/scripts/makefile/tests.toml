@@ -33,7 +33,7 @@ dependencies = ["inner_build_test_backend"]
 description = "Run flutter unit tests"
 script = '''
 cd appflowy_flutter
-flutter test --dart-define=RUST_LOG=${RUST_LOG} -j, --concurrency=1
+flutter test --dart-define=RUST_LOG=${RUST_LOG} -j, --concurrency=1 --coverage --verbose
 '''
 
 [tasks.rust_unit_test]

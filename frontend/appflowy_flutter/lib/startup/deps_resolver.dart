@@ -110,9 +110,8 @@ void _resolveHomeDeps(GetIt getIt) {
   );
 
   // share
-  getIt.registerLazySingleton<ShareService>(() => ShareService());
   getIt.registerFactoryParam<DocShareBloc, ViewPB, void>(
-    (view, _) => DocShareBloc(view: view, service: getIt<ShareService>()),
+    (view, _) => DocShareBloc(view: view),
   );
 }
 
