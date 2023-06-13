@@ -176,6 +176,7 @@ class AppFlowyGridTest {
       parentViewId: app.id,
       name: "Test Grid",
       layoutType: builder.layoutType!,
+      openAfterCreate: true,
     ).then((result) {
       return result.fold(
         (view) async {

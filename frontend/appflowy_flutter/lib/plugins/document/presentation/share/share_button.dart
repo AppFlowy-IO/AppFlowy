@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/plugins/document/application/share_bloc.dart';
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
+import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/entities.pb.dart';
@@ -68,13 +69,34 @@ class DocumentShareButton extends StatelessWidget {
   }
 }
 
-class ShareActionList extends StatelessWidget {
+class ShareActionList extends StatefulWidget {
   const ShareActionList({
     super.key,
     required this.view,
   });
 
   final ViewPB view;
+
+  @override
+  State<ShareActionList> createState() => ShareActionListState();
+}
+
+@visibleForTesting
+class ShareActionListState extends State<ShareActionList> {
+  late String name;
+  late final ViewListener viewListener = ViewListener(view: widget.view);
+
+  @override
+  void initState() {
+    super.initState();
+    listenOnViewUpdated();
+  }
+
+  @override
+  void dispose() {
+    viewListener.stop();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +118,7 @@ class ShareActionList extends StatelessWidget {
           case ShareAction.markdown:
             final exportPath = await getIt<FilePickerService>().saveFile(
               dialogTitle: '',
-              fileName: '${view.name}.md',
+              fileName: '$name.md',
             );
             if (exportPath != null) {
               docShareBloc.add(DocShareEvent.shareMarkdown(exportPath));
@@ -104,6 +126,15 @@ class ShareActionList extends StatelessWidget {
             break;
         }
         controller.close();
+      },
+    );
+  }
+
+  void listenOnViewUpdated() {
+    name = widget.view.name;
+    viewListener.start(
+      onViewUpdated: (view) {
+        name = view.fold((l) => l.name, (r) => '');
       },
     );
   }

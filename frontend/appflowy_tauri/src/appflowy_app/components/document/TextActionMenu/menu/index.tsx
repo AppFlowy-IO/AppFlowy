@@ -11,6 +11,7 @@ function TextActionMenuList() {
       switch (action) {
         case TextAction.Turn:
           return isSingleLine && focusId ? <TurnIntoSelect id={focusId} /> : null;
+        case TextAction.Link:
         case TextAction.Bold:
         case TextAction.Italic:
         case TextAction.Underline:

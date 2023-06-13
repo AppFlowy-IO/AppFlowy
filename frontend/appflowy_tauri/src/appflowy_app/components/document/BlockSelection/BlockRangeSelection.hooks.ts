@@ -30,6 +30,7 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
 
   const reset = useCallback(() => {
     dispatch(rangeActions.clearRange());
+    setForward(true);
   }, [dispatch]);
 
   // display caret color
@@ -85,7 +86,6 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
 
   const handleDragStart = useCallback(
     (e: MouseEvent) => {
-      // reset the range
       reset();
       // skip if the target is not a block
       const blockId = getBlockIdByPoint(e.target as HTMLElement);
@@ -150,6 +150,8 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
 
   const handleDragEnd = useCallback(() => {
     if (!isDragging) return;
+    setFocus(null);
+    anchorRef.current = null;
     dispatch(rangeActions.setDragging(false));
   }, [dispatch, isDragging]);
 
@@ -164,7 +166,7 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
       document.removeEventListener('mouseup', handleDragEnd);
       container.removeEventListener('keydown', onKeyDown, true);
     };
-  }, [handleDragStart, handleDragEnd, handleDraging, container, onKeyDown]);
+  }, [reset, handleDragStart, handleDragEnd, handleDraging, container, onKeyDown]);
 
   return null;
 }

@@ -9,7 +9,7 @@ import {
   indent,
   outdent,
 } from '$app/utils/document/slate_editor';
-import { focusNodeByIndex } from '$app/utils/document/node';
+import { focusNodeByIndex, getWordIndices } from '$app/utils/document/node';
 import { Keyboard } from '$app/constants/document/keyboard';
 import Delta from 'quill-delta';
 import isHotkey from 'is-hotkey';
@@ -20,13 +20,13 @@ export function useEditor({
   onSelectionChange,
   selection,
   value: delta,
-  lastSelection,
+  decorateSelection,
   onKeyDown,
   isCodeBlock,
+  linkDecorateSelection,
 }: EditorProps) {
-  const editor = useSlateYjs({ delta });
+  const { editor } = useSlateYjs({ delta });
   const ref = useRef<HTMLDivElement | null>(null);
-
   const newValue = useMemo(() => [], []);
   const onSelectionChangeHandler = useCallback(
     (slateSelection: Selection) => {
@@ -42,7 +42,7 @@ export function useEditor({
       onChange?.(convertToDelta(slateValue), oldContents);
       onSelectionChangeHandler(editor.selection);
     },
-    [delta, editor.selection, onChange, onSelectionChangeHandler]
+    [delta, editor, onChange, onSelectionChangeHandler]
   );
 
   const onDOMBeforeInput = useCallback((e: InputEvent) => {
@@ -54,27 +54,50 @@ export function useEditor({
     }
   }, []);
 
+  const getDecorateRange = useCallback(
+    (
+      path: number[],
+      selection:
+        | {
+            index: number;
+            length: number;
+          }
+        | undefined,
+      value: Record<string, boolean | string | undefined>
+    ) => {
+      if (!selection) return null;
+      const range = convertToSlateSelection(selection.index, selection.length, editor.children) as BaseRange;
+      if (range && !Range.isCollapsed(range)) {
+        const intersection = Range.intersection(range, Editor.range(editor, path));
+        if (intersection) {
+          return {
+            ...intersection,
+            ...value,
+          };
+        }
+      }
+      return null;
+    },
+    [editor]
+  );
+
   const decorate = useCallback(
     (entry: NodeEntry) => {
       const [node, path] = entry;
-      if (!lastSelection) return [];
-      const slateSelection = convertToSlateSelection(lastSelection.index, lastSelection.length, editor.children);
-      if (slateSelection && !Range.isCollapsed(slateSelection as BaseRange)) {
-        const intersection = Range.intersection(slateSelection, Editor.range(editor, path));
 
-        if (!intersection) {
-          return [];
-        }
-        const range = {
+      const ranges: Range[] = [
+        getDecorateRange(path, decorateSelection, {
           selection_high_lighted: true,
-          ...intersection,
-        };
+        }),
+        getDecorateRange(path, linkDecorateSelection?.selection, {
+          link_selection_lighted: true,
+          link_placeholder: linkDecorateSelection?.placeholder,
+        }),
+      ].filter((range) => range !== null) as Range[];
 
-        return [range];
-      }
-      return [];
+      return ranges;
     },
-    [editor, lastSelection]
+    [decorateSelection, linkDecorateSelection, getDecorateRange]
   );
 
   const onKeyDownRewrite = useCallback(
@@ -116,14 +139,53 @@ export function useEditor({
     [editor]
   );
 
+  // This is a hack to fix the bug that the editor decoration is updated cause selection is lost
+  const onMouseDownCapture = useCallback(
+    (event: React.MouseEvent) => {
+      editor.deselect();
+      requestAnimationFrame(() => {
+        const range = document.caretRangeFromPoint(event.clientX, event.clientY);
+        if (!range) return;
+        const selection = window.getSelection();
+        if (!selection) return;
+        selection.removeAllRanges();
+        selection.addRange(range);
+      });
+    },
+    [editor]
+  );
+
+  // double click to select a word
+  // This is a hack to fix the bug that mouse down event deselect the selection
+  const onDoubleClick = useCallback((event: React.MouseEvent) => {
+    const selection = window.getSelection();
+    if (!selection) return;
+    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+    if (!range) return;
+    const node = range.startContainer;
+    const offset = range.startOffset;
+    const wordIndices = getWordIndices(node, offset);
+    if (wordIndices.length === 0) return;
+    range.setStart(node, wordIndices[0].startIndex);
+    range.setEnd(node, wordIndices[0].endIndex);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }, []);
+
   useEffect(() => {
-    if (!selection || !ref.current) return;
+    if (!ref.current) return;
+    const isFocused = ReactEditor.isFocused(editor);
+    if (!selection) {
+      isFocused && editor.deselect();
+      return;
+    }
     const slateSelection = convertToSlateSelection(selection.index, selection.length, editor.children);
     if (!slateSelection) return;
-    const isFocused = ReactEditor.isFocused(editor);
     if (isFocused && JSON.stringify(slateSelection) === JSON.stringify(editor.selection)) return;
-    focusNodeByIndex(ref.current, selection.index, selection.length);
-    Transforms.select(editor, slateSelection);
+    const isSuccess = focusNodeByIndex(ref.current, selection.index, selection.length);
+    if (!isSuccess) {
+      Transforms.select(editor, slateSelection);
+    }
   }, [editor, selection]);
 
   return {
@@ -135,5 +197,7 @@ export function useEditor({
     ref,
     onKeyDown: onKeyDownRewrite,
     onBlur,
+    onMouseDownCapture,
+    onDoubleClick,
   };
 }
