@@ -55,8 +55,8 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
 
   Widget _renderBody(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    //The width should be fit to the longest language name
-    const double languageSelectorWidth = 160;
+    // The placeholderWidth should be greater than the longest width of the LanguageSelectorOnWelcomePage
+    const double placeholderWidth = 170;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -95,9 +95,9 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-//Add the width of the language selector to make SubscribeButtons centered to the screen
+//Add the width of the placeholder to make SubscribeButtons centered to the screen
                     const SizedBox(
-                      width: languageSelectorWidth,
+                      width: placeholderWidth,
                     ),
                     Column(
                       children: [
@@ -108,14 +108,14 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
                   ],
                 ),
               ),
-              SizedBox(
-                width: languageSelectorWidth,
+              const SizedBox(
+                width: placeholderWidth,
                 height: 28,
-                child: BlocBuilder<AppearanceSettingsCubit,
-                    AppearanceSettingsState>(
-                  builder: (context, state) {
-                    return const LanguageSelectorOnWelcomePage();
-                  },
+                child: Row(
+                  children: [
+                    Spacer(),
+                    LanguageSelectorOnWelcomePage(),
+                  ],
                 ),
               ),
             ],
@@ -216,38 +216,40 @@ class LanguageSelectorOnWelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<AppearanceSettingsCubit>().state;
+    return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+      builder: (context, state) {
+        return AppFlowyPopover(
+          offset: const Offset(0, -450),
+          direction: PopoverDirection.bottomWithRightAligned,
+          child: FlowyButton(
+            useIntrinsicWidth: true,
+            text: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.language_rounded,
+                  size: 20,
+                ),
+                const HSpace(4),
+                FlowyText(
+                  languageFromLocale(state.locale),
+                ),
+                const HSpace(4),
+                const Icon(
+                  Icons.arrow_drop_up,
+                  size: 20,
+                )
+              ],
+            ),
+          ),
+          popupBuilder: (BuildContext context) {
+            final allLocales = EasyLocalization.of(context)!.supportedLocales;
 
-    return AppFlowyPopover(
-      offset: const Offset(0, -450),
-      direction: PopoverDirection.bottomWithRightAligned,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          const Icon(
-            Icons.language_rounded,
-            weight: 200,
-            grade: 200,
-            size: 20,
-          ),
-          const HSpace(4),
-          Text(
-            languageFromLocale(state.locale),
-          ),
-          const HSpace(4),
-          const Icon(
-            Icons.arrow_drop_up,
-            weight: 200,
-            grade: 200,
-            size: 20,
-          ),
-        ],
-      ),
-      popupBuilder: (BuildContext context) {
-        final allLocales = EasyLocalization.of(context)!.supportedLocales;
-
-        return LanguageItemsListView(
-          allLocales: allLocales,
+            return LanguageItemsListView(
+              allLocales: allLocales,
+            );
+          },
         );
       },
     );
