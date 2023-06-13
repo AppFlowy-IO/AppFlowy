@@ -6,6 +6,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_bloc.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_state.dart';
+import 'package:flowy_infra/plugins/models/flowy_dynamic_plugin.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -55,7 +56,6 @@ class ThemeSetting extends StatefulWidget {
 }
 
 class _ThemeSettingState extends State<ThemeSetting> {
-
   int get crossAxisCount {
     final factor = FormFactor.fromWidth(MediaQuery.of(context).size.width);
     return switch (factor) {
@@ -65,6 +65,36 @@ class _ThemeSettingState extends State<ThemeSetting> {
     };
   }
 
+  Widget get uninitialized => const SizedBox.shrink();
+  Widget get processing => const SizedBox.shrink();
+  Widget get compilationFailure => const SizedBox.shrink();
+  Widget get deletionFailure => const SizedBox.shrink();
+  Widget get deletionSuccess => const SizedBox.shrink();
+  Widget get compilationSuccess => const SizedBox.shrink();
+  Widget ready(Iterable<FlowyDynamicPlugin> plugins) {
+    final themes = [
+      ...AppTheme.builtins,
+      ...plugins.map((plugin) => plugin.theme).whereType<AppTheme>(),
+    ];
+    return GridView.builder(
+      shrinkWrap: true,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: ThemeSetting.crossAxisSpacing,
+        mainAxisSpacing: ThemeSetting.mainAxisSpacing,
+      ),
+      itemCount: themes.length,
+      itemBuilder: (context, index) {
+        final theme = themes.elementAt(index);
+        return ThemePreview(
+          // TODO(a-wallen): bad there could be multiple themes
+          theme: theme,
+          isCurrentTheme: theme.themeName == widget.currentTheme,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -72,31 +102,14 @@ class _ThemeSettingState extends State<ThemeSetting> {
         BlocBuilder<DynamicPluginBloc, DynamicPluginState>(
           buildWhen: (previous, current) => current is Ready,
           builder: (context, state) {
-            if (state is! Ready) {
-              return const SizedBox.shrink();
-            }
-            final themes = [
-              ...AppTheme.builtins,
-              ...state.plugins
-                  .map((plugin) => plugin.theme)
-                  .whereType<AppTheme>(),
-            ];
-            return GridView.builder(
-              shrinkWrap: true,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: crossAxisCount,
-                crossAxisSpacing: ThemeSetting.crossAxisSpacing,
-                mainAxisSpacing: ThemeSetting.mainAxisSpacing,
-              ),
-              itemCount: themes.length,
-              itemBuilder: (context, index) {
-                final theme = themes.elementAt(index);
-                return ThemePreview(
-                  // TODO(a-wallen): bad there could be multiple themes
-                  theme: theme,
-                  isCurrentTheme: theme.themeName == widget.currentTheme,
-                );
-              },
+            return state.when(
+              uninitialized: () => uninitialized,
+              processing: () => processing,
+              compilationFailure: (message) => compilationFailure,
+              deletionFailure: (message) => deletionFailure,
+              deletionSuccess: () => deletionSuccess,
+              compilationSuccess: () => compilationSuccess,
+              ready: (plugins) => ready(plugins),
             );
           },
         ),
