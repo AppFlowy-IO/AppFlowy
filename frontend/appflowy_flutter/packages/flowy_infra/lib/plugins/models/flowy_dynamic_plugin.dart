@@ -25,12 +25,12 @@ class FlowyDynamicPlugin {
 
   final String path;
 
-  final Iterable<AppTheme> themes;
+  final AppTheme? theme;
 
   FlowyDynamicPlugin._({
     required this.path,
     required String name,
-    this.themes = const [],
+    this.theme,
   }) : _name = name;
 
   /// Loads and "compiles" loaded plugins.
@@ -103,9 +103,7 @@ class FlowyDynamicPlugin {
     return FlowyDynamicPlugin._(
       name: name,
       path: src.path,
-      themes: [
-        theme,
-      ],
+      theme: theme,
     );
   }
 

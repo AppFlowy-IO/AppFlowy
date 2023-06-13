@@ -77,7 +77,9 @@ class _ThemeSettingState extends State<ThemeSetting> {
             }
             final themes = [
               ...AppTheme.builtins,
-              ...state.plugins.map((plugin) => plugin.themes.first),
+              ...state.plugins
+                  .map((plugin) => plugin.theme)
+                  .whereType<AppTheme>(),
             ];
             return GridView.builder(
               shrinkWrap: true,
