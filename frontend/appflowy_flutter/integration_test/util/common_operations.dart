@@ -204,13 +204,16 @@ extension CommonOperations on WidgetTester {
     await tapButton(find.byType(EmojiPickerButton));
 
     await tapButton(find.byType(EmojiSelectionMenu));
+  }
 
+  /// Must call [openEmojiPicker] first
+  Future<void> switchToEmojiList() async {
     final icon = find.byIcon(Icons.tag_faces);
     await tapButton(icon);
   }
 
-  Future<void> tapSmileEmoji() async {
-    final emoji = find.text('😀');
-    await tapButton(emoji);
+  Future<void> tapEmoji(String emoji) async {
+    final emojiWidget = find.text(emoji);
+    await tapButton(emojiWidget);
   }
 }
