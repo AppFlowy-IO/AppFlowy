@@ -187,6 +187,7 @@ export function getRangeByIndex(node: Element, index: number, length: number) {
   range.setEnd(focusNode.node, focusNode.offset || 0);
   return range;
 }
+
 export function focusNodeByIndex(node: Element, index: number, length: number) {
   const range = getRangeByIndex(node, index, length);
   if (!range) return false;
