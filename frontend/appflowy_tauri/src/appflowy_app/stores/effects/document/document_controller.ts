@@ -116,34 +116,22 @@ export class DocumentController {
 
   canUndo = async () => {
     const result = await this.backendService.canUndoRedo();
-    if (result.ok) {
-      return result.val.can_undo;
-    }
-    return false;
+    return result.ok && result.val.can_undo;
   };
 
   canRedo = async () => {
     const result = await this.backendService.canUndoRedo();
-    if (result.ok) {
-      return result.val.can_redo;
-    }
-    return false;
+    return result.ok && result.val.can_redo;
   };
 
   undo = async () => {
     const result = await this.backendService.undo();
-    if (result.ok) {
-      return result.val.is_success;
-    }
-    return false;
+    return result.ok && result.val.is_success;
   };
 
   redo = async () => {
     const result = await this.backendService.redo();
-    if (result.ok) {
-      return result.val.is_success;
-    }
-    return false;
+    return result.ok && result.val.is_success;
   };
 
   dispose = async () => {
