@@ -14,7 +14,7 @@ function LinkEditPopover() {
   const dispatch = useAppDispatch();
   const controller = useContext(DocumentControllerContext);
   const popoverState = useAppSelector((state) => state.documentLinkPopover);
-  const { source, anchorPosition, id, selection, title = '', href = '', open = false } = popoverState;
+  const { anchorPosition, id, selection, title = '', href = '', open = false } = popoverState;
 
   const onClose = useCallback(() => {
     dispatch(linkPopoverActions.closeLinkPopover());

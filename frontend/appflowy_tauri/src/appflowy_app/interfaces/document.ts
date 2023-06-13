@@ -256,7 +256,7 @@ export interface EditorProps {
   selection?: RangeStaticNoId;
   decorateSelection?: RangeStaticNoId;
   linkDecorateSelection?: {
-    selection: {
+    selection?: {
       index: number;
       length: number;
     };
