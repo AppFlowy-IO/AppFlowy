@@ -45,9 +45,12 @@ class _RowBannerState extends State<RowBanner> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _BannerAction(
-                isHovering: _isHovering,
-                popoverController: popoverController,
+              SizedBox(
+                height: 30,
+                child: _BannerAction(
+                  isHovering: _isHovering,
+                  popoverController: popoverController,
+                ),
               ),
               _BannerTitle(
                 cellBuilder: widget.cellBuilder,
@@ -204,7 +207,7 @@ class _EmojiPickerButtonState extends State<EmojiPickerButton> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: _kBannerActionHeight,
+      height: 26,
       width: 160,
       child: FlowyButton(
         text: FlowyText.medium(

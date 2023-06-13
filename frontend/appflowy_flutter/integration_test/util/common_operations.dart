@@ -1,6 +1,10 @@
 import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/row.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/accessory/cell_accessory.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/emoji_picker/emoji_menu_item.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/header/add_button.dart';
@@ -36,6 +40,13 @@ extension CommonOperations on WidgetTester {
   /// Must call [tapAddButton] first.
   Future<void> tapCreateDocumentButton() async {
     await tapButtonWithName(LocaleKeys.document_menuName.tr());
+  }
+
+  /// Tap the create grid button.
+  ///
+  /// Must call [tapAddButton] first.
+  Future<void> tapCreateGridButton() async {
+    await tapButtonWithName(LocaleKeys.grid_menuName.tr());
   }
 
   /// Tap the import button.
@@ -159,5 +170,47 @@ extension CommonOperations on WidgetTester {
       editor,
       offset: getTopLeft(editor).translate(20, 20),
     );
+  }
+
+  Future<void> hoverOnFirstRowOfGrid() async {
+    final findRow = find.byType(GridRow);
+    expect(findRow, findsWidgets);
+
+    final firstRow = findRow.first;
+    await hoverOnWidget(firstRow);
+  }
+
+  Future<void> openFirstRowDetailPage() async {
+    await hoverOnFirstRowOfGrid();
+
+    final expandButton = find.byType(PrimaryCellAccessory);
+    expect(expandButton, findsOneWidget);
+    await tapButton(expandButton);
+  }
+
+  Future<void> hoverRowBanner() async {
+    final banner = find.byType(RowBanner);
+    expect(banner, findsOneWidget);
+
+    await startGesture(
+      getTopLeft(banner),
+      kind: PointerDeviceKind.mouse,
+    );
+
+    await pumpAndSettle();
+  }
+
+  Future<void> openEmojiPicker() async {
+    await tapButton(find.byType(EmojiPickerButton));
+
+    await tapButton(find.byType(EmojiSelectionMenu));
+
+    final icon = find.byIcon(Icons.tag_faces);
+    await tapButton(icon);
+  }
+
+  Future<void> tapSmileEmoji() async {
+    final emoji = find.text('😀');
+    await tapButton(emoji);
   }
 }

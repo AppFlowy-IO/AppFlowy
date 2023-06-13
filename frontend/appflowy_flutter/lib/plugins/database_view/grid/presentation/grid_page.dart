@@ -249,8 +249,8 @@ class _GridRows extends StatelessWidget {
     final fieldController =
         context.read<GridBloc>().databaseController.fieldController;
     final dataController = RowController(
-      rowMeta: rowMeta,
       viewId: viewId,
+      rowMeta: rowMeta,
       rowCache: rowCache,
     );
 
@@ -291,6 +291,7 @@ class _GridRows extends StatelessWidget {
     GridCellBuilder cellBuilder,
   ) {
     final rowMeta = rowCache.getRow(rowId)?.rowMeta;
+    // Most of the cases, the rowMeta should not be null.
     if (rowMeta != null) {
       final dataController = RowController(
         viewId: viewId,
