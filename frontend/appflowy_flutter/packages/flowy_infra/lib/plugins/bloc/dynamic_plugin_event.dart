@@ -1,4 +1,3 @@
-import 'package:flowy_infra/plugins/models/flowy_dynamic_plugin.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'dynamic_plugin_event.freezed.dart';

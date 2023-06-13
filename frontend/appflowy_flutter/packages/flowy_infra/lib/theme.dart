@@ -1,4 +1,5 @@
 import 'package:flowy_infra/colorscheme/colorscheme.dart';
+import 'package:flowy_infra/colorscheme/default_colorscheme.dart';
 import 'plugins/service/plugin_service.dart';
 
 class BuiltInTheme {
@@ -21,6 +22,13 @@ class AppTheme {
     required this.lightTheme,
     required this.darkTheme,
   });
+
+  static const AppTheme fallback = AppTheme(
+    builtIn: true,
+    themeName: BuiltInTheme.defaultTheme,
+    lightTheme: DefaultColorScheme.light(),
+    darkTheme: DefaultColorScheme.dark(),
+  );
 
   static Future<Iterable<AppTheme>> get _plugins async {
     final plugins = await FlowyPluginService.plugins;

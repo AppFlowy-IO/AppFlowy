@@ -12,7 +12,6 @@ import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
-import 'package:appflowy/workspace/application/app/prelude.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';

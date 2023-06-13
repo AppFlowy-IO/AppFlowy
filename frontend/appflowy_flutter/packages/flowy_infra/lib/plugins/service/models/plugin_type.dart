@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flowy_infra/plugins/flowy_dynamic_plugin.dart';
+import 'package:flowy_infra/plugins/service/models/flowy_dynamic_plugin.dart';
 import 'package:path/path.dart' as p;
 
 enum PluginType {

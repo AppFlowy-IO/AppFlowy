@@ -91,7 +91,6 @@ dependencies:
   bloc: ^8.1.2
   shared_preferences: ^2.1.1
   google_fonts: ^4.0.5
-  file_picker: ^5.3.1
   percent_indicator: ^4.2.3
   calendar_view: ^1.0.3
   window_manager: ^0.3.4
@@ -103,9 +102,7 @@ dependencies:
   nanoid: ^1.0.0
   supabase_flutter: ^1.10.0
   envied: ^0.3.0+3
-
-dependency_overrides:
-  analyzer: "<=5.2.0"
+  dotted_border: ^2.0.0+3
 
 dev_dependencies:
   flutter_lints: ^2.0.1
@@ -115,10 +112,9 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   build_runner: ^2.4.4
-  build_runner: ^2.3.3
-  freezed: 2.2.0
-  bloc_test: ^9.0.2
-  json_serializable: ^6.5.4
+  freezed: ^2.3.4
+  bloc_test: ^9.1.2
+  json_serializable: ^6.7.0
   envied_generator: ^0.3.0+3
 
 dependency_overrides:

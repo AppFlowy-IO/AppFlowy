@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:appflowy/startup/startup.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 
-import 'package:file_picker/file_picker.dart' as fp;
 import 'package:path/path.dart' as p;
 import '../util.dart';
 
@@ -25,7 +24,7 @@ class MockFilePicker implements FilePickerService {
     String? dialogTitle,
     String? fileName,
     String? initialDirectory,
-    fp.FileType type = fp.FileType.any,
+    FileType type = FileType.any,
     List<String>? allowedExtensions,
     bool lockParentWindow = false,
   }) {
@@ -36,9 +35,9 @@ class MockFilePicker implements FilePickerService {
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
     String? initialDirectory,
-    fp.FileType type = fp.FileType.any,
+    FileType type = FileType.any,
     List<String>? allowedExtensions,
-    Function(fp.FilePickerStatus p1)? onFileLoading,
+    Function(FilePickerStatus p1)? onFileLoading,
     bool allowCompression = true,
     bool allowMultiple = false,
     bool withData = false,
@@ -46,7 +45,7 @@ class MockFilePicker implements FilePickerService {
     bool lockParentWindow = false,
   }) {
     final platformFiles = mockPaths
-        .map((e) => fp.PlatformFile(path: e, name: '', size: 0))
+        .map((e) => PlatformFile(path: e, name: '', size: 0))
         .toList();
     return Future.value(
       FilePickerResult(

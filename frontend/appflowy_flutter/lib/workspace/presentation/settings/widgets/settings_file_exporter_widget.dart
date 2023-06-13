@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/export/document_exporter.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:appflowy/workspace/application/settings/settings_file_exporter_cubit.dart';
 import 'package:appflowy/workspace/application/settings/share/export_service.dart';

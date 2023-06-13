@@ -39,6 +39,7 @@ class SettingsAppearanceView extends StatelessWidget {
     );
   }
 }
+
 class ThemeSetting extends StatefulWidget {
   const ThemeSetting({
     super.key,
@@ -54,8 +55,16 @@ class ThemeSetting extends StatefulWidget {
 }
 
 class _ThemeSettingState extends State<ThemeSetting> {
-  late final crossAxisCount =
-      FormFactor.fromWidth(MediaQuery.of(context).size.width).crossAxisCount;
+
+  int get crossAxisCount {
+    final factor = FormFactor.fromWidth(MediaQuery.of(context).size.width);
+    return switch (factor) {
+      FormFactor.mobile => 1,
+      FormFactor.tablet => 2,
+      FormFactor.desktop => 3,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
