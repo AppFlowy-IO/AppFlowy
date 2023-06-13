@@ -57,7 +57,6 @@ export function getMiddleIdsByRange(rangeState: RangeState, document: DocumentSt
 export function getAfterMergeCaretByRange(rangeState: RangeState, insertDelta?: Delta) {
   const { anchor, focus, ranges } = rangeState;
   if (!anchor || !focus) return;
-  if (anchor.id === focus.id) return;
 
   const isForward = anchor.point.y < focus.point.y;
   const startId = isForward ? anchor.id : focus.id;

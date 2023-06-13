@@ -6,7 +6,7 @@ import { debounce } from '$app/utils/tool';
 
 export function useMenuStyle(container: HTMLDivElement) {
   const ref = useRef<HTMLDivElement | null>(null);
-  const id = useAppSelector((state) => state.documentRange.focus?.id);
+  const id = useAppSelector((state) => state.documentRange.caret?.id);
   const [isScrolling, setIsScrolling] = useState(false);
 
   const reCalculatePosition = useCallback(() => {

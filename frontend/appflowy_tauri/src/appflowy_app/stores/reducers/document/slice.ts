@@ -5,6 +5,7 @@ import {
   SlashCommandState,
   RangeState,
   RangeStatic,
+  LinkPopoverState,
 } from '@/appflowy_app/interfaces/document';
 import { BlockEventPayloadPB } from '@/services/backend';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
@@ -28,6 +29,8 @@ const rangeInitialState: RangeState = {
 const slashCommandInitialState: SlashCommandState = {
   isSlashCommand: false,
 };
+
+const linkPopoverState: LinkPopoverState = {};
 
 export const documentSlice = createSlice({
   name: 'document',
@@ -158,7 +161,11 @@ export const rangeSlice = createSlice({
     setDragging: (state, action: PayloadAction<boolean>) => {
       state.isDragging = action.payload;
     },
-    setCaret: (state, action: PayloadAction<RangeStatic>) => {
+    setCaret: (state, action: PayloadAction<RangeStatic | null>) => {
+      if (!action.payload) {
+        state.caret = undefined;
+        return;
+      }
       const id = action.payload.id;
       state.ranges[id] = {
         index: action.payload.index,
@@ -167,10 +174,7 @@ export const rangeSlice = createSlice({
       state.caret = action.payload;
     },
     clearRange: (state, _: PayloadAction) => {
-      state.isDragging = false;
-      state.ranges = {};
-      state.anchor = undefined;
-      state.focus = undefined;
+      return rangeInitialState;
     },
   },
 });
@@ -197,14 +201,46 @@ export const slashCommandSlice = createSlice({
   },
 });
 
+export const linkPopoverSlice = createSlice({
+  name: 'documentLinkPopover',
+  initialState: linkPopoverState,
+  reducers: {
+    setLinkPopover: (state, action: PayloadAction<LinkPopoverState>) => {
+      return {
+        ...state,
+        ...action.payload,
+      };
+    },
+    updateLinkPopover: (state, action: PayloadAction<LinkPopoverState>) => {
+      const { id } = action.payload;
+      if (!state.open || state.id !== id) return;
+      return {
+        ...state,
+        ...action.payload,
+      };
+    },
+    closeLinkPopover: (state, _: PayloadAction) => {
+      return {
+        ...state,
+        open: false,
+      };
+    },
+    resetLinkPopover: (state, _: PayloadAction) => {
+      return linkPopoverState;
+    },
+  },
+});
+
 export const documentReducers = {
   [documentSlice.name]: documentSlice.reducer,
   [rectSelectionSlice.name]: rectSelectionSlice.reducer,
   [rangeSlice.name]: rangeSlice.reducer,
   [slashCommandSlice.name]: slashCommandSlice.reducer,
+  [linkPopoverSlice.name]: linkPopoverSlice.reducer,
 };
 
 export const documentActions = documentSlice.actions;
 export const rectSelectionActions = rectSelectionSlice.actions;
 export const rangeActions = rangeSlice.actions;
 export const slashCommandActions = slashCommandSlice.actions;
+export const linkPopoverActions = linkPopoverSlice.actions;

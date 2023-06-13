@@ -184,6 +184,7 @@ export enum TextAction {
   Strikethrough = 'strikethrough',
   Code = 'code',
   Equation = 'equation',
+  Link = 'href',
 }
 export interface TextActionMenuProps {
   /**
@@ -253,7 +254,14 @@ export interface EditorProps {
   placeholder?: string;
   value?: Delta;
   selection?: RangeStaticNoId;
-  lastSelection?: RangeStaticNoId;
+  decorateSelection?: RangeStaticNoId;
+  linkDecorateSelection?: {
+    selection?: {
+      index: number;
+      length: number;
+    };
+    placeholder?: string;
+  };
   onSelectionChange?: (range: RangeStaticNoId | null, oldRange: RangeStaticNoId | null, source?: Sources) => void;
   onChange?: (delta: Delta, oldDelta: Delta, source?: Sources) => void;
   onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
@@ -263,4 +271,16 @@ export interface BlockCopyData {
   json: string;
   text: string;
   html: string;
+}
+
+export interface LinkPopoverState {
+  anchorPosition?: { top: number; left: number };
+  id?: string;
+  selection?: {
+    index: number;
+    length: number;
+  };
+  open?: boolean;
+  href?: string;
+  title?: string;
 }
