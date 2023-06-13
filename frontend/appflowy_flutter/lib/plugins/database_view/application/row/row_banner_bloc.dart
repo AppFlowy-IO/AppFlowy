@@ -28,16 +28,14 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
     on<RowBannerEvent>(
       (event, emit) async {
         event.when(
-          initial: () {
-            _loadRowMeta();
+          initial: () async {
             _loadPrimaryField();
-            _listenRowMeteChanged();
+            await _listenRowMeteChanged();
           },
           didReceiveRowMeta: (RowMetaPB rowMeta) {
             emit(
               state.copyWith(
                 rowMeta: rowMeta,
-                loadingState: _currentState(),
               ),
             );
           },
@@ -51,7 +49,7 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
             emit(
               state.copyWith(
                 primaryField: updatedField,
-                loadingState: _currentState(),
+                loadingState: const LoadingState.finish(),
               ),
             );
           },
@@ -64,18 +62,9 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
   Future<void> close() async {
     await _metaListener.stop();
     await _fieldListener?.stop();
+    _fieldListener = null;
 
     return super.close();
-  }
-
-  Future<void> _loadRowMeta() async {
-    final rowDetailOrError = await _rowBackendSvc.getRowMeta(state.rowMeta.id);
-    rowDetailOrError.fold(
-      (rowDetail) {
-        add(RowBannerEvent.didReceiveRowMeta(rowDetail));
-      },
-      (error) => Log.error(error),
-    );
   }
 
   Future<void> _loadPrimaryField() async {
@@ -99,20 +88,13 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
     );
   }
 
+  /// Listen the changes of the row meta and then update the banner
   Future<void> _listenRowMeteChanged() async {
     _metaListener.start(
       callback: (rowMeta) {
         add(RowBannerEvent.didReceiveRowMeta(rowMeta));
       },
     );
-  }
-
-  LoadingState _currentState() {
-    if (state.primaryField != null) {
-      return const LoadingState.finish();
-    } else {
-      return const LoadingState.loading();
-    }
   }
 
   /// Update the meta of the row and the view
@@ -134,6 +116,7 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
       );
     });
 
+    // Set the icon and cover of the view
     ViewBackendService.updateView(
       viewId: viewId,
       iconURL: iconURL,

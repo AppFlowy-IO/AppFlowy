@@ -71,11 +71,5 @@ class DatabaseCellContext with _$DatabaseCellContext {
   }
 
   /// Only the primary field can have an emoji.
-  String? get emoji {
-    if (fieldInfo.isPrimary) {
-      return rowMeta.icon;
-    } else {
-      return null;
-    }
-  }
+  String? get emoji => fieldInfo.isPrimary ? rowMeta.icon : null;
 }
