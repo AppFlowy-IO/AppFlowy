@@ -16,6 +16,7 @@ import DividerBlock from '$app/components/document/DividerBlock';
 import CalloutBlock from '$app/components/document/CalloutBlock';
 import BlockOverlay from '$app/components/document/Overlay/BlockOverlay';
 import CodeBlock from '$app/components/document/CodeBlock';
+import { NodeIdContext } from '$app/components/document/_shared/SubscribeNode.hooks';
 
 function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<HTMLDivElement>) {
   const { node, childIds, isSelected, ref } = useNode(id);
@@ -60,13 +61,15 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
   if (!node) return null;
 
   return (
-    <div {...props} ref={ref} data-block-id={node.id} className={`relative ${className}`}>
-      {renderBlock()}
-      <BlockOverlay id={id} />
-      {isSelected ? (
-        <div className='pointer-events-none absolute inset-0 z-[-1] m-[1px] rounded-[4px] bg-[#E0F8FF]' />
-      ) : null}
-    </div>
+    <NodeIdContext.Provider value={id}>
+      <div {...props} ref={ref} data-block-id={node.id} className={`relative ${className}`}>
+        {renderBlock()}
+        <BlockOverlay id={id} />
+        {isSelected ? (
+          <div className='pointer-events-none absolute inset-0 z-[-1] m-[1px] rounded-[4px] bg-[#E0F8FF]' />
+        ) : null}
+      </div>
+    </NodeIdContext.Provider>
   );
 }
 

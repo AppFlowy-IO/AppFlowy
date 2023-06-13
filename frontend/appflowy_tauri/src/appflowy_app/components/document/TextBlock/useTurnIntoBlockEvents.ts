@@ -74,8 +74,10 @@ export function useTurnIntoBlockEvents(id: string) {
       [BlockType.HeadingBlock]: () => {
         const flag = getFlag();
         if (!flag) return;
+        const level = flag.match(/#/g)?.length;
+        if (!level || level > 3) return;
         return {
-          level: flag.match(/#/g)?.length,
+          level,
           ...getTurnIntoBlockDelta(),
         };
       },

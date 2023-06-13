@@ -11,6 +11,7 @@ Future<GridTestContext> createTestFilterGrid(AppFlowyGridTest gridTest) async {
     parentViewId: app.id,
     name: "Filter Grid",
     layoutType: builder.layoutType!,
+    openAfterCreate: true,
   ).then((result) {
     return result.fold(
       (view) async {

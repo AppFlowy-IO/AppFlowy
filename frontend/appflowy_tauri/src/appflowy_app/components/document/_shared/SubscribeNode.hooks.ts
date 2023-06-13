@@ -1,5 +1,5 @@
 import { store, useAppSelector } from '@/appflowy_app/stores/store';
-import { useEffect, useMemo, useRef } from 'react';
+import { createContext, useEffect, useMemo, useRef } from 'react';
 import { Node } from '$app/interfaces/document';
 
 /**
@@ -35,3 +35,5 @@ export function useSubscribeNode(id: string) {
 export function getBlock(id: string) {
   return store.getState().document.nodes[id];
 }
+
+export const NodeIdContext = createContext<string>('');

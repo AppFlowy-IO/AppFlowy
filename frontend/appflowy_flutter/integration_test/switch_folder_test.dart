@@ -35,7 +35,7 @@ void main() {
       await tester.initializeAppFlowy();
 
       await tester.tapGoButton();
-      tester.expectToSeeWelcomePage();
+      tester.expectToSeeHomePage();
 
       // switch to user B
       {
@@ -51,7 +51,7 @@ void main() {
         await mockGetDirectoryPath(userB);
         await tester.tapCustomLocationButton();
         await tester.pumpAndSettle();
-        tester.expectToSeeWelcomePage();
+        tester.expectToSeeHomePage();
 
         // set user name to userB
         await tester.openSettings();
@@ -69,7 +69,7 @@ void main() {
         await tester.tapCustomLocationButton();
 
         await tester.pumpAndSettle();
-        tester.expectToSeeWelcomePage();
+        tester.expectToSeeHomePage();
         tester.expectToSeeUserName(userA);
       }
 
@@ -84,7 +84,7 @@ void main() {
         await tester.tapCustomLocationButton();
 
         await tester.pumpAndSettle();
-        tester.expectToSeeWelcomePage();
+        tester.expectToSeeHomePage();
         tester.expectToSeeUserName(userB);
       }
 
@@ -98,7 +98,7 @@ void main() {
       await tester.tapGoButton();
 
       // home and readme document
-      tester.expectToSeeWelcomePage();
+      tester.expectToSeeHomePage();
 
       // open settings and restore the location
       await tester.openSettings();
