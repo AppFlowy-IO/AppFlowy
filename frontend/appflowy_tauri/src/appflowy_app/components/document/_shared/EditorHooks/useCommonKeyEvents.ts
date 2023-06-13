@@ -90,6 +90,22 @@ export function useCommonKeyEvents(id: string) {
           );
         },
       },
+      {
+        canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => isHotkey(Keyboard.keys.UNDO, e),
+        handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
+          e.preventDefault();
+          if (!controller) return;
+          controller.undo();
+        },
+      },
+      {
+        canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => isHotkey(Keyboard.keys.REDO, e),
+        handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
+          e.preventDefault();
+          if (!controller) return;
+          controller.redo();
+        },
+      },
     ];
   }, [caretRef, controller, dispatch, focused, id]);
   return commonKeyEvents;

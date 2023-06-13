@@ -111,6 +111,22 @@ export function useRangeKeyDown() {
           );
         },
       },
+      {
+        canHandle: (e: KeyboardEvent) => isHotkey(Keyboard.keys.UNDO, e),
+        handler: (e: KeyboardEvent) => {
+          e.preventDefault();
+          if (!controller) return;
+          controller.undo();
+        },
+      },
+      {
+        canHandle: (e: KeyboardEvent) => isHotkey(Keyboard.keys.REDO, e),
+        handler: (e: KeyboardEvent) => {
+          e.preventDefault();
+          if (!controller) return;
+          controller.redo();
+        },
+      },
     ],
     [controller, dispatch]
   );

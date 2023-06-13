@@ -19,7 +19,7 @@ export function useSlateYjs({ delta }: { delta?: Delta }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const editor = useMemo(() => withYjs(withReact(createEditor()), sharedType), []);
+  const editor = useMemo(() => withReact(withYjs(createEditor(), sharedType)), []);
 
   // Connect editor in useEffect to comply with concurrent mode requirements.
   useEffect(() => {
