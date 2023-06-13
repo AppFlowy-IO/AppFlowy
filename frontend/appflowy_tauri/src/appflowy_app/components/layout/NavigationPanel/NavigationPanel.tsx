@@ -34,42 +34,6 @@ export const NavigationPanel = ({
   }, [currentLocation]);
 
   useEffect(() => {
-    /*setTimeout(() => {
-      if (!el.current) return;
-      if (!activePageId?.length) return;
-      const activePage = pagesStore.find((page) => page.id === activePageId);
-      if (!activePage) return;
-
-      const folderIndex = foldersStore.findIndex((folder) => folder.id === activePage.parentPageId);
-      if (folderIndex === -1) return;
-
-      let height = 0;
-      for (let i = 0; i < folderIndex; i++) {
-        height += INITIAL_FOLDER_HEIGHT + FOLDER_MARGIN;
-        if (foldersStore[i].showPages) {
-          height += pagesStore.filter((p) => p.parentPageId === foldersStore[i].id).length * PAGE_ITEM_HEIGHT;
-        }
-      }
-
-      height += INITIAL_FOLDER_HEIGHT + FOLDER_MARGIN / 2;
-
-      const pageIndex = pagesStore
-        .filter((p) => p.parentPageId === foldersStore[folderIndex].id)
-        .findIndex((p) => p.id === activePageId);
-      for (let i = 0; i <= pageIndex; i++) {
-        height += PAGE_ITEM_HEIGHT;
-      }
-
-      const elHeight = el.current.getBoundingClientRect().height;
-      const scrollTop = el.current.scrollTop;
-
-      if (scrollTop + elHeight < height || scrollTop > height) {
-        el.current.scrollTo({ top: height - elHeight, behavior: 'smooth' });
-      }
-    }, ANIMATION_DURATION);*/
-  }, [activePageId]);
-
-  useEffect(() => {
     setMaxHeight(pages.length * PAGE_ITEM_HEIGHT);
   }, [pages]);
 
