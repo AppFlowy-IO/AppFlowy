@@ -249,16 +249,6 @@ export function getWordIndices(startContainer: Node, startOffset: number) {
     const wordIndex = match.index;
     const wordEndIndex = wordIndex + word.length;
 
-    // If the startOffset is less than the wordIndex, then the startOffset is
-    if (startOffset <= wordIndex) {
-      wordIndices.push({
-        word: word,
-        startIndex: wordIndex,
-        endIndex: wordEndIndex,
-      });
-      break;
-    }
-
     // If the startOffset is greater than the wordIndex and less than the wordEndIndex, then the startOffset is
     if (startOffset > wordIndex && startOffset <= wordEndIndex) {
       wordIndices.push({
