@@ -1,4 +1,3 @@
-import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -47,9 +46,7 @@ class _DatabaseViewWidgetState extends State<DatabaseViewWidget> {
     return ValueListenableBuilder<ViewLayoutPB>(
       valueListenable: _layoutTypeChangeNotifier,
       builder: (_, __, ___) {
-        return makePlugin(pluginType: view.pluginType, data: view)
-            .widgetBuilder
-            .buildWidget();
+        return view.plugin().widgetBuilder.buildWidget();
       },
     );
   }

@@ -48,8 +48,12 @@ class DocumentPlugin extends Plugin<int> {
   DocumentPlugin({
     required PluginType pluginType,
     required ViewPB view,
+    bool listenOnViewChanged = false,
     Key? key,
-  }) : notifier = ViewPluginNotifier(view: view) {
+  }) : notifier = ViewPluginNotifier(
+          view: view,
+          listenOnViewChanged: listenOnViewChanged,
+        ) {
     _pluginType = pluginType;
     _documentAppearanceCubit.fetch();
   }

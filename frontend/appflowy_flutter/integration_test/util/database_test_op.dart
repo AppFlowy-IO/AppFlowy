@@ -1,10 +1,17 @@
 import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/application/setting/setting_bloc.dart';
+import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
+import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell_action_sheet.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_option_editor.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_layout.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_document.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_editor.dart';
+import 'package:appflowy/plugins/database_view/widgets/setting/database_setting.dart';
+import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
@@ -392,6 +399,58 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapTypeOptionButton();
     await selectFieldType(fieldType);
     await dismissFieldEditor();
+  }
+
+  Future<void> tapDatabaseSettingButton() async {
+    await tapButton(find.byType(SettingButton));
+  }
+
+  /// Should call [tapDatabaseSettingButton] first.
+  Future<void> tapDatabaseLayoutButton() async {
+    final findSettingItem = find.byType(DatabaseSettingItem);
+    final findLayoutButton = find.byWidgetPredicate(
+      (widget) =>
+          widget is FlowyText &&
+          widget.title == DatabaseSettingAction.showLayout.title(),
+    );
+
+    final button = find.descendant(
+      of: findSettingItem,
+      matching: findLayoutButton,
+    );
+
+    await tapButton(button);
+  }
+
+  Future<void> selectDatabaseLayoutType(DatabaseLayoutPB layout) async {
+    final findLayoutCell = find.byType(DatabaseViewLayoutCell);
+    final findText = find.byWidgetPredicate(
+      (widget) => widget is FlowyText && widget.title == layout.layoutName(),
+    );
+
+    final button = find.descendant(
+      of: findLayoutCell,
+      matching: findText,
+    );
+
+    await tapButton(button);
+  }
+
+  Future<void> assertCurrentDatabaseLayoutType(DatabaseLayoutPB layout) async {
+    expect(finderForDatabaseLayoutType(layout), findsOneWidget);
+  }
+}
+
+Finder finderForDatabaseLayoutType(DatabaseLayoutPB layout) {
+  switch (layout) {
+    case DatabaseLayoutPB.Board:
+      return find.byType(BoardPage);
+    case DatabaseLayoutPB.Calendar:
+      return find.byType(CalendarPage);
+    case DatabaseLayoutPB.Grid:
+      return find.byType(GridPage);
+    default:
+      throw Exception('Unknown database layout type: $layout');
   }
 }
 
