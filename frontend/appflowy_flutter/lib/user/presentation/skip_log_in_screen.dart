@@ -8,6 +8,7 @@ import 'package:appflowy/workspace/presentation/settings/widgets/settings_langua
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -55,9 +56,6 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
 
   Widget _renderBody(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    // The placeholderWidth should be greater than the longest width of the LanguageSelectorOnWelcomePage
-    const double placeholderWidth = 180;
-
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -87,86 +85,11 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
           ),
         ),
         const Spacer(),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-//Add the width of the placeholder to make SubscribeButtons centered to the screen
-                    const SizedBox(
-                      width: placeholderWidth,
-                    ),
-                    Column(
-                      children: [
-                        _buildSubscribeButtons(context),
-                        const HSpace(4),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(
-                width: placeholderWidth,
-                height: 28,
-                child: Row(
-                  children: [
-                    Spacer(),
-                    LanguageSelectorOnWelcomePage(),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+        const VSpace(48),
+        const SkipLoginPageFooter(),
         const VSpace(20),
       ],
     );
-  }
-
-  Widget _buildSubscribeButtons(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        FlowyText.regular(
-          LocaleKeys.youCanAlso.tr(),
-          fontSize: FontSizes.s12,
-        ),
-        FlowyTextButton(
-          LocaleKeys.githubStarText.tr(),
-          fontWeight: FontWeight.w500,
-          fontColor: Theme.of(context).colorScheme.primary,
-          hoverColor: Colors.transparent,
-          fillColor: Colors.transparent,
-          onPressed: () => _launchURL(
-            'https://github.com/AppFlowy-IO/appflowy',
-          ),
-        ),
-        FlowyText.regular(
-          LocaleKeys.and.tr(),
-          fontSize: FontSizes.s12,
-        ),
-        FlowyTextButton(
-          LocaleKeys.subscribeNewsletterText.tr(),
-          fontWeight: FontWeight.w500,
-          fontColor: Theme.of(context).colorScheme.primary,
-          hoverColor: Colors.transparent,
-          fillColor: Colors.transparent,
-          onPressed: () => _launchURL('https://www.appflowy.io/blog'),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _launchURL(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      throw 'Could not launch $url';
-    }
   }
 
   Future<void> _autoRegister(BuildContext context) async {
@@ -209,6 +132,90 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   }
 }
 
+class SkipLoginPageFooter extends StatelessWidget {
+  const SkipLoginPageFooter({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // The placeholderWidth should be greater than the longest width of the LanguageSelectorOnWelcomePage
+    const double placeholderWidth = 180;
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          HSpace(placeholderWidth),
+          Expanded(child: SubscribeButtons()),
+          SizedBox(
+            width: placeholderWidth,
+            height: 28,
+            child: Row(
+              children: [
+                Spacer(),
+                LanguageSelectorOnWelcomePage(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SubscribeButtons extends StatelessWidget {
+  const SubscribeButtons({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FlowyText.regular(
+          LocaleKeys.youCanAlso.tr(),
+          fontSize: FontSizes.s12,
+        ),
+        FlowyTextButton(
+          LocaleKeys.githubStarText.tr(),
+          fontWeight: FontWeight.w500,
+          fontColor: Theme.of(context).colorScheme.primary,
+          hoverColor: Colors.transparent,
+          fillColor: Colors.transparent,
+          onPressed: () => _launchURL(
+            'https://github.com/AppFlowy-IO/appflowy',
+          ),
+        ),
+        FlowyText.regular(
+          LocaleKeys.and.tr(),
+          fontSize: FontSizes.s12,
+        ),
+        FlowyTextButton(
+          LocaleKeys.subscribeNewsletterText.tr(),
+          overflow: TextOverflow.ellipsis,
+          fontWeight: FontWeight.w500,
+          fontColor: Theme.of(context).colorScheme.primary,
+          hoverColor: Colors.transparent,
+          fillColor: Colors.transparent,
+          onPressed: () => _launchURL('https://www.appflowy.io/blog'),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _launchURL(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+}
+
 class LanguageSelectorOnWelcomePage extends StatelessWidget {
   const LanguageSelectorOnWelcomePage({
     super.key,
@@ -224,28 +231,31 @@ class LanguageSelectorOnWelcomePage extends StatelessWidget {
           child: FlowyButton(
             useIntrinsicWidth: true,
             text: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
               mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                const Icon(
-                  Icons.language_rounded,
-                  size: 20,
+                const FlowySvg(
+                  name: 'login/language',
+                  size: Size.square(20),
                 ),
                 const HSpace(4),
                 FlowyText(
                   languageFromLocale(state.locale),
                 ),
-                const HSpace(4),
-                const Icon(
-                  Icons.arrow_drop_up,
-                  size: 20,
-                )
+                // const HSpace(4),
+                const FlowySvg(
+                  name: 'home/drop_down_hide',
+                  size: Size.square(20),
+                ),
               ],
             ),
           ),
           popupBuilder: (BuildContext context) {
-            final allLocales = EasyLocalization.of(context)!.supportedLocales;
-
+            final easyLocalization = EasyLocalization.of(context);
+            if (easyLocalization == null) {
+              return const SizedBox.shrink();
+            }
+            final allLocales = easyLocalization.supportedLocales;
             return LanguageItemsListView(
               allLocales: allLocales,
             );

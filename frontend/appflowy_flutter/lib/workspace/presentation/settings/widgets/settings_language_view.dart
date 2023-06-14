@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -50,7 +49,6 @@ class LanguageSelector extends StatelessWidget {
       ),
       popupBuilder: (BuildContext context) {
         final allLocales = EasyLocalization.of(context)!.supportedLocales;
-
         return LanguageItemsListView(
           allLocales: allLocales,
         );
@@ -106,13 +104,7 @@ class LanguageItem extends StatelessWidget {
             : null,
         onTap: () {
           if (currentLocale != locale) {
-            try {
-              context
-                  .read<AppearanceSettingsCubit>()
-                  .setLocale(context, locale);
-            } catch (e) {
-              Log.warn('Failed to set locale: $e');
-            }
+            context.read<AppearanceSettingsCubit>().setLocale(context, locale);
           }
         },
       ),

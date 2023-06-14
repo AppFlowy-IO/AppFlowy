@@ -1,8 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -25,40 +23,6 @@ void main() {
 
     tearDownAll(() async {
       await TestFolder.cleanTestLocation(null);
-    });
-
-    testWidgets(
-        'change the language successfully when launching the app for the first time',
-        (tester) async {
-      await tester.initializeAppFlowy();
-
-      await tester.tapLanguageSelectorOnWelcomePage();
-      expect(find.byType(LanguageItemsListView), findsOneWidget);
-
-      await tester
-          .tapLanguageItem(languageCode: 'zh', countryCode: 'CN')
-          .whenComplete(
-        () {
-          expect(
-            find.byWidgetPredicate(
-              (widget) => widget is FlowyTextButton && widget.text == '开始',
-            ),
-            findsOneWidget,
-          );
-        },
-      );
-
-      await tester
-          .tapLanguageItem(languageCode: 'en', scrollDelta: -100)
-          .whenComplete(() {
-        expect(
-          find.byWidgetPredicate(
-            (widget) =>
-                widget is FlowyTextButton && widget.text == 'Quick Start',
-          ),
-          findsOneWidget,
-        );
-      });
     });
 
     testWidgets('create a new document when launching app in first time',

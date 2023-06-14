@@ -83,7 +83,8 @@ extension CommonOperations on WidgetTester {
           widget.locale.languageCode == languageCode &&
           widget.locale.countryCode == countryCode,
     );
-// scroll the ListView until zHCNLanguageItem shows on the screen.
+
+    // scroll the ListView until zHCNLanguageItem shows on the screen.
     await scrollUntilVisible(
       languageItem,
       scrollDelta ?? 100,
