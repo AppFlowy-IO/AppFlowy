@@ -1,11 +1,12 @@
 import 'dart:ui';
-
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/header/add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/section/item.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +51,53 @@ extension CommonOperations on WidgetTester {
   /// Must call [tapImportButton] first.
   Future<void> tapTextAndMarkdownButton() async {
     await tapButtonWithName(LocaleKeys.importPanel_textAndMarkdown.tr());
+  }
+
+  /// Tap the LanguageSelectorOnWelcomePage widget on the launch page.
+  Future<void> tapLanguageSelectorOnWelcomePage() async {
+    final languageSelector = find.byType(LanguageSelectorOnWelcomePage);
+    await tapButton(languageSelector);
+  }
+
+  /// Tap languageItem on LanguageItemsListView.
+  ///
+  /// [scrollDelta] is the distance to scroll the ListView.
+  /// Default value is 100
+  ///
+  /// If it is positive -> scroll down.
+  ///
+  /// If it is negative -> scroll up.
+  Future<void> tapLanguageItem({
+    required String languageCode,
+    String? countryCode,
+    double? scrollDelta,
+  }) async {
+    final languageItemsListView = find.descendant(
+      of: find.byType(ListView),
+      matching: find.byType(Scrollable),
+    );
+
+    final languageItem = find.byWidgetPredicate(
+      (widget) =>
+          widget is LanguageItem &&
+          widget.locale.languageCode == languageCode &&
+          widget.locale.countryCode == countryCode,
+    );
+
+    // scroll the ListView until zHCNLanguageItem shows on the screen.
+    await scrollUntilVisible(
+      languageItem,
+      scrollDelta ?? 100,
+      scrollable: languageItemsListView,
+      // maxHeight of LanguageItemsListView
+      maxScrolls: 400,
+    );
+
+    try {
+      await tapButton(languageItem);
+    } on FlutterError catch (e) {
+      Log.warn('tapLanguageItem error: $e');
+    }
   }
 
   /// Hover on the widget.
