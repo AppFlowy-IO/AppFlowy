@@ -10,7 +10,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'util.dart';
@@ -170,11 +169,5 @@ extension CommonOperations on WidgetTester {
       editor,
       offset: getTopLeft(editor).translate(20, 20),
     );
-  }
-}
-
-extension on String {
-  Iterable<LogicalKeyboardKey> get logicalKeys {
-    return codeUnits.map((codeUnit) => LogicalKeyboardKey(codeUnit));
   }
 }
