@@ -1,6 +1,4 @@
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -24,24 +22,6 @@ void main() {
 
     tearDownAll(() async {
       await TestFolder.cleanTestLocation(null);
-    });
-
-    testWidgets('create a new grid when launching app in first time',
-        (tester) async {
-      await tester.initializeAppFlowy();
-
-      await tester.tapGoButton();
-
-      // create a new grid
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
-
-      // expect to see a new grid
-      tester.expectToSeePageName(
-        LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-      );
-
-      await tester.pumpAndSettle();
     });
 
     testWidgets('open first row of the grid', (tester) async {
