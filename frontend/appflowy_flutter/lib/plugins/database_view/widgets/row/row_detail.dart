@@ -35,6 +35,14 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
 }
 
 class _RowDetailPageState extends State<RowDetailPage> {
+  final scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return FlowyDialog(
@@ -44,18 +52,16 @@ class _RowDetailPageState extends State<RowDetailPage> {
             ..add(const RowDetailEvent.initial());
         },
         child: ListView(
+          controller: scrollController,
           children: [
             _rowBanner(),
             IntrinsicHeight(child: _responsiveRowInfo()),
             const Divider(height: 1.0),
-            // TODO(lucas): expand the document
             const VSpace(10),
-            SizedBox(
-              height: 200,
-              child: RowDocument(
-                viewId: widget.rowController.viewId,
-                rowId: widget.rowController.rowId,
-              ),
+            RowDocument(
+              viewId: widget.rowController.viewId,
+              rowId: widget.rowController.rowId,
+              scrollController: scrollController,
             ),
           ],
         ),

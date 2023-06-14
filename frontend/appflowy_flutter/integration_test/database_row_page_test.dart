@@ -1,10 +1,12 @@
 import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'util/database_test_op.dart';
+import 'util/ime.dart';
 import 'util/util.dart';
 
 void main() {
@@ -33,11 +35,9 @@ void main() {
       // Create a new grid
       await tester.tapAddButton();
       await tester.tapCreateGridButton();
-      await tester.pumpAndSettle();
 
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
-      await tester.pumpAndSettle();
     });
 
     testWidgets('insert emoji in the row detail page', (tester) async {
@@ -47,7 +47,6 @@ void main() {
       // Create a new grid
       await tester.tapAddButton();
       await tester.tapCreateGridButton();
-      await tester.pumpAndSettle();
 
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
@@ -60,8 +59,6 @@ void main() {
 
       // After select the emoji, the EmojiButton will show up
       await tester.tapButton(find.byType(EmojiButton));
-
-      await tester.pumpAndSettle();
     });
 
     testWidgets('update emoji in the row detail page', (tester) async {
@@ -71,7 +68,6 @@ void main() {
       // Create a new grid
       await tester.tapAddButton();
       await tester.tapCreateGridButton();
-      await tester.pumpAndSettle();
 
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
@@ -93,7 +89,6 @@ void main() {
       // The number of emoji should be two. One in the row displayed in the grid
       // one in the row detail page.
       expect(emojiText, findsNWidgets(2));
-      await tester.pumpAndSettle();
     });
 
     testWidgets('remove emoji in the row detail page', (tester) async {
@@ -103,7 +98,6 @@ void main() {
       // Create a new grid
       await tester.tapAddButton();
       await tester.tapCreateGridButton();
-      await tester.pumpAndSettle();
 
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
@@ -127,7 +121,6 @@ void main() {
       // Create a new grid
       await tester.tapAddButton();
       await tester.tapCreateGridButton();
-      await tester.pumpAndSettle();
 
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
@@ -154,7 +147,6 @@ void main() {
         // After update the field type, the cells should be updated
         await tester.findCellByFieldType(fieldType);
         await tester.scrollRowDetailByOffset(const Offset(0, -50));
-        await tester.pumpAndSettle();
       }
     });
 
@@ -165,16 +157,53 @@ void main() {
       // Create a new grid
       await tester.tapAddButton();
       await tester.tapCreateGridButton();
-      await tester.pumpAndSettle();
 
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
 
       // Each row detail page should have a document
       await tester.assertDocumentExistInRowDetailPage();
-
-      await tester.pumpAndSettle();
     });
+
+    testWidgets('update the content of the document and re-open it',
+        (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      // Create a new grid
+      await tester.tapAddButton();
+      await tester.tapCreateGridButton();
+
+      // Hover first row and then open the row page
+      await tester.openFirstRowDetailPage();
+
+      // Wait for the document to be loaded
+      await tester.wait(500);
+
+      // Focus on the editor
+      final textBlock = find.byType(TextBlockComponentWidget);
+      await tester.tapAt(tester.getCenter(textBlock));
+
+      // Input some text
+      const inputText = 'Hello world';
+      await tester.ime.insertText(inputText);
+      expect(
+        find.textContaining(inputText, findRichText: true),
+        findsOneWidget,
+      );
+
+      // Tap outside to dismiss the field
+      await tester.tapAt(Offset.zero);
+      await tester.pumpAndSettle();
+
+      // Re-open the document
+      await tester.openFirstRowDetailPage();
+      expect(
+        find.textContaining(inputText, findRichText: true),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('delete row in row detail page', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
@@ -182,7 +211,6 @@ void main() {
       // Create a new grid
       await tester.tapAddButton();
       await tester.tapCreateGridButton();
-      await tester.pumpAndSettle();
 
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
@@ -191,7 +219,6 @@ void main() {
       await tester.tapEscButton();
 
       await tester.assertNumberOfRowsInGridPage(2);
-      await tester.pumpAndSettle();
     });
 
     testWidgets('duplicate row in row detail page', (tester) async {
@@ -201,7 +228,6 @@ void main() {
       // Create a new grid
       await tester.tapAddButton();
       await tester.tapCreateGridButton();
-      await tester.pumpAndSettle();
 
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
@@ -210,7 +236,6 @@ void main() {
       await tester.tapEscButton();
 
       await tester.assertNumberOfRowsInGridPage(4);
-      await tester.pumpAndSettle();
     });
   });
 }

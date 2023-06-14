@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell_action_sheet.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_option_editor.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/row_document.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,6 @@ import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_action.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
-import 'package:appflowy/plugins/document/document_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/emoji_picker/emoji_menu_item.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
@@ -226,7 +226,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> assertDocumentExistInRowDetailPage() async {
-    expect(find.byType(DocumentPage), findsOneWidget);
+    expect(find.byType(RowDocument), findsOneWidget);
   }
 
   /// Check the field type of the [FieldCellButton] is the same as the name.

@@ -1,18 +1,23 @@
 import 'package:appflowy/plugins/database_view/grid/application/row/row_document_bloc.dart';
-import 'package:appflowy/plugins/document/document_page.dart';
+import 'package:appflowy/plugins/document/application/doc_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RowDocument extends StatelessWidget {
-  final String viewId;
-  final String rowId;
   const RowDocument({
+    super.key,
     required this.viewId,
     required this.rowId,
-    super.key,
+    required this.scrollController,
   });
+
+  final String viewId;
+  final String rowId;
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -26,24 +31,85 @@ class RowDocument extends StatelessWidget {
       child: BlocBuilder<RowDocumentBloc, RowDocumentState>(
         builder: (context, state) {
           return state.loadingState.when(
-            loading: () =>
-                const Center(child: CircularProgressIndicator.adaptive()),
-            error: (error) {
-              return FlowyErrorPage(
-                error.toString(),
-              );
-            },
-            finish: () {
-              return BlocProvider(
-                create: (context) => DocumentAppearanceCubit(),
-                child: BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
-                  builder: (_, appearState) {
-                    return DocumentPage(
-                      view: state.viewPB!,
-                      onDeleted: () {},
-                    );
-                  },
+            loading: () => const Center(
+              child: CircularProgressIndicator.adaptive(),
+            ),
+            error: (error) => FlowyErrorPage(
+              error.toString(),
+            ),
+            finish: () => RowEditor(
+              viewPB: state.viewPB!,
+              scrollController: scrollController,
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class RowEditor extends StatefulWidget {
+  const RowEditor({
+    super.key,
+    required this.viewPB,
+    required this.scrollController,
+  });
+
+  final ViewPB viewPB;
+  final ScrollController scrollController;
+
+  @override
+  State<RowEditor> createState() => _RowEditorState();
+}
+
+class _RowEditorState extends State<RowEditor> {
+  late final DocumentBloc documentBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    documentBloc = DocumentBloc(view: widget.viewPB)
+      ..add(const DocumentEvent.initial());
+  }
+
+  @override
+  dispose() {
+    documentBloc.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => DocumentAppearanceCubit()),
+        BlocProvider.value(value: documentBloc),
+      ],
+      child: BlocBuilder<DocumentBloc, DocumentState>(
+        builder: (context, state) {
+          return state.loadingState.when(
+            loading: () => const Center(
+              child: CircularProgressIndicator.adaptive(),
+            ),
+            finish: (result) {
+              return result.fold(
+                (error) => FlowyErrorPage(
+                  error.toString(),
                 ),
+                (_) {
+                  final editorState = documentBloc.editorState;
+                  if (editorState == null) {
+                    return const SizedBox.shrink();
+                  }
+                  return IntrinsicHeight(
+                    child: AppFlowyEditorPage(
+                      shrinkWrap: true,
+                      autoFocus: false,
+                      editorState: editorState,
+                      scrollController: widget.scrollController,
+                    ),
+                  );
+                },
               );
             },
           );
