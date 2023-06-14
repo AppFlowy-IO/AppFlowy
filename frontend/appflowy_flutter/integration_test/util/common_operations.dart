@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/header/add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/section/item.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
@@ -50,6 +51,43 @@ extension CommonOperations on WidgetTester {
   /// Must call [tapImportButton] first.
   Future<void> tapTextAndMarkdownButton() async {
     await tapButtonWithName(LocaleKeys.importPanel_textAndMarkdown.tr());
+  }
+
+  /// Tap the LanguageSelectorOnWelcomePage widget on the launch page.
+  Future<void> tapLanguageSelectorOnWelcomePage() async {
+    final languageSelector = find.byType(LanguageSelectorOnWelcomePage);
+    await tapButton(languageSelector);
+  }
+
+  /// Tap the Simplified Chinese languageItem on LanguageItemsListView.
+  Future<void> tapLanguageItem({
+    required String languageCode,
+    String? countryCode,
+  }) async {
+    final languageItemsListView = find.descendant(
+      of: find.byType(ListView),
+      matching: find.byType(Scrollable),
+    );
+
+    final languageItem = find.byWidgetPredicate(
+      (widget) =>
+          widget is LanguageItem &&
+          widget.locale.languageCode == languageCode &&
+          widget.locale.countryCode == countryCode,
+    );
+// scroll the ListView until zHCNLanguageItem shows on the screen.
+    await scrollUntilVisible(
+      languageItem,
+      100,
+      scrollable: languageItemsListView,
+      // maxHeight of LanguageItemsListView
+      maxScrolls: 400,
+    );
+
+    await tap(languageItem);
+    //https://stackoverflow.com/questions/68497641/flutter-test-with-easy-localization-and-big-translation-json-file
+    await Future.delayed(const Duration(seconds: 2), () {});
+    await pumpAndSettle();
   }
 
   /// Hover on the widget.
