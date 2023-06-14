@@ -151,7 +151,7 @@ class _RowLeadingState extends State<_RowLeading> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const _InsertRowButton(),
+        const InsertRowButton(),
         if (isDraggable) ...[
           ReorderableDragStartListener(
             index: widget.index!,
@@ -176,8 +176,8 @@ class _RowLeadingState extends State<_RowLeading> {
   bool get isDraggable => widget.index != null && widget.isDraggable;
 }
 
-class _InsertRowButton extends StatelessWidget {
-  const _InsertRowButton({Key? key}) : super(key: key);
+class InsertRowButton extends StatelessWidget {
+  const InsertRowButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

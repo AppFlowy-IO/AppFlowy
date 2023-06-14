@@ -302,6 +302,10 @@ extension CommonOperations on WidgetTester {
     await tapButton(find.byType(GridAddRowButton));
   }
 
+  Future<void> tapCreateRowButtonInRowMenuOfGrid() async {
+    await tapButton(find.byType(InsertRowButton));
+  }
+
   Future<void> tapRowMenuButtonInGrid() async {
     await tapButton(find.byType(RowMenuButton));
   }

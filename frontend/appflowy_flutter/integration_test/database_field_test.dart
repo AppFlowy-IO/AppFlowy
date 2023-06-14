@@ -108,6 +108,21 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets('create row from row menu of the grid', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      await tester.tapAddButton();
+      await tester.tapCreateGridButton();
+      await tester.hoverOnFirstRowOfGrid();
+
+      await tester.tapCreateRowButtonInRowMenuOfGrid();
+
+      // The initial number of rows is 3
+      await tester.assertNumberOfRows(4);
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('delete row of the grid', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
