@@ -75,7 +75,8 @@ pub fn create_and_open_empty_document() -> (DocumentManager, Arc<Document>, Stri
 }
 
 pub fn gen_document_id() -> String {
-  nanoid!(10)
+  let uuid = uuid::Uuid::new_v4();
+  uuid.to_string()
 }
 
 pub fn gen_id() -> String {
