@@ -45,8 +45,12 @@ class GridPlugin extends Plugin {
   GridPlugin({
     required ViewPB view,
     required PluginType pluginType,
+    bool listenOnViewChanged = false,
   })  : _pluginType = pluginType,
-        notifier = ViewPluginNotifier(view: view);
+        notifier = ViewPluginNotifier(
+          view: view,
+          listenOnViewChanged: listenOnViewChanged,
+        );
 
   @override
   PluginWidgetBuilder get widgetBuilder =>

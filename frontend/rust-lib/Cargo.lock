@@ -85,7 +85,7 @@ checksum = "7de8ce5e0f9f8d88245311066a578d72b7af3e7088f32783804676302df237e4"
 [[package]]
 name = "appflowy-integrate"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=4f5837#4f58377a1411745577c216a34672c49dc17413ec"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=e9f7fc#e9f7fc76192f2dbb2379f1a02310047763bd4426"
 dependencies = [
  "anyhow",
  "collab",
@@ -887,7 +887,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=4f5837#4f58377a1411745577c216a34672c49dc17413ec"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=e9f7fc#e9f7fc76192f2dbb2379f1a02310047763bd4426"
 dependencies = [
  "anyhow",
  "bytes",
@@ -905,7 +905,7 @@ dependencies = [
 [[package]]
 name = "collab-client-ws"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=4f5837#4f58377a1411745577c216a34672c49dc17413ec"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=e9f7fc#e9f7fc76192f2dbb2379f1a02310047763bd4426"
 dependencies = [
  "bytes",
  "collab-sync",
@@ -923,7 +923,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=4f5837#4f58377a1411745577c216a34672c49dc17413ec"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=e9f7fc#e9f7fc76192f2dbb2379f1a02310047763bd4426"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -949,7 +949,7 @@ dependencies = [
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=4f5837#4f58377a1411745577c216a34672c49dc17413ec"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=e9f7fc#e9f7fc76192f2dbb2379f1a02310047763bd4426"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -961,7 +961,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=4f5837#4f58377a1411745577c216a34672c49dc17413ec"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=e9f7fc#e9f7fc76192f2dbb2379f1a02310047763bd4426"
 dependencies = [
  "anyhow",
  "collab",
@@ -972,13 +972,14 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror",
+ "tokio",
  "tracing",
 ]
 
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=4f5837#4f58377a1411745577c216a34672c49dc17413ec"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=e9f7fc#e9f7fc76192f2dbb2379f1a02310047763bd4426"
 dependencies = [
  "anyhow",
  "chrono",
@@ -998,7 +999,7 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=4f5837#4f58377a1411745577c216a34672c49dc17413ec"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=e9f7fc#e9f7fc76192f2dbb2379f1a02310047763bd4426"
 dependencies = [
  "bincode",
  "chrono",
@@ -1018,7 +1019,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=4f5837#4f58377a1411745577c216a34672c49dc17413ec"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=e9f7fc#e9f7fc76192f2dbb2379f1a02310047763bd4426"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1049,7 +1050,7 @@ dependencies = [
 [[package]]
 name = "collab-sync"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=4f5837#4f58377a1411745577c216a34672c49dc17413ec"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=e9f7fc#e9f7fc76192f2dbb2379f1a02310047763bd4426"
 dependencies = [
  "bytes",
  "collab",
@@ -4177,6 +4178,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "sha1_smol"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ae1a47186c03a32177042e55dbc5fd5aee900b8e0069a8d70fba96a9375cd012"
+
+[[package]]
 name = "sha2"
 version = "0.10.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5029,6 +5036,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "345444e32442451b267fc254ae85a209c64be56d2890e601a0c37ff0c3c5ecd2"
 dependencies = [
  "getrandom 0.2.9",
+ "sha1_smol",
 ]
 
 [[package]]

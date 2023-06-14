@@ -13,7 +13,10 @@ typedef OnFiltersChanged = void Function(List<FilterInfo>);
 typedef OnDatabaseChanged = void Function(DatabasePB);
 
 typedef OnRowsCreated = void Function(List<RowId> ids);
-typedef OnRowsUpdated = void Function(List<RowId> ids);
+typedef OnRowsUpdated = void Function(
+  List<RowId> ids,
+  RowsChangedReason reason,
+);
 typedef OnRowsDeleted = void Function(List<RowId> ids);
 typedef OnNumOfRowsChanged = void Function(
   UnmodifiableListView<RowInfo> rows,

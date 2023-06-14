@@ -30,7 +30,7 @@ class DatabaseViewBackendService {
     return DatabaseEventGetDatabase(payload).send();
   }
 
-  Future<Either<RowPB, FlowyError>> createRow({
+  Future<Either<RowMetaPB, FlowyError>> createRow({
     RowId? startRowId,
     String? groupId,
     Map<String, String>? cellDataByFieldId,

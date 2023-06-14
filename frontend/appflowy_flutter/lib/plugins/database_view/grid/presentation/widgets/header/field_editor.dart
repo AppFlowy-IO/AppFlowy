@@ -53,11 +53,11 @@ class _FieldEditorState extends State<FieldEditor> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> children = [
-      _FieldNameTextField(popoverMutex: popoverMutex),
+      FieldNameTextField(popoverMutex: popoverMutex),
       if (widget.onDeleted != null) _addDeleteFieldButton(),
       if (widget.onHidden != null) _addHideFieldButton(),
       if (!widget.typeOptionLoader.field.isPrimary)
-        _FieldTypeOptionCell(popoverMutex: popoverMutex),
+        FieldTypeOptionCell(popoverMutex: popoverMutex),
     ];
     return BlocProvider(
       create: (context) {
@@ -117,10 +117,10 @@ class _FieldEditorState extends State<FieldEditor> {
   }
 }
 
-class _FieldTypeOptionCell extends StatelessWidget {
+class FieldTypeOptionCell extends StatelessWidget {
   final PopoverMutex popoverMutex;
 
-  const _FieldTypeOptionCell({
+  const FieldTypeOptionCell({
     Key? key,
     required this.popoverMutex,
   }) : super(key: key);
@@ -131,7 +131,7 @@ class _FieldTypeOptionCell extends StatelessWidget {
       buildWhen: (p, c) => p.field != c.field,
       builder: (context, state) {
         return state.field.fold(
-          () => const SizedBox(),
+          () => const SizedBox.shrink(),
           (fieldInfo) {
             final dataController =
                 context.read<FieldEditorBloc>().dataController;
@@ -146,18 +146,18 @@ class _FieldTypeOptionCell extends StatelessWidget {
   }
 }
 
-class _FieldNameTextField extends StatefulWidget {
+class FieldNameTextField extends StatefulWidget {
   final PopoverMutex popoverMutex;
-  const _FieldNameTextField({
+  const FieldNameTextField({
     required this.popoverMutex,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<_FieldNameTextField> createState() => _FieldNameTextFieldState();
+  State<FieldNameTextField> createState() => _FieldNameTextFieldState();
 }
 
-class _FieldNameTextFieldState extends State<_FieldNameTextField> {
+class _FieldNameTextFieldState extends State<FieldNameTextField> {
   final textController = TextEditingController();
   FocusNode focusNode = FocusNode();
 

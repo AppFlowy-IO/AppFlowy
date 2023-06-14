@@ -1,6 +1,7 @@
+use flowy_database2::entities::{FieldType, SelectOptionConditionPB};
+
 use crate::database::filter_test::script::FilterScript::*;
 use crate::database::filter_test::script::{DatabaseFilterTest, FilterRowChanged};
-use flowy_database2::entities::{FieldType, SelectOptionConditionPB};
 
 #[tokio::test]
 async fn grid_filter_multi_select_is_empty_test() {
@@ -62,7 +63,7 @@ async fn grid_filter_multi_select_is_test2() {
 async fn grid_filter_single_select_is_empty_test() {
   let mut test = DatabaseFilterTest::new().await;
   let expected = 2;
-  let row_count = test.rows.len();
+  let row_count = test.row_details.len();
   let scripts = vec![
     CreateSingleSelectFilter {
       condition: SelectOptionConditionPB::OptionIsEmpty,
@@ -83,7 +84,7 @@ async fn grid_filter_single_select_is_test() {
   let field = test.get_first_field(FieldType::SingleSelect);
   let mut options = test.get_single_select_type_option(&field.id).options;
   let expected = 2;
-  let row_count = test.rows.len();
+  let row_count = test.row_details.len();
   let scripts = vec![
     CreateSingleSelectFilter {
       condition: SelectOptionConditionPB::OptionIs,
@@ -102,10 +103,10 @@ async fn grid_filter_single_select_is_test() {
 async fn grid_filter_single_select_is_test2() {
   let mut test = DatabaseFilterTest::new().await;
   let field = test.get_first_field(FieldType::SingleSelect);
-  let rows = test.get_rows().await;
+  let row_details = test.get_rows().await;
   let mut options = test.get_single_select_type_option(&field.id).options;
   let option = options.remove(0);
-  let row_count = test.rows.len();
+  let row_count = test.row_details.len();
 
   let scripts = vec![
     CreateSingleSelectFilter {
@@ -118,13 +119,13 @@ async fn grid_filter_single_select_is_test2() {
     },
     AssertNumberOfVisibleRows { expected: 2 },
     UpdateSingleSelectCell {
-      row_id: rows[1].id.clone(),
+      row_id: row_details[1].row.id.clone(),
       option_id: option.id.clone(),
       changed: None,
     },
     AssertNumberOfVisibleRows { expected: 3 },
     UpdateSingleSelectCell {
-      row_id: rows[1].id.clone(),
+      row_id: row_details[1].row.id.clone(),
       option_id: "".to_string(),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 0,

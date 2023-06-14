@@ -16,10 +16,10 @@ use crate::database::field_test::util::make_date_cell_string;
 async fn grid_cell_update() {
   let mut test = DatabaseCellTest::new().await;
   let fields = test.get_fields();
-  let rows = &test.rows;
+  let rows = &test.row_details;
 
   let mut scripts = vec![];
-  for (_, row) in rows.iter().enumerate() {
+  for (_, row_detail) in rows.iter().enumerate() {
     for field in &fields {
       let field_type = FieldType::from(field.field_type);
       let cell_changeset = match field_type {
@@ -54,7 +54,7 @@ async fn grid_cell_update() {
       scripts.push(UpdateCell {
         changeset: CellChangesetPB {
           view_id: test.view_id.clone(),
-          row_id: row.id.clone().into(),
+          row_id: row_detail.row.id.clone().into(),
           field_id: field.id.clone(),
           cell_changeset,
         },
@@ -125,7 +125,7 @@ async fn update_updated_at_field_on_other_cell_update() {
     .run_script(UpdateCell {
       changeset: CellChangesetPB {
         view_id: test.view_id.clone(),
-        row_id: test.rows[0].id.to_string(),
+        row_id: test.row_details[0].row.id.to_string(),
         field_id: text_field.id.clone(),
         cell_changeset: "change".to_string(),
       },

@@ -14,17 +14,23 @@ class AppFlowyEditorPage extends StatefulWidget {
     super.key,
     required this.editorState,
     this.header,
+    this.shrinkWrap = false,
+    this.scrollController,
+    this.autoFocus,
   });
 
-  final EditorState editorState;
   final Widget? header;
+  final EditorState editorState;
+  final ScrollController? scrollController;
+  final bool shrinkWrap;
+  final bool? autoFocus;
 
   @override
   State<AppFlowyEditorPage> createState() => _AppFlowyEditorPageState();
 }
 
 class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
-  final scrollController = ScrollController();
+  late final ScrollController effectiveScrollController;
 
   final List<CommandShortcutEvent> commandShortcutEvents = [
     ...codeBlockCommands,
@@ -91,6 +97,20 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
 
   @override
+  void initState() {
+    super.initState();
+    effectiveScrollController = widget.scrollController ?? ScrollController();
+  }
+
+  @override
+  void dispose() {
+    if (widget.scrollController == null) {
+      effectiveScrollController.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final (bool autoFocus, Selection? selection) =
         _computeAutoFocusParameters();
@@ -98,9 +118,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final editor = AppFlowyEditor.custom(
       editorState: widget.editorState,
       editable: true,
-      scrollController: scrollController,
+      shrinkWrap: widget.shrinkWrap,
+      scrollController: effectiveScrollController,
       // setup the auto focus parameters
-      autoFocus: autoFocus,
+      autoFocus: widget.autoFocus ?? autoFocus,
       focusedSelection: selection,
       // setup the theme
       editorStyle: styleCustomizer.style(),
@@ -122,7 +143,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           style: styleCustomizer.floatingToolbarStyleBuilder(),
           items: toolbarItems,
           editorState: widget.editorState,
-          scrollController: scrollController,
+          scrollController: effectiveScrollController,
           child: editor,
         ),
       ),

@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/header/add_button.dart';
@@ -37,6 +38,13 @@ extension CommonOperations on WidgetTester {
   /// Must call [tapAddButton] first.
   Future<void> tapCreateDocumentButton() async {
     await tapButtonWithName(LocaleKeys.document_menuName.tr());
+  }
+
+  /// Tap the create grid button.
+  ///
+  /// Must call [tapAddButton] first.
+  Future<void> tapCreateGridButton() async {
+    await tapButtonWithName(LocaleKeys.grid_menuName.tr());
   }
 
   /// Tap the import button.
@@ -105,12 +113,14 @@ extension CommonOperations on WidgetTester {
     Finder finder, {
     Offset? offset,
   }) async {
-    final gesture = await createGesture(kind: PointerDeviceKind.mouse);
-    await gesture.addPointer(location: Offset.zero);
-    addTearDown(gesture.removePointer);
-    await pump();
-    await gesture.moveTo(offset ?? getCenter(finder));
-    await pumpAndSettle();
+    try {
+      final gesture = await createGesture(kind: PointerDeviceKind.mouse);
+      await gesture.addPointer(location: Offset.zero);
+      addTearDown(gesture.removePointer);
+      await pump();
+      await gesture.moveTo(offset ?? getCenter(finder));
+      await pumpAndSettle();
+    } catch (_) {}
   }
 
   /// Hover on the page name.

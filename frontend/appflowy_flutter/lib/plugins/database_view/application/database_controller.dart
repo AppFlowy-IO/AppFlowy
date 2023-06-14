@@ -160,7 +160,7 @@ class DatabaseController {
     });
   }
 
-  Future<Either<RowPB, FlowyError>> createRow({
+  Future<Either<RowMetaPB, FlowyError>> createRow({
     RowId? startRowId,
     String? groupId,
     void Function(RowDataBuilder builder)? withCells,
@@ -181,9 +181,9 @@ class DatabaseController {
   }
 
   Future<Either<Unit, FlowyError>> moveGroupRow({
-    required RowPB fromRow,
+    required RowMetaPB fromRow,
     required String groupId,
-    RowPB? toRow,
+    RowMetaPB? toRow,
   }) {
     return _databaseViewBackendSvc.moveGroupRow(
       fromRowId: fromRow.id,
@@ -193,12 +193,12 @@ class DatabaseController {
   }
 
   Future<Either<Unit, FlowyError>> moveRow({
-    required RowPB fromRow,
-    required RowPB toRow,
+    required String fromRowId,
+    required String toRowId,
   }) {
     return _databaseViewBackendSvc.moveRow(
-      fromRowId: fromRow.id,
-      toRowId: toRow.id,
+      fromRowId: fromRowId,
+      toRowId: toRowId,
     );
   }
 
@@ -269,8 +269,8 @@ class DatabaseController {
       onRowsDeleted: (ids) {
         _databaseCallbacks?.onRowsDeleted?.call(ids);
       },
-      onRowsUpdated: (ids) {
-        _databaseCallbacks?.onRowsUpdated?.call(ids);
+      onRowsUpdated: (ids, reason) {
+        _databaseCallbacks?.onRowsUpdated?.call(ids, reason);
       },
       onRowsCreated: (ids) {
         _databaseCallbacks?.onRowsCreated?.call(ids);

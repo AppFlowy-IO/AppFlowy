@@ -2,17 +2,19 @@
 // #![allow(dead_code)]
 // #![allow(unused_imports)]
 
-use crate::database::database_editor::TestRowBuilder;
-use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, TWITTER};
-use collab_database::database::{gen_database_id, gen_database_view_id, DatabaseData};
+use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::views::{DatabaseLayout, DatabaseView};
+use strum::IntoEnumIterator;
+
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::checklist_type_option::ChecklistTypeOption;
 use flowy_database2::services::field::{
   DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption, SelectOption, SelectOptionColor,
   SingleSelectTypeOption, TimeFormat,
 };
-use strum::IntoEnumIterator;
+
+use crate::database::database_editor::TestRowBuilder;
+use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, TWITTER};
 
 // Kanban board unit test mock data
 pub fn make_test_board() -> DatabaseData {
@@ -118,7 +120,7 @@ pub fn make_test_board() -> DatabaseData {
 
   // We have many assumptions base on the number of the rows, so do not change the number of the loop.
   for i in 0..5 {
-    let mut row_builder = TestRowBuilder::new(i.into(), &fields);
+    let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
     match i {
       0 => {
         for field_type in FieldType::iter() {

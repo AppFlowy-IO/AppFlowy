@@ -61,6 +61,7 @@ extension InsertDatabase on EditorState {
     ).then((value) => value.swap().toOption().toNullable());
 
     // TODO(a-wallen): Show error dialog here.
+    // Maybe extend the FlowyErrorPage.
     if (ref == null) {
       return;
     }

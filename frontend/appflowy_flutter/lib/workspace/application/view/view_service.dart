@@ -50,6 +50,29 @@ class ViewBackendService {
     return FolderEventCreateView(payload).send();
   }
 
+  /// The orphan view is meant to be a view that is not attached to any parent view. By default, this
+  /// view will not be shown in the view list unless it is attached to a parent view that is shown in
+  /// the view list.
+  static Future<Either<ViewPB, FlowyError>> createOrphanView({
+    required String viewId,
+    required ViewLayoutPB layoutType,
+    required String name,
+    String? desc,
+
+    /// The initial data should be a JSON that represent the DocumentDataPB.
+    /// Currently, only support create document with initial data.
+    List<int>? initialDataBytes,
+  }) {
+    final payload = CreateOrphanViewPayloadPB.create()
+      ..viewId = viewId
+      ..name = name
+      ..desc = desc ?? ""
+      ..layout = layoutType
+      ..initialData = initialDataBytes ?? [];
+
+    return FolderEventCreateOrphanView(payload).send();
+  }
+
   static Future<Either<ViewPB, FlowyError>> createDatabaseReferenceView({
     required String parentViewId,
     required String databaseId,
@@ -98,12 +121,23 @@ class ViewBackendService {
   static Future<Either<ViewPB, FlowyError>> updateView({
     required String viewId,
     String? name,
+    String? iconURL,
+    String? coverURL,
   }) {
     final payload = UpdateViewPayloadPB.create()..viewId = viewId;
 
     if (name != null) {
       payload.name = name;
     }
+
+    if (iconURL != null) {
+      payload.iconUrl = iconURL;
+    }
+
+    if (coverURL != null) {
+      payload.coverUrl = coverURL;
+    }
+
     return FolderEventUpdateView(payload).send();
   }
 
@@ -144,7 +178,7 @@ class ViewBackendService {
     });
   }
 
-  Future<Either<ViewPB, FlowyError>> getView(
+  static Future<Either<ViewPB, FlowyError>> getView(
     String viewID,
   ) async {
     final payload = ViewIdPB.create()..value = viewID;

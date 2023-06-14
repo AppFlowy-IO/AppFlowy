@@ -231,7 +231,7 @@ class _BoardContentState extends State<BoardContent> {
   ) {
     final groupItem = afGroupItem as GroupItem;
     final groupData = afGroupData.customData as GroupData;
-    final rowPB = groupItem.row;
+    final rowMeta = groupItem.row;
     final rowCache = context.read<BoardBloc>().getRowCache();
 
     /// Return placeholder widget if the rowCache is null.
@@ -255,7 +255,7 @@ class _BoardContentState extends State<BoardContent> {
       margin: config.cardPadding,
       decoration: _makeBoxDecoration(context),
       child: RowCard<String>(
-        row: rowPB,
+        rowMeta: rowMeta,
         viewId: viewId,
         rowCache: rowCache,
         cardData: groupData.group.groupId,
@@ -267,7 +267,7 @@ class _BoardContentState extends State<BoardContent> {
           viewId,
           groupData.group.groupId,
           fieldController,
-          rowPB,
+          rowMeta,
           rowCache,
           context,
         ),
@@ -305,18 +305,19 @@ class _BoardContentState extends State<BoardContent> {
     String viewId,
     String groupId,
     FieldController fieldController,
-    RowPB rowPB,
+    RowMetaPB rowMetaPB,
     RowCache rowCache,
     BuildContext context,
   ) {
     final rowInfo = RowInfo(
       viewId: viewId,
       fields: UnmodifiableListView(fieldController.fieldInfos),
-      rowPB: rowPB,
+      rowMeta: rowMetaPB,
+      rowId: rowMetaPB.id,
     );
 
     final dataController = RowController(
-      rowId: rowInfo.rowPB.id,
+      rowMeta: rowInfo.rowMeta,
       viewId: rowInfo.viewId,
       rowCache: rowCache,
       groupId: groupId,
