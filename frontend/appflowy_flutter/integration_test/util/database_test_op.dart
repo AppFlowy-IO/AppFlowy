@@ -90,6 +90,20 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await pumpAndSettle();
   }
 
+  Future<void> tapGridFieldWithName(String name) async {
+    final field = find.byWidgetPredicate(
+      (widget) => widget is FieldCellButton && widget.field.name == name,
+    );
+    await tapButton(field);
+    await pumpAndSettle();
+  }
+
+  /// Should call [tapGridFieldWithName] first.
+  Future<void> tapEditProperty() async {
+    await tapButtonWithName(LocaleKeys.grid_field_editProperty.tr());
+    await pumpAndSettle();
+  }
+
   Future<void> tapRowDetailPageCreatePropertyButton() async {
     await tapButton(find.byType(CreateRowFieldButton));
   }

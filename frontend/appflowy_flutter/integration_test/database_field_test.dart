@@ -25,6 +25,24 @@ void main() {
       await TestFolder.cleanTestLocation(null);
     });
 
+    testWidgets('rename existing field in grid page', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      await tester.tapAddButton();
+      await tester.tapCreateGridButton();
+
+      // Invoke the field editor
+      await tester.tapGridFieldWithName('Name');
+      await tester.tapEditProperty();
+
+      await tester.renameField('hello world');
+      await tester.dismissFieldEditor();
+
+      await tester.tapGridFieldWithName('hello world');
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('rename field of the grid', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
