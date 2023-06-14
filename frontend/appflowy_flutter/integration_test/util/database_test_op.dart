@@ -4,6 +4,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell_action_sheet.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_option_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -52,6 +53,52 @@ extension AppFlowyDatabaseTest on WidgetTester {
     expect(cell, findsOneWidget);
     await enterText(cell, input);
     await pumpAndSettle();
+  }
+
+  Future<void> tapCheckboxCellInGrid({
+    required int rowIndex,
+  }) async {
+    final findRow = find.byType(GridRow);
+    final findCell = finderForFieldType(FieldType.Checkbox);
+
+    final cell = find.descendant(
+      of: findRow.at(rowIndex),
+      matching: findCell,
+    );
+
+    final button = find.descendant(
+      of: cell,
+      matching: find.byType(FlowyIconButton),
+    );
+
+    expect(cell, findsOneWidget);
+    await tapButton(button);
+  }
+
+  Future<void> assertCheckboxCell({
+    required int rowIndex,
+    required bool isSelected,
+  }) async {
+    final findRow = find.byType(GridRow);
+    final findCell = finderForFieldType(FieldType.Checkbox);
+
+    final cell = find.descendant(
+      of: findRow.at(rowIndex),
+      matching: findCell,
+    );
+
+    var finder = find.byType(CheckboxCellUncheck);
+    if (isSelected) {
+      finder = find.byType(CheckboxCellCheck);
+    }
+
+    expect(
+      find.descendant(
+        of: cell,
+        matching: finder,
+      ),
+      findsOneWidget,
+    );
   }
 
   Future<void> assertCellContent({

@@ -104,5 +104,24 @@ void main() {
 
       await tester.pumpAndSettle();
     });
+
+    testWidgets('edit checkbox cell', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      await tester.tapAddButton();
+      await tester.tapCreateGridButton();
+
+      await tester.assertCheckboxCell(rowIndex: 0, isSelected: false);
+      await tester.tapCheckboxCellInGrid(rowIndex: 0);
+      await tester.assertCheckboxCell(rowIndex: 0, isSelected: true);
+
+      await tester.tapCheckboxCellInGrid(rowIndex: 1);
+      await tester.tapCheckboxCellInGrid(rowIndex: 2);
+      await tester.assertCheckboxCell(rowIndex: 1, isSelected: true);
+      await tester.assertCheckboxCell(rowIndex: 2, isSelected: true);
+
+      await tester.pumpAndSettle();
+    });
   });
 }
