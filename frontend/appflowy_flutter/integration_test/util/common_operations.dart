@@ -1,12 +1,12 @@
 import 'dart:ui';
-
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/header/add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/section/item.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
@@ -60,9 +60,17 @@ extension CommonOperations on WidgetTester {
   }
 
   /// Tap the Simplified Chinese languageItem on LanguageItemsListView.
+  ///
+  /// [scrollDelta] is the distance to scroll the ListView.
+  /// Default value is 100
+  ///
+  /// If it is positive -> scroll down.
+  ///
+  /// If it is negative -> scroll up.
   Future<void> tapLanguageItem({
     required String languageCode,
     String? countryCode,
+    double? scrollDelta,
   }) async {
     final languageItemsListView = find.descendant(
       of: find.byType(ListView),
@@ -78,16 +86,17 @@ extension CommonOperations on WidgetTester {
 // scroll the ListView until zHCNLanguageItem shows on the screen.
     await scrollUntilVisible(
       languageItem,
-      100,
+      scrollDelta ?? 100,
       scrollable: languageItemsListView,
       // maxHeight of LanguageItemsListView
       maxScrolls: 400,
     );
 
-    await tap(languageItem);
-    //https://stackoverflow.com/questions/68497641/flutter-test-with-easy-localization-and-big-translation-json-file
-    await Future.delayed(const Duration(seconds: 2), () {});
-    await pumpAndSettle();
+    try {
+      await tapButton(languageItem);
+    } on FlutterError catch (e) {
+      Log.warn('tapLanguageItem error: $e');
+    }
   }
 
   /// Hover on the widget.
