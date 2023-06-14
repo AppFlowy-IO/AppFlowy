@@ -49,7 +49,7 @@ pub enum DocumentEvent {
   #[event(input = "ApplyActionPayloadPB")]
   ApplyAction = 3,
 
-  #[event(input = "GetDocumentDataPayloadPB")]
+  #[event(input = "OpenDocumentPayloadPB")]
   GetDocumentData = 4,
 
   #[event(input = "ConvertDataPayloadPB", output = "DocumentDataPB")]
