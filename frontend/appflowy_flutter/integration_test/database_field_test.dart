@@ -109,6 +109,27 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets('duplicate field', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      await tester.tapAddButton();
+      await tester.tapCreateGridButton();
+
+      // create a field
+      await tester.scrollToRight(find.byType(GridPage));
+      await tester.tapNewPropertyButton();
+      await tester.renameField('New field 1');
+      await tester.dismissFieldEditor();
+
+      // Delete the field
+      await tester.tapGridFieldWithName('New field 1');
+      await tester.tapDuplicatePropertyButton();
+
+      await tester.findFieldWithName('New field 1 (copy)');
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('create checklist field ', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
