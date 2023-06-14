@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -172,6 +173,43 @@ void main() {
       // Each row detail page should have a document
       await tester.assertDocumentExistInRowDetailPage();
 
+      await tester.pumpAndSettle();
+    });
+    testWidgets('delete row in row detail page', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      // Create a new grid
+      await tester.tapAddButton();
+      await tester.tapCreateGridButton();
+      await tester.pumpAndSettle();
+
+      // Hover first row and then open the row page
+      await tester.openFirstRowDetailPage();
+
+      await tester.tapRowDetailPageDeleteRowButton();
+      await tester.tapEscButton();
+
+      await tester.assertNumberOfRowsInGridPage(2);
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('duplicate row in row detail page', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      // Create a new grid
+      await tester.tapAddButton();
+      await tester.tapCreateGridButton();
+      await tester.pumpAndSettle();
+
+      // Hover first row and then open the row page
+      await tester.openFirstRowDetailPage();
+
+      await tester.tapRowDetailPageDuplicateRowButton();
+      await tester.tapEscButton();
+
+      await tester.assertNumberOfRowsInGridPage(4);
       await tester.pumpAndSettle();
     });
   });

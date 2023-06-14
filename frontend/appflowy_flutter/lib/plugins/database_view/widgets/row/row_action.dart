@@ -35,8 +35,8 @@ class RowActionList extends StatelessWidget {
           child: FlowyText(LocaleKeys.grid_row_action.tr()),
         ),
         const VSpace(15),
-        _DeleteButton(rowId: rowController.rowId),
-        _DuplicateButton(
+        RowDetailPageDeleteButton(rowId: rowController.rowId),
+        RowDetailPageDuplicateButton(
           rowId: rowController.rowId,
           groupId: rowController.groupId,
         ),
@@ -45,9 +45,10 @@ class RowActionList extends StatelessWidget {
   }
 }
 
-class _DeleteButton extends StatelessWidget {
+class RowDetailPageDeleteButton extends StatelessWidget {
   final String rowId;
-  const _DeleteButton({required this.rowId, Key? key}) : super(key: key);
+  const RowDetailPageDeleteButton({required this.rowId, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -65,10 +66,10 @@ class _DeleteButton extends StatelessWidget {
   }
 }
 
-class _DuplicateButton extends StatelessWidget {
+class RowDetailPageDuplicateButton extends StatelessWidget {
   final String rowId;
   final String? groupId;
-  const _DuplicateButton({
+  const RowDetailPageDuplicateButton({
     required this.rowId,
     this.groupId,
     Key? key,

@@ -253,8 +253,20 @@ extension CommonOperations on WidgetTester {
     await tapButton(find.byType(CreateRowFieldButton));
   }
 
+  Future<void> tapRowDetailPageDeleteRowButton() async {
+    await tapButton(find.byType(RowDetailPageDeleteButton));
+  }
+
+  Future<void> tapRowDetailPageDuplicateRowButton() async {
+    await tapButton(find.byType(RowDetailPageDuplicateButton));
+  }
+
   Future<void> tapTypeOptionButton() async {
     await tapButton(find.byType(FieldTypeOptionCell));
+  }
+
+  Future<void> tapEscButton() async {
+    await sendKeyEvent(LogicalKeyboardKey.escape);
   }
 
   Future<void> selectFieldType(FieldType fieldType) async {
@@ -271,11 +283,11 @@ extension CommonOperations on WidgetTester {
     expect(finder, findsWidgets);
   }
 
-  Future<void> assertNumberOfFields(int num) async {
+  Future<void> assertNumberOfFieldsInGridPage(int num) async {
     expect(find.byType(GridFieldCell), findsNWidgets(num));
   }
 
-  Future<void> assertNumberOfRows(int num) async {
+  Future<void> assertNumberOfRowsInGridPage(int num) async {
     expect(find.byType(GridRow), findsNWidgets(num));
   }
 

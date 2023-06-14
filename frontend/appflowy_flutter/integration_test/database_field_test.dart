@@ -104,7 +104,7 @@ void main() {
       await tester.tapCreateRowButtonInGrid();
 
       // The initial number of rows is 3
-      await tester.assertNumberOfRows(4);
+      await tester.assertNumberOfRowsInGridPage(4);
       await tester.pumpAndSettle();
     });
 
@@ -119,7 +119,7 @@ void main() {
       await tester.tapCreateRowButtonInRowMenuOfGrid();
 
       // The initial number of rows is 3
-      await tester.assertNumberOfRows(4);
+      await tester.assertNumberOfRowsInGridPage(4);
       await tester.pumpAndSettle();
     });
 
@@ -136,7 +136,7 @@ void main() {
       await tester.tapDeleteOnRowMenu();
 
       // The initial number of rows is 3
-      await tester.assertNumberOfRows(2);
+      await tester.assertNumberOfRowsInGridPage(2);
       await tester.pumpAndSettle();
     });
   });
