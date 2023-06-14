@@ -82,12 +82,20 @@ class _BannerAction extends StatelessWidget {
             builder: (context, state) {
               final children = <Widget>[];
               final rowMeta = state.rowMeta;
-              if (rowMeta.hasIcon()) {
-                children.add(const SizedBox(height: _kBannerActionHeight));
-              } else {
+              if (rowMeta.icon.isEmpty) {
                 children.add(
                   EmojiPickerButton(
                     showEmojiPicker: () => popoverController.show(),
+                  ),
+                );
+              } else {
+                children.add(
+                  RemoveEmojiButton(
+                    onRemoved: () {
+                      context
+                          .read<RowBannerBloc>()
+                          .add(const RowBannerEvent.setIcon(''));
+                    },
                   ),
                 );
               }
@@ -202,8 +210,6 @@ class EmojiPickerButton extends StatefulWidget {
 }
 
 class _EmojiPickerButtonState extends State<EmojiPickerButton> {
-  final popoverController = PopoverController();
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -218,6 +224,34 @@ class _EmojiPickerButtonState extends State<EmojiPickerButton> {
           size: 16,
         ),
         onTap: widget.showEmojiPicker,
+      ),
+    );
+  }
+}
+
+class RemoveEmojiButton extends StatelessWidget {
+  final VoidCallback onRemoved;
+  RemoveEmojiButton({
+    super.key,
+    required this.onRemoved,
+  });
+
+  final popoverController = PopoverController();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 26,
+      width: 160,
+      child: FlowyButton(
+        text: FlowyText.medium(
+          LocaleKeys.document_plugins_cover_removeIcon.tr(),
+        ),
+        leftIcon: const Icon(
+          Icons.emoji_emotions,
+          size: 16,
+        ),
+        onTap: onRemoved,
       ),
     );
   }

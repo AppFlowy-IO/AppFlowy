@@ -113,5 +113,29 @@ void main() {
       expect(emojiText, findsNWidgets(2));
       await tester.pumpAndSettle();
     });
+
+    testWidgets('remove emoji in the row detail page', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      // Create a new grid
+      await tester.tapAddButton();
+      await tester.tapCreateGridButton();
+      await tester.pumpAndSettle();
+
+      // Hover first row and then open the row page
+      await tester.openFirstRowDetailPage();
+      await tester.hoverRowBanner();
+      await tester.openEmojiPicker();
+      await tester.switchToEmojiList();
+      await tester.tapEmoji('😀');
+
+      // Remove the emoji
+      await tester.tapButton(find.byType(RemoveEmojiButton));
+      final emojiText = find.byWidgetPredicate(
+        (widget) => widget is FlowyText && widget.title == '😀',
+      );
+      expect(emojiText, findsNothing);
+    });
   });
 }

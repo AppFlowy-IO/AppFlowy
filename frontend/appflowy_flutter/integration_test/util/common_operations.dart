@@ -202,7 +202,6 @@ extension CommonOperations on WidgetTester {
 
   Future<void> openEmojiPicker() async {
     await tapButton(find.byType(EmojiPickerButton));
-
     await tapButton(find.byType(EmojiSelectionMenu));
   }
 
