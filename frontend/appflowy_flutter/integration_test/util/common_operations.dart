@@ -59,7 +59,7 @@ extension CommonOperations on WidgetTester {
     await tapButton(languageSelector);
   }
 
-  /// Tap the Simplified Chinese languageItem on LanguageItemsListView.
+  /// Tap languageItem on LanguageItemsListView.
   ///
   /// [scrollDelta] is the distance to scroll the ListView.
   /// Default value is 100
