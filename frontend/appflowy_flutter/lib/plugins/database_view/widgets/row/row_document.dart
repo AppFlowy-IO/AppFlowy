@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/database_view/grid/application/row/row_document_bloc.dart';
 import 'package:appflowy/plugins/document/document_page.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -28,8 +29,9 @@ class RowDocument extends StatelessWidget {
             loading: () =>
                 const Center(child: CircularProgressIndicator.adaptive()),
             error: (error) {
-              // TODO(nathan): show the error
-              return const SizedBox.shrink();
+              return FlowyErrorPage(
+                error.toString(),
+              );
             },
             finish: () {
               return BlocProvider(

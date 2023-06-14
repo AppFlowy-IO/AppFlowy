@@ -374,14 +374,17 @@ class _RowCountBadge extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               FlowyText.medium(
-                '${LocaleKeys.grid_row_count.tr()} : ',
+                rowCountString(rowCount),
                 color: Theme.of(context).hintColor,
               ),
-              FlowyText.medium(rowCount.toString()),
             ],
           ),
         );
       },
     );
   }
+}
+
+String rowCountString(int count) {
+  return '${LocaleKeys.grid_row_count.tr()} : $count';
 }
