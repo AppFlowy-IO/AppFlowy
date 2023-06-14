@@ -31,13 +31,6 @@ export class DocumentController {
     this.observer = new DocumentObserver(documentId);
   }
 
-  create = async (): Promise<FlowyError | void> => {
-    const result = await this.backendService.create();
-    if (result.ok) {
-      return;
-    }
-    return result.val;
-  };
   open = async (): Promise<DocumentData> => {
     await this.observer.subscribe({
       didReceiveUpdate: this.updated,

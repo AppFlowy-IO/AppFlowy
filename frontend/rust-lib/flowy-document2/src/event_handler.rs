@@ -14,6 +14,10 @@ use collab_document::blocks::{
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
+use crate::entities::{
+  ApplyActionParams, CloseDocumentParams, ConvertDataParams, CreateDocumentParams,
+  DocumentRedoUndoParams, OpenDocumentParams,
+};
 use crate::{
   entities::{
     ApplyActionPayloadPB, BlockActionPB, BlockActionPayloadPB, BlockActionTypePB, BlockEventPB,
@@ -30,9 +34,8 @@ pub(crate) async fn create_document_handler(
   data: AFPluginData<CreateDocumentPayloadPB>,
   manager: AFPluginState<Arc<DocumentManager>>,
 ) -> FlowyResult<()> {
-  let data = data.into_inner();
-  let initial_data = data.initial_data.map(|data| data.into());
-  manager.create_document(data.document_id, initial_data)?;
+  let params: CreateDocumentParams = data.into_inner().try_into()?;
+  manager.create_document(params.document_id, params.initial_data)?;
   Ok(())
 }
 
@@ -41,8 +44,9 @@ pub(crate) async fn open_document_handler(
   data: AFPluginData<OpenDocumentPayloadPB>,
   manager: AFPluginState<Arc<DocumentManager>>,
 ) -> DataResult<DocumentDataPB, FlowyError> {
-  let context = data.into_inner();
-  let document = manager.open_document(context.document_id)?;
+  let params: OpenDocumentParams = data.into_inner().try_into()?;
+  let doc_id = params.document_id;
+  let document = manager.get_or_open_document(doc_id)?;
   let document_data = document.lock().get_document()?;
   data_result_ok(DocumentDataPB::from(document_data))
 }
@@ -51,8 +55,9 @@ pub(crate) async fn close_document_handler(
   data: AFPluginData<CloseDocumentPayloadPB>,
   manager: AFPluginState<Arc<DocumentManager>>,
 ) -> FlowyResult<()> {
-  let context = data.into_inner();
-  manager.close_document(&context.document_id)?;
+  let params: CloseDocumentParams = data.into_inner().try_into()?;
+  let doc_id = params.document_id;
+  manager.close_document(&doc_id)?;
   Ok(())
 }
 
@@ -62,8 +67,9 @@ pub(crate) async fn get_document_data_handler(
   data: AFPluginData<OpenDocumentPayloadPB>,
   manager: AFPluginState<Arc<DocumentManager>>,
 ) -> DataResult<DocumentDataPB, FlowyError> {
-  let context = data.into_inner();
-  let document = manager.get_document(context.document_id)?;
+  let params: OpenDocumentParams = data.into_inner().try_into()?;
+  let doc_id = params.document_id;
+  let document = manager.get_document_from_disk(doc_id)?;
   let document_data = document.lock().get_document()?;
   data_result_ok(DocumentDataPB::from(document_data))
 }
@@ -73,10 +79,10 @@ pub(crate) async fn apply_action_handler(
   data: AFPluginData<ApplyActionPayloadPB>,
   manager: AFPluginState<Arc<DocumentManager>>,
 ) -> FlowyResult<()> {
-  let context = data.into_inner();
-  let doc_id = context.document_id;
-  let document = manager.open_document(doc_id)?;
-  let actions = context.actions.into_iter().map(BlockAction::from).collect();
+  let params: ApplyActionParams = data.into_inner().try_into()?;
+  let doc_id = params.document_id;
+  let document = manager.get_or_open_document(doc_id)?;
+  let actions = params.actions;
   document.lock().apply_action(actions);
   Ok(())
 }
@@ -93,8 +99,9 @@ pub(crate) async fn convert_data_to_document(
 pub fn convert_data_to_document_internal(
   payload: ConvertDataPayloadPB,
 ) -> Result<DocumentDataPB, FlowyError> {
-  let convert_type = payload.convert_type;
-  let data = payload.data;
+  let params: ConvertDataParams = payload.try_into()?;
+  let convert_type = params.convert_type;
+  let data = params.data;
   match convert_type {
     ConvertType::Json => {
       let json_str = String::from_utf8(data).map_err(|_| FlowyError::invalid_data())?;
@@ -104,18 +111,17 @@ pub fn convert_data_to_document_internal(
   }
 }
 
-pub(crate) async fn document_redo(
+pub(crate) async fn redo_handler(
   data: AFPluginData<DocumentRedoUndoPayloadPB>,
   manager: AFPluginState<Arc<DocumentManager>>,
 ) -> DataResult<DocumentRedoUndoResponsePB, FlowyError> {
-  let context = data.into_inner();
-  let doc_id = context.document_id;
-  let document = manager.open_document(doc_id)?;
+  let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
+  let doc_id = params.document_id;
+  let document = manager.get_or_open_document(doc_id)?;
   let document = document.lock();
   let redo = document.redo();
   let can_redo = document.can_redo();
   let can_undo = document.can_undo();
-  drop(document);
   data_result_ok(DocumentRedoUndoResponsePB {
     can_redo,
     can_undo,
@@ -123,18 +129,17 @@ pub(crate) async fn document_redo(
   })
 }
 
-pub(crate) async fn document_undo(
+pub(crate) async fn undo_handler(
   data: AFPluginData<DocumentRedoUndoPayloadPB>,
   manager: AFPluginState<Arc<DocumentManager>>,
 ) -> DataResult<DocumentRedoUndoResponsePB, FlowyError> {
-  let context = data.into_inner();
-  let doc_id = context.document_id;
-  let document = manager.open_document(doc_id)?;
+  let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
+  let doc_id = params.document_id;
+  let document = manager.get_or_open_document(doc_id)?;
   let document = document.lock();
   let undo = document.undo();
   let can_redo = document.can_redo();
   let can_undo = document.can_undo();
-  drop(document);
   data_result_ok(DocumentRedoUndoResponsePB {
     can_redo,
     can_undo,
@@ -142,13 +147,13 @@ pub(crate) async fn document_undo(
   })
 }
 
-pub(crate) async fn document_can_undo_redo(
+pub(crate) async fn can_undo_redo_handler(
   data: AFPluginData<DocumentRedoUndoPayloadPB>,
   manager: AFPluginState<Arc<DocumentManager>>,
 ) -> DataResult<DocumentRedoUndoResponsePB, FlowyError> {
-  let context = data.into_inner();
-  let doc_id = context.document_id;
-  let document = manager.open_document(doc_id)?;
+  let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
+  let doc_id = params.document_id;
+  let document = manager.get_or_open_document(doc_id)?;
   let document = document.lock();
   let can_redo = document.can_redo();
   let can_undo = document.can_undo();

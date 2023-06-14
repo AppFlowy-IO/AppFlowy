@@ -23,13 +23,6 @@ import {
 export class DocumentBackendService {
   constructor(public readonly viewId: string) {}
 
-  create = (): Promise<Result<void, FlowyError>> => {
-    const payload = CreateDocumentPayloadPB.fromObject({
-      document_id: this.viewId,
-    });
-    return DocumentEventCreateDocument(payload);
-  };
-
   open = (): Promise<Result<DocumentDataPB, FlowyError>> => {
     const payload = OpenDocumentPayloadPB.fromObject({
       document_id: this.viewId,

@@ -61,7 +61,7 @@ pub fn create_and_open_empty_document() -> (DocumentManager, Arc<Document>, Stri
   let user = FakeUser::new();
   let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
 
-  let doc_id: String = nanoid!(10);
+  let doc_id: String = gen_document_id();
   let data = default_document_data();
 
   // create a document
@@ -69,7 +69,15 @@ pub fn create_and_open_empty_document() -> (DocumentManager, Arc<Document>, Stri
     .create_document(doc_id.clone(), Some(data.clone()))
     .unwrap();
 
-  let document = manager.open_document(doc_id).unwrap();
+  let document = manager.get_or_open_document(doc_id).unwrap();
 
   (manager, document, data.page_id)
+}
+
+pub fn gen_document_id() -> String {
+  nanoid!(10)
+}
+
+pub fn gen_id() -> String {
+  nanoid!(10)
 }

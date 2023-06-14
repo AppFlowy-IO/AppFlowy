@@ -6,9 +6,9 @@ use lib_dispatch::prelude::AFPlugin;
 
 use crate::{
   event_handler::{
-    apply_action_handler, close_document_handler, convert_data_to_document,
-    create_document_handler, document_can_undo_redo, document_redo, document_undo,
-    get_document_data_handler, open_document_handler,
+    apply_action_handler, can_undo_redo_handler, close_document_handler, convert_data_to_document,
+    create_document_handler, get_document_data_handler, open_document_handler, redo_handler,
+    undo_handler,
   },
   manager::DocumentManager,
 };
@@ -27,9 +27,9 @@ pub fn init(document_manager: Arc<DocumentManager>) -> AFPlugin {
     DocumentEvent::ConvertDataToDocument,
     convert_data_to_document,
   );
-  plugin = plugin.event(DocumentEvent::Redo, document_redo);
-  plugin = plugin.event(DocumentEvent::Undo, document_undo);
-  plugin = plugin.event(DocumentEvent::CanUndoRedo, document_can_undo_redo);
+  plugin = plugin.event(DocumentEvent::Redo, redo_handler);
+  plugin = plugin.event(DocumentEvent::Undo, undo_handler);
+  plugin = plugin.event(DocumentEvent::CanUndoRedo, can_undo_redo_handler);
 
   plugin
 }

@@ -1,21 +1,21 @@
 use std::{collections::HashMap, vec};
 
 use crate::document::util;
+use crate::document::util::gen_id;
 use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
 use flowy_document2::document_block_keys::PARAGRAPH_BLOCK_TYPE;
-use nanoid::nanoid;
 
 #[test]
 fn document_apply_insert_block_with_empty_parent_id() {
   let (_, document, page_id) = util::create_and_open_empty_document();
 
   // create a text block with no parent
-  let text_block_id = nanoid!(10);
+  let text_block_id = gen_id();
   let text_block = Block {
     id: text_block_id.clone(),
     ty: PARAGRAPH_BLOCK_TYPE.to_string(),
     parent: "".to_string(),
-    children: nanoid!(10),
+    children: gen_id(),
     external_id: None,
     external_type: None,
     data: HashMap::new(),
