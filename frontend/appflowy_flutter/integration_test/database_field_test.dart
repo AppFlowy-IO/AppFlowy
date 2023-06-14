@@ -9,7 +9,7 @@ import 'util/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('grid', () {
+  group('grid page', () {
     const location = 'appflowy';
 
     setUp(() async {
@@ -25,7 +25,7 @@ void main() {
       await TestFolder.cleanTestLocation(null);
     });
 
-    testWidgets('rename existing field in grid page', (tester) async {
+    testWidgets('rename existing field', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
@@ -43,7 +43,29 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('rename field of the grid', (tester) async {
+    testWidgets('update field type of existing field', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      await tester.tapAddButton();
+      await tester.tapCreateGridButton();
+
+      // Invoke the field editor
+      await tester.tapGridFieldWithName('Type');
+      await tester.tapEditProperty();
+
+      await tester.tapTypeOptionButton();
+      await tester.selectFieldType(FieldType.Checkbox);
+      await tester.dismissFieldEditor();
+
+      await tester.assertFieldTypeWithFieldName(
+        'Type',
+        FieldType.Checkbox,
+      );
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('create a field and rename it', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
@@ -60,7 +82,7 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('create checklist field of the grid', (tester) async {
+    testWidgets('create checklist field ', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
@@ -81,7 +103,7 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('create list of fields of the grid', (tester) async {
+    testWidgets('create list of fields', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 

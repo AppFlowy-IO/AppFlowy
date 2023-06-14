@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_option_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -101,7 +102,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   /// Should call [tapGridFieldWithName] first.
   Future<void> tapEditProperty() async {
     await tapButtonWithName(LocaleKeys.grid_field_editProperty.tr());
-    await pumpAndSettle();
+    await pumpAndSettle(const Duration(milliseconds: 200));
   }
 
   Future<void> tapRowDetailPageCreatePropertyButton() async {
@@ -117,7 +118,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> tapTypeOptionButton() async {
-    await tapButton(find.byType(FieldTypeOptionCell));
+    await tapButton(find.byType(SwitchFieldButton));
   }
 
   Future<void> tapEscButton() async {
@@ -148,6 +149,21 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   Future<void> assertDocumentExistInRowDetailPage() async {
     expect(find.byType(DocumentPage), findsOneWidget);
+  }
+
+  /// Check the field type of the [FieldCellButton] is the same as the name.
+  Future<void> assertFieldTypeWithFieldName(
+    String name,
+    FieldType fieldType,
+  ) async {
+    final field = find.byWidgetPredicate(
+      (widget) =>
+          widget is FieldCellButton &&
+          widget.field.fieldType == fieldType &&
+          widget.field.name == name,
+    );
+
+    expect(field, findsOneWidget);
   }
 
   Future<void> findFieldWithName(String name) async {

@@ -130,7 +130,7 @@ class FieldTypeOptionCell extends StatelessWidget {
       buildWhen: (p, c) => p.field != c.field,
       builder: (context, state) {
         return state.field.fold(
-          () => const SizedBox(),
+          () => const SizedBox.shrink(),
           (fieldInfo) {
             final dataController =
                 context.read<FieldEditorBloc>().dataController;
