@@ -56,7 +56,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   Widget _renderBody(BuildContext context) {
     final size = MediaQuery.of(context).size;
     // The placeholderWidth should be greater than the longest width of the LanguageSelectorOnWelcomePage
-    const double placeholderWidth = 170;
+    const double placeholderWidth = 180;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
