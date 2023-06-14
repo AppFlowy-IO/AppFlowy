@@ -176,6 +176,9 @@ void main() {
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
       await tester.findDateEditor(findsOneWidget);
 
+      // Select the date
+      await tester.selectDay(content: 3);
+
       await tester.pumpAndSettle();
     });
   });

@@ -25,6 +25,7 @@ import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/emoji_picker/emoji_menu_item.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 import 'base.dart';
 import 'common_operations.dart';
@@ -136,6 +137,20 @@ extension AppFlowyDatabaseTest on WidgetTester {
     );
 
     expect(findContent, findsOneWidget);
+  }
+
+  Future<void> selectDay({
+    required int content,
+  }) async {
+    final findCalendar = find.byType(TableCalendar);
+    final findDay = find.text(content.toString());
+
+    final finder = find.descendant(
+      of: findCalendar,
+      matching: findDay,
+    );
+
+    await tapButton(finder);
   }
 
   Future<void> openFirstRowDetailPage() async {
@@ -332,7 +347,8 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> dismissFieldEditor() async {
     await sendKeyEvent(LogicalKeyboardKey.escape);
     await sendKeyEvent(LogicalKeyboardKey.escape);
-    await pumpAndSettle(const Duration(milliseconds: 500));
+    await sendKeyEvent(LogicalKeyboardKey.escape);
+    await pumpAndSettle();
   }
 
   Future<void> findFieldEditor(dynamic matcher) async {
