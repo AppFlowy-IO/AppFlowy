@@ -43,6 +43,7 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         // Cell
         .event(DatabaseEvent::GetCell, get_cell_handler)
         .event(DatabaseEvent::UpdateCell, update_cell_handler)
+        .event(DatabaseEvent::ClearDateCell, clear_date_cell_handler)
         // SelectOption
         .event(DatabaseEvent::CreateSelectOption, new_select_option_handler)
         .event(DatabaseEvent::InsertOrUpdateSelectOption, insert_or_update_select_option_handler)
@@ -256,6 +257,11 @@ pub enum DatabaseEvent {
 
   #[event(input = "ChecklistCellDataChangesetPB")]
   UpdateChecklistCell = 74,
+
+  /// [ClearDateCell] event is used to clear the date cell's data. [CellIdPB] is used to locate the
+  /// cell data.
+  #[event(input = "CellIdPB")]
+  ClearDateCell = 75,
 
   /// [UpdateDateCell] event is used to update a date cell's data. [DateChangesetPB]
   /// contains the date and the time string. It can be cast to [CellChangesetPB] that

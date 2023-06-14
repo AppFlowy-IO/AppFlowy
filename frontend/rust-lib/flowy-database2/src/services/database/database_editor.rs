@@ -677,6 +677,28 @@ impl DatabaseEditor {
     self.update_cell(view_id, row_id, field_id, new_cell).await
   }
 
+  pub async fn clear_date_cell(
+    &self,
+    view_id: &str,
+    row_id: RowId,
+    field_id: &str,
+  ) -> FlowyResult<()> {
+    let (field, cell) = {
+      let database = self.database.lock();
+      let field = match database.fields.get_field(field_id) {
+        Some(field) => Ok(field),
+        None => {
+          let msg = format!("Field with id:{} not found", &field_id);
+          Err(FlowyError::internal().context(msg))
+        },
+      }?;
+      (field, database.get_cell(field_id, &row_id).cell)
+    };
+    // how to call DateTypeOption.clear_date_cell(cell)?
+    // let new_cell = clear_date_cell(cell)?;
+    self.update_cell(view_id, row_id, field_id, new_cell).await
+  }
+
   /// Update a cell in the database.
   /// This will notify all views that the cell has been updated.
   pub async fn update_cell(
