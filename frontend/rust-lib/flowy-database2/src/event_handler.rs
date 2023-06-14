@@ -462,20 +462,6 @@ pub(crate) async fn update_cell_handler(
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn clear_date_cell_handler(
-  data: AFPluginData<CellIdPB>,
-  manager: AFPluginState<Arc<DatabaseManager2>>,
-) -> Result<(), FlowyError> {
-  let cell_id: CellIdParams = data.into_inner().try_into()?;
-
-  let database_editor = manager.get_database_with_view_id(&cell_id.view_id).await?;
-  database_editor
-    .clear_date_cell(&cell_id.view_id, cell_id.row_id, &cell_id.field_id)
-    .await?;
-  Ok(())
-}
-
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn new_select_option_handler(
   data: AFPluginData<CreateSelectOptionPayloadPB>,

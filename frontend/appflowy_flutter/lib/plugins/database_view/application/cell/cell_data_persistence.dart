@@ -64,17 +64,6 @@ class DateCellDataPersistence implements CellDataPersistence<DateCellData> {
       );
     });
   }
-
-  Future<Option<FlowyError>> clear() {
-    final payload = _makeCellPath(cellContext);
-
-    return DatabaseEventClearDateCell(payload).send().then((result) {
-      return result.fold(
-        (l) => none(),
-        (err) => Some(err),
-      );
-    });
-  }
 }
 
 CellIdPB _makeCellPath(DatabaseCellContext cellId) {

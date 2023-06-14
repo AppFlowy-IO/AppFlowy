@@ -4,14 +4,16 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:easy_localization/easy_localization.dart'
     show StringTranslateExtension;
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:table_calendar/table_calendar.dart';
+import 'dart:async';
 import 'package:protobuf/protobuf.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -66,7 +68,7 @@ class DateCellCalendarBloc
             emit(state.copyWith(focusedDay: focusedDay));
           },
           clearDate: () async {
-            await _clearDate(emit);
+            // TODO: handle clear date
           },
         );
       },
@@ -123,12 +125,6 @@ class DateCellCalendarBloc
         );
       },
     );
-  }
-
-  Future<void> _clearDate(
-    Emitter<DateCellCalendarState> emit,
-  ) async {
-    // TODO: implement _clearDate
   }
 
   DateTime? _utcToLocalAddTime(DateTime? date) {

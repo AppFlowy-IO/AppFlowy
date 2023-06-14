@@ -185,22 +185,6 @@ impl DateTypeOption {
       }
     }
   }
-
-  fn clear_date_cell(
-    &self,
-    cell: Option<Cell>,
-  ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
-    let timestamp = None;
-    let include_time = false;
-
-    let cell_data = DateCellData {
-      timestamp,
-      include_time,
-    };
-
-    let cell_wrapper: DateCellDataWrapper = (self.field_type.clone(), cell_data.clone()).into();
-    Ok((Cell::from(cell_wrapper), cell_data))
-  }
 }
 
 impl TypeOptionTransform for DateTypeOption {}
