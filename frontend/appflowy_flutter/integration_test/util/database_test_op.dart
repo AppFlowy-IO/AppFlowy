@@ -4,6 +4,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell_action_sheet.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_option_editor.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_document.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
@@ -99,6 +100,22 @@ extension AppFlowyDatabaseTest on WidgetTester {
       ),
       findsOneWidget,
     );
+  }
+
+  Future<void> tapCellInGrid({
+    required int rowIndex,
+    required FieldType fieldType,
+  }) async {
+    final findRow = find.byType(GridRow);
+    final findCell = finderForFieldType(fieldType);
+
+    final cell = find.descendant(
+      of: findRow.at(rowIndex),
+      matching: findCell,
+    );
+
+    expect(cell, findsOneWidget);
+    await tapButton(cell);
   }
 
   Future<void> assertCellContent({
@@ -316,6 +333,16 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await sendKeyEvent(LogicalKeyboardKey.escape);
     await sendKeyEvent(LogicalKeyboardKey.escape);
     await pumpAndSettle(const Duration(milliseconds: 500));
+  }
+
+  Future<void> findFieldEditor(dynamic matcher) async {
+    final finder = find.byType(FieldEditor);
+    expect(finder, matcher);
+  }
+
+  Future<void> findDateEditor(dynamic matcher) async {
+    final finder = find.byType(DateCellEditor);
+    expect(finder, matcher);
   }
 
   Future<void> tapCreateRowButtonInGrid() async {

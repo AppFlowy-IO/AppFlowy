@@ -123,5 +123,60 @@ void main() {
 
       await tester.pumpAndSettle();
     });
+
+    testWidgets('edit create time cell', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      await tester.tapAddButton();
+      await tester.tapCreateGridButton();
+
+      const fieldType = FieldType.CreatedTime;
+      // Create a create time field
+      // The create time field is not editable
+      await tester.createField(fieldType, fieldType.name);
+
+      await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
+
+      await tester.findDateEditor(findsNothing);
+
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('edit last time cell', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      await tester.tapAddButton();
+      await tester.tapCreateGridButton();
+
+      const fieldType = FieldType.LastEditedTime;
+      // Create a last time field
+      // The last time field is not editable
+      await tester.createField(fieldType, fieldType.name);
+
+      await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
+
+      await tester.findDateEditor(findsNothing);
+
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('edit time cell', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      await tester.tapAddButton();
+      await tester.tapCreateGridButton();
+
+      const fieldType = FieldType.DateTime;
+      await tester.createField(fieldType, fieldType.name);
+
+      // Tap the cell to invoke the field editor
+      await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
+      await tester.findDateEditor(findsOneWidget);
+
+      await tester.pumpAndSettle();
+    });
   });
 }
