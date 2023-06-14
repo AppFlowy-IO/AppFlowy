@@ -67,6 +67,17 @@ extension Expectation on WidgetTester {
     expect(userName, findsOneWidget);
   }
 
+  /// Expect to see a text
+  void expectToSeeText(String text) {
+    Finder textWidget = find.textContaining(text, findRichText: true);
+    if (textWidget.evaluate().isEmpty) {
+      textWidget = find.byWidgetPredicate(
+        (widget) => widget is FlowyText && widget.title == text,
+      );
+    }
+    expect(textWidget, findsOneWidget);
+  }
+
   /// Find the page name on the home page.
   Finder findPageName(String name) {
     return find.byWidgetPredicate(
