@@ -36,6 +36,44 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await hoverOnWidget(firstRow);
   }
 
+  Future<void> editCell({
+    required int rowIndex,
+    required FieldType fieldType,
+    required String input,
+  }) async {
+    final findRow = find.byType(GridRow);
+    final findCell = finderForFieldType(fieldType);
+
+    final cell = find.descendant(
+      of: findRow.at(0),
+      matching: findCell,
+    );
+
+    expect(cell, findsOneWidget);
+    await enterText(cell, input);
+  }
+
+  Future<void> assertCellContent({
+    required int rowIndex,
+    required FieldType fieldType,
+    required String content,
+  }) async {
+    final findRow = find.byType(GridRow);
+    final findCell = finderForFieldType(fieldType);
+
+    final cell = find.descendant(
+      of: findRow.at(0),
+      matching: findCell,
+    );
+
+    final findContent = find.descendant(
+      of: cell,
+      matching: find.text(content),
+    );
+
+    expect(findContent, findsOneWidget);
+  }
+
   Future<void> openFirstRowDetailPage() async {
     await hoverOnFirstRowOfGrid();
 
