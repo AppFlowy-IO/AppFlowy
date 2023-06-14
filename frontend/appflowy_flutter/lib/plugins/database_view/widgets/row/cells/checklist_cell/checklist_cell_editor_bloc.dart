@@ -19,7 +19,9 @@ class ChecklistCellEditorBloc
   ChecklistCellEditorBloc({
     required this.cellController,
   })  : _checklistCellService = ChecklistCellBackendService(
-          cellContext: cellController.cellContext,
+          viewId: cellController.viewId,
+          fieldId: cellController.fieldId,
+          rowId: cellController.rowId,
         ),
         super(ChecklistCellEditorState.initial(cellController)) {
     on<ChecklistCellEditorEvent>(

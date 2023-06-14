@@ -1,6 +1,6 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -20,7 +20,8 @@ import "package:appflowy/generated/locale_keys.g.dart";
 import 'package:easy_localization/easy_localization.dart';
 
 class GridRow extends StatefulWidget {
-  final RowInfo rowInfo;
+  final RowId viewId;
+  final RowId rowId;
   final RowController dataController;
   final GridCellBuilder cellBuilder;
   final void Function(BuildContext, GridCellBuilder) openDetailPage;
@@ -30,7 +31,8 @@ class GridRow extends StatefulWidget {
 
   const GridRow({
     super.key,
-    required this.rowInfo,
+    required this.viewId,
+    required this.rowId,
     required this.dataController,
     required this.cellBuilder,
     required this.openDetailPage,
@@ -49,8 +51,9 @@ class _GridRowState extends State<GridRow> {
   void initState() {
     super.initState();
     _rowBloc = RowBloc(
-      rowInfo: widget.rowInfo,
+      rowId: widget.rowId,
       dataController: widget.dataController,
+      viewId: widget.viewId,
     );
     _rowBloc.add(const RowEvent.initial());
   }
@@ -61,7 +64,8 @@ class _GridRowState extends State<GridRow> {
       value: _rowBloc,
       child: _RowEnterRegion(
         child: BlocBuilder<RowBloc, RowState>(
-          buildWhen: (p, c) => p.rowInfo.rowPB.height != c.rowInfo.rowPB.height,
+          // The row need to rebuild when the cell count changes.
+          buildWhen: (p, c) => p.cellByFieldId.length != c.cellByFieldId.length,
           builder: (context, state) {
             final content = Expanded(
               child: RowContent(
@@ -126,7 +130,11 @@ class _RowLeadingState extends State<_RowLeading> {
       direction: PopoverDirection.rightWithCenterAligned,
       margin: const EdgeInsets.all(6),
       popupBuilder: (BuildContext popoverContext) {
-        return RowActions(rowData: context.read<RowBloc>().state.rowInfo);
+        final bloc = context.read<RowBloc>();
+        return RowActions(
+          viewId: bloc.viewId,
+          rowId: bloc.rowId,
+        );
       },
       child: Consumer<RegionStateNotifier>(
         builder: (context, state, _) {
@@ -143,11 +151,11 @@ class _RowLeadingState extends State<_RowLeading> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const _InsertButton(),
+        const InsertRowButton(),
         if (isDraggable) ...[
           ReorderableDragStartListener(
             index: widget.index!,
-            child: _MenuButton(
+            child: RowMenuButton(
               isDragEnabled: isDraggable,
               openMenu: () {
                 popoverController.show();
@@ -155,7 +163,7 @@ class _RowLeadingState extends State<_RowLeading> {
             ),
           ),
         ] else ...[
-          _MenuButton(
+          RowMenuButton(
             openMenu: () {
               popoverController.show();
             },
@@ -168,8 +176,8 @@ class _RowLeadingState extends State<_RowLeading> {
   bool get isDraggable => widget.index != null && widget.isDraggable;
 }
 
-class _InsertButton extends StatelessWidget {
-  const _InsertButton({Key? key}) : super(key: key);
+class InsertRowButton extends StatelessWidget {
+  const InsertRowButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -188,20 +196,21 @@ class _InsertButton extends StatelessWidget {
   }
 }
 
-class _MenuButton extends StatefulWidget {
+class RowMenuButton extends StatefulWidget {
   final VoidCallback openMenu;
   final bool isDragEnabled;
 
-  const _MenuButton({
+  const RowMenuButton({
     required this.openMenu,
     this.isDragEnabled = false,
+    super.key,
   });
 
   @override
-  State<_MenuButton> createState() => _MenuButtonState();
+  State<RowMenuButton> createState() => _RowMenuButtonState();
 }
 
-class _MenuButtonState extends State<_MenuButton> {
+class _RowMenuButtonState extends State<RowMenuButton> {
   @override
   Widget build(BuildContext context) {
     return FlowyIconButton(

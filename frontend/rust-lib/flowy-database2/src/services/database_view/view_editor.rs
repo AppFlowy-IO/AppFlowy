@@ -4,8 +4,8 @@ use std::sync::Arc;
 
 use collab_database::database::{gen_database_filter_id, gen_database_sort_id};
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cells, Row, RowCell, RowId};
-use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, RowOrder};
+use collab_database::rows::{Cells, Row, RowCell, RowId, RowMeta};
+use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use tokio::sync::{broadcast, RwLock};
 
 use flowy_error::{FlowyError, FlowyResult};
@@ -15,12 +15,14 @@ use lib_infra::future::Fut;
 use crate::entities::{
   CalendarEventPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB, DeleteFilterParams,
   DeleteGroupParams, DeleteSortParams, FieldType, GroupChangesPB, GroupPB, GroupRowsNotificationPB,
-  InsertedRowPB, LayoutSettingParams, RowPB, RowsChangePB, SortChangesetNotificationPB, SortPB,
+  InsertedRowPB, LayoutSettingParams, RowMetaPB, RowsChangePB, SortChangesetNotificationPB, SortPB,
   UpdateFilterParams, UpdateSortParams,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::CellCache;
-use crate::services::database::{database_view_setting_pb_from_view, DatabaseRowEvent, UpdatedRow};
+use crate::services::database::{
+  database_view_setting_pb_from_view, DatabaseRowEvent, RowDetail, UpdatedRow,
+};
 use crate::services::database_view::view_filter::make_filter_controller;
 use crate::services::database_view::view_group::{
   get_cell_for_row, get_cells_for_field, new_group_controller, new_group_controller_with_field,
@@ -63,10 +65,10 @@ pub trait DatabaseViewData: Send + Sync + 'static {
   fn index_of_row(&self, view_id: &str, row_id: &RowId) -> Fut<Option<usize>>;
 
   /// Returns the `index` and `RowRevision` with row_id
-  fn get_row(&self, view_id: &str, row_id: &RowId) -> Fut<Option<(usize, Arc<Row>)>>;
+  fn get_row(&self, view_id: &str, row_id: &RowId) -> Fut<Option<(usize, Arc<RowDetail>)>>;
 
   /// Returns all the rows in the view
-  fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<Row>>>;
+  fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>>;
 
   fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>>;
 
@@ -198,11 +200,24 @@ impl DatabaseViewEditor {
       .await;
   }
 
-  pub async fn v_did_create_row(&self, row: &Row, group_id: &Option<String>, index: usize) {
+  pub async fn v_did_update_row_meta(&self, row_id: &RowId, row_meta: &RowMeta) {
+    let update_row = UpdatedRow::new(row_id.as_str()).with_row_meta(row_meta.clone());
+    let changeset = RowsChangePB::from_update(self.view_id.clone(), update_row.into());
+    send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
+      .payload(changeset)
+      .send();
+  }
+
+  pub async fn v_did_create_row(
+    &self,
+    row_detail: &RowDetail,
+    group_id: &Option<String>,
+    index: usize,
+  ) {
     // Send the group notification if the current view has groups
     match group_id.as_ref() {
       None => {
-        let row = InsertedRowPB::from(row).with_index(index as i32);
+        let row = InsertedRowPB::new(RowMetaPB::from(&row_detail.meta)).with_index(index as i32);
         let changes = RowsChangePB::from_insert(self.view_id.clone(), row);
         send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
           .payload(changes)
@@ -211,13 +226,13 @@ impl DatabaseViewEditor {
       Some(group_id) => {
         self
           .mut_group_controller(|group_controller, _| {
-            group_controller.did_create_row(row, group_id);
+            group_controller.did_create_row(row_detail, group_id);
             Ok(())
           })
           .await;
 
         let inserted_row = InsertedRowPB {
-          row: RowPB::from(row),
+          row_meta: RowMetaPB::from(&row_detail.meta),
           index: Some(index as i32),
           is_new: true,
         };
@@ -251,10 +266,15 @@ impl DatabaseViewEditor {
   /// Notify the view that the row has been updated. If the view has groups,
   /// send the group notification with [GroupRowsNotificationPB]. Otherwise,
   /// send the view notification with [RowsChangePB]
-  pub async fn v_did_update_row(&self, old_row: &Option<Row>, row: &Row, field_id: &str) {
+  pub async fn v_did_update_row(
+    &self,
+    old_row: &Option<RowDetail>,
+    row_detail: &RowDetail,
+    field_id: &str,
+  ) {
     let result = self
       .mut_group_controller(|group_controller, field| {
-        Ok(group_controller.did_update_group_row(old_row, row, &field))
+        Ok(group_controller.did_update_group_row(old_row, row_detail, &field))
       })
       .await;
 
@@ -283,10 +303,8 @@ impl DatabaseViewEditor {
         }
       }
     } else {
-      let update_row = UpdatedRow {
-        row: RowOrder::from(row),
-        field_ids: vec![field_id.to_string()],
-      };
+      let update_row =
+        UpdatedRow::new(&row_detail.row.id).with_field_ids(vec![field_id.to_string()]);
       let changeset = RowsChangePB::from_update(self.view_id.clone(), update_row.into());
       send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
         .payload(changeset)
@@ -295,7 +313,7 @@ impl DatabaseViewEditor {
 
     // Each row update will trigger a filter and sort operation. We don't want
     // to block the main thread, so we spawn a new task to do the work.
-    let row_id = row.id.clone();
+    let row_id = row_detail.row.id.clone();
     let weak_filter_controller = Arc::downgrade(&self.filter_controller);
     let weak_sort_controller = Arc::downgrade(&self.sort_controller);
     tokio::spawn(async move {
@@ -314,15 +332,20 @@ impl DatabaseViewEditor {
     });
   }
 
-  pub async fn v_filter_rows(&self, rows: &mut Vec<Arc<Row>>) {
-    self.filter_controller.filter_rows(rows).await
+  pub async fn v_filter_rows(&self, row_details: &mut Vec<Arc<RowDetail>>) {
+    self.filter_controller.filter_rows(row_details).await
   }
 
-  pub async fn v_sort_rows(&self, rows: &mut Vec<Arc<Row>>) {
-    self.sort_controller.write().await.sort_rows(rows).await
+  pub async fn v_sort_rows(&self, row_details: &mut Vec<Arc<RowDetail>>) {
+    self
+      .sort_controller
+      .write()
+      .await
+      .sort_rows(row_details)
+      .await
   }
 
-  pub async fn v_get_rows(&self) -> Vec<Arc<Row>> {
+  pub async fn v_get_rows(&self) -> Vec<Arc<RowDetail>> {
     let mut rows = self.delegate.get_rows(&self.view_id).await;
     self.v_filter_rows(&mut rows).await;
     self.v_sort_rows(&mut rows).await;
@@ -331,7 +354,7 @@ impl DatabaseViewEditor {
 
   pub async fn v_move_group_row(
     &self,
-    row: &Row,
+    row_detail: &RowDetail,
     row_changeset: &mut RowChangeset,
     to_group_id: &str,
     to_row_id: Option<RowId>,
@@ -339,7 +362,7 @@ impl DatabaseViewEditor {
     let result = self
       .mut_group_controller(|group_controller, field| {
         let move_row_context = MoveGroupRowContext {
-          row,
+          row_detail,
           row_changeset,
           field: field.as_ref(),
           to_group_id,
@@ -741,8 +764,9 @@ impl DatabaseViewEditor {
       .timestamp
       .unwrap_or_default();
 
+    let (_, row_detail) = self.delegate.get_row(&self.view_id, &row_id).await?;
     Some(CalendarEventPB {
-      row_id: row_id.into_inner(),
+      row_meta: RowMetaPB::from(&row_detail.meta),
       date_field_id: date_field.id.clone(),
       title,
       timestamp,
@@ -792,8 +816,9 @@ impl DatabaseViewEditor {
         .unwrap_or_default()
         .into();
 
+      let (_, row_detail) = self.delegate.get_row(&self.view_id, &row_id).await?;
       let event = CalendarEventPB {
-        row_id: row_id.into_inner(),
+        row_meta: RowMetaPB::from(&row_detail.meta),
         date_field_id: calendar_setting.field_id.clone(),
         title,
         timestamp,

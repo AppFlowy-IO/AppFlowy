@@ -1,9 +1,11 @@
 use anyhow::bail;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::database::gen_database_group_id;
-use collab_database::rows::{Row, RowId};
+use collab_database::rows::RowId;
 use collab_database::views::{GroupMap, GroupMapBuilder, GroupSettingBuilder, GroupSettingMap};
 use serde::{Deserialize, Serialize};
+
+use crate::services::database::RowDetail;
 
 #[derive(Debug, Clone, Default)]
 pub struct GroupSetting {
@@ -133,7 +135,7 @@ pub struct GroupData {
   pub name: String,
   pub is_default: bool,
   pub is_visible: bool,
-  pub(crate) rows: Vec<Row>,
+  pub(crate) rows: Vec<RowDetail>,
 
   /// [filter_content] is used to determine which group the cell belongs to.
   pub filter_content: String,
@@ -154,11 +156,18 @@ impl GroupData {
   }
 
   pub fn contains_row(&self, row_id: &RowId) -> bool {
-    self.rows.iter().any(|row| &row.id == row_id)
+    self
+      .rows
+      .iter()
+      .any(|row_detail| &row_detail.row.id == row_id)
   }
 
   pub fn remove_row(&mut self, row_id: &RowId) {
-    match self.rows.iter().position(|row| &row.id == row_id) {
+    match self
+      .rows
+      .iter()
+      .position(|row_detail| &row_detail.row.id == row_id)
+    {
       None => {},
       Some(pos) => {
         self.rows.remove(pos);
@@ -166,18 +175,18 @@ impl GroupData {
     }
   }
 
-  pub fn add_row(&mut self, row: Row) {
-    match self.rows.iter().find(|r| r.id == row.id) {
+  pub fn add_row(&mut self, row_detail: RowDetail) {
+    match self.rows.iter().find(|r| r.row.id == row_detail.row.id) {
       None => {
-        self.rows.push(row);
+        self.rows.push(row_detail);
       },
       Some(_) => {},
     }
   }
 
-  pub fn insert_row(&mut self, index: usize, row: Row) {
+  pub fn insert_row(&mut self, index: usize, row_detail: RowDetail) {
     if index < self.rows.len() {
-      self.rows.insert(index, row);
+      self.rows.insert(index, row_detail);
     } else {
       tracing::error!(
         "Insert row index:{} beyond the bounds:{},",
@@ -188,7 +197,10 @@ impl GroupData {
   }
 
   pub fn index_of_row(&self, row_id: &RowId) -> Option<usize> {
-    self.rows.iter().position(|row| &row.id == row_id)
+    self
+      .rows
+      .iter()
+      .position(|row_detail| &row_detail.row.id == row_id)
   }
 
   pub fn number_of_row(&self) -> usize {

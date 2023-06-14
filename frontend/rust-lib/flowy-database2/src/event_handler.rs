@@ -134,6 +134,34 @@ pub(crate) async fn get_fields_handler(
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
+pub(crate) async fn get_primary_field_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> DataResult<FieldPB, FlowyError> {
+  let view_id = data.into_inner().value;
+  let database_editor = manager.get_database_with_view_id(&view_id).await?;
+  let mut fields = database_editor
+    .get_fields(&view_id, None)
+    .into_iter()
+    .filter(|field| field.is_primary)
+    .map(FieldPB::from)
+    .collect::<Vec<FieldPB>>();
+
+  if fields.is_empty() {
+    // The primary field should not be empty. Because it is created when the database is created.
+    // If it is empty, it must be a bug.
+    Err(FlowyError::record_not_found())
+  } else {
+    if fields.len() > 1 {
+      // The primary field should not be more than one. If it is more than one,
+      // it must be a bug.
+      tracing::error!("The primary field is more than one");
+    }
+    data_result_ok(fields.remove(0))
+  }
+}
+
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn update_field_handler(
   data: AFPluginData<FieldChangesetPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
@@ -300,6 +328,29 @@ pub(crate) async fn get_row_handler(
   data_result_ok(OptionalRowPB { row })
 }
 
+pub(crate) async fn get_row_meta_handler(
+  data: AFPluginData<RowIdPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> DataResult<RowMetaPB, FlowyError> {
+  let params: RowIdParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  match database_editor.get_row_meta(&params.view_id, &params.row_id) {
+    None => Err(FlowyError::record_not_found()),
+    Some(row) => data_result_ok(row),
+  }
+}
+
+pub(crate) async fn update_row_meta_handler(
+  data: AFPluginData<UpdateRowMetaChangesetPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> FlowyResult<()> {
+  let params: UpdateRowMetaParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  let row_id = RowId::from(params.id.clone());
+  database_editor.update_row_meta(&row_id, params).await;
+  Ok(())
+}
+
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn delete_row_handler(
   data: AFPluginData<RowIdPB>,
@@ -341,7 +392,7 @@ pub(crate) async fn move_row_handler(
 pub(crate) async fn create_row_handler(
   data: AFPluginData<CreateRowPayloadPB>,
   manager: AFPluginState<Arc<DatabaseManager2>>,
-) -> DataResult<RowPB, FlowyError> {
+) -> DataResult<RowMetaPB, FlowyError> {
   let params: CreateRowParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   let fields = database_editor.get_fields(&params.view_id, None);
@@ -362,7 +413,7 @@ pub(crate) async fn create_row_handler(
     .await?
   {
     None => Err(FlowyError::internal().context("Create row fail")),
-    Some(row) => data_result_ok(RowPB::from(row)),
+    Some(row) => data_result_ok(RowMetaPB::from(row.meta)),
   }
 }
 

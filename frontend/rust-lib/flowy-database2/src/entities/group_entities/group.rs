@@ -4,7 +4,7 @@ use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::{FieldType, RowPB};
+use crate::entities::{FieldType, RowMetaPB};
 use crate::services::group::{GroupChangeset, GroupData, GroupSetting};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -79,7 +79,7 @@ pub struct GroupPB {
   pub group_name: String,
 
   #[pb(index = 4)]
-  pub rows: Vec<RowPB>,
+  pub rows: Vec<RowMetaPB>,
 
   #[pb(index = 5)]
   pub is_default: bool,
@@ -94,7 +94,11 @@ impl std::convert::From<GroupData> for GroupPB {
       field_id: group_data.field_id,
       group_id: group_data.id,
       group_name: group_data.name,
-      rows: group_data.rows.into_iter().map(RowPB::from).collect(),
+      rows: group_data
+        .rows
+        .into_iter()
+        .map(|row_detail| RowMetaPB::from(row_detail.meta))
+        .collect(),
       is_default: group_data.is_default,
       is_visible: group_data.is_visible,
     }

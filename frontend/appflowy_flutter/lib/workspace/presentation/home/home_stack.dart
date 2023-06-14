@@ -121,14 +121,12 @@ class HomeStackNotifier extends ChangeNotifier {
   /// This is the only place where the plugin is set.
   /// No need compare the old plugin with the new plugin. Just set it.
   set plugin(Plugin newPlugin) {
-    _plugin.notifier?.isDisplayChanged.addListener(notifyListeners);
     _plugin.dispose();
 
     /// Set the plugin view as the latest view.
     FolderEventSetLatestView(ViewIdPB(value: newPlugin.id)).send();
 
     _plugin = newPlugin;
-    _plugin.notifier?.isDisplayChanged.removeListener(notifyListeners);
     notifyListeners();
   }
 

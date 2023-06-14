@@ -1,9 +1,9 @@
-use crate::database::database_editor::DatabaseEditorTest;
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::cell::stringify_cell_data;
 use flowy_database2::services::field::CHECK;
-
 use flowy_database2::services::share::csv::CSVFormat;
+
+use crate::database::database_editor::DatabaseEditorTest;
 
 #[tokio::test]
 async fn export_meta_csv_test() {
@@ -63,8 +63,8 @@ async fn export_and_then_import_meta_csv_test() {
   assert_eq!(fields[9].field_type, 9);
 
   for field in fields {
-    for (index, row) in rows.iter().enumerate() {
-      if let Some(cell) = row.cells.get(&field.id) {
+    for (index, row_detail) in rows.iter().enumerate() {
+      if let Some(cell) = row_detail.row.cells.get(&field.id) {
         let field_type = FieldType::from(field.field_type);
         let s = stringify_cell_data(cell, &field_type, &field_type, &field);
         match &field_type {
@@ -102,7 +102,7 @@ async fn export_and_then_import_meta_csv_test() {
       } else {
         panic!(
           "Can not found the cell with id: {} in {:?}",
-          field.id, row.cells
+          field.id, row_detail.row.cells
         );
       }
     }
@@ -136,8 +136,8 @@ async fn history_database_import_test() {
   assert_eq!(fields[7].field_type, 7);
 
   for field in fields {
-    for (index, row) in rows.iter().enumerate() {
-      if let Some(cell) = row.cells.get(&field.id) {
+    for (index, row_detail) in rows.iter().enumerate() {
+      if let Some(cell) = row_detail.row.cells.get(&field.id) {
         let field_type = FieldType::from(field.field_type);
         let s = stringify_cell_data(cell, &field_type, &field_type, &field);
         match &field_type {
@@ -183,7 +183,7 @@ async fn history_database_import_test() {
       } else {
         panic!(
           "Can not found the cell with id: {} in {:?}",
-          field.id, row.cells
+          field.id, row_detail.row.cells
         );
       }
     }

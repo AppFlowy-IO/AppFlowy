@@ -268,7 +268,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
 
     final eventData = CalendarDayEvent(
       event: eventPB,
-      eventId: eventPB.rowId,
+      eventId: eventPB.rowMeta.id,
       dateFieldId: eventPB.dateFieldId,
       date: date,
     );
@@ -310,7 +310,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         }
         add(CalendarEvent.didDeleteEvents(rowIds));
       },
-      onRowsUpdated: (rowIds) async {
+      onRowsUpdated: (rowIds, reason) async {
         if (isClosed) {
           return;
         }

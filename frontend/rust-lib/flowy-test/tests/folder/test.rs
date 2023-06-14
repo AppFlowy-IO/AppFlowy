@@ -62,6 +62,69 @@ async fn create_view_event_test() {
 }
 
 #[tokio::test]
+async fn update_view_event_with_name_test() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let view = test
+    .create_view(&current_workspace.id, "My first view".to_string())
+    .await;
+
+  let error = test
+    .update_view(UpdateViewPayloadPB {
+      view_id: view.id.clone(),
+      name: Some("My second view".to_string()),
+      ..Default::default()
+    })
+    .await;
+  assert!(error.is_none());
+
+  let view = test.get_view(&view.id).await;
+  assert_eq!(view.name, "My second view");
+}
+
+#[tokio::test]
+async fn update_view_event_with_icon_url_test() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let view = test
+    .create_view(&current_workspace.id, "My first view".to_string())
+    .await;
+
+  let error = test
+    .update_view(UpdateViewPayloadPB {
+      view_id: view.id.clone(),
+      icon_url: Some("appflowy.io".to_string()),
+      ..Default::default()
+    })
+    .await;
+  assert!(error.is_none());
+
+  let view = test.get_view(&view.id).await;
+  assert_eq!(view.icon_url.unwrap(), "appflowy.io");
+}
+
+#[tokio::test]
+async fn update_view_event_with_cover_url_test() {
+  let test = FlowyCoreTest::new_with_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let view = test
+    .create_view(&current_workspace.id, "My first view".to_string())
+    .await;
+
+  let error = test
+    .update_view(UpdateViewPayloadPB {
+      view_id: view.id.clone(),
+      cover_url: Some("appflowy.io".to_string()),
+      ..Default::default()
+    })
+    .await;
+  assert!(error.is_none());
+
+  let view = test.get_view(&view.id).await;
+  assert_eq!(view.cover_url.unwrap(), "appflowy.io");
+}
+
+#[tokio::test]
 async fn delete_view_event_test() {
   let test = FlowyCoreTest::new_with_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;

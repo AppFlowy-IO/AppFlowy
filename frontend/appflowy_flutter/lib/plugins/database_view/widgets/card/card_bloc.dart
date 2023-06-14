@@ -12,24 +12,24 @@ import '../../application/row/row_service.dart';
 part 'card_bloc.freezed.dart';
 
 class CardBloc extends Bloc<RowCardEvent, RowCardState> {
-  final RowPB row;
+  final RowMetaPB rowMeta;
   final String? groupFieldId;
   final RowBackendService _rowBackendSvc;
   final RowCache _rowCache;
   VoidCallback? _rowCallback;
+  final String viewId;
 
   CardBloc({
-    required this.row,
+    required this.rowMeta,
     required this.groupFieldId,
-    required String viewId,
+    required this.viewId,
     required RowCache rowCache,
     required bool isEditing,
   })  : _rowBackendSvc = RowBackendService(viewId: viewId),
         _rowCache = rowCache,
         super(
           RowCardState.initial(
-            row,
-            _makeCells(groupFieldId, rowCache.loadGridCells(row.id)),
+            _makeCells(groupFieldId, rowCache.loadGridCells(rowMeta)),
             isEditing,
           ),
         ) {
@@ -70,13 +70,14 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
       fields: UnmodifiableListView(
         state.cells.map((cell) => cell.fieldInfo).toList(),
       ),
-      rowPB: state.rowPB,
+      rowId: rowMeta.id,
+      rowMeta: rowMeta,
     );
   }
 
   Future<void> _startListening() async {
     _rowCallback = _rowCache.addListener(
-      rowId: row.id,
+      rowId: rowMeta.id,
       onCellUpdated: (cellMap, reason) {
         if (!isClosed) {
           final cells = _makeCells(groupFieldId, cellMap);
@@ -118,19 +119,16 @@ class RowCardEvent with _$RowCardEvent {
 @freezed
 class RowCardState with _$RowCardState {
   const factory RowCardState({
-    required RowPB rowPB,
     required List<DatabaseCellContext> cells,
     required bool isEditing,
     RowsChangedReason? changeReason,
   }) = _RowCardState;
 
   factory RowCardState.initial(
-    RowPB rowPB,
     List<DatabaseCellContext> cells,
     bool isEditing,
   ) =>
       RowCardState(
-        rowPB: rowPB,
         cells: cells,
         isEditing: isEditing,
       );

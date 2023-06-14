@@ -23,7 +23,7 @@ class DatabaseSettingList extends StatelessWidget {
   Widget build(BuildContext context) {
     final cells = actionsForDatabaseLayout(databaseContoller.databaseLayout)
         .map((action) {
-      return _SettingItem(
+      return DatabaseSettingItem(
         action: action,
         onAction: (action) => onAction(action, databaseContoller),
       );
@@ -44,11 +44,11 @@ class DatabaseSettingList extends StatelessWidget {
   }
 }
 
-class _SettingItem extends StatelessWidget {
+class DatabaseSettingItem extends StatelessWidget {
   final DatabaseSettingAction action;
   final Function(DatabaseSettingAction) onAction;
 
-  const _SettingItem({
+  const DatabaseSettingItem({
     required this.action,
     required this.onAction,
     Key? key,
