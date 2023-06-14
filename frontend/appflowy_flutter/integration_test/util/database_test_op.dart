@@ -1,8 +1,11 @@
 import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell_action_sheet.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_option_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
+import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -100,9 +103,46 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   /// Should call [tapGridFieldWithName] first.
-  Future<void> tapEditProperty() async {
+  Future<void> tapEditPropertyButton() async {
     await tapButtonWithName(LocaleKeys.grid_field_editProperty.tr());
     await pumpAndSettle(const Duration(milliseconds: 200));
+  }
+
+  /// Should call [tapGridFieldWithName] first.
+  Future<void> tapDeletePropertyButton() async {
+    final field = find.byWidgetPredicate(
+      (widget) =>
+          widget is FieldActionCell && widget.action == FieldAction.delete,
+    );
+    await tapButton(field);
+  }
+
+  /// Should call [tapGridFieldWithName] first.
+  Future<void> tapDialogOkButton() async {
+    final field = find.byWidgetPredicate(
+      (widget) =>
+          widget is PrimaryTextButton &&
+          widget.label == LocaleKeys.button_OK.tr(),
+    );
+    await tapButton(field);
+  }
+
+  /// Should call [tapGridFieldWithName] first.
+  Future<void> tapDuplicatePropertyButton() async {
+    final field = find.byWidgetPredicate(
+      (widget) =>
+          widget is FieldActionCell && widget.action == FieldAction.duplicate,
+    );
+    await tapButton(field);
+  }
+
+  /// Should call [tapGridFieldWithName] first.
+  Future<void> tapHidePropertyButton() async {
+    final field = find.byWidgetPredicate(
+      (widget) =>
+          widget is FieldActionCell && widget.action == FieldAction.hide,
+    );
+    await tapButton(field);
   }
 
   Future<void> tapRowDetailPageCreatePropertyButton() async {
@@ -167,10 +207,17 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> findFieldWithName(String name) async {
-    // final fieldName = find.byWidgetPredicate(
-    //   (widget) => widget is FlowyText && widget.title == name,
-    // );
-    expect(find.text(name), findsOneWidget);
+    final field = find.byWidgetPredicate(
+      (widget) => widget is FieldCellButton && widget.field.name == name,
+    );
+    expect(field, findsOneWidget);
+  }
+
+  Future<void> noFieldWithName(String name) async {
+    final field = find.byWidgetPredicate(
+      (widget) => widget is FieldCellButton && widget.field.name == name,
+    );
+    expect(field, findsNothing);
   }
 
   Future<void> renameField(String newName) async {

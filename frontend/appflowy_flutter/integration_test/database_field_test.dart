@@ -1,6 +1,9 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:highlight/languages/tap.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'util/database_test_op.dart';
@@ -34,7 +37,7 @@ void main() {
 
       // Invoke the field editor
       await tester.tapGridFieldWithName('Name');
-      await tester.tapEditProperty();
+      await tester.tapEditPropertyButton();
 
       await tester.renameField('hello world');
       await tester.dismissFieldEditor();
@@ -52,7 +55,7 @@ void main() {
 
       // Invoke the field editor
       await tester.tapGridFieldWithName('Type');
-      await tester.tapEditProperty();
+      await tester.tapEditPropertyButton();
 
       await tester.tapTypeOptionButton();
       await tester.selectFieldType(FieldType.Checkbox);
@@ -79,6 +82,30 @@ void main() {
 
       // Check the field is created successfully
       await tester.findFieldWithName('checklist');
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('delete field', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      await tester.tapAddButton();
+      await tester.tapCreateGridButton();
+
+      // create a field
+      await tester.scrollToRight(find.byType(GridPage));
+      await tester.tapNewPropertyButton();
+      await tester.renameField('New field 1');
+      await tester.dismissFieldEditor();
+
+      // Delete the field
+      await tester.tapGridFieldWithName('New field 1');
+      await tester.tapDeletePropertyButton();
+
+      // confirm delete
+      await tester.tapDialogOkButton();
+
+      await tester.noFieldWithName('New field 1');
       await tester.pumpAndSettle();
     });
 
