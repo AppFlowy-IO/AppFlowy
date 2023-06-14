@@ -156,5 +156,23 @@ void main() {
         await tester.pumpAndSettle();
       }
     });
+
+    testWidgets('check document is exist in row detail page', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      // Create a new grid
+      await tester.tapAddButton();
+      await tester.tapCreateGridButton();
+      await tester.pumpAndSettle();
+
+      // Hover first row and then open the row page
+      await tester.openFirstRowDetailPage();
+
+      // Each row detail page should have a document
+      await tester.assertDocumentExistInRowDetailPage();
+
+      await tester.pumpAndSettle();
+    });
   });
 }

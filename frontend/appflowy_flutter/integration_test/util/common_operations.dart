@@ -12,6 +12,7 @@ import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_action.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
+import 'package:appflowy/plugins/document/document_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/emoji_picker/emoji_menu_item.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
@@ -276,6 +277,10 @@ extension CommonOperations on WidgetTester {
 
   Future<void> assertNumberOfRows(int num) async {
     expect(find.byType(GridRow), findsNWidgets(num));
+  }
+
+  Future<void> assertDocumentExistInRowDetailPage() async {
+    expect(find.byType(DocumentPage), findsOneWidget);
   }
 
   Future<void> findFieldWithName(String name) async {
