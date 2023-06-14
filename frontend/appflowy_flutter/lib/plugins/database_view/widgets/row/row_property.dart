@@ -55,7 +55,7 @@ class RowPropertyList extends StatelessWidget {
             const VSpace(20),
 
             // Create a new property(field) button
-            CreateFieldButton(viewId: viewId),
+            CreateRowFieldButton(viewId: viewId),
           ],
         );
       },

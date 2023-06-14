@@ -2,13 +2,16 @@ import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/footer/grid_footer.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/row.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/row_action.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/emoji_picker/emoji_menu_item.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
@@ -229,6 +232,11 @@ extension CommonOperations on WidgetTester {
     await pumpAndSettle();
   }
 
+  Future<void> scrollRowDetailByOffset(Offset offset) async {
+    await drag(find.byType(RowDetailPage), offset);
+    await pumpAndSettle();
+  }
+
   Future<void> scrollToRight(Finder find) async {
     final size = getSize(find);
     await drag(find, Offset(-size.width, 0));
@@ -238,6 +246,10 @@ extension CommonOperations on WidgetTester {
   Future<void> tapNewPropertyButton() async {
     await tapButtonWithName(LocaleKeys.grid_field_newProperty.tr());
     await pumpAndSettle();
+  }
+
+  Future<void> tapRowDetailPageCreatePropertyButton() async {
+    await tapButton(find.byType(CreateRowFieldButton));
   }
 
   Future<void> tapTypeOptionButton() async {
@@ -258,8 +270,12 @@ extension CommonOperations on WidgetTester {
     expect(finder, findsWidgets);
   }
 
-  Future<void> assertNumberOfField(int num) async {
+  Future<void> assertNumberOfFields(int num) async {
     expect(find.byType(GridFieldCell), findsNWidgets(num));
+  }
+
+  Future<void> assertNumberOfRows(int num) async {
+    expect(find.byType(GridRow), findsNWidgets(num));
   }
 
   Future<void> findFieldWithName(String name) async {
@@ -280,6 +296,19 @@ extension CommonOperations on WidgetTester {
     await sendKeyEvent(LogicalKeyboardKey.escape);
     await sendKeyEvent(LogicalKeyboardKey.escape);
     await pumpAndSettle(const Duration(milliseconds: 500));
+  }
+
+  Future<void> tapCreateRowButtonInGrid() async {
+    await tapButton(find.byType(GridAddRowButton));
+  }
+
+  Future<void> tapRowMenuButtonInGrid() async {
+    await tapButton(find.byType(RowMenuButton));
+  }
+
+  /// Should call [tapRowMenuButtonInGrid] first.
+  Future<void> tapDeleteOnRowMenu() async {
+    await tapButtonWithName(LocaleKeys.grid_row_delete.tr());
   }
 }
 

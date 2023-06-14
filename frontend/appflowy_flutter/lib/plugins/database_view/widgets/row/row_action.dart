@@ -92,19 +92,19 @@ class _DuplicateButton extends StatelessWidget {
   }
 }
 
-class CreateFieldButton extends StatefulWidget {
+class CreateRowFieldButton extends StatefulWidget {
   final String viewId;
 
-  const CreateFieldButton({
+  const CreateRowFieldButton({
     required this.viewId,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<CreateFieldButton> createState() => _CreateFieldButtonState();
+  State<CreateRowFieldButton> createState() => _CreateRowFieldButtonState();
 }
 
-class _CreateFieldButtonState extends State<CreateFieldButton> {
+class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
   late PopoverController popoverController;
   late TypeOptionPB typeOption;
 

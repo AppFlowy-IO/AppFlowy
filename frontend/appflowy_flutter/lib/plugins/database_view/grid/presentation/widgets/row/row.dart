@@ -151,11 +151,11 @@ class _RowLeadingState extends State<_RowLeading> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const _InsertButton(),
+        const _InsertRowButton(),
         if (isDraggable) ...[
           ReorderableDragStartListener(
             index: widget.index!,
-            child: _MenuButton(
+            child: RowMenuButton(
               isDragEnabled: isDraggable,
               openMenu: () {
                 popoverController.show();
@@ -163,7 +163,7 @@ class _RowLeadingState extends State<_RowLeading> {
             ),
           ),
         ] else ...[
-          _MenuButton(
+          RowMenuButton(
             openMenu: () {
               popoverController.show();
             },
@@ -176,8 +176,8 @@ class _RowLeadingState extends State<_RowLeading> {
   bool get isDraggable => widget.index != null && widget.isDraggable;
 }
 
-class _InsertButton extends StatelessWidget {
-  const _InsertButton({Key? key}) : super(key: key);
+class _InsertRowButton extends StatelessWidget {
+  const _InsertRowButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -196,20 +196,21 @@ class _InsertButton extends StatelessWidget {
   }
 }
 
-class _MenuButton extends StatefulWidget {
+class RowMenuButton extends StatefulWidget {
   final VoidCallback openMenu;
   final bool isDragEnabled;
 
-  const _MenuButton({
+  const RowMenuButton({
     required this.openMenu,
     this.isDragEnabled = false,
+    super.key,
   });
 
   @override
-  State<_MenuButton> createState() => _MenuButtonState();
+  State<RowMenuButton> createState() => _RowMenuButtonState();
 }
 
-class _MenuButtonState extends State<_MenuButton> {
+class _RowMenuButtonState extends State<RowMenuButton> {
   @override
   Widget build(BuildContext context) {
     return FlowyIconButton(
