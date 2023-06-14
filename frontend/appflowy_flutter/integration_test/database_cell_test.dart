@@ -63,23 +63,43 @@ void main() {
         fieldType: fieldType,
         input: '-1',
       );
-
+      // edit the next cell to force the previous cell at row 0 to lose focus
+      await tester.editCell(
+        rowIndex: 1,
+        fieldType: fieldType,
+        input: '0.2',
+      );
+      // -1 -> -1
       await tester.assertCellContent(
         rowIndex: 0,
         fieldType: fieldType,
         content: '-1',
       );
 
+      // edit the next cell to force the previous cell at row 1 to lose focus
       await tester.editCell(
-        rowIndex: 1,
+        rowIndex: 2,
         fieldType: fieldType,
-        input: '0.2',
+        input: '.1',
       );
-
+      // 0.2 -> 0.2
       await tester.assertCellContent(
         rowIndex: 1,
         fieldType: fieldType,
         content: '0.2',
+      );
+
+      // edit the next cell to force the previous cell at row 2 to lose focus
+      await tester.editCell(
+        rowIndex: 0,
+        fieldType: fieldType,
+        input: '',
+      );
+      // .1 -> 0.1
+      await tester.assertCellContent(
+        rowIndex: 2,
+        fieldType: fieldType,
+        content: '0.1',
       );
 
       await tester.pumpAndSettle();

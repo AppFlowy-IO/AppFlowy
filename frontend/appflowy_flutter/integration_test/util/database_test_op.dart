@@ -51,6 +51,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
     expect(cell, findsOneWidget);
     await enterText(cell, input);
+    await pumpAndSettle();
   }
 
   Future<void> assertCellContent({
@@ -60,7 +61,6 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }) async {
     final findRow = find.byType(GridRow);
     final findCell = finderForFieldType(fieldType);
-
     final cell = find.descendant(
       of: findRow.at(rowIndex),
       matching: findCell,
@@ -72,7 +72,6 @@ extension AppFlowyDatabaseTest on WidgetTester {
     );
 
     expect(findContent, findsOneWidget);
-    await pumpAndSettle(const Duration(milliseconds: 500));
   }
 
   Future<void> openFirstRowDetailPage() async {
