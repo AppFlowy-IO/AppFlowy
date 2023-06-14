@@ -69,15 +69,14 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      // Create a new grid
+      // create a new grid
       await tester.tapAddButton();
       await tester.tapCreateGridButton();
 
-      await tester.scrollToRight(find.byType(GridPage));
-      await tester.tapNewPropertyButton();
-      await tester.renameField('checklist');
+      // create a field
+      await tester.createField(FieldType.Checklist, 'checklist');
 
-      // Check the field is created successfully
+      // check the field is created successfully
       await tester.findFieldWithName('checklist');
       await tester.pumpAndSettle();
     });
@@ -90,10 +89,7 @@ void main() {
       await tester.tapCreateGridButton();
 
       // create a field
-      await tester.scrollToRight(find.byType(GridPage));
-      await tester.tapNewPropertyButton();
-      await tester.renameField('New field 1');
-      await tester.dismissFieldEditor();
+      await tester.createField(FieldType.Checkbox, 'New field 1');
 
       // Delete the field
       await tester.tapGridFieldWithName('New field 1');
@@ -118,6 +114,7 @@ void main() {
       await tester.tapNewPropertyButton();
       await tester.renameField('New field 1');
       await tester.dismissFieldEditor();
+      await tester.createField(FieldType.RichText, 'New field 1');
 
       // Delete the field
       await tester.tapGridFieldWithName('New field 1');

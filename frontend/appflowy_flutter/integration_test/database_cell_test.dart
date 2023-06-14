@@ -45,5 +45,44 @@ void main() {
 
       await tester.pumpAndSettle();
     });
+
+    testWidgets('edit number cell', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      await tester.tapAddButton();
+      await tester.tapCreateGridButton();
+
+      const fieldType = FieldType.Number;
+
+      // Create a number field
+      await tester.createField(fieldType, fieldType.name);
+
+      await tester.editCell(
+        rowIndex: 0,
+        fieldType: fieldType,
+        input: '-1',
+      );
+
+      await tester.assertCellContent(
+        rowIndex: 0,
+        fieldType: fieldType,
+        content: '-1',
+      );
+
+      await tester.editCell(
+        rowIndex: 1,
+        fieldType: fieldType,
+        input: '0.2',
+      );
+
+      await tester.assertCellContent(
+        rowIndex: 1,
+        fieldType: fieldType,
+        content: '0.2',
+      );
+
+      await tester.pumpAndSettle();
+    });
   });
 }

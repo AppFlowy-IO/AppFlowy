@@ -45,7 +45,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     final findCell = finderForFieldType(fieldType);
 
     final cell = find.descendant(
-      of: findRow.at(0),
+      of: findRow.at(rowIndex),
       matching: findCell,
     );
 
@@ -62,7 +62,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     final findCell = finderForFieldType(fieldType);
 
     final cell = find.descendant(
-      of: findRow.at(0),
+      of: findRow.at(rowIndex),
       matching: findCell,
     );
 
@@ -72,6 +72,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     );
 
     expect(findContent, findsOneWidget);
+    await pumpAndSettle(const Duration(milliseconds: 500));
   }
 
   Future<void> openFirstRowDetailPage() async {
@@ -202,6 +203,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await sendKeyEvent(LogicalKeyboardKey.escape);
   }
 
+  /// Must call [tapTypeOptionButton] first.
   Future<void> selectFieldType(FieldType fieldType) async {
     final fieldTypeButton = find.byWidgetPredicate(
       (widget) => widget is FlowyText && widget.title == fieldType.title(),
@@ -292,6 +294,15 @@ extension AppFlowyDatabaseTest on WidgetTester {
       (widget) => widget is FlowyText && widget.title == rowCountString(num),
     );
     expect(text, findsOneWidget);
+  }
+
+  Future<void> createField(FieldType fieldType, String name) async {
+    await scrollToRight(find.byType(GridPage));
+    await tapNewPropertyButton();
+    await renameField(name);
+    await tapTypeOptionButton();
+    await selectFieldType(fieldType);
+    await dismissFieldEditor();
   }
 }
 
