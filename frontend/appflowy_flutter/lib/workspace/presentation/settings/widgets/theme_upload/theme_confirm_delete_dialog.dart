@@ -26,7 +26,7 @@ class ThemeConfirmDeleteDialog extends StatelessWidget {
         height: 100,
       ),
       title: FlowyText.regular(
-        'Are you sure that you want to remove ${theme.themeName}?',
+        LocaleKeys.document_plugins_cover_alertDialogConfirmation.tr(),
         textAlign: TextAlign.center,
       ),
       child: Row(
