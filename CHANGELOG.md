@@ -1,10 +1,18 @@
 # Release Notes
 
+## Version 0.2.2 - 06/15/2023
+### New Features
+- Added support for embedding a document in the database's row detail page
+- Added support for inserting an emoji in the database's row detail page
+
+### Other Updates
+- Added language selector on the welcome page
+- Added support for importing multiple markdown files all at once
+
 ## Version 0.2.1 - 06/11/2023
 ### New Features
 - Added support for creating or referencing a calendar in the document
 - Added `+` icon in grid's add field
--
 
 ### Other Updates
 - Added vertical padding for progress bar
