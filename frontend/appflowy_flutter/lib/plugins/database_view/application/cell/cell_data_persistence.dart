@@ -49,8 +49,8 @@ class DateCellDataPersistence implements CellDataPersistence<DateCellData> {
     final payload = DateChangesetPB.create()
       ..cellId = _makeCellPath(cellContext);
     if (data.dateTime != null) {
-      final date = (data.dateTime!.millisecondsSinceEpoch ~/ 1000).toString();
-      payload.date = date;
+      final date = data.dateTime!.millisecondsSinceEpoch ~/ 1000;
+      payload.date = Int64(date);
     }
     if (data.time != null) {
       payload.time = data.time!;

@@ -28,7 +28,7 @@ pub struct DateChangesetPB {
   pub cell_id: CellIdPB,
 
   #[pb(index = 2, one_of)]
-  pub date: Option<String>,
+  pub date: Option<i64>,
 
   #[pb(index = 3, one_of)]
   pub time: Option<String>,

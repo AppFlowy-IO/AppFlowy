@@ -24,7 +24,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1647251762".to_owned()),
+              date: Some(1647251762),
               time: None,
               include_time: None,
             },
@@ -37,7 +37,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1647251762".to_owned()),
+              date: Some(1647251762),
               time: None,
               include_time: None,
             },
@@ -50,7 +50,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1647251762".to_owned()),
+              date: Some(1647251762),
               time: None,
               include_time: None,
             },
@@ -63,7 +63,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1647251762".to_owned()),
+              date: Some(1647251762),
               time: None,
               include_time: None,
             },
@@ -76,7 +76,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1647251762".to_owned()),
+              date: Some(1647251762),
               time: None,
               include_time: None,
             },
@@ -101,7 +101,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1653609600".to_owned()),
+              date: Some(1653609600),
               time: None,
               include_time: Some(true),
             },
@@ -112,7 +112,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1653609600".to_owned()),
+              date: Some(1653609600),
               time: Some("9:00".to_owned()),
               include_time: Some(true),
             },
@@ -123,7 +123,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1653609600".to_owned()),
+              date: Some(1653609600),
               time: Some("23:00".to_owned()),
               include_time: Some(true),
             },
@@ -136,7 +136,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1653609600".to_owned()),
+              date: Some(1653609600),
               time: None,
               include_time: Some(true),
             },
@@ -147,7 +147,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1653609600".to_owned()),
+              date: Some(1653609600),
               time: Some("9:00 AM".to_owned()),
               include_time: Some(true),
             },
@@ -158,7 +158,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1653609600".to_owned()),
+              date: Some(1653609600),
               time: Some("11:23 pm".to_owned()),
               include_time: Some(true),
             },
@@ -168,24 +168,6 @@ mod tests {
         },
       }
     }
-  }
-
-  #[test]
-  fn date_type_option_invalid_date_str_test() {
-    let field_type = FieldType::DateTime;
-    let type_option = DateTypeOption::test();
-    let field = FieldBuilder::from_field_type(field_type).build();
-    assert_date(
-      &type_option,
-      &field,
-      DateCellChangeset {
-        date: Some("abc".to_owned()),
-        time: None,
-        include_time: None,
-      },
-      None,
-      "",
-    );
   }
 
   #[test]
@@ -199,7 +181,7 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some("1653609600".to_owned()),
+        date: Some(1653609600),
         time: Some("1:".to_owned()),
         include_time: Some(true),
       },
@@ -219,7 +201,7 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some("1653609600".to_owned()),
+        date: Some(1653609600),
         time: Some("".to_owned()),
         include_time: Some(true),
       },
@@ -237,7 +219,7 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some("1653609600".to_owned()),
+        date: Some(1653609600),
         time: Some("00:00".to_owned()),
         include_time: Some(true),
       },
@@ -257,7 +239,7 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some("1653609600".to_owned()),
+        date: Some(1653609600),
         time: Some("1:00 am".to_owned()),
         include_time: Some(true),
       },
@@ -280,7 +262,7 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some("1653609600".to_owned()),
+        date: Some(1653609600),
         time: Some("20:00".to_owned()),
         include_time: Some(true),
       },
@@ -327,7 +309,7 @@ mod tests {
     let old_cell_data = initialize_date_cell(
       &type_option,
       DateCellChangeset {
-        date: Some("1700006400".to_owned()),
+        date: Some(1700006400),
         time: Some("08:00".to_owned()),
         include_time: Some(true),
       },
@@ -336,7 +318,7 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some("1701302400".to_owned()),
+        date: Some(1701302400),
         time: None,
         include_time: None,
       },
@@ -353,7 +335,7 @@ mod tests {
     let old_cell_data = initialize_date_cell(
       &type_option,
       DateCellChangeset {
-        date: Some("1700006400".to_owned()),
+        date: Some(1700006400),
         time: Some("08:00".to_owned()),
         include_time: Some(true),
       },
