@@ -74,6 +74,7 @@ class ImportPanel extends StatelessWidget {
         childAspectRatio: 1 / .2,
         crossAxisCount: 2,
         children: ImportType.values
+            .where((element) => element.enableOnRelease)
             .map(
               (e) => Card(
                 child: FlowyButton(
@@ -135,6 +136,14 @@ class ImportPanel extends StatelessWidget {
             name,
             parentViewId,
             ImportTypePB.HistoryDatabase,
+          );
+          break;
+        case ImportType.databaseRawData:
+          await ImportBackendService.importData(
+            utf8.encode(data),
+            name,
+            parentViewId,
+            ImportTypePB.RawDatabase,
           );
           break;
         case ImportType.databaseCSV:

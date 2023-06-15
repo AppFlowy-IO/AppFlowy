@@ -21,6 +21,8 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  FLUTTER_VERSION: "3.10.1"
+  RUST_TOOLCHAIN: "1.70"
 
 jobs:
   tests:
@@ -36,31 +38,36 @@ jobs:
         with:
           toolchain: "stable-2022-04-07"
 
-      - uses: subosito/flutter-action@v2
+      - name: Install Rust toolchain
+        id: rust_toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          target: ${{ matrix.target }}
+          override: true
+          profile: minimal
+
+      - name: Install flutter
+        id: flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: "stable"
-          flutter-version: "3.10.1"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
 
-      - name: Cache Cargo
-        uses: actions/cache@v2
+      - uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo
-          key: ${{ runner.os }}-cargo-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}
+          prefix-key: ${{ matrix.os }}
+          workspaces: |
+            frontend/rust-lib
 
-      - name: Cache Rust
-        id: cache-rust-target
-        uses: actions/cache@v2
+      - uses: davidB/rust-cargo-make@v1
         with:
-          path: |
-            frontend/rust-lib/target
-            shared-lib/target
-          key: ${{ runner.os }}-rust-rust-lib-share-lib-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}
+          version: '0.36.6'
 
-      - name: Setup Environment
+      - name: Install prerequisites
+        working-directory: frontend
         run: |
-          cargo install --force cargo-make
           cargo install --force duckscript_cli
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
@@ -73,14 +80,8 @@ jobs:
           elif [ "$RUNNER_OS" == "macOS" ]; then
             echo 'do nothing'
           fi
-        shell: bash
-
-      - if: steps.cache-cargo.outputs.cache-hit != 'true'
-        name: Rust Deps
-        working-directory: frontend
-        run: |
-          cargo install cargo-make
           cargo make appflowy-flutter-deps-tools
+        shell: bash
 
       - name: Config Flutter
         run: |
@@ -126,3 +127,4 @@ jobs:
           flags: appflowy_flutter_integrateion_test
           fail_ci_if_error: true
           verbose: true
+          os: ${{ matrix.os }}

@@ -42,6 +42,7 @@ class GridCellBuilder {
           cellControllerBuilder: cellControllerBuilder,
           key: key,
           style: style,
+          fieldType: cellContext.fieldType,
         );
       case FieldType.LastEditedTime:
       case FieldType.CreatedTime:
@@ -50,6 +51,7 @@ class GridCellBuilder {
           key: key,
           editable: false,
           style: style,
+          fieldType: cellContext.fieldType,
         );
       case FieldType.SingleSelect:
         return GridSingleSelectCell(

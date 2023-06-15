@@ -325,6 +325,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     let format = match import_type {
       ImportType::CSV => CSVFormat::Original,
       ImportType::HistoryDatabase => CSVFormat::META,
+      ImportType::RawDatabase => CSVFormat::META,
       _ => CSVFormat::Original,
     };
     FutureResult::new(async move {
