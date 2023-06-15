@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { RangeStatic } from 'quill';
 import { useAppDispatch } from '$app/stores/store';
 import { rangeActions } from '$app_reducers/document/slice';
@@ -8,6 +8,7 @@ import {
   useSubscribeDecorate,
 } from '$app/components/document/_shared/SubscribeSelection.hooks';
 import { storeRangeThunk } from '$app_reducers/document/async-actions/range';
+import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 
 export function useSelection(id: string) {
   const rangeRef = useRangeRef();
@@ -15,12 +16,13 @@ export function useSelection(id: string) {
   const decorateProps = useSubscribeDecorate(id);
   const [selection, setSelection] = useState<RangeStatic | undefined>(undefined);
   const dispatch = useAppDispatch();
-
+  const controller = useContext(DocumentControllerContext);
+  const docId = controller.documentId;
   const storeRange = useCallback(
     (range: RangeStatic) => {
-      dispatch(storeRangeThunk({ id, range }));
+      dispatch(storeRangeThunk({ id, range, docId }));
     },
-    [id, dispatch]
+    [docId, id, dispatch]
   );
 
   const onSelectionChange = useCallback(
@@ -28,14 +30,17 @@ export function useSelection(id: string) {
       if (!range) return;
       dispatch(
         rangeActions.setCaret({
-          id,
-          index: range.index,
-          length: range.length,
+          docId,
+          caret: {
+            id,
+            index: range.index,
+            length: range.length,
+          },
         })
       );
       storeRange(range);
     },
-    [id, dispatch, storeRange]
+    [docId, id, dispatch, storeRange]
   );
 
   useEffect(() => {

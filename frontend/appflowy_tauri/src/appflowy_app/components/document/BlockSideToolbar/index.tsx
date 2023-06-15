@@ -14,8 +14,11 @@ import { DocumentControllerContext } from '$app/stores/effects/document/document
 export default function BlockSideToolbar({ container }: { container: HTMLDivElement }) {
   const dispatch = useAppDispatch();
   const controller = useContext(DocumentControllerContext);
+  const docId = controller.documentId;
   const { nodeId, style, ref } = useBlockSideToolbar({ container });
-  const isDragging = useAppSelector((state) => state.documentRange.isDragging || state.documentRectSelection.isDragging);
+  const isDragging = useAppSelector(
+    (state) => state.documentRange[docId]?.isDragging || state.documentRectSelection[docId]?.isDragging
+  );
   const { handleOpen, ...popoverProps } = usePopover();
 
   // prevent popover from showing when anchorEl is not in DOM
@@ -60,7 +63,12 @@ export default function BlockSideToolbar({ container }: { container: HTMLDivElem
             tooltip={'Click to open Menu'}
             onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
               if (!nodeId) return;
-              dispatch(rectSelectionActions.setSelectionById(nodeId));
+              dispatch(
+                rectSelectionActions.setSelectionById({
+                  docId,
+                  blockId: nodeId,
+                })
+              );
               handleOpen(e);
             }}
           >

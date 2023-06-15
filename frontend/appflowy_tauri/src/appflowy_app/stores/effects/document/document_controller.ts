@@ -1,8 +1,7 @@
-import { DocumentBlockJSON, DocumentData, Node } from '@/appflowy_app/interfaces/document';
+import { DocumentData, Node } from '@/appflowy_app/interfaces/document';
 import { createContext } from 'react';
 import { DocumentBackendService } from './document_bd_svc';
 import {
-  FlowyError,
   BlockActionPB,
   DocEventPB,
   BlockActionTypePB,
@@ -17,15 +16,13 @@ import { get } from '@/appflowy_app/utils/tool';
 import { blockPB2Node } from '$app/utils/document/block';
 import { Log } from '$app/utils/log';
 
-export const DocumentControllerContext = createContext<DocumentController | null>(null);
-
 export class DocumentController {
   private readonly backendService: DocumentBackendService;
   private readonly observer: DocumentObserver;
 
   constructor(
     public readonly documentId: string,
-    private onDocChange?: (props: { isRemote: boolean; data: BlockEventPayloadPB }) => void
+    private onDocChange?: (props: { docId: string; isRemote: boolean; data: BlockEventPayloadPB }) => void
   ) {
     this.backendService = new DocumentBackendService(documentId);
     this.observer = new DocumentObserver(documentId);
@@ -172,6 +169,7 @@ export class DocumentController {
     events.forEach((blockEvent) => {
       blockEvent.event.forEach((_payload) => {
         this.onDocChange?.({
+          docId: this.documentId,
           isRemote: is_remote,
           data: _payload,
         });
@@ -179,3 +177,5 @@ export class DocumentController {
     });
   };
 }
+
+export const DocumentControllerContext = createContext<DocumentController>(new DocumentController(''));

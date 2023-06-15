@@ -1,22 +1,27 @@
 import { store, useAppSelector } from '@/appflowy_app/stores/store';
-import { createContext, useEffect, useMemo, useRef } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 import { Node } from '$app/interfaces/document';
+import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 
 /**
  * Subscribe node information
  * @param id
  */
 export function useSubscribeNode(id: string) {
-  const node = useAppSelector<Node>((state) => state.document.nodes[id]);
+  const controller = useContext(DocumentControllerContext);
+  const docId = controller.documentId;
+  const node = useAppSelector<Node>((state) => {
+    return state.document[docId].nodes[id];
+  });
 
   const childIds = useAppSelector<string[] | undefined>((state) => {
-    const childrenId = state.document.nodes[id]?.children;
+    const childrenId = state.document[docId].nodes[id]?.children;
     if (!childrenId) return;
-    return state.document.children[childrenId];
+    return state.document[docId].children[childrenId];
   });
 
   const isSelected = useAppSelector<boolean>((state) => {
-    return state.documentRectSelection.selection.includes(id) || false;
+    return state.documentRectSelection[docId]?.selection.includes(id) || false;
   });
 
   // Memoize the node and its children
@@ -32,8 +37,8 @@ export function useSubscribeNode(id: string) {
   };
 }
 
-export function getBlock(id: string) {
-  return store.getState().document.nodes[id];
+export function getBlock(docId: string, id: string) {
+  return store.getState().document[docId].nodes[id];
 }
 
 export const NodeIdContext = createContext<string>('');

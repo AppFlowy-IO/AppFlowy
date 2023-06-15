@@ -16,6 +16,8 @@ import { toggleFormatThunk } from '$app_reducers/document/async-actions/format';
 export function useCommonKeyEvents(id: string) {
   const { focused, caretRef } = useFocused(id);
   const controller = useContext(DocumentControllerContext);
+  const docId = controller.documentId;
+
   const dispatch = useAppDispatch();
   const commonKeyEvents = useMemo(() => {
     return [
@@ -42,7 +44,7 @@ export function useCommonKeyEvents(id: string) {
         },
         handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
           e.preventDefault();
-          dispatch(upDownActionForBlockThunk({ id }));
+          dispatch(upDownActionForBlockThunk({ docId, id }));
         },
       },
       {
@@ -52,7 +54,7 @@ export function useCommonKeyEvents(id: string) {
         },
         handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
           e.preventDefault();
-          dispatch(upDownActionForBlockThunk({ id, down: true }));
+          dispatch(upDownActionForBlockThunk({ docId, id, down: true }));
         },
       },
       {
@@ -62,7 +64,7 @@ export function useCommonKeyEvents(id: string) {
         },
         handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
           e.preventDefault();
-          dispatch(leftActionForBlockThunk({ id }));
+          dispatch(leftActionForBlockThunk({ docId, id }));
         },
       },
       {
@@ -72,7 +74,7 @@ export function useCommonKeyEvents(id: string) {
         },
         handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
           e.preventDefault();
-          dispatch(rightActionForBlockThunk({ id }));
+          dispatch(rightActionForBlockThunk({ docId, id }));
         },
       },
       {
@@ -91,6 +93,6 @@ export function useCommonKeyEvents(id: string) {
         },
       },
     ];
-  }, [caretRef, controller, dispatch, focused, id]);
+  }, [docId, caretRef, controller, dispatch, focused, id]);
   return commonKeyEvents;
 }

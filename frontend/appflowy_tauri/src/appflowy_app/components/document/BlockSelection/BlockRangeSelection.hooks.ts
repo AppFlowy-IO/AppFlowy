@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { rangeActions } from '$app_reducers/document/slice';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import {
@@ -9,12 +9,15 @@ import {
   setCursorAtStartOfNode,
 } from '$app/utils/document/node';
 import { useRangeKeyDown } from '$app/components/document/BlockSelection/RangeKeyDown.hooks';
+import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 
 export function useBlockRangeSelection(container: HTMLDivElement) {
   const dispatch = useAppDispatch();
   const onKeyDown = useRangeKeyDown();
-  const range = useAppSelector((state) => state.documentRange);
-  const isDragging = range.isDragging;
+  const controller = useContext(DocumentControllerContext);
+  const docId = controller.documentId;
+  const range = useAppSelector((state) => state.documentRange[docId]);
+  const isDragging = range?.isDragging;
 
   const anchorRef = useRef<{
     id: string;
@@ -29,12 +32,13 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
   const [isForward, setForward] = useState(true);
 
   const reset = useCallback(() => {
-    dispatch(rangeActions.clearRange());
+    dispatch(rangeActions.clearRange(docId));
     setForward(true);
-  }, [dispatch]);
+  }, [dispatch, docId]);
 
   // display caret color
   useEffect(() => {
+    if (!range) return;
     const { anchor, focus } = range;
     if (!anchor || !focus) {
       container.classList.remove('caret-transparent');
@@ -54,7 +58,12 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
     const selection = window.getSelection();
     if (!selection) return;
     // update focus point
-    dispatch(rangeActions.setFocusPoint(focus));
+    dispatch(
+      rangeActions.setFocusPoint({
+        ...focus,
+        docId,
+      })
+    );
 
     const focused = isFocused(focus.id);
     // if the focus block is not focused, we need to set the cursor position
@@ -108,11 +117,16 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
         ...anchor,
       };
       // set the anchor point and focus point
-      dispatch(rangeActions.setAnchorPoint({ ...anchor }));
-      dispatch(rangeActions.setFocusPoint({ ...anchor }));
-      dispatch(rangeActions.setDragging(true));
+      dispatch(rangeActions.setAnchorPoint({ ...anchor, docId }));
+      dispatch(rangeActions.setFocusPoint({ ...anchor, docId }));
+      dispatch(
+        rangeActions.setDragging({
+          isDragging: true,
+          docId,
+        })
+      );
     },
-    [container.scrollLeft, container.scrollTop, dispatch, reset]
+    [container.scrollLeft, container.scrollTop, dispatch, docId, reset]
   );
 
   const handleDraging = useCallback(
@@ -152,8 +166,13 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
     if (!isDragging) return;
     setFocus(null);
     anchorRef.current = null;
-    dispatch(rangeActions.setDragging(false));
-  }, [dispatch, isDragging]);
+    dispatch(
+      rangeActions.setDragging({
+        isDragging: false,
+        docId,
+      })
+    );
+  }, [docId, dispatch, isDragging]);
 
   useEffect(() => {
     document.addEventListener('mousedown', handleDragStart);

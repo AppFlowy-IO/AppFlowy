@@ -1,11 +1,16 @@
 import { useAppSelector } from '$app/stores/store';
 import { BlockType, NestedBlock } from '$app/interfaces/document';
+import { useContext } from 'react';
+import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 
 export function useNumberedListBlock(node: NestedBlock<BlockType.NumberedListBlock>) {
+  const controller = useContext(DocumentControllerContext);
+  const docId = controller.documentId;
   // Find the last index of the previous blocks
   const prevNumberedIndex = useAppSelector((state) => {
-    const nodes = state['document'].nodes;
-    const children = state['document'].children;
+    const documentState = state['document'][docId];
+    const nodes = documentState.nodes;
+    const children = documentState.children;
     // The parent must be existed
     const parent = nodes[node.parent!];
     const siblings = children[parent.children];

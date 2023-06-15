@@ -1,8 +1,9 @@
 import { BlockType, HeadingBlockData } from '@/appflowy_app/interfaces/document';
 import { useAppDispatch } from '@/appflowy_app/stores/store';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { PopoverOrigin } from '@mui/material/Popover/Popover';
 import { getBlock } from '$app/components/document/_shared/SubscribeNode.hooks';
+import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 
 const headingBlockTopOffset: Record<number, number> = {
   1: 7,
@@ -14,12 +15,13 @@ export function useBlockSideToolbar({ container }: { container: HTMLDivElement }
   const ref = useRef<HTMLDivElement | null>(null);
   const dispatch = useAppDispatch();
   const [style, setStyle] = useState<React.CSSProperties>({});
-
+  const controller = useContext(DocumentControllerContext);
+  const docId = controller.documentId;
   useEffect(() => {
     const el = ref.current;
     if (!el || !nodeId) return;
     void (async () => {
-      const node = getBlock(nodeId);
+      const node = getBlock(docId, nodeId);
       if (!node) {
         setStyle({
           opacity: '0',
@@ -41,7 +43,7 @@ export function useBlockSideToolbar({ container }: { container: HTMLDivElement }
         });
       }
     })();
-  }, [dispatch, nodeId]);
+  }, [dispatch, docId, nodeId]);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     const { clientX, clientY } = e;

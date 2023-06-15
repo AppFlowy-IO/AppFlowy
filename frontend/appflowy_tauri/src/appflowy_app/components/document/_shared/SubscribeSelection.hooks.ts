@@ -1,14 +1,17 @@
 import { useAppSelector } from '$app/stores/store';
 import { RangeState, RangeStatic } from '$app/interfaces/document';
-import { useMemo, useRef } from 'react';
+import { useContext, useMemo, useRef } from 'react';
+import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 
 export function useSubscribeDecorate(id: string) {
+  const controller = useContext(DocumentControllerContext);
+  const docId = controller?.documentId;
   const decorateSelection = useAppSelector((state) => {
-    return state.documentRange.ranges[id];
+    return state.documentRange[docId].ranges[id];
   });
 
   const linkDecorateSelection = useAppSelector((state) => {
-    const linkPopoverState = state.documentLinkPopover;
+    const linkPopoverState = state.documentLinkPopover[docId];
     if (!linkPopoverState.open || linkPopoverState.id !== id) return;
     return {
       selection: linkPopoverState.selection,
@@ -22,9 +25,11 @@ export function useSubscribeDecorate(id: string) {
   };
 }
 export function useFocused(id: string) {
+  const controller = useContext(DocumentControllerContext);
+  const docId = controller?.documentId;
   const caretRef = useRef<RangeStatic>();
   const focusCaret = useAppSelector((state) => {
-    const currentCaret = state.documentRange.caret;
+    const currentCaret = state.documentRange[docId].caret;
     caretRef.current = currentCaret;
     if (currentCaret?.id === id) {
       return currentCaret;
@@ -44,9 +49,11 @@ export function useFocused(id: string) {
 }
 
 export function useRangeRef() {
+  const controller = useContext(DocumentControllerContext);
+  const docId = controller?.documentId;
   const rangeRef = useRef<RangeState>();
   useAppSelector((state) => {
-    const currentRange = state.documentRange;
+    const currentRange = state.documentRange[docId];
     rangeRef.current = currentRange;
   });
   return rangeRef;

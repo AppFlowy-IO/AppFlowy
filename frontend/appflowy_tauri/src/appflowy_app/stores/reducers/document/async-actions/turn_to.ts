@@ -4,6 +4,7 @@ import { BlockData, BlockType, DocumentState } from '$app/interfaces/document';
 import { blockConfig } from '$app/constants/document/config';
 import { newBlock } from '$app/utils/document/block';
 import { rangeActions } from '$app_reducers/document/slice';
+import { RootState } from '$app/stores/store';
 
 /**
  * transform to block
@@ -17,8 +18,9 @@ export const turnToBlockThunk = createAsyncThunk(
   'document/turnToBlock',
   async (payload: { id: string; controller: DocumentController; type: BlockType; data: BlockData<any> }, thunkAPI) => {
     const { id, controller, type, data } = payload;
+    const docId = controller.documentId;
     const { dispatch, getState } = thunkAPI;
-    const state = (getState() as { document: DocumentState }).document;
+    const state = (getState() as RootState).document[docId];
 
     const node = state.nodes[id];
     if (!node.parent) return;
@@ -49,7 +51,12 @@ export const turnToBlockThunk = createAsyncThunk(
     // submit actions
     await controller.applyActions([...insertActions, ...moveChildrenActions, deleteAction]);
     // set cursor in new block
-    dispatch(rangeActions.setCaret({ id: caretId, index: 0, length: 0 }));
+    dispatch(
+      rangeActions.setCaret({
+        docId,
+        caret: { id: caretId, index: 0, length: 0 },
+      })
+    );
   }
 );
 

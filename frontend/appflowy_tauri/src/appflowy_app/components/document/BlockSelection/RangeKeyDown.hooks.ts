@@ -16,6 +16,7 @@ export function useRangeKeyDown() {
 
   const dispatch = useAppDispatch();
   const controller = useContext(DocumentControllerContext);
+  const docId = controller.documentId;
   const interceptEvents = useMemo(
     () => [
       {
@@ -92,6 +93,7 @@ export function useRangeKeyDown() {
           dispatch(
             arrowActionForRangeThunk({
               key: e.key,
+              docId,
             })
           );
         },
@@ -112,7 +114,7 @@ export function useRangeKeyDown() {
         },
       },
     ],
-    [controller, dispatch]
+    [controller, dispatch, docId]
   );
 
   const onKeyDownCapture = useCallback(

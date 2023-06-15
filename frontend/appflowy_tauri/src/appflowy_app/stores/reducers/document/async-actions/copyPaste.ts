@@ -17,13 +17,15 @@ import { rangeActions } from '$app_reducers/document/slice';
 export const copyThunk = createAsyncThunk<
   void,
   {
+    docId: string;
     setClipboardData: (data: BlockCopyData) => void;
   }
 >('document/copy', async (payload, thunkAPI) => {
   const { getState } = thunkAPI;
-  const { setClipboardData } = payload;
+  const { setClipboardData, docId } = payload;
   const state = getState() as RootState;
-  const { document, documentRange } = state;
+  const document = state.document[docId];
+  const documentRange = state.documentRange[docId];
   const startAndEndIds = getStartAndEndIdsByRange(documentRange);
   if (startAndEndIds.length === 0) return;
   const result: DocumentBlockJSON[] = [];
@@ -94,6 +96,11 @@ export const pasteThunk = createAsyncThunk<
   // delete range blocks
   await dispatch(deleteRangeAndInsertThunk({ controller }));
 
+  const state = getState() as RootState;
+  const docId = controller.documentId;
+  const document = state.document[docId];
+  const documentRange = state.documentRange[docId];
+
   let pasteData;
   if (data.json) {
     pasteData = JSON.parse(data.json) as DocumentBlockJSON[];
@@ -103,7 +110,6 @@ export const pasteThunk = createAsyncThunk<
     // TODO: implement html
   }
   if (!pasteData) return;
-  const { document, documentRange } = getState() as RootState;
   const { caret } = documentRange;
   if (!caret) return;
   const currentBlock = document.nodes[caret.id];
@@ -135,9 +141,12 @@ export const pasteThunk = createAsyncThunk<
     // set caret to the end of the last paste block
     dispatch(
       rangeActions.setCaret({
-        id: lastPasteBlock.id,
-        index: new Delta(lastPasteBlock.data.delta).length(),
-        length: 0,
+        docId,
+        caret: {
+          id: lastPasteBlock.id,
+          index: new Delta(lastPasteBlock.data.delta).length(),
+          length: 0,
+        },
       })
     );
     return;
@@ -150,7 +159,11 @@ export const pasteThunk = createAsyncThunk<
     length: currentBlockDelta.length() - caret.index,
   });
 
-  let newCaret;
+  let newCaret: {
+    id: string;
+    index: number;
+    length: number;
+  };
   const firstPasteBlockDelta = new Delta(firstPasteBlock.data.delta);
   const lastPasteBlockDelta = new Delta(lastPasteBlock.data.delta);
   let mergeDelta = new Delta(currentBeforeDelta.ops).concat(firstPasteBlockDelta);
@@ -198,5 +211,10 @@ export const pasteThunk = createAsyncThunk<
   // set caret to the end of the last paste block
   if (!newCaret) return;
 
-  dispatch(rangeActions.setCaret(newCaret));
+  dispatch(
+    rangeActions.setCaret({
+      docId,
+      caret: newCaret,
+    })
+  );
 });

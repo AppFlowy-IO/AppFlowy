@@ -4,6 +4,7 @@ import { useTextLink } from '$app/components/document/_shared/TextLink/TextLink.
 import EditLinkToolbar from '$app/components/document/_shared/TextLink/EditLinkToolbar';
 import { useAppDispatch } from '$app/stores/store';
 import { linkPopoverActions } from '$app_reducers/document/slice';
+import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 
 function TextLink({
   getSelection,
@@ -22,7 +23,8 @@ function TextLink({
   const blockId = useContext(NodeIdContext);
   const { editing, ref, onMouseEnter, onMouseLeave } = useTextLink(blockId);
   const dispatch = useAppDispatch();
-
+  const controller = useContext(DocumentControllerContext);
+  const docId = controller.documentId;
   const onEdit = useCallback(() => {
     if (!ref.current) return;
     const selection = getSelection(ref.current);
@@ -31,18 +33,21 @@ function TextLink({
     if (!rect) return;
     dispatch(
       linkPopoverActions.setLinkPopover({
-        anchorPosition: {
-          top: rect.top + rect.height,
-          left: rect.left + rect.width / 2,
+        docId,
+        linkState: {
+          anchorPosition: {
+            top: rect.top + rect.height,
+            left: rect.left + rect.width / 2,
+          },
+          id: blockId,
+          selection,
+          title,
+          href,
+          open: true,
         },
-        id: blockId,
-        selection,
-        title,
-        href,
-        open: true,
       })
     );
-  }, [blockId, dispatch, getSelection, href, ref, title]);
+  }, [blockId, dispatch, docId, getSelection, href, ref, title]);
   if (!blockId) return null;
 
   return (

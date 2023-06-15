@@ -1,5 +1,5 @@
 import { useAppSelector } from '$app/stores/store';
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import {
   blockConfig,
   defaultTextActionProps,
@@ -9,9 +9,12 @@ import {
 } from '$app/constants/document/config';
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
 import { TextAction } from '$app/interfaces/document';
+import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 
 export function useTextActionMenu() {
-  const range = useAppSelector((state) => state.documentRange);
+  const controller = useContext(DocumentControllerContext);
+  const docId = controller.documentId;
+  const range = useAppSelector((state) => state.documentRange[docId]);
   const isSingleLine = useMemo(() => {
     return range.focus?.id === range.anchor?.id;
   }, [range]);

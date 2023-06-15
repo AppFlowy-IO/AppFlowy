@@ -8,7 +8,7 @@ import { clipboardTypes } from '$app/constants/document/copy_paste';
 export function useCopy(container: HTMLDivElement) {
   const dispatch = useAppDispatch();
   const controller = useContext(DocumentControllerContext);
-
+  const docId = controller.documentId;
   const handleCopyCapture = useCallback(
     (e: ClipboardEvent) => {
       if (!controller) return;
@@ -22,10 +22,11 @@ export function useCopy(container: HTMLDivElement) {
       dispatch(
         copyThunk({
           setClipboardData,
+          docId,
         })
       );
     },
-    [controller, dispatch]
+    [docId, controller, dispatch]
   );
 
   useEffect(() => {

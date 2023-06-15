@@ -4,7 +4,13 @@ import { DocumentData } from '../interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { useAppDispatch } from '../stores/store';
 import { Log } from '../utils/log';
-import { documentActions } from '../stores/reducers/document/slice';
+import {
+  documentActions,
+  linkPopoverActions,
+  rangeActions,
+  rectSelectionActions,
+  slashCommandActions,
+} from '../stores/reducers/document/slice';
 import { BlockEventPayloadPB } from '@/services/backend/models/flowy-document2';
 
 export const useDocument = () => {
@@ -14,9 +20,39 @@ export const useDocument = () => {
   const [controller, setController] = useState<DocumentController | null>(null);
   const dispatch = useAppDispatch();
 
-  const onDocumentChange = useCallback((props: { isRemote: boolean; data: BlockEventPayloadPB }) => {
-    dispatch(documentActions.onDataChange(props));
-  }, []);
+  const onDocumentChange = useCallback(
+    (props: { docId: string; isRemote: boolean; data: BlockEventPayloadPB }) => {
+      dispatch(documentActions.onDataChange(props));
+    },
+    [dispatch]
+  );
+
+  const initializeDocument = useCallback(
+    (docId: string, data: DocumentData) => {
+      dispatch(
+        documentActions.create({
+          ...data,
+          docId,
+        })
+      );
+      dispatch(rangeActions.initialState(docId));
+      dispatch(rectSelectionActions.initialState(docId));
+      dispatch(slashCommandActions.initialState(docId));
+      dispatch(linkPopoverActions.initialState(docId));
+    },
+    [dispatch]
+  );
+
+  const clearDocument = useCallback(
+    (docId: string) => {
+      dispatch(documentActions.clear(docId));
+      dispatch(rangeActions.clear(docId));
+      dispatch(rectSelectionActions.clear(docId));
+      dispatch(slashCommandActions.clear(docId));
+      dispatch(linkPopoverActions.clear(docId));
+    },
+    [dispatch]
+  );
 
   useEffect(() => {
     let documentController: DocumentController | null = null;
@@ -28,6 +64,7 @@ export const useDocument = () => {
       try {
         const res = await documentController.open();
         if (!res) return;
+        initializeDocument(documentController.documentId, res);
         setDocumentData(res);
         setDocumentId(params.id);
       } catch (e) {
@@ -37,13 +74,14 @@ export const useDocument = () => {
 
     const closeDocument = () => {
       if (documentController) {
+        clearDocument(documentController.documentId);
         void documentController.dispose();
       }
       Log.debug('close document', params.id);
     };
 
     return closeDocument;
-  }, [params.id]);
+  }, [clearDocument, initializeDocument, onDocumentChange, params.id]);
 
   return { documentId, documentData, controller };
 };

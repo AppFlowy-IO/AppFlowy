@@ -71,8 +71,7 @@ export function getAfterMergeCaretByRange(rangeState: RangeState, insertDelta?: 
   };
 }
 
-export function getStartAndEndExtentDelta(state: RootState) {
-  const rangeState = state.documentRange;
+export function getStartAndEndExtentDelta(documentState: DocumentState, rangeState: RangeState) {
   const ids = getStartAndEndIdsByRange(rangeState);
   if (ids.length === 0) return;
   const startId = ids[0];
@@ -82,11 +81,11 @@ export function getStartAndEndExtentDelta(state: RootState) {
   const startRange = ranges[startId];
   const endRange = ranges[endId];
   if (!startRange || !endRange) return;
-  const startNode = state.document.nodes[startId];
+  const startNode = documentState.nodes[startId];
   const startNodeDelta = new Delta(startNode.data.delta);
   const startBeforeExtentDelta = getBeofreExtentDeltaByRange(startNodeDelta, startRange);
 
-  const endNode = state.document.nodes[endId];
+  const endNode = documentState.nodes[endId];
   const endNodeDelta = new Delta(endNode.data.delta);
   const endAfterExtentDelta = getAfterExtentDeltaByRange(endNodeDelta, endRange);
 
@@ -104,7 +103,10 @@ export function getMergeEndDeltaToStartActionsByRange(
   insertDelta?: Delta
 ) {
   const actions = [];
-  const { startDelta, endDelta, endNode, startNode } = getStartAndEndExtentDelta(state) || {};
+  const docId = controller.documentId;
+  const documentState = state.document[docId];
+  const rangeState = state.documentRange[docId];
+  const { startDelta, endDelta, endNode, startNode } = getStartAndEndExtentDelta(documentState, rangeState) || {};
   if (!startDelta || !endDelta || !endNode || !startNode) return;
   // merge start and end nodes
   const mergeDelta = startDelta.concat(insertDelta || new Delta()).concat(endDelta);
@@ -117,7 +119,7 @@ export function getMergeEndDeltaToStartActionsByRange(
     })
   );
   if (endNode.id !== startNode.id) {
-    const children = state.document.children[endNode.children].map((id) => state.document.nodes[id]);
+    const children = documentState.children[endNode.children].map((id) => documentState.nodes[id]);
 
     const moveChildrenActions = getMoveChildrenActions({
       target: startNode,

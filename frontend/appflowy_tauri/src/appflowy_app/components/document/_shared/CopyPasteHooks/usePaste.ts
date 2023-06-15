@@ -7,7 +7,6 @@ import { clipboardTypes } from '$app/constants/document/copy_paste';
 export function usePaste(container: HTMLDivElement) {
   const dispatch = useAppDispatch();
   const controller = useContext(DocumentControllerContext);
-
   const handlePasteCapture = useCallback(
     (e: ClipboardEvent) => {
       if (!controller) return;
