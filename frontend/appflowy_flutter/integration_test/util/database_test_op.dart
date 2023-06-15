@@ -108,7 +108,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     required int rowIndex,
     required FieldType fieldType,
   }) async {
-    final cell = cellFinder(rowIndex, FieldType.Checkbox);
+    final cell = cellFinder(rowIndex, fieldType);
     expect(cell, findsOneWidget);
     await tapButton(cell, warnIfMissed: false);
   }
