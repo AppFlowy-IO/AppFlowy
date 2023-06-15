@@ -109,7 +109,7 @@ class _CheckboxFilterEditorState extends State<CheckboxFilterEditor> {
         children: [
           FlowyText(state.filterInfo.fieldInfo.name),
           const HSpace(4),
-          CheckboxFilterConditionPBList(
+          CheckboxFilterConditionList(
             filterInfo: state.filterInfo,
             popoverMutex: popoverMutex,
             onCondition: (condition) {
@@ -137,11 +137,11 @@ class _CheckboxFilterEditorState extends State<CheckboxFilterEditor> {
   }
 }
 
-class CheckboxFilterConditionPBList extends StatelessWidget {
+class CheckboxFilterConditionList extends StatelessWidget {
   final FilterInfo filterInfo;
   final PopoverMutex popoverMutex;
   final Function(CheckboxFilterConditionPB) onCondition;
-  const CheckboxFilterConditionPBList({
+  const CheckboxFilterConditionList({
     required this.filterInfo,
     required this.popoverMutex,
     required this.onCondition,

@@ -12,6 +12,7 @@ import 'database_share_test.dart' as database_share_test;
 import 'database_row_page_test.dart' as database_row_page_test;
 import 'database_row_test.dart' as database_row_test;
 import 'database_setting_test.dart' as database_setting_test;
+import 'database_filter_test.dart' as database_filter_test;
 
 /// The main task runner for all integration tests in AppFlowy.
 ///
@@ -34,6 +35,7 @@ void main() {
   database_row_page_test.main();
   database_row_test.main();
   database_setting_test.main();
+  database_filter_test.main();
   // board_test.main();
   // empty_document_test.main();
   // smart_menu_test.main();

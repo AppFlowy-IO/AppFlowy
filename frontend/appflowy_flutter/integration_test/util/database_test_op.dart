@@ -1,12 +1,19 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/setting/setting_bloc.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/checkbox.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/text.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/create_filter_list.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/disclosure_button.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/filter_menu_item.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell_action_sheet.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_list.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_option_editor.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/filter_button.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_layout.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/checklist_cell/checklist_progress_bar.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
@@ -14,9 +21,11 @@ import 'package:appflowy/plugins/database_view/widgets/row/row_document.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_editor.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/database_setting.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.dart';
+import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -39,8 +48,39 @@ import 'package:table_calendar/table_calendar.dart';
 
 import 'base.dart';
 import 'common_operations.dart';
+import 'expectation.dart';
+import 'package:path/path.dart' as p;
+
+import 'mock/mock_file_picker.dart';
 
 extension AppFlowyDatabaseTest on WidgetTester {
+  Future<void> openV020database() async {
+    await initializeAppFlowy();
+    await tapGoButton();
+
+    // expect to see a readme page
+    expectToSeePageName(readme);
+
+    await tapAddButton();
+    await tapImportButton();
+
+    final testFileNames = ['v020.afdb'];
+    final fileLocation = await currentFileLocation();
+    for (final fileName in testFileNames) {
+      final str = await rootBundle.loadString(
+        p.join(
+          'assets/test/workspaces/database',
+          fileName,
+        ),
+      );
+      File(p.join(fileLocation, fileName)).writeAsStringSync(str);
+    }
+    // mock get files
+    await mockPickFilePaths(testFileNames, name: 'import_files');
+    await tapDatabaseRawDataButton();
+    await openPage('v020');
+  }
+
   Future<void> hoverOnFirstRowOfGrid() async {
     final findRow = find.byType(GridRow);
     expect(findRow, findsWidgets);
@@ -485,6 +525,82 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   Future<void> tapDatabaseSettingButton() async {
     await tapButton(find.byType(SettingButton));
+  }
+
+  Future<void> tapDatabaseFilterButton() async {
+    await tapButton(find.byType(FilterButton));
+  }
+
+  Future<void> tapCreateFilterByFieldType(
+    FieldType fieldType,
+    String title,
+  ) async {
+    final findFilter = find.byWidgetPredicate(
+      (widget) =>
+          widget is GridFilterPropertyCell &&
+          widget.fieldInfo.fieldType == fieldType &&
+          widget.fieldInfo.name == title,
+    );
+
+    await tapButton(findFilter);
+  }
+
+  Future<void> tapFilterButtonInGrid(String filterName) async {
+    final findFilter = find.byType(FilterMenuItem);
+    final button = find.descendant(
+      of: findFilter,
+      matching: find.text(filterName),
+    );
+
+    await tapButton(button);
+  }
+
+  Future<void> enterTextInTextFilter(String text) async {
+    final findEditor = find.byType(TextFilterEditor);
+    final findTextField = find.descendant(
+      of: findEditor,
+      matching: find.byType(FlowyTextField),
+    );
+
+    await enterText(findTextField, text);
+    await pumpAndSettle(const Duration(milliseconds: 300));
+  }
+
+  Future<void> tapTextFilterDisclosureButtonInGrid() async {
+    final findEditor = find.byType(TextFilterEditor);
+    final findDisclosure = find.descendant(
+      of: findEditor,
+      matching: find.byType(DisclosureButton),
+    );
+
+    await tapButton(findDisclosure);
+  }
+
+  /// must call [tapTextFilterDisclosureButtonInGrid] first.
+  Future<void> tapDeleteTextFilterButtonInGrid() async {
+    await tapButton(find.text(LocaleKeys.grid_settings_deleteFilter.tr()));
+  }
+
+  Future<void> tapCheckboxFilterButtonInGrid() async {
+    await tapButton(find.byType(CheckboxFilterConditionList));
+  }
+
+  Future<void> tapCheckedButtonOnCheckboxFilter() async {
+    final button = find.descendant(
+      of: find.byType(HoverButton),
+      matching: find.text(LocaleKeys.grid_checkboxFilter_isChecked.tr()),
+    );
+
+    await tapButton(button);
+  }
+
+  Future<void> tapUnCheckedButtonOnCheckboxFilter() async {
+    final button = find.descendant(
+      of: find.byType(HoverButton),
+      matching: find.text(LocaleKeys.grid_checkboxFilter_isUnchecked.tr()),
+    );
+
+    await tapButton(button);
   }
 
   /// Should call [tapDatabaseSettingButton] first.
