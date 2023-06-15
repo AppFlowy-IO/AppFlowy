@@ -291,7 +291,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   /// Must call [tapTypeOptionButton] first.
   Future<void> selectFieldType(FieldType fieldType) async {
     final fieldTypeButton = find.byWidgetPredicate(
-      (widget) => widget is FlowyText && widget.title == fieldType.title(),
+      (widget) => widget is FlowyText && widget.text == fieldType.title(),
     );
     await tapButton(fieldTypeButton);
   }
@@ -387,7 +387,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   Future<void> assertRowCountInGridPage(int num) async {
     final text = find.byWidgetPredicate(
-      (widget) => widget is FlowyText && widget.title == rowCountString(num),
+      (widget) => widget is FlowyText && widget.text == rowCountString(num),
     );
     expect(text, findsOneWidget);
   }
@@ -411,7 +411,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     final findLayoutButton = find.byWidgetPredicate(
       (widget) =>
           widget is FlowyText &&
-          widget.title == DatabaseSettingAction.showLayout.title(),
+          widget.text == DatabaseSettingAction.showLayout.title(),
     );
 
     final button = find.descendant(
@@ -425,7 +425,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> selectDatabaseLayoutType(DatabaseLayoutPB layout) async {
     final findLayoutCell = find.byType(DatabaseViewLayoutCell);
     final findText = find.byWidgetPredicate(
-      (widget) => widget is FlowyText && widget.title == layout.layoutName(),
+      (widget) => widget is FlowyText && widget.text == layout.layoutName(),
     );
 
     final button = find.descendant(

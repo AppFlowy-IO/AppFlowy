@@ -72,7 +72,7 @@ extension Expectation on WidgetTester {
     Finder textWidget = find.textContaining(text, findRichText: true);
     if (textWidget.evaluate().isEmpty) {
       textWidget = find.byWidgetPredicate(
-        (widget) => widget is FlowyText && widget.title == text,
+        (widget) => widget is FlowyText && widget.text == text,
       );
     }
     expect(textWidget, findsOneWidget);
