@@ -103,14 +103,17 @@ class _RowEditorState extends State<RowEditor> {
                     return const SizedBox.shrink();
                   }
                   return IntrinsicHeight(
-                    child: AppFlowyEditorPage(
-                      shrinkWrap: true,
-                      autoFocus: false,
-                      editorState: editorState,
-                      scrollController: widget.scrollController,
-                      styleCustomizer: EditorStyleCustomizer(
-                        context: context,
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Container(
+                      constraints: const BoxConstraints(minHeight: 300),
+                      child: AppFlowyEditorPage(
+                        shrinkWrap: true,
+                        autoFocus: false,
+                        editorState: editorState,
+                        scrollController: widget.scrollController,
+                        styleCustomizer: EditorStyleCustomizer(
+                          context: context,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                        ),
                       ),
                     ),
                   );
