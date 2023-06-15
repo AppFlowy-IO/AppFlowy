@@ -27,6 +27,7 @@ mod tests {
               date: Some(1647251762),
               time: None,
               include_time: None,
+              ..Default::default()
             },
             None,
             "Mar 14, 2022",
@@ -40,6 +41,7 @@ mod tests {
               date: Some(1647251762),
               time: None,
               include_time: None,
+              ..Default::default()
             },
             None,
             "2022/03/14",
@@ -53,6 +55,7 @@ mod tests {
               date: Some(1647251762),
               time: None,
               include_time: None,
+              ..Default::default()
             },
             None,
             "2022-03-14",
@@ -66,6 +69,7 @@ mod tests {
               date: Some(1647251762),
               time: None,
               include_time: None,
+              ..Default::default()
             },
             None,
             "03/14/2022",
@@ -79,6 +83,7 @@ mod tests {
               date: Some(1647251762),
               time: None,
               include_time: None,
+              ..Default::default()
             },
             None,
             "14/03/2022",
@@ -104,6 +109,7 @@ mod tests {
               date: Some(1653609600),
               time: None,
               include_time: Some(true),
+              ..Default::default()
             },
             None,
             "May 27, 2022 00:00",
@@ -115,6 +121,7 @@ mod tests {
               date: Some(1653609600),
               time: Some("9:00".to_owned()),
               include_time: Some(true),
+              ..Default::default()
             },
             None,
             "May 27, 2022 09:00",
@@ -126,6 +133,7 @@ mod tests {
               date: Some(1653609600),
               time: Some("23:00".to_owned()),
               include_time: Some(true),
+              ..Default::default()
             },
             None,
             "May 27, 2022 23:00",
@@ -139,6 +147,7 @@ mod tests {
               date: Some(1653609600),
               time: None,
               include_time: Some(true),
+              ..Default::default()
             },
             None,
             "May 27, 2022 12:00 AM",
@@ -150,6 +159,7 @@ mod tests {
               date: Some(1653609600),
               time: Some("9:00 AM".to_owned()),
               include_time: Some(true),
+              ..Default::default()
             },
             None,
             "May 27, 2022 09:00 AM",
@@ -161,6 +171,7 @@ mod tests {
               date: Some(1653609600),
               time: Some("11:23 pm".to_owned()),
               include_time: Some(true),
+              ..Default::default()
             },
             None,
             "May 27, 2022 11:23 PM",
@@ -184,6 +195,7 @@ mod tests {
         date: Some(1653609600),
         time: Some("1:".to_owned()),
         include_time: Some(true),
+        ..Default::default()
       },
       None,
       "May 27, 2022 01:00",
@@ -204,6 +216,7 @@ mod tests {
         date: Some(1653609600),
         time: Some("".to_owned()),
         include_time: Some(true),
+        ..Default::default()
       },
       None,
       "May 27, 2022 01:00",
@@ -222,6 +235,7 @@ mod tests {
         date: Some(1653609600),
         time: Some("00:00".to_owned()),
         include_time: Some(true),
+        ..Default::default()
       },
       None,
       "May 27, 2022 00:00",
@@ -242,6 +256,7 @@ mod tests {
         date: Some(1653609600),
         time: Some("1:00 am".to_owned()),
         include_time: Some(true),
+        ..Default::default()
       },
       None,
       "May 27, 2022 01:00 AM",
@@ -265,6 +280,7 @@ mod tests {
         date: Some(1653609600),
         time: Some("20:00".to_owned()),
         include_time: Some(true),
+        ..Default::default()
       },
       None,
       "May 27, 2022 08:00 PM",
@@ -312,6 +328,7 @@ mod tests {
         date: Some(1700006400),
         time: Some("08:00".to_owned()),
         include_time: Some(true),
+        ..Default::default()
       },
     );
     assert_date(
@@ -321,6 +338,7 @@ mod tests {
         date: Some(1701302400),
         time: None,
         include_time: None,
+        ..Default::default()
       },
       Some(old_cell_data),
       "Nov 30, 2023 08:00",
@@ -338,6 +356,7 @@ mod tests {
         date: Some(1700006400),
         time: Some("08:00".to_owned()),
         include_time: Some(true),
+        ..Default::default()
       },
     );
     assert_date(
@@ -347,6 +366,7 @@ mod tests {
         date: None,
         time: Some("14:00".to_owned()),
         include_time: None,
+        ..Default::default()
       },
       Some(old_cell_data),
       "Nov 15, 2023 14:00",

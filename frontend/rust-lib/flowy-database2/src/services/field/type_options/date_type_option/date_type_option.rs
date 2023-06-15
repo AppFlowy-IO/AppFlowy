@@ -85,7 +85,21 @@ impl TypeOptionCellData for DateTypeOption {
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
-    self.today_desc_from_timestamp(cell_data)
+    let timestamp = cell_data.timestamp;
+    let end_timestamp = cell_data.end_timestamp;
+    let (date, time) = self.formatted_date_time_from_timestamp(&timestamp);
+    let (end_date, end_time) = self.formatted_date_time_from_timestamp(&end_timestamp);
+    let include_time = cell_data.include_time;
+
+    DateCellDataPB {
+      date,
+      time,
+      timestamp: timestamp.unwrap_or_default(),
+      end_date,
+      end_time,
+      end_timestamp: end_timestamp.unwrap_or_default(),
+      include_time,
+    }
   }
 
   fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
@@ -109,31 +123,40 @@ impl DateTypeOption {
     }
   }
 
-  fn today_desc_from_timestamp(&self, cell_data: DateCellData) -> DateCellDataPB {
-    let timestamp = cell_data.timestamp.unwrap_or_default();
-    let include_time = cell_data.include_time;
+  fn formatted_date_time_from_timestamp(&self, timestamp: &Option<i64>) -> (String, String) {
+    if let Some(timestamp) = timestamp {
+      let naive = chrono::NaiveDateTime::from_timestamp_opt(*timestamp, 0).unwrap();
+      let offset = self.get_timezone_offset(naive);
+      let date_time = DateTime::<Local>::from_utc(naive, offset);
 
-    let (date, time) = match cell_data.timestamp {
-      Some(timestamp) => {
-        let naive = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
-        let offset = self.get_timezone_offset(naive);
-        let date_time = DateTime::<Local>::from_utc(naive, offset);
+      let fmt = self.date_format.format_str();
+      let date = format!("{}", date_time.format_with_items(StrftimeItems::new(fmt)));
+      let fmt = self.time_format.format_str();
+      let time = format!("{}", date_time.format_with_items(StrftimeItems::new(fmt)));
 
-        let fmt = self.date_format.format_str();
-        let date = format!("{}", date_time.format_with_items(StrftimeItems::new(fmt)));
-        let fmt = self.time_format.format_str();
-        let time = format!("{}", date_time.format_with_items(StrftimeItems::new(fmt)));
+      (date, time)
+    } else {
+      ("".to_owned(), "".to_owned())
+    }
+  }
 
-        (date, time)
+  fn naive_time_from_time_string(
+    &self,
+    include_time: bool,
+    time_str: Option<String>,
+  ) -> FlowyResult<Option<NaiveTime>> {
+    match (include_time, time_str) {
+      (true, Some(time_str)) => {
+        let result = NaiveTime::parse_from_str(&time_str, self.time_format.format_str());
+        match result {
+          Ok(time) => Ok(Some(time)),
+          Err(_e) => {
+            let msg = format!("Parse {} failed", time_str);
+            Err(FlowyError::new(ErrorCode::InvalidDateTimeFormat, msg))
+          },
+        }
       },
-      None => ("".to_owned(), "".to_owned()),
-    };
-
-    DateCellDataPB {
-      date,
-      time,
-      include_time,
-      timestamp,
+      _ => Ok(None),
     }
   }
 
@@ -208,7 +231,7 @@ impl CellDataDecoder for DateTypeOption {
   }
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
-    self.today_desc_from_timestamp(cell_data).date
+    self.protobuf_encode(cell_data).date
   }
 
   fn stringify_cell(&self, cell: &Cell) -> String {
@@ -224,12 +247,16 @@ impl CellDataChangeset for DateTypeOption {
     cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     // old date cell data
-    let (previous_timestamp, include_time) = match cell {
+    let (previous_timestamp, previous_end_timestamp, include_time) = match cell {
       Some(cell) => {
         let cell_data = DateCellData::from(&cell);
-        (cell_data.timestamp, cell_data.include_time)
+        (
+          cell_data.timestamp,
+          cell_data.end_timestamp,
+          cell_data.include_time,
+        )
       },
-      None => (None, false),
+      None => (None, None, false),
     };
 
     // update include_time if necessary
@@ -242,28 +269,24 @@ impl CellDataChangeset for DateTypeOption {
     // should be passed in as well.
 
     // parse the time string, which is in the local timezone
-    let parsed_time = match (include_time, changeset.time) {
-      (true, Some(time_str)) => {
-        let result = NaiveTime::parse_from_str(&time_str, self.time_format.format_str());
-        match result {
-          Ok(time) => Ok(Some(time)),
-          Err(_e) => {
-            let msg = format!("Parse {} failed", time_str);
-            Err(FlowyError::new(ErrorCode::InvalidDateTimeFormat, msg))
-          },
-        }
-      },
-      _ => Ok(None),
-    }?;
+    let parsed_start_time = self.naive_time_from_time_string(include_time, changeset.time)?;
+    let parsed_end_time = self.naive_time_from_time_string(include_time, changeset.end_time)?;
 
     let timestamp = self.timestamp_from_parsed_time_previous_and_new_timestamp(
-      parsed_time,
+      parsed_start_time,
       previous_timestamp,
       changeset.date,
     );
 
+    let end_timestamp = self.timestamp_from_parsed_time_previous_and_new_timestamp(
+      parsed_end_time,
+      previous_end_timestamp,
+      changeset.end_date,
+    );
+
     let cell_data = DateCellData {
       timestamp,
+      end_timestamp,
       include_time,
     };
 

@@ -19,6 +19,15 @@ pub struct DateCellDataPB {
   pub timestamp: i64,
 
   #[pb(index = 4)]
+  pub end_date: String,
+
+  #[pb(index = 5)]
+  pub end_time: String,
+
+  #[pb(index = 6)]
+  pub end_timestamp: i64,
+
+  #[pb(index = 7)]
   pub include_time: bool,
 }
 
@@ -34,6 +43,12 @@ pub struct DateChangesetPB {
   pub time: Option<String>,
 
   #[pb(index = 4, one_of)]
+  pub end_date: Option<i64>,
+
+  #[pb(index = 5, one_of)]
+  pub end_time: Option<String>,
+
+  #[pb(index = 6, one_of)]
   pub include_time: Option<bool>,
 }
 

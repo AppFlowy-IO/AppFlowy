@@ -528,8 +528,7 @@ async fn update_date_cell_event_test() {
     .update_date_cell(DateChangesetPB {
       cell_id: cell_path,
       date: Some(timestamp),
-      time: None,
-      include_time: None,
+      ..Default::default()
     })
     .await;
   assert!(error.is_none());
@@ -891,8 +890,7 @@ async fn create_calendar_event_test() {
         row_id: row.id,
       },
       date: Some(timestamp),
-      time: None,
-      include_time: None,
+      ..Default::default()
     })
     .await;
   assert!(error.is_none());

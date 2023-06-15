@@ -330,6 +330,8 @@ impl<'a> TestRowBuilder<'a> {
     let value = serde_json::to_string(&DateCellChangeset {
       date: Some(data),
       time,
+      end_date: None,
+      end_time: None,
       include_time,
     })
     .unwrap();
