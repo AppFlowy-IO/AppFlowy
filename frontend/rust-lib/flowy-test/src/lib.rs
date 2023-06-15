@@ -15,6 +15,7 @@ use flowy_user::errors::FlowyError;
 use crate::event_builder::EventBuilder;
 use crate::user_event::{async_sign_up, init_user_setting, SignUpContext};
 
+pub mod document_event;
 pub mod event_builder;
 pub mod folder_event;
 pub mod user_event;

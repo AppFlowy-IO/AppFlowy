@@ -31,13 +31,6 @@ export class DocumentController {
     this.observer = new DocumentObserver(documentId);
   }
 
-  create = async (): Promise<FlowyError | void> => {
-    const result = await this.backendService.create();
-    if (result.ok) {
-      return;
-    }
-    return result.val;
-  };
   open = async (): Promise<DocumentData> => {
     await this.observer.subscribe({
       didReceiveUpdate: this.updated,
@@ -112,6 +105,26 @@ export class DocumentController {
       action: BlockActionTypePB.Delete,
       payload: this.getActionPayloadByNode(node, ''),
     };
+  };
+
+  canUndo = async () => {
+    const result = await this.backendService.canUndoRedo();
+    return result.ok && result.val.can_undo;
+  };
+
+  canRedo = async () => {
+    const result = await this.backendService.canUndoRedo();
+    return result.ok && result.val.can_redo;
+  };
+
+  undo = async () => {
+    const result = await this.backendService.undo();
+    return result.ok && result.val.is_success;
+  };
+
+  redo = async () => {
+    const result = await this.backendService.redo();
+    return result.ok && result.val.is_success;
   };
 
   dispose = async () => {
