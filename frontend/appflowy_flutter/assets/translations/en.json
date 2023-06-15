@@ -198,7 +198,8 @@
         "failure": "The theme that was uploaded had an invalid format.",
         "loading": "Please wait while we validate and upload your theme...",
         "uploadSuccess": "Your theme was uploaded successfully",
-        "deletionFailure": "Failed to delete the theme. Try to delete it manually."
+        "deletionFailure": "Failed to delete the theme. Try to delete it manually.",
+        "filePickerDialogTitle": "Choose a .flowy_plugin file"
       },
       "theme": "Theme"
     },
