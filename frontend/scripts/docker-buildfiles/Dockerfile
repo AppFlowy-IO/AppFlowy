@@ -44,7 +44,7 @@ RUN curl -sSfL \
     rm flutter.tar.xz
 RUN flutter config --enable-linux-desktop
 RUN flutter doctor
-RUN dart pub global activate protoc_plugin@20.0.1
+RUN dart pub global activate protoc_plugin 20.0.1
 
 # Intall build dependencies for AppFlowy
 RUN sudo pacman -S --noconfirm git libkeybinder3 sqlite clang
