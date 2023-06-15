@@ -1,14 +1,15 @@
-import { useAppDispatch, useAppSelector } from '$app/stores/store';
-import React, { useCallback, useContext, useEffect, useMemo } from 'react';
+import { useAppDispatch } from '$app/stores/store';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { slashCommandActions } from '$app_reducers/document/slice';
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
 import { Op } from 'quill-delta';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { useSubscribeSlashState } from '$app/components/document/_shared/SubscribeSlash.hooks';
 
 export function useBlockSlash() {
   const dispatch = useAppDispatch();
-  const controller = useContext(DocumentControllerContext);
-  const docId = controller.documentId;
+  const { docId } = useSubscribeDocument();
+
   const { blockId, visible, slashText } = useSubscribeSlash();
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
   useEffect(() => {
@@ -49,9 +50,7 @@ export function useBlockSlash() {
   };
 }
 export function useSubscribeSlash() {
-  const controller = useContext(DocumentControllerContext);
-  const docId = controller.documentId;
-  const slashCommandState = useAppSelector((state) => state.documentSlashCommand[docId]);
+  const slashCommandState = useSubscribeSlashState();
   const visible = slashCommandState.isSlashCommand;
   const blockId = slashCommandState.blockId;
 

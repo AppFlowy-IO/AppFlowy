@@ -1,10 +1,10 @@
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAppDispatch } from '$app/stores/store';
 import { rectSelectionActions } from '@/appflowy_app/stores/reducers/document/slice';
 import { setRectSelectionThunk } from '$app_reducers/document/async-actions/rect_selection';
 
 import { isPointInBlock } from '$app/utils/document/node';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export interface BlockRectSelectionProps {
   container: HTMLDivElement;
@@ -13,8 +13,8 @@ export interface BlockRectSelectionProps {
 
 export function useBlockRectSelection({ container, getIntersectedBlockIds }: BlockRectSelectionProps) {
   const dispatch = useAppDispatch();
-  const controller = useContext(DocumentControllerContext);
-  const docId = controller.documentId;
+  const { docId } = useSubscribeDocument();
+
   const [isDragging, setDragging] = useState(false);
   const startPointRef = useRef<number[]>([]);
 

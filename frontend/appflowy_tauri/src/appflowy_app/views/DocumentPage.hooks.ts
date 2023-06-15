@@ -28,13 +28,9 @@ export const useDocument = () => {
   );
 
   const initializeDocument = useCallback(
-    (docId: string, data: DocumentData) => {
-      dispatch(
-        documentActions.create({
-          ...data,
-          docId,
-        })
-      );
+    (docId: string) => {
+      Log.debug('initialize document', docId);
+      dispatch(documentActions.initialState(docId));
       dispatch(rangeActions.initialState(docId));
       dispatch(rectSelectionActions.initialState(docId));
       dispatch(slashCommandActions.initialState(docId));
@@ -45,6 +41,7 @@ export const useDocument = () => {
 
   const clearDocument = useCallback(
     (docId: string) => {
+      Log.debug('clear document', docId);
       dispatch(documentActions.clear(docId));
       dispatch(rangeActions.clear(docId));
       dispatch(rectSelectionActions.clear(docId));
@@ -58,13 +55,22 @@ export const useDocument = () => {
     let documentController: DocumentController | null = null;
     void (async () => {
       if (!params?.id) return;
-      Log.debug('open document', params.id);
       documentController = new DocumentController(params.id, onDocumentChange);
+      const docId = documentController.documentId;
+      Log.debug('open document', params.id);
+
+      initializeDocument(documentController.documentId);
+
       setController(documentController);
       try {
         const res = await documentController.open();
         if (!res) return;
-        initializeDocument(documentController.documentId, res);
+        dispatch(
+          documentActions.create({
+            ...res,
+            docId,
+          })
+        );
         setDocumentData(res);
         setDocumentId(params.id);
       } catch (e) {
@@ -74,14 +80,16 @@ export const useDocument = () => {
 
     const closeDocument = () => {
       if (documentController) {
-        clearDocument(documentController.documentId);
-        void documentController.dispose();
+        void (async () => {
+          await documentController.dispose();
+          clearDocument(documentController.documentId);
+        })();
       }
       Log.debug('close document', params.id);
     };
 
     return closeDocument;
-  }, [clearDocument, initializeDocument, onDocumentChange, params.id]);
+  }, [clearDocument, dispatch, initializeDocument, onDocumentChange, params.id]);
 
   return { documentId, documentData, controller };
 };

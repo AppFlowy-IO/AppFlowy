@@ -1,6 +1,6 @@
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { rangeActions } from '$app_reducers/document/slice';
-import { useAppDispatch, useAppSelector } from '$app/stores/store';
+import { useAppDispatch } from '$app/stores/store';
 import {
   getBlockIdByPoint,
   getNodeTextBoxByBlockId,
@@ -9,14 +9,15 @@ import {
   setCursorAtStartOfNode,
 } from '$app/utils/document/node';
 import { useRangeKeyDown } from '$app/components/document/BlockSelection/RangeKeyDown.hooks';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { useSubscribeRanges } from '$app/components/document/_shared/SubscribeSelection.hooks';
 
 export function useBlockRangeSelection(container: HTMLDivElement) {
   const dispatch = useAppDispatch();
   const onKeyDown = useRangeKeyDown();
-  const controller = useContext(DocumentControllerContext);
-  const docId = controller.documentId;
-  const range = useAppSelector((state) => state.documentRange[docId]);
+  const { docId } = useSubscribeDocument();
+
+  const range = useSubscribeRanges();
   const isDragging = range?.isDragging;
 
   const anchorRef = useRef<{

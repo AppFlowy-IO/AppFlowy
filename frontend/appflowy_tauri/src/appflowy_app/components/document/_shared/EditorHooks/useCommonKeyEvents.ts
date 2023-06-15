@@ -8,15 +8,14 @@ import {
 } from '$app_reducers/document/async-actions';
 import { useContext, useMemo } from 'react';
 import { useFocused } from '$app/components/document/_shared/SubscribeSelection.hooks';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { useAppDispatch } from '$app/stores/store';
 import { isFormatHotkey, parseFormat } from '$app/utils/document/format';
 import { toggleFormatThunk } from '$app_reducers/document/async-actions/format';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export function useCommonKeyEvents(id: string) {
   const { focused, caretRef } = useFocused(id);
-  const controller = useContext(DocumentControllerContext);
-  const docId = controller.documentId;
+  const { docId, controller } = useSubscribeDocument();
 
   const dispatch = useAppDispatch();
   const commonKeyEvents = useMemo(() => {

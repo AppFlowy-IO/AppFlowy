@@ -1,14 +1,14 @@
 import { useCallback, useContext, useEffect } from 'react';
 import { copyThunk } from '$app_reducers/document/async-actions/copyPaste';
 import { useAppDispatch } from '$app/stores/store';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { BlockCopyData } from '$app/interfaces/document';
 import { clipboardTypes } from '$app/constants/document/copy_paste';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export function useCopy(container: HTMLDivElement) {
   const dispatch = useAppDispatch();
-  const controller = useContext(DocumentControllerContext);
-  const docId = controller.documentId;
+  const { docId, controller } = useSubscribeDocument();
+
   const handleCopyCapture = useCallback(
     (e: ClipboardEvent) => {
       if (!controller) return;

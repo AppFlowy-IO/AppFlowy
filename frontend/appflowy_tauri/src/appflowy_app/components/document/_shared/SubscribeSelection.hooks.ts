@@ -1,11 +1,11 @@
 import { useAppSelector } from '$app/stores/store';
 import { RangeState, RangeStatic } from '$app/interfaces/document';
-import { useContext, useMemo, useRef } from 'react';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { useMemo, useRef } from 'react';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export function useSubscribeDecorate(id: string) {
-  const controller = useContext(DocumentControllerContext);
-  const docId = controller?.documentId;
+  const { docId } = useSubscribeDocument();
+
   const decorateSelection = useAppSelector((state) => {
     return state.documentRange[docId].ranges[id];
   });
@@ -25,8 +25,8 @@ export function useSubscribeDecorate(id: string) {
   };
 }
 export function useFocused(id: string) {
-  const controller = useContext(DocumentControllerContext);
-  const docId = controller?.documentId;
+  const { docId } = useSubscribeDocument();
+
   const caretRef = useRef<RangeStatic>();
   const focusCaret = useAppSelector((state) => {
     const currentCaret = state.documentRange[docId].caret;
@@ -49,12 +49,32 @@ export function useFocused(id: string) {
 }
 
 export function useRangeRef() {
-  const controller = useContext(DocumentControllerContext);
-  const docId = controller?.documentId;
+  const { docId, controller } = useSubscribeDocument();
+
   const rangeRef = useRef<RangeState>();
   useAppSelector((state) => {
     const currentRange = state.documentRange[docId];
     rangeRef.current = currentRange;
   });
   return rangeRef;
+}
+
+export function useSubscribeRanges() {
+  const { docId } = useSubscribeDocument();
+
+  const rangeState = useAppSelector((state) => {
+    return state.documentRange[docId];
+  });
+
+  return rangeState;
+}
+
+export function useSubscribeCaret() {
+  const { docId } = useSubscribeDocument();
+
+  const caret = useAppSelector((state) => {
+    return state.documentRange[docId].caret;
+  });
+
+  return caret;
 }

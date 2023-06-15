@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { useBlockSideToolbar, usePopover } from './BlockSideToolbar.hooks';
 import Portal from '../BlockPortal';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
@@ -9,12 +9,12 @@ import BlockMenu from './BlockMenu';
 import ToolbarButton from './ToolbarButton';
 import { rectSelectionActions } from '$app_reducers/document/slice';
 import { addBlockBelowClickThunk } from '$app_reducers/document/async-actions/menu';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export default function BlockSideToolbar({ container }: { container: HTMLDivElement }) {
   const dispatch = useAppDispatch();
-  const controller = useContext(DocumentControllerContext);
-  const docId = controller.documentId;
+  const { docId, controller } = useSubscribeDocument();
+
   const { nodeId, style, ref } = useBlockSideToolbar({ container });
   const isDragging = useAppSelector(
     (state) => state.documentRange[docId]?.isDragging || state.documentRectSelection[docId]?.isDragging

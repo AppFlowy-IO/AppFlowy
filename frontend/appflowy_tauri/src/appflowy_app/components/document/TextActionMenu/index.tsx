@@ -1,9 +1,8 @@
 import { useMenuStyle } from './index.hooks';
-import { useAppSelector } from '$app/stores/store';
 import TextActionMenuList from '$app/components/document/TextActionMenu/menu';
 import BlockPortal from '$app/components/document/BlockPortal';
-import { useContext, useMemo } from 'react';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { useMemo } from 'react';
+import { useSubscribeRanges } from '$app/components/document/_shared/SubscribeSelection.hooks';
 
 const TextActionComponent = ({ container }: { container: HTMLDivElement }) => {
   const { ref, id } = useMenuStyle(container);
@@ -29,9 +28,7 @@ const TextActionComponent = ({ container }: { container: HTMLDivElement }) => {
   );
 };
 const TextActionMenu = ({ container }: { container: HTMLDivElement }) => {
-  const controller = useContext(DocumentControllerContext);
-  const docId = controller.documentId;
-  const range = useAppSelector((state) => state.documentRange[docId]);
+  const range = useSubscribeRanges();
   const canShow = useMemo(() => {
     const { isDragging, focus, anchor, ranges, caret } = range;
     // don't show if dragging

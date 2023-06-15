@@ -8,11 +8,11 @@ import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
 import { newLinkThunk } from '$app_reducers/document/async-actions/link';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) => {
   const dispatch = useAppDispatch();
-  const controller = useContext(DocumentControllerContext);
-  const docId = controller.documentId;
+  const { docId, controller } = useSubscribeDocument();
 
   const focusId = useAppSelector((state) => state.documentRange[docId]?.focus?.id || '');
   const { node: focusNode } = useSubscribeNode(focusId);

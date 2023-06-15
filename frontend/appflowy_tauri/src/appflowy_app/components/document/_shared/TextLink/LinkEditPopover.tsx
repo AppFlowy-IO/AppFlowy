@@ -5,15 +5,16 @@ import { DeleteOutline, Done } from '@mui/icons-material';
 import EditLink from '$app/components/document/_shared/TextLink/EditLink';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { linkPopoverActions, rangeActions } from '$app_reducers/document/slice';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { formatLinkThunk } from '$app_reducers/document/async-actions/link';
 import LinkButton from '$app/components/document/_shared/TextLink/LinkButton';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { useSubscribeLinkPopover } from '$app/components/document/_shared/SubscribeLinkPopover.hooks';
 
 function LinkEditPopover() {
   const dispatch = useAppDispatch();
-  const controller = useContext(DocumentControllerContext);
-  const docId = controller.documentId;
-  const popoverState = useAppSelector((state) => state.documentLinkPopover[docId]);
+  const { docId, controller } = useSubscribeDocument();
+
+  const popoverState = useSubscribeLinkPopover();
   const { anchorPosition, id, selection, title = '', href = '', open = false } = popoverState;
 
   const onClose = useCallback(() => {

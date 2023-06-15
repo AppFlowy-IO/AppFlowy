@@ -12,10 +12,11 @@ import isHotkey from 'is-hotkey';
 import { slashCommandActions } from '$app_reducers/document/slice';
 import { Keyboard } from '$app/constants/document/keyboard';
 import { getDeltaText } from '$app/utils/document/delta';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export function useTurnIntoBlockEvents(id: string) {
-  const controller = useContext(DocumentControllerContext);
-  const docId = controller.documentId;
+  const { docId, controller } = useSubscribeDocument();
+
   const dispatch = useAppDispatch();
   const rangeRef = useRangeRef();
 

@@ -1,11 +1,10 @@
 import { useAppSelector } from '$app/stores/store';
 import { BlockType, NestedBlock } from '$app/interfaces/document';
-import { useContext } from 'react';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export function useNumberedListBlock(node: NestedBlock<BlockType.NumberedListBlock>) {
-  const controller = useContext(DocumentControllerContext);
-  const docId = controller.documentId;
+  const { docId } = useSubscribeDocument();
+
   // Find the last index of the previous blocks
   const prevNumberedIndex = useAppSelector((state) => {
     const documentState = state['document'][docId];

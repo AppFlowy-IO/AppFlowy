@@ -29,6 +29,13 @@ export const documentSlice = createSlice({
   // Because the document state is updated by the `onDataChange`
   reducers: {
     // initialize the document
+    initialState: (state, action: PayloadAction<string>) => {
+      const docId = action.payload;
+      state[docId] = {
+        nodes: {},
+        children: {},
+      };
+    },
     clear: (state, action: PayloadAction<string>) => {
       const docId = action.payload;
       delete state[docId];

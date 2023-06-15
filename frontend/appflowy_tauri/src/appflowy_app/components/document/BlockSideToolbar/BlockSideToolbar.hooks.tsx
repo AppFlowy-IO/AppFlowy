@@ -1,9 +1,9 @@
 import { BlockType, HeadingBlockData } from '@/appflowy_app/interfaces/document';
 import { useAppDispatch } from '@/appflowy_app/stores/store';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { PopoverOrigin } from '@mui/material/Popover/Popover';
 import { getBlock } from '$app/components/document/_shared/SubscribeNode.hooks';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 const headingBlockTopOffset: Record<number, number> = {
   1: 7,
@@ -15,8 +15,7 @@ export function useBlockSideToolbar({ container }: { container: HTMLDivElement }
   const ref = useRef<HTMLDivElement | null>(null);
   const dispatch = useAppDispatch();
   const [style, setStyle] = useState<React.CSSProperties>({});
-  const controller = useContext(DocumentControllerContext);
-  const docId = controller.documentId;
+  const { docId } = useSubscribeDocument();
   useEffect(() => {
     const el = ref.current;
     if (!el || !nodeId) return;

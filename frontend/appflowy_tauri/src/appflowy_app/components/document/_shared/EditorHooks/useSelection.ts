@@ -8,7 +8,7 @@ import {
   useSubscribeDecorate,
 } from '$app/components/document/_shared/SubscribeSelection.hooks';
 import { storeRangeThunk } from '$app_reducers/document/async-actions/range';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export function useSelection(id: string) {
   const rangeRef = useRangeRef();
@@ -16,8 +16,8 @@ export function useSelection(id: string) {
   const decorateProps = useSubscribeDecorate(id);
   const [selection, setSelection] = useState<RangeStatic | undefined>(undefined);
   const dispatch = useAppDispatch();
-  const controller = useContext(DocumentControllerContext);
-  const docId = controller.documentId;
+  const { docId } = useSubscribeDocument();
+
   const storeRange = useCallback(
     (range: RangeStatic) => {
       dispatch(storeRangeThunk({ id, range, docId }));

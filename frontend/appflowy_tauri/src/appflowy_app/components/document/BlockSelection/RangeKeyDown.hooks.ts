@@ -1,7 +1,6 @@
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Keyboard } from '$app/constants/document/keyboard';
 import { useAppDispatch } from '$app/stores/store';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { arrowActionForRangeThunk, deleteRangeAndInsertThunk } from '$app_reducers/document/async-actions';
 import Delta from 'quill-delta';
 import isHotkey from 'is-hotkey';
@@ -10,13 +9,14 @@ import { useRangeRef } from '$app/components/document/_shared/SubscribeSelection
 import { isPrintableKeyEvent } from '$app/utils/document/action';
 import { toggleFormatThunk } from '$app_reducers/document/async-actions/format';
 import { isFormatHotkey, parseFormat } from '$app/utils/document/format';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export function useRangeKeyDown() {
   const rangeRef = useRangeRef();
 
   const dispatch = useAppDispatch();
-  const controller = useContext(DocumentControllerContext);
-  const docId = controller.documentId;
+  const { docId, controller } = useSubscribeDocument();
+
   const interceptEvents = useMemo(
     () => [
       {

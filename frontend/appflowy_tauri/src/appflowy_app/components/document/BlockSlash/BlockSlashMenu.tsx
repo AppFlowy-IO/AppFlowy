@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import MenuItem from '$app/components/document/BlockSideToolbar/MenuItem';
 import {
   ArrowRight,
@@ -15,12 +15,12 @@ import {
 import { List } from '@mui/material';
 import { BlockData, BlockType } from '$app/interfaces/document';
 import { useAppDispatch } from '$app/stores/store';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { triggerSlashCommandActionThunk } from '$app_reducers/document/async-actions/menu';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 function BlockSlashMenu({ id, onClose, searchText }: { id: string; onClose?: () => void; searchText?: string }) {
   const dispatch = useAppDispatch();
-  const controller = useContext(DocumentControllerContext);
+  const { controller } = useSubscribeDocument();
   const handleInsert = useCallback(
     async (type: BlockType, data?: BlockData<any>) => {
       if (!controller) return;

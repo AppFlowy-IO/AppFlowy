@@ -1,10 +1,10 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAppSelector } from '$app/stores/store';
 import { RegionGrid } from '$app/utils/region_grid';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export function useNodesRect(container: HTMLDivElement) {
-  const controller = useContext(DocumentControllerContext);
+  const { controller } = useSubscribeDocument();
 
   const version = useVersionUpdate();
 

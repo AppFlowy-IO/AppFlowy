@@ -1,23 +1,26 @@
 import { store, useAppSelector } from '@/appflowy_app/stores/store';
-import { createContext, useContext, useMemo } from 'react';
+import { createContext, useMemo } from 'react';
 import { Node } from '$app/interfaces/document';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 /**
  * Subscribe node information
  * @param id
  */
 export function useSubscribeNode(id: string) {
-  const controller = useContext(DocumentControllerContext);
-  const docId = controller.documentId;
+  const { docId } = useSubscribeDocument();
+
   const node = useAppSelector<Node>((state) => {
-    return state.document[docId].nodes[id];
+    const documentState = state.document[docId];
+    return documentState?.nodes[id];
   });
 
   const childIds = useAppSelector<string[] | undefined>((state) => {
-    const childrenId = state.document[docId].nodes[id]?.children;
+    const documentState = state.document[docId];
+    if (!documentState) return;
+    const childrenId = documentState.nodes[id]?.children;
     if (!childrenId) return;
-    return state.document[docId].children[childrenId];
+    return documentState.children[childrenId];
   });
 
   const isSelected = useAppSelector<boolean>((state) => {

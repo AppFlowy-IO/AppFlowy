@@ -4,7 +4,7 @@ import { useTextLink } from '$app/components/document/_shared/TextLink/TextLink.
 import EditLinkToolbar from '$app/components/document/_shared/TextLink/EditLinkToolbar';
 import { useAppDispatch } from '$app/stores/store';
 import { linkPopoverActions } from '$app_reducers/document/slice';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 function TextLink({
   getSelection,
@@ -23,8 +23,8 @@ function TextLink({
   const blockId = useContext(NodeIdContext);
   const { editing, ref, onMouseEnter, onMouseLeave } = useTextLink(blockId);
   const dispatch = useAppDispatch();
-  const controller = useContext(DocumentControllerContext);
-  const docId = controller.documentId;
+  const { docId } = useSubscribeDocument();
+
   const onEdit = useCallback(() => {
     if (!ref.current) return;
     const selection = getSelection(ref.current);
