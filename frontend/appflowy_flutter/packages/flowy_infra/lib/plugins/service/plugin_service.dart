@@ -7,10 +7,7 @@ import 'package:path/path.dart' as p;
 import 'location_service.dart';
 import 'models/flowy_dynamic_plugin.dart';
 
-/// Singleton class which can only be constructed asynchronously
-///
-/// The path of the plugins should be initialized by another service
-/// since the plugins must be locatable at runtime.
+/// A service to maintain the state of the plugins for AppFlowy.
 class FlowyPluginService {
   FlowyPluginService._();
 
@@ -20,6 +17,7 @@ class FlowyPluginService {
     return targets.map<Directory>((entity) => entity as Directory).toList();
   }
 
+  /// Searches the [PluginLocationService.location] for plugins and compiles them.
   static Future<DynamicPluginLibrary> get plugins async {
     final List<FlowyDynamicPlugin> compiled = [];
     for (final src in await _targets) {
@@ -45,6 +43,7 @@ class FlowyPluginService {
     return FlowyDynamicPlugin.decode(src: directory);
   }
 
+  /// Searches the plugin registry for a plugin with the given name.
   static Future<FlowyDynamicPlugin?> lookup({required String name}) async {
     final library = await plugins;
     return library
@@ -54,7 +53,8 @@ class FlowyPluginService {
         .firstWhere((plugin) => plugin!.name == name, orElse: () => null);
   }
 
-  /// Adds a plugin to the registry.
+  /// Adds a plugin to the registry. To construct a [FlowyDynamicPlugin]
+  /// use [FlowyDynamicPlugin.encode()]
   static Future<void> addPlugin(FlowyDynamicPlugin plugin) async {
     // try to compile the plugin before we add it to the registry.
     final source = await plugin.encode();
@@ -67,6 +67,7 @@ class FlowyPluginService {
     _copyDirectorySync(source, Directory(destionation));
   }
 
+  /// Removes a plugin from the registry.
   static Future<void> removePlugin(FlowyDynamicPlugin plugin) async {
     final target = plugin.source;
     await target.delete(recursive: true);
