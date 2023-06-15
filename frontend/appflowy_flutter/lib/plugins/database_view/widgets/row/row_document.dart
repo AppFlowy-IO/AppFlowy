@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/database_view/grid/application/row/row_document_bloc.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
@@ -102,11 +103,18 @@ class _RowEditorState extends State<RowEditor> {
                     return const SizedBox.shrink();
                   }
                   return IntrinsicHeight(
-                    child: AppFlowyEditorPage(
-                      shrinkWrap: true,
-                      autoFocus: false,
-                      editorState: editorState,
-                      scrollController: widget.scrollController,
+                    child: Container(
+                      constraints: const BoxConstraints(minHeight: 300),
+                      child: AppFlowyEditorPage(
+                        shrinkWrap: true,
+                        autoFocus: false,
+                        editorState: editorState,
+                        scrollController: widget.scrollController,
+                        styleCustomizer: EditorStyleCustomizer(
+                          context: context,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                        ),
+                      ),
                     ),
                   );
                 },

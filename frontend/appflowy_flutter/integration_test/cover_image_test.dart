@@ -28,7 +28,7 @@ void main() {
       await tester.initializeAppFlowy();
 
       await tester.tapGoButton();
-      await tester.hoverOnCoverPluginAddButton();
+      await tester.editor.hoverOnCoverPluginAddButton();
 
       tester.expectToSeePluginAddCoverAndIconButton();
     });
