@@ -1,5 +1,6 @@
-import 'package:flowy_infra/plugins/models/flowy_dynamic_plugin.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import '../service/models/flowy_dynamic_plugin.dart';
 
 part 'dynamic_plugin_state.freezed.dart';
 

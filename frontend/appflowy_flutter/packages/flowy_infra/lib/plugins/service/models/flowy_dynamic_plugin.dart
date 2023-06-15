@@ -1,11 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:file/memory.dart';
 import 'package:flowy_infra/colorscheme/colorscheme.dart';
+import 'package:flowy_infra/plugins/service/models/exceptions.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:path/path.dart' as p;
 
 import 'plugin_type.dart';
+
+typedef DynamicPluginLibrary = Iterable<FlowyDynamicPlugin>;
 
 /// A class that encapsulates dynamically loaded plugins for AppFlowy.
 ///
@@ -15,30 +19,43 @@ import 'plugin_type.dart';
 class FlowyDynamicPlugin {
   FlowyDynamicPlugin._({
     required String name,
+    required String path,
     this.theme,
-  }) : _name = name;
+  })  : _name = name,
+        _path = path;
 
   /// The plugins should be loaded into a folder with the extension `.flowy_plugin`.
   static bool isPlugin(FileSystemEntity entity) =>
-      entity is Directory && p.extension(entity.path).contains('flowy_plugin');
+      entity is Directory && p.extension(entity.path).contains(ext);
+
+  /// The extension for the plugin folder.
+  static const String ext = 'flowy_plugin';
   static const String lightExtension = 'light.json';
   static const String darkExtension = 'dark.json';
 
   String get name => _name;
   late final String _name;
 
+  String get _fsPluginName => [name, ext].join('.');
+
   final AppTheme? theme;
+  final String _path;
+
+  Directory get source {
+    return Directory(_path);
+  }
 
   /// Loads and "compiles" loaded plugins.
   ///
   /// If the plugin loaded does not contain the `.flowy_plugin` extension, this
   /// this method will throw an error. Likewise, if the plugin does not follow
   /// the expected format, this method will throw an error.
-  static Future<FlowyDynamicPlugin> from({required Directory src}) async {
+  static Future<FlowyDynamicPlugin> decode({required Directory src}) async {
     // throw an error if the plugin does not follow the proper format.
     if (!isPlugin(src)) {
-      throw ArgumentError(
-          'The plugin source directory must have the extension `.flowy_plugin`.');
+      throw PluginCompilationException(
+        'The plugin directory must have the extension `.flowy_plugin`.',
+      );
     }
 
     // throws an error if the plugin does not follow the proper format.
@@ -48,6 +65,30 @@ class FlowyDynamicPlugin {
       case PluginType.theme:
         return _theme(src: src);
     }
+  }
+
+  /// Encodes the plugin in memory. The Directory given is not the actual
+  /// directory on the file system, but rather a virtual directory in memory.
+  ///
+  /// Instances of this class should always have a path on disk, otherwise a
+  /// compilation error will be thrown during the construction of this object.
+  Future<Directory> encode() async {
+    final fs = MemoryFileSystem();
+    final result = fs.directory(_fsPluginName)..createSync();
+
+    final lightPath = p.join(_fsPluginName, '$name.$lightExtension');
+    result.childFile(lightPath).createSync();
+    result
+        .childFile(lightPath)
+        .writeAsStringSync(jsonEncode(theme!.lightTheme.toJson()));
+
+    final darkPath = p.join(_fsPluginName, '$name.$darkExtension');
+    result.childFile(darkPath).createSync();
+    result
+        .childFile(p.join(_fsPluginName, '$name.$darkExtension'))
+        .writeAsStringSync(jsonEncode(theme!.darkTheme.toJson()));
+
+    return result;
   }
 
   /// Theme plugins should have the following format.
@@ -61,8 +102,9 @@ class FlowyDynamicPlugin {
     try {
       name = p.basenameWithoutExtension(src.path).split('.').first;
     } catch (e) {
-      throw ArgumentError(
-          'The theme plugin does not adhere to the following format: `<plugin_name>.flowy_plugin`.');
+      throw PluginCompilationException(
+        'The theme plugin does not adhere to the following format: `<plugin_name>.flowy_plugin`.',
+      );
     }
 
     final light = src
@@ -88,6 +130,7 @@ class FlowyDynamicPlugin {
 
     return FlowyDynamicPlugin._(
       name: theme.themeName,
+      path: src.path,
       theme: theme,
     );
   }
