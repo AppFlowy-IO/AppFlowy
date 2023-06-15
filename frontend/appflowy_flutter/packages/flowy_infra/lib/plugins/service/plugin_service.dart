@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 
 import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 import 'location_service.dart';
 import 'models/flowy_dynamic_plugin.dart';
 

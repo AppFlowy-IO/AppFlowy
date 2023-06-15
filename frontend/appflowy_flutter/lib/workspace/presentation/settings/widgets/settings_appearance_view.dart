@@ -87,7 +87,6 @@ class _ThemeSettingState extends State<ThemeSetting> {
       itemBuilder: (context, index) {
         final theme = themes.elementAt(index);
         return ThemePreview(
-          // TODO(a-wallen): bad there could be multiple themes
           theme: theme,
           isCurrentTheme: theme.themeName == widget.currentTheme,
         );
@@ -114,23 +113,6 @@ class _ThemeSettingState extends State<ThemeSetting> {
           },
         ),
       ],
-    );
-  }
-
-  Widget _themeItemButton(BuildContext context, String theme) {
-    return SizedBox(
-      height: 32,
-      child: FlowyButton(
-        text: FlowyText.medium(theme),
-        rightIcon: widget.currentTheme == theme
-            ? const FlowySvg(name: 'grid/checkmark')
-            : null,
-        onTap: () {
-          if (widget.currentTheme != theme) {
-            context.read<AppearanceSettingsCubit>().setTheme(theme);
-          }
-        },
-      ),
     );
   }
 }

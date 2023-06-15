@@ -112,7 +112,7 @@ class ThemePreview extends StatelessWidget {
                     border: Border.all(
                   width: 1,
                   color: scheme.divider,
-                )),
+                ),),
                 child: Row(
                   children: [
                     Flexible(
