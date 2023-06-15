@@ -19,7 +19,19 @@ pub struct DateCellDataPB {
   pub timestamp: i64,
 
   #[pb(index = 4)]
+  pub end_date: String,
+
+  #[pb(index = 5)]
+  pub end_time: String,
+
+  #[pb(index = 6)]
+  pub end_timestamp: i64,
+
+  #[pb(index = 7)]
   pub include_time: bool,
+
+  #[pb(index = 8)]
+  pub is_range: bool,
 }
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
@@ -34,9 +46,18 @@ pub struct DateChangesetPB {
   pub time: Option<String>,
 
   #[pb(index = 4, one_of)]
-  pub include_time: Option<bool>,
+  pub end_date: Option<i64>,
 
   #[pb(index = 5, one_of)]
+  pub end_time: Option<String>,
+
+  #[pb(index = 6, one_of)]
+  pub include_time: Option<bool>,
+
+  #[pb(index = 7, one_of)]
+  pub is_range: Option<bool>,
+
+  #[pb(index = 8, one_of)]
   pub clear_flag: Option<bool>,
 }
 

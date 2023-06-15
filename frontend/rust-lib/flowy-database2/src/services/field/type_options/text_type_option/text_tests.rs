@@ -26,7 +26,9 @@ mod tests {
 
     let data = DateCellData {
       timestamp: Some(1647251762),
+      end_timestamp: None,
       include_time: true,
+      is_range: false,
     };
 
     assert_eq!(

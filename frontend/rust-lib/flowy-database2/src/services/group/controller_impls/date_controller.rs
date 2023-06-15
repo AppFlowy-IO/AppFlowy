@@ -476,6 +476,7 @@ mod tests {
     let mar_14_2022_cd = DateCellData {
       timestamp: Some(mar_14_2022.timestamp()),
       include_time: false,
+      ..Default::default()
     };
     let today = offset::Local::now();
     let three_days_before = today.checked_add_signed(Duration::days(-3)).unwrap();
@@ -497,6 +498,7 @@ mod tests {
         cell_data: DateCellData {
           timestamp: Some(today.timestamp()),
           include_time: false,
+          ..Default::default()
         },
         type_option: &local_date_type_option,
         setting_content: r#"{"condition": 0, "hide_empty": false}"#.to_string(),
@@ -507,6 +509,7 @@ mod tests {
         cell_data: DateCellData {
           timestamp: Some(three_days_before.timestamp()),
           include_time: false,
+          ..Default::default()
         },
         type_option: &local_date_type_option,
         setting_content: r#"{"condition": 0, "hide_empty": false}"#.to_string(),
@@ -533,6 +536,7 @@ mod tests {
               .timestamp(),
           ),
           include_time: false,
+          ..Default::default()
         },
         type_option: &local_date_type_option,
         setting_content: r#"{"condition": 2, "hide_empty": false}"#.to_string(),
@@ -557,6 +561,7 @@ mod tests {
         cell_data: DateCellData {
           timestamp: Some(1685715999),
           include_time: false,
+          ..Default::default()
         },
         type_option: &default_date_type_option,
         setting_content: r#"{"condition": 1, "hide_empty": false}"#.to_string(),
@@ -567,6 +572,7 @@ mod tests {
         cell_data: DateCellData {
           timestamp: Some(1685802386),
           include_time: false,
+          ..Default::default()
         },
         type_option: &default_date_type_option,
         setting_content: r#"{"condition": 1, "hide_empty": false}"#.to_string(),

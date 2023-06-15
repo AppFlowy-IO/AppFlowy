@@ -19,9 +19,6 @@ use crate::services::field::{
 };
 use crate::services::sort::SortCondition;
 
-/// The [DateTypeOption] is used by [FieldType::Date], [FieldType::LastEditedTime], and [FieldType::CreatedTime].
-/// So, storing the field type is necessary to distinguish the field type.
-/// Most of the cases, each [FieldType] has its own [TypeOption] implementation.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DateTypeOption {
   pub date_format: DateFormat,
@@ -81,14 +78,25 @@ impl TypeOptionCellDataSerde for DateTypeOption {
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     let timestamp = cell_data.timestamp;
+    let end_timestamp = cell_data.end_timestamp;
     let include_time = cell_data.include_time;
+    let is_range = cell_data.is_range;
     let (date, time) = self.formatted_date_time_from_timestamp(&timestamp);
+    let (end_date, end_time) = if end_timestamp.is_some() {
+      self.formatted_date_time_from_timestamp(&timestamp)
+    } else {
+      (date.clone(), time.clone())
+    };
 
     DateCellDataPB {
       date,
       time,
       timestamp: timestamp.unwrap_or_default(),
+      end_date,
+      end_time,
+      end_timestamp: end_timestamp.unwrap_or_default(),
       include_time,
+      is_range,
     }
   }
 
@@ -216,13 +224,32 @@ impl CellDataDecoder for DateTypeOption {
   }
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
-    let timestamp = cell_data.timestamp;
     let include_time = cell_data.include_time;
-    let (date_string, time_string) = self.formatted_date_time_from_timestamp(&timestamp);
-    if include_time && timestamp.is_some() {
-      format!("{} {}", date_string, time_string)
+    let timestamp = cell_data.timestamp;
+    let is_range = cell_data.is_range;
+
+    let (date, time) = self.formatted_date_time_from_timestamp(&timestamp);
+
+    if is_range {
+      let (end_date, end_time) = match cell_data.end_timestamp {
+        Some(timestamp) => self.formatted_date_time_from_timestamp(&Some(timestamp)),
+        None => (date.clone(), time.clone()),
+      };
+      if include_time && timestamp.is_some() {
+        format!("{} {} → {} {}", date, time, end_date, end_time)
+          .trim()
+          .to_string()
+      } else if timestamp.is_some() {
+        format!("{} → {}", date, end_date).trim().to_string()
+      } else {
+        "".to_string()
+      }
     } else {
-      date_string
+      if include_time {
+        format!("{} {}", date, time).trim().to_string()
+      } else {
+        date
+      }
     }
   }
 
@@ -239,25 +266,33 @@ impl CellDataChangeset for DateTypeOption {
     cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     // old date cell data
-    let (previous_timestamp, include_time) = match cell {
+    let (previous_timestamp, previous_end_timestamp, include_time, is_range) = match cell {
       Some(cell) => {
         let cell_data = DateCellData::from(&cell);
-        (cell_data.timestamp, cell_data.include_time)
+        (
+          cell_data.timestamp,
+          cell_data.end_timestamp,
+          cell_data.include_time,
+          cell_data.is_range,
+        )
       },
-      None => (None, false),
+      None => (None, None, false, false),
     };
 
     if changeset.clear_flag == Some(true) {
       let cell_data = DateCellData {
         timestamp: None,
+        end_timestamp: None,
         include_time,
+        is_range,
       };
 
       return Ok((Cell::from(&cell_data), cell_data));
     }
 
-    // update include_time if necessary
+    // update include_time and is_range if necessary
     let include_time = changeset.include_time.unwrap_or(include_time);
+    let is_range = changeset.is_range.unwrap_or(is_range);
 
     // Calculate the timestamp in the time zone specified in type option. If
     // a new timestamp is included in the changeset without an accompanying
@@ -265,17 +300,27 @@ impl CellDataChangeset for DateTypeOption {
     // order to change the day without changing the time, the old time string
     // should be passed in as well.
 
-    let parsed_time = self.naive_time_from_time_string(include_time, changeset.time)?;
+    // parse the time string, which is in the local timezone
+    let parsed_start_time = self.naive_time_from_time_string(include_time, changeset.time)?;
+    let parsed_end_time = self.naive_time_from_time_string(include_time, changeset.end_time)?;
 
     let timestamp = self.timestamp_from_parsed_time_previous_and_new_timestamp(
-      parsed_time,
+      parsed_start_time,
       previous_timestamp,
       changeset.date,
     );
 
+    let end_timestamp = self.timestamp_from_parsed_time_previous_and_new_timestamp(
+      parsed_end_time,
+      previous_end_timestamp,
+      changeset.end_date,
+    );
+
     let cell_data = DateCellData {
       timestamp,
+      end_timestamp,
       include_time,
+      is_range,
     };
 
     Ok((Cell::from(&cell_data), cell_data))
