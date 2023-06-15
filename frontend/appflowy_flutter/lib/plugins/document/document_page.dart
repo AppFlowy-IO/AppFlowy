@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/document/presentation/export_page_widget.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/base64_string.dart';
@@ -90,6 +91,10 @@ class _DocumentPageState extends State<DocumentPage> {
   Widget _buildEditorPage(BuildContext context, DocumentState state) {
     final appflowyEditorPage = AppFlowyEditorPage(
       editorState: editorState!,
+      styleCustomizer: EditorStyleCustomizer(
+        context: context,
+        padding: const EdgeInsets.symmetric(horizontal: 50),
+      ),
       header: _buildCoverAndIcon(context),
     );
     return Column(

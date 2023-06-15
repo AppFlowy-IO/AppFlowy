@@ -17,6 +17,7 @@ class AppFlowyEditorPage extends StatefulWidget {
     this.shrinkWrap = false,
     this.scrollController,
     this.autoFocus,
+    required this.styleCustomizer,
   });
 
   final Widget? header;
@@ -24,6 +25,7 @@ class AppFlowyEditorPage extends StatefulWidget {
   final ScrollController? scrollController;
   final bool shrinkWrap;
   final bool? autoFocus;
+  final EditorStyleCustomizer styleCustomizer;
 
   @override
   State<AppFlowyEditorPage> createState() => _AppFlowyEditorPageState();
@@ -91,9 +93,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     style: styleCustomizer.selectionMenuStyleBuilder(),
   ).handler;
 
-  EditorStyleCustomizer get styleCustomizer => EditorStyleCustomizer(
-        context: context,
-      );
+  EditorStyleCustomizer get styleCustomizer => widget.styleCustomizer;
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
 
   @override

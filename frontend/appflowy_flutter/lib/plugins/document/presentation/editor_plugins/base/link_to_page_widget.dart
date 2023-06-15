@@ -23,11 +23,13 @@ void showLinkToPageMenu(
   final top = alignment == Alignment.bottomLeft ? offset.dy : null;
   final bottom = alignment == Alignment.topLeft ? offset.dy : null;
 
+  keepEditorFocusNotifier.value += 1;
   late OverlayEntry linkToPageMenuEntry;
   linkToPageMenuEntry = FullScreenOverlayEntry(
     top: top,
     bottom: bottom,
     left: offset.dx,
+    dismissCallback: () => keepEditorFocusNotifier.value -= 1,
     builder: (context) => Material(
       color: Colors.transparent,
       child: LinkToPageMenu(
