@@ -4,7 +4,8 @@ use collab_folder::core::ViewLayout;
 pub enum ImportType {
   HistoryDocument = 0,
   HistoryDatabase = 1,
-  CSV = 2,
+  RawDatabase = 2,
+  CSV = 3,
 }
 
 #[derive(Clone, Debug)]

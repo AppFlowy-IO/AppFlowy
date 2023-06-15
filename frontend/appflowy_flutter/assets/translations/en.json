@@ -55,7 +55,8 @@
     "textAndMarkdown": "Text & Markdown",
     "documentFromV010": "Document from v0.1.0",
     "databaseFromV010": "Database from v0.1.0",
-    "csv": "CSV"
+    "csv": "CSV",
+    "database": "Database"
   },
   "disclosureAction": {
     "rename": "Rename",

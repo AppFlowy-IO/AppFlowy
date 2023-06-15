@@ -137,6 +137,14 @@ class ImportPanel extends StatelessWidget {
             ImportTypePB.HistoryDatabase,
           );
           break;
+        case ImportType.databaseRawData:
+          await ImportBackendService.importData(
+            utf8.encode(data),
+            name,
+            parentViewId,
+            ImportTypePB.RawDatabase,
+          );
+          break;
         case ImportType.databaseCSV:
           await ImportBackendService.importData(
             utf8.encode(data),

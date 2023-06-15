@@ -439,6 +439,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> assertCurrentDatabaseLayoutType(DatabaseLayoutPB layout) async {
     expect(finderForDatabaseLayoutType(layout), findsOneWidget);
   }
+
+  Future<void> tapDatabaseRawDataButton() async {
+    await tapButtonWithName(LocaleKeys.importPanel_database.tr());
+  }
 }
 
 Finder finderForDatabaseLayoutType(DatabaseLayoutPB layout) {
