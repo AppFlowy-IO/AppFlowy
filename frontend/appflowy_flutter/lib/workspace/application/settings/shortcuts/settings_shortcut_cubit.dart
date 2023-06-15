@@ -14,9 +14,13 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
   Future<void> fetchShortcuts() async {
     emit(state.copyWith(status: ShortcutsStatus.updating));
     try {
-      List<ShortcutEvent> newShortcuts = await service.loadShortcuts();
-      emit(state.copyWith(
-          status: ShortcutsStatus.success, shortcuts: newShortcuts));
+      final newCommandShortcuts = await service.loadShortcuts();
+      emit(
+        state.copyWith(
+          status: ShortcutsStatus.success,
+          commandShortcutEvents: newCommandShortcuts,
+        ),
+      );
     } catch (e) {
       //could also show an error
       debugPrint("could not load ${e.toString()}");
@@ -24,11 +28,11 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
     }
   }
 
-  Future<void> updateShortcuts() async {
+  Future<void> updateAllShortcuts() async {
     emit(state.copyWith(status: ShortcutsStatus.updating));
 
     try {
-      service.saveShortcuts(state.shortcuts);
+      service.saveAllShortcuts(state.commandShortcutEvents);
       emit(state.copyWith(status: ShortcutsStatus.success));
     } catch (_) {
       emit(state.copyWith(status: ShortcutsStatus.failure));
@@ -37,21 +41,22 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
 }
 
 class ShortcutsState extends Equatable {
-  final List<ShortcutEvent> shortcuts;
+  final List<CommandShortcutEvent> commandShortcutEvents;
   final ShortcutsStatus status;
 
   const ShortcutsState({
-    this.shortcuts = const <ShortcutEvent>[],
+    this.commandShortcutEvents = const <CommandShortcutEvent>[],
     this.status = ShortcutsStatus.initial,
   });
 
   ShortcutsState copyWith({
     ShortcutsStatus? status,
-    List<ShortcutEvent>? shortcuts,
+    List<CommandShortcutEvent>? commandShortcutEvents,
   }) {
     return ShortcutsState(
       status: status ?? this.status,
-      shortcuts: shortcuts ?? this.shortcuts,
+      commandShortcutEvents:
+          commandShortcutEvents ?? this.commandShortcutEvents,
     );
   }
 

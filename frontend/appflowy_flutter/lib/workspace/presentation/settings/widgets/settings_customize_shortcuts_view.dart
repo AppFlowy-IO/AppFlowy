@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/application/settings/shortcuts/key_mapping.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcut_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
@@ -33,7 +34,7 @@ class SettingsCustomizeShortcutsView extends StatelessWidget {
           case ShortcutsStatus.updating:
             return const Center(child: CircularProgressIndicator());
           case ShortcutsStatus.success:
-            return ShortcutsListView(shortcuts: state.shortcuts);
+            return ShortcutsListView(shortcuts: state.commandShortcutEvents);
           case ShortcutsStatus.failure:
             return const ShortcutsErrorView();
         }
@@ -43,8 +44,12 @@ class SettingsCustomizeShortcutsView extends StatelessWidget {
 }
 
 class ShortcutsListView extends StatelessWidget {
-  final List<ShortcutEvent> shortcuts;
-  const ShortcutsListView({super.key, required this.shortcuts});
+  const ShortcutsListView({
+    super.key,
+    required this.shortcuts,
+  });
+
+  final List<CommandShortcutEvent> shortcuts;
 
   @override
   Widget build(BuildContext context) {
@@ -69,8 +74,9 @@ class ShortcutsListView extends StatelessWidget {
         Expanded(
           child: ListView.builder(
             itemCount: shortcuts.length,
-            itemBuilder: (context, index) =>
-                ShortcutsListTile(shortcutEvent: shortcuts[index]),
+            itemBuilder: (context, index) => ShortcutsListTile(
+              shortcutEvent: shortcuts[index],
+            ),
           ),
         )
       ],
@@ -79,11 +85,12 @@ class ShortcutsListView extends StatelessWidget {
 }
 
 class ShortcutsListTile extends StatelessWidget {
-  final ShortcutEvent shortcutEvent;
   const ShortcutsListTile({
     super.key,
     required this.shortcutEvent,
   });
+
+  final CommandShortcutEvent shortcutEvent;
 
   @override
   Widget build(BuildContext context) {
@@ -97,8 +104,7 @@ class ShortcutsListTile extends StatelessWidget {
           ),
         ),
         FlowyTextButton(
-          shortcutEvent.command ??
-              LocaleKeys.settings_shortcuts_addNewCommand.tr(),
+          shortcutEvent.command,
           fillColor: Colors.transparent,
           onPressed: () {
             showKeyListenerDialog(context);
@@ -147,7 +153,7 @@ class ShortcutsListTile extends StatelessWidget {
 
   _updateKey(BuildContext context, String command) {
     shortcutEvent.updateCommand(command: command);
-    BlocProvider.of<ShortcutsCubit>(context).updateShortcuts();
+    BlocProvider.of<ShortcutsCubit>(context).updateAllShortcuts();
   }
 
   _dismiss(BuildContext context) => Navigator.of(context).pop();

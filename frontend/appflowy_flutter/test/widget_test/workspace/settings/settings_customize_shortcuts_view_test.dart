@@ -43,7 +43,8 @@ void main() {
             'Updating when cubit emits [ShortcutsStatus.updating]',
             (widgetTester) async {
               when(() => mockShortcutsCubit.state).thenReturn(
-                  const ShortcutsState(status: ShortcutsStatus.updating));
+                const ShortcutsState(status: ShortcutsStatus.updating),
+              );
 
               await widgetTester.pumpWidget(
                 BlocProvider.value(
@@ -59,24 +60,36 @@ void main() {
           testWidgets(
             'Shows ShortcutsList when cubit emits [ShortcutsStatus.success]',
             (widgetTester) async {
-              KeyEventResult dummyHandler(EditorState e, RawKeyEvent? r) =>
+              KeyEventResult dummyHandler(EditorState e) =>
                   KeyEventResult.handled;
 
-              final dummyShortcuts = <ShortcutEvent>[
-                ShortcutEvent(
-                    key: 'Copy', command: 'ctrl+c', handler: dummyHandler),
-                ShortcutEvent(
-                    key: 'Paste', command: 'ctrl+v', handler: dummyHandler),
-                ShortcutEvent(
-                    key: 'Undo', command: 'ctrl+z', handler: dummyHandler),
-                ShortcutEvent(
-                    key: 'Redo', command: 'ctrl+y', handler: dummyHandler),
+              final dummyShortcuts = <CommandShortcutEvent>[
+                CommandShortcutEvent(
+                  key: 'Copy',
+                  command: 'ctrl+c',
+                  handler: dummyHandler,
+                ),
+                CommandShortcutEvent(
+                  key: 'Paste',
+                  command: 'ctrl+v',
+                  handler: dummyHandler,
+                ),
+                CommandShortcutEvent(
+                  key: 'Undo',
+                  command: 'ctrl+z',
+                  handler: dummyHandler,
+                ),
+                CommandShortcutEvent(
+                  key: 'Redo',
+                  command: 'ctrl+y',
+                  handler: dummyHandler,
+                ),
               ];
 
               when(() => mockShortcutsCubit.state).thenReturn(
                 ShortcutsState(
                   status: ShortcutsStatus.success,
-                  shortcuts: dummyShortcuts,
+                  commandShortcutEvents: dummyShortcuts,
                 ),
               );
               await widgetTester.pumpWidget(

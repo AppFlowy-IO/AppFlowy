@@ -1,7 +1,7 @@
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcut_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
-    show builtInShortcutEvents;
+    show standardCommandShortcutEvents;
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 // ignore: depend_on_referenced_packages
@@ -18,11 +18,11 @@ void main() {
     setUp(() async {
       service = MockSettingsShortcutService();
       when(
-        () => service.saveShortcuts(any()),
+        () => service.saveAllShortcuts(any()),
       ).thenAnswer((_) async => true);
       when(
         () => service.loadShortcuts(),
-      ).thenAnswer((_) async => builtInShortcutEvents);
+      ).thenAnswer((_) async => standardCommandShortcutEvents);
 
       shortcutsCubit = ShortcutsCubit(service);
     });
@@ -66,9 +66,9 @@ void main() {
           isA<ShortcutsState>()
               .having((w) => w.status, 'status', ShortcutsStatus.success)
               .having(
-                (w) => w.shortcuts,
+                (w) => w.commandShortcutEvents,
                 'shortcuts',
-                builtInShortcutEvents,
+                standardCommandShortcutEvents,
               ),
         ],
       );
@@ -78,9 +78,9 @@ void main() {
       blocTest<ShortcutsCubit, ShortcutsState>(
         'calls saveShortcuts() once',
         build: () => shortcutsCubit,
-        act: (cubit) => cubit.updateShortcuts(),
+        act: (cubit) => cubit.updateAllShortcuts(),
         verify: (_) {
-          verify(() => service.saveShortcuts(any())).called(1);
+          verify(() => service.saveAllShortcuts(any())).called(1);
         },
       );
 
@@ -88,11 +88,11 @@ void main() {
         'emits [updating, failure] when updateShortcuts() throws',
         setUp: () {
           when(
-            () => service.saveShortcuts(any()),
+            () => service.saveAllShortcuts(any()),
           ).thenThrow(Exception('oops'));
         },
         build: () => shortcutsCubit,
-        act: (cubit) => cubit.updateShortcuts(),
+        act: (cubit) => cubit.updateAllShortcuts(),
         expect: () => <ShortcutsState>[
           const ShortcutsState(status: ShortcutsStatus.updating),
           const ShortcutsState(status: ShortcutsStatus.failure),
@@ -102,7 +102,7 @@ void main() {
       blocTest<ShortcutsCubit, ShortcutsState>(
         'emits [updating, success] when updateShortcuts() is successful',
         build: () => shortcutsCubit,
-        act: (cubit) => cubit.updateShortcuts(),
+        act: (cubit) => cubit.updateAllShortcuts(),
         expect: () => <dynamic>[
           const ShortcutsState(status: ShortcutsStatus.updating),
           isA<ShortcutsState>()

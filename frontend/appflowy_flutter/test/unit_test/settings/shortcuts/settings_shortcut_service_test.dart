@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io' show File;
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
-import 'package:appflowy_editor/appflowy_editor.dart'
-    show ShortcutEvent, builtInShortcutEvents;
+import 'package:appflowy/workspace/application/settings/shortcuts/shortcuts_model.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_test/flutter_test.dart';
 // ignore: depend_on_referenced_packages
 import 'package:file/memory.dart';
@@ -17,18 +17,18 @@ void main() {
     mockFile = await fileSystem.file("shortcuts.json").create(recursive: true);
     service = SettingsShortcutService(passedFile: mockFile);
     shortcutsJson = """{
-   "shortcuts":[
+   "commandShortcuts":[
       {
-         "key":"Home",
-         "command":"alt+home"
+         "key":"move the cursor upward",
+         "command":"alt+arrow up"
       },
       {
-         "key":"End",
-         "command":"alt+end"
+         "key":"move the cursor forward one character",
+         "command":"alt+arrow left"
       },
       {
-         "key":"Delete Text",
-         "command":"alt+delete"
+         "key":"move the cursor downward",
+         "command":"alt+arrow down"
       }
    ]
 }""";
@@ -38,81 +38,103 @@ void main() {
     "Settings Shortcut Service",
     () {
       test(
-        "returns builtInShortcutEvents if file is empty",
+        "returns default standard shortcuts if file is empty",
         () async {
-          expect(await service.loadShortcuts(), builtInShortcutEvents);
+          expect(await service.loadShortcuts(), standardCommandShortcutEvents);
         },
       );
 
       test('returns updated shortcut event list from json', () {
-        final shortcuts = service.loadAllSavedShortcuts(shortcutsJson);
-        final updatedCopyShortcutEvent =
-            shortcuts.firstWhere((el) => el.key == "Home");
-        expect(updatedCopyShortcutEvent.command, 'alt+home');
-        expect(shortcuts.length, builtInShortcutEvents.length);
-        expect(shortcuts, builtInShortcutEvents);
+        final commandShortcuts = service.getShortcutsFromJson(shortcutsJson);
+
+        final cursorUpShortcut = commandShortcuts
+            .firstWhere((el) => el.key == "move the cursor upward");
+
+        final cursorDownShortcut = commandShortcuts
+            .firstWhere((el) => el.key == "move the cursor downward");
+
+        expect(
+          commandShortcuts.length,
+          standardCommandShortcutEvents.length,
+        );
+        expect(cursorUpShortcut.command, "alt+arrow up");
+        expect(cursorDownShortcut.command, "alt+arrow down");
       });
 
       test(
-        "saveShortcuts saves shortcuts",
+        "saveAllShortcuts saves shortcuts",
         () async {
-          final currentShortcuts = builtInShortcutEvents;
-          final shortcutEvent = currentShortcuts
-              .firstWhere((element) => element.key == "Page up");
+          //updating one of standard command shortcut events.
+          final currentCommandShortcuts = standardCommandShortcutEvents;
+          const kKey = "scroll one page down";
+          const oldCommand = "page down";
+          const newCommand = "alt+page down";
+          final commandShortcutEvent = currentCommandShortcuts
+              .firstWhere((element) => element.key == kKey);
 
-          expect(shortcutEvent.command, 'page up');
+          expect(commandShortcutEvent.command, oldCommand);
 
           //updating the command.
-          shortcutEvent.updateCommand(command: 'alt+page up');
+          commandShortcutEvent.updateCommand(
+            command: newCommand,
+          );
 
           //saving the updated shortcuts
-          final expectedShortcutJson = jsonEncode(currentShortcuts.toJson());
-          service.saveShortcuts(currentShortcuts);
+          await service.saveAllShortcuts(currentCommandShortcuts);
 
           //reading from the mock file the saved shortcut list.
-
           final savedDataInFile = await mockFile.readAsString();
-          expect(expectedShortcutJson, savedDataInFile);
 
-          //now checking if the modified command of page up is alt+page up
-          final shortcuts = service.loadAllSavedShortcuts(savedDataInFile);
-          final updatedPageUpSEvent =
-              shortcuts.firstWhere((el) => el.key == "Page up");
+          //Check if the lists where properly converted to json and saved.
+          final shortcuts = Shortcuts(
+            commandShortcuts:
+                currentCommandShortcuts._toCommandShortcutModalList(),
+          );
 
-          expect(updatedPageUpSEvent.command, 'alt+page up');
+          expect(jsonEncode(shortcuts.toJson()), savedDataInFile);
+
+          //now checking if the modified command of "move the cursor upward" is "arrow up"
+          final newCommandShortcuts =
+              service.getShortcutsFromJson(savedDataInFile);
+
+          final updatedCommandEvent =
+              newCommandShortcuts.firstWhere((el) => el.key == kKey);
+
+          expect(updatedCommandEvent.command, newCommand);
         },
       );
 
       test('load shortcuts from file', () async {
-        final currentShortcuts = builtInShortcutEvents;
-        final shortcutEvent =
-            currentShortcuts.firstWhere((e) => e.key == "Page down");
+        //updating one of standard command shortcut events.
+        const kKey = "scroll one page up";
+        const oldCommand = "page up";
+        const newCommand = "alt+page up";
+        final currentCommandShortcuts = standardCommandShortcutEvents;
+        final commandShortcutEvent = currentCommandShortcuts
+            .firstWhere((element) => element.key == kKey);
 
-        expect(shortcutEvent.command, 'page down');
+        expect(commandShortcutEvent.command, oldCommand);
 
         //updating the command.
-        shortcutEvent.updateCommand(command: 'alt+page down');
+        commandShortcutEvent.updateCommand(command: newCommand);
 
         //saving the updated shortcuts
-        service.saveShortcuts(currentShortcuts);
+        service.saveAllShortcuts(currentCommandShortcuts);
 
         //now directly fetching the shortcuts from loadShortcuts
-        final shortcuts = await service.loadShortcuts();
-        expect(currentShortcuts, shortcuts);
+        final commandShortcuts = await service.loadShortcuts();
+        expect(commandShortcuts, currentCommandShortcuts);
+
+        final updatedCommandEvent =
+            commandShortcuts.firstWhere((el) => el.key == kKey);
+
+        expect(updatedCommandEvent.command, newCommand);
       });
     },
   );
 }
 
-extension on List<ShortcutEvent> {
-  Map<String, dynamic> toJson() => {
-        "shortcuts": List<dynamic>.from(map((sEvent) => sEvent.toJson())),
-      };
-}
-
-extension on ShortcutEvent {
-  Map<String, dynamic> toJson() => {
-        "key": key,
-        "command": command,
-      };
+extension on List<CommandShortcutEvent> {
+  List<CommandShortcutModal> _toCommandShortcutModalList() =>
+      map((e) => CommandShortcutModal.fromCommandEvent(e)).toList();
 }

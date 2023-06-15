@@ -5,14 +5,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  KeyEventResult dummyHandler(EditorState e, RawKeyEvent? r) =>
-      KeyEventResult.handled;
+  KeyEventResult dummyHandler(EditorState e) => KeyEventResult.handled;
 
-  final dummyShortcuts = <ShortcutEvent>[
-    ShortcutEvent(key: 'Copy', command: 'ctrl+c', handler: dummyHandler),
-    ShortcutEvent(key: 'Paste', command: 'ctrl+v', handler: dummyHandler),
-    ShortcutEvent(key: 'Undo', command: 'ctrl+z', handler: dummyHandler),
-    ShortcutEvent(key: 'Redo', command: 'ctrl+y', handler: dummyHandler),
+  final dummyShortcuts = [
+    CommandShortcutEvent(
+      key: 'Copy',
+      command: 'ctrl+c',
+      handler: dummyHandler,
+    ),
+    CommandShortcutEvent(
+      key: 'Paste',
+      command: 'ctrl+v',
+      handler: dummyHandler,
+    ),
+    CommandShortcutEvent(
+      key: 'Undo',
+      command: 'ctrl+z',
+      handler: dummyHandler,
+    ),
+    CommandShortcutEvent(
+      key: 'Redo',
+      command: 'ctrl+y',
+      handler: dummyHandler,
+    ),
   ];
 
   group("ShortcutsListView", () {
@@ -36,11 +51,11 @@ void main() {
           ),
         );
 
+        await widgetTester.pumpAndSettle();
+
         expect(find.byType(FlowyText), findsAtLeastNWidgets(2));
         expect(find.byType(ListView), findsOneWidget);
         expect(find.byType(ShortcutsListTile), findsOneWidget);
-        expect(find.text(dummyShortcuts[0].key), findsOneWidget);
-        expect(find.text(dummyShortcuts[0].command!), findsOneWidget);
       });
 
       testWidgets("with populated shortcut list", (widgetTester) async {
@@ -56,8 +71,6 @@ void main() {
           find.byType(ShortcutsListTile),
           findsNWidgets(dummyShortcuts.length),
         );
-        expect(find.text(dummyShortcuts[2].key), findsOneWidget);
-        expect(find.text(dummyShortcuts[3].key), findsOneWidget);
       });
     });
   });

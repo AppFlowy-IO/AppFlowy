@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/bl
 import 'package:appflowy/plugins/document/presentation/editor_plugins/database/referenced_database_menu_tem.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -89,6 +90,15 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         context: context,
       );
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
+
+  @override
+  void initState() {
+    super.initState();
+    final SettingsShortcutService settingsShortcutService =
+        SettingsShortcutService();
+    //load all saved shortcuts update their commands.
+    settingsShortcutService.loadShortcuts();
+  }
 
   @override
   Widget build(BuildContext context) {
