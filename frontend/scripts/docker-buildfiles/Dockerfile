@@ -57,6 +57,7 @@ WORKDIR /appflowy
 RUN cd frontend && \
     source ~/.cargo/env && \
     cargo make appflowy-flutter-deps-tools && \
+    cargo make flutter_clean && \
     cargo make -p production-linux-x86_64 appflowy-linux
 
 
