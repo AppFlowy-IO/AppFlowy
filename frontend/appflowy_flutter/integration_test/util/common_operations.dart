@@ -7,7 +7,7 @@ import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/header/add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/section/item.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
@@ -112,20 +112,32 @@ extension CommonOperations on WidgetTester {
   Future<void> hoverOnWidget(
     Finder finder, {
     Offset? offset,
+    Future<void> Function()? onHover,
   }) async {
     try {
       final gesture = await createGesture(kind: PointerDeviceKind.mouse);
       await gesture.addPointer(location: Offset.zero);
-      addTearDown(gesture.removePointer);
       await pump();
       await gesture.moveTo(offset ?? getCenter(finder));
       await pumpAndSettle();
-    } catch (_) {}
+      await onHover?.call();
+      await gesture.removePointer();
+    } catch (err) {
+      Log.error('hoverOnWidget error: $err');
+    }
   }
 
   /// Hover on the page name.
-  Future<void> hoverOnPageName(String name) async {
-    await hoverOnWidget(findPageName(name));
+  Future<void> hoverOnPageName(
+    String name, {
+    Future<void> Function()? onHover,
+    bool useLast = true,
+  }) async {
+    if (useLast) {
+      await hoverOnWidget(findPageName(name).last, onHover: onHover);
+    } else {
+      await hoverOnWidget(findPageName(name).first, onHover: onHover);
+    }
   }
 
   /// Tap the ... button beside the page name.
@@ -137,24 +149,18 @@ extension CommonOperations on WidgetTester {
   }
 
   /// Tap the delete page button.
-  ///
-  /// Must call [tapPageOptionButton] first.
   Future<void> tapDeletePageButton() async {
     await tapPageOptionButton();
     await tapButtonWithName(ViewDisclosureAction.delete.name);
   }
 
   /// Tap the rename page button.
-  ///
-  /// Must call [tapPageOptionButton] first.
   Future<void> tapRenamePageButton() async {
     await tapPageOptionButton();
     await tapButtonWithName(ViewDisclosureAction.rename.name);
   }
 
   /// Rename the page.
-  ///
-  /// Must call [tapPageOptionButton] first.
   Future<void> renamePage(String name) async {
     await tapRenamePageButton();
     await enterText(find.byType(TextFormField), name);
@@ -208,14 +214,50 @@ extension CommonOperations on WidgetTester {
     await tapButton(markdownButton);
   }
 
-  /// Hover on cover plugin button above the document
-  Future<void> hoverOnCoverPluginAddButton() async {
-    final editor = find.byWidgetPredicate(
-      (widget) => widget is AppFlowyEditor,
+  Future<void> createNewPageWithName(ViewLayoutPB layout, String name) async {
+    // create a new page
+    await tapAddButton();
+    await tapButtonWithName(layout.menuName);
+    await pumpAndSettle();
+
+    // hover on it and change it's name
+    await hoverOnPageName(
+      LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+      onHover: () async {
+        await renamePage(name);
+        await pumpAndSettle();
+      },
     );
-    await hoverOnWidget(
-      editor,
-      offset: getTopLeft(editor).translate(20, 20),
-    );
+    await pumpAndSettle();
+  }
+}
+
+extension ViewLayoutPBTest on ViewLayoutPB {
+  String get menuName {
+    switch (this) {
+      case ViewLayoutPB.Grid:
+        return LocaleKeys.grid_menuName.tr();
+      case ViewLayoutPB.Board:
+        return LocaleKeys.board_menuName.tr();
+      case ViewLayoutPB.Document:
+        return LocaleKeys.document_menuName.tr();
+      case ViewLayoutPB.Calendar:
+        return LocaleKeys.calendar_menuName.tr();
+      default:
+        throw UnsupportedError('Unsupported layout: $this');
+    }
+  }
+
+  String get referencedMenuName {
+    switch (this) {
+      case ViewLayoutPB.Grid:
+        return LocaleKeys.document_plugins_referencedGrid.tr();
+      case ViewLayoutPB.Board:
+        return LocaleKeys.document_plugins_referencedBoard.tr();
+      case ViewLayoutPB.Calendar:
+        return LocaleKeys.document_plugins_referencedCalendar.tr();
+      default:
+        throw UnsupportedError('Unsupported layout: $this');
+    }
   }
 }

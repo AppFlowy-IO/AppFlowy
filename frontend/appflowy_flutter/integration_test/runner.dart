@@ -5,6 +5,7 @@ import 'document_test.dart' as document_test;
 import 'cover_image_test.dart' as cover_image_test;
 import 'share_markdown_test.dart' as share_markdown_test;
 import 'import_files_test.dart' as import_files_test;
+import 'document_with_database_test.dart' as document_with_database_test;
 
 /// The main task runner for all integration tests in AppFlowy.
 ///
@@ -20,6 +21,7 @@ void main() {
   document_test.main();
   share_markdown_test.main();
   import_files_test.main();
+  document_with_database_test.main();
   // board_test.main();
   // empty_document_test.main();
   // smart_menu_test.main();

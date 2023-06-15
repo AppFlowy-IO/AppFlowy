@@ -126,3 +126,11 @@ extension AppFlowyTestBase on WidgetTester {
     return;
   }
 }
+
+extension AppFlowyFinderTestBase on CommonFinders {
+  Finder findTextInFlowyText(String text) {
+    return find.byWidgetPredicate(
+      (widget) => widget is FlowyText && widget.title == text,
+    );
+  }
+}
