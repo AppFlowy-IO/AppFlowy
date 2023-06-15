@@ -30,8 +30,8 @@ class FlowyDynamicPlugin {
 
   /// The extension for the plugin folder.
   static const String ext = 'flowy_plugin';
-  static const String lightExtension = 'light.json';
-  static const String darkExtension = 'dark.json';
+  static String get lightExtension => ['light', 'json'].join('.');
+  static String get darkExtension => ['dark', 'json'].join('.');
 
   String get name => _name;
   late final String _name;
