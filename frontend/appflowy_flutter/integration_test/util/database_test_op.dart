@@ -7,6 +7,9 @@ import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_pa
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell_action_sheet.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_option_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_layout.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/select_option_editor.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/text_field.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_document.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_editor.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/database_setting.dart';
@@ -158,6 +161,59 @@ extension AppFlowyDatabaseTest on WidgetTester {
     );
 
     await tapButton(finder);
+  }
+
+  Future<void> tapSelectOptionCellInGrid({
+    required int rowIndex,
+    required FieldType fieldType,
+  }) async {
+    assert(
+      fieldType == FieldType.SingleSelect || fieldType == FieldType.MultiSelect,
+    );
+
+    final findRow = find.byType(GridRow);
+    final findCell = finderForFieldType(fieldType);
+
+    final cell = find.descendant(
+      of: findRow.at(rowIndex),
+      matching: findCell,
+    );
+
+    await tapButton(cell);
+  }
+
+  /// The [SelectOptionCellEditor] must be opened first.
+  Future<void> createOption({
+    required String name,
+  }) async {
+    final findEditor = find.byType(SelectOptionCellEditor);
+    expect(findEditor, findsOneWidget);
+
+    final findTextField = find.byType(SelectOptionTextField);
+    expect(findTextField, findsOneWidget);
+
+    await enterText(findTextField, name);
+    await pump();
+
+    await testTextInput.receiveAction(TextInputAction.done);
+    await pumpAndSettle();
+  }
+
+  Future<void> findSelectOptionWithNameInGrid({
+    required int rowIndex,
+    required String name,
+  }) async {
+    final findRow = find.byType(GridRow);
+    final option = find.byWidgetPredicate(
+      (widget) => widget is SelectOptionTag && widget.name == name,
+    );
+
+    final cell = find.descendant(
+      of: findRow.at(rowIndex),
+      matching: option,
+    );
+
+    expect(cell, findsOneWidget);
   }
 
   Future<void> openFirstRowDetailPage() async {
@@ -366,6 +422,16 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> findDateEditor(dynamic matcher) async {
     final finder = find.byType(DateCellEditor);
     expect(finder, matcher);
+  }
+
+  Future<void> findSelectOptionEditor(dynamic matcher) async {
+    final finder = find.byType(SelectOptionCellEditor);
+    expect(finder, matcher);
+  }
+
+  Future<void> dismissSelectOptionEditor() async {
+    await sendKeyEvent(LogicalKeyboardKey.escape);
+    await pumpAndSettle();
   }
 
   Future<void> tapCreateRowButtonInGrid() async {
