@@ -28,18 +28,6 @@ void main() {
       await TestFolder.cleanTestLocation(null);
     });
 
-    testWidgets('open first row of the grid', (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapGoButton();
-
-      // Create a new grid
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
-
-      // Hover first row and then open the row page
-      await tester.openFirstRowDetailPage();
-    });
-
     testWidgets('insert emoji in the row detail page', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();

@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 enum ImportType {
@@ -44,6 +45,15 @@ enum ImportType {
           name: name,
         );
       };
+
+  bool get enableOnRelease {
+    switch (this) {
+      case ImportType.databaseRawData:
+        return kDebugMode;
+      default:
+        return true;
+    }
+  }
 
   List<String> get allowedExtensions {
     switch (this) {

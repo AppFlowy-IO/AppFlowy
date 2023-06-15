@@ -5,8 +5,11 @@ import 'package:appflowy/plugins/database_view/application/setting/setting_bloc.
 import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell_action_sheet.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_list.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_option_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_layout.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/checklist_cell/checklist_progress_bar.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_document.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_editor.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/database_setting.dart';
@@ -51,29 +54,27 @@ extension AppFlowyDatabaseTest on WidgetTester {
     required FieldType fieldType,
     required String input,
   }) async {
-    final findRow = find.byType(GridRow);
-    final findCell = finderForFieldType(fieldType);
-
-    final cell = find.descendant(
-      of: findRow.at(rowIndex),
-      matching: findCell,
-    );
+    final cell = cellFinder(rowIndex, fieldType);
 
     expect(cell, findsOneWidget);
     await enterText(cell, input);
     await pumpAndSettle();
   }
 
+  Finder cellFinder(int rowIndex, FieldType fieldType) {
+    final findRow = find.byType(GridRow, skipOffstage: false);
+    final findCell = finderForFieldType(fieldType);
+    return find.descendant(
+      of: findRow.at(rowIndex),
+      matching: findCell,
+      skipOffstage: false,
+    );
+  }
+
   Future<void> tapCheckboxCellInGrid({
     required int rowIndex,
   }) async {
-    final findRow = find.byType(GridRow);
-    final findCell = finderForFieldType(FieldType.Checkbox);
-
-    final cell = find.descendant(
-      of: findRow.at(rowIndex),
-      matching: findCell,
-    );
+    final cell = cellFinder(rowIndex, FieldType.Checkbox);
 
     final button = find.descendant(
       of: cell,
@@ -88,14 +89,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     required int rowIndex,
     required bool isSelected,
   }) async {
-    final findRow = find.byType(GridRow);
-    final findCell = finderForFieldType(FieldType.Checkbox);
-
-    final cell = find.descendant(
-      of: findRow.at(rowIndex),
-      matching: findCell,
-    );
-
+    final cell = cellFinder(rowIndex, FieldType.Checkbox);
     var finder = find.byType(CheckboxCellUncheck);
     if (isSelected) {
       finder = find.byType(CheckboxCellCheck);
@@ -114,36 +108,118 @@ extension AppFlowyDatabaseTest on WidgetTester {
     required int rowIndex,
     required FieldType fieldType,
   }) async {
-    final findRow = find.byType(GridRow);
-    final findCell = finderForFieldType(fieldType);
-
-    final cell = find.descendant(
-      of: findRow.at(rowIndex),
-      matching: findCell,
-    );
-
+    final cell = cellFinder(rowIndex, FieldType.Checkbox);
     expect(cell, findsOneWidget);
-    await tapButton(cell);
+    await tapButton(cell, warnIfMissed: false);
   }
 
+  /// The [fieldName] must be uqniue in the grid.
   Future<void> assertCellContent({
     required int rowIndex,
     required FieldType fieldType,
     required String content,
   }) async {
-    final findRow = find.byType(GridRow);
-    final findCell = finderForFieldType(fieldType);
-    final cell = find.descendant(
-      of: findRow.at(rowIndex),
-      matching: findCell,
-    );
-
+    final findCell = cellFinder(rowIndex, fieldType);
     final findContent = find.descendant(
-      of: cell,
+      of: findCell,
       matching: find.text(content),
+      skipOffstage: false,
     );
 
-    expect(findContent, findsOneWidget);
+    final text = find.descendant(
+      of: find.byType(TextField),
+      matching: findContent,
+      skipOffstage: false,
+    );
+
+    expect(text, findsOneWidget);
+  }
+
+  Future<void> assertSingleSelectOption({
+    required int rowIndex,
+    required String content,
+  }) async {
+    final findCell = cellFinder(rowIndex, FieldType.SingleSelect);
+    if (content.isNotEmpty) {
+      final finder = find.descendant(
+        of: findCell,
+        matching: find.byWidgetPredicate(
+          (widget) => widget is SelectOptionTag && widget.name == content,
+        ),
+      );
+      expect(finder, findsOneWidget);
+    }
+  }
+
+  Future<void> assertMultiSelectOption({
+    required int rowIndex,
+    required List<String> contents,
+  }) async {
+    final findCell = cellFinder(rowIndex, FieldType.MultiSelect);
+    for (final content in contents) {
+      if (content.isNotEmpty) {
+        final finder = find.descendant(
+          of: findCell,
+          matching: find.byWidgetPredicate(
+            (widget) => widget is SelectOptionTag && widget.name == content,
+          ),
+        );
+        expect(finder, findsOneWidget);
+      }
+    }
+  }
+
+  Future<void> assertChecklistCellInGrid({
+    required int rowIndex,
+    required double percent,
+  }) async {
+    final findCell = cellFinder(rowIndex, FieldType.Checklist);
+    final finder = find.descendant(
+      of: findCell,
+      matching: find.byWidgetPredicate(
+        (widget) {
+          if (widget is ChecklistProgressBar) {
+            return widget.percent == percent;
+          }
+          return false;
+        },
+      ),
+    );
+    expect(finder, findsOneWidget);
+  }
+
+  Future<void> assertDateCellInGrid({
+    required int rowIndex,
+    required FieldType fieldType,
+    required String content,
+  }) async {
+    final findRow = find.byType(GridRow, skipOffstage: false);
+    final findCell = find.descendant(
+      of: findRow.at(rowIndex),
+      matching: find.byWidgetPredicate(
+        (widget) => widget is GridDateCell && widget.fieldType == fieldType,
+      ),
+      skipOffstage: false,
+    );
+
+    final dateCellText = find.descendant(
+      of: findCell,
+      matching: find.byType(GridDateCellText),
+    );
+
+    final text = find.descendant(
+      of: dateCellText,
+      matching: find.byWidgetPredicate(
+        (widget) {
+          if (widget is FlowyText) {
+            return widget.title == content;
+          }
+          return false;
+        },
+      ),
+      skipOffstage: false,
+    );
+    expect(text, findsOneWidget);
   }
 
   Future<void> selectDay({
@@ -290,8 +366,13 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   /// Must call [tapTypeOptionButton] first.
   Future<void> selectFieldType(FieldType fieldType) async {
-    final fieldTypeButton = find.byWidgetPredicate(
-      (widget) => widget is FlowyText && widget.title == fieldType.title(),
+    final fieldTypeCell = find.byType(FieldTypeCell);
+
+    final fieldTypeButton = find.descendant(
+      of: fieldTypeCell,
+      matching: find.byWidgetPredicate(
+        (widget) => widget is FlowyText && widget.title == fieldType.title(),
+      ),
     );
     await tapButton(fieldTypeButton);
   }
@@ -308,7 +389,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> assertNumberOfRowsInGridPage(int num) async {
-    expect(find.byType(GridRow), findsNWidgets(num));
+    expect(
+      find.byType(GridRow, skipOffstage: false),
+      findsNWidgets(num),
+    );
   }
 
   Future<void> assertDocumentExistInRowDetailPage() async {
@@ -353,9 +437,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   Future<void> dismissFieldEditor() async {
     await sendKeyEvent(LogicalKeyboardKey.escape);
-    await sendKeyEvent(LogicalKeyboardKey.escape);
-    await sendKeyEvent(LogicalKeyboardKey.escape);
-    await pumpAndSettle();
+    await pumpAndSettle(const Duration(milliseconds: 200));
   }
 
   Future<void> findFieldEditor(dynamic matcher) async {
@@ -461,24 +543,24 @@ Finder finderForDatabaseLayoutType(DatabaseLayoutPB layout) {
 Finder finderForFieldType(FieldType fieldType) {
   switch (fieldType) {
     case FieldType.Checkbox:
-      return find.byType(GridCheckboxCell);
+      return find.byType(GridCheckboxCell, skipOffstage: false);
     case FieldType.DateTime:
-      return find.byType(GridDateCell);
+      return find.byType(GridDateCell, skipOffstage: false);
     case FieldType.LastEditedTime:
     case FieldType.CreatedTime:
-      return find.byType(GridDateCell);
+      return find.byType(GridDateCell, skipOffstage: false);
     case FieldType.SingleSelect:
-      return find.byType(GridSingleSelectCell);
+      return find.byType(GridSingleSelectCell, skipOffstage: false);
     case FieldType.MultiSelect:
-      return find.byType(GridMultiSelectCell);
+      return find.byType(GridMultiSelectCell, skipOffstage: false);
     case FieldType.Checklist:
-      return find.byType(GridChecklistCell);
+      return find.byType(GridChecklistCell, skipOffstage: false);
     case FieldType.Number:
-      return find.byType(GridNumberCell);
+      return find.byType(GridNumberCell, skipOffstage: false);
     case FieldType.RichText:
-      return find.byType(GridTextCell);
+      return find.byType(GridTextCell, skipOffstage: false);
     case FieldType.URL:
-      return find.byType(GridURLCell);
+      return find.byType(GridURLCell, skipOffstage: false);
     default:
       throw Exception('Unknown field type: $fieldType');
   }

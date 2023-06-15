@@ -114,7 +114,6 @@ void main() {
       await tester.tapNewPropertyButton();
       await tester.renameField('New field 1');
       await tester.dismissFieldEditor();
-      await tester.createField(FieldType.RichText, 'New field 1');
 
       // Delete the field
       await tester.tapGridFieldWithName('New field 1');

@@ -74,6 +74,7 @@ class ImportPanel extends StatelessWidget {
         childAspectRatio: 1 / .2,
         crossAxisCount: 2,
         children: ImportType.values
+            .where((element) => element.enableOnRelease)
             .map(
               (e) => Card(
                 child: FlowyButton(

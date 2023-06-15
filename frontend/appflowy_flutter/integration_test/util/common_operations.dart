@@ -140,6 +140,11 @@ extension CommonOperations on WidgetTester {
     }
   }
 
+  /// open the page with given name.
+  Future<void> openPage(String name) async {
+    await tapButton(findPageName(name));
+  }
+
   /// Tap the ... button beside the page name.
   ///
   /// Must call [hoverOnPageName] first.
