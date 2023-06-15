@@ -32,8 +32,8 @@ RUN yay -S --noconfirm curl base-devel openssl clang cmake ninja pkg-config xdg-
 RUN xdg-user-dirs-update
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN source ~/.cargo/env && \
-    rustup toolchain install stable && \
-    rustup default stable
+    rustup toolchain install 1.70 && \
+    rustup default 1.70
 
 # Install Flutter
 RUN sudo pacman -S --noconfirm git tar gtk3
@@ -47,7 +47,7 @@ RUN flutter doctor
 RUN dart pub global activate protoc_plugin
 
 # Intall build dependencies for AppFlowy
-RUN sudo pacman -S --noconfirm git libkeybinder3 sqlite
+RUN sudo pacman -S --noconfirm git libkeybinder3 sqlite clang
 RUN source ~/.cargo/env && cargo install --force cargo-make duckscript_cli
 
 # Build AppFlowy
