@@ -12,10 +12,12 @@ export function useBlockSlash() {
 
   const { blockId, visible, slashText, hoverOption } = useSubscribeSlash();
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
+
   useEffect(() => {
     if (blockId && visible) {
       const blockEl = document.querySelector(`[data-block-id="${blockId}"]`) as HTMLElement;
       const el = blockEl.querySelector(`[role="textbox"]`) as HTMLElement;
+
       if (el) {
         setAnchorEl(el);
         return;
@@ -33,6 +35,7 @@ export function useBlockSlash() {
   const searchText = useMemo(() => {
     if (!slashText) return '';
     if (slashText[0] !== '/') return slashText;
+
     return slashText.slice(1, slashText.length);
   }, [slashText]);
 
@@ -51,6 +54,7 @@ export function useBlockSlash() {
     hoverOption,
   };
 }
+
 export function useSubscribeSlash() {
   const slashCommandState = useSubscribeSlashState();
   const visible = slashCommandState.isSlashCommand;
@@ -61,6 +65,7 @@ export function useSubscribeSlash() {
   const slashText = useMemo(() => {
     if (!node) return '';
     const delta = node.data.delta || [];
+
     return delta
       .map((op: Op) => {
         if (typeof op.insert === 'string') {

@@ -115,6 +115,7 @@ export interface DocumentState {
   // map of block id to children block ids
   children: Record<string, string[]>;
 }
+
 export interface SlashCommandState {
   isSlashCommand: boolean;
   blockId?: string;
@@ -137,6 +138,7 @@ export enum SlashCommandOptionKey {
   HEADING_2,
   HEADING_3,
 }
+
 export interface SlashCommandOption {
   type: BlockType;
   data?: BlockData<any>;
@@ -147,6 +149,7 @@ export enum SlashCommandGroup {
   BASIC = 'Basic',
   MEDIA = 'Media',
 }
+
 export interface RectSelectionState {
   selection: string[];
   isDragging: boolean;

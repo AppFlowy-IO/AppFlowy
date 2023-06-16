@@ -193,11 +193,7 @@ function BlockSlashMenu({
   }, []);
 
   const selectOptionByArrow = useCallback(
-    (e: KeyboardEvent) => {
-      const isUp = e.key === Keyboard.keys.UP;
-      const isDown = e.key === Keyboard.keys.DOWN;
-      const isLeft = e.key === Keyboard.keys.LEFT;
-      const isRight = e.key === Keyboard.keys.RIGHT;
+    ({ isUp, isDown, isLeft, isRight }: { isUp?: boolean; isDown?: boolean; isLeft?: boolean; isRight?: boolean }) => {
       let nextOption: SlashCommandOption | undefined;
       if (isUp || isLeft) {
         const index = options.findIndex((option) => option.key === hoverOption?.key);
@@ -219,8 +215,9 @@ function BlockSlashMenu({
     },
     [dispatch, docId, hoverOption?.key, options, scrollIntoOption]
   );
+
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
+    const handleKeyDownCapture = (e: KeyboardEvent) => {
       const isUp = e.key === Keyboard.keys.UP;
       const isDown = e.key === Keyboard.keys.DOWN;
       const isLeft = e.key === Keyboard.keys.LEFT;
@@ -235,14 +232,35 @@ function BlockSlashMenu({
           }
           return;
         }
-        selectOptionByArrow(e);
+        selectOptionByArrow({
+          isUp,
+          isDown,
+          isLeft,
+          isRight,
+        });
       }
     };
-    container.addEventListener('keydown', handleKey, true);
+    container.addEventListener('keydown', handleKeyDownCapture, true);
     return () => {
-      container.removeEventListener('keydown', handleKey, true);
+      container.removeEventListener('keydown', handleKeyDownCapture, true);
     };
   }, [container, handleInsert, hoverOption, selectOptionByArrow]);
+
+  const onHoverOption = useCallback(
+    (option: SlashCommandOption) => {
+      dispatch(
+        slashCommandActions.setHoverOption({
+          option: {
+            key: option.key,
+            type: option.type,
+            data: option.data,
+          },
+          docId,
+        })
+      );
+    },
+    [dispatch, docId]
+  );
 
   return (
     <div
@@ -265,16 +283,7 @@ function BlockSlashMenu({
                     title={option.title}
                     icon={option.icon}
                     onHover={() => {
-                      dispatch(
-                        slashCommandActions.setHoverOption({
-                          option: {
-                            key: option.key,
-                            type: option.type,
-                            data: option.data,
-                          },
-                          docId,
-                        })
-                      );
+                      onHoverOption(option);
                     }}
                     isHovered={hoverOption?.key === option.key}
                     onClick={() => {
