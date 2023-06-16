@@ -24,6 +24,7 @@ import { triggerSlashCommandActionThunk } from '$app_reducers/document/async-act
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 import { slashCommandActions } from '$app_reducers/document/slice';
 import { Keyboard } from '$app/constants/document/keyboard';
+import { selectOptionByUpDown } from '$app/utils/document/menu';
 
 function BlockSlashMenu({
   id,
@@ -197,22 +198,13 @@ function BlockSlashMenu({
   }, []);
 
   const selectOptionByArrow = useCallback(
-    ({ isUp, isDown, isLeft, isRight }: { isUp?: boolean; isDown?: boolean; isLeft?: boolean; isRight?: boolean }) => {
-      let nextOption: SlashCommandOption | undefined;
+    ({ isUp = false, isDown = false }: { isUp?: boolean; isDown?: boolean }) => {
+      if (!isUp && !isDown) return;
+      const optionsKeys = options.map((option) => String(option.key));
+      const nextKey = selectOptionByUpDown(isUp, String(hoverOption?.key), optionsKeys);
+      const nextOption = options.find((option) => String(option.key) === nextKey);
 
-      if (isUp || isLeft) {
-        const index = options.findIndex((option) => option.key === hoverOption?.key);
-
-        nextOption = options[index - 1];
-      } else if (isDown || isRight) {
-        const index = options.findIndex((option) => option.key === hoverOption?.key);
-
-        nextOption = options[index + 1];
-      }
-
-      if (!nextOption) {
-        return;
-      }
+      if (!nextOption) return;
 
       scrollIntoOption(nextOption);
       dispatch(
@@ -229,12 +221,10 @@ function BlockSlashMenu({
     const handleKeyDownCapture = (e: KeyboardEvent) => {
       const isUp = e.key === Keyboard.keys.UP;
       const isDown = e.key === Keyboard.keys.DOWN;
-      const isLeft = e.key === Keyboard.keys.LEFT;
-      const isRight = e.key === Keyboard.keys.RIGHT;
       const isEnter = e.key === Keyboard.keys.ENTER;
 
       // if any arrow key is pressed, prevent default behavior and stop propagation
-      if (isUp || isDown || isLeft || isRight || isEnter) {
+      if (isUp || isDown || isEnter) {
         e.stopPropagation();
         e.preventDefault();
         if (isEnter) {
@@ -248,8 +238,6 @@ function BlockSlashMenu({
         selectOptionByArrow({
           isUp,
           isDown,
-          isLeft,
-          isRight,
         });
       }
     };

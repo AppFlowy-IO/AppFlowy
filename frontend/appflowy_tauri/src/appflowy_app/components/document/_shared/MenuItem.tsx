@@ -11,7 +11,7 @@ function MenuItem({
   isHovered,
 }: {
   id?: string;
-  title: string;
+  title?: string;
   icon: React.ReactNode;
   onClick?: () => void;
   extra?: React.ReactNode;

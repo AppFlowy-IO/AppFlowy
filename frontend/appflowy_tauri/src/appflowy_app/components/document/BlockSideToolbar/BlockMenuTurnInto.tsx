@@ -8,20 +8,23 @@ function BlockMenuTurnInto({
   onClose,
   onHovered,
   isHovered,
+  menuOpened,
 }: {
   id: string;
   onClose: () => void;
   onHovered: (e: MouseEvent) => void;
   isHovered: boolean;
+  menuOpened: boolean;
 }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLDivElement>(null);
 
-  const open = isHovered && Boolean(anchorEl);
+  const open = isHovered && menuOpened && Boolean(anchorEl);
 
   return (
     <>
       <MenuItem
         title='Turn into'
+        isHovered={isHovered}
         icon={<Transform />}
         extra={<ArrowRight />}
         onHover={(e) => {
