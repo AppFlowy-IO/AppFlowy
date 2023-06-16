@@ -107,6 +107,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     if (widget.scrollController == null) {
       effectiveScrollController.dispose();
     }
+
     super.dispose();
   }
 
