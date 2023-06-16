@@ -5,11 +5,12 @@ import { NewPagePopup } from './NewPagePopup';
 import { IPage } from '$app_reducers/pages/slice';
 import { Button } from '../../_shared/Button';
 import { RenamePopup } from './RenamePopup';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { DropDownShowSvg } from '../../_shared/svg/DropDownShowSvg';
 import { ANIMATION_DURATION, PAGE_ITEM_HEIGHT } from '../../_shared/constants';
 import { useNavItem } from '$app/components/layout/NavigationPanel/NavItem.hooks';
 import { useAppSelector } from '$app/stores/store';
+import { ViewLayoutPB } from '@/services/backend';
 
 export const NavItem = ({ page }: { page: IPage }) => {
   const pages = useAppSelector((state) => state.pages);
@@ -30,9 +31,7 @@ export const NavItem = ({ page }: { page: IPage }) => {
     deletePage,
     duplicatePage,
 
-    onAddNewDocumentPage,
-    onAddNewBoardPage,
-    onAddNewGridPage,
+    onAddNewPage,
 
     folderHeight,
     activePageId,
@@ -89,11 +88,11 @@ export const NavItem = ({ page }: { page: IPage }) => {
           </div>
         </div>
         <div className={'pl-4'}>
-          {pages
-            .filter((insidePage) => insidePage.parentPageId === page.id)
-            .map((insidePage, index) => (
-              <NavItem key={index} page={insidePage}></NavItem>
-            ))}
+          {useMemo(() => pages.filter((insidePage) => insidePage.parentPageId === page.id), [pages, page]).map(
+            (insidePage, insideIndex) => (
+              <NavItem key={insideIndex} page={insidePage}></NavItem>
+            )
+          )}
         </div>
       </div>
       {showPageOptions && (
@@ -107,9 +106,9 @@ export const NavItem = ({ page }: { page: IPage }) => {
       )}
       {showNewPageOptions && (
         <NewPagePopup
-          onDocumentClick={() => onAddNewDocumentPage()}
-          onBoardClick={() => onAddNewBoardPage()}
-          onGridClick={() => onAddNewGridPage()}
+          onDocumentClick={() => onAddNewPage(ViewLayoutPB.Document)}
+          onBoardClick={() => onAddNewPage(ViewLayoutPB.Board)}
+          onGridClick={() => onAddNewPage(ViewLayoutPB.Grid)}
           onClose={() => closePopup()}
           top={popupY - 124 + 40}
         ></NewPagePopup>

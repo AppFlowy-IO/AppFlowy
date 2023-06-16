@@ -7,7 +7,6 @@ import { WorkspaceBackendService } from '$app/stores/effects/folder/workspace/wo
 import { useLocation, useNavigate } from 'react-router-dom';
 import { INITIAL_FOLDER_HEIGHT, PAGE_ITEM_HEIGHT } from '../../_shared/constants';
 
-import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { ViewBackendService } from '$app/stores/effects/folder/view/view_bd_svc';
 import { ViewObserver } from '$app/stores/effects/folder/view/view_observer';
 
@@ -130,9 +129,9 @@ export const useNavItem = (page: IPage) => {
     setShowNewPageOptions(false);
   };
 
-  const onPageClick = (page: IPage) => {
+  const onPageClick = (eventPage: IPage) => {
     const pageTypeRoute = (() => {
-      switch (page.pageType) {
+      switch (eventPage.pageType) {
         case ViewLayoutPB.Document:
           return 'document';
         case ViewLayoutPB.Grid:
@@ -144,51 +143,39 @@ export const useNavItem = (page: IPage) => {
       }
     })();
 
-    navigate(`/page/${pageTypeRoute}/${page.id}`);
+    navigate(`/page/${pageTypeRoute}/${eventPage.id}`);
   };
 
-  const onAddNewDocumentPage = async () => {
+  const onAddNewPage = async (pageType: ViewLayoutPB) => {
     closePopup();
     if (!workspace?.id) return;
-    const workspaceService = new WorkspaceBackendService(workspace.id);
-    const newViewResult = await workspaceService.createView({
-      name: 'New Document 1',
-      layoutType: ViewLayoutPB.Document,
-      parentViewId: page.id,
-    });
-    if (newViewResult.ok) {
-      try {
-        const newView = newViewResult.val;
-        const c = new DocumentController(newView.id);
-        await c.create();
-        await c.dispose();
-        appDispatch(
-          pagesActions.addPage({
-            parentPageId: page.id,
-            pageType: ViewLayoutPB.Document,
-            title: newView.name,
-            id: newView.id,
-            showPagesInside: false,
-          })
-        );
-        if (!page.showPagesInside) {
-          appDispatch(pagesActions.toggleShowPages({ id: page.id }));
-        }
 
-        navigate(`/page/document/${newView.id}`);
-      } catch (e) {
-        console.error(e);
-      }
+    let newPageName = '';
+    let pageTypeRoute = '';
+
+    switch (pageType) {
+      case ViewLayoutPB.Document:
+        newPageName = 'Document Page 1';
+        pageTypeRoute = 'document';
+        break;
+      case ViewLayoutPB.Grid:
+        newPageName = 'Grid Page 1';
+        pageTypeRoute = 'grid';
+        break;
+      case ViewLayoutPB.Board:
+        newPageName = 'Board Page 1';
+        pageTypeRoute = 'board';
+        break;
+      default:
+        newPageName = 'Document Page 1';
+        pageTypeRoute = 'document';
+        break;
     }
-  };
 
-  const onAddNewBoardPage = async () => {
-    closePopup();
-    if (!workspace?.id) return;
     const workspaceService = new WorkspaceBackendService(workspace.id);
     const newViewResult = await workspaceService.createView({
-      name: 'New Board 1',
-      layoutType: ViewLayoutPB.Board,
+      name: newPageName,
+      layoutType: pageType,
       parentViewId: page.id,
     });
 
@@ -201,44 +188,14 @@ export const useNavItem = (page: IPage) => {
       appDispatch(
         pagesActions.addPage({
           parentPageId: page.id,
-          pageType: ViewLayoutPB.Board,
+          pageType,
           title: newView.name,
           id: newView.id,
           showPagesInside: false,
         })
       );
 
-      navigate(`/page/board/${newView.id}`);
-    }
-  };
-
-  const onAddNewGridPage = async () => {
-    closePopup();
-    if (!workspace?.id) return;
-    const workspaceService = new WorkspaceBackendService(workspace.id);
-    const newViewResult = await workspaceService.createView({
-      name: 'New Grid 1',
-      layoutType: ViewLayoutPB.Grid,
-      parentViewId: page.id,
-    });
-
-    if (newViewResult.ok) {
-      const newView = newViewResult.val;
-      if (!page.showPagesInside) {
-        appDispatch(pagesActions.toggleShowPages({ id: page.id }));
-      }
-
-      appDispatch(
-        pagesActions.addPage({
-          parentPageId: page.id,
-          pageType: ViewLayoutPB.Grid,
-          title: newView.name,
-          id: newView.id,
-          showPagesInside: false,
-        })
-      );
-
-      navigate(`/page/grid/${newView.id}`);
+      navigate(`/page/${pageTypeRoute}/${newView.id}`);
     }
   };
 
@@ -261,9 +218,7 @@ export const useNavItem = (page: IPage) => {
 
     onPageClick,
 
-    onAddNewDocumentPage,
-    onAddNewBoardPage,
-    onAddNewGridPage,
+    onAddNewPage,
 
     folderHeight,
     activePageId,
