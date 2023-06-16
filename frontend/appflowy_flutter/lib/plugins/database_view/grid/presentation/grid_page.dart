@@ -32,15 +32,13 @@ import 'widgets/shortcuts.dart';
 import 'widgets/toolbar/grid_toolbar.dart';
 
 class GridPage extends StatefulWidget {
-  GridPage({
+  const GridPage({
     required this.view,
     this.onDeleted,
     Key? key,
-  })  : databaseController = DatabaseController(view: view),
-        super(key: key);
+  }) : super(key: key);
 
   final ViewPB view;
-  final DatabaseController databaseController;
   final VoidCallback? onDeleted;
 
   @override
@@ -48,6 +46,14 @@ class GridPage extends StatefulWidget {
 }
 
 class _GridPageState extends State<GridPage> {
+  late DatabaseController databaseController;
+
+  @override
+  void initState() {
+    super.initState();
+    databaseController = DatabaseController(view: widget.view);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -55,19 +61,19 @@ class _GridPageState extends State<GridPage> {
         BlocProvider<GridBloc>(
           create: (context) => GridBloc(
             view: widget.view,
-            databaseController: widget.databaseController,
+            databaseController: databaseController,
           )..add(const GridEvent.initial()),
         ),
         BlocProvider<GridFilterMenuBloc>(
           create: (context) => GridFilterMenuBloc(
             viewId: widget.view.id,
-            fieldController: widget.databaseController.fieldController,
+            fieldController: databaseController.fieldController,
           )..add(const GridFilterMenuEvent.initial()),
         ),
         BlocProvider<SortMenuBloc>(
           create: (context) => SortMenuBloc(
             viewId: widget.view.id,
-            fieldController: widget.databaseController.fieldController,
+            fieldController: databaseController.fieldController,
           )..add(const SortMenuEvent.initial()),
         ),
         BlocProvider<DatabaseSettingBloc>(

@@ -67,7 +67,7 @@ class SelectOptionFilterList extends StatelessWidget {
               physics: StyledScrollPhysics(),
               itemBuilder: (BuildContext context, int index) {
                 final option = state.visibleOptions[index];
-                return _SelectOptionFilterCell(
+                return SelectOptionFilterCell(
                   option: option.optionPB,
                   isSelected: option.isSelected,
                 );
@@ -80,21 +80,20 @@ class SelectOptionFilterList extends StatelessWidget {
   }
 }
 
-class _SelectOptionFilterCell extends StatefulWidget {
+class SelectOptionFilterCell extends StatefulWidget {
   final SelectOptionPB option;
   final bool isSelected;
-  const _SelectOptionFilterCell({
+  const SelectOptionFilterCell({
     required this.option,
     required this.isSelected,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<_SelectOptionFilterCell> createState() =>
-      _SelectOptionFilterCellState();
+  State<SelectOptionFilterCell> createState() => _SelectOptionFilterCellState();
 }
 
-class _SelectOptionFilterCellState extends State<_SelectOptionFilterCell> {
+class _SelectOptionFilterCellState extends State<SelectOptionFilterCell> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(

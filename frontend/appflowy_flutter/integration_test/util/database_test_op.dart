@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/database_view/board/presentation/board_page.dar
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/checkbox.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/checklist/checklist.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/select_option/option_list.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/text.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/create_filter_list.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/disclosure_button.dart';
@@ -587,6 +588,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   Future<void> tapChecklistFilterButtonInGrid() async {
     await tapButton(find.byType(ChecklistFilterConditionList));
+  }
+
+  Future<void> tapSelectOptionFilterButtonInGrid() async {
+    await tapButton(find.byType(SelectOptionFilterList));
   }
 
   Future<void> tapCheckedButtonOnCheckboxFilter() async {

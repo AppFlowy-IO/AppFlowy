@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/database_view/application/layout/calendar_setti
 import 'package:appflowy/plugins/database_view/application/view/view_cache.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group_changeset.pb.dart';
@@ -129,29 +130,33 @@ class DatabaseController {
   Future<Either<Unit, FlowyError>> open() async {
     return _databaseViewBackendSvc.openGrid().then((result) {
       return result.fold(
-        (database) async {
+        (DatabasePB database) async {
           databaseLayout = database.layoutType;
 
+          // Listen on layout changed if database layout is calendar
           if (databaseLayout == DatabaseLayoutPB.Calendar) {
             _listenOnCalendarLayoutChanged();
           }
 
-          _databaseCallbacks?.onDatabaseChanged?.call(database);
-          _viewCache.rowCache.setInitialRows(database.rows);
-          return await fieldController
-              .loadFields(
+          // Load the actual database field data.
+          final fieldsOrFail = await fieldController.loadFields(
             fieldIds: database.fields,
-          )
-              .then(
-            (result) {
-              return result.fold(
-                (l) => Future(() async {
-                  await _loadGroups();
-                  await _loadLayoutSetting();
-                  return left(l);
-                }),
-                (err) => right(err),
-              );
+          );
+          return fieldsOrFail.fold(
+            (fields) {
+              // Notify the database is changed after the fields are loaded.
+              // The database won't can't be used until the fields are loaded.
+              _databaseCallbacks?.onDatabaseChanged?.call(database);
+              _viewCache.rowCache.setInitialRows(database.rows);
+              return Future(() async {
+                await _loadGroups();
+                await _loadLayoutSetting();
+                return left(fields);
+              });
+            },
+            (err) {
+              Log.error(err);
+              return right(err);
             },
           );
         },

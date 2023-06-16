@@ -29,9 +29,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   String get viewId => databaseController.viewId;
 
   BoardBloc({required ViewPB view})
-      : databaseController = DatabaseController(
-          view: view,
-        ),
+      : databaseController = DatabaseController(view: view),
         super(BoardState.initial(view.id)) {
     boardController = AppFlowyBoardController(
       onMoveGroup: (

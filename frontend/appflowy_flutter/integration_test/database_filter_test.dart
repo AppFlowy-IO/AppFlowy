@@ -94,5 +94,21 @@ void main() {
 
       await tester.pumpAndSettle();
     });
+
+    testWidgets('add single select filter', (tester) async {
+      await tester.openV020database();
+
+      // create a filter
+      await tester.tapDatabaseFilterButton();
+      await tester.tapCreateFilterByFieldType(FieldType.Checklist, 'Type');
+
+      await tester.tapFilterButtonInGrid('Type');
+      await tester.tapChecklistFilterButtonInGrid();
+
+      await tester.tapCompletedButtonOnChecklistFilter();
+      await tester.assertNumberOfRowsInGridPage(1);
+
+      await tester.pumpAndSettle();
+    });
   });
 }
