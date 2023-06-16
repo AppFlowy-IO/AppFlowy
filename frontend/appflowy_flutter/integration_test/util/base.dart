@@ -85,7 +85,10 @@ extension AppFlowyTestBase on WidgetTester {
     bool warnIfMissed = true,
     int milliseconds = 500,
   }) async {
-    await tap(finder);
+    await tap(
+      finder,
+      warnIfMissed: warnIfMissed,
+    );
     await pumpAndSettle(Duration(milliseconds: milliseconds));
     return;
   }
