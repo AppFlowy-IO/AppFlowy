@@ -14,19 +14,13 @@ use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
 use lib_infra::future::{to_fut, Fut};
 
-use crate::entities::{
-  CalendarEventPB, CellChangesetNotifyPB, CellPB, ChecklistCellDataPB, DatabaseFieldChangesetPB,
-  DatabasePB, DatabaseViewSettingPB, DeleteFilterParams, DeleteGroupParams, DeleteSortParams,
-  FieldChangesetParams, FieldIdPB, FieldPB, FieldType, GroupPB, IndexFieldPB, InsertedRowPB,
-  LayoutSettingParams, NoDateCalendarEventPB, RepeatedFilterPB, RepeatedGroupPB, RepeatedSortPB,
-  RowPB, RowsChangePB, SelectOptionCellDataPB, SelectOptionPB, UpdateFilterParams,
-  UpdateSortParams, UpdatedRowPB,
-};
+use crate::entities::*;
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
   apply_cell_changeset, get_cell_protobuf, AnyTypeCache, CellCache, ToCellChangeset,
 };
 use crate::services::database::util::database_view_setting_pb_from_view;
+use crate::services::database::{RowDetail, UpdatedRow};
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewData, DatabaseViews};
 use crate::services::field::checklist_type_option::{ChecklistCellChangeset, ChecklistCellData};
 use crate::services::field::{
@@ -376,8 +370,8 @@ impl DatabaseEditor {
 
   pub async fn move_row(&self, view_id: &str, from: RowId, to: RowId) {
     let database = self.database.lock();
-    if let (Some(row), Some(from_index), Some(to_index)) = (
-      database.get_row(&from),
+    if let (Some(row_meta), Some(from_index), Some(to_index)) = (
+      database.get_row_meta(&from),
       database.index_of_row(view_id, &from),
       database.index_of_row(view_id, &to),
     ) {
@@ -387,7 +381,7 @@ impl DatabaseEditor {
       drop(database);
 
       let delete_row_id = from.into_inner();
-      let insert_row = InsertedRowPB::from(&row).with_index(to_index as i32);
+      let insert_row = InsertedRowPB::new(RowMetaPB::from(&row_meta)).with_index(to_index as i32);
       let changes =
         RowsChangePB::from_move(view_id.to_string(), vec![delete_row_id], vec![insert_row]);
       send_notification(view_id, DatabaseNotification::DidUpdateViewRows)
@@ -401,7 +395,7 @@ impl DatabaseEditor {
     view_id: &str,
     group_id: Option<String>,
     mut params: CreateRowParams,
-  ) -> FlowyResult<Option<Row>> {
+  ) -> FlowyResult<Option<RowDetail>> {
     for view in self.database_views.editors().await {
       view.v_will_create_row(&mut params.cells, &group_id).await;
     }
@@ -409,11 +403,13 @@ impl DatabaseEditor {
     if let Some((index, row_order)) = result {
       tracing::trace!("create row: {:?} at {}", row_order, index);
       let row = self.database.lock().get_row(&row_order.id);
-      if let Some(row) = row {
+      let row_meta = self.database.lock().get_row_meta(&row_order.id);
+      if let (Some(row), Some(meta)) = (row, row_meta) {
+        let row_detail = RowDetail { row, meta };
         for view in self.database_views.editors().await {
-          view.v_did_create_row(&row, &group_id, index).await;
+          view.v_did_create_row(&row_detail, &group_id, index).await;
         }
-        return Ok(Some(row));
+        return Ok(Some(row_detail));
       }
     }
 
@@ -491,13 +487,43 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn get_rows(&self, view_id: &str) -> FlowyResult<Vec<Arc<Row>>> {
+  pub async fn get_rows(&self, view_id: &str) -> FlowyResult<Vec<Arc<RowDetail>>> {
     let view_editor = self.database_views.get_view_editor(view_id).await?;
     Ok(view_editor.v_get_rows().await)
   }
 
-  pub fn get_row(&self, row_id: &RowId) -> Option<Row> {
-    self.database.lock().get_row(row_id)
+  pub fn get_row(&self, view_id: &str, row_id: &RowId) -> Option<Row> {
+    if self.database.lock().views.is_row_exist(view_id, row_id) {
+      self.database.lock().get_row(row_id)
+    } else {
+      None
+    }
+  }
+
+  pub fn get_row_meta(&self, view_id: &str, row_id: &RowId) -> Option<RowMetaPB> {
+    if self.database.lock().views.is_row_exist(view_id, row_id) {
+      let row_meta = self.database.lock().get_row_meta(row_id)?;
+      Some(RowMetaPB {
+        id: row_id.clone().into_inner(),
+        document_id: row_meta.document_id,
+        icon: row_meta.icon_url,
+        cover: row_meta.cover_url,
+      })
+    } else {
+      tracing::warn!("the row:{} is exist in view:{}", row_id.as_str(), view_id);
+      None
+    }
+  }
+
+  pub fn get_row_detail(&self, view_id: &str, row_id: &RowId) -> Option<RowDetail> {
+    if self.database.lock().views.is_row_exist(view_id, row_id) {
+      let meta = self.database.lock().get_row_meta(row_id)?;
+      let row = self.database.lock().get_row(row_id)?;
+      Some(RowDetail { row, meta })
+    } else {
+      tracing::warn!("the row:{} is exist in view:{}", row_id.as_str(), view_id);
+      None
+    }
   }
 
   pub async fn delete_row(&self, row_id: &RowId) {
@@ -507,6 +533,28 @@ impl DatabaseEditor {
       for view in self.database_views.editors().await {
         view.v_did_delete_row(&row).await;
       }
+    }
+  }
+
+  #[tracing::instrument(level = "trace", skip_all)]
+  pub async fn update_row_meta(&self, row_id: &RowId, changeset: UpdateRowMetaParams) {
+    self.database.lock().update_row_meta(row_id, |meta_update| {
+      meta_update
+        .insert_cover_if_not_none(changeset.cover_url)
+        .insert_icon_if_not_none(changeset.icon_url);
+    });
+
+    // Use the temporary row meta to get rid of the lock that not implement the `Send` or 'Sync' trait.
+    let row_meta = self.database.lock().get_row_meta(row_id);
+    if let Some(row_meta) = row_meta {
+      for view in self.database_views.editors().await {
+        view.v_did_update_row_meta(row_id, &row_meta).await;
+      }
+
+      // Notifies the client that the row meta has been updated.
+      send_notification(row_id.as_str(), DatabaseNotification::DidUpdateRowMeta)
+        .payload(RowMetaPB::from(&row_meta))
+        .send();
     }
   }
 
@@ -626,7 +674,7 @@ impl DatabaseEditor {
     new_cell: Cell,
   ) -> FlowyResult<()> {
     // Get the old row before updating the cell. It would be better to get the old cell
-    let old_row = { self.database.lock().get_row(&row_id) };
+    let old_row = { self.get_row_detail(view_id, &row_id) };
 
     // Get all auto updated fields. It will be used to notify the frontend
     // that the fields have been updated.
@@ -638,19 +686,19 @@ impl DatabaseEditor {
       });
     });
 
-    let option_row = self.database.lock().get_row(&row_id);
-    if let Some(new_row) = option_row {
-      let updated_row = UpdatedRowPB {
-        row: RowPB::from(&new_row),
-        field_ids: vec![field_id.to_string()],
-      };
-      let changes = RowsChangePB::from_update(view_id.to_string(), updated_row);
+    let option_row = self.get_row_detail(view_id, &row_id);
+    if let Some(new_row_detail) = option_row {
+      let updated_row =
+        UpdatedRow::new(&new_row_detail.row.id).with_field_ids(vec![field_id.to_string()]);
+      let changes = RowsChangePB::from_update(view_id.to_string(), updated_row.into());
       send_notification(view_id, DatabaseNotification::DidUpdateViewRows)
         .payload(changes)
         .send();
 
       for view in self.database_views.editors().await {
-        view.v_did_update_row(&old_row, &new_row, field_id).await;
+        view
+          .v_did_update_row(&old_row, &new_row_detail, field_id)
+          .await;
       }
     }
 
@@ -832,6 +880,11 @@ impl DatabaseEditor {
     from_group: &str,
     to_group: &str,
   ) -> FlowyResult<()> {
+    // Do nothing if the group is the same
+    if from_group == to_group {
+      return Ok(());
+    }
+
     let view = self.database_views.get_view_editor(view_id).await?;
     view.v_move_group(from_group, to_group).await?;
     Ok(())
@@ -845,23 +898,23 @@ impl DatabaseEditor {
     from_row: RowId,
     to_row: Option<RowId>,
   ) -> FlowyResult<()> {
-    let row = self.database.lock().get_row(&from_row);
-    match row {
+    let row_detail = self.get_row_detail(view_id, &from_row);
+    match row_detail {
       None => {
         tracing::warn!(
           "Move row between group failed, can not find the row:{}",
           from_row
         )
       },
-      Some(row) => {
-        let mut row_changeset = RowChangeset::new(row.id.clone());
+      Some(row_detail) => {
+        let mut row_changeset = RowChangeset::new(row_detail.row.id.clone());
         let view = self.database_views.get_view_editor(view_id).await?;
         view
-          .v_move_group_row(&row, &mut row_changeset, to_group, to_row)
+          .v_move_group_row(&row_detail, &mut row_changeset, to_group, to_row)
           .await;
 
         tracing::trace!("Row data changed: {:?}", row_changeset);
-        self.database.lock().update_row(&row.id, |row| {
+        self.database.lock().update_row(&row_detail.row.id, |row| {
           row.set_cells(Cells::from(row_changeset.cell_by_field_id.clone()));
         });
 
@@ -886,7 +939,7 @@ impl DatabaseEditor {
   pub async fn set_layout_setting(&self, view_id: &str, layout_setting: LayoutSettingParams) {
     if let Ok(view) = self.database_views.get_view_editor(view_id).await {
       let _ = view.v_set_layout_settings(layout_setting).await;
-    }
+    };
   }
 
   pub async fn get_layout_setting(
@@ -1003,8 +1056,8 @@ impl DatabaseEditor {
 
     let rows = rows
       .into_iter()
-      .map(|row| RowPB::from(row.as_ref()))
-      .collect::<Vec<RowPB>>();
+      .map(|row_detail| RowMetaPB::from(&row_detail.meta))
+      .collect::<Vec<RowMetaPB>>();
     Ok(DatabasePB {
       id: database_id,
       fields,
@@ -1050,8 +1103,8 @@ fn cell_changesets_from_cell_by_field_id(
 ) -> Vec<CellChangesetNotifyPB> {
   let row_id = row_id.into_inner();
   cell_by_field_id
-    .into_iter()
-    .map(|(field_id, _cell)| CellChangesetNotifyPB {
+    .into_keys()
+    .map(|field_id| CellChangesetNotifyPB {
       view_id: view_id.to_string(),
       row_id: row_id.clone(),
       field_id,
@@ -1141,20 +1194,37 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     to_fut(async move { index })
   }
 
-  fn get_row(&self, view_id: &str, row_id: &RowId) -> Fut<Option<(usize, Arc<Row>)>> {
+  fn get_row(&self, view_id: &str, row_id: &RowId) -> Fut<Option<(usize, Arc<RowDetail>)>> {
     let index = self.database.lock().index_of_row(view_id, row_id);
     let row = self.database.lock().get_row(row_id);
+    let row_meta = self.database.lock().get_row_meta(row_id);
     to_fut(async move {
-      match (index, row) {
-        (Some(index), Some(row)) => Some((index, Arc::new(row))),
+      match (index, row, row_meta) {
+        (Some(index), Some(row), Some(row_meta)) => {
+          let row_detail = RowDetail {
+            row,
+            meta: row_meta,
+          };
+          Some((index, Arc::new(row_detail)))
+        },
         _ => None,
       }
     })
   }
 
-  fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<Row>>> {
-    let rows = self.database.lock().get_rows_for_view(view_id);
-    to_fut(async move { rows.into_iter().map(Arc::new).collect() })
+  fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>> {
+    let database = self.database.lock();
+    let rows = database.get_rows_for_view(view_id);
+    let row_details = rows
+      .into_iter()
+      .flat_map(|row| {
+        database
+          .get_row_meta(&row.id)
+          .map(|meta| RowDetail { row, meta })
+      })
+      .collect::<Vec<RowDetail>>();
+
+    to_fut(async move { row_details.into_iter().map(Arc::new).collect() })
   }
 
   fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>> {

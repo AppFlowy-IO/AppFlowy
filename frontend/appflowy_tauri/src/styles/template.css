@@ -20,8 +20,8 @@ body {
   @apply bg-[#E0F8FF]
 }
 
-#appflowy-block-doc ::selection {
-  @apply bg-[transparent]
+div[role="textbox"] ::selection {
+  @apply bg-transparent;
 }
 
 .btn {

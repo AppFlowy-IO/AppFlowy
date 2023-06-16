@@ -121,7 +121,9 @@ export function useRangeKeyDown() {
         return;
       }
       const { anchor, focus } = rangeRef.current;
-      if (anchor?.id === focus?.id) {
+      if (!anchor || !focus) return;
+
+      if (anchor.id === focus.id) {
         return;
       }
       e.stopPropagation();
@@ -131,7 +133,9 @@ export function useRangeKeyDown() {
         return;
       }
       const lastEvent = filteredEvents[lastIndex];
-      lastEvent?.handler(e);
+      if (!lastEvent) return;
+      e.preventDefault();
+      lastEvent.handler(e);
     },
     [interceptEvents, rangeRef]
   );

@@ -12,7 +12,7 @@ export const getFormatActiveThunk = createAsyncThunk<boolean, TextAction>(
     const { document, documentRange } = state;
     const { ranges } = documentRange;
     const match = (delta: Delta, format: TextAction) => {
-      return delta.ops.every((op) => op.attributes?.[format] === true);
+      return delta.ops.every((op) => op.attributes?.[format]);
     };
     return Object.entries(ranges).every(([id, range]) => {
       const node = document.nodes[id];
@@ -36,15 +36,16 @@ export const toggleFormatThunk = createAsyncThunk(
       const { payload: active } = await dispatch(getFormatActiveThunk(format));
       isActive = !!active;
     }
+    const formatValue = isActive ? undefined : true;
     const state = getState() as RootState;
     const { document } = state;
     const { ranges } = state.documentRange;
 
-    const toggle = (delta: Delta, format: TextAction) => {
+    const toggle = (delta: Delta, format: TextAction, value: string | boolean | undefined) => {
       const newOps = delta.ops.map((op) => {
         const attributes = {
           ...op.attributes,
-          [format]: isActive ? undefined : true,
+          [format]: value,
         };
         return {
           insert: op.insert,
@@ -62,7 +63,7 @@ export const toggleFormatThunk = createAsyncThunk(
       const beforeDelta = delta.slice(0, index);
       const afterDelta = delta.slice(index + length);
       const rangeDelta = delta.slice(index, index + length);
-      const toggleFormatDelta = toggle(rangeDelta, format);
+      const toggleFormatDelta = toggle(rangeDelta, format, formatValue);
       const newDelta = beforeDelta.concat(toggleFormatDelta).concat(afterDelta);
 
       return controller.getUpdateAction({

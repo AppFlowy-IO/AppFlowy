@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/database_view/application/field/type_option/typ
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show none;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
@@ -52,11 +53,11 @@ class _FieldEditorState extends State<FieldEditor> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> children = [
-      _FieldNameTextField(popoverMutex: popoverMutex),
+      FieldNameTextField(popoverMutex: popoverMutex),
       if (widget.onDeleted != null) _addDeleteFieldButton(),
       if (widget.onHidden != null) _addHideFieldButton(),
       if (!widget.typeOptionLoader.field.isPrimary)
-        _FieldTypeOptionCell(popoverMutex: popoverMutex),
+        FieldTypeOptionCell(popoverMutex: popoverMutex),
     ];
     return BlocProvider(
       create: (context) {
@@ -116,10 +117,10 @@ class _FieldEditorState extends State<FieldEditor> {
   }
 }
 
-class _FieldTypeOptionCell extends StatelessWidget {
+class FieldTypeOptionCell extends StatelessWidget {
   final PopoverMutex popoverMutex;
 
-  const _FieldTypeOptionCell({
+  const FieldTypeOptionCell({
     Key? key,
     required this.popoverMutex,
   }) : super(key: key);
@@ -130,7 +131,7 @@ class _FieldTypeOptionCell extends StatelessWidget {
       buildWhen: (p, c) => p.field != c.field,
       builder: (context, state) {
         return state.field.fold(
-          () => const SizedBox(),
+          () => const SizedBox.shrink(),
           (fieldInfo) {
             final dataController =
                 context.read<FieldEditorBloc>().dataController;
@@ -145,18 +146,18 @@ class _FieldTypeOptionCell extends StatelessWidget {
   }
 }
 
-class _FieldNameTextField extends StatefulWidget {
+class FieldNameTextField extends StatefulWidget {
   final PopoverMutex popoverMutex;
-  const _FieldNameTextField({
+  const FieldNameTextField({
     required this.popoverMutex,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<_FieldNameTextField> createState() => _FieldNameTextFieldState();
+  State<FieldNameTextField> createState() => _FieldNameTextFieldState();
 }
 
-class _FieldNameTextFieldState extends State<_FieldNameTextField> {
+class _FieldNameTextFieldState extends State<FieldNameTextField> {
   final textController = TextEditingController();
   FocusNode focusNode = FocusNode();
 
@@ -232,15 +233,16 @@ class _DeleteFieldButton extends StatelessWidget {
             LocaleKeys.grid_field_delete.tr(),
             color: enable ? null : Theme.of(context).disabledColor,
           ),
+          leftIcon: svgWidget(
+            'grid/delete',
+            color: enable ? null : Theme.of(context).disabledColor,
+          ),
           onTap: () {
             if (enable) onDeleted?.call();
           },
           onHover: (_) => popoverMutex.close(),
         );
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 4.0),
-          child: SizedBox(height: GridSize.popoverItemHeight, child: button),
-        );
+        return SizedBox(height: GridSize.popoverItemHeight, child: button);
       },
     );
   }
@@ -265,13 +267,11 @@ class _HideFieldButton extends StatelessWidget {
           text: FlowyText.medium(
             LocaleKeys.grid_field_hide.tr(),
           ),
+          leftIcon: svgWidget('grid/hide'),
           onTap: () => onHidden?.call(),
           onHover: (_) => popoverMutex.close(),
         );
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 4.0),
-          child: SizedBox(height: GridSize.popoverItemHeight, child: button),
-        );
+        return SizedBox(height: GridSize.popoverItemHeight, child: button);
       },
     );
   }

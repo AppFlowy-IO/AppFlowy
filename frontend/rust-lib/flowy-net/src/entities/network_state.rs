@@ -1,7 +1,8 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
-#[derive(ProtoBuf_Enum, Debug, Clone, Eq, PartialEq)]
+#[derive(ProtoBuf_Enum, Debug, Clone, Eq, PartialEq, Default)]
 pub enum NetworkTypePB {
+  #[default]
   Unknown = 0,
   Wifi = 1,
   Cell = 2,
@@ -18,12 +19,6 @@ impl NetworkTypePB {
         true
       },
     }
-  }
-}
-
-impl std::default::Default for NetworkTypePB {
-  fn default() -> Self {
-    NetworkTypePB::Unknown
   }
 }
 

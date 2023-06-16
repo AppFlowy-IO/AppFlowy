@@ -54,16 +54,15 @@ impl DocumentManager {
     Ok(document)
   }
 
-  pub fn open_document(&self, doc_id: String) -> FlowyResult<Arc<Document>> {
+  /// get document
+  /// read the existing document from the map if it exists, otherwise read it from the disk and write it to the map.
+  pub fn get_or_open_document(&self, doc_id: String) -> FlowyResult<Arc<Document>> {
     if let Some(doc) = self.documents.read().get(&doc_id) {
       return Ok(doc.clone());
     }
     tracing::debug!("open_document: {:?}", &doc_id);
-    let uid = self.user.user_id()?;
-    let db = self.user.collab_db()?;
-    let collab = self.collab_builder.build(uid, &doc_id, "document", db);
     // read the existing document from the disk.
-    let document = Arc::new(Document::new(collab)?);
+    let document = self.get_document_from_disk(doc_id.clone())?;
     // save the document to the memory and read it from the memory if we open the same document again.
     // and we don't want to subscribe to the document changes if we open the same document again.
     self
@@ -87,7 +86,9 @@ impl DocumentManager {
     Ok(document)
   }
 
-  pub fn get_document(&self, doc_id: String) -> FlowyResult<Arc<Document>> {
+  /// get document
+  /// read the existing document from the disk.
+  pub fn get_document_from_disk(&self, doc_id: String) -> FlowyResult<Arc<Document>> {
     let uid = self.user.user_id()?;
     let db = self.user.collab_db()?;
     let collab = self.collab_builder.build(uid, &doc_id, "document", db);

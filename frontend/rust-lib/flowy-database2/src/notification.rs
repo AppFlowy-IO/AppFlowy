@@ -3,8 +3,9 @@ use flowy_notification::NotificationBuilder;
 
 const OBSERVABLE_CATEGORY: &str = "Grid";
 
-#[derive(ProtoBuf_Enum, Debug)]
+#[derive(ProtoBuf_Enum, Debug, Default)]
 pub enum DatabaseNotification {
+  #[default]
   Unknown = 0,
   /// Trigger after inserting/deleting/updating a row
   DidUpdateViewRows = 20,
@@ -30,6 +31,8 @@ pub enum DatabaseNotification {
   DidReorderRows = 65,
   /// Trigger after editing the row that hit the sort rule
   DidReorderSingleRow = 66,
+  /// Trigger after updating the row meta
+  DidUpdateRowMeta = 67,
   /// Trigger when the settings of the database are changed
   DidUpdateSettings = 70,
   // Trigger when the layout setting of the database is updated
@@ -42,12 +45,6 @@ pub enum DatabaseNotification {
   DidDeleteDatabaseView = 83,
   // Trigger when the database view is moved to trash
   DidMoveDatabaseViewToTrash = 84,
-}
-
-impl std::default::Default for DatabaseNotification {
-  fn default() -> Self {
-    DatabaseNotification::Unknown
-  }
 }
 
 impl std::convert::From<DatabaseNotification> for i32 {

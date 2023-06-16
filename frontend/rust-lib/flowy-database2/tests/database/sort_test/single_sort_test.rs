@@ -42,10 +42,10 @@ async fn sort_change_notification_by_update_text_test() {
   ];
   test.run_scripts(scripts).await;
 
-  let rows = test.get_rows().await;
+  let row_details = test.get_rows().await;
   let scripts = vec![
     UpdateTextCell {
-      row_id: rows[2].id.clone(),
+      row_id: row_details[2].row.id.clone(),
       text: "E".to_string(),
     },
     AssertSortChanged {

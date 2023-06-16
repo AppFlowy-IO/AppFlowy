@@ -1,4 +1,7 @@
-import 'package:appflowy/plugins/database_view/database_view.dart';
+import 'package:appflowy/plugins/database_view/board/board.dart';
+import 'package:appflowy/plugins/database_view/calendar/calendar.dart';
+import 'package:appflowy/plugins/database_view/grid/grid.dart';
+import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -56,14 +59,32 @@ extension ViewExtension on ViewPB {
     throw UnimplementedError;
   }
 
-  Plugin plugin() {
+  Plugin plugin({bool listenOnViewChanged = false}) {
     switch (layout) {
       case ViewLayoutPB.Board:
+        return BoardPlugin(
+          view: this,
+          pluginType: pluginType,
+          listenOnViewChanged: listenOnViewChanged,
+        );
       case ViewLayoutPB.Calendar:
+        return CalendarPlugin(
+          view: this,
+          pluginType: pluginType,
+          listenOnViewChanged: listenOnViewChanged,
+        );
       case ViewLayoutPB.Grid:
-        return DatabaseViewPlugin(view: this);
+        return GridPlugin(
+          view: this,
+          pluginType: pluginType,
+          listenOnViewChanged: listenOnViewChanged,
+        );
       case ViewLayoutPB.Document:
-        return makePlugin(pluginType: pluginType, data: this);
+        return DocumentPlugin(
+          view: this,
+          pluginType: pluginType,
+          listenOnViewChanged: listenOnViewChanged,
+        );
     }
     throw UnimplementedError;
   }

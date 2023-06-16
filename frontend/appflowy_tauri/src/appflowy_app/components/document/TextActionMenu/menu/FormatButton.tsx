@@ -7,6 +7,7 @@ import { getFormatActiveThunk, toggleFormatThunk } from '$app_reducers/document/
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
+import { newLinkThunk } from '$app_reducers/document/async-actions/link';
 
 const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) => {
   const dispatch = useAppDispatch();
@@ -25,6 +26,7 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
       [TextAction.Underline]: 'Underline',
       [TextAction.Strikethrough]: 'Strike through',
       [TextAction.Code]: 'Mark as Code',
+      [TextAction.Link]: 'Add Link',
     }),
     []
   );
@@ -49,6 +51,26 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
     [controller, dispatch, isActive]
   );
 
+  const addLink = useCallback(() => {
+    dispatch(newLinkThunk());
+  }, [dispatch]);
+
+  const formatClick = useCallback(
+    (format: TextAction) => {
+      switch (format) {
+        case TextAction.Bold:
+        case TextAction.Italic:
+        case TextAction.Underline:
+        case TextAction.Strikethrough:
+        case TextAction.Code:
+          return toggleFormat(format);
+        case TextAction.Link:
+          return addLink();
+      }
+    },
+    [addLink, toggleFormat]
+  );
+
   useEffect(() => {
     void (async () => {
       const isActive = await isFormatActive();
@@ -58,7 +80,7 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
 
   return (
     <MenuTooltip title={formatTooltips[format]}>
-      <IconButton size='small' sx={{ color }} onClick={() => toggleFormat(format)}>
+      <IconButton size='small' sx={{ color }} onClick={() => formatClick(format)}>
         <FormatIcon icon={icon} />
       </IconButton>
     </MenuTooltip>

@@ -1,18 +1,10 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/database_view_service.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/board/board_node_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/grid/grid_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-
-class DatabaseBlockKeys {
-  const DatabaseBlockKeys._();
-
-  static const String parentID = 'parent_id';
-  static const String viewID = 'view_id';
-}
 
 extension InsertDatabase on EditorState {
   Future<void> insertInlinePage(String parentViewId, ViewPB childView) async {
@@ -69,6 +61,7 @@ extension InsertDatabase on EditorState {
     ).then((value) => value.swap().toOption().toNullable());
 
     // TODO(a-wallen): Show error dialog here.
+    // Maybe extend the FlowyErrorPage.
     if (ref == null) {
       return;
     }
@@ -93,6 +86,8 @@ extension InsertDatabase on EditorState {
         return LocaleKeys.grid_referencedGridPrefix.tr();
       case ViewLayoutPB.Board:
         return LocaleKeys.board_referencedBoardPrefix.tr();
+      case ViewLayoutPB.Calendar:
+        return LocaleKeys.calendar_referencedCalendarPrefix.tr();
       default:
         throw UnimplementedError();
     }
@@ -101,9 +96,11 @@ extension InsertDatabase on EditorState {
   String _convertPageType(ViewPB viewPB) {
     switch (viewPB.layout) {
       case ViewLayoutPB.Grid:
-        return GridBlockKeys.type;
+        return DatabaseBlockKeys.gridType;
       case ViewLayoutPB.Board:
-        return BoardBlockKeys.type;
+        return DatabaseBlockKeys.boardType;
+      case ViewLayoutPB.Calendar:
+        return DatabaseBlockKeys.calendarType;
       default:
         throw Exception('Unknown layout type');
     }

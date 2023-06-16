@@ -35,7 +35,7 @@ class GridTestContext {
     return gridController.fieldController;
   }
 
-  Future<Either<RowPB, FlowyError>> createRow() async {
+  Future<Either<RowMetaPB, FlowyError>> createRow() async {
     return gridController.createRow();
   }
 
@@ -55,14 +55,15 @@ class GridTestContext {
     final rowCache = gridController.rowCache;
 
     final rowDataController = RowController(
-      rowId: rowInfo.rowPB.id,
+      rowMeta: rowInfo.rowMeta,
       viewId: rowInfo.viewId,
       rowCache: rowCache,
     );
 
     final rowBloc = RowBloc(
-      rowInfo: rowInfo,
+      viewId: rowInfo.viewId,
       dataController: rowDataController,
+      rowId: rowInfo.rowMeta.id,
     )..add(const RowEvent.initial());
     await gridResponseFuture();
 
@@ -176,6 +177,7 @@ class AppFlowyGridTest {
       parentViewId: app.id,
       name: "Test Grid",
       layoutType: builder.layoutType!,
+      openAfterCreate: true,
     ).then((result) {
       return result.fold(
         (view) async {

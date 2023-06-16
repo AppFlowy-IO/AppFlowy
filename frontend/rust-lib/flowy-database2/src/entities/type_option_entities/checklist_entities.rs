@@ -1,11 +1,12 @@
+use collab_database::rows::RowId;
+
+use flowy_derive::ProtoBuf;
+use flowy_error::{ErrorCode, FlowyError};
+
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::SelectOptionPB;
 use crate::services::field::checklist_type_option::ChecklistCellData;
-
 use crate::services::field::SelectOption;
-use collab_database::rows::RowId;
-use flowy_derive::ProtoBuf;
-use flowy_error::{ErrorCode, FlowyError};
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct ChecklistCellDataPB {
@@ -16,7 +17,7 @@ pub struct ChecklistCellDataPB {
   pub selected_options: Vec<SelectOptionPB>,
 
   #[pb(index = 3)]
-  pub(crate) percentage: f64,
+  pub percentage: f64,
 }
 
 impl From<ChecklistCellData> for ChecklistCellDataPB {

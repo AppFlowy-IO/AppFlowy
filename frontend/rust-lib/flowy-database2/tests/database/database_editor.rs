@@ -3,12 +3,12 @@ use std::sync::Arc;
 
 use collab_database::database::{gen_database_view_id, timestamp};
 use collab_database::fields::Field;
-use collab_database::rows::{CreateRowParams, Row, RowId};
+use collab_database::rows::{CreateRowParams, RowId};
 use strum::EnumCount;
 
-use flowy_database2::entities::{FieldType, FilterPB, RowPB, SelectOptionPB};
+use flowy_database2::entities::{FieldType, FilterPB, RowMetaPB, SelectOptionPB};
 use flowy_database2::services::cell::{CellBuilder, ToCellChangeset};
-use flowy_database2::services::database::DatabaseEditor;
+use flowy_database2::services::database::{DatabaseEditor, RowDetail};
 use flowy_database2::services::field::checklist_type_option::{
   ChecklistCellChangeset, ChecklistTypeOption,
 };
@@ -31,9 +31,9 @@ pub struct DatabaseEditorTest {
   pub view_id: String,
   pub editor: Arc<DatabaseEditor>,
   pub fields: Vec<Arc<Field>>,
-  pub rows: Vec<Arc<Row>>,
+  pub row_details: Vec<Arc<RowDetail>>,
   pub field_count: usize,
-  pub row_by_row_id: HashMap<String, RowPB>,
+  pub row_by_row_id: HashMap<String, RowMetaPB>,
 }
 
 impl DatabaseEditorTest {
@@ -99,7 +99,7 @@ impl DatabaseEditorTest {
       view_id,
       editor,
       fields,
-      rows,
+      row_details: rows,
       field_count: FieldType::COUNT,
       row_by_row_id: HashMap::default(),
     }
@@ -109,7 +109,7 @@ impl DatabaseEditorTest {
     self.editor.get_all_filters(&self.view_id).await.items
   }
 
-  pub async fn get_rows(&self) -> Vec<Arc<Row>> {
+  pub async fn get_rows(&self) -> Vec<Arc<RowDetail>> {
     self.editor.get_rows(&self.view_id).await.unwrap()
   }
 

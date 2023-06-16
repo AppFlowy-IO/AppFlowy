@@ -209,7 +209,7 @@ class _OptionCellState extends State<_OptionCell> {
       offset: const Offset(8, 0),
       margin: EdgeInsets.zero,
       asBarrier: true,
-      constraints: BoxConstraints.loose(const Size(460, 460)),
+      constraints: BoxConstraints.loose(const Size(460, 470)),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12.0),
         child: child,

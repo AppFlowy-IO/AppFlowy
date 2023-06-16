@@ -1,5 +1,4 @@
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
@@ -10,12 +9,10 @@ class GroupBackendService {
 
   Future<Either<Unit, FlowyError>> groupByField({
     required String fieldId,
-    required FieldType fieldType,
   }) {
     final payload = GroupByFieldPayloadPB.create()
       ..viewId = viewId
-      ..fieldId = fieldId
-      ..fieldType = fieldType;
+      ..fieldId = fieldId;
 
     return DatabaseEventSetGroupByField(payload).send();
   }

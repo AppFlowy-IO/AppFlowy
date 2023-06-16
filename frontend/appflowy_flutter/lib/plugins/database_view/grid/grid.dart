@@ -45,8 +45,12 @@ class GridPlugin extends Plugin {
   GridPlugin({
     required ViewPB view,
     required PluginType pluginType,
+    bool listenOnViewChanged = false,
   })  : _pluginType = pluginType,
-        notifier = ViewPluginNotifier(view: view);
+        notifier = ViewPluginNotifier(
+          view: view,
+          listenOnViewChanged: listenOnViewChanged,
+        );
 
   @override
   PluginWidgetBuilder get widgetBuilder =>
@@ -69,11 +73,11 @@ class GridPluginWidgetBuilder extends PluginWidgetBuilder {
   Widget get leftBarItem => ViewLeftBarItem(view: view);
 
   @override
-  Widget buildWidget(PluginContext context) {
+  Widget buildWidget({PluginContext? context}) {
     notifier.isDeleted.addListener(() {
       notifier.isDeleted.value.fold(() => null, (deletedView) {
         if (deletedView.hasIndex()) {
-          context.onDeleted(view, deletedView.index);
+          context?.onDeleted(view, deletedView.index);
         }
       });
     });

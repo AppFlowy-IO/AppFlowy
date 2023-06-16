@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_list.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/database/referenced_database_menu_tem.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -13,17 +14,25 @@ class AppFlowyEditorPage extends StatefulWidget {
     super.key,
     required this.editorState,
     this.header,
+    this.shrinkWrap = false,
+    this.scrollController,
+    this.autoFocus,
+    required this.styleCustomizer,
   });
 
-  final EditorState editorState;
   final Widget? header;
+  final EditorState editorState;
+  final ScrollController? scrollController;
+  final bool shrinkWrap;
+  final bool? autoFocus;
+  final EditorStyleCustomizer styleCustomizer;
 
   @override
   State<AppFlowyEditorPage> createState() => _AppFlowyEditorPageState();
 }
 
 class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
-  final scrollController = ScrollController();
+  late final ScrollController effectiveScrollController;
 
   final List<CommandShortcutEvent> commandShortcutEvents = [
     ...codeBlockCommands,
@@ -45,9 +54,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final slashMenuItems = [
     inlineGridMenuItem(documentBloc),
-    referenceGridMenuItem,
+    referencedGridMenuItem,
     inlineBoardMenuItem(documentBloc),
-    boardMenuItem,
+    referencedBoardMenuItem,
+    inlineCalendarMenuItem(documentBloc),
+    referencedCalendarMenuItem,
     calloutItem,
     mathEquationItem,
     codeBlockItem,
@@ -82,10 +93,23 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     style: styleCustomizer.selectionMenuStyleBuilder(),
   ).handler;
 
-  EditorStyleCustomizer get styleCustomizer => EditorStyleCustomizer(
-        context: context,
-      );
+  EditorStyleCustomizer get styleCustomizer => widget.styleCustomizer;
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
+
+  @override
+  void initState() {
+    super.initState();
+    effectiveScrollController = widget.scrollController ?? ScrollController();
+  }
+
+  @override
+  void dispose() {
+    if (widget.scrollController == null) {
+      effectiveScrollController.dispose();
+    }
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,9 +119,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final editor = AppFlowyEditor.custom(
       editorState: widget.editorState,
       editable: true,
-      scrollController: scrollController,
+      shrinkWrap: widget.shrinkWrap,
+      scrollController: effectiveScrollController,
       // setup the auto focus parameters
-      autoFocus: autoFocus,
+      autoFocus: widget.autoFocus ?? autoFocus,
       focusedSelection: selection,
       // setup the theme
       editorStyle: styleCustomizer.style(),
@@ -119,7 +144,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           style: styleCustomizer.floatingToolbarStyleBuilder(),
           items: toolbarItems,
           editorState: widget.editorState,
-          scrollController: scrollController,
+          scrollController: effectiveScrollController,
           child: editor,
         ),
       ),
@@ -174,10 +199,13 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       ImageBlockKeys.type: ImageBlockComponentBuilder(
         configuration: configuration,
       ),
-      BoardBlockKeys.type: BoardBlockComponentBuilder(
+      DatabaseBlockKeys.gridType: DatabaseViewBlockComponentBuilder(
         configuration: configuration,
       ),
-      GridBlockKeys.type: GridBlockComponentBuilder(
+      DatabaseBlockKeys.boardType: DatabaseViewBlockComponentBuilder(
+        configuration: configuration,
+      ),
+      DatabaseBlockKeys.calendarType: DatabaseViewBlockComponentBuilder(
         configuration: configuration,
       ),
       CalloutBlockKeys.type: CalloutBlockComponentBuilder(

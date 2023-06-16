@@ -48,8 +48,12 @@ class DocumentPlugin extends Plugin<int> {
   DocumentPlugin({
     required PluginType pluginType,
     required ViewPB view,
+    bool listenOnViewChanged = false,
     Key? key,
-  }) : notifier = ViewPluginNotifier(view: view) {
+  }) : notifier = ViewPluginNotifier(
+          view: view,
+          listenOnViewChanged: listenOnViewChanged,
+        ) {
     _pluginType = pluginType;
     _documentAppearanceCubit.fetch();
   }
@@ -92,7 +96,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   EdgeInsets get contentPadding => EdgeInsets.zero;
 
   @override
-  Widget buildWidget(PluginContext context) {
+  Widget buildWidget({PluginContext? context}) {
     notifier.isDeleted.addListener(() {
       notifier.isDeleted.value.fold(() => null, (deletedView) {
         if (deletedView.hasIndex()) {
@@ -107,7 +111,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
         builder: (_, state) {
           return DocumentPage(
             view: view,
-            onDeleted: () => context.onDeleted(view, deletedViewIndex),
+            onDeleted: () => context?.onDeleted(view, deletedViewIndex),
             key: ValueKey(view.id),
           );
         },

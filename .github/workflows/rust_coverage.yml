@@ -12,7 +12,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
   FLUTTER_VERSION: "3.10.1"
-  RUST_TOOLCHAIN: "1.65"
+  RUST_TOOLCHAIN: "1.70"
 
 jobs:
   tests:

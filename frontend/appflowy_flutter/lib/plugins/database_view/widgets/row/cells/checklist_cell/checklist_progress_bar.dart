@@ -22,7 +22,7 @@ class ChecklistProgressBar extends StatelessWidget {
       percent: percent,
       padding: EdgeInsets.zero,
       progressColor: percent < 1.0
-          ? SelectOptionColorPB.Blue.toColor(context)
+          ? SelectOptionColorPB.Purple.toColor(context)
           : SelectOptionColorPB.Green.toColor(context),
       backgroundColor: AFThemeExtension.of(context).progressBarBGColor,
       barRadius: const Radius.circular(5),

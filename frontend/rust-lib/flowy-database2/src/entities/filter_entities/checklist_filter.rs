@@ -10,20 +10,16 @@ pub struct ChecklistFilterPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum ChecklistFilterConditionPB {
   IsComplete = 0,
+  #[default]
   IsIncomplete = 1,
 }
 
 impl std::convert::From<ChecklistFilterConditionPB> for u32 {
   fn from(value: ChecklistFilterConditionPB) -> Self {
     value as u32
-  }
-}
-
-impl std::default::Default for ChecklistFilterConditionPB {
-  fn default() -> Self {
-    ChecklistFilterConditionPB::IsIncomplete
   }
 }
 

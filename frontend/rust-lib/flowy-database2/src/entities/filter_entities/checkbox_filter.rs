@@ -10,7 +10,9 @@ pub struct CheckboxFilterPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum CheckboxFilterConditionPB {
+  #[default]
   IsChecked = 0,
   IsUnChecked = 1,
 }
@@ -18,12 +20,6 @@ pub enum CheckboxFilterConditionPB {
 impl std::convert::From<CheckboxFilterConditionPB> for u32 {
   fn from(value: CheckboxFilterConditionPB) -> Self {
     value as u32
-  }
-}
-
-impl std::default::Default for CheckboxFilterConditionPB {
-  fn default() -> Self {
-    CheckboxFilterConditionPB::IsChecked
   }
 }
 

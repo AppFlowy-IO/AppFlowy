@@ -37,9 +37,6 @@ abstract class PluginNotifier<T> {
   /// Notify if the plugin get deleted
   ValueNotifier<T> get isDeleted;
 
-  /// Notify if the [PluginWidgetBuilder]'s content was changed
-  ValueNotifier<int> get isDisplayChanged;
-
   void dispose() {}
 }
 
@@ -69,7 +66,7 @@ abstract class PluginWidgetBuilder with NavigationItem {
   EdgeInsets get contentPadding =>
       const EdgeInsets.symmetric(horizontal: 40, vertical: 28);
 
-  Widget buildWidget(PluginContext context);
+  Widget buildWidget({PluginContext? context});
 }
 
 class PluginContext {

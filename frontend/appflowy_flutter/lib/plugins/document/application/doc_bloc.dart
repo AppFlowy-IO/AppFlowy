@@ -23,7 +23,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   DocumentBloc({
     required this.view,
   })  : _documentListener = DocumentListener(id: view.id),
-        _viewListener = ViewListener(view: view),
+        _viewListener = ViewListener(viewId: view.id),
         _documentService = DocumentService(),
         _trashService = TrashService(),
         super(DocumentState.initial()) {

@@ -23,7 +23,7 @@ on:
 
 env:
   FLUTTER_VERSION: "3.10.1"
-  RUST_TOOLCHAIN: "1.65"
+  RUST_TOOLCHAIN: "1.70"
 
 jobs:
   build:
@@ -68,7 +68,7 @@ jobs:
         with:
           prefix-key: ${{ matrix.os }}
           workspaces: |
-            frontend/rust-lib 
+            frontend/rust-lib
 
       - uses: davidB/rust-cargo-make@v1
         with:
@@ -102,6 +102,7 @@ jobs:
             git config --system core.longpaths true
             flutter config --enable-windows-desktop
           fi
+          dart pub global activate protoc_plugin 20.0.1
         shell: bash
 
       - name: Build AppFlowy
@@ -118,3 +119,17 @@ jobs:
         working-directory: frontend
         run: |
           cargo make dart_unit_test
+
+      - name: Upload coverage to Codecov
+        uses: Wandalen/wretry.action@master
+        with:
+          action: codecov/codecov-action@v3
+          with: |
+            name: appflowy
+            flags: appflowy_flutter_unit_test
+            fail_ci_if_error: true
+            verbose: true
+            os: ${{ matrix.os }}
+          attempt_limit: 5
+          attempt_delay: 10000
+

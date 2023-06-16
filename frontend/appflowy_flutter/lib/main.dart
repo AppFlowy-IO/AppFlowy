@@ -6,5 +6,8 @@ import 'startup/startup.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await FlowyRunner.run(FlowyApp());
+  await FlowyRunner.run(
+    FlowyApp(),
+    integrationEnv(),
+  );
 }

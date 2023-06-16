@@ -88,10 +88,11 @@ export function useKeyDown(id: string) {
 
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
-      e.stopPropagation();
-
       const filteredEvents = interceptEvents.filter((event) => event.canHandle(e));
-      filteredEvents.forEach((event) => event.handler(e));
+      filteredEvents.forEach((event) => {
+        e.stopPropagation();
+        event.handler(e);
+      });
     },
     [interceptEvents]
   );

@@ -1,26 +1,26 @@
-library document_plugin;
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/plugins/document/application/share_bloc.dart';
+import 'package:appflowy/util/file_picker/file_picker_service.dart';
+import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:clipboard/clipboard.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DocumentShareButton extends StatelessWidget {
+  const DocumentShareButton({
+    super.key,
+    required this.view,
+  });
+
   final ViewPB view;
-  DocumentShareButton({Key? key, required this.view})
-      : super(key: ValueKey(view.hashCode));
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +28,10 @@ class DocumentShareButton extends StatelessWidget {
       create: (context) => getIt<DocShareBloc>(param1: view),
       child: BlocListener<DocShareBloc, DocShareState>(
         listener: (context, state) {
-          state.map(
-            initial: (_) {},
-            loading: (_) {},
+          state.mapOrNull(
             finish: (state) {
               state.successOrFail.fold(
-                _handleExportData,
+                (data) => _handleExportData(context, data),
                 _handleExportError,
               );
             },
@@ -52,29 +50,53 @@ class DocumentShareButton extends StatelessWidget {
     );
   }
 
-  void _handleExportData(ExportDataPB exportData) {
+  void _handleExportData(BuildContext context, ExportDataPB exportData) {
     switch (exportData.exportType) {
-      case ExportType.Link:
-        break;
       case ExportType.Markdown:
-        FlutterClipboard.copy(exportData.data)
-            .then((value) => Log.info('copied to clipboard'));
+        showSnackBarMessage(
+          context,
+          LocaleKeys.settings_files_exportFileSuccess.tr(),
+        );
         break;
+      case ExportType.Link:
       case ExportType.Text:
         break;
     }
   }
 
-  void _handleExportError(FlowyError error) {}
+  void _handleExportError(FlowyError error) {
+    showMessageToast(error.msg);
+  }
 }
 
-class ShareActionList extends StatelessWidget {
+class ShareActionList extends StatefulWidget {
   const ShareActionList({
-    Key? key,
+    super.key,
     required this.view,
-  }) : super(key: key);
+  });
 
   final ViewPB view;
+
+  @override
+  State<ShareActionList> createState() => ShareActionListState();
+}
+
+@visibleForTesting
+class ShareActionListState extends State<ShareActionList> {
+  late String name;
+  late final ViewListener viewListener = ViewListener(viewId: widget.view.id);
+
+  @override
+  void initState() {
+    super.initState();
+    listenOnViewUpdated();
+  }
+
+  @override
+  void dispose() {
+    viewListener.stop();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,22 +116,25 @@ class ShareActionList extends StatelessWidget {
       onSelected: (action, controller) async {
         switch (action.inner) {
           case ShareAction.markdown:
-            final exportPath = await FilePicker.platform.saveFile(
+            final exportPath = await getIt<FilePickerService>().saveFile(
               dialogTitle: '',
-              fileName: '${view.name}.md',
+              fileName: '$name.md',
             );
             if (exportPath != null) {
               docShareBloc.add(DocShareEvent.shareMarkdown(exportPath));
-              showMessageToast('Exported to: $exportPath');
             }
             break;
-          // case ShareAction.copyLink:
-          //   NavigatorAlertDialog(
-          //     title: LocaleKeys.shareAction_workInProgress.tr(),
-          //   ).show(context);
-          //   break;
         }
         controller.close();
+      },
+    );
+  }
+
+  void listenOnViewUpdated() {
+    name = widget.view.name;
+    viewListener.start(
+      onViewUpdated: (view) {
+        name = view.name;
       },
     );
   }
@@ -117,7 +142,6 @@ class ShareActionList extends StatelessWidget {
 
 enum ShareAction {
   markdown,
-  // copyLink,
 }
 
 class ShareActionWrapper extends ActionCell {
@@ -132,8 +156,6 @@ class ShareActionWrapper extends ActionCell {
     switch (inner) {
       case ShareAction.markdown:
         return LocaleKeys.shareAction_markdown.tr();
-      // case ShareAction.copyLink:
-      //   return LocaleKeys.shareAction_copyLink.tr();
     }
   }
 }

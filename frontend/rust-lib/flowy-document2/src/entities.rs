@@ -1,11 +1,62 @@
+use collab_document::blocks::{BlockAction, DocumentData};
 use std::collections::HashMap;
 
+use crate::parse::{NotEmptyStr, NotEmptyVec};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_error::ErrorCode;
 
 #[derive(Default, ProtoBuf)]
 pub struct OpenDocumentPayloadPB {
   #[pb(index = 1)]
   pub document_id: String,
+}
+
+pub struct OpenDocumentParams {
+  pub document_id: String,
+}
+
+impl TryInto<OpenDocumentParams> for OpenDocumentPayloadPB {
+  type Error = ErrorCode;
+  fn try_into(self) -> Result<OpenDocumentParams, Self::Error> {
+    let document_id =
+      NotEmptyStr::parse(self.document_id).map_err(|_| ErrorCode::DocumentIdIsEmpty)?;
+    Ok(OpenDocumentParams {
+      document_id: document_id.0,
+    })
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct DocumentRedoUndoPayloadPB {
+  #[pb(index = 1)]
+  pub document_id: String,
+}
+
+pub struct DocumentRedoUndoParams {
+  pub document_id: String,
+}
+
+impl TryInto<DocumentRedoUndoParams> for DocumentRedoUndoPayloadPB {
+  type Error = ErrorCode;
+  fn try_into(self) -> Result<DocumentRedoUndoParams, Self::Error> {
+    let document_id =
+      NotEmptyStr::parse(self.document_id).map_err(|_| ErrorCode::DocumentIdIsEmpty)?;
+    Ok(DocumentRedoUndoParams {
+      document_id: document_id.0,
+    })
+  }
+}
+
+#[derive(Default, Debug, ProtoBuf)]
+pub struct DocumentRedoUndoResponsePB {
+  #[pb(index = 1)]
+  pub can_undo: bool,
+
+  #[pb(index = 2)]
+  pub can_redo: bool,
+
+  #[pb(index = 3)]
+  pub is_success: bool,
 }
 
 #[derive(Default, ProtoBuf)]
@@ -17,10 +68,43 @@ pub struct CreateDocumentPayloadPB {
   pub initial_data: Option<DocumentDataPB>,
 }
 
+pub struct CreateDocumentParams {
+  pub document_id: String,
+  pub initial_data: Option<DocumentData>,
+}
+
+impl TryInto<CreateDocumentParams> for CreateDocumentPayloadPB {
+  type Error = ErrorCode;
+  fn try_into(self) -> Result<CreateDocumentParams, Self::Error> {
+    let document_id =
+      NotEmptyStr::parse(self.document_id).map_err(|_| ErrorCode::DocumentIdIsEmpty)?;
+    let initial_data = self.initial_data.map(|data| data.into());
+    Ok(CreateDocumentParams {
+      document_id: document_id.0,
+      initial_data,
+    })
+  }
+}
+
 #[derive(Default, ProtoBuf)]
 pub struct CloseDocumentPayloadPB {
   #[pb(index = 1)]
   pub document_id: String,
+}
+
+pub struct CloseDocumentParams {
+  pub document_id: String,
+}
+
+impl TryInto<CloseDocumentParams> for CloseDocumentPayloadPB {
+  type Error = ErrorCode;
+  fn try_into(self) -> Result<CloseDocumentParams, Self::Error> {
+    let document_id =
+      NotEmptyStr::parse(self.document_id).map_err(|_| ErrorCode::DocumentIdIsEmpty)?;
+    Ok(CloseDocumentParams {
+      document_id: document_id.0,
+    })
+  }
 }
 
 #[derive(Default, ProtoBuf, Debug)]
@@ -32,11 +116,23 @@ pub struct ApplyActionPayloadPB {
   pub actions: Vec<BlockActionPB>,
 }
 
-#[derive(Default, ProtoBuf)]
-pub struct GetDocumentDataPayloadPB {
-  #[pb(index = 1)]
+pub struct ApplyActionParams {
   pub document_id: String,
-  // Support customize initial data
+  pub actions: Vec<BlockAction>,
+}
+
+impl TryInto<ApplyActionParams> for ApplyActionPayloadPB {
+  type Error = ErrorCode;
+  fn try_into(self) -> Result<ApplyActionParams, Self::Error> {
+    let document_id =
+      NotEmptyStr::parse(self.document_id).map_err(|_| ErrorCode::DocumentIdIsEmpty)?;
+    let actions = NotEmptyVec::parse(self.actions).map_err(|_| ErrorCode::ApplyActionsIsEmpty)?;
+    let actions = actions.0.into_iter().map(BlockAction::from).collect();
+    Ok(ApplyActionParams {
+      document_id: document_id.0,
+      actions,
+    })
+  }
 }
 
 #[derive(Default, Debug, ProtoBuf)]
@@ -158,17 +254,12 @@ pub struct BlockEventPayloadPB {
   pub value: String,
 }
 
-#[derive(PartialEq, Eq, Debug, ProtoBuf_Enum, Clone)]
+#[derive(PartialEq, Eq, Debug, ProtoBuf_Enum, Clone, Default)]
 pub enum ExportType {
+  #[default]
   Text = 0,
   Markdown = 1,
   Link = 2,
-}
-
-impl Default for ExportType {
-  fn default() -> Self {
-    ExportType::Text
-  }
 }
 
 impl From<i32> for ExportType {
@@ -203,15 +294,10 @@ pub struct ExportDataPB {
   #[pb(index = 2)]
   pub export_type: ExportType,
 }
-#[derive(PartialEq, Eq, Debug, ProtoBuf_Enum, Clone)]
+#[derive(PartialEq, Eq, Debug, ProtoBuf_Enum, Clone, Default)]
 pub enum ConvertType {
+  #[default]
   Json = 0,
-}
-
-impl Default for ConvertType {
-  fn default() -> Self {
-    ConvertType::Json
-  }
 }
 
 impl From<i32> for ConvertType {
@@ -235,4 +321,18 @@ pub struct ConvertDataPayloadPB {
 
   #[pb(index = 2)]
   pub data: Vec<u8>,
+}
+
+pub struct ConvertDataParams {
+  pub convert_type: ConvertType,
+  pub data: Vec<u8>,
+}
+
+impl TryInto<ConvertDataParams> for ConvertDataPayloadPB {
+  type Error = ErrorCode;
+  fn try_into(self) -> Result<ConvertDataParams, Self::Error> {
+    let convert_type = self.convert_type;
+    let data = self.data;
+    Ok(ConvertDataParams { convert_type, data })
+  }
 }

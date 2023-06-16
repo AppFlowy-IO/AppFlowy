@@ -42,7 +42,9 @@ impl FromStr for DateFilterContentPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum DateFilterConditionPB {
+  #[default]
   DateIs = 0,
   DateBefore = 1,
   DateAfter = 2,
@@ -56,11 +58,6 @@ pub enum DateFilterConditionPB {
 impl std::convert::From<DateFilterConditionPB> for u32 {
   fn from(value: DateFilterConditionPB) -> Self {
     value as u32
-  }
-}
-impl std::default::Default for DateFilterConditionPB {
-  fn default() -> Self {
-    DateFilterConditionPB::DateIs
   }
 }
 

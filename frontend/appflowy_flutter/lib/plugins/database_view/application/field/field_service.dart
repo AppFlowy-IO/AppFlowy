@@ -99,6 +99,14 @@ class FieldBackendService {
       );
     });
   }
+
+  /// Returns the primary field of the view.
+  static Future<Either<FieldPB, FlowyError>> getPrimaryField({
+    required String viewId,
+  }) {
+    final payload = DatabaseViewIdPB.create()..value = viewId;
+    return DatabaseEventGetPrimaryField(payload).send();
+  }
 }
 
 @freezed

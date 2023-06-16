@@ -3,10 +3,11 @@ import { CodeEditorProps } from '$app/interfaces/document';
 import { Editable, Slate } from 'slate-react';
 import { useEditor } from '$app/components/document/_shared/SlateEditor/useEditor';
 import { decorateCode } from '$app/components/document/_shared/SlateEditor/decorateCode';
-import { CodeLeaf, CodeBlockElement } from '$app/components/document/_shared/SlateEditor/CodeElements';
+import { CodeBlockElement } from '$app/components/document/_shared/SlateEditor/CodeElements';
+import TextLeaf from '$app/components/document/_shared/SlateEditor/TextLeaf';
 
 function CodeEditor({ language, ...props }: CodeEditorProps) {
-  const { editor, onChange, value, onDOMBeforeInput, decorate, ref, onKeyDown, onBlur } = useEditor({
+  const { editor, onChange, value, ref, ...editableProps } = useEditor({
     ...props,
     isCodeBlock: true,
   });
@@ -15,16 +16,14 @@ function CodeEditor({ language, ...props }: CodeEditorProps) {
     <div ref={ref}>
       <Slate editor={editor} onChange={onChange} value={value}>
         <Editable
+          {...editableProps}
           decorate={(entry) => {
             const codeRange = decorateCode(entry, language);
-            const range = decorate?.(entry) || [];
+            const range = editableProps.decorate?.(entry) || [];
             return [...range, ...codeRange];
           }}
-          renderLeaf={CodeLeaf}
+          renderLeaf={(leafProps) => <TextLeaf editor={editor} {...leafProps} isCodeBlock={true} />}
           renderElement={CodeBlockElement}
-          onKeyDown={onKeyDown}
-          onDOMBeforeInput={onDOMBeforeInput}
-          onBlur={onBlur}
         />
       </Slate>
     </div>

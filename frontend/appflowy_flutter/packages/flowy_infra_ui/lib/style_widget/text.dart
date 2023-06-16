@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class FlowyText extends StatelessWidget {
-  final String title;
+  final String text;
   final TextOverflow? overflow;
   final double? fontSize;
   final FontWeight? fontWeight;
@@ -13,8 +13,7 @@ class FlowyText extends StatelessWidget {
   final String? fontFamily;
 
   const FlowyText(
-    this.title, {
-    Key? key,
+    this.text, {
     this.overflow = TextOverflow.clip,
     this.fontSize,
     this.fontWeight,
@@ -24,11 +23,11 @@ class FlowyText extends StatelessWidget {
     this.decoration,
     this.selectable = false,
     this.fontFamily,
+    Key? key,
   }) : super(key: key);
 
   const FlowyText.regular(
-    this.title, {
-    Key? key,
+    this.text, {
     this.fontSize,
     this.overflow,
     this.color,
@@ -37,12 +36,12 @@ class FlowyText extends StatelessWidget {
     this.decoration,
     this.selectable = false,
     this.fontFamily,
+    Key? key,
   })  : fontWeight = FontWeight.w400,
         super(key: key);
 
   const FlowyText.medium(
-    this.title, {
-    Key? key,
+    this.text, {
     this.fontSize,
     this.overflow,
     this.color,
@@ -51,12 +50,12 @@ class FlowyText extends StatelessWidget {
     this.decoration,
     this.selectable = false,
     this.fontFamily,
+    Key? key,
   })  : fontWeight = FontWeight.w500,
         super(key: key);
 
   const FlowyText.semibold(
-    this.title, {
-    Key? key,
+    this.text, {
     this.fontSize,
     this.overflow,
     this.color,
@@ -65,14 +64,12 @@ class FlowyText extends StatelessWidget {
     this.decoration,
     this.selectable = false,
     this.fontFamily,
+    Key? key,
   })  : fontWeight = FontWeight.w600,
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final text = overflow == TextOverflow.ellipsis
-        ? title.replaceAll('', '\u200B')
-        : title;
     if (selectable) {
       return SelectableText(
         text,

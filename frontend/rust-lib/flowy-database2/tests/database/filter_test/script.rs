@@ -10,7 +10,7 @@ use collab_database::rows::{Row, RowId};
 use futures::TryFutureExt;
 use tokio::sync::broadcast::Receiver;
 
-use flowy_database2::entities::{UpdateFilterParams, UpdateFilterPayloadPB, CheckboxFilterConditionPB, CheckboxFilterPB, ChecklistFilterConditionPB, ChecklistFilterPB, DatabaseViewSettingPB, DateFilterConditionPB, DateFilterPB, DeleteFilterParams, FieldType, FilterPB, NumberFilterConditionPB, NumberFilterPB, SelectOptionConditionPB, SelectOptionFilterPB, TextFilterConditionPB, TextFilterPB, SelectOptionPB};
+use flowy_database2::entities::{CheckboxFilterConditionPB, CheckboxFilterPB, ChecklistFilterConditionPB, ChecklistFilterPB, DatabaseViewSettingPB, DateFilterConditionPB, DateFilterPB, DeleteFilterParams, FieldType, FilterPB, NumberFilterConditionPB, NumberFilterPB, SelectOptionConditionPB, SelectOptionFilterPB, SelectOptionPB, TextFilterConditionPB, TextFilterPB, UpdateFilterParams, UpdateFilterPayloadPB};
 use flowy_database2::services::database_view::DatabaseViewChanged;
 use flowy_database2::services::field::SelectOption;
 use flowy_database2::services::filter::FilterType;

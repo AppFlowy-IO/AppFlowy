@@ -14,6 +14,7 @@ import 'cells/select_option_cell/select_option_cell.dart';
 import 'cells/text_cell/text_cell.dart';
 import 'cells/url_cell/url_cell.dart';
 
+/// Build the cell widget in Grid style.
 class GridCellBuilder {
   final CellCache cellCache;
   GridCellBuilder({
@@ -41,6 +42,7 @@ class GridCellBuilder {
           cellControllerBuilder: cellControllerBuilder,
           key: key,
           style: style,
+          fieldType: cellContext.fieldType,
         );
       case FieldType.LastEditedTime:
       case FieldType.CreatedTime:
@@ -49,6 +51,7 @@ class GridCellBuilder {
           key: key,
           editable: false,
           style: style,
+          fieldType: cellContext.fieldType,
         );
       case FieldType.SingleSelect:
         return GridSingleSelectCell(

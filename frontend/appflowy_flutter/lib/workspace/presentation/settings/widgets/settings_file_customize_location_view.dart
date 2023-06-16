@@ -70,8 +70,10 @@ class SettingsFileLocationCustomizerState
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        _ChangeStoragePathButton(
-                          usingPath: path,
+                        Flexible(
+                          child: _ChangeStoragePathButton(
+                            usingPath: path,
+                          ),
                         ),
                         const HSpace(10),
                         _OpenStorageButton(
@@ -175,6 +177,7 @@ class _ChangeStoragePathButtonState extends State<_ChangeStoragePathButton> {
           await context.read<SettingsLocationCubit>().setPath(path);
           await FlowyRunner.run(
             FlowyApp(),
+            integrationEnv(),
             config: const LaunchConfiguration(
               autoRegistrationSupported: true,
             ),
@@ -247,6 +250,7 @@ class _RecoverDefaultStorageButtonState
         await context.read<SettingsLocationCubit>().setPath(path);
         await FlowyRunner.run(
           FlowyApp(),
+          integrationEnv(),
           config: const LaunchConfiguration(
             autoRegistrationSupported: true,
           ),

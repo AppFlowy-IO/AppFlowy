@@ -1,6 +1,5 @@
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 
@@ -25,20 +24,15 @@ class _ViewLeftBarItemState extends State<ViewLeftBarItem> {
     super.initState();
     view = widget.view;
     _focusNode.addListener(_handleFocusChanged);
-    _viewListener = ViewListener(view: widget.view);
+    _viewListener = ViewListener(viewId: widget.view.id);
     _viewListener.start(
-      onViewUpdated: (result) {
-        result.fold(
-          (updatedView) {
-            if (mounted) {
-              setState(() {
-                view = updatedView;
-                _controller.text = view.name;
-              });
-            }
-          },
-          (err) => Log.error(err),
-        );
+      onViewUpdated: (updatedView) {
+        if (mounted) {
+          setState(() {
+            view = updatedView;
+            _controller.text = view.name;
+          });
+        }
       },
     );
     _controller.text = view.name;

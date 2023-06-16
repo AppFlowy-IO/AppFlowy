@@ -112,7 +112,7 @@ where
     if n == 0 {
       return;
     }
-    self.utf16_base_len += n as usize;
+    self.utf16_base_len += n;
     if let Some(DeltaOperation::Delete(n_last)) = self.ops.last_mut() {
       *n_last += n;
     } else {
@@ -156,8 +156,8 @@ where
     if n == 0 {
       return;
     }
-    self.utf16_base_len += n as usize;
-    self.utf16_target_len += n as usize;
+    self.utf16_base_len += n;
+    self.utf16_target_len += n;
 
     if let Some(DeltaOperation::<T>::Retain(retain)) = self.ops.last_mut() {
       if let Some(new_op) = retain.merge_or_new(n, attributes) {
@@ -212,7 +212,7 @@ where
     for op in &self.ops {
       match &op {
         DeltaOperation::Retain(retain) => {
-          for c in code_point_iter.take(retain.n as usize) {
+          for c in code_point_iter.take(retain.n) {
             new_s.push_str(str::from_utf8(c.0).unwrap_or(""));
           }
         },
@@ -274,8 +274,7 @@ where
         },
         DeltaOperation::Delete(delete) => {
           let bytes = code_point_iter
-            .take(*delete as usize)
-            .into_iter()
+            .take(*delete)
             .flat_map(|a| str::from_utf8(a.0).ok())
             .collect::<String>();
 
@@ -500,7 +499,7 @@ where
     let mut inverted = DeltaOperations::default();
     let mut index = 0;
     for op in &self.ops {
-      let len: usize = op.len() as usize;
+      let len: usize = op.len();
       match op {
         DeltaOperation::Delete(n) => {
           invert_other(&mut inverted, other, op, index, index + *n);
@@ -512,14 +511,14 @@ where
             false => {
               // tracing::trace!("invert retain: {} by retain {} {}", op, len,
               // op.get_attributes());
-              inverted.retain(len as usize, op.get_attributes())
+              inverted.retain(len, op.get_attributes())
             },
           }
           index += len;
         },
         DeltaOperation::Insert(_) => {
           // tracing::trace!("invert insert: {} by delete {}", op, len);
-          inverted.delete(len as usize);
+          inverted.delete(len);
         },
       }
     }
