@@ -45,7 +45,7 @@ if is_empty ${ret}
 end
 ret = which protoc-gen-dart
 if is_empty ${ret}
-    exec cmd.exe /c dart pub global activate protoc_plugin
+    exec cmd.exe /c dart pub global activate protoc_plugin 20.0.1
 end
 ret = which protoc-gen-dart
 if is_empty ${ret}
@@ -60,14 +60,14 @@ script_runner = "@duckscript"
 [tasks.install_flutter_protobuf_compiler]
 script = """
 echo "Install protoc_plugin (Dart)"
-dart pub global activate protoc_plugin
+dart pub global activate protoc_plugin 20.0.1
 """
 script_runner = "@shell"
 
 [tasks.install_flutter_protobuf_compiler.linux]
 script = """
 echo "Install protoc_plugin (Dart)"
-dart pub global activate protoc_plugin
+dart pub global activate protoc_plugin 20.0.1
 """
 script_runner = "@shell"
 
