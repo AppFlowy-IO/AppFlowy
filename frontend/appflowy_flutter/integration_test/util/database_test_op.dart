@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_pa
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/checkbox.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/checklist/checklist.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/select_option/option_list.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/select_option/select_option.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/text.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/create_filter_list.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/disclosure_button.dart';
@@ -557,6 +558,11 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(button);
   }
 
+  Future<void> scrollOptionFilterListByOffset(Offset offset) async {
+    await drag(find.byType(SelectOptionFilterEditor), offset);
+    await pumpAndSettle();
+  }
+
   Future<void> enterTextInTextFilter(String text) async {
     final findEditor = find.byType(TextFilterEditor);
     final findTextField = find.descendant(
@@ -590,8 +596,19 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(find.byType(ChecklistFilterConditionList));
   }
 
-  Future<void> tapSelectOptionFilterButtonInGrid() async {
-    await tapButton(find.byType(SelectOptionFilterList));
+  /// The [SelectOptionFilterList] must show up first.
+  Future<void> tapOptionFilterWithName(String name) async {
+    final findCell = find.descendant(
+      of: find.byType(SelectOptionFilterList),
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is SelectOptionFilterCell && widget.option.name == name,
+        skipOffstage: false,
+      ),
+      skipOffstage: false,
+    );
+    expect(findCell, findsOneWidget);
+    await tapButton(findCell, warnIfMissed: false);
   }
 
   Future<void> tapCheckedButtonOnCheckboxFilter() async {
