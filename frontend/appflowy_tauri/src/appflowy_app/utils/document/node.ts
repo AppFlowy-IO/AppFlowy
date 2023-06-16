@@ -194,7 +194,11 @@ export function focusNodeByIndex(node: Element, index: number, length: number) {
   const selection = window.getSelection();
   selection?.removeAllRanges();
   selection?.addRange(range);
-  return true;
+  const focusNode = selection?.focusNode;
+  if (!focusNode) return false;
+
+  const parent = findParent(focusNode as Element, node);
+  return Boolean(parent);
 }
 
 export function getNodeTextBoxByBlockId(blockId: string) {
@@ -225,10 +229,13 @@ export function replaceZeroWidthSpace(text: string) {
   return text.replace(/[\u200B-\u200D\uFEFF]/g, '');
 }
 
-export function findParent(node: Element, parentSelector: string) {
+export function findParent(node: Element, parentSelector: string | Element) {
   let parentNode: Element | null = node;
   while (parentNode) {
-    if (parentNode.matches(parentSelector)) {
+    if (typeof parentSelector === 'string' && parentNode.matches(parentSelector)) {
+      return parentNode;
+    }
+    if (parentNode === parentSelector) {
       return parentNode;
     }
     parentNode = parentNode.parentElement;

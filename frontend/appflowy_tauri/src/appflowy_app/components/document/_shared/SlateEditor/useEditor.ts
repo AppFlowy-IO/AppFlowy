@@ -146,12 +146,25 @@ export function useEditor({
       isFocused && editor.deselect();
       return;
     }
+
     const slateSelection = convertToSlateSelection(selection.index, selection.length, editor.children);
     if (!slateSelection) return;
+
     if (isFocused && JSON.stringify(slateSelection) === JSON.stringify(editor.selection)) return;
+
+    // why we didn't use slate api to change selection?
+    // because the slate must be focused before change selection,
+    // but then it will trigger selection change, and the selection is not what we want
     const isSuccess = focusNodeByIndex(ref.current, selection.index, selection.length);
     if (!isSuccess) {
       Transforms.select(editor, slateSelection);
+    } else {
+      // Fix: the slate is possible to lose focus in next tick after focusNodeByIndex
+      requestAnimationFrame(() => {
+        if (window.getSelection()?.type === 'None' && !editor.selection) {
+          Transforms.select(editor, slateSelection);
+        }
+      });
     }
   }, [editor, selection]);
 

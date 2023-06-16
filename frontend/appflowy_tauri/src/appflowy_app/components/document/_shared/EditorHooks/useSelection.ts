@@ -49,6 +49,7 @@ export function useSelection(id: string) {
       setSelection(undefined);
       return;
     }
+
     setSelection({
       index: focusCaret.index,
       length: focusCaret.length,

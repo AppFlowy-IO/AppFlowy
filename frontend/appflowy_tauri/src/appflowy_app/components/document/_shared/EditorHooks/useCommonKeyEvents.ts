@@ -6,12 +6,14 @@ import {
   rightActionForBlockThunk,
   upDownActionForBlockThunk,
 } from '$app_reducers/document/async-actions';
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useFocused } from '$app/components/document/_shared/SubscribeSelection.hooks';
 import { useAppDispatch } from '$app/stores/store';
 import { isFormatHotkey, parseFormat } from '$app/utils/document/format';
 import { toggleFormatThunk } from '$app_reducers/document/async-actions/format';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { getBlock } from '$app/components/document/_shared/SubscribeNode.hooks';
+import Delta from 'quill-delta';
 
 export function useCommonKeyEvents(id: string) {
   const { focused, caretRef } = useFocused(id);
@@ -59,7 +61,7 @@ export function useCommonKeyEvents(id: string) {
       {
         // handle left arrow key and no other key is pressed
         canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => {
-          return isHotkey(Keyboard.keys.LEFT, e);
+          return isHotkey(Keyboard.keys.LEFT, e) && caretRef.current?.index === 0 && caretRef.current?.length === 0;
         },
         handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
           e.preventDefault();
@@ -69,7 +71,9 @@ export function useCommonKeyEvents(id: string) {
       {
         // handle right arrow key and no other key is pressed
         canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => {
-          return isHotkey(Keyboard.keys.RIGHT, e);
+          const block = getBlock(docId, id);
+          const isEndOfBlock = caretRef.current?.index === new Delta(block.data.delta).length();
+          return isHotkey(Keyboard.keys.RIGHT, e) && isEndOfBlock && caretRef.current?.length === 0;
         },
         handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
           e.preventDefault();
