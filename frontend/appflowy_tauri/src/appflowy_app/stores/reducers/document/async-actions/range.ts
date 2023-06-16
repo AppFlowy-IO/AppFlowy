@@ -142,7 +142,7 @@ export const deleteRangeAndInsertThunk = createAsyncThunk(
     await controller.applyActions(actions);
 
     // clear range
-    dispatch(rangeActions.clearRange(docId));
+    dispatch(rangeActions.initialState(docId));
     if (caret) {
       dispatch(
         rangeActions.setCaret({
@@ -234,7 +234,7 @@ export const deleteRangeAndInsertEnterThunk = createAsyncThunk(
     await controller.applyActions(actions);
 
     // clear range
-    dispatch(rangeActions.clearRange(docId));
+    dispatch(rangeActions.initialState(docId));
     if (caret) {
       dispatch(
         rangeActions.setCaret({

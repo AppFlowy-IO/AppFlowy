@@ -264,12 +264,23 @@ export const rangeSlice = createSlice({
       };
       rangeState.caret = caret;
     },
-    clearRange: (state, action: PayloadAction<string>) => {
-      const docId = action.payload;
-      state[docId] = {
-        isDragging: false,
-        ranges: {},
-      };
+    clearRanges: (
+      state,
+      action: PayloadAction<{
+        docId: string;
+        exclude?: string;
+      }>
+    ) => {
+      const { docId, exclude } = action.payload;
+      const ranges = state[docId].ranges;
+      const newRanges = Object.keys(ranges).reduce((acc, id) => {
+        if (id !== exclude) return { ...acc };
+        return {
+          ...acc,
+          [id]: ranges[id],
+        };
+      }, {});
+      state[docId].ranges = newRanges;
     },
   },
 });

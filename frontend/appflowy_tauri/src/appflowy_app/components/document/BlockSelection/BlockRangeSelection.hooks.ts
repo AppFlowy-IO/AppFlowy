@@ -32,11 +32,6 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
 
   const [isForward, setForward] = useState(true);
 
-  const reset = useCallback(() => {
-    dispatch(rangeActions.clearRange(docId));
-    setForward(true);
-  }, [dispatch, docId]);
-
   // display caret color
   useEffect(() => {
     if (!range) return;
@@ -92,17 +87,18 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
         setCursorAtEndOfNode(node);
       }
     }
-  }, [container, dispatch, focus, isForward]);
+  }, [container, dispatch, docId, focus, isForward]);
 
   const handleDragStart = useCallback(
     (e: MouseEvent) => {
-      reset();
+      setForward(true);
       // skip if the target is not a block
       const blockId = getBlockIdByPoint(e.target as HTMLElement);
       if (!blockId) {
+        dispatch(rangeActions.initialState(docId));
         return;
       }
-
+      dispatch(rangeActions.clearRanges({ docId, exclude: blockId }));
       const startX = e.clientX + container.scrollLeft;
       const startY = e.clientY + container.scrollTop;
 
@@ -126,8 +122,9 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
           docId,
         })
       );
+      return;
     },
-    [container.scrollLeft, container.scrollTop, dispatch, docId, reset]
+    [container.scrollLeft, container.scrollTop, dispatch, docId]
   );
 
   const handleDraging = useCallback(
@@ -184,9 +181,10 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
       document.removeEventListener('mousedown', handleDragStart);
       document.removeEventListener('mousemove', handleDraging);
       document.removeEventListener('mouseup', handleDragEnd);
+
       container.removeEventListener('keydown', onKeyDown, true);
     };
-  }, [reset, handleDragStart, handleDragEnd, handleDraging, container, onKeyDown]);
+  }, [handleDragStart, handleDragEnd, handleDraging, container, onKeyDown]);
 
   return null;
 }

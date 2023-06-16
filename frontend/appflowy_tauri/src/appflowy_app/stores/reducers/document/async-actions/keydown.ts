@@ -61,7 +61,7 @@ export const backspaceDeleteActionForBlockThunk = createAsyncThunk(
           controller,
         })
       );
-      dispatch(rangeActions.clearRange(docId));
+      dispatch(rangeActions.initialState(docId));
       dispatch(
         rangeActions.setCaret({
           docId,
@@ -118,7 +118,7 @@ export const enterActionForBlockThunk = createAsyncThunk(
     const actions = [insertNodeAction.action, controller.getUpdateAction(updateNode), ...moveChildrenAction];
     await controller.applyActions(actions);
 
-    dispatch(rangeActions.clearRange(docId));
+    dispatch(rangeActions.initialState(docId));
     dispatch(
       rangeActions.setCaret({
         docId,
@@ -162,7 +162,7 @@ export const upDownActionForBlockThunk = createAsyncThunk(
     if (!newCaret) {
       return;
     }
-    dispatch(rangeActions.clearRange(docId));
+    dispatch(rangeActions.initialState(docId));
     dispatch(
       rangeActions.setCaret({
         docId,
@@ -212,7 +212,7 @@ export const leftActionForBlockThunk = createAsyncThunk(
     if (!newCaret) {
       return;
     }
-    dispatch(rangeActions.clearRange(docId));
+    dispatch(rangeActions.initialState(docId));
     dispatch(
       rangeActions.setCaret({
         docId,
@@ -264,7 +264,7 @@ export const rightActionForBlockThunk = createAsyncThunk(
     if (!newCaret) {
       return;
     }
-    dispatch(rangeActions.clearRange(docId));
+    dispatch(rangeActions.initialState(docId));
 
     dispatch(
       rangeActions.setCaret({
@@ -318,7 +318,7 @@ export const arrowActionForRangeThunk = createAsyncThunk(
         break;
     }
     if (!caret) return;
-    dispatch(rangeActions.clearRange(docId));
+    dispatch(rangeActions.initialState(docId));
     dispatch(
       rangeActions.setCaret({
         docId,

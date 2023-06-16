@@ -71,7 +71,7 @@ export const newLinkThunk = createAsyncThunk<
   if (!domRange) return;
   const title = domSelection.toString();
   const { top, left, height, width } = domRange.getBoundingClientRect();
-  dispatch(rangeActions.clearRange(docId));
+  dispatch(rangeActions.initialState(docId));
   dispatch(
     linkPopoverActions.setLinkPopover({
       docId,
