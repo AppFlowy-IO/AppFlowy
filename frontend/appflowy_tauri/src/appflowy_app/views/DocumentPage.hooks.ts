@@ -10,7 +10,7 @@ import {
   rangeActions,
   rectSelectionActions,
   slashCommandActions,
-} from '../stores/reducers/document/slice';
+} from '$app/stores/reducers/document/slice';
 import { BlockEventPayloadPB } from '@/services/backend/models/flowy-document2';
 
 export const useDocument = () => {
@@ -53,10 +53,12 @@ export const useDocument = () => {
 
   useEffect(() => {
     let documentController: DocumentController | null = null;
+
     void (async () => {
       if (!params?.id) return;
       documentController = new DocumentController(params.id, onDocumentChange);
       const docId = documentController.documentId;
+
       Log.debug('open document', params.id);
 
       initializeDocument(documentController.documentId);
@@ -64,6 +66,7 @@ export const useDocument = () => {
       setController(documentController);
       try {
         const res = await documentController.open();
+
         if (!res) return;
         dispatch(
           documentActions.create({
@@ -78,17 +81,16 @@ export const useDocument = () => {
       }
     })();
 
-    const closeDocument = () => {
+    return () => {
       if (documentController) {
         void (async () => {
           await documentController.dispose();
           clearDocument(documentController.documentId);
         })();
       }
+
       Log.debug('close document', params.id);
     };
-
-    return closeDocument;
   }, [clearDocument, dispatch, initializeDocument, onDocumentChange, params.id]);
 
   return { documentId, documentData, controller };

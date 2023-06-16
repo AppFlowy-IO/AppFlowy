@@ -6,8 +6,6 @@ import {
   RangeState,
   RangeStatic,
   LinkPopoverState,
-  BlockType,
-  SlashCommandOptionKey,
   SlashCommandOption,
 } from '@/appflowy_app/interfaces/document';
 import { BlockEventPayloadPB } from '@/services/backend';
@@ -33,6 +31,7 @@ export const documentSlice = createSlice({
     // initialize the document
     initialState: (state, action: PayloadAction<string>) => {
       const docId = action.payload;
+
       state[docId] = {
         nodes: {},
         children: {},
@@ -40,6 +39,7 @@ export const documentSlice = createSlice({
     },
     clear: (state, action: PayloadAction<string>) => {
       const docId = action.payload;
+
       delete state[docId];
     },
 
@@ -53,6 +53,7 @@ export const documentSlice = createSlice({
       }>
     ) => {
       const { docId, nodes, children } = action.payload;
+
       state[docId] = {
         nodes,
         children,
@@ -77,8 +78,10 @@ export const documentSlice = createSlice({
       const { path, id, value, command } = data;
 
       const documentState = state[docId];
+
       if (!documentState) return;
       const valueJson = parseValue(value);
+
       if (!valueJson) return;
 
       // match change
@@ -93,6 +96,7 @@ export const rectSelectionSlice = createSlice({
   reducers: {
     initialState: (state, action: PayloadAction<string>) => {
       const docId = action.payload;
+
       state[docId] = {
         selection: [],
         isDragging: false,
@@ -100,6 +104,7 @@ export const rectSelectionSlice = createSlice({
     },
     clear: (state, action: PayloadAction<string>) => {
       const docId = action.payload;
+
       delete state[docId];
     },
     // update block selections
@@ -111,6 +116,7 @@ export const rectSelectionSlice = createSlice({
       }>
     ) => {
       const { docId, selection } = action.payload;
+
       state[docId].selection = selection;
     },
 
@@ -124,6 +130,7 @@ export const rectSelectionSlice = createSlice({
     ) => {
       const { docId, blockId } = action.payload;
       const selection = state[docId].selection;
+
       if (selection.includes(blockId)) return;
       state[docId].selection = [...selection, blockId];
     },
@@ -136,6 +143,7 @@ export const rectSelectionSlice = createSlice({
       }>
     ) => {
       const { docId, isDragging } = action.payload;
+
       state[docId].isDragging = isDragging;
     },
   },
@@ -147,6 +155,7 @@ export const rangeSlice = createSlice({
   reducers: {
     initialState: (state, action: PayloadAction<string>) => {
       const docId = action.payload;
+
       state[docId] = {
         isDragging: false,
         ranges: {},
@@ -154,6 +163,7 @@ export const rangeSlice = createSlice({
     },
     clear: (state, action: PayloadAction<string>) => {
       const docId = action.payload;
+
       delete state[docId];
     },
     setRanges: (
@@ -164,6 +174,7 @@ export const rangeSlice = createSlice({
       }>
     ) => {
       const { docId, ranges } = action.payload;
+
       state[docId].ranges = ranges;
     },
     setRange: (
@@ -178,6 +189,7 @@ export const rangeSlice = createSlice({
       }>
     ) => {
       const { docId, id, rangeStatic } = action.payload;
+
       state[docId].ranges[id] = rangeStatic;
     },
     removeRange: (
@@ -189,6 +201,7 @@ export const rangeSlice = createSlice({
     ) => {
       const { docId, id } = action.payload;
       const ranges = state[docId].ranges;
+
       delete ranges[id];
     },
     setAnchorPoint: (
@@ -200,6 +213,7 @@ export const rangeSlice = createSlice({
       }>
     ) => {
       const { docId, id, point } = action.payload;
+
       state[docId].anchor = {
         id,
         point,
@@ -215,6 +229,7 @@ export const rangeSlice = createSlice({
     ) => {
       const { docId, index, length } = action.payload;
       const anchor = state[docId].anchor;
+
       if (!anchor) return;
       anchor.point = {
         ...anchor.point,
@@ -231,6 +246,7 @@ export const rangeSlice = createSlice({
       }>
     ) => {
       const { docId, id, point } = action.payload;
+
       state[docId].focus = {
         id,
         point,
@@ -244,6 +260,7 @@ export const rangeSlice = createSlice({
       }>
     ) => {
       const { docId, isDragging } = action.payload;
+
       state[docId].isDragging = isDragging;
     },
     setCaret: (
@@ -255,11 +272,14 @@ export const rangeSlice = createSlice({
     ) => {
       const { docId, caret } = action.payload;
       const rangeState = state[docId];
+
       if (!caret) {
         rangeState.caret = undefined;
         return;
       }
+
       const { id, index, length } = caret;
+
       rangeState.ranges[id] = {
         index,
         length,
@@ -282,6 +302,7 @@ export const rangeSlice = createSlice({
           [id]: ranges[id],
         };
       }, {});
+
       state[docId].ranges = newRanges;
     },
   },
@@ -293,12 +314,14 @@ export const slashCommandSlice = createSlice({
   reducers: {
     initialState: (state, action: PayloadAction<string>) => {
       const docId = action.payload;
+
       state[docId] = {
         isSlashCommand: false,
       };
     },
     clear: (state, action: PayloadAction<string>) => {
       const docId = action.payload;
+
       delete state[docId];
     },
     openSlashCommand: (
@@ -309,6 +332,7 @@ export const slashCommandSlice = createSlice({
       }>
     ) => {
       const { blockId, docId } = action.payload;
+
       state[docId] = {
         ...state[docId],
         isSlashCommand: true,
@@ -317,6 +341,7 @@ export const slashCommandSlice = createSlice({
     },
     closeSlashCommand: (state, action: PayloadAction<string>) => {
       const docId = action.payload;
+
       state[docId] = {
         ...state[docId],
         isSlashCommand: false,
@@ -330,6 +355,7 @@ export const slashCommandSlice = createSlice({
       }>
     ) => {
       const { docId, option } = action.payload;
+
       state[docId] = {
         ...state[docId],
         hoverOption: option,
@@ -344,12 +370,14 @@ export const linkPopoverSlice = createSlice({
   reducers: {
     initialState: (state, action: PayloadAction<string>) => {
       const docId = action.payload;
+
       state[docId] = {
         open: false,
       };
     },
     clear: (state, action: PayloadAction<string>) => {
       const docId = action.payload;
+
       delete state[docId];
     },
     setLinkPopover: (
@@ -360,6 +388,7 @@ export const linkPopoverSlice = createSlice({
       }>
     ) => {
       const { docId, linkState } = action.payload;
+
       state[docId] = linkState;
     },
     updateLinkPopover: (
@@ -371,11 +400,13 @@ export const linkPopoverSlice = createSlice({
     ) => {
       const { docId, linkState } = action.payload;
       const { id } = linkState;
+
       if (!state[docId].open || state[docId].id !== id) return;
       state[docId] = linkState;
     },
     closeLinkPopover: (state, action: PayloadAction<string>) => {
       const docId = action.payload;
+
       state[docId].open = false;
     },
   },

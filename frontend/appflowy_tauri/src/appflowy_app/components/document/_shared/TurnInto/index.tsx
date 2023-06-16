@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { BlockType, SlashCommandOptionKey } from '$app/interfaces/document';
 
 import {
@@ -14,7 +14,6 @@ import {
   Functions,
 } from '@mui/icons-material';
 import Popover, { PopoverProps } from '@mui/material/Popover';
-import { ListItemIcon, ListItemText } from '@mui/material';
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
 import { useTurnInto } from '$app/components/document/_shared/TurnInto/TurnInto.hooks';
 import { Keyboard } from '$app/constants/document/keyboard';

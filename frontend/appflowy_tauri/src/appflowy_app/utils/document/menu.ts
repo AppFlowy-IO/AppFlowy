@@ -3,7 +3,6 @@ export function selectOptionByUpDown(isUp: boolean, selected: string | null, opt
   const length = options.length;
 
   const nextIndex = isUp ? (index - 1 + length) % length : (index + 1) % length;
-  const nextOption = options[nextIndex];
 
-  return nextOption;
+  return options[nextIndex];
 }

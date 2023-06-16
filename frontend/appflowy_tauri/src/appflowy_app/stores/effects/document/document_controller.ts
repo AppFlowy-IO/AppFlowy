@@ -34,14 +34,17 @@ export class DocumentController {
     });
 
     const document = await this.backendService.open();
+
     if (document.ok) {
       const nodes: DocumentData['nodes'] = {};
+
       get<Map<string, BlockPB>>(document.val, [BLOCK_MAP_NAME]).forEach((block) => {
         Object.assign(nodes, {
           [block.id]: blockPB2Node(block),
         });
       });
       const children: Record<string, string[]> = {};
+
       get<Map<string, ChildrenPB>>(document.val, [META_NAME, CHILDREN_MAP_NAME]).forEach((child, key) => {
         children[key] = child.children;
       });
@@ -107,21 +110,25 @@ export class DocumentController {
 
   canUndo = async () => {
     const result = await this.backendService.canUndoRedo();
+
     return result.ok && result.val.can_undo;
   };
 
   canRedo = async () => {
     const result = await this.backendService.canUndoRedo();
+
     return result.ok && result.val.can_redo;
   };
 
   undo = async () => {
     const result = await this.backendService.undo();
+
     return result.ok && result.val.is_success;
   };
 
   redo = async () => {
     const result = await this.backendService.redo();
+
     return result.ok && result.val.is_success;
   };
 
@@ -150,14 +157,17 @@ export class DocumentController {
 
   private composeDelta = (node: Node) => {
     const delta = node.data.delta;
+
     if (!delta) {
       return;
     }
+
     // we use yjs to compose delta, it can make sure the delta is correct
     // for example, if we insert a text at the end of the line, the delta will be [{ insert: 'hello' }, { insert: " world" }]
     // but if we use yjs to compose the delta, the delta will be [{ insert: 'hello world' }]
     const ydoc = new Y.Doc();
     const ytext = ydoc.getText(node.id);
+
     ytext.applyDelta(delta);
     Object.assign(node.data, { delta: ytext.toDelta() });
   };
