@@ -235,5 +235,6 @@
     "column": {
       "create_new_card": "Nytt"
     }
-  }
+  },
+  "moreAction.small": "små"
 }

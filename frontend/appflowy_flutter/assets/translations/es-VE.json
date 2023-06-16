@@ -227,5 +227,6 @@
     "column": {
       "create_new_card": "Nuevo"
     }
-  }
+  },
+  "moreAction.small": "pequeño"
 }

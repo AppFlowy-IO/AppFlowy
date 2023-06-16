@@ -145,5 +145,6 @@
   "sideBar": {
     "openSidebar": "Open sidebar",
     "closeSidebar": "Close sidebar"
-  }
+  },
+  "moreAction.small": "pequeno"
 }
