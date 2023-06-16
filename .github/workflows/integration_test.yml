@@ -123,7 +123,7 @@ jobs:
         shell: bash
 
       - name: Upload coverage to Codecov
-        uses: Wandalen/wretry.action@master
+        uses: Wandalen/wretry.action@v1.0.36
         with:
           action: codecov/codecov-action@v3
           with: |
