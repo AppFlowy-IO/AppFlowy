@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect } from 'react';
 import { useAppDispatch } from '$app/stores/store';
-import { pasteThunk } from '$app_reducers/document/async-actions/copyPaste';
+import { pasteThunk } from '$app_reducers/document/async-actions/copy_paste';
 import { clipboardTypes } from '$app/constants/document/copy_paste';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 

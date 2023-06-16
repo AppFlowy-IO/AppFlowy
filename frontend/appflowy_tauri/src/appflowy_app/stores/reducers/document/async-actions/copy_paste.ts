@@ -17,12 +17,14 @@ import { rangeActions } from '$app_reducers/document/slice';
 export const copyThunk = createAsyncThunk<
   void,
   {
-    docId: string;
+    isCut?: boolean;
+    controller: DocumentController;
     setClipboardData: (data: BlockCopyData) => void;
   }
 >('document/copy', async (payload, thunkAPI) => {
-  const { getState } = thunkAPI;
-  const { setClipboardData, docId } = payload;
+  const { getState, dispatch } = thunkAPI;
+  const { setClipboardData, isCut = false, controller } = payload;
+  const docId = controller.documentId;
   const state = getState() as RootState;
   const document = state.document[docId];
   const documentRange = state.documentRange[docId];
@@ -72,6 +74,10 @@ export const copyThunk = createAsyncThunk<
     text: '',
     html: '',
   });
+  if (isCut) {
+    // delete range blocks
+    await dispatch(deleteRangeAndInsertThunk({ controller }));
+  }
 });
 
 /**

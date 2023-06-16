@@ -138,9 +138,9 @@ export const deleteRangeAndInsertThunk = createAsyncThunk(
 
     const caret = getAfterMergeCaretByRange(rangeState, insertDelta);
 
+    if (actions.length === 0) return;
     // apply actions
     await controller.applyActions(actions);
-
     // clear range
     dispatch(rangeActions.initialState(docId));
     if (caret) {

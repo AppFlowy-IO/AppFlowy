@@ -57,6 +57,7 @@ export class DocumentController {
 
   applyActions = async (actions: ReturnType<typeof BlockActionPB.prototype.toObject>[]) => {
     Log.debug('applyActions', actions);
+    if (actions.length === 0) return;
     await this.backendService.applyActions(actions);
   };
 

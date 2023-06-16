@@ -1,5 +1,5 @@
-import { useCallback, useContext, useEffect } from 'react';
-import { copyThunk } from '$app_reducers/document/async-actions/copyPaste';
+import { useCallback, useEffect } from 'react';
+import { copyThunk } from '$app_reducers/document/async-actions/copy_paste';
 import { useAppDispatch } from '$app/stores/store';
 import { BlockCopyData } from '$app/interfaces/document';
 import { clipboardTypes } from '$app/constants/document/copy_paste';
@@ -7,10 +7,10 @@ import { useSubscribeDocument } from '$app/components/document/_shared/Subscribe
 
 export function useCopy(container: HTMLDivElement) {
   const dispatch = useAppDispatch();
-  const { docId, controller } = useSubscribeDocument();
+  const { controller } = useSubscribeDocument();
 
-  const handleCopyCapture = useCallback(
-    (e: ClipboardEvent) => {
+  const onCopy = useCallback(
+    (e: ClipboardEvent, isCut: boolean) => {
       if (!controller) return;
       e.stopPropagation();
       e.preventDefault();
@@ -22,17 +22,35 @@ export function useCopy(container: HTMLDivElement) {
       dispatch(
         copyThunk({
           setClipboardData,
-          docId,
+          controller,
+          isCut,
         })
       );
     },
-    [docId, controller, dispatch]
+    [controller, dispatch]
+  );
+
+  const handleCopyCapture = useCallback(
+    (e: ClipboardEvent) => {
+      onCopy(e, false);
+    },
+    [onCopy]
+  );
+
+  const handleCutCapture = useCallback(
+    (e: ClipboardEvent) => {
+      onCopy(e, true);
+    },
+    [onCopy]
   );
 
   useEffect(() => {
     container.addEventListener('copy', handleCopyCapture, true);
+    container.addEventListener('cut', handleCutCapture, true);
+
     return () => {
       container.removeEventListener('copy', handleCopyCapture, true);
+      container.removeEventListener('cut', handleCutCapture, true);
     };
-  }, [container, handleCopyCapture]);
+  }, [container, handleCopyCapture, handleCutCapture]);
 }
