@@ -164,6 +164,7 @@ function BlockSlashMenu({
         const match = (text: string) => {
           return text.toLowerCase().includes(searchText.toLowerCase());
         };
+
         return match(option.title) || match(option.type);
       }),
     [searchText]
@@ -174,6 +175,7 @@ function BlockSlashMenu({
       if (!acc[option.group]) {
         acc[option.group] = [];
       }
+
       acc[option.group].push(option);
       return acc;
     }, {} as Record<SlashCommandGroup, typeof options>);
@@ -183,8 +185,10 @@ function BlockSlashMenu({
     if (!ref.current) return;
     const containerRect = ref.current.getBoundingClientRect();
     const optionElement = document.querySelector(`#slash-item-${option.key}`);
+
     if (!optionElement) return;
     const itemRect = optionElement?.getBoundingClientRect();
+
     if (!itemRect) return;
 
     if (itemRect.top < containerRect.top || itemRect.bottom > containerRect.bottom) {
@@ -195,16 +199,21 @@ function BlockSlashMenu({
   const selectOptionByArrow = useCallback(
     ({ isUp, isDown, isLeft, isRight }: { isUp?: boolean; isDown?: boolean; isLeft?: boolean; isRight?: boolean }) => {
       let nextOption: SlashCommandOption | undefined;
+
       if (isUp || isLeft) {
         const index = options.findIndex((option) => option.key === hoverOption?.key);
+
         nextOption = options[index - 1];
       } else if (isDown || isRight) {
         const index = options.findIndex((option) => option.key === hoverOption?.key);
+
         nextOption = options[index + 1];
       }
+
       if (!nextOption) {
         return;
       }
+
       scrollIntoOption(nextOption);
       dispatch(
         slashCommandActions.setHoverOption({
@@ -223,6 +232,8 @@ function BlockSlashMenu({
       const isLeft = e.key === Keyboard.keys.LEFT;
       const isRight = e.key === Keyboard.keys.RIGHT;
       const isEnter = e.key === Keyboard.keys.ENTER;
+
+      // if any arrow key is pressed, prevent default behavior and stop propagation
       if (isUp || isDown || isLeft || isRight || isEnter) {
         e.stopPropagation();
         e.preventDefault();
@@ -230,8 +241,10 @@ function BlockSlashMenu({
           if (hoverOption) {
             handleInsert(hoverOption.type, hoverOption.data);
           }
+
           return;
         }
+
         selectOptionByArrow({
           isUp,
           isDown,
@@ -240,6 +253,8 @@ function BlockSlashMenu({
         });
       }
     };
+
+    // intercept keydown event in capture phase before it reaches the editor
     container.addEventListener('keydown', handleKeyDownCapture, true);
     return () => {
       container.removeEventListener('keydown', handleKeyDownCapture, true);
