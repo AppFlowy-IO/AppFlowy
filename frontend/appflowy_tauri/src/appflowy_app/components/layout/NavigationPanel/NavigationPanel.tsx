@@ -1,7 +1,7 @@
 import { WorkspaceUser } from '../WorkspaceUser';
 import { AppLogo } from '../AppLogo';
 import { TrashButton } from './TrashButton';
-import { NewFolderButton } from './NewFolderButton';
+import { NewViewButton } from './NewViewButton';
 import { NavigationResizer } from './NavigationResizer';
 import { IPage } from '$app_reducers/pages/slice';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -81,8 +81,8 @@ export const NavigationPanel = ({
             <TrashButton></TrashButton>
           </div>
 
-          {/*New Folder Button*/}
-          <NewFolderButton scrollDown={scrollDown}></NewFolderButton>
+          {/*New Root View Button*/}
+          <NewViewButton scrollDown={scrollDown}></NewViewButton>
         </div>
       </div>
       <NavigationResizer minWidth={NAV_PANEL_MINIMUM_WIDTH}></NavigationResizer>

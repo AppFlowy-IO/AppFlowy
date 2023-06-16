@@ -1,13 +1,13 @@
 import AddSvg from '../../_shared/svg/AddSvg';
-import { useNewFolder } from './NewFolderButton.hooks';
+import { useNewRootView } from './NewViewButton.hooks';
 
-export const NewFolderButton = ({ scrollDown }: { scrollDown: () => void }) => {
-  const { onNewFolder } = useNewFolder();
+export const NewViewButton = ({ scrollDown }: { scrollDown: () => void }) => {
+  const { onNewRootView } = useNewRootView();
 
   return (
     <button
       onClick={() => {
-        void onNewFolder();
+        void onNewRootView();
         scrollDown();
       }}
       className={'flex h-[50px] w-full items-center px-6 hover:bg-surface-2'}
