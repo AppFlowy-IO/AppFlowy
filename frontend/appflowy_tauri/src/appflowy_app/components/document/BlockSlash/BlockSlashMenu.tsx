@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import MenuItem from '$app/components/document/BlockSideToolbar/MenuItem';
 import {
   ArrowRight,
@@ -12,15 +12,35 @@ import {
   Title,
   SafetyDivider,
 } from '@mui/icons-material';
-import { List } from '@mui/material';
-import { BlockData, BlockType } from '$app/interfaces/document';
+import {
+  BlockData,
+  BlockType,
+  SlashCommandGroup,
+  SlashCommandOption,
+  SlashCommandOptionKey,
+} from '$app/interfaces/document';
 import { useAppDispatch } from '$app/stores/store';
 import { triggerSlashCommandActionThunk } from '$app_reducers/document/async-actions/menu';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { slashCommandActions } from '$app_reducers/document/slice';
+import { Keyboard } from '$app/constants/document/keyboard';
 
-function BlockSlashMenu({ id, onClose, searchText }: { id: string; onClose?: () => void; searchText?: string }) {
+function BlockSlashMenu({
+  id,
+  onClose,
+  searchText,
+  hoverOption,
+  container,
+}: {
+  id: string;
+  onClose?: () => void;
+  searchText?: string;
+  hoverOption?: SlashCommandOption;
+  container: HTMLDivElement;
+}) {
   const dispatch = useAppDispatch();
-  const { controller } = useSubscribeDocument();
+  const ref = useRef<HTMLDivElement | null>(null);
+  const { docId, controller } = useSubscribeDocument();
   const handleInsert = useCallback(
     async (type: BlockType, data?: BlockData<any>) => {
       if (!controller) return;
@@ -39,108 +59,234 @@ function BlockSlashMenu({ id, onClose, searchText }: { id: string; onClose?: () 
     [controller, dispatch, id, onClose]
   );
 
-  const optionColumns = useMemo(
-    () => [
+  const options: (SlashCommandOption & {
+    title: string;
+    icon: React.ReactNode;
+    group: SlashCommandGroup;
+  })[] = useMemo(
+    () =>
       [
         {
+          key: SlashCommandOptionKey.TEXT,
           type: BlockType.TextBlock,
           title: 'Text',
           icon: <TextFields />,
+          group: SlashCommandGroup.BASIC,
         },
         {
+          key: SlashCommandOptionKey.HEADING_1,
           type: BlockType.HeadingBlock,
           title: 'Heading 1',
           icon: <Title />,
-          props: {
+          data: {
             level: 1,
           },
+          group: SlashCommandGroup.BASIC,
         },
         {
+          key: SlashCommandOptionKey.HEADING_2,
           type: BlockType.HeadingBlock,
           title: 'Heading 2',
           icon: <Title />,
-          props: {
+          data: {
             level: 2,
           },
+          group: SlashCommandGroup.BASIC,
         },
         {
+          key: SlashCommandOptionKey.HEADING_3,
           type: BlockType.HeadingBlock,
           title: 'Heading 3',
           icon: <Title />,
-          props: {
+          data: {
             level: 3,
           },
+          group: SlashCommandGroup.BASIC,
         },
         {
+          key: SlashCommandOptionKey.TODO,
           type: BlockType.TodoListBlock,
           title: 'To-do list',
           icon: <Check />,
+          group: SlashCommandGroup.BASIC,
         },
         {
+          key: SlashCommandOptionKey.BULLET,
           type: BlockType.BulletedListBlock,
           title: 'Bulleted list',
           icon: <FormatListBulleted />,
+          group: SlashCommandGroup.BASIC,
         },
         {
+          key: SlashCommandOptionKey.NUMBER,
           type: BlockType.NumberedListBlock,
           title: 'Numbered list',
           icon: <FormatListNumbered />,
+          group: SlashCommandGroup.BASIC,
         },
-      ],
-      [
         {
+          key: SlashCommandOptionKey.TOGGLE,
           type: BlockType.ToggleListBlock,
           title: 'Toggle list',
           icon: <ArrowRight />,
+          group: SlashCommandGroup.BASIC,
         },
         {
-          type: BlockType.CodeBlock,
-          title: 'Code',
-          icon: <DataObject />,
-        },
-        {
+          key: SlashCommandOptionKey.QUOTE,
           type: BlockType.QuoteBlock,
           title: 'Quote',
           icon: <FormatQuote />,
+          group: SlashCommandGroup.BASIC,
         },
         {
+          key: SlashCommandOptionKey.CALLOUT,
           type: BlockType.CalloutBlock,
           title: 'Callout',
           icon: <Lightbulb />,
+          group: SlashCommandGroup.BASIC,
         },
         {
+          key: SlashCommandOptionKey.DIVIDER,
           type: BlockType.DividerBlock,
           title: 'Divider',
           icon: <SafetyDivider />,
+          group: SlashCommandGroup.BASIC,
         },
-      ],
-    ],
-    []
+        {
+          key: SlashCommandOptionKey.CODE,
+          type: BlockType.CodeBlock,
+          title: 'Code',
+          icon: <DataObject />,
+          group: SlashCommandGroup.MEDIA,
+        },
+      ].filter((option) => {
+        if (!searchText) return true;
+        const match = (text: string) => {
+          return text.toLowerCase().includes(searchText.toLowerCase());
+        };
+        return match(option.title) || match(option.type);
+      }),
+    [searchText]
   );
+
+  const optionsByGroup = useMemo(() => {
+    return options.reduce((acc, option) => {
+      if (!acc[option.group]) {
+        acc[option.group] = [];
+      }
+      acc[option.group].push(option);
+      return acc;
+    }, {} as Record<SlashCommandGroup, typeof options>);
+  }, [options]);
+
+  const scrollIntoOption = useCallback((option: SlashCommandOption) => {
+    if (!ref.current) return;
+    const containerRect = ref.current.getBoundingClientRect();
+    const optionElement = document.querySelector(`#slash-item-${option.key}`);
+    if (!optionElement) return;
+    const itemRect = optionElement?.getBoundingClientRect();
+    if (!itemRect) return;
+
+    if (itemRect.top < containerRect.top || itemRect.bottom > containerRect.bottom) {
+      optionElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, []);
+
+  const selectOptionByArrow = useCallback(
+    (e: KeyboardEvent) => {
+      const isUp = e.key === Keyboard.keys.UP;
+      const isDown = e.key === Keyboard.keys.DOWN;
+      const isLeft = e.key === Keyboard.keys.LEFT;
+      const isRight = e.key === Keyboard.keys.RIGHT;
+      let nextOption: SlashCommandOption | undefined;
+      if (isUp || isLeft) {
+        const index = options.findIndex((option) => option.key === hoverOption?.key);
+        nextOption = options[index - 1];
+      } else if (isDown || isRight) {
+        const index = options.findIndex((option) => option.key === hoverOption?.key);
+        nextOption = options[index + 1];
+      }
+      if (!nextOption) {
+        return;
+      }
+      scrollIntoOption(nextOption);
+      dispatch(
+        slashCommandActions.setHoverOption({
+          option: nextOption,
+          docId,
+        })
+      );
+    },
+    [dispatch, docId, hoverOption?.key, options, scrollIntoOption]
+  );
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      const isUp = e.key === Keyboard.keys.UP;
+      const isDown = e.key === Keyboard.keys.DOWN;
+      const isLeft = e.key === Keyboard.keys.LEFT;
+      const isRight = e.key === Keyboard.keys.RIGHT;
+      const isEnter = e.key === Keyboard.keys.ENTER;
+      if (isUp || isDown || isLeft || isRight || isEnter) {
+        e.stopPropagation();
+        e.preventDefault();
+        if (isEnter) {
+          if (hoverOption) {
+            handleInsert(hoverOption.type, hoverOption.data);
+          }
+          return;
+        }
+        selectOptionByArrow(e);
+      }
+    };
+    container.addEventListener('keydown', handleKey, true);
+    return () => {
+      container.removeEventListener('keydown', handleKey, true);
+    };
+  }, [container, handleInsert, hoverOption, selectOptionByArrow]);
+
   return (
     <div
       onMouseDown={(e) => {
         e.preventDefault();
         e.stopPropagation();
       }}
-      className={'flex'}
+      className={'flex h-[100%] max-h-[40vh] w-[324px] min-w-[180px] max-w-[calc(100vw-32px)] flex-col p-1'}
     >
-      {optionColumns.map((column, index) => (
-        <List key={index} className={'flex-1'}>
-          {column.map((option) => {
-            return (
-              <MenuItem
-                key={option.title}
-                title={option.title}
-                icon={option.icon}
-                onClick={() => {
-                  handleInsert(option.type, option.props);
-                }}
-              />
-            );
-          })}
-        </List>
-      ))}
+      <div ref={ref} className={'min-h-0 flex-1 overflow-y-auto overflow-x-hidden'}>
+        {Object.entries(optionsByGroup).map(([group, options]) => (
+          <div key={group}>
+            <div className={'px-2 py-2 text-sm text-shade-3'}>{group}</div>
+            <div>
+              {options.map((option) => {
+                return (
+                  <MenuItem
+                    id={`slash-item-${option.key}`}
+                    key={option.key}
+                    title={option.title}
+                    icon={option.icon}
+                    onHover={() => {
+                      dispatch(
+                        slashCommandActions.setHoverOption({
+                          option: {
+                            key: option.key,
+                            type: option.type,
+                            data: option.data,
+                          },
+                          docId,
+                        })
+                      );
+                    }}
+                    isHovered={hoverOption?.key === option.key}
+                    onClick={() => {
+                      handleInsert(option.type, option.data);
+                    }}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

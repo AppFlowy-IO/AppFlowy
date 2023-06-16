@@ -7,12 +7,12 @@ export function useSubscribeDecorate(id: string) {
   const { docId } = useSubscribeDocument();
 
   const decorateSelection = useAppSelector((state) => {
-    return state.documentRange[docId].ranges[id];
+    return state.documentRange[docId]?.ranges[id];
   });
 
   const linkDecorateSelection = useAppSelector((state) => {
     const linkPopoverState = state.documentLinkPopover[docId];
-    if (!linkPopoverState.open || linkPopoverState.id !== id) return;
+    if (!linkPopoverState?.open || linkPopoverState?.id !== id) return;
     return {
       selection: linkPopoverState.selection,
       placeholder: linkPopoverState.title,
@@ -29,7 +29,7 @@ export function useFocused(id: string) {
 
   const caretRef = useRef<RangeStatic>();
   const focusCaret = useAppSelector((state) => {
-    const currentCaret = state.documentRange[docId].caret;
+    const currentCaret = state.documentRange[docId]?.caret;
     caretRef.current = currentCaret;
     if (currentCaret?.id === id) {
       return currentCaret;
@@ -73,7 +73,7 @@ export function useSubscribeCaret() {
   const { docId } = useSubscribeDocument();
 
   const caret = useAppSelector((state) => {
-    return state.documentRange[docId].caret;
+    return state.documentRange[docId]?.caret;
   });
 
   return caret;

@@ -2,34 +2,56 @@ import React from 'react';
 import { ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 
 function MenuItem({
+  id,
   icon,
   title,
   onClick,
   extra,
   onHover,
+  isHovered,
 }: {
+  id?: string;
   title: string;
   icon: React.ReactNode;
-  onClick?: () => void;
+  onClick: () => void;
   extra?: React.ReactNode;
-  onHover?: (isHovered: boolean, event: React.MouseEvent<HTMLDivElement>) => void;
+  isHovered: boolean;
+  onHover: () => void;
 }) {
   return (
-    <ListItem disablePadding>
+    <div id={id}>
       <ListItemButton
-        onMouseEnter={(e) => onHover?.(true, e)}
-        onMouseLeave={(e) => onHover?.(false, e)}
+        sx={{
+          borderRadius: '4px',
+          padding: '4px 8px',
+          fontSize: 14,
+        }}
+        selected={isHovered}
+        onMouseEnter={(e) => onHover()}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          onClick?.();
+          onClick();
         }}
       >
-        <ListItemIcon>{icon}</ListItemIcon>
-        <ListItemText primary={title} />
+        <div className={'mr-2 flex h-[50px] w-[50px] items-center justify-center rounded border border-shade-5'}>
+          {icon}
+        </div>
+        <div className={'flex flex-col'}>
+          <div>{title}</div>
+          <div
+            className={'font-normal text-shade-4'}
+            style={{
+              fontSize: '0.85em',
+              fontWeight: 300,
+            }}
+          >
+            desc
+          </div>
+        </div>
         {extra}
       </ListItemButton>
-    </ListItem>
+    </div>
   );
 }
 

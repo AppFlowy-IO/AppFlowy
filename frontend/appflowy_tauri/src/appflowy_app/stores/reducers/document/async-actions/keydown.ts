@@ -90,7 +90,7 @@ export const enterActionForBlockThunk = createAsyncThunk(
     const docId = controller.documentId;
     const documentState = state.document[docId];
     const node = documentState.nodes[id];
-    const caret = state.documentRange[docId].caret;
+    const caret = state.documentRange[docId]?.caret;
     if (!node || !caret || caret.id !== id) return;
     const delta = new Delta(node.data.delta);
     if (delta.length() === 0 && node.type !== BlockType.TextBlock) {

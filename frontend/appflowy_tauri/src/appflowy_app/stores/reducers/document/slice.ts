@@ -6,6 +6,9 @@ import {
   RangeState,
   RangeStatic,
   LinkPopoverState,
+  BlockType,
+  SlashCommandOptionKey,
+  SlashCommandOption,
 } from '@/appflowy_app/interfaces/document';
 import { BlockEventPayloadPB } from '@/services/backend';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
@@ -317,6 +320,19 @@ export const slashCommandSlice = createSlice({
       state[docId] = {
         ...state[docId],
         isSlashCommand: false,
+      };
+    },
+    setHoverOption: (
+      state,
+      action: PayloadAction<{
+        docId: string;
+        option: SlashCommandOption;
+      }>
+    ) => {
+      const { docId, option } = action.payload;
+      state[docId] = {
+        ...state[docId],
+        hoverOption: option,
       };
     },
   },
