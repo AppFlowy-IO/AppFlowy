@@ -2,7 +2,6 @@ import 'package:appflowy/plugins/database_view/grid/application/filter/select_op
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:flutter/material.dart';
@@ -58,13 +57,13 @@ class SelectOptionFilterList extends StatelessWidget {
             SelectOptionFilterListState>(
           builder: (context, state) {
             return ListView.separated(
+              physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               controller: ScrollController(),
               itemCount: state.visibleOptions.length,
               separatorBuilder: (context, index) {
                 return VSpace(GridSize.typeOptionSeparatorHeight);
               },
-              physics: StyledScrollPhysics(),
               itemBuilder: (BuildContext context, int index) {
                 final option = state.visibleOptions[index];
                 return SelectOptionFilterCell(
