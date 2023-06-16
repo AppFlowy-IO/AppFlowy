@@ -73,7 +73,7 @@ export const BoardCard = ({
             <div className={'flex flex-col gap-3'}>
               {cells
                 .filter(
-                  (cell) => cell.fieldId !== groupByFieldId && databaseStore.fields[cell.cellIdentifier.fieldId].visible
+                  (cell) => cell.fieldId !== groupByFieldId && databaseStore.fields[cell.cellIdentifier.fieldId]?.visible
                 )
                 .map((cell, cellIndex) => (
                   <BoardCell

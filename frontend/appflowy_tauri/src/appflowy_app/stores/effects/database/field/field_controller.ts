@@ -1,8 +1,8 @@
-import { Log } from "$app/utils/log";
-import { DatabaseBackendService } from "../database_bd_svc";
-import { DatabaseFieldChangesetObserver } from "./field_observer";
-import { FieldIdPB, FieldPB, IndexFieldPB } from "@/services/backend";
-import { ChangeNotifier } from "$app/utils/change_notifier";
+import { Log } from '$app/utils/log';
+import { DatabaseBackendService } from '../database_bd_svc';
+import { DatabaseFieldChangesetObserver } from './field_observer';
+import { FieldIdPB, FieldPB, IndexFieldPB } from '@/services/backend';
+import { ChangeNotifier } from '$app/utils/change_notifier';
 
 export class FieldController {
   private backendService: DatabaseBackendService;
@@ -53,7 +53,7 @@ export class FieldController {
         } else {
           Log.error(result.val);
         }
-      }
+      },
     });
   };
 
@@ -122,6 +122,5 @@ class NumOfFieldsNotifier extends ChangeNotifier<FieldInfo[]> {
 }
 
 export class FieldInfo {
-  constructor(public readonly field: FieldPB) {
-  }
+  constructor(public readonly field: FieldPB) {}
 }
