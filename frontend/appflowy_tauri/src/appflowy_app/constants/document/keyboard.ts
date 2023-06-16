@@ -38,5 +38,7 @@ export const Keyboard = {
     COPY: 'Mod+c',
     CUT: 'Mod+x',
     PASTE: 'Mod+v',
+    REDO: 'Mod+Shift+z',
+    UNDO: 'Mod+z',
   },
 };

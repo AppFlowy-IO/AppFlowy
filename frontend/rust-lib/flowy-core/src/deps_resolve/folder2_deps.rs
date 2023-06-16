@@ -143,7 +143,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      let document = manager.get_document(view_id)?;
+      let document = manager.get_document_from_disk(view_id)?;
       let data: DocumentDataPB = document.lock().get_document()?.into();
       let data_bytes = data.into_bytes().map_err(|_| FlowyError::invalid_data())?;
       Ok(data_bytes)
@@ -325,6 +325,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     let format = match import_type {
       ImportType::CSV => CSVFormat::Original,
       ImportType::HistoryDatabase => CSVFormat::META,
+      ImportType::RawDatabase => CSVFormat::META,
       _ => CSVFormat::Original,
     };
     FutureResult::new(async move {

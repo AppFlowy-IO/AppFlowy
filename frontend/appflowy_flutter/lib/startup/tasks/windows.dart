@@ -26,7 +26,10 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     await windowManager.ensureInitialized();
     windowManager.addListener(this);
 
-    final windowSize = await WindowSizeManager().getSize();
+    Size windowSize = await WindowSizeManager().getSize();
+    if (context.env.isIntegrationTest()) {
+      windowSize = const Size(1600, 1200);
+    }
 
     final windowOptions = WindowOptions(
       size: windowSize,

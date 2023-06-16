@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:appflowy/core/config/kv_keys.dart';
-import 'package:appflowy/main.dart' as app;
+import 'package:appflowy/startup/entry_point.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/prelude.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider/path_provider.dart';
@@ -60,18 +62,18 @@ class TestFolder {
 extension AppFlowyTestBase on WidgetTester {
   Future<void> initializeAppFlowy() async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-      const MethodChannel('hotkey_manager'),
-      (MethodCall methodCall) async {
-        if (methodCall.method == 'unregisterAll') {
-          // do nothing
-        }
+        .setMockMethodCallHandler(const MethodChannel('hotkey_manager'),
+            (MethodCall methodCall) async {
+      if (methodCall.method == 'unregisterAll') {
+        // do nothing
+      }
 
-        return;
-      },
-    );
+      return;
+    });
 
-    await app.main();
+    WidgetsFlutterBinding.ensureInitialized();
+    await FlowyRunner.run(FlowyApp(), IntegrationMode.integrationTest);
+
     await wait(3000);
     await pumpAndSettle(const Duration(seconds: 2));
   }
@@ -124,5 +126,13 @@ extension AppFlowyTestBase on WidgetTester {
   Future<void> wait(int milliseconds) async {
     await pumpAndSettle(Duration(milliseconds: milliseconds));
     return;
+  }
+}
+
+extension AppFlowyFinderTestBase on CommonFinders {
+  Finder findTextInFlowyText(String text) {
+    return find.byWidgetPredicate(
+      (widget) => widget is FlowyText && widget.text == text,
+    );
   }
 }

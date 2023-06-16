@@ -10,8 +10,6 @@ import { AppObserver } from '$app/stores/effects/folder/app/app_observer';
 import { useNavigate } from 'react-router-dom';
 import { INITIAL_FOLDER_HEIGHT, PAGE_ITEM_HEIGHT } from '../../_shared/constants';
 
-import { DocumentController } from '$app/stores/effects/document/document_controller';
-
 export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
   const appDispatch = useAppDispatch();
   const workspace = useAppSelector((state) => state.workspace);
@@ -118,9 +116,6 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
       layoutType: ViewLayoutPB.Document,
     });
     try {
-      const c = new DocumentController(newView.id);
-      await c.create();
-      await c.dispose();
       appDispatch(
         pagesActions.addPage({
           folderId: folder.id,

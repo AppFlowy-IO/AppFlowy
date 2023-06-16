@@ -125,3 +125,4 @@ jobs:
           flags: appflowy_flutter_unit_test
           fail_ci_if_error: true
           verbose: true
+          os: ${{ matrix.os }}

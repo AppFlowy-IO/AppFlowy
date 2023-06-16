@@ -26,7 +26,9 @@ extension on ImportTypePB {
     switch (this) {
       case ImportTypePB.HistoryDocument:
         return ViewLayoutPB.Document;
-      case ImportTypePB.HistoryDatabase || ImportTypePB.CSV:
+      case ImportTypePB.HistoryDatabase ||
+            ImportTypePB.CSV ||
+            ImportTypePB.RawDatabase:
         return ViewLayoutPB.Grid;
       default:
         throw UnimplementedError('Unsupported import type $this');
