@@ -10,17 +10,21 @@ const headingBlockTopOffset: Record<number, number> = {
   2: 5,
   3: 4,
 };
+
 export function useBlockSideToolbar({ container }: { container: HTMLDivElement }) {
   const [nodeId, setHoverNodeId] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement | null>(null);
   const dispatch = useAppDispatch();
   const [style, setStyle] = useState<React.CSSProperties>({});
   const { docId } = useSubscribeDocument();
+
   useEffect(() => {
     const el = ref.current;
+
     if (!el || !nodeId) return;
     void (async () => {
       const node = getBlock(docId, nodeId);
+
       if (!node) {
         setStyle({
           opacity: '0',
@@ -32,6 +36,7 @@ export function useBlockSideToolbar({ container }: { container: HTMLDivElement }
 
         if (node.type === BlockType.HeadingBlock) {
           const nodeData = node.data as HeadingBlockData;
+
           top = headingBlockTopOffset[nodeData.level];
         }
 
@@ -47,6 +52,7 @@ export function useBlockSideToolbar({ container }: { container: HTMLDivElement }
   const handleMouseMove = useCallback((e: MouseEvent) => {
     const { clientX, clientY } = e;
     const id = getNodeIdByPoint(clientX, clientY);
+
     setHoverNodeId(id);
   }, []);
 
@@ -70,6 +76,7 @@ function getNodeIdByPoint(x: number, y: number) {
     el: Element;
     rect: DOMRect;
   } | null = null;
+
   viewportNodes.forEach((el) => {
     const rect = el.getBoundingClientRect();
 
@@ -105,6 +112,7 @@ const origin: {
     horizontal: 'left',
   },
 };
+
 export function usePopover() {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
 
@@ -124,7 +132,6 @@ export function usePopover() {
     onClose,
     open,
     handleOpen,
-    disableAutoFocus: true,
     ...origin,
   };
 }

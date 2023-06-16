@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import MenuItem from '$app/components/document/BlockSideToolbar/MenuItem';
+import MenuItem from '$app/components/document/_shared/MenuItem';
 import {
   ArrowRight,
   Check,

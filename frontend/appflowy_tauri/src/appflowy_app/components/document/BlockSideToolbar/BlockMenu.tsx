@@ -1,14 +1,19 @@
 import React, { useCallback, useState } from 'react';
 import { List } from '@mui/material';
 import { ContentCopy, Delete } from '@mui/icons-material';
-import MenuItem from './MenuItem';
+import MenuItem from '../_shared/MenuItem';
 import { useBlockMenu } from '$app/components/document/BlockSideToolbar/BlockMenu.hooks';
 import BlockMenuTurnInto from '$app/components/document/BlockSideToolbar/BlockMenuTurnInto';
 
+enum BlockMenuOption {
+  Duplicate = 'Duplicate',
+  Delete = 'Delete',
+  TurnInto = 'TurnInto',
+}
+
 function BlockMenu({ id, onClose }: { id: string; onClose: () => void }) {
   const { handleDelete, handleDuplicate } = useBlockMenu(id);
-
-  const [turnIntoOptionHovered, setTurnIntoOptionHorvered] = useState<boolean>(false);
+  const [hovered, setHovered] = useState<BlockMenuOption | null>(null);
   const handleClick = useCallback(
     async ({ operate }: { operate: () => Promise<void> }) => {
       await operate();
@@ -34,10 +39,8 @@ function BlockMenu({ id, onClose }: { id: string; onClose: () => void }) {
             operate: handleDelete,
           })
         }
-        onHover={(isHovered) => {
-          if (isHovered) {
-            setTurnIntoOptionHorvered(false);
-          }
+        onHover={() => {
+          setHovered(BlockMenuOption.Delete);
         }}
       />
       {/** Duplicate option in the BlockMenu. */}
@@ -49,16 +52,14 @@ function BlockMenu({ id, onClose }: { id: string; onClose: () => void }) {
             operate: handleDuplicate,
           })
         }
-        onHover={(isHovered) => {
-          if (isHovered) {
-            setTurnIntoOptionHorvered(false);
-          }
+        onHover={() => {
+          setHovered(BlockMenuOption.Duplicate);
         }}
       />
       {/** Turn Into option in the BlockMenu. */}
       <BlockMenuTurnInto
-        onHovered={() => setTurnIntoOptionHorvered(true)}
-        isHovered={turnIntoOptionHovered}
+        onHovered={() => setHovered(BlockMenuOption.TurnInto)}
+        isHovered={hovered === BlockMenuOption.TurnInto}
         onClose={onClose}
         id={id}
       />

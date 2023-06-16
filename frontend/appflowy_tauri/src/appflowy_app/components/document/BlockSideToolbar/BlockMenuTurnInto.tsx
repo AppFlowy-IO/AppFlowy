@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { MouseEvent, useState } from 'react';
 import { ArrowRight, Transform } from '@mui/icons-material';
-import MenuItem from '$app/components/document/BlockSideToolbar/MenuItem';
+import MenuItem from '$app/components/document/_shared/MenuItem';
 import TurnIntoPopover from '$app/components/document/_shared/TurnInto';
 
 function BlockMenuTurnInto({
@@ -11,7 +11,7 @@ function BlockMenuTurnInto({
 }: {
   id: string;
   onClose: () => void;
-  onHovered: () => void;
+  onHovered: (e: MouseEvent) => void;
   isHovered: boolean;
 }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLDivElement>(null);
@@ -24,12 +24,9 @@ function BlockMenuTurnInto({
         title='Turn into'
         icon={<Transform />}
         extra={<ArrowRight />}
-        onHover={(hovered, event) => {
-          if (hovered) {
-            onHovered();
-            setAnchorEl(event.currentTarget);
-            return;
-          }
+        onHover={(e) => {
+          setAnchorEl(e.currentTarget as HTMLDivElement);
+          onHovered(e);
         }}
       />
       <TurnIntoPopover

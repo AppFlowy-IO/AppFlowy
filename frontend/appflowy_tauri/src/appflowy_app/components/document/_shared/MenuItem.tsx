@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { MouseEvent } from 'react';
 import { ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 
 function MenuItem({
@@ -13,10 +13,10 @@ function MenuItem({
   id?: string;
   title: string;
   icon: React.ReactNode;
-  onClick: () => void;
+  onClick?: () => void;
   extra?: React.ReactNode;
-  isHovered: boolean;
-  onHover: () => void;
+  isHovered?: boolean;
+  onHover?: (e: MouseEvent) => void;
 }) {
   return (
     <div id={id}>
@@ -27,11 +27,11 @@ function MenuItem({
           fontSize: 14,
         }}
         selected={isHovered}
-        onMouseEnter={(e) => onHover()}
+        onMouseEnter={(e) => onHover?.(e)}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          onClick();
+          onClick?.();
         }}
       >
         <div className={'mr-2 flex h-[50px] w-[50px] items-center justify-center rounded border border-shade-5'}>
