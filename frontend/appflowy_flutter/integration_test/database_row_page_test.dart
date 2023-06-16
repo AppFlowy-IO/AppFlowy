@@ -71,7 +71,7 @@ void main() {
 
       // The emoji already displayed in the row banner
       final emojiText = find.byWidgetPredicate(
-        (widget) => widget is FlowyText && widget.title == '😅',
+        (widget) => widget is FlowyText && widget.text == '😅',
       );
 
       // The number of emoji should be two. One in the row displayed in the grid
@@ -97,7 +97,7 @@ void main() {
       // Remove the emoji
       await tester.tapButton(find.byType(RemoveEmojiButton));
       final emojiText = find.byWidgetPredicate(
-        (widget) => widget is FlowyText && widget.title == '😀',
+        (widget) => widget is FlowyText && widget.text == '😀',
       );
       expect(emojiText, findsNothing);
     });

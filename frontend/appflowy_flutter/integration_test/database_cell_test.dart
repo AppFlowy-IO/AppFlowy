@@ -181,5 +181,30 @@ void main() {
 
       await tester.pumpAndSettle();
     });
+
+    testWidgets('edit single select cell', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      const fieldType = FieldType.SingleSelect;
+      await tester.tapAddButton();
+      // When create a grid, it will create a single select field by default
+      await tester.tapCreateGridButton();
+
+      // Tap the cell to invoke the selection option editor
+      await tester.tapSelectOptionCellInGrid(rowIndex: 0, fieldType: fieldType);
+      await tester.findSelectOptionEditor(findsOneWidget);
+
+      await tester.createOption(name: 'hello world');
+      await tester.dismissSelectOptionEditor();
+
+      // Make sure the option is created and displayed in the cell
+      await tester.findSelectOptionWithNameInGrid(
+        rowIndex: 0,
+        name: 'hello world',
+      );
+
+      await tester.pumpAndSettle();
+    });
   });
 }

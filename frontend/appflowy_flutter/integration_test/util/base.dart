@@ -104,7 +104,7 @@ extension AppFlowyTestBase on WidgetTester {
     );
     if (button.evaluate().isEmpty) {
       button = find.byWidgetPredicate(
-        (widget) => widget is FlowyText && widget.title == tr,
+        (widget) => widget is FlowyText && widget.text == tr,
       );
     }
     await tapButton(
@@ -135,7 +135,7 @@ extension AppFlowyTestBase on WidgetTester {
 extension AppFlowyFinderTestBase on CommonFinders {
   Finder findTextInFlowyText(String text) {
     return find.byWidgetPredicate(
-      (widget) => widget is FlowyText && widget.title == text,
+      (widget) => widget is FlowyText && widget.text == text,
     );
   }
 }

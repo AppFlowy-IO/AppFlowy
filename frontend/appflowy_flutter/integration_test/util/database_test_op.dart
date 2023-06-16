@@ -14,12 +14,15 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/disclosure_button.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/filter_menu_item.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell_action_sheet.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_list.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_option_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/filter_button.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_layout.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/checklist_cell/checklist_progress_bar.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/select_option_editor.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/text_field.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/checklist_cell/checklist_progress_bar.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_document.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_editor.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/database_setting.dart';
@@ -37,7 +40,6 @@ import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart'
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/footer/grid_footer.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/row.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
@@ -255,7 +257,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
       matching: find.byWidgetPredicate(
         (widget) {
           if (widget is FlowyText) {
-            return widget.title == content;
+            return widget.text == content;
           }
           return false;
         },
@@ -277,6 +279,59 @@ extension AppFlowyDatabaseTest on WidgetTester {
     );
 
     await tapButton(finder);
+  }
+
+  Future<void> tapSelectOptionCellInGrid({
+    required int rowIndex,
+    required FieldType fieldType,
+  }) async {
+    assert(
+      fieldType == FieldType.SingleSelect || fieldType == FieldType.MultiSelect,
+    );
+
+    final findRow = find.byType(GridRow);
+    final findCell = finderForFieldType(fieldType);
+
+    final cell = find.descendant(
+      of: findRow.at(rowIndex),
+      matching: findCell,
+    );
+
+    await tapButton(cell);
+  }
+
+  /// The [SelectOptionCellEditor] must be opened first.
+  Future<void> createOption({
+    required String name,
+  }) async {
+    final findEditor = find.byType(SelectOptionCellEditor);
+    expect(findEditor, findsOneWidget);
+
+    final findTextField = find.byType(SelectOptionTextField);
+    expect(findTextField, findsOneWidget);
+
+    await enterText(findTextField, name);
+    await pump();
+
+    await testTextInput.receiveAction(TextInputAction.done);
+    await pumpAndSettle();
+  }
+
+  Future<void> findSelectOptionWithNameInGrid({
+    required int rowIndex,
+    required String name,
+  }) async {
+    final findRow = find.byType(GridRow);
+    final option = find.byWidgetPredicate(
+      (widget) => widget is SelectOptionTag && widget.name == name,
+    );
+
+    final cell = find.descendant(
+      of: findRow.at(rowIndex),
+      matching: option,
+    );
+
+    expect(cell, findsOneWidget);
   }
 
   Future<void> openFirstRowDetailPage() async {
@@ -410,11 +465,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
   /// Must call [tapTypeOptionButton] first.
   Future<void> selectFieldType(FieldType fieldType) async {
     final fieldTypeCell = find.byType(FieldTypeCell);
-
     final fieldTypeButton = find.descendant(
       of: fieldTypeCell,
       matching: find.byWidgetPredicate(
-        (widget) => widget is FlowyText && widget.title == fieldType.title(),
+        (widget) => widget is FlowyText && widget.text == fieldType.title(),
       ),
     );
     await tapButton(fieldTypeButton);
@@ -493,6 +547,16 @@ extension AppFlowyDatabaseTest on WidgetTester {
     expect(finder, matcher);
   }
 
+  Future<void> findSelectOptionEditor(dynamic matcher) async {
+    final finder = find.byType(SelectOptionCellEditor);
+    expect(finder, matcher);
+  }
+
+  Future<void> dismissSelectOptionEditor() async {
+    await sendKeyEvent(LogicalKeyboardKey.escape);
+    await pumpAndSettle();
+  }
+
   Future<void> tapCreateRowButtonInGrid() async {
     await tapButton(find.byType(GridAddRowButton));
   }
@@ -512,7 +576,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   Future<void> assertRowCountInGridPage(int num) async {
     final text = find.byWidgetPredicate(
-      (widget) => widget is FlowyText && widget.title == rowCountString(num),
+      (widget) => widget is FlowyText && widget.text == rowCountString(num),
     );
     expect(text, findsOneWidget);
   }
@@ -653,7 +717,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     final findLayoutButton = find.byWidgetPredicate(
       (widget) =>
           widget is FlowyText &&
-          widget.title == DatabaseSettingAction.showLayout.title(),
+          widget.text == DatabaseSettingAction.showLayout.title(),
     );
 
     final button = find.descendant(
@@ -667,7 +731,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> selectDatabaseLayoutType(DatabaseLayoutPB layout) async {
     final findLayoutCell = find.byType(DatabaseViewLayoutCell);
     final findText = find.byWidgetPredicate(
-      (widget) => widget is FlowyText && widget.title == layout.layoutName(),
+      (widget) => widget is FlowyText && widget.text == layout.layoutName(),
     );
 
     final button = find.descendant(

@@ -169,17 +169,14 @@ class FieldActionCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyButton(
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
+      disable: !enable,
       text: FlowyText.medium(
         action.title(),
         color: enable
             ? AFThemeExtension.of(context).textColor
             : Theme.of(context).disabledColor,
       ),
-      onTap: () {
-        if (enable) {
-          action.run(context, fieldInfo);
-        }
-      },
+      onTap: () => action.run(context, fieldInfo),
       leftIcon: svgWidget(
         action.iconName(),
         color: enable

@@ -56,7 +56,13 @@ class FlowyButton extends StatelessWidget {
         ),
       );
     } else {
-      return Opacity(opacity: disableOpacity, child: _render());
+      return Opacity(
+        opacity: disableOpacity,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.forbidden,
+          child: _render(),
+        ),
+      );
     }
   }
 
