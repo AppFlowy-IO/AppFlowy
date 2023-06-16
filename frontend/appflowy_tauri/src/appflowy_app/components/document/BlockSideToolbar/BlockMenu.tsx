@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { List } from '@mui/material';
 import { ContentCopy, Delete } from '@mui/icons-material';
 import MenuItem from '../_shared/MenuItem';
 import { useBlockMenu } from '$app/components/document/BlockSideToolbar/BlockMenu.hooks';
@@ -67,7 +66,7 @@ function BlockMenu({ id, onClose }: { id: string; onClose: () => void }) {
   );
 
   const onKeyDown = useCallback(
-    (e: KeyboardEvent) => {
+    (e: React.KeyboardEvent) => {
       const isUp = e.key === Keyboard.keys.UP;
       const isDown = e.key === Keyboard.keys.DOWN;
       const isLeft = e.key === Keyboard.keys.LEFT;
@@ -77,6 +76,7 @@ function BlockMenu({ id, onClose }: { id: string; onClose: () => void }) {
       const isArrow = isUp || isDown || isLeft || isRight;
 
       if (!isArrow && !isEnter) return;
+      e.stopPropagation();
       if (isEnter) {
         if (hovered) {
           const option = options.find((option) => option.key === hovered);
@@ -110,21 +110,16 @@ function BlockMenu({ id, onClose }: { id: string; onClose: () => void }) {
     [hovered, onClose, options]
   );
 
-  useEffect(() => {
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [onKeyDown]);
-
   return (
     <div
+      tabIndex={1}
+      onKeyDown={onKeyDown}
       onMouseDown={(e) => {
         e.stopPropagation();
       }}
     >
       <div className={'p-2'}>
-        <TextField label='Search' placeholder='Search actions...' variant='standard' />
+        <TextField autoFocus label='Search' placeholder='Search actions...' variant='standard' />
       </div>
       {options.map((option) => {
         if (option.key === BlockMenuOption.TurnInto) {
@@ -137,7 +132,7 @@ function BlockMenu({ id, onClose }: { id: string; onClose: () => void }) {
               }}
               menuOpened={subMenuOpened}
               isHovered={hovered === BlockMenuOption.TurnInto}
-              onClose={onClose}
+              onClose={() => setSubMenuOpened(false)}
               id={id}
             />
           );
