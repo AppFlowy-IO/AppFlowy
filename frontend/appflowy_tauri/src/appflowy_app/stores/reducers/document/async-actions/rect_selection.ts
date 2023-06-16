@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { getNextNodeId, getPrevNodeId } from '$app/utils/document/block';
-import { DocumentState } from '$app/interfaces/document';
 import { rectSelectionActions } from '$app_reducers/document/slice';
+import { RootState } from '$app/stores/store';
 
 export const setRectSelectionThunk = createAsyncThunk(
   'document/setRectSelection',
@@ -14,7 +14,7 @@ export const setRectSelectionThunk = createAsyncThunk(
   ) => {
     const { getState, dispatch } = thunkAPI;
     const { docId, selection } = payload;
-    const documentState = (getState() as { document: DocumentState }).document;
+    const documentState = (getState() as RootState).document[docId];
     const selected: Record<string, boolean> = {};
     selection.forEach((id) => {
       const node = documentState.nodes[id];

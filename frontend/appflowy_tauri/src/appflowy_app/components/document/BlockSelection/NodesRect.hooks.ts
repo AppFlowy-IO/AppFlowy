@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useAppSelector } from '$app/stores/store';
 import { RegionGrid } from '$app/utils/region_grid';
-import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { useSubscribeDocument, useSubscribeDocumentData } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export function useNodesRect(container: HTMLDivElement) {
   const { controller } = useSubscribeDocument();
@@ -75,9 +74,7 @@ export function useNodesRect(container: HTMLDivElement) {
 
 function useVersionUpdate() {
   const [version, setVersion] = useState(0);
-  const data = useAppSelector((state) => {
-    return state.document;
-  });
+  const data = useSubscribeDocumentData();
 
   useEffect(() => {
     setVersion((v) => {

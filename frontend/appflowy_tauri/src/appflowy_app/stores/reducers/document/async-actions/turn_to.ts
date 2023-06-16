@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
-import { BlockData, BlockType, DocumentState } from '$app/interfaces/document';
+import { BlockData, BlockType } from '$app/interfaces/document';
 import { blockConfig } from '$app/constants/document/config';
 import { newBlock } from '$app/utils/document/block';
 import { rangeActions } from '$app_reducers/document/slice';
@@ -71,7 +71,8 @@ export const turnToTextBlockThunk = createAsyncThunk(
   async (payload: { id: string; controller: DocumentController }, thunkAPI) => {
     const { id, controller } = payload;
     const { dispatch, getState } = thunkAPI;
-    const state = (getState() as { document: DocumentState }).document;
+    const docId = controller.documentId;
+    const state = (getState() as RootState).document[docId];
     const node = state.nodes[id];
     const data = {
       delta: node.data.delta,

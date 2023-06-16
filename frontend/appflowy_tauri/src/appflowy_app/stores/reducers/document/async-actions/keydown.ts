@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
-import { BlockType, DocumentState, RangeStatic, SplitRelationship } from '$app/interfaces/document';
+import { BlockType, RangeStatic, SplitRelationship } from '$app/interfaces/document';
 import { turnToTextBlockThunk } from '$app_reducers/document/async-actions/turn_to';
 import {
   findNextHasDeltaNode,
@@ -92,8 +92,14 @@ export const enterActionForBlockThunk = createAsyncThunk(
     const node = documentState.nodes[id];
     const caret = state.documentRange[docId].caret;
     if (!node || !caret || caret.id !== id) return;
+    const delta = new Delta(node.data.delta);
+    if (delta.length() === 0 && node.type !== BlockType.TextBlock) {
+      // If the node is not a text block, turn it to a text block
+      await dispatch(turnToTextBlockThunk({ id, controller }));
+      return;
+    }
+    const nodeDelta = delta.slice(0, caret.index);
 
-    const nodeDelta = new Delta(node.data.delta).slice(0, caret.index);
     const insertNodeDelta = new Delta(node.data.delta).slice(caret.index + caret.length);
 
     const insertNodeAction = getInsertEnterNodeAction(node, insertNodeDelta, controller);

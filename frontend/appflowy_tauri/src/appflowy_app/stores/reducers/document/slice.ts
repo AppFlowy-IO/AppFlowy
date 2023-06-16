@@ -10,7 +10,6 @@ import {
 import { BlockEventPayloadPB } from '@/services/backend';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { parseValue, matchChange } from '$app/utils/document/subscribe';
-import { useAppDispatch } from '$app/stores/store';
 
 const initialState: Record<string, DocumentState> = {};
 
