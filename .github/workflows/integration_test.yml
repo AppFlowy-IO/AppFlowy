@@ -92,6 +92,7 @@ jobs:
           elif [ "$RUNNER_OS" == "Windows" ]; then
             flutter config --enable-windows-desktop
           fi
+          dart pub global activate protoc_plugin 20.0.1
         shell: bash
 
       - name: Build Test lib
@@ -121,10 +122,15 @@ jobs:
           fi
         shell: bash
 
-      - uses: codecov/codecov-action@v3
+      - name: Upload coverage to Codecov
+        uses: Wandalen/wretry.action@master
         with:
-          name: appflowy
-          flags: appflowy_flutter_integrateion_test
-          fail_ci_if_error: true
-          verbose: true
-          os: ${{ matrix.os }}
+          action: codecov/codecov-action@v3
+          with: |
+            name: appflowy
+            flags: appflowy_flutter_integrateion_test
+            fail_ci_if_error: true
+            verbose: true
+            os: ${{ matrix.os }}
+          attempt_limit: 5
+          attempt_delay: 10000
