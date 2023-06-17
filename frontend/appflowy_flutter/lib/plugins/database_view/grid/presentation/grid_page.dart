@@ -125,7 +125,10 @@ class _GridPageState extends State<GridPage> {
               (_) => GridShortcuts(
                 child: GridPageContent(view: widget.view),
               ),
-              (err) => FlowyErrorPage(err.toString()),
+              (err) => FlowyErrorPage.message(
+                err.toString(),
+                howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+              ),
             ),
           );
         },
