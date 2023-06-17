@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.dart';
@@ -12,8 +13,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../application/calendar_bloc.dart';
 
-class CalendarToolbar extends StatelessWidget {
-  const CalendarToolbar({super.key});
+class CalendarSettingBar extends StatelessWidget {
+  final DatabaseController databaseController;
+  const CalendarSettingBar({
+    required this.databaseController,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +29,7 @@ class CalendarToolbar extends StatelessWidget {
         children: [
           const _UnscheduleEventsButton(),
           SettingButton(
-            databaseController: context.read<CalendarBloc>().databaseController,
+            databaseController: databaseController,
           ),
         ],
       ),

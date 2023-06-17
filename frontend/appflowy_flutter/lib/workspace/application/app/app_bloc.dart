@@ -1,6 +1,5 @@
 import 'dart:collection';
 
-import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/app/app_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
@@ -110,7 +109,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       parentViewId: state.view.id,
       name: value.name,
       desc: value.desc ?? "",
-      layoutType: value.pluginBuilder.layoutType!,
+      layoutType: value.layoutType,
       initialDataBytes: value.initialDataBytes,
       ext: value.ext ?? {},
       openAfterCreate: true,
@@ -137,7 +136,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   Future<void> _loadViews(Emitter<AppState> emit) async {
     final viewsOrFailed =
-        await ViewBackendService.getViews(viewId: state.view.id);
+        await ViewBackendService.getChildViews(viewId: state.view.id);
     viewsOrFailed.fold(
       (views) => emit(state.copyWith(views: views)),
       (error) {
@@ -153,7 +152,7 @@ class AppEvent with _$AppEvent {
   const factory AppEvent.initial() = Initial;
   const factory AppEvent.createView(
     String name,
-    PluginBuilder pluginBuilder, {
+    ViewLayoutPB layoutType, {
     String? desc,
 
     /// ~~The initial data should be the JSON of the document~~

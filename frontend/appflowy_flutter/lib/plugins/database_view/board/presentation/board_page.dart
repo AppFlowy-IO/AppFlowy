@@ -3,9 +3,11 @@
 import 'dart:collection';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
+import 'package:appflowy/plugins/database_view/database_tab_bar.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -26,9 +28,33 @@ import '../application/board_bloc.dart';
 import '../../widgets/card/card.dart';
 import 'toolbar/board_toolbar.dart';
 
+class BoardPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
+  @override
+  Widget render(
+    BuildContext context,
+    ViewPB view,
+    DatabaseController controller,
+  ) {
+    return BoardPage(
+      key: Key(view.id),
+      view: view,
+      databaseController: controller,
+    );
+  }
+
+  @override
+  Widget renderMenu(BuildContext context, DatabaseController controller) {
+    return BoardSettingBar(
+      databaseController: controller,
+    );
+  }
+}
+
 class BoardPage extends StatelessWidget {
+  final DatabaseController databaseController;
   BoardPage({
     required this.view,
+    required this.databaseController,
     Key? key,
     this.onEditStateChanged,
   }) : super(key: ValueKey(view.id));
@@ -41,8 +67,10 @@ class BoardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          BoardBloc(view: view)..add(const BoardEvent.initial()),
+      create: (context) => BoardBloc(
+        view: view,
+        databaseController: databaseController,
+      )..add(const BoardEvent.initial()),
       child: BlocBuilder<BoardBloc, BoardState>(
         buildWhen: (p, c) => p.loadingState != c.loadingState,
         builder: (context, state) {
@@ -110,14 +138,9 @@ class _BoardContentState extends State<BoardContent> {
       child: BlocBuilder<BoardBloc, BoardState>(
         buildWhen: (previous, current) => previous.groupIds != current.groupIds,
         builder: (context, state) {
-          final column = Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [const _ToolbarBlocAdaptor(), _buildBoard(context)],
-          );
-
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: column,
+            child: _buildBoard(context),
           );
         },
       ),
@@ -331,17 +354,6 @@ class _BoardContentState extends State<BoardContent> {
           rowController: dataController,
         );
       },
-    );
-  }
-}
-
-class _ToolbarBlocAdaptor extends StatelessWidget {
-  const _ToolbarBlocAdaptor({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<BoardBloc, BoardState>(
-      builder: (context, state) => const BoardToolbar(),
     );
   }
 }

@@ -1,7 +1,3 @@
-import 'package:appflowy/plugins/database_view/calendar/calendar.dart';
-import 'package:appflowy/plugins/database_view/board/board.dart';
-import 'package:appflowy/plugins/database_view/grid/grid.dart';
-import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/workspace/application/app/app_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,7 +14,7 @@ void main() {
     final bloc = AppBloc(view: app)..add(const AppEvent.initial());
     await blocResponseFuture();
 
-    bloc.add(AppEvent.createView("Test document", DocumentPluginBuilder()));
+    bloc.add(const AppEvent.createView("Test document", ViewLayoutPB.Document));
     await blocResponseFuture();
 
     assert(bloc.state.views.length == 1);
@@ -31,7 +27,7 @@ void main() {
     final bloc = AppBloc(view: app)..add(const AppEvent.initial());
     await blocResponseFuture();
 
-    bloc.add(AppEvent.createView("Test grid", GridPluginBuilder()));
+    bloc.add(const AppEvent.createView("Test grid", ViewLayoutPB.Grid));
     await blocResponseFuture();
 
     assert(bloc.state.views.length == 1);
@@ -44,7 +40,7 @@ void main() {
     final bloc = AppBloc(view: app)..add(const AppEvent.initial());
     await blocResponseFuture();
 
-    bloc.add(AppEvent.createView("Test board", BoardPluginBuilder()));
+    bloc.add(const AppEvent.createView("Test board", ViewLayoutPB.Board));
     await blocResponseFuture();
 
     assert(bloc.state.views.length == 1);
@@ -57,7 +53,7 @@ void main() {
     final bloc = AppBloc(view: app)..add(const AppEvent.initial());
     await blocResponseFuture();
 
-    bloc.add(AppEvent.createView("Test calendar", CalendarPluginBuilder()));
+    bloc.add(const AppEvent.createView("Test calendar", ViewLayoutPB.Calendar));
     await blocResponseFuture();
 
     assert(bloc.state.views.length == 1);

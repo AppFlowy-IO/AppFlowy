@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
+import 'package:appflowy/plugins/database_view/database_tab_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -17,9 +19,37 @@ import 'calendar_day.dart';
 import 'layout/sizes.dart';
 import 'toolbar/calendar_toolbar.dart';
 
+class CalendarPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
+  @override
+  Widget render(
+    BuildContext context,
+    ViewPB view,
+    DatabaseController controller,
+  ) {
+    return CalendarPage(
+      key: Key(view.id),
+      view: view,
+      databaseController: controller,
+    );
+  }
+
+  @override
+  Widget renderMenu(BuildContext context, DatabaseController controller) {
+    // return CalendarSettingBar(
+    //   databaseController: controller,
+    // );
+    return const SizedBox.shrink();
+  }
+}
+
 class CalendarPage extends StatefulWidget {
   final ViewPB view;
-  const CalendarPage({required this.view, super.key});
+  final DatabaseController databaseController;
+  const CalendarPage({
+    required this.view,
+    required this.databaseController,
+    super.key,
+  });
 
   @override
   State<CalendarPage> createState() => _CalendarPageState();
@@ -33,8 +63,10 @@ class _CalendarPageState extends State<CalendarPage> {
   @override
   void initState() {
     _calendarState = GlobalKey<MonthViewState>();
-    _calendarBloc = CalendarBloc(view: widget.view)
-      ..add(const CalendarEvent.initial());
+    _calendarBloc = CalendarBloc(
+      view: widget.view,
+      databaseController: widget.databaseController,
+    )..add(const CalendarEvent.initial());
 
     super.initState();
   }
@@ -115,8 +147,6 @@ class _CalendarPageState extends State<CalendarPage> {
             builder: (context, state) {
               return Column(
                 children: [
-                  // const _ToolbarBlocAdaptor(),
-                  const CalendarToolbar(),
                   _buildCalendar(
                     _eventController,
                     state.settings

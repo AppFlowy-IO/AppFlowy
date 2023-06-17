@@ -27,9 +27,8 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   CellCache get cellCache => databaseController.rowCache.cellCache;
   RowCache get rowCache => databaseController.rowCache;
 
-  CalendarBloc({required ViewPB view})
-      : databaseController = DatabaseController(view: view),
-        super(CalendarState.initial()) {
+  CalendarBloc({required ViewPB view, required this.databaseController})
+      : super(CalendarState.initial()) {
     on<CalendarEvent>(
       (event, emit) async {
         await event.when(
