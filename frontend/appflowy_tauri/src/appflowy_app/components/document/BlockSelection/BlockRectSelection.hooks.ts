@@ -4,6 +4,7 @@ import { rectSelectionActions } from '@/appflowy_app/stores/reducers/document/sl
 import { setRectSelectionThunk } from '$app_reducers/document/async-actions/rect_selection';
 
 import { isPointInBlock } from '$app/utils/document/node';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export interface BlockRectSelectionProps {
   container: HTMLDivElement;
@@ -12,13 +13,19 @@ export interface BlockRectSelectionProps {
 
 export function useBlockRectSelection({ container, getIntersectedBlockIds }: BlockRectSelectionProps) {
   const dispatch = useAppDispatch();
+  const { docId } = useSubscribeDocument();
 
   const [isDragging, setDragging] = useState(false);
   const startPointRef = useRef<number[]>([]);
 
   useEffect(() => {
-    dispatch(rectSelectionActions.setDragging(isDragging));
-  }, [dispatch, isDragging]);
+    dispatch(
+      rectSelectionActions.setDragging({
+        docId,
+        isDragging,
+      })
+    );
+  }, [docId, dispatch, isDragging]);
 
   const [rect, setRect] = useState<{
     startX: number;
@@ -78,9 +85,14 @@ export function useBlockRectSelection({ container, getIntersectedBlockIds }: Blo
       };
       const blockIds = getIntersectedBlockIds(newRect);
       setRect(newRect);
-      dispatch(setRectSelectionThunk(blockIds));
+      dispatch(
+        setRectSelectionThunk({
+          selection: blockIds,
+          docId,
+        })
+      );
     },
-    [container.scrollLeft, container.scrollTop, dispatch, getIntersectedBlockIds, isDragging]
+    [container.scrollLeft, container.scrollTop, dispatch, docId, getIntersectedBlockIds, isDragging]
   );
 
   const handleDraging = useCallback(
@@ -105,7 +117,12 @@ export function useBlockRectSelection({ container, getIntersectedBlockIds }: Blo
   const handleDragEnd = useCallback(
     (e: MouseEvent) => {
       if (isPointInBlock(e.target as HTMLElement) && !isDragging) {
-        dispatch(rectSelectionActions.updateSelections([]));
+        dispatch(
+          rectSelectionActions.updateSelections({
+            docId,
+            selection: [],
+          })
+        );
         return;
       }
       if (!isDragging) return;
@@ -114,7 +131,7 @@ export function useBlockRectSelection({ container, getIntersectedBlockIds }: Blo
       setDragging(false);
       setRect(null);
     },
-    [dispatch, isDragging, updateSelctionsByPoint]
+    [dispatch, docId, isDragging, updateSelctionsByPoint]
   );
 
   useEffect(() => {

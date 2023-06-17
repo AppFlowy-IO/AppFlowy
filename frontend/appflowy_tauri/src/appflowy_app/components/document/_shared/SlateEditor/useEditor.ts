@@ -9,7 +9,7 @@ import {
   indent,
   outdent,
 } from '$app/utils/document/slate_editor';
-import { focusNodeByIndex, getWordIndices } from '$app/utils/document/node';
+import { focusNodeByIndex } from '$app/utils/document/node';
 import { Keyboard } from '$app/constants/document/keyboard';
 import Delta from 'quill-delta';
 import isHotkey from 'is-hotkey';
@@ -139,39 +139,6 @@ export function useEditor({
     [editor]
   );
 
-  // This is a hack to fix the bug that the editor decoration is updated cause selection is lost
-  const onMouseDownCapture = useCallback(
-    (event: React.MouseEvent) => {
-      editor.deselect();
-      requestAnimationFrame(() => {
-        const range = document.caretRangeFromPoint(event.clientX, event.clientY);
-        if (!range) return;
-        const selection = window.getSelection();
-        if (!selection) return;
-        selection.removeAllRanges();
-        selection.addRange(range);
-      });
-    },
-    [editor]
-  );
-
-  // double click to select a word
-  // This is a hack to fix the bug that mouse down event deselect the selection
-  const onDoubleClick = useCallback((event: React.MouseEvent) => {
-    const selection = window.getSelection();
-    if (!selection) return;
-    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-    if (!range) return;
-    const node = range.startContainer;
-    const offset = range.startOffset;
-    const wordIndices = getWordIndices(node, offset);
-    if (wordIndices.length === 0) return;
-    range.setStart(node, wordIndices[0].startIndex);
-    range.setEnd(node, wordIndices[0].endIndex);
-    selection.removeAllRanges();
-    selection.addRange(range);
-  }, []);
-
   useEffect(() => {
     if (!ref.current) return;
     const isFocused = ReactEditor.isFocused(editor);
@@ -179,12 +146,25 @@ export function useEditor({
       isFocused && editor.deselect();
       return;
     }
+
     const slateSelection = convertToSlateSelection(selection.index, selection.length, editor.children);
     if (!slateSelection) return;
+
     if (isFocused && JSON.stringify(slateSelection) === JSON.stringify(editor.selection)) return;
+
+    // why we didn't use slate api to change selection?
+    // because the slate must be focused before change selection,
+    // but then it will trigger selection change, and the selection is not what we want
     const isSuccess = focusNodeByIndex(ref.current, selection.index, selection.length);
     if (!isSuccess) {
       Transforms.select(editor, slateSelection);
+    } else {
+      // Fix: the slate is possible to lose focus in next tick after focusNodeByIndex
+      requestAnimationFrame(() => {
+        if (window.getSelection()?.type === 'None' && !editor.selection) {
+          Transforms.select(editor, slateSelection);
+        }
+      });
     }
   }, [editor, selection]);
 
@@ -197,7 +177,5 @@ export function useEditor({
     ref,
     onKeyDown: onKeyDownRewrite,
     onBlur,
-    onMouseDownCapture,
-    onDoubleClick,
   };
 }

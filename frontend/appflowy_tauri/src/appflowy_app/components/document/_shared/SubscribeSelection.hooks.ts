@@ -1,15 +1,18 @@
 import { useAppSelector } from '$app/stores/store';
 import { RangeState, RangeStatic } from '$app/interfaces/document';
 import { useMemo, useRef } from 'react';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export function useSubscribeDecorate(id: string) {
+  const { docId } = useSubscribeDocument();
+
   const decorateSelection = useAppSelector((state) => {
-    return state.documentRange.ranges[id];
+    return state.documentRange[docId]?.ranges[id];
   });
 
   const linkDecorateSelection = useAppSelector((state) => {
-    const linkPopoverState = state.documentLinkPopover;
-    if (!linkPopoverState.open || linkPopoverState.id !== id) return;
+    const linkPopoverState = state.documentLinkPopover[docId];
+    if (!linkPopoverState?.open || linkPopoverState?.id !== id) return;
     return {
       selection: linkPopoverState.selection,
       placeholder: linkPopoverState.title,
@@ -22,9 +25,11 @@ export function useSubscribeDecorate(id: string) {
   };
 }
 export function useFocused(id: string) {
+  const { docId } = useSubscribeDocument();
+
   const caretRef = useRef<RangeStatic>();
   const focusCaret = useAppSelector((state) => {
-    const currentCaret = state.documentRange.caret;
+    const currentCaret = state.documentRange[docId]?.caret;
     caretRef.current = currentCaret;
     if (currentCaret?.id === id) {
       return currentCaret;
@@ -44,10 +49,32 @@ export function useFocused(id: string) {
 }
 
 export function useRangeRef() {
+  const { docId, controller } = useSubscribeDocument();
+
   const rangeRef = useRef<RangeState>();
   useAppSelector((state) => {
-    const currentRange = state.documentRange;
+    const currentRange = state.documentRange[docId];
     rangeRef.current = currentRange;
   });
   return rangeRef;
+}
+
+export function useSubscribeRanges() {
+  const { docId } = useSubscribeDocument();
+
+  const rangeState = useAppSelector((state) => {
+    return state.documentRange[docId];
+  });
+
+  return rangeState;
+}
+
+export function useSubscribeCaret() {
+  const { docId } = useSubscribeDocument();
+
+  const caret = useAppSelector((state) => {
+    return state.documentRange[docId]?.caret;
+  });
+
+  return caret;
 }

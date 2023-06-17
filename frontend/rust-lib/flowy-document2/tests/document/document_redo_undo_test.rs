@@ -15,10 +15,10 @@ async fn undo_redo_test() {
   let data = default_document_data();
 
   // create a document
-  _ = manager.create_document(doc_id.clone(), Some(data.clone()));
+  _ = manager.create_document(&doc_id, Some(data.clone()));
 
   // open a document
-  let document = manager.get_or_open_document(doc_id.clone()).unwrap();
+  let document = manager.get_or_open_document(&doc_id).unwrap();
   let document = document.lock();
   let page_block = document.get_block(&data.page_id).unwrap();
   let page_id = page_block.id;

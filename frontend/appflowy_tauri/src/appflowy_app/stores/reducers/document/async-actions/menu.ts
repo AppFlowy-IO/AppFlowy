@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { BlockData, BlockType, DocumentState } from '$app/interfaces/document';
+import { BlockData, BlockType } from '$app/interfaces/document';
 import { insertAfterNodeThunk } from '$app_reducers/document/async-actions/blocks';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { rangeActions, slashCommandActions } from '$app_reducers/document/slice';
@@ -18,8 +18,9 @@ export const addBlockBelowClickThunk = createAsyncThunk(
   'document/addBlockBelowClick',
   async (payload: { id: string; controller: DocumentController }, thunkAPI) => {
     const { id, controller } = payload;
+    const docId = controller.documentId;
     const { dispatch, getState } = thunkAPI;
-    const state = (getState() as { document: DocumentState }).document;
+    const state = (getState() as RootState).document[docId];
     const node = state.nodes[id];
     if (!node) return;
     const delta = (node.data.delta as Op[]) || [];
@@ -31,15 +32,25 @@ export const addBlockBelowClickThunk = createAsyncThunk(
         insertAfterNodeThunk({ id: id, type: BlockType.TextBlock, controller, data: { delta: [] } })
       );
       if (newBlockId) {
-        dispatch(rangeActions.setCaret({ id: newBlockId as string, index: 0, length: 0 }));
-        dispatch(slashCommandActions.openSlashCommand({ blockId: newBlockId as string }));
+        dispatch(
+          rangeActions.setCaret({
+            docId,
+            caret: { id: newBlockId as string, index: 0, length: 0 },
+          })
+        );
+        dispatch(slashCommandActions.openSlashCommand({ docId, blockId: newBlockId as string }));
       }
       return;
     }
     // if current block is empty, open slash command
-    dispatch(rangeActions.setCaret({ id, index: 0, length: 0 }));
+    dispatch(
+      rangeActions.setCaret({
+        docId,
+        caret: { id, index: 0, length: 0 },
+      })
+    );
 
-    dispatch(slashCommandActions.openSlashCommand({ blockId: id }));
+    dispatch(slashCommandActions.openSlashCommand({ docId, blockId: id }));
   }
 );
 
@@ -63,8 +74,9 @@ export const triggerSlashCommandActionThunk = createAsyncThunk(
   ) => {
     const { id, controller, props } = payload;
     const { dispatch, getState } = thunkAPI;
+    const docId = controller.documentId;
     const state = getState() as RootState;
-    const { document } = state;
+    const document = state.document[docId];
     const node = document.nodes[id];
     if (!node) return;
     const delta = new Delta(node.data.delta);
@@ -111,6 +123,11 @@ export const triggerSlashCommandActionThunk = createAsyncThunk(
     );
     const newBlockId = insertNodePayload.payload as string;
 
-    dispatch(rangeActions.setCaret({ id: newBlockId, index: 0, length: 0 }));
+    dispatch(
+      rangeActions.setCaret({
+        docId,
+        caret: { id: newBlockId, index: 0, length: 0 },
+      })
+    );
   }
 );

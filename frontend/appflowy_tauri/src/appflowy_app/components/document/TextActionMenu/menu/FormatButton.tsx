@@ -8,12 +8,13 @@ import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
 import { newLinkThunk } from '$app_reducers/document/async-actions/link';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) => {
   const dispatch = useAppDispatch();
-  const controller = useContext(DocumentControllerContext);
+  const { docId, controller } = useSubscribeDocument();
 
-  const focusId = useAppSelector((state) => state.documentRange.focus?.id || '');
+  const focusId = useAppSelector((state) => state.documentRange[docId]?.focus?.id || '');
   const { node: focusNode } = useSubscribeNode(focusId);
 
   const [isActive, setIsActive] = React.useState(false);
@@ -33,9 +34,14 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
 
   const isFormatActive = useCallback(async () => {
     if (!focusNode) return false;
-    const { payload: isActive } = await dispatch(getFormatActiveThunk(format));
+    const { payload: isActive } = await dispatch(
+      getFormatActiveThunk({
+        format,
+        docId,
+      })
+    );
     return !!isActive;
-  }, [dispatch, format, focusNode]);
+  }, [docId, dispatch, format, focusNode]);
 
   const toggleFormat = useCallback(
     async (format: TextAction) => {
@@ -52,8 +58,12 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
   );
 
   const addLink = useCallback(() => {
-    dispatch(newLinkThunk());
-  }, [dispatch]);
+    dispatch(
+      newLinkThunk({
+        docId,
+      })
+    );
+  }, [dispatch, docId]);
 
   const formatClick = useCallback(
     (format: TextAction) => {

@@ -1,13 +1,12 @@
 import { useCallback, useContext, useEffect } from 'react';
 import { useAppDispatch } from '$app/stores/store';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
-import { pasteThunk } from '$app_reducers/document/async-actions/copyPaste';
+import { pasteThunk } from '$app_reducers/document/async-actions/copy_paste';
 import { clipboardTypes } from '$app/constants/document/copy_paste';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export function usePaste(container: HTMLDivElement) {
   const dispatch = useAppDispatch();
-  const controller = useContext(DocumentControllerContext);
-
+  const { controller } = useSubscribeDocument();
   const handlePasteCapture = useCallback(
     (e: ClipboardEvent) => {
       if (!controller) return;
