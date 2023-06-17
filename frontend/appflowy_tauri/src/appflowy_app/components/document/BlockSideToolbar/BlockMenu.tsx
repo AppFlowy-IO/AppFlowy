@@ -18,7 +18,6 @@ interface Option {
   title?: string;
   icon?: React.ReactNode;
   key: BlockMenuOption;
-  openNextMenu?: boolean;
 }
 
 function BlockMenu({ id, onClose }: { id: string; onClose: () => void }) {
