@@ -2,6 +2,7 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class FlowyErrorPage extends StatelessWidget {
   factory FlowyErrorPage.flowyError(
@@ -172,18 +173,29 @@ class GitHubRedirectButton extends StatelessWidget {
 
   static const _height = 32.0;
 
+  Uri get _gitHubNewBugUri => Uri(
+        scheme: 'https',
+        host: 'github.com',
+        path: '/AppFlowy-IO/AppFlowy/issues/new',
+        query:
+            'assignees=&labels=&projects=&template=bug_report.yaml&title=%5BBug%5D+',
+      );
+
+
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
-      leftIconSize: const Size.square(_height),
-      text: const FlowyText(
-        "AppFlowy",
-      ),
-      useIntrinsicWidth: true,
-      leftIcon: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: svgWidget('login/github-mark'),
-      ),
-    );
+        leftIconSize: const Size.square(_height),
+        text: const FlowyText(
+          "AppFlowy",
+        ),
+        useIntrinsicWidth: true,
+        leftIcon: Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: svgWidget('login/github-mark'),
+        ),
+        onTap: () => canLaunchUrl(_gitHubNewBugUri).then(
+              (result) => result ? launchUrl(_gitHubNewBugUri) : null,
+            ));
   }
 }
