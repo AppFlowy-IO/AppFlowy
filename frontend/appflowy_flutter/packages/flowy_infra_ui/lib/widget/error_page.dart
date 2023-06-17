@@ -5,18 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class FlowyErrorPage extends StatelessWidget {
-  factory FlowyErrorPage.flowyError(
-    Error e, {
-    required String howToFix,
-    Key? key,
-  }) =>
-      FlowyErrorPage._(
-        e.toString(),
-        stackTrace: e.stackTrace?.toString(),
-        howToFix: howToFix,
-        key: key,
-      );
-
   factory FlowyErrorPage.error(
     Error e, {
     required String howToFix,
