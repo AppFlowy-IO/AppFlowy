@@ -169,21 +169,23 @@ class GitHubRedirectButton extends StatelessWidget {
             'assignees=&labels=&projects=&template=bug_report.yaml&title=%5BBug%5D+',
       );
 
-
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
-        leftIconSize: const Size.square(_height),
-        text: const FlowyText(
-          "AppFlowy",
-        ),
-        useIntrinsicWidth: true,
-        leftIcon: Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: svgWidget('login/github-mark'),
-        ),
-        onTap: () => canLaunchUrl(_gitHubNewBugUri).then(
-              (result) => result ? launchUrl(_gitHubNewBugUri) : null,
-            ));
+      leftIconSize: const Size.square(_height),
+      text: const FlowyText(
+        "AppFlowy",
+      ),
+      useIntrinsicWidth: true,
+      leftIcon: Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: svgWidget('login/github-mark'),
+      ),
+      onTap: () async {
+        if (await canLaunchUrl(_gitHubNewBugUri)) {
+          await launchUrl(_gitHubNewBugUri);
+        }
+      },
+    );
   }
 }
