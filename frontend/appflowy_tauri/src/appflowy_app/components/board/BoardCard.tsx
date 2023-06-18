@@ -7,7 +7,6 @@ import { Draggable } from 'react-beautiful-dnd';
 import { MouseEventHandler, useState } from 'react';
 import { PopupWindow } from '$app/components/_shared/PopupWindow';
 import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
-import { RowBackendService } from '$app/stores/effects/database/row/row_bd_svc';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '$app/stores/store';
 
@@ -52,8 +51,7 @@ export const BoardCard = ({
 
   const onDeleteRowClick = async () => {
     setShowCardPopup(false);
-    const svc = new RowBackendService(viewId);
-    await svc.deleteRow(rowInfo.row.id);
+    await controller.deleteRow(rowInfo.row.id);
   };
 
   return (
