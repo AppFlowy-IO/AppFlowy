@@ -7,7 +7,7 @@ import 'package:appflowy/plugins/database_view/application/database_controller.d
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
-import 'package:appflowy/plugins/database_view/database_tab_bar.dart';
+import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -30,21 +30,22 @@ import 'toolbar/board_toolbar.dart';
 
 class BoardPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   @override
-  Widget render(
+  Widget renderContent(
     BuildContext context,
     ViewPB view,
     DatabaseController controller,
   ) {
     return BoardPage(
-      key: Key(view.id),
+      key: ValueKey(view.id),
       view: view,
       databaseController: controller,
     );
   }
 
   @override
-  Widget renderMenu(BuildContext context, DatabaseController controller) {
+  Widget renderSettingBar(BuildContext context, DatabaseController controller) {
     return BoardSettingBar(
+      key: ValueKey(controller.viewId),
       databaseController: controller,
     );
   }

@@ -1,7 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
-import 'package:appflowy/plugins/database_view/database_tab_bar.dart';
+import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -21,7 +21,7 @@ import 'toolbar/calendar_toolbar.dart';
 
 class CalendarPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   @override
-  Widget render(
+  Widget renderContent(
     BuildContext context,
     ViewPB view,
     DatabaseController controller,
@@ -34,7 +34,7 @@ class CalendarPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   }
 
   @override
-  Widget renderMenu(BuildContext context, DatabaseController controller) {
+  Widget renderSettingBar(BuildContext context, DatabaseController controller) {
     // return CalendarSettingBar(
     //   databaseController: controller,
     // );

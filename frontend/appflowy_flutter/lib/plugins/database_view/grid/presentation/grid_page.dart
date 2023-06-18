@@ -19,7 +19,7 @@ import '../../application/row/row_data_controller.dart';
 import '../application/grid_bloc.dart';
 import '../../application/database_controller.dart';
 import 'grid_scroll.dart';
-import '../../database_tab_bar.dart';
+import '../../tar_bar/tab_bar_view.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
 import 'widgets/row/row.dart';
@@ -30,7 +30,7 @@ import 'widgets/shortcuts.dart';
 
 class GridPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   @override
-  Widget render(
+  Widget renderContent(
     BuildContext context,
     ViewPB view,
     DatabaseController controller,
@@ -43,8 +43,11 @@ class GridPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   }
 
   @override
-  Widget renderMenu(BuildContext context, DatabaseController controller) {
-    return GridSettingBar(controller: controller);
+  Widget renderSettingBar(BuildContext context, DatabaseController controller) {
+    return GridSettingBar(
+      key: ValueKey(controller.viewId),
+      controller: controller,
+    );
   }
 }
 

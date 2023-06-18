@@ -167,7 +167,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   @override
   Future<void> close() async {
-    await databaseController.dispose();
     for (final controller in groupControllers.values) {
       controller.dispose();
     }

@@ -74,12 +74,6 @@ class UnscheduleCalendarEventBloc
     );
   }
 
-  @override
-  Future<void> close() async {
-    await databaseController.dispose();
-    return super.close();
-  }
-
   Future<void> _updateCalendarLayoutSetting(
     CalendarLayoutSettingPB layoutSetting,
   ) async {

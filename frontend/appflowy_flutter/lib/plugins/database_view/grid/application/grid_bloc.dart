@@ -70,12 +70,6 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     );
   }
 
-  @override
-  Future<void> close() async {
-    await databaseController.dispose();
-    return super.close();
-  }
-
   RowCache getRowCache(RowId rowId) {
     return databaseController.rowCache;
   }

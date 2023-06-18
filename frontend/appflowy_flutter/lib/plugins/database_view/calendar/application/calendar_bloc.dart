@@ -104,12 +104,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     );
   }
 
-  @override
-  Future<void> close() async {
-    await databaseController.dispose();
-    return super.close();
-  }
-
   FieldInfo? _getCalendarFieldInfo(String fieldId) {
     final fieldInfos = databaseController.fieldController.fieldInfos;
     final index = fieldInfos.indexWhere(

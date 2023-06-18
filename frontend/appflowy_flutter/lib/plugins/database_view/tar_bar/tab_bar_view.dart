@@ -12,20 +12,21 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'application/database_controller.dart';
-import 'database_setting_menu.dart';
-import 'grid/presentation/layout/sizes.dart';
+import '../application/database_controller.dart';
+import 'setting_menu.dart';
+import '../grid/presentation/layout/sizes.dart';
+import 'tar_bar_add_button.dart';
 
 abstract class DatabaseTabBarItemBuilder {
   const DatabaseTabBarItemBuilder();
 
-  Widget render(
+  Widget renderContent(
     BuildContext context,
     ViewPB view,
     DatabaseController controller,
   );
 
-  Widget renderMenu(
+  Widget renderSettingBar(
     BuildContext context,
     DatabaseController controller,
   );
@@ -61,12 +62,20 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
       child: MultiBlocListener(
         listeners: [
           BlocListener<GridTabBarBloc, GridTabBarState>(
-            listenWhen: (p, c) => p.selectedTabBarView != c.selectedTabBarView,
+            listenWhen: (p, c) => p.selectedTabBar != c.selectedTabBar,
             listener: (context, state) {
               _pageController?.animateToPage(
-                state.selectedViewIndex,
+                state.selectedIndex,
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.ease,
+              );
+            },
+          ),
+          BlocListener<GridTabBarBloc, GridTabBarState>(
+            listenWhen: (p, c) => p.tabBars.length != c.tabBars.length,
+            listener: (context, state) {
+              _pageController = PageController(
+                initialPage: state.selectedIndex,
               );
             },
           ),
@@ -84,16 +93,11 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                 ),
                 BlocBuilder<GridTabBarBloc, GridTabBarState>(
                   buildWhen: (p, c) =>
-                      p.selectedTabBarView.view.id !=
-                      c.selectedTabBarView.view.id,
+                      p.selectedTabBar.view.id != c.selectedTabBar.view.id,
                   builder: (context, state) {
                     return SizedBox(
                       width: 300,
-                      child:
-                          state.selectedTabBarView.view.tarBarItem().renderMenu(
-                                context,
-                                state.selectedTabBarView.controller,
-                              ),
+                      child: pageSettingBarFromState(state),
                     );
                   },
                 ),
@@ -103,7 +107,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
               builder: (context, state) {
                 return DatabaseViewSettingBar(
                   viewId: widget.view.id,
-                  databaseController: state.selectedTabBarView.controller,
+                  databaseController: state.selectedTabBar.controller,
                 );
               },
             ),
@@ -112,13 +116,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                 builder: (context, state) {
                   return PageView(
                     controller: _pageController,
-                    children: state.tabBarViews.map((view) {
-                      return view.view.tarBarItem().render(
-                            context,
-                            view.view,
-                            view.controller,
-                          );
-                    }).toList(),
+                    children: pageContentFromState(state),
                   );
                 },
               ),
@@ -126,6 +124,24 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
           ],
         ),
       ),
+    );
+  }
+
+  List<Widget> pageContentFromState(GridTabBarState state) {
+    return state.tabBars.map((view) {
+      return view.view.tarBarItem().renderContent(
+            context,
+            view.view,
+            view.controller,
+          );
+    }).toList();
+  }
+
+  Widget pageSettingBarFromState(GridTabBarState state) {
+    final barItem = state.selectedTabBar.view.tarBarItem();
+    return barItem.renderSettingBar(
+      context,
+      state.selectedTabBar.controller,
     );
   }
 }
@@ -194,11 +210,16 @@ class DatabaseTabBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<GridTabBarBloc, GridTabBarState>(
       builder: (context, state) {
-        final children = state.tabBarViews.map((tabBarView) {
+        final children = state.tabBars.map((tabBar) {
+          final isSelected = state.selectedTabBar.view.id == tabBar.view.id;
           return DatabaseTabBarItem(
-            view: tabBarView.view,
-            isSelected: false,
-            onTap: (selectedView) {},
+            view: tabBar.view,
+            isSelected: isSelected,
+            onTap: (selectedView) {
+              context.read<GridTabBarBloc>().add(
+                    GridTabBarEvent.selectView(selectedView.id),
+                  );
+            },
           );
         }).toList();
 
@@ -206,7 +227,11 @@ class DatabaseTabBar extends StatelessWidget {
           children: [
             ...children,
             AddDatabaseViewButton(
-              onTap: () {},
+              onTap: (action) async {
+                context.read<GridTabBarBloc>().add(
+                      GridTabBarEvent.createView(action),
+                    );
+              },
             ),
           ],
         );
@@ -249,34 +274,14 @@ class DatabaseTabBarItem extends StatelessWidget {
                 color: Theme.of(context).iconTheme.color,
               ),
             ),
-            Divider(
-              height: 1,
-              thickness: 2,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
+            if (isSelected)
+              Divider(
+                height: 1,
+                thickness: 2,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class AddDatabaseViewButton extends StatelessWidget {
-  final VoidCallback onTap;
-  const AddDatabaseViewButton({
-    required this.onTap,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return FlowyIconButton(
-      iconPadding: const EdgeInsets.all(4),
-      hoverColor: AFThemeExtension.of(context).greyHover,
-      onPressed: onTap,
-      icon: svgWidget(
-        'home/add',
-        color: Theme.of(context).colorScheme.tertiary,
       ),
     );
   }
