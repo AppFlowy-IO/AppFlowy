@@ -1,5 +1,6 @@
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,6 +38,12 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
     } catch (_) {
       emit(state.copyWith(status: ShortcutsStatus.failure));
     }
+  }
+
+  String getConflict(String command) {
+    final conflict = state.commandShortcutEvents
+        .firstWhereOrNull((el) => el.command == command);
+    return conflict != null ? conflict.key : '';
   }
 }
 

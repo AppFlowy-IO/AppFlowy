@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/application/settings/shortcuts/key_mapping.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcut_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
@@ -119,6 +118,7 @@ class ShortcutsListTile extends StatelessWidget {
       context: widgetContext,
       builder: (builderContext) {
         final controller = TextEditingController(text: shortcutEvent.command);
+        final formKey = GlobalKey<FormState>();
         return AlertDialog(
           title: Text(LocaleKeys.settings_shortcuts_updateShorcutStep.tr()),
           content: RawKeyboardListener(
@@ -127,8 +127,10 @@ class ShortcutsListTile extends StatelessWidget {
               if (key is! RawKeyDownEvent) return;
               if (key.logicalKey == LogicalKeyboardKey.enter &&
                   !key.isShiftPressed) {
-                _updateKey(widgetContext, controller.text);
-                _dismiss(builderContext);
+                if (formKey.currentState!.validate()) {
+                  _updateKey(widgetContext, controller.text);
+                  _dismiss(builderContext);
+                }
               } else if (key.logicalKey == LogicalKeyboardKey.escape) {
                 _dismiss(builderContext);
               } else {
@@ -136,19 +138,35 @@ class ShortcutsListTile extends StatelessWidget {
                 controller.text = key.convertToCommand;
               }
             },
-            child: TextField(
-              autofocus: true,
-              controller: controller,
-              readOnly: true,
-              maxLines: null,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
+            child: Form(
+              key: formKey,
+              child: TextFormField(
+                autofocus: true,
+                controller: controller,
+                readOnly: true,
+                maxLines: null,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
+                validator: (_) => _validateForConflicts(
+                  widgetContext,
+                  controller.text,
+                ),
               ),
             ),
           ),
         );
       },
     );
+  }
+
+  _validateForConflicts(BuildContext context, String command) {
+    final conflict =
+        BlocProvider.of<ShortcutsCubit>(context).getConflict(command);
+    if (conflict.isNotEmpty) {
+      return LocaleKeys.settings_shortcuts_shorcutIsAlreadyUsed.tr() + conflict;
+    }
+    return null;
   }
 
   _updateKey(BuildContext context, String command) {
