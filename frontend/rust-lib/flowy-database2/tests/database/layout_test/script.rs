@@ -8,7 +8,9 @@ use crate::database::database_editor::DatabaseEditorTest;
 
 pub enum LayoutScript {
   AssertCalendarLayoutSetting { expected: CalendarLayoutSetting },
-  GetCalendarEvents,
+  AssertDefaultAllCalendarEvents,
+  AssertAllCalendarEventsCount { expected: usize },
+  UpdateDatabaseLayout { layout: DatabaseLayout },
 }
 
 pub struct DatabaseLayoutTest {
@@ -16,6 +18,11 @@ pub struct DatabaseLayoutTest {
 }
 
 impl DatabaseLayoutTest {
+  pub async fn new_no_date_grid() -> Self {
+    let database_test = DatabaseEditorTest::new_no_date_grid().await;
+    Self { database_test }
+  }
+
   pub async fn new_calendar() -> Self {
     let database_test = DatabaseEditorTest::new_calendar().await;
     Self { database_test }
@@ -33,6 +40,22 @@ impl DatabaseLayoutTest {
 
   pub async fn run_script(&mut self, script: LayoutScript) {
     match script {
+      LayoutScript::UpdateDatabaseLayout { layout } => {
+        self
+          .database_test
+          .editor
+          .update_view_layout(&self.database_test.view_id, layout)
+          .await
+          .unwrap();
+      },
+      LayoutScript::AssertAllCalendarEventsCount { expected } => {
+        let events = self
+          .database_test
+          .editor
+          .get_all_calendar_events(&self.database_test.view_id)
+          .await;
+        assert_eq!(events.len(), expected);
+      },
       LayoutScript::AssertCalendarLayoutSetting { expected } => {
         let view_id = self.database_test.view_id.clone();
         let layout_ty = DatabaseLayout::Calendar;
@@ -53,7 +76,7 @@ impl DatabaseLayoutTest {
         );
         assert_eq!(calendar_setting.show_weekends, expected.show_weekends);
       },
-      LayoutScript::GetCalendarEvents => {
+      LayoutScript::AssertDefaultAllCalendarEvents => {
         let events = self
           .database_test
           .editor

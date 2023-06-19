@@ -1,37 +1,24 @@
-import { Slate, Editable } from 'slate-react';
-import Leaf from './Leaf';
-import { useTextBlock } from './TextBlock.hooks';
-import BlockHorizontalToolbar from '../BlockHorizontalToolbar';
 import React from 'react';
-import { BlockType, NestedBlock } from '$app/interfaces/document';
+import { NestedBlock } from '$app/interfaces/document';
+import Editor from '../_shared/SlateEditor/TextEditor';
+import { useChange } from '$app/components/document/_shared/EditorHooks/useChange';
 import NodeChildren from '$app/components/document/Node/NodeChildren';
+import { useKeyDown } from '$app/components/document/TextBlock/useKeyDown';
+import { useSelection } from '$app/components/document/_shared/EditorHooks/useSelection';
 
-function TextBlock({
-  node,
-  childIds,
-  placeholder,
-  ...props
-}: {
+interface Props {
   node: NestedBlock;
   childIds?: string[];
   placeholder?: string;
-} & React.HTMLAttributes<HTMLDivElement>) {
-  const { editor, value, onChange, onKeyDown, onDOMBeforeInput } = useTextBlock(node.id);
-  const className = props.className !== undefined ? ` ${props.className}` : '';
+}
+function TextBlock({ node, childIds, placeholder }: Props) {
+  const { value, onChange } = useChange(node);
+  const selectionProps = useSelection(node.id);
+  const { onKeyDown } = useKeyDown(node.id);
 
   return (
     <>
-      <div {...props} className={`px-1 py-[2px]${className}`}>
-        <Slate editor={editor} onChange={onChange} value={value}>
-          <BlockHorizontalToolbar id={node.id} />
-          <Editable
-            onKeyDown={onKeyDown}
-            onDOMBeforeInput={onDOMBeforeInput}
-            renderLeaf={(leafProps) => <Leaf {...leafProps} />}
-            placeholder={placeholder || 'Please enter some text...'}
-          />
-        </Slate>
-      </div>
+      <Editor value={value} onChange={onChange} {...selectionProps} onKeyDown={onKeyDown} placeholder={placeholder} />
       <NodeChildren className='pl-[1.5em]' childIds={childIds} />
     </>
   );

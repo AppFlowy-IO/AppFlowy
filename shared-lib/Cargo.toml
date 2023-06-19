@@ -3,16 +3,9 @@ members = [
   "lib-ot",
   "lib-ws",
   "lib-infra",
-  "database-model",
-  "folder-model",
-  "document-model",
-  "ws-model",
-  "revision-model",
-  "flowy-sync",
-  "flowy-server-sync",
-  "user-model",
-  "flowy-client-network-config",
-  "flowy-client-ws",
+  "flowy-derive",
+  "flowy-ast",
+  "flowy-codegen",
 ]
 
 [profile.dev]

@@ -38,7 +38,7 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
       child:
           BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
         builder: (context, state) {
-          List<Widget> children = [
+          final List<Widget> children = [
             const TypeOptionSeparator(),
             const OptionTitle(),
             if (state.isEditingOption)
@@ -70,7 +70,7 @@ class OptionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
       builder: (context, state) {
-        List<Widget> children = [
+        final List<Widget> children = [
           Padding(
             padding: const EdgeInsets.only(left: 9),
             child: FlowyText.medium(
@@ -209,7 +209,7 @@ class _OptionCellState extends State<_OptionCell> {
       offset: const Offset(8, 0),
       margin: EdgeInsets.zero,
       asBarrier: true,
-      constraints: BoxConstraints.loose(const Size(460, 460)),
+      constraints: BoxConstraints.loose(const Size(460, 470)),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12.0),
         child: child,

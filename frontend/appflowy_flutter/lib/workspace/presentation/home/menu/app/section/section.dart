@@ -27,7 +27,9 @@ class ViewSection extends StatelessWidget {
         listener: (context, state) {
           if (state.selectedView != null) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              getIt<HomeStackManager>().setPlugin(state.selectedView!.plugin());
+              getIt<HomeStackManager>().setPlugin(
+                state.selectedView!.plugin(listenOnViewChanged: true),
+              );
             });
           }
         },
@@ -61,6 +63,10 @@ class ViewSection extends StatelessWidget {
             .add(ViewSectionEvent.moveView(oldIndex, index));
       },
       ignorePrimaryScrollController: true,
+      buildDraggableFeedback: (context, constraints, child) => ConstrainedBox(
+        constraints: constraints,
+        child: Material(color: Colors.transparent, child: child),
+      ),
       children: children,
     );
   }

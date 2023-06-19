@@ -1,9 +1,8 @@
-use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::rows::{Row, RowId};
+use collab_database::rows::RowId;
 use nanoid::nanoid;
 use tokio::sync::{broadcast, RwLock};
 
@@ -11,7 +10,7 @@ use flowy_error::FlowyResult;
 use lib_infra::future::Fut;
 
 use crate::services::cell::CellCache;
-use crate::services::database::{DatabaseRowEvent, MutexDatabase};
+use crate::services::database::{DatabaseRowEvent, MutexDatabase, RowDetail};
 use crate::services::database_view::{DatabaseViewData, DatabaseViewEditor};
 use crate::services::group::RowChangeset;
 
@@ -31,10 +30,8 @@ impl DatabaseViews {
     database: MutexDatabase,
     cell_cache: CellCache,
     database_view_data: Arc<dyn DatabaseViewData>,
-    row_event_rx: RowEventReceiver,
   ) -> FlowyResult<Self> {
     let editor_map = Arc::new(RwLock::new(HashMap::default()));
-    listen_on_database_row_event(row_event_rx, editor_map.clone());
     Ok(Self {
       database,
       database_view_data,
@@ -61,15 +58,15 @@ impl DatabaseViews {
   pub async fn move_group_row(
     &self,
     view_id: &str,
-    row: Arc<Row>,
+    row_detail: Arc<RowDetail>,
     to_group_id: String,
     to_row_id: Option<RowId>,
     recv_row_changeset: impl FnOnce(RowChangeset) -> Fut<()>,
   ) -> FlowyResult<()> {
     let view_editor = self.get_view_editor(view_id).await?;
-    let mut row_changeset = RowChangeset::new(row.id.clone());
+    let mut row_changeset = RowChangeset::new(row_detail.row.id.clone());
     view_editor
-      .v_move_group_row(&row, &mut row_changeset, &to_group_id, to_row_id)
+      .v_move_group_row(&row_detail, &mut row_changeset, &to_group_id, to_row_id)
       .await;
 
     if !row_changeset.is_empty() {
@@ -96,8 +93,8 @@ impl DatabaseViews {
     let view_editor = self.get_view_editor(view_id).await?;
     // If the id of the grouping field is equal to the updated field's id, then we need to
     // update the group setting
-    if view_editor.group_id().await == field_id {
-      view_editor.v_update_group_setting(field_id).await?;
+    if view_editor.is_grouping_field(field_id).await {
+      view_editor.v_update_grouping_field(field_id).await?;
     }
     view_editor
       .v_did_update_field_type_option(field_id, old_field)
@@ -111,7 +108,6 @@ impl DatabaseViews {
       return Ok(editor.clone());
     }
 
-    tracing::trace!("{:p} create view:{} editor", self, view_id);
     let mut editor_map = self.editor_map.write().await;
     let editor = Arc::new(
       DatabaseViewEditor::new(
@@ -124,26 +120,6 @@ impl DatabaseViews {
     editor_map.insert(view_id.to_owned(), editor.clone());
     Ok(editor)
   }
-}
-
-fn listen_on_database_row_event(
-  mut row_event_rx: broadcast::Receiver<DatabaseRowEvent>,
-  view_editors: Arc<RwLock<HashMap<String, Arc<DatabaseViewEditor>>>>,
-) {
-  tokio::spawn(async move {
-    while let Ok(event) = row_event_rx.recv().await {
-      let read_guard = view_editors.read().await;
-      let view_editors = read_guard.values();
-      let event = if view_editors.len() == 1 {
-        Cow::Owned(event)
-      } else {
-        Cow::Borrowed(&event)
-      };
-      for view_editor in view_editors {
-        view_editor.handle_block_event(event.clone()).await;
-      }
-    }
-  });
 }
 
 pub fn gen_handler_id() -> String {

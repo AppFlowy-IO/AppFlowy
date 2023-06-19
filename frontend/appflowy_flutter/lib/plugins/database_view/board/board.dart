@@ -45,22 +45,27 @@ class BoardPlugin extends Plugin {
   BoardPlugin({
     required ViewPB view,
     required PluginType pluginType,
+    bool listenOnViewChanged = false,
   })  : _pluginType = pluginType,
-        notifier = ViewPluginNotifier(view: view);
+        notifier = ViewPluginNotifier(
+          view: view,
+          listenOnViewChanged: listenOnViewChanged,
+        );
 
   @override
-  PluginDisplay get display => GridPluginDisplay(notifier: notifier);
+  PluginWidgetBuilder get widgetBuilder =>
+      BoardPluginWidgetBuilder(notifier: notifier);
 
   @override
   PluginId get id => notifier.view.id;
 
   @override
-  PluginType get ty => _pluginType;
+  PluginType get pluginType => _pluginType;
 }
 
-class GridPluginDisplay extends PluginDisplay {
+class BoardPluginWidgetBuilder extends PluginWidgetBuilder {
   final ViewPluginNotifier notifier;
-  GridPluginDisplay({required this.notifier, Key? key});
+  BoardPluginWidgetBuilder({required this.notifier, Key? key});
 
   ViewPB get view => notifier.view;
 
@@ -68,11 +73,11 @@ class GridPluginDisplay extends PluginDisplay {
   Widget get leftBarItem => ViewLeftBarItem(view: view);
 
   @override
-  Widget buildWidget(PluginContext context) {
+  Widget buildWidget({PluginContext? context}) {
     notifier.isDeleted.addListener(() {
       notifier.isDeleted.value.fold(() => null, (deletedView) {
         if (deletedView.hasIndex()) {
-          context.onDeleted(view, deletedView.index);
+          context?.onDeleted(view, deletedView.index);
         }
       });
     });

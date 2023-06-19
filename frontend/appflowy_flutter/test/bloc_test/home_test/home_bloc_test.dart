@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/workspace/application/app/app_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_bloc.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../util.dart';
@@ -14,7 +15,7 @@ void main() {
   });
 
   test('initi home screen', () async {
-    final workspaceSetting = await FolderEventReadCurrentWorkspace()
+    final workspaceSetting = await FolderEventGetCurrentWorkspace()
         .send()
         .then((result) => result.fold((l) => l, (r) => throw Exception()));
     await blocResponseFuture();
@@ -27,7 +28,7 @@ void main() {
   });
 
   test('open the document', () async {
-    final workspaceSetting = await FolderEventReadCurrentWorkspace()
+    final workspaceSetting = await FolderEventGetCurrentWorkspace()
         .send()
         .then((result) => result.fold((l) => l, (r) => throw Exception()));
     await blocResponseFuture();
@@ -47,6 +48,8 @@ void main() {
     final latestView = appBloc.state.latestCreatedView!;
     final _ = DocumentBloc(view: latestView)
       ..add(const DocumentEvent.initial());
+
+    await FolderEventSetLatestView(ViewIdPB(value: latestView.id)).send();
     await blocResponseFuture();
 
     assert(homeBloc.state.workspaceSetting.latestView.id == latestView.id);

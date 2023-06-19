@@ -1,15 +1,21 @@
+import 'dart:io';
+
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
+import 'package:appflowy/workspace/application/export/document_exporter.dart';
 import 'package:appflowy/workspace/application/settings/settings_file_exporter_cubit.dart';
+import 'package:appflowy/workspace/application/settings/share/export_service.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart' hide WidgetBuilder;
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:path/path.dart' as p;
 import '../../../../generated/locale_keys.g.dart';
 
 class FileExporterWidget extends StatefulWidget {
@@ -22,24 +28,64 @@ class FileExporterWidget extends StatefulWidget {
 class _FileExporterWidgetState extends State<FileExporterWidget> {
   // Map<String, List<String>> _selectedPages = {};
 
+  SettingsFileExporterCubit? cubit;
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        FlowyText.medium(
-          LocaleKeys.settings_files_selectFiles.tr(),
-          fontSize: 16.0,
-        ),
-        const VSpace(8),
-        Expanded(child: _buildFileSelector(context)),
-        const VSpace(8),
-        _buildButtons(context)
-      ],
+    return FutureBuilder<dartz.Either<WorkspaceSettingPB, FlowyError>>(
+      future: FolderEventGetCurrentWorkspace().send(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData &&
+            snapshot.connectionState == ConnectionState.done) {
+          final workspaces = snapshot.data?.getLeftOrNull<WorkspaceSettingPB>();
+          if (workspaces != null) {
+            final views = workspaces.workspace.views;
+            cubit ??= SettingsFileExporterCubit(views: views);
+            return BlocProvider<SettingsFileExporterCubit>.value(
+              value: cubit!,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      FlowyText.medium(
+                        LocaleKeys.settings_files_selectFiles.tr(),
+                        fontSize: 16.0,
+                      ),
+                      BlocBuilder<SettingsFileExporterCubit,
+                          SettingsFileExportState>(
+                        builder: (context, state) => FlowyTextButton(
+                          state.selectedItems
+                                  .expand((element) => element)
+                                  .every((element) => element)
+                              ? LocaleKeys.settings_files_deselectAll.tr()
+                              : LocaleKeys.settings_files_selectAll.tr(),
+                          onPressed: () {
+                            context
+                                .read<SettingsFileExporterCubit>()
+                                .selectOrDeselectAllItems();
+                          },
+                        ),
+                      )
+                    ],
+                  ),
+                  const VSpace(8),
+                  const Expanded(child: _ExpandedList()),
+                  const VSpace(8),
+                  _buildButtons()
+                ],
+              ),
+            );
+          }
+        }
+        return const CircularProgressIndicator();
+      },
     );
   }
 
-  Row _buildButtons(BuildContext context) {
+  Widget _buildButtons() {
     return Row(
       children: [
         const Spacer(),
@@ -55,8 +101,28 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
           onPressed: () async {
             await getIt<FilePickerService>()
                 .getDirectoryPath()
-                .then((exportPath) {
-              Navigator.of(context).pop();
+                .then((exportPath) async {
+              if (exportPath != null && cubit != null) {
+                final views = cubit!.state.selectedViews;
+                final result =
+                    await _AppFlowyFileExporter.exportToPath(exportPath, views);
+                if (result.$1) {
+                  // success
+                  _showToast(LocaleKeys.settings_files_exportFileSuccess.tr());
+                } else {
+                  _showToast(
+                    LocaleKeys.settings_files_exportFileFail.tr() +
+                        result.$2.join('\n'),
+                  );
+                }
+              } else {
+                _showToast(LocaleKeys.settings_files_exportFileFail.tr());
+              }
+              if (mounted) {
+                Navigator.of(context).popUntil(
+                  (router) => router.settings.name == '/',
+                );
+              }
             });
           },
         ),
@@ -64,24 +130,14 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
     );
   }
 
-  FutureBuilder<dartz.Either<WorkspaceSettingPB, FlowyError>>
-      _buildFileSelector(BuildContext context) {
-    return FutureBuilder<dartz.Either<WorkspaceSettingPB, FlowyError>>(
-      future: FolderEventReadCurrentWorkspace().send(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData &&
-            snapshot.connectionState == ConnectionState.done) {
-          final workspaces = snapshot.data?.getLeftOrNull<WorkspaceSettingPB>();
-          if (workspaces != null) {
-            final views = workspaces.workspace.views;
-            return BlocProvider<SettingsFileExporterCubit>(
-              create: (_) => SettingsFileExporterCubit(views: views),
-              child: const _ExpandedList(),
-            );
-          }
-        }
-        return const CircularProgressIndicator();
-      },
+  void _showToast(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: FlowyText(
+          message,
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
+      ),
     );
   }
 }
@@ -119,7 +175,7 @@ class _ExpandedListState extends State<_ExpandedList> {
 
   List<Widget> _buildChildren(BuildContext context) {
     final apps = context.read<SettingsFileExporterCubit>().state.views;
-    List<Widget> children = [];
+    final List<Widget> children = [];
     for (var i = 0; i < apps.length; i++) {
       children.add(_buildExpandedItem(context, i));
     }
@@ -131,9 +187,9 @@ class _ExpandedListState extends State<_ExpandedList> {
     final apps = state.views;
     final expanded = state.expanded;
     final selectedItems = state.selectedItems;
-    final isExpaned = expanded[index] == true;
-    List<Widget> expandedChildren = [];
-    if (isExpaned) {
+    final isExpanded = expanded[index] == true;
+    final List<Widget> expandedChildren = [];
+    if (isExpanded) {
       for (var i = 0; i < selectedItems[index].length; i++) {
         final name = apps[index].childViews[i].name;
         final checkbox = CheckboxListTile(
@@ -160,7 +216,7 @@ class _ExpandedListState extends State<_ExpandedList> {
           child: ListTile(
             title: FlowyText.medium(apps[index].name),
             trailing: Icon(
-              isExpaned
+              isExpanded
                   ? Icons.arrow_drop_down_rounded
                   : Icons.arrow_drop_up_rounded,
             ),
@@ -180,5 +236,51 @@ extension AppFlowy on dartz.Either {
     }
 
     return null;
+  }
+}
+
+class _AppFlowyFileExporter {
+  static Future<(bool result, List<String> failedNames)> exportToPath(
+    String path,
+    List<ViewPB> views,
+  ) async {
+    final failedFileNames = <String>[];
+    final Map<String, int> names = {};
+    for (final view in views) {
+      String? content;
+      String? fileExtension;
+      switch (view.layout) {
+        case ViewLayoutPB.Document:
+          final documentExporter = DocumentExporter(view);
+          final result = await documentExporter.export(
+            DocumentExportType.json,
+          );
+          result.fold((l) => Log.error(l), (json) {
+            content = json;
+          });
+          fileExtension = 'afdocument';
+          break;
+        default:
+          final result =
+              await BackendExportService.exportDatabaseAsCSV(view.id);
+          result.fold(
+            (l) => content = l.data,
+            (r) => Log.error(r),
+          );
+          fileExtension = 'csv';
+          break;
+      }
+      if (content != null) {
+        final count = names.putIfAbsent(view.name, () => 0);
+        final name = count == 0 ? view.name : '${view.name}($count)';
+        final file = File(p.join(path, '$name.$fileExtension'));
+        await file.writeAsString(content!);
+        names[view.name] = count + 1;
+      } else {
+        failedFileNames.add(view.name);
+      }
+    }
+
+    return (failedFileNames.isEmpty, failedFileNames);
   }
 }

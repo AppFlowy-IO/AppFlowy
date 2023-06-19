@@ -3,7 +3,7 @@ use flowy_derive::ProtoBuf;
 use crate::entities::{InsertedRowPB, UpdatedRowPB};
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
-pub struct RowsVisibilityChangesetPB {
+pub struct RowsVisibilityChangePB {
   #[pb(index = 1)]
   pub view_id: String,
 
@@ -15,7 +15,7 @@ pub struct RowsVisibilityChangesetPB {
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
-pub struct RowsChangesetPB {
+pub struct RowsChangePB {
   #[pb(index = 1)]
   pub view_id: String,
 
@@ -29,27 +29,27 @@ pub struct RowsChangesetPB {
   pub updated_rows: Vec<UpdatedRowPB>,
 }
 
-impl RowsChangesetPB {
-  pub fn from_insert(view_id: String, inserted_rows: Vec<InsertedRowPB>) -> Self {
+impl RowsChangePB {
+  pub fn from_insert(view_id: String, inserted_row: InsertedRowPB) -> Self {
     Self {
       view_id,
-      inserted_rows,
+      inserted_rows: vec![inserted_row],
       ..Default::default()
     }
   }
 
-  pub fn from_delete(view_id: String, deleted_rows: Vec<String>) -> Self {
+  pub fn from_delete(view_id: String, deleted_row: String) -> Self {
     Self {
       view_id,
-      deleted_rows,
+      deleted_rows: vec![deleted_row],
       ..Default::default()
     }
   }
 
-  pub fn from_update(view_id: String, updated_rows: Vec<UpdatedRowPB>) -> Self {
+  pub fn from_update(view_id: String, updated_row: UpdatedRowPB) -> Self {
     Self {
       view_id,
-      updated_rows,
+      updated_rows: vec![updated_row],
       ..Default::default()
     }
   }

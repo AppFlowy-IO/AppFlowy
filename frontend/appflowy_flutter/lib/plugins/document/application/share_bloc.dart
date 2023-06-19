@@ -1,64 +1,45 @@
-import 'dart:convert';
 import 'dart:io';
-import 'package:appflowy/plugins/document/application/share_service.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/parsers/divider_node_parser.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/parsers/math_equation_node_parser.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/parsers/code_block_node_parser.dart';
-import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
+import 'package:appflowy/workspace/application/export/document_exporter.dart';
+import 'package:appflowy_backend/protobuf/flowy-document2/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
-import 'package:appflowy_editor/appflowy_editor.dart'
-    show Document, documentToMarkdown;
 part 'share_bloc.freezed.dart';
 
 class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
-  ShareService service;
-  ViewPB view;
-  DocShareBloc({required this.view, required this.service})
-      : super(const DocShareState.initial()) {
-    on<DocShareEvent>((event, emit) async {
-      await event.map(
-        shareMarkdown: (ShareMarkdown shareMarkdown) async {
-          await service.exportMarkdown(view).then((result) {
-            result.fold(
-              (value) => emit(
-                DocShareState.finish(
-                  left(_saveMarkdown(value, shareMarkdown.path)),
-                ),
-              ),
-              (error) => emit(DocShareState.finish(right(error))),
-            );
-          });
-
-          emit(const DocShareState.loading());
-        },
-        shareLink: (ShareLink value) {},
-        shareText: (ShareText value) {},
-      );
-    });
+  DocShareBloc({
+    required this.view,
+  }) : super(const DocShareState.initial()) {
+    on<ShareMarkdown>(_onShareMarkdown);
   }
 
-  ExportDataPB _saveMarkdown(ExportDataPB value, String path) {
-    final markdown = _convertDocumentToMarkdown(value);
-    value.data = markdown;
-    File(path).writeAsStringSync(markdown);
-    return value;
-  }
+  final ViewPB view;
 
-  String _convertDocumentToMarkdown(ExportDataPB value) {
-    final json = jsonDecode(value.data);
-    final document = Document.fromJson(json);
-    return documentToMarkdown(
-      document,
-      customParsers: [
-        const DividerNodeParser(),
-        const MathEquationNodeParser(),
-        const CodeBlockNodeParser(),
-      ],
+  Future<void> _onShareMarkdown(
+    ShareMarkdown event,
+    Emitter<DocShareState> emit,
+  ) async {
+    emit(const DocShareState.loading());
+
+    final documentExporter = DocumentExporter(view);
+    final result = await documentExporter.export(DocumentExportType.markdown);
+    emit(
+      DocShareState.finish(
+        result.fold(
+          (error) => right(error),
+          (markdown) => left(_saveMarkdownToPath(markdown, event.path)),
+        ),
+      ),
     );
+  }
+
+  ExportDataPB _saveMarkdownToPath(String markdown, String path) {
+    File(path).writeAsStringSync(markdown);
+    return ExportDataPB()
+      ..data = markdown
+      ..exportType = ExportType.Markdown;
   }
 }
 

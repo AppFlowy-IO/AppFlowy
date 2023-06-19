@@ -44,7 +44,7 @@ class _DateCardCellState extends State<DateCardCell> {
           if (state.dateStr.isEmpty) {
             return const SizedBox();
           } else {
-            Widget? custom = widget.renderHook?.call(
+            final Widget? custom = widget.renderHook?.call(
               state.data,
               widget.cardData,
               context,

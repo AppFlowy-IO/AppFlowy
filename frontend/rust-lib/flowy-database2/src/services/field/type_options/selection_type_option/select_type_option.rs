@@ -9,11 +9,12 @@ use crate::entities::{FieldType, SelectOptionCellDataPB};
 use crate::services::cell::{
   CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellChangeset, ToCellChangeset,
 };
+
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
 use crate::services::field::{
-  make_selected_options, CheckboxCellData, ChecklistTypeOption, MultiSelectTypeOption,
-  SelectOption, SelectOptionCellData, SelectOptionColor, SelectOptionIds, SingleSelectTypeOption,
-  TypeOption, TypeOptionCellData, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
+  make_selected_options, CheckboxCellData, MultiSelectTypeOption, SelectOption,
+  SelectOptionCellData, SelectOptionColor, SelectOptionIds, SingleSelectTypeOption, TypeOption,
+  TypeOptionCellData, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
 };
 
 /// Defines the shared actions used by SingleSelect or Multi-Select.
@@ -22,6 +23,8 @@ pub trait SelectTypeOptionSharedAction: Send + Sync {
   fn number_of_max_options(&self) -> Option<usize>;
 
   /// Insert the `SelectOption` into corresponding type option.
+  /// If the option already exists, it will be updated.
+  /// If the option does not exist, it will be inserted at the beginning.
   fn insert_option(&mut self, new_option: SelectOption) {
     let options = self.mut_options();
     if let Some(index) = options
@@ -95,11 +98,14 @@ where
   fn transform_type_option_cell(
     &self,
     cell: &Cell,
-    _decoded_field_type: &FieldType,
+    transformed_field_type: &FieldType,
     _field: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {
-    match _decoded_field_type {
-      FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => None,
+    match transformed_field_type {
+      FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => {
+        // If the transformed field type is SingleSelect, MultiSelect or Checklist, Do nothing.
+        None
+      },
       FieldType::Checkbox => {
         let cell_content = CheckboxCellData::from(cell).to_string();
         let mut transformed_ids = Vec::new();
@@ -119,16 +125,16 @@ impl<T> CellDataDecoder for T
 where
   T: SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + TypeOptionCellData,
 {
-  fn decode_cell_str(
+  fn decode_cell(
     &self,
     cell: &Cell,
     _decoded_field_type: &FieldType,
     _field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    self.decode_cell(cell)
+    self.parse_cell(cell)
   }
 
-  fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+  fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     self
       .get_selected_options(cell_data)
       .select_options
@@ -138,32 +144,26 @@ where
       .join(SELECTION_IDS_SEPARATOR)
   }
 
-  fn decode_cell_to_str(&self, cell: &Cell) -> String {
+  fn stringify_cell(&self, cell: &Cell) -> String {
     let cell_data = Self::CellData::from(cell);
-    self.decode_cell_data_to_str(cell_data)
+    self.stringify_cell_data(cell_data)
   }
 }
 
 pub fn select_type_option_from_field(
-  field_rev: &Field,
+  field: &Field,
 ) -> FlowyResult<Box<dyn SelectTypeOptionSharedAction>> {
-  let field_type = FieldType::from(field_rev.field_type);
+  let field_type = FieldType::from(field.field_type);
   match &field_type {
     FieldType::SingleSelect => {
-      let type_option = field_rev
+      let type_option = field
         .get_type_option::<SingleSelectTypeOption>(field_type)
         .unwrap_or_default();
       Ok(Box::new(type_option))
     },
     FieldType::MultiSelect => {
-      let type_option = field_rev
+      let type_option = field
         .get_type_option::<MultiSelectTypeOption>(&field_type)
-        .unwrap_or_default();
-      Ok(Box::new(type_option))
-    },
-    FieldType::Checklist => {
-      let type_option = field_rev
-        .get_type_option::<ChecklistTypeOption>(&field_type)
         .unwrap_or_default();
       Ok(Box::new(type_option))
     },

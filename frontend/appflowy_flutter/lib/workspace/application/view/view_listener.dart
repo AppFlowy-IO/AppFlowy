@@ -1,18 +1,18 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:appflowy/core/folder_notification.dart';
+import 'package:appflowy/core/notification/folder_notification.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/notification.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
-import 'package:flowy_infra/notifier.dart';
 
 // Delete the view from trash, which means the view was deleted permanently
 typedef DeleteViewNotifyValue = Either<ViewPB, FlowyError>;
 // The view get updated
-typedef UpdateViewNotifiedValue = Either<ViewPB, FlowyError>;
+typedef UpdateViewNotifiedValue = ViewPB;
 // Restore the view from trash
 typedef RestoreViewNotifiedValue = Either<ViewPB, FlowyError>;
 // Move the view to trash
@@ -20,15 +20,17 @@ typedef MoveToTrashNotifiedValue = Either<DeletedViewPB, FlowyError>;
 
 class ViewListener {
   StreamSubscription<SubscribeObject>? _subscription;
-  final _updatedViewNotifier = PublishNotifier<UpdateViewNotifiedValue>();
-  final _deletedNotifier = PublishNotifier<DeleteViewNotifyValue>();
-  final _restoredNotifier = PublishNotifier<RestoreViewNotifiedValue>();
-  final _moveToTrashNotifier = PublishNotifier<MoveToTrashNotifiedValue>();
+  void Function(UpdateViewNotifiedValue)? _updatedViewNotifier;
+  void Function(DeleteViewNotifyValue)? _deletedNotifier;
+  void Function(RestoreViewNotifiedValue)? _restoredNotifier;
+  void Function(MoveToTrashNotifiedValue)? _moveToTrashNotifier;
+  bool _isDisposed = false;
+
   FolderNotificationParser? _parser;
-  ViewPB view;
+  final String viewId;
 
   ViewListener({
-    required this.view,
+    required this.viewId,
   });
 
   void start({
@@ -37,32 +39,18 @@ class ViewListener {
     void Function(RestoreViewNotifiedValue)? onViewRestored,
     void Function(MoveToTrashNotifiedValue)? onViewMoveToTrash,
   }) {
-    if (onViewUpdated != null) {
-      _updatedViewNotifier.addListener(() {
-        onViewUpdated(_updatedViewNotifier.currentValue!);
-      });
+    if (_isDisposed) {
+      Log.warn("ViewListener is already disposed");
+      return;
     }
 
-    if (onViewDeleted != null) {
-      _deletedNotifier.addListener(() {
-        onViewDeleted(_deletedNotifier.currentValue!);
-      });
-    }
-
-    if (onViewRestored != null) {
-      _restoredNotifier.addListener(() {
-        onViewRestored(_restoredNotifier.currentValue!);
-      });
-    }
-
-    if (onViewMoveToTrash != null) {
-      _moveToTrashNotifier.addListener(() {
-        onViewMoveToTrash(_moveToTrashNotifier.currentValue!);
-      });
-    }
+    _updatedViewNotifier = onViewUpdated;
+    _deletedNotifier = onViewDeleted;
+    _restoredNotifier = onViewRestored;
+    _moveToTrashNotifier = onViewMoveToTrash;
 
     _parser = FolderNotificationParser(
-      id: view.id,
+      id: viewId,
       callback: (ty, result) {
         _handleObservableType(ty, result);
       },
@@ -79,30 +67,31 @@ class ViewListener {
     switch (ty) {
       case FolderNotification.DidUpdateView:
         result.fold(
-          (payload) =>
-              _updatedViewNotifier.value = left(ViewPB.fromBuffer(payload)),
-          (error) => _updatedViewNotifier.value = right(error),
+          (payload) {
+            final view = ViewPB.fromBuffer(payload);
+            _updatedViewNotifier?.call(view);
+          },
+          (error) => Log.error(error),
         );
         break;
       case FolderNotification.DidDeleteView:
         result.fold(
-          (payload) =>
-              _deletedNotifier.value = left(ViewPB.fromBuffer(payload)),
-          (error) => _deletedNotifier.value = right(error),
+          (payload) => _deletedNotifier?.call(left(ViewPB.fromBuffer(payload))),
+          (error) => _deletedNotifier?.call(right(error)),
         );
         break;
       case FolderNotification.DidRestoreView:
         result.fold(
           (payload) =>
-              _restoredNotifier.value = left(ViewPB.fromBuffer(payload)),
-          (error) => _restoredNotifier.value = right(error),
+              _restoredNotifier?.call(left(ViewPB.fromBuffer(payload))),
+          (error) => _restoredNotifier?.call(right(error)),
         );
         break;
       case FolderNotification.DidMoveViewToTrash:
         result.fold(
-          (payload) => _moveToTrashNotifier.value =
-              left(DeletedViewPB.fromBuffer(payload)),
-          (error) => _moveToTrashNotifier.value = right(error),
+          (payload) => _moveToTrashNotifier
+              ?.call(left(DeletedViewPB.fromBuffer(payload))),
+          (error) => _moveToTrashNotifier?.call(right(error)),
         );
         break;
       default:
@@ -111,10 +100,11 @@ class ViewListener {
   }
 
   Future<void> stop() async {
+    _isDisposed = true;
     _parser = null;
     await _subscription?.cancel();
-    _updatedViewNotifier.dispose();
-    _deletedNotifier.dispose();
-    _restoredNotifier.dispose();
+    _updatedViewNotifier = null;
+    _deletedNotifier = null;
+    _restoredNotifier = null;
   }
 }

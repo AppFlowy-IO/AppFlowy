@@ -1,14 +1,15 @@
 use std::path::PathBuf;
 use std::{collections::HashMap, sync::Arc, time::Duration};
 
-use collab_persistence::kv::rocks_kv::RocksCollabDB;
+use appflowy_integrate::RocksCollabDB;
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
 
-use flowy_error::FlowyError;
+use flowy_error::{ErrorCode, FlowyError};
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{schema::user_table, DBConnection, Database};
-use user_model::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
+
+use crate::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 
 pub struct UserDB {
   db_dir: String,
@@ -40,8 +41,8 @@ impl UserDB {
 
     tracing::trace!("open user db {} at path: {}", user_id, dir);
     let db = flowy_sqlite::init(&dir).map_err(|e| {
-      tracing::error!("open user: {} db failed, {:?}", user_id, e);
-      FlowyError::internal().context(e)
+      tracing::error!("open user db failed, {:?}", e);
+      FlowyError::new(ErrorCode::MultipleDBInstance, e)
     })?;
     let pool = db.get_pool();
     write_guard.insert(user_id.to_owned(), db);
@@ -49,7 +50,7 @@ impl UserDB {
     Ok(pool)
   }
 
-  fn open_kv_db_if_need(&self, user_id: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
+  fn open_collab_db_if_need(&self, user_id: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
     if let Some(kv) = COLLAB_DB_MAP.read().get(&user_id) {
       return Ok(kv.clone());
     }
@@ -64,9 +65,17 @@ impl UserDB {
     let mut dir = PathBuf::new();
     dir.push(&self.db_dir);
     dir.push(user_id.to_string());
+    dir.push("collab_db");
 
-    tracing::trace!("open kv db {} at path: {:?}", user_id, dir);
-    let db = RocksCollabDB::open(dir).map_err(|err| FlowyError::internal().context(err))?;
+    tracing::trace!("open collab db {} at path: {:?}", user_id, dir);
+    let db = match RocksCollabDB::open(dir) {
+      Ok(db) => Ok(db),
+      Err(err) => {
+        tracing::error!("open collab db failed, {:?}", err);
+        Err(FlowyError::new(ErrorCode::MultipleDBInstance, err))
+      },
+    }?;
+
     let db = Arc::new(db);
     write_guard.insert(user_id.to_owned(), db.clone());
     drop(write_guard);
@@ -93,9 +102,9 @@ impl UserDB {
     Ok(pool)
   }
 
-  pub(crate) fn get_kv_db(&self, user_id: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
-    let kv_db = self.open_kv_db_if_need(user_id)?;
-    Ok(kv_db)
+  pub(crate) fn get_collab_db(&self, user_id: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
+    let collab_db = self.open_collab_db_if_need(user_id)?;
+    Ok(collab_db)
   }
 }
 
@@ -104,27 +113,29 @@ lazy_static! {
   static ref COLLAB_DB_MAP: RwLock<HashMap<i64, Arc<RocksCollabDB>>> = RwLock::new(HashMap::new());
 }
 
+/// The order of the fields in the struct must be the same as the order of the fields in the table.
+/// Check out the [schema.rs] for table schema.
 #[derive(Clone, Default, Queryable, Identifiable, Insertable)]
 #[table_name = "user_table"]
 pub struct UserTable {
   pub(crate) id: String,
   pub(crate) name: String,
-  pub(crate) token: String,
-  pub(crate) email: String,
-  pub(crate) workspace: String, // deprecated
+  pub(crate) workspace: String,
   pub(crate) icon_url: String,
   pub(crate) openai_key: String,
+  pub(crate) token: String,
+  pub(crate) email: String,
 }
 
 impl UserTable {
-  pub fn new(id: String, name: String, email: String, token: String) -> Self {
+  pub fn new(id: String, name: String, email: String, token: String, workspace_id: String) -> Self {
     Self {
       id,
       name,
       email,
       token,
       icon_url: "".to_owned(),
-      workspace: "".to_owned(),
+      workspace: workspace_id,
       openai_key: "".to_owned(),
     }
   }
@@ -137,13 +148,29 @@ impl UserTable {
 
 impl From<SignUpResponse> for UserTable {
   fn from(resp: SignUpResponse) -> Self {
-    UserTable::new(resp.user_id.to_string(), resp.name, resp.email, resp.token)
+    UserTable {
+      id: resp.user_id.to_string(),
+      name: resp.name,
+      token: resp.token.unwrap_or_default(),
+      email: resp.email.unwrap_or_default(),
+      workspace: resp.workspace_id,
+      icon_url: "".to_string(),
+      openai_key: "".to_string(),
+    }
   }
 }
 
 impl From<SignInResponse> for UserTable {
   fn from(resp: SignInResponse) -> Self {
-    UserTable::new(resp.user_id.to_string(), resp.name, resp.email, resp.token)
+    UserTable {
+      id: resp.user_id.to_string(),
+      name: resp.name,
+      token: resp.token.unwrap_or_default(),
+      email: resp.email.unwrap_or_default(),
+      workspace: resp.workspace_id,
+      icon_url: "".to_string(),
+      openai_key: "".to_string(),
+    }
   }
 }
 
@@ -156,6 +183,7 @@ impl From<UserTable> for UserProfile {
       token: table.token,
       icon_url: table.icon_url,
       openai_key: table.openai_key,
+      workspace_id: table.workspace,
     }
   }
 }

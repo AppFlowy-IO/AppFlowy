@@ -4,7 +4,7 @@ use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::{GroupPB, InsertedRowPB, RowPB};
+use crate::entities::{GroupPB, InsertedRowPB, RowMetaPB};
 
 #[derive(Debug, Default, ProtoBuf)]
 pub struct GroupRowsNotificationPB {
@@ -21,7 +21,7 @@ pub struct GroupRowsNotificationPB {
   pub deleted_rows: Vec<String>,
 
   #[pb(index = 5)]
-  pub updated_rows: Vec<RowPB>,
+  pub updated_rows: Vec<RowMetaPB>,
 }
 
 impl std::fmt::Display for GroupRowsNotificationPB {
@@ -29,7 +29,7 @@ impl std::fmt::Display for GroupRowsNotificationPB {
     for inserted_row in &self.inserted_rows {
       f.write_fmt(format_args!(
         "Insert: {} row at {:?}",
-        inserted_row.row.id, inserted_row.index
+        inserted_row.row_meta.id, inserted_row.index
       ))?;
     }
 
@@ -80,7 +80,7 @@ impl GroupRowsNotificationPB {
     }
   }
 
-  pub fn update(group_id: String, updated_rows: Vec<RowPB>) -> Self {
+  pub fn update(group_id: String, updated_rows: Vec<RowMetaPB>) -> Self {
     Self {
       group_id,
       updated_rows,
@@ -129,7 +129,7 @@ impl TryInto<MoveGroupParams> for MoveGroupPayloadPB {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct GroupChangesetPB {
+pub struct GroupChangesPB {
   #[pb(index = 1)]
   pub view_id: String,
 
@@ -146,7 +146,7 @@ pub struct GroupChangesetPB {
   pub update_groups: Vec<GroupPB>,
 }
 
-impl GroupChangesetPB {
+impl GroupChangesPB {
   pub fn is_empty(&self) -> bool {
     self.initial_groups.is_empty()
       && self.inserted_groups.is_empty()

@@ -27,7 +27,6 @@ mod tests {
     let data = DateCellData {
       timestamp: Some(1647251762),
       include_time: true,
-      timezone_id: "".to_owned(),
     };
 
     assert_eq!(
@@ -73,15 +72,14 @@ mod tests {
     let field_type = FieldType::MultiSelect;
 
     let france = SelectOption::new("france");
-    let france_option_id = france.id.clone();
-
     let argentina = SelectOption::new("argentina");
-    let argentina_option_id = argentina.id.clone();
-
     let multi_select = MultiSelectTypeOption {
       options: vec![france.clone(), argentina.clone()],
       disable_color: false,
     };
+
+    let france_option_id = france.id;
+    let argentina_option_id = argentina.id;
 
     let field_rev = FieldBuilder::new(field_type.clone(), multi_select).build();
 

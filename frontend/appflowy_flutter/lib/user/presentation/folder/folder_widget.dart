@@ -2,9 +2,13 @@ import 'dart:io';
 
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../generated/locale_keys.g.dart';
 import '../../../startup/startup.dart';
@@ -19,9 +23,9 @@ enum _FolderPage {
 
 class FolderWidget extends StatefulWidget {
   const FolderWidget({
-    Key? key,
+    super.key,
     required this.createFolderCallback,
-  }) : super(key: key);
+  });
 
   final Future<void> Function() createFolderCallback;
 
@@ -41,9 +45,6 @@ class _FolderWidgetState extends State<FolderWidget> {
     switch (page) {
       case _FolderPage.options:
         return FolderOptionsWidget(
-          onPressedCreate: () {
-            setState(() => page = _FolderPage.create);
-          },
           onPressedOpen: () {
             _openFolder();
           },
@@ -61,47 +62,40 @@ class _FolderWidgetState extends State<FolderWidget> {
   }
 
   Future<void> _openFolder() async {
-    final directory = await getIt<FilePickerService>().getDirectoryPath();
-    if (directory != null) {
-      await getIt<SettingsLocationCubit>().setLocation(directory);
+    final path = await getIt<FilePickerService>().getDirectoryPath();
+    if (path != null) {
+      await getIt<LocalFileStorage>().setPath(path);
       await widget.createFolderCallback();
+      setState(() {});
     }
   }
 }
 
 class FolderOptionsWidget extends StatelessWidget {
   const FolderOptionsWidget({
-    Key? key,
-    required this.onPressedCreate,
+    super.key,
     required this.onPressedOpen,
-  }) : super(key: key);
+  });
 
-  final VoidCallback onPressedCreate;
   final VoidCallback onPressedOpen;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _FolderCard(
-          title: LocaleKeys.settings_files_createNewFolder.tr(),
-          subtitle: LocaleKeys.settings_files_createNewFolderDesc.tr(),
+    return FutureBuilder(
+      future: getIt<LocalFileStorage>().getPath(),
+      builder: (context, result) {
+        final subtitle = result.hasData ? result.data! : '';
+        return _FolderCard(
+          icon: const FlowySvg(name: 'common/archive'),
+          title: LocaleKeys.settings_files_defineWhereYourDataIsStored.tr(),
+          subtitle: subtitle,
           trailing: _buildTextButton(
             context,
-            LocaleKeys.settings_files_create.tr(),
-            onPressedCreate,
-          ),
-        ),
-        _FolderCard(
-          title: LocaleKeys.settings_files_openFolder.tr(),
-          subtitle: LocaleKeys.settings_files_openFolderDesc.tr(),
-          trailing: _buildTextButton(
-            context,
-            LocaleKeys.settings_files_open.tr(),
+            LocaleKeys.settings_files_set.tr(),
             onPressedOpen,
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 }
@@ -188,7 +182,7 @@ class CreateFolderWidgetState extends State<CreateFolderWidget> {
                       LocaleKeys.settings_files_locationCannotBeEmpty.tr(),
                     );
                   } else {
-                    await getIt<SettingsLocationCubit>().setLocation(_path);
+                    await getIt<LocalFileStorage>().setPath(_path);
                     await widget.onPressedCreate();
                   }
                 },
@@ -224,27 +218,27 @@ Widget _buildTextButton(
   String title,
   VoidCallback onPressed,
 ) {
-  return FlowyTextButton(
-    title,
-    onPressed: onPressed,
-    fillColor: Theme.of(context).colorScheme.primary,
-    fontColor: Theme.of(context).colorScheme.onPrimary,
-    hoverColor: Theme.of(context).colorScheme.primaryContainer,
+  return SizedBox(
+    width: 60,
+    child: SecondaryTextButton(
+      title,
+      mode: SecondaryTextButtonMode.small,
+      onPressed: onPressed,
+    ),
   );
 }
 
 class _FolderCard extends StatelessWidget {
   const _FolderCard({
-    Key? key,
     required this.title,
     required this.subtitle,
     this.trailing,
-  }) : super(key: key);
+    this.icon,
+  });
 
   final String title;
-
   final String subtitle;
-
+  final Widget? icon;
   final Widget? trailing;
 
   @override
@@ -252,31 +246,35 @@ class _FolderCard extends StatelessWidget {
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          vertical: 4.0,
+          vertical: 16.0,
           horizontal: 16.0,
         ),
         child: Row(
           children: [
+            if (icon != null)
+              Padding(
+                padding: const EdgeInsets.only(right: 20),
+                child: icon!,
+              ),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  FlowyText.medium(
+                  FlowyText.regular(
                     title,
+                    fontSize: FontSizes.s14,
+                    fontFamily: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w500,
+                    ).fontFamily,
                   ),
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          subtitle,
-                          overflow: TextOverflow.ellipsis,
-                          style:
-                              Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                        ),
-                      ),
-                    ],
+                  const VSpace(4),
+                  FlowyText.regular(
+                    subtitle,
+                    overflow: TextOverflow.ellipsis,
+                    fontSize: FontSizes.s12,
+                    fontFamily: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w300,
+                    ).fontFamily,
                   ),
                 ],
               ),

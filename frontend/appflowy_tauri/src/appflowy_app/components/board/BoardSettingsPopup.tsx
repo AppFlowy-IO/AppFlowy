@@ -14,7 +14,7 @@ export const BoardSettingsPopup = ({
   onGroupClick: () => void;
 }) => {
   const [settingsItems, setSettingsItems] = useState<IPopupItem[]>([]);
-  const { t } = useTranslation('');
+  const { t } = useTranslation();
   useEffect(() => {
     setSettingsItems([
       {

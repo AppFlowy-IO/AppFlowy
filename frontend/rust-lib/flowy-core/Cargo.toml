@@ -11,18 +11,16 @@ lib-log = { path = "../lib-log" }
 flowy-user = { path = "../flowy-user" }
 flowy-net = { path = "../flowy-net" }
 flowy-folder2 = { path = "../flowy-folder2" }
-#flowy-database = { path = "../flowy-database" }
 flowy-database2 = { path = "../flowy-database2" }
-database-model = { path = "../../../shared-lib/database-model" }
-user-model = { path = "../../../shared-lib/user-model" }
-flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws" }
-flowy-sqlite = { path = "../flowy-sqlite", optional = true }
-flowy-document = { path = "../flowy-document" }
+flowy-sqlite = { path = "../flowy-sqlite" }
 flowy-document2 = { path = "../flowy-document2" }
-flowy-revision = { path = "../flowy-revision" }
-flowy-error = { path = "../flowy-error", features = ["adaptor_ws"] }
+flowy-error = { path = "../flowy-error" }
 flowy-task = { path = "../flowy-task" }
-collab-persistence = { version = "0.1.0" }
+flowy-server = { path = "../flowy-server" }
+flowy-config = { path = "../flowy-config" }
+appflowy-integrate = { version = "0.1.0" }
+diesel = { version = "1.4.8", features = ["sqlite"] }
+uuid = { version = "1.3.3", features = ["v4"] }
 
 tracing = { version = "0.1", features = ["log"] }
 futures-core = { version = "0.3", default-features = false }
@@ -31,38 +29,35 @@ tokio = { version = "1.26", features = ["full"] }
 console-subscriber = { version = "0.1.8", optional = true }
 parking_lot = "0.12.1"
 
-revision-model = { path = "../../../shared-lib/revision-model" }
-ws-model = { path = "../../../shared-lib/ws-model" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 serde = "1.0"
 serde_json = "1.0"
+serde_repr = "0.1"
 
 [features]
 default = ["rev-sqlite"]
 profiling = ["console-subscriber", "tokio/tracing"]
-http_sync = ["flowy-document/cloud_sync"]
-native_sync = ["flowy-document/cloud_sync"]
+http_sync = []
+native_sync = []
 use_bunyan = ["lib-log/use_bunyan"]
 dart = [
     "flowy-user/dart",
     "flowy-net/dart",
     "flowy-folder2/dart",
     "flowy-database2/dart",
-    "flowy-document/dart",
     "flowy-document2/dart",
+    "flowy-config/dart",
 ]
 ts = [
     "flowy-user/ts",
     "flowy-net/ts",
     "flowy-folder2/ts",
     "flowy-database2/ts",
-    "flowy-document/ts",
     "flowy-document2/ts",
+    "flowy-config/ts",
 ]
 rev-sqlite = [
-    "flowy-sqlite",
     "flowy-user/rev-sqlite",
-    "flowy-document/rev-sqlite",
 ]
 openssl_vendored = ["flowy-sqlite/openssl_vendored"]

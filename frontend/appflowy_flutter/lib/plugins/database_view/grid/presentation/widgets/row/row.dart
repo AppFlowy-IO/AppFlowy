@@ -1,6 +1,6 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -20,34 +20,42 @@ import "package:appflowy/generated/locale_keys.g.dart";
 import 'package:easy_localization/easy_localization.dart';
 
 class GridRow extends StatefulWidget {
-  final RowInfo rowInfo;
+  final RowId viewId;
+  final RowId rowId;
   final RowController dataController;
   final GridCellBuilder cellBuilder;
   final void Function(BuildContext, GridCellBuilder) openDetailPage;
 
+  final int? index;
+  final bool isDraggable;
+
   const GridRow({
-    required this.rowInfo,
+    super.key,
+    required this.viewId,
+    required this.rowId,
     required this.dataController,
     required this.cellBuilder,
     required this.openDetailPage,
-    Key? key,
-  }) : super(key: key);
+    this.index,
+    this.isDraggable = false,
+  });
 
   @override
   State<GridRow> createState() => _GridRowState();
 }
 
 class _GridRowState extends State<GridRow> {
-  late RowBloc _rowBloc;
+  late final RowBloc _rowBloc;
 
   @override
   void initState() {
+    super.initState();
     _rowBloc = RowBloc(
-      rowInfo: widget.rowInfo,
+      rowId: widget.rowId,
       dataController: widget.dataController,
+      viewId: widget.viewId,
     );
     _rowBloc.add(const RowEvent.initial());
-    super.initState();
   }
 
   @override
@@ -56,7 +64,8 @@ class _GridRowState extends State<GridRow> {
       value: _rowBloc,
       child: _RowEnterRegion(
         child: BlocBuilder<RowBloc, RowState>(
-          buildWhen: (p, c) => p.rowInfo.rowPB.height != c.rowInfo.rowPB.height,
+          // The row need to rebuild when the cell count changes.
+          buildWhen: (p, c) => p.cellByFieldId.length != c.cellByFieldId.length,
           builder: (context, state) {
             final content = Expanded(
               child: RowContent(
@@ -70,9 +79,11 @@ class _GridRowState extends State<GridRow> {
 
             return Row(
               children: [
-                const _RowLeading(),
+                _RowLeading(
+                  index: widget.index,
+                  isDraggable: widget.isDraggable,
+                ),
                 content,
-                const _RowTrailing(),
               ],
             );
           },
@@ -89,19 +100,25 @@ class _GridRowState extends State<GridRow> {
 }
 
 class _RowLeading extends StatefulWidget {
-  const _RowLeading({Key? key}) : super(key: key);
+  final int? index;
+  final bool isDraggable;
+
+  const _RowLeading({
+    this.index,
+    this.isDraggable = false,
+  });
 
   @override
   State<_RowLeading> createState() => _RowLeadingState();
 }
 
 class _RowLeadingState extends State<_RowLeading> {
-  late PopoverController popoverController;
+  late final PopoverController popoverController;
 
   @override
   void initState() {
-    popoverController = PopoverController();
     super.initState();
+    popoverController = PopoverController();
   }
 
   @override
@@ -113,7 +130,11 @@ class _RowLeadingState extends State<_RowLeading> {
       direction: PopoverDirection.rightWithCenterAligned,
       margin: const EdgeInsets.all(6),
       popupBuilder: (BuildContext popoverContext) {
-        return RowActions(rowData: context.read<RowBloc>().state.rowInfo);
+        final bloc = context.read<RowBloc>();
+        return RowActions(
+          viewId: bloc.viewId,
+          rowId: bloc.rowId,
+        );
       },
       child: Consumer<RegionStateNotifier>(
         builder: (context, state, _) {
@@ -130,28 +151,33 @@ class _RowLeadingState extends State<_RowLeading> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const _InsertButton(),
-        _MenuButton(
-          openMenu: () {
-            popoverController.show();
-          },
-        ),
+        const InsertRowButton(),
+        if (isDraggable) ...[
+          ReorderableDragStartListener(
+            index: widget.index!,
+            child: RowMenuButton(
+              isDragEnabled: isDraggable,
+              openMenu: () {
+                popoverController.show();
+              },
+            ),
+          ),
+        ] else ...[
+          RowMenuButton(
+            openMenu: () {
+              popoverController.show();
+            },
+          ),
+        ],
       ],
     );
   }
+
+  bool get isDraggable => widget.index != null && widget.isDraggable;
 }
 
-class _RowTrailing extends StatelessWidget {
-  const _RowTrailing({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox();
-  }
-}
-
-class _InsertButton extends StatelessWidget {
-  const _InsertButton({Key? key}) : super(key: key);
+class InsertRowButton extends StatelessWidget {
+  const InsertRowButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -170,27 +196,34 @@ class _InsertButton extends StatelessWidget {
   }
 }
 
-class _MenuButton extends StatefulWidget {
+class RowMenuButton extends StatefulWidget {
   final VoidCallback openMenu;
-  const _MenuButton({
+  final bool isDragEnabled;
+
+  const RowMenuButton({
     required this.openMenu,
-    Key? key,
-  }) : super(key: key);
+    this.isDragEnabled = false,
+    super.key,
+  });
 
   @override
-  State<_MenuButton> createState() => _MenuButtonState();
+  State<RowMenuButton> createState() => _RowMenuButtonState();
 }
 
-class _MenuButtonState extends State<_MenuButton> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
+class _RowMenuButtonState extends State<RowMenuButton> {
   @override
   Widget build(BuildContext context) {
     return FlowyIconButton(
-      tooltipText: LocaleKeys.tooltip_openMenu.tr(),
+      tooltipText:
+          widget.isDragEnabled ? null : LocaleKeys.tooltip_openMenu.tr(),
+      richTooltipText: widget.isDragEnabled
+          ? TextSpan(
+              children: [
+                TextSpan(text: '${LocaleKeys.tooltip_dragRow.tr()}\n'),
+                TextSpan(text: LocaleKeys.tooltip_openMenu.tr()),
+              ],
+            )
+          : null,
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       width: 20,
       height: 30,
@@ -231,7 +264,10 @@ class RowContent extends StatelessWidget {
     );
   }
 
-  List<Widget> _makeCells(BuildContext context, CellByFieldId cellByFieldId) {
+  List<Widget> _makeCells(
+    BuildContext context,
+    CellContextByFieldId cellByFieldId,
+  ) {
     return cellByFieldId.values.map(
       (cellId) {
         final GridCellWidget child = builder.build(cellId);
@@ -242,7 +278,7 @@ class RowContent extends StatelessWidget {
           cellContainerNotifier: CellContainerNotifier(child),
           accessoryBuilder: (buildContext) {
             final builder = child.accessoryBuilder;
-            List<GridCellAccessoryBuilder> accessories = [];
+            final List<GridCellAccessoryBuilder> accessories = [];
             if (cellId.fieldInfo.isPrimary) {
               accessories.add(
                 GridCellAccessoryBuilder(
@@ -258,6 +294,7 @@ class RowContent extends StatelessWidget {
             if (builder != null) {
               accessories.addAll(builder(buildContext));
             }
+
             return accessories;
           },
           child: child,
@@ -289,12 +326,12 @@ class _RowEnterRegion extends StatefulWidget {
 }
 
 class _RowEnterRegionState extends State<_RowEnterRegion> {
-  late RegionStateNotifier _rowStateNotifier;
+  late final RegionStateNotifier _rowStateNotifier;
 
   @override
   void initState() {
-    _rowStateNotifier = RegionStateNotifier();
     super.initState();
+    _rowStateNotifier = RegionStateNotifier();
   }
 
   @override

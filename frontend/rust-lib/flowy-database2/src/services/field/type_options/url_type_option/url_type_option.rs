@@ -47,20 +47,20 @@ impl From<URLTypeOption> for TypeOptionData {
 impl TypeOptionTransform for URLTypeOption {}
 
 impl TypeOptionCellData for URLTypeOption {
-  fn convert_to_protobuf(
+  fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     cell_data.into()
   }
 
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
+  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     Ok(URLCellData::from(cell))
   }
 }
 
 impl CellDataDecoder for URLTypeOption {
-  fn decode_cell_str(
+  fn decode_cell(
     &self,
     cell: &Cell,
     decoded_field_type: &FieldType,
@@ -70,16 +70,16 @@ impl CellDataDecoder for URLTypeOption {
       return Ok(Default::default());
     }
 
-    self.decode_cell(cell)
+    self.parse_cell(cell)
   }
 
-  fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+  fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     cell_data.data
   }
 
-  fn decode_cell_to_str(&self, cell: &Cell) -> String {
+  fn stringify_cell(&self, cell: &Cell) -> String {
     let cell_data = Self::CellData::from(cell);
-    self.decode_cell_data_to_str(cell_data)
+    self.stringify_cell_data(cell_data)
   }
 }
 

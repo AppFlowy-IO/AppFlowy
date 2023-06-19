@@ -1,17 +1,11 @@
 import { Err, Ok } from 'ts-results';
 import {
   FolderEventCreateView,
-  FolderEventMoveItem,
-  FolderEventReadWorkspaceApps,
-  FolderEventReadWorkspaces,
+  FolderEventMoveView,
+  FolderEventReadWorkspaceViews,
+  FolderEventReadAllWorkspaces,
 } from '@/services/backend/events/flowy-folder2';
-import {
-  CreateViewPayloadPB,
-  FlowyError,
-  MoveFolderItemPayloadPB,
-  ViewLayoutPB,
-  WorkspaceIdPB,
-} from '@/services/backend';
+import { CreateViewPayloadPB, FlowyError, MoveViewPayloadPB, ViewLayoutPB, WorkspaceIdPB } from '@/services/backend';
 import assert from 'assert';
 
 export class WorkspaceBackendService {
@@ -19,7 +13,7 @@ export class WorkspaceBackendService {
 
   createApp = async (params: { name: string; desc?: string }) => {
     const payload = CreateViewPayloadPB.fromObject({
-      belong_to_id: this.workspaceId,
+      parent_view_id: this.workspaceId,
       name: params.name,
       desc: params.desc || '',
       layout: ViewLayoutPB.Document,
@@ -35,7 +29,7 @@ export class WorkspaceBackendService {
 
   getWorkspace = () => {
     const payload = WorkspaceIdPB.fromObject({ value: this.workspaceId });
-    return FolderEventReadWorkspaces(payload).then((result) => {
+    return FolderEventReadAllWorkspaces(payload).then((result) => {
       if (result.ok) {
         const workspaces = result.val.items;
         if (workspaces.length === 0) {
@@ -52,15 +46,15 @@ export class WorkspaceBackendService {
 
   getApps = () => {
     const payload = WorkspaceIdPB.fromObject({ value: this.workspaceId });
-    return FolderEventReadWorkspaceApps(payload).then((result) => result.map((val) => val.items));
+    return FolderEventReadWorkspaceViews(payload).then((result) => result.map((val) => val.items));
   };
 
   moveApp = (params: { appId: string; fromIndex: number; toIndex: number }) => {
-    const payload = MoveFolderItemPayloadPB.fromObject({
-      item_id: params.appId,
+    const payload = MoveViewPayloadPB.fromObject({
+      view_id: params.appId,
       from: params.fromIndex,
       to: params.toIndex,
     });
-    return FolderEventMoveItem(payload);
+    return FolderEventMoveView(payload);
   };
 }

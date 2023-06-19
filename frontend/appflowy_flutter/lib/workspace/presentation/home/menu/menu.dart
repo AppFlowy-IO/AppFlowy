@@ -131,7 +131,7 @@ class HomeMenu extends StatelessWidget {
                   //  expect:   oldIndex: 0, newIndex: 1
                   //  receive:  oldIndex: 0, newIndex: 2
                   //  Workaround: if newIndex > oldIndex, we just minus one
-                  int index = newIndex > oldIndex ? newIndex - 1 : newIndex;
+                  final int index = newIndex > oldIndex ? newIndex - 1 : newIndex;
                   context
                       .read<MenuBloc>()
                       .add(MenuEvent.moveApp(oldIndex, index));
@@ -149,6 +149,8 @@ class HomeMenu extends StatelessWidget {
                     ),
                   );
                 },
+                proxyDecorator: (child, index, animation) =>
+                    Material(color: Colors.transparent, child: child),
               );
             },
           ),

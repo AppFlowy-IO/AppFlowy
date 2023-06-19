@@ -33,7 +33,18 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             final rowService = RowBackendService(
               viewId: rowInfo.viewId,
             );
-            await rowService.deleteRow(rowInfo.rowPB.id);
+            await rowService.deleteRow(rowInfo.rowId);
+          },
+          moveRow: (int from, int to) {
+            final List<RowInfo> rows = [...state.rowInfos];
+
+            final fromRow = rows[from].rowId;
+            final toRow = rows[to].rowId;
+
+            rows.insert(to, rows.removeAt(from));
+            emit(state.copyWith(rowInfos: rows));
+
+            databaseController.moveRow(fromRowId: fromRow, toRowId: toRow);
           },
           didReceiveGridUpdate: (grid) {
             emit(state.copyWith(grid: Some(grid)));
@@ -45,7 +56,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
               ),
             );
           },
-          didReceiveRowUpdate: (newRowInfos, reason) {
+          didLoadRows: (newRowInfos, reason) {
             emit(
               state.copyWith(
                 rowInfos: newRowInfos,
@@ -65,7 +76,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     return super.close();
   }
 
-  RowCache? getRowCache(RowId rowId) {
+  RowCache getRowCache(RowId rowId) {
     return databaseController.rowCache;
   }
 
@@ -76,10 +87,15 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           add(GridEvent.didReceiveGridUpdate(database));
         }
       },
-      onRowsChanged: (rowInfos, _, reason) {
+      onNumOfRowsChanged: (rowInfos, _, reason) {
         if (!isClosed) {
-          add(GridEvent.didReceiveRowUpdate(rowInfos, reason));
+          add(GridEvent.didLoadRows(rowInfos, reason));
         }
+      },
+      onRowsUpdated: (rows, reason) {
+        add(
+          GridEvent.didLoadRows(databaseController.rowCache.rowInfos, reason),
+        );
       },
       onFieldsChanged: (fields) {
         if (!isClosed) {
@@ -110,9 +126,10 @@ class GridEvent with _$GridEvent {
   const factory GridEvent.initial() = InitialGrid;
   const factory GridEvent.createRow() = _CreateRow;
   const factory GridEvent.deleteRow(RowInfo rowInfo) = _DeleteRow;
-  const factory GridEvent.didReceiveRowUpdate(
+  const factory GridEvent.moveRow(int from, int to) = _MoveRow;
+  const factory GridEvent.didLoadRows(
     List<RowInfo> rows,
-    RowsChangedReason listState,
+    RowsChangedReason reason,
   ) = _DidReceiveRowUpdate;
   const factory GridEvent.didReceiveFieldUpdate(
     List<FieldInfo> fields,

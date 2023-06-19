@@ -68,18 +68,15 @@ class CellContainer extends StatelessWidget {
     if (isFocus) {
       final borderSide = BorderSide(
         color: Theme.of(context).colorScheme.primary,
-        width: 1.0,
       );
+
       return BoxDecoration(border: Border.fromBorderSide(borderSide));
-    } else {
-      final borderSide = BorderSide(
-        color: Theme.of(context).dividerColor,
-        width: 1.0,
-      );
-      return BoxDecoration(
-        border: Border(right: borderSide, bottom: borderSide),
-      );
     }
+
+    final borderSide = BorderSide(color: Theme.of(context).dividerColor);
+    return BoxDecoration(
+      border: Border(right: borderSide, bottom: borderSide),
+    );
   }
 }
 
@@ -101,7 +98,7 @@ class _GridCellEnterRegion extends StatelessWidget {
           !cellNotifier.isFocus &&
           (cellNotifier.onEnter || regionNotifier.onEnter && isPrimary),
       builder: (context, showAccessory, _) {
-        List<Widget> children = [child];
+        final List<Widget> children = [child];
         if (showAccessory) {
           children.add(
             CellAccessoryContainer(accessories: accessories).positioned(

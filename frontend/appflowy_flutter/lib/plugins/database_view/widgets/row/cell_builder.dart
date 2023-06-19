@@ -14,20 +14,24 @@ import 'cells/select_option_cell/select_option_cell.dart';
 import 'cells/text_cell/text_cell.dart';
 import 'cells/url_cell/url_cell.dart';
 
+/// Build the cell widget in Grid style.
 class GridCellBuilder {
   final CellCache cellCache;
   GridCellBuilder({
     required this.cellCache,
   });
 
-  GridCellWidget build(CellIdentifier cellId, {GridCellStyle? style}) {
+  GridCellWidget build(
+    DatabaseCellContext cellContext, {
+    GridCellStyle? style,
+  }) {
     final cellControllerBuilder = CellControllerBuilder(
-      cellId: cellId,
+      cellContext: cellContext,
       cellCache: cellCache,
     );
 
-    final key = cellId.key();
-    switch (cellId.fieldType) {
+    final key = cellContext.key();
+    switch (cellContext.fieldType) {
       case FieldType.Checkbox:
         return GridCheckboxCell(
           cellControllerBuilder: cellControllerBuilder,
@@ -38,6 +42,16 @@ class GridCellBuilder {
           cellControllerBuilder: cellControllerBuilder,
           key: key,
           style: style,
+          fieldType: cellContext.fieldType,
+        );
+      case FieldType.LastEditedTime:
+      case FieldType.CreatedTime:
+        return GridDateCell(
+          cellControllerBuilder: cellControllerBuilder,
+          key: key,
+          editable: false,
+          style: style,
+          fieldType: cellContext.fieldType,
         );
       case FieldType.SingleSelect:
         return GridSingleSelectCell(
@@ -74,6 +88,7 @@ class GridCellBuilder {
           key: key,
         );
     }
+
     throw UnimplementedError;
   }
 }
@@ -83,7 +98,7 @@ class BlankCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return const SizedBox.shrink();
   }
 }
 

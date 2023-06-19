@@ -9,11 +9,12 @@ use crate::event_handler::*;
 use crate::manager::DatabaseManager2;
 
 pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
-  let mut plugin = AFPlugin::new()
+  let plugin = AFPlugin::new()
     .name(env!("CARGO_PKG_NAME"))
     .state(database_manager);
-  plugin = plugin
+  plugin
         .event(DatabaseEvent::GetDatabase, get_database_data_handler)
+        .event(DatabaseEvent::GetDatabaseId, get_database_id_handler)
         .event(DatabaseEvent::GetDatabaseSetting, get_database_setting_handler)
         .event(DatabaseEvent::UpdateDatabaseSetting, update_database_setting_handler)
         .event(DatabaseEvent::GetAllFilters, get_all_filters_handler)
@@ -21,6 +22,7 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         .event(DatabaseEvent::DeleteAllSorts, delete_all_sorts_handler)
         // Field
         .event(DatabaseEvent::GetFields, get_fields_handler)
+        .event(DatabaseEvent::GetPrimaryField, get_primary_field_handler)
         .event(DatabaseEvent::UpdateField, update_field_handler)
         .event(DatabaseEvent::UpdateFieldTypeOption, update_field_type_option_handler)
         .event(DatabaseEvent::DeleteField, delete_field_handler)
@@ -32,6 +34,8 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         // Row
         .event(DatabaseEvent::CreateRow, create_row_handler)
         .event(DatabaseEvent::GetRow, get_row_handler)
+        .event(DatabaseEvent::GetRowMeta, get_row_meta_handler)
+        .event(DatabaseEvent::UpdateRowMeta, update_row_meta_handler)
         .event(DatabaseEvent::DeleteRow, delete_row_handler)
         .event(DatabaseEvent::DuplicateRow, duplicate_row_handler)
         .event(DatabaseEvent::MoveRow, move_row_handler)
@@ -44,6 +48,9 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         .event(DatabaseEvent::DeleteSelectOption, delete_select_option_handler)
         .event(DatabaseEvent::GetSelectOptionCellData, get_select_option_handler)
         .event(DatabaseEvent::UpdateSelectOptionCell, update_select_option_cell_handler)
+        // Checklist
+        .event(DatabaseEvent::GetChecklistCellData, get_checklist_cell_data_handler)
+        .event(DatabaseEvent::UpdateChecklistCell, update_checklist_cell_handler)
         // Date
         .event(DatabaseEvent::UpdateDateCell, update_date_cell_handler)
         // Group
@@ -51,16 +58,20 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         .event(DatabaseEvent::MoveGroupRow, move_group_row_handler)
         .event(DatabaseEvent::GetGroups, get_groups_handler)
         .event(DatabaseEvent::GetGroup, get_group_handler)
+        .event(DatabaseEvent::SetGroupByField, set_group_by_field_handler)
+        .event(DatabaseEvent::UpdateGroup, update_group_handler)
         // Database
         .event(DatabaseEvent::GetDatabases, get_databases_handler)
         // Calendar
         .event(DatabaseEvent::GetAllCalendarEvents, get_calendar_events_handler)
+        .event(DatabaseEvent::GetNoDateCalendarEvents, get_no_date_calendar_events_handler)
         .event(DatabaseEvent::GetCalendarEvent, get_calendar_event_handler)
+        .event(DatabaseEvent::MoveCalendarEvent, move_calendar_event_handler)
         // Layout setting
         .event(DatabaseEvent::SetLayoutSetting, set_layout_setting_handler)
-        .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler);
-
-  plugin
+        .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler)
+        .event(DatabaseEvent::CreateDatabaseView, create_database_view)
+        .event(DatabaseEvent::ExportCSV, export_csv_handler)
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -73,6 +84,9 @@ pub enum DatabaseEvent {
   /// The event handler accepts a [DatabaseViewIdPB] and returns a [DatabasePB] if there are no errors.
   #[event(input = "DatabaseViewIdPB", output = "DatabasePB")]
   GetDatabase = 0,
+
+  #[event(input = "DatabaseViewIdPB", output = "DatabaseIdPB")]
+  GetDatabaseId = 1,
 
   /// [GetDatabaseSetting] event is used to get the database's settings.
   ///
@@ -161,6 +175,9 @@ pub enum DatabaseEvent {
   #[event(input = "CreateFieldPayloadPB", output = "TypeOptionPB")]
   CreateTypeOption = 24,
 
+  #[event(input = "DatabaseViewIdPB", output = "FieldPB")]
+  GetPrimaryField = 25,
+
   /// [CreateSelectOption] event is used to create a new select option. Returns a [SelectOptionPB] if
   /// there are no errors.
   #[event(input = "CreateSelectOptionPayloadPB", output = "SelectOptionPB")]
@@ -184,7 +201,7 @@ pub enum DatabaseEvent {
   #[event(input = "RepeatedSelectOptionPayload")]
   DeleteSelectOption = 33,
 
-  #[event(input = "CreateRowPayloadPB", output = "RowPB")]
+  #[event(input = "CreateRowPayloadPB", output = "RowMetaPB")]
   CreateRow = 50,
 
   /// [GetRow] event is used to get the row data,[RowPB]. [OptionalRowPB] is a wrapper that enables
@@ -200,6 +217,12 @@ pub enum DatabaseEvent {
 
   #[event(input = "MoveRowPayloadPB")]
   MoveRow = 54,
+
+  #[event(input = "RowIdPB", output = "RowMetaPB")]
+  GetRowMeta = 55,
+
+  #[event(input = "UpdateRowMetaChangesetPB")]
+  UpdateRowMeta = 56,
 
   #[event(input = "CellIdPB", output = "CellPB")]
   GetCell = 70,
@@ -223,6 +246,12 @@ pub enum DatabaseEvent {
   #[event(input = "SelectOptionCellChangesetPB")]
   UpdateSelectOptionCell = 72,
 
+  #[event(input = "CellIdPB", output = "ChecklistCellDataPB")]
+  GetChecklistCellData = 73,
+
+  #[event(input = "ChecklistCellDataChangesetPB")]
+  UpdateChecklistCell = 74,
+
   /// [UpdateDateCell] event is used to update a date cell's data. [DateChangesetPB]
   /// contains the date and the time string. It can be cast to [CellChangesetPB] that
   /// will be used by the `update_cell` function.
@@ -241,22 +270,40 @@ pub enum DatabaseEvent {
   #[event(input = "MoveGroupRowPayloadPB")]
   MoveGroupRow = 112,
 
+  #[event(input = "GroupByFieldPayloadPB")]
+  SetGroupByField = 113,
+
+  #[event(input = "UpdateGroupPB")]
+  UpdateGroup = 114,
+
   /// Returns all the databases
   #[event(output = "RepeatedDatabaseDescriptionPB")]
-  GetDatabases = 114,
+  GetDatabases = 120,
 
   #[event(input = "LayoutSettingChangesetPB")]
-  SetLayoutSetting = 115,
+  SetLayoutSetting = 121,
 
-  #[event(input = "DatabaseLayoutIdPB", output = "LayoutSettingPB")]
-  GetLayoutSetting = 116,
+  #[event(input = "DatabaseLayoutMetaPB", output = "DatabaseLayoutSettingPB")]
+  GetLayoutSetting = 122,
 
   #[event(input = "CalendarEventRequestPB", output = "RepeatedCalendarEventPB")]
-  GetAllCalendarEvents = 117,
+  GetAllCalendarEvents = 123,
+
+  #[event(
+    input = "CalendarEventRequestPB",
+    output = "RepeatedNoDateCalendarEventPB"
+  )]
+  GetNoDateCalendarEvents = 124,
 
   #[event(input = "RowIdPB", output = "CalendarEventPB")]
-  GetCalendarEvent = 118,
+  GetCalendarEvent = 125,
 
   #[event(input = "MoveCalendarEventPB")]
-  MoveCalendarEvent = 119,
+  MoveCalendarEvent = 126,
+
+  #[event(input = "CreateDatabaseViewPayloadPB")]
+  CreateDatabaseView = 130,
+
+  #[event(input = "DatabaseViewIdPB", output = "DatabaseExportDataPB")]
+  ExportCSV = 141,
 }

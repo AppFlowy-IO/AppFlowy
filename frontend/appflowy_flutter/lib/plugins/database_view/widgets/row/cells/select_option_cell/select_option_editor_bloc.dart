@@ -5,19 +5,22 @@ import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'select_option_service.dart';
+import '../../../../application/cell/select_option_cell_service.dart';
 
 part 'select_option_editor_bloc.freezed.dart';
 
 class SelectOptionCellEditorBloc
     extends Bloc<SelectOptionEditorEvent, SelectOptionEditorState> {
-  final SelectOptionBackendService _selectOptionService;
+  final SelectOptionCellBackendService _selectOptionService;
   final SelectOptionCellController cellController;
 
   SelectOptionCellEditorBloc({
     required this.cellController,
-  })  : _selectOptionService =
-            SelectOptionBackendService(cellId: cellController.cellId),
+  })  : _selectOptionService = SelectOptionCellBackendService(
+          viewId: cellController.viewId,
+          fieldId: cellController.fieldId,
+          rowId: cellController.rowId,
+        ),
         super(SelectOptionEditorState.initial(cellController)) {
     on<SelectOptionEditorEvent>(
       (event, emit) async {

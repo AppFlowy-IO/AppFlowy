@@ -8,7 +8,6 @@ import 'package:appflowy_backend/protobuf/flowy-net/network_state.pb.dart';
 import 'package:isolates/isolates.dart';
 import 'package:isolates/ports.dart';
 import 'package:ffi/ffi.dart';
-// ignore: unused_import
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:typed_data';
@@ -16,13 +15,14 @@ import 'package:appflowy_backend/ffi.dart' as ffi;
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_backend/protobuf/dart-ffi/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 
 // ignore: unused_import
 import 'package:protobuf/protobuf.dart';
 import 'dart:convert' show utf8;
+import '../protobuf/flowy-config/entities.pb.dart';
+import '../protobuf/flowy-config/event_map.pb.dart';
 import '../protobuf/flowy-net/event_map.pb.dart';
 import 'error.dart';
 
@@ -30,8 +30,8 @@ part 'dart_event/flowy-folder2/dart_event.dart';
 part 'dart_event/flowy-net/dart_event.dart';
 part 'dart_event/flowy-user/dart_event.dart';
 part 'dart_event/flowy-database2/dart_event.dart';
-part 'dart_event/flowy-document/dart_event.dart';
 part 'dart_event/flowy-document2/dart_event.dart';
+part 'dart_event/flowy-config/dart_event.dart';
 
 enum FFIException {
   RequestIsEmpty,

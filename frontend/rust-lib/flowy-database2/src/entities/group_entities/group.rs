@@ -4,8 +4,8 @@ use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::{FieldType, RowPB};
-use crate::services::group::{GroupData, GroupSetting};
+use crate::entities::{FieldType, RowMetaPB};
+use crate::services::group::{GroupChangeset, GroupData, GroupSetting};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct GroupSettingPB {
@@ -21,6 +21,29 @@ impl std::convert::From<&GroupSetting> for GroupSettingPB {
     GroupSettingPB {
       id: rev.id.clone(),
       field_id: rev.field_id.clone(),
+    }
+  }
+}
+
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct RepeatedGroupSettingPB {
+  #[pb(index = 1)]
+  pub items: Vec<GroupSettingPB>,
+}
+
+impl std::convert::From<Vec<GroupSettingPB>> for RepeatedGroupSettingPB {
+  fn from(items: Vec<GroupSettingPB>) -> Self {
+    Self { items }
+  }
+}
+
+impl std::convert::From<Vec<GroupSetting>> for RepeatedGroupSettingPB {
+  fn from(group_settings: Vec<GroupSetting>) -> Self {
+    RepeatedGroupSettingPB {
+      items: group_settings
+        .iter()
+        .map(|setting| setting.into())
+        .collect(),
     }
   }
 }
@@ -53,10 +76,10 @@ pub struct GroupPB {
   pub group_id: String,
 
   #[pb(index = 3)]
-  pub desc: String,
+  pub group_name: String,
 
   #[pb(index = 4)]
-  pub rows: Vec<RowPB>,
+  pub rows: Vec<RowMetaPB>,
 
   #[pb(index = 5)]
   pub is_default: bool,
@@ -70,8 +93,12 @@ impl std::convert::From<GroupData> for GroupPB {
     Self {
       field_id: group_data.field_id,
       group_id: group_data.id,
-      desc: group_data.name,
-      rows: group_data.rows.into_iter().map(RowPB::from).collect(),
+      group_name: group_data.name,
+      rows: group_data
+        .rows
+        .into_iter()
+        .map(|row_detail| RowMetaPB::from(row_detail.meta))
+        .collect(),
       is_default: group_data.is_default,
       is_visible: group_data.is_visible,
     }
@@ -79,102 +106,32 @@ impl std::convert::From<GroupData> for GroupPB {
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct RepeatedGroupSettingPB {
-  #[pb(index = 1)]
-  pub items: Vec<GroupSettingPB>,
-}
-
-impl std::convert::From<Vec<GroupSettingPB>> for RepeatedGroupSettingPB {
-  fn from(items: Vec<GroupSettingPB>) -> Self {
-    Self { items }
-  }
-}
-
-impl std::convert::From<Vec<GroupSetting>> for RepeatedGroupSettingPB {
-  fn from(group_settings: Vec<GroupSetting>) -> Self {
-    RepeatedGroupSettingPB {
-      items: group_settings
-        .iter()
-        .map(|setting| setting.into())
-        .collect(),
-    }
-  }
-}
-
-#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct InsertGroupPayloadPB {
+pub struct GroupByFieldPayloadPB {
   #[pb(index = 1)]
   pub field_id: String,
 
   #[pb(index = 2)]
-  pub field_type: FieldType,
-
-  #[pb(index = 3)]
   pub view_id: String,
 }
 
-impl TryInto<InsertGroupParams> for InsertGroupPayloadPB {
+impl TryInto<GroupByFieldParams> for GroupByFieldPayloadPB {
   type Error = ErrorCode;
 
-  fn try_into(self) -> Result<InsertGroupParams, Self::Error> {
+  fn try_into(self) -> Result<GroupByFieldParams, Self::Error> {
     let field_id = NotEmptyStr::parse(self.field_id)
-      .map_err(|_| ErrorCode::FieldIdIsEmpty)?
-      .0;
-
-    let view_id = NotEmptyStr::parse(self.view_id)
-      .map_err(|_| ErrorCode::ViewIdIsInvalid)?
-      .0;
-
-    Ok(InsertGroupParams {
-      field_id,
-      field_type: self.field_type,
-      view_id,
-    })
-  }
-}
-
-pub struct InsertGroupParams {
-  pub view_id: String,
-  pub field_id: String,
-  pub field_type: FieldType,
-}
-
-#[derive(ProtoBuf, Debug, Default, Clone)]
-pub struct DeleteGroupPayloadPB {
-  #[pb(index = 1)]
-  pub field_id: String,
-
-  #[pb(index = 2)]
-  pub group_id: String,
-
-  #[pb(index = 3)]
-  pub field_type: FieldType,
-
-  #[pb(index = 4)]
-  pub view_id: String,
-}
-
-impl TryInto<DeleteGroupParams> for DeleteGroupPayloadPB {
-  type Error = ErrorCode;
-
-  fn try_into(self) -> Result<DeleteGroupParams, Self::Error> {
-    let field_id = NotEmptyStr::parse(self.field_id)
-      .map_err(|_| ErrorCode::FieldIdIsEmpty)?
-      .0;
-    let group_id = NotEmptyStr::parse(self.group_id)
       .map_err(|_| ErrorCode::FieldIdIsEmpty)?
       .0;
     let view_id = NotEmptyStr::parse(self.view_id)
       .map_err(|_| ErrorCode::ViewIdIsInvalid)?
       .0;
 
-    Ok(DeleteGroupParams {
-      field_id,
-      field_type: self.field_type,
-      group_id,
-      view_id,
-    })
+    Ok(GroupByFieldParams { field_id, view_id })
   }
+}
+
+pub struct GroupByFieldParams {
+  pub field_id: String,
+  pub view_id: String,
 }
 
 pub struct DeleteGroupParams {
@@ -182,4 +139,56 @@ pub struct DeleteGroupParams {
   pub field_id: String,
   pub group_id: String,
   pub field_type: FieldType,
+}
+
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct UpdateGroupPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub group_id: String,
+
+  #[pb(index = 3, one_of)]
+  pub name: Option<String>,
+
+  #[pb(index = 4, one_of)]
+  pub visible: Option<bool>,
+}
+
+impl TryInto<UpdateGroupParams> for UpdateGroupPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<UpdateGroupParams, Self::Error> {
+    let view_id = NotEmptyStr::parse(self.view_id)
+      .map_err(|_| ErrorCode::ViewIdIsInvalid)?
+      .0;
+    let group_id = NotEmptyStr::parse(self.group_id)
+      .map_err(|_| ErrorCode::GroupIdIsEmpty)?
+      .0;
+
+    Ok(UpdateGroupParams {
+      view_id,
+      group_id,
+      name: self.name,
+      visible: self.visible,
+    })
+  }
+}
+
+pub struct UpdateGroupParams {
+  pub view_id: String,
+  pub group_id: String,
+  pub name: Option<String>,
+  pub visible: Option<bool>,
+}
+
+impl From<UpdateGroupParams> for GroupChangeset {
+  fn from(params: UpdateGroupParams) -> Self {
+    Self {
+      group_id: params.group_id,
+      name: params.name,
+      visible: params.visible,
+    }
+  }
 }

@@ -1,81 +1,72 @@
 import { BlockType, HeadingBlockData } from '@/appflowy_app/interfaces/document';
-import { useAppSelector } from '@/appflowy_app/stores/store';
-import { debounce } from '@/appflowy_app/utils/tool';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useAppDispatch } from '@/appflowy_app/stores/store';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { PopoverOrigin } from '@mui/material/Popover/Popover';
+import { getBlock } from '$app/components/document/_shared/SubscribeNode.hooks';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+
+const headingBlockTopOffset: Record<number, number> = {
+  1: 7,
+  2: 5,
+  3: 4,
+};
 
 export function useBlockSideToolbar({ container }: { container: HTMLDivElement }) {
-  const [nodeId, setHoverNodeId] = useState<string>('');
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [nodeId, setHoverNodeId] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement | null>(null);
-  const nodes = useAppSelector((state) => state.document.nodes);
-  const nodesRef = useRef(nodes);
-
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    const { clientX, clientY } = e;
-    const x = clientX;
-    const y = clientY;
-    const id = getNodeIdByPoint(x, y);
-    if (!id) {
-      setHoverNodeId('');
-    } else {
-      if ([BlockType.ColumnBlock].includes(nodesRef.current[id].type)) {
-        setHoverNodeId('');
-        return;
-      }
-      setHoverNodeId(id);
-    }
-  }, []);
-
-  const debounceMove = useMemo(() => debounce(handleMouseMove, 30), [handleMouseMove]);
+  const dispatch = useAppDispatch();
+  const [style, setStyle] = useState<React.CSSProperties>({});
+  const { docId } = useSubscribeDocument();
 
   useEffect(() => {
     const el = ref.current;
+
     if (!el || !nodeId) return;
+    void (async () => {
+      const node = getBlock(docId, nodeId);
 
-    const node = nodesRef.current[nodeId];
-    if (!node) {
-      el.style.opacity = '0';
-      el.style.pointerEvents = 'none';
-    } else {
-      el.style.opacity = '1';
-      el.style.pointerEvents = 'auto';
-      el.style.top = '1px';
-      if (node?.type === BlockType.HeadingBlock) {
-        const nodeData = node.data as HeadingBlockData;
-        if (nodeData.level === 1) {
-          el.style.top = '8px';
-        } else if (nodeData.level === 2) {
-          el.style.top = '6px';
-        } else {
-          el.style.top = '5px';
+      if (!node) {
+        setStyle({
+          opacity: '0',
+          pointerEvents: 'none',
+        });
+        return;
+      } else {
+        let top = 2;
+
+        if (node.type === BlockType.HeadingBlock) {
+          const nodeData = node.data as HeadingBlockData;
+
+          top = headingBlockTopOffset[nodeData.level];
         }
-      }
-    }
-  }, [nodeId]);
 
-  const handleToggleMenu = useCallback((isOpen: boolean) => {
-    setMenuOpen(isOpen);
-    if (!isOpen) {
-      setHoverNodeId('');
-    }
+        setStyle({
+          opacity: '1',
+          pointerEvents: 'auto',
+          top: `${top}px`,
+        });
+      }
+    })();
+  }, [dispatch, docId, nodeId]);
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    const { clientX, clientY } = e;
+    const id = getNodeIdByPoint(clientX, clientY);
+
+    setHoverNodeId(id);
   }, []);
 
   useEffect(() => {
-    container.addEventListener('mousemove', debounceMove);
+    container.addEventListener('mousemove', handleMouseMove);
     return () => {
-      container.removeEventListener('mousemove', debounceMove);
+      container.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [debounceMove]);
-
-  useEffect(() => {
-    nodesRef.current = nodes;
-  }, [nodes]);
+  }, [container, handleMouseMove]);
 
   return {
     nodeId,
     ref,
-    handleToggleMenu,
-    menuOpen,
+    style,
   };
 }
 
@@ -85,6 +76,7 @@ function getNodeIdByPoint(x: number, y: number) {
     el: Element;
     rect: DOMRect;
   } | null = null;
+
   viewportNodes.forEach((el) => {
     const rect = el.getBoundingClientRect();
 
@@ -105,4 +97,41 @@ function getNodeIdByPoint(x: number, y: number) {
         }
       ).el.getAttribute('data-block-id')
     : null;
+}
+
+const origin: {
+  anchorOrigin: PopoverOrigin;
+  transformOrigin: PopoverOrigin;
+} = {
+  anchorOrigin: {
+    vertical: 'bottom',
+    horizontal: 'right',
+  },
+  transformOrigin: {
+    vertical: 'bottom',
+    horizontal: 'left',
+  },
+};
+
+export function usePopover() {
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+
+  const onClose = useCallback(() => {
+    setAnchorEl(null);
+  }, []);
+
+  const handleOpen = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setAnchorEl(e.currentTarget);
+  }, []);
+
+  const open = Boolean(anchorEl);
+
+  return {
+    anchorEl,
+    onClose,
+    open,
+    handleOpen,
+    ...origin,
+  };
 }

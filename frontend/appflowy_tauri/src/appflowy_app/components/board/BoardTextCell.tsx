@@ -16,9 +16,10 @@ export const BoardTextCell = ({
 
   return (
     <div>
-      {((data as string | undefined) || '').split('\n').map((line, index) => (
+      {((data as string | undefined) ?? '').split('\n').map((line, index) => (
         <div key={index}>{line}</div>
       ))}
+      &nbsp;
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -10,30 +11,26 @@ import '../field_service.dart';
 import 'type_option_context.dart';
 
 class TypeOptionController {
-  final String viewId;
   late TypeOptionPB _typeOption;
-  final IFieldTypeOptionLoader loader;
+  final FieldTypeOptionLoader loader;
   final PublishNotifier<FieldPB> _fieldNotifier = PublishNotifier();
 
   /// Returns a [TypeOptionController] used to modify the specified
   /// [FieldPB]'s data
   ///
-  /// Should call [loadTypeOptionData] if the passed-in [FieldInfo]
+  /// Should call [reloadTypeOption] if the passed-in [FieldInfo]
   /// is null
   ///
   TypeOptionController({
-    required this.viewId,
     required this.loader,
-    FieldInfo? fieldInfo,
+    required FieldPB field,
   }) {
-    if (fieldInfo != null) {
-      _typeOption = TypeOptionPB.create()
-        ..viewId = viewId
-        ..field_2 = fieldInfo.field;
-    }
+    _typeOption = TypeOptionPB.create()
+      ..viewId = loader.viewId
+      ..field_2 = field;
   }
 
-  Future<Either<TypeOptionPB, FlowyError>> loadTypeOptionData() async {
+  Future<Either<TypeOptionPB, FlowyError>> reloadTypeOption() async {
     final result = await loader.load();
     return result.fold(
       (data) {
@@ -66,7 +63,7 @@ class TypeOptionController {
 
     _fieldNotifier.value = _typeOption.field_2;
 
-    FieldBackendService(viewId: viewId, fieldId: field.id)
+    FieldBackendService(viewId: loader.viewId, fieldId: field.id)
         .updateField(name: name);
   }
 
@@ -78,20 +75,25 @@ class TypeOptionController {
     });
 
     FieldBackendService.updateFieldTypeOption(
-      viewId: viewId,
+      viewId: loader.viewId,
       fieldId: field.id,
       typeOptionData: typeOptionData,
     );
   }
 
   Future<void> switchToField(FieldType newFieldType) async {
-    final result = await loader.switchToField(field.id, newFieldType);
+    final payload = UpdateFieldTypePayloadPB.create()
+      ..viewId = loader.viewId
+      ..fieldId = field.id
+      ..fieldType = newFieldType;
+
+    final result = await DatabaseEventUpdateFieldType(payload).send();
     await result.fold(
       (_) {
         // Should load the type-option data after switching to a new field.
         // After loading the type-option data, the editor widget that uses
         // the type-option data will be rebuild.
-        loadTypeOptionData();
+        reloadTypeOption();
       },
       (err) => Future(() => Log.error(err)),
     );

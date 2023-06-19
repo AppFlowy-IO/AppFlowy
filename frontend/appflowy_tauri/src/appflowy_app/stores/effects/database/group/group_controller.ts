@@ -1,4 +1,11 @@
-import { DatabaseNotification, FlowyError, GroupPB, GroupRowsNotificationPB, RowPB } from '@/services/backend';
+import {
+  DatabaseNotification,
+  FlowyError,
+  GroupPB,
+  GroupRowsNotificationPB,
+  RowMetaPB,
+  RowPB,
+} from '@/services/backend';
 import { ChangeNotifier } from '$app/utils/change_notifier';
 import { None, Ok, Option, Result, Some } from 'ts-results';
 import { DatabaseNotificationObserver } from '../notifications/observer';
@@ -7,10 +14,10 @@ import { DatabaseBackendService } from '../database_bd_svc';
 
 export type GroupDataCallbacks = {
   onRemoveRow: (groupId: string, rowId: string) => void;
-  onInsertRow: (groupId: string, row: RowPB, index?: number) => void;
-  onUpdateRow: (groupId: string, row: RowPB) => void;
+  onInsertRow: (groupId: string, row: RowMetaPB, index?: number) => void;
+  onUpdateRow: (groupId: string, row: RowMetaPB) => void;
 
-  onCreateRow: (groupId: string, row: RowPB) => void;
+  onCreateRow: (groupId: string, row: RowMetaPB) => void;
 };
 
 export class DatabaseGroupController {
@@ -30,14 +37,14 @@ export class DatabaseGroupController {
   }
 
   get name() {
-    return this.group.desc;
+    return this.group.group_name;
   }
 
   updateGroup = (group: GroupPB) => {
     this.group = group;
   };
 
-  rowAtIndex = (index: number): Option<RowPB> => {
+  rowAtIndex = (index: number): Option<RowMetaPB> => {
     if (this.group.rows.length < index) {
       return None;
     }
@@ -59,16 +66,16 @@ export class DatabaseGroupController {
           changeset.inserted_rows.forEach((insertedRow) => {
             let index: number | undefined = insertedRow.index;
             if (insertedRow.has_index && this.group.rows.length > insertedRow.index) {
-              this.group.rows.splice(index, 0, insertedRow.row);
+              this.group.rows.splice(index, 0, insertedRow.row_meta);
             } else {
               index = undefined;
-              this.group.rows.push(insertedRow.row);
+              this.group.rows.push(insertedRow.row_meta);
             }
 
             if (insertedRow.is_new) {
-              this.callbacks?.onCreateRow(this.group.group_id, insertedRow.row);
+              this.callbacks?.onCreateRow(this.group.group_id, insertedRow.row_meta);
             } else {
-              this.callbacks?.onInsertRow(this.group.group_id, insertedRow.row, index);
+              this.callbacks?.onInsertRow(this.group.group_id, insertedRow.row_meta, index);
             }
           });
 
@@ -115,7 +122,7 @@ class GroupDataObserver {
 
   subscribe = async (callbacks: { onRowsChanged: GroupRowsSubscribeCallback }) => {
     this.notifier = new ChangeNotifier();
-    this.notifier?.observer.subscribe(callbacks.onRowsChanged);
+    this.notifier?.observer?.subscribe(callbacks.onRowsChanged);
 
     this.listener = new DatabaseNotificationObserver({
       id: this.groupId,

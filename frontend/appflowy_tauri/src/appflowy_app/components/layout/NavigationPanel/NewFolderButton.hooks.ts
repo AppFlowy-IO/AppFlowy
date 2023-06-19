@@ -1,11 +1,11 @@
-import { useAppDispatch, useAppSelector } from '../../../stores/store';
-import { foldersActions } from '../../../stores/reducers/folders/slice';
-import { WorkspaceBackendService } from '../../../stores/effects/folder/workspace/workspace_bd_svc';
+import { useAppDispatch, useAppSelector } from '$app/stores/store';
+import { foldersActions } from '$app_reducers/folders/slice';
+import { WorkspaceBackendService } from '$app/stores/effects/folder/workspace/workspace_bd_svc';
 
 export const useNewFolder = () => {
   const appDispatch = useAppDispatch();
   const workspace = useAppSelector((state) => state.workspace);
-  const workspaceBackendService = new WorkspaceBackendService(workspace.id || '');
+  const workspaceBackendService = new WorkspaceBackendService(workspace.id ?? '');
 
   const onNewFolder = async () => {
     const newApp = await workspaceBackendService.createApp({

@@ -1,4 +1,5 @@
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
@@ -45,8 +46,32 @@ class MenuUser extends StatelessWidget {
     String iconUrl = context.read<MenuUserBloc>().state.userProfile.iconUrl;
     if (iconUrl.isEmpty) {
       iconUrl = defaultUserAvatar;
+      final String name =
+          userName(context.read<MenuUserBloc>().state.userProfile);
+      final Color color = ColorGenerator().generateColorFromString(name);
+      const initialsCount = 2;
+      // Taking the first letters of the name components and limiting to 2 elements
+      final nameInitials = name
+          .split(' ')
+          .where((element) => element.isNotEmpty)
+          .take(initialsCount)
+          .map((element) => element[0].toUpperCase())
+          .join('');
+      return Container(
+        width: 28,
+        height: 28,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+        ),
+        child: FlowyText.semibold(
+          nameInitials,
+          color: Colors.white,
+          fontSize: nameInitials.length == initialsCount ? 12 : 14,
+        ),
+      );
     }
-
     return SizedBox(
       width: 25,
       height: 25,
@@ -61,10 +86,7 @@ class MenuUser extends StatelessWidget {
   }
 
   Widget _renderUserName(BuildContext context) {
-    String name = context.read<MenuUserBloc>().state.userProfile.name;
-    if (name.isEmpty) {
-      name = context.read<MenuUserBloc>().state.userProfile.email;
-    }
+    final String name = userName(context.read<MenuUserBloc>().state.userProfile);
     return FlowyText.medium(
       name,
       overflow: TextOverflow.ellipsis,
@@ -95,13 +117,13 @@ class MenuUser extends StatelessWidget {
       ),
     );
   }
-  //ToDo: when the user is allowed to create another workspace,
-  //we get the below block back
-  // Widget _renderDropButton(BuildContext context) {
-  //   return FlowyDropdownButton(
-  //     onPressed: () {
-  //       debugPrint('show user profile');
-  //     },
-  //   );
-  // }
+
+  /// Return the user name, if the user name is empty, return the default user name.
+  String userName(UserProfilePB userProfile) {
+    String name = userProfile.name;
+    if (name.isEmpty) {
+      name = LocaleKeys.defaultUsername.tr();
+    }
+    return name;
+  }
 }

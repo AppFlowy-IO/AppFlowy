@@ -6,6 +6,7 @@ const supportedLanguages: { key: string; title: string }[] = [
     key: 'en',
     title: 'English',
   },
+  { key: 'ar-SA', title: 'ar-SA' },
   { key: 'ca-ES', title: 'ca-ES' },
   { key: 'de-DE', title: 'de-DE' },
   { key: 'es-VE', title: 'es-VE' },

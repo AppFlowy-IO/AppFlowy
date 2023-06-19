@@ -25,6 +25,8 @@ Widget buildFilterChoicechip(FilterInfo filterInfo) {
     case FieldType.Checkbox:
       return CheckboxFilterChoicechip(filterInfo: filterInfo);
     case FieldType.DateTime:
+    case FieldType.LastEditedTime:
+    case FieldType.CreatedTime:
       return DateFilterChoicechip(filterInfo: filterInfo);
     case FieldType.MultiSelect:
       return SelectOptionFilterChoicechip(filterInfo: filterInfo);

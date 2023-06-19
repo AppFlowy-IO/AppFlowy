@@ -1,3 +1,7 @@
+import 'package:appflowy/plugins/database_view/board/board.dart';
+import 'package:appflowy/plugins/database_view/calendar/calendar.dart';
+import 'package:appflowy/plugins/database_view/grid/grid.dart';
+import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -34,9 +38,9 @@ extension FlowyPluginExtension on FlowyPlugin {
 
 extension ViewExtension on ViewPB {
   Widget renderThumbnail({Color? iconColor}) {
-    String thumbnail = "file_icon";
+    const String thumbnail = "file_icon";
 
-    final Widget widget = FlowySvg(name: thumbnail);
+    const Widget widget = FlowySvg(name: thumbnail);
     return widget;
   }
 
@@ -55,8 +59,33 @@ extension ViewExtension on ViewPB {
     throw UnimplementedError;
   }
 
-  Plugin plugin() {
-    final plugin = makePlugin(pluginType: pluginType, data: this);
-    return plugin;
+  Plugin plugin({bool listenOnViewChanged = false}) {
+    switch (layout) {
+      case ViewLayoutPB.Board:
+        return BoardPlugin(
+          view: this,
+          pluginType: pluginType,
+          listenOnViewChanged: listenOnViewChanged,
+        );
+      case ViewLayoutPB.Calendar:
+        return CalendarPlugin(
+          view: this,
+          pluginType: pluginType,
+          listenOnViewChanged: listenOnViewChanged,
+        );
+      case ViewLayoutPB.Grid:
+        return GridPlugin(
+          view: this,
+          pluginType: pluginType,
+          listenOnViewChanged: listenOnViewChanged,
+        );
+      case ViewLayoutPB.Document:
+        return DocumentPlugin(
+          view: this,
+          pluginType: pluginType,
+          listenOnViewChanged: listenOnViewChanged,
+        );
+    }
+    throw UnimplementedError;
   }
 }

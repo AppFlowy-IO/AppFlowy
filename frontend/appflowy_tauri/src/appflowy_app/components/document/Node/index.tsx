@@ -3,7 +3,6 @@ import { useNode } from './Node.hooks';
 import { withErrorBoundary } from 'react-error-boundary';
 import { ErrorBoundaryFallbackComponent } from '../_shared/ErrorBoundaryFallbackComponent';
 import TextBlock from '../TextBlock';
-import { NodeContext } from '../_shared/SubscribeNode.hooks';
 import { BlockType } from '$app/interfaces/document';
 import { Alert } from '@mui/material';
 
@@ -15,7 +14,9 @@ import NumberedListBlock from '$app/components/document/NumberedListBlock';
 import ToggleListBlock from '$app/components/document/ToggleListBlock';
 import DividerBlock from '$app/components/document/DividerBlock';
 import CalloutBlock from '$app/components/document/CalloutBlock';
+import BlockOverlay from '$app/components/document/Overlay/BlockOverlay';
 import CodeBlock from '$app/components/document/CodeBlock';
+import { NodeIdContext } from '$app/components/document/_shared/SubscribeNode.hooks';
 
 function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<HTMLDivElement>) {
   const { node, childIds, isSelected, ref } = useNode(id);
@@ -56,18 +57,19 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
     }
   }, [node, childIds]);
 
+  const className = props.className ? ` ${props.className}` : '';
   if (!node) return null;
 
   return (
-    <NodeContext.Provider value={node}>
-      <div {...props} ref={ref} data-block-id={node.id} className={`relative ${props.className}`}>
+    <NodeIdContext.Provider value={id}>
+      <div {...props} ref={ref} data-block-id={node.id} className={`relative ${className}`}>
         {renderBlock()}
-        <div className='block-overlay' />
+        <BlockOverlay id={id} />
         {isSelected ? (
           <div className='pointer-events-none absolute inset-0 z-[-1] m-[1px] rounded-[4px] bg-[#E0F8FF]' />
         ) : null}
       </div>
-    </NodeContext.Provider>
+    </NodeIdContext.Provider>
   );
 }
 

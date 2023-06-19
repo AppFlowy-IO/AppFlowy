@@ -20,6 +20,10 @@ body {
   @apply bg-[#E0F8FF]
 }
 
+div[role="textbox"] ::selection {
+  @apply bg-transparent;
+}
+
 .btn {
   @apply rounded-xl border border-gray-500 px-4 py-3;
 }

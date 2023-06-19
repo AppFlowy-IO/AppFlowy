@@ -4,7 +4,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'dart:typed_data';
 
-import 'package:appflowy/core/grid_notification.dart';
+import 'package:appflowy/core/notification/grid_notification.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:dartz/dartz.dart';
 
@@ -12,9 +12,9 @@ typedef OnGroupError = void Function(FlowyError);
 
 abstract class GroupControllerDelegate {
   void removeRow(GroupPB group, RowId rowId);
-  void insertRow(GroupPB group, RowPB row, int? index);
-  void updateRow(GroupPB group, RowPB row);
-  void addNewRow(GroupPB group, RowPB row, int? index);
+  void insertRow(GroupPB group, RowMetaPB row, int? index);
+  void updateRow(GroupPB group, RowMetaPB row);
+  void addNewRow(GroupPB group, RowMetaPB row, int? index);
 }
 
 class GroupController {
@@ -28,7 +28,7 @@ class GroupController {
     required this.delegate,
   }) : _listener = SingleGroupListener(group);
 
-  RowPB? rowAtIndex(int index) {
+  RowMetaPB? rowAtIndex(int index) {
     if (index < group.rows.length) {
       return group.rows[index];
     } else {
@@ -36,7 +36,7 @@ class GroupController {
     }
   }
 
-  RowPB? lastRow() {
+  RowMetaPB? lastRow() {
     if (group.rows.isEmpty) return null;
     return group.rows.last;
   }
@@ -55,15 +55,15 @@ class GroupController {
               final index = insertedRow.hasIndex() ? insertedRow.index : null;
               if (insertedRow.hasIndex() &&
                   group.rows.length > insertedRow.index) {
-                group.rows.insert(insertedRow.index, insertedRow.row);
+                group.rows.insert(insertedRow.index, insertedRow.rowMeta);
               } else {
-                group.rows.add(insertedRow.row);
+                group.rows.add(insertedRow.rowMeta);
               }
 
               if (insertedRow.isNew) {
-                delegate.addNewRow(group, insertedRow.row, index);
+                delegate.addNewRow(group, insertedRow.rowMeta, index);
               } else {
-                delegate.insertRow(group, insertedRow.row, index);
+                delegate.insertRow(group, insertedRow.rowMeta, index);
               }
             }
 

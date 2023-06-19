@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:appflowy/plugins/document/presentation/plugins/parsers/code_block_node_parser.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/parsers/divider_node_parser.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/parsers/math_equation_node_parser.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/code_block_node_parser.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/divider_node_parser.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/math_equation_node_parser.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -12,11 +12,11 @@ void main() {
       const text = '''
 {
     "document":{
-        "type":"editor",
+        "type":"page",
         "children":[
             {
                 "type":"math_equation",
-                "attributes":{
+                "data":{
                     "math_equation":"E = MC^2"
                 }
             }
@@ -40,11 +40,11 @@ void main() {
       const text = '''
 {
     "document":{
-        "type":"editor",
+        "type":"page",
         "children":[
             {
                 "type":"code_block",
-                "attributes":{
+                "data":{
                     "code_block":"Some Code"
                 }
             }
@@ -67,7 +67,7 @@ void main() {
       const text = '''
 {
     "document":{
-        "type":"editor",
+        "type":"page",
         "children":[
             {
                 "type":"divider"

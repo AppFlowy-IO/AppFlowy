@@ -1,22 +1,23 @@
+use std::cmp::Ordering;
+
+use bytes::Bytes;
+use collab::core::any_map::AnyMapExtension;
+use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
+use collab_database::rows::{new_cell_builder, Cell};
+use serde::{Deserialize, Serialize};
+
+use flowy_error::{FlowyError, FlowyResult};
+
 use crate::entities::{FieldType, TextFilterPB};
 use crate::services::cell::{
   stringify_cell_data, CellDataChangeset, CellDataDecoder, CellProtobufBlobParser, DecodedCellData,
   FromCellString,
 };
+use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
   TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionTransform, CELL_DATE,
+  TypeOptionTransform, CELL_DATA,
 };
-use bytes::Bytes;
-use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
-
-use crate::services::field::type_options::util::ProtobufStr;
-use collab::core::any_map::AnyMapExtension;
-use collab_database::rows::{new_cell_builder, Cell};
-use flowy_error::{FlowyError, FlowyResult};
-
-use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
 
 /// For the moment, the `RichTextTypeOptionPB` is empty. The `data` property is not
 /// used yet.
@@ -35,7 +36,7 @@ impl TypeOption for RichTextTypeOption {
 
 impl From<TypeOptionData> for RichTextTypeOption {
   fn from(data: TypeOptionData) -> Self {
-    let s = data.get_str_value(CELL_DATE).unwrap_or_default();
+    let s = data.get_str_value(CELL_DATA).unwrap_or_default();
     Self { inner: s }
   }
 }
@@ -43,7 +44,7 @@ impl From<TypeOptionData> for RichTextTypeOption {
 impl From<RichTextTypeOption> for TypeOptionData {
   fn from(data: RichTextTypeOption) -> Self {
     TypeOptionDataBuilder::new()
-      .insert_str_value(CELL_DATE, data.inner)
+      .insert_str_value(CELL_DATA, data.inner)
       .build()
   }
 }
@@ -63,19 +64,19 @@ impl TypeOptionTransform for RichTextTypeOption {
   fn transform_type_option_cell(
     &self,
     cell: &Cell,
-    _decoded_field_type: &FieldType,
+    transformed_field_type: &FieldType,
     _field: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {
-    if _decoded_field_type.is_date()
-      || _decoded_field_type.is_single_select()
-      || _decoded_field_type.is_multi_select()
-      || _decoded_field_type.is_number()
-      || _decoded_field_type.is_url()
+    if transformed_field_type.is_date()
+      || transformed_field_type.is_single_select()
+      || transformed_field_type.is_multi_select()
+      || transformed_field_type.is_number()
+      || transformed_field_type.is_url()
     {
       Some(StrCellData::from(stringify_cell_data(
         cell,
-        _decoded_field_type,
-        _decoded_field_type,
+        transformed_field_type,
+        transformed_field_type,
         _field,
       )))
     } else {
@@ -85,20 +86,20 @@ impl TypeOptionTransform for RichTextTypeOption {
 }
 
 impl TypeOptionCellData for RichTextTypeOption {
-  fn convert_to_protobuf(
+  fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     ProtobufStr::from(cell_data.0)
   }
 
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
+  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     Ok(StrCellData::from(cell))
   }
 }
 
 impl CellDataDecoder for RichTextTypeOption {
-  fn decode_cell_str(
+  fn decode_cell(
     &self,
     cell: &Cell,
     _decoded_field_type: &FieldType,
@@ -107,11 +108,11 @@ impl CellDataDecoder for RichTextTypeOption {
     Ok(StrCellData::from(cell))
   }
 
-  fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+  fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     cell_data.to_string()
   }
 
-  fn decode_cell_to_str(&self, cell: &Cell) -> String {
+  fn stringify_cell(&self, cell: &Cell) -> String {
     Self::CellData::from(cell).to_string()
   }
 }

@@ -73,7 +73,7 @@ TransitionBuilder overlayManagerBuilder() {
   };
 }
 
-abstract class FlowyOverlayDelegate {
+abstract mixin class FlowyOverlayDelegate {
   bool asBarrier() => false;
   void didRemove() => {};
 }
@@ -83,8 +83,10 @@ class FlowyOverlay extends StatefulWidget {
 
   final Widget child;
 
-  static FlowyOverlayState of(BuildContext context,
-      {bool rootOverlay = false}) {
+  static FlowyOverlayState of(
+    BuildContext context, {
+    bool rootOverlay = false,
+  }) {
     FlowyOverlayState? state = maybeOf(context, rootOverlay: rootOverlay);
     assert(() {
       if (state == null) {
@@ -97,8 +99,10 @@ class FlowyOverlay extends StatefulWidget {
     return state!;
   }
 
-  static FlowyOverlayState? maybeOf(BuildContext context,
-      {bool rootOverlay = false}) {
+  static FlowyOverlayState? maybeOf(
+    BuildContext context, {
+    bool rootOverlay = false,
+  }) {
     FlowyOverlayState? state;
     if (rootOverlay) {
       state = context.findRootAncestorStateOfType<FlowyOverlayState>();
@@ -108,10 +112,11 @@ class FlowyOverlay extends StatefulWidget {
     return state;
   }
 
-  static void show(
-      {required BuildContext context,
-      required Widget Function(BuildContext context) builder}) {
-    showDialog(
+  static Future<void> show({
+    required BuildContext context,
+    required WidgetBuilder builder,
+  }) async {
+    await showDialog(
       context: context,
       builder: builder,
     );

@@ -1,9 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
-import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -32,18 +32,13 @@ import 'widgets/shortcuts.dart';
 import 'widgets/toolbar/grid_toolbar.dart';
 
 class GridPage extends StatefulWidget {
-  GridPage({
+  const GridPage({
     required this.view,
     this.onDeleted,
     Key? key,
-  })  : databaseController = DatabaseController(
-          view: view,
-          layoutType: DatabaseLayoutPB.Grid,
-        ),
-        super(key: key);
+  }) : super(key: key);
 
   final ViewPB view;
-  final DatabaseController databaseController;
   final VoidCallback? onDeleted;
 
   @override
@@ -51,6 +46,14 @@ class GridPage extends StatefulWidget {
 }
 
 class _GridPageState extends State<GridPage> {
+  late DatabaseController databaseController;
+
+  @override
+  void initState() {
+    super.initState();
+    databaseController = DatabaseController(view: widget.view);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -58,19 +61,19 @@ class _GridPageState extends State<GridPage> {
         BlocProvider<GridBloc>(
           create: (context) => GridBloc(
             view: widget.view,
-            databaseController: widget.databaseController,
+            databaseController: databaseController,
           )..add(const GridEvent.initial()),
         ),
         BlocProvider<GridFilterMenuBloc>(
           create: (context) => GridFilterMenuBloc(
             viewId: widget.view.id,
-            fieldController: widget.databaseController.fieldController,
+            fieldController: databaseController.fieldController,
           )..add(const GridFilterMenuEvent.initial()),
         ),
         BlocProvider<SortMenuBloc>(
           create: (context) => SortMenuBloc(
             viewId: widget.view.id,
-            fieldController: widget.databaseController.fieldController,
+            fieldController: databaseController.fieldController,
           )..add(const SortMenuEvent.initial()),
         ),
         BlocProvider<DatabaseSettingBloc>(
@@ -83,7 +86,11 @@ class _GridPageState extends State<GridPage> {
             loading: (_) =>
                 const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) => result.successOrFail.fold(
-              (_) => const GridShortcuts(child: FlowyGrid()),
+              (_) => GridShortcuts(
+                child: FlowyGrid(
+                  viewId: widget.view.id,
+                ),
+              ),
               (err) => FlowyErrorPage(err.toString()),
             ),
           );
@@ -91,25 +98,14 @@ class _GridPageState extends State<GridPage> {
       ),
     );
   }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
-  void deactivate() {
-    super.deactivate();
-  }
-
-  @override
-  void didUpdateWidget(covariant GridPage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-  }
 }
 
 class FlowyGrid extends StatefulWidget {
-  const FlowyGrid({Key? key}) : super(key: key);
+  final String viewId;
+  const FlowyGrid({
+    required this.viewId,
+    super.key,
+  });
 
   @override
   State<FlowyGrid> createState() => _FlowyGridState();
@@ -119,12 +115,12 @@ class _FlowyGridState extends State<FlowyGrid> {
   final _scrollController = GridScrollController(
     scrollGroupController: LinkedScrollControllerGroup(),
   );
-  late ScrollController headerScrollController;
+  late final ScrollController headerScrollController;
 
   @override
   void initState() {
-    headerScrollController = _scrollController.linkHorizontalController();
     super.initState();
+    headerScrollController = _scrollController.linkHorizontalController();
   }
 
   @override
@@ -139,12 +135,13 @@ class _FlowyGridState extends State<FlowyGrid> {
       buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
         final contentWidth = GridLayout.headerWidth(state.fields.value);
-        final child = _wrapScrollView(
-          contentWidth,
-          [
-            const _GridRows(),
-            const _GridFooter(),
-          ],
+        final child = _WrapScrollView(
+          scrollController: _scrollController,
+          contentWidth: contentWidth,
+          child: _GridRows(
+            viewId: widget.viewId,
+            verticalScrollController: _scrollController.verticalController,
+          ),
         );
 
         return Column(
@@ -154,42 +151,10 @@ class _FlowyGridState extends State<FlowyGrid> {
             GridAccessoryMenu(viewId: state.viewId),
             _gridHeader(context, state.viewId),
             Flexible(child: child),
-            const RowCountBadge(),
+            const _RowCountBadge(),
           ],
         );
       },
-    );
-  }
-
-  Widget _wrapScrollView(
-    double contentWidth,
-    List<Widget> slivers,
-  ) {
-    final verticalScrollView = ScrollConfiguration(
-      behavior: const ScrollBehavior().copyWith(scrollbars: false),
-      child: CustomScrollView(
-        physics: StyledScrollPhysics(),
-        controller: _scrollController.verticalController,
-        slivers: slivers,
-      ),
-    );
-
-    final sizedVerticalScrollView = SizedBox(
-      width: contentWidth,
-      child: verticalScrollView,
-    );
-
-    final horizontalScrollView = StyledSingleChildScrollView(
-      controller: _scrollController.horizontalController,
-      axis: Axis.horizontal,
-      child: sizedVerticalScrollView,
-    );
-
-    return ScrollbarListStack(
-      axis: Axis.vertical,
-      controller: _scrollController.verticalController,
-      barSize: GridSize.scrollBarSize,
-      child: horizontalScrollView,
     );
   }
 
@@ -204,62 +169,70 @@ class _FlowyGridState extends State<FlowyGrid> {
   }
 }
 
-class _GridRows extends StatefulWidget {
-  const _GridRows({Key? key}) : super(key: key);
+class _GridRows extends StatelessWidget {
+  final String viewId;
+  const _GridRows({
+    required this.viewId,
+    required this.verticalScrollController,
+  });
 
-  @override
-  State<_GridRows> createState() => _GridRowsState();
-}
-
-class _GridRowsState extends State<_GridRows> {
-  final _key = GlobalKey<SliverAnimatedListState>();
+  final ScrollController verticalScrollController;
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<GridBloc, GridState>(
-      listenWhen: (previous, current) => previous.reason != current.reason,
-      listener: (context, state) {
-        state.reason.whenOrNull(
-          insert: (item) {
-            _key.currentState?.insertItem(item.index);
-          },
-          delete: (item) {
-            _key.currentState?.removeItem(
-              item.index,
-              (context, animation) =>
-                  _renderRow(context, item.rowInfo, animation),
-            );
-          },
-          reorderSingleRow: (reorderRow, rowInfo) {
-            // _key.currentState?.removeItem(
-            //   reorderRow.oldIndex,
-            //   (context, animation) => _renderRow(context, rowInfo, animation),
-            // );
-            // _key.currentState?.insertItem(reorderRow.newIndex);
-          },
-        );
-      },
-      buildWhen: (previous, current) {
-        return current.reason.whenOrNull(
-              reorderRows: () => true,
-              reorderSingleRow: (reorderRow, rowInfo) => true,
-            ) ??
-            false;
-      },
+    final filterState = context.watch<GridFilterMenuBloc>().state;
+    final sortState = context.watch<SortMenuBloc>().state;
+
+    return BlocBuilder<GridBloc, GridState>(
+      buildWhen: (previous, current) => current.reason.maybeWhen(
+        reorderRows: () => true,
+        reorderSingleRow: (reorderRow, rowInfo) => true,
+        delete: (item) => true,
+        insert: (item) => true,
+        orElse: () => false,
+      ),
       builder: (context, state) {
-        return SliverAnimatedList(
-          key: _key,
-          initialItemCount: context.read<GridBloc>().state.rowInfos.length,
-          itemBuilder:
-              (BuildContext context, int index, Animation<double> animation) {
-            final rowInfos = context.read<GridBloc>().state.rowInfos;
-            if (index >= rowInfos.length) {
-              return const SizedBox();
-            } else {
-              final RowInfo rowInfo = rowInfos[index];
-              return _renderRow(context, rowInfo, animation);
-            }
-          },
+        final rowInfos = state.rowInfos;
+        final behavior = ScrollConfiguration.of(context).copyWith(
+          scrollbars: false,
+        );
+        return ScrollConfiguration(
+          behavior: behavior,
+          child: ReorderableListView.builder(
+            /// TODO(Xazin): Resolve inconsistent scrollbar behavior
+            ///  This is a workaround related to
+            ///  https://github.com/flutter/flutter/issues/25652
+            cacheExtent: 5000,
+            scrollController: verticalScrollController,
+            buildDefaultDragHandles: false,
+            proxyDecorator: (child, index, animation) => Material(
+              color: Colors.white.withOpacity(.1),
+              child: Opacity(opacity: .5, child: child),
+            ),
+            onReorder: (fromIndex, newIndex) {
+              final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
+              if (fromIndex == toIndex) {
+                return;
+              }
+              context
+                  .read<GridBloc>()
+                  .add(GridEvent.moveRow(fromIndex, toIndex));
+            },
+            itemCount: rowInfos.length + 1, // the extra item is the footer
+            itemBuilder: (context, index) {
+              if (index < rowInfos.length) {
+                final rowInfo = rowInfos[index];
+                return _renderRow(
+                  context,
+                  rowInfo.rowId,
+                  index: index,
+                  isSortEnabled: sortState.sortInfos.isNotEmpty,
+                  isFilterEnabled: filterState.filters.isNotEmpty,
+                );
+              }
+              return const _GridFooter(key: Key('gridFooter'));
+            },
+          ),
         );
       },
     );
@@ -267,91 +240,134 @@ class _GridRowsState extends State<_GridRows> {
 
   Widget _renderRow(
     BuildContext context,
-    RowInfo rowInfo,
-    Animation<double> animation,
-  ) {
-    final rowCache = context.read<GridBloc>().getRowCache(
-          rowInfo.rowPB.id,
-        );
+    RowId rowId, {
+    int? index,
+    bool isSortEnabled = false,
+    bool isFilterEnabled = false,
+    Animation<double>? animation,
+  }) {
+    final rowCache = context.read<GridBloc>().getRowCache(rowId);
+    final rowMeta = rowCache.getRow(rowId)?.rowMeta;
 
-    /// Return placeholder widget if the rowCache is null.
-    if (rowCache == null) return const SizedBox();
+    /// Return placeholder widget if the rowMeta is null.
+    if (rowMeta == null) return const SizedBox.shrink();
 
     final fieldController =
         context.read<GridBloc>().databaseController.fieldController;
     final dataController = RowController(
-      rowId: rowInfo.rowPB.id,
-      viewId: rowInfo.viewId,
+      viewId: viewId,
+      rowMeta: rowMeta,
       rowCache: rowCache,
     );
 
-    return SizeTransition(
-      sizeFactor: animation,
-      child: GridRow(
-        rowInfo: rowInfo,
-        dataController: dataController,
-        cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
-        openDetailPage: (context, cellBuilder) {
-          _openRowDetailPage(
-            context,
-            rowInfo,
-            fieldController,
-            rowCache,
-            cellBuilder,
-          );
-        },
-        key: ValueKey(rowInfo.rowPB.id),
-      ),
+    final child = GridRow(
+      key: ValueKey(rowMeta.id),
+      rowId: rowId,
+      viewId: viewId,
+      index: index,
+      isDraggable: !isSortEnabled && !isFilterEnabled,
+      dataController: dataController,
+      cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
+      openDetailPage: (context, cellBuilder) {
+        _openRowDetailPage(
+          context,
+          rowId,
+          fieldController,
+          rowCache,
+          cellBuilder,
+        );
+      },
     );
+
+    if (animation != null) {
+      return SizeTransition(
+        sizeFactor: animation,
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   void _openRowDetailPage(
     BuildContext context,
-    RowInfo rowInfo,
+    RowId rowId,
     FieldController fieldController,
     RowCache rowCache,
     GridCellBuilder cellBuilder,
   ) {
-    final dataController = RowController(
-      viewId: rowInfo.viewId,
-      rowId: rowInfo.rowPB.id,
-      rowCache: rowCache,
-    );
+    final rowMeta = rowCache.getRow(rowId)?.rowMeta;
+    // Most of the cases, the rowMeta should not be null.
+    if (rowMeta != null) {
+      final dataController = RowController(
+        viewId: viewId,
+        rowMeta: rowMeta,
+        rowCache: rowCache,
+      );
 
-    FlowyOverlay.show(
-      context: context,
-      builder: (BuildContext context) {
-        return RowDetailPage(
-          cellBuilder: cellBuilder,
-          dataController: dataController,
-        );
-      },
-    );
+      FlowyOverlay.show(
+        context: context,
+        builder: (BuildContext context) {
+          return RowDetailPage(
+            cellBuilder: cellBuilder,
+            rowController: dataController,
+          );
+        },
+      );
+    } else {
+      Log.warn('RowMeta is null for rowId: $rowId');
+    }
   }
 }
 
 class _GridFooter extends StatelessWidget {
-  const _GridFooter({Key? key}) : super(key: key);
+  const _GridFooter({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return SliverPadding(
-      padding: const EdgeInsets.only(bottom: 200),
-      sliver: SliverToBoxAdapter(
+    return Container(
+      padding: GridSize.footerContentInsets,
+      height: GridSize.footerHeight,
+      margin: const EdgeInsets.only(bottom: 200),
+      child: const GridAddRowButton(),
+    );
+  }
+}
+
+class _WrapScrollView extends StatelessWidget {
+  const _WrapScrollView({
+    required this.contentWidth,
+    required this.scrollController,
+    required this.child,
+  });
+
+  final GridScrollController scrollController;
+  final double contentWidth;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ScrollbarListStack(
+      axis: Axis.vertical,
+      controller: scrollController.verticalController,
+      barSize: GridSize.scrollBarSize,
+      autoHideScrollbar: false,
+      child: StyledSingleChildScrollView(
+        controller: scrollController.horizontalController,
+        axis: Axis.horizontal,
         child: SizedBox(
-          height: GridSize.footerHeight,
-          child: Padding(
-            padding: GridSize.footerContentInsets,
-            child: const SizedBox(height: 40, child: GridAddRowButton()),
-          ),
+          width: contentWidth,
+          child: child,
         ),
       ),
     );
   }
 }
 
-class RowCountBadge extends StatelessWidget {
-  const RowCountBadge({Key? key}) : super(key: key);
+class _RowCountBadge extends StatelessWidget {
+  const _RowCountBadge();
 
   @override
   Widget build(BuildContext context) {
@@ -364,14 +380,17 @@ class RowCountBadge extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               FlowyText.medium(
-                '${LocaleKeys.grid_row_count.tr()} : ',
+                rowCountString(rowCount),
                 color: Theme.of(context).hintColor,
               ),
-              FlowyText.medium(rowCount.toString()),
             ],
           ),
         );
       },
     );
   }
+}
+
+String rowCountString(int count) {
+  return '${LocaleKeys.grid_row_count.tr()} : $count';
 }

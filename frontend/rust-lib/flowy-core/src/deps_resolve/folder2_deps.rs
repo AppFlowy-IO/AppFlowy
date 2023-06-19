@@ -1,21 +1,31 @@
 use std::collections::HashMap;
+use std::convert::TryFrom;
 use std::sync::Arc;
 
+use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
+use appflowy_integrate::RocksCollabDB;
 use bytes::Bytes;
-use collab_persistence::kv::rocks_kv::RocksCollabDB;
+use tokio::sync::RwLock;
+
 use flowy_database2::entities::DatabaseLayoutPB;
+use flowy_database2::services::share::csv::CSVFormat;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
 use flowy_database2::DatabaseManager2;
-use flowy_document::editor::make_transaction_from_document_content;
-use flowy_document::DocumentManager;
+use flowy_document2::entities::DocumentDataPB;
+use flowy_document2::manager::DocumentManager;
+use flowy_document2::parser::json::parser::JsonToDocumentParser;
 use flowy_error::FlowyError;
+use flowy_folder2::deps::{FolderCloudService, FolderUser};
 use flowy_folder2::entities::ViewLayoutPB;
-use flowy_folder2::manager::{Folder2Manager, FolderUser};
-use flowy_folder2::view_ext::{ViewDataProcessor, ViewDataProcessorMap};
+use flowy_folder2::manager::Folder2Manager;
+use flowy_folder2::share::ImportType;
+use flowy_folder2::view_operation::{
+  FolderOperationHandler, FolderOperationHandlers, View, WorkspaceViewBuilder,
+};
 use flowy_folder2::ViewLayout;
 use flowy_user::services::UserSession;
+use lib_dispatch::prelude::ToBytes;
 use lib_infra::future::FutureResult;
-use revision_model::Revision;
 
 pub struct Folder2DepsResolver();
 impl Folder2DepsResolver {
@@ -23,32 +33,33 @@ impl Folder2DepsResolver {
     user_session: Arc<UserSession>,
     document_manager: &Arc<DocumentManager>,
     database_manager: &Arc<DatabaseManager2>,
+    collab_builder: Arc<AppFlowyCollabBuilder>,
+    folder_cloud: Arc<dyn FolderCloudService>,
   ) -> Arc<Folder2Manager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl(user_session.clone()));
 
-    let view_data_processor =
-      make_view_data_processor(document_manager.clone(), database_manager.clone());
+    let handlers = folder_operation_handlers(document_manager.clone(), database_manager.clone());
     Arc::new(
-      Folder2Manager::new(user.clone(), view_data_processor)
+      Folder2Manager::new(user.clone(), collab_builder, handlers, folder_cloud)
         .await
         .unwrap(),
     )
   }
 }
 
-fn make_view_data_processor(
+fn folder_operation_handlers(
   document_manager: Arc<DocumentManager>,
   database_manager: Arc<DatabaseManager2>,
-) -> ViewDataProcessorMap {
-  let mut map: HashMap<ViewLayout, Arc<dyn ViewDataProcessor + Send + Sync>> = HashMap::new();
+) -> FolderOperationHandlers {
+  let mut map: HashMap<ViewLayout, Arc<dyn FolderOperationHandler + Send + Sync>> = HashMap::new();
 
-  let document_processor = Arc::new(DocumentViewDataProcessor(document_manager));
-  map.insert(ViewLayout::Document, document_processor);
+  let document_folder_operation = Arc::new(DocumentFolderOperation(document_manager));
+  map.insert(ViewLayout::Document, document_folder_operation);
 
-  let database_processor = Arc::new(DatabaseViewDataProcessor(database_manager));
-  map.insert(ViewLayout::Board, database_processor.clone());
-  map.insert(ViewLayout::Grid, database_processor.clone());
-  map.insert(ViewLayout::Calendar, database_processor);
+  let database_folder_operation = Arc::new(DatabaseFolderOperation(database_manager));
+  map.insert(ViewLayout::Board, database_folder_operation.clone());
+  map.insert(ViewLayout::Grid, database_folder_operation.clone());
+  map.insert(ViewLayout::Calendar, database_folder_operation);
   Arc::new(map)
 }
 
@@ -61,90 +72,149 @@ impl FolderUser for FolderUserImpl {
       .map_err(|e| FlowyError::internal().context(e))
   }
 
-  fn token(&self) -> Result<String, FlowyError> {
+  fn token(&self) -> Result<Option<String>, FlowyError> {
     self
       .0
       .token()
       .map_err(|e| FlowyError::internal().context(e))
   }
 
-  fn kv_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
-    self.0.get_kv_db()
+  fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
+    self.0.get_collab_db()
   }
 }
 
-struct DocumentViewDataProcessor(Arc<DocumentManager>);
-impl ViewDataProcessor for DocumentViewDataProcessor {
+struct DocumentFolderOperation(Arc<DocumentManager>);
+impl FolderOperationHandler for DocumentFolderOperation {
+  fn create_workspace_view(
+    &self,
+    workspace_view_builder: Arc<RwLock<WorkspaceViewBuilder>>,
+  ) -> FutureResult<(), FlowyError> {
+    let manager = self.0.clone();
+    FutureResult::new(async move {
+      let mut write_guard = workspace_view_builder.write().await;
+
+      // Create a parent view named "⭐️ Getting started". and a child view named "Read me".
+      // Don't modify this code unless you know what you are doing.
+      write_guard
+        .with_view_builder(|view_builder| async {
+          view_builder
+            .with_name("⭐️ Getting started")
+            .with_child_view_builder(|child_view_builder| async {
+              let view = child_view_builder.with_name("Read me").build();
+              let json_str = include_str!("../../assets/read_me.json");
+              let document_pb = JsonToDocumentParser::json_str_to_document(json_str).unwrap();
+              manager
+                .create_document(&view.parent_view.id, Some(document_pb.into()))
+                .unwrap();
+              view
+            })
+            .await
+            .build()
+        })
+        .await;
+      Ok(())
+    })
+  }
+
+  /// Close the document view.
   fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      manager.close_document_editor(view_id).await?;
+      manager.close_document(&view_id)?;
       Ok(())
     })
   }
 
-  fn get_view_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
+  fn delete_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      let editor = manager.open_document_editor(view_id).await?;
-      let document_data = Bytes::from(editor.duplicate().await?);
-      Ok(document_data)
-    })
-  }
-
-  fn create_view_with_build_in_data(
-    &self,
-    _user_id: i64,
-    view_id: &str,
-    _name: &str,
-    layout: ViewLayout,
-    _ext: HashMap<String, String>,
-  ) -> FutureResult<(), FlowyError> {
-    debug_assert_eq!(layout, ViewLayout::Document);
-    let view_id = view_id.to_string();
-    let manager = self.0.clone();
-    let document_content = self.0.initial_document_content();
-    FutureResult::new(async move {
-      let delta_data = Bytes::from(document_content);
-      let revision = Revision::initial_revision(&view_id, delta_data);
-      manager.create_document(view_id, vec![revision]).await?;
+      match manager.delete_document(&view_id) {
+        Ok(_) => tracing::trace!("Delete document: {}", view_id),
+        Err(e) => tracing::error!("Failed to delete document: {}", e),
+      }
       Ok(())
     })
   }
 
-  fn create_view_with_custom_data(
+  fn duplicate_view(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
+    let manager = self.0.clone();
+    let view_id = view_id.to_string();
+    FutureResult::new(async move {
+      let document = manager.get_document_from_disk(&view_id)?;
+      let data: DocumentDataPB = document.lock().get_document()?.into();
+      let data_bytes = data.into_bytes().map_err(|_| FlowyError::invalid_data())?;
+      Ok(data_bytes)
+    })
+  }
+
+  fn create_view_with_view_data(
     &self,
     _user_id: i64,
     view_id: &str,
     _name: &str,
     data: Vec<u8>,
     layout: ViewLayout,
-    _ext: HashMap<String, String>,
+    _meta: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayout::Document);
-    let view_data = match String::from_utf8(data) {
-      Ok(content) => match make_transaction_from_document_content(&content) {
-        Ok(transaction) => transaction.to_bytes().unwrap_or_else(|_| vec![]),
-        Err(_) => vec![],
-      },
-      Err(_) => vec![],
-    };
-
-    let revision = Revision::initial_revision(view_id, Bytes::from(view_data));
     let view_id = view_id.to_string();
     let manager = self.0.clone();
-
     FutureResult::new(async move {
-      manager.create_document(view_id, vec![revision]).await?;
+      let data = DocumentDataPB::try_from(Bytes::from(data))?;
+      manager.create_document(&view_id, Some(data.into()))?;
       Ok(())
     })
   }
+
+  /// Create a view with built-in data.
+  fn create_built_in_view(
+    &self,
+    _user_id: i64,
+    view_id: &str,
+    _name: &str,
+    layout: ViewLayout,
+  ) -> FutureResult<(), FlowyError> {
+    debug_assert_eq!(layout, ViewLayout::Document);
+    let view_id = view_id.to_string();
+    let manager = self.0.clone();
+    FutureResult::new(async move {
+      manager.create_document(&view_id, None)?;
+      Ok(())
+    })
+  }
+
+  fn import_from_bytes(
+    &self,
+    view_id: &str,
+    _name: &str,
+    _import_type: ImportType,
+    bytes: Vec<u8>,
+  ) -> FutureResult<(), FlowyError> {
+    let view_id = view_id.to_string();
+    let manager = self.0.clone();
+    FutureResult::new(async move {
+      let data = DocumentDataPB::try_from(Bytes::from(bytes))?;
+      manager.create_document(&view_id, Some(data.into()))?;
+      Ok(())
+    })
+  }
+
+  // will implement soon
+  fn import_from_file_path(
+    &self,
+    _view_id: &str,
+    _name: &str,
+    _path: String,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async move { Ok(()) })
+  }
 }
 
-struct DatabaseViewDataProcessor(Arc<DatabaseManager2>);
-impl ViewDataProcessor for DatabaseViewDataProcessor {
+struct DatabaseFolderOperation(Arc<DatabaseManager2>);
+impl FolderOperationHandler for DatabaseFolderOperation {
   fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
     let database_manager = self.0.clone();
     let view_id = view_id.to_string();
@@ -154,7 +224,19 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
     })
   }
 
-  fn get_view_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
+  fn delete_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
+    let database_manager = self.0.clone();
+    let view_id = view_id.to_string();
+    FutureResult::new(async move {
+      match database_manager.delete_database_view(&view_id).await {
+        Ok(_) => tracing::trace!("Delete database view: {}", view_id),
+        Err(e) => tracing::error!("Failed to delete database: {}", e),
+      }
+      Ok(())
+    })
+  }
+
+  fn duplicate_view(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
     let database_manager = self.0.clone();
     let view_id = view_id.to_owned();
     FutureResult::new(async move {
@@ -163,17 +245,55 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
     })
   }
 
+  /// Create a database view with duplicated data.
+  /// If the ext contains the {"database_id": "xx"}, then it will link
+  /// to the existing database.
+  fn create_view_with_view_data(
+    &self,
+    _user_id: i64,
+    view_id: &str,
+    name: &str,
+    data: Vec<u8>,
+    layout: ViewLayout,
+    meta: HashMap<String, String>,
+  ) -> FutureResult<(), FlowyError> {
+    match CreateDatabaseExtParams::from_map(meta) {
+      None => {
+        let database_manager = self.0.clone();
+        let view_id = view_id.to_string();
+        FutureResult::new(async move {
+          database_manager
+            .create_database_with_database_data(&view_id, data)
+            .await?;
+          Ok(())
+        })
+      },
+      Some(params) => {
+        let database_manager = self.0.clone();
+        let layout = layout_type_from_view_layout(layout.into());
+        let name = name.to_string();
+        let database_view_id = view_id.to_string();
+
+        FutureResult::new(async move {
+          database_manager
+            .create_linked_view(name, layout, params.database_id, database_view_id)
+            .await?;
+          Ok(())
+        })
+      },
+    }
+  }
+
   /// Create a database view with build-in data.
   /// If the ext contains the {"database_id": "xx"}, then it will link to
   /// the existing database. The data of the database will be shared within
   /// these references views.
-  fn create_view_with_build_in_data(
+  fn create_built_in_view(
     &self,
     _user_id: i64,
     view_id: &str,
     name: &str,
     layout: ViewLayout,
-    _ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
     let name = name.to_string();
     let database_manager = self.0.clone();
@@ -193,48 +313,68 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
     })
   }
 
-  /// Create a database view with duplicated data.
-  /// If the ext contains the {"database_id": "xx"}, then it will link
-  /// to the existing database.
-  fn create_view_with_custom_data(
+  fn import_from_bytes(
     &self,
-    _user_id: i64,
     view_id: &str,
-    name: &str,
-    data: Vec<u8>,
-    layout: ViewLayout,
-    ext: HashMap<String, String>,
+    _name: &str,
+    import_type: ImportType,
+    bytes: Vec<u8>,
   ) -> FutureResult<(), FlowyError> {
-    match CreateDatabaseExtParams::from_map(ext) {
-      None => {
-        let database_manager = self.0.clone();
-        let view_id = view_id.to_string();
-        FutureResult::new(async move {
-          database_manager
-            .create_database_with_database_data(&view_id, data)
-            .await?;
-          Ok(())
-        })
-      },
-      Some(params) => {
-        let database_manager = self.0.clone();
-        let layout = layout_type_from_view_layout(layout.into());
-        let name = name.to_string();
-        let target_view_id = view_id.to_string();
+    let database_manager = self.0.clone();
+    let view_id = view_id.to_string();
+    let format = match import_type {
+      ImportType::CSV => CSVFormat::Original,
+      ImportType::HistoryDatabase => CSVFormat::META,
+      ImportType::RawDatabase => CSVFormat::META,
+      _ => CSVFormat::Original,
+    };
+    FutureResult::new(async move {
+      let content = String::from_utf8(bytes).map_err(|err| FlowyError::internal().context(err))?;
+      database_manager
+        .import_csv(view_id, content, format)
+        .await?;
+      Ok(())
+    })
+  }
 
-        FutureResult::new(async move {
-          database_manager
-            .create_linked_view(
-              name,
-              layout,
-              params.database_id,
-              target_view_id,
-              params.duplicated_view_id,
-            )
-            .await?;
-          Ok(())
-        })
+  fn import_from_file_path(
+    &self,
+    _view_id: &str,
+    _name: &str,
+    path: String,
+  ) -> FutureResult<(), FlowyError> {
+    let database_manager = self.0.clone();
+    FutureResult::new(async move {
+      database_manager
+        .import_csv_from_file(path, CSVFormat::META)
+        .await?;
+      Ok(())
+    })
+  }
+
+  fn did_update_view(&self, old: &View, new: &View) -> FutureResult<(), FlowyError> {
+    let database_layout = match new.layout {
+      ViewLayout::Document => {
+        return FutureResult::new(async {
+          Err(FlowyError::internal().context("Can't handle document layout type"))
+        });
       },
+      ViewLayout::Grid => DatabaseLayoutPB::Grid,
+      ViewLayout::Board => DatabaseLayoutPB::Board,
+      ViewLayout::Calendar => DatabaseLayoutPB::Calendar,
+    };
+
+    let database_manager = self.0.clone();
+    let view_id = new.id.clone();
+    if old.layout != new.layout {
+      FutureResult::new(async move {
+        database_manager
+          .update_database_layout(&view_id, database_layout)
+          .await?;
+        Ok(())
+      })
+    } else {
+      FutureResult::new(async move { Ok(()) })
     }
   }
 }
@@ -242,7 +382,6 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
 #[derive(Debug, serde::Deserialize)]
 struct CreateDatabaseExtParams {
   database_id: String,
-  duplicated_view_id: Option<String>,
 }
 
 impl CreateDatabaseExtParams {

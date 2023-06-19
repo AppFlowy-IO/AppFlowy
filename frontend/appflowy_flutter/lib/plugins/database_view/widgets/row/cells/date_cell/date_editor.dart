@@ -17,7 +17,6 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 import '../../../../grid/presentation/layout/sizes.dart';
 import '../../../../grid/presentation/widgets/common/type_option_separator.dart';
 import '../../../../grid/presentation/widgets/header/type_option/date.dart';
@@ -107,7 +106,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
       )..add(const DateCellCalendarEvent.initial()),
       child: BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
         builder: (context, state) {
-          List<Widget> children = [
+          final List<Widget> children = [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: _buildCalendar(context),
@@ -115,8 +114,11 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               child: state.includeTime
-                  ? _TimeTextField(popoverMutex: popoverMutex)
-                  : const SizedBox(),
+                  ? _TimeTextField(
+                      timeStr: state.time,
+                      popoverMutex: popoverMutex,
+                    )
+                  : const SizedBox.shrink(),
             ),
             const TypeOptionSeparator(spacing: 12.0),
             const _IncludeTimeButton(),
@@ -195,11 +197,13 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             outsideDecoration: boxDecoration,
             defaultTextStyle: textStyle,
             weekendTextStyle: textStyle,
-            selectedTextStyle:
-                textStyle.textColor(Theme.of(context).colorScheme.surface),
+            selectedTextStyle: textStyle.copyWith(
+              color: Theme.of(context).colorScheme.surface,
+            ),
             todayTextStyle: textStyle,
-            outsideTextStyle:
-                textStyle.textColor(Theme.of(context).disabledColor),
+            outsideTextStyle: textStyle.copyWith(
+              color: Theme.of(context).disabledColor,
+            ),
           ),
           selectedDayPredicate: (day) => isSameDay(state.dateTime, day),
           onDaySelected: (selectedDay, focusedDay) {
@@ -265,9 +269,11 @@ class _IncludeTimeButton extends StatelessWidget {
 }
 
 class _TimeTextField extends StatefulWidget {
+  final String? timeStr;
   final PopoverMutex popoverMutex;
 
   const _TimeTextField({
+    required this.timeStr,
     required this.popoverMutex,
     Key? key,
   }) : super(key: key);
@@ -278,10 +284,12 @@ class _TimeTextField extends StatefulWidget {
 
 class _TimeTextFieldState extends State<_TimeTextField> {
   late final FocusNode _focusNode;
+  late final TextEditingController _textController;
 
   @override
   void initState() {
     _focusNode = FocusNode();
+    _textController = TextEditingController()..text = widget.timeStr ?? "";
 
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
@@ -300,7 +308,8 @@ class _TimeTextFieldState extends State<_TimeTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
+    return BlocConsumer<DateCellCalendarBloc, DateCellCalendarState>(
+      listener: (context, state) => _textController.text = state.time ?? "",
       builder: (context, state) {
         return Column(
           children: [
@@ -310,13 +319,14 @@ class _TimeTextFieldState extends State<_TimeTextField> {
               child: FlowyTextField(
                 text: state.time ?? "",
                 focusNode: _focusNode,
+                controller: _textController,
                 submitOnLeave: true,
                 hintText: state.timeHintText,
                 errorText: state.timeFormatError,
-                onSubmitted: (timeString) {
+                onSubmitted: (timeStr) {
                   context
                       .read<DateCellCalendarBloc>()
-                      .add(DateCellCalendarEvent.setTime(timeString));
+                      .add(DateCellCalendarEvent.setTime(timeStr));
                 },
               ),
             ),
@@ -393,7 +403,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> children = [
+    final List<Widget> children = [
       AppFlowyPopover(
         mutex: timeSettingPopoverMutex,
         triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,

@@ -9,21 +9,21 @@ import 'view_listener.dart';
 
 class DatabaseViewCallbacks {
   /// Will get called when number of rows were changed that includes
-  /// update/delete/insert rows. The [onRowsChanged] will return all
+  /// update/delete/insert rows. The [onNumOfRowsChanged] will return all
   /// the rows of the current database
-  final OnRowsChanged? onRowsChanged;
+  final OnNumOfRowsChanged? onNumOfRowsChanged;
 
   // Will get called when creating new rows
   final OnRowsCreated? onRowsCreated;
 
-  /// Will get called when number of rows were updated
+  /// Will get called when rows were updated
   final OnRowsUpdated? onRowsUpdated;
 
   /// Will get called when number of rows were deleted
   final OnRowsDeleted? onRowsDeleted;
 
   const DatabaseViewCallbacks({
-    this.onRowsChanged,
+    this.onNumOfRowsChanged,
     this.onRowsCreated,
     this.onRowsUpdated,
     this.onRowsDeleted,
@@ -65,14 +65,16 @@ class DatabaseViewCache {
             }
 
             if (changeset.updatedRows.isNotEmpty) {
-              _callbacks?.onRowsUpdated
-                  ?.call(changeset.updatedRows.map((e) => e.row.id).toList());
+              _callbacks?.onRowsUpdated?.call(
+                changeset.updatedRows.map((e) => e.rowId).toList(),
+                _rowCache.changeReason,
+              );
             }
 
             if (changeset.insertedRows.isNotEmpty) {
               _callbacks?.onRowsCreated?.call(
                 changeset.insertedRows
-                    .map((insertedRow) => insertedRow.row.id)
+                    .map((insertedRow) => insertedRow.rowMeta.id)
                     .toList(),
               );
             }
@@ -101,7 +103,7 @@ class DatabaseViewCache {
     );
 
     _rowCache.onRowsChanged(
-      (reason) => _callbacks?.onRowsChanged?.call(
+      (reason) => _callbacks?.onNumOfRowsChanged?.call(
         rowInfos,
         _rowCache.rowByRowId,
         reason,

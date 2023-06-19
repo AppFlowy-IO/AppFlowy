@@ -1,5 +1,7 @@
 import { nanoid } from '@reduxjs/toolkit';
 import {
+  AuthTypePB,
+  SignOutPB,
   UserEventCheckUser,
   UserEventGetUserProfile,
   UserEventSignIn,
@@ -8,19 +10,19 @@ import {
   UserEventUpdateUserProfile,
 } from '@/services/backend/events/flowy-user';
 import {
+  CreateWorkspacePayloadPB,
   SignInPayloadPB,
   SignUpPayloadPB,
   UpdateUserProfilePayloadPB,
   WorkspaceIdPB,
-  CreateWorkspacePayloadPB,
-  WorkspaceSettingPB,
   WorkspacePB,
+  WorkspaceSettingPB,
 } from '@/services/backend';
 import {
   FolderEventCreateWorkspace,
   FolderEventOpenWorkspace,
-  FolderEventReadCurrentWorkspace,
-  FolderEventReadWorkspaces,
+  FolderEventGetCurrentWorkspace,
+  FolderEventReadAllWorkspaces,
 } from '@/services/backend/events/flowy-folder2';
 
 export class UserBackendService {
@@ -52,7 +54,7 @@ export class UserBackendService {
   };
 
   getCurrentWorkspace = async (): Promise<WorkspaceSettingPB> => {
-    const result = await FolderEventReadCurrentWorkspace();
+    const result = await FolderEventGetCurrentWorkspace();
     if (result.ok) {
       return result.val;
     } else {
@@ -62,7 +64,7 @@ export class UserBackendService {
 
   getWorkspaces = () => {
     const payload = WorkspaceIdPB.fromObject({});
-    return FolderEventReadWorkspaces(payload);
+    return FolderEventReadAllWorkspaces(payload);
   };
 
   openWorkspace = (workspaceId: string) => {
@@ -81,7 +83,8 @@ export class UserBackendService {
   };
 
   signOut = () => {
-    return UserEventSignOut();
+    const payload = SignOutPB.fromObject({ auth_type: AuthTypePB.Local });
+    return UserEventSignOut(payload);
   };
 }
 
@@ -97,7 +100,8 @@ export class AuthBackendService {
   };
 
   signOut = () => {
-    return UserEventSignOut();
+    const payload = SignOutPB.fromObject({ auth_type: AuthTypePB.Local });
+    return UserEventSignOut(payload);
   };
 
   autoSignUp = () => {

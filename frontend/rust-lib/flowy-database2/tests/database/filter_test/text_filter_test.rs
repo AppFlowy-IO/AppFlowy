@@ -1,9 +1,10 @@
-use crate::database::filter_test::script::FilterScript::*;
-use crate::database::filter_test::script::*;
 use flowy_database2::entities::{
-  AlterFilterPayloadPB, FieldType, TextFilterConditionPB, TextFilterPB,
+  FieldType, TextFilterConditionPB, TextFilterPB, UpdateFilterPayloadPB,
 };
 use flowy_database2::services::filter::FilterType;
+
+use crate::database::filter_test::script::FilterScript::*;
+use crate::database::filter_test::script::*;
 
 #[tokio::test]
 async fn grid_filter_text_is_empty_test() {
@@ -87,7 +88,7 @@ async fn grid_filter_contain_text_test() {
 #[tokio::test]
 async fn grid_filter_contain_text_test2() {
   let mut test = DatabaseFilterTest::new().await;
-  let rows = test.rows.clone();
+  let row_detail = test.row_details.clone();
 
   let scripts = vec![
     CreateTextFilter {
@@ -99,7 +100,7 @@ async fn grid_filter_contain_text_test2() {
       }),
     },
     UpdateTextCell {
-      row_id: rows[1].id.clone(),
+      row_id: row_detail[1].row.id.clone(),
       text: "ABC".to_string(),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 1,
@@ -195,7 +196,7 @@ async fn grid_filter_delete_test() {
     condition: TextFilterConditionPB::TextIsEmpty,
     content: "".to_string(),
   };
-  let payload = AlterFilterPayloadPB::new(&test.view_id(), &field, text_filter);
+  let payload = UpdateFilterPayloadPB::new(&test.view_id(), &field, text_filter);
   let scripts = vec![
     InsertFilter { payload },
     AssertFilterCount { count: 1 },
@@ -220,7 +221,7 @@ async fn grid_filter_delete_test() {
 #[tokio::test]
 async fn grid_filter_update_empty_text_cell_test() {
   let mut test = DatabaseFilterTest::new().await;
-  let rows = test.rows.clone();
+  let row_details = test.row_details.clone();
   let scripts = vec![
     CreateTextFilter {
       condition: TextFilterConditionPB::TextIsEmpty,
@@ -232,7 +233,7 @@ async fn grid_filter_update_empty_text_cell_test() {
     },
     AssertFilterCount { count: 1 },
     UpdateTextCell {
-      row_id: rows[0].id.clone(),
+      row_id: row_details[0].row.id.clone(),
       text: "".to_string(),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 1,

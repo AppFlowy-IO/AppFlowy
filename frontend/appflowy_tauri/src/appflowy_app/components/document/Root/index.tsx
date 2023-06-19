@@ -19,18 +19,11 @@ function Root({ documentData }: { documentData: DocumentData }) {
   }
 
   return (
-    <div
-      id='appflowy-block-doc'
-      className='h-[100%] overflow-hidden'
-      onKeyDown={(e) => {
-        // prevent backspace from going back
-        if (e.key === 'Backspace') {
-          e.stopPropagation();
-        }
-      }}
-    >
-      <VirtualizedList node={node} childIds={childIds} renderNode={renderNode} />
-    </div>
+    <>
+      <div id='appflowy-block-doc' className='h-[100%] overflow-hidden caret-custom-caret'>
+        <VirtualizedList node={node} childIds={childIds} renderNode={renderNode} />
+      </div>
+    </>
   );
 }
 

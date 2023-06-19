@@ -7,6 +7,7 @@ import { BoardDateCell } from './BoardDateCell';
 import { BoardTextCell } from './BoardTextCell';
 import { BoardUrlCell } from '$app/components/board/BoardUrlCell';
 import { BoardCheckboxCell } from '$app/components/board/BoardCheckboxCell';
+import { BoardCheckListCell } from '$app/components/board/BoardCheckListCell';
 
 export const BoardCell = ({
   cellIdentifier,
@@ -19,14 +20,18 @@ export const BoardCell = ({
 }) => {
   return (
     <>
-      {cellIdentifier.fieldType === FieldType.SingleSelect ||
-      cellIdentifier.fieldType === FieldType.MultiSelect ||
-      cellIdentifier.fieldType === FieldType.Checklist ? (
+      {cellIdentifier.fieldType === FieldType.SingleSelect || cellIdentifier.fieldType === FieldType.MultiSelect ? (
         <BoardOptionsCell
           cellIdentifier={cellIdentifier}
           cellCache={cellCache}
           fieldController={fieldController}
         ></BoardOptionsCell>
+      ) : cellIdentifier.fieldType === FieldType.Checklist ? (
+        <BoardCheckListCell
+          cellIdentifier={cellIdentifier}
+          cellCache={cellCache}
+          fieldController={fieldController}
+        ></BoardCheckListCell>
       ) : cellIdentifier.fieldType === FieldType.DateTime ? (
         <BoardDateCell
           cellIdentifier={cellIdentifier}

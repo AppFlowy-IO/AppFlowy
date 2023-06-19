@@ -1,11 +1,15 @@
 export function debounce(fn: (...args: any[]) => void, delay: number) {
   let timeout: NodeJS.Timeout;
-  return (...args: any[]) => {
+  const debounceFn = (...args: any[]) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
       fn.apply(undefined, args);
     }, delay);
   };
+  debounceFn.cancel = () => {
+    clearTimeout(timeout);
+  };
+  return debounceFn;
 }
 
 export function throttle(fn: (...args: any[]) => void, delay: number, immediate = true) {
@@ -81,4 +85,20 @@ export function isEqual<T>(value1: T, value2: T): boolean {
     }
   }
   return true;
+}
+
+export function clone<T>(value: T): T {
+  if (typeof value !== 'object' || value === null) {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => clone(item)) as any;
+  }
+
+  const result: any = {};
+  for (const key in value) {
+    result[key] = clone(value[key]);
+  }
+  return result;
 }

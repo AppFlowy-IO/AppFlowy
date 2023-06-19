@@ -56,7 +56,13 @@ class FlowyButton extends StatelessWidget {
         ),
       );
     } else {
-      return Opacity(opacity: disableOpacity, child: _render());
+      return Opacity(
+        opacity: disableOpacity,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.forbidden,
+          child: _render(),
+        ),
+      );
     }
   }
 
@@ -121,6 +127,8 @@ class FlowyTextButton extends StatelessWidget {
 
   final TextDecoration? decoration;
 
+  final String? fontFamily;
+
   // final HoverDisplayConfig? hoverDisplay;
   const FlowyTextButton(
     this.text, {
@@ -139,6 +147,7 @@ class FlowyTextButton extends StatelessWidget {
     this.tooltip,
     this.constraints = const BoxConstraints(minWidth: 58.0, minHeight: 30.0),
     this.decoration,
+    this.fontFamily,
   }) : super(key: key);
 
   @override
@@ -157,6 +166,7 @@ class FlowyTextButton extends StatelessWidget {
         color: fontColor,
         textAlign: TextAlign.center,
         decoration: decoration,
+        fontFamily: fontFamily,
       ),
     );
 

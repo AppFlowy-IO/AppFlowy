@@ -48,8 +48,9 @@ void main() {
     );
     final expectedGroupName = "No ${multiSelectField.name}";
     assert(
-      boardBloc.groupControllers.values.first.group.desc == expectedGroupName,
-      "Expected $expectedGroupName, but receive ${boardBloc.groupControllers.values.first.group.desc}",
+      boardBloc.groupControllers.values.first.group.groupName ==
+          expectedGroupName,
+      "Expected $expectedGroupName, but receive ${boardBloc.groupControllers.values.first.group.groupName}",
     );
   });
 
@@ -101,8 +102,8 @@ void main() {
 
     final groups =
         boardBloc.groupControllers.values.map((e) => e.group).toList();
-    assert(groups[0].desc == "No ${multiSelectField.name}");
-    assert(groups[1].desc == "B");
-    assert(groups[2].desc == "A");
+    assert(groups[0].groupName == "No ${multiSelectField.name}");
+    assert(groups[1].groupName == "B");
+    assert(groups[2].groupName == "A");
   });
 }

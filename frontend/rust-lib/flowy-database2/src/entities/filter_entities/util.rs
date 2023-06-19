@@ -1,3 +1,12 @@
+use std::convert::TryInto;
+use std::sync::Arc;
+
+use bytes::Bytes;
+use collab_database::fields::Field;
+
+use flowy_derive::ProtoBuf;
+use flowy_error::ErrorCode;
+
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
   CheckboxFilterPB, ChecklistFilterPB, DateFilterContentPB, DateFilterPB, FieldType,
@@ -5,12 +14,6 @@ use crate::entities::{
 };
 use crate::services::field::SelectOptionIds;
 use crate::services::filter::{Filter, FilterType};
-use bytes::Bytes;
-use collab_database::fields::Field;
-use flowy_derive::ProtoBuf;
-use flowy_error::ErrorCode;
-use std::convert::TryInto;
-use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct FilterPB {
@@ -32,7 +35,9 @@ impl std::convert::From<&Filter> for FilterPB {
     let bytes: Bytes = match filter.field_type {
       FieldType::RichText => TextFilterPB::from(filter).try_into().unwrap(),
       FieldType::Number => NumberFilterPB::from(filter).try_into().unwrap(),
-      FieldType::DateTime => DateFilterPB::from(filter).try_into().unwrap(),
+      FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+        DateFilterPB::from(filter).try_into().unwrap()
+      },
       FieldType::SingleSelect => SelectOptionFilterPB::from(filter).try_into().unwrap(),
       FieldType::MultiSelect => SelectOptionFilterPB::from(filter).try_into().unwrap(),
       FieldType::Checklist => ChecklistFilterPB::from(filter).try_into().unwrap(),
@@ -95,7 +100,7 @@ impl TryInto<DeleteFilterParams> for DeleteFilterPayloadPB {
       .0;
 
     let filter_id = NotEmptyStr::parse(self.filter_id)
-      .map_err(|_| ErrorCode::UnexpectedEmptyString)?
+      .map_err(|_| ErrorCode::UnexpectedEmpty)?
       .0;
 
     let filter_type = FilterType {
@@ -120,7 +125,7 @@ pub struct DeleteFilterParams {
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]
-pub struct AlterFilterPayloadPB {
+pub struct UpdateFilterPayloadPB {
   #[pb(index = 1)]
   pub field_id: String,
 
@@ -138,7 +143,7 @@ pub struct AlterFilterPayloadPB {
   pub view_id: String,
 }
 
-impl AlterFilterPayloadPB {
+impl UpdateFilterPayloadPB {
   #[allow(dead_code)]
   pub fn new<T: TryInto<Bytes, Error = ::protobuf::ProtobufError>>(
     view_id: &str,
@@ -157,10 +162,10 @@ impl AlterFilterPayloadPB {
   }
 }
 
-impl TryInto<AlterFilterParams> for AlterFilterPayloadPB {
+impl TryInto<UpdateFilterParams> for UpdateFilterPayloadPB {
   type Error = ErrorCode;
 
-  fn try_into(self) -> Result<AlterFilterParams, Self::Error> {
+  fn try_into(self) -> Result<UpdateFilterParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id)
       .map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?
       .0;
@@ -195,7 +200,7 @@ impl TryInto<AlterFilterParams> for AlterFilterPayloadPB {
         condition = filter.condition as u8;
         content = filter.content;
       },
-      FieldType::DateTime => {
+      FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
         let filter = DateFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
         condition = filter.condition as u8;
         content = DateFilterContentPB {
@@ -212,7 +217,7 @@ impl TryInto<AlterFilterParams> for AlterFilterPayloadPB {
       },
     }
 
-    Ok(AlterFilterParams {
+    Ok(UpdateFilterParams {
       view_id,
       field_id,
       filter_id,
@@ -224,7 +229,7 @@ impl TryInto<AlterFilterParams> for AlterFilterPayloadPB {
 }
 
 #[derive(Debug)]
-pub struct AlterFilterParams {
+pub struct UpdateFilterParams {
   pub view_id: String,
   pub field_id: String,
   /// Create a new filter if the filter_id is None

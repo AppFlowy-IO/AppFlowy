@@ -108,15 +108,10 @@ class _DebugToast {
 
   Future<String> _getDeviceInfo() async {
     final deviceInfoPlugin = DeviceInfoPlugin();
-    final deviceInfo = deviceInfoPlugin.deviceInfo;
+    final deviceInfo = await deviceInfoPlugin.deviceInfo;
 
-    return deviceInfo.then((info) {
-      var debugText = "";
-      info.toMap().forEach((key, value) {
-        debugText = "$debugText$key: $value\n";
-      });
-      return debugText;
-    });
+    return deviceInfo.data.entries
+        .fold('', (prev, el) => "$prev${el.key}: ${el.value}");
   }
 
   Future<String> _getDocumentPath() async {
@@ -141,9 +136,9 @@ class FlowyVersionDescription extends CustomActionCell {
             );
           }
 
-          PackageInfo packageInfo = snapshot.data;
-          String appName = packageInfo.appName;
-          String version = packageInfo.version;
+          final PackageInfo packageInfo = snapshot.data;
+          final String appName = packageInfo.appName;
+          final String version = packageInfo.version;
 
           return SizedBox(
             height: 30,

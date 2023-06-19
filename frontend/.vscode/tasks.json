@@ -118,7 +118,7 @@
     {
       "label": "AF: Generate Freezed Files",
       "type": "shell",
-      "command": "flutter pub run build_runner build --delete-conflicting-outputs",
+      "command": "dart run build_runner build -d",
       "options": {
         "cwd": "${workspaceFolder}/appflowy_flutter"
       }

@@ -6,7 +6,7 @@ enum AccessoryType {
   more,
 }
 
-abstract class CardAccessory implements Widget {
+abstract mixin class CardAccessory implements Widget {
   AccessoryType get type;
   void onTap(BuildContext context) {}
 }

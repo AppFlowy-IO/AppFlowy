@@ -45,22 +45,27 @@ class CalendarPlugin extends Plugin {
   CalendarPlugin({
     required ViewPB view,
     required PluginType pluginType,
+    bool listenOnViewChanged = false,
   })  : _pluginType = pluginType,
-        notifier = ViewPluginNotifier(view: view);
+        notifier = ViewPluginNotifier(
+          view: view,
+          listenOnViewChanged: listenOnViewChanged,
+        );
 
   @override
-  PluginDisplay get display => CalendarPluginDisplay(notifier: notifier);
+  PluginWidgetBuilder get widgetBuilder =>
+      CalendarPluginWidgetBuilder(notifier: notifier);
 
   @override
   PluginId get id => notifier.view.id;
 
   @override
-  PluginType get ty => _pluginType;
+  PluginType get pluginType => _pluginType;
 }
 
-class CalendarPluginDisplay extends PluginDisplay {
+class CalendarPluginWidgetBuilder extends PluginWidgetBuilder {
   final ViewPluginNotifier notifier;
-  CalendarPluginDisplay({required this.notifier, Key? key});
+  CalendarPluginWidgetBuilder({required this.notifier, Key? key});
 
   ViewPB get view => notifier.view;
 
@@ -68,11 +73,11 @@ class CalendarPluginDisplay extends PluginDisplay {
   Widget get leftBarItem => ViewLeftBarItem(view: view);
 
   @override
-  Widget buildWidget(PluginContext context) {
+  Widget buildWidget({PluginContext? context}) {
     notifier.isDeleted.addListener(() {
       notifier.isDeleted.value.fold(() => null, (deletedView) {
         if (deletedView.hasIndex()) {
-          context.onDeleted(view, deletedView.index);
+          context?.onDeleted(view, deletedView.index);
         }
       });
     });

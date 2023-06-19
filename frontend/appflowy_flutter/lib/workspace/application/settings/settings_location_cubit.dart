@@ -1,71 +1,83 @@
 import 'dart:io';
 
-import 'package:bloc/bloc.dart';
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../startup/tasks/prelude.dart';
 
-@visibleForTesting
-const String kSettingsLocationDefaultLocation =
-    'kSettingsLocationDefaultLocation';
+part 'settings_location_cubit.freezed.dart';
 
-class SettingsLocation {
-  SettingsLocation({
-    String? path,
-  }) : _path = path;
+@freezed
+class SettingsLocationState with _$SettingsLocationState {
+  const factory SettingsLocationState.initial() = _Initial;
+  const factory SettingsLocationState.didReceivedPath(String path) =
+      _DidReceivedPath;
+}
 
-  String? _path;
-
-  set path(String? path) {
-    _path = path;
+class SettingsLocationCubit extends Cubit<SettingsLocationState> {
+  SettingsLocationCubit() : super(const SettingsLocationState.initial()) {
+    _init();
   }
 
-  String? get path {
-    if (Platform.isMacOS) {
-      // remove the prefix `/Volumes/*`
-      return _path?.replaceFirst(RegExp(r'^/Volumes/[^/]+'), '');
-    } else if (Platform.isWindows) {
-      return _path?.replaceAll("/", "\\");
-    }
-    return _path;
+  Future<void> setPath(String path) async {
+    await getIt<LocalFileStorage>().setPath(path);
+    emit(SettingsLocationState.didReceivedPath(path));
   }
 
-  SettingsLocation copyWith({String? path}) {
-    return SettingsLocation(
-      path: path ?? this.path,
-    );
+  Future<void> _init() async {
+    final path = await getIt<LocalFileStorage>().getPath();
+    emit(SettingsLocationState.didReceivedPath(path));
   }
 }
 
-class SettingsLocationCubit extends Cubit<SettingsLocation> {
-  SettingsLocationCubit() : super(SettingsLocation(path: null));
+class LocalFileStorage {
+  LocalFileStorage();
+  String? _cachePath;
 
-  /// Returns a path that used to store user data
-  Future<String> fetchLocation() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    /// Use the [appFlowyDocumentDirectory] instead if there is no user
-    /// preference location
-    final path = prefs.getString(kSettingsLocationDefaultLocation) ??
-        (await appFlowyDocumentDirectory()).path;
-
-    emit(state.copyWith(path: path));
-    return Future.value(path);
-  }
-
-  /// Saves the user preference local data store location
-  Future<void> setLocation(String? path) async {
-    path = path ?? (await appFlowyDocumentDirectory()).path;
-
-    assert(path.isNotEmpty);
-    if (path.isEmpty) {
-      path = (await appFlowyDocumentDirectory()).path;
+  Future<void> setPath(String path) async {
+    if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
+      Log.info('LocalFileStorage is not supported on this platform.');
+      return;
     }
 
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString(kSettingsLocationDefaultLocation, path);
-    await Directory(path).create(recursive: true);
-    emit(state.copyWith(path: path));
+    if (Platform.isMacOS) {
+      // remove the prefix `/Volumes/*`
+      path = path.replaceFirst(RegExp(r'^/Volumes/[^/]+'), '');
+    } else if (Platform.isWindows) {
+      path = path.replaceAll('/', '\\');
+    }
+
+    await getIt<KeyValueStorage>().set(KVKeys.pathLocation, path);
+    // clear the cache path, and not set the cache path to the new path because the set path may be invalid
+    _cachePath = null;
+  }
+
+  Future<String> getPath() async {
+    if (_cachePath != null) {
+      return _cachePath!;
+    }
+
+    final response = await getIt<KeyValueStorage>().get(KVKeys.pathLocation);
+    final String path = await response.fold(
+      (error) async {
+        // return the default path if the path is not set
+        final directory = await appFlowyDocumentDirectory();
+        return directory.path;
+      },
+      (path) => path,
+    );
+    _cachePath = path;
+
+    // if the path is not exists means the path is invalid, so we should clear the kv store
+    if (!Directory(path).existsSync()) {
+      await getIt<KeyValueStorage>().clear();
+    }
+
+    return path;
   }
 }

@@ -6,6 +6,8 @@
   "subscribeNewsletterText": "Subscribe to Newsletter",
   "letsGoButtonText": "Quick Start",
   "title": "Title",
+  "youCanAlso": "You can also",
+  "and": "and",
   "signUp": {
     "buttonText": "Sign Up",
     "title": "Sign Up to @:appName",
@@ -21,6 +23,7 @@
   "signIn": {
     "loginTitle": "Login to @:appName",
     "loginButtonText": "Login",
+    "loginAsGuestButtonText": "Get Started",
     "buttonText": "Sign In",
     "forgotPassword": "Forgot Password?",
     "emailHint": "Email",
@@ -45,7 +48,15 @@
     "medium": "medium",
     "large": "large",
     "fontSize": "Font Size",
-    "import": "Import"
+    "import": "Import",
+    "moreOptions": "More options"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Text & Markdown",
+    "documentFromV010": "Document from v0.1.0",
+    "databaseFromV010": "Database from v0.1.0",
+    "csv": "CSV",
+    "database": "Database"
   },
   "disclosureAction": {
     "rename": "Rename",
@@ -108,6 +119,7 @@
     "openAsPage": "Open as a Page",
     "addNewRow": "Add a new row",
     "openMenu": "Click to open menu",
+    "dragRow": "Long press to reorder the row",
     "viewDataBase": "View database",
     "referencePage": "This {name} is referenced"
   },
@@ -182,15 +194,20 @@
       "theme": "Theme"
     },
     "files": {
-      "defaultLocation": "Where your data is stored now",
+      "copy": "Copy",
+      "defaultLocation": "Read files and data storage location",
+      "exportData": "Export your data",
       "doubleTapToCopy": "Double tap to copy the path",
       "restoreLocation": "Restore to AppFlowy default path",
       "customizeLocation": "Open another folder",
       "restartApp": "Please restart app for the changes to take effect.",
       "exportDatabase": "Export database",
       "selectFiles": "Select the files that need to be export",
+      "selectAll": "Select all",
+      "deselectAll": "Deselect all",
       "createNewFolder": "Create a new folder",
       "createNewFolderDesc": "Tell us where you want to store your data",
+      "defineWhereYourDataIsStored": "Define where your data is stored",
       "open": "Open",
       "openFolder": "Open an existing folder",
       "openFolderDesc": "Read and write it to your existing AppFlowy folder",
@@ -199,9 +216,17 @@
       "locationDesc": "Pick a name for your AppFlowy data folder",
       "browser": "Browse",
       "create": "Create",
+      "set": "Set",
       "folderPath": "Path to store your folder",
       "locationCannotBeEmpty": "Path cannot be empty",
-      "pathCopiedSnackbar": "File storage path copied to clipboard!"
+      "pathCopiedSnackbar": "File storage path copied to clipboard!",
+      "changeLocationTooltips": "Change the data directory",
+      "change": "Change",
+      "openLocationTooltips": "Open another data directory",
+      "recoverLocationTooltips": "Reset to AppFlowy's default data directory",
+      "exportFileSuccess": "Export file successfully!",
+      "exportFileFail": "Export file failed!",
+      "export": "Export"
     },
     "user": {
       "name": "Name",
@@ -221,7 +246,8 @@
       "deleteFilter": "Delete filter",
       "filterBy": "Filter by...",
       "typeAValue": "Type a value...",
-      "layout": "Layout"
+      "layout": "Layout",
+      "databaseLayout": "Layout"
     },
     "textFilter": {
       "contains": "Contains",
@@ -272,6 +298,8 @@
       "textFieldName": "Text",
       "checkboxFieldName": "Checkbox",
       "dateFieldName": "Date",
+      "updatedAtFieldName": "Last modified time",
+      "createdAtFieldName": "Created time",
       "numberFieldName": "Numbers",
       "singleSelectFieldName": "Select",
       "multiSelectFieldName": "Multiselect",
@@ -347,23 +375,30 @@
       "grid": {
         "selectAGridToLinkTo": "Select a Grid to link to",
         "createANewGrid": "Create a new Grid"
+      },
+      "calendar": {
+        "selectACalendarToLinkTo": "Select a Calendar to link to",
+        "createANewCalendar": "Create a new Calendar"
       }
     },
     "plugins": {
       "referencedBoard": "Referenced Board",
       "referencedGrid": "Referenced Grid",
+      "referencedCalendar": "Referenced Calendar",
       "autoGeneratorMenuItemName": "OpenAI Writer",
       "autoGeneratorTitleName": "OpenAI: Ask AI to write anything...",
       "autoGeneratorLearnMore": "Learn more",
       "autoGeneratorGenerate": "Generate",
       "autoGeneratorHintText": "Ask OpenAI ...",
       "autoGeneratorCantGetOpenAIKey": "Can't get OpenAI key",
+      "autoGeneratorRewrite": "Rewrite",
       "smartEdit": "AI Assistants",
       "openAI": "OpenAI",
       "smartEditFixSpelling": "Fix spelling",
       "warning": "⚠️ AI responses can be inaccurate or misleading.",
       "smartEditSummarize": "Summarize",
-      "smartEditImproveWriting": "Improve Writing",
+      "smartEditImproveWriting": "Improve writing",
+      "smartEditMakeLonger": "Make longer",
       "smartEditCouldNotFetchResult": "Could not fetch result from OpenAI",
       "smartEditCouldNotFetchKey": "Could not fetch OpenAI key",
       "smartEditDisabled": "Connect OpenAI in Settings",
@@ -395,6 +430,21 @@
       "mathEquation": {
         "addMathEquation": "Add Math Equation",
         "editMathEquation": "Edit Math Equation"
+      },
+      "optionAction": {
+        "click": "Click",
+        "toOpenMenu": " to open menu",
+        "delete": "Delete",
+        "duplicate": "Duplicate",
+        "turnInto": "Turn into",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "color": "Color",
+        "align": "Align",
+        "left": "Left",
+        "center": "Center",
+        "right": "Right",
+        "defaultColor": "Default"
       }
     }
   },
@@ -418,7 +468,12 @@
       "showWeekNumbers": "Show week numbers",
       "showWeekends": "Show weekends",
       "firstDayOfWeek": "Start week on",
-      "layoutDateField": "Layout calendar by"
-    }
+      "layoutDateField": "Layout calendar by",
+      "noDateTitle": "No Date",
+      "noDateHint": "Unscheduled events will show up here",
+      "clickToAdd": "Click to add to the calendar",
+      "name": "Calendar layout"
+    },
+    "referencedCalendarPrefix": "View of"
   }
 }

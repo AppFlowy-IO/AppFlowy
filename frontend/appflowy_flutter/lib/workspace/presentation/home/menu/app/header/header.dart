@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -19,9 +17,9 @@ import '../menu_app.dart';
 import 'add_button.dart';
 
 class MenuAppHeader extends StatelessWidget {
-  final ViewPB app;
+  final ViewPB parentView;
   const MenuAppHeader(
-    this.app, {
+    this.parentView, {
     Key? key,
   }) : super(key: key);
 
@@ -110,13 +108,14 @@ class MenuAppHeader extends StatelessWidget {
     return Tooltip(
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       child: AddButton(
-        onSelected: (pluginBuilder, document) {
+        parentViewId: parentView.id,
+        onSelected: (pluginBuilder, name, initialDataBytes, openAfterCreated) {
           context.read<AppBloc>().add(
                 AppEvent.createView(
-                  LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+                  name ?? LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
                   pluginBuilder,
-                  initialData:
-                      document != null ? jsonEncode(document.toJson()) : '',
+                  initialDataBytes: initialDataBytes,
+                  openAfterCreated: openAfterCreated,
                 ),
               );
         },

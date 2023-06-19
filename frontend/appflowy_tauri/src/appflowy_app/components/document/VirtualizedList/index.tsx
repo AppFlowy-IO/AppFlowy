@@ -31,6 +31,7 @@ export default function VirtualizedList({
         >
           {node && childIds && virtualItems.length ? (
             <div
+              className={'doc-body-inner'}
               style={{
                 position: 'absolute',
                 top: 0,
@@ -43,7 +44,7 @@ export default function VirtualizedList({
                 const id = childIds[virtualRow.index];
                 return (
                   <div
-                    className='float-left w-[100%]'
+                    className='mt-[-0.5px] pt-[0.5px]'
                     key={id}
                     data-index={virtualRow.index}
                     ref={virtualize.measureElement}

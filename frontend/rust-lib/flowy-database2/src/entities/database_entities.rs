@@ -3,10 +3,11 @@ use collab_database::user::DatabaseRecord;
 use collab_database::views::DatabaseLayout;
 
 use flowy_derive::ProtoBuf;
-use flowy_error::ErrorCode;
+use flowy_error::{ErrorCode, FlowyError};
 
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::{DatabaseLayoutPB, FieldIdPB, RowPB};
+use crate::entities::{DatabaseLayoutPB, FieldIdPB, RowMetaPB};
+use crate::services::database::CreateDatabaseViewParams;
 
 /// [DatabasePB] describes how many fields and blocks the grid has
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -18,13 +19,47 @@ pub struct DatabasePB {
   pub fields: Vec<FieldIdPB>,
 
   #[pb(index = 3)]
-  pub rows: Vec<RowPB>,
+  pub rows: Vec<RowMetaPB>,
+
+  #[pb(index = 4)]
+  pub layout_type: DatabaseLayoutPB,
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct CreateDatabasePayloadPB {
+pub struct CreateDatabaseViewPayloadPB {
   #[pb(index = 1)]
   pub name: String,
+
+  #[pb(index = 2)]
+  pub view_id: String,
+
+  #[pb(index = 3)]
+  pub layout_type: DatabaseLayoutPB,
+}
+
+impl TryInto<CreateDatabaseViewParams> for CreateDatabaseViewPayloadPB {
+  type Error = FlowyError;
+
+  fn try_into(self) -> Result<CreateDatabaseViewParams, Self::Error> {
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
+    Ok(CreateDatabaseViewParams {
+      name: self.name,
+      view_id: view_id.0,
+      layout_type: self.layout_type.into(),
+    })
+  }
+}
+
+#[derive(Clone, ProtoBuf, Default, Debug)]
+pub struct DatabaseIdPB {
+  #[pb(index = 1)]
+  pub value: String,
+}
+
+impl AsRef<str> for DatabaseIdPB {
+  fn as_ref(&self) -> &str {
+    &self.value
+  }
 }
 
 #[derive(Clone, ProtoBuf, Default, Debug)]
@@ -100,11 +135,13 @@ impl TryInto<MoveRowParams> for MoveRowPayloadPB {
 
   fn try_into(self) -> Result<MoveRowParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
+    let from_row_id = NotEmptyStr::parse(self.from_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
+    let to_row_id = NotEmptyStr::parse(self.to_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
 
     Ok(MoveRowParams {
       view_id: view_id.0,
-      from_row_id: RowId::from(self.from_row_id),
-      to_row_id: RowId::from(self.to_row_id),
+      from_row_id: RowId::from(from_row_id.0),
+      to_row_id: RowId::from(to_row_id.0),
     })
   }
 }
@@ -198,7 +235,7 @@ impl TryInto<DatabaseGroupIdParams> for DatabaseGroupIdPB {
   }
 }
 #[derive(Clone, ProtoBuf, Default, Debug)]
-pub struct DatabaseLayoutIdPB {
+pub struct DatabaseLayoutMetaPB {
   #[pb(index = 1)]
   pub view_id: String,
 
@@ -207,18 +244,18 @@ pub struct DatabaseLayoutIdPB {
 }
 
 #[derive(Clone, Debug)]
-pub struct DatabaseLayoutId {
+pub struct DatabaseLayoutMeta {
   pub view_id: String,
   pub layout: DatabaseLayout,
 }
 
-impl TryInto<DatabaseLayoutId> for DatabaseLayoutIdPB {
+impl TryInto<DatabaseLayoutMeta> for DatabaseLayoutMetaPB {
   type Error = ErrorCode;
 
-  fn try_into(self) -> Result<DatabaseLayoutId, Self::Error> {
+  fn try_into(self) -> Result<DatabaseLayoutMeta, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
     let layout = self.layout.into();
-    Ok(DatabaseLayoutId {
+    Ok(DatabaseLayoutMeta {
       view_id: view_id.0,
       layout,
     })

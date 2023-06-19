@@ -48,8 +48,12 @@ class DocumentPlugin extends Plugin<int> {
   DocumentPlugin({
     required PluginType pluginType,
     required ViewPB view,
+    bool listenOnViewChanged = false,
     Key? key,
-  }) : notifier = ViewPluginNotifier(view: view) {
+  }) : notifier = ViewPluginNotifier(
+          view: view,
+          listenOnViewChanged: listenOnViewChanged,
+        ) {
     _pluginType = pluginType;
     _documentAppearanceCubit.fetch();
   }
@@ -61,34 +65,38 @@ class DocumentPlugin extends Plugin<int> {
   }
 
   @override
-  PluginDisplay get display {
-    return DocumentPluginDisplay(
+  PluginWidgetBuilder get widgetBuilder {
+    return DocumentPluginWidgetBuilder(
       notifier: notifier,
       documentAppearanceCubit: _documentAppearanceCubit,
     );
   }
 
   @override
-  PluginType get ty => _pluginType;
+  PluginType get pluginType => _pluginType;
 
   @override
   PluginId get id => notifier.view.id;
 }
 
-class DocumentPluginDisplay extends PluginDisplay with NavigationItem {
+class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
+    with NavigationItem {
   final ViewPluginNotifier notifier;
   ViewPB get view => notifier.view;
   int? deletedViewIndex;
   DocumentAppearanceCubit documentAppearanceCubit;
 
-  DocumentPluginDisplay({
+  DocumentPluginWidgetBuilder({
     required this.notifier,
     required this.documentAppearanceCubit,
     Key? key,
   });
 
   @override
-  Widget buildWidget(PluginContext context) {
+  EdgeInsets get contentPadding => EdgeInsets.zero;
+
+  @override
+  Widget buildWidget({PluginContext? context}) {
     notifier.isDeleted.addListener(() {
       notifier.isDeleted.value.fold(() => null, (deletedView) {
         if (deletedView.hasIndex()) {
@@ -103,7 +111,7 @@ class DocumentPluginDisplay extends PluginDisplay with NavigationItem {
         builder: (_, state) {
           return DocumentPage(
             view: view,
-            onDeleted: () => context.onDeleted(view, deletedViewIndex),
+            onDeleted: () => context?.onDeleted(view, deletedViewIndex),
             key: ValueKey(view.id),
           );
         },
@@ -118,7 +126,10 @@ class DocumentPluginDisplay extends PluginDisplay with NavigationItem {
   Widget? get rightBarItem {
     return Row(
       children: [
-        DocumentShareButton(view: view),
+        DocumentShareButton(
+          key: ValueKey(view.id),
+          view: view,
+        ),
         const SizedBox(width: 10),
         BlocProvider.value(
           value: documentAppearanceCubit,

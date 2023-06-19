@@ -14,7 +14,7 @@ mod tests {
 
   #[test]
   fn date_type_option_date_format_test() {
-    let mut type_option = DateTypeOption::default();
+    let mut type_option = DateTypeOption::test();
     let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
     for date_format in DateFormat::iter() {
       type_option.date_format = date_format;
@@ -27,7 +27,6 @@ mod tests {
               date: Some("1647251762".to_owned()),
               time: None,
               include_time: None,
-              timezone_id: None,
             },
             None,
             "Mar 14, 2022",
@@ -41,7 +40,6 @@ mod tests {
               date: Some("1647251762".to_owned()),
               time: None,
               include_time: None,
-              timezone_id: None,
             },
             None,
             "2022/03/14",
@@ -55,7 +53,6 @@ mod tests {
               date: Some("1647251762".to_owned()),
               time: None,
               include_time: None,
-              timezone_id: None,
             },
             None,
             "2022-03-14",
@@ -69,7 +66,6 @@ mod tests {
               date: Some("1647251762".to_owned()),
               time: None,
               include_time: None,
-              timezone_id: None,
             },
             None,
             "03/14/2022",
@@ -83,7 +79,6 @@ mod tests {
               date: Some("1647251762".to_owned()),
               time: None,
               include_time: None,
-              timezone_id: None,
             },
             None,
             "14/03/2022",
@@ -95,7 +90,7 @@ mod tests {
 
   #[test]
   fn date_type_option_different_time_format_test() {
-    let mut type_option = DateTypeOption::default();
+    let mut type_option = DateTypeOption::test();
     let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
 
     for time_format in TimeFormat::iter() {
@@ -109,7 +104,6 @@ mod tests {
               date: Some("1653609600".to_owned()),
               time: None,
               include_time: Some(true),
-              timezone_id: Some("Etc/UTC".to_owned()),
             },
             None,
             "May 27, 2022 00:00",
@@ -121,7 +115,6 @@ mod tests {
               date: Some("1653609600".to_owned()),
               time: Some("9:00".to_owned()),
               include_time: Some(true),
-              timezone_id: Some("Etc/UTC".to_owned()),
             },
             None,
             "May 27, 2022 09:00",
@@ -133,7 +126,6 @@ mod tests {
               date: Some("1653609600".to_owned()),
               time: Some("23:00".to_owned()),
               include_time: Some(true),
-              timezone_id: Some("Etc/UTC".to_owned()),
             },
             None,
             "May 27, 2022 23:00",
@@ -147,7 +139,6 @@ mod tests {
               date: Some("1653609600".to_owned()),
               time: None,
               include_time: Some(true),
-              timezone_id: Some("Etc/UTC".to_owned()),
             },
             None,
             "May 27, 2022 12:00 AM",
@@ -159,7 +150,6 @@ mod tests {
               date: Some("1653609600".to_owned()),
               time: Some("9:00 AM".to_owned()),
               include_time: Some(true),
-              timezone_id: None,
             },
             None,
             "May 27, 2022 09:00 AM",
@@ -171,7 +161,6 @@ mod tests {
               date: Some("1653609600".to_owned()),
               time: Some("11:23 pm".to_owned()),
               include_time: Some(true),
-              timezone_id: Some(chrono_tz::Tz::Etc__UTC.to_string()),
             },
             None,
             "May 27, 2022 11:23 PM",
@@ -183,8 +172,8 @@ mod tests {
 
   #[test]
   fn date_type_option_invalid_date_str_test() {
-    let type_option = DateTypeOption::default();
     let field_type = FieldType::DateTime;
+    let type_option = DateTypeOption::test();
     let field = FieldBuilder::from_field_type(field_type).build();
     assert_date(
       &type_option,
@@ -193,7 +182,6 @@ mod tests {
         date: Some("abc".to_owned()),
         time: None,
         include_time: None,
-        timezone_id: None,
       },
       None,
       "",
@@ -203,8 +191,9 @@ mod tests {
   #[test]
   #[should_panic]
   fn date_type_option_invalid_include_time_str_test() {
-    let type_option = DateTypeOption::new();
-    let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
+    let field_type = FieldType::DateTime;
+    let type_option = DateTypeOption::test();
+    let field = FieldBuilder::from_field_type(field_type).build();
 
     assert_date(
       &type_option,
@@ -213,7 +202,6 @@ mod tests {
         date: Some("1653609600".to_owned()),
         time: Some("1:".to_owned()),
         include_time: Some(true),
-        timezone_id: None,
       },
       None,
       "May 27, 2022 01:00",
@@ -223,8 +211,9 @@ mod tests {
   #[test]
   #[should_panic]
   fn date_type_option_empty_include_time_str_test() {
-    let type_option = DateTypeOption::new();
-    let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
+    let field_type = FieldType::DateTime;
+    let type_option = DateTypeOption::test();
+    let field = FieldBuilder::from_field_type(field_type).build();
 
     assert_date(
       &type_option,
@@ -233,7 +222,6 @@ mod tests {
         date: Some("1653609600".to_owned()),
         time: Some("".to_owned()),
         include_time: Some(true),
-        timezone_id: None,
       },
       None,
       "May 27, 2022 01:00",
@@ -242,8 +230,8 @@ mod tests {
 
   #[test]
   fn date_type_midnight_include_time_str_test() {
-    let type_option = DateTypeOption::new();
     let field_type = FieldType::DateTime;
+    let type_option = DateTypeOption::test();
     let field = FieldBuilder::from_field_type(field_type).build();
     assert_date(
       &type_option,
@@ -252,18 +240,18 @@ mod tests {
         date: Some("1653609600".to_owned()),
         time: Some("00:00".to_owned()),
         include_time: Some(true),
-        timezone_id: None,
       },
       None,
       "May 27, 2022 00:00",
     );
   }
 
-  /// The default time format is TwentyFourHour, so the include_time_str in twelve_hours_format will cause parser error.
+  /// The default time format is TwentyFourHour, so the include_time_str in
+  /// twelve_hours_format will cause parser error.
   #[test]
   #[should_panic]
   fn date_type_option_twelve_hours_include_time_str_in_twenty_four_hours_format() {
-    let type_option = DateTypeOption::new();
+    let type_option = DateTypeOption::test();
     let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
     assert_date(
       &type_option,
@@ -272,20 +260,21 @@ mod tests {
         date: Some("1653609600".to_owned()),
         time: Some("1:00 am".to_owned()),
         include_time: Some(true),
-        timezone_id: None,
       },
       None,
       "May 27, 2022 01:00 AM",
     );
   }
 
-  // Attempting to parse include_time_str as TwelveHour when TwentyFourHour format is given should cause parser error.
+  /// Attempting to parse include_time_str as TwelveHour when TwentyFourHour
+  /// format is given should cause parser error.
   #[test]
   #[should_panic]
   fn date_type_option_twenty_four_hours_include_time_str_in_twelve_hours_format() {
-    let mut type_option = DateTypeOption::new();
+    let field_type = FieldType::DateTime;
+    let mut type_option = DateTypeOption::test();
     type_option.time_format = TimeFormat::TwelveHour;
-    let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
+    let field = FieldBuilder::from_field_type(field_type).build();
 
     assert_date(
       &type_option,
@@ -294,7 +283,6 @@ mod tests {
         date: Some("1653609600".to_owned()),
         time: Some("20:00".to_owned()),
         include_time: Some(true),
-        timezone_id: None,
       },
       None,
       "May 27, 2022 08:00 PM",
@@ -333,7 +321,7 @@ mod tests {
   #[test]
   #[should_panic]
   fn update_date_keep_time() {
-    let type_option = DateTypeOption::new();
+    let type_option = DateTypeOption::test();
     let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
 
     let old_cell_data = initialize_date_cell(
@@ -342,7 +330,6 @@ mod tests {
         date: Some("1700006400".to_owned()),
         time: Some("08:00".to_owned()),
         include_time: Some(true),
-        timezone_id: Some("Etc/UTC".to_owned()),
       },
     );
     assert_date(
@@ -352,7 +339,6 @@ mod tests {
         date: Some("1701302400".to_owned()),
         time: None,
         include_time: None,
-        timezone_id: None,
       },
       Some(old_cell_data),
       "Nov 30, 2023 08:00",
@@ -361,7 +347,7 @@ mod tests {
 
   #[test]
   fn update_time_keep_date() {
-    let type_option = DateTypeOption::new();
+    let type_option = DateTypeOption::test();
     let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
 
     let old_cell_data = initialize_date_cell(
@@ -370,7 +356,6 @@ mod tests {
         date: Some("1700006400".to_owned()),
         time: Some("08:00".to_owned()),
         include_time: Some(true),
-        timezone_id: None,
       },
     );
     assert_date(
@@ -380,100 +365,9 @@ mod tests {
         date: None,
         time: Some("14:00".to_owned()),
         include_time: None,
-        timezone_id: None,
       },
       Some(old_cell_data),
       "Nov 15, 2023 14:00",
-    );
-  }
-
-  #[test]
-  fn timezone_no_daylight_saving_time() {
-    let type_option = DateTypeOption::new();
-    let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
-
-    assert_date(
-      &type_option,
-      &field,
-      DateCellChangeset {
-        date: Some("1672963200".to_owned()),
-        time: None,
-        include_time: Some(true),
-        timezone_id: Some("Asia/Tokyo".to_owned()),
-      },
-      None,
-      "Jan 06, 2023 09:00",
-    );
-    assert_date(
-      &type_option,
-      &field,
-      DateCellChangeset {
-        date: Some("1685404800".to_owned()),
-        time: None,
-        include_time: Some(true),
-        timezone_id: Some("Asia/Tokyo".to_owned()),
-      },
-      None,
-      "May 30, 2023 09:00",
-    );
-  }
-
-  #[test]
-  fn timezone_with_daylight_saving_time() {
-    let type_option = DateTypeOption::new();
-    let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
-
-    assert_date(
-      &type_option,
-      &field,
-      DateCellChangeset {
-        date: Some("1672963200".to_owned()),
-        time: None,
-        include_time: Some(true),
-        timezone_id: Some("Europe/Paris".to_owned()),
-      },
-      None,
-      "Jan 06, 2023 01:00",
-    );
-    assert_date(
-      &type_option,
-      &field,
-      DateCellChangeset {
-        date: Some("1685404800".to_owned()),
-        time: None,
-        include_time: Some(true),
-        timezone_id: Some("Europe/Paris".to_owned()),
-      },
-      None,
-      "May 30, 2023 02:00",
-    );
-  }
-
-  #[test]
-  fn change_timezone() {
-    let type_option = DateTypeOption::new();
-    let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
-
-    let old_cell_data = initialize_date_cell(
-      &type_option,
-      DateCellChangeset {
-        date: Some("1672963200".to_owned()),
-        time: None,
-        include_time: Some(true),
-        timezone_id: Some("Asia/China".to_owned()),
-      },
-    );
-    assert_date(
-      &type_option,
-      &field,
-      DateCellChangeset {
-        date: None,
-        time: None,
-        include_time: None,
-        timezone_id: Some("America/Los_Angeles".to_owned()),
-      },
-      Some(old_cell_data),
-      "Jan 05, 2023 16:00",
     );
   }
 
@@ -501,9 +395,9 @@ mod tests {
     field: &Field,
   ) -> String {
     let decoded_data = type_option
-      .decode_cell_str(cell, &FieldType::DateTime, field)
+      .decode_cell(cell, &FieldType::DateTime, field)
       .unwrap();
-    let decoded_data = type_option.convert_to_protobuf(decoded_data);
+    let decoded_data = type_option.protobuf_encode(decoded_data);
     if include_time {
       format!("{} {}", decoded_data.date, decoded_data.time)
         .trim_end()

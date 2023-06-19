@@ -23,7 +23,11 @@ class FilterInfo {
   }
 
   DateFilterPB? dateFilter() {
-    if (filter.fieldType != FieldType.DateTime) {
+    if (![
+      FieldType.DateTime,
+      FieldType.LastEditedTime,
+      FieldType.CreatedTime,
+    ].contains(filter.fieldType)) {
       return null;
     }
     return DateFilterPB.fromBuffer(filter.data);

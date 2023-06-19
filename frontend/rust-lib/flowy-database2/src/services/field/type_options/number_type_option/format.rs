@@ -10,11 +10,11 @@ lazy_static! {
   pub static ref CURRENCY_SYMBOL: Vec<String> = NumberFormat::iter()
     .map(|format| format.symbol())
     .collect::<Vec<String>>();
-  pub static ref STRIP_SYMBOL: Vec<String> = vec![",".to_owned(), ".".to_owned()];
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, EnumIter, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, EnumIter, Serialize, Deserialize, Default)]
 pub enum NumberFormat {
+  #[default]
   Num = 0,
   USD = 1,
   CanadianDollar = 2,
@@ -56,12 +56,6 @@ pub enum NumberFormat {
 impl NumberFormat {
   pub fn value(&self) -> i64 {
     *self as i64
-  }
-}
-
-impl std::default::Default for NumberFormat {
-  fn default() -> Self {
-    NumberFormat::Num
   }
 }
 

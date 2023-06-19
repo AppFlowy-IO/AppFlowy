@@ -38,16 +38,16 @@ class TrashPlugin extends Plugin {
   TrashPlugin({required PluginType pluginType}) : _pluginType = pluginType;
 
   @override
-  PluginDisplay get display => TrashPluginDisplay();
+  PluginWidgetBuilder get widgetBuilder => TrashPluginDisplay();
 
   @override
   PluginId get id => "TrashStack";
 
   @override
-  PluginType get ty => _pluginType;
+  PluginType get pluginType => _pluginType;
 }
 
-class TrashPluginDisplay extends PluginDisplay {
+class TrashPluginDisplay extends PluginWidgetBuilder {
   @override
   Widget get leftBarItem => FlowyText.medium(LocaleKeys.trash_text.tr());
 
@@ -55,7 +55,7 @@ class TrashPluginDisplay extends PluginDisplay {
   Widget? get rightBarItem => null;
 
   @override
-  Widget buildWidget(PluginContext context) => const TrashPage(
+  Widget buildWidget({PluginContext? context}) => const TrashPage(
         key: ValueKey('TrashPage'),
       );
 

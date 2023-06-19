@@ -1,16 +1,14 @@
-import { foldersActions, IFolder } from '../../../stores/reducers/folders/slice';
+import { foldersActions, IFolder } from '$app_reducers/folders/slice';
 import { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../../stores/store';
-import { IPage, pagesActions } from '../../../stores/reducers/pages/slice';
+import { useAppDispatch, useAppSelector } from '$app/stores/store';
+import { IPage, pagesActions } from '$app_reducers/pages/slice';
 import { ViewLayoutPB } from '@/services/backend';
-import { AppBackendService } from '../../../stores/effects/folder/app/app_bd_svc';
-import { WorkspaceBackendService } from '../../../stores/effects/folder/workspace/workspace_bd_svc';
+import { AppBackendService } from '$app/stores/effects/folder/app/app_bd_svc';
+import { WorkspaceBackendService } from '$app/stores/effects/folder/workspace/workspace_bd_svc';
 
-import { AppObserver } from '../../../stores/effects/folder/app/app_observer';
+import { AppObserver } from '$app/stores/effects/folder/app/app_observer';
 import { useNavigate } from 'react-router-dom';
 import { INITIAL_FOLDER_HEIGHT, PAGE_ITEM_HEIGHT } from '../../_shared/constants';
-
-import { DocumentController } from '$app/stores/effects/document/document_controller';
 
 export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
   const appDispatch = useAppDispatch();
@@ -32,21 +30,20 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
 
   // Backend services
   const appBackendService = new AppBackendService(folder.id);
-  const workspaceBackendService = new WorkspaceBackendService(workspace.id || '');
 
   useEffect(() => {
     void appObserver.subscribe({
-      onAppChanged: (change) => {
-        if (change.ok) {
-          const views = change.val;
-          const updatedPages: IPage[] = views.items.map((view) => ({
-            id: view.id,
-            folderId: view.parent_view_id,
-            pageType: view.layout,
-            title: view.name,
-          }));
-          appDispatch(pagesActions.didReceivePages(updatedPages));
-        }
+      onViewsChanged: async () => {
+        const result = await appBackendService.getAllViews();
+        if (!result.ok) return;
+        const views = result.val;
+        const updatedPages: IPage[] = views.map((view) => ({
+          id: view.id,
+          folderId: view.parent_view_id,
+          pageType: view.layout,
+          title: view.name,
+        }));
+        appDispatch(pagesActions.didReceivePages({ pages: updatedPages, folderId: folder.id }));
       },
     });
     return () => {
@@ -100,6 +97,7 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
 
   const duplicateFolder = async () => {
     closePopup();
+    const workspaceBackendService = new WorkspaceBackendService(workspace.id ?? '');
     const newApp = await workspaceBackendService.createApp({
       name: folder.title,
     });
@@ -118,9 +116,6 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
       layoutType: ViewLayoutPB.Document,
     });
     try {
-      const c = new DocumentController(newView.id);
-      await c.create();
-      await c.dispose();
       appDispatch(
         pagesActions.addPage({
           folderId: folder.id,

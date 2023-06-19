@@ -5,11 +5,14 @@ use collab_database::rows::{Cells, Row};
 
 use flowy_error::FlowyResult;
 
-use crate::entities::GroupChangesetPB;
+use crate::entities::GroupChangesPB;
+use crate::services::database::RowDetail;
 use crate::services::group::action::{
-  DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerActions,
+  DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerOperation,
 };
-use crate::services::group::{GroupController, GroupData, MoveGroupRowContext};
+use crate::services::group::{
+  GroupController, GroupData, GroupSettingChangeset, MoveGroupRowContext,
+};
 
 /// A [DefaultGroupController] is used to handle the group actions for the [FieldType] that doesn't
 /// implement its own group controller. The default group controller only contains one group, which
@@ -37,7 +40,7 @@ impl DefaultGroupController {
   }
 }
 
-impl GroupControllerActions for DefaultGroupController {
+impl GroupControllerOperation for DefaultGroupController {
   fn field_id(&self) -> &str {
     &self.field_id
   }
@@ -50,7 +53,7 @@ impl GroupControllerActions for DefaultGroupController {
     Some((0, self.group.clone()))
   }
 
-  fn fill_groups(&mut self, rows: &[&Row], _field: &Field) -> FlowyResult<()> {
+  fn fill_groups(&mut self, rows: &[&RowDetail], _field: &Field) -> FlowyResult<()> {
     rows.iter().for_each(|row| {
       self.group.add_row((*row).clone());
     });
@@ -63,8 +66,8 @@ impl GroupControllerActions for DefaultGroupController {
 
   fn did_update_group_row(
     &mut self,
-    _old_row: &Option<Row>,
-    _row: &Row,
+    _old_row_detail: &Option<RowDetail>,
+    _row_detail: &RowDetail,
     _field: &Field,
   ) -> FlowyResult<DidUpdateGroupRowResult> {
     Ok(DidUpdateGroupRowResult {
@@ -95,13 +98,24 @@ impl GroupControllerActions for DefaultGroupController {
     })
   }
 
-  fn did_update_group_field(&mut self, _field: &Field) -> FlowyResult<Option<GroupChangesetPB>> {
+  fn did_update_group_field(&mut self, _field: &Field) -> FlowyResult<Option<GroupChangesPB>> {
     Ok(None)
+  }
+
+  fn apply_group_setting_changeset(
+    &mut self,
+    _changeset: GroupSettingChangeset,
+  ) -> FlowyResult<()> {
+    Ok(())
   }
 }
 
 impl GroupController for DefaultGroupController {
+  fn did_update_field_type_option(&mut self, _field: &Arc<Field>) {
+    // Do nothing
+  }
+
   fn will_create_row(&mut self, _cells: &mut Cells, _field: &Field, _group_id: &str) {}
 
-  fn did_create_row(&mut self, _row: &Row, _group_id: &str) {}
+  fn did_create_row(&mut self, _row_detail: &RowDetail, _group_id: &str) {}
 }

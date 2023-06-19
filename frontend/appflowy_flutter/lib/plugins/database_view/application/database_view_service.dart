@@ -17,19 +17,25 @@ class DatabaseViewBackendService {
     required this.viewId,
   });
 
-  Future<Either<DatabasePB, FlowyError>> openGrid() async {
-    await FolderEventSetLatestView(ViewIdPB(value: viewId)).send();
+  /// Returns the datbaase id associated with the view.
+  Future<Either<String, FlowyError>> getDatabaseId() async {
+    final payload = DatabaseViewIdPB(value: viewId);
+    return DatabaseEventGetDatabaseId(payload)
+        .send()
+        .then((value) => value.leftMap((l) => l.value));
+  }
 
+  Future<Either<DatabasePB, FlowyError>> openGrid() async {
     final payload = DatabaseViewIdPB(value: viewId);
     return DatabaseEventGetDatabase(payload).send();
   }
 
-  Future<Either<RowPB, FlowyError>> createRow({
+  Future<Either<RowMetaPB, FlowyError>> createRow({
     RowId? startRowId,
     String? groupId,
     Map<String, String>? cellDataByFieldId,
   }) {
-    var payload = CreateRowPayloadPB.create()..viewId = viewId;
+    final payload = CreateRowPayloadPB.create()..viewId = viewId;
     payload.startRowId = startRowId ?? "";
 
     if (groupId != null) {
@@ -43,12 +49,12 @@ class DatabaseViewBackendService {
     return DatabaseEventCreateRow(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> moveRow({
+  Future<Either<Unit, FlowyError>> moveGroupRow({
     required RowId fromRowId,
     required String toGroupId,
     RowId? toRowId,
   }) {
-    var payload = MoveGroupRowPayloadPB.create()
+    final payload = MoveGroupRowPayloadPB.create()
       ..viewId = viewId
       ..fromRowId = fromRowId
       ..toGroupId = toGroupId;
@@ -58,6 +64,18 @@ class DatabaseViewBackendService {
     }
 
     return DatabaseEventMoveGroupRow(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> moveRow({
+    required String fromRowId,
+    required String toRowId,
+  }) {
+    final payload = MoveRowPayloadPB.create()
+      ..viewId = viewId
+      ..fromRowId = fromRowId
+      ..toRowId = toRowId;
+
+    return DatabaseEventMoveRow(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> moveGroup({
@@ -75,7 +93,7 @@ class DatabaseViewBackendService {
   Future<Either<List<FieldPB>, FlowyError>> getFields({
     List<FieldIdPB>? fieldIds,
   }) {
-    var payload = GetFieldPayloadPB.create()..viewId = viewId;
+    final payload = GetFieldPayloadPB.create()..viewId = viewId;
 
     if (fieldIds != null) {
       payload.fieldIds = RepeatedFieldIdPB(items: fieldIds);
@@ -85,10 +103,10 @@ class DatabaseViewBackendService {
     });
   }
 
-  Future<Either<LayoutSettingPB, FlowyError>> getLayoutSetting(
+  Future<Either<DatabaseLayoutSettingPB, FlowyError>> getLayoutSetting(
     DatabaseLayoutPB layoutType,
   ) {
-    final payload = DatabaseLayoutIdPB.create()
+    final payload = DatabaseLayoutMetaPB.create()
       ..viewId = viewId
       ..layout = layoutType;
     return DatabaseEventGetLayoutSetting(payload).send();

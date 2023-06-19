@@ -1,23 +1,28 @@
 #![allow(clippy::not_unsafe_ptr_arg_deref)]
-mod c;
-mod model;
-mod notification;
-mod protobuf;
-mod util;
 
+use std::{ffi::CStr, os::raw::c_char};
+
+use lazy_static::lazy_static;
+use parking_lot::RwLock;
+
+use flowy_core::*;
+use flowy_notification::register_notification_sender;
+use lib_dispatch::prelude::ToBytes;
+use lib_dispatch::prelude::*;
+
+use crate::env_serde::AppFlowyEnv;
 use crate::notification::DartNotificationSender;
 use crate::{
   c::{extend_front_four_bytes_into_bytes, forget_rust},
   model::{FFIRequest, FFIResponse},
 };
-use flowy_core::get_client_server_configuration;
-use flowy_core::*;
-use flowy_notification::register_notification_sender;
-use lazy_static::lazy_static;
-use lib_dispatch::prelude::ToBytes;
-use lib_dispatch::prelude::*;
-use parking_lot::RwLock;
-use std::{ffi::CStr, os::raw::c_char};
+
+mod c;
+mod env_serde;
+mod model;
+mod notification;
+mod protobuf;
+mod util;
 
 lazy_static! {
   static ref APPFLOWY_CORE: RwLock<Option<AppFlowyCore>> = RwLock::new(None);
@@ -28,10 +33,9 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
   let c_str: &CStr = unsafe { CStr::from_ptr(path) };
   let path: &str = c_str.to_str().unwrap();
 
-  let server_config = get_client_server_configuration().unwrap();
   let log_crates = vec!["flowy-ffi".to_string()];
-  let config = AppFlowyCoreConfig::new(path, DEFAULT_NAME.to_string(), server_config)
-    .log_filter("info", log_crates);
+  let config =
+    AppFlowyCoreConfig::new(path, DEFAULT_NAME.to_string()).log_filter("info", log_crates);
   *APPFLOWY_CORE.write() = Some(AppFlowyCore::new(config));
 
   0
@@ -54,7 +58,7 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
     },
     Some(e) => e.event_dispatcher.clone(),
   };
-  let _ = AFPluginDispatcher::async_send_with_callback(
+  AFPluginDispatcher::async_send_with_callback(
     dispatcher,
     request,
     move |resp: AFPluginEventResponse| {
@@ -131,4 +135,11 @@ pub extern "C" fn backend_log(level: i64, data: *const c_char) {
     4 => tracing::error!("{}", log_str),
     _ => (),
   }
+}
+
+#[no_mangle]
+pub extern "C" fn set_env(data: *const c_char) {
+  let c_str = unsafe { CStr::from_ptr(data) };
+  let serde_str = c_str.to_str().unwrap();
+  AppFlowyEnv::parser(serde_str);
 }

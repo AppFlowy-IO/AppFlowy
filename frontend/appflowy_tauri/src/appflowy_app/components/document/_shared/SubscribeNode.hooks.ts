@@ -1,34 +1,36 @@
-import { useAppSelector } from '@/appflowy_app/stores/store';
-import { useMemo, createContext } from 'react';
+import { store, useAppSelector } from '@/appflowy_app/stores/store';
+import { createContext, useMemo } from 'react';
 import { Node } from '$app/interfaces/document';
-export const NodeContext = createContext<Node | null>(null);
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 /**
- * Subscribe to a node and its children
- * It will be change when the node or its children is changed
- * And it will not be change when other node is changed
+ * Subscribe node information
  * @param id
  */
 export function useSubscribeNode(id: string) {
-  const node = useAppSelector<Node>((state) => state.document.nodes[id]);
+  const { docId } = useSubscribeDocument();
+
+  const node = useAppSelector<Node>((state) => {
+    const documentState = state.document[docId];
+    return documentState?.nodes[id];
+  });
 
   const childIds = useAppSelector<string[] | undefined>((state) => {
-    const childrenId = state.document.nodes[id]?.children;
+    const documentState = state.document[docId];
+    if (!documentState) return;
+    const childrenId = documentState.nodes[id]?.children;
     if (!childrenId) return;
-    return state.document.children[childrenId];
+    return documentState.children[childrenId];
   });
 
   const isSelected = useAppSelector<boolean>((state) => {
-    return state.document.selections?.includes(id) || false;
+    return state.documentRectSelection[docId]?.selection.includes(id) || false;
   });
 
   // Memoize the node and its children
   // So that the component will not be re-rendered when other node is changed
   // It very important for performance
-  const memoizedNode = useMemo(
-    () => node,
-    [node?.id, JSON.stringify(node?.data), node?.parent, node?.type, node?.children]
-  );
+  const memoizedNode = useMemo(() => node, [JSON.stringify(node)]);
   const memoizedChildIds = useMemo(() => childIds, [JSON.stringify(childIds)]);
 
   return {
@@ -37,3 +39,9 @@ export function useSubscribeNode(id: string) {
     isSelected,
   };
 }
+
+export function getBlock(docId: string, id: string) {
+  return store.getState().document[docId].nodes[id];
+}
+
+export const NodeIdContext = createContext<string>('');

@@ -11,6 +11,8 @@ import '../../workspace/application/appearance.dart';
 import '../startup.dart';
 
 class InitAppWidgetTask extends LaunchTask {
+  const InitAppWidgetTask();
+
   @override
   LaunchTaskType get type => LaunchTaskType.appLauncher;
 
@@ -23,12 +25,13 @@ class InitAppWidgetTask extends LaunchTask {
       appearanceSetting: appearanceSetting,
       child: widget,
     );
+
     Bloc.observer = ApplicationBlocObserver();
     runApp(
       EasyLocalization(
         supportedLocales: const [
           // In alphabetical order
-          Locale('ar', 'AR'),
+          Locale('ar', 'SA'),
           Locale('ca', 'ES'),
           Locale('de', 'DE'),
           Locale('en'),

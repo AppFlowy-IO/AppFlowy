@@ -11,7 +11,7 @@ class HomeHotKeys extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    HotKey hotKey = HotKey(
+    final HotKey hotKey = HotKey(
       KeyCode.backslash,
       modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
       // Set hotkey scope (default is HotKeyScope.system)

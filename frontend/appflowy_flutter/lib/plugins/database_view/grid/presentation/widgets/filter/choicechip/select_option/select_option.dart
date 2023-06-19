@@ -95,7 +95,7 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
       child: BlocBuilder<SelectOptionFilterEditorBloc,
           SelectOptionFilterEditorState>(
         builder: (context, state) {
-          List<Widget> slivers = [
+          final List<Widget> slivers = [
             SliverToBoxAdapter(child: _buildFilterPanel(context, state)),
           ];
 

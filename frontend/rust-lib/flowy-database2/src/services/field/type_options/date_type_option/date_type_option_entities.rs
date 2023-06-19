@@ -15,26 +15,18 @@ use crate::entities::{DateCellDataPB, FieldType};
 use crate::services::cell::{
   CellProtobufBlobParser, DecodedCellData, FromCellChangeset, FromCellString, ToCellChangeset,
 };
-use crate::services::field::CELL_DATE;
+use crate::services::field::CELL_DATA;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct DateCellChangeset {
   pub date: Option<String>,
   pub time: Option<String>,
   pub include_time: Option<bool>,
-  pub timezone_id: Option<String>,
 }
 
 impl DateCellChangeset {
   pub fn date_timestamp(&self) -> Option<i64> {
-    if let Some(date) = &self.date {
-      match date.parse::<i64>() {
-        Ok(date_timestamp) => Some(date_timestamp),
-        Err(_) => None,
-      }
-    } else {
-      None
-    }
+    self.date.as_ref().and_then(|date| date.parse::<i64>().ok())
   }
 }
 
@@ -56,38 +48,65 @@ impl ToCellChangeset for DateCellChangeset {
 #[derive(Default, Clone, Debug, Serialize)]
 pub struct DateCellData {
   pub timestamp: Option<i64>,
+  #[serde(default)]
   pub include_time: bool,
-  pub timezone_id: String,
+}
+
+impl DateCellData {
+  pub fn new(timestamp: i64, include_time: bool) -> Self {
+    Self {
+      timestamp: Some(timestamp),
+      include_time,
+    }
+  }
 }
 
 impl From<&Cell> for DateCellData {
   fn from(cell: &Cell) -> Self {
     let timestamp = cell
-      .get_str_value(CELL_DATE)
+      .get_str_value(CELL_DATA)
       .and_then(|data| data.parse::<i64>().ok());
-
     let include_time = cell.get_bool_value("include_time").unwrap_or_default();
-    let timezone_id = cell.get_str_value("timezone_id").unwrap_or_default();
-
     Self {
       timestamp,
       include_time,
-      timezone_id,
     }
+  }
+}
+
+/// Wrapper for DateCellData that also contains the field type.
+/// Handy struct to use when you need to convert a DateCellData to a Cell.
+pub struct DateCellDataWrapper {
+  data: DateCellData,
+  field_type: FieldType,
+}
+
+impl From<(FieldType, DateCellData)> for DateCellDataWrapper {
+  fn from((field_type, data): (FieldType, DateCellData)) -> Self {
+    Self { data, field_type }
+  }
+}
+
+impl From<DateCellDataWrapper> for Cell {
+  fn from(wrapper: DateCellDataWrapper) -> Self {
+    let (field_type, data) = (wrapper.field_type, wrapper.data);
+    let timestamp_string = match data.timestamp {
+      Some(timestamp) => timestamp.to_string(),
+      None => "".to_owned(),
+    };
+    // Most of the case, don't use these keys in other places. Otherwise, we should define
+    // constants for them.
+    new_cell_builder(field_type)
+      .insert_str_value(CELL_DATA, timestamp_string)
+      .insert_bool_value("include_time", data.include_time)
+      .build()
   }
 }
 
 impl From<DateCellData> for Cell {
   fn from(data: DateCellData) -> Self {
-    let timestamp_string = match data.timestamp {
-      Some(timestamp) => timestamp.to_string(),
-      None => "".to_owned(),
-    };
-    new_cell_builder(FieldType::DateTime)
-      .insert_str_value(CELL_DATE, timestamp_string)
-      .insert_bool_value("include_time", data.include_time)
-      .insert_str_value("timezone_id", data.timezone_id)
-      .build()
+    let data: DateCellDataWrapper = (FieldType::DateTime, data).into();
+    Cell::from(data)
   }
 }
 
@@ -114,7 +133,6 @@ impl<'de> serde::Deserialize<'de> for DateCellData {
         Ok(DateCellData {
           timestamp: Some(value),
           include_time: false,
-          timezone_id: "".to_owned(),
         })
       }
 
@@ -131,7 +149,6 @@ impl<'de> serde::Deserialize<'de> for DateCellData {
       {
         let mut timestamp: Option<i64> = None;
         let mut include_time: Option<bool> = None;
-        let mut timezone_id: Option<String> = None;
 
         while let Some(key) = map.next_key()? {
           match key {
@@ -141,20 +158,15 @@ impl<'de> serde::Deserialize<'de> for DateCellData {
             "include_time" => {
               include_time = map.next_value()?;
             },
-            "timezone_id" => {
-              timezone_id = map.next_value()?;
-            },
             _ => {},
           }
         }
 
         let include_time = include_time.unwrap_or_default();
-        let timezone_id = timezone_id.unwrap_or_default();
 
         Ok(DateCellData {
           timestamp,
           include_time,
-          timezone_id,
         })
       }
     }
@@ -179,18 +191,14 @@ impl ToString for DateCellData {
   }
 }
 
-#[derive(Clone, Debug, Copy, EnumIter, Serialize, Deserialize)]
+#[derive(Clone, Debug, Copy, EnumIter, Serialize, Deserialize, Default)]
 pub enum DateFormat {
   Local = 0,
   US = 1,
   ISO = 2,
+  #[default]
   Friendly = 3,
   DayMonthYear = 4,
-}
-impl std::default::Default for DateFormat {
-  fn default() -> Self {
-    DateFormat::Friendly
-  }
 }
 
 impl std::convert::From<i64> for DateFormat {
@@ -225,9 +233,10 @@ impl DateFormat {
   }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, EnumIter, Debug, Hash, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, EnumIter, Debug, Hash, Serialize, Deserialize, Default)]
 pub enum TimeFormat {
   TwelveHour = 0,
+  #[default]
   TwentyFourHour = 1,
 }
 
@@ -255,12 +264,6 @@ impl TimeFormat {
       TimeFormat::TwelveHour => "%I:%M %p",
       TimeFormat::TwentyFourHour => "%R",
     }
-  }
-}
-
-impl std::default::Default for TimeFormat {
-  fn default() -> Self {
-    TimeFormat::TwentyFourHour
   }
 }
 

@@ -3,9 +3,9 @@ import { CellCache } from '@/appflowy_app/stores/effects/database/cell/cell_cach
 import { FieldController } from '@/appflowy_app/stores/effects/database/field/field_controller';
 import { useCell } from '../../_shared/database-hooks/useCell';
 import { DateCellDataPB } from '@/services/backend';
-import { EditCellDate } from '../../_shared/EditRow/EditCellDate';
+import { EditCellDate } from '../../_shared/EditRow/Date/EditCellDate';
 import { useState } from 'react';
-import { DatePickerPopup } from '../../_shared/EditRow/DatePickerPopup';
+import { DatePickerPopup } from '../../_shared/EditRow/Date/DatePickerPopup';
 
 export const GridDate = ({
   cellIdentifier,

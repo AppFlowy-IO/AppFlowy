@@ -2,8 +2,8 @@ import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/header/import/import_panel.dart';
+import 'package:appflowy/workspace/presentation/home/menu/app/header/import/import_type.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' show Document;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -13,12 +13,16 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class AddButton extends StatelessWidget {
+  final String parentViewId;
   final Function(
     PluginBuilder,
-    Document? document,
+    String? name,
+    List<int>? initialDataBytes,
+    bool openAfterCreated,
   ) onSelected;
 
   const AddButton({
+    required this.parentViewId,
     Key? key,
     required this.onSelected,
   }) : super(key: key);
@@ -71,15 +75,39 @@ class AddButton extends StatelessWidget {
       },
       onSelected: (action, controller) {
         if (action is AddButtonActionWrapper) {
-          onSelected(action.pluginBuilder, null);
+          onSelected(action.pluginBuilder, null, null, true);
         }
         if (action is ImportActionWrapper) {
-          showImportPanel(context, (document) {
-            if (document == null) {
-              return;
-            }
-            onSelected(action.pluginBuilder, document);
-          });
+          showImportPanel(
+            parentViewId,
+            context,
+            (type, name, initialDataBytes) {
+              if (initialDataBytes == null) {
+                return;
+              }
+              switch (type) {
+                case ImportType.historyDocument:
+                case ImportType.historyDatabase:
+                case ImportType.databaseCSV:
+                case ImportType.databaseRawData:
+                  onSelected(
+                    action.pluginBuilder,
+                    name,
+                    initialDataBytes,
+                    false,
+                  );
+                  break;
+                case ImportType.markdownOrText:
+                  onSelected(
+                    action.pluginBuilder,
+                    name,
+                    initialDataBytes,
+                    true,
+                  );
+                  break;
+              }
+            },
+          );
         }
         controller.close();
       },

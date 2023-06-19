@@ -43,7 +43,7 @@ class SettingsUserView extends StatelessWidget {
   }
 
   Widget _renderUserNameInput(BuildContext context) {
-    String name = context.read<SettingsUserViewBloc>().state.userProfile.name;
+    final String name = context.read<SettingsUserViewBloc>().state.userProfile.name;
     return UserNameInput(name);
   }
 
@@ -57,7 +57,7 @@ class SettingsUserView extends StatelessWidget {
   }
 
   Widget _renderCurrentOpenaiKey(BuildContext context) {
-    String openAIKey =
+    final String openAIKey =
         context.read<SettingsUserViewBloc>().state.userProfile.openaiKey;
     return _OpenaiKeyInput(openAIKey);
   }

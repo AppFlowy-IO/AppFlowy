@@ -2,7 +2,7 @@ import { currentUserActions } from '../../stores/reducers/current-user/slice';
 import { useAppDispatch, useAppSelector } from '../../stores/store';
 import { UserProfilePB } from '../../../services/backend/events/flowy-user';
 import { AuthBackendService, UserBackendService } from '../../stores/effects/user/user_bd_svc';
-import { FolderEventReadCurrentWorkspace } from '../../../services/backend/events/flowy-folder2';
+import { FolderEventGetCurrentWorkspace } from '../../../services/backend/events/flowy-folder2';
 import { WorkspaceSettingPB } from '../../../services/backend/models/flowy-folder2/workspace';
 import { Log } from '../../utils/log';
 
@@ -90,7 +90,7 @@ export const useAuth = () => {
   }
 
   async function _openWorkspace() {
-    return FolderEventReadCurrentWorkspace();
+    return FolderEventGetCurrentWorkspace();
   }
 
   return { currentUser, checkUser, register, login, logout };

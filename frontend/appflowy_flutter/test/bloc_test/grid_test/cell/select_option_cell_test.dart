@@ -46,7 +46,7 @@ void main() {
       bloc.add(const SelectOptionEditorEvent.newOption("A"));
       await gridResponseFuture();
 
-      SelectOptionPB optionUpdate = bloc.state.options[0]
+      final SelectOptionPB optionUpdate = bloc.state.options[0]
         ..color = SelectOptionColorPB.Aqua
         ..name = "B";
       bloc.add(SelectOptionEditorEvent.updateOption(optionUpdate));

@@ -19,8 +19,8 @@ class GridCellAccessoryBuildContext {
   });
 }
 
-class GridCellAccessoryBuilder {
-  final GlobalKey _key = GlobalKey();
+class GridCellAccessoryBuilder<T extends State<StatefulWidget>> {
+  final GlobalKey<T> _key = GlobalKey();
 
   final Widget Function(Key key) _builder;
 
@@ -41,7 +41,7 @@ class GridCellAccessoryBuilder {
   }
 }
 
-abstract class GridCellAccessoryState {
+abstract mixin class GridCellAccessoryState {
   void onTap();
 
   // The accessory will be hidden if enable() return false;
@@ -67,9 +67,16 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
   Widget build(BuildContext context) {
     return Tooltip(
       message: LocaleKeys.tooltip_openAsPage.tr(),
-      child: svgWidget(
-        "grid/expander",
-        color: Theme.of(context).colorScheme.primary,
+      child: SizedBox(
+        width: 26,
+        height: 26,
+        child: Padding(
+          padding: const EdgeInsets.all(3.0),
+          child: svgWidget(
+            "grid/expander",
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
       ),
     );
   }
@@ -121,7 +128,7 @@ class _AccessoryHoverState extends State<AccessoryHover> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> children = [
+    final List<Widget> children = [
       Padding(padding: widget.contentPadding, child: widget.child),
     ];
 
@@ -183,12 +190,7 @@ class CellAccessoryContainer extends StatelessWidget {
       final hover = FlowyHover(
         style:
             HoverStyle(hoverColor: AFThemeExtension.of(context).lightGreyHover),
-        builder: (_, onHover) => Container(
-          width: 26,
-          height: 26,
-          padding: const EdgeInsets.all(3),
-          child: accessory.build(),
-        ),
+        builder: (_, onHover) => accessory.build(),
       );
       return GestureDetector(
         behavior: HitTestBehavior.opaque,

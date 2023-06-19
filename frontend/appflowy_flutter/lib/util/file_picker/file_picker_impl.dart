@@ -34,4 +34,23 @@ class FilePicker implements FilePickerService {
     );
     return FilePickerResult(result?.files ?? []);
   }
+
+  @override
+  Future<String?> saveFile({
+    String? dialogTitle,
+    String? fileName,
+    String? initialDirectory,
+    fp.FileType type = fp.FileType.any,
+    List<String>? allowedExtensions,
+    bool lockParentWindow = false,
+  }) {
+    return fp.FilePicker.platform.saveFile(
+      dialogTitle: dialogTitle,
+      fileName: fileName,
+      initialDirectory: initialDirectory,
+      type: type,
+      allowedExtensions: allowedExtensions,
+      lockParentWindow: lockParentWindow,
+    );
+  }
 }

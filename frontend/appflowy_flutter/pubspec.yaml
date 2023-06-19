@@ -15,10 +15,10 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.1.2
+version: 0.2.2
 
 environment:
-  sdk: ">=2.19.0 <3.0.0"
+  sdk: ">=3.0.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -42,65 +42,66 @@ dependencies:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
       ref: a183c57
-  appflowy_editor: ^0.1.9
+  appflowy_editor: ^1.0.3
+  # appflowy_editor:
+  #   git:
+  #     url: https://github.com/AppFlowy-IO/appflowy-editor.git
+  #     ref: d2460c9
   appflowy_popover:
     path: packages/appflowy_popover
 
   #  third party packages
-  intl: ^0.17.0
-  time: "^2.0.0"
-  equatable: "^2.0.3"
-  freezed_annotation: ^2.1.0
-  get_it: "^7.1.3"
-  flutter_bloc: "^8.0.1"
+  intl: ^0.18.0
+  time: ^2.1.3
+  equatable: ^2.0.5
+  freezed_annotation: ^2.2.0
+  get_it: ^7.6.0
+  flutter_bloc: ^8.1.3
   flutter_math_fork:
     git:
-      url: https://github.com/LucasXu0/flutter_math_fork.git
-      ref: master
+      url: https://github.com/xazin/flutter_math_fork.git
+      ref: de24059
   dartz: ^0.10.1
-  provider: ^6.0.1
-  path_provider: ^2.0.1
-  sized_context: ^1.0.0+1
-  styled_widget: "^0.3.1"
+  provider: ^6.0.5
+  path_provider: ^2.0.15
+  sized_context: ^1.0.0+4
+  styled_widget: ^0.4.1
   expandable: ^5.0.1
   flutter_colorpicker: ^1.0.3
   highlight: ^0.7.0
-  package_info_plus: ^1.3.0
-  url_launcher: ^6.0.2
-  # file_picker: ^4.2.1
+  package_info_plus: ^4.0.1
+  url_launcher: ^6.1.11
   clipboard: ^0.1.3
-  connectivity_plus: ^3.0.3
+  connectivity_plus: ^4.0.1
   connectivity_plus_platform_interface: ^1.2.2
-  easy_localization: ^3.0.0
+  easy_localization: ^3.0.2
   textfield_tags: ^2.0.2
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
-  device_info_plus: ^4.0.0
-  fluttertoast: ^8.0.9
-  table_calendar: ^3.0.5
+  device_info_plus: ^9.0.1
+  fluttertoast: ^8.2.2
+  json_annotation: ^4.8.1
+  table_calendar: ^3.0.9
   reorderables: ^0.6.0
   linked_scroll_controller: ^0.2.0
   hotkey_manager: ^0.1.7
-  fixnum: ^1.0.1
-  tuple: ^2.0.0
+  fixnum: ^1.1.0
   protobuf: "2.0.0"
   charcode: ^1.3.1
-  collection: ^1.16.0
-  bloc: ^8.1.0
-  textstyle_extensions: "2.0.0-nullsafety"
-  shared_preferences: ^2.0.15
-  google_fonts: ^4.0.3
-  file_picker: <=5.0.0
-  percent_indicator: ^4.0.1
-  calendar_view: ^1.0.1
-  window_manager: ^0.3.0
-  http: ^0.13.5
-  json_annotation: ^4.7.0
-  path: ^1.8.2
+  collection: ^1.17.1
+  bloc: ^8.1.2
+  shared_preferences: ^2.1.1
+  google_fonts: ^4.0.5
+  file_picker: ^5.3.1
+  percent_indicator: ^4.2.3
+  calendar_view: ^1.0.3
+  window_manager: ^0.3.4
+  http: ^1.0.0
+  path: ^1.8.3
   mocktail: ^0.3.0
-  archive: ^3.3.0
-  flutter_svg: ^2.0.5
+  archive: ^3.3.7
+  flutter_svg: ^2.0.6
+  nanoid: ^1.0.0
+  supabase_flutter: ^1.10.0
+  envied: ^0.3.0+3
 
 dev_dependencies:
   flutter_lints: ^2.0.1
@@ -109,10 +110,14 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
-  build_runner: ^2.2.0
-  freezed: ^2.1.0+1
-  bloc_test: ^9.0.2
-  json_serializable: ^6.5.4
+  build_runner: ^2.4.4
+  freezed: ^2.3.4
+  bloc_test: ^9.1.2
+  json_serializable: ^6.7.0
+  envied_generator: ^0.3.0+3
+
+dependency_overrides:
+  http: ^1.0.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -162,15 +167,20 @@ flutter:
   assets:
     - assets/images/
     - assets/images/home/
+    - assets/images/editor/align/
     - assets/images/editor/
     - assets/images/grid/
     - assets/images/emoji/
     - assets/images/grid/field/
     - assets/images/common/
+    - assets/images/login/
     - assets/images/grid/setting/
     - assets/translations/
 
     # The following assets will be excluded in release.
     # BEGIN: EXCLUDE_IN_RELEASE
     - assets/test/workspaces/
+    - assets/template/
+    - assets/test/workspaces/markdowns/
+    - assets/test/workspaces/database/
     # END: EXCLUDE_IN_RELEASE

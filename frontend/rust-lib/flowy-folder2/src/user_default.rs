@@ -1,82 +1,70 @@
-use crate::entities::{view_pb_with_child_views, WorkspacePB};
+use std::sync::Arc;
 
-use crate::view_ext::{gen_view_id, ViewDataProcessorMap};
-use chrono::Utc;
-use collab_folder::core::{Belonging, Belongings, FolderData, View, ViewLayout, Workspace};
-use flowy_document::editor::initial_read_me;
-use nanoid::nanoid;
-use std::collections::HashMap;
+use collab_folder::core::{FolderData, RepeatedView, ViewIdentifier, Workspace};
+use tokio::sync::RwLock;
+
+use lib_infra::util::timestamp;
+
+use crate::entities::{view_pb_with_child_views, ViewPB, WorkspacePB};
+use crate::view_operation::{
+  FlattedViews, FolderOperationHandlers, ParentChildViews, WorkspaceViewBuilder,
+};
 
 pub struct DefaultFolderBuilder();
 impl DefaultFolderBuilder {
   pub async fn build(
-    uid: i64,
-    view_processors: &ViewDataProcessorMap,
+    _uid: i64,
+    workspace_id: String,
+    handlers: &FolderOperationHandlers,
   ) -> (FolderData, WorkspacePB) {
-    let time = Utc::now().timestamp();
-    let workspace_id = gen_workspace_id();
-    let view_id = gen_view_id();
-    let child_view_id = gen_view_id();
+    let workspace_view_builder =
+      Arc::new(RwLock::new(WorkspaceViewBuilder::new(workspace_id.clone())));
+    for handler in handlers.values() {
+      let _ = handler
+        .create_workspace_view(workspace_view_builder.clone())
+        .await;
+    }
 
-    let child_view_layout = ViewLayout::Document;
-    let child_view = View {
-      id: child_view_id.clone(),
-      bid: view_id.clone(),
-      name: "Read me".to_string(),
-      desc: "".to_string(),
-      belongings: Default::default(),
-      created_at: time,
-      layout: child_view_layout.clone(),
-      database_id: None,
-    };
+    let views = workspace_view_builder.write().await.build();
+    // Safe to unwrap because we have at least one view. check out the DocumentFolderOperation.
+    let first_view = views
+      .first()
+      .unwrap()
+      .child_views
+      .first()
+      .unwrap()
+      .parent_view
+      .clone();
 
-    // create the document
-    let data = initial_read_me().into_bytes();
-    let processor = view_processors.get(&child_view_layout).unwrap();
-    processor
-      .create_view_with_custom_data(
-        uid,
-        &child_view.id,
-        &child_view.name,
-        data,
-        child_view_layout.clone(),
-        HashMap::default(),
-      )
-      .await
-      .unwrap();
-
-    let view = View {
-      id: view_id,
-      bid: workspace_id.clone(),
-      name: "⭐️ Getting started".to_string(),
-      desc: "".to_string(),
-      belongings: Belongings::new(vec![Belonging {
-        id: child_view.id.clone(),
-        name: child_view.name.clone(),
-      }]),
-      created_at: time,
-      layout: ViewLayout::Document,
-      database_id: None,
-    };
+    let first_level_views = views
+      .iter()
+      .map(|value| ViewIdentifier {
+        id: value.parent_view.id.clone(),
+      })
+      .collect::<Vec<_>>();
 
     let workspace = Workspace {
       id: workspace_id,
       name: "Workspace".to_string(),
-      belongings: Belongings::new(vec![Belonging {
-        id: view.id.clone(),
-        name: view.name.clone(),
-      }]),
-      created_at: time,
+      child_views: RepeatedView::new(first_level_views),
+      created_at: timestamp(),
     };
 
-    let workspace_pb = workspace_pb_from_workspace(&workspace, &view, &child_view);
+    let first_level_view_pbs = views.iter().map(ViewPB::from).collect::<Vec<_>>();
+
+    let workspace_pb = WorkspacePB {
+      id: workspace.id.clone(),
+      name: workspace.name.clone(),
+      views: first_level_view_pbs,
+      create_time: workspace.created_at,
+    };
 
     (
       FolderData {
         current_workspace: workspace.id.clone(),
-        current_view: child_view_id,
+        current_view: first_view.id,
         workspaces: vec![workspace],
-        views: vec![view, child_view],
+        views: FlattedViews::flatten_views(views),
       },
       workspace_pb,
     )
@@ -84,19 +72,18 @@ impl DefaultFolderBuilder {
 }
 
 pub fn gen_workspace_id() -> String {
-  nanoid!(10)
+  uuid::Uuid::new_v4().to_string()
 }
 
-fn workspace_pb_from_workspace(
-  workspace: &Workspace,
-  view: &View,
-  child_view: &View,
-) -> WorkspacePB {
-  let view_pb = view_pb_with_child_views(view.clone(), vec![child_view.clone()]);
-  WorkspacePB {
-    id: workspace.id.clone(),
-    name: workspace.name.clone(),
-    views: vec![view_pb],
-    create_time: workspace.created_at,
+impl From<&ParentChildViews> for ViewPB {
+  fn from(value: &ParentChildViews) -> Self {
+    view_pb_with_child_views(
+      value.parent_view.clone(),
+      value
+        .child_views
+        .iter()
+        .map(|v| v.parent_view.clone())
+        .collect(),
+    )
   }
 }

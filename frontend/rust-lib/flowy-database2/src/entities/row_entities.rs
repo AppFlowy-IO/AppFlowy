@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use collab_database::rows::{Row, RowId};
+use collab_database::rows::{Row, RowId, RowMeta};
 use collab_database::views::RowOrder;
 
 use flowy_derive::ProtoBuf;
@@ -36,12 +36,160 @@ impl std::convert::From<Row> for RowPB {
     }
   }
 }
+
 impl From<RowOrder> for RowPB {
   fn from(data: RowOrder) -> Self {
     Self {
       id: data.id.into_inner(),
       height: data.height,
     }
+  }
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf)]
+pub struct RowMetaPB {
+  #[pb(index = 1)]
+  pub id: String,
+
+  #[pb(index = 2)]
+  pub document_id: String,
+
+  #[pb(index = 3, one_of)]
+  pub icon: Option<String>,
+
+  #[pb(index = 4, one_of)]
+  pub cover: Option<String>,
+}
+
+impl std::convert::From<&RowMeta> for RowMetaPB {
+  fn from(row_meta: &RowMeta) -> Self {
+    Self {
+      id: row_meta.row_id.clone(),
+      document_id: row_meta.document_id.clone(),
+      icon: row_meta.icon_url.clone(),
+      cover: row_meta.cover_url.clone(),
+    }
+  }
+}
+
+impl std::convert::From<RowMeta> for RowMetaPB {
+  fn from(row_meta: RowMeta) -> Self {
+    Self {
+      id: row_meta.row_id,
+      document_id: row_meta.document_id,
+      icon: row_meta.icon_url,
+      cover: row_meta.cover_url,
+    }
+  }
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf)]
+pub struct UpdateRowMetaChangesetPB {
+  #[pb(index = 1)]
+  pub id: String,
+
+  #[pb(index = 2)]
+  pub view_id: String,
+
+  #[pb(index = 3, one_of)]
+  pub icon_url: Option<String>,
+
+  #[pb(index = 4, one_of)]
+  pub cover_url: Option<String>,
+}
+
+#[derive(Debug)]
+pub struct UpdateRowMetaParams {
+  pub id: String,
+  pub view_id: String,
+  pub icon_url: Option<String>,
+  pub cover_url: Option<String>,
+}
+
+impl TryInto<UpdateRowMetaParams> for UpdateRowMetaChangesetPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<UpdateRowMetaParams, Self::Error> {
+    let row_id = NotEmptyStr::parse(self.id)
+      .map_err(|_| ErrorCode::RowIdIsEmpty)?
+      .0;
+
+    let view_id = NotEmptyStr::parse(self.view_id)
+      .map_err(|_| ErrorCode::ViewIdIsInvalid)?
+      .0;
+    Ok(UpdateRowMetaParams {
+      id: row_id,
+      view_id,
+      icon_url: self.icon_url,
+      cover_url: self.cover_url,
+    })
+  }
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf)]
+pub struct UpdateRowPayloadPB {
+  #[pb(index = 1)]
+  pub row_id: String,
+
+  #[pb(index = 2, one_of)]
+  pub insert_document: Option<bool>,
+
+  #[pb(index = 3, one_of)]
+  pub insert_comment: Option<RowCommentPayloadPB>,
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct UpdateRowParams {
+  pub row_id: String,
+  pub insert_comment: Option<RowCommentParams>,
+}
+
+impl TryInto<UpdateRowParams> for UpdateRowPayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<UpdateRowParams, Self::Error> {
+    let row_id = NotEmptyStr::parse(self.row_id)
+      .map_err(|_| ErrorCode::RowIdIsEmpty)?
+      .0;
+    let insert_comment = self
+      .insert_comment
+      .map(|comment| comment.try_into())
+      .transpose()?;
+
+    Ok(UpdateRowParams {
+      row_id,
+      insert_comment,
+    })
+  }
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf)]
+pub struct RowCommentPayloadPB {
+  #[pb(index = 1)]
+  pub uid: String,
+
+  #[pb(index = 2)]
+  pub comment: String,
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct RowCommentParams {
+  pub uid: String,
+  pub comment: String,
+}
+
+impl TryInto<RowCommentParams> for RowCommentPayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<RowCommentParams, Self::Error> {
+    let uid = NotEmptyStr::parse(self.uid)
+      .map_err(|_| ErrorCode::RowIdIsEmpty)?
+      .0;
+    let comment = NotEmptyStr::parse(self.comment)
+      .map_err(|_| ErrorCode::RowIdIsEmpty)?
+      .0;
+
+    Ok(RowCommentParams { uid, comment })
   }
 }
 
@@ -66,7 +214,7 @@ impl std::convert::From<Vec<RowPB>> for RepeatedRowPB {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct InsertedRowPB {
   #[pb(index = 1)]
-  pub row: RowPB,
+  pub row_meta: RowMetaPB,
 
   #[pb(index = 2, one_of)]
   pub index: Option<i32>,
@@ -76,43 +224,34 @@ pub struct InsertedRowPB {
 }
 
 impl InsertedRowPB {
-  pub fn new(row: RowPB) -> Self {
+  pub fn new(row_meta: RowMetaPB) -> Self {
     Self {
-      row,
+      row_meta,
       index: None,
       is_new: false,
     }
   }
 
-  pub fn with_index(row: RowPB, index: i32) -> Self {
-    Self {
-      row,
-      index: Some(index),
-      is_new: false,
-    }
+  pub fn with_index(mut self, index: i32) -> Self {
+    self.index = Some(index);
+    self
   }
 }
 
-impl std::convert::From<RowPB> for InsertedRowPB {
-  fn from(row: RowPB) -> Self {
+impl std::convert::From<RowMetaPB> for InsertedRowPB {
+  fn from(row_meta: RowMetaPB) -> Self {
     Self {
-      row,
+      row_meta,
       index: None,
       is_new: false,
     }
-  }
-}
-
-impl std::convert::From<&Row> for InsertedRowPB {
-  fn from(row: &Row) -> Self {
-    Self::from(RowPB::from(row))
   }
 }
 
 impl From<InsertedRow> for InsertedRowPB {
   fn from(data: InsertedRow) -> Self {
     Self {
-      row: data.row.into(),
+      row_meta: data.row_meta.into(),
       index: data.index,
       is_new: data.is_new,
     }
@@ -122,18 +261,24 @@ impl From<InsertedRow> for InsertedRowPB {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct UpdatedRowPB {
   #[pb(index = 1)]
-  pub row: RowPB,
+  pub row_id: String,
 
-  // represents as the cells that were updated in this row.
+  // Indicates the field ids of the cells that were updated in this row.
   #[pb(index = 2)]
   pub field_ids: Vec<String>,
+
+  /// The meta of row was updated if this is Some.
+  #[pb(index = 3, one_of)]
+  pub row_meta: Option<RowMetaPB>,
 }
 
 impl From<UpdatedRow> for UpdatedRowPB {
   fn from(data: UpdatedRow) -> Self {
+    let row_meta = data.row_meta.map(RowMetaPB::from);
     Self {
-      row: data.row.into(),
+      row_id: data.row_id,
       field_ids: data.field_ids,
+      row_meta,
     }
   }
 }
@@ -145,11 +290,15 @@ pub struct RowIdPB {
 
   #[pb(index = 2)]
   pub row_id: String,
+
+  #[pb(index = 3, one_of)]
+  pub group_id: Option<String>,
 }
 
 pub struct RowIdParams {
   pub view_id: String,
   pub row_id: RowId,
+  pub group_id: Option<String>,
 }
 
 impl TryInto<RowIdParams> for RowIdPB {
@@ -157,10 +306,20 @@ impl TryInto<RowIdParams> for RowIdPB {
 
   fn try_into(self) -> Result<RowIdParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let row_id = NotEmptyStr::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
+    let group_id = match self.group_id {
+      Some(group_id) => Some(
+        NotEmptyStr::parse(group_id)
+          .map_err(|_| ErrorCode::GroupIdIsEmpty)?
+          .0,
+      ),
+      None => None,
+    };
 
     Ok(RowIdParams {
       view_id: view_id.0,
-      row_id: RowId::from(self.row_id),
+      row_id: RowId::from(row_id.0),
+      group_id,
     })
   }
 }

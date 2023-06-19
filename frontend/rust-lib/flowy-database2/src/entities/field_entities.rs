@@ -155,6 +155,8 @@ pub struct CreateFieldPayloadPB {
   #[pb(index = 2)]
   pub field_type: FieldType,
 
+  /// If the type_option_data is not empty, it will be used to create the field.
+  /// Otherwise, the default value will be used.
   #[pb(index = 3, one_of)]
   pub type_option_data: Option<Vec<u8>>,
 }
@@ -163,6 +165,8 @@ pub struct CreateFieldPayloadPB {
 pub struct CreateFieldParams {
   pub view_id: String,
   pub field_type: FieldType,
+  /// If the type_option_data is not empty, it will be used to create the field.
+  /// Otherwise, the default value will be used.
   pub type_option_data: Option<Vec<u8>>,
 }
 
@@ -189,9 +193,6 @@ pub struct UpdateFieldTypePayloadPB {
 
   #[pb(index = 3)]
   pub field_type: FieldType,
-
-  #[pb(index = 4)]
-  pub create_if_not_exist: bool,
 }
 
 pub struct EditFieldParams {
@@ -401,18 +402,13 @@ pub struct FieldChangesetPB {
   pub desc: Option<String>,
 
   #[pb(index = 5, one_of)]
-  pub field_type: Option<FieldType>,
-
-  #[pb(index = 6, one_of)]
   pub frozen: Option<bool>,
 
-  #[pb(index = 7, one_of)]
+  #[pb(index = 6, one_of)]
   pub visibility: Option<bool>,
 
-  #[pb(index = 8, one_of)]
+  #[pb(index = 7, one_of)]
   pub width: Option<i32>,
-  // #[pb(index = 9, one_of)]
-  // pub type_option_data: Option<Vec<u8>>,
 }
 
 impl TryInto<FieldChangesetParams> for FieldChangesetPB {
@@ -421,7 +417,6 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPB {
   fn try_into(self) -> Result<FieldChangesetParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
     let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
-    let field_type = self.field_type.map(FieldType::from);
     // if let Some(type_option_data) = self.type_option_data.as_ref() {
     //     if type_option_data.is_empty() {
     //         return Err(ErrorCode::TypeOptionDataIsEmpty);
@@ -433,7 +428,6 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPB {
       view_id: view_id.0,
       name: self.name,
       desc: self.desc,
-      field_type,
       frozen: self.frozen,
       visibility: self.visibility,
       width: self.width,
@@ -451,8 +445,6 @@ pub struct FieldChangesetParams {
   pub name: Option<String>,
 
   pub desc: Option<String>,
-
-  pub field_type: Option<FieldType>,
 
   pub frozen: Option<bool>,
 
@@ -483,7 +475,9 @@ pub struct FieldChangesetParams {
   Deserialize_repr,
 )]
 #[repr(u8)]
+#[derive(Default)]
 pub enum FieldType {
+  #[default]
   RichText = 0,
   Number = 1,
   DateTime = 2,
@@ -492,21 +486,8 @@ pub enum FieldType {
   Checkbox = 5,
   URL = 6,
   Checklist = 7,
-}
-
-pub const RICH_TEXT_FIELD: FieldType = FieldType::RichText;
-pub const NUMBER_FIELD: FieldType = FieldType::Number;
-pub const DATE_FIELD: FieldType = FieldType::DateTime;
-pub const SINGLE_SELECT_FIELD: FieldType = FieldType::SingleSelect;
-pub const MULTI_SELECT_FIELD: FieldType = FieldType::MultiSelect;
-pub const CHECKBOX_FIELD: FieldType = FieldType::Checkbox;
-pub const URL_FIELD: FieldType = FieldType::URL;
-pub const CHECKLIST_FIELD: FieldType = FieldType::Checklist;
-
-impl std::default::Default for FieldType {
-  fn default() -> Self {
-    FieldType::RichText
-  }
+  LastEditedTime = 8,
+  CreatedTime = 9,
 }
 
 impl Display for FieldType {
@@ -529,9 +510,13 @@ impl From<&FieldType> for FieldType {
 }
 
 impl FieldType {
+  pub fn value(&self) -> i64 {
+    self.clone().into()
+  }
+
   pub fn default_cell_width(&self) -> i32 {
     match self {
-      FieldType::DateTime => 180,
+      FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => 180,
       _ => 150,
     }
   }
@@ -546,48 +531,64 @@ impl FieldType {
       FieldType::Checkbox => "Checkbox",
       FieldType::URL => "URL",
       FieldType::Checklist => "Checklist",
+      FieldType::LastEditedTime => "Last edited time",
+      FieldType::CreatedTime => "Created time",
     };
     s.to_string()
   }
 
   pub fn is_number(&self) -> bool {
-    self == &NUMBER_FIELD
+    matches!(self, FieldType::Number)
   }
 
   pub fn is_text(&self) -> bool {
-    self == &RICH_TEXT_FIELD
+    matches!(self, FieldType::RichText)
   }
 
   pub fn is_checkbox(&self) -> bool {
-    self == &CHECKBOX_FIELD
+    matches!(self, FieldType::Checkbox)
   }
 
   pub fn is_date(&self) -> bool {
-    self == &DATE_FIELD
+    matches!(self, FieldType::DateTime)
+      || matches!(self, FieldType::LastEditedTime)
+      || matches!(self, FieldType::CreatedTime)
   }
 
   pub fn is_single_select(&self) -> bool {
-    self == &SINGLE_SELECT_FIELD
+    matches!(self, FieldType::SingleSelect)
   }
 
   pub fn is_multi_select(&self) -> bool {
-    self == &MULTI_SELECT_FIELD
+    matches!(self, FieldType::MultiSelect)
+  }
+
+  pub fn is_last_edited_time(&self) -> bool {
+    matches!(self, FieldType::LastEditedTime)
+  }
+
+  pub fn is_created_time(&self) -> bool {
+    matches!(self, FieldType::CreatedTime)
   }
 
   pub fn is_url(&self) -> bool {
-    self == &URL_FIELD
+    matches!(self, FieldType::URL)
   }
 
   pub fn is_select_option(&self) -> bool {
-    self == &MULTI_SELECT_FIELD || self == &SINGLE_SELECT_FIELD
+    self.is_single_select() || self.is_multi_select()
   }
 
-  pub fn is_check_list(&self) -> bool {
-    self == &CHECKLIST_FIELD
+  pub fn is_checklist(&self) -> bool {
+    matches!(self, FieldType::Checklist)
   }
 
   pub fn can_be_group(&self) -> bool {
     self.is_select_option() || self.is_checkbox() || self.is_url()
+  }
+
+  pub fn is_auto_update(&self) -> bool {
+    self.is_last_edited_time()
   }
 }
 
@@ -596,22 +597,13 @@ impl_into_field_type!(u8);
 
 impl From<FieldType> for i64 {
   fn from(ty: FieldType) -> Self {
-    match ty {
-      FieldType::RichText => 0,
-      FieldType::Number => 1,
-      FieldType::DateTime => 2,
-      FieldType::SingleSelect => 3,
-      FieldType::MultiSelect => 4,
-      FieldType::Checkbox => 5,
-      FieldType::URL => 6,
-      FieldType::Checklist => 7,
-    }
+    (ty as u8) as i64
   }
 }
 
 impl From<&FieldType> for i64 {
   fn from(ty: &FieldType) -> Self {
-    ty.clone() as i64
+    i64::from(ty.clone())
   }
 }
 

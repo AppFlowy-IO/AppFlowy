@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:appflowy/plugins/database_view/application/field/field_listener.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_meta_listener.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
@@ -22,52 +23,58 @@ import 'cell_service.dart';
 ///
 // ignore: must_be_immutable
 class CellController<T, D> extends Equatable {
-  final CellIdentifier cellId;
+  DatabaseCellContext _cellContext;
   final CellCache _cellCache;
   final CellCacheKey _cacheKey;
   final FieldBackendService _fieldBackendSvc;
-  final SingleFieldListener _fieldListener;
   final CellDataLoader<T> _cellDataLoader;
   final CellDataPersistence<D> _cellDataPersistence;
 
   CellListener? _cellListener;
+  RowMetaListener? _rowMetaListener;
+  SingleFieldListener? _fieldListener;
   CellDataNotifier<T?>? _cellDataNotifier;
 
   VoidCallback? _onCellFieldChanged;
+  VoidCallback? _onRowMetaChanged;
   Timer? _loadDataOperation;
   Timer? _saveDataOperation;
 
-  String get viewId => cellId.viewId;
+  String get viewId => _cellContext.viewId;
 
-  RowId get rowId => cellId.rowId;
+  RowId get rowId => _cellContext.rowId;
 
-  String get fieldId => cellId.fieldInfo.id;
+  String get fieldId => _cellContext.fieldInfo.id;
 
-  FieldInfo get fieldInfo => cellId.fieldInfo;
+  FieldInfo get fieldInfo => _cellContext.fieldInfo;
 
-  FieldType get fieldType => cellId.fieldInfo.fieldType;
+  FieldType get fieldType => _cellContext.fieldInfo.fieldType;
+
+  String? get emoji => _cellContext.emoji;
 
   CellController({
-    required this.cellId,
+    required DatabaseCellContext cellContext,
     required CellCache cellCache,
     required CellDataLoader<T> cellDataLoader,
     required CellDataPersistence<D> cellDataPersistence,
-  })  : _cellCache = cellCache,
+  })  : _cellContext = cellContext,
+        _cellCache = cellCache,
         _cellDataLoader = cellDataLoader,
         _cellDataPersistence = cellDataPersistence,
-        _fieldListener = SingleFieldListener(fieldId: cellId.fieldId),
+        _rowMetaListener = RowMetaListener(cellContext.rowId),
+        _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId),
         _fieldBackendSvc = FieldBackendService(
-          viewId: cellId.viewId,
-          fieldId: cellId.fieldInfo.id,
+          viewId: cellContext.viewId,
+          fieldId: cellContext.fieldInfo.id,
         ),
         _cacheKey = CellCacheKey(
-          rowId: cellId.rowId,
-          fieldId: cellId.fieldInfo.id,
+          rowId: cellContext.rowId,
+          fieldId: cellContext.fieldInfo.id,
         ) {
     _cellDataNotifier = CellDataNotifier(value: _cellCache.get(_cacheKey));
     _cellListener = CellListener(
-      rowId: cellId.rowId,
-      fieldId: cellId.fieldInfo.id,
+      rowId: cellContext.rowId,
+      fieldId: cellContext.fieldInfo.id,
     );
 
     /// 1.Listen on user edit event and load the new cell data if needed.
@@ -84,20 +91,22 @@ class CellController<T, D> extends Equatable {
     );
 
     /// 2.Listen on the field event and load the cell data if needed.
-    _fieldListener.start(
-      onFieldChanged: (result) {
-        result.fold(
-          (fieldPB) {
-            /// reloadOnFieldChanged should be true if you need to load the data when the corresponding field is changed
-            /// For example:
-            ///   ￥12 -> $12
-            if (_cellDataLoader.reloadOnFieldChanged) {
-              _loadData();
-            }
-            _onCellFieldChanged?.call();
-          },
-          (err) => Log.error(err),
-        );
+    _fieldListener?.start(
+      onFieldChanged: (fieldPB) {
+        /// reloadOnFieldChanged should be true if you need to load the data when the corresponding field is changed
+        /// For example:
+        ///   ￥12 -> $12
+        if (_cellDataLoader.reloadOnFieldChanged) {
+          _loadData();
+        }
+        _onCellFieldChanged?.call();
+      },
+    );
+
+    _rowMetaListener?.start(
+      callback: (newRowMeta) {
+        _cellContext = _cellContext.copyWith(rowMeta: newRowMeta);
+        _onRowMetaChanged?.call();
       },
     );
   }
@@ -105,9 +114,11 @@ class CellController<T, D> extends Equatable {
   /// Listen on the cell content or field changes
   VoidCallback? startListening({
     required void Function(T?) onCellChanged,
+    VoidCallback? onRowMetaChanged,
     VoidCallback? onCellFieldChanged,
   }) {
     _onCellFieldChanged = onCellFieldChanged;
+    _onRowMetaChanged = onRowMetaChanged;
 
     /// Notify the listener, the cell data was changed.
     onCellChangedFn() => onCellChanged(_cellDataNotifier?.value);
@@ -186,17 +197,27 @@ class CellController<T, D> extends Equatable {
   }
 
   Future<void> dispose() async {
+    await _rowMetaListener?.stop();
+    _rowMetaListener = null;
+
     await _cellListener?.stop();
+    _cellListener = null;
+
+    await _fieldListener?.stop();
+    _fieldListener = null;
+
     _loadDataOperation?.cancel();
     _saveDataOperation?.cancel();
     _cellDataNotifier?.dispose();
-    await _fieldListener.stop();
     _cellDataNotifier = null;
+    _onRowMetaChanged = null;
   }
 
   @override
-  List<Object> get props =>
-      [_cellCache.get(_cacheKey) ?? "", cellId.rowId + cellId.fieldInfo.id];
+  List<Object> get props => [
+        _cellCache.get(_cacheKey) ?? "",
+        _cellContext.rowId + _cellContext.fieldInfo.id
+      ];
 }
 
 class CellDataNotifier<T> extends ChangeNotifier {

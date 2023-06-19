@@ -231,7 +231,7 @@ class _BoardContentState extends State<BoardContent> {
   ) {
     final groupItem = afGroupItem as GroupItem;
     final groupData = afGroupData.customData as GroupData;
-    final rowPB = groupItem.row;
+    final rowMeta = groupItem.row;
     final rowCache = context.read<BoardBloc>().getRowCache();
 
     /// Return placeholder widget if the rowCache is null.
@@ -255,7 +255,7 @@ class _BoardContentState extends State<BoardContent> {
       margin: config.cardPadding,
       decoration: _makeBoxDecoration(context),
       child: RowCard<String>(
-        row: rowPB,
+        rowMeta: rowMeta,
         viewId: viewId,
         rowCache: rowCache,
         cardData: groupData.group.groupId,
@@ -265,8 +265,9 @@ class _BoardContentState extends State<BoardContent> {
         renderHook: renderHook,
         openCard: (context) => _openCard(
           viewId,
+          groupData.group.groupId,
           fieldController,
-          rowPB,
+          rowMeta,
           rowCache,
           context,
         ),
@@ -302,21 +303,24 @@ class _BoardContentState extends State<BoardContent> {
 
   void _openCard(
     String viewId,
+    String groupId,
     FieldController fieldController,
-    RowPB rowPB,
+    RowMetaPB rowMetaPB,
     RowCache rowCache,
     BuildContext context,
   ) {
     final rowInfo = RowInfo(
       viewId: viewId,
       fields: UnmodifiableListView(fieldController.fieldInfos),
-      rowPB: rowPB,
+      rowMeta: rowMetaPB,
+      rowId: rowMetaPB.id,
     );
 
     final dataController = RowController(
-      rowId: rowInfo.rowPB.id,
+      rowMeta: rowInfo.rowMeta,
       viewId: rowInfo.viewId,
       rowCache: rowCache,
+      groupId: groupId,
     );
 
     FlowyOverlay.show(
@@ -324,7 +328,7 @@ class _BoardContentState extends State<BoardContent> {
       builder: (BuildContext context) {
         return RowDetailPage(
           cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
-          dataController: dataController,
+          rowController: dataController,
         );
       },
     );
@@ -337,15 +341,7 @@ class _ToolbarBlocAdaptor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<BoardBloc, BoardState>(
-      builder: (context, state) {
-        final bloc = context.read<BoardBloc>();
-        final toolbarContext = BoardToolbarContext(
-          viewId: bloc.viewId,
-          fieldController: bloc.fieldController,
-        );
-
-        return BoardToolbar(toolbarContext: toolbarContext);
-      },
+      builder: (context, state) => const BoardToolbar(),
     );
   }
 }
@@ -362,6 +358,8 @@ Widget? _buildHeaderIcon(GroupData customData) {
       }
       break;
     case FieldType.DateTime:
+    case FieldType.LastEditedTime:
+    case FieldType.CreatedTime:
       break;
     case FieldType.MultiSelect:
       break;

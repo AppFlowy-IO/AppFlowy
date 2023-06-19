@@ -3,6 +3,7 @@
 #================
 
 FROM archlinux/archlinux:base-devel as builder
+RUN chown root:root /usr/bin/sudo && chmod 4755 /usr/bin/sudo
 
 # Upgrade the system
 RUN pacman -Syyu --noconfirm
@@ -31,22 +32,22 @@ RUN yay -S --noconfirm curl base-devel openssl clang cmake ninja pkg-config xdg-
 RUN xdg-user-dirs-update
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN source ~/.cargo/env && \
-    rustup toolchain install stable && \
-    rustup default stable
+    rustup toolchain install 1.70 && \
+    rustup default 1.70
 
 # Install Flutter
 RUN sudo pacman -S --noconfirm git tar gtk3
 RUN curl -sSfL \
       --output flutter.tar.xz \
-      https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.7.5-stable.tar.xz && \
+      https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.10.1-stable.tar.xz && \
     tar -xf flutter.tar.xz && \
     rm flutter.tar.xz
 RUN flutter config --enable-linux-desktop
 RUN flutter doctor
-RUN dart pub global activate protoc_plugin
+RUN dart pub global activate protoc_plugin 20.0.1
 
 # Intall build dependencies for AppFlowy
-RUN sudo pacman -S --noconfirm git libkeybinder3 sqlite
+RUN sudo pacman -S --noconfirm git libkeybinder3 sqlite clang
 RUN source ~/.cargo/env && cargo install --force cargo-make duckscript_cli
 
 # Build AppFlowy
@@ -56,6 +57,7 @@ WORKDIR /appflowy
 RUN cd frontend && \
     source ~/.cargo/env && \
     cargo make appflowy-flutter-deps-tools && \
+    cargo make flutter_clean && \
     cargo make -p production-linux-x86_64 appflowy-linux
 
 

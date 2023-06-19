@@ -8,6 +8,8 @@ import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/plugins/trash/trash.dart';
 
 class PluginLoadTask extends LaunchTask {
+  const PluginLoadTask();
+
   @override
   LaunchTaskType get type => LaunchTaskType.dataProcessing;
 

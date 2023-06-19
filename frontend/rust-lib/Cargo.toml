@@ -8,21 +8,14 @@ members = [
   "flowy-user",
   "flowy-test",
   "flowy-sqlite",
-#  "flowy-folder",r
   "flowy-folder2",
   "flowy-notification",
   "flowy-document2",
-  "flowy-document",
   "flowy-error",
-  "flowy-revision",
-  "flowy-revision-persistence",
-#  "flowy-database",
   "flowy-database2",
   "flowy-task",
-  "flowy-client-sync",
-  "flowy-derive",
-  "flowy-ast",
-  "flowy-codegen",
+  "flowy-server",
+  "flowy-config",
 ]
 
 [profile.dev]
@@ -40,16 +33,15 @@ opt-level = 3
 incremental = false
 
 [patch.crates-io]
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f66084"  }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f66084"  }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f66084" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f66084" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f66084" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f66084" }
-collab-sync= { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f66084" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e9f7fc" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e9f7fc" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e9f7fc" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e9f7fc" }
+appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "e9f7fc" }
 
 #collab = { path = "../AppFlowy-Collab/collab" }
 #collab-folder = { path = "../AppFlowy-Collab/collab-folder" }
 #collab-database= { path = "../AppFlowy-Collab/collab-database" }
-#collab-persistence = { path = "../AppFlowy-Collab/collab-persistence" }
 #collab-document = { path = "../AppFlowy-Collab/collab-document" }
+#appflowy-integrate = { path = "../AppFlowy-Collab/appflowy-integrate" }
+

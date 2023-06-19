@@ -1,6 +1,6 @@
 use crate::entities::{CreateViewParams, ViewLayoutPB};
 use crate::manager::Folder2Manager;
-use crate::view_ext::gen_view_id;
+use crate::view_operation::gen_view_id;
 use std::collections::HashMap;
 
 #[cfg(feature = "test_helper")]
@@ -36,13 +36,14 @@ impl Folder2Manager {
   ) -> String {
     let view_id = gen_view_id();
     let params = CreateViewParams {
-      belong_to_id: app_id.to_string(),
+      parent_view_id: app_id.to_string(),
       name: name.to_string(),
       desc: "".to_string(),
       layout,
       view_id: view_id.clone(),
       initial_data: vec![],
-      ext,
+      meta: ext,
+      set_as_current: true,
     };
     self.create_view_with_params(params).await.unwrap();
     view_id

@@ -1,27 +1,22 @@
-import { Ok, Result } from 'ts-results';
-import { FlowyError, FolderNotification, RepeatedViewPB } from '@/services/backend';
+import { FolderNotification } from '@/services/backend';
 import { ChangeNotifier } from '$app/utils/change_notifier';
 import { FolderNotificationObserver } from '../notifications/observer';
 
-export type AppUpdateNotifyCallback = (value: Result<RepeatedViewPB, FlowyError>) => void;
-
 export class AppObserver {
-  _appNotifier = new ChangeNotifier<Result<RepeatedViewPB, FlowyError>>();
+  _viewsNotifier = new ChangeNotifier<void>();
   _listener?: FolderNotificationObserver;
 
   constructor(public readonly appId: string) {}
 
-  subscribe = async (callbacks: { onAppChanged: AppUpdateNotifyCallback }) => {
-    this._appNotifier?.observer.subscribe(callbacks.onAppChanged);
+  subscribe = async (callbacks: { onViewsChanged: () => void }) => {
+    this._viewsNotifier?.observer?.subscribe(callbacks.onViewsChanged);
     this._listener = new FolderNotificationObserver({
       viewId: this.appId,
       parserHandler: (notification, result) => {
         switch (notification) {
-          case FolderNotification.DidUpdateWorkspaceViews:
+          case FolderNotification.DidUpdateChildViews:
             if (result.ok) {
-              this._appNotifier?.notify(Ok(RepeatedViewPB.deserializeBinary(result.val)));
-            } else {
-              this._appNotifier?.notify(result);
+              this._viewsNotifier?.notify();
             }
             break;
           default:
@@ -33,7 +28,7 @@ export class AppObserver {
   };
 
   unsubscribe = async () => {
-    this._appNotifier.unsubscribe();
+    this._viewsNotifier.unsubscribe();
     await this._listener?.stop();
   };
 }
