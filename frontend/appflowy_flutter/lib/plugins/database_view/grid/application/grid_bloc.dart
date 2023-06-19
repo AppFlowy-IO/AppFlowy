@@ -87,9 +87,11 @@ class GridBloc extends Bloc<GridEvent, GridState> {
         }
       },
       onRowsUpdated: (rows, reason) {
-        add(
-          GridEvent.didLoadRows(databaseController.rowCache.rowInfos, reason),
-        );
+        if (!isClosed) {
+          add(
+            GridEvent.didLoadRows(databaseController.rowCache.rowInfos, reason),
+          );
+        }
       },
       onFieldsChanged: (fields) {
         if (!isClosed) {
@@ -97,7 +99,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
         }
       },
     );
-    databaseController.setListener(onDatabaseChanged: onDatabaseChanged);
+    databaseController.addListener(onDatabaseChanged: onDatabaseChanged);
   }
 
   Future<void> _openGrid(Emitter<GridState> emit) async {

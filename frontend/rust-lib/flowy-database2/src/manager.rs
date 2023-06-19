@@ -7,7 +7,7 @@ use appflowy_integrate::{CollabPersistenceConfig, RocksCollabDB};
 use collab::core::collab::MutexCollab;
 use collab_database::database::DatabaseData;
 use collab_database::user::{DatabaseCollabBuilder, UserDatabase as InnerUserDatabase};
-use collab_database::views::{CreateDatabaseParams, CreateViewParams};
+use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use parking_lot::Mutex;
 use tokio::sync::RwLock;
 
@@ -16,6 +16,7 @@ use flowy_task::TaskDispatcher;
 
 use crate::entities::{DatabaseDescriptionPB, DatabaseLayoutPB, RepeatedDatabaseDescriptionPB};
 use crate::services::database::{DatabaseEditor, MutexDatabase};
+use crate::services::database_view::DatabaseLayoutDepsResolver;
 use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
 
 pub trait DatabaseUser2: Send + Sync {
@@ -179,18 +180,28 @@ impl DatabaseManager2 {
     Ok(())
   }
 
+  /// A linked view is a view that is linked to existing database.
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn create_linked_view(
     &self,
     name: String,
-    layout: DatabaseLayoutPB,
+    layout: DatabaseLayout,
     database_id: String,
     database_view_id: String,
   ) -> FlowyResult<()> {
     self.with_user_database(
       Err(FlowyError::internal().context("Create database view failed")),
       |user_database| {
-        let params = CreateViewParams::new(database_id, database_view_id, name, layout.into());
+        let mut params = CreateViewParams::new(database_id.clone(), database_view_id, name, layout);
+        if let Some(database) = user_database.get_database(&database_id) {
+          if let Some((field, layout_setting)) = DatabaseLayoutDepsResolver::new(database, layout)
+            .resolve_deps_when_create_database_linked_view()
+          {
+            params = params
+              .with_deps_fields(vec![field])
+              .with_layout_setting(layout_setting);
+          }
+        };
         user_database.create_database_linked_view(params)?;
         Ok(())
       },

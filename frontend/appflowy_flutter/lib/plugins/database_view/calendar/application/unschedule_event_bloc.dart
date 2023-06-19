@@ -3,7 +3,6 @@ import 'package:appflowy/plugins/database_view/application/field/field_controlle
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,8 +13,8 @@ import '../../application/row/row_cache.dart';
 
 part 'unschedule_event_bloc.freezed.dart';
 
-class UnscheduleCalendarEventBloc
-    extends Bloc<UnscheduleCalendarEvent, UnscheduleCalendarState> {
+class UnscheduleEventsBloc
+    extends Bloc<UnscheduleEventsEvent, UnscheduleEventsState> {
   final DatabaseController databaseController;
   Map<String, FieldInfo> fieldInfoByFieldId = {};
 
@@ -25,10 +24,10 @@ class UnscheduleCalendarEventBloc
   CellCache get cellCache => databaseController.rowCache.cellCache;
   RowCache get rowCache => databaseController.rowCache;
 
-  UnscheduleCalendarEventBloc(
-      {required ViewPB view, required this.databaseController})
-      : super(UnscheduleCalendarState.initial()) {
-    on<UnscheduleCalendarEvent>(
+  UnscheduleEventsBloc({
+    required this.databaseController,
+  }) : super(UnscheduleEventsState.initial()) {
+    on<UnscheduleEventsEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
@@ -37,20 +36,13 @@ class UnscheduleCalendarEventBloc
           },
           didLoadAllEvents: (events) {
             emit(
-              state.copyWith(allEvents: events),
+              state.copyWith(
+                allEvents: events,
+                unscheduleEvents:
+                    events.where((element) => !element.isScheduled).toList(),
+              ),
             );
           },
-          // didUpdateEvent:
-          //     (UnscheduleCalendarEventData<CalendarDayEvent> eventData) {
-          //   final allEvents = [...state.allEvents];
-          //   final index = allEvents.indexWhere(
-          //     (element) => element.event!.eventId == eventData.event!.eventId,
-          //   );
-          //   if (index != -1) {
-          //     allEvents[index] = eventData;
-          //   }
-          //   emit(state.copyWith(allEvents: allEvents, updateEvent: eventData));
-          // },
           didDeleteEvents: (List<RowId> deletedRowIds) {
             final events = [...state.allEvents];
             events.retainWhere(
@@ -59,6 +51,8 @@ class UnscheduleCalendarEventBloc
             emit(
               state.copyWith(
                 allEvents: events,
+                unscheduleEvents:
+                    events.where((element) => !element.isScheduled).toList(),
               ),
             );
           },
@@ -72,12 +66,6 @@ class UnscheduleCalendarEventBloc
         );
       },
     );
-  }
-
-  Future<void> _updateCalendarLayoutSetting(
-    CalendarLayoutSettingPB layoutSetting,
-  ) async {
-    return databaseController.updateCalenderLayoutSetting(layoutSetting);
   }
 
   Future<CalendarEventPB?> _loadEvent(
@@ -101,7 +89,7 @@ class UnscheduleCalendarEventBloc
       result.fold(
         (events) {
           if (!isClosed) {
-            add(UnscheduleCalendarEvent.didLoadAllEvents(events.items));
+            add(UnscheduleEventsEvent.didLoadAllEvents(events.items));
           }
         },
         (r) => Log.error(r),
@@ -111,17 +99,6 @@ class UnscheduleCalendarEventBloc
 
   void _startListening() {
     final onDatabaseChanged = DatabaseCallbacks(
-      onDatabaseChanged: (database) {
-        if (isClosed) return;
-      },
-      onFieldsChanged: (fieldInfos) {
-        if (isClosed) {
-          return;
-        }
-        fieldInfoByFieldId = {
-          for (var fieldInfo in fieldInfos) fieldInfo.field.id: fieldInfo
-        };
-      },
       onRowsCreated: (rowIds) async {
         if (isClosed) {
           return;
@@ -129,7 +106,7 @@ class UnscheduleCalendarEventBloc
         for (final id in rowIds) {
           final event = await _loadEvent(id);
           if (event != null && !isClosed) {
-            add(UnscheduleCalendarEvent.didReceiveEvent(event));
+            add(UnscheduleEventsEvent.didReceiveEvent(event));
           }
         }
       },
@@ -137,7 +114,7 @@ class UnscheduleCalendarEventBloc
         if (isClosed) {
           return;
         }
-        add(UnscheduleCalendarEvent.didDeleteEvents(rowIds));
+        add(UnscheduleEventsEvent.didDeleteEvents(rowIds));
       },
       onRowsUpdated: (rowIds, reason) async {
         if (isClosed) {
@@ -146,41 +123,45 @@ class UnscheduleCalendarEventBloc
         for (final id in rowIds) {
           final event = await _loadEvent(id);
           if (event != null) {
-            add(UnscheduleCalendarEvent.didDeleteEvents([id]));
-            add(UnscheduleCalendarEvent.didReceiveEvent(event));
+            add(UnscheduleEventsEvent.didDeleteEvents([id]));
+            add(UnscheduleEventsEvent.didReceiveEvent(event));
           }
         }
       },
     );
+
+    databaseController.addListener(onDatabaseChanged: onDatabaseChanged);
   }
 }
 
 @freezed
-class UnscheduleCalendarEvent with _$UnscheduleCalendarEvent {
-  const factory UnscheduleCalendarEvent.initial() = _InitialCalendar;
+class UnscheduleEventsEvent with _$UnscheduleEventsEvent {
+  const factory UnscheduleEventsEvent.initial() = _InitialCalendar;
 
   // Called after loading all the current evnets
-  const factory UnscheduleCalendarEvent.didLoadAllEvents(
+  const factory UnscheduleEventsEvent.didLoadAllEvents(
     List<CalendarEventPB> events,
-  ) = _ReceiveUnscheduleCalendarEvents;
+  ) = _ReceiveUnscheduleEventsEvents;
 
-  const factory UnscheduleCalendarEvent.didDeleteEvents(List<RowId> rowIds) =
+  const factory UnscheduleEventsEvent.didDeleteEvents(List<RowId> rowIds) =
       _DidDeleteEvents;
 
-  const factory UnscheduleCalendarEvent.didReceiveEvent(
+  const factory UnscheduleEventsEvent.didReceiveEvent(
     CalendarEventPB event,
   ) = _DidReceiveEvent;
 }
 
 @freezed
-class UnscheduleCalendarState with _$UnscheduleCalendarState {
-  const factory UnscheduleCalendarState({
+class UnscheduleEventsState with _$UnscheduleEventsState {
+  const factory UnscheduleEventsState({
     required Option<DatabasePB> database,
     required List<CalendarEventPB> allEvents,
-  }) = _UnscheduleCalendarState;
+    required List<CalendarEventPB> unscheduleEvents,
+  }) = _UnscheduleEventsState;
 
-  factory UnscheduleCalendarState.initial() => UnscheduleCalendarState(
+  factory UnscheduleEventsState.initial() => UnscheduleEventsState(
         database: none(),
         allEvents: [],
+        unscheduleEvents: [],
       );
 }

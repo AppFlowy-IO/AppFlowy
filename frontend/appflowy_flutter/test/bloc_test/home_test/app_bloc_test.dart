@@ -65,7 +65,7 @@ void main() {
     await blocResponseFuture();
     assert(bloc.state.views.length == 3);
 
-    final appViewData = AppViewDataContext(viewId: app.id);
+    final appViewData = ViewDataContext(viewId: app.id);
     appViewData.views = bloc.state.views;
 
     final viewSectionBloc = ViewSectionBloc(

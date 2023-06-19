@@ -1,10 +1,15 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/tar_bar_bloc.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/left_bar_item.dart';
+import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -49,6 +54,9 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(
+      initialPage: 0,
+    );
   }
 
   @override
@@ -68,14 +76,6 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                 state.selectedIndex,
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.ease,
-              );
-            },
-          ),
-          BlocListener<GridTabBarBloc, GridTabBarState>(
-            listenWhen: (p, c) => p.tabBars.length != c.tabBars.length,
-            listener: (context, state) {
-              _pageController = PageController(
-                initialPage: state.selectedIndex,
               );
             },
           ),
@@ -115,6 +115,8 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
               child: BlocBuilder<GridTabBarBloc, GridTabBarState>(
                 builder: (context, state) {
                   return PageView(
+                    pageSnapping: false,
+                    physics: const NeverScrollableScrollPhysics(),
                     controller: _pageController,
                     children: pageContentFromState(state),
                   );
@@ -203,8 +205,15 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
   List<NavigationItem> get navigationItems => [this];
 }
 
-class DatabaseTabBar extends StatelessWidget {
+class DatabaseTabBar extends StatefulWidget {
   const DatabaseTabBar({super.key});
+
+  @override
+  State<DatabaseTabBar> createState() => _DatabaseTabBarState();
+}
+
+class _DatabaseTabBarState extends State<DatabaseTabBar> {
+  final _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -225,7 +234,15 @@ class DatabaseTabBar extends StatelessWidget {
 
         return Row(
           children: [
-            ...children,
+            Flexible(
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                scrollDirection: Axis.horizontal,
+                child: IntrinsicWidth(
+                  child: Row(children: children),
+                ),
+              ),
+            ),
             AddDatabaseViewButton(
               onTap: (action) async {
                 context.read<GridTabBarBloc>().add(
@@ -258,21 +275,9 @@ class DatabaseTabBarItem extends StatelessWidget {
       child: IntrinsicWidth(
         child: Column(
           children: [
-            FlowyButton(
-              radius: Corners.s5Border,
-              hoverColor: AFThemeExtension.of(context).greyHover,
+            TabBarItemButton(
+              view: view,
               onTap: () => onTap(view),
-              text: FlowyText.medium(
-                view.name,
-                maxLines: 1,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-              ),
-              margin: GridSize.cellContentInsets,
-              leftIcon: svgWidget(
-                view.iconName,
-                color: Theme.of(context).iconTheme.color,
-              ),
             ),
             if (isSelected)
               Divider(
@@ -285,4 +290,94 @@ class DatabaseTabBarItem extends StatelessWidget {
       ),
     );
   }
+}
+
+class TabBarItemButton extends StatelessWidget {
+  final ViewPB view;
+  final VoidCallback onTap;
+  const TabBarItemButton({
+    required this.view,
+    required this.onTap,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return PopoverActionList<TabBarViewAction>(
+      direction: PopoverDirection.bottomWithCenterAligned,
+      actions: TabBarViewAction.values,
+      buildChild: (controller) {
+        return FlowyButton(
+          radius: Corners.s5Border,
+          hoverColor: AFThemeExtension.of(context).greyHover,
+          onTap: onTap,
+          onSecondaryTap: () {
+            controller.show();
+          },
+          text: FlowyText.medium(
+            view.name,
+            maxLines: 1,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+          ),
+          margin: GridSize.cellContentInsets,
+          leftIcon: svgWidget(
+            view.iconName,
+            color: Theme.of(context).iconTheme.color,
+          ),
+        );
+      },
+      onSelected: (action, controller) {
+        switch (action) {
+          case TabBarViewAction.rename:
+            NavigatorTextFieldDialog(
+              title: LocaleKeys.menuAppHeader_renameDialog.tr(),
+              value: view.name,
+              confirm: (newValue) {
+                context.read<GridTabBarBloc>().add(
+                      GridTabBarEvent.renameView(view.id, newValue),
+                    );
+              },
+            ).show(context);
+            break;
+          case TabBarViewAction.delete:
+            context.read<GridTabBarBloc>().add(
+                  GridTabBarEvent.deleteView(view.id),
+                );
+            break;
+        }
+        controller.close();
+      },
+    );
+  }
+}
+
+enum TabBarViewAction implements ActionCell {
+  rename,
+  delete;
+
+  @override
+  String get name {
+    switch (this) {
+      case TabBarViewAction.rename:
+        return LocaleKeys.disclosureAction_rename.tr();
+      case TabBarViewAction.delete:
+        return LocaleKeys.disclosureAction_delete.tr();
+    }
+  }
+
+  Widget icon(Color iconColor) {
+    switch (this) {
+      case TabBarViewAction.rename:
+        return const FlowySvg(name: 'editor/edit');
+      case TabBarViewAction.delete:
+        return const FlowySvg(name: 'editor/delete');
+    }
+  }
+
+  @override
+  Widget? leftIcon(Color iconColor) => icon(iconColor);
+
+  @override
+  Widget? rightIcon(Color iconColor) => null;
 }

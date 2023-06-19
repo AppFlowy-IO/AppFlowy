@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -35,10 +36,9 @@ class CalendarPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
 
   @override
   Widget renderSettingBar(BuildContext context, DatabaseController controller) {
-    // return CalendarSettingBar(
-    //   databaseController: controller,
-    // );
-    return const SizedBox.shrink();
+    return CalendarSettingBar(
+      databaseController: controller,
+    );
   }
 }
 
@@ -111,7 +111,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 if (state.editingEvent != null) {
                   showEventDetails(
                     context: context,
-                    event: state.editingEvent!.event!,
+                    event: state.editingEvent!.event!.event,
                     viewId: widget.view.id,
                     rowCache: _calendarBloc.rowCache,
                   );
@@ -268,12 +268,12 @@ class _CalendarPageState extends State<CalendarPage> {
 
 void showEventDetails({
   required BuildContext context,
-  required CalendarDayEvent event,
+  required CalendarEventPB event,
   required String viewId,
   required RowCache rowCache,
 }) {
   final dataController = RowController(
-    rowMeta: event.event.rowMeta,
+    rowMeta: event.rowMeta,
     viewId: viewId,
     rowCache: rowCache,
   );

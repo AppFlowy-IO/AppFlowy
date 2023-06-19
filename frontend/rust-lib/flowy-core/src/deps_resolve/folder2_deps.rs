@@ -276,7 +276,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
 
         FutureResult::new(async move {
           database_manager
-            .create_linked_view(name, layout, params.database_id, database_view_id)
+            .create_linked_view(name, layout.into(), params.database_id, database_view_id)
             .await?;
           Ok(())
         })

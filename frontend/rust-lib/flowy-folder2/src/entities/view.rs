@@ -11,6 +11,21 @@ use crate::entities::parser::view::{ViewDesc, ViewIdentify, ViewName, ViewThumbn
 use crate::view_operation::gen_view_id;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct ChildViewUpdatePB {
+  #[pb(index = 1)]
+  pub parent_view_id: String,
+
+  #[pb(index = 2)]
+  pub create_child_views: Vec<ViewPB>,
+
+  #[pb(index = 3)]
+  pub delete_child_views: Vec<String>,
+
+  #[pb(index = 4)]
+  pub update_child_views: Vec<ViewPB>,
+}
+
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct ViewPB {
   #[pb(index = 1)]
   pub id: String,

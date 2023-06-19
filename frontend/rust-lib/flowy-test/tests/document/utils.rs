@@ -41,7 +41,7 @@ pub fn gen_insert_block_action(document: OpenDocumentData) -> BlockActionPB {
   let data = block.data.clone();
   let new_block_id = gen_id();
   let new_block = BlockPB {
-    id: new_block_id.clone(),
+    id: new_block_id,
     ty: block.ty.clone(),
     data,
     parent_id: page_id.clone(),

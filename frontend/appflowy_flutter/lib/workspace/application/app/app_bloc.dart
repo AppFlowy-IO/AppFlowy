@@ -1,8 +1,7 @@
 import 'dart:collection';
 
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/app/app_listener.dart';
-import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:expandable/expandable.dart';
 import 'package:appflowy_backend/log.dart';
@@ -17,11 +16,11 @@ part 'app_bloc.freezed.dart';
 
 class AppBloc extends Bloc<AppEvent, AppState> {
   final ViewBackendService appService;
-  final AppListener appListener;
+  final ViewListener viewListener;
 
   AppBloc({required ViewPB view})
       : appService = ViewBackendService(),
-        appListener = AppListener(viewId: view.id),
+        viewListener = ViewListener(viewId: view.id),
         super(AppState.initial(view)) {
     on<AppEvent>((event, emit) async {
       await event.map(
@@ -46,10 +45,10 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         },
         appDidUpdate: (e) async {
           final latestCreatedView = state.latestCreatedView;
-          final views = e.app.childViews;
+          final views = e.view.childViews;
           AppState newState = state.copyWith(
             views: views,
-            view: e.app,
+            view: e.view,
           );
           if (latestCreatedView != null) {
             final index = views
@@ -66,8 +65,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   }
 
   void _startListening() {
-    appListener.start(
-      onAppUpdated: (app) {
+    viewListener.start(
+      onViewUpdated: (app) {
         if (!isClosed) {
           add(AppEvent.appDidUpdate(app));
         }
@@ -130,7 +129,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   @override
   Future<void> close() async {
-    await appListener.stop();
+    await viewListener.stop();
     return super.close();
   }
 
@@ -171,7 +170,7 @@ class AppEvent with _$AppEvent {
   const factory AppEvent.delete() = DeleteApp;
   const factory AppEvent.deleteView(String viewId) = DeleteView;
   const factory AppEvent.rename(String newName) = Rename;
-  const factory AppEvent.appDidUpdate(ViewPB app) = AppDidUpdate;
+  const factory AppEvent.appDidUpdate(ViewPB view) = AppDidUpdate;
 }
 
 @freezed
@@ -190,7 +189,7 @@ class AppState with _$AppState {
       );
 }
 
-class AppViewDataContext extends ChangeNotifier {
+class ViewDataContext extends ChangeNotifier {
   final String viewId;
   final ValueNotifier<List<ViewPB>> _viewsNotifier = ValueNotifier([]);
   final ValueNotifier<ViewPB?> _selectedViewNotifier = ValueNotifier(null);
@@ -198,7 +197,7 @@ class AppViewDataContext extends ChangeNotifier {
   ExpandableController expandController =
       ExpandableController(initialExpanded: false);
 
-  AppViewDataContext({required this.viewId}) {
+  ViewDataContext({required this.viewId}) {
     _setLatestView(getIt<MenuSharedState>().latestOpenView);
     _menuSharedStateListener =
         getIt<MenuSharedState>().addLatestViewListener((view) {
@@ -206,7 +205,7 @@ class AppViewDataContext extends ChangeNotifier {
     });
   }
 
-  VoidCallback addSelectedViewChangeListener(void Function(ViewPB?) callback) {
+  VoidCallback onViewSelected(void Function(ViewPB?) callback) {
     listener() {
       callback(_selectedViewNotifier.value);
     }
@@ -215,7 +214,7 @@ class AppViewDataContext extends ChangeNotifier {
     return listener;
   }
 
-  void removeSelectedViewListener(VoidCallback listener) {
+  void removeOnViewSelectedListener(VoidCallback listener) {
     _selectedViewNotifier.removeListener(listener);
   }
 
@@ -234,7 +233,6 @@ class AppViewDataContext extends ChangeNotifier {
   set views(List<ViewPB> views) {
     if (_viewsNotifier.value != views) {
       _viewsNotifier.value = views;
-      _expandIfNeed();
       notifyListeners();
     }
   }
@@ -242,7 +240,7 @@ class AppViewDataContext extends ChangeNotifier {
   UnmodifiableListView<ViewPB> get views =>
       UnmodifiableListView(_viewsNotifier.value);
 
-  VoidCallback addViewsChangeListener(
+  VoidCallback onViewsChanged(
     void Function(UnmodifiableListView<ViewPB>) callback,
   ) {
     listener() {
@@ -253,7 +251,7 @@ class AppViewDataContext extends ChangeNotifier {
     return listener;
   }
 
-  void removeViewsListener(VoidCallback listener) {
+  void removeOnViewChangedListener(VoidCallback listener) {
     _viewsNotifier.removeListener(listener);
   }
 
@@ -262,7 +260,10 @@ class AppViewDataContext extends ChangeNotifier {
       return;
     }
 
-    if (!_viewsNotifier.value.contains(_selectedViewNotifier.value)) {
+    if (!_viewsNotifier.value
+        .map((e) => e.id)
+        .toList()
+        .contains(_selectedViewNotifier.value?.id)) {
       return;
     }
 

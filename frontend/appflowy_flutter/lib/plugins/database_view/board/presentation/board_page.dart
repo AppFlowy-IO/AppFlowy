@@ -149,22 +149,20 @@ class _BoardContentState extends State<BoardContent> {
   }
 
   Widget _buildBoard(BuildContext context) {
-    return Expanded(
-      child: AppFlowyBoard(
-        boardScrollController: scrollManager,
-        scrollController: ScrollController(),
-        controller: context.read<BoardBloc>().boardController,
-        headerBuilder: _buildHeader,
-        footerBuilder: _buildFooter,
-        cardBuilder: (_, column, columnItem) => _buildCard(
-          context,
-          column,
-          columnItem,
-        ),
-        groupConstraints: const BoxConstraints.tightFor(width: 300),
-        config: AppFlowyBoardConfig(
-          groupBackgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-        ),
+    return AppFlowyBoard(
+      boardScrollController: scrollManager,
+      scrollController: ScrollController(),
+      controller: context.read<BoardBloc>().boardController,
+      headerBuilder: _buildHeader,
+      footerBuilder: _buildFooter,
+      cardBuilder: (_, column, columnItem) => _buildCard(
+        context,
+        column,
+        columnItem,
+      ),
+      groupConstraints: const BoxConstraints.tightFor(width: 300),
+      config: AppFlowyBoardConfig(
+        groupBackgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       ),
     );
   }

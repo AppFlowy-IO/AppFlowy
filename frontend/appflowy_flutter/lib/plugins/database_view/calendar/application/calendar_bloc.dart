@@ -142,7 +142,9 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
 
   Future<void> _createEvent(DateTime date, String title) async {
     return state.settings.fold(
-      () => null,
+      () {
+        Log.warn('Calendar settings not found');
+      },
       (settings) async {
         final dateField = _getCalendarFieldInfo(settings.fieldId);
         final titleField = _getTitleFieldInfo();
@@ -330,7 +332,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       onCalendarLayoutChanged: _didReceiveNewLayoutField,
     );
 
-    databaseController.setListener(
+    databaseController.addListener(
       onDatabaseChanged: onDatabaseChanged,
       onLayoutChanged: onLayoutChanged,
       onCalendarLayoutChanged: onCalendarLayoutFieldChanged,

@@ -43,7 +43,10 @@ class _AddDatabaseViewButtonState extends State<AddDatabaseViewButton> {
       ),
       popupBuilder: (BuildContext context) {
         return TarBarAddButtonAction(
-          onTap: widget.onTap,
+          onTap: (action) {
+            popoverController.close();
+            widget.onTap(action);
+          },
         );
       },
     );

@@ -11,21 +11,29 @@ import 'database_view_service.dart';
 part 'tar_bar_bloc.freezed.dart';
 
 class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
+  final ViewListener _listener;
+
   GridTabBarBloc({
+    bool isInlineView = false,
     required ViewPB view,
-  }) : super(GridTabBarState.initial(view)) {
+  })  : _listener = ViewListener(viewId: view.id),
+        super(GridTabBarState.initial(view)) {
     on<GridTabBarEvent>(
       (event, emit) async {
         event.when(
           initial: () {
+            _listenOnInlineViewChanged();
             _loadChildView();
           },
-          didLoadChildViews: (List<DatabaseTarBar> childViews) {
+          didLoadChildViews: (List<ViewPB> childViews) {
+            final childTabBars =
+                childViews.map((view) => DatabaseTarBar(view: view)).toList();
+
             emit(
               state.copyWith(
                 tabBars: [
-                  state.selectedTabBar,
-                  ...childViews,
+                  state.parentTabBar,
+                  ...childTabBars,
                 ],
               ),
             );
@@ -43,20 +51,52 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
             }
           },
           createView: (action) {
-            _createRefenceView(action.name, action.layoutType);
+            _createLinkedView(action.name, action.layoutType);
           },
-          didReceiveRefView: (ViewPB refView) {
-            final newView = DatabaseTarBar(view: refView);
-            emit(
-              state.copyWith(
-                tabBars: [
-                  ...state.tabBars,
-                  newView,
-                ],
-                selectedTabBar: newView,
-                selectedIndex: state.tabBars.length,
-              ),
+          deleteView: (String viewId) async {
+            final result = await ViewBackendService.delete(viewId: viewId);
+            result.fold(
+              (l) {},
+              (r) => Log.error(r),
             );
+          },
+          renameView: (String viewId, String newName) {
+            ViewBackendService.updateView(viewId: viewId, name: newName);
+          },
+          didUpdateChildViews: (updatePB) async {
+            if (updatePB.createChildViews.isNotEmpty) {
+              final newTabBar = updatePB.createChildViews
+                  .map((e) => DatabaseTarBar(view: e))
+                  .toList();
+              final allTabBars = [...state.tabBars, ...newTabBar];
+              emit(
+                state.copyWith(
+                  tabBars: allTabBars,
+                  selectedTabBar: allTabBars.last,
+                  selectedIndex: allTabBars.length - 1,
+                ),
+              );
+            }
+
+            if (updatePB.deleteChildViews.isNotEmpty) {
+              final allTabBars = [...state.tabBars];
+              for (final viewId in updatePB.deleteChildViews) {
+                final index = allTabBars.indexWhere(
+                  (element) => element.view.id == viewId,
+                );
+                if (index != -1) {
+                  final tarBar = allTabBars.removeAt(index);
+                  tarBar.dispose();
+                }
+              }
+              emit(
+                state.copyWith(
+                  tabBars: allTabBars,
+                  selectedTabBar: allTabBars.last,
+                  selectedIndex: allTabBars.length - 1,
+                ),
+              );
+            }
           },
         );
       },
@@ -66,31 +106,39 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
   @override
   Future<void> close() async {
     for (final tabBar in state.tabBars) {
-      await tabBar.controller.dispose();
+      await tabBar.dispose();
     }
     return super.close();
   }
 
-  Future<void> _createRefenceView(String name, ViewLayoutPB layoutType) async {
-    final viewId = state.inlineView.id;
+  Future<void> _listenOnInlineViewChanged() async {
+    _listener.start(
+      onViewDeleted: (view) {},
+      onViewUpdated: (view) {},
+      onViewChildViewsUpdated: (updatePB) {
+        if (!isClosed) {
+          add(GridTabBarEvent.didUpdateChildViews(updatePB));
+        }
+      },
+    );
+  }
+
+  Future<void> _createLinkedView(String name, ViewLayoutPB layoutType) async {
+    final viewId = state.parentView.id;
     final databaseIdOrError =
         await DatabaseViewBackendService(viewId: viewId).getDatabaseId();
     databaseIdOrError.fold(
       (databaseId) async {
-        final refViewOrError =
-            await ViewBackendService.createDatabaseReferenceView(
+        final linkedViewOrError =
+            await ViewBackendService.createDatabaseLinkedView(
           parentViewId: viewId,
           databaseId: databaseId,
           layoutType: layoutType,
           name: name,
         );
 
-        refViewOrError.fold(
-          (refView) {
-            if (!isClosed) {
-              add(GridTabBarEvent.didReceiveRefView(refView));
-            }
-          },
+        linkedViewOrError.fold(
+          (linkedView) {},
           (err) => Log.error(err),
         );
       },
@@ -99,17 +147,13 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
   }
 
   Future<void> _loadChildView() async {
-    ViewBackendService.getChildViews(viewId: state.inlineView.id)
+    ViewBackendService.getChildViews(viewId: state.parentView.id)
         .then((viewsOrFail) {
       if (isClosed) {
         return;
       }
       viewsOrFail.fold(
-        (views) => add(
-          GridTabBarEvent.didLoadChildViews(
-            views.map((view) => DatabaseTarBar(view: view)).toList(),
-          ),
-        ),
+        (views) => add(GridTabBarEvent.didLoadChildViews(views)),
         (err) => Log.error(err),
       );
     });
@@ -120,31 +164,37 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
 class GridTabBarEvent with _$GridTabBarEvent {
   const factory GridTabBarEvent.initial() = _Initial;
   const factory GridTabBarEvent.didLoadChildViews(
-    List<DatabaseTarBar> childViews,
+    List<ViewPB> childViews,
   ) = _DidLoadChildViews;
   const factory GridTabBarEvent.selectView(String viewId) = _DidSelectView;
   const factory GridTabBarEvent.createView(AddButtonAction action) =
-      _DidCreateView;
-  const factory GridTabBarEvent.didReceiveRefView(ViewPB refView) =
-      _DidReceiveRefView;
+      _CreateView;
+  const factory GridTabBarEvent.renameView(String viewId, String newName) =
+      _RenameView;
+  const factory GridTabBarEvent.deleteView(String viewId) = _DeleteView;
+  const factory GridTabBarEvent.didUpdateChildViews(
+    ChildViewUpdatePB updatePB,
+  ) = _DidUpdateChildViews;
 }
 
 @freezed
 class GridTabBarState with _$GridTabBarState {
   const factory GridTabBarState({
-    required ViewPB inlineView,
+    required ViewPB parentView,
+    required DatabaseTarBar parentTabBar,
     required int selectedIndex,
     required DatabaseTarBar selectedTabBar,
     required List<DatabaseTarBar> tabBars,
   }) = _GridTabBarState;
 
   factory GridTabBarState.initial(ViewPB view) {
-    final currentView = DatabaseTarBar(view: view);
+    final tarBar = DatabaseTarBar(view: view);
     return GridTabBarState(
-      inlineView: view,
+      parentView: view,
       selectedIndex: 0,
-      selectedTabBar: currentView,
-      tabBars: [currentView],
+      parentTabBar: tarBar,
+      selectedTabBar: tarBar,
+      tabBars: [tarBar],
     );
   }
 }
@@ -156,4 +206,8 @@ class DatabaseTarBar {
   DatabaseTarBar({
     required this.view,
   }) : controller = DatabaseController(view: view);
+
+  Future<void> dispose() async {
+    await controller.dispose();
+  }
 }

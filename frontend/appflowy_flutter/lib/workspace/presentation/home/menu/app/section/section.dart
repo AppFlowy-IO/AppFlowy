@@ -11,7 +11,7 @@ import 'package:reorderables/reorderables.dart';
 import 'item.dart';
 
 class ViewSection extends StatelessWidget {
-  final AppViewDataContext appViewData;
+  final ViewDataContext appViewData;
   const ViewSection({Key? key, required this.appViewData}) : super(key: key);
 
   @override

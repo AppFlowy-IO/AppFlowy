@@ -73,7 +73,7 @@ class ViewBackendService {
     return FolderEventCreateOrphanView(payload).send();
   }
 
-  static Future<Either<ViewPB, FlowyError>> createDatabaseReferenceView({
+  static Future<Either<ViewPB, FlowyError>> createDatabaseLinkedView({
     required String parentViewId,
     required String databaseId,
     required ViewLayoutPB layoutType,
@@ -98,7 +98,7 @@ class ViewBackendService {
 
     return FolderEventReadView(payload).send().then((result) {
       return result.fold(
-        (app) => left(app.childViews),
+        (view) => left(view.childViews),
         (error) => right(error),
       );
     });
