@@ -105,7 +105,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
               let json_str = include_str!("../../assets/read_me.json");
               let document_pb = JsonToDocumentParser::json_str_to_document(json_str).unwrap();
               manager
-                .create_document(view.parent_view.id.clone(), Some(document_pb.into()))
+                .create_document(&view.parent_view.id, Some(document_pb.into()))
                 .unwrap();
               view
             })
@@ -143,7 +143,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      let document = manager.get_document_from_disk(view_id)?;
+      let document = manager.get_document_from_disk(&view_id)?;
       let data: DocumentDataPB = document.lock().get_document()?.into();
       let data_bytes = data.into_bytes().map_err(|_| FlowyError::invalid_data())?;
       Ok(data_bytes)
@@ -164,7 +164,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     FutureResult::new(async move {
       let data = DocumentDataPB::try_from(Bytes::from(data))?;
-      manager.create_document(view_id, Some(data.into()))?;
+      manager.create_document(&view_id, Some(data.into()))?;
       Ok(())
     })
   }
@@ -181,7 +181,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let view_id = view_id.to_string();
     let manager = self.0.clone();
     FutureResult::new(async move {
-      manager.create_document(view_id, None)?;
+      manager.create_document(&view_id, None)?;
       Ok(())
     })
   }
@@ -197,7 +197,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     FutureResult::new(async move {
       let data = DocumentDataPB::try_from(Bytes::from(bytes))?;
-      manager.create_document(view_id, Some(data.into()))?;
+      manager.create_document(&view_id, Some(data.into()))?;
       Ok(())
     })
   }

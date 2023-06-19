@@ -1,10 +1,10 @@
-import { useCallback, useContext, useEffect } from 'react';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { useCallback, useEffect } from 'react';
 import isHotkey from 'is-hotkey';
 import { Keyboard } from '@/appflowy_app/constants/document/keyboard';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export function useUndoRedo(container: HTMLDivElement) {
-  const controller = useContext(DocumentControllerContext);
+  const { controller } = useSubscribeDocument();
 
   const onUndo = useCallback(() => {
     if (!controller) return;

@@ -1,4 +1,3 @@
-import { useAppSelector } from '$app/stores/store';
 import { useMemo } from 'react';
 import {
   blockConfig,
@@ -9,9 +8,10 @@ import {
 } from '$app/constants/document/config';
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
 import { TextAction } from '$app/interfaces/document';
+import { useSubscribeRanges } from '$app/components/document/_shared/SubscribeSelection.hooks';
 
 export function useTextActionMenu() {
-  const range = useAppSelector((state) => state.documentRange);
+  const range = useSubscribeRanges();
   const isSingleLine = useMemo(() => {
     return range.focus?.id === range.anchor?.id;
   }, [range]);

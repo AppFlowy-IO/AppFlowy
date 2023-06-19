@@ -66,10 +66,10 @@ pub fn create_and_open_empty_document() -> (DocumentManager, Arc<Document>, Stri
 
   // create a document
   _ = manager
-    .create_document(doc_id.clone(), Some(data.clone()))
+    .create_document(&doc_id, Some(data.clone()))
     .unwrap();
 
-  let document = manager.get_or_open_document(doc_id).unwrap();
+  let document = manager.get_or_open_document(&doc_id).unwrap();
 
   (manager, document, data.page_id)
 }

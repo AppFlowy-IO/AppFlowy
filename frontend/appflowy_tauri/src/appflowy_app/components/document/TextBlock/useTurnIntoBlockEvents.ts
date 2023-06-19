@@ -12,29 +12,30 @@ import isHotkey from 'is-hotkey';
 import { slashCommandActions } from '$app_reducers/document/slice';
 import { Keyboard } from '$app/constants/document/keyboard';
 import { getDeltaText } from '$app/utils/document/delta';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export function useTurnIntoBlockEvents(id: string) {
-  const controller = useContext(DocumentControllerContext);
+  const { docId, controller } = useSubscribeDocument();
+
   const dispatch = useAppDispatch();
   const rangeRef = useRangeRef();
 
   const getFlag = useCallback(() => {
     const range = rangeRef.current?.caret;
     if (!range || range.id !== id) return;
-    const node = getBlock(id);
+    const node = getBlock(docId, id);
     const delta = new Delta(node.data.delta || []);
-    const flag = getDeltaText(delta.slice(0, range.index));
-    return flag;
-  }, [id, rangeRef]);
+    return getDeltaText(delta.slice(0, range.index));
+  }, [docId, id, rangeRef]);
 
   const getDeltaContent = useCallback(() => {
     const range = rangeRef.current?.caret;
     if (!range || range.id !== id) return;
-    const node = getBlock(id);
+    const node = getBlock(docId, id);
     const delta = new Delta(node.data.delta || []);
     const content = delta.slice(range.index);
     return new Delta(content);
-  }, [id, rangeRef]);
+  }, [docId, id, rangeRef]);
 
   const canHandle = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>, type: BlockType, triggerKey: string) => {
@@ -171,17 +172,18 @@ export function useTurnIntoBlockEvents(id: string) {
           const flag = getFlag();
           return isHotkey('/', e) && flag === '';
         },
-        handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
+        handler: (_: React.KeyboardEvent<HTMLDivElement>) => {
           if (!controller) return;
           dispatch(
             slashCommandActions.openSlashCommand({
               blockId: id,
+              docId,
             })
           );
         },
       },
     ];
-  }, [canHandle, controller, dispatch, getDeltaContent, getFlag, id, spaceTriggerMap]);
+  }, [canHandle, controller, dispatch, docId, getDeltaContent, getFlag, id, spaceTriggerMap]);
 
   return turnIntoBlockEvents;
 }

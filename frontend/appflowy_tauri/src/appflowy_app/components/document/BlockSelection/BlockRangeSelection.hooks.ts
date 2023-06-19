@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { rangeActions } from '$app_reducers/document/slice';
-import { useAppDispatch, useAppSelector } from '$app/stores/store';
+import { useAppDispatch } from '$app/stores/store';
 import {
   getBlockIdByPoint,
   getNodeTextBoxByBlockId,
@@ -9,12 +9,16 @@ import {
   setCursorAtStartOfNode,
 } from '$app/utils/document/node';
 import { useRangeKeyDown } from '$app/components/document/BlockSelection/RangeKeyDown.hooks';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { useSubscribeRanges } from '$app/components/document/_shared/SubscribeSelection.hooks';
 
 export function useBlockRangeSelection(container: HTMLDivElement) {
   const dispatch = useAppDispatch();
   const onKeyDown = useRangeKeyDown();
-  const range = useAppSelector((state) => state.documentRange);
-  const isDragging = range.isDragging;
+  const { docId } = useSubscribeDocument();
+
+  const range = useSubscribeRanges();
+  const isDragging = range?.isDragging;
 
   const anchorRef = useRef<{
     id: string;
@@ -28,13 +32,9 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
 
   const [isForward, setForward] = useState(true);
 
-  const reset = useCallback(() => {
-    dispatch(rangeActions.clearRange());
-    setForward(true);
-  }, [dispatch]);
-
   // display caret color
   useEffect(() => {
+    if (!range) return;
     const { anchor, focus } = range;
     if (!anchor || !focus) {
       container.classList.remove('caret-transparent');
@@ -54,7 +54,12 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
     const selection = window.getSelection();
     if (!selection) return;
     // update focus point
-    dispatch(rangeActions.setFocusPoint(focus));
+    dispatch(
+      rangeActions.setFocusPoint({
+        ...focus,
+        docId,
+      })
+    );
 
     const focused = isFocused(focus.id);
     // if the focus block is not focused, we need to set the cursor position
@@ -82,17 +87,18 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
         setCursorAtEndOfNode(node);
       }
     }
-  }, [container, dispatch, focus, isForward]);
+  }, [container, dispatch, docId, focus, isForward]);
 
   const handleDragStart = useCallback(
     (e: MouseEvent) => {
-      reset();
+      setForward(true);
       // skip if the target is not a block
       const blockId = getBlockIdByPoint(e.target as HTMLElement);
       if (!blockId) {
+        dispatch(rangeActions.initialState(docId));
         return;
       }
-
+      dispatch(rangeActions.clearRanges({ docId, exclude: blockId }));
       const startX = e.clientX + container.scrollLeft;
       const startY = e.clientY + container.scrollTop;
 
@@ -108,11 +114,17 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
         ...anchor,
       };
       // set the anchor point and focus point
-      dispatch(rangeActions.setAnchorPoint({ ...anchor }));
-      dispatch(rangeActions.setFocusPoint({ ...anchor }));
-      dispatch(rangeActions.setDragging(true));
+      dispatch(rangeActions.setAnchorPoint({ ...anchor, docId }));
+      dispatch(rangeActions.setFocusPoint({ ...anchor, docId }));
+      dispatch(
+        rangeActions.setDragging({
+          isDragging: true,
+          docId,
+        })
+      );
+      return;
     },
-    [container.scrollLeft, container.scrollTop, dispatch, reset]
+    [container.scrollLeft, container.scrollTop, dispatch, docId]
   );
 
   const handleDraging = useCallback(
@@ -152,8 +164,13 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
     if (!isDragging) return;
     setFocus(null);
     anchorRef.current = null;
-    dispatch(rangeActions.setDragging(false));
-  }, [dispatch, isDragging]);
+    dispatch(
+      rangeActions.setDragging({
+        isDragging: false,
+        docId,
+      })
+    );
+  }, [docId, dispatch, isDragging]);
 
   useEffect(() => {
     document.addEventListener('mousedown', handleDragStart);
@@ -164,9 +181,10 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
       document.removeEventListener('mousedown', handleDragStart);
       document.removeEventListener('mousemove', handleDraging);
       document.removeEventListener('mouseup', handleDragEnd);
+
       container.removeEventListener('keydown', onKeyDown, true);
     };
-  }, [reset, handleDragStart, handleDragEnd, handleDraging, container, onKeyDown]);
+  }, [handleDragStart, handleDragEnd, handleDraging, container, onKeyDown]);
 
   return null;
 }

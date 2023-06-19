@@ -17,7 +17,7 @@ export default function Overlay({ container }: { container: HTMLDivElement }) {
       <BlockSideToolbar container={container} />
       <TextActionMenu container={container} />
       <BlockSelection container={container} />
-      <BlockSlash />
+      <BlockSlash container={container} />
       <LinkEditPopover />
     </>
   );
