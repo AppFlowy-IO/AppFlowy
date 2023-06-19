@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/database_view/tar_bar/tar_bar_add_button.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -22,7 +23,7 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
       (event, emit) async {
         event.when(
           initial: () {
-            _listenOnInlineViewChanged();
+            _listenInlineViewChanged();
             _loadChildView();
           },
           didLoadChildViews: (List<ViewPB> childViews) {
@@ -111,7 +112,7 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
     return super.close();
   }
 
-  Future<void> _listenOnInlineViewChanged() async {
+  Future<void> _listenInlineViewChanged() async {
     _listener.start(
       onViewDeleted: (view) {},
       onViewUpdated: (view) {},
@@ -199,9 +200,9 @@ class GridTabBarState with _$GridTabBarState {
   }
 }
 
-class DatabaseTarBar {
-  ViewPB view;
-  DatabaseController controller;
+class DatabaseTarBar extends Equatable {
+  final ViewPB view;
+  final DatabaseController controller;
 
   DatabaseTarBar({
     required this.view,
@@ -210,4 +211,7 @@ class DatabaseTarBar {
   Future<void> dispose() async {
     await controller.dispose();
   }
+
+  @override
+  List<Object?> get props => [view.id, view.layout];
 }

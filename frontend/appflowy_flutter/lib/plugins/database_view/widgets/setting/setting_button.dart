@@ -97,7 +97,7 @@ class _DatabaseSettingListPopoverState
         case DatabaseSettingAction.showLayout:
           return DatabaseLayoutList(
             viewId: widget.databaseController.viewId,
-            currentLayout: widget.databaseController.databaseLayout!,
+            currentLayout: widget.databaseController.databaseLayout,
           );
         case DatabaseSettingAction.showGroup:
           return DatabaseGroupList(
@@ -132,7 +132,7 @@ class ICalendarSettingImpl extends ICalendarSetting {
 
   @override
   void updateLayoutSettings(CalendarLayoutSettingPB layoutSettings) {
-    _databaseController.updateCalenderLayoutSetting(layoutSettings);
+    _databaseController.updateLayoutSetting(layoutSettings);
   }
 
   @override

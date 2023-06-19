@@ -38,6 +38,12 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
             _loadAllEvents();
           },
           didReceiveCalendarSettings: (CalendarLayoutSettingPB settings) {
+            // If the field id changed, reload all events
+            state.settings.fold(() => null, (oldSetting) {
+              if (oldSetting.fieldId != settings.fieldId) {
+                _loadAllEvents();
+              }
+            });
             emit(state.copyWith(settings: Some(settings)));
           },
           didReceiveDatabaseUpdate: (DatabasePB database) {
@@ -51,10 +57,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
                 allEvents: calenderEvents,
               ),
             );
-          },
-          didReceiveNewLayoutField: (CalendarLayoutSettingPB layoutSettings) {
-            _loadAllEvents();
-            emit(state.copyWith(settings: Some(layoutSettings)));
           },
           createEvent: (DateTime date, String title) async {
             await _createEvent(date, title);
@@ -202,7 +204,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   Future<void> _updateCalendarLayoutSetting(
     CalendarLayoutSettingPB layoutSetting,
   ) async {
-    return databaseController.updateCalenderLayoutSetting(layoutSetting);
+    return databaseController.updateLayoutSetting(layoutSetting);
   }
 
   Future<CalendarEventData<CalendarDayEvent>?> _loadEvent(RowId rowId) async {
@@ -328,14 +330,9 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       onLoadLayout: _didReceiveLayoutSetting,
     );
 
-    final onCalendarLayoutFieldChanged = CalendarLayoutCallbacks(
-      onCalendarLayoutChanged: _didReceiveNewLayoutField,
-    );
-
     databaseController.addListener(
       onDatabaseChanged: onDatabaseChanged,
       onLayoutChanged: onLayoutChanged,
-      onCalendarLayoutChanged: onCalendarLayoutFieldChanged,
     );
   }
 
@@ -345,13 +342,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         return;
       }
       add(CalendarEvent.didReceiveCalendarSettings(layoutSetting.calendar));
-    }
-  }
-
-  void _didReceiveNewLayoutField(DatabaseLayoutSettingPB layoutSetting) {
-    if (layoutSetting.hasCalendar()) {
-      if (isClosed) return;
-      add(CalendarEvent.didReceiveNewLayoutField(layoutSetting.calendar));
     }
   }
 
@@ -421,10 +411,6 @@ class CalendarEvent with _$CalendarEvent {
 
   const factory CalendarEvent.didReceiveDatabaseUpdate(DatabasePB database) =
       _ReceiveDatabaseUpdate;
-
-  const factory CalendarEvent.didReceiveNewLayoutField(
-    CalendarLayoutSettingPB layoutSettings,
-  ) = _DidReceiveNewLayoutField;
 }
 
 @freezed
