@@ -1,3 +1,4 @@
+import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:flowy_infra/colorscheme/colorscheme.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_bloc.dart';
@@ -7,7 +8,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../application/appearance.dart';
 import 'theme_confirm_delete_dialog.dart';
 
 class ThemePreview extends StatelessWidget {
