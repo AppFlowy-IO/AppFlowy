@@ -50,10 +50,7 @@ class DocumentPlugin extends Plugin<int> {
     required ViewPB view,
     bool listenOnViewChanged = false,
     Key? key,
-  }) : notifier = ViewPluginNotifier(
-          view: view,
-          listenOnViewChanged: listenOnViewChanged,
-        ) {
+  }) : notifier = ViewPluginNotifier(view: view) {
     _pluginType = pluginType;
     _documentAppearanceCubit.fetch();
   }

@@ -68,7 +68,7 @@ extension ViewExtension on ViewPB {
         return DatabaseTabBarViewPlugin(
           view: this,
           pluginType: pluginType,
-          listenOnViewChanged: listenOnViewChanged,
+          // listenOnViewChanged: listenOnViewChanged,
         );
       case ViewLayoutPB.Document:
         return DocumentPlugin(

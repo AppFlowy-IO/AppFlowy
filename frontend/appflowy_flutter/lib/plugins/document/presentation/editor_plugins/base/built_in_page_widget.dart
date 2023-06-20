@@ -91,10 +91,12 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
       onExit: (_) => widget.editorState.service.scrollService?.enable(),
       child: SizedBox(
         height: 400,
-        child: Stack(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildMenu(context, viewPB),
-            _buildPage(context, viewPB),
+            Expanded(child: _buildPage(context, viewPB)),
           ],
         ),
       ),
@@ -114,68 +116,58 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
   }
 
   Widget _buildMenu(BuildContext context, ViewPB viewPB) {
-    return Positioned(
-      top: 5,
-      left: 5,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // information
-          FlowyIconButton(
-            tooltipText: LocaleKeys.tooltip_referencePage.tr(
-              namedArgs: {'name': viewPB.layout.name},
-            ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // information
+        FlowyIconButton(
+          tooltipText: LocaleKeys.tooltip_referencePage.tr(
+            namedArgs: {'name': viewPB.layout.name},
+          ),
+          width: 24,
+          height: 24,
+          iconPadding: const EdgeInsets.all(3),
+          icon: svgWidget(
+            'common/information',
+            color: Theme.of(context).iconTheme.color,
+          ),
+        ),
+        // setting
+        const Space(7, 0),
+        PopoverActionList<_ActionWrapper>(
+          direction: PopoverDirection.bottomWithCenterAligned,
+          actions: _ActionType.values
+              .map((action) => _ActionWrapper(action))
+              .toList(),
+          buildChild: (controller) => FlowyIconButton(
+            tooltipText: LocaleKeys.tooltip_openMenu.tr(),
             width: 24,
             height: 24,
             iconPadding: const EdgeInsets.all(3),
             icon: svgWidget(
-              'common/information',
+              'common/settings',
               color: Theme.of(context).iconTheme.color,
             ),
+            onPressed: () => controller.show(),
           ),
-          // Name
-          const Space(7, 0),
-          FlowyText.medium(
-            viewPB.name,
-            fontSize: 16.0,
-          ),
-          // setting
-          const Space(7, 0),
-          PopoverActionList<_ActionWrapper>(
-            direction: PopoverDirection.bottomWithCenterAligned,
-            actions: _ActionType.values
-                .map((action) => _ActionWrapper(action))
-                .toList(),
-            buildChild: (controller) => FlowyIconButton(
-              tooltipText: LocaleKeys.tooltip_openMenu.tr(),
-              width: 24,
-              height: 24,
-              iconPadding: const EdgeInsets.all(3),
-              icon: svgWidget(
-                'common/settings',
-                color: Theme.of(context).iconTheme.color,
-              ),
-              onPressed: () => controller.show(),
-            ),
-            onSelected: (action, controller) async {
-              switch (action.inner) {
-                case _ActionType.viewDatabase:
-                  getIt<MenuSharedState>().latestOpenView = viewPB;
+          onSelected: (action, controller) async {
+            switch (action.inner) {
+              case _ActionType.viewDatabase:
+                getIt<MenuSharedState>().latestOpenView = viewPB;
 
-                  getIt<HomeStackManager>().setPlugin(viewPB.plugin());
-                  break;
-                case _ActionType.delete:
-                  final transaction = widget.editorState.transaction;
-                  transaction.deleteNode(widget.node);
-                  widget.editorState.apply(transaction);
-                  break;
-              }
-              controller.close();
-            },
-          )
-        ],
-      ),
+                getIt<HomeStackManager>().setPlugin(viewPB.plugin());
+                break;
+              case _ActionType.delete:
+                final transaction = widget.editorState.transaction;
+                transaction.deleteNode(widget.node);
+                widget.editorState.apply(transaction);
+                break;
+            }
+            controller.close();
+          },
+        )
+      ],
     );
   }
 
