@@ -22,23 +22,36 @@ import 'toolbar/calendar_toolbar.dart';
 
 class CalendarPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   @override
-  Widget renderContent(
+  Widget content(
     BuildContext context,
     ViewPB view,
     DatabaseController controller,
   ) {
     return CalendarPage(
-      key: Key(view.id),
+      key: _makeValueKey(controller),
       view: view,
       databaseController: controller,
     );
   }
 
   @override
-  Widget renderSettingBar(BuildContext context, DatabaseController controller) {
+  Widget settingBar(BuildContext context, DatabaseController controller) {
     return CalendarSettingBar(
+      key: _makeValueKey(controller),
       databaseController: controller,
     );
+  }
+
+  @override
+  Widget settingBarExtension(
+    BuildContext context,
+    DatabaseController controller,
+  ) {
+    return SizedBox.fromSize();
+  }
+
+  ValueKey _makeValueKey(DatabaseController controller) {
+    return ValueKey(controller.viewId);
   }
 }
 

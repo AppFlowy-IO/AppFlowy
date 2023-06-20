@@ -932,7 +932,7 @@ impl DatabaseEditor {
 
   pub async fn group_by_field(&self, view_id: &str, field_id: &str) -> FlowyResult<()> {
     let view = self.database_views.get_view_editor(view_id).await?;
-    view.v_update_grouping_field(field_id).await?;
+    view.v_grouping_by_field(field_id).await?;
     Ok(())
   }
 

@@ -18,20 +18,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../application/database_controller.dart';
-import 'setting_menu.dart';
 import '../grid/presentation/layout/sizes.dart';
 import 'tar_bar_add_button.dart';
 
 abstract class DatabaseTabBarItemBuilder {
   const DatabaseTabBarItemBuilder();
 
-  Widget renderContent(
+  /// Returns the content of the tab bar item. The content is shown when the tab
+  /// bar item is selected. It can be any kind of database view.
+  Widget content(
     BuildContext context,
     ViewPB view,
     DatabaseController controller,
   );
 
-  Widget renderSettingBar(
+  /// Returns the setting bar of the tab bar item. The setting bar is shown on the
+  /// top right conner when the tab bar item is selected.
+  Widget settingBar(
+    BuildContext context,
+    DatabaseController controller,
+  );
+
+  Widget settingBarExtension(
     BuildContext context,
     DatabaseController controller,
   );
@@ -61,7 +69,6 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
 
   @override
   Widget build(BuildContext context) {
-    // DatabaseViewSettingMenu
     return BlocProvider<GridTabBarBloc>(
       create: (context) => GridTabBarBloc(view: widget.view)
         ..add(
@@ -70,7 +77,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
       child: MultiBlocListener(
         listeners: [
           BlocListener<GridTabBarBloc, GridTabBarState>(
-            listenWhen: (p, c) => p.selectedTabBar != c.selectedTabBar,
+            listenWhen: (p, c) => p.selectedIndex != c.selectedIndex,
             listener: (context, state) {
               _pageController?.animateToPage(
                 state.selectedIndex,
@@ -95,9 +102,9 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                   },
                 ),
                 BlocBuilder<GridTabBarBloc, GridTabBarState>(
-                  buildWhen: (p, c) =>
-                      p.selectedTabBar.id != c.selectedTabBar.id ||
-                      p.selectedTabBar.layout != c.selectedTabBar.layout,
+                  // buildWhen: (p, c) =>
+                  //     p.selectedTabBar.viewId != c.selectedTabBar.viewId ||
+                  //     p.selectedTabBar.layout != c.selectedTabBar.layout,
                   builder: (context, state) {
                     return SizedBox(
                       width: 300,
@@ -111,12 +118,11 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
               ],
             ),
             BlocBuilder<GridTabBarBloc, GridTabBarState>(
+              // buildWhen: (p, c) =>
+              //     p.selectedTabBar.viewId != c.selectedTabBar.viewId ||
+              //     p.selectedTabBar.layout != c.selectedTabBar.layout,
               builder: (context, state) {
-                return DatabaseViewSettingBar(
-                  viewId: widget.view.id,
-                  databaseController: state
-                      .tabBarControllerByViewId[widget.view.id]!.controller,
-                );
+                return pageSettingBarExtensionFromState(state);
               },
             ),
             Expanded(
@@ -139,20 +145,31 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
 
   List<Widget> pageContentFromState(GridTabBarState state) {
     return state.tabBars.map((tabBar) {
-      final controller = state.tabBarControllerByViewId[tabBar.id]!.controller;
-      return tabBar.tarBarItem().renderContent(
-            context,
-            tabBar,
-            controller,
-          );
+      final controller =
+          state.tabBarControllerByViewId[tabBar.viewId]!.controller;
+      return tabBar.builder.content(
+        context,
+        tabBar.view,
+        controller,
+      );
     }).toList();
   }
 
   Widget pageSettingBarFromState(GridTabBarState state) {
-    final barItem = state.selectedTabBar.tarBarItem();
+    final tarBar = state.tabBars[state.selectedIndex];
     final controller =
-        state.tabBarControllerByViewId[state.selectedTabBar.id]!.controller;
-    return barItem.renderSettingBar(
+        state.tabBarControllerByViewId[tarBar.viewId]!.controller;
+    return tarBar.builder.settingBar(
+      context,
+      controller,
+    );
+  }
+
+  Widget pageSettingBarExtensionFromState(GridTabBarState state) {
+    final tarBar = state.tabBars[state.selectedIndex];
+    final controller =
+        state.tabBarControllerByViewId[tarBar.viewId]!.controller;
+    return tarBar.builder.settingBarExtension(
       context,
       controller,
     );
@@ -226,11 +243,12 @@ class _DatabaseTabBarState extends State<DatabaseTabBar> {
   Widget build(BuildContext context) {
     return BlocBuilder<GridTabBarBloc, GridTabBarState>(
       builder: (context, state) {
-        final children = state.tabBars.map((tabBar) {
-          final isSelected = state.selectedTabBar.id == tabBar.id;
+        final children = state.tabBars.indexed.map((indexed) {
+          final isSelected = state.selectedIndex == indexed.$1;
+          final tabBar = indexed.$2;
           return DatabaseTabBarItem(
-            key: ValueKey(tabBar.hashCode),
-            view: tabBar,
+            key: ValueKey(tabBar.viewId),
+            view: tabBar.view,
             isSelected: isSelected,
             onTap: (selectedView) {
               context.read<GridTabBarBloc>().add(

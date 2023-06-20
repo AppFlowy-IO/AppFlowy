@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_configuration.dart';
+import 'package:appflowy/plugins/database_view/tar_bar/setting_menu.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -28,26 +29,57 @@ import 'widgets/header/grid_header.dart';
 import '../../widgets/row/row_detail.dart';
 import 'widgets/shortcuts.dart';
 
+class ToggleExtensionNotifier extends ChangeNotifier {
+  bool _isToggled = false;
+
+  get isToggled => _isToggled;
+
+  void toggle() {
+    _isToggled = !_isToggled;
+    notifyListeners();
+  }
+}
+
 class GridPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
+  final _toggleExtension = ToggleExtensionNotifier();
+
   @override
-  Widget renderContent(
+  Widget content(
     BuildContext context,
     ViewPB view,
     DatabaseController controller,
   ) {
     return GridPage(
-      key: Key(view.id),
+      key: _makeValueKey(controller),
       view: view,
       databaseController: controller,
     );
   }
 
   @override
-  Widget renderSettingBar(BuildContext context, DatabaseController controller) {
+  Widget settingBar(BuildContext context, DatabaseController controller) {
     return GridSettingBar(
-      key: ValueKey(controller.viewId),
+      key: _makeValueKey(controller),
       controller: controller,
+      toggleExtension: _toggleExtension,
     );
+  }
+
+  @override
+  Widget settingBarExtension(
+    BuildContext context,
+    DatabaseController controller,
+  ) {
+    return DatabaseViewSettingExtension(
+      key: _makeValueKey(controller),
+      viewId: controller.viewId,
+      databaseController: controller,
+      toggleExtension: _toggleExtension,
+    );
+  }
+
+  ValueKey _makeValueKey(DatabaseController controller) {
+    return ValueKey(controller.viewId);
   }
 }
 

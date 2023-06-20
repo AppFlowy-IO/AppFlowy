@@ -440,7 +440,7 @@ impl DatabaseViewEditor {
   pub async fn v_initialize_new_group(&self, field_id: &str) -> FlowyResult<()> {
     let is_grouping_field = self.is_grouping_field(field_id).await;
     if !is_grouping_field {
-      self.v_update_grouping_field(field_id).await?;
+      self.v_grouping_by_field(field_id).await?;
 
       if let Some(view) = self.delegate.get_view(&self.view_id).await {
         let setting = database_view_setting_pb_from_view(view);
@@ -719,7 +719,7 @@ impl DatabaseViewEditor {
 
   /// Called when a grouping field is updated.
   #[tracing::instrument(level = "debug", skip_all, err)]
-  pub async fn v_update_grouping_field(&self, field_id: &str) -> FlowyResult<()> {
+  pub async fn v_grouping_by_field(&self, field_id: &str) -> FlowyResult<()> {
     if let Some(field) = self.delegate.get_field(field_id).await {
       let new_group_controller =
         new_group_controller_with_field(self.view_id.clone(), self.delegate.clone(), field).await?;
@@ -847,17 +847,25 @@ impl DatabaseViewEditor {
   }
 
   #[tracing::instrument(level = "trace", skip_all)]
-  pub async fn v_update_layout_type(&self, layout_type: DatabaseLayout) -> FlowyResult<()> {
+  pub async fn v_update_layout_type(&self, new_layout_type: DatabaseLayout) -> FlowyResult<()> {
     self
       .delegate
-      .update_layout_type(&self.view_id, &layout_type);
+      .update_layout_type(&self.view_id, &new_layout_type);
 
-    let resolver = DatabaseLayoutDepsResolver::new(self.delegate.get_database(), layout_type);
-    resolver.resolve_deps_when_update_layout_type(&self.view_id);
+    // using the {} brackets to denote the lifetime of the resolver. Because the DatabaseLayoutDepsResolver
+    // is not sync and send, so we can't pass it to the async block.
+    {
+      let resolver = DatabaseLayoutDepsResolver::new(self.delegate.get_database(), new_layout_type);
+      resolver.resolve_deps_when_update_layout_type(&self.view_id);
+    }
+
+    // initialize the group controller if the current layout support grouping
+    *self.group_controller.write().await =
+      new_group_controller(self.view_id.clone(), self.delegate.clone()).await?;
 
     let payload = DatabaseLayoutMetaPB {
       view_id: self.view_id.clone(),
-      layout: layout_type.into(),
+      layout: new_layout_type.into(),
     };
     send_notification(&self.view_id, DatabaseNotification::DidUpdateDatabaseLayout)
       .payload(payload)

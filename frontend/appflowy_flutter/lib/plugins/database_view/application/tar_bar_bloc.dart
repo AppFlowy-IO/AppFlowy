@@ -1,7 +1,10 @@
+import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tar_bar_add_button.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -26,8 +29,10 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
             emit(
               state.copyWith(
                 tabBars: [
-                  state.parentView,
-                  ...childViews,
+                  ...state.tabBars,
+                  ...childViews.map(
+                    (newChildView) => TarBar(view: newChildView),
+                  ),
                 ],
                 tabBarControllerByViewId: _extendsTabBarController(childViews),
               ),
@@ -35,13 +40,10 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
           },
           selectView: (String viewId) {
             final index =
-                state.tabBars.indexWhere((element) => element.id == viewId);
+                state.tabBars.indexWhere((element) => element.viewId == viewId);
             if (index != -1) {
               emit(
-                state.copyWith(
-                  selectedTabBar: state.tabBars[index],
-                  selectedIndex: index,
-                ),
+                state.copyWith(selectedIndex: index),
               );
             }
           },
@@ -62,12 +64,11 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
             if (updatePB.createChildViews.isNotEmpty) {
               final allTabBars = [
                 ...state.tabBars,
-                ...updatePB.createChildViews
+                ...updatePB.createChildViews.map((e) => TarBar(view: e))
               ];
               emit(
                 state.copyWith(
                   tabBars: allTabBars,
-                  selectedTabBar: allTabBars.last,
                   selectedIndex: state.tabBars.length,
                   tabBarControllerByViewId:
                       _extendsTabBarController(updatePB.createChildViews),
@@ -82,37 +83,34 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
               };
               for (final viewId in updatePB.deleteChildViews) {
                 final index = allTabBars.indexWhere(
-                  (element) => element.id == viewId,
+                  (element) => element.viewId == viewId,
                 );
                 if (index != -1) {
-                  final view = allTabBars.removeAt(index);
+                  final tarBar = allTabBars.removeAt(index);
                   // Dispose the controller when the tab is removed.
-                  final controller = tabBarControllerByViewId.remove(view.id);
+                  final controller =
+                      tabBarControllerByViewId.remove(tarBar.viewId);
                   controller?.dispose();
                 }
               }
               emit(
                 state.copyWith(
                   tabBars: allTabBars,
-                  selectedTabBar: allTabBars.last,
                   selectedIndex: state.tabBars.length,
                   tabBarControllerByViewId: tabBarControllerByViewId,
                 ),
               );
             }
           },
-          viewDidUpdate: (ViewPB view) {
+          viewDidUpdate: (ViewPB updatedView) {
             final index = state.tabBars.indexWhere(
-              (element) => element.id == view.id,
+              (element) => element.viewId == updatedView.id,
             );
             if (index != -1) {
-              final tabBars = [...state.tabBars];
-              tabBars[index] = view;
-              emit(
-                state.copyWith(
-                  tabBars: tabBars,
-                ),
-              );
+              final allTabBars = [...state.tabBars];
+              final updatedTabBar = TarBar(view: updatedView);
+              allTabBars[index] = updatedTabBar;
+              emit(state.copyWith(tabBars: allTabBars));
             }
           },
         );
@@ -122,8 +120,8 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
 
   @override
   Future<void> close() async {
-    for (final view in state.tabBars) {
-      await state.tabBarControllerByViewId[view.id]?.dispose();
+    for (final tabBar in state.tabBars) {
+      await state.tabBarControllerByViewId[tabBar.viewId]?.dispose();
     }
     return super.close();
   }
@@ -216,17 +214,16 @@ class GridTabBarState with _$GridTabBarState {
   const factory GridTabBarState({
     required ViewPB parentView,
     required int selectedIndex,
-    required ViewPB selectedTabBar,
-    required List<ViewPB> tabBars,
+    required List<TarBar> tabBars,
     required Map<String, DatabaseTarBarController> tabBarControllerByViewId,
   }) = _GridTabBarState;
 
   factory GridTabBarState.initial(ViewPB view) {
+    final tabBar = TarBar(view: view);
     return GridTabBarState(
       parentView: view,
       selectedIndex: 0,
-      selectedTabBar: view,
-      tabBars: [view],
+      tabBars: [tabBar],
       tabBarControllerByViewId: {
         view.id: DatabaseTarBarController(
           view: view,
@@ -234,6 +231,22 @@ class GridTabBarState with _$GridTabBarState {
       },
     );
   }
+}
+
+class TarBar extends Equatable {
+  final ViewPB view;
+  final DatabaseTabBarItemBuilder _builder;
+
+  String get viewId => view.id;
+  DatabaseTabBarItemBuilder get builder => _builder;
+  ViewLayoutPB get layout => view.layout;
+
+  TarBar({
+    required this.view,
+  }) : _builder = view.tarBarItem();
+
+  @override
+  List<Object?> get props => [view.hashCode];
 }
 
 typedef OnViewUpdated = void Function(ViewPB newView);
