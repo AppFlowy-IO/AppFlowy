@@ -233,6 +233,15 @@
       "icon": "Icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "Shortcuts",
+      "command": "Command",
+      "keyBinding": "Key Binding",
+      "addNewCommand": "Add New Command",
+      "updateShorcutStep": "Press desired key combination and press ENTER",
+      "couldNotLoadShortcuts": "Could Not Load Shortcuts",
+      "shorcutIsAlreadyUsed": "This shortcut is already used for - "
     }
   },
   "grid": {
