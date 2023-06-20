@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/insert_page_command.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -212,7 +213,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
                     FlowyButton(
                       isSelected: index == _selectedIndex,
                       leftIcon: svgWidget(
-                        _iconName(value),
+                        value.iconName,
                         color: Theme.of(context).iconTheme.color,
                       ),
                       text: FlowyText.regular(value.name),
@@ -237,19 +238,6 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
       },
       future: items,
     );
-  }
-
-  String _iconName(ViewPB viewPB) {
-    switch (viewPB.layout) {
-      case ViewLayoutPB.Grid:
-        return 'editor/grid';
-      case ViewLayoutPB.Board:
-        return 'editor/board';
-      case ViewLayoutPB.Calendar:
-        return 'editor/calendar';
-      default:
-        throw Exception('Unknown layout type');
-    }
   }
 }
 

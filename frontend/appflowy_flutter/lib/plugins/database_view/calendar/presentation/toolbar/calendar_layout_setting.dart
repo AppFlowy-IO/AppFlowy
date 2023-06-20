@@ -351,21 +351,16 @@ class FirstDayOfWeek extends StatelessWidget {
         final symbols =
             DateFormat.EEEE(context.locale.toLanguageTag()).dateSymbols;
         // starts from sunday
-        final items = symbols.WEEKDAYS.asMap().entries.map((entry) {
-          final index = entry.key;
-          final string = entry.value;
-          return SizedBox(
-            height: GridSize.popoverItemHeight,
-            child: FlowyButton(
-              text: FlowyText.medium(string),
-              onTap: () {
-                onUpdated(index);
-                popoverMutex.close();
-              },
-              rightIcon: firstDayOfWeek == index
-                  ? const FlowySvg(name: 'grid/checkmark')
-                  : null,
-            ),
+        const len = 2;
+        final items = symbols.WEEKDAYS.take(len).indexed.map((entry) {
+          return StartFromButton(
+            title: entry.$2,
+            dayIndex: entry.$1,
+            isSelected: firstDayOfWeek == entry.$1,
+            onTap: (index) {
+              onUpdated(index);
+              popoverMutex.close();
+            },
           );
         }).toList();
 
@@ -376,7 +371,7 @@ class FirstDayOfWeek extends StatelessWidget {
             itemBuilder: (context, index) => items[index],
             separatorBuilder: (context, index) =>
                 VSpace(GridSize.typeOptionSeparatorHeight),
-            itemCount: 2,
+            itemCount: len,
           ),
         );
       },
@@ -425,4 +420,30 @@ enum CalendarLayoutSettingAction {
   firstDayOfWeek,
   showWeekNumber,
   showTimeLine,
+}
+
+class StartFromButton extends StatelessWidget {
+  final int dayIndex;
+  final String title;
+  final bool isSelected;
+  final void Function(int) onTap;
+  const StartFromButton({
+    required this.title,
+    required this.dayIndex,
+    required this.onTap,
+    required this.isSelected,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: GridSize.popoverItemHeight,
+      child: FlowyButton(
+        text: FlowyText.medium(title),
+        onTap: () => onTap(dayIndex),
+        rightIcon: isSelected ? const FlowySvg(name: 'grid/checkmark') : null,
+      ),
+    );
+  }
 }

@@ -94,7 +94,7 @@ impl DatabaseViews {
     // If the id of the grouping field is equal to the updated field's id, then we need to
     // update the group setting
     if view_editor.is_grouping_field(field_id).await {
-      view_editor.v_update_grouping_field(field_id).await?;
+      view_editor.v_grouping_by_field(field_id).await?;
     }
     view_editor
       .v_did_update_field_type_option(field_id, old_field)

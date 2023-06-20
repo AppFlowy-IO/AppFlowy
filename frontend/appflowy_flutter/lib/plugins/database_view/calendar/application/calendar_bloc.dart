@@ -27,9 +27,8 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   CellCache get cellCache => databaseController.rowCache.cellCache;
   RowCache get rowCache => databaseController.rowCache;
 
-  CalendarBloc({required ViewPB view})
-      : databaseController = DatabaseController(view: view),
-        super(CalendarState.initial()) {
+  CalendarBloc({required ViewPB view, required this.databaseController})
+      : super(CalendarState.initial()) {
     on<CalendarEvent>(
       (event, emit) async {
         await event.when(
@@ -39,6 +38,12 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
             _loadAllEvents();
           },
           didReceiveCalendarSettings: (CalendarLayoutSettingPB settings) {
+            // If the field id changed, reload all events
+            state.settings.fold(() => null, (oldSetting) {
+              if (oldSetting.fieldId != settings.fieldId) {
+                _loadAllEvents();
+              }
+            });
             emit(state.copyWith(settings: Some(settings)));
           },
           didReceiveDatabaseUpdate: (DatabasePB database) {
@@ -52,10 +57,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
                 allEvents: calenderEvents,
               ),
             );
-          },
-          didReceiveNewLayoutField: (CalendarLayoutSettingPB layoutSettings) {
-            _loadAllEvents();
-            emit(state.copyWith(settings: Some(layoutSettings)));
           },
           createEvent: (DateTime date, String title) async {
             await _createEvent(date, title);
@@ -105,12 +106,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     );
   }
 
-  @override
-  Future<void> close() async {
-    await databaseController.dispose();
-    return super.close();
-  }
-
   FieldInfo? _getCalendarFieldInfo(String fieldId) {
     final fieldInfos = databaseController.fieldController.fieldInfos;
     final index = fieldInfos.indexWhere(
@@ -149,7 +144,9 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
 
   Future<void> _createEvent(DateTime date, String title) async {
     return state.settings.fold(
-      () => null,
+      () {
+        Log.warn('Calendar settings not found');
+      },
       (settings) async {
         final dateField = _getCalendarFieldInfo(settings.fieldId);
         final titleField = _getTitleFieldInfo();
@@ -207,7 +204,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   Future<void> _updateCalendarLayoutSetting(
     CalendarLayoutSettingPB layoutSetting,
   ) async {
-    return databaseController.updateCalenderLayoutSetting(layoutSetting);
+    return databaseController.updateLayoutSetting(layoutSetting);
   }
 
   Future<CalendarEventData<CalendarDayEvent>?> _loadEvent(RowId rowId) async {
@@ -333,14 +330,9 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       onLoadLayout: _didReceiveLayoutSetting,
     );
 
-    final onCalendarLayoutFieldChanged = CalendarLayoutCallbacks(
-      onCalendarLayoutChanged: _didReceiveNewLayoutField,
-    );
-
-    databaseController.setListener(
+    databaseController.addListener(
       onDatabaseChanged: onDatabaseChanged,
       onLayoutChanged: onLayoutChanged,
-      onCalendarLayoutChanged: onCalendarLayoutFieldChanged,
     );
   }
 
@@ -350,13 +342,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         return;
       }
       add(CalendarEvent.didReceiveCalendarSettings(layoutSetting.calendar));
-    }
-  }
-
-  void _didReceiveNewLayoutField(DatabaseLayoutSettingPB layoutSetting) {
-    if (layoutSetting.hasCalendar()) {
-      if (isClosed) return;
-      add(CalendarEvent.didReceiveNewLayoutField(layoutSetting.calendar));
     }
   }
 
@@ -426,10 +411,6 @@ class CalendarEvent with _$CalendarEvent {
 
   const factory CalendarEvent.didReceiveDatabaseUpdate(DatabasePB database) =
       _ReceiveDatabaseUpdate;
-
-  const factory CalendarEvent.didReceiveNewLayoutField(
-    CalendarLayoutSettingPB layoutSettings,
-  ) = _DidReceiveNewLayoutField;
 }
 
 @freezed

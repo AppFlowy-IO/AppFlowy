@@ -18,8 +18,9 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
 use crate::deps::{FolderCloudService, FolderUser};
 use crate::entities::{
-  view_pb_with_child_views, CreateViewParams, CreateWorkspaceParams, DeletedViewPB,
-  RepeatedTrashPB, RepeatedViewPB, RepeatedWorkspacePB, UpdateViewParams, ViewPB, WorkspacePB,
+  view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, CreateViewParams,
+  CreateWorkspaceParams, DeletedViewPB, RepeatedTrashPB, RepeatedViewPB, RepeatedWorkspacePB,
+  UpdateViewParams, ViewPB, WorkspacePB,
 };
 use crate::notification::{
   send_notification, send_workspace_notification, send_workspace_setting_notification,
@@ -257,7 +258,6 @@ impl Folder2Manager {
       folder.insert_view(view.clone());
     });
 
-    notify_parent_view_did_change(self.mutex_folder.clone(), vec![view.parent_view_id.clone()]);
     Ok(view)
   }
 
@@ -332,6 +332,7 @@ impl Folder2Manager {
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn move_view_to_trash(&self, view_id: &str) -> FlowyResult<()> {
     self.with_folder((), |folder| {
+      let view = folder.views.get_view(view_id);
       folder.add_trash(vec![view_id.to_string()]);
 
       // notify the parent view that the view is moved to trash
@@ -341,6 +342,13 @@ impl Folder2Manager {
           index: None,
         })
         .send();
+
+      if let Some(view) = view {
+        notify_child_views_changed(
+          view_pb_without_child_views(view),
+          ChildViewChangeReason::DidDeleteView,
+        );
+      }
     });
 
     Ok(())
@@ -415,6 +423,7 @@ impl Folder2Manager {
           .set_cover_url_if_not_none(params.cover_url)
           .done()
       });
+
       Some((old_view, new_view))
     });
 
@@ -632,10 +641,25 @@ fn listen_on_view_change(mut rx: ViewChangeReceiver, weak_mutex_folder: &Weak<Mu
         tracing::trace!("Did receive view change: {:?}", value);
         match value {
           ViewChange::DidCreateView { view } => {
+            notify_child_views_changed(
+              view_pb_without_child_views(view.clone()),
+              ChildViewChangeReason::DidCreateView,
+            );
             notify_parent_view_did_change(folder.clone(), vec![view.parent_view_id]);
           },
-          ViewChange::DidDeleteView { views: _ } => {},
+          ViewChange::DidDeleteView { views } => {
+            for view in views {
+              notify_child_views_changed(
+                view_pb_without_child_views(view),
+                ChildViewChangeReason::DidDeleteView,
+              );
+            }
+          },
           ViewChange::DidUpdate { view } => {
+            notify_child_views_changed(
+              view_pb_without_child_views(view.clone()),
+              ChildViewChangeReason::DidUpdateView,
+            );
             notify_parent_view_did_change(folder.clone(), vec![view.parent_view_id]);
           },
         };
@@ -764,13 +788,45 @@ fn notify_parent_view_did_change<T: AsRef<str>>(
 
       // Post the notification
       let parent_view_pb = view_pb_with_child_views(parent_view, child_views);
-      send_notification(parent_view_id, FolderNotification::DidUpdateChildViews)
+      send_notification(parent_view_id, FolderNotification::DidUpdateView)
         .payload(parent_view_pb)
         .send();
     }
   }
 
   None
+}
+
+pub enum ChildViewChangeReason {
+  DidCreateView,
+  DidDeleteView,
+  DidUpdateView,
+}
+
+/// Notify the the list of parent view ids that its child views were changed.
+#[tracing::instrument(level = "debug", skip_all)]
+fn notify_child_views_changed(view_pb: ViewPB, reason: ChildViewChangeReason) {
+  let parent_view_id = view_pb.parent_view_id.clone();
+  let mut payload = ChildViewUpdatePB {
+    parent_view_id: view_pb.parent_view_id.clone(),
+    ..Default::default()
+  };
+
+  match reason {
+    ChildViewChangeReason::DidCreateView => {
+      payload.create_child_views.push(view_pb);
+    },
+    ChildViewChangeReason::DidDeleteView => {
+      payload.delete_child_views.push(view_pb.id);
+    },
+    ChildViewChangeReason::DidUpdateView => {
+      payload.update_child_views.push(view_pb);
+    },
+  }
+
+  send_notification(&parent_view_id, FolderNotification::DidUpdateChildViews)
+    .payload(payload)
+    .send();
 }
 
 fn folder_not_init_error() -> FlowyError {

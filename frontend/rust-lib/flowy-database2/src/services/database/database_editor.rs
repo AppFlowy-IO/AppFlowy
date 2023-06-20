@@ -206,7 +206,7 @@ impl DatabaseEditor {
         .map(|field| field.id)
         .collect()
     });
-    database.get_fields(view_id, Some(field_ids))
+    database.get_fields_in_view(view_id, Some(field_ids))
   }
 
   pub async fn update_field(&self, params: FieldChangesetParams) -> FlowyResult<()> {
@@ -442,7 +442,7 @@ impl DatabaseEditor {
       self
         .database
         .lock()
-        .create_default_field(view_id, name, field_type.into(), |field| {
+        .create_field_with_mut(view_id, name, field_type.into(), |field| {
           field
             .type_options
             .insert(field_type.to_string(), type_option_data.clone());
@@ -932,11 +932,12 @@ impl DatabaseEditor {
 
   pub async fn group_by_field(&self, view_id: &str, field_id: &str) -> FlowyResult<()> {
     let view = self.database_views.get_view_editor(view_id).await?;
-    view.v_update_grouping_field(field_id).await?;
+    view.v_grouping_by_field(field_id).await?;
     Ok(())
   }
 
   pub async fn set_layout_setting(&self, view_id: &str, layout_setting: LayoutSettingParams) {
+    tracing::trace!("set_layout_setting: {:?}", layout_setting);
     if let Ok(view) = self.database_views.get_view_editor(view_id).await {
       let _ = view.v_set_layout_settings(layout_setting).await;
     };
@@ -1042,7 +1043,7 @@ impl DatabaseEditor {
       .await
       .ok_or_else(FlowyError::record_not_found)?;
     let rows = database_view.v_get_rows().await;
-    let (database_id, fields) = {
+    let (database_id, fields, is_linked) = {
       let database = self.database.lock();
       let database_id = database.get_database_id();
       let fields = database
@@ -1051,7 +1052,8 @@ impl DatabaseEditor {
         .into_iter()
         .map(FieldIdPB::from)
         .collect();
-      (database_id, fields)
+      let is_linked = database.is_inline_view(view_id);
+      (database_id, fields, is_linked)
     };
 
     let rows = rows
@@ -1063,6 +1065,7 @@ impl DatabaseEditor {
       fields,
       rows,
       layout_type: view.layout.into(),
+      is_linked,
     })
   }
 
@@ -1082,7 +1085,7 @@ impl DatabaseEditor {
     self
       .database
       .lock()
-      .get_fields(view_id, None)
+      .get_fields_in_view(view_id, None)
       .into_iter()
       .filter(|f| FieldType::from(f.field_type).is_auto_update())
       .collect::<Vec<Field>>()
@@ -1139,13 +1142,17 @@ struct DatabaseViewDataImpl {
 }
 
 impl DatabaseViewData for DatabaseViewDataImpl {
+  fn get_database(&self) -> Arc<InnerDatabase> {
+    self.database.lock().clone()
+  }
+
   fn get_view(&self, view_id: &str) -> Fut<Option<DatabaseView>> {
     let view = self.database.lock().get_view(view_id);
     to_fut(async move { view })
   }
 
   fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>> {
-    let fields = self.database.lock().get_fields(view_id, field_ids);
+    let fields = self.database.lock().get_fields_in_view(view_id, field_ids);
     to_fut(async move { fields.into_iter().map(Arc::new).collect() })
   }
 
@@ -1166,7 +1173,7 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     field_type: FieldType,
     type_option_data: TypeOptionData,
   ) -> Fut<Field> {
-    let (_, field) = self.database.lock().create_default_field(
+    let (_, field) = self.database.lock().create_field_with_mut(
       view_id,
       name.to_string(),
       field_type.clone().into(),

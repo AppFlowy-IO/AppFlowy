@@ -309,7 +309,7 @@ class _EventCard extends StatelessWidget {
       cellBuilder: cellBuilder,
       openCard: (context) => showEventDetails(
         context: context,
-        event: event,
+        event: event.event,
         viewId: viewId,
         rowCache: rowCache,
       ),

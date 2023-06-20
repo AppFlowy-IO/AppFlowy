@@ -53,7 +53,7 @@ extension InsertDatabase on EditorState {
     }
 
     final prefix = _referencedDatabasePrefix(childView.layout);
-    final ref = await ViewBackendService.createDatabaseReferenceView(
+    final ref = await ViewBackendService.createDatabaseLinkedView(
       parentViewId: childView.id,
       name: "$prefix ${childView.name}",
       layoutType: childView.layout,

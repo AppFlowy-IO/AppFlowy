@@ -236,6 +236,7 @@
     }
   },
   "grid": {
+    "deleteView": "Are you sure you want to delete this view?",
     "settings": {
       "filter": "Filter",
       "sort": "Sort",

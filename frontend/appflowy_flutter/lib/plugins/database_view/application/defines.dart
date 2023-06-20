@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/sort_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 
@@ -10,6 +11,7 @@ import 'row/row_service.dart';
 
 typedef OnFieldsChanged = void Function(UnmodifiableListView<FieldInfo>);
 typedef OnFiltersChanged = void Function(List<FilterInfo>);
+typedef OnSortsChanged = void Function(List<SortInfo>);
 typedef OnDatabaseChanged = void Function(DatabasePB);
 
 typedef OnRowsCreated = void Function(List<RowId> ids);

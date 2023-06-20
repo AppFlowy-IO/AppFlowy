@@ -113,7 +113,7 @@ class MenuAppHeader extends StatelessWidget {
           context.read<AppBloc>().add(
                 AppEvent.createView(
                   name ?? LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-                  pluginBuilder,
+                  pluginBuilder.layoutType!,
                   initialDataBytes: initialDataBytes,
                   openAfterCreated: openAfterCreated,
                 ),

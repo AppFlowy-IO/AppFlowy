@@ -47,6 +47,13 @@ extension CommonOperations on WidgetTester {
     await tapButtonWithName(LocaleKeys.grid_menuName.tr());
   }
 
+  /// Tap the create grid button.
+  ///
+  /// Must call [tapAddButton] first.
+  Future<void> tapCreateCalendarButton() async {
+    await tapButtonWithName(LocaleKeys.calendar_menuName.tr());
+  }
+
   /// Tap the import button.
   ///
   /// Must call [tapAddButton] first.
@@ -142,7 +149,9 @@ extension CommonOperations on WidgetTester {
 
   /// open the page with given name.
   Future<void> openPage(String name) async {
-    await tapButton(findPageName(name));
+    final finder = findPageName(name);
+    expect(finder, findsOneWidget);
+    await tapButton(finder);
   }
 
   /// Tap the ... button beside the page name.

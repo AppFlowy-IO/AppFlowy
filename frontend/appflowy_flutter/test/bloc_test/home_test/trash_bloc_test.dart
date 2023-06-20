@@ -1,4 +1,3 @@
-import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/plugins/trash/application/trash_bloc.dart';
 import 'package:appflowy/workspace/application/app/app_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -20,25 +19,25 @@ class TrashTestContext {
     await blocResponseFuture();
 
     appBloc.add(
-      AppEvent.createView(
+      const AppEvent.createView(
         "Document 1",
-        DocumentPluginBuilder(),
+        ViewLayoutPB.Document,
       ),
     );
     await blocResponseFuture();
 
     appBloc.add(
-      AppEvent.createView(
+      const AppEvent.createView(
         "Document 2",
-        DocumentPluginBuilder(),
+        ViewLayoutPB.Document,
       ),
     );
     await blocResponseFuture();
 
     appBloc.add(
-      AppEvent.createView(
+      const AppEvent.createView(
         "Document 3",
-        DocumentPluginBuilder(),
+        ViewLayoutPB.Document,
       ),
     );
     await blocResponseFuture();

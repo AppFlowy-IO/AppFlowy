@@ -87,6 +87,7 @@ extension AppFlowyTestBase on WidgetTester {
   }) async {
     await tap(
       finder,
+      buttons: buttons,
       warnIfMissed: warnIfMissed,
     );
     await pumpAndSettle(Duration(milliseconds: milliseconds));
