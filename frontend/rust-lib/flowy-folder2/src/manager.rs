@@ -423,6 +423,7 @@ impl Folder2Manager {
           .set_cover_url_if_not_none(params.cover_url)
           .done()
       });
+
       Some((old_view, new_view))
     });
 
@@ -433,6 +434,10 @@ impl Folder2Manager {
     }
 
     if let Ok(view_pb) = self.get_view(&params.view_id).await {
+      notify_parent_view_did_change(
+        self.mutex_folder.clone(),
+        vec![view_pb.parent_view_id.clone()],
+      );
       send_notification(&view_pb.id, FolderNotification::DidUpdateView)
         .payload(view_pb)
         .send();

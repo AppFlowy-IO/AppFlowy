@@ -1,9 +1,9 @@
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
+import 'package:appflowy/plugins/database_view/calendar/presentation/toolbar/calendar_layout_setting.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/checkbox.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/checklist/checklist.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/select_option/option_list.dart';
@@ -731,6 +731,65 @@ extension AppFlowyDatabaseTest on WidgetTester {
     );
 
     await tapButton(button);
+  }
+
+  Future<void> tapCalendarLayoutSettingButton() async {
+    final findSettingItem = find.byType(DatabaseSettingItem);
+    final findLayoutButton = find.byWidgetPredicate(
+      (widget) =>
+          widget is FlowyText &&
+          widget.text == DatabaseSettingAction.showCalendarLayout.title(),
+    );
+
+    final button = find.descendant(
+      of: findSettingItem,
+      matching: findLayoutButton,
+    );
+
+    await tapButton(button);
+  }
+
+  Future<void> tapFirstDayOfWeek() async {
+    await tapButton(find.byType(FirstDayOfWeek));
+  }
+
+  Future<void> tapFirstDayOfWeekStartFromSunday() async {
+    final finder = find.byWidgetPredicate(
+      (widget) => widget is StartFromButton && widget.dayIndex == 0,
+    );
+    await tapButton(finder);
+  }
+
+  Future<void> tapFirstDayOfWeekStartFromMonday() async {
+    final finder = find.byWidgetPredicate(
+      (widget) => widget is StartFromButton && widget.dayIndex == 1,
+    );
+    await tapButton(finder);
+
+    // Dismiss the popover overlay in cause of obscure the tapButton
+    // in the next test case.
+    await sendKeyEvent(LogicalKeyboardKey.escape);
+    await pumpAndSettle(const Duration(milliseconds: 200));
+  }
+
+  void assertFirstDayOfWeekStartFromMonday() {
+    final finder = find.byWidgetPredicate(
+      (widget) =>
+          widget is StartFromButton &&
+          widget.dayIndex == 1 &&
+          widget.isSelected == true,
+    );
+    expect(finder, findsOneWidget);
+  }
+
+  void assertFirstDayOfWeekStartFromSunday() {
+    final finder = find.byWidgetPredicate(
+      (widget) =>
+          widget is StartFromButton &&
+          widget.dayIndex == 0 &&
+          widget.isSelected == true,
+    );
+    expect(finder, findsOneWidget);
   }
 
   Future<void> tapCreateLinkedDatabaseViewButton(AddButtonAction action) async {

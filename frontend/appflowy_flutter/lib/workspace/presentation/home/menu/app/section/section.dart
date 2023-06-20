@@ -47,10 +47,11 @@ class ViewSection extends StatelessWidget {
     ViewSectionState state,
   ) {
     final children = state.views.map((view) {
+      final isSelected = _isViewSelected(state, view.id);
       return ViewSectionItem(
-        key: ValueKey(view.id),
         view: view,
-        isSelected: _isViewSelected(state, view.id),
+        key: ValueKey('$view.hashCode/$isSelected'),
+        isSelected: isSelected,
         onSelected: (view) => getIt<MenuSharedState>().latestOpenView = view,
       );
     }).toList();
