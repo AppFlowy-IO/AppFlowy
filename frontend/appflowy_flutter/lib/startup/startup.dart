@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
+import 'package:flowy_infra/plugins/service/location_service.dart';
+import 'package:flowy_infra/plugins/service/plugin_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -36,7 +38,9 @@ class FlowyRunner {
         .getPath()
         .then((value) => Directory(value));
 
-    // final directory = await appFlowyDocumentDirectory();
+    FlowyPluginService.instance.setLocation(
+      PluginLocationService(fallback: appFlowyDocumentDirectory()),
+    );
 
     // add task
     final launcher = getIt<AppLauncher>();

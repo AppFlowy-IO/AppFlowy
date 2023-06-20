@@ -31,7 +31,7 @@ class AppTheme {
   );
 
   static Future<Iterable<AppTheme>> get _plugins async {
-    final plugins = await FlowyPluginService.plugins;
+    final plugins = await FlowyPluginService.instance.plugins;
     return plugins.map((plugin) => plugin.theme).whereType<AppTheme>();
   }
 

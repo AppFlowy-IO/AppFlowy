@@ -4,21 +4,31 @@ import 'dart:io';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'location_service.dart';
 import 'models/flowy_dynamic_plugin.dart';
 
 /// A service to maintain the state of the plugins for AppFlowy.
 class FlowyPluginService {
   FlowyPluginService._();
+  static final FlowyPluginService _instance = FlowyPluginService._();
+  static FlowyPluginService get instance => _instance;
 
-  static Future<Iterable<Directory>> get _targets async {
-    final location = await PluginLocationService.location;
+  PluginLocationService _locationService = PluginLocationService(
+    fallback: getApplicationDocumentsDirectory(),
+  );
+
+  void setLocation(PluginLocationService locationService) =>
+      _locationService = locationService;
+
+  Future<Iterable<Directory>> get _targets async {
+    final location = await _locationService.location;
     final targets = location.listSync().where(FlowyDynamicPlugin.isPlugin);
     return targets.map<Directory>((entity) => entity as Directory).toList();
   }
 
   /// Searches the [PluginLocationService.location] for plugins and compiles them.
-  static Future<DynamicPluginLibrary> get plugins async {
+  Future<DynamicPluginLibrary> get plugins async {
     final List<FlowyDynamicPlugin> compiled = [];
     for (final src in await _targets) {
       final plugin = await FlowyDynamicPlugin.decode(src: src);
@@ -44,7 +54,7 @@ class FlowyPluginService {
   }
 
   /// Searches the plugin registry for a plugin with the given name.
-  static Future<FlowyDynamicPlugin?> lookup({required String name}) async {
+  Future<FlowyDynamicPlugin?> lookup({required String name}) async {
     final library = await plugins;
     return library
         // cast to nullable type to allow return of null if not found.
@@ -55,12 +65,12 @@ class FlowyPluginService {
 
   /// Adds a plugin to the registry. To construct a [FlowyDynamicPlugin]
   /// use [FlowyDynamicPlugin.encode()]
-  static Future<void> addPlugin(FlowyDynamicPlugin plugin) async {
+  Future<void> addPlugin(FlowyDynamicPlugin plugin) async {
     // try to compile the plugin before we add it to the registry.
     final source = await plugin.encode();
     // add the plugin to the registry
     final destionation = [
-      (await PluginLocationService.location).path,
+      (await _locationService.location).path,
       p.basename(source.path),
     ].join(Platform.pathSeparator);
 

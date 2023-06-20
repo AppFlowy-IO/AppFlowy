@@ -22,7 +22,8 @@ class DynamicPluginBloc extends Bloc<DynamicPluginEvent, DynamicPluginState> {
   }
 
   Future<void> onLoadRequested(Emitter<DynamicPluginState> emit) async {
-    emit(DynamicPluginState.ready(plugins: await FlowyPluginService.plugins));
+    emit(DynamicPluginState.ready(
+        plugins: await FlowyPluginService.instance.plugins));
   }
 
   Future<void> addPlugin(Emitter<DynamicPluginState> emit) async {
@@ -31,26 +32,31 @@ class DynamicPluginBloc extends Bloc<DynamicPluginEvent, DynamicPluginState> {
     // TODO(a-wallen): error handling after implementation.
     final plugin = await FlowyPluginService.pick();
 
-    await FlowyPluginService.addPlugin(plugin!);
+    await FlowyPluginService.instance.addPlugin(plugin!);
 
     emit(const DynamicPluginState.compilationSuccess());
-    emit(DynamicPluginState.ready(plugins: await FlowyPluginService.plugins));
+    emit(DynamicPluginState.ready(
+        plugins: await FlowyPluginService.instance.plugins));
   }
 
   Future<void> removePlugin(
       Emitter<DynamicPluginState> emit, String name) async {
     emit(const DynamicPluginState.processing());
 
-    final plugin = await FlowyPluginService.lookup(name: name);
+    final plugin = await FlowyPluginService.instance.lookup(name: name);
 
     if (plugin == null) {
-      emit(DynamicPluginState.ready(plugins: await FlowyPluginService.plugins));
+      emit(DynamicPluginState.ready(
+          plugins: await FlowyPluginService.instance.plugins));
       return;
     }
 
     await FlowyPluginService.removePlugin(plugin);
 
     emit(const DynamicPluginState.deletionSuccess());
-    emit(DynamicPluginState.ready(plugins: await FlowyPluginService.plugins));
+    emit(
+      DynamicPluginState.ready(
+          plugins: await FlowyPluginService.instance.plugins),
+    );
   }
 }
