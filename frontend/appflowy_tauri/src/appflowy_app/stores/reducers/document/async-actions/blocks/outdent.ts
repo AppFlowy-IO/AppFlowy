@@ -1,7 +1,7 @@
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { DocumentState } from '$app/interfaces/document';
 import { blockConfig } from '$app/constants/document/config';
+import { RootState } from '$app/stores/store';
 
 /**
  * outdent node
@@ -17,16 +17,18 @@ export const outdentNodeThunk = createAsyncThunk(
   async (payload: { id: string; controller: DocumentController }, thunkAPI) => {
     const { id, controller } = payload;
     const { getState } = thunkAPI;
-    const state = (getState() as { document: DocumentState }).document;
-    const node = state.nodes[id];
+    const state = getState() as RootState;
+    const docId = controller.documentId;
+    const docState = state.document[docId];
+    const node = docState.nodes[id];
     const parentId = node.parent;
     if (!parentId) return;
-    const ancestorId = state.nodes[parentId].parent;
+    const ancestorId = docState.nodes[parentId].parent;
     if (!ancestorId) return;
 
-    const parent = state.nodes[parentId];
-    const index = state.children[parent.children].indexOf(id);
-    const nextSiblingIds = state.children[parent.children].slice(index + 1);
+    const parent = docState.nodes[parentId];
+    const index = docState.children[parent.children].indexOf(id);
+    const nextSiblingIds = docState.children[parent.children].slice(index + 1);
 
     const actions = [];
     const moveAction = controller.getMoveAction(node, ancestorId, parentId);
@@ -35,7 +37,7 @@ export const outdentNodeThunk = createAsyncThunk(
     const config = blockConfig[node.type];
     if (nextSiblingIds.length > 0) {
       if (config.canAddChild) {
-        const children = state.children[node.children];
+        const children = docState.children[node.children];
         let lastChildId: string | null = null;
         const lastIndex = children.length - 1;
         if (lastIndex >= 0) {
@@ -43,12 +45,12 @@ export const outdentNodeThunk = createAsyncThunk(
         }
         const moveChildrenActions = nextSiblingIds
           .reverse()
-          .map((id) => controller.getMoveAction(state.nodes[id], node.id, lastChildId));
+          .map((id) => controller.getMoveAction(docState.nodes[id], node.id, lastChildId));
         actions.push(...moveChildrenActions);
       } else {
         const moveChildrenActions = nextSiblingIds
           .reverse()
-          .map((id) => controller.getMoveAction(state.nodes[id], ancestorId, node.id));
+          .map((id) => controller.getMoveAction(docState.nodes[id], ancestorId, node.id));
         actions.push(...moveChildrenActions);
       }
     }

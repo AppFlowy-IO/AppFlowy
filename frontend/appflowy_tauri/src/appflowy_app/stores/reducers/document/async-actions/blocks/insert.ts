@@ -2,6 +2,7 @@ import { BlockData, BlockType, DocumentState } from '$app/interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { newBlock } from '$app/utils/document/block';
+import { RootState } from '$app/stores/store';
 
 export const insertAfterNodeThunk = createAsyncThunk(
   'document/insertAfterNode',
@@ -12,10 +13,13 @@ export const insertAfterNodeThunk = createAsyncThunk(
       data = {
         delta: [],
       },
+      id,
     } = payload;
     const { getState } = thunkAPI;
-    const state = getState() as { document: DocumentState };
-    const node = state.document.nodes[payload.id];
+    const state = getState() as RootState;
+    const docId = controller.documentId;
+    const docState = state.document[docId];
+    const node = docState.nodes[id];
     if (!node) return;
     const parentId = node.parent;
     if (!parentId) return;

@@ -1,8 +1,7 @@
-import { DocumentBlockJSON, DocumentData, Node } from '@/appflowy_app/interfaces/document';
+import { DocumentData, Node } from '@/appflowy_app/interfaces/document';
 import { createContext } from 'react';
 import { DocumentBackendService } from './document_bd_svc';
 import {
-  FlowyError,
   BlockActionPB,
   DocEventPB,
   BlockActionTypePB,
@@ -17,15 +16,13 @@ import { get } from '@/appflowy_app/utils/tool';
 import { blockPB2Node } from '$app/utils/document/block';
 import { Log } from '$app/utils/log';
 
-export const DocumentControllerContext = createContext<DocumentController | null>(null);
-
 export class DocumentController {
   private readonly backendService: DocumentBackendService;
   private readonly observer: DocumentObserver;
 
   constructor(
     public readonly documentId: string,
-    private onDocChange?: (props: { isRemote: boolean; data: BlockEventPayloadPB }) => void
+    private onDocChange?: (props: { docId: string; isRemote: boolean; data: BlockEventPayloadPB }) => void
   ) {
     this.backendService = new DocumentBackendService(documentId);
     this.observer = new DocumentObserver(documentId);
@@ -37,14 +34,17 @@ export class DocumentController {
     });
 
     const document = await this.backendService.open();
+
     if (document.ok) {
       const nodes: DocumentData['nodes'] = {};
+
       get<Map<string, BlockPB>>(document.val, [BLOCK_MAP_NAME]).forEach((block) => {
         Object.assign(nodes, {
           [block.id]: blockPB2Node(block),
         });
       });
       const children: Record<string, string[]> = {};
+
       get<Map<string, ChildrenPB>>(document.val, [META_NAME, CHILDREN_MAP_NAME]).forEach((child, key) => {
         children[key] = child.children;
       });
@@ -60,6 +60,7 @@ export class DocumentController {
 
   applyActions = async (actions: ReturnType<typeof BlockActionPB.prototype.toObject>[]) => {
     Log.debug('applyActions', actions);
+    if (actions.length === 0) return;
     await this.backendService.applyActions(actions);
   };
 
@@ -109,21 +110,25 @@ export class DocumentController {
 
   canUndo = async () => {
     const result = await this.backendService.canUndoRedo();
+
     return result.ok && result.val.can_undo;
   };
 
   canRedo = async () => {
     const result = await this.backendService.canUndoRedo();
+
     return result.ok && result.val.can_redo;
   };
 
   undo = async () => {
     const result = await this.backendService.undo();
+
     return result.ok && result.val.is_success;
   };
 
   redo = async () => {
     const result = await this.backendService.redo();
+
     return result.ok && result.val.is_success;
   };
 
@@ -152,14 +157,17 @@ export class DocumentController {
 
   private composeDelta = (node: Node) => {
     const delta = node.data.delta;
+
     if (!delta) {
       return;
     }
+
     // we use yjs to compose delta, it can make sure the delta is correct
     // for example, if we insert a text at the end of the line, the delta will be [{ insert: 'hello' }, { insert: " world" }]
     // but if we use yjs to compose the delta, the delta will be [{ insert: 'hello world' }]
     const ydoc = new Y.Doc();
     const ytext = ydoc.getText(node.id);
+
     ytext.applyDelta(delta);
     Object.assign(node.data, { delta: ytext.toDelta() });
   };
@@ -172,6 +180,7 @@ export class DocumentController {
     events.forEach((blockEvent) => {
       blockEvent.event.forEach((_payload) => {
         this.onDocChange?.({
+          docId: this.documentId,
           isRemote: is_remote,
           data: _payload,
         });
@@ -179,3 +188,5 @@ export class DocumentController {
     });
   };
 }
+
+export const DocumentControllerContext = createContext<DocumentController>(new DocumentController(''));

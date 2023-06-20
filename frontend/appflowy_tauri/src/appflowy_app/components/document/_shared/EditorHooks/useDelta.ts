@@ -1,12 +1,12 @@
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
 import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { useAppDispatch } from '$app/stores/store';
 import { updateNodeDeltaThunk } from '$app_reducers/document/async-actions';
 import Delta from 'quill-delta';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export function useDelta({ id, onDeltaChange }: { id: string; onDeltaChange?: (delta: Delta) => void }) {
-  const controller = useContext(DocumentControllerContext);
+  const { controller } = useSubscribeDocument();
   const dispatch = useAppDispatch();
   const penddingRef = useRef(false);
   const { node } = useSubscribeNode(id);

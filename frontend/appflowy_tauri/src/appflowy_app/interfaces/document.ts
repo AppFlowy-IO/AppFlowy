@@ -115,9 +115,39 @@ export interface DocumentState {
   // map of block id to children block ids
   children: Record<string, string[]>;
 }
+
 export interface SlashCommandState {
   isSlashCommand: boolean;
   blockId?: string;
+  hoverOption?: SlashCommandOption;
+}
+
+export enum SlashCommandOptionKey {
+  TEXT,
+  PAGE,
+  TODO,
+  BULLET,
+  NUMBER,
+  TOGGLE,
+  CODE,
+  EQUATION,
+  QUOTE,
+  CALLOUT,
+  DIVIDER,
+  HEADING_1,
+  HEADING_2,
+  HEADING_3,
+}
+
+export interface SlashCommandOption {
+  type: BlockType;
+  data?: BlockData<any>;
+  key: SlashCommandOptionKey;
+}
+
+export enum SlashCommandGroup {
+  BASIC = 'Basic',
+  MEDIA = 'Media',
 }
 
 export interface RectSelectionState {

@@ -4,12 +4,12 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { updateNodeDataThunk } from '$app_reducers/document/async-actions';
 import { useAppDispatch } from '$app/stores/store';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { supportLanguage } from '$app/constants/document/code';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 function SelectLanguage({ id, language }: { id: string; language: string }) {
   const dispatch = useAppDispatch();
-  const controller = useContext(DocumentControllerContext);
+  const { controller } = useSubscribeDocument();
 
   const onLanguageSelect = useCallback(
     (event: SelectChangeEvent) => {

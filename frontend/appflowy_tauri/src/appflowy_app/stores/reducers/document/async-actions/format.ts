@@ -4,42 +4,53 @@ import { TextAction } from '$app/interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import Delta from 'quill-delta';
 
-export const getFormatActiveThunk = createAsyncThunk<boolean, TextAction>(
-  'document/getFormatActive',
-  async (format, thunkAPI) => {
-    const { getState } = thunkAPI;
-    const state = getState() as RootState;
-    const { document, documentRange } = state;
-    const { ranges } = documentRange;
-    const match = (delta: Delta, format: TextAction) => {
-      return delta.ops.every((op) => op.attributes?.[format]);
-    };
-    return Object.entries(ranges).every(([id, range]) => {
-      const node = document.nodes[id];
-      const delta = new Delta(node.data?.delta);
-      const index = range?.index || 0;
-      const length = range?.length || 0;
-      const rangeDelta = delta.slice(index, index + length);
-
-      return match(rangeDelta, format);
-    });
+export const getFormatActiveThunk = createAsyncThunk<
+  boolean,
+  {
+    format: TextAction;
+    docId: string;
   }
-);
+>('document/getFormatActive', async ({ format, docId }, thunkAPI) => {
+  const { getState } = thunkAPI;
+  const state = getState() as RootState;
+  const document = state.document[docId];
+  const documentRange = state.documentRange[docId];
+  const { ranges } = documentRange;
+  const match = (delta: Delta, format: TextAction) => {
+    return delta.ops.every((op) => op.attributes?.[format]);
+  };
+  return Object.entries(ranges).every(([id, range]) => {
+    const node = document.nodes[id];
+    const delta = new Delta(node.data?.delta);
+    const index = range?.index || 0;
+    const length = range?.length || 0;
+    const rangeDelta = delta.slice(index, index + length);
+
+    return match(rangeDelta, format);
+  });
+});
 
 export const toggleFormatThunk = createAsyncThunk(
   'document/toggleFormat',
   async (payload: { format: TextAction; controller: DocumentController; isActive?: boolean }, thunkAPI) => {
     const { getState, dispatch } = thunkAPI;
     const { format, controller } = payload;
+    const docId = controller.documentId;
     let isActive = payload.isActive;
     if (isActive === undefined) {
-      const { payload: active } = await dispatch(getFormatActiveThunk(format));
+      const { payload: active } = await dispatch(
+        getFormatActiveThunk({
+          format,
+          docId,
+        })
+      );
       isActive = !!active;
     }
     const formatValue = isActive ? undefined : true;
     const state = getState() as RootState;
-    const { document } = state;
-    const { ranges } = state.documentRange;
+    const document = state.document[docId];
+    const documentRange = state.documentRange[docId];
+    const { ranges } = documentRange;
 
     const toggle = (delta: Delta, format: TextAction, value: string | boolean | undefined) => {
       const newOps = delta.ops.map((op) => {

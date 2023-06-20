@@ -3,7 +3,6 @@ import { getDeltaByRange } from '$app/utils/document/delta';
 import Delta from 'quill-delta';
 import { generateId } from '$app/utils/document/block';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
-import { blockConfig } from '$app/constants/document/config';
 
 export function getCopyData(
   node: NestedBlock,

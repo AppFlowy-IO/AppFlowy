@@ -1,12 +1,16 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { calcToolbarPosition } from '$app/utils/document/toolbar';
 import { useAppSelector } from '$app/stores/store';
 import { getNode } from '$app/utils/document/node';
 import { debounce } from '$app/utils/tool';
+import { useSubscribeCaret } from '$app/components/document/_shared/SubscribeSelection.hooks';
 
 export function useMenuStyle(container: HTMLDivElement) {
   const ref = useRef<HTMLDivElement | null>(null);
-  const id = useAppSelector((state) => state.documentRange.caret?.id);
+
+  const caret = useSubscribeCaret();
+  const id = caret?.id;
+
   const [isScrolling, setIsScrolling] = useState(false);
 
   const reCalculatePosition = useCallback(() => {
