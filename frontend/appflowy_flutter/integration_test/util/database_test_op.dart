@@ -18,6 +18,8 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_option_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/filter_button.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_layout.dart';
+import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
+import 'package:appflowy/plugins/database_view/tar_bar/tar_bar_add_button.dart';
 import 'package:appflowy/plugins/database_view/widgets/database_layout_ext.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/select_option_editor.dart';
@@ -29,10 +31,13 @@ import 'package:appflowy/plugins/database_view/widgets/setting/database_setting.
 import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
+import 'package:flowy_infra_ui/style_widget/text_input.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -726,6 +731,93 @@ extension AppFlowyDatabaseTest on WidgetTester {
     );
 
     await tapButton(button);
+  }
+
+  Future<void> tapCreateLinkedDatabaseViewButton(AddButtonAction action) async {
+    final findAddButton = find.byType(AddDatabaseViewButton);
+    await tapButton(findAddButton);
+
+    final findCreateButton = find.byWidgetPredicate(
+      (widget) =>
+          widget is TarBarAddButtonActionCell && widget.action == action,
+    );
+    await tapButton(findCreateButton);
+  }
+
+  Finder findTabBarLinkViewByViewLayout(ViewLayoutPB layout) {
+    return find.byWidgetPredicate(
+      (widget) => widget is TabBarItemButton && widget.view.layout == layout,
+    );
+  }
+
+  Finder findTabBarLinkViewByViewName(String name) {
+    return find.byWidgetPredicate(
+      (widget) => widget is TabBarItemButton && widget.view.name == name,
+    );
+  }
+
+  Future<void> renameLinkedView(Finder linkedView, String name) async {
+    await tap(linkedView, buttons: kSecondaryButton);
+    await pumpAndSettle();
+
+    await tapButton(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is ActionCellWidget &&
+            widget.action == TabBarViewAction.rename,
+      ),
+    );
+
+    await enterText(
+      find.descendant(
+        of: find.byType(FlowyFormTextInput),
+        matching: find.byType(TextFormField),
+      ),
+      name,
+    );
+
+    final field = find.byWidgetPredicate(
+      (widget) =>
+          widget is PrimaryTextButton &&
+          widget.label == LocaleKeys.button_OK.tr(),
+    );
+    await tapButton(field);
+  }
+
+  Future<void> deleteDatebaseView(Finder linkedView) async {
+    await tap(linkedView, buttons: kSecondaryButton);
+    await pumpAndSettle();
+
+    await tapButton(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is ActionCellWidget &&
+            widget.action == TabBarViewAction.delete,
+      ),
+    );
+
+    final okButton = find.byWidgetPredicate(
+      (widget) =>
+          widget is PrimaryTextButton &&
+          widget.label == LocaleKeys.button_OK.tr(),
+    );
+    await tapButton(okButton);
+  }
+
+  Future<void> assertCurrentDatabaseTagIs(DatabaseLayoutPB layout) async {
+    switch (layout) {
+      case DatabaseLayoutPB.Board:
+        expect(find.byType(BoardPage), findsOneWidget);
+        break;
+      case DatabaseLayoutPB.Calendar:
+        expect(find.byType(CalendarPage), findsOneWidget);
+        break;
+      case DatabaseLayoutPB.Grid:
+        expect(find.byType(GridPage), findsOneWidget);
+        break;
+      default:
+        throw Exception('Unknown database layout type: $layout');
+    }
   }
 
   Future<void> selectDatabaseLayoutType(DatabaseLayoutPB layout) async {

@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_configuration.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/setting_menu.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy_backend/log.dart';
@@ -266,6 +266,7 @@ class _GridRows extends StatelessWidget {
                     return _renderRow(
                       context,
                       rowInfo.rowId,
+                      isDraggable: state.reorderable,
                       index: index,
                     );
                   }
@@ -283,6 +284,7 @@ class _GridRows extends StatelessWidget {
     BuildContext context,
     RowId rowId, {
     int? index,
+    required bool isDraggable,
     Animation<double>? animation,
   }) {
     final rowCache = context.read<GridBloc>().getRowCache(rowId);
@@ -304,9 +306,7 @@ class _GridRows extends StatelessWidget {
       rowId: rowId,
       viewId: viewId,
       index: index,
-      // TODO(nathan): makesure the index is correct when there is a filter
-      // or sort.
-      isDraggable: true,
+      isDraggable: isDraggable,
       dataController: dataController,
       cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
       openDetailPage: (context, cellBuilder) {

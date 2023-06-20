@@ -54,6 +54,7 @@ class DatabaseCallbacks {
   OnDatabaseChanged? onDatabaseChanged;
   OnFieldsChanged? onFieldsChanged;
   OnFiltersChanged? onFiltersChanged;
+  OnSortsChanged? onSortsChanged;
   OnNumOfRowsChanged? onNumOfRowsChanged;
   OnRowsDeleted? onRowsDeleted;
   OnRowsUpdated? onRowsUpdated;
@@ -64,6 +65,7 @@ class DatabaseCallbacks {
     this.onNumOfRowsChanged,
     this.onFieldsChanged,
     this.onFiltersChanged,
+    this.onSortsChanged,
     this.onRowsUpdated,
     this.onRowsDeleted,
     this.onRowsCreated,
@@ -296,6 +298,11 @@ class DatabaseController {
       onReceiveFields: (fields) {
         for (final callback in _databaseCallbacks) {
           callback.onFieldsChanged?.call(UnmodifiableListView(fields));
+        }
+      },
+      onSorts: (sorts) {
+        for (final callback in _databaseCallbacks) {
+          callback.onSortsChanged?.call(sorts);
         }
       },
       onFilters: (filters) {

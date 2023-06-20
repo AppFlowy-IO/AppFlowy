@@ -81,6 +81,7 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
               final tabBarControllerByViewId = {
                 ...state.tabBarControllerByViewId
               };
+              var newSelectedIndex = state.selectedIndex;
               for (final viewId in updatePB.deleteChildViews) {
                 final index = allTabBars.indexWhere(
                   (element) => element.viewId == viewId,
@@ -92,11 +93,17 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
                       tabBarControllerByViewId.remove(tarBar.viewId);
                   controller?.dispose();
                 }
+
+                if (index == state.selectedIndex) {
+                  if (index > 0 && allTabBars.isNotEmpty) {
+                    newSelectedIndex = index - 1;
+                  }
+                }
               }
               emit(
                 state.copyWith(
                   tabBars: allTabBars,
-                  selectedIndex: state.tabBars.length,
+                  selectedIndex: newSelectedIndex,
                   tabBarControllerByViewId: tabBarControllerByViewId,
                 ),
               );

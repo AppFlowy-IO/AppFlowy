@@ -18,7 +18,7 @@ import '../../widgets/row/cell_builder.dart';
 import '../../widgets/row/row_detail.dart';
 import 'calendar_day.dart';
 import 'layout/sizes.dart';
-import 'toolbar/calendar_toolbar.dart';
+import 'toolbar/calendar_setting_bar.dart';
 
 class CalendarPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   @override

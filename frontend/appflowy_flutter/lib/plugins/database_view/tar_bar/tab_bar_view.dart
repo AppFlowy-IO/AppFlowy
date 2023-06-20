@@ -102,9 +102,6 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                   },
                 ),
                 BlocBuilder<GridTabBarBloc, GridTabBarState>(
-                  // buildWhen: (p, c) =>
-                  //     p.selectedTabBar.viewId != c.selectedTabBar.viewId ||
-                  //     p.selectedTabBar.layout != c.selectedTabBar.layout,
                   builder: (context, state) {
                     return SizedBox(
                       width: 300,
@@ -118,9 +115,6 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
               ],
             ),
             BlocBuilder<GridTabBarBloc, GridTabBarState>(
-              // buildWhen: (p, c) =>
-              //     p.selectedTabBar.viewId != c.selectedTabBar.viewId ||
-              //     p.selectedTabBar.layout != c.selectedTabBar.layout,
               builder: (context, state) {
                 return pageSettingBarExtensionFromState(state);
               },
@@ -156,6 +150,9 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
   }
 
   Widget pageSettingBarFromState(GridTabBarState state) {
+    if (state.tabBars.length < state.selectedIndex) {
+      return const SizedBox.shrink();
+    }
     final tarBar = state.tabBars[state.selectedIndex];
     final controller =
         state.tabBarControllerByViewId[tarBar.viewId]!.controller;
@@ -166,6 +163,9 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
   }
 
   Widget pageSettingBarExtensionFromState(GridTabBarState state) {
+    if (state.tabBars.length < state.selectedIndex) {
+      return const SizedBox.shrink();
+    }
     final tarBar = state.tabBars[state.selectedIndex];
     final controller =
         state.tabBarControllerByViewId[tarBar.viewId]!.controller;
@@ -367,9 +367,15 @@ class TabBarItemButton extends StatelessWidget {
             ).show(context);
             break;
           case TabBarViewAction.delete:
-            context.read<GridTabBarBloc>().add(
-                  GridTabBarEvent.deleteView(view.id),
-                );
+            NavigatorAlertDialog(
+              title: LocaleKeys.grid_deleteView.tr(),
+              confirm: () {
+                context.read<GridTabBarBloc>().add(
+                      GridTabBarEvent.deleteView(view.id),
+                    );
+              },
+            ).show(context);
+
             break;
         }
         controller.close();

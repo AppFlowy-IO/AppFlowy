@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/filter_info.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/sort_info.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -65,6 +67,22 @@ class GridBloc extends Bloc<GridEvent, GridState> {
               ),
             );
           },
+          didReceveFilters: (List<FilterInfo> filters) {
+            emit(
+              state.copyWith(
+                reorderable: filters.isEmpty && state.sorts.isEmpty,
+                filters: filters,
+              ),
+            );
+          },
+          didReceveSorts: (List<SortInfo> sorts) {
+            emit(
+              state.copyWith(
+                reorderable: sorts.isEmpty && state.filters.isEmpty,
+                sorts: sorts,
+              ),
+            );
+          },
         );
       },
     );
@@ -96,6 +114,16 @@ class GridBloc extends Bloc<GridEvent, GridState> {
       onFieldsChanged: (fields) {
         if (!isClosed) {
           add(GridEvent.didReceiveFieldUpdate(fields));
+        }
+      },
+      onFiltersChanged: (filters) {
+        if (!isClosed) {
+          add(GridEvent.didReceveFilters(filters));
+        }
+      },
+      onSortsChanged: (sorts) {
+        if (!isClosed) {
+          add(GridEvent.didReceveSorts(sorts));
         }
       },
     );
@@ -134,6 +162,11 @@ class GridEvent with _$GridEvent {
   const factory GridEvent.didReceiveGridUpdate(
     DatabasePB grid,
   ) = _DidReceiveGridUpdate;
+
+  const factory GridEvent.didReceveFilters(List<FilterInfo> filters) =
+      _DidReceiveFilters;
+  const factory GridEvent.didReceveSorts(List<SortInfo> sorts) =
+      _DidReceiveSorts;
 }
 
 @freezed
@@ -145,7 +178,10 @@ class GridState with _$GridState {
     required List<RowInfo> rowInfos,
     required int rowCount,
     required GridLoadingState loadingState,
+    required bool reorderable,
     required RowsChangedReason reason,
+    required List<SortInfo> sorts,
+    required List<FilterInfo> filters,
   }) = _GridState;
 
   factory GridState.initial(String viewId) => GridState(
@@ -154,8 +190,11 @@ class GridState with _$GridState {
         rowCount: 0,
         grid: none(),
         viewId: viewId,
+        reorderable: true,
         loadingState: const _Loading(),
         reason: const InitialListState(),
+        filters: [],
+        sorts: [],
       );
 }
 

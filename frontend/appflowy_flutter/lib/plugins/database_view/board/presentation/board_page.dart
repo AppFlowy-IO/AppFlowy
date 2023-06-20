@@ -26,7 +26,7 @@ import '../../widgets/card/card_cell_builder.dart';
 import '../../widgets/row/cell_builder.dart';
 import '../application/board_bloc.dart';
 import '../../widgets/card/card.dart';
-import 'toolbar/board_toolbar.dart';
+import 'toolbar/board_setting_bar.dart';
 
 class BoardPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   @override
