@@ -30,8 +30,8 @@ class AppTheme {
     darkTheme: DefaultColorScheme.dark(),
   );
 
-  static Future<Iterable<AppTheme>> get _plugins async {
-    final plugins = await FlowyPluginService.instance.plugins;
+  static Future<Iterable<AppTheme>> _plugins(FlowyPluginService service) async {
+    final plugins = await service.plugins;
     return plugins.map((plugin) => plugin.theme).whereType<AppTheme>();
   }
 
@@ -46,13 +46,18 @@ class AppTheme {
       )
       .toList();
 
-  static Future<Iterable<AppTheme>> get themes async => [
+  static Future<Iterable<AppTheme>> themes(FlowyPluginService service) async =>
+      [
         ...builtins,
-        ...(await _plugins),
+        ...(await _plugins(service)),
       ];
 
-  static Future<AppTheme> fromName(String themeName) async {
-    for (final theme in await themes) {
+  static Future<AppTheme> fromName(
+    String themeName, {
+    FlowyPluginService? pluginService,
+  }) async {
+    pluginService ??= FlowyPluginService.instance;
+    for (final theme in await themes(pluginService)) {
       if (theme.themeName == themeName) {
         return theme;
       }
