@@ -10,7 +10,8 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         UpdateOperation,
         DeleteOperation,
         PathExtensions,
-        Node;
+        Node,
+        composeAttributes;
 import 'package:collection/collection.dart';
 import 'dart:async';
 
@@ -34,7 +35,8 @@ class TransactionAdapter {
     final actions = transaction.operations
         .map((op) => op.toBlockAction(editorState))
         .whereNotNull()
-        .expand((element) => element);
+        .expand((element) => element)
+        .toList(growable: false); // avoid lazy evaluation
     // Log.debug('actions => $actions');
     await documentService.applyAction(
       documentId: documentId,
@@ -114,7 +116,10 @@ extension on UpdateOperation {
         node.parent?.id ?? editorState.getNodeAtPath(path.parent)?.id ?? '';
     assert(parentId.isNotEmpty);
     final payload = BlockActionPayloadPB()
-      ..block = node.toBlock()
+      ..block = node.toBlock(
+        parentId: parentId,
+        attributes: composeAttributes(oldAttributes, attributes),
+      )
       ..parentId = parentId;
     actions.add(
       BlockActionPB()
@@ -132,7 +137,9 @@ extension on DeleteOperation {
       final parentId =
           node.parent?.id ?? editorState.getNodeAtPath(path.parent)?.id ?? '';
       final payload = BlockActionPayloadPB()
-        ..block = node.toBlock()
+        ..block = node.toBlock(
+          parentId: parentId,
+        )
         ..parentId = parentId;
       assert(parentId.isNotEmpty);
       actions.add(
