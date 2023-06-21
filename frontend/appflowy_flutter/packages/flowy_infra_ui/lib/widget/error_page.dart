@@ -9,12 +9,14 @@ class FlowyErrorPage extends StatelessWidget {
     Error e, {
     required String howToFix,
     Key? key,
+    List<Widget>? actions,
   }) =>
       FlowyErrorPage._(
         e.toString(),
         stackTrace: e.stackTrace?.toString(),
         howToFix: howToFix,
         key: key,
+        actions: actions,
       );
 
   factory FlowyErrorPage.message(
@@ -22,12 +24,14 @@ class FlowyErrorPage extends StatelessWidget {
     required String howToFix,
     String? stackTrace,
     Key? key,
+    List<Widget>? actions,
   }) =>
       FlowyErrorPage._(
         message,
         key: key,
         stackTrace: stackTrace,
         howToFix: howToFix,
+        actions: actions,
       );
 
   factory FlowyErrorPage.exception(
@@ -35,12 +39,14 @@ class FlowyErrorPage extends StatelessWidget {
     required String howToFix,
     String? stackTrace,
     Key? key,
+    List<Widget>? actions,
   }) =>
       FlowyErrorPage._(
         e.toString(),
         stackTrace: stackTrace,
         key: key,
         howToFix: howToFix,
+        actions: actions,
       );
 
   const FlowyErrorPage._(
@@ -48,14 +54,16 @@ class FlowyErrorPage extends StatelessWidget {
     required this.howToFix,
     this.stackTrace,
     super.key,
+    this.actions,
   });
 
   static const _titleFontSize = 24.0;
   static const _titleToMessagePadding = 8.0;
 
+  final List<Widget>? actions;
+  final String howToFix;
   final String message;
   final String? stackTrace;
-  final String howToFix;
 
   @override
   Widget build(BuildContext context) {
@@ -87,6 +95,11 @@ class FlowyErrorPage extends StatelessWidget {
             height: _titleToMessagePadding,
           ),
           if (stackTrace != null) StackTracePreview(stackTrace!),
+          if (actions != null)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: actions!,
+            ),
         ],
       ),
     );
