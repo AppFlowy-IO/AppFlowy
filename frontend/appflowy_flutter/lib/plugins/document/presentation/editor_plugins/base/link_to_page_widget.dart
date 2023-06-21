@@ -1,11 +1,14 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/insert_page_command.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -37,9 +40,19 @@ void showLinkToPageMenu(
         editorState: editorState,
         layoutType: pageType,
         hintText: pageType.toHintText(),
-        onSelected: (appPB, viewPB) {
-          editorState.insertReferencePage(viewPB);
-          linkToPageMenuEntry.remove();
+        onSelected: (appPB, viewPB) async {
+          try {
+            await editorState.insertReferencePage(viewPB);
+            linkToPageMenuEntry.remove();
+          } on FlowyError catch (e) {
+            Dialogs.show(
+              FlowyErrorPage.message(
+                e.msg,
+                howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+              ),
+              context,
+            );
+          }
         },
       ),
     ),

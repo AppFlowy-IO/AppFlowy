@@ -95,7 +95,7 @@ class BoardPage extends StatelessWidget {
                 (_) => BoardContent(
                   onEditStateChanged: onEditStateChanged,
                 ),
-                (err) => FlowyErrorPage(err.toString()),
+                (err) => FlowyErrorPage.message(err.toString(), howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),),
               );
             },
           );
