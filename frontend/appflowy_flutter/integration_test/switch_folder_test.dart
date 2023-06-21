@@ -1,4 +1,5 @@
 import 'package:appflowy/workspace/application/settings/prelude.dart';
+import 'package:flowy_infra/uuid.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -25,8 +26,8 @@ void main() {
     });
 
     testWidgets('switch to B from A, then switch to A again', (tester) async {
-      const String userA = 'userA';
-      const String userB = 'userB';
+      final String userA = uuid().toString();
+      final String userB = uuid().toString();
 
       await TestFolder.cleanTestLocation(userA);
       await TestFolder.cleanTestLocation(userB);
