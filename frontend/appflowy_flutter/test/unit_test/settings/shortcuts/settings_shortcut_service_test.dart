@@ -15,8 +15,9 @@ void main() {
   setUp(() async {
     final MemoryFileSystem fileSystem = MemoryFileSystem.test();
     mockFile = await fileSystem.file("shortcuts.json").create(recursive: true);
-    service = SettingsShortcutService(passedFile: mockFile);
-    shortcutsJson = """{
+    service = SettingsShortcutService(file: mockFile);
+    shortcutsJson =
+        """{
    "commandShortcuts":[
       {
          "key":"move the cursor upward",
@@ -88,7 +89,7 @@ void main() {
           //Check if the lists where properly converted to json and saved.
           final shortcuts = Shortcuts(
             commandShortcuts:
-                currentCommandShortcuts._toCommandShortcutModalList(),
+                currentCommandShortcuts.toCommandShortcutModelList(),
           );
 
           expect(jsonEncode(shortcuts.toJson()), savedDataInFile);
@@ -135,6 +136,6 @@ void main() {
 }
 
 extension on List<CommandShortcutEvent> {
-  List<CommandShortcutModal> _toCommandShortcutModalList() =>
-      map((e) => CommandShortcutModal.fromCommandEvent(e)).toList();
+  List<CommandShortcutModel> toCommandShortcutModelList() =>
+      map((e) => CommandShortcutModel.fromCommandEvent(e)).toList();
 }

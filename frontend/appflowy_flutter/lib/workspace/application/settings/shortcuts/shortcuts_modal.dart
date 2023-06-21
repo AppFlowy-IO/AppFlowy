@@ -5,12 +5,12 @@ class Shortcuts {
     required this.commandShortcuts,
   });
 
-  List<CommandShortcutModal> commandShortcuts;
+  final List<CommandShortcutModel> commandShortcuts;
 
   factory Shortcuts.fromJson(Map<String, dynamic> json) => Shortcuts(
-        commandShortcuts: List<CommandShortcutModal>.from(
+        commandShortcuts: List<CommandShortcutModel>.from(
           json["commandShortcuts"].map(
-            (x) => CommandShortcutModal.fromJson(x),
+            (x) => CommandShortcutModel.fromJson(x),
           ),
         ),
       );
@@ -21,25 +21,25 @@ class Shortcuts {
       };
 }
 
-class CommandShortcutModal {
+class CommandShortcutModel {
   final String key;
   final String command;
 
-  const CommandShortcutModal({
+  const CommandShortcutModel({
     required this.key,
     required this.command,
   });
 
-  factory CommandShortcutModal.fromJson(Map<String, dynamic> json) =>
-      CommandShortcutModal(
+  factory CommandShortcutModel.fromJson(Map<String, dynamic> json) =>
+      CommandShortcutModel(
         key: json["key"],
         command: (json["command"] ?? ''),
       );
 
-  factory CommandShortcutModal.fromCommandEvent(
+  factory CommandShortcutModel.fromCommandEvent(
     CommandShortcutEvent commandShortcutEvent,
   ) =>
-      CommandShortcutModal(
+      CommandShortcutModel(
         key: commandShortcutEvent.key,
         command: commandShortcutEvent.command,
       );
