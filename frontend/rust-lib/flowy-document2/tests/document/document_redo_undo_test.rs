@@ -1,10 +1,13 @@
-use crate::document::util::{default_collab_builder, gen_document_id, gen_id, FakeUser};
+use std::collections::HashMap;
+use std::sync::Arc;
+
 use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
+
 use flowy_document2::document_block_keys::PARAGRAPH_BLOCK_TYPE;
 use flowy_document2::document_data::default_document_data;
 use flowy_document2::manager::DocumentManager;
-use std::collections::HashMap;
-use std::sync::Arc;
+
+use crate::document::util::{default_collab_builder, gen_document_id, gen_id, FakeUser};
 
 #[tokio::test]
 async fn undo_redo_test() {
@@ -38,22 +41,22 @@ async fn undo_redo_test() {
     action: BlockActionType::Insert,
     payload: BlockActionPayload {
       block: text_block,
-      parent_id: Some(page_id.clone()),
+      parent_id: Some(page_id),
       prev_id: None,
     },
   };
   document.apply_action(vec![insert_text_action]);
 
   let can_undo = document.can_undo();
-  assert_eq!(can_undo, true);
+  assert!(can_undo);
   // undo the insert
   let undo = document.undo();
-  assert_eq!(undo, true);
+  assert!(undo);
   assert_eq!(document.get_block(&text_block_id), None);
 
   let can_redo = document.can_redo();
   assert!(can_redo);
   // redo the insert
   let redo = document.redo();
-  assert_eq!(redo, true);
+  assert!(redo);
 }

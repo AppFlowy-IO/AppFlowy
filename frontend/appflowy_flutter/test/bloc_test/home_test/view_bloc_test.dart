@@ -1,6 +1,6 @@
-import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/workspace/application/app/app_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../util.dart';
@@ -16,10 +16,7 @@ void main() {
 
     final appBloc = AppBloc(view: app)..add(const AppEvent.initial());
     appBloc.add(
-      AppEvent.createView(
-        "Test document",
-        DocumentPluginBuilder(),
-      ),
+      const AppEvent.createView("Test document", ViewLayoutPB.Document),
     );
 
     await blocResponseFuture();
@@ -38,10 +35,7 @@ void main() {
     await blocResponseFuture();
 
     appBloc.add(
-      AppEvent.createView(
-        "Test document",
-        DocumentPluginBuilder(),
-      ),
+      const AppEvent.createView("Test document", ViewLayoutPB.Document),
     );
     await blocResponseFuture();
 
@@ -61,10 +55,7 @@ void main() {
     await blocResponseFuture();
 
     appBloc.add(
-      AppEvent.createView(
-        "Test document",
-        DocumentPluginBuilder(),
-      ),
+      const AppEvent.createView("Test document", ViewLayoutPB.Document),
     );
     await blocResponseFuture();
     expect(appBloc.state.views.length, 1);

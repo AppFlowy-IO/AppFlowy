@@ -11,7 +11,7 @@ import 'package:reorderables/reorderables.dart';
 import 'item.dart';
 
 class ViewSection extends StatelessWidget {
-  final AppViewDataContext appViewData;
+  final ViewDataContext appViewData;
   const ViewSection({Key? key, required this.appViewData}) : super(key: key);
 
   @override
@@ -47,10 +47,11 @@ class ViewSection extends StatelessWidget {
     ViewSectionState state,
   ) {
     final children = state.views.map((view) {
+      final isSelected = _isViewSelected(state, view.id);
       return ViewSectionItem(
-        key: ValueKey(view.id),
         view: view,
-        isSelected: _isViewSelected(state, view.id),
+        key: ValueKey('$view.hashCode/$isSelected'),
+        isSelected: isSelected,
         onSelected: (view) => getIt<MenuSharedState>().latestOpenView = view,
       );
     }).toList();

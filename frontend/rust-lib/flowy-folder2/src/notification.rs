@@ -1,8 +1,10 @@
-use crate::entities::{view_pb_without_child_views, WorkspacePB, WorkspaceSettingPB};
 use collab_folder::core::{View, Workspace};
+
 use flowy_derive::ProtoBuf_Enum;
 use flowy_notification::NotificationBuilder;
 use lib_dispatch::prelude::ToBytes;
+
+use crate::entities::{view_pb_without_child_views, WorkspacePB, WorkspaceSettingPB};
 
 const OBSERVABLE_CATEGORY: &str = "Workspace";
 
@@ -18,9 +20,7 @@ pub(crate) enum FolderNotification {
   DidUpdateWorkspaceViews = 3,
   /// Trigger when the settings of the workspace are changed. The changes including the latest visiting view, etc
   DidUpdateWorkspaceSetting = 4,
-
   DidUpdateView = 29,
-  /// Trigger when the properties including rename,update description of the view are changed
   DidUpdateChildViews = 30,
   /// Trigger after deleting the view
   DidDeleteView = 31,

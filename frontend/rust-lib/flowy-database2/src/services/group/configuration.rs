@@ -1,18 +1,21 @@
+use std::collections::HashMap;
+use std::fmt::Formatter;
+use std::marker::PhantomData;
+use std::sync::Arc;
+
+use collab_database::fields::Field;
+use indexmap::IndexMap;
+use serde::de::DeserializeOwned;
+use serde::Serialize;
+
+use flowy_error::{FlowyError, FlowyResult};
+use lib_infra::future::Fut;
+
 use crate::entities::{GroupChangesPB, GroupPB, InsertedGroupPB};
 use crate::services::field::RowSingleCellData;
 use crate::services::group::{
   default_group_setting, GeneratedGroups, Group, GroupChangeset, GroupData, GroupSetting,
 };
-use collab_database::fields::Field;
-use flowy_error::{FlowyError, FlowyResult};
-use indexmap::IndexMap;
-use lib_infra::future::Fut;
-use serde::de::DeserializeOwned;
-use serde::Serialize;
-use std::collections::HashMap;
-use std::fmt::Formatter;
-use std::marker::PhantomData;
-use std::sync::Arc;
 
 pub trait GroupSettingReader: Send + Sync + 'static {
   fn get_group_setting(&self, view_id: &str) -> Fut<Option<Arc<GroupSetting>>>;
@@ -361,10 +364,10 @@ where
     })?;
 
     if let Some(group) = update_group {
-      self.group_by_id.get_mut(&group.id).map(|group_data| {
+      if let Some(group_data) = self.group_by_id.get_mut(&group.id) {
         group_data.name = group.name.clone();
         group_data.is_visible = group.visible;
-      });
+      };
     }
     Ok(())
   }

@@ -1,9 +1,11 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_document_bloc.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,8 +37,9 @@ class RowDocument extends StatelessWidget {
             loading: () => const Center(
               child: CircularProgressIndicator.adaptive(),
             ),
-            error: (error) => FlowyErrorPage(
+            error: (error) => FlowyErrorPage.message(
               error.toString(),
+              howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
             ),
             finish: () => RowEditor(
               viewPB: state.viewPB!,
@@ -94,8 +97,9 @@ class _RowEditorState extends State<RowEditor> {
             ),
             finish: (result) {
               return result.fold(
-                (error) => FlowyErrorPage(
+                (error) => FlowyErrorPage.message(
                   error.toString(),
+                  howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
                 ),
                 (_) {
                   final editorState = documentBloc.editorState;

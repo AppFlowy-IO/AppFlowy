@@ -44,7 +44,7 @@ class TestFolder {
 
   /// Get default location under development environment.
   static Future<String> defaultDevelopmentLocation() async {
-    final dir = await appFlowyDocumentDirectory();
+    final dir = await appFlowyApplicationDataDirectory();
     return dir.path;
   }
 
@@ -87,6 +87,7 @@ extension AppFlowyTestBase on WidgetTester {
   }) async {
     await tap(
       finder,
+      buttons: buttons,
       warnIfMissed: warnIfMissed,
     );
     await pumpAndSettle(Duration(milliseconds: milliseconds));

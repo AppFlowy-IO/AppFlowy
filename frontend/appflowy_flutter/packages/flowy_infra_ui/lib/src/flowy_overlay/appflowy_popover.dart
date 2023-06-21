@@ -50,7 +50,6 @@ class AppFlowyPopover extends StatelessWidget {
       offset: offset,
       popupBuilder: (context) {
         final child = popupBuilder(context);
-        debugPrint("Show popover: $child");
         return _PopoverContainer(
           constraints: constraints,
           margin: margin,

@@ -82,6 +82,7 @@ extension Expectation on WidgetTester {
   Finder findPageName(String name) {
     return find.byWidgetPredicate(
       (widget) => widget is ViewSectionItem && widget.view.name == name,
+      skipOffstage: false,
     );
   }
 }
