@@ -7,6 +7,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:path/path.dart' as p;
 
 import '../../../startup/tasks/prelude.dart';
 
@@ -60,15 +61,18 @@ class ApplicationDataStorage {
     if (Platform.isMacOS) {
       // remove the prefix `/Volumes/*`
       path = path.replaceFirst(RegExp(r'^/Volumes/[^/]+'), '');
-      path = "$path/$dataFolder";
     } else if (Platform.isWindows) {
       path = path.replaceAll('/', '\\');
-      path = "$path\\$dataFolder";
-    } else {
-      path = "$path/$dataFolder";
     }
 
-    // create the directory if not exists
+    // If the path is not ends with `AppFlowyData`, we will append the
+    // `AppFlowyData` to the path. If the path is ends with `AppFlowyData`,
+    // which means the path is the custom path.
+    if (p.basename(path) != dataFolder) {
+      path = p.join(path, dataFolder);
+    }
+
+    // create the directory if not exists.
     final directory = Directory(path);
     if (!directory.existsSync()) {
       await directory.create(recursive: true);
