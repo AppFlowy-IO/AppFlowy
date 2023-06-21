@@ -129,6 +129,9 @@ class ShortcutsListTile extends StatelessWidget {
               if (key is! RawKeyDownEvent) return;
               if (key.logicalKey == LogicalKeyboardKey.enter &&
                   !key.isShiftPressed) {
+                if (controller.text == shortcutEvent.command) {
+                  _dismiss(builderContext);
+                }
                 if (formKey.currentState!.validate()) {
                   _updateKey(widgetContext, controller.text);
                   _dismiss(builderContext);

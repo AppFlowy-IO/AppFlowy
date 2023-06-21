@@ -100,11 +100,14 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   @override
   void initState() {
     super.initState();
+    initializeShortcuts();
+    effectiveScrollController = widget.scrollController ?? ScrollController();
+  }
+
+  Future<void> initializeShortcuts() async {
     final SettingsShortcutService settingsShortcutService =
         SettingsShortcutService();
-    //load all saved shortcuts and update their commands when initializing the editor.
-    settingsShortcutService.loadShortcuts();
-    effectiveScrollController = widget.scrollController ?? ScrollController();
+    await settingsShortcutService.loadShortcuts();
   }
 
   @override
