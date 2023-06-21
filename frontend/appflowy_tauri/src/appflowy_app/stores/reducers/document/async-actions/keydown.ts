@@ -17,6 +17,8 @@ import { rangeActions } from '$app_reducers/document/slice';
 import { RootState } from '$app/stores/store';
 import { blockConfig } from '$app/constants/document/config';
 import { Keyboard } from '$app/constants/document/keyboard';
+import { DOCUMENT_NAME, RANGE_NAME } from '$app/constants/document/name';
+import { getPreviousWordIndex } from '$app/utils/document/delta';
 
 /**
  * Delete a block by backspace or delete key
@@ -33,20 +35,25 @@ export const backspaceDeleteActionForBlockThunk = createAsyncThunk(
     const { dispatch, getState } = thunkAPI;
     const state = (getState() as RootState).document[docId];
     const node = state.nodes[id];
+
     if (!node.parent) return;
     const parent = state.nodes[node.parent];
     const children = state.children[parent.children];
     const index = children.indexOf(id);
     const nextNodeId = children[index + 1];
+
     // turn to text block
     if (node.type !== BlockType.TextBlock) {
       await dispatch(turnToTextBlockThunk({ id, controller }));
       return;
     }
+
     const isTopLevel = parent.type === BlockType.PageBlock;
+
     if (isTopLevel || nextNodeId) {
       // merge to previous line
       const prevLine = findPrevHasDeltaNode(state, id);
+
       if (!prevLine) return;
       const caretIndex = new Delta(prevLine.data.delta).length();
       const caret = {
@@ -54,6 +61,7 @@ export const backspaceDeleteActionForBlockThunk = createAsyncThunk(
         index: caretIndex,
         length: 0,
       };
+
       await dispatch(
         mergeDeltaThunk({
           sourceId: id,
@@ -70,6 +78,7 @@ export const backspaceDeleteActionForBlockThunk = createAsyncThunk(
       );
       return;
     }
+
     // outdent
     await dispatch(outdentNodeThunk({ id, controller }));
   }
@@ -88,21 +97,25 @@ export const enterActionForBlockThunk = createAsyncThunk(
     const { getState, dispatch } = thunkAPI;
     const state = getState() as RootState;
     const docId = controller.documentId;
-    const documentState = state.document[docId];
+    const documentState = state[DOCUMENT_NAME][docId];
     const node = documentState.nodes[id];
-    const caret = state.documentRange[docId]?.caret;
+    const caret = state[RANGE_NAME][docId]?.caret;
+
     if (!node || !caret || caret.id !== id) return;
     const delta = new Delta(node.data.delta);
+
     if (delta.length() === 0 && node.type !== BlockType.TextBlock) {
       // If the node is not a text block, turn it to a text block
       await dispatch(turnToTextBlockThunk({ id, controller }));
       return;
     }
+
     const nodeDelta = delta.slice(0, caret.index);
 
     const insertNodeDelta = new Delta(node.data.delta).slice(caret.index + caret.length);
 
     const insertNodeAction = getInsertEnterNodeAction(node, insertNodeDelta, controller);
+
     if (!insertNodeAction) return;
     const updateNode = {
       ...node,
@@ -122,6 +135,7 @@ export const enterActionForBlockThunk = createAsyncThunk(
         )
       : [];
     const actions = [insertNodeAction.action, controller.getUpdateAction(updateNode), ...moveChildrenAction];
+
     await controller.applyActions(actions);
 
     dispatch(rangeActions.initialState(docId));
@@ -142,6 +156,7 @@ export const tabActionForBlockThunk = createAsyncThunk(
   'document/tabActionForBlock',
   async (payload: { id: string; controller: DocumentController }, thunkAPI) => {
     const { dispatch } = thunkAPI;
+
     return dispatch(indentNodeThunk(payload));
   }
 );
@@ -152,10 +167,11 @@ export const upDownActionForBlockThunk = createAsyncThunk(
     const { docId, id, down } = payload;
     const { dispatch, getState } = thunkAPI;
     const state = getState() as RootState;
-    const documentState = state.document[docId];
-    const rangeState = state.documentRange[docId];
+    const documentState = state[DOCUMENT_NAME][docId];
+    const rangeState = state[RANGE_NAME][docId];
     const caret = rangeState.caret;
     const node = documentState.nodes[id];
+
     if (!node || !caret || id !== caret.id) return;
 
     let newCaret;
@@ -165,9 +181,11 @@ export const upDownActionForBlockThunk = createAsyncThunk(
     } else {
       newCaret = transformToPrevLineCaret(documentState, caret);
     }
+
     if (!newCaret) {
       return;
     }
+
     dispatch(rangeActions.initialState(docId));
     dispatch(
       rangeActions.setCaret({
@@ -184,12 +202,14 @@ export const leftActionForBlockThunk = createAsyncThunk(
     const { id, docId } = payload;
     const { dispatch, getState } = thunkAPI;
     const state = getState() as RootState;
-    const documentState = state.document[docId];
-    const rangeState = state.documentRange[docId];
+    const documentState = state[DOCUMENT_NAME][docId];
+    const rangeState = state[RANGE_NAME][docId];
     const caret = rangeState.caret;
     const node = documentState.nodes[id];
+
     if (!node || !caret || id !== caret.id) return;
     let newCaret: RangeStatic;
+
     if (caret.length > 0) {
       newCaret = {
         id,
@@ -198,15 +218,20 @@ export const leftActionForBlockThunk = createAsyncThunk(
       };
     } else {
       if (caret.index > 0) {
+        const delta = new Delta(node.data.delta);
+        const newIndex = getPreviousWordIndex(delta, caret.index);
+
         newCaret = {
           id,
-          index: caret.index - 1,
+          index: newIndex,
           length: 0,
         };
       } else {
         const prevNode = findPrevHasDeltaNode(documentState, id);
+
         if (!prevNode) return;
         const prevDelta = new Delta(prevNode.data.delta);
+
         newCaret = {
           id: prevNode.id,
           index: prevDelta.length(),
@@ -218,6 +243,7 @@ export const leftActionForBlockThunk = createAsyncThunk(
     if (!newCaret) {
       return;
     }
+
     dispatch(rangeActions.initialState(docId));
     dispatch(
       rangeActions.setCaret({
@@ -234,14 +260,16 @@ export const rightActionForBlockThunk = createAsyncThunk(
     const { id, docId } = payload;
     const { dispatch, getState } = thunkAPI;
     const state = getState() as RootState;
-    const documentState = state.document[docId];
-    const rangeState = state.documentRange[docId];
+    const documentState = state[DOCUMENT_NAME][docId];
+    const rangeState = state[RANGE_NAME][docId];
     const caret = rangeState.caret;
     const node = documentState.nodes[id];
+
     if (!node || !caret || id !== caret.id) return;
     let newCaret: RangeStatic;
     const delta = new Delta(node.data.delta);
     const deltaLength = delta.length();
+
     if (caret.length > 0) {
       newCaret = {
         id,
@@ -251,6 +279,7 @@ export const rightActionForBlockThunk = createAsyncThunk(
     } else {
       if (caret.index < deltaLength) {
         const newIndex = caret.index + caret.length + 1;
+
         newCaret = {
           id,
           index: newIndex > deltaLength ? deltaLength : newIndex,
@@ -258,6 +287,7 @@ export const rightActionForBlockThunk = createAsyncThunk(
         };
       } else {
         const nextNode = findNextHasDeltaNode(documentState, id);
+
         if (!nextNode) return;
         newCaret = {
           id: nextNode.id,
@@ -270,6 +300,7 @@ export const rightActionForBlockThunk = createAsyncThunk(
     if (!newCaret) {
       return;
     }
+
     dispatch(rangeActions.initialState(docId));
 
     dispatch(
@@ -285,6 +316,7 @@ export const shiftTabActionForBlockThunk = createAsyncThunk(
   'document/shiftTabActionForBlock',
   async (payload: { id: string; controller: DocumentController }, thunkAPI) => {
     const { dispatch } = thunkAPI;
+
     return dispatch(outdentNodeThunk(payload));
   }
 );
@@ -301,8 +333,8 @@ export const arrowActionForRangeThunk = createAsyncThunk(
     const { dispatch, getState } = thunkAPI;
     const { key, docId } = payload;
     const state = getState() as RootState;
-    const documentState = state.document[docId];
-    const rangeState = state.documentRange[docId];
+    const documentState = state[DOCUMENT_NAME][docId];
+    const rangeState = state[RANGE_NAME][docId];
     let caret;
     const leftCaret = getLeftCaretByRange(rangeState);
     const rightCaret = getRightCaretByRange(rangeState);
@@ -323,6 +355,7 @@ export const arrowActionForRangeThunk = createAsyncThunk(
         caret = transformToNextLineCaret(documentState, rightCaret);
         break;
     }
+
     if (!caret) return;
     dispatch(rangeActions.initialState(docId));
     dispatch(

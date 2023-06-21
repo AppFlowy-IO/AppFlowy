@@ -4,6 +4,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { blockConfig } from '$app/constants/document/config';
 import { getPrevNodeId } from '$app/utils/document/block';
 import { RootState } from '$app/stores/store';
+import { DOCUMENT_NAME } from '$app/constants/document/name';
 
 /**
  * indent node
@@ -19,16 +20,19 @@ export const indentNodeThunk = createAsyncThunk(
     const { getState } = thunkAPI;
     const state = getState() as RootState;
     const docId = controller.documentId;
-    const docState = state.document[docId];
+    const docState = state[DOCUMENT_NAME][docId];
     const node = docState.nodes[id];
+
     if (!node.parent) return;
 
     // get prev node
     const prevNodeId = getPrevNodeId(docState, id);
+
     if (!prevNodeId) return;
     const newParentNode = docState.nodes[prevNodeId];
     // check if prev node is allowed to have children
     const config = blockConfig[newParentNode.type];
+
     if (!config.canAddChild) return;
 
     // check if prev node has children and get last child for new prev node

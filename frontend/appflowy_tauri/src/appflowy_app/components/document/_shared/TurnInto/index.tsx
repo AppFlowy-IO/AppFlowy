@@ -122,7 +122,7 @@ const TurnIntoPopover = ({
       },
       // {
       //   type: BlockType.EquationBlock,
-      //   title: 'Block Equation',
+      //   title: 'Block KatexMath',
       //   icon: <Functions />,
       // },
     ],

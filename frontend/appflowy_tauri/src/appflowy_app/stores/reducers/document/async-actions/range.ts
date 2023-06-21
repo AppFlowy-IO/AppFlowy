@@ -13,6 +13,7 @@ import {
 } from '$app/utils/document/action';
 import { RangeState, SplitRelationship } from '$app/interfaces/document';
 import { blockConfig } from '$app/constants/document/config';
+import { DOCUMENT_NAME, RANGE_NAME } from '$app/constants/document/name';
 
 interface storeRangeThunkPayload {
   docId: string;
@@ -32,17 +33,20 @@ export const storeRangeThunk = createAsyncThunk('document/storeRange', (payload:
   const { docId, id, range } = payload;
   const { dispatch, getState } = thunkAPI;
   const state = getState() as RootState;
-  const rangeState = state.documentRange[docId];
-  const documentState = state.document[docId];
+  const rangeState = state[RANGE_NAME][docId];
+  const documentState = state[DOCUMENT_NAME][docId];
   // we need amend range between anchor and focus
   const { anchor, focus, isDragging } = rangeState;
+
   if (!isDragging || !anchor || !focus) return;
 
   const ranges: RangeState['ranges'] = {};
+
   ranges[id] = range;
   // pin anchor index
   let anchorIndex = anchor.point.index;
   let anchorLength = anchor.point.length;
+
   if (anchorIndex === undefined || anchorLength === undefined) {
     dispatch(
       rangeActions.setAnchorPointRange({
@@ -68,14 +72,17 @@ export const storeRangeThunk = createAsyncThunk('document/storeRange', (payload:
   // amend anchor range because slatejs will stop update selection when dragging quickly
   const isForward = anchor.point.y < focus.point.y;
   const anchorDelta = new Delta(documentState.nodes[anchor.id].data.delta);
+
   if (isForward) {
     const selectedDelta = anchorDelta.slice(anchorIndex);
+
     ranges[anchor.id] = {
       index: anchorIndex,
       length: selectedDelta.length(),
     };
   } else {
     const selectedDelta = anchorDelta.slice(0, anchorIndex + anchorLength);
+
     ranges[anchor.id] = {
       index: 0,
       length: selectedDelta.length(),
@@ -87,6 +94,7 @@ export const storeRangeThunk = createAsyncThunk('document/storeRange', (payload:
   const endId = isForward ? focus.id : anchor.id;
 
   const middleIds = getMiddleIds(documentState, startId, endId);
+
   middleIds.forEach((id) => {
     const node = documentState.nodes[id];
 
@@ -121,19 +129,22 @@ export const deleteRangeAndInsertThunk = createAsyncThunk(
     const docId = controller.documentId;
     const { getState, dispatch } = thunkAPI;
     const state = getState() as RootState;
-    const rangeState = state.documentRange[docId];
-    const documentState = state.document[docId];
+    const rangeState = state[RANGE_NAME][docId];
+    const documentState = state[DOCUMENT_NAME][docId];
 
     const actions = [];
     // get merge actions
     const mergeActions = getMergeEndDeltaToStartActionsByRange(state, controller, insertDelta);
+
     if (mergeActions) {
       actions.push(...mergeActions);
     }
+
     // get middle nodes
     const middleIds = getMiddleIdsByRange(rangeState, documentState);
     // delete middle nodes
     const deleteMiddleNodesActions = middleIds?.map((id) => controller.getDeleteAction(documentState.nodes[id])) || [];
+
     actions.push(...deleteMiddleNodesActions);
 
     const caret = getAfterMergeCaretByRange(rangeState, insertDelta);
@@ -170,11 +181,12 @@ export const deleteRangeAndInsertEnterThunk = createAsyncThunk(
     const { getState, dispatch } = thunkAPI;
     const docId = controller.documentId;
     const state = getState() as RootState;
-    const rangeState = state.documentRange[docId];
-    const documentState = state.document[docId];
+    const rangeState = state[RANGE_NAME][docId];
+    const documentState = state[DOCUMENT_NAME][docId];
     const actions = [];
 
     const { startDelta, endDelta, endNode, startNode } = getStartAndEndExtentDelta(documentState, rangeState) || {};
+
     if (!startDelta || !endDelta || !endNode || !startNode) return;
 
     // get middle nodes
@@ -182,12 +194,14 @@ export const deleteRangeAndInsertEnterThunk = createAsyncThunk(
 
     let newStartDelta = new Delta(startDelta);
     let caret = null;
+
     if (shiftKey) {
       newStartDelta = newStartDelta.insert('\n').concat(endDelta);
       caret = getAfterMergeCaretByRange(rangeState, new Delta().insert('\n'));
     } else {
       const insertNodeDelta = new Delta(endDelta);
       const insertNodeAction = getInsertEnterNodeAction(startNode, insertNodeDelta, controller);
+
       if (!insertNodeAction) return;
       actions.push(insertNodeAction.action);
       caret = {
@@ -198,6 +212,7 @@ export const deleteRangeAndInsertEnterThunk = createAsyncThunk(
       // move start node children to insert node
       const needMoveChildren =
         blockConfig[startNode.type].splitProps?.nextLineRelationShip === SplitRelationship.NextSibling;
+
       if (needMoveChildren) {
         // filter children by delete middle ids
         const children = documentState.children[startNode.children].filter((id) => middleIds?.includes(id));
@@ -208,6 +223,7 @@ export const deleteRangeAndInsertEnterThunk = createAsyncThunk(
               ''
             )
           : [];
+
         actions.push(...moveChildrenAction);
       }
     }
@@ -220,14 +236,17 @@ export const deleteRangeAndInsertEnterThunk = createAsyncThunk(
         delta: newStartDelta.ops,
       },
     });
+
     if (endNode.id !== startNode.id) {
       // delete end node
       const deleteAction = controller.getDeleteAction(endNode);
+
       actions.push(updateAction, deleteAction);
     }
 
     // delete middle nodes
     const deleteMiddleNodesActions = middleIds?.map((id) => controller.getDeleteAction(documentState.nodes[id])) || [];
+
     actions.push(...deleteMiddleNodesActions);
 
     // apply actions

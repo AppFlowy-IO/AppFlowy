@@ -5,6 +5,7 @@ import Delta from 'quill-delta';
 import { blockConfig } from '$app/constants/document/config';
 import { getMoveChildrenActions } from '$app/utils/document/action';
 import { RootState } from '$app/stores/store';
+import { DOCUMENT_NAME } from '$app/constants/document/name';
 
 /**
  * Merge two blocks
@@ -19,9 +20,10 @@ export const mergeDeltaThunk = createAsyncThunk(
     const { getState } = thunkAPI;
     const state = getState() as RootState;
     const docId = controller.documentId;
-    const docState = state.document[docId];
+    const docState = state[DOCUMENT_NAME][docId];
     const target = docState.nodes[targetId];
     const source = docState.nodes[sourceId];
+
     if (!target || !source) return;
     const targetDelta = new Delta(target.data.delta);
     const sourceDelta = new Delta(source.data.delta);
@@ -43,9 +45,11 @@ export const mergeDeltaThunk = createAsyncThunk(
       children,
       target,
     });
+
     actions.push(...moveActions);
     // delete current block
     const deleteAction = controller.getDeleteAction(source);
+
     actions.push(deleteAction);
 
     await controller.applyActions(actions);
