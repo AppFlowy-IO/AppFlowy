@@ -4,12 +4,14 @@ import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/prelude.dart';
+import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TestFolder {
@@ -22,7 +24,9 @@ class TestFolder {
   /// The file_picker is a system component and can't be tapped, so using logic instead of tapping.
   ///
   static Future<void> setTestLocation(String? name) async {
-    final location = await testLocation(name);
+    final location = await testLocation(
+      name != null ? p.join(name, appFlowyDataFolder) : appFlowyDataFolder,
+    );
     SharedPreferences.setMockInitialValues({
       KVKeys.pathLocation: location.path,
     });
@@ -50,10 +54,10 @@ class TestFolder {
 
   /// Get default location under test environment.
   static Future<Directory> testLocation(String? name) async {
-    final dir = await getApplicationDocumentsDirectory();
-    var path = '${dir.path}/flowy_test';
+    final dir = await getTemporaryDirectory();
+    var path = p.join(dir.path, 'flowy_test');
     if (name != null) {
-      path += '/$name';
+      path = p.join(path, name);
     }
     return Directory(path).create(recursive: true);
   }
