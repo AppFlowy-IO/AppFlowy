@@ -1,4 +1,7 @@
 # Release Notes
+## Version 0.2.3 - 06/21/2023
+### New Features
+- Added support for creating multiple database views for existing database 
 
 ## Version 0.2.2 - 06/15/2023
 ### New Features
