@@ -174,7 +174,7 @@ class _ChangeStoragePathButtonState extends State<_ChangeStoragePathButton> {
           if (path == null || !mounted || widget.usingPath == path) {
             return;
           }
-          await context.read<SettingsLocationCubit>().setPath(path);
+          await context.read<SettingsLocationCubit>().setCustomPath(path);
           await FlowyRunner.run(
             FlowyApp(),
             integrationEnv(),
@@ -242,12 +242,14 @@ class _RecoverDefaultStorageButtonState
       ),
       onPressed: () async {
         // reset to the default directory and reload app
-        final directory = await appFlowyDocumentDirectory();
+        final directory = await appFlowyApplicationDataDirectory();
         final path = directory.path;
         if (!mounted || widget.usingPath == path) {
           return;
         }
-        await context.read<SettingsLocationCubit>().setPath(path);
+        await context
+            .read<SettingsLocationCubit>()
+            .resetDataStoragePathToApplicationDefault();
         await FlowyRunner.run(
           FlowyApp(),
           integrationEnv(),

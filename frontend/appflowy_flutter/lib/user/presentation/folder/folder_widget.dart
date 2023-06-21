@@ -64,7 +64,7 @@ class _FolderWidgetState extends State<FolderWidget> {
   Future<void> _openFolder() async {
     final path = await getIt<FilePickerService>().getDirectoryPath();
     if (path != null) {
-      await getIt<LocalFileStorage>().setPath(path);
+      await getIt<ApplicationDataStorage>().setCustomPath(path);
       await widget.createFolderCallback();
       setState(() {});
     }
@@ -82,7 +82,7 @@ class FolderOptionsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: getIt<LocalFileStorage>().getPath(),
+      future: getIt<ApplicationDataStorage>().getPath(),
       builder: (context, result) {
         final subtitle = result.hasData ? result.data! : '';
         return _FolderCard(
@@ -182,7 +182,7 @@ class CreateFolderWidgetState extends State<CreateFolderWidget> {
                       LocaleKeys.settings_files_locationCannotBeEmpty.tr(),
                     );
                   } else {
-                    await getIt<LocalFileStorage>().setPath(_path);
+                    await getIt<ApplicationDataStorage>().setCustomPath(_path);
                     await widget.onPressedCreate();
                   }
                 },

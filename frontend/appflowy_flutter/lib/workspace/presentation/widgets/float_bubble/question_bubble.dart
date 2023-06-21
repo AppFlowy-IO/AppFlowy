@@ -115,7 +115,7 @@ class _DebugToast {
   }
 
   Future<String> _getDocumentPath() async {
-    return appFlowyDocumentDirectory().then((directory) {
+    return appFlowyApplicationDataDirectory().then((directory) {
       final path = directory.path.toString();
       return "Document: $path\n";
     });

@@ -24,32 +24,63 @@ class SettingsLocationCubit extends Cubit<SettingsLocationState> {
     _init();
   }
 
-  Future<void> setPath(String path) async {
-    await getIt<LocalFileStorage>().setPath(path);
+  Future<void> resetDataStoragePathToApplicationDefault() async {
+    final directory = await appFlowyApplicationDataDirectory();
+    await getIt<ApplicationDataStorage>()._setPath(directory.path);
+    emit(SettingsLocationState.didReceivedPath(directory.path));
+  }
+
+  Future<void> setCustomPath(String path) async {
+    await getIt<ApplicationDataStorage>().setCustomPath(path);
     emit(SettingsLocationState.didReceivedPath(path));
   }
 
   Future<void> _init() async {
-    final path = await getIt<LocalFileStorage>().getPath();
+    final path = await getIt<ApplicationDataStorage>().getPath();
     emit(SettingsLocationState.didReceivedPath(path));
   }
 }
 
-class LocalFileStorage {
-  LocalFileStorage();
+class ApplicationDataStorage {
+  ApplicationDataStorage();
   String? _cachePath;
 
-  Future<void> setPath(String path) async {
+  /// Set the custom path to store the data.
+  /// If the path is not exists, the path will be created.
+  /// If the path is invalid, the path will be set to the default path.
+  Future<void> setCustomPath(String path) async {
     if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
       Log.info('LocalFileStorage is not supported on this platform.');
       return;
     }
 
+    // Every custom path will have a folder named `AppFlowyData`
+    const dataFolder = "AppFlowyData";
+
     if (Platform.isMacOS) {
       // remove the prefix `/Volumes/*`
       path = path.replaceFirst(RegExp(r'^/Volumes/[^/]+'), '');
+      path = "$path/$dataFolder";
     } else if (Platform.isWindows) {
       path = path.replaceAll('/', '\\');
+      path = "$path\\$dataFolder";
+    } else {
+      path = "$path/$dataFolder";
+    }
+
+    // create the directory if not exists
+    final directory = Directory(path);
+    if (!directory.existsSync()) {
+      await directory.create(recursive: true);
+    }
+
+    _setPath(path);
+  }
+
+  Future<void> _setPath(String path) async {
+    if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
+      Log.info('LocalFileStorage is not supported on this platform.');
+      return;
     }
 
     await getIt<KeyValueStorage>().set(KVKeys.pathLocation, path);
@@ -66,7 +97,7 @@ class LocalFileStorage {
     final String path = await response.fold(
       (error) async {
         // return the default path if the path is not set
-        final directory = await appFlowyDocumentDirectory();
+        final directory = await appFlowyApplicationDataDirectory();
         return directory.path;
       },
       (path) => path,
