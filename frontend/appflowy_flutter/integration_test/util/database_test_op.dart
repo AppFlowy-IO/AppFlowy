@@ -16,8 +16,13 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_list.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_option_editor.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/create_sort_list.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/order_panel.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/sort_editor.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/sort_menu.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/filter_button.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_layout.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/sort_button.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tar_bar_add_button.dart';
 import 'package:appflowy/plugins/database_view/widgets/database_layout_ext.dart';
@@ -33,8 +38,7 @@ import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:flowy_infra_ui/style_widget/text_field.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text_input.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flutter/gestures.dart';
@@ -52,7 +56,6 @@ import 'package:appflowy/plugins/database_view/widgets/row/row_action.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/emoji_picker/emoji_menu_item.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -603,6 +606,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(find.byType(FilterButton));
   }
 
+  Future<void> tapDatabaseSortButton() async {
+    await tapButton(find.byType(SortButton));
+  }
+
   Future<void> tapCreateFilterByFieldType(
     FieldType fieldType,
     String title,
@@ -625,6 +632,73 @@ extension AppFlowyDatabaseTest on WidgetTester {
     );
 
     await tapButton(button);
+  }
+
+  Future<void> tapCreateSortByFieldType(
+    FieldType fieldType,
+    String title,
+  ) async {
+    final findSort = find.byWidgetPredicate(
+      (widget) =>
+          widget is GridSortPropertyCell &&
+          widget.fieldInfo.fieldType == fieldType &&
+          widget.fieldInfo.name == title,
+    );
+
+    await tapButton(findSort);
+  }
+
+  // Must call [tapSortMenuInSettingBar] first.
+  Future<void> tapCreateSortByFieldTypeInSortMenu(
+    FieldType fieldType,
+    String title,
+  ) async {
+    await tapButton(find.byType(DatabaseAddSortButton));
+
+    final findSort = find.byWidgetPredicate(
+      (widget) =>
+          widget is GridSortPropertyCell &&
+          widget.fieldInfo.fieldType == fieldType &&
+          widget.fieldInfo.name == title,
+    );
+
+    await tapButton(findSort);
+    await pumpAndSettle();
+  }
+
+  Future<void> tapSortMenuInSettingBar() async {
+    await tapButton(find.byType(SortMenu));
+    await pumpAndSettle();
+  }
+
+  /// Must call [tapSortMenuInSettingBar] first.
+  Future<void> tapSortButtonByName(String name) async {
+    final findSortItem = find.byWidgetPredicate(
+      (widget) =>
+          widget is DatabaseSortItem && widget.sortInfo.fieldInfo.name == name,
+    );
+    await tapButton(findSortItem);
+  }
+
+  /// Must call [tapSortButtonByName] first.
+  Future<void> tapSortByDescending() async {
+    await tapButton(
+      find.descendant(
+        of: find.byType(OrderPannelItem),
+        matching: find.byWidgetPredicate(
+          (widget) =>
+              widget is FlowyText &&
+              widget.text == LocaleKeys.grid_sort_descending.tr(),
+        ),
+      ),
+    );
+    await sendKeyEvent(LogicalKeyboardKey.escape);
+    await pumpAndSettle();
+  }
+
+  /// Must call [tapSortMenuInSettingBar] first.
+  Future<void> tapAllSortButton() async {
+    await tapButton(find.byType(DatabaseDeleteSortButton));
   }
 
   Future<void> scrollOptionFilterListByOffset(Offset offset) async {

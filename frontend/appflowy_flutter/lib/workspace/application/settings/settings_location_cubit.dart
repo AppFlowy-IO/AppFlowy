@@ -42,6 +42,8 @@ class SettingsLocationCubit extends Cubit<SettingsLocationState> {
   }
 }
 
+const appFlowyDataFolder = "AppFlowyDataDoNotRename";
+
 class ApplicationDataStorage {
   ApplicationDataStorage();
   String? _cachePath;
@@ -55,9 +57,6 @@ class ApplicationDataStorage {
       return;
     }
 
-    // Every custom path will have a folder named `AppFlowyData`
-    const dataFolder = "AppFlowyDataDoNotRename";
-
     if (Platform.isMacOS) {
       // remove the prefix `/Volumes/*`
       path = path.replaceFirst(RegExp(r'^/Volumes/[^/]+'), '');
@@ -68,8 +67,8 @@ class ApplicationDataStorage {
     // If the path is not ends with `AppFlowyData`, we will append the
     // `AppFlowyData` to the path. If the path is ends with `AppFlowyData`,
     // which means the path is the custom path.
-    if (p.basename(path) != dataFolder) {
-      path = p.join(path, dataFolder);
+    if (p.basename(path) != appFlowyDataFolder) {
+      path = p.join(path, appFlowyDataFolder);
     }
 
     // create the directory if not exists.

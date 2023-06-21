@@ -51,12 +51,12 @@ class _SortEditorState extends State<SortEditor> {
               child: Column(
                 children: [
                   _SortList(popoverMutex: popoverMutex),
-                  _AddSortButton(
+                  DatabaseAddSortButton(
                     viewId: widget.viewId,
                     fieldController: widget.fieldController,
                     popoverMutex: popoverMutex,
                   ),
-                  _DeleteSortButton(popoverMutex: popoverMutex),
+                  DatabaseDeleteSortButton(popoverMutex: popoverMutex),
                 ],
               ),
             ),
@@ -79,7 +79,7 @@ class _SortList extends StatelessWidget {
             .map(
               (info) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 6),
-                child: _SortItem(
+                child: DatabaseSortItem(
                   sortInfo: info,
                   popoverMutex: popoverMutex,
                 ),
@@ -95,10 +95,10 @@ class _SortList extends StatelessWidget {
   }
 }
 
-class _SortItem extends StatelessWidget {
+class DatabaseSortItem extends StatelessWidget {
   final SortInfo sortInfo;
   final PopoverMutex popoverMutex;
-  const _SortItem({
+  const DatabaseSortItem({
     required this.popoverMutex,
     required this.sortInfo,
     Key? key,
@@ -111,7 +111,7 @@ class _SortItem extends StatelessWidget {
       editable: false,
       onTap: () {},
     );
-    final orderButton = _OrderButton(
+    final orderButton = DatabaseSortItemOrderButton(
       sortInfo: sortInfo,
       popoverMutex: popoverMutex,
     );
@@ -141,9 +141,11 @@ class _SortItem extends StatelessWidget {
       ],
     );
   }
+}
 
-  String textFromCondition(SortConditionPB condition) {
-    switch (condition) {
+extension SortConditionExtension on SortConditionPB {
+  String get title {
+    switch (this) {
       case SortConditionPB.Ascending:
         return LocaleKeys.grid_sort_ascending.tr();
       case SortConditionPB.Descending:
@@ -153,11 +155,11 @@ class _SortItem extends StatelessWidget {
   }
 }
 
-class _AddSortButton extends StatefulWidget {
+class DatabaseAddSortButton extends StatefulWidget {
   final String viewId;
   final FieldController fieldController;
   final PopoverMutex popoverMutex;
-  const _AddSortButton({
+  const DatabaseAddSortButton({
     required this.viewId,
     required this.fieldController,
     required this.popoverMutex,
@@ -165,10 +167,10 @@ class _AddSortButton extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<_AddSortButton> createState() => _AddSortButtonState();
+  State<DatabaseAddSortButton> createState() => _DatabaseAddSortButtonState();
 }
 
-class _AddSortButtonState extends State<_AddSortButton> {
+class _DatabaseAddSortButtonState extends State<DatabaseAddSortButton> {
   final _popoverController = PopoverController();
 
   @override
@@ -202,9 +204,9 @@ class _AddSortButtonState extends State<_AddSortButton> {
   }
 }
 
-class _DeleteSortButton extends StatelessWidget {
+class DatabaseDeleteSortButton extends StatelessWidget {
   final PopoverMutex popoverMutex;
-  const _DeleteSortButton({required this.popoverMutex, Key? key})
+  const DatabaseDeleteSortButton({required this.popoverMutex, Key? key})
       : super(key: key);
 
   @override
@@ -228,20 +230,22 @@ class _DeleteSortButton extends StatelessWidget {
   }
 }
 
-class _OrderButton extends StatefulWidget {
+class DatabaseSortItemOrderButton extends StatefulWidget {
   final SortInfo sortInfo;
   final PopoverMutex popoverMutex;
-  const _OrderButton({
+  const DatabaseSortItemOrderButton({
     required this.popoverMutex,
     required this.sortInfo,
     Key? key,
   }) : super(key: key);
 
   @override
-  _OrderButtonState createState() => _OrderButtonState();
+  State<DatabaseSortItemOrderButton> createState() =>
+      _DatabaseSortItemOrderButtonState();
 }
 
-class _OrderButtonState extends State<_OrderButton> {
+class _DatabaseSortItemOrderButtonState
+    extends State<DatabaseSortItemOrderButton> {
   final PopoverController popoverController = PopoverController();
 
   @override
@@ -268,20 +272,10 @@ class _OrderButtonState extends State<_OrderButton> {
         );
       },
       child: SortChoiceButton(
-        text: textFromCondition(widget.sortInfo.sortPB.condition),
+        text: widget.sortInfo.sortPB.condition.title,
         rightIcon: arrow,
         onTap: () => popoverController.show(),
       ),
     );
-  }
-
-  String textFromCondition(SortConditionPB condition) {
-    switch (condition) {
-      case SortConditionPB.Ascending:
-        return LocaleKeys.grid_sort_ascending.tr();
-      case SortConditionPB.Descending:
-        return LocaleKeys.grid_sort_descending.tr();
-    }
-    return "";
   }
 }
