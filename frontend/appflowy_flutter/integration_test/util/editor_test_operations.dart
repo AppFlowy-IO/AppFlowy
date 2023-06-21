@@ -13,6 +13,12 @@ class EditorOperations {
 
   final WidgetTester tester;
 
+  EditorState getCurrentEditorState() {
+    return tester
+        .widget<AppFlowyEditor>(find.byType(AppFlowyEditor))
+        .editorState;
+  }
+
   /// Tap the line of editor at [index]
   Future<void> tapLineOfEditorAt(int index) async {
     final textBlocks = find.byType(TextBlockComponentWidget);
