@@ -90,7 +90,8 @@
       "name": "Debug Info",
       "success": "Copied debug info to clipboard!",
       "fail": "Unable to copy debug info to clipboard"
-    }
+    },
+    "feedback": "Feedback"
   },
   "menuAppHeader": {
     "addPageTooltip": "Quickly add a page inside",
