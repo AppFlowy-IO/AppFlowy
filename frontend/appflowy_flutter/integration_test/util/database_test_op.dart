@@ -20,6 +20,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/cr
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/order_panel.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/sort_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/sort_menu.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/filter_button.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_layout.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/sort_button.dart';
@@ -35,6 +36,7 @@ import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_
 import 'package:appflowy/plugins/database_view/widgets/setting/database_setting.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -166,7 +168,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(cell, warnIfMissed: false);
   }
 
-  /// The [fieldName] must be uqniue in the grid.
+  /// The [fieldName] must be unique in the grid.
   Future<void> assertCellContent({
     required int rowIndex,
     required FieldType fieldType,
@@ -287,6 +289,48 @@ extension AppFlowyDatabaseTest on WidgetTester {
     );
 
     await tapButton(finder);
+  }
+
+  Future<void> toggleIncludeTime() async {
+    final findDateEditor = find.byType(DateCellEditor);
+    final findToggle = find.byType(Toggle);
+    final finder = find.descendant(
+      of: findDateEditor,
+      matching: findToggle,
+    );
+    await tapButton(finder);
+  }
+
+  Future<void> changeDateFormat() async {
+    final findDateEditor = find.byType(DateCellEditor);
+    final findDateTimeOptionButton = find.byType(DateTypeOptionButton);
+    final finder = find.descendant(
+      of: findDateEditor,
+      matching: findDateTimeOptionButton,
+    );
+    await tapButton(finder);
+
+    final findDateFormatButton = find.byType(DateFormatButton);
+    await tapButton(findDateFormatButton);
+
+    final findNewDateFormat = find.text("Day/Month/Year");
+    await tapButton(findNewDateFormat);
+  }
+
+  Future<void> changeTimeFormat() async {
+    final findDateEditor = find.byType(DateCellEditor);
+    final findDateTimeOptionButton = find.byType(DateTypeOptionButton);
+    final finder = find.descendant(
+      of: findDateEditor,
+      matching: findDateTimeOptionButton,
+    );
+    await tapButton(finder);
+
+    final findDateFormatButton = find.byType(TimeFormatButton);
+    await tapButton(findDateFormatButton);
+
+    final findNewDateFormat = find.text("12 hour");
+    await tapButton(findNewDateFormat);
   }
 
   Future<void> tapSelectOptionCellInGrid({
@@ -560,7 +604,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     expect(finder, matcher);
   }
 
-  Future<void> dismissSelectOptionEditor() async {
+  Future<void> dismissCellEditor() async {
     await sendKeyEvent(LogicalKeyboardKey.escape);
     await pumpAndSettle();
   }

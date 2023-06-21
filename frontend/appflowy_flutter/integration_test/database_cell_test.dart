@@ -1,6 +1,7 @@
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:intl/intl.dart';
 
 import 'util/database_test_op.dart';
 import 'util/util.dart';
@@ -176,8 +177,72 @@ void main() {
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
       await tester.findDateEditor(findsOneWidget);
 
-      // Select the date
-      await tester.selectDay(content: 3);
+      // Toggle include time
+      await tester.toggleIncludeTime();
+
+      // Dismiss the cell editor
+      await tester.dismissCellEditor();
+
+      await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
+      await tester.findDateEditor(findsOneWidget);
+
+      // Turn off include time
+      await tester.toggleIncludeTime();
+
+      // Select a date
+      final today = DateTime.now();
+      await tester.selectDay(content: today.day);
+
+      await tester.dismissCellEditor();
+
+      await tester.assertDateCellInGrid(
+        rowIndex: 0,
+        fieldType: fieldType,
+        content: DateFormat('MMM d, y').format(today),
+      );
+
+      await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
+      await tester.findDateEditor(findsOneWidget);
+
+      // Toggle include time
+      final now = DateTime.now();
+      await tester.toggleIncludeTime();
+
+      await tester.dismissCellEditor();
+
+      await tester.assertDateCellInGrid(
+        rowIndex: 0,
+        fieldType: fieldType,
+        content: DateFormat('MMM d, y HH:mm').format(now),
+      );
+
+      await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
+      await tester.findDateEditor(findsOneWidget);
+
+      // Change date format
+      await tester.changeDateFormat();
+
+      await tester.dismissCellEditor();
+
+      await tester.assertDateCellInGrid(
+        rowIndex: 0,
+        fieldType: fieldType,
+        content: DateFormat('dd/MM/y HH:mm').format(now),
+      );
+
+      await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
+      await tester.findDateEditor(findsOneWidget);
+
+      // Change time format
+      await tester.changeTimeFormat();
+
+      await tester.dismissCellEditor();
+
+      await tester.assertDateCellInGrid(
+        rowIndex: 0,
+        fieldType: fieldType,
+        content: DateFormat('dd/MM/y hh:mm a').format(now),
+      );
 
       await tester.pumpAndSettle();
     });
