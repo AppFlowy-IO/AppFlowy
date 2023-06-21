@@ -1,10 +1,12 @@
 import 'package:appflowy/workspace/application/settings/prelude.dart';
+import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'util/mock/mock_file_picker.dart';
 import 'util/util.dart';
+import 'package:path/path.dart' as p;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -26,12 +28,12 @@ void main() {
     });
 
     testWidgets('switch to B from A, then switch to A again', (tester) async {
-      final String userA = uuid().toString();
-      final String userB = uuid().toString();
+      final userA = uuid();
+      final userB = uuid();
 
       await TestFolder.cleanTestLocation(userA);
       await TestFolder.cleanTestLocation(userB);
-      await TestFolder.setTestLocation(userA);
+      await TestFolder.setTestLocation(p.join(userA, appFlowyDataFolder));
 
       await tester.initializeAppFlowy();
 
