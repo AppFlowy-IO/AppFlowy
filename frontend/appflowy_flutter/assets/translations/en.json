@@ -237,10 +237,9 @@
     "shortcuts": {
       "shortcutsLabel": "Shortcuts",
       "command": "Command",
-      "keyBinding": "Key Binding",
+      "keyBinding": "Keybinding",
       "addNewCommand": "Add New Command",
       "updateShorcutStep": "Press desired key combination and press ENTER",
-      "couldNotLoadShortcuts": "Could Not Load Shortcuts",
       "shorcutIsAlreadyUsed": "This shortcut is already used for - "
     }
   },

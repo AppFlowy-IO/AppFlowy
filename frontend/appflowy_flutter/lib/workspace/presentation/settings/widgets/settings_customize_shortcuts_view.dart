@@ -35,7 +35,9 @@ class SettingsCustomizeShortcutsView extends StatelessWidget {
           case ShortcutsStatus.success:
             return ShortcutsListView(shortcuts: state.commandShortcutEvents);
           case ShortcutsStatus.failure:
-            return const ShortcutsErrorView();
+            return ShortcutsErrorView(
+              errorMessage: state.error,
+            );
         }
       },
     );
@@ -203,7 +205,8 @@ extension on RawKeyEvent {
 }
 
 class ShortcutsErrorView extends StatelessWidget {
-  const ShortcutsErrorView({super.key});
+  final String errorMessage;
+  const ShortcutsErrorView({super.key, required this.errorMessage});
 
   @override
   Widget build(BuildContext context) {
@@ -211,7 +214,7 @@ class ShortcutsErrorView extends StatelessWidget {
       children: [
         Expanded(
           child: FlowyText.medium(
-            LocaleKeys.settings_shortcuts_couldNotLoadShortcuts.tr(),
+            errorMessage,
             overflow: TextOverflow.ellipsis,
           ),
         ),

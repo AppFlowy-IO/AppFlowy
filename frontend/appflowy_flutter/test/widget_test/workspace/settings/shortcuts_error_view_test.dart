@@ -8,7 +8,9 @@ void main() {
     testWidgets("displays correctly", (widgetTester) async {
       await widgetTester.pumpWidget(
         const MaterialApp(
-          home: ShortcutsErrorView(),
+          home: ShortcutsErrorView(
+            errorMessage: 'Error occured',
+          ),
         ),
       );
 

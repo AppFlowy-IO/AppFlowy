@@ -51,9 +51,15 @@ void main() {
         },
         build: () => shortcutsCubit,
         act: (cubit) => cubit.fetchShortcuts(),
-        expect: () => <ShortcutsState>[
+        expect: () => <dynamic>[
           const ShortcutsState(status: ShortcutsStatus.updating),
-          const ShortcutsState(status: ShortcutsStatus.failure),
+          isA<ShortcutsState>()
+              .having((w) => w.status, 'status', ShortcutsStatus.failure)
+              .having(
+                (w) => w.error,
+                'error',
+                kCouldNotLoadErrorMsg,
+              ),
         ],
       );
 
@@ -93,9 +99,15 @@ void main() {
         },
         build: () => shortcutsCubit,
         act: (cubit) => cubit.updateAllShortcuts(),
-        expect: () => <ShortcutsState>[
+        expect: () => <dynamic>[
           const ShortcutsState(status: ShortcutsStatus.updating),
-          const ShortcutsState(status: ShortcutsStatus.failure),
+          isA<ShortcutsState>()
+              .having((w) => w.status, 'status', ShortcutsStatus.failure)
+              .having(
+                (w) => w.error,
+                'error',
+                kCouldNotSaveErrorMsg,
+              ),
         ],
       );
 

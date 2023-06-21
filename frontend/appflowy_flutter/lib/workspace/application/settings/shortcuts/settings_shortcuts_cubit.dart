@@ -1,9 +1,23 @@
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
-import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'settings_shortcuts_cubit.freezed.dart';
+
+String kCouldNotLoadErrorMsg = "Could not load shortcuts,Try again";
+String kCouldNotSaveErrorMsg = "Could not save shortcut, Try again";
+
+@freezed
+class ShortcutsState with _$ShortcutsState {
+  const factory ShortcutsState({
+    @Default(<CommandShortcutEvent>[])
+    List<CommandShortcutEvent> commandShortcutEvents,
+    @Default(ShortcutsStatus.initial) ShortcutsStatus status,
+    @Default('') String error,
+  }) = _ShortcutsState;
+}
 
 enum ShortcutsStatus { initial, updating, success, failure }
 
@@ -13,60 +27,59 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
   final SettingsShortcutService service;
 
   Future<void> fetchShortcuts() async {
-    emit(state.copyWith(status: ShortcutsStatus.updating));
+    emit(
+      state.copyWith(
+        status: ShortcutsStatus.updating,
+        error: '',
+      ),
+    );
     try {
       final newCommandShortcuts = await service.loadShortcuts();
       emit(
         state.copyWith(
           status: ShortcutsStatus.success,
           commandShortcutEvents: newCommandShortcuts,
+          error: '',
         ),
       );
     } catch (e) {
-      //could also show an error
-      debugPrint("could not load ${e.toString()}");
-      emit(state.copyWith(status: ShortcutsStatus.failure));
+      emit(
+        state.copyWith(
+          status: ShortcutsStatus.failure,
+          error: kCouldNotLoadErrorMsg,
+        ),
+      );
     }
   }
 
   Future<void> updateAllShortcuts() async {
-    emit(state.copyWith(status: ShortcutsStatus.updating));
-
+    emit(
+      state.copyWith(
+        status: ShortcutsStatus.updating,
+        error: '',
+      ),
+    );
     try {
-      service.saveAllShortcuts(state.commandShortcutEvents);
-      emit(state.copyWith(status: ShortcutsStatus.success));
-    } catch (_) {
-      emit(state.copyWith(status: ShortcutsStatus.failure));
+      await service.saveAllShortcuts(state.commandShortcutEvents);
+      emit(
+        state.copyWith(
+          status: ShortcutsStatus.success,
+          error: '',
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: ShortcutsStatus.failure,
+          error: kCouldNotSaveErrorMsg,
+        ),
+      );
     }
   }
 
   String getConflict(String command) {
     final conflict = state.commandShortcutEvents
         .firstWhereOrNull((el) => el.command == command);
-    return conflict != null ? conflict.key : '';
+    return conflict?.key ?? '';
   }
-}
-
-class ShortcutsState extends Equatable {
-  final List<CommandShortcutEvent> commandShortcutEvents;
-  final ShortcutsStatus status;
-
-  const ShortcutsState({
-    this.commandShortcutEvents = const <CommandShortcutEvent>[],
-    this.status = ShortcutsStatus.initial,
-  });
-
-  ShortcutsState copyWith({
-    ShortcutsStatus? status,
-    List<CommandShortcutEvent>? commandShortcutEvents,
-  }) {
-    return ShortcutsState(
-      status: status ?? this.status,
-      commandShortcutEvents:
-          commandShortcutEvents ?? this.commandShortcutEvents,
-    );
-  }
-
-  @override
-  List<Object?> get props => [status];
 }
