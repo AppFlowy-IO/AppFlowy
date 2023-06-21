@@ -32,7 +32,7 @@ class FlowyRunner {
     // Specify the env
     initGetIt(getIt, mode, f, config);
 
-    final directory = await getIt<LocalFileStorage>()
+    final directory = await getIt<ApplicationDataStorage>()
         .getPath()
         .then((value) => Directory(value));
 

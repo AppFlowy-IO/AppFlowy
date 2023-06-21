@@ -36,4 +36,11 @@ class GridSize {
         GridSize.headerContainerPadding,
         GridSize.headerContainerPadding,
       );
+
+  static EdgeInsets get contentInsets => EdgeInsets.fromLTRB(
+        GridSize.leadingHeaderPadding,
+        GridSize.headerContainerPadding,
+        GridSize.leadingHeaderPadding,
+        GridSize.headerContainerPadding,
+      );
 }

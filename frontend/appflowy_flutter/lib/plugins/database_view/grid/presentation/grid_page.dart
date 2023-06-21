@@ -403,7 +403,7 @@ class _GridFooter extends StatelessWidget {
       selector: (state) => state.rowCount,
       builder: (context, rowCount) {
         return Padding(
-          padding: GridSize.footerContentInsets,
+          padding: GridSize.contentInsets,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
