@@ -1,4 +1,43 @@
-import 'dart:async';
+class SettingsShortcutService {
+  /// If passedFile is non null then the SettingsShortcutService uses that
+  /// file to store all the shortcuts, otherwise uses the default
+  // /Document Directory.
+  /// Typically we only intend to pass a file during testing.
+  SettingsShortcutService({
+    File? file,
+  }) {
+    _initializeService(file);
+  }
+
+  late final File _file;
+  final _initCompleter = Completer<void>();
+
+  Future<void> saveAllShortcuts(
+    List<CommandShortcutEvent> commandShortcuts,
+  ) async {
+    // ...
+  }
+
+  Future<List<CommandShortcutEvent>> loadShortcuts() async {
+    // ...
+  }
+
+  List<CommandShortcutEvent> getShortcutsFromJson(String savedJson) {
+    // ...
+  }
+
+  // Accesses the shortcuts.json file within the default AppFlowy Document Directory or creates a new file if it already doesn't exist.
+  Future<void> _initializeService(File? file) async {
+    _file = file ?? await _defaultShortcutFile();
+    _initCompleter.complete();
+  }
+
+  Future<File> _defaultShortcutFile() async {
+    final Directory flowyDir = await appFlowyDocumentDirectory();
+    return File('${flowyDir.path}/shortcuts/shortcuts.json')
+      ..createSync(recursive: true);
+  }
+}
 import 'dart:convert';
 import 'dart:io';
 
