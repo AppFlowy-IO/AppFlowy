@@ -100,56 +100,183 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('add all sorts', (tester) async {
+    testWidgets('add checkbox sort', (tester) async {
       await tester.openV020database();
       // create a filter
       await tester.tapDatabaseSortButton();
-      await tester.tapCreateSortByFieldType(FieldType.RichText, 'Name');
+      await tester.tapCreateSortByFieldType(FieldType.Checkbox, 'Done');
 
-      // check the text cell order
-      final textCells = <String>[
+      // check the checkbox cell order
+      for (final (index, content) in <bool>[
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+      ].indexed) {
+        await tester.assertCheckboxCell(
+          rowIndex: index,
+          isSelected: content,
+        );
+      }
+
+      // open the sort menu and select order by descending
+      await tester.tapSortMenuInSettingBar();
+      await tester.tapSortButtonByName('Done');
+      await tester.tapSortByDescending();
+      for (final (index, content) in <bool>[
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+      ].indexed) {
+        await tester.assertCheckboxCell(
+          rowIndex: index,
+          isSelected: content,
+        );
+      }
+
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('add number sort', (tester) async {
+      await tester.openV020database();
+      // create a filter
+      await tester.tapDatabaseSortButton();
+      await tester.tapCreateSortByFieldType(FieldType.Number, 'number');
+
+      // check the number cell order
+      for (final (index, content) in <String>[
         '',
-        '',
-        '',
-        '',
-        '',
-        'A',
-        'B',
-        'C',
-        'D',
-        'E',
-      ];
-      for (final (index, content) in textCells.indexed) {
+        '-2',
+        '-1',
+        '0.1',
+        '0.2',
+        '1',
+        '2',
+        '10',
+        '11',
+        '12',
+      ].indexed) {
         await tester.assertCellContent(
           rowIndex: index,
-          fieldType: FieldType.RichText,
+          fieldType: FieldType.Number,
+          content: content,
+        );
+      }
+
+      // open the sort menu and select order by descending
+      await tester.tapSortMenuInSettingBar();
+      await tester.tapSortButtonByName('number');
+      await tester.tapSortByDescending();
+      for (final (index, content) in <String>[
+        '12',
+        '11',
+        '10',
+        '2',
+        '1',
+        '0.2',
+        '0.1',
+        '-1',
+        '-2',
+        '',
+      ].indexed) {
+        await tester.assertCellContent(
+          rowIndex: index,
+          fieldType: FieldType.Number,
+          content: content,
+        );
+      }
+
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('add number and text sort', (tester) async {
+      await tester.openV020database();
+      // create a filter
+      await tester.tapDatabaseSortButton();
+      await tester.tapCreateSortByFieldType(FieldType.Number, 'number');
+
+      // open the sort menu and select number order by descending
+      await tester.tapSortMenuInSettingBar();
+      await tester.tapSortButtonByName('number');
+      await tester.tapSortByDescending();
+      for (final (index, content) in <String>[
+        '12',
+        '11',
+        '10',
+        '2',
+        '1',
+        '0.2',
+        '0.1',
+        '-1',
+        '-2',
+        '',
+      ].indexed) {
+        await tester.assertCellContent(
+          rowIndex: index,
+          fieldType: FieldType.Number,
           content: content,
         );
       }
 
       await tester.tapSortMenuInSettingBar();
-      await tester.tapAllSortButton();
+      await tester.tapCreateSortByFieldTypeInSortMenu(
+        FieldType.RichText,
+        'Name',
+      );
 
-      // check the text cell order
-      final cells = <String>[
+      // check number cell order
+      for (final (index, content) in <String>[
+        '12',
+        '11',
+        '10',
+        '2',
+        '',
+        '-1',
+        '-2',
+        '0.1',
+        '0.2',
+        '1',
+      ].indexed) {
+        await tester.assertCellContent(
+          rowIndex: index,
+          fieldType: FieldType.Number,
+          content: content,
+        );
+      }
+
+      // check text cell order
+      for (final (index, content) in <String>[
+        '',
+        '',
+        '',
+        '',
+        '',
         'A',
         'B',
         'C',
         'D',
         'E',
-        '',
-        '',
-        '',
-        '',
-        '',
-      ];
-      for (final (index, content) in cells.indexed) {
+      ].indexed) {
         await tester.assertCellContent(
           rowIndex: index,
           fieldType: FieldType.RichText,
           content: content,
         );
       }
+
       await tester.pumpAndSettle();
     });
   });

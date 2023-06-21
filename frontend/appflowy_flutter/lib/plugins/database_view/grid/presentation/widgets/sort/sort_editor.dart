@@ -51,12 +51,12 @@ class _SortEditorState extends State<SortEditor> {
               child: Column(
                 children: [
                   _SortList(popoverMutex: popoverMutex),
-                  _AddSortButton(
+                  DatabaseAddSortButton(
                     viewId: widget.viewId,
                     fieldController: widget.fieldController,
                     popoverMutex: popoverMutex,
                   ),
-                  GridDeleteSortButton(popoverMutex: popoverMutex),
+                  DatabaseDeleteSortButton(popoverMutex: popoverMutex),
                 ],
               ),
             ),
@@ -155,11 +155,11 @@ extension SortConditionExtension on SortConditionPB {
   }
 }
 
-class _AddSortButton extends StatefulWidget {
+class DatabaseAddSortButton extends StatefulWidget {
   final String viewId;
   final FieldController fieldController;
   final PopoverMutex popoverMutex;
-  const _AddSortButton({
+  const DatabaseAddSortButton({
     required this.viewId,
     required this.fieldController,
     required this.popoverMutex,
@@ -167,10 +167,10 @@ class _AddSortButton extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<_AddSortButton> createState() => _AddSortButtonState();
+  State<DatabaseAddSortButton> createState() => _DatabaseAddSortButtonState();
 }
 
-class _AddSortButtonState extends State<_AddSortButton> {
+class _DatabaseAddSortButtonState extends State<DatabaseAddSortButton> {
   final _popoverController = PopoverController();
 
   @override
@@ -204,9 +204,9 @@ class _AddSortButtonState extends State<_AddSortButton> {
   }
 }
 
-class GridDeleteSortButton extends StatelessWidget {
+class DatabaseDeleteSortButton extends StatelessWidget {
   final PopoverMutex popoverMutex;
-  const GridDeleteSortButton({required this.popoverMutex, Key? key})
+  const DatabaseDeleteSortButton({required this.popoverMutex, Key? key})
       : super(key: key);
 
   @override

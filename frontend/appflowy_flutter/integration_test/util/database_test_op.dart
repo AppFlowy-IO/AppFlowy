@@ -638,18 +638,37 @@ extension AppFlowyDatabaseTest on WidgetTester {
     FieldType fieldType,
     String title,
   ) async {
-    final findFilter = find.byWidgetPredicate(
+    final findSort = find.byWidgetPredicate(
       (widget) =>
           widget is GridSortPropertyCell &&
           widget.fieldInfo.fieldType == fieldType &&
           widget.fieldInfo.name == title,
     );
 
-    await tapButton(findFilter);
+    await tapButton(findSort);
+  }
+
+  // Must call [tapSortMenuInSettingBar] first.
+  Future<void> tapCreateSortByFieldTypeInSortMenu(
+    FieldType fieldType,
+    String title,
+  ) async {
+    await tapButton(find.byType(DatabaseAddSortButton));
+
+    final findSort = find.byWidgetPredicate(
+      (widget) =>
+          widget is GridSortPropertyCell &&
+          widget.fieldInfo.fieldType == fieldType &&
+          widget.fieldInfo.name == title,
+    );
+
+    await tapButton(findSort);
+    await pumpAndSettle();
   }
 
   Future<void> tapSortMenuInSettingBar() async {
     await tapButton(find.byType(SortMenu));
+    await pumpAndSettle();
   }
 
   /// Must call [tapSortMenuInSettingBar] first.
@@ -679,7 +698,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   /// Must call [tapSortMenuInSettingBar] first.
   Future<void> tapAllSortButton() async {
-    await tapButton(find.byType(GridDeleteSortButton));
+    await tapButton(find.byType(DatabaseDeleteSortButton));
   }
 
   Future<void> scrollOptionFilterListByOffset(Offset offset) async {
