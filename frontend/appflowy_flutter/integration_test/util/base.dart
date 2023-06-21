@@ -44,7 +44,7 @@ class TestFolder {
 
   /// Get default location under development environment.
   static Future<String> defaultDevelopmentLocation() async {
-    final dir = await appFlowyDocumentDirectory();
+    final dir = await appFlowyApplicationDataDirectory();
     return dir.path;
   }
 

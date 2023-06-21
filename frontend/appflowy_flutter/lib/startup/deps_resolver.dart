@@ -51,7 +51,7 @@ void _resolveCommonService(GetIt getIt) async {
   // getIt.registerFactory<KeyValueStorage>(() => RustKeyValue());
   getIt.registerFactory<KeyValueStorage>(() => DartKeyValue());
   getIt.registerFactory<FilePickerService>(() => FilePicker());
-  getIt.registerFactory<LocalFileStorage>(() => LocalFileStorage());
+  getIt.registerFactory<ApplicationDataStorage>(() => ApplicationDataStorage());
 
   getIt.registerFactoryAsync<OpenAIRepository>(
     () async {

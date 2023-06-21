@@ -16,7 +16,7 @@ CharacterShortcutEvent formatGreaterToToggleList = CharacterShortcutEvent(
   handler: (editorState) async => await formatMarkdownSymbol(
     editorState,
     (node) => node.type != ToggleListBlockKeys.type,
-    (text, _) => text == _greater,
+    (_, text, __) => text == _greater,
     (_, node, delta) => toggleListBlockNode(
       delta: delta.compose(Delta()..delete(_greater.length)),
     ),

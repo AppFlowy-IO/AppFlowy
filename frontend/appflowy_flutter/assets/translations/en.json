@@ -223,6 +223,7 @@
       "changeLocationTooltips": "Change the data directory",
       "change": "Change",
       "openLocationTooltips": "Open another data directory",
+      "openCurrentDataFolder": "Open current data directory",
       "recoverLocationTooltips": "Reset to AppFlowy's default data directory",
       "exportFileSuccess": "Export file successfully!",
       "exportFileFail": "Export file failed!",
