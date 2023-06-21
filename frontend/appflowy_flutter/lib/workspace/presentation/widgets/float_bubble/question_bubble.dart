@@ -202,7 +202,7 @@ extension QuestionBubbleExtension on BubbleAction {
       case BubbleAction.markdown:
         return LocaleKeys.questionBubble_markdown.tr();
       case BubbleAction.github:
-        return "GitHub";
+        return LocaleKeys.questionBubble_feedback.tr();
     }
   }
 
