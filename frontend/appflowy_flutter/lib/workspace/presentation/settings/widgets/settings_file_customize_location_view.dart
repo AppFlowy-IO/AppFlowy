@@ -202,7 +202,7 @@ class _OpenStorageButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyIconButton(
       hoverColor: Theme.of(context).colorScheme.secondaryContainer,
-      tooltipText: LocaleKeys.settings_files_openLocationTooltips.tr(),
+      tooltipText: LocaleKeys.settings_files_openCurrentDataFolder.tr(),
       icon: svgWidget(
         'common/open_folder',
         color: Theme.of(context).iconTheme.color,

@@ -56,7 +56,7 @@ class ApplicationDataStorage {
     }
 
     // Every custom path will have a folder named `AppFlowyData`
-    const dataFolder = "AppFlowyData";
+    const dataFolder = "AppFlowyDataDoNotRename";
 
     if (Platform.isMacOS) {
       // remove the prefix `/Volumes/*`
@@ -98,7 +98,7 @@ class ApplicationDataStorage {
     }
 
     final response = await getIt<KeyValueStorage>().get(KVKeys.pathLocation);
-    final String path = await response.fold(
+    String path = await response.fold(
       (error) async {
         // return the default path if the path is not set
         final directory = await appFlowyApplicationDataDirectory();
@@ -111,6 +111,8 @@ class ApplicationDataStorage {
     // if the path is not exists means the path is invalid, so we should clear the kv store
     if (!Directory(path).existsSync()) {
       await getIt<KeyValueStorage>().clear();
+      final directory = await appFlowyApplicationDataDirectory();
+      path = directory.path;
     }
 
     return path;
