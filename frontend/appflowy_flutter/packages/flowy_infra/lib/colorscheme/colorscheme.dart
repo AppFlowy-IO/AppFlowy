@@ -128,6 +128,9 @@ abstract class FlowyColorScheme {
   });
 
   factory FlowyColorScheme.builtIn(String themeName, Brightness brightness) {
+    if (!themeMap.containsKey(themeName)) {
+      throw Exception('The theme $themeName could not be found');
+    }
     switch (brightness) {
       case Brightness.light:
         return themeMap[themeName]?[0] ?? const DefaultColorScheme.light();
