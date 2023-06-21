@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/database_view/application/database_controller.d
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -152,7 +153,7 @@ class _BoardContentState extends State<BoardContent> {
         buildWhen: (previous, current) => previous.groupIds != current.groupIds,
         builder: (context, state) {
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: GridSize.contentInsets,
             child: _buildBoard(context),
           );
         },

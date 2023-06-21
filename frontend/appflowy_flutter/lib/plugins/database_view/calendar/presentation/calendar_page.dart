@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -176,15 +177,18 @@ class _CalendarPageState extends State<CalendarPage> {
 
   Widget _buildCalendar(EventController eventController, int firstDayOfWeek) {
     return Expanded(
-      child: MonthView(
-        key: _calendarState,
-        controller: _eventController,
-        cellAspectRatio: .6,
-        startDay: _weekdayFromInt(firstDayOfWeek),
-        borderColor: Theme.of(context).dividerColor,
-        headerBuilder: _headerNavigatorBuilder,
-        weekDayBuilder: _headerWeekDayBuilder,
-        cellBuilder: _calendarDayBuilder,
+      child: Padding(
+        padding: GridSize.contentInsets,
+        child: MonthView(
+          key: _calendarState,
+          controller: _eventController,
+          cellAspectRatio: .6,
+          startDay: _weekdayFromInt(firstDayOfWeek),
+          borderColor: Theme.of(context).dividerColor,
+          headerBuilder: _headerNavigatorBuilder,
+          weekDayBuilder: _headerWeekDayBuilder,
+          cellBuilder: _calendarDayBuilder,
+        ),
       ),
     );
   }
