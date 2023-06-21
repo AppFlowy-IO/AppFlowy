@@ -97,7 +97,7 @@ class TarBarAddButtonActionCell extends StatelessWidget {
       child: FlowyButton(
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         text: FlowyText.medium(
-          action.title,
+          '${LocaleKeys.grid_createView.tr()} ${action.title}',
           color: AFThemeExtension.of(context).textColor,
         ),
         leftIcon: svgWidget(
