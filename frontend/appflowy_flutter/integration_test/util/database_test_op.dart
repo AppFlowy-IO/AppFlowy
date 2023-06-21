@@ -369,6 +369,16 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await pumpAndSettle();
   }
 
+  Future<void> selectOption({
+    required String name,
+  }) async {
+    final option = find.byWidgetPredicate(
+      (widget) => widget is SelectOptionTagCell && widget.option.name == name,
+    );
+
+    await tapButton(option);
+  }
+
   Future<void> findSelectOptionWithNameInGrid({
     required int rowIndex,
     required String name,
@@ -384,6 +394,24 @@ extension AppFlowyDatabaseTest on WidgetTester {
     );
 
     expect(cell, findsOneWidget);
+  }
+
+  Future<void> assertNumberOfSelectedOptionsInGrid({
+    required int rowIndex,
+    required Matcher matcher,
+  }) async {
+    final findRow = find.byType(GridRow);
+
+    final options = find.byWidgetPredicate(
+      (widget) => widget is SelectOptionTag,
+    );
+
+    final cell = find.descendant(
+      of: findRow.at(rowIndex),
+      matching: options,
+    );
+
+    expect(cell, matcher);
   }
 
   Future<void> openFirstRowDetailPage() async {
