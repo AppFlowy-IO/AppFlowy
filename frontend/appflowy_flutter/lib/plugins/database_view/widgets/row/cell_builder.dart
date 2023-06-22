@@ -103,7 +103,7 @@ class BlankCell extends StatelessWidget {
 }
 
 abstract class CellEditable {
-  GridCellFocusListener get beginFocus;
+  RequestFocusListener get requestFocus;
 
   ValueNotifier<bool> get onCellFocus;
 
@@ -147,7 +147,7 @@ abstract class GridCellWidget extends StatefulWidget
   )? get accessoryBuilder => null;
 
   @override
-  final GridCellFocusListener beginFocus = GridCellFocusListener();
+  final RequestFocusListener requestFocus = RequestFocusListener();
 
   @override
   final Map<CellKeyboardKey, CellKeyboardAction> shortcutHandlers = {};
@@ -156,7 +156,7 @@ abstract class GridCellWidget extends StatefulWidget
 abstract class GridCellState<T extends GridCellWidget> extends State<T> {
   @override
   void initState() {
-    widget.beginFocus.setListener(() => requestBeginFocus());
+    widget.requestFocus.setListener(requestBeginFocus);
     widget.shortcutHandlers[CellKeyboardKey.onCopy] = () => onCopy();
     widget.shortcutHandlers[CellKeyboardKey.onInsert] = () {
       Clipboard.getData("text/plain").then((data) {
@@ -172,17 +172,18 @@ abstract class GridCellState<T extends GridCellWidget> extends State<T> {
   @override
   void didUpdateWidget(covariant T oldWidget) {
     if (oldWidget != this) {
-      widget.beginFocus.setListener(() => requestBeginFocus());
+      widget.requestFocus.setListener(requestBeginFocus);
     }
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
-    widget.beginFocus.removeAllListener();
+    widget.requestFocus.removeAllListener();
     super.dispose();
   }
 
+  /// Subclass can override this method to request focus.
   void requestBeginFocus();
 
   String? onCopy() => null;
@@ -236,7 +237,7 @@ abstract class GridFocusNodeCellState<T extends GridCellWidget>
   Future<void> focusChanged() async {}
 }
 
-class GridCellFocusListener extends ChangeNotifier {
+class RequestFocusListener extends ChangeNotifier {
   VoidCallback? _listener;
 
   void setListener(VoidCallback listener) {
