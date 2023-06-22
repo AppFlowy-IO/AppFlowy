@@ -161,7 +161,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     ];
 
     final configuration = BlockComponentConfiguration(
-      padding: (_) => const EdgeInsets.symmetric(vertical: 4.0),
+      padding: (_) => const EdgeInsets.symmetric(vertical: 5.0),
     );
     final customBlockComponentBuilderMap = {
       PageBlockKeys.type: PageBlockComponentBuilder(),
@@ -211,7 +211,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       CalloutBlockKeys.type: CalloutBlockComponentBuilder(
         configuration: configuration,
       ),
-      DividerBlockKeys.type: DividerBlockComponentBuilder(),
+      DividerBlockKeys.type: DividerBlockComponentBuilder(
+        configuration: configuration,
+        height: 28.0,
+      ),
       MathEquationBlockKeys.type: MathEquationBlockComponentBuilder(
         configuration: configuration.copyWith(
           padding: (_) => const EdgeInsets.symmetric(vertical: 20),
@@ -277,7 +280,13 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       ];
 
       builder.showActions = (_) => true;
-      builder.actionBuilder = (context, state) => BlockActionList(
+      builder.actionBuilder = (context, state) {
+        final padding = context.node.type == HeadingBlockKeys.type
+            ? const EdgeInsets.only(top: 8.0)
+            : const EdgeInsets.all(0);
+        return Padding(
+          padding: padding,
+          child: BlockActionList(
             blockComponentContext: context,
             blockComponentState: state,
             editorState: widget.editorState,
@@ -285,7 +294,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
             showSlashMenu: () => showSlashMenu(
               widget.editorState,
             ),
-          );
+          ),
+        );
+      };
     }
 
     return builders;
