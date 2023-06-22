@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
+import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_day.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/toolbar/calendar_layout_setting.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/checkbox.dart';
@@ -427,6 +428,17 @@ extension AppFlowyDatabaseTest on WidgetTester {
     expect(findRowDetailPage, findsOneWidget);
   }
 
+  Future<void> dismissRowDetailPage() async {
+    await sendKeyEvent(LogicalKeyboardKey.escape);
+    await pumpAndSettle();
+  }
+
+  Future<void> editTitleInRowDetailPage(String title) async {
+    final titleField = find.byType(GridTextCell);
+    await enterText(titleField, title);
+    await pumpAndSettle();
+  }
+
   Future<void> hoverRowBanner() async {
     final banner = find.byType(RowBanner);
     expect(banner, findsOneWidget);
@@ -453,6 +465,21 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> tapEmoji(String emoji) async {
     final emojiWidget = find.text(emoji);
     await tapButton(emojiWidget);
+  }
+
+  Future<void> tapDateCellInRowDetailPage() async {
+    final findDateCell = find.byType(GridDateCell);
+    await tapButton(findDateCell);
+  }
+
+  Future<void> duplicateRowInRowDetailPage() async {
+    final duplicateButton = find.byType(RowDetailPageDuplicateButton);
+    await tapButton(duplicateButton);
+  }
+
+  Future<void> deleteRowInRowDetailPage() async {
+    final deleteButton = find.byType(RowDetailPageDeleteButton);
+    await tapButton(deleteButton);
   }
 
   Future<void> scrollGridByOffset(Offset offset) async {
@@ -941,6 +968,94 @@ extension AppFlowyDatabaseTest on WidgetTester {
           widget.isSelected == true,
     );
     expect(finder, findsOneWidget);
+  }
+
+  Future<void> scrollToToday() async {
+    final todayCell = find.byWidgetPredicate(
+      (widget) => widget is CalendarDayCard && widget.isToday,
+      skipOffstage: false,
+    );
+    await ensureVisible(todayCell);
+    await pumpAndSettle(const Duration(milliseconds: 300));
+  }
+
+  Future<void> hoverOnTodayCalendarCell() async {
+    final todayCell = find.byWidgetPredicate(
+      (widget) => widget is CalendarDayCard && widget.isToday,
+    );
+
+    await hoverOnWidget(todayCell);
+  }
+
+  Future<void> tapAddCalendarEventButton() async {
+    final findFlowyButton = find.byType(FlowyIconButton);
+    final findNewEventButton = find.byType(NewEventButton);
+    final button = find.descendant(
+      of: findNewEventButton,
+      matching: findFlowyButton,
+    );
+    await tapButton(button);
+  }
+
+  /// Checks for a certain number of events. Parameters [date] and [title] can
+  /// also be provided to restrict the scope of the search
+  void assertNumberOfEventsInCalendar(int number, {String? title}) {
+    Finder findEvents = find.byType(EventCard);
+    if (title != null) {
+      findEvents = find.descendant(of: findEvents, matching: find.text(title));
+    }
+    expect(findEvents, findsNWidgets(number));
+  }
+
+  void assertNumberofEventsOnSpecificDay(
+    int number,
+    DateTime date, {
+    String? title,
+  }) {
+    final findDayCell = find.byWidgetPredicate(
+      (widget) =>
+          widget is CalendarDayCard &&
+          isSameDay(
+            widget.date,
+            date,
+          ),
+    );
+    Finder findEvents = find.descendant(
+      of: findDayCell,
+      matching: find.byType(EventCard),
+    );
+    if (title != null) {
+      findEvents = find.descendant(of: findEvents, matching: find.text(title));
+    }
+    expect(findEvents, findsNWidgets(number));
+  }
+
+  Future<void> doubleClickCalendarCell(DateTime date) async {
+    final todayCell = find.byWidgetPredicate(
+      (widget) => widget is CalendarDayCard && isSameDay(date, widget.date),
+    );
+
+    await doubleTapButton(todayCell);
+  }
+
+  Future<void> openCalendarEvent({required index, DateTime? date}) async {
+    final findDayCell = find.byWidgetPredicate(
+      (widget) =>
+          widget is CalendarDayCard &&
+          isSameDay(widget.date, date ?? DateTime.now()),
+    );
+    final cards = find.descendant(
+      of: findDayCell,
+      matching: find.byType(EventCard),
+    );
+
+    await tapButton(cards.at(index));
+  }
+
+  Future<void> dragDropRescheduleCalendarEvent(DateTime startDate) async {
+    final findEventCard = find.byType(EventCard);
+    await drag(findEventCard.first, const Offset(0, 300));
+    await pumpAndSettle();
   }
 
   Future<void> tapCreateLinkedDatabaseViewButton(AddButtonAction action) async {
