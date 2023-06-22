@@ -71,7 +71,7 @@ class SettingsShortcutService {
 
   //returns the default file for storing shortcuts
   Future<File> _defaultShortcutFile() async {
-    final Directory flowyDir = await appFlowyDocumentDirectory();
+    final Directory flowyDir = await appFlowyApplicationDataDirectory();
     return File('${flowyDir.path}/shortcuts/shortcuts.json')
       ..createSync(recursive: true);
   }
