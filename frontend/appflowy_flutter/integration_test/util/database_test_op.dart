@@ -422,6 +422,11 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(expandButton);
   }
 
+  void assertRowDetailPageOpened() async {
+    final findRowDetailPage = find.byType(RowDetailPage);
+    expect(findRowDetailPage, findsOneWidget);
+  }
+
   Future<void> hoverRowBanner() async {
     final banner = find.byType(RowBanner);
     expect(banner, findsOneWidget);
