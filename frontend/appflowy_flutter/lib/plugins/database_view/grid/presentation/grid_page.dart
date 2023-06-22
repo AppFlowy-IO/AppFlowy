@@ -257,6 +257,8 @@ class _GridRows extends StatelessWidget {
     List<RowInfo> rowInfos,
   ) {
     if (Platform.isWindows) {
+      // Workaround: On Windows, the focusing of the text cell is not working
+      // properly when the list is reorderable. So using the ListView instead.
       return ListView.builder(
         controller: scrollController.verticalController,
         itemCount: rowInfos.length + 1, // the extra item is the footer
