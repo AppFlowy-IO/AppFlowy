@@ -46,7 +46,7 @@ dependencies:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: 42cd046
+      ref: cd0f67a
   appflowy_popover:
     path: packages/appflowy_popover
 
