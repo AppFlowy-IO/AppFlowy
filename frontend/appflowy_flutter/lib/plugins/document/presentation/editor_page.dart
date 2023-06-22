@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/database/r
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -132,6 +133,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       characterShortcutEvents: characterShortcutEvents,
       commandShortcutEvents: commandShortcutEvents,
       header: widget.header,
+      footer: const VSpace(200),
     );
 
     return Center(
