@@ -121,11 +121,13 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Finder cellFinder(int rowIndex, FieldType fieldType, {int cellIndex = 0}) {
     final findRow = find.byType(GridRow, skipOffstage: false);
     final findCell = finderForFieldType(fieldType);
-    return find.descendant(
-      of: findRow.at(rowIndex),
-      matching: findCell.at(cellIndex),
-      skipOffstage: false,
-    );
+    return find
+        .descendant(
+          of: findRow.at(rowIndex),
+          matching: findCell,
+          skipOffstage: false,
+        )
+        .at(cellIndex);
   }
 
   Future<void> tapCheckboxCellInGrid({
