@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
@@ -241,46 +243,70 @@ class _GridRows extends StatelessWidget {
             );
             return ScrollConfiguration(
               behavior: behavior,
-              child: ReorderableListView.builder(
-                /// TODO(Xazin): Resolve inconsistent scrollbar behavior
-                ///  This is a workaround related to
-                ///  https://github.com/flutter/flutter/issues/25652
-                cacheExtent: 5000,
-                scrollController: scrollController.verticalController,
-                buildDefaultDragHandles: false,
-                proxyDecorator: (child, index, animation) => Material(
-                  color: Colors.white.withOpacity(.1),
-                  child: Opacity(opacity: .5, child: child),
-                ),
-                onReorder: (fromIndex, newIndex) {
-                  final toIndex =
-                      newIndex > fromIndex ? newIndex - 1 : newIndex;
-                  if (fromIndex == toIndex) {
-                    return;
-                  }
-                  context
-                      .read<GridBloc>()
-                      .add(GridEvent.moveRow(fromIndex, toIndex));
-                },
-                itemCount: rowInfos.length + 1, // the extra item is the footer
-                itemBuilder: (context, index) {
-                  if (index < rowInfos.length) {
-                    final rowInfo = rowInfos[index];
-                    return _renderRow(
-                      context,
-                      rowInfo.rowId,
-                      isDraggable: state.reorderable,
-                      index: index,
-                    );
-                  }
-                  return const GridRowBottomBar(key: Key('gridFooter'));
-                },
-              ),
+              child: _renderList(context, state, rowInfos),
             );
           },
         ),
       ),
     );
+  }
+
+  Widget _renderList(
+    BuildContext context,
+    GridState state,
+    List<RowInfo> rowInfos,
+  ) {
+    if (Platform.isWindows) {
+      return ListView.builder(
+        controller: scrollController.verticalController,
+        itemCount: rowInfos.length + 1, // the extra item is the footer
+        itemBuilder: (context, index) {
+          if (index < rowInfos.length) {
+            final rowInfo = rowInfos[index];
+            return _renderRow(
+              context,
+              rowInfo.rowId,
+              isDraggable: false,
+              index: index,
+            );
+          }
+          return const GridRowBottomBar(key: Key('gridFooter'));
+        },
+      );
+    } else {
+      return ReorderableListView.builder(
+        /// TODO(Xazin): Resolve inconsistent scrollbar behavior
+        ///  This is a workaround related to
+        ///  https://github.com/flutter/flutter/issues/25652
+        cacheExtent: 5000,
+        scrollController: scrollController.verticalController,
+        buildDefaultDragHandles: false,
+        proxyDecorator: (child, index, animation) => Material(
+          color: Colors.white.withOpacity(.1),
+          child: Opacity(opacity: .5, child: child),
+        ),
+        onReorder: (fromIndex, newIndex) {
+          final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
+          if (fromIndex == toIndex) {
+            return;
+          }
+          context.read<GridBloc>().add(GridEvent.moveRow(fromIndex, toIndex));
+        },
+        itemCount: rowInfos.length + 1, // the extra item is the footer
+        itemBuilder: (context, index) {
+          if (index < rowInfos.length) {
+            final rowInfo = rowInfos[index];
+            return _renderRow(
+              context,
+              rowInfo.rowId,
+              isDraggable: state.reorderable,
+              index: index,
+            );
+          }
+          return const GridRowBottomBar(key: Key('gridFooter'));
+        },
+      );
+    }
   }
 
   Widget _renderRow(

@@ -125,7 +125,7 @@ abstract class CellAccessory extends Widget {
 
 abstract class GridCellWidget extends StatefulWidget
     implements CellAccessory, CellEditable, CellShortcuts {
-  GridCellWidget({super.key}) {}
+  GridCellWidget({super.key});
 
   @override
   final ValueNotifier<bool> onCellFocus = ValueNotifier<bool>(false);
