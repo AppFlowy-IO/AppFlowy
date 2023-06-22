@@ -108,22 +108,26 @@ extension AppFlowyDatabaseTest on WidgetTester {
     required int rowIndex,
     required FieldType fieldType,
     required String input,
+    int cellIndex = 0,
   }) async {
-    final cell = cellFinder(rowIndex, fieldType);
+    final cell = cellFinder(rowIndex, fieldType, cellIndex: cellIndex);
 
     expect(cell, findsOneWidget);
     await enterText(cell, input);
     await pumpAndSettle();
   }
 
-  Finder cellFinder(int rowIndex, FieldType fieldType) {
+  ///
+  Finder cellFinder(int rowIndex, FieldType fieldType, {int cellIndex = 0}) {
     final findRow = find.byType(GridRow, skipOffstage: false);
     final findCell = finderForFieldType(fieldType);
-    return find.descendant(
-      of: findRow.at(rowIndex),
-      matching: findCell,
-      skipOffstage: false,
-    );
+    return find
+        .descendant(
+          of: findRow.at(rowIndex),
+          matching: findCell,
+          skipOffstage: false,
+        )
+        .at(cellIndex);
   }
 
   Future<void> tapCheckboxCellInGrid({
@@ -173,8 +177,9 @@ extension AppFlowyDatabaseTest on WidgetTester {
     required int rowIndex,
     required FieldType fieldType,
     required String content,
+    int cellIndex = 0,
   }) async {
-    final findCell = cellFinder(rowIndex, fieldType);
+    final findCell = cellFinder(rowIndex, fieldType, cellIndex: cellIndex);
     final findContent = find.descendant(
       of: findCell,
       matching: find.text(content),
