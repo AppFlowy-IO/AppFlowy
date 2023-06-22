@@ -107,7 +107,7 @@ abstract class CellEditable {
 
   ValueNotifier<bool> get onCellFocus;
 
-  ValueNotifier<bool> get onCellEditing;
+  // ValueNotifier<bool> get onCellEditing;
 }
 
 typedef AccessoryBuilder = List<GridCellAccessoryBuilder> Function(
@@ -125,11 +125,7 @@ abstract class CellAccessory extends Widget {
 
 abstract class GridCellWidget extends StatefulWidget
     implements CellAccessory, CellEditable, CellShortcuts {
-  GridCellWidget({Key? key}) : super(key: key) {
-    onCellEditing.addListener(() {
-      onCellFocus.value = onCellEditing.value;
-    });
-  }
+  GridCellWidget({super.key}) {}
 
   @override
   final ValueNotifier<bool> onCellFocus = ValueNotifier<bool>(false);
@@ -138,8 +134,8 @@ abstract class GridCellWidget extends StatefulWidget
   @override
   ValueNotifier<bool> get onAccessoryHover => onCellFocus;
 
-  @override
-  final ValueNotifier<bool> onCellEditing = ValueNotifier<bool>(false);
+  // @override
+  // final ValueNotifier<bool> onCellEditing = ValueNotifier<bool>(false);
 
   @override
   List<GridCellAccessoryBuilder> Function(
@@ -191,9 +187,9 @@ abstract class GridCellState<T extends GridCellWidget> extends State<T> {
   void onInsert(String value) {}
 }
 
-abstract class GridFocusNodeCellState<T extends GridCellWidget>
+abstract class GridEditableTextCell<T extends GridCellWidget>
     extends GridCellState<T> {
-  SingleListenerFocusNode focusNode = SingleListenerFocusNode();
+  SingleListenerFocusNode get focusNode;
 
   @override
   void initState() {
@@ -227,9 +223,9 @@ abstract class GridFocusNodeCellState<T extends GridCellWidget>
   }
 
   void _listenOnFocusNodeChanged() {
-    widget.onCellEditing.value = focusNode.hasFocus;
+    widget.onCellFocus.value = focusNode.hasFocus;
     focusNode.setListener(() {
-      widget.onCellEditing.value = focusNode.hasFocus;
+      widget.onCellFocus.value = focusNode.hasFocus;
       focusChanged();
     });
   }
