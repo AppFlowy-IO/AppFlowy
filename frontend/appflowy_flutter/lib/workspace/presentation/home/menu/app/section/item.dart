@@ -99,6 +99,7 @@ class ViewSectionItem extends StatelessWidget {
               case ViewDisclosureAction.rename:
                 NavigatorTextFieldDialog(
                   title: LocaleKeys.disclosureAction_rename.tr(),
+                  autoSelectAllText: true,
                   value: blocContext.read<ViewBloc>().state.view.name,
                   confirm: (newValue) {
                     blocContext

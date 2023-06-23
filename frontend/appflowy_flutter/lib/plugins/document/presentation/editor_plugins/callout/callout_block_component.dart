@@ -150,7 +150,11 @@ class _CalloutBlockComponentWidgetState
         children: [
           // the emoji picker button for the note
           Padding(
-            padding: const EdgeInsets.all(2.0),
+            padding: const EdgeInsets.only(
+              top: 6.0,
+              left: 2.0,
+              right: 2.0,
+            ),
             child: EmojiPickerButton(
               key: ValueKey(
                 emoji.toString(),
