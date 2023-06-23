@@ -39,7 +39,7 @@ class _EmojiPopoverState extends State<EmojiPopover> {
               padding: const EdgeInsets.only(bottom: 4.0),
               child: Align(
                 alignment: Alignment.centerRight,
-                child: DeleteButton(onPressed: widget.removeIcon),
+                child: DeleteButton(onTap: widget.removeIcon),
               ),
             ),
           Expanded(
@@ -67,13 +67,13 @@ class _EmojiPopoverState extends State<EmojiPopover> {
 }
 
 class DeleteButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  const DeleteButton({required this.onPressed, Key? key}) : super(key: key);
+  final VoidCallback onTap;
+  const DeleteButton({required this.onTap, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
-      onTap: () => onPressed,
+      onTap: onTap,
       useIntrinsicWidth: true,
       text: FlowyText(
         LocaleKeys.document_plugins_cover_removeIcon.tr(),
