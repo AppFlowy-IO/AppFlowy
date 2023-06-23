@@ -63,7 +63,7 @@ impl DocumentManager {
     }
     tracing::debug!("open_document: {:?}", doc_id);
     // read the existing document from the disk.
-    let document = self.get_document_from_disk(&doc_id)?;
+    let document = self.get_document_from_disk(doc_id)?;
     // save the document to the memory and read it from the memory if we open the same document again.
     // and we don't want to subscribe to the document changes if we open the same document again.
     self
