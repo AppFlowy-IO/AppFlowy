@@ -57,6 +57,32 @@ class EditorStyleCustomizer {
           ),
         ),
       ),
+      textSpanDecorator: (textInsert, textSpan) {
+        final attributes = textInsert.attributes;
+        if (attributes == null) {
+          return textSpan;
+        }
+        final mention = attributes['mention'] as Map?;
+
+        if (mention != null) {
+          return WidgetSpan(
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.edit_document),
+                    Text(mention['handler']),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+        return textSpan;
+      },
     );
   }
 
@@ -94,6 +120,7 @@ class EditorStyleCustomizer {
           ),
         ),
       ),
+      // Example for customizing a new attribute key.
     );
   }
 
