@@ -12,6 +12,7 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SettingsAppearanceView extends StatelessWidget {
   const SettingsAppearanceView({Key? key}) : super(key: key);
@@ -27,6 +28,9 @@ class SettingsAppearanceView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 BrightnessSetting(currentThemeMode: state.themeMode),
+                ThemeFontFamilySetting(
+                  currentFontFamily: state.font,
+                ),
                 ColorSchemeSetting(
                   currentTheme: state.appTheme.themeName,
                   bloc: context.read<DynamicPluginBloc>(),
@@ -209,36 +213,18 @@ class BrightnessSetting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: FlowyText.medium(
-            LocaleKeys.settings_appearance_themeMode_label.tr(),
-            overflow: TextOverflow.ellipsis,
-          ),
+    return ThemeSettingDropDown(
+      label: LocaleKeys.settings_appearance_themeMode_label.tr(),
+      currentValue: _themeModeLabelText(currentThemeMode),
+      popupBuilder: (_) => IntrinsicHeight(
+        child: Column(
+          children: [
+            _themeModeItemButton(context, ThemeMode.light),
+            _themeModeItemButton(context, ThemeMode.dark),
+            _themeModeItemButton(context, ThemeMode.system),
+          ],
         ),
-        AppFlowyPopover(
-          direction: PopoverDirection.bottomWithRightAligned,
-          child: FlowyTextButton(
-            _themeModeLabelText(currentThemeMode),
-            fontColor: Theme.of(context).colorScheme.onBackground,
-            fillColor: Colors.transparent,
-            onPressed: () {},
-          ),
-          popupBuilder: (BuildContext context) {
-            return IntrinsicWidth(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _themeModeItemButton(context, ThemeMode.light),
-                  _themeModeItemButton(context, ThemeMode.dark),
-                  _themeModeItemButton(context, ThemeMode.system),
-                ],
-              ),
-            );
-          },
-        ),
-      ],
+      ),
     );
   }
 
@@ -270,5 +256,111 @@ class BrightnessSetting extends StatelessWidget {
       default:
         return "";
     }
+  }
+}
+
+class ThemeFontFamilySetting extends StatefulWidget {
+  const ThemeFontFamilySetting({
+    super.key,
+    required this.currentFontFamily,
+  });
+
+  final String currentFontFamily;
+
+  @override
+  State<ThemeFontFamilySetting> createState() => _ThemeFontFamilySettingState();
+}
+
+class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
+  final List<String> availableFonts = GoogleFonts.asMap().keys.toList();
+
+  @override
+  Widget build(BuildContext context) {
+    return ThemeSettingDropDown(
+      label: LocaleKeys.settings_appearance_fontFamily.tr(),
+      currentValue: parseFontFamilyName(widget.currentFontFamily),
+      popupBuilder: (_) => ListView(
+        shrinkWrap: true,
+        children: [
+          ...availableFonts.map(
+            (font) => _fontFamilyItemButton(
+              context,
+              GoogleFonts.getFont(font),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  String parseFontFamilyName(String fontFamilyName) {
+    final camelCase = RegExp('(?<=[a-z])[A-Z]');
+    return fontFamilyName
+        .replaceAll('_regular', '')
+        .replaceAllMapped(camelCase, (m) => ' ${m.group(0)}');
+  }
+
+  Widget _fontFamilyItemButton(BuildContext context, TextStyle style) {
+    return SizedBox(
+      key: UniqueKey(),
+      height: 32,
+      child: FlowyButton(
+        text: FlowyText.medium(
+          parseFontFamilyName(style.fontFamily!),
+          fontFamily: style.fontFamily!,
+        ),
+        rightIcon: widget.currentFontFamily == style.fontFamily
+            ? const FlowySvg(name: 'grid/checkmark')
+            : null,
+        onTap: () {
+          if (widget.currentFontFamily != style.fontFamily) {
+            context
+                .read<AppearanceSettingsCubit>()
+                .setFontFamily(style.fontFamily!);
+          }
+        },
+      ),
+    );
+  }
+}
+
+class ThemeSettingDropDown extends StatefulWidget {
+  const ThemeSettingDropDown({
+    super.key,
+    required this.label,
+    required this.currentValue,
+    required this.popupBuilder,
+  });
+
+  final String label;
+  final String currentValue;
+  final Widget Function(BuildContext) popupBuilder;
+
+  @override
+  State<ThemeSettingDropDown> createState() => _ThemeSettingDropDownState();
+}
+
+class _ThemeSettingDropDownState extends State<ThemeSettingDropDown> {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: FlowyText.medium(
+            widget.label,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        AppFlowyPopover(
+          direction: PopoverDirection.bottomWithRightAligned,
+          popupBuilder: widget.popupBuilder,
+          child: FlowyTextButton(
+            widget.currentValue,
+            fontColor: Theme.of(context).colorScheme.onBackground,
+            fillColor: Colors.transparent,
+          ),
+        ),
+      ],
+    );
   }
 }
