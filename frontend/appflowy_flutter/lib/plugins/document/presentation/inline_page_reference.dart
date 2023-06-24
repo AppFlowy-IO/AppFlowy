@@ -14,10 +14,13 @@ class InlinePageReferenceService {
       character: character,
       handler: (editorState) async {
         final items = await generatePageItems(character);
-        return _showPageSelectionMenu(editorState, items,
-            shouldInsertSlash: shouldInsertSlash,
-            style: style,
-            character: character);
+        return _showPageSelectionMenu(
+          editorState,
+          items,
+          shouldInsertSlash: shouldInsertSlash,
+          style: style,
+          character: character,
+        );
       },
     );
   }
