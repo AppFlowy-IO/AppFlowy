@@ -186,6 +186,7 @@
       "open": "Open Settings"
     },
     "appearance": {
+      "fontFamily": "Font",
       "themeMode": {
         "label": "Theme Mode",
         "light": "Light Mode",
