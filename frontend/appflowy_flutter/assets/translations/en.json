@@ -201,7 +201,9 @@
         "deletionFailure": "Failed to delete the theme. Try to delete it manually.",
         "filePickerDialogTitle": "Choose a .flowy_plugin file"
       },
-      "theme": "Theme"
+      "theme": "Theme",
+      "builtInsLabel": "Built-in Themes",
+      "pluginsLabel": "Plugins"
     },
     "files": {
       "copy": "Copy",

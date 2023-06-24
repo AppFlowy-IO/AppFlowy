@@ -30,8 +30,10 @@ class SettingsAppearanceView extends StatelessWidget {
               children: [
                 ThemeModeSetting(currentThemeMode: state.themeMode),
                 const ThemeUploadWidget(),
-                const SizedBox(height: ThemeSetting.mainAxisSpacing),
-                ThemeSetting(currentTheme: state.appTheme.themeName),
+                const SizedBox(height: ThemePreviewGrid.mainAxisSpacing),
+                ThemePreviewBuilder(
+                  currentTheme: state.appTheme,
+                ),
               ],
             );
           },
@@ -41,29 +43,13 @@ class SettingsAppearanceView extends StatelessWidget {
   }
 }
 
-class ThemeSetting extends StatefulWidget {
-  const ThemeSetting({
+class ThemePreviewBuilder extends StatelessWidget {
+  const ThemePreviewBuilder({
     super.key,
     required this.currentTheme,
   });
 
-  final String currentTheme;
-  static const double crossAxisSpacing = 16;
-  static const double mainAxisSpacing = 16;
-
-  @override
-  State<ThemeSetting> createState() => _ThemeSettingState();
-}
-
-class _ThemeSettingState extends State<ThemeSetting> {
-  int get crossAxisCount {
-    final factor = FormFactor.fromWidth(MediaQuery.of(context).size.width);
-    return switch (factor) {
-      FormFactor.mobile => 1,
-      FormFactor.tablet => 2,
-      FormFactor.desktop => 3,
-    };
-  }
+  final AppTheme currentTheme;
 
   Widget get uninitialized => const SizedBox.shrink();
   Widget get processing => const SizedBox.shrink();
@@ -72,25 +58,37 @@ class _ThemeSettingState extends State<ThemeSetting> {
   Widget get deletionSuccess => const SizedBox.shrink();
   Widget get compilationSuccess => const SizedBox.shrink();
   Widget ready(Iterable<FlowyDynamicPlugin> plugins) {
-    final themes = [
-      ...AppTheme.builtins,
-      ...plugins.map((plugin) => plugin.theme).whereType<AppTheme>(),
-    ];
-    return GridView.builder(
-      shrinkWrap: true,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        crossAxisSpacing: ThemeSetting.crossAxisSpacing,
-        mainAxisSpacing: ThemeSetting.mainAxisSpacing,
-      ),
-      itemCount: themes.length,
-      itemBuilder: (context, index) {
-        final theme = themes.elementAt(index);
-        return ThemePreview(
-          theme: theme,
-          isCurrentTheme: theme.themeName == widget.currentTheme,
-        );
-      },
+    return Column(
+      children: [
+        Row(
+          children: [
+            FlowyText.medium(
+              LocaleKeys.settings_appearance_builtInsLabel.tr(),
+              textAlign: TextAlign.left,
+            ),
+          ],
+        ),
+        const SizedBox(height: ThemePreviewGrid.mainAxisSpacing),
+        ThemePreviewGrid(
+          currentTheme: currentTheme.themeName,
+          themes: AppTheme.builtins,
+        ),
+        const SizedBox(height: ThemePreviewGrid.mainAxisSpacing),
+        Row(
+          children: [
+            FlowyText.medium(
+              LocaleKeys.settings_appearance_pluginsLabel.tr(),
+              textAlign: TextAlign.left,
+            ),
+          ],
+        ),
+        const SizedBox(height: ThemePreviewGrid.mainAxisSpacing),
+        ThemePreviewGrid(
+          currentTheme: currentTheme.themeName,
+          themes: plugins.map((plugin) => plugin.theme).whereType<AppTheme>(),
+        ),
+        const SizedBox(height: ThemePreviewGrid.mainAxisSpacing),
+      ],
     );
   }
 
@@ -113,6 +111,53 @@ class _ThemeSettingState extends State<ThemeSetting> {
           },
         ),
       ],
+    );
+  }
+}
+
+class ThemePreviewGrid extends StatefulWidget {
+  const ThemePreviewGrid({
+    super.key,
+    required this.currentTheme,
+    required this.themes,
+  });
+
+  final String currentTheme;
+  final Iterable<AppTheme> themes;
+  static const double crossAxisSpacing = 16;
+  static const double mainAxisSpacing = 16;
+
+  @override
+  State<ThemePreviewGrid> createState() => _ThemePreviewGridState();
+}
+
+class _ThemePreviewGridState extends State<ThemePreviewGrid> {
+  int get crossAxisCount {
+    final factor = FormFactor.fromWidth(MediaQuery.of(context).size.width);
+    return switch (factor) {
+      FormFactor.mobile => 1,
+      FormFactor.tablet => 2,
+      FormFactor.desktop => 3,
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: ThemePreviewGrid.crossAxisSpacing,
+        mainAxisSpacing: ThemePreviewGrid.mainAxisSpacing,
+      ),
+      itemCount: widget.themes.length,
+      itemBuilder: (context, index) {
+        final theme = widget.themes.elementAt(index);
+        return ThemePreview(
+          theme: theme,
+          isCurrentTheme: theme.themeName == widget.currentTheme,
+        );
+      },
     );
   }
 }
