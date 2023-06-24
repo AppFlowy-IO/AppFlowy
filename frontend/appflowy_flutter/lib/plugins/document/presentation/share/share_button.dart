@@ -118,7 +118,8 @@ class ShareActionListState extends State<ShareActionList> {
           case ShareAction.markdown:
             final exportPath = await getIt<FilePickerService>().saveFile(
               dialogTitle: '',
-              fileName: '$name.md',
+              // encode the file name in case it contains special characters
+              fileName: '${Uri.encodeComponent(name)}.md',
             );
             if (exportPath != null) {
               docShareBloc.add(DocShareEvent.shareMarkdown(exportPath));

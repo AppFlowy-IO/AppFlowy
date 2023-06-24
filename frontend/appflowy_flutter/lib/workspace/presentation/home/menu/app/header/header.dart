@@ -87,6 +87,7 @@ class MenuAppHeader extends StatelessWidget {
               case AppDisclosureAction.rename:
                 NavigatorTextFieldDialog(
                   title: LocaleKeys.menuAppHeader_renameDialog.tr(),
+                  autoSelectAllText: true,
                   value: context.read<AppBloc>().state.view.name,
                   confirm: (newValue) {
                     context.read<AppBloc>().add(AppEvent.rename(newValue));

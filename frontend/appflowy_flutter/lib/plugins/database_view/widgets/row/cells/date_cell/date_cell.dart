@@ -90,11 +90,11 @@ class _DateCellState extends GridCellState<GridDateCell> {
                 return DateCellEditor(
                   cellController: widget.cellControllerBuilder.build()
                       as DateCellController,
-                  onDismissed: () => widget.onCellEditing.value = false,
+                  onDismissed: () => widget.onCellFocus.value = false,
                 );
               },
               onClose: () {
-                widget.onCellEditing.value = false;
+                widget.onCellFocus.value = false;
               },
             );
           }
@@ -115,7 +115,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
     _popover.show();
 
     if (widget.editable) {
-      widget.onCellEditing.value = true;
+      widget.onCellFocus.value = true;
     }
   }
 

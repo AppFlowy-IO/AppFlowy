@@ -31,14 +31,14 @@ class BlockActionList extends StatelessWidget {
           editorState: editorState,
           showSlashMenu: showSlashMenu,
         ),
-        const SizedBox(width: 8.0),
+        const SizedBox(width: 4.0),
         BlockOptionButton(
           blockComponentContext: blockComponentContext,
           blockComponentState: blockComponentState,
           actions: actions,
           editorState: editorState,
         ),
-        const SizedBox(width: 6.0),
+        const SizedBox(width: 4.0),
       ],
     );
   }
