@@ -23,18 +23,18 @@ class CoverBlockKeys {
 }
 
 enum CoverSelectionType {
-  initial,
+  none,
   color,
   file,
   asset;
 
   static CoverSelectionType fromString(String? value) {
     if (value == null) {
-      return CoverSelectionType.initial;
+      return CoverSelectionType.none;
     }
     return CoverSelectionType.values.firstWhere(
       (e) => e.toString() == value,
-      orElse: () => CoverSelectionType.initial,
+      orElse: () => CoverSelectionType.none,
     );
   }
 }
@@ -50,9 +50,7 @@ class CoverNodeWidgetBuilder implements NodeWidgetBuilder {
   }
 
   @override
-  NodeValidator<Node> get nodeValidator => (node) {
-        return true;
-      };
+  NodeValidator<Node> get nodeValidator => (_) => true;
 }
 
 class CoverImageNodeWidget extends StatefulWidget {
@@ -175,7 +173,7 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   // Add Cover Button.
-                  widget.selectionType != CoverSelectionType.initial
+                  widget.selectionType != CoverSelectionType.none
                       ? Container()
                       : FlowyButton(
                           key: UniqueKey(),
@@ -313,8 +311,7 @@ class _CoverImageState extends State<_CoverImage> {
           : widget.node.attributes[CoverBlockKeys.iconSelection].isNotEmpty;
   bool isOverlayButtonsHidden = true;
   PopoverController iconPopoverController = PopoverController();
-  bool get hasCover =>
-      selectionType == CoverSelectionType.initial ? false : true;
+  bool get hasCover => selectionType == CoverSelectionType.none ? false : true;
 
   @override
   Widget build(BuildContext context) {
@@ -358,7 +355,7 @@ class _CoverImageState extends State<_CoverImage> {
                 ),
               )
             : Container(),
-        hasIcon && selectionType != CoverSelectionType.initial
+        hasIcon && selectionType != CoverSelectionType.none
             ? Container()
             : _AddCoverButton(
                 onTap: () {
@@ -471,7 +468,7 @@ class _CoverImageState extends State<_CoverImage> {
                 color: Theme.of(context).colorScheme.tertiary,
               ),
               onPressed: () {
-                widget.onCoverChanged(CoverSelectionType.initial, null);
+                widget.onCoverChanged(CoverSelectionType.none, null);
               },
             ),
           ),
@@ -490,7 +487,7 @@ class _CoverImageState extends State<_CoverImage> {
         if (!imageFile.existsSync()) {
           // reset cover state
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            widget.onCoverChanged(CoverSelectionType.initial, null);
+            widget.onCoverChanged(CoverSelectionType.none, null);
           });
           coverImage = const SizedBox();
           break;
@@ -515,7 +512,7 @@ class _CoverImageState extends State<_CoverImage> {
           alignment: Alignment.center,
         );
         break;
-      case CoverSelectionType.initial:
+      case CoverSelectionType.none:
         coverImage = const SizedBox();
         break;
     }

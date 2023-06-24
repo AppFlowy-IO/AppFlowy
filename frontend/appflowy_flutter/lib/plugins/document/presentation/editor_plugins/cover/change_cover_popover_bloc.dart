@@ -90,7 +90,7 @@ class ChangeCoverPopoverBloc
   Future<void> _removeCoverImageFromNode() async {
     final transaction = editorState.transaction;
     transaction.updateNode(node, {
-      CoverBlockKeys.selectionType: CoverSelectionType.initial.toString(),
+      CoverBlockKeys.selectionType: CoverSelectionType.none.toString(),
       CoverBlockKeys.iconSelection:
           node.attributes[CoverBlockKeys.iconSelection]
     });
