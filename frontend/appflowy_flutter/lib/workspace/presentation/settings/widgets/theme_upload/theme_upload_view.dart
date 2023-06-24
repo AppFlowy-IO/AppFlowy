@@ -33,16 +33,22 @@ class _ThemeUploadWidgetState extends State<ThemeUploadWidget> {
       state.when(
         uninitialized: () => null,
         ready: (plugins) {
-          child = const UploadNewThemeWidget();
+          child =
+              const UploadNewThemeWidget(key: Key('upload_new_theme_widget'));
         },
         deletionSuccess: () {
-          child = const UploadNewThemeWidget();
+          child =
+              const UploadNewThemeWidget(key: Key('upload_new_theme_widget'));
         },
         processing: () {
-          child = const ThemeUploadLoadingWidget();
+          child = const ThemeUploadLoadingWidget(
+            key: Key('upload_theme_loading_widget'),
+          );
         },
         compilationFailure: (path) {
-          child = const ThemeUploadFailureWidget();
+          child = const ThemeUploadFailureWidget(
+            key: Key('upload_theme_failure_widget'),
+          );
         },
         compilationSuccess: () {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -59,7 +65,8 @@ class _ThemeUploadWidgetState extends State<ThemeUploadWidget> {
     });
   }
 
-  Widget child = const UploadNewThemeWidget();
+  Widget child =
+      const UploadNewThemeWidget(key: Key('upload_new_theme_widget'));
 
   @override
   Widget build(BuildContext context) {
