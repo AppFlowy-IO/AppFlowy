@@ -39,7 +39,7 @@ class FlowyRunner {
         .then((value) => Directory(value));
 
     FlowyPluginService.instance.setLocation(
-      PluginLocationService(fallback: appFlowyDocumentDirectory()),
+      PluginLocationService(fallback: appFlowyApplicationDataDirectory()),
     );
 
     // add task
