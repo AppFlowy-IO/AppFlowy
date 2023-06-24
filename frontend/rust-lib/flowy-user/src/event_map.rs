@@ -4,7 +4,6 @@ use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
-
 use lib_dispatch::prelude::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::{to_fut, Fut, FutureResult};
@@ -93,7 +92,6 @@ pub trait UserAuthService: Send + Sync {
   /// Using the user's token to update the user information
   fn update_user(
     &self,
-    uid: i64,
     token: &Option<String>,
     params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError>;

@@ -540,7 +540,7 @@ impl Folder2Manager {
   pub(crate) async fn import(&self, import_data: ImportParams) -> FlowyResult<View> {
     if import_data.data.is_none() && import_data.file_path.is_none() {
       return Err(FlowyError::new(
-        ErrorCode::InvalidData,
+        ErrorCode::InvalidParams,
         "data or file_path is required",
       ));
     }

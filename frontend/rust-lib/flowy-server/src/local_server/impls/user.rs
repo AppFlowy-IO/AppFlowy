@@ -54,7 +54,6 @@ impl UserAuthService for LocalServerUserAuthServiceImpl {
 
   fn update_user(
     &self,
-    _uid: i64,
     _token: &Option<String>,
     _params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError> {

@@ -42,7 +42,7 @@ impl UserAuthService for SelfHostedUserAuthServiceImpl {
     match token {
       None => FutureResult::new(async {
         Err(FlowyError::new(
-          ErrorCode::InvalidData,
+          ErrorCode::InvalidParams,
           "Token should not be empty",
         ))
       }),
@@ -59,14 +59,13 @@ impl UserAuthService for SelfHostedUserAuthServiceImpl {
 
   fn update_user(
     &self,
-    _uid: i64,
     token: &Option<String>,
     params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError> {
     match token {
       None => FutureResult::new(async {
         Err(FlowyError::new(
-          ErrorCode::InvalidData,
+          ErrorCode::InvalidParams,
           "Token should not be empty",
         ))
       }),

@@ -149,8 +149,8 @@ pub enum ErrorCode {
   #[error("Invalid date time format")]
   InvalidDateTimeFormat = 47,
 
-  #[error("Invalid data")]
-  InvalidData = 49,
+  #[error("Invalid params")]
+  InvalidParams = 49,
 
   #[error("Serde")]
   Serde = 50,
@@ -208,6 +208,12 @@ pub enum ErrorCode {
 
   #[error("Apply actions is empty")]
   ApplyActionsIsEmpty = 68,
+
+  #[error("Connect postgres database failed")]
+  PostgresDatabaseConnectError = 69,
+
+  #[error("Postgres database error")]
+  PgDatabaseError = 70,
 }
 
 impl ErrorCode {

@@ -1,13 +1,15 @@
+use std::sync::mpsc::Receiver;
 use std::sync::Arc;
 
-use postgrest::Postgrest;
 use serde::Deserialize;
+use tokio::sync::Mutex;
 
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_folder2::deps::FolderCloudService;
 use flowy_user::event_map::UserAuthService;
 
 use crate::supabase::impls::PostgrestUserAuthServiceImpl;
+use crate::supabase::pg_db::{PostgresClient, PostgresDB};
 use crate::AppFlowyServer;
 
 pub const SUPABASE_URL: &str = "SUPABASE_URL";
@@ -51,18 +53,40 @@ impl SupabaseConfiguration {
 }
 
 pub struct SupabaseServer {
-  pub postgres: Arc<Postgrest>,
+  pub postgres: Arc<PostgresServer>,
 }
 
 impl SupabaseServer {
-  pub fn new(config: SupabaseConfiguration) -> Self {
-    let url = format!("{}/rest/v1/", config.url);
-    let auth = format!("Bearer {}", config.key);
-    let postgrest = Postgrest::new(url)
-      .insert_header("apikey", config.key)
-      .insert_header("Authorization", auth);
-    let postgres = Arc::new(postgrest);
-    Self { postgres }
+  pub fn new() -> Self {
+    Self {
+      postgres: Arc::new(PostgresServer::new()),
+    }
+  }
+}
+
+pub struct PostgresServer(Arc<Mutex<Option<Arc<PostgresDB>>>>);
+
+impl PostgresServer {
+  pub fn new() -> Self {
+    Self(Arc::new(Mutex::new(None)))
+  }
+
+  pub async fn pg_client(&self) -> Result<Arc<PostgresClient>, FlowyError> {
+    let mut postgres = self.0.lock().await;
+    match &*postgres {
+      None => match PostgresDB::from_env().await {
+        Ok(db) => {
+          let db = Arc::new(db);
+          *postgres = Some(db.clone());
+          Ok(db.client.clone())
+        },
+        Err(e) => Err(FlowyError::new(
+          ErrorCode::PostgresDatabaseConnectError,
+          e.to_string(),
+        )),
+      },
+      Some(postgrest) => Ok(postgrest.client.clone()),
+    }
   }
 }
 
@@ -75,3 +99,5 @@ impl AppFlowyServer for SupabaseServer {
     todo!()
   }
 }
+
+struct SupabaseServerRunner(Receiver<()>);

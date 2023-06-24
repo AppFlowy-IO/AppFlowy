@@ -1,6 +1,6 @@
-use flowy_folder2::deps::FolderCloudService;
 use std::sync::Arc;
 
+use flowy_folder2::deps::FolderCloudService;
 use flowy_user::event_map::UserAuthService;
 
 pub mod local_server;
@@ -8,6 +8,7 @@ mod request;
 mod response;
 pub mod self_host;
 pub mod supabase;
+pub mod util;
 
 /// In order to run this the supabase test, you need to create a .env file in the root directory of this project
 /// and add the following environment variables:

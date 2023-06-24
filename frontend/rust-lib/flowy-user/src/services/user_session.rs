@@ -266,14 +266,14 @@ impl UserSession {
   async fn update_user(
     &self,
     _auth_type: &AuthType,
-    uid: i64,
+    _uid: i64,
     token: &Option<String>,
     params: UpdateUserProfileParams,
   ) -> Result<(), FlowyError> {
     let server = self.cloud_services.get_auth_service()?;
     let token = token.to_owned();
     let _ = tokio::spawn(async move {
-      match server.update_user(uid, &token, params).await {
+      match server.update_user(&token, params).await {
         Ok(_) => {},
         Err(e) => {
           // TODO: retry?

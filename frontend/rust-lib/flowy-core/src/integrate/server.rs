@@ -1,21 +1,20 @@
-use lib_infra::future::FutureResult;
 use std::collections::HashMap;
 use std::sync::Arc;
 
 use parking_lot::RwLock;
+use serde_repr::*;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder2::deps::{FolderCloudService, Workspace};
 use flowy_server::local_server::LocalServer;
 use flowy_server::self_host::configuration::self_host_server_configuration;
 use flowy_server::self_host::SelfHostServer;
-use flowy_server::supabase::{SupabaseConfiguration, SupabaseServer};
+use flowy_server::supabase::SupabaseServer;
 use flowy_server::AppFlowyServer;
 use flowy_sqlite::kv::KV;
 use flowy_user::event_map::{UserAuthService, UserCloudServiceProvider};
 use flowy_user::services::AuthType;
-
-use serde_repr::*;
+use lib_infra::future::FutureResult;
 
 const SERVER_PROVIDER_TYPE_KEY: &str = "server_provider_type";
 
@@ -135,11 +134,7 @@ fn server_from_auth_type(
       let server = Arc::new(SelfHostServer::new(config));
       Ok(server)
     },
-    ServerProviderType::Supabase => {
-      let config = SupabaseConfiguration::from_env()?;
-      let server = Arc::new(SupabaseServer::new(config));
-      Ok(server)
-    },
+    ServerProviderType::Supabase => Ok(Arc::new(SupabaseServer::new())),
   }
 }
 

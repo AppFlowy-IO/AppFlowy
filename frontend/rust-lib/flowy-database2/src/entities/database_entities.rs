@@ -105,7 +105,7 @@ impl TryInto<MoveFieldParams> for MoveFieldPayloadPB {
 
   fn try_into(self) -> Result<MoveFieldParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
-    let item_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::InvalidData)?;
+    let item_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::InvalidParams)?;
     Ok(MoveFieldParams {
       view_id: view_id.0,
       field_id: item_id.0,
