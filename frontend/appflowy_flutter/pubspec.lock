@@ -55,7 +55,7 @@ packages:
       path: "."
       ref: d359da8
       resolved-ref: d359da89c9ea2e56c3db475a472ec8cab3cfefc7
-      url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
+      url: "https://github.com/rizwan3395/appflowy-editor"
     source: git
     version: "1.0.4"
   appflowy_popover:
