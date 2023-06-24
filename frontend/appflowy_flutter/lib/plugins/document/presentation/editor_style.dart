@@ -1,4 +1,7 @@
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -69,6 +72,10 @@ class EditorStyleCustomizer {
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
+                onTap: () {
+                  getIt<MenuSharedState>().latestOpenView =
+                      ViewPB.fromJson(mention['view']);
+                },
                 behavior: HitTestBehavior.translucent,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
