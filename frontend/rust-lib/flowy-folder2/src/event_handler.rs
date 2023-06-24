@@ -87,7 +87,7 @@ pub(crate) async fn create_view_handler(
   if set_as_current {
     let _ = folder.set_current_view(&view.id).await;
   }
-  data_result_ok(view_pb_without_child_views(view))
+  data_result_ok(view_pb_without_child_views(Arc::new(view)))
 }
 
 pub(crate) async fn create_orphan_view_handler(
@@ -100,7 +100,7 @@ pub(crate) async fn create_orphan_view_handler(
   if set_as_current {
     let _ = folder.set_current_view(&view.id).await;
   }
-  data_result_ok(view_pb_without_child_views(view))
+  data_result_ok(view_pb_without_child_views(Arc::new(view)))
 }
 
 pub(crate) async fn read_view_handler(

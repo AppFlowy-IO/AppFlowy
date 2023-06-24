@@ -313,14 +313,13 @@ impl Folder2Manager {
 
     match folder.views.get_view(&view_id) {
       None => Err(FlowyError::record_not_found()),
-      Some(mut view) => {
-        view.children.retain(|b| !trash_ids.contains(&b.id));
+      Some(view) => {
         let child_views = folder
           .views
           .get_views_belong_to(&view.id)
           .into_iter()
           .filter(|view| !trash_ids.contains(&view.id))
-          .collect::<Vec<View>>();
+          .collect::<Vec<_>>();
         let view_pb = view_pb_with_child_views(view, child_views);
         Ok(view_pb)
       },
@@ -402,7 +401,7 @@ impl Folder2Manager {
 
   /// Return a list of views that belong to the given parent view id.
   #[tracing::instrument(level = "debug", skip(self, parent_view_id), err)]
-  pub async fn get_views_belong_to(&self, parent_view_id: &str) -> FlowyResult<Vec<View>> {
+  pub async fn get_views_belong_to(&self, parent_view_id: &str) -> FlowyResult<Vec<Arc<View>>> {
     let views = self.with_folder(vec![], |folder| {
       folder.views.get_views_belong_to(parent_view_id)
     });
@@ -434,10 +433,6 @@ impl Folder2Manager {
     }
 
     if let Ok(view_pb) = self.get_view(&params.view_id).await {
-      notify_parent_view_did_change(
-        self.mutex_folder.clone(),
-        vec![view_pb.parent_view_id.clone()],
-      );
       send_notification(&view_pb.id, FolderNotification::DidUpdateView)
         .payload(view_pb)
         .send();
@@ -457,8 +452,8 @@ impl Folder2Manager {
     let duplicate_params = CreateViewParams {
       parent_view_id: view.parent_view_id.clone(),
       name: format!("{} (copy)", &view.name),
-      desc: view.desc,
-      layout: view.layout.into(),
+      desc: view.desc.clone(),
+      layout: view.layout.clone().into(),
       initial_data: view_data.to_vec(),
       view_id: gen_view_id(),
       meta: Default::default(),
@@ -619,10 +614,11 @@ impl Folder2Manager {
         }),
         Some(parent_view) => Some((
           false,
-          parent_view.id,
+          parent_view.id.clone(),
           parent_view
             .children
             .items
+            .clone()
             .into_iter()
             .map(|view| view.id)
             .collect::<Vec<String>>(),
@@ -642,7 +638,7 @@ fn listen_on_view_change(mut rx: ViewChangeReceiver, weak_mutex_folder: &Weak<Mu
         match value {
           ViewChange::DidCreateView { view } => {
             notify_child_views_changed(
-              view_pb_without_child_views(view.clone()),
+              view_pb_without_child_views(Arc::new(view.clone())),
               ChildViewChangeReason::DidCreateView,
             );
             notify_parent_view_did_change(folder.clone(), vec![view.parent_view_id]);
@@ -657,7 +653,7 @@ fn listen_on_view_change(mut rx: ViewChangeReceiver, weak_mutex_folder: &Weak<Mu
           },
           ViewChange::DidUpdate { view } => {
             notify_child_views_changed(
-              view_pb_without_child_views(view.clone()),
+              view_pb_without_child_views(Arc::new(view.clone())),
               ChildViewChangeReason::DidUpdateView,
             );
             notify_parent_view_did_change(folder.clone(), vec![view.parent_view_id]);
@@ -707,7 +703,7 @@ fn listen_on_trash_change(mut rx: TrashChangeReceiver, weak_mutex_folder: &Weak<
         if let Some(folder) = folder.lock().as_ref() {
           let views = folder.views.get_views(&ids);
           for view in views {
-            unique_ids.insert(view.parent_view_id);
+            unique_ids.insert(view.parent_view_id.clone());
           }
 
           let repeated_trash: RepeatedTrashPB = folder.get_all_trash().into();

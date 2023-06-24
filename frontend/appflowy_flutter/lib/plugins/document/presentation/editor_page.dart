@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/document/presentation/inline_page_reference.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -154,6 +155,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       characterShortcutEvents: characterShortcutEvents,
       commandShortcutEvents: commandShortcutEvents,
       header: widget.header,
+      footer: const VSpace(200),
     );
 
     return Center(
@@ -183,7 +185,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     ];
 
     final configuration = BlockComponentConfiguration(
-      padding: (_) => const EdgeInsets.symmetric(vertical: 4.0),
+      padding: (_) => const EdgeInsets.symmetric(vertical: 5.0),
     );
     final customBlockComponentBuilderMap = {
       PageBlockKeys.type: PageBlockComponentBuilder(),
@@ -233,7 +235,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       CalloutBlockKeys.type: CalloutBlockComponentBuilder(
         configuration: configuration,
       ),
-      DividerBlockKeys.type: DividerBlockComponentBuilder(),
+      DividerBlockKeys.type: DividerBlockComponentBuilder(
+        configuration: configuration,
+        height: 28.0,
+      ),
       MathEquationBlockKeys.type: MathEquationBlockComponentBuilder(
         configuration: configuration.copyWith(
           padding: (_) => const EdgeInsets.symmetric(vertical: 20),
@@ -299,7 +304,13 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       ];
 
       builder.showActions = (_) => true;
-      builder.actionBuilder = (context, state) => BlockActionList(
+      builder.actionBuilder = (context, state) {
+        final padding = context.node.type == HeadingBlockKeys.type
+            ? const EdgeInsets.only(top: 8.0)
+            : const EdgeInsets.all(0);
+        return Padding(
+          padding: padding,
+          child: BlockActionList(
             blockComponentContext: context,
             blockComponentState: state,
             editorState: widget.editorState,
@@ -307,7 +318,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
             showSlashMenu: () => showSlashMenu(
               widget.editorState,
             ),
-          );
+          ),
+        );
+      };
     }
 
     return builders;

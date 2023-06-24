@@ -6,7 +6,7 @@ on:
       - "main"
       - "release/*"
     paths:
-      - ".github/workflows/flutter_ci.yaml"
+      - ".github/workflows/integration_test.yml"
       - "frontend/**"
       - "!frontend/appflowy_tauri/**"
 
@@ -15,7 +15,7 @@ on:
       - "main"
       - "release/*"
     paths:
-      - ".github/workflows/flutter_ci.yaml"
+      - ".github/workflows/integration_test.yml"
       - "frontend/**"
       - "!frontend/appflowy_tauri/**"
 
@@ -24,8 +24,13 @@ env:
   FLUTTER_VERSION: "3.10.1"
   RUST_TOOLCHAIN: "1.70"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   tests:
+    if: github.event.pull_request.draft != true
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -43,7 +48,6 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
-          target: ${{ matrix.target }}
           override: true
           profile: minimal
 
@@ -92,7 +96,6 @@ jobs:
           elif [ "$RUNNER_OS" == "Windows" ]; then
             flutter config --enable-windows-desktop
           fi
-          dart pub global activate protoc_plugin 20.0.1
         shell: bash
 
       - name: Build Test lib
@@ -114,11 +117,11 @@ jobs:
             export DISPLAY=:99
             sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
             sudo apt-get install network-manager
-            flutter test integration_test/runner.dart -d Linux --coverage --verbose
+            flutter test integration_test/runner.dart -d Linux --coverage
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            flutter test integration_test/runner.dart -d macOS --coverage --verbose
+            flutter test integration_test/runner.dart -d macOS --coverage
           elif [ "$RUNNER_OS" == "Windows" ]; then
-            flutter test integration_test/runner.dart -d Windows --coverage --verbose
+            flutter test integration_test/runner.dart -d Windows --coverage
           fi
         shell: bash
 
