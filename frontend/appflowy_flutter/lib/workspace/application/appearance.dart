@@ -49,6 +49,14 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     emit(state.copyWith(themeMode: themeMode));
   }
 
+  /// Update selected font in the user's settings and emit an updated state
+  /// with the font name.
+  void setFontFamily(String fontFamilyName) {
+    _setting.font = fontFamilyName;
+    _saveAppearanceSettings();
+    emit(state.copyWith(font: fontFamilyName));
+  }
+
   /// Updates the current locale and notify the listeners the locale was
   /// changed. Fallback to [en] locale if [newLocale] is not supported.
   void setLocale(BuildContext context, Locale newLocale) {
