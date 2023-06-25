@@ -8,7 +8,7 @@ use flowy_error::{ErrorCode, FlowyError};
 use flowy_folder2::deps::FolderCloudService;
 use flowy_user::event_map::UserAuthService;
 
-use crate::supabase::impls::PostgrestUserAuthServiceImpl;
+use crate::supabase::impls::{SupabaseFolderCloudServiceImpl, SupabaseUserAuthServiceImpl};
 use crate::supabase::pg_db::{PostgresClient, PostgresDB};
 use crate::AppFlowyServer;
 
@@ -92,11 +92,11 @@ impl PostgresServer {
 
 impl AppFlowyServer for SupabaseServer {
   fn user_service(&self) -> Arc<dyn UserAuthService> {
-    Arc::new(PostgrestUserAuthServiceImpl::new(self.postgres.clone()))
+    Arc::new(SupabaseUserAuthServiceImpl::new(self.postgres.clone()))
   }
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
-    todo!()
+    Arc::new(SupabaseFolderCloudServiceImpl::new(self.postgres.clone()))
   }
 }
 

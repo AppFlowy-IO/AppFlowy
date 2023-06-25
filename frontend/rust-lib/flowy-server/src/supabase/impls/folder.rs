@@ -9,8 +9,8 @@ use flowy_error::{internal_error, ErrorCode, FlowyError};
 use flowy_folder2::deps::{FolderCloudService, Workspace};
 use lib_infra::future::FutureResult;
 
-use crate::supabase::pg_db::{PostgresClient, SelectSqlBuilder};
-use crate::supabase::sql_builder::InsertSqlBuilder;
+use crate::supabase::pg_db::PostgresClient;
+use crate::supabase::sql_builder::{InsertSqlBuilder, SelectSqlBuilder};
 use crate::supabase::PostgresServer;
 
 pub(crate) const WORKSPACE_TABLE: &str = "af_workspace";
@@ -110,7 +110,7 @@ mod tests {
   use lib_infra::box_any::BoxAny;
 
   use crate::supabase::impls::folder::SupabaseFolderCloudServiceImpl;
-  use crate::supabase::impls::PostgrestUserAuthServiceImpl;
+  use crate::supabase::impls::SupabaseUserAuthServiceImpl;
   use crate::supabase::PostgresServer;
 
   #[tokio::test]
@@ -119,7 +119,7 @@ mod tests {
       return;
     }
     let server = Arc::new(PostgresServer::new());
-    let user_service = PostgrestUserAuthServiceImpl::new(server.clone());
+    let user_service = SupabaseUserAuthServiceImpl::new(server.clone());
 
     // create user
     let mut params = HashMap::new();

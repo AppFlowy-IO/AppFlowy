@@ -11,7 +11,8 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::supabase::entities::{GetUserProfileParams, UserProfileResponse};
-use crate::supabase::pg_db::{PostgresClient, UpdateSqlBuilder};
+use crate::supabase::pg_db::PostgresClient;
+use crate::supabase::sql_builder::UpdateSqlBuilder;
 use crate::supabase::PostgresServer;
 use crate::util::uuid_from_box_any;
 
@@ -21,17 +22,17 @@ pub(crate) const USER_PROFILE_TABLE: &str = "af_user_profile";
 #[allow(dead_code)]
 const USER_UUID: &str = "uuid";
 
-pub(crate) struct PostgrestUserAuthServiceImpl {
+pub(crate) struct SupabaseUserAuthServiceImpl {
   server: Arc<PostgresServer>,
 }
 
-impl PostgrestUserAuthServiceImpl {
+impl SupabaseUserAuthServiceImpl {
   pub(crate) fn new(server: Arc<PostgresServer>) -> Self {
     Self { server }
   }
 }
 
-impl UserAuthService for PostgrestUserAuthServiceImpl {
+impl UserAuthService for SupabaseUserAuthServiceImpl {
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
     let server = self.server.clone();
     let (tx, rx) = channel();
@@ -219,7 +220,7 @@ mod tests {
   use lib_infra::box_any::BoxAny;
 
   use crate::supabase::impls::user::USER_UUID;
-  use crate::supabase::impls::PostgrestUserAuthServiceImpl;
+  use crate::supabase::impls::SupabaseUserAuthServiceImpl;
   use crate::supabase::PostgresServer;
 
   // ‼️‼️‼️ Warning: this test will create a table in the database
@@ -229,7 +230,7 @@ mod tests {
       return;
     }
     let server = Arc::new(PostgresServer::new());
-    let user_service = PostgrestUserAuthServiceImpl::new(server);
+    let user_service = SupabaseUserAuthServiceImpl::new(server);
 
     let mut params = HashMap::new();
     params.insert(USER_UUID.to_string(), Uuid::new_v4().to_string());
@@ -243,7 +244,7 @@ mod tests {
       return;
     }
     let server = Arc::new(PostgresServer::new());
-    let user_service = PostgrestUserAuthServiceImpl::new(server);
+    let user_service = SupabaseUserAuthServiceImpl::new(server);
     let uuid = Uuid::new_v4();
 
     let mut params = HashMap::new();
@@ -262,7 +263,7 @@ mod tests {
       return;
     }
     let server = Arc::new(PostgresServer::new());
-    let user_service = PostgrestUserAuthServiceImpl::new(server);
+    let user_service = SupabaseUserAuthServiceImpl::new(server);
     let uuid = Uuid::new_v4();
 
     let mut params = HashMap::new();

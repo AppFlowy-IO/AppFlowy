@@ -9,7 +9,7 @@ use std::{
   },
 };
 
-use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CloudStorageType};
+use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CollabStorageType};
 use tokio::sync::RwLock;
 use tracing::debug;
 
@@ -153,7 +153,7 @@ impl AppFlowyCore {
       /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
       /// on demand based on the [CollabPluginConfig].
       let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
-        server_provider.provider_type().into(),
+        server_provider.clone(),
         Some(Arc::new(SnapshotDBImpl(user_session.clone()))),
       ));
 
@@ -311,12 +311,12 @@ impl UserStatusCallback for UserStatusCallbackImpl {
   }
 }
 
-impl From<ServerProviderType> for CloudStorageType {
+impl From<ServerProviderType> for CollabStorageType {
   fn from(server_provider: ServerProviderType) -> Self {
     match server_provider {
-      ServerProviderType::Local => CloudStorageType::Local,
-      ServerProviderType::SelfHosted => CloudStorageType::Local,
-      ServerProviderType::Supabase => CloudStorageType::Supabase,
+      ServerProviderType::Local => CollabStorageType::Local,
+      ServerProviderType::SelfHosted => CollabStorageType::Local,
+      ServerProviderType::Supabase => CollabStorageType::Supabase,
     }
   }
 }

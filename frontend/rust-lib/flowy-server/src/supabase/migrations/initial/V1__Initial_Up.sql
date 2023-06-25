@@ -13,14 +13,14 @@ CREATE TABLE IF NOT EXISTS af_user_profile (
    workspace_id UUID DEFAULT uuid_generate_v4()
 );
 -- user_profile trigger
-CREATE OR REPLACE FUNCTION create_user_profile_trigger_func() RETURNS TRIGGER AS $$ BEGIN
+CREATE OR REPLACE FUNCTION create_af_user_profile_trigger_func() RETURNS TRIGGER AS $$ BEGIN
 INSERT INTO af_user_profile (uid, uuid)
 VALUES (NEW.uid, NEW.uuid);
 RETURN NEW;
 END $$ LANGUAGE plpgsql;
 CREATE TRIGGER create_af_user_profile_trigger
 AFTER
-INSERT ON af_user FOR EACH ROW EXECUTE FUNCTION create_user_profile_trigger_func();
+INSERT ON af_user FOR EACH ROW EXECUTE FUNCTION create_af_user_profile_trigger_func();
 -- workspace table
 CREATE TABLE IF NOT EXISTS af_workspace (
    workspace_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -39,8 +39,17 @@ AFTER
 INSERT ON af_user_profile FOR EACH ROW EXECUTE FUNCTION create_af_workspace_trigger_func();
 -- collab table
 CREATE TABLE IF NOT EXISTS af_collab (
-   oid TEXT,
+   oid TEXT NOT NULL,
    key BIGINT GENERATED ALWAYS AS IDENTITY,
-   value TEXT NOT NULL,
+   value BYTEA NOT NULL,
    PRIMARY KEY (oid, key)
+);
+-- collab table full backup
+CREATE TABLE IF NOT EXISTS af_collab_full_backup (
+   key BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+   oid TEXT NOT NULL,
+   blob BYTEA NOT NULL,
+   blob_size INTEGER NOT NULL,
+   meta BYTEA,
+   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

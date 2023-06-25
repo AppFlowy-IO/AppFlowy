@@ -1,16 +1,17 @@
-use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CloudStorageType};
-
 use std::sync::Arc;
 
+use appflowy_integrate::collab_builder::{
+  AppFlowyCollabBuilder, CollabStorageType, DefaultCollabStorageProvider,
+};
 use appflowy_integrate::RocksCollabDB;
-use flowy_document2::document::Document;
+use nanoid::nanoid;
 use parking_lot::Once;
 use tempfile::TempDir;
 use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
 
+use flowy_document2::document::Document;
 use flowy_document2::document_data::default_document_data;
 use flowy_document2::manager::{DocumentManager, DocumentUser};
-use nanoid::nanoid;
 
 pub struct FakeUser {
   kv: Arc<RocksCollabDB>,
@@ -53,7 +54,7 @@ pub fn db() -> Arc<RocksCollabDB> {
 }
 
 pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
-  let builder = AppFlowyCollabBuilder::new(CloudStorageType::Local, None);
+  let builder = AppFlowyCollabBuilder::new(DefaultCollabStorageProvider, None);
   Arc::new(builder)
 }
 

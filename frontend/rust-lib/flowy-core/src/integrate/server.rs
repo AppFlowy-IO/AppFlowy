@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use appflowy_integrate::collab_builder::{CollabStorageProvider, CollabStorageType};
+use appflowy_integrate::RemoteCollabStorage;
 use parking_lot::RwLock;
 use serde_repr::*;
 
@@ -113,6 +115,20 @@ impl FolderCloudService for AppFlowyServerProvider {
     let server = self.get_provider(&self.provider_type.read());
     let name = name.to_string();
     FutureResult::new(async move { server?.folder_service().create_workspace(uid, &name).await })
+  }
+}
+
+impl CollabStorageProvider for AppFlowyServerProvider {
+  fn storage_type(&self) -> CollabStorageType {
+    self.provider_type().into()
+  }
+
+  fn get_storage(&self, storage_type: &CollabStorageType) -> Option<Arc<dyn RemoteCollabStorage>> {
+    match storage_type {
+      CollabStorageType::Local => None,
+      CollabStorageType::AWS => None,
+      CollabStorageType::Supabase => None,
+    }
   }
 }
 
