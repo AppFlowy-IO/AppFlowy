@@ -25,7 +25,7 @@ class ChangeCoverPopover extends StatefulWidget {
   final EditorState editorState;
   final Node node;
   final Function(
-    CoverSelectionType selectionType,
+    CoverType selectionType,
     String selection,
   ) onCoverChanged;
 
@@ -149,10 +149,10 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
               LocaleKeys.document_plugins_cover_clearAll.tr(),
               fontColor: Theme.of(context).colorScheme.tertiary,
               onPressed: () async {
-                final hasFileImageCover = CoverSelectionType.fromString(
+                final hasFileImageCover = CoverType.fromString(
                       widget.node.attributes[CoverBlockKeys.selectionType],
                     ) ==
-                    CoverSelectionType.file;
+                    CoverType.file;
                 final changeCoverBloc = context.read<ChangeCoverPopoverBloc>();
                 if (hasFileImageCover) {
                   await showDialog(
@@ -196,7 +196,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
         return InkWell(
           onTap: () {
             widget.onCoverChanged(
-              CoverSelectionType.asset,
+              CoverType.asset,
               builtInAssetImages[index],
             );
           },
@@ -221,13 +221,13 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
       pickerItemHoverColor: theme.hoverColor,
       selectedBackgroundColorHex:
           widget.node.attributes[CoverBlockKeys.selectionType] ==
-                  CoverSelectionType.color.toString()
+                  CoverType.color.toString()
               ? widget.node.attributes[CoverBlockKeys.selection]
               : 'ffffff',
       backgroundColorOptions:
           _generateBackgroundColorOptions(widget.editorState),
       onSubmittedBackgroundColorHex: (color) {
-        widget.onCoverChanged(CoverSelectionType.color, color);
+        widget.onCoverChanged(CoverType.color, color);
         setState(() {});
       },
     );
@@ -276,7 +276,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
               return ImageGridItem(
                 onImageSelect: () {
                   widget.onCoverChanged(
-                    CoverSelectionType.file,
+                    CoverType.file,
                     images[index - 1],
                   );
                 },

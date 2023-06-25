@@ -25,6 +25,7 @@ class _EmojiIconWidgetState extends State<EmojiIconWidget> {
     return MouseRegion(
       onEnter: (_) => setHidden(false),
       onExit: (_) => setHidden(true),
+      cursor: SystemMouseCursors.click,
       child: Container(
         height: widget.size,
         width: widget.size,
