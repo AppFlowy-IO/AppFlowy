@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io' show File;
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
-import 'package:appflowy/workspace/application/settings/shortcuts/shortcuts_modal.dart';
+import 'package:appflowy/workspace/application/settings/shortcuts/shortcuts_model.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_test/flutter_test.dart';
 // ignore: depend_on_referenced_packages
@@ -40,7 +40,7 @@ void main() {
       test(
         "returns default standard shortcuts if file is empty",
         () async {
-          expect(await service.loadShortcuts(), standardCommandShortcutEvents);
+          expect(await service.getCustomizeShortcuts(), []);
         },
       );
 
@@ -55,7 +55,7 @@ void main() {
 
         expect(
           commandShortcuts.length,
-          standardCommandShortcutEvents.length,
+          3,
         );
         expect(cursorUpShortcut.command, "alt+arrow up");
         expect(cursorDownShortcut.command, "alt+arrow down");
@@ -122,8 +122,11 @@ void main() {
         service.saveAllShortcuts(currentCommandShortcuts);
 
         //now directly fetching the shortcuts from loadShortcuts
-        final commandShortcuts = await service.loadShortcuts();
-        expect(commandShortcuts, currentCommandShortcuts);
+        final commandShortcuts = await service.getCustomizeShortcuts();
+        expect(
+          commandShortcuts,
+          currentCommandShortcuts.toCommandShortcutModelList(),
+        );
 
         final updatedCommandEvent =
             commandShortcuts.firstWhere((el) => el.key == kKey);

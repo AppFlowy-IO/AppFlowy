@@ -49,4 +49,14 @@ class CommandShortcutModel {
         "key": key,
         "command": command,
       };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CommandShortcutModel &&
+          key == other.key &&
+          command == other.command;
+
+  @override
+  int get hashCode => key.hashCode ^ command.hashCode;
 }

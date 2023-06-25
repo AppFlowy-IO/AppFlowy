@@ -71,7 +71,7 @@ class ShortcutsListView extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const VSpace(10),
         Expanded(
           child: ListView.builder(
             itemCount: shortcuts.length,
@@ -79,6 +79,19 @@ class ShortcutsListView extends StatelessWidget {
               shortcutEvent: shortcuts[index],
             ),
           ),
+        ),
+        const VSpace(10),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            const Spacer(),
+            FlowyTextButton(
+              LocaleKeys.settings_shortcuts_resetToDefault.tr(),
+              onPressed: () {
+                context.read<ShortcutsCubit>().resetToDefault();
+              },
+            ),
+          ],
         )
       ],
     );
@@ -122,7 +135,7 @@ class ShortcutsListTile extends StatelessWidget {
         final controller = TextEditingController(text: shortcutEvent.command);
         final formKey = GlobalKey<FormState>();
         return AlertDialog(
-          title: Text(LocaleKeys.settings_shortcuts_updateShorcutStep.tr()),
+          title: Text(LocaleKeys.settings_shortcuts_updateShortcutStep.tr()),
           content: RawKeyboardListener(
             focusNode: FocusNode(),
             onKey: (key) {
@@ -169,7 +182,8 @@ class ShortcutsListTile extends StatelessWidget {
     final conflict =
         BlocProvider.of<ShortcutsCubit>(context).getConflict(command);
     if (conflict.isNotEmpty) {
-      return LocaleKeys.settings_shortcuts_shorcutIsAlreadyUsed.tr() + conflict;
+      return LocaleKeys.settings_shortcuts_shortcutIsAlreadyUsed.tr() +
+          conflict;
     }
     return null;
   }

@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
@@ -34,11 +35,15 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
       ),
     );
     try {
-      final newCommandShortcuts = await service.loadShortcuts();
+      final customizeShortcuts = await service.getCustomizeShortcuts();
+      await service.updateCommandShortcuts(
+        commandShortcutEvents,
+        customizeShortcuts,
+      );
       emit(
         state.copyWith(
           status: ShortcutsStatus.success,
-          commandShortcutEvents: newCommandShortcuts,
+          commandShortcutEvents: commandShortcutEvents,
           error: '',
         ),
       );
@@ -64,6 +69,32 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
       emit(
         state.copyWith(
           status: ShortcutsStatus.success,
+          error: '',
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: ShortcutsStatus.failure,
+          error: kCouldNotSaveErrorMsg,
+        ),
+      );
+    }
+  }
+
+  Future<void> resetToDefault() async {
+    emit(
+      state.copyWith(
+        status: ShortcutsStatus.updating,
+        error: '',
+      ),
+    );
+    try {
+      await service.saveAllShortcuts(defaultCommandShortcutEvents);
+      emit(
+        state.copyWith(
+          status: ShortcutsStatus.success,
+          commandShortcutEvents: defaultCommandShortcutEvents,
           error: '',
         ),
       );

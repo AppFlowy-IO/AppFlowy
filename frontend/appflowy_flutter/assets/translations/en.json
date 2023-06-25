@@ -240,8 +240,9 @@
       "command": "Command",
       "keyBinding": "Keybinding",
       "addNewCommand": "Add New Command",
-      "updateShorcutStep": "Press desired key combination and press ENTER",
-      "shorcutIsAlreadyUsed": "This shortcut is already used for - "
+      "updateShortcutStep": "Press desired key combination and press ENTER",
+      "shortcutIsAlreadyUsed": "This shortcut is already used for - ",
+      "resetToDefault": "Reset to default keyBindings"
     }
   },
   "grid": {

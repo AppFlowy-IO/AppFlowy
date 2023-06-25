@@ -32,13 +32,18 @@ class AppFlowyEditorPage extends StatefulWidget {
   State<AppFlowyEditorPage> createState() => _AppFlowyEditorPageState();
 }
 
+final List<CommandShortcutEvent> defaultCommandShortcutEvents = [
+  ...codeBlockCommands.map((e) => e.copyWith()).toList(),
+  ...standardCommandShortcutEvents.map((e) => e.copyWith()).toList(),
+];
+
+final List<CommandShortcutEvent> commandShortcutEvents = [
+  ...codeBlockCommands,
+  ...standardCommandShortcutEvents,
+];
+
 class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   late final ScrollController effectiveScrollController;
-
-  final List<CommandShortcutEvent> commandShortcutEvents = [
-    ...codeBlockCommands,
-    ...standardCommandShortcutEvents,
-  ];
 
   final List<ToolbarItem> toolbarItems = [
     smartEditItem,
@@ -100,14 +105,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   @override
   void initState() {
     super.initState();
-    initializeShortcuts();
+    _initializeShortcuts();
     effectiveScrollController = widget.scrollController ?? ScrollController();
-  }
-
-  Future<void> initializeShortcuts() async {
-    final SettingsShortcutService settingsShortcutService =
-        SettingsShortcutService();
-    await settingsShortcutService.loadShortcuts();
   }
 
   @override
@@ -311,5 +310,16 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       return (true, Selection.collapse(nodes.first.path, 0));
     }
     return const (false, null);
+  }
+
+  Future<void> _initializeShortcuts() async {
+    defaultCommandShortcutEvents;
+    final settingsShortcutService = SettingsShortcutService();
+    final customizeShortcuts =
+        await settingsShortcutService.getCustomizeShortcuts();
+    await settingsShortcutService.updateCommandShortcuts(
+      standardCommandShortcutEvents,
+      customizeShortcuts,
+    );
   }
 }
