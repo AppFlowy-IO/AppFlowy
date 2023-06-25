@@ -1,13 +1,14 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 
-class Shortcuts {
-  Shortcuts({
+class EditorShortcuts {
+  EditorShortcuts({
     required this.commandShortcuts,
   });
 
   final List<CommandShortcutModel> commandShortcuts;
 
-  factory Shortcuts.fromJson(Map<String, dynamic> json) => Shortcuts(
+  factory EditorShortcuts.fromJson(Map<String, dynamic> json) =>
+      EditorShortcuts(
         commandShortcuts: List<CommandShortcutModel>.from(
           json["commandShortcuts"].map(
             (x) => CommandShortcutModel.fromJson(x),
@@ -22,13 +23,13 @@ class Shortcuts {
 }
 
 class CommandShortcutModel {
-  final String key;
-  final String command;
-
   const CommandShortcutModel({
     required this.key,
     required this.command,
   });
+
+  final String key;
+  final String command;
 
   factory CommandShortcutModel.fromJson(Map<String, dynamic> json) =>
       CommandShortcutModel(

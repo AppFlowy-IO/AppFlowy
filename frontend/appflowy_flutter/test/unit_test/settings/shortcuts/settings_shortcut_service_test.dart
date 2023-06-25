@@ -16,8 +16,7 @@ void main() {
     final MemoryFileSystem fileSystem = MemoryFileSystem.test();
     mockFile = await fileSystem.file("shortcuts.json").create(recursive: true);
     service = SettingsShortcutService(file: mockFile);
-    shortcutsJson =
-        """{
+    shortcutsJson = """{
    "commandShortcuts":[
       {
          "key":"move the cursor upward",
@@ -87,7 +86,7 @@ void main() {
           final savedDataInFile = await mockFile.readAsString();
 
           //Check if the lists where properly converted to json and saved.
-          final shortcuts = Shortcuts(
+          final shortcuts = EditorShortcuts(
             commandShortcuts:
                 currentCommandShortcuts.toCommandShortcutModelList(),
           );

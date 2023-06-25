@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:appflowy/startup/tasks/prelude.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
+import 'package:path/path.dart' as p;
 
 import 'shortcuts_modal.dart';
 
@@ -22,11 +23,11 @@ class SettingsShortcutService {
   late final File _file;
   final _initCompleter = Completer<void>();
 
-  ///Takes in commandShortcuts as an input and saves them to the shortcuts.json file.
+  /// Takes in commandShortcuts as an input and saves them to the shortcuts.json file.
   Future<void> saveAllShortcuts(
     List<CommandShortcutEvent> commandShortcuts,
   ) async {
-    final shortcuts = Shortcuts(
+    final shortcuts = EditorShortcuts(
       commandShortcuts: commandShortcuts.toCommandShortcutModelList(),
     );
 
@@ -36,9 +37,9 @@ class SettingsShortcutService {
     );
   }
 
-  ///Checks the file for saved shortcuts. If shortcuts do NOT exist then returns
-  ///the standard shortcuts from the AppFlowyEditor package. If shortcuts exist
-  ///then calls an utility method i.e loadAllSavedShortcuts which returns the saved shortcuts.
+  /// Checks the file for saved shortcuts. If shortcuts do NOT exist then returns
+  /// the standard shortcuts from the AppFlowyEditor package. If shortcuts exist
+  /// then calls an utility method i.e loadAllSavedShortcuts which returns the saved shortcuts.
   Future<List<CommandShortcutEvent>> loadShortcuts() async {
     await _initCompleter.future;
     final shortcutsInJson = await _file.readAsString();
@@ -50,10 +51,10 @@ class SettingsShortcutService {
     }
   }
 
-  ///Extracts shortcuts from the saved json file. The shortcuts in the saved file consists List<CommandShortcutModal\>.
+  /// Extracts shortcuts from the saved json file. The shortcuts in the saved file consists List<CommandShortcutModal\>.
   /// This list needs to be converted to List<CommandShortcutEvent\>. This function is intended to facilitate the same.
   List<CommandShortcutEvent> getShortcutsFromJson(String savedJson) {
-    final shortcuts = Shortcuts.fromJson(jsonDecode(savedJson));
+    final shortcuts = EditorShortcuts.fromJson(jsonDecode(savedJson));
     for (final shortcut in shortcuts.commandShortcuts) {
       final shortcutEvent = _findMatchingShortcutEvent(shortcut);
       if (shortcutEvent != null) {
@@ -72,11 +73,12 @@ class SettingsShortcutService {
   //returns the default file for storing shortcuts
   Future<File> _defaultShortcutFile() async {
     final Directory flowyDir = await appFlowyApplicationDataDirectory();
-    return File('${flowyDir.path}/shortcuts/shortcuts.json')
-      ..createSync(recursive: true);
+    return File(
+      p.join(flowyDir.path, 'shortcuts', 'shortcuts.json'),
+    )..createSync(recursive: true);
   }
 
-  //returns ShortcutEvent if its key matches with saved shortcut and commmand doesn't. May return null if nothing found.
+  //returns ShortcutEvent if its key matches with saved shortcut and command doesn't. May return null if nothing found.
   CommandShortcutEvent? _findMatchingShortcutEvent(CommandShortcutModel c) {
     return standardCommandShortcutEvents.firstWhereOrNull(
       (s) => (s.key == c.key && s.command != c.command),
