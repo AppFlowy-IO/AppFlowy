@@ -14,6 +14,8 @@ import 'change_cover_popover.dart';
 import 'emoji_icon_widget.dart';
 import 'emoji_popover.dart';
 
+const double kCoverHeight = 250.0;
+
 class CoverBlockKeys {
   const CoverBlockKeys._();
 
@@ -119,10 +121,10 @@ class _CoverImageNodeWidgetState extends State<CoverImageNodeWidget> {
   double _calculateHeight() {
     double height = 0;
     if (hasCover) {
-      height = 250;
+      height = kCoverHeight;
     }
     if (hasIcon) {
-      height = 250 + 40; // half of height of icon widget
+      height = kCoverHeight + 40; // half of height of icon widget
     }
     return height;
   }
@@ -184,7 +186,7 @@ class _CoverImageState extends State<_CoverImage> {
       children: [
         if (widget.hasCover)
           SizedBox(
-            height: 250,
+            height: kCoverHeight,
             child: _buildCoverImage(context, widget.editorState),
           ),
         if (widget.hasIcon)
