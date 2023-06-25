@@ -124,7 +124,7 @@ class _CoverImageNodeWidgetState extends State<CoverImageNodeWidget> {
       height = kCoverHeight;
     }
     if (hasIcon) {
-      height = kCoverHeight + 40; // half of height of icon widget
+      height = kCoverHeight + 30; // half of height of icon widget
     }
     return height;
   }
