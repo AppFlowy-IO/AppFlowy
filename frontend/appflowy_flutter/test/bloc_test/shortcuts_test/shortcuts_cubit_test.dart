@@ -1,3 +1,6 @@
+import 'dart:ffi';
+
+import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:bloc_test/bloc_test.dart';
@@ -21,6 +24,9 @@ void main() {
       when(
         () => service.getCustomizeShortcuts(),
       ).thenAnswer((_) async => []);
+      when(
+        () => service.updateCommandShortcuts(any(), any()),
+      ).thenAnswer((_) async => Void);
 
       shortcutsCubit = ShortcutsCubit(service);
     });
@@ -61,21 +67,21 @@ void main() {
         ],
       );
 
-      // blocTest<ShortcutsCubit, ShortcutsState>(
-      //   'emits [updating, success] when loadShortcuts() returns shortcuts',
-      //   build: () => shortcutsCubit,
-      //   act: (cubit) => cubit.fetchShortcuts(),
-      //   expect: () => <dynamic>[
-      //     const ShortcutsState(status: ShortcutsStatus.updating),
-      //     isA<ShortcutsState>()
-      //         .having((w) => w.status, 'status', ShortcutsStatus.success)
-      //         .having(
-      //           (w) => w.commandShortcutEvents,
-      //           'shortcuts',
-      //           commandShortcutEvents,
-      //         ),
-      //   ],
-      // );
+      blocTest<ShortcutsCubit, ShortcutsState>(
+        'emits [updating, success] when loadShortcuts() returns shortcuts',
+        build: () => shortcutsCubit,
+        act: (cubit) => cubit.fetchShortcuts(),
+        expect: () => <dynamic>[
+          const ShortcutsState(status: ShortcutsStatus.updating),
+          isA<ShortcutsState>()
+              .having((w) => w.status, 'status', ShortcutsStatus.success)
+              .having(
+                (w) => w.commandShortcutEvents,
+                'shortcuts',
+                commandShortcutEvents,
+              ),
+        ],
+      );
     });
 
     group('updateShortcut', () {

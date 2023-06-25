@@ -39,7 +39,8 @@ void main() {
           ),
         );
 
-        expect(find.byType(FlowyText), findsNWidgets(2));
+        expect(find.byType(FlowyText), findsNWidgets(3));
+        //we expect three text widgets which are keybinding, command, and reset
         expect(find.byType(ListView), findsOneWidget);
         expect(find.byType(ShortcutsListTile), findsNothing);
       });
@@ -53,7 +54,7 @@ void main() {
 
         await widgetTester.pumpAndSettle();
 
-        expect(find.byType(FlowyText), findsAtLeastNWidgets(2));
+        expect(find.byType(FlowyText), findsAtLeastNWidgets(3));
         expect(find.byType(ListView), findsOneWidget);
         expect(find.byType(ShortcutsListTile), findsOneWidget);
       });
@@ -65,7 +66,7 @@ void main() {
           ),
         );
 
-        expect(find.byType(FlowyText), findsAtLeastNWidgets(2));
+        expect(find.byType(FlowyText), findsAtLeastNWidgets(3));
         expect(find.byType(ListView), findsOneWidget);
         expect(
           find.byType(ShortcutsListTile),
