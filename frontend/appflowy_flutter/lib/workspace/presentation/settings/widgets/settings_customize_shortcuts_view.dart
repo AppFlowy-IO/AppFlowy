@@ -179,8 +179,10 @@ class ShortcutsListTile extends StatelessWidget {
   }
 
   _validateForConflicts(BuildContext context, String command) {
-    final conflict =
-        BlocProvider.of<ShortcutsCubit>(context).getConflict(command);
+    final conflict = BlocProvider.of<ShortcutsCubit>(context).getConflict(
+      shortcutEvent,
+      command,
+    );
     if (conflict.isNotEmpty) {
       return LocaleKeys.settings_shortcuts_shortcutIsAlreadyUsed.tr() +
           conflict;

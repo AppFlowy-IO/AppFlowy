@@ -1,7 +1,7 @@
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_block_shortcut_event.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -108,9 +108,22 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
     }
   }
 
-  String getConflict(String command) {
-    final conflict = state.commandShortcutEvents
-        .firstWhereOrNull((el) => el.command == command);
-    return conflict?.key ?? '';
+  ///Checks if the new command is conflicting with other shortcut
+  ///We also check using the key, whether this command is a codeblock
+  ///shortcut, if so we only check a conflict with other codeblock shortcut.
+  String getConflict(CommandShortcutEvent currentShortcut, String command) {
+    //check if currentShortcut is a codeblock shortcut.
+    final isCodeBlockCommand = currentShortcut.isCodeBlockCommand;
+
+    for (final e in state.commandShortcutEvents) {
+      if (e.command == command && e.isCodeBlockCommand == isCodeBlockCommand) {
+        return e.key;
+      }
+    }
+    return '';
   }
+}
+
+extension on CommandShortcutEvent {
+  bool get isCodeBlockCommand => codeBlockCommands.contains(this);
 }
