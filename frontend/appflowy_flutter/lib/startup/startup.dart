@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:appflowy/env/env.dart';
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:flutter/foundation.dart';
@@ -57,13 +56,7 @@ class FlowyRunner {
         // ignore in test mode
         if (!mode.isTest()) ...[
           const HotKeyTask(),
-          InitSupabaseTask(
-            url: Env.supabaseUrl,
-            anonKey: Env.supabaseAnonKey,
-            key: Env.supabaseKey,
-            jwtSecret: Env.supabaseJwtSecret,
-            collabTable: Env.supabaseCollabTable,
-          ),
+          InitSupabaseTask(),
           const InitAppWidgetTask(),
           const InitPlatformServiceTask()
         ],

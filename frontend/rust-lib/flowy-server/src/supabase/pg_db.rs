@@ -4,6 +4,7 @@ use tokio_postgres::types::ToSql;
 use tokio_postgres::{Client, NoTls};
 
 use crate::supabase::migration::run_migrations;
+use crate::supabase::PostgresConfiguration;
 
 pub type PostgresClient = Client;
 pub struct PostgresDB {
@@ -13,8 +14,7 @@ pub struct PostgresDB {
 
 impl PostgresDB {
   pub async fn from_env() -> Result<Self, anyhow::Error> {
-    let configuration = PostgresConfiguration::from_env()
-      .ok_or_else(|| anyhow::anyhow!("PostgresConfiguration not found in env"))?;
+    let configuration = PostgresConfiguration::from_env()?;
     Self::new(configuration).await
   }
 
@@ -39,34 +39,6 @@ impl PostgresDB {
     Ok(Self {
       configuration,
       client: Arc::new(client),
-    })
-  }
-}
-
-pub struct PostgresConfiguration {
-  pub url: String,
-  pub user_name: String,
-  pub password: String,
-  pub port: u16,
-}
-
-const SUPABASE_DB: &str = "SUPABASE_DB";
-const SUPABASE_DB_USER: &str = "SUPABASE_DB_USER";
-const SUPABASE_DB_PASSWORD: &str = "SUPABASE_DB_PASSWORD";
-const SUPABASE_DB_PORT: &str = "SUPABASE_DB_PORT";
-
-impl PostgresConfiguration {
-  pub fn from_env() -> Option<Self> {
-    let url = std::env::var(SUPABASE_DB).ok()?;
-    let user_name = std::env::var(SUPABASE_DB_USER).ok()?;
-    let password = std::env::var(SUPABASE_DB_PASSWORD).ok()?;
-    let port = std::env::var(SUPABASE_DB_PORT).ok()?.parse::<u16>().ok()?;
-
-    Some(Self {
-      url,
-      user_name,
-      password,
-      port,
     })
   }
 }

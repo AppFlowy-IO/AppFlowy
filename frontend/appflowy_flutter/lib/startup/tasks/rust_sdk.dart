@@ -29,25 +29,22 @@ class InitRustSDKTask extends LaunchTask {
 }
 
 AppFlowyEnv getAppFlowyEnv() {
+  final postgresConfig = PostgresConfiguration(
+    url: Env.supabasePgURL,
+    password: Env.supabasePgPassword,
+    port: int.parse(Env.supabasePgPort),
+    user_name: Env.supabasePgUSER,
+  );
+
   final supabaseConfig = SupabaseConfiguration(
     url: Env.supabaseUrl,
     key: Env.supabaseKey,
     jwt_secret: Env.supabaseJwtSecret,
-  );
-
-  final collabTableConfig =
-      CollabTableConfig(enable: true, table_name: Env.supabaseCollabTable);
-
-  final supbaseDBConfig = SupabaseDBConfig(
-    url: Env.supabaseUrl,
-    key: Env.supabaseKey,
-    jwt_secret: Env.supabaseJwtSecret,
-    collab_table_config: collabTableConfig,
+    postgres_config: postgresConfig,
   );
 
   return AppFlowyEnv(
     supabase_config: supabaseConfig,
-    supabase_db_config: supbaseDBConfig,
   );
 }
 

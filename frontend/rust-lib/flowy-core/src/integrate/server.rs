@@ -11,7 +11,7 @@ use flowy_folder2::deps::{FolderCloudService, Workspace};
 use flowy_server::local_server::LocalServer;
 use flowy_server::self_host::configuration::self_host_server_configuration;
 use flowy_server::self_host::SelfHostServer;
-use flowy_server::supabase::SupabaseServer;
+use flowy_server::supabase::{SupabaseConfiguration, SupabaseServer};
 use flowy_server::AppFlowyServer;
 use flowy_sqlite::kv::KV;
 use flowy_user::event_map::{UserAuthService, UserCloudServiceProvider};
@@ -150,7 +150,10 @@ fn server_from_auth_type(
       let server = Arc::new(SelfHostServer::new(config));
       Ok(server)
     },
-    ServerProviderType::Supabase => Ok(Arc::new(SupabaseServer::new())),
+    ServerProviderType::Supabase => {
+      let config = SupabaseConfiguration::from_env()?;
+      Ok(Arc::new(SupabaseServer::new(config)))
+    },
   }
 }
 

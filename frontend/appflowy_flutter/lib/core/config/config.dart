@@ -7,32 +7,24 @@ class Config {
     required String anonKey,
     required String key,
     required String secret,
+    required String pgUrl,
+    required String pgUser,
+    required String pgPassword,
+    required String pgPort,
   }) async {
+    final postgresConfig = PostgresConfigurationPB.create()
+      ..url = pgUrl
+      ..userName = pgUser
+      ..password = pgPassword
+      ..port = int.parse(pgPort);
+
     await ConfigEventSetSupabaseConfig(
       SupabaseConfigPB.create()
         ..supabaseUrl = url
         ..key = key
         ..anonKey = anonKey
-        ..jwtSecret = secret,
+        ..jwtSecret = secret
+        ..postgresConfig = postgresConfig,
     ).send();
-  }
-
-  static Future<void> setSupabaseCollabPluginConfig({
-    required String url,
-    required String key,
-    required String jwtSecret,
-    required String collabTable,
-  }) async {
-    final payload = CollabPluginConfigPB.create();
-    final collabTableConfig = CollabTableConfigPB.create()
-      ..tableName = collabTable;
-
-    payload.supabaseConfig = SupabaseDBConfigPB.create()
-      ..supabaseUrl = url
-      ..key = key
-      ..jwtSecret = jwtSecret
-      ..collabTableConfig = collabTableConfig;
-
-    await ConfigEventSetCollabPluginConfig(payload).send();
   }
 }

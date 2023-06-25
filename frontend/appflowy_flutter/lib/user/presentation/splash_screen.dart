@@ -1,4 +1,4 @@
-import 'package:appflowy/startup/tasks/supabase_task.dart';
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';

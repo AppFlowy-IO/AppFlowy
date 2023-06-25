@@ -1,8 +1,6 @@
 use std::sync::Arc;
 
-use appflowy_integrate::collab_builder::{
-  AppFlowyCollabBuilder, CollabStorageType, DefaultCollabStorageProvider,
-};
+use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, DefaultCollabStorageProvider};
 use appflowy_integrate::RocksCollabDB;
 use nanoid::nanoid;
 use parking_lot::Once;
