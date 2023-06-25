@@ -94,13 +94,21 @@ extension ViewExtension on ViewPB {
   }
 
   String get iconName {
-    switch (layout) {
+    return layout.iconName;
+  }
+}
+
+extension ViewLayoutExtension on ViewLayoutPB {
+  String get iconName {
+    switch (this) {
       case ViewLayoutPB.Grid:
         return 'editor/grid';
       case ViewLayoutPB.Board:
         return 'editor/board';
       case ViewLayoutPB.Calendar:
         return 'editor/calendar';
+      case ViewLayoutPB.Document:
+        return 'editor/documents';
       default:
         throw Exception('Unknown layout type');
     }

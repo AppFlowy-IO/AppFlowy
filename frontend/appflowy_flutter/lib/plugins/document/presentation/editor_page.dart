@@ -4,7 +4,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/bl
 import 'package:appflowy/plugins/document/presentation/editor_plugins/database/referenced_database_menu_tem.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
-import 'package:appflowy/plugins/document/presentation/inline_page_reference.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -28,12 +28,16 @@ class AppFlowyEditorPage extends StatefulWidget {
   final bool shrinkWrap;
   final bool? autoFocus;
   final EditorStyleCustomizer styleCustomizer;
+
   @override
   State<AppFlowyEditorPage> createState() => _AppFlowyEditorPageState();
 }
 
 class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   late final ScrollController effectiveScrollController;
+
+  final inlinePageReferenceService = InlinePageReferenceService();
+
   final List<CommandShortcutEvent> commandShortcutEvents = [
     ...codeBlockCommands,
     ...standardCommandShortcutEvents,
@@ -68,9 +72,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final Map<String, BlockComponentBuilder> blockComponentBuilders =
       _customAppFlowyBlockComponentBuilders();
+
   List<CharacterShortcutEvent> get characterShortcutEvents => [
         // inline page reference list
-        ...createInlinePageReferenceShortcuts(),
+        ...inlinePageReferenceShortcuts,
 
         // code block
         ...codeBlockCharacterEvents,
@@ -90,6 +95,17 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           ), // remove the default slash command.
       ];
 
+  late final inlinePageReferenceShortcuts = [
+    inlinePageReferenceService.customPageLinkMenu(
+      character: '@',
+      style: styleCustomizer.selectionMenuStyleBuilder(),
+    ),
+    inlinePageReferenceService.customPageLinkMenu(
+      character: '+',
+      style: styleCustomizer.selectionMenuStyleBuilder(),
+    ),
+  ];
+
   late final showSlashMenu = customSlashCommand(
     slashMenuItems,
     shouldInsertSlash: false,
@@ -98,31 +114,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   EditorStyleCustomizer get styleCustomizer => widget.styleCustomizer;
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
-  InlinePageReferenceService inlinePageReferenceService =
-      InlinePageReferenceService();
+
   @override
   void initState() {
     super.initState();
     effectiveScrollController = widget.scrollController ?? ScrollController();
-  }
-
-  List<CharacterShortcutEvent> createInlinePageReferenceShortcuts() {
-    final List<CharacterShortcutEvent> characterShortcutEvents = [];
-
-    characterShortcutEvents.add(
-      inlinePageReferenceService.customPageLinkMenu(
-        character: "@",
-        style: styleCustomizer.selectionMenuStyleBuilder(),
-      ),
-    );
-
-    characterShortcutEvents.add(
-      inlinePageReferenceService.customPageLinkMenu(
-        character: "+",
-        style: styleCustomizer.selectionMenuStyleBuilder(),
-      ),
-    );
-    return characterShortcutEvents;
   }
 
   @override

@@ -1,13 +1,28 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_svg_widget.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
+enum MentionType {
+  page,
+}
+
+class MentionBlockKeys {
+  const MentionBlockKeys._();
+
+  static const mention = 'mention';
+  static const type = 'type'; // MentionType, String
+  static const pageId = 'page_id';
+  static const pageType = 'page_type';
+  static const pageName = 'page_name';
+}
+
 class InlinePageReferenceService {
   customPageLinkMenu({
-    bool shouldInsertSlash = false,
+    bool shouldInsertKeyword = false,
     SelectionMenuStyle style = SelectionMenuStyle.light,
-    String character = "@",
+    String character = '@',
   }) {
     return CharacterShortcutEvent(
       key: 'show page link menu',
@@ -17,7 +32,7 @@ class InlinePageReferenceService {
         return _showPageSelectionMenu(
           editorState,
           items,
-          shouldInsertSlash: shouldInsertSlash,
+          shouldInsertKeyword: shouldInsertKeyword,
           style: style,
           character: character,
         );
@@ -29,9 +44,9 @@ class InlinePageReferenceService {
   Future<bool> _showPageSelectionMenu(
     EditorState editorState,
     List<SelectionMenuItem> items, {
-    bool shouldInsertSlash = true,
+    bool shouldInsertKeyword = true,
     SelectionMenuStyle style = SelectionMenuStyle.light,
-    String character = "@",
+    String character = '@',
   }) async {
     if (PlatformExtension.isMobile) {
       return false;
@@ -43,7 +58,7 @@ class InlinePageReferenceService {
     }
 
     // delete the selection
-    await editorState.deleteSelection(editorState.selection!);
+    await editorState.deleteSelection(selection);
 
     final afterSelection = editorState.selection;
     if (afterSelection == null || !afterSelection.isCollapsed) {
@@ -74,64 +89,62 @@ class InlinePageReferenceService {
   }
 
   Future<List<SelectionMenuItem>> generatePageItems(String character) async {
-    final List<SelectionMenuItem> pages = [];
+    final service = ViewBackendService();
     final List<(ViewPB, List<ViewPB>)> pbViews = [];
+    for (final layout in ViewLayoutPB.values) {
+      pbViews.addAll(await service.fetchViews(layout));
+    }
+    if (pbViews.isEmpty) {
+      return [];
+    }
+    final List<SelectionMenuItem> pages = [];
     final List<ViewPB> views = [];
-    pbViews
-        .addAll(await ViewBackendService().fetchViews(ViewLayoutPB.Document));
-    pbViews.addAll(await ViewBackendService().fetchViews(ViewLayoutPB.Board));
-    pbViews.addAll(await ViewBackendService().fetchViews(ViewLayoutPB.Grid));
-    pbViews
-        .addAll(await ViewBackendService().fetchViews(ViewLayoutPB.Calendar));
-    if (pbViews.isNotEmpty) {
-      for (final element in pbViews) {
-        views.addAll(element.$2);
-      }
-      views.sort(((a, b) => b.createTime.compareTo(a.createTime)));
-      for (int i = 0; i < views.length; i++) {
-        final SelectionMenuItem pageSelectionMenuItem = SelectionMenuItem(
-          icon: (editorState, isSelected, style) => SelectableSvgWidget(
-            name: 'editor/${_getIconName(views[i])}',
-            isSelected: isSelected,
-            style: style,
-          ),
-          keywords: [
-            views[i].name.toLowerCase(),
-          ],
-          name: views[i].name.toString(),
-          handler: (editorState, menuService, context) async {
-            await _deleteCharacter(editorState, character);
+    for (final element in pbViews) {
+      views.add(element.$1);
+      views.addAll(element.$2);
+    }
+    views.sort(((a, b) => b.createTime.compareTo(a.createTime)));
 
-            final selection = editorState.selection;
-            if (selection == null || !selection.isCollapsed) {
-              return;
-            } else {
-              final node = editorState.getNodeAtPath(selection.end.path);
-              if (node == null) {
-                return;
-              } else {
-                final index = selection.endIndex;
-                final transaction = editorState.transaction
-                  ..insertText(
-                    node,
-                    index,
-                    "\$",
-                    attributes: {
-                      "mention": {
-                        "id": views[i].id,
-                        "handler": views[i].name,
-                        "view": views[i].writeToJson(),
-                      }
-                    },
-                  );
-
-                await editorState.apply(transaction);
-              }
-            }
-          },
-        );
-        pages.add(pageSelectionMenuItem);
-      }
+    for (final view in views) {
+      final SelectionMenuItem pageSelectionMenuItem = SelectionMenuItem(
+        icon: (editorState, isSelected, style) => SelectableSvgWidget(
+          name: view.iconName,
+          isSelected: isSelected,
+          style: style,
+        ),
+        keywords: [
+          view.name.toLowerCase(),
+        ],
+        name: view.name,
+        handler: (editorState, menuService, context) async {
+          await _deleteCharacter(editorState, character);
+          final selection = editorState.selection;
+          if (selection == null || !selection.isCollapsed) {
+            return;
+          }
+          final node = editorState.getNodeAtPath(selection.end.path);
+          if (node == null) {
+            return;
+          }
+          final index = selection.endIndex;
+          final transaction = editorState.transaction
+            ..insertText(
+              node,
+              index,
+              '\$',
+              attributes: {
+                MentionBlockKeys.mention: {
+                  MentionBlockKeys.type: MentionType.page.name,
+                  MentionBlockKeys.pageId: view.id,
+                  MentionBlockKeys.pageName: view.name,
+                  MentionBlockKeys.pageType: view.layout.name,
+                }
+              },
+            );
+          await editorState.apply(transaction);
+        },
+      );
+      pages.add(pageSelectionMenuItem);
     }
 
     return pages;
@@ -160,20 +173,6 @@ class InlinePageReferenceService {
         lastSlashIndex,
         end - lastSlashIndex,
       );
-
     await editorState.apply(transaction);
-  }
-
-  _getIconName(ViewPB view) {
-    if (view.layout == ViewLayoutPB.Document) {
-      return "documents";
-    }
-    if (view.layout == ViewLayoutPB.Board) {
-      return "board";
-    }
-    if (view.layout == ViewLayoutPB.Calendar) {
-      return "board";
-    }
-    return "grid";
   }
 }
