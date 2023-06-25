@@ -223,7 +223,7 @@
       "changeLocationTooltips": "更改数据目录",
       "change": "更改",
       "openLocationTooltips": "打开另一个数据目录",
-      "openCurrentDataFolder": "打开当前数据目录i",
+      "openCurrentDataFolder": "打开当前数据目录",
       "recoverLocationTooltips": "恢复为 AppFlowy 默认数据目录",
       "exportFileSuccess": "导出文件成功!",
       "exportFileFail": "导出文件失败!",
