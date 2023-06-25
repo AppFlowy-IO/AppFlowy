@@ -535,7 +535,7 @@ class ColorItem extends StatelessWidget {
                       margin: const EdgeInsets.all(1),
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: const Color(0xFFFFFFFF),
+                          color: Theme.of(context).cardColor,
                           width: 3.0,
                         ),
                         color: option.colorHex.toColor(),
