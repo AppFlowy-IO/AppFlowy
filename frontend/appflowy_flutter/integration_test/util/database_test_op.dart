@@ -461,17 +461,6 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(find.byType(EmojiSelectionMenu));
   }
 
-  /// Must call [openEmojiPicker] first
-  Future<void> switchToEmojiList() async {
-    final icon = find.byIcon(Icons.tag_faces);
-    await tapButton(icon);
-  }
-
-  Future<void> tapEmoji(String emoji) async {
-    final emojiWidget = find.text(emoji);
-    await tapButton(emojiWidget);
-  }
-
   Future<void> tapDateCellInRowDetailPage() async {
     final findDateCell = find.byType(GridDateCell);
     await tapButton(findDateCell);

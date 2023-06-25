@@ -27,7 +27,7 @@ class _EmojiIconWidgetState extends State<EmojiIconWidget> {
       child: Container(
         decoration: BoxDecoration(
           color: !hover
-              ? Theme.of(context).colorScheme.inverseSurface
+              ? Theme.of(context).colorScheme.inverseSurface.withOpacity(0.5)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),

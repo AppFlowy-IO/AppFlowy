@@ -305,19 +305,7 @@ class _CoverImageState extends State<_CoverImage> {
             },
           ),
           const HSpace(10),
-          FlowyIconButton(
-            hoverColor: Theme.of(context).colorScheme.surface,
-            fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.5),
-            iconPadding: const EdgeInsets.all(5),
-            width: 28,
-            icon: svgWidget(
-              'editor/delete',
-              color: Theme.of(context).colorScheme.tertiary,
-            ),
-            onPressed: () {
-              widget.onCoverChanged(cover: (CoverType.none, null));
-            },
-          ),
+          DeleteCoverButton(onCoverChanged: widget.onCoverChanged),
         ],
       ),
     );
@@ -328,6 +316,30 @@ class _CoverImageState extends State<_CoverImage> {
     setState(() {
       isOverlayButtonsHidden = value;
     });
+  }
+}
+
+@visibleForTesting
+class DeleteCoverButton extends StatelessWidget {
+  final Future<void> Function({(CoverType, String?) cover, String? icon})
+      onCoverChanged;
+  const DeleteCoverButton({required this.onCoverChanged, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyIconButton(
+      hoverColor: Theme.of(context).colorScheme.surface,
+      fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+      iconPadding: const EdgeInsets.all(5),
+      width: 28,
+      icon: svgWidget(
+        'editor/delete',
+        color: Theme.of(context).colorScheme.tertiary,
+      ),
+      onPressed: () {
+        onCoverChanged(cover: (CoverType.none, null));
+      },
+    );
   }
 }
 
@@ -446,8 +458,8 @@ class _CoverToolbarState extends State<CoverToolbar> {
           popupBuilder: (BuildContext popoverContext) {
             isPopoverOpen = true;
             return EmojiPopover(
-              showRemoveButton: widget.hasIcon,
-              removeIcon: () => widget.onCoverChanged(icon: ""),
+              showRemoveButton: false,
+              removeIcon: () {},
               node: widget.node,
               editorState: widget.editorState,
               onEmojiChanged: (Emoji emoji) {
