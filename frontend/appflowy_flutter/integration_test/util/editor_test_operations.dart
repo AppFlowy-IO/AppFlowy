@@ -36,7 +36,7 @@ class EditorOperations {
 
   /// Hover on cover plugin button above the document
   Future<void> hoverOnCoverToolbar() async {
-    final coverToolbar = find.byType(CoverToolbar);
+    final coverToolbar = find.byType(DocumentHeaderToolbar);
     await tester.startGesture(
       tester.getTopLeft(coverToolbar).translate(5, 5),
       kind: PointerDeviceKind.mouse,

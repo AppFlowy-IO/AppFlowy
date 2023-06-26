@@ -32,7 +32,7 @@ class ChangeCoverPopoverBloc
         deleteImage: (DeleteImage deleteImage) async {
           final currentState = state;
           final currentlySelectedImage =
-              node.attributes[CoverBlockKeys.selection];
+              node.attributes[DocumentHeaderBlockKeys.coverDetails];
           if (currentState is Loaded) {
             await _deleteImageInStorage(deleteImage.path);
             if (currentlySelectedImage == deleteImage.path) {
@@ -48,7 +48,7 @@ class ChangeCoverPopoverBloc
         clearAllImages: (ClearAllImages clearAllImages) async {
           final currentState = state;
           final currentlySelectedImage =
-              node.attributes[CoverBlockKeys.selection];
+              node.attributes[DocumentHeaderBlockKeys.coverDetails];
 
           if (currentState is Loaded) {
             for (final image in currentState.imageNames) {
@@ -90,9 +90,9 @@ class ChangeCoverPopoverBloc
   Future<void> _removeCoverImageFromNode() async {
     final transaction = editorState.transaction;
     transaction.updateNode(node, {
-      CoverBlockKeys.selectionType: CoverType.none.toString(),
-      CoverBlockKeys.iconSelection:
-          node.attributes[CoverBlockKeys.iconSelection]
+      DocumentHeaderBlockKeys.coverType: CoverType.none.toString(),
+      DocumentHeaderBlockKeys.icon:
+          node.attributes[DocumentHeaderBlockKeys.icon]
     });
     return editorState.apply(transaction);
   }
