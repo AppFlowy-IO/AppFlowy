@@ -3,6 +3,7 @@ import { RowInfo } from '@/appflowy_app/stores/effects/database/row/row_cache';
 import { GridTableRow } from './GridTableRow';
 import { DragDropContext, Droppable, DroppableProvided } from 'react-beautiful-dnd';
 import { useGridTableRows } from './GridTableRows.hooks';
+
 export const GridTableRows = ({
   viewId,
   controller,
@@ -14,7 +15,7 @@ export const GridTableRows = ({
   allRows: readonly RowInfo[];
   onOpenRow: (rowId: RowInfo) => void;
 }) => {
-  const { onRowsDragEnd } = useGridTableRows();
+  const { onRowsDragEnd } = useGridTableRows(controller, allRows);
 
   return (
     <DragDropContext onDragEnd={onRowsDragEnd}>

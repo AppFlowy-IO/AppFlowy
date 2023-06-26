@@ -6,7 +6,8 @@ export const useGridTableRow = (controller: DatabaseController) => {
 
   const addRowAt = async (index: number) => {
     console.log('addRowAt', index);
-    const row = await controller.createRow();
+    // TODO: add row at index
+    // await controller.insertRowAfter(rowId);
   };
 
   return {

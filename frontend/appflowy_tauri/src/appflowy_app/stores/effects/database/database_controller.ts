@@ -50,8 +50,10 @@ export class DatabaseController {
 
   open = async () => {
     const openDatabaseResult = await this.backendService.openDatabase();
+
     if (openDatabaseResult.ok) {
       const database: DatabasePB = openDatabaseResult.val;
+
       await this.databaseViewCache.initialize();
       await this.fieldController.initialize();
 
@@ -73,12 +75,15 @@ export class DatabaseController {
 
   getGroupByFieldId = async () => {
     const settingsResult = await this.backendService.getSettings();
+
     if (settingsResult.ok) {
       const settings = settingsResult.val;
       const groupConfig = settings.group_settings.items;
+
       if (groupConfig.length === 0) {
         return Err(new FlowyError({ msg: 'this database has no groups' }));
       }
+
       return Ok(settings.group_settings.items[0].field_id);
     } else {
       return Err(settingsResult.val);
@@ -116,10 +121,13 @@ export class DatabaseController {
 
   private loadGroup = async () => {
     const result = await this.backendService.loadGroups();
+
     if (result.ok) {
       const groups = result.val.items;
+
       await this.initialGroups(groups);
     }
+
     return result;
   };
 
@@ -129,11 +137,14 @@ export class DatabaseController {
     });
 
     const controllers: DatabaseGroupController[] = [];
+
     for (const groupPB of groups) {
       const controller = new DatabaseGroupController(groupPB, this.backendService);
+
       await controller.initialize();
       controllers.push(controller);
     }
+
     this.groups.next(controllers);
     this.groups.value;
   };
@@ -150,14 +161,17 @@ export class DatabaseController {
           Log.error(result.val);
           return;
         }
+
         const changeset = result.val;
         let existControllers = [...this.groups.getValue()];
+
         for (const deleteId of changeset.deleted_groups) {
           existControllers = existControllers.filter((c) => c.groupId !== deleteId);
         }
 
         for (const update of changeset.update_groups) {
           const index = existControllers.findIndex((c) => c.groupId === update.group_id);
+
           if (index !== -1) {
             existControllers[index].updateGroup(update);
           }
@@ -165,12 +179,14 @@ export class DatabaseController {
 
         for (const insert of changeset.inserted_groups) {
           const controller = new DatabaseGroupController(insert.group, this.backendService);
+
           if (insert.index > existControllers.length) {
             existControllers.push(controller);
           } else {
             existControllers.splice(insert.index, 0, controller);
           }
         }
+
         this.groups.next(existControllers);
       },
     });

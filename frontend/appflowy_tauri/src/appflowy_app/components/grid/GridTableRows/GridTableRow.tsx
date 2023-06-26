@@ -6,9 +6,7 @@ import { GridCell } from '../GridCell/GridCell';
 import AddSvg from '../../_shared/svg/AddSvg';
 import { DragSvg } from '../../_shared/svg/DragSvg';
 import { useGridTableRow } from './GridTableRow.hooks';
-import { useRef } from 'react';
-import useOutsideClick from '../../_shared/useOutsideClick';
-import { Draggable, DraggableProvided, DraggableStateSnapshot, Droppable } from 'react-beautiful-dnd';
+import { Draggable, DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd';
 import { GridRowActions } from './GridRowActions';
 
 export const GridTableRow = ({
@@ -34,7 +32,6 @@ export const GridTableRow = ({
           className={`group cursor-pointer ${snapshot.isDragging ? 'flex items-center bg-white' : ''}`}
           ref={provided.innerRef}
           {...provided.draggableProps}
-          onClick={() => setShowMenu(true)}
         >
           <td className='w-8'>
             <button
@@ -54,7 +51,7 @@ export const GridTableRow = ({
               className={`hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-main-secondary group-hover:flex ${
                 snapshot.isDragging ? '!flex' : ''
               }`}
-              // onClick={() => setShowMenu(true)}
+              onClick={() => setShowMenu(true)}
               {...provided.dragHandleProps}
             >
               <DragSvg />
