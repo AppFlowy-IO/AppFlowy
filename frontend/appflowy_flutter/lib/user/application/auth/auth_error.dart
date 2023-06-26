@@ -14,6 +14,6 @@ class AuthError {
     ..code = -10003;
 
   static final supabaseGetUserError = FlowyError()
-    ..msg = 'supabase sign in with oauth error'
-    ..code = -10003;
+    ..msg = 'unable to get user from supabase'
+    ..code = -10004;
 }

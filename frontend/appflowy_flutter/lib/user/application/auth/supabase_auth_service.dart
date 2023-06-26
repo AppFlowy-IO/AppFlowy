@@ -110,13 +110,12 @@ class SupabaseAuthService implements AuthService {
     final completer = Completer<Either<FlowyError, UserProfilePB>>();
     late final StreamSubscription<AuthState> subscription;
     subscription = _auth.onAuthStateChange.listen((event) async {
-      if (event.event != AuthChangeEvent.signedIn) {
+      final user = event.session?.user;
+      if (event.event != AuthChangeEvent.signedIn || user == null) {
         completer.complete(left(AuthError.supabaseSignInWithOauthError));
       } else {
-        final user = await getSupabaseUser();
-        final Either<FlowyError, UserProfilePB> response = await user.fold(
-          (l) => left(l),
-          (r) async => await setupAuth(map: {AuthServiceMapKeys.uuid: r.id}),
+        final Either<FlowyError, UserProfilePB> response = await setupAuth(
+          map: {AuthServiceMapKeys.uuid: user.id},
         );
         completer.complete(response);
       }
