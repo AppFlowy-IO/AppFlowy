@@ -17,7 +17,7 @@ pub(crate) async fn run_migrations(client: &mut Client) -> Result<(), anyhow::Er
     },
     Err(e) => {
       tracing::error!("postgres db migration error: {}", e);
-      return Err(anyhow::anyhow!("postgres db migration error: {}", e));
+      Err(anyhow::anyhow!("postgres db migration error: {}", e))
     },
   }
 }

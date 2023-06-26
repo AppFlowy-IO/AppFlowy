@@ -2,6 +2,11 @@ use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 use std::fmt::Debug;
 use std::ops::{Deref, DerefMut};
+use std::sync::{Arc, Weak};
+
+use tokio::sync::watch;
+
+use lib_infra::async_trait::async_trait;
 
 pub trait RequestPayload: Clone + Ord {}
 
@@ -10,13 +15,12 @@ pub enum RequestState {
   Pending,
   Processing,
   Done,
-  Timeout,
 }
 
 #[derive(Debug)]
 pub struct PendingRequest<Payload> {
-  payload: Payload,
-  state: RequestState,
+  pub payload: Payload,
+  pub state: RequestState,
 }
 
 impl<Payload> PendingRequest<Payload>
@@ -44,6 +48,18 @@ where
 
   pub fn set_state(&mut self, new_state: RequestState) {
     self.state = new_state;
+  }
+
+  pub fn is_pending(&self) -> bool {
+    self.state == RequestState::Pending
+  }
+
+  pub fn is_processing(&self) -> bool {
+    self.state == RequestState::Processing
+  }
+
+  pub fn is_done(&self) -> bool {
+    self.state == RequestState::Done
   }
 }
 
@@ -104,5 +120,49 @@ where
 {
   fn cmp(&self, other: &Self) -> Ordering {
     self.payload.cmp(&other.payload)
+  }
+}
+
+#[async_trait]
+pub trait RequestHandler: Send + Sync + 'static {
+  async fn process_next_request(&self) -> Option<()>;
+  fn notify(&self);
+}
+
+#[async_trait]
+impl<T> RequestHandler for Arc<T>
+where
+  T: RequestHandler,
+{
+  async fn process_next_request(&self) -> Option<()> {
+    (**self).process_next_request().await
+  }
+
+  fn notify(&self) {
+    (**self).notify()
+  }
+}
+
+pub struct RequestRunner();
+impl RequestRunner {
+  pub async fn run(mut notifier: watch::Receiver<bool>, server: Weak<dyn RequestHandler>) {
+    server.upgrade().unwrap().notify();
+    loop {
+      // stops the runner if the notifier was closed.
+      if notifier.changed().await.is_err() {
+        break;
+      }
+
+      // stops the runner if the value of notifier is `true`
+      if *notifier.borrow() {
+        break;
+      }
+
+      if let Some(server) = server.upgrade() {
+        let _ = server.process_next_request().await;
+      } else {
+        break;
+      }
+    }
   }
 }

@@ -36,7 +36,7 @@ impl FolderCloudService for SupabaseFolderCloudServiceImpl {
     tokio::spawn(async move {
       tx.send(
         async move {
-          let client = server.pg_client().await?;
+          let client = server.get_pg_client().await.recv().await?;
           create_workspace(&client, uid, &name).await
         }
         .await,

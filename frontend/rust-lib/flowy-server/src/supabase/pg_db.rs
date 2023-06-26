@@ -1,10 +1,13 @@
-use std::fmt::{Debug, Formatter};
-use std::sync::Arc;
+use std::cmp::Ordering;
+use std::fmt::{Debug, Formatter, Write};
+use std::sync::{Arc, Weak};
 
+use tokio::sync::{watch, Mutex};
 use tokio_postgres::{Client, NoTls};
 
 use crate::supabase::migration::run_migrations;
-use crate::supabase::PostgresConfiguration;
+use crate::supabase::queue::RequestPayload;
+use crate::supabase::{PostgresConfiguration, PostgresServer};
 
 pub type PostgresClient = Client;
 pub struct PostgresDB {
@@ -43,6 +46,58 @@ impl PostgresDB {
     })
   }
 }
+
+pub type PgClientSender = tokio::sync::mpsc::Sender<Arc<PostgresClient>>;
+
+#[derive(Clone)]
+pub enum PostgresEvent {
+  ConnectDB,
+  GetPgClient { id: u32, sender: PgClientSender },
+}
+
+impl Debug for PostgresEvent {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    match self {
+      PostgresEvent::ConnectDB => f.write_str("ConnectDB"),
+      PostgresEvent::GetPgClient { id, .. } => f.write_fmt(format_args!("GetPgClient({})", id)),
+    }
+  }
+}
+
+impl Ord for PostgresEvent {
+  fn cmp(&self, other: &Self) -> Ordering {
+    match (self, other) {
+      (PostgresEvent::ConnectDB, PostgresEvent::ConnectDB) => Ordering::Equal,
+      (PostgresEvent::ConnectDB, PostgresEvent::GetPgClient { .. }) => Ordering::Greater,
+      (PostgresEvent::GetPgClient { .. }, PostgresEvent::ConnectDB) => Ordering::Less,
+      (PostgresEvent::GetPgClient { id: id1, .. }, PostgresEvent::GetPgClient { id: id2, .. }) => {
+        id1.cmp(id2).reverse()
+      },
+    }
+  }
+}
+
+impl Eq for PostgresEvent {}
+
+impl PartialEq<Self> for PostgresEvent {
+  fn eq(&self, other: &Self) -> bool {
+    match (self, other) {
+      (PostgresEvent::ConnectDB, PostgresEvent::ConnectDB) => true,
+      (PostgresEvent::GetPgClient { id: id1, .. }, PostgresEvent::GetPgClient { id: id2, .. }) => {
+        id1 == id2
+      },
+      _ => false,
+    }
+  }
+}
+
+impl PartialOrd<Self> for PostgresEvent {
+  fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+    Some(self.cmp(other))
+  }
+}
+
+impl RequestPayload for PostgresEvent {}
 
 #[cfg(test)]
 mod tests {

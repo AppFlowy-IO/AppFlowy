@@ -39,7 +39,7 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
     tokio::spawn(async move {
       tx.send(
         async {
-          let client = server.pg_client().await?;
+          let client = server.get_pg_client().await.recv().await?;
           let uuid = uuid_from_box_any(params)?;
           create_user_with_uuid(&client, uuid).await
         }
@@ -55,7 +55,7 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
     tokio::spawn(async move {
       tx.send(
         async {
-          let client = server.pg_client().await?;
+          let client = server.get_pg_client().await.recv().await?;
           let uuid = uuid_from_box_any(params)?;
           let user_profile = get_user_profile(&client, GetUserProfileParams::Uuid(uuid)).await?;
           Ok(SignInResponse {
@@ -84,7 +84,7 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
     tokio::spawn(async move {
       tx.send(
         async move {
-          let client = server.pg_client().await?;
+          let client = server.get_pg_client().await.recv().await?;
           update_user_profile(&client, params).await
         }
         .await,
@@ -103,7 +103,7 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
     tokio::spawn(async move {
       tx.send(
         async move {
-          let client = server.pg_client().await?;
+          let client = server.get_pg_client().await.recv().await?;
           let user_profile = get_user_profile(&client, GetUserProfileParams::Uid(uid))
             .await
             .ok()
