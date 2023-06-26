@@ -4,10 +4,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/cove
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/emoji_icon_widget.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/section/item.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const String readme = 'Read me';
@@ -63,8 +61,8 @@ extension Expectation on WidgetTester {
     expect(addIcon, findsOneWidget);
   }
 
-  /// Expect to see the cover toolbar empty
-  void expectNotToSeeAddCoverAndIconButton() {
+  /// Expect to see the document header toolbar empty
+  void expectToSeeEmptyDocumentHeaderToolbar() {
     final addCover = find.textContaining(
       LocaleKeys.document_plugins_cover_addCover.tr(),
     );
@@ -88,20 +86,18 @@ extension Expectation on WidgetTester {
   }
 
   void expectToSeeDocumentCover(CoverType type, String details) {
-    Finder findCover;
-    switch (type) {
-      case CoverType.asset:
-        findCover = find.image(AssetImage(details));
-        break;
-      case CoverType.color:
-        final color = details.toColor();
-        findCover = find.byWidgetPredicate(
-          (widget) => widget is Container && widget.color == color,
-        );
-      default:
-        return;
-    }
+    final findCover = find.byWidgetPredicate(
+      (widget) =>
+          widget is DocumentCover &&
+          widget.coverType == type &&
+          widget.coverDetails == details,
+    );
     expect(findCover, findsOneWidget);
+  }
+
+  void expectToSeeNoDocumentCover() {
+    final findCover = find.byType(DocumentCover);
+    expect(findCover, findsNothing);
   }
 
   void expectChangeCoverAndDeleteButton() {

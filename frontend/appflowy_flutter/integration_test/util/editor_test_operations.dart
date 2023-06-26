@@ -38,7 +38,7 @@ class EditorOperations {
   Future<void> hoverOnCoverToolbar() async {
     final coverToolbar = find.byType(DocumentHeaderToolbar);
     await tester.startGesture(
-      tester.getTopLeft(coverToolbar).translate(5, 5),
+      tester.getBottomLeft(coverToolbar).translate(5, -5),
       kind: PointerDeviceKind.mouse,
     );
     await tester.pumpAndSettle();
@@ -96,11 +96,9 @@ class EditorOperations {
   /// A cover must be present in the document to function properly since this
   /// catches all cover types collectively
   Future<void> hoverOnCover() async {
-    final editor = find.byWidgetPredicate(
-      (widget) => widget is AppFlowyEditor,
-    );
+    final cover = find.byType(DocumentCover);
     await tester.startGesture(
-      tester.getTopLeft(editor).translate(5, 5),
+      tester.getCenter(cover),
       kind: PointerDeviceKind.mouse,
     );
     await tester.pumpAndSettle();

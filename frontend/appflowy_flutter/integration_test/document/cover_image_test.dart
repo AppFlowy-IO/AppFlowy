@@ -28,7 +28,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      tester.expectToSeeDocumentCover(CoverType.none, "");
+      tester.expectToSeeNoDocumentCover();
 
       // Hover over cover toolbar to show 'Add Cover' and 'Add Icon' buttons
       await tester.editor.hoverOnCoverToolbar();
@@ -55,7 +55,7 @@ void main() {
       // Remove the cover
       await tester.editor.hoverOnCover();
       await tester.editor.tapOnRemoveCover();
-      tester.expectToSeeDocumentCover(CoverType.none, "");
+      tester.expectToSeeNoDocumentCover();
     });
 
     testWidgets('document icon tests', (tester) async {
@@ -103,7 +103,7 @@ void main() {
       await tester.tapGoButton();
 
       tester.expectToSeeDocumentIcon(null);
-      tester.expectToSeeDocumentCover(CoverType.none, "");
+      tester.expectToSeeNoDocumentCover();
 
       // Hover over cover toolbar to show the 'Add Cover' and 'Add Icon' buttons
       await tester.editor.hoverOnCoverToolbar();
@@ -126,7 +126,7 @@ void main() {
 
       // Hover over the cover toolbar and see that neither icons are shown
       await tester.editor.hoverOnCoverToolbar();
-      tester.expectNotToSeeAddCoverAndIconButton();
+      tester.expectToSeeEmptyDocumentHeaderToolbar();
     });
   });
 }

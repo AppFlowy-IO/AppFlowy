@@ -43,7 +43,7 @@ enum CoverType {
   }
 }
 
-class CoverNodeWidgetBuilder implements NodeWidgetBuilder {
+class DocumentHeaderNodeWidgetBuilder implements NodeWidgetBuilder {
   @override
   Widget build(NodeWidgetContext<Node> context) {
     return DocumentHeaderNodeWidget(
