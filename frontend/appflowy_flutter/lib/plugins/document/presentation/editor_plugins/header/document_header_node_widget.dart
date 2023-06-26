@@ -10,7 +10,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
 
-import 'change_cover_popover.dart';
+import 'cover_editor.dart';
 import 'emoji_icon_widget.dart';
 import 'emoji_popover.dart';
 

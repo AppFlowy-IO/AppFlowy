@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/change_cover_popover.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/cover_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-part 'change_cover_popover_bloc.freezed.dart';
+part 'cover_editor_bloc.freezed.dart';
 
 class ChangeCoverPopoverBloc
     extends Bloc<ChangeCoverPopoverEvent, ChangeCoverPopoverState> {

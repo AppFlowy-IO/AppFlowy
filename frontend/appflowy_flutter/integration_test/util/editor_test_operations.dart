@@ -1,10 +1,10 @@
 import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/change_cover_popover.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/cover_node_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/emoji_icon_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/emoji_popover.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_popover.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';

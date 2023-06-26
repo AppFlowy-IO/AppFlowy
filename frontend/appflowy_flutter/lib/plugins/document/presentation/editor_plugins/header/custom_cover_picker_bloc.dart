@@ -13,9 +13,10 @@ import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart' as p;
-import 'change_cover_popover.dart';
 
-part 'cover_image_picker_bloc.freezed.dart';
+import 'cover_editor.dart';
+
+part 'custom_cover_picker_bloc.freezed.dart';
 
 class CoverImagePickerBloc
     extends Bloc<CoverImagePickerEvent, CoverImagePickerState> {
