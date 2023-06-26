@@ -34,7 +34,6 @@ impl SnapshotPersistence for SnapshotDBImpl {
     uid: i64,
     object_id: &str,
     title: String,
-    collab_type: String,
     snapshot_data: Vec<u8>,
   ) -> Result<(), PersistenceError> {
     let object_id = object_id.to_string();
@@ -66,7 +65,7 @@ impl SnapshotPersistence for SnapshotDBImpl {
             object_id: object_id.clone(),
             title,
             desc,
-            collab_type,
+            collab_type: "".to_string(),
             timestamp: timestamp(),
             data: snapshot_data,
           },

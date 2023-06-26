@@ -151,24 +151,30 @@ impl Folder2Manager {
     &self,
     user_id: i64,
     token: &str,
+    is_new: bool,
     workspace_id: &str,
   ) -> FlowyResult<()> {
     self.initialize(user_id, workspace_id).await?;
-    let (folder_data, workspace_pb) = DefaultFolderBuilder::build(
-      self.user.user_id()?,
-      workspace_id.to_string(),
-      &self.operation_handlers,
-    )
-    .await;
-    self.with_folder((), |folder| {
-      folder.create_with_data(folder_data);
-    });
 
-    send_notification(token, FolderNotification::DidCreateWorkspace)
-      .payload(RepeatedWorkspacePB {
-        items: vec![workspace_pb],
-      })
-      .send();
+    // Create the default workspace if the user is new
+    tracing::info!("initialize_with_user: is_new: {}", is_new);
+    if is_new {
+      let (folder_data, workspace_pb) = DefaultFolderBuilder::build(
+        self.user.user_id()?,
+        workspace_id.to_string(),
+        &self.operation_handlers,
+      )
+      .await;
+      self.with_folder((), |folder| {
+        folder.create_with_data(folder_data);
+      });
+
+      send_notification(token, FolderNotification::DidCreateWorkspace)
+        .payload(RepeatedWorkspacePB {
+          items: vec![workspace_pb],
+        })
+        .send();
+    }
     Ok(())
   }
 

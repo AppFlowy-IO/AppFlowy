@@ -267,7 +267,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     })
   }
 
-  fn did_sign_up(&self, user_profile: &UserProfile) -> Fut<FlowyResult<()>> {
+  fn did_sign_up(&self, is_new: bool, user_profile: &UserProfile) -> Fut<FlowyResult<()>> {
     let user_profile = user_profile.clone();
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
@@ -276,6 +276,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .initialize_with_new_user(
           user_profile.id,
           &user_profile.token,
+          is_new,
           &user_profile.workspace_id,
         )
         .await?;

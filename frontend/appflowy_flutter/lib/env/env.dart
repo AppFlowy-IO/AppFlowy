@@ -12,6 +12,8 @@ part 'env.g.dart';
 ///   build_runner clean` before running `dart run build_runner build
 ///    --delete-conflicting-outputs`.
 
+/// Follow the guide on https://supabase.com/docs/guides/auth/social-login/auth-google to setup the auth provider.
+///
 @Envied(path: '.env')
 abstract class Env {
   @EnviedField(
@@ -41,31 +43,31 @@ abstract class Env {
 
   @EnviedField(
     obfuscate: true,
-    varName: 'SUPABASE_PG_URL',
+    varName: 'SUPABASE_DB',
     defaultValue: '',
   )
-  static final String supabasePgURL = _Env.supabasePgURL;
+  static final String supabaseDb = _Env.supabaseDb;
 
   @EnviedField(
     obfuscate: true,
-    varName: 'SUPABASE_PG_USER',
+    varName: 'SUPABASE_DB_USER',
     defaultValue: '',
   )
-  static final String supabasePgUSER = _Env.supabasePgUSER;
+  static final String supabaseDbUser = _Env.supabaseDbUser;
 
   @EnviedField(
     obfuscate: true,
-    varName: 'SUPABASE_PG_PASSWORD',
+    varName: 'SUPABASE_DB_PASSWORD',
     defaultValue: '',
   )
-  static final String supabasePgPassword = _Env.supabasePgPassword;
+  static final String supabaseDbPassword = _Env.supabaseDbPassword;
 
   @EnviedField(
     obfuscate: true,
-    varName: 'SUPABASE_PG_PORT',
-    defaultValue: '',
+    varName: 'SUPABASE_DB_PORT',
+    defaultValue: '5432',
   )
-  static final String supabasePgPort = _Env.supabasePgPort;
+  static final String supabaseDbPort = _Env.supabaseDbPort;
 }
 
 bool get isSupabaseEnable =>
@@ -73,7 +75,7 @@ bool get isSupabaseEnable =>
     Env.supabaseAnonKey.isNotEmpty &&
     Env.supabaseKey.isNotEmpty &&
     Env.supabaseJwtSecret.isNotEmpty &&
-    Env.supabasePgURL.isNotEmpty &&
-    Env.supabasePgUSER.isNotEmpty &&
-    Env.supabasePgPassword.isNotEmpty &&
-    Env.supabasePgPort.isNotEmpty;
+    Env.supabaseDb.isNotEmpty &&
+    Env.supabaseDbUser.isNotEmpty &&
+    Env.supabaseDbPassword.isNotEmpty &&
+    Env.supabaseDbPort.isNotEmpty;

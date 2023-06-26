@@ -27,10 +27,10 @@ class InitSupabaseTask extends LaunchTask {
       key: Env.supabaseKey,
       secret: Env.supabaseJwtSecret,
       anonKey: Env.supabaseAnonKey,
-      pgPassword: Env.supabasePgPassword,
-      pgPort: Env.supabasePgPort,
-      pgUrl: Env.supabasePgURL,
-      pgUser: Env.supabasePgUSER,
+      pgPassword: Env.supabaseDbPassword,
+      pgPort: Env.supabaseDbPort,
+      pgUrl: Env.supabaseDb,
+      pgUser: Env.supabaseDbUser,
     );
     isSupabaseInitialized = true;
   }

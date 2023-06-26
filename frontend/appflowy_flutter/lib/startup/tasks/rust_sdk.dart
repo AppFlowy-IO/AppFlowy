@@ -23,17 +23,18 @@ class InitRustSDKTask extends LaunchTask {
   Future<void> initialize(LaunchContext context) async {
     final dir = directory ?? await appFlowyApplicationDataDirectory();
 
-    context.getIt<FlowySDK>().setEnv(getAppFlowyEnv());
+    final env = getAppFlowyEnv();
+    context.getIt<FlowySDK>().setEnv(env);
     await context.getIt<FlowySDK>().init(dir);
   }
 }
 
 AppFlowyEnv getAppFlowyEnv() {
   final postgresConfig = PostgresConfiguration(
-    url: Env.supabasePgURL,
-    password: Env.supabasePgPassword,
-    port: int.parse(Env.supabasePgPort),
-    user_name: Env.supabasePgUSER,
+    url: Env.supabaseDb,
+    password: Env.supabaseDbPassword,
+    port: int.parse(Env.supabaseDbPort),
+    user_name: Env.supabaseDbUser,
   );
 
   final supabaseConfig = SupabaseConfiguration(

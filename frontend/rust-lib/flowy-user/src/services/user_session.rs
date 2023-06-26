@@ -153,6 +153,7 @@ impl UserSession {
       .sign_up(params)
       .await?;
 
+    let is_new = resp.is_new;
     let session: Session = resp.clone().into();
     self.set_session(Some(session))?;
     let user_table = self.save_user(resp.into()).await?;
@@ -161,7 +162,7 @@ impl UserSession {
       .user_status_callback
       .read()
       .await
-      .did_sign_up(&user_profile)
+      .did_sign_up(is_new, &user_profile)
       .await;
     Ok(user_profile)
   }

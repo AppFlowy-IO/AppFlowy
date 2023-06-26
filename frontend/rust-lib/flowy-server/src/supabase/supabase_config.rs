@@ -48,6 +48,7 @@ impl SupabaseConfiguration {
     std::env::set_var(SUPABASE_URL, &self.url);
     std::env::set_var(SUPABASE_KEY, &self.key);
     std::env::set_var(SUPABASE_JWT_SECRET, &self.jwt_secret);
+    self.postgres_config.write_env();
   }
 }
 

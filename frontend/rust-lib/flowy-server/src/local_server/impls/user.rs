@@ -27,6 +27,7 @@ impl UserAuthService for LocalServerUserAuthServiceImpl {
         user_id: uid,
         name: params.name,
         workspace_id,
+        is_new: true,
         email: Some(params.email),
         token: None,
       })

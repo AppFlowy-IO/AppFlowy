@@ -129,6 +129,7 @@ async fn create_user_with_uuid(
   client: &Arc<PostgresClient>,
   uuid: Uuid,
 ) -> Result<SignUpResponse, FlowyError> {
+  let mut is_new = true;
   if let Err(e) = client
     .execute(
       &format!("INSERT INTO {} (uuid) VALUES ($1);", USER_TABLE),
@@ -137,7 +138,9 @@ async fn create_user_with_uuid(
     .await
   {
     if let Some(code) = e.code() {
-      if code != &SqlState::UNIQUE_VIOLATION {
+      if code == &SqlState::UNIQUE_VIOLATION {
+        is_new = false;
+      } else {
         return Err(FlowyError::new(ErrorCode::PgDatabaseError, e));
       }
     }
@@ -146,9 +149,11 @@ async fn create_user_with_uuid(
   let user_profile = get_user_profile(client, GetUserProfileParams::Uuid(uuid)).await?;
   Ok(SignUpResponse {
     user_id: user_profile.uid,
+    name: user_profile.name,
     workspace_id: user_profile.workspace_id,
+    is_new,
     email: Some(user_profile.email),
-    ..Default::default()
+    token: None,
   })
 }
 
@@ -221,7 +226,7 @@ mod tests {
 
   use crate::supabase::impls::user::USER_UUID;
   use crate::supabase::impls::SupabaseUserAuthServiceImpl;
-  use crate::supabase::PostgresServer;
+  use crate::supabase::{PostgresConfiguration, PostgresServer};
 
   // ‼️‼️‼️ Warning: this test will create a table in the database
   #[tokio::test]
@@ -229,7 +234,9 @@ mod tests {
     if dotenv::from_filename("./.env.user.test").is_err() {
       return;
     }
-    let server = Arc::new(PostgresServer::new());
+    let server = Arc::new(PostgresServer::new(
+      PostgresConfiguration::from_env().unwrap(),
+    ));
     let user_service = SupabaseUserAuthServiceImpl::new(server);
 
     let mut params = HashMap::new();
@@ -243,7 +250,9 @@ mod tests {
     if dotenv::from_filename("./.env.user.test").is_err() {
       return;
     }
-    let server = Arc::new(PostgresServer::new());
+    let server = Arc::new(PostgresServer::new(
+      PostgresConfiguration::from_env().unwrap(),
+    ));
     let user_service = SupabaseUserAuthServiceImpl::new(server);
     let uuid = Uuid::new_v4();
 
@@ -262,7 +271,9 @@ mod tests {
     if dotenv::from_filename("./.env.user.test").is_err() {
       return;
     }
-    let server = Arc::new(PostgresServer::new());
+    let server = Arc::new(PostgresServer::new(
+      PostgresConfiguration::from_env().unwrap(),
+    ));
     let user_service = SupabaseUserAuthServiceImpl::new(server);
     let uuid = Uuid::new_v4();
 
