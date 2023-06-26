@@ -52,7 +52,7 @@ pub fn db() -> Arc<RocksCollabDB> {
 }
 
 pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
-  let builder = AppFlowyCollabBuilder::new(DefaultCollabStorageProvider, None);
+  let builder = AppFlowyCollabBuilder::new(DefaultCollabStorageProvider(), None);
   Arc::new(builder)
 }
 

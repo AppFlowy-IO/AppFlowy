@@ -252,7 +252,7 @@ struct UserStatusCallbackImpl {
 }
 
 impl UserStatusCallback for UserStatusCallbackImpl {
-  fn auth_type_did_changed(&self, auth_type: AuthType) {}
+  fn auth_type_did_changed(&self, _auth_type: AuthType) {}
 
   fn did_sign_in(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>> {
     let user_id = user_id.to_owned();

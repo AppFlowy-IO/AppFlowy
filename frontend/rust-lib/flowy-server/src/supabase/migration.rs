@@ -1,6 +1,4 @@
-use std::fs::read_to_string;
-
-use refinery::{embed_migrations, Migration, Runner};
+use refinery::embed_migrations;
 use tokio_postgres::Client;
 
 embed_migrations!("./src/supabase/migrations");

@@ -111,14 +111,16 @@ mod tests {
 
   use crate::supabase::impls::folder::SupabaseFolderCloudServiceImpl;
   use crate::supabase::impls::SupabaseUserAuthServiceImpl;
-  use crate::supabase::PostgresServer;
+  use crate::supabase::{PostgresConfiguration, PostgresServer};
 
   #[tokio::test]
   async fn create_user_workspace() {
     if dotenv::from_filename("./.env.workspace.test").is_err() {
       return;
     }
-    let server = Arc::new(PostgresServer::new());
+    let server = Arc::new(PostgresServer::new(
+      PostgresConfiguration::from_env().unwrap(),
+    ));
     let user_service = SupabaseUserAuthServiceImpl::new(server.clone());
 
     // create user

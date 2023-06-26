@@ -1,7 +1,6 @@
-use std::sync::mpsc::Receiver;
 use std::sync::Arc;
 
-use serde::Deserialize;
+use tokio::sync::mpsc::Receiver;
 use tokio::sync::Mutex;
 
 use flowy_error::{ErrorCode, FlowyError};
@@ -13,9 +12,11 @@ use crate::supabase::pg_db::{PostgresClient, PostgresDB};
 use crate::supabase::{PostgresConfiguration, SupabaseConfiguration};
 use crate::AppFlowyServer;
 
+/// Supabase server is used to provide the implementation of the [AppFlowyServer] trait.
+/// It contains the configuration of the supabase server and the postgres server.
 pub struct SupabaseServer {
   pub config: SupabaseConfiguration,
-  pub postgres: Arc<PostgresServer>,
+  postgres: Arc<PostgresServer>,
 }
 
 impl SupabaseServer {
@@ -28,20 +29,20 @@ impl SupabaseServer {
   }
 }
 
-pub struct PostgresServer {
+pub(crate) struct PostgresServer {
   db: Arc<Mutex<Option<Arc<PostgresDB>>>>,
   config: PostgresConfiguration,
 }
 
 impl PostgresServer {
-  pub fn new(config: PostgresConfiguration) -> Self {
+  pub(crate) fn new(config: PostgresConfiguration) -> Self {
     Self {
       db: Arc::new(Default::default()),
       config,
     }
   }
 
-  pub async fn pg_client(&self) -> Result<Arc<PostgresClient>, FlowyError> {
+  pub(crate) async fn pg_client(&self) -> Result<Arc<PostgresClient>, FlowyError> {
     let mut postgres = self.db.lock().await;
     match &*postgres {
       None => match PostgresDB::new(self.config.clone()).await {
@@ -50,10 +51,7 @@ impl PostgresServer {
           *postgres = Some(db.clone());
           Ok(db.client.clone())
         },
-        Err(e) => Err(FlowyError::new(
-          ErrorCode::PostgresDatabaseConnectError,
-          e.to_string(),
-        )),
+        Err(e) => Err(FlowyError::new(ErrorCode::PgConnectError, e.to_string())),
       },
       Some(postgrest) => Ok(postgrest.client.clone()),
     }

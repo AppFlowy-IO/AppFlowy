@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use tokio_postgres::types::ToSql;
 use tokio_postgres::{Client, NoTls};
 
 use crate::supabase::migration::run_migrations;
@@ -13,6 +12,7 @@ pub struct PostgresDB {
 }
 
 impl PostgresDB {
+  #[allow(dead_code)]
   pub async fn from_env() -> Result<Self, anyhow::Error> {
     let configuration = PostgresConfiguration::from_env()?;
     Self::new(configuration).await
@@ -56,8 +56,7 @@ mod tests {
       return Ok(());
     }
 
-    let configuration = PostgresConfiguration::from_env()
-      .ok_or_else(|| anyhow::anyhow!("PostgresConfiguration not found in env"))?;
+    let configuration = PostgresConfiguration::from_env().unwrap();
     let mut config = tokio_postgres::Config::new();
     config
       .host(&configuration.url)
@@ -66,7 +65,7 @@ mod tests {
       .port(configuration.port);
 
     // Using the https://docs.rs/postgres-openssl/latest/postgres_openssl/ to enable tls connection.
-    let (mut client, connection) = config.connect(NoTls).await?;
+    let (client, connection) = config.connect(NoTls).await?;
     tokio::spawn(async move {
       if let Err(e) = connection.await {
         tracing::error!("postgres db connection error: {}", e);

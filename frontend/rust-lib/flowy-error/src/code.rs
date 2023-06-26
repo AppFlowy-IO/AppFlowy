@@ -210,7 +210,7 @@ pub enum ErrorCode {
   ApplyActionsIsEmpty = 68,
 
   #[error("Connect postgres database failed")]
-  PostgresDatabaseConnectError = 69,
+  PgConnectError = 69,
 
   #[error("Postgres database error")]
   PgDatabaseError = 70,

@@ -71,7 +71,7 @@ impl PostgresConfiguration {
     let port = std::env::var(SUPABASE_DB_PORT)
       .map_err(|_| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_DB_PORT"))?
       .parse::<u16>()
-      .map_err(|e| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_DB_PORT"))?;
+      .map_err(|_e| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_DB_PORT"))?;
 
     Ok(Self {
       url,
@@ -85,6 +85,6 @@ impl PostgresConfiguration {
     std::env::set_var(SUPABASE_DB, &self.url);
     std::env::set_var(SUPABASE_DB_USER, &self.user_name);
     std::env::set_var(SUPABASE_DB_PASSWORD, &self.password);
-    std::env::set_var(SUPABASE_DB_PORT, &self.port.to_string());
+    std::env::set_var(SUPABASE_DB_PORT, self.port.to_string());
   }
 }
