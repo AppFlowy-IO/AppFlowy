@@ -108,21 +108,28 @@ class ShortcutsListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: FlowyText.medium(
-            key: Key(shortcutEvent.key),
-            shortcutEvent.key,
-            overflow: TextOverflow.ellipsis,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: FlowyText.medium(
+                key: Key(shortcutEvent.key),
+                shortcutEvent.key,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            FlowyTextButton(
+              shortcutEvent.command,
+              fillColor: Colors.transparent,
+              onPressed: () {
+                showKeyListenerDialog(context);
+              },
+            )
+          ],
         ),
-        FlowyTextButton(
-          shortcutEvent.command,
-          fillColor: Colors.transparent,
-          onPressed: () {
-            showKeyListenerDialog(context);
-          },
+        Divider(
+          color: Theme.of(context).dividerColor,
         )
       ],
     );
