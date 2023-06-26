@@ -28,6 +28,8 @@ chrono = { version = "0.4.22", default-features = false, features = ["clock"] }
 postgrest = "1.0"
 tokio-postgres = { version = "0.7.8", optional = true, features = ["with-uuid-1","with-chrono-0_4"] }
 refinery= { version = "0.8.10", optional = true, features = ["tokio-postgres"] }
+async-stream = "0.3.4"
+futures = "0.3.26"
 
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-user = { path = "../flowy-user" }

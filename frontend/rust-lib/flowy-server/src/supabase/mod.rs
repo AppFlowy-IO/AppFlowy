@@ -8,4 +8,5 @@ mod sql_builder;
 // mod postgres_http;
 mod configuration;
 mod migration;
+mod queue;
 mod server;
