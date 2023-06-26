@@ -4,7 +4,13 @@ import { useEffect, useState } from 'react';
 export const useGridFilterPopup = () => {
   const database = useAppSelector((state) => state.database);
 
-  const [filters, setFilters] = useState<any>([]);
+  const [filters, setFilters] = useState<
+    {
+      fieldId: string;
+      operator: string;
+      value: string;
+    }[]
+  >([]);
 
   const fields = Object.values(database.fields).map((field) => {
     return {
@@ -13,10 +19,11 @@ export const useGridFilterPopup = () => {
       fieldType: field.fieldType,
     };
   });
+
   useEffect(() => {
     setFilters([
       {
-        fieldId: 'f:kIZGIK',
+        fieldId: 'JONkd9',
         operator: 'contains',
         value: 'test',
       },
@@ -27,7 +34,7 @@ export const useGridFilterPopup = () => {
     setFilters([
       ...filters,
       {
-        field: 'name',
+        fieldId: 'JONkd9',
         operator: 'contains',
         value: 'test' + filters.length,
       },
@@ -36,6 +43,7 @@ export const useGridFilterPopup = () => {
 
   const onFieldChange = (index: number, fieldId: string) => {
     const newFilters = [...filters];
+
     newFilters[index].fieldId = fieldId;
     setFilters(newFilters);
   };

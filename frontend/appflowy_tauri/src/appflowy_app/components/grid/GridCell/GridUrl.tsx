@@ -17,6 +17,15 @@ export const GridUrl = ({
   const { data, cellController } = useCell(cellIdentifier, cellCache, fieldController);
 
   return (
-    <>{cellController && <EditCellUrl data={data as URLCellDataPB} cellController={cellController}></EditCellUrl>}</>
+    <>
+      {cellController && (
+        <EditCellUrl
+          data={data as URLCellDataPB}
+          onSave={async (value) => {
+            await cellController?.saveCellData(value);
+          }}
+        ></EditCellUrl>
+      )}
+    </>
   );
 };

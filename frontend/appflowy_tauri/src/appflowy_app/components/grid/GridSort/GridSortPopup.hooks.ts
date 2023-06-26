@@ -16,7 +16,7 @@ export const useGridSortPopup = () => {
   useEffect(() => {
     setsortRules([
       {
-        fieldId: 'f:kIZGIK',
+        fieldId: 'JONkd9',
         direction: 'asc',
       },
     ]);
@@ -32,7 +32,7 @@ export const useGridSortPopup = () => {
     setsortRules([
       ...sortRules,
       {
-        fieldId: 'f:kIZGIK',
+        fieldId: 'JONkd9',
         direction: 'asc',
       },
     ]);

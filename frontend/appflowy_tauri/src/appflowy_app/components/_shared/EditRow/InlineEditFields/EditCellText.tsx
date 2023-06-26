@@ -1,13 +1,6 @@
-import { CellController } from '$app/stores/effects/database/cell/cell_controller';
 import { useEffect, useState } from 'react';
 
-export const EditCellText = ({
-  data,
-  cellController,
-}: {
-  data: string | undefined;
-  cellController: CellController<any, any>;
-}) => {
+export const EditCellText = ({ data, onSave }: { data: string | undefined; onSave: (value: string) => void }) => {
   const [value, setValue] = useState('');
   const [contentRows, setContentRows] = useState(1);
 
@@ -24,10 +17,6 @@ export const EditCellText = ({
     setValue(v);
   };
 
-  const save = async () => {
-    await cellController?.saveCellData(value);
-  };
-
   return (
     <div>
       <textarea
@@ -35,7 +24,7 @@ export const EditCellText = ({
         rows={contentRows}
         value={value}
         onChange={(e) => onTextFieldChange(e.target.value)}
-        onBlur={() => save()}
+        onBlur={() => onSave(value)}
       />
     </div>
   );

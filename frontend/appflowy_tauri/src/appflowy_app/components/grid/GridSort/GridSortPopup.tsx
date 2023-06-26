@@ -7,6 +7,8 @@ import { ShowMenuSvg } from '../../_shared/svg/ShowMenuSvg';
 import { MoreSvg } from '../../_shared/svg/MoreSvg';
 import { DragSvg } from '../../_shared/svg/DragSvg';
 import { CloseSvg } from '../../_shared/svg/CloseSvg';
+import { Select } from '../../_shared/Select';
+import { FieldTypeIcon } from '../../_shared/EditRow/FieldTypeIcon';
 
 export const GridSortPopup = ({ onOutsideClick }: { onOutsideClick: () => void }) => {
   const { fields, sortRules, onSortRuleFieldChange, addSortRule } = useGridSortPopup();
@@ -25,7 +27,7 @@ export const GridSortPopup = ({ onOutsideClick }: { onOutsideClick: () => void }
         </div>
 
         <div className='max-h-48 overflow-y-auto'>
-          {sortRules.map((filter: any, i: number) => (
+          {sortRules.map((rule: any, i: number) => (
             <div className='flex  items-center justify-between gap-4  p-6'>
               <div>
                 <div className='h-5 w-5'>
@@ -33,26 +35,40 @@ export const GridSortPopup = ({ onOutsideClick }: { onOutsideClick: () => void }
                 </div>
               </div>
 
-              <div className='w-64 rounded-lg border border-gray-300 p-2 '>
-                <select
-                  name='fields'
-                  className='w-full appearance-none'
-                  value={filter.fieldId}
-                  onChange={(e) => {
-                    onSortRuleFieldChange(i, e.target.value);
+              <div className='w-64 rounded-lg border border-gray-300  '>
+                <Select
+                  options={fields.map((field) => ({
+                    name: field.name,
+                    value: field.fieldId,
+                    icon: <FieldTypeIcon fieldType={field.fieldType} />,
+                  }))}
+                  setValue={(value) => {
+                    console.log({ value });
+                    onSortRuleFieldChange(i, value);
                   }}
-                >
-                  {fields.map((field) => (
-                    <option value={field.fieldId}>{field.name}</option>
-                  ))}
-                </select>
+                  value={rule.fieldId}
+                  dropdownClassName='w-64'
+                />
               </div>
 
-              <div className='w-64 rounded-lg border border-gray-300 p-2'>
-                <select name='fields' className='w-full appearance-none' value={filter.operator}>
-                  <option value='asc'>Ascending</option>
-                  <option value='desc'>Descending</option>
-                </select>
+              <div className='w-64 rounded-lg border border-gray-300'>
+                <Select
+                  options={[
+                    {
+                      name: 'Ascending',
+                      value: 'asc',
+                    },
+                    {
+                      name: 'Descending',
+                      value: 'desc',
+                    },
+                  ]}
+                  setValue={(value) => {
+                    console.log(value);
+                  }}
+                  value={'asc'}
+                  dropdownClassName='w-64'
+                />
               </div>
 
               <div className='w-5'>

@@ -17,7 +17,14 @@ export default function GridTextCell({
 
   return (
     <div className='w-full'>
-      {cellController && <EditCellText data={data as string | undefined} cellController={cellController}></EditCellText>}
+      {cellController && (
+        <EditCellText
+          data={data as string | undefined}
+          onSave={async (value) => {
+            await cellController?.saveCellData(value);
+          }}
+        ></EditCellText>
+      )}
     </div>
   );
 }

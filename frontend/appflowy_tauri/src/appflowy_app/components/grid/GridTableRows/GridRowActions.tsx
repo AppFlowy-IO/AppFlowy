@@ -19,12 +19,15 @@ export const GridRowActions = ({
   const ref = useRef<HTMLDivElement>(null);
   useOutsideClick(ref, onOutsideClick);
 
-  const { deleteRow } = useGridRowActions(controller);
+  const { deleteRow,duplicateRow,insertRowAfter } = useGridRowActions(controller);
 
   return (
     <div className='absolute left-20 ml-1 mt-2 w-44 bg-white ' ref={ref}>
       <div className='flex flex-col gap-3 rounded-lg bg-white p-2 shadow-md'>
-        <button className='flex cursor-pointer items-center rounded  p-1 text-gray-500 hover:bg-main-secondary hover:text-black'>
+        <button className='flex cursor-pointer items-center rounded  p-1 text-gray-500 hover:bg-main-secondary hover:text-black'
+         onClick={async () => {
+            await insertRowAfter(rowId);
+          }}>
           <div className='flex gap-2'>
             <div className='h-5 w-5'>
               <AddSvg />
@@ -40,7 +43,11 @@ export const GridRowActions = ({
             <span>Copy Link</span>
           </div>
         </button>
-        <button className='flex cursor-pointer items-center rounded  p-1 text-gray-500 hover:bg-main-secondary hover:text-black'>
+        <button className='flex cursor-pointer items-center rounded  p-1 text-gray-500 hover:bg-main-secondary hover:text-black'
+        
+         onClick={async () => {
+            await duplicateRow(rowId);
+          }}>
           <div className='flex gap-2'>
             <div className='h-5 w-5'>
               <CopySvg />
