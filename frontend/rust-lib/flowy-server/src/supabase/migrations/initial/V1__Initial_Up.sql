@@ -19,7 +19,7 @@ VALUES (NEW.uid, NEW.uuid);
 RETURN NEW;
 END $$ LANGUAGE plpgsql;
 CREATE TRIGGER create_af_user_profile_trigger
-AFTER
+BEFORE
 INSERT ON af_user FOR EACH ROW EXECUTE FUNCTION create_af_user_profile_trigger_func();
 -- workspace table
 CREATE TABLE IF NOT EXISTS af_workspace (
@@ -35,7 +35,7 @@ VALUES (NEW.uid, NEW.workspace_id);
 RETURN NEW;
 END $$ LANGUAGE plpgsql;
 CREATE TRIGGER create_af_workspace_trigger
-AFTER
+BEFORE
 INSERT ON af_user_profile FOR EACH ROW EXECUTE FUNCTION create_af_workspace_trigger_func();
 -- collab table
 CREATE TABLE IF NOT EXISTS af_collab (

@@ -7,14 +7,14 @@ use futures_util::SinkExt;
 use tokio::spawn;
 use tokio::sync::{watch, Mutex};
 use tokio::time::interval;
+use tokio_postgres::GenericClient;
 
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder2::deps::FolderCloudService;
 use flowy_user::event_map::UserAuthService;
 use lib_infra::async_trait::async_trait;
 
 use crate::supabase::impls::{SupabaseFolderCloudServiceImpl, SupabaseUserAuthServiceImpl};
-use crate::supabase::pg_db::{PostgresClient, PostgresDB, PostgresEvent};
+use crate::supabase::pg_db::{PgClientReceiver, PostgresDB, PostgresEvent};
 use crate::supabase::queue::{
   PendingRequest, RequestHandler, RequestQueue, RequestRunner, RequestState,
 };
@@ -105,7 +105,7 @@ impl PostgresServer {
     // Initialize the connection to the database
     let conn = PendingRequest::new(PostgresEvent::ConnectDB);
     inner.queue.lock().push(conn);
-    let handler = Arc::downgrade(&inner) as Weak<dyn RequestHandler>;
+    let handler = Arc::downgrade(&inner) as Weak<dyn RequestHandler<PostgresEvent>>;
     spawn(RequestRunner::run(notifier_rx, handler));
 
     Self { inner }
@@ -113,11 +113,11 @@ impl PostgresServer {
 }
 
 #[async_trait]
-impl RequestHandler for PostgresServerInner {
-  async fn process_next_request(&self) -> Option<()> {
-    let request = match self.queue.try_lock() {
+impl RequestHandler<PostgresEvent> for PostgresServerInner {
+  async fn prepare_request(&self) -> Option<PendingRequest<PostgresEvent>> {
+    match self.queue.try_lock() {
       None => {
-        // If acquire the lock failed, try to notify again after 100ms
+        // If acquire the lock failed, try after 300ms
         let weak_notifier = Arc::downgrade(&self.notifier);
         spawn(async move {
           interval(Duration::from_millis(300)).tick().await;
@@ -127,29 +127,21 @@ impl RequestHandler for PostgresServerInner {
         });
         None
       },
-      Some(mut queue) => queue.pop(),
-    }?;
-
-    if request.is_done() {
-      self.notify();
-      return None;
+      Some(queue) => queue.peek().cloned(),
     }
+  }
 
-    if request.is_processing() {
-      return None;
-    }
+  async fn handle_request(&self, request: PendingRequest<PostgresEvent>) -> Option<()> {
+    debug_assert!(Some(&request) == self.queue.lock().peek());
 
-    let payload = request.payload.clone();
-    self.queue.lock().push(request);
-
-    match payload {
+    match request.payload {
       PostgresEvent::ConnectDB => {
         let is_connected = self.db.lock().await.is_some();
         if !is_connected {
           match PostgresDB::new(self.config.clone()).await {
             Ok(db) => {
               *self.db.lock().await = Some(Arc::new(db));
-              if let Some(mut request) = self.queue.lock().peek_mut() {
+              if let Some(mut request) = self.queue.lock().pop() {
                 request.set_state(RequestState::Done);
               }
             },
@@ -160,35 +152,24 @@ impl RequestHandler for PostgresServerInner {
       PostgresEvent::GetPgClient { id: _, sender } => {
         match self.db.lock().await.as_ref().map(|db| db.client.clone()) {
           None => tracing::error!("Can't get the postgres client"),
-          Some(client) => {
-            if let Err(e) = sender.send(client).await {
-              tracing::error!("Error sending the postgres client: {}", e);
+          Some(pool) => {
+            if let Ok(object) = pool.get().await {
+              if let Err(e) = sender.send(object).await {
+                tracing::error!("Error sending the postgres client: {}", e);
+              }
             }
-            if let Some(mut request) = self.queue.lock().peek_mut() {
+
+            if let Some(mut request) = self.queue.lock().pop() {
               request.set_state(RequestState::Done);
             }
           },
         }
       },
     }
-    self.notify();
     None
   }
 
   fn notify(&self) {
     let _ = self.notifier.send(false);
-  }
-}
-
-pub struct PgClientReceiver(tokio::sync::mpsc::Receiver<Arc<PostgresClient>>);
-impl PgClientReceiver {
-  pub async fn recv(&mut self) -> FlowyResult<Arc<PostgresClient>> {
-    match self.0.recv().await {
-      None => Err(FlowyError::new(
-        ErrorCode::PgConnectError,
-        "Can't connect to the postgres db".to_string(),
-      )),
-      Some(client) => Ok(client),
-    }
   }
 }

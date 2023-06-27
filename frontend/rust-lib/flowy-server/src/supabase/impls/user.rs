@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use deadpool_postgres::GenericClient;
 use tokio::sync::oneshot::channel;
 use tokio_postgres::error::SqlState;
 use uuid::Uuid;
@@ -11,7 +12,7 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::supabase::entities::{GetUserProfileParams, UserProfileResponse};
-use crate::supabase::pg_db::PostgresClient;
+use crate::supabase::pg_db::{PostgresClient, PostgresObject};
 use crate::supabase::sql_builder::UpdateSqlBuilder;
 use crate::supabase::PostgresServer;
 use crate::util::uuid_from_box_any;
@@ -124,7 +125,7 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
 }
 
 async fn create_user_with_uuid(
-  client: &Arc<PostgresClient>,
+  client: &PostgresObject,
   uuid: Uuid,
 ) -> Result<SignUpResponse, FlowyError> {
   let mut is_new = true;
@@ -156,24 +157,38 @@ async fn create_user_with_uuid(
 }
 
 async fn get_user_profile(
-  client: &Arc<PostgresClient>,
+  client: &PostgresObject,
   params: GetUserProfileParams,
 ) -> Result<UserProfileResponse, FlowyError> {
   let rows = match params {
-    GetUserProfileParams::Uid(uid) => client
-      .query(
-        &format!("SELECT * FROM {} WHERE uid = $1", USER_PROFILE_TABLE),
-        &[&uid],
-      )
-      .await
-      .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?,
-    GetUserProfileParams::Uuid(uuid) => client
-      .query(
-        &format!("SELECT * FROM {} WHERE uuid = $1", USER_PROFILE_TABLE),
-        &[&uuid],
-      )
-      .await
-      .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?,
+    GetUserProfileParams::Uid(uid) => {
+      let stmt = client
+        .prepare_cached(&format!(
+          "SELECT * FROM {} WHERE uid = $1",
+          USER_PROFILE_TABLE
+        ))
+        .await
+        .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
+
+      client
+        .query(&stmt, &[&uid])
+        .await
+        .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?
+    },
+    GetUserProfileParams::Uuid(uuid) => {
+      let stmt = client
+        .prepare_cached(&format!(
+          "SELECT * FROM {} WHERE uuid = $1",
+          USER_PROFILE_TABLE
+        ))
+        .await
+        .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
+
+      client
+        .query(&stmt, &[&uuid])
+        .await
+        .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?
+    },
   };
 
   let mut user_profiles = rows
@@ -188,7 +203,7 @@ async fn get_user_profile(
 }
 
 async fn update_user_profile(
-  client: &Arc<PostgresClient>,
+  client: &PostgresObject,
   params: UpdateUserProfileParams,
 ) -> Result<(), FlowyError> {
   if params.is_empty() {
@@ -203,8 +218,15 @@ async fn update_user_profile(
     .where_clause("uid", params.id)
     .build();
 
+  let stmt = client.prepare_cached(&sql).await.map_err(|e| {
+    FlowyError::new(
+      ErrorCode::PgDatabaseError,
+      format!("Prepare update user profile sql error: {}", e),
+    )
+  })?;
+
   let affect_rows = client
-    .execute_raw(&sql, pg_params)
+    .execute_raw(&stmt, pg_params)
     .await
     .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
   tracing::trace!("Update user profile affect rows: {}", affect_rows);

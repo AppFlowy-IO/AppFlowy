@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 use std::fmt::Debug;
+use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 use std::sync::{Arc, Weak};
 
@@ -23,10 +24,7 @@ pub struct PendingRequest<Payload> {
   pub state: RequestState,
 }
 
-impl<Payload> PendingRequest<Payload>
-where
-  Payload: Clone + Debug,
-{
+impl<Payload> PendingRequest<Payload> {
   pub fn new(payload: Payload) -> Self {
     Self {
       payload,
@@ -34,19 +32,14 @@ where
     }
   }
 
-  pub fn get_payload(&self) -> Payload {
-    self.payload.clone()
-  }
-
-  pub fn get_mut_payload(&mut self) -> &mut Payload {
-    &mut self.payload
-  }
-
   pub fn state(&self) -> &RequestState {
     &self.state
   }
 
-  pub fn set_state(&mut self, new_state: RequestState) {
+  pub fn set_state(&mut self, new_state: RequestState)
+  where
+    Payload: Debug,
+  {
     self.state = new_state;
     tracing::trace!(
       "Request {:?} state changed to {:?}",
@@ -65,6 +58,18 @@ where
 
   pub fn is_done(&self) -> bool {
     self.state == RequestState::Done
+  }
+}
+
+impl<Payload> Clone for PendingRequest<Payload>
+where
+  Payload: Clone + Debug,
+{
+  fn clone(&self) -> Self {
+    Self {
+      payload: self.payload.clone(),
+      state: self.state.clone(),
+    }
   }
 }
 
@@ -129,23 +134,24 @@ where
 }
 
 #[async_trait]
-pub trait RequestHandler: Send + Sync + 'static {
-  // async fn prepare_next_request<Payload>(&self) -> Option<PendingRequest<Payload>>;
-  async fn process_next_request(&self) -> Option<()>;
+pub trait RequestHandler<Payload>: Send + Sync + 'static {
+  async fn prepare_request(&self) -> Option<PendingRequest<Payload>>;
+  async fn handle_request(&self, request: PendingRequest<Payload>) -> Option<()>;
   fn notify(&self);
 }
 
 #[async_trait]
-impl<T> RequestHandler for Arc<T>
+impl<T, Payload> RequestHandler<Payload> for Arc<T>
 where
-  T: RequestHandler,
+  T: RequestHandler<Payload>,
+  Payload: 'static + Send + Sync,
 {
-  // async fn prepare_next_request<Payload>(&self) -> Option<PendingRequest<Payload>> {
-  //   todo!()
-  // }
+  async fn prepare_request(&self) -> Option<PendingRequest<Payload>> {
+    (**self).prepare_request().await
+  }
 
-  async fn process_next_request(&self) -> Option<()> {
-    (**self).process_next_request().await
+  async fn handle_request(&self, request: PendingRequest<Payload>) -> Option<()> {
+    (**self).handle_request(request).await
   }
 
   fn notify(&self) {
@@ -153,9 +159,12 @@ where
   }
 }
 
-pub struct RequestRunner();
-impl RequestRunner {
-  pub async fn run(mut notifier: watch::Receiver<bool>, server: Weak<dyn RequestHandler>) {
+pub struct RequestRunner<Payload>(PhantomData<Payload>);
+impl<Payload> RequestRunner<Payload>
+where
+  Payload: 'static + Send + Sync,
+{
+  pub async fn run(mut notifier: watch::Receiver<bool>, server: Weak<dyn RequestHandler<Payload>>) {
     server.upgrade().unwrap().notify();
     loop {
       // stops the runner if the notifier was closed.
@@ -169,7 +178,19 @@ impl RequestRunner {
       }
 
       if let Some(server) = server.upgrade() {
-        let _ = server.process_next_request().await;
+        if let Some(request) = server.prepare_request().await {
+          if request.is_done() {
+            server.notify();
+            continue;
+          }
+
+          if request.is_processing() {
+            continue;
+          }
+
+          let _ = server.handle_request(request).await;
+          server.notify();
+        }
       } else {
         break;
       }

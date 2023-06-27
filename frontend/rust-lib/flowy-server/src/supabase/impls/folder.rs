@@ -9,7 +9,7 @@ use flowy_error::{internal_error, ErrorCode, FlowyError};
 use flowy_folder2::deps::{FolderCloudService, Workspace};
 use lib_infra::future::FutureResult;
 
-use crate::supabase::pg_db::PostgresClient;
+use crate::supabase::pg_db::PostgresObject;
 use crate::supabase::sql_builder::{InsertSqlBuilder, SelectSqlBuilder};
 use crate::supabase::PostgresServer;
 
@@ -47,32 +47,42 @@ impl FolderCloudService for SupabaseFolderCloudServiceImpl {
 }
 
 async fn create_workspace(
-  client: &Arc<PostgresClient>,
+  client: &PostgresObject,
   uid: i64,
   name: &str,
 ) -> Result<Workspace, FlowyError> {
   let new_workspace_id = Uuid::new_v4();
+
+  // Create workspace
   let (sql, params) = InsertSqlBuilder::new(WORKSPACE_TABLE)
     .value("uid", uid)
     .value(WORKSPACE_ID, new_workspace_id)
     .value(WORKSPACE_NAME, name.to_string())
     .build();
-
+  let stmt = client
+    .prepare_cached(&sql)
+    .await
+    .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
   client
-    .execute_raw(&sql, params)
+    .execute_raw(&stmt, params)
     .await
     .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
 
+  // Read the workspace
   let (sql, params) = SelectSqlBuilder::new(WORKSPACE_TABLE)
     .column(WORKSPACE_ID)
     .column(WORKSPACE_NAME)
     .column(CREATED_AT)
     .where_clause(WORKSPACE_ID, new_workspace_id)
     .build();
+  let stmt = client
+    .prepare_cached(&sql)
+    .await
+    .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
 
   let rows = Box::pin(
     client
-      .query_raw(&sql, params)
+      .query_raw(&stmt, params)
       .await
       .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?,
   );
