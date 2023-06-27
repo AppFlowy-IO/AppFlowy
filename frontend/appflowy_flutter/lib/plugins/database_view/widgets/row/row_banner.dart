@@ -186,7 +186,7 @@ class EmojiButton extends StatelessWidget {
       height: _kBannerActionHeight,
       width: _kBannerActionHeight,
       child: FlowyButton(
-        margin: const EdgeInsets.all(4),
+        margin: EdgeInsets.zero,
         text: FlowyText.medium(
           emoji,
           fontSize: 30,

@@ -21,6 +21,7 @@ typedef MoveToTrashNotifiedValue = Either<DeletedViewPB, FlowyError>;
 class ViewListener {
   StreamSubscription<SubscribeObject>? _subscription;
   void Function(UpdateViewNotifiedValue)? _updatedViewNotifier;
+  void Function(ChildViewUpdatePB)? _updateViewChildViewsNotifier;
   void Function(DeleteViewNotifyValue)? _deletedNotifier;
   void Function(RestoreViewNotifiedValue)? _restoredNotifier;
   void Function(MoveToTrashNotifiedValue)? _moveToTrashNotifier;
@@ -35,6 +36,7 @@ class ViewListener {
 
   void start({
     void Function(UpdateViewNotifiedValue)? onViewUpdated,
+    void Function(ChildViewUpdatePB)? onViewChildViewsUpdated,
     void Function(DeleteViewNotifyValue)? onViewDeleted,
     void Function(RestoreViewNotifiedValue)? onViewRestored,
     void Function(MoveToTrashNotifiedValue)? onViewMoveToTrash,
@@ -48,6 +50,7 @@ class ViewListener {
     _deletedNotifier = onViewDeleted;
     _restoredNotifier = onViewRestored;
     _moveToTrashNotifier = onViewMoveToTrash;
+    _updateViewChildViewsNotifier = onViewChildViewsUpdated;
 
     _parser = FolderNotificationParser(
       id: viewId,
@@ -70,6 +73,15 @@ class ViewListener {
           (payload) {
             final view = ViewPB.fromBuffer(payload);
             _updatedViewNotifier?.call(view);
+          },
+          (error) => Log.error(error),
+        );
+        break;
+      case FolderNotification.DidUpdateChildViews:
+        result.fold(
+          (payload) {
+            final pb = ChildViewUpdatePB.fromBuffer(payload);
+            _updateViewChildViewsNotifier?.call(pb);
           },
           (error) => Log.error(error),
         );

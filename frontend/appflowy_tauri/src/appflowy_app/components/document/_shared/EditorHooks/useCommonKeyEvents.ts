@@ -61,19 +61,18 @@ export function useCommonKeyEvents(id: string) {
       {
         // handle left arrow key and no other key is pressed
         canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => {
-          return isHotkey(Keyboard.keys.LEFT, e) && caretRef.current?.index === 0 && caretRef.current?.length === 0;
+          return isHotkey(Keyboard.keys.LEFT, e);
         },
         handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
           e.preventDefault();
+          e.stopPropagation();
           dispatch(leftActionForBlockThunk({ docId, id }));
         },
       },
       {
         // handle right arrow key and no other key is pressed
         canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => {
-          const block = getBlock(docId, id);
-          const isEndOfBlock = caretRef.current?.index === new Delta(block.data.delta).length();
-          return isHotkey(Keyboard.keys.RIGHT, e) && isEndOfBlock && caretRef.current?.length === 0;
+          return isHotkey(Keyboard.keys.RIGHT, e);
         },
         handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
           e.preventDefault();
@@ -86,6 +85,7 @@ export function useCommonKeyEvents(id: string) {
         handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
           if (!controller) return;
           const format = parseFormat(e);
+
           if (!format) return;
           dispatch(
             toggleFormatThunk({
@@ -97,5 +97,6 @@ export function useCommonKeyEvents(id: string) {
       },
     ];
   }, [docId, caretRef, controller, dispatch, focused, id]);
+
   return commonKeyEvents;
 }

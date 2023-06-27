@@ -27,10 +27,12 @@ const TextActionComponent = ({ container }: { container: HTMLDivElement }) => {
     </BlockPortal>
   );
 };
+
 const TextActionMenu = ({ container }: { container: HTMLDivElement }) => {
   const range = useSubscribeRanges();
   const canShow = useMemo(() => {
     const { isDragging, focus, anchor, ranges, caret } = range;
+
     // don't show if dragging
     if (isDragging) return false;
     // don't show if no focus or anchor
@@ -39,9 +41,10 @@ const TextActionMenu = ({ container }: { container: HTMLDivElement }) => {
 
     // show toolbar if range has multiple nodes
     if (!isSameLine) return true;
-    const caretRange = ranges[caret.id];
-    // don't show if no caret range
+    const caretRange = ranges?.[caret.id];
+
     if (!caretRange) return false;
+
     // show toolbar if range is not collapsed
     return caretRange.length > 0;
   }, [range]);

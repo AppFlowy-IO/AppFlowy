@@ -7,7 +7,6 @@ import {
   ListenerEffectAPI,
   addListener,
 } from '@reduxjs/toolkit';
-import { foldersSlice } from './reducers/folders/slice';
 import { pagesSlice } from './reducers/pages/slice';
 import { navigationWidthSlice } from './reducers/navigation-width/slice';
 import { currentUserSlice } from './reducers/current-user/slice';
@@ -25,7 +24,6 @@ const listenerMiddlewareInstance = createListenerMiddleware({
 
 const store = configureStore({
   reducer: {
-    [foldersSlice.name]: foldersSlice.reducer,
     [pagesSlice.name]: pagesSlice.reducer,
     [activePageIdSlice.name]: activePageIdSlice.reducer,
     [navigationWidthSlice.name]: navigationWidthSlice.reducer,

@@ -201,7 +201,7 @@ export const EditRow = ({
           }}
           className={`relative flex h-[90%] w-[70%] flex-col gap-8 rounded-xl bg-white `}
         >
-          <div onClick={() => onCloseClick()} className={'absolute top-1 right-1'}>
+          <div onClick={() => onCloseClick()} className={'absolute right-1 top-1'}>
             <button className={'block h-8 w-8 rounded-lg text-shade-2 hover:bg-main-secondary'}>
               <CloseSvg></CloseSvg>
             </button>
@@ -209,7 +209,7 @@ export const EditRow = ({
 
           <div className={'flex h-full'}>
             <div className={'flex h-full flex-1 flex-col border-r border-shade-6 pb-4 pt-6'}>
-              <div className={'pl-12 pb-4'}>
+              <div className={'pb-4 pl-12'}>
                 <button className={'flex items-center gap-2 p-4'}>
                   <i className={'h-5 w-5'}>
                     <ImageSvg></ImageSvg>
@@ -229,7 +229,9 @@ export const EditRow = ({
                       }`}
                     >
                       {cells
-                        .filter((cell) => databaseStore.fields[cell.cellIdentifier.fieldId].visible)
+                        .filter((cell) => {
+                          return databaseStore.fields[cell.cellIdentifier.fieldId]?.visible;
+                        })
                         .map((cell, cellIndex) => (
                           <EditCellWrapper
                             index={cellIndex}

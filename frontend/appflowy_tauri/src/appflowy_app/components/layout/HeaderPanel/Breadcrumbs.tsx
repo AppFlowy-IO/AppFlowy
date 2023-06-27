@@ -1,6 +1,6 @@
 import { ShowMenuSvg } from '../../_shared/svg/ShowMenuSvg';
 import { useEffect, useState } from 'react';
-import { useAppSelector } from '../../../stores/store';
+import { useAppSelector } from '$app/stores/store';
 import { useLocation } from 'react-router-dom';
 
 export const Breadcrumbs = ({ menuHidden, onShowMenuClick }: { menuHidden: boolean; onShowMenuClick: () => void }) => {
@@ -9,7 +9,6 @@ export const Breadcrumbs = ({ menuHidden, onShowMenuClick }: { menuHidden: boole
   const [activePageId, setActivePageId] = useState<string>('');
   const currentLocation = useLocation();
   const pagesStore = useAppSelector((state) => state.pages);
-  const foldersStore = useAppSelector((state) => state.folders);
 
   useEffect(() => {
     const { pathname } = currentLocation;
@@ -20,10 +19,10 @@ export const Breadcrumbs = ({ menuHidden, onShowMenuClick }: { menuHidden: boole
 
   useEffect(() => {
     const page = pagesStore.find((p) => p.id === activePageId);
-    const folder = foldersStore.find((f) => f.id === page?.folderId);
-    setFolderName(folder?.title ?? '');
+    // const folder = foldersStore.find((f) => f.id === page?.parentPageId);
+    // setFolderName(folder?.title ?? '');
     setPageName(page?.title ?? '');
-  }, [pagesStore, foldersStore, activePageId]);
+  }, [pagesStore, activePageId]);
 
   return (
     <div className={'flex items-center'}>

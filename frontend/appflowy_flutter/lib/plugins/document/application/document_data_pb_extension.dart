@@ -117,12 +117,13 @@ extension NodeToBlock on Node {
   BlockPB toBlock({
     String? parentId,
     String? childrenId,
+    Attributes? attributes,
   }) {
     assert(id.isNotEmpty);
     final block = BlockPB.create()
       ..id = id
       ..ty = type
-      ..data = _dataAdapter(type, attributes);
+      ..data = _dataAdapter(type, attributes ?? this.attributes);
     if (childrenId != null && childrenId.isNotEmpty) {
       block.childrenId = childrenId;
     }

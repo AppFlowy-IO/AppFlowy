@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use collab_database::database::{gen_database_filter_id, gen_database_sort_id};
+use collab_database::database::{gen_database_filter_id, gen_database_sort_id, Database};
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowCell, RowId, RowMeta};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
@@ -30,10 +30,10 @@ use crate::services::database_view::view_group::{
 use crate::services::database_view::view_sort::make_sort_controller;
 use crate::services::database_view::{
   notify_did_update_filter, notify_did_update_group_rows, notify_did_update_num_of_groups,
-  notify_did_update_setting, notify_did_update_sort, DatabaseViewChangedNotifier,
-  DatabaseViewChangedReceiverRunner,
+  notify_did_update_setting, notify_did_update_sort, DatabaseLayoutDepsResolver,
+  DatabaseViewChangedNotifier, DatabaseViewChangedReceiverRunner,
 };
-use crate::services::field::{DateTypeOption, TypeOptionCellDataHandler};
+use crate::services::field::TypeOptionCellDataHandler;
 use crate::services::filter::{
   Filter, FilterChangeset, FilterController, FilterType, UpdatedFilterType,
 };
@@ -44,6 +44,8 @@ use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{DeletedSortType, Sort, SortChangeset, SortController, SortType};
 
 pub trait DatabaseViewData: Send + Sync + 'static {
+  fn get_database(&self) -> Arc<Database>;
+
   fn get_view(&self, view_id: &str) -> Fut<Option<DatabaseView>>;
   /// If the field_ids is None, then it will return all the field revisions
   fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
@@ -438,7 +440,7 @@ impl DatabaseViewEditor {
   pub async fn v_initialize_new_group(&self, field_id: &str) -> FlowyResult<()> {
     let is_grouping_field = self.is_grouping_field(field_id).await;
     if !is_grouping_field {
-      self.v_update_grouping_field(field_id).await?;
+      self.v_grouping_by_field(field_id).await?;
 
       if let Some(view) = self.delegate.get_view(&self.view_id).await {
         let setting = database_view_setting_pb_from_view(view);
@@ -607,7 +609,11 @@ impl DatabaseViewEditor {
             // Check the type of field is Datetime or not
             if field_type == FieldType::DateTime {
               layout_setting.calendar = Some(calendar_setting);
+            } else {
+              tracing::warn!("The field of calendar setting is not datetime type")
             }
+          } else {
+            tracing::warn!("The field of calendar setting is not exist");
           }
         }
       },
@@ -713,7 +719,7 @@ impl DatabaseViewEditor {
 
   /// Called when a grouping field is updated.
   #[tracing::instrument(level = "debug", skip_all, err)]
-  pub async fn v_update_grouping_field(&self, field_id: &str) -> FlowyResult<()> {
+  pub async fn v_grouping_by_field(&self, field_id: &str) -> FlowyResult<()> {
     if let Some(field) = self.delegate.get_field(field_id).await {
       let new_group_controller =
         new_group_controller_with_field(self.view_id.clone(), self.delegate.clone(), field).await?;
@@ -770,12 +776,23 @@ impl DatabaseViewEditor {
       date_field_id: date_field.id.clone(),
       title,
       timestamp,
+      is_scheduled: timestamp != 0,
     })
   }
 
   pub async fn v_get_all_calendar_events(&self) -> Option<Vec<CalendarEventPB>> {
     let layout_ty = DatabaseLayout::Calendar;
-    let calendar_setting = self.v_get_layout_settings(&layout_ty).await.calendar?;
+    let calendar_setting = match self.v_get_layout_settings(&layout_ty).await.calendar {
+      None => {
+        // When create a new calendar view, the calendar setting should be created
+        tracing::error!(
+          "Calendar layout setting not found in database view:{}",
+          self.view_id
+        );
+        return None;
+      },
+      Some(calendar_setting) => calendar_setting,
+    };
 
     // Text
     let primary_field = self.delegate.get_primary_field().await?;
@@ -822,6 +839,7 @@ impl DatabaseViewEditor {
         date_field_id: calendar_setting.field_id.clone(),
         title,
         timestamp,
+        is_scheduled: timestamp != 0,
       };
       events.push(event);
     }
@@ -829,57 +847,25 @@ impl DatabaseViewEditor {
   }
 
   #[tracing::instrument(level = "trace", skip_all)]
-  pub async fn v_update_layout_type(&self, layout_type: DatabaseLayout) -> FlowyResult<()> {
+  pub async fn v_update_layout_type(&self, new_layout_type: DatabaseLayout) -> FlowyResult<()> {
     self
       .delegate
-      .update_layout_type(&self.view_id, &layout_type);
+      .update_layout_type(&self.view_id, &new_layout_type);
 
-    // Update the layout type in the database might add a new field to the database. If the new
-    // layout type is a calendar and there is not date field in the database, it will add a new
-    // date field to the database and create the corresponding layout setting.
-    //
-    let fields = self.delegate.get_fields(&self.view_id, None).await;
-    let date_field_id = match fields
-      .into_iter()
-      .find(|field| FieldType::from(field.field_type) == FieldType::DateTime)
+    // using the {} brackets to denote the lifetime of the resolver. Because the DatabaseLayoutDepsResolver
+    // is not sync and send, so we can't pass it to the async block.
     {
-      None => {
-        tracing::trace!("Create a new date field after layout type change");
-        let default_date_type_option = DateTypeOption::default();
-        let field = self
-          .delegate
-          .create_field(
-            &self.view_id,
-            "Date",
-            FieldType::DateTime,
-            default_date_type_option.into(),
-          )
-          .await;
-        field.id
-      },
-      Some(date_field) => date_field.id.clone(),
-    };
-
-    let layout_setting = self.v_get_layout_settings(&layout_type).await;
-    match layout_type {
-      DatabaseLayout::Grid => {},
-      DatabaseLayout::Board => {},
-      DatabaseLayout::Calendar => {
-        if layout_setting.calendar.is_none() {
-          let layout_setting = CalendarLayoutSetting::new(date_field_id.clone());
-          self
-            .v_set_layout_settings(LayoutSettingParams {
-              layout_type,
-              calendar: Some(layout_setting),
-            })
-            .await?;
-        }
-      },
+      let resolver = DatabaseLayoutDepsResolver::new(self.delegate.get_database(), new_layout_type);
+      resolver.resolve_deps_when_update_layout_type(&self.view_id);
     }
+
+    // initialize the group controller if the current layout support grouping
+    *self.group_controller.write().await =
+      new_group_controller(self.view_id.clone(), self.delegate.clone()).await?;
 
     let payload = DatabaseLayoutMetaPB {
       view_id: self.view_id.clone(),
-      layout: layout_type.into(),
+      layout: new_layout_type.into(),
     };
     send_notification(&self.view_id, DatabaseNotification::DidUpdateDatabaseLayout)
       .payload(payload)

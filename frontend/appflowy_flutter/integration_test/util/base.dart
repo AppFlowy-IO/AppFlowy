@@ -44,7 +44,7 @@ class TestFolder {
 
   /// Get default location under development environment.
   static Future<String> defaultDevelopmentLocation() async {
-    final dir = await appFlowyDocumentDirectory();
+    final dir = await appFlowyApplicationDataDirectory();
     return dir.path;
   }
 
@@ -87,6 +87,7 @@ extension AppFlowyTestBase on WidgetTester {
   }) async {
     await tap(
       finder,
+      buttons: buttons,
       warnIfMissed: warnIfMissed,
     );
     await pumpAndSettle(Duration(milliseconds: milliseconds));
@@ -124,6 +125,29 @@ extension AppFlowyTestBase on WidgetTester {
       milliseconds: milliseconds,
     );
     return;
+  }
+
+  Future<void> doubleTapButton(
+    Finder finder, {
+    int? pointer,
+    int buttons = kPrimaryButton,
+    bool warnIfMissed = true,
+    int milliseconds = 500,
+  }) async {
+    await tapButton(
+      finder,
+      pointer: pointer,
+      buttons: buttons,
+      warnIfMissed: warnIfMissed,
+      milliseconds: kDoubleTapMinTime.inMilliseconds,
+    );
+    await tapButton(
+      finder,
+      pointer: pointer,
+      buttons: buttons,
+      warnIfMissed: warnIfMissed,
+      milliseconds: milliseconds,
+    );
   }
 
   Future<void> wait(int milliseconds) async {

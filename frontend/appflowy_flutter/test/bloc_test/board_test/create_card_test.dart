@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -12,8 +13,11 @@ void main() {
 
   test('create kanban baord card', () async {
     final context = await boardTest.createTestBoard();
-    final boardBloc = BoardBloc(view: context.gridView)
-      ..add(const BoardEvent.initial());
+    final databaseController = DatabaseController(view: context.gridView);
+    final boardBloc = BoardBloc(
+      view: context.gridView,
+      databaseController: databaseController,
+    )..add(const BoardEvent.initial());
     await boardResponseFuture();
 
     final groupId = boardBloc.state.groupIds.first;

@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/image.dart';
@@ -24,6 +25,22 @@ class GridAddRowButton extends StatelessWidget {
         "home/add",
         color: Theme.of(context).colorScheme.tertiary,
       ),
+    );
+  }
+}
+
+class GridRowBottomBar extends StatelessWidget {
+  const GridRowBottomBar({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: GridSize.footerContentInsets,
+      height: GridSize.footerHeight,
+      margin: const EdgeInsets.only(bottom: 200),
+      child: const GridAddRowButton(),
     );
   }
 }

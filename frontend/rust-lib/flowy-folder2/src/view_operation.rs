@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use bytes::Bytes;
 pub use collab_folder::core::View;
-use collab_folder::core::{RepeatedView, ViewIdentifier, ViewLayout};
+use collab_folder::core::{RepeatedViewIdentifier, ViewIdentifier, ViewLayout};
 use tokio::sync::RwLock;
 
 use flowy_error::FlowyError;
@@ -113,7 +113,7 @@ impl ViewBuilder {
       layout: self.layout,
       icon_url: self.icon_url,
       cover_url: self.cover_url,
-      children: RepeatedView::new(
+      children: RepeatedViewIdentifier::new(
         self
           .child_views
           .iter()

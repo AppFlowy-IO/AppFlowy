@@ -1,8 +1,7 @@
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Keyboard } from '$app/constants/document/keyboard';
 import isHotkey from 'is-hotkey';
 import { useAppDispatch } from '@/appflowy_app/stores/store';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import {
   enterActionForBlockThunk,
   tabActionForBlockThunk,
@@ -90,6 +89,7 @@ export function useKeyDown(id: string) {
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       const filteredEvents = interceptEvents.filter((event) => event.canHandle(e));
+
       filteredEvents.forEach((event) => {
         e.stopPropagation();
         event.handler(e);

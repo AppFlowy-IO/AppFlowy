@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/database_view_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -31,14 +32,22 @@ extension InsertDatabase on EditorState {
     await apply(transaction);
   }
 
-  Future<void> insertReferencePage(ViewPB childView) async {
+  Future<void> insertReferencePage(
+    ViewPB childView,
+  ) async {
     final selection = this.selection;
     if (selection == null || !selection.isCollapsed) {
-      return;
+      throw FlowyError(
+        msg:
+            "Could not insert the reference page because the current selection was null or collapsed.",
+      );
     }
     final node = getNodeAtPath(selection.end.path);
     if (node == null) {
-      return;
+      throw FlowyError(
+        msg:
+            "Could not insert the reference page because the current node at the selection does not exist.",
+      );
     }
 
     // get the database id that the view is associated with
@@ -53,17 +62,18 @@ extension InsertDatabase on EditorState {
     }
 
     final prefix = _referencedDatabasePrefix(childView.layout);
-    final ref = await ViewBackendService.createDatabaseReferenceView(
+    final ref = await ViewBackendService.createDatabaseLinkedView(
       parentViewId: childView.id,
       name: "$prefix ${childView.name}",
       layoutType: childView.layout,
       databaseId: databaseId,
     ).then((value) => value.swap().toOption().toNullable());
 
-    // TODO(a-wallen): Show error dialog here.
-    // Maybe extend the FlowyErrorPage.
     if (ref == null) {
-      return;
+      throw FlowyError(
+        msg:
+            "The `ViewBackendService` failed to create a database reference view",
+      );
     }
 
     final transaction = this.transaction;

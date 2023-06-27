@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DatabaseController } from '$app/stores/effects/database/database_controller';
 import { databaseActions, DatabaseFieldMap, IDatabaseColumn } from '$app/stores/reducers/database/slice';
 import { useAppDispatch } from '$app/stores/store';
@@ -8,6 +8,7 @@ import { RowInfo } from '$app/stores/effects/database/row/row_cache';
 import { ViewLayoutPB } from '@/services/backend';
 import { DatabaseGroupController } from '$app/stores/effects/database/group/group_controller';
 import { OnDragEndResponder } from 'react-beautiful-dnd';
+import { AsyncQueue } from '$app/utils/async_queue';
 
 export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
   const dispatch = useAppDispatch();
@@ -24,25 +25,30 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
     return () => void c.dispose();
   }, [viewId]);
 
-  const loadFields = async (fieldInfos: readonly FieldInfo[]) => {
-    const fields: DatabaseFieldMap = {};
-    const columns: IDatabaseColumn[] = [];
+  const loadFields = useCallback(
+    async (fieldInfos: readonly FieldInfo[]) => {
+      const fields: DatabaseFieldMap = {};
+      const columns: IDatabaseColumn[] = [];
+      for (const fieldInfo of fieldInfos) {
+        const fieldPB = fieldInfo.field;
+        columns.push({
+          fieldId: fieldPB.id,
+          sort: 'none',
+          visible: fieldPB.visibility,
+        });
 
-    for (const fieldInfo of fieldInfos) {
-      const fieldPB = fieldInfo.field;
-      columns.push({
-        fieldId: fieldPB.id,
-        sort: 'none',
-        visible: fieldPB.visibility,
-      });
+        const field = await loadField(viewId, fieldInfo, dispatch);
+        fields[field.fieldId] = field;
+      }
+      dispatch(databaseActions.updateFields({ fields }));
+      dispatch(databaseActions.updateColumns({ columns }));
+    },
+    [viewId, dispatch]
+  );
 
-      const field = await loadField(viewId, fieldInfo, dispatch);
-      fields[field.fieldId] = field;
-    }
-
-    dispatch(databaseActions.updateFields({ fields }));
-    dispatch(databaseActions.updateColumns({ columns }));
-  };
+  const queue = useMemo(() => {
+    return new AsyncQueue<readonly FieldInfo[]>(loadFields);
+  }, [loadFields]);
 
   useEffect(() => {
     void (async () => {
@@ -53,7 +59,7 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
           setRows([...rowInfos]);
         },
         onFieldsChanged: (fieldInfos) => {
-          void loadFields(fieldInfos);
+          queue.enqueue(fieldInfos);
         },
       });
 
@@ -76,7 +82,7 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
     return () => {
       void controller?.dispose();
     };
-  }, [controller]);
+  }, [controller, queue]);
 
   const onNewRowClick = async (index: number) => {
     if (!groups) return;

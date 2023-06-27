@@ -1,5 +1,4 @@
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database_view/application/layout/calendar_setting_listener.dart';
 import 'package:appflowy/plugins/database_view/application/view/view_cache.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
@@ -16,6 +15,7 @@ import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'database_view_service.dart';
 import 'defines.dart';
+import 'layout/layout_service.dart';
 import 'layout/layout_setting_listener.dart';
 import 'row/row_cache.dart';
 import 'group/group_listener.dart';
@@ -50,16 +50,11 @@ class DatabaseLayoutSettingCallbacks {
   });
 }
 
-class CalendarLayoutCallbacks {
-  final void Function(DatabaseLayoutSettingPB) onCalendarLayoutChanged;
-
-  CalendarLayoutCallbacks({required this.onCalendarLayoutChanged});
-}
-
 class DatabaseCallbacks {
   OnDatabaseChanged? onDatabaseChanged;
   OnFieldsChanged? onFieldsChanged;
   OnFiltersChanged? onFiltersChanged;
+  OnSortsChanged? onSortsChanged;
   OnNumOfRowsChanged? onNumOfRowsChanged;
   OnRowsDeleted? onRowsDeleted;
   OnRowsUpdated? onRowsUpdated;
@@ -70,6 +65,7 @@ class DatabaseCallbacks {
     this.onNumOfRowsChanged,
     this.onFieldsChanged,
     this.onFiltersChanged,
+    this.onSortsChanged,
     this.onRowsUpdated,
     this.onRowsDeleted,
     this.onRowsCreated,
@@ -80,15 +76,14 @@ class DatabaseController {
   final String viewId;
   final DatabaseViewBackendService _databaseViewBackendSvc;
   final FieldController fieldController;
-  DatabaseLayoutPB? databaseLayout;
+  DatabaseLayoutPB databaseLayout;
   DatabaseLayoutSettingPB? databaseLayoutSetting;
   late DatabaseViewCache _viewCache;
 
   // Callbacks
-  DatabaseCallbacks? _databaseCallbacks;
-  GroupCallbacks? _groupCallbacks;
-  DatabaseLayoutSettingCallbacks? _layoutCallbacks;
-  CalendarLayoutCallbacks? _calendarLayoutCallbacks;
+  final List<DatabaseCallbacks> _databaseCallbacks = [];
+  final List<GroupCallbacks> _groupCallbacks = [];
+  final List<DatabaseLayoutSettingCallbacks> _layoutCallbacks = [];
 
   // Getters
   RowCache get rowCache => _viewCache.rowCache;
@@ -96,15 +91,14 @@ class DatabaseController {
   // Listener
   final DatabaseGroupListener _groupListener;
   final DatabaseLayoutSettingListener _layoutListener;
-  final DatabaseCalendarLayoutListener _calendarLayoutListener;
 
   DatabaseController({required ViewPB view})
       : viewId = view.id,
         _databaseViewBackendSvc = DatabaseViewBackendService(viewId: view.id),
         fieldController = FieldController(viewId: view.id),
         _groupListener = DatabaseGroupListener(view.id),
-        _layoutListener = DatabaseLayoutSettingListener(view.id),
-        _calendarLayoutListener = DatabaseCalendarLayoutListener(view.id) {
+        databaseLayout = databaseLayoutFromViewLayout(view.layout),
+        _layoutListener = DatabaseLayoutSettingListener(view.id) {
     _viewCache = DatabaseViewCache(
       viewId: viewId,
       fieldController: fieldController,
@@ -115,28 +109,29 @@ class DatabaseController {
     _listenOnLayoutChanged();
   }
 
-  void setListener({
+  void addListener({
     DatabaseCallbacks? onDatabaseChanged,
     DatabaseLayoutSettingCallbacks? onLayoutChanged,
     GroupCallbacks? onGroupChanged,
-    CalendarLayoutCallbacks? onCalendarLayoutChanged,
   }) {
-    _layoutCallbacks = onLayoutChanged;
-    _databaseCallbacks = onDatabaseChanged;
-    _groupCallbacks = onGroupChanged;
-    _calendarLayoutCallbacks = onCalendarLayoutChanged;
+    if (onLayoutChanged != null) {
+      _layoutCallbacks.add(onLayoutChanged);
+    }
+
+    if (onDatabaseChanged != null) {
+      _databaseCallbacks.add(onDatabaseChanged);
+    }
+
+    if (onGroupChanged != null) {
+      _groupCallbacks.add(onGroupChanged);
+    }
   }
 
   Future<Either<Unit, FlowyError>> open() async {
-    return _databaseViewBackendSvc.openGrid().then((result) {
+    return _databaseViewBackendSvc.openDatabase().then((result) {
       return result.fold(
         (DatabasePB database) async {
           databaseLayout = database.layoutType;
-
-          // Listen on layout changed if database layout is calendar
-          if (databaseLayout == DatabaseLayoutPB.Calendar) {
-            _listenOnCalendarLayoutChanged();
-          }
 
           // Load the actual database field data.
           final fieldsOrFail = await fieldController.loadFields(
@@ -146,7 +141,9 @@ class DatabaseController {
             (fields) {
               // Notify the database is changed after the fields are loaded.
               // The database won't can't be used until the fields are loaded.
-              _databaseCallbacks?.onDatabaseChanged?.call(database);
+              for (final callback in _databaseCallbacks) {
+                callback.onDatabaseChanged?.call(database);
+              }
               _viewCache.rowCache.setInitialRows(database.rows);
               return Future(() async {
                 await _loadGroups();
@@ -217,11 +214,14 @@ class DatabaseController {
     );
   }
 
-  Future<void> updateCalenderLayoutSetting(
-    CalendarLayoutSettingPB layoutSetting,
+  Future<void> updateLayoutSetting(
+    CalendarLayoutSettingPB calendarlLayoutSetting,
   ) async {
     await _databaseViewBackendSvc
-        .updateLayoutSetting(calendarLayoutSetting: layoutSetting)
+        .updateLayoutSetting(
+      calendarLayoutSetting: calendarlLayoutSetting,
+      layoutType: databaseLayout,
+    )
         .then((result) {
       result.fold((l) => null, (r) => Log.error(r));
     });
@@ -232,10 +232,9 @@ class DatabaseController {
     await fieldController.dispose();
     await _groupListener.stop();
     await _viewCache.dispose();
-    _databaseCallbacks = null;
-    _groupCallbacks = null;
-    _layoutCallbacks = null;
-    _calendarLayoutCallbacks = null;
+    _databaseCallbacks.clear();
+    _groupCallbacks.clear();
+    _layoutCallbacks.clear();
   }
 
   Future<void> _loadGroups() async {
@@ -243,7 +242,9 @@ class DatabaseController {
     return Future(
       () => result.fold(
         (groups) {
-          _groupCallbacks?.onGroupByField?.call(groups.items);
+          for (final callback in _groupCallbacks) {
+            callback.onGroupByField?.call(groups.items);
+          }
         },
         (err) => Log.error(err),
       ),
@@ -251,46 +252,63 @@ class DatabaseController {
   }
 
   Future<void> _loadLayoutSetting() async {
-    if (databaseLayout != null) {
-      _databaseViewBackendSvc.getLayoutSetting(databaseLayout!).then((result) {
-        result.fold(
-          (newDatabaseLayoutSetting) {
-            databaseLayoutSetting = newDatabaseLayoutSetting;
-            databaseLayoutSetting?.freeze();
+    _databaseViewBackendSvc.getLayoutSetting(databaseLayout).then((result) {
+      result.fold(
+        (newDatabaseLayoutSetting) {
+          databaseLayoutSetting = newDatabaseLayoutSetting;
+          databaseLayoutSetting?.freeze();
 
-            _layoutCallbacks?.onLoadLayout(newDatabaseLayoutSetting);
-          },
-          (r) => Log.error(r),
-        );
-      });
-    }
+          for (final callback in _layoutCallbacks) {
+            callback.onLoadLayout(newDatabaseLayoutSetting);
+          }
+        },
+        (r) => Log.error(r),
+      );
+    });
   }
 
   void _listenOnRowsChanged() {
     final callbacks = DatabaseViewCallbacks(
       onNumOfRowsChanged: (rows, rowByRowId, reason) {
-        _databaseCallbacks?.onNumOfRowsChanged?.call(rows, rowByRowId, reason);
+        for (final callback in _databaseCallbacks) {
+          callback.onNumOfRowsChanged?.call(rows, rowByRowId, reason);
+        }
       },
       onRowsDeleted: (ids) {
-        _databaseCallbacks?.onRowsDeleted?.call(ids);
+        for (final callback in _databaseCallbacks) {
+          callback.onRowsDeleted?.call(ids);
+        }
       },
       onRowsUpdated: (ids, reason) {
-        _databaseCallbacks?.onRowsUpdated?.call(ids, reason);
+        for (final callback in _databaseCallbacks) {
+          callback.onRowsUpdated?.call(ids, reason);
+        }
       },
       onRowsCreated: (ids) {
-        _databaseCallbacks?.onRowsCreated?.call(ids);
+        for (final callback in _databaseCallbacks) {
+          callback.onRowsCreated?.call(ids);
+        }
       },
     );
-    _viewCache.setListener(callbacks);
+    _viewCache.addListener(callbacks);
   }
 
   void _listenOnFieldsChanged() {
     fieldController.addListener(
       onReceiveFields: (fields) {
-        _databaseCallbacks?.onFieldsChanged?.call(UnmodifiableListView(fields));
+        for (final callback in _databaseCallbacks) {
+          callback.onFieldsChanged?.call(UnmodifiableListView(fields));
+        }
+      },
+      onSorts: (sorts) {
+        for (final callback in _databaseCallbacks) {
+          callback.onSortsChanged?.call(sorts);
+        }
       },
       onFilters: (filters) {
-        _databaseCallbacks?.onFiltersChanged?.call(filters);
+        for (final callback in _databaseCallbacks) {
+          callback.onFiltersChanged?.call(filters);
+        }
       },
     );
   }
@@ -301,15 +319,21 @@ class DatabaseController {
         result.fold(
           (changeset) {
             if (changeset.updateGroups.isNotEmpty) {
-              _groupCallbacks?.onUpdateGroup?.call(changeset.updateGroups);
+              for (final callback in _groupCallbacks) {
+                callback.onUpdateGroup?.call(changeset.updateGroups);
+              }
             }
 
             if (changeset.deletedGroups.isNotEmpty) {
-              _groupCallbacks?.onDeleteGroup?.call(changeset.deletedGroups);
+              for (final callback in _groupCallbacks) {
+                callback.onDeleteGroup?.call(changeset.deletedGroups);
+              }
             }
 
             for (final insertedGroup in changeset.insertedGroups) {
-              _groupCallbacks?.onInsertGroup?.call(insertedGroup);
+              for (final callback in _groupCallbacks) {
+                callback.onInsertGroup?.call(insertedGroup);
+              }
             }
           },
           (r) => Log.error(r),
@@ -318,7 +342,9 @@ class DatabaseController {
       onGroupByNewField: (result) {
         result.fold(
           (groups) {
-            _groupCallbacks?.onGroupByField?.call(groups);
+            for (final callback in _groupCallbacks) {
+              callback.onGroupByField?.call(groups);
+            }
           },
           (r) => Log.error(r),
         );
@@ -330,24 +356,13 @@ class DatabaseController {
     _layoutListener.start(
       onLayoutChanged: (result) {
         result.fold(
-          (newDatabaseLayoutSetting) {
-            databaseLayoutSetting = newDatabaseLayoutSetting;
+          (newLayout) {
+            databaseLayoutSetting = newLayout;
             databaseLayoutSetting?.freeze();
 
-            _layoutCallbacks?.onLayoutChanged(newDatabaseLayoutSetting);
-          },
-          (r) => Log.error(r),
-        );
-      },
-    );
-  }
-
-  void _listenOnCalendarLayoutChanged() {
-    _calendarLayoutListener.start(
-      onCalendarLayoutChanged: (result) {
-        result.fold(
-          (l) {
-            _calendarLayoutCallbacks?.onCalendarLayoutChanged(l);
+            for (final callback in _layoutCallbacks) {
+              callback.onLayoutChanged(newLayout);
+            }
           },
           (r) => Log.error(r),
         );
