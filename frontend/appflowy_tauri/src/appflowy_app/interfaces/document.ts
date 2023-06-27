@@ -34,6 +34,9 @@ export enum BlockType {
   ColumnBlock = 'column',
 }
 
+export interface EauqtionBlockData {
+  formula: string;
+}
 export interface HeadingBlockData extends TextBlockData {
   level: number;
 }
@@ -88,6 +91,8 @@ export type BlockData<Type> = Type extends BlockType.HeadingBlock
   ? DividerBlockData
   : Type extends BlockType.CalloutBlock
   ? CalloutBlockData
+  : Type extends BlockType.EquationBlock
+  ? EauqtionBlockData
   : Type extends BlockType.TextBlock
   ? TextBlockData
   : any;

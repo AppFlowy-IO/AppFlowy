@@ -128,21 +128,6 @@ export const rectSelectionSlice = createSlice({
       state[docId].selection = selection;
     },
 
-    // set block selected
-    setSelectionById: (
-      state,
-      action: PayloadAction<{
-        docId: string;
-        blockId: string;
-      }>
-    ) => {
-      const { docId, blockId } = action.payload;
-      const selection = state[docId].selection;
-
-      if (selection.includes(blockId)) return;
-      state[docId].selection = [...selection, blockId];
-    },
-
     setDragging: (
       state,
       action: PayloadAction<{

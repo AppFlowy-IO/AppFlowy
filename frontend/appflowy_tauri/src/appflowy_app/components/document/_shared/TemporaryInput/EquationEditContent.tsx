@@ -7,19 +7,25 @@ function EquationEditContent({
   value,
   onChange,
   onConfirm,
+  placeholder = 'E = mc^2',
+  multiline = false,
 }: {
   value: string;
+  placeholder?: string;
   onChange: (newVal: string) => void;
   onConfirm: () => void;
+  multiline?: boolean;
 }) {
   return (
     <div className={'flex p-2'}>
       <TextField
-        placeholder={'E = mc^2'}
+        placeholder={placeholder}
         autoFocus={true}
+        multiline={multiline}
         label='Equation'
         onKeyDown={(e) => {
-          if (e.key === 'Enter') {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
             onConfirm();
           }
         }}
