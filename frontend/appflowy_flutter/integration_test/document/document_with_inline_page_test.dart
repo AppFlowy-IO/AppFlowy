@@ -70,7 +70,7 @@ Future<void> testInsertingInlinePage(
   );
   // tap the first line of the document
   await tester.editor.tapLineOfEditorAt(0);
-  // insert a referenced grid
+  // insert a inline page
   await tester.editor.showAtMenu();
   await tester.editor.tapAtMenuItemWithName(name);
 
