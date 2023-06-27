@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/section/item.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -47,7 +49,7 @@ extension Expectation on WidgetTester {
     expect(exportSuccess, findsOneWidget);
   }
 
-  /// Expect to see the add button and icon button inside the document.
+  /// Expect to see the add button and icon button in the cover toolbar
   void expectToSeePluginAddCoverAndIconButton() {
     final addCover = find.textContaining(
       LocaleKeys.document_plugins_cover_addCover.tr(),
@@ -57,6 +59,54 @@ extension Expectation on WidgetTester {
     );
     expect(addCover, findsOneWidget);
     expect(addIcon, findsOneWidget);
+  }
+
+  /// Expect to see the document header toolbar empty
+  void expectToSeeEmptyDocumentHeaderToolbar() {
+    final addCover = find.textContaining(
+      LocaleKeys.document_plugins_cover_addCover.tr(),
+    );
+    final addIcon = find.textContaining(
+      LocaleKeys.document_plugins_cover_addIcon.tr(),
+    );
+    expect(addCover, findsNothing);
+    expect(addIcon, findsNothing);
+  }
+
+  void expectToSeeDocumentIcon(String? emoji) {
+    if (emoji == null) {
+      final iconWidget = find.byType(EmojiIconWidget);
+      expect(iconWidget, findsNothing);
+      return;
+    }
+    final iconWidget = find.byWidgetPredicate(
+      (widget) => widget is EmojiIconWidget && widget.emoji == emoji,
+    );
+    expect(iconWidget, findsOneWidget);
+  }
+
+  void expectToSeeDocumentCover(CoverType type, String details) {
+    final findCover = find.byWidgetPredicate(
+      (widget) =>
+          widget is DocumentCover &&
+          widget.coverType == type &&
+          widget.coverDetails == details,
+    );
+    expect(findCover, findsOneWidget);
+  }
+
+  void expectToSeeNoDocumentCover() {
+    final findCover = find.byType(DocumentCover);
+    expect(findCover, findsNothing);
+  }
+
+  void expectChangeCoverAndDeleteButton() {
+    final findChangeCover = find.text(
+      LocaleKeys.document_plugins_cover_changeCover.tr(),
+    );
+    final findRemoveIcon = find.byType(DeleteCoverButton);
+    expect(findChangeCover, findsOneWidget);
+    expect(findRemoveIcon, findsOneWidget);
   }
 
   /// Expect to see the user name on the home page

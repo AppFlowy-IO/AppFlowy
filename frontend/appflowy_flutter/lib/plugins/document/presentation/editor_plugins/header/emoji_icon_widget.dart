@@ -5,12 +5,10 @@ class EmojiIconWidget extends StatefulWidget {
   const EmojiIconWidget({
     super.key,
     required this.emoji,
-    this.size = 80,
     this.emojiSize = 60,
   });
 
   final String emoji;
-  final double size;
   final double emojiSize;
 
   @override
@@ -25,12 +23,11 @@ class _EmojiIconWidgetState extends State<EmojiIconWidget> {
     return MouseRegion(
       onEnter: (_) => setHidden(false),
       onExit: (_) => setHidden(true),
+      cursor: SystemMouseCursors.click,
       child: Container(
-        height: widget.size,
-        width: widget.size,
         decoration: BoxDecoration(
           color: !hover
-              ? Theme.of(context).colorScheme.inverseSurface
+              ? Theme.of(context).colorScheme.inverseSurface.withOpacity(0.5)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
