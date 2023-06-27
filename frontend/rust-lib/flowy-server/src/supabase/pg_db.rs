@@ -1,13 +1,12 @@
 use std::cmp::Ordering;
 use std::fmt::{Debug, Formatter, Write};
-use std::sync::{Arc, Weak};
+use std::sync::Arc;
 
-use tokio::sync::{watch, Mutex};
 use tokio_postgres::{Client, NoTls};
 
 use crate::supabase::migration::run_migrations;
 use crate::supabase::queue::RequestPayload;
-use crate::supabase::{PostgresConfiguration, PostgresServer};
+use crate::supabase::PostgresConfiguration;
 
 pub type PostgresClient = Client;
 pub struct PostgresDB {

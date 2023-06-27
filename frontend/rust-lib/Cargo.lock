@@ -1840,6 +1840,7 @@ dependencies = [
  "tokio-postgres",
  "tokio-retry",
  "tracing",
+ "tracing-subscriber 0.3.16",
  "uuid",
 ]
 

@@ -5,7 +5,6 @@ use std::time::Duration;
 
 use futures_util::SinkExt;
 use tokio::spawn;
-use tokio::sync::mpsc::error::SendError;
 use tokio::sync::{watch, Mutex};
 use tokio::time::interval;
 
@@ -49,7 +48,7 @@ impl AppFlowyServer for SupabaseServer {
   }
 }
 
-pub(crate) struct PostgresServer {
+pub struct PostgresServer {
   inner: Arc<PostgresServerInner>,
 }
 
@@ -61,7 +60,7 @@ impl Deref for PostgresServer {
   }
 }
 
-pub(crate) struct PostgresServerInner {
+pub struct PostgresServerInner {
   config: PostgresConfiguration,
   db: Arc<Mutex<Option<Arc<PostgresDB>>>>,
   queue: parking_lot::Mutex<RequestQueue<PostgresEvent>>,
@@ -70,7 +69,7 @@ pub(crate) struct PostgresServerInner {
 }
 
 impl PostgresServerInner {
-  pub(crate) fn new(notifier: watch::Sender<bool>, config: PostgresConfiguration) -> Self {
+  pub fn new(notifier: watch::Sender<bool>, config: PostgresConfiguration) -> Self {
     let db = Arc::new(Default::default());
     let queue = parking_lot::Mutex::new(RequestQueue::new());
     let notifier = Arc::new(notifier);
@@ -82,7 +81,8 @@ impl PostgresServerInner {
       sequence: Default::default(),
     }
   }
-  pub(crate) async fn get_pg_client(&self) -> PgClientReceiver {
+
+  pub async fn get_pg_client(&self) -> PgClientReceiver {
     let (tx, rx) = tokio::sync::mpsc::channel(1);
     let mut queue = self.queue.lock();
 
@@ -98,7 +98,7 @@ impl PostgresServerInner {
 }
 
 impl PostgresServer {
-  pub(crate) fn new(config: PostgresConfiguration) -> Self {
+  pub fn new(config: PostgresConfiguration) -> Self {
     let (notifier, notifier_rx) = watch::channel(false);
     let inner = Arc::new(PostgresServerInner::new(notifier, config));
 
@@ -120,8 +120,8 @@ impl RequestHandler for PostgresServerInner {
         // If acquire the lock failed, try to notify again after 100ms
         let weak_notifier = Arc::downgrade(&self.notifier);
         spawn(async move {
-          interval(Duration::from_millis(100)).tick().await;
-          if let Some(mut notifier) = weak_notifier.upgrade() {
+          interval(Duration::from_millis(300)).tick().await;
+          if let Some(notifier) = weak_notifier.upgrade() {
             let _ = notifier.send(false);
           }
         });
@@ -143,19 +143,23 @@ impl RequestHandler for PostgresServerInner {
     self.queue.lock().push(request);
 
     match payload {
-      PostgresEvent::ConnectDB => match PostgresDB::new(self.config.clone()).await {
-        Ok(db) => {
-          *self.db.lock().await = Some(Arc::new(db));
-          if let Some(mut request) = self.queue.lock().peek_mut() {
-            request.set_state(RequestState::Done);
+      PostgresEvent::ConnectDB => {
+        let is_connected = self.db.lock().await.is_some();
+        if !is_connected {
+          match PostgresDB::new(self.config.clone()).await {
+            Ok(db) => {
+              *self.db.lock().await = Some(Arc::new(db));
+              if let Some(mut request) = self.queue.lock().peek_mut() {
+                request.set_state(RequestState::Done);
+              }
+            },
+            Err(e) => tracing::error!("Error connecting to the postgres db: {}", e),
           }
-          self.notify();
-        },
-        Err(e) => tracing::error!("Error connecting to the postgres db: {}", e),
+        }
       },
-      PostgresEvent::GetPgClient { id, sender } => {
+      PostgresEvent::GetPgClient { id: _, sender } => {
         match self.db.lock().await.as_ref().map(|db| db.client.clone()) {
-          None => {},
+          None => tracing::error!("Can't get the postgres client"),
           Some(client) => {
             if let Err(e) = sender.send(client).await {
               tracing::error!("Error sending the postgres client: {}", e);
@@ -163,11 +167,11 @@ impl RequestHandler for PostgresServerInner {
             if let Some(mut request) = self.queue.lock().peek_mut() {
               request.set_state(RequestState::Done);
             }
-            self.notify();
           },
         }
       },
     }
+    self.notify();
     None
   }
 

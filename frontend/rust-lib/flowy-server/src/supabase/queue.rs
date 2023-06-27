@@ -48,6 +48,11 @@ where
 
   pub fn set_state(&mut self, new_state: RequestState) {
     self.state = new_state;
+    tracing::trace!(
+      "Request {:?} state changed to {:?}",
+      self.payload,
+      self.state
+    );
   }
 
   pub fn is_pending(&self) -> bool {
@@ -125,6 +130,7 @@ where
 
 #[async_trait]
 pub trait RequestHandler: Send + Sync + 'static {
+  // async fn prepare_next_request<Payload>(&self) -> Option<PendingRequest<Payload>>;
   async fn process_next_request(&self) -> Option<()>;
   fn notify(&self);
 }
@@ -134,6 +140,10 @@ impl<T> RequestHandler for Arc<T>
 where
   T: RequestHandler,
 {
+  // async fn prepare_next_request<Payload>(&self) -> Option<PendingRequest<Payload>> {
+  //   todo!()
+  // }
+
   async fn process_next_request(&self) -> Option<()> {
     (**self).process_next_request().await
   }

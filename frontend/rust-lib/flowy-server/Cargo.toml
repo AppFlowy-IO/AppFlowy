@@ -38,6 +38,7 @@ flowy-error = { path = "../flowy-error" }
 
 [dev-dependencies]
 uuid = { version = "1.3.3", features = ["v4"] }
+tracing-subscriber = { version = "0.3.3", features = ["env-filter"] }
 dotenv = "0.15.0"
 
 [features]

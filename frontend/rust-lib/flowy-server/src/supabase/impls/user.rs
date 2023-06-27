@@ -18,16 +18,14 @@ use crate::util::uuid_from_box_any;
 
 pub(crate) const USER_TABLE: &str = "af_user";
 pub(crate) const USER_PROFILE_TABLE: &str = "af_user_profile";
+pub const USER_UUID: &str = "uuid";
 
-#[allow(dead_code)]
-const USER_UUID: &str = "uuid";
-
-pub(crate) struct SupabaseUserAuthServiceImpl {
+pub struct SupabaseUserAuthServiceImpl {
   server: Arc<PostgresServer>,
 }
 
 impl SupabaseUserAuthServiceImpl {
-  pub(crate) fn new(server: Arc<PostgresServer>) -> Self {
+  pub fn new(server: Arc<PostgresServer>) -> Self {
     Self { server }
   }
 }
@@ -211,101 +209,4 @@ async fn update_user_profile(
     .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
   tracing::trace!("Update user profile affect rows: {}", affect_rows);
   Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-  use std::collections::HashMap;
-  use std::sync::Arc;
-
-  use uuid::Uuid;
-
-  use flowy_user::entities::{SignUpResponse, UpdateUserProfileParams};
-  use flowy_user::event_map::UserAuthService;
-  use lib_infra::box_any::BoxAny;
-
-  use crate::supabase::impls::user::USER_UUID;
-  use crate::supabase::impls::SupabaseUserAuthServiceImpl;
-  use crate::supabase::{PostgresConfiguration, PostgresServer};
-
-  // ‼️‼️‼️ Warning: this test will create a table in the database
-  #[tokio::test]
-  async fn user_sign_up_test() {
-    if dotenv::from_filename("./.env.user.test").is_err() {
-      return;
-    }
-    let server = Arc::new(PostgresServer::new(
-      PostgresConfiguration::from_env().unwrap(),
-    ));
-    let user_service = SupabaseUserAuthServiceImpl::new(server);
-
-    let mut params = HashMap::new();
-    params.insert(USER_UUID.to_string(), Uuid::new_v4().to_string());
-    let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
-    assert!(!user.workspace_id.is_empty());
-  }
-
-  #[tokio::test]
-  async fn user_sign_up_with_existing_uuid_test() {
-    if dotenv::from_filename("./.env.user.test").is_err() {
-      return;
-    }
-    let server = Arc::new(PostgresServer::new(
-      PostgresConfiguration::from_env().unwrap(),
-    ));
-    let user_service = SupabaseUserAuthServiceImpl::new(server);
-    let uuid = Uuid::new_v4();
-
-    let mut params = HashMap::new();
-    params.insert(USER_UUID.to_string(), uuid.to_string());
-    let _user: SignUpResponse = user_service
-      .sign_up(BoxAny::new(params.clone()))
-      .await
-      .unwrap();
-    let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
-    assert!(!user.workspace_id.is_empty());
-  }
-
-  #[tokio::test]
-  async fn update_user_profile_test() {
-    if dotenv::from_filename("./.env.user.test").is_err() {
-      return;
-    }
-    let server = Arc::new(PostgresServer::new(
-      PostgresConfiguration::from_env().unwrap(),
-    ));
-    let user_service = SupabaseUserAuthServiceImpl::new(server);
-    let uuid = Uuid::new_v4();
-
-    let mut params = HashMap::new();
-    params.insert(USER_UUID.to_string(), uuid.to_string());
-    let user: SignUpResponse = user_service
-      .sign_up(BoxAny::new(params.clone()))
-      .await
-      .unwrap();
-
-    user_service
-      .update_user(
-        &None,
-        UpdateUserProfileParams {
-          id: user.user_id,
-          auth_type: Default::default(),
-          name: Some("123".to_string()),
-          email: Some("123@appflowy.io".to_string()),
-          password: None,
-          icon_url: None,
-          openai_key: None,
-        },
-      )
-      .await
-      .unwrap();
-
-    let user_profile = user_service
-      .get_user_profile(None, user.user_id)
-      .await
-      .unwrap()
-      .unwrap();
-
-    assert_eq!(user_profile.name, "123");
-  }
 }
