@@ -1,14 +1,13 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_block_shortcut_event.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'settings_shortcuts_cubit.freezed.dart';
-
-String kCouldNotLoadErrorMsg = "Could not load shortcuts,Try again";
-String kCouldNotSaveErrorMsg = "Could not save shortcut, Try again";
 
 @freezed
 class ShortcutsState with _$ShortcutsState {
@@ -53,7 +52,7 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
       emit(
         state.copyWith(
           status: ShortcutsStatus.failure,
-          error: kCouldNotLoadErrorMsg,
+          error: LocaleKeys.settings_shortcuts_couldNotLoadErrorMsg.tr(),
         ),
       );
     }
@@ -78,7 +77,7 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
       emit(
         state.copyWith(
           status: ShortcutsStatus.failure,
-          error: kCouldNotSaveErrorMsg,
+          error: LocaleKeys.settings_shortcuts_couldNotSaveErrorMsg.tr(),
         ),
       );
     }
@@ -92,6 +91,9 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
       ),
     );
     try {
+      //sort the shortcuts
+      defaultCommandShortcutEvents.sort((a, b) => a.key.compareTo(b.key));
+
       await service.saveAllShortcuts(defaultCommandShortcutEvents);
       emit(
         state.copyWith(
@@ -104,7 +106,7 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
       emit(
         state.copyWith(
           status: ShortcutsStatus.failure,
-          error: kCouldNotSaveErrorMsg,
+          error: LocaleKeys.settings_shortcuts_couldNotSaveErrorMsg.tr(),
         ),
       );
     }

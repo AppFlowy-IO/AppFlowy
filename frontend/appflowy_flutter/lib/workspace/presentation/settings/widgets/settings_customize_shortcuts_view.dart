@@ -190,11 +190,11 @@ class ShortcutsListTile extends StatelessWidget {
       shortcutEvent,
       command,
     );
-    if (conflict.isNotEmpty) {
-      return LocaleKeys.settings_shortcuts_shortcutIsAlreadyUsed.tr() +
-          conflict;
-    }
-    return null;
+    if (conflict.isEmpty) return null;
+
+    return LocaleKeys.settings_shortcuts_shortcutIsAlreadyUsed.tr(
+      namedArgs: {'conflict': conflict},
+    );
   }
 
   _updateKey(BuildContext context, String command) {

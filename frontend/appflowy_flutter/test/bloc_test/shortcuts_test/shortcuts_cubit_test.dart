@@ -59,11 +59,6 @@ void main() {
           const ShortcutsState(status: ShortcutsStatus.updating),
           isA<ShortcutsState>()
               .having((w) => w.status, 'status', ShortcutsStatus.failure)
-              .having(
-                (w) => w.error,
-                'error',
-                kCouldNotLoadErrorMsg,
-              ),
         ],
       );
 
@@ -107,11 +102,6 @@ void main() {
           const ShortcutsState(status: ShortcutsStatus.updating),
           isA<ShortcutsState>()
               .having((w) => w.status, 'status', ShortcutsStatus.failure)
-              .having(
-                (w) => w.error,
-                'error',
-                kCouldNotSaveErrorMsg,
-              ),
         ],
       );
 
