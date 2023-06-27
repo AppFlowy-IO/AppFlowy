@@ -43,6 +43,8 @@ CREATE TABLE IF NOT EXISTS af_collab (
    name TEXT DEFAULT '',
    key BIGINT GENERATED ALWAYS AS IDENTITY,
    value BYTEA NOT NULL,
+   value_size INTEGER,
+   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    PRIMARY KEY (oid, key)
 );
 -- collab table full backup

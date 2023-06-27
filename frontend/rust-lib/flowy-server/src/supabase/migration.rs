@@ -26,9 +26,14 @@ pub(crate) async fn run_migrations(client: &mut Client) -> Result<(), anyhow::Er
 /// Be careful when using this function. It will drop all tables and dependencies.
 /// Mostly used for testing.
 #[allow(dead_code)]
+#[cfg(debug_assertions)]
 pub(crate) async fn run_initial_drop(client: &Client) {
   let sql = include_str!("./migrations/initial/initial_down.sql");
   client.batch_execute(sql).await.unwrap();
+  client
+    .batch_execute("DROP TABLE IF EXISTS af_migration_history")
+    .await
+    .unwrap();
 }
 
 #[cfg(test)]
@@ -61,7 +66,10 @@ mod tests {
       }
     });
 
-    run_initial_drop(&client).await;
+    #[cfg(debug_assertions)]
+    {
+      run_initial_drop(&client).await;
+    }
     Ok(())
   }
 }
