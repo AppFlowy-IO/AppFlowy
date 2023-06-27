@@ -2,16 +2,25 @@ import { useAppSelector } from '$app/stores/store';
 import { RangeState, RangeStatic } from '$app/interfaces/document';
 import { useMemo, useRef } from 'react';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { RANGE_NAME, TEMPORARY_NAME, TEXT_LINK_NAME } from '$app/constants/document/name';
 
 export function useSubscribeDecorate(id: string) {
   const { docId } = useSubscribeDocument();
 
   const decorateSelection = useAppSelector((state) => {
-    return state.documentRange[docId]?.ranges[id];
+    return state[RANGE_NAME][docId]?.ranges[id];
+  });
+
+  const temporarySelection = useAppSelector((state) => {
+    const temporary = state[TEMPORARY_NAME][docId];
+
+    if (!temporary || temporary.id !== id) return;
+    return temporary.selection;
   });
 
   const linkDecorateSelection = useAppSelector((state) => {
-    const linkPopoverState = state.documentLinkPopover[docId];
+    const linkPopoverState = state[TEXT_LINK_NAME][docId];
+
     if (!linkPopoverState?.open || linkPopoverState?.id !== id) return;
     return {
       selection: linkPopoverState.selection,
@@ -22,18 +31,22 @@ export function useSubscribeDecorate(id: string) {
   return {
     decorateSelection,
     linkDecorateSelection,
+    temporarySelection,
   };
 }
+
 export function useFocused(id: string) {
   const { docId } = useSubscribeDocument();
 
   const caretRef = useRef<RangeStatic>();
   const focusCaret = useAppSelector((state) => {
-    const currentCaret = state.documentRange[docId]?.caret;
+    const currentCaret = state[RANGE_NAME][docId]?.caret;
+
     caretRef.current = currentCaret;
     if (currentCaret?.id === id) {
       return currentCaret;
     }
+
     return null;
   });
 
@@ -52,8 +65,10 @@ export function useRangeRef() {
   const { docId, controller } = useSubscribeDocument();
 
   const rangeRef = useRef<RangeState>();
+
   useAppSelector((state) => {
-    const currentRange = state.documentRange[docId];
+    const currentRange = state[RANGE_NAME][docId];
+
     rangeRef.current = currentRange;
   });
   return rangeRef;
@@ -63,7 +78,7 @@ export function useSubscribeRanges() {
   const { docId } = useSubscribeDocument();
 
   const rangeState = useAppSelector((state) => {
-    return state.documentRange[docId];
+    return state[RANGE_NAME][docId];
   });
 
   return rangeState;
@@ -73,7 +88,7 @@ export function useSubscribeCaret() {
   const { docId } = useSubscribeDocument();
 
   const caret = useAppSelector((state) => {
-    return state.documentRange[docId]?.caret;
+    return state[RANGE_NAME][docId]?.caret;
   });
 
   return caret;

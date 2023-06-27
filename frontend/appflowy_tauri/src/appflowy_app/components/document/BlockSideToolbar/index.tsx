@@ -10,6 +10,7 @@ import ToolbarButton from './ToolbarButton';
 import { rectSelectionActions } from '$app_reducers/document/slice';
 import { addBlockBelowClickThunk } from '$app_reducers/document/async-actions/menu';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { RANGE_NAME, RECT_RANGE_NAME } from '$app/constants/document/name';
 
 export default function BlockSideToolbar({ container }: { container: HTMLDivElement }) {
   const dispatch = useAppDispatch();
@@ -17,7 +18,7 @@ export default function BlockSideToolbar({ container }: { container: HTMLDivElem
 
   const { nodeId, style, ref } = useBlockSideToolbar({ container });
   const isDragging = useAppSelector(
-    (state) => state.documentRange[docId]?.isDragging || state.documentRectSelection[docId]?.isDragging
+    (state) => state[RANGE_NAME][docId]?.isDragging || state[RECT_RANGE_NAME][docId]?.isDragging
   );
   const { handleOpen, ...popoverProps } = usePopover();
 

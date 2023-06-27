@@ -23,6 +23,7 @@ import {
   transformIndexToNextLine,
   transformIndexToPrevLine,
 } from '$app/utils/document/delta';
+import { DOCUMENT_NAME, RANGE_NAME } from '$app/constants/document/name';
 
 export function getMiddleIds(document: DocumentState, startId: string, endId: string) {
   const middleIds = [];
@@ -116,8 +117,8 @@ export function getMergeEndDeltaToStartActionsByRange(
 ) {
   const actions = [];
   const docId = controller.documentId;
-  const documentState = state.document[docId];
-  const rangeState = state.documentRange[docId];
+  const documentState = state[DOCUMENT_NAME][docId];
+  const rangeState = state[RANGE_NAME][docId];
   const { startDelta, endDelta, endNode, startNode } = getStartAndEndExtentDelta(documentState, rangeState) || {};
 
   if (!startDelta || !endDelta || !endNode || !startNode) return;

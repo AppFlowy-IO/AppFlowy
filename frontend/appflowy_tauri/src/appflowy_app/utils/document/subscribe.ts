@@ -1,8 +1,8 @@
 import { DeltaTypePB } from '@/services/backend/models/flowy-document2';
 import { BlockPBValue, BlockType, ChangeType, DocumentState, NestedBlock } from '$app/interfaces/document';
 import { Log } from '../log';
-import { BLOCK_MAP_NAME, CHILDREN_MAP_NAME, META_NAME } from '$app/constants/document/block';
 import { isEqual } from '$app/utils/tool';
+import { BLOCK_MAP_NAME, CHILDREN_MAP_NAME, META_NAME } from '$app/constants/document/name';
 
 // This is a list of all the possible changes that can happen to document data
 const matchCases = [
