@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
@@ -115,7 +116,7 @@ class ShortcutsListTile extends StatelessWidget {
             Expanded(
               child: FlowyText.medium(
                 key: Key(shortcutEvent.key),
-                shortcutEvent.key,
+                shortcutEvent.key.capitalize(),
                 overflow: TextOverflow.ellipsis,
               ),
             ),

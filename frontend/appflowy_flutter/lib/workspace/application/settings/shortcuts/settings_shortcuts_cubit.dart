@@ -93,7 +93,6 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
     try {
       //sort the shortcuts
       defaultCommandShortcutEvents.sort((a, b) => a.key.compareTo(b.key));
-
       await service.saveAllShortcuts(defaultCommandShortcutEvents);
       emit(
         state.copyWith(
