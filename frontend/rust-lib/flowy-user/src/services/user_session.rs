@@ -147,11 +147,8 @@ impl UserSession {
       .auth_type_did_changed(auth_type.clone());
 
     self.cloud_services.set_auth_type(auth_type.clone());
-    let resp = self
-      .cloud_services
-      .get_auth_service()?
-      .sign_up(params)
-      .await?;
+    let auth_service = self.cloud_services.get_auth_service()?;
+    let resp = auth_service.sign_up(params).await?;
 
     let is_new = resp.is_new;
     let session: Session = resp.clone().into();

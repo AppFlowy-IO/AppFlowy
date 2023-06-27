@@ -1,6 +1,8 @@
-use flowy_folder2::deps::FolderCloudService;
 use std::sync::Arc;
 
+use appflowy_integrate::RemoteCollabStorage;
+
+use flowy_folder2::deps::FolderCloudService;
 use flowy_user::event_map::UserAuthService;
 
 use crate::self_host::configuration::SelfHostedConfiguration;
@@ -26,5 +28,9 @@ impl AppFlowyServer for SelfHostServer {
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
     Arc::new(SelfHostedServerFolderCloudServiceImpl())
+  }
+
+  fn collab_storage(&self) -> Option<Arc<dyn RemoteCollabStorage>> {
+    None
   }
 }

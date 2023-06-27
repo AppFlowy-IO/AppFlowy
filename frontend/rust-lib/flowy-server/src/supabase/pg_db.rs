@@ -1,9 +1,9 @@
 use std::cmp::Ordering;
-use std::fmt::{Debug, Formatter, Write};
+use std::fmt::{Debug, Formatter};
 use std::sync::Arc;
 
 use deadpool_postgres::{Manager, ManagerConfig, Object, Pool, RecyclingMethod};
-use tokio_postgres::{Client, NoTls};
+use tokio_postgres::NoTls;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
@@ -11,7 +11,6 @@ use crate::supabase::migration::run_migrations;
 use crate::supabase::queue::RequestPayload;
 use crate::supabase::PostgresConfiguration;
 
-pub type PostgresClient = Client;
 pub type PostgresObject = Object;
 pub struct PostgresDB {
   pub configuration: PostgresConfiguration,
@@ -122,37 +121,3 @@ impl PartialOrd<Self> for PostgresEvent {
 }
 
 impl RequestPayload for PostgresEvent {}
-
-#[cfg(test)]
-mod tests {
-  use crate::supabase::migration::run_initial_drop;
-
-  use super::*;
-
-  // ‼️‼️‼️ Warning: this test will create a table in the database
-  #[tokio::test]
-  async fn test_postgres_db() -> Result<(), anyhow::Error> {
-    if dotenv::from_filename(".env.user.test").is_err() {
-      return Ok(());
-    }
-
-    let configuration = PostgresConfiguration::from_env().unwrap();
-    let mut config = tokio_postgres::Config::new();
-    config
-      .host(&configuration.url)
-      .user(&configuration.user_name)
-      .password(&configuration.password)
-      .port(configuration.port);
-
-    // Using the https://docs.rs/postgres-openssl/latest/postgres_openssl/ to enable tls connection.
-    let (client, connection) = config.connect(NoTls).await?;
-    tokio::spawn(async move {
-      if let Err(e) = connection.await {
-        tracing::error!("postgres db connection error: {}", e);
-      }
-    });
-
-    run_initial_drop(&client).await;
-    Ok(())
-  }
-}

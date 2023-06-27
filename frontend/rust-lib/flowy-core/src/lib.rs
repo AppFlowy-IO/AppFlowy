@@ -90,6 +90,7 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   filters.push(format!("flowy_user={}", level));
   filters.push(format!("flowy_document2={}", level));
   filters.push(format!("flowy_database2={}", level));
+  filters.push(format!("flowy_server={}", level));
   filters.push(format!("flowy_notification={}", "info"));
   filters.push(format!("lib_infra={}", level));
   filters.push(format!("flowy_task={}", level));

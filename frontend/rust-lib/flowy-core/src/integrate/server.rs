@@ -127,7 +127,10 @@ impl CollabStorageProvider for AppFlowyServerProvider {
     match storage_type {
       CollabStorageType::Local => None,
       CollabStorageType::AWS => None,
-      CollabStorageType::Supabase => None,
+      CollabStorageType::Supabase => self
+        .get_provider(&ServerProviderType::Supabase)
+        .ok()
+        .and_then(|provider| provider.collab_storage()),
     }
   }
 }

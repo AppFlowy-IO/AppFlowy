@@ -12,7 +12,7 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::supabase::entities::{GetUserProfileParams, UserProfileResponse};
-use crate::supabase::pg_db::{PostgresClient, PostgresObject};
+use crate::supabase::pg_db::PostgresObject;
 use crate::supabase::sql_builder::UpdateSqlBuilder;
 use crate::supabase::PostgresServer;
 use crate::util::uuid_from_box_any;
@@ -33,6 +33,7 @@ impl SupabaseUserAuthServiceImpl {
 
 impl UserAuthService for SupabaseUserAuthServiceImpl {
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
+    tracing::trace!("Sign up in supabase");
     let server = self.server.clone();
     let (tx, rx) = channel();
     tokio::spawn(async move {

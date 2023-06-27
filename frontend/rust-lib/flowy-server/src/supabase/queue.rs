@@ -32,6 +32,7 @@ impl<Payload> PendingRequest<Payload> {
     }
   }
 
+  #[allow(dead_code)]
   pub fn state(&self) -> &RequestState {
     &self.state
   }
@@ -46,10 +47,6 @@ impl<Payload> PendingRequest<Payload> {
       self.payload,
       self.state
     );
-  }
-
-  pub fn is_pending(&self) -> bool {
-    self.state == RequestState::Pending
   }
 
   pub fn is_processing(&self) -> bool {

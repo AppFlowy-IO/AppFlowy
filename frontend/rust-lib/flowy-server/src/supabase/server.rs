@@ -3,17 +3,18 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 
-use futures_util::SinkExt;
+use appflowy_integrate::RemoteCollabStorage;
 use tokio::spawn;
 use tokio::sync::{watch, Mutex};
 use tokio::time::interval;
-use tokio_postgres::GenericClient;
 
 use flowy_folder2::deps::FolderCloudService;
 use flowy_user::event_map::UserAuthService;
 use lib_infra::async_trait::async_trait;
 
-use crate::supabase::impls::{SupabaseFolderCloudServiceImpl, SupabaseUserAuthServiceImpl};
+use crate::supabase::impls::{
+  CollabStorageImpl, SupabaseFolderCloudServiceImpl, SupabaseUserAuthServiceImpl,
+};
 use crate::supabase::pg_db::{PgClientReceiver, PostgresDB, PostgresEvent};
 use crate::supabase::queue::{
   PendingRequest, RequestHandler, RequestQueue, RequestRunner, RequestState,
@@ -24,6 +25,7 @@ use crate::AppFlowyServer;
 /// Supabase server is used to provide the implementation of the [AppFlowyServer] trait.
 /// It contains the configuration of the supabase server and the postgres server.
 pub struct SupabaseServer {
+  #[allow(dead_code)]
   config: SupabaseConfiguration,
   postgres: Arc<PostgresServer>,
 }
@@ -45,6 +47,10 @@ impl AppFlowyServer for SupabaseServer {
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
     Arc::new(SupabaseFolderCloudServiceImpl::new(self.postgres.clone()))
+  }
+
+  fn collab_storage(&self) -> Option<Arc<dyn RemoteCollabStorage>> {
+    Some(Arc::new(CollabStorageImpl::new(self.postgres.clone())))
   }
 }
 
@@ -137,7 +143,10 @@ impl RequestHandler<PostgresEvent> for PostgresServerInner {
     match request.payload {
       PostgresEvent::ConnectDB => {
         let is_connected = self.db.lock().await.is_some();
-        if !is_connected {
+        if is_connected {
+          tracing::warn!("Already connect to postgres db");
+        } else {
+          tracing::info!("Start connecting to postgres db");
           match PostgresDB::new(self.config.clone()).await {
             Ok(db) => {
               *self.db.lock().await = Some(Arc::new(db));

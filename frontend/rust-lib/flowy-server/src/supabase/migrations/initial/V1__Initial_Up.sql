@@ -40,6 +40,7 @@ INSERT ON af_user_profile FOR EACH ROW EXECUTE FUNCTION create_af_workspace_trig
 -- collab table
 CREATE TABLE IF NOT EXISTS af_collab (
    oid TEXT NOT NULL,
+   name TEXT DEFAULT '',
    key BIGINT GENERATED ALWAYS AS IDENTITY,
    value BYTEA NOT NULL,
    PRIMARY KEY (oid, key)
@@ -48,6 +49,7 @@ CREATE TABLE IF NOT EXISTS af_collab (
 CREATE TABLE IF NOT EXISTS af_collab_full_backup (
    key BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
    oid TEXT NOT NULL,
+   name TEXT DEFAULT '',
    blob BYTEA NOT NULL,
    blob_size INTEGER NOT NULL,
    meta BYTEA,
