@@ -8,12 +8,11 @@ import 'package:google_fonts/google_fonts.dart';
 class EditorStyleCustomizer {
   EditorStyleCustomizer({
     required this.context,
+    required this.padding,
   });
 
-  static double get horizontalPadding =>
-      PlatformExtension.isDesktop ? 50.0 : 10.0;
-
   final BuildContext context;
+  final EdgeInsets padding;
 
   EditorStyle style() {
     if (PlatformExtension.isDesktopOrWeb) {
@@ -28,7 +27,7 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     return EditorStyle.desktop(
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+      padding: padding,
       backgroundColor: theme.colorScheme.surface,
       cursorColor: theme.colorScheme.primary,
       textStyleConfiguration: TextStyleConfiguration(
@@ -65,7 +64,7 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     return EditorStyle.desktop(
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+      padding: padding,
       backgroundColor: theme.colorScheme.surface,
       cursorColor: theme.colorScheme.primary,
       textStyleConfiguration: TextStyleConfiguration(

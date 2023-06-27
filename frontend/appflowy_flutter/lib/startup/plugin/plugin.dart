@@ -37,9 +37,6 @@ abstract class PluginNotifier<T> {
   /// Notify if the plugin get deleted
   ValueNotifier<T> get isDeleted;
 
-  /// Notify if the [PluginWidgetBuilder]'s content was changed
-  ValueNotifier<int> get isDisplayChanged;
-
   void dispose() {}
 }
 

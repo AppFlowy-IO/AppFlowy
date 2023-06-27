@@ -78,11 +78,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     // All opened widgets that display on the home screen are in the form of plugins. There is a list of built-in plugins defined in the [PluginType] enum, including board, grid and trash.
                     if (getIt<HomeStackManager>().plugin.pluginType ==
                         PluginType.blank) {
-                      final plugin = makePlugin(
-                        pluginType: view.pluginType,
-                        data: view,
+                      getIt<HomeStackManager>().setPlugin(
+                        view.plugin(listenOnViewChanged: true),
                       );
-                      getIt<HomeStackManager>().setPlugin(plugin);
                       getIt<MenuSharedState>().latestOpenView = view;
                     }
                   }
@@ -282,12 +280,10 @@ class HomeScreenStackAdaptor extends HomeStackDelegate {
               lastView = views[index - 1];
             }
 
-            final plugin = makePlugin(
-              pluginType: lastView.pluginType,
-              data: lastView,
-            );
             getIt<MenuSharedState>().latestOpenView = lastView;
-            getIt<HomeStackManager>().setPlugin(plugin);
+            getIt<HomeStackManager>().setPlugin(
+              lastView.plugin(listenOnViewChanged: true),
+            );
           } else {
             getIt<MenuSharedState>().latestOpenView = null;
             getIt<HomeStackManager>().setPlugin(BlankPagePlugin());

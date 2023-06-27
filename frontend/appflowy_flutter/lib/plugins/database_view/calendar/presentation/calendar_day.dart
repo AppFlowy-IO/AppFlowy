@@ -113,7 +113,7 @@ class CalendarDayCard extends StatelessWidget {
                         .add(CalendarEvent.moveEvent(event, date));
                   },
                 ),
-                _NewEventButton(onCreate: () => onCreateEvent(date)),
+                NewEventButton(onCreate: () => onCreateEvent(date)),
                 MouseRegion(
                   onEnter: (p) => notifyEnter(context, true),
                   onExit: (p) => notifyEnter(context, false),
@@ -160,9 +160,10 @@ class _Header extends StatelessWidget {
   }
 }
 
-class _NewEventButton extends StatelessWidget {
+@visibleForTesting
+class NewEventButton extends StatelessWidget {
   final VoidCallback onCreate;
-  const _NewEventButton({required this.onCreate, Key? key}) : super(key: key);
+  const NewEventButton({required this.onCreate, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -254,7 +255,7 @@ class _EventList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Flexible(
       child: ListView.separated(
-        itemBuilder: (BuildContext context, int index) => _EventCard(
+        itemBuilder: (BuildContext context, int index) => EventCard(
           event: events[index],
           viewId: viewId,
           rowCache: rowCache,
@@ -270,13 +271,14 @@ class _EventList extends StatelessWidget {
   }
 }
 
-class _EventCard extends StatelessWidget {
+@visibleForTesting
+class EventCard extends StatelessWidget {
   final CalendarDayEvent event;
   final String viewId;
   final RowCache rowCache;
   final BoxConstraints constraints;
 
-  const _EventCard({
+  const EventCard({
     required this.event,
     required this.viewId,
     required this.rowCache,
@@ -301,7 +303,7 @@ class _EventCard extends StatelessWidget {
       // Add the key here to make sure the card is rebuilt when the cells
       // in this row are updated.
       key: ValueKey(event.eventId),
-      row: rowInfo!.rowPB,
+      rowMeta: rowInfo!.rowMeta,
       viewId: viewId,
       rowCache: rowCache,
       cardData: event.dateFieldId,
@@ -309,7 +311,7 @@ class _EventCard extends StatelessWidget {
       cellBuilder: cellBuilder,
       openCard: (context) => showEventDetails(
         context: context,
-        event: event,
+        event: event.event,
         viewId: viewId,
         rowCache: rowCache,
       ),

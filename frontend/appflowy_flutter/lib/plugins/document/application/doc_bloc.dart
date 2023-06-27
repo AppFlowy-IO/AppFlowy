@@ -9,7 +9,7 @@ import 'package:appflowy/plugins/document/application/doc_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
-    show EditorState, LogLevel;
+    show EditorState, LogLevel, TransactionTime;
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/foundation.dart';
@@ -23,7 +23,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   DocumentBloc({
     required this.view,
   })  : _documentListener = DocumentListener(id: view.id),
-        _viewListener = ViewListener(view: view),
+        _viewListener = ViewListener(viewId: view.id),
         _documentService = DocumentService(),
         _trashService = TrashService(),
         super(DocumentState.initial()) {
@@ -149,8 +149,12 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     this.editorState = editorState;
 
     // subscribe to the document change from the editor
-    _subscription = editorState.transactionStream.listen((transaction) async {
-      await _transactionAdapter.apply(transaction, editorState);
+    _subscription = editorState.transactionStream.listen((event) async {
+      final time = event.$1;
+      if (time != TransactionTime.before) {
+        return;
+      }
+      await _transactionAdapter.apply(event.$2, editorState);
     });
 
     // output the log from the editor when debug mode

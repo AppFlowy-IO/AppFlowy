@@ -2,6 +2,7 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
 use crate::entities::parser::NotEmptyStr;
+use crate::entities::RowMetaPB;
 use crate::services::setting::{CalendarLayout, CalendarLayoutSetting};
 
 use super::CellIdPB;
@@ -99,7 +100,7 @@ impl TryInto<CalendarEventRequestParams> for CalendarEventRequestPB {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct CalendarEventPB {
   #[pb(index = 1)]
-  pub row_id: String,
+  pub row_meta: RowMetaPB,
 
   #[pb(index = 2)]
   pub date_field_id: String,
@@ -109,6 +110,9 @@ pub struct CalendarEventPB {
 
   #[pb(index = 4)]
   pub timestamp: i64,
+
+  #[pb(index = 5)]
+  pub is_scheduled: bool,
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]

@@ -35,7 +35,7 @@ class DatabaseViewCache {
   final String viewId;
   late RowCache _rowCache;
   final DatabaseViewListener _databaseViewListener;
-  DatabaseViewCallbacks? _callbacks;
+  final List<DatabaseViewCallbacks> _callbacks = [];
 
   UnmodifiableListView<RowInfo> get rowInfos => _rowCache.rowInfos;
   RowCache get rowCache => _rowCache;
@@ -61,20 +61,28 @@ class DatabaseViewCache {
             _rowCache.applyRowsChanged(changeset);
 
             if (changeset.deletedRows.isNotEmpty) {
-              _callbacks?.onRowsDeleted?.call(changeset.deletedRows);
+              for (final callback in _callbacks) {
+                callback.onRowsDeleted?.call(changeset.deletedRows);
+              }
             }
 
             if (changeset.updatedRows.isNotEmpty) {
-              _callbacks?.onRowsUpdated
-                  ?.call(changeset.updatedRows.map((e) => e.row.id).toList());
+              for (final callback in _callbacks) {
+                callback.onRowsUpdated?.call(
+                  changeset.updatedRows.map((e) => e.rowId).toList(),
+                  _rowCache.changeReason,
+                );
+              }
             }
 
             if (changeset.insertedRows.isNotEmpty) {
-              _callbacks?.onRowsCreated?.call(
-                changeset.insertedRows
-                    .map((insertedRow) => insertedRow.row.id)
-                    .toList(),
-              );
+              for (final callback in _callbacks) {
+                callback.onRowsCreated?.call(
+                  changeset.insertedRows
+                      .map((insertedRow) => insertedRow.rowMeta.id)
+                      .toList(),
+                );
+              }
             }
           },
           (err) => Log.error(err),
@@ -101,21 +109,25 @@ class DatabaseViewCache {
     );
 
     _rowCache.onRowsChanged(
-      (reason) => _callbacks?.onNumOfRowsChanged?.call(
-        rowInfos,
-        _rowCache.rowByRowId,
-        reason,
-      ),
+      (reason) {
+        for (final callback in _callbacks) {
+          callback.onNumOfRowsChanged?.call(
+            rowInfos,
+            _rowCache.rowByRowId,
+            reason,
+          );
+        }
+      },
     );
   }
 
   Future<void> dispose() async {
     await _databaseViewListener.stop();
     await _rowCache.dispose();
-    _callbacks = null;
+    _callbacks.clear();
   }
 
-  void setListener(DatabaseViewCallbacks callbacks) {
-    _callbacks = callbacks;
+  void addListener(DatabaseViewCallbacks callbacks) {
+    _callbacks.add(callbacks);
   }
 }

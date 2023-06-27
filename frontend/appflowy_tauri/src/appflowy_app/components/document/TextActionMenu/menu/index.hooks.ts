@@ -1,17 +1,16 @@
-import { useAppSelector } from '$app/stores/store';
 import { useMemo } from 'react';
+import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
+import { BlockType, TextAction } from '$app/interfaces/document';
+import { useSubscribeRanges } from '$app/components/document/_shared/SubscribeSelection.hooks';
 import {
-  blockConfig,
-  defaultTextActionProps,
+  defaultTextActionItems,
   multiLineTextActionGroups,
   multiLineTextActionProps,
   textActionGroups,
-} from '$app/constants/document/config';
-import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
-import { TextAction } from '$app/interfaces/document';
+} from '$app/components/document/TextActionMenu/config';
 
 export function useTextActionMenu() {
-  const range = useAppSelector((state) => state.documentRange);
+  const range = useSubscribeRanges();
   const isSingleLine = useMemo(() => {
     return range.focus?.id === range.anchor?.id;
   }, [range]);
@@ -22,12 +21,9 @@ export function useTextActionMenu() {
   const items = useMemo(() => {
     if (!node) return [];
     if (isSingleLine) {
-      const config = blockConfig[node.type];
-      const { customItems, excludeItems } = {
-        ...defaultTextActionProps,
-        ...config.textActionMenuProps,
-      };
-      return customItems?.filter((item) => !excludeItems?.includes(item)) || [];
+      const excludeItems = node.type === BlockType.CodeBlock ? [TextAction.Code] : [];
+
+      return defaultTextActionItems?.filter((item) => !excludeItems?.includes(item)) || [];
     } else {
       return multiLineTextActionProps.customItems || [];
     }
@@ -36,6 +32,7 @@ export function useTextActionMenu() {
   // the groups have default items, so we need to filter the items if this node has excluded items
   const groupItems: TextAction[][] = useMemo(() => {
     const groups = node ? textActionGroups : multiLineTextActionGroups;
+
     return groups.map((group) => {
       return group.filter((item) => items.includes(item));
     });

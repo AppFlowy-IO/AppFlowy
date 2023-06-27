@@ -84,7 +84,7 @@ class ShareActionList extends StatefulWidget {
 @visibleForTesting
 class ShareActionListState extends State<ShareActionList> {
   late String name;
-  late final ViewListener viewListener = ViewListener(view: widget.view);
+  late final ViewListener viewListener = ViewListener(viewId: widget.view.id);
 
   @override
   void initState() {
@@ -118,7 +118,8 @@ class ShareActionListState extends State<ShareActionList> {
           case ShareAction.markdown:
             final exportPath = await getIt<FilePickerService>().saveFile(
               dialogTitle: '',
-              fileName: '$name.md',
+              // encode the file name in case it contains special characters
+              fileName: '${Uri.encodeComponent(name)}.md',
             );
             if (exportPath != null) {
               docShareBloc.add(DocShareEvent.shareMarkdown(exportPath));
@@ -134,7 +135,7 @@ class ShareActionListState extends State<ShareActionList> {
     name = widget.view.name;
     viewListener.start(
       onViewUpdated: (view) {
-        name = view.fold((l) => l.name, (r) => '');
+        name = view.name;
       },
     );
   }

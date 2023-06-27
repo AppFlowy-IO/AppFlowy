@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_cell_bloc.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../grid/presentation/layout/sizes.dart';
@@ -10,17 +11,23 @@ class GridTextCellStyle extends GridCellStyle {
   String? placeholder;
   TextStyle? textStyle;
   bool? autofocus;
+  double emojiFontSize;
+  double emojiHPadding;
+  bool showEmoji;
 
   GridTextCellStyle({
     this.placeholder,
     this.textStyle,
     this.autofocus,
+    this.showEmoji = true,
+    this.emojiFontSize = 16,
+    this.emojiHPadding = 0,
   });
 }
 
 class GridTextCell extends GridCellWidget {
   final CellControllerBuilder cellControllerBuilder;
-  late final GridTextCellStyle? cellStyle;
+  late final GridTextCellStyle cellStyle;
   GridTextCell({
     required this.cellControllerBuilder,
     GridCellStyle? style,
@@ -29,17 +36,20 @@ class GridTextCell extends GridCellWidget {
     if (style != null) {
       cellStyle = (style as GridTextCellStyle);
     } else {
-      cellStyle = null;
+      cellStyle = GridTextCellStyle();
     }
   }
 
   @override
-  GridFocusNodeCellState<GridTextCell> createState() => _GridTextCellState();
+  GridEditableTextCell<GridTextCell> createState() => _GridTextCellState();
 }
 
-class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
+class _GridTextCellState extends GridEditableTextCell<GridTextCell> {
   late TextCellBloc _cellBloc;
   late TextEditingController _controller;
+
+  @override
+  SingleListenerFocusNode focusNode = SingleListenerFocusNode();
 
   @override
   void initState() {
@@ -66,22 +76,40 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
             left: GridSize.cellContentInsets.left,
             right: GridSize.cellContentInsets.right,
           ),
-          child: TextField(
-            controller: _controller,
-            focusNode: focusNode,
-            maxLines: null,
-            style: widget.cellStyle?.textStyle ??
-                Theme.of(context).textTheme.bodyMedium,
-            autofocus: widget.cellStyle?.autofocus ?? false,
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.only(
-                top: GridSize.cellContentInsets.top,
-                bottom: GridSize.cellContentInsets.bottom,
-              ),
-              border: InputBorder.none,
-              hintText: widget.cellStyle?.placeholder,
-              isDense: true,
-            ),
+          child: Row(
+            children: [
+              if (widget.cellStyle.showEmoji)
+                // Only build the emoji when it changes
+                BlocBuilder<TextCellBloc, TextCellState>(
+                  buildWhen: (p, c) => p.emoji != c.emoji,
+                  builder: (context, state) => Center(
+                    child: FlowyText(
+                      state.emoji,
+                      fontSize: widget.cellStyle.emojiFontSize,
+                    ),
+                  ),
+                ),
+              HSpace(widget.cellStyle.emojiHPadding),
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  focusNode: focusNode,
+                  maxLines: null,
+                  style: widget.cellStyle.textStyle ??
+                      Theme.of(context).textTheme.bodyMedium,
+                  autofocus: widget.cellStyle.autofocus ?? false,
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.only(
+                      top: GridSize.cellContentInsets.top,
+                      bottom: GridSize.cellContentInsets.bottom,
+                    ),
+                    border: InputBorder.none,
+                    hintText: widget.cellStyle.placeholder,
+                    isDense: true,
+                  ),
+                ),
+              )
+            ],
           ),
         ),
       ),

@@ -53,11 +53,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "7fe5bb8"
-      resolved-ref: "7fe5bb85d455416ddbce4bbf2afed1c434466eeb"
+      ref: cd0f67a
+      resolved-ref: cd0f67a48e40188114800fae9a0f59cafe15b0f2
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
-    version: "1.0.0"
+    version: "1.0.4"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -1474,10 +1474,10 @@ packages:
     dependency: transitive
     description:
       name: tuple
-      sha256: "0ea99cd2f9352b2586583ab2ce6489d1f95a5f6de6fb9492faaf97ae2060f0aa"
+      sha256: a97ce2013f240b2f3807bcbaf218765b6f301c3eff91092bcfa23a039e7dd151
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.1"
+    version: "2.0.2"
   typed_data:
     dependency: transitive
     description:

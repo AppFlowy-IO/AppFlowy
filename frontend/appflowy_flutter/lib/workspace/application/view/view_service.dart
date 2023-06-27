@@ -50,7 +50,30 @@ class ViewBackendService {
     return FolderEventCreateView(payload).send();
   }
 
-  static Future<Either<ViewPB, FlowyError>> createDatabaseReferenceView({
+  /// The orphan view is meant to be a view that is not attached to any parent view. By default, this
+  /// view will not be shown in the view list unless it is attached to a parent view that is shown in
+  /// the view list.
+  static Future<Either<ViewPB, FlowyError>> createOrphanView({
+    required String viewId,
+    required ViewLayoutPB layoutType,
+    required String name,
+    String? desc,
+
+    /// The initial data should be a JSON that represent the DocumentDataPB.
+    /// Currently, only support create document with initial data.
+    List<int>? initialDataBytes,
+  }) {
+    final payload = CreateOrphanViewPayloadPB.create()
+      ..viewId = viewId
+      ..name = name
+      ..desc = desc ?? ""
+      ..layout = layoutType
+      ..initialData = initialDataBytes ?? [];
+
+    return FolderEventCreateOrphanView(payload).send();
+  }
+
+  static Future<Either<ViewPB, FlowyError>> createDatabaseLinkedView({
     required String parentViewId,
     required String databaseId,
     required ViewLayoutPB layoutType,
@@ -68,14 +91,14 @@ class ViewBackendService {
   }
 
   /// Returns a list of views that are the children of the given [viewId].
-  static Future<Either<List<ViewPB>, FlowyError>> getViews({
+  static Future<Either<List<ViewPB>, FlowyError>> getChildViews({
     required String viewId,
   }) {
     final payload = ViewIdPB.create()..value = viewId;
 
     return FolderEventReadView(payload).send().then((result) {
       return result.fold(
-        (app) => left(app.childViews),
+        (view) => left(view.childViews),
         (error) => right(error),
       );
     });
@@ -98,12 +121,23 @@ class ViewBackendService {
   static Future<Either<ViewPB, FlowyError>> updateView({
     required String viewId,
     String? name,
+    String? iconURL,
+    String? coverURL,
   }) {
     final payload = UpdateViewPayloadPB.create()..viewId = viewId;
 
     if (name != null) {
       payload.name = name;
     }
+
+    if (iconURL != null) {
+      payload.iconUrl = iconURL;
+    }
+
+    if (coverURL != null) {
+      payload.coverUrl = coverURL;
+    }
+
     return FolderEventUpdateView(payload).send();
   }
 
@@ -129,7 +163,7 @@ class ViewBackendService {
       if (workspaces != null) {
         final views = workspaces.workspace.views;
         for (final view in views) {
-          final childViews = await getViews(viewId: view.id).then(
+          final childViews = await getChildViews(viewId: view.id).then(
             (value) => value
                 .getLeftOrNull<List<ViewPB>>()
                 ?.where((e) => e.layout == layoutType)
@@ -144,7 +178,7 @@ class ViewBackendService {
     });
   }
 
-  Future<Either<ViewPB, FlowyError>> getView(
+  static Future<Either<ViewPB, FlowyError>> getView(
     String viewID,
   ) async {
     final payload = ViewIdPB.create()..value = viewID;

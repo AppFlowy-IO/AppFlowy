@@ -1,14 +1,13 @@
 use std::{collections::HashMap, sync::Arc, vec};
 
 use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
-use nanoid::nanoid;
 use serde_json::{json, to_value, Value};
 
 use flowy_document2::document_block_keys::PARAGRAPH_BLOCK_TYPE;
 use flowy_document2::document_data::default_document_data;
 use flowy_document2::manager::DocumentManager;
 
-use crate::document::util::default_collab_builder;
+use crate::document::util::{default_collab_builder, gen_document_id, gen_id};
 
 use super::util::FakeUser;
 
@@ -18,17 +17,17 @@ fn restore_document() {
   let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
 
   // create a document
-  let doc_id: String = nanoid!(10);
+  let doc_id: String = gen_document_id();
   let data = default_document_data();
   let document_a = manager
-    .create_document(doc_id.clone(), Some(data.clone()))
+    .create_document(&doc_id, Some(data.clone()))
     .unwrap();
   let data_a = document_a.lock().get_document().unwrap();
   assert_eq!(data_a, data);
 
   // open a document
   let data_b = manager
-    .open_document(doc_id.clone())
+    .get_or_open_document(&doc_id)
     .unwrap()
     .lock()
     .get_document()
@@ -38,10 +37,10 @@ fn restore_document() {
   assert_eq!(data_b, data);
 
   // restore
-  _ = manager.create_document(doc_id.clone(), Some(data.clone()));
+  _ = manager.create_document(&doc_id, Some(data.clone()));
   // open a document
   let data_b = manager
-    .open_document(doc_id.clone())
+    .get_or_open_document(&doc_id)
     .unwrap()
     .lock()
     .get_document()
@@ -57,22 +56,22 @@ fn document_apply_insert_action() {
   let user = FakeUser::new();
   let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
 
-  let doc_id: String = nanoid!(10);
+  let doc_id: String = gen_document_id();
   let data = default_document_data();
 
   // create a document
-  _ = manager.create_document(doc_id.clone(), Some(data.clone()));
+  _ = manager.create_document(&doc_id, Some(data.clone()));
 
   // open a document
-  let document = manager.open_document(doc_id.clone()).unwrap();
+  let document = manager.get_or_open_document(&doc_id).unwrap();
   let page_block = document.lock().get_block(&data.page_id).unwrap();
 
   // insert a text block
   let text_block = Block {
-    id: nanoid!(10),
+    id: gen_id(),
     ty: PARAGRAPH_BLOCK_TYPE.to_string(),
     parent: page_block.id,
-    children: nanoid!(10),
+    children: gen_id(),
     external_id: None,
     external_type: None,
     data: HashMap::new(),
@@ -92,7 +91,7 @@ fn document_apply_insert_action() {
 
   // re-open the document
   let data_b = manager
-    .open_document(doc_id.clone())
+    .get_or_open_document(&doc_id)
     .unwrap()
     .lock()
     .get_document()
@@ -108,14 +107,14 @@ fn document_apply_update_page_action() {
   let user = FakeUser::new();
   let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
 
-  let doc_id: String = nanoid!(10);
+  let doc_id: String = gen_document_id();
   let data = default_document_data();
 
   // create a document
-  _ = manager.create_document(doc_id.clone(), Some(data.clone()));
+  _ = manager.create_document(&doc_id, Some(data.clone()));
 
   // open a document
-  let document = manager.open_document(doc_id.clone()).unwrap();
+  let document = manager.get_or_open_document(&doc_id).unwrap();
   let page_block = document.lock().get_block(&data.page_id).unwrap();
 
   let mut page_block_clone = page_block;
@@ -139,7 +138,7 @@ fn document_apply_update_page_action() {
   _ = manager.close_document(&doc_id);
 
   // re-open the document
-  let document = manager.open_document(doc_id).unwrap();
+  let document = manager.get_or_open_document(&doc_id).unwrap();
   let page_block_new = document.lock().get_block(&data.page_id).unwrap();
   assert_eq!(page_block_old, page_block_new);
   assert!(page_block_new.data.contains_key("delta"));
@@ -150,23 +149,23 @@ fn document_apply_update_action() {
   let user = FakeUser::new();
   let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
 
-  let doc_id: String = nanoid!(10);
+  let doc_id: String = gen_document_id();
   let data = default_document_data();
 
   // create a document
-  _ = manager.create_document(doc_id.clone(), Some(data.clone()));
+  _ = manager.create_document(&doc_id, Some(data.clone()));
 
   // open a document
-  let document = manager.open_document(doc_id.clone()).unwrap();
+  let document = manager.get_or_open_document(&doc_id).unwrap();
   let page_block = document.lock().get_block(&data.page_id).unwrap();
 
   // insert a text block
-  let text_block_id = nanoid!(10);
+  let text_block_id = gen_id();
   let text_block = Block {
     id: text_block_id.clone(),
     ty: PARAGRAPH_BLOCK_TYPE.to_string(),
     parent: page_block.id,
-    children: nanoid!(10),
+    children: gen_id(),
     external_id: None,
     external_type: None,
     data: HashMap::new(),
@@ -207,7 +206,7 @@ fn document_apply_update_action() {
   _ = manager.close_document(&doc_id);
 
   // re-open the document
-  let document = manager.open_document(doc_id.clone()).unwrap();
+  let document = manager.get_or_open_document(&doc_id).unwrap();
   let block = document.lock().get_block(&text_block_id).unwrap();
   assert_eq!(block.data, updated_text_block_data);
   // close a document

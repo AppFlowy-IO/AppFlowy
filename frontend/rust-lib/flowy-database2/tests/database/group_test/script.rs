@@ -2,7 +2,7 @@ use collab_database::database::gen_row_id;
 use collab_database::fields::Field;
 use collab_database::rows::{CreateRowParams, RowId};
 
-use flowy_database2::entities::{FieldType, GroupPB, RowPB};
+use flowy_database2::entities::{FieldType, GroupPB, RowMetaPB};
 use flowy_database2::services::cell::{
   delete_select_option_cell, insert_select_option_cell, insert_url_cell,
 };
@@ -27,7 +27,7 @@ pub enum GroupScript {
   AssertRow {
     group_index: usize,
     row_index: usize,
-    row: RowPB,
+    row: RowMetaPB,
   },
   MoveRow {
     from_group_index: usize,
@@ -260,7 +260,7 @@ impl DatabaseGroupTest {
     groups.get(index).unwrap().clone()
   }
 
-  pub async fn row_at_index(&self, group_index: usize, row_index: usize) -> RowPB {
+  pub async fn row_at_index(&self, group_index: usize, row_index: usize) -> RowMetaPB {
     let groups = self.group_at_index(group_index).await;
     groups.rows.get(row_index).unwrap().clone()
   }

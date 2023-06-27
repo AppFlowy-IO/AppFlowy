@@ -1,7 +1,7 @@
-import { Ok, Result } from "ts-results";
-import { DeletedViewPB, FolderNotification, ViewPB, FlowyError } from "@/services/backend";
-import { ChangeNotifier } from "$app/utils/change_notifier";
-import { FolderNotificationObserver } from "../notifications/observer";
+import { Ok, Result } from 'ts-results';
+import { DeletedViewPB, FolderNotification, ViewPB, FlowyError } from '@/services/backend';
+import { ChangeNotifier } from '$app/utils/change_notifier';
+import { FolderNotificationObserver } from '../notifications/observer';
 
 type DeleteViewNotifyValue = Result<ViewPB, FlowyError>;
 type UpdateViewNotifyValue = Result<ViewPB, FlowyError>;
@@ -12,17 +12,18 @@ export class ViewObserver {
   private _deleteViewNotifier = new ChangeNotifier<DeleteViewNotifyValue>();
   private _updateViewNotifier = new ChangeNotifier<UpdateViewNotifyValue>();
   private _restoreViewNotifier = new ChangeNotifier<RestoreViewNotifyValue>();
-  private _moveToTashNotifier = new ChangeNotifier<MoveToTrashViewNotifyValue>();
+  private _moveToTrashNotifier = new ChangeNotifier<MoveToTrashViewNotifyValue>();
+  private _childViewsNotifier = new ChangeNotifier<void>();
   private _listener?: FolderNotificationObserver;
 
-  constructor(public readonly viewId: string) {
-  }
+  constructor(public readonly viewId: string) {}
 
   subscribe = async (callbacks: {
     onViewUpdate?: (value: UpdateViewNotifyValue) => void;
     onViewDelete?: (value: DeleteViewNotifyValue) => void;
     onViewRestored?: (value: RestoreViewNotifyValue) => void;
     onViewMoveToTrash?: (value: MoveToTrashViewNotifyValue) => void;
+    onChildViewsChanged?: () => void;
   }) => {
     if (callbacks.onViewDelete !== undefined) {
       this._deleteViewNotifier.observer?.subscribe(callbacks.onViewDelete);
@@ -37,7 +38,11 @@ export class ViewObserver {
     }
 
     if (callbacks.onViewMoveToTrash !== undefined) {
-      this._moveToTashNotifier.observer?.subscribe(callbacks.onViewMoveToTrash);
+      this._moveToTrashNotifier.observer?.subscribe(callbacks.onViewMoveToTrash);
+    }
+
+    if (callbacks.onChildViewsChanged !== undefined) {
+      this._childViewsNotifier.observer?.subscribe(callbacks.onChildViewsChanged);
     }
 
     this._listener = new FolderNotificationObserver({
@@ -67,15 +72,20 @@ export class ViewObserver {
             break;
           case FolderNotification.DidMoveViewToTrash:
             if (result.ok) {
-              this._moveToTashNotifier.notify(Ok(DeletedViewPB.deserializeBinary(result.val)));
+              this._moveToTrashNotifier.notify(Ok(DeletedViewPB.deserializeBinary(result.val)));
             } else {
-              this._moveToTashNotifier.notify(result);
+              this._moveToTrashNotifier.notify(result);
+            }
+            break;
+          case FolderNotification.DidUpdateChildViews:
+            if (result.ok) {
+              this._childViewsNotifier?.notify();
             }
             break;
           default:
             break;
         }
-      }
+      },
     });
     await this._listener.start();
   };
@@ -84,7 +94,8 @@ export class ViewObserver {
     this._deleteViewNotifier.unsubscribe();
     this._updateViewNotifier.unsubscribe();
     this._restoreViewNotifier.unsubscribe();
-    this._moveToTashNotifier.unsubscribe();
+    this._moveToTrashNotifier.unsubscribe();
+    this._childViewsNotifier.unsubscribe();
     await this._listener?.stop();
   };
 }

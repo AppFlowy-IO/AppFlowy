@@ -1,7 +1,6 @@
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { BlockType } from '$app/interfaces/document';
 import { useAppDispatch } from '$app/stores/store';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { turnToBlockThunk } from '$app_reducers/document/async-actions';
 import { blockConfig } from '$app/constants/document/config';
 
@@ -10,38 +9,47 @@ import { useRangeRef } from '$app/components/document/_shared/SubscribeSelection
 import { getBlock } from '$app/components/document/_shared/SubscribeNode.hooks';
 import isHotkey from 'is-hotkey';
 import { slashCommandActions } from '$app_reducers/document/slice';
-import { Keyboard } from '$app/constants/document/keyboard';
 import { getDeltaText } from '$app/utils/document/delta';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { turnIntoShortcuts } from './shortchut';
 
 export function useTurnIntoBlockEvents(id: string) {
-  const controller = useContext(DocumentControllerContext);
+  const { docId, controller } = useSubscribeDocument();
+
   const dispatch = useAppDispatch();
   const rangeRef = useRangeRef();
 
   const getFlag = useCallback(() => {
     const range = rangeRef.current?.caret;
+
     if (!range || range.id !== id) return;
-    const node = getBlock(id);
+    const node = getBlock(docId, id);
     const delta = new Delta(node.data.delta || []);
-    const flag = getDeltaText(delta.slice(0, range.index));
-    return flag;
-  }, [id, rangeRef]);
+
+    return getDeltaText(delta.slice(0, range.index));
+  }, [docId, id, rangeRef]);
 
   const getDeltaContent = useCallback(() => {
     const range = rangeRef.current?.caret;
+
     if (!range || range.id !== id) return;
-    const node = getBlock(id);
+    const node = getBlock(docId, id);
     const delta = new Delta(node.data.delta || []);
     const content = delta.slice(range.index);
+
     return new Delta(content);
-  }, [id, rangeRef]);
+  }, [docId, id, rangeRef]);
 
   const canHandle = useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>, type: BlockType, triggerKey: string) => {
+    (event: React.KeyboardEvent<HTMLDivElement>, type: BlockType) => {
       {
-        const config = blockConfig[type];
+        const triggerKey = event.key;
+        const shortcutItem = turnIntoShortcuts[triggerKey]?.find((item) => item.type === type);
 
-        const regex = config.markdownRegexps;
+        if (!shortcutItem) return false;
+
+        const regex = shortcutItem.markdownRegexp;
+
         // This error will be thrown if the block type is not in the config, and it will happen in development environment
         if (!regex) {
           throw new Error(`canHandle: block type ${type} is not supported`);
@@ -52,10 +60,12 @@ export function useTurnIntoBlockEvents(id: string) {
         if (!isTrigger) {
           return false;
         }
+
         const flag = getFlag();
+
         if (!flag) return false;
 
-        return regex.some((r) => r.test(`${flag}${triggerKey}`));
+        return regex.test(`${flag}${triggerKey}`);
       }
     },
     [getFlag]
@@ -63,6 +73,7 @@ export function useTurnIntoBlockEvents(id: string) {
 
   const getTurnIntoBlockDelta = useCallback(() => {
     const content = getDeltaContent();
+
     if (!content) return;
     return {
       delta: content.ops,
@@ -73,8 +84,10 @@ export function useTurnIntoBlockEvents(id: string) {
     return {
       [BlockType.HeadingBlock]: () => {
         const flag = getFlag();
+
         if (!flag) return;
         const level = flag.match(/#/g)?.length;
+
         if (!level || level > 3) return;
         return {
           level,
@@ -83,6 +96,7 @@ export function useTurnIntoBlockEvents(id: string) {
       },
       [BlockType.TodoListBlock]: () => {
         const flag = getFlag();
+
         if (!flag) return;
 
         return {
@@ -96,8 +110,10 @@ export function useTurnIntoBlockEvents(id: string) {
       [BlockType.ToggleListBlock]: getTurnIntoBlockDelta,
       [BlockType.CalloutBlock]: () => {
         const flag = getFlag();
+
         if (!flag) return;
         const tag = flag.match(/(TIP|INFO|WARNING|DANGER)/g)?.[0];
+
         if (!tag) return;
         const iconMap: Record<string, string> = {
           TIP: '💡',
@@ -105,6 +121,7 @@ export function useTurnIntoBlockEvents(id: string) {
           WARNING: '⚠️',
           DANGER: '‼️',
         };
+
         return {
           icon: iconMap[tag],
           ...getTurnIntoBlockDelta(),
@@ -116,24 +133,24 @@ export function useTurnIntoBlockEvents(id: string) {
   const turnIntoBlockEvents = useMemo(() => {
     const spaceTriggerEvents = Object.entries(spaceTriggerMap).map(([type, getData]) => {
       const blockType = type as BlockType;
-      const triggerKey = Keyboard.keys.Space;
 
       return {
-        canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => canHandle(e, blockType, triggerKey),
+        canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => canHandle(e, blockType),
         handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
           e.preventDefault();
           if (!controller) return;
           const data = getData();
+
           if (!data) return;
           dispatch(turnToBlockThunk({ id, data, type: blockType, controller }));
         },
       };
     });
+
     return [
       ...spaceTriggerEvents,
       {
-        canHandle: (e: React.KeyboardEvent<HTMLDivElement>) =>
-          canHandle(e, BlockType.DividerBlock, Keyboard.keys.Reduce),
+        canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => canHandle(e, BlockType.DividerBlock),
         handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
           e.preventDefault();
           if (!controller) return;
@@ -152,8 +169,7 @@ export function useTurnIntoBlockEvents(id: string) {
         },
       },
       {
-        canHandle: (e: React.KeyboardEvent<HTMLDivElement>) =>
-          canHandle(e, BlockType.CodeBlock, Keyboard.keys.BackQuote),
+        canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => canHandle(e, BlockType.CodeBlock),
         handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
           e.preventDefault();
           if (!controller) return;
@@ -162,6 +178,7 @@ export function useTurnIntoBlockEvents(id: string) {
             ...defaultData,
             delta: getDeltaContent()?.ops as Op[],
           };
+
           dispatch(turnToBlockThunk({ id, data, type: BlockType.CodeBlock, controller }));
         },
       },
@@ -169,19 +186,21 @@ export function useTurnIntoBlockEvents(id: string) {
         // Here custom slash key event for TextBlock
         canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => {
           const flag = getFlag();
+
           return isHotkey('/', e) && flag === '';
         },
-        handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
+        handler: (_: React.KeyboardEvent<HTMLDivElement>) => {
           if (!controller) return;
           dispatch(
             slashCommandActions.openSlashCommand({
               blockId: id,
+              docId,
             })
           );
         },
       },
     ];
-  }, [canHandle, controller, dispatch, getDeltaContent, getFlag, id, spaceTriggerMap]);
+  }, [canHandle, controller, dispatch, docId, getDeltaContent, getFlag, id, spaceTriggerMap]);
 
   return turnIntoBlockEvents;
 }

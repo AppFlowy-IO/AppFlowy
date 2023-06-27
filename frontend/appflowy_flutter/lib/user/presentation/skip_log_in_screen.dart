@@ -3,8 +3,13 @@ import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/launch_configuration.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -13,6 +18,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -49,6 +55,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   }
 
   Widget _renderBody(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -70,7 +77,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
         ),
         const VSpace(32),
         SizedBox(
-          width: MediaQuery.of(context).size.width * 0.5,
+          width: size.width * 0.5,
           child: FolderWidget(
             createFolderCallback: () async {
               _didCustomizeFolder = true;
@@ -79,15 +86,95 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
         ),
         const Spacer(),
         const VSpace(48),
-        _buildSubscribeButtons(context),
-        const VSpace(24),
+        const SkipLoginPageFooter(),
+        const VSpace(20),
       ],
     );
   }
 
-  Widget _buildSubscribeButtons(BuildContext context) {
+  Future<void> _autoRegister(BuildContext context) async {
+    final result = await widget.authService.signUpAsGuest();
+    result.fold(
+      (error) {
+        Log.error(error);
+      },
+      (user) {
+        FolderEventGetCurrentWorkspace().send().then((result) {
+          _openCurrentWorkspace(context, user, result);
+        });
+      },
+    );
+  }
+
+  Future<void> _relaunchAppAndAutoRegister() async {
+    await FlowyRunner.run(
+      FlowyApp(),
+      integrationEnv(),
+      config: const LaunchConfiguration(
+        autoRegistrationSupported: true,
+      ),
+    );
+  }
+
+  void _openCurrentWorkspace(
+    BuildContext context,
+    UserProfilePB user,
+    dartz.Either<WorkspaceSettingPB, FlowyError> workspacesOrError,
+  ) {
+    workspacesOrError.fold(
+      (workspaceSetting) {
+        widget.router
+            .pushHomeScreenWithWorkSpace(context, user, workspaceSetting);
+      },
+      (error) {
+        Log.error(error);
+      },
+    );
+  }
+}
+
+class SkipLoginPageFooter extends StatelessWidget {
+  const SkipLoginPageFooter({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // The placeholderWidth should be greater than the longest width of the LanguageSelectorOnWelcomePage
+    const double placeholderWidth = 180;
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          HSpace(placeholderWidth),
+          Expanded(child: SubscribeButtons()),
+          SizedBox(
+            width: placeholderWidth,
+            height: 28,
+            child: Row(
+              children: [
+                Spacer(),
+                LanguageSelectorOnWelcomePage(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SubscribeButtons extends StatelessWidget {
+  const SubscribeButtons({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
       children: [
         FlowyText.regular(
           LocaleKeys.youCanAlso.tr(),
@@ -109,6 +196,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
         ),
         FlowyTextButton(
           LocaleKeys.subscribeNewsletterText.tr(),
+          overflow: TextOverflow.ellipsis,
           fontWeight: FontWeight.w500,
           fontColor: Theme.of(context).colorScheme.primary,
           hoverColor: Colors.transparent,
@@ -127,42 +215,53 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
       throw 'Could not launch $url';
     }
   }
+}
 
-  Future<void> _autoRegister(BuildContext context) async {
-    final result = await widget.authService.signUpAsGuest();
-    result.fold(
-      (error) {
-        Log.error(error);
-      },
-      (user) {
-        FolderEventGetCurrentWorkspace().send().then((result) {
-          _openCurrentWorkspace(context, user, result);
-        });
-      },
-    );
-  }
+class LanguageSelectorOnWelcomePage extends StatelessWidget {
+  const LanguageSelectorOnWelcomePage({
+    super.key,
+  });
 
-  Future<void> _relaunchAppAndAutoRegister() async {
-    await FlowyRunner.run(
-      FlowyApp(),
-      config: const LaunchConfiguration(
-        autoRegistrationSupported: true,
-      ),
-    );
-  }
-
-  void _openCurrentWorkspace(
-    BuildContext context,
-    UserProfilePB user,
-    dartz.Either<WorkspaceSettingPB, FlowyError> workspacesOrError,
-  ) {
-    workspacesOrError.fold(
-      (workspaceSetting) {
-        widget.router
-            .pushHomeScreenWithWorkSpace(context, user, workspaceSetting);
-      },
-      (error) {
-        Log.error(error);
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+      builder: (context, state) {
+        return AppFlowyPopover(
+          offset: const Offset(0, -450),
+          direction: PopoverDirection.bottomWithRightAligned,
+          child: FlowyButton(
+            useIntrinsicWidth: true,
+            text: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                const FlowySvg(
+                  name: 'login/language',
+                  size: Size.square(20),
+                ),
+                const HSpace(4),
+                FlowyText(
+                  languageFromLocale(state.locale),
+                ),
+                // const HSpace(4),
+                const FlowySvg(
+                  name: 'home/drop_down_hide',
+                  size: Size.square(20),
+                ),
+              ],
+            ),
+          ),
+          popupBuilder: (BuildContext context) {
+            final easyLocalization = EasyLocalization.of(context);
+            if (easyLocalization == null) {
+              return const SizedBox.shrink();
+            }
+            final allLocales = easyLocalization.supportedLocales;
+            return LanguageItemsListView(
+              allLocales: allLocales,
+            );
+          },
+        );
       },
     );
   }

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { MouseEvent, useRef } from 'react';
 import { ArrowRight, Transform } from '@mui/icons-material';
-import MenuItem from '$app/components/document/BlockSideToolbar/MenuItem';
+import MenuItem from '$app/components/document/_shared/MenuItem';
 import TurnIntoPopover from '$app/components/document/_shared/TurnInto';
 
 function BlockMenuTurnInto({
@@ -8,28 +8,27 @@ function BlockMenuTurnInto({
   onClose,
   onHovered,
   isHovered,
+  menuOpened,
 }: {
   id: string;
   onClose: () => void;
-  onHovered: () => void;
+  onHovered: (e: MouseEvent) => void;
   isHovered: boolean;
+  menuOpened: boolean;
 }) {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLDivElement>(null);
-
-  const open = isHovered && Boolean(anchorEl);
+  const ref = useRef<HTMLDivElement | null>(null);
+  const open = isHovered && menuOpened && Boolean(ref.current);
 
   return (
     <>
       <MenuItem
+        ref={ref}
         title='Turn into'
+        isHovered={isHovered}
         icon={<Transform />}
         extra={<ArrowRight />}
-        onHover={(hovered, event) => {
-          if (hovered) {
-            onHovered();
-            setAnchorEl(event.currentTarget);
-            return;
-          }
+        onHover={(e) => {
+          onHovered(e);
         }}
       />
       <TurnIntoPopover
@@ -46,7 +45,7 @@ function BlockMenuTurnInto({
           },
         }}
         onClose={onClose}
-        anchorEl={anchorEl}
+        anchorEl={ref.current}
         anchorOrigin={{
           vertical: 'center',
           horizontal: 'right',

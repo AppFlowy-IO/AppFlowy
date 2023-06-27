@@ -1,14 +1,14 @@
 import { useAppDispatch } from '$app/stores/store';
-import { useCallback, useContext } from 'react';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { useCallback } from 'react';
 import { BlockData, BlockType, NestedBlock } from '$app/interfaces/document';
 import { blockConfig } from '$app/constants/document/config';
 import { turnToBlockThunk } from '$app_reducers/document/async-actions';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export function useTurnInto({ node, onClose }: { node: NestedBlock; onClose?: () => void }) {
   const dispatch = useAppDispatch();
 
-  const controller = useContext(DocumentControllerContext);
+  const { controller } = useSubscribeDocument();
 
   const turnIntoBlock = useCallback(
     async (type: BlockType, isSelected: boolean, data?: BlockData<any>) => {

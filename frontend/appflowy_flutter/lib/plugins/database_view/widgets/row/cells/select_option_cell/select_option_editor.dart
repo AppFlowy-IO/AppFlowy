@@ -157,7 +157,6 @@ class _TextField extends StatelessWidget {
             options: state.options,
             selectedOptionMap: optionMap,
             distanceToText: _editorPanelWidth * 0.7,
-            maxLength: 30,
             tagController: tagController,
             textSeparators: const [','],
             onClick: () => popoverMutex.close(),
@@ -337,7 +336,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
       offset: const Offset(8, 0),
       margin: EdgeInsets.zero,
       asBarrier: true,
-      constraints: BoxConstraints.loose(const Size(200, 460)),
+      constraints: BoxConstraints.loose(const Size(200, 470)),
       mutex: widget.popoverMutex,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12.0),

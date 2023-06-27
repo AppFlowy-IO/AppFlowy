@@ -25,8 +25,13 @@ env:
   FLUTTER_VERSION: "3.10.1"
   RUST_TOOLCHAIN: "1.70"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
+    if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
@@ -119,9 +124,16 @@ jobs:
         run: |
           cargo make dart_unit_test
 
-      - uses: codecov/codecov-action@v3
+      - name: Upload coverage to Codecov
+        uses: Wandalen/wretry.action@v1.0.36
         with:
-          name: appflowy
-          flags: appflowy_flutter_unit_test
-          fail_ci_if_error: true
-          verbose: true
+          action: codecov/codecov-action@v3
+          with: |
+            name: appflowy
+            flags: appflowy_flutter_unit_test
+            fail_ci_if_error: true
+            verbose: true
+            os: ${{ matrix.os }}
+          attempt_limit: 5
+          attempt_delay: 10000
+

@@ -20,7 +20,8 @@ abstract class EntryPoint {
 
 class FlowyRunner {
   static Future<void> run(
-    EntryPoint f, {
+    EntryPoint f,
+    IntegrationMode mode, {
     LaunchConfiguration config = const LaunchConfiguration(
       autoRegistrationSupported: false,
     ),
@@ -29,10 +30,9 @@ class FlowyRunner {
     await getIt.reset();
 
     // Specify the env
-    final env = integrationEnv();
-    initGetIt(getIt, env, f, config);
+    initGetIt(getIt, mode, f, config);
 
-    final directory = await getIt<LocalFileStorage>()
+    final directory = await getIt<ApplicationDataStorage>()
         .getPath()
         .then((value) => Directory(value));
 
@@ -55,7 +55,7 @@ class FlowyRunner {
 
         // init the app widget
         // ignore in test mode
-        if (!env.isTest()) ...[
+        if (!mode.isTest()) ...[
           const HotKeyTask(),
           InitSupabaseTask(
             url: Env.supabaseUrl,
@@ -146,11 +146,16 @@ enum IntegrationMode {
   develop,
   release,
   test,
+  integrationTest,
 }
 
 extension IntegrationEnvExt on IntegrationMode {
   bool isTest() {
     return this == IntegrationMode.test;
+  }
+
+  bool isIntegrationTest() {
+    return this == IntegrationMode.integrationTest;
   }
 }
 

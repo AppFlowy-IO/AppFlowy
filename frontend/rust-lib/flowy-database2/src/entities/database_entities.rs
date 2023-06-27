@@ -6,7 +6,7 @@ use flowy_derive::ProtoBuf;
 use flowy_error::{ErrorCode, FlowyError};
 
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::{DatabaseLayoutPB, FieldIdPB, RowPB};
+use crate::entities::{DatabaseLayoutPB, FieldIdPB, RowMetaPB};
 use crate::services::database::CreateDatabaseViewParams;
 
 /// [DatabasePB] describes how many fields and blocks the grid has
@@ -19,10 +19,13 @@ pub struct DatabasePB {
   pub fields: Vec<FieldIdPB>,
 
   #[pb(index = 3)]
-  pub rows: Vec<RowPB>,
+  pub rows: Vec<RowMetaPB>,
 
   #[pb(index = 4)]
   pub layout_type: DatabaseLayoutPB,
+
+  #[pb(index = 5)]
+  pub is_linked: bool,
 }
 
 #[derive(ProtoBuf, Default)]

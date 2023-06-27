@@ -21,7 +21,7 @@ class InitRustSDKTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    final dir = directory ?? await appFlowyDocumentDirectory();
+    final dir = directory ?? await appFlowyApplicationDataDirectory();
 
     context.getIt<FlowySDK>().setEnv(getAppFlowyEnv());
     await context.getIt<FlowySDK>().init(dir);
@@ -51,7 +51,9 @@ AppFlowyEnv getAppFlowyEnv() {
   );
 }
 
-Future<Directory> appFlowyDocumentDirectory() async {
+/// The default directory to store the user data. The directory can be
+/// customized by the user via the [ApplicationDataStorage]
+Future<Directory> appFlowyApplicationDataDirectory() async {
   switch (integrationEnv()) {
     case IntegrationMode.develop:
       final Directory documentsDir = await getApplicationSupportDirectory()
@@ -61,6 +63,7 @@ Future<Directory> appFlowyDocumentDirectory() async {
       final Directory documentsDir = await getApplicationSupportDirectory();
       return Directory(path.join(documentsDir.path, 'data')).create();
     case IntegrationMode.test:
+    case IntegrationMode.integrationTest:
       return Directory(path.join(Directory.current.path, '.sandbox'));
   }
 }

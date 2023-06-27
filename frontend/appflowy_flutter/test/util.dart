@@ -34,7 +34,10 @@ class AppFlowyUnitTest {
     SharedPreferences.setMockInitialValues({});
     _pathProviderInitialized();
 
-    await FlowyRunner.run(FlowyTestApp());
+    await FlowyRunner.run(
+      FlowyTestApp(),
+      IntegrationMode.test,
+    );
 
     final test = AppFlowyUnitTest();
     await test._signIn();

@@ -1,4 +1,8 @@
-import 'package:appflowy/plugins/database_view/database_view.dart';
+import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
+import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
+import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
+import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -56,15 +60,49 @@ extension ViewExtension on ViewPB {
     throw UnimplementedError;
   }
 
-  Plugin plugin() {
+  Plugin plugin({bool listenOnViewChanged = false}) {
     switch (layout) {
       case ViewLayoutPB.Board:
       case ViewLayoutPB.Calendar:
       case ViewLayoutPB.Grid:
-        return DatabaseViewPlugin(view: this);
+        return DatabaseTabBarViewPlugin(
+          view: this,
+          pluginType: pluginType,
+        );
       case ViewLayoutPB.Document:
-        return makePlugin(pluginType: pluginType, data: this);
+        return DocumentPlugin(
+          view: this,
+          pluginType: pluginType,
+          listenOnViewChanged: listenOnViewChanged,
+        );
     }
     throw UnimplementedError;
+  }
+
+  DatabaseTabBarItemBuilder tarBarItem() {
+    switch (layout) {
+      case ViewLayoutPB.Board:
+        return BoardPageTabBarBuilderImpl();
+      case ViewLayoutPB.Calendar:
+        return CalendarPageTabBarBuilderImpl();
+      case ViewLayoutPB.Grid:
+        return GridPageTabBarBuilderImpl();
+      case ViewLayoutPB.Document:
+        throw UnimplementedError;
+    }
+    throw UnimplementedError;
+  }
+
+  String get iconName {
+    switch (layout) {
+      case ViewLayoutPB.Grid:
+        return 'editor/grid';
+      case ViewLayoutPB.Board:
+        return 'editor/board';
+      case ViewLayoutPB.Calendar:
+        return 'editor/calendar';
+      default:
+        throw Exception('Unknown layout type');
+    }
   }
 }

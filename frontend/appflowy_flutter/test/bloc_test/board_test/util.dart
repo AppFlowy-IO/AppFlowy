@@ -106,13 +106,14 @@ class BoardTestContext {
 
     final rowDataController = RowController(
       viewId: rowInfo.viewId,
-      rowId: rowInfo.rowPB.id,
+      rowMeta: rowInfo.rowMeta,
       rowCache: rowCache,
     );
 
     final rowBloc = RowBloc(
-      rowInfo: rowInfo,
+      viewId: rowInfo.viewId,
       dataController: rowDataController,
+      rowId: rowInfo.rowMeta.id,
     )..add(const RowEvent.initial());
     await gridResponseFuture();
 

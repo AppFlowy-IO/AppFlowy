@@ -1,11 +1,12 @@
-use crate::event_handler::*;
-use crate::manager::Folder2Manager;
-use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
+use std::sync::Arc;
 
+use strum_macros::Display;
+
+use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use lib_dispatch::prelude::*;
 
-use std::sync::Arc;
-use strum_macros::Display;
+use crate::event_handler::*;
+use crate::manager::Folder2Manager;
 
 pub fn init(folder: Arc<Folder2Manager>) -> AFPlugin {
   AFPlugin::new().name("Flowy-Folder").state(folder)
@@ -20,6 +21,7 @@ pub fn init(folder: Arc<Folder2Manager>) -> AFPlugin {
     .event(FolderEvent::ReadWorkspaceViews, read_workspace_views_handler)
      // View
     .event(FolderEvent::CreateView, create_view_handler)
+    .event(FolderEvent::CreateOrphanView, create_orphan_view_handler)
     .event(FolderEvent::ReadView, read_view_handler)
     .event(FolderEvent::UpdateView, update_view_handler)
     .event(FolderEvent::DeleteView, delete_view_handler)
@@ -88,6 +90,10 @@ pub enum FolderEvent {
   /// It should get called when the 'View' page get destroy
   #[event(input = "ViewIdPB")]
   CloseView = 15,
+
+  /// Create a new view in the corresponding app
+  #[event(input = "CreateOrphanViewPayloadPB", output = "ViewPB")]
+  CreateOrphanView = 16,
 
   #[event()]
   CopyLink = 20,

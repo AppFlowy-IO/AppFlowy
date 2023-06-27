@@ -51,8 +51,8 @@ class CellContainer extends StatelessWidget {
           }
 
           return GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: () => child.beginFocus.notify(),
+            behavior: HitTestBehavior.opaque,
+            onTap: () => child.requestFocus.notify(),
             child: Container(
               constraints: BoxConstraints(maxWidth: width, minHeight: 46),
               decoration: _makeBoxDecoration(context, isFocus),

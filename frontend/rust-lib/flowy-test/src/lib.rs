@@ -1,8 +1,8 @@
-use bytes::Bytes;
 use std::convert::TryFrom;
 use std::env::temp_dir;
 use std::sync::Arc;
 
+use bytes::Bytes;
 use nanoid::nanoid;
 use parking_lot::RwLock;
 
@@ -15,6 +15,7 @@ use flowy_user::errors::FlowyError;
 use crate::event_builder::EventBuilder;
 use crate::user_event::{async_sign_up, init_user_setting, SignUpContext};
 
+pub mod document_event;
 pub mod event_builder;
 pub mod folder_event;
 pub mod user_event;
@@ -94,6 +95,16 @@ impl FlowyCoreTest {
       .payload(payload)
       .async_send()
       .await;
+  }
+
+  pub async fn update_view(&self, changeset: UpdateViewPayloadPB) -> Option<FlowyError> {
+    // delete the view. the view will be moved to trash
+    EventBuilder::new(self.clone())
+      .event(flowy_folder2::event_map::FolderEvent::UpdateView)
+      .payload(changeset)
+      .async_send()
+      .await
+      .error()
   }
 
   pub async fn create_view(&self, parent_id: &str, name: String) -> ViewPB {
@@ -264,12 +275,23 @@ impl FlowyCoreTest {
       .error()
   }
 
+  pub async fn get_primary_field(&self, database_view_id: &str) -> FieldPB {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::GetPrimaryField)
+      .payload(DatabaseViewIdPB {
+        value: database_view_id.to_string(),
+      })
+      .async_send()
+      .await
+      .parse::<FieldPB>()
+  }
+
   pub async fn create_row(
     &self,
     view_id: &str,
     start_row_id: Option<String>,
     data: Option<RowDataPB>,
-  ) -> RowPB {
+  ) -> RowMetaPB {
     EventBuilder::new(self.clone())
       .event(flowy_database2::event_map::DatabaseEvent::CreateRow)
       .payload(CreateRowPayloadPB {
@@ -280,7 +302,7 @@ impl FlowyCoreTest {
       })
       .async_send()
       .await
-      .parse::<RowPB>()
+      .parse::<RowMetaPB>()
   }
 
   pub async fn delete_row(&self, view_id: &str, row_id: &str) -> Option<FlowyError> {
@@ -307,6 +329,28 @@ impl FlowyCoreTest {
       .async_send()
       .await
       .parse::<OptionalRowPB>()
+  }
+
+  pub async fn get_row_meta(&self, view_id: &str, row_id: &str) -> RowMetaPB {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::GetRowMeta)
+      .payload(RowIdPB {
+        view_id: view_id.to_string(),
+        row_id: row_id.to_string(),
+        group_id: None,
+      })
+      .async_send()
+      .await
+      .parse::<RowMetaPB>()
+  }
+
+  pub async fn update_row_meta(&self, changeset: UpdateRowMetaChangesetPB) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(flowy_database2::event_map::DatabaseEvent::UpdateRowMeta)
+      .payload(changeset)
+      .async_send()
+      .await
+      .error()
   }
 
   pub async fn duplicate_row(&self, view_id: &str, row_id: &str) -> Option<FlowyError> {

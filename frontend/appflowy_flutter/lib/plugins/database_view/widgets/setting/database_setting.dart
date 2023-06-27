@@ -1,5 +1,4 @@
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
-import 'package:appflowy/plugins/database_view/application/setting/setting_bloc.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -9,6 +8,7 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 
 import '../../grid/presentation/layout/sizes.dart';
+import 'setting_button.dart';
 
 class DatabaseSettingList extends StatelessWidget {
   final DatabaseController databaseContoller;
@@ -23,7 +23,7 @@ class DatabaseSettingList extends StatelessWidget {
   Widget build(BuildContext context) {
     final cells = actionsForDatabaseLayout(databaseContoller.databaseLayout)
         .map((action) {
-      return _SettingItem(
+      return DatabaseSettingItem(
         action: action,
         onAction: (action) => onAction(action, databaseContoller),
       );
@@ -44,11 +44,11 @@ class DatabaseSettingList extends StatelessWidget {
   }
 }
 
-class _SettingItem extends StatelessWidget {
+class DatabaseSettingItem extends StatelessWidget {
   final DatabaseSettingAction action;
   final Function(DatabaseSettingAction) onAction;
 
-  const _SettingItem({
+  const DatabaseSettingItem({
     required this.action,
     required this.onAction,
     Key? key,

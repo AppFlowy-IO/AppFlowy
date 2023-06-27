@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { useBlockSideToolbar, usePopover } from './BlockSideToolbar.hooks';
 import Portal from '../BlockPortal';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
@@ -9,13 +9,17 @@ import BlockMenu from './BlockMenu';
 import ToolbarButton from './ToolbarButton';
 import { rectSelectionActions } from '$app_reducers/document/slice';
 import { addBlockBelowClickThunk } from '$app_reducers/document/async-actions/menu';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { RANGE_NAME, RECT_RANGE_NAME } from '$app/constants/document/name';
 
 export default function BlockSideToolbar({ container }: { container: HTMLDivElement }) {
   const dispatch = useAppDispatch();
-  const controller = useContext(DocumentControllerContext);
+  const { docId, controller } = useSubscribeDocument();
+
   const { nodeId, style, ref } = useBlockSideToolbar({ container });
-  const isDragging = useAppSelector((state) => state.documentRange.isDragging || state.documentRectSelection.isDragging);
+  const isDragging = useAppSelector(
+    (state) => state[RANGE_NAME][docId]?.isDragging || state[RECT_RANGE_NAME][docId]?.isDragging
+  );
   const { handleOpen, ...popoverProps } = usePopover();
 
   // prevent popover from showing when anchorEl is not in DOM
@@ -60,7 +64,12 @@ export default function BlockSideToolbar({ container }: { container: HTMLDivElem
             tooltip={'Click to open Menu'}
             onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
               if (!nodeId) return;
-              dispatch(rectSelectionActions.setSelectionById(nodeId));
+              dispatch(
+                rectSelectionActions.setSelectionById({
+                  docId,
+                  blockId: nodeId,
+                })
+              );
               handleOpen(e);
             }}
           >

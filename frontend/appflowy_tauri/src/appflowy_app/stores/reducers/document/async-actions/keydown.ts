@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
-import { BlockType, DocumentState, SplitRelationship } from '$app/interfaces/document';
+import { BlockType, RangeStatic, SplitRelationship } from '$app/interfaces/document';
 import { turnToTextBlockThunk } from '$app_reducers/document/async-actions/turn_to';
 import {
   findNextHasDeltaNode,
@@ -17,6 +17,8 @@ import { rangeActions } from '$app_reducers/document/slice';
 import { RootState } from '$app/stores/store';
 import { blockConfig } from '$app/constants/document/config';
 import { Keyboard } from '$app/constants/document/keyboard';
+import { DOCUMENT_NAME, RANGE_NAME } from '$app/constants/document/name';
+import { getPreviousWordIndex } from '$app/utils/document/delta';
 
 /**
  * Delete a block by backspace or delete key
@@ -29,23 +31,29 @@ export const backspaceDeleteActionForBlockThunk = createAsyncThunk(
   'document/backspaceDeleteActionForBlock',
   async (payload: { id: string; controller: DocumentController }, thunkAPI) => {
     const { id, controller } = payload;
+    const docId = controller.documentId;
     const { dispatch, getState } = thunkAPI;
-    const state = (getState() as { document: DocumentState }).document;
+    const state = (getState() as RootState).document[docId];
     const node = state.nodes[id];
+
     if (!node.parent) return;
     const parent = state.nodes[node.parent];
     const children = state.children[parent.children];
     const index = children.indexOf(id);
     const nextNodeId = children[index + 1];
+
     // turn to text block
     if (node.type !== BlockType.TextBlock) {
       await dispatch(turnToTextBlockThunk({ id, controller }));
       return;
     }
+
     const isTopLevel = parent.type === BlockType.PageBlock;
+
     if (isTopLevel || nextNodeId) {
       // merge to previous line
       const prevLine = findPrevHasDeltaNode(state, id);
+
       if (!prevLine) return;
       const caretIndex = new Delta(prevLine.data.delta).length();
       const caret = {
@@ -53,6 +61,7 @@ export const backspaceDeleteActionForBlockThunk = createAsyncThunk(
         index: caretIndex,
         length: 0,
       };
+
       await dispatch(
         mergeDeltaThunk({
           sourceId: id,
@@ -60,10 +69,16 @@ export const backspaceDeleteActionForBlockThunk = createAsyncThunk(
           controller,
         })
       );
-      dispatch(rangeActions.clearRange());
-      dispatch(rangeActions.setCaret(caret));
+      dispatch(rangeActions.initialState(docId));
+      dispatch(
+        rangeActions.setCaret({
+          docId,
+          caret,
+        })
+      );
       return;
     }
+
     // outdent
     await dispatch(outdentNodeThunk({ id, controller }));
   }
@@ -81,14 +96,26 @@ export const enterActionForBlockThunk = createAsyncThunk(
     const { id, controller } = payload;
     const { getState, dispatch } = thunkAPI;
     const state = getState() as RootState;
-    const node = state.document.nodes[id];
-    const caret = state.documentRange.caret;
-    if (!node || !caret || caret.id !== id) return;
+    const docId = controller.documentId;
+    const documentState = state[DOCUMENT_NAME][docId];
+    const node = documentState.nodes[id];
+    const caret = state[RANGE_NAME][docId]?.caret;
 
-    const nodeDelta = new Delta(node.data.delta).slice(0, caret.index);
+    if (!node || !caret || caret.id !== id) return;
+    const delta = new Delta(node.data.delta);
+
+    if (delta.length() === 0 && node.type !== BlockType.TextBlock) {
+      // If the node is not a text block, turn it to a text block
+      await dispatch(turnToTextBlockThunk({ id, controller }));
+      return;
+    }
+
+    const nodeDelta = delta.slice(0, caret.index);
+
     const insertNodeDelta = new Delta(node.data.delta).slice(caret.index + caret.length);
 
     const insertNodeAction = getInsertEnterNodeAction(node, insertNodeDelta, controller);
+
     if (!insertNodeAction) return;
     const updateNode = {
       ...node,
@@ -98,24 +125,28 @@ export const enterActionForBlockThunk = createAsyncThunk(
       },
     };
 
-    const children = state.document.children[node.children];
+    const children = documentState.children[node.children];
     const needMoveChildren = blockConfig[node.type].splitProps?.nextLineRelationShip === SplitRelationship.NextSibling;
     const moveChildrenAction = needMoveChildren
       ? controller.getMoveChildrenAction(
-          children.map((id) => state.document.nodes[id]),
+          children.map((id) => documentState.nodes[id]),
           insertNodeAction.id,
           ''
         )
       : [];
     const actions = [insertNodeAction.action, controller.getUpdateAction(updateNode), ...moveChildrenAction];
+
     await controller.applyActions(actions);
 
-    dispatch(rangeActions.clearRange());
+    dispatch(rangeActions.initialState(docId));
     dispatch(
       rangeActions.setCaret({
-        id: insertNodeAction.id,
-        index: 0,
-        length: 0,
+        docId,
+        caret: {
+          id: insertNodeAction.id,
+          index: 0,
+          length: 0,
+        },
       })
     );
   }
@@ -125,47 +156,60 @@ export const tabActionForBlockThunk = createAsyncThunk(
   'document/tabActionForBlock',
   async (payload: { id: string; controller: DocumentController }, thunkAPI) => {
     const { dispatch } = thunkAPI;
+
     return dispatch(indentNodeThunk(payload));
   }
 );
 
 export const upDownActionForBlockThunk = createAsyncThunk(
   'document/upActionForBlock',
-  async (payload: { id: string; down?: boolean }, thunkAPI) => {
-    const { id, down } = payload;
+  async (payload: { docId: string; id: string; down?: boolean }, thunkAPI) => {
+    const { docId, id, down } = payload;
     const { dispatch, getState } = thunkAPI;
     const state = getState() as RootState;
-    const rangeState = state.documentRange;
+    const documentState = state[DOCUMENT_NAME][docId];
+    const rangeState = state[RANGE_NAME][docId];
     const caret = rangeState.caret;
-    const node = state.document.nodes[id];
+    const node = documentState.nodes[id];
+
     if (!node || !caret || id !== caret.id) return;
 
     let newCaret;
 
     if (down) {
-      newCaret = transformToNextLineCaret(state.document, caret);
+      newCaret = transformToNextLineCaret(documentState, caret);
     } else {
-      newCaret = transformToPrevLineCaret(state.document, caret);
+      newCaret = transformToPrevLineCaret(documentState, caret);
     }
+
     if (!newCaret) {
       return;
     }
-    dispatch(rangeActions.clearRange());
-    dispatch(rangeActions.setCaret(newCaret));
+
+    dispatch(rangeActions.initialState(docId));
+    dispatch(
+      rangeActions.setCaret({
+        docId,
+        caret: newCaret,
+      })
+    );
   }
 );
 
 export const leftActionForBlockThunk = createAsyncThunk(
   'document/leftActionForBlock',
-  async (payload: { id: string }, thunkAPI) => {
-    const { id } = payload;
+  async (payload: { docId: string; id: string }, thunkAPI) => {
+    const { id, docId } = payload;
     const { dispatch, getState } = thunkAPI;
     const state = getState() as RootState;
-    const rangeState = state.documentRange;
+    const documentState = state[DOCUMENT_NAME][docId];
+    const rangeState = state[RANGE_NAME][docId];
     const caret = rangeState.caret;
-    const node = state.document.nodes[id];
+    const node = documentState.nodes[id];
+
     if (!node || !caret || id !== caret.id) return;
-    let newCaret;
+    let newCaret: RangeStatic;
+
     if (caret.length > 0) {
       newCaret = {
         id,
@@ -174,15 +218,20 @@ export const leftActionForBlockThunk = createAsyncThunk(
       };
     } else {
       if (caret.index > 0) {
+        const delta = new Delta(node.data.delta);
+        const newIndex = getPreviousWordIndex(delta, caret.index);
+
         newCaret = {
           id,
-          index: caret.index - 1,
+          index: newIndex,
           length: 0,
         };
       } else {
-        const prevNode = findPrevHasDeltaNode(state.document, id);
+        const prevNode = findPrevHasDeltaNode(documentState, id);
+
         if (!prevNode) return;
         const prevDelta = new Delta(prevNode.data.delta);
+
         newCaret = {
           id: prevNode.id,
           index: prevDelta.length(),
@@ -194,24 +243,33 @@ export const leftActionForBlockThunk = createAsyncThunk(
     if (!newCaret) {
       return;
     }
-    dispatch(rangeActions.clearRange());
-    dispatch(rangeActions.setCaret(newCaret));
+
+    dispatch(rangeActions.initialState(docId));
+    dispatch(
+      rangeActions.setCaret({
+        docId,
+        caret: newCaret,
+      })
+    );
   }
 );
 
 export const rightActionForBlockThunk = createAsyncThunk(
   'document/rightActionForBlock',
-  async (payload: { id: string }, thunkAPI) => {
-    const { id } = payload;
+  async (payload: { id: string; docId: string }, thunkAPI) => {
+    const { id, docId } = payload;
     const { dispatch, getState } = thunkAPI;
     const state = getState() as RootState;
-    const rangeState = state.documentRange;
+    const documentState = state[DOCUMENT_NAME][docId];
+    const rangeState = state[RANGE_NAME][docId];
     const caret = rangeState.caret;
-    const node = state.document.nodes[id];
+    const node = documentState.nodes[id];
+
     if (!node || !caret || id !== caret.id) return;
-    let newCaret;
+    let newCaret: RangeStatic;
     const delta = new Delta(node.data.delta);
     const deltaLength = delta.length();
+
     if (caret.length > 0) {
       newCaret = {
         id,
@@ -221,13 +279,15 @@ export const rightActionForBlockThunk = createAsyncThunk(
     } else {
       if (caret.index < deltaLength) {
         const newIndex = caret.index + caret.length + 1;
+
         newCaret = {
           id,
           index: newIndex > deltaLength ? deltaLength : newIndex,
           length: 0,
         };
       } else {
-        const nextNode = findNextHasDeltaNode(state.document, id);
+        const nextNode = findNextHasDeltaNode(documentState, id);
+
         if (!nextNode) return;
         newCaret = {
           id: nextNode.id,
@@ -240,9 +300,15 @@ export const rightActionForBlockThunk = createAsyncThunk(
     if (!newCaret) {
       return;
     }
-    dispatch(rangeActions.clearRange());
 
-    dispatch(rangeActions.setCaret(newCaret));
+    dispatch(rangeActions.initialState(docId));
+
+    dispatch(
+      rangeActions.setCaret({
+        caret: newCaret,
+        docId,
+      })
+    );
   }
 );
 
@@ -250,6 +316,7 @@ export const shiftTabActionForBlockThunk = createAsyncThunk(
   'document/shiftTabActionForBlock',
   async (payload: { id: string; controller: DocumentController }, thunkAPI) => {
     const { dispatch } = thunkAPI;
+
     return dispatch(outdentNodeThunk(payload));
   }
 );
@@ -259,19 +326,22 @@ export const arrowActionForRangeThunk = createAsyncThunk(
   async (
     payload: {
       key: string;
+      docId: string;
     },
     thunkAPI
   ) => {
     const { dispatch, getState } = thunkAPI;
+    const { key, docId } = payload;
     const state = getState() as RootState;
-    const rangeState = state.documentRange;
+    const documentState = state[DOCUMENT_NAME][docId];
+    const rangeState = state[RANGE_NAME][docId];
     let caret;
     const leftCaret = getLeftCaretByRange(rangeState);
     const rightCaret = getRightCaretByRange(rangeState);
 
     if (!leftCaret || !rightCaret) return;
 
-    switch (payload.key) {
+    switch (key) {
       case Keyboard.keys.LEFT:
         caret = leftCaret;
         break;
@@ -279,14 +349,20 @@ export const arrowActionForRangeThunk = createAsyncThunk(
         caret = rightCaret;
         break;
       case Keyboard.keys.UP:
-        caret = transformToPrevLineCaret(state.document, leftCaret);
+        caret = transformToPrevLineCaret(documentState, leftCaret);
         break;
       case Keyboard.keys.DOWN:
-        caret = transformToNextLineCaret(state.document, rightCaret);
+        caret = transformToNextLineCaret(documentState, rightCaret);
         break;
     }
+
     if (!caret) return;
-    dispatch(rangeActions.clearRange());
-    dispatch(rangeActions.setCaret(caret));
+    dispatch(rangeActions.initialState(docId));
+    dispatch(
+      rangeActions.setCaret({
+        docId,
+        caret,
+      })
+    );
   }
 );

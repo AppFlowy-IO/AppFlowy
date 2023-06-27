@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::rows::{Row, RowId};
+use collab_database::rows::RowId;
 use nanoid::nanoid;
 use tokio::sync::{broadcast, RwLock};
 
@@ -10,7 +10,7 @@ use flowy_error::FlowyResult;
 use lib_infra::future::Fut;
 
 use crate::services::cell::CellCache;
-use crate::services::database::{DatabaseRowEvent, MutexDatabase};
+use crate::services::database::{DatabaseRowEvent, MutexDatabase, RowDetail};
 use crate::services::database_view::{DatabaseViewData, DatabaseViewEditor};
 use crate::services::group::RowChangeset;
 
@@ -58,15 +58,15 @@ impl DatabaseViews {
   pub async fn move_group_row(
     &self,
     view_id: &str,
-    row: Arc<Row>,
+    row_detail: Arc<RowDetail>,
     to_group_id: String,
     to_row_id: Option<RowId>,
     recv_row_changeset: impl FnOnce(RowChangeset) -> Fut<()>,
   ) -> FlowyResult<()> {
     let view_editor = self.get_view_editor(view_id).await?;
-    let mut row_changeset = RowChangeset::new(row.id.clone());
+    let mut row_changeset = RowChangeset::new(row_detail.row.id.clone());
     view_editor
-      .v_move_group_row(&row, &mut row_changeset, &to_group_id, to_row_id)
+      .v_move_group_row(&row_detail, &mut row_changeset, &to_group_id, to_row_id)
       .await;
 
     if !row_changeset.is_empty() {
@@ -94,7 +94,7 @@ impl DatabaseViews {
     // If the id of the grouping field is equal to the updated field's id, then we need to
     // update the group setting
     if view_editor.is_grouping_field(field_id).await {
-      view_editor.v_update_grouping_field(field_id).await?;
+      view_editor.v_grouping_by_field(field_id).await?;
     }
     view_editor
       .v_did_update_field_type_option(field_id, old_field)

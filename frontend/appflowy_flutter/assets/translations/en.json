@@ -55,7 +55,8 @@
     "textAndMarkdown": "Text & Markdown",
     "documentFromV010": "Document from v0.1.0",
     "databaseFromV010": "Database from v0.1.0",
-    "csv": "CSV"
+    "csv": "CSV",
+    "database": "Database"
   },
   "disclosureAction": {
     "rename": "Rename",
@@ -89,7 +90,8 @@
       "name": "Debug Info",
       "success": "Copied debug info to clipboard!",
       "fail": "Unable to copy debug info to clipboard"
-    }
+    },
+    "feedback": "Feedback"
   },
   "menuAppHeader": {
     "addPageTooltip": "Quickly add a page inside",
@@ -222,6 +224,7 @@
       "changeLocationTooltips": "Change the data directory",
       "change": "Change",
       "openLocationTooltips": "Open another data directory",
+      "openCurrentDataFolder": "Open current data directory",
       "recoverLocationTooltips": "Reset to AppFlowy's default data directory",
       "exportFileSuccess": "Export file successfully!",
       "exportFileFail": "Export file failed!",
@@ -235,6 +238,8 @@
     }
   },
   "grid": {
+    "deleteView": "Are you sure you want to delete this view?",
+    "createView": "New",
     "settings": {
       "filter": "Filter",
       "sort": "Sort",
@@ -480,5 +485,10 @@
       "name": "Calendar layout"
     },
     "referencedCalendarPrefix": "View of"
+  },
+  "errorDialog": {
+    "title": "AppFlowy Error",
+    "howToFixFallback": "We're sorry for the inconvenience! Submit an issue on our GitHub page that describes your error.",
+    "github": "View on GitHub"
   }
 }

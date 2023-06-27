@@ -4,11 +4,13 @@ function isTextNode(node: Node): boolean {
 
 export function exclude(node: Element) {
   let isPlaceholder = false;
+
   try {
     isPlaceholder = !!node.getAttribute('data-slate-placeholder');
   } catch (e) {
     // ignore
   }
+
   return isPlaceholder;
 }
 
@@ -16,13 +18,16 @@ export function findFirstTextNode(node: Node): Node | null {
   if (isTextNode(node)) {
     return node;
   }
+
   if (exclude && exclude(node as Element)) {
     return null;
   }
 
   const children = node.childNodes;
+
   for (let i = 0; i < children.length; i++) {
     const textNode = findFirstTextNode(children[i]);
+
     if (textNode) {
       return textNode;
     }
@@ -41,6 +46,7 @@ export function setCursorAtStartOfNode(node: Node): void {
   }
 
   const selection = window.getSelection();
+
   selection?.removeAllRanges();
   selection?.addRange(range);
 }
@@ -55,8 +61,10 @@ export function findLastTextNode(node: Node): Node | null {
   }
 
   const children = node.childNodes;
+
   for (let i = children.length - 1; i >= 0; i--) {
     const textNode = findLastTextNode(children[i]);
+
     if (textNode) {
       return textNode;
     }
@@ -71,11 +79,13 @@ export function setCursorAtEndOfNode(node: Node): void {
 
   if (textNode) {
     const textLength = textNode.textContent?.length || 0;
+
     range.setStart(textNode, textLength);
     range.setEnd(textNode, textLength);
   }
 
   const selection = window.getSelection();
+
   selection?.removeAllRanges();
   selection?.addRange(range);
 }
@@ -84,47 +94,60 @@ export function setFullRangeAtNode(node: Node): void {
   const range = document.createRange();
   const firstTextNode = findFirstTextNode(node);
   const lastTextNode = findLastTextNode(node);
+
   if (!firstTextNode || !lastTextNode) return;
   range.setStart(firstTextNode, 0);
   range.setEnd(lastTextNode, lastTextNode.textContent?.length || 0);
   const selection = window.getSelection();
+
   selection?.removeAllRanges();
   selection?.addRange(range);
 }
 
 export function getBlockIdByPoint(target: HTMLElement | null) {
   let node = target;
+
   while (node) {
     const id = node.getAttribute('data-block-id');
+
     if (id) {
       return id;
     }
+
     node = node.parentElement;
   }
+
   return null;
 }
 
 export function findTextBoxParent(target: HTMLElement | null) {
   let node = target;
+
   while (node) {
     if (node.getAttribute('role') === 'textbox') {
       return node;
     }
+
     node = node.parentElement;
   }
+
   return null;
 }
 
 export function isFocused(blockId: string) {
   const selection = window.getSelection();
+
   if (!selection) return false;
   const { anchorNode, focusNode } = selection;
+
   if (!anchorNode || !focusNode) return false;
   const anchorElement = anchorNode.parentElement;
   const focusElement = focusNode.parentElement;
+
   if (!anchorElement || !focusElement) return false;
   const anchorBlockId = getBlockIdByPoint(anchorElement);
   const focusBlockId = getBlockIdByPoint(focusElement);
+
   return anchorBlockId === blockId || focusBlockId === blockId;
 }
 
@@ -134,12 +157,15 @@ export function getNode(id: string) {
 
 export function isPointInBlock(target: HTMLElement | null) {
   let node = target;
+
   while (node) {
     if (node.getAttribute('data-block-id')) {
       return true;
     }
+
     node = node.parentElement;
   }
+
   return false;
 }
 
@@ -153,21 +179,27 @@ export function findTextNode(
 } {
   if (isTextNode(node)) {
     const textLength = node.textContent?.length || 0;
+
     if (index <= textLength) {
       return { node, offset: index };
     }
+
     return { remainingIndex: index - textLength };
   }
 
   if (exclude && exclude(node)) {
     return { remainingIndex: index };
   }
+
   let remainingIndex = index;
+
   for (const childNode of node.childNodes) {
     const result = findTextNode(childNode as Element, remainingIndex);
+
     if (result.node) {
       return result;
     }
+
     remainingIndex = result.remainingIndex || index;
   }
 
@@ -176,6 +208,7 @@ export function findTextNode(
 
 export function getRangeByIndex(node: Element, index: number, length: number) {
   const textBoxNode = node.querySelector(`[role="textbox"]`);
+
   if (!textBoxNode) return;
   const anchorNode = findTextNode(textBoxNode, index);
   const focusNode = findTextNode(textBoxNode, index + length);
@@ -183,6 +216,7 @@ export function getRangeByIndex(node: Element, index: number, length: number) {
   if (!anchorNode?.node || !focusNode?.node) return;
 
   const range = document.createRange();
+
   range.setStart(anchorNode.node, anchorNode.offset || 0);
   range.setEnd(focusNode.node, focusNode.offset || 0);
   return range;
@@ -190,15 +224,25 @@ export function getRangeByIndex(node: Element, index: number, length: number) {
 
 export function focusNodeByIndex(node: Element, index: number, length: number) {
   const range = getRangeByIndex(node, index, length);
+
   if (!range) return false;
   const selection = window.getSelection();
+
   selection?.removeAllRanges();
+
   selection?.addRange(range);
-  return true;
+  const focusNode = selection?.focusNode;
+
+  if (!focusNode) return false;
+
+  const parent = findParent(focusNode as Element, node);
+
+  return Boolean(parent);
 }
 
 export function getNodeTextBoxByBlockId(blockId: string) {
   const node = getNode(blockId);
+
   return node?.querySelector(`[role="textbox"]`);
 }
 
@@ -206,13 +250,17 @@ export function getNodeText(node: Element) {
   if (isTextNode(node)) {
     return node.textContent || '';
   }
+
   if (exclude && exclude(node)) {
     return '';
   }
+
   let text = '';
+
   for (const childNode of node.childNodes) {
     text += getNodeText(childNode as Element);
   }
+
   return replaceZeroWidthSpace(text);
 }
 
@@ -225,41 +273,20 @@ export function replaceZeroWidthSpace(text: string) {
   return text.replace(/[\u200B-\u200D\uFEFF]/g, '');
 }
 
-export function findParent(node: Element, parentSelector: string) {
+export function findParent(node: Element, parentSelector: string | Element) {
   let parentNode: Element | null = node;
+
   while (parentNode) {
-    if (parentNode.matches(parentSelector)) {
+    if (typeof parentSelector === 'string' && parentNode.matches(parentSelector)) {
       return parentNode;
     }
+
+    if (parentNode === parentSelector) {
+      return parentNode;
+    }
+
     parentNode = parentNode.parentElement;
   }
+
   return null;
-}
-
-export function getWordIndices(startContainer: Node, startOffset: number) {
-  const textNode = startContainer;
-  const textContent = textNode.textContent || '';
-
-  const wordRegex = /\b\w+\b/g;
-  let match;
-  const wordIndices = [];
-
-  while ((match = wordRegex.exec(textContent)) !== null) {
-    const word = match[0];
-    const wordIndex = match.index;
-    const wordEndIndex = wordIndex + word.length;
-
-    // If the startOffset is greater than the wordIndex and less than the wordEndIndex, then the startOffset is
-    if (startOffset > wordIndex && startOffset <= wordEndIndex) {
-      wordIndices.push({
-        word: word,
-        startIndex: wordIndex,
-        endIndex: wordEndIndex,
-      });
-      break;
-    }
-  }
-
-  // If there are no matches, then the startOffset is greater than the last wordEndIndex
-  return wordIndices;
 }

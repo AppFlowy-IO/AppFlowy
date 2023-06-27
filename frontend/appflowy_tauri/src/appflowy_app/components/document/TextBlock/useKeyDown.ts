@@ -1,8 +1,7 @@
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Keyboard } from '$app/constants/document/keyboard';
 import isHotkey from 'is-hotkey';
 import { useAppDispatch } from '@/appflowy_app/stores/store';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import {
   enterActionForBlockThunk,
   tabActionForBlockThunk,
@@ -10,9 +9,10 @@ import {
 } from '$app_reducers/document/async-actions';
 import { useTurnIntoBlockEvents } from './useTurnIntoBlockEvents';
 import { useCommonKeyEvents } from '../_shared/EditorHooks/useCommonKeyEvents';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export function useKeyDown(id: string) {
-  const controller = useContext(DocumentControllerContext);
+  const { controller } = useSubscribeDocument();
   const dispatch = useAppDispatch();
   const turnIntoEvents = useTurnIntoBlockEvents(id);
   const commonKeyEvents = useCommonKeyEvents(id);
@@ -88,9 +88,12 @@ export function useKeyDown(id: string) {
 
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
-      e.stopPropagation();
       const filteredEvents = interceptEvents.filter((event) => event.canHandle(e));
-      filteredEvents.forEach((event) => event.handler(e));
+
+      filteredEvents.forEach((event) => {
+        e.stopPropagation();
+        event.handler(e);
+      });
     },
     [interceptEvents]
   );

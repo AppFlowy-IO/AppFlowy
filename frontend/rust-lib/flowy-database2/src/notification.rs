@@ -31,6 +31,8 @@ pub enum DatabaseNotification {
   DidReorderRows = 65,
   /// Trigger after editing the row that hit the sort rule
   DidReorderSingleRow = 66,
+  /// Trigger after updating the row meta
+  DidUpdateRowMeta = 67,
   /// Trigger when the settings of the database are changed
   DidUpdateSettings = 70,
   // Trigger when the layout setting of the database is updated

@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/setting/group_bloc.dart';
 import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/select_option_editor_bloc.dart';
@@ -39,8 +40,10 @@ void main() {
     await boardResponseFuture();
 
     //assert only have the 'No status' group
-    final boardBloc = BoardBloc(view: context.gridView)
-      ..add(const BoardEvent.initial());
+    final boardBloc = BoardBloc(
+      view: context.gridView,
+      databaseController: DatabaseController(view: context.gridView),
+    )..add(const BoardEvent.initial());
     await boardResponseFuture();
     assert(
       boardBloc.groupControllers.values.length == 1,
@@ -92,8 +95,10 @@ void main() {
     await boardResponseFuture();
 
     // assert there are only three group
-    final boardBloc = BoardBloc(view: context.gridView)
-      ..add(const BoardEvent.initial());
+    final boardBloc = BoardBloc(
+      view: context.gridView,
+      databaseController: DatabaseController(view: context.gridView),
+    )..add(const BoardEvent.initial());
     await boardResponseFuture();
     assert(
       boardBloc.groupControllers.values.length == 3,

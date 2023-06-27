@@ -51,7 +51,7 @@ void _resolveCommonService(GetIt getIt) async {
   // getIt.registerFactory<KeyValueStorage>(() => RustKeyValue());
   getIt.registerFactory<KeyValueStorage>(() => DartKeyValue());
   getIt.registerFactory<FilePickerService>(() => FilePicker());
-  getIt.registerFactory<LocalFileStorage>(() => LocalFileStorage());
+  getIt.registerFactory<ApplicationDataStorage>(() => ApplicationDataStorage());
 
   getIt.registerFactoryAsync<OpenAIRepository>(
     () async {
@@ -120,11 +120,6 @@ void _resolveFolderDeps(GetIt getIt) {
   getIt.registerFactoryParam<WorkspaceListener, UserProfilePB, String>(
     (user, workspaceId) =>
         WorkspaceListener(user: user, workspaceId: workspaceId),
-  );
-
-  // ViewPB
-  getIt.registerFactoryParam<ViewListener, ViewPB, void>(
-    (view, _) => ViewListener(view: view),
   );
 
   getIt.registerFactoryParam<ViewBloc, ViewPB, void>(

@@ -93,7 +93,7 @@ class ChecklistState extends State<ChecklistFilterEditor> {
               children: [
                 FlowyText(state.filterInfo.fieldInfo.name),
                 const HSpace(4),
-                ChecklistFilterConditionPBList(
+                ChecklistFilterConditionList(
                   filterInfo: state.filterInfo,
                 ),
                 const Spacer(),
@@ -118,9 +118,9 @@ class ChecklistState extends State<ChecklistFilterEditor> {
   }
 }
 
-class ChecklistFilterConditionPBList extends StatelessWidget {
+class ChecklistFilterConditionList extends StatelessWidget {
   final FilterInfo filterInfo;
-  const ChecklistFilterConditionPBList({
+  const ChecklistFilterConditionList({
     required this.filterInfo,
     Key? key,
   }) : super(key: key);

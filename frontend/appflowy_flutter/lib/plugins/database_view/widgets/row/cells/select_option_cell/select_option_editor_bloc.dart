@@ -17,7 +17,9 @@ class SelectOptionCellEditorBloc
   SelectOptionCellEditorBloc({
     required this.cellController,
   })  : _selectOptionService = SelectOptionCellBackendService(
-          cellContext: cellController.cellContext,
+          viewId: cellController.viewId,
+          fieldId: cellController.fieldId,
+          rowId: cellController.rowId,
         ),
         super(SelectOptionEditorState.initial(cellController)) {
     on<SelectOptionEditorEvent>(

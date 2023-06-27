@@ -1,14 +1,17 @@
+use std::sync::Arc;
+
 use collab_database::fields::Field;
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 
 use flowy_error::FlowyResult;
 
 use crate::entities::{
-  FieldType, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB, RowPB, URLCellDataPB,
+  FieldType, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB, RowMetaPB,
+  URLCellDataPB,
 };
 use crate::services::cell::insert_url_cell;
+use crate::services::database::RowDetail;
 use crate::services::field::{URLCellData, URLCellDataParser, URLTypeOption};
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupContext;
@@ -46,7 +49,7 @@ impl GroupCustomize for URLGroupController {
 
   fn create_or_delete_group_when_cell_changed(
     &mut self,
-    row: &Row,
+    row_detail: &RowDetail,
     _old_cell_data: Option<&Self::CellData>,
     _cell_data: &Self::CellData,
   ) -> FlowyResult<(Option<InsertedGroupPB>, Option<GroupPB>)> {
@@ -56,7 +59,7 @@ impl GroupCustomize for URLGroupController {
       let cell_data: URLCellData = _cell_data.clone().into();
       let group = make_group_from_url_cell(&cell_data);
       let mut new_group = self.context.add_new_group(group)?;
-      new_group.group.rows.push(RowPB::from(row));
+      new_group.group.rows.push(RowMetaPB::from(&row_detail.meta));
       inserted_group = Some(new_group);
     }
 
@@ -87,22 +90,24 @@ impl GroupCustomize for URLGroupController {
 
   fn add_or_remove_row_when_cell_changed(
     &mut self,
-    row: &Row,
+    row_detail: &RowDetail,
     cell_data: &Self::CellData,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
     self.context.iter_mut_status_groups(|group| {
       let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
       if group.id == cell_data.content {
-        if !group.contains_row(&row.id) {
+        if !group.contains_row(&row_detail.row.id) {
           changeset
             .inserted_rows
-            .push(InsertedRowPB::new(RowPB::from(row)));
-          group.add_row(row.clone());
+            .push(InsertedRowPB::new(RowMetaPB::from(&row_detail.meta)));
+          group.add_row(row_detail.clone());
         }
-      } else if group.contains_row(&row.id) {
-        group.remove_row(&row.id);
-        changeset.deleted_rows.push(row.id.clone().into_inner());
+      } else if group.contains_row(&row_detail.row.id) {
+        group.remove_row(&row_detail.row.id);
+        changeset
+          .deleted_rows
+          .push(row_detail.row.id.clone().into_inner());
       }
 
       if !changeset.is_empty() {
@@ -175,9 +180,9 @@ impl GroupController for URLGroupController {
     }
   }
 
-  fn did_create_row(&mut self, row: &Row, group_id: &str) {
+  fn did_create_row(&mut self, row_detail: &RowDetail, group_id: &str) {
     if let Some(group) = self.context.get_mut_group(group_id) {
-      group.add_row(row.clone())
+      group.add_row(row_detail.clone())
     }
   }
 }

@@ -9,7 +9,6 @@ import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/grid.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
@@ -35,7 +34,7 @@ class GridTestContext {
     return gridController.fieldController;
   }
 
-  Future<Either<RowPB, FlowyError>> createRow() async {
+  Future<Either<RowMetaPB, FlowyError>> createRow() async {
     return gridController.createRow();
   }
 
@@ -55,14 +54,15 @@ class GridTestContext {
     final rowCache = gridController.rowCache;
 
     final rowDataController = RowController(
-      rowId: rowInfo.rowPB.id,
+      rowMeta: rowInfo.rowMeta,
       viewId: rowInfo.viewId,
       rowCache: rowCache,
     );
 
     final rowBloc = RowBloc(
-      rowInfo: rowInfo,
+      viewId: rowInfo.viewId,
       dataController: rowDataController,
+      rowId: rowInfo.rowMeta.id,
     )..add(const RowEvent.initial());
     await gridResponseFuture();
 
@@ -171,11 +171,10 @@ class AppFlowyGridTest {
 
   Future<GridTestContext> createTestGrid() async {
     final app = await unitTest.createTestApp();
-    final builder = GridPluginBuilder();
     final context = await ViewBackendService.createView(
       parentViewId: app.id,
       name: "Test Grid",
-      layoutType: builder.layoutType!,
+      layoutType: ViewLayoutPB.Grid,
       openAfterCreate: true,
     ).then((result) {
       return result.fold(

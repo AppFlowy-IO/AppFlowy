@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'package:appflowy_backend/protobuf/flowy-database2/checklist_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/url_entities.pb.dart';
 import 'package:dartz/dartz.dart';
@@ -52,18 +53,23 @@ class CellBackendService {
 class DatabaseCellContext with _$DatabaseCellContext {
   const factory DatabaseCellContext({
     required String viewId,
-    required RowId rowId,
+    required RowMetaPB rowMeta,
     required FieldInfo fieldInfo,
   }) = _DatabaseCellContext;
 
   // ignore: unused_element
   const DatabaseCellContext._();
 
+  String get rowId => rowMeta.id;
+
   String get fieldId => fieldInfo.id;
 
   FieldType get fieldType => fieldInfo.fieldType;
 
   ValueKey key() {
-    return ValueKey("$rowId$fieldId${fieldInfo.fieldType}");
+    return ValueKey("${rowMeta.id}$fieldId${fieldInfo.fieldType}");
   }
+
+  /// Only the primary field can have an emoji.
+  String? get emoji => fieldInfo.isPrimary ? rowMeta.icon : null;
 }

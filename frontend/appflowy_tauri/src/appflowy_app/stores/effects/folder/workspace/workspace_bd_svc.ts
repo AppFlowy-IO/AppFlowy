@@ -1,9 +1,10 @@
-import { Err, Ok } from 'ts-results';
+import { Err, Ok, Result } from 'ts-results';
 import {
   FolderEventCreateView,
   FolderEventMoveView,
   FolderEventReadWorkspaceViews,
   FolderEventReadAllWorkspaces,
+  ViewPB,
 } from '@/services/backend/events/flowy-folder2';
 import { CreateViewPayloadPB, FlowyError, MoveViewPayloadPB, ViewLayoutPB, WorkspaceIdPB } from '@/services/backend';
 import assert from 'assert';
@@ -11,20 +12,25 @@ import assert from 'assert';
 export class WorkspaceBackendService {
   constructor(public readonly workspaceId: string) {}
 
-  createApp = async (params: { name: string; desc?: string }) => {
+  createView = async (params: {
+    name: string;
+    desc?: string;
+    layoutType: ViewLayoutPB;
+    parentViewId?: string;
+    /// The initial data should be the JSON of the document
+    /// For example: {"document":{"type":"editor","children":[]}}
+    initialData?: string;
+  }) => {
+    const encoder = new TextEncoder();
     const payload = CreateViewPayloadPB.fromObject({
-      parent_view_id: this.workspaceId,
+      parent_view_id: params.parentViewId ?? this.workspaceId,
       name: params.name,
       desc: params.desc || '',
-      layout: ViewLayoutPB.Document,
+      layout: params.layoutType,
+      initial_data: encoder.encode(params.initialData || ''),
     });
 
-    const result = await FolderEventCreateView(payload);
-    if (result.ok) {
-      return result.val;
-    } else {
-      throw new Error(result.val.msg);
-    }
+    return FolderEventCreateView(payload);
   };
 
   getWorkspace = () => {
@@ -44,14 +50,19 @@ export class WorkspaceBackendService {
     });
   };
 
-  getApps = () => {
+  getAllViews: () => Promise<Result<ViewPB[], FlowyError>> = async () => {
     const payload = WorkspaceIdPB.fromObject({ value: this.workspaceId });
-    return FolderEventReadWorkspaceViews(payload).then((result) => result.map((val) => val.items));
+    const result = await FolderEventReadWorkspaceViews(payload);
+    if (result.ok) {
+      return Ok(result.val.items);
+    } else {
+      return result;
+    }
   };
 
-  moveApp = (params: { appId: string; fromIndex: number; toIndex: number }) => {
+  moveView = (params: { viewId: string; fromIndex: number; toIndex: number }) => {
     const payload = MoveViewPayloadPB.fromObject({
-      view_id: params.appId,
+      view_id: params.viewId,
       from: params.fromIndex,
       to: params.toIndex,
     });

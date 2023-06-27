@@ -48,6 +48,7 @@ class DocumentPlugin extends Plugin<int> {
   DocumentPlugin({
     required PluginType pluginType,
     required ViewPB view,
+    bool listenOnViewChanged = false,
     Key? key,
   }) : notifier = ViewPluginNotifier(view: view) {
     _pluginType = pluginType;
@@ -122,7 +123,10 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   Widget? get rightBarItem {
     return Row(
       children: [
-        DocumentShareButton(view: view),
+        DocumentShareButton(
+          key: ValueKey(view.id),
+          view: view,
+        ),
         const SizedBox(width: 10),
         BlocProvider.value(
           value: documentAppearanceCubit,

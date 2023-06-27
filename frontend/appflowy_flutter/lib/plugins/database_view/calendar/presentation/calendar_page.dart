@@ -1,5 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -15,11 +19,51 @@ import '../../widgets/row/cell_builder.dart';
 import '../../widgets/row/row_detail.dart';
 import 'calendar_day.dart';
 import 'layout/sizes.dart';
-import 'toolbar/calendar_toolbar.dart';
+import 'toolbar/calendar_setting_bar.dart';
+
+class CalendarPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
+  @override
+  Widget content(
+    BuildContext context,
+    ViewPB view,
+    DatabaseController controller,
+  ) {
+    return CalendarPage(
+      key: _makeValueKey(controller),
+      view: view,
+      databaseController: controller,
+    );
+  }
+
+  @override
+  Widget settingBar(BuildContext context, DatabaseController controller) {
+    return CalendarSettingBar(
+      key: _makeValueKey(controller),
+      databaseController: controller,
+    );
+  }
+
+  @override
+  Widget settingBarExtension(
+    BuildContext context,
+    DatabaseController controller,
+  ) {
+    return SizedBox.fromSize();
+  }
+
+  ValueKey _makeValueKey(DatabaseController controller) {
+    return ValueKey(controller.viewId);
+  }
+}
 
 class CalendarPage extends StatefulWidget {
   final ViewPB view;
-  const CalendarPage({required this.view, super.key});
+  final DatabaseController databaseController;
+  const CalendarPage({
+    required this.view,
+    required this.databaseController,
+    super.key,
+  });
 
   @override
   State<CalendarPage> createState() => _CalendarPageState();
@@ -33,8 +77,10 @@ class _CalendarPageState extends State<CalendarPage> {
   @override
   void initState() {
     _calendarState = GlobalKey<MonthViewState>();
-    _calendarBloc = CalendarBloc(view: widget.view)
-      ..add(const CalendarEvent.initial());
+    _calendarBloc = CalendarBloc(
+      view: widget.view,
+      databaseController: widget.databaseController,
+    )..add(const CalendarEvent.initial());
 
     super.initState();
   }
@@ -79,7 +125,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 if (state.editingEvent != null) {
                   showEventDetails(
                     context: context,
-                    event: state.editingEvent!.event!,
+                    event: state.editingEvent!.event!.event,
                     viewId: widget.view.id,
                     rowCache: _calendarBloc.rowCache,
                   );
@@ -115,8 +161,6 @@ class _CalendarPageState extends State<CalendarPage> {
             builder: (context, state) {
               return Column(
                 children: [
-                  // const _ToolbarBlocAdaptor(),
-                  const CalendarToolbar(),
                   _buildCalendar(
                     _eventController,
                     state.settings
@@ -133,15 +177,18 @@ class _CalendarPageState extends State<CalendarPage> {
 
   Widget _buildCalendar(EventController eventController, int firstDayOfWeek) {
     return Expanded(
-      child: MonthView(
-        key: _calendarState,
-        controller: _eventController,
-        cellAspectRatio: .6,
-        startDay: _weekdayFromInt(firstDayOfWeek),
-        borderColor: Theme.of(context).dividerColor,
-        headerBuilder: _headerNavigatorBuilder,
-        weekDayBuilder: _headerWeekDayBuilder,
-        cellBuilder: _calendarDayBuilder,
+      child: Padding(
+        padding: GridSize.contentInsets,
+        child: MonthView(
+          key: _calendarState,
+          controller: _eventController,
+          cellAspectRatio: .6,
+          startDay: _weekdayFromInt(firstDayOfWeek),
+          borderColor: Theme.of(context).dividerColor,
+          headerBuilder: _headerNavigatorBuilder,
+          weekDayBuilder: _headerWeekDayBuilder,
+          cellBuilder: _calendarDayBuilder,
+        ),
       ),
     );
   }
@@ -238,12 +285,12 @@ class _CalendarPageState extends State<CalendarPage> {
 
 void showEventDetails({
   required BuildContext context,
-  required CalendarDayEvent event,
+  required CalendarEventPB event,
   required String viewId,
   required RowCache rowCache,
 }) {
   final dataController = RowController(
-    rowId: event.eventId,
+    rowMeta: event.rowMeta,
     viewId: viewId,
     rowCache: rowCache,
   );

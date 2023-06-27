@@ -1,8 +1,9 @@
-use crate::database::database_editor::DatabaseEditorTest;
 use collab_database::database::gen_row_id;
 use collab_database::rows::RowId;
 
 use lib_infra::util::timestamp;
+
+use crate::database::database_editor::DatabaseEditorTest;
 
 pub enum RowScript {
   CreateEmptyRow,
@@ -34,7 +35,7 @@ impl DatabaseRowTest {
           timestamp: timestamp(),
           ..Default::default()
         };
-        let row_order = self
+        let row_detail = self
           .editor
           .create_row(&self.view_id, None, params)
           .await
@@ -42,14 +43,14 @@ impl DatabaseRowTest {
           .unwrap();
         self
           .row_by_row_id
-          .insert(row_order.id.to_string(), row_order.into());
-        self.rows = self.get_rows().await;
+          .insert(row_detail.row.id.to_string(), row_detail.meta.into());
+        self.row_details = self.get_rows().await;
       },
       RowScript::UpdateTextCell { row_id, content } => {
         self.update_text_cell(row_id, &content).await.unwrap();
       },
       RowScript::AssertRowCount(expected_row_count) => {
-        assert_eq!(expected_row_count, self.rows.len());
+        assert_eq!(expected_row_count, self.row_details.len());
       },
     }
   }

@@ -115,9 +115,39 @@ export interface DocumentState {
   // map of block id to children block ids
   children: Record<string, string[]>;
 }
+
 export interface SlashCommandState {
   isSlashCommand: boolean;
   blockId?: string;
+  hoverOption?: SlashCommandOption;
+}
+
+export enum SlashCommandOptionKey {
+  TEXT,
+  PAGE,
+  TODO,
+  BULLET,
+  NUMBER,
+  TOGGLE,
+  CODE,
+  EQUATION,
+  QUOTE,
+  CALLOUT,
+  DIVIDER,
+  HEADING_1,
+  HEADING_2,
+  HEADING_3,
+}
+
+export interface SlashCommandOption {
+  type: BlockType;
+  data?: BlockData<any>;
+  key: SlashCommandOptionKey;
+}
+
+export enum SlashCommandGroup {
+  BASIC = 'Basic',
+  MEDIA = 'Media',
 }
 
 export interface RectSelectionState {
@@ -183,7 +213,7 @@ export enum TextAction {
   Underline = 'underline',
   Strikethrough = 'strikethrough',
   Code = 'code',
-  Equation = 'equation',
+  Equation = 'formula',
   Link = 'href',
 }
 export interface TextActionMenuProps {
@@ -202,10 +232,6 @@ export interface BlockConfig {
    * Whether the block can have children
    */
   canAddChild: boolean;
-  /**
-   * The regexps that will be used to match the markdown flag
-   */
-  markdownRegexps?: RegExp[];
 
   /**
    * The default data of the block
@@ -225,11 +251,6 @@ export interface BlockConfig {
      */
     nextLineBlockType: BlockType;
   };
-
-  /**
-   * The props that will be passed to the text action menu
-   */
-  textActionMenuProps?: TextActionMenuProps;
 }
 
 export interface ControllerAction {
@@ -256,12 +277,10 @@ export interface EditorProps {
   selection?: RangeStaticNoId;
   decorateSelection?: RangeStaticNoId;
   linkDecorateSelection?: {
-    selection?: {
-      index: number;
-      length: number;
-    };
+    selection?: RangeStaticNoId;
     placeholder?: string;
   };
+  temporarySelection?: RangeStaticNoId;
   onSelectionChange?: (range: RangeStaticNoId | null, oldRange: RangeStaticNoId | null, source?: Sources) => void;
   onChange?: (delta: Delta, oldDelta: Delta, source?: Sources) => void;
   onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
@@ -276,11 +295,27 @@ export interface BlockCopyData {
 export interface LinkPopoverState {
   anchorPosition?: { top: number; left: number };
   id?: string;
-  selection?: {
-    index: number;
-    length: number;
-  };
+  selection?: RangeStaticNoId;
   open?: boolean;
   href?: string;
   title?: string;
+}
+
+export interface TemporaryState {
+  id: string;
+  type: TemporaryType;
+  selectedText: string;
+  data: TemporaryData;
+  selection: RangeStaticNoId;
+  popoverPosition?: { top: number; left: number } | null;
+}
+
+export enum TemporaryType {
+  Equation = 'equation',
+}
+
+export type TemporaryData = InlineEquationData;
+
+export interface InlineEquationData {
+  latex: string;
 }

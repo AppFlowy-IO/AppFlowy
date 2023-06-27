@@ -29,6 +29,7 @@ import {
   TestMoveKanbanBoardRow,
 } from './TestGroup';
 import { TestCreateDocument } from './TestDocument';
+import { TestCreateViews } from '$app/components/tests/TestFolder';
 
 export const TestAPI = () => {
   return (
@@ -62,6 +63,8 @@ export const TestAPI = () => {
         <TestMoveKanbanBoardColumn></TestMoveKanbanBoardColumn>
         <TestCreateKanbanBoardColumn></TestCreateKanbanBoardColumn>
         <TestCreateDocument></TestCreateDocument>
+        {/*Folders*/}
+        <TestCreateViews></TestCreateViews>
       </ul>
     </React.Fragment>
   );

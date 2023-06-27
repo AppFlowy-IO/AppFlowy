@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use bytes::Bytes;
 pub use collab_folder::core::View;
-use collab_folder::core::{RepeatedView, ViewIdentifier, ViewLayout};
+use collab_folder::core::{RepeatedViewIdentifier, ViewIdentifier, ViewLayout};
 use tokio::sync::RwLock;
 
 use flowy_error::FlowyError;
@@ -54,6 +54,8 @@ pub struct ViewBuilder {
   desc: String,
   layout: ViewLayout,
   child_views: Vec<ParentChildViews>,
+  icon_url: Option<String>,
+  cover_url: Option<String>,
 }
 
 impl ViewBuilder {
@@ -65,6 +67,8 @@ impl ViewBuilder {
       desc: Default::default(),
       layout: ViewLayout::Document,
       child_views: vec![],
+      icon_url: None,
+      cover_url: None,
     }
   }
 
@@ -107,7 +111,9 @@ impl ViewBuilder {
       desc: self.desc,
       created_at: timestamp(),
       layout: self.layout,
-      children: RepeatedView::new(
+      icon_url: self.icon_url,
+      cover_url: self.cover_url,
+      children: RepeatedViewIdentifier::new(
         self
           .child_views
           .iter()
@@ -247,6 +253,8 @@ pub(crate) fn create_view(params: CreateViewParams, layout: ViewLayout) -> View 
     children: Default::default(),
     created_at: time,
     layout,
+    icon_url: None,
+    cover_url: None,
   }
 }
 

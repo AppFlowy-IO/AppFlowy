@@ -108,10 +108,13 @@ class GridURLCell extends GridCellWidget {
   }
 }
 
-class _GridURLCellState extends GridFocusNodeCellState<GridURLCell> {
+class _GridURLCellState extends GridEditableTextCell<GridURLCell> {
   final _popoverController = PopoverController();
   late final URLCellBloc _cellBloc;
   late final TextEditingController _controller;
+
+  @override
+  SingleListenerFocusNode focusNode = SingleListenerFocusNode();
 
   @override
   void initState() {
@@ -182,7 +185,7 @@ class _GridURLCellState extends GridFocusNodeCellState<GridURLCell> {
 
   @override
   void requestBeginFocus() {
-    widget.onCellEditing.value = true;
+    widget.onCellFocus.value = true;
     _popoverController.show();
   }
 

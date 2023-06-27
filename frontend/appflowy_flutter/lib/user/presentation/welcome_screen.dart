@@ -44,7 +44,7 @@ class WelcomeScreen extends StatelessWidget {
   Widget _renderBody(WelcomeState state) {
     final body = state.successOrFailure.fold(
       (_) => _renderList(state.workspaces),
-      (error) => FlowyErrorPage(error.toString()),
+      (error) => FlowyErrorPage.message(error.toString(), howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),),
     );
     return body;
   }

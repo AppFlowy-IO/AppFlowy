@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:appflowy/core/config/kv_keys.dart';
-import 'package:appflowy/main.dart' as app;
+import 'package:appflowy/startup/entry_point.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/prelude.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider/path_provider.dart';
@@ -42,7 +44,7 @@ class TestFolder {
 
   /// Get default location under development environment.
   static Future<String> defaultDevelopmentLocation() async {
-    final dir = await appFlowyDocumentDirectory();
+    final dir = await appFlowyApplicationDataDirectory();
     return dir.path;
   }
 
@@ -60,18 +62,18 @@ class TestFolder {
 extension AppFlowyTestBase on WidgetTester {
   Future<void> initializeAppFlowy() async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-      const MethodChannel('hotkey_manager'),
-      (MethodCall methodCall) async {
-        if (methodCall.method == 'unregisterAll') {
-          // do nothing
-        }
+        .setMockMethodCallHandler(const MethodChannel('hotkey_manager'),
+            (MethodCall methodCall) async {
+      if (methodCall.method == 'unregisterAll') {
+        // do nothing
+      }
 
-        return;
-      },
-    );
+      return;
+    });
 
-    await app.main();
+    WidgetsFlutterBinding.ensureInitialized();
+    await FlowyRunner.run(FlowyApp(), IntegrationMode.integrationTest);
+
     await wait(3000);
     await pumpAndSettle(const Duration(seconds: 2));
   }
@@ -83,7 +85,11 @@ extension AppFlowyTestBase on WidgetTester {
     bool warnIfMissed = true,
     int milliseconds = 500,
   }) async {
-    await tap(finder);
+    await tap(
+      finder,
+      buttons: buttons,
+      warnIfMissed: warnIfMissed,
+    );
     await pumpAndSettle(Duration(milliseconds: milliseconds));
     return;
   }
@@ -99,7 +105,7 @@ extension AppFlowyTestBase on WidgetTester {
     );
     if (button.evaluate().isEmpty) {
       button = find.byWidgetPredicate(
-        (widget) => widget is FlowyText && widget.title == tr,
+        (widget) => widget is FlowyText && widget.text == tr,
       );
     }
     await tapButton(
@@ -121,8 +127,39 @@ extension AppFlowyTestBase on WidgetTester {
     return;
   }
 
+  Future<void> doubleTapButton(
+    Finder finder, {
+    int? pointer,
+    int buttons = kPrimaryButton,
+    bool warnIfMissed = true,
+    int milliseconds = 500,
+  }) async {
+    await tapButton(
+      finder,
+      pointer: pointer,
+      buttons: buttons,
+      warnIfMissed: warnIfMissed,
+      milliseconds: kDoubleTapMinTime.inMilliseconds,
+    );
+    await tapButton(
+      finder,
+      pointer: pointer,
+      buttons: buttons,
+      warnIfMissed: warnIfMissed,
+      milliseconds: milliseconds,
+    );
+  }
+
   Future<void> wait(int milliseconds) async {
     await pumpAndSettle(Duration(milliseconds: milliseconds));
     return;
+  }
+}
+
+extension AppFlowyFinderTestBase on CommonFinders {
+  Finder findTextInFlowyText(String text) {
+    return find.byWidgetPredicate(
+      (widget) => widget is FlowyText && widget.text == text,
+    );
   }
 }

@@ -16,7 +16,9 @@ class ChecklistCardCellBloc
   ChecklistCardCellBloc({
     required this.cellController,
   })  : _checklistCellSvc = ChecklistCellBackendService(
-          cellContext: cellController.cellContext,
+          viewId: cellController.viewId,
+          fieldId: cellController.fieldId,
+          rowId: cellController.rowId,
         ),
         super(ChecklistCellState.initial(cellController)) {
     on<ChecklistCellEvent>(

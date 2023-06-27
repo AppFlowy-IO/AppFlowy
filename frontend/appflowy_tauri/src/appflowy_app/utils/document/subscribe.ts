@@ -1,8 +1,8 @@
-import { DeltaTypePB } from "@/services/backend/models/flowy-document2";
-import { BlockPBValue, BlockType, ChangeType, DocumentState, NestedBlock } from "$app/interfaces/document";
-import { Log } from "../log";
-import { BLOCK_MAP_NAME, CHILDREN_MAP_NAME, META_NAME } from "$app/constants/document/block";
-import { isEqual } from "$app/utils/tool";
+import { DeltaTypePB } from '@/services/backend/models/flowy-document2';
+import { BlockPBValue, BlockType, ChangeType, DocumentState, NestedBlock } from '$app/interfaces/document';
+import { Log } from '../log';
+import { isEqual } from '$app/utils/tool';
+import { BLOCK_MAP_NAME, CHILDREN_MAP_NAME, META_NAME } from '$app/constants/document/name';
 
 // This is a list of all the possible changes that can happen to document data
 const matchCases = [
@@ -26,7 +26,7 @@ export function matchChange(
     path: string[];
     id: string;
     value: BlockPBValue & string[];
-  },
+  }
 ) {
   const matchCase = matchCases.find((item) => item.match(command, path));
 
@@ -106,7 +106,9 @@ function onMatchBlockInsert(state: DocumentState, blockId: string, blockValue: B
 function onMatchBlockUpdate(state: DocumentState, blockId: string, blockValue: BlockPBValue) {
   const block = blockChangeValue2Node(blockValue);
   const node = state.nodes[blockId];
+
   if (!node) return;
+
   if (isEqual(node, block)) return;
   state.nodes[blockId] = block;
   return;
@@ -122,6 +124,7 @@ function onMatchChildrenInsert(state: DocumentState, id: string, children: strin
 
 function onMatchChildrenUpdate(state: DocumentState, id: string, newChildren: string[]) {
   const children = state.children[id];
+
   if (!children) return;
   state.children[id] = newChildren;
 }
@@ -144,6 +147,7 @@ export function blockChangeValue2Node(value: BlockPBValue): NestedBlock {
       delta: [],
     },
   };
+
   if ('data' in value && typeof value.data === 'string') {
     try {
       Object.assign(block, {
@@ -159,11 +163,13 @@ export function blockChangeValue2Node(value: BlockPBValue): NestedBlock {
 
 export function parseValue(value: string) {
   let valueJson;
+
   try {
     valueJson = JSON.parse(value);
   } catch {
     Log.error('[onDataChange] json parse error', value);
     return;
   }
+
   return valueJson;
 }

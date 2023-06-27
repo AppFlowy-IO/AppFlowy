@@ -6,6 +6,7 @@ use collab_database::rows::{Cells, Row};
 use flowy_error::FlowyResult;
 
 use crate::entities::GroupChangesPB;
+use crate::services::database::RowDetail;
 use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerOperation,
 };
@@ -52,7 +53,7 @@ impl GroupControllerOperation for DefaultGroupController {
     Some((0, self.group.clone()))
   }
 
-  fn fill_groups(&mut self, rows: &[&Row], _field: &Field) -> FlowyResult<()> {
+  fn fill_groups(&mut self, rows: &[&RowDetail], _field: &Field) -> FlowyResult<()> {
     rows.iter().for_each(|row| {
       self.group.add_row((*row).clone());
     });
@@ -65,8 +66,8 @@ impl GroupControllerOperation for DefaultGroupController {
 
   fn did_update_group_row(
     &mut self,
-    _old_row: &Option<Row>,
-    _row: &Row,
+    _old_row_detail: &Option<RowDetail>,
+    _row_detail: &RowDetail,
     _field: &Field,
   ) -> FlowyResult<DidUpdateGroupRowResult> {
     Ok(DidUpdateGroupRowResult {
@@ -116,5 +117,5 @@ impl GroupController for DefaultGroupController {
 
   fn will_create_row(&mut self, _cells: &mut Cells, _field: &Field, _group_id: &str) {}
 
-  fn did_create_row(&mut self, _row: &Row, _group_id: &str) {}
+  fn did_create_row(&mut self, _row_detail: &RowDetail, _group_id: &str) {}
 }

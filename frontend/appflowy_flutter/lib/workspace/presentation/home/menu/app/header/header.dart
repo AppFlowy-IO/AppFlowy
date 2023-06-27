@@ -87,6 +87,7 @@ class MenuAppHeader extends StatelessWidget {
               case AppDisclosureAction.rename:
                 NavigatorTextFieldDialog(
                   title: LocaleKeys.menuAppHeader_renameDialog.tr(),
+                  autoSelectAllText: true,
                   value: context.read<AppBloc>().state.view.name,
                   confirm: (newValue) {
                     context.read<AppBloc>().add(AppEvent.rename(newValue));
@@ -113,7 +114,7 @@ class MenuAppHeader extends StatelessWidget {
           context.read<AppBloc>().add(
                 AppEvent.createView(
                   name ?? LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-                  pluginBuilder,
+                  pluginBuilder.layoutType!,
                   initialDataBytes: initialDataBytes,
                   openAfterCreated: openAfterCreated,
                 ),

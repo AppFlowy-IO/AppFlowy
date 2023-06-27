@@ -93,11 +93,9 @@ class DateTypeOptionWidget extends TypeOptionWidget {
           },
         );
       },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-        child: DateFormatButton(
-          buttonMargins: GridSize.typeOptionContentInsets,
-        ),
+      child: const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 12.0),
+        child: DateFormatButton(),
       ),
     );
   }
@@ -125,10 +123,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12.0),
-        child: TimeFormatButton(
-          timeFormat: timeFormat,
-          buttonMargins: GridSize.typeOptionContentInsets,
-        ),
+        child: TimeFormatButton(timeFormat: timeFormat),
       ),
     );
   }
@@ -137,11 +132,9 @@ class DateTypeOptionWidget extends TypeOptionWidget {
 class DateFormatButton extends StatelessWidget {
   final VoidCallback? onTap;
   final void Function(bool)? onHover;
-  final EdgeInsets? buttonMargins;
   const DateFormatButton({
     this.onTap,
     this.onHover,
-    this.buttonMargins,
     Key? key,
   }) : super(key: key);
 
@@ -151,7 +144,6 @@ class DateFormatButton extends StatelessWidget {
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(LocaleKeys.grid_field_dateFormat.tr()),
-        margin: buttonMargins,
         onTap: onTap,
         onHover: onHover,
         rightIcon: const FlowySvg(name: 'grid/more'),
@@ -164,12 +156,10 @@ class TimeFormatButton extends StatelessWidget {
   final TimeFormatPB timeFormat;
   final VoidCallback? onTap;
   final void Function(bool)? onHover;
-  final EdgeInsets? buttonMargins;
   const TimeFormatButton({
     required this.timeFormat,
     this.onTap,
     this.onHover,
-    this.buttonMargins,
     Key? key,
   }) : super(key: key);
 
@@ -179,7 +169,6 @@ class TimeFormatButton extends StatelessWidget {
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(LocaleKeys.grid_field_timeFormat.tr()),
-        margin: buttonMargins,
         onTap: onTap,
         onHover: onHover,
         rightIcon: const FlowySvg(name: 'grid/more'),

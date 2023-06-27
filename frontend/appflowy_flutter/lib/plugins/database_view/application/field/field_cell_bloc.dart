@@ -1,4 +1,3 @@
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -52,14 +51,11 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
 
   void _startListening() {
     _fieldListener.start(
-      onFieldChanged: (result) {
+      onFieldChanged: (updatedField) {
         if (isClosed) {
           return;
         }
-        result.fold(
-          (field) => add(FieldCellEvent.didReceiveFieldUpdate(field)),
-          (err) => Log.error(err),
-        );
+        add(FieldCellEvent.didReceiveFieldUpdate(updatedField));
       },
     );
   }

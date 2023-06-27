@@ -15,13 +15,16 @@ part 'row_bloc.freezed.dart';
 class RowBloc extends Bloc<RowEvent, RowState> {
   final RowBackendService _rowBackendSvc;
   final RowController _dataController;
+  final String viewId;
+  final String rowId;
 
   RowBloc({
-    required RowInfo rowInfo,
+    required this.rowId,
+    required this.viewId,
     required RowController dataController,
-  })  : _rowBackendSvc = RowBackendService(viewId: rowInfo.viewId),
+  })  : _rowBackendSvc = RowBackendService(viewId: viewId),
         _dataController = dataController,
-        super(RowState.initial(rowInfo, dataController.loadData())) {
+        super(RowState.initial(dataController.loadData())) {
     on<RowEvent>(
       (event, emit) async {
         await event.when(
@@ -29,7 +32,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
             await _startListening();
           },
           createRow: () {
-            _rowBackendSvc.createRow(rowInfo.rowPB.id);
+            _rowBackendSvc.createRowAfterRow(rowId);
           },
           didReceiveCells: (cellByFieldId, reason) async {
             final cells = cellByFieldId.values
@@ -78,18 +81,15 @@ class RowEvent with _$RowEvent {
 @freezed
 class RowState with _$RowState {
   const factory RowState({
-    required RowInfo rowInfo,
     required CellContextByFieldId cellByFieldId,
     required UnmodifiableListView<GridCellEquatable> cells,
     RowsChangedReason? changeReason,
   }) = _RowState;
 
   factory RowState.initial(
-    RowInfo rowInfo,
     CellContextByFieldId cellByFieldId,
   ) =>
       RowState(
-        rowInfo: rowInfo,
         cellByFieldId: cellByFieldId,
         cells: UnmodifiableListView(
           cellByFieldId.values
