@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_svg_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -137,6 +138,8 @@ class InlinePageReferenceService {
           final lastKeywordIndex =
               delta.toPlainText().substring(0, index).lastIndexOf(character);
           // @page name -> $
+          // preload the page infos
+          pageMemorizer[view.id] = view;
           final transaction = editorState.transaction
             ..replaceText(
               node,
@@ -147,8 +150,6 @@ class InlinePageReferenceService {
                 MentionBlockKeys.mention: {
                   MentionBlockKeys.type: MentionType.page.name,
                   MentionBlockKeys.pageId: view.id,
-                  MentionBlockKeys.pageName: view.name,
-                  MentionBlockKeys.pageType: view.layout.name,
                 }
               },
             );

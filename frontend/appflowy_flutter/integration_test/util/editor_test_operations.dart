@@ -23,6 +23,7 @@ class EditorOperations {
   Future<void> tapLineOfEditorAt(int index) async {
     final textBlocks = find.byType(TextBlockComponentWidget);
     await tester.tapAt(tester.getTopRight(textBlocks.at(index)));
+    await tester.pumpAndSettle();
   }
 
   /// Hover on cover plugin button above the document
