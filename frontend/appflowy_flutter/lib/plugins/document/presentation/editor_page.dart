@@ -317,6 +317,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   }
 
   Future<void> _initializeShortcuts() async {
+    //TODO(Xazin): Refactor lazy initialization
     defaultCommandShortcutEvents;
     final settingsShortcutService = SettingsShortcutService();
     final customizeShortcuts =
