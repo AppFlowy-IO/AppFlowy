@@ -167,8 +167,10 @@ class EditorStyleCustomizer {
       final type = mention[MentionBlockKeys.type];
       if (type == MentionType.page.name) {
         return WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
           child: MentionBlock(
             mention: mention,
+            fontSize: textSpan.style?.fontSize ?? 14,
           ),
         );
       }
@@ -181,17 +183,21 @@ class MentionBlock extends StatelessWidget {
   const MentionBlock({
     super.key,
     required this.mention,
+    required this.fontSize,
   });
 
   final Map mention;
+  final double fontSize;
 
   @override
   Widget build(BuildContext context) {
     final type = mention[MentionBlockKeys.type];
     if (type == MentionType.page.name) {
-      final pageName = mention[MentionBlockKeys.pageName];
       final pageId = mention[MentionBlockKeys.pageId];
-      final layout = layoutFromName(mention[MentionBlockKeys.pageType]);
+      final pageName = mention[MentionBlockKeys.pageName] ?? '';
+      final layout = layoutFromName(
+        mention[MentionBlockKeys.pageType] ?? ViewLayoutPB.Document.name,
+      );
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 2),
         child: FlowyHover(
@@ -211,8 +217,9 @@ class MentionBlock extends StatelessWidget {
                 FlowyText(
                   pageName,
                   decoration: TextDecoration.underline,
+                  fontSize: fontSize,
                 ),
-                const HSpace(4),
+                const HSpace(2),
               ],
             ),
           ),
@@ -223,7 +230,7 @@ class MentionBlock extends StatelessWidget {
   }
 
   void openPage(ViewLayoutPB layout, String pageId) async {
-    final views = await ViewBackendService().fetchViews(layout);
+    final views = await ViewBackendService().fetchViewsWithLayoutType(layout);
     final flattenViews = views.expand((e) => [e.$1, ...e.$2]).toList();
     final view = flattenViews.firstWhereOrNull(
       (element) => element.id == pageId,

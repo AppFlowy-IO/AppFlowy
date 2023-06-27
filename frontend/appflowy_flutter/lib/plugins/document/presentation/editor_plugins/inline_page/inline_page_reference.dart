@@ -5,7 +5,16 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 enum MentionType {
-  page,
+  page;
+
+  static MentionType fromString(String value) {
+    switch (value) {
+      case 'page':
+        return page;
+      default:
+        throw UnimplementedError();
+    }
+  }
 }
 
 class MentionBlockKeys {
@@ -90,17 +99,15 @@ class InlinePageReferenceService {
 
   Future<List<SelectionMenuItem>> generatePageItems(String character) async {
     final service = ViewBackendService();
-    final List<(ViewPB, List<ViewPB>)> pbViews = [];
-    for (final layout in ViewLayoutPB.values) {
-      pbViews.addAll(await service.fetchViews(layout));
-    }
+    final List<(ViewPB, List<ViewPB>)> pbViews = await service.fetchViews(
+      (_, __) => true,
+    );
     if (pbViews.isEmpty) {
       return [];
     }
     final List<SelectionMenuItem> pages = [];
     final List<ViewPB> views = [];
     for (final element in pbViews) {
-      views.add(element.$1);
       views.addAll(element.$2);
     }
     views.sort(((a, b) => b.createTime.compareTo(a.createTime)));
@@ -117,20 +124,24 @@ class InlinePageReferenceService {
         ],
         name: view.name,
         handler: (editorState, menuService, context) async {
-          await _deleteCharacter(editorState, character);
           final selection = editorState.selection;
           if (selection == null || !selection.isCollapsed) {
             return;
           }
           final node = editorState.getNodeAtPath(selection.end.path);
-          if (node == null) {
+          final delta = node?.delta;
+          if (node == null || delta == null) {
             return;
           }
           final index = selection.endIndex;
+          final lastKeywordIndex =
+              delta.toPlainText().substring(0, index).lastIndexOf(character);
+          // @page name -> $
           final transaction = editorState.transaction
-            ..insertText(
+            ..replaceText(
               node,
-              index,
+              lastKeywordIndex,
+              index - lastKeywordIndex,
               '\$',
               attributes: {
                 MentionBlockKeys.mention: {
@@ -148,31 +159,5 @@ class InlinePageReferenceService {
     }
 
     return pages;
-  }
-
-  Future<void> _deleteCharacter(
-    EditorState editorState,
-    String character,
-  ) async {
-    final selection = editorState.selection;
-    if (selection == null || !selection.isCollapsed) {
-      return;
-    }
-    final node = editorState.getNodeAtPath(selection.end.path);
-    final delta = node?.delta;
-    if (node == null || delta == null) {
-      return;
-    }
-    final end = selection.start.offset;
-    final lastSlashIndex =
-        delta.toPlainText().substring(0, end).lastIndexOf(character);
-    // delete all the texts after '/' along with '/'
-    final transaction = editorState.transaction
-      ..deleteText(
-        node,
-        lastSlashIndex,
-        end - lastSlashIndex,
-      );
-    await editorState.apply(transaction);
   }
 }
