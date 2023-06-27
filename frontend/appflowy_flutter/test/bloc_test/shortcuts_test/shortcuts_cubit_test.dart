@@ -38,7 +38,7 @@ void main() {
 
     group('fetchShortcuts', () {
       blocTest<ShortcutsCubit, ShortcutsState>(
-        'calls loadShortcuts() once',
+        'calls getCustomizeShortcuts() once',
         build: () => shortcutsCubit,
         act: (cubit) => cubit.fetchShortcuts(),
         verify: (_) {
@@ -47,7 +47,7 @@ void main() {
       );
 
       blocTest<ShortcutsCubit, ShortcutsState>(
-        'emits [updating, failure] when loadShortcuts() throws',
+        'emits [updating, failure] when getCustomizeShortcuts() throws',
         setUp: () {
           when(
             () => service.getCustomizeShortcuts(),
@@ -63,7 +63,7 @@ void main() {
       );
 
       blocTest<ShortcutsCubit, ShortcutsState>(
-        'emits [updating, success] when loadShortcuts() returns shortcuts',
+        'emits [updating, success] when getCustomizeShortcuts() returns shortcuts',
         build: () => shortcutsCubit,
         act: (cubit) => cubit.fetchShortcuts(),
         expect: () => <dynamic>[
@@ -81,7 +81,7 @@ void main() {
 
     group('updateShortcut', () {
       blocTest<ShortcutsCubit, ShortcutsState>(
-        'calls saveShortcuts() once',
+        'calls saveAllShortcuts() once',
         build: () => shortcutsCubit,
         act: (cubit) => cubit.updateAllShortcuts(),
         verify: (_) {
@@ -90,7 +90,7 @@ void main() {
       );
 
       blocTest<ShortcutsCubit, ShortcutsState>(
-        'emits [updating, failure] when updateShortcuts() throws',
+        'emits [updating, failure] when saveAllShortcuts() throws',
         setUp: () {
           when(
             () => service.saveAllShortcuts(any()),
@@ -106,13 +106,57 @@ void main() {
       );
 
       blocTest<ShortcutsCubit, ShortcutsState>(
-        'emits [updating, success] when updateShortcuts() is successful',
+        'emits [updating, success] when saveAllShortcuts() is successful',
         build: () => shortcutsCubit,
         act: (cubit) => cubit.updateAllShortcuts(),
         expect: () => <dynamic>[
           const ShortcutsState(status: ShortcutsStatus.updating),
           isA<ShortcutsState>()
               .having((w) => w.status, 'status', ShortcutsStatus.success)
+        ],
+      );
+    });
+
+    group('resetToDefault', () {
+      blocTest<ShortcutsCubit, ShortcutsState>(
+        'calls saveAllShortcuts() once',
+        build: () => shortcutsCubit,
+        act: (cubit) => cubit.resetToDefault(),
+        verify: (_) {
+          verify(() => service.saveAllShortcuts(any())).called(1);
+          verify(() => service.getCustomizeShortcuts()).called(1);
+        },
+      );
+
+      blocTest<ShortcutsCubit, ShortcutsState>(
+        'emits [updating, failure] when saveAllShortcuts() throws',
+        setUp: () {
+          when(
+            () => service.saveAllShortcuts(any()),
+          ).thenThrow(Exception('oops'));
+        },
+        build: () => shortcutsCubit,
+        act: (cubit) => cubit.resetToDefault(),
+        expect: () => <dynamic>[
+          const ShortcutsState(status: ShortcutsStatus.updating),
+          isA<ShortcutsState>()
+              .having((w) => w.status, 'status', ShortcutsStatus.failure)
+        ],
+      );
+
+      blocTest<ShortcutsCubit, ShortcutsState>(
+        'emits [updating, success] when getCustomizeShortcuts() returns shortcuts',
+        build: () => shortcutsCubit,
+        act: (cubit) => cubit.resetToDefault(),
+        expect: () => <dynamic>[
+          const ShortcutsState(status: ShortcutsStatus.updating),
+          isA<ShortcutsState>()
+              .having((w) => w.status, 'status', ShortcutsStatus.success)
+              .having(
+                (w) => w.commandShortcutEvents,
+                'shortcuts',
+                commandShortcutEvents,
+              ),
         ],
       );
     });
