@@ -11,7 +11,7 @@ import isHotkey from 'is-hotkey';
 import { slashCommandActions } from '$app_reducers/document/slice';
 import { getDeltaText } from '$app/utils/document/delta';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
-import { turnIntoShortcuts } from './shortchut';
+import { turnIntoConfig } from './shortchut';
 
 export function useTurnIntoBlockEvents(id: string) {
   const { docId, controller } = useSubscribeDocument();
@@ -43,12 +43,11 @@ export function useTurnIntoBlockEvents(id: string) {
   const canHandle = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>, type: BlockType) => {
       {
-        const triggerKey = event.key;
-        const shortcutItem = turnIntoShortcuts[triggerKey]?.find((item) => item.type === type);
+        const triggerKey = event.key === turnIntoConfig[type].triggerKey ? event.key : undefined;
 
-        if (!shortcutItem) return false;
+        if (!triggerKey) return false;
 
-        const regex = shortcutItem.markdownRegexp;
+        const regex = turnIntoConfig[type].markdownRegexp;
 
         // This error will be thrown if the block type is not in the config, and it will happen in development environment
         if (!regex) {
@@ -79,6 +78,20 @@ export function useTurnIntoBlockEvents(id: string) {
       delta: content.ops,
     };
   }, [getDeltaContent]);
+
+  const getAttrs = useCallback(
+    (type: BlockType) => {
+      const flag = getFlag();
+
+      if (!flag) return;
+      const triggerKey = turnIntoConfig[type].triggerKey;
+      const regex = turnIntoConfig[type].markdownRegexp;
+      const match = `${flag}${triggerKey}`.match(regex);
+
+      return match?.[3];
+    },
+    [getFlag]
+  );
 
   const spaceTriggerMap = useMemo(() => {
     return {
@@ -183,6 +196,19 @@ export function useTurnIntoBlockEvents(id: string) {
         },
       },
       {
+        canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => canHandle(e, BlockType.EquationBlock),
+        handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
+          e.preventDefault();
+          const formula = getAttrs(BlockType.EquationBlock);
+
+          const data = {
+            formula,
+          };
+
+          dispatch(turnToBlockThunk({ id, data, type: BlockType.EquationBlock, controller }));
+        },
+      },
+      {
         // Here custom slash key event for TextBlock
         canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => {
           const flag = getFlag();
@@ -200,7 +226,7 @@ export function useTurnIntoBlockEvents(id: string) {
         },
       },
     ];
-  }, [canHandle, controller, dispatch, docId, getDeltaContent, getFlag, id, spaceTriggerMap]);
+  }, [canHandle, controller, dispatch, docId, getAttrs, getDeltaContent, getFlag, id, spaceTriggerMap]);
 
   return turnIntoBlockEvents;
 }

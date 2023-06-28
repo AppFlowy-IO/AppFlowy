@@ -7,7 +7,6 @@ import { useAppDispatch } from '$app/stores/store';
 import { createTemporary } from '$app_reducers/document/async-actions/temporary';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 import KatexMath from '$app/components/document/_shared/KatexMath';
-import { rangeActions } from '$app_reducers/document/slice';
 
 const LEFT_CARET_CLASS = 'inline-block-with-cursor-left';
 const RIGHT_CARET_CLASS = 'inline-block-with-cursor-right';

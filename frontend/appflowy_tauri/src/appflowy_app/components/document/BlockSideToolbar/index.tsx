@@ -11,6 +11,7 @@ import { rectSelectionActions } from '$app_reducers/document/slice';
 import { addBlockBelowClickThunk } from '$app_reducers/document/async-actions/menu';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 import { RANGE_NAME, RECT_RANGE_NAME } from '$app/constants/document/name';
+import { setRectSelectionThunk } from '$app_reducers/document/async-actions/rect_selection';
 
 export default function BlockSideToolbar({ container }: { container: HTMLDivElement }) {
   const dispatch = useAppDispatch();
@@ -21,9 +22,6 @@ export default function BlockSideToolbar({ container }: { container: HTMLDivElem
     (state) => state[RANGE_NAME][docId]?.isDragging || state[RECT_RANGE_NAME][docId]?.isDragging
   );
   const { handleOpen, ...popoverProps } = usePopover();
-
-  // prevent popover from showing when anchorEl is not in DOM
-  const showPopover = popoverProps.anchorEl ? document.contains(popoverProps.anchorEl) : true;
 
   if (!nodeId || isDragging) return null;
 
@@ -65,11 +63,12 @@ export default function BlockSideToolbar({ container }: { container: HTMLDivElem
             onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
               if (!nodeId) return;
               dispatch(
-                rectSelectionActions.setSelectionById({
+                setRectSelectionThunk({
                   docId,
-                  blockId: nodeId,
+                  selection: [nodeId],
                 })
               );
+
               handleOpen(e);
             }}
           >
@@ -78,11 +77,9 @@ export default function BlockSideToolbar({ container }: { container: HTMLDivElem
         </div>
       </Portal>
 
-      {showPopover && (
-        <Popover {...popoverProps}>
-          <BlockMenu id={nodeId} onClose={popoverProps.onClose} />
-        </Popover>
-      )}
+      <Popover {...popoverProps}>
+        <BlockMenu id={nodeId} onClose={popoverProps.onClose} />
+      </Popover>
     </>
   );
 }
