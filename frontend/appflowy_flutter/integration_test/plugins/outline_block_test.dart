@@ -83,10 +83,8 @@ void main() {
   });
 }
 
-/// Creates a document and inserts an outline block in it.
+/// Inserts an outline block in the document
 Future<void> insertOutlineInDocument(WidgetTester tester) async {
-  // create a new document
-
   await tester.editor.tapLineOfEditorAt(0);
 
   // open the actions menu and insert the outline block
