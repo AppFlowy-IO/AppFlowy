@@ -14,7 +14,7 @@ class OutlineBlockKeys {
 
 // defining the callout block menu item for selection
 SelectionMenuItem outlineItem = SelectionMenuItem.node(
-  name: LocaleKeys.document_plugins_outline.tr(),
+  name: LocaleKeys.document_selectionMenu_outline.tr(),
   iconData: Icons.list_alt,
   keywords: ['outline', 'table of contents'],
   nodeBuilder: (editorState) => outlineBlockNode(),
@@ -76,7 +76,8 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
   Node get node => widget.node;
 
   late EditorState editorState = context.read<EditorState>();
-  late Stream<Transaction> stream = editorState.transactionStream;
+  late Stream<(TransactionTime, Transaction)> stream =
+      editorState.transactionStream;
 
   @override
   Widget build(BuildContext context) {
