@@ -259,7 +259,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         NumberedListBlockKeys.type,
         QuoteBlockKeys.type,
         TodoListBlockKeys.type,
-        CalloutBlockKeys.type
+        CalloutBlockKeys.type,
+        OutlineBlockKeys.type,
       ];
 
       final supportAlignBuilderType = [

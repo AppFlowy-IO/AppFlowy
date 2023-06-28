@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -10,6 +11,7 @@ class OutlineBlockKeys {
   const OutlineBlockKeys._();
 
   static const String type = 'outline';
+  static const String backgroundColor = blockComponentBackgroundColor;
 }
 
 // defining the callout block menu item for selection
@@ -75,6 +77,16 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
   @override
   Node get node => widget.node;
 
+  // get the background color of the note block from the node's attributes
+  Color get backgroundColor {
+    final colorString =
+        node.attributes[OutlineBlockKeys.backgroundColor] as String?;
+    if (colorString == null) {
+      return Colors.transparent;
+    }
+    return colorString.toColor();
+  }
+
   late EditorState editorState = context.read<EditorState>();
   late Stream<(TransactionTime, Transaction)> stream =
       editorState.transactionStream;
@@ -97,27 +109,26 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
   }
 
   Widget _buildOutlineBlock() {
+    final children = getHeadingNodes()
+        .map(
+          (e) => Container(
+            padding: const EdgeInsets.only(
+              bottom: 4.0,
+            ),
+            width: double.infinity,
+            child: OutlineItemWidget(node: e),
+          ),
+        )
+        .toList();
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 15.0,
-        vertical: 20.0,
-      ),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.white54),
-        borderRadius: BorderRadius.circular(15.0),
+        borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+        color: backgroundColor,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            LocaleKeys.document_plugins_outline_heading.tr(),
-            style: editorState.editorStyle.textStyleConfiguration.text,
-          ),
-          const Divider(
-            color: Colors.white54,
-          ),
-          ...getHeadingNodes().map((e) => OutlineItemWidget(node: e)).toList(),
-        ],
+        mainAxisSize: MainAxisSize.max,
+        children: children,
       ),
     );
   }
@@ -141,47 +152,37 @@ class OutlineItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final editorState = context.read<EditorState>();
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
+    final textStyle = editorState.editorStyle.textStyleConfiguration;
+    final style = textStyle.href.combine(textStyle.text);
+    return FlowyHover(
+      style: HoverStyle(
+        hoverColor: Colors.grey.withOpacity(0.2), // TODO: use theme color.
+      ),
       child: GestureDetector(
-        onTap: () {
-          // when clicked scroll the view to the heading
-          editorState.updateSelectionWithReason(
-            Selection.single(
-              path: node.path,
-              startOffset: node.delta?.length ?? 0,
-            ),
-            reason: SelectionUpdateReason.uiEvent,
-          );
-        },
+        onTap: () => updateBlockSelection(context),
         child: Container(
-          margin: EdgeInsets.only(top: node.verticalSpacing),
           padding: EdgeInsets.only(left: node.leftIndent),
           child: Text(
             node.outlineItemText,
-            style: editorState.editorStyle.textStyleConfiguration.text,
+            style: style,
           ),
         ),
       ),
     );
   }
+
+  void updateBlockSelection(BuildContext context) {
+    final editorState = context.read<EditorState>();
+    editorState.selectionType = SelectionType.block;
+    editorState.selection = Selection.collapse(
+      node.path,
+      node.delta?.length ?? 0,
+    );
+    editorState.selectionType = null;
+  }
 }
 
 extension on Node {
-  double get verticalSpacing {
-    if (type != HeadingBlockKeys.type) {
-      assert(false);
-      return 0.0;
-    }
-    final level = attributes[HeadingBlockKeys.level];
-    if (level == 1) {
-      return 10;
-    } else if (level == 2) {
-      return 8;
-    }
-    return 5;
-  }
-
   double get leftIndent {
     if (type != HeadingBlockKeys.type) {
       assert(false);
@@ -189,29 +190,14 @@ extension on Node {
     }
     final level = attributes[HeadingBlockKeys.level];
     if (level == 2) {
-      return 15;
+      return 20;
     } else if (level == 3) {
-      return 60;
+      return 40;
     }
     return 0;
   }
 
   String get outlineItemText {
-    if (type != HeadingBlockKeys.type) {
-      assert(false);
-      return '';
-    }
-    final delta = this.delta;
-    if (delta == null) {
-      return '';
-    }
-    final text = delta.toPlainText();
-    final level = attributes[HeadingBlockKeys.level];
-    if (level == 2) {
-      return '∘ $text';
-    } else if (level == 3) {
-      return '- $text';
-    }
-    return text;
+    return delta?.toPlainText() ?? '';
   }
 }
