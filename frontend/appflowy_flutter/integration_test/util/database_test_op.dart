@@ -71,7 +71,7 @@ import 'mock/mock_file_picker.dart';
 
 extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> openV020database() async {
-    await initializeAppFlowy();
+    final context = await initializeAppFlowy();
     await tapGoButton();
 
     // expect to see a readme page
@@ -81,18 +81,31 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapImportButton();
 
     final testFileNames = ['v020.afdb'];
-    final fileLocation = await currentFileLocation();
     for (final fileName in testFileNames) {
-      final str = await rootBundle.loadString(
+      // Load the content from asset folder
+      final assetPath = p.joinAll([
+        'assets',
+        'test',
+        'workspaces',
+        'database',
+        fileName,
+      ]);
+      final str = await rootBundle.loadString(assetPath);
+
+      // Write the content to the file.
+      File(
         p.join(
-          'assets/test/workspaces/database',
+          context.applicationDataDirectory.path,
           fileName,
         ),
-      );
-      File(p.join(fileLocation, fileName)).writeAsStringSync(str);
+      ).writeAsStringSync(str);
     }
     // mock get files
-    await mockPickFilePaths(testFileNames, name: 'import_files');
+    await mockPickFilePaths(
+      testFileNames,
+      name: p.basename(context.applicationDataDirectory.path),
+      customPath: context.applicationDataDirectory.path,
+    );
     await tapDatabaseRawDataButton();
     await openPage('v020');
   }

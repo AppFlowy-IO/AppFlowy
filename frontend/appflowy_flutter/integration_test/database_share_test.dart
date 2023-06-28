@@ -1,58 +1,15 @@
-import 'dart:io';
-
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'util/database_test_op.dart';
-import 'util/mock/mock_file_picker.dart';
-import 'util/util.dart';
-import 'package:path/path.dart' as p;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('database', () {
-    const location = 'import_files';
-    setUp(() async {
-      await TestFolder.cleanTestLocation(location);
-      await TestFolder.setTestLocation(location);
-    });
-
-    tearDown(() async {
-      await TestFolder.cleanTestLocation(location);
-    });
-
-    tearDownAll(() async {
-      await TestFolder.cleanTestLocation(null);
-    });
-
     testWidgets('import v0.2.0 database data', (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapGoButton();
-
-      // expect to see a readme page
-      tester.expectToSeePageName(readme);
-
-      await tester.tapAddButton();
-      await tester.tapImportButton();
-
-      final testFileNames = ['v020.afdb'];
-      final fileLocation = await tester.currentFileLocation();
-      for (final fileName in testFileNames) {
-        final str = await rootBundle.loadString(
-          p.join(
-            'assets/test/workspaces/database',
-            fileName,
-          ),
-        );
-        File(p.join(fileLocation, fileName)).writeAsStringSync(str);
-      }
-      // mock get files
-      await mockPickFilePaths(testFileNames, name: location);
-      await tester.tapDatabaseRawDataButton();
-      await tester.openPage('v020');
+      await tester.openV020database();
 
       // check the import content
       // await tester.assertCellContent(

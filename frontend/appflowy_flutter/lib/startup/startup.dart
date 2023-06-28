@@ -20,8 +20,14 @@ abstract class EntryPoint {
   Widget create(LaunchConfiguration config);
 }
 
+class FlowyRunnerContext {
+  final Directory applicationDataDirectory;
+
+  FlowyRunnerContext({required this.applicationDataDirectory});
+}
+
 class FlowyRunner {
-  static Future<void> run(
+  static Future<FlowyRunnerContext> run(
     EntryPoint f,
     IntegrationMode mode, {
     LaunchConfiguration config = const LaunchConfiguration(
@@ -34,7 +40,7 @@ class FlowyRunner {
     // Specify the env
     initGetIt(getIt, mode, f, config);
 
-    final directory = await directoryFromMode(mode);
+    final applicationDataDirectory = await mode.applicationDataDirectory();
 
     // add task
     final launcher = getIt<AppLauncher>();
@@ -47,7 +53,7 @@ class FlowyRunner {
         // init the app window
         const InitAppWindowTask(),
         // Init Rust SDK
-        InitRustSDKTask(directory: directory),
+        InitRustSDKTask(directory: applicationDataDirectory),
         // Load Plugins, like document, grid ...
         const PluginLoadTask(),
 
@@ -68,22 +74,11 @@ class FlowyRunner {
       ],
     );
     await launcher.launch(); // execute the tasks
+
+    return FlowyRunnerContext(
+      applicationDataDirectory: applicationDataDirectory,
+    );
   }
-}
-
-Future<Directory> directoryFromMode(IntegrationMode mode) async {
-  // Only use the temporary directory in test mode.
-  if (mode.isTest() && !kReleaseMode) {
-    final dir = await getTemporaryDirectory();
-
-    // Use a random uuid to avoid conflict.
-    final path = '${dir.path}/appflowy_integration_test/${uuid()}';
-    return Directory(path).create(recursive: true);
-  }
-
-  return getIt<ApplicationDataStorage>().getPath().then(
-        (value) => Directory(value),
-      );
 }
 
 Future<void> initGetIt(
@@ -181,6 +176,21 @@ extension IntegrationEnvExt on IntegrationMode {
 
   bool isDevelop() {
     return this == IntegrationMode.develop;
+  }
+
+  Future<Directory> applicationDataDirectory() async {
+    // Only use the temporary directory in test mode.
+    if (isTest() && !kReleaseMode) {
+      final dir = await getTemporaryDirectory();
+
+      // Use a random uuid to avoid conflict.
+      final path = '${dir.path}/appflowy_integration_test/${uuid()}';
+      return Directory(path).create(recursive: true);
+    }
+
+    return getIt<ApplicationDataStorage>().getPath().then(
+          (value) => Directory(value),
+        );
   }
 }
 

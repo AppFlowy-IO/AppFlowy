@@ -13,17 +13,6 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('database view in document', () {
-    const location = 'database_view';
-
-    setUp(() async {
-      await TestFolder.cleanTestLocation(location);
-      await TestFolder.setTestLocation(location);
-    });
-
-    tearDown(() async {
-      await TestFolder.cleanTestLocation(null);
-    });
-
     testWidgets('insert a referenced grid', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();

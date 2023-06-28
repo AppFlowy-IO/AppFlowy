@@ -60,7 +60,7 @@ class TestFolder {
 }
 
 extension AppFlowyTestBase on WidgetTester {
-  Future<void> initializeAppFlowy() async {
+  Future<FlowyRunnerContext> initializeAppFlowy() async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(const MethodChannel('hotkey_manager'),
             (MethodCall methodCall) async {
@@ -72,10 +72,12 @@ extension AppFlowyTestBase on WidgetTester {
     });
 
     WidgetsFlutterBinding.ensureInitialized();
-    await FlowyRunner.run(FlowyApp(), IntegrationMode.integrationTest);
+    final context =
+        await FlowyRunner.run(FlowyApp(), IntegrationMode.integrationTest);
 
     await wait(3000);
     await pumpAndSettle(const Duration(seconds: 2));
+    return context;
   }
 
   Future<void> tapButton(
