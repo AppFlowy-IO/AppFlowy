@@ -294,7 +294,17 @@ extension AppFlowyDatabaseTest on WidgetTester {
       matching: findDay,
     );
 
-    await tapButton(finder);
+    // if the day is very near the beginning or the end of the month,
+    // it may overlap with the same day in the next or previous month,
+    // respectively because it was spilling over. This will lead to 2
+    // widgets being found and thus cannot be tapped correctly.
+    if (content < 15) {
+      // e.g., Jan 2 instead of Feb 2
+      await tapButton(finder.first);
+    } else {
+      // e.g. Jun 28 instead of May 28
+      await tapButton(finder.last);
+    }
   }
 
   Future<void> toggleIncludeTime() async {
