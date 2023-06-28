@@ -30,38 +30,35 @@ class EmojiPopover extends StatefulWidget {
 class _EmojiPopoverState extends State<EmojiPopover> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(15),
-      child: Column(
-        children: [
-          if (widget.showRemoveButton)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4.0),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: DeleteButton(onTap: widget.removeIcon),
-              ),
-            ),
-          Expanded(
-            child: EmojiPicker(
-              onEmojiSelected: (category, emoji) {
-                widget.onEmojiChanged(emoji);
-              },
-              config: Config(
-                columns: 8,
-                emojiSizeMax: 28,
-                bgColor: Colors.transparent,
-                iconColor: Theme.of(context).iconTheme.color!,
-                iconColorSelected: Theme.of(context).colorScheme.onSurface,
-                selectedHoverColor: Theme.of(context).colorScheme.secondary,
-                progressIndicatorColor: Theme.of(context).iconTheme.color!,
-                buttonMode: ButtonMode.CUPERTINO,
-                initCategory: Category.RECENT,
-              ),
+    return Column(
+      children: [
+        if (widget.showRemoveButton)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4.0),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: DeleteButton(onTap: widget.removeIcon),
             ),
           ),
-        ],
-      ),
+        Expanded(
+          child: EmojiPicker(
+            onEmojiSelected: (category, emoji) {
+              widget.onEmojiChanged(emoji);
+            },
+            config: Config(
+              columns: 8,
+              emojiSizeMax: 28,
+              bgColor: Colors.transparent,
+              iconColor: Theme.of(context).iconTheme.color!,
+              iconColorSelected: Theme.of(context).colorScheme.onSurface,
+              selectedHoverColor: Theme.of(context).colorScheme.secondary,
+              progressIndicatorColor: Theme.of(context).iconTheme.color!,
+              buttonMode: ButtonMode.CUPERTINO,
+              initCategory: Category.RECENT,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -72,13 +69,16 @@ class DeleteButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyButton(
-      onTap: onTap,
-      useIntrinsicWidth: true,
-      text: FlowyText(
-        LocaleKeys.document_plugins_cover_removeIcon.tr(),
+    return SizedBox(
+      height: 28,
+      child: FlowyButton(
+        onTap: onTap,
+        useIntrinsicWidth: true,
+        text: FlowyText(
+          LocaleKeys.document_plugins_cover_removeIcon.tr(),
+        ),
+        leftIcon: const FlowySvg(name: 'editor/delete'),
       ),
-      leftIcon: const FlowySvg(name: 'editor/delete'),
     );
   }
 }

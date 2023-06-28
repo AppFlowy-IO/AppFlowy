@@ -25,7 +25,7 @@ class ChangeCoverPopover extends StatefulWidget {
   final EditorState editorState;
   final Node node;
   final Function(
-    CoverSelectionType selectionType,
+    CoverType selectionType,
     String selection,
   ) onCoverChanged;
 
@@ -149,10 +149,10 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
               LocaleKeys.document_plugins_cover_clearAll.tr(),
               fontColor: Theme.of(context).colorScheme.tertiary,
               onPressed: () async {
-                final hasFileImageCover = CoverSelectionType.fromString(
-                      widget.node.attributes[CoverBlockKeys.selectionType],
+                final hasFileImageCover = CoverType.fromString(
+                      widget.node.attributes[DocumentHeaderBlockKeys.coverType],
                     ) ==
-                    CoverSelectionType.file;
+                    CoverType.file;
                 final changeCoverBloc = context.read<ChangeCoverPopoverBloc>();
                 if (hasFileImageCover) {
                   await showDialog(
@@ -196,7 +196,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
         return InkWell(
           onTap: () {
             widget.onCoverChanged(
-              CoverSelectionType.asset,
+              CoverType.asset,
               builtInAssetImages[index],
             );
           },
@@ -220,14 +220,14 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
       pickerBackgroundColor: theme.cardColor,
       pickerItemHoverColor: theme.hoverColor,
       selectedBackgroundColorHex:
-          widget.node.attributes[CoverBlockKeys.selectionType] ==
-                  CoverSelectionType.color.toString()
-              ? widget.node.attributes[CoverBlockKeys.selection]
+          widget.node.attributes[DocumentHeaderBlockKeys.coverType] ==
+                  CoverType.color.toString()
+              ? widget.node.attributes[DocumentHeaderBlockKeys.coverDetails]
               : 'ffffff',
       backgroundColorOptions:
           _generateBackgroundColorOptions(widget.editorState),
       onSubmittedBackgroundColorHex: (color) {
-        widget.onCoverChanged(CoverSelectionType.color, color);
+        widget.onCoverChanged(CoverType.color, color);
         setState(() {});
       },
     );
@@ -276,16 +276,16 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
               return ImageGridItem(
                 onImageSelect: () {
                   widget.onCoverChanged(
-                    CoverSelectionType.file,
+                    CoverType.file,
                     images[index - 1],
                   );
                 },
                 onImageDelete: () async {
                   final changeCoverBloc =
                       context.read<ChangeCoverPopoverBloc>();
-                  final deletingCurrentCover =
-                      widget.node.attributes[CoverBlockKeys.selection] ==
-                          images[index - 1];
+                  final deletingCurrentCover = widget.node
+                          .attributes[DocumentHeaderBlockKeys.coverDetails] ==
+                      images[index - 1];
                   if (deletingCurrentCover) {
                     await showDialog(
                       context: context,
@@ -481,36 +481,63 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
     scrollController.dispose();
   }
 
-  Widget _buildColorItem(ColorOption option, bool isChecked) {
+  Widget _buildColorItems(List<ColorOption> options, String? selectedColor) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: options
+          .map(
+            (e) => ColorItem(
+              option: e,
+              isChecked: e.colorHex == selectedColor,
+              hoverColor: widget.pickerItemHoverColor,
+              onTap: widget.onSubmittedBackgroundColorHex,
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+@visibleForTesting
+class ColorItem extends StatelessWidget {
+  final ColorOption option;
+  final bool isChecked;
+  final Color hoverColor;
+  final void Function(String) onTap;
+  const ColorItem({
+    required this.option,
+    required this.isChecked,
+    required this.hoverColor,
+    required this.onTap,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return InkWell(
       customBorder: const RoundedRectangleBorder(
         borderRadius: Corners.s6Border,
       ),
-      hoverColor: widget.pickerItemHoverColor,
-      onTap: () {
-        widget.onSubmittedBackgroundColorHex(option.colorHex);
-      },
+      hoverColor: hoverColor,
+      onTap: () => onTap(option.colorHex),
       child: Padding(
         padding: const EdgeInsets.only(right: 10.0),
         child: SizedBox.square(
-          dimension: isChecked ? 24 : 25,
+          dimension: 25,
           child: Container(
             decoration: BoxDecoration(
               color: option.colorHex.toColor(),
-              border: isChecked
-                  ? Border.all(
-                      color: const Color(0xFFFFFFFF),
-                      width: 2.0,
-                    )
-                  : null,
               shape: BoxShape.circle,
             ),
             child: isChecked
                 ? SizedBox.square(
-                    dimension: 24,
                     child: Container(
-                      margin: const EdgeInsets.all(4),
+                      margin: const EdgeInsets.all(1),
                       decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Theme.of(context).cardColor,
+                          width: 3.0,
+                        ),
                         color: option.colorHex.toColor(),
                         shape: BoxShape.circle,
                       ),
@@ -520,16 +547,6 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildColorItems(List<ColorOption> options, String? selectedColor) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: options
-          .map((e) => _buildColorItem(e, e.colorHex == selectedColor))
-          .toList(),
     );
   }
 }

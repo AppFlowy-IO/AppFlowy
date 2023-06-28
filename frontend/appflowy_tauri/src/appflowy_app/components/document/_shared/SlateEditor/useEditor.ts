@@ -15,6 +15,8 @@ import Delta from 'quill-delta';
 import isHotkey from 'is-hotkey';
 import { useSlateYjs } from '$app/components/document/_shared/SlateEditor/useSlateYjs';
 
+const AFTER_RENDER_DELAY = 100;
+
 export function useEditor({
   onChange,
   onSelectionChange,
@@ -24,6 +26,7 @@ export function useEditor({
   onKeyDown,
   isCodeBlock,
   linkDecorateSelection,
+  temporarySelection,
 }: EditorProps) {
   const { editor } = useSlateYjs({ delta });
   const ref = useRef<HTMLDivElement | null>(null);
@@ -31,6 +34,7 @@ export function useEditor({
   const onSelectionChangeHandler = useCallback(
     (slateSelection: Selection) => {
       const rangeStatic = converToIndexLength(editor, slateSelection);
+
       onSelectionChange?.(rangeStatic, null);
     },
     [editor, onSelectionChange]
@@ -39,6 +43,7 @@ export function useEditor({
   const onChangeHandler = useCallback(
     (slateValue: Descendant[]) => {
       const oldContents = delta || new Delta();
+
       onChange?.(convertToDelta(slateValue), oldContents);
       onSelectionChangeHandler(editor.selection);
     },
@@ -67,8 +72,10 @@ export function useEditor({
     ) => {
       if (!selection) return null;
       const range = convertToSlateSelection(selection.index, selection.length, editor.children) as BaseRange;
+
       if (range && !Range.isCollapsed(range)) {
         const intersection = Range.intersection(range, Editor.range(editor, path));
+
         if (intersection) {
           return {
             ...intersection,
@@ -76,6 +83,7 @@ export function useEditor({
           };
         }
       }
+
       return null;
     },
     [editor]
@@ -93,11 +101,14 @@ export function useEditor({
           link_selection_lighted: true,
           link_placeholder: linkDecorateSelection?.placeholder,
         }),
+        getDecorateRange(path, temporarySelection, {
+          temporary: true,
+        }),
       ].filter((range) => range !== null) as Range[];
 
       return ranges;
     },
-    [decorateSelection, linkDecorateSelection, getDecorateRange]
+    [temporarySelection, decorateSelection, linkDecorateSelection, getDecorateRange]
   );
 
   const onKeyDownRewrite = useCallback(
@@ -107,6 +118,7 @@ export function useEditor({
         event.preventDefault();
         editor.insertText('\n');
       };
+
       // There is different behavior for code block and normal text
       // In code block, we press enter to insert a new line
       // In normal text, we press shift + enter to insert a new line
@@ -115,11 +127,13 @@ export function useEditor({
           insertBreak();
           return;
         }
+
         if (isHotkey(Keyboard.keys.TAB, event)) {
           event.preventDefault();
           indent(editor, 2);
           return;
         }
+
         if (isHotkey(Keyboard.keys.SHIFT_TAB, event)) {
           event.preventDefault();
           outdent(editor, 2);
@@ -141,13 +155,16 @@ export function useEditor({
 
   useEffect(() => {
     if (!ref.current) return;
+
     const isFocused = ReactEditor.isFocused(editor);
+
     if (!selection) {
       isFocused && editor.deselect();
       return;
     }
 
     const slateSelection = convertToSlateSelection(selection.index, selection.length, editor.children);
+
     if (!slateSelection) return;
 
     if (isFocused && JSON.stringify(slateSelection) === JSON.stringify(editor.selection)) return;
@@ -156,15 +173,16 @@ export function useEditor({
     // because the slate must be focused before change selection,
     // but then it will trigger selection change, and the selection is not what we want
     const isSuccess = focusNodeByIndex(ref.current, selection.index, selection.length);
+
     if (!isSuccess) {
       Transforms.select(editor, slateSelection);
     } else {
       // Fix: the slate is possible to lose focus in next tick after focusNodeByIndex
-      requestAnimationFrame(() => {
+      setTimeout(() => {
         if (window.getSelection()?.type === 'None' && !editor.selection) {
           Transforms.select(editor, slateSelection);
         }
-      });
+      }, AFTER_RENDER_DELAY);
     }
   }, [editor, selection]);
 

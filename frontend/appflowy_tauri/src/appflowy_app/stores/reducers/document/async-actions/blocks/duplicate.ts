@@ -3,6 +3,8 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { rectSelectionActions } from '$app_reducers/document/slice';
 import { getDuplicateActions } from '$app/utils/document/action';
 import { RootState } from '$app/stores/store';
+import { DOCUMENT_NAME } from '$app/constants/document/name';
+import { setRectSelectionThunk } from '$app_reducers/document/async-actions/rect_selection';
 
 export const duplicateBelowNodeThunk = createAsyncThunk(
   'document/duplicateBelowNode',
@@ -11,8 +13,9 @@ export const duplicateBelowNodeThunk = createAsyncThunk(
     const { getState, dispatch } = thunkAPI;
     const state = getState() as RootState;
     const docId = controller.documentId;
-    const docState = state.document[docId];
+    const docState = state[DOCUMENT_NAME][docId];
     const node = docState.nodes[id];
+
     if (!node || !node.parent) return;
     const duplicateActions = getDuplicateActions(id, node.parent, docState, controller);
 
@@ -20,7 +23,7 @@ export const duplicateBelowNodeThunk = createAsyncThunk(
     await controller.applyActions(duplicateActions.actions);
 
     dispatch(
-      rectSelectionActions.updateSelections({
+      setRectSelectionThunk({
         docId,
         selection: [duplicateActions.newNodeId],
       })

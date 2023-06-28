@@ -3,6 +3,7 @@ import { DocumentController } from '$app/stores/effects/document/document_contro
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import Delta, { Op } from 'quill-delta';
 import { RootState } from '$app/stores/store';
+import { DOCUMENT_NAME } from '$app/constants/document/name';
 
 export const updateNodeDeltaThunk = createAsyncThunk(
   'document/updateNodeDelta',
@@ -11,9 +12,10 @@ export const updateNodeDeltaThunk = createAsyncThunk(
     const { getState } = thunkAPI;
     const state = getState() as RootState;
     const docId = controller.documentId;
-    const docState = state.document[docId];
+    const docState = state[DOCUMENT_NAME][docId];
     const node = docState.nodes[id];
     const diffDelta = new Delta(delta).diff(new Delta(node.data.delta || []));
+
     if (diffDelta.ops.length === 0) return;
 
     const newData = { ...node.data, delta };
@@ -39,7 +41,7 @@ export const updateNodeDataThunk = createAsyncThunk<
   const { getState } = thunkAPI;
   const state = getState() as RootState;
   const docId = controller.documentId;
-  const docState = state.document[docId];
+  const docState = state[DOCUMENT_NAME][docId];
   const node = docState.nodes[id];
 
   const newData = { ...node.data, ...data };

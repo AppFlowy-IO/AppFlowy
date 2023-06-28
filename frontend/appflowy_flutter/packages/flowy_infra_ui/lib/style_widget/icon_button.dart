@@ -81,7 +81,7 @@ class FlowyIconButton extends StatelessWidget {
               hoverColor: hoverColor,
               foregroundColorOnHover:
                   iconColorOnHover ?? Theme.of(context).iconTheme.color,
-              backgroundColor: fillColor ?? Colors.transparent,
+              backgroundColor: Colors.transparent,
             ),
             child: Padding(
               padding: iconPadding,

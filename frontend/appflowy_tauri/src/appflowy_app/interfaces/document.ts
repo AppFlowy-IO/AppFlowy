@@ -34,6 +34,9 @@ export enum BlockType {
   ColumnBlock = 'column',
 }
 
+export interface EauqtionBlockData {
+  formula: string;
+}
 export interface HeadingBlockData extends TextBlockData {
   level: number;
 }
@@ -88,6 +91,8 @@ export type BlockData<Type> = Type extends BlockType.HeadingBlock
   ? DividerBlockData
   : Type extends BlockType.CalloutBlock
   ? CalloutBlockData
+  : Type extends BlockType.EquationBlock
+  ? EauqtionBlockData
   : Type extends BlockType.TextBlock
   ? TextBlockData
   : any;
@@ -213,7 +218,7 @@ export enum TextAction {
   Underline = 'underline',
   Strikethrough = 'strikethrough',
   Code = 'code',
-  Equation = 'equation',
+  Equation = 'formula',
   Link = 'href',
 }
 export interface TextActionMenuProps {
@@ -232,10 +237,6 @@ export interface BlockConfig {
    * Whether the block can have children
    */
   canAddChild: boolean;
-  /**
-   * The regexps that will be used to match the markdown flag
-   */
-  markdownRegexps?: RegExp[];
 
   /**
    * The default data of the block
@@ -255,11 +256,6 @@ export interface BlockConfig {
      */
     nextLineBlockType: BlockType;
   };
-
-  /**
-   * The props that will be passed to the text action menu
-   */
-  textActionMenuProps?: TextActionMenuProps;
 }
 
 export interface ControllerAction {
@@ -286,12 +282,10 @@ export interface EditorProps {
   selection?: RangeStaticNoId;
   decorateSelection?: RangeStaticNoId;
   linkDecorateSelection?: {
-    selection?: {
-      index: number;
-      length: number;
-    };
+    selection?: RangeStaticNoId;
     placeholder?: string;
   };
+  temporarySelection?: RangeStaticNoId;
   onSelectionChange?: (range: RangeStaticNoId | null, oldRange: RangeStaticNoId | null, source?: Sources) => void;
   onChange?: (delta: Delta, oldDelta: Delta, source?: Sources) => void;
   onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
@@ -306,11 +300,27 @@ export interface BlockCopyData {
 export interface LinkPopoverState {
   anchorPosition?: { top: number; left: number };
   id?: string;
-  selection?: {
-    index: number;
-    length: number;
-  };
+  selection?: RangeStaticNoId;
   open?: boolean;
   href?: string;
   title?: string;
+}
+
+export interface TemporaryState {
+  id: string;
+  type: TemporaryType;
+  selectedText: string;
+  data: TemporaryData;
+  selection: RangeStaticNoId;
+  popoverPosition?: { top: number; left: number } | null;
+}
+
+export enum TemporaryType {
+  Equation = 'equation',
+}
+
+export type TemporaryData = InlineEquationData;
+
+export interface InlineEquationData {
+  latex: string;
 }

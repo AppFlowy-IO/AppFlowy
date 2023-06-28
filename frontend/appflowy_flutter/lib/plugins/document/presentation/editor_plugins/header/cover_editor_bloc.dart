@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/change_cover_popover.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/cover_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-part 'change_cover_popover_bloc.freezed.dart';
+part 'cover_editor_bloc.freezed.dart';
 
 class ChangeCoverPopoverBloc
     extends Bloc<ChangeCoverPopoverEvent, ChangeCoverPopoverState> {
@@ -32,7 +32,7 @@ class ChangeCoverPopoverBloc
         deleteImage: (DeleteImage deleteImage) async {
           final currentState = state;
           final currentlySelectedImage =
-              node.attributes[CoverBlockKeys.selection];
+              node.attributes[DocumentHeaderBlockKeys.coverDetails];
           if (currentState is Loaded) {
             await _deleteImageInStorage(deleteImage.path);
             if (currentlySelectedImage == deleteImage.path) {
@@ -48,7 +48,7 @@ class ChangeCoverPopoverBloc
         clearAllImages: (ClearAllImages clearAllImages) async {
           final currentState = state;
           final currentlySelectedImage =
-              node.attributes[CoverBlockKeys.selection];
+              node.attributes[DocumentHeaderBlockKeys.coverDetails];
 
           if (currentState is Loaded) {
             for (final image in currentState.imageNames) {
@@ -90,9 +90,9 @@ class ChangeCoverPopoverBloc
   Future<void> _removeCoverImageFromNode() async {
     final transaction = editorState.transaction;
     transaction.updateNode(node, {
-      CoverBlockKeys.selectionType: CoverSelectionType.initial.toString(),
-      CoverBlockKeys.iconSelection:
-          node.attributes[CoverBlockKeys.iconSelection]
+      DocumentHeaderBlockKeys.coverType: CoverType.none.toString(),
+      DocumentHeaderBlockKeys.icon:
+          node.attributes[DocumentHeaderBlockKeys.icon]
     });
     return editorState.apply(transaction);
   }

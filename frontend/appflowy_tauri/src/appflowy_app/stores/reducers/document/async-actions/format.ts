@@ -3,6 +3,7 @@ import { RootState } from '$app/stores/store';
 import { TextAction } from '$app/interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import Delta from 'quill-delta';
+import { DOCUMENT_NAME, RANGE_NAME } from '$app/constants/document/name';
 
 export const getFormatActiveThunk = createAsyncThunk<
   boolean,
@@ -13,12 +14,13 @@ export const getFormatActiveThunk = createAsyncThunk<
 >('document/getFormatActive', async ({ format, docId }, thunkAPI) => {
   const { getState } = thunkAPI;
   const state = getState() as RootState;
-  const document = state.document[docId];
-  const documentRange = state.documentRange[docId];
+  const document = state[DOCUMENT_NAME][docId];
+  const documentRange = state[RANGE_NAME][docId];
   const { ranges } = documentRange;
   const match = (delta: Delta, format: TextAction) => {
     return delta.ops.every((op) => op.attributes?.[format]);
   };
+
   return Object.entries(ranges).every(([id, range]) => {
     const node = document.nodes[id];
     const delta = new Delta(node.data?.delta);
@@ -37,6 +39,7 @@ export const toggleFormatThunk = createAsyncThunk(
     const { format, controller } = payload;
     const docId = controller.documentId;
     let isActive = payload.isActive;
+
     if (isActive === undefined) {
       const { payload: active } = await dispatch(
         getFormatActiveThunk({
@@ -44,12 +47,14 @@ export const toggleFormatThunk = createAsyncThunk(
           docId,
         })
       );
+
       isActive = !!active;
     }
+
     const formatValue = isActive ? undefined : true;
     const state = getState() as RootState;
-    const document = state.document[docId];
-    const documentRange = state.documentRange[docId];
+    const document = state[DOCUMENT_NAME][docId];
+    const documentRange = state[RANGE_NAME][docId];
     const { ranges } = documentRange;
 
     const toggle = (delta: Delta, format: TextAction, value: string | boolean | undefined) => {
@@ -58,11 +63,13 @@ export const toggleFormatThunk = createAsyncThunk(
           ...op.attributes,
           [format]: value,
         };
+
         return {
           insert: op.insert,
           attributes: attributes,
         };
       });
+
       return new Delta(newOps);
     };
 
@@ -85,6 +92,7 @@ export const toggleFormatThunk = createAsyncThunk(
         },
       });
     });
+
     await controller.applyActions(actions);
   }
 );
