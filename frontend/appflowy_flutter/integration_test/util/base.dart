@@ -21,12 +21,12 @@ class TestFolder {
   ///
   /// The file_picker is a system component and can't be tapped, so using logic instead of tapping.
   ///
-  static Future<void> setTestLocation(String? name) async {
+  static Future<Directory> setTestLocation(String? name) async {
     final location = await testLocation(name);
     SharedPreferences.setMockInitialValues({
       KVKeys.pathLocation: location.path,
     });
-    return;
+    return location;
   }
 
   /// Clean the location.
@@ -50,7 +50,7 @@ class TestFolder {
 
   /// Get default location under test environment.
   static Future<Directory> testLocation(String? name) async {
-    final dir = await getApplicationDocumentsDirectory();
+    final dir = await getTemporaryDirectory();
     var path = '${dir.path}/flowy_test';
     if (name != null) {
       path += '/$name';

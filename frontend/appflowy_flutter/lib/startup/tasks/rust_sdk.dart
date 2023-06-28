@@ -62,7 +62,7 @@ Future<Directory> appFlowyApplicationDataDirectory() async {
     case IntegrationMode.release:
       final Directory documentsDir = await getApplicationSupportDirectory();
       return Directory(path.join(documentsDir.path, 'data')).create();
-    case IntegrationMode.test:
+    case IntegrationMode.unitTest:
     case IntegrationMode.integrationTest:
       return Directory(path.join(Directory.current.path, '.sandbox'));
   }

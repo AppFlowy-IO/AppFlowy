@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
+import 'package:flowy_infra/uuid.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'deps_resolver.dart';
 import 'launch_configuration.dart';
@@ -32,11 +34,7 @@ class FlowyRunner {
     // Specify the env
     initGetIt(getIt, mode, f, config);
 
-    final directory = await getIt<ApplicationDataStorage>()
-        .getPath()
-        .then((value) => Directory(value));
-
-    // final directory = await appFlowyDocumentDirectory();
+    final directory = await directoryFromMode(mode);
 
     // add task
     final launcher = getIt<AppLauncher>();
@@ -55,7 +53,7 @@ class FlowyRunner {
 
         // init the app widget
         // ignore in test mode
-        if (!mode.isTest()) ...[
+        if (!mode.isUnitTest()) ...[
           const HotKeyTask(),
           InitSupabaseTask(
             url: Env.supabaseUrl,
@@ -71,6 +69,21 @@ class FlowyRunner {
     );
     await launcher.launch(); // execute the tasks
   }
+}
+
+Future<Directory> directoryFromMode(IntegrationMode mode) async {
+  // Only use the temporary directory in test mode.
+  if (mode.isTest() && !kReleaseMode) {
+    final dir = await getTemporaryDirectory();
+
+    // Use a random uuid to avoid conflict.
+    final path = '${dir.path}/appflowy_integration_test/${uuid()}';
+    return Directory(path).create(recursive: true);
+  }
+
+  return getIt<ApplicationDataStorage>().getPath().then(
+        (value) => Directory(value),
+      );
 }
 
 Future<void> initGetIt(
@@ -145,23 +158,35 @@ class AppLauncher {
 enum IntegrationMode {
   develop,
   release,
-  test,
+  unitTest,
   integrationTest,
 }
 
 extension IntegrationEnvExt on IntegrationMode {
-  bool isTest() {
-    return this == IntegrationMode.test;
+  bool isUnitTest() {
+    return this == IntegrationMode.unitTest;
   }
 
   bool isIntegrationTest() {
     return this == IntegrationMode.integrationTest;
   }
+
+  bool isTest() {
+    return isUnitTest() || isIntegrationTest();
+  }
+
+  bool isRelease() {
+    return this == IntegrationMode.release;
+  }
+
+  bool isDevelop() {
+    return this == IntegrationMode.develop;
+  }
 }
 
 IntegrationMode integrationEnv() {
   if (Platform.environment.containsKey('FLUTTER_TEST')) {
-    return IntegrationMode.test;
+    return IntegrationMode.unitTest;
   }
 
   if (kReleaseMode) {

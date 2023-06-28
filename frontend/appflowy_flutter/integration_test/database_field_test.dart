@@ -10,7 +10,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('grid page', () {
-    const location = 'appflowy';
+    const location = 'appflowy_integration_test';
 
     setUp(() async {
       await TestFolder.cleanTestLocation(location);
