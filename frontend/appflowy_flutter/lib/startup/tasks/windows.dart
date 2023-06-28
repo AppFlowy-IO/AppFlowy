@@ -5,6 +5,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
 
 class InitAppWindowTask extends LaunchTask with WindowListener {
@@ -18,6 +19,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     // Don't initialize on mobile or web.
     if (!defaultTargetPlatform.isDesktop) {
       return;
@@ -44,11 +46,23 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
       await windowManager.show();
       await windowManager.focus();
     });
+    if (prefs.getBool('maximized') == true) {
+      windowManager.maximize();
+    } else {
+      print("");
+    }
   }
 
   @override
   Future<void> onWindowResize() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     final currentWindowSize = await windowManager.getSize();
+    if (windowManager.isMaximized() == true) {
+      await prefs.setBool('maximized', true);
+    }
+    else{
+      await prefs.setBool('maximized', false);
+    }
     WindowSizeManager().saveSize(currentWindowSize);
   }
 }
