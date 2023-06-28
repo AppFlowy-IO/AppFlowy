@@ -294,7 +294,11 @@ extension AppFlowyDatabaseTest on WidgetTester {
       matching: findDay,
     );
 
-    await tapButton(finder);
+    if (content < 15) {
+      await tapButton(finder.first);
+    } else {
+      await tapButton(finder.last);
+    }
   }
 
   Future<void> toggleIncludeTime() async {
