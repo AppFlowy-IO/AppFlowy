@@ -48,7 +48,9 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     });
     if (prefs.getBool('maximized') == true) {
       windowManager.maximize();
-    } else {
+    } else if (prefs.getBool('maximized') == false) {
+      print("");
+    } else if (prefs.getBool('maximized') == null) {
       print("");
     }
   }
@@ -59,8 +61,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     final currentWindowSize = await windowManager.getSize();
     if (windowManager.isMaximized() == true) {
       await prefs.setBool('maximized', true);
-    }
-    else{
+    } else {
       await prefs.setBool('maximized', false);
     }
     WindowSizeManager().saveSize(currentWindowSize);
