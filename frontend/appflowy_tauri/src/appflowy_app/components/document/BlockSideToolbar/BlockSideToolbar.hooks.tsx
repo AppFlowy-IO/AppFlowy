@@ -40,6 +40,10 @@ export function useBlockSideToolbar({ container }: { container: HTMLDivElement }
           top = headingBlockTopOffset[nodeData.level];
         }
 
+        if (node.type === BlockType.DividerBlock) {
+          top = -3;
+        }
+
         setStyle({
           opacity: '1',
           pointerEvents: 'auto',
@@ -99,39 +103,47 @@ function getNodeIdByPoint(x: number, y: number) {
     : null;
 }
 
-const origin: {
-  anchorOrigin: PopoverOrigin;
-  transformOrigin: PopoverOrigin;
-} = {
-  anchorOrigin: {
-    vertical: 'bottom',
-    horizontal: 'right',
-  },
-  transformOrigin: {
-    vertical: 'bottom',
-    horizontal: 'left',
-  },
+const transformOrigin: PopoverOrigin = {
+  vertical: 'bottom',
+  horizontal: 'left',
 };
 
 export function usePopover() {
-  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+  const [anchorPosition, setAnchorPosition] = React.useState<{
+    top: number;
+    left: number;
+  }>();
 
   const onClose = useCallback(() => {
-    setAnchorEl(null);
+    setAnchorPosition(undefined);
   }, []);
 
   const handleOpen = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setAnchorEl(e.currentTarget);
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    setAnchorPosition({
+      top: rect.top + rect.height,
+      left: rect.left + rect.width,
+    });
   }, []);
 
-  const open = Boolean(anchorEl);
+  const open = Boolean(anchorPosition);
+
+  const onMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+  }, []);
 
   return {
-    anchorEl,
+    anchorPosition,
     onClose,
     open,
     handleOpen,
-    ...origin,
+    anchorReference: 'anchorPosition' as const,
+    transformOrigin,
+    onMouseDown,
+    disableRestoreFocus: true,
+    disableAutoFocus: true,
+    disableEnforceFocus: true,
   };
 }
