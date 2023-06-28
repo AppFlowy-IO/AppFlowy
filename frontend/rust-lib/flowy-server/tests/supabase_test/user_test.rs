@@ -137,3 +137,18 @@ async fn get_user_profile_test() {
     .unwrap()
     .unwrap();
 }
+
+#[tokio::test]
+async fn get_not_exist_user_profile_test() {
+  if dotenv::from_filename("./.env.user.test").is_err() {
+    return;
+  }
+  setup_log();
+  let server = Arc::new(PostgresServer::new(
+    PostgresConfiguration::from_env().unwrap(),
+  ));
+  let user_service = SupabaseUserAuthServiceImpl::new(server);
+  let result = user_service.get_user_profile(None, i64::MAX).await.unwrap();
+  // user not found
+  assert!(result.is_none());
+}

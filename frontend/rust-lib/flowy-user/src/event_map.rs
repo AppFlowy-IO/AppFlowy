@@ -96,7 +96,8 @@ pub trait UserAuthService: Send + Sync {
     params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError>;
 
-  /// Get the user information using the user's token
+  /// Get the user information using the user's token or uid
+  /// return None if the user is not found
   fn get_user_profile(
     &self,
     token: Option<String>,

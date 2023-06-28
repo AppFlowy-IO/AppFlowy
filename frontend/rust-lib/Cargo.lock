@@ -78,9 +78,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.70"
+version = "1.0.71"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7de8ce5e0f9f8d88245311066a578d72b7af3e7088f32783804676302df237e4"
+checksum = "9c7d0618f0e0b7e8ff11427422b64564d5fb0be1940354bfe2e0529b18a9d9b8"
 
 [[package]]
 name = "appflowy-integrate"
@@ -1909,6 +1909,7 @@ dependencies = [
 name = "flowy-test"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bytes",
  "dotenv",
  "flowy-core",
