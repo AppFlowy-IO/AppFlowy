@@ -28,7 +28,7 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
   DocumentAppearanceCubit()
       : super(const DocumentAppearance(fontSize: 16.0, fontFamily: 'Poppins'));
 
-  void fetch() async {
+  Future<void> fetch() async {
     final prefs = await SharedPreferences.getInstance();
     final fontSize =
         prefs.getDouble(KVKeys.kDocumentAppearanceFontSize) ?? 16.0;
@@ -47,7 +47,7 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
     );
   }
 
-  void syncFontSize(double fontSize) async {
+  Future<void> syncFontSize(double fontSize) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setDouble(KVKeys.kDocumentAppearanceFontSize, fontSize);
 
@@ -62,7 +62,7 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
     );
   }
 
-  void syncFontFamily(String fontFamily) async {
+  Future<void> syncFontFamily(String fontFamily) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString(KVKeys.kDocumentAppearanceFontFamily, fontFamily);
 
