@@ -277,7 +277,7 @@ class ThemeFontFamilySetting extends StatefulWidget {
 
 class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
   final List<String> availableFonts = GoogleFonts.asMap().keys.toList();
-  final ValueNotifier query = ValueNotifier('');
+  final ValueNotifier<String> query = ValueNotifier('');
 
   @override
   Widget build(BuildContext context) {
@@ -299,12 +299,15 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
           ValueListenableBuilder(
             valueListenable: query,
             builder: (context, value, child) {
-              final filteredFonts = availableFonts
-                  .where((font) => font.contains(value.toString()))
-                  .sorted((a, b) => levenshtein(a, b))
-                  .toList();
+              var displayed = availableFonts;
+              if (value.isNotEmpty) {
+                displayed = availableFonts
+                    .where((font) => font.contains(value.toString()))
+                    .sorted((a, b) => levenshtein(a, b))
+                    .toList();
+              }
               return Column(
-                children: filteredFonts
+                children: displayed
                     .map(
                       (font) => _fontFamilyItemButton(
                         context,
