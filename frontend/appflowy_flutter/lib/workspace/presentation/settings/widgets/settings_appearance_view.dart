@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/theme_upload_view.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -317,6 +318,9 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
             context
                 .read<AppearanceSettingsCubit>()
                 .setFontFamily(style.fontFamily!);
+            context
+                .read<DocumentAppearanceCubit>()
+                .syncFontFamily(style.fontFamily!);
           }
         },
       ),
