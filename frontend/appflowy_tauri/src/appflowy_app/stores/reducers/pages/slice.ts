@@ -5,7 +5,8 @@ export interface IPage {
   id: string;
   title: string;
   pageType: ViewLayoutPB;
-  folderId: string;
+  parentPageId: string;
+  showPagesInside: boolean;
 }
 
 const initialState: IPage[] = [];
@@ -14,11 +15,18 @@ export const pagesSlice = createSlice({
   name: 'pages',
   initialState: initialState,
   reducers: {
-    didReceivePages(state, action: PayloadAction<{ pages: IPage[]; folderId: string }>) {
-      return state.filter((page) => page.folderId !== action.payload.folderId).concat(action.payload.pages);
+    addInsidePages(state, action: PayloadAction<{ insidePages: IPage[]; currentPageId: string }>) {
+      return state
+        .filter((page) => page.parentPageId !== action.payload.currentPageId)
+        .concat(action.payload.insidePages);
     },
     addPage(state, action: PayloadAction<IPage>) {
       state.push(action.payload);
+    },
+    toggleShowPages(state, action: PayloadAction<{ id: string }>) {
+      return state.map<IPage>((page: IPage) =>
+        page.id === action.payload.id ? { ...page, showPagesInside: !page.showPagesInside } : page
+      );
     },
     renamePage(state, action: PayloadAction<{ id: string; newTitle: string }>) {
       return state.map<IPage>((page: IPage) =>

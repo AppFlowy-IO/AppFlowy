@@ -101,7 +101,7 @@ async function moveKanbanBoardRow() {
   });
 
   const row = firstGroup.rowAtIndex(0).unwrap();
-  await databaseController.moveRow(row.id, secondGroup.groupId);
+  await databaseController.moveGroupRow(row.id, secondGroup.groupId);
 
   assert(firstGroup.rows.length === 2);
   await assertNumberOfRowsInGroup(view.id, firstGroup.groupId, 2);

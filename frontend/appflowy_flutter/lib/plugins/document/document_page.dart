@@ -123,7 +123,7 @@ class _DocumentPageState extends State<DocumentPage> {
       return const Placeholder();
     }
     final page = editorState!.document.root;
-    return CoverImageNodeWidget(
+    return DocumentHeaderNodeWidget(
       node: page,
       editorState: editorState!,
     );

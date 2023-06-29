@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { RangeStatic } from 'quill';
 import { useAppDispatch } from '$app/stores/store';
 import { rangeActions } from '$app_reducers/document/slice';
@@ -44,7 +44,15 @@ export function useSelection(id: string) {
   );
 
   useEffect(() => {
-    if (rangeRef.current && rangeRef.current?.isDragging) return;
+    if (rangeRef.current) {
+      const { isDragging, anchor, focus } = rangeRef.current;
+      const mouseDownFocused = anchor?.point.x === focus?.point.x && anchor?.point.y === focus?.point.y;
+
+      if (isDragging && !mouseDownFocused) {
+        return;
+      }
+    }
+
     if (!focusCaret) {
       setSelection(undefined);
       return;

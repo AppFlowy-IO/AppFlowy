@@ -1,4 +1,5 @@
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:intl/intl.dart';
@@ -42,6 +43,44 @@ void main() {
         rowIndex: 0,
         fieldType: FieldType.RichText,
         content: 'hello world',
+      );
+
+      await tester.pumpAndSettle();
+    });
+
+    // Makesure the text cells are filled with the right content when there are
+    // multiple text cell
+    testWidgets('edit multiple text cells', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+      await tester.createNewPageWithName(ViewLayoutPB.Grid, 'my grid');
+      await tester.createField(FieldType.RichText, 'description');
+
+      await tester.editCell(
+        rowIndex: 0,
+        fieldType: FieldType.RichText,
+        input: 'hello',
+      );
+
+      await tester.editCell(
+        rowIndex: 0,
+        fieldType: FieldType.RichText,
+        input: 'world',
+        cellIndex: 1,
+      );
+
+      await tester.assertCellContent(
+        rowIndex: 0,
+        fieldType: FieldType.RichText,
+        content: 'hello',
+        cellIndex: 0,
+      );
+
+      await tester.assertCellContent(
+        rowIndex: 0,
+        fieldType: FieldType.RichText,
+        content: 'world',
+        cellIndex: 1,
       );
 
       await tester.pumpAndSettle();

@@ -1,5 +1,7 @@
 import {
   DatabaseEventCreateRow,
+  DatabaseEventDeleteRow,
+  DatabaseEventDuplicateRow,
   DatabaseEventGetDatabase,
   DatabaseEventGetDatabaseSetting,
   DatabaseEventGetFields,
@@ -14,6 +16,7 @@ import {
   MoveGroupPayloadPB,
   MoveGroupRowPayloadPB,
   MoveRowPayloadPB,
+  RowIdPB,
 } from '@/services/backend/events/flowy-database2';
 import {
   GetFieldPayloadPB,
@@ -62,6 +65,16 @@ export class DatabaseBackendService {
       payload.group_id = params.groupId;
     }
     return DatabaseEventCreateRow(payload);
+  };
+
+  duplicateRow = async (rowId: string) => {
+    const payload = RowIdPB.fromObject({ view_id: this.viewId, row_id: rowId });
+    return DatabaseEventDuplicateRow(payload);
+  };
+
+  deleteRow = async (rowId: string) => {
+    const payload = RowIdPB.fromObject({ view_id: this.viewId, row_id: rowId });
+    return DatabaseEventDeleteRow(payload);
   };
 
   /// Move the row from one group to another group

@@ -85,8 +85,8 @@ class _PropertyCellState extends State<_PropertyCell> {
     final cell = widget.cellBuilder.build(widget.cellContext, style: style);
 
     final gesture = GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () => cell.beginFocus.notify(),
+      behavior: HitTestBehavior.opaque,
+      onTap: () => cell.requestFocus.notify(),
       child: AccessoryHover(
         contentPadding: const EdgeInsets.symmetric(horizontal: 3, vertical: 3),
         child: cell,
@@ -97,8 +97,8 @@ class _PropertyCellState extends State<_PropertyCell> {
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 30),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             AppFlowyPopover(
               controller: popover,
@@ -108,6 +108,7 @@ class _PropertyCellState extends State<_PropertyCell> {
               popupBuilder: (popoverContext) => buildFieldEditor(),
               child: SizedBox(
                 width: 150,
+                height: 40,
                 child: FieldCellButton(
                   field: widget.cellContext.fieldInfo.field,
                   onTap: () => popover.show(),

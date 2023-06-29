@@ -49,7 +49,11 @@ const MenuItem = forwardRef(function (
         }}
       >
         <div
-          className={`mr-2 flex h-[${imgSize.height}px] w-[${imgSize.width}px] items-center justify-center rounded border border-shade-5`}
+          style={{
+            width: imgSize.width,
+            height: imgSize.height,
+          }}
+          className={`mr-2 flex items-center justify-center rounded border border-shade-5`}
         >
           {icon}
         </div>

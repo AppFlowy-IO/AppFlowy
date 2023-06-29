@@ -337,6 +337,7 @@ class _TimeTextFieldState extends State<_TimeTextField> {
   }
 }
 
+@visibleForTesting
 class DateTypeOptionButton extends StatelessWidget {
   final PopoverMutex popoverMutex;
   const DateTypeOptionButton({

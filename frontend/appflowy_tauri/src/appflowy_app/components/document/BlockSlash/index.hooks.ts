@@ -11,7 +11,10 @@ export function useBlockSlash() {
   const { docId } = useSubscribeDocument();
 
   const { blockId, visible, slashText, hoverOption } = useSubscribeSlash();
-  const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
+  const [anchorPosition, setAnchorPosition] = React.useState<{
+    top: number;
+    left: number;
+  }>();
 
   useEffect(() => {
     if (blockId && visible) {
@@ -19,11 +22,17 @@ export function useBlockSlash() {
       const el = blockEl.querySelector(`[role="textbox"]`) as HTMLElement;
 
       if (el) {
-        setAnchorEl(el);
+        const rect = el.getBoundingClientRect();
+
+        setAnchorPosition({
+          top: rect.top + rect.height,
+          left: rect.left,
+        });
         return;
       }
     }
-    setAnchorEl(null);
+
+    setAnchorPosition(undefined);
   }, [blockId, visible]);
 
   useEffect(() => {
@@ -43,11 +52,11 @@ export function useBlockSlash() {
     dispatch(slashCommandActions.closeSlashCommand(docId));
   }, [dispatch, docId]);
 
-  const open = Boolean(anchorEl);
+  const open = Boolean(anchorPosition);
 
   return {
     open,
-    anchorEl,
+    anchorPosition,
     onClose,
     blockId,
     searchText,

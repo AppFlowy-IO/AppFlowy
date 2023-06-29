@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use collab_folder::core::{View, Workspace};
 
 use flowy_derive::ProtoBuf_Enum;
@@ -54,7 +56,7 @@ pub(crate) fn send_workspace_notification<T: ToBytes>(ty: FolderNotification, pa
 
 pub(crate) fn send_workspace_setting_notification(
   current_workspace: Option<Workspace>,
-  current_view: Option<View>,
+  current_view: Option<Arc<View>>,
 ) -> Option<()> {
   let workspace: WorkspacePB = current_workspace?.into();
   let latest_view = current_view.map(view_pb_without_child_views);

@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'util/database_test_op.dart';
+import 'util/emoji.dart';
 import 'util/ime.dart';
 import 'util/util.dart';
 
@@ -26,6 +27,21 @@ void main() {
 
     tearDownAll(() async {
       await TestFolder.cleanTestLocation(null);
+    });
+
+    testWidgets('row details page opens', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      // Create a new grid
+      await tester.tapAddButton();
+      await tester.tapCreateGridButton();
+
+      // Hover first row and then open the row page
+      await tester.openFirstRowDetailPage();
+
+      // Make sure that the row page is opened
+      tester.assertRowDetailPageOpened();
     });
 
     testWidgets('insert emoji in the row detail page', (tester) async {

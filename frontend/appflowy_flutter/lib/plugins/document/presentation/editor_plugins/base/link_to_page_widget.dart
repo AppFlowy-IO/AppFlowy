@@ -87,7 +87,8 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
   final Map<int, (ViewPB, ViewPB)> _items = {};
 
   Future<List<(ViewPB, List<ViewPB>)>> fetchItems() async {
-    final items = await ViewBackendService().fetchViews(widget.layoutType);
+    final items =
+        await ViewBackendService().fetchViewsWithLayoutType(widget.layoutType);
 
     int index = 0;
     for (final (app, children) in items) {
