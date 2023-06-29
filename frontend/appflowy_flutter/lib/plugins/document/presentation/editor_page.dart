@@ -1,7 +1,6 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_list.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/database/referenced_database_menu_tem.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
@@ -68,6 +67,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     codeBlockItem,
     emojiMenuItem,
     autoGeneratorMenuItem,
+    outlineItem,
   ];
 
   late final Map<String, BlockComponentBuilder> blockComponentBuilders =
@@ -255,6 +255,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       AutoCompletionBlockKeys.type: AutoCompletionBlockComponentBuilder(),
       SmartEditBlockKeys.type: SmartEditBlockComponentBuilder(),
       ToggleListBlockKeys.type: ToggleListBlockComponentBuilder(),
+      OutlineBlockKeys.type: OutlineBlockComponentBuilder(),
     };
 
     final builders = {
@@ -277,7 +278,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         NumberedListBlockKeys.type,
         QuoteBlockKeys.type,
         TodoListBlockKeys.type,
-        CalloutBlockKeys.type
+        CalloutBlockKeys.type,
+        OutlineBlockKeys.type,
       ];
 
       final supportAlignBuilderType = [
