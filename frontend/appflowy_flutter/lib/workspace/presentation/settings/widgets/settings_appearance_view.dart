@@ -4,6 +4,8 @@ import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/theme_upload_view.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:collection/collection.dart';
+import 'package:dart_levenshtein/dart_levenshtein.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_bloc.dart';
@@ -14,6 +16,9 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+
+import 'levenshtein.dart';
 
 class SettingsAppearanceView extends StatelessWidget {
   const SettingsAppearanceView({Key? key}) : super(key: key);
@@ -274,21 +279,44 @@ class ThemeFontFamilySetting extends StatefulWidget {
 
 class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
   final List<String> availableFonts = GoogleFonts.asMap().keys.toList();
+  final ValueNotifier query = ValueNotifier('');
 
   @override
   Widget build(BuildContext context) {
     return ThemeSettingDropDown(
-      label: LocaleKeys.settings_appearance_fontFamily.tr(),
+      label: LocaleKeys.settings_appearance_fontFamily_label.tr(),
       currentValue: parseFontFamilyName(widget.currentFontFamily),
       popupBuilder: (_) => ListView(
         shrinkWrap: true,
         children: [
-          ...availableFonts.map(
-            (font) => _fontFamilyItemButton(
-              context,
-              GoogleFonts.getFont(font),
-            ),
-          )
+          FlowyTextField(
+            hintText: LocaleKeys.settings_appearance_fontFamily_search.tr(),
+            autoClearWhenDone: true,
+            debounceDuration: const Duration(milliseconds: 300),
+            onChanged: (value) {
+              query.value = value;
+            },
+          ),
+          const SizedBox(height: 4),
+          ValueListenableBuilder(
+            valueListenable: query,
+            builder: (context, value, child) {
+              final filteredFonts = availableFonts
+                  .where((font) => font.contains(value.toString()))
+                  .sorted((a, b) => levenshtein(a, b))
+                  .toList();
+              return Column(
+                children: filteredFonts
+                    .map(
+                      (font) => _fontFamilyItemButton(
+                        context,
+                        GoogleFonts.getFont(font),
+                      ),
+                    )
+                    .toList(),
+              );
+            },
+          ),
         ],
       ),
     );
