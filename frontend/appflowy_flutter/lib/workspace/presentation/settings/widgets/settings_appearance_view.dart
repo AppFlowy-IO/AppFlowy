@@ -302,7 +302,11 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
               var displayed = availableFonts;
               if (value.isNotEmpty) {
                 displayed = availableFonts
-                    .where((font) => font.contains(value.toString()))
+                    .where(
+                      (font) => font
+                          .toLowerCase()
+                          .contains(value.toLowerCase().toString()),
+                    )
                     .sorted((a, b) => levenshtein(a, b))
                     .toList();
               }
