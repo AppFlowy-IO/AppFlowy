@@ -28,7 +28,7 @@ class SettingsAppearanceView extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                ThemeModeSetting(currentThemeMode: state.themeMode),
+                BrightnessSetting(currentThemeMode: state.themeMode),
                 const ThemeUploadWidget(),
                 const SizedBox(height: ThemePreviewGrid.mainAxisSpacing),
                 ThemePreviewBuilder(
@@ -162,9 +162,9 @@ class _ThemePreviewGridState extends State<ThemePreviewGrid> {
   }
 }
 
-class ThemeModeSetting extends StatelessWidget {
+class BrightnessSetting extends StatelessWidget {
   final ThemeMode currentThemeMode;
-  const ThemeModeSetting({required this.currentThemeMode, super.key});
+  const BrightnessSetting({required this.currentThemeMode, super.key});
 
   @override
   Widget build(BuildContext context) {
