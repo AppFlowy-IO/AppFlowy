@@ -15,21 +15,17 @@ class ThemeUploadLoadingWidget extends StatelessWidget {
           .colorScheme
           .background
           .withOpacity(ThemeUploadWidget.fadeOpacity),
-      child: Row(
+      constraints: const BoxConstraints.expand(),
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Flexible(
-            child: Column(
-              children: [
-                CircularProgressIndicator(
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                ThemeUploadWidget.elementSpacer,
-                FlowyText.regular(
-                  LocaleKeys.settings_appearance_themeUpload_loading.tr(),
-                ),
-              ],
-            ),
+          CircularProgressIndicator(
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          ThemeUploadWidget.elementSpacer,
+          FlowyText.regular(
+            LocaleKeys.settings_appearance_themeUpload_loading.tr(),
           ),
         ],
       ),
