@@ -19,7 +19,9 @@ use crate::entities::{
   AuthTypePB, SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
 use crate::entities::{UserProfilePB, UserSettingPB};
-use crate::event_map::{DefaultUserStatusCallback, UserCloudServiceProvider, UserStatusCallback};
+use crate::event_map::{
+  DefaultUserStatusCallback, UserCloudServiceProvider, UserCredentials, UserStatusCallback,
+};
 use crate::{
   errors::FlowyError,
   event_map::UserAuthService,
@@ -213,13 +215,9 @@ impl UserSession {
     Ok(())
   }
 
-  pub async fn check_user(&self) -> Result<UserProfile, FlowyError> {
-    let (user_id, _token) = self.get_session()?.into_part();
-    let user_id = user_id.to_string();
-    let user = dsl::user_table
-      .filter(user_table::id.eq(&user_id))
-      .first::<UserTable>(&*(self.db_connection()?))?;
-    Ok(user.into())
+  pub async fn check_user(&self, credential: UserCredentials) -> Result<(), FlowyError> {
+    let auth_service = self.cloud_services.get_auth_service()?;
+    auth_service.check_user(credential).await
   }
 
   pub async fn get_user_profile(&self) -> Result<UserProfile, FlowyError> {
@@ -264,17 +262,17 @@ impl UserSession {
   async fn update_user(
     &self,
     _auth_type: &AuthType,
-    _uid: i64,
+    uid: i64,
     token: &Option<String>,
     params: UpdateUserProfileParams,
   ) -> Result<(), FlowyError> {
     let server = self.cloud_services.get_auth_service()?;
     let token = token.to_owned();
     let _ = tokio::spawn(async move {
-      match server.update_user(&token, params).await {
+      let credentials = UserCredentials::new(token, Some(uid), None);
+      match server.update_user(credentials, params).await {
         Ok(_) => {},
         Err(e) => {
-          // TODO: retry?
           tracing::error!("update user profile failed: {:?}", e);
         },
       }

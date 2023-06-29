@@ -13,7 +13,7 @@ use flowy_user::event_map::UserAuthService;
 use lib_infra::async_trait::async_trait;
 
 use crate::supabase::impls::{
-  CollabStorageImpl, SupabaseFolderCloudServiceImpl, SupabaseUserAuthServiceImpl,
+  PgCollabStorageImpl, SupabaseFolderCloudServiceImpl, SupabaseUserAuthServiceImpl,
 };
 use crate::supabase::pg_db::{PgClientReceiver, PostgresDB, PostgresEvent};
 use crate::supabase::queue::{
@@ -50,7 +50,7 @@ impl AppFlowyServer for SupabaseServer {
   }
 
   fn collab_storage(&self) -> Option<Arc<dyn RemoteCollabStorage>> {
-    Some(Arc::new(CollabStorageImpl::new(self.postgres.clone())))
+    Some(Arc::new(PgCollabStorageImpl::new(self.postgres.clone())))
   }
 }
 

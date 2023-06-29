@@ -6,7 +6,7 @@ use uuid::Uuid;
 use flowy_server::supabase::impls::{SupabaseUserAuthServiceImpl, USER_UUID};
 use flowy_server::supabase::{PostgresConfiguration, PostgresServer};
 use flowy_user::entities::{SignUpResponse, UpdateUserProfileParams};
-use flowy_user::event_map::UserAuthService;
+use flowy_user::event_map::{UserAuthService, UserCredentials};
 use lib_infra::box_any::BoxAny;
 
 use crate::setup_log;
@@ -69,7 +69,7 @@ async fn update_user_profile_test() {
 
   user_service
     .update_user(
-      &None,
+      UserCredentials::from_uid(user.user_id),
       UpdateUserProfileParams {
         id: user.user_id,
         auth_type: Default::default(),
@@ -84,7 +84,7 @@ async fn update_user_profile_test() {
     .unwrap();
 
   let user_profile = user_service
-    .get_user_profile(None, user.user_id)
+    .get_user_profile(UserCredentials::from_uid(user.user_id))
     .await
     .unwrap()
     .unwrap();
@@ -111,28 +111,30 @@ async fn get_user_profile_test() {
     .await
     .unwrap();
 
+  let credential = UserCredentials::from_uid(user.user_id);
+
   user_service
-    .get_user_profile(None, user.user_id)
+    .get_user_profile(credential.clone())
     .await
     .unwrap()
     .unwrap();
   user_service
-    .get_user_profile(None, user.user_id)
+    .get_user_profile(credential.clone())
     .await
     .unwrap()
     .unwrap();
   user_service
-    .get_user_profile(None, user.user_id)
+    .get_user_profile(credential.clone())
     .await
     .unwrap()
     .unwrap();
   user_service
-    .get_user_profile(None, user.user_id)
+    .get_user_profile(credential.clone())
     .await
     .unwrap()
     .unwrap();
   user_service
-    .get_user_profile(None, user.user_id)
+    .get_user_profile(credential)
     .await
     .unwrap()
     .unwrap();
@@ -148,7 +150,27 @@ async fn get_not_exist_user_profile_test() {
     PostgresConfiguration::from_env().unwrap(),
   ));
   let user_service = SupabaseUserAuthServiceImpl::new(server);
-  let result = user_service.get_user_profile(None, i64::MAX).await.unwrap();
+  let result = user_service
+    .get_user_profile(UserCredentials::from_uid(i64::MAX))
+    .await
+    .unwrap();
   // user not found
   assert!(result.is_none());
+}
+
+#[tokio::test]
+async fn check_not_exist_user_test() {
+  if dotenv::from_filename("./.env.user.test").is_err() {
+    return;
+  }
+  setup_log();
+  let server = Arc::new(PostgresServer::new(
+    PostgresConfiguration::from_env().unwrap(),
+  ));
+  let user_service = SupabaseUserAuthServiceImpl::new(server);
+  let result = user_service
+    .check_user(UserCredentials::from_uid(i64::MAX))
+    .await;
+  // user not found
+  assert!(result.is_err());
 }

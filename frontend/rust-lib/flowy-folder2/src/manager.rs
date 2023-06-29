@@ -4,7 +4,7 @@ use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::CollabPersistenceConfig;
-use collab::core::collab_state::CollabState;
+use collab::core::collab_state::SyncState;
 use collab_folder::core::{
   Folder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, View, ViewChange,
   ViewChangeReceiver, ViewLayout, Workspace,
@@ -134,7 +134,7 @@ impl Folder2Manager {
         trash_change_tx: trash_tx,
       };
       let folder = Folder::get_or_create(collab, folder_context);
-      let folder_state_rx = folder.subscribe_state_change();
+      let folder_state_rx = folder.subscribe_sync_state();
       *self.mutex_folder.lock() = Some(folder);
 
       let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
@@ -672,13 +672,13 @@ fn listen_on_view_change(mut rx: ViewChangeReceiver, weak_mutex_folder: &Weak<Mu
 
 fn listen_on_folder_state_change(
   workspace_id: String,
-  mut folder_state_rx: WatchStream<CollabState>,
+  mut folder_state_rx: WatchStream<SyncState>,
   weak_mutex_folder: &Weak<MutexFolder>,
 ) {
   let weak_mutex_folder = weak_mutex_folder.clone();
   tokio::spawn(async move {
     while let Some(state) = folder_state_rx.next().await {
-      if state.is_root_changed() {
+      if state.is_full_sync() {
         if let Some(mutex_folder) = weak_mutex_folder.upgrade() {
           let folder = mutex_folder.lock().take();
           if let Some(folder) = folder {

@@ -1,19 +1,22 @@
+use std::str::FromStr;
 use std::sync::Arc;
 
 use deadpool_postgres::GenericClient;
+use futures::pin_mut;
+use futures_util::StreamExt;
 use tokio::sync::oneshot::channel;
 use tokio_postgres::error::SqlState;
 use uuid::Uuid;
 
 use flowy_error::{internal_error, ErrorCode, FlowyError};
 use flowy_user::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
-use flowy_user::event_map::UserAuthService;
+use flowy_user::event_map::{UserAuthService, UserCredentials};
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::supabase::entities::{GetUserProfileParams, UserProfileResponse};
 use crate::supabase::pg_db::PostgresObject;
-use crate::supabase::sql_builder::UpdateSqlBuilder;
+use crate::supabase::sql_builder::{SelectSqlBuilder, UpdateSqlBuilder};
 use crate::supabase::PostgresServer;
 use crate::util::uuid_from_box_any;
 
@@ -76,7 +79,7 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
 
   fn update_user(
     &self,
-    _token: &Option<String>,
+    _credential: UserCredentials,
     params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError> {
     let server = self.server.clone();
@@ -95,8 +98,7 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
 
   fn get_user_profile(
     &self,
-    _token: Option<String>,
-    uid: i64,
+    credential: UserCredentials,
   ) -> FutureResult<Option<UserProfile>, FlowyError> {
     let server = self.server.clone();
     let (tx, rx) = channel();
@@ -104,6 +106,9 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
       tx.send(
         async move {
           let client = server.get_pg_client().await.recv().await?;
+          let uid = credential
+            .uid
+            .ok_or(FlowyError::new(ErrorCode::InvalidParams, "uid is required"))?;
           let user_profile = get_user_profile(&client, GetUserProfileParams::Uid(uid))
             .await
             .ok()
@@ -117,6 +122,22 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
               workspace_id: user_profile.workspace_id,
             });
           Ok(user_profile)
+        }
+        .await,
+      )
+    });
+    FutureResult::new(async { rx.await.map_err(internal_error)? })
+  }
+
+  fn check_user(&self, credential: UserCredentials) -> FutureResult<(), FlowyError> {
+    let uuid = credential.uuid.and_then(|uuid| Uuid::from_str(&uuid).ok());
+    let server = self.server.clone();
+    let (tx, rx) = channel();
+    tokio::spawn(async move {
+      tx.send(
+        async move {
+          let client = server.get_pg_client().await.recv().await?;
+          check_user(&client, credential.uid, uuid).await
         }
         .await,
       )
@@ -232,4 +253,48 @@ async fn update_user_profile(
     .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
   tracing::trace!("Update user profile affect rows: {}", affect_rows);
   Ok(())
+}
+
+async fn check_user(
+  client: &PostgresObject,
+  uid: Option<i64>,
+  uuid: Option<Uuid>,
+) -> Result<(), FlowyError> {
+  if uid.is_none() && uuid.is_none() {
+    return Err(FlowyError::new(
+      ErrorCode::InvalidParams,
+      "uid and uuid can't be both empty",
+    ));
+  }
+
+  let (sql, params) = match uid {
+    None => SelectSqlBuilder::new(USER_TABLE)
+      .where_clause("uuid", uuid.unwrap())
+      .build(),
+    Some(uid) => SelectSqlBuilder::new(USER_TABLE)
+      .where_clause("uid", uid)
+      .build(),
+  };
+
+  let stmt = client
+    .prepare_cached(&sql)
+    .await
+    .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
+  let rows = Box::pin(
+    client
+      .query_raw(&stmt, params)
+      .await
+      .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?,
+  );
+  pin_mut!(rows);
+
+  // TODO(nathan): would it be better to use token.
+  if rows.next().await.is_some() {
+    Ok(())
+  } else {
+    Err(FlowyError::new(
+      ErrorCode::UserNotExist,
+      "Can't find the user in pg database",
+    ))
+  }
 }

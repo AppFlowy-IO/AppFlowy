@@ -41,12 +41,15 @@ impl<Payload> PendingRequest<Payload> {
   where
     Payload: Debug,
   {
-    self.state = new_state;
-    tracing::trace!(
-      "Request {:?} state changed to {:?}",
-      self.payload,
-      self.state
-    );
+    if self.state != new_state {
+      // tracing::trace!(
+      //   "PgRequest {:?} from {:?} to {:?}",
+      //   self.payload,
+      //   self.state,
+      //   new_state,
+      // );
+      self.state = new_state;
+    }
   }
 
   pub fn is_processing(&self) -> bool {

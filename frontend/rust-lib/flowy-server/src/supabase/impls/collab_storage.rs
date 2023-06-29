@@ -5,8 +5,6 @@ use appflowy_integrate::{
   merge_updates_v1, CollabObject, Decode, MsgId, RemoteCollabStorage, YrsUpdate,
 };
 use deadpool_postgres::GenericClient;
-use futures::pin_mut;
-use futures::StreamExt;
 use futures_util::TryStreamExt;
 use tokio::task::spawn_blocking;
 use tokio_postgres::Row;
@@ -17,22 +15,22 @@ use lib_infra::async_trait::async_trait;
 use crate::supabase::sql_builder::{InsertSqlBuilder, SelectSqlBuilder};
 use crate::supabase::PostgresServer;
 
-pub struct CollabStorageImpl {
+pub struct PgCollabStorageImpl {
   server: Arc<PostgresServer>,
 }
 
-impl CollabStorageImpl {
+impl PgCollabStorageImpl {
   pub fn new(server: Arc<PostgresServer>) -> Self {
     Self { server }
   }
 }
 
 #[async_trait]
-impl RemoteCollabStorage for CollabStorageImpl {
+impl RemoteCollabStorage for PgCollabStorageImpl {
   async fn get_all_updates(&self, object_id: &str) -> Result<Vec<Vec<u8>>, Error> {
     let client = self.server.get_pg_client().await.recv().await?;
     let stmt = client
-      .prepare_cached("SELECT value FROM af_collab WHERE oid = $1 ORDER BY oid ASC")
+      .prepare_cached("SELECT value FROM af_collab WHERE oid = $1 ORDER BY key ASC")
       .await?;
     Ok(client.query(&stmt, &[&object_id]).await.map(|rows| {
       rows
@@ -40,6 +38,23 @@ impl RemoteCollabStorage for CollabStorageImpl {
         .flat_map(|row| update_from_row(row).ok())
         .collect()
     })?)
+  }
+
+  async fn get_latest_full_sync(&self, object_id: &str) -> Result<Vec<u8>, Error> {
+    todo!()
+  }
+
+  async fn create_full_sync(&self, object: &CollabObject, update: Vec<u8>) -> Result<(), Error> {
+    let value_size = update.len() as i32;
+    let (sql, params) = InsertSqlBuilder::new("af_collab_full_backup")
+      .value("oid", object.id.clone())
+      .value("name", object.name.clone())
+      .value("blob", update)
+      .value("blob_size", value_size)
+      .build();
+    let stmt = client.prepare_cached(&sql).await?;
+    client.execute_raw(&stmt, params).await?;
+    Ok(())
   }
 
   async fn send_update(
@@ -65,10 +80,33 @@ impl RemoteCollabStorage for CollabStorageImpl {
   async fn send_init_sync(
     &self,
     object: &CollabObject,
-    id: MsgId,
+    _id: MsgId,
     init_update: Vec<u8>,
   ) -> Result<(), Error> {
     let mut client = self.server.get_pg_client().await.recv().await?;
+
+    let weak_server = Arc::downgrade(&self.server);
+    tokio::spawn(async move {
+      if let Some(server) = weak_server.upgrade() {
+        let mut client = server.get_pg_client().await.recv().await?;
+        let txn = client.transaction().await?;
+        let _insert_stmt = txn
+          .prepare_cached("INSERT INTO af_collab (oid, name, value) VALUES ($1, $2, $3)")
+          .await?;
+        let value_size = merged_update.len() as i32;
+        let (sql, params) = InsertSqlBuilder::new("af_collab")
+          .value("oid", object.id.clone())
+          .value("name", object.name.clone())
+          .value("value", merged_update)
+          .value("value_size", value_size)
+          .build();
+        let stmt = txn.prepare_cached(&sql).await?;
+        txn.execute_raw(&stmt, params).await?;
+
+        let _ = txn.commit().await;
+      }
+    });
+
     let txn = client.transaction().await?;
     let (sql, params) = SelectSqlBuilder::new("af_collab")
       .column("value")
@@ -77,7 +115,6 @@ impl RemoteCollabStorage for CollabStorageImpl {
 
     // 1.Get all updates
     let get_all_update_stmt = txn.prepare_cached(&sql).await?;
-
     let row_stream = txn.query_raw(&get_all_update_stmt, params).await?;
     let remote_updates = row_stream.try_collect::<Vec<_>>().await?;
 
@@ -90,10 +127,9 @@ impl RemoteCollabStorage for CollabStorageImpl {
     txn.execute(&delete_stmt, &[&object.id]).await?;
 
     // 3.Insert the merged update
-    let insert_stmt = txn
+    let _insert_stmt = txn
       .prepare_cached("INSERT INTO af_collab (oid, name, value) VALUES ($1, $2, $3)")
       .await?;
-
     let value_size = merged_update.len() as i32;
     let (sql, params) = InsertSqlBuilder::new("af_collab")
       .value("oid", object.id.clone())
@@ -104,9 +140,8 @@ impl RemoteCollabStorage for CollabStorageImpl {
     let stmt = txn.prepare_cached(&sql).await?;
     txn.execute_raw(&stmt, params).await?;
 
-    // commit the transaction
+    // 4.commit the transaction
     txn.commit().await?;
-
     Ok(())
   }
 }

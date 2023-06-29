@@ -1,10 +1,11 @@
-use crate::user::supabase_test::helper::get_supabase_config;
-
-use flowy_test::{event_builder::EventBuilder, FlowyCoreTest};
-use flowy_user::entities::{AuthTypePB, ThirdPartyAuthPB, UserProfilePB};
-
-use flowy_user::event_map::UserEvent::*;
 use std::collections::HashMap;
+
+use flowy_test::event_builder::EventBuilder;
+use flowy_test::FlowyCoreTest;
+use flowy_user::entities::{AuthTypePB, ThirdPartyAuthPB, UserProfilePB};
+use flowy_user::event_map::UserEvent::*;
+
+use crate::user::supabase_test::helper::get_supabase_config;
 
 #[tokio::test]
 async fn sign_up_test() {

@@ -1,14 +1,13 @@
-mod layer;
-use crate::layer::*;
+use std::sync::RwLock;
+
 use lazy_static::lazy_static;
 use log::LevelFilter;
-use std::sync::RwLock;
 use tracing::subscriber::set_global_default;
 use tracing_appender::{non_blocking::WorkerGuard, rolling::RollingFileAppender};
-use tracing_bunyan_formatter::JsonStorageLayer;
 use tracing_log::LogTracer;
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
 
+mod layer;
 lazy_static! {
   static ref LOG_GUARD: RwLock<Option<WorkerGuard>> = RwLock::new(None);
 }
@@ -40,7 +39,7 @@ impl Builder {
   pub fn build(self) -> std::result::Result<(), String> {
     let env_filter = EnvFilter::new(self.env_filter);
 
-    let (non_blocking, guard) = tracing_appender::non_blocking(self.file_appender);
+    let (_non_blocking, guard) = tracing_appender::non_blocking(self.file_appender);
     let subscriber = tracing_subscriber::fmt()
       .with_ansi(true)
       .with_target(false)
@@ -52,10 +51,10 @@ impl Builder {
       // .with_span_list(true)
       .compact()
       .finish()
-      .with(env_filter)
-      .with(JsonStorageLayer)
-      .with(FlowyFormattingLayer::new(std::io::stdout))
-      .with(FlowyFormattingLayer::new(non_blocking));
+      .with(env_filter);
+    // .with(JsonStorageLayer)
+    // .with(FlowyFormattingLayer::new(std::io::stdout))
+    // .with(FlowyFormattingLayer::new(non_blocking));
 
     set_global_default(subscriber).map_err(|e| format!("{:?}", e))?;
     LogTracer::builder()
@@ -71,6 +70,7 @@ impl Builder {
 #[cfg(test)]
 mod tests {
   use super::*;
+
   // run  cargo test --features="use_bunyan" or  cargo test
   #[test]
   fn test_log() {

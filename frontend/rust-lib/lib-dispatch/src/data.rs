@@ -1,3 +1,8 @@
+use std::fmt::{Debug, Formatter};
+use std::ops;
+
+use bytes::Bytes;
+
 use crate::{
   byte_trait::*,
   errors::{DispatchError, InternalError},
@@ -5,8 +10,6 @@ use crate::{
   response::{AFPluginEventResponse, AFPluginResponder, ResponseBuilder},
   util::ready::{ready, Ready},
 };
-use bytes::Bytes;
-use std::ops;
 
 pub struct AFPluginData<T>(pub T);
 
@@ -124,5 +127,14 @@ where
 impl ToBytes for AFPluginData<String> {
   fn into_bytes(self) -> Result<Bytes, DispatchError> {
     Ok(Bytes::from(self.0))
+  }
+}
+
+impl<T> Debug for AFPluginData<T>
+where
+  T: Debug,
+{
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    self.0.fmt(f)
   }
 }

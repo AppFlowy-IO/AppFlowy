@@ -81,6 +81,7 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
     .collect::<Vec<String>>();
   filters.push(format!("flowy_core={}", level));
   filters.push(format!("flowy_folder2={}", level));
+  filters.push(format!("collab_sync={}", level));
   filters.push(format!("collab_folder={}", level));
   filters.push(format!("collab_persistence={}", level));
   filters.push(format!("collab_database={}", level));

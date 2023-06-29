@@ -74,6 +74,40 @@ where
   }
 }
 
+#[derive(Clone, Debug)]
+pub struct UserCredentials {
+  /// Currently, the token is only used when the [AuthType] is SelfHosted
+  pub token: Option<String>,
+
+  /// The user id
+  pub uid: Option<i64>,
+
+  /// The user id
+  pub uuid: Option<String>,
+}
+
+impl UserCredentials {
+  pub fn from_uid(uid: i64) -> Self {
+    Self {
+      token: None,
+      uid: Some(uid),
+      uuid: None,
+    }
+  }
+
+  pub fn from_uuid(uuid: String) -> Self {
+    Self {
+      token: None,
+      uid: None,
+      uuid: Some(uuid),
+    }
+  }
+
+  pub fn new(token: Option<String>, uid: Option<i64>, uuid: Option<String>) -> Self {
+    Self { token, uid, uuid }
+  }
+}
+
 /// Provide the generic interface for the user cloud service
 /// The user cloud service is responsible for the user authentication and user profile management
 pub trait UserAuthService: Send + Sync {
@@ -92,7 +126,7 @@ pub trait UserAuthService: Send + Sync {
   /// Using the user's token to update the user information
   fn update_user(
     &self,
-    token: &Option<String>,
+    credential: UserCredentials,
     params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError>;
 
@@ -100,9 +134,10 @@ pub trait UserAuthService: Send + Sync {
   /// return None if the user is not found
   fn get_user_profile(
     &self,
-    token: Option<String>,
-    uid: i64,
+    credential: UserCredentials,
   ) -> FutureResult<Option<UserProfile>, FlowyError>;
+
+  fn check_user(&self, credential: UserCredentials) -> FutureResult<(), FlowyError>;
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]

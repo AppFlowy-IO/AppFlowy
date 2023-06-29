@@ -5,7 +5,7 @@ use flowy_error::FlowyError;
 use flowy_user::entities::{
   SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
-use flowy_user::event_map::UserAuthService;
+use flowy_user::event_map::{UserAuthService, UserCredentials};
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
@@ -55,7 +55,7 @@ impl UserAuthService for LocalServerUserAuthServiceImpl {
 
   fn update_user(
     &self,
-    _token: &Option<String>,
+    _credential: UserCredentials,
     _params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
@@ -63,9 +63,12 @@ impl UserAuthService for LocalServerUserAuthServiceImpl {
 
   fn get_user_profile(
     &self,
-    _token: Option<String>,
-    _uid: i64,
+    _credential: UserCredentials,
   ) -> FutureResult<Option<UserProfile>, FlowyError> {
     FutureResult::new(async { Ok(None) })
+  }
+
+  fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async { Ok(()) })
   }
 }

@@ -1035,6 +1035,7 @@ dependencies = [
  "tokio",
  "tokio-postgres",
  "tokio-retry",
+ "tokio-stream",
  "tracing",
  "y-sync",
  "yrs",

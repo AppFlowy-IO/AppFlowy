@@ -117,9 +117,14 @@ impl DatabaseManager2 {
 
   #[tracing::instrument(level = "debug", skip_all)]
   pub async fn close_database_view<T: AsRef<str>>(&self, view_id: T) -> FlowyResult<()> {
+    // TODO(natan): defer closing the database if the sync is not finished
     let view_id = view_id.as_ref();
-    let database_id = self.with_user_database(None, |database| {
-      database.get_database_id_with_view_id(view_id)
+    let database_id = self.with_user_database(None, |databases| {
+      let database_id = databases.get_database_id_with_view_id(view_id);
+      if database_id.is_some() {
+        databases.close_database(database_id.as_ref().unwrap());
+      }
+      database_id
     });
 
     if let Some(database_id) = database_id {
