@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flowy_infra/plugins/service/models/exceptions.dart';
 import 'package:flowy_infra/plugins/service/plugin_service.dart';
 
 import '../../file_picker/file_picker_impl.dart';
@@ -27,12 +28,20 @@ class DynamicPluginBloc extends Bloc<DynamicPluginEvent, DynamicPluginState> {
   }
 
   Future<void> addPlugin(Emitter<DynamicPluginState> emit) async {
-    emit(const DynamicPluginState.processing());
-
-    // TODO(a-wallen): error handling after implementation.
-    final plugin = await FlowyPluginService.pick();
-
-    await FlowyPluginService.instance.addPlugin(plugin!);
+    try {
+      final plugin = await FlowyPluginService.pick();
+      if (plugin == null) {
+        emit(DynamicPluginState.ready(
+            plugins: await FlowyPluginService.instance.plugins));
+        return;
+      }
+      emit(const DynamicPluginState.processing());
+      await FlowyPluginService.instance.addPlugin(plugin!);
+    } on PluginCompilationException {
+      // TODO(a-wallen): Remove path from compilation failure
+      emit(const DynamicPluginState.compilationFailure(path: ''));
+      return;
+    }
 
     emit(const DynamicPluginState.compilationSuccess());
     emit(DynamicPluginState.ready(
