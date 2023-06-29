@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/theme_upload_view.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/upload_new_theme_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -9,14 +8,10 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_bloc.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_event.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_state.dart';
-import 'package:flowy_infra/plugins/service/models/flowy_dynamic_plugin.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'theme_upload/theme_preview.dart';
-import 'utils/form_factor.dart';
 
 class SettingsAppearanceView extends StatelessWidget {
   const SettingsAppearanceView({Key? key}) : super(key: key);
@@ -156,7 +151,10 @@ class ThemeSelectionPopover extends StatelessWidget {
                           .whereType<AppTheme>()
                           .map(
                             (theme) => _themeItemButton(
-                                context, theme.themeName, false),
+                              context,
+                              theme.themeName,
+                              false,
+                            ),
                           )
                           .toList()
                     ],
