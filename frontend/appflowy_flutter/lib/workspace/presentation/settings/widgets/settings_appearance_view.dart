@@ -358,6 +358,11 @@ class _ThemeSettingDropDownState extends State<ThemeSettingDropDown> {
         AppFlowyPopover(
           direction: PopoverDirection.bottomWithRightAligned,
           popupBuilder: widget.popupBuilder,
+          constraints: const BoxConstraints(
+            minWidth: 80,
+            maxWidth: 160,
+            maxHeight: 400,
+          ),
           child: FlowyTextButton(
             widget.currentValue,
             fontColor: Theme.of(context).colorScheme.onBackground,
