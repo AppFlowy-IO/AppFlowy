@@ -13,8 +13,8 @@ class WindowSizeManager {
   static const width = 'width';
   static const height = 'height';
 
-  static const dx = 'dx';
-  static const dy = 'dy';
+  static const String dx = 'dx';
+  static const String dy = 'dy';
 
   Future<void> setSize(Size size) async {
     final windowSize = {
