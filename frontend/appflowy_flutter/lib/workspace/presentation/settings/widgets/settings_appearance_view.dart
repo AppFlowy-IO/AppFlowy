@@ -310,15 +310,13 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
                     .sorted((a, b) => levenshtein(a, b))
                     .toList();
               }
-              return Column(
-                children: displayed
-                    .map(
-                      (font) => _fontFamilyItemButton(
-                        context,
-                        GoogleFonts.getFont(font),
-                      ),
-                    )
-                    .toList(),
+              return ListView.builder(
+                itemBuilder: (context, index) => _fontFamilyItemButton(
+                  context,
+                  GoogleFonts.getFont(displayed[index]),
+                ),
+                itemCount: displayed.length,
+                shrinkWrap: true,
               );
             },
           ),
