@@ -28,6 +28,7 @@ class DynamicPluginBloc extends Bloc<DynamicPluginEvent, DynamicPluginState> {
   }
 
   Future<void> addPlugin(Emitter<DynamicPluginState> emit) async {
+    emit(const DynamicPluginState.processing());
     try {
       final plugin = await FlowyPluginService.pick();
       if (plugin == null) {
@@ -35,8 +36,7 @@ class DynamicPluginBloc extends Bloc<DynamicPluginEvent, DynamicPluginState> {
             plugins: await FlowyPluginService.instance.plugins));
         return;
       }
-      emit(const DynamicPluginState.processing());
-      await FlowyPluginService.instance.addPlugin(plugin!);
+      await FlowyPluginService.instance.addPlugin(plugin);
     } on PluginCompilationException {
       // TODO(a-wallen): Remove path from compilation failure
       emit(const DynamicPluginState.compilationFailure(path: ''));
