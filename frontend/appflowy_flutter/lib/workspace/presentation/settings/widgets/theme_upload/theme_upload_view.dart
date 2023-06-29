@@ -51,14 +51,10 @@ class _ThemeUploadWidgetState extends State<ThemeUploadWidget> {
           );
         },
         compilationSuccess: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: FlowyText.medium(
-                color: Theme.of(context).colorScheme.onPrimary,
-                LocaleKeys.settings_appearance_themeUpload_uploadSuccess.tr(),
-              ),
-            ),
-          );
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context)
+                .pop(const DynamicPluginState.compilationSuccess());
+          }
         },
         deletionFailure: (path) {},
       );
