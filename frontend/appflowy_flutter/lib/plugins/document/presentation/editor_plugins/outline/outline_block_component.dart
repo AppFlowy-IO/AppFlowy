@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -184,8 +183,8 @@ class OutlineItemWidget extends StatelessWidget {
 
 extension on Node {
   double get leftIndent {
+    assert(type != HeadingBlockKeys.type);
     if (type != HeadingBlockKeys.type) {
-      assert(false);
       return 0.0;
     }
     final level = attributes[HeadingBlockKeys.level];
