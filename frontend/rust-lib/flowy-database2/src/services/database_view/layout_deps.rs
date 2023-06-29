@@ -25,29 +25,30 @@ impl DatabaseLayoutDepsResolver {
     }
   }
 
-  pub fn resolve_deps_when_create_database_linked_view(&self) -> Option<LayoutSetting> {
+  pub fn resolve_deps_when_create_database_linked_view(
+    &self,
+  ) -> Option<(Option<Field>, LayoutSetting)> {
     match self.database_layout {
       DatabaseLayout::Grid => None,
       DatabaseLayout::Board => None,
       DatabaseLayout::Calendar => {
-        let date_field_id = match self
+        match self
           .database
           .lock()
           .get_fields(None)
           .into_iter()
           .find(|field| FieldType::from(field.field_type).is_date())
         {
-          Some(field) => field.id,
-          None => {
-            let field = self.create_date_field();
-            self.database.lock().create_field(field.clone());
-            field.id
+          Some(field) => {
+            let layout_setting = CalendarLayoutSetting::new(field.id).into();
+            Some((None, layout_setting))
           },
-        };
-
-        let layout_setting: LayoutSetting =
-          CalendarLayoutSetting::new(date_field_id.clone()).into();
-        Some(layout_setting)
+          None => {
+            let date_field = self.create_date_field();
+            let layout_setting = CalendarLayoutSetting::new(date_field.clone().id).into();
+            Some((Some(date_field), layout_setting))
+          },
+        }
       },
     }
   }

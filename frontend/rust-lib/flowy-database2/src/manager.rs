@@ -224,10 +224,18 @@ impl DatabaseManager2 {
     let wdb = self.get_workspace_database().await?;
     let mut params = CreateViewParams::new(database_id.clone(), database_view_id, name, layout);
     if let Some(database) = wdb.get_database(&database_id).await {
-      if let Some(layout_setting) = DatabaseLayoutDepsResolver::new(database, layout)
+      match DatabaseLayoutDepsResolver::new(database, layout)
         .resolve_deps_when_create_database_linked_view()
       {
-        params = params.with_layout_setting(layout_setting);
+        Some((Some(field), layout_setting)) => {
+          params = params
+            .with_deps_fields(vec![field])
+            .with_layout_setting(layout_setting);
+        },
+        Some((None, layout_setting)) => {
+          params = params.with_layout_setting(layout_setting);
+        },
+        _ => {},
       }
     };
     wdb.create_database_linked_view(params).await?;
