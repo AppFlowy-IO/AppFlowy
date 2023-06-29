@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
@@ -103,7 +104,10 @@ class MenuUser extends StatelessWidget {
           showDialog(
             context: context,
             builder: (context) {
-              return SettingsDialog(userProfile);
+              return BlocProvider<DocumentAppearanceCubit>.value(
+                value: BlocProvider.of<DocumentAppearanceCubit>(context),
+                child: SettingsDialog(userProfile),
+              );
             },
           );
         },
