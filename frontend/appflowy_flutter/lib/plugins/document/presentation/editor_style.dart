@@ -28,19 +28,20 @@ class EditorStyleCustomizer {
   EditorStyle desktop() {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+    final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
     return EditorStyle.desktop(
       padding: padding,
       backgroundColor: theme.colorScheme.surface,
       cursorColor: theme.colorScheme.primary,
       textStyleConfiguration: TextStyleConfiguration(
         text: TextStyle(
-          fontFamily: 'Poppins',
+          fontFamily: fontFamily,
           fontSize: fontSize,
           color: theme.colorScheme.onBackground,
           height: 1.5,
         ),
-        bold: const TextStyle(
-          fontFamily: 'Poppins-Bold',
+        bold: TextStyle(
+          fontFamily: fontFamily,
           fontWeight: FontWeight.w600,
         ),
         italic: const TextStyle(fontStyle: FontStyle.italic),
@@ -66,19 +67,20 @@ class EditorStyleCustomizer {
   EditorStyle mobile() {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+    final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
     return EditorStyle.desktop(
       padding: padding,
       backgroundColor: theme.colorScheme.surface,
       cursorColor: theme.colorScheme.primary,
       textStyleConfiguration: TextStyleConfiguration(
         text: TextStyle(
-          fontFamily: 'poppins',
+          fontFamily: fontFamily,
           fontSize: fontSize,
           color: theme.colorScheme.onBackground,
           height: 1.5,
         ),
-        bold: const TextStyle(
-          fontFamily: 'poppins-Bold',
+        bold: TextStyle(
+          fontFamily: fontFamily,
           fontWeight: FontWeight.w600,
         ),
         italic: const TextStyle(fontStyle: FontStyle.italic),
@@ -119,8 +121,9 @@ class EditorStyleCustomizer {
   TextStyle codeBlockStyleBuilder() {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+    final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
     return TextStyle(
-      fontFamily: 'poppins',
+      fontFamily: fontFamily,
       fontSize: fontSize,
       height: 1.5,
       color: theme.colorScheme.onBackground,
