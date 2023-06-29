@@ -69,10 +69,12 @@ class _ThemeUploadWidgetState extends State<ThemeUploadWidget> {
     return BlocListener<DynamicPluginBloc, DynamicPluginState>(
       listener: listen,
       child: ThemeUploadDecoration(
-        child: AnimatedSwitcher(
-          duration: ThemeUploadWidget.fadeDuration,
-          switchInCurve: Curves.easeInOutCubicEmphasized,
-          child: child,
+        child: Center(
+          child: AnimatedSwitcher(
+            duration: ThemeUploadWidget.fadeDuration,
+            switchInCurve: Curves.easeInOutCubicEmphasized,
+            child: child,
+          ),
         ),
       ),
     );

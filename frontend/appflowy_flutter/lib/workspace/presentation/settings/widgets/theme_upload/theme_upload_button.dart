@@ -22,10 +22,16 @@ class ThemeUploadButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           color: color ?? Theme.of(context).colorScheme.primary,
         ),
-        text: FlowyText.medium(
-          fontSize: ThemeUploadWidget.buttonFontSize,
-          color: Theme.of(context).colorScheme.onPrimary,
-          LocaleKeys.settings_appearance_themeUpload_button.tr(),
+        hoverColor: color,
+        text: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FlowyText.medium(
+              fontSize: ThemeUploadWidget.buttonFontSize,
+              color: Theme.of(context).colorScheme.onPrimary,
+              LocaleKeys.settings_appearance_themeUpload_button.tr(),
+            ),
+          ],
         ),
         onTap: () => BlocProvider.of<DynamicPluginBloc>(context)
             .add(DynamicPluginEvent.addPlugin()),

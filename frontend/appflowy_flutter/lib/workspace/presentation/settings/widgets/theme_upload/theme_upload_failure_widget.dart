@@ -17,27 +17,23 @@ class ThemeUploadFailureWidget extends StatelessWidget {
           .colorScheme
           .error
           .withOpacity(ThemeUploadWidget.fadeOpacity),
+      constraints: const BoxConstraints.expand(),
       padding: ThemeUploadWidget.padding,
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Flexible(
-            child: Column(
-              children: [
-                svgWidget(
-                  'home/close',
-                  size: ThemeUploadWidget.iconSize,
-                  color: Theme.of(context).colorScheme.onBackground,
-                ),
-                FlowyText.medium(
-                  LocaleKeys.settings_appearance_themeUpload_failure.tr(),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                ThemeUploadWidget.elementSpacer,
-                ThemeUploadButton(color: Theme.of(context).colorScheme.error),
-              ],
-            ),
+          svgWidget(
+            'home/close',
+            size: ThemeUploadWidget.iconSize,
+            color: Theme.of(context).colorScheme.onBackground,
           ),
+          FlowyText.medium(
+            LocaleKeys.settings_appearance_themeUpload_failure.tr(),
+            overflow: TextOverflow.ellipsis,
+          ),
+          ThemeUploadWidget.elementSpacer,
+          ThemeUploadButton(color: Theme.of(context).colorScheme.error),
         ],
       ),
     );
