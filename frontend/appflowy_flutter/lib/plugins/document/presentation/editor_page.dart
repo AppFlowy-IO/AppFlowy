@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/bl
 import 'package:appflowy/plugins/document/presentation/editor_plugins/database/referenced_database_menu_tem.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +35,8 @@ class AppFlowyEditorPage extends StatefulWidget {
 
 class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   late final ScrollController effectiveScrollController;
+
+  final inlinePageReferenceService = InlinePageReferenceService();
 
   final List<CommandShortcutEvent> commandShortcutEvents = [
     ...codeBlockCommands,
@@ -69,7 +72,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final Map<String, BlockComponentBuilder> blockComponentBuilders =
       _customAppFlowyBlockComponentBuilders();
+
   List<CharacterShortcutEvent> get characterShortcutEvents => [
+        // inline page reference list
+        ...inlinePageReferenceShortcuts,
+
         // code block
         ...codeBlockCharacterEvents,
 
@@ -87,6 +94,18 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
             (element) => element == slashCommand,
           ), // remove the default slash command.
       ];
+
+  late final inlinePageReferenceShortcuts = [
+    inlinePageReferenceService.customPageLinkMenu(
+      character: '@',
+      style: styleCustomizer.selectionMenuStyleBuilder(),
+    ),
+    // uncomment this to enable the inline page reference list
+    // inlinePageReferenceService.customPageLinkMenu(
+    //   character: '+',
+    //   style: styleCustomizer.selectionMenuStyleBuilder(),
+    // ),
+  ];
 
   late final showSlashMenu = customSlashCommand(
     slashMenuItems,
