@@ -7,8 +7,10 @@ use crate::entities::FieldType;
 use crate::services::field::DateTypeOption;
 use crate::services::setting::CalendarLayoutSetting;
 
-/// When creating a database, we need to resolve the dependencies of the views. Different database
-/// view has different dependencies. For example, a calendar view depends on a date field.
+/// When creating a database, we need to resolve the dependencies of the views.
+/// Different database views have different dependencies. For example, a board
+/// view depends on a field that can be used to group rows while a calendar view
+/// depends on a date field.
 pub struct DatabaseLayoutDepsResolver {
   pub database: Arc<MutexDatabase>,
   /// The new database layout.
@@ -23,14 +25,29 @@ impl DatabaseLayoutDepsResolver {
     }
   }
 
-  pub fn resolve_deps_when_create_database_linked_view(&self) -> Option<(Field, LayoutSetting)> {
+  pub fn resolve_deps_when_create_database_linked_view(&self) -> Option<LayoutSetting> {
     match self.database_layout {
       DatabaseLayout::Grid => None,
       DatabaseLayout::Board => None,
       DatabaseLayout::Calendar => {
-        let field = self.create_date_field();
-        let layout_setting: LayoutSetting = CalendarLayoutSetting::new(field.id.clone()).into();
-        Some((field, layout_setting))
+        let date_field_id = match self
+          .database
+          .lock()
+          .get_fields(None)
+          .into_iter()
+          .find(|field| FieldType::from(field.field_type).is_date())
+        {
+          Some(field) => field.id,
+          None => {
+            let field = self.create_date_field();
+            self.database.lock().create_field(field.clone());
+            field.id
+          },
+        };
+
+        let layout_setting: LayoutSetting =
+          CalendarLayoutSetting::new(date_field_id.clone()).into();
+        Some(layout_setting)
       },
     }
   }
