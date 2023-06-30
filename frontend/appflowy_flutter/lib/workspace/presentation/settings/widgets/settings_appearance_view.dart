@@ -348,10 +348,10 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
           if (widget.currentFontFamily != style.fontFamily) {
             context
                 .read<AppearanceSettingsCubit>()
-                .setFontFamily(style.fontFamily!);
+                .setFontFamily(parseFontFamilyName(style.fontFamily!));
             context
                 .read<DocumentAppearanceCubit>()
-                .syncFontFamily(style.fontFamily!);
+                .syncFontFamily(parseFontFamilyName(style.fontFamily!));
           }
         },
       ),

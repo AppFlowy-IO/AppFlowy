@@ -10,6 +10,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 part 'appearance.freezed.dart';
 
@@ -349,14 +350,24 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
   }
 
   TextStyle _getFontStyle({
-    String? fontFamily,
+    required String fontFamily,
     double? fontSize,
     FontWeight? fontWeight,
     Color? fontColor,
     double? letterSpacing,
     double? lineHeight,
-  }) =>
-      TextStyle(
+  }) {
+    try {
+      return GoogleFonts.getFont(
+        fontFamily,
+        fontSize: fontSize ?? FontSizes.s12,
+        color: fontColor,
+        fontWeight: fontWeight ?? FontWeight.w500,
+        letterSpacing: (fontSize ?? FontSizes.s12) * (letterSpacing ?? 0.005),
+        height: lineHeight,
+      );
+    } catch (e) {
+      return TextStyle(
         fontFamily: fontFamily,
         fontSize: fontSize ?? FontSizes.s12,
         color: fontColor,
@@ -365,6 +376,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         letterSpacing: (fontSize ?? FontSizes.s12) * (letterSpacing ?? 0.005),
         height: lineHeight,
       );
+    }
+  }
 
   TextTheme _getTextTheme({
     required String fontFamily,

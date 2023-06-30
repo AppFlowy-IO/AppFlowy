@@ -84,7 +84,7 @@ class ApplicationWidget extends StatelessWidget {
       providers: [
         BlocProvider.value(value: cubit),
         BlocProvider<DocumentAppearanceCubit>(
-          create: (_) => DocumentAppearanceCubit(),
+          create: (_) => DocumentAppearanceCubit()..fetch(),
         ),
       ],
       child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
