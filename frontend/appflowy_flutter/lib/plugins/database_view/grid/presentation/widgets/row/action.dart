@@ -110,7 +110,7 @@ extension _RowActionExtension on _RowAction {
   bool enable() {
     switch (this) {
       case _RowAction.duplicate:
-        return false;
+        return true;
       case _RowAction.delete:
         return true;
     }
