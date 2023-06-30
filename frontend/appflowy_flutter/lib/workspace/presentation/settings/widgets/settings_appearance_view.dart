@@ -284,12 +284,14 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
     return ThemeSettingDropDown(
       label: LocaleKeys.settings_appearance_fontFamily_label.tr(),
       currentValue: parseFontFamilyName(widget.currentFontFamily),
+      onClose: () {
+        query.value = '';
+      },
       popupBuilder: (_) => ListView(
         shrinkWrap: true,
         children: [
           FlowyTextField(
             hintText: LocaleKeys.settings_appearance_fontFamily_search.tr(),
-            autoClearWhenDone: true,
             debounceDuration: const Duration(milliseconds: 300),
             onChanged: (value) {
               query.value = value;
@@ -344,8 +346,8 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
         ),
         rightIcon:
             buttonFontFamily == parseFontFamilyName(widget.currentFontFamily)
-            ? const FlowySvg(name: 'grid/checkmark')
-            : null,
+                ? const FlowySvg(name: 'grid/checkmark')
+                : null,
         onTap: () {
           if (parseFontFamilyName(widget.currentFontFamily) !=
               buttonFontFamily) {
@@ -368,11 +370,13 @@ class ThemeSettingDropDown extends StatefulWidget {
     required this.label,
     required this.currentValue,
     required this.popupBuilder,
+    this.onClose,
   });
 
   final String label;
   final String currentValue;
   final Widget Function(BuildContext) popupBuilder;
+  final void Function()? onClose;
 
   @override
   State<ThemeSettingDropDown> createState() => _ThemeSettingDropDownState();
@@ -397,6 +401,7 @@ class _ThemeSettingDropDownState extends State<ThemeSettingDropDown> {
             maxWidth: 160,
             maxHeight: 400,
           ),
+          onClose: widget.onClose,
           child: FlowyTextButton(
             widget.currentValue,
             fontColor: Theme.of(context).colorScheme.onBackground,
