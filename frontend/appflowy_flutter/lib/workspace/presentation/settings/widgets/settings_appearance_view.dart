@@ -292,6 +292,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
         children: [
           FlowyTextField(
             hintText: LocaleKeys.settings_appearance_fontFamily_search.tr(),
+            autoFocus: false,
             debounceDuration: const Duration(milliseconds: 300),
             onChanged: (value) {
               query.value = value;
