@@ -252,8 +252,15 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       ),
       AutoCompletionBlockKeys.type: AutoCompletionBlockComponentBuilder(),
       SmartEditBlockKeys.type: SmartEditBlockComponentBuilder(),
-      ToggleListBlockKeys.type: ToggleListBlockComponentBuilder(),
-      OutlineBlockKeys.type: OutlineBlockComponentBuilder(),
+      ToggleListBlockKeys.type: ToggleListBlockComponentBuilder(
+        configuration: configuration,
+      ),
+      OutlineBlockKeys.type: OutlineBlockComponentBuilder(
+        configuration: configuration.copyWith(
+          placeholderTextStyle: (_) =>
+              styleCustomizer.outlineBlockPlaceholderStyleBuilder(),
+        ),
+      ),
     };
 
     final builders = {
