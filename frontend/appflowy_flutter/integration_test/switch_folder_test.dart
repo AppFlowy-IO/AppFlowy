@@ -14,6 +14,10 @@ void main() {
   group('customize the folder path', () {
     const location = 'appflowy_integration_test';
 
+// TODO(lucas): not working on windows. Using the
+// context.applicationDataDirectory.path
+// for example:  final context = await tester.initializeAppFlowy();
+
     setUp(() async {
       await TestFolder.cleanTestLocation(location);
       await TestFolder.setTestLocation(location);

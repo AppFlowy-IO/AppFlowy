@@ -8,16 +8,6 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('document', () {
-    const location = 'appflowy_integration_test';
-
-    setUpAll(() async {
-      await TestFolder.setTestLocation(location);
-    });
-
-    tearDownAll(() async {
-      await TestFolder.cleanTestLocation(null);
-    });
-
     testWidgets(
         'change the language successfully when launching the app for the first time',
         (tester) async {

@@ -11,14 +11,6 @@ void main() {
     testWidgets('import v0.2.0 database data', (tester) async {
       await tester.openV020database();
 
-      // check the import content
-      // await tester.assertCellContent(
-      //   rowIndex: 7,
-      //   fieldType: FieldType.RichText,
-      //   // fieldName: 'Name',
-      //   content: '',
-      // );
-
       // check the text cell
       final textCells = <String>['A', 'B', 'C', 'D', 'E', '', '', '', '', ''];
       for (final (index, content) in textCells.indexed) {

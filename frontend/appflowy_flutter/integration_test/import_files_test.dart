@@ -12,23 +12,8 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('import files', () {
-    const location = 'import_files';
-
-    setUp(() async {
-      await TestFolder.cleanTestLocation(location);
-      await TestFolder.setTestLocation(location);
-    });
-
-    tearDown(() async {
-      await TestFolder.cleanTestLocation(location);
-    });
-
-    tearDownAll(() async {
-      await TestFolder.cleanTestLocation(null);
-    });
-
     testWidgets('import multiple markdown files', (tester) async {
-      await tester.initializeAppFlowy();
+      final context = await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
       // expect to see a readme page
@@ -38,18 +23,19 @@ void main() {
       await tester.tapImportButton();
 
       final testFileNames = ['test1.md', 'test2.md'];
-      final fileLocation = await tester.currentFileLocation();
       for (final fileName in testFileNames) {
         final str = await rootBundle.loadString(
-          p.join(
-            'assets/test/workspaces/markdowns',
-            fileName,
-          ),
+          'assets/test/workspaces/markdowns/$fileName',
         );
-        File(p.join(fileLocation, fileName)).writeAsStringSync(str);
+        File(p.join(context.applicationDataDirectory.path, fileName))
+            .writeAsStringSync(str);
       }
       // mock get files
-      await mockPickFilePaths(testFileNames, name: location);
+      await mockPickFilePaths(
+        testFileNames,
+        name: p.basename(context.applicationDataDirectory.path),
+        customPath: context.applicationDataDirectory.path,
+      );
 
       await tester.tapTextAndMarkdownButton();
 

@@ -82,15 +82,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
     final testFileNames = ['v020.afdb'];
     for (final fileName in testFileNames) {
-      // Load the content from asset folder
-      final assetPath = p.joinAll([
-        'assets',
-        'test',
-        'workspaces',
-        'database',
-        fileName,
-      ]);
-      final str = await rootBundle.loadString(assetPath);
+      // Don't use the p.join to build the path that used in loadString. It
+      // is not working on windows.
+      final str = await rootBundle
+          .loadString("assets/test/workspaces/database/$fileName");
 
       // Write the content to the file.
       File(

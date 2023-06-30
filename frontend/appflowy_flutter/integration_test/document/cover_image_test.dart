@@ -9,21 +9,6 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('cover image', () {
-    const location = 'cover_image';
-
-    setUp(() async {
-      await TestFolder.cleanTestLocation(location);
-      await TestFolder.setTestLocation(location);
-    });
-
-    tearDown(() async {
-      await TestFolder.cleanTestLocation(location);
-    });
-
-    tearDownAll(() async {
-      await TestFolder.cleanTestLocation(null);
-    });
-
     testWidgets('document cover tests', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();

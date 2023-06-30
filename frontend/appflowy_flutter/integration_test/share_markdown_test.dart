@@ -11,30 +11,19 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('share markdown in document page', () {
-    const location = 'markdown';
-
-    setUp(() async {
-      await TestFolder.cleanTestLocation(location);
-      await TestFolder.setTestLocation(location);
-    });
-
-    tearDown(() async {
-      await TestFolder.cleanTestLocation(location);
-    });
-
-    tearDownAll(() async {
-      await TestFolder.cleanTestLocation(null);
-    });
-
+    // TODO(lucas): not working on windows
     testWidgets('click the share button in document page', (tester) async {
-      await tester.initializeAppFlowy();
+      final context = await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
       // expect to see a readme page
       tester.expectToSeePageName(readme);
 
       // mock the file picker
-      final path = await mockSaveFilePath(location, 'test.md');
+      final path = await mockSaveFilePath(
+        context.applicationDataDirectory.path,
+        'test.md',
+      );
       // click the share button and select markdown
       await tester.tapShareButton();
       await tester.tapMarkdownButton();
@@ -52,7 +41,7 @@ void main() {
     testWidgets(
       'share the markdown after renaming the document name',
       (tester) async {
-        await tester.initializeAppFlowy();
+        final context = await tester.initializeAppFlowy();
         await tester.tapGoButton();
 
         // expect to see a readme page
@@ -65,8 +54,10 @@ void main() {
         final shareButton = find.byType(ShareActionList);
         final shareButtonState =
             tester.state(shareButton) as ShareActionListState;
-        final path =
-            await mockSaveFilePath(location, '${shareButtonState.name}.md');
+        final path = await mockSaveFilePath(
+          context.applicationDataDirectory.path,
+          '${shareButtonState.name}.md',
+        );
 
         // click the share button and select markdown
         await tester.tapShareButton();
