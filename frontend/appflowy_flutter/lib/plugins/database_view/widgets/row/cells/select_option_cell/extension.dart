@@ -166,7 +166,7 @@ class SelectOptionTagCell extends StatelessWidget {
             ...children,
           ],
         ),
-        onTap: () => onSelected(option),
+        onTapDown: (_) => onSelected(option),
       ),
     );
   }
