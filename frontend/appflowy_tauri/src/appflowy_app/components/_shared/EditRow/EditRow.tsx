@@ -278,10 +278,10 @@ export const EditRow = ({
               cellIdentifier={editingCell}
               viewId={viewId}
               onOutsideClick={onOutsideEditFieldClick}
-              fieldInfo={controller.fieldController.getField(editingCell.fieldId)}
-              fieldController={controller.fieldController}
+              controller={controller}
               changeFieldTypeClick={onChangeFieldTypeClick}
               onNumberFormat={onNumberFormat}
+              onOpenOptionDetailClick={onOpenOptionDetailClick}
             ></EditFieldPopup>
           )}
           {showChangeFieldTypePopup && (

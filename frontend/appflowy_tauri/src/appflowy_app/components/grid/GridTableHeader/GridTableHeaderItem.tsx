@@ -100,7 +100,7 @@ export const GridTableHeaderItem = ({
             onOutsideClick={() => {
               setShowFieldEditor(false);
             }}
-            fieldInfo={controller.fieldController.getField(editingField.fieldId)}
+            controller={controller}
             changeFieldTypeClick={(buttonTop, buttonRight) => {
               setChangeFieldTypeTop(buttonTop);
               setChangeFieldTypeRight(buttonRight);

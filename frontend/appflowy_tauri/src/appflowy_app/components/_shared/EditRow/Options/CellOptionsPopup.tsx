@@ -43,7 +43,7 @@ export const CellOptionsPopup = ({
 
   const onKeyDown: KeyboardEventHandler = async (e) => {
     if (e.key === 'Enter' && value.length > 0) {
-      await new SelectOptionCellBackendService(cellIdentifier).createOption({ name: value });
+      await new SelectOptionCellBackendService(cellIdentifier).createOption({ name: value, isSelect: true });
       setValue('');
     }
   };

@@ -4,13 +4,14 @@ import { FieldTypeName } from '$app/components/_shared/EditRow/FieldTypeName';
 import { useTranslation } from 'react-i18next';
 import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
 import { Some } from 'ts-results';
-import { FieldController, FieldInfo } from '$app/stores/effects/database/field/field_controller';
 import { MoreSvg } from '$app/components/_shared/svg/MoreSvg';
 import { useAppSelector } from '$app/stores/store';
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { PopupWindow } from '$app/components/_shared/PopupWindow';
-import { FieldType } from '@/services/backend';
+import { FieldType, SelectOptionPB } from '@/services/backend';
 import { DateTypeOptions } from '$app/components/_shared/EditRow/Date/DateTypeOptions';
+import { MultiSelectTypeOptions } from '$app/components/_shared/EditRow/Options/MultiSelectTypeOptions';
+import { DatabaseController } from '$app/stores/effects/database/database_controller';
 
 export const EditFieldPopup = ({
   top,
@@ -18,20 +19,20 @@ export const EditFieldPopup = ({
   cellIdentifier,
   viewId,
   onOutsideClick,
-  fieldInfo,
-  fieldController,
+  controller,
   changeFieldTypeClick,
   onNumberFormat,
+  onOpenOptionDetailClick,
 }: {
   top: number;
   left: number;
   cellIdentifier: CellIdentifier;
   viewId: string;
   onOutsideClick: () => void;
-  fieldInfo: FieldInfo | undefined;
-  fieldController?: FieldController;
+  controller: DatabaseController;
   changeFieldTypeClick: (buttonTop: number, buttonRight: number) => void;
   onNumberFormat?: (buttonLeft: number, buttonTop: number) => void;
+  onOpenOptionDetailClick?: (_left: number, _top: number, _select_option: SelectOptionPB) => void;
 }) => {
   const databaseStore = useAppSelector((state) => state.database);
   const { t } = useTranslation();
@@ -55,10 +56,12 @@ export const EditFieldPopup = ({
   };
 
   const save = async () => {
+    if (!controller) return;
+    const fieldInfo = controller.fieldController.getField(cellIdentifier.fieldId);
     if (!fieldInfo) return;
-    const controller = new TypeOptionController(viewId, Some(fieldInfo));
-    await controller.initialize();
-    await controller.setFieldName(name);
+    const typeOptionController = new TypeOptionController(viewId, Some(fieldInfo));
+    await typeOptionController.initialize();
+    await typeOptionController.setFieldName(name);
   };
 
   const onChangeFieldTypeClick = () => {
@@ -141,9 +144,20 @@ export const EditFieldPopup = ({
           </>
         )}
 
-        {cellIdentifier.fieldType === FieldType.DateTime && fieldController && (
-          <DateTypeOptions cellIdentifier={cellIdentifier} fieldController={fieldController}></DateTypeOptions>
+        {cellIdentifier.fieldType === FieldType.DateTime && controller && (
+          <DateTypeOptions
+            cellIdentifier={cellIdentifier}
+            fieldController={controller.fieldController}
+          ></DateTypeOptions>
         )}
+
+        {(cellIdentifier.fieldType === FieldType.MultiSelect || cellIdentifier.fieldType === FieldType.SingleSelect) &&
+          controller && (
+            <MultiSelectTypeOptions
+              cellIdentifier={cellIdentifier}
+              openOptionDetail={onOpenOptionDetailClick}
+            ></MultiSelectTypeOptions>
+          )}
       </div>
     </PopupWindow>
   );

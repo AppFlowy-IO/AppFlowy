@@ -51,9 +51,9 @@ export class SelectOptionCellBackendService {
     const payload = RepeatedSelectOptionPayload.fromObject({
       view_id: this.cellIdentifier.viewId,
       field_id: this.cellIdentifier.fieldId,
-      row_id: this.cellIdentifier.rowId,
+      items: [option],
     });
-    payload.items.push(option);
+
     return DatabaseEventInsertOrUpdateSelectOption(payload);
   };
 

@@ -19,17 +19,21 @@ export const PopupWindow = ({
 
   const [adjustedTop, setAdjustedTop] = useState(-100);
   const [adjustedLeft, setAdjustedLeft] = useState(-100);
+  const [stickToBottom, setStickToBottom] = useState(false);
+  const [stickToRight, setStickToRight] = useState(false);
 
   useEffect(() => {
     if (!ref.current) return;
     const { height, width } = ref.current.getBoundingClientRect();
     if (top + height > window.innerHeight) {
-      setAdjustedTop(window.innerHeight - height);
+      // setAdjustedTop(window.innerHeight - height);
+      setStickToBottom(true);
     } else {
       setAdjustedTop(top);
     }
     if (left + width > window.innerWidth) {
-      setAdjustedLeft(window.innerWidth - width);
+      // setAdjustedLeft(window.innerWidth - width);
+      setStickToRight(true);
     } else {
       setAdjustedLeft(left);
     }
@@ -43,7 +47,10 @@ export const PopupWindow = ({
         (adjustedTop === -100 && adjustedLeft === -100 ? 'opacity-0 ' : 'opacity-100 ') +
         (className ?? '')
       }
-      style={{ top: `${adjustedTop}px`, left: `${adjustedLeft}px` }}
+      style={{
+        [stickToBottom ? 'bottom' : 'top']: `${stickToBottom ? '0' : adjustedTop}px`,
+        [stickToRight ? 'right' : 'left']: `${stickToRight ? '0' : adjustedLeft}px`,
+      }}
     >
       {children}
     </div>

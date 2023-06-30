@@ -13,12 +13,14 @@ export const CellOption = ({
   cellIdentifier,
   openOptionDetail,
   clearValue,
+  noSelect,
 }: {
   option: ISelectOption;
   checked: boolean;
   cellIdentifier: CellIdentifier;
-  openOptionDetail: (_left: number, _top: number, _select_option: SelectOptionPB) => void;
+  openOptionDetail?: (_left: number, _top: number, _select_option: SelectOptionPB) => void;
   clearValue: () => void;
+  noSelect?: boolean;
 }) => {
   const onOptionDetailClick: MouseEventHandler = (e) => {
     e.stopPropagation();
@@ -36,10 +38,11 @@ export const CellOption = ({
     });
 
     const { right: _left, top: _top } = target.getBoundingClientRect();
-    openOptionDetail(_left, _top, selectOption);
+    openOptionDetail?.(_left, _top, selectOption);
   };
 
   const onToggleOptionClick: MouseEventHandler = async () => {
+    if (noSelect) return;
     if (checked) {
       await new SelectOptionCellBackendService(cellIdentifier).unselectOption([option.selectOptionId]);
     } else {
