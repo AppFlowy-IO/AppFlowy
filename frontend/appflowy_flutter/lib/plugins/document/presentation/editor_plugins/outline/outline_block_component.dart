@@ -184,7 +184,7 @@ class OutlineItemWidget extends StatelessWidget {
 
 extension on Node {
   double get leftIndent {
-    assert(type != HeadingBlockKeys.type);
+    assert(type == HeadingBlockKeys.type);
     if (type != HeadingBlockKeys.type) {
       return 0.0;
     }

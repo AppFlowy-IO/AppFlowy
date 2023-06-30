@@ -9,7 +9,13 @@ import 'package:appflowy/plugins/document/application/doc_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
-    show EditorState, LogLevel, TransactionTime;
+    show
+        EditorState,
+        LogLevel,
+        TransactionTime,
+        paragraphNode,
+        ParagraphBlockKeys,
+        Selection;
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/foundation.dart';
@@ -155,6 +161,9 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         return;
       }
       await _transactionAdapter.apply(event.$2, editorState);
+
+      // check if the document is empty.
+      applyRules();
     });
 
     // output the log from the editor when debug mode
@@ -164,6 +173,39 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         ..handler = (log) {
           // Log.debug(log);
         };
+    }
+  }
+
+  Future<void> applyRules() async {
+    ensureAtLeastOneParagraphExists();
+    ensureLastNodeIsParagraph();
+  }
+
+  Future<void> ensureLastNodeIsParagraph() async {
+    final editorState = this.editorState;
+    if (editorState == null) {
+      return;
+    }
+    final document = editorState.document;
+    final lastNode = document.root.children.lastOrNull;
+    if (lastNode == null || lastNode.type != ParagraphBlockKeys.type) {
+      final transaction = editorState.transaction;
+      transaction.insertNode([document.root.children.length], paragraphNode());
+      await editorState.apply(transaction);
+    }
+  }
+
+  Future<void> ensureAtLeastOneParagraphExists() async {
+    final editorState = this.editorState;
+    if (editorState == null) {
+      return;
+    }
+    final document = editorState.document;
+    if (document.root.children.isEmpty) {
+      final transaction = editorState.transaction;
+      transaction.insertNode([0], paragraphNode());
+      transaction.afterSelection = Selection.collapse([0], 0);
+      await editorState.apply(transaction);
     }
   }
 }
