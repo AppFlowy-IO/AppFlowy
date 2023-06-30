@@ -1,5 +1,6 @@
 export const DOCUMENT_NAME = 'document';
 export const TEMPORARY_NAME = 'document/temporary';
+export const BLOCK_EDIT_NAME = 'document/block_edit';
 export const RANGE_NAME = 'document/range';
 
 export const RECT_RANGE_NAME = 'document/rect_range';

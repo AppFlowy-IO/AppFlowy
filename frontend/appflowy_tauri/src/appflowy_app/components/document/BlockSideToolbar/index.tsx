@@ -7,7 +7,6 @@ import DragIndicatorRoundedIcon from '@mui/icons-material/DragIndicatorRounded';
 import AddSharpIcon from '@mui/icons-material/AddSharp';
 import BlockMenu from './BlockMenu';
 import ToolbarButton from './ToolbarButton';
-import { rectSelectionActions } from '$app_reducers/document/slice';
 import { addBlockBelowClickThunk } from '$app_reducers/document/async-actions/menu';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 import { RANGE_NAME, RECT_RANGE_NAME } from '$app/constants/document/name';
