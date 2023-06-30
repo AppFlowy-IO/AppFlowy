@@ -28,32 +28,29 @@ class EditorStyleCustomizer {
   EditorStyle desktop() {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
-    final style = GoogleFonts.getFont(
-      context.read<DocumentAppearanceCubit>().state.fontFamily,
-    );
-
     return EditorStyle.desktop(
       padding: padding,
       backgroundColor: theme.colorScheme.surface,
       cursorColor: theme.colorScheme.primary,
       textStyleConfiguration: TextStyleConfiguration(
-        text: style.copyWith(
+        text: baseTextStyle.copyWith(
           fontSize: fontSize,
           color: theme.colorScheme.onBackground,
           height: 1.5,
         ),
-        bold: style.copyWith(
+        bold: baseTextStyle.copyWith(
           fontWeight: FontWeight.w600,
         ),
-        italic: style.copyWith(fontStyle: FontStyle.italic),
-        underline: style.copyWith(decoration: TextDecoration.underline),
-        strikethrough: style.copyWith(decoration: TextDecoration.lineThrough),
-        href: style.copyWith(
+        italic: baseTextStyle.copyWith(fontStyle: FontStyle.italic),
+        underline: baseTextStyle.copyWith(decoration: TextDecoration.underline),
+        strikethrough:
+            baseTextStyle.copyWith(decoration: TextDecoration.lineThrough),
+        href: baseTextStyle.copyWith(
           color: theme.colorScheme.primary,
           decoration: TextDecoration.underline,
         ),
         code: GoogleFonts.robotoMono(
-          textStyle: style.copyWith(
+          textStyle: baseTextStyle.copyWith(
             fontSize: fontSize,
             fontWeight: FontWeight.normal,
             color: Colors.red,
@@ -68,32 +65,30 @@ class EditorStyleCustomizer {
   EditorStyle mobile() {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
-    final style = GoogleFonts.getFont(
-      context.read<DocumentAppearanceCubit>().state.fontFamily,
-    );
 
     return EditorStyle.desktop(
       padding: padding,
       backgroundColor: theme.colorScheme.surface,
       cursorColor: theme.colorScheme.primary,
       textStyleConfiguration: TextStyleConfiguration(
-        text: style.copyWith(
+        text: baseTextStyle.copyWith(
           fontSize: fontSize,
           color: theme.colorScheme.onBackground,
           height: 1.5,
         ),
-        bold: style.copyWith(
+        bold: baseTextStyle.copyWith(
           fontWeight: FontWeight.w600,
         ),
-        italic: style.copyWith(fontStyle: FontStyle.italic),
-        underline: style.copyWith(decoration: TextDecoration.underline),
-        strikethrough: style.copyWith(decoration: TextDecoration.lineThrough),
-        href: style.copyWith(
+        italic: baseTextStyle.copyWith(fontStyle: FontStyle.italic),
+        underline: baseTextStyle.copyWith(decoration: TextDecoration.underline),
+        strikethrough:
+            baseTextStyle.copyWith(decoration: TextDecoration.lineThrough),
+        href: baseTextStyle.copyWith(
           color: theme.colorScheme.primary,
           decoration: TextDecoration.underline,
         ),
         code: GoogleFonts.robotoMono(
-          textStyle: style.copyWith(
+          textStyle: baseTextStyle.copyWith(
             fontSize: fontSize,
             fontWeight: FontWeight.normal,
             color: Colors.red,
@@ -123,10 +118,7 @@ class EditorStyleCustomizer {
   TextStyle codeBlockStyleBuilder() {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
-    final style = GoogleFonts.getFont(
-      context.read<DocumentAppearanceCubit>().state.fontFamily,
-    );
-    return style.copyWith(
+    return baseTextStyle.copyWith(
       fontSize: fontSize,
       height: 1.5,
       color: theme.colorScheme.onBackground,
@@ -161,6 +153,16 @@ class EditorStyleCustomizer {
     return FloatingToolbarStyle(
       backgroundColor: theme.colorScheme.onTertiary,
     );
+  }
+
+  TextStyle get baseTextStyle {
+    try {
+      return GoogleFonts.getFont(
+        context.read<DocumentAppearanceCubit>().state.fontFamily,
+      );
+    } on Exception {
+      return GoogleFonts.getFont('Poppins');
+    }
   }
 
   InlineSpan customizeAttributeDecorator(
