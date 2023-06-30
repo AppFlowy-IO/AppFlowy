@@ -452,6 +452,9 @@
         "center": "Center",
         "right": "Right",
         "defaultColor": "Default"
+      },
+      "image": {
+        "copyToPasteBoard": "The image link has been copied to the clipboard"
       }
     }
   },
