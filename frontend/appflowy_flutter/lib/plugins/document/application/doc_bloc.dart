@@ -9,13 +9,7 @@ import 'package:appflowy/plugins/document/application/doc_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
-    show
-        EditorState,
-        LogLevel,
-        TransactionTime,
-        paragraphNode,
-        ParagraphBlockKeys,
-        Selection;
+    show EditorState, LogLevel, TransactionTime, Selection;
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/foundation.dart';
@@ -178,17 +172,17 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
   Future<void> applyRules() async {
     ensureAtLeastOneParagraphExists();
-    ensureLastNodeIsParagraph();
+    ensureLastNodeIsEditable();
   }
 
-  Future<void> ensureLastNodeIsParagraph() async {
+  Future<void> ensureLastNodeIsEditable() async {
     final editorState = this.editorState;
     if (editorState == null) {
       return;
     }
     final document = editorState.document;
     final lastNode = document.root.children.lastOrNull;
-    if (lastNode == null || lastNode.type != ParagraphBlockKeys.type) {
+    if (lastNode == null || lastNode.delta == null) {
       final transaction = editorState.transaction;
       transaction.insertNode([document.root.children.length], paragraphNode());
       await editorState.apply(transaction);
