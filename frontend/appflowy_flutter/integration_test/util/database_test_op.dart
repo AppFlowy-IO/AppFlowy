@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
+import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_day.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/toolbar/calendar_layout_setting.dart';
@@ -40,6 +41,7 @@ import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text_input.dart';
@@ -977,9 +979,20 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> scrollToToday() async {
     final todayCell = find.byWidgetPredicate(
       (widget) => widget is CalendarDayCard && widget.isToday,
-      skipOffstage: false,
     );
-    await ensureVisible(todayCell);
+    final scrollable = find
+        .descendant(
+          of: find.byType(MonthView<CalendarDayEvent>),
+          matching: find.byWidgetPredicate(
+            (widget) => widget is Scrollable && widget.axis == Axis.vertical,
+          ),
+        )
+        .first;
+    await scrollUntilVisible(
+      todayCell,
+      300,
+      scrollable: scrollable,
+    );
     await pumpAndSettle(const Duration(milliseconds: 300));
   }
 
