@@ -199,7 +199,8 @@
         "loading": "Please wait while we validate and upload your theme...",
         "uploadSuccess": "Your theme was uploaded successfully",
         "deletionFailure": "Failed to delete the theme. Try to delete it manually.",
-        "filePickerDialogTitle": "Choose a .flowy_plugin file"
+        "filePickerDialogTitle": "Choose a .flowy_plugin file",
+        "urlUploadFailure": "Failed to open url: {}"
       },
       "theme": "Theme",
       "builtInsLabel": "Built-in Themes",
