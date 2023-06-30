@@ -52,6 +52,7 @@ pub struct SelectSqlBuilder {
   table: String,
   columns: Vec<String>,
   where_clause: Option<(String, Box<dyn ToSql + Sync + Send>)>,
+  order_by: Option<(String, bool)>,
 }
 
 impl SelectSqlBuilder {
@@ -60,11 +61,17 @@ impl SelectSqlBuilder {
       table: table.to_string(),
       columns: Vec::new(),
       where_clause: None,
+      order_by: None,
     }
   }
 
   pub fn column(mut self, column: &str) -> Self {
     self.columns.push(column.to_string());
+    self
+  }
+
+  pub fn order_by(mut self, column: &str, asc: bool) -> Self {
+    self.order_by = Some((column.to_string(), asc));
     self
   }
 
@@ -83,6 +90,11 @@ impl SelectSqlBuilder {
       params.push(value);
     }
 
+    if let Some((order_by_column, asc)) = self.order_by {
+      let order = if asc { "ASC" } else { "DESC" };
+      sql.push_str(&format!(" ORDER BY {} {}", order_by_column, order));
+    }
+
     (sql, params)
   }
 }
@@ -91,6 +103,7 @@ pub struct InsertSqlBuilder {
   table: String,
   columns: Vec<String>,
   values: Vec<Box<(dyn ToSql + Sync + Send + 'static)>>,
+  override_system_value: bool,
 }
 
 impl InsertSqlBuilder {
@@ -99,6 +112,7 @@ impl InsertSqlBuilder {
       table: table.to_string(),
       columns: Vec::new(),
       values: Vec::new(),
+      override_system_value: false,
     }
   }
 
@@ -108,10 +122,41 @@ impl InsertSqlBuilder {
     self
   }
 
+  pub fn overriding_system_value(mut self) -> Self {
+    self.override_system_value = true;
+    self
+  }
+
   pub fn build(self) -> (String, Vec<Box<(dyn ToSql + Sync + Send)>>) {
+    // let mut query = String::new();
+    // if self.override_system_value {
+    //   query.push_str(&format!(
+    //     "INSERT INTO {} OVERRIDING SYSTEM VALUE (",
+    //     self.table
+    //   ));
+    // } else {
+    //   query.push_str(&format!("INSERT INTO {} (", self.table));
+    // }
+    // query.push_str(&self.columns.join(", "));
+    // query.push_str(") VALUES (");
+    // query.push_str(
+    //   &(0..self.columns.len())
+    //     .map(|i| format!("${}", i + 1))
+    //     .collect::<Vec<_>>()
+    //     .join(", "),
+    // );
+    // query.push(')');
+    // (query, self.values)
+
     let mut query = format!("INSERT INTO {} (", self.table);
     query.push_str(&self.columns.join(", "));
-    query.push_str(") VALUES (");
+    query.push_str(")");
+
+    if self.override_system_value {
+      query.push_str(" OVERRIDING SYSTEM VALUE");
+    }
+
+    query.push_str(" VALUES (");
     query.push_str(
       &(0..self.columns.len())
         .map(|i| format!("${}", i + 1))
@@ -120,5 +165,66 @@ impl InsertSqlBuilder {
     );
     query.push(')');
     (query, self.values)
+  }
+}
+
+pub enum WhereCondition {
+  Equals(String, Box<dyn ToSql + Sync + Send>),
+  In(String, Vec<Box<dyn ToSql + Sync + Send>>),
+}
+
+pub struct DeleteSqlBuilder {
+  table: String,
+  conditions: Vec<WhereCondition>,
+}
+
+impl DeleteSqlBuilder {
+  pub fn new(table: &str) -> Self {
+    Self {
+      table: table.to_string(),
+      conditions: Vec::new(),
+    }
+  }
+
+  pub fn where_condition(mut self, condition: WhereCondition) -> Self {
+    self.conditions.push(condition);
+    self
+  }
+
+  pub fn build(self) -> (String, Vec<Box<dyn ToSql + Sync + Send>>) {
+    let mut sql = format!("DELETE FROM {}", self.table);
+    let mut params: Vec<Box<dyn ToSql + Sync + Send>> = Vec::new();
+
+    if !self.conditions.is_empty() {
+      sql.push_str(" WHERE ");
+      let condition_len = self.conditions.len();
+      for (i, condition) in self.conditions.into_iter().enumerate() {
+        match condition {
+          WhereCondition::Equals(column, value) => {
+            sql.push_str(&format!(
+              "{} = ${}{}",
+              column,
+              params.len() + 1,
+              if i < condition_len - 1 { " AND " } else { "" },
+            ));
+            params.push(value);
+          },
+          WhereCondition::In(column, values) => {
+            let placeholders: Vec<String> = (1..=values.len())
+              .map(|i| format!("${}", i + params.len()))
+              .collect();
+            sql.push_str(&format!(
+              "{} IN ({}){}",
+              column,
+              placeholders.join(", "),
+              if i < condition_len - 1 { " AND " } else { "" },
+            ));
+            params.extend(values);
+          },
+        }
+      }
+    }
+
+    (sql, params)
   }
 }

@@ -1,5 +1,5 @@
 pub use collab_storage::*;
-pub use folder::*;
+pub(crate) use folder::*;
 pub use user::*;
 
 mod collab_storage;
