@@ -220,13 +220,13 @@ class BrightnessSetting extends StatelessWidget {
     return ThemeSettingDropDown(
       label: LocaleKeys.settings_appearance_themeMode_label.tr(),
       currentValue: _themeModeLabelText(currentThemeMode),
-      popupBuilder: (_) => IntrinsicHeight(
-        child: Column(
-          children: [
-            _themeModeItemButton(context, ThemeMode.light),
-            _themeModeItemButton(context, ThemeMode.dark),
-            _themeModeItemButton(context, ThemeMode.system),
-          ],
+      popupBuilder: (_) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _themeModeItemButton(context, ThemeMode.light),
+          _themeModeItemButton(context, ThemeMode.dark),
+          _themeModeItemButton(context, ThemeMode.system),
+        ],
         ),
       ),
     );
