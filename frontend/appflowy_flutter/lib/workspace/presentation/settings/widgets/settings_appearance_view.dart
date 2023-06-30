@@ -333,6 +333,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
   }
 
   Widget _fontFamilyItemButton(BuildContext context, TextStyle style) {
+    final buttonFontFamily = parseFontFamilyName(style.fontFamily!);
     return SizedBox(
       key: UniqueKey(),
       height: 32,
@@ -341,11 +342,13 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
           parseFontFamilyName(style.fontFamily!),
           fontFamily: style.fontFamily!,
         ),
-        rightIcon: widget.currentFontFamily == style.fontFamily
+        rightIcon:
+            buttonFontFamily == parseFontFamilyName(widget.currentFontFamily)
             ? const FlowySvg(name: 'grid/checkmark')
             : null,
         onTap: () {
-          if (widget.currentFontFamily != style.fontFamily) {
+          if (parseFontFamilyName(widget.currentFontFamily) !=
+              buttonFontFamily) {
             context
                 .read<AppearanceSettingsCubit>()
                 .setFontFamily(parseFontFamilyName(style.fontFamily!));
