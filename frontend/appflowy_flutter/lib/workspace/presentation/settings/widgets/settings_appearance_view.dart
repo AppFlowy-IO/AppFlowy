@@ -287,18 +287,25 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
       onClose: () {
         query.value = '';
       },
-      popupBuilder: (_) => ListView(
+      popupBuilder: (_) => CustomScrollView(
         shrinkWrap: true,
-        children: [
-          FlowyTextField(
-            hintText: LocaleKeys.settings_appearance_fontFamily_search.tr(),
-            autoFocus: false,
-            debounceDuration: const Duration(milliseconds: 300),
-            onChanged: (value) {
-              query.value = value;
-            },
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.only(right: 8),
+            sliver: SliverToBoxAdapter(
+              child: FlowyTextField(
+                hintText: LocaleKeys.settings_appearance_fontFamily_search.tr(),
+                autoFocus: false,
+                debounceDuration: const Duration(milliseconds: 300),
+                onChanged: (value) {
+                  query.value = value;
+                },
+              ),
+            ),
           ),
-          const SizedBox(height: 4),
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 4),
+          ),
           ValueListenableBuilder(
             valueListenable: query,
             builder: (context, value, child) {
@@ -313,13 +320,13 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
                     .sorted((a, b) => levenshtein(a, b))
                     .toList();
               }
-              return ListView.builder(
+              return SliverFixedExtentList.builder(
                 itemBuilder: (context, index) => _fontFamilyItemButton(
                   context,
                   GoogleFonts.getFont(displayed[index]),
                 ),
                 itemCount: displayed.length,
-                shrinkWrap: true,
+                itemExtent: 32,
               );
             },
           ),
