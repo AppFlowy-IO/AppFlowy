@@ -385,6 +385,9 @@
         "createANewCalendar": "Create a new Calendar"
       }
     },
+    "selectionMenu": {
+      "outline": "Outline"
+    },
     "plugins": {
       "referencedBoard": "Referenced Board",
       "referencedGrid": "Referenced Grid",

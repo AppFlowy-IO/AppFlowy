@@ -30,8 +30,10 @@ class EditorOperations {
 
   /// Tap the line of editor at [index]
   Future<void> tapLineOfEditorAt(int index) async {
-    final textBlocks = find.byType(TextBlockComponentWidget);
+    final textBlocks = find.byType(FlowyRichText);
+    index = index.clamp(0, textBlocks.evaluate().length - 1);
     await tester.tapAt(tester.getTopRight(textBlocks.at(index)));
+    await tester.pumpAndSettle();
   }
 
   /// Hover on cover plugin button above the document
@@ -114,11 +116,27 @@ class EditorOperations {
     await tester.ime.insertCharacter('/');
   }
 
+  /// trigger the slash command (selection menu)
+  Future<void> showAtMenu() async {
+    await tester.ime.insertCharacter('@');
+  }
+
   /// Tap the slash menu item with [name]
   ///
   /// Must call [showSlashMenu] first.
   Future<void> tapSlashMenuItemWithName(String name) async {
     final slashMenuItem = find.text(name, findRichText: true);
     await tester.tapButton(slashMenuItem);
+  }
+
+  /// Tap the at menu item with [name]
+  ///
+  /// Must call [showAtMenu] first.
+  Future<void> tapAtMenuItemWithName(String name) async {
+    final atMenuItem = find.descendant(
+      of: find.byType(SelectionMenuWidget),
+      matching: find.text(name, findRichText: true),
+    );
+    await tester.tapButton(atMenuItem);
   }
 }

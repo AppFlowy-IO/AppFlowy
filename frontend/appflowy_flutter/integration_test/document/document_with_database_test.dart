@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
+import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/link_to_page_widget.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
@@ -45,21 +46,21 @@ void main() {
       );
     });
 
-    // testWidgets('insert a referenced calendar', (tester) async {
-    //   await tester.initializeAppFlowy();
-    //   await tester.tapGoButton();
+    testWidgets('insert a referenced calendar', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
 
-    //   await insertReferenceDatabase(tester, ViewLayoutPB.Calendar);
+      await insertReferenceDatabase(tester, ViewLayoutPB.Calendar);
 
-    //   // validate the referenced grid is inserted
-    //   expect(
-    //     find.descendant(
-    //       of: find.byType(AppFlowyEditor),
-    //       matching: find.byType(CalendarPage),
-    //     ),
-    //     findsOneWidget,
-    //   );
-    // });
+      // validate the referenced grid is inserted
+      expect(
+        find.descendant(
+          of: find.byType(AppFlowyEditor),
+          matching: find.byType(CalendarPage),
+        ),
+        findsOneWidget,
+      );
+    });
   });
 }
 
@@ -82,7 +83,7 @@ Future<void> insertReferenceDatabase(
   );
   // tap the first line of the document
   await tester.editor.tapLineOfEditorAt(0);
-  // insert a referenced grid
+  // insert a referenced view
   await tester.editor.showSlashMenu();
   await tester.editor.tapSlashMenuItemWithName(
     layout.referencedMenuName,
