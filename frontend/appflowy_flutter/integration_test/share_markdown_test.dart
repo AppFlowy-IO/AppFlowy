@@ -11,7 +11,6 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('share markdown in document page', () {
-    // TODO(lucas): not working on windows
     testWidgets('click the share button in document page', (tester) async {
       final context = await tester.initializeAppFlowy();
       await tester.tapGoButton();

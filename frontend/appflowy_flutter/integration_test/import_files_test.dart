@@ -32,6 +32,7 @@ void main() {
       }
       // mock get files
       await mockPickFilePaths(
+        context.applicationDataDirectory.path,
         testFileNames,
         name: p.basename(context.applicationDataDirectory.path),
         customPath: context.applicationDataDirectory.path,

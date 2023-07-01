@@ -9,7 +9,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TestFolder {
@@ -21,19 +20,12 @@ class TestFolder {
   ///
   /// The file_picker is a system component and can't be tapped, so using logic instead of tapping.
   ///
-  static Future<Directory> setTestLocation(String? name) async {
-    final location = await testLocation(name);
+  static Future<Directory> setTestLocation(String path, {String? name}) async {
+    final location = await testLocation(path, name);
     SharedPreferences.setMockInitialValues({
       KVKeys.pathLocation: location.path,
     });
     return location;
-  }
-
-  /// Clean the location.
-  static Future<void> cleanTestLocation(String? name) async {
-    final dir = await testLocation(name);
-    await dir.delete(recursive: true);
-    return;
   }
 
   /// Get current using location.
@@ -49,13 +41,15 @@ class TestFolder {
   }
 
   /// Get default location under test environment.
-  static Future<Directory> testLocation(String? name) async {
-    final dir = await getTemporaryDirectory();
-    var path = '${dir.path}/flowy_test';
+  static Future<Directory> testLocation(
+    String applicationDataPath,
+    String? name,
+  ) async {
+    var filePath = applicationDataPath;
     if (name != null) {
-      path += '/$name';
+      filePath = "$filePath/$name";
     }
-    return Directory(path).create(recursive: true);
+    return Directory(filePath).create(recursive: true);
   }
 }
 

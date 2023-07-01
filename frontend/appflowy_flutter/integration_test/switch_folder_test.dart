@@ -1,52 +1,31 @@
 import 'package:appflowy/workspace/application/settings/prelude.dart';
-import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'util/mock/mock_file_picker.dart';
 import 'util/util.dart';
-import 'package:path/path.dart' as p;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('customize the folder path', () {
-    const location = 'appflowy_integration_test';
-
-// TODO(lucas): not working on windows. Using the
-// context.applicationDataDirectory.path
-// for example:  final context = await tester.initializeAppFlowy();
-
-    setUp(() async {
-      await TestFolder.cleanTestLocation(location);
-      await TestFolder.setTestLocation(location);
-    });
-
-    tearDown(() async {
-      await TestFolder.cleanTestLocation(location);
-    });
-
-    tearDownAll(() async {
-      await TestFolder.cleanTestLocation(null);
-    });
-
     testWidgets('switch to B from A, then switch to A again', (tester) async {
       final userA = uuid();
       final userB = uuid();
 
-      await TestFolder.cleanTestLocation(userA);
-      await TestFolder.cleanTestLocation(userB);
-      await TestFolder.setTestLocation(p.join(userA, appFlowyDataFolder));
-
-      await tester.initializeAppFlowy();
+      final context = await tester.initializeAppFlowy();
+      await TestFolder.setTestLocation(
+        context.applicationDataDirectory.path,
+        name: userA,
+      );
 
       await tester.tapGoButton();
       tester.expectToSeeHomePage();
 
       // switch to user B
       {
-        // set user name to userA
+        // set user name for userA
         await tester.openSettings();
         await tester.openSettingsPage(SettingsPage.user);
         await tester.enterUserName(userA);
@@ -55,12 +34,15 @@ void main() {
         await tester.pumpAndSettle();
 
         // mock the file_picker result
-        await mockGetDirectoryPath(userB);
+        await mockGetDirectoryPath(
+          context.applicationDataDirectory.path,
+          userB,
+        );
         await tester.tapCustomLocationButton();
         await tester.pumpAndSettle();
         tester.expectToSeeHomePage();
 
-        // set user name to userB
+        // set user name for userB
         await tester.openSettings();
         await tester.openSettingsPage(SettingsPage.user);
         await tester.enterUserName(userB);
@@ -72,7 +54,10 @@ void main() {
         await tester.pumpAndSettle();
 
         // mock the file_picker result
-        await mockGetDirectoryPath(userA);
+        await mockGetDirectoryPath(
+          context.applicationDataDirectory.path,
+          userA,
+        );
         await tester.tapCustomLocationButton();
 
         await tester.pumpAndSettle();
@@ -87,20 +72,21 @@ void main() {
         await tester.pumpAndSettle();
 
         // mock the file_picker result
-        await mockGetDirectoryPath(userB);
+        await mockGetDirectoryPath(
+          context.applicationDataDirectory.path,
+          userB,
+        );
         await tester.tapCustomLocationButton();
 
         await tester.pumpAndSettle();
         tester.expectToSeeHomePage();
         tester.expectToSeeUserName(userB);
       }
-
-      await TestFolder.cleanTestLocation(userA);
-      await TestFolder.cleanTestLocation(userB);
     });
 
     testWidgets('reset to default location', (tester) async {
-      await tester.initializeAppFlowy();
+      final context = await tester.initializeAppFlowy();
+      await TestFolder.setTestLocation(context.applicationDataDirectory.path);
 
       await tester.tapGoButton();
 
