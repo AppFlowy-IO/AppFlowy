@@ -2,8 +2,9 @@ use std::sync::Arc;
 
 use anyhow::Error;
 use appflowy_integrate::{
-  merge_updates_v1, CollabObject, Decode, MsgId, RemoteCollabStorage, YrsUpdate,
+  merge_updates_v1, CollabObject, Decode, MsgId, RemoteCollabState, RemoteCollabStorage, YrsUpdate,
 };
+use chrono::{DateTime, Utc};
 use deadpool_postgres::GenericClient;
 use futures_util::TryStreamExt;
 use tokio::task::spawn_blocking;
@@ -49,7 +50,7 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
     )
   }
 
-  async fn get_latest_full_sync(&self, object_id: &str) -> Result<Vec<u8>, Error> {
+  async fn get_latest_snapshot(&self, object_id: &str) -> Result<Vec<u8>, Error> {
     let client = self.server.get_pg_client().await.recv().await?;
     let sql = "SELECT MAX(key) FROM af_collab WHERE oid = $1";
     let stmt = client.prepare_cached(sql).await?;
@@ -61,13 +62,43 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
     Ok(update)
   }
 
-  async fn create_full_sync(&self, object: &CollabObject, update: Vec<u8>) -> Result<(), Error> {
+  async fn get_collab_state(&self, object_id: &str) -> Result<Option<RemoteCollabState>, Error> {
     let client = self.server.get_pg_client().await.recv().await?;
-    let value_size = update.len() as i32;
-    let (sql, params) = InsertSqlBuilder::new("af_collab_full_backup")
+    let (sql, params) = SelectSqlBuilder::new("af_collab_state")
+      .where_clause("oid", object_id.to_string())
+      .order_by("snapshot_created_at", false)
+      .limit(1)
+      .build();
+    let stmt = client.prepare_cached(&sql).await?;
+    if let Some(row) = client
+      .query_raw(&stmt, params)
+      .await?
+      .try_collect::<Vec<_>>()
+      .await?
+      .first()
+    {
+      let created_at = row.try_get::<_, DateTime<Utc>>("snapshot_created_at")?;
+      let current_edit_count = row.try_get::<_, i64>("current_edit_count")?;
+      let last_snapshot_edit_count = row.try_get::<_, i64>("snapshot_edit_count")?;
+
+      let state = RemoteCollabState {
+        current_edit_count,
+        last_snapshot_edit_count,
+        last_snapshot_created_at: created_at.timestamp(),
+      };
+      return Ok(Some(state));
+    }
+
+    Ok(None)
+  }
+
+  async fn create_snapshot(&self, object: &CollabObject, snapshot: Vec<u8>) -> Result<(), Error> {
+    let client = self.server.get_pg_client().await.recv().await?;
+    let value_size = snapshot.len() as i32;
+    let (sql, params) = InsertSqlBuilder::new("af_collab_snapshot")
       .value("oid", object.id.clone())
       .value("name", object.name.clone())
-      .value("blob", update)
+      .value("blob", snapshot)
       .value("blob_size", value_size)
       .build();
     let stmt = client.prepare_cached(&sql).await?;

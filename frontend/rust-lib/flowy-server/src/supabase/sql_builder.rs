@@ -53,6 +53,7 @@ pub struct SelectSqlBuilder {
   columns: Vec<String>,
   where_clause: Option<(String, Box<dyn ToSql + Sync + Send>)>,
   order_by: Option<(String, bool)>,
+  limit: Option<i64>,
 }
 
 impl SelectSqlBuilder {
@@ -62,6 +63,7 @@ impl SelectSqlBuilder {
       columns: Vec::new(),
       where_clause: None,
       order_by: None,
+      limit: None,
     }
   }
 
@@ -80,6 +82,11 @@ impl SelectSqlBuilder {
     self
   }
 
+  pub fn limit(mut self, limit: i64) -> Self {
+    self.limit = Some(limit);
+    self
+  }
+
   pub fn build(self) -> (String, Vec<Box<dyn ToSql + Sync + Send>>) {
     let mut sql = format!("SELECT {} FROM {}", self.columns.join(", "), self.table);
 
@@ -93,6 +100,10 @@ impl SelectSqlBuilder {
     if let Some((order_by_column, asc)) = self.order_by {
       let order = if asc { "ASC" } else { "DESC" };
       sql.push_str(&format!(" ORDER BY {} {}", order_by_column, order));
+    }
+
+    if let Some(limit) = self.limit {
+      sql.push_str(&format!(" LIMIT {}", limit));
     }
 
     (sql, params)

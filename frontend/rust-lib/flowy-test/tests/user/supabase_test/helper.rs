@@ -17,7 +17,7 @@ pub struct FlowySupabaseTest {
 impl FlowySupabaseTest {
   pub fn new() -> Option<Self> {
     dotenv::from_path(".env.test").ok()?;
-    let _ = SupabaseConfiguration::from_env()?;
+    let _ = SupabaseConfiguration::from_env().ok()?;
     let test = FlowyCoreTest::new();
     test.set_auth_type(AuthTypePB::Supabase);
 
@@ -25,7 +25,7 @@ impl FlowySupabaseTest {
   }
 
   pub async fn check_user_with_uuid(&self, uuid: &str) -> Result<(), FlowyError> {
-    match EventBuilder::new(test.clone())
+    match EventBuilder::new(self.inner.clone())
       .event(CheckUser)
       .payload(UserCredentialsPB::from_uuid(uuid))
       .async_send()
@@ -45,7 +45,7 @@ impl FlowySupabaseTest {
       auth_type: AuthTypePB::Supabase,
     };
 
-    EventBuilder::new(test.clone())
+    EventBuilder::new(self.inner.clone())
       .event(ThirdPartyAuth)
       .payload(payload)
       .async_send()
@@ -58,7 +58,7 @@ impl Deref for FlowySupabaseTest {
   type Target = FlowyCoreTest;
 
   fn deref(&self) -> &Self::Target {
-    &self.innerd
+    &self.inner
   }
 }
 
