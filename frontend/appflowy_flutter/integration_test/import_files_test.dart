@@ -23,19 +23,20 @@ void main() {
       await tester.tapImportButton();
 
       final testFileNames = ['test1.md', 'test2.md'];
+      final paths = <String>[];
       for (final fileName in testFileNames) {
         final str = await rootBundle.loadString(
           'assets/test/workspaces/markdowns/$fileName',
         );
-        File(p.join(context.applicationDataDirectory.path, fileName))
-            .writeAsStringSync(str);
+        final path = p.join(context.applicationDataDirectory, fileName);
+        paths.add(path);
+        File(path).writeAsStringSync(str);
       }
       // mock get files
       await mockPickFilePaths(
-        context.applicationDataDirectory.path,
-        testFileNames,
-        name: p.basename(context.applicationDataDirectory.path),
-        customPath: context.applicationDataDirectory.path,
+        paths: testFileNames
+            .map((e) => p.join(context.applicationDataDirectory, e))
+            .toList(),
       );
 
       await tester.tapTextAndMarkdownButton();

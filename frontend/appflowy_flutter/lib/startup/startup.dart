@@ -1,13 +1,11 @@
 import 'dart:io';
 
 import 'package:appflowy/env/env.dart';
-import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
+import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
-import 'package:flowy_infra/uuid.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:path_provider/path_provider.dart';
 
 import 'deps_resolver.dart';
 import 'launch_configuration.dart';
@@ -40,7 +38,10 @@ class FlowyRunner {
     // Specify the env
     initGetIt(getIt, mode, f, config);
 
-    final applicationDataDirectory = await mode.applicationDataDirectory();
+    final applicationDataDirectory =
+        await getIt<ApplicationDataStorage>().getPath().then(
+              (value) => Directory(value),
+            );
 
     // add task
     final launcher = getIt<AppLauncher>();
@@ -59,7 +60,7 @@ class FlowyRunner {
 
         // init the app widget
         // ignore in test mode
-        if (!mode.isUnitTest()) ...[
+        if (!mode.isUnitTest) ...[
           const HotKeyTask(),
           InitSupabaseTask(
             url: Env.supabaseUrl,
@@ -102,7 +103,7 @@ Future<void> initGetIt(
   );
   getIt.registerSingleton<PluginSandbox>(PluginSandbox());
 
-  await DependencyResolver.resolve(getIt);
+  await DependencyResolver.resolve(getIt, env);
 }
 
 class LaunchContext {
@@ -154,44 +155,18 @@ enum IntegrationMode {
   develop,
   release,
   unitTest,
-  integrationTest,
-}
+  integrationTest;
 
-extension IntegrationEnvExt on IntegrationMode {
-  bool isUnitTest() {
-    return this == IntegrationMode.unitTest;
-  }
+  // test mode
+  bool get isTest => isUnitTest || isIntegrationTest;
+  bool get isUnitTest => this == IntegrationMode.unitTest;
+  bool get isIntegrationTest => this == IntegrationMode.integrationTest;
 
-  bool isIntegrationTest() {
-    return this == IntegrationMode.integrationTest;
-  }
+  // release mode
+  bool get isRelease => this == IntegrationMode.release;
 
-  bool isTest() {
-    return isUnitTest() || isIntegrationTest();
-  }
-
-  bool isRelease() {
-    return this == IntegrationMode.release;
-  }
-
-  bool isDevelop() {
-    return this == IntegrationMode.develop;
-  }
-
-  Future<Directory> applicationDataDirectory() async {
-    // Only use the temporary directory in test mode.
-    if (isTest() && !kReleaseMode) {
-      final dir = await getTemporaryDirectory();
-
-      // Use a random uuid to avoid conflict.
-      final path = '${dir.path}/appflowy_integration_test/${uuid()}';
-      return Directory(path).create(recursive: true);
-    }
-
-    return getIt<ApplicationDataStorage>().getPath().then(
-          (value) => Directory(value),
-        );
-  }
+  // develop mode
+  bool get isDevelop => this == IntegrationMode.develop;
 }
 
 IntegrationMode integrationEnv() {

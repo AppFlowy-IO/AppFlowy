@@ -1,77 +1,77 @@
 import 'dart:io';
 
-import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/startup/tasks/prelude.dart';
+import 'package:appflowy/workspace/application/settings/prelude.dart';
+import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
 
-class TestFolder {
-  /// Location / Path
+class FlowyTestContext {
+  FlowyTestContext({
+    required this.applicationDataDirectory,
+  });
 
-  /// Set a given AppFlowy data storage location under test environment.
-  ///
-  /// To pass null means clear the location.
-  ///
-  /// The file_picker is a system component and can't be tapped, so using logic instead of tapping.
-  ///
-  static Future<Directory> setTestLocation(String path, {String? name}) async {
-    final location = await testLocation(path, name);
-    SharedPreferences.setMockInitialValues({
-      KVKeys.pathLocation: location.path,
-    });
-    return location;
-  }
-
-  /// Get current using location.
-  static Future<String> currentLocation() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(KVKeys.pathLocation)!;
-  }
-
-  /// Get default location under development environment.
-  static Future<String> defaultDevelopmentLocation() async {
-    final dir = await appFlowyApplicationDataDirectory();
-    return dir.path;
-  }
-
-  /// Get default location under test environment.
-  static Future<Directory> testLocation(
-    String applicationDataPath,
-    String? name,
-  ) async {
-    var filePath = applicationDataPath;
-    if (name != null) {
-      filePath = "$filePath/$name";
-    }
-    return Directory(filePath).create(recursive: true);
-  }
+  final String applicationDataDirectory;
 }
 
 extension AppFlowyTestBase on WidgetTester {
-  Future<FlowyRunnerContext> initializeAppFlowy() async {
+  Future<FlowyTestContext> initializeAppFlowy({
+    // use to append after the application data directory
+    String? pathExtension,
+  }) async {
+    mockHotKeyManagerHandlers();
+    final directory = await mockApplicationDataStorage(
+      pathExtension: pathExtension,
+    );
+
+    WidgetsFlutterBinding.ensureInitialized();
+    await FlowyRunner.run(
+      FlowyApp(),
+      IntegrationMode.integrationTest,
+    );
+
+    await wait(3000);
+    await pumpAndSettle(const Duration(seconds: 2));
+    return FlowyTestContext(
+      applicationDataDirectory: directory,
+    );
+  }
+
+  void mockHotKeyManagerHandlers() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(const MethodChannel('hotkey_manager'),
             (MethodCall methodCall) async {
       if (methodCall.method == 'unregisterAll') {
         // do nothing
       }
-
       return;
     });
+  }
 
-    WidgetsFlutterBinding.ensureInitialized();
-    final context =
-        await FlowyRunner.run(FlowyApp(), IntegrationMode.integrationTest);
+  Future<String> mockApplicationDataStorage({
+    // use to append after the application data directory
+    String? pathExtension,
+  }) async {
+    final dir = await getTemporaryDirectory();
 
-    await wait(3000);
-    await pumpAndSettle(const Duration(seconds: 2));
-    return context;
+    // Use a random uuid to avoid conflict.
+    String path = '${dir.path}/appflowy_integration_test/${uuid()}';
+    if (pathExtension != null && pathExtension.isNotEmpty) {
+      path = '$path/$pathExtension';
+    }
+    final directory = Directory(path);
+    if (!directory.existsSync()) {
+      await directory.create(recursive: true);
+    }
+
+    MockApplicationDataStorage.initialPath = directory.path;
+
+    return directory.path;
   }
 
   Future<void> tapButton(

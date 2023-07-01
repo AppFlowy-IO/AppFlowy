@@ -38,7 +38,7 @@ AppFlowyEnv getAppFlowyEnv() {
   final collabTableConfig =
       CollabTableConfig(enable: true, table_name: Env.supabaseCollabTable);
 
-  final supbaseDBConfig = SupabaseDBConfig(
+  final supabaseDBConfig = SupabaseDBConfig(
     url: Env.supabaseUrl,
     key: Env.supabaseKey,
     jwt_secret: Env.supabaseJwtSecret,
@@ -47,7 +47,7 @@ AppFlowyEnv getAppFlowyEnv() {
 
   return AppFlowyEnv(
     supabase_config: supabaseConfig,
-    supabase_db_config: supbaseDBConfig,
+    supabase_db_config: supabaseDBConfig,
   );
 }
 

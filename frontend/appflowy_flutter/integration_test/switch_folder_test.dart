@@ -1,8 +1,9 @@
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/startup/tasks/prelude.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
-import 'package:flowy_infra/uuid.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-
+import 'package:path/path.dart' as p;
 import 'util/mock/mock_file_picker.dart';
 import 'util/util.dart';
 
@@ -11,13 +12,17 @@ void main() {
 
   group('customize the folder path', () {
     testWidgets('switch to B from A, then switch to A again', (tester) async {
-      final userA = uuid();
-      final userB = uuid();
+      const userA = 'UserA';
+      const userB = 'UserB';
 
-      final context = await tester.initializeAppFlowy();
-      await TestFolder.setTestLocation(
-        context.applicationDataDirectory.path,
-        name: userA,
+      final initialPath = p.join(userA, appFlowyDataFolder);
+      final context = await tester.initializeAppFlowy(
+        pathExtension: initialPath,
+      );
+      // remove the last extension
+      final rootPath = context.applicationDataDirectory.replaceFirst(
+        initialPath,
+        '',
       );
 
       await tester.tapGoButton();
@@ -35,8 +40,7 @@ void main() {
 
         // mock the file_picker result
         await mockGetDirectoryPath(
-          context.applicationDataDirectory.path,
-          userB,
+          p.join(rootPath, userB),
         );
         await tester.tapCustomLocationButton();
         await tester.pumpAndSettle();
@@ -55,8 +59,7 @@ void main() {
 
         // mock the file_picker result
         await mockGetDirectoryPath(
-          context.applicationDataDirectory.path,
-          userA,
+          p.join(rootPath, userA),
         );
         await tester.tapCustomLocationButton();
 
@@ -73,8 +76,7 @@ void main() {
 
         // mock the file_picker result
         await mockGetDirectoryPath(
-          context.applicationDataDirectory.path,
-          userB,
+          p.join(rootPath, userB),
         );
         await tester.tapCustomLocationButton();
 
@@ -85,8 +87,7 @@ void main() {
     });
 
     testWidgets('reset to default location', (tester) async {
-      final context = await tester.initializeAppFlowy();
-      await TestFolder.setTestLocation(context.applicationDataDirectory.path);
+      await tester.initializeAppFlowy();
 
       await tester.tapGoButton();
 
@@ -99,8 +100,8 @@ void main() {
       await tester.restoreLocation();
 
       expect(
-        await TestFolder.defaultDevelopmentLocation(),
-        await TestFolder.currentLocation(),
+        await appFlowyApplicationDataDirectory().then((value) => value.path),
+        await getIt<ApplicationDataStorage>().getPath(),
       );
     });
   });

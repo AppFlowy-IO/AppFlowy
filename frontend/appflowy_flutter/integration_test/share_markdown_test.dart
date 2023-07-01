@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-
+import 'package:path/path.dart' as p;
 import 'util/mock/mock_file_picker.dart';
 import 'util/util.dart';
 
@@ -20,8 +20,7 @@ void main() {
 
       // mock the file picker
       final path = await mockSaveFilePath(
-        context.applicationDataDirectory.path,
-        'test.md',
+        p.join(context.applicationDataDirectory, 'test.md'),
       );
       // click the share button and select markdown
       await tester.tapShareButton();
@@ -54,8 +53,10 @@ void main() {
         final shareButtonState =
             tester.state(shareButton) as ShareActionListState;
         final path = await mockSaveFilePath(
-          context.applicationDataDirectory.path,
-          '${shareButtonState.name}.md',
+          p.join(
+            context.applicationDataDirectory,
+            '${shareButtonState.name}.md',
+          ),
         );
 
         // click the share button and select markdown

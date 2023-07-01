@@ -83,6 +83,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapImportButton();
 
     final testFileNames = ['v020.afdb'];
+    final paths = <String>[];
     for (final fileName in testFileNames) {
       // Don't use the p.join to build the path that used in loadString. It
       // is not working on windows.
@@ -90,19 +91,16 @@ extension AppFlowyDatabaseTest on WidgetTester {
           .loadString("assets/test/workspaces/database/$fileName");
 
       // Write the content to the file.
-      File(
-        p.join(
-          context.applicationDataDirectory.path,
-          fileName,
-        ),
-      ).writeAsStringSync(str);
+      final path = p.join(
+        context.applicationDataDirectory,
+        fileName,
+      );
+      paths.add(path);
+      File(path).writeAsStringSync(str);
     }
     // mock get files
     await mockPickFilePaths(
-      context.applicationDataDirectory.path,
-      testFileNames,
-      name: p.basename(context.applicationDataDirectory.path),
-      customPath: context.applicationDataDirectory.path,
+      paths: paths,
     );
     await tapDatabaseRawDataButton();
     await openPage('v020');

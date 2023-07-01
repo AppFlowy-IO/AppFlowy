@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
-import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
+import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart' as fp;
 
