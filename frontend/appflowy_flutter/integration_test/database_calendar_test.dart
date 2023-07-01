@@ -222,12 +222,9 @@ void main() {
       await tester.findDateEditor(findsOneWidget);
 
       // Edit the event's date. To avoid selecting a day outside of the current month, the new date will be one day closer to the middle of the month.
-      DateTime newDate;
-      if (today.day < 15) {
-        newDate = today.add(const Duration(days: 1));
-      } else {
-        newDate = today.subtract(const Duration(days: 1));
-      }
+      final newDate = today.day < 15
+          ? today.add(const Duration(days: 1))
+          : today.subtract(const Duration(days: 1));
       await tester.selectDay(content: newDate.day);
       await tester.dismissCellEditor();
 
