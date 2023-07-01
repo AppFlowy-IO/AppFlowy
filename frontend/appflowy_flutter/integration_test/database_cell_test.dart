@@ -222,7 +222,7 @@ void main() {
       await tester.assertDateCellInGrid(
         rowIndex: 0,
         fieldType: fieldType,
-        content: DateFormat('MMM d, y').format(today),
+        content: DateFormat('MMM dd, y').format(today),
       );
 
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
@@ -237,7 +237,7 @@ void main() {
       await tester.assertDateCellInGrid(
         rowIndex: 0,
         fieldType: fieldType,
-        content: DateFormat('MMM d, y HH:mm').format(now),
+        content: DateFormat('MMM dd, y HH:mm').format(now),
       );
 
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
