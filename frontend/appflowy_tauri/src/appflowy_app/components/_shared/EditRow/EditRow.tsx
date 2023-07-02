@@ -22,7 +22,8 @@ import { EditCheckListPopup } from '$app/components/_shared/EditRow/CheckList/Ed
 import { PropertiesPanel } from '$app/components/_shared/EditRow/PropertiesPanel';
 import { ImageSvg } from '$app/components/_shared/svg/ImageSvg';
 import { PromptWindow } from '$app/components/_shared/PromptWindow';
-import { useAppSelector } from '$app/stores/store';
+import { useAppDispatch, useAppSelector } from '$app/stores/store';
+import { databaseActions, IDateType, INumberType, ISelectOption, ISelectOptionType } from '$app_reducers/database/slice';
 
 export const EditRow = ({
   onClose,
@@ -35,7 +36,8 @@ export const EditRow = ({
   controller: DatabaseController;
   rowInfo: RowInfo;
 }) => {
-  const databaseStore = useAppSelector((state) => state.database);
+  const fieldsStore = useAppSelector((state) => state.database.fields);
+  const dispatch = useAppDispatch();
   const { cells, onNewColumnClick } = useRow(viewId, controller, rowInfo);
   const { t } = useTranslation();
   const [unveil, setUnveil] = useState(false);
@@ -143,6 +145,33 @@ export const EditRow = ({
     setEditCellOptionTop(_top);
   };
 
+  const onUpdateSelectOption = (option: SelectOptionPB) => {
+    if (!editingCell) return;
+    const updatingField = fieldsStore[editingCell.fieldId];
+    const allOptions = (updatingField.fieldOptions as ISelectOptionType).selectOptions;
+
+    dispatch(
+      databaseActions.updateField({
+        field: {
+          ...updatingField,
+          fieldOptions: {
+            selectOptions: allOptions.map((o) =>
+              o.selectOptionId === option.id
+                ? {
+                    selectOptionId: option.id,
+                    color: option.color,
+                    title: option.name,
+                  }
+                : o
+            ),
+          },
+        },
+      })
+    );
+
+    setEditingSelectOption(option);
+  };
+
   const onOpenCheckListDetailClick = (_left: number, _top: number, _select_option: SelectOptionPB) => {
     setEditingSelectOption(_select_option);
     setShowEditCheckList(true);
@@ -230,7 +259,7 @@ export const EditRow = ({
                     >
                       {cells
                         .filter((cell) => {
-                          return databaseStore.fields[cell.cellIdentifier.fieldId]?.visible;
+                          return fieldsStore[cell.cellIdentifier.fieldId]?.visible;
                         })
                         .map((cell, cellIndex) => (
                           <EditCellWrapper
@@ -319,6 +348,7 @@ export const EditRow = ({
               left={editCellOptionLeft}
               cellIdentifier={editingCell}
               editingSelectOption={editingSelectOption}
+              onUpdateSelectOption={onUpdateSelectOption}
               onOutsideClick={() => {
                 setShowEditCellOption(false);
               }}

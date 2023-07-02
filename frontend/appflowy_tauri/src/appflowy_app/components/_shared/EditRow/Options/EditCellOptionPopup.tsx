@@ -13,12 +13,14 @@ export const EditCellOptionPopup = ({
   top,
   cellIdentifier,
   editingSelectOption,
+  onUpdateSelectOption,
   onOutsideClick,
 }: {
   left: number;
   top: number;
   cellIdentifier: CellIdentifier;
   editingSelectOption: SelectOptionPB;
+  onUpdateSelectOption: (option: SelectOptionPB) => void;
   onOutsideClick: () => void;
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -55,13 +57,14 @@ export const EditCellOptionPopup = ({
 
   const onColorClick = async (color: SelectOptionColorPB) => {
     const svc = new SelectOptionCellBackendService(cellIdentifier);
-    await svc.updateOption(
-      new SelectOptionPB({
-        id: editingSelectOption.id,
-        color,
-        name: editingSelectOption.name,
-      })
-    );
+    const updatedOption = new SelectOptionPB({
+      id: editingSelectOption.id,
+      color,
+      name: editingSelectOption.name,
+    });
+
+    await svc.updateOption(updatedOption);
+    onUpdateSelectOption(updatedOption);
   };
 
   const onDeleteOptionClick = async () => {
