@@ -127,6 +127,17 @@ class EditorStyleCustomizer {
     );
   }
 
+  TextStyle outlineBlockPlaceholderStyleBuilder() {
+    final theme = Theme.of(context);
+    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+    return TextStyle(
+      fontFamily: 'poppins',
+      fontSize: fontSize,
+      height: 1.5,
+      color: theme.colorScheme.onBackground.withOpacity(0.6),
+    );
+  }
+
   SelectionMenuStyle selectionMenuStyleBuilder() {
     final theme = Theme.of(context);
     return SelectionMenuStyle(

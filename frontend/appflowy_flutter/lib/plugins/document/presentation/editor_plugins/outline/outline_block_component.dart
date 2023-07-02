@@ -120,6 +120,15 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
           ),
         )
         .toList();
+    if (children.isEmpty) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          LocaleKeys.document_plugins_outline_addHeadingToCreateOutline.tr(),
+          style: configuration.placeholderTextStyle(node),
+        ),
+      );
+    }
     return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
@@ -184,7 +193,7 @@ class OutlineItemWidget extends StatelessWidget {
 
 extension on Node {
   double get leftIndent {
-    assert(type != HeadingBlockKeys.type);
+    assert(type == HeadingBlockKeys.type);
     if (type != HeadingBlockKeys.type) {
       return 0.0;
     }

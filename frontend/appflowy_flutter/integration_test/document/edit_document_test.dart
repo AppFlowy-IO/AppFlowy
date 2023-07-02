@@ -118,7 +118,7 @@ const _sample = r'''
 ---
 [] Highlight any text, and use the editing menu to _style_ **your** writing `however` you ~~like.~~
 
-[] Type / followed by /bullet or /num to create a list.
+[] Type followed by bullet or num to create a list.
 
 [x] Click `+ New Page` button at the bottom of your sidebar to add a new page.
 
