@@ -65,6 +65,7 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
   async fn get_collab_state(&self, object_id: &str) -> Result<Option<RemoteCollabState>, Error> {
     let client = self.server.get_pg_client().await.recv().await?;
     let (sql, params) = SelectSqlBuilder::new("af_collab_state")
+      .column("*")
       .where_clause("oid", object_id.to_string())
       .order_by("snapshot_created_at", false)
       .limit(1)
@@ -77,7 +78,7 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
       .await?
       .first()
     {
-      let created_at = row.try_get::<_, DateTime<Utc>>("snapshot_created_at")?;
+      let created_at = row.try_get::<&str, DateTime<Utc>>("snapshot_created_at")?;
       let current_edit_count = row.try_get::<_, i64>("current_edit_count")?;
       let last_snapshot_edit_count = row.try_get::<_, i64>("snapshot_edit_count")?;
 

@@ -1,11 +1,14 @@
-pub mod entities;
-mod protobuf;
+use std::sync::RwLock;
 
-use crate::entities::SubscribeObject;
 use bytes::Bytes;
 use lazy_static::lazy_static;
+
 use lib_dispatch::prelude::ToBytes;
-use std::sync::RwLock;
+
+use crate::entities::SubscribeObject;
+
+pub mod entities;
+mod protobuf;
 
 lazy_static! {
   static ref NOTIFICATION_SENDER: RwLock<Vec<Box<dyn NotificationSender>>> = RwLock::new(vec![]);

@@ -161,7 +161,7 @@ impl InsertSqlBuilder {
 
     let mut query = format!("INSERT INTO {} (", self.table);
     query.push_str(&self.columns.join(", "));
-    query.push_str(")");
+    query.push(')');
 
     if self.override_system_value {
       query.push_str(" OVERRIDING SYSTEM VALUE");

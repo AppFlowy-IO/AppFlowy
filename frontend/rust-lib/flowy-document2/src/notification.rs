@@ -1,7 +1,7 @@
 use flowy_derive::ProtoBuf_Enum;
 use flowy_notification::NotificationBuilder;
 
-const OBSERVABLE_CATEGORY: &str = "Document";
+const DOCUMENT_OBSERVABLE_SOURCE: &str = "Document";
 
 #[derive(ProtoBuf_Enum, Debug, Default)]
 pub(crate) enum DocumentNotification {
@@ -16,7 +16,15 @@ impl std::convert::From<DocumentNotification> for i32 {
     notification as i32
   }
 }
+impl std::convert::From<i32> for DocumentNotification {
+  fn from(notification: i32) -> Self {
+    match notification {
+      1 => DocumentNotification::DidReceiveUpdate,
+      _ => DocumentNotification::Unknown,
+    }
+  }
+}
 
 pub(crate) fn send_notification(id: &str, ty: DocumentNotification) -> NotificationBuilder {
-  NotificationBuilder::new(id, ty, OBSERVABLE_CATEGORY)
+  NotificationBuilder::new(id, ty, DOCUMENT_OBSERVABLE_SOURCE)
 }

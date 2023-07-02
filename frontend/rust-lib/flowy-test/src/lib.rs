@@ -5,10 +5,13 @@ use std::sync::Arc;
 use bytes::Bytes;
 use nanoid::nanoid;
 use parking_lot::RwLock;
+use tokio::sync::broadcast::{channel, Receiver, Sender};
 
 use flowy_core::{AppFlowyCore, AppFlowyCoreConfig};
 use flowy_database2::entities::*;
 use flowy_folder2::entities::*;
+use flowy_notification::entities::SubscribeObject;
+use flowy_notification::{register_notification_sender, NotificationSender};
 use flowy_user::entities::{AuthTypePB, UserProfilePB};
 use flowy_user::errors::FlowyError;
 
@@ -24,25 +27,37 @@ pub mod user_event;
 pub struct FlowyCoreTest {
   auth_type: Arc<RwLock<AuthTypePB>>,
   inner: AppFlowyCore,
+  notification_sender: TestNotificationSender,
 }
 
 impl Default for FlowyCoreTest {
   fn default() -> Self {
     let temp_dir = temp_dir();
     let config =
-      AppFlowyCoreConfig::new(temp_dir.to_str().unwrap(), nanoid!(6)).log_filter("info", vec![]);
+      AppFlowyCoreConfig::new(temp_dir.to_str().unwrap(), nanoid!(6)).log_filter("debug", vec![]);
     let inner = std::thread::spawn(|| AppFlowyCore::new(config))
       .join()
       .unwrap();
     let auth_type = Arc::new(RwLock::new(AuthTypePB::Local));
+    let notification_sender = TestNotificationSender::new();
+    register_notification_sender(notification_sender.clone());
+
     std::mem::forget(inner.dispatcher());
-    Self { inner, auth_type }
+    Self {
+      inner,
+      auth_type,
+      notification_sender,
+    }
   }
 }
 
 impl FlowyCoreTest {
   pub fn new() -> Self {
     Self::default()
+  }
+
+  pub fn subscribe_notification(&self) -> Receiver<SubscribeObject> {
+    self.notification_sender.subscribe()
   }
 
   pub async fn new_with_user() -> Self {
@@ -67,6 +82,7 @@ impl FlowyCoreTest {
     context.user_profile
   }
 
+  // Must sign up/ sign in first
   pub async fn get_current_workspace(&self) -> WorkspaceSettingPB {
     EventBuilder::new(self.clone())
       .event(flowy_folder2::event_map::FolderEvent::GetCurrentWorkspace)
@@ -574,12 +590,48 @@ impl std::ops::Deref for FlowyCoreTest {
   }
 }
 
-// pub struct TestNotificationSender {
-//   pub(crate) sender: tokio::sync::mpsc::Sender<()>,
-// }
-//
-// impl NotificationSender for TestNotificationSender {
-//   fn send_subject(&self, subject: SubscribeObject) -> Result<(), String> {
-//     todo!()
-//   }
-// }
+#[derive(Clone)]
+pub struct TestNotificationSender {
+  sender: Arc<Sender<SubscribeObject>>,
+}
+
+impl TestNotificationSender {
+  pub fn new() -> Self {
+    let (sender, _) = channel(1000);
+    Self {
+      sender: Arc::new(sender),
+    }
+  }
+
+  pub fn subscribe(&self) -> Receiver<SubscribeObject> {
+    self.sender.subscribe()
+  }
+}
+
+impl NotificationSender for TestNotificationSender {
+  fn send_subject(&self, subject: SubscribeObject) -> Result<(), String> {
+    let _ = self.sender.send(subject);
+    Ok(())
+  }
+}
+
+pub struct NotificationListener<T> {
+  receiver: Receiver<T>,
+}
+
+pub struct ListenerBuilder<T> {
+  id: String,
+  ty: T,
+}
+
+impl<T> ListenerBuilder<T>
+where
+  T: From<i32>,
+{
+  pub fn new(id: &str, ty: T) -> Self {
+    Self {
+      id: id.to_string(),
+      ty,
+    }
+  }
+}

@@ -1,3 +1,4 @@
+use collab::core::collab_state::SyncState;
 use collab_database::rows::RowId;
 use collab_database::user::DatabaseRecord;
 use collab_database::views::DatabaseLayout;
@@ -262,5 +263,19 @@ impl TryInto<DatabaseLayoutMeta> for DatabaseLayoutMetaPB {
       view_id: view_id.0,
       layout,
     })
+  }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct DatabaseSyncStatePB {
+  #[pb(index = 1)]
+  pub is_syncing: bool,
+}
+
+impl From<SyncState> for DatabaseSyncStatePB {
+  fn from(value: SyncState) -> Self {
+    Self {
+      is_syncing: value.is_sync_finished(),
+    }
   }
 }
