@@ -94,6 +94,10 @@ export class DatabaseController {
     return this.backendService.createRow();
   };
 
+  createRowAfter = (rowId: string) => {
+    return this.backendService.createRow({ rowId });
+  };
+
   duplicateRow = async (rowId: string) => {
     return this.backendService.duplicateRow(rowId);
   };

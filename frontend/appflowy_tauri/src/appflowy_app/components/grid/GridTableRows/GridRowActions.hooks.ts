@@ -6,9 +6,7 @@ export const useGridRowActions = (controller: DatabaseController) => {
   };
 
   const insertRowAfter = async (rowId: string) => {
-    console.log('inserting row after', rowId);
-    // TODO: insert row after
-    // await controller.insertRowAfter(rowId);
+    await controller.createRowAfter(rowId);
   };
 
   const duplicateRow = async (rowId: string) => {

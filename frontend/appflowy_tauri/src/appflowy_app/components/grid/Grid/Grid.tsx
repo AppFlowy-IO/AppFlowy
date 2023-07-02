@@ -24,7 +24,7 @@ export const Grid = ({ viewId }: { viewId: string }) => {
     <>
       {controller && groups && (
         <>
-          <div className='mx-auto mt-8 flex flex-col gap-8 px-8'>
+          <div className='mx-auto mt-8 flex flex-col gap-8'>
             <div className='flex w-full  items-center justify-between'>
               <GridTitle />
               <GridToolbar />
@@ -32,7 +32,7 @@ export const Grid = ({ viewId }: { viewId: string }) => {
 
             {/* table component view with text area for td */}
             <div className='flex flex-col gap-4'>
-              <table className='w-full table-fixed text-sm'>
+              <table className='overflow-auto table-fixed text-sm'>
                 <GridTableHeader controller={controller} />
                 <GridTableRows onOpenRow={onOpenRow} allRows={rows} viewId={viewId} controller={controller} />
               </table>

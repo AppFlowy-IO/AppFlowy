@@ -34,18 +34,17 @@ export const GridTableRow = ({
           {...provided.draggableProps}
         >
           <td className='w-8'>
+            <div className={`flex h-5 w-5 group-hover:hidden`}></div>
             <button
               className={`hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-main-secondary group-hover:flex ${
                 snapshot.isDragging ? '!flex' : ''
               }  `}
-              onClick={async () => {
-                await addRowAt(index);
-              }}
+              onClick={() => addRowAt(row.row.id)}
             >
               <AddSvg />
             </button>
           </td>
-          <td className='w-8'>
+          <td className='relative w-8'>
             <div className={`flex h-5 w-5 group-hover:hidden`}></div>
             <button
               className={`hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-main-secondary group-hover:flex ${
