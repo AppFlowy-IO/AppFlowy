@@ -20,6 +20,7 @@ class RowCard<CustomCardData> extends StatefulWidget {
   final RowMetaPB rowMeta;
   final String viewId;
   final String? groupingFieldId;
+  final String? groupId;
 
   /// Allows passing a custom card data object to the card. The card will be
   /// returned in the [CardCellBuilder] and can be used to build the card.
@@ -49,6 +50,7 @@ class RowCard<CustomCardData> extends StatefulWidget {
     required this.rowMeta,
     required this.viewId,
     this.groupingFieldId,
+    this.groupId,
     required this.isEditing,
     required this.rowCache,
     required this.cellBuilder,
@@ -180,6 +182,7 @@ class _RowCardState<T> extends State<RowCard<T>> {
         return RowActions(
           viewId: context.read<CardBloc>().viewId,
           rowId: context.read<CardBloc>().rowMeta.id,
+          groupId: widget.groupId,
         );
     }
   }

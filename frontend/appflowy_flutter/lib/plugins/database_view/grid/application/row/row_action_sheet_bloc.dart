@@ -15,6 +15,7 @@ class RowActionSheetBloc
   RowActionSheetBloc({
     required String viewId,
     required RowId rowId,
+    String? groupId,
   })  : _rowService = RowBackendService(viewId: viewId),
         super(RowActionSheetState.initial(rowId)) {
     on<RowActionSheetEvent>(
@@ -25,7 +26,10 @@ class RowActionSheetBloc
             logResult(result);
           },
           duplicateRow: () async {
-            final result = await _rowService.duplicateRow(rowId: state.rowId);
+            final result = await _rowService.duplicateRow(
+              rowId: state.rowId,
+              groupId: groupId,
+            );
             logResult(result);
           },
         );
