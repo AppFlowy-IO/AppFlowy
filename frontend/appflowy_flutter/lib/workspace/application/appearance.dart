@@ -49,6 +49,16 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     emit(state.copyWith(themeMode: themeMode));
   }
 
+  /// Toggle the theme mode
+  void toggleThemeMode() {
+    final currentThemeMode = state.themeMode;
+    if (currentThemeMode == ThemeMode.light) {
+      setThemeMode(ThemeMode.dark);
+    } else {
+      setThemeMode(ThemeMode.light);
+    }
+  }
+
   /// Updates the current locale and notify the listeners the locale was
   /// changed. Fallback to [en] locale if [newLocale] is not supported.
   void setLocale(BuildContext context, Locale newLocale) {
