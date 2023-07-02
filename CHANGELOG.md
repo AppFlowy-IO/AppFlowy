@@ -7,6 +7,13 @@
 - Unable to copy and paste a word
 - Some UI issues
 
+## Version 0.2.4 - 06/23/2023
+
+### Bug fixes:
+
+- Unable to copy and paste a word
+- Some UI issues
+
 ## Version 0.2.3 - 06/21/2023
 
 ### New Features
