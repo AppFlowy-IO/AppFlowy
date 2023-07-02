@@ -68,7 +68,7 @@ class _ImageMenuState extends State<ImageMenu> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: FlowyText(
-            LocaleKeys.document_plugins_image_copyToPasteBoard.tr(),
+            LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
           ),
         ),
       );
@@ -120,7 +120,7 @@ class _ImageAlignButton extends StatefulWidget {
 const interceptorKey = 'image-align';
 
 class _ImageAlignButtonState extends State<_ImageAlignButton> {
-  late final gestureInterceptor = SelectionGestureInterceptor(
+  final gestureInterceptor = SelectionGestureInterceptor(
     key: interceptorKey,
     canTap: (details) => false,
   );
@@ -134,7 +134,6 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
     super.initState();
 
     editorState = context.read<EditorState>();
-    // preventMenuClose();
   }
 
   @override
@@ -148,9 +147,7 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
   Widget build(BuildContext context) {
     return IgnoreParentGestureWidget(
       child: AppFlowyPopover(
-        onClose: () {
-          allowMenuClose();
-        },
+        onClose: allowMenuClose,
         controller: popoverController,
         windowPadding: const EdgeInsets.all(0),
         margin: const EdgeInsets.all(0),
