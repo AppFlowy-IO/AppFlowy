@@ -24,19 +24,27 @@ export const PopupWindow = ({
 
   useEffect(() => {
     if (!ref.current) return;
-    const { height, width } = ref.current.getBoundingClientRect();
-    if (top + height > window.innerHeight) {
-      // setAdjustedTop(window.innerHeight - height);
-      setStickToBottom(true);
-    } else {
-      setAdjustedTop(top);
-    }
-    if (left + width > window.innerWidth) {
-      // setAdjustedLeft(window.innerWidth - width);
-      setStickToRight(true);
-    } else {
-      setAdjustedLeft(left);
-    }
+
+    new ResizeObserver(() => {
+      if (!ref.current) return;
+      const { height, width } = ref.current.getBoundingClientRect();
+
+      if (top + height > window.innerHeight) {
+        // setAdjustedTop(window.innerHeight - height);
+        setStickToBottom(true);
+      } else {
+        setStickToBottom(false);
+        setAdjustedTop(top);
+      }
+
+      if (left + width > window.innerWidth) {
+        // setAdjustedLeft(window.innerWidth - width);
+        setStickToRight(true);
+      } else {
+        setStickToRight(false);
+        setAdjustedLeft(left);
+      }
+    }).observe(ref.current);
   }, [ref, left, top]);
 
   return (
