@@ -52,11 +52,9 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   /// Toggle the theme mode
   void toggleThemeMode() {
     final currentThemeMode = state.themeMode;
-    if (currentThemeMode == ThemeMode.light) {
-      setThemeMode(ThemeMode.dark);
-    } else {
-      setThemeMode(ThemeMode.light);
-    }
+    setThemeMode(
+      currentThemeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light,
+    );
   }
 
   /// Updates the current locale and notify the listeners the locale was
