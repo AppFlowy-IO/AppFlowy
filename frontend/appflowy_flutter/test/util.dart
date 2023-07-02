@@ -36,7 +36,7 @@ class AppFlowyUnitTest {
 
     await FlowyRunner.run(
       FlowyTestApp(),
-      IntegrationMode.test,
+      IntegrationMode.unitTest,
     );
 
     final test = AppFlowyUnitTest();

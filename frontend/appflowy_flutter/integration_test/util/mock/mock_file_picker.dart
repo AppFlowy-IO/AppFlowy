@@ -1,10 +1,6 @@
-import 'dart:io';
-
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
 import 'package:file_picker/file_picker.dart' as fp;
-import 'package:path/path.dart' as p;
-import '../util.dart';
 
 class MockFilePicker implements FilePickerService {
   MockFilePicker({
@@ -56,20 +52,21 @@ class MockFilePicker implements FilePickerService {
   }
 }
 
-Future<void> mockGetDirectoryPath(String? name) async {
-  final dir = await TestFolder.testLocation(name);
+Future<void> mockGetDirectoryPath(
+  String path,
+) async {
   getIt.unregister<FilePickerService>();
   getIt.registerFactory<FilePickerService>(
     () => MockFilePicker(
-      mockPath: dir.path,
+      mockPath: path,
     ),
   );
   return;
 }
 
-Future<String> mockSaveFilePath(String? name, String fileName) async {
-  final dir = await TestFolder.testLocation(name);
-  final path = p.join(dir.path, fileName);
+Future<String> mockSaveFilePath(
+  String path,
+) async {
   getIt.unregister<FilePickerService>();
   getIt.registerFactory<FilePickerService>(
     () => MockFilePicker(
@@ -79,18 +76,16 @@ Future<String> mockSaveFilePath(String? name, String fileName) async {
   return path;
 }
 
-Future<List<String>> mockPickFilePaths(
-  List<String> fileNames, {
-  String? name,
-  String? customPath,
+Future<List<String>> mockPickFilePaths({
+  required List<String> paths,
 }) async {
-  late final Directory dir;
-  if (customPath != null) {
-    dir = Directory(customPath);
-  } else {
-    dir = await TestFolder.testLocation(name);
-  }
-  final paths = fileNames.map((e) => p.join(dir.path, e)).toList();
+  // late final Directory dir;
+  // if (customPath != null) {
+  //   dir = Directory(customPath);
+  // } else {
+  //   dir = await TestFolder.testLocation(applicationDataPath, name);
+  // }
+  // final paths = fileNames.map((e) => p.join(dir.path, e)).toList();
   getIt.unregister<FilePickerService>();
   getIt.registerFactory<FilePickerService>(
     () => MockFilePicker(

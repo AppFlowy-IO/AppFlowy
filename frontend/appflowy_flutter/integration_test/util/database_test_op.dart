@@ -73,7 +73,7 @@ import 'mock/mock_file_picker.dart';
 
 extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> openV020database() async {
-    await initializeAppFlowy();
+    final context = await initializeAppFlowy();
     await tapGoButton();
 
     // expect to see a readme page
@@ -83,18 +83,25 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapImportButton();
 
     final testFileNames = ['v020.afdb'];
-    final fileLocation = await currentFileLocation();
+    final paths = <String>[];
     for (final fileName in testFileNames) {
-      final str = await rootBundle.loadString(
-        p.join(
-          'assets/test/workspaces/database',
-          fileName,
-        ),
+      // Don't use the p.join to build the path that used in loadString. It
+      // is not working on windows.
+      final str = await rootBundle
+          .loadString("assets/test/workspaces/database/$fileName");
+
+      // Write the content to the file.
+      final path = p.join(
+        context.applicationDataDirectory,
+        fileName,
       );
-      File(p.join(fileLocation, fileName)).writeAsStringSync(str);
+      paths.add(path);
+      File(path).writeAsStringSync(str);
     }
     // mock get files
-    await mockPickFilePaths(testFileNames, name: 'import_files');
+    await mockPickFilePaths(
+      paths: paths,
+    );
     await tapDatabaseRawDataButton();
     await openPage('v020');
   }
