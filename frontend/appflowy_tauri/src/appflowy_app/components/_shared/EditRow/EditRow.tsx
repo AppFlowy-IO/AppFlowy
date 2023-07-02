@@ -224,7 +224,7 @@ export const EditRow = ({
                     <div
                       {...provided.droppableProps}
                       ref={provided.innerRef}
-                      className={`flex flex-1 flex-col gap-8 px-8 ${
+                      className={`flex flex-1 flex-col gap-8 px-8 pb-8 ${
                         showFieldEditor || showChangeOptionsPopup || showDatePicker ? 'overflow-hidden' : 'overflow-auto'
                       }`}
                     >
