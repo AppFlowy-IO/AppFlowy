@@ -29,20 +29,18 @@ export const PopupWindow = ({
       if (!ref.current) return;
       const { height, width } = ref.current.getBoundingClientRect();
 
+      setAdjustedTop(top);
       if (top + height > window.innerHeight) {
-        // setAdjustedTop(window.innerHeight - height);
         setStickToBottom(true);
       } else {
         setStickToBottom(false);
-        setAdjustedTop(top);
       }
 
+      setAdjustedLeft(left);
       if (left + width > window.innerWidth) {
-        // setAdjustedLeft(window.innerWidth - width);
         setStickToRight(true);
       } else {
         setStickToRight(false);
-        setAdjustedLeft(left);
       }
     }).observe(ref.current);
   }, [ref, left, top]);
