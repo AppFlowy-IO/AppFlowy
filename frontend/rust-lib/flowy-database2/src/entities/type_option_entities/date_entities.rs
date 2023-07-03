@@ -25,7 +25,7 @@ pub struct DateCellDataPB {
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct DateChangesetPB {
   #[pb(index = 1)]
-  pub cell_path: CellIdPB,
+  pub cell_id: CellIdPB,
 
   #[pb(index = 2, one_of)]
   pub date: Option<String>,
@@ -75,18 +75,14 @@ impl From<DateTypeOptionPB> for DateTypeOption {
   }
 }
 
-#[derive(Clone, Debug, Copy, EnumIter, ProtoBuf_Enum)]
+#[derive(Clone, Debug, Copy, EnumIter, ProtoBuf_Enum, Default)]
 pub enum DateFormatPB {
   Local = 0,
   US = 1,
   ISO = 2,
+  #[default]
   Friendly = 3,
   DayMonthYear = 4,
-}
-impl std::default::Default for DateFormatPB {
-  fn default() -> Self {
-    DateFormatPB::Friendly
-  }
 }
 
 impl From<DateFormatPB> for DateFormat {
@@ -113,16 +109,11 @@ impl From<DateFormat> for DateFormatPB {
   }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, EnumIter, Debug, Hash, ProtoBuf_Enum)]
+#[derive(Clone, Copy, PartialEq, Eq, EnumIter, Debug, Hash, ProtoBuf_Enum, Default)]
 pub enum TimeFormatPB {
   TwelveHour = 0,
+  #[default]
   TwentyFourHour = 1,
-}
-
-impl std::default::Default for TimeFormatPB {
-  fn default() -> Self {
-    TimeFormatPB::TwentyFourHour
-  }
 }
 
 impl From<TimeFormatPB> for TimeFormat {

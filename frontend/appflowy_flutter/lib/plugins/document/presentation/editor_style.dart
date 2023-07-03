@@ -1,5 +1,7 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide FlowySvg, Log;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,12 +10,11 @@ import 'package:google_fonts/google_fonts.dart';
 class EditorStyleCustomizer {
   EditorStyleCustomizer({
     required this.context,
+    required this.padding,
   });
 
-  static double get horizontalPadding =>
-      PlatformExtension.isDesktop ? 50.0 : 10.0;
-
   final BuildContext context;
+  final EdgeInsets padding;
 
   EditorStyle style() {
     if (PlatformExtension.isDesktopOrWeb) {
@@ -28,7 +29,7 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     return EditorStyle.desktop(
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+      padding: padding,
       backgroundColor: theme.colorScheme.surface,
       cursorColor: theme.colorScheme.primary,
       textStyleConfiguration: TextStyleConfiguration(
@@ -58,6 +59,7 @@ class EditorStyleCustomizer {
           ),
         ),
       ),
+      textSpanDecorator: customizeAttributeDecorator,
     );
   }
 
@@ -65,7 +67,7 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     return EditorStyle.desktop(
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+      padding: padding,
       backgroundColor: theme.colorScheme.surface,
       cursorColor: theme.colorScheme.primary,
       textStyleConfiguration: TextStyleConfiguration(
@@ -125,6 +127,17 @@ class EditorStyleCustomizer {
     );
   }
 
+  TextStyle outlineBlockPlaceholderStyleBuilder() {
+    final theme = Theme.of(context);
+    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+    return TextStyle(
+      fontFamily: 'poppins',
+      fontSize: fontSize,
+      height: 1.5,
+      color: theme.colorScheme.onBackground.withOpacity(0.6),
+    );
+  }
+
   SelectionMenuStyle selectionMenuStyleBuilder() {
     final theme = Theme.of(context);
     return SelectionMenuStyle(
@@ -140,7 +153,31 @@ class EditorStyleCustomizer {
   FloatingToolbarStyle floatingToolbarStyleBuilder() {
     final theme = Theme.of(context);
     return FloatingToolbarStyle(
-      backgroundColor: theme.cardColor,
+      backgroundColor: theme.colorScheme.onTertiary,
     );
+  }
+
+  InlineSpan customizeAttributeDecorator(
+    TextInsert textInsert,
+    TextSpan textSpan,
+  ) {
+    final attributes = textInsert.attributes;
+    if (attributes == null) {
+      return textSpan;
+    }
+    final mention = attributes[MentionBlockKeys.mention] as Map?;
+    if (mention != null) {
+      final type = mention[MentionBlockKeys.type];
+      if (type == MentionType.page.name) {
+        return WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
+          child: MentionBlock(
+            key: ValueKey(mention[MentionBlockKeys.pageId]),
+            mention: mention,
+          ),
+        );
+      }
+    }
+    return textSpan;
   }
 }

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 class FlowyButton extends StatelessWidget {
   final Widget text;
   final VoidCallback? onTap;
+  final VoidCallback? onSecondaryTap;
   final void Function(bool)? onHover;
   final EdgeInsets? margin;
   final Widget? leftIcon;
@@ -25,6 +26,7 @@ class FlowyButton extends StatelessWidget {
     Key? key,
     required this.text,
     this.onTap,
+    this.onSecondaryTap,
     this.onHover,
     this.margin,
     this.leftIcon,
@@ -45,6 +47,7 @@ class FlowyButton extends StatelessWidget {
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
+        onSecondaryTap: onSecondaryTap,
         child: FlowyHover(
           style: HoverStyle(
             borderRadius: radius ?? Corners.s6Border,
@@ -56,7 +59,13 @@ class FlowyButton extends StatelessWidget {
         ),
       );
     } else {
-      return Opacity(opacity: disableOpacity, child: _render());
+      return Opacity(
+        opacity: disableOpacity,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.forbidden,
+          child: _render(),
+        ),
+      );
     }
   }
 
@@ -121,6 +130,8 @@ class FlowyTextButton extends StatelessWidget {
 
   final TextDecoration? decoration;
 
+  final String? fontFamily;
+
   // final HoverDisplayConfig? hoverDisplay;
   const FlowyTextButton(
     this.text, {
@@ -139,6 +150,7 @@ class FlowyTextButton extends StatelessWidget {
     this.tooltip,
     this.constraints = const BoxConstraints(minWidth: 58.0, minHeight: 30.0),
     this.decoration,
+    this.fontFamily,
   }) : super(key: key);
 
   @override
@@ -157,6 +169,7 @@ class FlowyTextButton extends StatelessWidget {
         color: fontColor,
         textAlign: TextAlign.center,
         decoration: decoration,
+        fontFamily: fontFamily,
       ),
     );
 

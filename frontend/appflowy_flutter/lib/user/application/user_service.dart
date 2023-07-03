@@ -27,7 +27,7 @@ class UserBackendService {
     String? iconUrl,
     String? openAIKey,
   }) {
-    var payload = UpdateUserProfilePayloadPB.create()..id = userId;
+    final payload = UpdateUserProfilePayloadPB.create()..id = userId;
 
     if (name != null) {
       payload.name = name;
@@ -70,7 +70,7 @@ class UserBackendService {
   Future<Either<List<WorkspacePB>, FlowyError>> getWorkspaces() {
     final request = WorkspaceIdPB.create();
 
-    return FolderEventReadWorkspaces(request).send().then((result) {
+    return FolderEventReadAllWorkspaces(request).send().then((result) {
       return result.fold(
         (workspaces) => left(workspaces.items),
         (error) => right(error),

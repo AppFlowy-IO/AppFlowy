@@ -1,43 +1,95 @@
 import { useAppSelector } from '$app/stores/store';
 import { RangeState, RangeStatic } from '$app/interfaces/document';
 import { useMemo, useRef } from 'react';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { RANGE_NAME, TEMPORARY_NAME, TEXT_LINK_NAME } from '$app/constants/document/name';
+
+export function useSubscribeDecorate(id: string) {
+  const { docId } = useSubscribeDocument();
+
+  const decorateSelection = useAppSelector((state) => {
+    return state[RANGE_NAME][docId]?.ranges[id];
+  });
+
+  const temporarySelection = useAppSelector((state) => {
+    const temporary = state[TEMPORARY_NAME][docId];
+
+    if (!temporary || temporary.id !== id) return;
+    return temporary.selection;
+  });
+
+  const linkDecorateSelection = useAppSelector((state) => {
+    const linkPopoverState = state[TEXT_LINK_NAME][docId];
+
+    if (!linkPopoverState?.open || linkPopoverState?.id !== id) return;
+    return {
+      selection: linkPopoverState.selection,
+      placeholder: linkPopoverState.title,
+    };
+  });
+
+  return {
+    decorateSelection,
+    linkDecorateSelection,
+    temporarySelection,
+  };
+}
 
 export function useFocused(id: string) {
+  const { docId } = useSubscribeDocument();
+
   const caretRef = useRef<RangeStatic>();
   const focusCaret = useAppSelector((state) => {
-    const currentCaret = state.documentRange.caret;
+    const currentCaret = state[RANGE_NAME][docId]?.caret;
+
     caretRef.current = currentCaret;
     if (currentCaret?.id === id) {
       return currentCaret;
     }
-    return null;
-  });
 
-  const lastSelection = useAppSelector((state) => {
-    return state.documentRange.ranges[id];
+    return null;
   });
 
   const focused = useMemo(() => {
     return focusCaret && focusCaret?.id === id;
   }, [focusCaret, id]);
 
-  const memoizedLastSelection = useMemo(() => {
-    return lastSelection;
-  }, [JSON.stringify(lastSelection)]);
-
   return {
     focused,
     caretRef,
     focusCaret,
-    lastSelection: memoizedLastSelection,
   };
 }
 
 export function useRangeRef() {
+  const { docId, controller } = useSubscribeDocument();
+
   const rangeRef = useRef<RangeState>();
+
   useAppSelector((state) => {
-    const currentRange = state.documentRange;
+    const currentRange = state[RANGE_NAME][docId];
+
     rangeRef.current = currentRange;
   });
   return rangeRef;
+}
+
+export function useSubscribeRanges() {
+  const { docId } = useSubscribeDocument();
+
+  const rangeState = useAppSelector((state) => {
+    return state[RANGE_NAME][docId];
+  });
+
+  return rangeState;
+}
+
+export function useSubscribeCaret() {
+  const { docId } = useSubscribeDocument();
+
+  const caret = useAppSelector((state) => {
+    return state[RANGE_NAME][docId]?.caret;
+  });
+
+  return caret;
 }

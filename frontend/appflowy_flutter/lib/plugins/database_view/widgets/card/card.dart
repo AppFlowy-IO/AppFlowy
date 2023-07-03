@@ -17,7 +17,7 @@ import 'container/card_container.dart';
 
 /// Edit a database row with card style widget
 class RowCard<CustomCardData> extends StatefulWidget {
-  final RowPB row;
+  final RowMetaPB rowMeta;
   final String viewId;
   final String? groupingFieldId;
 
@@ -46,7 +46,7 @@ class RowCard<CustomCardData> extends StatefulWidget {
   final RowCardStyleConfiguration styleConfiguration;
 
   const RowCard({
-    required this.row,
+    required this.rowMeta,
     required this.viewId,
     this.groupingFieldId,
     required this.isEditing,
@@ -81,7 +81,7 @@ class _RowCardState<T> extends State<RowCard<T>> {
       viewId: widget.viewId,
       groupFieldId: widget.groupingFieldId,
       isEditing: widget.isEditing,
-      row: widget.row,
+      rowMeta: widget.rowMeta,
       rowCache: widget.rowCache,
     )..add(const RowCardEvent.initial());
 
@@ -178,7 +178,8 @@ class _RowCardState<T> extends State<RowCard<T>> {
         throw UnimplementedError();
       case AccessoryType.more:
         return RowActions(
-          rowData: context.read<CardBloc>().rowInfo(),
+          viewId: context.read<CardBloc>().viewId,
+          rowId: context.read<CardBloc>().rowMeta.id,
         );
     }
   }
@@ -194,7 +195,7 @@ class _RowCardState<T> extends State<RowCard<T>> {
 class _CardContent<CustomCardData> extends StatelessWidget {
   final CardCellBuilder<CustomCardData> cellBuilder;
   final EditableRowNotifier rowNotifier;
-  final List<CellIdentifier> cells;
+  final List<DatabaseCellContext> cells;
   final RowCardRenderHook<CustomCardData>? renderHook;
   final CustomCardData? cardData;
   final RowCardStyleConfiguration styleConfiguration;
@@ -233,28 +234,28 @@ class _CardContent<CustomCardData> extends StatelessWidget {
 
   List<Widget> _makeCells(
     BuildContext context,
-    List<CellIdentifier> cells,
+    List<DatabaseCellContext> cells,
   ) {
     final List<Widget> children = [];
     // Remove all the cell listeners.
     rowNotifier.unbind();
 
     cells.asMap().forEach(
-      (int index, CellIdentifier cell) {
+      (int index, DatabaseCellContext cellContext) {
         final isEditing = index == 0 ? rowNotifier.isEditing.value : false;
         final cellNotifier = EditableCardNotifier(isEditing: isEditing);
 
         if (index == 0) {
           // Only use the first cell to receive user's input when click the edit
           // button
-          rowNotifier.bindCell(cell, cellNotifier);
+          rowNotifier.bindCell(cellContext, cellNotifier);
         }
 
         final child = Padding(
-          key: cell.key(),
+          key: cellContext.key(),
           padding: styleConfiguration.cellPadding,
           child: cellBuilder.buildCell(
-            cellId: cell,
+            cellContext: cellContext,
             cellNotifier: cellNotifier,
             renderHook: renderHook,
             cardData: cardData,

@@ -1,4 +1,3 @@
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -14,7 +13,7 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
   final FieldBackendService _fieldBackendSvc;
 
   FieldCellBloc({
-    required FieldCellContext cellContext,
+    required FieldContext cellContext,
   })  : _fieldListener = SingleFieldListener(fieldId: cellContext.field.id),
         _fieldBackendSvc = FieldBackendService(
           viewId: cellContext.viewId,
@@ -52,14 +51,11 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
 
   void _startListening() {
     _fieldListener.start(
-      onFieldChanged: (result) {
+      onFieldChanged: (updatedField) {
         if (isClosed) {
           return;
         }
-        result.fold(
-          (field) => add(FieldCellEvent.didReceiveFieldUpdate(field)),
-          (err) => Log.error(err),
-        );
+        add(FieldCellEvent.didReceiveFieldUpdate(updatedField));
       },
     );
   }
@@ -83,8 +79,7 @@ class FieldCellState with _$FieldCellState {
     required double width,
   }) = _FieldCellState;
 
-  factory FieldCellState.initial(FieldCellContext cellContext) =>
-      FieldCellState(
+  factory FieldCellState.initial(FieldContext cellContext) => FieldCellState(
         viewId: cellContext.viewId,
         field: cellContext.field,
         width: cellContext.field.width.toDouble(),

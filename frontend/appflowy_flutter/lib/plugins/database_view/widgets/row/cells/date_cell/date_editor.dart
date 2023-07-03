@@ -106,7 +106,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
       )..add(const DateCellCalendarEvent.initial()),
       child: BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
         builder: (context, state) {
-          List<Widget> children = [
+          final List<Widget> children = [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: _buildCalendar(context),
@@ -123,7 +123,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             const TypeOptionSeparator(spacing: 12.0),
             const _IncludeTimeButton(),
             const TypeOptionSeparator(spacing: 12.0),
-            _DateTypeOptionButton(popoverMutex: popoverMutex)
+            DateTypeOptionButton(popoverMutex: popoverMutex)
           ];
 
           return ListView.builder(
@@ -337,9 +337,10 @@ class _TimeTextFieldState extends State<_TimeTextField> {
   }
 }
 
-class _DateTypeOptionButton extends StatelessWidget {
+@visibleForTesting
+class DateTypeOptionButton extends StatelessWidget {
   final PopoverMutex popoverMutex;
-  const _DateTypeOptionButton({
+  const DateTypeOptionButton({
     required this.popoverMutex,
     Key? key,
   }) : super(key: key);
@@ -403,7 +404,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> children = [
+    final List<Widget> children = [
       AppFlowyPopover(
         mutex: timeSettingPopoverMutex,
         triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,

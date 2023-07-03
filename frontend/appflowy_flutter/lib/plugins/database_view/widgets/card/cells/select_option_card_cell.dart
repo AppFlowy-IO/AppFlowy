@@ -55,7 +55,7 @@ class _SelectOptionCardCellState extends State<SelectOptionCardCell> {
           return previous.selectedOptions != current.selectedOptions;
         },
         builder: (context, state) {
-          Widget? custom = widget.renderHook?.call(
+          final Widget? custom = widget.renderHook?.call(
             state.selectedOptions,
             widget.cardData,
             context,

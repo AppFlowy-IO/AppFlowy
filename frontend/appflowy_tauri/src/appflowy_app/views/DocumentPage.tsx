@@ -6,11 +6,15 @@ import { DocumentControllerContext } from '../stores/effects/document/document_c
 const muiTheme = createTheme({
   typography: {
     fontFamily: ['Poppins'].join(','),
-    fontSize: 14,
+    fontSize: 12,
+    button: {
+      textTransform: 'none',
+    },
   },
   palette: {
     primary: {
       main: '#00BCF0',
+      light: '#00BCF0',
     },
   },
 });

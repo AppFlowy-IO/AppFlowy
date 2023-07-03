@@ -1,21 +1,14 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/database_view_service.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/board/board_node_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/grid/grid_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-class DatabaseBlockKeys {
-  const DatabaseBlockKeys._();
-
-  static const String parentID = 'parent_id';
-  static const String viewID = 'view_id';
-}
-
 extension InsertDatabase on EditorState {
-  Future<void> insertPage(ViewPB parentView, ViewPB childView) async {
+  Future<void> insertInlinePage(String parentViewId, ViewPB childView) async {
     final selection = this.selection;
     if (selection == null || !selection.isCollapsed) {
       return;
@@ -23,6 +16,38 @@ extension InsertDatabase on EditorState {
     final node = getNodeAtPath(selection.end.path);
     if (node == null) {
       return;
+    }
+
+    final transaction = this.transaction;
+    transaction.insertNode(
+      selection.end.path,
+      Node(
+        type: _convertPageType(childView),
+        attributes: {
+          DatabaseBlockKeys.parentID: parentViewId,
+          DatabaseBlockKeys.viewID: childView.id,
+        },
+      ),
+    );
+    await apply(transaction);
+  }
+
+  Future<void> insertReferencePage(
+    ViewPB childView,
+  ) async {
+    final selection = this.selection;
+    if (selection == null || !selection.isCollapsed) {
+      throw FlowyError(
+        msg:
+            "Could not insert the reference page because the current selection was null or collapsed.",
+      );
+    }
+    final node = getNodeAtPath(selection.end.path);
+    if (node == null) {
+      throw FlowyError(
+        msg:
+            "Could not insert the reference page because the current node at the selection does not exist.",
+      );
     }
 
     // get the database id that the view is associated with
@@ -37,16 +62,18 @@ extension InsertDatabase on EditorState {
     }
 
     final prefix = _referencedDatabasePrefix(childView.layout);
-    final ref = await ViewBackendService.createDatabaseReferenceView(
+    final ref = await ViewBackendService.createDatabaseLinkedView(
       parentViewId: childView.id,
       name: "$prefix ${childView.name}",
       layoutType: childView.layout,
       databaseId: databaseId,
     ).then((value) => value.swap().toOption().toNullable());
 
-    // TODO(a-wallen): Show error dialog here.
     if (ref == null) {
-      return;
+      throw FlowyError(
+        msg:
+            "The `ViewBackendService` failed to create a database reference view",
+      );
     }
 
     final transaction = this.transaction;
@@ -69,6 +96,8 @@ extension InsertDatabase on EditorState {
         return LocaleKeys.grid_referencedGridPrefix.tr();
       case ViewLayoutPB.Board:
         return LocaleKeys.board_referencedBoardPrefix.tr();
+      case ViewLayoutPB.Calendar:
+        return LocaleKeys.calendar_referencedCalendarPrefix.tr();
       default:
         throw UnimplementedError();
     }
@@ -77,9 +106,11 @@ extension InsertDatabase on EditorState {
   String _convertPageType(ViewPB viewPB) {
     switch (viewPB.layout) {
       case ViewLayoutPB.Grid:
-        return GridBlockKeys.type;
+        return DatabaseBlockKeys.gridType;
       case ViewLayoutPB.Board:
-        return BoardBlockKeys.type;
+        return DatabaseBlockKeys.boardType;
+      case ViewLayoutPB.Calendar:
+        return DatabaseBlockKeys.calendarType;
       default:
         throw Exception('Unknown layout type');
     }

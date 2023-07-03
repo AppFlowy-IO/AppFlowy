@@ -1,18 +1,21 @@
+use std::collections::HashMap;
+use std::fmt::Formatter;
+use std::marker::PhantomData;
+use std::sync::Arc;
+
+use collab_database::fields::Field;
+use indexmap::IndexMap;
+use serde::de::DeserializeOwned;
+use serde::Serialize;
+
+use flowy_error::{FlowyError, FlowyResult};
+use lib_infra::future::Fut;
+
 use crate::entities::{GroupChangesPB, GroupPB, InsertedGroupPB};
 use crate::services::field::RowSingleCellData;
 use crate::services::group::{
   default_group_setting, GeneratedGroups, Group, GroupChangeset, GroupData, GroupSetting,
 };
-use collab_database::fields::Field;
-use flowy_error::{FlowyError, FlowyResult};
-use indexmap::IndexMap;
-use lib_infra::future::Fut;
-use serde::de::DeserializeOwned;
-use serde::Serialize;
-use std::collections::HashMap;
-use std::fmt::Formatter;
-use std::marker::PhantomData;
-use std::sync::Arc;
 
 pub trait GroupSettingReader: Send + Sync + 'static {
   fn get_group_setting(&self, view_id: &str) -> Fut<Option<Arc<GroupSetting>>>;
@@ -351,15 +354,21 @@ where
   }
 
   pub(crate) fn update_group(&mut self, group_changeset: GroupChangeset) -> FlowyResult<()> {
-    self.mut_group(&group_changeset.group_id, |group| {
+    let update_group = self.mut_group(&group_changeset.group_id, |group| {
       if let Some(visible) = group_changeset.visible {
         group.visible = visible;
       }
-
       if let Some(name) = &group_changeset.name {
         group.name = name.clone();
       }
     })?;
+
+    if let Some(group) = update_group {
+      if let Some(group_data) = self.group_by_id.get_mut(&group.id) {
+        group_data.name = group.name.clone();
+        group_data.is_visible = group.visible;
+      };
+    }
     Ok(())
   }
 
@@ -374,6 +383,11 @@ where
     self.setting.content.clone()
   }
 
+  /// # Arguments
+  ///
+  /// * `mut_configuration_fn`: mutate the [GroupSetting] and return whether the [GroupSetting] is
+  /// changed. If the [GroupSetting] is changed, the [GroupSetting] will be saved to the storage.
+  ///
   fn mut_configuration(
     &mut self,
     mut_configuration_fn: impl FnOnce(&mut GroupSetting) -> bool,
@@ -396,7 +410,12 @@ where
     Ok(())
   }
 
-  fn mut_group(&mut self, group_id: &str, mut_groups_fn: impl Fn(&mut Group)) -> FlowyResult<()> {
+  fn mut_group(
+    &mut self,
+    group_id: &str,
+    mut_groups_fn: impl Fn(&mut Group),
+  ) -> FlowyResult<Option<Group>> {
+    let mut updated_group = None;
     self.mut_configuration(|configuration| {
       match configuration
         .groups
@@ -406,10 +425,12 @@ where
         None => false,
         Some(group) => {
           mut_groups_fn(group);
+          updated_group = Some(group.clone());
           true
         },
       }
-    })
+    })?;
+    Ok(updated_group)
   }
 }
 

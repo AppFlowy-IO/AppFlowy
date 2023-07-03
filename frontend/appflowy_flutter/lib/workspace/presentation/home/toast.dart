@@ -39,3 +39,14 @@ void showMessageToast(String message) {
     toastDuration: const Duration(seconds: 3),
   );
 }
+
+void showSnackBarMessage(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: FlowyText(
+        message,
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
+    ),
+  );
+}

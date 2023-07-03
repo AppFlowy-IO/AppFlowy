@@ -1,32 +1,34 @@
-use crate::event_handler::*;
-use crate::manager::Folder2Manager;
-use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
+use std::sync::Arc;
 
+use strum_macros::Display;
+
+use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use lib_dispatch::prelude::*;
 
-use std::sync::Arc;
-use strum_macros::Display;
+use crate::event_handler::*;
+use crate::manager::Folder2Manager;
 
 pub fn init(folder: Arc<Folder2Manager>) -> AFPlugin {
   AFPlugin::new().name("Flowy-Folder").state(folder)
     // Workspace
     .event(FolderEvent::CreateWorkspace, create_workspace_handler)
     .event(
-        FolderEvent::ReadCurrentWorkspace,
-        read_cur_workspace_setting_handler,
+      FolderEvent::GetCurrentWorkspace,
+      read_current_workspace_setting_handler,
     )
-    .event(FolderEvent::ReadWorkspaces, read_workspaces_handler)
+    .event(FolderEvent::ReadAllWorkspaces, read_workspaces_handler)
     .event(FolderEvent::OpenWorkspace, open_workspace_handler)
     .event(FolderEvent::ReadWorkspaceViews, read_workspace_views_handler)
      // View
     .event(FolderEvent::CreateView, create_view_handler)
+    .event(FolderEvent::CreateOrphanView, create_orphan_view_handler)
     .event(FolderEvent::ReadView, read_view_handler)
     .event(FolderEvent::UpdateView, update_view_handler)
     .event(FolderEvent::DeleteView, delete_view_handler)
     .event(FolderEvent::DuplicateView, duplicate_view_handler)
     .event(FolderEvent::SetLatestView, set_latest_view_handler)
     .event(FolderEvent::CloseView, close_view_handler)
-    .event(FolderEvent::MoveItem, move_view_handler)
+    .event(FolderEvent::MoveView, move_view_handler)
     // Trash
     .event(FolderEvent::ReadTrash, read_trash_handler)
     .event(FolderEvent::PutbackTrash, putback_trash_handler)
@@ -45,11 +47,11 @@ pub enum FolderEvent {
 
   /// Read the current opening workspace. Currently, we only support one workspace
   #[event(output = "WorkspaceSettingPB")]
-  ReadCurrentWorkspace = 1,
+  GetCurrentWorkspace = 1,
 
-  /// Return a list of workspaces that the current user can access
+  /// Return a list of workspaces that the current user can access.
   #[event(input = "WorkspaceIdPB", output = "RepeatedWorkspacePB")]
-  ReadWorkspaces = 2,
+  ReadAllWorkspaces = 2,
 
   /// Delete the workspace
   #[event(input = "WorkspaceIdPB")]
@@ -59,7 +61,8 @@ pub enum FolderEvent {
   #[event(input = "WorkspaceIdPB", output = "WorkspacePB")]
   OpenWorkspace = 4,
 
-  /// Return a list of views that belong to this workspace.
+  /// Return a list of views of the current workspace.
+  /// Only the first level of child views are included.
   #[event(input = "WorkspaceIdPB", output = "RepeatedViewPB")]
   ReadWorkspaceViews = 5,
 
@@ -88,6 +91,10 @@ pub enum FolderEvent {
   #[event(input = "ViewIdPB")]
   CloseView = 15,
 
+  /// Create a new view in the corresponding app
+  #[event(input = "CreateOrphanViewPayloadPB", output = "ViewPB")]
+  CreateOrphanView = 16,
+
   #[event()]
   CopyLink = 20,
 
@@ -96,8 +103,8 @@ pub enum FolderEvent {
   SetLatestView = 21,
 
   /// Move the view or app to another place
-  #[event(input = "MoveFolderItemPayloadPB")]
-  MoveItem = 22,
+  #[event(input = "MoveViewPayloadPB")]
+  MoveView = 22,
 
   /// Read the trash that was deleted by the user
   #[event(output = "RepeatedTrashPB")]

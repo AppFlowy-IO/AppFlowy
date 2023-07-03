@@ -1,9 +1,10 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_list.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:collection/collection.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -13,27 +14,27 @@ class AppFlowyEditorPage extends StatefulWidget {
     super.key,
     required this.editorState,
     this.header,
+    this.shrinkWrap = false,
+    this.scrollController,
+    this.autoFocus,
+    required this.styleCustomizer,
   });
 
-  final EditorState editorState;
   final Widget? header;
+  final EditorState editorState;
+  final ScrollController? scrollController;
+  final bool shrinkWrap;
+  final bool? autoFocus;
+  final EditorStyleCustomizer styleCustomizer;
 
   @override
   State<AppFlowyEditorPage> createState() => _AppFlowyEditorPageState();
 }
 
 class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
-  final scrollController = ScrollController();
-  final slashMenuItems = [
-    boardMenuItem,
-    gridMenuItem,
-    calloutItem,
-    dividerMenuItem,
-    mathEquationItem,
-    codeBlockItem,
-    emojiMenuItem,
-    autoGeneratorMenuItem,
-  ];
+  late final ScrollController effectiveScrollController;
+
+  final inlinePageReferenceService = InlinePageReferenceService();
 
   final List<CommandShortcutEvent> commandShortcutEvents = [
     ...codeBlockCommands,
@@ -53,28 +54,43 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     highlightColorItem,
   ];
 
+  late final List<SelectionMenuItem> slashMenuItems;
+
   late final Map<String, BlockComponentBuilder> blockComponentBuilders =
       _customAppFlowyBlockComponentBuilders();
-  late final List<CharacterShortcutEvent> characterShortcutEvents = [
-    // divider
-    convertMinusesToDivider,
 
-    // code block
-    ...codeBlockCharacterEvents,
+  List<CharacterShortcutEvent> get characterShortcutEvents => [
+        // inline page reference list
+        ...inlinePageReferenceShortcuts,
 
-    // toggle list
-    // formatGreaterToToggleList,
+        // code block
+        ...codeBlockCharacterEvents,
 
-    // customize the slash menu command
-    customSlashCommand(
-      slashMenuItems,
+        // toggle list
+        // formatGreaterToToggleList,
+
+        // customize the slash menu command
+        customSlashCommand(
+          slashMenuItems,
+          style: styleCustomizer.selectionMenuStyleBuilder(),
+        ),
+
+        ...standardCharacterShortcutEvents
+          ..removeWhere(
+            (element) => element == slashCommand,
+          ), // remove the default slash command.
+      ];
+
+  late final inlinePageReferenceShortcuts = [
+    inlinePageReferenceService.customPageLinkMenu(
+      character: '@',
       style: styleCustomizer.selectionMenuStyleBuilder(),
     ),
-
-    ...standardCharacterShortcutEvents
-      ..removeWhere(
-        (element) => element == slashCommand,
-      ), // remove the default slash command.
+    // uncomment this to enable the inline page reference list
+    // inlinePageReferenceService.customPageLinkMenu(
+    //   character: '+',
+    //   style: styleCustomizer.selectionMenuStyleBuilder(),
+    // ),
   ];
 
   late final showSlashMenu = customSlashCommand(
@@ -83,8 +99,26 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     style: styleCustomizer.selectionMenuStyleBuilder(),
   ).handler;
 
-  late final styleCustomizer = EditorStyleCustomizer(context: context);
+  EditorStyleCustomizer get styleCustomizer => widget.styleCustomizer;
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
+
+  @override
+  void initState() {
+    super.initState();
+
+    slashMenuItems = _customSlashMenuItems();
+
+    effectiveScrollController = widget.scrollController ?? ScrollController();
+  }
+
+  @override
+  void dispose() {
+    if (widget.scrollController == null) {
+      effectiveScrollController.dispose();
+    }
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,9 +128,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final editor = AppFlowyEditor.custom(
       editorState: widget.editorState,
       editable: true,
-      scrollController: scrollController,
+      shrinkWrap: widget.shrinkWrap,
+      scrollController: effectiveScrollController,
       // setup the auto focus parameters
-      autoFocus: autoFocus,
+      autoFocus: widget.autoFocus ?? autoFocus,
       focusedSelection: selection,
       // setup the theme
       editorStyle: styleCustomizer.style(),
@@ -106,18 +141,20 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       characterShortcutEvents: characterShortcutEvents,
       commandShortcutEvents: commandShortcutEvents,
       header: widget.header,
+      footer: const VSpace(200),
     );
 
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(
           maxWidth: double.infinity,
+          maxHeight: double.infinity,
         ),
         child: FloatingToolbar(
           style: styleCustomizer.floatingToolbarStyleBuilder(),
           items: toolbarItems,
           editorState: widget.editorState,
-          scrollController: scrollController,
+          scrollController: effectiveScrollController,
           child: editor,
         ),
       ),
@@ -134,7 +171,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     ];
 
     final configuration = BlockComponentConfiguration(
-      padding: (_) => const EdgeInsets.symmetric(vertical: 4.0),
+      padding: (_) => const EdgeInsets.symmetric(vertical: 5.0),
     );
     final customBlockComponentBuilderMap = {
       PageBlockKeys.type: PageBlockComponentBuilder(),
@@ -169,17 +206,34 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         ),
         textStyleBuilder: (level) => styleCustomizer.headingStyleBuilder(level),
       ),
-      ImageBlockKeys.type: ImageBlockComponentBuilder(),
-      BoardBlockKeys.type: BoardBlockComponentBuilder(
+      ImageBlockKeys.type: ImageBlockComponentBuilder(
+        configuration: configuration,
+        showMenu: true,
+        menuBuilder: (node, state) => Positioned(
+          top: 0,
+          right: 10,
+          child: ImageMenu(
+            node: node,
+            state: state,
+          ),
+        ),
+      ),
+      DatabaseBlockKeys.gridType: DatabaseViewBlockComponentBuilder(
         configuration: configuration,
       ),
-      GridBlockKeys.type: GridBlockComponentBuilder(
+      DatabaseBlockKeys.boardType: DatabaseViewBlockComponentBuilder(
+        configuration: configuration,
+      ),
+      DatabaseBlockKeys.calendarType: DatabaseViewBlockComponentBuilder(
         configuration: configuration,
       ),
       CalloutBlockKeys.type: CalloutBlockComponentBuilder(
         configuration: configuration,
       ),
-      DividerBlockKeys.type: DividerBlockComponentBuilder(),
+      DividerBlockKeys.type: DividerBlockComponentBuilder(
+        configuration: configuration,
+        height: 28.0,
+      ),
       MathEquationBlockKeys.type: MathEquationBlockComponentBuilder(
         configuration: configuration.copyWith(
           padding: (_) => const EdgeInsets.symmetric(vertical: 20),
@@ -198,7 +252,15 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       ),
       AutoCompletionBlockKeys.type: AutoCompletionBlockComponentBuilder(),
       SmartEditBlockKeys.type: SmartEditBlockComponentBuilder(),
-      ToggleListBlockKeys.type: ToggleListBlockComponentBuilder(),
+      ToggleListBlockKeys.type: ToggleListBlockComponentBuilder(
+        configuration: configuration,
+      ),
+      OutlineBlockKeys.type: OutlineBlockComponentBuilder(
+        configuration: configuration.copyWith(
+          placeholderTextStyle: (_) =>
+              styleCustomizer.outlineBlockPlaceholderStyleBuilder(),
+        ),
+      ),
     };
 
     final builders = {
@@ -221,21 +283,38 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         NumberedListBlockKeys.type,
         QuoteBlockKeys.type,
         TodoListBlockKeys.type,
-        CalloutBlockKeys.type
+        CalloutBlockKeys.type,
+        OutlineBlockKeys.type,
+      ];
+
+      final supportAlignBuilderType = [
+        ImageBlockKeys.type,
       ];
 
       final colorAction = [
-        // OptionAction.divider,
+        OptionAction.divider,
         OptionAction.color,
+      ];
+
+      final alignAction = [
+        OptionAction.divider,
+        OptionAction.align,
       ];
 
       final List<OptionAction> actions = [
         ...standardActions,
         if (supportColorBuilderTypes.contains(entry.key)) ...colorAction,
+        if (supportAlignBuilderType.contains(entry.key)) ...alignAction,
       ];
 
       builder.showActions = (_) => true;
-      builder.actionBuilder = (context, state) => BlockActionList(
+      builder.actionBuilder = (context, state) {
+        final padding = context.node.type == HeadingBlockKeys.type
+            ? const EdgeInsets.only(top: 8.0)
+            : const EdgeInsets.all(0);
+        return Padding(
+          padding: padding,
+          child: BlockActionList(
             blockComponentContext: context,
             blockComponentState: state,
             editorState: widget.editorState,
@@ -243,10 +322,40 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
             showSlashMenu: () => showSlashMenu(
               widget.editorState,
             ),
-          );
+          ),
+        );
+      };
     }
 
     return builders;
+  }
+
+  List<SelectionMenuItem> _customSlashMenuItems() {
+    final items = [...standardSelectionMenuItems];
+    final imageItem = items.firstWhereOrNull(
+      (element) => element.name == AppFlowyEditorLocalizations.current.image,
+    );
+    if (imageItem != null) {
+      final imageItemIndex = items.indexOf(imageItem);
+      if (imageItemIndex != -1) {
+        items[imageItemIndex] = customImageMenuItem;
+      }
+    }
+    return [
+      ...items,
+      inlineGridMenuItem(documentBloc),
+      referencedGridMenuItem,
+      inlineBoardMenuItem(documentBloc),
+      referencedBoardMenuItem,
+      inlineCalendarMenuItem(documentBloc),
+      referencedCalendarMenuItem,
+      calloutItem,
+      outlineItem,
+      mathEquationItem,
+      codeBlockItem,
+      emojiMenuItem,
+      autoGeneratorMenuItem,
+    ];
   }
 
   (bool, Selection?) _computeAutoFocusParameters() {

@@ -36,7 +36,7 @@ impl ChecklistCellData {
     if total_options == 0 {
       return 0.0;
     }
-    (selected_options as f64) / (total_options as f64)
+    ((selected_options as f64) / (total_options as f64) * 10.0).trunc() / 10.0
   }
 
   pub fn from_options(options: Vec<String>) -> Self {

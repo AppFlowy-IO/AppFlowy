@@ -25,17 +25,17 @@ class DatabaseViewBackendService {
         .then((value) => value.leftMap((l) => l.value));
   }
 
-  Future<Either<DatabasePB, FlowyError>> openGrid() async {
+  Future<Either<DatabasePB, FlowyError>> openDatabase() async {
     final payload = DatabaseViewIdPB(value: viewId);
     return DatabaseEventGetDatabase(payload).send();
   }
 
-  Future<Either<RowPB, FlowyError>> createRow({
+  Future<Either<RowMetaPB, FlowyError>> createRow({
     RowId? startRowId,
     String? groupId,
     Map<String, String>? cellDataByFieldId,
   }) {
-    var payload = CreateRowPayloadPB.create()..viewId = viewId;
+    final payload = CreateRowPayloadPB.create()..viewId = viewId;
     payload.startRowId = startRowId ?? "";
 
     if (groupId != null) {
@@ -54,7 +54,7 @@ class DatabaseViewBackendService {
     required String toGroupId,
     RowId? toRowId,
   }) {
-    var payload = MoveGroupRowPayloadPB.create()
+    final payload = MoveGroupRowPayloadPB.create()
       ..viewId = viewId
       ..fromRowId = fromRowId
       ..toGroupId = toGroupId;
@@ -70,7 +70,7 @@ class DatabaseViewBackendService {
     required String fromRowId,
     required String toRowId,
   }) {
-    var payload = MoveRowPayloadPB.create()
+    final payload = MoveRowPayloadPB.create()
       ..viewId = viewId
       ..fromRowId = fromRowId
       ..toRowId = toRowId;
@@ -93,7 +93,7 @@ class DatabaseViewBackendService {
   Future<Either<List<FieldPB>, FlowyError>> getFields({
     List<FieldIdPB>? fieldIds,
   }) {
-    var payload = GetFieldPayloadPB.create()..viewId = viewId;
+    final payload = GetFieldPayloadPB.create()..viewId = viewId;
 
     if (fieldIds != null) {
       payload.fieldIds = RepeatedFieldIdPB(items: fieldIds);
@@ -113,9 +113,12 @@ class DatabaseViewBackendService {
   }
 
   Future<Either<Unit, FlowyError>> updateLayoutSetting({
+    required DatabaseLayoutPB layoutType,
     CalendarLayoutSettingPB? calendarLayoutSetting,
   }) {
-    final payload = LayoutSettingChangesetPB.create()..viewId = viewId;
+    final payload = LayoutSettingChangesetPB.create()
+      ..viewId = viewId
+      ..layoutType = layoutType;
     if (calendarLayoutSetting != null) {
       payload.calendar = calendarLayoutSetting;
     }

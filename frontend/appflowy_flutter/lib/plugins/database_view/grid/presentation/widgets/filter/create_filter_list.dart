@@ -60,14 +60,14 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
             final cells = state.creatableFields.map((fieldInfo) {
               return SizedBox(
                 height: GridSize.popoverItemHeight,
-                child: _FilterPropertyCell(
+                child: GridFilterPropertyCell(
                   fieldInfo: fieldInfo,
                   onTap: (fieldInfo) => createFilter(fieldInfo),
                 ),
               );
             }).toList();
 
-            List<Widget> slivers = [
+            final List<Widget> slivers = [
               SliverPersistentHeader(
                 pinned: true,
                 delegate: _FilterTextFieldDelegate(),
@@ -147,10 +147,10 @@ class _FilterTextFieldDelegate extends SliverPersistentHeaderDelegate {
   }
 }
 
-class _FilterPropertyCell extends StatelessWidget {
+class GridFilterPropertyCell extends StatelessWidget {
   final FieldInfo fieldInfo;
   final Function(FieldInfo) onTap;
-  const _FilterPropertyCell({
+  const GridFilterPropertyCell({
     required this.fieldInfo,
     required this.onTap,
     Key? key,

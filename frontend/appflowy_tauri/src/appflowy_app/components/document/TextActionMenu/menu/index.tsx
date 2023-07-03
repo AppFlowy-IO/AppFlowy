@@ -11,11 +11,13 @@ function TextActionMenuList() {
       switch (action) {
         case TextAction.Turn:
           return isSingleLine && focusId ? <TurnIntoSelect id={focusId} /> : null;
+        case TextAction.Link:
         case TextAction.Bold:
         case TextAction.Italic:
         case TextAction.Underline:
         case TextAction.Strikethrough:
         case TextAction.Code:
+        case TextAction.Equation:
           return <FormatButton format={action} icon={action} />;
         default:
           return null;

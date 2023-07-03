@@ -14,7 +14,9 @@ pub struct SelectOptionFilterPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum SelectOptionConditionPB {
+  #[default]
   OptionIs = 0,
   OptionIsNot = 1,
   OptionIsEmpty = 2,
@@ -24,12 +26,6 @@ pub enum SelectOptionConditionPB {
 impl std::convert::From<SelectOptionConditionPB> for u32 {
   fn from(value: SelectOptionConditionPB) -> Self {
     value as u32
-  }
-}
-
-impl std::default::Default for SelectOptionConditionPB {
-  fn default() -> Self {
-    SelectOptionConditionPB::OptionIs
   }
 }
 

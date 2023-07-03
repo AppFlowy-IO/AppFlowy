@@ -193,13 +193,13 @@ async fn change_date_on_moving_row_to_another_group() {
   let group = test.group_at_index(2).await;
   let rows = group.clone().rows;
   let row_id = &rows.get(0).unwrap().id;
-  let row = test
+  let row_detail = test
     .get_rows()
     .await
     .into_iter()
-    .find(|r| r.id.to_string() == row_id.to_string())
+    .find(|r| r.row.id.to_string() == row_id.to_string())
     .unwrap();
-  let cell = row.cells.get(&date_field.id.clone()).unwrap();
+  let cell = row_detail.row.cells.get(&date_field.id.clone()).unwrap();
   let date_cell = DateCellData::from(cell);
 
   let date_time =

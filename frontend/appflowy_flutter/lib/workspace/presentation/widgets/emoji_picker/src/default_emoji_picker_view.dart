@@ -46,7 +46,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
     _emojiFocusNode.requestFocus();
 
     _emojiController.addListener(() {
-      String query = _emojiController.text.toLowerCase();
+      final String query = _emojiController.text.toLowerCase();
       if (query.isEmpty) {
         searchEmojiList.emoji.clear();
         _pageController!.jumpToPage(
@@ -54,7 +54,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
         );
       } else {
         searchEmojiList.emoji.clear();
-        for (var element in widget.state.categoryEmoji) {
+        for (final element in widget.state.categoryEmoji) {
           searchEmojiList.emoji.addAll(
             element.emoji.where((item) {
               return item.name.toLowerCase().contains(query);
@@ -94,7 +94,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
   }
 
   bool isEmojiSearching() {
-    bool result =
+    final bool result =
         searchEmojiList.emoji.isNotEmpty || _emojiController.text.isNotEmpty;
 
     return result;
@@ -198,7 +198,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
                   //   );
                   // },
                   itemBuilder: (context, index) {
-                    CategoryEmoji catEmoji = isEmojiSearching()
+                    final CategoryEmoji catEmoji = isEmojiSearching()
                         ? searchEmojiList
                         : widget.state.categoryEmoji[index];
                     return _buildPage(emojiSize, catEmoji);

@@ -113,7 +113,7 @@ class TypeOptionContext<T extends GeneratedMessage> {
     required TypeOptionController dataController,
   }) : _dataController = dataController;
 
-  String get viewId => _dataController.viewId;
+  String get viewId => _dataController.loader.viewId;
 
   String get fieldId => _dataController.field.id;
 
@@ -121,7 +121,7 @@ class TypeOptionContext<T extends GeneratedMessage> {
     void Function(T)? onCompleted,
     required void Function(FlowyError) onError,
   }) async {
-    await _dataController.loadTypeOptionData().then((result) {
+    await _dataController.reloadTypeOption().then((result) {
       result.fold((l) => null, (err) => onError(err));
     });
 
@@ -153,54 +153,12 @@ abstract class TypeOptionFieldDelegate {
 abstract class ITypeOptionLoader {
   String get viewId;
   String get fieldName;
+
   Future<Either<TypeOptionPB, FlowyError>> initialize();
 }
 
-/// Uses when creating a new field
-class NewFieldTypeOptionLoader extends ITypeOptionLoader {
-  TypeOptionPB? fieldTypeOption;
-
-  @override
-  final String viewId;
-  NewFieldTypeOptionLoader({
-    required this.viewId,
-  });
-
-  /// Creates the field type option if the fieldTypeOption is null.
-  /// Otherwise, it loads the type option data from the backend.
-  @override
-  Future<Either<TypeOptionPB, FlowyError>> initialize() {
-    if (fieldTypeOption != null) {
-      final payload = TypeOptionPathPB.create()
-        ..viewId = viewId
-        ..fieldId = fieldTypeOption!.field_2.id
-        ..fieldType = fieldTypeOption!.field_2.fieldType;
-
-      return DatabaseEventGetTypeOption(payload).send();
-    } else {
-      final payload = CreateFieldPayloadPB.create()
-        ..viewId = viewId
-        ..fieldType = FieldType.RichText;
-
-      return DatabaseEventCreateTypeOption(payload).send().then((result) {
-        return result.fold(
-          (newFieldTypeOption) {
-            fieldTypeOption = newFieldTypeOption;
-            return left(newFieldTypeOption);
-          },
-          (err) => right(err),
-        );
-      });
-    }
-  }
-
-  @override
-  String get fieldName => fieldTypeOption?.field_2.name ?? '';
-}
-
 /// Uses when editing a existing field
-class FieldTypeOptionLoader extends ITypeOptionLoader {
-  @override
+class FieldTypeOptionLoader {
   final String viewId;
   final FieldPB field;
 
@@ -209,8 +167,7 @@ class FieldTypeOptionLoader extends ITypeOptionLoader {
     required this.field,
   });
 
-  @override
-  Future<Either<TypeOptionPB, FlowyError>> initialize() {
+  Future<Either<TypeOptionPB, FlowyError>> load() {
     final payload = TypeOptionPathPB.create()
       ..viewId = viewId
       ..fieldId = field.id
@@ -218,7 +175,4 @@ class FieldTypeOptionLoader extends ITypeOptionLoader {
 
     return DatabaseEventGetTypeOption(payload).send();
   }
-
-  @override
-  String get fieldName => field.name;
 }

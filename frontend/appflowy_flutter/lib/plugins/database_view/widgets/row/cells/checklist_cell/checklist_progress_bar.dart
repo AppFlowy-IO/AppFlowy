@@ -22,7 +22,7 @@ class ChecklistProgressBar extends StatelessWidget {
       percent: percent,
       padding: EdgeInsets.zero,
       progressColor: percent < 1.0
-          ? SelectOptionColorPB.Blue.toColor(context)
+          ? SelectOptionColorPB.Purple.toColor(context)
           : SelectOptionColorPB.Green.toColor(context),
       backgroundColor: AFThemeExtension.of(context).progressBarBGColor,
       barRadius: const Radius.circular(5),
@@ -54,36 +54,7 @@ class _SliverChecklistProgressBarDelegate
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    return BlocBuilder<ChecklistCellEditorBloc, ChecklistCellEditorState>(
-      builder: (context, state) {
-        return Padding(
-          padding: GridSize.typeOptionContentInsets,
-          child: Column(
-            children: [
-              FlowyTextField(
-                autoClearWhenDone: true,
-                submitOnLeave: true,
-                hintText: LocaleKeys.grid_checklist_panelTitle.tr(),
-                onChanged: (text) {
-                  context
-                      .read<ChecklistCellEditorBloc>()
-                      .add(ChecklistCellEditorEvent.filterOption(text));
-                },
-                onSubmitted: (text) {
-                  context
-                      .read<ChecklistCellEditorBloc>()
-                      .add(ChecklistCellEditorEvent.newOption(text));
-                },
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 6.0),
-                child: ChecklistProgressBar(percent: state.percent),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+    return const _AutoFocusTextField();
   }
 
   @override
@@ -95,5 +66,64 @@ class _SliverChecklistProgressBarDelegate
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
     return true;
+  }
+}
+
+class _AutoFocusTextField extends StatefulWidget {
+  const _AutoFocusTextField();
+
+  @override
+  State<_AutoFocusTextField> createState() => _AutoFocusTextFieldState();
+}
+
+class _AutoFocusTextFieldState extends State<_AutoFocusTextField> {
+  final _focusNode = FocusNode();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ChecklistCellEditorBloc, ChecklistCellEditorState>(
+      builder: (context, state) {
+        return BlocListener<ChecklistCellEditorBloc, ChecklistCellEditorState>(
+          listenWhen: (previous, current) =>
+              previous.createOption != current.createOption,
+          listener: (context, state) {
+            if (_focusNode.canRequestFocus) {
+              _focusNode.requestFocus();
+            }
+          },
+          child: Container(
+            color: Theme.of(context).cardColor,
+            child: Padding(
+              padding: GridSize.typeOptionContentInsets,
+              child: Column(
+                children: [
+                  FlowyTextField(
+                    autoFocus: true,
+                    focusNode: _focusNode,
+                    autoClearWhenDone: true,
+                    submitOnLeave: true,
+                    hintText: LocaleKeys.grid_checklist_panelTitle.tr(),
+                    onChanged: (text) {
+                      context
+                          .read<ChecklistCellEditorBloc>()
+                          .add(ChecklistCellEditorEvent.filterOption(text));
+                    },
+                    onSubmitted: (text) {
+                      context
+                          .read<ChecklistCellEditorBloc>()
+                          .add(ChecklistCellEditorEvent.newOption(text));
+                    },
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6.0),
+                    child: ChecklistProgressBar(percent: state.percent),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

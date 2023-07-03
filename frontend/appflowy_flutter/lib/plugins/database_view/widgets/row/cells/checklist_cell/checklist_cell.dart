@@ -45,14 +45,14 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
         triggerActions: PopoverTriggerFlags.none,
         popupBuilder: (BuildContext context) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            widget.onCellEditing.value = true;
+            widget.onCellFocus.value = true;
           });
           return GridChecklistCellEditor(
             cellController:
                 widget.cellControllerBuilder.build() as ChecklistCellController,
           );
         },
-        onClose: () => widget.onCellEditing.value = false,
+        onClose: () => widget.onCellFocus.value = false,
         child: Padding(
           padding: GridSize.cellContentInsets,
           child: BlocBuilder<ChecklistCardCellBloc, ChecklistCellState>(

@@ -13,7 +13,9 @@ pub struct TextFilterPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum TextFilterConditionPB {
+  #[default]
   Is = 0,
   IsNot = 1,
   Contains = 2,
@@ -27,12 +29,6 @@ pub enum TextFilterConditionPB {
 impl std::convert::From<TextFilterConditionPB> for u32 {
   fn from(value: TextFilterConditionPB) -> Self {
     value as u32
-  }
-}
-
-impl std::default::Default for TextFilterConditionPB {
-  fn default() -> Self {
-    TextFilterConditionPB::Is
   }
 }
 

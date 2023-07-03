@@ -2,6 +2,7 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
 use crate::entities::parser::NotEmptyStr;
+use crate::entities::RowMetaPB;
 use crate::services::setting::{CalendarLayout, CalendarLayoutSetting};
 
 use super::CellIdPB;
@@ -80,17 +81,11 @@ impl std::convert::From<CalendarLayout> for CalendarLayoutPB {
 pub struct CalendarEventRequestPB {
   #[pb(index = 1)]
   pub view_id: String,
-
-  // Currently, requesting the events within the specified month
-  // is not supported
-  #[pb(index = 2)]
-  pub month: String,
 }
 
 #[derive(Debug, Clone, Default)]
 pub struct CalendarEventRequestParams {
   pub view_id: String,
-  pub month: String,
 }
 
 impl TryInto<CalendarEventRequestParams> for CalendarEventRequestPB {
@@ -98,17 +93,14 @@ impl TryInto<CalendarEventRequestParams> for CalendarEventRequestPB {
 
   fn try_into(self) -> Result<CalendarEventRequestParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::ViewIdIsInvalid)?;
-    Ok(CalendarEventRequestParams {
-      view_id: view_id.0,
-      month: self.month,
-    })
+    Ok(CalendarEventRequestParams { view_id: view_id.0 })
   }
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct CalendarEventPB {
   #[pb(index = 1)]
-  pub row_id: String,
+  pub row_meta: RowMetaPB,
 
   #[pb(index = 2)]
   pub date_field_id: String,
@@ -118,6 +110,9 @@ pub struct CalendarEventPB {
 
   #[pb(index = 4)]
   pub timestamp: i64,
+
+  #[pb(index = 5)]
+  pub is_scheduled: bool,
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]

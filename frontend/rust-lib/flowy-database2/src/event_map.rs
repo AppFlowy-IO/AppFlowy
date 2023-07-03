@@ -22,6 +22,7 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         .event(DatabaseEvent::DeleteAllSorts, delete_all_sorts_handler)
         // Field
         .event(DatabaseEvent::GetFields, get_fields_handler)
+        .event(DatabaseEvent::GetPrimaryField, get_primary_field_handler)
         .event(DatabaseEvent::UpdateField, update_field_handler)
         .event(DatabaseEvent::UpdateFieldTypeOption, update_field_type_option_handler)
         .event(DatabaseEvent::DeleteField, delete_field_handler)
@@ -33,6 +34,8 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         // Row
         .event(DatabaseEvent::CreateRow, create_row_handler)
         .event(DatabaseEvent::GetRow, get_row_handler)
+        .event(DatabaseEvent::GetRowMeta, get_row_meta_handler)
+        .event(DatabaseEvent::UpdateRowMeta, update_row_meta_handler)
         .event(DatabaseEvent::DeleteRow, delete_row_handler)
         .event(DatabaseEvent::DuplicateRow, duplicate_row_handler)
         .event(DatabaseEvent::MoveRow, move_row_handler)
@@ -172,6 +175,9 @@ pub enum DatabaseEvent {
   #[event(input = "CreateFieldPayloadPB", output = "TypeOptionPB")]
   CreateTypeOption = 24,
 
+  #[event(input = "DatabaseViewIdPB", output = "FieldPB")]
+  GetPrimaryField = 25,
+
   /// [CreateSelectOption] event is used to create a new select option. Returns a [SelectOptionPB] if
   /// there are no errors.
   #[event(input = "CreateSelectOptionPayloadPB", output = "SelectOptionPB")]
@@ -195,7 +201,7 @@ pub enum DatabaseEvent {
   #[event(input = "RepeatedSelectOptionPayload")]
   DeleteSelectOption = 33,
 
-  #[event(input = "CreateRowPayloadPB", output = "RowPB")]
+  #[event(input = "CreateRowPayloadPB", output = "RowMetaPB")]
   CreateRow = 50,
 
   /// [GetRow] event is used to get the row data,[RowPB]. [OptionalRowPB] is a wrapper that enables
@@ -211,6 +217,12 @@ pub enum DatabaseEvent {
 
   #[event(input = "MoveRowPayloadPB")]
   MoveRow = 54,
+
+  #[event(input = "RowIdPB", output = "RowMetaPB")]
+  GetRowMeta = 55,
+
+  #[event(input = "UpdateRowMetaChangesetPB")]
+  UpdateRowMeta = 56,
 
   #[event(input = "CellIdPB", output = "CellPB")]
   GetCell = 70,

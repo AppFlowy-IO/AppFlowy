@@ -7,7 +7,7 @@ use appflowy_integrate::{CollabPersistenceConfig, RocksCollabDB};
 use collab::core::collab::MutexCollab;
 use collab_database::database::DatabaseData;
 use collab_database::user::{DatabaseCollabBuilder, UserDatabase as InnerUserDatabase};
-use collab_database::views::{CreateDatabaseParams, CreateViewParams};
+use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use parking_lot::Mutex;
 use tokio::sync::RwLock;
 
@@ -16,6 +16,7 @@ use flowy_task::TaskDispatcher;
 
 use crate::entities::{DatabaseDescriptionPB, DatabaseLayoutPB, RepeatedDatabaseDescriptionPB};
 use crate::services::database::{DatabaseEditor, MutexDatabase};
+use crate::services::database_view::DatabaseLayoutDepsResolver;
 use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
 
 pub trait DatabaseUser2: Send + Sync {
@@ -48,11 +49,12 @@ impl DatabaseManager2 {
   }
 
   pub async fn initialize(&self, user_id: i64) -> FlowyResult<()> {
+    let config = CollabPersistenceConfig::new().snapshot_per_update(10);
     let db = self.user.collab_db()?;
     *self.user_database.lock() = Some(InnerUserDatabase::new(
       user_id,
       db,
-      CollabPersistenceConfig::default(),
+      config,
       UserDatabaseCollabBuilderImpl(self.collab_builder.clone()),
     ));
     // do nothing
@@ -97,6 +99,7 @@ impl DatabaseManager2 {
       return Ok(editor.clone());
     }
 
+    tracing::trace!("create new editor for database {}", database_id);
     let mut editors = self.editors.write().await;
     let database = MutexDatabase::new(self.with_user_database(
       Err(FlowyError::record_not_found()),
@@ -129,6 +132,12 @@ impl DatabaseManager2 {
       }
     }
 
+    Ok(())
+  }
+
+  pub async fn delete_database_view(&self, view_id: &str) -> FlowyResult<()> {
+    let database = self.get_database_with_view_id(view_id).await?;
+    let _ = database.delete_database_view(view_id).await?;
     Ok(())
   }
 
@@ -171,21 +180,29 @@ impl DatabaseManager2 {
     Ok(())
   }
 
+  /// A linked view is a view that is linked to existing database.
+  #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn create_linked_view(
     &self,
     name: String,
-    layout: DatabaseLayoutPB,
+    layout: DatabaseLayout,
     database_id: String,
     database_view_id: String,
   ) -> FlowyResult<()> {
     self.with_user_database(
       Err(FlowyError::internal().context("Create database view failed")),
       |user_database| {
-        let database = user_database
-          .get_database(&database_id)
-          .ok_or_else(FlowyError::record_not_found)?;
-        let params = CreateViewParams::new(database_id, database_view_id, name, layout.into());
-        database.create_linked_view(params)?;
+        let mut params = CreateViewParams::new(database_id.clone(), database_view_id, name, layout);
+        if let Some(database) = user_database.get_database(&database_id) {
+          if let Some((field, layout_setting)) = DatabaseLayoutDepsResolver::new(database, layout)
+            .resolve_deps_when_create_database_linked_view()
+          {
+            params = params
+              .with_deps_fields(vec![field])
+              .with_layout_setting(layout_setting);
+          }
+        };
+        user_database.create_database_linked_view(params)?;
         Ok(())
       },
     )?;
@@ -263,16 +280,6 @@ unsafe impl Send for UserDatabase {}
 struct UserDatabaseCollabBuilderImpl(Arc<AppFlowyCollabBuilder>);
 
 impl DatabaseCollabBuilder for UserDatabaseCollabBuilderImpl {
-  fn build(
-    &self,
-    uid: i64,
-    object_id: &str,
-    object_name: &str,
-    db: Arc<RocksCollabDB>,
-  ) -> Arc<MutexCollab> {
-    self.0.build(uid, object_id, object_name, db)
-  }
-
   fn build_with_config(
     &self,
     uid: i64,

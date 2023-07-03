@@ -1,9 +1,5 @@
-import 'dart:io';
-
-import 'package:appflowy/core/config/kv.dart';
-import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy_backend/log.dart';
+import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -24,60 +20,19 @@ class SettingsLocationCubit extends Cubit<SettingsLocationState> {
     _init();
   }
 
-  Future<void> setPath(String path) async {
-    await getIt<LocalFileStorage>().setPath(path);
+  Future<void> resetDataStoragePathToApplicationDefault() async {
+    final directory = await appFlowyApplicationDataDirectory();
+    await getIt<ApplicationDataStorage>().setPath(directory.path);
+    emit(SettingsLocationState.didReceivedPath(directory.path));
+  }
+
+  Future<void> setCustomPath(String path) async {
+    await getIt<ApplicationDataStorage>().setCustomPath(path);
     emit(SettingsLocationState.didReceivedPath(path));
   }
 
   Future<void> _init() async {
-    final path = await getIt<LocalFileStorage>().getPath();
+    final path = await getIt<ApplicationDataStorage>().getPath();
     emit(SettingsLocationState.didReceivedPath(path));
-  }
-}
-
-class LocalFileStorage {
-  LocalFileStorage();
-  String? _cachePath;
-
-  Future<void> setPath(String path) async {
-    if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
-      Log.info('LocalFileStorage is not supported on this platform.');
-      return;
-    }
-
-    if (Platform.isMacOS) {
-      // remove the prefix `/Volumes/*`
-      path = path.replaceFirst(RegExp(r'^/Volumes/[^/]+'), '');
-    } else if (Platform.isWindows) {
-      path = path.replaceAll('/', '\\');
-    }
-
-    await getIt<KeyValueStorage>().set(KVKeys.pathLocation, path);
-    // clear the cache path, and not set the cache path to the new path because the set path may be invalid
-    _cachePath = null;
-  }
-
-  Future<String> getPath() async {
-    if (_cachePath != null) {
-      return _cachePath!;
-    }
-
-    final response = await getIt<KeyValueStorage>().get(KVKeys.pathLocation);
-    final String path = await response.fold(
-      (error) async {
-        // return the default path if the path is not set
-        final directory = await appFlowyDocumentDirectory();
-        return directory.path;
-      },
-      (path) => path,
-    );
-    _cachePath = path;
-
-    // if the path is not exists means the path is invalid, so we should clear the kv store
-    if (!Directory(path).existsSync()) {
-      await getIt<KeyValueStorage>().clear();
-    }
-
-    return path;
   }
 }

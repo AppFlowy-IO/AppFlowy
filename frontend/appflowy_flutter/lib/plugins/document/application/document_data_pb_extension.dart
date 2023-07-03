@@ -88,35 +88,22 @@ extension DocumentDataPBFromTo on DocumentDataPB {
   }
 }
 
-class _BackendKeys {
-  const _BackendKeys._();
-
-  static const String text = 'text';
-}
-
 extension BlockToNode on BlockPB {
   Node toNode({
     Iterable<Node>? children,
   }) {
     return Node(
       id: id,
-      type: _typeAdapter(ty),
+      type: ty,
       attributes: _dataAdapter(ty, data),
       children: children ?? [],
     );
   }
 
-  String _typeAdapter(String ty) {
-    final adapter = {
-      _BackendKeys.text: ParagraphBlockKeys.type,
-    };
-    return adapter[ty] ?? ty;
-  }
-
   Attributes _dataAdapter(String ty, String data) {
     final map = Attributes.from(jsonDecode(data));
     final adapter = {
-      'text': (Attributes map) => map
+      ParagraphBlockKeys.type: (Attributes map) => map
         ..putIfAbsent(
           'delta',
           () => Delta().toJson(),
@@ -130,12 +117,13 @@ extension NodeToBlock on Node {
   BlockPB toBlock({
     String? parentId,
     String? childrenId,
+    Attributes? attributes,
   }) {
     assert(id.isNotEmpty);
     final block = BlockPB.create()
       ..id = id
-      ..ty = _typeAdapter(type)
-      ..data = _dataAdapter(type, attributes);
+      ..ty = type
+      ..data = _dataAdapter(type, attributes ?? this.attributes);
     if (childrenId != null && childrenId.isNotEmpty) {
       block.childrenId = childrenId;
     }
@@ -143,13 +131,6 @@ extension NodeToBlock on Node {
       block.parentId = parentId;
     }
     return block;
-  }
-
-  String _typeAdapter(String type) {
-    final adapter = {
-      'paragraph': 'text',
-    };
-    return adapter[type] ?? type;
   }
 
   String _dataAdapter(String type, Attributes attributes) {

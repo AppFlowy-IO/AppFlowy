@@ -86,7 +86,7 @@ class MenuUser extends StatelessWidget {
   }
 
   Widget _renderUserName(BuildContext context) {
-    String name = userName(context.read<MenuUserBloc>().state.userProfile);
+    final String name = userName(context.read<MenuUserBloc>().state.userProfile);
     return FlowyText.medium(
       name,
       overflow: TextOverflow.ellipsis,

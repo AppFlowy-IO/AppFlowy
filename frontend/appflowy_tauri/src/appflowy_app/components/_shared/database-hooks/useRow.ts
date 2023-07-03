@@ -4,8 +4,9 @@ import { RowInfo } from '$app/stores/effects/database/row/row_cache';
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { useEffect, useState } from 'react';
 import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
-import { None } from 'ts-results';
 import { useAppSelector } from '$app/stores/store';
+import { FieldType } from '@/services/backend';
+import { None } from 'ts-results';
 
 export const useRow = (viewId: string, databaseController: DatabaseController, rowInfo: RowInfo) => {
   const [cells, setCells] = useState<{ fieldId: string; cellIdentifier: CellIdentifier }[]>([]);
@@ -42,10 +43,13 @@ export const useRow = (viewId: string, databaseController: DatabaseController, r
     })();
   }, [rowController, databaseStore.columns]);
 
-  const onNewColumnClick = async () => {
+  const onNewColumnClick = async (initialFieldType: FieldType = FieldType.RichText, name?: string) => {
     if (!databaseController) return;
-    const controller = new TypeOptionController(viewId, None);
+    const controller = new TypeOptionController(viewId, None, initialFieldType);
     await controller.initialize();
+    if (name) {
+      await controller.setFieldName(name);
+    }
   };
 
   return {

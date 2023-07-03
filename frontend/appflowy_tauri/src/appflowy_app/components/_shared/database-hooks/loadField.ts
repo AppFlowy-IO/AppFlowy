@@ -1,6 +1,6 @@
-import { TypeOptionController } from '../../../stores/effects/database/field/type_option/type_option_controller';
+import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
 import { Some } from 'ts-results';
-import { IDatabaseField, ISelectOption } from '../../../stores/reducers/database/slice';
+import { IDatabaseField, ISelectOption } from '$app_reducers/database/slice';
 import { ChecklistTypeOptionPB, FieldType, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB } from '@/services/backend';
 import {
   makeChecklistTypeOptionContext,
@@ -8,10 +8,10 @@ import {
   makeMultiSelectTypeOptionContext,
   makeNumberTypeOptionContext,
   makeSingleSelectTypeOptionContext,
-} from '../../../stores/effects/database/field/type_option/type_option_context';
-import { boardActions } from '../../../stores/reducers/board/slice';
-import { FieldInfo } from '../../../stores/effects/database/field/field_controller';
-import { AppDispatch } from '../../../stores/store';
+} from '$app/stores/effects/database/field/type_option/type_option_context';
+import { boardActions } from '$app_reducers/board/slice';
+import { FieldInfo } from '$app/stores/effects/database/field/field_controller';
+import { AppDispatch } from '$app/stores/store';
 
 export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: AppDispatch): Promise<IDatabaseField> {
   const field = fieldInfo.field;
@@ -53,6 +53,7 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
         fieldId: field.id,
         title: field.name,
         fieldType: field.field_type,
+        visible: field.visibility,
         fieldOptions: {
           selectOptions,
         },
@@ -64,6 +65,7 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
       return {
         fieldId: field.id,
         title: field.name,
+        visible: field.visibility,
         fieldType: field.field_type,
         fieldOptions: {
           numberFormat: typeOption.format,
@@ -76,6 +78,7 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
       return {
         fieldId: field.id,
         title: field.name,
+        visible: field.visibility,
         fieldType: field.field_type,
         fieldOptions: {
           dateFormat: typeOption.date_format,
@@ -88,6 +91,7 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
       return {
         fieldId: field.id,
         title: field.name,
+        visible: field.visibility,
         fieldType: field.field_type,
       };
     }

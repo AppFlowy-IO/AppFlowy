@@ -13,20 +13,12 @@ interface Props {
 }
 function TextBlock({ node, childIds, placeholder }: Props) {
   const { value, onChange } = useChange(node);
-  const { onSelectionChange, selection, lastSelection } = useSelection(node.id);
+  const selectionProps = useSelection(node.id);
   const { onKeyDown } = useKeyDown(node.id);
 
   return (
     <>
-      <Editor
-        value={value}
-        onChange={onChange}
-        onSelectionChange={onSelectionChange}
-        selection={selection}
-        lastSelection={lastSelection}
-        onKeyDown={onKeyDown}
-        placeholder={placeholder}
-      />
+      <Editor value={value} onChange={onChange} {...selectionProps} onKeyDown={onKeyDown} placeholder={placeholder} />
       <NodeChildren className='pl-[1.5em]' childIds={childIds} />
     </>
   );

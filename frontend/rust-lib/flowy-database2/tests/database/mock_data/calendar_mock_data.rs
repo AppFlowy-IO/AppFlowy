@@ -1,11 +1,12 @@
-use crate::database::database_editor::TestRowBuilder;
-use collab_database::database::{gen_database_id, gen_database_view_id, DatabaseData};
+use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, LayoutSettings};
+use strum::IntoEnumIterator;
 
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::{FieldBuilder, MultiSelectTypeOption};
 use flowy_database2::services::setting::CalendarLayoutSetting;
-use strum::IntoEnumIterator;
+
+use crate::database::database_editor::TestRowBuilder;
 
 // Calendar unit test mock data
 pub fn make_test_calendar() -> DatabaseData {
@@ -40,7 +41,7 @@ pub fn make_test_calendar() -> DatabaseData {
   let calendar_setting: LayoutSetting = CalendarLayoutSetting::new(date_field_id).into();
 
   for i in 0..5 {
-    let mut row_builder = TestRowBuilder::new(i.into(), &fields);
+    let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
     match i {
       0 => {
         for field_type in FieldType::iter() {

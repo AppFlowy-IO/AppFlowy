@@ -51,8 +51,8 @@ class CellContainer extends StatelessWidget {
           }
 
           return GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: () => child.beginFocus.notify(),
+            behavior: HitTestBehavior.opaque,
+            onTap: () => child.requestFocus.notify(),
             child: Container(
               constraints: BoxConstraints(maxWidth: width, minHeight: 46),
               decoration: _makeBoxDecoration(context, isFocus),
@@ -98,7 +98,7 @@ class _GridCellEnterRegion extends StatelessWidget {
           !cellNotifier.isFocus &&
           (cellNotifier.onEnter || regionNotifier.onEnter && isPrimary),
       builder: (context, showAccessory, _) {
-        List<Widget> children = [child];
+        final List<Widget> children = [child];
         if (showAccessory) {
           children.add(
             CellAccessoryContainer(accessories: accessories).positioned(

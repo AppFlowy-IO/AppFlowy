@@ -10,10 +10,13 @@ flowy-core = { path = "../flowy-core" }
 flowy-user = { path = "../flowy-user"}
 flowy-net = { path = "../flowy-net"}
 flowy-folder2 = { path = "../flowy-folder2", features = ["test_helper"] }
+flowy-database2 = { path = "../flowy-database2" }
+flowy-document2 = { path = "../flowy-document2" }
 lib-dispatch = { path = "../lib-dispatch" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-server = { path = "../flowy-server" }
+flowy-notification = { path = "../flowy-notification" }
 
 serde = { version = "1.0", features = ["derive"] }
 serde_json = {version = "1.0"}

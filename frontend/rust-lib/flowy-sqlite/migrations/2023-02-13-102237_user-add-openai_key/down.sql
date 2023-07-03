@@ -1,1 +1,0 @@
-ALTER TABLE user_table DROP COLUMN openai_key;

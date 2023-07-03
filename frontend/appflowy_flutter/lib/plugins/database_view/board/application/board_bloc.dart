@@ -28,11 +28,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   FieldController get fieldController => databaseController.fieldController;
   String get viewId => databaseController.viewId;
 
-  BoardBloc({required ViewPB view})
-      : databaseController = DatabaseController(
-          view: view,
-        ),
-        super(BoardState.initial(view.id)) {
+  BoardBloc({
+    required ViewPB view,
+    required this.databaseController,
+  }) : super(BoardState.initial(view.id)) {
     boardController = AppFlowyBoardController(
       onMoveGroup: (
         fromGroupId,
@@ -156,7 +155,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     );
   }
 
-  void _groupItemStartEditing(GroupPB group, RowPB row, bool isEdit) {
+  void _groupItemStartEditing(GroupPB group, RowMetaPB row, bool isEdit) {
     final fieldInfo = fieldController.getField(group.fieldId);
     if (fieldInfo == null) {
       Log.warn("fieldInfo should not be null");
@@ -168,7 +167,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   @override
   Future<void> close() async {
-    await databaseController.dispose();
     for (final controller in groupControllers.values) {
       controller.dispose();
     }
@@ -176,7 +174,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   void initializeGroups(List<GroupPB> groups) {
-    for (var controller in groupControllers.values) {
+    for (final controller in groupControllers.values) {
       controller.dispose();
     }
     groupControllers.clear();
@@ -230,12 +228,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         for (final group in updatedGroups) {
           final columnController =
               boardController.getGroupController(group.groupId);
-          columnController?.updateGroupName(group.desc);
+          columnController?.updateGroupName(group.groupName);
         }
       },
     );
 
-    databaseController.setListener(
+    databaseController.addListener(
       onDatabaseChanged: onDatabaseChanged,
       onGroupChanged: onGroupChanged,
     );
@@ -285,7 +283,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   AppFlowyGroupData initializeGroupData(GroupPB group) {
     return AppFlowyGroupData(
       id: group.groupId,
-      name: group.desc,
+      name: group.groupName,
       items: _buildGroupItems(group),
       customData: GroupData(
         group: group,
@@ -302,12 +300,12 @@ class BoardEvent with _$BoardEvent {
   const factory BoardEvent.createHeaderRow(String groupId) = _CreateHeaderRow;
   const factory BoardEvent.didCreateRow(
     GroupPB group,
-    RowPB row,
+    RowMetaPB row,
     int? index,
   ) = _DidCreateRow;
   const factory BoardEvent.startEditingRow(
     GroupPB group,
-    RowPB row,
+    RowMetaPB row,
   ) = _StartEditRow;
   const factory BoardEvent.endEditingRow(RowId rowId) = _EndEditRow;
   const factory BoardEvent.didReceiveError(FlowyError error) = _DidReceiveError;
@@ -371,7 +369,7 @@ class GridFieldEquatable extends Equatable {
 }
 
 class GroupItem extends AppFlowyGroupItem {
-  final RowPB row;
+  final RowMetaPB row;
   final FieldInfo fieldInfo;
 
   GroupItem({
@@ -389,7 +387,7 @@ class GroupItem extends AppFlowyGroupItem {
 class GroupControllerDelegateImpl extends GroupControllerDelegate {
   final FieldController fieldController;
   final AppFlowyBoardController controller;
-  final void Function(String, RowPB, int?) onNewColumnItem;
+  final void Function(String, RowMetaPB, int?) onNewColumnItem;
 
   GroupControllerDelegateImpl({
     required this.controller,
@@ -398,7 +396,7 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
   });
 
   @override
-  void insertRow(GroupPB group, RowPB row, int? index) {
+  void insertRow(GroupPB group, RowMetaPB row, int? index) {
     final fieldInfo = fieldController.getField(group.fieldId);
     if (fieldInfo == null) {
       Log.warn("fieldInfo should not be null");
@@ -426,7 +424,7 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
   }
 
   @override
-  void updateRow(GroupPB group, RowPB row) {
+  void updateRow(GroupPB group, RowMetaPB row) {
     final fieldInfo = fieldController.getField(group.fieldId);
     if (fieldInfo == null) {
       Log.warn("fieldInfo should not be null");
@@ -442,7 +440,7 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
   }
 
   @override
-  void addNewRow(GroupPB group, RowPB row, int? index) {
+  void addNewRow(GroupPB group, RowMetaPB row, int? index) {
     final fieldInfo = fieldController.getField(group.fieldId);
     if (fieldInfo == null) {
       Log.warn("fieldInfo should not be null");
@@ -465,7 +463,7 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
 
 class BoardEditingRow {
   GroupPB group;
-  RowPB row;
+  RowMetaPB row;
   int? index;
 
   BoardEditingRow({

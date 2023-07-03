@@ -27,7 +27,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
             }
           },
           didReceiveCellDatas: (cells) {
-            emit(state.copyWith(gridCells: cells));
+            emit(state.copyWith(cells: cells));
           },
           deleteField: (fieldId) {
             _fieldBackendService(fieldId).deleteField();
@@ -88,17 +88,17 @@ class RowDetailEvent with _$RowDetailEvent {
   const factory RowDetailEvent.duplicateRow(String rowId, String? groupId) =
       _DuplicateRow;
   const factory RowDetailEvent.didReceiveCellDatas(
-    List<CellIdentifier> gridCells,
+    List<DatabaseCellContext> gridCells,
   ) = _DidReceiveCellDatas;
 }
 
 @freezed
 class RowDetailState with _$RowDetailState {
   const factory RowDetailState({
-    required List<CellIdentifier> gridCells,
+    required List<DatabaseCellContext> cells,
   }) = _RowDetailState;
 
   factory RowDetailState.initial() => RowDetailState(
-        gridCells: List.empty(),
+        cells: List.empty(),
       );
 }

@@ -73,6 +73,22 @@ export class TypeOptionController {
     }
   };
 
+  hideField = async () => {
+    if (this.fieldBackendSvc) {
+      void this.fieldBackendSvc.updateField({ visibility: false });
+    } else {
+      throw Error('Unexpected empty field backend service');
+    }
+  };
+
+  showField = async () => {
+    if (this.fieldBackendSvc) {
+      void this.fieldBackendSvc.updateField({ visibility: true });
+    } else {
+      throw Error('Unexpected empty field backend service');
+    }
+  };
+
   saveTypeOption = async (data: Uint8Array) => {
     if (this.typeOptionData.some) {
       this.typeOptionData.val.type_option_data = data;

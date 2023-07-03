@@ -11,18 +11,18 @@ abstract class CellDataParser<T> {
 
 class CellDataLoader<T> {
   final CellBackendService service = CellBackendService();
-  final CellIdentifier cellId;
+  final DatabaseCellContext cellContext;
   final CellDataParser<T> parser;
   final bool reloadOnFieldChanged;
 
   CellDataLoader({
-    required this.cellId,
+    required this.cellContext,
     required this.parser,
     this.reloadOnFieldChanged = false,
   });
 
   Future<T?> loadData() {
-    final fut = service.getCell(cellId: cellId);
+    final fut = service.getCell(cellContext: cellContext);
     return fut.then(
       (result) => result.fold(
         (CellPB cell) {

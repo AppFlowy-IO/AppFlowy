@@ -1,31 +1,17 @@
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode } from 'react';
 import { NavigationPanel } from './NavigationPanel/NavigationPanel';
 import { MainPanel } from './MainPanel';
 import { useNavigationPanelHooks } from './NavigationPanel/NavigationPanel.hooks';
 import { useWorkspace } from './Workspace.hooks';
-import { useAppSelector } from '../../stores/store';
 
 export const Screen = ({ children }: { children: ReactNode }) => {
-  const currentUser = useAppSelector((state) => state.currentUser);
-  const { loadWorkspaceItems } = useWorkspace();
-  useEffect(() => {
-    void (async () => {
-      await loadWorkspaceItems();
-    })();
-  }, [currentUser.isAuthenticated]);
+  useWorkspace();
 
-  const { width, folders, pages, onPageClick, onHideMenuClick, onShowMenuClick, menuHidden } = useNavigationPanelHooks();
+  const { width, onHideMenuClick, onShowMenuClick, menuHidden } = useNavigationPanelHooks();
 
   return (
     <div className='flex h-screen w-screen bg-white text-black'>
-      <NavigationPanel
-        onHideMenuClick={onHideMenuClick}
-        width={width}
-        folders={folders}
-        pages={pages}
-        onPageClick={onPageClick}
-        menuHidden={menuHidden}
-      ></NavigationPanel>
+      <NavigationPanel onHideMenuClick={onHideMenuClick} width={width} menuHidden={menuHidden}></NavigationPanel>
 
       <MainPanel left={width} menuHidden={menuHidden} onShowMenuClick={onShowMenuClick}>
         {children}

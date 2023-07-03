@@ -53,6 +53,7 @@ export const EditCheckListPopup = ({
   const onDeleteOptionClick = async () => {
     const svc = new SelectOptionCellBackendService(cellIdentifier);
     await svc.deleteOption([editingSelectOption]);
+    onOutsideClick();
   };
 
   return (

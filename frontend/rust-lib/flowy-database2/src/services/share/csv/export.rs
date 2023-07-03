@@ -1,9 +1,10 @@
-use crate::entities::FieldType;
-use crate::services::cell::stringify_cell_data;
 use collab_database::database::Database;
+use indexmap::IndexMap;
 
 use flowy_error::{FlowyError, FlowyResult};
-use indexmap::IndexMap;
+
+use crate::entities::FieldType;
+use crate::services::cell::stringify_cell_data;
 
 #[derive(Debug, Clone, Copy)]
 pub enum CSVFormat {
@@ -20,7 +21,7 @@ impl CSVExport {
   pub fn export_database(&self, database: &Database, style: CSVFormat) -> FlowyResult<String> {
     let mut wtr = csv::Writer::from_writer(vec![]);
     let inline_view_id = database.get_inline_view_id();
-    let fields = database.get_fields(&inline_view_id, None);
+    let fields = database.get_fields_in_view(&inline_view_id, None);
 
     // Write fields
     let field_records = fields

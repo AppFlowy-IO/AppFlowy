@@ -62,7 +62,7 @@ class _SingleSelectCellState extends GridCellState<GridSingleSelectCell> {
           return SelectOptionWrap(
             selectOptions: state.selectedOptions,
             cellStyle: widget.cellStyle,
-            onCellEditing: widget.onCellEditing,
+            onCellEditing: widget.onCellFocus,
             popoverController: _popover,
             cellControllerBuilder: widget.cellControllerBuilder,
           );
@@ -125,7 +125,7 @@ class _MultiSelectCellState extends GridCellState<GridMultiSelectCell> {
           return SelectOptionWrap(
             selectOptions: state.selectedOptions,
             cellStyle: widget.cellStyle,
-            onCellEditing: widget.onCellEditing,
+            onCellEditing: widget.onCellFocus,
             popoverController: _popover,
             cellControllerBuilder: widget.cellControllerBuilder,
           );
@@ -167,7 +167,7 @@ class SelectOptionWrap extends StatefulWidget {
 class _SelectOptionWrapState extends State<SelectOptionWrap> {
   @override
   Widget build(BuildContext context) {
-    Widget child = _buildOptions(context);
+    final Widget child = _buildOptions(context);
 
     final constraints = BoxConstraints.loose(
       Size(

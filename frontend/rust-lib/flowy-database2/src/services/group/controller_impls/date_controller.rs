@@ -1,8 +1,9 @@
 use crate::entities::{
   DateCellDataPB, FieldType, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB,
-  RowPB,
+  RowMetaPB,
 };
 use crate::services::cell::insert_date_cell;
+use crate::services::database::RowDetail;
 use crate::services::field::{DateCellData, DateCellDataParser, DateTypeOption};
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupContext;
@@ -93,7 +94,7 @@ impl GroupCustomize for DateGroupController {
 
   fn create_or_delete_group_when_cell_changed(
     &mut self,
-    row: &Row,
+    row_detail: &RowDetail,
     old_cell_data: Option<&Self::CellData>,
     cell_data: &Self::CellData,
   ) -> FlowyResult<(Option<InsertedGroupPB>, Option<GroupPB>)> {
@@ -114,7 +115,7 @@ impl GroupCustomize for DateGroupController {
         &setting_content,
       );
       let mut new_group = self.context.add_new_group(group)?;
-      new_group.group.rows.push(RowPB::from(row));
+      new_group.group.rows.push(RowMetaPB::from(&row_detail.meta));
       inserted_group = Some(new_group);
     }
 
@@ -149,7 +150,7 @@ impl GroupCustomize for DateGroupController {
 
   fn add_or_remove_row_when_cell_changed(
     &mut self,
-    row: &Row,
+    row_detail: &RowDetail,
     cell_data: &Self::CellData,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
@@ -163,15 +164,17 @@ impl GroupCustomize for DateGroupController {
           &setting_content,
         )
       {
-        if !group.contains_row(&row.id) {
+        if !group.contains_row(&row_detail.row.id) {
           changeset
             .inserted_rows
-            .push(InsertedRowPB::new(RowPB::from(row)));
-          group.add_row(row.clone());
+            .push(InsertedRowPB::new(RowMetaPB::from(&row_detail.meta)));
+          group.add_row(row_detail.clone());
         }
-      } else if group.contains_row(&row.id) {
-        group.remove_row(&row.id);
-        changeset.deleted_rows.push(row.id.clone().into_inner());
+      } else if group.contains_row(&row_detail.row.id) {
+        group.remove_row(&row_detail.row.id);
+        changeset
+          .deleted_rows
+          .push(row_detail.row.id.clone().into_inner());
       }
 
       if !changeset.is_empty() {
@@ -250,9 +253,9 @@ impl GroupController for DateGroupController {
     }
   }
 
-  fn did_create_row(&mut self, row: &Row, group_id: &str) {
+  fn did_create_row(&mut self, row_detail: &RowDetail, group_id: &str) {
     if let Some(group) = self.context.get_mut_group(group_id) {
-      group.add_row(row.clone())
+      group.add_row(row_detail.clone())
     }
   }
 }

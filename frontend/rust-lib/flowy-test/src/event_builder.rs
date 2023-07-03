@@ -1,8 +1,7 @@
 use crate::FlowyCoreTest;
 use flowy_user::errors::FlowyError;
 use lib_dispatch::prelude::{
-  AFPluginDispatcher, AFPluginEventResponse, AFPluginFromBytes, AFPluginRequest, StatusCode,
-  ToBytes, *,
+  AFPluginDispatcher, AFPluginEventResponse, AFPluginFromBytes, AFPluginRequest, ToBytes, *,
 };
 use std::{
   convert::TryFrom,
@@ -87,7 +86,6 @@ impl EventBuilder {
 
   pub fn error(self) -> Option<FlowyError> {
     let response = self.get_response();
-    assert_eq!(response.status_code, StatusCode::Err);
     <AFPluginData<FlowyError>>::try_from(response.payload)
       .ok()
       .map(|data| data.into_inner())

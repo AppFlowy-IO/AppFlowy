@@ -9,7 +9,6 @@ export function calcToolbarPosition(toolbarDom: HTMLDivElement, node: Element, c
 
   const nodeRect = node.getBoundingClientRect();
   const rect = domRange?.getBoundingClientRect() || { top: 0, left: 0, width: 0, height: 0 };
-
   const top = rect.top - nodeRect.top - toolbarDom.offsetHeight;
   let left = rect.left - nodeRect.left - toolbarDom.offsetWidth / 2 + rect.width / 2;
 
@@ -24,7 +23,6 @@ export function calcToolbarPosition(toolbarDom: HTMLDivElement, node: Element, c
   } else if (left + nodeRect.left + toolbarDom.offsetWidth > rightBound) {
     left = rightBound - toolbarDom.offsetWidth - nodeRect.left - rightThreshold;
   }
-
 
   return {
     top,

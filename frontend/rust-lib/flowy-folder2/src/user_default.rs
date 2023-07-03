@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
-use collab_folder::core::{FolderData, RepeatedView, ViewIdentifier, Workspace};
-use nanoid::nanoid;
+use collab_folder::core::{FolderData, RepeatedViewIdentifier, ViewIdentifier, Workspace};
 use tokio::sync::RwLock;
 
 use lib_infra::util::timestamp;
@@ -47,7 +46,7 @@ impl DefaultFolderBuilder {
     let workspace = Workspace {
       id: workspace_id,
       name: "Workspace".to_string(),
-      child_views: RepeatedView::new(first_level_views),
+      child_views: RepeatedViewIdentifier::new(first_level_views),
       created_at: timestamp(),
     };
 
@@ -73,17 +72,17 @@ impl DefaultFolderBuilder {
 }
 
 pub fn gen_workspace_id() -> String {
-  nanoid!(10)
+  uuid::Uuid::new_v4().to_string()
 }
 
 impl From<&ParentChildViews> for ViewPB {
   fn from(value: &ParentChildViews) -> Self {
     view_pb_with_child_views(
-      value.parent_view.clone(),
+      Arc::new(value.parent_view.clone()),
       value
         .child_views
         .iter()
-        .map(|v| v.parent_view.clone())
+        .map(|v| Arc::new(v.parent_view.clone()))
         .collect(),
     )
   }

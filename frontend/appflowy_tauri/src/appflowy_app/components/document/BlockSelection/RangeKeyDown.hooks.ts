@@ -1,19 +1,22 @@
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Keyboard } from '$app/constants/document/keyboard';
 import { useAppDispatch } from '$app/stores/store';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { arrowActionForRangeThunk, deleteRangeAndInsertThunk } from '$app_reducers/document/async-actions';
 import Delta from 'quill-delta';
 import isHotkey from 'is-hotkey';
 import { deleteRangeAndInsertEnterThunk } from '$app_reducers/document/async-actions/range';
 import { useRangeRef } from '$app/components/document/_shared/SubscribeSelection.hooks';
 import { isPrintableKeyEvent } from '$app/utils/document/action';
+import { toggleFormatThunk } from '$app_reducers/document/async-actions/format';
+import { isFormatHotkey, parseFormat } from '$app/utils/document/format';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export function useRangeKeyDown() {
   const rangeRef = useRangeRef();
 
   const dispatch = useAppDispatch();
-  const controller = useContext(DocumentControllerContext);
+  const { docId, controller } = useSubscribeDocument();
+
   const interceptEvents = useMemo(
     () => [
       {
@@ -33,7 +36,7 @@ export function useRangeKeyDown() {
       {
         // handle char input
         canHandle: (e: KeyboardEvent) => {
-          return isPrintableKeyEvent(e);
+          return isPrintableKeyEvent(e) && !e.shiftKey && !e.ctrlKey && !e.metaKey;
         },
         handler: (e: KeyboardEvent) => {
           if (!controller) return;
@@ -90,30 +93,54 @@ export function useRangeKeyDown() {
           dispatch(
             arrowActionForRangeThunk({
               key: e.key,
+              docId,
+            })
+          );
+        },
+      },
+      {
+        // handle format shortcuts
+        canHandle: isFormatHotkey,
+        handler: (e: KeyboardEvent) => {
+          if (!controller) return;
+          const format = parseFormat(e);
+          if (!format) return;
+          dispatch(
+            toggleFormatThunk({
+              format,
+              controller,
             })
           );
         },
       },
     ],
-    [controller, dispatch]
+    [controller, dispatch, docId]
   );
 
-  const onKeyDown = useCallback(
+  const onKeyDownCapture = useCallback(
     (e: KeyboardEvent) => {
       if (!rangeRef.current) {
         return;
       }
       const { anchor, focus } = rangeRef.current;
-      if (anchor?.id === focus?.id) {
+      if (!anchor || !focus) return;
+
+      if (anchor.id === focus.id) {
         return;
       }
       e.stopPropagation();
-      e.preventDefault();
       const filteredEvents = interceptEvents.filter((event) => event.canHandle(e));
-      filteredEvents.forEach((event) => event.handler(e));
+      const lastIndex = filteredEvents.length - 1;
+      if (lastIndex < 0) {
+        return;
+      }
+      const lastEvent = filteredEvents[lastIndex];
+      if (!lastEvent) return;
+      e.preventDefault();
+      lastEvent.handler(e);
     },
     [interceptEvents, rangeRef]
   );
 
-  return onKeyDown;
+  return onKeyDownCapture;
 }

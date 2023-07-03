@@ -1,6 +1,6 @@
 part of 'cell_service.dart';
 
-typedef CellByFieldId = LinkedHashMap<String, CellIdentifier>;
+typedef CellContextByFieldId = LinkedHashMap<String, DatabaseCellContext>;
 
 class DatabaseCell {
   dynamic object;
@@ -38,7 +38,7 @@ class CellCache {
   }
 
   void remove(CellCacheKey key) {
-    var map = _cellDataByFieldId[key.fieldId];
+    final map = _cellDataByFieldId[key.fieldId];
     if (map != null) {
       map.remove(key.rowId);
     }

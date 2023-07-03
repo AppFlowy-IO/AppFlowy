@@ -5,6 +5,7 @@ use std::sync::Arc;
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::RocksCollabDB;
 use bytes::Bytes;
+use tokio::sync::RwLock;
 
 use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::services::share::csv::CSVFormat;
@@ -17,6 +18,7 @@ use flowy_error::FlowyError;
 use flowy_folder2::deps::{FolderCloudService, FolderUser};
 use flowy_folder2::entities::ViewLayoutPB;
 use flowy_folder2::manager::Folder2Manager;
+use flowy_folder2::share::ImportType;
 use flowy_folder2::view_operation::{
   FolderOperationHandler, FolderOperationHandlers, View, WorkspaceViewBuilder,
 };
@@ -24,7 +26,6 @@ use flowy_folder2::ViewLayout;
 use flowy_user::services::UserSession;
 use lib_dispatch::prelude::ToBytes;
 use lib_infra::future::FutureResult;
-use tokio::sync::RwLock;
 
 pub struct Folder2DepsResolver();
 impl Folder2DepsResolver {
@@ -104,7 +105,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
               let json_str = include_str!("../../assets/read_me.json");
               let document_pb = JsonToDocumentParser::json_str_to_document(json_str).unwrap();
               manager
-                .create_document(view.parent_view.id.clone(), Some(document_pb.into()))
+                .create_document(&view.parent_view.id, Some(document_pb.into()))
                 .unwrap();
               view
             })
@@ -121,7 +122,19 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      manager.close_document(view_id)?;
+      manager.close_document(&view_id)?;
+      Ok(())
+    })
+  }
+
+  fn delete_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
+    let manager = self.0.clone();
+    let view_id = view_id.to_string();
+    FutureResult::new(async move {
+      match manager.delete_document(&view_id) {
+        Ok(_) => tracing::trace!("Delete document: {}", view_id),
+        Err(e) => tracing::error!("Failed to delete document: {}", e),
+      }
       Ok(())
     })
   }
@@ -130,7 +143,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      let document = manager.get_document(view_id)?;
+      let document = manager.get_document_from_disk(&view_id)?;
       let data: DocumentDataPB = document.lock().get_document()?.into();
       let data_bytes = data.into_bytes().map_err(|_| FlowyError::invalid_data())?;
       Ok(data_bytes)
@@ -151,7 +164,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     FutureResult::new(async move {
       let data = DocumentDataPB::try_from(Bytes::from(data))?;
-      manager.create_document(view_id, Some(data.into()))?;
+      manager.create_document(&view_id, Some(data.into()))?;
       Ok(())
     })
   }
@@ -168,7 +181,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let view_id = view_id.to_string();
     let manager = self.0.clone();
     FutureResult::new(async move {
-      manager.create_document(view_id, None)?;
+      manager.create_document(&view_id, None)?;
       Ok(())
     })
   }
@@ -177,13 +190,14 @@ impl FolderOperationHandler for DocumentFolderOperation {
     &self,
     view_id: &str,
     _name: &str,
+    _import_type: ImportType,
     bytes: Vec<u8>,
   ) -> FutureResult<(), FlowyError> {
     let view_id = view_id.to_string();
     let manager = self.0.clone();
     FutureResult::new(async move {
       let data = DocumentDataPB::try_from(Bytes::from(bytes))?;
-      manager.create_document(view_id, Some(data.into()))?;
+      manager.create_document(&view_id, Some(data.into()))?;
       Ok(())
     })
   }
@@ -206,6 +220,18 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     let view_id = view_id.to_string();
     FutureResult::new(async move {
       database_manager.close_database_view(view_id).await?;
+      Ok(())
+    })
+  }
+
+  fn delete_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
+    let database_manager = self.0.clone();
+    let view_id = view_id.to_string();
+    FutureResult::new(async move {
+      match database_manager.delete_database_view(&view_id).await {
+        Ok(_) => tracing::trace!("Delete database view: {}", view_id),
+        Err(e) => tracing::error!("Failed to delete database: {}", e),
+      }
       Ok(())
     })
   }
@@ -250,7 +276,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
 
         FutureResult::new(async move {
           database_manager
-            .create_linked_view(name, layout, params.database_id, database_view_id)
+            .create_linked_view(name, layout.into(), params.database_id, database_view_id)
             .await?;
           Ok(())
         })
@@ -291,14 +317,21 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     &self,
     view_id: &str,
     _name: &str,
+    import_type: ImportType,
     bytes: Vec<u8>,
   ) -> FutureResult<(), FlowyError> {
     let database_manager = self.0.clone();
     let view_id = view_id.to_string();
+    let format = match import_type {
+      ImportType::CSV => CSVFormat::Original,
+      ImportType::HistoryDatabase => CSVFormat::META,
+      ImportType::RawDatabase => CSVFormat::META,
+      _ => CSVFormat::Original,
+    };
     FutureResult::new(async move {
       let content = String::from_utf8(bytes).map_err(|err| FlowyError::internal().context(err))?;
       database_manager
-        .import_csv(view_id, content, CSVFormat::META)
+        .import_csv(view_id, content, format)
         .await?;
       Ok(())
     })

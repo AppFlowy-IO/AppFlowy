@@ -155,6 +155,8 @@ pub struct CreateFieldPayloadPB {
   #[pb(index = 2)]
   pub field_type: FieldType,
 
+  /// If the type_option_data is not empty, it will be used to create the field.
+  /// Otherwise, the default value will be used.
   #[pb(index = 3, one_of)]
   pub type_option_data: Option<Vec<u8>>,
 }
@@ -163,6 +165,8 @@ pub struct CreateFieldPayloadPB {
 pub struct CreateFieldParams {
   pub view_id: String,
   pub field_type: FieldType,
+  /// If the type_option_data is not empty, it will be used to create the field.
+  /// Otherwise, the default value will be used.
   pub type_option_data: Option<Vec<u8>>,
 }
 
@@ -189,9 +193,6 @@ pub struct UpdateFieldTypePayloadPB {
 
   #[pb(index = 3)]
   pub field_type: FieldType,
-
-  #[pb(index = 4)]
-  pub create_if_not_exist: bool,
 }
 
 pub struct EditFieldParams {
@@ -401,18 +402,13 @@ pub struct FieldChangesetPB {
   pub desc: Option<String>,
 
   #[pb(index = 5, one_of)]
-  pub field_type: Option<FieldType>,
-
-  #[pb(index = 6, one_of)]
   pub frozen: Option<bool>,
 
-  #[pb(index = 7, one_of)]
+  #[pb(index = 6, one_of)]
   pub visibility: Option<bool>,
 
-  #[pb(index = 8, one_of)]
+  #[pb(index = 7, one_of)]
   pub width: Option<i32>,
-  // #[pb(index = 9, one_of)]
-  // pub type_option_data: Option<Vec<u8>>,
 }
 
 impl TryInto<FieldChangesetParams> for FieldChangesetPB {
@@ -421,7 +417,6 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPB {
   fn try_into(self) -> Result<FieldChangesetParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
     let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
-    let field_type = self.field_type.map(FieldType::from);
     // if let Some(type_option_data) = self.type_option_data.as_ref() {
     //     if type_option_data.is_empty() {
     //         return Err(ErrorCode::TypeOptionDataIsEmpty);
@@ -433,7 +428,6 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPB {
       view_id: view_id.0,
       name: self.name,
       desc: self.desc,
-      field_type,
       frozen: self.frozen,
       visibility: self.visibility,
       width: self.width,
@@ -451,8 +445,6 @@ pub struct FieldChangesetParams {
   pub name: Option<String>,
 
   pub desc: Option<String>,
-
-  pub field_type: Option<FieldType>,
 
   pub frozen: Option<bool>,
 
@@ -483,7 +475,9 @@ pub struct FieldChangesetParams {
   Deserialize_repr,
 )]
 #[repr(u8)]
+#[derive(Default)]
 pub enum FieldType {
+  #[default]
   RichText = 0,
   Number = 1,
   DateTime = 2,
@@ -494,12 +488,6 @@ pub enum FieldType {
   Checklist = 7,
   LastEditedTime = 8,
   CreatedTime = 9,
-}
-
-impl std::default::Default for FieldType {
-  fn default() -> Self {
-    FieldType::RichText
-  }
 }
 
 impl Display for FieldType {

@@ -70,8 +70,10 @@ class SettingsFileLocationCustomizerState
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        _ChangeStoragePathButton(
-                          usingPath: path,
+                        Flexible(
+                          child: _ChangeStoragePathButton(
+                            usingPath: path,
+                          ),
                         ),
                         const HSpace(10),
                         _OpenStorageButton(
@@ -129,12 +131,14 @@ class _CopyableText extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                if (onHover)
+                if (onHover) ...[
+                  const HSpace(5),
                   FlowyText.regular(
                     LocaleKeys.settings_files_copy.tr(),
                     fontSize: 12,
                     color: Theme.of(context).colorScheme.primary,
-                  )
+                  ),
+                ],
               ],
             ),
           ),
@@ -170,9 +174,10 @@ class _ChangeStoragePathButtonState extends State<_ChangeStoragePathButton> {
           if (path == null || !mounted || widget.usingPath == path) {
             return;
           }
-          await context.read<SettingsLocationCubit>().setPath(path);
+          await context.read<SettingsLocationCubit>().setCustomPath(path);
           await FlowyRunner.run(
             FlowyApp(),
+            integrationEnv(),
             config: const LaunchConfiguration(
               autoRegistrationSupported: true,
             ),
@@ -197,7 +202,7 @@ class _OpenStorageButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyIconButton(
       hoverColor: Theme.of(context).colorScheme.secondaryContainer,
-      tooltipText: LocaleKeys.settings_files_openLocationTooltips.tr(),
+      tooltipText: LocaleKeys.settings_files_openCurrentDataFolder.tr(),
       icon: svgWidget(
         'common/open_folder',
         color: Theme.of(context).iconTheme.color,
@@ -237,14 +242,17 @@ class _RecoverDefaultStorageButtonState
       ),
       onPressed: () async {
         // reset to the default directory and reload app
-        final directory = await appFlowyDocumentDirectory();
+        final directory = await appFlowyApplicationDataDirectory();
         final path = directory.path;
         if (!mounted || widget.usingPath == path) {
           return;
         }
-        await context.read<SettingsLocationCubit>().setPath(path);
+        await context
+            .read<SettingsLocationCubit>()
+            .resetDataStoragePathToApplicationDefault();
         await FlowyRunner.run(
           FlowyApp(),
+          integrationEnv(),
           config: const LaunchConfiguration(
             autoRegistrationSupported: true,
           ),

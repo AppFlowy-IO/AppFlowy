@@ -1,6 +1,4 @@
-import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_service.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -8,12 +6,15 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/cell_entities.pb.dart';
 
 class SelectOptionCellBackendService {
-  final CellIdentifier cellId;
-  SelectOptionCellBackendService({required this.cellId});
+  final String viewId;
+  final String fieldId;
+  final String rowId;
 
-  String get viewId => cellId.viewId;
-  String get fieldId => cellId.fieldInfo.id;
-  RowId get rowId => cellId.rowId;
+  SelectOptionCellBackendService({
+    required this.viewId,
+    required this.fieldId,
+    required this.rowId,
+  });
 
   Future<Either<Unit, FlowyError>> create({
     required String name,

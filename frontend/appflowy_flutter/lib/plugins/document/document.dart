@@ -48,6 +48,7 @@ class DocumentPlugin extends Plugin<int> {
   DocumentPlugin({
     required PluginType pluginType,
     required ViewPB view,
+    bool listenOnViewChanged = false,
     Key? key,
   }) : notifier = ViewPluginNotifier(view: view) {
     _pluginType = pluginType;
@@ -92,7 +93,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   EdgeInsets get contentPadding => EdgeInsets.zero;
 
   @override
-  Widget buildWidget(PluginContext context) {
+  Widget buildWidget({PluginContext? context}) {
     notifier.isDeleted.addListener(() {
       notifier.isDeleted.value.fold(() => null, (deletedView) {
         if (deletedView.hasIndex()) {
@@ -107,7 +108,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
         builder: (_, state) {
           return DocumentPage(
             view: view,
-            onDeleted: () => context.onDeleted(view, deletedViewIndex),
+            onDeleted: () => context?.onDeleted(view, deletedViewIndex),
             key: ValueKey(view.id),
           );
         },
@@ -122,7 +123,10 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   Widget? get rightBarItem {
     return Row(
       children: [
-        DocumentShareButton(view: view),
+        DocumentShareButton(
+          key: ValueKey(view.id),
+          view: view,
+        ),
         const SizedBox(width: 10),
         BlocProvider.value(
           value: documentAppearanceCubit,

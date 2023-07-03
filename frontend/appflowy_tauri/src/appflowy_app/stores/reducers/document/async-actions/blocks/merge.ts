@@ -3,6 +3,9 @@ import { DocumentController } from '$app/stores/effects/document/document_contro
 import { DocumentState } from '$app/interfaces/document';
 import Delta from 'quill-delta';
 import { blockConfig } from '$app/constants/document/config';
+import { getMoveChildrenActions } from '$app/utils/document/action';
+import { RootState } from '$app/stores/store';
+import { DOCUMENT_NAME } from '$app/constants/document/name';
 
 /**
  * Merge two blocks
@@ -15,9 +18,12 @@ export const mergeDeltaThunk = createAsyncThunk(
   async (payload: { sourceId: string; targetId: string; controller: DocumentController }, thunkAPI) => {
     const { sourceId, targetId, controller } = payload;
     const { getState } = thunkAPI;
-    const state = (getState() as { document: DocumentState }).document;
-    const target = state.nodes[targetId];
-    const source = state.nodes[sourceId];
+    const state = getState() as RootState;
+    const docId = controller.documentId;
+    const docState = state[DOCUMENT_NAME][docId];
+    const target = docState.nodes[targetId];
+    const source = docState.nodes[sourceId];
+
     if (!target || !source) return;
     const targetDelta = new Delta(target.data.delta);
     const sourceDelta = new Delta(source.data.delta);
@@ -33,15 +39,17 @@ export const mergeDeltaThunk = createAsyncThunk(
 
     const actions = [updateAction];
     // move children
-    const config = blockConfig[target.type];
-    const children = state.children[source.children].map((id) => state.nodes[id]);
-    const targetParentId = config.canAddChild ? target.id : target.parent;
-    if (!targetParentId) return;
-    const targetPrevId = targetParentId === target.id ? '' : target.id;
-    const moveActions = controller.getMoveChildrenAction(children, targetParentId, targetPrevId);
+    const children = docState.children[source.children].map((id) => docState.nodes[id]);
+    const moveActions = getMoveChildrenActions({
+      controller,
+      children,
+      target,
+    });
+
     actions.push(...moveActions);
     // delete current block
     const deleteAction = controller.getDeleteAction(source);
+
     actions.push(deleteAction);
 
     await controller.applyActions(actions);

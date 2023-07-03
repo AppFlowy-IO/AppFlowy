@@ -6,7 +6,7 @@ use flowy_derive::ProtoBuf;
 use flowy_error::{ErrorCode, FlowyError};
 
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::{DatabaseLayoutPB, FieldIdPB, RowPB};
+use crate::entities::{DatabaseLayoutPB, FieldIdPB, RowMetaPB};
 use crate::services::database::CreateDatabaseViewParams;
 
 /// [DatabasePB] describes how many fields and blocks the grid has
@@ -19,10 +19,13 @@ pub struct DatabasePB {
   pub fields: Vec<FieldIdPB>,
 
   #[pb(index = 3)]
-  pub rows: Vec<RowPB>,
+  pub rows: Vec<RowMetaPB>,
 
   #[pb(index = 4)]
   pub layout_type: DatabaseLayoutPB,
+
+  #[pb(index = 5)]
+  pub is_linked: bool,
 }
 
 #[derive(ProtoBuf, Default)]
@@ -135,11 +138,13 @@ impl TryInto<MoveRowParams> for MoveRowPayloadPB {
 
   fn try_into(self) -> Result<MoveRowParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
+    let from_row_id = NotEmptyStr::parse(self.from_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
+    let to_row_id = NotEmptyStr::parse(self.to_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
 
     Ok(MoveRowParams {
       view_id: view_id.0,
-      from_row_id: RowId::from(self.from_row_id),
-      to_row_id: RowId::from(self.to_row_id),
+      from_row_id: RowId::from(from_row_id.0),
+      to_row_id: RowId::from(to_row_id.0),
     })
   }
 }

@@ -33,6 +33,7 @@ class AppFlowyBoardTest {
       parentViewId: app.id,
       name: "Test Board",
       layoutType: builder.layoutType!,
+      openAfterCreate: true,
     ).then((result) {
       return result.fold(
         (view) async {
@@ -76,22 +77,18 @@ class BoardTestContext {
     return _boardDataController.fieldController;
   }
 
-  FieldEditorBloc createFieldEditor({
-    FieldInfo? fieldInfo,
+  FieldEditorBloc makeFieldEditor({
+    required FieldInfo fieldInfo,
   }) {
-    ITypeOptionLoader loader;
-    if (fieldInfo == null) {
-      loader = NewFieldTypeOptionLoader(viewId: gridView.id);
-    } else {
-      loader =
-          FieldTypeOptionLoader(viewId: gridView.id, field: fieldInfo.field);
-    }
+    final loader = FieldTypeOptionLoader(
+      viewId: gridView.id,
+      field: fieldInfo.field,
+    );
 
     final editorBloc = FieldEditorBloc(
-      fieldName: fieldInfo?.name ?? '',
-      isGroupField: fieldInfo?.isGroupField ?? false,
+      isGroupField: fieldInfo.isGroupField,
       loader: loader,
-      viewId: gridView.id,
+      field: fieldInfo.field,
     );
     return editorBloc;
   }
@@ -109,24 +106,25 @@ class BoardTestContext {
 
     final rowDataController = RowController(
       viewId: rowInfo.viewId,
-      rowId: rowInfo.rowPB.id,
+      rowMeta: rowInfo.rowMeta,
       rowCache: rowCache,
     );
 
     final rowBloc = RowBloc(
-      rowInfo: rowInfo,
+      viewId: rowInfo.viewId,
       dataController: rowDataController,
+      rowId: rowInfo.rowMeta.id,
     )..add(const RowEvent.initial());
     await gridResponseFuture();
 
     return CellControllerBuilder(
-      cellId: rowBloc.state.cellByFieldId[fieldId]!,
+      cellContext: rowBloc.state.cellByFieldId[fieldId]!,
       cellCache: rowCache.cellCache,
     );
   }
 
   Future<FieldEditorBloc> createField(FieldType fieldType) async {
-    final editorBloc = createFieldEditor()
+    final editorBloc = await createFieldEditor(viewId: gridView.id)
       ..add(const FieldEditorEvent.initial());
     await gridResponseFuture();
     editorBloc.add(FieldEditorEvent.switchToField(fieldType));
@@ -140,9 +138,9 @@ class BoardTestContext {
     return fieldInfo;
   }
 
-  FieldCellContext singleSelectFieldCellContext() {
+  FieldContext singleSelectFieldCellContext() {
     final field = singleSelectFieldContext().field;
-    return FieldCellContext(viewId: gridView.id, field: field);
+    return FieldContext(viewId: gridView.id, field: field);
   }
 
   FieldInfo textFieldContext() {

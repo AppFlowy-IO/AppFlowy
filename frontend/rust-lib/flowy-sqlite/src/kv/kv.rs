@@ -11,7 +11,7 @@ use serde::Serialize;
 use crate::kv::schema::{kv_table, kv_table::dsl, KV_SQL};
 use crate::sqlite::{DBConnection, Database, PoolConfig};
 
-const DB_NAME: &str = "kv.db";
+const DB_NAME: &str = "cache.db";
 lazy_static! {
   static ref KV_HOLDER: RwLock<KV> = RwLock::new(KV::new());
 }

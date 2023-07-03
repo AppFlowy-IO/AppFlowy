@@ -1,10 +1,8 @@
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
-import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
+import 'package:appflowy/workspace/application/export/document_exporter.dart';
 import 'package:appflowy/workspace/application/settings/settings_file_exporter_cubit.dart';
 import 'package:appflowy/workspace/application/settings/share/export_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -35,7 +33,7 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<dartz.Either<WorkspaceSettingPB, FlowyError>>(
-      future: FolderEventReadCurrentWorkspace().send(),
+      future: FolderEventGetCurrentWorkspace().send(),
       builder: (context, snapshot) {
         if (snapshot.hasData &&
             snapshot.connectionState == ConnectionState.done) {
@@ -49,9 +47,29 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  FlowyText.medium(
-                    LocaleKeys.settings_files_selectFiles.tr(),
-                    fontSize: 16.0,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      FlowyText.medium(
+                        LocaleKeys.settings_files_selectFiles.tr(),
+                        fontSize: 16.0,
+                      ),
+                      BlocBuilder<SettingsFileExporterCubit,
+                          SettingsFileExportState>(
+                        builder: (context, state) => FlowyTextButton(
+                          state.selectedItems
+                                  .expand((element) => element)
+                                  .every((element) => element)
+                              ? LocaleKeys.settings_files_deselectAll.tr()
+                              : LocaleKeys.settings_files_selectAll.tr(),
+                          onPressed: () {
+                            context
+                                .read<SettingsFileExporterCubit>()
+                                .selectOrDeselectAllItems();
+                          },
+                        ),
+                      )
+                    ],
                   ),
                   const VSpace(8),
                   const Expanded(child: _ExpandedList()),
@@ -157,7 +175,7 @@ class _ExpandedListState extends State<_ExpandedList> {
 
   List<Widget> _buildChildren(BuildContext context) {
     final apps = context.read<SettingsFileExporterCubit>().state.views;
-    List<Widget> children = [];
+    final List<Widget> children = [];
     for (var i = 0; i < apps.length; i++) {
       children.add(_buildExpandedItem(context, i));
     }
@@ -170,7 +188,7 @@ class _ExpandedListState extends State<_ExpandedList> {
     final expanded = state.expanded;
     final selectedItems = state.selectedItems;
     final isExpanded = expanded[index] == true;
-    List<Widget> expandedChildren = [];
+    final List<Widget> expandedChildren = [];
     if (isExpanded) {
       for (var i = 0; i < selectedItems[index].length; i++) {
         final name = apps[index].childViews[i].name;
@@ -228,18 +246,17 @@ class _AppFlowyFileExporter {
   ) async {
     final failedFileNames = <String>[];
     final Map<String, int> names = {};
-    final documentService = DocumentService();
     for (final view in views) {
       String? content;
       String? fileExtension;
       switch (view.layout) {
         case ViewLayoutPB.Document:
-          final document = await documentService.openDocument(view: view);
-          document.fold((l) => Log.error(l), (r) {
-            final json = r.toDocument()?.toJson();
-            if (json != null) {
-              content = jsonEncode(json);
-            }
+          final documentExporter = DocumentExporter(view);
+          final result = await documentExporter.export(
+            DocumentExportType.json,
+          );
+          result.fold((l) => Log.error(l), (json) {
+            content = json;
           });
           fileExtension = 'afdocument';
           break;

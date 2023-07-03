@@ -1,0 +1,31 @@
+.inline-block-with-cursor {
+    position: relative;
+    display: inline-block;
+    padding: 0 2px;
+}
+
+.inline-block-with-cursor-left::before,
+.inline-block-with-cursor-right::after {
+    content: '';
+    position: absolute;
+    top: 0px;
+    width: 1px;
+    height: 100%;
+    background-color: rgb(55, 53, 47);
+    opacity: 0.5;
+    animation: cursor-blink 1s infinite;
+}
+
+.inline-block-with-cursor-left::before {
+    left: -1px;
+}
+
+.inline-block-with-cursor-right::after {
+    right: -1px;
+}
+
+@keyframes cursor-blink {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}

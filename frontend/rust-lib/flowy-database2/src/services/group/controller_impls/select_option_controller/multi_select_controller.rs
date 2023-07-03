@@ -1,5 +1,12 @@
+use std::sync::Arc;
+
+use collab_database::fields::Field;
+use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
+use serde::{Deserialize, Serialize};
+
 use crate::entities::{FieldType, GroupRowsNotificationPB, SelectOptionCellDataPB};
 use crate::services::cell::insert_select_option_cell;
+use crate::services::database::RowDetail;
 use crate::services::field::{MultiSelectTypeOption, SelectOptionCellDataParser};
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::controller::{
@@ -9,11 +16,6 @@ use crate::services::group::{
   add_or_remove_select_option_row, generate_select_option_groups, make_no_status_group,
   move_group_row, remove_select_option_row, GeneratedGroups, GroupContext,
 };
-use collab_database::fields::Field;
-use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
-use std::sync::Arc;
-
-use serde::{Deserialize, Serialize};
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct MultiSelectGroupConfiguration {
@@ -49,12 +51,12 @@ impl GroupCustomize for MultiSelectGroupController {
 
   fn add_or_remove_row_when_cell_changed(
     &mut self,
-    row: &Row,
+    row_detail: &RowDetail,
     cell_data: &Self::CellData,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
     self.context.iter_mut_status_groups(|group| {
-      if let Some(changeset) = add_or_remove_select_option_row(group, cell_data, row) {
+      if let Some(changeset) = add_or_remove_select_option_row(group, cell_data, row_detail) {
         changesets.push(changeset);
       }
     });
@@ -99,9 +101,9 @@ impl GroupController for MultiSelectGroupController {
     }
   }
 
-  fn did_create_row(&mut self, row: &Row, group_id: &str) {
+  fn did_create_row(&mut self, row_detail: &RowDetail, group_id: &str) {
     if let Some(group) = self.context.get_mut_group(group_id) {
-      group.add_row(row.clone())
+      group.add_row(row_detail.clone())
     }
   }
 }

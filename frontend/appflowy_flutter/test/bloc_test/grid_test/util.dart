@@ -4,11 +4,11 @@ import 'package:appflowy/plugins/database_view/application/field/field_controlle
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/grid.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
@@ -34,28 +34,8 @@ class GridTestContext {
     return gridController.fieldController;
   }
 
-  Future<Either<RowPB, FlowyError>> createRow() async {
+  Future<Either<RowMetaPB, FlowyError>> createRow() async {
     return gridController.createRow();
-  }
-
-  FieldEditorBloc createFieldEditor({
-    FieldInfo? fieldInfo,
-  }) {
-    ITypeOptionLoader loader;
-    if (fieldInfo == null) {
-      loader = NewFieldTypeOptionLoader(viewId: gridView.id);
-    } else {
-      loader =
-          FieldTypeOptionLoader(viewId: gridView.id, field: fieldInfo.field);
-    }
-
-    final editorBloc = FieldEditorBloc(
-      fieldName: fieldInfo?.name ?? '',
-      isGroupField: fieldInfo?.isGroupField ?? false,
-      loader: loader,
-      viewId: gridView.id,
-    );
-    return editorBloc;
   }
 
   Future<CellController> makeCellController(
@@ -74,25 +54,26 @@ class GridTestContext {
     final rowCache = gridController.rowCache;
 
     final rowDataController = RowController(
-      rowId: rowInfo.rowPB.id,
+      rowMeta: rowInfo.rowMeta,
       viewId: rowInfo.viewId,
       rowCache: rowCache,
     );
 
     final rowBloc = RowBloc(
-      rowInfo: rowInfo,
+      viewId: rowInfo.viewId,
       dataController: rowDataController,
+      rowId: rowInfo.rowMeta.id,
     )..add(const RowEvent.initial());
     await gridResponseFuture();
 
     return CellControllerBuilder(
-      cellId: rowBloc.state.cellByFieldId[fieldId]!,
+      cellContext: rowBloc.state.cellByFieldId[fieldId]!,
       cellCache: rowCache.cellCache,
     );
   }
 
   Future<FieldEditorBloc> createField(FieldType fieldType) async {
-    final editorBloc = createFieldEditor()
+    final editorBloc = await createFieldEditor(viewId: gridView.id)
       ..add(const FieldEditorEvent.initial());
     await gridResponseFuture();
     editorBloc.add(FieldEditorEvent.switchToField(fieldType));
@@ -106,9 +87,9 @@ class GridTestContext {
     return fieldInfo;
   }
 
-  FieldCellContext singleSelectFieldCellContext() {
+  FieldContext singleSelectFieldCellContext() {
     final field = singleSelectFieldContext().field;
-    return FieldCellContext(viewId: gridView.id, field: field);
+    return FieldContext(viewId: gridView.id, field: field);
   }
 
   FieldInfo textFieldContext() {
@@ -155,6 +136,28 @@ class GridTestContext {
   }
 }
 
+Future<FieldEditorBloc> createFieldEditor({
+  required String viewId,
+}) async {
+  final result = await TypeOptionBackendService.createFieldTypeOption(
+    viewId: viewId,
+  );
+  return result.fold(
+    (data) {
+      final loader = FieldTypeOptionLoader(
+        viewId: viewId,
+        field: data.field_2,
+      );
+      return FieldEditorBloc(
+        isGroupField: FieldInfo(field: data.field_2).isGroupField,
+        loader: loader,
+        field: data.field_2,
+      );
+    },
+    (err) => throw Exception(err),
+  );
+}
+
 /// Create a empty Grid for test
 class AppFlowyGridTest {
   final AppFlowyUnitTest unitTest;
@@ -168,11 +171,11 @@ class AppFlowyGridTest {
 
   Future<GridTestContext> createTestGrid() async {
     final app = await unitTest.createTestApp();
-    final builder = GridPluginBuilder();
     final context = await ViewBackendService.createView(
       parentViewId: app.id,
       name: "Test Grid",
-      layoutType: builder.layoutType!,
+      layoutType: ViewLayoutPB.Grid,
+      openAfterCreate: true,
     ).then((result) {
       return result.fold(
         (view) async {

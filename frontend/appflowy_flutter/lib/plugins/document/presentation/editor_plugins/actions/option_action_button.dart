@@ -102,6 +102,7 @@ class OptionActionList extends StatelessWidget {
       case OptionAction.moveDown:
         transaction.moveNode(node.path.next.next, node);
         break;
+      case OptionAction.align:
       case OptionAction.color:
       case OptionAction.divider:
         throw UnimplementedError();

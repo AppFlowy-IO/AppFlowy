@@ -108,7 +108,7 @@ pub(crate) async fn get_cell_for_row(
 
   let cell_data = match &row_cell.cell {
     None => None,
-    Some(cell) => handler.get_cell_data(&cell, &field_type, &field).ok(),
+    Some(cell) => handler.get_cell_data(cell, &field_type, &field).ok(),
   };
   Some(RowSingleCellData {
     row_id: row_cell.row_id.clone(),
@@ -133,7 +133,7 @@ pub(crate) async fn get_cells_for_field(
         .map(|row_cell| {
           let cell_data = match &row_cell.cell {
             None => None,
-            Some(cell) => handler.get_cell_data(&cell, &field_type, &field).ok(),
+            Some(cell) => handler.get_cell_data(cell, &field_type, &field).ok(),
           };
           RowSingleCellData {
             row_id: row_cell.row_id.clone(),

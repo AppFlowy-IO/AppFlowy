@@ -2,17 +2,12 @@ use flowy_derive::ProtoBuf_Enum;
 use flowy_notification::NotificationBuilder;
 const OBSERVABLE_CATEGORY: &str = "User";
 
-#[derive(ProtoBuf_Enum, Debug)]
+#[derive(ProtoBuf_Enum, Debug, Default)]
 pub(crate) enum UserNotification {
+  #[default]
   Unknown = 0,
   DidUserSignIn = 1,
   DidUpdateUserProfile = 2,
-}
-
-impl std::default::Default for UserNotification {
-  fn default() -> Self {
-    UserNotification::Unknown
-  }
 }
 
 impl std::convert::From<UserNotification> for i32 {

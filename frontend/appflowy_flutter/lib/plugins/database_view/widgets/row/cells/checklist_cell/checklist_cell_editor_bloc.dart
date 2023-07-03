@@ -18,8 +18,11 @@ class ChecklistCellEditorBloc
 
   ChecklistCellEditorBloc({
     required this.cellController,
-  })  : _checklistCellService =
-            ChecklistCellBackendService(cellId: cellController.cellId),
+  })  : _checklistCellService = ChecklistCellBackendService(
+          viewId: cellController.viewId,
+          fieldId: cellController.fieldId,
+          rowId: cellController.rowId,
+        ),
         super(ChecklistCellEditorState.initial(cellController)) {
     on<ChecklistCellEditorEvent>(
       (event, emit) async {
@@ -40,6 +43,7 @@ class ChecklistCellEditorBloc
             _createOption(optionName);
             emit(
               state.copyWith(
+                createOption: Some(optionName),
                 predicate: '',
               ),
             );

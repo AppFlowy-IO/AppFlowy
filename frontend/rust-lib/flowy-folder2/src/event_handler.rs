@@ -1,16 +1,11 @@
-use crate::entities::{
-  view_pb_without_child_views, CreateViewParams, CreateViewPayloadPB, CreateWorkspaceParams,
-  CreateWorkspacePayloadPB, ImportPB, MoveFolderItemPayloadPB, MoveViewParams, RepeatedTrashIdPB,
-  RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, RepeatedWorkspacePB, TrashIdPB,
-  UpdateViewParams, UpdateViewPayloadPB, ViewIdPB, ViewPB, WorkspaceIdPB, WorkspacePB,
-  WorkspaceSettingPB,
-};
-use crate::manager::Folder2Manager;
+use std::sync::Arc;
 
-use crate::share::ImportParams;
 use flowy_error::FlowyError;
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
-use std::sync::Arc;
+
+use crate::entities::*;
+use crate::manager::Folder2Manager;
+use crate::share::ImportParams;
 
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn create_workspace_handler(
@@ -40,10 +35,14 @@ pub(crate) async fn open_workspace_handler(
   match params.value {
     None => Err(FlowyError::workspace_id().context("workspace id should not be empty")),
     Some(workspace_id) => {
-      let workspace = folder.open_workspace(&workspace_id).await?;
-      let views = folder.get_workspace_views(&workspace_id).await?;
-      let workspace_pb: WorkspacePB = (workspace, views).into();
-      data_result_ok(workspace_pb)
+      if workspace_id.is_empty() {
+        Err(FlowyError::workspace_id().context("workspace id should not be empty"))
+      } else {
+        let workspace = folder.open_workspace(&workspace_id).await?;
+        let views = folder.get_workspace_views(&workspace_id).await?;
+        let workspace_pb: WorkspacePB = (workspace, views).into();
+        data_result_ok(workspace_pb)
+      }
     },
   }
 }
@@ -67,12 +66,10 @@ pub(crate) async fn read_workspaces_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
-pub async fn read_cur_workspace_setting_handler(
+pub async fn read_current_workspace_setting_handler(
   folder: AFPluginState<Arc<Folder2Manager>>,
 ) -> DataResult<WorkspaceSettingPB, FlowyError> {
   let workspace = folder.get_current_workspace().await?;
-  let views = folder.get_workspace_views(&workspace.id).await?;
-  let workspace: WorkspacePB = (workspace, views).into();
   let latest_view: Option<ViewPB> = folder.get_current_view().await;
   data_result_ok(WorkspaceSettingPB {
     workspace,
@@ -90,7 +87,20 @@ pub(crate) async fn create_view_handler(
   if set_as_current {
     let _ = folder.set_current_view(&view.id).await;
   }
-  data_result_ok(view_pb_without_child_views(view))
+  data_result_ok(view_pb_without_child_views(Arc::new(view)))
+}
+
+pub(crate) async fn create_orphan_view_handler(
+  data: AFPluginData<CreateOrphanViewPayloadPB>,
+  folder: AFPluginState<Arc<Folder2Manager>>,
+) -> DataResult<ViewPB, FlowyError> {
+  let params: CreateViewParams = data.into_inner().try_into()?;
+  let set_as_current = params.set_as_current;
+  let view = folder.create_orphan_view_with_params(params).await?;
+  if set_as_current {
+    let _ = folder.set_current_view(&view.id).await;
+  }
+  data_result_ok(view_pb_without_child_views(Arc::new(view)))
 }
 
 pub(crate) async fn read_view_handler(
@@ -143,12 +153,12 @@ pub(crate) async fn close_view_handler(
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn move_view_handler(
-  data: AFPluginData<MoveFolderItemPayloadPB>,
+  data: AFPluginData<MoveViewPayloadPB>,
   folder: AFPluginState<Arc<Folder2Manager>>,
 ) -> Result<(), FlowyError> {
   let params: MoveViewParams = data.into_inner().try_into()?;
   folder
-    .move_view(&params.item_id, params.from, params.to)
+    .move_view(&params.view_id, params.from, params.to)
     .await?;
   Ok(())
 }
@@ -187,7 +197,7 @@ pub(crate) async fn delete_trash_handler(
 ) -> Result<(), FlowyError> {
   let trash_ids = identifiers.into_inner().items;
   for trash_id in trash_ids {
-    folder.delete_trash(&trash_id.id).await;
+    let _ = folder.delete_trash(&trash_id.id).await;
   }
   Ok(())
 }

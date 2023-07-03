@@ -120,16 +120,11 @@ impl NodeDataBuilder {
 /// The NodeBody implements the [`OperationTransform`] trait which means it can perform
 /// compose, transform and invert.
 ///
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub enum Body {
+  #[default]
   Empty,
   Delta(DeltaTextOperations),
-}
-
-impl std::default::Default for Body {
-  fn default() -> Self {
-    Body::Empty
-  }
 }
 
 impl Body {

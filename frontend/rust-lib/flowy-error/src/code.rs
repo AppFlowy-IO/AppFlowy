@@ -199,6 +199,15 @@ pub enum ErrorCode {
 
   #[error("Missing auth field")]
   MissingAuthField = 65,
+
+  #[error("Only one application can access the database")]
+  MultipleDBInstance = 66,
+
+  #[error("Document id is empty")]
+  DocumentIdIsEmpty = 67,
+
+  #[error("Apply actions is empty")]
+  ApplyActionsIsEmpty = 68,
 }
 
 impl ErrorCode {

@@ -91,7 +91,7 @@ impl<'de> Deserialize<'de> for AttributeValue {
       where
         E: de::Error,
       {
-        Ok(AttributeValue::from_int(value as i64))
+        Ok(AttributeValue::from_int(value))
       }
 
       fn visit_u8<E>(self, value: u8) -> Result<Self::Value, E>
@@ -133,7 +133,7 @@ impl<'de> Deserialize<'de> for AttributeValue {
       where
         E: de::Error,
       {
-        Ok(AttributeValue::from_float(value as f64))
+        Ok(AttributeValue::from_float(value))
       }
 
       fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>

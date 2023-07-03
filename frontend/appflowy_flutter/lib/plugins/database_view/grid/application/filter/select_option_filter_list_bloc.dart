@@ -41,7 +41,7 @@ class SelectOptionFilterListBloc<T>
             );
           },
           didReceiveOptions: (newOptions) {
-            List<SelectOptionPB> options = List.from(newOptions);
+            final List<SelectOptionPB> options = List.from(newOptions);
             options.retainWhere(
               (element) => element.name.contains(state.predicate),
             );
@@ -91,7 +91,7 @@ class SelectOptionFilterListBloc<T>
     String predicate,
     Set<String> selectedOptionIds,
   ) {
-    List<SelectOptionPB> options = List.from(state.options);
+    final List<SelectOptionPB> options = List.from(state.options);
     options.retainWhere((element) => element.name.contains(predicate));
 
     return options.map((option) {

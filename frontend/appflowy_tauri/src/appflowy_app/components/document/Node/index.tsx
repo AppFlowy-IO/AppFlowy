@@ -16,6 +16,9 @@ import DividerBlock from '$app/components/document/DividerBlock';
 import CalloutBlock from '$app/components/document/CalloutBlock';
 import BlockOverlay from '$app/components/document/Overlay/BlockOverlay';
 import CodeBlock from '$app/components/document/CodeBlock';
+import { NodeIdContext } from '$app/components/document/_shared/SubscribeNode.hooks';
+import EquationBlock from '$app/components/document/EquationBlock';
+import ImageBlock from '$app/components/document/ImageBlock';
 
 function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<HTMLDivElement>) {
   const { node, childIds, isSelected, ref } = useNode(id);
@@ -25,48 +28,64 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
       case BlockType.TextBlock: {
         return <TextBlock node={node} childIds={childIds} />;
       }
+
       case BlockType.HeadingBlock: {
         return <HeadingBlock node={node} />;
       }
+
       case BlockType.TodoListBlock: {
         return <TodoListBlock node={node} childIds={childIds} />;
       }
+
       case BlockType.QuoteBlock: {
         return <QuoteBlock node={node} childIds={childIds} />;
       }
+
       case BlockType.BulletedListBlock: {
         return <BulletedListBlock node={node} childIds={childIds} />;
       }
+
       case BlockType.NumberedListBlock: {
         return <NumberedListBlock node={node} childIds={childIds} />;
       }
+
       case BlockType.ToggleListBlock: {
         return <ToggleListBlock node={node} childIds={childIds} />;
       }
+
       case BlockType.DividerBlock: {
         return <DividerBlock />;
       }
+
       case BlockType.CalloutBlock: {
         return <CalloutBlock node={node} childIds={childIds} />;
       }
+
       case BlockType.CodeBlock:
         return <CodeBlock node={node} />;
+      case BlockType.EquationBlock:
+        return <EquationBlock node={node} />;
+      case BlockType.ImageBlock:
+        return <ImageBlock node={node} />;
       default:
         return <UnSupportedBlock />;
     }
   }, [node, childIds]);
 
   const className = props.className ? ` ${props.className}` : '';
+
   if (!node) return null;
 
   return (
-    <div {...props} ref={ref} data-block-id={node.id} className={`relative ${className}`}>
-      {renderBlock()}
-      <BlockOverlay id={id} />
-      {isSelected ? (
-        <div className='pointer-events-none absolute inset-0 z-[-1] m-[1px] rounded-[4px] bg-[#E0F8FF]' />
-      ) : null}
-    </div>
+    <NodeIdContext.Provider value={id}>
+      <div {...props} ref={ref} data-block-id={node.id} className={`relative ${className}`}>
+        {renderBlock()}
+        <BlockOverlay id={id} />
+        {isSelected ? (
+          <div className='pointer-events-none absolute inset-0 z-[-1] m-[1px] rounded-[4px] bg-[#E0F8FF]' />
+        ) : null}
+      </div>
+    </NodeIdContext.Provider>
   );
 }
 

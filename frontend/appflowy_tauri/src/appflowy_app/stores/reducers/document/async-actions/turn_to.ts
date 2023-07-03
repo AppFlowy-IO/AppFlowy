@@ -1,9 +1,10 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
-import { BlockData, BlockType, DocumentState } from '$app/interfaces/document';
+import { BlockData, BlockType } from '$app/interfaces/document';
 import { blockConfig } from '$app/constants/document/config';
 import { newBlock } from '$app/utils/document/block';
 import { rangeActions } from '$app_reducers/document/slice';
+import { RootState } from '$app/stores/store';
 
 /**
  * transform to block
@@ -17,10 +18,12 @@ export const turnToBlockThunk = createAsyncThunk(
   'document/turnToBlock',
   async (payload: { id: string; controller: DocumentController; type: BlockType; data: BlockData<any> }, thunkAPI) => {
     const { id, controller, type, data } = payload;
+    const docId = controller.documentId;
     const { dispatch, getState } = thunkAPI;
-    const state = (getState() as { document: DocumentState }).document;
+    const state = (getState() as RootState).document[docId];
 
     const node = state.nodes[id];
+
     if (!node.parent) return;
 
     const parent = state.nodes[node.parent];
@@ -29,12 +32,15 @@ export const turnToBlockThunk = createAsyncThunk(
     const block = newBlock<any>(type, parent.id, type === BlockType.DividerBlock ? {} : data);
     let caretId = block.id;
     // insert new block after current block
-    let insertActions = [controller.getInsertAction(block, node.id)];
+    const insertActions = [controller.getInsertAction(block, node.id)];
+
     if (type === BlockType.DividerBlock) {
       const newTextNode = newBlock<any>(BlockType.TextBlock, parent.id, data);
+
       insertActions.push(controller.getInsertAction(newTextNode, block.id));
       caretId = newTextNode.id;
     }
+
     // check if prev node is allowed to have children
     const config = blockConfig[block.type];
     // if new block is not allowed to have children, move children to parent
@@ -49,7 +55,13 @@ export const turnToBlockThunk = createAsyncThunk(
     // submit actions
     await controller.applyActions([...insertActions, ...moveChildrenActions, deleteAction]);
     // set cursor in new block
-    dispatch(rangeActions.setCaret({ id: caretId, index: 0, length: 0 }));
+    dispatch(
+      rangeActions.setCaret({
+        docId,
+        caret: { id: caretId, index: 0, length: 0 },
+      })
+    );
+    return caretId;
   }
 );
 
@@ -64,7 +76,8 @@ export const turnToTextBlockThunk = createAsyncThunk(
   async (payload: { id: string; controller: DocumentController }, thunkAPI) => {
     const { id, controller } = payload;
     const { dispatch, getState } = thunkAPI;
-    const state = (getState() as { document: DocumentState }).document;
+    const docId = controller.documentId;
+    const state = (getState() as RootState).document[docId];
     const node = state.nodes[id];
     const data = {
       delta: node.data.delta,

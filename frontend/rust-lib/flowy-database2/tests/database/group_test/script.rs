@@ -1,7 +1,8 @@
 use collab_database::database::gen_row_id;
 use collab_database::fields::Field;
 use collab_database::rows::{CreateRowParams, RowId};
-use flowy_database2::entities::{FieldType, GroupPB, RowPB};
+
+use flowy_database2::entities::{FieldType, GroupPB, RowMetaPB};
 use flowy_database2::services::cell::{
   delete_select_option_cell, insert_date_cell, insert_select_option_cell, insert_url_cell,
 };
@@ -26,7 +27,7 @@ pub enum GroupScript {
   AssertRow {
     group_index: usize,
     row_index: usize,
-    row: RowPB,
+    row: RowMetaPB,
   },
   MoveRow {
     from_group_index: usize,
@@ -241,7 +242,7 @@ impl DatabaseGroupTest {
       } => {
         let group = self.group_at_index(group_index).await;
         assert_eq!(group.group_id, group_pb.group_id);
-        assert_eq!(group.desc, group_pb.desc);
+        assert_eq!(group.group_name, group_pb.group_name);
       },
       GroupScript::UpdateSingleSelectSelectOption { inserted_options } => {
         self
@@ -266,7 +267,7 @@ impl DatabaseGroupTest {
       } => {
         let group = self.group_at_index(group_index).await;
         assert_eq!(group_id, group.group_id, "group index: {}", group_index);
-        assert_eq!(group_name, group.desc, "group index: {}", group_index);
+        assert_eq!(group_name, group.group_name, "group index: {}", group_index);
       },
     }
   }
@@ -276,7 +277,7 @@ impl DatabaseGroupTest {
     groups.get(index).unwrap().clone()
   }
 
-  pub async fn row_at_index(&self, group_index: usize, row_index: usize) -> RowPB {
+  pub async fn row_at_index(&self, group_index: usize, row_index: usize) -> RowMetaPB {
     let groups = self.group_at_index(group_index).await;
     groups.rows.get(row_index).unwrap().clone()
   }

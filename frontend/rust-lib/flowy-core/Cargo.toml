@@ -12,13 +12,15 @@ flowy-user = { path = "../flowy-user" }
 flowy-net = { path = "../flowy-net" }
 flowy-folder2 = { path = "../flowy-folder2" }
 flowy-database2 = { path = "../flowy-database2" }
-flowy-sqlite = { path = "../flowy-sqlite", optional = true }
+flowy-sqlite = { path = "../flowy-sqlite" }
 flowy-document2 = { path = "../flowy-document2" }
 flowy-error = { path = "../flowy-error" }
 flowy-task = { path = "../flowy-task" }
 flowy-server = { path = "../flowy-server" }
 flowy-config = { path = "../flowy-config" }
 appflowy-integrate = { version = "0.1.0" }
+diesel = { version = "1.4.8", features = ["sqlite"] }
+uuid = { version = "1.3.3", features = ["v4"] }
 
 tracing = { version = "0.1", features = ["log"] }
 futures-core = { version = "0.3", default-features = false }
@@ -56,7 +58,6 @@ ts = [
     "flowy-config/ts",
 ]
 rev-sqlite = [
-    "flowy-sqlite",
     "flowy-user/rev-sqlite",
 ]
 openssl_vendored = ["flowy-sqlite/openssl_vendored"]

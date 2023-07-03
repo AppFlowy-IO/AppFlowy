@@ -1,7 +1,11 @@
 import { useMenuStyle } from './index.hooks';
-import { useAppSelector } from '$app/stores/store';
 import TextActionMenuList from '$app/components/document/TextActionMenu/menu';
 import BlockPortal from '$app/components/document/BlockPortal';
+import { useEffect, useMemo, useState } from 'react';
+import { useSubscribeRanges } from '$app/components/document/_shared/SubscribeSelection.hooks';
+import { debounce } from '$app/utils/tool';
+import { getBlock } from '$app/components/document/_shared/SubscribeNode.hooks';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 const TextActionComponent = ({ container }: { container: HTMLDivElement }) => {
   const { ref, id } = useMenuStyle(container);
@@ -14,7 +18,7 @@ const TextActionComponent = ({ container }: { container: HTMLDivElement }) => {
         style={{
           opacity: 0,
         }}
-        className='absolute mt-[-6px] inline-flex h-[32px] min-w-[100px] items-stretch overflow-hidden rounded-[8px] bg-[#333] leading-tight shadow-lg transition-opacity duration-100'
+        className='absolute mt-[-6px] inline-flex h-[32px] min-w-[100px] items-stretch overflow-hidden rounded-[8px] bg-black leading-tight text-white shadow-lg transition-opacity duration-100'
         onMouseDown={(e) => {
           // prevent toolbar from taking focus away from editor
           e.preventDefault();
@@ -26,18 +30,57 @@ const TextActionComponent = ({ container }: { container: HTMLDivElement }) => {
     </BlockPortal>
   );
 };
+
 const TextActionMenu = ({ container }: { container: HTMLDivElement }) => {
-  const canShow = useAppSelector((state) => {
-    const { isDragging, focus, anchor, ranges } = state.documentRange;
+  const range = useSubscribeRanges();
+  const { docId } = useSubscribeDocument();
+  const [show, setShow] = useState(false);
+
+  const debounceShow = useMemo(() => {
+    return debounce(() => {
+      setShow(true);
+    }, 100);
+  }, []);
+
+  const canShow = useMemo(() => {
+    const { isDragging, focus, anchor, ranges, caret } = range;
+
+    // don't show if dragging
     if (isDragging) return false;
-    if (!focus || !anchor) return false;
+    // don't show if no focus or anchor
+    if (!caret) return false;
+    if (!anchor || !focus) return false;
+
+    const anchorNode = getBlock(docId, anchor.id);
+    const focusNode = getBlock(docId, focus.id);
+
+    // include document title
+    if (!anchorNode.parent || !focusNode.parent) return false;
+
     const isSameLine = anchor.id === focus.id;
-    const anchorRange = ranges[anchor.id];
-    if (!anchorRange) return false;
-    const isCollapsed = isSameLine && anchorRange.length === 0;
-    return !isCollapsed;
-  });
-  if (!canShow) return null;
+
+    // show toolbar if range has multiple nodes
+    if (!isSameLine) return true;
+
+    const caretRange = ranges?.[caret.id];
+
+    if (!caretRange) return false;
+
+    // show toolbar if range is not collapsed
+    return caretRange.length > 0;
+  }, [docId, range]);
+
+  useEffect(() => {
+    if (!canShow) {
+      debounceShow.cancel();
+      setShow(false);
+      return;
+    }
+
+    debounceShow();
+  }, [canShow, debounceShow]);
+
+  if (!show) return null;
 
   return <TextActionComponent container={container} />;
 };

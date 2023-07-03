@@ -57,6 +57,16 @@ module.exports = {
         argsIgnorePattern: '^_',
       }
     ],
+    'padding-line-between-statements': [
+      "warn",
+      { blankLine: "always", prev: ["const", "let", "var"], next: "*"},
+      { blankLine: "any",    prev: ["const", "let", "var"], next: ["const", "let", "var"]},
+      { blankLine: "always", prev: "import", next: "*" },
+      { blankLine: "any", prev: "import", next: "import" },
+      { blankLine: "always", prev: "block-like", next: "*" },
+      { blankLine: "always", prev: "block", next: "*" },
+
+    ]
   },
   ignorePatterns: ['src/**/*.test.ts'],
 };

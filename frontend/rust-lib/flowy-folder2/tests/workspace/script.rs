@@ -1,5 +1,5 @@
 use collab_folder::core::ViewLayout;
-use flowy_error::ErrorCode;
+
 use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent::*;
 use flowy_test::event_builder::EventBuilder;
@@ -16,17 +16,17 @@ pub enum FolderScript {
   ReadWorkspace(Option<String>),
 
   // App
-  CreateApp {
+  CreateParentView {
     name: String,
     desc: String,
   },
-  AssertRootView(ViewPB),
-  RefreshRootView(String),
-  UpdateRootView {
+  AssertParentView(ViewPB),
+  ReloadParentView(String),
+  UpdateParentView {
     name: Option<String>,
     desc: Option<String>,
   },
-  DeleteRootView,
+  DeleteParentView,
 
   // View
   CreateView {
@@ -107,24 +107,23 @@ impl FolderTest {
         let workspace = read_workspace(sdk, workspace_id).await.pop().unwrap();
         self.workspace = workspace;
       },
-      FolderScript::CreateApp { name, desc } => {
+      FolderScript::CreateParentView { name, desc } => {
         let app = create_app(sdk, &self.workspace.id, &name, &desc).await;
         self.parent_view = app;
       },
-      FolderScript::AssertRootView(app) => {
+      FolderScript::AssertParentView(app) => {
         assert_eq!(self.parent_view, app, "App not equal");
       },
-      FolderScript::RefreshRootView(app_id) => {
-        let app = read_view(sdk, &app_id).await;
-        self.parent_view = app;
+      FolderScript::ReloadParentView(parent_view_id) => {
+        let parent_view = read_view(sdk, &parent_view_id).await;
+        self.parent_view = parent_view;
       },
-      FolderScript::UpdateRootView { name, desc } => {
+      FolderScript::UpdateParentView { name, desc } => {
         update_view(sdk, &self.parent_view.id, name, desc).await;
       },
-      FolderScript::DeleteRootView => {
+      FolderScript::DeleteParentView => {
         delete_view(sdk, vec![self.parent_view.id.clone()]).await;
       },
-
       FolderScript::CreateView { name, desc, layout } => {
         let view = create_view(sdk, &self.parent_view.id, &name, &desc, layout).await;
         self.child_view = view;
@@ -162,14 +161,6 @@ impl FolderTest {
     }
   }
 }
-
-pub fn invalid_workspace_name_test_case() -> Vec<(String, ErrorCode)> {
-  vec![
-    ("".to_owned(), ErrorCode::WorkspaceNameInvalid),
-    ("1234".repeat(100), ErrorCode::WorkspaceNameTooLong),
-  ]
-}
-
 pub async fn create_workspace(sdk: &FlowyCoreTest, name: &str, desc: &str) -> WorkspacePB {
   let request = CreateWorkspacePayloadPB {
     name: name.to_owned(),
@@ -189,7 +180,7 @@ pub async fn read_workspace(sdk: &FlowyCoreTest, workspace_id: Option<String>) -
     value: workspace_id,
   };
   let repeated_workspace = EventBuilder::new(sdk.clone())
-    .event(ReadWorkspaces)
+    .event(ReadAllWorkspaces)
     .payload(request.clone())
     .async_send()
     .await
@@ -256,7 +247,7 @@ pub async fn create_view(
 }
 
 pub async fn read_view(sdk: &FlowyCoreTest, view_id: &str) -> ViewPB {
-  let view_id: ViewIdPB = view_id.into();
+  let view_id = ViewIdPB::from(view_id);
   EventBuilder::new(sdk.clone())
     .event(ReadView)
     .payload(view_id)
@@ -275,8 +266,7 @@ pub async fn update_view(
     view_id: view_id.to_string(),
     name,
     desc,
-    thumbnail: None,
-    layout: None,
+    ..Default::default()
   };
   EventBuilder::new(sdk.clone())
     .event(UpdateView)

@@ -1,17 +1,20 @@
-use crate::entities::{CreateViewParams, ViewLayoutPB};
-use bytes::Bytes;
-use collab_folder::core::{RepeatedView, ViewIdentifier, ViewLayout};
-use flowy_error::FlowyError;
-use lib_infra::future::FutureResult;
-use lib_infra::util::timestamp;
-
 use std::collections::HashMap;
 use std::future::Future;
 use std::sync::Arc;
 
-pub type ViewData = Bytes;
+use bytes::Bytes;
 pub use collab_folder::core::View;
+use collab_folder::core::{RepeatedViewIdentifier, ViewIdentifier, ViewLayout};
 use tokio::sync::RwLock;
+
+use flowy_error::FlowyError;
+use lib_infra::future::FutureResult;
+use lib_infra::util::timestamp;
+
+use crate::entities::{CreateViewParams, ViewLayoutPB};
+use crate::share::ImportType;
+
+pub type ViewData = Bytes;
 
 /// A builder for creating a view for a workspace.
 /// The views created by this builder will be the first level views of the workspace.
@@ -51,6 +54,8 @@ pub struct ViewBuilder {
   desc: String,
   layout: ViewLayout,
   child_views: Vec<ParentChildViews>,
+  icon_url: Option<String>,
+  cover_url: Option<String>,
 }
 
 impl ViewBuilder {
@@ -62,6 +67,8 @@ impl ViewBuilder {
       desc: Default::default(),
       layout: ViewLayout::Document,
       child_views: vec![],
+      icon_url: None,
+      cover_url: None,
     }
   }
 
@@ -104,7 +111,9 @@ impl ViewBuilder {
       desc: self.desc,
       created_at: timestamp(),
       layout: self.layout,
-      children: RepeatedView::new(
+      icon_url: self.icon_url,
+      cover_url: self.cover_url,
+      children: RepeatedViewIdentifier::new(
         self
           .child_views
           .iter()
@@ -157,6 +166,10 @@ pub trait FolderOperationHandler {
   /// the backend
   fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError>;
 
+  /// Called when the view is deleted.
+  /// This will called after the view is deleted from the trash.
+  fn delete_view(&self, view_id: &str) -> FutureResult<(), FlowyError>;
+
   /// Returns the [ViewData] that can be used to create the same view.
   fn duplicate_view(&self, view_id: &str) -> FutureResult<ViewData, FlowyError>;
 
@@ -198,6 +211,7 @@ pub trait FolderOperationHandler {
     &self,
     view_id: &str,
     name: &str,
+    import_type: ImportType,
     bytes: Vec<u8>,
   ) -> FutureResult<(), FlowyError>;
 
@@ -239,6 +253,8 @@ pub(crate) fn create_view(params: CreateViewParams, layout: ViewLayout) -> View 
     children: Default::default(),
     created_at: time,
     layout,
+    icon_url: None,
+    cover_url: None,
   }
 }
 

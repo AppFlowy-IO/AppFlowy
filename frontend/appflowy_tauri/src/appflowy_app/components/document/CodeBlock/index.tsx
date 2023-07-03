@@ -5,6 +5,7 @@ import { useChange } from '$app/components/document/_shared/EditorHooks/useChang
 import { useKeyDown } from './useKeyDown';
 import CodeEditor from '$app/components/document/_shared/SlateEditor/CodeEditor';
 import { useSelection } from '$app/components/document/_shared/EditorHooks/useSelection';
+import { useSubscribeDecorate } from '$app/components/document/_shared/SubscribeSelection.hooks';
 
 export default function CodeBlock({
   node,
@@ -16,7 +17,8 @@ export default function CodeBlock({
   const onKeyDown = useKeyDown(id);
   const className = props.className ? ` ${props.className}` : '';
   const { value, onChange } = useChange(node);
-  const { onSelectionChange, selection, lastSelection } = useSelection(id);
+  const selectionProps = useSelection(id);
+
   return (
     <div {...props} className={`rounded bg-shade-6 p-6 ${className}`}>
       <div className={'mb-2 w-[100%]'}>
@@ -28,9 +30,7 @@ export default function CodeBlock({
         placeholder={placeholder}
         language={language}
         onKeyDown={onKeyDown}
-        onSelectionChange={onSelectionChange}
-        selection={selection}
-        lastSelection={lastSelection}
+        {...selectionProps}
       />
     </div>
   );

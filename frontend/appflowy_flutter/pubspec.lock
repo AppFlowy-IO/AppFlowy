@@ -52,11 +52,12 @@ packages:
   appflowy_editor:
     dependency: "direct main"
     description:
-      name: appflowy_editor
-      sha256: "3561bd7bd99541508353034130a98ab2d9be54f690bb982f85c2b3eedb8fe63e"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0-dev.1"
+      path: "."
+      ref: "572a174"
+      resolved-ref: "572a174892267e2f78f9c3d7f1fe4ca71c9be0db"
+      url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
+    source: git
+    version: "1.0.4"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -284,10 +285,10 @@ packages:
     dependency: transitive
     description:
       name: csslib
-      sha256: "831883fb353c8bdc1d71979e5b342c7d88acfbc643113c14ae51e2442ea0f20f"
+      sha256: "706b5707578e0c1b4b7550f64078f0a0f19dec3f50a178ffae7006b0a9ca58fb"
       url: "https://pub.dev"
     source: hosted
-    version: "0.17.3"
+    version: "1.0.0"
   dart_style:
     dependency: transitive
     description:
@@ -647,10 +648,10 @@ packages:
     dependency: transitive
     description:
       name: html
-      sha256: "58e3491f7bf0b6a4ea5110c0c688877460d1a6366731155c4a4580e7ded773e8"
+      sha256: "3a7812d5bcd2894edf53dfaf8cd640876cf6cef50a8f238745c8b8120ea74d3a"
       url: "https://pub.dev"
     source: hosted
-    version: "0.15.3"
+    version: "0.15.4"
   http:
     dependency: "direct main"
     description:
@@ -692,10 +693,10 @@ packages:
     dependency: transitive
     description:
       name: intl_utils
-      sha256: db392393fbf891e3eb32f6beb1928b00cdb33e3c54597fd5f5dc5c43e5ba601c
+      sha256: a509a2ada4d12c4dc70f9ca35c2fddf75f8b402409ac1a9e1b3dd8065681986b
       url: "https://pub.dev"
     source: hosted
-    version: "2.8.2"
+    version: "2.8.3"
   io:
     dependency: transitive
     description:
@@ -1473,10 +1474,10 @@ packages:
     dependency: transitive
     description:
       name: tuple
-      sha256: "0ea99cd2f9352b2586583ab2ce6489d1f95a5f6de6fb9492faaf97ae2060f0aa"
+      sha256: a97ce2013f240b2f3807bcbaf218765b6f301c3eff91092bcfa23a039e7dd151
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.1"
+    version: "2.0.2"
   typed_data:
     dependency: transitive
     description:
@@ -1605,6 +1606,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  visibility_detector:
+    dependency: transitive
+    description:
+      name: visibility_detector
+      sha256: dd5cc11e13494f432d15939c3aa8ae76844c42b723398643ce9addb88a5ed420
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.0+2"
   vm_service:
     dependency: transitive
     description:

@@ -35,16 +35,12 @@ pub struct DatabaseViewSettingPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumIter)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum DatabaseLayoutPB {
+  #[default]
   Grid = 0,
   Board = 1,
   Calendar = 2,
-}
-
-impl std::default::Default for DatabaseLayoutPB {
-  fn default() -> Self {
-    DatabaseLayoutPB::Grid
-  }
 }
 
 impl std::convert::From<DatabaseLayout> for DatabaseLayoutPB {
