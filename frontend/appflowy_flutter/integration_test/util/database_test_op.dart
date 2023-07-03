@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
+import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_day.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/toolbar/calendar_layout_setting.dart';
@@ -40,6 +41,7 @@ import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text_input.dart';
@@ -71,7 +73,7 @@ import 'mock/mock_file_picker.dart';
 
 extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> openV020database() async {
-    await initializeAppFlowy();
+    final context = await initializeAppFlowy();
     await tapGoButton();
 
     // expect to see a readme page
@@ -81,18 +83,25 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapImportButton();
 
     final testFileNames = ['v020.afdb'];
-    final fileLocation = await currentFileLocation();
+    final paths = <String>[];
     for (final fileName in testFileNames) {
-      final str = await rootBundle.loadString(
-        p.join(
-          'assets/test/workspaces/database',
-          fileName,
-        ),
+      // Don't use the p.join to build the path that used in loadString. It
+      // is not working on windows.
+      final str = await rootBundle
+          .loadString("assets/test/workspaces/database/$fileName");
+
+      // Write the content to the file.
+      final path = p.join(
+        context.applicationDataDirectory,
+        fileName,
       );
-      File(p.join(fileLocation, fileName)).writeAsStringSync(str);
+      paths.add(path);
+      File(path).writeAsStringSync(str);
     }
     // mock get files
-    await mockPickFilePaths(testFileNames, name: 'import_files');
+    await mockPickFilePaths(
+      paths: paths,
+    );
     await tapDatabaseRawDataButton();
     await openPage('v020');
   }
@@ -977,9 +986,20 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> scrollToToday() async {
     final todayCell = find.byWidgetPredicate(
       (widget) => widget is CalendarDayCard && widget.isToday,
-      skipOffstage: false,
     );
-    await ensureVisible(todayCell);
+    final scrollable = find
+        .descendant(
+          of: find.byType(MonthView<CalendarDayEvent>),
+          matching: find.byWidgetPredicate(
+            (widget) => widget is Scrollable && widget.axis == Axis.vertical,
+          ),
+        )
+        .first;
+    await scrollUntilVisible(
+      todayCell,
+      300,
+      scrollable: scrollable,
+    );
     await pumpAndSettle(const Duration(milliseconds: 300));
   }
 

@@ -53,7 +53,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   /// changed. Fallback to [en] locale if [newLocale] is not supported.
   void setLocale(BuildContext context, Locale newLocale) {
     if (!context.supportedLocales.contains(newLocale)) {
-      Log.warn("Unsupported locale: $newLocale, Fallback to locale: en");
+      // Log.warn("Unsupported locale: $newLocale, Fallback to locale: en");
       newLocale = const Locale('en');
     }
 

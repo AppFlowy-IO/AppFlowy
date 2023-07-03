@@ -17,11 +17,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'util.dart';
 
 extension CommonOperations on WidgetTester {
-  /// Get current file location of AppFlowy.
-  Future<String> currentFileLocation() async {
-    return TestFolder.currentLocation();
-  }
-
   /// Tap the GetStart button on the launch page.
   Future<void> tapGoButton() async {
     final goButton = find.byType(GoButton);
