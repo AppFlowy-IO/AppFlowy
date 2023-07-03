@@ -24,7 +24,7 @@ export const Grid = ({ viewId }: { viewId: string }) => {
     <>
       {controller && groups && (
         <>
-          <div className='mx-auto mt-8 flex flex-col gap-8'>
+          <div className='mx-auto flex flex-col gap-8'>
             <div className='flex w-full  items-center justify-between'>
               <GridTitle />
               <GridToolbar />

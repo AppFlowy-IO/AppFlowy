@@ -10,7 +10,6 @@ import {
 import { pagesSlice } from './reducers/pages/slice';
 import { navigationWidthSlice } from './reducers/navigation-width/slice';
 import { currentUserSlice } from './reducers/current-user/slice';
-import { gridSlice } from './reducers/grid/slice';
 import { workspaceSlice } from './reducers/workspace/slice';
 import { databaseSlice } from './reducers/database/slice';
 import { documentReducers } from './reducers/document/slice';
@@ -28,7 +27,6 @@ const store = configureStore({
     [activePageIdSlice.name]: activePageIdSlice.reducer,
     [navigationWidthSlice.name]: navigationWidthSlice.reducer,
     [currentUserSlice.name]: currentUserSlice.reducer,
-    [gridSlice.name]: gridSlice.reducer,
     [databaseSlice.name]: databaseSlice.reducer,
     [boardSlice.name]: boardSlice.reducer,
     [workspaceSlice.name]: workspaceSlice.reducer,

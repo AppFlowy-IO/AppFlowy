@@ -21,6 +21,7 @@ export const PopupSelect = ({
   style?: any;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
+
   useOutsideClick(ref, () => onOutsideClick && onOutsideClick());
 
   const handleClick = (e: MouseEvent, item: IPopupItem) => {

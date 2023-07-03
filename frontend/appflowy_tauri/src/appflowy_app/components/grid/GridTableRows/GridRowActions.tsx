@@ -31,7 +31,10 @@ export const GridRowActions = ({
           <AddSvg />
         </i>
       ),
-      onClick: () => insertRowAfter(rowId),
+      onClick: () => {
+        void insertRowAfter(rowId);
+        onOutsideClick();
+      },
     },
     {
       title: 'Copy Link',
@@ -51,7 +54,10 @@ export const GridRowActions = ({
           <CopySvg />
         </i>
       ),
-      onClick: () => duplicateRow(rowId),
+      onClick: () => {
+        void duplicateRow(rowId);
+        onOutsideClick();
+      },
     },
     {
       title: 'Delete',
@@ -60,9 +66,12 @@ export const GridRowActions = ({
           <TrashSvg />
         </i>
       ),
-      onClick: () => deleteRow(rowId),
+      onClick: () => {
+        void deleteRow(rowId);
+        onOutsideClick();
+      },
     },
   ];
 
-  return <PopupSelect items={items} className={'absolute left-0'} onOutsideClick={onOutsideClick} />;
+  return <PopupSelect items={items} className={'absolute left-0 w-[160px]'} onOutsideClick={onOutsideClick} />;
 };
