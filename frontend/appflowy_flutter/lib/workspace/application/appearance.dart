@@ -36,10 +36,10 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
 
   /// Update selected theme in the user's settings and emit an updated state
   /// with the AppTheme named [themeName].
-  void setTheme(String themeName) {
+  Future<void> setTheme(String themeName) async {
     _setting.theme = themeName;
     _saveAppearanceSettings();
-    emit(state.copyWith(appTheme: AppTheme.fromName(themeName)));
+    emit(state.copyWith(appTheme: await AppTheme.fromName(themeName)));
   }
 
   /// Update the theme mode in the user's settings and emit an updated state.
@@ -182,7 +182,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     double menuOffset,
   ) {
     return AppearanceSettingsState(
-      appTheme: AppTheme.fromName(themeName),
+      appTheme: AppTheme.fallback,
       font: font,
       monospaceFont: monospaceFont,
       themeMode: _themeModeFromPB(themeModePB),
