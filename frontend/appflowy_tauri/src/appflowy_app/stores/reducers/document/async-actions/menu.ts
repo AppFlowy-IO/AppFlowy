@@ -9,6 +9,7 @@ import Delta, { Op } from 'quill-delta';
 import { getDeltaText } from '$app/utils/document/delta';
 import { RootState } from '$app/stores/store';
 import { DOCUMENT_NAME } from '$app/constants/document/name';
+import { blockEditActions } from '$app_reducers/document/block_edit_slice';
 
 /**
  * add block below click
@@ -90,7 +91,7 @@ export const triggerSlashCommandActionThunk = createAsyncThunk(
     const defaultData = blockConfig[props.type].defaultData;
 
     if (node.type === BlockType.TextBlock && (text === '' || text === '/')) {
-      dispatch(
+      const { payload: newId } = await dispatch(
         turnToBlockThunk({
           id,
           controller,
@@ -98,6 +99,16 @@ export const triggerSlashCommandActionThunk = createAsyncThunk(
           data: {
             ...defaultData,
             ...props.data,
+          },
+        })
+      );
+
+      dispatch(
+        blockEditActions.setBlockEditState({
+          id: docId,
+          state: {
+            id: newId as string,
+            editing: true,
           },
         })
       );
@@ -122,10 +133,7 @@ export const triggerSlashCommandActionThunk = createAsyncThunk(
         id,
         controller,
         type: props.type,
-        data: {
-          ...defaultData,
-          ...props.data,
-        },
+        data: defaultData,
       })
     );
     const newBlockId = insertNodePayload.payload as string;
@@ -134,6 +142,15 @@ export const triggerSlashCommandActionThunk = createAsyncThunk(
       rangeActions.setCaret({
         docId,
         caret: { id: newBlockId, index: 0, length: 0 },
+      })
+    );
+    dispatch(
+      blockEditActions.setBlockEditState({
+        id: docId,
+        state: {
+          id: newBlockId,
+          editing: true,
+        },
       })
     );
   }
