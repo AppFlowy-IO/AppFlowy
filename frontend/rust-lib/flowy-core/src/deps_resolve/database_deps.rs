@@ -4,10 +4,12 @@ use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::RocksCollabDB;
 use tokio::sync::RwLock;
 
-use flowy_database2::{DatabaseManager2, DatabaseUser2};
+use flowy_database2::deps::{DatabaseCloudService, DatabaseUser2};
+use flowy_database2::DatabaseManager2;
 use flowy_error::FlowyError;
 use flowy_task::TaskDispatcher;
 use flowy_user::services::UserSession;
+use lib_infra::future::FutureResult;
 
 pub struct Database2DepsResolver();
 
@@ -16,9 +18,15 @@ impl Database2DepsResolver {
     user_session: Arc<UserSession>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
+    cloud_service: Arc<dyn DatabaseCloudService>,
   ) -> Arc<DatabaseManager2> {
     let user = Arc::new(DatabaseUserImpl(user_session));
-    Arc::new(DatabaseManager2::new(user, task_scheduler, collab_builder))
+    Arc::new(DatabaseManager2::new(
+      user,
+      task_scheduler,
+      collab_builder,
+      cloud_service,
+    ))
   }
 }
 

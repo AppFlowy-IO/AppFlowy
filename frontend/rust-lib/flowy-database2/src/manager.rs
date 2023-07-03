@@ -13,17 +13,13 @@ use tokio::sync::RwLock;
 
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
+use lib_infra::future::FutureResult;
 
+use crate::deps::{DatabaseCloudService, DatabaseUser2};
 use crate::entities::{DatabaseDescriptionPB, DatabaseLayoutPB, RepeatedDatabaseDescriptionPB};
 use crate::services::database::{DatabaseEditor, MutexDatabase};
 use crate::services::database_view::DatabaseLayoutDepsResolver;
 use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
-
-pub trait DatabaseUser2: Send + Sync {
-  fn user_id(&self) -> Result<i64, FlowyError>;
-  fn token(&self) -> Result<Option<String>, FlowyError>;
-  fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError>;
-}
 
 pub struct DatabaseManager2 {
   user: Arc<dyn DatabaseUser2>,
@@ -31,6 +27,7 @@ pub struct DatabaseManager2 {
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
   editors: RwLock<HashMap<String, Arc<DatabaseEditor>>>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
+  cloud_service: Arc<dyn DatabaseCloudService>,
 }
 
 impl DatabaseManager2 {
@@ -38,6 +35,7 @@ impl DatabaseManager2 {
     database_user: Arc<dyn DatabaseUser2>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
+    cloud_service: Arc<dyn DatabaseCloudService>,
   ) -> Self {
     Self {
       user: database_user,
@@ -45,6 +43,7 @@ impl DatabaseManager2 {
       task_scheduler,
       editors: Default::default(),
       collab_builder,
+      cloud_service,
     }
   }
 

@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use appflowy_integrate::RemoteCollabStorage;
 
+use flowy_database2::deps::DatabaseCloudService;
 use flowy_folder2::deps::FolderCloudService;
 use flowy_user::event_map::UserAuthService;
 
@@ -29,5 +30,6 @@ pub mod util;
 pub trait AppFlowyServer: Send + Sync + 'static {
   fn user_service(&self) -> Arc<dyn UserAuthService>;
   fn folder_service(&self) -> Arc<dyn FolderCloudService>;
+  fn database_service(&self) -> Arc<dyn DatabaseCloudService>;
   fn collab_storage(&self) -> Option<Arc<dyn RemoteCollabStorage>>;
 }

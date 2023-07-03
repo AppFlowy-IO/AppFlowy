@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use anyhow::Error;
 use appflowy_integrate::{
@@ -14,6 +14,7 @@ use tokio_postgres::Row;
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
 
+use crate::supabase::pg_db::PostgresObject;
 use crate::supabase::sql_builder::{
   DeleteSqlBuilder, InsertSqlBuilder, SelectSqlBuilder, WhereCondition,
 };
@@ -50,16 +51,8 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
     )
   }
 
-  async fn get_latest_snapshot(&self, object_id: &str) -> Result<Vec<u8>, Error> {
-    let client = self.server.get_pg_client().await.recv().await?;
-    let sql = "SELECT MAX(key) FROM af_collab WHERE oid = $1";
-    let stmt = client.prepare_cached(sql).await?;
-    let row = client.query_one(&stmt, &[&object_id]).await?;
-    let update = row.try_get::<_, Vec<u8>>("blob").map_err(|e| {
-      FlowyError::internal().context(format!("Failed to get value from row: {}", e))
-    })?;
-
-    Ok(update)
+  async fn get_latest_snapshot(&self, object_id: &str) -> Result<Option<Vec<u8>>, Error> {
+    get_latest_snapshot_from_server(object_id, Arc::downgrade(&self.server)).await
   }
 
   async fn get_collab_state(&self, object_id: &str) -> Result<Option<RemoteCollabState>, Error> {
@@ -203,6 +196,23 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
     txn.commit().await?;
     tracing::trace!("{} init sync done", object.id);
     Ok(())
+  }
+}
+
+pub async fn get_latest_snapshot_from_server(
+  object_id: &str,
+  server: Weak<PostgresServer>,
+) -> Result<Option<Vec<u8>>, Error> {
+  match server.upgrade() {
+    None => Ok(None),
+    Some(server) => {
+      let client = server.get_pg_client().await.recv().await?;
+      let sql = "SELECT MAX(key) FROM af_collab WHERE oid = $1";
+      let stmt = client.prepare_cached(sql).await?;
+      let row = client.query_one(&stmt, &[&object_id]).await?;
+      let update = row.try_get::<_, Vec<u8>>("blob")?;
+      Ok(Some(update))
+    },
   }
 }
 

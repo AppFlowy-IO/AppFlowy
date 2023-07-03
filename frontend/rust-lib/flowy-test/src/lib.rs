@@ -1,10 +1,12 @@
 use std::convert::TryFrom;
 use std::env::temp_dir;
-use std::sync::Arc;
+use std::sync::{Arc, Once};
 
 use bytes::Bytes;
+use futures_util::StreamExt;
 use nanoid::nanoid;
 use parking_lot::RwLock;
+use protobuf::ProtobufError;
 use tokio::sync::broadcast::{channel, Receiver, Sender};
 
 use flowy_core::{AppFlowyCore, AppFlowyCoreConfig};
@@ -27,14 +29,14 @@ pub mod user_event;
 pub struct FlowyCoreTest {
   auth_type: Arc<RwLock<AuthTypePB>>,
   inner: AppFlowyCore,
-  notification_sender: TestNotificationSender,
+  pub notification_sender: TestNotificationSender,
 }
 
 impl Default for FlowyCoreTest {
   fn default() -> Self {
     let temp_dir = temp_dir();
-    let config =
-      AppFlowyCoreConfig::new(temp_dir.to_str().unwrap(), nanoid!(6)).log_filter("debug", vec![]);
+    let config = AppFlowyCoreConfig::new(temp_dir.to_str().unwrap(), nanoid!(6))
+      .log_filter("debug", vec!["flowy_test".to_string()]);
     let inner = std::thread::spawn(|| AppFlowyCore::new(config))
       .join()
       .unwrap();
@@ -54,10 +56,6 @@ impl Default for FlowyCoreTest {
 impl FlowyCoreTest {
   pub fn new() -> Self {
     Self::default()
-  }
-
-  pub fn subscribe_notification(&self) -> Receiver<SubscribeObject> {
-    self.notification_sender.subscribe()
   }
 
   pub async fn new_with_user() -> Self {
@@ -603,8 +601,25 @@ impl TestNotificationSender {
     }
   }
 
-  pub fn subscribe(&self) -> Receiver<SubscribeObject> {
-    self.sender.subscribe()
+  pub fn subscribe<T>(&self, id: &str) -> tokio::sync::mpsc::Receiver<T>
+  where
+    T: TryFrom<Bytes, Error = ProtobufError> + Send + 'static,
+  {
+    let id = id.to_string();
+    let (tx, rx) = tokio::sync::mpsc::channel::<T>(10);
+    let mut receiver = self.sender.subscribe();
+    tokio::spawn(async move {
+      while let Ok(value) = receiver.recv().await {
+        if value.id == id {
+          if let Some(payload) = value.payload {
+            if let Ok(object) = T::try_from(Bytes::from(payload)) {
+              let _ = tx.send(object).await;
+            }
+          }
+        }
+      }
+    });
+    rx
   }
 }
 

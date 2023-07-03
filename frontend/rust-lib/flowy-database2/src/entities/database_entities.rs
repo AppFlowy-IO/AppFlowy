@@ -270,12 +270,16 @@ impl TryInto<DatabaseLayoutMeta> for DatabaseLayoutMetaPB {
 pub struct DatabaseSyncStatePB {
   #[pb(index = 1)]
   pub is_syncing: bool,
+
+  #[pb(index = 2)]
+  pub is_finish: bool,
 }
 
 impl From<SyncState> for DatabaseSyncStatePB {
   fn from(value: SyncState) -> Self {
     Self {
-      is_syncing: value.is_sync_finished(),
+      is_syncing: value.is_syncing(),
+      is_finish: value.is_sync_finished(),
     }
   }
 }

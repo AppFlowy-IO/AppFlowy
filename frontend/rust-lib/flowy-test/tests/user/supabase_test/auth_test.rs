@@ -58,14 +58,6 @@ async fn get_user_profile_test() {
 #[tokio::test]
 async fn update_user_profile_test() {
   if let Some(test) = FlowySupabaseTest::new() {
-    let mut notification_rx = test.subscribe_notification();
-
-    spawn(async move {
-      while let Ok(notification) = notification_rx.recv().await {
-        tracing::info!("{:?}", &notification);
-      }
-    });
-
     let uuid = uuid::Uuid::new_v4().to_string();
     let profile = test.sign_up_with_uuid(&uuid).await;
     test

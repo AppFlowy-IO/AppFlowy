@@ -4,11 +4,13 @@ use appflowy_integrate::RemoteCollabStorage;
 use parking_lot::RwLock;
 use tokio::sync::mpsc;
 
+use flowy_database2::deps::DatabaseCloudService;
 use flowy_folder2::deps::FolderCloudService;
 use flowy_user::event_map::UserAuthService;
 
 use crate::local_server::impls::{
-  LocalServerFolderCloudServiceImpl, LocalServerUserAuthServiceImpl,
+  LocalServerDatabaseCloudServiceImpl, LocalServerFolderCloudServiceImpl,
+  LocalServerUserAuthServiceImpl,
 };
 use crate::AppFlowyServer;
 
@@ -38,6 +40,10 @@ impl AppFlowyServer for LocalServer {
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
     Arc::new(LocalServerFolderCloudServiceImpl())
+  }
+
+  fn database_service(&self) -> Arc<dyn DatabaseCloudService> {
+    Arc::new(LocalServerDatabaseCloudServiceImpl())
   }
 
   fn collab_storage(&self) -> Option<Arc<dyn RemoteCollabStorage>> {

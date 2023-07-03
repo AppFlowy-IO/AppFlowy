@@ -1848,6 +1848,7 @@ dependencies = [
  "config",
  "deadpool-postgres",
  "dotenv",
+ "flowy-database2",
  "flowy-error",
  "flowy-folder2",
  "flowy-user",

@@ -42,13 +42,13 @@ impl Builder {
     let (_non_blocking, guard) = tracing_appender::non_blocking(self.file_appender);
     let subscriber = tracing_subscriber::fmt()
       .with_ansi(true)
-      .with_target(false)
+      .with_target(true)
       .with_max_level(tracing::Level::TRACE)
       .with_writer(std::io::stderr)
       .with_thread_ids(true)
       .json()
-      // .with_current_span(true)
-      // .with_span_list(true)
+      .with_current_span(true)
+      .with_span_list(true)
       .compact()
       .finish()
       .with(env_filter);

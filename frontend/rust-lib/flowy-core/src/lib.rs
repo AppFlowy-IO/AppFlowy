@@ -157,6 +157,7 @@ impl AppFlowyCore {
           user_session.clone(),
           task_dispatcher.clone(),
           collab_builder.clone(),
+          server_provider.clone(),
         )
         .await;
 

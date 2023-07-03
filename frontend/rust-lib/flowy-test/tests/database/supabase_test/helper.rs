@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use flowy_database2::entities::DatabasePB;
 use flowy_folder2::entities::ViewPB;
 
@@ -26,5 +28,13 @@ impl FlowySupabaseDatabaseTest {
       )
       .await;
     self.inner.get_database(&view.id).await
+  }
+}
+
+impl Deref for FlowySupabaseDatabaseTest {
+  type Target = FlowySupabaseTest;
+
+  fn deref(&self) -> &Self::Target {
+    &self.inner
   }
 }
