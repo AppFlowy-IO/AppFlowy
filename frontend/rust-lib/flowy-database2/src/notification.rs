@@ -46,6 +46,7 @@ pub enum DatabaseNotification {
   // Trigger when the database view is moved to trash
   DidMoveDatabaseViewToTrash = 84,
   DidUpdateDatabaseSyncUpdate = 85,
+  DidUpdateDatabaseSnapshotState = 86,
 }
 
 impl std::convert::From<DatabaseNotification> for i32 {

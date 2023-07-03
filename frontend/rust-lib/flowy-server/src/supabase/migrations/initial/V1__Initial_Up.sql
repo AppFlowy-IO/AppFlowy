@@ -71,12 +71,12 @@ AFTER
 INSERT ON af_collab FOR EACH ROW EXECUTE FUNCTION increment_af_collab_edit_count();
 -- collab snapshot. It will be used to store the snapshots of the collab.
 CREATE TABLE IF NOT EXISTS af_collab_snapshot (
-   key BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+   sid BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
    oid TEXT NOT NULL,
    name TEXT DEFAULT '',
    blob BYTEA NOT NULL,
    blob_size INTEGER NOT NULL,
-   edit_count BIGINT NOT NULL,
+   edit_count BIGINT DEFAULT 0,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 -- auto insert edit_count in the snapshot table.

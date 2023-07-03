@@ -36,7 +36,6 @@ impl SupabaseUserAuthServiceImpl {
 
 impl UserAuthService for SupabaseUserAuthServiceImpl {
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
-    tracing::trace!("Sign up in supabase");
     let server = self.server.clone();
     let (tx, rx) = channel();
     tokio::spawn(async move {

@@ -1,3 +1,4 @@
+use collab::core::collab_state::SnapshotState;
 use collab_document::blocks::{BlockAction, DocumentData};
 use std::collections::HashMap;
 
@@ -334,5 +335,40 @@ impl TryInto<ConvertDataParams> for ConvertDataPayloadPB {
     let convert_type = self.convert_type;
     let data = self.data;
     Ok(ConvertDataParams { convert_type, data })
+  }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct RepeatedDocumentSnapshotPB {
+  #[pb(index = 1)]
+  pub items: Vec<DocumentSnapshotPB>,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct DocumentSnapshotPB {
+  #[pb(index = 1)]
+  pub snapshot_id: i64,
+
+  #[pb(index = 2)]
+  pub snapshot_desc: String,
+
+  #[pb(index = 3)]
+  pub created_at: i64,
+
+  #[pb(index = 4)]
+  pub data: Vec<u8>,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct DocumentSnapshotStatePB {
+  #[pb(index = 1, one_of)]
+  pub new_snapshot_id: Option<i64>,
+}
+
+impl From<SnapshotState> for DocumentSnapshotStatePB {
+  fn from(value: SnapshotState) -> Self {
+    Self {
+      new_snapshot_id: value.snapshot_id(),
+    }
   }
 }

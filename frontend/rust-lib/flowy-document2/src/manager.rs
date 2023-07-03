@@ -9,8 +9,9 @@ use parking_lot::RwLock;
 use flowy_error::FlowyResult;
 
 use crate::deps::{DocumentCloudService, DocumentUser};
+use crate::entities::DocumentSnapshotPB;
 use crate::{
-  document::Document,
+  document::DocumentEditor,
   document_data::default_document_data,
   entities::DocEventPB,
   notification::{send_notification, DocumentNotification},
@@ -19,7 +20,8 @@ use crate::{
 pub struct DocumentManager {
   user: Arc<dyn DocumentUser>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
-  documents: Arc<RwLock<HashMap<String, Arc<Document>>>>,
+  documents: Arc<RwLock<HashMap<String, Arc<DocumentEditor>>>>,
+  #[allow(dead_code)]
   cloud_service: Arc<dyn DocumentCloudService>,
 }
 
@@ -45,19 +47,19 @@ impl DocumentManager {
     &self,
     doc_id: &str,
     data: Option<DocumentData>,
-  ) -> FlowyResult<Arc<Document>> {
+  ) -> FlowyResult<Arc<DocumentEditor>> {
     tracing::debug!("create a document: {:?}", doc_id);
     let uid = self.user.user_id()?;
     let db = self.user.collab_db()?;
     let collab = self.collab_builder.build(uid, doc_id, "document", db);
     let data = data.unwrap_or_else(default_document_data);
-    let document = Arc::new(Document::create_with_data(collab, data)?);
+    let document = Arc::new(DocumentEditor::create_with_data(collab, data)?);
     Ok(document)
   }
 
   /// get document
   /// read the existing document from the map if it exists, otherwise read it from the disk and write it to the map.
-  pub fn get_or_open_document(&self, doc_id: &str) -> FlowyResult<Arc<Document>> {
+  pub fn get_or_open_document(&self, doc_id: &str) -> FlowyResult<Arc<DocumentEditor>> {
     if let Some(doc) = self.documents.read().get(doc_id) {
       return Ok(doc.clone());
     }
@@ -79,7 +81,7 @@ impl DocumentManager {
 
   pub fn subscribe_document_changes(
     &self,
-    document: Arc<Document>,
+    document: Arc<DocumentEditor>,
     doc_id: &str,
   ) -> Result<DocumentData, DocumentError> {
     let mut document = document.lock();
@@ -99,12 +101,12 @@ impl DocumentManager {
 
   /// get document
   /// read the existing document from the disk.
-  pub fn get_document_from_disk(&self, doc_id: &str) -> FlowyResult<Arc<Document>> {
+  pub fn get_document_from_disk(&self, doc_id: &str) -> FlowyResult<Arc<DocumentEditor>> {
     let uid = self.user.user_id()?;
     let db = self.user.collab_db()?;
     let collab = self.collab_builder.build(uid, doc_id, "document", db);
     // read the existing document from the disk.
-    let document = Arc::new(Document::new(collab)?);
+    let document = Arc::new(DocumentEditor::new(collab)?);
     Ok(document)
   }
 
@@ -122,5 +124,27 @@ impl DocumentManager {
     });
     self.documents.write().remove(doc_id);
     Ok(())
+  }
+
+  pub async fn get_document_snapshots(
+    &self,
+    document_id: &str,
+  ) -> FlowyResult<Vec<DocumentSnapshotPB>> {
+    let mut snapshots = vec![];
+    if let Some(snapshot) = self
+      .cloud_service
+      .get_latest_snapshot(document_id)
+      .await?
+      .map(|snapshot| DocumentSnapshotPB {
+        snapshot_id: snapshot.snapshot_id,
+        snapshot_desc: "".to_string(),
+        created_at: snapshot.created_at,
+        data: snapshot.data,
+      })
+    {
+      snapshots.push(snapshot);
+    }
+
+    Ok(snapshots)
   }
 }

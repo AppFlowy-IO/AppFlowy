@@ -14,20 +14,8 @@ use collab_document::blocks::{
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
-use crate::entities::{
-  ApplyActionParams, CloseDocumentParams, ConvertDataParams, CreateDocumentParams,
-  DocumentRedoUndoParams, OpenDocumentParams,
-};
-use crate::{
-  entities::{
-    ApplyActionPayloadPB, BlockActionPB, BlockActionPayloadPB, BlockActionTypePB, BlockEventPB,
-    BlockEventPayloadPB, BlockPB, CloseDocumentPayloadPB, ConvertDataPayloadPB, ConvertType,
-    CreateDocumentPayloadPB, DeltaTypePB, DocEventPB, DocumentDataPB, DocumentRedoUndoPayloadPB,
-    DocumentRedoUndoResponsePB, OpenDocumentPayloadPB,
-  },
-  manager::DocumentManager,
-  parser::json::parser::JsonToDocumentParser,
-};
+use crate::entities::*;
+use crate::{manager::DocumentManager, parser::json::parser::JsonToDocumentParser};
 
 // Handler for creating a new document
 pub(crate) async fn create_document_handler(
@@ -163,6 +151,16 @@ pub(crate) async fn can_undo_redo_handler(
     can_undo,
     is_success: true,
   })
+}
+
+pub(crate) async fn get_snapshot_handler(
+  data: AFPluginData<OpenDocumentPayloadPB>,
+  manager: AFPluginState<Arc<DocumentManager>>,
+) -> DataResult<RepeatedDocumentSnapshotPB, FlowyError> {
+  let params: OpenDocumentParams = data.into_inner().try_into()?;
+  let doc_id = params.document_id;
+  let snapshots = manager.get_document_snapshots(&doc_id).await?;
+  data_result_ok(RepeatedDocumentSnapshotPB { items: snapshots })
 }
 
 impl From<BlockActionPB> for BlockAction {

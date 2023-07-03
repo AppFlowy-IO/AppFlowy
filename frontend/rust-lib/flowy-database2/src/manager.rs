@@ -15,7 +15,9 @@ use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
 
 use crate::deps::{DatabaseCloudService, DatabaseUser2};
-use crate::entities::{DatabaseDescriptionPB, DatabaseLayoutPB, RepeatedDatabaseDescriptionPB};
+use crate::entities::{
+  DatabaseDescriptionPB, DatabaseLayoutPB, DatabaseSnapshotPB, RepeatedDatabaseDescriptionPB,
+};
 use crate::services::database::{DatabaseEditor, MutexDatabase};
 use crate::services::database_view::DatabaseLayoutDepsResolver;
 use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
@@ -252,6 +254,29 @@ impl DatabaseManager2 {
   ) -> FlowyResult<()> {
     let database = self.get_database_with_view_id(view_id).await?;
     database.update_view_layout(view_id, layout.into()).await
+  }
+
+  pub async fn get_database_snapshots(
+    &self,
+    view_id: &str,
+  ) -> FlowyResult<Vec<DatabaseSnapshotPB>> {
+    let database_id = self.get_database_id_with_view_id(view_id).await?;
+    let mut snapshots = vec![];
+    if let Some(snapshot) = self
+      .cloud_service
+      .get_latest_snapshot(&database_id)
+      .await?
+      .map(|snapshot| DatabaseSnapshotPB {
+        snapshot_id: snapshot.snapshot_id,
+        snapshot_desc: "".to_string(),
+        created_at: snapshot.created_at,
+        data: snapshot.data,
+      })
+    {
+      snapshots.push(snapshot);
+    }
+
+    Ok(snapshots)
   }
 
   fn with_user_database<F, Output>(&self, default_value: Output, f: F) -> Output

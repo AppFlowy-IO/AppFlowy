@@ -14,7 +14,7 @@ use crate::setup_log;
 // ‼️‼️‼️ Warning: this test will create a table in the database
 #[tokio::test]
 async fn user_sign_up_test() {
-  if dotenv::from_filename("./.env.user.test").is_err() {
+  if dotenv::from_filename("./.env.test").is_err() {
     return;
   }
   let server = Arc::new(PostgresServer::new(
@@ -30,7 +30,7 @@ async fn user_sign_up_test() {
 
 #[tokio::test]
 async fn user_sign_up_with_existing_uuid_test() {
-  if dotenv::from_filename("./.env.user.test").is_err() {
+  if dotenv::from_filename("./.env.test").is_err() {
     return;
   }
   let server = Arc::new(PostgresServer::new(
@@ -51,7 +51,7 @@ async fn user_sign_up_with_existing_uuid_test() {
 
 #[tokio::test]
 async fn update_user_profile_test() {
-  if dotenv::from_filename("./.env.user.test").is_err() {
+  if dotenv::from_filename("./.env.test").is_err() {
     return;
   }
   let server = Arc::new(PostgresServer::new(
@@ -94,7 +94,7 @@ async fn update_user_profile_test() {
 
 #[tokio::test]
 async fn get_user_profile_test() {
-  if dotenv::from_filename("./.env.user.test").is_err() {
+  if dotenv::from_filename("./.env.test").is_err() {
     return;
   }
   setup_log();
@@ -142,7 +142,7 @@ async fn get_user_profile_test() {
 
 #[tokio::test]
 async fn get_not_exist_user_profile_test() {
-  if dotenv::from_filename("./.env.user.test").is_err() {
+  if dotenv::from_filename("./.env.test").is_err() {
     return;
   }
   setup_log();

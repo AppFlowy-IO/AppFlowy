@@ -807,3 +807,13 @@ pub(crate) async fn export_csv_handler(
     data,
   })
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_snapshots_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Arc<DatabaseManager2>>,
+) -> DataResult<RepeatedDatabaseSnapshotPB, FlowyError> {
+  let view_id = data.into_inner().value;
+  let snapshots = manager.get_database_snapshots(&view_id).await?;
+  data_result_ok(RepeatedDatabaseSnapshotPB { items: snapshots })
+}

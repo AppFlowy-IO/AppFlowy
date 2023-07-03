@@ -9,6 +9,7 @@ pub(crate) enum DocumentNotification {
   Unknown = 0,
 
   DidReceiveUpdate = 1,
+  DidUpdateDocumentSnapshotState = 2,
 }
 
 impl std::convert::From<DocumentNotification> for i32 {
@@ -20,6 +21,7 @@ impl std::convert::From<i32> for DocumentNotification {
   fn from(notification: i32) -> Self {
     match notification {
       1 => DocumentNotification::DidReceiveUpdate,
+      1 => DocumentNotification::DidUpdateDocumentSnapshotState,
       _ => DocumentNotification::Unknown,
     }
   }

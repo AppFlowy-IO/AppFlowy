@@ -8,8 +8,8 @@ use parking_lot::Once;
 use tempfile::TempDir;
 use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
 
-use flowy_document2::deps::{DocumentCloudService, DocumentUser};
-use flowy_document2::document::Document;
+use flowy_document2::deps::{DocumentCloudService, DocumentSnapshot, DocumentUser};
+use flowy_document2::document::DocumentEditor;
 use flowy_document2::document_data::default_document_data;
 use flowy_document2::manager::DocumentManager;
 use flowy_error::FlowyError;
@@ -81,7 +81,7 @@ pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
   Arc::new(builder)
 }
 
-pub fn create_and_open_empty_document() -> (DocumentTest, Arc<Document>, String) {
+pub fn create_and_open_empty_document() -> (DocumentTest, Arc<DocumentEditor>, String) {
   let test = DocumentTest::new();
   let doc_id: String = gen_document_id();
   let data = default_document_data();
@@ -105,7 +105,10 @@ pub fn gen_id() -> String {
 
 pub struct LocalTestDocumentCloudServiceImpl();
 impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
-  fn get_latest_snapshot(&self, _document_id: &str) -> FutureResult<Option<Vec<u8>>, FlowyError> {
+  fn get_latest_snapshot(
+    &self,
+    _document_id: &str,
+  ) -> FutureResult<Option<DocumentSnapshot>, FlowyError> {
     FutureResult::new(async move { Ok(None) })
   }
 }

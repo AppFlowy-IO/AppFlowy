@@ -6,11 +6,15 @@ use bytes::Bytes;
 use nanoid::nanoid;
 use parking_lot::RwLock;
 use protobuf::ProtobufError;
-use tokio::sync::broadcast::{channel, Receiver, Sender};
+use tokio::sync::broadcast::{channel, Sender};
 
 use flowy_core::{AppFlowyCore, AppFlowyCoreConfig};
 use flowy_database2::entities::*;
+use flowy_database2::event_map::DatabaseEvent;
+use flowy_document2::entities::{DocumentDataPB, OpenDocumentPayloadPB};
+use flowy_document2::event_map::DocumentEvent;
 use flowy_folder2::entities::*;
+use flowy_folder2::event_map::FolderEvent;
 use flowy_notification::entities::SubscribeObject;
 use flowy_notification::{register_notification_sender, NotificationSender};
 use flowy_user::entities::{AuthTypePB, UserProfilePB};
@@ -33,7 +37,7 @@ pub struct FlowyCoreTest {
 
 impl Default for FlowyCoreTest {
   fn default() -> Self {
-    let temp_dir = temp_dir();
+    let temp_dir = temp_dir().join(nanoid!(6));
     let config = AppFlowyCoreConfig::new(temp_dir.to_str().unwrap(), nanoid!(6))
       .log_filter("debug", vec!["flowy_test".to_string()]);
     let inner = std::thread::spawn(|| AppFlowyCore::new(config))
@@ -82,7 +86,7 @@ impl FlowyCoreTest {
   // Must sign up/ sign in first
   pub async fn get_current_workspace(&self) -> WorkspaceSettingPB {
     EventBuilder::new(self.clone())
-      .event(flowy_folder2::event_map::FolderEvent::GetCurrentWorkspace)
+      .event(FolderEvent::GetCurrentWorkspace)
       .async_send()
       .await
       .parse::<flowy_folder2::entities::WorkspaceSettingPB>()
@@ -90,7 +94,7 @@ impl FlowyCoreTest {
 
   pub async fn get_all_workspace_views(&self) -> Vec<ViewPB> {
     EventBuilder::new(self.clone())
-      .event(flowy_folder2::event_map::FolderEvent::ReadWorkspaceViews)
+      .event(FolderEvent::ReadWorkspaceViews)
       .async_send()
       .await
       .parse::<flowy_folder2::entities::RepeatedViewPB>()
@@ -104,7 +108,7 @@ impl FlowyCoreTest {
 
     // delete the view. the view will be moved to trash
     EventBuilder::new(self.clone())
-      .event(flowy_folder2::event_map::FolderEvent::DeleteView)
+      .event(FolderEvent::DeleteView)
       .payload(payload)
       .async_send()
       .await;
@@ -113,7 +117,7 @@ impl FlowyCoreTest {
   pub async fn update_view(&self, changeset: UpdateViewPayloadPB) -> Option<FlowyError> {
     // delete the view. the view will be moved to trash
     EventBuilder::new(self.clone())
-      .event(flowy_folder2::event_map::FolderEvent::UpdateView)
+      .event(FolderEvent::UpdateView)
       .payload(changeset)
       .async_send()
       .await
@@ -132,11 +136,48 @@ impl FlowyCoreTest {
       set_as_current: false,
     };
     EventBuilder::new(self.clone())
-      .event(flowy_folder2::event_map::FolderEvent::CreateView)
+      .event(FolderEvent::CreateView)
       .payload(payload)
       .async_send()
       .await
       .parse::<flowy_folder2::entities::ViewPB>()
+  }
+
+  pub async fn create_document(
+    &self,
+    parent_id: &str,
+    name: &str,
+    initial_data: Vec<u8>,
+  ) -> ViewPB {
+    let payload = CreateViewPayloadPB {
+      parent_view_id: parent_id.to_string(),
+      name: name.to_string(),
+      desc: "".to_string(),
+      thumbnail: None,
+      layout: ViewLayoutPB::Document,
+      initial_data,
+      meta: Default::default(),
+      set_as_current: true,
+    };
+    let view = EventBuilder::new(self.clone())
+      .event(FolderEvent::CreateView)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<ViewPB>();
+
+    let payload = OpenDocumentPayloadPB {
+      document_id: view.id.clone(),
+    };
+
+    let _ = EventBuilder::new(self.clone())
+      .event(DocumentEvent::OpenDocument)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<DocumentDataPB>();
+
+    view
   }
 
   pub async fn create_grid(&self, parent_id: &str, name: String, initial_data: Vec<u8>) -> ViewPB {
@@ -151,7 +192,7 @@ impl FlowyCoreTest {
       set_as_current: true,
     };
     EventBuilder::new(self.clone())
-      .event(flowy_folder2::event_map::FolderEvent::CreateView)
+      .event(FolderEvent::CreateView)
       .payload(payload)
       .async_send()
       .await
@@ -170,7 +211,7 @@ impl FlowyCoreTest {
       set_as_current: true,
     };
     EventBuilder::new(self.clone())
-      .event(flowy_folder2::event_map::FolderEvent::CreateView)
+      .event(FolderEvent::CreateView)
       .payload(payload)
       .async_send()
       .await
@@ -194,7 +235,7 @@ impl FlowyCoreTest {
       set_as_current: true,
     };
     EventBuilder::new(self.clone())
-      .event(flowy_folder2::event_map::FolderEvent::CreateView)
+      .event(FolderEvent::CreateView)
       .payload(payload)
       .async_send()
       .await
@@ -203,7 +244,7 @@ impl FlowyCoreTest {
 
   pub async fn get_database(&self, view_id: &str) -> DatabasePB {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::GetDatabase)
+      .event(DatabaseEvent::GetDatabase)
       .payload(DatabaseViewIdPB {
         value: view_id.to_string(),
       })
@@ -214,7 +255,7 @@ impl FlowyCoreTest {
 
   pub async fn get_all_database_fields(&self, view_id: &str) -> RepeatedFieldPB {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::GetFields)
+      .event(DatabaseEvent::GetFields)
       .payload(GetFieldPayloadPB {
         view_id: view_id.to_string(),
         field_ids: None,
@@ -226,7 +267,7 @@ impl FlowyCoreTest {
 
   pub async fn create_field(&self, view_id: &str, field_type: FieldType) -> FieldPB {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::CreateTypeOption)
+      .event(DatabaseEvent::CreateTypeOption)
       .payload(CreateFieldPayloadPB {
         view_id: view_id.to_string(),
         field_type,
@@ -240,7 +281,7 @@ impl FlowyCoreTest {
 
   pub async fn update_field(&self, changeset: FieldChangesetPB) {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::UpdateField)
+      .event(DatabaseEvent::UpdateField)
       .payload(changeset)
       .async_send()
       .await;
@@ -248,7 +289,7 @@ impl FlowyCoreTest {
 
   pub async fn delete_field(&self, view_id: &str, field_id: &str) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::DeleteField)
+      .event(DatabaseEvent::DeleteField)
       .payload(DeleteFieldPayloadPB {
         view_id: view_id.to_string(),
         field_id: field_id.to_string(),
@@ -265,7 +306,7 @@ impl FlowyCoreTest {
     field_type: FieldType,
   ) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::UpdateFieldType)
+      .event(DatabaseEvent::UpdateFieldType)
       .payload(UpdateFieldTypePayloadPB {
         view_id: view_id.to_string(),
         field_id: field_id.to_string(),
@@ -278,7 +319,7 @@ impl FlowyCoreTest {
 
   pub async fn duplicate_field(&self, view_id: &str, field_id: &str) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::DuplicateField)
+      .event(DatabaseEvent::DuplicateField)
       .payload(DuplicateFieldPayloadPB {
         view_id: view_id.to_string(),
         field_id: field_id.to_string(),
@@ -290,7 +331,7 @@ impl FlowyCoreTest {
 
   pub async fn get_primary_field(&self, database_view_id: &str) -> FieldPB {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::GetPrimaryField)
+      .event(DatabaseEvent::GetPrimaryField)
       .payload(DatabaseViewIdPB {
         value: database_view_id.to_string(),
       })
@@ -306,7 +347,7 @@ impl FlowyCoreTest {
     data: Option<RowDataPB>,
   ) -> RowMetaPB {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::CreateRow)
+      .event(DatabaseEvent::CreateRow)
       .payload(CreateRowPayloadPB {
         view_id: view_id.to_string(),
         start_row_id,
@@ -320,7 +361,7 @@ impl FlowyCoreTest {
 
   pub async fn delete_row(&self, view_id: &str, row_id: &str) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::DeleteRow)
+      .event(DatabaseEvent::DeleteRow)
       .payload(RowIdPB {
         view_id: view_id.to_string(),
         row_id: row_id.to_string(),
@@ -333,7 +374,7 @@ impl FlowyCoreTest {
 
   pub async fn get_row(&self, view_id: &str, row_id: &str) -> OptionalRowPB {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::GetRow)
+      .event(DatabaseEvent::GetRow)
       .payload(RowIdPB {
         view_id: view_id.to_string(),
         row_id: row_id.to_string(),
@@ -346,7 +387,7 @@ impl FlowyCoreTest {
 
   pub async fn get_row_meta(&self, view_id: &str, row_id: &str) -> RowMetaPB {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::GetRowMeta)
+      .event(DatabaseEvent::GetRowMeta)
       .payload(RowIdPB {
         view_id: view_id.to_string(),
         row_id: row_id.to_string(),
@@ -359,7 +400,7 @@ impl FlowyCoreTest {
 
   pub async fn update_row_meta(&self, changeset: UpdateRowMetaChangesetPB) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::UpdateRowMeta)
+      .event(DatabaseEvent::UpdateRowMeta)
       .payload(changeset)
       .async_send()
       .await
@@ -368,7 +409,7 @@ impl FlowyCoreTest {
 
   pub async fn duplicate_row(&self, view_id: &str, row_id: &str) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::DuplicateRow)
+      .event(DatabaseEvent::DuplicateRow)
       .payload(RowIdPB {
         view_id: view_id.to_string(),
         row_id: row_id.to_string(),
@@ -381,7 +422,7 @@ impl FlowyCoreTest {
 
   pub async fn move_row(&self, view_id: &str, row_id: &str, to_row_id: &str) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::MoveRow)
+      .event(DatabaseEvent::MoveRow)
       .payload(MoveRowPayloadPB {
         view_id: view_id.to_string(),
         from_row_id: row_id.to_string(),
@@ -394,7 +435,7 @@ impl FlowyCoreTest {
 
   pub async fn update_cell(&self, changeset: CellChangesetPB) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::UpdateCell)
+      .event(DatabaseEvent::UpdateCell)
       .payload(changeset)
       .async_send()
       .await
@@ -403,7 +444,7 @@ impl FlowyCoreTest {
 
   pub async fn update_date_cell(&self, changeset: DateChangesetPB) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::UpdateDateCell)
+      .event(DatabaseEvent::UpdateDateCell)
       .payload(changeset)
       .async_send()
       .await
@@ -412,7 +453,7 @@ impl FlowyCoreTest {
 
   pub async fn get_cell(&self, view_id: &str, row_id: &str, field_id: &str) -> CellPB {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::GetCell)
+      .event(DatabaseEvent::GetCell)
       .payload(CellIdPB {
         view_id: view_id.to_string(),
         row_id: row_id.to_string(),
@@ -435,7 +476,7 @@ impl FlowyCoreTest {
     row_id: &str,
   ) -> ChecklistCellDataPB {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::GetChecklistCellData)
+      .event(DatabaseEvent::GetChecklistCellData)
       .payload(CellIdPB {
         view_id: view_id.to_string(),
         row_id: row_id.to_string(),
@@ -451,7 +492,7 @@ impl FlowyCoreTest {
     changeset: ChecklistCellDataChangesetPB,
   ) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::UpdateChecklistCell)
+      .event(DatabaseEvent::UpdateChecklistCell)
       .payload(changeset)
       .async_send()
       .await
@@ -466,7 +507,7 @@ impl FlowyCoreTest {
     name: &str,
   ) -> Option<FlowyError> {
     let option = EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::CreateSelectOption)
+      .event(DatabaseEvent::CreateSelectOption)
       .payload(CreateSelectOptionPayloadPB {
         field_id: field_id.to_string(),
         view_id: view_id.to_string(),
@@ -477,7 +518,7 @@ impl FlowyCoreTest {
       .parse::<SelectOptionPB>();
 
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::InsertOrUpdateSelectOption)
+      .event(DatabaseEvent::InsertOrUpdateSelectOption)
       .payload(RepeatedSelectOptionPayload {
         view_id: view_id.to_string(),
         field_id: field_id.to_string(),
@@ -491,7 +532,7 @@ impl FlowyCoreTest {
 
   pub async fn get_groups(&self, view_id: &str) -> Vec<GroupPB> {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::GetGroups)
+      .event(DatabaseEvent::GetGroups)
       .payload(DatabaseViewIdPB {
         value: view_id.to_string(),
       })
@@ -503,7 +544,7 @@ impl FlowyCoreTest {
 
   pub async fn move_group(&self, view_id: &str, from_id: &str, to_id: &str) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::MoveGroup)
+      .event(DatabaseEvent::MoveGroup)
       .payload(MoveGroupPayloadPB {
         view_id: view_id.to_string(),
         from_group_id: from_id.to_string(),
@@ -516,7 +557,7 @@ impl FlowyCoreTest {
 
   pub async fn set_group_by_field(&self, view_id: &str, field_id: &str) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::SetGroupByField)
+      .event(DatabaseEvent::SetGroupByField)
       .payload(GroupByFieldPayloadPB {
         field_id: field_id.to_string(),
         view_id: view_id.to_string(),
@@ -534,7 +575,7 @@ impl FlowyCoreTest {
     visible: Option<bool>,
   ) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::UpdateGroup)
+      .event(DatabaseEvent::UpdateGroup)
       .payload(UpdateGroupPB {
         view_id: view_id.to_string(),
         group_id: group_id.to_string(),
@@ -548,7 +589,7 @@ impl FlowyCoreTest {
 
   pub async fn update_setting(&self, changeset: DatabaseSettingChangesetPB) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::UpdateDatabaseSetting)
+      .event(DatabaseEvent::UpdateDatabaseSetting)
       .payload(changeset)
       .async_send()
       .await
@@ -557,7 +598,7 @@ impl FlowyCoreTest {
 
   pub async fn get_all_calendar_events(&self, view_id: &str) -> Vec<CalendarEventPB> {
     EventBuilder::new(self.clone())
-      .event(flowy_database2::event_map::DatabaseEvent::GetAllCalendarEvents)
+      .event(DatabaseEvent::GetAllCalendarEvents)
       .payload(CalendarEventRequestPB {
         view_id: view_id.to_string(),
       })
@@ -569,7 +610,7 @@ impl FlowyCoreTest {
 
   pub async fn get_view(&self, view_id: &str) -> ViewPB {
     EventBuilder::new(self.clone())
-      .event(flowy_folder2::event_map::FolderEvent::ReadView)
+      .event(FolderEvent::ReadView)
       .payload(ViewIdPB {
         value: view_id.to_string(),
       })

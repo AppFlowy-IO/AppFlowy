@@ -91,7 +91,6 @@ impl SelectSqlBuilder {
     let mut sql = format!("SELECT {} FROM {}", self.columns.join(", "), self.table);
 
     let mut params: Vec<_> = Vec::new();
-
     if let Some((clause, value)) = self.where_clause {
       sql.push_str(&format!(" WHERE {} = ${}", clause, params.len() + 1));
       params.push(value);
@@ -115,6 +114,7 @@ pub struct InsertSqlBuilder {
   columns: Vec<String>,
   values: Vec<Box<(dyn ToSql + Sync + Send + 'static)>>,
   override_system_value: bool,
+  returning: Vec<String>, // Vec for returning multiple columns
 }
 
 impl InsertSqlBuilder {
@@ -124,6 +124,7 @@ impl InsertSqlBuilder {
       columns: Vec::new(),
       values: Vec::new(),
       override_system_value: false,
+      returning: vec![],
     }
   }
 
@@ -138,27 +139,13 @@ impl InsertSqlBuilder {
     self
   }
 
-  pub fn build(self) -> (String, Vec<Box<(dyn ToSql + Sync + Send)>>) {
-    // let mut query = String::new();
-    // if self.override_system_value {
-    //   query.push_str(&format!(
-    //     "INSERT INTO {} OVERRIDING SYSTEM VALUE (",
-    //     self.table
-    //   ));
-    // } else {
-    //   query.push_str(&format!("INSERT INTO {} (", self.table));
-    // }
-    // query.push_str(&self.columns.join(", "));
-    // query.push_str(") VALUES (");
-    // query.push_str(
-    //   &(0..self.columns.len())
-    //     .map(|i| format!("${}", i + 1))
-    //     .collect::<Vec<_>>()
-    //     .join(", "),
-    // );
-    // query.push(')');
-    // (query, self.values)
+  pub fn returning(mut self, column: &str) -> Self {
+    // add column to return
+    self.returning.push(column.to_string());
+    self
+  }
 
+  pub fn build(self) -> (String, Vec<Box<(dyn ToSql + Sync + Send)>>) {
     let mut query = format!("INSERT INTO {} (", self.table);
     query.push_str(&self.columns.join(", "));
     query.push(')');
@@ -175,6 +162,12 @@ impl InsertSqlBuilder {
         .join(", "),
     );
     query.push(')');
+
+    if !self.returning.is_empty() {
+      // add RETURNING clause if there are columns to return
+      query.push_str(&format!(" RETURNING {}", self.returning.join(", ")));
+    }
+
     (query, self.values)
   }
 }

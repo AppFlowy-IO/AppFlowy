@@ -3,7 +3,7 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use bytes::Bytes;
-use collab::core::collab_state::SyncState;
+use collab::core::collab_state::{SnapshotState, SyncState};
 use collab_database::database::{Database as InnerDatabase, WatchStream};
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowId};
@@ -57,15 +57,30 @@ impl DatabaseEditor {
     });
 
     let database_id = database.lock().get_database_id();
+
     // Receive database sync state and send to frontend via the notification
     let mut sync_state = database.lock().subscribe_sync_state();
+    let cloned_database_id = database_id.clone();
     tokio::spawn(async move {
       while let Some(sync_state) = sync_state.next().await {
         send_notification(
-          &database_id,
+          &cloned_database_id,
           DatabaseNotification::DidUpdateDatabaseSyncUpdate,
         )
         .payload(DatabaseSyncStatePB::from(sync_state))
+        .send();
+      }
+    });
+
+    // Receive database snapshot state and send to frontend via the notification
+    let mut snapshot_state = database.lock().subscribe_snapshot_state();
+    tokio::spawn(async move {
+      while let Some(snapshot_state) = snapshot_state.next().await {
+        send_notification(
+          &database_id,
+          DatabaseNotification::DidUpdateDatabaseSnapshotState,
+        )
+        .payload(DatabaseSnapshotStatePB::from(snapshot_state))
         .send();
       }
     });
@@ -85,10 +100,6 @@ impl DatabaseEditor {
   }
 
   pub async fn close(&self) {}
-
-  pub async fn subscribe_sync_state(&self) -> WatchStream<SyncState> {
-    self.database.lock().subscribe_sync_state()
-  }
 
   pub async fn update_view_layout(
     &self,

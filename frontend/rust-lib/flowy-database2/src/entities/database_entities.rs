@@ -1,4 +1,4 @@
-use collab::core::collab_state::SyncState;
+use collab::core::collab_state::{SnapshotState, SyncState};
 use collab_database::rows::RowId;
 use collab_database::user::DatabaseRecord;
 use collab_database::views::DatabaseLayout;
@@ -282,4 +282,39 @@ impl From<SyncState> for DatabaseSyncStatePB {
       is_finish: value.is_sync_finished(),
     }
   }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct DatabaseSnapshotStatePB {
+  #[pb(index = 1, one_of)]
+  pub new_snapshot_id: Option<i64>,
+}
+
+impl From<SnapshotState> for DatabaseSnapshotStatePB {
+  fn from(value: SnapshotState) -> Self {
+    Self {
+      new_snapshot_id: value.snapshot_id(),
+    }
+  }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct RepeatedDatabaseSnapshotPB {
+  #[pb(index = 1)]
+  pub items: Vec<DatabaseSnapshotPB>,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct DatabaseSnapshotPB {
+  #[pb(index = 1)]
+  pub snapshot_id: i64,
+
+  #[pb(index = 2)]
+  pub snapshot_desc: String,
+
+  #[pb(index = 3)]
+  pub created_at: i64,
+
+  #[pb(index = 4)]
+  pub data: Vec<u8>,
 }

@@ -1,15 +1,15 @@
-use flowy_database2::entities::{DatabaseSnapshotStatePB, DatabaseSyncStatePB};
+use crate::document::supabase_test::helper::FlowySupabaseDocumentTest;
+use flowy_document2::entities::{DocumentSnapshotPB, DocumentSnapshotStatePB};
 use std::time::Duration;
-
-use crate::database::supabase_test::helper::FlowySupabaseDatabaseTest;
 
 #[tokio::test]
 async fn initial_collab_update_test() {
-  if let Some(test) = FlowySupabaseDatabaseTest::new().await {
-    let (view, database) = test.create_database().await;
+  if let Some(test) = FlowySupabaseDocumentTest::new().await {
+    let view = test.create_document().await;
+
     let mut rx = test
       .notification_sender
-      .subscribe::<DatabaseSnapshotStatePB>(&database.id);
+      .subscribe::<DocumentSnapshotStatePB>(&view.id);
 
     // Continue to receive updates until we get the initial snapshot
     loop {
@@ -20,7 +20,7 @@ async fn initial_collab_update_test() {
       }
     }
 
-    let snapshots = test.get_database_snapshots(&view.id).await;
+    let snapshots = test.get_document_snapshots(&view.id).await;
     assert_eq!(snapshots.items.len(), 1);
   }
 }

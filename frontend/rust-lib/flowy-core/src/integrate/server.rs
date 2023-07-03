@@ -6,8 +6,8 @@ use appflowy_integrate::RemoteCollabStorage;
 use parking_lot::RwLock;
 use serde_repr::*;
 
-use flowy_database2::deps::DatabaseCloudService;
-use flowy_document2::deps::DocumentCloudService;
+use flowy_database2::deps::{DatabaseCloudService, DatabaseSnapshot};
+use flowy_document2::deps::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder2::deps::{FolderCloudService, Workspace};
 use flowy_server::local_server::LocalServer;
@@ -121,7 +121,10 @@ impl FolderCloudService for AppFlowyServerProvider {
 }
 
 impl DatabaseCloudService for AppFlowyServerProvider {
-  fn get_latest_snapshot(&self, database_id: &str) -> FutureResult<Option<Vec<u8>>, FlowyError> {
+  fn get_latest_snapshot(
+    &self,
+    database_id: &str,
+  ) -> FutureResult<Option<DatabaseSnapshot>, FlowyError> {
     let server = self.get_provider(&self.provider_type.read());
     let database_id = database_id.to_string();
     FutureResult::new(async move {
@@ -134,7 +137,10 @@ impl DatabaseCloudService for AppFlowyServerProvider {
 }
 
 impl DocumentCloudService for AppFlowyServerProvider {
-  fn get_latest_snapshot(&self, document_id: &str) -> FutureResult<Option<Vec<u8>>, FlowyError> {
+  fn get_latest_snapshot(
+    &self,
+    document_id: &str,
+  ) -> FutureResult<Option<DocumentSnapshot>, FlowyError> {
     let server = self.get_provider(&self.provider_type.read());
     let document_id = document_id.to_string();
     FutureResult::new(async move {
