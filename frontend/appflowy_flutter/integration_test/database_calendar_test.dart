@@ -206,12 +206,13 @@ void main() {
       await tester.tapCreateCalendarButton();
 
       // Create a new event in today's calendar cell
+      final today = DateTime.now();
       await tester.scrollToToday();
-      await tester.doubleClickCalendarCell(DateTime.now());
+      await tester.doubleClickCalendarCell(today);
       await tester.dismissRowDetailPage();
 
       // Make sure that the event is today
-      tester.assertNumberofEventsOnSpecificDay(1, DateTime.now());
+      tester.assertNumberofEventsOnSpecificDay(1, today);
 
       // Click on the event
       await tester.openCalendarEvent(index: 0);
@@ -220,9 +221,11 @@ void main() {
       await tester.tapDateCellInRowDetailPage();
       await tester.findDateEditor(findsOneWidget);
 
-      // Edit the event's date
-      final tomorrow = DateTime.now().add(const Duration(days: 1));
-      await tester.selectDay(content: tomorrow.day);
+      // Edit the event's date. To avoid selecting a day outside of the current month, the new date will be one day closer to the middle of the month.
+      final newDate = today.day < 15
+          ? today.add(const Duration(days: 1))
+          : today.subtract(const Duration(days: 1));
+      await tester.selectDay(content: newDate.day);
       await tester.dismissCellEditor();
 
       // Dismiss the row details page
@@ -230,7 +233,7 @@ void main() {
 
       // Make sure that the event is edited
       tester.assertNumberOfEventsInCalendar(1);
-      tester.assertNumberofEventsOnSpecificDay(1, tomorrow);
+      tester.assertNumberofEventsOnSpecificDay(1, newDate);
     });
 
     testWidgets('reschedule an event by drag-and-drop', (tester) async {

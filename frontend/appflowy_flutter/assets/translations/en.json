@@ -396,6 +396,9 @@
         "createANewCalendar": "Create a new Calendar"
       }
     },
+    "selectionMenu": {
+      "outline": "Outline"
+    },
     "plugins": {
       "referencedBoard": "Referenced Board",
       "referencedGrid": "Referenced Grid",
@@ -460,6 +463,12 @@
         "center": "Center",
         "right": "Right",
         "defaultColor": "Default"
+      },
+      "image": {
+        "copiedToPasteBoard": "The image link has been copied to the clipboard"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "Add headings to create a table of contents."
       }
     }
   },

@@ -1,12 +1,10 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_list.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/database/referenced_database_menu_tem.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -71,19 +69,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     highlightColorItem,
   ];
 
-  late final slashMenuItems = [
-    inlineGridMenuItem(documentBloc),
-    referencedGridMenuItem,
-    inlineBoardMenuItem(documentBloc),
-    referencedBoardMenuItem,
-    inlineCalendarMenuItem(documentBloc),
-    referencedCalendarMenuItem,
-    calloutItem,
-    mathEquationItem,
-    codeBlockItem,
-    emojiMenuItem,
-    autoGeneratorMenuItem,
-  ];
+  late final List<SelectionMenuItem> slashMenuItems;
 
   late final Map<String, BlockComponentBuilder> blockComponentBuilders =
       _customAppFlowyBlockComponentBuilders();
@@ -134,7 +120,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   @override
   void initState() {
     super.initState();
+
     _initializeShortcuts();
+    slashMenuItems = _customSlashMenuItems();
     effectiveScrollController = widget.scrollController ?? ScrollController();
   }
 
@@ -235,6 +223,15 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       ),
       ImageBlockKeys.type: ImageBlockComponentBuilder(
         configuration: configuration,
+        showMenu: true,
+        menuBuilder: (node, state) => Positioned(
+          top: 0,
+          right: 10,
+          child: ImageMenu(
+            node: node,
+            state: state,
+          ),
+        ),
       ),
       DatabaseBlockKeys.gridType: DatabaseViewBlockComponentBuilder(
         configuration: configuration,
@@ -270,7 +267,15 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       ),
       AutoCompletionBlockKeys.type: AutoCompletionBlockComponentBuilder(),
       SmartEditBlockKeys.type: SmartEditBlockComponentBuilder(),
-      ToggleListBlockKeys.type: ToggleListBlockComponentBuilder(),
+      ToggleListBlockKeys.type: ToggleListBlockComponentBuilder(
+        configuration: configuration,
+      ),
+      OutlineBlockKeys.type: OutlineBlockComponentBuilder(
+        configuration: configuration.copyWith(
+          placeholderTextStyle: (_) =>
+              styleCustomizer.outlineBlockPlaceholderStyleBuilder(),
+        ),
+      ),
     };
 
     final builders = {
@@ -293,7 +298,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         NumberedListBlockKeys.type,
         QuoteBlockKeys.type,
         TodoListBlockKeys.type,
-        CalloutBlockKeys.type
+        CalloutBlockKeys.type,
+        OutlineBlockKeys.type,
       ];
 
       final supportAlignBuilderType = [
@@ -337,6 +343,34 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     }
 
     return builders;
+  }
+
+  List<SelectionMenuItem> _customSlashMenuItems() {
+    final items = [...standardSelectionMenuItems];
+    final imageItem = items.firstWhereOrNull(
+      (element) => element.name == AppFlowyEditorLocalizations.current.image,
+    );
+    if (imageItem != null) {
+      final imageItemIndex = items.indexOf(imageItem);
+      if (imageItemIndex != -1) {
+        items[imageItemIndex] = customImageMenuItem;
+      }
+    }
+    return [
+      ...items,
+      inlineGridMenuItem(documentBloc),
+      referencedGridMenuItem,
+      inlineBoardMenuItem(documentBloc),
+      referencedBoardMenuItem,
+      inlineCalendarMenuItem(documentBloc),
+      referencedCalendarMenuItem,
+      calloutItem,
+      outlineItem,
+      mathEquationItem,
+      codeBlockItem,
+      emojiMenuItem,
+      autoGeneratorMenuItem,
+    ];
   }
 
   (bool, Selection?) _computeAutoFocusParameters() {

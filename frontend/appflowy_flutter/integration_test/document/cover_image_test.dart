@@ -36,21 +36,27 @@ void main() {
 
       // Insert a document cover
       await tester.editor.tapOnAddCover();
-      tester.expectToSeeDocumentCover(
-        CoverType.asset,
-        "assets/images/app_flowy_abstract_cover_1.jpg",
-      );
+      tester.expectToSeeDocumentCover(CoverType.asset);
 
       // Hover over the cover to show the 'Change Cover' and delete buttons
       await tester.editor.hoverOnCover();
       tester.expectChangeCoverAndDeleteButton();
 
       // Change cover to a solid color background
-      await tester.editor.hoverOnCover();
       await tester.editor.tapOnChangeCover();
       await tester.editor.switchSolidColorBackground();
       await tester.editor.dismissCoverPicker();
-      tester.expectToSeeDocumentCover(CoverType.color, "ffe8e0ff");
+      tester.expectToSeeDocumentCover(CoverType.color);
+
+      // Change cover to a network image
+      const imageUrl =
+          "https://raw.githubusercontent.com/AppFlowy-IO/AppFlowy/main/frontend/appflowy_flutter/assets/images/appflowy_launch_splash.jpg";
+      await tester.editor.hoverOnCover();
+      await tester.editor.tapOnChangeCover();
+      await tester.editor.addNetworkImageCover(imageUrl);
+      await tester.editor.switchNetworkImageCover(imageUrl);
+      await tester.editor.dismissCoverPicker();
+      tester.expectToSeeDocumentCover(CoverType.file);
 
       // Remove the cover
       await tester.editor.hoverOnCover();
@@ -119,10 +125,7 @@ void main() {
 
       // Expect to see the icon and cover at the same time
       tester.expectToSeeDocumentIcon('😀');
-      tester.expectToSeeDocumentCover(
-        CoverType.asset,
-        "assets/images/app_flowy_abstract_cover_1.jpg",
-      );
+      tester.expectToSeeDocumentCover(CoverType.asset);
 
       // Hover over the cover toolbar and see that neither icons are shown
       await tester.editor.hoverOnCoverToolbar();
