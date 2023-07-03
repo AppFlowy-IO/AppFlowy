@@ -1,14 +1,14 @@
 use std::{collections::HashMap, sync::Arc};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::RocksCollabDB;
 use collab_document::blocks::DocumentData;
 use collab_document::error::DocumentError;
 use collab_document::YrsDocAction;
 use parking_lot::RwLock;
 
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::FlowyResult;
 
+use crate::deps::{DocumentCloudService, DocumentUser};
 use crate::{
   document::Document,
   document_data::default_document_data,
@@ -16,24 +16,24 @@ use crate::{
   notification::{send_notification, DocumentNotification},
 };
 
-pub trait DocumentUser: Send + Sync {
-  fn user_id(&self) -> Result<i64, FlowyError>;
-  fn token(&self) -> Result<Option<String>, FlowyError>; // unused now.
-  fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError>;
-}
-
 pub struct DocumentManager {
   user: Arc<dyn DocumentUser>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   documents: Arc<RwLock<HashMap<String, Arc<Document>>>>,
+  cloud_service: Arc<dyn DocumentCloudService>,
 }
 
 impl DocumentManager {
-  pub fn new(user: Arc<dyn DocumentUser>, collab_builder: Arc<AppFlowyCollabBuilder>) -> Self {
+  pub fn new(
+    user: Arc<dyn DocumentUser>,
+    collab_builder: Arc<AppFlowyCollabBuilder>,
+    cloud_service: Arc<dyn DocumentCloudService>,
+  ) -> Self {
     Self {
       user,
       collab_builder,
       documents: Default::default(),
+      cloud_service,
     }
   }
 

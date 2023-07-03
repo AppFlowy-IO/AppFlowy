@@ -1,9 +1,8 @@
 use std::convert::TryFrom;
 use std::env::temp_dir;
-use std::sync::{Arc, Once};
+use std::sync::Arc;
 
 use bytes::Bytes;
-use futures_util::StreamExt;
 use nanoid::nanoid;
 use parking_lot::RwLock;
 use protobuf::ProtobufError;
@@ -627,26 +626,5 @@ impl NotificationSender for TestNotificationSender {
   fn send_subject(&self, subject: SubscribeObject) -> Result<(), String> {
     let _ = self.sender.send(subject);
     Ok(())
-  }
-}
-
-pub struct NotificationListener<T> {
-  receiver: Receiver<T>,
-}
-
-pub struct ListenerBuilder<T> {
-  id: String,
-  ty: T,
-}
-
-impl<T> ListenerBuilder<T>
-where
-  T: From<i32>,
-{
-  pub fn new(id: &str, ty: T) -> Self {
-    Self {
-      id: id.to_string(),
-      ty,
-    }
   }
 }

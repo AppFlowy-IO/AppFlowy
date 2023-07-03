@@ -8,5 +8,6 @@ pub mod manager;
 pub mod parser;
 pub mod protobuf;
 
+pub mod deps;
 mod notification;
 mod parse;

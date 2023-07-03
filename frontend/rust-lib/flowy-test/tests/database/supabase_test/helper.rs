@@ -1,7 +1,6 @@
 use std::ops::Deref;
 
 use flowy_database2::entities::DatabasePB;
-use flowy_folder2::entities::ViewPB;
 
 use crate::util::FlowySupabaseTest;
 

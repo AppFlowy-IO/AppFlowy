@@ -14,7 +14,6 @@ use tokio_postgres::Row;
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
 
-use crate::supabase::pg_db::PostgresObject;
 use crate::supabase::sql_builder::{
   DeleteSqlBuilder, InsertSqlBuilder, SelectSqlBuilder, WhereCondition,
 };

@@ -165,6 +165,7 @@ impl AppFlowyCore {
           user_session.clone(),
           &database_manager2,
           collab_builder.clone(),
+          server_provider.clone(),
         );
 
         let folder_manager = Folder2DepsResolver::resolve(

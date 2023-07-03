@@ -13,7 +13,6 @@ use tokio::sync::RwLock;
 
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
-use lib_infra::future::FutureResult;
 
 use crate::deps::{DatabaseCloudService, DatabaseUser2};
 use crate::entities::{DatabaseDescriptionPB, DatabaseLayoutPB, RepeatedDatabaseDescriptionPB};

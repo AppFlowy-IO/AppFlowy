@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use flowy_database2::entities::DatabaseSyncStatePB;
 
 use crate::database::supabase_test::helper::FlowySupabaseDatabaseTest;

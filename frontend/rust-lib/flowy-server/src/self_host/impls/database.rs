@@ -5,7 +5,7 @@ use lib_infra::future::FutureResult;
 pub(crate) struct SelfHostedDatabaseCloudServiceImpl();
 
 impl DatabaseCloudService for SelfHostedDatabaseCloudServiceImpl {
-  fn get_latest_snapshot(&self, database_id: &str) -> FutureResult<Option<Vec<u8>>, FlowyError> {
+  fn get_latest_snapshot(&self, _database_id: &str) -> FutureResult<Option<Vec<u8>>, FlowyError> {
     FutureResult::new(async move { Ok(None) })
   }
 }

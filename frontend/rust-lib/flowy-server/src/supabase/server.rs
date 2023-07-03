@@ -9,13 +9,14 @@ use tokio::sync::{watch, Mutex};
 use tokio::time::interval;
 
 use flowy_database2::deps::DatabaseCloudService;
+use flowy_document2::deps::DocumentCloudService;
 use flowy_folder2::deps::FolderCloudService;
 use flowy_user::event_map::UserAuthService;
 use lib_infra::async_trait::async_trait;
 
 use crate::supabase::impls::{
-  PgCollabStorageImpl, SupabaseDatabaseCloudServiceImpl, SupabaseFolderCloudServiceImpl,
-  SupabaseUserAuthServiceImpl,
+  PgCollabStorageImpl, SupabaseDatabaseCloudServiceImpl, SupabaseDocumentCloudServiceImpl,
+  SupabaseFolderCloudServiceImpl, SupabaseUserAuthServiceImpl,
 };
 use crate::supabase::pg_db::{PgClientReceiver, PostgresDB, PostgresEvent};
 use crate::supabase::queue::{
@@ -53,6 +54,10 @@ impl AppFlowyServer for SupabaseServer {
 
   fn database_service(&self) -> Arc<dyn DatabaseCloudService> {
     Arc::new(SupabaseDatabaseCloudServiceImpl::new(self.postgres.clone()))
+  }
+
+  fn document_service(&self) -> Arc<dyn DocumentCloudService> {
+    Arc::new(SupabaseDocumentCloudServiceImpl::new(self.postgres.clone()))
   }
 
   fn collab_storage(&self) -> Option<Arc<dyn RemoteCollabStorage>> {

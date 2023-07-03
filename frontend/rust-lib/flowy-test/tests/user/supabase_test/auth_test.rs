@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 
-use tokio::spawn;
-
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
 use flowy_user::entities::{

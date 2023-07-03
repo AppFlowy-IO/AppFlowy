@@ -9,7 +9,6 @@ use flowy_database2::DatabaseManager2;
 use flowy_error::FlowyError;
 use flowy_task::TaskDispatcher;
 use flowy_user::services::UserSession;
-use lib_infra::future::FutureResult;
 
 pub struct Database2DepsResolver();
 
