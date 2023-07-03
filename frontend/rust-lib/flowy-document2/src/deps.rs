@@ -11,6 +11,9 @@ pub trait DocumentUser: Send + Sync {
   fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError>;
 }
 
+/// A trait for document cloud service.
+/// Each kind of server should implement this trait. Check out the [AppFlowyServerProvider] of
+/// [flowy-server] crate for more information.
 pub trait DocumentCloudService: Send + Sync + 'static {
   fn get_latest_snapshot(&self, document_id: &str) -> FutureResult<Option<Vec<u8>>, FlowyError>;
 }

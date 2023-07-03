@@ -46,7 +46,7 @@ mod tests {
   // ‼️‼️‼️ Warning: this test will create a table in the database
   #[tokio::test]
   async fn test_postgres_db() -> Result<(), anyhow::Error> {
-    if dotenv::from_filename(".env.user.test").is_err() {
+    if dotenv::from_filename(".env.user.test.danger").is_err() {
       return Ok(());
     }
 
