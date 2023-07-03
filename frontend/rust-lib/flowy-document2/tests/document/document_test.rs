@@ -3,13 +3,12 @@ use std::{collections::HashMap, vec};
 use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
 use serde_json::{json, to_value, Value};
 
-use flowy_document2::document_block_keys::PARAGRAPH_BLOCK_TYPE;
-use flowy_document2::document_data::default_document_data;
+use flowy_document2::document_data::{default_document_data, PARAGRAPH_BLOCK_TYPE};
 
 use crate::document::util::{gen_document_id, gen_id, DocumentTest};
 
-#[test]
-fn restore_document() {
+#[tokio::test]
+async fn restore_document() {
   let test = DocumentTest::new();
 
   // create a document
@@ -45,8 +44,8 @@ fn restore_document() {
   assert_eq!(data_b, data);
 }
 
-#[test]
-fn document_apply_insert_action() {
+#[tokio::test]
+async fn document_apply_insert_action() {
   let test = DocumentTest::new();
   let doc_id: String = gen_document_id();
   let data = default_document_data();
@@ -94,8 +93,8 @@ fn document_apply_insert_action() {
   assert_eq!(data_b, data_a);
 }
 
-#[test]
-fn document_apply_update_page_action() {
+#[tokio::test]
+async fn document_apply_update_page_action() {
   let test = DocumentTest::new();
   let doc_id: String = gen_document_id();
   let data = default_document_data();
@@ -134,8 +133,8 @@ fn document_apply_update_page_action() {
   assert!(page_block_new.data.contains_key("delta"));
 }
 
-#[test]
-fn document_apply_update_action() {
+#[tokio::test]
+async fn document_apply_update_action() {
   let test = DocumentTest::new();
   let doc_id: String = gen_document_id();
   let data = default_document_data();
