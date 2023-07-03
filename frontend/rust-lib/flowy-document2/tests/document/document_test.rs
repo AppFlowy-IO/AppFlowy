@@ -16,15 +16,15 @@ fn restore_document() {
   let doc_id: String = gen_document_id();
   let data = default_document_data();
   let document_a = test.create_document(&doc_id, Some(data.clone())).unwrap();
-  let data_a = document_a.lock().get_document().unwrap();
+  let data_a = document_a.lock().get_document_data().unwrap();
   assert_eq!(data_a, data);
 
   // open a document
   let data_b = test
-    .get_or_open_document(&doc_id)
+    .get_document(&doc_id)
     .unwrap()
     .lock()
-    .get_document()
+    .get_document_data()
     .unwrap();
   // close a document
   _ = test.close_document(&doc_id);
@@ -34,10 +34,10 @@ fn restore_document() {
   _ = test.create_document(&doc_id, Some(data.clone()));
   // open a document
   let data_b = test
-    .get_or_open_document(&doc_id)
+    .get_document(&doc_id)
     .unwrap()
     .lock()
-    .get_document()
+    .get_document_data()
     .unwrap();
   // close a document
   _ = test.close_document(&doc_id);
@@ -55,7 +55,7 @@ fn document_apply_insert_action() {
   _ = test.create_document(&doc_id, Some(data.clone()));
 
   // open a document
-  let document = test.get_or_open_document(&doc_id).unwrap();
+  let document = test.get_document(&doc_id).unwrap();
   let page_block = document.lock().get_block(&data.page_id).unwrap();
 
   // insert a text block
@@ -77,16 +77,16 @@ fn document_apply_insert_action() {
     },
   };
   document.lock().apply_action(vec![insert_text_action]);
-  let data_a = document.lock().get_document().unwrap();
+  let data_a = document.lock().get_document_data().unwrap();
   // close the original document
   _ = test.close_document(&doc_id);
 
   // re-open the document
   let data_b = test
-    .get_or_open_document(&doc_id)
+    .get_document(&doc_id)
     .unwrap()
     .lock()
-    .get_document()
+    .get_document_data()
     .unwrap();
   // close a document
   _ = test.close_document(&doc_id);
@@ -104,7 +104,7 @@ fn document_apply_update_page_action() {
   _ = test.create_document(&doc_id, Some(data.clone()));
 
   // open a document
-  let document = test.get_or_open_document(&doc_id).unwrap();
+  let document = test.get_document(&doc_id).unwrap();
   let page_block = document.lock().get_block(&data.page_id).unwrap();
 
   let mut page_block_clone = page_block;
@@ -128,7 +128,7 @@ fn document_apply_update_page_action() {
   _ = test.close_document(&doc_id);
 
   // re-open the document
-  let document = test.get_or_open_document(&doc_id).unwrap();
+  let document = test.get_document(&doc_id).unwrap();
   let page_block_new = document.lock().get_block(&data.page_id).unwrap();
   assert_eq!(page_block_old, page_block_new);
   assert!(page_block_new.data.contains_key("delta"));
@@ -144,7 +144,7 @@ fn document_apply_update_action() {
   _ = test.create_document(&doc_id, Some(data.clone()));
 
   // open a document
-  let document = test.get_or_open_document(&doc_id).unwrap();
+  let document = test.get_document(&doc_id).unwrap();
   let page_block = document.lock().get_block(&data.page_id).unwrap();
 
   // insert a text block
@@ -194,7 +194,7 @@ fn document_apply_update_action() {
   _ = test.close_document(&doc_id);
 
   // re-open the document
-  let document = test.get_or_open_document(&doc_id).unwrap();
+  let document = test.get_document(&doc_id).unwrap();
   let block = document.lock().get_block(&text_block_id).unwrap();
   assert_eq!(block.data, updated_text_block_data);
   // close a document

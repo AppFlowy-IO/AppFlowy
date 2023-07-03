@@ -3,8 +3,7 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use bytes::Bytes;
-use collab::core::collab_state::{SnapshotState, SyncState};
-use collab_database::database::{Database as InnerDatabase, WatchStream};
+use collab_database::database::Database as InnerDatabase;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};

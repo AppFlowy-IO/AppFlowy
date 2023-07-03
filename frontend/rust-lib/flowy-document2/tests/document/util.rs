@@ -9,7 +9,7 @@ use tempfile::TempDir;
 use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
 
 use flowy_document2::deps::{DocumentCloudService, DocumentSnapshot, DocumentUser};
-use flowy_document2::document::DocumentEditor;
+use flowy_document2::document::MutexDocument;
 use flowy_document2::document_data::default_document_data;
 use flowy_document2::manager::DocumentManager;
 use flowy_error::FlowyError;
@@ -81,7 +81,7 @@ pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
   Arc::new(builder)
 }
 
-pub fn create_and_open_empty_document() -> (DocumentTest, Arc<DocumentEditor>, String) {
+pub fn create_and_open_empty_document() -> (DocumentTest, Arc<MutexDocument>, String) {
   let test = DocumentTest::new();
   let doc_id: String = gen_document_id();
   let data = default_document_data();
@@ -89,7 +89,7 @@ pub fn create_and_open_empty_document() -> (DocumentTest, Arc<DocumentEditor>, S
   // create a document
   _ = test.create_document(&doc_id, Some(data.clone())).unwrap();
 
-  let document = test.get_or_open_document(&doc_id).unwrap();
+  let document = test.get_document(&doc_id).unwrap();
 
   (test, document, data.page_id)
 }

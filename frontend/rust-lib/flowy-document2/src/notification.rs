@@ -21,7 +21,7 @@ impl std::convert::From<i32> for DocumentNotification {
   fn from(notification: i32) -> Self {
     match notification {
       1 => DocumentNotification::DidReceiveUpdate,
-      1 => DocumentNotification::DidUpdateDocumentSnapshotState,
+      2 => DocumentNotification::DidUpdateDocumentSnapshotState,
       _ => DocumentNotification::Unknown,
     }
   }
