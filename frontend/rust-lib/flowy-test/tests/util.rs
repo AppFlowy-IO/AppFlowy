@@ -1,5 +1,11 @@
+use flowy_database2::entities::DatabaseSnapshotStatePB;
+use flowy_document2::entities::DocumentSnapshotStatePB;
 use std::collections::HashMap;
 use std::ops::Deref;
+use std::sync::mpsc;
+use std::time::Duration;
+use tokio::sync::mpsc::Receiver;
+use tokio::time::timeout;
 
 use flowy_server::supabase::SupabaseConfiguration;
 use flowy_test::event_builder::EventBuilder;
@@ -104,4 +110,14 @@ impl Deref for FlowySupabaseTest {
   fn deref(&self) -> &Self::Target {
     &self.inner
   }
+}
+
+pub async fn receive_with_timeout<T>(
+  receiver: &mut Receiver<T>,
+  duration: Duration,
+) -> Result<T, Box<dyn std::error::Error>> {
+  let res = timeout(duration, receiver.recv())
+    .await?
+    .ok_or(anyhow::anyhow!("recv timeout"))?;
+  Ok(res)
 }

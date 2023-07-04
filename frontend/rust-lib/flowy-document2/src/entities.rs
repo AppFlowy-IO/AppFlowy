@@ -361,14 +361,6 @@ pub struct DocumentSnapshotPB {
 
 #[derive(Debug, Default, ProtoBuf)]
 pub struct DocumentSnapshotStatePB {
-  #[pb(index = 1, one_of)]
-  pub new_snapshot_id: Option<i64>,
-}
-
-impl From<SnapshotState> for DocumentSnapshotStatePB {
-  fn from(value: SnapshotState) -> Self {
-    Self {
-      new_snapshot_id: value.snapshot_id(),
-    }
-  }
+  #[pb(index = 1)]
+  pub new_snapshot_id: i64,
 }

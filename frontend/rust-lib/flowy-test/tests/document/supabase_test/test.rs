@@ -1,11 +1,22 @@
+use assert_json_diff::assert_json_eq;
+use collab::core::collab::MutexCollab;
+use collab::core::origin::CollabOrigin;
+use collab::preclude::updates::decoder::Decode;
+use collab::preclude::{Collab, Update};
+use collab_document::document::Document;
+use serde_json::json;
+use std::sync::Arc;
 use std::time::Duration;
 
 use flowy_document2::entities::{DocumentSnapshotPB, DocumentSnapshotStatePB};
 
-use crate::document::supabase_test::helper::FlowySupabaseDocumentTest;
+use crate::document::supabase_test::helper::{
+  assert_document_snapshot_equal, FlowySupabaseDocumentTest,
+};
+use crate::util::receive_with_timeout;
 
 #[tokio::test]
-async fn initial_collab_update_test() {
+async fn initial_document_snapshot_test() {
   if let Some(test) = FlowySupabaseDocumentTest::new().await {
     let view = test.create_document().await;
 
@@ -13,16 +24,14 @@ async fn initial_collab_update_test() {
       .notification_sender
       .subscribe::<DocumentSnapshotStatePB>(&view.id);
 
-    // Continue to receive updates until we get the initial snapshot
-    loop {
-      if let Some(state) = rx.recv().await {
-        if let Some(snapshot_id) = state.new_snapshot_id {
-          break;
-        }
-      }
-    }
+    receive_with_timeout(&mut rx, Duration::from_secs(30))
+      .await
+      .unwrap();
 
     let snapshots = test.get_document_snapshots(&view.id).await;
     assert_eq!(snapshots.items.len(), 1);
+
+    let document_data = test.get_document_data(&view.id).await;
+    assert_document_snapshot_equal(&snapshots.items[0], &view.id, document_data);
   }
 }

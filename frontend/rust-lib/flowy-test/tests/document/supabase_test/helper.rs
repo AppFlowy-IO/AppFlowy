@@ -1,9 +1,22 @@
 use crate::util::FlowySupabaseTest;
-use flowy_document2::entities::{OpenDocumentPayloadPB, RepeatedDocumentSnapshotPB};
-use flowy_document2::event_map::DocumentEvent::GetDocumentSnapshots;
+use assert_json_diff::assert_json_eq;
+use collab::core::collab::MutexCollab;
+use collab::core::origin::CollabOrigin;
+use collab::preclude::updates::decoder::Decode;
+use collab::preclude::Update;
+use collab_document::blocks::DocumentData;
+use collab_document::document::Document;
+use flowy_document2::entities::{
+  DocumentDataPB, DocumentSnapshotPB, OpenDocumentPayloadPB, RepeatedDocumentSnapshotPB,
+};
+use flowy_document2::event_map::DocumentEvent::{GetDocumentData, GetDocumentSnapshots};
 use flowy_folder2::entities::ViewPB;
 use flowy_test::event_builder::EventBuilder;
 use std::ops::Deref;
+use std::sync::Arc;
+use std::time::Duration;
+use tokio::sync::mpsc;
+use tokio::time::timeout;
 
 pub struct FlowySupabaseDocumentTest {
   inner: FlowySupabaseTest,
@@ -35,6 +48,19 @@ impl FlowySupabaseDocumentTest {
       .await
       .parse::<RepeatedDocumentSnapshotPB>()
   }
+
+  pub async fn get_document_data(&self, view_id: &str) -> DocumentData {
+    let pb = EventBuilder::new(self.inner.deref().clone())
+      .event(GetDocumentData)
+      .payload(OpenDocumentPayloadPB {
+        document_id: view_id.to_string(),
+      })
+      .async_send()
+      .await
+      .parse::<DocumentDataPB>();
+
+    DocumentData::from(pb)
+  }
 }
 
 impl Deref for FlowySupabaseDocumentTest {
@@ -43,4 +69,19 @@ impl Deref for FlowySupabaseDocumentTest {
   fn deref(&self) -> &Self::Target {
     &self.inner
   }
+}
+
+pub fn assert_document_snapshot_equal(
+  snapshot: &DocumentSnapshotPB,
+  doc_id: &str,
+  expected: DocumentData,
+) {
+  let collab = MutexCollab::new(CollabOrigin::Server, doc_id, vec![]);
+  collab.lock().with_transact_mut(|txn| {
+    let update = Update::decode_v1(&snapshot.data).unwrap();
+    txn.apply_update(update);
+  });
+  let document = Document::open(Arc::new(collab)).unwrap();
+  let actual = document.get_document_data().unwrap();
+  assert_eq!(actual, expected);
 }

@@ -68,12 +68,14 @@ fn subscribe_document_snapshot_state(collab: &Arc<MutexCollab>) {
   let mut snapshot_state = WatchStream::new(collab.lock().subscribe_snapshot_state());
   tokio::spawn(async move {
     while let Some(snapshot_state) = snapshot_state.next().await {
-      send_notification(
-        &document_id,
-        DocumentNotification::DidUpdateDocumentSnapshotState,
-      )
-      .payload(DocumentSnapshotStatePB::from(snapshot_state))
-      .send();
+      if let Some(new_snapshot_id) = snapshot_state.snapshot_id() {
+        send_notification(
+          &document_id,
+          DocumentNotification::DidUpdateDocumentSnapshotState,
+        )
+        .payload(DocumentSnapshotStatePB { new_snapshot_id })
+        .send();
+      }
     }
   });
 }

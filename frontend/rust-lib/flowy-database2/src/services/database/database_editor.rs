@@ -75,12 +75,14 @@ impl DatabaseEditor {
     let mut snapshot_state = database.lock().subscribe_snapshot_state();
     tokio::spawn(async move {
       while let Some(snapshot_state) = snapshot_state.next().await {
-        send_notification(
-          &database_id,
-          DatabaseNotification::DidUpdateDatabaseSnapshotState,
-        )
-        .payload(DatabaseSnapshotStatePB::from(snapshot_state))
-        .send();
+        if let Some(new_snapshot_id) = snapshot_state.snapshot_id() {
+          send_notification(
+            &database_id,
+            DatabaseNotification::DidUpdateDatabaseSnapshotState,
+          )
+          .payload(DatabaseSnapshotStatePB { new_snapshot_id })
+          .send();
+        }
       }
     });
 
