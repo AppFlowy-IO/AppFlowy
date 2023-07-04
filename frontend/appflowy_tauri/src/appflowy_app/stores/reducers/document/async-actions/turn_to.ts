@@ -23,6 +23,7 @@ export const turnToBlockThunk = createAsyncThunk(
     const state = (getState() as RootState).document[docId];
 
     const node = state.nodes[id];
+
     if (!node.parent) return;
 
     const parent = state.nodes[node.parent];
@@ -31,12 +32,15 @@ export const turnToBlockThunk = createAsyncThunk(
     const block = newBlock<any>(type, parent.id, type === BlockType.DividerBlock ? {} : data);
     let caretId = block.id;
     // insert new block after current block
-    let insertActions = [controller.getInsertAction(block, node.id)];
+    const insertActions = [controller.getInsertAction(block, node.id)];
+
     if (type === BlockType.DividerBlock) {
       const newTextNode = newBlock<any>(BlockType.TextBlock, parent.id, data);
+
       insertActions.push(controller.getInsertAction(newTextNode, block.id));
       caretId = newTextNode.id;
     }
+
     // check if prev node is allowed to have children
     const config = blockConfig[block.type];
     // if new block is not allowed to have children, move children to parent
@@ -57,6 +61,7 @@ export const turnToBlockThunk = createAsyncThunk(
         caret: { id: caretId, index: 0, length: 0 },
       })
     );
+    return caretId;
   }
 );
 

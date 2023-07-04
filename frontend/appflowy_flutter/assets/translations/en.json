@@ -90,7 +90,8 @@
       "name": "Debug Info",
       "success": "Copied debug info to clipboard!",
       "fail": "Unable to copy debug info to clipboard"
-    }
+    },
+    "feedback": "Feedback"
   },
   "menuAppHeader": {
     "addPageTooltip": "Quickly add a page inside",
@@ -191,7 +192,19 @@
         "dark": "Dark Mode",
         "system": "Adapt to System"
       },
-      "theme": "Theme"
+      "themeUpload": {
+        "button": "Upload",
+        "description": "Upload your own AppFlowy theme using the button below.",
+        "failure": "The theme that was uploaded had an invalid format.",
+        "loading": "Please wait while we validate and upload your theme...",
+        "uploadSuccess": "Your theme was uploaded successfully",
+        "deletionFailure": "Failed to delete the theme. Try to delete it manually.",
+        "filePickerDialogTitle": "Choose a .flowy_plugin file",
+        "urlUploadFailure": "Failed to open url: {}"
+      },
+      "theme": "Theme",
+      "builtInsLabel": "Built-in Themes",
+      "pluginsLabel": "Plugins"
     },
     "files": {
       "copy": "Copy",
@@ -384,6 +397,9 @@
         "createANewCalendar": "Create a new Calendar"
       }
     },
+    "selectionMenu": {
+      "outline": "Outline"
+    },
     "plugins": {
       "referencedBoard": "Referenced Board",
       "referencedGrid": "Referenced Grid",
@@ -448,6 +464,12 @@
         "center": "Center",
         "right": "Right",
         "defaultColor": "Default"
+      },
+      "image": {
+        "copiedToPasteBoard": "The image link has been copied to the clipboard"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "Add headings to create a table of contents."
       }
     }
   },

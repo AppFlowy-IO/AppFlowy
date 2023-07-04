@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
+import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -17,8 +17,14 @@ abstract class EntryPoint {
   Widget create(LaunchConfiguration config);
 }
 
+class FlowyRunnerContext {
+  final Directory applicationDataDirectory;
+
+  FlowyRunnerContext({required this.applicationDataDirectory});
+}
+
 class FlowyRunner {
-  static Future<void> run(
+  static Future<FlowyRunnerContext> run(
     EntryPoint f,
     IntegrationMode mode, {
     LaunchConfiguration config = const LaunchConfiguration(
@@ -31,11 +37,10 @@ class FlowyRunner {
     // Specify the env
     initGetIt(getIt, mode, f, config);
 
-    final directory = await getIt<ApplicationDataStorage>()
-        .getPath()
-        .then((value) => Directory(value));
-
-    // final directory = await appFlowyDocumentDirectory();
+    final applicationDataDirectory =
+        await getIt<ApplicationDataStorage>().getPath().then(
+              (value) => Directory(value),
+            );
 
     // add task
     final launcher = getIt<AppLauncher>();
@@ -48,13 +53,13 @@ class FlowyRunner {
         // init the app window
         const InitAppWindowTask(),
         // Init Rust SDK
-        InitRustSDKTask(directory: directory),
+        InitRustSDKTask(directory: applicationDataDirectory),
         // Load Plugins, like document, grid ...
         const PluginLoadTask(),
 
         // init the app widget
         // ignore in test mode
-        if (!mode.isTest()) ...[
+        if (!mode.isUnitTest) ...[
           const HotKeyTask(),
           InitSupabaseTask(),
           const InitAppWidgetTask(),
@@ -63,6 +68,10 @@ class FlowyRunner {
       ],
     );
     await launcher.launch(); // execute the tasks
+
+    return FlowyRunnerContext(
+      applicationDataDirectory: applicationDataDirectory,
+    );
   }
 }
 
@@ -87,7 +96,7 @@ Future<void> initGetIt(
   );
   getIt.registerSingleton<PluginSandbox>(PluginSandbox());
 
-  await DependencyResolver.resolve(getIt);
+  await DependencyResolver.resolve(getIt, env);
 }
 
 class LaunchContext {
@@ -138,23 +147,24 @@ class AppLauncher {
 enum IntegrationMode {
   develop,
   release,
-  test,
-  integrationTest,
-}
+  unitTest,
+  integrationTest;
 
-extension IntegrationEnvExt on IntegrationMode {
-  bool isTest() {
-    return this == IntegrationMode.test;
-  }
+  // test mode
+  bool get isTest => isUnitTest || isIntegrationTest;
+  bool get isUnitTest => this == IntegrationMode.unitTest;
+  bool get isIntegrationTest => this == IntegrationMode.integrationTest;
 
-  bool isIntegrationTest() {
-    return this == IntegrationMode.integrationTest;
-  }
+  // release mode
+  bool get isRelease => this == IntegrationMode.release;
+
+  // develop mode
+  bool get isDevelop => this == IntegrationMode.develop;
 }
 
 IntegrationMode integrationEnv() {
   if (Platform.environment.containsKey('FLUTTER_TEST')) {
-    return IntegrationMode.test;
+    return IntegrationMode.unitTest;
   }
 
   if (kReleaseMode) {

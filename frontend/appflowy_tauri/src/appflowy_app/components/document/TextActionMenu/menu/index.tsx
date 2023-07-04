@@ -17,6 +17,7 @@ function TextActionMenuList() {
         case TextAction.Underline:
         case TextAction.Strikethrough:
         case TextAction.Code:
+        case TextAction.Equation:
           return <FormatButton format={action} icon={action} />;
         default:
           return null;

@@ -13,6 +13,7 @@ import {
   getInsertBlockActions,
 } from '$app/utils/document/copy_paste';
 import { rangeActions } from '$app_reducers/document/slice';
+import { DOCUMENT_NAME, RANGE_NAME } from '$app/constants/document/name';
 
 export const copyThunk = createAsyncThunk<
   void,
@@ -26,11 +27,13 @@ export const copyThunk = createAsyncThunk<
   const { setClipboardData, isCut = false, controller } = payload;
   const docId = controller.documentId;
   const state = getState() as RootState;
-  const document = state.document[docId];
-  const documentRange = state.documentRange[docId];
+  const document = state[DOCUMENT_NAME][docId];
+  const documentRange = state[RANGE_NAME][docId];
   const startAndEndIds = getStartAndEndIdsByRange(documentRange);
+
   if (startAndEndIds.length === 0) return;
   const result: DocumentBlockJSON[] = [];
+
   if (startAndEndIds.length === 1) {
     // copy single block
     const id = startAndEndIds[0];
@@ -38,6 +41,7 @@ export const copyThunk = createAsyncThunk<
     const nodeDelta = new Delta(node.data.delta);
     const range = documentRange.ranges[id] || { index: 0, length: 0 };
     const isFull = range.index === 0 && range.length === nodeDelta.length();
+
     if (isFull) {
       result.push(getCopyBlock(id, document, documentRange));
     } else {
@@ -54,13 +58,17 @@ export const copyThunk = createAsyncThunk<
     const copyIds: string[] = [];
     const [startId, endId] = startAndEndIds;
     const middleIds = getMiddleIds(document, startId, endId);
+
     copyIds.push(startId, ...middleIds, endId);
     const map = new Map<string, DocumentBlockJSON>();
+
     copyIds.forEach((id) => {
       const block = getCopyBlock(id, document, documentRange);
+
       map.set(id, block);
       const node = document.nodes[id];
       const parent = node.parent;
+
       if (parent && map.has(parent)) {
         map.get(parent)!.children.push(block);
       } else {
@@ -68,6 +76,7 @@ export const copyThunk = createAsyncThunk<
       }
     });
   }
+
   setClipboardData({
     json: JSON.stringify(result),
     // TODO: implement plain text and html
@@ -99,15 +108,17 @@ export const pasteThunk = createAsyncThunk<
 >('document/paste', async (payload, thunkAPI) => {
   const { getState, dispatch } = thunkAPI;
   const { data, controller } = payload;
+
   // delete range blocks
   await dispatch(deleteRangeAndInsertThunk({ controller }));
 
   const state = getState() as RootState;
   const docId = controller.documentId;
-  const document = state.document[docId];
-  const documentRange = state.documentRange[docId];
+  const document = state[DOCUMENT_NAME][docId];
+  const documentRange = state[RANGE_NAME][docId];
 
   let pasteData;
+
   if (data.json) {
     pasteData = JSON.parse(data.json) as DocumentBlockJSON[];
   } else if (data.text) {
@@ -115,10 +126,13 @@ export const pasteThunk = createAsyncThunk<
   } else if (data.html) {
     // TODO: implement html
   }
+
   if (!pasteData) return;
   const { caret } = documentRange;
+
   if (!caret) return;
   const currentBlock = document.nodes[caret.id];
+
   if (!currentBlock.parent) return;
   const pasteBlocks = generateBlocks(pasteData, currentBlock.parent);
   const currentBlockDelta = new Delta(currentBlock.data.delta);
@@ -128,6 +142,7 @@ export const pasteThunk = createAsyncThunk<
   const firstPasteBlockChildren = pasteBlocks.filter((block) => block.parent === firstPasteBlock.id);
 
   const lastPasteBlock = pasteBlocks[pasteBlocks.length - 1];
+
   if (type === BlockType.TextBlock && currentBlockDelta.length() === 0) {
     // move current block children to first paste block
     const children = document.children[currentBlock.children].map((id) => document.nodes[id]);
@@ -140,6 +155,7 @@ export const pasteThunk = createAsyncThunk<
       controller,
       prevId,
     });
+
     actions.push(...moveChildrenActions);
     // delete current block
     actions.push(controller.getDeleteAction(currentBlock));
@@ -173,6 +189,7 @@ export const pasteThunk = createAsyncThunk<
   const firstPasteBlockDelta = new Delta(firstPasteBlock.data.delta);
   const lastPasteBlockDelta = new Delta(lastPasteBlock.data.delta);
   let mergeDelta = new Delta(currentBeforeDelta.ops).concat(firstPasteBlockDelta);
+
   if (firstPasteBlock.id !== lastPasteBlock.id) {
     // update the last block of paste data
     actions.push(getAppendBlockDeltaAction(lastPasteBlock, currentAfterDelta, false, controller));
@@ -208,6 +225,7 @@ export const pasteThunk = createAsyncThunk<
       children: firstPasteBlockChildren,
       controller,
     });
+
     actions.push(...moveChildrenActions);
   }
 

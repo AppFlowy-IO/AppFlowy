@@ -120,14 +120,14 @@
   "oAuth": {
     "err": {
       "failedTitle": "Sikertelen bejelentkezés.",
-      "failedMsg": "Kérjük győződj meg róla, hogy elvégezted a bejelentkezési folyamatot a böngésződben"
+      "failedMsg": "Kérjük győződj meg róla, hogy elvégezted a bejelentkezési folyamatot a böngésződben!"
     },
     "google": {
-      "title": "Bejelentkezés Google-al",
+      "title": "Bejelentkezés Google-lal",
       "instruction1": "Ahhoz, hogy hozzáférj a Google Kontaktjaidhoz, kérjük hatalmazd fel ezt az alkalmazást a böngésződben.",
       "instruction2": "Másold ezt a kódot a vágólapra az ikonra kattintással vagy a szöveg kijelölésével:",
-      "instruction3": "Nyisd meg ezt a linket a böngésződben, és írjd be a fenti kódot:",
-      "instruction4": "Nyomd meg az alábbi gombot, ha elvégezted a registrációt:"
+      "instruction3": "Nyisd meg ezt a linket a böngésződben, és írd be a fenti kódot:",
+      "instruction4": "Nyomd meg az alábbi gombot, ha elvégezted a regisztrációt:"
     }
   },
   "settings": {
@@ -139,15 +139,15 @@
     },
     "appearance": {
       "themeMode": {
-        "label": "Theme Mode",
+        "label": "Téma",
         "light": "Világos mód",
         "dark": "Éjjeli mód",
-        "system": "Adapt to System"
+        "system": "Rendszerbeállítás követése"
       }
     }
   },
   "sideBar": {
-    "openSidebar": "Open sidebar",
-    "closeSidebar": "Close sidebar"
+    "openSidebar": "Oldalsáv megnyitása",
+    "closeSidebar": "Oldalsáv bezárása"
   }
 }

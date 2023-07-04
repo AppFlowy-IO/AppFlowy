@@ -8,6 +8,8 @@ import { blockConfig } from '$app/constants/document/config';
 import Delta, { Op } from 'quill-delta';
 import { getDeltaText } from '$app/utils/document/delta';
 import { RootState } from '$app/stores/store';
+import { DOCUMENT_NAME } from '$app/constants/document/name';
+import { blockEditActions } from '$app_reducers/document/block_edit_slice';
 
 /**
  * add block below click
@@ -22,6 +24,7 @@ export const addBlockBelowClickThunk = createAsyncThunk(
     const { dispatch, getState } = thunkAPI;
     const state = (getState() as RootState).document[docId];
     const node = state.nodes[id];
+
     if (!node) return;
     const delta = (node.data.delta as Op[]) || [];
     const text = delta.map((d) => d.insert).join('');
@@ -31,6 +34,7 @@ export const addBlockBelowClickThunk = createAsyncThunk(
       const { payload: newBlockId } = await dispatch(
         insertAfterNodeThunk({ id: id, type: BlockType.TextBlock, controller, data: { delta: [] } })
       );
+
       if (newBlockId) {
         dispatch(
           rangeActions.setCaret({
@@ -40,8 +44,10 @@ export const addBlockBelowClickThunk = createAsyncThunk(
         );
         dispatch(slashCommandActions.openSlashCommand({ docId, blockId: newBlockId as string }));
       }
+
       return;
     }
+
     // if current block is empty, open slash command
     dispatch(
       rangeActions.setCaret({
@@ -76,15 +82,16 @@ export const triggerSlashCommandActionThunk = createAsyncThunk(
     const { dispatch, getState } = thunkAPI;
     const docId = controller.documentId;
     const state = getState() as RootState;
-    const document = state.document[docId];
+    const document = state[DOCUMENT_NAME][docId];
     const node = document.nodes[id];
+
     if (!node) return;
     const delta = new Delta(node.data.delta);
     const text = getDeltaText(delta);
     const defaultData = blockConfig[props.type].defaultData;
 
     if (node.type === BlockType.TextBlock && (text === '' || text === '/')) {
-      dispatch(
+      const { payload: newId } = await dispatch(
         turnToBlockThunk({
           id,
           controller,
@@ -92,6 +99,16 @@ export const triggerSlashCommandActionThunk = createAsyncThunk(
           data: {
             ...defaultData,
             ...props.data,
+          },
+        })
+      );
+
+      dispatch(
+        blockEditActions.setBlockEditState({
+          id: docId,
+          state: {
+            id: newId as string,
+            editing: true,
           },
         })
       );
@@ -107,6 +124,7 @@ export const triggerSlashCommandActionThunk = createAsyncThunk(
           delta: delta.slice(1, delta.length()).ops,
         },
       };
+
       await controller.applyActions([controller.getUpdateAction(updateNode)]);
     }
 
@@ -115,10 +133,7 @@ export const triggerSlashCommandActionThunk = createAsyncThunk(
         id,
         controller,
         type: props.type,
-        data: {
-          ...defaultData,
-          ...props.data,
-        },
+        data: defaultData,
       })
     );
     const newBlockId = insertNodePayload.payload as string;
@@ -127,6 +142,15 @@ export const triggerSlashCommandActionThunk = createAsyncThunk(
       rangeActions.setCaret({
         docId,
         caret: { id: newBlockId, index: 0, length: 0 },
+      })
+    );
+    dispatch(
+      blockEditActions.setBlockEditState({
+        id: docId,
+        state: {
+          id: newBlockId,
+          editing: true,
+        },
       })
     );
   }

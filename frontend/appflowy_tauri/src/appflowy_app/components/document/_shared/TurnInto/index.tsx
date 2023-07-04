@@ -120,11 +120,12 @@ const TurnIntoPopover = ({
         title: 'Callout',
         icon: <Lightbulb />,
       },
-      // {
-      //   type: BlockType.EquationBlock,
-      //   title: 'Block Equation',
-      //   icon: <Functions />,
-      // },
+      {
+        key: SlashCommandOptionKey.EQUATION,
+        type: BlockType.EquationBlock,
+        title: 'Block Equation',
+        icon: <Functions />,
+      },
     ],
     [node?.data?.level, turnIntoHeading]
   );

@@ -2,6 +2,7 @@ import { store, useAppSelector } from '@/appflowy_app/stores/store';
 import { createContext, useMemo } from 'react';
 import { Node } from '$app/interfaces/document';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { DOCUMENT_NAME, RECT_RANGE_NAME } from '$app/constants/document/name';
 
 /**
  * Subscribe node information
@@ -11,20 +12,23 @@ export function useSubscribeNode(id: string) {
   const { docId } = useSubscribeDocument();
 
   const node = useAppSelector<Node>((state) => {
-    const documentState = state.document[docId];
+    const documentState = state[DOCUMENT_NAME][docId];
+
     return documentState?.nodes[id];
   });
 
   const childIds = useAppSelector<string[] | undefined>((state) => {
-    const documentState = state.document[docId];
+    const documentState = state[DOCUMENT_NAME][docId];
+
     if (!documentState) return;
     const childrenId = documentState.nodes[id]?.children;
+
     if (!childrenId) return;
     return documentState.children[childrenId];
   });
 
   const isSelected = useAppSelector<boolean>((state) => {
-    return state.documentRectSelection[docId]?.selection.includes(id) || false;
+    return state[RECT_RANGE_NAME][docId]?.selection.includes(id) || false;
   });
 
   // Memoize the node and its children

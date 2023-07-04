@@ -4,6 +4,9 @@ import { useCallback, useRef } from 'react';
 import TextLink from '../TextLink';
 import { converToIndexLength } from '$app/utils/document/slate_editor';
 import LinkHighLight from '$app/components/document/_shared/TextLink/LinkHighLight';
+import TemporaryInput from '$app/components/document/_shared/TemporaryInput';
+import InlineContainer from '$app/components/document/_shared/InlineBlock/InlineContainer';
+import { TemporaryType } from '$app/interfaces/document';
 
 interface Attributes {
   bold?: boolean;
@@ -16,6 +19,8 @@ interface Attributes {
   prism_token?: string;
   link_selection_lighted?: boolean;
   link_placeholder?: string;
+  temporary?: boolean;
+  formula?: string;
 }
 interface TextLeafProps extends RenderLeafProps {
   leaf: BaseText & Attributes;
@@ -27,6 +32,9 @@ const TextLeaf = (props: TextLeafProps) => {
   const { attributes, children, leaf, isCodeBlock, editor } = props;
   const ref = useRef<HTMLSpanElement>(null);
 
+  const customAttributes = {
+    ...attributes,
+  };
   let newChildren = children;
 
   if (leaf.code) {
@@ -51,6 +59,7 @@ const TextLeaf = (props: TextLeafProps) => {
         anchor: { path, offset: 0 },
         focus: { path, offset: leaf.text.length },
       });
+
       return selection;
     },
     [editor, leaf]
@@ -61,6 +70,26 @@ const TextLeaf = (props: TextLeafProps) => {
       <TextLink getSelection={getSelection} title={leaf.text} href={leaf.href}>
         {newChildren}
       </TextLink>
+    );
+  }
+
+  if (leaf.formula) {
+    const { isLast, text, parent } = children.props;
+    const temporaryType = TemporaryType.Equation;
+    const data = { latex: leaf.formula };
+
+    newChildren = (
+      <InlineContainer
+        isLast={isLast}
+        isFirst={text === parent.children[0]}
+        getSelection={getSelection}
+        formula={leaf.formula}
+        data={data}
+        temporaryType={temporaryType}
+        selectedText={leaf.text}
+      >
+        {newChildren}
+      </InlineContainer>
     );
   }
 
@@ -83,8 +112,13 @@ const TextLeaf = (props: TextLeafProps) => {
       </LinkHighLight>
     );
   }
+
+  if (leaf.temporary) {
+    newChildren = <TemporaryInput leaf={leaf}>{newChildren}</TemporaryInput>;
+  }
+
   return (
-    <span ref={ref} {...attributes} className={className.join(' ')}>
+    <span ref={ref} {...customAttributes} className={className.join(' ')}>
       {newChildren}
     </span>
   );

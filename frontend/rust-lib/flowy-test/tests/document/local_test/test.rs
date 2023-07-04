@@ -1,6 +1,7 @@
-use crate::document::utils::*;
 use flowy_document2::entities::*;
-use flowy_test::document_event::DocumentEventTest;
+use flowy_test::document::document_event::DocumentEventTest;
+use flowy_test::document::text_block_event::TextBlockEventTest;
+use flowy_test::document::utils::*;
 
 #[tokio::test]
 async fn get_document_event_test() {
@@ -59,4 +60,29 @@ async fn undo_redo_event_test() {
   test.redo(doc_id.clone()).await;
   let block_count_after_redo = test.open_document(doc_id.clone()).await.data.blocks.len();
   assert_eq!(block_count_after_redo, block_count_after_insert);
+}
+
+async fn insert_text_block_test() {
+  let test = TextBlockEventTest::new().await;
+  let text = "Hello World".to_string();
+  let block_id = test.insert_index(text.clone(), 1, None).await;
+  let block = test.get(&block_id).await;
+  assert!(block.is_some());
+  let block = block.unwrap();
+  let data = gen_text_block_data(text);
+  assert_eq!(block.data, data);
+}
+
+#[tokio::test]
+async fn update_text_block_test() {
+  let test = TextBlockEventTest::new().await;
+  let insert_text = "Hello World".to_string();
+  let block_id = test.insert_index(insert_text.clone(), 1, None).await;
+  let update_text = "Hello World 2".to_string();
+  test.update(&block_id, update_text.clone()).await;
+  let block = test.get(&block_id).await;
+  assert!(block.is_some());
+  let block = block.unwrap();
+  let update_data = gen_text_block_data(update_text);
+  assert_eq!(block.data, update_data);
 }

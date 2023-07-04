@@ -33,7 +33,7 @@ jobs:
     if: github.event.pull_request.draft != true
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest]
 
     runs-on: ${{ matrix.os }}
 

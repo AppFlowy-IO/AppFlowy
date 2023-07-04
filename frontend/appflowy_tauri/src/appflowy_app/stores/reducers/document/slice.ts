@@ -11,6 +11,15 @@ import {
 import { BlockEventPayloadPB } from '@/services/backend';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { parseValue, matchChange } from '$app/utils/document/subscribe';
+import { temporarySlice } from '$app_reducers/document/temporary_slice';
+import {
+  DOCUMENT_NAME,
+  RANGE_NAME,
+  RECT_RANGE_NAME,
+  SLASH_COMMAND_NAME,
+  TEXT_LINK_NAME,
+} from '$app/constants/document/name';
+import { blockEditSlice } from '$app_reducers/document/block_edit_slice';
 
 const initialState: Record<string, DocumentState> = {};
 
@@ -23,7 +32,7 @@ const slashCommandInitialState: Record<string, SlashCommandState> = {};
 const linkPopoverState: Record<string, LinkPopoverState> = {};
 
 export const documentSlice = createSlice({
-  name: 'document',
+  name: DOCUMENT_NAME,
   initialState: initialState,
   // Here we can't offer actions to update the document state.
   // Because the document state is updated by the `onDataChange`
@@ -91,7 +100,7 @@ export const documentSlice = createSlice({
 });
 
 export const rectSelectionSlice = createSlice({
-  name: 'documentRectSelection',
+  name: RECT_RANGE_NAME,
   initialState: rectSelectionInitialState,
   reducers: {
     initialState: (state, action: PayloadAction<string>) => {
@@ -120,21 +129,6 @@ export const rectSelectionSlice = createSlice({
       state[docId].selection = selection;
     },
 
-    // set block selected
-    setSelectionById: (
-      state,
-      action: PayloadAction<{
-        docId: string;
-        blockId: string;
-      }>
-    ) => {
-      const { docId, blockId } = action.payload;
-      const selection = state[docId].selection;
-
-      if (selection.includes(blockId)) return;
-      state[docId].selection = [...selection, blockId];
-    },
-
     setDragging: (
       state,
       action: PayloadAction<{
@@ -150,7 +144,7 @@ export const rectSelectionSlice = createSlice({
 });
 
 export const rangeSlice = createSlice({
-  name: 'documentRange',
+  name: RANGE_NAME,
   initialState: rangeInitialState,
   reducers: {
     initialState: (state, action: PayloadAction<string>) => {
@@ -208,16 +202,19 @@ export const rangeSlice = createSlice({
       state,
       action: PayloadAction<{
         docId: string;
-        id: string;
-        point: { x: number; y: number };
+        anchorPoint?: {
+          id: string;
+          point: { x: number; y: number };
+        };
       }>
     ) => {
-      const { docId, id, point } = action.payload;
+      const { docId, anchorPoint } = action.payload;
 
-      state[docId].anchor = {
-        id,
-        point,
-      };
+      if (anchorPoint) {
+        state[docId].anchor = { ...anchorPoint };
+      } else {
+        delete state[docId].anchor;
+      }
     },
     setAnchorPointRange: (
       state,
@@ -241,17 +238,21 @@ export const rangeSlice = createSlice({
       state,
       action: PayloadAction<{
         docId: string;
-        id: string;
-        point: { x: number; y: number };
+        focusPoint?: {
+          id: string;
+          point: { x: number; y: number };
+        };
       }>
     ) => {
-      const { docId, id, point } = action.payload;
+      const { docId, focusPoint } = action.payload;
 
-      state[docId].focus = {
-        id,
-        point,
-      };
+      if (focusPoint) {
+        state[docId].focus = { ...focusPoint };
+      } else {
+        delete state[docId].focus;
+      }
     },
+
     setDragging: (
       state,
       action: PayloadAction<{
@@ -295,6 +296,12 @@ export const rangeSlice = createSlice({
     ) => {
       const { docId, exclude } = action.payload;
       const ranges = state[docId].ranges;
+
+      if (!exclude) {
+        state[docId].ranges = {};
+        return;
+      }
+
       const newRanges = Object.keys(ranges).reduce((acc, id) => {
         if (id !== exclude) return { ...acc };
         return {
@@ -309,7 +316,7 @@ export const rangeSlice = createSlice({
 });
 
 export const slashCommandSlice = createSlice({
-  name: 'documentSlashCommand',
+  name: SLASH_COMMAND_NAME,
   initialState: slashCommandInitialState,
   reducers: {
     initialState: (state, action: PayloadAction<string>) => {
@@ -365,7 +372,7 @@ export const slashCommandSlice = createSlice({
 });
 
 export const linkPopoverSlice = createSlice({
-  name: 'documentLinkPopover',
+  name: TEXT_LINK_NAME,
   initialState: linkPopoverState,
   reducers: {
     initialState: (state, action: PayloadAction<string>) => {
@@ -418,6 +425,8 @@ export const documentReducers = {
   [rangeSlice.name]: rangeSlice.reducer,
   [slashCommandSlice.name]: slashCommandSlice.reducer,
   [linkPopoverSlice.name]: linkPopoverSlice.reducer,
+  [temporarySlice.name]: temporarySlice.reducer,
+  [blockEditSlice.name]: blockEditSlice.reducer,
 };
 
 export const documentActions = documentSlice.actions;
