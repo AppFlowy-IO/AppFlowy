@@ -1,6 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab::core::collab::MutexCollab;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_document::YrsDocAction;
@@ -43,10 +44,8 @@ impl DocumentManager {
     doc_id: &str,
     data: Option<DocumentData>,
   ) -> FlowyResult<Arc<MutexDocument>> {
-    tracing::debug!("create a document: {:?}", doc_id);
-    let uid = self.user.user_id()?;
-    let db = self.user.collab_db()?;
-    let collab = self.collab_builder.build(uid, doc_id, "document", db);
+    tracing::trace!("create a document: {:?}", doc_id);
+    let collab = self.collab_for_document(doc_id)?;
     let data = data.unwrap_or_else(default_document_data);
     let document = Arc::new(MutexDocument::create_with_data(collab, data)?);
     Ok(document)
@@ -86,9 +85,7 @@ impl DocumentManager {
       );
     }
 
-    let uid = self.user.user_id()?;
-    let db = self.user.collab_db()?;
-    let collab = self.collab_builder.build(uid, doc_id, "document", db);
+    let collab = self.collab_for_document(doc_id)?;
     Document::open(collab)?
       .get_document_data()
       .map_err(internal_error)
@@ -131,6 +128,12 @@ impl DocumentManager {
     }
 
     Ok(snapshots)
+  }
+
+  fn collab_for_document(&self, doc_id: &str) -> FlowyResult<Arc<MutexCollab>> {
+    let uid = self.user.user_id()?;
+    let db = self.user.collab_db()?;
+    Ok(self.collab_builder.build(uid, doc_id, "document", db))
   }
 
   fn is_doc_exist(&self, doc_id: &str) -> FlowyResult<bool> {

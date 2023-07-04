@@ -1,6 +1,8 @@
-use crate::document::supabase_test::helper::FlowySupabaseDocumentTest;
-use flowy_document2::entities::{DocumentSnapshotPB, DocumentSnapshotStatePB};
 use std::time::Duration;
+
+use flowy_document2::entities::{DocumentSnapshotPB, DocumentSnapshotStatePB};
+
+use crate::document::supabase_test::helper::FlowySupabaseDocumentTest;
 
 #[tokio::test]
 async fn initial_collab_update_test() {
