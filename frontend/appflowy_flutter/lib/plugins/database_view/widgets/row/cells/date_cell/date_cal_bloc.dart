@@ -138,24 +138,11 @@ class DateCellCalendarBloc
       onFinish: (result) {
         result.fold(
           () {
-            if (!isClosed && state.timeFormatError != null) {
+            if (!isClosed) {
               add(const DateCellCalendarEvent.didReceiveTimeFormatError(null));
             }
           },
-          (err) {
-            switch (ErrorCode.valueOf(err.code)!) {
-              case ErrorCode.InvalidDateTimeFormat:
-                if (isClosed) return;
-                add(
-                  DateCellCalendarEvent.didReceiveTimeFormatError(
-                    timeFormatPrompt(err),
-                  ),
-                );
-                break;
-              default:
-                Log.error(err);
-            }
-          },
+          (err) => Log.error(err),
         );
       },
     );
