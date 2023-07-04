@@ -7,7 +7,7 @@ use collab::preclude::{merge_updates_v1, Update};
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use flowy_document2::entities::{
-  DocumentDataPB, DocumentSnapshotPB, OpenDocumentPayloadPB, RepeatedDocumentSnapshotPB,
+  DocumentDataPB, OpenDocumentPayloadPB, RepeatedDocumentSnapshotPB,
 };
 use flowy_document2::event_map::DocumentEvent::{GetDocumentData, GetDocumentSnapshots};
 use flowy_folder2::entities::ViewPB;

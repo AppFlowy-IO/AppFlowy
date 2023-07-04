@@ -49,7 +49,7 @@ async fn supabase_edit_database_test() {
       })
       .await;
 
-    // wait all update is send to the remote
+    // wait all updates are send to the remote
     let mut rx = test
       .notification_sender
       .subscribe_with_condition::<DatabaseSyncStatePB, _>(&database.id, |pb| pb.is_finish);

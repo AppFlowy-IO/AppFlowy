@@ -5,7 +5,7 @@ use lib_infra::future::FutureResult;
 pub(crate) struct SelfHostedDocumentCloudServiceImpl();
 
 impl DocumentCloudService for SelfHostedDocumentCloudServiceImpl {
-  fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+  fn get_document_updates(&self, _document_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
     FutureResult::new(async move { Ok(vec![]) })
   }
 

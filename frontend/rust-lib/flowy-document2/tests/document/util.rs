@@ -105,7 +105,7 @@ pub fn gen_id() -> String {
 
 pub struct LocalTestDocumentCloudServiceImpl();
 impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
-  fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+  fn get_document_updates(&self, _document_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
     FutureResult::new(async move { Ok(vec![]) })
   }
 

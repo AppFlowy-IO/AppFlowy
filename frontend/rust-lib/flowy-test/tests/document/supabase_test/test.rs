@@ -38,9 +38,39 @@ async fn supabase_document_edit_sync_test() {
 
     let core = test.deref().deref().clone();
     let document_event = DocumentEventTest::new_with_core(core);
-    document_event.insert_index(&document_id, "hello world", 0, None);
+    document_event
+      .insert_index(&document_id, "hello world", 0, None)
+      .await;
 
-    // wait all update is send to the remote
+    // wait all update are send to the remote
+    let mut rx = test
+      .notification_sender
+      .subscribe_with_condition::<DocumentSyncStatePB, _>(&document_id, |pb| pb.is_finish);
+    receive_with_timeout(&mut rx, Duration::from_secs(30))
+      .await
+      .unwrap();
+
+    let document_data = test.get_document_data(&document_id).await;
+    let update = test.get_collab_update(&document_id).await;
+    assert_document_data_equal(&update, &document_id, document_data);
+  }
+}
+
+#[tokio::test]
+async fn supabase_document_edit_sync_test2() {
+  if let Some(test) = FlowySupabaseDocumentTest::new().await {
+    let view = test.create_document().await;
+    let document_id = view.id.clone();
+    let core = test.deref().deref().clone();
+    let document_event = DocumentEventTest::new_with_core(core);
+
+    for i in 0..10 {
+      document_event
+        .insert_index(&document_id, "hello world", i, None)
+        .await;
+    }
+
+    // wait all update are send to the remote
     let mut rx = test
       .notification_sender
       .subscribe_with_condition::<DocumentSyncStatePB, _>(&document_id, |pb| pb.is_finish);

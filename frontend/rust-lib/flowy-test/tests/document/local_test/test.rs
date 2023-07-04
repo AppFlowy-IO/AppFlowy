@@ -80,7 +80,7 @@ async fn update_text_block_test() {
   let view = test.create_document().await;
   let block_id = test.insert_index(&view.id, "Hello World", 1, None).await;
   let update_text = "Hello World 2";
-  test.update(&view.id, &block_id, update_text.clone()).await;
+  test.update(&view.id, &block_id, update_text).await;
   let block = test.get_block(&view.id, &block_id).await;
   assert!(block.is_some());
   let block = block.unwrap();
