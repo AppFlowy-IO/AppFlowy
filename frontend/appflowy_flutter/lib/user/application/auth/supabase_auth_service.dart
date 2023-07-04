@@ -199,14 +199,6 @@ class SupabaseAuthService implements AuthService {
   }
 }
 
-extension on User {
-  UserProfilePB toUserProfile() {
-    return UserProfilePB()
-      ..email = email ?? ''
-      ..token = this.id;
-  }
-}
-
 extension on String {
   Provider toProvider() {
     switch (this) {

@@ -28,7 +28,7 @@ pub(crate) async fn run_migrations(client: &mut Client) -> Result<(), anyhow::Er
 #[allow(dead_code)]
 #[cfg(debug_assertions)]
 pub(crate) async fn run_initial_drop(client: &Client) {
-  let sql = include_str!("./migrations/initial/initial_down.sql");
+  let sql = include_str!("migrations/initial/initial_down.sql");
   client.batch_execute(sql).await.unwrap();
   client
     .batch_execute("DROP TABLE IF EXISTS af_migration_history")
