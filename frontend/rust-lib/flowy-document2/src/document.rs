@@ -40,8 +40,8 @@ impl MutexDocument {
   /// # Returns
   /// * `Result<Document, FlowyError>` - a Result containing either a new Document object or an Error if the document creation failed
   pub fn create_with_data(collab: Arc<MutexCollab>, data: DocumentData) -> FlowyResult<Self> {
-    let document = Document::create_with_data(collab.clone(), data)
-      .map(|inner| Self(Arc::new(Mutex::new(inner))))?;
+    let document =
+      Document::create_with_data(collab, data).map(|inner| Self(Arc::new(Mutex::new(inner))))?;
     Ok(document)
   }
 }

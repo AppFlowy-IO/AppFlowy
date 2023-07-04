@@ -16,7 +16,7 @@ use tracing::debug;
 use flowy_database2::DatabaseManager2;
 use flowy_document2::manager::DocumentManager as DocumentManager2;
 use flowy_error::FlowyResult;
-use flowy_folder2::manager::Folder2Manager;
+use flowy_folder2::manager::FolderManager;
 use flowy_sqlite::kv::KV;
 use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::entities::UserProfile;
@@ -114,7 +114,7 @@ pub struct AppFlowyCore {
   pub config: AppFlowyCoreConfig,
   pub user_session: Arc<UserSession>,
   pub document_manager2: Arc<DocumentManager2>,
-  pub folder_manager: Arc<Folder2Manager>,
+  pub folder_manager: Arc<FolderManager>,
   pub database_manager: Arc<DatabaseManager2>,
   pub event_dispatcher: Arc<AFPluginDispatcher>,
   pub server_provider: Arc<AppFlowyServerProvider>,
@@ -249,7 +249,7 @@ fn mk_user_session(
 }
 
 struct UserStatusCallbackImpl {
-  folder_manager: Arc<Folder2Manager>,
+  folder_manager: Arc<FolderManager>,
   database_manager: Arc<DatabaseManager2>,
   #[allow(dead_code)]
   config: AppFlowyCoreConfig,

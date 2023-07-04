@@ -25,8 +25,11 @@ pub struct PgCollabStorageImpl {
 }
 
 const AF_COLLAB_KEY_COLUMN: &str = "key";
+const AF_COLLAB_SNAPSHOT_OID_COLUMN: &str = "oid";
 const AF_COLLAB_SNAPSHOT_ID_COLUMN: &str = "sid";
 const AF_COLLAB_SNAPSHOT_BLOB_COLUMN: &str = "blob";
+const AF_COLLAB_SNAPSHOT_BLOB_SIZE_COLUMN: &str = "blob_size";
+const AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN: &str = "created_at";
 const AF_COLLAB_SNAPSHOT_TABLE: &str = "af_collab_snapshot";
 
 impl PgCollabStorageImpl {
@@ -38,22 +41,7 @@ impl PgCollabStorageImpl {
 #[async_trait]
 impl RemoteCollabStorage for PgCollabStorageImpl {
   async fn get_all_updates(&self, object_id: &str) -> Result<Vec<Vec<u8>>, Error> {
-    let client = self.server.get_pg_client().await.recv().await?;
-    let (sql, params) = SelectSqlBuilder::new("af_collab")
-      .column("value")
-      .order_by(AF_COLLAB_KEY_COLUMN, true)
-      .where_clause("oid", object_id.to_string())
-      .build();
-    let stmt = client.prepare_cached(&sql).await?;
-    let row_stream = client.query_raw(&stmt, params).await?;
-    Ok(
-      row_stream
-        .try_collect::<Vec<_>>()
-        .await?
-        .into_iter()
-        .flat_map(|row| update_from_row(row).ok())
-        .collect(),
-    )
+    get_updates_from_server(object_id, Arc::downgrade(&self.server)).await
   }
 
   async fn get_latest_snapshot(
@@ -98,10 +86,10 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
     let client = self.server.get_pg_client().await.recv().await?;
     let value_size = snapshot.len() as i32;
     let (sql, params) = InsertSqlBuilder::new("af_collab_snapshot")
-      .value("oid", object.id.clone())
+      .value(AF_COLLAB_SNAPSHOT_OID_COLUMN, object.id.clone())
       .value("name", object.name.clone())
       .value(AF_COLLAB_SNAPSHOT_BLOB_COLUMN, snapshot)
-      .value("blob_size", value_size)
+      .value(AF_COLLAB_SNAPSHOT_BLOB_SIZE_COLUMN, value_size)
       .returning(AF_COLLAB_SNAPSHOT_ID_COLUMN)
       .build();
     let stmt = client.prepare_cached(&sql).await?;
@@ -111,7 +99,9 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
       .await?
       .try_collect::<Vec<_>>()
       .await?;
-    let row = all_rows.first().ok_or(anyhow::anyhow!("No row returned"))?;
+    let row = all_rows
+      .first()
+      .ok_or(anyhow::anyhow!("Create snapshot failed. No row returned"))?;
     let sid = row.try_get::<&str, i64>(AF_COLLAB_SNAPSHOT_ID_COLUMN)?;
     return Ok(sid);
   }
@@ -215,6 +205,33 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
   }
 }
 
+pub async fn get_updates_from_server(
+  object_id: &str,
+  server: Weak<PostgresServer>,
+) -> Result<Vec<Vec<u8>>, Error> {
+  match server.upgrade() {
+    None => Ok(vec![]),
+    Some(server) => {
+      let client = server.get_pg_client().await.recv().await?;
+      let (sql, params) = SelectSqlBuilder::new("af_collab")
+        .column("value")
+        .order_by(AF_COLLAB_KEY_COLUMN, true)
+        .where_clause("oid", object_id.to_string())
+        .build();
+      let stmt = client.prepare_cached(&sql).await?;
+      let row_stream = client.query_raw(&stmt, params).await?;
+      Ok(
+        row_stream
+          .try_collect::<Vec<_>>()
+          .await?
+          .into_iter()
+          .flat_map(|row| update_from_row(row).ok())
+          .collect(),
+      )
+    },
+  }
+}
+
 pub async fn get_latest_snapshot_from_server(
   object_id: &str,
   server: Weak<PostgresServer>,
@@ -223,14 +240,13 @@ pub async fn get_latest_snapshot_from_server(
     None => Ok(None),
     Some(server) => {
       let client = server.get_pg_client().await.recv().await?;
-
       let (sql, params) = SelectSqlBuilder::new(AF_COLLAB_SNAPSHOT_TABLE)
         .column(AF_COLLAB_SNAPSHOT_ID_COLUMN)
         .column(AF_COLLAB_SNAPSHOT_BLOB_COLUMN)
-        .column("created_at")
+        .column(AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN)
         .order_by(AF_COLLAB_SNAPSHOT_ID_COLUMN, false)
         .limit(1)
-        .where_clause("oid", object_id.to_string())
+        .where_clause(AF_COLLAB_SNAPSHOT_OID_COLUMN, object_id.to_string())
         .build();
 
       let stmt = client.prepare_cached(&sql).await?;
@@ -240,10 +256,14 @@ pub async fn get_latest_snapshot_from_server(
         .try_collect::<Vec<_>>()
         .await?;
 
-      let row = all_rows.first().ok_or(anyhow::anyhow!("No row returned"))?;
+      let row = all_rows.first().ok_or(anyhow::anyhow!(
+        "Get latest snapshot failed. No row returned"
+      ))?;
       let snapshot_id = row.try_get::<_, i64>(AF_COLLAB_SNAPSHOT_ID_COLUMN)?;
       let update = row.try_get::<_, Vec<u8>>(AF_COLLAB_SNAPSHOT_BLOB_COLUMN)?;
-      let created_at = row.try_get::<_, DateTime<Utc>>("created_at")?.timestamp();
+      let created_at = row
+        .try_get::<_, DateTime<Utc>>(AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN)?
+        .timestamp();
 
       Ok(Some(RemoteCollabSnapshot {
         snapshot_id,

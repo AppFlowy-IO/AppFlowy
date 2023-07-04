@@ -98,7 +98,10 @@ impl DatabaseManager2 {
     if let Some(editor) = self.editors.read().await.get(database_id) {
       return Ok(editor.clone());
     }
+    self.open_database(database_id).await
+  }
 
+  pub async fn open_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
     tracing::trace!("create new editor for database {}", database_id);
     let mut editors = self.editors.write().await;
     let database = MutexDatabase::new(self.with_user_database(
@@ -156,6 +159,7 @@ impl DatabaseManager2 {
     Ok(database_data)
   }
 
+  /// Create a new database with the given data that can be deserialized to [DatabaseData].
   #[tracing::instrument(level = "trace", skip_all, err)]
   pub async fn create_database_with_database_data(
     &self,
@@ -264,7 +268,7 @@ impl DatabaseManager2 {
     let mut snapshots = vec![];
     if let Some(snapshot) = self
       .cloud_service
-      .get_latest_snapshot(&database_id)
+      .get_database_latest_snapshot(&database_id)
       .await?
       .map(|snapshot| DatabaseSnapshotPB {
         snapshot_id: snapshot.snapshot_id,
@@ -288,6 +292,12 @@ impl DatabaseManager2 {
       None => default_value,
       Some(folder) => f(folder),
     }
+  }
+
+  /// Only expose this method for testing
+  #[cfg(debug_assertions)]
+  pub fn get_cloud_service(&self) -> &Arc<dyn DatabaseCloudService> {
+    &self.cloud_service
   }
 }
 

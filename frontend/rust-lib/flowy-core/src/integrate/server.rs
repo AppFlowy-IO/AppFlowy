@@ -9,7 +9,7 @@ use serde_repr::*;
 use flowy_database2::deps::{DatabaseCloudService, DatabaseSnapshot};
 use flowy_document2::deps::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_folder2::deps::{FolderCloudService, Workspace};
+use flowy_folder2::deps::{FolderCloudService, FolderSnapshot, Workspace};
 use flowy_server::local_server::LocalServer;
 use flowy_server::self_host::configuration::self_host_server_configuration;
 use flowy_server::self_host::SelfHostServer;
@@ -118,10 +118,46 @@ impl FolderCloudService for AppFlowyServerProvider {
     let name = name.to_string();
     FutureResult::new(async move { server?.folder_service().create_workspace(uid, &name).await })
   }
+
+  fn get_folder_latest_snapshot(
+    &self,
+    workspace_id: &str,
+  ) -> FutureResult<Option<FolderSnapshot>, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let server = self.get_provider(&self.provider_type.read());
+    FutureResult::new(async move {
+      server?
+        .folder_service()
+        .get_folder_latest_snapshot(&workspace_id)
+        .await
+    })
+  }
+
+  fn get_folder_updates(&self, workspace_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let server = self.get_provider(&self.provider_type.read());
+    FutureResult::new(async move {
+      server?
+        .folder_service()
+        .get_folder_updates(&workspace_id)
+        .await
+    })
+  }
 }
 
 impl DatabaseCloudService for AppFlowyServerProvider {
-  fn get_latest_snapshot(
+  fn get_database_updates(&self, database_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+    let server = self.get_provider(&self.provider_type.read());
+    let database_id = database_id.to_string();
+    FutureResult::new(async move {
+      server?
+        .database_service()
+        .get_database_updates(&database_id)
+        .await
+    })
+  }
+
+  fn get_database_latest_snapshot(
     &self,
     database_id: &str,
   ) -> FutureResult<Option<DatabaseSnapshot>, FlowyError> {
@@ -130,7 +166,7 @@ impl DatabaseCloudService for AppFlowyServerProvider {
     FutureResult::new(async move {
       server?
         .database_service()
-        .get_latest_snapshot(&database_id)
+        .get_database_latest_snapshot(&database_id)
         .await
     })
   }

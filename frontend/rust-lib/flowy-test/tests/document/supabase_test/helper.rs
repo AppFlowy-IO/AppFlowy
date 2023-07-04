@@ -1,5 +1,5 @@
 use crate::util::FlowySupabaseTest;
-use assert_json_diff::assert_json_eq;
+
 use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
@@ -14,9 +14,6 @@ use flowy_folder2::entities::ViewPB;
 use flowy_test::event_builder::EventBuilder;
 use std::ops::Deref;
 use std::sync::Arc;
-use std::time::Duration;
-use tokio::sync::mpsc;
-use tokio::time::timeout;
 
 pub struct FlowySupabaseDocumentTest {
   inner: FlowySupabaseTest,

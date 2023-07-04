@@ -32,6 +32,8 @@ pub(crate) enum FolderNotification {
   DidMoveViewToTrash = 14,
   /// Trigger when the number of trash is changed
   DidUpdateTrash = 15,
+  DidUpdateFolderSnapshotState = 16,
+  DidUpdateFolderSyncUpdate = 17,
 }
 
 impl std::convert::From<FolderNotification> for i32 {
@@ -53,6 +55,8 @@ impl std::convert::From<i32> for FolderNotification {
       13 => FolderNotification::DidRestoreView,
       14 => FolderNotification::DidMoveViewToTrash,
       15 => FolderNotification::DidUpdateTrash,
+      16 => FolderNotification::DidUpdateFolderSnapshotState,
+      17 => FolderNotification::DidUpdateFolderSyncUpdate,
       _ => FolderNotification::Unknown,
     }
   }

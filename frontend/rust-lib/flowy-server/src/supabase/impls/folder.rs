@@ -5,8 +5,9 @@ use futures_util::{pin_mut, StreamExt};
 use tokio::sync::oneshot::channel;
 use uuid::Uuid;
 
+use crate::supabase::impls::{get_latest_snapshot_from_server, get_updates_from_server};
 use flowy_error::{internal_error, ErrorCode, FlowyError};
-use flowy_folder2::deps::{FolderCloudService, Workspace};
+use flowy_folder2::deps::{FolderCloudService, FolderSnapshot, Workspace};
 use lib_infra::future::FutureResult;
 
 use crate::supabase::pg_db::PostgresObject;
@@ -43,6 +44,39 @@ impl FolderCloudService for SupabaseFolderCloudServiceImpl {
       )
     });
     FutureResult::new(async { rx.await.map_err(internal_error)? })
+  }
+
+  fn get_folder_latest_snapshot(
+    &self,
+    workspace_id: &str,
+  ) -> FutureResult<Option<FolderSnapshot>, FlowyError> {
+    let server = Arc::downgrade(&self.server);
+    let workspace_id = workspace_id.to_string();
+    let (tx, rx) = channel();
+    tokio::spawn(
+      async move { tx.send(get_latest_snapshot_from_server(&workspace_id, server).await) },
+    );
+    FutureResult::new(async {
+      Ok(
+        rx.await
+          .map_err(internal_error)?
+          .map_err(internal_error)?
+          .map(|snapshot| FolderSnapshot {
+            snapshot_id: snapshot.snapshot_id,
+            database_id: snapshot.oid,
+            data: snapshot.data,
+            created_at: snapshot.created_at,
+          }),
+      )
+    })
+  }
+
+  fn get_folder_updates(&self, workspace_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+    let server = Arc::downgrade(&self.server);
+    let (tx, rx) = channel();
+    let workspace_id = workspace_id.to_string();
+    tokio::spawn(async move { tx.send(get_updates_from_server(&workspace_id, server).await) });
+    FutureResult::new(async { rx.await.map_err(internal_error)?.map_err(internal_error) })
   }
 }
 

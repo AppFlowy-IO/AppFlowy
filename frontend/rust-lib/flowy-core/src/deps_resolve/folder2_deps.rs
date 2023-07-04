@@ -17,7 +17,7 @@ use flowy_document2::parser::json::parser::JsonToDocumentParser;
 use flowy_error::FlowyError;
 use flowy_folder2::deps::{FolderCloudService, FolderUser};
 use flowy_folder2::entities::ViewLayoutPB;
-use flowy_folder2::manager::Folder2Manager;
+use flowy_folder2::manager::FolderManager;
 use flowy_folder2::share::ImportType;
 use flowy_folder2::view_operation::{
   FolderOperationHandler, FolderOperationHandlers, View, WorkspaceViewBuilder,
@@ -35,12 +35,12 @@ impl Folder2DepsResolver {
     database_manager: &Arc<DatabaseManager2>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     folder_cloud: Arc<dyn FolderCloudService>,
-  ) -> Arc<Folder2Manager> {
+  ) -> Arc<FolderManager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl(user_session.clone()));
 
     let handlers = folder_operation_handlers(document_manager.clone(), database_manager.clone());
     Arc::new(
-      Folder2Manager::new(user.clone(), collab_builder, handlers, folder_cloud)
+      FolderManager::new(user.clone(), collab_builder, handlers, folder_cloud)
         .await
         .unwrap(),
     )

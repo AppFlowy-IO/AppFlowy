@@ -1931,7 +1931,9 @@ dependencies = [
  "assert-json-diff",
  "bytes",
  "collab",
+ "collab-database",
  "collab-document",
+ "collab-folder",
  "dotenv",
  "flowy-core",
  "flowy-database2",
@@ -5300,6 +5302,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "345444e32442451b267fc254ae85a209c64be56d2890e601a0c37ff0c3c5ecd2"
 dependencies = [
  "getrandom 0.2.9",
+ "serde",
  "sha1_smol",
 ]
 

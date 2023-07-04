@@ -1,4 +1,3 @@
-use collab::core::collab_state::SnapshotState;
 use collab_document::blocks::{BlockAction, DocumentData};
 use std::collections::HashMap;
 

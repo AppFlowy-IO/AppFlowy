@@ -1,9 +1,12 @@
+use assert_json_diff::assert_json_eq;
+use collab::core::collab::MutexCollab;
+use collab::core::origin::CollabOrigin;
+use collab::preclude::updates::decoder::Decode;
+use collab::preclude::{merge_updates_v1, JsonValue, Update};
+
 use std::ops::Deref;
 
-use flowy_database2::entities::{
-  DatabaseExportDataPB, DatabasePB, DatabaseSnapshotPB, DatabaseViewIdPB,
-  RepeatedDatabaseSnapshotPB,
-};
+use flowy_database2::entities::{DatabasePB, DatabaseViewIdPB, RepeatedDatabaseSnapshotPB};
 use flowy_database2::event_map::DatabaseEvent::*;
 use flowy_folder2::entities::ViewPB;
 use flowy_test::event_builder::EventBuilder;
@@ -11,6 +14,7 @@ use flowy_test::event_builder::EventBuilder;
 use crate::util::FlowySupabaseTest;
 
 pub struct FlowySupabaseDatabaseTest {
+  pub uuid: String,
   inner: FlowySupabaseTest,
 }
 
@@ -19,7 +23,7 @@ impl FlowySupabaseDatabaseTest {
     let inner = FlowySupabaseTest::new()?;
     let uuid = uuid::Uuid::new_v4().to_string();
     let _ = inner.sign_up_with_uuid(&uuid).await;
-    Some(Self { inner })
+    Some(Self { uuid, inner })
   }
 
   pub async fn create_database(&self) -> (ViewPB, DatabasePB) {
@@ -36,16 +40,14 @@ impl FlowySupabaseDatabaseTest {
     (view, database)
   }
 
-  pub async fn export_csv(&self, database_id: &str) -> String {
-    EventBuilder::new(self.inner.deref().clone())
-      .event(ExportCSV)
-      .payload(DatabaseViewIdPB {
-        value: database_id.to_string(),
-      })
-      .async_send()
+  pub async fn get_collab_json(&self, database_id: &str) -> JsonValue {
+    let database_editor = self
+      .database_manager
+      .get_database(database_id)
       .await
-      .parse::<DatabaseExportDataPB>()
-      .data
+      .unwrap();
+    let database = database_editor.get_mutex_database().lock();
+    database.get_mutex_collab().to_json_value()
   }
 
   pub async fn get_database_snapshots(&self, view_id: &str) -> RepeatedDatabaseSnapshotPB {
@@ -58,6 +60,40 @@ impl FlowySupabaseDatabaseTest {
       .await
       .parse::<RepeatedDatabaseSnapshotPB>()
   }
+
+  pub async fn get_collab_update(&self, database_id: &str) -> Vec<u8> {
+    let cloud_service = self.database_manager.get_cloud_service().clone();
+    let remote_updates = cloud_service
+      .get_database_updates(database_id)
+      .await
+      .unwrap();
+
+    if remote_updates.is_empty() {
+      return vec![];
+    }
+
+    let updates = remote_updates
+      .iter()
+      .map(|update| update.as_ref())
+      .collect::<Vec<&[u8]>>();
+
+    merge_updates_v1(&updates).unwrap()
+  }
+}
+
+pub fn assert_database_collab_content(
+  database_id: &str,
+  collab_update: &[u8],
+  expected: JsonValue,
+) {
+  let collab = MutexCollab::new(CollabOrigin::Server, database_id, vec![]);
+  collab.lock().with_transact_mut(|txn| {
+    let update = Update::decode_v1(collab_update).unwrap();
+    txn.apply_update(update);
+  });
+
+  let json = collab.to_json_value();
+  assert_json_eq!(json, expected);
 }
 
 impl Deref for FlowySupabaseDatabaseTest {

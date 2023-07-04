@@ -15,7 +15,9 @@ pub trait DatabaseUser2: Send + Sync {
 /// Each kind of server should implement this trait. Check out the [AppFlowyServerProvider] of
 /// [flowy-server] crate for more information.
 pub trait DatabaseCloudService: Send + Sync {
-  fn get_latest_snapshot(
+  fn get_database_updates(&self, database_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError>;
+
+  fn get_database_latest_snapshot(
     &self,
     database_id: &str,
   ) -> FutureResult<Option<DatabaseSnapshot>, FlowyError>;

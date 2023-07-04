@@ -1122,6 +1122,12 @@ impl DatabaseEditor {
       .filter(|f| FieldType::from(f.field_type).is_auto_update())
       .collect::<Vec<Field>>()
   }
+
+  /// Only expose this method for testing
+  #[cfg(debug_assertions)]
+  pub fn get_mutex_database(&self) -> &MutexDatabase {
+    &self.database
+  }
 }
 
 pub(crate) async fn notify_did_update_cell(changesets: Vec<CellChangesetNotifyPB>) {

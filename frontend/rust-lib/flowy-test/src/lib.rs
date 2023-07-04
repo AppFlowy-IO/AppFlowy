@@ -1,5 +1,6 @@
 use std::convert::TryFrom;
 use std::env::temp_dir;
+
 use std::sync::Arc;
 
 use bytes::Bytes;
@@ -37,7 +38,7 @@ pub struct FlowyCoreTest {
 
 impl Default for FlowyCoreTest {
   fn default() -> Self {
-    let temp_dir = temp_dir().join(nanoid!(6));
+    let temp_dir = temp_dir();
     let config = AppFlowyCoreConfig::new(temp_dir.to_str().unwrap(), nanoid!(6))
       .log_filter("debug", vec!["flowy_test".to_string()]);
     let inner = std::thread::spawn(|| AppFlowyCore::new(config))
@@ -197,6 +198,16 @@ impl FlowyCoreTest {
       .async_send()
       .await
       .parse::<flowy_folder2::entities::ViewPB>()
+  }
+
+  pub async fn open_database(&self, view_id: &str) {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::GetDatabase)
+      .payload(DatabaseViewIdPB {
+        value: view_id.to_string(),
+      })
+      .async_send()
+      .await;
   }
 
   pub async fn create_board(&self, parent_id: &str, name: String, initial_data: Vec<u8>) -> ViewPB {
@@ -633,12 +644,18 @@ pub struct TestNotificationSender {
   sender: Arc<Sender<SubscribeObject>>,
 }
 
-impl TestNotificationSender {
-  pub fn new() -> Self {
+impl Default for TestNotificationSender {
+  fn default() -> Self {
     let (sender, _) = channel(1000);
     Self {
       sender: Arc::new(sender),
     }
+  }
+}
+
+impl TestNotificationSender {
+  pub fn new() -> Self {
+    Self::default()
   }
 
   pub fn subscribe<T>(&self, id: &str) -> tokio::sync::mpsc::Receiver<T>
@@ -654,6 +671,30 @@ impl TestNotificationSender {
           if let Some(payload) = value.payload {
             if let Ok(object) = T::try_from(Bytes::from(payload)) {
               let _ = tx.send(object).await;
+            }
+          }
+        }
+      }
+    });
+    rx
+  }
+
+  pub fn subscribe_with_condition<T, F>(&self, id: &str, when: F) -> tokio::sync::mpsc::Receiver<T>
+  where
+    T: TryFrom<Bytes, Error = ProtobufError> + Send + 'static,
+    F: Fn(&T) -> bool + Send + 'static,
+  {
+    let id = id.to_string();
+    let (tx, rx) = tokio::sync::mpsc::channel::<T>(10);
+    let mut receiver = self.sender.subscribe();
+    tokio::spawn(async move {
+      while let Ok(value) = receiver.recv().await {
+        if value.id == id {
+          if let Some(payload) = value.payload {
+            if let Ok(object) = T::try_from(Bytes::from(payload)) {
+              if when(&object) {
+                let _ = tx.send(object).await;
+              }
             }
           }
         }

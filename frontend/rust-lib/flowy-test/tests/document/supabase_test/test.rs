@@ -1,14 +1,6 @@
-use assert_json_diff::assert_json_eq;
-use collab::core::collab::MutexCollab;
-use collab::core::origin::CollabOrigin;
-use collab::preclude::updates::decoder::Decode;
-use collab::preclude::{Collab, Update};
-use collab_document::document::Document;
-use serde_json::json;
-use std::sync::Arc;
 use std::time::Duration;
 
-use flowy_document2::entities::{DocumentSnapshotPB, DocumentSnapshotStatePB};
+use flowy_document2::entities::DocumentSnapshotStatePB;
 
 use crate::document::supabase_test::helper::{
   assert_document_snapshot_equal, FlowySupabaseDocumentTest,
@@ -16,7 +8,7 @@ use crate::document::supabase_test::helper::{
 use crate::util::receive_with_timeout;
 
 #[tokio::test]
-async fn initial_document_snapshot_test() {
+async fn supabase_initial_document_snapshot_test() {
   if let Some(test) = FlowySupabaseDocumentTest::new().await {
     let view = test.create_document().await;
 

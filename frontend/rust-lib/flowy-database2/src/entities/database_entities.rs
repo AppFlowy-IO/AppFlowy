@@ -1,4 +1,4 @@
-use collab::core::collab_state::{SnapshotState, SyncState};
+use collab::core::collab_state::SyncState;
 use collab_database::rows::RowId;
 use collab_database::user::DatabaseRecord;
 use collab_database::views::DatabaseLayout;

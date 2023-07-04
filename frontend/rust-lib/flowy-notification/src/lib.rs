@@ -17,10 +17,7 @@ lazy_static! {
 pub fn register_notification_sender<T: NotificationSender>(sender: T) {
   let box_sender = Box::new(sender);
   match NOTIFICATION_SENDER.write() {
-    Ok(mut write_guard) => {
-      write_guard.pop();
-      write_guard.push(box_sender)
-    },
+    Ok(mut write_guard) => write_guard.push(box_sender),
     Err(err) => tracing::error!("Failed to push notification sender: {:?}", err),
   }
 }

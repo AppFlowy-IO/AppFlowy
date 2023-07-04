@@ -19,8 +19,8 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use crate::deps::{FolderCloudService, FolderUser};
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, CreateViewParams,
-  CreateWorkspaceParams, DeletedViewPB, RepeatedTrashPB, RepeatedViewPB, RepeatedWorkspacePB,
-  UpdateViewParams, ViewPB, WorkspacePB,
+  CreateWorkspaceParams, DeletedViewPB, FolderSnapshotPB, FolderSnapshotStatePB, FolderSyncStatePB,
+  RepeatedTrashPB, RepeatedViewPB, RepeatedWorkspacePB, UpdateViewParams, ViewPB, WorkspacePB,
 };
 use crate::notification::{
   send_notification, send_workspace_notification, send_workspace_setting_notification,
@@ -32,7 +32,7 @@ use crate::view_operation::{
   create_view, gen_view_id, FolderOperationHandler, FolderOperationHandlers,
 };
 
-pub struct Folder2Manager {
+pub struct FolderManager {
   mutex_folder: Arc<MutexFolder>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   user: Arc<dyn FolderUser>,
@@ -40,10 +40,10 @@ pub struct Folder2Manager {
   cloud_service: Arc<dyn FolderCloudService>,
 }
 
-unsafe impl Send for Folder2Manager {}
-unsafe impl Sync for Folder2Manager {}
+unsafe impl Send for FolderManager {}
+unsafe impl Sync for FolderManager {}
 
-impl Folder2Manager {
+impl FolderManager {
   pub async fn new(
     user: Arc<dyn FolderUser>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
@@ -138,9 +138,14 @@ impl Folder2Manager {
       *self.mutex_folder.lock() = Some(folder);
 
       let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
-      listen_on_folder_state_change(workspace_id, folder_state_rx, &weak_mutex_folder);
-      listen_on_trash_change(trash_rx, &weak_mutex_folder);
-      listen_on_view_change(view_rx, &weak_mutex_folder);
+      subscribe_folder_sync_state_changed(
+        workspace_id.clone(),
+        folder_state_rx,
+        &weak_mutex_folder,
+      );
+      subscribe_folder_snapshot_state_changed(workspace_id, &weak_mutex_folder);
+      subscribe_folder_trash_changed(trash_rx, &weak_mutex_folder);
+      subscribe_folder_view_changed(view_rx, &weak_mutex_folder);
     }
 
     Ok(())
@@ -632,10 +637,47 @@ impl Folder2Manager {
       }
     })
   }
+
+  pub async fn get_folder_snapshots(
+    &self,
+    workspace_id: &str,
+  ) -> FlowyResult<Vec<FolderSnapshotPB>> {
+    let mut snapshots = vec![];
+    if let Some(snapshot) = self
+      .cloud_service
+      .get_folder_latest_snapshot(workspace_id)
+      .await?
+      .map(|snapshot| FolderSnapshotPB {
+        snapshot_id: snapshot.snapshot_id,
+        snapshot_desc: "".to_string(),
+        created_at: snapshot.created_at,
+        data: snapshot.data,
+      })
+    {
+      snapshots.push(snapshot);
+    }
+
+    Ok(snapshots)
+  }
+
+  /// Only expose this method for testing
+  #[cfg(debug_assertions)]
+  pub fn get_mutex_folder(&self) -> &Arc<MutexFolder> {
+    &self.mutex_folder
+  }
+
+  /// Only expose this method for testing
+  #[cfg(debug_assertions)]
+  pub fn get_cloud_service(&self) -> &Arc<dyn FolderCloudService> {
+    &self.cloud_service
+  }
 }
 
 /// Listen on the [ViewChange] after create/delete/update events happened
-fn listen_on_view_change(mut rx: ViewChangeReceiver, weak_mutex_folder: &Weak<MutexFolder>) {
+fn subscribe_folder_view_changed(
+  mut rx: ViewChangeReceiver,
+  weak_mutex_folder: &Weak<MutexFolder>,
+) {
   let weak_mutex_folder = weak_mutex_folder.clone();
   tokio::spawn(async move {
     while let Ok(value) = rx.recv().await {
@@ -670,7 +712,34 @@ fn listen_on_view_change(mut rx: ViewChangeReceiver, weak_mutex_folder: &Weak<Mu
   });
 }
 
-fn listen_on_folder_state_change(
+fn subscribe_folder_snapshot_state_changed(
+  workspace_id: String,
+  weak_mutex_folder: &Weak<MutexFolder>,
+) {
+  let weak_mutex_folder = weak_mutex_folder.clone();
+  tokio::spawn(async move {
+    if let Some(mutex_folder) = weak_mutex_folder.upgrade() {
+      let stream = mutex_folder
+        .lock()
+        .as_ref()
+        .map(|folder| folder.subscribe_snapshot_state());
+      if let Some(mut state_stream) = stream {
+        while let Some(snapshot_state) = state_stream.next().await {
+          if let Some(new_snapshot_id) = snapshot_state.snapshot_id() {
+            send_notification(
+              &workspace_id,
+              FolderNotification::DidUpdateFolderSnapshotState,
+            )
+            .payload(FolderSnapshotStatePB { new_snapshot_id })
+            .send();
+          }
+        }
+      }
+    }
+  });
+}
+
+fn subscribe_folder_sync_state_changed(
   workspace_id: String,
   mut folder_state_rx: WatchStream<SyncState>,
   weak_mutex_folder: &Weak<MutexFolder>,
@@ -689,12 +758,19 @@ fn listen_on_folder_state_change(
           }
         }
       }
+
+      send_notification(&workspace_id, FolderNotification::DidUpdateFolderSyncUpdate)
+        .payload(FolderSyncStatePB::from(state))
+        .send();
     }
   });
 }
 
 /// Listen on the [TrashChange]s and notify the frontend some views were changed.
-fn listen_on_trash_change(mut rx: TrashChangeReceiver, weak_mutex_folder: &Weak<MutexFolder>) {
+fn subscribe_folder_trash_changed(
+  mut rx: TrashChangeReceiver,
+  weak_mutex_folder: &Weak<MutexFolder>,
+) {
   let weak_mutex_folder = weak_mutex_folder.clone();
   tokio::spawn(async move {
     while let Ok(value) = rx.recv().await {
