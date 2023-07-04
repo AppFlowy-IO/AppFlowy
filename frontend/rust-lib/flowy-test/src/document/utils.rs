@@ -1,10 +1,20 @@
+use crate::document::document_event::*;
 use flowy_document2::entities::*;
-use flowy_test::document_event::OpenDocumentData;
 use nanoid::nanoid;
+use serde_json::json;
 use std::collections::HashMap;
 
 pub fn gen_id() -> String {
   nanoid!(10)
+}
+
+pub fn gen_text_block_data(text: String) -> String {
+  json!({
+    "delta": [{
+      "insert": text
+    }]
+  })
+  .to_string()
 }
 
 pub struct ParseDocumentData {
