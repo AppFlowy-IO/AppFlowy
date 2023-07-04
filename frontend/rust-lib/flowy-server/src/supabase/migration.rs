@@ -39,7 +39,6 @@ pub(crate) async fn run_migrations(client: &mut Client) -> Result<(), anyhow::Er
 mod tests {
   use tokio_postgres::NoTls;
 
-  use crate::supabase::migration::run_initial_drop;
   use crate::supabase::*;
 
   // ‼️‼️‼️ Warning: this test will create a table in the database
