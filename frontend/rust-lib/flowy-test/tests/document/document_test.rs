@@ -1,6 +1,6 @@
-use crate::document::utils::*;
 use flowy_document2::entities::*;
-use flowy_test::document_event::DocumentEventTest;
+use flowy_test::document::document_event::DocumentEventTest;
+use flowy_test::document::utils::*;
 
 #[tokio::test]
 async fn get_document_event_test() {
