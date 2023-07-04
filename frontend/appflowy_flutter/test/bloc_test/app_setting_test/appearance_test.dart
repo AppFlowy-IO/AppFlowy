@@ -2,6 +2,7 @@ import 'package:appflowy/user/application/user_settings_service.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -52,6 +53,14 @@ void main() {
       },
       verify: (bloc) {
         expect(bloc.getValue("123"), null);
+      },
+    );
+
+    blocTest<AppearanceSettingsCubit, AppearanceSettingsState>(
+      'initial state uses fallback theme',
+      build: () => AppearanceSettingsCubit(appearanceSetting),
+      verify: (bloc) {
+        expect(bloc.state.appTheme.themeName, AppTheme.fallback.themeName);
       },
     );
   });

@@ -118,15 +118,14 @@
     {
       "label": "AF: Generate Freezed Files",
       "type": "shell",
-      "command": "dart run build_runner build -d",
+      "command": "sh ./scripts/code_generation/freezed/generate_freezed.sh",
       "options": {
-        "cwd": "${workspaceFolder}/appflowy_flutter"
-      }
-    },
-    {
-      "label": "AF: Generate Language Files",
-      "type": "shell",
-      "command": "sh ./scripts/generate_language_files.sh",
+        "cwd": "${workspaceFolder}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
       "windows": {
         "options": {
           "shell": {
@@ -134,7 +133,24 @@
             "args": [
               "/d",
               "/c",
-              ".\\scripts\\generate_language_files.cmd"
+              ".\\scripts\\code_generation\\freezed\\generate_freezed.cmd"
+            ]
+          }
+        }
+      },
+    },
+    {
+      "label": "AF: Generate Language Files",
+      "type": "shell",
+      "command": "sh ./scripts/code_generation/language_files/generate_language_files.sh",
+      "windows": {
+        "options": {
+          "shell": {
+            "executable": "cmd.exe",
+            "args": [
+              "/d",
+              "/c",
+              ".\\scripts\\code_generation\\language_files\\generate_language_files.cmd"
             ]
           }
         }

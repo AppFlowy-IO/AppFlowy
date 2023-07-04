@@ -1,10 +1,5 @@
-import 'dart:io';
-
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/util/file_picker/file_picker_service.dart';
-import 'package:file_picker/file_picker.dart' as fp;
-import 'package:path/path.dart' as p;
-import '../util.dart';
+import 'package:flowy_infra/file_picker/file_picker_service.dart';
 
 class MockFilePicker implements FilePickerService {
   MockFilePicker({
@@ -25,7 +20,7 @@ class MockFilePicker implements FilePickerService {
     String? dialogTitle,
     String? fileName,
     String? initialDirectory,
-    fp.FileType type = fp.FileType.any,
+    FileType type = FileType.any,
     List<String>? allowedExtensions,
     bool lockParentWindow = false,
   }) {
@@ -36,18 +31,17 @@ class MockFilePicker implements FilePickerService {
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
     String? initialDirectory,
-    fp.FileType type = fp.FileType.any,
+    FileType type = FileType.any,
     List<String>? allowedExtensions,
-    Function(fp.FilePickerStatus p1)? onFileLoading,
+    Function(FilePickerStatus p1)? onFileLoading,
     bool allowCompression = true,
     bool allowMultiple = false,
     bool withData = false,
     bool withReadStream = false,
     bool lockParentWindow = false,
   }) {
-    final platformFiles = mockPaths
-        .map((e) => fp.PlatformFile(path: e, name: '', size: 0))
-        .toList();
+    final platformFiles =
+        mockPaths.map((e) => PlatformFile(path: e, name: '', size: 0)).toList();
     return Future.value(
       FilePickerResult(
         platformFiles,
@@ -56,20 +50,21 @@ class MockFilePicker implements FilePickerService {
   }
 }
 
-Future<void> mockGetDirectoryPath(String? name) async {
-  final dir = await TestFolder.testLocation(name);
+Future<void> mockGetDirectoryPath(
+  String path,
+) async {
   getIt.unregister<FilePickerService>();
   getIt.registerFactory<FilePickerService>(
     () => MockFilePicker(
-      mockPath: dir.path,
+      mockPath: path,
     ),
   );
   return;
 }
 
-Future<String> mockSaveFilePath(String? name, String fileName) async {
-  final dir = await TestFolder.testLocation(name);
-  final path = p.join(dir.path, fileName);
+Future<String> mockSaveFilePath(
+  String path,
+) async {
   getIt.unregister<FilePickerService>();
   getIt.registerFactory<FilePickerService>(
     () => MockFilePicker(
@@ -79,18 +74,16 @@ Future<String> mockSaveFilePath(String? name, String fileName) async {
   return path;
 }
 
-Future<List<String>> mockPickFilePaths(
-  List<String> fileNames, {
-  String? name,
-  String? customPath,
+Future<List<String>> mockPickFilePaths({
+  required List<String> paths,
 }) async {
-  late final Directory dir;
-  if (customPath != null) {
-    dir = Directory(customPath);
-  } else {
-    dir = await TestFolder.testLocation(name);
-  }
-  final paths = fileNames.map((e) => p.join(dir.path, e)).toList();
+  // late final Directory dir;
+  // if (customPath != null) {
+  //   dir = Directory(customPath);
+  // } else {
+  //   dir = await TestFolder.testLocation(applicationDataPath, name);
+  // }
+  // final paths = fileNames.map((e) => p.join(dir.path, e)).toList();
   getIt.unregister<FilePickerService>();
   getIt.registerFactory<FilePickerService>(
     () => MockFilePicker(

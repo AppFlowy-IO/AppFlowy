@@ -13,17 +13,6 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('edit document', () {
-    const location = 'appflowy';
-
-    setUp(() async {
-      await TestFolder.cleanTestLocation(location);
-      await TestFolder.setTestLocation(location);
-    });
-
-    tearDown(() async {
-      await TestFolder.cleanTestLocation(null);
-    });
-
     testWidgets('redo & undo', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();

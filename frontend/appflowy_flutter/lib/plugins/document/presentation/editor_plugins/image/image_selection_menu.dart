@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
+import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:flowy_infra/uuid.dart';

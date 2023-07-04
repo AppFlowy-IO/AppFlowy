@@ -186,27 +186,19 @@ script_runner = "@duckscript"
 script_runner = "@shell"
 script = [
   """
-  cd appflowy_flutter
-  flutter clean
-  flutter pub get
-  flutter packages pub get
-  dart run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
-  dart run build_runner build -d
+  chmod +x scripts/code_generation/generate.sh
   """,
+  "scripts/code_generation/generate.sh"
 ]
 
 [tasks.code_generation.windows]
 script_runner = "@duckscript"
 script = [
   """
-  cd ./appflowy_flutter/
-  exec cmd.exe /c flutter clean
-  exec cmd.exe /c flutter pub get
-  exec cmd.exe /c flutter packages pub get
-  exec cmd.exe /c dart run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
-  exec cmd.exe /c dart run build_runner build -d
+  exec "scripts/code_generation/generate.cmd"
   """,
 ]
+
 
 [tasks.dry_code_generation]
 script_runner = "@shell"

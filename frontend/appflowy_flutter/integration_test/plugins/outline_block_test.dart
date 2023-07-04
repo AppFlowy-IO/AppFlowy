@@ -12,17 +12,6 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('outline block test', () {
-    const location = 'outline_test';
-
-    setUp(() async {
-      await TestFolder.cleanTestLocation(location);
-      await TestFolder.setTestLocation(location);
-    });
-
-    tearDown(() async {
-      await TestFolder.cleanTestLocation(null);
-    });
-
     testWidgets('insert an outline block', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();

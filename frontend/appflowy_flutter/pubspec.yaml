@@ -90,7 +90,6 @@ dependencies:
   bloc: ^8.1.2
   shared_preferences: ^2.1.1
   google_fonts: ^4.0.5
-  file_picker: ^5.3.1
   percent_indicator: ^4.2.3
   calendar_view: ^1.0.3
   window_manager: ^0.3.4
@@ -102,6 +101,7 @@ dependencies:
   nanoid: ^1.0.0
   supabase_flutter: ^1.10.0
   envied: ^0.3.0+3
+  dotted_border: ^2.0.0+3
 
 dev_dependencies:
   flutter_lints: ^2.0.1
