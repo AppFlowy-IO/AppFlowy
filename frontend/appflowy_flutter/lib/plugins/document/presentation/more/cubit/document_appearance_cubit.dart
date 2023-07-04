@@ -10,8 +10,6 @@ class DocumentAppearance {
 
   final double fontSize;
   final String fontFamily;
-  // Will be supported...
-  // final String fontName;
 
   DocumentAppearance copyWith({
     double? fontSize,

@@ -32,12 +32,12 @@ class SettingsAppearanceView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 BrightnessSetting(currentThemeMode: state.themeMode),
-                ThemeFontFamilySetting(
-                  currentFontFamily: state.font,
-                ),
                 ColorSchemeSetting(
                   currentTheme: state.appTheme.themeName,
                   bloc: context.read<DynamicPluginBloc>(),
+                ),
+                ThemeFontFamilySetting(
+                  currentFontFamily: state.font,
                 ),
               ],
             );
