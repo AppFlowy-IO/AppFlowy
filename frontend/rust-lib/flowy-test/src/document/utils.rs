@@ -8,7 +8,7 @@ pub fn gen_id() -> String {
   nanoid!(10)
 }
 
-pub fn gen_text_block_data(text: String) -> String {
+pub fn gen_text_block_data(text: &str) -> String {
   json!({
     "delta": [{
       "insert": text

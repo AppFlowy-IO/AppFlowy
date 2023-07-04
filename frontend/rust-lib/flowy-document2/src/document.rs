@@ -11,7 +11,7 @@ use tokio_stream::wrappers::WatchStream;
 
 use flowy_error::FlowyResult;
 
-use crate::entities::{DocEventPB, DocumentSnapshotStatePB};
+use crate::entities::{DocEventPB, DocumentSnapshotStatePB, DocumentSyncStatePB};
 use crate::notification::{send_notification, DocumentNotification};
 
 /// This struct wrap the document::Document
@@ -29,6 +29,7 @@ impl MutexDocument {
     let document = Document::open(collab.clone()).map(|inner| Self(Arc::new(Mutex::new(inner))))?;
     subscribe_document_changed(doc_id, &document);
     subscribe_document_snapshot_state(&collab);
+    subscribe_document_sync_state(&collab);
     Ok(document)
   }
 
@@ -80,6 +81,20 @@ fn subscribe_document_snapshot_state(collab: &Arc<MutexCollab>) {
   });
 }
 
+fn subscribe_document_sync_state(collab: &Arc<MutexCollab>) {
+  let document_id = collab.lock().object_id.clone();
+  let mut sync_state_stream = WatchStream::new(collab.lock().subscribe_sync_state());
+  tokio::spawn(async move {
+    while let Some(sync_state) = sync_state_stream.next().await {
+      send_notification(
+        &document_id,
+        DocumentNotification::DidUpdateDocumentSyncState,
+      )
+      .payload(DocumentSyncStatePB::from(sync_state))
+      .send();
+    }
+  });
+}
 unsafe impl Sync for MutexDocument {}
 unsafe impl Send for MutexDocument {}
 

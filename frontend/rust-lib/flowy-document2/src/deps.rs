@@ -15,7 +15,9 @@ pub trait DocumentUser: Send + Sync {
 /// Each kind of server should implement this trait. Check out the [AppFlowyServerProvider] of
 /// [flowy-server] crate for more information.
 pub trait DocumentCloudService: Send + Sync + 'static {
-  fn get_latest_snapshot(
+  fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError>;
+
+  fn get_document_latest_snapshot(
     &self,
     document_id: &str,
   ) -> FutureResult<Option<DocumentSnapshot>, FlowyError>;

@@ -1,3 +1,4 @@
+use collab::core::collab_state::SyncState;
 use collab_document::blocks::{BlockAction, DocumentData};
 use std::collections::HashMap;
 
@@ -362,4 +363,22 @@ pub struct DocumentSnapshotPB {
 pub struct DocumentSnapshotStatePB {
   #[pb(index = 1)]
   pub new_snapshot_id: i64,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct DocumentSyncStatePB {
+  #[pb(index = 1)]
+  pub is_syncing: bool,
+
+  #[pb(index = 2)]
+  pub is_finish: bool,
+}
+
+impl From<SyncState> for DocumentSyncStatePB {
+  fn from(value: SyncState) -> Self {
+    Self {
+      is_syncing: value.is_syncing(),
+      is_finish: value.is_sync_finished(),
+    }
+  }
 }

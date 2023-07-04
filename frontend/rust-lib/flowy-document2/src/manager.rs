@@ -115,7 +115,7 @@ impl DocumentManager {
     let mut snapshots = vec![];
     if let Some(snapshot) = self
       .cloud_service
-      .get_latest_snapshot(document_id)
+      .get_document_latest_snapshot(document_id)
       .await?
       .map(|snapshot| DocumentSnapshotPB {
         snapshot_id: snapshot.snapshot_id,
@@ -141,5 +141,11 @@ impl DocumentManager {
     let db = self.user.collab_db()?;
     let read_txn = db.read_txn();
     Ok(read_txn.is_exist(uid, doc_id))
+  }
+
+  /// Only expose this method for testing
+  #[cfg(debug_assertions)]
+  pub fn get_cloud_service(&self) -> &Arc<dyn DocumentCloudService> {
+    &self.cloud_service
   }
 }

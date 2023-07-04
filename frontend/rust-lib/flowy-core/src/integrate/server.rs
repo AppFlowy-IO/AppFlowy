@@ -173,7 +173,18 @@ impl DatabaseCloudService for AppFlowyServerProvider {
 }
 
 impl DocumentCloudService for AppFlowyServerProvider {
-  fn get_latest_snapshot(
+  fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+    let server = self.get_provider(&self.provider_type.read());
+    let document_id = document_id.to_string();
+    FutureResult::new(async move {
+      server?
+        .document_service()
+        .get_document_updates(&document_id)
+        .await
+    })
+  }
+
+  fn get_document_latest_snapshot(
     &self,
     document_id: &str,
   ) -> FutureResult<Option<DocumentSnapshot>, FlowyError> {
@@ -182,7 +193,7 @@ impl DocumentCloudService for AppFlowyServerProvider {
     FutureResult::new(async move {
       server?
         .document_service()
-        .get_latest_snapshot(&document_id)
+        .get_document_latest_snapshot(&document_id)
         .await
     })
   }
