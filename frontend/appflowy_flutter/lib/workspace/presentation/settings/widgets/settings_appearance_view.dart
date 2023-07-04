@@ -227,7 +227,6 @@ class BrightnessSetting extends StatelessWidget {
           _themeModeItemButton(context, ThemeMode.dark),
           _themeModeItemButton(context, ThemeMode.system),
         ],
-        ),
       ),
     );
   }
