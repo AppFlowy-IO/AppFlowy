@@ -26,6 +26,7 @@ export interface IDatabaseField {
   fieldId: string;
   title: string;
   visible: boolean;
+  width: number;
   fieldType: FieldType;
   fieldOptions?: ISelectOptionType | IDateType | INumberType;
 }

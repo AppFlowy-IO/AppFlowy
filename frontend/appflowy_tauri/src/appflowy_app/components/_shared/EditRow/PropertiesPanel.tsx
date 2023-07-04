@@ -52,8 +52,10 @@ export const PropertiesPanel = ({
 
   const toggleHideProperty = async (v: boolean, index: number) => {
     const fieldInfo = controller.fieldController.getField(cells[index].fieldId);
+
     if (fieldInfo) {
       const typeController = new TypeOptionController(viewId, Some(fieldInfo));
+
       await typeController.initialize();
       if (fieldInfo.field.visibility) {
         await typeController.hideField();
@@ -96,7 +98,7 @@ export const PropertiesPanel = ({
   };
 
   return (
-    <div className={'flex flex-col gap-2 overflow-auto py-12 px-4'}>
+    <div className={'flex flex-col gap-2 overflow-auto px-4 py-12'}>
       <div
         onClick={() => setShowAddedProperties(!showAddedProperties)}
         className={'flex cursor-pointer items-center justify-between gap-8 rounded-lg px-2 py-2 hover:bg-shade-6'}
