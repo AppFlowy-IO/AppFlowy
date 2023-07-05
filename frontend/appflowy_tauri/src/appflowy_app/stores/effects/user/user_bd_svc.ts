@@ -1,8 +1,13 @@
 import { nanoid } from '@reduxjs/toolkit';
 import {
+  AppearanceSettingsPB,
   AuthTypePB,
   SignOutPB,
+  ThemeModePB,
+  UserEventGetAppearanceSetting,
   UserEventGetUserProfile,
+  UserEventGetUserSetting,
+  UserEventSetAppearanceSetting,
   UserEventSignIn,
   UserEventSignOut,
   UserEventSignUp,
@@ -88,6 +93,23 @@ export class UserBackendService {
     const payload = SignOutPB.fromObject({ auth_type: AuthTypePB.Local });
 
     return UserEventSignOut(payload);
+  };
+
+  setAppearanceSettings = (params: { theme: string; mode: ThemeModePB }) => {
+    const payload = AppearanceSettingsPB.fromObject({
+      theme: params.theme,
+      theme_mode: params.mode,
+    });
+
+    return UserEventSetAppearanceSetting(payload);
+  };
+
+  getAppearanceSettings = () => {
+    return UserEventGetAppearanceSetting();
+  };
+
+  getStorageSettings = () => {
+    return UserEventGetUserSetting();
   };
 }
 

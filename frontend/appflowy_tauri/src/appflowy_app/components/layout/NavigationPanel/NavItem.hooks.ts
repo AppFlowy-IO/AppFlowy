@@ -33,6 +33,7 @@ export const useNavItem = (page: IPage) => {
 
   const loadInsidePages = async () => {
     const result = await service.getChildViews();
+
     if (!result.ok) return;
     const views = result.val;
     const updatedPages: IPage[] = views.map<IPage>((view) => ({
@@ -42,6 +43,7 @@ export const useNavItem = (page: IPage) => {
       title: view.name,
       showPagesInside: false,
     }));
+
     appDispatch(pagesActions.addInsidePages({ currentPageId: page.id, insidePages: updatedPages }));
   };
 
@@ -62,6 +64,7 @@ export const useNavItem = (page: IPage) => {
     const { pathname } = currentLocation;
     const parts = pathname.split('/');
     const pageId = parts[parts.length - 1];
+
     setActivePageId(pageId);
   }, [currentLocation]);
 
@@ -76,6 +79,7 @@ export const useNavItem = (page: IPage) => {
   // recursively get all unfolded child pages
   const getChildCount: (startPage: IPage) => number = (startPage: IPage) => {
     let count = 0;
+
     count = pages.filter((p) => p.parentPageId === startPage.id).length;
     pages
       .filter((p) => p.parentPageId === startPage.id)
@@ -92,7 +96,7 @@ export const useNavItem = (page: IPage) => {
   };
 
   const onPageOptionsClick = () => {
-    setShowPageOptions(!showPageOptions);
+    setShowPageOptions((prevState) => !prevState);
   };
 
   const startPageRename = () => {
@@ -181,6 +185,7 @@ export const useNavItem = (page: IPage) => {
 
     if (newViewResult.ok) {
       const newView = newViewResult.val;
+
       if (!page.showPagesInside) {
         appDispatch(pagesActions.toggleShowPages({ id: page.id }));
       }

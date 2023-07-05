@@ -30,6 +30,7 @@ export const NavigationPanel = ({
     const { pathname } = currentLocation;
     const parts = pathname.split('/');
     const pageId = parts[parts.length - 1];
+
     setActivePageId(pageId);
   }, [currentLocation]);
 
@@ -46,7 +47,7 @@ export const NavigationPanel = ({
   return (
     <>
       <div
-        className={`absolute inset-0 flex flex-col justify-between bg-surface-1 text-sm`}
+        className={`absolute inset-0 flex flex-col justify-between bg-bg-base text-sm text-text-title`}
         style={{
           transition: `left ${ANIMATION_DURATION}ms ease-out`,
           width: `${width}px`,
@@ -70,12 +71,12 @@ export const NavigationPanel = ({
         </div>
 
         <div className={'flex max-h-[215px] flex-col'}>
-          <div className={'border-b border-shade-6 px-2 pb-4'}>
+          <div className={'border-b border-line-border px-2 pb-4'}>
             {/*<PluginsButton></PluginsButton>*/}
 
-            <DesignSpec></DesignSpec>
-            <AllIcons></AllIcons>
-            <TestBackendButton></TestBackendButton>
+            {/*<DesignSpec></DesignSpec>*/}
+            {/*<AllIcons></AllIcons>*/}
+            {/*<TestBackendButton></TestBackendButton>*/}
 
             {/*Trash Button*/}
             <TrashButton></TrashButton>
@@ -100,10 +101,11 @@ const WorkspaceApps: React.FC<{ pages: IPage[] }> = ({ pages }) => (
 
 export const TestBackendButton = () => {
   const navigate = useNavigate();
+
   return (
     <button
       onClick={() => navigate('/page/api-test')}
-      className={'flex w-full items-center rounded-lg px-4 py-2 hover:bg-surface-2'}
+      className={'flex w-full items-center rounded-lg px-4 py-2 hover:bg-fill-active'}
     >
       API Test
     </button>
@@ -116,7 +118,7 @@ export const DesignSpec = () => {
   return (
     <button
       onClick={() => navigate('page/colors')}
-      className={'flex w-full items-center rounded-lg px-4 py-2 hover:bg-surface-2'}
+      className={'flex w-full items-center rounded-lg px-4 py-2 hover:bg-fill-active'}
     >
       Color Palette
     </button>
@@ -125,10 +127,11 @@ export const DesignSpec = () => {
 
 export const AllIcons = () => {
   const navigate = useNavigate();
+
   return (
     <button
       onClick={() => navigate('page/all-icons')}
-      className={'flex w-full items-center rounded-lg px-4 py-2 hover:bg-surface-2'}
+      className={'flex w-full items-center rounded-lg px-4 py-2 hover:bg-fill-active'}
     >
       All Icons
     </button>

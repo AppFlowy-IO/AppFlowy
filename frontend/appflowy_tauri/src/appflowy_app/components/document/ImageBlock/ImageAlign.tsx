@@ -87,12 +87,11 @@ function ImageAlign({
         onClose={() => setAnchorEl(undefined)}
         PaperProps={{
           style: {
-            backgroundColor: '#1E1E1E',
-            opacity: 0.8,
+            backgroundColor: 'var(--color-bg-body)',
           },
         }}
       >
-        <div className='flex items-center justify-center bg-transparent p-1'>
+        <div className='flex items-center justify-center p-1'>
           {[Align.Left, Align.Center, Align.Right].map((item: Align) => {
             return (
               <div

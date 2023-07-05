@@ -29,7 +29,7 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
   const { node: focusNode } = useSubscribeNode(focusId);
 
   const [isActive, setIsActive] = React.useState(false);
-  const color = useMemo(() => (isActive ? '#00BCF0' : 'white'), [isActive]);
+  const color = useMemo(() => (isActive ? 'text-content-hover' : 'text-text-title'), [isActive]);
 
   const isFormatActive = useCallback(async () => {
     if (!focusNode) return false;
@@ -144,9 +144,9 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
 
   return (
     <MenuTooltip title={formatTooltips[format]}>
-      <IconButton size='small' sx={{ color }} onClick={() => formatClick(format)}>
+      <div className={`${color} cursor-pointer px-1 hover:text-fill-default`} onClick={() => formatClick(format)}>
         {formatIcon}
-      </IconButton>
+      </div>
     </MenuTooltip>
   );
 };
