@@ -18,4 +18,9 @@ class KVKeys {
   /// The value is a json string with the following format:
   ///   {'height': 600.0, 'width': 800.0}
   static const String windowSize = 'windowSize';
+
+  static const String kDocumentAppearanceFontSize =
+      'kDocumentAppearanceFontSize';
+  static const String kDocumentAppearanceFontFamily =
+      'kDocumentAppearanceFontFamily';
 }
