@@ -1,8 +1,10 @@
+use std::sync::Arc;
+
 use appflowy_integrate::RocksCollabDB;
 pub use collab_folder::core::Workspace;
+
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
-use std::sync::Arc;
 
 /// [FolderUser] represents the user for folder.
 pub trait FolderUser: Send + Sync {
@@ -21,6 +23,10 @@ pub trait FolderCloudService: Send + Sync + 'static {
   ) -> FutureResult<Option<FolderSnapshot>, FlowyError>;
 
   fn get_folder_updates(&self, workspace_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError>;
+
+  fn is_local_service(&self) -> bool {
+    return false;
+  }
 }
 
 pub struct FolderSnapshot {

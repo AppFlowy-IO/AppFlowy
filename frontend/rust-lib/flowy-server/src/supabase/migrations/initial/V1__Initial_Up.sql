@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS af_collab (
 -- collab statistics. It will be used to store the edit_count of the collab.
 CREATE TABLE IF NOT EXISTS af_collab_statistics (
    oid TEXT PRIMARY KEY,
-   edit_count BIGINT DEFAULT 0
+   edit_count BIGINT NOT NULL DEFAULT 0
 );
 -- collab statistics trigger. It will increment the edit_count of the collab when a new row is inserted in the af_collab table.
 CREATE OR REPLACE FUNCTION increment_af_collab_edit_count() RETURNS TRIGGER AS $$ BEGIN IF EXISTS(
@@ -76,19 +76,19 @@ CREATE TABLE IF NOT EXISTS af_collab_snapshot (
    name TEXT DEFAULT '',
    blob BYTEA NOT NULL,
    blob_size INTEGER NOT NULL,
-   edit_count BIGINT DEFAULT 0,
+   edit_count BIGINT NOT NULL DEFAULT 0,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 -- auto insert edit_count in the snapshot table.
 CREATE OR REPLACE FUNCTION af_collab_snapshot_update_edit_count() RETURNS TRIGGER AS $$ BEGIN NEW.edit_count := (
-      SELECT edit_count
+      SELECT COALESCE(edit_count, 0)
       FROM af_collab_statistics
       WHERE oid = NEW.oid
    );
 RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-CREATE TRIGGER af_collab_snapshot_update_edit_count_trigger BEFORE
+CREATE TRIGGER af_collab_snapshot_update_edit_count_trigger AFTER
 INSERT ON af_collab_snapshot FOR EACH ROW EXECUTE FUNCTION af_collab_snapshot_update_edit_count();
 -- collab snapshot trigger. It will delete the oldest snapshot if the number of snapshots is greater than 20.
 -- It can use the PG_CRON extension to run this trigger periodically.

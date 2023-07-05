@@ -89,6 +89,24 @@ impl FolderManager {
     })
   }
 
+  pub async fn poll_sync_state(&self) {
+    let rx = self.with_folder(None, |folder| Some(folder.subscribe_sync_state()));
+    if let Some(mut sync_state_rx) = rx {
+      loop {
+        tracing::trace!("Poll sync state");
+        match sync_state_rx.next().await {
+          None => break,
+          Some(sync_state) => {
+            if sync_state.is_sync_finished() {
+              tracing::trace!("Poll sync state done");
+              break;
+            }
+          },
+        }
+      }
+    }
+  }
+
   /// Return a list of views of the current workspace.
   /// Only the first level of child views are included.
   pub async fn get_current_workspace_views(&self) -> FlowyResult<Vec<ViewPB>> {
@@ -135,6 +153,7 @@ impl FolderManager {
       };
       let folder = Folder::get_or_create(collab, folder_context);
       let folder_state_rx = folder.subscribe_sync_state();
+      tracing::debug!("Current workspace_id: {}", workspace_id);
       *self.mutex_folder.lock() = Some(folder);
 
       let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
@@ -179,6 +198,10 @@ impl FolderManager {
           items: vec![workspace_pb],
         })
         .send();
+    } else {
+      if !self.cloud_service.is_local_service() {
+        self.poll_sync_state().await;
+      }
     }
     Ok(())
   }
@@ -726,7 +749,7 @@ fn subscribe_folder_snapshot_state_changed(
       if let Some(mut state_stream) = stream {
         while let Some(snapshot_state) = state_stream.next().await {
           if let Some(new_snapshot_id) = snapshot_state.snapshot_id() {
-            tracing::debug!("Did create folder snapshot: {}", new_snapshot_id);
+            tracing::debug!("Did create folder remote snapshot: {}", new_snapshot_id);
             send_notification(
               &workspace_id,
               FolderNotification::DidUpdateFolderSnapshotState,
@@ -742,20 +765,23 @@ fn subscribe_folder_snapshot_state_changed(
 
 fn subscribe_folder_sync_state_changed(
   workspace_id: String,
-  mut folder_state_rx: WatchStream<SyncState>,
+  mut folder_sync_state_rx: WatchStream<SyncState>,
   weak_mutex_folder: &Weak<MutexFolder>,
 ) {
   let weak_mutex_folder = weak_mutex_folder.clone();
   tokio::spawn(async move {
-    while let Some(state) = folder_state_rx.next().await {
+    while let Some(state) = folder_sync_state_rx.next().await {
       if state.is_full_sync() {
         if let Some(mutex_folder) = weak_mutex_folder.upgrade() {
           let folder = mutex_folder.lock().take();
           if let Some(folder) = folder {
             tracing::trace!("🔥Reload folder");
             let reload_folder = folder.reload();
-            notify_did_update_workspace(&workspace_id, &reload_folder);
+            if let Some(workspace_id) = reload_folder.get_current_workspace_id() {
+              tracing::trace!("Current workspace_id: {}", workspace_id);
+            }
             *mutex_folder.lock() = Some(reload_folder);
+            notify_did_update_workspace(&workspace_id, mutex_folder.lock().as_ref().unwrap());
           }
         }
       }

@@ -70,7 +70,7 @@ fn subscribe_document_snapshot_state(collab: &Arc<MutexCollab>) {
   tokio::spawn(async move {
     while let Some(snapshot_state) = snapshot_state.next().await {
       if let Some(new_snapshot_id) = snapshot_state.snapshot_id() {
-        tracing::debug!("Did create document snapshot: {}", new_snapshot_id);
+        tracing::debug!("Did create document remote snapshot: {}", new_snapshot_id);
         send_notification(
           &document_id,
           DocumentNotification::DidUpdateDocumentSnapshotState,

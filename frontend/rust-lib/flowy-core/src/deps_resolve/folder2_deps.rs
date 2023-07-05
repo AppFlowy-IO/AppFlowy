@@ -139,7 +139,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     FutureResult::new(async move {
       match manager.delete_document(&view_id) {
         Ok(_) => tracing::trace!("Delete document: {}", view_id),
-        Err(e) => tracing::error!("Failed to delete document: {}", e),
+        Err(e) => tracing::error!("🔴delete document failed: {}", e),
       }
       Ok(())
     })
@@ -235,7 +235,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     FutureResult::new(async move {
       match database_manager.delete_database_view(&view_id).await {
         Ok(_) => tracing::trace!("Delete database view: {}", view_id),
-        Err(e) => tracing::error!("Failed to delete database: {}", e),
+        Err(e) => tracing::error!("🔴delete database failed: {}", e),
       }
       Ok(())
     })
