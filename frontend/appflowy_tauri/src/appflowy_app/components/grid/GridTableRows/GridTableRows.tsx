@@ -21,8 +21,12 @@ export const GridTableRows = ({
     <DragDropContext onDragEnd={onRowsDragEnd}>
       <Droppable droppableId='table'>
         {(droppableProvided: DroppableProvided) => (
-          <tbody ref={droppableProvided.innerRef} {...droppableProvided.droppableProps}>
-            {[...allRows].reverse().map((row, i) => {
+          <div
+            className={'absolute h-full overflow-y-auto overflow-x-hidden'}
+            ref={droppableProvided.innerRef}
+            {...droppableProvided.droppableProps}
+          >
+            {[...allRows].map((row, i) => {
               return (
                 <GridTableRow
                   onOpenRow={onOpenRow}
@@ -35,7 +39,7 @@ export const GridTableRows = ({
               );
             })}
             {droppableProvided.placeholder}
-          </tbody>
+          </div>
         )}
       </Droppable>
     </DragDropContext>

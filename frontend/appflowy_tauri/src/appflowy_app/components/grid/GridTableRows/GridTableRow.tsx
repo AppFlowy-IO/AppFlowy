@@ -8,6 +8,7 @@ import { DragSvg } from '../../_shared/svg/DragSvg';
 import { useGridTableRow } from './GridTableRow.hooks';
 import { Draggable, DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd';
 import { GridRowActions } from './GridRowActions';
+import { useAppSelector } from '$app/stores/store';
 
 export const GridTableRow = ({
   viewId,
@@ -23,17 +24,20 @@ export const GridTableRow = ({
   index: number;
 }) => {
   const { cells } = useRow(viewId, controller, row);
+  const fields = useAppSelector((state) => state.database.fields);
   const { setShowMenu, showMenu, addRowAt } = useGridTableRow(controller);
 
   return (
     <Draggable draggableId={row.row.id} key={row.row.id} index={index}>
       {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
-        <tr
-          className={`group cursor-pointer ${snapshot.isDragging ? 'flex items-center bg-white' : ''}`}
+        <div
+          className={`group flex cursor-pointer items-stretch border-b border-shade-6 ${
+            snapshot.isDragging ? ' bg-white' : ''
+          }`}
           ref={provided.innerRef}
           {...provided.draggableProps}
         >
-          <td className='w-8'>
+          {/*<div className='w-8'>
             <div className={`flex h-5 w-5 group-hover:hidden`}></div>
             <button
               className={`hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-main-secondary group-hover:flex ${
@@ -43,8 +47,8 @@ export const GridTableRow = ({
             >
               <AddSvg />
             </button>
-          </td>
-          <td className='relative w-8'>
+          </div>
+          <div className='relative w-8'>
             <div className={`flex h-5 w-5 group-hover:hidden`}></div>
             <button
               className={`hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-main-secondary group-hover:flex ${
@@ -59,37 +63,40 @@ export const GridTableRow = ({
             {showMenu && (
               <GridRowActions controller={controller} rowId={row.row.id} onOutsideClick={() => setShowMenu(false)} />
             )}
-          </td>
+          </div>*/}
 
           {cells.map((cell, cellIndex) => {
             return (
-              <td
-                className={`m-0  border border-l-0 border-shade-6 p-0 ${snapshot.isDragging ? 'flex-1  ' : ''}`}
+              <div
+                className={`relative flex flex-shrink-0 ${snapshot.isDragging ? '  ' : ''}`}
                 key={cellIndex}
                 draggable={false}
               >
-                <div className='flex w-full items-center justify-end'>
-                  <GridCell
-                    cellIdentifier={cell.cellIdentifier}
-                    cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
-                    fieldController={controller.fieldController}
-                  />
+                <GridCell
+                  width={fields[cell.fieldId].width}
+                  cellIdentifier={cell.cellIdentifier}
+                  cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
+                  fieldController={controller.fieldController}
+                />
 
-                  {cellIndex === 0 && (
-                    <div
-                      onClick={() => onOpenRow(row)}
-                      className='mr-1 hidden h-9 w-9  cursor-pointer rounded p-2 hover:bg-slate-200 group-hover:block '
-                    >
-                      <FullView />
-                    </div>
-                  )}
+                {cellIndex === 0 && (
+                  <div
+                    onClick={() => onOpenRow(row)}
+                    className='absolute inset-y-0 right-0 my-auto mr-1 hidden h-9 w-9 flex-shrink-0 cursor-pointer rounded p-2 hover:bg-slate-200 group-hover:block '
+                  >
+                    <FullView />
+                  </div>
+                )}
+
+                <div className={'-mx-[10px] h-full cursor-col-resize px-[6px]'}>
+                  <div className={'flex h-full w-[3px] justify-center '}>
+                    <div className={'h-full w-[1px] bg-shade-6'}></div>
+                  </div>
                 </div>
-              </td>
+              </div>
             );
           })}
-
-          <td className='w-40' />
-        </tr>
+        </div>
       )}
     </Draggable>
   );
