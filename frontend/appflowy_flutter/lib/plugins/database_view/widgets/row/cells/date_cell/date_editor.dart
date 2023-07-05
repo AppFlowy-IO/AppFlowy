@@ -477,6 +477,7 @@ class _ClearDateButton extends StatelessWidget {
               .read<DateCellCalendarBloc>()
               .add(const DateCellCalendarEvent.clearDate()),
           leftIcon: const FlowySvg(name: "grid/delete"),
+          margin: GridSize.typeOptionContentInsets,
         ),
       ),
     );
