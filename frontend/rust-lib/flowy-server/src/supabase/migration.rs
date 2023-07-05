@@ -12,7 +12,9 @@ pub(crate) async fn run_migrations(client: &mut Client) -> Result<(), anyhow::Er
     .await
   {
     Ok(report) => {
-      tracing::info!("postgres db migration success: {:?}", report);
+      if !report.applied_migrations().is_empty() {
+        tracing::info!("Run postgres db migration: {:?}", report);
+      }
       Ok(())
     },
     Err(e) => {
@@ -25,20 +27,22 @@ pub(crate) async fn run_migrations(client: &mut Client) -> Result<(), anyhow::Er
 /// Drop all tables and dependencies defined in the v1_initial_up.sql.
 /// Be careful when using this function. It will drop all tables and dependencies.
 /// Mostly used for testing.
-// #[allow(dead_code)]
-// pub(crate) async fn run_initial_drop(client: &Client) {
-//   let sql = include_str!("migrations/initial/initial_down.sql");
-//   client.batch_execute(sql).await.unwrap();
-//   client
-//     .batch_execute("DROP TABLE IF EXISTS af_migration_history")
-//     .await
-//     .unwrap();
-// }
+#[allow(dead_code)]
+#[cfg(debug_assertions)]
+pub(crate) async fn run_initial_drop(client: &Client) {
+  let sql = include_str!("migrations/initial/initial_down.sql");
+  client.batch_execute(sql).await.unwrap();
+  client
+    .batch_execute("DROP TABLE IF EXISTS af_migration_history")
+    .await
+    .unwrap();
+}
 
 #[cfg(test)]
 mod tests {
   use tokio_postgres::NoTls;
 
+  use crate::supabase::migration::run_initial_drop;
   use crate::supabase::*;
 
   // ‼️‼️‼️ Warning: this test will create a table in the database
@@ -64,7 +68,10 @@ mod tests {
       }
     });
 
-    // run_initial_drop(&client).await;
+    #[cfg(debug_assertions)]
+    {
+      run_initial_drop(&client).await;
+    }
     Ok(())
   }
 }

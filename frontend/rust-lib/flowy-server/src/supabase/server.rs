@@ -173,10 +173,13 @@ impl RequestHandler<PostgresEvent> for PostgresServerInner {
         match self.db.lock().await.as_ref().map(|db| db.client.clone()) {
           None => tracing::error!("Can't get the postgres client"),
           Some(pool) => {
-            if let Ok(object) = pool.get().await {
-              if let Err(e) = sender.send(object).await {
-                tracing::error!("Error sending the postgres client: {}", e);
-              }
+            match pool.get().await {
+              Ok(object) => {
+                if let Err(e) = sender.send(object).await {
+                  tracing::error!("Error sending the postgres client: {}", e);
+                }
+              },
+              Err(e) => tracing::error!("Get postgres client failed: {}", e),
             }
 
             if let Some(mut request) = self.queue.lock().pop() {

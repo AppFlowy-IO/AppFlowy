@@ -283,9 +283,16 @@ impl UserSession {
 
   async fn save_user(&self, user: UserTable) -> Result<UserTable, FlowyError> {
     let conn = self.db_connection()?;
-    let _ = diesel::insert_into(user_table::table)
-      .values(user.clone())
-      .execute(&*conn)?;
+    conn.immediate_transaction(|| {
+      // delete old user if exists
+      diesel::delete(dsl::user_table.filter(dsl::id.eq(&user.id))).execute(&*conn)?;
+
+      let _ = diesel::insert_into(user_table::table)
+        .values(user.clone())
+        .execute(&*conn)?;
+      Ok::<(), FlowyError>(())
+    })?;
+
     Ok(user)
   }
 

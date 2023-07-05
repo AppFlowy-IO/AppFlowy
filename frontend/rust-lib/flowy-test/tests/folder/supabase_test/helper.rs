@@ -1,14 +1,16 @@
-use crate::util::FlowySupabaseTest;
+use std::ops::Deref;
+
 use assert_json_diff::assert_json_eq;
 use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
 use collab::preclude::{merge_updates_v1, JsonValue, Update};
+
 use flowy_folder2::entities::{FolderSnapshotPB, RepeatedFolderSnapshotPB, WorkspaceIdPB};
 use flowy_folder2::event_map::FolderEvent::GetFolderSnapshots;
 use flowy_test::event_builder::EventBuilder;
 
-use std::ops::Deref;
+use crate::util::FlowySupabaseTest;
 
 pub struct FlowySupabaseFolderTest {
   inner: FlowySupabaseTest,
@@ -60,6 +62,10 @@ impl FlowySupabaseFolderTest {
 }
 
 pub fn assert_folder_collab_content(workspace_id: &str, collab_update: &[u8], expected: JsonValue) {
+  if collab_update.is_empty() {
+    panic!("collab update is empty");
+  }
+
   let collab = MutexCollab::new(CollabOrigin::Server, workspace_id, vec![]);
   collab.lock().with_transact_mut(|txn| {
     let update = Update::decode_v1(collab_update).unwrap();

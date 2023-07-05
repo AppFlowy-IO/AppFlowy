@@ -1,10 +1,10 @@
+use std::ops::Deref;
+
 use assert_json_diff::assert_json_eq;
 use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
 use collab::preclude::{merge_updates_v1, JsonValue, Update};
-
-use std::ops::Deref;
 
 use flowy_database2::entities::{DatabasePB, DatabaseViewIdPB, RepeatedDatabaseSnapshotPB};
 use flowy_database2::event_map::DatabaseEvent::*;
@@ -19,7 +19,13 @@ pub struct FlowySupabaseDatabaseTest {
 }
 
 impl FlowySupabaseDatabaseTest {
-  pub async fn new() -> Option<Self> {
+  pub async fn new_with_user(uuid: String) -> Option<Self> {
+    let inner = FlowySupabaseTest::new()?;
+    inner.sign_up_with_uuid(&uuid).await;
+    Some(Self { uuid, inner })
+  }
+
+  pub async fn new_with_new_user() -> Option<Self> {
     let inner = FlowySupabaseTest::new()?;
     let uuid = uuid::Uuid::new_v4().to_string();
     let _ = inner.sign_up_with_uuid(&uuid).await;

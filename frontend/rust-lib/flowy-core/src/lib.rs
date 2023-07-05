@@ -46,7 +46,7 @@ pub struct AppFlowyCoreConfig {
   /// Different `AppFlowyCoreConfig` instance should have different name
   name: String,
   /// Panics if the `root` path is not existing
-  storage_path: String,
+  pub storage_path: String,
   log_filter: String,
 }
 

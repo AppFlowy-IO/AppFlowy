@@ -42,4 +42,6 @@ collab-database = { version = "0.1.0" }
 assert-json-diff = "2.0.2"
 
 [features]
+default = ["cloud_test"]
 dart = ["flowy-core/dart"]
+cloud_test = []

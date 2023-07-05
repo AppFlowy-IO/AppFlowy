@@ -726,6 +726,7 @@ fn subscribe_folder_snapshot_state_changed(
       if let Some(mut state_stream) = stream {
         while let Some(snapshot_state) = state_stream.next().await {
           if let Some(new_snapshot_id) = snapshot_state.snapshot_id() {
+            tracing::debug!("Did create folder snapshot: {}", new_snapshot_id);
             send_notification(
               &workspace_id,
               FolderNotification::DidUpdateFolderSnapshotState,

@@ -1,6 +1,7 @@
+use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::env::temp_dir;
-
+use std::path::PathBuf;
 use std::sync::Arc;
 
 use bytes::Bytes;
@@ -18,11 +19,12 @@ use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent;
 use flowy_notification::entities::SubscribeObject;
 use flowy_notification::{register_notification_sender, NotificationSender};
-use flowy_user::entities::{AuthTypePB, UserProfilePB};
+use flowy_user::entities::{AuthTypePB, ThirdPartyAuthPB, UserProfilePB};
 use flowy_user::errors::FlowyError;
+use flowy_user::event_map::UserEvent::ThirdPartyAuth;
 
 use crate::event_builder::EventBuilder;
-use crate::user_event::{async_sign_up, init_user_setting, SignUpContext};
+use crate::user_event::{async_sign_up, SignUpContext};
 
 pub mod document;
 pub mod event_builder;
@@ -33,6 +35,7 @@ pub mod user_event;
 pub struct FlowyCoreTest {
   auth_type: Arc<RwLock<AuthTypePB>>,
   inner: AppFlowyCore,
+  cleaner: Arc<RwLock<Option<Cleaner>>>,
   pub notification_sender: TestNotificationSender,
 }
 
@@ -41,6 +44,7 @@ impl Default for FlowyCoreTest {
     let temp_dir = temp_dir();
     let config = AppFlowyCoreConfig::new(temp_dir.to_str().unwrap(), nanoid!(6))
       .log_filter("debug", vec!["flowy_test".to_string()]);
+
     let inner = std::thread::spawn(|| AppFlowyCore::new(config))
       .join()
       .unwrap();
@@ -53,6 +57,7 @@ impl Default for FlowyCoreTest {
       inner,
       auth_type,
       notification_sender,
+      cleaner: Arc::new(RwLock::new(None)),
     }
   }
 }
@@ -70,7 +75,11 @@ impl FlowyCoreTest {
 
   pub async fn sign_up(&self) -> SignUpContext {
     let auth_type = self.auth_type.read().clone();
-    async_sign_up(self.inner.dispatcher(), auth_type).await
+    let context = async_sign_up(self.inner.dispatcher(), auth_type).await;
+    let user_path =
+      PathBuf::from(&self.config.storage_path).join(context.user_profile.id.to_string());
+    *self.cleaner.write() = Some(Cleaner::new(user_path));
+    context
   }
 
   pub fn set_auth_type(&self, auth_type: AuthTypePB) {
@@ -78,10 +87,27 @@ impl FlowyCoreTest {
   }
 
   pub async fn init_user(&self) -> UserProfilePB {
-    let auth_type = self.auth_type.read().clone();
-    let context = async_sign_up(self.inner.dispatcher(), auth_type).await;
-    init_user_setting(self.inner.dispatcher()).await;
-    context.user_profile
+    self.sign_up().await.user_profile
+  }
+
+  pub async fn sign_up_with_uuid(&self, uuid: &str) -> UserProfilePB {
+    let mut map = HashMap::new();
+    map.insert("uuid".to_string(), uuid.to_string());
+    let payload = ThirdPartyAuthPB {
+      map,
+      auth_type: AuthTypePB::Supabase,
+    };
+
+    let user_profile = EventBuilder::new(self.clone())
+      .event(ThirdPartyAuth)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<UserProfilePB>();
+
+    let user_path = PathBuf::from(&self.config.storage_path).join(user_profile.id.to_string());
+    *self.cleaner.write() = Some(Cleaner::new(user_path));
+    user_profile
   }
 
   // Must sign up/ sign in first
@@ -708,5 +734,23 @@ impl NotificationSender for TestNotificationSender {
   fn send_subject(&self, subject: SubscribeObject) -> Result<(), String> {
     let _ = self.sender.send(subject);
     Ok(())
+  }
+}
+
+struct Cleaner(PathBuf);
+
+impl Cleaner {
+  fn new(dir: PathBuf) -> Self {
+    Cleaner(dir)
+  }
+
+  fn cleanup(dir: &PathBuf) {
+    let _ = std::fs::remove_dir_all(dir);
+  }
+}
+
+impl Drop for Cleaner {
+  fn drop(&mut self) {
+    Self::cleanup(&self.0)
   }
 }

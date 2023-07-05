@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::ops::Deref;
-
 use std::time::Duration;
+
 use tokio::sync::mpsc::Receiver;
 use tokio::time::timeout;
 
@@ -83,22 +83,6 @@ impl FlowySupabaseTest {
       .payload(payload)
       .async_send()
       .await;
-  }
-
-  pub async fn sign_up_with_uuid(&self, uuid: &str) -> UserProfilePB {
-    let mut map = HashMap::new();
-    map.insert("uuid".to_string(), uuid.to_string());
-    let payload = ThirdPartyAuthPB {
-      map,
-      auth_type: AuthTypePB::Supabase,
-    };
-
-    EventBuilder::new(self.inner.clone())
-      .event(ThirdPartyAuth)
-      .payload(payload)
-      .async_send()
-      .await
-      .parse::<UserProfilePB>()
   }
 }
 

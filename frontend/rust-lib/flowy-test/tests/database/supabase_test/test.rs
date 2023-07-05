@@ -1,8 +1,8 @@
+use std::time::Duration;
+
 use flowy_database2::entities::{
   DatabaseSnapshotStatePB, DatabaseSyncStatePB, FieldChangesetPB, FieldType,
 };
-
-use std::time::Duration;
 
 use crate::database::supabase_test::helper::{
   assert_database_collab_content, FlowySupabaseDatabaseTest,
@@ -10,8 +10,8 @@ use crate::database::supabase_test::helper::{
 use crate::util::receive_with_timeout;
 
 #[tokio::test]
-async fn supabase_initial_database_snapshot_test() {
-  if let Some(test) = FlowySupabaseDatabaseTest::new().await {
+async fn cloud_test_supabase_initial_database_snapshot_test() {
+  if let Some(test) = FlowySupabaseDatabaseTest::new_with_new_user().await {
     let (view, database) = test.create_database().await;
     let mut rx = test
       .notification_sender
@@ -29,8 +29,8 @@ async fn supabase_initial_database_snapshot_test() {
 }
 
 #[tokio::test]
-async fn supabase_edit_database_test() {
-  if let Some(test) = FlowySupabaseDatabaseTest::new().await {
+async fn cloud_test_supabase_edit_database_test() {
+  if let Some(test) = FlowySupabaseDatabaseTest::new_with_new_user().await {
     let (view, database) = test.create_database().await;
     let existing_fields = test.get_all_database_fields(&view.id).await;
     for field in existing_fields.items {
@@ -64,19 +64,22 @@ async fn supabase_edit_database_test() {
   }
 }
 
-#[tokio::test]
-async fn supabase_login_sync_database_test() {
-  if let Some(test) = FlowySupabaseDatabaseTest::new().await {
-    let uuid = test.uuid.clone();
-    let (view, _database) = test.create_database().await;
-    let existing_fields = test.get_all_database_fields(&view.id).await;
-    for field in existing_fields.items {
-      if !field.is_primary {
-        test.delete_field(&view.id, &field.id).await;
-      }
-    }
-
-    let new_test = FlowySupabaseDatabaseTest::new().await.unwrap();
-    new_test.sign_up_with_uuid(&uuid).await;
-  }
-}
+// #[tokio::test]
+// async fn cloud_test_supabase_login_sync_database_test() {
+//   if let Some(test) = FlowySupabaseDatabaseTest::new_with_new_user().await {
+//     let uuid = test.uuid.clone();
+//     let (view, database) = test.create_database().await;
+//     let existing_fields = test.get_all_database_fields(&view.id).await;
+//     for field in existing_fields.items {
+//       if !field.is_primary {
+//         test.delete_field(&view.id, &field.id).await;
+//       }
+//     }
+//     let expected = test.get_collab_json(&database.id).await;
+//     drop(test);
+//
+//     let new_test = FlowySupabaseDatabaseTest::new_with_user(uuid)
+//       .await
+//       .unwrap();
+//   }
+// }

@@ -91,6 +91,7 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER af_collab_snapshot_update_edit_count_trigger BEFORE
 INSERT ON af_collab_snapshot FOR EACH ROW EXECUTE FUNCTION af_collab_snapshot_update_edit_count();
 -- collab snapshot trigger. It will delete the oldest snapshot if the number of snapshots is greater than 20.
+-- It can use the PG_CRON extension to run this trigger periodically.
 CREATE OR REPLACE FUNCTION check_and_delete_snapshots() RETURNS TRIGGER AS $$
 DECLARE row_count INT;
 BEGIN

@@ -39,7 +39,7 @@ impl UserDB {
     dir.push(user_id.to_string());
     let dir = dir.to_str().unwrap().to_owned();
 
-    tracing::trace!("open user db {} at path: {}", user_id, dir);
+    tracing::debug!("open user db {} at path: {}", user_id, dir);
     let db = flowy_sqlite::init(&dir).map_err(|e| {
       tracing::error!("open user db failed, {:?}", e);
       FlowyError::new(ErrorCode::MultipleDBInstance, e)

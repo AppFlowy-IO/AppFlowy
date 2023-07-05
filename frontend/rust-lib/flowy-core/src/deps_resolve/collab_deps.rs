@@ -74,7 +74,7 @@ impl SnapshotPersistence for SnapshotDBImpl {
         .map_err(|e| PersistenceError::Internal(Box::new(e)));
 
         if let Err(e) = result {
-          tracing::error!("create snapshot error: {:?}", e);
+          tracing::warn!("create snapshot error: {:?}", e);
         }
       }
       Ok::<(), PersistenceError>(())
