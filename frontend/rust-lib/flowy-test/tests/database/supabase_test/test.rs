@@ -1,8 +1,5 @@
 use std::time::Duration;
 
-
-
-
 use flowy_database2::entities::{
   DatabaseSnapshotStatePB, DatabaseSyncStatePB, FieldChangesetPB, FieldType,
 };

@@ -2,14 +2,10 @@ use std::sync::Arc;
 
 use nanoid::nanoid;
 
-use flowy_user::entities::{
-  AuthTypePB, SignInPayloadPB, SignUpPayloadPB, UserProfilePB,
-};
+use flowy_user::entities::{AuthTypePB, SignInPayloadPB, SignUpPayloadPB, UserProfilePB};
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserEvent::*;
 use lib_dispatch::prelude::{AFPluginDispatcher, AFPluginRequest, ToBytes};
-
-
 
 pub fn random_email() -> String {
   format!("{}@appflowy.io", nanoid!(20))

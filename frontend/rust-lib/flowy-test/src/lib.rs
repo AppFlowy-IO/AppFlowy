@@ -75,7 +75,7 @@ impl FlowyCoreTest {
 
   pub async fn sign_up(&self) -> SignUpContext {
     let auth_type = self.auth_type.read().clone();
-    
+
     async_sign_up(self.inner.dispatcher(), auth_type).await
   }
 

@@ -1,6 +1,5 @@
 use std::ops::Deref;
 
-
 use assert_json_diff::assert_json_eq;
 use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
