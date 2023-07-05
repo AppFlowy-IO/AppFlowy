@@ -2,12 +2,14 @@ import { CellIdentifier } from '@/appflowy_app/stores/effects/database/cell/cell
 import { DatabaseController } from '@/appflowy_app/stores/effects/database/database_controller';
 import { TypeOptionController } from '@/appflowy_app/stores/effects/database/field/type_option/type_option_controller';
 import { FieldType } from '@/services/backend';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Some } from 'ts-results';
 import { ChangeFieldTypePopup } from '../../_shared/EditRow/ChangeFieldTypePopup';
 import { EditFieldPopup } from '../../_shared/EditRow/EditFieldPopup';
-import { IDatabaseField } from '$app_reducers/database/slice';
+import { databaseActions, IDatabaseField } from '$app_reducers/database/slice';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
+import { useResizer } from '$app/components/_shared/useResizer';
+import { useAppDispatch } from '$app/stores/store';
 
 export const GridTableHeaderItem = ({
   controller,
@@ -16,6 +18,8 @@ export const GridTableHeaderItem = ({
   controller: DatabaseController;
   field: IDatabaseField;
 }) => {
+  const { onMouseDown, movementX } = useResizer();
+  const dispatch = useAppDispatch();
   const [showFieldEditor, setShowFieldEditor] = useState(false);
   const [editFieldTop, setEditFieldTop] = useState(0);
   const [editFieldRight, setEditFieldRight] = useState(0);
@@ -27,6 +31,10 @@ export const GridTableHeaderItem = ({
   const [editingField, setEditingField] = useState<IDatabaseField | null>(null);
 
   const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    dispatch(databaseActions.changeWidth({ fieldId: field.fieldId, width: field.width + movementX }));
+  }, [movementX]);
 
   const changeFieldType = async (newType: FieldType) => {
     if (!editingField) return;
@@ -100,7 +108,7 @@ export const GridTableHeaderItem = ({
           )}
         </div>
       </div>
-      <div className={'group z-[1] -mx-[10px] h-full cursor-col-resize px-[6px]'}>
+      <div className={'group z-[1] -mx-[10px] h-full cursor-col-resize px-[6px]'} onMouseDown={onMouseDown}>
         <div className={'flex h-full w-[3px] justify-center group-hover:bg-main-accent'}>
           <div className={'h-full w-[1px] bg-shade-6 group-hover:bg-main-accent'}></div>
         </div>

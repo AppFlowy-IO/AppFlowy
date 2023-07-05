@@ -119,6 +119,11 @@ export const databaseSlice = createSlice({
       state.fields[field.fieldId] = field;
     },
 
+    changeWidth: (state, action: PayloadAction<{ fieldId: string; width: number }>) => {
+      const { fieldId, width } = action.payload;
+      state.fields[fieldId].width = width;
+    },
+
     /*addFieldSelectOption: (state, action: PayloadAction<{ fieldId: string; option: ISelectOption }>) => {
       const { fieldId, option } = action.payload;
 
