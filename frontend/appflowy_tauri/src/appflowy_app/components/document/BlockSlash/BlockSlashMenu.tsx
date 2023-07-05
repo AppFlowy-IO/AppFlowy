@@ -11,6 +11,8 @@ import {
   TextFields,
   Title,
   SafetyDivider,
+  Image,
+  Functions,
 } from '@mui/icons-material';
 import {
   BlockData,
@@ -25,6 +27,7 @@ import { useSubscribeDocument } from '$app/components/document/_shared/Subscribe
 import { slashCommandActions } from '$app_reducers/document/slice';
 import { Keyboard } from '$app/constants/document/keyboard';
 import { selectOptionByUpDown } from '$app/utils/document/menu';
+import { blockEditActions } from '$app_reducers/document/block_edit_slice';
 
 function BlockSlashMenu({
   id,
@@ -57,7 +60,7 @@ function BlockSlashMenu({
       );
       onClose?.();
     },
-    [controller, dispatch, id, onClose]
+    [controller, dispatch, docId, id, onClose]
   );
 
   const options: (SlashCommandOption & {
@@ -159,6 +162,20 @@ function BlockSlashMenu({
           title: 'Code',
           icon: <DataObject />,
           group: SlashCommandGroup.MEDIA,
+        },
+        {
+          key: SlashCommandOptionKey.IMAGE,
+          type: BlockType.ImageBlock,
+          title: 'Image',
+          icon: <Image />,
+          group: SlashCommandGroup.MEDIA,
+        },
+        {
+          key: SlashCommandOptionKey.EQUATION,
+          type: BlockType.EquationBlock,
+          title: 'Block equation',
+          icon: <Functions />,
+          group: SlashCommandGroup.ADVANCED,
         },
       ].filter((option) => {
         if (!searchText) return true;
