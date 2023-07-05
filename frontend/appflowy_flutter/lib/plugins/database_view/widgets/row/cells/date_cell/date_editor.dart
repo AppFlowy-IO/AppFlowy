@@ -462,6 +462,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
   }
 }
 
+@visibleForTesting
 class ClearDateButton extends StatelessWidget {
   const ClearDateButton({Key? key}) : super(key: key);
 
