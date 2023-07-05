@@ -474,9 +474,12 @@ class ClearDateButton extends StatelessWidget {
         height: GridSize.popoverItemHeight,
         child: FlowyButton(
           text: FlowyText.medium(LocaleKeys.grid_field_clearDate.tr()),
-          onTap: () => context
-              .read<DateCellCalendarBloc>()
-              .add(const DateCellCalendarEvent.clearDate()),
+          onTap: () {
+            context
+                .read<DateCellCalendarBloc>()
+                .add(const DateCellCalendarEvent.clearDate());
+            PopoverContainer.of(context).close();
+          },
           leftIcon: const FlowySvg(name: "grid/delete"),
           margin: GridSize.typeOptionContentInsets,
         ),
