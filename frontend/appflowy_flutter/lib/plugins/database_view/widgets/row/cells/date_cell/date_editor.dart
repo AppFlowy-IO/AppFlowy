@@ -126,7 +126,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             const TypeOptionSeparator(spacing: 12.0),
             DateTypeOptionButton(popoverMutex: popoverMutex),
             const TypeOptionSeparator(spacing: 12.0),
-            const _ClearDateButton(),
+            const ClearDateButton(),
           ];
 
           return ListView.builder(
@@ -462,8 +462,8 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
   }
 }
 
-class _ClearDateButton extends StatelessWidget {
-  const _ClearDateButton({Key? key}) : super(key: key);
+class ClearDateButton extends StatelessWidget {
+  const ClearDateButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
