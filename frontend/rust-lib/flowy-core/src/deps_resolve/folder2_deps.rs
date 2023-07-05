@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::convert::TryFrom;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::RocksCollabDB;
@@ -30,7 +30,7 @@ use lib_infra::future::FutureResult;
 pub struct Folder2DepsResolver();
 impl Folder2DepsResolver {
   pub async fn resolve(
-    user_session: Arc<UserSession>,
+    user_session: Weak<UserSession>,
     document_manager: &Arc<DocumentManager>,
     database_manager: &Arc<DatabaseManager2>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
@@ -63,24 +63,30 @@ fn folder_operation_handlers(
   Arc::new(map)
 }
 
-struct FolderUserImpl(Arc<UserSession>);
+struct FolderUserImpl(Weak<UserSession>);
 impl FolderUser for FolderUserImpl {
   fn user_id(&self) -> Result<i64, FlowyError> {
     self
       .0
+      .upgrade()
+      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
       .user_id()
-      .map_err(|e| FlowyError::internal().context(e))
   }
 
   fn token(&self) -> Result<Option<String>, FlowyError> {
     self
       .0
+      .upgrade()
+      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
       .token()
-      .map_err(|e| FlowyError::internal().context(e))
   }
 
   fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
-    self.0.get_collab_db()
+    self
+      .0
+      .upgrade()
+      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
+      .get_collab_db()
   }
 }
 

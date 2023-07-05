@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::RocksCollabDB;
@@ -14,7 +14,7 @@ pub struct Database2DepsResolver();
 
 impl Database2DepsResolver {
   pub async fn resolve(
-    user_session: Arc<UserSession>,
+    user_session: Weak<UserSession>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DatabaseCloudService>,
@@ -29,23 +29,29 @@ impl Database2DepsResolver {
   }
 }
 
-struct DatabaseUserImpl(Arc<UserSession>);
+struct DatabaseUserImpl(Weak<UserSession>);
 impl DatabaseUser2 for DatabaseUserImpl {
   fn user_id(&self) -> Result<i64, FlowyError> {
     self
       .0
+      .upgrade()
+      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
       .user_id()
-      .map_err(|e| FlowyError::internal().context(e))
   }
 
   fn token(&self) -> Result<Option<String>, FlowyError> {
     self
       .0
+      .upgrade()
+      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
       .token()
-      .map_err(|e| FlowyError::internal().context(e))
   }
 
   fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
-    self.0.get_collab_db()
+    self
+      .0
+      .upgrade()
+      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
+      .get_collab_db()
   }
 }

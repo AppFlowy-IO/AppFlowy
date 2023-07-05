@@ -172,6 +172,7 @@ impl UserSession {
     let uid = session.user_id.to_string();
     let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&uid)))
       .execute(&*(self.db_connection()?))?;
+
     self.database.close_user_db(session.user_id)?;
     self.set_session(None)?;
 

@@ -1,5 +1,8 @@
 use std::time::Duration;
 
+
+
+
 use flowy_database2::entities::{
   DatabaseSnapshotStatePB, DatabaseSyncStatePB, FieldChangesetPB, FieldType,
 };
@@ -69,17 +72,37 @@ async fn cloud_test_supabase_edit_database_test() {
 //   if let Some(test) = FlowySupabaseDatabaseTest::new_with_new_user().await {
 //     let uuid = test.uuid.clone();
 //     let (view, database) = test.create_database().await;
-//     let existing_fields = test.get_all_database_fields(&view.id).await;
-//     for field in existing_fields.items {
-//       if !field.is_primary {
-//         test.delete_field(&view.id, &field.id).await;
-//       }
-//     }
+//     // wait all updates are send to the remote
+//     let mut rx = test
+//       .notification_sender
+//       .subscribe_with_condition::<DatabaseSyncStatePB, _>(&database.id, |pb| pb.is_finish);
+//     receive_with_timeout(&mut rx, Duration::from_secs(30))
+//       .await
+//       .unwrap();
 //     let expected = test.get_collab_json(&database.id).await;
+//     test.sign_out().await;
+//     // Drop the test will cause the test resources to be dropped, which will
+//     // delete the user data folder.
 //     drop(test);
 //
 //     let new_test = FlowySupabaseDatabaseTest::new_with_user(uuid)
 //       .await
 //       .unwrap();
+//     // let actual = new_test.get_collab_json(&database.id).await;
+//     // assert_json_eq!(actual, json!(""));
+//
+//     new_test.open_database(&view.id).await;
+//
+//     // wait all updates are synced from the remote
+//     let mut rx = new_test
+//       .notification_sender
+//       .subscribe_with_condition::<DatabaseSyncStatePB, _>(&database.id, |pb| pb.is_finish);
+//     receive_with_timeout(&mut rx, Duration::from_secs(30))
+//       .await
+//       .unwrap();
+//
+//     // when the new sync is finished, the database should be the same as the old one
+//     let actual = new_test.get_collab_json(&database.id).await;
+//     assert_json_eq!(actual, expected);
 //   }
 // }

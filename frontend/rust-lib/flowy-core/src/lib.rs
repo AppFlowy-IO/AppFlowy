@@ -150,11 +150,11 @@ impl AppFlowyCore {
         /// on demand based on the [CollabPluginConfig].
         let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
           server_provider.clone(),
-          Some(Arc::new(SnapshotDBImpl(user_session.clone()))),
+          Some(Arc::new(SnapshotDBImpl(Arc::downgrade(&user_session)))),
         ));
 
         let database_manager2 = Database2DepsResolver::resolve(
-          user_session.clone(),
+          Arc::downgrade(&user_session),
           task_dispatcher.clone(),
           collab_builder.clone(),
           server_provider.clone(),
@@ -162,14 +162,14 @@ impl AppFlowyCore {
         .await;
 
         let document_manager2 = Document2DepsResolver::resolve(
-          user_session.clone(),
+          Arc::downgrade(&user_session),
           &database_manager2,
           collab_builder.clone(),
           server_provider.clone(),
         );
 
         let folder_manager = Folder2DepsResolver::resolve(
-          user_session.clone(),
+          Arc::downgrade(&user_session),
           &document_manager2,
           &database_manager2,
           collab_builder,
@@ -192,9 +192,11 @@ impl AppFlowyCore {
       config: config.clone(),
     };
 
-    let cloned_user_session = user_session.clone();
+    let cloned_user_session = Arc::downgrade(&user_session);
     runtime.block_on(async move {
-      cloned_user_session.clone().init(user_status_listener).await;
+      if let Some(user_session) = cloned_user_session.upgrade() {
+        user_session.init(user_status_listener).await;
+      }
     });
 
     let event_dispatcher = Arc::new(AFPluginDispatcher::construct(runtime, || {

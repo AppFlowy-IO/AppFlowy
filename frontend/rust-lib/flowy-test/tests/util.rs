@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+
 use std::ops::Deref;
 use std::time::Duration;
 
@@ -9,7 +9,7 @@ use flowy_server::supabase::SupabaseConfiguration;
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
 use flowy_user::entities::{
-  AuthTypePB, ThirdPartyAuthPB, UpdateUserProfilePayloadPB, UserCredentialsPB, UserProfilePB,
+  AuthTypePB, UpdateUserProfilePayloadPB, UserCredentialsPB, UserProfilePB,
 };
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserCloudServiceProvider;

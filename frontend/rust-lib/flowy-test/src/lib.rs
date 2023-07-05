@@ -19,9 +19,9 @@ use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent;
 use flowy_notification::entities::SubscribeObject;
 use flowy_notification::{register_notification_sender, NotificationSender};
-use flowy_user::entities::{AuthTypePB, ThirdPartyAuthPB, UserProfilePB};
+use flowy_user::entities::{AuthTypePB, SignOutPB, ThirdPartyAuthPB, UserProfilePB};
 use flowy_user::errors::FlowyError;
-use flowy_user::event_map::UserEvent::ThirdPartyAuth;
+use flowy_user::event_map::UserEvent::*;
 
 use crate::event_builder::EventBuilder;
 use crate::user_event::{async_sign_up, SignUpContext};
@@ -75,11 +75,17 @@ impl FlowyCoreTest {
 
   pub async fn sign_up(&self) -> SignUpContext {
     let auth_type = self.auth_type.read().clone();
-    let context = async_sign_up(self.inner.dispatcher(), auth_type).await;
-    let user_path =
-      PathBuf::from(&self.config.storage_path).join(context.user_profile.id.to_string());
-    *self.cleaner.write() = Some(Cleaner::new(user_path));
-    context
+    
+    async_sign_up(self.inner.dispatcher(), auth_type).await
+  }
+
+  pub async fn sign_out(&self) {
+    let auth_type = self.auth_type.read().clone();
+    EventBuilder::new(self.clone())
+      .event(SignOut)
+      .payload(SignOutPB { auth_type })
+      .async_send()
+      .await;
   }
 
   pub fn set_auth_type(&self, auth_type: AuthTypePB) {

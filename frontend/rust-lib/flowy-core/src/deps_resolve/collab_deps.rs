@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::Weak;
 
 use appflowy_integrate::{
   calculate_snapshot_diff, CollabSnapshot, PersistenceError, SnapshotPersistence,
@@ -14,19 +14,21 @@ use flowy_sqlite::{
 use flowy_user::services::UserSession;
 use lib_infra::util::timestamp;
 
-pub struct SnapshotDBImpl(pub Arc<UserSession>);
+pub struct SnapshotDBImpl(pub Weak<UserSession>);
 
 impl SnapshotPersistence for SnapshotDBImpl {
   fn get_snapshots(&self, _uid: i64, object_id: &str) -> Vec<CollabSnapshot> {
-    self
-      .0
-      .db_pool()
-      .and_then(|pool| Ok(pool.get()?))
-      .and_then(|conn| {
-        CollabSnapshotTableSql::get_all_snapshots(object_id, &conn)
-          .map(|rows| rows.into_iter().map(|row| row.into()).collect())
-      })
-      .unwrap_or_else(|_| vec![])
+    match self.0.upgrade() {
+      None => vec![],
+      Some(user_session) => user_session
+        .db_pool()
+        .and_then(|pool| Ok(pool.get()?))
+        .and_then(|conn| {
+          CollabSnapshotTableSql::get_all_snapshots(object_id, &conn)
+            .map(|rows| rows.into_iter().map(|row| row.into()).collect())
+        })
+        .unwrap_or_else(|_| vec![]),
+    }
   }
 
   fn create_snapshot(
@@ -37,15 +39,12 @@ impl SnapshotPersistence for SnapshotDBImpl {
     snapshot_data: Vec<u8>,
   ) -> Result<(), PersistenceError> {
     let object_id = object_id.to_string();
-    let weak_pool = Arc::downgrade(
-      &self
-        .0
-        .db_pool()
-        .map_err(|e| PersistenceError::Internal(Box::new(e)))?,
-    );
-
+    let weak_user_session = self.0.clone();
     tokio::task::spawn_blocking(move || {
-      if let Some(pool) = weak_pool.upgrade() {
+      if let Some(pool) = weak_user_session
+        .upgrade()
+        .and_then(|user_session| user_session.db_pool().ok())
+      {
         let conn = pool
           .get()
           .map_err(|e| PersistenceError::Internal(Box::new(e)))?;

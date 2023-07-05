@@ -1,5 +1,6 @@
 use std::ops::Deref;
 
+
 use assert_json_diff::assert_json_eq;
 use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
@@ -52,6 +53,7 @@ impl FlowySupabaseDatabaseTest {
       .get_database(database_id)
       .await
       .unwrap();
+    // let address = Arc::into_raw(database_editor.clone());
     let database = database_editor.get_mutex_database().lock();
     database.get_mutex_collab().to_json_value()
   }
