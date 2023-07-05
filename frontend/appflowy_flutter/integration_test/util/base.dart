@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 
 class FlowyTestContext {
   FlowyTestContext({
@@ -60,7 +61,7 @@ extension AppFlowyTestBase on WidgetTester {
     final dir = await getTemporaryDirectory();
 
     // Use a random uuid to avoid conflict.
-    String path = '${dir.path}/appflowy_integration_test/${uuid()}';
+    String path = p.join(dir.path, 'appflowy_integration_test', uuid());
     if (pathExtension != null && pathExtension.isNotEmpty) {
       path = '$path/$pathExtension';
     }
@@ -78,7 +79,7 @@ extension AppFlowyTestBase on WidgetTester {
     Finder finder, {
     int? pointer,
     int buttons = kPrimaryButton,
-    bool warnIfMissed = true,
+    bool warnIfMissed = false,
     int milliseconds = 500,
   }) async {
     await tap(

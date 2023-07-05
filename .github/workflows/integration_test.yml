@@ -33,7 +33,7 @@ jobs:
     if: github.event.pull_request.draft != true
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-2019]
 
     runs-on: ${{ matrix.os }}
 
@@ -135,5 +135,5 @@ jobs:
             fail_ci_if_error: true
             verbose: true
             os: ${{ matrix.os }}
-          attempt_limit: 5
+          attempt_limit: 20
           attempt_delay: 10000

@@ -1031,7 +1031,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     expect(findEvents, findsNWidgets(number));
   }
 
-  void assertNumberofEventsOnSpecificDay(
+  void assertNumberOfEventsOnSpecificDay(
     int number,
     DateTime date, {
     String? title,
