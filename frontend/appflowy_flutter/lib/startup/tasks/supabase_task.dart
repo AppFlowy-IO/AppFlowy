@@ -5,7 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../startup.dart';
 
 bool isSupabaseEnable = false;
-bool isSupabaseInitialized = true;
+bool isSupabaseInitialized = false;
 
 class InitSupabaseTask extends LaunchTask {
   const InitSupabaseTask({

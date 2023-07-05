@@ -37,12 +37,13 @@ class _InlineMathEquationState extends State<InlineMathEquation> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return _IgnoreParentPointer(
       child: AppFlowyPopover(
         controller: popoverController,
         direction: PopoverDirection.bottomWithLeftAligned,
         popupBuilder: (_) {
-          return _MathInputTextField(
+          return MathInputTextField(
             initialText: widget.formula,
             onSubmit: (value) async {
               popoverController.close();
@@ -75,6 +76,8 @@ class _InlineMathEquationState extends State<InlineMathEquation> {
                       fontShape: FontStyle.italic,
                     ),
                     fontSize: 14.0,
+                    color: widget.textStyle?.color ??
+                        theme.colorScheme.onBackground,
                   ),
                 ),
                 const HSpace(2),
@@ -87,8 +90,9 @@ class _InlineMathEquationState extends State<InlineMathEquation> {
   }
 }
 
-class _MathInputTextField extends StatefulWidget {
-  const _MathInputTextField({
+class MathInputTextField extends StatefulWidget {
+  const MathInputTextField({
+    super.key,
     required this.initialText,
     required this.onSubmit,
   });
@@ -97,10 +101,10 @@ class _MathInputTextField extends StatefulWidget {
   final void Function(String value) onSubmit;
 
   @override
-  State<_MathInputTextField> createState() => _MathInputTextFieldState();
+  State<MathInputTextField> createState() => _MathInputTextFieldState();
 }
 
-class _MathInputTextFieldState extends State<_MathInputTextField> {
+class _MathInputTextFieldState extends State<MathInputTextField> {
   late final TextEditingController textEditingController;
 
   @override

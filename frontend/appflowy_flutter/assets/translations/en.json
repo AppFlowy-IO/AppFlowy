@@ -422,6 +422,7 @@
       "smartEditCouldNotFetchKey": "Could not fetch OpenAI key",
       "smartEditDisabled": "Connect OpenAI in Settings",
       "discardResponse": "Do you want to discard the AI responses?",
+      "createInlineMathEquation": "Create equation",
       "cover": {
         "changeCover": "Change Cover",
         "colors": "Colors",
