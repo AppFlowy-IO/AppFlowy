@@ -3,10 +3,10 @@ use std::{collections::HashMap, vec};
 use collab_document::blocks::{Block, DocumentData, DocumentMeta};
 use nanoid::nanoid;
 
-use crate::{
-  document_block_keys::{PAGE, PARAGRAPH_BLOCK_TYPE},
-  entities::{BlockPB, ChildrenPB, DocumentDataPB, MetaPB},
-};
+use crate::entities::{BlockPB, ChildrenPB, DocumentDataPB, MetaPB};
+
+pub const PAGE: &str = "page";
+pub const PARAGRAPH_BLOCK_TYPE: &str = "paragraph";
 
 impl From<DocumentData> for DocumentDataPB {
   fn from(data: DocumentData) -> Self {

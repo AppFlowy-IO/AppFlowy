@@ -7,6 +7,7 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 use crate::entities::parser::*;
 use crate::errors::ErrorCode;
+use crate::event_map::UserCredentials;
 use crate::services::AuthType;
 
 #[derive(ProtoBuf, Default)]
@@ -101,6 +102,7 @@ pub struct SignUpResponse {
   pub user_id: i64,
   pub name: String,
   pub workspace_id: String,
+  pub is_new: bool,
   pub email: Option<String>,
   pub token: Option<String>,
 }
@@ -193,4 +195,48 @@ impl UpdateUserProfileParams {
 pub struct SignOutPB {
   #[pb(index = 1)]
   pub auth_type: AuthTypePB,
+}
+
+#[derive(Debug, ProtoBuf, Default)]
+pub struct UserCredentialsPB {
+  #[pb(index = 1, one_of)]
+  pub uid: Option<i64>,
+
+  #[pb(index = 2, one_of)]
+  pub uuid: Option<String>,
+
+  #[pb(index = 3, one_of)]
+  pub token: Option<String>,
+}
+
+impl UserCredentialsPB {
+  pub fn from_uid(uid: i64) -> Self {
+    Self {
+      uid: Some(uid),
+      uuid: None,
+      token: None,
+    }
+  }
+
+  pub fn from_token(token: &str) -> Self {
+    Self {
+      uid: None,
+      uuid: None,
+      token: Some(token.to_owned()),
+    }
+  }
+
+  pub fn from_uuid(uuid: &str) -> Self {
+    Self {
+      uid: None,
+      uuid: Some(uuid.to_owned()),
+      token: None,
+    }
+  }
+}
+
+impl From<UserCredentialsPB> for UserCredentials {
+  fn from(value: UserCredentialsPB) -> Self {
+    Self::new(value.token, value.uid, value.uuid)
+  }
 }
