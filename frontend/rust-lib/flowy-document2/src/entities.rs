@@ -147,7 +147,7 @@ pub struct DocumentDataPB {
   pub meta: MetaPB,
 }
 
-#[derive(Default, ProtoBuf, Debug)]
+#[derive(Default, ProtoBuf, Debug, Clone)]
 pub struct BlockPB {
   #[pb(index = 1)]
   pub id: String,

@@ -46,7 +46,7 @@ void showLinkToPageMenu(
             linkToPageMenuEntry.remove();
           } on FlowyError catch (e) {
             Dialogs.show(
-              FlowyErrorPage.message(
+              child: FlowyErrorPage.message(
                 e.msg,
                 howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
               ),

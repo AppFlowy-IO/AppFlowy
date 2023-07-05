@@ -57,6 +57,30 @@ impl DocumentEventTest {
     OpenDocumentData { id: doc_id, data }
   }
 
+  pub async fn get_block(&self, doc_id: &str, block_id: &str) -> Option<BlockPB> {
+    let document = self.open_document(doc_id.to_string()).await;
+    document.data.blocks.get(block_id).cloned()
+  }
+
+  pub async fn get_page_id(&self, doc_id: &str) -> String {
+    let data = self.get_document_data(doc_id).await;
+    data.page_id
+  }
+
+  pub async fn get_document_data(&self, doc_id: &str) -> DocumentDataPB {
+    let document = self.open_document(doc_id.to_string()).await;
+    document.data
+  }
+
+  pub async fn get_block_children(&self, doc_id: &str, block_id: &str) -> Option<Vec<String>> {
+    let block = self.get_block(doc_id, block_id).await;
+    block.as_ref()?;
+    let document_data = self.get_document_data(doc_id).await;
+    let children_map = document_data.meta.children_map;
+    let children_id = block.unwrap().children_id;
+    children_map.get(&children_id).map(|c| c.children.clone())
+  }
+
   pub async fn apply_actions(&self, payload: ApplyActionPayloadPB) {
     let core = &self.inner;
     EventBuilder::new(core.clone())

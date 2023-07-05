@@ -9,7 +9,7 @@ export function useVirtualizedList(count: number) {
   const virtualize = useVirtualizer({
     count,
     getScrollElement: () => parentRef.current,
-    overscan: 5,
+    overscan: 10,
     estimateSize: () => {
       return defaultSize;
     },
