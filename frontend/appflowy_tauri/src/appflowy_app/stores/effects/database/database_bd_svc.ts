@@ -11,7 +11,9 @@ import {
   DatabaseEventMoveGroup,
   DatabaseEventMoveGroupRow,
   DatabaseEventMoveRow,
+  DatabaseEventUpdateField,
   DatabaseGroupIdPB,
+  FieldChangesetPB,
   MoveFieldPayloadPB,
   MoveGroupPayloadPB,
   MoveGroupRowPayloadPB,
@@ -126,6 +128,12 @@ export class DatabaseBackendService {
       to_index: params.toIndex,
     });
     return DatabaseEventMoveField(payload);
+  };
+
+  changeWidth = (params: { fieldId: string; width: number }) => {
+    const payload = FieldChangesetPB.fromObject({ view_id: this.viewId, field_id: params.fieldId, width: params.width });
+
+    return DatabaseEventUpdateField(payload);
   };
 
   /// Get all groups in database

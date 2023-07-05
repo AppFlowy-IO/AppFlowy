@@ -31,61 +31,59 @@ export const GridTableRow = ({
     <Draggable draggableId={row.row.id} key={row.row.id} index={index}>
       {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
         <div
-          className={`group flex cursor-pointer items-stretch border-b border-shade-6 ${
-            snapshot.isDragging ? ' bg-white' : ''
-          }`}
           ref={provided.innerRef}
           {...provided.draggableProps}
+          className={`group flex cursor-pointer items-stretch border-b border-shade-6 `}
         >
-          {/*<div className='w-8'>
-            <div className={`flex h-5 w-5 group-hover:hidden`}></div>
-            <button
-              className={`hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-main-secondary group-hover:flex ${
-                snapshot.isDragging ? '!flex' : ''
-              }  `}
-              onClick={() => addRowAt(row.row.id)}
-            >
-              <AddSvg />
-            </button>
-          </div>
-          <div className='relative w-8'>
-            <div className={`flex h-5 w-5 group-hover:hidden`}></div>
-            <button
-              className={`hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-main-secondary group-hover:flex ${
-                snapshot.isDragging ? '!flex' : ''
-              }`}
-              onClick={() => setShowMenu(true)}
-              {...provided.dragHandleProps}
-            >
-              <DragSvg />
-            </button>
-
-            {showMenu && (
-              <GridRowActions controller={controller} rowId={row.row.id} onOutsideClick={() => setShowMenu(false)} />
-            )}
-          </div>*/}
-
           {cells.map((cell, cellIndex) => {
             return (
-              <div
-                className={`relative flex flex-shrink-0 ${snapshot.isDragging ? '  ' : ''}`}
-                key={cellIndex}
-                draggable={false}
-              >
+              <div className={`relative flex flex-shrink-0 `} key={cellIndex} draggable={false}>
                 <GridCell
-                  width={fields[cell.fieldId].width}
+                  width={fields[cell.fieldId]?.width}
                   cellIdentifier={cell.cellIdentifier}
                   cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
                   fieldController={controller.fieldController}
                 />
 
                 {cellIndex === 0 && (
-                  <div
-                    onClick={() => onOpenRow(row)}
-                    className='absolute inset-y-0 right-0 my-auto mr-1 hidden h-9 w-9 flex-shrink-0 cursor-pointer rounded p-2 hover:bg-slate-200 group-hover:block '
-                  >
-                    <FullView />
-                  </div>
+                  <>
+                    {/* <div className='absolute left-[-30px] inset-y-0 my-auto w-8 flex items-center'>
+                      <div className={`flex h-5 w-5 group-hover:hidden`}></div>
+                      <button
+                        className={`hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-main-secondary group-hover:flex ${
+                          snapshot.isDragging ? '!flex' : ''
+                        }  `}
+                        onClick={() => addRowAt(row.row.id)}
+                      >
+                        <AddSvg />
+                      </button>
+                    </div>*/}
+                    <div className='absolute inset-y-0 left-[-30px] my-auto flex w-8 items-center justify-center'>
+                      <button
+                        className={`hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-main-secondary group-hover:flex ${
+                          snapshot.isDragging ? '!flex' : ''
+                        }`}
+                        onClick={() => setShowMenu(true)}
+                        {...provided.dragHandleProps}
+                      >
+                        <DragSvg />
+                      </button>
+
+                      {showMenu && (
+                        <GridRowActions
+                          controller={controller}
+                          rowId={row.row.id}
+                          onOutsideClick={() => setShowMenu(false)}
+                        />
+                      )}
+                    </div>
+                    <div
+                      onClick={() => onOpenRow(row)}
+                      className='absolute inset-y-0 right-0 my-auto mr-1 hidden h-9 w-9 flex-shrink-0 cursor-pointer rounded p-2 hover:bg-slate-200 group-hover:block '
+                    >
+                      <FullView />
+                    </div>
+                  </>
                 )}
 
                 <div className={'-mx-[10px] h-full cursor-col-resize px-[6px]'}>

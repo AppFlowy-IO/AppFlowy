@@ -123,6 +123,10 @@ export class DatabaseController {
     return this.backendService.moveField(params);
   };
 
+  changeWidth = (params: { fieldId: string; width: number }) => {
+    return this.backendService.changeWidth(params);
+  };
+
   private loadGroup = async () => {
     const result = await this.backendService.loadGroups();
 

@@ -12,7 +12,7 @@ export const GridTableHeader = ({ controller }: { controller: DatabaseController
   const { t } = useTranslation();
 
   return (
-    <div className={'flex text-xs'} style={{ userSelect: 'none' }}>
+    <div className={'flex pl-8 text-xs'} style={{ userSelect: 'none' }}>
       {columns.map((column, i) => {
         return <GridTableHeaderItem field={fields[column.fieldId]} controller={controller} key={i} />;
       })}

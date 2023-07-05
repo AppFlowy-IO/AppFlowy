@@ -22,7 +22,7 @@ export const GridTableRows = ({
       <Droppable droppableId='table'>
         {(droppableProvided: DroppableProvided) => (
           <div
-            className={'absolute h-full overflow-y-auto overflow-x-hidden'}
+            className={'absolute h-full overflow-y-auto overflow-x-hidden pl-8'}
             ref={droppableProvided.innerRef}
             {...droppableProvided.droppableProps}
           >

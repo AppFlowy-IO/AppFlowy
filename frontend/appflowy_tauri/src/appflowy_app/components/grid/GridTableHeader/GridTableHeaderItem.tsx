@@ -18,7 +18,9 @@ export const GridTableHeaderItem = ({
   controller: DatabaseController;
   field: IDatabaseField;
 }) => {
-  const { onMouseDown, movementX } = useResizer();
+  const { onMouseDown, newSizeX } = useResizer((final) => {
+    void controller.changeWidth({ fieldId: field.fieldId, width: final });
+  });
   const dispatch = useAppDispatch();
   const [showFieldEditor, setShowFieldEditor] = useState(false);
   const [editFieldTop, setEditFieldTop] = useState(0);
@@ -33,8 +35,9 @@ export const GridTableHeaderItem = ({
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    dispatch(databaseActions.changeWidth({ fieldId: field.fieldId, width: field.width + movementX }));
-  }, [movementX]);
+    if (!newSizeX) return;
+    dispatch(databaseActions.changeWidth({ fieldId: field.fieldId, width: newSizeX }));
+  }, [newSizeX]);
 
   const changeFieldType = async (newType: FieldType) => {
     if (!editingField) return;
@@ -108,7 +111,10 @@ export const GridTableHeaderItem = ({
           )}
         </div>
       </div>
-      <div className={'group z-[1] -mx-[10px] h-full cursor-col-resize px-[6px]'} onMouseDown={onMouseDown}>
+      <div
+        className={'group z-[1] -mx-[10px] h-full cursor-col-resize px-[6px]'}
+        onMouseDown={(e) => onMouseDown(e, field.width)}
+      >
         <div className={'flex h-full w-[3px] justify-center group-hover:bg-main-accent'}>
           <div className={'h-full w-[1px] bg-shade-6 group-hover:bg-main-accent'}></div>
         </div>
