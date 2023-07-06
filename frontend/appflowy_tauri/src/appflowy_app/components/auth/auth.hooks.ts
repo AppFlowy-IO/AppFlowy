@@ -12,7 +12,8 @@ export const useAuth = () => {
   const authBackendService = new AuthBackendService();
 
   async function checkUser() {
-    const result = await UserBackendService.checkUser();
+    const result = await UserBackendService.getUserProfile();
+
     if (result.ok) {
       const userProfile = result.val;
       const workspaceSetting = await _openWorkspace().then((r) => {
@@ -22,6 +23,7 @@ export const useAuth = () => {
           return undefined;
         }
       });
+
       dispatch(
         currentUserActions.checkUser({
           id: userProfile.id,
@@ -33,6 +35,7 @@ export const useAuth = () => {
         })
       );
     }
+
     return result;
   }
 
@@ -44,8 +47,10 @@ export const useAuth = () => {
       // Get the workspace setting after user registered. The workspace setting
       // contains the latest visiting view and the current workspace data.
       const openWorkspaceResult = await _openWorkspace();
+
       if (openWorkspaceResult.ok) {
         const workspaceSetting: WorkspaceSettingPB = openWorkspaceResult.val;
+
         dispatch(
           currentUserActions.updateUser({
             id: userProfile.id,
@@ -57,6 +62,7 @@ export const useAuth = () => {
           })
         );
       }
+
       return authResult.val;
     } else {
       Log.error(authResult.val.msg);
@@ -66,8 +72,10 @@ export const useAuth = () => {
 
   async function login(email: string, password: string): Promise<UserProfilePB> {
     const result = await authBackendService.signIn({ email, password });
+
     if (result.ok) {
       const { id, token, name } = result.val;
+
       dispatch(
         currentUserActions.updateUser({
           id: id,
