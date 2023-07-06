@@ -1,6 +1,8 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,7 +23,7 @@ void main() {
       // create a new document
       await tester.createNewPageWithName(
         ViewLayoutPB.Document,
-        'insert an inline math equation',
+        LocaleKeys.document_plugins_createInlineMathEquation.tr(),
       );
 
       // tap the first line of the document
@@ -35,8 +37,7 @@ void main() {
 
       // tap the inline math equation button
       final inlineMathEquationButton = find.byTooltip(
-        'Insert an inline math equation',
-        // LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+        LocaleKeys.document_plugins_createInlineMathEquation.tr(),
       );
       await tester.tapButton(inlineMathEquationButton);
 
