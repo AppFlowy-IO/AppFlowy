@@ -10,12 +10,13 @@ cd ../../../appflowy_flutter
 
 # Navigate to the appflowy_flutter directory and generate files
 echo "Generating files for appflowy_flutter"
-flutter clean >/dev/null 2>&1 && flutter packages pub get >/dev/null 2>&1 && dart run build_runner clean && dart run build_runner build -d
+# flutter clean >/dev/null 2>&1 && flutter packages pub get >/dev/null 2>&1 && dart run build_runner clean &&
+dart run build_runner build -d
 echo "Done generating files for appflowy_flutter"
 
 echo "Generating files for packages"
 cd packages
-for d in */ ; do
+for d in */; do
   # Navigate into the subdirectory
   cd "$d"
 

@@ -64,6 +64,7 @@ jobs:
           prefix-key: ${{ matrix.os }}
           workspaces: |
             frontend/rust-lib
+          cache-all-crates: true
 
       - uses: davidB/rust-cargo-make@v1
         with:

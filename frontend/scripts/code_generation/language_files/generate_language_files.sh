@@ -10,8 +10,6 @@ cd "$(dirname "$0")"
 # Navigate to the project root
 cd ../../../appflowy_flutter
 
-flutter clean
-
 flutter packages pub get
 
 echo "Specifying source directory for AppFlowy Localizations."
