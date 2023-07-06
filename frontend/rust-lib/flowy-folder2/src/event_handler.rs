@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
-use flowy_error::FlowyError;
-use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
-
 use crate::entities::*;
 use crate::manager::Folder2Manager;
 use crate::share::ImportParams;
+use flowy_error::FlowyError;
+use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+// use tracing::instrument;
 
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn create_workspace_handler(
@@ -21,7 +21,31 @@ pub(crate) async fn create_workspace_handler(
 pub(crate) async fn read_workspace_views_handler(
   folder: AFPluginState<Arc<Folder2Manager>>,
 ) -> DataResult<RepeatedViewPB, FlowyError> {
-  let child_views = folder.get_current_workspace_views().await?;
+  let mut child_views = folder.get_current_workspace_views().await?;
+  let mut favorite_views = vec![];
+  for child_view in &child_views {
+    for nested_child in &child_view.child_views {
+      if nested_child.is_favorite {
+        favorite_views.push(nested_child.clone());
+      }
+    }
+  }
+  // if !favorite_views.is_empty() {
+  //   child_views.insert(
+  //     0,
+  //     ViewPB {
+  //       id: "favorites".to_string(),
+  //       parent_view_id: "favorites".to_string(),
+  //       name: "favorites".to_string(),
+  //       create_time: 0,
+  //       child_views: favorite_views,
+  //       layout: ViewLayoutPB::Document,
+  //       icon_url: None,
+  //       cover_url: None,
+  //       is_favorite: false,
+  //     },
+  //   );
+  // }
   let repeated_view: RepeatedViewPB = child_views.into();
   data_result_ok(repeated_view)
 }
@@ -132,7 +156,16 @@ pub(crate) async fn delete_view_handler(
   }
   Ok(())
 }
-
+pub(crate) async fn toggle_favorites_handler(
+  data: AFPluginData<RepeatedViewIdPB>,
+  folder: AFPluginState<Arc<Folder2Manager>>,
+) -> Result<(), FlowyError> {
+  let params: RepeatedViewIdPB = data.into_inner();
+  for view_id in &params.items {
+    let _ = folder.toggle_favorites(view_id).await;
+  }
+  Ok(())
+}
 pub(crate) async fn set_latest_view_handler(
   data: AFPluginData<ViewIdPB>,
   folder: AFPluginState<Arc<Folder2Manager>>,
@@ -173,6 +206,13 @@ pub(crate) async fn duplicate_view_handler(
   Ok(())
 }
 
+#[tracing::instrument(level = "debug", skip(folder), err)]
+pub(crate) async fn read_favorites_handler(
+  folder: AFPluginState<Arc<Folder2Manager>>,
+) -> DataResult<RepeatedFavoritesPB, FlowyError> {
+  let favorites = folder.get_all_favorites().await;
+  data_result_ok(favorites.into())
+}
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn read_trash_handler(
   folder: AFPluginState<Arc<Folder2Manager>>,
