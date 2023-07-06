@@ -58,6 +58,9 @@ pub struct ViewPB {
   /// The cover url of the view.
   #[pb(index = 8, one_of)]
   pub cover_url: Option<String>,
+
+  #[pb(index = 9)]
+  pub is_favorite: bool,
 }
 
 pub fn view_pb_without_child_views(view: Arc<View>) -> ViewPB {
@@ -70,6 +73,7 @@ pub fn view_pb_without_child_views(view: Arc<View>) -> ViewPB {
     layout: view.layout.clone().into(),
     icon_url: view.icon_url.clone(),
     cover_url: view.cover_url.clone(),
+    is_favorite: view.is_favorite,
   }
 }
 
@@ -87,6 +91,7 @@ pub fn view_pb_with_child_views(view: Arc<View>, child_views: Vec<Arc<View>>) ->
     layout: view.layout.clone().into(),
     icon_url: view.icon_url.clone(),
     cover_url: view.cover_url.clone(),
+    is_favorite: false,
   }
 }
 
@@ -303,10 +308,13 @@ pub struct UpdateViewPayloadPB {
   pub layout: Option<ViewLayoutPB>,
 
   #[pb(index = 6, one_of)]
-  pub icon_url: Option<String>,
+  pub cover_url: Option<String>,
 
   #[pb(index = 7, one_of)]
-  pub cover_url: Option<String>,
+  pub icon_url: Option<String>,
+
+  #[pb(index = 8, one_of)]
+  pub is_favorite: Option<bool>,
 }
 
 #[derive(Clone, Debug)]
@@ -315,13 +323,10 @@ pub struct UpdateViewParams {
   pub name: Option<String>,
   pub desc: Option<String>,
   pub thumbnail: Option<String>,
-  pub layout: Option<ViewLayout>,
-
-  /// The icon url can be empty, which means the view has no icon.
   pub icon_url: Option<String>,
-
-  /// The cover url can be empty, which means the view has no icon.
   pub cover_url: Option<String>,
+  pub is_favorite: Option<bool>,
+  pub layout: Option<ViewLayout>,
 }
 
 impl TryInto<UpdateViewParams> for UpdateViewPayloadPB {
@@ -345,14 +350,20 @@ impl TryInto<UpdateViewParams> for UpdateViewPayloadPB {
       Some(thumbnail) => Some(ViewThumbnail::parse(thumbnail)?.0),
     };
 
+    let cover_url = self.cover_url;
+
+    let icon_url = self.icon_url;
+    let is_favorite = self.is_favorite;
+
     Ok(UpdateViewParams {
       view_id,
       name,
       desc,
       thumbnail,
+      cover_url,
+      icon_url,
+      is_favorite,
       layout: self.layout.map(|ty| ty.into()),
-      icon_url: self.icon_url,
-      cover_url: self.cover_url,
     })
   }
 }
