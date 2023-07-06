@@ -18,61 +18,87 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
   })  : viewBackendSvc = ViewBackendService(),
         listener = ViewListener(viewId: view.id),
         super(ViewState.init(view)) {
-    on<ViewEvent>((event, emit) async {
-      await event.map(
-        initial: (e) {
-          listener.start(
-            onViewUpdated: (result) {
-              add(ViewEvent.viewDidUpdate(left(result)));
-            },
-          );
-          emit(state);
-        },
-        setIsEditing: (e) {
-          emit(state.copyWith(isEditing: e.isEditing));
-        },
-        viewDidUpdate: (e) {
-          e.result.fold(
-            (view) => emit(
-              state.copyWith(view: view, successOrFailure: left(unit)),
-            ),
-            (error) => emit(
-              state.copyWith(successOrFailure: right(error)),
-            ),
-          );
-        },
-        rename: (e) async {
-          final result = await ViewBackendService.updateView(
-            viewId: view.id,
-            name: e.newName,
-          );
-          emit(
-            result.fold(
-              (l) => state.copyWith(successOrFailure: left(unit)),
-              (error) => state.copyWith(successOrFailure: right(error)),
-            ),
-          );
-        },
-        delete: (e) async {
-          final result = await ViewBackendService.delete(viewId: view.id);
-          emit(
-            result.fold(
-              (l) => state.copyWith(successOrFailure: left(unit)),
-              (error) => state.copyWith(successOrFailure: right(error)),
-            ),
-          );
-        },
-        duplicate: (e) async {
-          final result = await ViewBackendService.duplicate(view: view);
-          emit(
-            result.fold(
-              (l) => state.copyWith(successOrFailure: left(unit)),
-              (error) => state.copyWith(successOrFailure: right(error)),
-            ),
-          );
-        },
-      );
-    });
+    on<ViewEvent>(
+      (event, emit) async {
+        await event.map(
+          initial: (e) {
+            listener.start(
+              onViewUpdated: (result) {
+                add(ViewEvent.viewDidUpdate(left(result)));
+              },
+            );
+            emit(state);
+          },
+          setIsEditing: (e) {
+            emit(state.copyWith(isEditing: e.isEditing));
+          },
+          viewDidUpdate: (e) {
+            e.result.fold(
+              (view) => emit(
+                state.copyWith(view: view, successOrFailure: left(unit)),
+              ),
+              (error) => emit(
+                state.copyWith(successOrFailure: right(error)),
+              ),
+            );
+          },
+          rename: (e) async {
+            final result = await ViewBackendService.updateView(
+              viewId: view.id,
+              name: e.newName,
+            );
+            emit(
+              result.fold(
+                (l) => state.copyWith(successOrFailure: left(unit)),
+                (error) => state.copyWith(successOrFailure: right(error)),
+              ),
+            );
+          },
+          delete: (e) async {
+            final result = await ViewBackendService.delete(viewId: view.id);
+            emit(
+              result.fold(
+                (l) => state.copyWith(successOrFailure: left(unit)),
+                (error) => state.copyWith(successOrFailure: right(error)),
+              ),
+            );
+          },
+          duplicate: (e) async {
+            final result = await ViewBackendService.duplicate(view: view);
+            emit(
+              result.fold(
+                (l) => state.copyWith(successOrFailure: left(unit)),
+                (error) => state.copyWith(successOrFailure: right(error)),
+              ),
+            );
+          },
+          favorite: (e) async {
+            final result = await ViewBackendService.updateView(
+              viewId: view.id,
+              isFavorite: !state.view.isFavorite,
+            );
+
+            await result.fold(
+              (l) async {
+                final result =
+                    await ViewBackendService.favorite(viewId: view.id);
+                emit(
+                  result.fold(
+                    (l) => state.copyWith(successOrFailure: left(unit)),
+                    (error) => state.copyWith(successOrFailure: right(error)),
+                  ),
+                );
+              },
+              (error) async => emit(
+                state.copyWith(
+                  successOrFailure: right(error),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -91,6 +117,7 @@ class ViewEvent with _$ViewEvent {
   const factory ViewEvent.duplicate() = Duplicate;
   const factory ViewEvent.viewDidUpdate(Either<ViewPB, FlowyError> result) =
       ViewDidUpdate;
+  const factory ViewEvent.favorite() = Favorite;
 }
 
 @freezed

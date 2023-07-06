@@ -118,11 +118,17 @@ class ViewBackendService {
     return FolderEventDuplicateView(view).send();
   }
 
+  static Future<Either<Unit, FlowyError>> favorite({required String viewId}) {
+    final request = RepeatedViewIdPB.create()..items.add(viewId);
+    return FolderEventToggleFavorite(request).send();
+  }
+
   static Future<Either<ViewPB, FlowyError>> updateView({
     required String viewId,
     String? name,
     String? iconURL,
     String? coverURL,
+    bool? isFavorite,
   }) {
     final payload = UpdateViewPayloadPB.create()..viewId = viewId;
 
@@ -138,6 +144,9 @@ class ViewBackendService {
       payload.coverUrl = coverURL;
     }
 
+    if (isFavorite != null) {
+      payload.isFavorite = isFavorite;
+    }
     return FolderEventUpdateView(payload).send();
   }
 
