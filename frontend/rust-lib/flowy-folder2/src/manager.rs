@@ -120,6 +120,7 @@ impl FolderManager {
     &self,
     uid: i64,
     workspace_id: &str,
+    updates: Vec<Vec<u8>>,
     initial_folder_data: Option<FolderData>,
   ) -> FlowyResult<()> {
     let workspace_id = workspace_id.to_string();
@@ -129,10 +130,11 @@ impl FolderManager {
         &workspace_id,
         "workspace",
         collab_db,
+        updates,
         &CollabPersistenceConfig::new()
           .enable_snapshot(true)
           .snapshot_per_update(5),
-      );
+      )?;
       let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
       let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
       let folder_notifier = FolderNotify {
@@ -179,8 +181,9 @@ impl FolderManager {
         &self.operation_handlers,
       )
       .await;
+
       self
-        .initialize(user_id, workspace_id, Some(folder_data))
+        .initialize(user_id, workspace_id, vec![], Some(folder_data))
         .await?;
       send_notification(token, FolderNotification::DidCreateWorkspace)
         .payload(RepeatedWorkspacePB {
@@ -191,11 +194,16 @@ impl FolderManager {
       // The folder data is loaded through the [FolderCloudService]. If the cloud service in use is
       // [LocalServerFolderCloudServiceImpl], the folder data will be None because the Folder will load
       // the data directly from the disk. If any other cloud service is in use, the folder data will be loaded remotely.
-      let folder_data = self.cloud_service.get_folder_data(workspace_id).await?;
-      if folder_data.is_some() {
-        tracing::trace!("Get folder data via {}", self.cloud_service.service_name());
+      let folder_updates = self.cloud_service.get_folder_updates(workspace_id).await?;
+      if !folder_updates.is_empty() {
+        tracing::trace!(
+          "Get folder updates via {}",
+          self.cloud_service.service_name()
+        );
       }
-      self.initialize(user_id, workspace_id, folder_data).await?;
+      self
+        .initialize(user_id, workspace_id, folder_updates, None)
+        .await?;
     }
     Ok(())
   }

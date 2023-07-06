@@ -268,7 +268,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 
     to_fut(async move {
       folder_manager
-        .initialize(user_id, &workspace_id, None)
+        .initialize(user_id, &workspace_id, vec![], None)
         .await?;
       database_manager.initialize(user_id).await?;
       Ok(())

@@ -326,10 +326,9 @@ impl DatabaseCollabBuilder for UserDatabaseCollabBuilderImpl {
     db: Arc<RocksCollabDB>,
     config: &CollabPersistenceConfig,
   ) -> Arc<MutexCollab> {
-    let collab = self
+    self
       .0
-      .build_with_config(uid, object_id, object_name, db, config);
-    collab.lock().initialize(false);
-    collab
+      .build_with_config(uid, object_id, object_name, db, vec![], config)
+      .unwrap()
   }
 }

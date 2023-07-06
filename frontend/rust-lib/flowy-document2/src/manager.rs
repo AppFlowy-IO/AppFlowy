@@ -69,7 +69,7 @@ impl DocumentManager {
     tracing::debug!("open_document: {:?}", doc_id);
     let uid = self.user.user_id()?;
     let db = self.user.collab_db()?;
-    let collab = self.collab_builder.build(uid, doc_id, "document", db);
+    let collab = self.collab_builder.build(uid, doc_id, "document", db)?;
     collab.lock().initialize(false);
     let document = Arc::new(MutexDocument::open(doc_id, collab)?);
 
@@ -138,7 +138,8 @@ impl DocumentManager {
   fn collab_for_document(&self, doc_id: &str) -> FlowyResult<Arc<MutexCollab>> {
     let uid = self.user.user_id()?;
     let db = self.user.collab_db()?;
-    Ok(self.collab_builder.build(uid, doc_id, "document", db))
+    let collab = self.collab_builder.build(uid, doc_id, "document", db)?;
+    Ok(collab)
   }
 
   fn is_doc_exist(&self, doc_id: &str) -> FlowyResult<bool> {
