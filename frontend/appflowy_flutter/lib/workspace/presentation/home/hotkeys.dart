@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
@@ -23,6 +24,21 @@ class HomeHotKeys extends StatelessWidget {
         context
             .read<HomeSettingBloc>()
             .add(const HomeSettingEvent.collapseMenu());
+      },
+    );
+
+    final HotKey hotKeyForToggleThemeMode = HotKey(
+      KeyCode.keyL,
+      modifiers: [
+        Platform.isMacOS ? KeyModifier.meta : KeyModifier.control,
+        KeyModifier.shift,
+      ],
+      scope: HotKeyScope.inapp,
+    );
+    hotKeyManager.register(
+      hotKeyForToggleThemeMode,
+      keyDownHandler: (_) {
+        context.read<AppearanceSettingsCubit>().toggleThemeMode();
       },
     );
     return child;
