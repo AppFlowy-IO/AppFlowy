@@ -13,6 +13,7 @@ import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/util/file_picker/file_picker_impl.dart';
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
@@ -148,6 +149,7 @@ void _resolveFolderDeps(GetIt getIt) {
   getIt.registerFactory<TrashBloc>(
     () => TrashBloc(),
   );
+  getIt.registerFactory<FavoriteBloc>(() => FavoriteBloc());
 }
 
 void _resolveDocDeps(GetIt getIt) {

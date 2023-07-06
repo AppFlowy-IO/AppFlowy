@@ -4,10 +4,12 @@ import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/trash/menu.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
@@ -91,6 +93,7 @@ class HomeMenu extends StatelessWidget {
               children: [
                 const MenuTopBar(),
                 const VSpace(10),
+                _renderFavorites(context),
                 _renderApps(context),
               ],
             ).padding(horizontal: Insets.l),
@@ -100,6 +103,35 @@ class HomeMenu extends StatelessWidget {
           const VSpace(20),
           _renderNewAppButton(context),
         ],
+      ),
+    );
+  }
+
+  Widget _renderFavorites(BuildContext context) {
+    return BlocProvider(
+      create: (context) =>
+          getIt<FavoriteBloc>()..add(const FavoriteEvent.initial()),
+      child: BlocConsumer<FavoriteBloc, FavoriteState>(
+        listener: (context, state) {
+          Log.warn("Favorite state changed $state");
+        },
+        builder: (context, state) {
+          return Visibility(
+            visible: true,
+            child: ExpandableTheme(
+              data: ExpandableThemeData(
+                useInkWell: true,
+                animationDuration: Durations.medium,
+              ),
+              child: ScrollConfiguration(
+                behavior: const ScrollBehavior().copyWith(scrollbars: false),
+                child: Column(
+                  children: [...state.objects.map((e) => Text(e.id)).toList()],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -131,7 +163,8 @@ class HomeMenu extends StatelessWidget {
                   //  expect:   oldIndex: 0, newIndex: 1
                   //  receive:  oldIndex: 0, newIndex: 2
                   //  Workaround: if newIndex > oldIndex, we just minus one
-                  final int index = newIndex > oldIndex ? newIndex - 1 : newIndex;
+                  final int index =
+                      newIndex > oldIndex ? newIndex - 1 : newIndex;
                   context
                       .read<MenuBloc>()
                       .add(MenuEvent.moveApp(oldIndex, index));
