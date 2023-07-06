@@ -1,5 +1,5 @@
 use flowy_error::FlowyError;
-use flowy_folder2::deps::{FolderCloudService, FolderSnapshot, Workspace};
+use flowy_folder2::deps::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
 use flowy_folder2::gen_workspace_id;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
@@ -17,6 +17,10 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
         created_at: timestamp(),
       })
     })
+  }
+
+  fn get_folder_data(&self, _workspace_id: &str) -> FutureResult<Option<FolderData>, FlowyError> {
+    FutureResult::new(async move { Ok(None) })
   }
 
   fn get_folder_latest_snapshot(

@@ -9,7 +9,7 @@ use lib_infra::future::FutureResult;
 use crate::supabase::impls::{get_latest_snapshot_from_server, get_updates_from_server};
 use crate::supabase::PostgresServer;
 
-pub(crate) struct SupabaseDocumentCloudServiceImpl {
+pub struct SupabaseDocumentCloudServiceImpl {
   server: Arc<PostgresServer>,
 }
 

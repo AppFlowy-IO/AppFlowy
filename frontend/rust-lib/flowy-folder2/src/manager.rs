@@ -6,7 +6,7 @@ use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::CollabPersistenceConfig;
 use collab::core::collab_state::SyncState;
 use collab_folder::core::{
-  Folder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, View, ViewChange,
+  Folder, FolderData, FolderNotify, TrashChange, TrashChangeReceiver, TrashInfo, View, ViewChange,
   ViewChangeReceiver, ViewLayout, Workspace,
 };
 use parking_lot::Mutex;
@@ -89,24 +89,6 @@ impl FolderManager {
     })
   }
 
-  pub async fn poll_sync_state(&self) {
-    let rx = self.with_folder(None, |folder| Some(folder.subscribe_sync_state()));
-    if let Some(mut sync_state_rx) = rx {
-      loop {
-        tracing::trace!("Poll sync state");
-        match sync_state_rx.next().await {
-          None => break,
-          Some(sync_state) => {
-            if sync_state.is_sync_finished() {
-              tracing::trace!("Poll sync state done");
-              break;
-            }
-          },
-        }
-      }
-    }
-  }
-
   /// Return a list of views of the current workspace.
   /// Only the first level of child views are included.
   pub async fn get_current_workspace_views(&self) -> FlowyResult<Vec<ViewPB>> {
@@ -132,8 +114,13 @@ impl FolderManager {
   }
 
   /// Called immediately after the application launched fi the user already sign in/sign up.
-  #[tracing::instrument(level = "info", skip(self), err)]
-  pub async fn initialize(&self, uid: i64, workspace_id: &str) -> FlowyResult<()> {
+  #[tracing::instrument(level = "info", skip(self, initial_folder_data), err)]
+  pub async fn initialize(
+    &self,
+    uid: i64,
+    workspace_id: &str,
+    initial_folder_data: Option<FolderData>,
+  ) -> FlowyResult<()> {
     let workspace_id = workspace_id.to_string();
     if let Ok(collab_db) = self.user.collab_db() {
       let collab = self.collab_builder.build_with_config(
@@ -147,11 +134,11 @@ impl FolderManager {
       );
       let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
       let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
-      let folder_context = FolderContext {
+      let folder_notifier = FolderNotify {
         view_change_tx: view_tx,
         trash_change_tx: trash_tx,
       };
-      let folder = Folder::get_or_create(collab, folder_context);
+      let folder = Folder::get_or_create(collab, Some(folder_notifier), initial_folder_data);
       let folder_state_rx = folder.subscribe_sync_state();
       tracing::debug!("Current workspace_id: {}", workspace_id);
       *self.mutex_folder.lock() = Some(folder);
@@ -178,8 +165,6 @@ impl FolderManager {
     is_new: bool,
     workspace_id: &str,
   ) -> FlowyResult<()> {
-    self.initialize(user_id, workspace_id).await?;
-
     // Create the default workspace if the user is new
     tracing::info!("initialize_with_user: is_new: {}", is_new);
     if is_new {
@@ -189,19 +174,24 @@ impl FolderManager {
         &self.operation_handlers,
       )
       .await;
-      self.with_folder((), |folder| {
-        folder.create_with_data(folder_data);
-      });
-
+      self
+        .initialize(user_id, workspace_id, Some(folder_data))
+        .await?;
       send_notification(token, FolderNotification::DidCreateWorkspace)
         .payload(RepeatedWorkspacePB {
           items: vec![workspace_pb],
         })
         .send();
     } else {
-      if !self.cloud_service.is_local_service() {
-        self.poll_sync_state().await;
-      }
+      // TODO(nathan): retry
+      let folder_data = self
+        .cloud_service
+        .get_folder_data(workspace_id)
+        .await?
+        .unwrap();
+      self
+        .initialize(user_id, workspace_id, Some(folder_data))
+        .await?;
     }
     Ok(())
   }
@@ -766,26 +756,10 @@ fn subscribe_folder_snapshot_state_changed(
 fn subscribe_folder_sync_state_changed(
   workspace_id: String,
   mut folder_sync_state_rx: WatchStream<SyncState>,
-  weak_mutex_folder: &Weak<MutexFolder>,
+  _weak_mutex_folder: &Weak<MutexFolder>,
 ) {
-  let weak_mutex_folder = weak_mutex_folder.clone();
   tokio::spawn(async move {
     while let Some(state) = folder_sync_state_rx.next().await {
-      if state.is_full_sync() {
-        if let Some(mutex_folder) = weak_mutex_folder.upgrade() {
-          let folder = mutex_folder.lock().take();
-          if let Some(folder) = folder {
-            tracing::trace!("🔥Reload folder");
-            let reload_folder = folder.reload();
-            if let Some(workspace_id) = reload_folder.get_current_workspace_id() {
-              tracing::trace!("Current workspace_id: {}", workspace_id);
-            }
-            *mutex_folder.lock() = Some(reload_folder);
-            notify_did_update_workspace(&workspace_id, mutex_folder.lock().as_ref().unwrap());
-          }
-        }
-      }
-
       send_notification(&workspace_id, FolderNotification::DidUpdateFolderSyncUpdate)
         .payload(FolderSyncStatePB::from(state))
         .send();

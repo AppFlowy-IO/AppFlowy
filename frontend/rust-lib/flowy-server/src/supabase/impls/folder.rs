@@ -1,15 +1,16 @@
 use std::sync::Arc;
 
 use chrono::{DateTime, Utc};
+use collab_folder::core::{CollabOrigin, Folder};
 use futures_util::{pin_mut, StreamExt};
 use tokio::sync::oneshot::channel;
 use uuid::Uuid;
 
-use crate::supabase::impls::{get_latest_snapshot_from_server, get_updates_from_server};
 use flowy_error::{internal_error, ErrorCode, FlowyError};
-use flowy_folder2::deps::{FolderCloudService, FolderSnapshot, Workspace};
+use flowy_folder2::deps::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
 use lib_infra::future::FutureResult;
 
+use crate::supabase::impls::{get_latest_snapshot_from_server, get_updates_from_server};
 use crate::supabase::pg_db::PostgresObject;
 use crate::supabase::sql_builder::{InsertSqlBuilder, SelectSqlBuilder};
 use crate::supabase::PostgresServer;
@@ -19,7 +20,7 @@ pub(crate) const WORKSPACE_ID: &str = "workspace_id";
 const WORKSPACE_NAME: &str = "workspace_name";
 const CREATED_AT: &str = "created_at";
 
-pub(crate) struct SupabaseFolderCloudServiceImpl {
+pub struct SupabaseFolderCloudServiceImpl {
   server: Arc<PostgresServer>,
 }
 
@@ -44,6 +45,26 @@ impl FolderCloudService for SupabaseFolderCloudServiceImpl {
       )
     });
     FutureResult::new(async { rx.await.map_err(internal_error)? })
+  }
+
+  fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, FlowyError> {
+    let server = Arc::downgrade(&self.server);
+    let (tx, rx) = channel();
+    let workspace_id = workspace_id.to_string();
+    tokio::spawn(async move {
+      let folder_data = get_updates_from_server(&workspace_id, server)
+        .await
+        .map(|updates| {
+          let folder = Folder::from_update(CollabOrigin::Empty, updates, &workspace_id, vec![])?;
+          Ok(folder.get_folder_data())
+        });
+
+      tx.send(folder_data)
+    });
+    FutureResult::new(async {
+      let result = rx.await.map_err(internal_error)?.map_err(internal_error)?;
+      result
+    })
   }
 
   fn get_folder_latest_snapshot(

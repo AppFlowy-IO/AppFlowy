@@ -267,7 +267,9 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let database_manager = self.database_manager.clone();
 
     to_fut(async move {
-      folder_manager.initialize(user_id, &workspace_id).await?;
+      folder_manager
+        .initialize(user_id, &workspace_id, None)
+        .await?;
       database_manager.initialize(user_id).await?;
       Ok(())
     })

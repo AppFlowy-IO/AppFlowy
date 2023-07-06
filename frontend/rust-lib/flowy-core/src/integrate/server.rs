@@ -9,7 +9,7 @@ use serde_repr::*;
 use flowy_database2::deps::{DatabaseCloudService, DatabaseSnapshot};
 use flowy_document2::deps::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_folder2::deps::{FolderCloudService, FolderSnapshot, Workspace};
+use flowy_folder2::deps::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
 use flowy_server::local_server::LocalServer;
 use flowy_server::self_host::configuration::self_host_server_configuration;
 use flowy_server::self_host::SelfHostServer;
@@ -117,6 +117,17 @@ impl FolderCloudService for AppFlowyServerProvider {
     let server = self.get_provider(&self.provider_type.read());
     let name = name.to_string();
     FutureResult::new(async move { server?.folder_service().create_workspace(uid, &name).await })
+  }
+
+  fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, FlowyError> {
+    let server = self.get_provider(&self.provider_type.read());
+    let workspace_id = workspace_id.to_string();
+    FutureResult::new(async move {
+      server?
+        .folder_service()
+        .get_folder_data(&workspace_id)
+        .await
+    })
   }
 
   fn get_folder_latest_snapshot(

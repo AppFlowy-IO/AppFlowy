@@ -165,7 +165,9 @@ where
   Payload: 'static + Send + Sync,
 {
   pub async fn run(mut notifier: watch::Receiver<bool>, server: Weak<dyn RequestHandler<Payload>>) {
-    server.upgrade().unwrap().notify();
+    if let Some(server) = server.upgrade() {
+      server.notify();
+    }
     loop {
       // stops the runner if the notifier was closed.
       if notifier.changed().await.is_err() {

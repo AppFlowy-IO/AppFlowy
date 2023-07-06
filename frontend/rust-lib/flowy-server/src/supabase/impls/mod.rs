@@ -1,7 +1,7 @@
 pub use collab_storage::*;
-pub(crate) use database::*;
-pub(crate) use document::*;
-pub(crate) use folder::*;
+pub use database::*;
+pub use document::*;
+pub use folder::*;
 pub use user::*;
 
 mod collab_storage;

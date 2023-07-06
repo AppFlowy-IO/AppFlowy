@@ -1858,6 +1858,7 @@ dependencies = [
  "async-stream",
  "bytes",
  "chrono",
+ "collab-folder",
  "config",
  "deadpool-postgres",
  "dotenv",
@@ -1955,6 +1956,7 @@ dependencies = [
  "tempdir",
  "thread-id",
  "tokio",
+ "tokio-postgres",
  "tracing",
  "uuid",
 ]

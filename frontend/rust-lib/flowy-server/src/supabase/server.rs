@@ -77,23 +77,39 @@ impl Deref for PostgresServer {
   }
 }
 
+impl PostgresServer {
+  pub fn new(config: PostgresConfiguration) -> Self {
+    let (resp_sender, resp_receiver) = watch::channel(false);
+    let inner = Arc::new(PostgresServerInner::new(resp_sender, config));
+
+    // Initialize the connection to the database
+    let conn = PendingRequest::new(PostgresEvent::ConnectDB);
+    inner.queue.lock().push(conn);
+    let handler = Arc::downgrade(&inner) as Weak<dyn RequestHandler<PostgresEvent>>;
+    spawn(RequestRunner::run(resp_receiver, handler));
+
+    Self { inner }
+  }
+}
+
 pub struct PostgresServerInner {
   config: PostgresConfiguration,
   db: Arc<Mutex<Option<Arc<PostgresDB>>>>,
   queue: parking_lot::Mutex<RequestQueue<PostgresEvent>>,
-  notifier: Arc<watch::Sender<bool>>,
+  resp_sender: Arc<watch::Sender<bool>>,
   sequence: AtomicU32,
 }
 
 impl PostgresServerInner {
-  pub fn new(notifier: watch::Sender<bool>, config: PostgresConfiguration) -> Self {
+  /// The resp_sender is used to send the response for the request comes from [RequestHandler].
+  pub fn new(resp_sender: watch::Sender<bool>, config: PostgresConfiguration) -> Self {
     let db = Arc::new(Default::default());
     let queue = parking_lot::Mutex::new(RequestQueue::new());
-    let notifier = Arc::new(notifier);
+    let resp_sender = Arc::new(resp_sender);
     Self {
       db,
       queue,
-      notifier,
+      resp_sender,
       config,
       sequence: Default::default(),
     }
@@ -114,28 +130,13 @@ impl PostgresServerInner {
   }
 }
 
-impl PostgresServer {
-  pub fn new(config: PostgresConfiguration) -> Self {
-    let (notifier, notifier_rx) = watch::channel(false);
-    let inner = Arc::new(PostgresServerInner::new(notifier, config));
-
-    // Initialize the connection to the database
-    let conn = PendingRequest::new(PostgresEvent::ConnectDB);
-    inner.queue.lock().push(conn);
-    let handler = Arc::downgrade(&inner) as Weak<dyn RequestHandler<PostgresEvent>>;
-    spawn(RequestRunner::run(notifier_rx, handler));
-
-    Self { inner }
-  }
-}
-
 #[async_trait]
 impl RequestHandler<PostgresEvent> for PostgresServerInner {
   async fn prepare_request(&self) -> Option<PendingRequest<PostgresEvent>> {
     match self.queue.try_lock() {
       None => {
         // If acquire the lock failed, try after 300ms
-        let weak_notifier = Arc::downgrade(&self.notifier);
+        let weak_notifier = Arc::downgrade(&self.resp_sender);
         spawn(async move {
           interval(Duration::from_millis(300)).tick().await;
           if let Some(notifier) = weak_notifier.upgrade() {
@@ -193,6 +194,6 @@ impl RequestHandler<PostgresEvent> for PostgresServerInner {
   }
 
   fn notify(&self) {
-    let _ = self.notifier.send(false);
+    let _ = self.resp_sender.send(false);
   }
 }

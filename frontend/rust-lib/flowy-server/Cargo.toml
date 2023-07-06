@@ -36,6 +36,7 @@ futures = "0.3.26"
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-user = { path = "../flowy-user" }
 flowy-folder2 = { path = "../flowy-folder2" }
+collab-folder = { version = "0.1.0" }
 flowy-database2 = { path = "../flowy-database2" }
 flowy-document2 = { path = "../flowy-document2" }
 flowy-error = { path = "../flowy-error" }
