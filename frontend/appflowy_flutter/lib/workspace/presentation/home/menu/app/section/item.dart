@@ -115,6 +115,8 @@ class ViewSectionItem extends StatelessWidget {
               case ViewDisclosureAction.duplicate:
                 blocContext.read<ViewBloc>().add(const ViewEvent.duplicate());
                 break;
+              case ViewDisclosureAction.favorite:
+                blocContext.read<ViewBloc>().add(const ViewEvent.favorite());
             }
           },
         ),
@@ -135,6 +137,7 @@ enum ViewDisclosureAction {
   rename,
   delete,
   duplicate,
+  favorite,
 }
 
 extension ViewDisclosureExtension on ViewDisclosureAction {
@@ -146,6 +149,8 @@ extension ViewDisclosureExtension on ViewDisclosureAction {
         return LocaleKeys.disclosureAction_delete.tr();
       case ViewDisclosureAction.duplicate:
         return LocaleKeys.disclosureAction_duplicate.tr();
+      case ViewDisclosureAction.favorite:
+        return LocaleKeys.disclosureAction_favorite.tr();
     }
   }
 
@@ -156,6 +161,8 @@ extension ViewDisclosureExtension on ViewDisclosureAction {
       case ViewDisclosureAction.delete:
         return const FlowySvg(name: 'editor/delete');
       case ViewDisclosureAction.duplicate:
+        return const FlowySvg(name: 'editor/copy');
+      case ViewDisclosureAction.favorite:
         return const FlowySvg(name: 'editor/copy');
     }
   }

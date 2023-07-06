@@ -158,7 +158,7 @@ pub(crate) async fn delete_view_handler(
 }
 pub(crate) async fn toggle_favorites_handler(
   data: AFPluginData<RepeatedViewIdPB>,
-  folder: AFPluginState<Arc<Folder2Manager>>,
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> Result<(), FlowyError> {
   let params: RepeatedViewIdPB = data.into_inner();
   for view_id in &params.items {
@@ -208,7 +208,7 @@ pub(crate) async fn duplicate_view_handler(
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn read_favorites_handler(
-  folder: AFPluginState<Arc<Folder2Manager>>,
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> DataResult<RepeatedFavoritesPB, FlowyError> {
   let favorites = folder.get_all_favorites().await;
   data_result_ok(favorites.into())
