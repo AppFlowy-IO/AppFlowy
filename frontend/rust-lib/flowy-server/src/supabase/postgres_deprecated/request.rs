@@ -1,30 +1,30 @@
-use std::collections::HashMap;
 use std::sync::Arc;
 
 use postgrest::Postgrest;
 use serde_json::json;
+use uuid::Uuid;
 
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_folder2::deps::Workspace;
 use flowy_user::entities::UpdateUserProfileParams;
-use lib_infra::box_any::BoxAny;
 
+use crate::supabase::entities::{
+  GetUserProfileParams, UserProfileResponse, UserProfileResponseList,
+};
 use crate::supabase::impls::{
-  USER_PROFILE_TABLE, USER_TABLE, USER_WORKSPACE_TABLE, WORKSPACE_NAME_COLUMN, WORKSPACE_TABLE,
+  USER_PROFILE_TABLE, USER_TABLE, WORKSPACE_NAME_COLUMN, WORKSPACE_TABLE,
 };
-use crate::supabase::response::{
-  InsertResponse, PostgrestError, UserProfileResponse, UserProfileResponseList, UserWorkspaceList,
-};
+use crate::supabase::postgres_http::response::{InsertResponse, PostgrestError, UserWorkspaceList};
 
 const USER_ID: &str = "uid";
 const USER_UUID: &str = "uuid";
 
 pub(crate) async fn create_user_with_uuid(
   postgrest: Arc<Postgrest>,
-  uuid: String,
+  uuid: Uuid,
 ) -> Result<UserProfileResponse, FlowyError> {
   let mut insert = serde_json::Map::new();
-  insert.insert(USER_UUID.to_string(), json!(&uuid));
+  insert.insert(USER_UUID.to_string(), json!(&uuid.to_string()));
   let insert_query = serde_json::to_string(&insert).unwrap();
 
   // Create a new user with uuid.
@@ -103,19 +103,6 @@ pub(crate) async fn get_user_id_with_uuid(
   }
 }
 
-pub(crate) fn uuid_from_box_any(any: BoxAny) -> Result<String, FlowyError> {
-  let map: HashMap<String, String> = any.unbox_or_error()?;
-  let uuid = map
-    .get(USER_UUID)
-    .ok_or_else(|| FlowyError::new(ErrorCode::MissingAuthField, "Missing uuid field"))?;
-  Ok(uuid.to_string())
-}
-
-pub enum GetUserProfileParams {
-  Uid(i64),
-  Uuid(String),
-}
-
 pub(crate) async fn get_user_profile(
   postgrest: Arc<Postgrest>,
   params: GetUserProfileParams,
@@ -123,7 +110,7 @@ pub(crate) async fn get_user_profile(
   let mut builder = postgrest.from(USER_PROFILE_TABLE);
   match params {
     GetUserProfileParams::Uid(uid) => builder = builder.eq(USER_ID, uid.to_string()),
-    GetUserProfileParams::Uuid(uuid) => builder = builder.eq(USER_UUID, uuid),
+    GetUserProfileParams::Uuid(uuid) => builder = builder.eq(USER_UUID, uuid.to_string()),
   }
   let resp = builder
     .select("*")
@@ -198,7 +185,7 @@ pub(crate) async fn get_user_workspace_with_uid(
   uid: i64,
 ) -> Result<Vec<Workspace>, FlowyError> {
   let resp = postgrest
-    .from(USER_WORKSPACE_TABLE)
+    .from(WORKSPACE_TABLE)
     .eq(USER_ID, uid.to_string())
     .select("*")
     .execute()

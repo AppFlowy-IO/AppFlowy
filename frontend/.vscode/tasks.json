@@ -234,5 +234,13 @@
         "cwd": "${workspaceFolder}/appflowy_tauri"
       }
     },
+    {
+      "label": "AF: Generate Env",
+      "type": "shell",
+      "command": "dart run build_runner clean && dart run build_runner build --delete-conflicting-outputs ",
+      "options": {
+        "cwd": "${workspaceFolder}/appflowy_flutter"
+      }
+    },
   ]
 }

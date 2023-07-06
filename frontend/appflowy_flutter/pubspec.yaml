@@ -99,7 +99,7 @@ dependencies:
   archive: ^3.3.7
   flutter_svg: ^2.0.6
   nanoid: ^1.0.0
-  supabase_flutter: ^1.10.0
+  supabase_flutter: ^1.10.4
   envied: ^0.3.0+3
   dotted_border: ^2.0.0+3
 

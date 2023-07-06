@@ -19,7 +19,9 @@ use crate::entities::{
   AuthTypePB, SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
 use crate::entities::{UserProfilePB, UserSettingPB};
-use crate::event_map::{DefaultUserStatusCallback, UserCloudServiceProvider, UserStatusCallback};
+use crate::event_map::{
+  DefaultUserStatusCallback, UserCloudServiceProvider, UserCredentials, UserStatusCallback,
+};
 use crate::{
   errors::FlowyError,
   event_map::UserAuthService,
@@ -147,12 +149,10 @@ impl UserSession {
       .auth_type_did_changed(auth_type.clone());
 
     self.cloud_services.set_auth_type(auth_type.clone());
-    let resp = self
-      .cloud_services
-      .get_auth_service()?
-      .sign_up(params)
-      .await?;
+    let auth_service = self.cloud_services.get_auth_service()?;
+    let resp = auth_service.sign_up(params).await?;
 
+    let is_new = resp.is_new;
     let session: Session = resp.clone().into();
     self.set_session(Some(session))?;
     let user_table = self.save_user(resp.into()).await?;
@@ -161,7 +161,7 @@ impl UserSession {
       .user_status_callback
       .read()
       .await
-      .did_sign_up(&user_profile)
+      .did_sign_up(is_new, &user_profile)
       .await;
     Ok(user_profile)
   }
@@ -172,6 +172,7 @@ impl UserSession {
     let uid = session.user_id.to_string();
     let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&uid)))
       .execute(&*(self.db_connection()?))?;
+
     self.database.close_user_db(session.user_id)?;
     self.set_session(None)?;
 
@@ -215,13 +216,9 @@ impl UserSession {
     Ok(())
   }
 
-  pub async fn check_user(&self) -> Result<UserProfile, FlowyError> {
-    let (user_id, _token) = self.get_session()?.into_part();
-    let user_id = user_id.to_string();
-    let user = dsl::user_table
-      .filter(user_table::id.eq(&user_id))
-      .first::<UserTable>(&*(self.db_connection()?))?;
-    Ok(user.into())
+  pub async fn check_user(&self, credential: UserCredentials) -> Result<(), FlowyError> {
+    let auth_service = self.cloud_services.get_auth_service()?;
+    auth_service.check_user(credential).await
   }
 
   pub async fn get_user_profile(&self) -> Result<UserProfile, FlowyError> {
@@ -273,10 +270,10 @@ impl UserSession {
     let server = self.cloud_services.get_auth_service()?;
     let token = token.to_owned();
     let _ = tokio::spawn(async move {
-      match server.update_user(uid, &token, params).await {
+      let credentials = UserCredentials::new(token, Some(uid), None);
+      match server.update_user(credentials, params).await {
         Ok(_) => {},
         Err(e) => {
-          // TODO: retry?
           tracing::error!("update user profile failed: {:?}", e);
         },
       }
@@ -287,9 +284,16 @@ impl UserSession {
 
   async fn save_user(&self, user: UserTable) -> Result<UserTable, FlowyError> {
     let conn = self.db_connection()?;
-    let _ = diesel::insert_into(user_table::table)
-      .values(user.clone())
-      .execute(&*conn)?;
+    conn.immediate_transaction(|| {
+      // delete old user if exists
+      diesel::delete(dsl::user_table.filter(dsl::id.eq(&user.id))).execute(&*conn)?;
+
+      let _ = diesel::insert_into(user_table::table)
+        .values(user.clone())
+        .execute(&*conn)?;
+      Ok::<(), FlowyError>(())
+    })?;
+
     Ok(user)
   }
 

@@ -9,14 +9,11 @@ part of 'env_serde.dart';
 AppFlowyEnv _$AppFlowyEnvFromJson(Map<String, dynamic> json) => AppFlowyEnv(
       supabase_config: SupabaseConfiguration.fromJson(
           json['supabase_config'] as Map<String, dynamic>),
-      supabase_db_config: SupabaseDBConfig.fromJson(
-          json['supabase_db_config'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$AppFlowyEnvToJson(AppFlowyEnv instance) =>
     <String, dynamic>{
       'supabase_config': instance.supabase_config,
-      'supabase_db_config': instance.supabase_db_config,
     };
 
 SupabaseConfiguration _$SupabaseConfigurationFromJson(
@@ -25,6 +22,8 @@ SupabaseConfiguration _$SupabaseConfigurationFromJson(
       url: json['url'] as String,
       key: json['key'] as String,
       jwt_secret: json['jwt_secret'] as String,
+      postgres_config: PostgresConfiguration.fromJson(
+          json['postgres_config'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$SupabaseConfigurationToJson(
@@ -33,33 +32,23 @@ Map<String, dynamic> _$SupabaseConfigurationToJson(
       'url': instance.url,
       'key': instance.key,
       'jwt_secret': instance.jwt_secret,
+      'postgres_config': instance.postgres_config,
     };
 
-SupabaseDBConfig _$SupabaseDBConfigFromJson(Map<String, dynamic> json) =>
-    SupabaseDBConfig(
+PostgresConfiguration _$PostgresConfigurationFromJson(
+        Map<String, dynamic> json) =>
+    PostgresConfiguration(
       url: json['url'] as String,
-      key: json['key'] as String,
-      jwt_secret: json['jwt_secret'] as String,
-      collab_table_config: CollabTableConfig.fromJson(
-          json['collab_table_config'] as Map<String, dynamic>),
+      user_name: json['user_name'] as String,
+      password: json['password'] as String,
+      port: json['port'] as int,
     );
 
-Map<String, dynamic> _$SupabaseDBConfigToJson(SupabaseDBConfig instance) =>
+Map<String, dynamic> _$PostgresConfigurationToJson(
+        PostgresConfiguration instance) =>
     <String, dynamic>{
       'url': instance.url,
-      'key': instance.key,
-      'jwt_secret': instance.jwt_secret,
-      'collab_table_config': instance.collab_table_config,
-    };
-
-CollabTableConfig _$CollabTableConfigFromJson(Map<String, dynamic> json) =>
-    CollabTableConfig(
-      table_name: json['table_name'] as String,
-      enable: json['enable'] as bool,
-    );
-
-Map<String, dynamic> _$CollabTableConfigToJson(CollabTableConfig instance) =>
-    <String, dynamic>{
-      'table_name': instance.table_name,
-      'enable': instance.enable,
+      'user_name': instance.user_name,
+      'password': instance.password,
+      'port': instance.port,
     };
