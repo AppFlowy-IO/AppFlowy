@@ -57,7 +57,7 @@ pub(crate) async fn get_document_data_handler(
 ) -> DataResult<DocumentDataPB, FlowyError> {
   let params: OpenDocumentParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document_data = manager.get_document_data(&doc_id)?;
+  let document_data = manager.get_document_data(&doc_id).await?;
   data_result_ok(DocumentDataPB::from(document_data))
 }
 

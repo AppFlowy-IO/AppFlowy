@@ -115,7 +115,7 @@ impl FolderManager {
   }
 
   /// Called immediately after the application launched fi the user already sign in/sign up.
-  #[tracing::instrument(level = "info", skip(self, initial_folder_data), err)]
+  #[tracing::instrument(level = "info", skip(self, updates, initial_folder_data), err)]
   pub async fn initialize(
     &self,
     uid: i64,

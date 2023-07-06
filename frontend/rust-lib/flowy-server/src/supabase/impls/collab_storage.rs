@@ -118,6 +118,7 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
       .value("oid", object.id.clone())
       .value("name", object.name.clone())
       .value("value", update)
+      .value("uid", object.uid)
       .value("value_size", value_size)
       .build();
 
@@ -148,6 +149,7 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
 
     let insert_builder = InsertSqlBuilder::new("af_collab")
       .value("oid", object.id.clone())
+      .value("uid", object.uid)
       .value("name", object.name.clone());
 
     let (sql, params) = if !remote_updates.is_empty() {

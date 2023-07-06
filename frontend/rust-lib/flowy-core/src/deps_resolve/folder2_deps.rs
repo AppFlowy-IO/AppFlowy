@@ -149,7 +149,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      let data: DocumentDataPB = manager.get_document_data(&view_id)?.into();
+      let data: DocumentDataPB = manager.get_document_data(&view_id).await?.into();
       let data_bytes = data.into_bytes().map_err(|_| FlowyError::invalid_data())?;
       Ok(data_bytes)
     })
