@@ -12,7 +12,7 @@
     "test:errors": "tsc --noEmit && eslint --quiet --ext .js,.ts,.tsx .",
     "test:prettier": "yarn prettier --list-different src",
     "tauri:clean": "cargo make --cwd .. tauri_clean",
-    "tauri:dev": "tauri dev"
+    "tauri:dev": "node scripts/flattenI18nJSON.cjs && tauri dev"
   },
   "dependencies": {
     "@emoji-mart/data": "^1.1.2",

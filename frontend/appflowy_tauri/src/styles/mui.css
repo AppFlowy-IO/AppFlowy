@@ -15,7 +15,16 @@
     background-color: var(--color-fill-hover);
 }
 
+.MuiPaper-root.MuiMenu-paper.MuiPopover-paper {
+    background-image: none;
+}
+
 .MuiButtonBase-root.MuiIconButton-root.MuiIconButton-sizeMedium {
+    color: var(--color-icon-default);
+    border-radius: 4px;
+}
+
+.MuiButtonBase-root.MuiIconButton-root {
     color: var(--color-icon-default);
     border-radius: 4px;
 }

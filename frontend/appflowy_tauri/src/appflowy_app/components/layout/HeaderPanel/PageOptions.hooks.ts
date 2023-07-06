@@ -1,27 +1,20 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useAuth } from '../../auth/auth.hooks';
 
 export const usePageOptions = () => {
-  const [showOptionsPopup, setShowOptionsPopup] = useState(false);
-  const { logout } = useAuth();
+  const [anchorEl, setAnchorEl] = useState<HTMLDivElement | HTMLButtonElement>();
 
-  const onOptionsClick = () => {
-    setShowOptionsPopup(true);
-  };
+  const onOptionsClick = useCallback((el: HTMLDivElement | HTMLButtonElement) => {
+    setAnchorEl(el);
+  }, []);
 
   const onClose = () => {
-    setShowOptionsPopup(false);
-  };
-
-  const onSignOutClick = async () => {
-    await logout();
-    onClose();
+    setAnchorEl(undefined);
   };
 
   return {
-    showOptionsPopup,
+    anchorEl,
     onOptionsClick,
     onClose,
-    onSignOutClick,
   };
 };

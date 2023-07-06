@@ -1,6 +1,7 @@
 import React from 'react';
 import { Alert, CircularProgress } from '@mui/material';
 import { ImageSvg } from '$app/components/_shared/svg/ImageSvg';
+import { useTranslation } from 'react-i18next';
 
 function ImagePlaceholder({
   error,
@@ -20,6 +21,7 @@ function ImagePlaceholder({
   openPopover: () => void;
 }) {
   const visible = loading || error || isEmpty;
+  const { t } = useTranslation();
 
   return (
     <div
@@ -45,7 +47,7 @@ function ImagePlaceholder({
           <i className={'mx-2 h-5 w-5'}>
             <ImageSvg />
           </i>
-          <span>Add an image</span>
+          <span>{t('document.imageBlock.placeholder')}</span>
         </div>
       )}
     </div>

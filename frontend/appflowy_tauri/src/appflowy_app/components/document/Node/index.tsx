@@ -19,6 +19,7 @@ import CodeBlock from '$app/components/document/CodeBlock';
 import { NodeIdContext } from '$app/components/document/_shared/SubscribeNode.hooks';
 import EquationBlock from '$app/components/document/EquationBlock';
 import ImageBlock from '$app/components/document/ImageBlock';
+import { useTranslation } from 'react-i18next';
 
 function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<HTMLDivElement>) {
   const { node, childIds, isSelected, ref } = useNode(id);
@@ -94,9 +95,11 @@ const NodeWithErrorBoundary = withErrorBoundary(NodeComponent, {
 });
 
 const UnSupportedBlock = () => {
+  const { t } = useTranslation();
+
   return (
     <Alert severity='info' className='mb-2'>
-      <p>The current version does not support this Block.</p>
+      <p>{t('unSupportBlock')}</p>
     </Alert>
   );
 };

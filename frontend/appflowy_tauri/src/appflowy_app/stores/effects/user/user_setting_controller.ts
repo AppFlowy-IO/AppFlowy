@@ -27,7 +27,7 @@ export class UserSettingController {
     return;
   };
 
-  setAppearanceSetting = async (params: { theme: string; mode: ThemeModePB }) => {
+  setAppearanceSetting = async (params: ReturnType<typeof AppearanceSettingsPB.prototype.toObject>) => {
     const res = await this.backendService.setAppearanceSettings(params);
 
     if (res.ok) {

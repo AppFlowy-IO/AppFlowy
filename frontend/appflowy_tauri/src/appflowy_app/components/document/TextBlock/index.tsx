@@ -5,6 +5,7 @@ import { useChange } from '$app/components/document/_shared/EditorHooks/useChang
 import NodeChildren from '$app/components/document/Node/NodeChildren';
 import { useKeyDown } from '$app/components/document/TextBlock/useKeyDown';
 import { useSelection } from '$app/components/document/_shared/EditorHooks/useSelection';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   node: NestedBlock;
@@ -15,10 +16,17 @@ function TextBlock({ node, childIds, placeholder }: Props) {
   const { value, onChange } = useChange(node);
   const selectionProps = useSelection(node.id);
   const { onKeyDown } = useKeyDown(node.id);
+  const { t } = useTranslation();
 
   return (
     <>
-      <Editor value={value} onChange={onChange} {...selectionProps} onKeyDown={onKeyDown} placeholder={placeholder} />
+      <Editor
+        value={value}
+        onChange={onChange}
+        {...selectionProps}
+        onKeyDown={onKeyDown}
+        placeholder={placeholder || t('document.textBlock.placeholder')}
+      />
       <NodeChildren className='pl-[1.5em]' childIds={childIds} />
     </>
   );

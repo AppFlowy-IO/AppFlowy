@@ -7,6 +7,7 @@ import { useBlockPopover } from '$app/components/document/_shared/BlockPopover/B
 import { updateNodeDataThunk } from '$app_reducers/document/async-actions';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 import { useAppDispatch } from '$app/stores/store';
+import { useTranslation } from 'react-i18next';
 
 function EquationBlock({ node }: { node: NestedBlock<BlockType.EquationBlock> }) {
   const formula = node.data.formula;
@@ -60,6 +61,8 @@ function EquationBlock({ node }: { node: NestedBlock<BlockType.EquationBlock> })
   });
   const displayFormula = open ? value : formula;
 
+  const { t } = useTranslation();
+
   return (
     <>
       <div
@@ -72,7 +75,7 @@ function EquationBlock({ node }: { node: NestedBlock<BlockType.EquationBlock> })
         ) : (
           <div className={'flex h-[100%] w-[100%] flex-1 items-center bg-fill-selector px-1 text-text-title'}>
             <Functions />
-            <span>Add a TeX equation</span>
+            <span>{t('document.plugins.mathEquation.addMathEquation')}</span>
           </div>
         )}
       </div>

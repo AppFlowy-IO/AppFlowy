@@ -1,7 +1,7 @@
 import React from 'react';
 import TextField from '@mui/material/TextField';
 import { CheckOutlined, FunctionsOutlined } from '@mui/icons-material';
-import { Divider, IconButton, InputAdornment } from '@mui/material';
+import { IconButton, InputAdornment } from '@mui/material';
 
 function EquationEditContent({
   value,
