@@ -1,12 +1,12 @@
-use crate::user::supabase_test::helper::get_supabase_config;
+use std::collections::HashMap;
+
 use flowy_folder2::entities::WorkspaceSettingPB;
 use flowy_folder2::event_map::FolderEvent::GetCurrentWorkspace;
-
 use flowy_test::{event_builder::EventBuilder, FlowyCoreTest};
 use flowy_user::entities::{AuthTypePB, ThirdPartyAuthPB, UserProfilePB};
-
 use flowy_user::event_map::UserEvent::*;
-use std::collections::HashMap;
+
+use crate::util::*;
 
 #[tokio::test]
 async fn initial_workspace_test() {

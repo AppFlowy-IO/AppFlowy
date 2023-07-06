@@ -277,7 +277,7 @@ pub struct AnyCellChangeset<T>(pub Option<T>);
 impl<T> AnyCellChangeset<T> {
   pub fn try_into_inner(self) -> FlowyResult<T> {
     match self.0 {
-      None => Err(ErrorCode::InvalidData.into()),
+      None => Err(ErrorCode::InvalidParams.into()),
       Some(data) => Ok(data),
     }
   }

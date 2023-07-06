@@ -1,8 +1,11 @@
-use crate::services::filter::{Filter, FromFilterString};
+use std::str::FromStr;
+
+use serde::{Deserialize, Serialize};
+
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use serde::{Deserialize, Serialize};
-use std::str::FromStr;
+
+use crate::services::filter::{Filter, FromFilterString};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct DateFilterPB {
@@ -73,7 +76,7 @@ impl std::convert::TryFrom<u8> for DateFilterConditionPB {
       4 => Ok(DateFilterConditionPB::DateOnOrAfter),
       5 => Ok(DateFilterConditionPB::DateWithIn),
       6 => Ok(DateFilterConditionPB::DateIsEmpty),
-      _ => Err(ErrorCode::InvalidData),
+      _ => Err(ErrorCode::InvalidParams),
     }
   }
 }

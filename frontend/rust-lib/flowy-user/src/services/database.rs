@@ -39,7 +39,7 @@ impl UserDB {
     dir.push(user_id.to_string());
     let dir = dir.to_str().unwrap().to_owned();
 
-    tracing::trace!("open user db {} at path: {}", user_id, dir);
+    tracing::debug!("open sqlite db {} at path: {}", user_id, dir);
     let db = flowy_sqlite::init(&dir).map_err(|e| {
       tracing::error!("open user db failed, {:?}", e);
       FlowyError::new(ErrorCode::MultipleDBInstance, e)
@@ -83,13 +83,16 @@ impl UserDB {
   }
 
   pub(crate) fn close_user_db(&self, user_id: i64) -> Result<(), FlowyError> {
-    match DB_MAP.try_write_for(Duration::from_millis(300)) {
-      None => Err(FlowyError::internal().context("Acquire write lock to close user db failed")),
-      Some(mut write_guard) => {
-        write_guard.remove(&user_id);
-        Ok(())
-      },
+    if let Some(mut sqlite_dbs) = DB_MAP.try_write_for(Duration::from_millis(300)) {
+      sqlite_dbs.remove(&user_id);
     }
+
+    if let Some(mut collab_dbs) = COLLAB_DB_MAP.try_write_for(Duration::from_millis(300)) {
+      if let Some(db) = collab_dbs.remove(&user_id) {
+        drop(db);
+      }
+    }
+    Ok(())
   }
 
   pub(crate) fn get_connection(&self, user_id: i64) -> Result<DBConnection, FlowyError> {

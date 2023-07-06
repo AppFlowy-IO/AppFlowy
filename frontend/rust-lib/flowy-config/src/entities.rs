@@ -1,8 +1,8 @@
 use appflowy_integrate::config::AWSDynamoDBConfig;
-use appflowy_integrate::{CollabTableConfig, SupabaseDBConfig};
+
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
-use flowy_server::supabase::SupabaseConfiguration;
+use flowy_server::supabase::{PostgresConfiguration, SupabaseConfiguration};
 
 #[derive(Default, ProtoBuf)]
 pub struct KeyValuePB {
@@ -32,16 +32,21 @@ pub struct SupabaseConfigPB {
 
   #[pb(index = 4)]
   jwt_secret: String,
+
+  #[pb(index = 5)]
+  pub postgres_config: PostgresConfigurationPB,
 }
 
 impl TryFrom<SupabaseConfigPB> for SupabaseConfiguration {
   type Error = FlowyError;
 
-  fn try_from(value: SupabaseConfigPB) -> Result<Self, Self::Error> {
-    Ok(Self {
-      url: value.supabase_url,
-      key: value.key,
-      jwt_secret: value.jwt_secret,
+  fn try_from(config: SupabaseConfigPB) -> Result<Self, Self::Error> {
+    let postgres_config = PostgresConfiguration::try_from(config.postgres_config)?;
+    Ok(SupabaseConfiguration {
+      url: config.supabase_url,
+      key: config.key,
+      jwt_secret: config.jwt_secret,
+      postgres_config,
     })
   }
 }
@@ -50,9 +55,6 @@ impl TryFrom<SupabaseConfigPB> for SupabaseConfiguration {
 pub struct CollabPluginConfigPB {
   #[pb(index = 1, one_of)]
   pub aws_config: Option<AWSDynamoDBConfigPB>,
-
-  #[pb(index = 2, one_of)]
-  pub supabase_config: Option<SupabaseDBConfigPB>,
 }
 
 #[derive(Default, ProtoBuf)]
@@ -81,50 +83,29 @@ impl TryFrom<AWSDynamoDBConfigPB> for AWSDynamoDBConfig {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct SupabaseDBConfigPB {
+pub struct PostgresConfigurationPB {
   #[pb(index = 1)]
-  pub supabase_url: String,
+  pub url: String,
 
   #[pb(index = 2)]
-  pub key: String,
+  pub user_name: String,
 
   #[pb(index = 3)]
-  pub jwt_secret: String,
+  pub password: String,
 
   #[pb(index = 4)]
-  pub collab_table_config: CollabTableConfigPB,
+  pub port: u32,
 }
 
-impl TryFrom<SupabaseDBConfigPB> for SupabaseDBConfig {
+impl TryFrom<PostgresConfigurationPB> for PostgresConfiguration {
   type Error = FlowyError;
 
-  fn try_from(config: SupabaseDBConfigPB) -> Result<Self, Self::Error> {
-    let update_table_config = CollabTableConfig::try_from(config.collab_table_config)?;
-    Ok(SupabaseDBConfig {
-      url: config.supabase_url,
-      key: config.key,
-      jwt_secret: config.jwt_secret,
-      collab_table_config: update_table_config,
-    })
-  }
-}
-
-#[derive(Default, ProtoBuf)]
-pub struct CollabTableConfigPB {
-  #[pb(index = 1)]
-  pub table_name: String,
-}
-
-impl TryFrom<CollabTableConfigPB> for CollabTableConfig {
-  type Error = FlowyError;
-
-  fn try_from(config: CollabTableConfigPB) -> Result<Self, Self::Error> {
-    if config.table_name.is_empty() {
-      return Err(FlowyError::internal().context("table_name is empty"));
-    }
-    Ok(CollabTableConfig {
-      table_name: config.table_name,
-      enable: true,
+  fn try_from(config: PostgresConfigurationPB) -> Result<Self, Self::Error> {
+    Ok(Self {
+      url: config.url,
+      user_name: config.user_name,
+      password: config.password,
+      port: config.port as u16,
     })
   }
 }

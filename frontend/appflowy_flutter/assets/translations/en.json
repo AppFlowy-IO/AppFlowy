@@ -186,6 +186,10 @@
       "open": "Open Settings"
     },
     "appearance": {
+      "fontFamily": {
+        "label": "Font Family",
+        "search": "Search"
+      },
       "themeMode": {
         "label": "Theme Mode",
         "light": "Light Mode",

@@ -1,9 +1,11 @@
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use thiserror::Error;
 
 use flowy_error::{ErrorCode, FlowyError};
+
+use crate::util::deserialize_null_or_default;
 
 #[derive(Debug, Error, Serialize, Deserialize)]
 #[error(
@@ -55,23 +57,6 @@ pub(crate) struct InsertRecord {
   pub(crate) uuid: String,
 }
 
-#[allow(dead_code)]
-#[derive(Debug, Deserialize, Clone)]
-pub(crate) struct UserProfileResponse {
-  pub uid: i64,
-  #[serde(deserialize_with = "deserialize_null_or_default")]
-  pub name: String,
-
-  #[serde(deserialize_with = "deserialize_null_or_default")]
-  pub email: String,
-
-  #[serde(deserialize_with = "deserialize_null_or_default")]
-  pub workspace_id: String,
-}
-
-#[derive(Debug, Deserialize)]
-pub(crate) struct UserProfileResponseList(pub Vec<UserProfileResponse>);
-
 #[derive(Debug, Deserialize, Clone)]
 pub(crate) struct UserWorkspace {
   #[allow(dead_code)]
@@ -89,15 +74,4 @@ impl UserWorkspaceList {
   pub(crate) fn into_inner(self) -> Vec<UserWorkspace> {
     self.0
   }
-}
-
-/// Handles the case where the value is null. If the value is null, return the default value of the
-/// type. Otherwise, deserialize the value.
-fn deserialize_null_or_default<'de, D, T>(deserializer: D) -> Result<T, D::Error>
-where
-  T: Default + Deserialize<'de>,
-  D: Deserializer<'de>,
-{
-  let opt = Option::deserialize(deserializer)?;
-  Ok(opt.unwrap_or_default())
 }

@@ -122,10 +122,7 @@
       "options": {
         "cwd": "${workspaceFolder}"
       },
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
+      "group": "build",
       "windows": {
         "options": {
           "shell": {
@@ -235,6 +232,14 @@
       "command": "npx eslint --fix src",
       "options": {
         "cwd": "${workspaceFolder}/appflowy_tauri"
+      }
+    },
+    {
+      "label": "AF: Generate Env",
+      "type": "shell",
+      "command": "dart run build_runner clean && dart run build_runner build --delete-conflicting-outputs ",
+      "options": {
+        "cwd": "${workspaceFolder}/appflowy_flutter"
       }
     },
   ]
