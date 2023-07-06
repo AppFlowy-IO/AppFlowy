@@ -19,6 +19,7 @@ pub struct FlowySupabaseDatabaseTest {
 }
 
 impl FlowySupabaseDatabaseTest {
+  #[allow(dead_code)]
   pub async fn new_with_user(uuid: String) -> Option<Self> {
     let inner = FlowySupabaseTest::new()?;
     inner.sign_up_with_uuid(&uuid).await;

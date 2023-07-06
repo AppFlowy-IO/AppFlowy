@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use appflowy_integrate::RocksCollabDB;
+pub use collab_document::blocks::DocumentData;
 
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
@@ -21,6 +22,8 @@ pub trait DocumentCloudService: Send + Sync + 'static {
     &self,
     document_id: &str,
   ) -> FutureResult<Option<DocumentSnapshot>, FlowyError>;
+
+  fn get_document_data(&self, document_id: &str) -> FutureResult<Option<DocumentData>, FlowyError>;
 }
 
 pub struct DocumentSnapshot {

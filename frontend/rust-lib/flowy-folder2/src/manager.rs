@@ -101,6 +101,7 @@ impl FolderManager {
     if let Some(Some(workspace_id)) = workspace_id {
       self.get_workspace_views(&workspace_id).await
     } else {
+      tracing::warn!("Can't get current workspace views");
       Ok(vec![])
     }
   }
@@ -138,7 +139,11 @@ impl FolderManager {
         view_change_tx: view_tx,
         trash_change_tx: trash_tx,
       };
-      let folder = Folder::get_or_create(collab, Some(folder_notifier), initial_folder_data);
+      let folder = match initial_folder_data {
+        None => Folder::open(collab, Some(folder_notifier)),
+        Some(initial_data) => Folder::create(collab, Some(folder_notifier), Some(initial_data)),
+      };
+
       let folder_state_rx = folder.subscribe_sync_state();
       tracing::debug!("Current workspace_id: {}", workspace_id);
       *self.mutex_folder.lock() = Some(folder);
@@ -183,15 +188,14 @@ impl FolderManager {
         })
         .send();
     } else {
-      // TODO(nathan): retry
-      let folder_data = self
-        .cloud_service
-        .get_folder_data(workspace_id)
-        .await?
-        .unwrap();
-      self
-        .initialize(user_id, workspace_id, Some(folder_data))
-        .await?;
+      // The folder data is loaded through the [FolderCloudService]. If the cloud service in use is
+      // [LocalServerFolderCloudServiceImpl], the folder data will be None because the Folder will load
+      // the data directly from the disk. If any other cloud service is in use, the folder data will be loaded remotely.
+      let folder_data = self.cloud_service.get_folder_data(workspace_id).await?;
+      if folder_data.is_some() {
+        tracing::trace!("Get folder data via {}", self.cloud_service.service_name());
+      }
+      self.initialize(user_id, workspace_id, folder_data).await?;
     }
     Ok(())
   }

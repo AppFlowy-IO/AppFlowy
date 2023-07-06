@@ -78,7 +78,7 @@ impl PostgresConnect {
 async fn get_folder_test() {
   if let Some(conn) = PostgresConnect::new() {
     let collab = conn
-      .get_folder("17f5e820-dcc8-4ca9-ab93-b45f17ca0948")
+      .get_folder("2ddf790f-18bb-4e9c-aacb-f29ca755f72a")
       .await;
     let value = collab.to_json_value();
     assert_json_eq!(value, json!(""));

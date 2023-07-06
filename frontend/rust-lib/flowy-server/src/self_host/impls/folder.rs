@@ -33,4 +33,8 @@ impl FolderCloudService for SelfHostedServerFolderCloudServiceImpl {
   fn get_folder_updates(&self, _workspace_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
     FutureResult::new(async move { Ok(vec![]) })
   }
+
+  fn service_name(&self) -> String {
+    "SelfHosted".to_string()
+  }
 }

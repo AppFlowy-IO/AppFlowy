@@ -105,7 +105,7 @@ checksum = "9c7d0618f0e0b7e8ff11427422b64564d5fb0be1940354bfe2e0529b18a9d9b8"
 [[package]]
 name = "appflowy-integrate"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d1882d#d1882d6784a8863419727be92c29923cd175fd50"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=2134c0#2134c0f27b8a9f3077e25ae928f2420c926506cc"
 dependencies = [
  "anyhow",
  "collab",
@@ -1030,7 +1030,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d1882d#d1882d6784a8863419727be92c29923cd175fd50"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=2134c0#2134c0f27b8a9f3077e25ae928f2420c926506cc"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1048,7 +1048,7 @@ dependencies = [
 [[package]]
 name = "collab-client-ws"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d1882d#d1882d6784a8863419727be92c29923cd175fd50"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=2134c0#2134c0f27b8a9f3077e25ae928f2420c926506cc"
 dependencies = [
  "bytes",
  "collab-sync",
@@ -1066,7 +1066,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d1882d#d1882d6784a8863419727be92c29923cd175fd50"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=2134c0#2134c0f27b8a9f3077e25ae928f2420c926506cc"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1085,6 +1085,7 @@ dependencies = [
  "serde_repr",
  "thiserror",
  "tokio",
+ "tokio-stream",
  "tracing",
  "uuid",
 ]
@@ -1092,7 +1093,7 @@ dependencies = [
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d1882d#d1882d6784a8863419727be92c29923cd175fd50"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=2134c0#2134c0f27b8a9f3077e25ae928f2420c926506cc"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1104,7 +1105,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d1882d#d1882d6784a8863419727be92c29923cd175fd50"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=2134c0#2134c0f27b8a9f3077e25ae928f2420c926506cc"
 dependencies = [
  "anyhow",
  "collab",
@@ -1116,13 +1117,14 @@ dependencies = [
  "serde_json",
  "thiserror",
  "tokio",
+ "tokio-stream",
  "tracing",
 ]
 
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d1882d#d1882d6784a8863419727be92c29923cd175fd50"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=2134c0#2134c0f27b8a9f3077e25ae928f2420c926506cc"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1142,7 +1144,7 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d1882d#d1882d6784a8863419727be92c29923cd175fd50"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=2134c0#2134c0f27b8a9f3077e25ae928f2420c926506cc"
 dependencies = [
  "bincode",
  "chrono",
@@ -1162,7 +1164,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d1882d#d1882d6784a8863419727be92c29923cd175fd50"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=2134c0#2134c0f27b8a9f3077e25ae928f2420c926506cc"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1178,13 +1180,16 @@ dependencies = [
  "parking_lot 0.12.1",
  "postgrest",
  "rand 0.8.5",
+ "refinery",
  "rusoto_credential",
  "serde",
  "serde_json",
  "similar 2.2.1",
  "thiserror",
  "tokio",
+ "tokio-postgres",
  "tokio-retry",
+ "tokio-stream",
  "tracing",
  "y-sync",
  "yrs",
@@ -1193,7 +1198,7 @@ dependencies = [
 [[package]]
 name = "collab-sync"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=d1882d#d1882d6784a8863419727be92c29923cd175fd50"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=2134c0#2134c0f27b8a9f3077e25ae928f2420c926506cc"
 dependencies = [
  "bytes",
  "collab",
@@ -1479,6 +1484,40 @@ dependencies = [
 ]
 
 [[package]]
+name = "deadpool"
+version = "0.9.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "421fe0f90f2ab22016f32a9881be5134fdd71c65298917084b0c7477cbc3856e"
+dependencies = [
+ "async-trait",
+ "deadpool-runtime",
+ "num_cpus",
+ "retain_mut",
+ "tokio",
+]
+
+[[package]]
+name = "deadpool-postgres"
+version = "0.10.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "836a24a9d49deefe610b8b60c767a7412e9a931d79a89415cd2d2d71630ca8d7"
+dependencies = [
+ "deadpool",
+ "log",
+ "tokio",
+ "tokio-postgres",
+]
+
+[[package]]
+name = "deadpool-runtime"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eaa37046cc0f6c3cc6090fbdbf73ef0b8ef4cfcc37f6befc0020f63e8cf121e1"
+dependencies = [
+ "tokio",
+]
+
+[[package]]
 name = "derivative"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1702,6 +1741,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "fallible-iterator"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4443176a9f2c162692bd3d352d745ef9413eec5782a80d8fd6f8a1ac692a07f7"
+
+[[package]]
 name = "fancy-regex"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1921,8 +1966,10 @@ dependencies = [
  "flowy-derive",
  "flowy-error",
  "flowy-notification",
+ "futures",
  "indexmap 1.9.3",
  "lib-dispatch",
+ "lib-infra",
  "nanoid",
  "parking_lot 0.12.1",
  "protobuf",
@@ -1931,6 +1978,7 @@ dependencies = [
  "strum",
  "strum_macros",
  "tokio",
+ "tokio-stream",
  "tracing",
  "uuid",
 ]
@@ -2020,12 +2068,19 @@ name = "flowy-server"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "appflowy-integrate",
+ "async-stream",
  "bytes",
  "chrono",
+ "collab-folder",
  "config",
+ "deadpool-postgres",
+ "flowy-database2",
+ "flowy-document2",
  "flowy-error",
  "flowy-folder2",
  "flowy-user",
+ "futures",
  "futures-util",
  "hyper",
  "lazy_static",
@@ -2033,12 +2088,14 @@ dependencies = [
  "nanoid",
  "parking_lot 0.12.1",
  "postgrest",
+ "refinery",
  "reqwest",
  "serde",
  "serde-aux",
  "serde_json",
  "thiserror",
  "tokio",
+ "tokio-postgres",
  "tokio-retry",
  "tracing",
  "uuid",
@@ -2758,7 +2815,7 @@ dependencies = [
  "httpdate",
  "itoa 1.0.6",
  "pin-project-lite",
- "socket2",
+ "socket2 0.4.9",
  "tokio",
  "tower-service",
  "tracing",
@@ -3336,6 +3393,15 @@ name = "matches"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2532096657941c2fea9c289d370a250971c689d4f143798ff67113ec042024a5"
+
+[[package]]
+name = "md-5"
+version = "0.10.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6365506850d44bff6e2fbcb5176cf63650e48bd45ef2fe2665ae1570e0f4b9ca"
+dependencies = [
+ "digest 0.10.7",
+]
 
 [[package]]
 name = "md5"
@@ -4062,6 +4128,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "postgres-protocol"
+version = "0.6.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "78b7fa9f396f51dffd61546fd8573ee20592287996568e6175ceb0f8699ad75d"
+dependencies = [
+ "base64 0.21.2",
+ "byteorder",
+ "bytes",
+ "fallible-iterator",
+ "hmac",
+ "md-5",
+ "memchr",
+ "rand 0.8.5",
+ "sha2",
+ "stringprep",
+]
+
+[[package]]
+name = "postgres-types"
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f028f05971fe20f512bcc679e2c10227e57809a3af86a7606304435bc8896cd6"
+dependencies = [
+ "bytes",
+ "chrono",
+ "fallible-iterator",
+ "postgres-protocol",
+ "uuid",
+]
+
+[[package]]
 name = "postgrest"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4437,6 +4534,51 @@ dependencies = [
 ]
 
 [[package]]
+name = "refinery"
+version = "0.8.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cdb0436d0dd7bd8d4fce1e828751fa79742b08e35f27cfea7546f8a322b5ef24"
+dependencies = [
+ "refinery-core",
+ "refinery-macros",
+]
+
+[[package]]
+name = "refinery-core"
+version = "0.8.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "19206547cd047e8f4dfa6b20c30d3ecaf24be05841b6aa0aa926a47a3d0662bb"
+dependencies = [
+ "async-trait",
+ "cfg-if",
+ "lazy_static",
+ "log",
+ "regex",
+ "serde",
+ "siphasher",
+ "thiserror",
+ "time 0.3.22",
+ "tokio",
+ "tokio-postgres",
+ "toml 0.7.5",
+ "url",
+ "walkdir",
+]
+
+[[package]]
+name = "refinery-macros"
+version = "0.8.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d94d4b9241859ba19eaa5c04c86e782eb3aa0aae2c5868e0cfa90c856e58a174"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "refinery-core",
+ "regex",
+ "syn 2.0.22",
+]
+
+[[package]]
 name = "regex"
 version = "1.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4518,6 +4660,12 @@ dependencies = [
  "webpki-roots",
  "winreg 0.10.1",
 ]
+
+[[package]]
+name = "retain_mut"
+version = "0.1.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4389f1d5789befaf6029ebd9f7dac4af7f7e3d61b69d4f30e2ac02b57e7712b0"
 
 [[package]]
 name = "ring"
@@ -5132,6 +5280,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "socket2"
+version = "0.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2538b18701741680e0322a2302176d3253a35388e2e62f172f64f4f16605f877"
+dependencies = [
+ "libc",
+ "windows-sys 0.48.0",
+]
+
+[[package]]
 name = "soup2"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5210,6 +5368,16 @@ dependencies = [
  "phf_shared 0.10.0",
  "proc-macro2",
  "quote",
+]
+
+[[package]]
+name = "stringprep"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8ee348cb74b87454fff4b551cbf727025810a004f88aeacae7f85b87f4e9a1c1"
+dependencies = [
+ "unicode-bidi",
+ "unicode-normalization",
 ]
 
 [[package]]
@@ -5726,7 +5894,7 @@ dependencies = [
  "parking_lot 0.12.1",
  "pin-project-lite",
  "signal-hook-registry",
- "socket2",
+ "socket2 0.4.9",
  "tokio-macros",
  "windows-sys 0.48.0",
 ]
@@ -5750,6 +5918,30 @@ checksum = "bbae76ab933c85776efabc971569dd6119c580d8f5d448769dec1764bf796ef2"
 dependencies = [
  "native-tls",
  "tokio",
+]
+
+[[package]]
+name = "tokio-postgres"
+version = "0.7.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6e89f6234aa8fd43779746012fcf53603cdb91fdd8399aa0de868c2d56b6dde1"
+dependencies = [
+ "async-trait",
+ "byteorder",
+ "bytes",
+ "fallible-iterator",
+ "futures-channel",
+ "futures-util",
+ "log",
+ "parking_lot 0.12.1",
+ "percent-encoding",
+ "phf 0.11.2",
+ "pin-project-lite",
+ "postgres-protocol",
+ "postgres-types",
+ "socket2 0.5.3",
+ "tokio",
+ "tokio-util",
 ]
 
 [[package]]

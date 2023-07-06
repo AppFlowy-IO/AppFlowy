@@ -1,9 +1,11 @@
 use std::sync::RwLock;
 
+use crate::layer::FlowyFormattingLayer;
 use lazy_static::lazy_static;
 use log::LevelFilter;
 use tracing::subscriber::set_global_default;
 use tracing_appender::{non_blocking::WorkerGuard, rolling::RollingFileAppender};
+
 use tracing_log::LogTracer;
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
 
@@ -51,9 +53,9 @@ impl Builder {
       .with_span_list(true)
       .compact()
       .finish()
-      .with(env_filter);
-    // .with(JsonStorageLayer)
-    // .with(FlowyFormattingLayer::new(std::io::stdout))
+      .with(env_filter)
+      // .with(JsonStorageLayer)
+      .with(FlowyFormattingLayer::new(std::io::stdout));
     // .with(FlowyFormattingLayer::new(non_blocking));
 
     set_global_default(subscriber).map_err(|e| format!("{:?}", e))?;

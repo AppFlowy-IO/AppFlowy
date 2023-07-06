@@ -27,9 +27,7 @@ pub trait FolderCloudService: Send + Sync + 'static {
 
   fn get_folder_updates(&self, workspace_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError>;
 
-  fn is_local_service(&self) -> bool {
-    return false;
-  }
+  fn service_name(&self) -> String;
 }
 
 pub struct FolderSnapshot {

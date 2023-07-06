@@ -7,7 +7,7 @@ use parking_lot::RwLock;
 use serde_repr::*;
 
 use flowy_database2::deps::{DatabaseCloudService, DatabaseSnapshot};
-use flowy_document2::deps::{DocumentCloudService, DocumentSnapshot};
+use flowy_document2::deps::{DocumentCloudService, DocumentData, DocumentSnapshot};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder2::deps::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
 use flowy_server::local_server::LocalServer;
@@ -154,6 +154,13 @@ impl FolderCloudService for AppFlowyServerProvider {
         .await
     })
   }
+
+  fn service_name(&self) -> String {
+    self
+      .get_provider(&self.provider_type.read())
+      .map(|provider| provider.folder_service().service_name())
+      .unwrap_or_default()
+  }
 }
 
 impl DatabaseCloudService for AppFlowyServerProvider {
@@ -205,6 +212,17 @@ impl DocumentCloudService for AppFlowyServerProvider {
       server?
         .document_service()
         .get_document_latest_snapshot(&document_id)
+        .await
+    })
+  }
+
+  fn get_document_data(&self, document_id: &str) -> FutureResult<Option<DocumentData>, FlowyError> {
+    let server = self.get_provider(&self.provider_type.read());
+    let document_id = document_id.to_string();
+    FutureResult::new(async move {
+      server?
+        .document_service()
+        .get_document_data(&document_id)
         .await
     })
   }

@@ -1,8 +1,10 @@
+use collab_document::document::Document;
+use collab_folder::core::CollabOrigin;
 use std::sync::Arc;
 
 use tokio::sync::oneshot::channel;
 
-use flowy_document2::deps::{DocumentCloudService, DocumentSnapshot};
+use flowy_document2::deps::{DocumentCloudService, DocumentData, DocumentSnapshot};
 use flowy_error::{internal_error, FlowyError};
 use lib_infra::future::FutureResult;
 
@@ -54,5 +56,23 @@ impl DocumentCloudService for SupabaseDocumentCloudServiceImpl {
         )
       }
     })
+  }
+
+  fn get_document_data(&self, document_id: &str) -> FutureResult<Option<DocumentData>, FlowyError> {
+    let server = Arc::downgrade(&self.server);
+    let (tx, rx) = channel();
+    let document_id = document_id.to_string();
+    tokio::spawn(async move {
+      let document_data = get_updates_from_server(&document_id, server)
+        .await
+        .map(|updates| {
+          let document =
+            Document::from_updates(CollabOrigin::Empty, updates, &document_id, vec![])?;
+          Ok(document.get_document_data().ok())
+        });
+
+      tx.send(document_data)
+    });
+    FutureResult::new(async { rx.await.map_err(internal_error)?.map_err(internal_error)? })
   }
 }

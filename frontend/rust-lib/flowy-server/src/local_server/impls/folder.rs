@@ -34,7 +34,7 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     FutureResult::new(async move { Ok(vec![]) })
   }
 
-  fn is_local_service(&self) -> bool {
-    true
+  fn service_name(&self) -> String {
+    "Local".to_string()
   }
 }

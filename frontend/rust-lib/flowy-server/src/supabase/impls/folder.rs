@@ -55,16 +55,12 @@ impl FolderCloudService for SupabaseFolderCloudServiceImpl {
       let folder_data = get_updates_from_server(&workspace_id, server)
         .await
         .map(|updates| {
-          let folder = Folder::from_update(CollabOrigin::Empty, updates, &workspace_id, vec![])?;
+          let folder = Folder::from_updates(CollabOrigin::Empty, updates, &workspace_id, vec![])?;
           Ok(folder.get_folder_data())
         });
-
       tx.send(folder_data)
     });
-    FutureResult::new(async {
-      let result = rx.await.map_err(internal_error)?.map_err(internal_error)?;
-      result
-    })
+    FutureResult::new(async { rx.await.map_err(internal_error)?.map_err(internal_error)? })
   }
 
   fn get_folder_latest_snapshot(
@@ -98,6 +94,10 @@ impl FolderCloudService for SupabaseFolderCloudServiceImpl {
     let workspace_id = workspace_id.to_string();
     tokio::spawn(async move { tx.send(get_updates_from_server(&workspace_id, server).await) });
     FutureResult::new(async { rx.await.map_err(internal_error)?.map_err(internal_error) })
+  }
+
+  fn service_name(&self) -> String {
+    "Supabase".to_string()
   }
 }
 
