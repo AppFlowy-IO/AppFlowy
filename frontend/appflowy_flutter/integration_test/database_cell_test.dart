@@ -274,8 +274,6 @@ void main() {
       // Clear the date and time
       await tester.clearDate();
 
-      await tester.dismissCellEditor();
-
       await tester.assertDateCellInGrid(
         rowIndex: 0,
         fieldType: fieldType,
