@@ -6,8 +6,8 @@ use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::CollabPersistenceConfig;
 use collab::core::collab_state::CollabState;
 use collab_folder::core::{
-  Folder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, View, ViewChange,
-  ViewChangeReceiver, ViewLayout, Workspace,
+  FavoriteChange, FavoriteChangeReciever, FavoritesInfo, Folder, FolderContext, TrashChange,
+  TrashChangeReceiver, TrashInfo, View, ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
 };
 use parking_lot::Mutex;
 use tokio_stream::wrappers::WatchStream;
@@ -19,8 +19,8 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use crate::deps::{FolderCloudService, FolderUser};
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, CreateViewParams,
-  CreateWorkspaceParams, DeletedViewPB, RepeatedTrashPB, RepeatedViewPB, RepeatedWorkspacePB,
-  UpdateViewParams, ViewPB, WorkspacePB,
+  CreateWorkspaceParams, DeletedViewPB, FavoritesPB, RepeatedFavoritesPB, RepeatedTrashPB,
+  RepeatedViewPB, RepeatedWorkspacePB, UpdateViewParams, ViewPB, WorkspacePB,
 };
 use crate::notification::{
   send_notification, send_workspace_notification, send_workspace_setting_notification,
@@ -129,9 +129,11 @@ impl Folder2Manager {
       );
       let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
       let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
+      let (favorite_tx, favorite_rx) = tokio::sync::broadcast::channel(100);
       let folder_context = FolderContext {
         view_change_tx: view_tx,
         trash_change_tx: trash_tx,
+        favorite_change_tx: favorite_tx,
       };
       let folder = Folder::get_or_create(collab, folder_context);
       let folder_state_rx = folder.subscribe_state_change();
@@ -141,6 +143,7 @@ impl Folder2Manager {
       listen_on_folder_state_change(workspace_id, folder_state_rx, &weak_mutex_folder);
       listen_on_trash_change(trash_rx, &weak_mutex_folder);
       listen_on_view_change(view_rx, &weak_mutex_folder);
+      listen_on_favorites_change(favorite_rx, &weak_mutex_folder);
     }
 
     Ok(())
@@ -420,6 +423,7 @@ impl Folder2Manager {
           .set_layout_if_not_none(params.layout)
           .set_icon_url_if_not_none(params.icon_url)
           .set_cover_url_if_not_none(params.cover_url)
+          .set_favorite_if_not_none(params.is_favorite)
           .done()
       });
 
@@ -482,6 +486,76 @@ impl Folder2Manager {
   pub(crate) async fn get_current_view(&self) -> Option<ViewPB> {
     let view_id = self.with_folder(None, |folder| folder.get_current_view())?;
     self.get_view(&view_id).await.ok()
+  }
+
+  /// Create a clone of current view under a favorites,
+  /// if favorites doesn't exist, this should create a top level favorite view,
+
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn toggle_favorites(&self, view_id: &str) -> FlowyResult<()> {
+    // let cloned_view = self.with_folder(None, |folder| {
+    //     let workspace_id = folder.get_current_workspace_id().to_owned();
+    //     let source_view = folder
+    //         .views
+    //         .get_view(view_id)
+    //         .ok_or_else(|| FlowyError::record_not_found().context("Source view not found"))?;
+    //     let cloned_view_id = gen_view_id();
+    //     let cloned_view_name = format!("Clone of {}", source_view.name);
+    //     let cloned_view = View {
+    //         id: cloned_view_id.clone(),
+    //         name: cloned_view_name.clone(),
+    //         workspace_id: workspace_id.clone(),
+    //         parent_id: source_view.parent_id.clone(),
+    //         data: source_view.data.clone(),
+    //         layout: source_view.layout.clone(),
+    //         children: Default::default(),
+    //         created_at: chrono::Utc::now().timestamp_millis(),
+    //     };
+    //     folder.views.create_view(cloned_view.clone());
+    //     folder.views.set_view_parent(&cloned_view_id, &source_view.parent_id);
+    //     let favorite_change = FavoriteChange::Add {
+    //         view_id: cloned_view_id.clone(),
+    //         workspace_id: workspace_id.clone(),
+    //     };
+    //     folder.favorites.apply_change(favorite_change);
+    //     Some(cloned_view)
+    // });
+    // if let Some(cloned_view) = cloned_view {
+    //     Ok(cloned_view)
+    // } else {
+    //     Err(FlowyError::internal())
+    // }
+    self.with_folder((), |folder| {
+      let view = folder.views.get_view(view_id);
+      if let Some(view) = view.as_ref().map(|arc| arc.deref()) {
+        if view.is_favorite {
+          folder.delete_favorites(vec![view_id.to_string()])
+        } else {
+          folder.add_favorites(vec![view_id.to_string()])
+        }
+
+        // notify the view that the view's favorite status is toggled
+        send_notification(view_id, FolderNotification::DidToggleFavorite)
+          .payload(FavoritesPB {
+            id: view_id.to_string(),
+          })
+          .send();
+      }
+
+      if let Some(view) = view {
+        notify_child_views_changed(
+          view_pb_without_child_views(view),
+          ChildViewChangeReason::DidUpdateView,
+        );
+      }
+    });
+
+    Ok(())
+  }
+
+  #[tracing::instrument(level = "trace", skip(self))]
+  pub(crate) async fn get_all_favorites(&self) -> Vec<FavoritesInfo> {
+    self.with_folder(vec![], |folder| folder.get_all_favorites())
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
@@ -687,6 +761,40 @@ fn listen_on_folder_state_change(
   });
 }
 
+fn listen_on_favorites_change(
+  mut rx: FavoriteChangeReciever,
+  weak_mutex_folder: &Weak<MutexFolder>,
+) {
+  let weak_mutex_folder = weak_mutex_folder.clone();
+  tokio::spawn(async move {
+    while let Ok(value) = rx.recv().await {
+      if let Some(folder) = weak_mutex_folder.upgrade() {
+        let mut unique_ids = HashSet::new();
+        // tracing::trace!("Did receive favorite change: {:?}", value);
+        let ids = match value {
+          FavoriteChange::DidFavoriteView { ids } => ids,
+          FavoriteChange::DidUnFavoriteView { ids } => ids,
+        };
+
+        if let Some(folder) = folder.lock().as_ref() {
+          let views = folder.views.get_views(&ids);
+          for view in views {
+            // tracing::trace!("favorite view added to unique id: {:?}", value);
+            unique_ids.insert(view.parent_view_id.clone());
+          }
+
+          let repeated_favorites: RepeatedFavoritesPB = folder.get_all_favorites().into();
+          send_notification("favorite", FolderNotification::FavoritesUpdated)
+            .payload(repeated_favorites)
+            .send();
+        }
+
+        let parent_view_ids = unique_ids.into_iter().collect();
+        notify_parent_view_did_change(folder.clone(), parent_view_ids);
+      }
+    }
+  });
+}
 /// Listen on the [TrashChange]s and notify the frontend some views were changed.
 fn listen_on_trash_change(mut rx: TrashChangeReceiver, weak_mutex_folder: &Weak<MutexFolder>) {
   let weak_mutex_folder = weak_mutex_folder.clone();
