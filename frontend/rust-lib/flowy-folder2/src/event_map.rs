@@ -36,6 +36,8 @@ pub fn init(folder: Arc<Folder2Manager>) -> AFPlugin {
     .event(FolderEvent::RestoreAllTrash, restore_all_trash_handler)
     .event(FolderEvent::DeleteAllTrash, delete_all_trash_handler)
     .event(FolderEvent::ImportData, import_data_handler)
+    .event(FolderEvent::ReadFavorites, read_favorites_handler)
+    .event(FolderEvent::ToggleFavorite, toggle_favorites_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -128,4 +130,10 @@ pub enum FolderEvent {
 
   #[event(input = "ImportPB")]
   ImportData = 30,
+
+  #[event(output = "RepeatedFavoritesPB")]
+  ReadFavorites = 31,
+
+  #[event(input = "RepeatedViewIdPB")]
+  ToggleFavorite = 32,
 }
