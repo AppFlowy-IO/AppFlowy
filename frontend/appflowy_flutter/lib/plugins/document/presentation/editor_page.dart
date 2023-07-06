@@ -51,8 +51,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     numberedListItem,
     inlineMathEquationItem,
     linkItem,
-    // textColorItem,
-    // highlightColorItem,
+    buildTextColorItem(),
+    buildHighlightColorItem(),
   ];
 
   late final List<SelectionMenuItem> slashMenuItems;
