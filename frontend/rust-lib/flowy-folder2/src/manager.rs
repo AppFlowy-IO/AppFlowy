@@ -488,43 +488,10 @@ impl Folder2Manager {
     self.get_view(&view_id).await.ok()
   }
 
-  /// Create a clone of current view under a favorites,
-  /// if favorites doesn't exist, this should create a top level favorite view,
-
+  /// adds passed view to favorites list if it is
+  /// not a favorite or removes it from list if it is a favorite
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn toggle_favorites(&self, view_id: &str) -> FlowyResult<()> {
-    // let cloned_view = self.with_folder(None, |folder| {
-    //     let workspace_id = folder.get_current_workspace_id().to_owned();
-    //     let source_view = folder
-    //         .views
-    //         .get_view(view_id)
-    //         .ok_or_else(|| FlowyError::record_not_found().context("Source view not found"))?;
-    //     let cloned_view_id = gen_view_id();
-    //     let cloned_view_name = format!("Clone of {}", source_view.name);
-    //     let cloned_view = View {
-    //         id: cloned_view_id.clone(),
-    //         name: cloned_view_name.clone(),
-    //         workspace_id: workspace_id.clone(),
-    //         parent_id: source_view.parent_id.clone(),
-    //         data: source_view.data.clone(),
-    //         layout: source_view.layout.clone(),
-    //         children: Default::default(),
-    //         created_at: chrono::Utc::now().timestamp_millis(),
-    //     };
-    //     folder.views.create_view(cloned_view.clone());
-    //     folder.views.set_view_parent(&cloned_view_id, &source_view.parent_id);
-    //     let favorite_change = FavoriteChange::Add {
-    //         view_id: cloned_view_id.clone(),
-    //         workspace_id: workspace_id.clone(),
-    //     };
-    //     folder.favorites.apply_change(favorite_change);
-    //     Some(cloned_view)
-    // });
-    // if let Some(cloned_view) = cloned_view {
-    //     Ok(cloned_view)
-    // } else {
-    //     Err(FlowyError::internal())
-    // }
     self.with_folder((), |folder| {
       let view = folder.views.get_view(view_id);
       if let Some(view) = view.as_ref().map(|arc| arc.deref()) {
