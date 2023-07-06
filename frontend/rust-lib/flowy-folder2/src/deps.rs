@@ -14,4 +14,18 @@ pub trait FolderUser: Send + Sync {
 /// [FolderCloudService] represents the cloud service for folder.
 pub trait FolderCloudService: Send + Sync + 'static {
   fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, FlowyError>;
+
+  fn get_folder_latest_snapshot(
+    &self,
+    workspace_id: &str,
+  ) -> FutureResult<Option<FolderSnapshot>, FlowyError>;
+
+  fn get_folder_updates(&self, workspace_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError>;
+}
+
+pub struct FolderSnapshot {
+  pub snapshot_id: i64,
+  pub database_id: String,
+  pub data: Vec<u8>,
+  pub created_at: i64,
 }

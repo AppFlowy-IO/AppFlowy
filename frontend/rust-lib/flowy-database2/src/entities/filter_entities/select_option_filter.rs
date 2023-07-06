@@ -1,7 +1,8 @@
-use crate::services::field::SelectOptionIds;
-use crate::services::filter::{Filter, FromFilterString};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
+
+use crate::services::field::SelectOptionIds;
+use crate::services::filter::{Filter, FromFilterString};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct SelectOptionFilterPB {
@@ -38,7 +39,7 @@ impl std::convert::TryFrom<u8> for SelectOptionConditionPB {
       1 => Ok(SelectOptionConditionPB::OptionIsNot),
       2 => Ok(SelectOptionConditionPB::OptionIsEmpty),
       3 => Ok(SelectOptionConditionPB::OptionIsNotEmpty),
-      _ => Err(ErrorCode::InvalidData),
+      _ => Err(ErrorCode::InvalidParams),
     }
   }
 }

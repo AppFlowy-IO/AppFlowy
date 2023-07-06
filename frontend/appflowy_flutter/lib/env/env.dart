@@ -3,6 +3,17 @@ import 'package:envied/envied.dart';
 
 part 'env.g.dart';
 
+/// The environment variables are defined in `.env` file that is located in the
+/// appflowy_flutter.
+///   Run `dart run build_runner build --delete-conflicting-outputs`
+///   to generate the keys from the env file.
+///
+///   If you want to regenerate the keys, you need to run `dart run
+///   build_runner clean` before running `dart run build_runner build
+///    --delete-conflicting-outputs`.
+
+/// Follow the guide on https://supabase.com/docs/guides/auth/social-login/auth-google to setup the auth provider.
+///
 @Envied(path: '.env')
 abstract class Env {
   @EnviedField(
@@ -32,14 +43,39 @@ abstract class Env {
 
   @EnviedField(
     obfuscate: true,
-    varName: 'SUPABASE_COLLAB_TABLE',
+    varName: 'SUPABASE_DB',
     defaultValue: '',
   )
-  static final String supabaseCollabTable = _Env.supabaseCollabTable;
+  static final String supabaseDb = _Env.supabaseDb;
+
+  @EnviedField(
+    obfuscate: true,
+    varName: 'SUPABASE_DB_USER',
+    defaultValue: '',
+  )
+  static final String supabaseDbUser = _Env.supabaseDbUser;
+
+  @EnviedField(
+    obfuscate: true,
+    varName: 'SUPABASE_DB_PASSWORD',
+    defaultValue: '',
+  )
+  static final String supabaseDbPassword = _Env.supabaseDbPassword;
+
+  @EnviedField(
+    obfuscate: true,
+    varName: 'SUPABASE_DB_PORT',
+    defaultValue: '5432',
+  )
+  static final String supabaseDbPort = _Env.supabaseDbPort;
 }
 
 bool get isSupabaseEnable =>
     Env.supabaseUrl.isNotEmpty &&
     Env.supabaseAnonKey.isNotEmpty &&
     Env.supabaseKey.isNotEmpty &&
-    Env.supabaseJwtSecret.isNotEmpty;
+    Env.supabaseJwtSecret.isNotEmpty &&
+    Env.supabaseDb.isNotEmpty &&
+    Env.supabaseDbUser.isNotEmpty &&
+    Env.supabaseDbPassword.isNotEmpty &&
+    Env.supabaseDbPort.isNotEmpty;

@@ -7,6 +7,7 @@ use collab_database::database::Database as InnerDatabase;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
+use futures::StreamExt;
 use parking_lot::Mutex;
 use tokio::sync::{broadcast, RwLock};
 
@@ -52,6 +53,38 @@ impl DatabaseEditor {
       database: database.clone(),
       task_scheduler: task_scheduler.clone(),
       cell_cache: cell_cache.clone(),
+    });
+
+    let database_id = database.lock().get_database_id();
+
+    // Receive database sync state and send to frontend via the notification
+    let mut sync_state = database.lock().subscribe_sync_state();
+    let cloned_database_id = database_id.clone();
+    tokio::spawn(async move {
+      while let Some(sync_state) = sync_state.next().await {
+        send_notification(
+          &cloned_database_id,
+          DatabaseNotification::DidUpdateDatabaseSyncUpdate,
+        )
+        .payload(DatabaseSyncStatePB::from(sync_state))
+        .send();
+      }
+    });
+
+    // Receive database snapshot state and send to frontend via the notification
+    let mut snapshot_state = database.lock().subscribe_snapshot_state();
+    tokio::spawn(async move {
+      while let Some(snapshot_state) = snapshot_state.next().await {
+        if let Some(new_snapshot_id) = snapshot_state.snapshot_id() {
+          tracing::debug!("Did create database snapshot: {}", new_snapshot_id);
+          send_notification(
+            &database_id,
+            DatabaseNotification::DidUpdateDatabaseSnapshotState,
+          )
+          .payload(DatabaseSnapshotStatePB { new_snapshot_id })
+          .send();
+        }
+      }
     });
 
     let database_views =
@@ -1089,6 +1122,12 @@ impl DatabaseEditor {
       .into_iter()
       .filter(|f| FieldType::from(f.field_type).is_auto_update())
       .collect::<Vec<Field>>()
+  }
+
+  /// Only expose this method for testing
+  #[cfg(debug_assertions)]
+  pub fn get_mutex_database(&self) -> &MutexDatabase {
+    &self.database
   }
 }
 

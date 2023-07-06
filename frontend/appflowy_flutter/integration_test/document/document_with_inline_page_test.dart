@@ -11,17 +11,6 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('inline page view in document', () {
-    const location = 'inline_page';
-
-    setUp(() async {
-      await TestFolder.cleanTestLocation(location);
-      await TestFolder.setTestLocation(location);
-    });
-
-    tearDown(() async {
-      await TestFolder.cleanTestLocation(null);
-    });
-
     testWidgets('insert a inline page - grid', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();

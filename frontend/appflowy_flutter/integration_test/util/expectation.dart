@@ -85,12 +85,9 @@ extension Expectation on WidgetTester {
     expect(iconWidget, findsOneWidget);
   }
 
-  void expectToSeeDocumentCover(CoverType type, String details) {
+  void expectToSeeDocumentCover(CoverType type) {
     final findCover = find.byWidgetPredicate(
-      (widget) =>
-          widget is DocumentCover &&
-          widget.coverType == type &&
-          widget.coverDetails == details,
+      (widget) => widget is DocumentCover && widget.coverType == type,
     );
     expect(findCover, findsOneWidget);
   }

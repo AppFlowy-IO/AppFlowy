@@ -1,14 +1,16 @@
-use crate::FlowyCoreTest;
-use flowy_user::errors::FlowyError;
-use lib_dispatch::prelude::{
-  AFPluginDispatcher, AFPluginEventResponse, AFPluginFromBytes, AFPluginRequest, ToBytes, *,
-};
 use std::{
   convert::TryFrom,
   fmt::{Debug, Display},
   hash::Hash,
   sync::Arc,
 };
+
+use flowy_user::errors::{internal_error, FlowyError};
+use lib_dispatch::prelude::{
+  AFPluginDispatcher, AFPluginEventResponse, AFPluginFromBytes, AFPluginRequest, ToBytes, *,
+};
+
+use crate::FlowyCoreTest;
 
 #[derive(Clone)]
 pub struct EventBuilder {
@@ -82,6 +84,14 @@ impl EventBuilder {
         response
       ),
     }
+  }
+
+  pub fn try_parse<R>(self) -> Result<R, FlowyError>
+  where
+    R: AFPluginFromBytes,
+  {
+    let response = self.get_response();
+    response.parse::<R, FlowyError>().map_err(internal_error)?
   }
 
   pub fn error(self) -> Option<FlowyError> {

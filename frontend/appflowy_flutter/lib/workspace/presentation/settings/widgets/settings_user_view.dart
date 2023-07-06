@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
@@ -26,24 +28,27 @@ class SettingsUserView extends StatelessWidget {
       create: (context) => getIt<SettingsUserViewBloc>(param1: user)
         ..add(const SettingsUserEvent.initial()),
       child: BlocBuilder<SettingsUserViewBloc, SettingsUserState>(
-        builder: (context, state) => SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _renderUserNameInput(context),
-              const VSpace(20),
-              _renderCurrentIcon(context),
-              const VSpace(20),
-              _renderCurrentOpenaiKey(context)
-            ],
-          ),
+        builder: (context, state) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _renderUserNameInput(context),
+            const VSpace(20),
+            _renderCurrentIcon(context),
+            const VSpace(20),
+            _renderCurrentOpenaiKey(context),
+            const Spacer(),
+            _renderLogoutButton(context),
+            const VSpace(20),
+          ],
         ),
       ),
     );
   }
 
   Widget _renderUserNameInput(BuildContext context) {
-    final String name = context.read<SettingsUserViewBloc>().state.userProfile.name;
+    final String name =
+        context.read<SettingsUserViewBloc>().state.userProfile.name;
     return UserNameInput(name);
   }
 
@@ -60,6 +65,23 @@ class SettingsUserView extends StatelessWidget {
     final String openAIKey =
         context.read<SettingsUserViewBloc>().state.userProfile.openaiKey;
     return _OpenaiKeyInput(openAIKey);
+  }
+
+  Widget _renderLogoutButton(BuildContext context) {
+    return FlowyButton(
+      useIntrinsicWidth: true,
+      text: const FlowyText(
+        'Logout',
+      ),
+      onTap: () async {
+        await getIt<AuthService>().signOut(authType: AuthTypePB.Supabase);
+        await getIt<AuthService>().signOut(authType: AuthTypePB.Local);
+        await FlowyRunner.run(
+          FlowyApp(),
+          integrationEnv(),
+        );
+      },
+    );
   }
 }
 

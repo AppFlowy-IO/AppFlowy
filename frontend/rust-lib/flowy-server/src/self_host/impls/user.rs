@@ -2,7 +2,7 @@ use flowy_error::{ErrorCode, FlowyError};
 use flowy_user::entities::{
   SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
-use flowy_user::event_map::UserAuthService;
+use flowy_user::event_map::{UserAuthService, UserCredentials};
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
@@ -42,7 +42,7 @@ impl UserAuthService for SelfHostedUserAuthServiceImpl {
     match token {
       None => FutureResult::new(async {
         Err(FlowyError::new(
-          ErrorCode::InvalidData,
+          ErrorCode::InvalidParams,
           "Token should not be empty",
         ))
       }),
@@ -59,19 +59,18 @@ impl UserAuthService for SelfHostedUserAuthServiceImpl {
 
   fn update_user(
     &self,
-    _uid: i64,
-    token: &Option<String>,
+    credential: UserCredentials,
     params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError> {
-    match token {
+    match credential.token {
       None => FutureResult::new(async {
         Err(FlowyError::new(
-          ErrorCode::InvalidData,
+          ErrorCode::InvalidParams,
           "Token should not be empty",
         ))
       }),
       Some(token) => {
-        let token = token.to_owned();
+        let token = token;
         let url = self.config.user_profile_url();
         FutureResult::new(async move {
           update_user_profile_request(&token, params, &url).await?;
@@ -83,13 +82,11 @@ impl UserAuthService for SelfHostedUserAuthServiceImpl {
 
   fn get_user_profile(
     &self,
-    token: Option<String>,
-    _uid: i64,
+    credential: UserCredentials,
   ) -> FutureResult<Option<UserProfile>, FlowyError> {
-    let token = token;
     let url = self.config.user_profile_url();
     FutureResult::new(async move {
-      match token {
+      match credential.token {
         None => Err(FlowyError::new(
           ErrorCode::UnexpectedEmpty,
           "Token should not be empty",
@@ -100,6 +97,11 @@ impl UserAuthService for SelfHostedUserAuthServiceImpl {
         },
       }
     })
+  }
+
+  fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), FlowyError> {
+    // TODO(nathan): implement the OpenAPI for this
+    FutureResult::new(async { Ok(()) })
   }
 }
 

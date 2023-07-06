@@ -6,9 +6,9 @@ use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use lib_dispatch::prelude::*;
 
 use crate::event_handler::*;
-use crate::manager::Folder2Manager;
+use crate::manager::FolderManager;
 
-pub fn init(folder: Arc<Folder2Manager>) -> AFPlugin {
+pub fn init(folder: Arc<FolderManager>) -> AFPlugin {
   AFPlugin::new().name("Flowy-Folder").state(folder)
     // Workspace
     .event(FolderEvent::CreateWorkspace, create_workspace_handler)
@@ -36,6 +36,7 @@ pub fn init(folder: Arc<Folder2Manager>) -> AFPlugin {
     .event(FolderEvent::RestoreAllTrash, restore_all_trash_handler)
     .event(FolderEvent::DeleteAllTrash, delete_all_trash_handler)
     .event(FolderEvent::ImportData, import_data_handler)
+      .event(FolderEvent::GetFolderSnapshots, get_folder_snapshots_handler)
     .event(FolderEvent::ReadFavorites, read_favorites_handler)
     .event(FolderEvent::ToggleFavorite, toggle_favorites_handler)
 }
@@ -131,9 +132,12 @@ pub enum FolderEvent {
   #[event(input = "ImportPB")]
   ImportData = 30,
 
+  #[event()]
+  GetFolderSnapshots = 31,
+
   #[event(output = "RepeatedFavoritesPB")]
-  ReadFavorites = 31,
+  ReadFavorites = 32,
 
   #[event(input = "RepeatedViewIdPB")]
-  ToggleFavorite = 32,
+  ToggleFavorite = 33,
 }
