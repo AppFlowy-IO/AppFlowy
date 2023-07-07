@@ -5,12 +5,14 @@ use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
 use collab::preclude::Update;
+use flowy_database2::deps::DatabaseCloudService;
 use serde_json::json;
 
 use flowy_document2::deps::DocumentCloudService;
 use flowy_folder2::deps::{FolderCloudService, FolderSnapshot};
 use flowy_server::supabase::impls::{
-  SupabaseDocumentCloudServiceImpl, SupabaseFolderCloudServiceImpl,
+  SupabaseDatabaseCloudServiceImpl, SupabaseDocumentCloudServiceImpl,
+  SupabaseFolderCloudServiceImpl,
 };
 use flowy_server::supabase::PostgresServer;
 
@@ -58,6 +60,21 @@ impl PostgresConnect {
     collab
   }
 
+  async fn get_database_collab_object(&self, object_id: &str) -> MutexCollab {
+    let database_service = SupabaseDatabaseCloudServiceImpl::new(self.inner.clone());
+    let updates = database_service
+      .get_collab_updates(object_id)
+      .await
+      .unwrap();
+    let collab = MutexCollab::new(CollabOrigin::Server, object_id, vec![]);
+    collab.lock().with_transact_mut(|txn| {
+      for update in updates {
+        txn.apply_update(Update::decode_v1(&update).unwrap());
+      }
+    });
+    collab
+  }
+
   async fn get_document(&self, document_id: &str) -> MutexCollab {
     let document_service = SupabaseDocumentCloudServiceImpl::new(self.inner.clone());
     let updates = document_service
@@ -101,6 +118,17 @@ async fn get_document_test() {
   if let Some(conn) = PostgresConnect::new() {
     let collab = conn
       .get_document("158c8275-ff6d-49e1-a2ed-82c71dea1126")
+      .await;
+    let value = collab.to_json_value();
+    assert_json_eq!(value, json!(""));
+  }
+}
+
+#[tokio::test]
+async fn get_workspace_database_test() {
+  if let Some(conn) = PostgresConnect::new() {
+    let collab = conn
+      .get_database_collab_object("MTp1c2VyOmRhdGFiYXNl")
       .await;
     let value = collab.to_json_value();
     assert_json_eq!(value, json!(""));

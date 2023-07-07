@@ -11,7 +11,7 @@ use flowy_folder2::deps::{FolderCloudService, FolderData, FolderSnapshot, Worksp
 use lib_infra::future::FutureResult;
 
 use crate::supabase::impls::{get_latest_snapshot_from_server, get_updates_from_server};
-use crate::supabase::pg_db::PostgresObject;
+use crate::supabase::postgres_db::PostgresObject;
 use crate::supabase::sql_builder::{InsertSqlBuilder, SelectSqlBuilder};
 use crate::supabase::PostgresServer;
 
@@ -55,7 +55,8 @@ impl FolderCloudService for SupabaseFolderCloudServiceImpl {
       let folder_data = get_updates_from_server(&workspace_id, server)
         .await
         .map(|updates| {
-          let folder = Folder::from_updates(CollabOrigin::Empty, updates, &workspace_id, vec![])?;
+          let folder =
+            Folder::from_collab_raw_data(CollabOrigin::Empty, updates, &workspace_id, vec![])?;
           Ok(folder.get_folder_data())
         });
       tx.send(folder_data)

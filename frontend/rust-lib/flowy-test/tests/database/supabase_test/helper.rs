@@ -71,10 +71,7 @@ impl FlowySupabaseDatabaseTest {
 
   pub async fn get_collab_update(&self, database_id: &str) -> Vec<u8> {
     let cloud_service = self.database_manager.get_cloud_service().clone();
-    let remote_updates = cloud_service
-      .get_database_updates(database_id)
-      .await
-      .unwrap();
+    let remote_updates = cloud_service.get_collab_updates(database_id).await.unwrap();
 
     if remote_updates.is_empty() {
       return vec![];

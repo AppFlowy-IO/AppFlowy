@@ -18,7 +18,7 @@ use crate::supabase::impls::{
   PgCollabStorageImpl, SupabaseDatabaseCloudServiceImpl, SupabaseDocumentCloudServiceImpl,
   SupabaseFolderCloudServiceImpl, SupabaseUserAuthServiceImpl,
 };
-use crate::supabase::pg_db::{PgClientReceiver, PostgresDB, PostgresEvent};
+use crate::supabase::postgres_db::{PgClientReceiver, PostgresDB, PostgresEvent};
 use crate::supabase::queue::{
   PendingRequest, RequestHandler, RequestQueue, RequestRunner, RequestState,
 };
@@ -66,50 +66,49 @@ impl AppFlowyServer for SupabaseServer {
 }
 
 pub struct PostgresServer {
-  inner: Arc<PostgresServerInner>,
+  request_handler: Arc<PostgresRequestHandler>,
 }
 
 impl Deref for PostgresServer {
-  type Target = Arc<PostgresServerInner>;
+  type Target = Arc<PostgresRequestHandler>;
 
   fn deref(&self) -> &Self::Target {
-    &self.inner
+    &self.request_handler
   }
 }
 
 impl PostgresServer {
   pub fn new(config: PostgresConfiguration) -> Self {
-    let (resp_sender, resp_receiver) = watch::channel(false);
-    let inner = Arc::new(PostgresServerInner::new(resp_sender, config));
+    let (runner_notifier_tx, runner_notifier) = watch::channel(false);
+    let request_handler = Arc::new(PostgresRequestHandler::new(runner_notifier_tx, config));
 
     // Initialize the connection to the database
     let conn = PendingRequest::new(PostgresEvent::ConnectDB);
-    inner.queue.lock().push(conn);
-    let handler = Arc::downgrade(&inner) as Weak<dyn RequestHandler<PostgresEvent>>;
-    spawn(RequestRunner::run(resp_receiver, handler));
+    request_handler.queue.lock().push(conn);
+    let handler = Arc::downgrade(&request_handler) as Weak<dyn RequestHandler<PostgresEvent>>;
+    spawn(RequestRunner::run(runner_notifier, handler));
 
-    Self { inner }
+    Self { request_handler }
   }
 }
 
-pub struct PostgresServerInner {
+pub struct PostgresRequestHandler {
   config: PostgresConfiguration,
   db: Arc<Mutex<Option<Arc<PostgresDB>>>>,
   queue: parking_lot::Mutex<RequestQueue<PostgresEvent>>,
-  resp_sender: Arc<watch::Sender<bool>>,
+  runner_notifier: Arc<watch::Sender<bool>>,
   sequence: AtomicU32,
 }
 
-impl PostgresServerInner {
-  /// The resp_sender is used to send the response for the request comes from [RequestHandler].
-  pub fn new(resp_sender: watch::Sender<bool>, config: PostgresConfiguration) -> Self {
+impl PostgresRequestHandler {
+  pub fn new(runner_notifier: watch::Sender<bool>, config: PostgresConfiguration) -> Self {
     let db = Arc::new(Default::default());
     let queue = parking_lot::Mutex::new(RequestQueue::new());
-    let resp_sender = Arc::new(resp_sender);
+    let runner_notifier = Arc::new(runner_notifier);
     Self {
       db,
       queue,
-      resp_sender,
+      runner_notifier,
       config,
       sequence: Default::default(),
     }
@@ -131,12 +130,12 @@ impl PostgresServerInner {
 }
 
 #[async_trait]
-impl RequestHandler<PostgresEvent> for PostgresServerInner {
+impl RequestHandler<PostgresEvent> for PostgresRequestHandler {
   async fn prepare_request(&self) -> Option<PendingRequest<PostgresEvent>> {
     match self.queue.try_lock() {
       None => {
         // If acquire the lock failed, try after 300ms
-        let weak_notifier = Arc::downgrade(&self.resp_sender);
+        let weak_notifier = Arc::downgrade(&self.runner_notifier);
         spawn(async move {
           interval(Duration::from_millis(300)).tick().await;
           if let Some(notifier) = weak_notifier.upgrade() {
@@ -194,6 +193,6 @@ impl RequestHandler<PostgresEvent> for PostgresServerInner {
   }
 
   fn notify(&self) {
-    let _ = self.resp_sender.send(false);
+    let _ = self.runner_notifier.send(false);
   }
 }

@@ -20,21 +20,21 @@ impl SupabaseDatabaseCloudServiceImpl {
 }
 
 impl DatabaseCloudService for SupabaseDatabaseCloudServiceImpl {
-  fn get_database_updates(&self, database_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+  fn get_collab_updates(&self, object_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
     let server = Arc::downgrade(&self.server);
     let (tx, rx) = channel();
-    let database_id = database_id.to_string();
+    let database_id = object_id.to_string();
     tokio::spawn(async move { tx.send(get_updates_from_server(&database_id, server).await) });
     FutureResult::new(async { rx.await.map_err(internal_error)?.map_err(internal_error) })
   }
 
-  fn get_database_latest_snapshot(
+  fn get_collab_latest_snapshot(
     &self,
-    database_id: &str,
+    object_id: &str,
   ) -> FutureResult<Option<DatabaseSnapshot>, FlowyError> {
     let server = Arc::downgrade(&self.server);
     let (tx, rx) = channel();
-    let database_id = database_id.to_string();
+    let database_id = object_id.to_string();
     tokio::spawn(
       async move { tx.send(get_latest_snapshot_from_server(&database_id, server).await) },
     );

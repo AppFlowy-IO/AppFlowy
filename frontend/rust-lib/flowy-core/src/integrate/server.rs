@@ -164,27 +164,27 @@ impl FolderCloudService for AppFlowyServerProvider {
 }
 
 impl DatabaseCloudService for AppFlowyServerProvider {
-  fn get_database_updates(&self, database_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+  fn get_collab_updates(&self, object_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
     let server = self.get_provider(&self.provider_type.read());
-    let database_id = database_id.to_string();
+    let database_id = object_id.to_string();
     FutureResult::new(async move {
       server?
         .database_service()
-        .get_database_updates(&database_id)
+        .get_collab_updates(&database_id)
         .await
     })
   }
 
-  fn get_database_latest_snapshot(
+  fn get_collab_latest_snapshot(
     &self,
-    database_id: &str,
+    object_id: &str,
   ) -> FutureResult<Option<DatabaseSnapshot>, FlowyError> {
     let server = self.get_provider(&self.provider_type.read());
-    let database_id = database_id.to_string();
+    let database_id = object_id.to_string();
     FutureResult::new(async move {
       server?
         .database_service()
-        .get_database_latest_snapshot(&database_id)
+        .get_collab_latest_snapshot(&database_id)
         .await
     })
   }

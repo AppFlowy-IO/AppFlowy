@@ -15,7 +15,7 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::supabase::entities::{GetUserProfileParams, UserProfileResponse};
-use crate::supabase::pg_db::PostgresObject;
+use crate::supabase::postgres_db::PostgresObject;
 use crate::supabase::sql_builder::{SelectSqlBuilder, UpdateSqlBuilder};
 use crate::supabase::PostgresServer;
 use crate::util::uuid_from_box_any;
