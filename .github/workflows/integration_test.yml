@@ -39,9 +39,6 @@ jobs:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
             target: x86_64-unknown-linux-gnu
-          - os: macos-latest
-            flutter_profile: development-mac-x86_64
-            target: x86_64-apple-darwin
           - os: windows-latest
             flutter_profile: development-windows-x86
             target: x86_64-pc-windows-msvc

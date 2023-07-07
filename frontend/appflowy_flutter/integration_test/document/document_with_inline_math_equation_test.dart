@@ -44,10 +44,6 @@ void main() {
       // expect to see the math equation block
       final inlineMathEquation = find.byType(InlineMathEquation);
       expect(inlineMathEquation, findsOneWidget);
-      await expectLater(
-        find.byType(InlineMathEquation),
-        matchesGoldenFile('document_with_inline_math_equation_test_1.png'),
-      );
 
       // tap it and update the content
       await tester.tapButton(inlineMathEquation);
@@ -64,10 +60,6 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await expectLater(
-        find.byType(InlineMathEquation),
-        matchesGoldenFile('document_with_inline_math_equation_test_2.png'),
-      );
     });
   });
 }

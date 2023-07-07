@@ -453,7 +453,9 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> dismissRowDetailPage() async {
-    await sendKeyEvent(LogicalKeyboardKey.escape);
+    // use tap empty area instead of clicking ESC to dismiss the row detail page
+    // sometimes, the ESC key is not working.
+    await tapAt(const Offset(0, 0));
     await pumpAndSettle();
   }
 

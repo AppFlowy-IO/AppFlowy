@@ -143,6 +143,7 @@ void main() {
       final firstOfThisMonth = DateTime(today.year, today.month, 1);
       await tester.doubleClickCalendarCell(firstOfThisMonth);
       await tester.dismissRowDetailPage();
+      await tester.dismissRowDetailPage();
 
       // Drag and drop the event onto the next week, same day
       await tester.dragDropRescheduleCalendarEvent(firstOfThisMonth);
