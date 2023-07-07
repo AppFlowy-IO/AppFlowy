@@ -29,7 +29,9 @@ import 'package:styled_widget/styled_widget.dart';
 
 import '../navigation.dart';
 import 'app/create_button.dart';
+import 'app/favorite_header.dart';
 import 'app/menu_app.dart';
+import 'app/section/item.dart';
 import 'menu_user.dart';
 
 export './app/header/header.dart';
@@ -93,7 +95,6 @@ class HomeMenu extends StatelessWidget {
               children: [
                 const MenuTopBar(),
                 const VSpace(10),
-                _renderFavorites(context),
                 _renderApps(context),
               ],
             ).padding(horizontal: Insets.l),
@@ -116,21 +117,42 @@ class HomeMenu extends StatelessWidget {
           Log.warn("Favorite state changed $state");
         },
         builder: (context, state) {
-          return Visibility(
-            visible: true,
-            child: ExpandableTheme(
-              data: ExpandableThemeData(
-                useInkWell: true,
-                animationDuration: Durations.medium,
-              ),
-              child: ScrollConfiguration(
-                behavior: const ScrollBehavior().copyWith(scrollbars: false),
-                child: Column(
-                  children: [...state.objects.map((e) => Text(e.id)).toList()],
-                ),
-              ),
-            ),
-          );
+          return state.objects.isNotEmpty
+              ? ExpandableTheme(
+                  data: ExpandableThemeData(
+                    useInkWell: true,
+                    animationDuration: Durations.medium,
+                  ),
+                  child: ExpandablePanel(
+                    theme: const ExpandableThemeData(
+                      headerAlignment: ExpandablePanelHeaderAlignment.center,
+                      tapBodyToExpand: false,
+                      tapBodyToCollapse: false,
+                      tapHeaderToExpand: false,
+                      iconPadding: EdgeInsets.zero,
+                      hasIcon: false,
+                    ),
+                    header: FavoriteHeader(),
+                    expanded: ScrollConfiguration(
+                      behavior:
+                          const ScrollBehavior().copyWith(scrollbars: false),
+                      child: Column(
+                        children: state.objects
+                            .map(
+                              (e) => ViewSectionItem(
+                                key: ValueKey(e.id),
+                                isSelected: false,
+                                onSelected: (item) {},
+                                view: e,
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ),
+                    collapsed: const SizedBox(),
+                  ),
+                )
+              : const Offstage();
         },
       ),
     );
@@ -153,10 +175,16 @@ class HomeMenu extends StatelessWidget {
               return ReorderableListView.builder(
                 itemCount: menuItems.length,
                 buildDefaultDragHandles: false,
-                header: Padding(
-                  padding:
-                      EdgeInsets.only(bottom: 20.0 - MenuAppSizes.appVPadding),
-                  child: MenuUser(user),
+                header: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(
+                        bottom: 20.0 - MenuAppSizes.appVPadding,
+                      ),
+                      child: MenuUser(user),
+                    ),
+                    _renderFavorites(context),
+                  ],
                 ),
                 onReorder: (oldIndex, newIndex) {
                   // Moving item1 from index 0 to index 1

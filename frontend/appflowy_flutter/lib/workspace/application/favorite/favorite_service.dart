@@ -4,7 +4,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:dartz/dartz.dart';
 
 class FavoriteService {
-  Future<Either<RepeatedFavoritesPB, FlowyError>> readFavorites() {
+  Future<Either<RepeatedViewPB, FlowyError>> readFavorites() {
     return FolderEventReadFavorites().send();
   }
 
