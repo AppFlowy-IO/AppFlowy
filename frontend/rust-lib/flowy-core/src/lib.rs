@@ -16,7 +16,7 @@ use tracing::debug;
 use flowy_database2::DatabaseManager2;
 use flowy_document2::manager::DocumentManager as DocumentManager2;
 use flowy_error::FlowyResult;
-use flowy_folder2::manager::FolderManager;
+use flowy_folder2::manager::{FolderInitializeData, FolderManager};
 use flowy_sqlite::kv::KV;
 use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::entities::UserProfile;
@@ -268,7 +268,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 
     to_fut(async move {
       folder_manager
-        .initialize(user_id, &workspace_id, vec![], None)
+        .initialize(user_id, &workspace_id, FolderInitializeData::Raw(vec![]))
         .await?;
       database_manager.initialize(user_id).await?;
       Ok(())

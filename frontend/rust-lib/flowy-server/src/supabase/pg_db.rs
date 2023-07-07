@@ -25,6 +25,9 @@ impl PostgresDB {
   }
 
   pub async fn new(configuration: PostgresConfiguration) -> Result<Self, anyhow::Error> {
+    // TODO(nathan): Handling connection surges using
+    // https://supabase.com/blog/supabase-pgbouncer
+    // https://supabase.com/docs/guides/database/connecting-to-postgres
     let mut pg_config = tokio_postgres::Config::new();
     pg_config
       .host(&configuration.url)

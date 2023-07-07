@@ -3,7 +3,8 @@ use std::ops::Deref;
 use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::CollabPersistenceConfig;
+use appflowy_integrate::{CollabPersistenceConfig, RocksCollabDB};
+use collab::core::collab::{CollabRawData, MutexCollab};
 use collab::core::collab_state::SyncState;
 use collab_folder::core::{
   Folder, FolderData, FolderNotify, TrashChange, TrashChangeReceiver, TrashInfo, View, ViewChange,
@@ -115,39 +116,35 @@ impl FolderManager {
   }
 
   /// Called immediately after the application launched fi the user already sign in/sign up.
-  #[tracing::instrument(level = "info", skip(self, updates, initial_folder_data), err)]
+  #[tracing::instrument(level = "info", skip(self, initial_data), err)]
   pub async fn initialize(
     &self,
     uid: i64,
     workspace_id: &str,
-    updates: Vec<Vec<u8>>,
-    initial_folder_data: Option<FolderData>,
+    initial_data: FolderInitializeData,
   ) -> FlowyResult<()> {
     let workspace_id = workspace_id.to_string();
     if let Ok(collab_db) = self.user.collab_db() {
-      let collab = self.collab_builder.build_with_config(
-        uid,
-        &workspace_id,
-        "workspace",
-        collab_db,
-        updates,
-        &CollabPersistenceConfig::new()
-          .enable_snapshot(true)
-          .snapshot_per_update(5),
-      )?;
       let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
       let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
       let folder_notifier = FolderNotify {
         view_change_tx: view_tx,
         trash_change_tx: trash_tx,
       };
-      let folder = match initial_folder_data {
-        None => Folder::open(collab, Some(folder_notifier)),
-        Some(initial_data) => Folder::create(collab, Some(folder_notifier), Some(initial_data)),
+
+      let folder = match initial_data {
+        FolderInitializeData::Raw(raw_data) => {
+          let collab = self.collab_for_folder(uid, &workspace_id, collab_db, raw_data)?;
+          Folder::open(collab, Some(folder_notifier))
+        },
+        FolderInitializeData::Data(folder_data) => {
+          let collab = self.collab_for_folder(uid, &workspace_id, collab_db, vec![])?;
+          Folder::create(collab, Some(folder_notifier), Some(folder_data))
+        },
       };
 
-      let folder_state_rx = folder.subscribe_sync_state();
       tracing::debug!("Current workspace_id: {}", workspace_id);
+      let folder_state_rx = folder.subscribe_sync_state();
       *self.mutex_folder.lock() = Some(folder);
 
       let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
@@ -162,6 +159,24 @@ impl FolderManager {
     }
 
     Ok(())
+  }
+
+  fn collab_for_folder(
+    &self,
+    uid: i64,
+    workspace_id: &str,
+    collab_db: Arc<RocksCollabDB>,
+    raw_data: CollabRawData,
+  ) -> Result<Arc<MutexCollab>, FlowyError> {
+    let collab = self.collab_builder.build_with_config(
+      uid,
+      workspace_id,
+      "workspace",
+      collab_db,
+      raw_data,
+      &CollabPersistenceConfig::new().enable_snapshot(true),
+    )?;
+    Ok(collab)
   }
 
   /// Called after the user sign up / sign in
@@ -183,7 +198,11 @@ impl FolderManager {
       .await;
 
       self
-        .initialize(user_id, workspace_id, vec![], Some(folder_data))
+        .initialize(
+          user_id,
+          workspace_id,
+          FolderInitializeData::Data(folder_data),
+        )
         .await?;
       send_notification(token, FolderNotification::DidCreateWorkspace)
         .payload(RepeatedWorkspacePB {
@@ -202,7 +221,11 @@ impl FolderManager {
         );
       }
       self
-        .initialize(user_id, workspace_id, folder_updates, None)
+        .initialize(
+          user_id,
+          workspace_id,
+          FolderInitializeData::Raw(folder_updates),
+        )
         .await?;
     }
     Ok(())
@@ -934,3 +957,8 @@ impl Deref for MutexFolder {
 }
 unsafe impl Sync for MutexFolder {}
 unsafe impl Send for MutexFolder {}
+
+pub enum FolderInitializeData {
+  Raw(CollabRawData),
+  Data(FolderData),
+}

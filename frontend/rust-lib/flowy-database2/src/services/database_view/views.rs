@@ -1,3 +1,4 @@
+use collab_database::database::MutexDatabase;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -10,7 +11,7 @@ use flowy_error::FlowyResult;
 use lib_infra::future::Fut;
 
 use crate::services::cell::CellCache;
-use crate::services::database::{DatabaseRowEvent, MutexDatabase, RowDetail};
+use crate::services::database::{DatabaseRowEvent, RowDetail};
 use crate::services::database_view::{DatabaseViewData, DatabaseViewEditor};
 use crate::services::group::RowChangeset;
 
@@ -19,7 +20,7 @@ pub type RowEventReceiver = broadcast::Receiver<DatabaseRowEvent>;
 
 pub struct DatabaseViews {
   #[allow(dead_code)]
-  database: MutexDatabase,
+  database: Arc<MutexDatabase>,
   cell_cache: CellCache,
   database_view_data: Arc<dyn DatabaseViewData>,
   editor_map: Arc<RwLock<HashMap<String, Arc<DatabaseViewEditor>>>>,
@@ -27,7 +28,7 @@ pub struct DatabaseViews {
 
 impl DatabaseViews {
   pub async fn new(
-    database: MutexDatabase,
+    database: Arc<MutexDatabase>,
     cell_cache: CellCache,
     database_view_data: Arc<dyn DatabaseViewData>,
   ) -> FlowyResult<Self> {

@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use collab_database::database::{gen_database_filter_id, gen_database_sort_id, Database};
+use collab_database::database::{gen_database_filter_id, gen_database_sort_id, MutexDatabase};
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowCell, RowId, RowMeta};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
@@ -44,7 +44,7 @@ use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{DeletedSortType, Sort, SortChangeset, SortController, SortType};
 
 pub trait DatabaseViewData: Send + Sync + 'static {
-  fn get_database(&self) -> Arc<Database>;
+  fn get_database(&self) -> Arc<MutexDatabase>;
 
   fn get_view(&self, view_id: &str) -> Fut<Option<DatabaseView>>;
   /// If the field_ids is None, then it will return all the field revisions

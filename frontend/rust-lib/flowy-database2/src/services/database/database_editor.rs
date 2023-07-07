@@ -1,14 +1,12 @@
 use std::collections::HashMap;
-use std::ops::Deref;
 use std::sync::Arc;
 
 use bytes::Bytes;
-use collab_database::database::Database as InnerDatabase;
+use collab_database::database::MutexDatabase;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use futures::StreamExt;
-use parking_lot::Mutex;
 use tokio::sync::{broadcast, RwLock};
 
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
@@ -38,14 +36,14 @@ use crate::services::sort::Sort;
 
 #[derive(Clone)]
 pub struct DatabaseEditor {
-  database: MutexDatabase,
+  database: Arc<MutexDatabase>,
   pub cell_cache: CellCache,
   database_views: Arc<DatabaseViews>,
 }
 
 impl DatabaseEditor {
   pub async fn new(
-    database: MutexDatabase,
+    database: Arc<MutexDatabase>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
   ) -> FlowyResult<Self> {
     let cell_cache = AnyTypeCache::<u64>::new();
@@ -1154,35 +1152,15 @@ fn cell_changesets_from_cell_by_field_id(
     .collect()
 }
 
-#[derive(Clone)]
-pub struct MutexDatabase(Arc<Mutex<Arc<InnerDatabase>>>);
-
-impl MutexDatabase {
-  pub(crate) fn new(database: Arc<InnerDatabase>) -> Self {
-    Self(Arc::new(Mutex::new(database)))
-  }
-}
-
-impl Deref for MutexDatabase {
-  type Target = Arc<Mutex<Arc<InnerDatabase>>>;
-  fn deref(&self) -> &Self::Target {
-    &self.0
-  }
-}
-
-unsafe impl Sync for MutexDatabase {}
-
-unsafe impl Send for MutexDatabase {}
-
 struct DatabaseViewDataImpl {
-  database: MutexDatabase,
+  database: Arc<MutexDatabase>,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
   cell_cache: CellCache,
 }
 
 impl DatabaseViewData for DatabaseViewDataImpl {
-  fn get_database(&self) -> Arc<InnerDatabase> {
-    self.database.lock().clone()
+  fn get_database(&self) -> Arc<MutexDatabase> {
+    self.database.clone()
   }
 
   fn get_view(&self, view_id: &str) -> Fut<Option<DatabaseView>> {
