@@ -102,7 +102,7 @@ function LinkEditPopover() {
     >
       <div className='flex flex-col p-3'>
         <EditLink
-          text={t('document.inlineLink.url')}
+          text={t('document.inlineLink.url.label')}
           value={href}
           onChange={(link) => {
             onChange({
@@ -112,7 +112,7 @@ function LinkEditPopover() {
           }}
         />
         <EditLink
-          text={t('document.inlineLink.title')}
+          text={t('document.inlineLink.title.label')}
           value={title}
           onChange={(text) =>
             onChange({

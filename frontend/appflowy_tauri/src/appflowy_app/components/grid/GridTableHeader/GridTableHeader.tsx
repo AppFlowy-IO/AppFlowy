@@ -26,7 +26,7 @@ export const GridTableHeader = ({ controller }: { controller: DatabaseController
               <i className='mr-2 h-5 w-5'>
                 <AddSvg />
               </i>
-              <span>{t('grid.newCol')}</span>
+              <span>{t('grid.field.newProperty')}</span>
             </div>
           </th>
         </tr>

@@ -19,18 +19,27 @@
     background-image: none;
 }
 
+.MuiButton-contained.MuiButton-containedPrimary.MuiButton-containedPrimary {
+    color: var(--color-content-onfill);
+}
+
 .MuiButtonBase-root.MuiIconButton-root.MuiIconButton-sizeMedium {
     color: var(--color-icon-default);
     border-radius: 4px;
 }
 
+.MuiButtonBase-root.MuiIconButton-root[class$='-MuiButtonBase-root-MuiIconButton-root']:hover {
+    background: var(--color-fill-hover);
+}
+
 .MuiButtonBase-root.MuiIconButton-root {
     color: var(--color-icon-default);
     border-radius: 4px;
+    padding: 2px;
 }
 
-.MuiButtonBase-root.MuiIconButton-root:hover {
-    background: var(--color-fill-hover);
+.MuiButtonBase-root.MuiButton-containedPrimary.MuiButton-contained:hover {
+    background: var(--color-content-hover);
 }
 
 .MuiTooltip-tooltip	 {

@@ -23,11 +23,11 @@ function UploadImage({ onChange }: UploadImageProps) {
       const typeMatched = /image\/(png|jpg|jpeg|gif)/.test(file.type); // png, jpg, jpeg, gif
 
       if (!sizeMatched) {
-        setError(t('image.size.error'));
+        setError(t('document.imageBlock.error.invalidImageSize'));
       }
 
       if (!typeMatched) {
-        setError(t('image.type.error'));
+        setError(t('document.imageBlock.error.invalidImageFormat'));
       }
 
       return sizeMatched && typeMatched;
@@ -36,12 +36,13 @@ function UploadImage({ onChange }: UploadImageProps) {
   );
 
   useEffect(() => {
+    if (!error) return;
     message.show({
       message: error,
       duration: 3000,
       type: 'error',
     });
-  }, [error, message]);
+  }, [error]);
 
   const handleUpload = useCallback(
     async (file: File) => {
@@ -60,7 +61,7 @@ function UploadImage({ onChange }: UploadImageProps) {
         onChange(filePath);
       } catch {
         setLoading(false);
-        setError(t('image.upload.error'));
+        setError(t('document.imageBlock.error.invalidImage'));
       }
     },
     [beforeUpload, onChange, t]
@@ -123,7 +124,7 @@ function UploadImage({ onChange }: UploadImageProps) {
           <div className={'h-8 w-8'}>
             <ImageSvg />
           </div>
-          <div className={'my-2 p-2'}>{t('image.upload.placeholder')}</div>
+          <div className={'my-2 p-2'}>{t('document.imageBlock.upload.placeholder')}</div>
         </div>
 
         {loading ? <CircularProgress /> : null}
@@ -134,7 +135,7 @@ function UploadImage({ onChange }: UploadImageProps) {
         }}
         className={`mt-5 text-sm text-text-caption`}
       >
-        {t('image.tip')}
+        {t('document.imageBlock.support')}
       </div>
       {message.contentHolder}
     </div>

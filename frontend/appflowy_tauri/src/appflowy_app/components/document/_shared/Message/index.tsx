@@ -32,19 +32,19 @@ export function useMessage() {
           open={open}
           onClose={hide}
           TransitionProps={{ onExited: hide }}
-          message={state?.message}
           key={state?.key}
           TransitionComponent={SlideTransition}
-          children={
-            <>
-              {state?.type ? (
-                <Alert severity={state.type} sx={{ width: '100%' }}>
-                  {state.message}
-                </Alert>
-              ) : null}
-            </>
-          }
-        />
+        >
+          <>
+            {state?.type ? (
+              <Alert severity={state.type} sx={{ width: '100%' }}>
+                {state.message}
+              </Alert>
+            ) : (
+              <span>{state?.message}</span>
+            )}
+          </>
+        </Snackbar>
       </Portal>
     );
   }, [hide, state]);

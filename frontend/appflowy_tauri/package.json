@@ -5,14 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "pnpm type:i18n && tsc && vite build",
     "preview": "vite preview",
     "format": "prettier --write .",
     "test:code": "eslint --max-warnings=0 --ext .js,.ts,.tsx .",
-    "test:errors": "tsc --noEmit && eslint --quiet --ext .js,.ts,.tsx .",
-    "test:prettier": "yarn prettier --list-different src",
+    "test:errors": "pnpm type:i18n && tsc --noEmit && eslint --quiet --ext .js,.ts,.tsx .",
+    "test:prettier": "pnpm prettier --list-different src",
     "tauri:clean": "cargo make --cwd .. tauri_clean",
-    "tauri:dev": "node scripts/flattenI18nJSON.cjs && tauri dev"
+    "tauri:dev": "pnpm type:i18n && tauri dev",
+    "type:i18n": "node scripts/flattenI18nJSON.cjs"
   },
   "dependencies": {
     "@emoji-mart/data": "^1.1.2",
@@ -25,7 +26,7 @@
     "@slate-yjs/core": "^1.0.0",
     "@tanstack/react-virtual": "3.0.0-beta.54",
     "@tauri-apps/api": "^1.2.0",
-    "dayjs": "^1.11.7",
+    "dayjs": "^1.11.9",
     "emoji-mart": "^5.5.2",
     "emoji-regex": "^10.2.1",
     "events": "^3.3.0",
@@ -56,7 +57,6 @@
     "slate-react": "^0.94.2",
     "ts-results": "^3.3.0",
     "utf8": "^3.0.0",
-    "y-indexeddb": "^9.0.9",
     "yjs": "^13.5.51"
   },
   "devDependencies": {

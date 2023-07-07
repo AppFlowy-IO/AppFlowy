@@ -38,6 +38,7 @@ module.exports = {
           hover: 'var(--color-fill-hover)',
           selector: 'var(--color-fill-selector)',
           active: 'var(--color-fill-active)',
+          toolbar: 'var(--color-fill-toolbar)',
         },
         line: {
           divider: 'var(--color-line-divider)',
@@ -70,7 +71,7 @@ module.exports = {
         }
       },
       boxShadow: {
-        md: '0px 0px 20px rgba(0, 0, 0, 0.1);',
+        md: 'var(--shadow-md)',
       },
     },
   },

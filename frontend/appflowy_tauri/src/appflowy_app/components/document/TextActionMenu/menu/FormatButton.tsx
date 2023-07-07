@@ -29,7 +29,7 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
   const { node: focusNode } = useSubscribeNode(focusId);
 
   const [isActive, setIsActive] = React.useState(false);
-  const color = useMemo(() => (isActive ? 'text-content-hover' : 'text-text-title'), [isActive]);
+  const color = useMemo(() => (isActive ? 'text-content-hover' : ''), [isActive]);
 
   const isFormatActive = useCallback(async () => {
     if (!focusNode) return false;

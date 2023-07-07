@@ -131,7 +131,12 @@ function BlockMenu({ id, onClose }: { id: string; onClose: () => void }) {
       }}
     >
       <div className={'p-2'}>
-        <TextField autoFocus label={t('search')} placeholder={t('search.placeholder.actions')} variant='standard' />
+        <TextField
+          autoFocus
+          label={t('search.label')}
+          placeholder={t('search.placeholder.actions')}
+          variant='standard'
+        />
       </div>
       {options.map((option) => {
         if (option.key === BlockMenuOption.TurnInto) {

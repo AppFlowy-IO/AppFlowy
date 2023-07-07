@@ -54,23 +54,15 @@ export const NavigationPanel = ({
           left: `${menuHidden ? -width : 0}px`,
         }}
       >
-        <div className={'flex flex-col'}>
-          <AppLogo iconToShow={'hide'} onHideMenuClick={onHideMenuClick}></AppLogo>
-          <WorkspaceUser></WorkspaceUser>
-          <div className={'relative flex flex-1 flex-col'}>
-            <div
-              className={'flex flex-col overflow-auto px-2'}
-              style={{
-                maxHeight: 'calc(100vh - 350px)',
-              }}
-              ref={el}
-            >
-              <WorkspaceApps pages={pages.filter((p) => p.parentPageId === workspace.id)} />
-            </div>
+        <AppLogo iconToShow={'hide'} onHideMenuClick={onHideMenuClick}></AppLogo>
+        <WorkspaceUser></WorkspaceUser>
+        <div className={'relative flex flex-1 flex-col'}>
+          <div className={'flex h-[100%] flex-col overflow-auto px-2'} ref={el}>
+            <WorkspaceApps pages={pages.filter((p) => p.parentPageId === workspace.id)} />
           </div>
         </div>
 
-        <div className={'flex max-h-[215px] flex-col'}>
+        <div className={'flex max-h-[240px] flex-col'}>
           <div className={'border-b border-line-border px-2 pb-4'}>
             {/*<PluginsButton></PluginsButton>*/}
 

@@ -20,7 +20,7 @@ body {
 }
 
 ::selection {
-  @apply bg-fill-hover;
+  @apply bg-bg-tips;
 }
 
 div[role="textbox"] ::selection {
@@ -46,4 +46,5 @@ th {
 
 span[data-slate-placeholder="true"] {
   @apply text-text-placeholder;
+  opacity: 1 !important;
 }

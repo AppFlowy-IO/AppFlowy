@@ -32,8 +32,8 @@ dependencies:
     specifier: ^1.2.0
     version: 1.3.0
   dayjs:
-    specifier: ^1.11.7
-    version: 1.11.7
+    specifier: ^1.11.9
+    version: 1.11.9
   emoji-mart:
     specifier: ^5.5.2
     version: 5.5.2
@@ -124,9 +124,6 @@ dependencies:
   utf8:
     specifier: ^3.0.0
     version: 3.0.0
-  y-indexeddb:
-    specifier: ^9.0.9
-    version: 9.0.11(yjs@13.6.1)
   yjs:
     specifier: ^13.5.51
     version: 13.6.1
@@ -2358,8 +2355,8 @@ packages:
   /csstype@3.1.2:
     resolution: {integrity: sha512-I7K1Uu0MBPzaFKg4nI5Q7Vs2t+3gWWW648spaF+Rg7pI9ds18Ugn+lvg4SHczUdKlHI5LWBXyqfS8+DufyBsgQ==}
 
-  /dayjs@1.11.7:
-    resolution: {integrity: sha512-+Yw9U6YO5TQohxLcIkrXBeY73WP3ejHWVvx8XCk3gxvQDCTEmS48ZrSZCKciI7Bhl/uCMyxYtE9UqRILmFphkQ==}
+  /dayjs@1.11.9:
+    resolution: {integrity: sha512-QvzAURSbQ0pKdIye2txOzNaHmxtUBXerpY0FJsFXUMKbIZeFm5ht1LS/jFsrncjnmtv8HsG0W2g6c0zUjZWmpA==}
     dev: false
 
   /debug@4.3.4:
@@ -5311,15 +5308,6 @@ packages:
     dependencies:
       imurmurhash: 0.1.4
       signal-exit: 3.0.7
-    dev: false
-
-  /y-indexeddb@9.0.11(yjs@13.6.1):
-    resolution: {integrity: sha512-HOKQ70qW1h2WJGtOKu9rE8fbX86ExVZedecndMuhwax3yM4DQsQzCTGHt/jvTrFZr/9Ahvd8neD6aZ4dMMjtdg==}
-    peerDependencies:
-      yjs: ^13.0.0
-    dependencies:
-      lib0: 0.2.74
-      yjs: 13.6.1
     dev: false
 
   /y-protocols@1.0.5:

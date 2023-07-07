@@ -28,7 +28,8 @@ i18next
   .use(initReactI18next)
   .init({
     lng: 'en',
-    debug: true,
+    defaultNS: 'translation',
+    // debug: true,
     resources: {
       en: { translation: en },
       ar_SA: { translation: ar_SA },

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback } from 'react';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
@@ -36,6 +36,7 @@ function SelectLanguage({ id, language }: { id: string; language: string }) {
         className={'h-[28px] w-[150px]'}
         value={language || 'javascript'}
         onChange={onLanguageSelect}
+        placeholder={t('document.codeBlock.language.placeholder')}
         label={t('document.codeBlock.language.label')}
       >
         {supportLanguage.map((item) => (
