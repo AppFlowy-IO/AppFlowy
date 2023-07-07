@@ -65,12 +65,12 @@ function EquationBlock({ node }: { node: NestedBlock<BlockType.EquationBlock> })
       <div
         ref={anchorElRef}
         onClick={openPopover}
-        className={'my-1 flex min-h-[59px] cursor-pointer flex-col overflow-hidden rounded hover:bg-main-secondary'}
+        className={'my-1 flex min-h-[59px] cursor-pointer flex-col overflow-hidden rounded hover:bg-fill-selector'}
       >
         {displayFormula ? (
           <KatexMath latex={displayFormula} />
         ) : (
-          <div className={'flex h-[100%] w-[100%] flex-1 items-center bg-main-selector px-1 text-shade-2'}>
+          <div className={'flex h-[100%] w-[100%] flex-1 items-center bg-fill-selector px-1 text-text-title'}>
             <Functions />
             <span>Add a TeX equation</span>
           </div>

@@ -12,7 +12,7 @@ function TurnIntoSelect({ id }: { id: string }) {
   }>();
 
   const { node } = useSubscribeNode(id);
-  const handleClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
 
     setAnchorPosition({
@@ -30,12 +30,10 @@ function TurnIntoSelect({ id }: { id: string }) {
   return (
     <>
       <MenuTooltip title='Turn into'>
-        <Button size={'small'} variant='text' onClick={handleClick}>
-          <div className='flex items-center text-main-accent'>
-            <span>{node.type}</span>
-            <ArrowDropDown />
-          </div>
-        </Button>
+        <div onClick={handleClick} className='flex cursor-pointer items-center px-2 text-sm text-fill-default'>
+          <span>{node.type}</span>
+          <ArrowDropDown />
+        </div>
       </MenuTooltip>
       <TurnIntoPopover
         id={id}

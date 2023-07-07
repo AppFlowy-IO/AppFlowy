@@ -10,10 +10,10 @@ export const NewViewButton = ({ scrollDown }: { scrollDown: () => void }) => {
         void onNewRootView();
         scrollDown();
       }}
-      className={'flex h-[50px] w-full items-center px-6 hover:bg-surface-2'}
+      className={'flex h-[50px] w-full items-center px-6 hover:bg-fill-active'}
     >
-      <div className={'mr-2 rounded-full bg-main-accent text-white'}>
-        <div className={'h-[24px] w-[24px] text-white'}>
+      <div className={'mr-2 rounded-full bg-fill-default'}>
+        <div className={'h-[24px] w-[24px] text-content-onfill'}>
           <AddSvg></AddSvg>
         </div>
       </div>

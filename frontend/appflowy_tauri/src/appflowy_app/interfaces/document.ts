@@ -289,6 +289,7 @@ export interface RangeStaticNoId {
 
 export interface CodeEditorProps extends EditorProps {
   language: string;
+  isDark: boolean;
 }
 export interface EditorProps {
   isCodeBlock?: boolean;

@@ -40,7 +40,7 @@ const TextLeaf = (props: TextLeafProps) => {
   if (leaf.code) {
     newChildren = (
       <span
-        className={`bg-custom-code text-main-hovered`}
+        className={`bg-fill-selector text-text-title`}
         style={{
           fontSize: '85%',
           lineHeight: 'normal',
@@ -97,8 +97,8 @@ const TextLeaf = (props: TextLeafProps) => {
     isCodeBlock && 'token',
     leaf.prism_token && leaf.prism_token,
     leaf.strikethrough && 'line-through',
-    leaf.selection_high_lighted && 'bg-main-secondary',
-    leaf.link_selection_lighted && 'text-link bg-main-secondary',
+    leaf.selection_high_lighted && 'bg-fill-selector',
+    leaf.link_selection_lighted && 'text-text-link-selector bg-fill-selector',
     leaf.code && 'inline-code',
     leaf.bold && 'font-bold',
     leaf.italic && 'italic',

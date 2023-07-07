@@ -9,7 +9,7 @@
   margin-right: 0.5rem;
   width: 46px;
   height: 26px;
-  @apply bg-shade-6;
+  @apply bg-bg-base;
   border-radius: 23px;
   vertical-align: text-bottom;
   transition: all 0.3s linear;
@@ -48,7 +48,7 @@
   display: none;
 }
 .form-switch input:checked + i {
-  @apply bg-main-accent;
+  @apply bg-fill-default;
 }
 .form-switch input:checked + i::before {
   transform: translate3d(18px, 2px, 0) scale3d(0, 0, 0);

@@ -112,7 +112,10 @@ export const SignUp = () => {
 
         <div className={'absolute right-0 top-0 px-12 py-8'}>
           <div className={'relative h-full w-full'}>
-            <button className={'h-8 w-8 text-shade-3 hover:text-black'} onClick={() => setShowLanguagePopup(true)}>
+            <button
+              className={'h-8 w-8 text-text-caption hover:text-text-title'}
+              onClick={() => setShowLanguagePopup(true)}
+            >
               <EarthSvg></EarthSvg>
             </button>
             {showLanguagePopup && (

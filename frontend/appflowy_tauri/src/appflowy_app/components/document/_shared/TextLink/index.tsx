@@ -28,8 +28,10 @@ function TextLink({
   const onEdit = useCallback(() => {
     if (!ref.current) return;
     const selection = getSelection(ref.current);
+
     if (!selection) return;
     const rect = ref.current?.getBoundingClientRect();
+
     if (!rect) return;
     dispatch(
       linkPopoverActions.setLinkPopover({
@@ -48,6 +50,7 @@ function TextLink({
       })
     );
   }, [blockId, dispatch, docId, getSelection, href, ref, title]);
+
   if (!blockId) return null;
 
   return (
@@ -59,9 +62,9 @@ function TextLink({
         href={href}
         target='_blank'
         rel='noopener noreferrer'
-        className='cursor-pointer text-main-hovered'
+        className='cursor-pointer text-text-link-default'
       >
-        <span className={' border-b-[1px] border-b-main-hovered '}>{children}</span>
+        <span className={' border-b-[1px] border-b-text-link-default '}>{children}</span>
       </a>
       {ref.current && (
         <EditLinkToolbar
