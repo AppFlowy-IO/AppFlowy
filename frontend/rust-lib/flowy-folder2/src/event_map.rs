@@ -135,7 +135,7 @@ pub enum FolderEvent {
   #[event()]
   GetFolderSnapshots = 31,
 
-  #[event(output = "RepeatedFavoritesPB")]
+  #[event(output = "RepeatedViewPB")]
   ReadFavorites = 32,
 
   #[event(input = "RepeatedViewIdPB")]
