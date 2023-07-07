@@ -4,7 +4,7 @@ use collab_database::views::{DatabaseLayout, LayoutSetting};
 use std::sync::Arc;
 
 use crate::entities::FieldType;
-use crate::services::field::DateTypeOption;
+use crate::services::field::{DateTypeOption, SingleSelectTypeOption};
 use crate::services::setting::CalendarLayoutSetting;
 
 /// When creating a database, we need to resolve the dependencies of the views.
@@ -27,10 +27,24 @@ impl DatabaseLayoutDepsResolver {
 
   pub fn resolve_deps_when_create_database_linked_view(
     &self,
-  ) -> Option<(Option<Field>, LayoutSetting)> {
+  ) -> (Option<Field>, Option<LayoutSetting>) {
     match self.database_layout {
-      DatabaseLayout::Grid => None,
-      DatabaseLayout::Board => None,
+      DatabaseLayout::Grid => (None, None),
+      DatabaseLayout::Board => {
+        if self
+          .database
+          .lock()
+          .get_fields(None)
+          .into_iter()
+          .find(|field| FieldType::from(field.field_type).can_be_group())
+          .is_none()
+        {
+          let select_field = self.create_select_field();
+          (Some(select_field), None)
+        } else {
+          (None, None)
+        }
+      },
       DatabaseLayout::Calendar => {
         match self
           .database
@@ -41,12 +55,12 @@ impl DatabaseLayoutDepsResolver {
         {
           Some(field) => {
             let layout_setting = CalendarLayoutSetting::new(field.id).into();
-            Some((None, layout_setting))
+            (None, Some(layout_setting))
           },
           None => {
             let date_field = self.create_date_field();
             let layout_setting = CalendarLayoutSetting::new(date_field.clone().id).into();
-            Some((Some(date_field), layout_setting))
+            (Some(date_field), Some(layout_setting))
           },
         }
       },
@@ -106,6 +120,19 @@ impl DatabaseLayoutDepsResolver {
       false,
     )
     .with_type_option_data(field_type, default_date_type_option.into())
+  }
+
+  fn create_select_field(&self) -> Field {
+    let field_type = FieldType::SingleSelect;
+    let default_select_type_option = SingleSelectTypeOption::default();
+    let field_id = gen_field_id();
+    Field::new(
+      field_id,
+      "Status".to_string(),
+      field_type.clone().into(),
+      false,
+    )
+    .with_type_option_data(field_type, default_select_type_option.into())
   }
 }
 
