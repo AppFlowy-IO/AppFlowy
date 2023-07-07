@@ -23,7 +23,10 @@ extension AppFlowyTestBase on WidgetTester {
   Future<FlowyTestContext> initializeAppFlowy({
     // use to append after the application data directory
     String? pathExtension,
+    Size windowsSize = const Size(1600, 1200),
   }) async {
+    binding.setSurfaceSize(windowsSize);
+
     mockHotKeyManagerHandlers();
     final directory = await mockApplicationDataStorage(
       pathExtension: pathExtension,
