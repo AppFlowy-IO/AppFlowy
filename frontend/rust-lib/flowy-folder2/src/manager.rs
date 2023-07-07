@@ -507,18 +507,12 @@ impl FolderManager {
     self.with_folder((), |folder| {
       let view = folder.views.get_view(view_id);
       if let Some(view) = view.as_ref().map(|arc| arc.deref()) {
+        //TODO:squidrye Replace the listener with a single notifier event
         if view.is_favorite {
           folder.delete_favorites(vec![view_id.to_string()])
         } else {
           folder.add_favorites(vec![view_id.to_string()])
         }
-
-        // notify the view that the view's favorite status is toggled
-        send_notification(view_id, FolderNotification::DidToggleFavorite)
-          .payload(FavoritesPB {
-            id: view_id.to_string(),
-          })
-          .send();
       }
 
       if let Some(view) = view {
@@ -817,7 +811,6 @@ fn listen_on_favorites_change(
   tokio::spawn(async move {
     while let Ok(value) = rx.recv().await {
       if let Some(folder) = weak_mutex_folder.upgrade() {
-        let mut unique_ids = HashSet::new();
         // tracing::trace!("Did receive favorite change: {:?}", value);
         let ids = match value {
           FavoriteChange::DidFavoriteView { ids } => ids,
@@ -825,20 +818,16 @@ fn listen_on_favorites_change(
         };
 
         if let Some(folder) = folder.lock().as_ref() {
-          let views = folder.views.get_views(&ids);
-          for view in views {
-            // tracing::trace!("favorite view added to unique id: {:?}", value);
-            unique_ids.insert(view.parent_view_id.clone());
-          }
-
-          let repeated_favorites: RepeatedFavoritesPB = folder.get_all_favorites().into();
+          let data: RepeatedFavoritesPB = folder.get_all_favorites().into();
+          let views = folder.views.get_views(data.items.as_slice());
+          let deref_view: Vec<ViewPB> = views
+            .into_iter()
+            .map(|view| view_pb_without_child_views(view))
+            .collect();
           send_notification("favorite", FolderNotification::FavoritesUpdated)
-            .payload(repeated_favorites)
+            .payload(RepeatedViewPB { items: deref_view })
             .send();
         }
-
-        let parent_view_ids = unique_ids.into_iter().collect();
-        notify_parent_view_did_change(folder.clone(), parent_view_ids);
       }
     }
   });

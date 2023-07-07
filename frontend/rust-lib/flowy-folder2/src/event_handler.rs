@@ -21,31 +21,7 @@ pub(crate) async fn create_workspace_handler(
 pub(crate) async fn read_workspace_views_handler(
   folder: AFPluginState<Arc<FolderManager>>,
 ) -> DataResult<RepeatedViewPB, FlowyError> {
-  let mut child_views = folder.get_current_workspace_views().await?;
-  let mut favorite_views = vec![];
-  for child_view in &child_views {
-    for nested_child in &child_view.child_views {
-      if nested_child.is_favorite {
-        favorite_views.push(nested_child.clone());
-      }
-    }
-  }
-  // if !favorite_views.is_empty() {
-  //   child_views.insert(
-  //     0,
-  //     ViewPB {
-  //       id: "favorites".to_string(),
-  //       parent_view_id: "favorites".to_string(),
-  //       name: "favorites".to_string(),
-  //       create_time: 0,
-  //       child_views: favorite_views,
-  //       layout: ViewLayoutPB::Document,
-  //       icon_url: None,
-  //       cover_url: None,
-  //       is_favorite: false,
-  //     },
-  //   );
-  // }
+  let child_views = folder.get_current_workspace_views().await?;
   let repeated_view: RepeatedViewPB = child_views.into();
   data_result_ok(repeated_view)
 }
@@ -209,9 +185,22 @@ pub(crate) async fn duplicate_view_handler(
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn read_favorites_handler(
   folder: AFPluginState<Arc<FolderManager>>,
-) -> DataResult<RepeatedFavoritesPB, FlowyError> {
+) -> DataResult<RepeatedViewPB, FlowyError> {
   let favorites = folder.get_all_favorites().await;
-  data_result_ok(favorites.into())
+  let mut views = vec![];
+  for info in favorites {
+    let view = folder.get_view(&info.id).await;
+    match view {
+      Ok(view) => {
+        views.push(view);
+      },
+      Err(err) => {
+        return Err(err.into());
+      },
+    }
+  }
+
+  data_result_ok(RepeatedViewPB { items: views })
 }
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn read_trash_handler(

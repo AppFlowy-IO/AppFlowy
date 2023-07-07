@@ -15,6 +15,12 @@ impl std::convert::From<FavoritesInfo> for FavoritesPB {
   }
 }
 
+impl AsRef<str> for FavoritesPB {
+  fn as_ref(&self) -> &str {
+    &self.id
+  }
+}
+
 impl std::convert::From<FavoritesPB> for FavoritesInfo {
   fn from(favorite: FavoritesPB) -> Self {
     FavoritesInfo { id: favorite.id }
