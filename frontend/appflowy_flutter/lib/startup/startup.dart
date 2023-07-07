@@ -46,8 +46,9 @@ class FlowyRunner {
     final launcher = getIt<AppLauncher>();
     launcher.addTasks(
       [
-        // handle platform errors.
-        const PlatformErrorCatcherTask(),
+        // this task should be first task, for handling platform errors.
+        // don't catch errors in test mode
+        if (!mode.isUnitTest) const PlatformErrorCatcherTask(),
         // localization
         const InitLocalizationTask(),
         // init the app window
