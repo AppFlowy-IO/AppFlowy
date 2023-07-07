@@ -2,6 +2,7 @@ import 'package:appflowy/workspace/application/favorite/favorite_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/favorite.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -25,15 +26,14 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
               favoritesUpdated: _listenFavoritesUpdated,
             );
             final result = await _service.readFavorites();
-            Log.warn("read favorites $result");
             emit(
               result.fold(
                 (object) => state.copyWith(
                   objects: object.items,
-                  successOrFailure: left(unit),
+                  successOrFailure: right(unit),
                 ),
                 (error) => state.copyWith(
-                  successOrFailure: right(error),
+                  successOrFailure: left(error),
                 ),
               ),
             );
@@ -46,8 +46,8 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
             final result = await _service.toggleFavorite(e.viewId);
             emit(
               result.fold(
-                (l) => state.copyWith(successOrFailure: left(unit)),
-                (error) => state.copyWith(successOrFailure: right(error)),
+                (l) => state.copyWith(successOrFailure: right(unit)),
+                (error) => state.copyWith(successOrFailure: left(error)),
               ),
             );
           },
@@ -56,13 +56,13 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
     );
   }
   void _listenFavoritesUpdated(
-    Either<List<FavoritesPB>, FlowyError> favoriteOrFailed,
+    Either<FlowyError, List<ViewPB>> favoriteOrFailed,
   ) {
     favoriteOrFailed.fold(
-      (favorite) {
-        add(FavoriteEvent.didReceiveFavorite(favorite));
-      },
       (error) => Log.error(error),
+      (favorite) => add(
+        FavoriteEvent.didReceiveFavorite(favorite),
+      ),
     );
   }
 }
@@ -70,7 +70,7 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
 @freezed
 class FavoriteEvent with _$FavoriteEvent {
   const factory FavoriteEvent.initial() = Initial;
-  const factory FavoriteEvent.didReceiveFavorite(List<FavoritesPB> favorite) =
+  const factory FavoriteEvent.didReceiveFavorite(List<ViewPB> favorite) =
       ReceiveFavorites;
   const factory FavoriteEvent.toggle(String viewId) = ToggleFavorite;
 }
@@ -78,12 +78,12 @@ class FavoriteEvent with _$FavoriteEvent {
 @freezed
 class FavoriteState with _$FavoriteState {
   const factory FavoriteState({
-    required List<FavoritesPB> objects,
-    required Either<Unit, FlowyError> successOrFailure,
+    required List<ViewPB> objects,
+    required Either<FlowyError, Unit> successOrFailure,
   }) = _FavoriteState;
 
   factory FavoriteState.initial() => FavoriteState(
         objects: [],
-        successOrFailure: left(unit),
+        successOrFailure: right(unit),
       );
 }
