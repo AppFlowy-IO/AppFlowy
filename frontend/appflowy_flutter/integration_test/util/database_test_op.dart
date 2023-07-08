@@ -455,8 +455,13 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> dismissRowDetailPage() async {
     // use tap empty area instead of clicking ESC to dismiss the row detail page
     // sometimes, the ESC key is not working.
-    await tapAt(const Offset(0, 0));
+    await simulateKeyEvent(LogicalKeyboardKey.escape);
     await pumpAndSettle();
+    final findRowDetailPage = find.byType(RowDetailPage);
+    if (findRowDetailPage.evaluate().isNotEmpty) {
+      await tapAt(const Offset(0, 0));
+      await pumpAndSettle();
+    }
   }
 
   Future<void> editTitleInRowDetailPage(String title) async {
@@ -1060,8 +1065,8 @@ extension AppFlowyDatabaseTest on WidgetTester {
     final todayCell = find.byWidgetPredicate(
       (widget) => widget is CalendarDayCard && isSameDay(date, widget.date),
     );
-
-    await doubleTapButton(todayCell);
+    final location = getTopLeft(todayCell).translate(10, 10);
+    await doubleTapAt(location);
   }
 
   Future<void> openCalendarEvent({required index, DateTime? date}) async {

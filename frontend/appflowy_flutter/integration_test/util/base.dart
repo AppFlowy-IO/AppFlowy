@@ -127,6 +127,18 @@ extension AppFlowyTestBase on WidgetTester {
     return;
   }
 
+  Future<void> doubleTapAt(
+    Offset location, {
+    int? pointer,
+    int buttons = kPrimaryButton,
+    int milliseconds = 500,
+  }) async {
+    await tapAt(location, pointer: pointer, buttons: buttons);
+    await pump(kDoubleTapMinTime);
+    await tapAt(location, pointer: pointer, buttons: buttons);
+    await pumpAndSettle(Duration(milliseconds: milliseconds));
+  }
+
   Future<void> doubleTapButton(
     Finder finder, {
     int? pointer,
