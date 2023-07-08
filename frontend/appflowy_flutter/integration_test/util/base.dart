@@ -134,20 +134,22 @@ extension AppFlowyTestBase on WidgetTester {
     bool warnIfMissed = true,
     int milliseconds = 500,
   }) async {
-    await tapButton(
+    await tap(
       finder,
       pointer: pointer,
       buttons: buttons,
       warnIfMissed: warnIfMissed,
-      milliseconds: kDoubleTapMinTime.inMilliseconds,
     );
-    await tapButton(
+
+    await pump(kDoubleTapMinTime);
+
+    await tap(
       finder,
-      pointer: pointer,
       buttons: buttons,
+      pointer: pointer,
       warnIfMissed: warnIfMissed,
-      milliseconds: milliseconds,
     );
+    await pumpAndSettle(Duration(milliseconds: milliseconds));
   }
 
   Future<void> wait(int milliseconds) async {
