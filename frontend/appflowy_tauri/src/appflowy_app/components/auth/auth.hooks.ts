@@ -16,6 +16,7 @@ export const useAuth = () => {
 
     if (result.ok) {
       const userProfile = result.val;
+
       const workspaceSetting = await _openWorkspace().then((r) => {
         if (r.ok) {
           return r.val;

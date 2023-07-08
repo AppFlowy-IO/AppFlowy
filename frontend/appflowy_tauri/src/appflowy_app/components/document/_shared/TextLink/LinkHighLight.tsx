@@ -8,13 +8,7 @@ function LinkHighLight({ children, leaf, title }: { leaf: { text: string }; titl
         <span contentEditable={false}>{title}</span>
       ) : null}
 
-      <span
-        style={{
-          display: 'none',
-        }}
-      >
-        {children}
-      </span>
+      <span className={'absolute opacity-0'}>{children}</span>
     </>
   );
 }

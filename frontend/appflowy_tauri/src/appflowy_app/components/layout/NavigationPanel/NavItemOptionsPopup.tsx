@@ -19,7 +19,7 @@ export const NavItemOptionsPopup = ({
   const items: IPopupItem[] = [
     {
       icon: (
-        <i className={'h-[16px] w-[16px] text-black'}>
+        <i className={'h-[16px] w-[16px] text-text-title'}>
           <EditSvg></EditSvg>
         </i>
       ),
@@ -28,7 +28,7 @@ export const NavItemOptionsPopup = ({
     },
     {
       icon: (
-        <i className={'h-[16px] w-[16px] text-black'}>
+        <i className={'h-[16px] w-[16px] text-text-title'}>
           <TrashSvg></TrashSvg>
         </i>
       ),
@@ -37,7 +37,7 @@ export const NavItemOptionsPopup = ({
     },
     {
       icon: (
-        <i className={'h-[16px] w-[16px] text-black'}>
+        <i className={'h-[16px] w-[16px] text-text-title'}>
           <CopySvg></CopySvg>
         </i>
       ),

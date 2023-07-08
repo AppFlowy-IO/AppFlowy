@@ -17,7 +17,7 @@ export const ConfirmAccount = () => {
         <div>
           <span className='block text-gray-500'>Confirm that this phone belongs to you.</span>
           <span className='block text-gray-500'>
-            Code sent to <span className='text-black'>+86 10 6764 5489</span>
+            Code sent to <span className='text-text-title'>+86 10 6764 5489</span>
           </span>
         </div>
       </div>

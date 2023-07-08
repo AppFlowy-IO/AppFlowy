@@ -1,3 +1,6 @@
+@import './color/default.css';
+@import './mui.css';
+
 /* stop body from scrolling */
 html,
 body {
@@ -17,7 +20,7 @@ body {
 }
 
 ::selection {
-  @apply bg-[#E0F8FF]
+  @apply bg-fill-hover;
 }
 
 div[role="textbox"] ::selection {
@@ -25,21 +28,22 @@ div[role="textbox"] ::selection {
 }
 
 .btn {
-  @apply rounded-xl border border-gray-500 px-4 py-3;
+  @apply rounded-xl border border-line-border px-4 py-3;
 }
 
 .btn-primary {
-  @apply bg-main-accent text-white hover:bg-main-hovered;
+  @apply bg-fill-default text-text-title hover:bg-fill-hover;
 }
 
 .input {
-  @apply rounded-xl border border-gray-300 px-[18px] py-[14px] text-sm;
+  @apply rounded-xl border border-line-border px-[18px] py-[14px] text-sm;
 }
 
-.input.error {
-  @apply border-main-alert bg-main-alert/10;
-}
 
 th {
   @apply text-left font-normal;
+}
+
+span[data-slate-placeholder="true"] {
+  @apply text-text-placeholder;
 }
