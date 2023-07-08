@@ -240,7 +240,7 @@ fn cmp_row(
   fields: &[Arc<Field>],
   cell_data_cache: &CellCache,
 ) -> Ordering {
-  let order = match (
+  match (
     left.cells.get(&sort.field_id),
     right.cells.get(&sort.field_id),
   ) {
@@ -257,18 +257,13 @@ fn cmp_row(
           field_rev,
           field_type,
           cell_data_cache,
+          sort.condition,
         ),
       }
     },
-    (Some(_), None) => Ordering::Greater,
-    (None, Some(_)) => Ordering::Less,
+    (Some(_), None) => Ordering::Less,
+    (None, Some(_)) => Ordering::Greater,
     _ => default_order(),
-  };
-
-  // The order is calculated by Ascending. So reverse the order if the SortCondition is descending.
-  match sort.condition {
-    SortCondition::Ascending => order,
-    SortCondition::Descending => order.reverse(),
   }
 }
 
@@ -278,6 +273,7 @@ fn cmp_cell(
   field: &Arc<Field>,
   field_type: FieldType,
   cell_data_cache: &CellCache,
+  sort_condition: SortCondition,
 ) -> Ordering {
   match TypeOptionCellExt::new_with_cell_data_cache(field.as_ref(), Some(cell_data_cache.clone()))
     .get_type_option_cell_data_handler(&field_type)
@@ -285,7 +281,8 @@ fn cmp_cell(
     None => default_order(),
     Some(handler) => {
       let cal_order = || {
-        let order = handler.handle_cell_compare(left_cell, right_cell, field.as_ref());
+        let order =
+          handler.handle_cell_compare(left_cell, right_cell, field.as_ref(), sort_condition);
         Option::<Ordering>::Some(order)
       };
 

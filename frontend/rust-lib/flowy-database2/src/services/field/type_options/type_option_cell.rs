@@ -19,6 +19,7 @@ use crate::services::field::{
   SingleSelectTypeOption, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
   TypeOptionCellDataFilter, TypeOptionTransform, URLTypeOption,
 };
+use crate::services::sort::SortCondition;
 
 pub const CELL_DATA: &str = "data";
 
@@ -45,7 +46,13 @@ pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
     field: &Field,
   ) -> FlowyResult<Cell>;
 
-  fn handle_cell_compare(&self, left_cell: &Cell, right_cell: &Cell, field: &Field) -> Ordering;
+  fn handle_cell_compare(
+    &self,
+    left_cell: &Cell,
+    right_cell: &Cell,
+    field: &Field,
+    sort_condition: SortCondition,
+  ) -> Ordering;
 
   fn handle_cell_filter(&self, field_type: &FieldType, field: &Field, cell: &Cell) -> bool;
 
@@ -234,7 +241,13 @@ where
     Ok(cell)
   }
 
-  fn handle_cell_compare(&self, left_cell: &Cell, right_cell: &Cell, field: &Field) -> Ordering {
+  fn handle_cell_compare(
+    &self,
+    left_cell: &Cell,
+    right_cell: &Cell,
+    field: &Field,
+    sort_condition: SortCondition,
+  ) -> Ordering {
     let field_type = FieldType::from(field.field_type);
     let left = self
       .get_decoded_cell_data(left_cell, &field_type, field)
@@ -242,7 +255,20 @@ where
     let right = self
       .get_decoded_cell_data(right_cell, &field_type, field)
       .unwrap_or_default();
-    self.apply_cmp(&left, &right)
+
+    match (self.exempt_from_cmp(&left), self.exempt_from_cmp(&right)) {
+      (true, true) => Ordering::Equal,
+      (true, false) => Ordering::Greater,
+      (false, true) => Ordering::Less,
+      (false, false) => {
+        let order = self.apply_cmp(&left, &right);
+        // The order is calculated by Ascending. So reverse the order if the SortCondition is descending.
+        match sort_condition {
+          SortCondition::Ascending => order,
+          SortCondition::Descending => order.reverse(),
+        }
+      },
+    }
   }
 
   fn handle_cell_filter(&self, field_type: &FieldType, field: &Field, cell: &Cell) -> bool {

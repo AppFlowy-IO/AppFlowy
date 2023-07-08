@@ -162,6 +162,10 @@ impl TypeOptionCellDataCompare for MultiSelectTypeOption {
     }
     default_order()
   }
+
+  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
+    cell_data.is_empty()
+  }
 }
 
 #[cfg(test)]
