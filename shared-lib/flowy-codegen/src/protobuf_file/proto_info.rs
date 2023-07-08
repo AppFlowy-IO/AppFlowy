@@ -27,7 +27,7 @@ impl ProtobufCrateContext {
     let mod_file_path =
       path_string_with_component(&self.protobuf_crate.protobuf_crate_path(), vec!["mod.rs"]);
     let mut content = "#![cfg_attr(rustfmt, rustfmt::skip)]\n".to_owned();
-    content.push_str(" #![allow(ambiguous_glob_reexports)]\n");
+    // content.push_str(" #![allow(ambiguous_glob_reexports)]\n");
     content.push_str("// Auto-generated, do not edit\n");
     content.push_str("mod model;\npub use model::*;");
     match OpenOptions::new()
