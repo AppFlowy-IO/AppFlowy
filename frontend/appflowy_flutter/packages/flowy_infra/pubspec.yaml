@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_svg: ^2.0.2
-  json_annotation: ^4.8.1
+  json_annotation: ^4.7.0
   path_provider: ^2.0.15
   path: ^1.8.2
   textstyle_extensions: "2.0.0-nullsafety"
