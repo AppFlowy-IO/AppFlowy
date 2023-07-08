@@ -74,7 +74,7 @@ class RowEvent with _$RowEvent {
   const factory RowEvent.createRow() = _CreateRow;
   const factory RowEvent.didReceiveCells(
     CellContextByFieldId cellsByFieldId,
-    RowsChangedReason reason,
+    ChangedReason reason,
   ) = _DidReceiveCells;
 }
 
@@ -83,7 +83,7 @@ class RowState with _$RowState {
   const factory RowState({
     required CellContextByFieldId cellByFieldId,
     required UnmodifiableListView<GridCellEquatable> cells,
-    RowsChangedReason? changeReason,
+    ChangedReason? changeReason,
   }) = _RowState;
 
   factory RowState.initial(

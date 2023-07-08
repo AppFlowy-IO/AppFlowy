@@ -4,7 +4,7 @@ use std::sync::Arc;
 use bytes::Bytes;
 use collab_database::database::MutexDatabase;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowId};
+use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use futures::StreamExt;
 use tokio::sync::{broadcast, RwLock};
@@ -435,7 +435,7 @@ impl DatabaseEditor {
       tracing::trace!("create row: {:?} at {}", row_order, index);
       let row = self.database.lock().get_row(&row_order.id);
       let row_meta = self.database.lock().get_row_meta(&row_order.id);
-      if let (Some(row), Some(meta)) = (row, row_meta) {
+      if let Some(meta) = row_meta {
         let row_detail = RowDetail { row, meta };
         for view in self.database_views.editors().await {
           view.v_did_create_row(&row_detail, &group_id, index).await;
@@ -525,7 +525,7 @@ impl DatabaseEditor {
 
   pub fn get_row(&self, view_id: &str, row_id: &RowId) -> Option<Row> {
     if self.database.lock().views.is_row_exist(view_id, row_id) {
-      self.database.lock().get_row(row_id)
+      Some(self.database.lock().get_row(row_id))
     } else {
       None
     }
@@ -549,7 +549,7 @@ impl DatabaseEditor {
   pub fn get_row_detail(&self, view_id: &str, row_id: &RowId) -> Option<RowDetail> {
     if self.database.lock().views.is_row_exist(view_id, row_id) {
       let meta = self.database.lock().get_row_meta(row_id)?;
-      let row = self.database.lock().get_row(row_id)?;
+      let row = self.database.lock().get_row(row_id);
       Some(RowDetail { row, meta })
     } else {
       tracing::warn!("the row:{} is exist in view:{}", row_id.as_str(), view_id);
@@ -595,40 +595,23 @@ impl DatabaseEditor {
     let field_type = FieldType::from(field.field_type);
     // If the cell data is referenced, return the reference data. Otherwise, return an empty cell.
     match field_type {
-      FieldType::LastEditedTime | FieldType::CreatedTime => database
-        .get_row(row_id)
-        .map(|row| {
-          if field_type.is_created_time() {
-            DateCellData::new(row.created_at, true)
-          } else {
-            DateCellData::new(row.modified_at, true)
-          }
-        })
-        .map(Cell::from),
+      FieldType::LastEditedTime | FieldType::CreatedTime => {
+        let row = database.get_row(row_id);
+        let cell_data = if field_type.is_created_time() {
+          DateCellData::new(row.created_at, true)
+        } else {
+          DateCellData::new(row.modified_at, true)
+        };
+        Some(Cell::from(cell_data))
+      },
       _ => database.get_cell(field_id, row_id).cell,
     }
   }
 
   pub async fn get_cell_pb(&self, field_id: &str, row_id: &RowId) -> Option<CellPB> {
     let (field, cell) = {
-      let database = self.database.lock();
-      let field = database.fields.get_field(field_id)?;
-      let field_type = FieldType::from(field.field_type);
-      // If the cell data is referenced, return the reference data. Otherwise, return an empty cell.
-      let cell = match field_type {
-        FieldType::LastEditedTime | FieldType::CreatedTime => database
-          .get_row(row_id)
-          .map(|row| {
-            if field_type.is_created_time() {
-              DateCellData::new(row.created_at, true)
-            } else {
-              DateCellData::new(row.modified_at, true)
-            }
-          })
-          .map(Cell::from),
-        _ => database.get_cell(field_id, row_id).cell,
-      }?;
-
+      let cell = self.get_cell(field_id, row_id).await?;
+      let field = self.database.lock().fields.get_field(field_id)?;
       (field, cell)
     };
 
@@ -1223,8 +1206,8 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     let row = self.database.lock().get_row(row_id);
     let row_meta = self.database.lock().get_row_meta(row_id);
     to_fut(async move {
-      match (index, row, row_meta) {
-        (Some(index), Some(row), Some(row_meta)) => {
+      match (index, row_meta) {
+        (Some(index), Some(row_meta)) => {
           let row_detail = RowDetail {
             row,
             meta: row_meta,

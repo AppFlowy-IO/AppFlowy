@@ -64,9 +64,3 @@ pub struct CreateDatabaseViewParams {
   pub view_id: String,
   pub layout_type: DatabaseLayout,
 }
-
-#[derive(Debug, Clone)]
-pub struct RowDetail {
-  pub row: Row,
-  pub meta: RowMeta,
-}

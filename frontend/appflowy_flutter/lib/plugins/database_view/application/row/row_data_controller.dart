@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../cell/cell_service.dart';
 import 'row_cache.dart';
 
-typedef OnRowChanged = void Function(CellContextByFieldId, RowsChangedReason);
+typedef OnRowChanged = void Function(CellContextByFieldId, ChangedReason);
 
 class RowController {
   final RowMetaPB rowMeta;
@@ -24,13 +24,13 @@ class RowController {
   }) : _rowCache = rowCache;
 
   CellContextByFieldId loadData() {
-    return _rowCache.loadGridCells(rowMeta);
+    return _rowCache.loadCells(rowMeta);
   }
 
   void addListener({OnRowChanged? onRowChanged}) {
     final fn = _rowCache.addListener(
       rowId: rowMeta.id,
-      onCellUpdated: onRowChanged,
+      onRowChanged: onRowChanged,
     );
 
     // Add the listener to the list so that we can remove it later.

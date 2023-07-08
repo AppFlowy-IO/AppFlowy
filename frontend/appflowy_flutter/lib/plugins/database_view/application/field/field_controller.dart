@@ -687,27 +687,29 @@ class FieldController {
   }
 }
 
-class RowDelegatesImpl extends RowFieldsDelegate with RowCacheDelegate {
-  final FieldController _cache;
+class RowCacheDependenciesImpl extends RowFieldsDelegate with RowLifeCycle {
+  final FieldController _fieldController;
   OnReceiveFields? _onFieldFn;
-  RowDelegatesImpl(FieldController cache) : _cache = cache;
+  RowCacheDependenciesImpl(FieldController cache) : _fieldController = cache;
 
   @override
   UnmodifiableListView<FieldInfo> get fields =>
-      UnmodifiableListView(_cache.fieldInfos);
+      UnmodifiableListView(_fieldController.fieldInfos);
 
   @override
   void onFieldsChanged(void Function(List<FieldInfo>) callback) {
-    _onFieldFn = (fieldInfos) {
-      callback(fieldInfos);
-    };
-    _cache.addListener(onReceiveFields: _onFieldFn);
+    if (_onFieldFn != null) {
+      _fieldController.removeListener(onFieldsListener: _onFieldFn!);
+    }
+
+    _onFieldFn = (fieldInfos) => callback(fieldInfos);
+    _fieldController.addListener(onReceiveFields: _onFieldFn);
   }
 
   @override
-  void onRowDispose() {
+  void onRowDisposed() {
     if (_onFieldFn != null) {
-      _cache.removeListener(onFieldsListener: _onFieldFn!);
+      _fieldController.removeListener(onFieldsListener: _onFieldFn!);
       _onFieldFn = null;
     }
   }

@@ -16,9 +16,8 @@ pub struct RowsVisibilityChangePB {
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct RowsChangePB {
-  #[pb(index = 1)]
-  pub view_id: String,
-
+  // #[pb(index = 1)]
+  // pub view_id: String,
   #[pb(index = 2)]
   pub inserted_rows: Vec<InsertedRowPB>,
 

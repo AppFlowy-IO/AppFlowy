@@ -6,7 +6,6 @@ import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
 import 'package:appflowy/user/presentation/welcome_screen.dart';
 import 'package:appflowy/workspace/presentation/home/home_screen.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/widget/route/animation.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'

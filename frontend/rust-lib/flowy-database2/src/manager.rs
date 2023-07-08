@@ -1,11 +1,11 @@
 use std::collections::HashMap;
-
 use std::sync::Arc;
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::{CollabPersistenceConfig, RocksCollabDB};
 use async_trait::async_trait;
 use collab::core::collab::{CollabRawData, MutexCollab};
+use collab_database::blocks::BlockEvent;
 use collab_database::database::{DatabaseData, YrsDocAction};
 use collab_database::error::DatabaseError;
 use collab_database::user::{
@@ -20,8 +20,10 @@ use flowy_task::TaskDispatcher;
 use crate::deps::{DatabaseCloudService, DatabaseUser2};
 use crate::entities::{
   DatabaseDescriptionPB, DatabaseLayoutPB, DatabaseSnapshotPB, RepeatedDatabaseDescriptionPB,
+  RowDataPB, RowPB,
 };
-use crate::services::database::DatabaseEditor;
+use crate::notification::{send_notification, DatabaseNotification};
+use crate::services::database::{DatabaseEditor, UpdatedRow};
 use crate::services::database_view::DatabaseLayoutDepsResolver;
 use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
 
@@ -65,6 +67,8 @@ impl DatabaseManager2 {
     };
     let config = CollabPersistenceConfig::new().snapshot_per_update(10);
     let mut collab_raw_data = CollabRawData::default();
+
+    // If the workspace database not exist in disk, try to fetch from remote.
     if !self.is_collab_exist(uid, &collab_db, &workspace_database_id) {
       tracing::trace!("workspace database not exist, try to fetch from remote");
       match self
@@ -73,15 +77,17 @@ impl DatabaseManager2 {
         .await
       {
         Ok(updates) => collab_raw_data = updates,
-        Err(e) => {
+        Err(err) => {
           return Err(FlowyError::record_not_found().context(format!(
             "get workspace database :{} failed: {}",
-            workspace_database_id, e,
+            workspace_database_id, err,
           )));
         },
       }
     }
 
+    // Construct the workspace database.
+    tracing::trace!("open workspace database: {}", &workspace_database_id);
     let collab = collab_builder.build_collab_with_config(
       uid,
       &workspace_database_id,
@@ -90,16 +96,10 @@ impl DatabaseManager2 {
       collab_raw_data,
       &config,
     );
-
-    tracing::trace!("open workspace database: {}", &workspace_database_id);
-    let workspace_database = Arc::new(WorkspaceDatabase::open(
-      uid,
-      collab,
-      collab_db,
-      config,
-      collab_builder,
-    ));
-    *self.workspace_database.write().await = Some(workspace_database);
+    let workspace_database =
+      WorkspaceDatabase::open(uid, collab, collab_db, config, collab_builder);
+    subscribe_block_event(&workspace_database);
+    *self.workspace_database.write().await = Some(Arc::new(workspace_database));
     Ok(())
   }
 
@@ -314,6 +314,28 @@ impl DatabaseManager2 {
   pub fn get_cloud_service(&self) -> &Arc<dyn DatabaseCloudService> {
     &self.cloud_service
   }
+}
+
+/// Send notification to all clients that are listening to the given object.
+fn subscribe_block_event(workspace_database: &WorkspaceDatabase) {
+  let mut block_event_rx = workspace_database.subscribe_block_event();
+  tokio::spawn(async move {
+    while let Ok(event) = block_event_rx.recv().await {
+      match event {
+        BlockEvent::DidFetchRow(row_detail) => {
+          tracing::trace!("Did fetch row: {:?}", row.id);
+
+          // let updated_row = UpdatedRow::new(&row_detail.row.id);
+          // let changes = RowsChangePB::from_update(view_id.to_string(), updated_row.into());
+          // send_notification(view_id, DatabaseNotification::DidUpdateViewRows)
+          //   .payload(changes)
+          //   .send();
+
+          // send_notification(&row.id, DatabaseNotification::DidFetchRow).send();
+        },
+      }
+    }
+  });
 }
 
 struct UserDatabaseCollabServiceImpl {
