@@ -8,7 +8,7 @@ export const PromptWindow = ({ msg, onYes, onCancel }: { msg: string; onYes: () 
     >
       <div className={'rounded-xl bg-white p-16'} onClick={(e) => e.stopPropagation()}>
         <div className={'flex flex-col items-center justify-center gap-8'}>
-          <div className={'text-black'}>{msg}</div>
+          <div className={'text-text-title'}>{msg}</div>
           <div className={'flex items-center justify-around gap-4'}>
             <Button onClick={() => onCancel()} size={'medium-transparent'}>
               Cancel

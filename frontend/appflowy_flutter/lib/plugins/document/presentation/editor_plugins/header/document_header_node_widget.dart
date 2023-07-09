@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/widgets/emoji_picker/emoji_picker.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide FlowySvg;
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -41,20 +41,6 @@ enum CoverType {
       orElse: () => CoverType.none,
     );
   }
-}
-
-class DocumentHeaderNodeWidgetBuilder implements NodeWidgetBuilder {
-  @override
-  Widget build(NodeWidgetContext<Node> context) {
-    return DocumentHeaderNodeWidget(
-      key: context.node.key,
-      node: context.node,
-      editorState: context.editorState,
-    );
-  }
-
-  @override
-  NodeValidator<Node> get nodeValidator => (_) => true;
 }
 
 class DocumentHeaderNodeWidget extends StatefulWidget {

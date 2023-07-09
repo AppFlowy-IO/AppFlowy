@@ -17,7 +17,7 @@ export const BoardOptionsCell = ({
   const { data } = useCell(cellIdentifier, cellCache, fieldController);
 
   return (
-    <div className={'flex flex-wrap items-center gap-2 py-2 text-xs text-black'}>
+    <div className={'flex flex-wrap items-center gap-2 py-2 text-xs text-text-title'}>
       {(data as SelectOptionCellDataPB)?.select_options?.map((option, index) => (
         <div className={`${getBgColor(option.color)} rounded px-2 py-0.5`} key={index}>
           {option?.name ?? ''}

@@ -16,7 +16,11 @@ export const PageOptions = () => {
 
         <LanguageButton></LanguageButton>
 
-        <button id='option-button' className={'relative h-8 w-8'} onClick={onOptionsClick}>
+        <button
+          id='option-button'
+          className={'relative h-8 w-8 rounded text-text-title hover:bg-fill-hover'}
+          onClick={onOptionsClick}
+        >
           <Details2Svg></Details2Svg>
         </button>
       </div>

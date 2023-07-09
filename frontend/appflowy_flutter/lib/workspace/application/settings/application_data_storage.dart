@@ -98,6 +98,7 @@ class MockApplicationDataStorage extends ApplicationDataStorage {
     final path = initialPath;
     if (path != null) {
       initialPath = null;
+      await super.setPath(path);
       return Future.value(path);
     }
     return super.getPath();

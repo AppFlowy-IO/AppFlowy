@@ -60,3 +60,30 @@ async fn undo_redo_event_test() {
   let block_count_after_redo = test.open_document(doc_id.clone()).await.data.blocks.len();
   assert_eq!(block_count_after_redo, block_count_after_insert);
 }
+
+#[tokio::test]
+async fn insert_text_block_test() {
+  let test = DocumentEventTest::new().await;
+  let view = test.create_document().await;
+  let text = "Hello World";
+  let block_id = test.insert_index(&view.id, text, 1, None).await;
+  let block = test.get_block(&view.id, &block_id).await;
+  assert!(block.is_some());
+  let block = block.unwrap();
+  let data = gen_text_block_data(text);
+  assert_eq!(block.data, data);
+}
+
+#[tokio::test]
+async fn update_text_block_test() {
+  let test = DocumentEventTest::new().await;
+  let view = test.create_document().await;
+  let block_id = test.insert_index(&view.id, "Hello World", 1, None).await;
+  let update_text = "Hello World 2";
+  test.update(&view.id, &block_id, update_text).await;
+  let block = test.get_block(&view.id, &block_id).await;
+  assert!(block.is_some());
+  let block = block.unwrap();
+  let update_data = gen_text_block_data(update_text);
+  assert_eq!(block.data, update_data);
+}

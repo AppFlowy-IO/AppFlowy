@@ -50,6 +50,14 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     emit(state.copyWith(themeMode: themeMode));
   }
 
+  /// Toggle the theme mode
+  void toggleThemeMode() {
+    final currentThemeMode = state.themeMode;
+    setThemeMode(
+      currentThemeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light,
+    );
+  }
+
   /// Update selected font in the user's settings and emit an updated state
   /// with the font name.
   void setFontFamily(String fontFamilyName) {

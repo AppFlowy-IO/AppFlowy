@@ -1,9 +1,12 @@
+use crate::document::utils::{gen_id, gen_text_block_data};
 use crate::event_builder::EventBuilder;
 use crate::FlowyCoreTest;
 use flowy_document2::entities::*;
 use flowy_document2::event_map::DocumentEvent;
 use flowy_folder2::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
 use flowy_folder2::event_map::FolderEvent;
+
+const TEXT_BLOCK_TY: &str = "paragraph";
 
 pub struct DocumentEventTest {
   inner: FlowyCoreTest,
@@ -18,6 +21,10 @@ impl DocumentEventTest {
   pub async fn new() -> Self {
     let sdk = FlowyCoreTest::new_with_user().await;
     Self { inner: sdk }
+  }
+
+  pub fn new_with_core(core: FlowyCoreTest) -> Self {
+    Self { inner: core }
   }
 
   pub async fn create_document(&self) -> ViewPB {
@@ -127,5 +134,103 @@ impl DocumentEventTest {
       .async_send()
       .await
       .parse::<DocumentRedoUndoResponsePB>()
+  }
+
+  /// Insert a new text block at the index of parent's children.
+  pub async fn insert_index(
+    &self,
+    document_id: &str,
+    text: &str,
+    index: usize,
+    parent_id: Option<&str>,
+  ) -> String {
+    let text = text.to_string();
+    let page_id = self.get_page_id(document_id).await;
+    let parent_id = parent_id
+      .map(|id| id.to_string())
+      .unwrap_or_else(|| page_id);
+    let parent_children = self.get_block_children(document_id, &parent_id).await;
+
+    let prev_id = {
+      // If index is 0, then the new block will be the first child of parent.
+      if index == 0 {
+        None
+      } else {
+        parent_children.and_then(|children| {
+          // If index is greater than the length of children, then the new block will be the last child of parent.
+          if index >= children.len() {
+            children.last().cloned()
+          } else {
+            children.get(index - 1).cloned()
+          }
+        })
+      }
+    };
+
+    let new_block_id = gen_id();
+    let data = gen_text_block_data(&text);
+
+    let new_block = BlockPB {
+      id: new_block_id.clone(),
+      ty: TEXT_BLOCK_TY.to_string(),
+      data,
+      parent_id: parent_id.clone(),
+      children_id: gen_id(),
+    };
+    let action = BlockActionPB {
+      action: BlockActionTypePB::Insert,
+      payload: BlockActionPayloadPB {
+        block: new_block,
+        prev_id,
+        parent_id: Some(parent_id),
+      },
+    };
+    let payload = ApplyActionPayloadPB {
+      document_id: document_id.to_string(),
+      actions: vec![action],
+    };
+    self.apply_actions(payload).await;
+    new_block_id
+  }
+
+  pub async fn update(&self, document_id: &str, block_id: &str, text: &str) {
+    let block = self.get_block(document_id, block_id).await.unwrap();
+    let data = gen_text_block_data(text);
+    let new_block = {
+      let mut new_block = block.clone();
+      new_block.data = data;
+      new_block
+    };
+    let action = BlockActionPB {
+      action: BlockActionTypePB::Update,
+      payload: BlockActionPayloadPB {
+        block: new_block,
+        prev_id: None,
+        parent_id: Some(block.parent_id.clone()),
+      },
+    };
+    let payload = ApplyActionPayloadPB {
+      document_id: document_id.to_string(),
+      actions: vec![action],
+    };
+    self.apply_actions(payload).await;
+  }
+
+  pub async fn delete(&self, document_id: &str, block_id: &str) {
+    let block = self.get_block(document_id, block_id).await.unwrap();
+    let parent_id = block.parent_id.clone();
+    let action = BlockActionPB {
+      action: BlockActionTypePB::Delete,
+      payload: BlockActionPayloadPB {
+        block,
+        prev_id: None,
+        parent_id: Some(parent_id),
+      },
+    };
+    let payload = ApplyActionPayloadPB {
+      document_id: document_id.to_string(),
+      actions: vec![action],
+    };
+    self.apply_actions(payload).await;
   }
 }

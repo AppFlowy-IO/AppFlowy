@@ -4,7 +4,6 @@ use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
-
 use lib_dispatch::prelude::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::{to_fut, Fut, FutureResult};
@@ -39,7 +38,7 @@ impl UserStatusCallback for DefaultUserStatusCallback {
     to_fut(async { Ok(()) })
   }
 
-  fn did_sign_up(&self, _user_profile: &UserProfile) -> Fut<FlowyResult<()>> {
+  fn did_sign_up(&self, _is_new: bool, _user_profile: &UserProfile) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
   }
 
@@ -51,7 +50,7 @@ impl UserStatusCallback for DefaultUserStatusCallback {
 pub trait UserStatusCallback: Send + Sync + 'static {
   fn auth_type_did_changed(&self, auth_type: AuthType);
   fn did_sign_in(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>>;
-  fn did_sign_up(&self, user_profile: &UserProfile) -> Fut<FlowyResult<()>>;
+  fn did_sign_up(&self, is_new: bool, user_profile: &UserProfile) -> Fut<FlowyResult<()>>;
   fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
 }
 
@@ -75,6 +74,40 @@ where
   }
 }
 
+#[derive(Clone, Debug)]
+pub struct UserCredentials {
+  /// Currently, the token is only used when the [AuthType] is SelfHosted
+  pub token: Option<String>,
+
+  /// The user id
+  pub uid: Option<i64>,
+
+  /// The user id
+  pub uuid: Option<String>,
+}
+
+impl UserCredentials {
+  pub fn from_uid(uid: i64) -> Self {
+    Self {
+      token: None,
+      uid: Some(uid),
+      uuid: None,
+    }
+  }
+
+  pub fn from_uuid(uuid: String) -> Self {
+    Self {
+      token: None,
+      uid: None,
+      uuid: Some(uuid),
+    }
+  }
+
+  pub fn new(token: Option<String>, uid: Option<i64>, uuid: Option<String>) -> Self {
+    Self { token, uid, uuid }
+  }
+}
+
 /// Provide the generic interface for the user cloud service
 /// The user cloud service is responsible for the user authentication and user profile management
 pub trait UserAuthService: Send + Sync {
@@ -93,17 +126,18 @@ pub trait UserAuthService: Send + Sync {
   /// Using the user's token to update the user information
   fn update_user(
     &self,
-    uid: i64,
-    token: &Option<String>,
+    credential: UserCredentials,
     params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError>;
 
-  /// Get the user information using the user's token
+  /// Get the user information using the user's token or uid
+  /// return None if the user is not found
   fn get_user_profile(
     &self,
-    token: Option<String>,
-    uid: i64,
+    credential: UserCredentials,
   ) -> FutureResult<Option<UserProfile>, FlowyError>;
+
+  fn check_user(&self, credential: UserCredentials) -> FutureResult<(), FlowyError>;
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]

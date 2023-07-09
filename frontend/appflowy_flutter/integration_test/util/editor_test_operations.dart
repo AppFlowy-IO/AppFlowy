@@ -165,4 +165,14 @@ class EditorOperations {
     );
     await tester.tapButton(atMenuItem);
   }
+
+  /// Update the editor's selection
+  Future<void> updateSelection(Selection selection) async {
+    final editorState = getCurrentEditorState();
+    editorState.updateSelectionWithReason(
+      selection,
+      reason: SelectionUpdateReason.uiEvent,
+    );
+    await tester.pumpAndSettle(const Duration(milliseconds: 200));
+  }
 }

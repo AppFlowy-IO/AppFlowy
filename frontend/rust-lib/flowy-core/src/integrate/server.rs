@@ -1,11 +1,15 @@
-use lib_infra::future::FutureResult;
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use appflowy_integrate::collab_builder::{CollabStorageProvider, CollabStorageType};
+use appflowy_integrate::RemoteCollabStorage;
 use parking_lot::RwLock;
+use serde_repr::*;
 
+use flowy_database2::deps::{DatabaseCloudService, DatabaseSnapshot};
+use flowy_document2::deps::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_folder2::deps::{FolderCloudService, Workspace};
+use flowy_folder2::deps::{FolderCloudService, FolderSnapshot, Workspace};
 use flowy_server::local_server::LocalServer;
 use flowy_server::self_host::configuration::self_host_server_configuration;
 use flowy_server::self_host::SelfHostServer;
@@ -14,8 +18,7 @@ use flowy_server::AppFlowyServer;
 use flowy_sqlite::kv::KV;
 use flowy_user::event_map::{UserAuthService, UserCloudServiceProvider};
 use flowy_user::services::AuthType;
-
-use serde_repr::*;
+use lib_infra::future::FutureResult;
 
 const SERVER_PROVIDER_TYPE_KEY: &str = "server_provider_type";
 
@@ -115,6 +118,102 @@ impl FolderCloudService for AppFlowyServerProvider {
     let name = name.to_string();
     FutureResult::new(async move { server?.folder_service().create_workspace(uid, &name).await })
   }
+
+  fn get_folder_latest_snapshot(
+    &self,
+    workspace_id: &str,
+  ) -> FutureResult<Option<FolderSnapshot>, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let server = self.get_provider(&self.provider_type.read());
+    FutureResult::new(async move {
+      server?
+        .folder_service()
+        .get_folder_latest_snapshot(&workspace_id)
+        .await
+    })
+  }
+
+  fn get_folder_updates(&self, workspace_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let server = self.get_provider(&self.provider_type.read());
+    FutureResult::new(async move {
+      server?
+        .folder_service()
+        .get_folder_updates(&workspace_id)
+        .await
+    })
+  }
+}
+
+impl DatabaseCloudService for AppFlowyServerProvider {
+  fn get_database_updates(&self, database_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+    let server = self.get_provider(&self.provider_type.read());
+    let database_id = database_id.to_string();
+    FutureResult::new(async move {
+      server?
+        .database_service()
+        .get_database_updates(&database_id)
+        .await
+    })
+  }
+
+  fn get_database_latest_snapshot(
+    &self,
+    database_id: &str,
+  ) -> FutureResult<Option<DatabaseSnapshot>, FlowyError> {
+    let server = self.get_provider(&self.provider_type.read());
+    let database_id = database_id.to_string();
+    FutureResult::new(async move {
+      server?
+        .database_service()
+        .get_database_latest_snapshot(&database_id)
+        .await
+    })
+  }
+}
+
+impl DocumentCloudService for AppFlowyServerProvider {
+  fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+    let server = self.get_provider(&self.provider_type.read());
+    let document_id = document_id.to_string();
+    FutureResult::new(async move {
+      server?
+        .document_service()
+        .get_document_updates(&document_id)
+        .await
+    })
+  }
+
+  fn get_document_latest_snapshot(
+    &self,
+    document_id: &str,
+  ) -> FutureResult<Option<DocumentSnapshot>, FlowyError> {
+    let server = self.get_provider(&self.provider_type.read());
+    let document_id = document_id.to_string();
+    FutureResult::new(async move {
+      server?
+        .document_service()
+        .get_document_latest_snapshot(&document_id)
+        .await
+    })
+  }
+}
+
+impl CollabStorageProvider for AppFlowyServerProvider {
+  fn storage_type(&self) -> CollabStorageType {
+    self.provider_type().into()
+  }
+
+  fn get_storage(&self, storage_type: &CollabStorageType) -> Option<Arc<dyn RemoteCollabStorage>> {
+    match storage_type {
+      CollabStorageType::Local => None,
+      CollabStorageType::AWS => None,
+      CollabStorageType::Supabase => self
+        .get_provider(&ServerProviderType::Supabase)
+        .ok()
+        .and_then(|provider| provider.collab_storage()),
+    }
+  }
 }
 
 fn server_from_auth_type(
@@ -137,8 +236,7 @@ fn server_from_auth_type(
     },
     ServerProviderType::Supabase => {
       let config = SupabaseConfiguration::from_env()?;
-      let server = Arc::new(SupabaseServer::new(config));
-      Ok(server)
+      Ok(Arc::new(SupabaseServer::new(config)))
     },
   }
 }

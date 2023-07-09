@@ -8,7 +8,7 @@ export const GridTitleOptionsPopup = ({ onClose }: { onClose?: () => void }) => 
   const items: IPopupItem[] = [
     {
       icon: (
-        <i className={'h-[16px] w-[16px] text-black'}>
+        <i className={'h-[16px] w-[16px] text-text-title'}>
           <FilterSvg />
         </i>
       ),
@@ -19,7 +19,7 @@ export const GridTitleOptionsPopup = ({ onClose }: { onClose?: () => void }) => 
     },
     {
       icon: (
-        <i className={'h-[16px] w-[16px] text-black'}>
+        <i className={'h-[16px] w-[16px] text-text-title'}>
           <SortSvg />
         </i>
       ),
@@ -30,7 +30,7 @@ export const GridTitleOptionsPopup = ({ onClose }: { onClose?: () => void }) => 
     },
     {
       icon: (
-        <i className={'h-[16px] w-[16px] text-black'}>
+        <i className={'h-[16px] w-[16px] text-text-title'}>
           <PropertiesSvg />
         </i>
       ),
@@ -41,7 +41,7 @@ export const GridTitleOptionsPopup = ({ onClose }: { onClose?: () => void }) => 
     },
     {
       icon: (
-        <i className={'h-[16px] w-[16px] text-black'}>
+        <i className={'h-[16px] w-[16px] text-text-title'}>
           <GroupBySvg />
         </i>
       ),
@@ -51,5 +51,6 @@ export const GridTitleOptionsPopup = ({ onClose }: { onClose?: () => void }) => 
       title: 'Group by',
     },
   ];
+
   return <PopupSelect items={items} className={'absolute top-full z-10 w-fit'} onOutsideClick={onClose} />;
 };

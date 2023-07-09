@@ -2,12 +2,12 @@ use std::sync::Arc;
 
 use flowy_database2::DatabaseManager2;
 use flowy_document2::manager::DocumentManager as DocumentManager2;
-use flowy_folder2::manager::Folder2Manager;
+use flowy_folder2::manager::FolderManager;
 use flowy_user::services::UserSession;
 use lib_dispatch::prelude::AFPlugin;
 
 pub fn make_plugins(
-  folder_manager: &Arc<Folder2Manager>,
+  folder_manager: &Arc<FolderManager>,
   database_manager: &Arc<DatabaseManager2>,
   user_session: &Arc<UserSession>,
   document_manager2: &Arc<DocumentManager2>,
