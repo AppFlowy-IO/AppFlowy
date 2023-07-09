@@ -1,7 +1,8 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_math_equation/inline_math_equation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide FlowySvg, Log;
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -173,13 +174,17 @@ class EditorStyleCustomizer {
   }
 
   InlineSpan customizeAttributeDecorator(
-    TextInsert textInsert,
+    Node node,
+    int index,
+    TextInsert text,
     TextSpan textSpan,
   ) {
-    final attributes = textInsert.attributes;
+    final attributes = text.attributes;
     if (attributes == null) {
       return textSpan;
     }
+
+    // customize the inline mention block, like inline page
     final mention = attributes[MentionBlockKeys.mention] as Map?;
     if (mention != null) {
       final type = mention[MentionBlockKeys.type];
@@ -193,6 +198,21 @@ class EditorStyleCustomizer {
         );
       }
     }
+
+    // customize the inline math equation block
+    final formula = attributes[InlineMathEquationKeys.formula] as String?;
+    if (formula != null) {
+      return WidgetSpan(
+        alignment: PlaceholderAlignment.middle,
+        child: InlineMathEquation(
+          node: node,
+          index: index,
+          formula: formula,
+          textStyle: style().textStyleConfiguration.text,
+        ),
+      );
+    }
+
     return textSpan;
   }
 }

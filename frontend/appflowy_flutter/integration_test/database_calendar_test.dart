@@ -107,7 +107,7 @@ void main() {
 
       // Make sure that the event is edited
       tester.assertNumberOfEventsInCalendar(1, title: 'hello world');
-      tester.assertNumberofEventsOnSpecificDay(2, DateTime.now());
+      tester.assertNumberOfEventsOnSpecificDay(2, DateTime.now());
 
       // Click on the event
       await tester.openCalendarEvent(index: 1);
@@ -119,7 +119,7 @@ void main() {
 
       // Check that there are 2 events
       tester.assertNumberOfEventsInCalendar(2, title: 'hello world');
-      tester.assertNumberofEventsOnSpecificDay(3, DateTime.now());
+      tester.assertNumberOfEventsOnSpecificDay(3, DateTime.now());
 
       // Delete an event
       await tester.openCalendarEvent(index: 1);
@@ -127,7 +127,7 @@ void main() {
 
       // Check that there is 1 event
       tester.assertNumberOfEventsInCalendar(1, title: 'hello world');
-      tester.assertNumberofEventsOnSpecificDay(2, DateTime.now());
+      tester.assertNumberOfEventsOnSpecificDay(2, DateTime.now());
     });
 
     testWidgets('rescheduling events', (tester) async {
@@ -150,7 +150,7 @@ void main() {
       // Make sure that the event has been rescheduled to the new date
       final sameDayNextWeek = firstOfThisMonth.add(const Duration(days: 7));
       tester.assertNumberOfEventsInCalendar(1);
-      tester.assertNumberofEventsOnSpecificDay(1, sameDayNextWeek);
+      tester.assertNumberOfEventsOnSpecificDay(1, sameDayNextWeek);
 
       // Delete the event
       await tester.openCalendarEvent(index: 0, date: sameDayNextWeek);
@@ -162,7 +162,7 @@ void main() {
       await tester.dismissRowDetailPage();
 
       // Make sure that the event is today
-      tester.assertNumberofEventsOnSpecificDay(1, today);
+      tester.assertNumberOfEventsOnSpecificDay(1, today);
 
       // Click on the event
       await tester.openCalendarEvent(index: 0);
@@ -183,7 +183,7 @@ void main() {
 
       // Make sure that the event is edited
       tester.assertNumberOfEventsInCalendar(1);
-      tester.assertNumberofEventsOnSpecificDay(1, newDate);
+      tester.assertNumberOfEventsOnSpecificDay(1, newDate);
     });
   });
 }

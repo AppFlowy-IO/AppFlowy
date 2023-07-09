@@ -10,8 +10,6 @@ cd /d "%~dp0"
 
 cd ..\..\..\appflowy_flutter
 
-call flutter clean
-
 call flutter packages pub get
 
 echo Specifying source directory for AppFlowy Localizations.

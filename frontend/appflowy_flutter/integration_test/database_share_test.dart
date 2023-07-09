@@ -10,6 +10,8 @@ void main() {
   group('database', () {
     testWidgets('import v0.2.0 database data', (tester) async {
       await tester.openV020database();
+      // wait the database data is loaded
+      await tester.pumpAndSettle(const Duration(microseconds: 500));
 
       // check the text cell
       final textCells = <String>['A', 'B', 'C', 'D', 'E', '', '', '', '', ''];

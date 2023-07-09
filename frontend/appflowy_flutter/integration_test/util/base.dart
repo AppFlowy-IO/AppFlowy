@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 
 class FlowyTestContext {
   FlowyTestContext({
@@ -23,7 +24,10 @@ extension AppFlowyTestBase on WidgetTester {
   Future<FlowyTestContext> initializeAppFlowy({
     // use to append after the application data directory
     String? pathExtension,
+    Size windowsSize = const Size(1600, 1200),
   }) async {
+    binding.setSurfaceSize(windowsSize);
+
     mockHotKeyManagerHandlers();
     final directory = await mockApplicationDataStorage(
       pathExtension: pathExtension,
@@ -60,7 +64,7 @@ extension AppFlowyTestBase on WidgetTester {
     final dir = await getTemporaryDirectory();
 
     // Use a random uuid to avoid conflict.
-    String path = '${dir.path}/appflowy_integration_test/${uuid()}';
+    String path = p.join(dir.path, 'appflowy_integration_test', uuid());
     if (pathExtension != null && pathExtension.isNotEmpty) {
       path = '$path/$pathExtension';
     }
@@ -78,7 +82,7 @@ extension AppFlowyTestBase on WidgetTester {
     Finder finder, {
     int? pointer,
     int buttons = kPrimaryButton,
-    bool warnIfMissed = true,
+    bool warnIfMissed = false,
     int milliseconds = 500,
   }) async {
     await tap(
@@ -123,6 +127,18 @@ extension AppFlowyTestBase on WidgetTester {
     return;
   }
 
+  Future<void> doubleTapAt(
+    Offset location, {
+    int? pointer,
+    int buttons = kPrimaryButton,
+    int milliseconds = 500,
+  }) async {
+    await tapAt(location, pointer: pointer, buttons: buttons);
+    await pump(kDoubleTapMinTime);
+    await tapAt(location, pointer: pointer, buttons: buttons);
+    await pumpAndSettle(Duration(milliseconds: milliseconds));
+  }
+
   Future<void> doubleTapButton(
     Finder finder, {
     int? pointer,
@@ -130,20 +146,22 @@ extension AppFlowyTestBase on WidgetTester {
     bool warnIfMissed = true,
     int milliseconds = 500,
   }) async {
-    await tapButton(
+    await tap(
       finder,
       pointer: pointer,
       buttons: buttons,
       warnIfMissed: warnIfMissed,
-      milliseconds: kDoubleTapMinTime.inMilliseconds,
     );
-    await tapButton(
+
+    await pump(kDoubleTapMinTime);
+
+    await tap(
       finder,
-      pointer: pointer,
       buttons: buttons,
+      pointer: pointer,
       warnIfMissed: warnIfMissed,
-      milliseconds: milliseconds,
     );
+    await pumpAndSettle(Duration(milliseconds: milliseconds));
   }
 
   Future<void> wait(int milliseconds) async {
