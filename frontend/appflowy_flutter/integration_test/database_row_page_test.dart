@@ -172,9 +172,10 @@ void main() {
       // Focus on the editor
       final textBlock = find.byType(TextBlockComponentWidget);
       await tester.tapAt(tester.getCenter(textBlock));
+      await tester.pumpAndSettle();
 
       // Input some text
-      const inputText = 'Hello world';
+      const inputText = 'Hello World';
       await tester.ime.insertText(inputText);
       expect(
         find.textContaining(inputText, findRichText: true),

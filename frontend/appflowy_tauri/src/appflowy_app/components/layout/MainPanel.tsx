@@ -15,6 +15,7 @@ export const MainPanel = ({
   children: ReactNode;
 }) => {
   const [animation, setAnimation] = useState(false);
+
   useEffect(() => {
     if (!menuHidden) {
       setTimeout(() => {
@@ -27,7 +28,7 @@ export const MainPanel = ({
 
   return (
     <div
-      className={`absolute inset-0 flex h-full flex-1 flex-col`}
+      className={`absolute inset-0 flex h-full flex-1 flex-col bg-bg-body text-text-title`}
       style={{
         transition: menuHidden || animation ? `left ${ANIMATION_DURATION}ms ease-out` : 'none',
         left: `${menuHidden ? 0 : left}px`,

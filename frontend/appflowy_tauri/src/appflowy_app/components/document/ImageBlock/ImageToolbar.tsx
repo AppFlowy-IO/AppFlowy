@@ -18,7 +18,7 @@ function ImageToolbar({ id, open, align }: { id: string; open: boolean; align: A
       <div
         className={`${
           visible ? 'opacity-1 pointer-events-auto' : 'pointer-events-none opacity-0'
-        } absolute right-2 top-2 z-[1px] flex h-[26px] max-w-[calc(100%-16px)] cursor-pointer items-center justify-center whitespace-nowrap rounded bg-shade-1 bg-opacity-50 text-sm text-white transition-opacity`}
+        } absolute right-2 top-2 z-[1px] flex h-[26px] max-w-[calc(100%-16px)] cursor-pointer items-center justify-center whitespace-nowrap rounded bg-bg-body text-sm text-text-title transition-opacity`}
       >
         <ImageAlign id={id} align={align} onOpen={() => setPopoverOpen(true)} onClose={() => setPopoverOpen(false)} />
         <MenuTooltip title={'Delete'}>
@@ -26,7 +26,7 @@ function ImageToolbar({ id, open, align }: { id: string; open: boolean; align: A
             onClick={() => {
               dispatch(deleteNodeThunk({ id, controller }));
             }}
-            className='flex items-center justify-center bg-transparent p-1'
+            className='flex items-center justify-center p-1'
           >
             <DeleteOutline />
           </div>

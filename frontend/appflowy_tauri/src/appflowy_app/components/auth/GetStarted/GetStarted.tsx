@@ -5,10 +5,11 @@ import { useLogin } from '../Login/Login.hooks';
 
 export const GetStarted = () => {
   const { onAutoSignInClick } = useLogin();
+
   return (
     <>
       <form onSubmit={(e) => e.preventDefault()} method='POST'>
-        <div className='relative flex h-screen w-screen flex-col items-center justify-center gap-12 text-center'>
+        <div className='relative flex h-screen w-screen flex-col items-center justify-center gap-12 bg-bg-body text-center text-text-title'>
           <div className='flex h-10 w-10 justify-center' id='appflowy'>
             <AppflowyLogo />
           </div>
@@ -19,8 +20,8 @@ export const GetStarted = () => {
             </span>
           </div>
 
-          <div id='Get-Started' className='flex w-full max-w-[340px] flex-col gap-6 ' aria-label='Get-Started' >
-            <Button size={'primary'} onClick={() => onAutoSignInClick()} >
+          <div id='Get-Started' className='flex w-full max-w-[340px] flex-col gap-6 ' aria-label='Get-Started'>
+            <Button size={'primary'} onClick={() => onAutoSignInClick()}>
               {t('signUp.getStartedText')}
             </Button>
           </div>

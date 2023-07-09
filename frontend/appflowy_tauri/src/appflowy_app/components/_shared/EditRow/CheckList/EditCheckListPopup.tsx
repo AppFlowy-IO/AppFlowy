@@ -42,6 +42,7 @@ export const EditCheckListPopup = ({
 
   const onBlur = async () => {
     const svc = new SelectOptionCellBackendService(cellIdentifier);
+
     await svc.updateOption(
       new SelectOptionPB({
         id: editingSelectOption.id,
@@ -52,6 +53,7 @@ export const EditCheckListPopup = ({
 
   const onDeleteOptionClick = async () => {
     const svc = new SelectOptionCellBackendService(cellIdentifier);
+
     await svc.deleteOption([editingSelectOption]);
     onOutsideClick();
   };
@@ -67,7 +69,7 @@ export const EditCheckListPopup = ({
       top={top}
     >
       <div onKeyDown={onKeyDownWrapper} className={'flex flex-col gap-2 p-2'}>
-        <div className={'border-shades-3 flex flex-1 items-center gap-2 rounded border bg-main-selector px-2 '}>
+        <div className={'flex flex-1 items-center gap-2 rounded border border-line-border bg-fill-hover px-2 '}>
           <input
             ref={inputRef}
             className={'py-2'}
@@ -80,9 +82,7 @@ export const EditCheckListPopup = ({
         </div>
         <button
           onClick={() => onDeleteOptionClick()}
-          className={
-            'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-main-alert hover:bg-main-secondary'
-          }
+          className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-fill-default hover:bg-fill-hover'}
         >
           <i className={'h-5 w-5'}>
             <TrashSvg></TrashSvg>

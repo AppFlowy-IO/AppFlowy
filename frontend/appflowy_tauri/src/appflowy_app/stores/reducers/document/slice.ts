@@ -409,7 +409,10 @@ export const linkPopoverSlice = createSlice({
       const { id } = linkState;
 
       if (!state[docId].open || state[docId].id !== id) return;
-      state[docId] = linkState;
+      state[docId] = {
+        ...state[docId],
+        ...linkState,
+      };
     },
     closeLinkPopover: (state, action: PayloadAction<string>) => {
       const docId = action.payload;

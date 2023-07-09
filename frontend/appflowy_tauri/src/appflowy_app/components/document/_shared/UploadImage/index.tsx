@@ -88,7 +88,7 @@ function UploadImage({ onChange }: UploadImageProps) {
         <input onChange={handleChange} ref={inputRef} type='file' className={'hidden'} accept={'image/*'} />
         <div
           className={
-            'flex flex-col items-center justify-center rounded-md border border-dashed border-main-accent bg-main-selector py-10 text-main-accent'
+            'flex flex-col items-center justify-center rounded-md border border-dashed border-content-hover py-10 text-content-hover'
           }
           style={{
             borderColor: errorColor,
@@ -110,7 +110,7 @@ function UploadImage({ onChange }: UploadImageProps) {
         style={{
           color: errorColor,
         }}
-        className={`mt-5 text-sm text-shade-3`}
+        className={`mt-5 text-sm text-text-caption`}
       >
         The maximum file size is 5MB. Supported formats: JPG, PNG, GIF, SVG.
       </div>
