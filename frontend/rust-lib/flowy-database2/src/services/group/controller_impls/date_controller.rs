@@ -246,7 +246,7 @@ impl GroupController for DateGroupController {
     match self.context.get_group(group_id) {
       None => tracing::warn!("Can not find the group: {}", group_id),
       Some((_, _)) => {
-        let date = DateTime::parse_from_str(&group_id, "%Y/%m/%d").unwrap();
+        let date = DateTime::parse_from_str(&group_id, GROUP_ID_DATE_FORMAT).unwrap();
         let cell = insert_date_cell(date.timestamp(), None, field);
         cells.insert(field.id.clone(), cell);
       },
@@ -309,6 +309,8 @@ fn make_group_from_date_cell(
   )
 }
 
+const GROUP_ID_DATE_FORMAT: &'static str = "%Y/%m/%d";
+
 fn group_id(
   cell_data: &DateCellData,
   type_option: Option<&DateTypeOption>,
@@ -319,14 +321,18 @@ fn group_id(
   let config = DateGroupConfiguration::from_json(setting_content).unwrap_or_default();
   let date_time = date_time_from_timestamp(cell_data.timestamp, &type_option.timezone_id);
 
+  let date_format = GROUP_ID_DATE_FORMAT;
+  let month_format = &date_format.replace("%d", "01");
+  let year_format = &month_format.replace("%m", "01");
+
   let date = match config.condition {
-    DateCondition::Day => date_time.format("%Y/%m/%d"),
-    DateCondition::Month => date_time.format("%Y/%m/01"),
-    DateCondition::Year => date_time.format("%Y/01/01"),
+    DateCondition::Day => date_time.format(date_format),
+    DateCondition::Month => date_time.format(month_format),
+    DateCondition::Year => date_time.format(year_format),
     DateCondition::Week => date_time
       .checked_sub_days(Days::new(date_time.weekday().num_days_from_monday() as u64))
       .unwrap()
-      .format("%Y/%m/%d"),
+      .format(date_format),
     DateCondition::Relative => {
       let now = date_time_from_timestamp(Some(timestamp()), &type_option.timezone_id).date_naive();
       let date_time = date_time.date_naive();
@@ -361,7 +367,7 @@ fn group_id(
         Some(res)
       };
 
-      result.unwrap().format("%Y/%m/%d")
+      result.unwrap().format(GROUP_ID_DATE_FORMAT)
     },
   };
 
@@ -376,7 +382,7 @@ fn group_name_from_id(
   let binding = DateTypeOption::default();
   let type_option = type_option.unwrap_or(&binding);
   let config = DateGroupConfiguration::from_json(setting_content).unwrap_or_default();
-  let date = NaiveDate::parse_from_str(group_id, "%Y/%m/%d").unwrap();
+  let date = NaiveDate::parse_from_str(group_id, GROUP_ID_DATE_FORMAT).unwrap();
 
   let tmp;
   match config.condition {
@@ -455,7 +461,9 @@ fn date_time_from_timestamp(timestamp: Option<i64>, timezone_id: &String) -> Dat
 mod tests {
   use crate::services::{
     field::{date_type_option::DateTypeOption, DateCellData},
-    group::controller_impls::date_controller::{group_id, group_name_from_id},
+    group::controller_impls::date_controller::{
+      group_id, group_name_from_id, GROUP_ID_DATE_FORMAT,
+    },
   };
   use chrono::{offset, Days, Duration, NaiveDateTime};
   use std::vec;
@@ -498,7 +506,7 @@ mod tests {
         },
         type_option: &local_date_type_option,
         setting_content: r#"{"condition": 0, "hide_empty": false}"#.to_string(),
-        exp_group_id: today.format("%Y/%m/%d").to_string(),
+        exp_group_id: today.format(GROUP_ID_DATE_FORMAT).to_string(),
         exp_group_name: "Today".to_string(),
       },
       GroupIDTest {
@@ -511,7 +519,7 @@ mod tests {
         exp_group_id: today
           .checked_sub_days(Days::new(7))
           .unwrap()
-          .format("%Y/%m/%d")
+          .format(GROUP_ID_DATE_FORMAT)
           .to_string(),
         exp_group_name: "Last 7 days".to_string(),
       },
