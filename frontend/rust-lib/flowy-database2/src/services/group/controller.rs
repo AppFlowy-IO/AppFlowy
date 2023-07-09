@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use std::sync::Arc;
 
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Cells, Row, RowId};
+use collab_database::rows::{Cell, Cells, Row, RowDetail, RowId};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
@@ -13,7 +13,6 @@ use crate::entities::{
   FieldType, GroupChangesPB, GroupRowsNotificationPB, InsertedRowPB, RowMetaPB,
 };
 use crate::services::cell::{get_cell_protobuf, CellProtobufBlobParser, DecodedCellData};
-use crate::services::database::RowDetail;
 use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerOperation, GroupCustomize,
 };

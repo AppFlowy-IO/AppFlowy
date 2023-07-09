@@ -19,7 +19,7 @@ use crate::services::cell::{
   apply_cell_changeset, get_cell_protobuf, AnyTypeCache, CellCache, ToCellChangeset,
 };
 use crate::services::database::util::database_view_setting_pb_from_view;
-use crate::services::database::{RowDetail, UpdatedRow};
+use crate::services::database::UpdatedRow;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewData, DatabaseViews};
 use crate::services::field::checklist_type_option::{ChecklistCellChangeset, ChecklistCellData};
 use crate::services::field::{
@@ -413,8 +413,7 @@ impl DatabaseEditor {
 
       let delete_row_id = from.into_inner();
       let insert_row = InsertedRowPB::new(RowMetaPB::from(&row_meta)).with_index(to_index as i32);
-      let changes =
-        RowsChangePB::from_move(view_id.to_string(), vec![delete_row_id], vec![insert_row]);
+      let changes = RowsChangePB::from_move(vec![delete_row_id], vec![insert_row]);
       send_notification(view_id, DatabaseNotification::DidUpdateViewRows)
         .payload(changes)
         .send();
@@ -704,7 +703,7 @@ impl DatabaseEditor {
     if let Some(new_row_detail) = option_row {
       let updated_row =
         UpdatedRow::new(&new_row_detail.row.id).with_field_ids(vec![field_id.to_string()]);
-      let changes = RowsChangePB::from_update(view_id.to_string(), updated_row.into());
+      let changes = RowsChangePB::from_update(updated_row.into());
       send_notification(view_id, DatabaseNotification::DidUpdateViewRows)
         .payload(changes)
         .send();

@@ -6,7 +6,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
@@ -96,7 +96,10 @@ class BoardPage extends StatelessWidget {
                 (_) => BoardContent(
                   onEditStateChanged: onEditStateChanged,
                 ),
-                (err) => FlowyErrorPage.message(err.toString(), howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),),
+                (err) => FlowyErrorPage.message(
+                  err.toString(),
+                  howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+                ),
               );
             },
           );

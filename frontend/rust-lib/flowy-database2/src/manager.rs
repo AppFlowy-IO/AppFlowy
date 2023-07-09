@@ -3,7 +3,6 @@ use std::sync::Arc;
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::{CollabPersistenceConfig, RocksCollabDB};
-use async_trait::async_trait;
 use collab::core::collab::{CollabRawData, MutexCollab};
 use collab_database::blocks::BlockEvent;
 use collab_database::database::{DatabaseData, YrsDocAction};
@@ -19,11 +18,11 @@ use flowy_task::TaskDispatcher;
 
 use crate::deps::{DatabaseCloudService, DatabaseUser2};
 use crate::entities::{
-  DatabaseDescriptionPB, DatabaseLayoutPB, DatabaseSnapshotPB, RepeatedDatabaseDescriptionPB,
-  RowDataPB, RowPB,
+  DatabaseDescriptionPB, DatabaseLayoutPB, DatabaseSnapshotPB, DidFetchRowPB,
+  RepeatedDatabaseDescriptionPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
-use crate::services::database::{DatabaseEditor, UpdatedRow};
+use crate::services::database::DatabaseEditor;
 use crate::services::database_view::DatabaseLayoutDepsResolver;
 use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
 
@@ -323,15 +322,12 @@ fn subscribe_block_event(workspace_database: &WorkspaceDatabase) {
     while let Ok(event) = block_event_rx.recv().await {
       match event {
         BlockEvent::DidFetchRow(row_detail) => {
-          tracing::trace!("Did fetch row: {:?}", row.id);
-
-          // let updated_row = UpdatedRow::new(&row_detail.row.id);
-          // let changes = RowsChangePB::from_update(view_id.to_string(), updated_row.into());
-          // send_notification(view_id, DatabaseNotification::DidUpdateViewRows)
-          //   .payload(changes)
-          //   .send();
-
-          // send_notification(&row.id, DatabaseNotification::DidFetchRow).send();
+          tracing::trace!("Did fetch row: {:?}", row_detail.row.id);
+          let row_id = row_detail.row.id.clone();
+          let pb = DidFetchRowPB::from(row_detail);
+          send_notification(&row_id, DatabaseNotification::DidFetchRow)
+            .payload(pb)
+            .send();
         },
       }
     }

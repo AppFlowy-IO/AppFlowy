@@ -103,12 +103,15 @@ class CellController<T, D> extends Equatable {
       },
     );
 
-    _rowMetaListener?.start(
-      callback: (newRowMeta) {
-        _cellContext = _cellContext.copyWith(rowMeta: newRowMeta);
-        _onRowMetaChanged?.call();
-      },
-    );
+    // Only the primary can listen on the row meta changes.
+    if (_cellContext.fieldInfo.isPrimary) {
+      _rowMetaListener?.start(
+        callback: (newRowMeta) {
+          _cellContext = _cellContext.copyWith(rowMeta: newRowMeta);
+          _onRowMetaChanged?.call();
+        },
+      );
+    }
   }
 
   /// Listen on the cell content or field changes

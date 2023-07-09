@@ -1,4 +1,4 @@
-use collab_database::rows::{Row, RowId, RowMeta};
+use collab_database::rows::{RowId, RowMeta};
 use collab_database::views::DatabaseLayout;
 
 #[derive(Debug, Clone)]

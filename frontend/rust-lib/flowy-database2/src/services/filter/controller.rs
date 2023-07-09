@@ -3,7 +3,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::rows::{Cell, Row, RowId};
+use collab_database::rows::{Cell, Row, RowDetail, RowId};
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
@@ -15,7 +15,6 @@ use lib_infra::future::Fut;
 use crate::entities::filter_entities::*;
 use crate::entities::{FieldType, InsertedRowPB, RowMetaPB};
 use crate::services::cell::{AnyTypeCache, CellCache, CellFilterCache};
-use crate::services::database::RowDetail;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
 use crate::services::field::*;
 use crate::services::filter::{Filter, FilterChangeset, FilterResult, FilterResultNotification};

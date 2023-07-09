@@ -1,9 +1,9 @@
-use collab_database::database::MutexDatabase;
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use collab_database::database::MutexDatabase;
 use collab_database::fields::Field;
-use collab_database::rows::RowId;
+use collab_database::rows::{RowDetail, RowId};
 use nanoid::nanoid;
 use tokio::sync::{broadcast, RwLock};
 
@@ -11,7 +11,7 @@ use flowy_error::FlowyResult;
 use lib_infra::future::Fut;
 
 use crate::services::cell::CellCache;
-use crate::services::database::{DatabaseRowEvent, RowDetail};
+use crate::services::database::DatabaseRowEvent;
 use crate::services::database_view::{DatabaseViewData, DatabaseViewEditor};
 use crate::services::group::RowChangeset;
 
