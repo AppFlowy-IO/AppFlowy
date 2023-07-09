@@ -240,30 +240,46 @@ fn cmp_row(
   fields: &[Arc<Field>],
   cell_data_cache: &CellCache,
 ) -> Ordering {
-  match (
-    left.cells.get(&sort.field_id),
-    right.cells.get(&sort.field_id),
-  ) {
-    (Some(left_cell), Some(right_cell)) => {
-      let field_type = sort.field_type.clone();
-      match fields
-        .iter()
-        .find(|field_rev| field_rev.id == sort.field_id)
-      {
-        None => default_order(),
-        Some(field_rev) => cmp_cell(
-          left_cell,
-          right_cell,
-          field_rev,
-          field_type,
-          cell_data_cache,
-          sort.condition,
-        ),
-      }
+  let field_type = sort.field_type.clone();
+  match fields
+    .iter()
+    .find(|field_rev| field_rev.id == sort.field_id)
+  {
+    None => default_order(),
+    Some(field_rev) => match (
+      left.cells.get(&sort.field_id),
+      right.cells.get(&sort.field_id),
+    ) {
+      (Some(left_cell), Some(right_cell)) => cmp_cell(
+        left_cell,
+        right_cell,
+        field_rev,
+        field_type,
+        cell_data_cache,
+        sort.condition,
+      ),
+      (Some(_), None) => {
+        if field_type.is_checkbox() {
+          match sort.condition {
+            SortCondition::Ascending => Ordering::Greater,
+            SortCondition::Descending => Ordering::Less,
+          }
+        } else {
+          Ordering::Less
+        }
+      },
+      (None, Some(_)) => {
+        if field_type.is_checkbox() {
+          match sort.condition {
+            SortCondition::Ascending => Ordering::Less,
+            SortCondition::Descending => Ordering::Greater,
+          }
+        } else {
+          Ordering::Greater
+        }
+      },
+      _ => default_order(),
     },
-    (Some(_), None) => Ordering::Less,
-    (None, Some(_)) => Ordering::Greater,
-    _ => default_order(),
   }
 }
 
