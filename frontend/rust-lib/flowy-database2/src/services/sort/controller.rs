@@ -156,7 +156,7 @@ impl SortController {
     }
 
     let fields = self.delegate.get_fields(&self.view_id, None).await;
-    for sort in self.sorts.iter() {
+    for sort in self.sorts.iter().rev() {
       rows
         .par_sort_by(|left, right| cmp_row(&left.row, &right.row, sort, &fields, &self.cell_cache));
     }
