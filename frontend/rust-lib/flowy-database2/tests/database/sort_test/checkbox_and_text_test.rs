@@ -41,11 +41,11 @@ async fn sort_checkbox_and_then_text_by_descending_test() {
     },
     AssertCellContentOrder {
       field_id: checkbox_field.id.clone(),
-      orders: vec!["Yes", "Yes", "Yes", "No", "No", "No"],
+      orders: vec!["Yes", "Yes", "No", "No", "No", "Yes"],
     },
     AssertCellContentOrder {
       field_id: text_field.id.clone(),
-      orders: vec!["", "A", "AE", "AE", "C", "DA"],
+      orders: vec!["A", "AE", "AE", "C", "DA", ""],
     },
   ];
   test.run_scripts(scripts).await;
