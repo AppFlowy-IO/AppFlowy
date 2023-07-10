@@ -231,5 +231,6 @@
     "column": {
       "create_new_card": "추가"
     }
-  }
+  },
+  "moreAction.small": "작은"
 }

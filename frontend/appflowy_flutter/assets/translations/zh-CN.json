@@ -458,6 +458,7 @@
     "menuName": "看板",
     "referencedBoardPrefix": "视图"
   },
+  "moreAction.small": "小的",
   "calendar": {
     "menuName": "日历",
     "defaultNewCalendarTitle": "未命名",
@@ -485,3 +486,4 @@
     "github": "在 GitHub 查看"
   }
 }
+
