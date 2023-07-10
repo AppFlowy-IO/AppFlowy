@@ -2,10 +2,14 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
@@ -19,7 +23,8 @@ const _iconSize = Size(60, 60);
 class SettingsUserView extends StatelessWidget {
   final UserProfilePB user;
   SettingsUserView(this.user, {Key? key}) : super(key: ValueKey(user.id));
-
+  final PopoverMutex _dateFormatMutext = PopoverMutex();
+  final PopoverMutex _timeFormatMutext = PopoverMutex();
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SettingsUserViewBloc>(
@@ -34,7 +39,13 @@ class SettingsUserView extends StatelessWidget {
               const VSpace(20),
               _renderCurrentIcon(context),
               const VSpace(20),
-              _renderCurrentOpenaiKey(context)
+              _renderCurrentOpenaiKey(context),
+              const VSpace(20),
+              _renderDateFormatButton(context, _dateFormatMutext),
+              const VSpace(20),
+              _renderTimeFormatButton(context, _timeFormatMutext),
+
+              // VSpace(20),
             ],
           ),
         ),
@@ -43,7 +54,8 @@ class SettingsUserView extends StatelessWidget {
   }
 
   Widget _renderUserNameInput(BuildContext context) {
-    final String name = context.read<SettingsUserViewBloc>().state.userProfile.name;
+    final String name =
+        context.read<SettingsUserViewBloc>().state.userProfile.name;
     return UserNameInput(name);
   }
 
@@ -61,6 +73,122 @@ class SettingsUserView extends StatelessWidget {
         context.read<SettingsUserViewBloc>().state.userProfile.openaiKey;
     return _OpenaiKeyInput(openAIKey);
   }
+}
+
+Widget _renderDateFormatButton(
+  BuildContext context,
+  // DateFormatPB dataFormat,
+  PopoverMutex mutex,
+) {
+  final DateFormatPB dateFormat = _getDateFormat(context);
+  return AppFlowyPopover(
+    mutex: mutex,
+    // asBarrier: true,
+    triggerActions: PopoverTriggerFlags.click,
+    // constraints: BoxConstraints.loose(const Size(460, 440)),
+    offset: const Offset(-190, 40),
+    popupBuilder: (popoverContext) {
+      return DateFormatList(
+        selectedFormat: dateFormat,
+        onSelected: (format) {
+          context
+              .read<SettingsUserViewBloc>()
+              .add(SettingsUserEvent.updateDateFormat(format.name));
+          PopoverContainer.of(popoverContext).close();
+        },
+      );
+    },
+    child: Row(
+      children: [
+        const Expanded(
+          child: FlowyText.medium(
+            "Date Format",
+          ),
+        ),
+        FlowyTextButton(
+          _getDateFormat(context).title(),
+          fontColor: Theme.of(context).colorScheme.onBackground,
+          fillColor: Colors.transparent,
+          onPressed: () {},
+        ),
+      ],
+    ),
+  );
+}
+
+DateFormatPB _getDateFormat(BuildContext context) {
+  late DateFormatPB dateFormat;
+
+  try {
+    dateFormat = DateFormatPB.values
+        .where(
+          (element) =>
+              element.name ==
+              context.read<SettingsUserViewBloc>().state.userProfile.dateFormat,
+        )
+        .first;
+  } catch (e) {
+    Log.error(e.toString());
+    dateFormat = DateFormatPB.Local;
+  }
+  return dateFormat;
+}
+
+TimeFormatPB _getTimeFormat(BuildContext context) {
+  late TimeFormatPB timeFormat;
+  try {
+    timeFormat = TimeFormatPB.values
+        .where(
+          (element) =>
+              element.name ==
+              context.read<SettingsUserViewBloc>().state.userProfile.timeFormat,
+        )
+        .first;
+  } catch (e) {
+    timeFormat = TimeFormatPB.TwentyFourHour;
+  }
+  return timeFormat;
+}
+
+Widget _renderTimeFormatButton(
+  BuildContext context,
+  // TimeFormatPB timeFormat,
+  PopoverMutex mutex,
+) {
+  final timeFormat = _getTimeFormat(context);
+  return AppFlowyPopover(
+    mutex: mutex,
+    // asBarrier: true,
+    triggerActions: PopoverTriggerFlags.click,
+    offset: const Offset(-130, 40),
+    popupBuilder: (BuildContext popoverContext) {
+      return TimeFormatList(
+        selectedFormat: timeFormat,
+        onSelected: (format) {
+          context
+              .read<SettingsUserViewBloc>()
+              .add(SettingsUserEvent.updateTimeFormat(format.name));
+
+          PopoverContainer.of(popoverContext).close();
+        },
+      );
+    },
+    child: Row(
+      children: [
+        const Expanded(
+          child: FlowyText.medium(
+            "Time Format",
+          ),
+        ),
+        FlowyTextButton(
+          timeFormat.title(),
+          fontColor: Theme.of(context).colorScheme.onBackground,
+          fillColor: Colors.transparent,
+          onPressed: () {},
+        ),
+      ],
+    ),
+  );
 }
 
 @visibleForTesting

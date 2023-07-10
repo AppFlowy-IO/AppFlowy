@@ -19,39 +19,47 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
         _userService = UserBackendService(userId: userProfile.id),
         super(SettingsUserState.initial(userProfile)) {
     on<SettingsUserEvent>((event, emit) async {
-      await event.when(
-        initial: () async {
-          _userListener.start(onProfileUpdated: _profileUpdated);
-          await _initUser();
-        },
-        didReceiveUserProfile: (UserProfilePB newUserProfile) {
-          emit(state.copyWith(userProfile: newUserProfile));
-        },
-        updateUserName: (String name) {
-          _userService.updateUserProfile(name: name).then((result) {
-            result.fold(
-              (l) => null,
-              (err) => Log.error(err),
-            );
-          });
-        },
-        updateUserIcon: (String iconUrl) {
-          _userService.updateUserProfile(iconUrl: iconUrl).then((result) {
-            result.fold(
-              (l) => null,
-              (err) => Log.error(err),
-            );
-          });
-        },
-        updateUserOpenAIKey: (openAIKey) {
-          _userService.updateUserProfile(openAIKey: openAIKey).then((result) {
-            result.fold(
-              (l) => null,
-              (err) => Log.error(err),
-            );
-          });
-        },
-      );
+      await event.when(initial: () async {
+        _userListener.start(onProfileUpdated: _profileUpdated);
+        await _initUser();
+      }, didReceiveUserProfile: (UserProfilePB newUserProfile) {
+        emit(state.copyWith(userProfile: newUserProfile));
+      }, updateUserName: (String name) {
+        _userService.updateUserProfile(name: name).then((result) {
+          result.fold(
+            (l) => null,
+            (err) => Log.error(err),
+          );
+        });
+      }, updateUserIcon: (String iconUrl) {
+        _userService.updateUserProfile(iconUrl: iconUrl).then((result) {
+          result.fold(
+            (l) => null,
+            (err) => Log.error(err),
+          );
+        });
+      }, updateUserOpenAIKey: (openAIKey) {
+        _userService.updateUserProfile(openAIKey: openAIKey).then((result) {
+          result.fold(
+            (l) => null,
+            (err) => Log.error(err),
+          );
+        });
+      }, updateDateFormat: (dateFormat) {
+        _userService.updateUserProfile(dateFormat: dateFormat).then((result) {
+          result.fold(
+            (l) => null,
+            (err) => Log.error(err),
+          );
+        });
+      }, updateTimeFormat: (timeFormat) {
+        _userService.updateUserProfile(timeFormat: timeFormat).then((result) {
+          result.fold(
+            (l) => null,
+            (err) => Log.error(err),
+          );
+        });
+      });
     });
   }
 
@@ -81,6 +89,10 @@ class SettingsUserEvent with _$SettingsUserEvent {
   const factory SettingsUserEvent.updateUserName(String name) = _UpdateUserName;
   const factory SettingsUserEvent.updateUserIcon(String iconUrl) =
       _UpdateUserIcon;
+  const factory SettingsUserEvent.updateDateFormat(String dateFormat) =
+      _UpdateDateFormat;
+  const factory SettingsUserEvent.updateTimeFormat(String timeFormat) =
+      _UpdateTimeFormat;
   const factory SettingsUserEvent.updateUserOpenAIKey(String openAIKey) =
       _UpdateUserOpenaiKey;
   const factory SettingsUserEvent.didReceiveUserProfile(

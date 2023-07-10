@@ -26,6 +26,8 @@ class UserBackendService {
     String? email,
     String? iconUrl,
     String? openAIKey,
+    String? dateFormat,
+    String? timeFormat,
   }) {
     final payload = UpdateUserProfilePayloadPB.create()..id = userId;
 
@@ -47,6 +49,13 @@ class UserBackendService {
 
     if (openAIKey != null) {
       payload.openaiKey = openAIKey;
+    }
+    if (dateFormat != null) {
+      payload.dateFormat = dateFormat;
+    }
+
+    if (timeFormat != null) {
+      payload.timeFormat = timeFormat;
     }
 
     return UserEventUpdateUserProfile(payload).send();

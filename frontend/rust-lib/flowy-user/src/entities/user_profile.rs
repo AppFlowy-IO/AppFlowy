@@ -2,7 +2,7 @@ use std::convert::TryInto;
 
 use flowy_derive::ProtoBuf;
 
-use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
+use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserDateFormat, UserTimeFormat, UserPassword};
 use crate::entities::{AuthTypePB, UpdateUserProfileParams, UserProfile};
 use crate::errors::ErrorCode;
 
@@ -37,6 +37,12 @@ pub struct UserProfilePB {
 
   #[pb(index = 6)]
   pub openai_key: String,
+
+  #[pb(index = 7)]
+  pub date_format: String,
+
+  #[pb(index = 8)]
+  pub time_format: String,
 }
 
 impl std::convert::From<UserProfile> for UserProfilePB {
@@ -48,6 +54,8 @@ impl std::convert::From<UserProfile> for UserProfilePB {
       token: user_profile.token,
       icon_url: user_profile.icon_url,
       openai_key: user_profile.openai_key,
+      date_format: user_profile.date_format,
+      time_format: user_profile.time_format,
     }
   }
 }
@@ -72,8 +80,16 @@ pub struct UpdateUserProfilePayloadPB {
   #[pb(index = 6, one_of)]
   pub openai_key: Option<String>,
 
-  #[pb(index = 7)]
+  #[pb(index = 7, one_of)]
+  pub date_format: Option<String>,
+
+  #[pb(index = 8, one_of)]
+  pub time_format: Option<String>,
+
+  #[pb(index = 9)]
   pub auth_type: AuthTypePB,
+
+  
 }
 
 impl UpdateUserProfilePayloadPB {
@@ -108,6 +124,16 @@ impl UpdateUserProfilePayloadPB {
     self.openai_key = Some(openai_key.to_owned());
     self
   }
+
+  pub fn date_format(mut self, date_format: &str) -> Self {
+    self.date_format = Some(date_format.to_owned());
+    self
+  }
+
+  pub fn time_format(mut self, time_format: &str) -> Self {
+    self.time_format = Some(time_format.to_owned());
+    self
+  }
 }
 
 impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
@@ -139,6 +165,19 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
       Some(openai_key) => Some(UserOpenaiKey::parse(openai_key)?.0),
     };
 
+
+    let date_format = match self.date_format {
+      None => None,
+      Some(date_format) => Some(UserDateFormat::parse(date_format)?.0),
+    };
+
+
+    let time_format = match self.time_format {
+      None => None,
+      Some(time_format) => Some(UserTimeFormat::parse(time_format)?.0),
+    };
+
+
     Ok(UpdateUserProfileParams {
       id: self.id,
       auth_type: self.auth_type.into(),
@@ -147,6 +186,8 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
       password,
       icon_url,
       openai_key,
+      date_format,
+      time_format,
     })
   }
 }

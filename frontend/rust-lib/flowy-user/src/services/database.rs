@@ -123,6 +123,8 @@ pub struct UserTable {
   pub(crate) workspace: String,
   pub(crate) icon_url: String,
   pub(crate) openai_key: String,
+  pub(crate) date_format: String,
+  pub(crate) time_format: String,
   pub(crate) token: String,
   pub(crate) email: String,
 }
@@ -137,6 +139,8 @@ impl UserTable {
       icon_url: "".to_owned(),
       workspace: workspace_id,
       openai_key: "".to_owned(),
+      date_format: "".to_owned(),
+      time_format: "".to_owned(),
     }
   }
 
@@ -156,6 +160,8 @@ impl From<SignUpResponse> for UserTable {
       workspace: resp.workspace_id,
       icon_url: "".to_string(),
       openai_key: "".to_string(),
+      date_format: "".to_string(),
+      time_format: "".to_string(),
     }
   }
 }
@@ -170,6 +176,8 @@ impl From<SignInResponse> for UserTable {
       workspace: resp.workspace_id,
       icon_url: "".to_string(),
       openai_key: "".to_string(),
+      date_format: "".to_string(),
+      time_format: "".to_string(),
     }
   }
 }
@@ -183,6 +191,8 @@ impl From<UserTable> for UserProfile {
       token: table.token,
       icon_url: table.icon_url,
       openai_key: table.openai_key,
+      date_format: table.date_format,
+      time_format: table.time_format,
       workspace_id: table.workspace,
     }
   }
@@ -197,6 +207,8 @@ pub struct UserTableChangeset {
   pub email: Option<String>,
   pub icon_url: Option<String>,
   pub openai_key: Option<String>,
+  pub date_format: Option<String>,
+  pub time_format: Option<String>,
 }
 
 impl UserTableChangeset {
@@ -208,6 +220,8 @@ impl UserTableChangeset {
       email: params.email,
       icon_url: params.icon_url,
       openai_key: params.openai_key,
+      date_format: params.date_format,
+      time_format: params.time_format,
     }
   }
 }

@@ -19,6 +19,8 @@ diesel::table! {
         workspace -> Text,
         icon_url -> Text,
         openai_key -> Text,
+        date_format -> Text,
+        time_format -> Text,
         token -> Text,
         email -> Text,
     }

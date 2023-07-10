@@ -84,6 +84,8 @@ impl UserAuthService for PostgrestUserAuthServiceImpl {
         token: "".to_string(),
         icon_url: "".to_string(),
         openai_key: "".to_string(),
+        date_format: "".to_string(),
+        time_format: "".to_string(),
         workspace_id: user_profile_resp.workspace_id,
       };
 

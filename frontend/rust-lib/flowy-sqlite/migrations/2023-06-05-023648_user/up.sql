@@ -5,6 +5,8 @@ CREATE TABLE user_table (
  workspace TEXT NOT NULL DEFAULT '',
  icon_url TEXT NOT NULL DEFAULT '',
  openai_key TEXT NOT NULL DEFAULT '',
+ date_format TEXT NOT NULL DEFAULT '',
+ time_format TEXT NOT NULL DEFAULT '',
  token TEXT NOT NULL DEFAULT '',
  email TEXT NOT NULL DEFAULT ''
 );

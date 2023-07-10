@@ -140,6 +140,8 @@ pub struct UserProfile {
   pub token: String,
   pub icon_url: String,
   pub openai_key: String,
+  pub date_format: String,
+  pub time_format: String,
   pub workspace_id: String,
 }
 
@@ -152,6 +154,8 @@ pub struct UpdateUserProfileParams {
   pub password: Option<String>,
   pub icon_url: Option<String>,
   pub openai_key: Option<String>,
+  pub date_format: Option<String>,
+  pub time_format: Option<String>,
 }
 
 impl UpdateUserProfileParams {
@@ -180,12 +184,24 @@ impl UpdateUserProfileParams {
     self
   }
 
+  pub fn date_format(mut self, date_format: &str) -> Self {
+    self.date_format = Some(date_format.to_owned());
+    self
+  }
+
+  pub fn time_format(mut self, time_format: &str) -> Self {
+    self.time_format = Some(time_format.to_owned());
+    self
+  }
+
   pub fn is_empty(&self) -> bool {
     self.name.is_none()
       && self.email.is_none()
       && self.password.is_none()
       && self.icon_url.is_none()
       && self.openai_key.is_none()
+      && self.date_format.is_none()
+      && self.time_format.is_none()
   }
 }
 

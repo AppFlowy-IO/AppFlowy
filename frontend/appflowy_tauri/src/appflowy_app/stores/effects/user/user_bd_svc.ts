@@ -36,7 +36,7 @@ export class UserBackendService {
     return UserEventCheckUser();
   };
 
-  updateUserProfile = (params: { name?: string; password?: string; email?: string; openAIKey?: string }) => {
+  updateUserProfile = (params: { name?: string; password?: string; email?: string; openAIKey?: string;  dateFormat?: string; timeFormat?: string }) => {
     const payload = UpdateUserProfilePayloadPB.fromObject({ id: this.userId });
 
     if (params.name !== undefined) {
@@ -48,6 +48,14 @@ export class UserBackendService {
     if (params.email !== undefined) {
       payload.email = params.email;
     }
+    if (params.dateFormat !== undefined) {
+      payload.dateFormat = params.dateFormat;
+    }
+    if (params.timeFormat !== undefined) {
+      payload.timeFormat = params.timeFormat;
+    }
+
+
     // if (params.openAIKey !== undefined) {
     // }
     return UserEventUpdateUserProfile(payload);
