@@ -1,5 +1,5 @@
 use appflowy_integrate::config::AWSDynamoDBConfig;
-use appflowy_integrate::SupabaseDBConfig;
+
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_server::supabase::SupabaseConfiguration;
 use flowy_sqlite::kv::KV;
@@ -50,11 +50,6 @@ pub(crate) async fn set_collab_plugin_config_handler(
   if let Some(aws_config_pb) = config.aws_config {
     if let Ok(aws_config) = AWSDynamoDBConfig::try_from(aws_config_pb) {
       aws_config.write_env();
-    }
-  }
-  if let Some(supabase_config_pb) = config.supabase_config {
-    if let Ok(supabase_config) = SupabaseDBConfig::try_from(supabase_config_pb) {
-      supabase_config.write_env();
     }
   }
   Ok(())

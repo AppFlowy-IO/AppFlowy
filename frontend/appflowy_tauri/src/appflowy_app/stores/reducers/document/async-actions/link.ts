@@ -3,6 +3,7 @@ import { DocumentController } from '$app/stores/effects/document/document_contro
 import Delta from 'quill-delta';
 import { linkPopoverActions, rangeActions } from '$app_reducers/document/slice';
 import { RootState } from '$app/stores/store';
+import { DOCUMENT_NAME, RANGE_NAME, TEXT_LINK_NAME } from '$app/constants/document/name';
 
 export const formatLinkThunk = createAsyncThunk<
   boolean,
@@ -12,18 +13,22 @@ export const formatLinkThunk = createAsyncThunk<
 >('document/formatLink', async (payload, thunkAPI) => {
   const { controller } = payload;
   const { getState } = thunkAPI;
+  const docId = controller.documentId;
   const state = getState() as RootState;
-  const linkPopover = state.documentLinkPopover;
+  const documentState = state[DOCUMENT_NAME][docId];
+  const linkPopover = state[TEXT_LINK_NAME][docId];
+
   if (!linkPopover) return false;
   const { selection, id, href, title = '' } = linkPopover;
+
   if (!selection || !id) return false;
-  const document = state.document;
-  const node = document.nodes[id];
+  const node = documentState.nodes[id];
   const nodeDelta = new Delta(node.data?.delta);
   const index = selection.index || 0;
   const length = selection.length || 0;
   const regex = new RegExp(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/);
-  if (href !== undefined && !regex.test(href)) {
+
+  if (href && !regex.test(href)) {
     return false;
   }
 
@@ -40,64 +45,59 @@ export const formatLinkThunk = createAsyncThunk<
       delta: newDelta.ops,
     },
   });
+
   await controller.applyActions([updateAction]);
   return true;
 });
 
-export const updateLinkThunk = createAsyncThunk<
+export const newLinkThunk = createAsyncThunk<
   void,
   {
-    id: string;
-    href?: string;
-    title: string;
+    docId: string;
   }
->('document/updateLink', async (payload, thunkAPI) => {
-  const { id, href, title } = payload;
-  const { dispatch } = thunkAPI;
-
-  dispatch(
-    linkPopoverActions.updateLinkPopover({
-      id,
-      href,
-      title,
-    })
-  );
-});
-
-export const newLinkThunk = createAsyncThunk<void>('document/newLink', async (payload, thunkAPI) => {
+>('document/newLink', async ({ docId }, thunkAPI) => {
   const { getState, dispatch } = thunkAPI;
-  const { documentRange, document } = getState() as RootState;
+  const state = getState() as RootState;
+  const documentState = state[DOCUMENT_NAME][docId];
+  const documentRange = state[RANGE_NAME][docId];
 
   const { caret } = documentRange;
+
   if (!caret) return;
   const { index, length, id } = caret;
 
-  const block = document.nodes[id];
+  const block = documentState.nodes[id];
   const delta = new Delta(block.data.delta).slice(index, index + length);
   const op = delta.ops.find((op) => op.attributes?.href);
   const href = op?.attributes?.href as string;
 
   const domSelection = window.getSelection();
+
   if (!domSelection) return;
   const domRange = domSelection.rangeCount > 0 ? domSelection.getRangeAt(0) : null;
+
   if (!domRange) return;
   const title = domSelection.toString();
   const { top, left, height, width } = domRange.getBoundingClientRect();
-  dispatch(rangeActions.clearRange());
+
+  dispatch(rangeActions.initialState(docId));
   dispatch(
     linkPopoverActions.setLinkPopover({
-      anchorPosition: {
-        top: top + height,
-        left: left + width / 2,
+      docId,
+      linkState: {
+        anchorPosition: {
+          top: top + height,
+          left: left + width / 2,
+        },
+        id,
+        selection: {
+          index,
+          length,
+        },
+        title,
+        href,
+        open: true,
       },
-      id,
-      selection: {
-        index,
-        length,
-      },
-      title,
-      href,
-      open: true,
     })
   );
 });

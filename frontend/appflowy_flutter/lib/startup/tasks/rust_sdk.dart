@@ -21,37 +21,37 @@ class InitRustSDKTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    final dir = directory ?? await appFlowyDocumentDirectory();
+    final dir = directory ?? await appFlowyApplicationDataDirectory();
 
-    context.getIt<FlowySDK>().setEnv(getAppFlowyEnv());
+    final env = getAppFlowyEnv();
+    context.getIt<FlowySDK>().setEnv(env);
     await context.getIt<FlowySDK>().init(dir);
   }
 }
 
 AppFlowyEnv getAppFlowyEnv() {
+  final postgresConfig = PostgresConfiguration(
+    url: Env.supabaseDb,
+    password: Env.supabaseDbPassword,
+    port: int.parse(Env.supabaseDbPort),
+    user_name: Env.supabaseDbUser,
+  );
+
   final supabaseConfig = SupabaseConfiguration(
     url: Env.supabaseUrl,
     key: Env.supabaseKey,
     jwt_secret: Env.supabaseJwtSecret,
-  );
-
-  final collabTableConfig =
-      CollabTableConfig(enable: true, table_name: Env.supabaseCollabTable);
-
-  final supbaseDBConfig = SupabaseDBConfig(
-    url: Env.supabaseUrl,
-    key: Env.supabaseKey,
-    jwt_secret: Env.supabaseJwtSecret,
-    collab_table_config: collabTableConfig,
+    postgres_config: postgresConfig,
   );
 
   return AppFlowyEnv(
     supabase_config: supabaseConfig,
-    supabase_db_config: supbaseDBConfig,
   );
 }
 
-Future<Directory> appFlowyDocumentDirectory() async {
+/// The default directory to store the user data. The directory can be
+/// customized by the user via the [ApplicationDataStorage]
+Future<Directory> appFlowyApplicationDataDirectory() async {
   switch (integrationEnv()) {
     case IntegrationMode.develop:
       final Directory documentsDir = await getApplicationSupportDirectory()
@@ -60,7 +60,7 @@ Future<Directory> appFlowyDocumentDirectory() async {
     case IntegrationMode.release:
       final Directory documentsDir = await getApplicationSupportDirectory();
       return Directory(path.join(documentsDir.path, 'data')).create();
-    case IntegrationMode.test:
+    case IntegrationMode.unitTest:
     case IntegrationMode.integrationTest:
       return Directory(path.join(Directory.current.path, '.sandbox'));
   }

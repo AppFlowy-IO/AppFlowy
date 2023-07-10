@@ -9,11 +9,13 @@ import {
   indent,
   outdent,
 } from '$app/utils/document/slate_editor';
-import { focusNodeByIndex, getWordIndices } from '$app/utils/document/node';
+import { focusNodeByIndex } from '$app/utils/document/node';
 import { Keyboard } from '$app/constants/document/keyboard';
 import Delta from 'quill-delta';
 import isHotkey from 'is-hotkey';
 import { useSlateYjs } from '$app/components/document/_shared/SlateEditor/useSlateYjs';
+
+const AFTER_RENDER_DELAY = 100;
 
 export function useEditor({
   onChange,
@@ -24,6 +26,7 @@ export function useEditor({
   onKeyDown,
   isCodeBlock,
   linkDecorateSelection,
+  temporarySelection,
 }: EditorProps) {
   const { editor } = useSlateYjs({ delta });
   const ref = useRef<HTMLDivElement | null>(null);
@@ -31,6 +34,7 @@ export function useEditor({
   const onSelectionChangeHandler = useCallback(
     (slateSelection: Selection) => {
       const rangeStatic = converToIndexLength(editor, slateSelection);
+
       onSelectionChange?.(rangeStatic, null);
     },
     [editor, onSelectionChange]
@@ -39,6 +43,7 @@ export function useEditor({
   const onChangeHandler = useCallback(
     (slateValue: Descendant[]) => {
       const oldContents = delta || new Delta();
+
       onChange?.(convertToDelta(slateValue), oldContents);
       onSelectionChangeHandler(editor.selection);
     },
@@ -67,8 +72,10 @@ export function useEditor({
     ) => {
       if (!selection) return null;
       const range = convertToSlateSelection(selection.index, selection.length, editor.children) as BaseRange;
+
       if (range && !Range.isCollapsed(range)) {
         const intersection = Range.intersection(range, Editor.range(editor, path));
+
         if (intersection) {
           return {
             ...intersection,
@@ -76,6 +83,7 @@ export function useEditor({
           };
         }
       }
+
       return null;
     },
     [editor]
@@ -93,11 +101,14 @@ export function useEditor({
           link_selection_lighted: true,
           link_placeholder: linkDecorateSelection?.placeholder,
         }),
+        getDecorateRange(path, temporarySelection, {
+          temporary: true,
+        }),
       ].filter((range) => range !== null) as Range[];
 
       return ranges;
     },
-    [decorateSelection, linkDecorateSelection, getDecorateRange]
+    [temporarySelection, decorateSelection, linkDecorateSelection, getDecorateRange]
   );
 
   const onKeyDownRewrite = useCallback(
@@ -107,6 +118,7 @@ export function useEditor({
         event.preventDefault();
         editor.insertText('\n');
       };
+
       // There is different behavior for code block and normal text
       // In code block, we press enter to insert a new line
       // In normal text, we press shift + enter to insert a new line
@@ -115,11 +127,13 @@ export function useEditor({
           insertBreak();
           return;
         }
+
         if (isHotkey(Keyboard.keys.TAB, event)) {
           event.preventDefault();
           indent(editor, 2);
           return;
         }
+
         if (isHotkey(Keyboard.keys.SHIFT_TAB, event)) {
           event.preventDefault();
           outdent(editor, 2);
@@ -139,52 +153,36 @@ export function useEditor({
     [editor]
   );
 
-  // This is a hack to fix the bug that the editor decoration is updated cause selection is lost
-  const onMouseDownCapture = useCallback(
-    (event: React.MouseEvent) => {
-      editor.deselect();
-      requestAnimationFrame(() => {
-        const range = document.caretRangeFromPoint(event.clientX, event.clientY);
-        if (!range) return;
-        const selection = window.getSelection();
-        if (!selection) return;
-        selection.removeAllRanges();
-        selection.addRange(range);
-      });
-    },
-    [editor]
-  );
-
-  // double click to select a word
-  // This is a hack to fix the bug that mouse down event deselect the selection
-  const onDoubleClick = useCallback((event: React.MouseEvent) => {
-    const selection = window.getSelection();
-    if (!selection) return;
-    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-    if (!range) return;
-    const node = range.startContainer;
-    const offset = range.startOffset;
-    const wordIndices = getWordIndices(node, offset);
-    if (wordIndices.length === 0) return;
-    range.setStart(node, wordIndices[0].startIndex);
-    range.setEnd(node, wordIndices[0].endIndex);
-    selection.removeAllRanges();
-    selection.addRange(range);
-  }, []);
-
   useEffect(() => {
     if (!ref.current) return;
+
     const isFocused = ReactEditor.isFocused(editor);
+
     if (!selection) {
       isFocused && editor.deselect();
       return;
     }
+
     const slateSelection = convertToSlateSelection(selection.index, selection.length, editor.children);
+
     if (!slateSelection) return;
+
     if (isFocused && JSON.stringify(slateSelection) === JSON.stringify(editor.selection)) return;
+
+    // why we didn't use slate api to change selection?
+    // because the slate must be focused before change selection,
+    // but then it will trigger selection change, and the selection is not what we want
     const isSuccess = focusNodeByIndex(ref.current, selection.index, selection.length);
+
     if (!isSuccess) {
       Transforms.select(editor, slateSelection);
+    } else {
+      // Fix: the slate is possible to lose focus in next tick after focusNodeByIndex
+      setTimeout(() => {
+        if (window.getSelection()?.type === 'None' && !editor.selection) {
+          Transforms.select(editor, slateSelection);
+        }
+      }, AFTER_RENDER_DELAY);
     }
   }, [editor, selection]);
 
@@ -197,7 +195,5 @@ export function useEditor({
     ref,
     onKeyDown: onKeyDownRewrite,
     onBlur,
-    onMouseDownCapture,
-    onDoubleClick,
   };
 }

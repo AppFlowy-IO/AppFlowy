@@ -3,17 +3,17 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'grid_accessory_bloc.freezed.dart';
 
-class GridAccessoryMenuBloc
-    extends Bloc<GridAccessoryMenuEvent, GridAccessoryMenuState> {
+class DatabaseViewSettingExtensionBloc extends Bloc<
+    DatabaseViewSettingExtensionEvent, DatabaseViewSettingExtensionState> {
   final String viewId;
 
-  GridAccessoryMenuBloc({required this.viewId})
+  DatabaseViewSettingExtensionBloc({required this.viewId})
       : super(
-          GridAccessoryMenuState.initial(
+          DatabaseViewSettingExtensionState.initial(
             viewId,
           ),
         ) {
-    on<GridAccessoryMenuEvent>(
+    on<DatabaseViewSettingExtensionEvent>(
       (event, emit) async {
         event.when(
           initial: () {},
@@ -27,22 +27,25 @@ class GridAccessoryMenuBloc
 }
 
 @freezed
-class GridAccessoryMenuEvent with _$GridAccessoryMenuEvent {
-  const factory GridAccessoryMenuEvent.initial() = _Initial;
-  const factory GridAccessoryMenuEvent.toggleMenu() = _MenuVisibleChange;
+class DatabaseViewSettingExtensionEvent
+    with _$DatabaseViewSettingExtensionEvent {
+  const factory DatabaseViewSettingExtensionEvent.initial() = _Initial;
+  const factory DatabaseViewSettingExtensionEvent.toggleMenu() =
+      _MenuVisibleChange;
 }
 
 @freezed
-class GridAccessoryMenuState with _$GridAccessoryMenuState {
-  const factory GridAccessoryMenuState({
+class DatabaseViewSettingExtensionState
+    with _$DatabaseViewSettingExtensionState {
+  const factory DatabaseViewSettingExtensionState({
     required String viewId,
     required bool isVisible,
-  }) = _GridAccessoryMenuState;
+  }) = _DatabaseViewSettingExtensionState;
 
-  factory GridAccessoryMenuState.initial(
+  factory DatabaseViewSettingExtensionState.initial(
     String viewId,
   ) =>
-      GridAccessoryMenuState(
+      DatabaseViewSettingExtensionState(
         viewId: viewId,
         isVisible: false,
       );

@@ -7,22 +7,20 @@ use appflowy_integrate::{CollabPersistenceConfig, RocksCollabDB};
 use collab::core::collab::MutexCollab;
 use collab_database::database::DatabaseData;
 use collab_database::user::{DatabaseCollabBuilder, UserDatabase as InnerUserDatabase};
-use collab_database::views::{CreateDatabaseParams, CreateViewParams};
+use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use parking_lot::Mutex;
 use tokio::sync::RwLock;
 
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
 
-use crate::entities::{DatabaseDescriptionPB, DatabaseLayoutPB, RepeatedDatabaseDescriptionPB};
+use crate::deps::{DatabaseCloudService, DatabaseUser2};
+use crate::entities::{
+  DatabaseDescriptionPB, DatabaseLayoutPB, DatabaseSnapshotPB, RepeatedDatabaseDescriptionPB,
+};
 use crate::services::database::{DatabaseEditor, MutexDatabase};
+use crate::services::database_view::DatabaseLayoutDepsResolver;
 use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
-
-pub trait DatabaseUser2: Send + Sync {
-  fn user_id(&self) -> Result<i64, FlowyError>;
-  fn token(&self) -> Result<Option<String>, FlowyError>;
-  fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError>;
-}
 
 pub struct DatabaseManager2 {
   user: Arc<dyn DatabaseUser2>,
@@ -30,6 +28,7 @@ pub struct DatabaseManager2 {
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
   editors: RwLock<HashMap<String, Arc<DatabaseEditor>>>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
+  cloud_service: Arc<dyn DatabaseCloudService>,
 }
 
 impl DatabaseManager2 {
@@ -37,6 +36,7 @@ impl DatabaseManager2 {
     database_user: Arc<dyn DatabaseUser2>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
+    cloud_service: Arc<dyn DatabaseCloudService>,
   ) -> Self {
     Self {
       user: database_user,
@@ -44,6 +44,7 @@ impl DatabaseManager2 {
       task_scheduler,
       editors: Default::default(),
       collab_builder,
+      cloud_service,
     }
   }
 
@@ -97,7 +98,10 @@ impl DatabaseManager2 {
     if let Some(editor) = self.editors.read().await.get(database_id) {
       return Ok(editor.clone());
     }
+    self.open_database(database_id).await
+  }
 
+  pub async fn open_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
     tracing::trace!("create new editor for database {}", database_id);
     let mut editors = self.editors.write().await;
     let database = MutexDatabase::new(self.with_user_database(
@@ -116,9 +120,14 @@ impl DatabaseManager2 {
 
   #[tracing::instrument(level = "debug", skip_all)]
   pub async fn close_database_view<T: AsRef<str>>(&self, view_id: T) -> FlowyResult<()> {
+    // TODO(natan): defer closing the database if the sync is not finished
     let view_id = view_id.as_ref();
-    let database_id = self.with_user_database(None, |database| {
-      database.get_database_id_with_view_id(view_id)
+    let database_id = self.with_user_database(None, |databases| {
+      let database_id = databases.get_database_id_with_view_id(view_id);
+      if database_id.is_some() {
+        databases.close_database(database_id.as_ref().unwrap());
+      }
+      database_id
     });
 
     if let Some(database_id) = database_id {
@@ -150,6 +159,7 @@ impl DatabaseManager2 {
     Ok(database_data)
   }
 
+  /// Create a new database with the given data that can be deserialized to [DatabaseData].
   #[tracing::instrument(level = "trace", skip_all, err)]
   pub async fn create_database_with_database_data(
     &self,
@@ -179,18 +189,28 @@ impl DatabaseManager2 {
     Ok(())
   }
 
+  /// A linked view is a view that is linked to existing database.
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn create_linked_view(
     &self,
     name: String,
-    layout: DatabaseLayoutPB,
+    layout: DatabaseLayout,
     database_id: String,
     database_view_id: String,
   ) -> FlowyResult<()> {
     self.with_user_database(
       Err(FlowyError::internal().context("Create database view failed")),
       |user_database| {
-        let params = CreateViewParams::new(database_id, database_view_id, name, layout.into());
+        let mut params = CreateViewParams::new(database_id.clone(), database_view_id, name, layout);
+        if let Some(database) = user_database.get_database(&database_id) {
+          if let Some((field, layout_setting)) = DatabaseLayoutDepsResolver::new(database, layout)
+            .resolve_deps_when_create_database_linked_view()
+          {
+            params = params
+              .with_deps_fields(vec![field])
+              .with_layout_setting(layout_setting);
+          }
+        };
         user_database.create_database_linked_view(params)?;
         Ok(())
       },
@@ -240,6 +260,29 @@ impl DatabaseManager2 {
     database.update_view_layout(view_id, layout.into()).await
   }
 
+  pub async fn get_database_snapshots(
+    &self,
+    view_id: &str,
+  ) -> FlowyResult<Vec<DatabaseSnapshotPB>> {
+    let database_id = self.get_database_id_with_view_id(view_id).await?;
+    let mut snapshots = vec![];
+    if let Some(snapshot) = self
+      .cloud_service
+      .get_database_latest_snapshot(&database_id)
+      .await?
+      .map(|snapshot| DatabaseSnapshotPB {
+        snapshot_id: snapshot.snapshot_id,
+        snapshot_desc: "".to_string(),
+        created_at: snapshot.created_at,
+        data: snapshot.data,
+      })
+    {
+      snapshots.push(snapshot);
+    }
+
+    Ok(snapshots)
+  }
+
   fn with_user_database<F, Output>(&self, default_value: Output, f: F) -> Output
   where
     F: FnOnce(&InnerUserDatabase) -> Output,
@@ -249,6 +292,12 @@ impl DatabaseManager2 {
       None => default_value,
       Some(folder) => f(folder),
     }
+  }
+
+  /// Only expose this method for testing
+  #[cfg(debug_assertions)]
+  pub fn get_cloud_service(&self) -> &Arc<dyn DatabaseCloudService> {
+    &self.cloud_service
   }
 }
 

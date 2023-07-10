@@ -7,6 +7,7 @@ use lib_infra::box_any::BoxAny;
 
 use crate::entities::*;
 use crate::entities::{SignInParams, SignUpParams, UpdateUserProfileParams};
+use crate::event_map::UserCredentials;
 use crate::services::{AuthType, UserSession};
 
 #[tracing::instrument(level = "debug", name = "sign_in", skip(data, session), fields(email = %data.email), err)]
@@ -55,10 +56,12 @@ pub async fn init_user_handler(session: AFPluginState<Arc<UserSession>>) -> Resu
 
 #[tracing::instrument(level = "debug", skip(session))]
 pub async fn check_user_handler(
+  data: AFPluginData<UserCredentialsPB>,
   session: AFPluginState<Arc<UserSession>>,
-) -> DataResult<UserProfilePB, FlowyError> {
-  let user_profile: UserProfilePB = session.check_user().await?.into();
-  data_result_ok(user_profile)
+) -> Result<(), FlowyError> {
+  let credential = UserCredentials::from(data.into_inner());
+  session.check_user(credential).await?;
+  Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip(session))]

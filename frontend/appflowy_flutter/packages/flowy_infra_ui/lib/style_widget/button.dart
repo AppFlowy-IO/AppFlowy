@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 class FlowyButton extends StatelessWidget {
   final Widget text;
   final VoidCallback? onTap;
+  final VoidCallback? onSecondaryTap;
   final void Function(bool)? onHover;
   final EdgeInsets? margin;
   final Widget? leftIcon;
@@ -25,6 +26,7 @@ class FlowyButton extends StatelessWidget {
     Key? key,
     required this.text,
     this.onTap,
+    this.onSecondaryTap,
     this.onHover,
     this.margin,
     this.leftIcon,
@@ -45,6 +47,7 @@ class FlowyButton extends StatelessWidget {
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
+        onSecondaryTap: onSecondaryTap,
         child: FlowyHover(
           style: HoverStyle(
             borderRadius: radius ?? Corners.s6Border,

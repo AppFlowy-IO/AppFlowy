@@ -1,5 +1,8 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_math_equation/inline_math_equation.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,30 +29,32 @@ class EditorStyleCustomizer {
   EditorStyle desktop() {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+    final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
     return EditorStyle.desktop(
       padding: padding,
       backgroundColor: theme.colorScheme.surface,
       cursorColor: theme.colorScheme.primary,
       textStyleConfiguration: TextStyleConfiguration(
-        text: TextStyle(
-          fontFamily: 'Poppins',
+        text: baseTextStyle(fontFamily).copyWith(
           fontSize: fontSize,
           color: theme.colorScheme.onBackground,
           height: 1.5,
         ),
-        bold: const TextStyle(
-          fontFamily: 'Poppins-Bold',
+        bold: baseTextStyle(fontFamily).copyWith(
           fontWeight: FontWeight.w600,
         ),
-        italic: const TextStyle(fontStyle: FontStyle.italic),
-        underline: const TextStyle(decoration: TextDecoration.underline),
-        strikethrough: const TextStyle(decoration: TextDecoration.lineThrough),
-        href: TextStyle(
+        italic: baseTextStyle(fontFamily).copyWith(fontStyle: FontStyle.italic),
+        underline: baseTextStyle(fontFamily)
+            .copyWith(decoration: TextDecoration.underline),
+        strikethrough:
+            baseTextStyle(fontFamily)
+            .copyWith(decoration: TextDecoration.lineThrough),
+        href: baseTextStyle(fontFamily).copyWith(
           color: theme.colorScheme.primary,
           decoration: TextDecoration.underline,
         ),
         code: GoogleFonts.robotoMono(
-          textStyle: TextStyle(
+          textStyle: baseTextStyle(fontFamily).copyWith(
             fontSize: fontSize,
             fontWeight: FontWeight.normal,
             color: Colors.red,
@@ -57,36 +62,40 @@ class EditorStyleCustomizer {
           ),
         ),
       ),
+      textSpanDecorator: customizeAttributeDecorator,
     );
   }
 
   EditorStyle mobile() {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+    final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
+
     return EditorStyle.desktop(
       padding: padding,
       backgroundColor: theme.colorScheme.surface,
       cursorColor: theme.colorScheme.primary,
       textStyleConfiguration: TextStyleConfiguration(
-        text: TextStyle(
-          fontFamily: 'poppins',
+        text: baseTextStyle(fontFamily).copyWith(
           fontSize: fontSize,
           color: theme.colorScheme.onBackground,
           height: 1.5,
         ),
-        bold: const TextStyle(
-          fontFamily: 'poppins-Bold',
+        bold: baseTextStyle(fontFamily).copyWith(
           fontWeight: FontWeight.w600,
         ),
-        italic: const TextStyle(fontStyle: FontStyle.italic),
-        underline: const TextStyle(decoration: TextDecoration.underline),
-        strikethrough: const TextStyle(decoration: TextDecoration.lineThrough),
-        href: TextStyle(
+        italic: baseTextStyle(fontFamily).copyWith(fontStyle: FontStyle.italic),
+        underline: baseTextStyle(fontFamily)
+            .copyWith(decoration: TextDecoration.underline),
+        strikethrough:
+            baseTextStyle(fontFamily)
+            .copyWith(decoration: TextDecoration.lineThrough),
+        href: baseTextStyle(fontFamily).copyWith(
           color: theme.colorScheme.primary,
           decoration: TextDecoration.underline,
         ),
         code: GoogleFonts.robotoMono(
-          textStyle: TextStyle(
+          textStyle: baseTextStyle(fontFamily).copyWith(
             fontSize: fontSize,
             fontWeight: FontWeight.normal,
             color: Colors.red,
@@ -116,11 +125,22 @@ class EditorStyleCustomizer {
   TextStyle codeBlockStyleBuilder() {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+    final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
+    return baseTextStyle(fontFamily).copyWith(
+      fontSize: fontSize,
+      height: 1.5,
+      color: theme.colorScheme.onBackground,
+    );
+  }
+
+  TextStyle outlineBlockPlaceholderStyleBuilder() {
+    final theme = Theme.of(context);
+    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     return TextStyle(
       fontFamily: 'poppins',
       fontSize: fontSize,
       height: 1.5,
-      color: theme.colorScheme.onBackground,
+      color: theme.colorScheme.onBackground.withOpacity(0.6),
     );
   }
 
@@ -141,5 +161,58 @@ class EditorStyleCustomizer {
     return FloatingToolbarStyle(
       backgroundColor: theme.colorScheme.onTertiary,
     );
+  }
+
+  TextStyle baseTextStyle(String fontFamily) {
+    try {
+      return GoogleFonts.getFont(
+        fontFamily,
+      );
+    } on Exception {
+      return GoogleFonts.getFont('Poppins');
+    }
+  }
+
+  InlineSpan customizeAttributeDecorator(
+    Node node,
+    int index,
+    TextInsert text,
+    TextSpan textSpan,
+  ) {
+    final attributes = text.attributes;
+    if (attributes == null) {
+      return textSpan;
+    }
+
+    // customize the inline mention block, like inline page
+    final mention = attributes[MentionBlockKeys.mention] as Map?;
+    if (mention != null) {
+      final type = mention[MentionBlockKeys.type];
+      if (type == MentionType.page.name) {
+        return WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
+          child: MentionBlock(
+            key: ValueKey(mention[MentionBlockKeys.pageId]),
+            mention: mention,
+          ),
+        );
+      }
+    }
+
+    // customize the inline math equation block
+    final formula = attributes[InlineMathEquationKeys.formula] as String?;
+    if (formula != null) {
+      return WidgetSpan(
+        alignment: PlaceholderAlignment.middle,
+        child: InlineMathEquation(
+          node: node,
+          index: index,
+          formula: formula,
+          textStyle: style().textStyleConfiguration.text,
+        ),
+      );
+    }
+
+    return textSpan;
   }
 }

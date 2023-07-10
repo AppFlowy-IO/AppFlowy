@@ -3,9 +3,9 @@ import { CellCache, CellCacheKey } from './cell_cache';
 import { CellDataLoader } from './data_parser';
 import { CellDataPersistence } from './data_persistence';
 import { FieldBackendService, TypeOptionParser } from '../field/field_bd_svc';
-import { ChangeNotifier } from '../../../../utils/change_notifier';
+import { ChangeNotifier } from '$app/utils/change_notifier';
 import { CellObserver } from './cell_observer';
-import { Log } from '../../../../utils/log';
+import { Log } from '$app/utils/log';
 import { Err, None, Ok, Option, Some } from 'ts-results';
 import { DatabaseFieldObserver } from '../field/field_observer';
 
@@ -48,14 +48,14 @@ export class CellController<T, D> {
 
     /// 2.Listen on the field event and load the cell data if needed.
     void this.fieldNotifier.subscribe({
-      onFieldChanged: () => {
-        this.subscribeCallbacks?.onFieldChanged?.();
+      onFieldChanged: async () => {
         /// reloadOnFieldChanged should be true if you need to load the data when the corresponding field is changed
         /// For example:
         ///   ￥12 -> $12
         if (this.cellDataLoader.reloadOnFieldChanged) {
-          void this._loadCellData();
+          await this._loadCellData();
         }
+        this.subscribeCallbacks?.onFieldChanged?.();
       },
     });
   }
@@ -97,24 +97,24 @@ export class CellController<T, D> {
     return cellData;
   };
 
-  private _loadCellData = () => {
-    return this.cellDataLoader.loadData().then((result) => {
-      if (result.ok) {
-        const cellData = result.val;
-        if (cellData.some) {
-          this.cellCache.insert(this.cacheKey, cellData.val);
-          this.cellDataNotifier.cellData = cellData;
-        }
-      } else {
-        this.cellCache.remove(this.cacheKey);
-        this.cellDataNotifier.cellData = None;
+  private _loadCellData = async () => {
+    const result = await this.cellDataLoader.loadData();
+    if (result.ok) {
+      const cellData = result.val;
+      if (cellData.some) {
+        this.cellCache.insert(this.cacheKey, cellData.val);
+        this.cellDataNotifier.cellData = cellData;
       }
-    });
+    } else {
+      this.cellCache.remove(this.cacheKey);
+      this.cellDataNotifier.cellData = None;
+    }
   };
 
   dispose = async () => {
     await this.cellObserver.unsubscribe();
     await this.fieldNotifier.unsubscribe();
+    this.cellDataNotifier.unsubscribe();
   };
 }
 

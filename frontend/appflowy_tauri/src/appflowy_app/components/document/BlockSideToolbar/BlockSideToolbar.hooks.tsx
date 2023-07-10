@@ -3,23 +3,28 @@ import { useAppDispatch } from '@/appflowy_app/stores/store';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { PopoverOrigin } from '@mui/material/Popover/Popover';
 import { getBlock } from '$app/components/document/_shared/SubscribeNode.hooks';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 const headingBlockTopOffset: Record<number, number> = {
   1: 7,
   2: 5,
   3: 4,
 };
+
 export function useBlockSideToolbar({ container }: { container: HTMLDivElement }) {
   const [nodeId, setHoverNodeId] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement | null>(null);
   const dispatch = useAppDispatch();
   const [style, setStyle] = useState<React.CSSProperties>({});
+  const { docId } = useSubscribeDocument();
 
   useEffect(() => {
     const el = ref.current;
+
     if (!el || !nodeId) return;
     void (async () => {
-      const node = getBlock(nodeId);
+      const node = getBlock(docId, nodeId);
+
       if (!node) {
         setStyle({
           opacity: '0',
@@ -31,7 +36,12 @@ export function useBlockSideToolbar({ container }: { container: HTMLDivElement }
 
         if (node.type === BlockType.HeadingBlock) {
           const nodeData = node.data as HeadingBlockData;
+
           top = headingBlockTopOffset[nodeData.level];
+        }
+
+        if (node.type === BlockType.DividerBlock) {
+          top = -3;
         }
 
         setStyle({
@@ -41,11 +51,12 @@ export function useBlockSideToolbar({ container }: { container: HTMLDivElement }
         });
       }
     })();
-  }, [dispatch, nodeId]);
+  }, [dispatch, docId, nodeId]);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     const { clientX, clientY } = e;
     const id = getNodeIdByPoint(clientX, clientY);
+
     setHoverNodeId(id);
   }, []);
 
@@ -69,6 +80,7 @@ function getNodeIdByPoint(x: number, y: number) {
     el: Element;
     rect: DOMRect;
   } | null = null;
+
   viewportNodes.forEach((el) => {
     const rect = el.getBoundingClientRect();
 
@@ -91,39 +103,47 @@ function getNodeIdByPoint(x: number, y: number) {
     : null;
 }
 
-const origin: {
-  anchorOrigin: PopoverOrigin;
-  transformOrigin: PopoverOrigin;
-} = {
-  anchorOrigin: {
-    vertical: 'bottom',
-    horizontal: 'right',
-  },
-  transformOrigin: {
-    vertical: 'bottom',
-    horizontal: 'left',
-  },
+const transformOrigin: PopoverOrigin = {
+  vertical: 'bottom',
+  horizontal: 'left',
 };
+
 export function usePopover() {
-  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+  const [anchorPosition, setAnchorPosition] = React.useState<{
+    top: number;
+    left: number;
+  }>();
 
   const onClose = useCallback(() => {
-    setAnchorEl(null);
+    setAnchorPosition(undefined);
   }, []);
 
   const handleOpen = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setAnchorEl(e.currentTarget);
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    setAnchorPosition({
+      top: rect.top + rect.height,
+      left: rect.left + rect.width,
+    });
   }, []);
 
-  const open = Boolean(anchorEl);
+  const open = Boolean(anchorPosition);
+
+  const onMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+  }, []);
 
   return {
-    anchorEl,
+    anchorPosition,
     onClose,
     open,
     handleOpen,
+    anchorReference: 'anchorPosition' as const,
+    transformOrigin,
+    onMouseDown,
+    disableRestoreFocus: true,
     disableAutoFocus: true,
-    ...origin,
+    disableEnforceFocus: true,
   };
 }

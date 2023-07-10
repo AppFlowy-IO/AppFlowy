@@ -1,14 +1,14 @@
 import isHotkey from 'is-hotkey';
 import { useCallback, useContext, useMemo } from 'react';
 import { useAppDispatch } from '$app/stores/store';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { Keyboard } from '$app/constants/document/keyboard';
 import { useCommonKeyEvents } from '$app/components/document/_shared/EditorHooks/useCommonKeyEvents';
 import { enterActionForBlockThunk } from '$app_reducers/document/async-actions';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export function useKeyDown(id: string) {
   const dispatch = useAppDispatch();
-  const controller = useContext(DocumentControllerContext);
+  const { docId, controller } = useSubscribeDocument();
 
   const commonKeyEvents = useCommonKeyEvents(id);
   const customEvents = useMemo(() => {

@@ -39,8 +39,6 @@ class DocumentPluginBuilder extends PluginBuilder {
 
 class DocumentPlugin extends Plugin<int> {
   late PluginType _pluginType;
-  final DocumentAppearanceCubit _documentAppearanceCubit =
-      DocumentAppearanceCubit();
 
   @override
   final ViewPluginNotifier notifier;
@@ -50,25 +48,14 @@ class DocumentPlugin extends Plugin<int> {
     required ViewPB view,
     bool listenOnViewChanged = false,
     Key? key,
-  }) : notifier = ViewPluginNotifier(
-          view: view,
-          listenOnViewChanged: listenOnViewChanged,
-        ) {
+  }) : notifier = ViewPluginNotifier(view: view) {
     _pluginType = pluginType;
-    _documentAppearanceCubit.fetch();
-  }
-
-  @override
-  void dispose() {
-    _documentAppearanceCubit.close();
-    super.dispose();
   }
 
   @override
   PluginWidgetBuilder get widgetBuilder {
     return DocumentPluginWidgetBuilder(
       notifier: notifier,
-      documentAppearanceCubit: _documentAppearanceCubit,
     );
   }
 
@@ -84,11 +71,9 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   final ViewPluginNotifier notifier;
   ViewPB get view => notifier.view;
   int? deletedViewIndex;
-  DocumentAppearanceCubit documentAppearanceCubit;
 
   DocumentPluginWidgetBuilder({
     required this.notifier,
-    required this.documentAppearanceCubit,
     Key? key,
   });
 
@@ -105,17 +90,14 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
       });
     });
 
-    return BlocProvider.value(
-      value: documentAppearanceCubit,
-      child: BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
-        builder: (_, state) {
-          return DocumentPage(
-            view: view,
-            onDeleted: () => context?.onDeleted(view, deletedViewIndex),
-            key: ValueKey(view.id),
-          );
-        },
-      ),
+    return BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
+      builder: (_, state) {
+        return DocumentPage(
+          view: view,
+          onDeleted: () => context?.onDeleted(view, deletedViewIndex),
+          key: ValueKey(view.id),
+        );
+      },
     );
   }
 
@@ -126,12 +108,12 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   Widget? get rightBarItem {
     return Row(
       children: [
-        DocumentShareButton(view: view),
-        const SizedBox(width: 10),
-        BlocProvider.value(
-          value: documentAppearanceCubit,
-          child: const DocumentMoreButton(),
+        DocumentShareButton(
+          key: ValueKey(view.id),
+          view: view,
         ),
+        const SizedBox(width: 10),
+        const DocumentMoreButton(),
       ],
     );
   }

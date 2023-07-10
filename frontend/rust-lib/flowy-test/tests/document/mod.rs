@@ -1,2 +1,4 @@
-mod test;
-mod utils;
+mod local_test;
+
+#[cfg(feature = "cloud_test")]
+mod supabase_test;

@@ -1,24 +1,24 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback } from 'react';
 import Popover from '@mui/material/Popover';
-import { Divider } from '@mui/material';
 import { DeleteOutline, Done } from '@mui/icons-material';
 import EditLink from '$app/components/document/_shared/TextLink/EditLink';
-import { useAppDispatch, useAppSelector } from '$app/stores/store';
+import { useAppDispatch } from '$app/stores/store';
 import { linkPopoverActions, rangeActions } from '$app_reducers/document/slice';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
-import { updateLinkThunk } from '$app_reducers/document/async-actions';
 import { formatLinkThunk } from '$app_reducers/document/async-actions/link';
-import LinkButton from '$app/components/document/_shared/TextLink/LinkButton';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { useSubscribeLinkPopover } from '$app/components/document/_shared/SubscribeLinkPopover.hooks';
+import Button from '@mui/material/Button';
 
 function LinkEditPopover() {
   const dispatch = useAppDispatch();
-  const controller = useContext(DocumentControllerContext);
-  const popoverState = useAppSelector((state) => state.documentLinkPopover);
+  const { docId, controller } = useSubscribeDocument();
+
+  const popoverState = useSubscribeLinkPopover();
   const { anchorPosition, id, selection, title = '', href = '', open = false } = popoverState;
 
   const onClose = useCallback(() => {
-    dispatch(linkPopoverActions.closeLinkPopover());
-  }, [dispatch]);
+    dispatch(linkPopoverActions.closeLinkPopover(docId));
+  }, [dispatch, docId]);
 
   const onExited = useCallback(() => {
     if (!id || !selection) return;
@@ -26,33 +26,42 @@ function LinkEditPopover() {
       index: selection.index,
       length: title.length,
     };
+
     dispatch(
       rangeActions.setRange({
+        docId,
         id,
         rangeStatic: newSelection,
       })
     );
     dispatch(
       rangeActions.setCaret({
-        id,
-        ...newSelection,
+        docId,
+        caret: {
+          id,
+          ...newSelection,
+        },
       })
     );
-  }, [id, selection, title, dispatch]);
+  }, [docId, id, selection, title, dispatch]);
 
   const onChange = useCallback(
     (newVal: { href?: string; title: string }) => {
       if (!id) return;
       if (newVal.title === title && newVal.href === href) return;
+
       dispatch(
-        updateLinkThunk({
-          id,
-          href: newVal.href,
-          title: newVal.title,
+        linkPopoverActions.updateLinkPopover({
+          docId,
+          linkState: {
+            id,
+            href: newVal.href,
+            title: newVal.title,
+          },
         })
       );
     },
-    [dispatch, href, id, title]
+    [docId, dispatch, href, id, title]
   );
 
   const onDone = useCallback(async () => {
@@ -111,18 +120,12 @@ function LinkEditPopover() {
             })
           }
         />
-        <Divider />
-        <LinkButton
-          title={'Remove link'}
-          icon={<DeleteOutline />}
-          onClick={() => {
-            onChange({
-              title,
-            });
-            onDone();
-          }}
-        />
-        <LinkButton title={'Done'} icon={<Done />} onClick={onDone} />
+        <div className={'flex items-center justify-end'}>
+          <Button onClick={onDone}>
+            <Done />
+            Done
+          </Button>
+        </div>
       </div>
     </Popover>
   );

@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/sort/sort_menu_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -13,30 +14,40 @@ import 'sort_editor.dart';
 import 'sort_info.dart';
 
 class SortMenu extends StatelessWidget {
-  const SortMenu({Key? key}) : super(key: key);
+  final FieldController fieldController;
+  const SortMenu({
+    required this.fieldController,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SortMenuBloc, SortMenuState>(
-      builder: (context, state) {
-        if (state.sortInfos.isNotEmpty) {
-          return AppFlowyPopover(
-            controller: PopoverController(),
-            constraints: BoxConstraints.loose(const Size(340, 200)),
-            direction: PopoverDirection.bottomWithLeftAligned,
-            popupBuilder: (BuildContext popoverContext) {
-              return SortEditor(
-                viewId: state.viewId,
-                fieldController: context.read<SortMenuBloc>().fieldController,
-                sortInfos: state.sortInfos,
-              );
-            },
-            child: SortChoiceChip(sortInfos: state.sortInfos),
-          );
-        } else {
-          return const SizedBox();
-        }
-      },
+    return BlocProvider<SortMenuBloc>(
+      create: (context) => SortMenuBloc(
+        viewId: fieldController.viewId,
+        fieldController: fieldController,
+      )..add(const SortMenuEvent.initial()),
+      child: BlocBuilder<SortMenuBloc, SortMenuState>(
+        builder: (context, state) {
+          if (state.sortInfos.isNotEmpty) {
+            return AppFlowyPopover(
+              controller: PopoverController(),
+              constraints: BoxConstraints.loose(const Size(340, 200)),
+              direction: PopoverDirection.bottomWithLeftAligned,
+              popupBuilder: (BuildContext popoverContext) {
+                return SortEditor(
+                  viewId: state.viewId,
+                  fieldController: context.read<SortMenuBloc>().fieldController,
+                  sortInfos: state.sortInfos,
+                );
+              },
+              child: SortChoiceChip(sortInfos: state.sortInfos),
+            );
+          } else {
+            return const SizedBox();
+          }
+        },
+      ),
     );
   }
 }

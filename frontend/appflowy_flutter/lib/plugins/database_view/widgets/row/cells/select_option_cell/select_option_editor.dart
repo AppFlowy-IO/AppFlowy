@@ -157,7 +157,6 @@ class _TextField extends StatelessWidget {
             options: state.options,
             selectedOptionMap: optionMap,
             distanceToText: _editorPanelWidth * 0.7,
-            maxLength: 30,
             tagController: tagController,
             textSeparators: const [','],
             onClick: () => popoverMutex.close(),

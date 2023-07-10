@@ -1,6 +1,7 @@
-import 'package:appflowy/plugins/database_view/board/board.dart';
-import 'package:appflowy/plugins/database_view/calendar/calendar.dart';
-import 'package:appflowy/plugins/database_view/grid/grid.dart';
+import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
+import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
+import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:flowy_infra/image.dart';
@@ -62,22 +63,11 @@ extension ViewExtension on ViewPB {
   Plugin plugin({bool listenOnViewChanged = false}) {
     switch (layout) {
       case ViewLayoutPB.Board:
-        return BoardPlugin(
-          view: this,
-          pluginType: pluginType,
-          listenOnViewChanged: listenOnViewChanged,
-        );
       case ViewLayoutPB.Calendar:
-        return CalendarPlugin(
-          view: this,
-          pluginType: pluginType,
-          listenOnViewChanged: listenOnViewChanged,
-        );
       case ViewLayoutPB.Grid:
-        return GridPlugin(
+        return DatabaseTabBarViewPlugin(
           view: this,
           pluginType: pluginType,
-          listenOnViewChanged: listenOnViewChanged,
         );
       case ViewLayoutPB.Document:
         return DocumentPlugin(
@@ -87,5 +77,40 @@ extension ViewExtension on ViewPB {
         );
     }
     throw UnimplementedError;
+  }
+
+  DatabaseTabBarItemBuilder tarBarItem() {
+    switch (layout) {
+      case ViewLayoutPB.Board:
+        return BoardPageTabBarBuilderImpl();
+      case ViewLayoutPB.Calendar:
+        return CalendarPageTabBarBuilderImpl();
+      case ViewLayoutPB.Grid:
+        return GridPageTabBarBuilderImpl();
+      case ViewLayoutPB.Document:
+        throw UnimplementedError;
+    }
+    throw UnimplementedError;
+  }
+
+  String get iconName {
+    return layout.iconName;
+  }
+}
+
+extension ViewLayoutExtension on ViewLayoutPB {
+  String get iconName {
+    switch (this) {
+      case ViewLayoutPB.Grid:
+        return 'editor/grid';
+      case ViewLayoutPB.Board:
+        return 'editor/board';
+      case ViewLayoutPB.Calendar:
+        return 'editor/calendar';
+      case ViewLayoutPB.Document:
+        return 'editor/documents';
+      default:
+        throw Exception('Unknown layout type');
+    }
   }
 }

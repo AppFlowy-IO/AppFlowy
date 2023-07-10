@@ -1,0 +1,37 @@
+
+.MuiDialog-root [class$="-MuiBackdrop-root-MuiDialog-backdrop"] {
+    background-color: var(--color-bg-mask);
+}
+
+[class$="-MuiPaper-root-MuiPopover-paper"], [class$="-MuiPaper-root-MuiDialog-paper"] {
+    background-image: none !important;
+}
+
+[class$='-MuiButtonBase-root-MuiMenuItem-root'].MuiButtonBase-root.Mui-selected {
+    background-color: var(--color-fill-hover);
+}
+
+[class$='-MuiButtonBase-root-MuiMenuItem-root'].MuiButtonBase-root:hover {
+    background-color: var(--color-fill-hover);
+}
+
+.MuiButtonBase-root.MuiIconButton-root.MuiIconButton-sizeMedium {
+    color: var(--color-icon-default);
+    border-radius: 4px;
+}
+
+.MuiButtonBase-root.MuiIconButton-root:hover {
+    background: var(--color-fill-hover);
+}
+
+.MuiTooltip-tooltip	 {
+    background: var(--color-fill-hover) !important;
+    color: var(--color-text-title) !important;
+    font-size: 0.85rem !important;
+    border-radius: 8px !important;
+    font-weight: 400 !important;
+}
+
+.MuiInput-input[class$='-MuiSelect-select-MuiInputBase-input-MuiInput-input']:focus {
+    background: transparent;
+}

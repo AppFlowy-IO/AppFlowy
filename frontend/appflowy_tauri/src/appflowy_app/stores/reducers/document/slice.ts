@@ -6,54 +6,67 @@ import {
   RangeState,
   RangeStatic,
   LinkPopoverState,
+  SlashCommandOption,
 } from '@/appflowy_app/interfaces/document';
 import { BlockEventPayloadPB } from '@/services/backend';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { parseValue, matchChange } from '$app/utils/document/subscribe';
+import { temporarySlice } from '$app_reducers/document/temporary_slice';
+import {
+  DOCUMENT_NAME,
+  RANGE_NAME,
+  RECT_RANGE_NAME,
+  SLASH_COMMAND_NAME,
+  TEXT_LINK_NAME,
+} from '$app/constants/document/name';
+import { blockEditSlice } from '$app_reducers/document/block_edit_slice';
 
-const initialState: DocumentState = {
-  nodes: {},
-  children: {},
-};
+const initialState: Record<string, DocumentState> = {};
 
-const rectSelectionInitialState: RectSelectionState = {
-  selection: [],
-  isDragging: false,
-};
+const rectSelectionInitialState: Record<string, RectSelectionState> = {};
 
-const rangeInitialState: RangeState = {
-  isDragging: false,
-  ranges: {},
-};
+const rangeInitialState: Record<string, RangeState> = {};
 
-const slashCommandInitialState: SlashCommandState = {
-  isSlashCommand: false,
-};
+const slashCommandInitialState: Record<string, SlashCommandState> = {};
 
-const linkPopoverState: LinkPopoverState = {};
+const linkPopoverState: Record<string, LinkPopoverState> = {};
 
 export const documentSlice = createSlice({
-  name: 'document',
+  name: DOCUMENT_NAME,
   initialState: initialState,
   // Here we can't offer actions to update the document state.
   // Because the document state is updated by the `onDataChange`
   reducers: {
     // initialize the document
-    clear: () => {
-      return initialState;
+    initialState: (state, action: PayloadAction<string>) => {
+      const docId = action.payload;
+
+      state[docId] = {
+        nodes: {},
+        children: {},
+      };
+    },
+    clear: (state, action: PayloadAction<string>) => {
+      const docId = action.payload;
+
+      delete state[docId];
     },
 
     // set document data
     create: (
       state,
       action: PayloadAction<{
+        docId: string;
         nodes: Record<string, Node>;
         children: Record<string, string[]>;
       }>
     ) => {
-      const { nodes, children } = action.payload;
-      state.nodes = nodes;
-      state.children = children;
+      const { docId, nodes, children } = action.payload;
+
+      state[docId] = {
+        nodes,
+        children,
+      };
     },
     /**
      This function listens for changes in the data layer triggered by the data API,
@@ -65,53 +78,103 @@ export const documentSlice = createSlice({
     onDataChange: (
       state,
       action: PayloadAction<{
+        docId: string;
         data: BlockEventPayloadPB;
         isRemote: boolean;
       }>
     ) => {
-      const { path, id, value, command } = action.payload.data;
+      const { docId, data } = action.payload;
+      const { path, id, value, command } = data;
 
+      const documentState = state[docId];
+
+      if (!documentState) return;
       const valueJson = parseValue(value);
+
       if (!valueJson) return;
 
       // match change
-      matchChange(state, { path, id, value: valueJson, command });
+      matchChange(documentState, { path, id, value: valueJson, command });
     },
   },
 });
 
 export const rectSelectionSlice = createSlice({
-  name: 'documentRectSelection',
+  name: RECT_RANGE_NAME,
   initialState: rectSelectionInitialState,
   reducers: {
+    initialState: (state, action: PayloadAction<string>) => {
+      const docId = action.payload;
+
+      state[docId] = {
+        selection: [],
+        isDragging: false,
+      };
+    },
+    clear: (state, action: PayloadAction<string>) => {
+      const docId = action.payload;
+
+      delete state[docId];
+    },
     // update block selections
-    updateSelections: (state, action: PayloadAction<string[]>) => {
-      state.selection = action.payload;
+    updateSelections: (
+      state,
+      action: PayloadAction<{
+        docId: string;
+        selection: string[];
+      }>
+    ) => {
+      const { docId, selection } = action.payload;
+
+      state[docId].selection = selection;
     },
 
-    // set block selected
-    setSelectionById: (state, action: PayloadAction<string>) => {
-      const id = action.payload;
-      if (state.selection.includes(id)) return;
-      state.selection = [...state.selection, id];
-    },
+    setDragging: (
+      state,
+      action: PayloadAction<{
+        docId: string;
+        isDragging: boolean;
+      }>
+    ) => {
+      const { docId, isDragging } = action.payload;
 
-    setDragging: (state, action: PayloadAction<boolean>) => {
-      state.isDragging = action.payload;
+      state[docId].isDragging = isDragging;
     },
   },
 });
 
 export const rangeSlice = createSlice({
-  name: 'documentRange',
+  name: RANGE_NAME,
   initialState: rangeInitialState,
   reducers: {
-    setRanges: (state, action: PayloadAction<RangeState['ranges']>) => {
-      state.ranges = action.payload;
+    initialState: (state, action: PayloadAction<string>) => {
+      const docId = action.payload;
+
+      state[docId] = {
+        isDragging: false,
+        ranges: {},
+      };
+    },
+    clear: (state, action: PayloadAction<string>) => {
+      const docId = action.payload;
+
+      delete state[docId];
+    },
+    setRanges: (
+      state,
+      action: PayloadAction<{
+        docId: string;
+        ranges: RangeState['ranges'];
+      }>
+    ) => {
+      const { docId, ranges } = action.payload;
+
+      state[docId].ranges = ranges;
     },
     setRange: (
       state,
       action: PayloadAction<{
+        docId: string;
         id: string;
         rangeStatic: {
           index: number;
@@ -119,114 +182,242 @@ export const rangeSlice = createSlice({
         };
       }>
     ) => {
-      const { id, rangeStatic } = action.payload;
-      state.ranges[id] = rangeStatic;
+      const { docId, id, rangeStatic } = action.payload;
+
+      state[docId].ranges[id] = rangeStatic;
     },
-    removeRange: (state, action: PayloadAction<string>) => {
-      const id = action.payload;
-      delete state.ranges[id];
+    removeRange: (
+      state,
+      action: PayloadAction<{
+        docId: string;
+        id: string;
+      }>
+    ) => {
+      const { docId, id } = action.payload;
+      const ranges = state[docId].ranges;
+
+      delete ranges[id];
     },
     setAnchorPoint: (
       state,
       action: PayloadAction<{
-        id: string;
-        point: { x: number; y: number };
+        docId: string;
+        anchorPoint?: {
+          id: string;
+          point: { x: number; y: number };
+        };
       }>
     ) => {
-      state.anchor = action.payload;
+      const { docId, anchorPoint } = action.payload;
+
+      if (anchorPoint) {
+        state[docId].anchor = { ...anchorPoint };
+      } else {
+        delete state[docId].anchor;
+      }
     },
     setAnchorPointRange: (
       state,
       action: PayloadAction<{
+        docId: string;
         index: number;
         length: number;
       }>
     ) => {
-      const anchor = state.anchor;
+      const { docId, index, length } = action.payload;
+      const anchor = state[docId].anchor;
+
       if (!anchor) return;
       anchor.point = {
         ...anchor.point,
-        ...action.payload,
+        index,
+        length,
       };
     },
     setFocusPoint: (
       state,
       action: PayloadAction<{
-        id: string;
-        point: { x: number; y: number };
+        docId: string;
+        focusPoint?: {
+          id: string;
+          point: { x: number; y: number };
+        };
       }>
     ) => {
-      state.focus = action.payload;
+      const { docId, focusPoint } = action.payload;
+
+      if (focusPoint) {
+        state[docId].focus = { ...focusPoint };
+      } else {
+        delete state[docId].focus;
+      }
     },
-    setDragging: (state, action: PayloadAction<boolean>) => {
-      state.isDragging = action.payload;
+
+    setDragging: (
+      state,
+      action: PayloadAction<{
+        docId: string;
+        isDragging: boolean;
+      }>
+    ) => {
+      const { docId, isDragging } = action.payload;
+
+      state[docId].isDragging = isDragging;
     },
-    setCaret: (state, action: PayloadAction<RangeStatic | null>) => {
-      if (!action.payload) {
-        state.caret = undefined;
+    setCaret: (
+      state,
+      action: PayloadAction<{
+        docId: string;
+        caret: RangeStatic | null;
+      }>
+    ) => {
+      const { docId, caret } = action.payload;
+      const rangeState = state[docId];
+
+      if (!caret) {
+        rangeState.caret = undefined;
         return;
       }
-      const id = action.payload.id;
-      state.ranges[id] = {
-        index: action.payload.index,
-        length: action.payload.length,
+
+      const { id, index, length } = caret;
+
+      rangeState.ranges[id] = {
+        index,
+        length,
       };
-      state.caret = action.payload;
+      rangeState.caret = caret;
     },
-    clearRange: (state, _: PayloadAction) => {
-      return rangeInitialState;
+    clearRanges: (
+      state,
+      action: PayloadAction<{
+        docId: string;
+        exclude?: string;
+      }>
+    ) => {
+      const { docId, exclude } = action.payload;
+      const ranges = state[docId].ranges;
+
+      if (!exclude) {
+        state[docId].ranges = {};
+        return;
+      }
+
+      const newRanges = Object.keys(ranges).reduce((acc, id) => {
+        if (id !== exclude) return { ...acc };
+        return {
+          ...acc,
+          [id]: ranges[id],
+        };
+      }, {});
+
+      state[docId].ranges = newRanges;
     },
   },
 });
+
 export const slashCommandSlice = createSlice({
-  name: 'documentSlashCommand',
+  name: SLASH_COMMAND_NAME,
   initialState: slashCommandInitialState,
   reducers: {
+    initialState: (state, action: PayloadAction<string>) => {
+      const docId = action.payload;
+
+      state[docId] = {
+        isSlashCommand: false,
+      };
+    },
+    clear: (state, action: PayloadAction<string>) => {
+      const docId = action.payload;
+
+      delete state[docId];
+    },
     openSlashCommand: (
       state,
       action: PayloadAction<{
+        docId: string;
         blockId: string;
       }>
     ) => {
-      const { blockId } = action.payload;
-      return {
-        ...state,
+      const { blockId, docId } = action.payload;
+
+      state[docId] = {
+        ...state[docId],
         isSlashCommand: true,
         blockId,
       };
     },
-    closeSlashCommand: (state, _: PayloadAction) => {
-      return slashCommandInitialState;
+    closeSlashCommand: (state, action: PayloadAction<string>) => {
+      const docId = action.payload;
+
+      state[docId] = {
+        ...state[docId],
+        isSlashCommand: false,
+      };
+    },
+    setHoverOption: (
+      state,
+      action: PayloadAction<{
+        docId: string;
+        option: SlashCommandOption;
+      }>
+    ) => {
+      const { docId, option } = action.payload;
+
+      state[docId] = {
+        ...state[docId],
+        hoverOption: option,
+      };
     },
   },
 });
 
 export const linkPopoverSlice = createSlice({
-  name: 'documentLinkPopover',
+  name: TEXT_LINK_NAME,
   initialState: linkPopoverState,
   reducers: {
-    setLinkPopover: (state, action: PayloadAction<LinkPopoverState>) => {
-      return {
-        ...state,
-        ...action.payload,
-      };
-    },
-    updateLinkPopover: (state, action: PayloadAction<LinkPopoverState>) => {
-      const { id } = action.payload;
-      if (!state.open || state.id !== id) return;
-      return {
-        ...state,
-        ...action.payload,
-      };
-    },
-    closeLinkPopover: (state, _: PayloadAction) => {
-      return {
-        ...state,
+    initialState: (state, action: PayloadAction<string>) => {
+      const docId = action.payload;
+
+      state[docId] = {
         open: false,
       };
     },
-    resetLinkPopover: (state, _: PayloadAction) => {
-      return linkPopoverState;
+    clear: (state, action: PayloadAction<string>) => {
+      const docId = action.payload;
+
+      delete state[docId];
+    },
+    setLinkPopover: (
+      state,
+      action: PayloadAction<{
+        docId: string;
+        linkState: LinkPopoverState;
+      }>
+    ) => {
+      const { docId, linkState } = action.payload;
+
+      state[docId] = linkState;
+    },
+    updateLinkPopover: (
+      state,
+      action: PayloadAction<{
+        docId: string;
+        linkState: LinkPopoverState;
+      }>
+    ) => {
+      const { docId, linkState } = action.payload;
+      const { id } = linkState;
+
+      if (!state[docId].open || state[docId].id !== id) return;
+      state[docId] = {
+        ...state[docId],
+        ...linkState,
+      };
+    },
+    closeLinkPopover: (state, action: PayloadAction<string>) => {
+      const docId = action.payload;
+
+      state[docId].open = false;
     },
   },
 });
@@ -237,6 +428,8 @@ export const documentReducers = {
   [rangeSlice.name]: rangeSlice.reducer,
   [slashCommandSlice.name]: slashCommandSlice.reducer,
   [linkPopoverSlice.name]: linkPopoverSlice.reducer,
+  [temporarySlice.name]: temporarySlice.reducer,
+  [blockEditSlice.name]: blockEditSlice.reducer,
 };
 
 export const documentActions = documentSlice.actions;

@@ -1,3 +1,4 @@
+use collab::core::collab_state::SyncState;
 use collab_document::blocks::{BlockAction, DocumentData};
 use std::collections::HashMap;
 
@@ -147,7 +148,7 @@ pub struct DocumentDataPB {
   pub meta: MetaPB,
 }
 
-#[derive(Default, ProtoBuf, Debug)]
+#[derive(Default, ProtoBuf, Debug, Clone)]
 pub struct BlockPB {
   #[pb(index = 1)]
   pub id: String,
@@ -334,5 +335,50 @@ impl TryInto<ConvertDataParams> for ConvertDataPayloadPB {
     let convert_type = self.convert_type;
     let data = self.data;
     Ok(ConvertDataParams { convert_type, data })
+  }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct RepeatedDocumentSnapshotPB {
+  #[pb(index = 1)]
+  pub items: Vec<DocumentSnapshotPB>,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct DocumentSnapshotPB {
+  #[pb(index = 1)]
+  pub snapshot_id: i64,
+
+  #[pb(index = 2)]
+  pub snapshot_desc: String,
+
+  #[pb(index = 3)]
+  pub created_at: i64,
+
+  #[pb(index = 4)]
+  pub data: Vec<u8>,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct DocumentSnapshotStatePB {
+  #[pb(index = 1)]
+  pub new_snapshot_id: i64,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct DocumentSyncStatePB {
+  #[pb(index = 1)]
+  pub is_syncing: bool,
+
+  #[pb(index = 2)]
+  pub is_finish: bool,
+}
+
+impl From<SyncState> for DocumentSyncStatePB {
+  fn from(value: SyncState) -> Self {
+    Self {
+      is_syncing: value.is_syncing(),
+      is_finish: value.is_sync_finished(),
+    }
   }
 }

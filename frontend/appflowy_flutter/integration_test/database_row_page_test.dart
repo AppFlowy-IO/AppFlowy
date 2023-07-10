@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'util/database_test_op.dart';
+import 'util/emoji.dart';
 import 'util/ime.dart';
 import 'util/util.dart';
 
@@ -13,19 +14,19 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('grid', () {
-    const location = 'appflowy';
+    testWidgets('row details page opens', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
 
-    setUp(() async {
-      await TestFolder.cleanTestLocation(location);
-      await TestFolder.setTestLocation(location);
-    });
+      // Create a new grid
+      await tester.tapAddButton();
+      await tester.tapCreateGridButton();
 
-    tearDown(() async {
-      await TestFolder.cleanTestLocation(location);
-    });
+      // Hover first row and then open the row page
+      await tester.openFirstRowDetailPage();
 
-    tearDownAll(() async {
-      await TestFolder.cleanTestLocation(null);
+      // Make sure that the row page is opened
+      tester.assertRowDetailPageOpened();
     });
 
     testWidgets('insert emoji in the row detail page', (tester) async {
@@ -171,9 +172,10 @@ void main() {
       // Focus on the editor
       final textBlock = find.byType(TextBlockComponentWidget);
       await tester.tapAt(tester.getCenter(textBlock));
+      await tester.pumpAndSettle();
 
       // Input some text
-      const inputText = 'Hello world';
+      const inputText = 'Hello World';
       await tester.ime.insertText(inputText);
       expect(
         find.textContaining(inputText, findRichText: true),

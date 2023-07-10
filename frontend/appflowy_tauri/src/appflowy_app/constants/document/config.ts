@@ -1,4 +1,4 @@
-import { BlockConfig, BlockType, SplitRelationship, TextAction, TextActionMenuProps } from '$app/interfaces/document';
+import { Align, BlockConfig, BlockType, SplitRelationship } from '$app/interfaces/document';
 
 /**
  * If the block type is not in the config, it will be thrown an error in development env
@@ -20,10 +20,6 @@ export const blockConfig: Record<string, BlockConfig> = {
       nextLineRelationShip: SplitRelationship.NextSibling,
       nextLineBlockType: BlockType.TextBlock,
     },
-    /**
-     * # or ## or ###
-     */
-    markdownRegexps: [/^(#{1,3})(\s)+$/],
   },
   [BlockType.TodoListBlock]: {
     canAddChild: true,
@@ -35,10 +31,6 @@ export const blockConfig: Record<string, BlockConfig> = {
       nextLineRelationShip: SplitRelationship.NextSibling,
       nextLineBlockType: BlockType.TodoListBlock,
     },
-    /**
-     * -[] or -[x] or -[ ] or [] or [x] or [ ]
-     */
-    markdownRegexps: [/^((-)?\[(x|\s)?\])(\s)+$/],
   },
   [BlockType.BulletedListBlock]: {
     canAddChild: true,
@@ -50,10 +42,6 @@ export const blockConfig: Record<string, BlockConfig> = {
       nextLineRelationShip: SplitRelationship.NextSibling,
       nextLineBlockType: BlockType.BulletedListBlock,
     },
-    /**
-     * - or + or *
-     */
-    markdownRegexps: [/^(\s*[-+*])(\s)+$/],
   },
   [BlockType.NumberedListBlock]: {
     canAddChild: true,
@@ -65,11 +53,6 @@ export const blockConfig: Record<string, BlockConfig> = {
       nextLineRelationShip: SplitRelationship.NextSibling,
       nextLineBlockType: BlockType.NumberedListBlock,
     },
-    /**
-     * 1. or 2. or 3.
-     * a. or b. or c.
-     */
-    markdownRegexps: [/^(\s*[\d|a-zA-Z]+\.)(\s)+$/],
   },
   [BlockType.QuoteBlock]: {
     canAddChild: true,
@@ -81,10 +64,6 @@ export const blockConfig: Record<string, BlockConfig> = {
       nextLineRelationShip: SplitRelationship.NextSibling,
       nextLineBlockType: BlockType.TextBlock,
     },
-    /**
-     * " or “ or ”
-     */
-    markdownRegexps: [/^("|“|”)(\s)+$/],
   },
   [BlockType.CalloutBlock]: {
     canAddChild: true,
@@ -96,10 +75,6 @@ export const blockConfig: Record<string, BlockConfig> = {
       nextLineRelationShip: SplitRelationship.NextSibling,
       nextLineBlockType: BlockType.TextBlock,
     },
-    /**
-     * [!TIP] or [!INFO] or [!WARNING] or [!DANGER]
-     */
-    markdownRegexps: [/^(\[!)(TIP|INFO|WARNING|DANGER)(\])(\s)+$/],
   },
   [BlockType.ToggleListBlock]: {
     canAddChild: true,
@@ -111,17 +86,6 @@ export const blockConfig: Record<string, BlockConfig> = {
       nextLineRelationShip: SplitRelationship.FirstChild,
       nextLineBlockType: BlockType.TextBlock,
     },
-    /**
-     * >
-     */
-    markdownRegexps: [/^(>)(\s)+$/],
-  },
-  [BlockType.DividerBlock]: {
-    canAddChild: false,
-    /**
-     * ---
-     */
-    markdownRegexps: [/^(-{3,})$/],
   },
 
   [BlockType.CodeBlock]: {
@@ -130,49 +94,24 @@ export const blockConfig: Record<string, BlockConfig> = {
       delta: [],
       language: 'javascript',
     },
-    /**
-     * ```
-     */
-    markdownRegexps: [/^(```)$/],
-
-    textActionMenuProps: {
-      excludeItems: [TextAction.Code],
+  },
+  [BlockType.DividerBlock]: {
+    canAddChild: false,
+  },
+  [BlockType.EquationBlock]: {
+    canAddChild: false,
+    defaultData: {
+      formula: '',
+    },
+  },
+  [BlockType.ImageBlock]: {
+    canAddChild: false,
+    defaultData: {
+      url: '',
+      align: Align.Center,
+      width: 0,
+      height: 0,
+      caption: [],
     },
   },
 };
-
-export const defaultTextActionProps: TextActionMenuProps = {
-  customItems: [
-    TextAction.Turn,
-    TextAction.Link,
-    TextAction.Bold,
-    TextAction.Italic,
-    TextAction.Underline,
-    TextAction.Strikethrough,
-    TextAction.Code,
-    TextAction.Equation,
-  ],
-  excludeItems: [],
-};
-
-const groupKeys = {
-  comment: [],
-  format: [
-    TextAction.Bold,
-    TextAction.Italic,
-    TextAction.Underline,
-    TextAction.Strikethrough,
-    TextAction.Code,
-    TextAction.Equation,
-  ],
-  link: [TextAction.Link],
-  turn: [TextAction.Turn],
-};
-
-export const multiLineTextActionProps: TextActionMenuProps = {
-  customItems: [TextAction.Bold, TextAction.Italic, TextAction.Underline, TextAction.Strikethrough, TextAction.Code],
-};
-
-export const multiLineTextActionGroups = [groupKeys.format];
-
-export const textActionGroups = [groupKeys.turn, groupKeys.format, groupKeys.link];

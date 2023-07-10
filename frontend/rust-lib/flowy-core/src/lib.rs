@@ -9,14 +9,14 @@ use std::{
   },
 };
 
-use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CloudStorageType};
+use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CollabStorageType};
 use tokio::sync::RwLock;
 use tracing::debug;
 
 use flowy_database2::DatabaseManager2;
 use flowy_document2::manager::DocumentManager as DocumentManager2;
 use flowy_error::FlowyResult;
-use flowy_folder2::manager::Folder2Manager;
+use flowy_folder2::manager::FolderManager;
 use flowy_sqlite::kv::KV;
 use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::entities::UserProfile;
@@ -46,7 +46,7 @@ pub struct AppFlowyCoreConfig {
   /// Different `AppFlowyCoreConfig` instance should have different name
   name: String,
   /// Panics if the `root` path is not existing
-  storage_path: String,
+  pub storage_path: String,
   log_filter: String,
 }
 
@@ -81,6 +81,7 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
     .collect::<Vec<String>>();
   filters.push(format!("flowy_core={}", level));
   filters.push(format!("flowy_folder2={}", level));
+  filters.push(format!("collab_sync={}", level));
   filters.push(format!("collab_folder={}", level));
   filters.push(format!("collab_persistence={}", level));
   filters.push(format!("collab_database={}", level));
@@ -90,6 +91,7 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   filters.push(format!("flowy_user={}", level));
   filters.push(format!("flowy_document2={}", level));
   filters.push(format!("flowy_database2={}", level));
+  filters.push(format!("flowy_server={}", level));
   filters.push(format!("flowy_notification={}", "info"));
   filters.push(format!("lib_infra={}", level));
   filters.push(format!("flowy_task={}", level));
@@ -112,7 +114,7 @@ pub struct AppFlowyCore {
   pub config: AppFlowyCoreConfig,
   pub user_session: Arc<UserSession>,
   pub document_manager2: Arc<DocumentManager2>,
-  pub folder_manager: Arc<Folder2Manager>,
+  pub folder_manager: Arc<FolderManager>,
   pub database_manager: Arc<DatabaseManager2>,
   pub event_dispatcher: Arc<AFPluginDispatcher>,
   pub server_provider: Arc<AppFlowyServerProvider>,
@@ -141,64 +143,60 @@ impl AppFlowyCore {
 
     let server_provider = Arc::new(AppFlowyServerProvider::new());
 
-    let (
-      user_session,
-      folder_manager,
-      server_provider,
-      database_manager,
-      document_manager2,
-      collab_builder,
-    ) = runtime.block_on(async {
-      let user_session = mk_user_session(&config, server_provider.clone());
-      /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
-      /// on demand based on the [CollabPluginConfig].
-      let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
-        server_provider.provider_type().into(),
-        Some(Arc::new(SnapshotDBImpl(user_session.clone()))),
-      ));
+    let (user_session, folder_manager, server_provider, database_manager, document_manager2) =
+      runtime.block_on(async {
+        let user_session = mk_user_session(&config, server_provider.clone());
+        /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
+        /// on demand based on the [CollabPluginConfig].
+        let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
+          server_provider.clone(),
+          Some(Arc::new(SnapshotDBImpl(Arc::downgrade(&user_session)))),
+        ));
 
-      let database_manager2 = Database2DepsResolver::resolve(
-        user_session.clone(),
-        task_dispatcher.clone(),
-        collab_builder.clone(),
-      )
-      .await;
+        let database_manager2 = Database2DepsResolver::resolve(
+          Arc::downgrade(&user_session),
+          task_dispatcher.clone(),
+          collab_builder.clone(),
+          server_provider.clone(),
+        )
+        .await;
 
-      let document_manager2 = Document2DepsResolver::resolve(
-        user_session.clone(),
-        &database_manager2,
-        collab_builder.clone(),
-      );
+        let document_manager2 = Document2DepsResolver::resolve(
+          Arc::downgrade(&user_session),
+          &database_manager2,
+          collab_builder.clone(),
+          server_provider.clone(),
+        );
 
-      let folder_manager = Folder2DepsResolver::resolve(
-        user_session.clone(),
-        &document_manager2,
-        &database_manager2,
-        collab_builder.clone(),
-        server_provider.clone(),
-      )
-      .await;
+        let folder_manager = Folder2DepsResolver::resolve(
+          Arc::downgrade(&user_session),
+          &document_manager2,
+          &database_manager2,
+          collab_builder,
+          server_provider.clone(),
+        )
+        .await;
 
-      (
-        user_session,
-        folder_manager,
-        server_provider,
-        database_manager2,
-        document_manager2,
-        collab_builder,
-      )
-    });
+        (
+          user_session,
+          folder_manager,
+          server_provider,
+          database_manager2,
+          document_manager2,
+        )
+      });
 
     let user_status_listener = UserStatusCallbackImpl {
-      collab_builder,
       folder_manager: folder_manager.clone(),
       database_manager: database_manager.clone(),
       config: config.clone(),
     };
 
-    let cloned_user_session = user_session.clone();
+    let cloned_user_session = Arc::downgrade(&user_session);
     runtime.block_on(async move {
-      cloned_user_session.clone().init(user_status_listener).await;
+      if let Some(user_session) = cloned_user_session.upgrade() {
+        user_session.init(user_status_listener).await;
+      }
     });
 
     let event_dispatcher = Arc::new(AFPluginDispatcher::construct(runtime, || {
@@ -253,20 +251,14 @@ fn mk_user_session(
 }
 
 struct UserStatusCallbackImpl {
-  collab_builder: Arc<AppFlowyCollabBuilder>,
-  folder_manager: Arc<Folder2Manager>,
+  folder_manager: Arc<FolderManager>,
   database_manager: Arc<DatabaseManager2>,
   #[allow(dead_code)]
   config: AppFlowyCoreConfig,
 }
 
 impl UserStatusCallback for UserStatusCallbackImpl {
-  fn auth_type_did_changed(&self, auth_type: AuthType) {
-    let provider_type: ServerProviderType = auth_type.into();
-    self
-      .collab_builder
-      .set_cloud_storage_type(provider_type.into());
-  }
+  fn auth_type_did_changed(&self, _auth_type: AuthType) {}
 
   fn did_sign_in(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>> {
     let user_id = user_id.to_owned();
@@ -281,7 +273,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     })
   }
 
-  fn did_sign_up(&self, user_profile: &UserProfile) -> Fut<FlowyResult<()>> {
+  fn did_sign_up(&self, is_new: bool, user_profile: &UserProfile) -> Fut<FlowyResult<()>> {
     let user_profile = user_profile.clone();
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
@@ -290,6 +282,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .initialize_with_new_user(
           user_profile.id,
           &user_profile.token,
+          is_new,
           &user_profile.workspace_id,
         )
         .await?;
@@ -311,12 +304,12 @@ impl UserStatusCallback for UserStatusCallbackImpl {
   }
 }
 
-impl From<ServerProviderType> for CloudStorageType {
+impl From<ServerProviderType> for CollabStorageType {
   fn from(server_provider: ServerProviderType) -> Self {
     match server_provider {
-      ServerProviderType::Local => CloudStorageType::Local,
-      ServerProviderType::SelfHosted => CloudStorageType::Local,
-      ServerProviderType::Supabase => CloudStorageType::Supabase,
+      ServerProviderType::Local => CollabStorageType::Local,
+      ServerProviderType::SelfHosted => CollabStorageType::Local,
+      ServerProviderType::Supabase => CollabStorageType::Supabase,
     }
   }
 }

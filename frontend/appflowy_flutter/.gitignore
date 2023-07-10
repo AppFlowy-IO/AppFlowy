@@ -70,5 +70,8 @@ windows/flutter/dart_ffi/
 **/.vscode/
 
 *.env
+*.env.*
 
 coverage/
+
+**/failures/*.png

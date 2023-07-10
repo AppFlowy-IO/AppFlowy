@@ -29,11 +29,16 @@ export const CheckList = ({
   const onClick = () => {
     if (!ref.current) return;
     const { left, top } = ref.current.getBoundingClientRect();
+
     onEditClick(left, top);
   };
 
   return (
-    <div ref={ref} onClick={onClick} className={'flex w-full flex-wrap items-center gap-2 px-4 py-1 text-xs text-black'}>
+    <div
+      ref={ref}
+      onClick={onClick}
+      className={'flex w-full flex-wrap items-center gap-2 px-4 py-1 text-xs text-text-title'}
+    >
       <CheckListProgress completed={selectedOptionsCount} max={allOptionsCount} />
     </div>
   );

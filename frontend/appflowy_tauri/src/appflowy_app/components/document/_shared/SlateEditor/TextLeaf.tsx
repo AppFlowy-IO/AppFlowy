@@ -4,6 +4,9 @@ import { useCallback, useRef } from 'react';
 import TextLink from '../TextLink';
 import { converToIndexLength } from '$app/utils/document/slate_editor';
 import LinkHighLight from '$app/components/document/_shared/TextLink/LinkHighLight';
+import TemporaryInput from '$app/components/document/_shared/TemporaryInput';
+import InlineContainer from '$app/components/document/_shared/InlineBlock/InlineContainer';
+import { TemporaryType } from '$app/interfaces/document';
 
 interface Attributes {
   bold?: boolean;
@@ -16,6 +19,8 @@ interface Attributes {
   prism_token?: string;
   link_selection_lighted?: boolean;
   link_placeholder?: string;
+  temporary?: boolean;
+  formula?: string;
 }
 interface TextLeafProps extends RenderLeafProps {
   leaf: BaseText & Attributes;
@@ -27,12 +32,15 @@ const TextLeaf = (props: TextLeafProps) => {
   const { attributes, children, leaf, isCodeBlock, editor } = props;
   const ref = useRef<HTMLSpanElement>(null);
 
+  const customAttributes = {
+    ...attributes,
+  };
   let newChildren = children;
 
   if (leaf.code) {
     newChildren = (
       <span
-        className={`bg-custom-code text-main-hovered`}
+        className={`bg-fill-selector text-text-title`}
         style={{
           fontSize: '85%',
           lineHeight: 'normal',
@@ -51,6 +59,7 @@ const TextLeaf = (props: TextLeafProps) => {
         anchor: { path, offset: 0 },
         focus: { path, offset: leaf.text.length },
       });
+
       return selection;
     },
     [editor, leaf]
@@ -64,12 +73,32 @@ const TextLeaf = (props: TextLeafProps) => {
     );
   }
 
+  if (leaf.formula) {
+    const { isLast, text, parent } = children.props;
+    const temporaryType = TemporaryType.Equation;
+    const data = { latex: leaf.formula };
+
+    newChildren = (
+      <InlineContainer
+        isLast={isLast}
+        isFirst={text === parent.children[0]}
+        getSelection={getSelection}
+        formula={leaf.formula}
+        data={data}
+        temporaryType={temporaryType}
+        selectedText={leaf.text}
+      >
+        {newChildren}
+      </InlineContainer>
+    );
+  }
+
   const className = [
     isCodeBlock && 'token',
     leaf.prism_token && leaf.prism_token,
     leaf.strikethrough && 'line-through',
-    leaf.selection_high_lighted && 'bg-main-secondary',
-    leaf.link_selection_lighted && 'text-link bg-main-secondary',
+    leaf.selection_high_lighted && 'bg-fill-selector',
+    leaf.link_selection_lighted && 'text-text-link-selector bg-fill-selector',
     leaf.code && 'inline-code',
     leaf.bold && 'font-bold',
     leaf.italic && 'italic',
@@ -83,8 +112,13 @@ const TextLeaf = (props: TextLeafProps) => {
       </LinkHighLight>
     );
   }
+
+  if (leaf.temporary) {
+    newChildren = <TemporaryInput leaf={leaf}>{newChildren}</TemporaryInput>;
+  }
+
   return (
-    <span ref={ref} {...attributes} className={className.join(' ')}>
+    <span ref={ref} {...customAttributes} className={className.join(' ')}>
       {newChildren}
     </span>
   );

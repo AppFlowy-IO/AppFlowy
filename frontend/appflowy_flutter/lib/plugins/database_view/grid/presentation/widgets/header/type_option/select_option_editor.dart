@@ -138,7 +138,6 @@ class _OptionNameTextField extends StatelessWidget {
     return FlowyTextField(
       autoFocus: autoFocus,
       text: name,
-      maxLength: 30,
       submitOnLeave: true,
       onSubmitted: (newName) {
         if (name != newName) {

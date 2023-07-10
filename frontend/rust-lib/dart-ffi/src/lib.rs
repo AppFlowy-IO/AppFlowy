@@ -6,7 +6,7 @@ use lazy_static::lazy_static;
 use parking_lot::RwLock;
 
 use flowy_core::*;
-use flowy_notification::register_notification_sender;
+use flowy_notification::{register_notification_sender, unregister_all_notification_sender};
 use lib_dispatch::prelude::ToBytes;
 use lib_dispatch::prelude::*;
 
@@ -90,6 +90,8 @@ pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
 
 #[no_mangle]
 pub extern "C" fn set_stream_port(port: i64) -> i32 {
+  // Make sure hot reload won't register the notification sender twice
+  unregister_all_notification_sender();
   register_notification_sender(DartNotificationSender::new(port));
   0
 }

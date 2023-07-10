@@ -25,6 +25,8 @@ export abstract class AFNotificationObserver<T> {
 
   async stop() {
     if (this._listener !== undefined) {
+      // call the unlisten function before setting it to undefined
+      this._listener();
       this._listener = undefined;
     }
     this.parser = null;

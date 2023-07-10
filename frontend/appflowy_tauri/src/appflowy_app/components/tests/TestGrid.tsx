@@ -30,7 +30,6 @@ import {
 import { SelectOptionCellBackendService } from '$app/stores/effects/database/cell/select_option_bd_svc';
 import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
 import { None, Some } from 'ts-results';
-import { RowBackendService } from '$app/stores/effects/database/row/row_bd_svc';
 import {
   makeDateTypeOptionContext,
   makeNumberTypeOptionContext,
@@ -250,7 +249,7 @@ async function testCreateRow() {
   await databaseController.open().then((result) => result.unwrap());
   await assertNumberOfRows(view.id, 3);
 
-  // Create a row from a DatabaseController or create using the RowBackendService
+  // Create a row from a DatabaseController
   await databaseController.createRow();
   await assertNumberOfRows(view.id, 4);
   await databaseController.dispose();
@@ -262,8 +261,7 @@ async function testDeleteRow() {
   await databaseController.open().then((result) => result.unwrap());
 
   const rows = databaseController.databaseViewCache.rowInfos;
-  const svc = new RowBackendService(view.id);
-  await svc.deleteRow(rows[0].row.id);
+  await databaseController.deleteRow(rows[0].row.id);
   await assertNumberOfRows(view.id, 2);
 
   // Wait the databaseViewCache get the change notification and

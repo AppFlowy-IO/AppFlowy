@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::convert::TryInto;
 use std::ops::{Deref, DerefMut};
+use std::sync::Arc;
 
 use collab_folder::core::{View, ViewLayout};
 
@@ -9,6 +10,21 @@ use flowy_error::ErrorCode;
 
 use crate::entities::parser::view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail};
 use crate::view_operation::gen_view_id;
+
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct ChildViewUpdatePB {
+  #[pb(index = 1)]
+  pub parent_view_id: String,
+
+  #[pb(index = 2)]
+  pub create_child_views: Vec<ViewPB>,
+
+  #[pb(index = 3)]
+  pub delete_child_views: Vec<String>,
+
+  #[pb(index = 4)]
+  pub update_child_views: Vec<ViewPB>,
+}
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct ViewPB {
@@ -44,33 +60,33 @@ pub struct ViewPB {
   pub cover_url: Option<String>,
 }
 
-pub fn view_pb_without_child_views(view: View) -> ViewPB {
+pub fn view_pb_without_child_views(view: Arc<View>) -> ViewPB {
   ViewPB {
-    id: view.id,
-    parent_view_id: view.parent_view_id,
-    name: view.name,
+    id: view.id.clone(),
+    parent_view_id: view.parent_view_id.clone(),
+    name: view.name.clone(),
     create_time: view.created_at,
     child_views: Default::default(),
-    layout: view.layout.into(),
-    icon_url: view.icon_url,
-    cover_url: view.cover_url,
+    layout: view.layout.clone().into(),
+    icon_url: view.icon_url.clone(),
+    cover_url: view.cover_url.clone(),
   }
 }
 
 /// Returns a ViewPB with child views. Only the first level of child views are included.
-pub fn view_pb_with_child_views(view: View, child_views: Vec<View>) -> ViewPB {
+pub fn view_pb_with_child_views(view: Arc<View>, child_views: Vec<Arc<View>>) -> ViewPB {
   ViewPB {
-    id: view.id,
-    parent_view_id: view.parent_view_id,
-    name: view.name,
+    id: view.id.clone(),
+    parent_view_id: view.parent_view_id.clone(),
+    name: view.name.clone(),
     create_time: view.created_at,
     child_views: child_views
       .into_iter()
       .map(view_pb_without_child_views)
       .collect(),
-    layout: view.layout.into(),
-    icon_url: view.icon_url,
-    cover_url: view.cover_url,
+    layout: view.layout.clone().into(),
+    icon_url: view.icon_url.clone(),
+    cover_url: view.cover_url.clone(),
   }
 }
 

@@ -73,7 +73,7 @@ class ViewBackendService {
     return FolderEventCreateOrphanView(payload).send();
   }
 
-  static Future<Either<ViewPB, FlowyError>> createDatabaseReferenceView({
+  static Future<Either<ViewPB, FlowyError>> createDatabaseLinkedView({
     required String parentViewId,
     required String databaseId,
     required ViewLayoutPB layoutType,
@@ -91,14 +91,14 @@ class ViewBackendService {
   }
 
   /// Returns a list of views that are the children of the given [viewId].
-  static Future<Either<List<ViewPB>, FlowyError>> getViews({
+  static Future<Either<List<ViewPB>, FlowyError>> getChildViews({
     required String viewId,
   }) {
     final payload = ViewIdPB.create()..value = viewId;
 
     return FolderEventReadView(payload).send().then((result) {
       return result.fold(
-        (app) => left(app.childViews),
+        (view) => left(view.childViews),
         (error) => right(error),
       );
     });
@@ -154,8 +154,19 @@ class ViewBackendService {
     return FolderEventMoveView(payload).send();
   }
 
+  Future<List<(ViewPB, List<ViewPB>)>> fetchViewsWithLayoutType(
+    ViewLayoutPB? layoutType,
+  ) async {
+    return fetchViews((workspace, view) {
+      if (layoutType != null) {
+        return view.layout == layoutType;
+      }
+      return true;
+    });
+  }
+
   Future<List<(ViewPB, List<ViewPB>)>> fetchViews(
-    ViewLayoutPB layoutType,
+    bool Function(WorkspaceSettingPB workspace, ViewPB view) filter,
   ) async {
     final result = <(ViewPB, List<ViewPB>)>[];
     return FolderEventGetCurrentWorkspace().send().then((value) async {
@@ -163,10 +174,10 @@ class ViewBackendService {
       if (workspaces != null) {
         final views = workspaces.workspace.views;
         for (final view in views) {
-          final childViews = await getViews(viewId: view.id).then(
+          final childViews = await getChildViews(viewId: view.id).then(
             (value) => value
                 .getLeftOrNull<List<ViewPB>>()
-                ?.where((e) => e.layout == layoutType)
+                ?.where((e) => filter(workspaces, e))
                 .toList(),
           );
           if (childViews != null && childViews.isNotEmpty) {

@@ -25,7 +25,7 @@ class DatabaseViewBackendService {
         .then((value) => value.leftMap((l) => l.value));
   }
 
-  Future<Either<DatabasePB, FlowyError>> openGrid() async {
+  Future<Either<DatabasePB, FlowyError>> openDatabase() async {
     final payload = DatabaseViewIdPB(value: viewId);
     return DatabaseEventGetDatabase(payload).send();
   }
@@ -113,9 +113,12 @@ class DatabaseViewBackendService {
   }
 
   Future<Either<Unit, FlowyError>> updateLayoutSetting({
+    required DatabaseLayoutPB layoutType,
     CalendarLayoutSettingPB? calendarLayoutSetting,
   }) {
-    final payload = LayoutSettingChangesetPB.create()..viewId = viewId;
+    final payload = LayoutSettingChangesetPB.create()
+      ..viewId = viewId
+      ..layoutType = layoutType;
     if (calendarLayoutSetting != null) {
       payload.calendar = calendarLayoutSetting;
     }

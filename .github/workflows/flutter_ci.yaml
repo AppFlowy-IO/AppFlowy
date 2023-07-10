@@ -25,8 +25,13 @@ env:
   FLUTTER_VERSION: "3.10.1"
   RUST_TOOLCHAIN: "1.70"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
+    if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
@@ -102,7 +107,6 @@ jobs:
             git config --system core.longpaths true
             flutter config --enable-windows-desktop
           fi
-          dart pub global activate protoc_plugin 20.0.1
         shell: bash
 
       - name: Build AppFlowy
@@ -121,7 +125,7 @@ jobs:
           cargo make dart_unit_test
 
       - name: Upload coverage to Codecov
-        uses: Wandalen/wretry.action@master
+        uses: Wandalen/wretry.action@v1.0.36
         with:
           action: codecov/codecov-action@v3
           with: |
@@ -130,6 +134,6 @@ jobs:
             fail_ci_if_error: true
             verbose: true
             os: ${{ matrix.os }}
-          attempt_limit: 5
+          attempt_limit: 20
           attempt_delay: 10000
 

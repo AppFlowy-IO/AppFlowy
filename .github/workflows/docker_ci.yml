@@ -21,12 +21,13 @@ on:
       - unlocked
       - ready_for_review
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-app:
     if: github.event.pull_request.draft != true
-    concurrency: 
-      group: docker_ci-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code

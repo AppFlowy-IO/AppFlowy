@@ -41,12 +41,15 @@ class GridTextCell extends GridCellWidget {
   }
 
   @override
-  GridFocusNodeCellState<GridTextCell> createState() => _GridTextCellState();
+  GridEditableTextCell<GridTextCell> createState() => _GridTextCellState();
 }
 
-class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
+class _GridTextCellState extends GridEditableTextCell<GridTextCell> {
   late TextCellBloc _cellBloc;
   late TextEditingController _controller;
+
+  @override
+  SingleListenerFocusNode focusNode = SingleListenerFocusNode();
 
   @override
   void initState() {

@@ -1,12 +1,12 @@
 import { useAppDispatch } from '$app/stores/store';
-import { useCallback, useContext } from 'react';
-import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { useCallback } from 'react';
 import { duplicateBelowNodeThunk } from '$app_reducers/document/async-actions/blocks/duplicate';
 import { deleteNodeThunk } from '$app_reducers/document/async-actions';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export function useBlockMenu(id: string) {
   const dispatch = useAppDispatch();
-  const controller = useContext(DocumentControllerContext);
+  const { controller } = useSubscribeDocument();
 
   const handleDuplicate = useCallback(async () => {
     if (!controller) return;

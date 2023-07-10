@@ -14,6 +14,7 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
     .state(database_manager);
   plugin
         .event(DatabaseEvent::GetDatabase, get_database_data_handler)
+        .event(DatabaseEvent::OpenDatabase, get_database_data_handler)
         .event(DatabaseEvent::GetDatabaseId, get_database_id_handler)
         .event(DatabaseEvent::GetDatabaseSetting, get_database_setting_handler)
         .event(DatabaseEvent::UpdateDatabaseSetting, update_database_setting_handler)
@@ -72,6 +73,7 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler)
         .event(DatabaseEvent::CreateDatabaseView, create_database_view)
         .event(DatabaseEvent::ExportCSV, export_csv_handler)
+        .event(DatabaseEvent::GetDatabaseSnapshots, get_snapshots_handler)
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -109,6 +111,9 @@ pub enum DatabaseEvent {
 
   #[event(input = "DatabaseViewIdPB")]
   DeleteAllSorts = 6,
+
+  #[event(input = "DatabaseViewIdPB")]
+  OpenDatabase = 7,
 
   /// [GetFields] event is used to get the database's fields.
   ///
@@ -306,4 +311,8 @@ pub enum DatabaseEvent {
 
   #[event(input = "DatabaseViewIdPB", output = "DatabaseExportDataPB")]
   ExportCSV = 141,
+
+  /// Returns all the snapshots of the database view.
+  #[event(input = "DatabaseViewIdPB", output = "RepeatedDatabaseSnapshotPB")]
+  GetDatabaseSnapshots = 150,
 }

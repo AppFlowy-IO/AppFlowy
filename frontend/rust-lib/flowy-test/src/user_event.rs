@@ -1,9 +1,11 @@
+use std::sync::Arc;
+
+use nanoid::nanoid;
+
 use flowy_user::entities::{AuthTypePB, SignInPayloadPB, SignUpPayloadPB, UserProfilePB};
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserEvent::*;
 use lib_dispatch::prelude::{AFPluginDispatcher, AFPluginRequest, ToBytes};
-use nanoid::nanoid;
-use std::sync::Arc;
 
 pub fn random_email() -> String {
   format!("{}@appflowy.io", nanoid!(20))
@@ -95,9 +97,4 @@ fn sign_in(dispatch: Arc<AFPluginDispatcher>) -> UserProfilePB {
     .parse::<UserProfilePB, FlowyError>()
     .unwrap()
     .unwrap()
-}
-
-#[allow(dead_code)]
-fn logout(dispatch: Arc<AFPluginDispatcher>) {
-  let _ = AFPluginDispatcher::sync_send(dispatch, AFPluginRequest::new(SignOut));
 }

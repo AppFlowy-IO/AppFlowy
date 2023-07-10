@@ -11,16 +11,12 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'util.dart';
 
 extension CommonOperations on WidgetTester {
-  /// Get current file location of AppFlowy.
-  Future<String> currentFileLocation() async {
-    return TestFolder.currentLocation();
-  }
-
   /// Tap the GetStart button on the launch page.
   Future<void> tapGoButton() async {
     final goButton = find.byType(GoButton);
@@ -45,6 +41,13 @@ extension CommonOperations on WidgetTester {
   /// Must call [tapAddButton] first.
   Future<void> tapCreateGridButton() async {
     await tapButtonWithName(LocaleKeys.grid_menuName.tr());
+  }
+
+  /// Tap the create grid button.
+  ///
+  /// Must call [tapAddButton] first.
+  Future<void> tapCreateCalendarButton() async {
+    await tapButtonWithName(LocaleKeys.calendar_menuName.tr());
   }
 
   /// Tap the import button.
@@ -142,7 +145,9 @@ extension CommonOperations on WidgetTester {
 
   /// open the page with given name.
   Future<void> openPage(String name) async {
-    await tapButton(findPageName(name));
+    final finder = findPageName(name);
+    expect(finder, findsOneWidget);
+    await tapButton(finder);
   }
 
   /// Tap the ... button beside the page name.
@@ -233,6 +238,42 @@ extension CommonOperations on WidgetTester {
         await pumpAndSettle();
       },
     );
+    await pumpAndSettle();
+  }
+
+  Future<void> simulateKeyEvent(
+    LogicalKeyboardKey key, {
+    bool isControlPressed = false,
+    bool isShiftPressed = false,
+    bool isAltPressed = false,
+    bool isMetaPressed = false,
+  }) async {
+    if (isControlPressed) {
+      await simulateKeyDownEvent(LogicalKeyboardKey.control);
+    }
+    if (isShiftPressed) {
+      await simulateKeyDownEvent(LogicalKeyboardKey.shift);
+    }
+    if (isAltPressed) {
+      await simulateKeyDownEvent(LogicalKeyboardKey.alt);
+    }
+    if (isMetaPressed) {
+      await simulateKeyDownEvent(LogicalKeyboardKey.meta);
+    }
+    await simulateKeyDownEvent(key);
+    await simulateKeyUpEvent(key);
+    if (isControlPressed) {
+      await simulateKeyUpEvent(LogicalKeyboardKey.control);
+    }
+    if (isShiftPressed) {
+      await simulateKeyUpEvent(LogicalKeyboardKey.shift);
+    }
+    if (isAltPressed) {
+      await simulateKeyUpEvent(LogicalKeyboardKey.alt);
+    }
+    if (isMetaPressed) {
+      await simulateKeyUpEvent(LogicalKeyboardKey.meta);
+    }
     await pumpAndSettle();
   }
 }
