@@ -1,12 +1,13 @@
+use std::future::Future;
+use std::pin::Pin;
 use std::sync::{Arc, Weak};
 
 use anyhow::Error;
 use appflowy_integrate::{
-  merge_updates_v1, CollabObject, Decode, MsgId, RemoteCollabSnapshot, RemoteCollabState,
-  RemoteCollabStorage, YrsUpdate,
+  merge_updates_v1, CollabObject, MsgId, RemoteCollabSnapshot, RemoteCollabState,
+  RemoteCollabStorage, RemoteUpdateReceiver,
 };
 use chrono::{DateTime, Utc};
-use deadpool_postgres::GenericClient;
 use futures_util::TryStreamExt;
 use tokio::task::spawn_blocking;
 use tokio_postgres::types::ToSql;
@@ -14,6 +15,8 @@ use tokio_postgres::Row;
 
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
+use lib_infra::util::md5;
+use tokio_retry::Action;
 
 use crate::supabase::sql_builder::{
   DeleteSqlBuilder, InsertSqlBuilder, SelectSqlBuilder, WhereCondition,
@@ -136,34 +139,38 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
     let mut client = self.server.get_pg_client().await.recv().await?;
     let txn = client.transaction().await?;
 
-    // 1.Get all updates
+    // 1.Get all updates and lock the table. It means that a subsequent UPDATE, DELETE, or SELECT
+    // FOR UPDATE by this transaction will not result in a lock wait. other transactions that try
+    // to update or lock these specific rows will be blocked until the current transaction ends
     let (sql, params) = SelectSqlBuilder::new("af_collab")
       .column(AF_COLLAB_KEY_COLUMN)
       .column("value")
       .order_by(AF_COLLAB_KEY_COLUMN, true)
       .where_clause("oid", object.id.clone())
+      .lock()
       .build();
+
     let get_all_update_stmt = txn.prepare_cached(&sql).await?;
     let row_stream = txn.query_raw(&get_all_update_stmt, params).await?;
-    let remote_updates = row_stream.try_collect::<Vec<_>>().await?;
+    let pg_rows = row_stream.try_collect::<Vec<_>>().await?;
 
     let insert_builder = InsertSqlBuilder::new("af_collab")
       .value("oid", object.id.clone())
       .value("uid", object.uid)
       .value("name", object.name.clone());
 
-    let (sql, params) = if !remote_updates.is_empty() {
-      let remoted_keys = remote_updates
-        .iter()
+    let (sql, params) = if !pg_rows.is_empty() {
+      let last_row_key = pg_rows
+        .last()
         .map(|row| row.get::<_, i64>(AF_COLLAB_KEY_COLUMN))
-        .collect::<Vec<_>>();
-      let last_row_key = remoted_keys.last().cloned().unwrap();
+        .unwrap();
 
-      // 2.Merge all updates
-      let merged_update =
-        spawn_blocking(move || merge_update_from_rows(remote_updates, init_update)).await??;
+      // 2.Merge the updates into one and then delete the merged updates
+      let merge_result =
+        spawn_blocking(move || merge_update_from_rows(pg_rows, init_update)).await??;
+      tracing::trace!("Merged updates count: {}", merge_result.merged_keys.len());
 
-      // 3. Delete all updates
+      // 3. Delete merged updates
       let (sql, params) = DeleteSqlBuilder::new("af_collab")
         .where_condition(WhereCondition::Equals(
           "oid".to_string(),
@@ -171,7 +178,8 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
         ))
         .where_condition(WhereCondition::In(
           AF_COLLAB_KEY_COLUMN.to_string(),
-          remoted_keys
+          merge_result
+            .merged_keys
             .into_iter()
             .map(|key| Box::new(key) as Box<dyn ToSql + Send + Sync>)
             .collect::<Vec<_>>(),
@@ -180,18 +188,25 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
       let delete_stmt = txn.prepare_cached(&sql).await?;
       txn.execute_raw(&delete_stmt, params).await?;
 
-      let value_size = merged_update.len() as i32;
-      // Override the key with the last row key in case of concurrent init sync
+      // 4. Insert the merged update. The new_update contains the merged update and the
+      // init_update.
+      let new_update = merge_result.new_update;
+
+      let value_size = new_update.len() as i32;
+      let md5 = md5(&new_update);
       insert_builder
-        .value("value", merged_update)
+        .value("value", new_update)
         .value("value_size", value_size)
-        .value(AF_COLLAB_KEY_COLUMN, last_row_key)
-        .overriding_system_value()
-        .build()
+          // Override the key with the existing key in case of concurrent init sync if
+          // the mergeable record is not None. Otherwise, insert a new record.
+        .value("md5", md5) .value(AF_COLLAB_KEY_COLUMN, last_row_key)
+          .overriding_system_value().build()
     } else {
       let value_size = init_update.len() as i32;
+      let md5 = md5(&init_update);
       insert_builder
         .value("value", init_update)
+        .value("md5", md5)
         .value("value_size", value_size)
         .build()
     };
@@ -204,6 +219,12 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
     txn.commit().await?;
     tracing::trace!("{} init sync done", object.id);
     Ok(())
+  }
+
+  async fn subscribe_remote_updates(&self, object: &CollabObject) -> Option<RemoteUpdateReceiver> {
+    // using pg_notify to subscribe to updates
+
+    None
   }
 }
 
@@ -227,7 +248,7 @@ pub async fn get_updates_from_server(
           .try_collect::<Vec<_>>()
           .await?
           .into_iter()
-          .flat_map(|row| update_from_row(row).ok())
+          .flat_map(|row| update_from_row(&row).ok())
           .collect(),
       )
     },
@@ -277,30 +298,73 @@ pub async fn get_latest_snapshot_from_server(
   }
 }
 
-fn update_from_row(row: Row) -> Result<Vec<u8>, FlowyError> {
-  row
-    .try_get::<_, Vec<u8>>("value")
-    .map_err(|e| FlowyError::internal().context(format!("Failed to get value from row: {}", e)))
+fn update_from_row(row: &Row) -> Result<Vec<u8>, anyhow::Error> {
+  let update = row.try_get::<_, Vec<u8>>("value")?;
+  Ok(update)
 }
 
-#[allow(dead_code)]
-fn decode_update_from_row(row: Row) -> Result<YrsUpdate, FlowyError> {
-  let update = update_from_row(row)?;
-  YrsUpdate::decode_v1(&update).map_err(|_| FlowyError::internal().context("Invalid yrs update"))
-}
-
-fn merge_update_from_rows(rows: Vec<Row>, new_update: Vec<u8>) -> Result<Vec<u8>, FlowyError> {
+fn merge_update_from_rows(
+  rows: Vec<Row>,
+  new_update: Vec<u8>,
+) -> Result<MergeResult, anyhow::Error> {
   let mut updates = vec![];
+  let mut merged_keys = vec![];
   for row in rows {
-    let update = update_from_row(row)?;
+    merged_keys.push(row.try_get::<_, i64>(AF_COLLAB_KEY_COLUMN)?);
+    let update = update_from_row(&row)?;
     updates.push(update);
   }
   updates.push(new_update);
-
   let updates = updates
     .iter()
     .map(|update| update.as_ref())
     .collect::<Vec<&[u8]>>();
 
-  merge_updates_v1(&updates).map_err(|_| FlowyError::internal().context("Failed to merge updates"))
+  let new_update = merge_updates_v1(&updates)?;
+  Ok(MergeResult {
+    merged_keys,
+    new_update,
+  })
+}
+
+struct MergeResult {
+  merged_keys: Vec<i64>,
+  new_update: Vec<u8>,
+}
+
+struct FetchUpdatesAction {
+  pg_server: Weak<PostgresServer>,
+}
+
+impl Action for FetchUpdatesAction {
+  type Future = Pin<Box<dyn Future<Output = Result<Self::Item, Self::Error>> + Send + Sync>>;
+  type Item = Vec<Vec<u8>>;
+  type Error = anyhow::Error;
+
+  fn run(&mut self) -> Self::Future {
+    let weak_pb_server = self.pg_server.clone();
+    Box::pin(async move {
+      match weak_pb_server.upgrade() {
+        None => Ok(vec![]),
+        Some(server) => {
+          let client = server.get_pg_client().await.recv().await?;
+          let (sql, params) = SelectSqlBuilder::new("af_collab")
+            .column("value")
+            .order_by(AF_COLLAB_KEY_COLUMN, true)
+            .where_clause("oid", object_id.to_string())
+            .build();
+          let stmt = client.prepare_cached(&sql).await?;
+          let row_stream = client.query_raw(&stmt, params).await?;
+          Ok(
+            row_stream
+              .try_collect::<Vec<_>>()
+              .await?
+              .into_iter()
+              .flat_map(|row| update_from_row(&row).ok())
+              .collect(),
+          )
+        },
+      }
+    })
+  }
 }

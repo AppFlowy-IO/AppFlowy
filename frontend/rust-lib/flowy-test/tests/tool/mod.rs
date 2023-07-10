@@ -1,2 +1,2 @@
-// mod pg_migration;
-// mod pg_row;
+mod pg_migration;
+mod pg_row;

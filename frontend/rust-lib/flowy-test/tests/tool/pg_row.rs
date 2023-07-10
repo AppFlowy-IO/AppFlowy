@@ -34,7 +34,7 @@ impl PostgresConnect {
   async fn get_folder(&self, workspace_id: &str) -> MutexCollab {
     let folder_service = SupabaseFolderCloudServiceImpl::new(self.inner.clone());
     let updates = folder_service
-      .get_folder_updates(workspace_id)
+      .get_folder_updates(workspace_id, 0)
       .await
       .unwrap();
     let collab = MutexCollab::new(CollabOrigin::Server, workspace_id, vec![]);

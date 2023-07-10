@@ -43,9 +43,21 @@ CREATE TABLE IF NOT EXISTS af_collab (
    value BYTEA NOT NULL,
    value_size INTEGER,
    uid BIGINT NOT NULL,
+   md5 TEXT DEFAULT '',
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    PRIMARY KEY (oid, key)
 );
+-- collab pg notify trigger. It will notify the frontend when a new row is inserted in the af_collab table.
+CREATE OR REPLACE FUNCTION notify_on_insert_af_collab() RETURNS trigger AS $$
+BEGIN
+  -- use pg_notify to send a notification
+  PERFORM pg_notify('new_row_in_af_collab', NEW.oid::text);
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER new_af_collab_row_trigger
+    AFTER INSERT ON af_collab
+    FOR EACH ROW EXECUTE PROCEDURE notify_on_insert_af_collab();
 -- collab statistics. It will be used to store the edit_count of the collab.
 CREATE TABLE IF NOT EXISTS af_collab_statistics (
    oid TEXT PRIMARY KEY,

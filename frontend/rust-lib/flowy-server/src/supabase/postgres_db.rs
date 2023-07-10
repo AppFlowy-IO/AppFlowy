@@ -3,7 +3,7 @@ use std::fmt::{Debug, Formatter};
 use std::sync::Arc;
 
 use deadpool_postgres::{Manager, ManagerConfig, Object, Pool, RecyclingMethod};
-use tokio_postgres::NoTls;
+use tokio_postgres::{GenericClient, NoTls};
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 

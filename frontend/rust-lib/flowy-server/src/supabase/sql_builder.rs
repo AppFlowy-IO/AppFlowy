@@ -54,6 +54,7 @@ pub struct SelectSqlBuilder {
   where_clause: Option<(String, Box<dyn ToSql + Sync + Send>)>,
   order_by: Option<(String, bool)>,
   limit: Option<i64>,
+  lock: bool,
 }
 
 impl SelectSqlBuilder {
@@ -64,7 +65,13 @@ impl SelectSqlBuilder {
       where_clause: None,
       order_by: None,
       limit: None,
+      lock: false,
     }
+  }
+
+  pub fn lock(mut self) -> Self {
+    self.lock = true;
+    self
   }
 
   pub fn column(mut self, column: &str) -> Self {
@@ -103,6 +110,10 @@ impl SelectSqlBuilder {
 
     if let Some(limit) = self.limit {
       sql.push_str(&format!(" LIMIT {}", limit));
+    }
+
+    if self.lock {
+      sql.push_str(" FOR UPDATE");
     }
 
     (sql, params)
