@@ -25,7 +25,11 @@ pub trait FolderCloudService: Send + Sync + 'static {
     workspace_id: &str,
   ) -> FutureResult<Option<FolderSnapshot>, FlowyError>;
 
-  fn get_folder_updates(&self, workspace_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError>;
+  fn get_folder_updates(
+    &self,
+    workspace_id: &str,
+    uid: i64,
+  ) -> FutureResult<Vec<Vec<u8>>, FlowyError>;
 
   fn service_name(&self) -> String;
 }

@@ -89,7 +89,11 @@ impl FolderCloudService for SupabaseFolderCloudServiceImpl {
     })
   }
 
-  fn get_folder_updates(&self, workspace_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+  fn get_folder_updates(
+    &self,
+    workspace_id: &str,
+    _uid: i64,
+  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
     let server = Arc::downgrade(&self.server);
     let (tx, rx) = channel();
     let workspace_id = workspace_id.to_string();

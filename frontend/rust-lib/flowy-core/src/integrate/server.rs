@@ -20,6 +20,8 @@ use flowy_user::event_map::{UserAuthService, UserCloudServiceProvider};
 use flowy_user::services::AuthType;
 use lib_infra::future::FutureResult;
 
+use crate::AppFlowyCoreConfig;
+
 const SERVER_PROVIDER_TYPE_KEY: &str = "server_provider_type";
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize_repr, Deserialize_repr)]
@@ -42,13 +44,18 @@ pub enum ServerProviderType {
 /// exist.
 /// Each server implements the [AppFlowyServer] trait, which provides the [UserAuthService], etc.
 pub struct AppFlowyServerProvider {
+  config: AppFlowyCoreConfig,
   provider_type: RwLock<ServerProviderType>,
   providers: RwLock<HashMap<ServerProviderType, Arc<dyn AppFlowyServer>>>,
 }
 
 impl AppFlowyServerProvider {
-  pub fn new() -> Self {
-    Self::default()
+  pub fn new(config: AppFlowyCoreConfig) -> Self {
+    Self {
+      config,
+      provider_type: RwLock::new(current_server_provider()),
+      providers: RwLock::new(HashMap::new()),
+    }
   }
 
   pub fn provider_type(&self) -> ServerProviderType {
@@ -64,21 +71,12 @@ impl AppFlowyServerProvider {
       return Ok(provider.clone());
     }
 
-    let server = server_from_auth_type(provider_type)?;
+    let server = server_from_auth_type(&self.config, provider_type)?;
     self
       .providers
       .write()
       .insert(provider_type.clone(), server.clone());
     Ok(server)
-  }
-}
-
-impl Default for AppFlowyServerProvider {
-  fn default() -> Self {
-    Self {
-      provider_type: RwLock::new(current_server_provider()),
-      providers: RwLock::new(HashMap::new()),
-    }
   }
 }
 
@@ -144,13 +142,17 @@ impl FolderCloudService for AppFlowyServerProvider {
     })
   }
 
-  fn get_folder_updates(&self, workspace_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+  fn get_folder_updates(
+    &self,
+    workspace_id: &str,
+    uid: i64,
+  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_provider(&self.provider_type.read());
     FutureResult::new(async move {
       server?
         .folder_service()
-        .get_folder_updates(&workspace_id)
+        .get_folder_updates(&workspace_id, uid)
         .await
     })
   }
@@ -246,11 +248,12 @@ impl CollabStorageProvider for AppFlowyServerProvider {
 }
 
 fn server_from_auth_type(
+  config: &AppFlowyCoreConfig,
   provider: &ServerProviderType,
 ) -> Result<Arc<dyn AppFlowyServer>, FlowyError> {
   match provider {
     ServerProviderType::Local => {
-      let server = Arc::new(LocalServer::new());
+      let server = Arc::new(LocalServer::new(&config.storage_path));
       Ok(server)
     },
     ServerProviderType::SelfHosted => {

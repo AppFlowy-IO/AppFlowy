@@ -30,7 +30,11 @@ impl FolderCloudService for SelfHostedServerFolderCloudServiceImpl {
     FutureResult::new(async move { Ok(None) })
   }
 
-  fn get_folder_updates(&self, _workspace_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+  fn get_folder_updates(
+    &self,
+    _workspace_id: &str,
+    _uid: i64,
+  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
     FutureResult::new(async move { Ok(vec![]) })
   }
 

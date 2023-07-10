@@ -34,7 +34,8 @@ pub mod prelude {
 embed_migrations!("../flowy-sqlite/migrations/");
 pub const DB_NAME: &str = "flowy-database.db";
 
-pub fn init(storage_path: &str) -> Result<Database, io::Error> {
+pub fn init<P: AsRef<Path>>(storage_path: P) -> Result<Database, io::Error> {
+  let storage_path = storage_path.as_ref().to_str().unwrap();
   if !Path::new(storage_path).exists() {
     std::fs::create_dir_all(storage_path)?;
   }

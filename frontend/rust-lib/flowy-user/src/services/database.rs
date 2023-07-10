@@ -7,79 +7,23 @@ use parking_lot::RwLock;
 
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_sqlite::ConnectionPool;
-use flowy_sqlite::{schema::user_table, DBConnection, Database};
+use flowy_sqlite::{
+  query_dsl::*,
+  schema::{user_table, user_table::dsl},
+  DBConnection, Database, ExpressionMethods,
+};
 
 use crate::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 
 pub struct UserDB {
-  db_dir: String,
+  root: String,
 }
 
 impl UserDB {
   pub fn new(db_dir: &str) -> Self {
     Self {
-      db_dir: db_dir.to_owned(),
+      root: db_dir.to_owned(),
     }
-  }
-
-  fn open_user_db_if_need(&self, user_id: i64) -> Result<Arc<ConnectionPool>, FlowyError> {
-    if let Some(database) = DB_MAP.read().get(&user_id) {
-      return Ok(database.get_pool());
-    }
-
-    let mut write_guard = DB_MAP.write();
-    // The Write guard acquire exclusive access that will guarantee the user db only initialize once.
-    match write_guard.get(&user_id) {
-      None => {},
-      Some(database) => return Ok(database.get_pool()),
-    }
-
-    let mut dir = PathBuf::new();
-    dir.push(&self.db_dir);
-    dir.push(user_id.to_string());
-    let dir = dir.to_str().unwrap().to_owned();
-
-    tracing::debug!("open sqlite db {} at path: {}", user_id, dir);
-    let db = flowy_sqlite::init(&dir).map_err(|e| {
-      tracing::error!("open user db failed, {:?}", e);
-      FlowyError::new(ErrorCode::MultipleDBInstance, e)
-    })?;
-    let pool = db.get_pool();
-    write_guard.insert(user_id.to_owned(), db);
-    drop(write_guard);
-    Ok(pool)
-  }
-
-  fn open_collab_db_if_need(&self, user_id: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
-    if let Some(kv) = COLLAB_DB_MAP.read().get(&user_id) {
-      return Ok(kv.clone());
-    }
-
-    let mut write_guard = COLLAB_DB_MAP.write();
-    // The Write guard acquire exclusive access that will guarantee the user db only initialize once.
-    match write_guard.get(&user_id) {
-      None => {},
-      Some(kv) => return Ok(kv.clone()),
-    }
-
-    let mut dir = PathBuf::new();
-    dir.push(&self.db_dir);
-    dir.push(user_id.to_string());
-    dir.push("collab_db");
-
-    tracing::trace!("open collab db {} at path: {:?}", user_id, dir);
-    let db = match RocksCollabDB::open(dir) {
-      Ok(db) => Ok(db),
-      Err(err) => {
-        tracing::error!("open collab db failed, {:?}", err);
-        Err(FlowyError::new(ErrorCode::MultipleDBInstance, err))
-      },
-    }?;
-
-    let db = Arc::new(db);
-    write_guard.insert(user_id.to_owned(), db.clone());
-    drop(write_guard);
-    Ok(db)
   }
 
   pub(crate) fn close_user_db(&self, user_id: i64) -> Result<(), FlowyError> {
@@ -101,14 +45,79 @@ impl UserDB {
   }
 
   pub(crate) fn get_pool(&self, user_id: i64) -> Result<Arc<ConnectionPool>, FlowyError> {
-    let pool = self.open_user_db_if_need(user_id)?;
+    let pool = open_user_db(&self.root, user_id)?;
     Ok(pool)
   }
 
   pub(crate) fn get_collab_db(&self, user_id: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
-    let collab_db = self.open_collab_db_if_need(user_id)?;
+    let collab_db = open_collab_db(&self.root, user_id)?;
     Ok(collab_db)
   }
+}
+
+pub fn open_user_db(root: &str, user_id: i64) -> Result<Arc<ConnectionPool>, FlowyError> {
+  if let Some(database) = DB_MAP.read().get(&user_id) {
+    return Ok(database.get_pool());
+  }
+
+  let mut write_guard = DB_MAP.write();
+  let dir = user_db_path_from_uid(root, user_id);
+  tracing::debug!("open sqlite db {} at path: {:?}", user_id, dir);
+  let db = flowy_sqlite::init(&dir)
+    .map_err(|e| FlowyError::internal().context(format!("open user db failed, {:?}", e)))?;
+  let pool = db.get_pool();
+  write_guard.insert(user_id.to_owned(), db);
+  drop(write_guard);
+  Ok(pool)
+}
+
+pub fn get_user_profile(pool: &Arc<ConnectionPool>, uid: i64) -> Result<UserProfile, FlowyError> {
+  let uid = uid.to_string();
+  let conn = pool.get()?;
+  let user = dsl::user_table
+    .filter(user_table::id.eq(&uid))
+    .first::<UserTable>(&*conn)?;
+
+  Ok(user.into())
+}
+
+fn user_db_path_from_uid(root: &str, uid: i64) -> PathBuf {
+  let mut dir = PathBuf::new();
+  dir.push(root);
+  dir.push(uid.to_string());
+  dir
+}
+
+/// Open a collab db for the user. If the db is already opened, return the opened db.
+///
+pub fn open_collab_db(root: &str, uid: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
+  if let Some(collab_db) = COLLAB_DB_MAP.read().get(&uid) {
+    return Ok(collab_db.clone());
+  }
+
+  let mut write_guard = COLLAB_DB_MAP.write();
+  let dir = collab_db_path_from_uid(root, uid);
+  tracing::trace!("open collab db {} at path: {:?}", uid, dir);
+  let db = match RocksCollabDB::open(dir) {
+    Ok(db) => Ok(db),
+    Err(err) => {
+      tracing::error!("open collab db failed, {:?}", err);
+      Err(FlowyError::new(ErrorCode::MultipleDBInstance, err))
+    },
+  }?;
+
+  let db = Arc::new(db);
+  write_guard.insert(uid.to_owned(), db.clone());
+  drop(write_guard);
+  Ok(db)
+}
+
+fn collab_db_path_from_uid(root: &str, uid: i64) -> PathBuf {
+  let mut dir = PathBuf::new();
+  dir.push(root);
+  dir.push(uid.to_string());
+  dir.push("collab_db");
+  dir
 }
 
 lazy_static! {

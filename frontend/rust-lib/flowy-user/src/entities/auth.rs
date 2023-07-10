@@ -23,6 +23,10 @@ pub struct SignInPayloadPB {
 
   #[pb(index = 4)]
   pub auth_type: AuthTypePB,
+
+  // Only used in local sign in.
+  #[pb(index = 5, one_of)]
+  pub uid: Option<i64>,
 }
 
 impl TryInto<SignInParams> for SignInPayloadPB {
@@ -37,6 +41,7 @@ impl TryInto<SignInParams> for SignInPayloadPB {
       password: password.0,
       name: self.name,
       auth_type: self.auth_type.into(),
+      uid: self.uid,
     })
   }
 }
@@ -78,6 +83,8 @@ pub struct SignInParams {
   pub password: String,
   pub name: String,
   pub auth_type: AuthType,
+  // Currently, the uid only used in local sign in.
+  pub uid: Option<i64>,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]

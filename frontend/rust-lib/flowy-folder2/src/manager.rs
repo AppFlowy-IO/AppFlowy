@@ -179,8 +179,29 @@ impl FolderManager {
     Ok(collab)
   }
 
-  /// Called after the user sign up / sign in
-  pub async fn initialize_with_new_user(
+  pub async fn initialize_when_sign_in(&self, user_id: i64, workspace_id: &str) -> FlowyResult<()> {
+    tracing::info!("initialize_when_sign_in");
+    let folder_updates = self
+      .cloud_service
+      .get_folder_updates(workspace_id, user_id)
+      .await?;
+    if !folder_updates.is_empty() {
+      tracing::trace!(
+        "Get folder updates via {}",
+        self.cloud_service.service_name()
+      );
+    }
+    self
+      .initialize(
+        user_id,
+        workspace_id,
+        FolderInitializeData::Raw(folder_updates),
+      )
+      .await?;
+    Ok(())
+  }
+
+  pub async fn initialize_when_sign_up(
     &self,
     user_id: i64,
     token: &str,
@@ -188,7 +209,7 @@ impl FolderManager {
     workspace_id: &str,
   ) -> FlowyResult<()> {
     // Create the default workspace if the user is new
-    tracing::info!("initialize_with_user: is_new: {}", is_new);
+    tracing::info!("initialize_when_sign_up: is_new: {}", is_new);
     if is_new {
       let (folder_data, workspace_pb) = DefaultFolderBuilder::build(
         self.user.user_id()?,
@@ -213,7 +234,10 @@ impl FolderManager {
       // The folder data is loaded through the [FolderCloudService]. If the cloud service in use is
       // [LocalServerFolderCloudServiceImpl], the folder data will be None because the Folder will load
       // the data directly from the disk. If any other cloud service is in use, the folder data will be loaded remotely.
-      let folder_updates = self.cloud_service.get_folder_updates(workspace_id).await?;
+      let folder_updates = self
+        .cloud_service
+        .get_folder_updates(workspace_id, user_id)
+        .await?;
       if !folder_updates.is_empty() {
         tracing::trace!(
           "Get folder updates via {}",

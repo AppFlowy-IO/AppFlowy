@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use nanoid::nanoid;
 
-use flowy_user::entities::{AuthTypePB, SignInPayloadPB, SignUpPayloadPB, UserProfilePB};
+use flowy_user::entities::{AuthTypePB, SignUpPayloadPB, UserProfilePB};
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserEvent::*;
 use lib_dispatch::prelude::{AFPluginDispatcher, AFPluginRequest, ToBytes};
@@ -79,22 +79,4 @@ pub async fn async_sign_up(
 pub async fn init_user_setting(dispatch: Arc<AFPluginDispatcher>) {
   let request = AFPluginRequest::new(InitUser);
   let _ = AFPluginDispatcher::async_send(dispatch.clone(), request).await;
-}
-
-#[allow(dead_code)]
-fn sign_in(dispatch: Arc<AFPluginDispatcher>) -> UserProfilePB {
-  let payload = SignInPayloadPB {
-    email: login_email(),
-    password: login_password(),
-    name: "rust".to_owned(),
-    auth_type: AuthTypePB::Local,
-  }
-  .into_bytes()
-  .unwrap();
-
-  let request = AFPluginRequest::new(SignIn).payload(payload);
-  AFPluginDispatcher::sync_send(dispatch, request)
-    .parse::<UserProfilePB, FlowyError>()
-    .unwrap()
-    .unwrap()
 }
