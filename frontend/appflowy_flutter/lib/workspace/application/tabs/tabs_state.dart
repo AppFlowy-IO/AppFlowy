@@ -13,26 +13,30 @@ class TabsState {
     List<PageManager>? pageManagers,
   }) : _pageManagers = pageManagers ?? [PageManager()];
 
-  /// This opens a new tab, only if the id of the plugin
-  /// being opened, is disimilar to all currently open tabs.
+  /// This opens a new tab given a [Plugin] and a [View].
+  ///
+  /// If the [Plugin.id] is already associated with an open tab,
+  /// then it selects that tab.
   ///
   TabsState openView(Plugin plugin, ViewPB view) {
-    final existingIndex = _pageManagers.indexWhere(
-      (pm) => pm.plugin.id == plugin.id,
-    );
+    final selectExistingPlugin = _selectPluginIfOpen(plugin.id);
 
-    if (existingIndex != -1) {
-      return copyWith(newIndex: existingIndex);
+    if (selectExistingPlugin == null) {
+      _pageManagers.add(PageManager()..setPlugin(plugin));
+
+      return copyWith(newIndex: pages - 1, pageManagers: [..._pageManagers]);
     }
 
-    _pageManagers.add(PageManager()..setPlugin(plugin));
-
-    return copyWith(newIndex: pages - 1, pageManagers: [..._pageManagers]);
+    return selectExistingPlugin;
   }
 
   TabsState closeView(String pluginId) {
     _pageManagers.removeWhere((pm) => pm.plugin.id == pluginId);
 
+    /// If currentIndex is greater than the amount of allowed indices
+    /// And the current selected tab isn't the first (index 0)
+    ///   as currentIndex cannot be -1
+    /// Then decrease currentIndex by 1
     final newIndex = currentIndex > pages - 1 && currentIndex > 0
         ? currentIndex - 1
         : currentIndex;
@@ -51,17 +55,31 @@ class TabsState {
   /// will become selected.
   ///
   TabsState openPlugin({required Plugin plugin}) {
-    final existingIndex =
-        _pageManagers.indexWhere((pm) => pm.plugin.id == plugin.id);
+    final selectExistingPlugin = _selectPluginIfOpen(plugin.id);
 
-    if (existingIndex != -1) {
-      return copyWith(newIndex: existingIndex);
+    if (selectExistingPlugin == null) {
+      final pageManagers = [..._pageManagers];
+      pageManagers[currentIndex].setPlugin(plugin);
+
+      return copyWith(pageManagers: pageManagers);
     }
 
-    final pageManagers = [..._pageManagers];
-    pageManagers[currentIndex].setPlugin(plugin);
+    return selectExistingPlugin;
+  }
 
-    return copyWith(pageManagers: pageManagers);
+  /// Checks if a [Plugin.id] is already associated with an open tab.
+  /// Returns a [TabState] with new index if there is a match.
+  ///
+  /// If no match it returns null
+  ///
+  TabsState? _selectPluginIfOpen(String id) {
+    final index = _pageManagers.indexWhere((pm) => pm.plugin.id == id);
+
+    if (index == -1) {
+      return null;
+    }
+
+    return copyWith(newIndex: index);
   }
 
   TabsState copyWith({

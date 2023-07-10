@@ -1,6 +1,7 @@
 import 'package:appflowy/workspace/presentation/home/menu/app/section/item.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/flowy_tab.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,6 +10,10 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 
 import 'util/base.dart';
 import 'util/common_operations.dart';
+
+const _readmeName = 'Read me';
+const _documentName = 'Document';
+const _calendarName = 'Calendar';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -27,21 +32,14 @@ void main() {
         findsNothing,
       );
 
-      await tester.tapAddButton();
-      await tester.tapCreateCalendarButton();
-      await tester.hoverOnPageName('Untitled');
-      await tester.renamePage('Calendar');
-
-      await tester.tapAddButton();
-      await tester.tapCreateDocumentButton();
-      await tester.hoverOnPageName('Untitled');
-      await tester.renamePage('Document');
+      await tester.createNewPageWithName(ViewLayoutPB.Calendar, _calendarName);
+      await tester.createNewPageWithName(ViewLayoutPB.Document, _documentName);
 
       // Navigate current view to "Read me" document again
-      await tester.tapButtonWithName('Read me');
+      await tester.tapButtonWithName(_readmeName);
 
       /// Open second menu item in a new tab
-      await tester.hoverOnPageName('Calendar');
+      await tester.hoverOnPageName(_calendarName);
       await tester.tap(find.byType(ViewDisclosureButton));
       await tester.pumpAndSettle();
 
@@ -49,7 +47,7 @@ void main() {
       await tester.pumpAndSettle();
 
       /// Open third menu item in a new tab
-      await tester.hoverOnPageName('Document');
+      await tester.hoverOnPageName(_documentName);
       await tester.tap(find.byType(ViewDisclosureButton));
       await tester.pumpAndSettle();
 
@@ -76,7 +74,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byType(FlowyTab),
-          matching: find.text('Read me'),
+          matching: find.text(_readmeName),
         ),
       );
     });

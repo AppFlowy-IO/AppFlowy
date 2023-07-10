@@ -34,13 +34,13 @@ class _ViewTabBarItemState extends State<ViewTabBarItem> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return FlowyText.medium(view.name);
-  }
-
-  @override
   void dispose() {
     _viewListener.stop();
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyText.medium(view.name);
   }
 }

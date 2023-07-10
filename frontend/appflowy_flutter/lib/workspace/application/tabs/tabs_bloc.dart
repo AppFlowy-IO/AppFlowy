@@ -47,10 +47,10 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
     if (view != null) {
       menuSharedState.latestOpenView = view;
     } else {
-      final pm = state.currentPageManager;
-      if (pm.plugin.notifier is ViewPluginNotifier) {
-        final pluginNotifier = pm.plugin.notifier as ViewPluginNotifier;
-        menuSharedState.latestOpenView = pluginNotifier.view;
+      final pageManager = state.currentPageManager;
+      final notifier = pageManager.plugin.notifier;
+      if (notifier is ViewPluginNotifier) {
+        menuSharedState.latestOpenView = notifier.view;
       }
     }
   }

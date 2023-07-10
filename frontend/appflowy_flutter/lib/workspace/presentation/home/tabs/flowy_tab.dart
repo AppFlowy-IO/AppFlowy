@@ -32,40 +32,33 @@ class _FlowyTabState extends State<FlowyTab> {
         onEnter: (_) => _setHovering(true),
         onExit: (_) => _setHovering(),
         child: Container(
-          width: 200,
+          width: HomeSizes.tabBarWidth,
           height: HomeSizes.tabBarHeigth,
           decoration: BoxDecoration(
             color: _getBackgroundColor(),
           ),
-          child: Container(
-            width: 200,
-            height: HomeSizes.tabBarHeigth,
-            decoration: BoxDecoration(
-              color: _getBackgroundColor(),
-            ),
-            child: ChangeNotifierProvider.value(
-              value: widget.pageManager.notifier,
-              child: Consumer<PageNotifier>(
-                builder: (context, value, child) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: widget.pageManager.notifier
-                            .tabBarWidget(widget.pageManager.plugin.id),
-                      ),
-                      Visibility(
-                        visible: _isHovering,
-                        child: FlowyIconButton(
-                          onPressed: _closeTab,
-                          icon: const FlowySvg(
-                            name: 'editor/close',
-                            size: Size.fromWidth(16),
-                          ),
+          child: ChangeNotifierProvider.value(
+            value: widget.pageManager.notifier,
+            child: Consumer<PageNotifier>(
+              builder: (context, value, child) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: widget.pageManager.notifier
+                          .tabBarWidget(widget.pageManager.plugin.id),
+                    ),
+                    Visibility(
+                      visible: _isHovering,
+                      child: FlowyIconButton(
+                        onPressed: _closeTab,
+                        icon: const FlowySvg(
+                          name: 'editor/close',
+                          size: Size.fromWidth(16),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -93,7 +86,7 @@ class _FlowyTabState extends State<FlowyTab> {
     return Theme.of(context).colorScheme.surfaceVariant;
   }
 
-  void _closeTab([TapUpDetails? details]) => context.read<TabsBloc>().add(
-        TabsEvent.closeTab(widget.pageManager.plugin.id),
-      );
+  void _closeTab([TapUpDetails? details]) => context
+      .read<TabsBloc>()
+      .add(TabsEvent.closeTab(widget.pageManager.plugin.id));
 }
