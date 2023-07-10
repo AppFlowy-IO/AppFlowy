@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/strin
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
