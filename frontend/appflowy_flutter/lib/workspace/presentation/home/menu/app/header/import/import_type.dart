@@ -80,3 +80,29 @@ enum ImportType {
     }
   }
 }
+
+enum ImportFromNotionType {
+  page;
+
+  @override
+  String toString() {
+    switch (this) {
+      case ImportFromNotionType.page:
+        return 'Page';
+    }
+  }
+
+  List<String> get allowedExtensions {
+    switch (this) {
+      case ImportFromNotionType.page:
+        return ['zip'];
+    }
+  }
+
+  bool get allowMultiSelect {
+    switch (this) {
+      case ImportFromNotionType.page:
+        return false;
+    }
+  }
+}
