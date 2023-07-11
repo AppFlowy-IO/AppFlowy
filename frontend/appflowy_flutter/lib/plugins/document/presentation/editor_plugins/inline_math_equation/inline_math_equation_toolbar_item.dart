@@ -23,7 +23,7 @@ final ToolbarItem inlineMathEquationItem = ToolbarItem(
         size: const Size.square(16),
         color: isHighlight ? Colors.lightBlue : Colors.white,
       ),
-      isHighlight: true,
+      isHighlight: isHighlight,
       tooltip: LocaleKeys.document_plugins_createInlineMathEquation.tr(),
       onPressed: () async {
         final selection = editorState.selection;
