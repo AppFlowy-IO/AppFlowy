@@ -32,7 +32,7 @@ class EditorOperations {
 
   /// Tap the line of editor at [index]
   Future<void> tapLineOfEditorAt(int index) async {
-    final textBlocks = find.byType(FlowyRichText);
+    final textBlocks = find.byType(AppFlowyRichText);
     index = index.clamp(0, textBlocks.evaluate().length - 1);
     await tester.tapAt(tester.getTopRight(textBlocks.at(index)));
     await tester.pumpAndSettle();

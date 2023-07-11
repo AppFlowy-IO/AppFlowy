@@ -21,7 +21,7 @@ final ToolbarItem inlineMathEquationItem = ToolbarItem(
       iconBuilder: (_) => svgWidget(
         'editor/math',
         size: const Size.square(16),
-        color: Colors.white,
+        color: isHighlight ? Colors.lightBlue : Colors.white,
       ),
       isHighlight: isHighlight,
       tooltip: LocaleKeys.document_plugins_createInlineMathEquation.tr(),
@@ -31,12 +31,33 @@ final ToolbarItem inlineMathEquationItem = ToolbarItem(
           return;
         }
         final node = editorState.getNodeAtPath(selection.start.path);
-        if (node == null) {
+        final delta = node?.delta;
+        if (node == null || delta == null) {
           return;
         }
-        final text = editorState.getTextInSelection(selection).join();
-        final transaction = editorState.transaction
-          ..replaceText(
+
+        final transaction = editorState.transaction;
+        if (isHighlight) {
+          final formula = delta
+              .slice(selection.startIndex, selection.endIndex)
+              .whereType<TextInsert>()
+              .firstOrNull
+              ?.attributes?[InlineMathEquationKeys.formula];
+          assert(formula != null);
+          if (formula == null) {
+            return;
+          }
+          // clear the format
+          transaction.replaceText(
+            node,
+            selection.startIndex,
+            selection.length,
+            formula,
+            attributes: {},
+          );
+        } else {
+          final text = editorState.getTextInSelection(selection).join();
+          transaction.replaceText(
             node,
             selection.startIndex,
             selection.length,
@@ -45,6 +66,7 @@ final ToolbarItem inlineMathEquationItem = ToolbarItem(
               InlineMathEquationKeys.formula: text,
             },
           );
+        }
         await editorState.apply(transaction);
       },
     );

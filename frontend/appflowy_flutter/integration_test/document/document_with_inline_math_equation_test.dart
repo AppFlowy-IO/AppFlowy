@@ -61,5 +61,61 @@ void main() {
       );
       await tester.pumpAndSettle();
     });
+
+    testWidgets('remove the inline math equation format', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      // create a new document
+      await tester.createNewPageWithName(
+        ViewLayoutPB.Document,
+        LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+      );
+
+      // tap the first line of the document
+      await tester.editor.tapLineOfEditorAt(0);
+      // insert a inline page
+      const formula = 'E = MC ^ 2';
+      await tester.ime.insertText(formula);
+      await tester.editor.updateSelection(
+        Selection.single(path: [0], startOffset: 0, endOffset: formula.length),
+      );
+
+      // tap the inline math equation button
+      var inlineMathEquationButton = find.byTooltip(
+        LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+      );
+      await tester.tapButton(inlineMathEquationButton);
+
+      // expect to see the math equation block
+      var inlineMathEquation = find.byType(InlineMathEquation);
+      expect(inlineMathEquation, findsOneWidget);
+
+      // highlight the math equation block
+      await tester.editor.updateSelection(
+        Selection.single(path: [0], startOffset: 0, endOffset: 1),
+      );
+
+      // expect to the see the inline math equation button is highlighted
+      inlineMathEquationButton = find.byWidgetPredicate(
+        (widget) =>
+            widget is IconItemWidget &&
+            widget.tooltip ==
+                LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+      );
+      expect(
+        tester.widget<IconItemWidget>(inlineMathEquationButton).isHighlight,
+        isTrue,
+      );
+
+      // cancel the format
+      await tester.tapButton(inlineMathEquationButton);
+
+      // expect to see the math equation block is removed
+      inlineMathEquation = find.byType(InlineMathEquation);
+      expect(inlineMathEquation, findsNothing);
+
+      tester.expectToSeeText(formula);
+    });
   });
 }

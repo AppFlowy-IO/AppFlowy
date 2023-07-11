@@ -141,7 +141,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final (bool autoFocus, Selection? selection) =
         _computeAutoFocusParameters();
 
-    final editor = AppFlowyEditor.custom(
+    final editor = AppFlowyEditor(
       editorState: widget.editorState,
       editable: true,
       shrinkWrap: widget.shrinkWrap,

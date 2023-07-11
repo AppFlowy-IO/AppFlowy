@@ -84,7 +84,7 @@ class _ToggleListBlockComponentWidgetState
     extends State<ToggleListBlockComponentWidget>
     with
         SelectableMixin,
-        DefaultSelectable,
+        DefaultSelectableMixin,
         BlockComponentConfigurable,
         BackgroundColorMixin {
   // the key used to forward focus to the richtext child
@@ -141,7 +141,7 @@ class _ToggleListBlockComponentWidgetState
           width: 4.0,
         ),
         Expanded(
-          child: FlowyRichText(
+          child: AppFlowyRichText(
             key: forwardKey,
             node: widget.node,
             editorState: editorState,
