@@ -51,8 +51,7 @@ class AppFlowyAuthService implements AuthService {
     AuthTypePB authType = AuthTypePB.Local,
     Map<String, String> map = const {},
   }) async {
-    final payload = SignOutPB()..authType = authType;
-    await UserEventSignOut(payload).send();
+    await UserEventSignOut().send();
     return;
   }
 
@@ -61,7 +60,7 @@ class AppFlowyAuthService implements AuthService {
     AuthTypePB authType = AuthTypePB.Local,
     Map<String, String> map = const {},
   }) {
-    const password = "AppFlowy123@";
+    const password = "Guest!@123456";
     final uid = uuid();
     final userEmail = "$uid@appflowy.io";
     return signUp(

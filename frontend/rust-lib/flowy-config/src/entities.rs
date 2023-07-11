@@ -35,6 +35,9 @@ pub struct SupabaseConfigPB {
 
   #[pb(index = 5)]
   pub postgres_config: PostgresConfigurationPB,
+
+  #[pb(index = 6)]
+  enable_sync: bool,
 }
 
 impl TryFrom<SupabaseConfigPB> for SupabaseConfiguration {
@@ -46,6 +49,7 @@ impl TryFrom<SupabaseConfigPB> for SupabaseConfiguration {
       url: config.supabase_url,
       key: config.key,
       jwt_secret: config.jwt_secret,
+      enable_sync: config.enable_sync,
       postgres_config,
     })
   }

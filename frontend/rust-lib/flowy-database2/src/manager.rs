@@ -322,13 +322,15 @@ fn subscribe_block_event(workspace_database: &WorkspaceDatabase) {
   tokio::spawn(async move {
     while let Ok(event) = block_event_rx.recv().await {
       match event {
-        BlockEvent::DidFetchRow(row_detail) => {
-          tracing::trace!("Did fetch row: {:?}", row_detail.row.id);
-          let row_id = row_detail.row.id.clone();
-          let pb = DidFetchRowPB::from(row_detail);
-          send_notification(&row_id, DatabaseNotification::DidFetchRow)
-            .payload(pb)
-            .send();
+        BlockEvent::DidFetchRow(row_details) => {
+          for row_detail in row_details {
+            tracing::trace!("Did fetch row: {:?}", row_detail.row.id);
+            let row_id = row_detail.row.id.clone();
+            let pb = DidFetchRowPB::from(row_detail);
+            send_notification(&row_id, DatabaseNotification::DidFetchRow)
+              .payload(pb)
+              .send();
+          }
         },
       }
     }

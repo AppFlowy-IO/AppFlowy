@@ -154,7 +154,7 @@ pub enum UserEvent {
   SignUp = 1,
 
   /// Logging out fo an account
-  #[event(input = "SignOutPB")]
+  #[event()]
   SignOut = 2,
 
   /// Update the user information

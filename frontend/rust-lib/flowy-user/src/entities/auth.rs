@@ -198,12 +198,6 @@ impl UpdateUserProfileParams {
   }
 }
 
-#[derive(ProtoBuf, Default)]
-pub struct SignOutPB {
-  #[pb(index = 1)]
-  pub auth_type: AuthTypePB,
-}
-
 #[derive(Debug, ProtoBuf, Default)]
 pub struct UserCredentialsPB {
   #[pb(index = 1, one_of)]

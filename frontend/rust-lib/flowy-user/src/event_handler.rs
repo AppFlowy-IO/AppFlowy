@@ -56,11 +56,9 @@ pub async fn init_user_handler(session: AFPluginState<Arc<UserSession>>) -> Resu
 
 #[tracing::instrument(level = "debug", skip(session))]
 pub async fn check_user_handler(
-  data: AFPluginData<UserCredentialsPB>,
   session: AFPluginState<Arc<UserSession>>,
 ) -> Result<(), FlowyError> {
-  let credential = UserCredentials::from(data.into_inner());
-  session.check_user(credential).await?;
+  session.check_user().await?;
   Ok(())
 }
 
@@ -72,13 +70,9 @@ pub async fn get_user_profile_handler(
   data_result_ok(user_profile)
 }
 
-#[tracing::instrument(level = "debug", skip(data, session))]
-pub async fn sign_out(
-  data: AFPluginData<SignOutPB>,
-  session: AFPluginState<Arc<UserSession>>,
-) -> Result<(), FlowyError> {
-  let auth_type: AuthType = data.into_inner().auth_type.into();
-  session.sign_out(&auth_type).await?;
+#[tracing::instrument(level = "debug", skip(session))]
+pub async fn sign_out(session: AFPluginState<Arc<UserSession>>) -> Result<(), FlowyError> {
+  session.sign_out().await?;
   Ok(())
 }
 

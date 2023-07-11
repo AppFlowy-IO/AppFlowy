@@ -167,13 +167,13 @@ impl UserSession {
   }
 
   #[tracing::instrument(level = "debug", skip(self))]
-  pub async fn sign_out(&self, auth_type: &AuthType) -> Result<(), FlowyError> {
+  pub async fn sign_out(&self) -> Result<(), FlowyError> {
     let session = self.get_session()?;
     let uid = session.user_id.to_string();
     let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&uid)))
       .execute(&*(self.db_connection()?))?;
 
-    self.database.close_user_db(session.user_id)?;
+    self.database.close(session.user_id)?;
     self.set_session(None)?;
 
     let server = self.cloud_services.get_auth_service()?;
@@ -216,7 +216,9 @@ impl UserSession {
     Ok(())
   }
 
-  pub async fn check_user(&self, credential: UserCredentials) -> Result<(), FlowyError> {
+  pub async fn check_user(&self) -> Result<(), FlowyError> {
+    let (user_id, _) = self.get_session()?.into_part();
+    let credential = UserCredentials::from_uid(user_id);
     let auth_service = self.cloud_services.get_auth_service()?;
     auth_service.check_user(credential).await
   }

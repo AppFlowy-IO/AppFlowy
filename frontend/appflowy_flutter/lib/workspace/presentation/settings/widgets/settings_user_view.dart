@@ -74,8 +74,7 @@ class SettingsUserView extends StatelessWidget {
         'Logout',
       ),
       onTap: () async {
-        await getIt<AuthService>().signOut(authType: AuthTypePB.Supabase);
-        await getIt<AuthService>().signOut(authType: AuthTypePB.Local);
+        await getIt<AuthService>().signOut();
         await FlowyRunner.run(
           FlowyApp(),
           integrationEnv(),

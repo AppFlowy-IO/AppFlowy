@@ -42,9 +42,7 @@ abstract class AuthService {
   });
 
   ///
-  Future<void> signOut({
-    AuthTypePB authType,
-  });
+  Future<void> signOut();
 
   /// Returns [UserProfilePB] if the user has sign in, otherwise returns null.
   Future<Either<FlowyError, UserProfilePB>> getUser();

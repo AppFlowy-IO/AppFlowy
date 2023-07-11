@@ -297,3 +297,47 @@ async fn check_user(
     ))
   }
 }
+
+pub struct NoSyncSupabaseUserAuthServiceImpl();
+impl UserAuthService for NoSyncSupabaseUserAuthServiceImpl {
+  fn sign_up(&self, _params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
+    FutureResult::new(async move {
+      Err(FlowyError::new(
+        ErrorCode::SupabaseSyncRequired,
+        "Supabase sync is required",
+      ))
+    })
+  }
+
+  fn sign_in(&self, _params: BoxAny) -> FutureResult<SignInResponse, FlowyError> {
+    FutureResult::new(async move {
+      Err(FlowyError::new(
+        ErrorCode::SupabaseSyncRequired,
+        "Supabase sync is required",
+      ))
+    })
+  }
+
+  fn sign_out(&self, _token: Option<String>) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async move { Ok(()) })
+  }
+
+  fn update_user(
+    &self,
+    _credential: UserCredentials,
+    _params: UpdateUserProfileParams,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async move { Ok(()) })
+  }
+
+  fn get_user_profile(
+    &self,
+    _credential: UserCredentials,
+  ) -> FutureResult<Option<UserProfile>, FlowyError> {
+    FutureResult::new(async move { Ok(None) })
+  }
+
+  fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async move { Ok(()) })
+  }
+}

@@ -26,7 +26,8 @@ impl UserDB {
     }
   }
 
-  pub(crate) fn close_user_db(&self, user_id: i64) -> Result<(), FlowyError> {
+  /// Close the database connection for the user.
+  pub(crate) fn close(&self, user_id: i64) -> Result<(), FlowyError> {
     if let Some(mut sqlite_dbs) = DB_MAP.try_write_for(Duration::from_millis(300)) {
       sqlite_dbs.remove(&user_id);
     }
