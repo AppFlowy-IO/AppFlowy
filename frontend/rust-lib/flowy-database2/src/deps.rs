@@ -1,6 +1,8 @@
 use std::sync::Arc;
 
 use appflowy_integrate::RocksCollabDB;
+pub use collab_database::user::CollabObjectUpdate;
+pub use collab_database::user::CollabObjectUpdateByOid;
 
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
@@ -15,7 +17,12 @@ pub trait DatabaseUser2: Send + Sync {
 /// Each kind of server should implement this trait. Check out the [AppFlowyServerProvider] of
 /// [flowy-server] crate for more information.
 pub trait DatabaseCloudService: Send + Sync {
-  fn get_collab_updates(&self, object_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError>;
+  fn get_collab_update(&self, object_id: &str) -> FutureResult<CollabObjectUpdate, FlowyError>;
+
+  fn batch_get_collab_updates(
+    &self,
+    object_ids: Vec<String>,
+  ) -> FutureResult<CollabObjectUpdateByOid, FlowyError>;
 
   fn get_collab_latest_snapshot(
     &self,

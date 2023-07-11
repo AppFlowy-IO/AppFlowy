@@ -10,7 +10,9 @@ use flowy_error::{internal_error, ErrorCode, FlowyError};
 use flowy_folder2::deps::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
 use lib_infra::future::FutureResult;
 
-use crate::supabase::impls::{get_latest_snapshot_from_server, get_updates_from_server};
+use crate::supabase::impls::{
+  get_latest_snapshot_from_server, get_updates_from_server, FetchObjectUpdateAction,
+};
 use crate::supabase::postgres_db::PostgresObject;
 use crate::supabase::sql_builder::{InsertSqlBuilder, SelectSqlBuilder};
 use crate::supabase::PostgresServer;
@@ -94,10 +96,13 @@ impl FolderCloudService for SupabaseFolderCloudServiceImpl {
     workspace_id: &str,
     _uid: i64,
   ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
-    let server = Arc::downgrade(&self.server);
+    let pg_server = Arc::downgrade(&self.server);
     let (tx, rx) = channel();
     let workspace_id = workspace_id.to_string();
-    tokio::spawn(async move { tx.send(get_updates_from_server(&workspace_id, server).await) });
+    tokio::spawn(async move {
+      let action = FetchObjectUpdateAction::new(&workspace_id, pg_server);
+      tx.send(action.run_with_fix_interval(5, 10).await)
+    });
     FutureResult::new(async { rx.await.map_err(internal_error)?.map_err(internal_error) })
   }
 

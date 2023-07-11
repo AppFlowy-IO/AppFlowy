@@ -6,7 +6,9 @@ use appflowy_integrate::RemoteCollabStorage;
 use parking_lot::RwLock;
 use serde_repr::*;
 
-use flowy_database2::deps::{DatabaseCloudService, DatabaseSnapshot};
+use flowy_database2::deps::{
+  CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
+};
 use flowy_document2::deps::{DocumentCloudService, DocumentData, DocumentSnapshot};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder2::deps::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
@@ -166,13 +168,26 @@ impl FolderCloudService for AppFlowyServerProvider {
 }
 
 impl DatabaseCloudService for AppFlowyServerProvider {
-  fn get_collab_updates(&self, object_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+  fn get_collab_update(&self, object_id: &str) -> FutureResult<CollabObjectUpdate, FlowyError> {
     let server = self.get_provider(&self.provider_type.read());
     let database_id = object_id.to_string();
     FutureResult::new(async move {
       server?
         .database_service()
-        .get_collab_updates(&database_id)
+        .get_collab_update(&database_id)
+        .await
+    })
+  }
+
+  fn batch_get_collab_updates(
+    &self,
+    object_ids: Vec<String>,
+  ) -> FutureResult<CollabObjectUpdateByOid, FlowyError> {
+    let server = self.get_provider(&self.provider_type.read());
+    FutureResult::new(async move {
+      server?
+        .database_service()
+        .batch_get_collab_updates(object_ids)
         .await
     })
   }

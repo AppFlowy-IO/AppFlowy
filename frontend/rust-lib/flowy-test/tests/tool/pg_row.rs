@@ -5,9 +5,9 @@ use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
 use collab::preclude::Update;
-use flowy_database2::deps::DatabaseCloudService;
 use serde_json::json;
 
+use flowy_database2::deps::DatabaseCloudService;
 use flowy_document2::deps::DocumentCloudService;
 use flowy_folder2::deps::{FolderCloudService, FolderSnapshot};
 use flowy_server::supabase::impls::{
@@ -62,10 +62,7 @@ impl PostgresConnect {
 
   async fn get_database_collab_object(&self, object_id: &str) -> MutexCollab {
     let database_service = SupabaseDatabaseCloudServiceImpl::new(self.inner.clone());
-    let updates = database_service
-      .get_collab_updates(object_id)
-      .await
-      .unwrap();
+    let updates = database_service.get_collab_update(object_id).await.unwrap();
     let collab = MutexCollab::new(CollabOrigin::Server, object_id, vec![]);
     collab.lock().with_transact_mut(|txn| {
       for update in updates {
@@ -73,6 +70,25 @@ impl PostgresConnect {
       }
     });
     collab
+  }
+
+  async fn get_database_rows_object(&self, row_ids: Vec<String>) -> Vec<MutexCollab> {
+    let database_service = SupabaseDatabaseCloudServiceImpl::new(self.inner.clone());
+    let updates_by_oid = database_service
+      .batch_get_collab_updates(row_ids)
+      .await
+      .unwrap();
+    let mut collabs = vec![];
+    for (oid, updates) in updates_by_oid {
+      let collab = MutexCollab::new(CollabOrigin::Server, &oid, vec![]);
+      collab.lock().with_transact_mut(|txn| {
+        for update in updates {
+          txn.apply_update(Update::decode_v1(&update).unwrap());
+        }
+      });
+      collabs.push(collab);
+    }
+    collabs
   }
 
   async fn get_document(&self, document_id: &str) -> MutexCollab {
@@ -132,5 +148,20 @@ async fn get_workspace_database_test() {
       .await;
     let value = collab.to_json_value();
     assert_json_eq!(value, json!(""));
+  }
+}
+
+#[tokio::test]
+async fn batch_get_database_rows_test() {
+  if let Some(conn) = PostgresConnect::new() {
+    let row_ids = vec![
+      "93cebb2d-4831-496c-adde-1a82bd745099".to_string(),
+      "7989a12f-23b2-48ff-8d5f-9bdf651ad7aa".to_string(),
+    ];
+    let collabs = conn.get_database_rows_object(row_ids).await;
+    for collab in collabs {
+      let value = collab.to_json_value();
+      println!("{}", value);
+    }
   }
 }

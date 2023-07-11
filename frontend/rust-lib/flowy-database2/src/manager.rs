@@ -8,7 +8,8 @@ use collab_database::blocks::BlockEvent;
 use collab_database::database::{DatabaseData, YrsDocAction};
 use collab_database::error::DatabaseError;
 use collab_database::user::{
-  make_workspace_database_id, CollabFuture, DatabaseCollabService, WorkspaceDatabase,
+  make_workspace_database_id, CollabFuture, CollabObjectUpdate, CollabObjectUpdateByOid,
+  DatabaseCollabService, WorkspaceDatabase,
 };
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use tokio::sync::RwLock;
@@ -72,7 +73,7 @@ impl DatabaseManager2 {
       tracing::trace!("workspace database not exist, try to fetch from remote");
       match self
         .cloud_service
-        .get_collab_updates(&workspace_database_id)
+        .get_collab_update(&workspace_database_id)
         .await
       {
         Ok(updates) => collab_raw_data = updates,
@@ -340,10 +341,10 @@ struct UserDatabaseCollabServiceImpl {
 }
 
 impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
-  fn get_collab_updates(
+  fn get_collab_update(
     &self,
     object_id: &str,
-  ) -> CollabFuture<Result<Vec<Vec<u8>>, DatabaseError>> {
+  ) -> CollabFuture<Result<CollabObjectUpdate, DatabaseError>> {
     let object_id = object_id.to_string();
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
     Box::pin(async move {
@@ -354,7 +355,29 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
         },
         Some(cloud_service) => {
           let updates = cloud_service
-            .get_collab_updates(&object_id)
+            .get_collab_update(&object_id)
+            .await
+            .map_err(|e| DatabaseError::Internal(Box::new(e)))?;
+          Ok(updates)
+        },
+      }
+    })
+  }
+
+  fn batch_get_collab_update(
+    &self,
+    object_ids: Vec<String>,
+  ) -> CollabFuture<Result<CollabObjectUpdateByOid, DatabaseError>> {
+    let weak_cloud_service = Arc::downgrade(&self.cloud_service);
+    Box::pin(async move {
+      match weak_cloud_service.upgrade() {
+        None => {
+          tracing::warn!("Cloud service is dropped");
+          Ok(CollabObjectUpdateByOid::default())
+        },
+        Some(cloud_service) => {
+          let updates = cloud_service
+            .batch_get_collab_updates(object_ids)
             .await
             .map_err(|e| DatabaseError::Internal(Box::new(e)))?;
           Ok(updates)

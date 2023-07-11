@@ -1,6 +1,8 @@
 use std::future::Future;
+use std::iter::Take;
 use std::pin::Pin;
 use std::sync::{Arc, Weak};
+use std::time::Duration;
 
 use anyhow::Error;
 use appflowy_integrate::{
@@ -8,15 +10,18 @@ use appflowy_integrate::{
   RemoteCollabStorage, RemoteUpdateReceiver,
 };
 use chrono::{DateTime, Utc};
-use futures_util::TryStreamExt;
+use deadpool_postgres::GenericClient;
+use futures::pin_mut;
+use futures_util::{StreamExt, TryStreamExt};
 use tokio::task::spawn_blocking;
 use tokio_postgres::types::ToSql;
 use tokio_postgres::Row;
+use tokio_retry::strategy::FixedInterval;
+use tokio_retry::{Action, Retry};
 
-use flowy_error::FlowyError;
+use flowy_database2::deps::{CollabObjectUpdate, CollabObjectUpdateByOid};
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::md5;
-use tokio_retry::Action;
 
 use crate::supabase::sql_builder::{
   DeleteSqlBuilder, InsertSqlBuilder, SelectSqlBuilder, WhereCondition,
@@ -44,7 +49,9 @@ impl PgCollabStorageImpl {
 #[async_trait]
 impl RemoteCollabStorage for PgCollabStorageImpl {
   async fn get_all_updates(&self, object_id: &str) -> Result<Vec<Vec<u8>>, Error> {
-    get_updates_from_server(object_id, Arc::downgrade(&self.server)).await
+    let action = FetchObjectUpdateAction::new(object_id, Arc::downgrade(&self.server));
+    let updates = action.run().await?;
+    Ok(updates)
   }
 
   async fn get_latest_snapshot(
@@ -221,7 +228,7 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
     Ok(())
   }
 
-  async fn subscribe_remote_updates(&self, object: &CollabObject) -> Option<RemoteUpdateReceiver> {
+  async fn subscribe_remote_updates(&self, _object: &CollabObject) -> Option<RemoteUpdateReceiver> {
     // using pg_notify to subscribe to updates
 
     None
@@ -332,17 +339,42 @@ struct MergeResult {
   new_update: Vec<u8>,
 }
 
-struct FetchUpdatesAction {
+pub struct FetchObjectUpdateAction {
+  object_id: String,
   pg_server: Weak<PostgresServer>,
 }
 
-impl Action for FetchUpdatesAction {
-  type Future = Pin<Box<dyn Future<Output = Result<Self::Item, Self::Error>> + Send + Sync>>;
-  type Item = Vec<Vec<u8>>;
+impl FetchObjectUpdateAction {
+  pub fn new(object_id: &str, pg_server: Weak<PostgresServer>) -> Self {
+    Self {
+      pg_server,
+      object_id: object_id.to_string(),
+    }
+  }
+
+  pub fn run(self) -> Retry<Take<FixedInterval>, FetchObjectUpdateAction> {
+    let retry_strategy = FixedInterval::new(Duration::from_secs(5)).take(3);
+    Retry::spawn(retry_strategy, self)
+  }
+
+  pub fn run_with_fix_interval(
+    self,
+    secs: u64,
+    times: usize,
+  ) -> Retry<Take<FixedInterval>, FetchObjectUpdateAction> {
+    let retry_strategy = FixedInterval::new(Duration::from_secs(secs)).take(times);
+    Retry::spawn(retry_strategy, self)
+  }
+}
+
+impl Action for FetchObjectUpdateAction {
+  type Future = Pin<Box<dyn Future<Output = Result<Self::Item, Self::Error>> + Send>>;
+  type Item = CollabObjectUpdate;
   type Error = anyhow::Error;
 
   fn run(&mut self) -> Self::Future {
     let weak_pb_server = self.pg_server.clone();
+    let object_id = self.object_id.clone();
     Box::pin(async move {
       match weak_pb_server.upgrade() {
         None => Ok(vec![]),
@@ -351,7 +383,7 @@ impl Action for FetchUpdatesAction {
           let (sql, params) = SelectSqlBuilder::new("af_collab")
             .column("value")
             .order_by(AF_COLLAB_KEY_COLUMN, true)
-            .where_clause("oid", object_id.to_string())
+            .where_clause("oid", object_id)
             .build();
           let stmt = client.prepare_cached(&sql).await?;
           let row_stream = client.query_raw(&stmt, params).await?;
@@ -363,6 +395,64 @@ impl Action for FetchUpdatesAction {
               .flat_map(|row| update_from_row(&row).ok())
               .collect(),
           )
+        },
+      }
+    })
+  }
+}
+
+pub struct BatchFetchObjectUpdateAction {
+  object_ids: Vec<String>,
+  pg_server: Weak<PostgresServer>,
+}
+
+impl BatchFetchObjectUpdateAction {
+  pub fn new(object_ids: Vec<String>, pg_server: Weak<PostgresServer>) -> Self {
+    Self {
+      pg_server,
+      object_ids,
+    }
+  }
+
+  pub fn run(self) -> Retry<Take<FixedInterval>, BatchFetchObjectUpdateAction> {
+    let retry_strategy = FixedInterval::new(Duration::from_secs(5)).take(3);
+    Retry::spawn(retry_strategy, self)
+  }
+}
+
+impl Action for BatchFetchObjectUpdateAction {
+  type Future = Pin<Box<dyn Future<Output = Result<Self::Item, Self::Error>> + Send>>;
+  type Item = CollabObjectUpdateByOid;
+  type Error = anyhow::Error;
+
+  fn run(&mut self) -> Self::Future {
+    let weak_pb_server = self.pg_server.clone();
+    let object_ids = self.object_ids.clone();
+    Box::pin(async move {
+      match weak_pb_server.upgrade() {
+        None => Ok(CollabObjectUpdateByOid::default()),
+        Some(server) => {
+          let client = server.get_pg_client().await.recv().await?;
+          let mut updates_by_oid = CollabObjectUpdateByOid::new();
+
+          // Group the updates by oid
+          let (sql, params) = SelectSqlBuilder::new("af_collab")
+            .column("oid")
+            .array_agg("value")
+            .group_by("oid")
+            .where_clause_in("oid", object_ids)
+            .build();
+          let stmt = client.prepare_cached(&sql).await?;
+
+          // Poll the rows
+          let rows = Box::pin(client.query_raw(&stmt, params).await?);
+          pin_mut!(rows);
+          while let Some(Ok(row)) = rows.next().await {
+            let oid = row.try_get::<_, String>("oid")?;
+            let updates = row.try_get::<_, Vec<Vec<u8>>>("value")?;
+            updates_by_oid.insert(oid, updates);
+          }
+          Ok(updates_by_oid)
         },
       }
     })
