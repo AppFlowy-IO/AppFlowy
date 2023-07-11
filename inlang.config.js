@@ -9,8 +9,8 @@ export async function defineConfig(env) {
 
 	return {
 		referenceLanguage: 'en',
-		plugins: [pluginJson({ 
-			pathPattern: './frontend/appflowy_flutter/assets/translations/{language}.json',
+		plugins: [pluginJson({
+			pathPattern: './frontend/resources/translations/{language}.json',
 			variableReferencePattern: ["@:"]
 		}), standardLintRules()]
 	};
