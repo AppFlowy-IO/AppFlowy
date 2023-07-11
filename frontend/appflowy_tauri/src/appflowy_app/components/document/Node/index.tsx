@@ -83,7 +83,7 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
         {renderBlock()}
         <BlockOverlay id={id} />
         {isSelected ? (
-          <div className='pointer-events-none absolute inset-0 z-[-1] my-[1px] rounded-[4px] bg-fill-hover' />
+          <div className='pointer-events-none absolute inset-0 z-[-1] my-[1px] rounded-[4px] bg-content-blue-100' />
         ) : null}
       </div>
     </NodeIdContext.Provider>

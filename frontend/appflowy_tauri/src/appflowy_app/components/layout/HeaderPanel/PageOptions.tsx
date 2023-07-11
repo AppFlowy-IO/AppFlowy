@@ -42,7 +42,7 @@ export const PageOptions = () => {
         <IconButton
           id='option-button'
           size={'small'}
-          className={'h-8 w-8 rounded text-text-title hover:bg-fill-hover'}
+          className={'h-8 w-8 rounded text-text-title hover:bg-fill-list-hover'}
           onClick={(e) => {
             const el = e.currentTarget;
 

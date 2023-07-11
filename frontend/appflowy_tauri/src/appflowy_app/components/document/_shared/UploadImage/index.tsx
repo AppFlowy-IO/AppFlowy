@@ -111,7 +111,7 @@ function UploadImage({ onChange }: UploadImageProps) {
         <input onChange={handleChange} ref={inputRef} type='file' className={'hidden'} accept={'image/*'} />
         <div
           className={
-            'flex flex-col items-center justify-center rounded-md border border-dashed border-content-hover py-10 text-content-hover'
+            'flex flex-col items-center justify-center rounded-md border border-dashed border-content-blue-300 bg-content-blue-50 py-10 text-content-blue-300'
           }
           style={{
             borderColor: errorColor,

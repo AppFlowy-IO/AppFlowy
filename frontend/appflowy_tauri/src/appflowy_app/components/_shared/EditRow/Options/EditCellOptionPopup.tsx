@@ -86,7 +86,7 @@ export const EditCellOptionPopup = ({
       <div onKeyDown={onKeyDownWrapper} className={'flex flex-col gap-2 p-2'}>
         <div
           className={
-            'flex flex-1 items-center gap-2 rounded border border-line-border px-2 hover:border-fill-hover focus:border-fill-hover'
+            'flex flex-1 items-center gap-2 rounded border border-line-divider px-2 hover:border-fill-hover focus:border-fill-hover'
           }
         >
           <input
@@ -101,7 +101,9 @@ export const EditCellOptionPopup = ({
         </div>
         <button
           onClick={() => onDeleteOptionClick()}
-          className={'text-main-alert flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 hover:bg-fill-hover'}
+          className={
+            'text-main-alert flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 hover:bg-fill-list-hover'
+          }
         >
           <i className={'h-5 w-5'}>
             <TrashSvg></TrashSvg>
@@ -184,7 +186,7 @@ const ColorItem = ({
 }) => {
   return (
     <div
-      className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-fill-hover'}
+      className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-fill-list-hover'}
       onClick={() => onClick()}
     >
       <div className={'flex items-center gap-2'}>

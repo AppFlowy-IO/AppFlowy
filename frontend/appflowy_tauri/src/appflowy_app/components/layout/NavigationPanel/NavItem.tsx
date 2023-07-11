@@ -41,8 +41,8 @@ export const NavItem = ({ page }: { page: IPage }) => {
         <div className={`transition-all`} style={{ transitionDuration: `${ANIMATION_DURATION}ms` }}>
           <div className={`cursor-pointer px-1 py-1`}>
             <div
-              className={`flex items-center justify-between rounded-lg px-2 py-1 hover:bg-fill-active ${
-                activePageId === page.id ? 'bg-fill-active' : ''
+              className={`flex items-center justify-between rounded-lg px-2 py-1 hover:bg-fill-list-hover ${
+                activePageId === page.id ? 'bg-fill-list-hover' : ''
               }`}
             >
               <div className={'flex h-full min-w-0 flex-1 items-center'}>

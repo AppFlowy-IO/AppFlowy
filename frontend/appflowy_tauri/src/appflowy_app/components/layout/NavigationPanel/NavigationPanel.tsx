@@ -63,7 +63,7 @@ export const NavigationPanel = ({
         </div>
 
         <div className={'flex max-h-[240px] flex-col'}>
-          <div className={'border-b border-line-border px-2 pb-4'}>
+          <div className={'border-b border-line-divider px-2 pb-4'}>
             {/*<PluginsButton></PluginsButton>*/}
 
             {/*<DesignSpec></DesignSpec>*/}
@@ -97,7 +97,7 @@ export const TestBackendButton = () => {
   return (
     <button
       onClick={() => navigate('/page/api-test')}
-      className={'flex w-full items-center rounded-lg px-4 py-2 hover:bg-fill-active'}
+      className={'hover:bg-fill-active flex w-full items-center rounded-lg px-4 py-2'}
     >
       API Test
     </button>
@@ -110,7 +110,7 @@ export const DesignSpec = () => {
   return (
     <button
       onClick={() => navigate('page/colors')}
-      className={'flex w-full items-center rounded-lg px-4 py-2 hover:bg-fill-active'}
+      className={'hover:bg-fill-active flex w-full items-center rounded-lg px-4 py-2'}
     >
       Color Palette
     </button>
@@ -123,7 +123,7 @@ export const AllIcons = () => {
   return (
     <button
       onClick={() => navigate('page/all-icons')}
-      className={'flex w-full items-center rounded-lg px-4 py-2 hover:bg-fill-active'}
+      className={'hover:bg-fill-active flex w-full items-center rounded-lg px-4 py-2'}
     >
       All Icons
     </button>

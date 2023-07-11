@@ -4,7 +4,7 @@ import Tooltip from '@mui/material/Tooltip';
 function ToolbarTooltip({ title, children }: { children: JSX.Element; title?: string }) {
   return (
     <Tooltip
-      slotProps={{ tooltip: { style: { background: 'var(--color-bg-tips)', borderRadius: 8 } } }}
+      slotProps={{ tooltip: { style: { background: 'var(--bg-tips)', borderRadius: 8 } } }}
       title={title}
       placement='top-start'
     >

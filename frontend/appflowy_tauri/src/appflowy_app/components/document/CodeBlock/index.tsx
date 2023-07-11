@@ -22,7 +22,10 @@ export default function CodeBlock({
   const isDark = useAppSelector((state) => state.currentUser.userSetting.themeMode === ThemeMode.Dark);
 
   return (
-    <div {...props} className={`my-1 rounded border border-solid border-line-border bg-fill-selector p-6 ${className}`}>
+    <div
+      {...props}
+      className={`my-1 rounded border border-solid border-line-divider bg-content-blue-50 p-6 ${className}`}
+    >
       <div className={'mb-2 w-[100%]'}>
         <SelectLanguage id={id} language={language} />
       </div>

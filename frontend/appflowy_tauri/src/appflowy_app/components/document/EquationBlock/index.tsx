@@ -68,12 +68,12 @@ function EquationBlock({ node }: { node: NestedBlock<BlockType.EquationBlock> })
       <div
         ref={anchorElRef}
         onClick={openPopover}
-        className={'my-1 flex min-h-[59px] cursor-pointer flex-col overflow-hidden rounded hover:bg-fill-selector'}
+        className={'my-1 flex min-h-[59px] cursor-pointer flex-col overflow-hidden rounded hover:bg-content-blue-50'}
       >
         {displayFormula ? (
           <KatexMath latex={displayFormula} />
         ) : (
-          <div className={'flex h-[100%] w-[100%] flex-1 items-center bg-fill-selector px-1 text-text-title'}>
+          <div className={'flex h-[100%] w-[100%] flex-1 items-center bg-content-blue-50 px-1 text-text-title'}>
             <Functions />
             <span>{t('document.plugins.mathEquation.addMathEquation')}</span>
           </div>

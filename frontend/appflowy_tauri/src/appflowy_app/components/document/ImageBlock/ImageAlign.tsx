@@ -89,7 +89,7 @@ function ImageAlign({
         onClose={() => setAnchorEl(undefined)}
         PaperProps={{
           style: {
-            backgroundColor: 'var(--color-bg-body)',
+            backgroundColor: 'var(--bg-body)',
           },
         }}
       >

@@ -36,7 +36,7 @@ function UserSettingMenu({ selected, onSelect }: { onSelect: (selected: MenuItem
               onSelect(option.value);
             }}
             className={`my-1 flex h-10 w-full cursor-pointer items-center justify-start rounded-md px-4 py-2 text-text-title ${
-              selected === option.value ? 'bg-fill-hover' : 'hover:text-content-hover'
+              selected === option.value ? 'bg-fill-list-hover' : 'hover:text-content-blue-300'
             }`}
           >
             <div className={'mr-2'}>{option.icon}</div>

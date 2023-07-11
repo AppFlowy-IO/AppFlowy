@@ -18,9 +18,9 @@ export const GridTableHeader = ({ controller }: { controller: DatabaseController
             return <GridTableHeaderItem field={field} controller={controller} key={i} />;
           })}
 
-          <th className='m-0 w-40 border border-r-0 border-line-border p-0'>
+          <th className='m-0 w-40 border border-r-0 border-line-divider p-0'>
             <div
-              className='flex cursor-pointer items-center px-4 py-2 text-text-caption hover:bg-fill-hover hover:text-text-title'
+              className='flex cursor-pointer items-center px-4 py-2 text-text-caption hover:bg-fill-list-hover hover:text-text-title'
               onClick={onAddField}
             >
               <i className='mr-2 h-5 w-5'>

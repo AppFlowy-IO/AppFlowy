@@ -28,7 +28,6 @@ export function useBlockPopover({
   const editing = useEditingState(id);
   const dispatch = useAppDispatch();
   const closePopover = useCallback(() => {
-    anchorElRef.current = null;
     setAnchorPosition(undefined);
     dispatch(
       blockEditActions.setBlockEditState({

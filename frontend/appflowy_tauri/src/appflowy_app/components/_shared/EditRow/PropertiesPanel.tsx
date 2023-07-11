@@ -103,7 +103,7 @@ export const PropertiesPanel = ({
       <div
         onClick={() => setShowAddedProperties(!showAddedProperties)}
         className={
-          'flex cursor-pointer items-center justify-between gap-8 rounded-lg px-2 py-2 text-text-title hover:bg-bg-base'
+          'flex cursor-pointer items-center justify-between gap-8 rounded-lg px-2 py-2 text-text-title hover:bg-fill-list-active'
         }
       >
         <div className={'text-sm'}>Added Properties</div>
@@ -118,7 +118,7 @@ export const PropertiesPanel = ({
               key={cellIndex}
               onMouseEnter={() => setHoveredPropertyIndex(cellIndex)}
               className={
-                'flex cursor-pointer items-center justify-between gap-4 rounded-lg px-2 py-1 hover:bg-fill-hover'
+                'flex cursor-pointer items-center justify-between gap-4 rounded-lg px-2 py-1 hover:bg-fill-list-hover'
               }
             >
               <div className={'flex items-center gap-2 text-text-title '}>
@@ -148,7 +148,9 @@ export const PropertiesPanel = ({
       </div>
       <div
         onClick={() => setShowBasicProperties(!showBasicProperties)}
-        className={'flex cursor-pointer items-center justify-between gap-8 rounded-lg px-2 py-2 hover:bg-fill-hover'}
+        className={
+          'flex cursor-pointer items-center justify-between gap-8 rounded-lg px-2 py-2 hover:bg-fill-list-active'
+        }
       >
         <div className={'text-sm'}>Basic Properties</div>
         <i className={`h-5 w-5 transition-transform duration-500 ${showBasicProperties && 'rotate-180'}`}>
@@ -162,7 +164,7 @@ export const PropertiesPanel = ({
               <button
                 onClick={() => addSelectedFieldType(type)}
                 key={i}
-                className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-fill-hover'}
+                className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-fill-list-hover'}
               >
                 <i className={'h-5 w-5'}>
                   <FieldTypeIcon fieldType={type}></FieldTypeIcon>
@@ -177,7 +179,9 @@ export const PropertiesPanel = ({
       </div>
       <div
         onClick={() => setShowAdvancedProperties(!showAdvancedProperties)}
-        className={'flex cursor-pointer items-center justify-between gap-8 rounded-lg px-2 py-2 hover:bg-fill-hover'}
+        className={
+          'flex cursor-pointer items-center justify-between gap-8 rounded-lg px-2 py-2 hover:bg-fill-list-active'
+        }
       >
         <div className={'text-sm'}>Advanced Properties</div>
         <i className={`h-5 w-5 transition-transform duration-500 ${showAdvancedProperties && 'rotate-180'}`}>
@@ -187,19 +191,25 @@ export const PropertiesPanel = ({
       <div className={'flex flex-col gap-2 text-xs'}>
         {showAdvancedProperties && (
           <div className={'flex flex-col'}>
-            <button className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-fill-hover'}>
+            <button
+              className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-fill-list-hover'}
+            >
               <i className={'h-5 w-5'}>
                 <MultiSelectTypeSvg></MultiSelectTypeSvg>
               </i>
               <span>Last edited time</span>
             </button>
-            <button className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-fill-hover'}>
+            <button
+              className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-fill-list-hover'}
+            >
               <i className={'h-5 w-5'}>
                 <DocumentSvg></DocumentSvg>
               </i>
               <span>Document</span>
             </button>
-            <button className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-fill-hover'}>
+            <button
+              className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-fill-list-hover'}
+            >
               <i className={'h-5 w-5'}>
                 <SingleSelectTypeSvg></SingleSelectTypeSvg>
               </i>

@@ -19,13 +19,9 @@ export const CellOptions = ({
   };
 
   return (
-    <div
-      ref={ref}
-      onClick={onClick}
-      className={'flex w-full flex-wrap items-center gap-2 px-4 py-1 text-xs text-content-onfill'}
-    >
+    <div ref={ref} onClick={onClick} className={'flex w-full flex-wrap items-center gap-2 px-4 py-1 text-xs'}>
       {data?.select_options?.map((option, index) => (
-        <div className={`${getBgColor(option.color)} rounded px-2 py-0.5`} key={index}>
+        <div className={`${getBgColor(option.color)} rounded px-2 py-0.5 text-text-title`} key={index}>
           {option?.name ?? ''}
         </div>
       ))}
