@@ -1,7 +1,7 @@
 use std::future::Future;
 use std::iter::Take;
 use std::pin::Pin;
-use std::sync::{Arc, Weak};
+use std::sync::Weak;
 use std::time::Duration;
 
 use anyhow::Error;
@@ -20,16 +20,18 @@ use tokio_retry::strategy::FixedInterval;
 use tokio_retry::{Action, Retry};
 
 use flowy_database2::deps::{CollabObjectUpdate, CollabObjectUpdateByOid};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::md5;
 
+use crate::supabase::postgres_db::PostgresObject;
 use crate::supabase::sql_builder::{
   DeleteSqlBuilder, InsertSqlBuilder, SelectSqlBuilder, WhereCondition,
 };
 use crate::supabase::PostgresServer;
 
 pub struct PgCollabStorageImpl {
-  server: Arc<PostgresServer>,
+  server: Option<Weak<PostgresServer>>,
 }
 
 const AF_COLLAB_KEY_COLUMN: &str = "key";
@@ -41,15 +43,44 @@ const AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN: &str = "created_at";
 const AF_COLLAB_SNAPSHOT_TABLE: &str = "af_collab_snapshot";
 
 impl PgCollabStorageImpl {
-  pub fn new(server: Arc<PostgresServer>) -> Self {
+  pub fn new(server: Option<Weak<PostgresServer>>) -> Self {
     Self { server }
+  }
+
+  pub fn get_server(&self) -> FlowyResult<Weak<PostgresServer>> {
+    self.server.clone().ok_or_else(|| {
+      FlowyError::new(
+        ErrorCode::SupabaseSyncRequired,
+        "Supabase sync is disabled, please enable it first",
+      )
+    })
+  }
+
+  pub async fn get_client(&self) -> FlowyResult<PostgresObject> {
+    self
+      .get_server()?
+      .upgrade()
+      .ok_or_else(|| FlowyError::new(ErrorCode::PgConnectError, "Failed to upgrade weak server"))?
+      .get_pg_client()
+      .await
+      .recv()
+      .await
   }
 }
 
 #[async_trait]
 impl RemoteCollabStorage for PgCollabStorageImpl {
+  fn is_enable(&self) -> bool {
+    self
+      .server
+      .as_ref()
+      .and_then(|server| server.upgrade())
+      .is_some()
+  }
+
   async fn get_all_updates(&self, object_id: &str) -> Result<Vec<Vec<u8>>, Error> {
-    let action = FetchObjectUpdateAction::new(object_id, Arc::downgrade(&self.server));
+    let server = self.get_server()?;
+    let action = FetchObjectUpdateAction::new(object_id, server);
     let updates = action.run().await?;
     Ok(updates)
   }
@@ -58,11 +89,13 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
     &self,
     object_id: &str,
   ) -> Result<Option<RemoteCollabSnapshot>, Error> {
-    get_latest_snapshot_from_server(object_id, Arc::downgrade(&self.server)).await
+    let weak_server = self.get_server()?;
+    get_latest_snapshot_from_server(object_id, weak_server).await
   }
 
   async fn get_collab_state(&self, object_id: &str) -> Result<Option<RemoteCollabState>, Error> {
-    let client = self.server.get_pg_client().await.recv().await?;
+    let client = self.get_client().await?;
+
     let (sql, params) = SelectSqlBuilder::new("af_collab_state")
       .column("*")
       .where_clause("oid", object_id.to_string())
@@ -93,7 +126,7 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
   }
 
   async fn create_snapshot(&self, object: &CollabObject, snapshot: Vec<u8>) -> Result<i64, Error> {
-    let client = self.server.get_pg_client().await.recv().await?;
+    let client = self.get_client().await?;
     let value_size = snapshot.len() as i32;
     let (sql, params) = InsertSqlBuilder::new("af_collab_snapshot")
       .value(AF_COLLAB_SNAPSHOT_OID_COLUMN, object.id.clone())
@@ -122,7 +155,7 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
     _id: MsgId,
     update: Vec<u8>,
   ) -> Result<(), Error> {
-    let client = self.server.get_pg_client().await.recv().await?;
+    let client = self.get_client().await?;
     let value_size = update.len() as i32;
     let (sql, params) = InsertSqlBuilder::new("af_collab")
       .value("oid", object.id.clone())
@@ -143,7 +176,7 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
     _id: MsgId,
     init_update: Vec<u8>,
   ) -> Result<(), Error> {
-    let mut client = self.server.get_pg_client().await.recv().await?;
+    let mut client = self.get_client().await?;
     let txn = client.transaction().await?;
 
     // 1.Get all updates and lock the table. It means that a subsequent UPDATE, DELETE, or SELECT

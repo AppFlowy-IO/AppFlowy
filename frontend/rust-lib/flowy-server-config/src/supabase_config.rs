@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use flowy_error::{ErrorCode, FlowyError};
 
@@ -13,10 +13,11 @@ pub const SUPABASE_DB_USER: &str = "SUPABASE_DB_USER";
 pub const SUPABASE_DB_PASSWORD: &str = "SUPABASE_DB_PASSWORD";
 pub const SUPABASE_DB_PORT: &str = "SUPABASE_DB_PORT";
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct SupabaseConfiguration {
   /// The url of the supabase server.
   pub url: String,
+
   /// The key of the supabase server.
   pub key: String,
   /// The secret used to sign the JWT tokens.
@@ -63,7 +64,7 @@ impl SupabaseConfiguration {
   }
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct PostgresConfiguration {
   pub url: String,
   pub user_name: String,

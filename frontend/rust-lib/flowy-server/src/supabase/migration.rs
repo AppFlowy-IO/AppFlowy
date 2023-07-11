@@ -65,8 +65,9 @@ DROP FUNCTION IF EXISTS check_and_delete_snapshots;
 mod tests {
   use tokio_postgres::NoTls;
 
+  use flowy_server_config::supabase_config::PostgresConfiguration;
+
   use crate::supabase::migration::run_initial_drop;
-  use crate::supabase::*;
 
   // ‼️‼️‼️ Warning: this test will create a table in the database
   #[tokio::test]

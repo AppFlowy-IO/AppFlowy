@@ -64,30 +64,33 @@ impl FolderManager {
   }
 
   pub async fn get_current_workspace(&self) -> FlowyResult<WorkspacePB> {
-    self.with_folder(Err(FlowyError::internal()), |folder| {
-      let workspace_pb_from_workspace = |workspace: Workspace, folder: &Folder| {
-        let views = get_workspace_view_pbs(&workspace.id, folder);
-        let workspace: WorkspacePB = (workspace, views).into();
-        Ok::<WorkspacePB, FlowyError>(workspace)
-      };
+    self.with_folder(
+      Err(FlowyError::internal().context("Folder is not initialized".to_string())),
+      |folder| {
+        let workspace_pb_from_workspace = |workspace: Workspace, folder: &Folder| {
+          let views = get_workspace_view_pbs(&workspace.id, folder);
+          let workspace: WorkspacePB = (workspace, views).into();
+          Ok::<WorkspacePB, FlowyError>(workspace)
+        };
 
-      match folder.get_current_workspace() {
-        None => {
-          // The current workspace should always exist. If not, try to find the first workspace.
-          // from the folder. Otherwise, return an error.
-          let mut workspaces = folder.workspaces.get_all_workspaces();
-          if workspaces.is_empty() {
-            Err(FlowyError::record_not_found().context("Can not find the workspace"))
-          } else {
-            tracing::error!("Can't find the current workspace, use the first workspace");
-            let workspace = workspaces.remove(0);
-            folder.set_current_workspace(&workspace.id);
-            workspace_pb_from_workspace(workspace, folder)
-          }
-        },
-        Some(workspace) => workspace_pb_from_workspace(workspace, folder),
-      }
-    })
+        match folder.get_current_workspace() {
+          None => {
+            // The current workspace should always exist. If not, try to find the first workspace.
+            // from the folder. Otherwise, return an error.
+            let mut workspaces = folder.workspaces.get_all_workspaces();
+            if workspaces.is_empty() {
+              Err(FlowyError::record_not_found().context("Can not find the workspace"))
+            } else {
+              tracing::error!("Can't find the current workspace, use the first workspace");
+              let workspace = workspaces.remove(0);
+              folder.set_current_workspace(&workspace.id);
+              workspace_pb_from_workspace(workspace, folder)
+            }
+          },
+          Some(workspace) => workspace_pb_from_workspace(workspace, folder),
+        }
+      },
+    )
   }
 
   /// Return a list of views of the current workspace.
@@ -133,6 +136,10 @@ impl FolderManager {
       };
 
       let folder = match initial_data {
+        FolderInitializeData::Empty => {
+          let collab = self.collab_for_folder(uid, &workspace_id, collab_db, vec![])?;
+          Folder::open(collab, Some(folder_notifier))
+        },
         FolderInitializeData::Raw(raw_data) => {
           let collab = self.collab_for_folder(uid, &workspace_id, collab_db, raw_data)?;
           Folder::open(collab, Some(folder_notifier))
@@ -179,18 +186,19 @@ impl FolderManager {
     Ok(collab)
   }
 
+  #[tracing::instrument(level = "info", skip(self, user_id), err)]
   pub async fn initialize_when_sign_in(&self, user_id: i64, workspace_id: &str) -> FlowyResult<()> {
-    tracing::info!("initialize_when_sign_in");
     let folder_updates = self
       .cloud_service
       .get_folder_updates(workspace_id, user_id)
       .await?;
-    if !folder_updates.is_empty() {
-      tracing::trace!(
-        "Get folder updates via {}",
-        self.cloud_service.service_name()
-      );
-    }
+
+    tracing::trace!(
+      "Get folder updates via {}, number of updates: {}",
+      self.cloud_service.service_name(),
+      folder_updates.len()
+    );
+
     self
       .initialize(
         user_id,
@@ -983,6 +991,7 @@ unsafe impl Sync for MutexFolder {}
 unsafe impl Send for MutexFolder {}
 
 pub enum FolderInitializeData {
+  Empty,
   Raw(CollabRawData),
   Data(FolderData),
 }

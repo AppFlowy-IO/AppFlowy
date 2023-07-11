@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::Weak;
 
 use chrono::{DateTime, Utc};
 use collab_folder::core::{CollabOrigin, Folder};
@@ -6,7 +6,7 @@ use futures_util::{pin_mut, StreamExt};
 use tokio::sync::oneshot::channel;
 use uuid::Uuid;
 
-use flowy_error::{internal_error, ErrorCode, FlowyError};
+use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_folder2::deps::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
 use lib_infra::future::FutureResult;
 
@@ -23,25 +23,42 @@ const WORKSPACE_NAME: &str = "workspace_name";
 const CREATED_AT: &str = "created_at";
 
 pub struct SupabaseFolderCloudServiceImpl {
-  server: Arc<PostgresServer>,
+  server: Option<Weak<PostgresServer>>,
 }
 
 impl SupabaseFolderCloudServiceImpl {
-  pub fn new(server: Arc<PostgresServer>) -> Self {
+  pub fn new(server: Option<Weak<PostgresServer>>) -> Self {
     Self { server }
+  }
+
+  pub fn try_get_server(&self) -> FlowyResult<Weak<PostgresServer>> {
+    self.server.clone().ok_or_else(|| {
+      FlowyError::new(
+        ErrorCode::SupabaseSyncRequired,
+        "Supabase sync is disabled, please enable it first",
+      )
+    })
   }
 }
 
 impl FolderCloudService for SupabaseFolderCloudServiceImpl {
   fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, FlowyError> {
-    let server = self.server.clone();
+    let weak_server = self.try_get_server();
     let (tx, rx) = channel();
     let name = name.to_string();
     tokio::spawn(async move {
       tx.send(
         async move {
-          let client = server.get_pg_client().await.recv().await?;
-          create_workspace(&client, uid, &name).await
+          match weak_server?.upgrade() {
+            None => Err(FlowyError::new(
+              ErrorCode::PgDatabaseError,
+              "Server is close",
+            )),
+            Some(server) => {
+              let client = server.get_pg_client().await.recv().await?;
+              create_workspace(&client, uid, &name).await
+            },
+          }
         }
         .await,
       )
@@ -50,18 +67,29 @@ impl FolderCloudService for SupabaseFolderCloudServiceImpl {
   }
 
   fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, FlowyError> {
-    let server = Arc::downgrade(&self.server);
+    let weak_server = self.server.clone();
     let (tx, rx) = channel();
     let workspace_id = workspace_id.to_string();
     tokio::spawn(async move {
-      let folder_data = get_updates_from_server(&workspace_id, server)
-        .await
-        .map(|updates| {
-          let folder =
-            Folder::from_collab_raw_data(CollabOrigin::Empty, updates, &workspace_id, vec![])?;
-          Ok(folder.get_folder_data())
-        });
-      tx.send(folder_data)
+      tx.send(
+        async move {
+          match weak_server {
+            None => Ok(Ok(None)),
+            Some(weak_server) => get_updates_from_server(&workspace_id, weak_server)
+              .await
+              .map(|updates| {
+                let folder = Folder::from_collab_raw_data(
+                  CollabOrigin::Empty,
+                  updates,
+                  &workspace_id,
+                  vec![],
+                )?;
+                Ok(folder.get_folder_data())
+              }),
+          }
+        }
+        .await,
+      )
     });
     FutureResult::new(async { rx.await.map_err(internal_error)?.map_err(internal_error)? })
   }
@@ -70,17 +98,26 @@ impl FolderCloudService for SupabaseFolderCloudServiceImpl {
     &self,
     workspace_id: &str,
   ) -> FutureResult<Option<FolderSnapshot>, FlowyError> {
-    let server = Arc::downgrade(&self.server);
+    let weak_server = self.server.clone();
     let workspace_id = workspace_id.to_string();
     let (tx, rx) = channel();
-    tokio::spawn(
-      async move { tx.send(get_latest_snapshot_from_server(&workspace_id, server).await) },
-    );
+    tokio::spawn(async move {
+      tx.send(
+        async {
+          match weak_server {
+            None => Ok(None),
+            Some(weak_server) => get_latest_snapshot_from_server(&workspace_id, weak_server)
+              .await
+              .map_err(internal_error),
+          }
+        }
+        .await,
+      )
+    });
     FutureResult::new(async {
       Ok(
         rx.await
-          .map_err(internal_error)?
-          .map_err(internal_error)?
+          .map_err(internal_error)??
           .map(|snapshot| FolderSnapshot {
             snapshot_id: snapshot.snapshot_id,
             database_id: snapshot.oid,
@@ -96,12 +133,26 @@ impl FolderCloudService for SupabaseFolderCloudServiceImpl {
     workspace_id: &str,
     _uid: i64,
   ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
-    let pg_server = Arc::downgrade(&self.server);
+    let weak_server = self.server.clone();
     let (tx, rx) = channel();
     let workspace_id = workspace_id.to_string();
     tokio::spawn(async move {
-      let action = FetchObjectUpdateAction::new(&workspace_id, pg_server);
-      tx.send(action.run_with_fix_interval(5, 10).await)
+      tx.send(
+        async move {
+          match weak_server {
+            None => {
+              tracing::error!("😄😄😄😄😄");
+              Ok(vec![])
+            },
+            Some(weak_server) => {
+              tracing::error!("😄😄");
+              let action = FetchObjectUpdateAction::new(&workspace_id, weak_server);
+              action.run_with_fix_interval(5, 10).await
+            },
+          }
+        }
+        .await,
+      )
     });
     FutureResult::new(async { rx.await.map_err(internal_error)?.map_err(internal_error) })
   }
@@ -181,12 +232,13 @@ mod tests {
   use uuid::Uuid;
 
   use flowy_folder2::deps::FolderCloudService;
+  use flowy_server_config::supabase_config::PostgresConfiguration;
   use flowy_user::event_map::UserAuthService;
   use lib_infra::box_any::BoxAny;
 
   use crate::supabase::impls::folder::SupabaseFolderCloudServiceImpl;
   use crate::supabase::impls::SupabaseUserAuthServiceImpl;
-  use crate::supabase::{PostgresConfiguration, PostgresServer};
+  use crate::supabase::PostgresServer;
 
   #[tokio::test]
   async fn create_user_workspace() {
@@ -196,7 +248,8 @@ mod tests {
     let server = Arc::new(PostgresServer::new(
       PostgresConfiguration::from_env().unwrap(),
     ));
-    let user_service = SupabaseUserAuthServiceImpl::new(server.clone());
+    let weak_server = Arc::downgrade(&server);
+    let user_service = SupabaseUserAuthServiceImpl::new(Some(weak_server.clone()));
 
     // create user
     let mut params = HashMap::new();
@@ -204,7 +257,7 @@ mod tests {
     let user = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
     // create workspace
-    let folder_service = SupabaseFolderCloudServiceImpl::new(server);
+    let folder_service = SupabaseFolderCloudServiceImpl::new(Some(weak_server));
     let workspace = folder_service
       .create_workspace(user.user_id, "my test workspace")
       .await

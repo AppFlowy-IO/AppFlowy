@@ -1,55 +1,84 @@
-use std::sync::Arc;
+use std::sync::Weak;
 
 use collab_document::document::Document;
 use collab_folder::core::CollabOrigin;
 use tokio::sync::oneshot::channel;
 
 use flowy_document2::deps::{DocumentCloudService, DocumentData, DocumentSnapshot};
-use flowy_error::{internal_error, FlowyError};
+use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use lib_infra::future::FutureResult;
 
 use crate::supabase::impls::{get_latest_snapshot_from_server, FetchObjectUpdateAction};
 use crate::supabase::PostgresServer;
 
 pub struct SupabaseDocumentCloudServiceImpl {
-  server: Arc<PostgresServer>,
+  server: Option<Weak<PostgresServer>>,
 }
 
 impl SupabaseDocumentCloudServiceImpl {
-  pub fn new(server: Arc<PostgresServer>) -> Self {
+  pub fn new(server: Option<Weak<PostgresServer>>) -> Self {
     Self { server }
+  }
+
+  #[allow(dead_code)]
+  pub fn try_get_server(&self) -> FlowyResult<Weak<PostgresServer>> {
+    self.server.clone().ok_or_else(|| {
+      FlowyError::new(
+        ErrorCode::SupabaseSyncRequired,
+        "Supabase sync is disabled, please enable it first",
+      )
+    })
   }
 }
 
 impl DocumentCloudService for SupabaseDocumentCloudServiceImpl {
   fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
-    let pg_server = Arc::downgrade(&self.server);
+    let weak_server = self.server.clone();
     let (tx, rx) = channel();
     let document_id = document_id.to_string();
     tokio::spawn(async move {
-      let action = FetchObjectUpdateAction::new(&document_id, pg_server);
-      tx.send(action.run_with_fix_interval(5, 5).await)
+      tx.send(
+        async move {
+          match weak_server {
+            None => Ok(vec![]),
+            Some(weak_server) => FetchObjectUpdateAction::new(&document_id, weak_server)
+              .run_with_fix_interval(5, 5)
+              .await
+              .map_err(internal_error),
+          }
+        }
+        .await,
+      )
     });
-    FutureResult::new(async { rx.await.map_err(internal_error)?.map_err(internal_error) })
+    FutureResult::new(async { rx.await.map_err(internal_error)? })
   }
 
   fn get_document_latest_snapshot(
     &self,
     document_id: &str,
   ) -> FutureResult<Option<DocumentSnapshot>, FlowyError> {
-    let server = Arc::downgrade(&self.server);
+    let weak_server = self.server.clone();
     let (tx, rx) = channel();
     let document_id = document_id.to_string();
-    tokio::spawn(
-      async move { tx.send(get_latest_snapshot_from_server(&document_id, server).await) },
-    );
+    tokio::spawn(async move {
+      tx.send(
+        async move {
+          match weak_server {
+            None => Ok(None),
+            Some(weak_server) => get_latest_snapshot_from_server(&document_id, weak_server)
+              .await
+              .map_err(internal_error),
+          }
+        }
+        .await,
+      )
+    });
 
     FutureResult::new(async {
       {
         Ok(
           rx.await
-            .map_err(internal_error)?
-            .map_err(internal_error)?
+            .map_err(internal_error)??
             .map(|snapshot| DocumentSnapshot {
               snapshot_id: snapshot.snapshot_id,
               document_id: snapshot.oid,
@@ -62,16 +91,26 @@ impl DocumentCloudService for SupabaseDocumentCloudServiceImpl {
   }
 
   fn get_document_data(&self, document_id: &str) -> FutureResult<Option<DocumentData>, FlowyError> {
-    let pg_server = Arc::downgrade(&self.server);
+    let weak_server = self.server.clone();
     let (tx, rx) = channel();
     let document_id = document_id.to_string();
     tokio::spawn(async move {
-      let action = FetchObjectUpdateAction::new(&document_id, pg_server);
-      let document_data = action.run().await.map(|updates| {
-        let document = Document::from_updates(CollabOrigin::Empty, updates, &document_id, vec![])?;
-        Ok(document.get_document_data().ok())
-      });
-      tx.send(document_data)
+      tx.send(
+        async move {
+          match weak_server {
+            None => Ok(Ok(None)),
+            Some(weak_server) => {
+              let action = FetchObjectUpdateAction::new(&document_id, weak_server);
+              action.run().await.map(|updates| {
+                let document =
+                  Document::from_updates(CollabOrigin::Empty, updates, &document_id, vec![])?;
+                Ok(document.get_document_data().ok())
+              })
+            },
+          }
+        }
+        .await,
+      )
     });
     FutureResult::new(async { rx.await.map_err(internal_error)?.map_err(internal_error)? })
   }

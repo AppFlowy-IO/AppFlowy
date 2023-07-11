@@ -4,6 +4,7 @@ use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
+use flowy_server_config::supabase_config::SupabaseConfiguration;
 use lib_dispatch::prelude::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::{to_fut, Fut, FutureResult};
@@ -27,12 +28,18 @@ pub fn init(user_session: Arc<UserSession>) -> AFPlugin {
     .event(UserEvent::SetAppearanceSetting, set_appearance_setting)
     .event(UserEvent::GetAppearanceSetting, get_appearance_setting)
     .event(UserEvent::GetUserSetting, get_user_setting)
+    .event(UserEvent::SetSupabaseConfig, set_supabase_config_handler)
+    .event(UserEvent::GetSupabaseConfig, get_supabase_config_handler)
     .event(UserEvent::ThirdPartyAuth, third_party_auth_handler)
 }
 
 pub(crate) struct DefaultUserStatusCallback;
 impl UserStatusCallback for DefaultUserStatusCallback {
   fn auth_type_did_changed(&self, _auth_type: AuthType) {}
+
+  fn did_init(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>> {
+    to_fut(async { Ok(()) })
+  }
 
   fn did_sign_in(&self, _user_id: i64, _workspace_id: &str) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
@@ -49,6 +56,7 @@ impl UserStatusCallback for DefaultUserStatusCallback {
 
 pub trait UserStatusCallback: Send + Sync + 'static {
   fn auth_type_did_changed(&self, auth_type: AuthType);
+  fn did_init(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>>;
   fn did_sign_in(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>>;
   fn did_sign_up(&self, is_new: bool, user_profile: &UserProfile) -> Fut<FlowyResult<()>>;
   fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
@@ -57,6 +65,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
 /// The user cloud service provider.
 /// The provider can be supabase, firebase, aws, or any other cloud service.
 pub trait UserCloudServiceProvider: Send + Sync + 'static {
+  fn update_supabase_config(&self, supabase_config: &SupabaseConfiguration);
   fn set_auth_type(&self, auth_type: AuthType);
   fn get_auth_service(&self) -> Result<Arc<dyn UserAuthService>, FlowyError>;
 }
@@ -65,6 +74,10 @@ impl<T> UserCloudServiceProvider for Arc<T>
 where
   T: UserCloudServiceProvider,
 {
+  fn update_supabase_config(&self, supabase_config: &SupabaseConfiguration) {
+    (**self).update_supabase_config(supabase_config)
+  }
+
   fn set_auth_type(&self, auth_type: AuthType) {
     (**self).set_auth_type(auth_type)
   }
@@ -187,4 +200,12 @@ pub enum UserEvent {
 
   #[event(input = "ThirdPartyAuthPB", output = "UserProfilePB")]
   ThirdPartyAuth = 10,
+
+  /// Set the supabase config. It will be written to the environment variables.
+  /// Check out the `write_to_env` of [SupabaseConfigPB].
+  #[event(input = "SupabaseConfigPB")]
+  SetSupabaseConfig = 13,
+
+  #[event(output = "SupabaseConfigPB")]
+  GetSupabaseConfig = 14,
 }

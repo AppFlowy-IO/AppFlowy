@@ -1,3 +1,4 @@
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu_element.dart';
@@ -55,6 +56,14 @@ class SettingsMenu extends StatelessWidget {
           icon: Icons.account_box_outlined,
           changeSelectedPage: changeSelectedPage,
         ),
+        if (isSupabaseEnable)
+          SettingsMenuElement(
+            page: SettingsPage.supabaseSetting,
+            selectedPage: currentPage,
+            label: LocaleKeys.settings_menu_supabaseSetting.tr(),
+            icon: Icons.sync,
+            changeSelectedPage: changeSelectedPage,
+          ),
       ],
     );
   }

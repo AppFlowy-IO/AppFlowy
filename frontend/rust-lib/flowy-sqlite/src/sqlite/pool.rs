@@ -34,7 +34,7 @@ impl ConnectionPool {
     let customizer_config = DatabaseCustomizerConfig::default();
 
     let pool = r2d2::Pool::builder()
-      .thread_pool(thread_pool.clone())
+      .thread_pool(thread_pool)
       .min_idle(Some(config.min_idle))
       .connection_customizer(Box::new(DatabaseCustomizer::new(customizer_config)))
       .max_size(config.max_size)

@@ -4,7 +4,8 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use flowy_server::supabase::impls::{SupabaseUserAuthServiceImpl, USER_UUID};
-use flowy_server::supabase::{PostgresConfiguration, PostgresServer};
+use flowy_server::supabase::PostgresServer;
+use flowy_server_config::supabase_config::PostgresConfiguration;
 use flowy_user::entities::{SignUpResponse, UpdateUserProfileParams};
 use flowy_user::event_map::{UserAuthService, UserCredentials};
 use lib_infra::box_any::BoxAny;
@@ -20,7 +21,7 @@ async fn user_sign_up_test() {
   let server = Arc::new(PostgresServer::new(
     PostgresConfiguration::from_env().unwrap(),
   ));
-  let user_service = SupabaseUserAuthServiceImpl::new(server);
+  let user_service = SupabaseUserAuthServiceImpl::new(Some(Arc::downgrade(&server)));
 
   let mut params = HashMap::new();
   params.insert(USER_UUID.to_string(), Uuid::new_v4().to_string());
@@ -36,7 +37,7 @@ async fn user_sign_up_with_existing_uuid_test() {
   let server = Arc::new(PostgresServer::new(
     PostgresConfiguration::from_env().unwrap(),
   ));
-  let user_service = SupabaseUserAuthServiceImpl::new(server);
+  let user_service = SupabaseUserAuthServiceImpl::new(Some(Arc::downgrade(&server)));
   let uuid = Uuid::new_v4();
 
   let mut params = HashMap::new();
@@ -57,7 +58,7 @@ async fn update_user_profile_test() {
   let server = Arc::new(PostgresServer::new(
     PostgresConfiguration::from_env().unwrap(),
   ));
-  let user_service = SupabaseUserAuthServiceImpl::new(server);
+  let user_service = SupabaseUserAuthServiceImpl::new(Some(Arc::downgrade(&server)));
   let uuid = Uuid::new_v4();
 
   let mut params = HashMap::new();
@@ -101,7 +102,7 @@ async fn get_user_profile_test() {
   let server = Arc::new(PostgresServer::new(
     PostgresConfiguration::from_env().unwrap(),
   ));
-  let user_service = SupabaseUserAuthServiceImpl::new(server);
+  let user_service = SupabaseUserAuthServiceImpl::new(Some(Arc::downgrade(&server)));
   let uuid = Uuid::new_v4();
 
   let mut params = HashMap::new();
@@ -149,7 +150,7 @@ async fn get_not_exist_user_profile_test() {
   let server = Arc::new(PostgresServer::new(
     PostgresConfiguration::from_env().unwrap(),
   ));
-  let user_service = SupabaseUserAuthServiceImpl::new(server);
+  let user_service = SupabaseUserAuthServiceImpl::new(Some(Arc::downgrade(&server)));
   let result = user_service
     .get_user_profile(UserCredentials::from_uid(i64::MAX))
     .await

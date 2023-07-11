@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use std::sync::Arc;
+use std::sync::Weak;
 
 use deadpool_postgres::GenericClient;
 use futures::pin_mut;
@@ -8,7 +8,7 @@ use tokio::sync::oneshot::channel;
 use tokio_postgres::error::SqlState;
 use uuid::Uuid;
 
-use flowy_error::{internal_error, ErrorCode, FlowyError};
+use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_user::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 use flowy_user::event_map::{UserAuthService, UserCredentials};
 use lib_infra::box_any::BoxAny;
@@ -25,25 +25,42 @@ pub(crate) const USER_PROFILE_TABLE: &str = "af_user_profile";
 pub const USER_UUID: &str = "uuid";
 
 pub struct SupabaseUserAuthServiceImpl {
-  server: Arc<PostgresServer>,
+  server: Option<Weak<PostgresServer>>,
 }
 
 impl SupabaseUserAuthServiceImpl {
-  pub fn new(server: Arc<PostgresServer>) -> Self {
+  pub fn new(server: Option<Weak<PostgresServer>>) -> Self {
     Self { server }
+  }
+
+  pub fn get_server(&self) -> FlowyResult<Weak<PostgresServer>> {
+    self.server.clone().ok_or_else(|| {
+      FlowyError::new(
+        ErrorCode::SupabaseSyncRequired,
+        "Supabase sync is disabled, please enable it first",
+      )
+    })
   }
 }
 
 impl UserAuthService for SupabaseUserAuthServiceImpl {
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
-    let server = self.server.clone();
+    let weak_server = self.get_server();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
-        async {
-          let client = server.get_pg_client().await.recv().await?;
-          let uuid = uuid_from_box_any(params)?;
-          create_user_with_uuid(&client, uuid).await
+        async move {
+          match weak_server?.upgrade() {
+            Some(server) => {
+              let client = server.get_pg_client().await.recv().await?;
+              let uuid = uuid_from_box_any(params)?;
+              create_user_with_uuid(&client, uuid).await
+            },
+            None => Err(FlowyError::new(
+              ErrorCode::PgDatabaseError,
+              "Server is close",
+            )),
+          }
         }
         .await,
       )
@@ -52,19 +69,28 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
   }
 
   fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, FlowyError> {
-    let server = self.server.clone();
+    let server = self.get_server();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
         async {
-          let client = server.get_pg_client().await.recv().await?;
-          let uuid = uuid_from_box_any(params)?;
-          let user_profile = get_user_profile(&client, GetUserProfileParams::Uuid(uuid)).await?;
-          Ok(SignInResponse {
-            user_id: user_profile.uid,
-            workspace_id: user_profile.workspace_id,
-            ..Default::default()
-          })
+          match server?.upgrade() {
+            None => Err(FlowyError::new(
+              ErrorCode::PgDatabaseError,
+              "Server is close",
+            )),
+            Some(server) => {
+              let client = server.get_pg_client().await.recv().await?;
+              let uuid = uuid_from_box_any(params)?;
+              let user_profile =
+                get_user_profile(&client, GetUserProfileParams::Uuid(uuid)).await?;
+              Ok(SignInResponse {
+                user_id: user_profile.uid,
+                workspace_id: user_profile.workspace_id,
+                ..Default::default()
+              })
+            },
+          }
         }
         .await,
       )
@@ -81,13 +107,17 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
     _credential: UserCredentials,
     params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError> {
-    let server = self.server.clone();
+    let weak_server = self.get_server();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
         async move {
-          let client = server.get_pg_client().await.recv().await?;
-          update_user_profile(&client, params).await
+          if let Some(server) = weak_server?.upgrade() {
+            let client = server.get_pg_client().await.recv().await?;
+            update_user_profile(&client, params).await
+          } else {
+            Ok(())
+          }
         }
         .await,
       )
@@ -99,28 +129,32 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
     &self,
     credential: UserCredentials,
   ) -> FutureResult<Option<UserProfile>, FlowyError> {
-    let server = self.server.clone();
+    let weak_server = self.get_server();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
         async move {
-          let client = server.get_pg_client().await.recv().await?;
-          let uid = credential
-            .uid
-            .ok_or(FlowyError::new(ErrorCode::InvalidParams, "uid is required"))?;
-          let user_profile = get_user_profile(&client, GetUserProfileParams::Uid(uid))
-            .await
-            .ok()
-            .map(|user_profile| UserProfile {
-              id: user_profile.uid,
-              email: user_profile.email,
-              name: user_profile.name,
-              token: "".to_string(),
-              icon_url: "".to_string(),
-              openai_key: "".to_string(),
-              workspace_id: user_profile.workspace_id,
-            });
-          Ok(user_profile)
+          if let Some(server) = weak_server?.upgrade() {
+            let client = server.get_pg_client().await.recv().await?;
+            let uid = credential
+              .uid
+              .ok_or(FlowyError::new(ErrorCode::InvalidParams, "uid is required"))?;
+            let user_profile = get_user_profile(&client, GetUserProfileParams::Uid(uid))
+              .await
+              .ok()
+              .map(|user_profile| UserProfile {
+                id: user_profile.uid,
+                email: user_profile.email,
+                name: user_profile.name,
+                token: "".to_string(),
+                icon_url: "".to_string(),
+                openai_key: "".to_string(),
+                workspace_id: user_profile.workspace_id,
+              });
+            Ok(user_profile)
+          } else {
+            Ok(None)
+          }
         }
         .await,
       )
@@ -130,13 +164,21 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
 
   fn check_user(&self, credential: UserCredentials) -> FutureResult<(), FlowyError> {
     let uuid = credential.uuid.and_then(|uuid| Uuid::from_str(&uuid).ok());
-    let server = self.server.clone();
+    let weak_server = self.get_server();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
         async move {
-          let client = server.get_pg_client().await.recv().await?;
-          check_user(&client, credential.uid, uuid).await
+          match weak_server?.upgrade() {
+            None => Err(FlowyError::new(
+              ErrorCode::PgDatabaseError,
+              "Server is close",
+            )),
+            Some(server) => {
+              let client = server.get_pg_client().await.recv().await?;
+              check_user(&client, credential.uid, uuid).await
+            },
+          }
         }
         .await,
       )
@@ -295,49 +337,5 @@ async fn check_user(
       ErrorCode::UserNotExist,
       "Can't find the user in pg database",
     ))
-  }
-}
-
-pub struct NoSyncSupabaseUserAuthServiceImpl();
-impl UserAuthService for NoSyncSupabaseUserAuthServiceImpl {
-  fn sign_up(&self, _params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
-    FutureResult::new(async move {
-      Err(FlowyError::new(
-        ErrorCode::SupabaseSyncRequired,
-        "Supabase sync is required",
-      ))
-    })
-  }
-
-  fn sign_in(&self, _params: BoxAny) -> FutureResult<SignInResponse, FlowyError> {
-    FutureResult::new(async move {
-      Err(FlowyError::new(
-        ErrorCode::SupabaseSyncRequired,
-        "Supabase sync is required",
-      ))
-    })
-  }
-
-  fn sign_out(&self, _token: Option<String>) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async move { Ok(()) })
-  }
-
-  fn update_user(
-    &self,
-    _credential: UserCredentials,
-    _params: UpdateUserProfileParams,
-  ) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async move { Ok(()) })
-  }
-
-  fn get_user_profile(
-    &self,
-    _credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, FlowyError> {
-    FutureResult::new(async move { Ok(None) })
-  }
-
-  fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async move { Ok(()) })
   }
 }

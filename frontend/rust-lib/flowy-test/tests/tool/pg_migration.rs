@@ -1,6 +1,6 @@
 use tokio_postgres::{Client, NoTls};
 
-use flowy_server::supabase::PostgresConfiguration;
+use flowy_server_config::supabase_config::PostgresConfiguration;
 
 /// Drop all tables and dependencies defined in the v1_initial_up.sql.
 /// Be careful when using this function. It will drop all tables and dependencies.

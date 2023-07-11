@@ -15,8 +15,9 @@ use flowy_folder2::deps::{FolderCloudService, FolderData, FolderSnapshot, Worksp
 use flowy_server::local_server::LocalServer;
 use flowy_server::self_host::configuration::self_host_server_configuration;
 use flowy_server::self_host::SelfHostServer;
-use flowy_server::supabase::{SupabaseConfiguration, SupabaseServer};
+use flowy_server::supabase::SupabaseServer;
 use flowy_server::AppFlowyServer;
+use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::KV;
 use flowy_user::event_map::{UserAuthService, UserCloudServiceProvider};
 use flowy_user::services::AuthType;
@@ -49,14 +50,16 @@ pub struct AppFlowyServerProvider {
   config: AppFlowyCoreConfig,
   provider_type: RwLock<ServerProviderType>,
   providers: RwLock<HashMap<ServerProviderType, Arc<dyn AppFlowyServer>>>,
+  supabase_config: RwLock<Option<SupabaseConfiguration>>,
 }
 
 impl AppFlowyServerProvider {
-  pub fn new(config: AppFlowyCoreConfig) -> Self {
+  pub fn new(config: AppFlowyCoreConfig, supabase_config: Option<SupabaseConfiguration>) -> Self {
     Self {
       config,
       provider_type: RwLock::new(current_server_provider()),
       providers: RwLock::new(HashMap::new()),
+      supabase_config: RwLock::new(supabase_config),
     }
   }
 
@@ -73,7 +76,33 @@ impl AppFlowyServerProvider {
       return Ok(provider.clone());
     }
 
-    let server = server_from_auth_type(&self.config, provider_type)?;
+    let server = match provider_type {
+      ServerProviderType::Local => {
+        let server = Arc::new(LocalServer::new(&self.config.storage_path));
+        Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
+      },
+      ServerProviderType::SelfHosted => {
+        let config = self_host_server_configuration().map_err(|e| {
+          FlowyError::new(
+            ErrorCode::InvalidAuthConfig,
+            format!(
+              "Missing self host config: {:?}. Error: {:?}",
+              provider_type, e
+            ),
+          )
+        })?;
+        let server = Arc::new(SelfHostServer::new(config));
+        Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
+      },
+      ServerProviderType::Supabase => {
+        let config = self.supabase_config.read().clone().ok_or(FlowyError::new(
+          ErrorCode::InvalidAuthConfig,
+          "Missing supabase config".to_string(),
+        ))?;
+        Ok::<Arc<dyn AppFlowyServer>, FlowyError>(Arc::new(SupabaseServer::new(config)))
+      },
+    }?;
+
     self
       .providers
       .write()
@@ -83,6 +112,18 @@ impl AppFlowyServerProvider {
 }
 
 impl UserCloudServiceProvider for AppFlowyServerProvider {
+  fn update_supabase_config(&self, supabase_config: &SupabaseConfiguration) {
+    self
+      .supabase_config
+      .write()
+      .replace(supabase_config.clone());
+
+    supabase_config.write_env();
+    if let Ok(provider) = self.get_provider(&self.provider_type.read()) {
+      provider.enable_sync(supabase_config.enable_sync);
+    }
+  }
+
   /// When user login, the provider type is set by the [AuthType] and save to disk for next use.
   ///
   /// Each [AuthType] has a corresponding [ServerProviderType]. The [ServerProviderType] is used
@@ -260,31 +301,14 @@ impl CollabStorageProvider for AppFlowyServerProvider {
         .and_then(|provider| provider.collab_storage()),
     }
   }
-}
 
-fn server_from_auth_type(
-  config: &AppFlowyCoreConfig,
-  provider: &ServerProviderType,
-) -> Result<Arc<dyn AppFlowyServer>, FlowyError> {
-  match provider {
-    ServerProviderType::Local => {
-      let server = Arc::new(LocalServer::new(&config.storage_path));
-      Ok(server)
-    },
-    ServerProviderType::SelfHosted => {
-      let config = self_host_server_configuration().map_err(|e| {
-        FlowyError::new(
-          ErrorCode::InvalidAuthConfig,
-          format!("Missing self host config: {:?}. Error: {:?}", provider, e),
-        )
-      })?;
-      let server = Arc::new(SelfHostServer::new(config));
-      Ok(server)
-    },
-    ServerProviderType::Supabase => {
-      let config = SupabaseConfiguration::from_env()?;
-      Ok(Arc::new(SupabaseServer::new(config)))
-    },
+  fn is_sync_enabled(&self) -> bool {
+    self
+      .supabase_config
+      .read()
+      .as_ref()
+      .map(|config| config.enable_sync)
+      .unwrap_or(false)
   }
 }
 

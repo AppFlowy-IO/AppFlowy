@@ -6,6 +6,7 @@ use serde_repr::*;
 use tokio::sync::RwLock;
 
 use flowy_error::internal_error;
+use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{
   kv::KV,
@@ -29,6 +30,7 @@ use crate::{
   services::database::{UserDB, UserTable, UserTableChangeset},
 };
 
+pub(crate) const SUPABASE_CONFIG_CACHE_KEY: &str = "supabase_config_cache_key";
 pub struct UserSessionConfig {
   root_dir: String,
 
@@ -73,9 +75,12 @@ impl UserSession {
 
   pub async fn init<C: UserStatusCallback + 'static>(&self, user_status_callback: C) {
     if let Ok(session) = self.get_session() {
-      let _ = user_status_callback
-        .did_sign_in(session.user_id, &session.workspace_id)
-        .await;
+      if let Err(e) = user_status_callback
+        .did_init(session.user_id, &session.workspace_id)
+        .await
+      {
+        tracing::error!("Failed to call did_sign_in callback: {:?}", e);
+      }
     }
     *self.user_status_callback.write().await = Arc::new(user_status_callback);
   }
@@ -123,12 +128,15 @@ impl UserSession {
     let session: Session = resp.clone().into();
     self.set_session(Some(session))?;
     let user_profile: UserProfile = self.save_user(resp.into()).await?.into();
-    let _ = self
+    if let Err(e) = self
       .user_status_callback
       .read()
       .await
       .did_sign_in(user_profile.id, &user_profile.workspace_id)
-      .await;
+      .await
+    {
+      tracing::error!("Failed to call did_sign_in callback: {:?}", e);
+    }
     send_sign_in_notification()
       .payload::<UserProfilePB>(user_profile.clone().into())
       .send();
@@ -259,6 +267,17 @@ impl UserSession {
   pub fn token(&self) -> Result<Option<String>, FlowyError> {
     Ok(self.get_session()?.token)
   }
+
+  pub fn save_supabase_config(&self, config: SupabaseConfiguration) {
+    self.cloud_services.update_supabase_config(&config);
+    let _ = KV::set_object(SUPABASE_CONFIG_CACHE_KEY, config);
+  }
+}
+
+pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
+  KV::get_str(SUPABASE_CONFIG_CACHE_KEY)
+    .and_then(|s| serde_json::from_str(&s).ok())
+    .unwrap_or_else(|| SupabaseConfiguration::from_env().ok())
 }
 
 impl UserSession {

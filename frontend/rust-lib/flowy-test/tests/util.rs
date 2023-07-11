@@ -4,7 +4,7 @@ use std::time::Duration;
 use tokio::sync::mpsc::Receiver;
 use tokio::time::timeout;
 
-use flowy_server::supabase::SupabaseConfiguration;
+use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
 use flowy_user::entities::{

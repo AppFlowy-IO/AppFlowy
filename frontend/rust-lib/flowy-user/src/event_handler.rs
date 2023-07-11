@@ -1,14 +1,15 @@
+use std::convert::TryFrom;
 use std::{convert::TryInto, sync::Arc};
 
 use flowy_error::FlowyError;
+use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::KV;
 use lib_dispatch::prelude::*;
 use lib_infra::box_any::BoxAny;
 
 use crate::entities::*;
 use crate::entities::{SignInParams, SignUpParams, UpdateUserProfileParams};
-use crate::event_map::UserCredentials;
-use crate::services::{AuthType, UserSession};
+use crate::services::{get_supabase_config, AuthType, UserSession};
 
 #[tracing::instrument(level = "debug", name = "sign_in", skip(data, session), fields(email = %data.email), err)]
 pub async fn sign_in(
@@ -143,4 +144,22 @@ pub async fn third_party_auth_handler(
     .await?
     .into();
   data_result_ok(user_profile)
+}
+
+#[tracing::instrument(level = "debug", skip(data, session), err)]
+pub async fn set_supabase_config_handler(
+  data: AFPluginData<SupabaseConfigPB>,
+  session: AFPluginState<Arc<UserSession>>,
+) -> Result<(), FlowyError> {
+  let config = SupabaseConfiguration::try_from(data.into_inner())?;
+  session.save_supabase_config(config);
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_supabase_config_handler(
+  session: AFPluginState<Arc<UserSession>>,
+) -> DataResult<SupabaseConfigPB, FlowyError> {
+  let config = get_supabase_config().unwrap_or_default();
+  data_result_ok(config.into())
 }

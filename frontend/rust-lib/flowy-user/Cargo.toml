@@ -11,6 +11,7 @@ flowy-sqlite = { path = "../flowy-sqlite", optional = true }
 flowy-error = { path = "../flowy-error", features = ["adaptor_database", "adaptor_dispatch"] }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-notification = { path = "../flowy-notification" }
+flowy-server-config = { path = "../flowy-server-config" }
 lib-dispatch = { path = "../lib-dispatch" }
 appflowy-integrate = { version = "0.1.0" }
 

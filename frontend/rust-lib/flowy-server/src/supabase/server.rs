@@ -4,6 +4,7 @@ use std::sync::{Arc, Weak};
 use std::time::Duration;
 
 use appflowy_integrate::RemoteCollabStorage;
+use parking_lot::RwLock;
 use tokio::spawn;
 use tokio::sync::{watch, Mutex};
 use tokio::time::interval;
@@ -11,6 +12,7 @@ use tokio::time::interval;
 use flowy_database2::deps::DatabaseCloudService;
 use flowy_document2::deps::DocumentCloudService;
 use flowy_folder2::deps::FolderCloudService;
+use flowy_server_config::supabase_config::{PostgresConfiguration, SupabaseConfiguration};
 use flowy_user::event_map::UserAuthService;
 use lib_infra::async_trait::async_trait;
 
@@ -22,7 +24,6 @@ use crate::supabase::postgres_db::{PgClientReceiver, PostgresDB, PostgresEvent};
 use crate::supabase::queue::{
   PendingRequest, RequestHandler, RequestQueue, RequestRunner, RequestState,
 };
-use crate::supabase::{PostgresConfiguration, SupabaseConfiguration};
 use crate::AppFlowyServer;
 
 /// Supabase server is used to provide the implementation of the [AppFlowyServer] trait.
@@ -30,38 +31,72 @@ use crate::AppFlowyServer;
 pub struct SupabaseServer {
   #[allow(dead_code)]
   config: SupabaseConfiguration,
-  postgres: Arc<PostgresServer>,
+  postgres: RwLock<Option<Arc<PostgresServer>>>,
 }
 
 impl SupabaseServer {
   pub fn new(config: SupabaseConfiguration) -> Self {
-    let postgres = PostgresServer::new(config.postgres_config.clone());
+    let postgres = if config.enable_sync {
+      Some(Arc::new(PostgresServer::new(
+        config.postgres_config.clone(),
+      )))
+    } else {
+      None
+    };
     Self {
       config,
-      postgres: Arc::new(postgres),
+      postgres: RwLock::new(postgres),
+    }
+  }
+
+  pub fn set_enable_sync(&self, enable: bool) {
+    if enable {
+      if self.postgres.read().is_some() {
+        return;
+      }
+      *self.postgres.write() = Some(Arc::new(PostgresServer::new(
+        self.config.postgres_config.clone(),
+      )));
+    } else {
+      *self.postgres.write() = None;
     }
   }
 }
 
 impl AppFlowyServer for SupabaseServer {
+  fn enable_sync(&self, enable: bool) {
+    tracing::info!("supabase sync: {}", enable);
+    self.set_enable_sync(enable);
+  }
+
   fn user_service(&self) -> Arc<dyn UserAuthService> {
-    Arc::new(SupabaseUserAuthServiceImpl::new(self.postgres.clone()))
+    Arc::new(SupabaseUserAuthServiceImpl::new(
+      self.postgres.read().as_ref().map(Arc::downgrade),
+    ))
   }
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
-    Arc::new(SupabaseFolderCloudServiceImpl::new(self.postgres.clone()))
+    Arc::new(SupabaseFolderCloudServiceImpl::new(
+      self.postgres.read().as_ref().map(Arc::downgrade),
+    ))
   }
 
   fn database_service(&self) -> Arc<dyn DatabaseCloudService> {
-    Arc::new(SupabaseDatabaseCloudServiceImpl::new(self.postgres.clone()))
+    Arc::new(SupabaseDatabaseCloudServiceImpl::new(
+      self.postgres.read().as_ref().map(Arc::downgrade),
+    ))
   }
 
   fn document_service(&self) -> Arc<dyn DocumentCloudService> {
-    Arc::new(SupabaseDocumentCloudServiceImpl::new(self.postgres.clone()))
+    Arc::new(SupabaseDocumentCloudServiceImpl::new(
+      self.postgres.read().as_ref().map(Arc::downgrade),
+    ))
   }
 
   fn collab_storage(&self) -> Option<Arc<dyn RemoteCollabStorage>> {
-    Some(Arc::new(PgCollabStorageImpl::new(self.postgres.clone())))
+    Some(Arc::new(PgCollabStorageImpl::new(
+      self.postgres.read().as_ref().map(Arc::downgrade),
+    )))
   }
 }
 

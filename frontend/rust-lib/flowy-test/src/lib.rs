@@ -19,7 +19,7 @@ use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent;
 use flowy_notification::entities::SubscribeObject;
 use flowy_notification::{register_notification_sender, NotificationSender};
-use flowy_user::entities::{AuthTypePB, SignOutPB, ThirdPartyAuthPB, UserProfilePB};
+use flowy_user::entities::{AuthTypePB, ThirdPartyAuthPB, UserProfilePB};
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserEvent::*;
 
@@ -80,10 +80,8 @@ impl FlowyCoreTest {
   }
 
   pub async fn sign_out(&self) {
-    let auth_type = self.auth_type.read().clone();
     EventBuilder::new(self.clone())
       .event(SignOut)
-      .payload(SignOutPB { auth_type })
       .async_send()
       .await;
   }

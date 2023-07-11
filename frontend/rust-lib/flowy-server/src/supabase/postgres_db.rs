@@ -6,10 +6,10 @@ use deadpool_postgres::{Manager, ManagerConfig, Object, Pool, RecyclingMethod};
 use tokio_postgres::NoTls;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_server_config::supabase_config::PostgresConfiguration;
 
 use crate::supabase::migration::run_migrations;
 use crate::supabase::queue::RequestPayload;
-use crate::supabase::PostgresConfiguration;
 
 pub type PostgresObject = Object;
 pub struct PostgresDB {

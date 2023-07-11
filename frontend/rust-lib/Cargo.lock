@@ -1304,6 +1304,7 @@ dependencies = [
  "flowy-net",
  "flowy-notification",
  "flowy-server",
+ "flowy-server-config",
  "lazy_static",
  "lib-dispatch",
  "log",
@@ -1660,6 +1661,7 @@ dependencies = [
  "flowy-folder2",
  "flowy-net",
  "flowy-server",
+ "flowy-server-config",
  "flowy-sqlite",
  "flowy-task",
  "flowy-user",
@@ -1867,6 +1869,7 @@ dependencies = [
  "flowy-document2",
  "flowy-error",
  "flowy-folder2",
+ "flowy-server-config",
  "flowy-user",
  "futures",
  "futures-util",
@@ -1888,6 +1891,14 @@ dependencies = [
  "tracing",
  "tracing-subscriber 0.3.16",
  "uuid",
+]
+
+[[package]]
+name = "flowy-server-config"
+version = "0.1.0"
+dependencies = [
+ "flowy-error",
+ "serde",
 ]
 
 [[package]]
@@ -1944,6 +1955,7 @@ dependencies = [
  "flowy-net",
  "flowy-notification",
  "flowy-server",
+ "flowy-server-config",
  "flowy-user",
  "futures-util",
  "lib-dispatch",
@@ -1976,6 +1988,7 @@ dependencies = [
  "flowy-derive",
  "flowy-error",
  "flowy-notification",
+ "flowy-server-config",
  "flowy-sqlite",
  "lazy_static",
  "lib-dispatch",
