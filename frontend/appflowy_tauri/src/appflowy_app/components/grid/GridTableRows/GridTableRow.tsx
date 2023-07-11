@@ -86,10 +86,8 @@ export const GridTableRow = ({
                   </>
                 )}
 
-                <div className={'-mx-[10px] h-full cursor-col-resize px-[6px]'}>
-                  <div className={'flex h-full w-[3px] justify-center '}>
-                    <div className={'h-full w-[1px] bg-shade-6'}></div>
-                  </div>
+                <div className={'flex h-full justify-center'}>
+                  <div className={'h-full w-[1px] bg-shade-6'}></div>
                 </div>
               </div>
             );

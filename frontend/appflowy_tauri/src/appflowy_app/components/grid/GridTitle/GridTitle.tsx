@@ -1,11 +1,11 @@
 import { SettingsSvg } from '../../_shared/svg/SettingsSvg';
 import { GridTitleOptionsPopup } from './GridTitleOptionsPopup';
 import { useGridTitleOptionsPopupHooks } from './GridTitleOptionsPopup.hooks';
-import { GridFilterPopup } from '../GridFilter/GridFilterPopup';
 import { GridSortPopup } from '../GridSort/GridSortPopup';
-import {useEffect, useState} from "react";
-import {useLocation} from "react-router-dom";
-import {useAppSelector} from "$app/stores/store";
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { useAppSelector } from '$app/stores/store';
+import { DatabaseFilterPopup } from '$app/components/_shared/DatabaseFilter/DatabaseFilterPopup';
 
 export const GridTitle = () => {
   const [showOptions, setShowOptions] = useState(false);
@@ -31,7 +31,6 @@ export const GridTitle = () => {
 
   return (
     <div className={'relative flex items-center '}>
-
       <div className='flex '>
         <div>{pageName}</div>
         <button className={'ml-2 h-5 w-5 '} onClick={() => setShowOptions(!showOptions)}>
@@ -51,7 +50,7 @@ export const GridTitle = () => {
         )}
 
         {showFilterPopup && (
-          <GridFilterPopup
+          <DatabaseFilterPopup
             onOutsideClick={() => {
               setShowFilterPopup(false);
             }}

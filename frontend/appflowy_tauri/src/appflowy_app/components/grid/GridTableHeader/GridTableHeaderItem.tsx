@@ -10,15 +10,21 @@ import { databaseActions, IDatabaseField } from '$app_reducers/database/slice';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
 import { useResizer } from '$app/components/_shared/useResizer';
 import { useAppDispatch } from '$app/stores/store';
+import { Details2Svg } from '$app/components/_shared/svg/Details2Svg';
+
+const MIN_COLUMN_WIDTH = 100;
 
 export const GridTableHeaderItem = ({
   controller,
   field,
+  index,
 }: {
   controller: DatabaseController;
   field: IDatabaseField;
+  index: number;
 }) => {
   const { onMouseDown, newSizeX } = useResizer((final) => {
+    if (final < MIN_COLUMN_WIDTH) return;
     void controller.changeWidth({ fieldId: field.fieldId, width: final });
   });
   const dispatch = useAppDispatch();
@@ -36,7 +42,9 @@ export const GridTableHeaderItem = ({
 
   useEffect(() => {
     if (!newSizeX) return;
-    dispatch(databaseActions.changeWidth({ fieldId: field.fieldId, width: newSizeX }));
+    if (newSizeX >= MIN_COLUMN_WIDTH) {
+      dispatch(databaseActions.changeWidth({ fieldId: field.fieldId, width: newSizeX }));
+    }
   }, [newSizeX]);
 
   const changeFieldType = async (newType: FieldType) => {
@@ -56,69 +64,76 @@ export const GridTableHeaderItem = ({
     setShowChangeFieldTypePopup(false);
   };
 
+  const onFieldOptionsClick = () => {
+    if (!ref.current) return;
+    const { top, left } = ref.current.getBoundingClientRect();
+
+    setEditFieldRight(left - 10);
+    setEditFieldTop(top + 40);
+    setEditingField(field);
+    setShowFieldEditor(true);
+  };
+
   return (
     <>
-      <div style={{ width: `${field.width}px` }} className='flex-shrink-0 border-b border-t border-shade-6'>
-        <div
-          className={'flex w-full cursor-pointer items-center gap-2 px-4 py-2 hover:bg-main-secondary'}
-          ref={ref}
-          onClick={() => {
-            if (!ref.current) return;
-            const { top, left } = ref.current.getBoundingClientRect();
-
-            setEditFieldRight(left - 10);
-            setEditFieldTop(top + 35);
-            setEditingField(field);
-            setShowFieldEditor(true);
-          }}
-        >
-          <div className={'flex h-5 w-5 flex-shrink-0 items-center justify-center text-shade-3'}>
-            <FieldTypeIcon fieldType={field.fieldType}></FieldTypeIcon>
+      <div
+        style={{ width: `${field.width - (index === 0 ? 7 : 14)}px` }}
+        className='flex-shrink-0 border-b border-t border-shade-6'
+      >
+        <div className={'flex w-full items-center justify-between py-2 pl-2'} ref={ref}>
+          <div className={'flex min-w-0 items-center gap-2'}>
+            <div className={'flex h-5 w-5 flex-shrink-0 items-center justify-center text-shade-3'}>
+              <FieldTypeIcon fieldType={field.fieldType}></FieldTypeIcon>
+            </div>
+            <span className={'overflow-hidden text-ellipsis whitespace-nowrap text-shade-3'}>{field.title}</span>
           </div>
-          <span className={'overflow-hidden text-ellipsis whitespace-nowrap text-shade-3'}>{field.title}</span>
-
-          {showFieldEditor && editingField && (
-            <EditFieldPopup
-              top={editFieldTop}
-              left={editFieldRight}
-              cellIdentifier={
-                {
-                  fieldId: editingField.fieldId,
-                  fieldType: editingField.fieldType,
-                  viewId: controller.viewId,
-                } as CellIdentifier
-              }
-              viewId={controller.viewId}
-              onOutsideClick={() => {
-                setShowFieldEditor(false);
-              }}
-              controller={controller}
-              changeFieldTypeClick={(buttonTop, buttonRight) => {
-                setChangeFieldTypeTop(buttonTop);
-                setChangeFieldTypeRight(buttonRight);
-                setShowChangeFieldTypePopup(true);
-              }}
-            ></EditFieldPopup>
-          )}
-
-          {showChangeFieldTypePopup && (
-            <ChangeFieldTypePopup
-              top={changeFieldTypeTop}
-              left={changeFieldTypeRight}
-              onClick={(newType) => changeFieldType(newType)}
-              onOutsideClick={() => setShowChangeFieldTypePopup(false)}
-            ></ChangeFieldTypePopup>
-          )}
+          <button className={'rounded p-1 hover:bg-main-secondary'} onClick={() => onFieldOptionsClick()}>
+            <i className={'block h-[16px] w-[16px]'}>
+              <Details2Svg></Details2Svg>
+            </i>
+          </button>
         </div>
       </div>
       <div
-        className={'group z-[1] -mx-[10px] h-full cursor-col-resize px-[6px]'}
+        className={'group h-full cursor-col-resize border-b border-t border-shade-6 px-[6px]'}
         onMouseDown={(e) => onMouseDown(e, field.width)}
       >
         <div className={'flex h-full w-[3px] justify-center group-hover:bg-main-accent'}>
           <div className={'h-full w-[1px] bg-shade-6 group-hover:bg-main-accent'}></div>
         </div>
       </div>
+      {showFieldEditor && editingField && (
+        <EditFieldPopup
+          top={editFieldTop}
+          left={editFieldRight}
+          cellIdentifier={
+            {
+              fieldId: editingField.fieldId,
+              fieldType: editingField.fieldType,
+              viewId: controller.viewId,
+            } as CellIdentifier
+          }
+          viewId={controller.viewId}
+          onOutsideClick={() => {
+            setShowFieldEditor(false);
+          }}
+          controller={controller}
+          changeFieldTypeClick={(buttonTop, buttonRight) => {
+            setChangeFieldTypeTop(buttonTop);
+            setChangeFieldTypeRight(buttonRight);
+            setShowChangeFieldTypePopup(true);
+          }}
+        ></EditFieldPopup>
+      )}
+
+      {showChangeFieldTypePopup && (
+        <ChangeFieldTypePopup
+          top={changeFieldTypeTop}
+          left={changeFieldTypeRight}
+          onClick={(newType) => changeFieldType(newType)}
+          onOutsideClick={() => setShowChangeFieldTypePopup(false)}
+        ></ChangeFieldTypePopup>
+      )}
     </>
   );
 };

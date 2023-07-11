@@ -73,5 +73,5 @@ export const GridRowActions = ({
     },
   ];
 
-  return <PopupSelect items={items} className={'absolute left-0 w-[160px]'} onOutsideClick={onOutsideClick} />;
+  return <PopupSelect items={items} className={'absolute left-0 z-[1] w-[160px]'} onOutsideClick={onOutsideClick} />;
 };
