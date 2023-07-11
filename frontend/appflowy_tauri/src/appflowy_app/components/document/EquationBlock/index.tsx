@@ -73,7 +73,7 @@ function EquationBlock({ node }: { node: NestedBlock<BlockType.EquationBlock> })
         {displayFormula ? (
           <KatexMath latex={displayFormula} />
         ) : (
-          <div className={'flex h-[100%] w-[100%] flex-1 items-center bg-content-blue-50 px-1 text-text-title'}>
+          <div className={'flex h-[100%] w-[100%] flex-1 items-center bg-content-blue-50 px-1 text-text-caption'}>
             <Functions />
             <span>{t('document.plugins.mathEquation.addMathEquation')}</span>
           </div>

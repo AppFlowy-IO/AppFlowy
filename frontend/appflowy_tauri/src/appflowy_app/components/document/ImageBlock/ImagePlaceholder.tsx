@@ -42,7 +42,7 @@ function ImagePlaceholder({
       {isEmpty && (
         <div
           onClick={openPopover}
-          className={'flex h-[100%] w-[100%] flex-1 items-center rounded bg-content-blue-50 px-1 text-text-title'}
+          className={'flex h-[100%] w-[100%] flex-1 items-center rounded bg-content-blue-50 px-1 text-text-caption'}
         >
           <i className={'mx-2 h-5 w-5'}>
             <ImageSvg />

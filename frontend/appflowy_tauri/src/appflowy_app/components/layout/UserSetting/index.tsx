@@ -34,8 +34,8 @@ function UserSettings({ open, onClose }: { open: boolean; onClose: () => void })
           theme: newSetting.theme || Theme.Default,
           theme_mode: newSetting.themeMode || ThemeModePB.Light,
           locale: {
-            language_code: language.split('_')[0],
-            country_code: language.split('_')[1],
+            language_code: language.split('-')[0],
+            country_code: language.split('-')[1],
           },
         });
       }

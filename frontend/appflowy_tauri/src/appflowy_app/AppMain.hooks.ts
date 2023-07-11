@@ -23,7 +23,7 @@ export function useUserSetting() {
       let language = 'en';
 
       if (locale.language_code && locale.country_code) {
-        language = `${locale.language_code}_${locale.country_code}`;
+        language = `${locale.language_code}-${locale.country_code}`;
       } else if (locale.language_code) {
         language = locale.language_code;
       }

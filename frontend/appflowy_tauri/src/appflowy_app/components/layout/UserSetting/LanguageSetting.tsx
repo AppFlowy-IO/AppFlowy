@@ -1,8 +1,34 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Select from '@mui/material/Select';
 import { UserSetting } from '$app/interfaces';
 import MenuItem from '@mui/material/MenuItem';
+
+const languages = [
+  {
+    key: 'ar-SA',
+    title: 'العربية',
+  },
+  { key: 'ca-ES', title: 'Català' },
+  { key: 'de-DE', title: 'Deutsch' },
+  { key: 'en', title: 'English' },
+  { key: 'es-VE', title: 'Español (Venezuela)' },
+  { key: 'eu-ES', title: 'Español' },
+  { key: 'fr-FR', title: 'Français' },
+  { key: 'hu-HU', title: 'Magyar' },
+  { key: 'id-ID', title: 'Bahasa Indonesia' },
+  { key: 'it-IT', title: 'Italiano' },
+  { key: 'ja-JP', title: '日本語' },
+  { key: 'ko-KR', title: '한국어' },
+  { key: 'pl-PL', title: 'Polski' },
+  { key: 'pt-BR', title: 'Português' },
+  { key: 'pt-PT', title: 'Português' },
+  { key: 'ru-RU', title: 'Русский' },
+  { key: 'sv', title: 'Svenska' },
+  { key: 'tr-TR', title: 'Türkçe' },
+  { key: 'zh-CN', title: '简体中文' },
+  { key: 'zh-TW', title: '繁體中文' },
+];
 
 function LanguageSetting({
   language = 'en',
@@ -12,38 +38,6 @@ function LanguageSetting({
   onChange: (setting: UserSetting) => void;
 }) {
   const { t, i18n } = useTranslation();
-
-  const options = useMemo(
-    () => [
-      {
-        key: 'en',
-        title: 'English',
-      },
-      { key: 'ca_ES', title: 'Català' },
-      { key: 'de_DE', title: 'Deutsch' },
-      { key: 'es_VE', title: 'Español (Venezuela)' },
-      { key: 'eu_ES', title: 'Español' },
-      { key: 'fr_CA', title: 'Français (Canada)' },
-      { key: 'fr_FR', title: 'Français' },
-      { key: 'hu_HU', title: 'Magyar' },
-      { key: 'id_ID', title: 'Bahasa Indonesia' },
-      { key: 'it_IT', title: 'Italiano' },
-      { key: 'ja_JP', title: '日本語' },
-      { key: 'ko_KR', title: '한국어' },
-      { key: 'pl_PL', title: 'Polski' },
-      { key: 'pt_BR', title: 'Português' },
-      { key: 'pt_PT', title: 'Português' },
-      { key: 'ru_RU', title: 'Русский' },
-      { key: 'sv_SE', title: 'Svenska' },
-      { key: 'tr_TR', title: 'Türkçe' },
-      { key: 'zh_CN', title: '简体中文' },
-      { key: 'zh_TW', title: '繁體中文' },
-      { key: 'vi_VN', title: 'Tiếng Việt' },
-      { key: 'th_TH', title: 'ภาษาไทย' },
-      { key: 'nl_NL', title: 'Nederlands' },
-    ],
-    []
-  );
 
   return (
     <div className={'flex flex-col'}>
@@ -65,7 +59,7 @@ function LanguageSetting({
               i18n.changeLanguage(language);
             }}
           >
-            {options.map((option) => (
+            {languages.map((option) => (
               <MenuItem key={option.key} value={option.key}>
                 {option.title}
               </MenuItem>

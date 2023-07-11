@@ -52,6 +52,9 @@ dependencies:
   i18next-browser-languagedetector:
     specifier: ^7.0.1
     version: 7.0.1
+  i18next-resources-to-backend:
+    specifier: ^1.1.4
+    version: 1.1.4
   is-hotkey:
     specifier: ^0.2.0
     version: 0.2.0
@@ -3156,6 +3159,12 @@ packages:
 
   /i18next-browser-languagedetector@7.0.1:
     resolution: {integrity: sha512-Pa5kFwaczXJAeHE56CHG2aWzFBMJNUNghf0Pm4SwSrEMps/PTKqW90EYWlIvhuYStf3Sn1K0vw+gH3+TLdkH1g==}
+    dependencies:
+      '@babel/runtime': 7.21.5
+    dev: false
+
+  /i18next-resources-to-backend@1.1.4:
+    resolution: {integrity: sha512-hMyr9AOmIea17AOaVe1srNxK/l3mbk81P7Uf3fdcjlw3ehZy3UNTd0OP3EEi6yu4J02kf9jzhCcjokz6AFlEOg==}
     dependencies:
       '@babel/runtime': 7.21.5
     dev: false
