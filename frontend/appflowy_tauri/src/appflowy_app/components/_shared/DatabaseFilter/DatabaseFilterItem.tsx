@@ -157,16 +157,19 @@ export const DatabaseFilterItem = ({
     switch (fields[id].fieldType) {
       case FieldType.RichText:
         setCurrentValue('');
+        setCurrentOperator(null);
         break;
       case FieldType.MultiSelect:
       case FieldType.SingleSelect:
         setCurrentValue([]);
+        setCurrentOperator(null);
         break;
       case FieldType.Checkbox:
         setCurrentOperator('is');
         setCurrentValue(false);
         break;
       default:
+        setCurrentOperator(null);
         setCurrentValue(null);
     }
   };
