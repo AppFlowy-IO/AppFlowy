@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/document/presentation/export_page_widget.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/base64_string.dart';
+import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart'
     hide DocumentEvent;
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -126,6 +127,9 @@ class _DocumentPageState extends State<DocumentPage> {
     return DocumentHeaderNodeWidget(
       node: page,
       editorState: editorState!,
+      onDocumentIconChanged: (iconUrl) {
+        ViewBackendService.updateView(viewId: widget.view.id, iconURL: iconUrl);
+      },
     );
   }
 

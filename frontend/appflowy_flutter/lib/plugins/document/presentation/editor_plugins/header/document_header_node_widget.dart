@@ -47,11 +47,13 @@ class DocumentHeaderNodeWidget extends StatefulWidget {
   const DocumentHeaderNodeWidget({
     required this.node,
     required this.editorState,
+    required this.onDocumentIconChanged,
     super.key,
   });
 
   final Node node;
   final EditorState editorState;
+  final Function(String iconUrl) onDocumentIconChanged;
 
   @override
   State<DocumentHeaderNodeWidget> createState() =>
@@ -153,6 +155,7 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
     }
     if (icon != null) {
       attributes[DocumentHeaderBlockKeys.icon] = icon;
+      widget.onDocumentIconChanged.call(icon);
     }
 
     transaction.updateNode(widget.node, attributes);

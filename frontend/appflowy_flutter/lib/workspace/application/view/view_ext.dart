@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 enum FlowyPlugin {
@@ -39,10 +40,7 @@ extension FlowyPluginExtension on FlowyPlugin {
 
 extension ViewExtension on ViewPB {
   Widget renderThumbnail({Color? iconColor}) {
-    const String thumbnail = "file_icon";
-
-    const Widget widget = FlowySvg(name: thumbnail);
-    return widget;
+    return hasIconUrl() ? FlowyText.medium(iconUrl) : FlowySvg(name: iconName);
   }
 
   PluginType get pluginType {
@@ -108,7 +106,7 @@ extension ViewLayoutExtension on ViewLayoutPB {
       case ViewLayoutPB.Calendar:
         return 'editor/calendar';
       case ViewLayoutPB.Document:
-        return 'editor/documents';
+        return 'file_icon';
       default:
         throw Exception('Unknown layout type');
     }

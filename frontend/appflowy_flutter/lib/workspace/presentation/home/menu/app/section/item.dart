@@ -80,7 +80,7 @@ class ViewSectionItem extends StatelessWidget {
         height: 16,
         child: state.view.renderThumbnail(),
       ),
-      const HSpace(2),
+      const HSpace(4),
       Expanded(
         child: FlowyText.regular(
           state.view.name,
