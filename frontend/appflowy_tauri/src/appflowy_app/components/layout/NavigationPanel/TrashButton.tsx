@@ -3,7 +3,7 @@ import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
 
 export const TrashButton = () => {
   return (
-    <button className={'flex w-full items-center rounded-lg px-4 py-2 text-text-title hover:bg-fill-active'}>
+    <button className={'flex w-full items-center rounded-lg px-4 py-2 text-text-title hover:bg-fill-list-active'}>
       <span className={'h-[23px] w-[23px]'}>
         <TrashSvg />
       </span>

@@ -112,7 +112,9 @@
     "quote": "Quote Block",
     "header": "Header",
     "highlight": "Highlight",
-    "color": "Color"
+    "color": "Color",
+    "addLink": "Add Link",
+    "link": "Link"
   },
   "tooltip": {
     "lightMode": "Switch to Light mode",
@@ -122,7 +124,8 @@
     "openMenu": "Click to open menu",
     "dragRow": "Long press to reorder the row",
     "viewDataBase": "View database",
-    "referencePage": "This {name} is referenced"
+    "referencePage": "This {name} is referenced",
+    "addBlockBelow": "Add a block below"
   },
   "sideBar": {
     "closeSidebar": "Close side bar",
@@ -154,7 +157,12 @@
     "tryAgain": "Try again",
     "discard": "Discard",
     "replace": "Replace",
-    "insertBelow": "Insert Below"
+    "insertBelow": "Insert Below",
+    "upload": "Upload",
+    "edit": "Edit",
+    "delete": "Delete",
+    "duplicate": "Duplicate",
+    "done": "Done"
   },
   "label": {
     "welcome": "Welcome!",
@@ -476,6 +484,47 @@
       "outline": {
         "addHeadingToCreateOutline": "Add headings to create a table of contents."
       }
+    },
+    "textBlock": {
+      "placeholder": "Type '/' for commands"
+    },
+    "title": {
+      "placeholder": "Untitled"
+    },
+    "imageBlock": {
+      "placeholder": "Click to add image",
+      "upload": {
+        "label": "Upload",
+        "placeholder": "Click to upload image"
+      },
+      "url": {
+        "label": "Image URL",
+        "placeholder": "Enter image URL"
+      },
+      "support": "Image size limit is 5MB. Supported formats: JPEG, PNG, GIF, SVG",
+      "error": {
+        "invalidImage": "Invalid image",
+        "invalidImageSize": "Image size must be less than 5MB",
+        "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, GIF, SVG",
+        "invalidImageUrl": "Invalid image URL"
+      }
+    },
+    "codeBlock": {
+      "language": {
+        "label": "Language",
+        "placeholder": "Select language"
+      }
+    },
+    "inlineLink": {
+      "placeholder": "Paste or type a link",
+      "url": {
+        "label": "Link URL",
+        "placeholder": "Enter link URL"
+      },
+      "title": {
+        "label": "Link Title",
+        "placeholder": "Enter link title"
+      }
     }
   },
   "board": {
@@ -510,5 +559,18 @@
     "title": "AppFlowy Error",
     "howToFixFallback": "We're sorry for the inconvenience! Submit an issue on our GitHub page that describes your error.",
     "github": "View on GitHub"
-  }
+  },
+  "search": {
+    "label": "Search",
+    "placeholder": {
+      "actions": "Search actions..."
+    }
+  },
+  "message": {
+    "copy": {
+      "success": "Copied!",
+      "fail": "Unable to copy"
+    }
+  },
+  "unSupportBlock": "The current version does not support this Block."
 }

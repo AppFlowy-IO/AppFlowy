@@ -133,7 +133,7 @@
 
 .react-calendar__tile--active:enabled:hover,
 .react-calendar__tile--active:enabled:focus {
-  @apply bg-fill-hover;
+  @apply bg-fill-list-hover;
 }
 
 .react-calendar--selectRange .react-calendar__tile--hover {

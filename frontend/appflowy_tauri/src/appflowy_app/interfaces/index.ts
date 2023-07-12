@@ -6,6 +6,7 @@ export interface Document {}
 export interface UserSetting {
   theme?: Theme;
   themeMode?: ThemeMode;
+  language?: string;
 }
 
 export enum Theme {

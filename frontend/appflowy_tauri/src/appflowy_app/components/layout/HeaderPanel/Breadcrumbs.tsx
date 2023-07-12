@@ -38,10 +38,16 @@ export const Breadcrumbs = ({ menuHidden, onShowMenuClick }: { menuHidden: boole
           </button>
         )}
 
-        <button className={'h-6 w-6 rounded p-1 text-text-title hover:bg-fill-hover'} onClick={() => history.back()}>
+        <button
+          className={'h-6 w-6 rounded p-1 text-text-title hover:bg-fill-list-hover'}
+          onClick={() => history.back()}
+        >
           <ArrowLeftSvg />
         </button>
-        <button className={'h-6 w-6 rounded p-1 text-text-title hover:bg-fill-hover'} onClick={() => history.forward()}>
+        <button
+          className={'h-6 w-6 rounded p-1 text-text-title hover:bg-fill-list-hover'}
+          onClick={() => history.forward()}
+        >
           <ArrowRightSvg />
         </button>
       </div>

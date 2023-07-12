@@ -1,4 +1,4 @@
-@import './color/default.css';
+@import './variables/index.css';
 @import './mui.css';
 
 /* stop body from scrolling */
@@ -20,7 +20,7 @@ body {
 }
 
 ::selection {
-  @apply bg-fill-hover;
+  @apply bg-content-blue-100;
 }
 
 div[role="textbox"] ::selection {
@@ -28,15 +28,15 @@ div[role="textbox"] ::selection {
 }
 
 .btn {
-  @apply rounded-xl border border-line-border px-4 py-3;
+  @apply rounded-xl border border-line-divider px-4 py-3;
 }
 
 .btn-primary {
-  @apply bg-fill-default text-text-title hover:bg-fill-hover;
+  @apply bg-fill-default text-text-title hover:bg-fill-list-hover;
 }
 
 .input {
-  @apply rounded-xl border border-line-border px-[18px] py-[14px] text-sm;
+  @apply rounded-xl border border-line-divider px-[18px] py-[14px] text-sm;
 }
 
 
@@ -44,6 +44,7 @@ th {
   @apply text-left font-normal;
 }
 
-span[data-slate-placeholder="true"] {
+span[data-slate-placeholder="true"]:not(.inline-block-content) {
   @apply text-text-placeholder;
+  opacity: 1 !important;
 }

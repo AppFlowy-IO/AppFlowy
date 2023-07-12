@@ -4,13 +4,11 @@ import { Provider } from 'react-redux';
 import { store } from './stores/store';
 
 import { ErrorHandlerPage } from './components/error/ErrorHandlerPage';
-import initializeI18n from './stores/i18n/initializeI18n';
+import '$app/i18n/config';
 
 import { ErrorBoundary } from 'react-error-boundary';
 
 import AppMain from '$app/AppMain';
-
-initializeI18n();
 
 const App = () => {
   return (
