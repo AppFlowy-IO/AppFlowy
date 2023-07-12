@@ -137,6 +137,17 @@ export const databaseSlice = createSlice({
       state.filters.push(filter);
     },
 
+    upsertFilter: (state, action: PayloadAction<{ filter: IDatabaseFilter }>) => {
+      const { filter } = action.payload;
+      const index = state.filters.findIndex((f) => f?.fieldId === filter.fieldId);
+
+      if (index >= 0) {
+        state.filters[index] = filter;
+      } else {
+        state.filters.push(filter);
+      }
+    },
+
     removeFilter: (state, action: PayloadAction<{ filter: IDatabaseFilter }>) => {
       const { filter } = action.payload;
       state.filters = state.filters.filter((f) => f?.fieldId !== filter.fieldId);
