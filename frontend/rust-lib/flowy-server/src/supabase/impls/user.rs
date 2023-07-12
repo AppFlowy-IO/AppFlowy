@@ -10,6 +10,7 @@ use uuid::Uuid;
 use flowy_error::{internal_error, ErrorCode, FlowyError};
 use flowy_user::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 use flowy_user::event_map::{UserAuthService, UserCredentials};
+use flowy_user::services::uuid_from_box_any;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 

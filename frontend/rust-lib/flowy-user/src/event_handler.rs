@@ -1,7 +1,7 @@
 use std::convert::TryFrom;
 use std::{convert::TryInto, sync::Arc};
 
-use flowy_error::FlowyError;
+use flowy_error::{ErrorCode, FlowyError};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::KV;
 use lib_dispatch::prelude::*;
@@ -9,7 +9,7 @@ use lib_infra::box_any::BoxAny;
 
 use crate::entities::*;
 use crate::entities::{SignInParams, SignUpParams, UpdateUserProfileParams};
-use crate::services::{get_supabase_config, AuthType, UserSession};
+use crate::services::{get_supabase_config, uuid_from_map, AuthType, UserSession};
 
 #[tracing::instrument(level = "debug", name = "sign_in", skip(data, session), fields(email = %data.email), err)]
 pub async fn sign_in(
@@ -19,10 +19,9 @@ pub async fn sign_in(
   let params: SignInParams = data.into_inner().try_into()?;
   let auth_type = params.auth_type.clone();
 
-  let user_profile: UserProfilePB = session
-    .sign_in(&auth_type, BoxAny::new(params))
-    .await?
-    .into();
+  session.update_auth_type(&auth_type).await;
+
+  let user_profile: UserProfilePB = session.sign_in(BoxAny::new(params)).await?.into();
   data_result_ok(user_profile)
 }
 
@@ -42,10 +41,9 @@ pub async fn sign_up(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let params: SignUpParams = data.into_inner().try_into()?;
   let auth_type = params.auth_type.clone();
-  let user_profile: UserProfilePB = session
-    .sign_up(&auth_type, BoxAny::new(params))
-    .await?
-    .into();
+  session.update_auth_type(&auth_type);
+
+  let user_profile: UserProfilePB = session.sign_up(BoxAny::new(params)).await?.into();
   data_result_ok(user_profile)
 }
 
@@ -139,10 +137,17 @@ pub async fn third_party_auth_handler(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let params = data.into_inner();
   let auth_type: AuthType = params.auth_type.into();
-  let user_profile: UserProfilePB = session
-    .sign_up(&auth_type, BoxAny::new(params.map))
-    .await?
-    .into();
+  session.update_auth_type(&auth_type).await;
+
+  // If the user is login in as a guest, will try to migrate the guest data to the new account
+  if let Ok(user_profile) = session.get_user_profile().await {
+    let uuid = uuid_from_map(&params.map)?;
+    if let Err(e) = session.check_user_with_uuid(&uuid).await {
+      if e.code == ErrorCode::UserNotExist.value() {}
+    }
+  }
+
+  let user_profile: UserProfilePB = session.sign_up(BoxAny::new(params.map)).await?.into();
   data_result_ok(user_profile)
 }
 
@@ -162,20 +167,4 @@ pub async fn get_supabase_config_handler(
 ) -> DataResult<SupabaseConfigPB, FlowyError> {
   let config = get_supabase_config().unwrap_or_default();
   data_result_ok(config.into())
-}
-
-/// Only used for third party auth.
-/// Use [UserEvent::SignIn] or [UserEvent::SignUp] If the [AuthType] is Local or SelfHosted
-#[tracing::instrument(level = "debug", skip(data, session), err)]
-pub async fn merge_user_data_handler(
-  data: AFPluginData<MergeUserDataPB>,
-  session: AFPluginState<Arc<UserSession>>,
-) -> DataResult<UserProfilePB, FlowyError> {
-  let params = data.into_inner();
-  let auth_type: AuthType = params.auth_type.into();
-  let user_profile: UserProfilePB = session
-    .sign_up(&auth_type, BoxAny::new(params.map))
-    .await?
-    .into();
-  data_result_ok(user_profile)
 }

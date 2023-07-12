@@ -31,7 +31,6 @@ pub fn init(user_session: Arc<UserSession>) -> AFPlugin {
     .event(UserEvent::SetSupabaseConfig, set_supabase_config_handler)
     .event(UserEvent::GetSupabaseConfig, get_supabase_config_handler)
     .event(UserEvent::ThirdPartyAuth, third_party_auth_handler)
-    .event(UserEvent::MergeUserData, merge_user_data_handler)
 }
 
 pub(crate) struct DefaultUserStatusCallback;
@@ -209,8 +208,4 @@ pub enum UserEvent {
 
   #[event(output = "SupabaseConfigPB")]
   GetSupabaseConfig = 14,
-
-  /// It will merge the user data provided by [] to current user.
-  #[event(output = "MergeUserDataPB")]
-  MergeUserData = 15,
 }

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+use std::str::FromStr;
 use std::sync::Arc;
 
 use appflowy_integrate::RocksCollabDB;
@@ -5,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use serde_repr::*;
 use tokio::sync::RwLock;
 
-use flowy_error::internal_error;
+use flowy_error::{internal_error, ErrorCode};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{
@@ -15,6 +17,7 @@ use flowy_sqlite::{
   DBConnection, ExpressionMethods, UserDatabaseConnection,
 };
 use lib_infra::box_any::BoxAny;
+use uuid::Uuid;
 
 use crate::entities::{
   AuthTypePB, SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile,
@@ -107,18 +110,7 @@ impl UserSession {
   }
 
   #[tracing::instrument(level = "debug", skip(self, params))]
-  pub async fn sign_in(
-    &self,
-    auth_type: &AuthType,
-    params: BoxAny,
-  ) -> Result<UserProfile, FlowyError> {
-    self
-      .user_status_callback
-      .read()
-      .await
-      .auth_type_did_changed(auth_type.clone());
-
-    self.cloud_services.set_auth_type(auth_type.clone());
+  pub async fn sign_in(&self, params: BoxAny) -> Result<UserProfile, FlowyError> {
     let resp = self
       .cloud_services
       .get_auth_service()?
@@ -144,12 +136,7 @@ impl UserSession {
     Ok(user_profile)
   }
 
-  #[tracing::instrument(level = "debug", skip(self, params))]
-  pub async fn sign_up(
-    &self,
-    auth_type: &AuthType,
-    params: BoxAny,
-  ) -> Result<UserProfile, FlowyError> {
+  pub async fn update_auth_type(&self, auth_type: &AuthType) {
     self
       .user_status_callback
       .read()
@@ -157,6 +144,10 @@ impl UserSession {
       .auth_type_did_changed(auth_type.clone());
 
     self.cloud_services.set_auth_type(auth_type.clone());
+  }
+
+  #[tracing::instrument(level = "debug", skip(self, params))]
+  pub async fn sign_up(&self, params: BoxAny) -> Result<UserProfile, FlowyError> {
     let auth_service = self.cloud_services.get_auth_service()?;
     let resp = auth_service.sign_up(params).await?;
 
@@ -227,6 +218,12 @@ impl UserSession {
   pub async fn check_user(&self) -> Result<(), FlowyError> {
     let (user_id, _) = self.get_session()?.into_part();
     let credential = UserCredentials::from_uid(user_id);
+    let auth_service = self.cloud_services.get_auth_service()?;
+    auth_service.check_user(credential).await
+  }
+
+  pub async fn check_user_with_uuid(&self, uuid: &Uuid) -> Result<(), FlowyError> {
+    let credential = UserCredentials::from_uuid(uuid.to_string());
     let auth_service = self.cloud_services.get_auth_service()?;
     auth_service.check_user(credential).await
   }
@@ -450,4 +447,18 @@ impl From<AuthTypePB> for AuthType {
       AuthTypePB::SelfHosted => AuthType::SelfHosted,
     }
   }
+}
+
+pub fn uuid_from_box_any(any: BoxAny) -> Result<Uuid, FlowyError> {
+  let map: HashMap<String, String> = any.unbox_or_error()?;
+  uuid_from_map(&map)
+}
+
+pub fn uuid_from_map(map: &HashMap<String, String>) -> Result<Uuid, FlowyError> {
+  Ok(
+    map
+      .get("uuid")
+      .ok_or_else(|| FlowyError::new(ErrorCode::MissingAuthField, "Missing uuid field"))?
+      .map(|uuid| Uuid::from_str(uuid).map_err(internal_error)),
+  )
 }
