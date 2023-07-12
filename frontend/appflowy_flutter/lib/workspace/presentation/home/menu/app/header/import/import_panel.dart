@@ -110,7 +110,51 @@ class ImportPanel extends StatelessWidget {
   }
 
   Future<void> _importFromNotion(
-      String parentViewId, ImportFromNotionType importFromNotionType) async {}
+      String parentViewId, ImportFromNotionType importFromNotionType) async {
+    final result = await getIt<FilePickerService>().pickFiles(
+      type: FileType.custom,
+      allowMultiple: importFromNotionType.allowMultiSelect,
+      allowedExtensions: importFromNotionType.allowedExtensions,
+    );
+    if (result == null || result.files.isEmpty) {
+      return;
+    }
+    final File zipfile = File(result.files[0].path!);
+    final bytes = await zipfile.readAsBytes();
+    final unzipped = ZipDecoder().decodeBytes(bytes);
+    print(unzipped.files);
+    var markdownFile;
+    //this for loop help us in finding our main page markdownfile
+    for (final file in unzipped) {
+      if (file.isFile) {
+        final filename = p.basename(file.name);
+        if (filename.endsWith('.md') && !filename.contains("/")) {
+          markdownFile = file;
+          break;
+        }
+      }
+    }
+    //This for will help us store image assets of our page
+    List<ArchiveFile> images = [];
+    for (final file in unzipped) {
+      if (file.isFile) {
+        final filename = file.name;
+        if (filename.contains("/") &&
+            filename.endsWith('.png') &&
+            filename.split("/").length - 1 == 1) {
+          final assetName = filename.split("/").last;
+          final assetPath = filename.split("/").first;
+          final asset = await file.content as Uint8List;
+          
+          images.add(file);
+        }
+      }
+    }
+    if (markdownFile == null) {
+      return;
+    }
+  }
+
   Future<void> _importFile(String parentViewId, ImportType importType) async {
     final result = await getIt<FilePickerService>().pickFiles(
       type: FileType.custom,
