@@ -23,11 +23,11 @@ class _KeysPressedState extends State<KeysPressed> {
     return KeyboardListener(
       focusNode: _focusNode,
       onKeyEvent: (event) {
-        if (event is! KeyRepeatEvent) {
+        if (event is KeyRepeatEvent) {
           return;
         }
 
-        /// TODO: Improve to allow for any key we need to track
+        // TODO(Xazin): Improve to allow for any key we need to track
         if (LogicalKeyboardKey.altLeft == event.logicalKey) {
           final isPressed = event is KeyDownEvent;
 

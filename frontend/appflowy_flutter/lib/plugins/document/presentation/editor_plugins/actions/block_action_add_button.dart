@@ -29,6 +29,7 @@ class BlockAddButton extends StatelessWidget {
           TextSpan(
             text: LocaleKeys.blockActions_addBelowTooltip.tr(),
           ),
+          const TextSpan(text: '\n'),
           TextSpan(
             text: LocaleKeys.blockActions_addAboveTooltip.tr(),
           ),
@@ -40,8 +41,8 @@ class BlockAddButton extends StatelessWidget {
 
         final transaction = editorState.transaction;
 
-        /// If the current block is not an empty paragraph block,
-        /// then insert a new block above/below the current block.
+        // If the current block is not an empty paragraph block,
+        // then insert a new block above/below the current block.
         final node = blockComponentContext.node;
         if (node.type != ParagraphBlockKeys.type ||
             (node.delta?.isNotEmpty ?? true)) {

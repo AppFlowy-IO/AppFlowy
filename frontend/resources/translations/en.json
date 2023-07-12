@@ -10,7 +10,7 @@
   "and": "and",
   "blockActions": {
     "addBelowTooltip": "Click to add below",
-    "addAboveTooltip": "\nAlt+click to add above"
+    "addAboveTooltip": "Alt+click to add above"
   },
   "signUp": {
     "buttonText": "Sign Up",
