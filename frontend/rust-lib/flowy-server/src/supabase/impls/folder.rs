@@ -1,12 +1,10 @@
-use std::sync::Weak;
-
 use chrono::{DateTime, Utc};
 use collab_folder::core::{CollabOrigin, Folder};
 use futures_util::{pin_mut, StreamExt};
 use tokio::sync::oneshot::channel;
 use uuid::Uuid;
 
-use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{internal_error, ErrorCode, FlowyError};
 use flowy_folder2::deps::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
 use lib_infra::future::FutureResult;
 
@@ -15,35 +13,29 @@ use crate::supabase::impls::{
 };
 use crate::supabase::postgres_db::PostgresObject;
 use crate::supabase::sql_builder::{InsertSqlBuilder, SelectSqlBuilder};
-use crate::supabase::PostgresServer;
+use crate::supabase::SupabaseServerService;
 
 pub(crate) const WORKSPACE_TABLE: &str = "af_workspace";
 pub(crate) const WORKSPACE_ID: &str = "workspace_id";
 const WORKSPACE_NAME: &str = "workspace_name";
 const CREATED_AT: &str = "created_at";
 
-pub struct SupabaseFolderCloudServiceImpl {
-  server: Option<Weak<PostgresServer>>,
+pub struct SupabaseFolderCloudServiceImpl<T> {
+  server: T,
 }
 
-impl SupabaseFolderCloudServiceImpl {
-  pub fn new(server: Option<Weak<PostgresServer>>) -> Self {
+impl<T> SupabaseFolderCloudServiceImpl<T> {
+  pub fn new(server: T) -> Self {
     Self { server }
   }
-
-  pub fn try_get_server(&self) -> FlowyResult<Weak<PostgresServer>> {
-    self.server.clone().ok_or_else(|| {
-      FlowyError::new(
-        ErrorCode::SupabaseSyncRequired,
-        "Supabase sync is disabled, please enable it first",
-      )
-    })
-  }
 }
 
-impl FolderCloudService for SupabaseFolderCloudServiceImpl {
+impl<T> FolderCloudService for SupabaseFolderCloudServiceImpl<T>
+where
+  T: SupabaseServerService,
+{
   fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, FlowyError> {
-    let weak_server = self.try_get_server();
+    let weak_server = self.server.try_get_pg_server();
     let (tx, rx) = channel();
     let name = name.to_string();
     tokio::spawn(async move {
@@ -67,7 +59,7 @@ impl FolderCloudService for SupabaseFolderCloudServiceImpl {
   }
 
   fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, FlowyError> {
-    let weak_server = self.server.clone();
+    let weak_server = self.server.get_pg_server();
     let (tx, rx) = channel();
     let workspace_id = workspace_id.to_string();
     tokio::spawn(async move {
@@ -98,7 +90,7 @@ impl FolderCloudService for SupabaseFolderCloudServiceImpl {
     &self,
     workspace_id: &str,
   ) -> FutureResult<Option<FolderSnapshot>, FlowyError> {
-    let weak_server = self.server.clone();
+    let weak_server = self.server.get_pg_server();
     let workspace_id = workspace_id.to_string();
     let (tx, rx) = channel();
     tokio::spawn(async move {
@@ -133,7 +125,7 @@ impl FolderCloudService for SupabaseFolderCloudServiceImpl {
     workspace_id: &str,
     _uid: i64,
   ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
-    let weak_server = self.server.clone();
+    let weak_server = self.server.get_pg_server();
     let (tx, rx) = channel();
     let workspace_id = workspace_id.to_string();
     tokio::spawn(async move {
@@ -229,6 +221,7 @@ mod tests {
   use std::collections::HashMap;
   use std::sync::Arc;
 
+  use parking_lot::RwLock;
   use uuid::Uuid;
 
   use flowy_folder2::deps::FolderCloudService;
@@ -238,7 +231,7 @@ mod tests {
 
   use crate::supabase::impls::folder::SupabaseFolderCloudServiceImpl;
   use crate::supabase::impls::SupabaseUserAuthServiceImpl;
-  use crate::supabase::PostgresServer;
+  use crate::supabase::{PostgresServer, SupabaseServerServiceImpl};
 
   #[tokio::test]
   async fn create_user_workspace() {
@@ -248,8 +241,8 @@ mod tests {
     let server = Arc::new(PostgresServer::new(
       PostgresConfiguration::from_env().unwrap(),
     ));
-    let weak_server = Arc::downgrade(&server);
-    let user_service = SupabaseUserAuthServiceImpl::new(Some(weak_server.clone()));
+    let weak_server = SupabaseServerServiceImpl(Arc::new(RwLock::new(Some(server.clone()))));
+    let user_service = SupabaseUserAuthServiceImpl::new(weak_server.clone());
 
     // create user
     let mut params = HashMap::new();
@@ -257,7 +250,7 @@ mod tests {
     let user = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
     // create workspace
-    let folder_service = SupabaseFolderCloudServiceImpl::new(Some(weak_server));
+    let folder_service = SupabaseFolderCloudServiceImpl::new(weak_server);
     let workspace = folder_service
       .create_workspace(user.user_id, "my test workspace")
       .await

@@ -11,6 +11,7 @@ use tokio::time::interval;
 
 use flowy_database2::deps::DatabaseCloudService;
 use flowy_document2::deps::DocumentCloudService;
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder2::deps::FolderCloudService;
 use flowy_server_config::supabase_config::{PostgresConfiguration, SupabaseConfiguration};
 use flowy_user::event_map::UserAuthService;
@@ -31,7 +32,7 @@ use crate::AppFlowyServer;
 pub struct SupabaseServer {
   #[allow(dead_code)]
   config: SupabaseConfiguration,
-  postgres: RwLock<Option<Arc<PostgresServer>>>,
+  postgres: Arc<RwLock<Option<Arc<PostgresServer>>>>,
 }
 
 impl SupabaseServer {
@@ -45,7 +46,7 @@ impl SupabaseServer {
     };
     Self {
       config,
-      postgres: RwLock::new(postgres),
+      postgres: Arc::new(RwLock::new(postgres)),
     }
   }
 
@@ -70,33 +71,62 @@ impl AppFlowyServer for SupabaseServer {
   }
 
   fn user_service(&self) -> Arc<dyn UserAuthService> {
-    Arc::new(SupabaseUserAuthServiceImpl::new(
-      self.postgres.read().as_ref().map(Arc::downgrade),
-    ))
+    Arc::new(SupabaseUserAuthServiceImpl::new(SupabaseServerServiceImpl(
+      self.postgres.clone(),
+    )))
   }
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
     Arc::new(SupabaseFolderCloudServiceImpl::new(
-      self.postgres.read().as_ref().map(Arc::downgrade),
+      SupabaseServerServiceImpl(self.postgres.clone()),
     ))
   }
 
   fn database_service(&self) -> Arc<dyn DatabaseCloudService> {
     Arc::new(SupabaseDatabaseCloudServiceImpl::new(
-      self.postgres.read().as_ref().map(Arc::downgrade),
+      SupabaseServerServiceImpl(self.postgres.clone()),
     ))
   }
 
   fn document_service(&self) -> Arc<dyn DocumentCloudService> {
     Arc::new(SupabaseDocumentCloudServiceImpl::new(
-      self.postgres.read().as_ref().map(Arc::downgrade),
+      SupabaseServerServiceImpl(self.postgres.clone()),
     ))
   }
 
   fn collab_storage(&self) -> Option<Arc<dyn RemoteCollabStorage>> {
     Some(Arc::new(PgCollabStorageImpl::new(
-      self.postgres.read().as_ref().map(Arc::downgrade),
+      SupabaseServerServiceImpl(self.postgres.clone()),
     )))
+  }
+}
+
+/// [SupabaseServerService] is used to provide supabase services. The caller can using this trait
+/// to get the services and it might need to handle the situation when the services is unavailable.
+/// For example, when user stop syncing, the services will be unavailable or when the user is logged
+/// out.
+pub trait SupabaseServerService: Send + Sync + 'static {
+  fn get_pg_server(&self) -> Option<Weak<PostgresServer>>;
+
+  fn try_get_pg_server(&self) -> FlowyResult<Weak<PostgresServer>>;
+}
+
+#[derive(Clone)]
+pub struct SupabaseServerServiceImpl(pub Arc<RwLock<Option<Arc<PostgresServer>>>>);
+impl SupabaseServerService for SupabaseServerServiceImpl {
+  /// Get the postgres server, if the postgres server is not available, return None.
+  fn get_pg_server(&self) -> Option<Weak<PostgresServer>> {
+    self.0.read().as_ref().map(Arc::downgrade)
+  }
+
+  /// Try to get the postgres server, if the postgres server is not available, return an error.
+  fn try_get_pg_server(&self) -> FlowyResult<Weak<PostgresServer>> {
+    self.0.read().as_ref().map(Arc::downgrade).ok_or_else(|| {
+      FlowyError::new(
+        ErrorCode::SupabaseSyncRequired,
+        "Supabase sync is disabled, please enable it first",
+      )
+    })
   }
 }
 

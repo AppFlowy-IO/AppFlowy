@@ -5,6 +5,7 @@ use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
 use collab::preclude::Update;
+use parking_lot::RwLock;
 use serde_json::json;
 
 use flowy_database2::deps::DatabaseCloudService;
@@ -14,7 +15,7 @@ use flowy_server::supabase::impls::{
   SupabaseDatabaseCloudServiceImpl, SupabaseDocumentCloudServiceImpl,
   SupabaseFolderCloudServiceImpl,
 };
-use flowy_server::supabase::PostgresServer;
+use flowy_server::supabase::{PostgresServer, SupabaseServerServiceImpl};
 
 use crate::util::get_supabase_config;
 
@@ -31,9 +32,12 @@ impl PostgresConnect {
     })
   }
 
+  fn server_provider_impl(&self) -> SupabaseServerServiceImpl {
+    SupabaseServerServiceImpl(Arc::new(RwLock::new(Some(self.inner.clone()))))
+  }
+
   async fn get_folder(&self, workspace_id: &str) -> MutexCollab {
-    let weak_server = Some(Arc::downgrade(&self.inner));
-    let folder_service = SupabaseFolderCloudServiceImpl::new(weak_server);
+    let folder_service = SupabaseFolderCloudServiceImpl::new(self.server_provider_impl());
     let updates = folder_service
       .get_folder_updates(workspace_id, 0)
       .await
@@ -48,8 +52,7 @@ impl PostgresConnect {
   }
 
   async fn get_folder_snapshot(&self, workspace_id: &str) -> MutexCollab {
-    let weak_server = Some(Arc::downgrade(&self.inner));
-    let folder_service = SupabaseFolderCloudServiceImpl::new(weak_server);
+    let folder_service = SupabaseFolderCloudServiceImpl::new(self.server_provider_impl());
     let snapshot: FolderSnapshot = folder_service
       .get_folder_latest_snapshot(workspace_id)
       .await
@@ -63,8 +66,7 @@ impl PostgresConnect {
   }
 
   async fn get_database_collab_object(&self, object_id: &str) -> MutexCollab {
-    let weak_server = Some(Arc::downgrade(&self.inner));
-    let database_service = SupabaseDatabaseCloudServiceImpl::new(weak_server);
+    let database_service = SupabaseDatabaseCloudServiceImpl::new(self.server_provider_impl());
     let updates = database_service.get_collab_update(object_id).await.unwrap();
     let collab = MutexCollab::new(CollabOrigin::Server, object_id, vec![]);
     collab.lock().with_transact_mut(|txn| {
@@ -76,8 +78,7 @@ impl PostgresConnect {
   }
 
   async fn get_database_rows_object(&self, row_ids: Vec<String>) -> Vec<MutexCollab> {
-    let weak_server = Some(Arc::downgrade(&self.inner));
-    let database_service = SupabaseDatabaseCloudServiceImpl::new(weak_server);
+    let database_service = SupabaseDatabaseCloudServiceImpl::new(self.server_provider_impl());
     let updates_by_oid = database_service
       .batch_get_collab_updates(row_ids)
       .await
@@ -96,8 +97,7 @@ impl PostgresConnect {
   }
 
   async fn get_document(&self, document_id: &str) -> MutexCollab {
-    let weak_server = Some(Arc::downgrade(&self.inner));
-    let document_service = SupabaseDocumentCloudServiceImpl::new(weak_server);
+    let document_service = SupabaseDocumentCloudServiceImpl::new(self.server_provider_impl());
     let updates = document_service
       .get_document_updates(document_id)
       .await

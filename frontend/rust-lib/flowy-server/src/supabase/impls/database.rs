@@ -1,41 +1,32 @@
-use std::sync::Weak;
-
 use tokio::sync::oneshot::channel;
 
 use flowy_database2::deps::{
   CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
 };
-use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{internal_error, FlowyError};
 use lib_infra::future::FutureResult;
 
 use crate::supabase::impls::{
   get_latest_snapshot_from_server, BatchFetchObjectUpdateAction, FetchObjectUpdateAction,
 };
-use crate::supabase::PostgresServer;
+use crate::supabase::SupabaseServerService;
 
-pub struct SupabaseDatabaseCloudServiceImpl {
-  server: Option<Weak<PostgresServer>>,
+pub struct SupabaseDatabaseCloudServiceImpl<T> {
+  server: T,
 }
 
-impl SupabaseDatabaseCloudServiceImpl {
-  pub fn new(server: Option<Weak<PostgresServer>>) -> Self {
+impl<T> SupabaseDatabaseCloudServiceImpl<T> {
+  pub fn new(server: T) -> Self {
     Self { server }
   }
-
-  #[allow(dead_code)]
-  pub fn try_get_server(&self) -> FlowyResult<Weak<PostgresServer>> {
-    self.server.clone().ok_or_else(|| {
-      FlowyError::new(
-        ErrorCode::SupabaseSyncRequired,
-        "Supabase sync is disabled, please enable it first",
-      )
-    })
-  }
 }
 
-impl DatabaseCloudService for SupabaseDatabaseCloudServiceImpl {
+impl<T> DatabaseCloudService for SupabaseDatabaseCloudServiceImpl<T>
+where
+  T: SupabaseServerService,
+{
   fn get_collab_update(&self, object_id: &str) -> FutureResult<CollabObjectUpdate, FlowyError> {
-    let weak_server = self.server.clone();
+    let weak_server = self.server.get_pg_server();
     let (tx, rx) = channel();
     let database_id = object_id.to_string();
     tokio::spawn(async move {
@@ -60,7 +51,7 @@ impl DatabaseCloudService for SupabaseDatabaseCloudServiceImpl {
     &self,
     object_ids: Vec<String>,
   ) -> FutureResult<CollabObjectUpdateByOid, FlowyError> {
-    let weak_server = self.server.clone();
+    let weak_server = self.server.get_pg_server();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
@@ -84,7 +75,7 @@ impl DatabaseCloudService for SupabaseDatabaseCloudServiceImpl {
     &self,
     object_id: &str,
   ) -> FutureResult<Option<DatabaseSnapshot>, FlowyError> {
-    let weak_server = self.server.clone();
+    let weak_server = self.server.get_pg_server();
     let (tx, rx) = channel();
     let database_id = object_id.to_string();
     tokio::spawn(async move {

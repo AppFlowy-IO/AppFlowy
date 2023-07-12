@@ -20,7 +20,6 @@ use tokio_retry::strategy::FixedInterval;
 use tokio_retry::{Action, Retry};
 
 use flowy_database2::deps::{CollabObjectUpdate, CollabObjectUpdateByOid};
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::md5;
 
@@ -28,10 +27,10 @@ use crate::supabase::postgres_db::PostgresObject;
 use crate::supabase::sql_builder::{
   DeleteSqlBuilder, InsertSqlBuilder, SelectSqlBuilder, WhereCondition,
 };
-use crate::supabase::PostgresServer;
+use crate::supabase::{PostgresServer, SupabaseServerService};
 
-pub struct PgCollabStorageImpl {
-  server: Option<Weak<PostgresServer>>,
+pub struct PgCollabStorageImpl<T> {
+  server: T,
 }
 
 const AF_COLLAB_KEY_COLUMN: &str = "key";
@@ -42,45 +41,43 @@ const AF_COLLAB_SNAPSHOT_BLOB_SIZE_COLUMN: &str = "blob_size";
 const AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN: &str = "created_at";
 const AF_COLLAB_SNAPSHOT_TABLE: &str = "af_collab_snapshot";
 
-impl PgCollabStorageImpl {
-  pub fn new(server: Option<Weak<PostgresServer>>) -> Self {
+impl<T> PgCollabStorageImpl<T>
+where
+  T: SupabaseServerService,
+{
+  pub fn new(server: T) -> Self {
     Self { server }
   }
 
-  pub fn get_server(&self) -> FlowyResult<Weak<PostgresServer>> {
-    self.server.clone().ok_or_else(|| {
-      FlowyError::new(
-        ErrorCode::SupabaseSyncRequired,
-        "Supabase sync is disabled, please enable it first",
-      )
-    })
-  }
-
-  pub async fn get_client(&self) -> FlowyResult<PostgresObject> {
+  pub async fn get_client(&self) -> Option<PostgresObject> {
     self
-      .get_server()?
-      .upgrade()
-      .ok_or_else(|| FlowyError::new(ErrorCode::PgConnectError, "Failed to upgrade weak server"))?
+      .server
+      .get_pg_server()?
+      .upgrade()?
       .get_pg_client()
       .await
       .recv()
       .await
+      .ok()
   }
 }
 
 #[async_trait]
-impl RemoteCollabStorage for PgCollabStorageImpl {
+impl<T> RemoteCollabStorage for PgCollabStorageImpl<T>
+where
+  T: SupabaseServerService,
+{
   fn is_enable(&self) -> bool {
     self
       .server
-      .as_ref()
+      .get_pg_server()
       .and_then(|server| server.upgrade())
       .is_some()
   }
 
   async fn get_all_updates(&self, object_id: &str) -> Result<Vec<Vec<u8>>, Error> {
-    let server = self.get_server()?;
-    let action = FetchObjectUpdateAction::new(object_id, server);
+    let pg_server = self.server.try_get_pg_server()?;
+    let action = FetchObjectUpdateAction::new(object_id, pg_server);
     let updates = action.run().await?;
     Ok(updates)
   }
@@ -89,13 +86,19 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
     &self,
     object_id: &str,
   ) -> Result<Option<RemoteCollabSnapshot>, Error> {
-    let weak_server = self.get_server()?;
-    get_latest_snapshot_from_server(object_id, weak_server).await
+    match self.server.get_pg_server() {
+      None => Ok(None),
+      Some(weak_server) => get_latest_snapshot_from_server(object_id, weak_server).await,
+    }
   }
 
   async fn get_collab_state(&self, object_id: &str) -> Result<Option<RemoteCollabState>, Error> {
-    let client = self.get_client().await?;
+    let client = self.get_client().await;
+    if client.is_none() {
+      return Ok(None);
+    }
 
+    let client = client.unwrap();
     let (sql, params) = SelectSqlBuilder::new("af_collab_state")
       .column("*")
       .where_clause("oid", object_id.to_string())
@@ -126,7 +129,10 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
   }
 
   async fn create_snapshot(&self, object: &CollabObject, snapshot: Vec<u8>) -> Result<i64, Error> {
-    let client = self.get_client().await?;
+    let client = self
+      .get_client()
+      .await
+      .ok_or_else(|| anyhow::anyhow!("Create snapshot failed. No client available"))?;
     let value_size = snapshot.len() as i32;
     let (sql, params) = InsertSqlBuilder::new("af_collab_snapshot")
       .value(AF_COLLAB_SNAPSHOT_OID_COLUMN, object.id.clone())
@@ -155,18 +161,19 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
     _id: MsgId,
     update: Vec<u8>,
   ) -> Result<(), Error> {
-    let client = self.get_client().await?;
-    let value_size = update.len() as i32;
-    let (sql, params) = InsertSqlBuilder::new("af_collab")
-      .value("oid", object.id.clone())
-      .value("name", object.name.clone())
-      .value("value", update)
-      .value("uid", object.uid)
-      .value("value_size", value_size)
-      .build();
+    if let Some(client) = self.get_client().await {
+      let value_size = update.len() as i32;
+      let (sql, params) = InsertSqlBuilder::new("af_collab")
+        .value("oid", object.id.clone())
+        .value("name", object.name.clone())
+        .value("value", update)
+        .value("uid", object.uid)
+        .value("value_size", value_size)
+        .build();
 
-    let stmt = client.prepare_cached(&sql).await?;
-    client.execute_raw(&stmt, params).await?;
+      let stmt = client.prepare_cached(&sql).await?;
+      client.execute_raw(&stmt, params).await?;
+    }
     Ok(())
   }
 
@@ -176,7 +183,12 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
     _id: MsgId,
     init_update: Vec<u8>,
   ) -> Result<(), Error> {
-    let mut client = self.get_client().await?;
+    let client = self.get_client().await;
+    if client.is_none() {
+      return Ok(());
+    }
+
+    let mut client = client.unwrap();
     let txn = client.transaction().await?;
 
     // 1.Get all updates and lock the table. It means that a subsequent UPDATE, DELETE, or SELECT
@@ -263,7 +275,6 @@ impl RemoteCollabStorage for PgCollabStorageImpl {
 
   async fn subscribe_remote_updates(&self, _object: &CollabObject) -> Option<RemoteUpdateReceiver> {
     // using pg_notify to subscribe to updates
-
     None
   }
 }

@@ -1,5 +1,4 @@
 use std::str::FromStr;
-use std::sync::Weak;
 
 use deadpool_postgres::GenericClient;
 use futures::pin_mut;
@@ -8,7 +7,7 @@ use tokio::sync::oneshot::channel;
 use tokio_postgres::error::SqlState;
 use uuid::Uuid;
 
-use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{internal_error, ErrorCode, FlowyError};
 use flowy_user::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 use flowy_user::event_map::{UserAuthService, UserCredentials};
 use lib_infra::box_any::BoxAny;
@@ -17,35 +16,29 @@ use lib_infra::future::FutureResult;
 use crate::supabase::entities::{GetUserProfileParams, UserProfileResponse};
 use crate::supabase::postgres_db::PostgresObject;
 use crate::supabase::sql_builder::{SelectSqlBuilder, UpdateSqlBuilder};
-use crate::supabase::PostgresServer;
+use crate::supabase::SupabaseServerService;
 use crate::util::uuid_from_box_any;
 
 pub(crate) const USER_TABLE: &str = "af_user";
 pub(crate) const USER_PROFILE_TABLE: &str = "af_user_profile";
 pub const USER_UUID: &str = "uuid";
 
-pub struct SupabaseUserAuthServiceImpl {
-  server: Option<Weak<PostgresServer>>,
+pub struct SupabaseUserAuthServiceImpl<T> {
+  server: T,
 }
 
-impl SupabaseUserAuthServiceImpl {
-  pub fn new(server: Option<Weak<PostgresServer>>) -> Self {
+impl<T> SupabaseUserAuthServiceImpl<T> {
+  pub fn new(server: T) -> Self {
     Self { server }
   }
-
-  pub fn get_server(&self) -> FlowyResult<Weak<PostgresServer>> {
-    self.server.clone().ok_or_else(|| {
-      FlowyError::new(
-        ErrorCode::SupabaseSyncRequired,
-        "Supabase sync is disabled, please enable it first",
-      )
-    })
-  }
 }
 
-impl UserAuthService for SupabaseUserAuthServiceImpl {
+impl<T> UserAuthService for SupabaseUserAuthServiceImpl<T>
+where
+  T: SupabaseServerService,
+{
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
-    let weak_server = self.get_server();
+    let weak_server = self.server.try_get_pg_server();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
@@ -69,7 +62,7 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
   }
 
   fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, FlowyError> {
-    let server = self.get_server();
+    let server = self.server.try_get_pg_server();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
@@ -107,7 +100,7 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
     _credential: UserCredentials,
     params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError> {
-    let weak_server = self.get_server();
+    let weak_server = self.server.try_get_pg_server();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
@@ -129,7 +122,7 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
     &self,
     credential: UserCredentials,
   ) -> FutureResult<Option<UserProfile>, FlowyError> {
-    let weak_server = self.get_server();
+    let weak_server = self.server.try_get_pg_server();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
@@ -164,7 +157,7 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
 
   fn check_user(&self, credential: UserCredentials) -> FutureResult<(), FlowyError> {
     let uuid = credential.uuid.and_then(|uuid| Uuid::from_str(&uuid).ok());
-    let weak_server = self.get_server();
+    let weak_server = self.server.try_get_pg_server();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(

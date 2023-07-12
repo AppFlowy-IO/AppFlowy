@@ -158,7 +158,7 @@ pub async fn set_supabase_config_handler(
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn get_supabase_config_handler(
-  session: AFPluginState<Arc<UserSession>>,
+  _session: AFPluginState<Arc<UserSession>>,
 ) -> DataResult<SupabaseConfigPB, FlowyError> {
   let config = get_supabase_config().unwrap_or_default();
   data_result_ok(config.into())

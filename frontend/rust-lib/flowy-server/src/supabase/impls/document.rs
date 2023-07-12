@@ -1,39 +1,30 @@
-use std::sync::Weak;
-
 use collab_document::document::Document;
 use collab_folder::core::CollabOrigin;
 use tokio::sync::oneshot::channel;
 
 use flowy_document2::deps::{DocumentCloudService, DocumentData, DocumentSnapshot};
-use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{internal_error, FlowyError};
 use lib_infra::future::FutureResult;
 
 use crate::supabase::impls::{get_latest_snapshot_from_server, FetchObjectUpdateAction};
-use crate::supabase::PostgresServer;
+use crate::supabase::SupabaseServerService;
 
-pub struct SupabaseDocumentCloudServiceImpl {
-  server: Option<Weak<PostgresServer>>,
+pub struct SupabaseDocumentCloudServiceImpl<T> {
+  server: T,
 }
 
-impl SupabaseDocumentCloudServiceImpl {
-  pub fn new(server: Option<Weak<PostgresServer>>) -> Self {
+impl<T> SupabaseDocumentCloudServiceImpl<T> {
+  pub fn new(server: T) -> Self {
     Self { server }
   }
-
-  #[allow(dead_code)]
-  pub fn try_get_server(&self) -> FlowyResult<Weak<PostgresServer>> {
-    self.server.clone().ok_or_else(|| {
-      FlowyError::new(
-        ErrorCode::SupabaseSyncRequired,
-        "Supabase sync is disabled, please enable it first",
-      )
-    })
-  }
 }
 
-impl DocumentCloudService for SupabaseDocumentCloudServiceImpl {
+impl<T> DocumentCloudService for SupabaseDocumentCloudServiceImpl<T>
+where
+  T: SupabaseServerService,
+{
   fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
-    let weak_server = self.server.clone();
+    let weak_server = self.server.get_pg_server();
     let (tx, rx) = channel();
     let document_id = document_id.to_string();
     tokio::spawn(async move {
@@ -57,7 +48,7 @@ impl DocumentCloudService for SupabaseDocumentCloudServiceImpl {
     &self,
     document_id: &str,
   ) -> FutureResult<Option<DocumentSnapshot>, FlowyError> {
-    let weak_server = self.server.clone();
+    let weak_server = self.server.get_pg_server();
     let (tx, rx) = channel();
     let document_id = document_id.to_string();
     tokio::spawn(async move {
@@ -91,7 +82,7 @@ impl DocumentCloudService for SupabaseDocumentCloudServiceImpl {
   }
 
   fn get_document_data(&self, document_id: &str) -> FutureResult<Option<DocumentData>, FlowyError> {
-    let weak_server = self.server.clone();
+    let weak_server = self.server.get_pg_server();
     let (tx, rx) = channel();
     let document_id = document_id.to_string();
     tokio::spawn(async move {

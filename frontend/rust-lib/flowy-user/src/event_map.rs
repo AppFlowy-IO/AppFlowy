@@ -37,7 +37,7 @@ pub(crate) struct DefaultUserStatusCallback;
 impl UserStatusCallback for DefaultUserStatusCallback {
   fn auth_type_did_changed(&self, _auth_type: AuthType) {}
 
-  fn did_init(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>> {
+  fn did_init(&self, _user_id: i64, _workspace_id: &str) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
   }
 
