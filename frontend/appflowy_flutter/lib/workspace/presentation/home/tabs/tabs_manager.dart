@@ -42,6 +42,9 @@ class _TabsManagerState extends State<TabsManager>
           }
 
           if (state.currentIndex != widget.pageController.page) {
+            // Unfocus editor to hide selection toolbar
+            FocusScope.of(context).unfocus();
+
             widget.pageController.animateToPage(
               state.currentIndex,
               duration: const Duration(milliseconds: 300),
