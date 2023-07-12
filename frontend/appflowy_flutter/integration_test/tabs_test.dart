@@ -1,12 +1,9 @@
-import 'package:appflowy/workspace/presentation/home/menu/app/section/item.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/flowy_tab.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 
 import 'util/base.dart';
 import 'util/common_operations.dart';
@@ -39,20 +36,10 @@ void main() {
       await tester.tapButtonWithName(_readmeName);
 
       /// Open second menu item in a new tab
-      await tester.hoverOnPageName(_calendarName);
-      await tester.tap(find.byType(ViewDisclosureButton));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text(LocaleKeys.disclosureAction_openNewTab.tr()));
-      await tester.pumpAndSettle();
+      await tester.openAppInNewTab(_calendarName);
 
       /// Open third menu item in a new tab
-      await tester.hoverOnPageName(_documentName);
-      await tester.tap(find.byType(ViewDisclosureButton));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text(LocaleKeys.disclosureAction_openNewTab.tr()));
-      await tester.pumpAndSettle();
+      await tester.openAppInNewTab(_documentName);
 
       expect(
         find.descendant(
