@@ -9,6 +9,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:reorderables/reorderables.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 import '../../grid/presentation/layout/sizes.dart';
@@ -17,24 +18,19 @@ import '../../grid/presentation/widgets/header/field_editor.dart';
 class DatabasePropertyList extends StatefulWidget {
   final String viewId;
   final FieldController fieldController;
+
   const DatabasePropertyList({
+    super.key,
     required this.viewId,
     required this.fieldController,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => _DatabasePropertyListState();
 }
 
 class _DatabasePropertyListState extends State<DatabasePropertyList> {
-  late PopoverMutex _popoverMutex;
-
-  @override
-  void initState() {
-    _popoverMutex = PopoverMutex();
-    super.initState();
-  }
+  final PopoverMutex _popoverMutex = PopoverMutex();
 
   @override
   Widget build(BuildContext context) {
@@ -47,21 +43,29 @@ class _DatabasePropertyListState extends State<DatabasePropertyList> {
         builder: (context, state) {
           final cells = state.fieldContexts.map((field) {
             return _GridPropertyCell(
-              popoverMutex: _popoverMutex,
+              key: ValueKey(field.id),
               viewId: widget.viewId,
               fieldInfo: field,
-              key: ValueKey(field.id),
+              popoverMutex: _popoverMutex,
             );
           }).toList();
 
-          return ListView.separated(
-            controller: ScrollController(),
-            shrinkWrap: true,
-            itemCount: cells.length,
-            itemBuilder: (BuildContext context, int index) => cells[index],
-            separatorBuilder: (BuildContext context, int index) =>
-                VSpace(GridSize.typeOptionSeparatorHeight),
+          return ReorderableColumn(
+            needsLongPressDraggable: false,
+            buildDraggableFeedback: (context, constraints, child) =>
+                ConstrainedBox(
+              constraints: constraints,
+              child: Material(color: Colors.transparent, child: child),
+            ),
+            onReorder: (from, to) => context.read<DatabasePropertyBloc>().add(
+                  DatabasePropertyEvent.moveField(
+                    fieldId: cells[from].fieldInfo.id,
+                    fromIndex: from,
+                    toIndex: to,
+                  ),
+                ),
             padding: const EdgeInsets.symmetric(vertical: 6.0),
+            children: cells,
           );
         },
       ),
@@ -75,24 +79,18 @@ class _GridPropertyCell extends StatefulWidget {
   final PopoverMutex popoverMutex;
 
   const _GridPropertyCell({
-    required this.viewId,
+    super.key,
     required this.fieldInfo,
+    required this.viewId,
     required this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<_GridPropertyCell> createState() => _GridPropertyCellState();
 }
 
 class _GridPropertyCellState extends State<_GridPropertyCell> {
-  late PopoverController _popoverController;
-
-  @override
-  void initState() {
-    _popoverController = PopoverController();
-    super.initState();
-  }
+  final PopoverController _popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {
