@@ -9,15 +9,25 @@ import { EditRow } from '$app/components/_shared/EditRow/EditRow';
 import { useState } from 'react';
 import { RowInfo } from '$app/stores/effects/database/row/row_cache';
 import { ViewLayoutPB } from '@/services/backend';
+import { DatabaseFilterPopup } from '$app/components/_shared/DatabaseFilter/DatabaseFilterPopup';
 
 export const Grid = ({ viewId }: { viewId: string }) => {
   const { controller, rows, groups } = useDatabase(viewId, ViewLayoutPB.Grid);
   const [showGridRow, setShowGridRow] = useState(false);
   const [boardRowInfo, setBoardRowInfo] = useState<RowInfo>();
+  const [showFilterPopup, setShowFilterPopup] = useState(false);
 
   const onOpenRow = (rowInfo: RowInfo) => {
     setBoardRowInfo(rowInfo);
     setShowGridRow(true);
+  };
+
+  const onShowFilterClick = () => {
+    setShowFilterPopup(true);
+  };
+
+  const onShowSortClick = () => {
+    console.log('onShowSortClick');
   };
 
   return (
@@ -26,14 +36,14 @@ export const Grid = ({ viewId }: { viewId: string }) => {
         <>
           <div className='flex flex-1 flex-col gap-4'>
             <div className='flex w-full  items-center justify-between'>
-              <GridTitle />
+              <GridTitle onShowFilterClick={onShowFilterClick} onShowSortClick={onShowSortClick} />
               <GridToolbar />
             </div>
 
             {/* table component view with text area for td */}
             <div className='flex flex-1 flex-col gap-4'>
               <div className='flex flex-1 flex-col overflow-x-auto'>
-                <GridTableHeader controller={controller} />
+                <GridTableHeader controller={controller} onShowFilterClick={onShowFilterClick} />
                 <div className={'relative flex-1'}>
                   <GridTableRows onOpenRow={onOpenRow} allRows={rows} viewId={viewId} controller={controller} />
                 </div>
@@ -53,6 +63,13 @@ export const Grid = ({ viewId }: { viewId: string }) => {
             ></EditRow>
           )}
         </>
+      )}
+      {showFilterPopup && (
+        <DatabaseFilterPopup
+          onOutsideClick={() => {
+            setShowFilterPopup(false);
+          }}
+        />
       )}
     </>
   );

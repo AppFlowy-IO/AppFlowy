@@ -9,8 +9,9 @@ import { EditFieldPopup } from '../../_shared/EditRow/EditFieldPopup';
 import { databaseActions, IDatabaseField } from '$app_reducers/database/slice';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
 import { useResizer } from '$app/components/_shared/useResizer';
-import { useAppDispatch } from '$app/stores/store';
+import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { Details2Svg } from '$app/components/_shared/svg/Details2Svg';
+import { FilterSvg } from '$app/components/_shared/svg/FilterSvg';
 
 const MIN_COLUMN_WIDTH = 100;
 
@@ -18,15 +19,20 @@ export const GridTableHeaderItem = ({
   controller,
   field,
   index,
+  onShowFilterClick,
 }: {
   controller: DatabaseController;
   field: IDatabaseField;
   index: number;
+  onShowFilterClick: () => void;
 }) => {
   const { onMouseDown, newSizeX } = useResizer((final) => {
     if (final < MIN_COLUMN_WIDTH) return;
     void controller.changeWidth({ fieldId: field.fieldId, width: final });
   });
+
+  const filtersStore = useAppSelector((state) => state.database.filters);
+
   const dispatch = useAppDispatch();
   const [showFieldEditor, setShowFieldEditor] = useState(false);
   const [editFieldTop, setEditFieldTop] = useState(0);
@@ -87,11 +93,21 @@ export const GridTableHeaderItem = ({
             </div>
             <span className={'overflow-hidden text-ellipsis whitespace-nowrap text-shade-3'}>{field.title}</span>
           </div>
-          <button className={'rounded p-1 hover:bg-main-secondary'} onClick={() => onFieldOptionsClick()}>
-            <i className={'block h-[16px] w-[16px]'}>
-              <Details2Svg></Details2Svg>
-            </i>
-          </button>
+          <div className={'flex items-center gap-1'}>
+            {filtersStore.findIndex((filter) => filter?.fieldId === field.fieldId) !== -1 && (
+              <button onClick={onShowFilterClick} className={'rounded p-1 hover:bg-main-secondary'}>
+                <i className={'block h-[16px] w-[16px]'}>
+                  <FilterSvg></FilterSvg>
+                </i>
+              </button>
+            )}
+
+            <button className={'rounded p-1 hover:bg-main-secondary'} onClick={() => onFieldOptionsClick()}>
+              <i className={'block h-[16px] w-[16px]'}>
+                <Details2Svg></Details2Svg>
+              </i>
+            </button>
+          </div>
         </div>
       </div>
       <div

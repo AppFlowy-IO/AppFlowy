@@ -1,14 +1,17 @@
 import { SettingsSvg } from '../../_shared/svg/SettingsSvg';
 import { GridTitleOptionsPopup } from './GridTitleOptionsPopup';
-import { useGridTitleOptionsPopupHooks } from './GridTitleOptionsPopup.hooks';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAppSelector } from '$app/stores/store';
-import { DatabaseFilterPopup } from '$app/components/_shared/DatabaseFilter/DatabaseFilterPopup';
 
-export const GridTitle = () => {
+export const GridTitle = ({
+  onShowFilterClick,
+  onShowSortClick,
+}: {
+  onShowFilterClick: () => void;
+  onShowSortClick: () => void;
+}) => {
   const [showOptions, setShowOptions] = useState(false);
-  const { showFilterPopup, setShowFilterPopup, setShowSortPopup, showSortPopup } = useGridTitleOptionsPopupHooks();
   const currentLocation = useLocation();
   const pagesStore = useAppSelector((state) => state.pages);
   const [activePageId, setActivePageId] = useState<string>('');
@@ -39,30 +42,10 @@ export const GridTitle = () => {
         {showOptions && (
           <GridTitleOptionsPopup
             onClose={() => setShowOptions(!showOptions)}
-            onFilterClick={() => {
-              setShowFilterPopup(!showFilterPopup);
-            }}
-            onSortClick={() => {
-              setShowSortPopup(!showSortPopup);
-            }}
+            onFilterClick={() => onShowFilterClick()}
+            onSortClick={() => onShowSortClick()}
           />
         )}
-
-        {showFilterPopup && (
-          <DatabaseFilterPopup
-            onOutsideClick={() => {
-              setShowFilterPopup(false);
-            }}
-          />
-        )}
-
-        {/*{showSortPopup && (
-          <GridSortPopup
-            onOutsideClick={() => {
-              setShowSortPopup(false);
-            }}
-          />
-        )}*/}
       </div>
     </div>
   );
