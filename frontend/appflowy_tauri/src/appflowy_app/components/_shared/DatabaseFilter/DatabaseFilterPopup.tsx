@@ -99,7 +99,6 @@ export const DatabaseFilterPopup = ({ onOutsideClick }: { onOutsideClick: () => 
     switch (fields[id].fieldType) {
       case FieldType.RichText:
         setCurrentValue('');
-        console.log('text selected');
         break;
       case FieldType.MultiSelect:
       case FieldType.SingleSelect:
