@@ -13,7 +13,7 @@ import {
 } from '$app_reducers/database/slice';
 import { PopupWindow } from '$app/components/_shared/PopupWindow';
 import { CellOption } from '$app/components/_shared/EditRow/Options/CellOption';
-import { useAppDispatch, useAppSelector } from '$app/stores/store';
+import { useAppSelector } from '$app/stores/store';
 import { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react';
 
 export const DatabaseFilterItem = ({
@@ -30,12 +30,27 @@ export const DatabaseFilterItem = ({
   // stores
   const columns = useAppSelector((state) => state.database.columns);
   const fields = useAppSelector((state) => state.database.fields);
+  const filtersStore = useAppSelector((state) => state.database.filters);
 
   // values
   const [currentLogicalOperator, setCurrentLogicalOperator] = useState<'and' | 'or'>('and');
   const [currentFieldId, setCurrentFieldId] = useState<string | null>(data?.fieldId ?? null);
   const [currentOperator, setCurrentOperator] = useState<TDatabaseOperators | null>(data?.operator ?? null);
   const [currentValue, setCurrentValue] = useState<SelectOptionPB[] | string | boolean | null>(data?.value ?? null);
+
+  useEffect(() => {
+    if (data) {
+      setCurrentLogicalOperator(data.logicalOperator);
+      setCurrentFieldId(data.fieldId);
+      setCurrentOperator(data.operator);
+      setCurrentValue(data.value);
+    } else {
+      setCurrentLogicalOperator('and');
+      setCurrentFieldId(null);
+      setCurrentOperator(null);
+      setCurrentValue(null);
+    }
+  }, [data]);
 
   // ui
   const [showLogicalOperatorSelect, setShowLogicalOperatorSelect] = useState(false);
@@ -86,10 +101,14 @@ export const DatabaseFilterItem = ({
     }
   }, [currentFieldId, currentFieldType, currentOperator, currentValue, textInputActive]);
 
-  // not all field types support filtering
+  // 1. not all field types support filtering
+  // 2. we don't want to show fields that are already in use
   const supportedColumns = useMemo(
-    () => columns.filter((column) => SupportedOperatorsByType[fields[column.fieldId].fieldType] !== undefined),
-    [columns, fields]
+    () =>
+      columns
+        .filter((column) => SupportedOperatorsByType[fields[column.fieldId].fieldType] !== undefined)
+        .filter((column) => filtersStore.findIndex((filter) => filter?.fieldId === column.fieldId) === -1),
+    [columns, fields, filtersStore]
   );
 
   const onFieldClick: MouseEventHandler = (e) => {
@@ -167,11 +186,12 @@ export const DatabaseFilterItem = ({
     }
   };
 
-  const onSelectLogicalOperatorClick = (operator: string) => {
+  const onSelectLogicalOperatorClick = (operator: 'and' | 'or') => {
+    setCurrentLogicalOperator(operator);
     setShowLogicalOperatorSelect(false);
   };
 
-  const LogicalOperators = ['and', 'or'];
+  const LogicalOperators: ('and' | 'or')[] = ['and', 'or'];
 
   return (
     <>
