@@ -1,5 +1,8 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/keys_pressed.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class BlockAddButton extends StatelessWidget {
@@ -21,25 +24,35 @@ class BlockAddButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlockActionButton(
       svgName: 'editor/add',
-      richMessage: const TextSpan(
+      richMessage: TextSpan(
         children: [
           TextSpan(
-            // todo: l10n.
-            text: 'Click to add below',
+            text: LocaleKeys.blockActions_addBelowTooltip.tr(),
+          ),
+          TextSpan(
+            text: LocaleKeys.blockActions_addAboveTooltip.tr(),
           ),
         ],
       ),
       onTap: () {
+        final isAltPressed =
+            KeysPressedManager.of(context)?.isAltPressed ?? false;
+
         final transaction = editorState.transaction;
-        // if the current block is not a empty paragraph block, then insert a new block below the current block.
+
+        /// If the current block is not an empty paragraph block,
+        /// then insert a new block above/below the current block.
         final node = blockComponentContext.node;
         if (node.type != ParagraphBlockKeys.type ||
             (node.delta?.isNotEmpty ?? true)) {
-          transaction.insertNode(node.path.next, paragraphNode());
-          transaction.afterSelection = Selection.collapse(node.path.next, 0);
+          final path = isAltPressed ? node.path : node.path.next;
+
+          transaction.insertNode(path, paragraphNode());
+          transaction.afterSelection = Selection.collapse(path, 0);
         } else {
           transaction.afterSelection = Selection.collapse(node.path, 0);
         }
+
         // show the slash menu.
         editorState.apply(transaction).then(
               (_) => WidgetsBinding.instance.addPostFrameCallback(

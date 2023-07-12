@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/keys_pressed.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
@@ -88,18 +89,20 @@ class ApplicationWidget extends StatelessWidget {
         ),
       ],
       child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-        builder: (context, state) => MaterialApp(
-          builder: overlayManagerBuilder(),
-          debugShowCheckedModeBanner: false,
-          theme: state.lightTheme,
-          darkTheme: state.darkTheme,
-          themeMode: state.themeMode,
-          localizationsDelegates: context.localizationDelegates +
-              [AppFlowyEditorLocalizations.delegate],
-          supportedLocales: context.supportedLocales,
-          locale: state.locale,
-          navigatorKey: AppGlobals.rootNavKey,
-          home: child,
+        builder: (context, state) => KeysPressed(
+          child: MaterialApp(
+            builder: overlayManagerBuilder(),
+            debugShowCheckedModeBanner: false,
+            theme: state.lightTheme,
+            darkTheme: state.darkTheme,
+            themeMode: state.themeMode,
+            localizationsDelegates: context.localizationDelegates +
+                [AppFlowyEditorLocalizations.delegate],
+            supportedLocales: context.supportedLocales,
+            locale: state.locale,
+            navigatorKey: AppGlobals.rootNavKey,
+            home: child,
+          ),
         ),
       ),
     );
