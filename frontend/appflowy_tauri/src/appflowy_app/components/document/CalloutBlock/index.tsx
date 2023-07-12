@@ -17,7 +17,7 @@ export default function CalloutBlock({
   const { openEmojiSelect, open, closeEmojiSelect, id, anchorEl, onEmojiSelect } = useCalloutBlock(node.id);
 
   return (
-    <div className={'my-1 flex rounded border border-solid border-line-border bg-fill-selector p-4'}>
+    <div className={'my-1 flex rounded border border-solid border-line-divider bg-content-blue-50 p-4'}>
       <div className={'w-[1.5em]'} onMouseDown={(e) => e.stopPropagation()}>
         <div className={'flex h-[calc(1.5em_+_2px)] w-[24px] select-none items-center justify-start'}>
           <IconButton

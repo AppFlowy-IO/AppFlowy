@@ -5,7 +5,7 @@ export const FooterPanel = () => {
         &copy; 2023 AppFlowy. <a href={'https://github.com/AppFlowy-IO/AppFlowy'}>GitHub</a>
       </div>
       <div>
-        <button className={'h-8 w-8 rounded bg-fill-selector text-text-title hover:bg-fill-hover'}>?</button>
+        <button className={'h-8 w-8 rounded bg-content-blue-50 text-text-title hover:bg-content-blue-100'}>?</button>
       </div>
     </div>
   );

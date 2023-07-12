@@ -59,7 +59,7 @@ export const CellOptionsPopup = ({
       <div onKeyDown={onKeyDownWrapper} className={'flex flex-col gap-2 p-2'}>
         <div
           className={
-            'flex flex-1 items-center gap-2 rounded border border-line-border px-2 hover:border-fill-default focus:border-fill-default'
+            'flex flex-1 items-center gap-2 rounded border border-line-divider px-2 hover:border-fill-default focus:border-fill-default'
           }
         >
           <div className={'flex flex-wrap items-center gap-2 text-text-title'}>

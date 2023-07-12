@@ -59,7 +59,7 @@ export const EditCellWrapper = ({
             <div
               ref={el}
               onClick={() => onClick()}
-              className={'flex h-5 w-5 rounded text-icon-default hover:bg-fill-hover'}
+              className={'text-icon-default flex h-5 w-5 rounded hover:bg-fill-list-hover'}
             >
               <DragElementSvg></DragElementSvg>
             </div>
@@ -72,7 +72,7 @@ export const EditCellWrapper = ({
             </span>
           </div>
 
-          <div className={'w-full cursor-pointer rounded-lg pl-3 text-sm hover:bg-fill-selector'}>
+          <div className={'w-full cursor-pointer rounded-lg pl-3 text-sm hover:bg-content-blue-50'}>
             {(cellIdentifier.fieldType === FieldType.SingleSelect ||
               cellIdentifier.fieldType === FieldType.MultiSelect) &&
               cellController && (

@@ -43,6 +43,9 @@ class BlankPagePluginWidgetBuilder extends PluginWidgetBuilder
   Widget get leftBarItem => FlowyText.medium(LocaleKeys.blankPageTitle.tr());
 
   @override
+  Widget tabBarItem(String pluginId) => leftBarItem;
+
+  @override
   Widget buildWidget({PluginContext? context}) => const BlankPage();
 
   @override

@@ -5,7 +5,7 @@ export const SearchInput = () => {
   const [active, setActive] = useState(false);
 
   return (
-    <div className={`flex items-center rounded-lg border p-2 ${active ? 'border-fill-default' : 'border-line-border'}`}>
+    <div className={`flex items-center rounded-lg border p-2 ${active ? 'border-fill-default' : 'border-line-divider'}`}>
       <i className='mr-2 h-5 w-5'>
         <SearchSvg />
       </i>

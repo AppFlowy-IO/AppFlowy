@@ -52,6 +52,9 @@ class TrashPluginDisplay extends PluginWidgetBuilder {
   Widget get leftBarItem => FlowyText.medium(LocaleKeys.trash_text.tr());
 
   @override
+  Widget tabBarItem(String pluginId) => leftBarItem;
+
+  @override
   Widget? get rightBarItem => null;
 
   @override

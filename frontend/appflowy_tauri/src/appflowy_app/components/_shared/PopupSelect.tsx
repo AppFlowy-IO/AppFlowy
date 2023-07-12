@@ -39,7 +39,7 @@ export const PopupSelect = ({
         {items.map((item, index) => (
           <button
             key={index}
-            className={'flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-2 hover:bg-fill-hover'}
+            className={'flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-2 hover:bg-fill-list-hover'}
             onClick={(e) => handleClick(e, item)}
           >
             <>

@@ -15,7 +15,7 @@ export const BoardFieldsPopup = ({ hidePopup }: { hidePopup: () => void }) => {
     <div ref={ref} className={'absolute left-full top-full z-10 rounded-lg bg-white px-2 py-2 text-xs shadow-md'}>
       {columns.map((column, index) => (
         <div
-          className={'flex cursor-pointer items-center justify-between rounded-lg px-2 py-2 hover:bg-fill-hover'}
+          className={'flex cursor-pointer items-center justify-between rounded-lg px-2 py-2 hover:bg-fill-list-hover'}
           key={index}
         >
           <div className={'flex items-center gap-2 '}>

@@ -29,7 +29,7 @@ export const WorkspaceUser = () => {
           <PersonOutline />
         </Avatar>
         <span className={'ml-2'}>{currentUser.displayName}</span>
-        <button className={'ml-1 rounded hover:bg-fill-hover'}>
+        <button className={'ml-1 rounded hover:bg-fill-list-hover'}>
           <ArrowDropDown />
         </button>
       </div>

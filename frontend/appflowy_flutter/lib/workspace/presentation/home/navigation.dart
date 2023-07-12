@@ -19,14 +19,9 @@ class NavigationNotifier with ChangeNotifier {
   List<NavigationItem> navigationItems;
   NavigationNotifier({required this.navigationItems});
 
-  void update(HomeStackNotifier notifier) {
-    bool shouldNotify = false;
+  void update(PageNotifier notifier) {
     if (navigationItems != notifier.plugin.widgetBuilder.navigationItems) {
       navigationItems = notifier.plugin.widgetBuilder.navigationItems;
-      shouldNotify = true;
-    }
-
-    if (shouldNotify) {
       notifyListeners();
     }
   }
@@ -37,9 +32,9 @@ class FlowyNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProxyProvider<HomeStackNotifier, NavigationNotifier>(
+    return ChangeNotifierProxyProvider<PageNotifier, NavigationNotifier>(
       create: (_) {
-        final notifier = Provider.of<HomeStackNotifier>(context, listen: false);
+        final notifier = Provider.of<PageNotifier>(context, listen: false);
         return NavigationNotifier(
           navigationItems: notifier.plugin.widgetBuilder.navigationItems,
         );
@@ -54,7 +49,6 @@ class FlowyNavigation extends StatelessWidget {
               builder: (ctx, items, child) => Expanded(
                 child: Row(
                   children: _renderNavigationItems(items),
-                  // crossAxisAlignment: WrapCrossAlignment.start,
                 ),
               ),
             ),
@@ -172,6 +166,9 @@ class EllipsisNaviItem extends NavigationItem {
         '...',
         fontSize: FontSizes.s16,
       );
+
+  @override
+  Widget tabBarItem(String pluginId) => leftBarItem;
 
   @override
   NavigationCallback get action => (id) {};

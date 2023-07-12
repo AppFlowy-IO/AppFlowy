@@ -5,6 +5,7 @@ import LanguageIcon from '@mui/icons-material/Language';
 import CopyIcon from '@mui/icons-material/CopyAll';
 import { copyText } from '$app/utils/document/copy_paste';
 import { useMessage } from '$app/components/document/_shared/Message';
+import { useTranslation } from 'react-i18next';
 
 const iconSize = {
   width: '1rem',
@@ -28,6 +29,7 @@ function EditLinkToolbar({
   editing: boolean;
   onEdit: () => void;
 }) {
+  const { t } = useTranslation();
   const { show, contentHolder } = useMessage();
   const ref = useRef<HTMLDivElement>(null);
 
@@ -70,9 +72,9 @@ function EditLinkToolbar({
                 onClick={async () => {
                   try {
                     await copyText(href);
-                    show({ message: 'Copied!', duration: 6000 });
+                    show({ message: t('message.copy.success'), duration: 6000 });
                   } catch {
-                    show({ message: 'Copy failed!', duration: 6000 });
+                    show({ message: t('message.copy.fail'), duration: 6000 });
                   }
                 }}
                 className={'mr-2 cursor-pointer'}
@@ -80,7 +82,7 @@ function EditLinkToolbar({
                 <CopyIcon sx={iconSize} />
               </div>
               <div onClick={onEdit} className={'cursor-pointer'}>
-                Edit
+                {t('button.edit')}
               </div>
             </div>
           </div>

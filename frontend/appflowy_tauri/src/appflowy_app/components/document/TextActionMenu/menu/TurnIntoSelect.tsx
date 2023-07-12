@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react';
 import TurnIntoPopover from '$app/components/document/_shared/TurnInto';
-import Button from '@mui/material/Button';
 import ArrowDropDown from '@mui/icons-material/ArrowDropDown';
-import MenuTooltip from './MenuTooltip';
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
+import { useTranslation } from 'react-i18next';
+import ToolbarTooltip from '../../_shared/ToolbarTooltip';
 
 function TurnIntoSelect({ id }: { id: string }) {
   const [anchorPosition, setAnchorPosition] = React.useState<{
@@ -26,15 +26,16 @@ function TurnIntoSelect({ id }: { id: string }) {
   }, []);
 
   const open = Boolean(anchorPosition);
+  const { t } = useTranslation();
 
   return (
     <>
-      <MenuTooltip title='Turn into'>
+      <ToolbarTooltip title={t('document.plugins.optionAction.turnInto')}>
         <div onClick={handleClick} className='flex cursor-pointer items-center px-2 text-sm text-fill-default'>
           <span>{node.type}</span>
           <ArrowDropDown />
         </div>
-      </MenuTooltip>
+      </ToolbarTooltip>
       <TurnIntoPopover
         id={id}
         open={open}

@@ -8,11 +8,12 @@ import { formatLinkThunk } from '$app_reducers/document/async-actions/link';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 import { useSubscribeLinkPopover } from '$app/components/document/_shared/SubscribeLinkPopover.hooks';
 import Button from '@mui/material/Button';
+import { useTranslation } from 'react-i18next';
 
 function LinkEditPopover() {
   const dispatch = useAppDispatch();
   const { docId, controller } = useSubscribeDocument();
-
+  const { t } = useTranslation();
   const popoverState = useSubscribeLinkPopover();
   const { anchorPosition, id, selection, title = '', href = '', open = false } = popoverState;
 
@@ -101,7 +102,7 @@ function LinkEditPopover() {
     >
       <div className='flex flex-col p-3'>
         <EditLink
-          text={'URL'}
+          text={t('document.inlineLink.url.label')}
           value={href}
           onChange={(link) => {
             onChange({
@@ -111,7 +112,7 @@ function LinkEditPopover() {
           }}
         />
         <EditLink
-          text={'Link title'}
+          text={t('document.inlineLink.title.label')}
           value={title}
           onChange={(text) =>
             onChange({
@@ -123,7 +124,7 @@ function LinkEditPopover() {
         <div className={'flex items-center justify-end'}>
           <Button onClick={onDone}>
             <Done />
-            Done
+            {t('button.done')}
           </Button>
         </div>
       </div>

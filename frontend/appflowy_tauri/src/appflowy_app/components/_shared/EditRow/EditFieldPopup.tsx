@@ -101,7 +101,7 @@ export const EditFieldPopup = ({
           onChange={(e) => setName(e.target.value)}
           onBlur={() => save()}
           className={
-            'flex-1 rounded border border-line-border px-2 py-2 hover:border-fill-default focus:border-fill-default'
+            'flex-1 rounded border border-line-divider px-2 py-2 hover:border-fill-default focus:border-fill-default'
           }
         />
 
@@ -109,7 +109,7 @@ export const EditFieldPopup = ({
           ref={changeTypeButtonRef}
           onClick={() => onChangeFieldTypeClick()}
           className={
-            'relative flex cursor-pointer items-center justify-between rounded-lg py-2 text-text-title hover:bg-fill-hover'
+            'relative flex cursor-pointer items-center justify-between rounded-lg py-2 text-text-title hover:bg-fill-list-hover'
           }
         >
           <button className={'flex cursor-pointer items-center gap-2 rounded-lg pl-2'}>
@@ -129,10 +129,12 @@ export const EditFieldPopup = ({
 
         {cellIdentifier.fieldType === FieldType.Number && (
           <>
-            <hr className={'-mx-2 border-line-border'} />
+            <hr className={'-mx-2 border-line-divider'} />
             <button
               onClick={onNumberFormatClick}
-              className={'flex w-full cursor-pointer items-center justify-between rounded-lg py-2 hover:bg-fill-hover'}
+              className={
+                'flex w-full cursor-pointer items-center justify-between rounded-lg py-2 hover:bg-fill-list-hover'
+              }
             >
               <span className={'pl-2'}>{t('grid.field.numberFormat')}</span>
               <span className={'pr-2'}>
