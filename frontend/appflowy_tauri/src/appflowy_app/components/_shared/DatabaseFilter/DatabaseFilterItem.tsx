@@ -15,6 +15,8 @@ import { PopupWindow } from '$app/components/_shared/PopupWindow';
 import { CellOption } from '$app/components/_shared/EditRow/Options/CellOption';
 import { useAppSelector } from '$app/stores/store';
 import { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react';
+import { EditorCheckSvg } from '$app/components/_shared/svg/EditorCheckSvg';
+import { EditorUncheckSvg } from '$app/components/_shared/svg/EditorUncheckSvg';
 
 export const DatabaseFilterItem = ({
   data,
@@ -161,6 +163,7 @@ export const DatabaseFilterItem = ({
         setCurrentValue([]);
         break;
       case FieldType.Checkbox:
+        setCurrentOperator('is');
         setCurrentValue(false);
         break;
       default:
@@ -298,6 +301,17 @@ export const DatabaseFilterItem = ({
                   value={currentValue as string}
                   onChange={(e) => setCurrentValue(e.target.value)}
                 />
+              </div>
+            )}
+            {currentFieldType === FieldType.Checkbox && (
+              <div
+                onClick={() => setCurrentValue(!currentValue)}
+                className={`flex w-[180px] cursor-pointer items-center gap-2 rounded-lg border border-shade-4 px-2 py-1`}
+              >
+                <button className={'h-5 w-5'}>
+                  {currentValue ? <EditorCheckSvg></EditorCheckSvg> : <EditorUncheckSvg></EditorUncheckSvg>}
+                </button>
+                <span>{currentValue ? 'Checked' : 'Unchecked'}</span>
               </div>
             )}
           </>
