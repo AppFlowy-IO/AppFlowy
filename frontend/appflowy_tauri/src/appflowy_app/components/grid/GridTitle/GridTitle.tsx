@@ -1,7 +1,6 @@
 import { SettingsSvg } from '../../_shared/svg/SettingsSvg';
 import { GridTitleOptionsPopup } from './GridTitleOptionsPopup';
 import { useGridTitleOptionsPopupHooks } from './GridTitleOptionsPopup.hooks';
-import { GridSortPopup } from '../GridSort/GridSortPopup';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAppSelector } from '$app/stores/store';
@@ -57,13 +56,13 @@ export const GridTitle = () => {
           />
         )}
 
-        {showSortPopup && (
+        {/*{showSortPopup && (
           <GridSortPopup
             onOutsideClick={() => {
               setShowSortPopup(false);
             }}
           />
-        )}
+        )}*/}
       </div>
     </div>
   );

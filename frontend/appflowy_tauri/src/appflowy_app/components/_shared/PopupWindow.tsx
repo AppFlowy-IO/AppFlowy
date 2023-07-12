@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { CSSProperties, ReactNode, useEffect, useRef, useState } from 'react';
 import useOutsideClick from '$app/components/_shared/useOutsideClick';
 
 export const PopupWindow = ({
@@ -7,14 +7,17 @@ export const PopupWindow = ({
   onOutsideClick,
   left,
   top,
+  style,
 }: {
   children: ReactNode;
   className?: string;
   onOutsideClick: () => void;
   left: number;
   top: number;
+  style?: CSSProperties;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
+
   useOutsideClick(ref, onOutsideClick);
 
   const [adjustedTop, setAdjustedTop] = useState(-100);
@@ -56,6 +59,7 @@ export const PopupWindow = ({
       style={{
         [stickToBottom ? 'bottom' : 'top']: `${stickToBottom ? '0' : adjustedTop}px`,
         [stickToRight ? 'right' : 'left']: `${stickToRight ? '0' : adjustedLeft}px`,
+        ...style,
       }}
     >
       {children}

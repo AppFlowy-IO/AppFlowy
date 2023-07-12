@@ -5,7 +5,7 @@ import { DateFormatPB, NumberFormatPB, SelectOptionColorPB, SelectOptionPB, Time
 export interface ISelectOption {
   selectOptionId: string;
   title: string;
-  color?: SelectOptionColorPB;
+  color: SelectOptionColorPB;
 }
 
 export interface ISelectOptionType {
