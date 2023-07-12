@@ -132,12 +132,8 @@ where
       tx.send(
         async move {
           match weak_server {
-            None => {
-              tracing::error!("😄😄😄😄😄");
-              Ok(vec![])
-            },
+            None => Ok(vec![]),
             Some(weak_server) => {
-              tracing::error!("😄😄");
               let action = FetchObjectUpdateAction::new(&workspace_id, weak_server);
               action.run_with_fix_interval(5, 10).await
             },

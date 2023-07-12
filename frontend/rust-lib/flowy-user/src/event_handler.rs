@@ -163,3 +163,19 @@ pub async fn get_supabase_config_handler(
   let config = get_supabase_config().unwrap_or_default();
   data_result_ok(config.into())
 }
+
+/// Only used for third party auth.
+/// Use [UserEvent::SignIn] or [UserEvent::SignUp] If the [AuthType] is Local or SelfHosted
+#[tracing::instrument(level = "debug", skip(data, session), err)]
+pub async fn merge_user_data_handler(
+  data: AFPluginData<MergeUserDataPB>,
+  session: AFPluginState<Arc<UserSession>>,
+) -> DataResult<UserProfilePB, FlowyError> {
+  let params = data.into_inner();
+  let auth_type: AuthType = params.auth_type.into();
+  let user_profile: UserProfilePB = session
+    .sign_up(&auth_type, BoxAny::new(params.map))
+    .await?
+    .into();
+  data_result_ok(user_profile)
+}

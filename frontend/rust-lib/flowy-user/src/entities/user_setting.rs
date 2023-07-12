@@ -181,3 +181,9 @@ impl TryFrom<PostgresConfigurationPB> for PostgresConfiguration {
     })
   }
 }
+
+#[derive(Default, ProtoBuf)]
+pub struct MergeUserDataPB {
+  #[pb(index = 1)]
+  pub data_path: String,
+}

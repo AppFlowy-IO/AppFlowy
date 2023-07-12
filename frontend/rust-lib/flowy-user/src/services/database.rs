@@ -82,7 +82,7 @@ pub fn get_user_profile(pool: &Arc<ConnectionPool>, uid: i64) -> Result<UserProf
   Ok(user.into())
 }
 
-fn user_db_path_from_uid(root: &str, uid: i64) -> PathBuf {
+pub fn user_db_path_from_uid(root: &str, uid: i64) -> PathBuf {
   let mut dir = PathBuf::new();
   dir.push(root);
   dir.push(uid.to_string());
@@ -113,7 +113,7 @@ pub fn open_collab_db(root: &str, uid: i64) -> Result<Arc<RocksCollabDB>, FlowyE
   Ok(db)
 }
 
-fn collab_db_path_from_uid(root: &str, uid: i64) -> PathBuf {
+pub fn collab_db_path_from_uid(root: &str, uid: i64) -> PathBuf {
   let mut dir = PathBuf::new();
   dir.push(root);
   dir.push(uid.to_string());
