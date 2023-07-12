@@ -6,15 +6,14 @@ import 'package:appflowy/plugins/trash/menu.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
-import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
-// import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/time/duration.dart';
@@ -63,7 +62,9 @@ class HomeMenu extends StatelessWidget {
           BlocListener<MenuBloc, MenuState>(
             listenWhen: (p, c) => p.plugin.id != c.plugin.id,
             listener: (context, state) {
-              getIt<HomeStackManager>().setPlugin(state.plugin);
+              getIt<TabsBloc>().add(
+                TabsEvent.openPlugin(plugin: state.plugin),
+              );
             },
           ),
         ],
@@ -131,7 +132,8 @@ class HomeMenu extends StatelessWidget {
                   //  expect:   oldIndex: 0, newIndex: 1
                   //  receive:  oldIndex: 0, newIndex: 2
                   //  Workaround: if newIndex > oldIndex, we just minus one
-                  final int index = newIndex > oldIndex ? newIndex - 1 : newIndex;
+                  final int index =
+                      newIndex > oldIndex ? newIndex - 1 : newIndex;
                   context
                       .read<MenuBloc>()
                       .add(MenuEvent.moveApp(oldIndex, index));

@@ -61,7 +61,8 @@
   "disclosureAction": {
     "rename": "Rename",
     "delete": "Delete",
-    "duplicate": "Duplicate"
+    "duplicate": "Duplicate",
+    "openNewTab": "Open in a new tab"
   },
   "blankPageTitle": "Blank page",
   "newPageText": "New page",
