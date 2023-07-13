@@ -70,7 +70,7 @@ impl DocumentManager {
 
     tracing::debug!("open_document: {:?}", doc_id);
     let uid = self.user.user_id()?;
-    let db = self.user.collab_db()?;
+    let db = self.user.collab_db(uid)?;
     let collab = self
       .collab_builder
       .build(uid, doc_id, "document", updates, db)?;
@@ -110,7 +110,7 @@ impl DocumentManager {
 
   pub fn delete_document(&self, doc_id: &str) -> FlowyResult<()> {
     let uid = self.user.user_id()?;
-    let db = self.user.collab_db()?;
+    let db = self.user.collab_db(uid)?;
     let _ = db.with_write_txn(|txn| {
       txn.delete_doc(uid, &doc_id)?;
       Ok(())
@@ -148,7 +148,7 @@ impl DocumentManager {
     updates: Vec<Vec<u8>>,
   ) -> FlowyResult<Arc<MutexCollab>> {
     let uid = self.user.user_id()?;
-    let db = self.user.collab_db()?;
+    let db = self.user.collab_db(uid)?;
     let collab = self
       .collab_builder
       .build(uid, doc_id, "document", updates, db)?;
@@ -157,7 +157,7 @@ impl DocumentManager {
 
   fn is_doc_exist(&self, doc_id: &str) -> FlowyResult<bool> {
     let uid = self.user.user_id()?;
-    let db = self.user.collab_db()?;
+    let db = self.user.collab_db(uid)?;
     let read_txn = db.read_txn();
     Ok(read_txn.is_exist(uid, doc_id))
   }

@@ -67,7 +67,8 @@ pub async fn check_user_handler(
 pub async fn get_user_profile_handler(
   session: AFPluginState<Arc<UserSession>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
-  let user_profile: UserProfilePB = session.get_user_profile().await?.into();
+  let uid = session.get_session()?.user_id;
+  let user_profile: UserProfilePB = session.get_user_profile(uid).await?.into();
   data_result_ok(user_profile)
 }
 

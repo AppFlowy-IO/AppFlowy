@@ -27,8 +27,6 @@ pub mod prelude {
   pub use diesel::{query_dsl::*, BelongingToDsl, ExpressionMethods, RunQueryDsl};
 
   pub use crate::*;
-
-  pub use super::UserDatabaseConnection;
 }
 
 embed_migrations!("../flowy-sqlite/migrations/");
@@ -52,8 +50,4 @@ where
 {
   let msg = format!("{:?}", e);
   io::Error::new(io::ErrorKind::NotConnected, msg)
-}
-
-pub trait UserDatabaseConnection: Send + Sync {
-  fn get_connection(&self) -> Result<DBConnection, String>;
 }

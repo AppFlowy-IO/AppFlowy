@@ -46,7 +46,7 @@ DROP FUNCTION IF EXISTS notify_on_insert_af_collab;
 #[tokio::test]
 async fn run_initial_drop_test() -> Result<(), anyhow::Error> {
   // rename the `.evn.test.danger` to the actual env file name.
-  if dotenv::from_filename(".env.test.danger").is_err() {
+  if dotenv::from_filename(".env.test").is_err() {
     return Ok(());
   }
 

@@ -59,7 +59,7 @@ impl DatabaseManager2 {
   }
 
   pub async fn initialize(&self, uid: i64) -> FlowyResult<()> {
-    let collab_db = self.user.collab_db()?;
+    let collab_db = self.user.collab_db(uid)?;
     let workspace_database_id = make_workspace_database_id(uid);
     let collab_builder = UserDatabaseCollabServiceImpl {
       collab_builder: self.collab_builder.clone(),

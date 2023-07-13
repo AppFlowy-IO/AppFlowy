@@ -16,7 +16,7 @@ use flowy_sqlite::{
   kv::KV,
   query_dsl::*,
   schema::{user_table, user_table::dsl},
-  DBConnection, ExpressionMethods, UserDatabaseConnection,
+  DBConnection, ExpressionMethods,
 };
 use lib_infra::box_any::BoxAny;
 
@@ -91,9 +91,8 @@ impl UserSession {
     *self.user_status_callback.write().await = Arc::new(user_status_callback);
   }
 
-  pub fn db_connection(&self) -> Result<DBConnection, FlowyError> {
-    let user_id = self.get_session()?.user_id;
-    self.database.get_connection(user_id)
+  pub fn db_connection(&self, uid: i64) -> Result<DBConnection, FlowyError> {
+    self.database.get_connection(uid)
   }
 
   // The caller will be not 'Sync' before of the return value,
@@ -102,14 +101,12 @@ impl UserSession {
   //
   // let pool = self.db_connection_pool()?;
   // let conn: PooledConnection<ConnectionManager> = pool.get()?;
-  pub fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError> {
-    let user_id = self.get_session()?.user_id;
-    self.database.get_pool(user_id)
+  pub fn db_pool(&self, uid: i64) -> Result<Arc<ConnectionPool>, FlowyError> {
+    self.database.get_pool(uid)
   }
 
-  pub fn get_collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
-    let user_id = self.get_session()?.user_id;
-    self.database.get_collab_db(user_id)
+  pub fn get_collab_db(&self, uid: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
+    self.database.get_collab_db(uid)
   }
 
   pub async fn migrate_old_user_data(
@@ -149,8 +146,9 @@ impl UserSession {
       .await?;
 
     let session: Session = resp.clone().into();
+    let uid = session.user_id;
     self.set_session(Some(session))?;
-    let user_profile: UserProfile = self.save_user((resp, auth_type).into()).await?.into();
+    let user_profile: UserProfile = self.save_user(uid, (resp, auth_type).into()).await?.into();
     if let Err(e) = self
       .user_status_callback
       .read()
@@ -183,7 +181,14 @@ impl UserSession {
     auth_type: AuthType,
     params: BoxAny,
   ) -> Result<UserProfile, FlowyError> {
-    let old_user_profile = self.get_user_profile().await;
+    let old_user_profile = {
+      if let Ok(old_session) = self.get_session() {
+        self.get_user_profile(old_session.user_id).await.ok()
+      } else {
+        None
+      }
+    };
+
     let auth_service = self.cloud_services.get_auth_service()?;
     let response: SignUpResponse = auth_service.sign_up(params).await?;
     let mut sign_up_context = SignUpContext {
@@ -194,13 +199,14 @@ impl UserSession {
       user_id: response.user_id,
       workspace_id: response.workspace_id.clone(),
     };
+    let uid = session.user_id;
     self.set_session(Some(session))?;
-    let user_table = self.save_user((response, auth_type).into()).await?;
+    let user_table = self.save_user(uid, (response, auth_type).into()).await?;
     let new_user_profile: UserProfile = user_table.into();
 
     // Only migrate the data if the user is login in as a guest and sign up as a new user
     if sign_up_context.is_new {
-      if let Ok(old_user_profile) = old_user_profile {
+      if let Some(old_user_profile) = old_user_profile {
         if old_user_profile.auth_type == AuthType::Local {
           tracing::info!(
             "Migrate old user data from {:?} to {:?}",
@@ -235,10 +241,6 @@ impl UserSession {
   #[tracing::instrument(level = "debug", skip(self))]
   pub async fn sign_out(&self) -> Result<(), FlowyError> {
     let session = self.get_session()?;
-    let uid = session.user_id.to_string();
-    let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&uid)))
-      .execute(&*(self.db_connection()?))?;
-
     self.database.close(session.user_id)?;
     self.set_session(None)?;
 
@@ -249,7 +251,6 @@ impl UserSession {
         Err(e) => tracing::error!("Sign out failed: {:?}", e),
       }
     });
-
     Ok(())
   }
 
@@ -261,9 +262,14 @@ impl UserSession {
     let auth_type = params.auth_type.clone();
     let session = self.get_session()?;
     let changeset = UserTableChangeset::new(params.clone());
-    diesel_update_table!(user_table, changeset, &*self.db_connection()?);
+    diesel_update_table!(
+      user_table,
+      changeset,
+      &*self.db_connection(session.user_id)?
+    );
 
-    let user_profile = self.get_user_profile().await?;
+    let session = self.get_session()?;
+    let user_profile = self.get_user_profile(session.user_id).await?;
     let profile_pb: UserProfilePB = user_profile.into();
     send_notification(
       &session.user_id.to_string(),
@@ -294,11 +300,11 @@ impl UserSession {
     auth_service.check_user(credential).await
   }
 
-  pub async fn get_user_profile(&self) -> Result<UserProfile, FlowyError> {
-    let user_id = self.get_session()?.user_id.to_string();
+  pub async fn get_user_profile(&self, uid: i64) -> Result<UserProfile, FlowyError> {
+    let user_id = uid.to_string();
     let user = dsl::user_table
       .filter(user_table::id.eq(&user_id))
-      .first::<UserTable>(&*(self.db_connection()?))?;
+      .first::<UserTable>(&*(self.db_connection(uid)?))?;
 
     Ok(user.into())
   }
@@ -361,8 +367,8 @@ impl UserSession {
     Ok(())
   }
 
-  async fn save_user(&self, user: UserTable) -> Result<UserTable, FlowyError> {
-    let conn = self.db_connection()?;
+  async fn save_user(&self, uid: i64, user: UserTable) -> Result<UserTable, FlowyError> {
+    let conn = self.db_connection(uid)?;
     conn.immediate_transaction(|| {
       // delete old user if exists
       diesel::delete(dsl::user_table.filter(dsl::id.eq(&user.id))).execute(&*conn)?;
@@ -388,11 +394,29 @@ impl UserSession {
     Ok(())
   }
 
-  fn get_session(&self) -> Result<Session, FlowyError> {
+  /// Returns the current user session.
+  pub fn get_session(&self) -> Result<Session, FlowyError> {
     match KV::get_object::<Session>(&self.session_config.session_cache_key) {
-      None => Err(FlowyError::unauthorized()),
+      None => Err(FlowyError::new(
+        ErrorCode::RecordNotFound,
+        format!("User is not logged in"),
+      )),
       Some(session) => Ok(session),
     }
+  }
+
+  pub fn sign_in_history(&self) -> Vec<UserProfile> {
+    // match self.db_connection(uid) {
+    //   Ok(conn) => match dsl::user_table.load::<UserTable>(&*conn) {
+    //     Ok(users) => users.into_iter().map(|u| u.into()).collect(),
+    //     Err(_) => vec![],
+    //   },
+    //   Err(e) => {
+    //     tracing::error!("get user sign in history failed: {:?}", e);
+    //     vec![]
+    //   },
+    // }
+    vec![]
   }
 }
 
@@ -407,16 +431,10 @@ pub async fn update_user(
   Ok(())
 }
 
-impl UserDatabaseConnection for UserSession {
-  fn get_connection(&self) -> Result<DBConnection, String> {
-    self.db_connection().map_err(|e| format!("{:?}", e))
-  }
-}
-
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-struct Session {
-  user_id: i64,
-  workspace_id: String,
+pub struct Session {
+  pub user_id: i64,
+  pub workspace_id: String,
 }
 
 impl std::convert::From<SignInResponse> for Session {
@@ -500,9 +518,16 @@ impl From<i32> for AuthType {
   }
 }
 
-pub fn uuid_from_box_any(any: BoxAny) -> Result<Uuid, FlowyError> {
+pub struct ThirdPartyParams {
+  pub uuid: Uuid,
+  pub email: String,
+}
+
+pub fn uuid_from_box_any(any: BoxAny) -> Result<ThirdPartyParams, FlowyError> {
   let map: HashMap<String, String> = any.unbox_or_error()?;
-  uuid_from_map(&map)
+  let uuid = uuid_from_map(&map)?;
+  let email = map.get("email").cloned().unwrap_or_default();
+  Ok(ThirdPartyParams { uuid, email })
 }
 
 pub fn uuid_from_map(map: &HashMap<String, String>) -> Result<Uuid, FlowyError> {

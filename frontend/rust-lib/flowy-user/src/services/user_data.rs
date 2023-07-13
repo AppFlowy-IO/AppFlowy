@@ -3,10 +3,9 @@ use std::sync::Arc;
 use appflowy_integrate::{RocksCollabDB, YrsDocAction};
 use collab::core::collab::MutexCollab;
 use collab::core::origin::{CollabClient, CollabOrigin};
-
 use collab::preclude::Collab;
-use collab_folder::core::{Folder, FolderData};
 
+use collab_folder::core::{Folder, FolderData};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
 pub struct UserDataMigration();
@@ -24,7 +23,7 @@ impl UserDataMigration {
     new_collab_db
       .with_write_txn(|w_txn| {
         let read_txn = old_collab_db.read_txn();
-        if let Ok(mut object_ids) = read_txn.get_all_docs() {
+        if let Ok(object_ids) = read_txn.get_all_docs() {
           // Migration of all objects
           for object_id in object_ids {
             tracing::debug!("migrate object: {:?}", object_id);
@@ -67,8 +66,16 @@ fn migrate_folder(new_workspace_id: &str, old_folder: Folder) -> Option<FolderDa
   folder_data.current_workspace_id = new_workspace_id.to_string();
 
   let mut workspace = folder_data.workspaces.pop()?;
+  if folder_data.workspaces.len() > 1 {
+    tracing::error!("🔴migrate folder: more than one workspace");
+  }
   workspace.id = new_workspace_id.to_string();
 
+  // Only take one workspace
+  folder_data.workspaces.clear();
+  folder_data.workspaces.push(workspace);
+
+  // Update the view's parent view id to new workspace id
   folder_data.views.iter_mut().for_each(|view| {
     if view.parent_view_id == old_workspace_id {
       view.parent_view_id = new_workspace_id.to_string();

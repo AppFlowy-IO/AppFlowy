@@ -9,7 +9,7 @@ use lib_infra::future::FutureResult;
 pub trait DocumentUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn token(&self) -> Result<Option<String>, FlowyError>; // unused now.
-  fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError>;
+  fn collab_db(&self, uid: i64) -> Result<Arc<RocksCollabDB>, FlowyError>;
 }
 
 /// A trait for document cloud service.

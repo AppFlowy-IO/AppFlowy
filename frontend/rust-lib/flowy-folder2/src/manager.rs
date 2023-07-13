@@ -127,7 +127,7 @@ impl FolderManager {
     initial_data: FolderInitializeData,
   ) -> FlowyResult<()> {
     let workspace_id = workspace_id.to_string();
-    if let Ok(collab_db) = self.user.collab_db() {
+    if let Ok(collab_db) = self.user.collab_db(uid) {
       let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
       let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
       let folder_notifier = FolderNotify {

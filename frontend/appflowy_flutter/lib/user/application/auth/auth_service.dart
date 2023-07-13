@@ -8,6 +8,7 @@ class AuthServiceMapKeys {
 
   // for supabase auth use only.
   static const String uuid = 'uuid';
+  static const String email = 'email';
 }
 
 abstract class AuthService {

@@ -46,8 +46,8 @@ where
           match weak_server?.upgrade() {
             Some(server) => {
               let client = server.get_pg_client().await.recv().await?;
-              let uuid = uuid_from_box_any(params)?;
-              create_user_with_uuid(&client, uuid).await
+              let params = uuid_from_box_any(params)?;
+              create_user_with_uuid(&client, params.uuid, params.email).await
             },
             None => Err(FlowyError::new(
               ErrorCode::PgDatabaseError,
@@ -74,7 +74,7 @@ where
             )),
             Some(server) => {
               let client = server.get_pg_client().await.recv().await?;
-              let uuid = uuid_from_box_any(params)?;
+              let uuid = uuid_from_box_any(params)?.uuid;
               let user_profile =
                 get_user_profile(&client, GetUserProfileParams::Uuid(uuid)).await?;
               Ok(SignInResponse {
@@ -184,12 +184,13 @@ where
 async fn create_user_with_uuid(
   client: &PostgresObject,
   uuid: Uuid,
+  email: String,
 ) -> Result<SignUpResponse, FlowyError> {
   let mut is_new = true;
   if let Err(e) = client
     .execute(
-      &format!("INSERT INTO {} (uuid) VALUES ($1);", USER_TABLE),
-      &[&uuid],
+      &format!("INSERT INTO {} (uuid, email) VALUES ($1,$2);", USER_TABLE),
+      &[&uuid, &email],
     )
     .await
   {

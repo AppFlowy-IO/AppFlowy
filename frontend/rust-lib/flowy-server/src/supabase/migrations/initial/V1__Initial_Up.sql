@@ -1,6 +1,7 @@
 -- user table
 CREATE TABLE IF NOT EXISTS af_user (
    uuid UUID PRIMARY KEY,
+   email TEXT DEFAULT '',
    uid BIGINT GENERATED ALWAYS AS IDENTITY,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -14,8 +15,8 @@ CREATE TABLE IF NOT EXISTS af_user_profile (
 );
 -- user_profile trigger
 CREATE OR REPLACE FUNCTION create_af_user_profile_trigger_func() RETURNS TRIGGER AS $$ BEGIN
-INSERT INTO af_user_profile (uid, uuid)
-VALUES (NEW.uid, NEW.uuid);
+INSERT INTO af_user_profile (uid, uuid, email)
+VALUES (NEW.uid, NEW.uuid, NEW.email);
 RETURN NEW;
 END $$ LANGUAGE plpgsql;
 CREATE TRIGGER create_af_user_profile_trigger BEFORE
