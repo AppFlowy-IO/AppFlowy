@@ -216,14 +216,12 @@ impl DatabaseViewEditor {
     group_id: &Option<String>,
     index: usize,
   ) {
+    let changes: RowsChangePB;
     // Send the group notification if the current view has groups
     match group_id.as_ref() {
       None => {
         let row = InsertedRowPB::new(RowMetaPB::from(&row_detail.meta)).with_index(index as i32);
-        let changes = RowsChangePB::from_insert(self.view_id.clone(), row);
-        send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
-          .payload(changes)
-          .send();
+        changes = RowsChangePB::from_insert(self.view_id.clone(), row);
       },
       Some(group_id) => {
         self
@@ -238,10 +236,16 @@ impl DatabaseViewEditor {
           index: Some(index as i32),
           is_new: true,
         };
-        let changeset = GroupRowsNotificationPB::insert(group_id.clone(), vec![inserted_row]);
+        let changeset =
+          GroupRowsNotificationPB::insert(group_id.clone(), vec![inserted_row.clone()]);
         notify_did_update_group_rows(changeset).await;
+        changes = RowsChangePB::from_insert(self.view_id.clone(), inserted_row);
       },
     }
+
+    send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
+      .payload(changes)
+      .send();
   }
 
   #[tracing::instrument(level = "trace", skip_all)]
