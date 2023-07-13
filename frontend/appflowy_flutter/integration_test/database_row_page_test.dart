@@ -177,6 +177,8 @@ void main() {
       // Input some text
       const inputText = 'Hello World';
       await tester.ime.insertText(inputText);
+      await tester.pumpAndSettle();
+      
       expect(
         find.textContaining(inputText, findRichText: true),
         findsOneWidget,
