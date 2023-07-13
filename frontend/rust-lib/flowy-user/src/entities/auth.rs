@@ -150,6 +150,7 @@ pub struct UserProfile {
   pub icon_url: String,
   pub openai_key: String,
   pub workspace_id: String,
+  pub auth_type: AuthType,
 }
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
@@ -240,4 +241,10 @@ impl From<UserCredentialsPB> for UserCredentials {
   fn from(value: UserCredentialsPB) -> Self {
     Self::new(value.token, value.uid, value.uuid)
   }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct UserStatePB {
+  #[pb(index = 1)]
+  pub auth_type: AuthTypePB,
 }

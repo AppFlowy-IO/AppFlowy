@@ -2,8 +2,10 @@ import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu_element.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/auth.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsMenu extends StatelessWidget {
   const SettingsMenu({
@@ -56,7 +58,11 @@ class SettingsMenu extends StatelessWidget {
           icon: Icons.account_box_outlined,
           changeSelectedPage: changeSelectedPage,
         ),
-        if (isSupabaseEnable)
+
+        // Only show supabase setting if supabase is enabled and the current auth type is not local
+        if (isSupabaseEnable &&
+            context.read<SettingsDialogBloc>().state.userProfile.authType !=
+                AuthTypePB.Local)
           SettingsMenuElement(
             page: SettingsPage.supabaseSetting,
             selectedPage: currentPage,

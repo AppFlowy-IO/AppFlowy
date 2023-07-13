@@ -18,10 +18,12 @@ pub async fn sign_in(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let params: SignInParams = data.into_inner().try_into()?;
   let auth_type = params.auth_type.clone();
-
   session.update_auth_type(&auth_type).await;
 
-  let user_profile: UserProfilePB = session.sign_in(BoxAny::new(params)).await?.into();
+  let user_profile: UserProfilePB = session
+    .sign_in(BoxAny::new(params), auth_type)
+    .await?
+    .into();
   data_result_ok(user_profile)
 }
 
@@ -41,10 +43,10 @@ pub async fn sign_up(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let params: SignUpParams = data.into_inner().try_into()?;
   let auth_type = params.auth_type.clone();
-  session.update_auth_type(&auth_type);
+  session.update_auth_type(&auth_type).await;
 
-  let user_profile: UserProfilePB = session.sign_up(BoxAny::new(params)).await?.into();
-  data_result_ok(user_profile)
+  let user_profile = session.sign_up(auth_type, BoxAny::new(params)).await?.1;
+  data_result_ok(user_profile.into())
 }
 
 #[tracing::instrument(level = "debug", skip(session))]
@@ -139,16 +141,29 @@ pub async fn third_party_auth_handler(
   let auth_type: AuthType = params.auth_type.into();
   session.update_auth_type(&auth_type).await;
 
-  // If the user is login in as a guest, will try to migrate the guest data to the new account
-  if let Ok(user_profile) = session.get_user_profile().await {
-    let uuid = uuid_from_map(&params.map)?;
-    if let Err(e) = session.check_user_with_uuid(&uuid).await {
-      if e.code == ErrorCode::UserNotExist.value() {}
+  let old_user_profile = session.get_user_profile().await;
+  let (is_new, user_profile) = session.sign_up(auth_type, BoxAny::new(params.map)).await?;
+
+  // Only migrate the data if the user is login in as a guest and sign up as a new user
+  if is_new {
+    if let Ok(old_user_profile) = old_user_profile {
+      if old_user_profile.auth_type == AuthType::Local {
+        tracing::info!(
+          "Migrate old user data from {:?} to {:?}",
+          old_user_profile.id,
+          user_profile.id
+        );
+        if let Err(e) = session
+          .migrate_old_user_data(old_user_profile.id, user_profile.id)
+          .await
+        {
+          tracing::error!("{:?}", e);
+        }
+      }
     }
   }
 
-  let user_profile: UserProfilePB = session.sign_up(BoxAny::new(params.map)).await?.into();
-  data_result_ok(user_profile)
+  data_result_ok(user_profile.into())
 }
 
 #[tracing::instrument(level = "debug", skip(data, session), err)]

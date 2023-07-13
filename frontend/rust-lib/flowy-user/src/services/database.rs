@@ -13,7 +13,10 @@ use flowy_sqlite::{
   DBConnection, Database, ExpressionMethods,
 };
 
-use crate::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
+use crate::entities::{
+  AuthTypePB, SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile,
+};
+use crate::services::AuthType;
 
 pub struct UserDB {
   root: String,
@@ -138,29 +141,19 @@ pub struct UserTable {
   pub(crate) openai_key: String,
   pub(crate) token: String,
   pub(crate) email: String,
+  pub(crate) auth_type: i32,
 }
 
 impl UserTable {
-  pub fn new(id: String, name: String, email: String, token: String, workspace_id: String) -> Self {
-    Self {
-      id,
-      name,
-      email,
-      token,
-      icon_url: "".to_owned(),
-      workspace: workspace_id,
-      openai_key: "".to_owned(),
-    }
-  }
-
   pub fn set_workspace(mut self, workspace: String) -> Self {
     self.workspace = workspace;
     self
   }
 }
 
-impl From<SignUpResponse> for UserTable {
-  fn from(resp: SignUpResponse) -> Self {
+impl From<(SignUpResponse, AuthType)> for UserTable {
+  fn from(params: (SignUpResponse, AuthType)) -> Self {
+    let resp = params.0;
     UserTable {
       id: resp.user_id.to_string(),
       name: resp.name,
@@ -169,12 +162,15 @@ impl From<SignUpResponse> for UserTable {
       workspace: resp.workspace_id,
       icon_url: "".to_string(),
       openai_key: "".to_string(),
+      auth_type: params.1 as i32,
     }
   }
 }
 
-impl From<SignInResponse> for UserTable {
-  fn from(resp: SignInResponse) -> Self {
+impl From<(SignInResponse, AuthType)> for UserTable {
+  fn from(params: (SignInResponse, AuthType)) -> Self {
+    let resp = params.0;
+    let auth_type = params.1;
     UserTable {
       id: resp.user_id.to_string(),
       name: resp.name,
@@ -183,6 +179,7 @@ impl From<SignInResponse> for UserTable {
       workspace: resp.workspace_id,
       icon_url: "".to_string(),
       openai_key: "".to_string(),
+      auth_type: auth_type as i32,
     }
   }
 }
@@ -197,6 +194,7 @@ impl From<UserTable> for UserProfile {
       icon_url: table.icon_url,
       openai_key: table.openai_key,
       workspace_id: table.workspace,
+      auth_type: AuthType::from(table.auth_type),
     }
   }
 }

@@ -10,7 +10,7 @@ use uuid::Uuid;
 use flowy_error::{internal_error, ErrorCode, FlowyError};
 use flowy_user::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 use flowy_user::event_map::{UserAuthService, UserCredentials};
-use flowy_user::services::uuid_from_box_any;
+use flowy_user::services::{uuid_from_box_any, AuthType};
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
@@ -18,7 +18,6 @@ use crate::supabase::entities::{GetUserProfileParams, UserProfileResponse};
 use crate::supabase::postgres_db::PostgresObject;
 use crate::supabase::sql_builder::{SelectSqlBuilder, UpdateSqlBuilder};
 use crate::supabase::SupabaseServerService;
-use crate::util::uuid_from_box_any;
 
 pub(crate) const USER_TABLE: &str = "af_user";
 pub(crate) const USER_PROFILE_TABLE: &str = "af_user_profile";
@@ -144,6 +143,7 @@ where
                 icon_url: "".to_string(),
                 openai_key: "".to_string(),
                 workspace_id: user_profile.workspace_id,
+                auth_type: AuthType::Supabase,
               });
             Ok(user_profile)
           } else {

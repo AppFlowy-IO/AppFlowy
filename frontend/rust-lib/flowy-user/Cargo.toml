@@ -14,6 +14,7 @@ flowy-notification = { path = "../flowy-notification" }
 flowy-server-config = { path = "../flowy-server-config" }
 lib-dispatch = { path = "../lib-dispatch" }
 appflowy-integrate = { version = "0.1.0" }
+collab = { version = "0.1.0" }
 
 tracing = { version = "0.1", features = ["log"] }
 bytes = "1.4"

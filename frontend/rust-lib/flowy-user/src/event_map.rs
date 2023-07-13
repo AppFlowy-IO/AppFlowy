@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use appflowy_integrate::RocksCollabDB;
 use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};

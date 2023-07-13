@@ -21,7 +21,11 @@ diesel::table! {
         openai_key -> Text,
         token -> Text,
         email -> Text,
+        auth_type -> Integer,
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(collab_snapshot, user_table,);
+diesel::allow_tables_to_appear_in_same_query!(
+    collab_snapshot,
+    user_table,
+);
