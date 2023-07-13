@@ -56,7 +56,7 @@ impl DocumentUser for FakeUser {
     Ok(None)
   }
 
-  fn collab_db(&self, uid: i64) -> Result<std::sync::Arc<RocksCollabDB>, flowy_error::FlowyError> {
+  fn collab_db(&self, _uid: i64) -> Result<std::sync::Arc<RocksCollabDB>, flowy_error::FlowyError> {
     Ok(self.kv.clone())
   }
 }

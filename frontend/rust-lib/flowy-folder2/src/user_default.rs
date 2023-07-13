@@ -50,15 +50,6 @@ impl DefaultFolderBuilder {
       created_at: timestamp(),
     };
 
-    // let first_level_view_pbs = views.iter().map(ViewPB::from).collect::<Vec<_>>();
-    //
-    // let workspace_pb = WorkspacePB {
-    //   id: workspace.id.clone(),
-    //   name: workspace.name.clone(),
-    //   views: first_level_view_pbs,
-    //   create_time: workspace.created_at,
-    // };
-
     FolderData {
       current_workspace_id: workspace.id.clone(),
       current_view: first_view.id,
