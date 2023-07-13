@@ -38,6 +38,7 @@ class BlockAddButton extends StatelessWidget {
                 ? LocaleKeys.blockActions_addAboveMacCmd.tr()
                 : LocaleKeys.blockActions_addAboveCmd.tr(),
           ),
+          const TextSpan(text: ' '),
           TextSpan(
             text: LocaleKeys.blockActions_addAboveTooltip.tr(),
           ),
