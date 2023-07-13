@@ -4,8 +4,9 @@ import { useSubscribeDocument } from '$app/components/document/_shared/Subscribe
 import { Align } from '$app/interfaces/document';
 import { FormatAlignCenter, FormatAlignLeft, FormatAlignRight } from '@mui/icons-material';
 import { updateNodeDataThunk } from '$app_reducers/document/async-actions';
-import MenuTooltip from '$app/components/document/TextActionMenu/menu/MenuTooltip';
+import ToolbarTooltip from '$app/components/document/_shared/ToolbarTooltip';
 import Popover from '@mui/material/Popover';
+import { useTranslation } from 'react-i18next';
 
 function ImageAlign({
   id,
@@ -21,6 +22,7 @@ function ImageAlign({
   const ref = useRef<HTMLDivElement | null>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement>();
   const popoverOpen = Boolean(anchorEl);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (popoverOpen) {
@@ -61,7 +63,7 @@ function ImageAlign({
 
   return (
     <>
-      <MenuTooltip title='Align'>
+      <ToolbarTooltip title={t('document.plugins.optionAction.align')}>
         <div
           ref={ref}
           className='flex items-center justify-center p-1'
@@ -71,7 +73,7 @@ function ImageAlign({
         >
           {renderAlign(align)}
         </div>
-      </MenuTooltip>
+      </ToolbarTooltip>
       <Popover
         open={popoverOpen}
         anchorOrigin={{
@@ -87,7 +89,7 @@ function ImageAlign({
         onClose={() => setAnchorEl(undefined)}
         PaperProps={{
           style: {
-            backgroundColor: 'var(--color-bg-body)',
+            backgroundColor: 'var(--bg-body)',
           },
         }}
       >

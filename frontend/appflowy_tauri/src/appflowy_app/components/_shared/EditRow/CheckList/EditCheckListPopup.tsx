@@ -69,7 +69,7 @@ export const EditCheckListPopup = ({
       top={top}
     >
       <div onKeyDown={onKeyDownWrapper} className={'flex flex-col gap-2 p-2'}>
-        <div className={'flex flex-1 items-center gap-2 rounded border border-line-border bg-fill-hover px-2 '}>
+        <div className={'flex flex-1 items-center gap-2 rounded border border-line-divider bg-fill-list-hover px-2 '}>
           <input
             ref={inputRef}
             className={'py-2'}
@@ -78,11 +78,13 @@ export const EditCheckListPopup = ({
             onKeyDown={onKeyDown}
             onBlur={() => onBlur()}
           />
-          <div className={'font-mono text-shade-3'}>{value.length}/30</div>
+          <div className={'text-shade-3 font-mono'}>{value.length}/30</div>
         </div>
         <button
           onClick={() => onDeleteOptionClick()}
-          className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-fill-default hover:bg-fill-hover'}
+          className={
+            'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-fill-default hover:bg-fill-list-hover'
+          }
         >
           <i className={'h-5 w-5'}>
             <TrashSvg></TrashSvg>

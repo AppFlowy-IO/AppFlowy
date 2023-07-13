@@ -1,30 +1,53 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ImageSvg } from '$app/components/_shared/svg/ImageSvg';
 import { CircularProgress } from '@mui/material';
 import { writeImage } from '$app/utils/document/image';
-import { isTauri } from '$app/utils/env';
+import { useTranslation } from 'react-i18next';
+import { useMessage } from '$app/components/document/_shared/Message';
 
 export interface UploadImageProps {
   onChange: (filePath: string) => void;
 }
 
 function UploadImage({ onChange }: UploadImageProps) {
+  const { t } = useTranslation();
+  const message = useMessage();
+
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
-  const beforeUpload = useCallback((file: File) => {
-    // check file size and type
-    const sizeMatched = file.size / 1024 / 1024 < 5; // 5MB
-    const typeMatched = /image\/(png|jpg|jpeg|gif)/.test(file.type); // png, jpg, jpeg, gif
+  const beforeUpload = useCallback(
+    (file: File) => {
+      // check file size and type
+      const sizeMatched = file.size / 1024 / 1024 < 5; // 5MB
+      const typeMatched = /image\/(png|jpg|jpeg|gif)/.test(file.type); // png, jpg, jpeg, gif
 
-    return sizeMatched && typeMatched;
-  }, []);
+      if (!sizeMatched) {
+        setError(t('document.imageBlock.error.invalidImageSize'));
+      }
+
+      if (!typeMatched) {
+        setError(t('document.imageBlock.error.invalidImageFormat'));
+      }
+
+      return sizeMatched && typeMatched;
+    },
+    [t]
+  );
+
+  useEffect(() => {
+    if (!error) return;
+    message.show({
+      message: error,
+      duration: 3000,
+      type: 'error',
+    });
+  }, [error]);
 
   const handleUpload = useCallback(
     async (file: File) => {
       if (!file) return;
       if (!beforeUpload(file)) {
-        setError('Image should be less than 5MB and in png, jpg, jpeg, gif format');
         return;
       }
 
@@ -38,10 +61,10 @@ function UploadImage({ onChange }: UploadImageProps) {
         onChange(filePath);
       } catch {
         setLoading(false);
-        setError('Upload failed');
+        setError(t('document.imageBlock.error.invalidImage'));
       }
     },
-    [beforeUpload, onChange]
+    [beforeUpload, onChange, t]
   );
 
   const handleChange = useCallback(
@@ -88,7 +111,7 @@ function UploadImage({ onChange }: UploadImageProps) {
         <input onChange={handleChange} ref={inputRef} type='file' className={'hidden'} accept={'image/*'} />
         <div
           className={
-            'flex flex-col items-center justify-center rounded-md border border-dashed border-content-hover py-10 text-content-hover'
+            'flex flex-col items-center justify-center rounded-md border border-dashed border-content-blue-300 bg-content-blue-50 py-10 text-content-blue-300'
           }
           style={{
             borderColor: errorColor,
@@ -101,7 +124,7 @@ function UploadImage({ onChange }: UploadImageProps) {
           <div className={'h-8 w-8'}>
             <ImageSvg />
           </div>
-          <div className={'my-2 p-2'}>{isTauri() ? 'Click space to chose image' : 'Chose image or drag to space'}</div>
+          <div className={'my-2 p-2'}>{t('document.imageBlock.upload.placeholder')}</div>
         </div>
 
         {loading ? <CircularProgress /> : null}
@@ -112,8 +135,9 @@ function UploadImage({ onChange }: UploadImageProps) {
         }}
         className={`mt-5 text-sm text-text-caption`}
       >
-        The maximum file size is 5MB. Supported formats: JPG, PNG, GIF, SVG.
+        {t('document.imageBlock.support')}
       </div>
+      {message.contentHolder}
     </div>
   );
 }

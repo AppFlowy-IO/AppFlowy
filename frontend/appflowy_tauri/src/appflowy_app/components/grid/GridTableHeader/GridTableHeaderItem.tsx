@@ -61,9 +61,9 @@ export const GridTableHeaderItem = ({
   };
 
   return (
-    <th key={field.fieldId} className='m-0 border border-l-0 border-line-border p-0'>
+    <th key={field.fieldId} className='m-0 border border-l-0 border-line-divider p-0'>
       <div
-        className={'flex w-full cursor-pointer items-center px-4 py-2 hover:bg-fill-hover'}
+        className={'flex w-full cursor-pointer items-center px-4 py-2 hover:bg-fill-list-hover'}
         ref={ref}
         onClick={() => {
           if (!ref.current) return;

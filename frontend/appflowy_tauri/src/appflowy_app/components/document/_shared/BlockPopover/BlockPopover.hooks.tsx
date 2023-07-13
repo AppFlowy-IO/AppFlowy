@@ -17,15 +17,18 @@ export function useBlockPopover({
   onAfterOpen?: () => void;
   renderContent: ({ onClose }: { onClose: () => void }) => React.ReactNode;
 }) {
-  const anchorElRef = useRef<HTMLDivElement>(null);
+  const anchorElRef = useRef<HTMLDivElement | null>(null);
   const { docId } = useSubscribeDocument();
 
-  const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
-  const open = Boolean(anchorEl);
+  const [anchorPosition, setAnchorPosition] = useState<{
+    top: number;
+    left: number;
+  }>();
+  const open = Boolean(anchorPosition);
   const editing = useEditingState(id);
   const dispatch = useAppDispatch();
   const closePopover = useCallback(() => {
-    setAnchorEl(null);
+    setAnchorPosition(undefined);
     dispatch(
       blockEditActions.setBlockEditState({
         id: docId,
@@ -48,7 +51,14 @@ export function useBlockPopover({
   }, [dispatch, docId, id]);
 
   const openPopover = useCallback(() => {
-    setAnchorEl(anchorElRef.current);
+    if (!anchorElRef.current) return;
+
+    const rect = anchorElRef.current.getBoundingClientRect();
+
+    setAnchorPosition({
+      top: rect.top + rect.height,
+      left: rect.left + rect.width / 2,
+    });
     selectBlock();
     onAfterOpen?.();
   }, [onAfterOpen, selectBlock]);
@@ -68,21 +78,18 @@ export function useBlockPopover({
           vertical: 'top',
           horizontal: 'center',
         }}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
-        }}
         onMouseDown={(e) => e.stopPropagation()}
         onClose={closePopover}
         open={open}
-        anchorEl={anchorEl}
+        anchorReference={'anchorPosition'}
+        anchorPosition={anchorPosition}
       >
         {renderContent({
           onClose: closePopover,
         })}
       </Popover>
     );
-  }, [anchorEl, closePopover, open, renderContent]);
+  }, [anchorPosition, closePopover, open, renderContent]);
 
   useEffect(() => {
     if (!anchorElRef.current) {

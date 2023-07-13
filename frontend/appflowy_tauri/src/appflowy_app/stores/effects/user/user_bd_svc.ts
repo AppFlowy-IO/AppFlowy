@@ -13,6 +13,7 @@ import {
   UserEventUpdateUserProfile,
 } from '@/services/backend/events/flowy-user';
 import {
+  BlockActionPB,
   CreateWorkspacePayloadPB,
   SignInPayloadPB,
   SignUpPayloadPB,
@@ -92,11 +93,8 @@ export class UserBackendService {
     return UserEventSignOut();
   };
 
-  setAppearanceSettings = (params: { theme: string; mode: ThemeModePB }) => {
-    const payload = AppearanceSettingsPB.fromObject({
-      theme: params.theme,
-      theme_mode: params.mode,
-    });
+  setAppearanceSettings = (params: ReturnType<typeof AppearanceSettingsPB.prototype.toObject>) => {
+    const payload = AppearanceSettingsPB.fromObject(params);
 
     return UserEventSetAppearanceSetting(payload);
   };

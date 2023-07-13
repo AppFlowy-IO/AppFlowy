@@ -93,7 +93,9 @@ const FormatButton = ({ title, checked, onClick }: { title: string; checked: boo
   return (
     <button
       onClick={() => onClick()}
-      className={'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-fill-hover'}
+      className={
+        'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-fill-list-hover'
+      }
     >
       <span className={'block pr-8'}>{title}</span>
       {checked && (

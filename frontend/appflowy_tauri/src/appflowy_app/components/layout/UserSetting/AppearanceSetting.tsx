@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 import Select from '@mui/material/Select';
 import { Theme, ThemeMode, UserSetting } from '$app/interfaces';
 import MenuItem from '@mui/material/MenuItem';
+import { useTranslation } from 'react-i18next';
 
 function AppearanceSetting({
   theme = Theme.Default,
@@ -12,6 +13,8 @@ function AppearanceSetting({
   themeMode?: ThemeMode;
   onChange: (setting: UserSetting) => void;
 }) {
+  const { t } = useTranslation();
+
   useEffect(() => {
     const html = document.documentElement;
 
@@ -23,14 +26,14 @@ function AppearanceSetting({
     () => [
       {
         value: ThemeMode.Light,
-        content: 'Light',
+        content: t('settings.appearance.themeMode.light'),
       },
       {
         value: ThemeMode.Dark,
-        content: 'Dark',
+        content: t('settings.appearance.themeMode.dark'),
       },
     ],
-    []
+    [t]
   );
 
   const themeOptions = useMemo(
@@ -96,7 +99,7 @@ function AppearanceSetting({
       {renderSelect([
         {
           options: themeModeOptions,
-          label: 'Theme Mode',
+          label: t('settings.appearance.themeMode.label'),
           value: themeMode,
           onChange: (newValue) => {
             onChange({
@@ -106,7 +109,7 @@ function AppearanceSetting({
         },
         {
           options: themeOptions,
-          label: 'Theme',
+          label: t('settings.appearance.theme'),
           value: theme,
           onChange: (newValue) => {
             onChange({

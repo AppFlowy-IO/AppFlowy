@@ -37,10 +37,10 @@ const TextLeaf = (props: TextLeafProps) => {
   };
   let newChildren = children;
 
-  if (leaf.code) {
+  if (leaf.code && !leaf.temporary) {
     newChildren = (
       <span
-        className={`bg-fill-selector text-text-title`}
+        className={`bg-content-blue-50 text-text-title`}
         style={{
           fontSize: '85%',
           lineHeight: 'normal',
@@ -97,9 +97,9 @@ const TextLeaf = (props: TextLeafProps) => {
     isCodeBlock && 'token',
     leaf.prism_token && leaf.prism_token,
     leaf.strikethrough && 'line-through',
-    leaf.selection_high_lighted && 'bg-fill-selector',
-    leaf.link_selection_lighted && 'text-text-link-selector bg-fill-selector',
-    leaf.code && 'inline-code',
+    leaf.selection_high_lighted && 'bg-content-blue-100',
+    leaf.link_selection_lighted && 'text-text-link-selector bg-content-blue-100',
+    leaf.code && !leaf.temporary && 'inline-code',
     leaf.bold && 'font-bold',
     leaf.italic && 'italic',
     leaf.underline && 'underline',
@@ -114,7 +114,11 @@ const TextLeaf = (props: TextLeafProps) => {
   }
 
   if (leaf.temporary) {
-    newChildren = <TemporaryInput leaf={leaf}>{newChildren}</TemporaryInput>;
+    newChildren = (
+      <TemporaryInput getSelection={getSelection} leaf={leaf}>
+        {newChildren}
+      </TemporaryInput>
+    );
   }
 
   return (

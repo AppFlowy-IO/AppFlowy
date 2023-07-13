@@ -21,7 +21,7 @@ export const GridTableRow = ({
     <tr className='group'>
       {cells.map((cell, cellIndex) => {
         return (
-          <td className='m-0  border border-l-0 border-line-border p-0 ' key={cellIndex}>
+          <td className='m-0  border border-l-0 border-line-divider p-0 ' key={cellIndex}>
             <div className='flex w-full items-center justify-end'>
               <GridCell
                 cellIdentifier={cell.cellIdentifier}
@@ -32,7 +32,7 @@ export const GridTableRow = ({
               {cellIndex === 0 && (
                 <div
                   onClick={() => onOpenRow(row)}
-                  className='mr-1 hidden h-8 w-8 cursor-pointer rounded p-1.5 text-text-caption hover:bg-fill-hover group-hover:block '
+                  className='mr-1 hidden h-8 w-8 cursor-pointer rounded p-1.5 text-text-caption hover:bg-fill-list-hover group-hover:block '
                 >
                   <FullView />
                 </div>

@@ -41,7 +41,9 @@ export const TimeFormatPopup = ({
     <PopupWindow className={'p-2 text-xs'} onOutsideClick={onOutsideClick} left={left} top={top}>
       <button
         onClick={() => changeFormat(TimeFormatPB.TwelveHour)}
-        className={'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-fill-hover'}
+        className={
+          'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-fill-list-hover'
+        }
       >
         {t('grid.field.timeFormatTwelveHour')}
 
@@ -53,7 +55,9 @@ export const TimeFormatPopup = ({
       </button>
       <button
         onClick={() => changeFormat(TimeFormatPB.TwentyFourHour)}
-        className={'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-fill-hover'}
+        className={
+          'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-fill-list-hover'
+        }
       >
         {t('grid.field.timeFormatTwentyFourHour')}
 

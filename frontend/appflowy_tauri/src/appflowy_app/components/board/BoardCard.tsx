@@ -64,9 +64,12 @@ export const BoardCard = ({
             {...provided.draggableProps}
             {...provided.dragHandleProps}
             onClick={() => onOpenRow(rowInfo)}
-            className={`relative cursor-pointer select-none rounded-lg border border-line-border bg-bg-body px-3 py-2 transition-transform duration-100 hover:bg-fill-selector `}
+            className={`relative cursor-pointer select-none rounded-lg bg-bg-body px-3 py-2 transition-transform duration-100 hover:bg-content-blue-50 `}
           >
-            <button onClick={onDetailClick} className={'absolute right-4 top-2.5 h-5 w-5 rounded hover:bg-fill-hover'}>
+            <button
+              onClick={onDetailClick}
+              className={'absolute right-4 top-2.5 h-5 w-5 rounded hover:bg-fill-list-hover'}
+            >
               <Details2Svg></Details2Svg>
             </button>
             <div className={'flex flex-col gap-3'}>
@@ -95,7 +98,7 @@ export const BoardCard = ({
         >
           <button
             key={index}
-            className={'flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-2 hover:bg-fill-hover'}
+            className={'flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-2 hover:bg-fill-list-hover'}
             onClick={() => onDeleteRowClick()}
           >
             <i className={'h-5 w-5'}>
