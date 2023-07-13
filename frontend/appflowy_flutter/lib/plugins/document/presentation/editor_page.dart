@@ -321,9 +321,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
             blockComponentState: state,
             editorState: widget.editorState,
             actions: actions,
-            showSlashMenu: () => showSlashMenu(
-              widget.editorState,
-            ),
+            showSlashMenu: () => showSlashMenu(widget.editorState),
           ),
         );
       };

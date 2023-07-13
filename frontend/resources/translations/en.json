@@ -8,6 +8,12 @@
   "title": "Title",
   "youCanAlso": "You can also",
   "and": "and",
+  "blockActions": {
+    "addBelowTooltip": "Click to add below",
+    "addAboveCmd": "Alt+click",
+    "addAboveMacCmd": "Option+click",
+    "addAboveTooltip": "to add above"
+  },
   "signUp": {
     "buttonText": "Sign Up",
     "title": "Sign Up to @:appName",
