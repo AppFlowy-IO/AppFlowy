@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { List, MenuItem, Popover } from '@mui/material';
+import { List, MenuItem, Popover, Portal } from '@mui/material';
 import { PopoverOrigin } from '@mui/material/Popover/Popover';
 
 interface ButtonPopoverListProps {
@@ -31,22 +31,24 @@ function ButtonPopoverList({ popoverOrigin, isVisible, children, popoverOptions 
   return (
     <>
       {visible && <div onClick={handleClick}>{children}</div>}
-      <Popover open={open} {...popoverOrigin} anchorEl={anchorEl} onClose={handleClose}>
-        <List>
-          {popoverOptions.map((option) => (
-            <MenuItem
-              key={option.key}
-              onClick={() => {
-                option.onClick();
-                handleClose();
-              }}
-            >
-              <span className={'mr-2'}>{option.icon}</span>
-              <span>{option.label}</span>
-            </MenuItem>
-          ))}
-        </List>
-      </Popover>
+      <Portal>
+        <Popover open={open} {...popoverOrigin} anchorEl={anchorEl} onClose={handleClose}>
+          <List>
+            {popoverOptions.map((option) => (
+              <MenuItem
+                key={option.key}
+                onClick={() => {
+                  option.onClick();
+                  handleClose();
+                }}
+              >
+                <span className={'mr-2'}>{option.icon}</span>
+                <span>{option.label}</span>
+              </MenuItem>
+            ))}
+          </List>
+        </Popover>
+      </Portal>
     </>
   );
 }

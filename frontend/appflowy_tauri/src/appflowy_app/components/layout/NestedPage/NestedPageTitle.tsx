@@ -49,9 +49,11 @@ function NestedPageTitle({
             style={{
               transform: collapsed ? 'rotate(0deg)' : 'rotate(-90deg)',
             }}
-            className={'mr-1 h-6 w-6 p-1'}
+            className={'flex h-[100%] w-8 items-center justify-center p-2'}
           >
-            <ArrowRightSvg />
+            <div className={'h-5 w-5'}>
+              <ArrowRightSvg />
+            </div>
           </button>
           <div className={'flex-1 overflow-hidden text-ellipsis whitespace-nowrap'}>{page.name}</div>
         </div>

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import AddSvg from '$app/components/_shared/svg/AddSvg';
 import { useTranslation } from 'react-i18next';
 import { WorkspaceController } from '$app/stores/effects/workspace/workspace_controller';
@@ -9,6 +9,12 @@ function NewPageButton({ workspaceId }: { workspaceId: string }) {
   const { t } = useTranslation();
   const controller = useMemo(() => new WorkspaceController(workspaceId), [workspaceId]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    return () => {
+      controller.dispose();
+    };
+  }, [controller]);
 
   return (
     <div className={'flex h-[60px] w-full items-center border-t border-line-divider px-6 py-5'}>

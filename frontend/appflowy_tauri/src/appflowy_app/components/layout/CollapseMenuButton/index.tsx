@@ -5,7 +5,7 @@ import { HideMenuSvg } from '$app/components/_shared/svg/HideMenuSvg';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { sidebarActions } from '$app_reducers/sidebar/slice';
 
-function CollapseButton() {
+function CollapseMenuButton() {
   const isCollapsed = useAppSelector((state) => state.sidebar.isCollapsed);
   const dispatch = useAppDispatch();
   const handleClick = () => {
@@ -19,4 +19,4 @@ function CollapseButton() {
   );
 }
 
-export default CollapseButton;
+export default CollapseMenuButton;

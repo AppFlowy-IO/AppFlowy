@@ -8,6 +8,7 @@ import { CopySvg } from '$app/components/_shared/svg/CopySvg';
 import { EditSvg } from '$app/components/_shared/svg/EditSvg';
 import RenameDialog from './RenameDialog';
 import { Page } from '$app_reducers/pages/slice';
+import DeleteDialog from '$app/components/layout/NestedPage/DeleteDialog';
 
 function MoreButton({
   isVisible,
@@ -23,6 +24,7 @@ function MoreButton({
   page: Page;
 }) {
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const { t } = useTranslation();
   const options = useMemo(
@@ -42,7 +44,9 @@ function MoreButton({
       {
         label: t('button.delete'),
         key: 'delete',
-        onClick: onDelete,
+        onClick: () => {
+          setDeleteDialogOpen(true);
+        },
         icon: (
           <div className={'h-5 w-5'}>
             <TrashSvg />
@@ -60,7 +64,7 @@ function MoreButton({
         ),
       },
     ],
-    [onDelete, onDuplicate, t]
+    [onDuplicate, t]
   );
 
   return (
@@ -71,7 +75,7 @@ function MoreButton({
         popoverOrigin={{
           anchorOrigin: {
             vertical: 'bottom',
-            horizontal: 'right',
+            horizontal: 'left',
           },
           transformOrigin: {
             vertical: 'top',
@@ -90,6 +94,15 @@ function MoreButton({
         onOk={async (newName: string) => {
           await onRename(newName);
           setRenameDialogOpen(false);
+        }}
+      />
+      <DeleteDialog
+        layout={page.layout}
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onOk={async () => {
+          await onDelete();
+          setDeleteDialogOpen(false);
         }}
       />
     </>

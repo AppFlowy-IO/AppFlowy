@@ -15,7 +15,7 @@ export class WorkspaceManagerController {
   subscribe = async (callbacks: {
     onWorkspacesChanged?: (data: { workspaces: WorkspaceItem[]; currentWorkspace: WorkspaceItem }) => void;
   }) => {
-    this.observer.subscribeWorkspaces(this.didCreateWorkspace);
+    // this.observer.subscribeWorkspaces(this.didCreateWorkspace);
     this.onWorkspacesChanged = callbacks.onWorkspacesChanged;
   };
 
@@ -67,8 +67,6 @@ export class WorkspaceManagerController {
 
   private didCreateWorkspace = (payload: Uint8Array) => {
     const data = RepeatedWorkspacePB.deserializeBinary(payload);
-
-    console.log(data.toObject());
     // onWorkspacesChanged(data.toObject().items);
   };
 }

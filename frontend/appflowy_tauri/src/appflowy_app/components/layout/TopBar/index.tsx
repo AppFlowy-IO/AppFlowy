@@ -1,5 +1,5 @@
 import React from 'react';
-import CollapseButton from '$app/components/layout/CollapseMenuButton';
+import CollapseMenuButton from '$app/components/layout/CollapseMenuButton';
 import { useAppSelector } from '$app/stores/store';
 import Breadcrumb from '$app/components/layout/Breadcrumb';
 import ShareButton from '$app/components/layout/Share';
@@ -11,8 +11,8 @@ function TopBar() {
   return (
     <div className={'flex h-[64px] select-none border-b border-line-divider p-4'}>
       {sidebarIsCollapsed && (
-        <div className={'py-1'}>
-          <CollapseButton />
+        <div className={'mr-2 py-1'}>
+          <CollapseMenuButton />
         </div>
       )}
       <div className={'flex flex-1 items-center justify-between'}>

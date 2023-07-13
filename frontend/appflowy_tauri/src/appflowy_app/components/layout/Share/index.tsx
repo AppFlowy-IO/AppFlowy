@@ -1,31 +1,14 @@
 import React from 'react';
-import { Button } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import ButtonPopoverList from '../../_shared/ButtonPopoverList';
+import Button from '@mui/material/Button';
+import { useShareConfig } from '$app/components/layout/Share/Share.hooks';
 
 function ShareButton() {
+  const { showShareButton } = useShareConfig();
   const { t } = useTranslation();
 
-  return (
-    <>
-      <ButtonPopoverList
-        isVisible={true}
-        popoverOptions={[]}
-        popoverOrigin={{
-          anchorOrigin: {
-            vertical: 'bottom',
-            horizontal: 'right',
-          },
-          transformOrigin: {
-            vertical: 'top',
-            horizontal: 'right',
-          },
-        }}
-      >
-        <Button variant={'contained'}>{t('shareAction.buttonText')}</Button>
-      </ButtonPopoverList>
-    </>
-  );
+  if (!showShareButton) return null;
+  return <Button variant={'contained'}>{t('shareAction.buttonText')}</Button>;
 }
 
 export default ShareButton;

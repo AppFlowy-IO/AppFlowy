@@ -24,7 +24,6 @@
 }
 
 .MuiButtonBase-root.MuiIconButton-root.MuiIconButton-sizeMedium {
-    color: var(--icon-primary);
     border-radius: 4px;
 }
 
@@ -33,7 +32,6 @@
 }
 
 .MuiButtonBase-root.MuiIconButton-root {
-    color: var(--icon-primary);
     border-radius: 4px;
     padding: 2px;
 }
@@ -58,4 +56,8 @@
     margin-left: 0.5em;
     margin-right: 0.5em;
     padding: 0.5em 1em;
+}
+
+.MuiDivider-root.MuiDivider-fullWidth {
+    border-color: var(--line-divider);
 }

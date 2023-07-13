@@ -77,6 +77,22 @@ export class WorkspaceObserver {
     await this.listener.start();
   };
 
+  subscribeTrash = async (callbacks: { didUpdateTrash: (payload: Uint8Array) => void }) => {
+    this.listener = new WorkspaceNotificationObserver({
+      parserHandler: (notification, result) => {
+        switch (notification) {
+          case FolderNotification.DidUpdateTrash:
+            if (!result.ok) break;
+            callbacks.didUpdateTrash(result.val);
+            break;
+          default:
+            break;
+        }
+      },
+    });
+    await this.listener.start();
+  };
+
   unsubscribe = async () => {
     await this.listener?.stop();
   };

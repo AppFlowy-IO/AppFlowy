@@ -37,8 +37,9 @@ export function useLoadChildPages(pageId: string) {
   );
 
   const onPageCollapsed = useCallback(async () => {
+    dispatch(pagesActions.removeChildPages(pageId));
     await controller.unsubscribe();
-  }, [controller]);
+  }, [dispatch, pageId, controller]);
 
   const onPageExpanded = useCallback(async () => {
     const childPages = await controller.getChildPages();
@@ -122,6 +123,12 @@ export function usePageActions(pageId: string) {
     },
     [controller, pageId]
   );
+
+  useEffect(() => {
+    return () => {
+      controller.dispose();
+    };
+  }, [controller]);
 
   return {
     onAddPage,

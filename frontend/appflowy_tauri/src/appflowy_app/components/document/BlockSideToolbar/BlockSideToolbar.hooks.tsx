@@ -6,9 +6,9 @@ import { getBlock } from '$app/components/document/_shared/SubscribeNode.hooks';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 const headingBlockTopOffset: Record<number, number> = {
-  1: 7,
-  2: 5,
-  3: 4,
+  1: 6,
+  2: 4,
+  3: 3,
 };
 
 export function useBlockSideToolbar({ container }: { container: HTMLDivElement }) {
@@ -32,7 +32,7 @@ export function useBlockSideToolbar({ container }: { container: HTMLDivElement }
         });
         return;
       } else {
-        let top = 2;
+        let top = 0;
 
         if (node.type === BlockType.HeadingBlock) {
           const nodeData = node.data as HeadingBlockData;

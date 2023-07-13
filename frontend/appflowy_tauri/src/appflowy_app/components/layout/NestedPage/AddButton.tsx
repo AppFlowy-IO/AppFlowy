@@ -17,7 +17,7 @@ function AddButton({ isVisible, onAddPage }: { isVisible: boolean; onAddPage: (l
         label: t('document.menuName'),
         icon: (
           <div className={'h-5 w-5'}>
-            <DocumentSvg></DocumentSvg>
+            <DocumentSvg />
           </div>
         ),
         onClick: () => {
@@ -29,7 +29,7 @@ function AddButton({ isVisible, onAddPage }: { isVisible: boolean; onAddPage: (l
         label: t('grid.menuName'),
         icon: (
           <div className={'h-5 w-5'}>
-            <GridSvg></GridSvg>
+            <GridSvg />
           </div>
         ),
         onClick: () => {
@@ -41,7 +41,7 @@ function AddButton({ isVisible, onAddPage }: { isVisible: boolean; onAddPage: (l
         label: t('board.menuName'),
         icon: (
           <div className={'h-5 w-5'}>
-            <BoardSvg></BoardSvg>
+            <BoardSvg />
           </div>
         ),
         onClick: () => {
@@ -57,7 +57,7 @@ function AddButton({ isVisible, onAddPage }: { isVisible: boolean; onAddPage: (l
       popoverOrigin={{
         anchorOrigin: {
           vertical: 'bottom',
-          horizontal: 'right',
+          horizontal: 'left',
         },
         transformOrigin: {
           vertical: 'top',

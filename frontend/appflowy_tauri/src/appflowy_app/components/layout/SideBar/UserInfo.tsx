@@ -16,7 +16,7 @@ function UserInfo() {
           e.stopPropagation();
           setShowUserSetting(!showUserSetting);
         }}
-        className={'flex cursor-pointer items-center px-6 py-5 text-text-title'}
+        className={'flex cursor-pointer items-center px-6 text-text-title'}
       >
         <Avatar
           sx={{

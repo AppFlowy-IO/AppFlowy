@@ -6,7 +6,6 @@ import {
   FolderEventOpenWorkspace,
   FolderEventDeleteWorkspace,
   WorkspaceIdPB,
-  CreateViewPayloadPB,
   FolderEventReadWorkspaceViews,
 } from '@/services/backend/events/flowy-folder2';
 

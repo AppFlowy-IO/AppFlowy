@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import SideBar from '$app/components/layout/SideBar';
 import TopBar from '$app/components/layout/TopBar';
 import { useAppSelector } from '$app/stores/store';
@@ -7,6 +7,18 @@ import { FooterPanel } from '$app/components/layout/FooterPanel';
 function Layout({ children }: { children: ReactNode }) {
   const { isCollapsed, width } = useAppSelector((state) => state.sidebar);
 
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Backspace' && e.target instanceof HTMLBodyElement) {
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, []);
   return (
     <div className='flex h-screen w-[100%] text-sm text-text-title'>
       <SideBar />
