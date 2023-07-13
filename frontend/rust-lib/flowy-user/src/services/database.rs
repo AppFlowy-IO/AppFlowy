@@ -13,9 +13,7 @@ use flowy_sqlite::{
   DBConnection, Database, ExpressionMethods,
 };
 
-use crate::entities::{
-  AuthTypePB, SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile,
-};
+use crate::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 use crate::services::AuthType;
 
 pub struct UserDB {

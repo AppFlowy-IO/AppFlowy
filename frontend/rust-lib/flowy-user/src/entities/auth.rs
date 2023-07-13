@@ -128,7 +128,7 @@ pub struct ThirdPartyAuthPB {
   pub auth_type: AuthTypePB,
 }
 
-#[derive(ProtoBuf_Enum, Debug, Clone)]
+#[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
 pub enum AuthTypePB {
   Local = 0,
   SelfHosted = 1,

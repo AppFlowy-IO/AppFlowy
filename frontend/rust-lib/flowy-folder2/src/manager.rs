@@ -212,19 +212,25 @@ impl FolderManager {
   pub async fn initialize_when_sign_up(
     &self,
     user_id: i64,
-    token: &str,
+    _token: &str,
     is_new: bool,
+    folder_data: Option<FolderData>,
     workspace_id: &str,
   ) -> FlowyResult<()> {
     // Create the default workspace if the user is new
     tracing::info!("initialize_when_sign_up: is_new: {}", is_new);
     if is_new {
-      let (folder_data, workspace_pb) = DefaultFolderBuilder::build(
-        self.user.user_id()?,
-        workspace_id.to_string(),
-        &self.operation_handlers,
-      )
-      .await;
+      let folder_data = match folder_data {
+        None => {
+          DefaultFolderBuilder::build(
+            self.user.user_id()?,
+            workspace_id.to_string(),
+            &self.operation_handlers,
+          )
+          .await
+        },
+        Some(folder_data) => folder_data,
+      };
 
       self
         .initialize(
@@ -233,11 +239,11 @@ impl FolderManager {
           FolderInitializeData::Data(folder_data),
         )
         .await?;
-      send_notification(token, FolderNotification::DidCreateWorkspace)
-        .payload(RepeatedWorkspacePB {
-          items: vec![workspace_pb],
-        })
-        .send();
+      // send_notification(token, FolderNotification::DidCreateWorkspace)
+      //   .payload(RepeatedWorkspacePB {
+      //     items: vec![workspace_pb],
+      //   })
+      //   .send();
     } else {
       // The folder data is loaded through the [FolderCloudService]. If the cloud service in use is
       // [LocalServerFolderCloudServiceImpl], the folder data will be None because the Folder will load

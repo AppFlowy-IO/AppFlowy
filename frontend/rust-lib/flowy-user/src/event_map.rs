@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use appflowy_integrate::RocksCollabDB;
+use collab_folder::core::FolderData;
 use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
@@ -34,32 +34,26 @@ pub fn init(user_session: Arc<UserSession>) -> AFPlugin {
     .event(UserEvent::ThirdPartyAuth, third_party_auth_handler)
 }
 
-pub(crate) struct DefaultUserStatusCallback;
-impl UserStatusCallback for DefaultUserStatusCallback {
-  fn auth_type_did_changed(&self, _auth_type: AuthType) {}
-
-  fn did_init(&self, _user_id: i64, _workspace_id: &str) -> Fut<FlowyResult<()>> {
-    to_fut(async { Ok(()) })
-  }
-
-  fn did_sign_in(&self, _user_id: i64, _workspace_id: &str) -> Fut<FlowyResult<()>> {
-    to_fut(async { Ok(()) })
-  }
-
-  fn did_sign_up(&self, _is_new: bool, _user_profile: &UserProfile) -> Fut<FlowyResult<()>> {
-    to_fut(async { Ok(()) })
-  }
-
-  fn did_expired(&self, _token: &str, _user_id: i64) -> Fut<FlowyResult<()>> {
-    to_fut(async { Ok(()) })
-  }
+pub struct SignUpContext {
+  /// Indicate whether the user is new or not.
+  pub is_new: bool,
+  /// If the user is sign in as guest, and the is_new is true, then the folder data will be not
+  /// None.
+  pub local_folder: Option<FolderData>,
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {
+  /// When the [AuthType] changed, this method will be called. Currently, the auth type
+  /// will be changed when the user sign in or sign up.
   fn auth_type_did_changed(&self, auth_type: AuthType);
+  /// This will be called after the application launches if the user is already signed in.
+  /// If the user is not signed in, this method will not be called
   fn did_init(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>>;
+  /// Will be called after the user signed in.
   fn did_sign_in(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>>;
-  fn did_sign_up(&self, is_new: bool, user_profile: &UserProfile) -> Fut<FlowyResult<()>>;
+  /// Will be called after the user signed up.
+  fn did_sign_up(&self, context: SignUpContext, user_profile: &UserProfile)
+    -> Fut<FlowyResult<()>>;
   fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
 }
 
@@ -152,6 +146,32 @@ pub trait UserAuthService: Send + Sync {
   ) -> FutureResult<Option<UserProfile>, FlowyError>;
 
   fn check_user(&self, credential: UserCredentials) -> FutureResult<(), FlowyError>;
+}
+
+/// Acts as a placeholder [UserStatusCallback] for the user session, but does not perform any function
+pub(crate) struct DefaultUserStatusCallback;
+impl UserStatusCallback for DefaultUserStatusCallback {
+  fn auth_type_did_changed(&self, _auth_type: AuthType) {}
+
+  fn did_init(&self, _user_id: i64, _workspace_id: &str) -> Fut<FlowyResult<()>> {
+    to_fut(async { Ok(()) })
+  }
+
+  fn did_sign_in(&self, _user_id: i64, _workspace_id: &str) -> Fut<FlowyResult<()>> {
+    to_fut(async { Ok(()) })
+  }
+
+  fn did_sign_up(
+    &self,
+    _context: SignUpContext,
+    _user_profile: &UserProfile,
+  ) -> Fut<FlowyResult<()>> {
+    to_fut(async { Ok(()) })
+  }
+
+  fn did_expired(&self, _token: &str, _user_id: i64) -> Fut<FlowyResult<()>> {
+    to_fut(async { Ok(()) })
+  }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]

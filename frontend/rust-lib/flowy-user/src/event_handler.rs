@@ -1,7 +1,7 @@
 use std::convert::TryFrom;
 use std::{convert::TryInto, sync::Arc};
 
-use flowy_error::{ErrorCode, FlowyError};
+use flowy_error::FlowyError;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::KV;
 use lib_dispatch::prelude::*;
@@ -9,7 +9,7 @@ use lib_infra::box_any::BoxAny;
 
 use crate::entities::*;
 use crate::entities::{SignInParams, SignUpParams, UpdateUserProfileParams};
-use crate::services::{get_supabase_config, uuid_from_map, AuthType, UserSession};
+use crate::services::{get_supabase_config, AuthType, UserSession};
 
 #[tracing::instrument(level = "debug", name = "sign_in", skip(data, session), fields(email = %data.email), err)]
 pub async fn sign_in(
@@ -45,7 +45,7 @@ pub async fn sign_up(
   let auth_type = params.auth_type.clone();
   session.update_auth_type(&auth_type).await;
 
-  let user_profile = session.sign_up(auth_type, BoxAny::new(params)).await?.1;
+  let user_profile = session.sign_up(auth_type, BoxAny::new(params)).await?;
   data_result_ok(user_profile.into())
 }
 
@@ -140,29 +140,7 @@ pub async fn third_party_auth_handler(
   let params = data.into_inner();
   let auth_type: AuthType = params.auth_type.into();
   session.update_auth_type(&auth_type).await;
-
-  let old_user_profile = session.get_user_profile().await;
-  let (is_new, user_profile) = session.sign_up(auth_type, BoxAny::new(params.map)).await?;
-
-  // Only migrate the data if the user is login in as a guest and sign up as a new user
-  if is_new {
-    if let Ok(old_user_profile) = old_user_profile {
-      if old_user_profile.auth_type == AuthType::Local {
-        tracing::info!(
-          "Migrate old user data from {:?} to {:?}",
-          old_user_profile.id,
-          user_profile.id
-        );
-        if let Err(e) = session
-          .migrate_old_user_data(old_user_profile.id, user_profile.id)
-          .await
-        {
-          tracing::error!("{:?}", e);
-        }
-      }
-    }
-  }
-
+  let user_profile = session.sign_up(auth_type, BoxAny::new(params.map)).await?;
   data_result_ok(user_profile.into())
 }
 

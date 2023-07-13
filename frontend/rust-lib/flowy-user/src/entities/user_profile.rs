@@ -18,7 +18,7 @@ pub struct UserSettingPB {
   pub(crate) user_folder: String,
 }
 
-#[derive(ProtoBuf, Default, Debug, Clone)]
+#[derive(ProtoBuf, Default, Eq, PartialEq, Debug, Clone)]
 pub struct UserProfilePB {
   #[pb(index = 1)]
   pub id: i64,

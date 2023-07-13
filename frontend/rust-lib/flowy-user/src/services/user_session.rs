@@ -3,6 +3,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use appflowy_integrate::RocksCollabDB;
+use collab_folder::core::FolderData;
 use serde::{Deserialize, Serialize};
 use serde_repr::*;
 use tokio::sync::RwLock;
@@ -24,7 +25,8 @@ use crate::entities::{
 };
 use crate::entities::{UserProfilePB, UserSettingPB};
 use crate::event_map::{
-  DefaultUserStatusCallback, UserCloudServiceProvider, UserCredentials, UserStatusCallback,
+  DefaultUserStatusCallback, SignUpContext, UserCloudServiceProvider, UserCredentials,
+  UserStatusCallback,
 };
 use crate::services::user_data::UserDataMigration;
 use crate::{
@@ -110,11 +112,24 @@ impl UserSession {
     self.database.get_collab_db(user_id)
   }
 
-  pub async fn migrate_old_user_data(&self, old_uid: i64, new_uid: i64) -> Result<(), FlowyError> {
+  pub async fn migrate_old_user_data(
+    &self,
+    old_uid: i64,
+    old_workspace_id: &str,
+    new_uid: i64,
+    new_workspace_id: &str,
+  ) -> Result<Option<FolderData>, FlowyError> {
     let old_collab_db = self.database.get_collab_db(old_uid)?;
     let new_collab_db = self.database.get_collab_db(new_uid)?;
-    UserDataMigration::migration(old_uid, &old_collab_db, new_uid, &new_collab_db)?;
-    Ok(())
+    let folder_data = UserDataMigration::migration(
+      old_uid,
+      &old_collab_db,
+      old_workspace_id,
+      new_uid,
+      &new_collab_db,
+      new_workspace_id,
+    )?;
+    Ok(folder_data)
   }
 
   pub fn clear_old_user(&self, old_uid: i64) {
@@ -167,11 +182,14 @@ impl UserSession {
     &self,
     auth_type: AuthType,
     params: BoxAny,
-  ) -> Result<(bool, UserProfile), FlowyError> {
+  ) -> Result<UserProfile, FlowyError> {
     let old_user_profile = self.get_user_profile().await;
     let auth_service = self.cloud_services.get_auth_service()?;
     let response: SignUpResponse = auth_service.sign_up(params).await?;
-    let mut is_new = response.is_new;
+    let mut sign_up_context = SignUpContext {
+      is_new: response.is_new,
+      local_folder: None,
+    };
     let session = Session {
       user_id: response.user_id,
       workspace_id: response.workspace_id.clone(),
@@ -180,7 +198,8 @@ impl UserSession {
     let user_table = self.save_user((response, auth_type).into()).await?;
     let new_user_profile: UserProfile = user_table.into();
 
-    if is_new {
+    // Only migrate the data if the user is login in as a guest and sign up as a new user
+    if sign_up_context.is_new {
       if let Ok(old_user_profile) = old_user_profile {
         if old_user_profile.auth_type == AuthType::Local {
           tracing::info!(
@@ -189,10 +208,15 @@ impl UserSession {
             new_user_profile.id
           );
           match self
-            .migrate_old_user_data(old_user_profile.id, new_user_profile.id)
+            .migrate_old_user_data(
+              old_user_profile.id,
+              &old_user_profile.workspace_id,
+              new_user_profile.id,
+              &new_user_profile.workspace_id,
+            )
             .await
           {
-            Ok(_) => is_new = false,
+            Ok(folder_data) => sign_up_context.local_folder = folder_data,
             Err(e) => tracing::error!("{:?}", e),
           }
         }
@@ -203,9 +227,9 @@ impl UserSession {
       .user_status_callback
       .read()
       .await
-      .did_sign_up(is_new, &new_user_profile)
+      .did_sign_up(sign_up_context, &new_user_profile)
       .await;
-    Ok((is_new, new_user_profile))
+    Ok(new_user_profile)
   }
 
   #[tracing::instrument(level = "debug", skip(self))]

@@ -11,7 +11,7 @@ use flowy_user::event_map::UserEvent::*;
 use crate::util::*;
 
 #[tokio::test]
-async fn sign_up_test() {
+async fn third_party_sign_up_test() {
   if get_supabase_config().is_some() {
     let test = FlowyCoreTest::new();
     let mut map = HashMap::new();
@@ -28,6 +28,16 @@ async fn sign_up_test() {
       .await
       .parse::<UserProfilePB>();
     dbg!(&response);
+  }
+}
+
+#[tokio::test]
+async fn sign_up_as_guest_and_then_update_to_cloud_user_test() {
+  if get_supabase_config().is_some() {
+    let test = FlowyCoreTest::new_with_guest_user().await;
+
+    let uuid = uuid::Uuid::new_v4().to_string();
+    test.supabase_party_sign_up(&uuid).await;
   }
 }
 

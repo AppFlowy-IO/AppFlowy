@@ -19,7 +19,7 @@ pub struct OpenDocumentData {
 
 impl DocumentEventTest {
   pub async fn new() -> Self {
-    let sdk = FlowyCoreTest::new_with_user().await;
+    let sdk = FlowyCoreTest::new_with_guest_user().await;
     Self { inner: sdk }
   }
 

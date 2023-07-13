@@ -1981,6 +1981,7 @@ dependencies = [
  "appflowy-integrate",
  "bytes",
  "collab",
+ "collab-folder",
  "diesel",
  "diesel_derives",
  "fake",

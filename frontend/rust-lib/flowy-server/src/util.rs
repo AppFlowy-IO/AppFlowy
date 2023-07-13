@@ -1,11 +1,4 @@
-use std::collections::HashMap;
-use std::str::FromStr;
-
 use serde::{Deserialize, Deserializer};
-use uuid::Uuid;
-
-use flowy_error::{internal_error, ErrorCode, FlowyError};
-use lib_infra::box_any::BoxAny;
 
 /// Handles the case where the value is null. If the value is null, return the default value of the
 /// type. Otherwise, deserialize the value.

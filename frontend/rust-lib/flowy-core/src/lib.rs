@@ -20,7 +20,7 @@ use flowy_folder2::manager::{FolderInitializeData, FolderManager};
 use flowy_sqlite::kv::KV;
 use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::entities::UserProfile;
-use flowy_user::event_map::{UserCloudServiceProvider, UserStatusCallback};
+use flowy_user::event_map::{SignUpContext, UserCloudServiceProvider, UserStatusCallback};
 use flowy_user::services::{get_supabase_config, AuthType, UserSession, UserSessionConfig};
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::tokio_default_runtime;
@@ -293,7 +293,11 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     })
   }
 
-  fn did_sign_up(&self, is_new: bool, user_profile: &UserProfile) -> Fut<FlowyResult<()>> {
+  fn did_sign_up(
+    &self,
+    context: SignUpContext,
+    user_profile: &UserProfile,
+  ) -> Fut<FlowyResult<()>> {
     let user_profile = user_profile.clone();
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
@@ -302,7 +306,8 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .initialize_when_sign_up(
           user_profile.id,
           &user_profile.token,
-          is_new,
+          context.is_new,
+          context.local_folder,
           &user_profile.workspace_id,
         )
         .await?;

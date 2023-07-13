@@ -57,7 +57,7 @@ async fn sign_up_with_long_password() {
 async fn sign_in_success() {
   let test = FlowyCoreTest::new();
   let _ = EventBuilder::new(test.clone()).event(SignOut).sync_send();
-  let sign_up_context = test.sign_up().await;
+  let sign_up_context = test.sign_up_as_guest().await;
 
   let request = SignInPayloadPB {
     email: sign_up_context.user_profile.email.clone(),
