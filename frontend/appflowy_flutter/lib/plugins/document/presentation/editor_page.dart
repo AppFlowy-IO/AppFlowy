@@ -310,9 +310,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
       builder.showActions = (_) => true;
       builder.actionBuilder = (context, state) {
+        final top = builder.configuration.padding(context.node).top;
         final padding = context.node.type == HeadingBlockKeys.type
-            ? const EdgeInsets.only(top: 8.0)
-            : const EdgeInsets.all(0);
+            ? EdgeInsets.only(top: top + 8.0)
+            : EdgeInsets.only(top: top);
         return Padding(
           padding: padding,
           child: BlockActionList(

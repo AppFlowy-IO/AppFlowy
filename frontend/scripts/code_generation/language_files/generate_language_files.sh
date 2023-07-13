@@ -12,7 +12,7 @@ cd ../../../appflowy_flutter
 
 # copy the resources/translations folder to
 #   the appflowy_flutter/assets/translation directory
-cp -r ../resources/translations assets/translations
+cp -rf ../resources/translations/ assets/translations/
 
 flutter packages pub get
 

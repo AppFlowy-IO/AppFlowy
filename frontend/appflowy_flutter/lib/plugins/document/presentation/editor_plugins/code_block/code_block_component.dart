@@ -102,6 +102,11 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
   final forwardKey = GlobalKey(debugLabel: 'flowy_rich_text');
 
   @override
+  GlobalKey<State<StatefulWidget>> blockComponentKey = GlobalKey(
+    debugLabel: CodeBlockKeys.type,
+  );
+
+  @override
   BlockComponentConfiguration get configuration => widget.configuration;
 
   @override
@@ -185,6 +190,12 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
           _buildCodeBlock(context),
         ],
       ),
+    );
+
+    child = Padding(
+      key: blockComponentKey,
+      padding: padding,
+      child: child,
     );
 
     if (widget.actionBuilder != null) {

@@ -9,7 +9,7 @@ final ToolbarItem inlineMathEquationItem = ToolbarItem(
   id: 'editor.inline_math_equation',
   group: 2,
   isActive: onlyShowInSingleSelectionAndTextType,
-  builder: (context, editorState) {
+  builder: (context, editorState, highlightColor) {
     final selection = editorState.selection!;
     final nodes = editorState.getNodesInSelection(selection);
     final isHighlight = nodes.allSatisfyInSelection(selection, (delta) {
@@ -17,13 +17,14 @@ final ToolbarItem inlineMathEquationItem = ToolbarItem(
         (attributes) => attributes[InlineMathEquationKeys.formula] != null,
       );
     });
-    return IconItemWidget(
+    return SVGIconItemWidget(
       iconBuilder: (_) => svgWidget(
         'editor/math',
         size: const Size.square(16),
-        color: isHighlight ? Colors.lightBlue : Colors.white,
+        color: isHighlight ? highlightColor : Colors.white,
       ),
       isHighlight: isHighlight,
+      highlightColor: highlightColor,
       tooltip: LocaleKeys.document_plugins_createInlineMathEquation.tr(),
       onPressed: () async {
         final selection = editorState.selection;
