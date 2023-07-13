@@ -10,7 +10,9 @@
   "and": "and",
   "blockActions": {
     "addBelowTooltip": "Click to add below",
-    "addAboveTooltip": "Alt+click to add above"
+    "addAboveCmd": "Alt+click",
+    "addAboveMacCmd": "Option+click",
+    "addAboveTooltip": " to add above"
   },
   "signUp": {
     "buttonText": "Sign Up",
