@@ -163,11 +163,13 @@ where
   ) -> Result<(), Error> {
     if let Some(client) = self.get_client().await {
       let value_size = update.len() as i32;
+      let md5 = md5(&update);
       let (sql, params) = InsertSqlBuilder::new("af_collab")
         .value("oid", object.id.clone())
         .value("name", object.name.clone())
         .value("value", update)
         .value("uid", object.uid)
+        .value("md5", md5)
         .value("value_size", value_size)
         .build();
 
@@ -249,10 +251,10 @@ where
       insert_builder
         .value("value", new_update)
         .value("value_size", value_size)
-          // Override the key with the existing key in case of concurrent init sync if
-          // the mergeable record is not None. Otherwise, insert a new record.
-        .value("md5", md5) .value(AF_COLLAB_KEY_COLUMN, last_row_key)
-          .overriding_system_value().build()
+        .value("md5", md5)
+        .value(AF_COLLAB_KEY_COLUMN, last_row_key)
+        .overriding_system_value()
+        .build()
     } else {
       let value_size = init_update.len() as i32;
       let md5 = md5(&init_update);

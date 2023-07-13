@@ -31,7 +31,6 @@ use crate::event_map::{
 use crate::services::user_data::UserDataMigration;
 use crate::{
   errors::FlowyError,
-  event_map::UserAuthService,
   notification::*,
   services::database::{UserDB, UserTable, UserTableChangeset},
 };
