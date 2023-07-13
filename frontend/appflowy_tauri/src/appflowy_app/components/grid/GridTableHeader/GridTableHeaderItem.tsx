@@ -94,7 +94,7 @@ export const GridTableHeaderItem = ({
             <span className={'overflow-hidden text-ellipsis whitespace-nowrap text-shade-3'}>{field.title}</span>
           </div>
           <div className={'flex items-center gap-1'}>
-            {filtersStore.findIndex((filter) => filter?.fieldId === field.fieldId) !== -1 && (
+            {filtersStore.findIndex((filter) => filter.fieldId === field.fieldId) !== -1 && (
               <button onClick={onShowFilterClick} className={'rounded p-1 hover:bg-main-secondary'}>
                 <i className={'block h-[16px] w-[16px]'}>
                   <FilterSvg></FilterSvg>

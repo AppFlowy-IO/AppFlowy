@@ -10,12 +10,14 @@ import { useState } from 'react';
 import { RowInfo } from '$app/stores/effects/database/row/row_cache';
 import { ViewLayoutPB } from '@/services/backend';
 import { DatabaseFilterPopup } from '$app/components/_shared/DatabaseFilter/DatabaseFilterPopup';
+import { DatabaseSortPopup } from '$app/components/_shared/DatabaseSort/DatabaseSortPopup';
 
 export const Grid = ({ viewId }: { viewId: string }) => {
   const { controller, rows, groups } = useDatabase(viewId, ViewLayoutPB.Grid);
   const [showGridRow, setShowGridRow] = useState(false);
   const [boardRowInfo, setBoardRowInfo] = useState<RowInfo>();
   const [showFilterPopup, setShowFilterPopup] = useState(false);
+  const [showSortPopup, setShowSortPopup] = useState(false);
 
   const onOpenRow = (rowInfo: RowInfo) => {
     setBoardRowInfo(rowInfo);
@@ -27,7 +29,7 @@ export const Grid = ({ viewId }: { viewId: string }) => {
   };
 
   const onShowSortClick = () => {
-    console.log('onShowSortClick');
+    setShowSortPopup(true);
   };
 
   return (
@@ -64,13 +66,8 @@ export const Grid = ({ viewId }: { viewId: string }) => {
           )}
         </>
       )}
-      {showFilterPopup && (
-        <DatabaseFilterPopup
-          onOutsideClick={() => {
-            setShowFilterPopup(false);
-          }}
-        />
-      )}
+      {showFilterPopup && <DatabaseFilterPopup onOutsideClick={() => setShowFilterPopup(false)} />}
+      {showSortPopup && <DatabaseSortPopup onOutsideClick={() => setShowSortPopup(false)} />}
     </>
   );
 };

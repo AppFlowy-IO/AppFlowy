@@ -73,12 +73,18 @@ export interface IDatabaseFilter {
   value: SelectOptionPB[] | string | boolean;
 }
 
+export interface IDatabaseSort {
+  fieldId: string;
+  sort: 'asc' | 'desc';
+}
+
 export interface IDatabase {
   title: string;
   fields: DatabaseFieldMap;
   rows: IDatabaseRow[];
   columns: IDatabaseColumn[];
-  filters: (IDatabaseFilter | null)[];
+  filters: IDatabaseFilter[];
+  sort: IDatabaseSort[];
 }
 
 const initialState: IDatabase = {
@@ -87,6 +93,7 @@ const initialState: IDatabase = {
   fields: {},
   rows: [],
   filters: [],
+  sort: [],
 };
 
 export const databaseSlice = createSlice({
@@ -139,7 +146,7 @@ export const databaseSlice = createSlice({
 
     upsertFilter: (state, action: PayloadAction<{ filter: IDatabaseFilter }>) => {
       const { filter } = action.payload;
-      const index = state.filters.findIndex((f) => f?.fieldId === filter.fieldId);
+      const index = state.filters.findIndex((f) => f.fieldId === filter.fieldId);
 
       if (index >= 0) {
         state.filters[index] = filter;
@@ -150,7 +157,25 @@ export const databaseSlice = createSlice({
 
     removeFilter: (state, action: PayloadAction<{ filter: IDatabaseFilter }>) => {
       const { filter } = action.payload;
-      state.filters = state.filters.filter((f) => f?.fieldId !== filter.fieldId);
+
+      state.filters = state.filters.filter((f) => f.fieldId !== filter.fieldId);
+    },
+
+    upsertSort: (state, action: PayloadAction<{ sort: IDatabaseSort }>) => {
+      const { sort } = action.payload;
+      const index = state.sort.findIndex((s) => s.fieldId === sort.fieldId);
+
+      if (index >= 0) {
+        state.sort[index] = sort;
+      } else {
+        state.sort.push(sort);
+      }
+    },
+
+    removeSort: (state, action: PayloadAction<{ sort: IDatabaseSort }>) => {
+      const { sort } = action.payload;
+
+      state.sort = state.sort.filter((s) => s.fieldId !== sort.fieldId);
     },
   },
 });
