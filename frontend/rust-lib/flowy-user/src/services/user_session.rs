@@ -183,7 +183,7 @@ impl UserSession {
   ) -> Result<UserProfile, FlowyError> {
     let old_user_profile = {
       if let Ok(old_session) = self.get_session() {
-        self.get_user_profile(old_session.user_id).await.ok()
+        self.get_user_profile(old_session.user_id, false).await.ok()
       } else {
         None
       }
@@ -269,7 +269,7 @@ impl UserSession {
     );
 
     let session = self.get_session()?;
-    let user_profile = self.get_user_profile(session.user_id).await?;
+    let user_profile = self.get_user_profile(session.user_id, false).await?;
     let profile_pb: UserProfilePB = user_profile.into();
     send_notification(
       &session.user_id.to_string(),
@@ -300,11 +300,39 @@ impl UserSession {
     auth_service.check_user(credential).await
   }
 
-  pub async fn get_user_profile(&self, uid: i64) -> Result<UserProfile, FlowyError> {
+  /// Get the user profile from the database
+  /// If the refresh is true, it will try to get the user profile from the server
+  pub async fn get_user_profile(&self, uid: i64, refresh: bool) -> Result<UserProfile, FlowyError> {
     let user_id = uid.to_string();
     let user = dsl::user_table
       .filter(user_table::id.eq(&user_id))
       .first::<UserTable>(&*(self.db_connection(uid)?))?;
+
+    if refresh {
+      let weak_auth_service = Arc::downgrade(&self.cloud_services.get_auth_service()?);
+      let weak_pool = Arc::downgrade(&self.database.get_pool(uid)?);
+      tokio::spawn(async move {
+        if let (Some(auth_service), Some(pool)) = (weak_auth_service.upgrade(), weak_pool.upgrade())
+        {
+          if let Ok(Some(user_profile)) = auth_service
+            .get_user_profile(UserCredentials::from_uid(uid))
+            .await
+          {
+            let changeset = UserTableChangeset::from_user_profile(user_profile.clone());
+            if let Ok(conn) = pool.get() {
+              let filter = dsl::user_table.filter(dsl::id.eq(changeset.id.clone()));
+              let _ = diesel::update(filter).set(changeset).execute(&*conn);
+
+              // Send notification to the client
+              let user_profile_pb: UserProfilePB = user_profile.into();
+              send_notification(&uid.to_string(), UserNotification::DidUpdateUserProfile)
+                .payload(user_profile_pb)
+                .send();
+            }
+          }
+        }
+      });
+    }
 
     Ok(user.into())
   }
@@ -418,17 +446,6 @@ impl UserSession {
     // }
     vec![]
   }
-}
-
-pub async fn update_user(
-  _cloud_service: Arc<dyn UserAuthService>,
-  pool: Arc<ConnectionPool>,
-  params: UpdateUserProfileParams,
-) -> Result<(), FlowyError> {
-  let changeset = UserTableChangeset::new(params);
-  let conn = pool.get()?;
-  diesel_update_table!(user_table, changeset, &*conn);
-  Ok(())
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]

@@ -89,7 +89,7 @@ async fn sign_up_as_guest_and_then_update_to_existing_cloud_user_test() {
     // when sign out, the user profile will be not found
     let error = test
       .user_session
-      .get_user_profile(user_profile.id)
+      .get_user_profile(user_profile.id, false)
       .await
       .err()
       .unwrap();

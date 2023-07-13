@@ -219,4 +219,15 @@ impl UserTableChangeset {
       openai_key: params.openai_key,
     }
   }
+
+  pub fn from_user_profile(user_profile: UserProfile) -> Self {
+    UserTableChangeset {
+      id: user_profile.id.to_string(),
+      workspace: None,
+      name: Some(user_profile.name),
+      email: Some(user_profile.email),
+      icon_url: Some(user_profile.icon_url),
+      openai_key: Some(user_profile.openai_key),
+    }
+  }
 }
