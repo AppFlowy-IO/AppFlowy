@@ -12,7 +12,7 @@
 }
 
 [class$='-MuiButtonBase-root-MuiMenuItem-root'].MuiButtonBase-root:hover {
-    background-color: var(--fill-list-hover);
+    background-color: var(--fill-list-active);
 }
 
 .MuiPaper-root.MuiMenu-paper.MuiPopover-paper {
@@ -52,4 +52,10 @@
 
 .MuiInput-input[class$='-MuiSelect-select-MuiInputBase-input-MuiInput-input']:focus {
     background: transparent;
+}
+.MuiList-root .MuiMenuItem-root {
+    border-radius: 8px;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    padding: 0.5em 1em;
 }

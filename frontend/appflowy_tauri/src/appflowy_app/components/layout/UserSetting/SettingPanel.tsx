@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { MenuItem } from './Menu';
-import AppearanceSetting from '$app/components/layout/UserSetting/AppearanceSetting';
-import LanguageSetting from '$app/components/layout/UserSetting/LanguageSetting';
+import AppearanceSetting from './AppearanceSetting';
+import LanguageSetting from './LanguageSetting';
 
 import { UserSetting } from '$app/interfaces';
 

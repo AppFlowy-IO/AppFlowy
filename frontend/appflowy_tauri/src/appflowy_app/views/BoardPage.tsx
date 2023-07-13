@@ -7,14 +7,15 @@ export const BoardPage = () => {
   const params = useParams();
   const [viewId, setViewId] = useState('');
   const pagesStore = useAppSelector((state) => state.pages);
+  const page = useAppSelector((state) => (params.id ? state.pages.map[params.id] : undefined));
   const [title, setTitle] = useState('');
 
   useEffect(() => {
-    if (params?.id?.length) {
-      setViewId(params.id);
-      setTitle(pagesStore.find((page) => page.id === params.id)?.title || '');
+    if (page) {
+      setViewId(page.id);
+      setTitle(page.name);
     }
-  }, [params, pagesStore]);
+  }, [params, pagesStore, page]);
 
   return (
     <div className='flex h-full flex-col gap-8 px-8 pt-8'>
