@@ -233,10 +233,7 @@ class _DeleteFieldButton extends StatelessWidget {
             LocaleKeys.grid_field_delete.tr(),
             color: enable ? null : Theme.of(context).disabledColor,
           ),
-          leftIcon: svgWidget(
-            'grid/delete',
-            color: enable ? null : Theme.of(context).disabledColor,
-          ),
+          leftIcon: const FlowySvg(name: 'grid/delete'),
           onTap: () {
             if (enable) onDeleted?.call();
           },
@@ -267,7 +264,7 @@ class _HideFieldButton extends StatelessWidget {
           text: FlowyText.medium(
             LocaleKeys.grid_field_hide.tr(),
           ),
-          leftIcon: svgWidget('grid/hide'),
+          leftIcon: const FlowySvg(name: 'grid/hide'),
           onTap: () => onHidden?.call(),
           onHover: (_) => popoverMutex.close(),
         );
