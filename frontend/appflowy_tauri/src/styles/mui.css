@@ -12,7 +12,7 @@
 }
 
 [class$='-MuiButtonBase-root-MuiMenuItem-root'].MuiButtonBase-root:hover {
-    background-color: var(--fill-list-hover);
+    background-color: var(--fill-list-active);
 }
 
 .MuiPaper-root.MuiMenu-paper.MuiPopover-paper {
@@ -24,7 +24,6 @@
 }
 
 .MuiButtonBase-root.MuiIconButton-root.MuiIconButton-sizeMedium {
-    color: var(--icon-primary);
     border-radius: 4px;
 }
 
@@ -33,7 +32,6 @@
 }
 
 .MuiButtonBase-root.MuiIconButton-root {
-    color: var(--icon-primary);
     border-radius: 4px;
     padding: 2px;
 }
@@ -52,4 +50,14 @@
 
 .MuiInput-input[class$='-MuiSelect-select-MuiInputBase-input-MuiInput-input']:focus {
     background: transparent;
+}
+.MuiList-root .MuiMenuItem-root {
+    border-radius: 8px;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    padding: 0.5em 1em;
+}
+
+.MuiDivider-root.MuiDivider-fullWidth {
+    border-color: var(--line-divider);
 }

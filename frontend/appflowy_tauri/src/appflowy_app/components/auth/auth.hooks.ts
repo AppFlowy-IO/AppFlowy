@@ -46,7 +46,7 @@ export const useAuth = () => {
     if (authResult.ok) {
       const userProfile = authResult.val;
       // Get the workspace setting after user registered. The workspace setting
-      // contains the latest visiting view and the current workspace data.
+      // contains the latest visiting page and the current workspace data.
       const openWorkspaceResult = await _openWorkspace();
 
       if (openWorkspaceResult.ok) {

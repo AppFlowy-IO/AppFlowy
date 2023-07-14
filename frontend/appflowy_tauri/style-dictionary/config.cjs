@@ -46,7 +46,7 @@ StyleDictionary.extend({
         {
           format: 'css/variables',
           destination: 'light.variables.css',
-          selector: '[data-dark-mode=false]',
+          selector: '',
           options: {
             outputReferences: true
           }
