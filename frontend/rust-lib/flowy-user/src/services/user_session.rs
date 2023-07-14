@@ -200,13 +200,15 @@ impl UserSession {
     };
     let uid = session.user_id;
     self.set_session(Some(session))?;
-    let user_table = self.save_user(uid, (response, auth_type).into()).await?;
+    let user_table = self
+      .save_user(uid, (response, auth_type.clone()).into())
+      .await?;
     let new_user_profile: UserProfile = user_table.into();
 
     // Only migrate the data if the user is login in as a guest and sign up as a new user
     if sign_up_context.is_new {
       if let Some(old_user_profile) = old_user_profile {
-        if old_user_profile.auth_type == AuthType::Local {
+        if old_user_profile.auth_type == AuthType::Local && !auth_type.is_local() {
           tracing::info!(
             "Migrate old user data from {:?} to {:?}",
             old_user_profile.id,
@@ -495,6 +497,12 @@ pub enum AuthType {
   SelfHosted = 1,
   /// It uses Supabase as the backend.
   Supabase = 2,
+}
+
+impl AuthType {
+  pub fn is_local(&self) -> bool {
+    matches!(self, AuthType::Local)
+  }
 }
 
 impl Default for AuthType {

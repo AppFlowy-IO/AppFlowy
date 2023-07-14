@@ -186,7 +186,7 @@ impl FolderManager {
     Ok(collab)
   }
 
-  #[tracing::instrument(level = "info", skip(self, user_id), err)]
+  #[tracing::instrument(level = "debug", skip(self, user_id), err)]
   pub async fn initialize_when_sign_in(&self, user_id: i64, workspace_id: &str) -> FlowyResult<()> {
     let folder_updates = self
       .cloud_service
