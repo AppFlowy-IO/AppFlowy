@@ -95,7 +95,7 @@ async fn sign_up_as_guest_and_then_update_to_existing_cloud_user_test() {
       .unwrap();
     assert_eq!(error.code, ErrorCode::RecordNotFound.value());
 
-    let sign_up_context = test.sign_up_as_guest().await;
+    let _sign_up_context = test.sign_up_as_guest().await;
     // assert_eq!(
     //   test
     //     .user_session
