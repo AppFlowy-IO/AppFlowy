@@ -12,14 +12,18 @@ import 'package:appflowy/workspace/presentation/home/menu/app/header/import/impo
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:archive/archive_io.dart';
+import 'package:collection/collection.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/container.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:path/path.dart' as p;
+
+import '../../../../../../application/settings/application_data_storage.dart';
 
 typedef ImportCallback = void Function(
   ImportType type,
@@ -67,7 +71,7 @@ class ImportPanel extends StatelessWidget {
   final PopoverController popoverController = PopoverController();
   @override
   Widget build(BuildContext context) {
-    List<Widget> importCards = ImportType.values
+    final List<Widget> importCards = ImportType.values
         .where((element) => element.enableOnRelease)
         .map(
           (e) => Card(
@@ -128,7 +132,7 @@ class ImportPanel extends StatelessWidget {
           margin: EdgeInsets.zero,
           triggerActions: PopoverTriggerFlags.none,
           child: FlowyButton(
-            leftIcon: Icon(Icons.abc_outlined),
+            leftIcon: const Icon(Icons.abc_outlined),
             leftIconSize: const Size.square(20),
             text: const FlowyText.medium(
               'Import from Notion',
@@ -157,7 +161,9 @@ class ImportPanel extends StatelessWidget {
   }
 
   Widget _uploadFileToImportFromOverlay(
-      BuildContext context, ImportFromNotionType importFromNotionType) {
+    BuildContext context,
+    ImportFromNotionType importFromNotionType,
+  ) {
     return FlowyDialog(
       backgroundColor: Theme.of(context).colorScheme.surface,
       title: FlowyText.semibold(
@@ -191,7 +197,8 @@ class ImportPanel extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 onTap: () async {
-                  await _importFromNotion(parentViewId, importFromNotionType);
+                  await _importPageFromNotion(
+                      parentViewId, importFromNotionType,);
                   if (context.mounted) {
                     FlowyOverlay.pop(context);
                   }
@@ -203,52 +210,6 @@ class ImportPanel extends StatelessWidget {
       ),
     );
     return importCards;
-  }
-
-  Future<void> _importFromNotion(
-      String parentViewId, ImportFromNotionType importFromNotionType) async {
-    final result = await getIt<FilePickerService>().pickFiles(
-      type: FileType.custom,
-      allowMultiple: importFromNotionType.allowMultiSelect,
-      allowedExtensions: importFromNotionType.allowedExtensions,
-    );
-    if (result == null || result.files.isEmpty) {
-      return;
-    }
-    final File zipfile = File(result.files[0].path!);
-    final bytes = await zipfile.readAsBytes();
-    final unzipped = ZipDecoder().decodeBytes(bytes);
-    print(unzipped.files);
-    var markdownFile;
-    //this for loop help us in finding our main page markdownfile
-    for (final file in unzipped) {
-      if (file.isFile) {
-        final filename = p.basename(file.name);
-        if (filename.endsWith('.md') && !filename.contains("/")) {
-          markdownFile = file;
-          break;
-        }
-      }
-    }
-    //This for will help us store image assets of our page
-    List<ArchiveFile> images = [];
-    for (final file in unzipped) {
-      if (file.isFile) {
-        final filename = file.name;
-        if (filename.contains("/") &&
-            filename.endsWith('.png') &&
-            filename.split("/").length - 1 == 1) {
-          final assetName = filename.split("/").last;
-          final assetPath = filename.split("/").first;
-          final asset = await file.content as Uint8List;
-          
-          images.add(file);
-        }
-      }
-    }
-    if (markdownFile == null) {
-      return;
-    }
   }
 
   Future<void> _importFile(String parentViewId, ImportType importType) async {
@@ -267,7 +228,6 @@ class ImportPanel extends StatelessWidget {
         continue;
       }
       final data = await File(path).readAsString();
-      print(data);
       final name = p.basenameWithoutExtension(path);
 
       switch (importType) {
@@ -313,6 +273,138 @@ class ImportPanel extends StatelessWidget {
     }
 
     importCallback(importType, '', null);
+  }
+
+  Future<void> _importPageFromNotion(
+    String parentViewId,
+    ImportFromNotionType importFromNotionType,
+  ) async {
+    final result = await getIt<FilePickerService>().pickFiles(
+      type: FileType.custom,
+      allowMultiple: importFromNotionType.allowMultiSelect,
+      allowedExtensions: importFromNotionType.allowedExtensions,
+    );
+    if (result == null || result.files.isEmpty) {
+      return;
+    }
+
+    final File zipfile = File(result.files[0].path!);
+    final name = p.basenameWithoutExtension(zipfile.path);
+    final bytes = await zipfile.readAsBytes();
+    final unzipped = ZipDecoder().decodeBytes(bytes);
+    dynamic markdownFile;
+    //this for loop help us in finding our main page markdownfile
+    for (final file in unzipped) {
+      if (file.isFile) {
+        final filename = p.basename(file.name);
+        if (filename.endsWith('.md') && !filename.contains("/")) {
+          markdownFile = file;
+          break;
+        }
+      }
+    }
+    if (markdownFile == null) {
+      return;
+    }
+    //This for will help us store image assets of our page
+    final List<ArchiveFile> images = [];
+    for (final file in unzipped) {
+      if (file.isFile) {
+        final filename = file.name;
+        if (filename.contains("/") &&
+            filename.endsWith('.png') &&
+            filename.split("/").length - 1 == 1) {
+          images.add(file);
+        }
+      }
+    }
+
+    final String markdownContents =
+        utf8.decode(markdownFile.content as Uint8List);
+    final String processedMarkdownFile =
+        await processMarkdownFile(markdownContents, images);
+
+    final data = _documentDataFrom(
+      ImportType.markdownOrText,
+      processedMarkdownFile,
+    );
+    if (data != null) {
+      await ImportBackendService.importData(
+        bytes,
+        name,
+        parentViewId,
+        ImportTypePB.HistoryDocument,
+      );
+    }
+  }
+
+  Future<String> processMarkdownFile(
+    String markdownContents,
+    List<ArchiveFile> images,
+  ) async {
+    final lines = markdownContents.split("\n");
+    final newLines = <String>[];
+    final assetRegex = RegExp(r'^!\[.*\]\(.*\)$');
+    for (final line in lines) {
+      if (assetRegex.hasMatch(line.trim())) {
+        final imagePath = extractImagePath(
+          line,
+        );
+        if (imagePath != null) {
+          final localPath =
+              await saveFileLocally(images, Uri.decodeFull(imagePath));
+          if (localPath != null) {
+            newLines.add(line.replaceFirst(imagePath, localPath));
+          }
+        }
+      } else {
+        newLines.add(line);
+      }
+    }
+    return newLines.join("\n");
+  }
+
+  String? extractImagePath(String text) {
+    const startDelimiter = "![";
+    const endDelimiter = "](";
+    final startIndex = text.indexOf(startDelimiter);
+    final endIndex =
+        text.indexOf(endDelimiter, startIndex + startDelimiter.length);
+
+    if (startIndex != -1 && endIndex != -1) {
+      return text.substring(endIndex + endDelimiter.length, text.length - 1);
+    } else {
+      return null;
+    }
+  }
+
+  Future<String>? saveFileLocally(
+    List<ArchiveFile> images,
+    String assetName,
+  ) async {
+    final image = images.firstWhereOrNull(
+      (element) => element.name == assetName,
+    );
+    if (image == null) {
+      return '';
+    }
+    final path = await getIt<ApplicationDataStorage>().getPath();
+    final imagePath = p.join(
+      path,
+      'images',
+    );
+    final directory = Directory(imagePath);
+    if (!directory.existsSync()) {
+      await directory.create(recursive: true);
+    }
+    final copyToPath = p.join(
+      imagePath,
+      '${uuid()}${p.extension(assetName)}',
+    );
+    await File(copyToPath).writeAsBytes(
+      image.content as Uint8List,
+    );
+    return copyToPath;
   }
 }
 
