@@ -28,9 +28,7 @@ function ImageBlock({ node }: { node: NestedBlock<BlockType.ImageBlock> }) {
     <>
       <div
         ref={anchorElRef}
-        className={
-          'my-1 flex min-h-[59px] cursor-pointer flex-col justify-center overflow-hidden hover:bg-main-secondary'
-        }
+        className={'my-1 flex min-h-[59px] cursor-pointer flex-col justify-center overflow-hidden rounded'}
       >
         <ImageRender
           node={node}

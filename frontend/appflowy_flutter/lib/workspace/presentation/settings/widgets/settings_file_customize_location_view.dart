@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:appflowy/startup/entry_point.dart';
-import 'package:appflowy/util/file_picker/file_picker_service.dart';
+import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';

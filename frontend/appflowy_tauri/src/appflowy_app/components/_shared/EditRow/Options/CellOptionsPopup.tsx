@@ -57,8 +57,12 @@ export const CellOptionsPopup = ({
   return (
     <PopupWindow className={'p-2 text-xs'} onOutsideClick={onOutsideClick} left={left} top={top}>
       <div onKeyDown={onKeyDownWrapper} className={'flex flex-col gap-2 p-2'}>
-        <div className={'border-shades-3 flex flex-1 items-center gap-2 rounded border bg-main-selector px-2 '}>
-          <div className={'flex flex-wrap items-center gap-2 text-black'}>
+        <div
+          className={
+            'flex flex-1 items-center gap-2 rounded border border-line-divider px-2 hover:border-fill-default focus:border-fill-default'
+          }
+        >
+          <div className={'flex flex-wrap items-center gap-2 text-text-title'}>
             {(data as SelectOptionCellDataPB)?.select_options?.map((option, index) => (
               <SelectedOption
                 option={option}
@@ -76,10 +80,10 @@ export const CellOptionsPopup = ({
             placeholder={t('grid.selectOption.searchOption') ?? ''}
             onKeyDown={onKeyDown}
           />
-          <div className={'font-mono text-shade-3'}>{value.length}/30</div>
+          <div className={'font-mono text-text-caption'}>{value.length}/30</div>
         </div>
-        <div className={'-mx-4 h-[1px] bg-shade-6'}></div>
-        <div className={'font-medium text-shade-3'}>{t('grid.selectOption.panelTitle') ?? ''}</div>
+        <div className={'-mx-4 h-[1px] bg-line-border'}></div>
+        <div className={'font-medium text-text-caption'}>{t('grid.selectOption.panelTitle') ?? ''}</div>
         <div className={'flex flex-col gap-1'}>
           {(databaseStore.fields[cellIdentifier.fieldId]?.fieldOptions as ISelectOptionType).selectOptions.map(
             (option, index) => (

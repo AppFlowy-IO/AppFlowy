@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { IPage, pagesActions } from '$app_reducers/pages/slice';
 import { ViewLayoutPB } from '@/services/backend';
@@ -10,22 +10,25 @@ import { INITIAL_FOLDER_HEIGHT, PAGE_ITEM_HEIGHT } from '../../_shared/constants
 import { ViewBackendService } from '$app/stores/effects/folder/view/view_bd_svc';
 import { ViewObserver } from '$app/stores/effects/folder/view/view_observer';
 
+export enum NavItemOptions {
+  More = 'More',
+  NewPage = 'NewPage',
+}
 export const useNavItem = (page: IPage) => {
   const appDispatch = useAppDispatch();
   const workspace = useAppSelector((state) => state.workspace);
   const currentLocation = useLocation();
   const [activePageId, setActivePageId] = useState<string>('');
   const pages = useAppSelector((state) => state.pages);
-
+  const [anchorEl, setAnchorEl] = useState<HTMLElement>();
+  const menuOpen = Boolean(anchorEl);
+  const [menuOption, setMenuOption] = useState<NavItemOptions>();
+  const [selectedPage, setSelectedPage] = useState<IPage>();
+  const onClickMenuBtn = useCallback((page: IPage, option: NavItemOptions) => {
+    setSelectedPage(page);
+    setMenuOption(option);
+  }, []);
   const navigate = useNavigate();
-
-  // Actions
-  const [showPageOptions, setShowPageOptions] = useState(false);
-  const [showNewPageOptions, setShowNewPageOptions] = useState(false);
-  const [showRenamePopup, setShowRenamePopup] = useState(false);
-
-  // UI configurations
-  const [folderHeight, setFolderHeight] = useState(`${INITIAL_FOLDER_HEIGHT}px`);
 
   // backend
   const service = new ViewBackendService(page.id);
@@ -33,6 +36,7 @@ export const useNavItem = (page: IPage) => {
 
   const loadInsidePages = async () => {
     const result = await service.getChildViews();
+
     if (!result.ok) return;
     const views = result.val;
     const updatedPages: IPage[] = views.map<IPage>((view) => ({
@@ -42,6 +46,7 @@ export const useNavItem = (page: IPage) => {
       title: view.name,
       showPagesInside: false,
     }));
+
     appDispatch(pagesActions.addInsidePages({ currentPageId: page.id, insidePages: updatedPages }));
   };
 
@@ -62,20 +67,14 @@ export const useNavItem = (page: IPage) => {
     const { pathname } = currentLocation;
     const parts = pathname.split('/');
     const pageId = parts[parts.length - 1];
+
     setActivePageId(pageId);
   }, [currentLocation]);
-
-  useEffect(() => {
-    if (page.showPagesInside) {
-      setFolderHeight(`${PAGE_ITEM_HEIGHT + getChildCount(page) * PAGE_ITEM_HEIGHT}px`);
-    } else {
-      setFolderHeight(`${PAGE_ITEM_HEIGHT}px`);
-    }
-  }, [page, pages]);
 
   // recursively get all unfolded child pages
   const getChildCount: (startPage: IPage) => number = (startPage: IPage) => {
     let count = 0;
+
     count = pages.filter((p) => p.parentPageId === startPage.id).length;
     pages
       .filter((p) => p.parentPageId === startPage.id)
@@ -91,42 +90,21 @@ export const useNavItem = (page: IPage) => {
     appDispatch(pagesActions.toggleShowPages({ id: page.id }));
   };
 
-  const onPageOptionsClick = () => {
-    setShowPageOptions(!showPageOptions);
-  };
-
-  const startPageRename = () => {
-    setShowRenamePopup(true);
-    closePopup();
-  };
-
-  const onNewPageClick = () => {
-    setShowNewPageOptions(!showNewPageOptions);
-  };
-
   const changePageTitle = async (newTitle: string) => {
     await service.update({ name: newTitle });
     appDispatch(pagesActions.renamePage({ id: page.id, newTitle }));
-  };
-
-  const closeRenamePopup = () => {
-    setShowRenamePopup(false);
+    setAnchorEl(undefined);
   };
 
   const deletePage = async () => {
-    closePopup();
     await service.delete();
     appDispatch(pagesActions.deletePage({ id: page.id }));
+    setAnchorEl(undefined);
   };
 
   const duplicatePage = async () => {
-    closePopup();
     await service.duplicate();
-  };
-
-  const closePopup = () => {
-    setShowPageOptions(false);
-    setShowNewPageOptions(false);
+    setAnchorEl(undefined);
   };
 
   const onPageClick = (eventPage: IPage) => {
@@ -147,7 +125,6 @@ export const useNavItem = (page: IPage) => {
   };
 
   const onAddNewPage = async (pageType: ViewLayoutPB) => {
-    closePopup();
     if (!workspace?.id) return;
 
     let newPageName = '';
@@ -181,6 +158,7 @@ export const useNavItem = (page: IPage) => {
 
     if (newViewResult.ok) {
       const newView = newViewResult.val;
+
       if (!page.showPagesInside) {
         appDispatch(pagesActions.toggleShowPages({ id: page.id }));
       }
@@ -194,24 +172,15 @@ export const useNavItem = (page: IPage) => {
           showPagesInside: false,
         })
       );
-
+      setAnchorEl(undefined);
       navigate(`/page/${pageTypeRoute}/${newView.id}`);
     }
   };
 
   return {
     onUnfoldClick,
-    onNewPageClick,
-    onPageOptionsClick,
-    startPageRename,
 
     changePageTitle,
-    closeRenamePopup,
-    closePopup,
-
-    showNewPageOptions,
-    showPageOptions,
-    showRenamePopup,
 
     deletePage,
     duplicatePage,
@@ -220,7 +189,12 @@ export const useNavItem = (page: IPage) => {
 
     onAddNewPage,
 
-    folderHeight,
     activePageId,
+    menuOpen,
+    anchorEl,
+    setAnchorEl,
+    menuOption,
+    selectedPage,
+    onClickMenuBtn,
   };
 };

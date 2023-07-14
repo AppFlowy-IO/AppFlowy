@@ -17,6 +17,7 @@ flowy-document2 = { path = "../flowy-document2" }
 flowy-error = { path = "../flowy-error" }
 flowy-task = { path = "../flowy-task" }
 flowy-server = { path = "../flowy-server" }
+flowy-server-config = { path = "../flowy-server-config" }
 flowy-config = { path = "../flowy-config" }
 appflowy-integrate = { version = "0.1.0" }
 diesel = { version = "1.4.8", features = ["sqlite"] }

@@ -23,31 +23,30 @@ class InitRustSDKTask extends LaunchTask {
   Future<void> initialize(LaunchContext context) async {
     final dir = directory ?? await appFlowyApplicationDataDirectory();
 
-    context.getIt<FlowySDK>().setEnv(getAppFlowyEnv());
+    final env = getAppFlowyEnv();
+    context.getIt<FlowySDK>().setEnv(env);
     await context.getIt<FlowySDK>().init(dir);
   }
 }
 
 AppFlowyEnv getAppFlowyEnv() {
-  final supabaseConfig = SupabaseConfiguration(
-    url: Env.supabaseUrl,
-    key: Env.supabaseKey,
-    jwt_secret: Env.supabaseJwtSecret,
+  final postgresConfig = PostgresConfiguration(
+    url: Env.supabaseDb,
+    password: Env.supabaseDbPassword,
+    port: int.parse(Env.supabaseDbPort),
+    user_name: Env.supabaseDbUser,
   );
 
-  final collabTableConfig =
-      CollabTableConfig(enable: true, table_name: Env.supabaseCollabTable);
-
-  final supabaseDBConfig = SupabaseDBConfig(
+  final supabaseConfig = SupabaseConfiguration(
+    enable_sync: Env.enableSupabaseSync,
     url: Env.supabaseUrl,
     key: Env.supabaseKey,
     jwt_secret: Env.supabaseJwtSecret,
-    collab_table_config: collabTableConfig,
+    postgres_config: postgresConfig,
   );
 
   return AppFlowyEnv(
     supabase_config: supabaseConfig,
-    supabase_db_config: supabaseDBConfig,
   );
 }
 

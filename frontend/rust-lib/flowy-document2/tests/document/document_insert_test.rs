@@ -1,13 +1,15 @@
 use std::{collections::HashMap, vec};
 
+use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
+
+use flowy_document2::document_data::PARAGRAPH_BLOCK_TYPE;
+
 use crate::document::util;
 use crate::document::util::gen_id;
-use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
-use flowy_document2::document_block_keys::PARAGRAPH_BLOCK_TYPE;
 
-#[test]
-fn document_apply_insert_block_with_empty_parent_id() {
-  let (_, document, page_id) = util::create_and_open_empty_document();
+#[tokio::test]
+async fn document_apply_insert_block_with_empty_parent_id() {
+  let (_, document, page_id) = util::create_and_open_empty_document().await;
 
   // create a text block with no parent
   let text_block_id = gen_id();

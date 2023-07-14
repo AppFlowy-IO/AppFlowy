@@ -324,15 +324,6 @@ impl TryInto<RowIdParams> for RowIdPB {
   }
 }
 
-#[derive(Debug, Default, Clone, ProtoBuf)]
-pub struct BlockRowIdPB {
-  #[pb(index = 1)]
-  pub block_id: String,
-
-  #[pb(index = 2)]
-  pub row_id: String,
-}
-
 #[derive(ProtoBuf, Default)]
 pub struct CreateRowPayloadPB {
   #[pb(index = 1)]

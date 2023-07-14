@@ -31,7 +31,7 @@ function TextActionMenuList() {
       {groupItems.map(
         (group, i: number) =>
           group.length > 0 && (
-            <div className={'flex border-r border-solid border-shade-2 px-1 last:border-r-0'} key={i}>
+            <div className={'flex border-r border-solid border-line-on-toolbar px-1 last:border-r-0'} key={i}>
               {group.map((item) => (
                 <div key={item} className={'flex items-center'}>
                   {renderNode(item)}

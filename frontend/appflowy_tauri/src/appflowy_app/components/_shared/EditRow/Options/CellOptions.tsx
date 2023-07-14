@@ -14,13 +14,14 @@ export const CellOptions = ({
   const onClick: MouseEventHandler = () => {
     if (!ref.current) return;
     const { left, top } = ref.current.getBoundingClientRect();
+
     onEditClick(left, top);
   };
 
   return (
-    <div ref={ref} onClick={onClick} className={'flex w-full flex-wrap items-center gap-2 px-4 py-1 text-xs text-black'}>
+    <div ref={ref} onClick={onClick} className={'flex w-full flex-wrap items-center gap-2 px-4 py-1 text-xs'}>
       {data?.select_options?.map((option, index) => (
-        <div className={`${getBgColor(option.color)} rounded px-2 py-0.5`} key={index}>
+        <div className={`${getBgColor(option.color)} rounded px-2 py-0.5 text-text-title`} key={index}>
           {option?.name ?? ''}
         </div>
       ))}

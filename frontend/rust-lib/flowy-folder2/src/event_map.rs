@@ -6,19 +6,19 @@ use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use lib_dispatch::prelude::*;
 
 use crate::event_handler::*;
-use crate::manager::Folder2Manager;
+use crate::manager::FolderManager;
 
-pub fn init(folder: Arc<Folder2Manager>) -> AFPlugin {
+pub fn init(folder: Arc<FolderManager>) -> AFPlugin {
   AFPlugin::new().name("Flowy-Folder").state(folder)
     // Workspace
     .event(FolderEvent::CreateWorkspace, create_workspace_handler)
     .event(
       FolderEvent::GetCurrentWorkspace,
-      read_current_workspace_setting_handler,
+      get_current_workspace_setting_handler,
     )
     .event(FolderEvent::ReadAllWorkspaces, read_workspaces_handler)
     .event(FolderEvent::OpenWorkspace, open_workspace_handler)
-    .event(FolderEvent::ReadWorkspaceViews, read_workspace_views_handler)
+    .event(FolderEvent::ReadWorkspaceViews, get_workspace_views_handler)
      // View
     .event(FolderEvent::CreateView, create_view_handler)
     .event(FolderEvent::CreateOrphanView, create_orphan_view_handler)
@@ -36,6 +36,7 @@ pub fn init(folder: Arc<Folder2Manager>) -> AFPlugin {
     .event(FolderEvent::RestoreAllTrash, restore_all_trash_handler)
     .event(FolderEvent::DeleteAllTrash, delete_all_trash_handler)
     .event(FolderEvent::ImportData, import_data_handler)
+      .event(FolderEvent::GetFolderSnapshots, get_folder_snapshots_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -128,4 +129,7 @@ pub enum FolderEvent {
 
   #[event(input = "ImportPB")]
   ImportData = 30,
+
+  #[event()]
+  GetFolderSnapshots = 31,
 }

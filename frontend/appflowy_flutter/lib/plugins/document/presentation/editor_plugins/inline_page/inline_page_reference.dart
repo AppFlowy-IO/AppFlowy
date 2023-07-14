@@ -24,8 +24,6 @@ class MentionBlockKeys {
   static const mention = 'mention';
   static const type = 'type'; // MentionType, String
   static const pageId = 'page_id';
-  static const pageType = 'page_type';
-  static const pageName = 'page_name';
 }
 
 class InlinePageReferenceService {

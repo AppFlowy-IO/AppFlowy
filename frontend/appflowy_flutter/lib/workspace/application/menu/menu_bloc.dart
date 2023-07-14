@@ -85,9 +85,9 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
 
   // ignore: unused_element
   Future<void> _fetchApps(Emitter<MenuState> emit) async {
-    final appsOrFail = await _workspaceService.getViews();
+    final viewsOrError = await _workspaceService.getViews();
     emit(
-      appsOrFail.fold(
+      viewsOrError.fold(
         (views) => state.copyWith(views: views),
         (error) {
           Log.error(error);

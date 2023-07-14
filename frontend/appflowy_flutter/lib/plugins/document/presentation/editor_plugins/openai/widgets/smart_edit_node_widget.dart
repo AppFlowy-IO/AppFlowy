@@ -157,7 +157,7 @@ class _SmartEditBlockComponentWidgetState
     var width = double.infinity;
     final editorSize = editorState.renderBox?.size;
     final padding = editorState.editorStyle.padding;
-    if (editorSize != null && padding != null) {
+    if (editorSize != null) {
       width = editorSize.width - padding.left - padding.right;
     }
     return width;

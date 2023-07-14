@@ -32,7 +32,7 @@ class MentionPageBlock extends StatefulWidget {
 
 class _MentionPageBlockState extends State<MentionPageBlock> {
   late final EditorState editorState;
-  late final Future<ViewPB?> viewPBFuture;
+  late Future<ViewPB?> viewPBFuture;
   ViewListener? viewListener;
 
   @override
@@ -45,6 +45,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
       ..start(
         onViewUpdated: (p0) {
           pageMemorizer[p0.id] = p0;
+          viewPBFuture = fetchView(widget.pageId);
           editorState.reload();
         },
       );
@@ -111,11 +112,10 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
   }
 
   Future<ViewPB?> fetchView(String pageId) async {
-    final views = await ViewBackendService().fetchViews((_, __) => true);
-    final flattenViews = views.expand((e) => [e.$1, ...e.$2]).toList();
-    final view = flattenViews.firstWhereOrNull(
-      (element) => element.id == pageId,
+    final view = await ViewBackendService.getView(pageId).then(
+      (value) => value.swap().toOption().toNullable(),
     );
+
     if (view == null) {
       // try to fetch from trash
       final trashViews = await TrashService().readTrash();
@@ -129,6 +129,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
           ..name = trash.name;
       }
     }
+
     return view;
   }
 

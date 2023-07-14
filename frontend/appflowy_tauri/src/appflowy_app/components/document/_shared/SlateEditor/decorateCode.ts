@@ -1,5 +1,5 @@
 import Prism from 'prismjs';
-import 'prismjs/themes/prism.css';
+
 import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-json';
 import 'prismjs/components/prism-typescript';
@@ -15,6 +15,7 @@ const push_string = (
   token_type = 'text'
 ) => {
   let newStart = start;
+
   ranges.push({
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -38,13 +39,16 @@ const recurseTokenize = (
   if (typeof token === 'string') {
     return push_string(token, path, start, ranges, parent_tag);
   }
+
   if ('content' in token) {
     if (token.content instanceof Array) {
       // Calls recurseTokenize on nested Tokens in content
       let newStart = start;
+
       for (const subToken of token.content) {
         newStart = recurseTokenize(subToken, path, ranges, newStart, token.type) || 0;
       }
+
       return newStart;
     }
 
@@ -52,8 +56,28 @@ const recurseTokenize = (
   }
 };
 
-export const decorateCode = ([node, path]: NodeEntry, language: string) => {
+function switchCodeTheme(isDark: boolean) {
+  const link = document.getElementById('prism-css');
+
+  if (link) {
+    document.head.removeChild(link);
+  }
+
+  const newLink = document.createElement('link');
+
+  newLink.rel = 'stylesheet';
+  newLink.href = isDark
+    ? 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-dark.min.css'
+    : 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css';
+  newLink.id = 'prism-css';
+  document.head.appendChild(newLink);
+}
+
+export const decorateCode = ([node, path]: NodeEntry, language: string, isDark: boolean) => {
+  switchCodeTheme(isDark);
+
   const ranges: BaseRange[] = [];
+
   if (!Text.isText(node)) {
     return ranges;
   }
@@ -62,9 +86,11 @@ export const decorateCode = ([node, path]: NodeEntry, language: string) => {
     const tokens = Prism.tokenize(node.text, Prism.languages[language]);
 
     let start = 0;
+
     for (const token of tokens) {
       start = recurseTokenize(token, path, ranges, start) || 0;
     }
+
     return ranges;
   } catch {
     return ranges;

@@ -153,7 +153,7 @@ class GridEvent with _$GridEvent {
   const factory GridEvent.moveRow(int from, int to) = _MoveRow;
   const factory GridEvent.didLoadRows(
     List<RowInfo> rows,
-    RowsChangedReason reason,
+    ChangedReason reason,
   ) = _DidReceiveRowUpdate;
   const factory GridEvent.didReceiveFieldUpdate(
     List<FieldInfo> fields,
@@ -179,7 +179,7 @@ class GridState with _$GridState {
     required int rowCount,
     required GridLoadingState loadingState,
     required bool reorderable,
-    required RowsChangedReason reason,
+    required ChangedReason reason,
     required List<SortInfo> sorts,
     required List<FilterInfo> filters,
   }) = _GridState;

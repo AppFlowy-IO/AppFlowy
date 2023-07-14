@@ -27,7 +27,6 @@ import { useSubscribeDocument } from '$app/components/document/_shared/Subscribe
 import { slashCommandActions } from '$app_reducers/document/slice';
 import { Keyboard } from '$app/constants/document/keyboard';
 import { selectOptionByUpDown } from '$app/utils/document/menu';
-import { blockEditActions } from '$app_reducers/document/block_edit_slice';
 
 function BlockSlashMenu({
   id,
@@ -60,7 +59,7 @@ function BlockSlashMenu({
       );
       onClose?.();
     },
-    [controller, dispatch, docId, id, onClose]
+    [controller, dispatch, id, onClose]
   );
 
   const options: (SlashCommandOption & {
@@ -293,7 +292,7 @@ function BlockSlashMenu({
       <div ref={ref} className={'min-h-0 flex-1 overflow-y-auto overflow-x-hidden'}>
         {Object.entries(optionsByGroup).map(([group, options]) => (
           <div key={group}>
-            <div className={'px-2 py-2 text-sm text-shade-3'}>{group}</div>
+            <div className={'text-shade-3 px-2 py-2 text-sm'}>{group}</div>
             <div>
               {options.map((option) => {
                 return (

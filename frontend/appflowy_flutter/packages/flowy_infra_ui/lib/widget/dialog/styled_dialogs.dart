@@ -9,7 +9,7 @@ extension IntoDialog on Widget {
   Future<dynamic> show(BuildContext context) async {
     FocusNode dialogFocusNode = FocusNode();
     await Dialogs.show(
-      RawKeyboardListener(
+      child: RawKeyboardListener(
         focusNode: dialogFocusNode,
         onKey: (value) {
           if (value.isKeyPressed(LogicalKeyboardKey.escape)) {
@@ -88,7 +88,8 @@ class StyledDialog extends StatelessWidget {
 }
 
 class Dialogs {
-  static Future<dynamic> show(Widget child, BuildContext context) async {
+  static Future<dynamic> show(BuildContext context,
+      {required Widget child}) async {
     return await Navigator.of(context).push(
       StyledDialogRoute(
         barrier: DialogBarrier(color: Colors.black.withOpacity(0.4)),

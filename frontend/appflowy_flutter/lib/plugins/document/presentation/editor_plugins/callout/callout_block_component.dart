@@ -105,7 +105,7 @@ class CalloutBlockComponentWidget extends BlockComponentStatefulWidget {
 
 class _CalloutBlockComponentWidgetState
     extends State<CalloutBlockComponentWidget>
-    with SelectableMixin, DefaultSelectable, BlockComponentConfigurable {
+    with SelectableMixin, DefaultSelectableMixin, BlockComponentConfigurable {
   // the key used to forward focus to the richtext child
   @override
   final forwardKey = GlobalKey(debugLabel: 'flowy_rich_text');
@@ -192,7 +192,7 @@ class _CalloutBlockComponentWidgetState
   Widget buildCalloutBlockComponent(BuildContext context) {
     return Padding(
       padding: padding,
-      child: FlowyRichText(
+      child: AppFlowyRichText(
         key: forwardKey,
         node: widget.node,
         editorState: editorState,

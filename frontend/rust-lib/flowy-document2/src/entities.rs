@@ -1,9 +1,12 @@
-use collab_document::blocks::{BlockAction, DocumentData};
 use std::collections::HashMap;
 
-use crate::parse::{NotEmptyStr, NotEmptyVec};
+use collab::core::collab_state::SyncState;
+use collab_document::blocks::{BlockAction, DocumentData};
+
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
+
+use crate::parse::{NotEmptyStr, NotEmptyVec};
 
 #[derive(Default, ProtoBuf)]
 pub struct OpenDocumentPayloadPB {
@@ -147,7 +150,7 @@ pub struct DocumentDataPB {
   pub meta: MetaPB,
 }
 
-#[derive(Default, ProtoBuf, Debug)]
+#[derive(Default, ProtoBuf, Debug, Clone)]
 pub struct BlockPB {
   #[pb(index = 1)]
   pub id: String,
@@ -269,7 +272,7 @@ impl From<i32> for ExportType {
       1 => ExportType::Markdown,
       2 => ExportType::Link,
       _ => {
-        tracing::error!("Invalid export type: {}", val);
+        tracing::error!("🔴Invalid export type: {}", val);
         ExportType::Text
       },
     }
@@ -305,7 +308,7 @@ impl From<i32> for ConvertType {
     match val {
       0 => ConvertType::Json,
       _ => {
-        tracing::error!("Invalid export type: {}", val);
+        tracing::error!("🔴Invalid export type: {}", val);
         ConvertType::Json
       },
     }
@@ -334,5 +337,50 @@ impl TryInto<ConvertDataParams> for ConvertDataPayloadPB {
     let convert_type = self.convert_type;
     let data = self.data;
     Ok(ConvertDataParams { convert_type, data })
+  }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct RepeatedDocumentSnapshotPB {
+  #[pb(index = 1)]
+  pub items: Vec<DocumentSnapshotPB>,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct DocumentSnapshotPB {
+  #[pb(index = 1)]
+  pub snapshot_id: i64,
+
+  #[pb(index = 2)]
+  pub snapshot_desc: String,
+
+  #[pb(index = 3)]
+  pub created_at: i64,
+
+  #[pb(index = 4)]
+  pub data: Vec<u8>,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct DocumentSnapshotStatePB {
+  #[pb(index = 1)]
+  pub new_snapshot_id: i64,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct DocumentSyncStatePB {
+  #[pb(index = 1)]
+  pub is_syncing: bool,
+
+  #[pb(index = 2)]
+  pub is_finish: bool,
+}
+
+impl From<SyncState> for DocumentSyncStatePB {
+  fn from(value: SyncState) -> Self {
+    Self {
+      is_syncing: value.is_syncing(),
+      is_finish: value.is_sync_finished(),
+    }
   }
 }

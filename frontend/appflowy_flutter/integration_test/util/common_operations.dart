@@ -276,6 +276,14 @@ extension CommonOperations on WidgetTester {
     }
     await pumpAndSettle();
   }
+
+  Future<void> openAppInNewTab(String name) async {
+    await hoverOnPageName(name);
+    await tap(find.byType(ViewDisclosureButton));
+    await pumpAndSettle();
+    await tap(find.text(LocaleKeys.disclosureAction_openNewTab.tr()));
+    await pumpAndSettle();
+  }
 }
 
 extension ViewLayoutPBTest on ViewLayoutPB {

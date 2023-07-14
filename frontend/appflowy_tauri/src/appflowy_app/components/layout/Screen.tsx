@@ -10,7 +10,7 @@ export const Screen = ({ children }: { children: ReactNode }) => {
   const { width, onHideMenuClick, onShowMenuClick, menuHidden } = useNavigationPanelHooks();
 
   return (
-    <div className='flex h-screen w-screen bg-white text-black'>
+    <div className='flex h-screen w-screen bg-bg-body text-text-title'>
       <NavigationPanel onHideMenuClick={onHideMenuClick} width={width} menuHidden={menuHidden}></NavigationPanel>
 
       <MainPanel left={width} menuHidden={menuHidden} onShowMenuClick={onShowMenuClick}>

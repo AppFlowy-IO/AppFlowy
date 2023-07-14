@@ -1,3 +1,4 @@
+use collab::core::collab_state::SyncState;
 use collab_database::rows::RowId;
 use collab_database::user::DatabaseRecord;
 use collab_database::views::DatabaseLayout;
@@ -105,7 +106,7 @@ impl TryInto<MoveFieldParams> for MoveFieldPayloadPB {
 
   fn try_into(self) -> Result<MoveFieldParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
-    let item_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::InvalidData)?;
+    let item_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::InvalidParams)?;
     Ok(MoveFieldParams {
       view_id: view_id.0,
       field_id: item_id.0,
@@ -263,4 +264,49 @@ impl TryInto<DatabaseLayoutMeta> for DatabaseLayoutMetaPB {
       layout,
     })
   }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct DatabaseSyncStatePB {
+  #[pb(index = 1)]
+  pub is_syncing: bool,
+
+  #[pb(index = 2)]
+  pub is_finish: bool,
+}
+
+impl From<SyncState> for DatabaseSyncStatePB {
+  fn from(value: SyncState) -> Self {
+    Self {
+      is_syncing: value.is_syncing(),
+      is_finish: value.is_sync_finished(),
+    }
+  }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct DatabaseSnapshotStatePB {
+  #[pb(index = 1)]
+  pub new_snapshot_id: i64,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct RepeatedDatabaseSnapshotPB {
+  #[pb(index = 1)]
+  pub items: Vec<DatabaseSnapshotPB>,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct DatabaseSnapshotPB {
+  #[pb(index = 1)]
+  pub snapshot_id: i64,
+
+  #[pb(index = 2)]
+  pub snapshot_desc: String,
+
+  #[pb(index = 3)]
+  pub created_at: i64,
+
+  #[pb(index = 4)]
+  pub data: Vec<u8>,
 }

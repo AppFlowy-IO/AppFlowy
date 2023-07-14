@@ -45,9 +45,11 @@ export const GridTableHeaderItem = ({
     if (!editingField) return;
 
     const currentField = controller.fieldController.getField(editingField.fieldId);
+
     if (!currentField) return;
 
     const typeOptionController = new TypeOptionController(controller.viewId, Some(currentField));
+
     await typeOptionController.switchToField(newType);
 
     setEditingField({
@@ -59,9 +61,9 @@ export const GridTableHeaderItem = ({
   };
 
   return (
-    <th key={field.fieldId} className='m-0 border border-l-0 border-shade-6  p-0'>
+    <th key={field.fieldId} className='m-0 border border-l-0 border-line-divider p-0'>
       <div
-        className={'flex w-full cursor-pointer items-center px-4 py-2 hover:bg-main-secondary'}
+        className={'flex w-full cursor-pointer items-center px-4 py-2 hover:bg-fill-list-hover'}
         ref={ref}
         onClick={() => {
           if (!ref.current) return;
@@ -73,7 +75,7 @@ export const GridTableHeaderItem = ({
           setShowFieldEditor(true);
         }}
       >
-        <i className={'mr-2 h-5 w-5 text-shade-3'}>
+        <i className={'mr-2 h-5 w-5 text-text-caption'}>
           {field.fieldType === FieldType.RichText && <TextTypeSvg></TextTypeSvg>}
           {field.fieldType === FieldType.Number && <NumberTypeSvg></NumberTypeSvg>}
           {field.fieldType === FieldType.DateTime && <DateTypeSvg></DateTypeSvg>}

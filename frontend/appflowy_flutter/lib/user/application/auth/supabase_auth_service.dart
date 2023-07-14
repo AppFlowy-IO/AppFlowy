@@ -1,11 +1,9 @@
 import 'dart:async';
 
-import 'package:appflowy/core/config/kv.dart';
-import 'package:appflowy/core/config/kv_keys.dart';
-import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/startup/tasks/prelude.dart';
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/user/application/auth/appflowy_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -112,13 +110,15 @@ class SupabaseAuthService implements AuthService {
     final completer = Completer<Either<FlowyError, UserProfilePB>>();
     late final StreamSubscription<AuthState> subscription;
     subscription = _auth.onAuthStateChange.listen((event) async {
-      if (event.event != AuthChangeEvent.signedIn) {
+      final user = event.session?.user;
+      if (event.event != AuthChangeEvent.signedIn || user == null) {
         completer.complete(left(AuthError.supabaseSignInWithOauthError));
       } else {
-        final user = await getSupabaseUser();
-        final Either<FlowyError, UserProfilePB> response = await user.fold(
-          (l) => left(l),
-          (r) async => await setupAuth(map: {AuthServiceMapKeys.uuid: r.id}),
+        final Either<FlowyError, UserProfilePB> response = await setupAuth(
+          map: {
+            AuthServiceMapKeys.uuid: user.id,
+            AuthServiceMapKeys.email: user.email ?? user.newEmail ?? ''
+          },
         );
         completer.complete(response);
       }
@@ -164,16 +164,21 @@ class SupabaseAuthService implements AuthService {
     return _appFlowyAuthService.signUpAsGuest();
   }
 
+  // @override
+  // Future<Either<FlowyError, UserProfilePB>> getUser() async {
+  //   final loginType = await getIt<KeyValueStorage>()
+  //       .get(KVKeys.loginType)
+  //       .then((value) => value.toOption().toNullable());
+  //   if (!isSupabaseEnable || (loginType != null && loginType != 'supabase')) {
+  //     return _appFlowyAuthService.getUser();
+  //   }
+  //   final user = await getSupabaseUser();
+  //   return user.map((r) => r.toUserProfile());
+  // }
+
   @override
   Future<Either<FlowyError, UserProfilePB>> getUser() async {
-    final loginType = await getIt<KeyValueStorage>()
-        .get(KVKeys.loginType)
-        .then((value) => value.toOption().toNullable());
-    if (!isSupabaseEnable || (loginType != null && loginType != 'supabase')) {
-      return _appFlowyAuthService.getUser();
-    }
-    final user = await getSupabaseUser();
-    return user.map((r) => r.toUserProfile());
+    return UserBackendService.getCurrentUserProfile();
   }
 
   Future<Either<FlowyError, User>> getSupabaseUser() async {
@@ -194,14 +199,6 @@ class SupabaseAuthService implements AuthService {
     return UserEventThirdPartyAuth(payload)
         .send()
         .then((value) => value.swap());
-  }
-}
-
-extension on User {
-  UserProfilePB toUserProfile() {
-    return UserProfilePB()
-      ..email = email ?? ''
-      ..token = this.id;
   }
 }
 

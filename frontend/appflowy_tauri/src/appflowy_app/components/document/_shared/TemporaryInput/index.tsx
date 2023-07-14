@@ -1,33 +1,36 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { TemporaryType } from '$app/interfaces/document';
+import { RangeStaticNoId, TemporaryType } from '$app/interfaces/document';
 import TemporaryEquation from '$app/components/document/_shared/TemporaryInput/TemporaryEquation';
 import { useSubscribeTemporary } from '$app/components/document/_shared/SubscribeTemporary.hooks';
-import { isOverlappingPrefix } from '$app/utils/document/temporary';
 import { PopoverPosition } from '@mui/material';
 import { useAppDispatch } from '$app/stores/store';
 import { temporaryActions } from '$app_reducers/document/temporary_slice';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
-function TemporaryInput({ leaf, children }: { leaf: { text: string }; children: React.ReactNode }) {
+function TemporaryInput({
+  leaf,
+  children,
+  getSelection,
+}: {
+  leaf: { text: string };
+  children: React.ReactNode;
+  getSelection: (node: Element) => RangeStaticNoId | null;
+}) {
   const temporaryState = useSubscribeTemporary();
   const id = temporaryState?.id;
   const dispatch = useAppDispatch();
   const ref = useRef<HTMLSpanElement>(null);
   const { docId } = useSubscribeDocument();
   const match = useMemo(() => {
+    if (!ref.current) return false;
     if (!leaf.text) return false;
     if (!temporaryState) return false;
-    const { selectedText, type } = temporaryState;
+    const { selectedText } = temporaryState;
+    const selection = getSelection(ref.current);
 
-    switch (type) {
-      case TemporaryType.Equation:
-        // when the leaf is split, the placeholder is not the same as the leaf text,
-        // so we can only check for overlapping prefix and hidden other leafs
-        return leaf.text === selectedText || isOverlappingPrefix(leaf.text, selectedText);
-      default:
-        return false;
-    }
-  }, [temporaryState, leaf.text]);
+    if (!selection) return false;
+    return leaf.text === selectedText || selection.index <= temporaryState.selection.index;
+  }, [leaf.text, temporaryState, getSelection]);
 
   const renderPlaceholder = useCallback(() => {
     if (!temporaryState) return null;
@@ -69,7 +72,7 @@ function TemporaryInput({ leaf, children }: { leaf: { text: string }; children: 
   return (
     <span ref={ref}>
       {match ? renderPlaceholder() : null}
-      <span className={'absolute opacity-0'}>{children}</span>
+      <span className={`absolute opacity-0 ${match ? 'w-0' : ''}`}>{children}</span>
     </span>
   );
 }

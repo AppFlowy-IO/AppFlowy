@@ -18,7 +18,7 @@ pub struct UserSettingPB {
   pub(crate) user_folder: String,
 }
 
-#[derive(ProtoBuf, Default, Debug, PartialEq, Eq, Clone)]
+#[derive(ProtoBuf, Default, Eq, PartialEq, Debug, Clone)]
 pub struct UserProfilePB {
   #[pb(index = 1)]
   pub id: i64,
@@ -37,6 +37,9 @@ pub struct UserProfilePB {
 
   #[pb(index = 6)]
   pub openai_key: String,
+
+  #[pb(index = 7)]
+  pub auth_type: AuthTypePB,
 }
 
 impl std::convert::From<UserProfile> for UserProfilePB {
@@ -48,6 +51,7 @@ impl std::convert::From<UserProfile> for UserProfilePB {
       token: user_profile.token,
       icon_url: user_profile.icon_url,
       openai_key: user_profile.openai_key,
+      auth_type: user_profile.auth_type.into(),
     }
   }
 }

@@ -9,12 +9,14 @@ function BlockMenuTurnInto({
   onHovered,
   isHovered,
   menuOpened,
+  lable,
 }: {
   id: string;
   onClose: () => void;
   onHovered: (e: MouseEvent) => void;
   isHovered: boolean;
   menuOpened: boolean;
+  lable?: string;
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [anchorPosition, setAnchorPosition] = React.useState<{ top: number; left: number }>();
@@ -37,7 +39,7 @@ function BlockMenuTurnInto({
     <>
       <MenuItem
         ref={ref}
-        title='Turn into'
+        title={lable}
         isHovered={isHovered}
         icon={<Transform />}
         extra={<ArrowRight />}

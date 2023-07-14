@@ -3,7 +3,6 @@ use crate::entities::{
   RowMetaPB,
 };
 use crate::services::cell::insert_date_cell;
-use crate::services::database::RowDetail;
 use crate::services::field::{DateCellData, DateCellDataParser, DateTypeOption};
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupContext;
@@ -19,7 +18,7 @@ use chrono::{
 use chrono_tz::Tz;
 use collab_database::database::timestamp;
 use collab_database::fields::Field;
-use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
+use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};

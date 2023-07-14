@@ -19,17 +19,14 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
   @override
   Future<void> initialize(LaunchContext context) async {
     // Don't initialize on mobile or web.
-    if (!defaultTargetPlatform.isDesktop) {
+    if (!defaultTargetPlatform.isDesktop || context.env.isIntegrationTest) {
       return;
     }
 
     await windowManager.ensureInitialized();
     windowManager.addListener(this);
 
-    Size windowSize = await WindowSizeManager().getSize();
-    if (context.env.isIntegrationTest) {
-      windowSize = const Size(1600, 1200);
-    }
+    final windowSize = await WindowSizeManager().getSize();
 
     final windowOptions = WindowOptions(
       size: windowSize,

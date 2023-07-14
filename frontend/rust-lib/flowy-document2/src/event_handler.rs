@@ -14,20 +14,8 @@ use collab_document::blocks::{
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
-use crate::entities::{
-  ApplyActionParams, CloseDocumentParams, ConvertDataParams, CreateDocumentParams,
-  DocumentRedoUndoParams, OpenDocumentParams,
-};
-use crate::{
-  entities::{
-    ApplyActionPayloadPB, BlockActionPB, BlockActionPayloadPB, BlockActionTypePB, BlockEventPB,
-    BlockEventPayloadPB, BlockPB, CloseDocumentPayloadPB, ConvertDataPayloadPB, ConvertType,
-    CreateDocumentPayloadPB, DeltaTypePB, DocEventPB, DocumentDataPB, DocumentRedoUndoPayloadPB,
-    DocumentRedoUndoResponsePB, OpenDocumentPayloadPB,
-  },
-  manager::DocumentManager,
-  parser::json::parser::JsonToDocumentParser,
-};
+use crate::entities::*;
+use crate::{manager::DocumentManager, parser::json::parser::JsonToDocumentParser};
 
 // Handler for creating a new document
 pub(crate) async fn create_document_handler(
@@ -46,8 +34,8 @@ pub(crate) async fn open_document_handler(
 ) -> DataResult<DocumentDataPB, FlowyError> {
   let params: OpenDocumentParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_or_open_document(&doc_id)?;
-  let document_data = document.lock().get_document()?;
+  let document = manager.get_document(&doc_id).await?;
+  let document_data = document.lock().get_document_data()?;
   data_result_ok(DocumentDataPB::from(document_data))
 }
 
@@ -69,8 +57,7 @@ pub(crate) async fn get_document_data_handler(
 ) -> DataResult<DocumentDataPB, FlowyError> {
   let params: OpenDocumentParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_document_from_disk(&doc_id)?;
-  let document_data = document.lock().get_document()?;
+  let document_data = manager.get_document_data(&doc_id).await?;
   data_result_ok(DocumentDataPB::from(document_data))
 }
 
@@ -81,7 +68,7 @@ pub(crate) async fn apply_action_handler(
 ) -> FlowyResult<()> {
   let params: ApplyActionParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_or_open_document(&doc_id)?;
+  let document = manager.get_document(&doc_id).await?;
   let actions = params.actions;
   document.lock().apply_action(actions);
   Ok(())
@@ -117,7 +104,7 @@ pub(crate) async fn redo_handler(
 ) -> DataResult<DocumentRedoUndoResponsePB, FlowyError> {
   let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_or_open_document(&doc_id)?;
+  let document = manager.get_document(&doc_id).await?;
   let document = document.lock();
   let redo = document.redo();
   let can_redo = document.can_redo();
@@ -135,7 +122,7 @@ pub(crate) async fn undo_handler(
 ) -> DataResult<DocumentRedoUndoResponsePB, FlowyError> {
   let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_or_open_document(&doc_id)?;
+  let document = manager.get_document(&doc_id).await?;
   let document = document.lock();
   let undo = document.undo();
   let can_redo = document.can_redo();
@@ -153,7 +140,7 @@ pub(crate) async fn can_undo_redo_handler(
 ) -> DataResult<DocumentRedoUndoResponsePB, FlowyError> {
   let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_or_open_document(&doc_id)?;
+  let document = manager.get_document(&doc_id).await?;
   let document = document.lock();
   let can_redo = document.can_redo();
   let can_undo = document.can_undo();
@@ -163,6 +150,16 @@ pub(crate) async fn can_undo_redo_handler(
     can_undo,
     is_success: true,
   })
+}
+
+pub(crate) async fn get_snapshot_handler(
+  data: AFPluginData<OpenDocumentPayloadPB>,
+  manager: AFPluginState<Arc<DocumentManager>>,
+) -> DataResult<RepeatedDocumentSnapshotPB, FlowyError> {
+  let params: OpenDocumentParams = data.into_inner().try_into()?;
+  let doc_id = params.document_id;
+  let snapshots = manager.get_document_snapshots(&doc_id).await?;
+  data_result_ok(RepeatedDocumentSnapshotPB { items: snapshots })
 }
 
 impl From<BlockActionPB> for BlockAction {

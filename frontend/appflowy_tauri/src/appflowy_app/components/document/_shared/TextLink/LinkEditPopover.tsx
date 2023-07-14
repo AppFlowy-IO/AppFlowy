@@ -1,19 +1,19 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback } from 'react';
 import Popover from '@mui/material/Popover';
-import { Divider } from '@mui/material';
 import { DeleteOutline, Done } from '@mui/icons-material';
 import EditLink from '$app/components/document/_shared/TextLink/EditLink';
-import { useAppDispatch, useAppSelector } from '$app/stores/store';
+import { useAppDispatch } from '$app/stores/store';
 import { linkPopoverActions, rangeActions } from '$app_reducers/document/slice';
 import { formatLinkThunk } from '$app_reducers/document/async-actions/link';
-import LinkButton from '$app/components/document/_shared/TextLink/LinkButton';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 import { useSubscribeLinkPopover } from '$app/components/document/_shared/SubscribeLinkPopover.hooks';
+import Button from '@mui/material/Button';
+import { useTranslation } from 'react-i18next';
 
 function LinkEditPopover() {
   const dispatch = useAppDispatch();
   const { docId, controller } = useSubscribeDocument();
-
+  const { t } = useTranslation();
   const popoverState = useSubscribeLinkPopover();
   const { anchorPosition, id, selection, title = '', href = '', open = false } = popoverState;
 
@@ -27,6 +27,7 @@ function LinkEditPopover() {
       index: selection.index,
       length: title.length,
     };
+
     dispatch(
       rangeActions.setRange({
         docId,
@@ -101,7 +102,7 @@ function LinkEditPopover() {
     >
       <div className='flex flex-col p-3'>
         <EditLink
-          text={'URL'}
+          text={t('document.inlineLink.url.label')}
           value={href}
           onChange={(link) => {
             onChange({
@@ -111,7 +112,7 @@ function LinkEditPopover() {
           }}
         />
         <EditLink
-          text={'Link title'}
+          text={t('document.inlineLink.title.label')}
           value={title}
           onChange={(text) =>
             onChange({
@@ -120,18 +121,12 @@ function LinkEditPopover() {
             })
           }
         />
-        <Divider />
-        <LinkButton
-          title={'Remove link'}
-          icon={<DeleteOutline />}
-          onClick={() => {
-            onChange({
-              title,
-            });
-            onDone();
-          }}
-        />
-        <LinkButton title={'Done'} icon={<Done />} onClick={onDone} />
+        <div className={'flex items-center justify-end'}>
+          <Button onClick={onDone}>
+            <Done />
+            {t('button.done')}
+          </Button>
+        </div>
       </div>
     </Popover>
   );

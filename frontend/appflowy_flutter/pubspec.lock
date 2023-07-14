@@ -53,11 +53,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "572a174"
-      resolved-ref: "572a174892267e2f78f9c3d7f1fe4ca71c9be0db"
+      ref: "35394cd"
+      resolved-ref: "35394cd4f45f3f98afbec8d23d12fe0bf3cd3f6d"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
-    version: "1.0.4"
+    version: "1.1.0"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -337,6 +337,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.4.1"
+  dotted_border:
+    dependency: "direct main"
+    description:
+      name: dotted_border
+      sha256: "07a5c5e8d4e6e992279e190e0352be8faa5b8f96d81c77a78b2d42f060279840"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0+3"
   easy_localization:
     dependency: "direct main"
     description:
@@ -410,7 +418,7 @@ packages:
     source: hosted
     version: "6.1.4"
   file_picker:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: file_picker
       sha256: "9d6e95ec73abbd31ec54d0e0df8a961017e165aba1395e462e5b31ea0c165daf"
@@ -539,10 +547,10 @@ packages:
     dependency: "direct dev"
     description:
       name: freezed
-      sha256: "2edb9ef971d0f803860ecd9084afd48c717d002141ad77b69be3e976bee7190e"
+      sha256: a9520490532087cf38bf3f7de478ab6ebeb5f68bb1eb2641546d92719b224445
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.4"
+    version: "2.3.5"
   freezed_annotation:
     dependency: "direct main"
     description:
@@ -568,10 +576,10 @@ packages:
     dependency: transitive
     description:
       name: functions_client
-      sha256: "578537de508c62c2875a6fdaa5dc71033283551ac7a32b8b8ef405c6c5823273"
+      sha256: "3b157b4d3ae9e38614fd80fab76d1ef1e0e39ff3412a45de2651f27cecb9d2d2"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.0"
+    version: "1.3.2"
   get_it:
     dependency: "direct main"
     description:
@@ -600,10 +608,10 @@ packages:
     dependency: transitive
     description:
       name: gotrue
-      sha256: "3306606658484a05fc885aea15f9fa65bcc28194f35ef294de3a34d01393b928"
+      sha256: "214d5050a68ce68a55da1a6d9d7a2e07e039b359f99f1a17ec685320c9101aa6"
       url: "https://pub.dev"
     source: hosted
-    version: "1.8.0"
+    version: "1.8.4"
   graphs:
     dependency: transitive
     description:
@@ -905,6 +913,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.8.3"
+  path_drawing:
+    dependency: transitive
+    description:
+      name: path_drawing
+      sha256: bbb1934c0cbb03091af082a6389ca2080345291ef07a5fa6d6e078ba8682f977
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   path_parsing:
     dependency: transitive
     description:
@@ -1013,10 +1029,10 @@ packages:
     dependency: transitive
     description:
       name: postgrest
-      sha256: "42abd4bf3322af3eb0d286ca2fca7cc28baae52b805761dfa7ab0d206ee072a3"
+      sha256: "78fd180ecd2274df7b04c406746495b5c627248856458f8f537bf5348de9c817"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.0"
+    version: "1.3.2"
   process:
     dependency: transitive
     description:
@@ -1061,10 +1077,10 @@ packages:
     dependency: transitive
     description:
       name: realtime_client
-      sha256: "13f6a62244bca7562b47658e3f92e5eeeb79a46d58ad4a97ad536e4ba5e97086"
+      sha256: "0342f73f42345f3547e3cdcc804a0ed108fcd9142d1537d159aead94a213e248"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "1.1.1"
   reorderables:
     dependency: "direct main"
     description:
@@ -1346,10 +1362,10 @@ packages:
     dependency: transitive
     description:
       name: storage_client
-      sha256: e14434a4cc16b01f2e96f3c646e43fb0bb16624b279a65a34da889cffe4b083c
+      sha256: a3024569213b064587d616827747b766f9bc796e80cec99bd5ffb597b8aeb018
       url: "https://pub.dev"
     source: hosted
-    version: "1.4.0"
+    version: "1.5.1"
   stream_channel:
     dependency: transitive
     description:
@@ -1386,18 +1402,18 @@ packages:
     dependency: transitive
     description:
       name: supabase
-      sha256: "8f89e406d1c0101409a9c5d5560ed391d6d3636d2e077336905f3eee18622073"
+      sha256: "5f5e47fcac99a496e15274d5f6944e1323519df9f8929b4ab9eef8711abeb5f3"
       url: "https://pub.dev"
     source: hosted
-    version: "1.9.0"
+    version: "1.9.4"
   supabase_flutter:
     dependency: "direct main"
     description:
       name: supabase_flutter
-      sha256: "809c67c296d4a0690fdc8e5f952a5e18b3ebd145867f1cb3f8f80248b22a56ae"
+      sha256: "1ebe89b83b992123d40dcf5aa88b87d6c2d0a3c62052380cfc94de2337aac469"
       url: "https://pub.dev"
     source: hosted
-    version: "1.10.0"
+    version: "1.10.4"
   sync_http:
     dependency: transitive
     description:
@@ -1454,6 +1470,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.2"
+  textstyle_extensions:
+    dependency: transitive
+    description:
+      name: textstyle_extensions
+      sha256: b0538352844fb4d1d0eea82f7bc6b96e4dae03a3a071247e4dcc85ec627b2c6c
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0-nullsafety"
   time:
     dependency: "direct main"
     description:
@@ -1738,10 +1762,10 @@ packages:
     dependency: transitive
     description:
       name: yet_another_json_isolate
-      sha256: "7809f6517bafd0a7b3d0be63cd5f952ae5c030d682250e8aa9ed7002eaac5ff8"
+      sha256: "86fad76026c4241a32831d6c7febd8f9bded5019e2cd36c5b148499808d8307d"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "1.1.1"
 sdks:
   dart: ">=3.0.0 <4.0.0"
   flutter: ">=3.10.1"

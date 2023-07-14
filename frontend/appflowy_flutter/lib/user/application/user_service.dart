@@ -58,9 +58,8 @@ class UserBackendService {
     throw UnimplementedError();
   }
 
-  Future<Either<Unit, FlowyError>> signOut(AuthTypePB authType) {
-    final payload = SignOutPB()..authType = authType;
-    return UserEventSignOut(payload).send();
+  Future<Either<Unit, FlowyError>> signOut() {
+    return UserEventSignOut().send();
   }
 
   Future<Either<Unit, FlowyError>> initUser() async {

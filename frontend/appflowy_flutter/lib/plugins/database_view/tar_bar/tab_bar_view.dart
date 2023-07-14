@@ -7,6 +7,7 @@ import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/left_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -209,6 +210,9 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
 
   @override
   Widget get leftBarItem => ViewLeftBarItem(view: notifier.view);
+
+  @override
+  Widget tabBarItem(String pluginId) => ViewTabBarItem(view: notifier.view);
 
   @override
   Widget buildWidget({PluginContext? context}) {

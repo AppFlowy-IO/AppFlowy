@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:appflowy/env/env.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:flutter/foundation.dart';
@@ -47,8 +46,9 @@ class FlowyRunner {
     final launcher = getIt<AppLauncher>();
     launcher.addTasks(
       [
-        // handle platform errors.
-        const PlatformErrorCatcherTask(),
+        // this task should be first task, for handling platform errors.
+        // don't catch errors in test mode
+        if (!mode.isUnitTest) const PlatformErrorCatcherTask(),
         // localization
         const InitLocalizationTask(),
         // init the app window
@@ -62,13 +62,7 @@ class FlowyRunner {
         // ignore in test mode
         if (!mode.isUnitTest) ...[
           const HotKeyTask(),
-          InitSupabaseTask(
-            url: Env.supabaseUrl,
-            anonKey: Env.supabaseAnonKey,
-            key: Env.supabaseKey,
-            jwtSecret: Env.supabaseJwtSecret,
-            collabTable: Env.supabaseCollabTable,
-          ),
+          InitSupabaseTask(),
           const InitAppWidgetTask(),
           const InitPlatformServiceTask()
         ],

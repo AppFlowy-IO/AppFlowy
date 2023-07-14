@@ -11,8 +11,11 @@ flowy-sqlite = { path = "../flowy-sqlite", optional = true }
 flowy-error = { path = "../flowy-error", features = ["adaptor_database", "adaptor_dispatch"] }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-notification = { path = "../flowy-notification" }
+flowy-server-config = { path = "../flowy-server-config" }
 lib-dispatch = { path = "../lib-dispatch" }
 appflowy-integrate = { version = "0.1.0" }
+collab = { version = "0.1.0" }
+collab-folder = { version = "0.1.0" }
 
 tracing = { version = "0.1", features = ["log"] }
 bytes = "1.4"
@@ -32,6 +35,7 @@ tokio = { version = "1.26", features = ["rt"] }
 validator = "0.16.0"
 unicode-segmentation = "1.10"
 fancy-regex = "0.11.0"
+uuid = { version = "1.3.3", features = [ "v4"] }
 
 [dev-dependencies]
 nanoid = "0.4.0"

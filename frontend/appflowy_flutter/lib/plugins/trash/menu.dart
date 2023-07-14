@@ -1,6 +1,6 @@
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/presentation/home/home_stack.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -31,8 +31,11 @@ class MenuTrash extends StatelessWidget {
             child: InkWell(
               onTap: () {
                 getIt<MenuSharedState>().latestOpenView = null;
-                getIt<HomeStackManager>()
-                    .setPlugin(makePlugin(pluginType: PluginType.trash));
+                getIt<TabsBloc>().add(
+                  TabsEvent.openPlugin(
+                    plugin: makePlugin(pluginType: PluginType.trash),
+                  ),
+                );
               },
               child: _render(context),
             ),
