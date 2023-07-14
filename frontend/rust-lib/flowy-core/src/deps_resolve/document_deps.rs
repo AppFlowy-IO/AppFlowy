@@ -3,17 +3,17 @@ use std::sync::{Arc, Weak};
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::RocksCollabDB;
 
-use flowy_database2::DatabaseManager2;
+use flowy_database2::DatabaseManager;
 use flowy_document2::deps::{DocumentCloudService, DocumentUser};
 use flowy_document2::manager::DocumentManager;
 use flowy_error::FlowyError;
 use flowy_user::services::UserSession;
 
-pub struct Document2DepsResolver();
-impl Document2DepsResolver {
+pub struct DocumentDepsResolver();
+impl DocumentDepsResolver {
   pub fn resolve(
     user_session: Weak<UserSession>,
-    _database_manager: &Arc<DatabaseManager2>,
+    _database_manager: &Arc<DatabaseManager>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DocumentCloudService>,
   ) -> Arc<DocumentManager> {

@@ -1,6 +1,6 @@
-use std::sync::{Weak};
+use std::sync::Weak;
 
-use flowy_database2::DatabaseManager2;
+use flowy_database2::DatabaseManager;
 use flowy_document2::manager::DocumentManager as DocumentManager2;
 use flowy_folder2::manager::FolderManager;
 use flowy_user::services::UserSession;
@@ -8,7 +8,7 @@ use lib_dispatch::prelude::AFPlugin;
 
 pub fn make_plugins(
   folder_manager: Weak<FolderManager>,
-  database_manager: Weak<DatabaseManager2>,
+  database_manager: Weak<DatabaseManager>,
   user_session: Weak<UserSession>,
   document_manager2: Weak<DocumentManager2>,
 ) -> Vec<AFPlugin> {

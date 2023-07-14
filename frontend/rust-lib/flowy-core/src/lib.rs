@@ -13,8 +13,8 @@ use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CollabStorageTyp
 use tokio::sync::RwLock;
 use tracing::debug;
 
-use flowy_database2::DatabaseManager2;
-use flowy_document2::manager::DocumentManager as DocumentManager2;
+use flowy_database2::DatabaseManager;
+use flowy_document2::manager::DocumentManager;
 use flowy_error::FlowyResult;
 use flowy_folder2::manager::{FolderInitializeData, FolderManager};
 use flowy_sqlite::kv::KV;
@@ -113,9 +113,9 @@ pub struct AppFlowyCore {
   #[allow(dead_code)]
   pub config: AppFlowyCoreConfig,
   pub user_session: Arc<UserSession>,
-  pub document_manager2: Arc<DocumentManager2>,
+  pub document_manager: Arc<DocumentManager>,
   pub folder_manager: Arc<FolderManager>,
-  pub database_manager: Arc<DatabaseManager2>,
+  pub database_manager: Arc<DatabaseManager>,
   pub event_dispatcher: Arc<AFPluginDispatcher>,
   pub server_provider: Arc<AppFlowyServerProvider>,
   pub task_dispatcher: Arc<RwLock<TaskDispatcher>>,
@@ -135,7 +135,7 @@ impl AppFlowyCore {
     // Init the key value database
     init_kv(&config.storage_path);
 
-    debug!("🔥 {:?}", &config);
+    tracing::info!("🔥 {:?}", &config);
     let runtime = tokio_default_runtime().unwrap();
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
@@ -146,7 +146,7 @@ impl AppFlowyCore {
       get_supabase_config(),
     ));
 
-    let (user_session, folder_manager, server_provider, database_manager, document_manager2) =
+    let (user_session, folder_manager, server_provider, database_manager, document_manager) =
       runtime.block_on(async {
         let user_session = mk_user_session(&config, server_provider.clone());
         /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
@@ -156,7 +156,7 @@ impl AppFlowyCore {
           Some(Arc::new(SnapshotDBImpl(Arc::downgrade(&user_session)))),
         ));
 
-        let database_manager2 = Database2DepsResolver::resolve(
+        let database_manager = DatabaseDepsResolver::resolve(
           Arc::downgrade(&user_session),
           task_dispatcher.clone(),
           collab_builder.clone(),
@@ -164,17 +164,17 @@ impl AppFlowyCore {
         )
         .await;
 
-        let document_manager2 = Document2DepsResolver::resolve(
+        let document_manager = DocumentDepsResolver::resolve(
           Arc::downgrade(&user_session),
-          &database_manager2,
+          &database_manager,
           collab_builder.clone(),
           server_provider.clone(),
         );
 
-        let folder_manager = Folder2DepsResolver::resolve(
+        let folder_manager = FolderDepsResolver::resolve(
           Arc::downgrade(&user_session),
-          &document_manager2,
-          &database_manager2,
+          &document_manager,
+          &database_manager,
           collab_builder,
           server_provider.clone(),
         )
@@ -184,8 +184,8 @@ impl AppFlowyCore {
           user_session,
           folder_manager,
           server_provider,
-          database_manager2,
-          document_manager2,
+          database_manager,
+          document_manager,
         )
       });
 
@@ -207,14 +207,14 @@ impl AppFlowyCore {
         Arc::downgrade(&folder_manager),
         Arc::downgrade(&database_manager),
         Arc::downgrade(&user_session),
-        Arc::downgrade(&document_manager2),
+        Arc::downgrade(&document_manager),
       )
     }));
 
     Self {
       config,
       user_session,
-      document_manager2,
+      document_manager,
       folder_manager,
       database_manager,
       event_dispatcher,
@@ -223,6 +223,8 @@ impl AppFlowyCore {
     }
   }
 
+  /// Only expose the dispatcher in test
+  #[cfg(debug_assertions)]
   pub fn dispatcher(&self) -> Arc<AFPluginDispatcher> {
     self.event_dispatcher.clone()
   }
@@ -255,7 +257,7 @@ fn mk_user_session(
 
 struct UserStatusCallbackImpl {
   folder_manager: Arc<FolderManager>,
-  database_manager: Arc<DatabaseManager2>,
+  database_manager: Arc<DatabaseManager>,
   #[allow(dead_code)]
   config: AppFlowyCoreConfig,
 }

@@ -1,4 +1,4 @@
-use std::sync::{Arc};
+use std::sync::Arc;
 
 use appflowy_integrate::RocksCollabDB;
 pub use collab_database::user::CollabObjectUpdate;
@@ -7,7 +7,7 @@ pub use collab_database::user::CollabObjectUpdateByOid;
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 
-pub trait DatabaseUser2: Send + Sync {
+pub trait DatabaseUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn token(&self) -> Result<Option<String>, FlowyError>;
   fn collab_db(&self, uid: i64) -> Result<Arc<RocksCollabDB>, FlowyError>;

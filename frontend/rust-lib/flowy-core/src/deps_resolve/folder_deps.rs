@@ -10,7 +10,7 @@ use tokio::sync::RwLock;
 use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};
-use flowy_database2::DatabaseManager2;
+use flowy_database2::DatabaseManager;
 use flowy_document2::entities::DocumentDataPB;
 use flowy_document2::manager::DocumentManager;
 use flowy_document2::parser::json::parser::JsonToDocumentParser;
@@ -27,12 +27,12 @@ use flowy_user::services::UserSession;
 use lib_dispatch::prelude::ToBytes;
 use lib_infra::future::FutureResult;
 
-pub struct Folder2DepsResolver();
-impl Folder2DepsResolver {
+pub struct FolderDepsResolver();
+impl FolderDepsResolver {
   pub async fn resolve(
     user_session: Weak<UserSession>,
     document_manager: &Arc<DocumentManager>,
-    database_manager: &Arc<DatabaseManager2>,
+    database_manager: &Arc<DatabaseManager>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     folder_cloud: Arc<dyn FolderCloudService>,
   ) -> Arc<FolderManager> {
@@ -49,7 +49,7 @@ impl Folder2DepsResolver {
 
 fn folder_operation_handlers(
   document_manager: Arc<DocumentManager>,
-  database_manager: Arc<DatabaseManager2>,
+  database_manager: Arc<DatabaseManager>,
 ) -> FolderOperationHandlers {
   let mut map: HashMap<ViewLayout, Arc<dyn FolderOperationHandler + Send + Sync>> = HashMap::new();
 
@@ -218,7 +218,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
   }
 }
 
-struct DatabaseFolderOperation(Arc<DatabaseManager2>);
+struct DatabaseFolderOperation(Arc<DatabaseManager>);
 impl FolderOperationHandler for DatabaseFolderOperation {
   fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
     let database_manager = self.0.clone();

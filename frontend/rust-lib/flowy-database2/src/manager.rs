@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::sync::{Arc};
+use std::sync::Arc;
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::{CollabPersistenceConfig, RocksCollabDB};
@@ -17,7 +17,7 @@ use tokio::sync::RwLock;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
 
-use crate::deps::{DatabaseCloudService, DatabaseUser2};
+use crate::deps::{DatabaseCloudService, DatabaseUser};
 use crate::entities::{
   DatabaseDescriptionPB, DatabaseLayoutPB, DatabaseSnapshotPB, DidFetchRowPB,
   RepeatedDatabaseDescriptionPB,
@@ -27,8 +27,8 @@ use crate::services::database::DatabaseEditor;
 use crate::services::database_view::DatabaseLayoutDepsResolver;
 use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
 
-pub struct DatabaseManager2 {
-  user: Arc<dyn DatabaseUser2>,
+pub struct DatabaseManager {
+  user: Arc<dyn DatabaseUser>,
   workspace_database: Arc<RwLock<Option<Arc<WorkspaceDatabase>>>>,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
   editors: RwLock<HashMap<String, Arc<DatabaseEditor>>>,
@@ -36,9 +36,9 @@ pub struct DatabaseManager2 {
   cloud_service: Arc<dyn DatabaseCloudService>,
 }
 
-impl DatabaseManager2 {
+impl DatabaseManager {
   pub fn new(
-    database_user: Arc<dyn DatabaseUser2>,
+    database_user: Arc<dyn DatabaseUser>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DatabaseCloudService>,

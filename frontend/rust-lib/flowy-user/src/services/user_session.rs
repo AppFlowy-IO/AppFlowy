@@ -220,7 +220,7 @@ impl UserSession {
             )
             .await
           {
-            Ok(folder_data) => sign_up_context.local_folder = folderget__data,
+            Ok(folder_data) => sign_up_context.local_folder = folder_data,
             Err(e) => tracing::error!("{:?}", e),
           }
 
