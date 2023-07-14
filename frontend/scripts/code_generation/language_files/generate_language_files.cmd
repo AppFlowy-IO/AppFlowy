@@ -13,7 +13,7 @@ cd ..\..\..\appflowy_flutter
 REM copy the resources/translations folder to
 REM   the appflowy_flutter/assets/translation directory
 echo Copying resources/translations to appflowy_flutter/assets/translations
-xcopy /E /Y /I ..\resources\translations assets\translations
+xcopy /E /Y /I ..\resources\translations\ assets\translations\
 
 call flutter packages pub get
 
