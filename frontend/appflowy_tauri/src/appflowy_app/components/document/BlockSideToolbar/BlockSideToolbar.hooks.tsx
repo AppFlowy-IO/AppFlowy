@@ -1,9 +1,12 @@
 import { BlockType, HeadingBlockData } from '@/appflowy_app/interfaces/document';
-import { useAppDispatch } from '@/appflowy_app/stores/store';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useAppSelector } from '@/appflowy_app/stores/store';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { PopoverOrigin } from '@mui/material/Popover/Popover';
 import { getBlock } from '$app/components/document/_shared/SubscribeNode.hooks';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { RANGE_NAME, RECT_RANGE_NAME } from '$app/constants/document/name';
+import { getNode } from '$app/utils/document/node';
+import { get } from '$app/utils/tool';
 
 const headingBlockTopOffset: Record<number, number> = {
   1: 6,
@@ -11,66 +14,76 @@ const headingBlockTopOffset: Record<number, number> = {
   3: 3,
 };
 
-export function useBlockSideToolbar({ container }: { container: HTMLDivElement }) {
-  const [nodeId, setHoverNodeId] = useState<string | null>(null);
-  const ref = useRef<HTMLDivElement | null>(null);
-  const dispatch = useAppDispatch();
-  const [style, setStyle] = useState<React.CSSProperties>({});
+export function useBlockSideToolbar(id: string) {
   const { docId } = useSubscribeDocument();
 
-  useEffect(() => {
-    const el = ref.current;
+  const isDragging = useAppSelector((state) => {
+    return (
+      get(state, [RECT_RANGE_NAME, docId, 'isDragging'], false) ||
+      get(state, [RANGE_NAME, docId, 'isDragging'], false) ||
+      get(state, ['blockDraggable', 'dragging'], false)
+    );
+  });
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [opacity, setOpacity] = useState(0);
 
-    if (!el || !nodeId) return;
-    void (async () => {
-      const node = getBlock(docId, nodeId);
+  const topOffset = useMemo(() => {
+    const block = getBlock(docId, id);
 
-      if (!node) {
-        setStyle({
-          opacity: '0',
-          pointerEvents: 'none',
-        });
+    if (!block) return 0;
+    if (block.type === BlockType.HeadingBlock) {
+      return headingBlockTopOffset[(block.data as HeadingBlockData).level];
+    }
+
+    if (block.type === BlockType.DividerBlock) {
+      return -6;
+    }
+
+    return 0;
+  }, [docId, id]);
+
+  const onMouseMove = useCallback(
+    (e: Event) => {
+      if (isDragging) {
+        setOpacity(0);
         return;
-      } else {
-        let top = 0;
-
-        if (node.type === BlockType.HeadingBlock) {
-          const nodeData = node.data as HeadingBlockData;
-
-          top = headingBlockTopOffset[nodeData.level];
-        }
-
-        if (node.type === BlockType.DividerBlock) {
-          top = -3;
-        }
-
-        setStyle({
-          opacity: '1',
-          pointerEvents: 'auto',
-          top: `${top}px`,
-        });
       }
-    })();
-  }, [dispatch, docId, nodeId]);
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    const { clientX, clientY } = e;
-    const id = getNodeIdByPoint(clientX, clientY);
+      const target = (e.target as HTMLElement).closest('[data-block-id]');
 
-    setHoverNodeId(id);
+      if (!target) return;
+      const targetId = target.getAttribute('data-block-id');
+
+      if (targetId !== id) {
+        setOpacity(0);
+        return;
+      }
+
+      setOpacity(1);
+    },
+    [id, isDragging]
+  );
+
+  const onMouseLeave = useCallback(() => {
+    setOpacity(0);
   }, []);
 
   useEffect(() => {
-    container.addEventListener('mousemove', handleMouseMove);
+    const node = getNode(id);
+
+    if (!node) return;
+    node.addEventListener('mousemove', onMouseMove);
+    node.addEventListener('mouseleave', onMouseLeave);
     return () => {
-      container.removeEventListener('mousemove', handleMouseMove);
+      node.removeEventListener('mousemove', onMouseMove);
+      node.removeEventListener('mouseleave', onMouseLeave);
     };
-  }, [container, handleMouseMove]);
+  }, [id, onMouseMove, onMouseLeave]);
 
   return {
-    nodeId,
     ref,
-    style,
+    opacity,
+    topOffset,
   };
 }
 
