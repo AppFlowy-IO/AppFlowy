@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Weak};
 
 use strum_macros::Display;
 
@@ -8,7 +8,7 @@ use lib_dispatch::prelude::*;
 use crate::event_handler::*;
 use crate::manager::DatabaseManager2;
 
-pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
+pub fn init(database_manager: Weak<DatabaseManager2>) -> AFPlugin {
   let plugin = AFPlugin::new()
     .name(env!("CARGO_PKG_NAME"))
     .state(database_manager);

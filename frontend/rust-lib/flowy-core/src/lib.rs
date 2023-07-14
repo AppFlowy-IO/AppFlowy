@@ -204,10 +204,10 @@ impl AppFlowyCore {
 
     let event_dispatcher = Arc::new(AFPluginDispatcher::construct(runtime, || {
       make_plugins(
-        &folder_manager,
-        &database_manager,
-        &user_session,
-        &document_manager2,
+        Arc::downgrade(&folder_manager),
+        Arc::downgrade(&database_manager),
+        Arc::downgrade(&user_session),
+        Arc::downgrade(&document_manager2),
       )
     }));
 

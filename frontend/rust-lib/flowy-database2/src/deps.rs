@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc};
 
 use appflowy_integrate::RocksCollabDB;
 pub use collab_database::user::CollabObjectUpdate;

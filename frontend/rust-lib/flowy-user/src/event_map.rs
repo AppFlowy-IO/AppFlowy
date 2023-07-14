@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use collab_folder::core::FolderData;
 use strum_macros::Display;
@@ -15,7 +15,7 @@ use crate::event_handler::*;
 use crate::services::AuthType;
 use crate::{errors::FlowyError, services::UserSession};
 
-pub fn init(user_session: Arc<UserSession>) -> AFPlugin {
+pub fn init(user_session: Weak<UserSession>) -> AFPlugin {
   AFPlugin::new()
     .name("Flowy-User")
     .state(user_session)

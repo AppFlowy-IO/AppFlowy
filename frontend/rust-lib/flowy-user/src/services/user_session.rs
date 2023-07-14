@@ -67,11 +67,11 @@ impl UserSession {
     session_config: UserSessionConfig,
     cloud_services: Arc<dyn UserCloudServiceProvider>,
   ) -> Self {
-    let db = UserDB::new(&session_config.root_dir);
+    let database = UserDB::new(&session_config.root_dir);
     let user_status_callback: RwLock<Arc<dyn UserStatusCallback>> =
       RwLock::new(Arc::new(DefaultUserStatusCallback));
     Self {
-      database: db,
+      database,
       session_config,
       cloud_services,
       user_status_callback,
@@ -126,10 +126,6 @@ impl UserSession {
       new_workspace_id,
     )?;
     Ok(folder_data)
-  }
-
-  pub fn clear_old_user(&self, old_uid: i64) {
-    let _ = self.database.close(old_uid);
   }
 
   #[tracing::instrument(level = "debug", skip(self, params))]
@@ -205,7 +201,8 @@ impl UserSession {
       .await?;
     let new_user_profile: UserProfile = user_table.into();
 
-    // Only migrate the data if the user is login in as a guest and sign up as a new user
+    // Only migrate the data if the user is login in as a guest and sign up as a new user if the current
+    // auth type is not [AuthType::Local].
     if sign_up_context.is_new {
       if let Some(old_user_profile) = old_user_profile {
         if old_user_profile.auth_type == AuthType::Local && !auth_type.is_local() {
@@ -223,9 +220,12 @@ impl UserSession {
             )
             .await
           {
-            Ok(folder_data) => sign_up_context.local_folder = folder_data,
+            Ok(folder_data) => sign_up_context.local_folder = folderget__data,
             Err(e) => tracing::error!("{:?}", e),
           }
+
+          // close the old user db
+          let _ = self.database.close(old_user_profile.id);
         }
       }
     }
@@ -367,12 +367,6 @@ impl UserSession {
   }
 }
 
-pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
-  KV::get_str(SUPABASE_CONFIG_CACHE_KEY)
-    .and_then(|s| serde_json::from_str(&s).ok())
-    .unwrap_or_else(|| SupabaseConfiguration::from_env().ok())
-}
-
 impl UserSession {
   async fn update_user(
     &self,
@@ -449,6 +443,11 @@ impl UserSession {
   }
 }
 
+pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
+  KV::get_str(SUPABASE_CONFIG_CACHE_KEY)
+    .and_then(|s| serde_json::from_str(&s).ok())
+    .unwrap_or_else(|| SupabaseConfiguration::from_env().ok())
+}
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Session {
   pub user_id: i64,
