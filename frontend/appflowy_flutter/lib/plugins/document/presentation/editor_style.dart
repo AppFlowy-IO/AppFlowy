@@ -89,9 +89,9 @@ class EditorStyleCustomizer {
         ),
         italic: baseTextStyle(fontFamily).copyWith(fontStyle: FontStyle.italic),
         underline: baseTextStyle(fontFamily)
-        .copyWith(decoration: TextDecoration.underline),
+            .copyWith(decoration: TextDecoration.underline),
         strikethrough: baseTextStyle(fontFamily)
-        .copyWith(decoration: TextDecoration.lineThrough),
+            .copyWith(decoration: TextDecoration.lineThrough),
         href: baseTextStyle(fontFamily).copyWith(
           color: theme.colorScheme.primary,
           decoration: TextDecoration.underline,
