@@ -38,6 +38,7 @@ AppFlowyEnv getAppFlowyEnv() {
   );
 
   final supabaseConfig = SupabaseConfiguration(
+    enable_sync: Env.enableSupabaseSync,
     url: Env.supabaseUrl,
     key: Env.supabaseKey,
     jwt_secret: Env.supabaseJwtSecret,

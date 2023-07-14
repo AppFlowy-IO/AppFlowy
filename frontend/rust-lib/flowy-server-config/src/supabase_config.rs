@@ -1,7 +1,8 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use flowy_error::{ErrorCode, FlowyError};
 
+pub const ENABLE_SUPABASE_SYNC: &str = "ENABLE_SUPABASE_SYNC";
 pub const SUPABASE_URL: &str = "SUPABASE_URL";
 pub const SUPABASE_ANON_KEY: &str = "SUPABASE_ANON_KEY";
 pub const SUPABASE_KEY: &str = "SUPABASE_KEY";
@@ -12,14 +13,17 @@ pub const SUPABASE_DB_USER: &str = "SUPABASE_DB_USER";
 pub const SUPABASE_DB_PASSWORD: &str = "SUPABASE_DB_PASSWORD";
 pub const SUPABASE_DB_PORT: &str = "SUPABASE_DB_PORT";
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct SupabaseConfiguration {
   /// The url of the supabase server.
   pub url: String,
+
   /// The key of the supabase server.
   pub key: String,
   /// The secret used to sign the JWT tokens.
   pub jwt_secret: String,
+
+  pub enable_sync: bool,
 
   pub postgres_config: PostgresConfiguration,
 }
@@ -33,6 +37,9 @@ impl SupabaseConfiguration {
   pub fn from_env() -> Result<Self, FlowyError> {
     let postgres_config = PostgresConfiguration::from_env()?;
     Ok(Self {
+      enable_sync: std::env::var(ENABLE_SUPABASE_SYNC)
+        .map(|v| v == "true")
+        .unwrap_or(false),
       url: std::env::var(SUPABASE_URL)
         .map_err(|_| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_URL"))?,
       key: std::env::var(SUPABASE_KEY)
@@ -45,6 +52,11 @@ impl SupabaseConfiguration {
   }
 
   pub fn write_env(&self) {
+    if self.enable_sync {
+      std::env::set_var(ENABLE_SUPABASE_SYNC, "true");
+    } else {
+      std::env::set_var(ENABLE_SUPABASE_SYNC, "false");
+    }
     std::env::set_var(SUPABASE_URL, &self.url);
     std::env::set_var(SUPABASE_KEY, &self.key);
     std::env::set_var(SUPABASE_JWT_SECRET, &self.jwt_secret);
@@ -52,7 +64,7 @@ impl SupabaseConfiguration {
   }
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct PostgresConfiguration {
   pub url: String,
   pub user_name: String,

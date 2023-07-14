@@ -1,14 +1,15 @@
+use std::convert::TryFrom;
 use std::{convert::TryInto, sync::Arc};
 
 use flowy_error::FlowyError;
+use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::KV;
 use lib_dispatch::prelude::*;
 use lib_infra::box_any::BoxAny;
 
 use crate::entities::*;
 use crate::entities::{SignInParams, SignUpParams, UpdateUserProfileParams};
-use crate::event_map::UserCredentials;
-use crate::services::{AuthType, UserSession};
+use crate::services::{get_supabase_config, AuthType, UserSession};
 
 #[tracing::instrument(level = "debug", name = "sign_in", skip(data, session), fields(email = %data.email), err)]
 pub async fn sign_in(
@@ -17,9 +18,10 @@ pub async fn sign_in(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let params: SignInParams = data.into_inner().try_into()?;
   let auth_type = params.auth_type.clone();
+  session.update_auth_type(&auth_type).await;
 
   let user_profile: UserProfilePB = session
-    .sign_in(&auth_type, BoxAny::new(params))
+    .sign_in(BoxAny::new(params), auth_type)
     .await?
     .into();
   data_result_ok(user_profile)
@@ -41,11 +43,10 @@ pub async fn sign_up(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let params: SignUpParams = data.into_inner().try_into()?;
   let auth_type = params.auth_type.clone();
-  let user_profile: UserProfilePB = session
-    .sign_up(&auth_type, BoxAny::new(params))
-    .await?
-    .into();
-  data_result_ok(user_profile)
+  session.update_auth_type(&auth_type).await;
+
+  let user_profile = session.sign_up(auth_type, BoxAny::new(params)).await?;
+  data_result_ok(user_profile.into())
 }
 
 #[tracing::instrument(level = "debug", skip(session))]
@@ -56,11 +57,9 @@ pub async fn init_user_handler(session: AFPluginState<Arc<UserSession>>) -> Resu
 
 #[tracing::instrument(level = "debug", skip(session))]
 pub async fn check_user_handler(
-  data: AFPluginData<UserCredentialsPB>,
   session: AFPluginState<Arc<UserSession>>,
 ) -> Result<(), FlowyError> {
-  let credential = UserCredentials::from(data.into_inner());
-  session.check_user(credential).await?;
+  session.check_user().await?;
   Ok(())
 }
 
@@ -68,17 +67,14 @@ pub async fn check_user_handler(
 pub async fn get_user_profile_handler(
   session: AFPluginState<Arc<UserSession>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
-  let user_profile: UserProfilePB = session.get_user_profile().await?.into();
+  let uid = session.get_session()?.user_id;
+  let user_profile: UserProfilePB = session.get_user_profile(uid, true).await?.into();
   data_result_ok(user_profile)
 }
 
-#[tracing::instrument(level = "debug", skip(data, session))]
-pub async fn sign_out(
-  data: AFPluginData<SignOutPB>,
-  session: AFPluginState<Arc<UserSession>>,
-) -> Result<(), FlowyError> {
-  let auth_type: AuthType = data.into_inner().auth_type.into();
-  session.sign_out(&auth_type).await?;
+#[tracing::instrument(level = "debug", skip(session))]
+pub async fn sign_out(session: AFPluginState<Arc<UserSession>>) -> Result<(), FlowyError> {
+  session.sign_out().await?;
   Ok(())
 }
 
@@ -144,9 +140,25 @@ pub async fn third_party_auth_handler(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let params = data.into_inner();
   let auth_type: AuthType = params.auth_type.into();
-  let user_profile: UserProfilePB = session
-    .sign_up(&auth_type, BoxAny::new(params.map))
-    .await?
-    .into();
-  data_result_ok(user_profile)
+  session.update_auth_type(&auth_type).await;
+  let user_profile = session.sign_up(auth_type, BoxAny::new(params.map)).await?;
+  data_result_ok(user_profile.into())
+}
+
+#[tracing::instrument(level = "debug", skip(data, session), err)]
+pub async fn set_supabase_config_handler(
+  data: AFPluginData<SupabaseConfigPB>,
+  session: AFPluginState<Arc<UserSession>>,
+) -> Result<(), FlowyError> {
+  let config = SupabaseConfiguration::try_from(data.into_inner())?;
+  session.save_supabase_config(config);
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_supabase_config_handler(
+  _session: AFPluginState<Arc<UserSession>>,
+) -> DataResult<SupabaseConfigPB, FlowyError> {
+  let config = get_supabase_config().unwrap_or_default();
+  data_result_ok(config.into())
 }

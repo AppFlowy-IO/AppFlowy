@@ -34,7 +34,7 @@ pub(crate) async fn open_document_handler(
 ) -> DataResult<DocumentDataPB, FlowyError> {
   let params: OpenDocumentParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_document(&doc_id)?;
+  let document = manager.get_document(&doc_id).await?;
   let document_data = document.lock().get_document_data()?;
   data_result_ok(DocumentDataPB::from(document_data))
 }
@@ -57,7 +57,7 @@ pub(crate) async fn get_document_data_handler(
 ) -> DataResult<DocumentDataPB, FlowyError> {
   let params: OpenDocumentParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document_data = manager.get_document_data(&doc_id)?;
+  let document_data = manager.get_document_data(&doc_id).await?;
   data_result_ok(DocumentDataPB::from(document_data))
 }
 
@@ -68,7 +68,7 @@ pub(crate) async fn apply_action_handler(
 ) -> FlowyResult<()> {
   let params: ApplyActionParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_document(&doc_id)?;
+  let document = manager.get_document(&doc_id).await?;
   let actions = params.actions;
   document.lock().apply_action(actions);
   Ok(())
@@ -104,7 +104,7 @@ pub(crate) async fn redo_handler(
 ) -> DataResult<DocumentRedoUndoResponsePB, FlowyError> {
   let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_document(&doc_id)?;
+  let document = manager.get_document(&doc_id).await?;
   let document = document.lock();
   let redo = document.redo();
   let can_redo = document.can_redo();
@@ -122,7 +122,7 @@ pub(crate) async fn undo_handler(
 ) -> DataResult<DocumentRedoUndoResponsePB, FlowyError> {
   let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_document(&doc_id)?;
+  let document = manager.get_document(&doc_id).await?;
   let document = document.lock();
   let undo = document.undo();
   let can_redo = document.can_redo();
@@ -140,7 +140,7 @@ pub(crate) async fn can_undo_redo_handler(
 ) -> DataResult<DocumentRedoUndoResponsePB, FlowyError> {
   let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let document = manager.get_document(&doc_id)?;
+  let document = manager.get_document(&doc_id).await?;
   let document = document.lock();
   let can_redo = document.can_redo();
   let can_undo = document.can_undo();

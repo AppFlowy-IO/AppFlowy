@@ -37,7 +37,6 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
   let config =
     AppFlowyCoreConfig::new(path, DEFAULT_NAME.to_string()).log_filter("info", log_crates);
   *APPFLOWY_CORE.write() = Some(AppFlowyCore::new(config));
-
   0
 }
 

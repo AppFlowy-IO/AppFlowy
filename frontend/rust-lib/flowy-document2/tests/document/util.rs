@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, DefaultCollabStorageProvider};
 use appflowy_integrate::RocksCollabDB;
+use collab_document::blocks::DocumentData;
 use nanoid::nanoid;
 use parking_lot::Once;
 use tempfile::TempDir;
@@ -55,7 +56,7 @@ impl DocumentUser for FakeUser {
     Ok(None)
   }
 
-  fn collab_db(&self) -> Result<std::sync::Arc<RocksCollabDB>, flowy_error::FlowyError> {
+  fn collab_db(&self, _uid: i64) -> Result<std::sync::Arc<RocksCollabDB>, flowy_error::FlowyError> {
     Ok(self.kv.clone())
   }
 }
@@ -81,7 +82,7 @@ pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
   Arc::new(builder)
 }
 
-pub fn create_and_open_empty_document() -> (DocumentTest, Arc<MutexDocument>, String) {
+pub async fn create_and_open_empty_document() -> (DocumentTest, Arc<MutexDocument>, String) {
   let test = DocumentTest::new();
   let doc_id: String = gen_document_id();
   let data = default_document_data();
@@ -89,7 +90,7 @@ pub fn create_and_open_empty_document() -> (DocumentTest, Arc<MutexDocument>, St
   // create a document
   _ = test.create_document(&doc_id, Some(data.clone())).unwrap();
 
-  let document = test.get_document(&doc_id).unwrap();
+  let document = test.get_document(&doc_id).await.unwrap();
 
   (test, document, data.page_id)
 }
@@ -113,6 +114,13 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
     &self,
     _document_id: &str,
   ) -> FutureResult<Option<DocumentSnapshot>, FlowyError> {
+    FutureResult::new(async move { Ok(None) })
+  }
+
+  fn get_document_data(
+    &self,
+    _document_id: &str,
+  ) -> FutureResult<Option<DocumentData>, FlowyError> {
     FutureResult::new(async move { Ok(None) })
   }
 }

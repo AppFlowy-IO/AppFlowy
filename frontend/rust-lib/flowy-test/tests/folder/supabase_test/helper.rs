@@ -44,7 +44,7 @@ impl FlowySupabaseFolderTest {
   pub async fn get_collab_update(&self, workspace_id: &str) -> Vec<u8> {
     let cloud_service = self.folder_manager.get_cloud_service().clone();
     let remote_updates = cloud_service
-      .get_folder_updates(workspace_id)
+      .get_folder_updates(workspace_id, self.user_session.user_id().unwrap())
       .await
       .unwrap();
 

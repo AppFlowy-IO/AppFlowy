@@ -53,7 +53,7 @@ class WorkspaceService {
     final payload = WorkspaceIdPB.create()..value = workspaceId;
     return FolderEventReadWorkspaceViews(payload).send().then((result) {
       return result.fold(
-        (apps) => left(apps.items),
+        (views) => left(views.items),
         (error) => right(error),
       );
     });

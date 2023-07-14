@@ -198,7 +198,8 @@
       "language": "Language",
       "user": "User",
       "files": "Files",
-      "open": "Open Settings"
+      "open": "Open Settings",
+      "supabaseSetting": "Supabase Setting"
     },
     "appearance": {
       "fontFamily": {

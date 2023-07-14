@@ -45,28 +45,35 @@ impl DocumentManager {
     data: Option<DocumentData>,
   ) -> FlowyResult<Arc<MutexDocument>> {
     tracing::trace!("create a document: {:?}", doc_id);
-    let collab = self.collab_for_document(doc_id)?;
+    let collab = self.collab_for_document(doc_id, vec![])?;
     let data = data.unwrap_or_else(default_document_data);
     let document = Arc::new(MutexDocument::create_with_data(collab, data)?);
     Ok(document)
   }
 
   /// Return the document
-  pub fn get_document(&self, doc_id: &str) -> FlowyResult<Arc<MutexDocument>> {
+  pub async fn get_document(&self, doc_id: &str) -> FlowyResult<Arc<MutexDocument>> {
     if let Some(doc) = self.documents.read().get(doc_id) {
       return Ok(doc.clone());
     }
-    // Check if the document exists. If not, return error.
+    let mut updates = vec![];
     if !self.is_doc_exist(doc_id)? {
-      return Err(
-        FlowyError::record_not_found().context(format!("document: {} is not exist", doc_id)),
-      );
+      // Try to get the document from the cloud service
+      if let Ok(document_updates) = self.cloud_service.get_document_updates(doc_id).await {
+        updates = document_updates;
+      } else {
+        return Err(
+          FlowyError::record_not_found().context(format!("document: {} is not exist", doc_id)),
+        );
+      };
     }
 
     tracing::debug!("open_document: {:?}", doc_id);
     let uid = self.user.user_id()?;
-    let db = self.user.collab_db()?;
-    let collab = self.collab_builder.build(uid, doc_id, "document", db);
+    let db = self.user.collab_db(uid)?;
+    let collab = self
+      .collab_builder
+      .build(uid, doc_id, "document", updates, db)?;
     let document = Arc::new(MutexDocument::open(doc_id, collab)?);
 
     // save the document to the memory and read it from the memory if we open the same document again.
@@ -78,14 +85,19 @@ impl DocumentManager {
     Ok(document)
   }
 
-  pub fn get_document_data(&self, doc_id: &str) -> FlowyResult<DocumentData> {
+  pub async fn get_document_data(&self, doc_id: &str) -> FlowyResult<DocumentData> {
+    let mut updates = vec![];
     if !self.is_doc_exist(doc_id)? {
-      return Err(
-        FlowyError::record_not_found().context(format!("document: {} is not exist", doc_id)),
-      );
+      if let Ok(document_updates) = self.cloud_service.get_document_updates(doc_id).await {
+        updates = document_updates;
+      } else {
+        return Err(
+          FlowyError::record_not_found().context(format!("document: {} is not exist", doc_id)),
+        );
+      }
     }
 
-    let collab = self.collab_for_document(doc_id)?;
+    let collab = self.collab_for_document(doc_id, updates)?;
     Document::open(collab)?
       .get_document_data()
       .map_err(internal_error)
@@ -98,7 +110,7 @@ impl DocumentManager {
 
   pub fn delete_document(&self, doc_id: &str) -> FlowyResult<()> {
     let uid = self.user.user_id()?;
-    let db = self.user.collab_db()?;
+    let db = self.user.collab_db(uid)?;
     let _ = db.with_write_txn(|txn| {
       txn.delete_doc(uid, &doc_id)?;
       Ok(())
@@ -130,15 +142,22 @@ impl DocumentManager {
     Ok(snapshots)
   }
 
-  fn collab_for_document(&self, doc_id: &str) -> FlowyResult<Arc<MutexCollab>> {
+  fn collab_for_document(
+    &self,
+    doc_id: &str,
+    updates: Vec<Vec<u8>>,
+  ) -> FlowyResult<Arc<MutexCollab>> {
     let uid = self.user.user_id()?;
-    let db = self.user.collab_db()?;
-    Ok(self.collab_builder.build(uid, doc_id, "document", db))
+    let db = self.user.collab_db(uid)?;
+    let collab = self
+      .collab_builder
+      .build(uid, doc_id, "document", updates, db)?;
+    Ok(collab)
   }
 
   fn is_doc_exist(&self, doc_id: &str) -> FlowyResult<bool> {
     let uid = self.user.user_id()?;
-    let db = self.user.collab_db()?;
+    let db = self.user.collab_db(uid)?;
     let read_txn = db.read_txn();
     Ok(read_txn.is_exist(uid, doc_id))
   }

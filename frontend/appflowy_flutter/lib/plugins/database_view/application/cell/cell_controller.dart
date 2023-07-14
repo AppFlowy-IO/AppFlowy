@@ -24,7 +24,7 @@ import 'cell_service.dart';
 // ignore: must_be_immutable
 class CellController<T, D> extends Equatable {
   DatabaseCellContext _cellContext;
-  final CellCache _cellCache;
+  final CellMemCache _cellCache;
   final CellCacheKey _cacheKey;
   final FieldBackendService _fieldBackendSvc;
   final CellDataLoader<T> _cellDataLoader;
@@ -54,7 +54,7 @@ class CellController<T, D> extends Equatable {
 
   CellController({
     required DatabaseCellContext cellContext,
-    required CellCache cellCache,
+    required CellMemCache cellCache,
     required CellDataLoader<T> cellDataLoader,
     required CellDataPersistence<D> cellDataPersistence,
   })  : _cellContext = cellContext,
@@ -103,12 +103,15 @@ class CellController<T, D> extends Equatable {
       },
     );
 
-    _rowMetaListener?.start(
-      callback: (newRowMeta) {
-        _cellContext = _cellContext.copyWith(rowMeta: newRowMeta);
-        _onRowMetaChanged?.call();
-      },
-    );
+    // Only the primary can listen on the row meta changes.
+    if (_cellContext.fieldInfo.isPrimary) {
+      _rowMetaListener?.start(
+        callback: (newRowMeta) {
+          _cellContext = _cellContext.copyWith(rowMeta: newRowMeta);
+          _onRowMetaChanged?.call();
+        },
+      );
+    }
   }
 
   /// Listen on the cell content or field changes

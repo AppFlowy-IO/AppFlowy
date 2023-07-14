@@ -81,12 +81,12 @@ impl FolderUser for FolderUserImpl {
       .token()
   }
 
-  fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
+  fn collab_db(&self, uid: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
     self
       .0
       .upgrade()
       .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
-      .get_collab_db()
+      .get_collab_db(uid)
   }
 }
 
@@ -139,7 +139,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     FutureResult::new(async move {
       match manager.delete_document(&view_id) {
         Ok(_) => tracing::trace!("Delete document: {}", view_id),
-        Err(e) => tracing::error!("Failed to delete document: {}", e),
+        Err(e) => tracing::error!("🔴delete document failed: {}", e),
       }
       Ok(())
     })
@@ -149,7 +149,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      let data: DocumentDataPB = manager.get_document_data(&view_id)?.into();
+      let data: DocumentDataPB = manager.get_document_data(&view_id).await?.into();
       let data_bytes = data.into_bytes().map_err(|_| FlowyError::invalid_data())?;
       Ok(data_bytes)
     })
@@ -235,7 +235,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     FutureResult::new(async move {
       match database_manager.delete_database_view(&view_id).await {
         Ok(_) => tracing::trace!("Delete database view: {}", view_id),
-        Err(e) => tracing::error!("Failed to delete database: {}", e),
+        Err(e) => tracing::error!("🔴delete database failed: {}", e),
       }
       Ok(())
     })

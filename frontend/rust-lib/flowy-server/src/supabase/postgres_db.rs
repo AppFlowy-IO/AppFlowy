@@ -6,10 +6,10 @@ use deadpool_postgres::{Manager, ManagerConfig, Object, Pool, RecyclingMethod};
 use tokio_postgres::NoTls;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_server_config::supabase_config::PostgresConfiguration;
 
 use crate::supabase::migration::run_migrations;
 use crate::supabase::queue::RequestPayload;
-use crate::supabase::PostgresConfiguration;
 
 pub type PostgresObject = Object;
 pub struct PostgresDB {
@@ -25,6 +25,9 @@ impl PostgresDB {
   }
 
   pub async fn new(configuration: PostgresConfiguration) -> Result<Self, anyhow::Error> {
+    // TODO(nathan): Handling connection surges using
+    // https://supabase.com/blog/supabase-pgbouncer
+    // https://supabase.com/docs/guides/database/connecting-to-postgres
     let mut pg_config = tokio_postgres::Config::new();
     pg_config
       .host(&configuration.url)

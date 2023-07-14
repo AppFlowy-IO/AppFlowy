@@ -16,7 +16,7 @@ import 'cells/url_cell/url_cell.dart';
 
 /// Build the cell widget in Grid style.
 class GridCellBuilder {
-  final CellCache cellCache;
+  final CellMemCache cellCache;
   GridCellBuilder({
     required this.cellCache,
   });

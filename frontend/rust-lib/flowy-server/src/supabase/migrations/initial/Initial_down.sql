@@ -21,3 +21,6 @@ DROP FUNCTION IF EXISTS af_collab_snapshot_update_edit_count;
 DROP TRIGGER IF EXISTS check_and_delete_snapshots_trigger ON af_collab_snapshot CASCADE;
 DROP FUNCTION IF EXISTS check_and_delete_snapshots;
 
+DROP TRIGGER IF EXISTS new_af_collab_row_trigger ON af_collab CASCADE;
+DROP FUNCTION IF EXISTS notify_on_insert_af_collab;
+

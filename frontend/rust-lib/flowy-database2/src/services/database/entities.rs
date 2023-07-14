@@ -1,4 +1,4 @@
-use collab_database::rows::{Row, RowId, RowMeta};
+use collab_database::rows::{RowId, RowMeta};
 use collab_database::views::DatabaseLayout;
 
 #[derive(Debug, Clone)]
@@ -63,10 +63,4 @@ pub struct CreateDatabaseViewParams {
   pub name: String,
   pub view_id: String,
   pub layout_type: DatabaseLayout,
-}
-
-#[derive(Debug, Clone)]
-pub struct RowDetail {
-  pub row: Row,
-  pub meta: RowMeta,
 }

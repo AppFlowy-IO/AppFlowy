@@ -57,13 +57,14 @@ async fn sign_up_with_long_password() {
 async fn sign_in_success() {
   let test = FlowyCoreTest::new();
   let _ = EventBuilder::new(test.clone()).event(SignOut).sync_send();
-  let sign_up_context = test.sign_up().await;
+  let sign_up_context = test.sign_up_as_guest().await;
 
   let request = SignInPayloadPB {
     email: sign_up_context.user_profile.email.clone(),
     password: sign_up_context.password.clone(),
     name: "".to_string(),
     auth_type: AuthTypePB::Local,
+    uid: Some(sign_up_context.user_profile.id),
   };
 
   let response = EventBuilder::new(test.clone())
@@ -84,6 +85,7 @@ async fn sign_in_with_invalid_email() {
       password: login_password(),
       name: "".to_string(),
       auth_type: AuthTypePB::Local,
+      uid: None,
     };
 
     assert_eq!(
@@ -110,6 +112,7 @@ async fn sign_in_with_invalid_password() {
       password,
       name: "".to_string(),
       auth_type: AuthTypePB::Local,
+      uid: None,
     };
 
     assert!(EventBuilder::new(sdk)

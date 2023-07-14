@@ -52,8 +52,12 @@ pub struct SelectSqlBuilder {
   table: String,
   columns: Vec<String>,
   where_clause: Option<(String, Box<dyn ToSql + Sync + Send>)>,
+  where_clause_in: Option<(String, Vec<Box<dyn ToSql + Sync + Send>>)>,
+  group_by_column: Option<String>,
   order_by: Option<(String, bool)>,
   limit: Option<i64>,
+  lock: bool,
+  array_agg_columns: Vec<String>,
 }
 
 impl SelectSqlBuilder {
@@ -62,13 +66,32 @@ impl SelectSqlBuilder {
       table: table.to_string(),
       columns: Vec::new(),
       where_clause: None,
+      where_clause_in: None,
+      group_by_column: None,
       order_by: None,
       limit: None,
+      lock: false,
+      array_agg_columns: vec![],
     }
+  }
+
+  pub fn lock(mut self) -> Self {
+    self.lock = true;
+    self
   }
 
   pub fn column(mut self, column: &str) -> Self {
     self.columns.push(column.to_string());
+    self
+  }
+
+  pub fn group_by(mut self, column: &str) -> Self {
+    self.group_by_column = Some(column.to_string());
+    self
+  }
+
+  pub fn array_agg(mut self, column: &str) -> Self {
+    self.array_agg_columns.push(column.to_string());
     self
   }
 
@@ -82,13 +105,33 @@ impl SelectSqlBuilder {
     self
   }
 
+  pub fn where_clause_in<T: 'static + ToSql + Sync + Send>(
+    mut self,
+    clause: &str,
+    values: Vec<T>,
+  ) -> Self {
+    let boxed_values: Vec<_> = values
+      .into_iter()
+      .map(|value| Box::new(value) as Box<dyn ToSql + Send + Sync>)
+      .collect();
+    self.where_clause_in = Some((clause.to_string(), boxed_values));
+    self
+  }
+
   pub fn limit(mut self, limit: i64) -> Self {
     self.limit = Some(limit);
     self
   }
 
   pub fn build(self) -> (String, Vec<Box<dyn ToSql + Sync + Send>>) {
-    let mut sql = format!("SELECT {} FROM {}", self.columns.join(", "), self.table);
+    let all_columns = self
+      .columns
+      .iter()
+      .chain(self.array_agg_columns.iter())
+      .cloned()
+      .collect::<Vec<_>>()
+      .join(", ");
+    let mut sql = format!("SELECT {} FROM {}", all_columns, self.table);
 
     let mut params: Vec<_> = Vec::new();
     if let Some((clause, value)) = self.where_clause {
@@ -96,13 +139,44 @@ impl SelectSqlBuilder {
       params.push(value);
     }
 
+    if let Some((clause, values)) = self.where_clause_in {
+      let placeholders: Vec<String> = values
+        .iter()
+        .enumerate()
+        .map(|(i, _)| format!("${}", i + 1))
+        .collect();
+      sql.push_str(&format!(
+        " WHERE {} IN ({})",
+        clause,
+        placeholders.join(",")
+      ));
+      params.extend(values);
+    }
+
+    if let Some(group_by_column) = self.group_by_column {
+      sql.push_str(&format!(" GROUP BY {}", group_by_column));
+    }
+
     if let Some((order_by_column, asc)) = self.order_by {
       let order = if asc { "ASC" } else { "DESC" };
       sql.push_str(&format!(" ORDER BY {} {}", order_by_column, order));
     }
 
+    // ARRAY_AGG is an aggregate function that concatenates the values from column_name
+    // into an array.
+    for array_agg_column in self.array_agg_columns {
+      sql = sql.replace(
+        &array_agg_column,
+        &format!("ARRAY_AGG({}) as {}", array_agg_column, array_agg_column),
+      );
+    }
+
     if let Some(limit) = self.limit {
       sql.push_str(&format!(" LIMIT {}", limit));
+    }
+
+    if self.lock {
+      sql.push_str(" FOR UPDATE");
     }
 
     (sql, params)
