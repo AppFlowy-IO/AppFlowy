@@ -8,26 +8,26 @@ import 'emoji_picker.dart';
 /// Config for customizations
 class Config {
   /// Constructor
-  const Config(
-      {this.columns = 7,
-      this.emojiSizeMax = 32.0,
-      this.verticalSpacing = 0,
-      this.horizontalSpacing = 0,
-      this.initCategory = Category.RECENT,
-      this.bgColor = const Color(0xFFEBEFF2),
-      this.indicatorColor = Colors.blue,
-      this.iconColor = Colors.grey,
-      this.iconColorSelected = Colors.blue,
-      this.progressIndicatorColor = Colors.blue,
-      this.backspaceColor = Colors.blue,
-      this.showRecentsTab = true,
-      this.recentsLimit = 28,
-      this.noRecentsText = 'No Recents',
-      this.noRecentsStyle =
-          const TextStyle(fontSize: 20, color: Colors.black26),
-      this.tabIndicatorAnimDuration = kTabScrollDuration,
-      this.categoryIcons = const CategoryIcons(),
-      this.buttonMode = ButtonMode.MATERIAL,});
+  const Config({
+    this.columns = 7,
+    this.emojiSizeMax = 32.0,
+    this.verticalSpacing = 0,
+    this.horizontalSpacing = 0,
+    this.initCategory = Category.RECENT,
+    this.bgColor = const Color(0xFFEBEFF2),
+    this.indicatorColor = Colors.blue,
+    this.iconColor = Colors.grey,
+    this.iconColorSelected = Colors.blue,
+    this.progressIndicatorColor = Colors.blue,
+    this.backspaceColor = Colors.blue,
+    this.showRecentsTab = true,
+    this.recentsLimit = 28,
+    this.noRecentsText = 'No Recents',
+    this.noRecentsStyle = const TextStyle(fontSize: 20, color: Colors.black26),
+    this.tabIndicatorAnimDuration = kTabScrollDuration,
+    this.categoryIcons = const CategoryIcons(),
+    this.buttonMode = ButtonMode.MATERIAL,
+  });
 
   /// Number of emojis per row
   final int columns;
