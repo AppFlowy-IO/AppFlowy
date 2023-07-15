@@ -9,19 +9,24 @@ use flowy_server_config::supabase_config::PostgresConfiguration;
 #[cfg(debug_assertions)]
 pub(crate) async fn run_initial_drop(client: &Client) {
   // let sql = include_str!("migrations/initial/initial_down.sql");
-  let sql = r#"DROP TABLE IF EXISTS af_user;
-DROP TABLE IF EXISTS af_workspace;
-DROP TABLE IF EXISTS af_user_profile;
-DROP TABLE IF EXISTS af_collab;
-DROP VIEW IF EXISTS af_collab_state;
-DROP TABLE IF EXISTS af_collab_snapshot;
-DROP TABLE IF EXISTS af_collab_statistics;
+  let sql = r#"
+DROP TABLE IF EXISTS af_user CASCADE;
+DROP TABLE IF EXISTS af_workspace CASCADE;
+DROP TABLE IF EXISTS af_user_workspace CASCADE;
+DROP TABLE IF EXISTS af_user_profile CASCADE;
+DROP TABLE IF EXISTS af_collab CASCADE;
+DROP VIEW IF EXISTS af_collab_state CASCADE;
+DROP TABLE IF EXISTS af_collab_snapshot CASCADE;
+DROP TABLE IF EXISTS af_collab_statistics CASCADE;
 
 DROP TRIGGER IF EXISTS create_af_user_profile_trigger ON af_user_profile CASCADE;
 DROP FUNCTION IF EXISTS create_af_user_profile_trigger_func;
 
 DROP TRIGGER IF EXISTS create_af_workspace_trigger ON af_workspace CASCADE;
 DROP FUNCTION IF EXISTS create_af_workspace_trigger_func;
+
+DROP TRIGGER IF EXISTS create_af_user_workspace_trigger ON af_workspace CASCADE;
+DROP FUNCTION IF EXISTS create_af_user_workspace_trigger_func;
 
 DROP TRIGGER IF EXISTS af_collab_insert_trigger ON af_collab CASCADE;
 DROP FUNCTION IF EXISTS increment_af_collab_update_count;
@@ -46,7 +51,7 @@ DROP FUNCTION IF EXISTS notify_on_insert_af_collab;
 #[tokio::test]
 async fn run_initial_drop_test() -> Result<(), anyhow::Error> {
   // rename the `.evn.test.danger` to the actual env file name.
-  if dotenv::from_filename(".env.test.danger").is_err() {
+  if dotenv::from_filename(".env.test").is_err() {
     return Ok(());
   }
 
