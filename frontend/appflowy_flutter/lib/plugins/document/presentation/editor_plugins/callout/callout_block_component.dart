@@ -115,6 +115,11 @@ class _CalloutBlockComponentWidgetState
   GlobalKey<State<StatefulWidget>> get containerKey => widget.node.key;
 
   @override
+  GlobalKey<State<StatefulWidget>> blockComponentKey = GlobalKey(
+    debugLabel: CalloutBlockKeys.type,
+  );
+
+  @override
   BlockComponentConfiguration get configuration => widget.configuration;
 
   @override
@@ -175,6 +180,12 @@ class _CalloutBlockComponentWidgetState
           const VSpace(10),
         ],
       ),
+    );
+
+    child = Padding(
+      key: blockComponentKey,
+      padding: padding,
+      child: child,
     );
 
     if (widget.actionBuilder != null) {

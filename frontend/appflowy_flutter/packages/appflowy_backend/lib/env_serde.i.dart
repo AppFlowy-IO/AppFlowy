@@ -19,6 +19,7 @@ Map<String, dynamic> _$AppFlowyEnvToJson(AppFlowyEnv instance) =>
 SupabaseConfiguration _$SupabaseConfigurationFromJson(
         Map<String, dynamic> json) =>
     SupabaseConfiguration(
+      enable_sync: json['enable_sync'] as bool? ?? true,
       url: json['url'] as String,
       key: json['key'] as String,
       jwt_secret: json['jwt_secret'] as String,
@@ -29,6 +30,7 @@ SupabaseConfiguration _$SupabaseConfigurationFromJson(
 Map<String, dynamic> _$SupabaseConfigurationToJson(
         SupabaseConfiguration instance) =>
     <String, dynamic>{
+      'enable_sync': instance.enable_sync,
       'url': instance.url,
       'key': instance.key,
       'jwt_secret': instance.jwt_secret,

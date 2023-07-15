@@ -1,5 +1,6 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/setting_supabase_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_customize_shortcuts_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_file_system_view.dart';
@@ -86,6 +87,8 @@ class SettingsDialog extends StatelessWidget {
         return const SettingsFileSystemView();
       case SettingsPage.user:
         return SettingsUserView(user);
+      case SettingsPage.supabaseSetting:
+        return const SupabaseSettingView();
       case SettingsPage.shortcuts:
         return const SettingsCustomizeShortcutsWrapper();
       default:

@@ -17,11 +17,11 @@ use lib_infra::util::timestamp;
 pub struct SnapshotDBImpl(pub Weak<UserSession>);
 
 impl SnapshotPersistence for SnapshotDBImpl {
-  fn get_snapshots(&self, _uid: i64, object_id: &str) -> Vec<CollabSnapshot> {
+  fn get_snapshots(&self, uid: i64, object_id: &str) -> Vec<CollabSnapshot> {
     match self.0.upgrade() {
       None => vec![],
       Some(user_session) => user_session
-        .db_pool()
+        .db_pool(uid)
         .and_then(|pool| Ok(pool.get()?))
         .and_then(|conn| {
           CollabSnapshotTableSql::get_all_snapshots(object_id, &conn)
@@ -43,7 +43,7 @@ impl SnapshotPersistence for SnapshotDBImpl {
     tokio::task::spawn_blocking(move || {
       if let Some(pool) = weak_user_session
         .upgrade()
-        .and_then(|user_session| user_session.db_pool().ok())
+        .and_then(|user_session| user_session.db_pool(uid).ok())
       {
         let conn = pool
           .get()

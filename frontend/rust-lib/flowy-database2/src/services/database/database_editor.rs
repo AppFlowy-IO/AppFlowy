@@ -1,14 +1,12 @@
 use std::collections::HashMap;
-use std::ops::Deref;
 use std::sync::Arc;
 
 use bytes::Bytes;
-use collab_database::database::Database as InnerDatabase;
+use collab_database::database::MutexDatabase;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowId};
+use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use futures::StreamExt;
-use parking_lot::Mutex;
 use tokio::sync::{broadcast, RwLock};
 
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
@@ -21,7 +19,7 @@ use crate::services::cell::{
   apply_cell_changeset, get_cell_protobuf, AnyTypeCache, CellCache, ToCellChangeset,
 };
 use crate::services::database::util::database_view_setting_pb_from_view;
-use crate::services::database::{RowDetail, UpdatedRow};
+use crate::services::database::UpdatedRow;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewData, DatabaseViews};
 use crate::services::field::checklist_type_option::{ChecklistCellChangeset, ChecklistCellData};
 use crate::services::field::{
@@ -38,14 +36,14 @@ use crate::services::sort::Sort;
 
 #[derive(Clone)]
 pub struct DatabaseEditor {
-  database: MutexDatabase,
+  database: Arc<MutexDatabase>,
   pub cell_cache: CellCache,
   database_views: Arc<DatabaseViews>,
 }
 
 impl DatabaseEditor {
   pub async fn new(
-    database: MutexDatabase,
+    database: Arc<MutexDatabase>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
   ) -> FlowyResult<Self> {
     let cell_cache = AnyTypeCache::<u64>::new();
@@ -76,7 +74,7 @@ impl DatabaseEditor {
     tokio::spawn(async move {
       while let Some(snapshot_state) = snapshot_state.next().await {
         if let Some(new_snapshot_id) = snapshot_state.snapshot_id() {
-          tracing::debug!("Did create database snapshot: {}", new_snapshot_id);
+          tracing::debug!("Did create database remote snapshot: {}", new_snapshot_id);
           send_notification(
             &database_id,
             DatabaseNotification::DidUpdateDatabaseSnapshotState,
@@ -415,8 +413,7 @@ impl DatabaseEditor {
 
       let delete_row_id = from.into_inner();
       let insert_row = InsertedRowPB::new(RowMetaPB::from(&row_meta)).with_index(to_index as i32);
-      let changes =
-        RowsChangePB::from_move(view_id.to_string(), vec![delete_row_id], vec![insert_row]);
+      let changes = RowsChangePB::from_move(vec![delete_row_id], vec![insert_row]);
       send_notification(view_id, DatabaseNotification::DidUpdateViewRows)
         .payload(changes)
         .send();
@@ -437,7 +434,7 @@ impl DatabaseEditor {
       tracing::trace!("create row: {:?} at {}", row_order, index);
       let row = self.database.lock().get_row(&row_order.id);
       let row_meta = self.database.lock().get_row_meta(&row_order.id);
-      if let (Some(row), Some(meta)) = (row, row_meta) {
+      if let Some(meta) = row_meta {
         let row_detail = RowDetail { row, meta };
         for view in self.database_views.editors().await {
           view.v_did_create_row(&row_detail, &group_id, index).await;
@@ -527,7 +524,7 @@ impl DatabaseEditor {
 
   pub fn get_row(&self, view_id: &str, row_id: &RowId) -> Option<Row> {
     if self.database.lock().views.is_row_exist(view_id, row_id) {
-      self.database.lock().get_row(row_id)
+      Some(self.database.lock().get_row(row_id))
     } else {
       None
     }
@@ -551,7 +548,7 @@ impl DatabaseEditor {
   pub fn get_row_detail(&self, view_id: &str, row_id: &RowId) -> Option<RowDetail> {
     if self.database.lock().views.is_row_exist(view_id, row_id) {
       let meta = self.database.lock().get_row_meta(row_id)?;
-      let row = self.database.lock().get_row(row_id)?;
+      let row = self.database.lock().get_row(row_id);
       Some(RowDetail { row, meta })
     } else {
       tracing::warn!("the row:{} is exist in view:{}", row_id.as_str(), view_id);
@@ -597,40 +594,23 @@ impl DatabaseEditor {
     let field_type = FieldType::from(field.field_type);
     // If the cell data is referenced, return the reference data. Otherwise, return an empty cell.
     match field_type {
-      FieldType::LastEditedTime | FieldType::CreatedTime => database
-        .get_row(row_id)
-        .map(|row| {
-          if field_type.is_created_time() {
-            DateCellData::new(row.created_at, true)
-          } else {
-            DateCellData::new(row.modified_at, true)
-          }
-        })
-        .map(Cell::from),
+      FieldType::LastEditedTime | FieldType::CreatedTime => {
+        let row = database.get_row(row_id);
+        let cell_data = if field_type.is_created_time() {
+          DateCellData::new(row.created_at, true)
+        } else {
+          DateCellData::new(row.modified_at, true)
+        };
+        Some(Cell::from(cell_data))
+      },
       _ => database.get_cell(field_id, row_id).cell,
     }
   }
 
   pub async fn get_cell_pb(&self, field_id: &str, row_id: &RowId) -> Option<CellPB> {
     let (field, cell) = {
-      let database = self.database.lock();
-      let field = database.fields.get_field(field_id)?;
-      let field_type = FieldType::from(field.field_type);
-      // If the cell data is referenced, return the reference data. Otherwise, return an empty cell.
-      let cell = match field_type {
-        FieldType::LastEditedTime | FieldType::CreatedTime => database
-          .get_row(row_id)
-          .map(|row| {
-            if field_type.is_created_time() {
-              DateCellData::new(row.created_at, true)
-            } else {
-              DateCellData::new(row.modified_at, true)
-            }
-          })
-          .map(Cell::from),
-        _ => database.get_cell(field_id, row_id).cell,
-      }?;
-
+      let cell = self.get_cell(field_id, row_id).await?;
+      let field = self.database.lock().fields.get_field(field_id)?;
       (field, cell)
     };
 
@@ -723,7 +703,7 @@ impl DatabaseEditor {
     if let Some(new_row_detail) = option_row {
       let updated_row =
         UpdatedRow::new(&new_row_detail.row.id).with_field_ids(vec![field_id.to_string()]);
-      let changes = RowsChangePB::from_update(view_id.to_string(), updated_row.into());
+      let changes = RowsChangePB::from_update(updated_row.into());
       send_notification(view_id, DatabaseNotification::DidUpdateViewRows)
         .payload(changes)
         .send();
@@ -1154,35 +1134,15 @@ fn cell_changesets_from_cell_by_field_id(
     .collect()
 }
 
-#[derive(Clone)]
-pub struct MutexDatabase(Arc<Mutex<Arc<InnerDatabase>>>);
-
-impl MutexDatabase {
-  pub(crate) fn new(database: Arc<InnerDatabase>) -> Self {
-    Self(Arc::new(Mutex::new(database)))
-  }
-}
-
-impl Deref for MutexDatabase {
-  type Target = Arc<Mutex<Arc<InnerDatabase>>>;
-  fn deref(&self) -> &Self::Target {
-    &self.0
-  }
-}
-
-unsafe impl Sync for MutexDatabase {}
-
-unsafe impl Send for MutexDatabase {}
-
 struct DatabaseViewDataImpl {
-  database: MutexDatabase,
+  database: Arc<MutexDatabase>,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
   cell_cache: CellCache,
 }
 
 impl DatabaseViewData for DatabaseViewDataImpl {
-  fn get_database(&self) -> Arc<InnerDatabase> {
-    self.database.lock().clone()
+  fn get_database(&self) -> Arc<MutexDatabase> {
+    self.database.clone()
   }
 
   fn get_view(&self, view_id: &str) -> Fut<Option<DatabaseView>> {
@@ -1245,8 +1205,8 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     let row = self.database.lock().get_row(row_id);
     let row_meta = self.database.lock().get_row_meta(row_id);
     to_fut(async move {
-      match (index, row, row_meta) {
-        (Some(index), Some(row), Some(row_meta)) => {
+      match (index, row_meta) {
+        (Some(index), Some(row_meta)) => {
           let row_detail = RowDetail {
             row,
             meta: row_meta,

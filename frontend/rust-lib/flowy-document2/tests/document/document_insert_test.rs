@@ -9,7 +9,7 @@ use crate::document::util::gen_id;
 
 #[tokio::test]
 async fn document_apply_insert_block_with_empty_parent_id() {
-  let (_, document, page_id) = util::create_and_open_empty_document();
+  let (_, document, page_id) = util::create_and_open_empty_document().await;
 
   // create a text block with no parent
   let text_block_id = gen_id();

@@ -17,7 +17,7 @@ async fn undo_redo_test() {
   _ = test.create_document(&doc_id, Some(data.clone()));
 
   // open a document
-  let document = test.get_document(&doc_id).unwrap();
+  let document = test.get_document(&doc_id).await.unwrap();
   let document = document.lock();
   let page_block = document.get_block(&data.page_id).unwrap();
   let page_id = page_block.id;

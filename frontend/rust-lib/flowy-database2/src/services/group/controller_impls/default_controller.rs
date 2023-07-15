@@ -1,12 +1,11 @@
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::rows::{Cells, Row};
+use collab_database::rows::{Cells, Row, RowDetail};
 
 use flowy_error::FlowyResult;
 
 use crate::entities::GroupChangesPB;
-use crate::services::database::RowDetail;
 use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerOperation,
 };

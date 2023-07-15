@@ -18,11 +18,11 @@ typedef URLCellController = CellController<URLCellDataPB, String>;
 
 class CellControllerBuilder {
   final DatabaseCellContext _cellContext;
-  final CellCache _cellCache;
+  final CellMemCache _cellCache;
 
   CellControllerBuilder({
     required DatabaseCellContext cellContext,
-    required CellCache cellCache,
+    required CellMemCache cellCache,
   })  : _cellCache = cellCache,
         _cellContext = cellContext;
 

@@ -1,4 +1,3 @@
-import 'package:appflowy/core/config/config.dart';
 import 'package:appflowy/env/env.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -22,16 +21,6 @@ class InitSupabaseTask extends LaunchTask {
       debug: false,
     );
 
-    await Config.setSupabaseConfig(
-      url: Env.supabaseUrl,
-      key: Env.supabaseKey,
-      secret: Env.supabaseJwtSecret,
-      anonKey: Env.supabaseAnonKey,
-      pgPassword: Env.supabaseDbPassword,
-      pgPort: Env.supabaseDbPort,
-      pgUrl: Env.supabaseDb,
-      pgUser: Env.supabaseDbUser,
-    );
     isSupabaseInitialized = true;
   }
 }

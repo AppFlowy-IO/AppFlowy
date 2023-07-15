@@ -24,38 +24,38 @@ class CellCacheKey {
 /// We use GridCellCacheKey to index the cell in the cache.
 /// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid
 /// for more information
-class CellCache {
+class CellMemCache {
   final String viewId;
 
   /// fieldId: {cacheKey: GridCell}
-  final Map<String, Map<RowId, dynamic>> _cellDataByFieldId = {};
-  CellCache({
+  final Map<String, Map<RowId, dynamic>> _cellByFieldId = {};
+  CellMemCache({
     required this.viewId,
   });
 
   void removeCellWithFieldId(String fieldId) {
-    _cellDataByFieldId.remove(fieldId);
+    _cellByFieldId.remove(fieldId);
   }
 
   void remove(CellCacheKey key) {
-    final map = _cellDataByFieldId[key.fieldId];
+    final map = _cellByFieldId[key.fieldId];
     if (map != null) {
       map.remove(key.rowId);
     }
   }
 
   void insert<T extends DatabaseCell>(CellCacheKey key, T value) {
-    var map = _cellDataByFieldId[key.fieldId];
+    var map = _cellByFieldId[key.fieldId];
     if (map == null) {
-      _cellDataByFieldId[key.fieldId] = {};
-      map = _cellDataByFieldId[key.fieldId];
+      _cellByFieldId[key.fieldId] = {};
+      map = _cellByFieldId[key.fieldId];
     }
 
     map![key.rowId] = value.object;
   }
 
   T? get<T>(CellCacheKey key) {
-    final map = _cellDataByFieldId[key.fieldId];
+    final map = _cellByFieldId[key.fieldId];
     if (map == null) {
       return null;
     } else {
@@ -72,6 +72,6 @@ class CellCache {
   }
 
   Future<void> dispose() async {
-    _cellDataByFieldId.clear();
+    _cellByFieldId.clear();
   }
 }

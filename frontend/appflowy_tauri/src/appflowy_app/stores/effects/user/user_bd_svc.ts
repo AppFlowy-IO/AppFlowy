@@ -2,7 +2,6 @@ import { nanoid } from '@reduxjs/toolkit';
 import {
   AppearanceSettingsPB,
   AuthTypePB,
-  SignOutPB,
   ThemeModePB,
   UserEventGetAppearanceSetting,
   UserEventGetUserProfile,
@@ -91,9 +90,7 @@ export class UserBackendService {
   };
 
   signOut = () => {
-    const payload = SignOutPB.fromObject({ auth_type: AuthTypePB.Local });
-
-    return UserEventSignOut(payload);
+    return UserEventSignOut();
   };
 
   setAppearanceSettings = (params: ReturnType<typeof AppearanceSettingsPB.prototype.toObject>) => {
@@ -125,9 +122,7 @@ export class AuthBackendService {
   };
 
   signOut = () => {
-    const payload = SignOutPB.fromObject({ auth_type: AuthTypePB.Local });
-
-    return UserEventSignOut(payload);
+    return UserEventSignOut();
   };
 
   autoSignUp = () => {

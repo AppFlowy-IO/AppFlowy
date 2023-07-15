@@ -29,7 +29,7 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
         _rowCache = rowCache,
         super(
           RowCardState.initial(
-            _makeCells(groupFieldId, rowCache.loadGridCells(rowMeta)),
+            _makeCells(groupFieldId, rowCache.loadCells(rowMeta)),
             isEditing,
           ),
         ) {
@@ -78,7 +78,7 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
   Future<void> _startListening() async {
     _rowCallback = _rowCache.addListener(
       rowId: rowMeta.id,
-      onCellUpdated: (cellMap, reason) {
+      onRowChanged: (cellMap, reason) {
         if (!isClosed) {
           final cells = _makeCells(groupFieldId, cellMap);
           add(RowCardEvent.didReceiveCells(cells, reason));
@@ -112,7 +112,7 @@ class RowCardEvent with _$RowCardEvent {
   const factory RowCardEvent.setIsEditing(bool isEditing) = _IsEditing;
   const factory RowCardEvent.didReceiveCells(
     List<DatabaseCellContext> cells,
-    RowsChangedReason reason,
+    ChangedReason reason,
   ) = _DidReceiveCells;
 }
 
@@ -121,7 +121,7 @@ class RowCardState with _$RowCardState {
   const factory RowCardState({
     required List<DatabaseCellContext> cells,
     required bool isEditing,
-    RowsChangedReason? changeReason,
+    ChangedReason? changeReason,
   }) = _RowCardState;
 
   factory RowCardState.initial(

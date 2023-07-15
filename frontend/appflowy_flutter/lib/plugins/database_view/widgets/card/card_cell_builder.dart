@@ -14,7 +14,7 @@ import 'cells/url_card_cell.dart';
 
 // T represents as the Generic card data
 class CardCellBuilder<CustomCardData> {
-  final CellCache cellCache;
+  final CellMemCache cellCache;
   final Map<FieldType, CardCellStyle>? styles;
 
   CardCellBuilder(this.cellCache, {this.styles});

@@ -30,7 +30,7 @@ export const Grid = ({ viewId }: { viewId: string }) => {
               <GridToolbar />
             </div>
 
-            {/* table component view with text area for td */}
+            {/* table component page with text area for td */}
             <div className='flex flex-col gap-4'>
               <table className='w-full table-fixed text-sm'>
                 <GridTableHeader controller={controller} />

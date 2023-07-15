@@ -8,6 +8,12 @@
   "title": "Title",
   "youCanAlso": "You can also",
   "and": "and",
+  "blockActions": {
+    "addBelowTooltip": "Click to add below",
+    "addAboveCmd": "Alt+click",
+    "addAboveMacCmd": "Option+click",
+    "addAboveTooltip": "to add above"
+  },
   "signUp": {
     "buttonText": "Sign Up",
     "title": "Sign Up to @:appName",
@@ -74,6 +80,14 @@
       "fileName": "File name",
       "lastModified": "Last Modified",
       "created": "Created"
+    },
+    "confirmDeleteAll": {
+      "title": "Are you sure to delete all pages in Trash?",
+      "caption": "This action cannot be undone."
+    },
+    "confirmRestoreAll": {
+      "title": "Are you sure to restore all pages in Trash?",
+      "caption": "This action cannot be undone."
     }
   },
   "deletePagePrompt": {
@@ -163,7 +177,8 @@
     "edit": "Edit",
     "delete": "Delete",
     "duplicate": "Duplicate",
-    "done": "Done"
+    "done": "Done",
+    "putback": "Put Back"
   },
   "label": {
     "welcome": "Welcome!",
@@ -192,7 +207,8 @@
       "language": "Language",
       "user": "User",
       "files": "Files",
-      "open": "Open Settings"
+      "open": "Open Settings",
+      "supabaseSetting": "Supabase Setting"
     },
     "appearance": {
       "fontFamily": {
@@ -584,5 +600,9 @@
       "fail": "Unable to copy"
     }
   },
-  "unSupportBlock": "The current version does not support this Block."
+  "unSupportBlock": "The current version does not support this Block.",
+  "views": {
+    "deleteContentTitle": "Are you sure want to delete the {pageType}?",
+    "deleteContentCaption": "if you delete this {pageType}, you can restore it from the trash."
+  }
 }

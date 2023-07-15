@@ -1,6 +1,6 @@
 import { Log } from '$app/utils/log';
 
-export class AsyncQueue<T> {
+export class AsyncQueue<T = unknown> {
   private queue: T[] = [];
   private isProcessing = false;
   private executeFunction: (item: T) => Promise<void>;
@@ -20,6 +20,7 @@ export class AsyncQueue<T> {
     }
 
     const item = this.queue.shift();
+
     this.isProcessing = true;
 
     const executeFn = async (item: T) => {

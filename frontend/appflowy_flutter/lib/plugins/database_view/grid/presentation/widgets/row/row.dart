@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
@@ -65,7 +65,9 @@ class _GridRowState extends State<GridRow> {
       child: _RowEnterRegion(
         child: BlocBuilder<RowBloc, RowState>(
           // The row need to rebuild when the cell count changes.
-          buildWhen: (p, c) => p.cellByFieldId.length != c.cellByFieldId.length,
+          buildWhen: (p, c) =>
+              p.cellByFieldId.length != c.cellByFieldId.length ||
+              p.rowSource != c.rowSource,
           builder: (context, state) {
             final content = Expanded(
               child: RowContent(
@@ -78,6 +80,7 @@ class _GridRowState extends State<GridRow> {
             );
 
             return Row(
+              key: ValueKey(state.rowSource),
               children: [
                 _RowLeading(
                   index: widget.index,

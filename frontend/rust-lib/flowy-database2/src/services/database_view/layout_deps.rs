@@ -1,8 +1,7 @@
-use std::sync::Arc;
-
-use collab_database::database::{gen_field_id, Database};
+use collab_database::database::{gen_field_id, MutexDatabase};
 use collab_database::fields::Field;
 use collab_database::views::{DatabaseLayout, LayoutSetting};
+use std::sync::Arc;
 
 use crate::entities::FieldType;
 use crate::services::field::DateTypeOption;
@@ -11,13 +10,13 @@ use crate::services::setting::CalendarLayoutSetting;
 /// When creating a database, we need to resolve the dependencies of the views. Different database
 /// view has different dependencies. For example, a calendar view depends on a date field.
 pub struct DatabaseLayoutDepsResolver {
-  pub database: Arc<Database>,
+  pub database: Arc<MutexDatabase>,
   /// The new database layout.
   pub database_layout: DatabaseLayout,
 }
 
 impl DatabaseLayoutDepsResolver {
-  pub fn new(database: Arc<Database>, database_layout: DatabaseLayout) -> Self {
+  pub fn new(database: Arc<MutexDatabase>, database_layout: DatabaseLayout) -> Self {
     Self {
       database,
       database_layout,
@@ -39,7 +38,7 @@ impl DatabaseLayoutDepsResolver {
   /// If the new layout type is a calendar and there is not date field in the database, it will add
   /// a new date field to the database and create the corresponding layout setting.
   pub fn resolve_deps_when_update_layout_type(&self, view_id: &str) {
-    let fields = self.database.get_fields(None);
+    let fields = self.database.lock().get_fields(None);
     // Insert the layout setting if it's not exist
     match &self.database_layout {
       DatabaseLayout::Grid => {},
@@ -53,7 +52,7 @@ impl DatabaseLayoutDepsResolver {
             tracing::trace!("Create a new date field after layout type change");
             let field = self.create_date_field();
             let field_id = field.id.clone();
-            self.database.create_field(field);
+            self.database.lock().create_field(field);
             field_id
           },
           Some(date_field) => date_field.id,
@@ -66,12 +65,14 @@ impl DatabaseLayoutDepsResolver {
   fn create_calendar_layout_setting_if_need(&self, view_id: &str, field_id: &str) {
     if self
       .database
+      .lock()
       .get_layout_setting::<CalendarLayoutSetting>(view_id, &self.database_layout)
       .is_none()
     {
       let layout_setting = CalendarLayoutSetting::new(field_id.to_string());
       self
         .database
+        .lock()
         .insert_layout_setting(view_id, &self.database_layout, layout_setting);
     }
   }

@@ -1,11 +1,10 @@
 use collab_database::fields::Field;
-use collab_database::rows::{Cell, Row};
+use collab_database::rows::{Cell, Row, RowDetail};
 
 use crate::entities::{
   FieldType, GroupRowsNotificationPB, InsertedRowPB, RowMetaPB, SelectOptionCellDataPB,
 };
 use crate::services::cell::{insert_checkbox_cell, insert_select_option_cell, insert_url_cell};
-use crate::services::database::RowDetail;
 use crate::services::field::{SelectOption, CHECK};
 use crate::services::group::controller::MoveGroupRowContext;
 use crate::services::group::{GeneratedGroupConfig, Group, GroupData};

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:async';
 
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -14,6 +15,8 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'setting_third_party_login.dart';
 
 const defaultUserAvatar = '1F600';
 const _iconSize = Size(60, 60);
@@ -38,12 +41,27 @@ class SettingsUserView extends StatelessWidget {
             const VSpace(20),
             _renderCurrentOpenaiKey(context),
             const Spacer(),
-            _renderLogoutButton(context),
+            _renderLoginOrLogoutButton(context, state),
             const VSpace(20),
           ],
         ),
       ),
     );
+  }
+
+  Widget _renderLoginOrLogoutButton(
+    BuildContext context,
+    SettingsUserState state,
+  ) {
+    if (!isSupabaseEnable) {
+      return _renderLogoutButton(context);
+    }
+
+    if (state.userProfile.authType == AuthTypePB.Local) {
+      return const SettingThirdPartyLogin();
+    } else {
+      return _renderLogoutButton(context);
+    }
   }
 
   Widget _renderUserNameInput(BuildContext context) {
@@ -74,8 +92,7 @@ class SettingsUserView extends StatelessWidget {
         'Logout',
       ),
       onTap: () async {
-        await getIt<AuthService>().signOut(authType: AuthTypePB.Supabase);
-        await getIt<AuthService>().signOut(authType: AuthTypePB.Local);
+        await getIt<AuthService>().signOut();
         await FlowyRunner.run(
           FlowyApp(),
           integrationEnv(),
