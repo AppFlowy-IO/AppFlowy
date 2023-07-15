@@ -222,7 +222,7 @@ extension QuestionBubbleExtension on BubbleAction {
         return Padding(
           padding: const EdgeInsets.all(3.0),
           child: svgWidget(
-            'login/github-mark',
+            'login/github-light',
             size: const Size.square(12),
           ),
         );
