@@ -32,11 +32,6 @@ class AppFlowyEditorPage extends StatefulWidget {
   State<AppFlowyEditorPage> createState() => _AppFlowyEditorPageState();
 }
 
-// final List<CommandShortcutEvent> defaultCommandShortcutEvents = [
-//   ...codeBlockCommands.map((e) => e.copyWith()).toList(),
-//   ...standardCommandShortcutEvents.map((e) => e.copyWith()).toList(),
-// ];
-
 final List<CommandShortcutEvent> commandShortcutEvents = [
   ...codeBlockCommands,
   ...standardCommandShortcutEvents,
