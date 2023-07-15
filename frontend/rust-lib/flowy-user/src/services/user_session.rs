@@ -19,6 +19,7 @@ use flowy_sqlite::{
   DBConnection, ExpressionMethods,
 };
 use lib_infra::box_any::BoxAny;
+use lib_infra::util::timestamp;
 
 use crate::entities::{
   AuthTypePB, SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile,
@@ -35,7 +36,9 @@ use crate::{
   services::database::{UserDB, UserTable, UserTableChangeset},
 };
 
-pub(crate) const SUPABASE_CONFIG_CACHE_KEY: &str = "supabase_config_cache_key";
+const HISTORICAL_USER: &str = "af_historical_users";
+const SUPABASE_CONFIG_CACHE_KEY: &str = "af_supabase_config";
+
 pub struct UserSessionConfig {
   root_dir: String,
 
@@ -143,6 +146,8 @@ impl UserSession {
     let session: Session = resp.clone().into();
     let uid = session.user_id;
     self.set_session(Some(session))?;
+    self.log_user(uid, self.user_dir(uid));
+
     let user_profile: UserProfile = self.save_user(uid, (resp, auth_type).into()).await?.into();
     if let Err(e) = self
       .user_status_callback
@@ -196,6 +201,8 @@ impl UserSession {
     };
     let uid = session.user_id;
     self.set_session(Some(session))?;
+    self.log_user(uid, self.user_dir(uid));
+
     let user_table = self
       .save_user(uid, (response, auth_type.clone()).into())
       .await?;
@@ -239,7 +246,7 @@ impl UserSession {
     Ok(new_user_profile)
   }
 
-  #[tracing::instrument(level = "debug", skip(self))]
+  #[tracing::instrument(level = "info", skip(self))]
   pub async fn sign_out(&self) -> Result<(), FlowyError> {
     let session = self.get_session()?;
     self.database.close(session.user_id)?;
@@ -338,17 +345,14 @@ impl UserSession {
     Ok(user.into())
   }
 
-  pub fn user_dir(&self) -> Result<String, FlowyError> {
-    let session = self.get_session()?;
-    Ok(format!(
-      "{}/{}",
-      self.session_config.root_dir, session.user_id
-    ))
+  pub fn user_dir(&self, uid: i64) -> String {
+    format!("{}/{}", self.session_config.root_dir, uid)
   }
 
   pub fn user_setting(&self) -> Result<UserSettingPB, FlowyError> {
+    let session = self.get_session()?;
     let user_setting = UserSettingPB {
-      user_folder: self.user_dir()?,
+      user_folder: self.user_dir(session.user_id),
     };
     Ok(user_setting)
   }
@@ -365,9 +369,7 @@ impl UserSession {
     self.cloud_services.update_supabase_config(&config);
     let _ = KV::set_object(SUPABASE_CONFIG_CACHE_KEY, config);
   }
-}
 
-impl UserSession {
   async fn update_user(
     &self,
     _auth_type: &AuthType,
@@ -417,6 +419,23 @@ impl UserSession {
     Ok(())
   }
 
+  fn log_user(&self, uid: i64, storage_path: String) {
+    let mut logger_users =
+      KV::get_object(HISTORICAL_USER).unwrap_or_else(|| HistoricalUsers::default());
+    logger_users.add_user(HistoricalUser {
+      user_id: uid,
+      sign_in_timestamp: timestamp(),
+      storage_path,
+    });
+    let _ = KV::set_object(HISTORICAL_USER, logger_users);
+  }
+
+  pub fn get_historical_users(&self) -> Vec<HistoricalUser> {
+    KV::get_object(HISTORICAL_USER)
+      .unwrap_or_else(|| HistoricalUsers::default())
+      .users
+  }
+
   /// Returns the current user session.
   pub fn get_session(&self) -> Result<Session, FlowyError> {
     match KV::get_object::<Session>(&self.session_config.session_cache_key) {
@@ -427,20 +446,6 @@ impl UserSession {
       Some(session) => Ok(session),
     }
   }
-
-  pub fn sign_in_history(&self) -> Vec<UserProfile> {
-    // match self.db_connection(uid) {
-    //   Ok(conn) => match dsl::user_table.load::<UserTable>(&*conn) {
-    //     Ok(users) => users.into_iter().map(|u| u.into()).collect(),
-    //     Err(_) => vec![],
-    //   },
-    //   Err(e) => {
-    //     tracing::error!("get user sign in history failed: {:?}", e);
-    //     vec![]
-    //   },
-    // }
-    vec![]
-  }
 }
 
 pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
@@ -448,6 +453,7 @@ pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
     .and_then(|s| serde_json::from_str(&s).ok())
     .unwrap_or_else(|| SupabaseConfiguration::from_env().ok())
 }
+
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Session {
   pub user_id: i64,
@@ -484,6 +490,21 @@ impl std::convert::From<Session> for String {
       },
     }
   }
+}
+
+pub fn uuid_from_box_any(any: BoxAny) -> Result<ThirdPartyParams, FlowyError> {
+  let map: HashMap<String, String> = any.unbox_or_error()?;
+  let uuid = uuid_from_map(&map)?;
+  let email = map.get("email").cloned().unwrap_or_default();
+  Ok(ThirdPartyParams { uuid, email })
+}
+
+pub fn uuid_from_map(map: &HashMap<String, String>) -> Result<Uuid, FlowyError> {
+  let uuid = map
+    .get("uuid")
+    .ok_or_else(|| FlowyError::new(ErrorCode::MissingAuthField, "Missing uuid field"))?
+    .as_str();
+  Uuid::from_str(uuid).map_err(internal_error)
 }
 
 #[derive(Debug, Clone, Hash, Serialize_repr, Deserialize_repr, Eq, PartialEq)]
@@ -546,17 +567,21 @@ pub struct ThirdPartyParams {
   pub email: String,
 }
 
-pub fn uuid_from_box_any(any: BoxAny) -> Result<ThirdPartyParams, FlowyError> {
-  let map: HashMap<String, String> = any.unbox_or_error()?;
-  let uuid = uuid_from_map(&map)?;
-  let email = map.get("email").cloned().unwrap_or_default();
-  Ok(ThirdPartyParams { uuid, email })
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct HistoricalUsers {
+  pub(crate) users: Vec<HistoricalUser>,
 }
 
-pub fn uuid_from_map(map: &HashMap<String, String>) -> Result<Uuid, FlowyError> {
-  let uuid = map
-    .get("uuid")
-    .ok_or_else(|| FlowyError::new(ErrorCode::MissingAuthField, "Missing uuid field"))?
-    .as_str();
-  Uuid::from_str(uuid).map_err(internal_error)
+impl HistoricalUsers {
+  pub fn add_user(&mut self, new_user: HistoricalUser) {
+    self.users.retain(|user| user.user_id != new_user.user_id);
+    self.users.push(new_user);
+  }
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct HistoricalUser {
+  pub user_id: i64,
+  pub sign_in_timestamp: i64,
+  pub storage_path: String,
 }

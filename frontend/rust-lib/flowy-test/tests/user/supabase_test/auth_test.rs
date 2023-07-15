@@ -67,14 +67,14 @@ async fn sign_up_as_guest_and_then_update_to_new_cloud_user_test() {
 async fn sign_up_as_guest_and_then_update_to_existing_cloud_user_test() {
   if get_supabase_config().is_some() {
     let test = FlowyCoreTest::new_with_guest_user().await;
-    let historical_users = test.user_session.sign_in_history();
+    let historical_users = test.user_session.get_historical_users();
     assert_eq!(historical_users.len(), 1);
     let uuid = uuid::Uuid::new_v4().to_string();
 
     // The workspace of the guest will be migrated to the new user with given uuid
     let user_profile = test.supabase_party_sign_up(&uuid).await;
-    // let historical_users = test.user_session.sign_in_history(user_profile.id);
-    // assert_eq!(historical_users.len(), 2);
+    let historical_users = test.user_session.get_historical_users();
+    assert_eq!(historical_users.len(), 2);
     let old_cloud_workspace = test.folder_manager.get_current_workspace().await.unwrap();
     let old_cloud_views = test
       .folder_manager
@@ -96,13 +96,7 @@ async fn sign_up_as_guest_and_then_update_to_existing_cloud_user_test() {
     assert_eq!(error.code, ErrorCode::RecordNotFound.value());
 
     let _sign_up_context = test.sign_up_as_guest().await;
-    // assert_eq!(
-    //   test
-    //     .user_session
-    //     .sign_in_history(sign_up_context.user_profile.id)
-    //     .len(),
-    //   3
-    // );
+    assert_eq!(test.user_session.get_historical_users().len(), 3);
     let new_workspace = test.folder_manager.get_current_workspace().await.unwrap();
     test
       .create_view(&new_workspace.id, "new workspace child view".to_string())
@@ -113,7 +107,7 @@ async fn sign_up_as_guest_and_then_update_to_existing_cloud_user_test() {
     // upload to cloud user with given uuid. This time the workspace of the guest will not be merged
     // because the cloud user already has a workspace
     test.supabase_party_sign_up(&uuid).await;
-    // assert_eq!(test.user_session.sign_in_history().len(), 3);
+    assert_eq!(test.user_session.get_historical_users().len(), 3);
     let new_cloud_workspace = test.folder_manager.get_current_workspace().await.unwrap();
     let new_cloud_views = test
       .folder_manager

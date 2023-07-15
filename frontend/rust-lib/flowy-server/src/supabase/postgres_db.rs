@@ -25,9 +25,10 @@ impl PostgresDB {
   }
 
   pub async fn new(configuration: PostgresConfiguration) -> Result<Self, anyhow::Error> {
-    // TODO(nathan): Handling connection surges using
-    // https://supabase.com/blog/supabase-pgbouncer
     // https://supabase.com/docs/guides/database/connecting-to-postgres
+    // https://supabase.com/blog/supabase-pgbouncer. For the moment, the default pool size of pgbouncer
+    // is 15. Which means that we can have 15 concurrent connections to the database.
+    tracing::trace!("pg config: {:?}", configuration);
     let mut pg_config = tokio_postgres::Config::new();
     pg_config
       .host(&configuration.url)
