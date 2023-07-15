@@ -286,7 +286,7 @@ class ImportPanel extends StatelessWidget {
     }
 
     final File zipfile = File(result.files[0].path!);
-    final name = p.basenameWithoutExtension(zipfile.path);
+    
     final bytes = await zipfile.readAsBytes();
     final unzipped = ZipDecoder().decodeBytes(bytes);
     dynamic markdownFile;
@@ -303,6 +303,7 @@ class ImportPanel extends StatelessWidget {
     if (markdownFile == null) {
       return;
     }
+    final name = p.basenameWithoutExtension(markdownFile.name);
     //This for will help us store image assets of our page
     final List<ArchiveFile> images = [];
     for (final file in unzipped) {
@@ -327,7 +328,7 @@ class ImportPanel extends StatelessWidget {
     );
     if (data != null) {
       await ImportBackendService.importData(
-        bytes,
+        data,
         name,
         parentViewId,
         ImportTypePB.HistoryDocument,
