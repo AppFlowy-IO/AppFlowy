@@ -73,7 +73,7 @@ pub fn view_pb_without_child_views(view: Arc<View>) -> ViewPB {
     layout: view.layout.clone().into(),
     icon_url: view.icon_url.clone(),
     cover_url: view.cover_url.clone(),
-    is_favorite: view.is_favorite,
+    is_favorite: view.is_favorite.clone(),
   }
 }
 
@@ -91,7 +91,7 @@ pub fn view_pb_with_child_views(view: Arc<View>, child_views: Vec<Arc<View>>) ->
     layout: view.layout.clone().into(),
     icon_url: view.icon_url.clone(),
     cover_url: view.cover_url.clone(),
-    is_favorite: false,
+    is_favorite: view.is_favorite.clone(),
   }
 }
 

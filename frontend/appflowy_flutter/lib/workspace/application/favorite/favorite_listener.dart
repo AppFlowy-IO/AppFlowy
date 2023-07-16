@@ -13,11 +13,11 @@ import 'package:flutter/foundation.dart';
 
 class FavoriteListener {
   StreamSubscription<SubscribeObject>? _streamSubscription;
-  void Function(Either<FlowyError, List<ViewPB>>)? _favoriteUpdated;
+  void Function(Either<FlowyError, ViewPB>, bool)? _favoriteUpdated;
   FolderNotificationParser? _parser;
 
   void start({
-    void Function(Either<FlowyError, List<ViewPB>>)? favoritesUpdated,
+    void Function(Either<FlowyError, ViewPB>, bool)? favoritesUpdated,
   }) {
     _favoriteUpdated = favoritesUpdated;
     _parser = FolderNotificationParser(
@@ -29,22 +29,43 @@ class FavoriteListener {
   }
 
   void _observableCallback(
-      FolderNotification ty, Either<Uint8List, FlowyError> result) {
-    Log.warn(ty);
+    FolderNotification ty,
+    Either<Uint8List, FlowyError> result,
+  ) {
     switch (ty) {
-      // case FolderNotification.DidToggleFavorite:
-      // break;
-      case FolderNotification.FavoritesUpdated:
+      case FolderNotification.DidFavoriteView:
         if (_favoriteUpdated != null) {
           result.fold(
             (payload) {
-              final repeatedFavorites = RepeatedViewPB.fromBuffer(payload);
-              _favoriteUpdated!(right(repeatedFavorites.items));
+              final favoriteView = ViewPB.fromBuffer(payload);
+              _favoriteUpdated!(right(favoriteView), true);
             },
-            (error) => _favoriteUpdated!(left(error)),
+            (error) => _favoriteUpdated!(left(error), true),
           );
         }
         break;
+      case FolderNotification.DidUnFavoriteView:
+        if (_favoriteUpdated != null) {
+          result.fold(
+            (payload) {
+              final unfavoriteView = ViewPB.fromBuffer(payload);
+              _favoriteUpdated!(right(unfavoriteView), false);
+            },
+            (error) => _favoriteUpdated!(left(error), false),
+          );
+        }
+        break;
+      // case FolderNotification.FavoritesUpdated:
+      //   if (_favoriteUpdated != null) {
+      //     result.fold(
+      //       (payload) {
+      //         final repeatedFavorites = RepeatedViewPB.fromBuffer(payload);
+      //         _favoriteUpdated!(right(repeatedFavorites.items));
+      //       },
+      //       (error) => _favoriteUpdated!(left(error)),
+      //     );
+      //   }
+      //   break;
       default:
         break;
     }

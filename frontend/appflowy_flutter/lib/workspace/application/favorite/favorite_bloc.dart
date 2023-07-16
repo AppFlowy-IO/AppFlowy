@@ -38,31 +38,39 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
               ),
             );
           },
-          didReceiveFavorite: (e) {
-            Log.warn(e.favorite);
-            emit(state.copyWith(objects: e.favorite));
+          didFavorite: (e) {
+            emit(state.copyWith(objects: [...state.objects, e.favorite]));
           },
-          toggle: (e) async {
-            final result = await _service.toggleFavorite(e.viewId);
+          didUnfavorite: (e) {
             emit(
-              result.fold(
-                (l) => state.copyWith(successOrFailure: right(unit)),
-                (error) => state.copyWith(successOrFailure: left(error)),
+              state.copyWith(
+                objects: List<ViewPB>.from(state.objects)
+                  ..removeWhere((view) => view.id == e.favorite.id),
               ),
             );
+          },
+          toggle: (e) async {
+            // final result = await _service.toggleFavorite(e.viewId);
+            // emit(
+            //   result.fold(
+            //     (l) => state.copyWith(successOrFailure: right(unit)),
+            //     (error) => state.copyWith(successOrFailure: left(error)),
+            //   ),
+            // );
           },
         );
       },
     );
   }
   void _listenFavoritesUpdated(
-    Either<FlowyError, List<ViewPB>> favoriteOrFailed,
+    Either<FlowyError, ViewPB> favoriteOrFailed,
+    bool didFavorite,
   ) {
     favoriteOrFailed.fold(
       (error) => Log.error(error),
-      (favorite) => add(
-        FavoriteEvent.didReceiveFavorite(favorite),
-      ),
+      (favorite) => didFavorite
+          ? add(FavoriteEvent.didFavorite(favorite))
+          : add(FavoriteEvent.didUnfavorite(favorite)),
     );
   }
 }
@@ -70,8 +78,8 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
 @freezed
 class FavoriteEvent with _$FavoriteEvent {
   const factory FavoriteEvent.initial() = Initial;
-  const factory FavoriteEvent.didReceiveFavorite(List<ViewPB> favorite) =
-      ReceiveFavorites;
+  const factory FavoriteEvent.didFavorite(ViewPB favorite) = DidFavorite;
+  const factory FavoriteEvent.didUnfavorite(ViewPB favorite) = DidUnfavorite;
   const factory FavoriteEvent.toggle(String viewId) = ToggleFavorite;
 }
 

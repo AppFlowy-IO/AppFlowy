@@ -112,10 +112,7 @@ class HomeMenu extends StatelessWidget {
     return BlocProvider(
       create: (context) =>
           getIt<FavoriteBloc>()..add(const FavoriteEvent.initial()),
-      child: BlocConsumer<FavoriteBloc, FavoriteState>(
-        listener: (context, state) {
-          Log.warn("Favorite state changed $state");
-        },
+      child: BlocBuilder<FavoriteBloc, FavoriteState>(
         builder: (context, state) {
           return state.objects.isNotEmpty
               ? ExpandableTheme(
@@ -132,7 +129,7 @@ class HomeMenu extends StatelessWidget {
                       iconPadding: EdgeInsets.zero,
                       hasIcon: false,
                     ),
-                    header: FavoriteHeader(),
+                    header: const FavoriteHeader(),
                     expanded: ScrollConfiguration(
                       behavior:
                           const ScrollBehavior().copyWith(scrollbars: false),

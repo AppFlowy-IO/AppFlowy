@@ -6,8 +6,8 @@ use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::CollabPersistenceConfig;
 use collab::core::collab_state::SyncState;
 use collab_folder::core::{
-  FavoriteChange, FavoriteChangeReciever, FavoritesInfo, Folder, FolderContext, TrashChange,
-  TrashChangeReceiver, TrashInfo, View, ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
+  FavoritesInfo, Folder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, View,
+  ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
 };
 use parking_lot::Mutex;
 use tokio_stream::wrappers::WatchStream;
@@ -130,11 +130,9 @@ impl FolderManager {
       );
       let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
       let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
-      let (favorite_tx, favorite_rx) = tokio::sync::broadcast::channel(100);
       let folder_context = FolderContext {
         view_change_tx: view_tx,
         trash_change_tx: trash_tx,
-        favorite_change_tx: favorite_tx,
       };
       let folder = Folder::get_or_create(collab, folder_context);
       let folder_state_rx = folder.subscribe_sync_state();
@@ -149,7 +147,6 @@ impl FolderManager {
       subscribe_folder_snapshot_state_changed(workspace_id, &weak_mutex_folder);
       subscribe_folder_trash_changed(trash_rx, &weak_mutex_folder);
       subscribe_folder_view_changed(view_rx, &weak_mutex_folder);
-      listen_on_favorites_change(favorite_rx, &weak_mutex_folder);
     }
 
     Ok(())
@@ -347,8 +344,15 @@ impl FolderManager {
   pub async fn move_view_to_trash(&self, view_id: &str) -> FlowyResult<()> {
     self.with_folder((), |folder| {
       let view = folder.views.get_view(view_id);
+      if let Some(view) = view.clone() {
+        if view.is_favorite {
+          folder.delete_favorites(vec![view_id.to_string()]);
+          send_notification("favorite", FolderNotification::DidUnFavoriteView)
+            .payload(view_pb_without_child_views(view))
+            .send();
+        }
+      }
       folder.add_trash(vec![view_id.to_string()]);
-
       // notify the parent view that the view is moved to trash
       send_notification(view_id, FolderNotification::DidMoveViewToTrash)
         .payload(DeletedViewPB {
@@ -505,24 +509,21 @@ impl FolderManager {
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn toggle_favorites(&self, view_id: &str) -> FlowyResult<()> {
     self.with_folder((), |folder| {
-      let view = folder.views.get_view(view_id);
-      if let Some(view) = view.as_ref().map(|arc| arc.deref()) {
-        //TODO:squidrye Replace the listener with a single notifier event
-        if view.is_favorite {
-          folder.delete_favorites(vec![view_id.to_string()])
+      let arc_view = folder.views.get_view(view_id);
+      if let Some(view) = arc_view {
+        if !view.is_favorite {
+          folder.delete_favorites(vec![view_id.to_string()]);
+          send_notification("favorite", FolderNotification::DidUnFavoriteView)
+            .payload(view_pb_without_child_views(view))
+            .send();
         } else {
-          folder.add_favorites(vec![view_id.to_string()])
+          folder.add_favorites(vec![view_id.to_string()]);
+          send_notification("favorite", FolderNotification::DidFavoriteView)
+            .payload(view_pb_without_child_views(view))
+            .send();
         }
       }
-
-      if let Some(view) = view {
-        notify_child_views_changed(
-          view_pb_without_child_views(view),
-          ChildViewChangeReason::DidUpdateView,
-        );
-      }
     });
-
     Ok(())
   }
 
@@ -539,18 +540,38 @@ impl FolderManager {
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn restore_all_trash(&self) {
     self.with_folder((), |folder| {
-      folder.remote_all_trash();
-    });
+      folder.get_all_trash().iter().for_each(|trash_info| {
+        let view = folder.views.get_view(&trash_info.id);
+        if let Some(view) = view {
+          if view.is_favorite {
+            folder.add_favorites(vec![trash_info.id.to_string()]);
+            send_notification("favorite", FolderNotification::DidFavoriteView)
+              .payload(view_pb_without_child_views(view))
+              .send();
+          }
+        }
+      });
 
-    send_notification("trash", FolderNotification::DidUpdateTrash)
-      .payload(RepeatedTrashPB { items: vec![] })
-      .send();
+      folder.remote_all_trash();
+      send_notification("trash", FolderNotification::DidUpdateTrash)
+        .payload(RepeatedTrashPB { items: vec![] })
+        .send();
+    });
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn restore_trash(&self, trash_id: &str) {
     self.with_folder((), |folder| {
       folder.delete_trash(vec![trash_id.to_string()]);
+      let view = folder.views.get_view(trash_id);
+      if let Some(view) = view.clone() {
+        if view.is_favorite {
+          folder.add_favorites(vec![trash_id.to_string()]);
+          send_notification("favorite", FolderNotification::DidFavoriteView)
+            .payload(view_pb_without_child_views(view))
+            .send();
+        }
+      }
     });
   }
 
@@ -803,35 +824,6 @@ fn subscribe_folder_sync_state_changed(
   });
 }
 
-fn listen_on_favorites_change(
-  mut rx: FavoriteChangeReciever,
-  weak_mutex_folder: &Weak<MutexFolder>,
-) {
-  let weak_mutex_folder = weak_mutex_folder.clone();
-  tokio::spawn(async move {
-    while let Ok(value) = rx.recv().await {
-      if let Some(folder) = weak_mutex_folder.upgrade() {
-        // tracing::trace!("Did receive favorite change: {:?}", value);
-        let ids = match value {
-          FavoriteChange::DidFavoriteView { ids } => ids,
-          FavoriteChange::DidUnFavoriteView { ids } => ids,
-        };
-
-        if let Some(folder) = folder.lock().as_ref() {
-          let data: RepeatedFavoritesPB = folder.get_all_favorites().into();
-          let views = folder.views.get_views(data.items.as_slice());
-          let deref_view: Vec<ViewPB> = views
-            .into_iter()
-            .map(|view| view_pb_without_child_views(view))
-            .collect();
-          send_notification("favorite", FolderNotification::FavoritesUpdated)
-            .payload(RepeatedViewPB { items: deref_view })
-            .send();
-        }
-      }
-    }
-  });
-}
 /// Listen on the [TrashChange]s and notify the frontend some views were changed.
 fn subscribe_folder_trash_changed(
   mut rx: TrashChangeReceiver,
