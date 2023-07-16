@@ -11,7 +11,6 @@ use std::{
 
 use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CollabStorageType};
 use tokio::sync::RwLock;
-use tracing::debug;
 
 use flowy_database2::DatabaseManager;
 use flowy_document2::manager::DocumentManager;

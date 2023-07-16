@@ -24,10 +24,22 @@ impl PostgresDB {
     Self::new(configuration).await
   }
 
+  /// https://www.pgbouncer.org/features.html
+  /// Both session and transaction modes are supported.
+  /// Session mode:
+  /// When a new client connects, a connection is assigned to the client until it disconnects. Afterward,
+  /// the connection is returned back to the pool. All PostgreSQL features can be used with this option.
+  /// For the moment, the default pool size of pgbouncer in supabse is 15 in session mode. Which means
+  /// that we can have 15 concurrent connections to the database.
+  ///
+  /// Transaction mode:
+  /// This is the suggested option for serverless functions. With this, the connection is only assigned
+  /// to the client for the duration of a transaction. Once done, the connection is returned to the pool.
+  /// Two consecutive transactions from the same client could be done over two, different connections.
+  /// Some session-based PostgreSQL features such as prepared statements are not available with this option.
+  /// A more comprehensive list of incompatible features can be found here.
   pub async fn new(configuration: PostgresConfiguration) -> Result<Self, anyhow::Error> {
     // https://supabase.com/docs/guides/database/connecting-to-postgres
-    // https://supabase.com/blog/supabase-pgbouncer. For the moment, the default pool size of pgbouncer
-    // is 15. Which means that we can have 15 concurrent connections to the database.
     tracing::trace!("pg config: {:?}", configuration);
     let mut pg_config = tokio_postgres::Config::new();
     pg_config

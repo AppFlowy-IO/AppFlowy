@@ -32,7 +32,7 @@ use crate::supabase::{PostgresServer, SupabaseServerService};
 pub struct PgCollabStorageImpl<T> {
   server: T,
 }
-
+const AF_COLLAB_UPDATE_TABLE: &str = "af_collab_update";
 const AF_COLLAB_KEY_COLUMN: &str = "key";
 const AF_COLLAB_SNAPSHOT_OID_COLUMN: &str = "oid";
 const AF_COLLAB_SNAPSHOT_ID_COLUMN: &str = "sid";
@@ -164,7 +164,7 @@ where
     if let Some(client) = self.get_client().await {
       let value_size = update.len() as i32;
       let md5 = md5(&update);
-      let (sql, params) = InsertSqlBuilder::new("af_collab")
+      let (sql, params) = InsertSqlBuilder::new(AF_COLLAB_UPDATE_TABLE)
         .value("oid", object.id.clone())
         .value("name", object.name.clone())
         .value("value", update)
@@ -196,7 +196,7 @@ where
     // 1.Get all updates and lock the table. It means that a subsequent UPDATE, DELETE, or SELECT
     // FOR UPDATE by this transaction will not result in a lock wait. other transactions that try
     // to update or lock these specific rows will be blocked until the current transaction ends
-    let (sql, params) = SelectSqlBuilder::new("af_collab")
+    let (sql, params) = SelectSqlBuilder::new(AF_COLLAB_UPDATE_TABLE)
       .column(AF_COLLAB_KEY_COLUMN)
       .column("value")
       .order_by(AF_COLLAB_KEY_COLUMN, true)
@@ -208,7 +208,7 @@ where
     let row_stream = txn.query_raw(&get_all_update_stmt, params).await?;
     let pg_rows = row_stream.try_collect::<Vec<_>>().await?;
 
-    let insert_builder = InsertSqlBuilder::new("af_collab")
+    let insert_builder = InsertSqlBuilder::new(AF_COLLAB_UPDATE_TABLE)
       .value("oid", object.id.clone())
       .value("uid", object.uid)
       .value("name", object.name.clone());
@@ -225,7 +225,7 @@ where
       tracing::trace!("Merged updates count: {}", merge_result.merged_keys.len());
 
       // 3. Delete merged updates
-      let (sql, params) = DeleteSqlBuilder::new("af_collab")
+      let (sql, params) = DeleteSqlBuilder::new(AF_COLLAB_UPDATE_TABLE)
         .where_condition(WhereCondition::Equals(
           "oid".to_string(),
           Box::new(object.id.clone()),
@@ -289,7 +289,7 @@ pub async fn get_updates_from_server(
     None => Ok(vec![]),
     Some(server) => {
       let client = server.get_pg_client().await.recv().await?;
-      let (sql, params) = SelectSqlBuilder::new("af_collab")
+      let (sql, params) = SelectSqlBuilder::new(AF_COLLAB_UPDATE_TABLE)
         .column("value")
         .order_by(AF_COLLAB_KEY_COLUMN, true)
         .where_clause("oid", object_id.to_string())
@@ -426,7 +426,7 @@ impl Action for FetchObjectUpdateAction {
         None => Ok(vec![]),
         Some(server) => {
           let client = server.get_pg_client().await.recv().await?;
-          let (sql, params) = SelectSqlBuilder::new("af_collab")
+          let (sql, params) = SelectSqlBuilder::new(AF_COLLAB_UPDATE_TABLE)
             .column("value")
             .order_by(AF_COLLAB_KEY_COLUMN, true)
             .where_clause("oid", object_id)
@@ -482,7 +482,7 @@ impl Action for BatchFetchObjectUpdateAction {
           let mut updates_by_oid = CollabObjectUpdateByOid::new();
 
           // Group the updates by oid
-          let (sql, params) = SelectSqlBuilder::new("af_collab")
+          let (sql, params) = SelectSqlBuilder::new(AF_COLLAB_UPDATE_TABLE)
             .column("oid")
             .array_agg("value")
             .group_by("oid")

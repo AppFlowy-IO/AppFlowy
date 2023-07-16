@@ -1,15 +1,8 @@
--- user table
-CREATE TABLE IF NOT EXISTS af_user (
-   uuid UUID PRIMARY KEY,
-   email TEXT DEFAULT '',
-   uid BIGSERIAL UNIQUE,
-   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
+-- Insert default roles
 CREATE TABLE IF NOT EXISTS af_roles (
    id SERIAL PRIMARY KEY,
    name TEXT UNIQUE NOT NULL
 );
--- Insert default roles
 INSERT INTO af_roles (name)
 VALUES ('Owner'),
    ('Member'),
@@ -82,6 +75,13 @@ VALUES (
          WHERE name = 'Read only'
       )
    );
+-- user table
+CREATE TABLE IF NOT EXISTS af_user (
+   uuid UUID PRIMARY KEY,
+   email TEXT DEFAULT '',
+   uid BIGSERIAL UNIQUE,
+   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
 -- user profile table
 CREATE TABLE IF NOT EXISTS af_user_profile (
    uid BIGINT PRIMARY KEY,
@@ -117,24 +117,50 @@ CREATE TRIGGER create_af_workspace_trigger BEFORE
 INSERT ON af_user_profile FOR EACH ROW EXECUTE FUNCTION create_af_workspace_trigger_func();
 -- af_workspace_member contains all the members associated with a workspace and their roles.
 CREATE TABLE IF NOT EXISTS af_workspace_member (
-   uid BIGINT PRIMARY KEY,
+   uid BIGINT,
    role_id INT REFERENCES af_roles(id),
    workspace_id UUID REFERENCES af_workspace(workspace_id) ON DELETE CASCADE,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    UNIQUE(uid, workspace_id)
 );
--- user workspace table trigger
-CREATE OR REPLACE FUNCTION create_af_workspace_member_trigger_func() RETURNS TRIGGER AS $$ BEGIN
-INSERT INTO af_workspace_member (uid, workspace_id)
-VALUES (NEW.owner_uid, NEW.workspace_id);
+-- Insert a new row in af_workspace_member when a new row is inserted in af_user_profile table.
+CREATE OR REPLACE FUNCTION manage_af_workspace_member_role_trigger_func() RETURNS TRIGGER AS $$ BEGIN -- For new user profile, set as owner if user is the owner of the workspace, else set as member
+INSERT INTO af_workspace_member (uid, role_id, workspace_id)
+VALUES (
+      NEW.uid,
+      (
+         SELECT id
+         FROM af_roles
+         WHERE name = (
+               CASE
+                  WHEN NEW.uid IN (
+                     SELECT owner_uid
+                     FROM af_workspace
+                     WHERE workspace_id = NEW.workspace_id
+                  ) THEN 'Owner'
+                  ELSE 'Member'
+               END
+            )
+      ),
+      NEW.workspace_id
+   ) ON CONFLICT (uid, workspace_id) DO
+UPDATE
+SET role_id = EXCLUDED.role_id;
 RETURN NEW;
-END $$ LANGUAGE plpgsql;
-CREATE TRIGGER create_af_workspace_member_trigger
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER manage_af_workspace_member_role_trigger
 AFTER
-INSERT ON af_workspace FOR EACH ROW EXECUTE FUNCTION create_af_workspace_member_trigger_func();
--- collab table.
-CREATE TABLE IF NOT EXISTS af_collab (
-   oid TEXT NOT NULL,
+INSERT ON af_user_profile FOR EACH ROW EXECUTE FUNCTION manage_af_workspace_member_role_trigger_func();
+CREATE TABLE IF NOT EXISTS af_collab(
+   oid TEXT PRIMARY KEY,
+   owner_uid BIGINT,
+   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_af_collab_oid ON af_collab (oid);
+-- collab update table.
+CREATE TABLE IF NOT EXISTS af_collab_update (
+   oid TEXT REFERENCES af_collab(oid) ON DELETE CASCADE,
    name TEXT DEFAULT '',
    key BIGINT GENERATED ALWAYS AS IDENTITY,
    value BYTEA NOT NULL,
@@ -144,22 +170,46 @@ CREATE TABLE IF NOT EXISTS af_collab (
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    PRIMARY KEY (oid, key)
 );
--- collab pg notify trigger. It will notify the frontend when a new row is inserted in the af_collab table.
-CREATE OR REPLACE FUNCTION notify_on_insert_af_collab() RETURNS trigger AS $$BEGIN -- use pg_notify to send a notification
-   PERFORM pg_notify('new_row_in_af_collab', NEW.oid::text);
+-- Insert a new row in af_collab table if it does not exist. This trigger could potentially cause a performance issue if
+-- the af_collab_update table is updated very frequently, especially if the af_collab table is large and if the oid column
+-- isn't indexed
+CREATE OR REPLACE FUNCTION insert_into_af_collab_if_not_exists() RETURNS TRIGGER AS $$ BEGIN IF NOT EXISTS (
+      SELECT 1
+      FROM af_collab
+      WHERE oid = NEW.oid
+   ) THEN
+INSERT INTO af_collab (oid, owner_uid, created_at)
+VALUES (NEW.oid, NEW.uid, CURRENT_TIMESTAMP);
+END IF;
 RETURN NEW;
 END;
-$$LANGUAGE plpgsql;
-CREATE TRIGGER new_af_collab_row_trigger
-AFTER
-INSERT ON af_collab FOR EACH ROW EXECUTE PROCEDURE notify_on_insert_af_collab();
--- user role of collab object
-CREATE TABLE af_collab_user_roles (
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER insert_into_af_collab_trigger BEFORE
+INSERT ON af_collab_update FOR EACH ROW EXECUTE FUNCTION insert_into_af_collab_if_not_exists();
+CREATE TABLE af_collab_member (
    uid BIGINT REFERENCES af_user(uid),
    oid TEXT REFERENCES af_collab(oid),
    role_id INTEGER REFERENCES af_roles(id),
-   PRIMARY KEY(uid, oid, role_id)
+   PRIMARY KEY(uid, oid)
 );
+-- insert a collab member into af_collab_member table if a new row is inserted in af_collab table.
+CREATE OR REPLACE FUNCTION insert_into_af_collab_member() RETURNS TRIGGER AS $$ BEGIN
+INSERT INTO af_collab_member (oid, uid, role_id)
+VALUES (
+      NEW.oid,
+      NEW.owner_uid,
+      (
+         SELECT id
+         FROM af_roles
+         WHERE name = 'Owner'
+      )
+   );
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER insert_into_af_collab_member_trigger
+AFTER
+INSERT ON af_collab FOR EACH ROW EXECUTE FUNCTION insert_into_af_collab_member();
 -- collab statistics. It will be used to store the edit_count of the collab.
 CREATE TABLE IF NOT EXISTS af_collab_statistics (
    oid TEXT PRIMARY KEY,
@@ -181,9 +231,9 @@ END IF;
 RETURN NEW;
 END;
 $$LANGUAGE plpgsql;
-CREATE TRIGGER af_collab_insert_trigger
+CREATE TRIGGER af_collab_update_edit_count_trigger
 AFTER
-INSERT ON af_collab FOR EACH ROW EXECUTE FUNCTION increment_af_collab_edit_count();
+INSERT ON af_collab_update FOR EACH ROW EXECUTE FUNCTION increment_af_collab_edit_count();
 -- collab snapshot. It will be used to store the snapshots of the collab.
 CREATE TABLE IF NOT EXISTS af_collab_snapshot (
    sid BIGSERIAL PRIMARY KEY,
@@ -215,8 +265,8 @@ FROM af_collab_snapshot
 WHERE oid = NEW.oid;
 IF row_count > 20 THEN
 DELETE FROM af_collab_snapshot
-WHERE id IN (
-      SELECT id
+WHERE sid IN (
+      SELECT sid
       FROM af_collab_snapshot
       WHERE created_at < NOW() - INTERVAL '10 days'
          AND oid = NEW.oid
