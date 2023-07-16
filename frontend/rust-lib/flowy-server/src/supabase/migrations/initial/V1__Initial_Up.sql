@@ -5,6 +5,83 @@ CREATE TABLE IF NOT EXISTS af_user (
    uid BIGSERIAL UNIQUE,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TABLE IF NOT EXISTS af_roles (
+   id SERIAL PRIMARY KEY,
+   name TEXT UNIQUE NOT NULL
+);
+-- Insert default roles
+INSERT INTO af_roles (name)
+VALUES ('Owner'),
+   ('Member'),
+   ('Guest');
+CREATE TABLE af_permissions (
+   id SERIAL PRIMARY KEY,
+   name VARCHAR(255) UNIQUE NOT NULL,
+   access_level INTEGER,
+   description TEXT
+);
+-- Insert default permissions
+INSERT INTO af_permissions (name, description, access_level)
+VALUES ('Read only', 'Can read', 10),
+   (
+      'Read and comment',
+      'Can read and comment, but not edit',
+      20
+   ),
+   (
+      'Read and write',
+      'Can read and edit, but not share with others',
+      30
+   ),
+   (
+      'Full access',
+      'Can edit and share with others',
+      50
+   );
+-- Represents a permission that a role has. The list of all permissions a role has can be obtained by querying this table for all rows with a given role_id.
+CREATE TABLE af_role_permissions (
+   role_id INT REFERENCES af_roles(id),
+   permission_id INT REFERENCES af_permissions(id),
+   PRIMARY KEY (role_id, permission_id)
+);
+-- Associate permissions with roles
+INSERT INTO af_role_permissions (role_id, permission_id)
+VALUES (
+      (
+         SELECT id
+         FROM af_roles
+         WHERE name = 'Owner'
+      ),
+      (
+         SELECT id
+         FROM af_permissions
+         WHERE name = 'Full access'
+      )
+   ),
+   (
+      (
+         SELECT id
+         FROM af_roles
+         WHERE name = 'Member'
+      ),
+      (
+         SELECT id
+         FROM af_permissions
+         WHERE name = 'Read and write'
+      )
+   ),
+   (
+      (
+         SELECT id
+         FROM af_roles
+         WHERE name = 'Guest'
+      ),
+      (
+         SELECT id
+         FROM af_permissions
+         WHERE name = 'Read only'
+      )
+   );
 -- user profile table
 CREATE TABLE IF NOT EXISTS af_user_profile (
    uid BIGINT PRIMARY KEY,
@@ -20,7 +97,8 @@ INSERT INTO af_user_profile (uid, uuid, email)
 VALUES (NEW.uid, NEW.uuid, NEW.email);
 RETURN NEW;
 END $$LANGUAGE plpgsql;
-CREATE TRIGGER create_af_user_profile_trigger AFTER
+CREATE TRIGGER create_af_user_profile_trigger
+AFTER
 INSERT ON af_user FOR EACH ROW EXECUTE FUNCTION create_af_user_profile_trigger_func();
 -- workspace table
 CREATE TABLE IF NOT EXISTS af_workspace (
@@ -37,23 +115,23 @@ RETURN NEW;
 END $$LANGUAGE plpgsql;
 CREATE TRIGGER create_af_workspace_trigger BEFORE
 INSERT ON af_user_profile FOR EACH ROW EXECUTE FUNCTION create_af_workspace_trigger_func();
--- user workspace table. It will be used to store the user's workspaces. One user can have multiple workspaces
-CREATE TABLE IF NOT EXISTS af_user_workspace (
+-- af_workspace_member contains all the members associated with a workspace and their roles.
+CREATE TABLE IF NOT EXISTS af_workspace_member (
    uid BIGINT PRIMARY KEY,
+   role_id INT REFERENCES af_roles(id),
    workspace_id UUID REFERENCES af_workspace(workspace_id) ON DELETE CASCADE,
-   permission_level INTEGER DEFAULT 2,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    UNIQUE(uid, workspace_id)
 );
 -- user workspace table trigger
-CREATE OR REPLACE FUNCTION create_af_user_workspace_trigger_func() RETURNS TRIGGER AS $$ BEGIN
-INSERT INTO af_user_workspace (uid, workspace_id)
+CREATE OR REPLACE FUNCTION create_af_workspace_member_trigger_func() RETURNS TRIGGER AS $$ BEGIN
+INSERT INTO af_workspace_member (uid, workspace_id)
 VALUES (NEW.owner_uid, NEW.workspace_id);
 RETURN NEW;
 END $$ LANGUAGE plpgsql;
-CREATE TRIGGER create_af_user_workspace_trigger
+CREATE TRIGGER create_af_workspace_member_trigger
 AFTER
-INSERT ON af_workspace FOR EACH ROW EXECUTE FUNCTION create_af_user_workspace_trigger_func();
+INSERT ON af_workspace FOR EACH ROW EXECUTE FUNCTION create_af_workspace_member_trigger_func();
 -- collab table.
 CREATE TABLE IF NOT EXISTS af_collab (
    oid TEXT NOT NULL,
@@ -75,6 +153,13 @@ $$LANGUAGE plpgsql;
 CREATE TRIGGER new_af_collab_row_trigger
 AFTER
 INSERT ON af_collab FOR EACH ROW EXECUTE PROCEDURE notify_on_insert_af_collab();
+-- user role of collab object
+CREATE TABLE af_collab_user_roles (
+   uid BIGINT REFERENCES af_user(uid),
+   oid TEXT REFERENCES af_collab(oid),
+   role_id INTEGER REFERENCES af_roles(id),
+   PRIMARY KEY(uid, oid, role_id)
+);
 -- collab statistics. It will be used to store the edit_count of the collab.
 CREATE TABLE IF NOT EXISTS af_collab_statistics (
    oid TEXT PRIMARY KEY,
