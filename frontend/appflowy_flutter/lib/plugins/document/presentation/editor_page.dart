@@ -49,9 +49,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     quoteItem,
     bulletedListItem,
     numberedListItem,
+    inlineMathEquationItem,
     linkItem,
-    textColorItem,
-    highlightColorItem,
+    buildTextColorItem(),
+    buildHighlightColorItem(),
   ];
 
   late final List<SelectionMenuItem> slashMenuItems;
@@ -125,7 +126,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final (bool autoFocus, Selection? selection) =
         _computeAutoFocusParameters();
 
-    final editor = AppFlowyEditor.custom(
+    final editor = AppFlowyEditor(
       editorState: widget.editorState,
       editable: true,
       shrinkWrap: widget.shrinkWrap,
@@ -309,9 +310,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
       builder.showActions = (_) => true;
       builder.actionBuilder = (context, state) {
+        final top = builder.configuration.padding(context.node).top;
         final padding = context.node.type == HeadingBlockKeys.type
-            ? const EdgeInsets.only(top: 8.0)
-            : const EdgeInsets.all(0);
+            ? EdgeInsets.only(top: top + 8.0)
+            : EdgeInsets.only(top: top);
         return Padding(
           padding: padding,
           child: BlockActionList(
@@ -319,9 +321,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
             blockComponentState: state,
             editorState: widget.editorState,
             actions: actions,
-            showSlashMenu: () => showSlashMenu(
-              widget.editorState,
-            ),
+            showSlashMenu: () => showSlashMenu(widget.editorState),
           ),
         );
       };

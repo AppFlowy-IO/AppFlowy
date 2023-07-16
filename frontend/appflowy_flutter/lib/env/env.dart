@@ -68,6 +68,13 @@ abstract class Env {
     defaultValue: '5432',
   )
   static final String supabaseDbPort = _Env.supabaseDbPort;
+
+  @EnviedField(
+    obfuscate: true,
+    varName: 'ENABLE_SUPABASE_SYNC',
+    defaultValue: true,
+  )
+  static final bool enableSupabaseSync = _Env.enableSupabaseSync;
 }
 
 bool get isSupabaseEnable =>

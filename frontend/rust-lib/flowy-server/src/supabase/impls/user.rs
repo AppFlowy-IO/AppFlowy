@@ -1,5 +1,4 @@
 use std::str::FromStr;
-use std::sync::Arc;
 
 use deadpool_postgres::GenericClient;
 use futures::pin_mut;
@@ -11,39 +10,50 @@ use uuid::Uuid;
 use flowy_error::{internal_error, ErrorCode, FlowyError};
 use flowy_user::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 use flowy_user::event_map::{UserAuthService, UserCredentials};
+use flowy_user::services::{uuid_from_box_any, AuthType};
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::supabase::entities::{GetUserProfileParams, UserProfileResponse};
-use crate::supabase::pg_db::PostgresObject;
+use crate::supabase::postgres_db::PostgresObject;
 use crate::supabase::sql_builder::{SelectSqlBuilder, UpdateSqlBuilder};
-use crate::supabase::PostgresServer;
-use crate::util::uuid_from_box_any;
+use crate::supabase::SupabaseServerService;
 
 pub(crate) const USER_TABLE: &str = "af_user";
 pub(crate) const USER_PROFILE_TABLE: &str = "af_user_profile";
 pub const USER_UUID: &str = "uuid";
 
-pub struct SupabaseUserAuthServiceImpl {
-  server: Arc<PostgresServer>,
+pub struct SupabaseUserAuthServiceImpl<T> {
+  server: T,
 }
 
-impl SupabaseUserAuthServiceImpl {
-  pub fn new(server: Arc<PostgresServer>) -> Self {
+impl<T> SupabaseUserAuthServiceImpl<T> {
+  pub fn new(server: T) -> Self {
     Self { server }
   }
 }
 
-impl UserAuthService for SupabaseUserAuthServiceImpl {
+impl<T> UserAuthService for SupabaseUserAuthServiceImpl<T>
+where
+  T: SupabaseServerService,
+{
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
-    let server = self.server.clone();
+    let weak_server = self.server.try_get_pg_server();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
-        async {
-          let client = server.get_pg_client().await.recv().await?;
-          let uuid = uuid_from_box_any(params)?;
-          create_user_with_uuid(&client, uuid).await
+        async move {
+          match weak_server?.upgrade() {
+            Some(server) => {
+              let client = server.get_pg_client().await.recv().await?;
+              let params = uuid_from_box_any(params)?;
+              create_user_with_uuid(&client, params.uuid, params.email).await
+            },
+            None => Err(FlowyError::new(
+              ErrorCode::PgDatabaseError,
+              "Server is close",
+            )),
+          }
         }
         .await,
       )
@@ -52,19 +62,28 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
   }
 
   fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, FlowyError> {
-    let server = self.server.clone();
+    let server = self.server.try_get_pg_server();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
         async {
-          let client = server.get_pg_client().await.recv().await?;
-          let uuid = uuid_from_box_any(params)?;
-          let user_profile = get_user_profile(&client, GetUserProfileParams::Uuid(uuid)).await?;
-          Ok(SignInResponse {
-            user_id: user_profile.uid,
-            workspace_id: user_profile.workspace_id,
-            ..Default::default()
-          })
+          match server?.upgrade() {
+            None => Err(FlowyError::new(
+              ErrorCode::PgDatabaseError,
+              "Server is close",
+            )),
+            Some(server) => {
+              let client = server.get_pg_client().await.recv().await?;
+              let uuid = uuid_from_box_any(params)?.uuid;
+              let user_profile =
+                get_user_profile(&client, GetUserProfileParams::Uuid(uuid)).await?;
+              Ok(SignInResponse {
+                user_id: user_profile.uid,
+                workspace_id: user_profile.workspace_id,
+                ..Default::default()
+              })
+            },
+          }
         }
         .await,
       )
@@ -81,13 +100,17 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
     _credential: UserCredentials,
     params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError> {
-    let server = self.server.clone();
+    let weak_server = self.server.try_get_pg_server();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
         async move {
-          let client = server.get_pg_client().await.recv().await?;
-          update_user_profile(&client, params).await
+          if let Some(server) = weak_server?.upgrade() {
+            let client = server.get_pg_client().await.recv().await?;
+            update_user_profile(&client, params).await
+          } else {
+            Ok(())
+          }
         }
         .await,
       )
@@ -99,28 +122,33 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
     &self,
     credential: UserCredentials,
   ) -> FutureResult<Option<UserProfile>, FlowyError> {
-    let server = self.server.clone();
+    let weak_server = self.server.try_get_pg_server();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
         async move {
-          let client = server.get_pg_client().await.recv().await?;
-          let uid = credential
-            .uid
-            .ok_or(FlowyError::new(ErrorCode::InvalidParams, "uid is required"))?;
-          let user_profile = get_user_profile(&client, GetUserProfileParams::Uid(uid))
-            .await
-            .ok()
-            .map(|user_profile| UserProfile {
-              id: user_profile.uid,
-              email: user_profile.email,
-              name: user_profile.name,
-              token: "".to_string(),
-              icon_url: "".to_string(),
-              openai_key: "".to_string(),
-              workspace_id: user_profile.workspace_id,
-            });
-          Ok(user_profile)
+          if let Some(server) = weak_server?.upgrade() {
+            let client = server.get_pg_client().await.recv().await?;
+            let uid = credential
+              .uid
+              .ok_or(FlowyError::new(ErrorCode::InvalidParams, "uid is required"))?;
+            let user_profile = get_user_profile(&client, GetUserProfileParams::Uid(uid))
+              .await
+              .ok()
+              .map(|user_profile| UserProfile {
+                id: user_profile.uid,
+                email: user_profile.email,
+                name: user_profile.name,
+                token: "".to_string(),
+                icon_url: "".to_string(),
+                openai_key: "".to_string(),
+                workspace_id: user_profile.workspace_id,
+                auth_type: AuthType::Supabase,
+              });
+            Ok(user_profile)
+          } else {
+            Ok(None)
+          }
         }
         .await,
       )
@@ -130,13 +158,21 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
 
   fn check_user(&self, credential: UserCredentials) -> FutureResult<(), FlowyError> {
     let uuid = credential.uuid.and_then(|uuid| Uuid::from_str(&uuid).ok());
-    let server = self.server.clone();
+    let weak_server = self.server.try_get_pg_server();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
         async move {
-          let client = server.get_pg_client().await.recv().await?;
-          check_user(&client, credential.uid, uuid).await
+          match weak_server?.upgrade() {
+            None => Err(FlowyError::new(
+              ErrorCode::PgDatabaseError,
+              "Server is close",
+            )),
+            Some(server) => {
+              let client = server.get_pg_client().await.recv().await?;
+              check_user(&client, credential.uid, uuid).await
+            },
+          }
         }
         .await,
       )
@@ -148,12 +184,13 @@ impl UserAuthService for SupabaseUserAuthServiceImpl {
 async fn create_user_with_uuid(
   client: &PostgresObject,
   uuid: Uuid,
+  email: String,
 ) -> Result<SignUpResponse, FlowyError> {
   let mut is_new = true;
   if let Err(e) = client
     .execute(
-      &format!("INSERT INTO {} (uuid) VALUES ($1);", USER_TABLE),
-      &[&uuid],
+      &format!("INSERT INTO {} (uuid, email) VALUES ($1,$2);", USER_TABLE),
+      &[&uuid, &email],
     )
     .await
   {

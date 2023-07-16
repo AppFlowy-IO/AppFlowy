@@ -1,7 +1,8 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_math_equation/inline_math_equation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide FlowySvg, Log;
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,15 +40,18 @@ class EditorStyleCustomizer {
           color: theme.colorScheme.onBackground,
           height: 1.5,
         ),
-        bold: baseTextStyle(fontFamily).copyWith(
+        bold: baseTextStyle(fontFamily, fontWeight: FontWeight.bold).copyWith(
           fontWeight: FontWeight.w600,
         ),
-        italic: baseTextStyle(fontFamily).copyWith(fontStyle: FontStyle.italic),
-        underline: baseTextStyle(fontFamily)
-            .copyWith(decoration: TextDecoration.underline),
-        strikethrough:
-            baseTextStyle(fontFamily)
-            .copyWith(decoration: TextDecoration.lineThrough),
+        italic: baseTextStyle(fontFamily).copyWith(
+          fontStyle: FontStyle.italic,
+        ),
+        underline: baseTextStyle(fontFamily).copyWith(
+          decoration: TextDecoration.underline,
+        ),
+        strikethrough: baseTextStyle(fontFamily).copyWith(
+          decoration: TextDecoration.lineThrough,
+        ),
         href: baseTextStyle(fontFamily).copyWith(
           color: theme.colorScheme.primary,
           decoration: TextDecoration.underline,
@@ -86,8 +90,7 @@ class EditorStyleCustomizer {
         italic: baseTextStyle(fontFamily).copyWith(fontStyle: FontStyle.italic),
         underline: baseTextStyle(fontFamily)
             .copyWith(decoration: TextDecoration.underline),
-        strikethrough:
-            baseTextStyle(fontFamily)
+        strikethrough: baseTextStyle(fontFamily)
             .copyWith(decoration: TextDecoration.lineThrough),
         href: baseTextStyle(fontFamily).copyWith(
           color: theme.colorScheme.primary,
@@ -162,10 +165,14 @@ class EditorStyleCustomizer {
     );
   }
 
-  TextStyle baseTextStyle(String fontFamily) {
+  TextStyle baseTextStyle(
+    String fontFamily, {
+    FontWeight? fontWeight,
+  }) {
     try {
       return GoogleFonts.getFont(
         fontFamily,
+        fontWeight: fontWeight,
       );
     } on Exception {
       return GoogleFonts.getFont('Poppins');
@@ -173,13 +180,18 @@ class EditorStyleCustomizer {
   }
 
   InlineSpan customizeAttributeDecorator(
-    TextInsert textInsert,
+    BuildContext context,
+    Node node,
+    int index,
+    TextInsert text,
     TextSpan textSpan,
   ) {
-    final attributes = textInsert.attributes;
+    final attributes = text.attributes;
     if (attributes == null) {
       return textSpan;
     }
+
+    // customize the inline mention block, like inline page
     final mention = attributes[MentionBlockKeys.mention] as Map?;
     if (mention != null) {
       final type = mention[MentionBlockKeys.type];
@@ -193,6 +205,21 @@ class EditorStyleCustomizer {
         );
       }
     }
+
+    // customize the inline math equation block
+    final formula = attributes[InlineMathEquationKeys.formula] as String?;
+    if (formula != null) {
+      return WidgetSpan(
+        alignment: PlaceholderAlignment.middle,
+        child: InlineMathEquation(
+          node: node,
+          index: index,
+          formula: formula,
+          textStyle: style().textStyleConfiguration.text,
+        ),
+      );
+    }
+
     return textSpan;
   }
 }

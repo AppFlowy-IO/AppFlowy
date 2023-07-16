@@ -5,7 +5,7 @@ use flowy_user::errors::ErrorCode;
 
 #[tokio::test]
 async fn create_workspace_event_test() {
-  let test = FlowyCoreTest::new_with_user().await;
+  let test = FlowyCoreTest::new_with_guest_user().await;
   let request = CreateWorkspacePayloadPB {
     name: "my second workspace".to_owned(),
     desc: "".to_owned(),
@@ -21,7 +21,7 @@ async fn create_workspace_event_test() {
 
 #[tokio::test]
 async fn open_workspace_event_test() {
-  let test = FlowyCoreTest::new_with_user().await;
+  let test = FlowyCoreTest::new_with_guest_user().await;
   let payload = CreateWorkspacePayloadPB {
     name: "my second workspace".to_owned(),
     desc: "".to_owned(),
@@ -51,7 +51,7 @@ async fn open_workspace_event_test() {
 
 #[tokio::test]
 async fn create_view_event_test() {
-  let test = FlowyCoreTest::new_with_user().await;
+  let test = FlowyCoreTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let view = test
     .create_view(&current_workspace.id, "My first view".to_string())
@@ -63,7 +63,7 @@ async fn create_view_event_test() {
 
 #[tokio::test]
 async fn update_view_event_with_name_test() {
-  let test = FlowyCoreTest::new_with_user().await;
+  let test = FlowyCoreTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let view = test
     .create_view(&current_workspace.id, "My first view".to_string())
@@ -84,7 +84,7 @@ async fn update_view_event_with_name_test() {
 
 #[tokio::test]
 async fn update_view_event_with_icon_url_test() {
-  let test = FlowyCoreTest::new_with_user().await;
+  let test = FlowyCoreTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let view = test
     .create_view(&current_workspace.id, "My first view".to_string())
@@ -105,7 +105,7 @@ async fn update_view_event_with_icon_url_test() {
 
 #[tokio::test]
 async fn update_view_event_with_cover_url_test() {
-  let test = FlowyCoreTest::new_with_user().await;
+  let test = FlowyCoreTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let view = test
     .create_view(&current_workspace.id, "My first view".to_string())
@@ -126,7 +126,7 @@ async fn update_view_event_with_cover_url_test() {
 
 #[tokio::test]
 async fn delete_view_event_test() {
-  let test = FlowyCoreTest::new_with_user().await;
+  let test = FlowyCoreTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let view = test
     .create_view(&current_workspace.id, "My first view".to_string())
@@ -149,7 +149,7 @@ async fn delete_view_event_test() {
 
 #[tokio::test]
 async fn put_back_trash_event_test() {
-  let test = FlowyCoreTest::new_with_user().await;
+  let test = FlowyCoreTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let view = test
     .create_view(&current_workspace.id, "My first view".to_string())
@@ -192,7 +192,7 @@ async fn put_back_trash_event_test() {
 
 #[tokio::test]
 async fn delete_view_permanently_event_test() {
-  let test = FlowyCoreTest::new_with_user().await;
+  let test = FlowyCoreTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let view = test
     .create_view(&current_workspace.id, "My first view".to_string())
@@ -241,7 +241,7 @@ async fn delete_view_permanently_event_test() {
 
 #[tokio::test]
 async fn delete_all_trash_test() {
-  let test = FlowyCoreTest::new_with_user().await;
+  let test = FlowyCoreTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
 
   for i in 0..3 {
@@ -285,7 +285,7 @@ async fn delete_all_trash_test() {
 
 #[tokio::test]
 async fn multiple_hierarchy_view_test() {
-  let test = FlowyCoreTest::new_with_user().await;
+  let test = FlowyCoreTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   for i in 1..4 {
     let parent = test
@@ -361,7 +361,7 @@ async fn multiple_hierarchy_view_test() {
 
 #[tokio::test]
 async fn move_view_event_test() {
-  let test = FlowyCoreTest::new_with_user().await;
+  let test = FlowyCoreTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   for i in 1..4 {
     let parent = test
@@ -399,7 +399,7 @@ async fn move_view_event_test() {
 
 #[tokio::test]
 async fn move_view_event_after_delete_view_test() {
-  let test = FlowyCoreTest::new_with_user().await;
+  let test = FlowyCoreTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   for i in 1..6 {
     let _ = test
@@ -441,7 +441,7 @@ async fn move_view_event_after_delete_view_test() {
 
 #[tokio::test]
 async fn move_view_event_after_delete_view_test2() {
-  let test = FlowyCoreTest::new_with_user().await;
+  let test = FlowyCoreTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let parent = test
     .create_view(&current_workspace.id, "My view".to_string())

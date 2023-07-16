@@ -4,7 +4,7 @@ import { useAppDispatch } from '$app/stores/store';
 import { updateNodeDataThunk } from '$app_reducers/document/async-actions';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 import UploadImage from '$app/components/document/_shared/UploadImage';
-import { isTauri } from '$app/utils/env';
+import { useTranslation } from 'react-i18next';
 
 enum TAB_KEYS {
   UPLOAD = 'upload',
@@ -13,6 +13,7 @@ enum TAB_KEYS {
 
 function EditImage({ id, url, onClose }: { id: string; url: string; onClose: () => void }) {
   const dispatch = useAppDispatch();
+  const { t } = useTranslation();
   const { controller } = useSubscribeDocument();
   const [linkVal, setLinkVal] = useState<string>(url);
   const [tabKey, setTabKey] = useState<TAB_KEYS>(TAB_KEYS.UPLOAD);
@@ -41,31 +42,29 @@ function EditImage({ id, url, onClose }: { id: string; url: string; onClose: () 
     <div className={'w-[540px]'}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabKey} onChange={handleChange}>
-          {isTauri() && <Tab label={'Upload Image'} value={TAB_KEYS.UPLOAD} />}
+          <Tab label={t('document.imageBlock.upload.label')} value={TAB_KEYS.UPLOAD} />
 
-          <Tab label='URL Image' value={TAB_KEYS.LINK} />
+          <Tab label={t('document.imageBlock.url.label')} value={TAB_KEYS.LINK} />
         </Tabs>
       </Box>
-      {isTauri() && (
-        <TabPanel value={tabKey} index={TAB_KEYS.UPLOAD}>
-          <UploadImage onChange={handleConfirmUrl} />
-        </TabPanel>
-      )}
+      <TabPanel value={tabKey} index={TAB_KEYS.UPLOAD}>
+        <UploadImage onChange={handleConfirmUrl} />
+      </TabPanel>
 
       <TabPanel className={'flex flex-col p-3'} value={tabKey} index={TAB_KEYS.LINK}>
         <TextField
           value={linkVal}
           onChange={(e) => setLinkVal(e.target.value)}
           variant='outlined'
-          label={'URL'}
+          label={t('document.imageBlock.url.label')}
           autoFocus={true}
           style={{
             marginBottom: '10px',
           }}
-          placeholder={'Please enter the URL of the image'}
+          placeholder={t('document.imageBlock.url.placeholder')}
         />
         <Button onClick={() => handleConfirmUrl(linkVal)} variant='contained'>
-          Upload
+          {t('button.upload')}
         </Button>
       </TabPanel>
     </div>

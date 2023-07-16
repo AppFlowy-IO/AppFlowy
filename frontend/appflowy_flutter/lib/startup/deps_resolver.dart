@@ -11,6 +11,7 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/auth/supabase_auth_service.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
@@ -24,7 +25,6 @@ import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/plugins/trash/application/prelude.dart';
-import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -109,9 +109,6 @@ void _resolveHomeDeps(GetIt getIt) {
     (user, _) => UserListener(userProfile: user),
   );
 
-  //
-  getIt.registerLazySingleton<HomeStackManager>(() => HomeStackManager());
-
   getIt.registerFactoryParam<WelcomeBloc, UserProfilePB, void>(
     (user, _) => WelcomeBloc(
       userService: UserBackendService(userId: user.id),
@@ -123,6 +120,8 @@ void _resolveHomeDeps(GetIt getIt) {
   getIt.registerFactoryParam<DocShareBloc, ViewPB, void>(
     (view, _) => DocShareBloc(view: view),
   );
+
+  getIt.registerLazySingleton<TabsBloc>(() => TabsBloc());
 }
 
 void _resolveFolderDeps(GetIt getIt) {

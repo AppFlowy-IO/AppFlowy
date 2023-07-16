@@ -58,9 +58,7 @@ class Sizes {
 
   static double get iconMed => 20;
 
-  static double get sideBarMed => 225 * hitScale;
-
-  static double get sideBarLg => 290 * hitScale;
+  static double get sideBarWidth => 250 * hitScale;
 }
 
 class Corners {

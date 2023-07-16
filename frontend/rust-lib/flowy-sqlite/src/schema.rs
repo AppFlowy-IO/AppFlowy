@@ -21,6 +21,7 @@ diesel::table! {
         openai_key -> Text,
         token -> Text,
         email -> Text,
+        auth_type -> Integer,
     }
 }
 

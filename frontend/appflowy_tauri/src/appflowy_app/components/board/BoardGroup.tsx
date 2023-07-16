@@ -26,10 +26,12 @@ export const BoardGroup = ({
   const { t } = useTranslation();
 
   const [rows, setRows] = useState<RowInfo[]>([]);
+
   useEffect(() => {
     const reloadRows = () => {
       setRows(group.rows.map((rowPB) => new RowInfo(viewId, controller.fieldController.fieldInfos, rowPB)));
     };
+
     reloadRows();
     group.subscribe({
       onRemoveRow: reloadRows,
@@ -43,17 +45,17 @@ export const BoardGroup = ({
   }, [controller, group, viewId]);
 
   return (
-    <div className={'flex h-full w-[250px] flex-col rounded-lg bg-surface-1'}>
+    <div className={'flex h-full w-[250px] flex-col rounded-lg bg-bg-base'}>
       <div className={'flex items-center justify-between p-4'}>
         <div className={'flex items-center gap-2'}>
           <span>{group.name}</span>
           <span className={'text-shade-4'}>({group.rows.length})</span>
         </div>
         <div className={'flex items-center gap-2'}>
-          <button className={'h-5 w-5 rounded hover:bg-surface-2'}>
+          <button className={'h-5 w-5 rounded hover:bg-fill-list-hover'}>
             <Details2Svg></Details2Svg>
           </button>
-          <button className={'h-5 w-5 rounded hover:bg-surface-2'}>
+          <button className={'h-5 w-5 rounded hover:bg-fill-list-hover'}>
             <AddSvg></AddSvg>
           </button>
         </div>
@@ -84,7 +86,7 @@ export const BoardGroup = ({
       <div className={'p-2'}>
         <button
           onClick={onNewRowClick}
-          className={'flex w-full items-center gap-2 rounded-lg px-2 py-2 hover:bg-surface-2'}
+          className={'flex w-full items-center gap-2 rounded-lg px-2 py-2 hover:bg-fill-list-hover'}
         >
           <span className={'h-5 w-5'}>
             <AddSvg></AddSvg>

@@ -5,16 +5,23 @@ import 'package:flutter_svg/flutter_svg.dart';
 ///
 /// Get the hover color from ThemeData
 class FlowySvg extends StatelessWidget {
-  const FlowySvg({super.key, this.size, required this.name});
+  const FlowySvg({
+    super.key,
+    required this.name,
+    this.size,
+    this.color,
+  });
+
   final String name;
   final Size? size;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     return svgWidget(
       name,
       size: size,
-      color: Theme.of(context).iconTheme.color,
+      color: color ?? Theme.of(context).iconTheme.color,
     );
   }
 }

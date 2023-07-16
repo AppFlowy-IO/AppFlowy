@@ -9,7 +9,7 @@ function TextEditor({ placeholder = "Type '/' for commands", ...props }: EditorP
   const { editor, onChange, value, ref, ...editableProps } = useEditor(props);
 
   return (
-    <div ref={ref} className={'py-0.5'}>
+    <div ref={ref} className={'px-1 py-0.5'}>
       <Slate editor={editor} onChange={onChange} value={value}>
         <Editable
           renderLeaf={(leafProps) => <TextLeaf {...leafProps} editor={editor} />}

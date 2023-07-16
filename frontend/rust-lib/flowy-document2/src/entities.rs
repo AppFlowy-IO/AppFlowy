@@ -1,10 +1,12 @@
-use collab::core::collab_state::SyncState;
-use collab_document::blocks::{BlockAction, DocumentData};
 use std::collections::HashMap;
 
-use crate::parse::{NotEmptyStr, NotEmptyVec};
+use collab::core::collab_state::SyncState;
+use collab_document::blocks::{BlockAction, DocumentData};
+
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
+
+use crate::parse::{NotEmptyStr, NotEmptyVec};
 
 #[derive(Default, ProtoBuf)]
 pub struct OpenDocumentPayloadPB {
@@ -270,7 +272,7 @@ impl From<i32> for ExportType {
       1 => ExportType::Markdown,
       2 => ExportType::Link,
       _ => {
-        tracing::error!("Invalid export type: {}", val);
+        tracing::error!("🔴Invalid export type: {}", val);
         ExportType::Text
       },
     }
@@ -306,7 +308,7 @@ impl From<i32> for ConvertType {
     match val {
       0 => ConvertType::Json,
       _ => {
-        tracing::error!("Invalid export type: {}", val);
+        tracing::error!("🔴Invalid export type: {}", val);
         ConvertType::Json
       },
     }

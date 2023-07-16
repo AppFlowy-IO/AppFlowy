@@ -115,7 +115,10 @@ class SupabaseAuthService implements AuthService {
         completer.complete(left(AuthError.supabaseSignInWithOauthError));
       } else {
         final Either<FlowyError, UserProfilePB> response = await setupAuth(
-          map: {AuthServiceMapKeys.uuid: user.id},
+          map: {
+            AuthServiceMapKeys.uuid: user.id,
+            AuthServiceMapKeys.email: user.email ?? user.newEmail ?? ''
+          },
         );
         completer.complete(response);
       }

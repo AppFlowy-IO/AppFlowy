@@ -167,16 +167,14 @@ script = [
 [tasks.flutter-build]
 script = ["""
   cd appflowy_flutter/
-  flutter clean
   flutter pub get
-  flutter build ${TARGET_OS} --${BUILD_FLAG}
+  flutter build ${TARGET_OS} --${BUILD_FLAG} --verbose
   """]
 script_runner = "@shell"
 
 [tasks.flutter-build.windows]
 script = ["""
   cd appflowy_flutter
-  exec cmd.exe /c flutter clean
   exec cmd.exe /c flutter pub get
   exec cmd.exe /c flutter build ${TARGET_OS} --${BUILD_FLAG} --build-name=${APP_VERSION}
   """]
@@ -186,19 +184,25 @@ script_runner = "@duckscript"
 script_runner = "@shell"
 script = [
   """
-  chmod +x scripts/code_generation/generate.sh
-  """,
-  "scripts/code_generation/generate.sh"
+  cd appflowy_flutter
+  flutter clean
+  flutter pub get
+  cd ../
+  sh scripts/code_generation/generate.sh
+  """
 ]
 
 [tasks.code_generation.windows]
 script_runner = "@duckscript"
 script = [
   """
-  exec "scripts/code_generation/generate.cmd"
+  cd ./appflowy_flutter/
+  exec cmd.exe /c flutter clean
+  exec cmd.exe /c flutter pub get
+  cd ../
+  exec scripts/code_generation/generate.cmd
   """,
 ]
-
 
 [tasks.dry_code_generation]
 script_runner = "@shell"

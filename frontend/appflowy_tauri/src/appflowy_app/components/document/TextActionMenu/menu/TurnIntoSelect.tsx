@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react';
 import TurnIntoPopover from '$app/components/document/_shared/TurnInto';
-import Button from '@mui/material/Button';
 import ArrowDropDown from '@mui/icons-material/ArrowDropDown';
-import MenuTooltip from './MenuTooltip';
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
+import { useTranslation } from 'react-i18next';
+import ToolbarTooltip from '../../_shared/ToolbarTooltip';
 
 function TurnIntoSelect({ id }: { id: string }) {
   const [anchorPosition, setAnchorPosition] = React.useState<{
@@ -12,7 +12,7 @@ function TurnIntoSelect({ id }: { id: string }) {
   }>();
 
   const { node } = useSubscribeNode(id);
-  const handleClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
 
     setAnchorPosition({
@@ -26,17 +26,16 @@ function TurnIntoSelect({ id }: { id: string }) {
   }, []);
 
   const open = Boolean(anchorPosition);
+  const { t } = useTranslation();
 
   return (
     <>
-      <MenuTooltip title='Turn into'>
-        <Button size={'small'} variant='text' onClick={handleClick}>
-          <div className='flex items-center text-main-accent'>
-            <span>{node.type}</span>
-            <ArrowDropDown />
-          </div>
-        </Button>
-      </MenuTooltip>
+      <ToolbarTooltip title={t('document.plugins.optionAction.turnInto')}>
+        <div onClick={handleClick} className='flex cursor-pointer items-center px-2 text-sm text-fill-default'>
+          <span>{node.type}</span>
+          <ArrowDropDown />
+        </div>
+      </ToolbarTooltip>
       <TurnIntoPopover
         id={id}
         open={open}

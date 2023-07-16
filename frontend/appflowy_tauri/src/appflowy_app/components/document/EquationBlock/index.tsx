@@ -7,6 +7,7 @@ import { useBlockPopover } from '$app/components/document/_shared/BlockPopover/B
 import { updateNodeDataThunk } from '$app_reducers/document/async-actions';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 import { useAppDispatch } from '$app/stores/store';
+import { useTranslation } from 'react-i18next';
 
 function EquationBlock({ node }: { node: NestedBlock<BlockType.EquationBlock> }) {
   const formula = node.data.formula;
@@ -60,19 +61,21 @@ function EquationBlock({ node }: { node: NestedBlock<BlockType.EquationBlock> })
   });
   const displayFormula = open ? value : formula;
 
+  const { t } = useTranslation();
+
   return (
     <>
       <div
         ref={anchorElRef}
         onClick={openPopover}
-        className={'my-1 flex min-h-[59px] cursor-pointer flex-col overflow-hidden rounded hover:bg-main-secondary'}
+        className={'my-1 flex min-h-[59px] cursor-pointer flex-col overflow-hidden rounded hover:bg-content-blue-50'}
       >
         {displayFormula ? (
           <KatexMath latex={displayFormula} />
         ) : (
-          <div className={'flex h-[100%] w-[100%] flex-1 items-center bg-main-selector px-1 text-shade-2'}>
+          <div className={'flex h-[100%] w-[100%] flex-1 items-center bg-content-blue-50 px-1 text-text-caption'}>
             <Functions />
-            <span>Add a TeX equation</span>
+            <span>{t('document.plugins.mathEquation.addMathEquation')}</span>
           </div>
         )}
       </div>

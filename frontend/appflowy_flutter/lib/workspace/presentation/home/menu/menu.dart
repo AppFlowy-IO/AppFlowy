@@ -7,6 +7,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy_backend/log.dart';
@@ -16,7 +17,6 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
-// import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/time/duration.dart';
@@ -67,7 +67,9 @@ class HomeMenu extends StatelessWidget {
           BlocListener<MenuBloc, MenuState>(
             listenWhen: (p, c) => p.plugin.id != c.plugin.id,
             listener: (context, state) {
-              getIt<HomeStackManager>().setPlugin(state.plugin);
+              getIt<TabsBloc>().add(
+                TabsEvent.openPlugin(plugin: state.plugin),
+              );
             },
           ),
         ],

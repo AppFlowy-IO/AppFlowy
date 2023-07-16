@@ -16,12 +16,12 @@ use tracing::debug;
 use flowy_database2::DatabaseManager2;
 use flowy_document2::manager::DocumentManager as DocumentManager2;
 use flowy_error::FlowyResult;
-use flowy_folder2::manager::FolderManager;
+use flowy_folder2::manager::{FolderInitializeData, FolderManager};
 use flowy_sqlite::kv::KV;
 use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::entities::UserProfile;
-use flowy_user::event_map::{UserCloudServiceProvider, UserStatusCallback};
-use flowy_user::services::{AuthType, UserSession, UserSessionConfig};
+use flowy_user::event_map::{SignUpContext, UserCloudServiceProvider, UserStatusCallback};
+use flowy_user::services::{get_supabase_config, AuthType, UserSession, UserSessionConfig};
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::tokio_default_runtime;
 use lib_infra::future::{to_fut, Fut};
@@ -141,7 +141,10 @@ impl AppFlowyCore {
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
 
-    let server_provider = Arc::new(AppFlowyServerProvider::new());
+    let server_provider = Arc::new(AppFlowyServerProvider::new(
+      config.clone(),
+      get_supabase_config(),
+    ));
 
     let (user_session, folder_manager, server_provider, database_manager, document_manager2) =
       runtime.block_on(async {
@@ -260,6 +263,21 @@ struct UserStatusCallbackImpl {
 impl UserStatusCallback for UserStatusCallbackImpl {
   fn auth_type_did_changed(&self, _auth_type: AuthType) {}
 
+  fn did_init(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>> {
+    let user_id = user_id.to_owned();
+    let workspace_id = workspace_id.to_owned();
+    let folder_manager = self.folder_manager.clone();
+    let database_manager = self.database_manager.clone();
+
+    to_fut(async move {
+      folder_manager
+        .initialize(user_id, &workspace_id, FolderInitializeData::Empty)
+        .await?;
+      database_manager.initialize(user_id).await?;
+      Ok(())
+    })
+  }
+
   fn did_sign_in(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>> {
     let user_id = user_id.to_owned();
     let workspace_id = workspace_id.to_owned();
@@ -267,22 +285,29 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let database_manager = self.database_manager.clone();
 
     to_fut(async move {
-      folder_manager.initialize(user_id, &workspace_id).await?;
+      folder_manager
+        .initialize_when_sign_in(user_id, &workspace_id)
+        .await?;
       database_manager.initialize(user_id).await?;
       Ok(())
     })
   }
 
-  fn did_sign_up(&self, is_new: bool, user_profile: &UserProfile) -> Fut<FlowyResult<()>> {
+  fn did_sign_up(
+    &self,
+    context: SignUpContext,
+    user_profile: &UserProfile,
+  ) -> Fut<FlowyResult<()>> {
     let user_profile = user_profile.clone();
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
     to_fut(async move {
       folder_manager
-        .initialize_with_new_user(
+        .initialize_when_sign_up(
           user_profile.id,
           &user_profile.token,
-          is_new,
+          context.is_new,
+          context.local_folder,
           &user_profile.workspace_id,
         )
         .await?;

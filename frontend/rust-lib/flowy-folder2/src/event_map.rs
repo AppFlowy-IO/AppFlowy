@@ -14,11 +14,11 @@ pub fn init(folder: Arc<FolderManager>) -> AFPlugin {
     .event(FolderEvent::CreateWorkspace, create_workspace_handler)
     .event(
       FolderEvent::GetCurrentWorkspace,
-      read_current_workspace_setting_handler,
+      get_current_workspace_setting_handler,
     )
     .event(FolderEvent::ReadAllWorkspaces, read_workspaces_handler)
     .event(FolderEvent::OpenWorkspace, open_workspace_handler)
-    .event(FolderEvent::ReadWorkspaceViews, read_workspace_views_handler)
+    .event(FolderEvent::ReadWorkspaceViews, get_workspace_views_handler)
      // View
     .event(FolderEvent::CreateView, create_view_handler)
     .event(FolderEvent::CreateOrphanView, create_orphan_view_handler)

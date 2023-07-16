@@ -1,14 +1,19 @@
 import { nanoid } from '@reduxjs/toolkit';
 import {
+  AppearanceSettingsPB,
   AuthTypePB,
-  SignOutPB,
+  ThemeModePB,
+  UserEventGetAppearanceSetting,
   UserEventGetUserProfile,
+  UserEventGetUserSetting,
+  UserEventSetAppearanceSetting,
   UserEventSignIn,
   UserEventSignOut,
   UserEventSignUp,
   UserEventUpdateUserProfile,
 } from '@/services/backend/events/flowy-user';
 import {
+  BlockActionPB,
   CreateWorkspacePayloadPB,
   SignInPayloadPB,
   SignUpPayloadPB,
@@ -85,9 +90,21 @@ export class UserBackendService {
   };
 
   signOut = () => {
-    const payload = SignOutPB.fromObject({ auth_type: AuthTypePB.Local });
+    return UserEventSignOut();
+  };
 
-    return UserEventSignOut(payload);
+  setAppearanceSettings = (params: ReturnType<typeof AppearanceSettingsPB.prototype.toObject>) => {
+    const payload = AppearanceSettingsPB.fromObject(params);
+
+    return UserEventSetAppearanceSetting(payload);
+  };
+
+  getAppearanceSettings = () => {
+    return UserEventGetAppearanceSetting();
+  };
+
+  getStorageSettings = () => {
+    return UserEventGetUserSetting();
   };
 }
 
@@ -105,9 +122,7 @@ export class AuthBackendService {
   };
 
   signOut = () => {
-    const payload = SignOutPB.fromObject({ auth_type: AuthTypePB.Local });
-
-    return UserEventSignOut(payload);
+    return UserEventSignOut();
   };
 
   autoSignUp = () => {

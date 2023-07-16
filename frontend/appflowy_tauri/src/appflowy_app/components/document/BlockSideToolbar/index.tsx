@@ -11,10 +11,12 @@ import { addBlockBelowClickThunk } from '$app_reducers/document/async-actions/me
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 import { RANGE_NAME, RECT_RANGE_NAME } from '$app/constants/document/name';
 import { setRectSelectionThunk } from '$app_reducers/document/async-actions/rect_selection';
+import { useTranslation } from 'react-i18next';
 
 export default function BlockSideToolbar({ container }: { container: HTMLDivElement }) {
   const dispatch = useAppDispatch();
   const { docId, controller } = useSubscribeDocument();
+  const { t } = useTranslation();
 
   const { nodeId, style, ref } = useBlockSideToolbar({ container });
   const isDragging = useAppSelector(
@@ -42,7 +44,7 @@ export default function BlockSideToolbar({ container }: { container: HTMLDivElem
         >
           {/** Add Block below */}
           <ToolbarButton
-            tooltip={'Add a new block below'}
+            tooltip={t('tooltip.addBlockBelow')}
             onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
               if (!nodeId || !controller) return;
               dispatch(
@@ -58,7 +60,7 @@ export default function BlockSideToolbar({ container }: { container: HTMLDivElem
 
           {/** Open menu or drag */}
           <ToolbarButton
-            tooltip={'Click to open Menu'}
+            tooltip={t('tooltip.openMenu')}
             onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
               if (!nodeId) return;
               dispatch(

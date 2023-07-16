@@ -32,7 +32,7 @@ class EditorOperations {
 
   /// Tap the line of editor at [index]
   Future<void> tapLineOfEditorAt(int index) async {
-    final textBlocks = find.byType(FlowyRichText);
+    final textBlocks = find.byType(AppFlowyRichText);
     index = index.clamp(0, textBlocks.evaluate().length - 1);
     await tester.tapAt(tester.getTopRight(textBlocks.at(index)));
     await tester.pumpAndSettle();
@@ -164,5 +164,15 @@ class EditorOperations {
       matching: find.text(name, findRichText: true),
     );
     await tester.tapButton(atMenuItem);
+  }
+
+  /// Update the editor's selection
+  Future<void> updateSelection(Selection selection) async {
+    final editorState = getCurrentEditorState();
+    editorState.updateSelectionWithReason(
+      selection,
+      reason: SelectionUpdateReason.uiEvent,
+    );
+    await tester.pumpAndSettle(const Duration(milliseconds: 200));
   }
 }

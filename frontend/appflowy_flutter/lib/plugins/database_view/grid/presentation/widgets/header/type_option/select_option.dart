@@ -42,7 +42,7 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
             const TypeOptionSeparator(),
             const OptionTitle(),
             if (state.isEditingOption)
-              _CreateOptionTextField(popoverMutex: popoverMutex),
+              CreateOptionTextField(popoverMutex: popoverMutex),
             if (state.options.isNotEmpty && state.isEditingOption)
               const VSpace(10),
             if (state.options.isEmpty && !state.isEditingOption)
@@ -266,18 +266,18 @@ class _AddOptionButton extends StatelessWidget {
   }
 }
 
-class _CreateOptionTextField extends StatefulWidget {
+class CreateOptionTextField extends StatefulWidget {
   final PopoverMutex? popoverMutex;
-  const _CreateOptionTextField({
+  const CreateOptionTextField({
     Key? key,
     this.popoverMutex,
   }) : super(key: key);
 
   @override
-  State<_CreateOptionTextField> createState() => _CreateOptionTextFieldState();
+  State<CreateOptionTextField> createState() => _CreateOptionTextFieldState();
 }
 
-class _CreateOptionTextFieldState extends State<_CreateOptionTextField> {
+class _CreateOptionTextFieldState extends State<CreateOptionTextField> {
   late final FocusNode _focusNode;
 
   @override

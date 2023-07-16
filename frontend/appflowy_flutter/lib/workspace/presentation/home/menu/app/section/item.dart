@@ -1,4 +1,5 @@
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
@@ -18,7 +19,6 @@ import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 
-// ignore: must_be_immutable
 class ViewSectionItem extends StatelessWidget {
   final bool isSelected;
   final ViewPB view;
@@ -117,6 +117,15 @@ class ViewSectionItem extends StatelessWidget {
                 break;
               case ViewDisclosureAction.favorite:
                 blocContext.read<ViewBloc>().add(const ViewEvent.favorite());
+                break;
+              case ViewDisclosureAction.openInNewTab:
+                blocContext.read<TabsBloc>().add(
+                      TabsEvent.openTab(
+                        plugin: state.view.plugin(),
+                        view: blocContext.read<ViewBloc>().state.view,
+                      ),
+                    );
+                break;
             }
           },
         ),
@@ -138,6 +147,7 @@ enum ViewDisclosureAction {
   delete,
   duplicate,
   favorite,
+  openInNewTab,
 }
 
 extension ViewDisclosureExtension on ViewDisclosureAction {
@@ -151,6 +161,8 @@ extension ViewDisclosureExtension on ViewDisclosureAction {
         return LocaleKeys.disclosureAction_duplicate.tr();
       case ViewDisclosureAction.favorite:
         return LocaleKeys.disclosureAction_favorite.tr();
+      case ViewDisclosureAction.openInNewTab:
+        return LocaleKeys.disclosureAction_openNewTab.tr();
     }
   }
 
@@ -164,6 +176,8 @@ extension ViewDisclosureExtension on ViewDisclosureAction {
         return const FlowySvg(name: 'editor/copy');
       case ViewDisclosureAction.favorite:
         return const FlowySvg(name: 'editor/copy');
+      case ViewDisclosureAction.openInNewTab:
+        return const FlowySvg(name: 'grid/expander');
     }
   }
 }

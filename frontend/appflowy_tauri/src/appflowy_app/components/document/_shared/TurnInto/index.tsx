@@ -195,7 +195,7 @@ const TurnIntoPopover = ({
 
   return (
     <Popover disableAutoFocus={true} onClose={onClose} {...props}>
-      <div className={'min-w-[220px]'}>
+      <div className={'min-w-[220px] p-2'}>
         {options.map((option) => {
           return (
             <MenuItem

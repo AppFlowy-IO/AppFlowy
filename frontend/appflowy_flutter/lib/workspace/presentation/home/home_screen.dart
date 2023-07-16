@@ -5,6 +5,7 @@ import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/application/home/home_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_service.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/widgets/edit_panel/panel_animation.dart';
@@ -39,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
         BlocProvider<HomeBloc>(
           create: (context) {
             return HomeBloc(widget.user, widget.workspaceSetting)
@@ -74,14 +76,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 listener: (context, state) {
                   final view = state.latestView;
                   if (view != null) {
-                    // Only open the last opened view if the [HomeStackManager] current opened plugin is blank and the last opened view is not null.
+                    // Only open the last opened view if the [TabsState.currentPageManager] current opened plugin is blank and the last opened view is not null.
                     // All opened widgets that display on the home screen are in the form of plugins. There is a list of built-in plugins defined in the [PluginType] enum, including board, grid and trash.
-                    if (getIt<HomeStackManager>().plugin.pluginType ==
+                    final currentPageManager =
+                        context.read<TabsBloc>().state.currentPageManager;
+
+                    if (currentPageManager.plugin.pluginType ==
                         PluginType.blank) {
-                      getIt<HomeStackManager>().setPlugin(
-                        view.plugin(listenOnViewChanged: true),
+                      getIt<TabsBloc>().add(
+                        TabsEvent.openPlugin(
+                          plugin: view.plugin(listenOnViewChanged: true),
+                        ),
                       );
-                      getIt<MenuSharedState>().latestOpenView = view;
                     }
                   }
                 },
@@ -275,18 +281,22 @@ class HomeScreenStackAdaptor extends HomeStackDelegate {
         (parentView) {
           final List<ViewPB> views = parentView.childViews;
           if (views.isNotEmpty) {
-            var lastView = views.last;
+            ViewPB lastView = views.last;
             if (index != null && index != 0 && views.length > index - 1) {
               lastView = views[index - 1];
             }
 
-            getIt<MenuSharedState>().latestOpenView = lastView;
-            getIt<HomeStackManager>().setPlugin(
-              lastView.plugin(listenOnViewChanged: true),
+            getIt<TabsBloc>().add(
+              TabsEvent.openPlugin(
+                plugin: lastView.plugin(listenOnViewChanged: true),
+              ),
             );
           } else {
-            getIt<MenuSharedState>().latestOpenView = null;
-            getIt<HomeStackManager>().setPlugin(BlankPagePlugin());
+            getIt<TabsBloc>().add(
+              TabsEvent.openPlugin(
+                plugin: BlankPagePlugin(),
+              ),
+            );
           }
         },
         (err) => Log.error(err),

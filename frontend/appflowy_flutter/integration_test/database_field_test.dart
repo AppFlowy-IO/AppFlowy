@@ -1,5 +1,8 @@
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/select_option.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -181,6 +184,32 @@ void main() {
         await tester.findCellByFieldType(fieldType);
         await tester.pumpAndSettle();
       }
+    });
+
+    testWidgets('add option', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      await tester.createNewPageWithName(ViewLayoutPB.Grid);
+
+      // Invoke the field editor
+      await tester.tapGridFieldWithName('Type');
+      await tester.tapEditPropertyButton();
+
+      // tap 'add option' button
+      await tester.tapAddSelectOptionButton();
+      const text = 'Hello AppFlowy';
+      final inputField = find.descendant(
+        of: find.byType(CreateOptionTextField),
+        matching: find.byType(TextField),
+      );
+      await tester.enterText(inputField, text);
+      await tester.pumpAndSettle();
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      // check the result
+      tester.expectToSeeText(text);
     });
   });
 }
