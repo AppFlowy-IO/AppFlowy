@@ -1,9 +1,6 @@
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/bar_title.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -222,12 +219,9 @@ void main() {
           )
           .first;
 
+      // Input a long text
       await tester.enterText(textField, 'Long text' * 25);
       await tester.pumpAndSettle();
-
-      // // Input a long text
-      // final String longText = 'A' * 200; // 100+ characters
-      // await tester.ime.insertText(longText);
 
       // Tap outside to dismiss the field
       await tester.tapAt(Offset.zero);
