@@ -61,6 +61,8 @@ export const DatabaseSortItem = ({
 
   const onSelectFieldClick = (id: string) => {
     setCurrentFieldId(id);
+    // set ascending order by default
+    setCurrentOrder('asc');
     setShowFieldSelect(false);
   };
 

@@ -12,6 +12,7 @@ import { useResizer } from '$app/components/_shared/useResizer';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { Details2Svg } from '$app/components/_shared/svg/Details2Svg';
 import { FilterSvg } from '$app/components/_shared/svg/FilterSvg';
+import { SortAscSvg } from '$app/components/_shared/svg/SortAscSvg';
 
 const MIN_COLUMN_WIDTH = 100;
 
@@ -20,11 +21,13 @@ export const GridTableHeaderItem = ({
   field,
   index,
   onShowFilterClick,
+  onShowSortClick,
 }: {
   controller: DatabaseController;
   field: IDatabaseField;
   index: number;
   onShowFilterClick: () => void;
+  onShowSortClick: () => void;
 }) => {
   const { onMouseDown, newSizeX } = useResizer((final) => {
     if (final < MIN_COLUMN_WIDTH) return;
@@ -32,6 +35,7 @@ export const GridTableHeaderItem = ({
   });
 
   const filtersStore = useAppSelector((state) => state.database.filters);
+  const sortStore = useAppSelector((state) => state.database.sort);
 
   const dispatch = useAppDispatch();
   const [showFieldEditor, setShowFieldEditor] = useState(false);
@@ -94,6 +98,14 @@ export const GridTableHeaderItem = ({
             <span className={'overflow-hidden text-ellipsis whitespace-nowrap text-shade-3'}>{field.title}</span>
           </div>
           <div className={'flex items-center gap-1'}>
+            {sortStore.findIndex((sort) => sort.fieldId === field.fieldId) !== -1 && (
+              <button onClick={onShowSortClick} className={'rounded p-1 hover:bg-main-secondary'}>
+                <i className={'block h-[16px] w-[16px]'}>
+                  <SortAscSvg></SortAscSvg>
+                </i>
+              </button>
+            )}
+
             {filtersStore.findIndex((filter) => filter.fieldId === field.fieldId) !== -1 && (
               <button onClick={onShowFilterClick} className={'rounded p-1 hover:bg-main-secondary'}>
                 <i className={'block h-[16px] w-[16px]'}>

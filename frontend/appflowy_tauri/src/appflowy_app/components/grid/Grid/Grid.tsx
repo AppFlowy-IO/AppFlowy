@@ -45,7 +45,11 @@ export const Grid = ({ viewId }: { viewId: string }) => {
             {/* table component view with text area for td */}
             <div className='flex flex-1 flex-col gap-4'>
               <div className='flex flex-1 flex-col overflow-x-auto'>
-                <GridTableHeader controller={controller} onShowFilterClick={onShowFilterClick} />
+                <GridTableHeader
+                  controller={controller}
+                  onShowFilterClick={onShowFilterClick}
+                  onShowSortClick={onShowSortClick}
+                />
                 <div className={'relative flex-1'}>
                   <GridTableRows onOpenRow={onOpenRow} allRows={rows} viewId={viewId} controller={controller} />
                 </div>

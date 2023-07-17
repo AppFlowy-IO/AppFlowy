@@ -8,9 +8,11 @@ import { useAppSelector } from '$app/stores/store';
 export const GridTableHeader = ({
   controller,
   onShowFilterClick,
+  onShowSortClick,
 }: {
   controller: DatabaseController;
   onShowFilterClick: () => void;
+  onShowSortClick: () => void;
 }) => {
   const columns = useAppSelector((state) => state.database.columns);
   const fields = useAppSelector((state) => state.database.fields);
@@ -23,6 +25,7 @@ export const GridTableHeader = ({
         return (
           <GridTableHeaderItem
             onShowFilterClick={onShowFilterClick}
+            onShowSortClick={onShowSortClick}
             field={fields[column.fieldId]}
             controller={controller}
             key={i}
