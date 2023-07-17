@@ -8,6 +8,7 @@ import 'document_with_inline_math_equation_test.dart'
     as document_with_inline_math_equation_test;
 import 'document_with_inline_page_test.dart' as document_with_inline_page_test;
 import 'edit_document_test.dart' as document_edit_test;
+import 'document_with_outline_block_test.dart' as document_with_outline_block;
 
 void startTesting() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -19,4 +20,5 @@ void startTesting() {
   document_with_inline_page_test.main();
   document_with_inline_math_equation_test.main();
   document_with_cover_image_test.main();
+  document_with_outline_block.main();
 }

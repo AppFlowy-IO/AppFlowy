@@ -115,6 +115,9 @@ dev_dependencies:
   json_serializable: ^6.7.0
   envied_generator: ^0.3.0+3
 
+  plugin_platform_interface: any
+  url_launcher_platform_interface: any
+
 dependency_overrides:
   http: ^1.0.0
 
