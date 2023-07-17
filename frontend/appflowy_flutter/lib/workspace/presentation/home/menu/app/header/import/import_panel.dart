@@ -70,6 +70,81 @@ class ImportPanel extends StatelessWidget {
   final PopoverController popoverController = PopoverController();
   @override
   Widget build(BuildContext context) {
+    final List<Widget> importCards = ImportType.values
+        .where((element) => element.enableOnRelease)
+        .map(
+          (e) => Card(
+            child: FlowyButton(
+              leftIcon: e.icon(context),
+              leftIconSize: const Size.square(20),
+              text: FlowyText.medium(
+                e.toString(),
+                fontSize: 15,
+                overflow: TextOverflow.ellipsis,
+              ),
+              onTap: () async {
+                await _importFile(parentViewId, e);
+                if (context.mounted) {
+                  FlowyOverlay.pop(context);
+                }
+              },
+            ),
+          ),
+        )
+        .toList();
+    importCards.add(
+      Card(
+        child: AppFlowyPopover(
+          popupBuilder: (BuildContext context) {
+            return Container(
+              color: Theme.of(context).colorScheme.surface,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: ImportFromNotionType.values
+                    .map(
+                      (e) => Card(
+                        child: FlowyButton(
+                          leftIconSize: const Size.square(20),
+                          text: FlowyText.medium(
+                            e.toString(),
+                            fontSize: 15,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          onTap: () async {
+                            popoverController.close();
+                            await FlowyOverlay.show(
+                              context: context,
+                              builder: (context) =>
+                                  _uploadFileToImportFromOverlay(context, e),
+                            );
+                          },
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            );
+          },
+          controller: popoverController,
+          constraints: BoxConstraints.loose(const Size(200, 200)),
+          direction: PopoverDirection.bottomWithCenterAligned,
+          margin: EdgeInsets.zero,
+          triggerActions: PopoverTriggerFlags.none,
+          child: FlowyButton(
+            leftIcon: const FlowySvg(name: 'notion_logo'),
+            leftIconSize: const Size.square(20),
+            text: const FlowyText.medium(
+              'Import from Notion',
+              fontSize: 15,
+              overflow: TextOverflow.ellipsis,
+            ),
+            onTap: () async {
+              popoverController.show();
+            },
+          ),
+        ),
+      ),
+    );
     final width = MediaQuery.of(context).size.width * 0.7;
     final height = width * 0.5;
     return FlowyContainer(
