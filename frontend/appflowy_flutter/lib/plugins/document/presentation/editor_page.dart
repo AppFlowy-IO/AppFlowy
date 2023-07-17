@@ -68,7 +68,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         ...codeBlockCharacterEvents,
 
         // toggle list
-        // formatGreaterToToggleList,
+        formatGreaterToToggleList,
+        insertChildNodeInsideToggleList,
 
         // customize the slash menu command
         customSlashCommand(

@@ -11,24 +11,35 @@ class ToggleListBlockKeys {
   /// The content of a code block.
   ///
   /// The value is a String.
-  static const String delta = 'delta';
+  static const String delta = blockComponentDelta;
+
+  static const String backgroundColor = blockComponentBackgroundColor;
+
+  static const String textDirection = blockComponentTextDirection;
 
   /// The value is a bool.
   static const String collapsed = 'collapsed';
 }
 
 Node toggleListBlockNode({
+  String? text,
   Delta? delta,
   bool collapsed = false,
+  String? textDirection,
+  Attributes? attributes,
+  Iterable<Node>? children,
 }) {
-  final attributes = {
-    ToggleListBlockKeys.delta: (delta ?? Delta()).toJson(),
-    ToggleListBlockKeys.collapsed: collapsed,
-  };
   return Node(
     type: ToggleListBlockKeys.type,
-    attributes: attributes,
-    children: [paragraphNode()],
+    attributes: {
+      ToggleListBlockKeys.collapsed: collapsed,
+      ToggleListBlockKeys.delta:
+          (delta ?? (Delta()..insert(text ?? ''))).toJson(),
+      if (attributes != null) ...attributes,
+      if (textDirection != null)
+        ToggleListBlockKeys.textDirection: textDirection,
+    },
+    children: children ?? [paragraphNode()],
   );
 }
 
