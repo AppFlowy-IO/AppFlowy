@@ -17,6 +17,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'levenshtein.dart';
+import 'dart:io';
 
 class SettingsAppearanceView extends StatelessWidget {
   const SettingsAppearanceView({Key? key}) : super(key: key);
@@ -216,20 +217,36 @@ class BrightnessSetting extends StatelessWidget {
   const BrightnessSetting({required this.currentThemeMode, super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return ThemeSettingDropDown(
-      label: LocaleKeys.settings_appearance_themeMode_label.tr(),
-      currentValue: _themeModeLabelText(currentThemeMode),
-      popupBuilder: (_) => Column(
-        mainAxisSize: MainAxisSize.min,
+  Widget build(BuildContext context) => Tooltip(
+        richMessage: themeModeTooltipTextSpan(
+          context,
+          LocaleKeys.settings_appearance_themeMode_label.tr(),
+        ),
+        child: ThemeSettingDropDown(
+          label: LocaleKeys.settings_appearance_themeMode_label.tr(),
+          currentValue: _themeModeLabelText(currentThemeMode),
+          popupBuilder: (_) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _themeModeItemButton(context, ThemeMode.light),
+              _themeModeItemButton(context, ThemeMode.dark),
+              _themeModeItemButton(context, ThemeMode.system),
+            ],
+          ),
+        ),
+      );
+
+  TextSpan themeModeTooltipTextSpan(BuildContext context, String hintText) =>
+      TextSpan(
         children: [
-          _themeModeItemButton(context, ThemeMode.light),
-          _themeModeItemButton(context, ThemeMode.dark),
-          _themeModeItemButton(context, ThemeMode.system),
+          TextSpan(
+            text: "$hintText\n",
+          ),
+          TextSpan(
+            text: Platform.isMacOS ? "⌘+Shift+L" : "Ctrl+Shift+L",
+          ),
         ],
-      ),
-    );
-  }
+      );
 
   Widget _themeModeItemButton(BuildContext context, ThemeMode themeMode) {
     return SizedBox(
