@@ -99,7 +99,6 @@ void main() {
   });
 }
 
-// TODO(Lucas.Xu): there're no shorctcuts for underline, format code yet.
 const _sample = r'''
 # Heading 1
 ## Heading 2
