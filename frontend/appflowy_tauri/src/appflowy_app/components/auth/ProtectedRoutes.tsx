@@ -1,10 +1,9 @@
 import { Outlet } from 'react-router-dom';
 import { useAuth } from './auth.hooks';
-import { Screen } from '../layout/Screen';
+import Layout from '$app/components/layout/Layout';
 import { useEffect, useState } from 'react';
 import { GetStarted } from './GetStarted/GetStarted';
 import { AppflowyLogo } from '../_shared/svg/AppflowyLogo';
-
 
 export const ProtectedRoutes = () => {
   const { currentUser, checkUser } = useAuth();
@@ -13,15 +12,14 @@ export const ProtectedRoutes = () => {
   useEffect(() => {
     void checkUser().then(async (result) => {
       await new Promise(() =>
-          setTimeout(() => {
-            setIsLoading(false);
-          }, 1200)
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 1200)
       );
 
       if (result.err) {
         throw new Error(result.val.msg);
       }
-
     });
   }, []);
 
@@ -46,9 +44,9 @@ const StartLoading = () => {
 const SplashScreen = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
   if (isAuthenticated) {
     return (
-      <Screen>
+      <Layout>
         <Outlet />
-      </Screen>
+      </Layout>
     );
   } else {
     return <GetStarted></GetStarted>;

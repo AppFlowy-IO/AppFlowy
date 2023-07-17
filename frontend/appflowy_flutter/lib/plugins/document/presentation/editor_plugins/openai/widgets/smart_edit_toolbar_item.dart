@@ -21,7 +21,7 @@ final ToolbarItem smartEditItem = ToolbarItem(
     final nodes = editorState.getNodesInSelection(selection);
     return nodes.every((element) => element.delta != null);
   },
-  builder: (context, editorState) => SmartEditActionList(
+  builder: (context, editorState, _) => SmartEditActionList(
     editorState: editorState,
   ),
 );

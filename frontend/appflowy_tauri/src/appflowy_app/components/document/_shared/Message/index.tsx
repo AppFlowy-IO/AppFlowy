@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Portal, Snackbar } from '@mui/material';
-import { TransitionProps } from '@mui/material/transitions';
+import { Alert, Portal, Snackbar } from '@mui/material';
 import Slide, { SlideProps } from '@mui/material/Slide';
 
 function SlideTransition(props: SlideProps) {
@@ -11,6 +10,7 @@ interface MessageProps {
   message?: string;
   key?: string;
   duration?: number;
+  type?: 'success' | 'error';
 }
 export function useMessage() {
   const [state, setState] = useState<MessageProps>();
@@ -23,6 +23,7 @@ export function useMessage() {
 
   const contentHolder = useMemo(() => {
     const open = !!state;
+
     return (
       <Portal>
         <Snackbar
@@ -31,10 +32,19 @@ export function useMessage() {
           open={open}
           onClose={hide}
           TransitionProps={{ onExited: hide }}
-          message={state?.message}
           key={state?.key}
           TransitionComponent={SlideTransition}
-        />
+        >
+          <>
+            {state?.type ? (
+              <Alert severity={state.type} sx={{ width: '100%' }}>
+                {state.message}
+              </Alert>
+            ) : (
+              <span>{state?.message}</span>
+            )}
+          </>
+        </Snackbar>
       </Portal>
     );
   }, [hide, state]);

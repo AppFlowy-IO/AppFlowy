@@ -1,6 +1,11 @@
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::convert::TryFrom;
+
+use serde::{Deserialize, Serialize};
+
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_error::FlowyError;
+use flowy_server_config::supabase_config::{PostgresConfiguration, SupabaseConfiguration};
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct UserPreferencesPB {
@@ -95,5 +100,84 @@ impl std::default::Default for AppearanceSettingsPB {
       is_menu_collapsed: APPEARANCE_DEFAULT_IS_MENU_COLLAPSED,
       menu_offset: APPEARANCE_DEFAULT_MENU_OFFSET,
     }
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct SupabaseConfigPB {
+  #[pb(index = 1)]
+  supabase_url: String,
+
+  #[pb(index = 2)]
+  key: String,
+
+  #[pb(index = 3)]
+  jwt_secret: String,
+
+  #[pb(index = 4)]
+  pub postgres_config: PostgresConfigurationPB,
+
+  #[pb(index = 5)]
+  enable_sync: bool,
+}
+
+impl TryFrom<SupabaseConfigPB> for SupabaseConfiguration {
+  type Error = FlowyError;
+
+  fn try_from(config: SupabaseConfigPB) -> Result<Self, Self::Error> {
+    let postgres_config = PostgresConfiguration::try_from(config.postgres_config)?;
+    Ok(SupabaseConfiguration {
+      url: config.supabase_url,
+      key: config.key,
+      jwt_secret: config.jwt_secret,
+      enable_sync: config.enable_sync,
+      postgres_config,
+    })
+  }
+}
+
+impl From<SupabaseConfiguration> for SupabaseConfigPB {
+  fn from(value: SupabaseConfiguration) -> Self {
+    let postgres_config = PostgresConfigurationPB {
+      url: value.postgres_config.url,
+      user_name: value.postgres_config.user_name,
+      password: value.postgres_config.password,
+      port: value.postgres_config.port as u32,
+    };
+    Self {
+      supabase_url: value.url,
+      key: value.key,
+      jwt_secret: value.jwt_secret,
+      postgres_config,
+      enable_sync: value.enable_sync,
+    }
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct PostgresConfigurationPB {
+  #[pb(index = 1)]
+  pub url: String,
+
+  #[pb(index = 2)]
+  pub user_name: String,
+
+  #[pb(index = 3)]
+  pub password: String,
+
+  #[pb(index = 4)]
+  pub port: u32,
+}
+
+impl TryFrom<PostgresConfigurationPB> for PostgresConfiguration {
+  type Error = FlowyError;
+
+  fn try_from(config: PostgresConfigurationPB) -> Result<Self, Self::Error> {
+    Ok(Self {
+      url: config.url,
+      user_name: config.user_name,
+      password: config.password,
+      port: config.port as u16,
+    })
   }
 }

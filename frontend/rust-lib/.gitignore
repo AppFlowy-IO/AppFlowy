@@ -15,3 +15,4 @@ bin/
 .idea/
 AppFlowy-Collab/
 .env
+.env.**

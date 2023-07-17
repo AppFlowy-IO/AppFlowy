@@ -112,9 +112,11 @@ export const EditRow = ({
     if (!editingCell) return;
 
     const currentField = controller.fieldController.getField(editingCell.fieldId);
+
     if (!currentField) return;
 
     const typeOptionController = new TypeOptionController(viewId, Some(currentField));
+
     await typeOptionController.switchToField(newType);
 
     setEditingCell(new CellIdentifier(viewId, rowInfo.row.id, editingCell.fieldId, newType));
@@ -180,8 +182,10 @@ export const EditRow = ({
   const onDelete = async () => {
     if (!deletingPropertyId) return;
     const fieldInfo = controller.fieldController.getField(deletingPropertyId);
+
     if (!fieldInfo) return;
     const typeController = new TypeOptionController(viewId, Some(fieldInfo));
+
     await typeController.initialize();
     await typeController.deleteField();
     setShowDeletePropertyPrompt(false);
@@ -199,16 +203,16 @@ export const EditRow = ({
           onClick={(e) => {
             e.stopPropagation();
           }}
-          className={`relative flex h-[90%] w-[70%] flex-col gap-8 rounded-xl bg-white `}
+          className={`relative flex h-[90%] w-[70%] flex-col gap-8 rounded-xl bg-bg-body `}
         >
           <div onClick={() => onCloseClick()} className={'absolute right-1 top-1'}>
-            <button className={'block h-8 w-8 rounded-lg text-shade-2 hover:bg-main-secondary'}>
+            <button className={'block h-8 w-8 rounded-lg text-text-title hover:bg-fill-list-hover'}>
               <CloseSvg></CloseSvg>
             </button>
           </div>
 
           <div className={'flex h-full'}>
-            <div className={'flex h-full flex-1 flex-col border-r border-shade-6 pb-4 pt-6'}>
+            <div className={'flex h-full flex-1 flex-col border-r border-line-divider pb-4 pt-6'}>
               <div className={'pb-4 pl-12'}>
                 <button className={'flex items-center gap-2 p-4'}>
                   <i className={'h-5 w-5'}>
@@ -250,10 +254,10 @@ export const EditRow = ({
                 </Droppable>
               </DragDropContext>
 
-              <div className={'border-t border-shade-6 px-8 pt-2'}>
+              <div className={'border-t border-line-divider px-8 pt-2'}>
                 <button
                   onClick={() => onNewColumnClick()}
-                  className={'flex w-full items-center gap-2 rounded-lg px-4 py-2 hover:bg-shade-6'}
+                  className={'flex w-full items-center gap-2 rounded-lg px-4 py-2 hover:bg-fill-list-hover'}
                 >
                   <i className={'h-5 w-5'}>
                     <AddSvg></AddSvg>

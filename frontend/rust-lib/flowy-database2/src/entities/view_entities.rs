@@ -1,6 +1,8 @@
+use collab_database::rows::RowDetail;
+
 use flowy_derive::ProtoBuf;
 
-use crate::entities::{InsertedRowPB, UpdatedRowPB};
+use crate::entities::{InsertedRowPB, RowMetaPB, UpdatedRowPB};
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct RowsVisibilityChangePB {
@@ -17,53 +19,76 @@ pub struct RowsVisibilityChangePB {
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct RowsChangePB {
   #[pb(index = 1)]
-  pub view_id: String,
-
-  #[pb(index = 2)]
   pub inserted_rows: Vec<InsertedRowPB>,
 
-  #[pb(index = 3)]
+  #[pb(index = 2)]
   pub deleted_rows: Vec<String>,
 
-  #[pb(index = 4)]
+  #[pb(index = 3)]
   pub updated_rows: Vec<UpdatedRowPB>,
 }
 
 impl RowsChangePB {
-  pub fn from_insert(view_id: String, inserted_row: InsertedRowPB) -> Self {
+  pub fn from_insert(inserted_row: InsertedRowPB) -> Self {
     Self {
-      view_id,
       inserted_rows: vec![inserted_row],
       ..Default::default()
     }
   }
 
-  pub fn from_delete(view_id: String, deleted_row: String) -> Self {
+  pub fn from_delete(deleted_row: String) -> Self {
     Self {
-      view_id,
       deleted_rows: vec![deleted_row],
       ..Default::default()
     }
   }
 
-  pub fn from_update(view_id: String, updated_row: UpdatedRowPB) -> Self {
+  pub fn from_update(updated_row: UpdatedRowPB) -> Self {
     Self {
-      view_id,
       updated_rows: vec![updated_row],
       ..Default::default()
     }
   }
 
-  pub fn from_move(
-    view_id: String,
-    deleted_rows: Vec<String>,
-    inserted_rows: Vec<InsertedRowPB>,
-  ) -> Self {
+  pub fn from_move(deleted_rows: Vec<String>, inserted_rows: Vec<InsertedRowPB>) -> Self {
     Self {
-      view_id,
       inserted_rows,
       deleted_rows,
       ..Default::default()
+    }
+  }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct DidFetchRowPB {
+  #[pb(index = 1)]
+  pub row_id: String,
+
+  #[pb(index = 2)]
+  pub height: i32,
+
+  #[pb(index = 3)]
+  pub visibility: bool,
+
+  #[pb(index = 4)]
+  pub created_at: i64,
+
+  #[pb(index = 5)]
+  pub modified_at: i64,
+
+  #[pb(index = 6)]
+  pub meta: RowMetaPB,
+}
+
+impl From<RowDetail> for DidFetchRowPB {
+  fn from(value: RowDetail) -> Self {
+    Self {
+      row_id: value.row.id.to_string(),
+      height: value.row.height,
+      visibility: value.row.visibility,
+      created_at: value.row.created_at,
+      modified_at: value.row.modified_at,
+      meta: RowMetaPB::from(value.meta),
     }
   }
 }

@@ -21,7 +21,7 @@ class UnscheduleEventsBloc
   // Getters
   String get viewId => databaseController.viewId;
   FieldController get fieldController => databaseController.fieldController;
-  CellCache get cellCache => databaseController.rowCache.cellCache;
+  CellMemCache get cellCache => databaseController.rowCache.cellCache;
   RowCache get rowCache => databaseController.rowCache;
 
   UnscheduleEventsBloc({

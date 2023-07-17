@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
 use collab_database::fields::Field;
+use collab_database::rows::RowDetail;
 use collab_database::views::DatabaseLayout;
 
 use flowy_error::FlowyResult;
 
 use crate::entities::FieldType;
-use crate::services::database::RowDetail;
 use crate::services::group::configuration::GroupSettingReader;
 use crate::services::group::controller::GroupController;
 use crate::services::group::{

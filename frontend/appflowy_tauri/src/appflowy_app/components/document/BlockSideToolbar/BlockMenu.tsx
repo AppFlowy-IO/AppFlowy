@@ -8,6 +8,7 @@ import { Keyboard } from '$app/constants/document/keyboard';
 import { selectOptionByUpDown } from '$app/utils/document/menu';
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
 import { BlockType } from '$app/interfaces/document';
+import { useTranslation } from 'react-i18next';
 
 enum BlockMenuOption {
   Duplicate = 'Duplicate',
@@ -27,6 +28,7 @@ function BlockMenu({ id, onClose }: { id: string; onClose: () => void }) {
   const { node } = useSubscribeNode(id);
   const [subMenuOpened, setSubMenuOpened] = useState(false);
   const [hovered, setHovered] = useState<BlockMenuOption | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (hovered !== BlockMenuOption.TurnInto) {
@@ -53,7 +55,7 @@ function BlockMenu({ id, onClose }: { id: string; onClose: () => void }) {
           operate: () => {
             return handleClick({ operate: handleDelete });
           },
-          title: 'Delete',
+          title: t('document.plugins.optionAction.delete'),
           icon: <Delete />,
           key: BlockMenuOption.Delete,
         },
@@ -61,7 +63,7 @@ function BlockMenu({ id, onClose }: { id: string; onClose: () => void }) {
           operate: () => {
             return handleClick({ operate: handleDuplicate });
           },
-          title: 'Duplicate',
+          title: t('document.plugins.optionAction.duplicate'),
           icon: <ContentCopy />,
           key: BlockMenuOption.Duplicate,
         },
@@ -69,9 +71,10 @@ function BlockMenu({ id, onClose }: { id: string; onClose: () => void }) {
           ? null
           : {
               key: BlockMenuOption.TurnInto,
+              title: t('document.plugins.optionAction.turnInto'),
             },
       ].filter((item) => item !== null) as Option[],
-    [excludeTurnIntoBlock, handleClick, handleDelete, handleDuplicate]
+    [excludeTurnIntoBlock, handleClick, handleDelete, handleDuplicate, t]
   );
 
   const onKeyDown = useCallback(
@@ -128,13 +131,19 @@ function BlockMenu({ id, onClose }: { id: string; onClose: () => void }) {
       }}
     >
       <div className={'p-2'}>
-        <TextField autoFocus label='Search' placeholder='Search actions...' variant='standard' />
+        <TextField
+          autoFocus
+          label={t('search.label')}
+          placeholder={t('search.placeholder.actions')}
+          variant='standard'
+        />
       </div>
       {options.map((option) => {
         if (option.key === BlockMenuOption.TurnInto) {
           return (
             <BlockMenuTurnInto
               key={option.key}
+              lable={option.title}
               onHovered={() => {
                 setHovered(BlockMenuOption.TurnInto);
                 setSubMenuOpened(true);

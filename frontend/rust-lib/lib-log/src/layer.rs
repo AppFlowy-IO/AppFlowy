@@ -1,11 +1,12 @@
+use std::{fmt, io::Write};
+
 use serde::ser::{SerializeMap, Serializer};
 use serde_json::Value;
-use std::{fmt, io::Write};
 use tracing::{Event, Id, Subscriber};
 use tracing_bunyan_formatter::JsonStorage;
 use tracing_core::{metadata::Level, span::Attributes};
-
 use tracing_subscriber::{fmt::MakeWriter, layer::Context, registry::SpanRef, Layer};
+
 const LEVEL: &str = "level";
 const TIME: &str = "time";
 const MESSAGE: &str = "msg";
@@ -22,6 +23,7 @@ pub struct FlowyFormattingLayer<W: MakeWriter + 'static> {
 }
 
 impl<W: MakeWriter + 'static> FlowyFormattingLayer<W> {
+  #[allow(dead_code)]
   pub fn new(make_writer: W) -> Self {
     Self {
       make_writer,

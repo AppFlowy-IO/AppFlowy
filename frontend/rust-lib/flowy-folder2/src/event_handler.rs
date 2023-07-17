@@ -4,13 +4,13 @@ use flowy_error::FlowyError;
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
 use crate::entities::*;
-use crate::manager::Folder2Manager;
+use crate::manager::FolderManager;
 use crate::share::ImportParams;
 
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn create_workspace_handler(
   data: AFPluginData<CreateWorkspacePayloadPB>,
-  folder: AFPluginState<Arc<Folder2Manager>>,
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> DataResult<WorkspacePB, FlowyError> {
   let params: CreateWorkspaceParams = data.into_inner().try_into()?;
   let workspace = folder.create_workspace(params).await?;
@@ -18,8 +18,8 @@ pub(crate) async fn create_workspace_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
-pub(crate) async fn read_workspace_views_handler(
-  folder: AFPluginState<Arc<Folder2Manager>>,
+pub(crate) async fn get_workspace_views_handler(
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> DataResult<RepeatedViewPB, FlowyError> {
   let child_views = folder.get_current_workspace_views().await?;
   let repeated_view: RepeatedViewPB = child_views.into();
@@ -29,7 +29,7 @@ pub(crate) async fn read_workspace_views_handler(
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn open_workspace_handler(
   data: AFPluginData<WorkspaceIdPB>,
-  folder: AFPluginState<Arc<Folder2Manager>>,
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> DataResult<WorkspacePB, FlowyError> {
   let params: WorkspaceIdPB = data.into_inner();
   match params.value {
@@ -50,7 +50,7 @@ pub(crate) async fn open_workspace_handler(
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn read_workspaces_handler(
   data: AFPluginData<WorkspaceIdPB>,
-  folder: AFPluginState<Arc<Folder2Manager>>,
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> DataResult<RepeatedWorkspacePB, FlowyError> {
   let params: WorkspaceIdPB = data.into_inner();
   let workspaces = match params.value {
@@ -66,8 +66,8 @@ pub(crate) async fn read_workspaces_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
-pub async fn read_current_workspace_setting_handler(
-  folder: AFPluginState<Arc<Folder2Manager>>,
+pub async fn get_current_workspace_setting_handler(
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> DataResult<WorkspaceSettingPB, FlowyError> {
   let workspace = folder.get_current_workspace().await?;
   let latest_view: Option<ViewPB> = folder.get_current_view().await;
@@ -79,7 +79,7 @@ pub async fn read_current_workspace_setting_handler(
 
 pub(crate) async fn create_view_handler(
   data: AFPluginData<CreateViewPayloadPB>,
-  folder: AFPluginState<Arc<Folder2Manager>>,
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> DataResult<ViewPB, FlowyError> {
   let params: CreateViewParams = data.into_inner().try_into()?;
   let set_as_current = params.set_as_current;
@@ -92,7 +92,7 @@ pub(crate) async fn create_view_handler(
 
 pub(crate) async fn create_orphan_view_handler(
   data: AFPluginData<CreateOrphanViewPayloadPB>,
-  folder: AFPluginState<Arc<Folder2Manager>>,
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> DataResult<ViewPB, FlowyError> {
   let params: CreateViewParams = data.into_inner().try_into()?;
   let set_as_current = params.set_as_current;
@@ -105,7 +105,7 @@ pub(crate) async fn create_orphan_view_handler(
 
 pub(crate) async fn read_view_handler(
   data: AFPluginData<ViewIdPB>,
-  folder: AFPluginState<Arc<Folder2Manager>>,
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> DataResult<ViewPB, FlowyError> {
   let view_id: ViewIdPB = data.into_inner();
   let view_pb = folder.get_view(&view_id.value).await?;
@@ -115,7 +115,7 @@ pub(crate) async fn read_view_handler(
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn update_view_handler(
   data: AFPluginData<UpdateViewPayloadPB>,
-  folder: AFPluginState<Arc<Folder2Manager>>,
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> Result<(), FlowyError> {
   let params: UpdateViewParams = data.into_inner().try_into()?;
   folder.update_view_with_params(params).await?;
@@ -124,7 +124,7 @@ pub(crate) async fn update_view_handler(
 
 pub(crate) async fn delete_view_handler(
   data: AFPluginData<RepeatedViewIdPB>,
-  folder: AFPluginState<Arc<Folder2Manager>>,
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> Result<(), FlowyError> {
   let params: RepeatedViewIdPB = data.into_inner();
   for view_id in &params.items {
@@ -135,7 +135,7 @@ pub(crate) async fn delete_view_handler(
 
 pub(crate) async fn set_latest_view_handler(
   data: AFPluginData<ViewIdPB>,
-  folder: AFPluginState<Arc<Folder2Manager>>,
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> Result<(), FlowyError> {
   let view_id: ViewIdPB = data.into_inner();
   let _ = folder.set_current_view(&view_id.value).await;
@@ -144,7 +144,7 @@ pub(crate) async fn set_latest_view_handler(
 
 pub(crate) async fn close_view_handler(
   data: AFPluginData<ViewIdPB>,
-  folder: AFPluginState<Arc<Folder2Manager>>,
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> Result<(), FlowyError> {
   let view_id: ViewIdPB = data.into_inner();
   let _ = folder.close_view(&view_id.value).await;
@@ -154,7 +154,7 @@ pub(crate) async fn close_view_handler(
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn move_view_handler(
   data: AFPluginData<MoveViewPayloadPB>,
-  folder: AFPluginState<Arc<Folder2Manager>>,
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> Result<(), FlowyError> {
   let params: MoveViewParams = data.into_inner().try_into()?;
   folder
@@ -166,7 +166,7 @@ pub(crate) async fn move_view_handler(
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn duplicate_view_handler(
   data: AFPluginData<ViewPB>,
-  folder: AFPluginState<Arc<Folder2Manager>>,
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> Result<(), FlowyError> {
   let view: ViewPB = data.into_inner();
   folder.duplicate_view(&view.id).await?;
@@ -175,7 +175,7 @@ pub(crate) async fn duplicate_view_handler(
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn read_trash_handler(
-  folder: AFPluginState<Arc<Folder2Manager>>,
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> DataResult<RepeatedTrashPB, FlowyError> {
   let trash = folder.get_all_trash().await;
   data_result_ok(trash.into())
@@ -184,7 +184,7 @@ pub(crate) async fn read_trash_handler(
 #[tracing::instrument(level = "debug", skip(identifier, folder), err)]
 pub(crate) async fn putback_trash_handler(
   identifier: AFPluginData<TrashIdPB>,
-  folder: AFPluginState<Arc<Folder2Manager>>,
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> Result<(), FlowyError> {
   folder.restore_trash(&identifier.id).await;
   Ok(())
@@ -193,7 +193,7 @@ pub(crate) async fn putback_trash_handler(
 #[tracing::instrument(level = "debug", skip(identifiers, folder), err)]
 pub(crate) async fn delete_trash_handler(
   identifiers: AFPluginData<RepeatedTrashIdPB>,
-  folder: AFPluginState<Arc<Folder2Manager>>,
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> Result<(), FlowyError> {
   let trash_ids = identifiers.into_inner().items;
   for trash_id in trash_ids {
@@ -204,7 +204,7 @@ pub(crate) async fn delete_trash_handler(
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn restore_all_trash_handler(
-  folder: AFPluginState<Arc<Folder2Manager>>,
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> Result<(), FlowyError> {
   folder.restore_all_trash().await;
   Ok(())
@@ -212,7 +212,7 @@ pub(crate) async fn restore_all_trash_handler(
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn delete_all_trash_handler(
-  folder: AFPluginState<Arc<Folder2Manager>>,
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> Result<(), FlowyError> {
   folder.delete_all_trash().await;
   Ok(())
@@ -221,9 +221,22 @@ pub(crate) async fn delete_all_trash_handler(
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn import_data_handler(
   data: AFPluginData<ImportPB>,
-  folder: AFPluginState<Arc<Folder2Manager>>,
+  folder: AFPluginState<Arc<FolderManager>>,
 ) -> Result<(), FlowyError> {
   let params: ImportParams = data.into_inner().try_into()?;
   folder.import(params).await?;
   Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(folder), err)]
+pub(crate) async fn get_folder_snapshots_handler(
+  data: AFPluginData<WorkspaceIdPB>,
+  folder: AFPluginState<Arc<FolderManager>>,
+) -> DataResult<RepeatedFolderSnapshotPB, FlowyError> {
+  if let Some(workspace_id) = &data.value {
+    let snapshots = folder.get_folder_snapshots(workspace_id).await?;
+    data_result_ok(RepeatedFolderSnapshotPB { items: snapshots })
+  } else {
+    data_result_ok(RepeatedFolderSnapshotPB { items: vec![] })
+  }
 }

@@ -18,6 +18,8 @@ import BlockOverlay from '$app/components/document/Overlay/BlockOverlay';
 import CodeBlock from '$app/components/document/CodeBlock';
 import { NodeIdContext } from '$app/components/document/_shared/SubscribeNode.hooks';
 import EquationBlock from '$app/components/document/EquationBlock';
+import ImageBlock from '$app/components/document/ImageBlock';
+import { useTranslation } from 'react-i18next';
 
 function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<HTMLDivElement>) {
   const { node, childIds, isSelected, ref } = useNode(id);
@@ -64,6 +66,8 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
         return <CodeBlock node={node} />;
       case BlockType.EquationBlock:
         return <EquationBlock node={node} />;
+      case BlockType.ImageBlock:
+        return <ImageBlock node={node} />;
       default:
         return <UnSupportedBlock />;
     }
@@ -79,7 +83,7 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
         {renderBlock()}
         <BlockOverlay id={id} />
         {isSelected ? (
-          <div className='pointer-events-none absolute inset-0 z-[-1] m-[1px] rounded-[4px] bg-[#E0F8FF]' />
+          <div className='pointer-events-none absolute inset-0 z-[-1] my-[1px] rounded-[4px] bg-content-blue-100' />
         ) : null}
       </div>
     </NodeIdContext.Provider>
@@ -91,9 +95,11 @@ const NodeWithErrorBoundary = withErrorBoundary(NodeComponent, {
 });
 
 const UnSupportedBlock = () => {
+  const { t } = useTranslation();
+
   return (
     <Alert severity='info' className='mb-2'>
-      <p>The current version does not support this Block.</p>
+      <p>{t('unSupportBlock')}</p>
     </Alert>
   );
 };

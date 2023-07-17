@@ -1,4 +1,4 @@
-import 'package:appflowy/startup/tasks/supabase_task.dart';
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -96,7 +96,7 @@ class SplashScreen extends StatelessWidget {
   }
 
   Future<void> _registerIfNeeded() async {
-    final result = await UserEventCheckUser().send();
+    final result = await UserEventGetUserProfile().send();
     if (!result.isLeft()) {
       await getIt<AuthService>().signUpAsGuest();
     }

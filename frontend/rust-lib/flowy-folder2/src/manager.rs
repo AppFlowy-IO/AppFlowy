@@ -3,10 +3,11 @@ use std::ops::Deref;
 use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::CollabPersistenceConfig;
-use collab::core::collab_state::CollabState;
+use appflowy_integrate::{CollabPersistenceConfig, RocksCollabDB};
+use collab::core::collab::{CollabRawData, MutexCollab};
+use collab::core::collab_state::SyncState;
 use collab_folder::core::{
-  Folder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, View, ViewChange,
+  Folder, FolderData, FolderNotify, TrashChange, TrashChangeReceiver, TrashInfo, View, ViewChange,
   ViewChangeReceiver, ViewLayout, Workspace,
 };
 use parking_lot::Mutex;
@@ -19,8 +20,8 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use crate::deps::{FolderCloudService, FolderUser};
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, CreateViewParams,
-  CreateWorkspaceParams, DeletedViewPB, RepeatedTrashPB, RepeatedViewPB, RepeatedWorkspacePB,
-  UpdateViewParams, ViewPB, WorkspacePB,
+  CreateWorkspaceParams, DeletedViewPB, FolderSnapshotPB, FolderSnapshotStatePB, FolderSyncStatePB,
+  RepeatedTrashPB, RepeatedViewPB, RepeatedWorkspacePB, UpdateViewParams, ViewPB, WorkspacePB,
 };
 use crate::notification::{
   send_notification, send_workspace_notification, send_workspace_setting_notification,
@@ -32,7 +33,7 @@ use crate::view_operation::{
   create_view, gen_view_id, FolderOperationHandler, FolderOperationHandlers,
 };
 
-pub struct Folder2Manager {
+pub struct FolderManager {
   mutex_folder: Arc<MutexFolder>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   user: Arc<dyn FolderUser>,
@@ -40,10 +41,10 @@ pub struct Folder2Manager {
   cloud_service: Arc<dyn FolderCloudService>,
 }
 
-unsafe impl Send for Folder2Manager {}
-unsafe impl Sync for Folder2Manager {}
+unsafe impl Send for FolderManager {}
+unsafe impl Sync for FolderManager {}
 
-impl Folder2Manager {
+impl FolderManager {
   pub async fn new(
     user: Arc<dyn FolderUser>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
@@ -63,30 +64,33 @@ impl Folder2Manager {
   }
 
   pub async fn get_current_workspace(&self) -> FlowyResult<WorkspacePB> {
-    self.with_folder(Err(FlowyError::internal()), |folder| {
-      let workspace_pb_from_workspace = |workspace: Workspace, folder: &Folder| {
-        let views = get_workspace_view_pbs(&workspace.id, folder);
-        let workspace: WorkspacePB = (workspace, views).into();
-        Ok::<WorkspacePB, FlowyError>(workspace)
-      };
+    self.with_folder(
+      Err(FlowyError::internal().context("Folder is not initialized".to_string())),
+      |folder| {
+        let workspace_pb_from_workspace = |workspace: Workspace, folder: &Folder| {
+          let views = get_workspace_view_pbs(&workspace.id, folder);
+          let workspace: WorkspacePB = (workspace, views).into();
+          Ok::<WorkspacePB, FlowyError>(workspace)
+        };
 
-      match folder.get_current_workspace() {
-        None => {
-          // The current workspace should always exist. If not, try to find the first workspace.
-          // from the folder. Otherwise, return an error.
-          let mut workspaces = folder.workspaces.get_all_workspaces();
-          if workspaces.is_empty() {
-            Err(FlowyError::record_not_found().context("Can not find the workspace"))
-          } else {
-            tracing::error!("Can't find the current workspace, use the first workspace");
-            let workspace = workspaces.remove(0);
-            folder.set_current_workspace(&workspace.id);
-            workspace_pb_from_workspace(workspace, folder)
-          }
-        },
-        Some(workspace) => workspace_pb_from_workspace(workspace, folder),
-      }
-    })
+        match folder.get_current_workspace() {
+          None => {
+            // The current workspace should always exist. If not, try to find the first workspace.
+            // from the folder. Otherwise, return an error.
+            let mut workspaces = folder.workspaces.get_all_workspaces();
+            if workspaces.is_empty() {
+              Err(FlowyError::record_not_found().context("Can not find the workspace"))
+            } else {
+              tracing::error!("Can't find the current workspace, use the first workspace");
+              let workspace = workspaces.remove(0);
+              folder.set_current_workspace(&workspace.id);
+              workspace_pb_from_workspace(workspace, folder)
+            }
+          },
+          Some(workspace) => workspace_pb_from_workspace(workspace, folder),
+        }
+      },
+    )
   }
 
   /// Return a list of views of the current workspace.
@@ -101,6 +105,7 @@ impl Folder2Manager {
     if let Some(Some(workspace_id)) = workspace_id {
       self.get_workspace_views(&workspace_id).await
     } else {
+      tracing::warn!("Can't get current workspace views");
       Ok(vec![])
     }
   }
@@ -114,61 +119,153 @@ impl Folder2Manager {
   }
 
   /// Called immediately after the application launched fi the user already sign in/sign up.
-  #[tracing::instrument(level = "info", skip(self), err)]
-  pub async fn initialize(&self, uid: i64, workspace_id: &str) -> FlowyResult<()> {
+  #[tracing::instrument(level = "info", skip(self, initial_data), err)]
+  pub async fn initialize(
+    &self,
+    uid: i64,
+    workspace_id: &str,
+    initial_data: FolderInitializeData,
+  ) -> FlowyResult<()> {
     let workspace_id = workspace_id.to_string();
-    if let Ok(collab_db) = self.user.collab_db() {
-      let collab = self.collab_builder.build_with_config(
-        uid,
-        &workspace_id,
-        "workspace",
-        collab_db,
-        &CollabPersistenceConfig::new()
-          .enable_snapshot(true)
-          .snapshot_per_update(5),
-      );
+    if let Ok(collab_db) = self.user.collab_db(uid) {
       let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
       let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
-      let folder_context = FolderContext {
+      let folder_notifier = FolderNotify {
         view_change_tx: view_tx,
         trash_change_tx: trash_tx,
       };
-      let folder = Folder::get_or_create(collab, folder_context);
-      let folder_state_rx = folder.subscribe_state_change();
+
+      let folder = match initial_data {
+        FolderInitializeData::Empty => {
+          let collab = self.collab_for_folder(uid, &workspace_id, collab_db, vec![])?;
+          Folder::open(collab, Some(folder_notifier))
+        },
+        FolderInitializeData::Raw(raw_data) => {
+          let collab = self.collab_for_folder(uid, &workspace_id, collab_db, raw_data)?;
+          Folder::open(collab, Some(folder_notifier))
+        },
+        FolderInitializeData::Data(folder_data) => {
+          let collab = self.collab_for_folder(uid, &workspace_id, collab_db, vec![])?;
+          Folder::create(collab, Some(folder_notifier), Some(folder_data))
+        },
+      };
+
+      tracing::debug!("Current workspace_id: {}", workspace_id);
+      let folder_state_rx = folder.subscribe_sync_state();
       *self.mutex_folder.lock() = Some(folder);
 
       let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
-      listen_on_folder_state_change(workspace_id, folder_state_rx, &weak_mutex_folder);
-      listen_on_trash_change(trash_rx, &weak_mutex_folder);
-      listen_on_view_change(view_rx, &weak_mutex_folder);
+      subscribe_folder_sync_state_changed(
+        workspace_id.clone(),
+        folder_state_rx,
+        &weak_mutex_folder,
+      );
+      subscribe_folder_snapshot_state_changed(workspace_id, &weak_mutex_folder);
+      subscribe_folder_trash_changed(trash_rx, &weak_mutex_folder);
+      subscribe_folder_view_changed(view_rx, &weak_mutex_folder);
     }
 
     Ok(())
   }
 
-  /// Called after the user sign up / sign in
-  pub async fn initialize_with_new_user(
+  fn collab_for_folder(
+    &self,
+    uid: i64,
+    workspace_id: &str,
+    collab_db: Arc<RocksCollabDB>,
+    raw_data: CollabRawData,
+  ) -> Result<Arc<MutexCollab>, FlowyError> {
+    let collab = self.collab_builder.build_with_config(
+      uid,
+      workspace_id,
+      "workspace",
+      collab_db,
+      raw_data,
+      &CollabPersistenceConfig::new().enable_snapshot(true),
+    )?;
+    Ok(collab)
+  }
+
+  #[tracing::instrument(level = "debug", skip(self, user_id), err)]
+  pub async fn initialize_when_sign_in(&self, user_id: i64, workspace_id: &str) -> FlowyResult<()> {
+    let folder_updates = self
+      .cloud_service
+      .get_folder_updates(workspace_id, user_id)
+      .await?;
+
+    tracing::trace!(
+      "Get folder updates via {}, number of updates: {}",
+      self.cloud_service.service_name(),
+      folder_updates.len()
+    );
+
+    self
+      .initialize(
+        user_id,
+        workspace_id,
+        FolderInitializeData::Raw(folder_updates),
+      )
+      .await?;
+    Ok(())
+  }
+
+  pub async fn initialize_when_sign_up(
     &self,
     user_id: i64,
-    token: &str,
+    _token: &str,
+    is_new: bool,
+    folder_data: Option<FolderData>,
     workspace_id: &str,
   ) -> FlowyResult<()> {
-    self.initialize(user_id, workspace_id).await?;
-    let (folder_data, workspace_pb) = DefaultFolderBuilder::build(
-      self.user.user_id()?,
-      workspace_id.to_string(),
-      &self.operation_handlers,
-    )
-    .await;
-    self.with_folder((), |folder| {
-      folder.create_with_data(folder_data);
-    });
+    // Create the default workspace if the user is new
+    tracing::info!("initialize_when_sign_up: is_new: {}", is_new);
+    if is_new {
+      let folder_data = match folder_data {
+        None => {
+          DefaultFolderBuilder::build(
+            self.user.user_id()?,
+            workspace_id.to_string(),
+            &self.operation_handlers,
+          )
+          .await
+        },
+        Some(folder_data) => folder_data,
+      };
 
-    send_notification(token, FolderNotification::DidCreateWorkspace)
-      .payload(RepeatedWorkspacePB {
-        items: vec![workspace_pb],
-      })
-      .send();
+      self
+        .initialize(
+          user_id,
+          workspace_id,
+          FolderInitializeData::Data(folder_data),
+        )
+        .await?;
+      // send_notification(token, FolderNotification::DidCreateWorkspace)
+      //   .payload(RepeatedWorkspacePB {
+      //     items: vec![workspace_pb],
+      //   })
+      //   .send();
+    } else {
+      // The folder data is loaded through the [FolderCloudService]. If the cloud service in use is
+      // [LocalServerFolderCloudServiceImpl], the folder data will be None because the Folder will load
+      // the data directly from the disk. If any other cloud service is in use, the folder data will be loaded remotely.
+      let folder_updates = self
+        .cloud_service
+        .get_folder_updates(workspace_id, user_id)
+        .await?;
+      if !folder_updates.is_empty() {
+        tracing::trace!(
+          "Get folder updates via {}",
+          self.cloud_service.service_name()
+        );
+      }
+      self
+        .initialize(
+          user_id,
+          workspace_id,
+          FolderInitializeData::Raw(folder_updates),
+        )
+        .await?;
+    }
     Ok(())
   }
 
@@ -540,7 +637,7 @@ impl Folder2Manager {
   pub(crate) async fn import(&self, import_data: ImportParams) -> FlowyResult<View> {
     if import_data.data.is_none() && import_data.file_path.is_none() {
       return Err(FlowyError::new(
-        ErrorCode::InvalidData,
+        ErrorCode::InvalidParams,
         "data or file_path is required",
       ));
     }
@@ -626,10 +723,47 @@ impl Folder2Manager {
       }
     })
   }
+
+  pub async fn get_folder_snapshots(
+    &self,
+    workspace_id: &str,
+  ) -> FlowyResult<Vec<FolderSnapshotPB>> {
+    let mut snapshots = vec![];
+    if let Some(snapshot) = self
+      .cloud_service
+      .get_folder_latest_snapshot(workspace_id)
+      .await?
+      .map(|snapshot| FolderSnapshotPB {
+        snapshot_id: snapshot.snapshot_id,
+        snapshot_desc: "".to_string(),
+        created_at: snapshot.created_at,
+        data: snapshot.data,
+      })
+    {
+      snapshots.push(snapshot);
+    }
+
+    Ok(snapshots)
+  }
+
+  /// Only expose this method for testing
+  #[cfg(debug_assertions)]
+  pub fn get_mutex_folder(&self) -> &Arc<MutexFolder> {
+    &self.mutex_folder
+  }
+
+  /// Only expose this method for testing
+  #[cfg(debug_assertions)]
+  pub fn get_cloud_service(&self) -> &Arc<dyn FolderCloudService> {
+    &self.cloud_service
+  }
 }
 
 /// Listen on the [ViewChange] after create/delete/update events happened
-fn listen_on_view_change(mut rx: ViewChangeReceiver, weak_mutex_folder: &Weak<MutexFolder>) {
+fn subscribe_folder_view_changed(
+  mut rx: ViewChangeReceiver,
+  weak_mutex_folder: &Weak<MutexFolder>,
+) {
   let weak_mutex_folder = weak_mutex_folder.clone();
   tokio::spawn(async move {
     while let Ok(value) = rx.recv().await {
@@ -664,22 +798,27 @@ fn listen_on_view_change(mut rx: ViewChangeReceiver, weak_mutex_folder: &Weak<Mu
   });
 }
 
-fn listen_on_folder_state_change(
+fn subscribe_folder_snapshot_state_changed(
   workspace_id: String,
-  mut folder_state_rx: WatchStream<CollabState>,
   weak_mutex_folder: &Weak<MutexFolder>,
 ) {
   let weak_mutex_folder = weak_mutex_folder.clone();
   tokio::spawn(async move {
-    while let Some(state) = folder_state_rx.next().await {
-      if state.is_root_changed() {
-        if let Some(mutex_folder) = weak_mutex_folder.upgrade() {
-          let folder = mutex_folder.lock().take();
-          if let Some(folder) = folder {
-            tracing::trace!("🔥Reload folder");
-            let reload_folder = folder.reload();
-            notify_did_update_workspace(&workspace_id, &reload_folder);
-            *mutex_folder.lock() = Some(reload_folder);
+    if let Some(mutex_folder) = weak_mutex_folder.upgrade() {
+      let stream = mutex_folder
+        .lock()
+        .as_ref()
+        .map(|folder| folder.subscribe_snapshot_state());
+      if let Some(mut state_stream) = stream {
+        while let Some(snapshot_state) = state_stream.next().await {
+          if let Some(new_snapshot_id) = snapshot_state.snapshot_id() {
+            tracing::debug!("Did create folder remote snapshot: {}", new_snapshot_id);
+            send_notification(
+              &workspace_id,
+              FolderNotification::DidUpdateFolderSnapshotState,
+            )
+            .payload(FolderSnapshotStatePB { new_snapshot_id })
+            .send();
           }
         }
       }
@@ -687,8 +826,25 @@ fn listen_on_folder_state_change(
   });
 }
 
+fn subscribe_folder_sync_state_changed(
+  workspace_id: String,
+  mut folder_sync_state_rx: WatchStream<SyncState>,
+  _weak_mutex_folder: &Weak<MutexFolder>,
+) {
+  tokio::spawn(async move {
+    while let Some(state) = folder_sync_state_rx.next().await {
+      send_notification(&workspace_id, FolderNotification::DidUpdateFolderSyncUpdate)
+        .payload(FolderSyncStatePB::from(state))
+        .send();
+    }
+  });
+}
+
 /// Listen on the [TrashChange]s and notify the frontend some views were changed.
-fn listen_on_trash_change(mut rx: TrashChangeReceiver, weak_mutex_folder: &Weak<MutexFolder>) {
+fn subscribe_folder_trash_changed(
+  mut rx: TrashChangeReceiver,
+  weak_mutex_folder: &Weak<MutexFolder>,
+) {
   let weak_mutex_folder = weak_mutex_folder.clone();
   tokio::spawn(async move {
     while let Ok(value) = rx.recv().await {
@@ -839,3 +995,9 @@ impl Deref for MutexFolder {
 }
 unsafe impl Sync for MutexFolder {}
 unsafe impl Send for MutexFolder {}
+
+pub enum FolderInitializeData {
+  Empty,
+  Raw(CollabRawData),
+  Data(FolderData),
+}

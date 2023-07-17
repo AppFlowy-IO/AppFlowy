@@ -59,6 +59,7 @@ export const DateTypeOptions = ({
     }
 
     const { right: _left, top: _top } = target.getBoundingClientRect();
+
     onDateFormatClick(_left, _top);
   };
 
@@ -72,6 +73,7 @@ export const DateTypeOptions = ({
     }
 
     const { right: _left, top: _top } = target.getBoundingClientRect();
+
     onTimeFormatClick(_left, _top);
   };
 
@@ -85,11 +87,11 @@ export const DateTypeOptions = ({
 
   return (
     <div className={'flex flex-col'}>
-      <hr className={'-mx-2 my-2 border-shade-6'} />
+      <hr className={'border-shade-6 -mx-2 my-2'} />
       <button
         onClick={_onDateFormatClick}
         className={
-          'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-2 hover:bg-main-secondary'
+          'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-2 hover:bg-fill-list-hover'
         }
       >
         <span>{t('grid.field.dateFormat')}</span>
@@ -97,11 +99,11 @@ export const DateTypeOptions = ({
           <MoreSvg></MoreSvg>
         </i>
       </button>
-      <hr className={'-mx-2 my-2 border-shade-6'} />
+      <hr className={'-mx-2 my-2 border-line-divider'} />
       <button
         onClick={() => toggleIncludeTime()}
         className={
-          'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-2 hover:bg-main-secondary'
+          'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-2 hover:bg-fill-list-hover'
         }
       >
         <div className={'flex items-center gap-2'}>
@@ -115,7 +117,7 @@ export const DateTypeOptions = ({
       <button
         onClick={_onTimeFormatClick}
         className={
-          'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-2 hover:bg-main-secondary'
+          'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-2 hover:bg-fill-list-hover'
         }
       >
         <span>{t('grid.field.timeFormat')}</span>

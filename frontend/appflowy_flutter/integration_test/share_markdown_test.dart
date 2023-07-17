@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-
+import 'package:path/path.dart' as p;
 import 'util/mock/mock_file_picker.dart';
 import 'util/util.dart';
 
@@ -11,30 +11,17 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('share markdown in document page', () {
-    const location = 'markdown';
-
-    setUp(() async {
-      await TestFolder.cleanTestLocation(location);
-      await TestFolder.setTestLocation(location);
-    });
-
-    tearDown(() async {
-      await TestFolder.cleanTestLocation(location);
-    });
-
-    tearDownAll(() async {
-      await TestFolder.cleanTestLocation(null);
-    });
-
     testWidgets('click the share button in document page', (tester) async {
-      await tester.initializeAppFlowy();
+      final context = await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
       // expect to see a readme page
       tester.expectToSeePageName(readme);
 
       // mock the file picker
-      final path = await mockSaveFilePath(location, 'test.md');
+      final path = await mockSaveFilePath(
+        p.join(context.applicationDataDirectory, 'test.md'),
+      );
       // click the share button and select markdown
       await tester.tapShareButton();
       await tester.tapMarkdownButton();
@@ -52,7 +39,7 @@ void main() {
     testWidgets(
       'share the markdown after renaming the document name',
       (tester) async {
-        await tester.initializeAppFlowy();
+        final context = await tester.initializeAppFlowy();
         await tester.tapGoButton();
 
         // expect to see a readme page
@@ -65,8 +52,12 @@ void main() {
         final shareButton = find.byType(ShareActionList);
         final shareButtonState =
             tester.state(shareButton) as ShareActionListState;
-        final path =
-            await mockSaveFilePath(location, '${shareButtonState.name}.md');
+        final path = await mockSaveFilePath(
+          p.join(
+            context.applicationDataDirectory,
+            '${shareButtonState.name}.md',
+          ),
+        );
 
         // click the share button and select markdown
         await tester.tapShareButton();

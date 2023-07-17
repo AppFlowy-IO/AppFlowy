@@ -3,12 +3,12 @@ use std::sync::Arc;
 
 use collab_database::database::{gen_database_view_id, timestamp};
 use collab_database::fields::Field;
-use collab_database::rows::{CreateRowParams, RowId};
+use collab_database::rows::{CreateRowParams, RowDetail, RowId};
 use strum::EnumCount;
 
 use flowy_database2::entities::{FieldType, FilterPB, RowMetaPB, SelectOptionPB};
 use flowy_database2::services::cell::{CellBuilder, ToCellChangeset};
-use flowy_database2::services::database::{DatabaseEditor, RowDetail};
+use flowy_database2::services::database::DatabaseEditor;
 use flowy_database2::services::field::checklist_type_option::{
   ChecklistCellChangeset, ChecklistTypeOption,
 };

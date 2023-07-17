@@ -19,6 +19,7 @@ import {
   SLASH_COMMAND_NAME,
   TEXT_LINK_NAME,
 } from '$app/constants/document/name';
+import { blockEditSlice } from '$app_reducers/document/block_edit_slice';
 
 const initialState: Record<string, DocumentState> = {};
 
@@ -408,7 +409,10 @@ export const linkPopoverSlice = createSlice({
       const { id } = linkState;
 
       if (!state[docId].open || state[docId].id !== id) return;
-      state[docId] = linkState;
+      state[docId] = {
+        ...state[docId],
+        ...linkState,
+      };
     },
     closeLinkPopover: (state, action: PayloadAction<string>) => {
       const docId = action.payload;
@@ -425,6 +429,7 @@ export const documentReducers = {
   [slashCommandSlice.name]: slashCommandSlice.reducer,
   [linkPopoverSlice.name]: linkPopoverSlice.reducer,
   [temporarySlice.name]: temporarySlice.reducer,
+  [blockEditSlice.name]: blockEditSlice.reducer,
 };
 
 export const documentActions = documentSlice.actions;

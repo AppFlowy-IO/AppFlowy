@@ -132,6 +132,7 @@ function InlineContainer({
         style={{
           pointerEvents: 'none',
         }}
+        className={'inline-block-content'}
       >
         {renderNode()}
       </span>

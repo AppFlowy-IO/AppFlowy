@@ -1,10 +1,10 @@
 use crate::entities::{CreateViewParams, ViewLayoutPB};
-use crate::manager::Folder2Manager;
+use crate::manager::FolderManager;
 use crate::view_operation::gen_view_id;
 use std::collections::HashMap;
 
 #[cfg(feature = "test_helper")]
-impl Folder2Manager {
+impl FolderManager {
   pub async fn create_test_grid_view(
     &self,
     app_id: &str,

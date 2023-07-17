@@ -20,7 +20,7 @@ function Root({ documentData }: { documentData: DocumentData }) {
 
   return (
     <>
-      <div id='appflowy-block-doc' className='h-[100%] overflow-hidden caret-custom-caret'>
+      <div id='appflowy-block-doc' className='h-[100%] overflow-hidden text-text-title caret-text-title'>
         <VirtualizedList node={node} childIds={childIds} renderNode={renderNode} />
       </div>
     </>

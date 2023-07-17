@@ -9,11 +9,11 @@ extension IME on WidgetTester {
 
 class IMESimulator {
   IMESimulator(this.tester) {
-    client = findDeltaTextInputClient();
+    client = findTextInputClient();
   }
 
   final WidgetTester tester;
-  late final DeltaTextInputClient client;
+  late final TextInputClient client;
 
   Future<void> insertText(String text) async {
     for (final c in text.characters) {
@@ -27,28 +27,22 @@ class IMESimulator {
       assert(false);
       return;
     }
-    final deltas = [
-      TextEditingDeltaInsertion(
-        textInserted: character,
-        oldText: value.text.replaceRange(
-          value.selection.start,
-          value.selection.end,
-          '',
-        ),
-        insertionOffset: value.selection.baseOffset,
-        selection: TextSelection.collapsed(
-          offset: value.selection.baseOffset + 1,
-        ),
-        composing: TextRange.empty,
+    final text = value.text
+        .replaceRange(value.selection.start, value.selection.end, character);
+    final textEditingValue = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(
+        offset: value.selection.baseOffset + 1,
       ),
-    ];
-    client.updateEditingValueWithDeltas(deltas);
+      composing: TextRange.empty,
+    );
+    client.updateEditingValue(textEditingValue);
     await tester.pumpAndSettle();
   }
 
-  DeltaTextInputClient findDeltaTextInputClient() {
+  TextInputClient findTextInputClient() {
     final finder = find.byType(KeyboardServiceWidget);
     final KeyboardServiceWidgetState state = tester.state(finder);
-    return state.textInputService as DeltaTextInputClient;
+    return state.textInputService as TextInputClient;
   }
 }

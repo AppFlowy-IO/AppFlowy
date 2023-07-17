@@ -5,7 +5,7 @@ use tokio::sync::RwLock;
 
 use lib_infra::util::timestamp;
 
-use crate::entities::{view_pb_with_child_views, ViewPB, WorkspacePB};
+use crate::entities::{view_pb_with_child_views, ViewPB};
 use crate::view_operation::{
   FlattedViews, FolderOperationHandlers, ParentChildViews, WorkspaceViewBuilder,
 };
@@ -16,7 +16,7 @@ impl DefaultFolderBuilder {
     _uid: i64,
     workspace_id: String,
     handlers: &FolderOperationHandlers,
-  ) -> (FolderData, WorkspacePB) {
+  ) -> FolderData {
     let workspace_view_builder =
       Arc::new(RwLock::new(WorkspaceViewBuilder::new(workspace_id.clone())));
     for handler in handlers.values() {
@@ -50,24 +50,12 @@ impl DefaultFolderBuilder {
       created_at: timestamp(),
     };
 
-    let first_level_view_pbs = views.iter().map(ViewPB::from).collect::<Vec<_>>();
-
-    let workspace_pb = WorkspacePB {
-      id: workspace.id.clone(),
-      name: workspace.name.clone(),
-      views: first_level_view_pbs,
-      create_time: workspace.created_at,
-    };
-
-    (
-      FolderData {
-        current_workspace: workspace.id.clone(),
-        current_view: first_view.id,
-        workspaces: vec![workspace],
-        views: FlattedViews::flatten_views(views),
-      },
-      workspace_pb,
-    )
+    FolderData {
+      current_workspace_id: workspace.id.clone(),
+      current_view: first_view.id,
+      workspaces: vec![workspace],
+      views: FlattedViews::flatten_views(views),
+    }
   }
 }
 
