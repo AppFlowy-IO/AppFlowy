@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/startup/tasks/windows_deeplink.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:flutter/foundation.dart';
@@ -62,6 +63,8 @@ class FlowyRunner {
         // ignore in test mode
         if (!mode.isUnitTest) ...[
           const HotKeyTask(),
+          // this task should be before the InitSupabaseTask, because the supabase task use the deep link.
+          WindowsDeepLink(),
           InitSupabaseTask(),
           const InitAppWidgetTask(),
           const InitPlatformServiceTask()
