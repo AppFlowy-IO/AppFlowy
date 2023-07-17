@@ -13,6 +13,7 @@ import 'package:archive/archive_io.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/container.dart';
@@ -130,7 +131,7 @@ class ImportPanel extends StatelessWidget {
           margin: EdgeInsets.zero,
           triggerActions: PopoverTriggerFlags.none,
           child: FlowyButton(
-            leftIcon: const Icon(Icons.abc_outlined),
+            leftIcon: const FlowySvg(name: 'notion_logo'),
             leftIconSize: const Size.square(20),
             text: const FlowyText.medium(
               'Import from Notion',
