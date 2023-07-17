@@ -20,7 +20,7 @@ export const SelectedOption = ({
   };
 
   return (
-    <div className={`${getBgColor(option.color)} flex items-center gap-0.5 rounded px-1 py-0.5`}>
+    <div className={`${getBgColor(option.color)} flex items-center gap-0.5 rounded px-1 py-0.5 text-content-on-fill`}>
       <span>{option?.name ?? ''}</span>
       <button onClick={onUnselectOptionClick} className={'h-5 w-5 cursor-pointer'}>
         <CloseSvg></CloseSvg>

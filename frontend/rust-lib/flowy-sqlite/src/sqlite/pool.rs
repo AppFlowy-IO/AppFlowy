@@ -1,14 +1,10 @@
-use crate::sqlite::{errors::*, pragma::*};
+use std::{sync::Arc, time::Duration};
+
 use diesel::{connection::Connection, SqliteConnection};
 use r2d2::{CustomizeConnection, ManageConnection, Pool};
 use scheduled_thread_pool::ScheduledThreadPool;
-use std::{sync::Arc, time::Duration};
 
-lazy_static::lazy_static! {
-    static ref DB_POOL: Arc<ScheduledThreadPool> = Arc::new(
-        ScheduledThreadPool::builder().num_threads(4).thread_name_pattern("db-pool-{}:").build()
-    );
-}
+use crate::sqlite::{errors::*, pragma::*};
 
 pub struct ConnectionPool {
   pub(crate) inner: Pool<ConnectionManager>,
@@ -28,7 +24,12 @@ impl ConnectionPool {
     T: Into<String>,
   {
     let manager = ConnectionManager::new(uri);
-    let thread_pool = DB_POOL.clone();
+    let thread_pool = Arc::new(
+      ScheduledThreadPool::builder()
+        .num_threads(4)
+        .thread_name_pattern("db-pool-{}:")
+        .build(),
+    );
     let config = Arc::new(config);
     let customizer_config = DatabaseCustomizerConfig::default();
 

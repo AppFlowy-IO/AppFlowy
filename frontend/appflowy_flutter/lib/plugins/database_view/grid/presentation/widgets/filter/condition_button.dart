@@ -32,6 +32,7 @@ class ConditionButton extends StatelessWidget {
           conditionName,
           fontSize: 10,
           color: AFThemeExtension.of(context).textColor,
+          overflow: TextOverflow.ellipsis,
         ),
         margin: const EdgeInsets.symmetric(horizontal: 4),
         radius: const BorderRadius.all(Radius.circular(2)),

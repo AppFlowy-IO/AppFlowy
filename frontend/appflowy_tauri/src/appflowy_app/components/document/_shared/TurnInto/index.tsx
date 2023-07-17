@@ -120,11 +120,12 @@ const TurnIntoPopover = ({
         title: 'Callout',
         icon: <Lightbulb />,
       },
-      // {
-      //   type: BlockType.EquationBlock,
-      //   title: 'Block KatexMath',
-      //   icon: <Functions />,
-      // },
+      {
+        key: SlashCommandOptionKey.EQUATION,
+        type: BlockType.EquationBlock,
+        title: 'Block Equation',
+        icon: <Functions />,
+      },
     ],
     [node?.data?.level, turnIntoHeading]
   );
@@ -194,7 +195,7 @@ const TurnIntoPopover = ({
 
   return (
     <Popover disableAutoFocus={true} onClose={onClose} {...props}>
-      <div className={'min-w-[220px]'}>
+      <div className={'min-w-[220px] p-2'}>
         {options.map((option) => {
           return (
             <MenuItem

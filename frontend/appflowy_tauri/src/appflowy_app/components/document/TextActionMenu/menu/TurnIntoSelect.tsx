@@ -1,46 +1,50 @@
 import React, { useCallback } from 'react';
 import TurnIntoPopover from '$app/components/document/_shared/TurnInto';
-import Button from '@mui/material/Button';
 import ArrowDropDown from '@mui/icons-material/ArrowDropDown';
-import MenuTooltip from './MenuTooltip';
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
+import { useTranslation } from 'react-i18next';
+import ToolbarTooltip from '../../_shared/ToolbarTooltip';
 
 function TurnIntoSelect({ id }: { id: string }) {
-  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+  const [anchorPosition, setAnchorPosition] = React.useState<{
+    top: number;
+    left: number;
+  }>();
 
   const { node } = useSubscribeNode(id);
-  const handleClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
+  const handleClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+
+    setAnchorPosition({
+      top: rect.top + rect.height + 5,
+      left: rect.left,
+    });
   }, []);
 
   const handleClose = useCallback(() => {
-    setAnchorEl(null);
+    setAnchorPosition(undefined);
   }, []);
 
-  const open = Boolean(anchorEl);
+  const open = Boolean(anchorPosition);
+  const { t } = useTranslation();
 
   return (
     <>
-      <MenuTooltip title='Turn into'>
-        <Button size={'small'} variant='text' onClick={handleClick}>
-          <div className='flex items-center text-main-accent'>
-            <span>{node.type}</span>
-            <ArrowDropDown />
-          </div>
-        </Button>
-      </MenuTooltip>
+      <ToolbarTooltip title={t('document.plugins.optionAction.turnInto')}>
+        <div onClick={handleClick} className='flex cursor-pointer items-center px-2 text-sm text-fill-default'>
+          <span>{node.type}</span>
+          <ArrowDropDown />
+        </div>
+      </ToolbarTooltip>
       <TurnIntoPopover
         id={id}
         open={open}
         onClose={handleClose}
-        anchorEl={anchorEl}
-        anchorOrigin={{
-          vertical: 'center',
-          horizontal: 'center',
-        }}
+        anchorReference={'anchorPosition'}
+        anchorPosition={anchorPosition}
         transformOrigin={{
-          vertical: 'center',
-          horizontal: 'center',
+          vertical: 'top',
+          horizontal: 'left',
         }}
       />
     </>

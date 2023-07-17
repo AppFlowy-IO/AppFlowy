@@ -81,7 +81,7 @@ function PopupItem({
     <button
       onClick={() => changeFormat(format)}
       className={
-        'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-main-secondary'
+        'flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-fill-list-hover'
       }
     >
       {text}

@@ -1,12 +1,11 @@
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
+use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use serde::{Deserialize, Serialize};
 
 use crate::entities::{FieldType, GroupRowsNotificationPB, SelectOptionCellDataPB};
 use crate::services::cell::insert_select_option_cell;
-use crate::services::database::RowDetail;
 use crate::services::field::{MultiSelectTypeOption, SelectOptionCellDataParser};
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::controller::{

@@ -67,6 +67,7 @@ export const PropertiesPanel = ({
 
   const addSelectedFieldType = async (fieldType: FieldType) => {
     let name = 'New Field';
+
     switch (fieldType) {
       case FieldType.RichText:
         name = t('grid.field.textFieldName');
@@ -101,7 +102,9 @@ export const PropertiesPanel = ({
     <div className={'flex flex-col gap-2 overflow-auto px-4 py-12'}>
       <div
         onClick={() => setShowAddedProperties(!showAddedProperties)}
-        className={'flex cursor-pointer items-center justify-between gap-8 rounded-lg px-2 py-2 hover:bg-shade-6'}
+        className={
+          'flex cursor-pointer items-center justify-between gap-8 rounded-lg px-2 py-2 text-text-title hover:bg-fill-list-active'
+        }
       >
         <div className={'text-sm'}>Added Properties</div>
         <i className={`h-5 w-5 transition-transform duration-500 ${showAddedProperties && 'rotate-180'}`}>
@@ -115,10 +118,10 @@ export const PropertiesPanel = ({
               key={cellIndex}
               onMouseEnter={() => setHoveredPropertyIndex(cellIndex)}
               className={
-                'flex cursor-pointer items-center justify-between gap-4 rounded-lg px-2 py-1 hover:bg-main-secondary'
+                'flex cursor-pointer items-center justify-between gap-4 rounded-lg px-2 py-1 hover:bg-fill-list-hover'
               }
             >
-              <div className={'flex items-center gap-2 text-black'}>
+              <div className={'flex items-center gap-2 text-text-title '}>
                 <div className={'flex h-5 w-5 flex-shrink-0 items-center justify-center'}>
                   <FieldTypeIcon fieldType={cell.cellIdentifier.fieldType}></FieldTypeIcon>
                 </div>
@@ -129,7 +132,7 @@ export const PropertiesPanel = ({
               <div className={'flex items-center'}>
                 <i
                   onClick={() => onDeletePropertyClick(cell.cellIdentifier.fieldId)}
-                  className={`h-[16px] w-[16px] text-black transition-opacity duration-300 ${
+                  className={`h-[16px] w-[16px] text-text-title transition-opacity duration-300 ${
                     hoveredPropertyIndex === cellIndex ? 'opacity-100' : 'opacity-0'
                   }`}
                 >
@@ -145,7 +148,9 @@ export const PropertiesPanel = ({
       </div>
       <div
         onClick={() => setShowBasicProperties(!showBasicProperties)}
-        className={'flex cursor-pointer items-center justify-between gap-8 rounded-lg px-2 py-2 hover:bg-shade-6'}
+        className={
+          'flex cursor-pointer items-center justify-between gap-8 rounded-lg px-2 py-2 hover:bg-fill-list-active'
+        }
       >
         <div className={'text-sm'}>Basic Properties</div>
         <i className={`h-5 w-5 transition-transform duration-500 ${showBasicProperties && 'rotate-180'}`}>
@@ -159,7 +164,7 @@ export const PropertiesPanel = ({
               <button
                 onClick={() => addSelectedFieldType(type)}
                 key={i}
-                className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-main-secondary'}
+                className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-fill-list-hover'}
               >
                 <i className={'h-5 w-5'}>
                   <FieldTypeIcon fieldType={type}></FieldTypeIcon>
@@ -174,7 +179,9 @@ export const PropertiesPanel = ({
       </div>
       <div
         onClick={() => setShowAdvancedProperties(!showAdvancedProperties)}
-        className={'flex cursor-pointer items-center justify-between gap-8 rounded-lg px-2 py-2 hover:bg-shade-6'}
+        className={
+          'flex cursor-pointer items-center justify-between gap-8 rounded-lg px-2 py-2 hover:bg-fill-list-active'
+        }
       >
         <div className={'text-sm'}>Advanced Properties</div>
         <i className={`h-5 w-5 transition-transform duration-500 ${showAdvancedProperties && 'rotate-180'}`}>
@@ -185,7 +192,7 @@ export const PropertiesPanel = ({
         {showAdvancedProperties && (
           <div className={'flex flex-col'}>
             <button
-              className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-main-secondary'}
+              className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-fill-list-hover'}
             >
               <i className={'h-5 w-5'}>
                 <MultiSelectTypeSvg></MultiSelectTypeSvg>
@@ -193,7 +200,7 @@ export const PropertiesPanel = ({
               <span>Last edited time</span>
             </button>
             <button
-              className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-main-secondary'}
+              className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-fill-list-hover'}
             >
               <i className={'h-5 w-5'}>
                 <DocumentSvg></DocumentSvg>
@@ -201,7 +208,7 @@ export const PropertiesPanel = ({
               <span>Document</span>
             </button>
             <button
-              className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-main-secondary'}
+              className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-fill-list-hover'}
             >
               <i className={'h-5 w-5'}>
                 <SingleSelectTypeSvg></SingleSelectTypeSvg>

@@ -46,11 +46,11 @@ class DatabaseViewCache {
     required this.viewId,
     required FieldController fieldController,
   }) : _databaseViewListener = DatabaseViewListener(viewId: viewId) {
-    final delegate = RowDelegatesImpl(fieldController);
+    final depsImpl = RowCacheDependenciesImpl(fieldController);
     _rowCache = RowCache(
       viewId: viewId,
-      fieldsDelegate: delegate,
-      cacheDelegate: delegate,
+      fieldsDelegate: depsImpl,
+      rowLifeCycle: depsImpl,
     );
 
     _databaseViewListener.start(

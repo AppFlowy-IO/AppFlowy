@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::convert::TryFrom;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::RocksCollabDB;
@@ -17,7 +17,7 @@ use flowy_document2::parser::json::parser::JsonToDocumentParser;
 use flowy_error::FlowyError;
 use flowy_folder2::deps::{FolderCloudService, FolderUser};
 use flowy_folder2::entities::ViewLayoutPB;
-use flowy_folder2::manager::Folder2Manager;
+use flowy_folder2::manager::FolderManager;
 use flowy_folder2::share::ImportType;
 use flowy_folder2::view_operation::{
   FolderOperationHandler, FolderOperationHandlers, View, WorkspaceViewBuilder,
@@ -30,17 +30,17 @@ use lib_infra::future::FutureResult;
 pub struct Folder2DepsResolver();
 impl Folder2DepsResolver {
   pub async fn resolve(
-    user_session: Arc<UserSession>,
+    user_session: Weak<UserSession>,
     document_manager: &Arc<DocumentManager>,
     database_manager: &Arc<DatabaseManager2>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     folder_cloud: Arc<dyn FolderCloudService>,
-  ) -> Arc<Folder2Manager> {
+  ) -> Arc<FolderManager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl(user_session.clone()));
 
     let handlers = folder_operation_handlers(document_manager.clone(), database_manager.clone());
     Arc::new(
-      Folder2Manager::new(user.clone(), collab_builder, handlers, folder_cloud)
+      FolderManager::new(user.clone(), collab_builder, handlers, folder_cloud)
         .await
         .unwrap(),
     )
@@ -63,24 +63,30 @@ fn folder_operation_handlers(
   Arc::new(map)
 }
 
-struct FolderUserImpl(Arc<UserSession>);
+struct FolderUserImpl(Weak<UserSession>);
 impl FolderUser for FolderUserImpl {
   fn user_id(&self) -> Result<i64, FlowyError> {
     self
       .0
+      .upgrade()
+      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
       .user_id()
-      .map_err(|e| FlowyError::internal().context(e))
   }
 
   fn token(&self) -> Result<Option<String>, FlowyError> {
     self
       .0
+      .upgrade()
+      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
       .token()
-      .map_err(|e| FlowyError::internal().context(e))
   }
 
-  fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
-    self.0.get_collab_db()
+  fn collab_db(&self, uid: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
+    self
+      .0
+      .upgrade()
+      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
+      .get_collab_db(uid)
   }
 }
 
@@ -133,7 +139,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     FutureResult::new(async move {
       match manager.delete_document(&view_id) {
         Ok(_) => tracing::trace!("Delete document: {}", view_id),
-        Err(e) => tracing::error!("Failed to delete document: {}", e),
+        Err(e) => tracing::error!("🔴delete document failed: {}", e),
       }
       Ok(())
     })
@@ -143,8 +149,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      let document = manager.get_document_from_disk(&view_id)?;
-      let data: DocumentDataPB = document.lock().get_document()?.into();
+      let data: DocumentDataPB = manager.get_document_data(&view_id).await?.into();
       let data_bytes = data.into_bytes().map_err(|_| FlowyError::invalid_data())?;
       Ok(data_bytes)
     })
@@ -230,7 +235,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     FutureResult::new(async move {
       match database_manager.delete_database_view(&view_id).await {
         Ok(_) => tracing::trace!("Delete database view: {}", view_id),
-        Err(e) => tracing::error!("Failed to delete database: {}", e),
+        Err(e) => tracing::error!("🔴delete database failed: {}", e),
       }
       Ok(())
     })

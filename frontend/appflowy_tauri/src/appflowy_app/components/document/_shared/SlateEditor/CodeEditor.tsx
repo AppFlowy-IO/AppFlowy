@@ -6,7 +6,7 @@ import { decorateCode } from '$app/components/document/_shared/SlateEditor/decor
 import { CodeBlockElement } from '$app/components/document/_shared/SlateEditor/CodeElements';
 import TextLeaf from '$app/components/document/_shared/SlateEditor/TextLeaf';
 
-function CodeEditor({ language, ...props }: CodeEditorProps) {
+function CodeEditor({ language, isDark, ...props }: CodeEditorProps) {
   const { editor, onChange, value, ref, ...editableProps } = useEditor({
     ...props,
     isCodeBlock: true,
@@ -18,8 +18,9 @@ function CodeEditor({ language, ...props }: CodeEditorProps) {
         <Editable
           {...editableProps}
           decorate={(entry) => {
-            const codeRange = decorateCode(entry, language);
+            const codeRange = decorateCode(entry, language, isDark);
             const range = editableProps.decorate?.(entry) || [];
+
             return [...range, ...codeRange];
           }}
           renderLeaf={(leafProps) => <TextLeaf editor={editor} {...leafProps} isCodeBlock={true} />}

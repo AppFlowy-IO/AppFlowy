@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
+import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_day.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/toolbar/calendar_layout_setting.dart';
@@ -40,6 +41,7 @@ import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text_input.dart';
@@ -71,7 +73,7 @@ import 'mock/mock_file_picker.dart';
 
 extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> openV020database() async {
-    await initializeAppFlowy();
+    final context = await initializeAppFlowy();
     await tapGoButton();
 
     // expect to see a readme page
@@ -81,18 +83,25 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapImportButton();
 
     final testFileNames = ['v020.afdb'];
-    final fileLocation = await currentFileLocation();
+    final paths = <String>[];
     for (final fileName in testFileNames) {
-      final str = await rootBundle.loadString(
-        p.join(
-          'assets/test/workspaces/database',
-          fileName,
-        ),
+      // Don't use the p.join to build the path that used in loadString. It
+      // is not working on windows.
+      final str = await rootBundle
+          .loadString("assets/test/workspaces/database/$fileName");
+
+      // Write the content to the file.
+      final path = p.join(
+        context.applicationDataDirectory,
+        fileName,
       );
-      File(p.join(fileLocation, fileName)).writeAsStringSync(str);
+      paths.add(path);
+      File(path).writeAsStringSync(str);
     }
     // mock get files
-    await mockPickFilePaths(testFileNames, name: 'import_files');
+    await mockPickFilePaths(
+      paths: paths,
+    );
     await tapDatabaseRawDataButton();
     await openPage('v020');
   }
@@ -294,7 +303,17 @@ extension AppFlowyDatabaseTest on WidgetTester {
       matching: findDay,
     );
 
-    await tapButton(finder);
+    // if the day is very near the beginning or the end of the month,
+    // it may overlap with the same day in the next or previous month,
+    // respectively because it was spilling over. This will lead to 2
+    // widgets being found and thus cannot be tapped correctly.
+    if (content < 15) {
+      // e.g., Jan 2 instead of Feb 2
+      await tapButton(finder.first);
+    } else {
+      // e.g. Jun 28 instead of May 28
+      await tapButton(finder.last);
+    }
   }
 
   Future<void> toggleIncludeTime() async {
@@ -434,8 +453,15 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> dismissRowDetailPage() async {
-    await sendKeyEvent(LogicalKeyboardKey.escape);
+    // use tap empty area instead of clicking ESC to dismiss the row detail page
+    // sometimes, the ESC key is not working.
+    await simulateKeyEvent(LogicalKeyboardKey.escape);
     await pumpAndSettle();
+    final findRowDetailPage = find.byType(RowDetailPage);
+    if (findRowDetailPage.evaluate().isNotEmpty) {
+      await tapAt(const Offset(0, 0));
+      await pumpAndSettle();
+    }
   }
 
   Future<void> editTitleInRowDetailPage(String title) async {
@@ -967,9 +993,20 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> scrollToToday() async {
     final todayCell = find.byWidgetPredicate(
       (widget) => widget is CalendarDayCard && widget.isToday,
-      skipOffstage: false,
     );
-    await ensureVisible(todayCell);
+    final scrollable = find
+        .descendant(
+          of: find.byType(MonthView<CalendarDayEvent>),
+          matching: find.byWidgetPredicate(
+            (widget) => widget is Scrollable && widget.axis == Axis.vertical,
+          ),
+        )
+        .first;
+    await scrollUntilVisible(
+      todayCell,
+      300,
+      scrollable: scrollable,
+    );
     await pumpAndSettle(const Duration(milliseconds: 300));
   }
 
@@ -1001,7 +1038,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     expect(findEvents, findsNWidgets(number));
   }
 
-  void assertNumberofEventsOnSpecificDay(
+  void assertNumberOfEventsOnSpecificDay(
     int number,
     DateTime date, {
     String? title,
@@ -1028,8 +1065,8 @@ extension AppFlowyDatabaseTest on WidgetTester {
     final todayCell = find.byWidgetPredicate(
       (widget) => widget is CalendarDayCard && isSameDay(date, widget.date),
     );
-
-    await doubleTapButton(todayCell);
+    final location = getTopLeft(todayCell).translate(10, 10);
+    await doubleTapAt(location);
   }
 
   Future<void> openCalendarEvent({required index, DateTime? date}) async {
@@ -1159,6 +1196,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   Future<void> tapDatabaseRawDataButton() async {
     await tapButtonWithName(LocaleKeys.importPanel_database.tr());
+  }
+
+  Future<void> tapAddSelectOptionButton() async {
+    await tapButtonWithName(LocaleKeys.grid_field_addSelectOption.tr());
   }
 }
 

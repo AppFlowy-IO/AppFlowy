@@ -25,15 +25,15 @@ export enum BlockType {
   ToggleListBlock = 'toggle_list',
   CodeBlock = 'code',
   EquationBlock = 'math_equation',
-  EmbedBlock = 'embed',
   QuoteBlock = 'quote',
   CalloutBlock = 'callout',
   DividerBlock = 'divider',
-  MediaBlock = 'media',
-  TableBlock = 'table',
-  ColumnBlock = 'column',
+  ImageBlock = 'image',
 }
 
+export interface EauqtionBlockData {
+  formula: string;
+}
 export interface HeadingBlockData extends TextBlockData {
   level: number;
 }
@@ -68,6 +68,20 @@ export interface TextBlockData {
 
 export interface DividerBlockData {}
 
+export enum Align {
+  Left = 'left',
+  Center = 'center',
+  Right = 'right',
+}
+
+export interface ImageBlockData {
+  width: number;
+  height: number;
+  caption: Op[];
+  url: string;
+  align: Align;
+}
+
 export type PageBlockData = TextBlockData;
 
 export type BlockData<Type> = Type extends BlockType.HeadingBlock
@@ -88,6 +102,10 @@ export type BlockData<Type> = Type extends BlockType.HeadingBlock
   ? DividerBlockData
   : Type extends BlockType.CalloutBlock
   ? CalloutBlockData
+  : Type extends BlockType.EquationBlock
+  ? EauqtionBlockData
+  : Type extends BlockType.ImageBlock
+  ? ImageBlockData
   : Type extends BlockType.TextBlock
   ? TextBlockData
   : any;
@@ -137,6 +155,7 @@ export enum SlashCommandOptionKey {
   HEADING_1,
   HEADING_2,
   HEADING_3,
+  IMAGE,
 }
 
 export interface SlashCommandOption {
@@ -148,6 +167,7 @@ export interface SlashCommandOption {
 export enum SlashCommandGroup {
   BASIC = 'Basic',
   MEDIA = 'Media',
+  ADVANCED = 'Advanced',
 }
 
 export interface RectSelectionState {
@@ -269,6 +289,7 @@ export interface RangeStaticNoId {
 
 export interface CodeEditorProps extends EditorProps {
   language: string;
+  isDark: boolean;
 }
 export interface EditorProps {
   isCodeBlock?: boolean;

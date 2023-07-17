@@ -141,13 +141,13 @@ class EditorMigration {
     }
     const backgroundColor = 'backgroundColor';
     if (attributes.containsKey(backgroundColor)) {
-      attributes[FlowyRichTextKeys.highlightColor] =
+      attributes[AppFlowyRichTextKeys.highlightColor] =
           attributes[backgroundColor];
       attributes.remove(backgroundColor);
     }
     const color = 'color';
     if (attributes.containsKey(color)) {
-      attributes[FlowyRichTextKeys.textColor] = attributes[color];
+      attributes[AppFlowyRichTextKeys.textColor] = attributes[color];
       attributes.remove(color);
     }
     return attributes;

@@ -28,7 +28,7 @@ export const formatLinkThunk = createAsyncThunk<
   const length = selection.length || 0;
   const regex = new RegExp(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/);
 
-  if (href !== undefined && !regex.test(href)) {
+  if (href && !regex.test(href)) {
     return false;
   }
 

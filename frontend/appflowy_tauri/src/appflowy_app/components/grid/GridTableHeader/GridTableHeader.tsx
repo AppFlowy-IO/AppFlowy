@@ -33,15 +33,15 @@ export const GridTableHeader = ({
           />
         );
       })}
-      <div className='m-0 w-40 border border-r-0 border-shade-6 p-0'>
+      <div className='m-0 w-40 border border-r-0 border-line-divider p-0'>
         <div
-          className='flex cursor-pointer items-center px-4 py-2 text-shade-3 hover:bg-main-secondary hover:text-black'
+          className='flex cursor-pointer items-center px-4 py-2 text-text-caption hover:bg-fill-list-hover hover:text-text-title'
           onClick={onAddField}
         >
           <i className='mr-2 h-5 w-5'>
             <AddSvg />
           </i>
-          <span className={'whitespace-nowrap'}>{t('grid.field.newColumn')}</span>
+          <span className={'whitespace-nowrap'}>{t('grid.field.newProperty')}</span>
         </div>
       </div>
     </div>

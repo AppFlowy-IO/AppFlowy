@@ -61,9 +61,11 @@ export const GridTableHeaderItem = ({
     if (!editingField) return;
 
     const currentField = controller.fieldController.getField(editingField.fieldId);
+
     if (!currentField) return;
 
     const typeOptionController = new TypeOptionController(controller.viewId, Some(currentField));
+
     await typeOptionController.switchToField(newType);
 
     setEditingField({

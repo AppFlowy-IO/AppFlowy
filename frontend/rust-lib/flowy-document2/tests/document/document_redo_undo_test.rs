@@ -1,27 +1,23 @@
 use std::collections::HashMap;
-use std::sync::Arc;
 
 use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
 
-use flowy_document2::document_block_keys::PARAGRAPH_BLOCK_TYPE;
-use flowy_document2::document_data::default_document_data;
-use flowy_document2::manager::DocumentManager;
+use flowy_document2::document_data::{default_document_data, PARAGRAPH_BLOCK_TYPE};
 
-use crate::document::util::{default_collab_builder, gen_document_id, gen_id, FakeUser};
+use crate::document::util::{gen_document_id, gen_id, DocumentTest};
 
 #[tokio::test]
 async fn undo_redo_test() {
-  let user = FakeUser::new();
-  let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
+  let test = DocumentTest::new();
 
   let doc_id: String = gen_document_id();
   let data = default_document_data();
 
   // create a document
-  _ = manager.create_document(&doc_id, Some(data.clone()));
+  _ = test.create_document(&doc_id, Some(data.clone()));
 
   // open a document
-  let document = manager.get_or_open_document(&doc_id).unwrap();
+  let document = test.get_document(&doc_id).await.unwrap();
   let document = document.lock();
   let page_block = document.get_block(&data.page_id).unwrap();
   let page_id = page_block.id;

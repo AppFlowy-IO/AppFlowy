@@ -1,11 +1,10 @@
 use collab_database::fields::Field;
-use collab_database::rows::{Cell, Row};
+use collab_database::rows::{Cell, Row, RowDetail};
 
 use flowy_error::FlowyResult;
 
 use crate::entities::{GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB};
 use crate::services::cell::DecodedCellData;
-use crate::services::database::RowDetail;
 use crate::services::group::controller::MoveGroupRowContext;
 use crate::services::group::{GroupData, GroupSettingChangeset};
 

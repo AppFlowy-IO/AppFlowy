@@ -1,25 +1,31 @@
 import React from 'react';
 import TextField from '@mui/material/TextField';
 import { CheckOutlined, FunctionsOutlined } from '@mui/icons-material';
-import { Divider, IconButton, InputAdornment } from '@mui/material';
+import { IconButton, InputAdornment } from '@mui/material';
 
 function EquationEditContent({
   value,
   onChange,
   onConfirm,
+  placeholder = 'E = mc^2',
+  multiline = false,
 }: {
   value: string;
+  placeholder?: string;
   onChange: (newVal: string) => void;
   onConfirm: () => void;
+  multiline?: boolean;
 }) {
   return (
-    <div className={'flex p-2'}>
+    <div className={'flex items-center p-2'}>
       <TextField
-        placeholder={'E = mc^2'}
+        placeholder={placeholder}
         autoFocus={true}
+        multiline={multiline}
         label='Equation'
         onKeyDown={(e) => {
-          if (e.key === 'Enter') {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
             onConfirm();
           }
         }}
@@ -39,8 +45,14 @@ function EquationEditContent({
           onChange(newVal);
         }}
       />
-      <Divider sx={{ height: 'initial', marginLeft: '10px' }} orientation='vertical' />
-      <IconButton onClick={onConfirm} color='primary' sx={{ p: '10px' }} aria-label='directions'>
+
+      <IconButton
+        className={'h-[23px] w-[23px]'}
+        onClick={onConfirm}
+        color='primary'
+        sx={{ p: '10px', m: '10px' }}
+        aria-label='directions'
+      >
         <CheckOutlined />
       </IconButton>
     </div>

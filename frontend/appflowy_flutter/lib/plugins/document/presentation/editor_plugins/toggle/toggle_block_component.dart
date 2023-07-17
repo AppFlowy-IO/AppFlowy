@@ -84,9 +84,9 @@ class _ToggleListBlockComponentWidgetState
     extends State<ToggleListBlockComponentWidget>
     with
         SelectableMixin,
-        DefaultSelectable,
+        DefaultSelectableMixin,
         BlockComponentConfigurable,
-        BackgroundColorMixin {
+        BlockComponentBackgroundColorMixin {
   // the key used to forward focus to the richtext child
   @override
   final forwardKey = GlobalKey(debugLabel: 'flowy_rich_text');
@@ -96,6 +96,11 @@ class _ToggleListBlockComponentWidgetState
 
   @override
   GlobalKey<State<StatefulWidget>> get containerKey => node.key;
+
+  @override
+  GlobalKey<State<StatefulWidget>> blockComponentKey = GlobalKey(
+    debugLabel: ToggleListBlockKeys.type,
+  );
 
   @override
   Node get node => widget.node;
@@ -141,7 +146,7 @@ class _ToggleListBlockComponentWidgetState
           width: 4.0,
         ),
         Expanded(
-          child: FlowyRichText(
+          child: AppFlowyRichText(
             key: forwardKey,
             node: widget.node,
             editorState: editorState,
@@ -157,6 +162,12 @@ class _ToggleListBlockComponentWidgetState
           ),
         ),
       ],
+    );
+
+    child = Padding(
+      key: blockComponentKey,
+      padding: padding,
+      child: child,
     );
 
     if (widget.actionBuilder != null) {

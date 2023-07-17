@@ -1,11 +1,9 @@
 use anyhow::bail;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::database::gen_database_group_id;
-use collab_database::rows::RowId;
+use collab_database::rows::{RowDetail, RowId};
 use collab_database::views::{GroupMap, GroupMapBuilder, GroupSettingBuilder, GroupSettingMap};
 use serde::{Deserialize, Serialize};
-
-use crate::services::database::RowDetail;
 
 #[derive(Debug, Clone, Default)]
 pub struct GroupSetting {

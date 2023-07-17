@@ -17,11 +17,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'util.dart';
 
 extension CommonOperations on WidgetTester {
-  /// Get current file location of AppFlowy.
-  Future<String> currentFileLocation() async {
-    return TestFolder.currentLocation();
-  }
-
   /// Tap the GetStart button on the launch page.
   Future<void> tapGoButton() async {
     final goButton = find.byType(GoButton);
@@ -229,21 +224,26 @@ extension CommonOperations on WidgetTester {
     await tapButton(markdownButton);
   }
 
-  Future<void> createNewPageWithName(ViewLayoutPB layout, String name) async {
+  Future<void> createNewPageWithName(
+    ViewLayoutPB layout, [
+    String? name,
+  ]) async {
     // create a new page
     await tapAddButton();
     await tapButtonWithName(layout.menuName);
     await pumpAndSettle();
 
     // hover on it and change it's name
-    await hoverOnPageName(
-      LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-      onHover: () async {
-        await renamePage(name);
-        await pumpAndSettle();
-      },
-    );
-    await pumpAndSettle();
+    if (name != null) {
+      await hoverOnPageName(
+        LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+        onHover: () async {
+          await renamePage(name);
+          await pumpAndSettle();
+        },
+      );
+      await pumpAndSettle();
+    }
   }
 
   Future<void> simulateKeyEvent(
@@ -279,6 +279,14 @@ extension CommonOperations on WidgetTester {
     if (isMetaPressed) {
       await simulateKeyUpEvent(LogicalKeyboardKey.meta);
     }
+    await pumpAndSettle();
+  }
+
+  Future<void> openAppInNewTab(String name) async {
+    await hoverOnPageName(name);
+    await tap(find.byType(ViewDisclosureButton));
+    await pumpAndSettle();
+    await tap(find.text(LocaleKeys.disclosureAction_openNewTab.tr()));
     await pumpAndSettle();
   }
 }

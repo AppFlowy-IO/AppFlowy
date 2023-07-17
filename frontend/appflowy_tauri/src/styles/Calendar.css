@@ -59,7 +59,7 @@
 }
 
 .react-calendar__month-view__weekdays {
-  @apply mb-2 text-center text-xs uppercase text-shade-3;
+  @apply mb-2 text-center text-xs uppercase text-text-caption;
 }
 
 .react-calendar__month-view__weekdays abbr {
@@ -79,11 +79,11 @@
 }
 
 .react-calendar__month-view__days__day--weekend {
-  @apply text-main-alert;
+  @apply text-text-link-default;
 }
 
 .react-calendar__month-view__days__day--neighboringMonth {
-  @apply text-shade-4;
+  @apply text-text-caption;
 }
 
 .react-calendar__year-view .react-calendar__tile,
@@ -110,12 +110,12 @@
 }
 
 .react-calendar__tile--now {
-  @apply bg-shade-6;
+  @apply bg-bg-base;
 }
 
 .react-calendar__tile--now:enabled:hover,
 .react-calendar__tile--now:enabled:focus {
-  @apply bg-shade-6;
+  @apply bg-bg-base;
 }
 
 .react-calendar__tile--hasActive {
@@ -128,14 +128,14 @@
 }
 
 .react-calendar__tile--active {
-  @apply bg-main-accent text-white;
+  @apply bg-fill-default text-text-title;
 }
 
 .react-calendar__tile--active:enabled:hover,
 .react-calendar__tile--active:enabled:focus {
-  @apply bg-main-hovered;
+  @apply bg-fill-list-hover;
 }
 
 .react-calendar--selectRange .react-calendar__tile--hover {
-  @apply bg-shade-4;
+  @apply bg-bg-base;
 }

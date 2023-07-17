@@ -1,9 +1,10 @@
 import { RowInfo } from '@/appflowy_app/stores/effects/database/row/row_cache';
 
-export const GridTableCount = ({ allRows }: { allRows: readonly RowInfo[] }) => {
+export const GridTableCount = ({ rows }: { rows: readonly RowInfo[] }) => {
+  const count = rows.length;
   return (
     <span>
-      Count : <span className='font-semibold'>{allRows.length || 0}</span>
+      Count : <span className='font-semibold'>{count}</span>
     </span>
   );
 };

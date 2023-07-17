@@ -1,6 +1,7 @@
-use crate::services::filter::{Filter, FromFilterString};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
+
+use crate::services::filter::{Filter, FromFilterString};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct TextFilterPB {
@@ -45,7 +46,7 @@ impl std::convert::TryFrom<u8> for TextFilterConditionPB {
       5 => Ok(TextFilterConditionPB::EndsWith),
       6 => Ok(TextFilterConditionPB::TextIsEmpty),
       7 => Ok(TextFilterConditionPB::TextIsNotEmpty),
-      _ => Err(ErrorCode::InvalidData),
+      _ => Err(ErrorCode::InvalidParams),
     }
   }
 }

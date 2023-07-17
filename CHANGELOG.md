@@ -1,5 +1,26 @@
 # Release Notes
 
+## Version 0.2.6 - 07/11/2023
+
+### New Features
+
+- Dynamic load themes
+- Inline math equation
+
+
+## Version 0.2.5 - 07/02/2023
+
+### New Features
+
+- Insert local images
+- Mention a page
+- Outlines (Table of contents)
+- Added support for aligning the image by image menu
+
+### Bug fixes
+
+- Some UI issues
+
 ## Version 0.2.4 - 06/23/2023
 
 ### Bug fixes:

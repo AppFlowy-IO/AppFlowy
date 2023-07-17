@@ -85,8 +85,8 @@ class FlowyTextFieldState extends State<FlowyTextField> {
   void _onSubmitted(String text) {
     widget.onSubmitted?.call(text);
     if (widget.autoClearWhenDone) {
-      controller.text = "";
-      setState(() {});
+      // using `controller.clear()` instead of `controller.text = ''` which will crash on Windows.
+      controller.clear();
     }
   }
 

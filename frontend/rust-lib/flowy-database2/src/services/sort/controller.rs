@@ -4,7 +4,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::rows::{Cell, Row, RowId};
+use collab_database::rows::{Cell, Row, RowDetail, RowId};
 use rayon::prelude::ParallelSliceMut;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
@@ -16,7 +16,6 @@ use lib_infra::future::Fut;
 use crate::entities::FieldType;
 use crate::entities::SortChangesetNotificationPB;
 use crate::services::cell::CellCache;
-use crate::services::database::RowDetail;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
 use crate::services::field::{default_order, TypeOptionCellExt};
 use crate::services::sort::{

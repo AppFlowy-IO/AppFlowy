@@ -40,24 +40,21 @@ class _RowBannerState extends State<RowBanner> {
       child: MouseRegion(
         onEnter: (event) => _isHovering.value = true,
         onExit: (event) => _isHovering.value = false,
-        child: SizedBox(
-          height: 80,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: 30,
-                child: _BannerAction(
-                  isHovering: _isHovering,
-                  popoverController: popoverController,
-                ),
-              ),
-              _BannerTitle(
-                cellBuilder: widget.cellBuilder,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 30,
+              child: _BannerAction(
+                isHovering: _isHovering,
                 popoverController: popoverController,
               ),
-            ],
-          ),
+            ),
+            _BannerTitle(
+              cellBuilder: widget.cellBuilder,
+              popoverController: popoverController,
+            ),
+          ],
         ),
       ),
     );

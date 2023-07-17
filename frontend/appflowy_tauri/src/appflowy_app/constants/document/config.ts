@@ -1,4 +1,4 @@
-import { BlockConfig, BlockType, SplitRelationship } from '$app/interfaces/document';
+import { Align, BlockConfig, BlockType, SplitRelationship } from '$app/interfaces/document';
 
 /**
  * If the block type is not in the config, it will be thrown an error in development env
@@ -97,5 +97,21 @@ export const blockConfig: Record<string, BlockConfig> = {
   },
   [BlockType.DividerBlock]: {
     canAddChild: false,
+  },
+  [BlockType.EquationBlock]: {
+    canAddChild: false,
+    defaultData: {
+      formula: '',
+    },
+  },
+  [BlockType.ImageBlock]: {
+    canAddChild: false,
+    defaultData: {
+      url: '',
+      align: Align.Center,
+      width: 0,
+      height: 0,
+      caption: [],
+    },
   },
 };

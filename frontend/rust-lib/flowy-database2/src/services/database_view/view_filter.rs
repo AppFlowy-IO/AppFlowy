@@ -1,12 +1,11 @@
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::rows::RowId;
+use collab_database::rows::{RowDetail, RowId};
 
 use lib_infra::future::{to_fut, Fut};
 
 use crate::services::cell::CellCache;
-use crate::services::database::RowDetail;
 use crate::services::database_view::{
   gen_handler_id, DatabaseViewChangedNotifier, DatabaseViewData,
 };

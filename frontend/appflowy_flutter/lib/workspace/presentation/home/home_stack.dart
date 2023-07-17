@@ -2,14 +2,17 @@ import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/navigation.dart';
+import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:time/time.dart';
 
@@ -32,25 +35,71 @@ class HomeStack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        getIt<HomeStackManager>().stackTopBar(layout: layout),
-        Expanded(
-          child: Container(
-            color: Theme.of(context).colorScheme.surface,
-            child: FocusTraversalGroup(
-              child: getIt<HomeStackManager>().stackWidget(
-                onDeleted: (view, index) {
-                  delegate.didDeleteStackWidget(view, index);
-                },
+    final pageController = PageController();
+
+    return BlocProvider<TabsBloc>.value(
+      value: getIt<TabsBloc>(),
+      child: BlocBuilder<TabsBloc, TabsState>(
+        builder: (context, state) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              TabsManager(pageController: pageController),
+              state.currentPageManager.stackTopBar(layout: layout),
+              Expanded(
+                child: PageView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  controller: pageController,
+                  children: state.pageManagers
+                      .map(
+                        (pm) => PageStack(pageManager: pm, delegate: delegate),
+                      )
+                      .toList(),
+                ),
               ),
-            ),
-          ),
-        ),
-      ],
+            ],
+          );
+        },
+      ),
     );
   }
+}
+
+class PageStack extends StatefulWidget {
+  const PageStack({
+    super.key,
+    required this.pageManager,
+    required this.delegate,
+  });
+
+  final PageManager pageManager;
+
+  final HomeStackDelegate delegate;
+
+  @override
+  State<PageStack> createState() => _PageStackState();
+}
+
+class _PageStackState extends State<PageStack>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
+      child: FocusTraversalGroup(
+        child: widget.pageManager.stackWidget(
+          onDeleted: (view, index) {
+            widget.delegate.didDeleteStackWidget(view, index);
+          },
+        ),
+      ),
+    );
+  }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class FadingIndexedStack extends StatefulWidget {
@@ -104,18 +153,20 @@ class FadingIndexedStackState extends State<FadingIndexedStack> {
 abstract mixin class NavigationItem {
   Widget get leftBarItem;
   Widget? get rightBarItem => null;
+  Widget tabBarItem(String pluginId);
 
-  NavigationCallback get action => (id) {
-        getIt<HomeStackManager>().setStackWithId(id);
-      };
+  NavigationCallback get action => (id) => throw UnimplementedError();
 }
 
-class HomeStackNotifier extends ChangeNotifier {
+class PageNotifier extends ChangeNotifier {
   Plugin _plugin;
 
   Widget get titleWidget => _plugin.widgetBuilder.leftBarItem;
 
-  HomeStackNotifier({Plugin? plugin})
+  Widget tabBarWidget(String pluginId) =>
+      _plugin.widgetBuilder.tabBarItem(pluginId);
+
+  PageNotifier({Plugin? plugin})
       : _plugin = plugin ?? makePlugin(pluginType: PluginType.blank);
 
   /// This is the only place where the plugin is set.
@@ -133,10 +184,13 @@ class HomeStackNotifier extends ChangeNotifier {
   Plugin get plugin => _plugin;
 }
 
-// HomeStack is initialized as singleton to control the page stack.
-class HomeStackManager {
-  final HomeStackNotifier _notifier = HomeStackNotifier();
-  HomeStackManager();
+// PageManager manages the view for one Tab
+class PageManager {
+  final PageNotifier _notifier = PageNotifier();
+
+  PageNotifier get notifier => _notifier;
+
+  PageManager();
 
   Widget title() {
     return _notifier.plugin.widgetBuilder.leftBarItem;
@@ -157,7 +211,7 @@ class HomeStackManager {
       providers: [
         ChangeNotifierProvider.value(value: _notifier),
       ],
-      child: Selector<HomeStackNotifier, Widget>(
+      child: Selector<PageNotifier, Widget>(
         selector: (context, notifier) => notifier.titleWidget,
         builder: (context, widget, child) {
           return MoveWindowDetector(child: HomeTopBar(layout: layout));
@@ -170,7 +224,7 @@ class HomeStackManager {
     return MultiProvider(
       providers: [ChangeNotifierProvider.value(value: _notifier)],
       child: Consumer(
-        builder: (_, HomeStackNotifier notifier, __) {
+        builder: (_, PageNotifier notifier, __) {
           return FadingIndexedStack(
             index: getIt<PluginSandbox>().indexOf(notifier.plugin.pluginType),
             children: getIt<PluginSandbox>().supportPluginTypes.map(
@@ -185,9 +239,9 @@ class HomeStackManager {
                     padding: builder.contentPadding,
                     child: pluginWidget,
                   );
-                } else {
-                  return const BlankPage();
                 }
+
+                return const BlankPage();
               },
             ).toList(),
           );
@@ -218,9 +272,9 @@ class HomeTopBar extends StatelessWidget {
             const FlowyNavigation(),
             const HSpace(16),
             ChangeNotifierProvider.value(
-              value: Provider.of<HomeStackNotifier>(context, listen: false),
+              value: Provider.of<PageNotifier>(context, listen: false),
               child: Consumer(
-                builder: (_, HomeStackNotifier notifier, __) =>
+                builder: (_, PageNotifier notifier, __) =>
                     notifier.plugin.widgetBuilder.rightBarItem ??
                     const SizedBox.shrink(),
               ),

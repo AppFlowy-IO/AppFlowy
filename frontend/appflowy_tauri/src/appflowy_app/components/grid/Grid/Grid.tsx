@@ -42,7 +42,7 @@ export const Grid = ({ viewId }: { viewId: string }) => {
               <GridToolbar />
             </div>
 
-            {/* table component view with text area for td */}
+            {/* table component page with text area for td */}
             <div className='flex flex-1 flex-col gap-4'>
               <div className='flex flex-1 flex-col overflow-x-auto'>
                 <GridTableHeader
@@ -58,7 +58,7 @@ export const Grid = ({ viewId }: { viewId: string }) => {
               <GridAddRow controller={controller} />
             </div>
 
-            <GridTableCount allRows={rows} />
+            <GridTableCount rows={rows} />
           </div>
           {showGridRow && boardRowInfo && (
             <EditRow

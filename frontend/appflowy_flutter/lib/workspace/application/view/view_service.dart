@@ -154,8 +154,19 @@ class ViewBackendService {
     return FolderEventMoveView(payload).send();
   }
 
+  Future<List<(ViewPB, List<ViewPB>)>> fetchViewsWithLayoutType(
+    ViewLayoutPB? layoutType,
+  ) async {
+    return fetchViews((workspace, view) {
+      if (layoutType != null) {
+        return view.layout == layoutType;
+      }
+      return true;
+    });
+  }
+
   Future<List<(ViewPB, List<ViewPB>)>> fetchViews(
-    ViewLayoutPB layoutType,
+    bool Function(WorkspaceSettingPB workspace, ViewPB view) filter,
   ) async {
     final result = <(ViewPB, List<ViewPB>)>[];
     return FolderEventGetCurrentWorkspace().send().then((value) async {
@@ -166,7 +177,7 @@ class ViewBackendService {
           final childViews = await getChildViews(viewId: view.id).then(
             (value) => value
                 .getLeftOrNull<List<ViewPB>>()
-                ?.where((e) => e.layout == layoutType)
+                ?.where((e) => filter(workspaces, e))
                 .toList(),
           );
           if (childViews != null && childViews.isNotEmpty) {

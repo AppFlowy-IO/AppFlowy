@@ -5,11 +5,13 @@ import LanguageIcon from '@mui/icons-material/Language';
 import CopyIcon from '@mui/icons-material/CopyAll';
 import { copyText } from '$app/utils/document/copy_paste';
 import { useMessage } from '$app/components/document/_shared/Message';
+import { useTranslation } from 'react-i18next';
 
 const iconSize = {
   width: '1rem',
   height: '1rem',
 };
+
 function EditLinkToolbar({
   blockId,
   linkElement,
@@ -27,18 +29,23 @@ function EditLinkToolbar({
   editing: boolean;
   onEdit: () => void;
 }) {
+  const { t } = useTranslation();
   const { show, contentHolder } = useMessage();
   const ref = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const toolbarDom = ref.current;
+
     if (!toolbarDom) return;
 
     const linkRect = linkElement.getBoundingClientRect();
     const node = getNode(blockId);
+
     if (!node) return;
     const nodeRect = node.getBoundingClientRect();
     const top = linkRect.top - nodeRect.top + linkRect.height + 4;
     const left = linkRect.left - nodeRect.left;
+
     toolbarDom.style.top = `${top}px`;
     toolbarDom.style.left = `${left}px`;
     toolbarDom.style.opacity = '1';
@@ -54,7 +61,7 @@ function EditLinkToolbar({
             style={{
               opacity: 0,
             }}
-            className='absolute z-10 inline-flex h-[32px] min-w-[200px] max-w-[400px] items-stretch overflow-hidden rounded-[8px] bg-white leading-tight text-black shadow-md transition-opacity duration-100'
+            className='absolute z-10 inline-flex h-[32px] min-w-[200px] max-w-[400px] items-stretch overflow-hidden rounded-[8px] bg-bg-body leading-tight text-text-title shadow-md transition-opacity duration-100'
           >
             <div className={'flex w-[100%] items-center justify-between px-2 text-[75%]'}>
               <div className={'mr-2'}>
@@ -65,9 +72,9 @@ function EditLinkToolbar({
                 onClick={async () => {
                   try {
                     await copyText(href);
-                    show({ message: 'Copied!', duration: 6000 });
+                    show({ message: t('message.copy.success'), duration: 6000 });
                   } catch {
-                    show({ message: 'Copy failed!', duration: 6000 });
+                    show({ message: t('message.copy.fail'), duration: 6000 });
                   }
                 }}
                 className={'mr-2 cursor-pointer'}
@@ -75,7 +82,7 @@ function EditLinkToolbar({
                 <CopyIcon sx={iconSize} />
               </div>
               <div onClick={onEdit} className={'cursor-pointer'}>
-                Edit
+                {t('button.edit')}
               </div>
             </div>
           </div>

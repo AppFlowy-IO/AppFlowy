@@ -4,6 +4,7 @@ import { rectSelectionActions } from '$app_reducers/document/slice';
 import { getDuplicateActions } from '$app/utils/document/action';
 import { RootState } from '$app/stores/store';
 import { DOCUMENT_NAME } from '$app/constants/document/name';
+import { setRectSelectionThunk } from '$app_reducers/document/async-actions/rect_selection';
 
 export const duplicateBelowNodeThunk = createAsyncThunk(
   'document/duplicateBelowNode',
@@ -22,7 +23,7 @@ export const duplicateBelowNodeThunk = createAsyncThunk(
     await controller.applyActions(duplicateActions.actions);
 
     dispatch(
-      rectSelectionActions.updateSelections({
+      setRectSelectionThunk({
         docId,
         selection: [duplicateActions.newNodeId],
       })

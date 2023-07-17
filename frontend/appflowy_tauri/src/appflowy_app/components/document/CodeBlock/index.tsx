@@ -5,7 +5,8 @@ import { useChange } from '$app/components/document/_shared/EditorHooks/useChang
 import { useKeyDown } from './useKeyDown';
 import CodeEditor from '$app/components/document/_shared/SlateEditor/CodeEditor';
 import { useSelection } from '$app/components/document/_shared/EditorHooks/useSelection';
-import { useSubscribeDecorate } from '$app/components/document/_shared/SubscribeSelection.hooks';
+import { useAppSelector } from '$app/stores/store';
+import { ThemeMode } from '$app/interfaces';
 
 export default function CodeBlock({
   node,
@@ -18,13 +19,18 @@ export default function CodeBlock({
   const className = props.className ? ` ${props.className}` : '';
   const { value, onChange } = useChange(node);
   const selectionProps = useSelection(id);
+  const isDark = useAppSelector((state) => state.currentUser.userSetting.themeMode === ThemeMode.Dark);
 
   return (
-    <div {...props} className={`rounded bg-shade-6 p-6 ${className}`}>
+    <div
+      {...props}
+      className={`my-1 rounded border border-solid border-line-divider bg-content-blue-50 p-6 ${className}`}
+    >
       <div className={'mb-2 w-[100%]'}>
         <SelectLanguage id={id} language={language} />
       </div>
       <CodeEditor
+        isDark={isDark}
         value={value}
         onChange={onChange}
         placeholder={placeholder}

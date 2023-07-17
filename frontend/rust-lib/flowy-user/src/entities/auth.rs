@@ -7,6 +7,7 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 use crate::entities::parser::*;
 use crate::errors::ErrorCode;
+use crate::event_map::UserCredentials;
 use crate::services::AuthType;
 
 #[derive(ProtoBuf, Default)]
@@ -22,6 +23,10 @@ pub struct SignInPayloadPB {
 
   #[pb(index = 4)]
   pub auth_type: AuthTypePB,
+
+  // Only used in local sign in.
+  #[pb(index = 5, one_of)]
+  pub uid: Option<i64>,
 }
 
 impl TryInto<SignInParams> for SignInPayloadPB {
@@ -36,6 +41,7 @@ impl TryInto<SignInParams> for SignInPayloadPB {
       password: password.0,
       name: self.name,
       auth_type: self.auth_type.into(),
+      uid: self.uid,
     })
   }
 }
@@ -77,6 +83,8 @@ pub struct SignInParams {
   pub password: String,
   pub name: String,
   pub auth_type: AuthType,
+  // Currently, the uid only used in local sign in.
+  pub uid: Option<i64>,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
@@ -101,6 +109,7 @@ pub struct SignUpResponse {
   pub user_id: i64,
   pub name: String,
   pub workspace_id: String,
+  pub is_new: bool,
   pub email: Option<String>,
   pub token: Option<String>,
 }
@@ -119,7 +128,7 @@ pub struct ThirdPartyAuthPB {
   pub auth_type: AuthTypePB,
 }
 
-#[derive(ProtoBuf_Enum, Debug, Clone)]
+#[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
 pub enum AuthTypePB {
   Local = 0,
   SelfHosted = 1,
@@ -141,6 +150,7 @@ pub struct UserProfile {
   pub icon_url: String,
   pub openai_key: String,
   pub workspace_id: String,
+  pub auth_type: AuthType,
 }
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
@@ -189,8 +199,52 @@ impl UpdateUserProfileParams {
   }
 }
 
-#[derive(ProtoBuf, Default)]
-pub struct SignOutPB {
+#[derive(Debug, ProtoBuf, Default)]
+pub struct UserCredentialsPB {
+  #[pb(index = 1, one_of)]
+  pub uid: Option<i64>,
+
+  #[pb(index = 2, one_of)]
+  pub uuid: Option<String>,
+
+  #[pb(index = 3, one_of)]
+  pub token: Option<String>,
+}
+
+impl UserCredentialsPB {
+  pub fn from_uid(uid: i64) -> Self {
+    Self {
+      uid: Some(uid),
+      uuid: None,
+      token: None,
+    }
+  }
+
+  pub fn from_token(token: &str) -> Self {
+    Self {
+      uid: None,
+      uuid: None,
+      token: Some(token.to_owned()),
+    }
+  }
+
+  pub fn from_uuid(uuid: &str) -> Self {
+    Self {
+      uid: None,
+      uuid: Some(uuid.to_owned()),
+      token: None,
+    }
+  }
+}
+
+impl From<UserCredentialsPB> for UserCredentials {
+  fn from(value: UserCredentialsPB) -> Self {
+    Self::new(value.token, value.uid, value.uuid)
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct UserStatePB {
   #[pb(index = 1)]
   pub auth_type: AuthTypePB,
 }
