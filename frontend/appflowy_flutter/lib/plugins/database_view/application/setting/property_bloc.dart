@@ -27,20 +27,32 @@ class DatabasePropertyBloc
             _startListening();
           },
           setFieldVisibility: (_SetFieldVisibility value) async {
-            final fieldBackendSvc =
-                FieldBackendService(viewId: viewId, fieldId: value.fieldId);
-            final result =
-                await fieldBackendSvc.updateField(visibility: value.visibility);
-            result.fold(
-              (l) => null,
-              (err) => Log.error(err),
+            final fieldBackendSvc = FieldBackendService(
+              viewId: viewId,
+              fieldId: value.fieldId,
             );
+
+            final result = await fieldBackendSvc.updateField(
+              visibility: value.visibility,
+            );
+
+            result.fold((l) => null, (err) => Log.error(err));
           },
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
             emit(state.copyWith(fieldContexts: value.fields));
           },
-          moveField: (_MoveField value) {
-            //
+          moveField: (_MoveField value) async {
+            final fieldBackendService = FieldBackendService(
+              viewId: viewId,
+              fieldId: value.fieldId,
+            );
+
+            final result = await fieldBackendService.moveField(
+              value.fromIndex,
+              value.toIndex,
+            );
+
+            result.fold((l) => null, (r) => Log.error(r));
           },
         );
       },
@@ -76,8 +88,11 @@ class DatabasePropertyEvent with _$DatabasePropertyEvent {
   const factory DatabasePropertyEvent.didReceiveFieldUpdate(
     List<FieldInfo> fields,
   ) = _DidReceiveFieldUpdate;
-  const factory DatabasePropertyEvent.moveField(int fromIndex, int toIndex) =
-      _MoveField;
+  const factory DatabasePropertyEvent.moveField({
+    required String fieldId,
+    required int fromIndex,
+    required int toIndex,
+  }) = _MoveField;
 }
 
 @freezed
