@@ -38,7 +38,7 @@ export const Grid = ({ viewId }: { viewId: string }) => {
         <>
           <div className='flex flex-1 flex-col gap-4'>
             <div className='flex w-full  items-center justify-between'>
-              <GridTitle onShowFilterClick={onShowFilterClick} onShowSortClick={onShowSortClick} />
+              <GridTitle onShowFilterClick={onShowFilterClick} onShowSortClick={onShowSortClick} viewId={viewId} />
               <GridToolbar />
             </div>
 
