@@ -357,6 +357,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       outlineItem,
       mathEquationItem,
       codeBlockItem,
+      toggleListBlockItem,
       emojiMenuItem,
       autoGeneratorMenuItem,
     ];

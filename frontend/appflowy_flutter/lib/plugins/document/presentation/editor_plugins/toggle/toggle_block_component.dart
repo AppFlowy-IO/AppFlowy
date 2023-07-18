@@ -1,4 +1,6 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -41,6 +43,15 @@ Node toggleListBlockNode({
     children: children ?? [paragraphNode()],
   );
 }
+
+// defining the toggle list block menu item
+SelectionMenuItem toggleListBlockItem = SelectionMenuItem.node(
+  name: LocaleKeys.document_plugins_toggleList.tr(),
+  iconData: Icons.arrow_right,
+  keywords: ['collapsed list', 'toggle list', 'list'],
+  nodeBuilder: (editorState) => toggleListBlockNode(),
+  replace: (_, node) => node.delta?.isEmpty ?? false,
+);
 
 class ToggleListBlockComponentBuilder extends BlockComponentBuilder {
   ToggleListBlockComponentBuilder({
