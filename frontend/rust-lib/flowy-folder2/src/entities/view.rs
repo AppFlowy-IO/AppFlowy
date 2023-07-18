@@ -308,10 +308,10 @@ pub struct UpdateViewPayloadPB {
   pub layout: Option<ViewLayoutPB>,
 
   #[pb(index = 6, one_of)]
-  pub cover_url: Option<String>,
+  pub icon_url: Option<String>,
 
   #[pb(index = 7, one_of)]
-  pub icon_url: Option<String>,
+  pub cover_url: Option<String>,
 
   #[pb(index = 8, one_of)]
   pub is_favorite: Option<bool>,

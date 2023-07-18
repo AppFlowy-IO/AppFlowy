@@ -72,30 +72,6 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               ),
             );
           },
-          favorite: (e) async {
-            final result = await ViewBackendService.updateView(
-              viewId: view.id,
-              isFavorite: !state.view.isFavorite,
-            );
-
-            await result.fold(
-              (l) async {
-                final result =
-                    await ViewBackendService.favorite(viewId: view.id);
-                emit(
-                  result.fold(
-                    (l) => state.copyWith(successOrFailure: left(unit)),
-                    (error) => state.copyWith(successOrFailure: right(error)),
-                  ),
-                );
-              },
-              (error) async => emit(
-                state.copyWith(
-                  successOrFailure: right(error),
-                ),
-              ),
-            );
-          },
         );
       },
     );
@@ -117,7 +93,6 @@ class ViewEvent with _$ViewEvent {
   const factory ViewEvent.duplicate() = Duplicate;
   const factory ViewEvent.viewDidUpdate(Either<ViewPB, FlowyError> result) =
       ViewDidUpdate;
-  const factory ViewEvent.favorite() = Favorite;
 }
 
 @freezed

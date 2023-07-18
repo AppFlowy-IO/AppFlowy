@@ -9,8 +9,6 @@ import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
-import 'package:appflowy/workspace/presentation/home/home_stack.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
@@ -61,6 +59,10 @@ class HomeMenu extends StatelessWidget {
             return menuBloc;
           },
         ),
+        BlocProvider(
+          create: (ctx) =>
+              getIt<FavoriteBloc>()..add(const FavoriteEvent.initial()),
+        )
       ],
       child: MultiBlocListener(
         listeners: [
@@ -111,49 +113,46 @@ class HomeMenu extends StatelessWidget {
   }
 
   Widget _renderFavorites(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          getIt<FavoriteBloc>()..add(const FavoriteEvent.initial()),
-      child: BlocBuilder<FavoriteBloc, FavoriteState>(
-        builder: (context, state) {
-          return state.objects.isNotEmpty
-              ? ExpandableTheme(
-                  data: ExpandableThemeData(
-                    useInkWell: true,
-                    animationDuration: Durations.medium,
+    return BlocBuilder<FavoriteBloc, FavoriteState>(
+      builder: (context, state) {
+        return state.objects.isNotEmpty
+            ? ExpandableTheme(
+                data: ExpandableThemeData(
+                  useInkWell: true,
+                  animationDuration: Durations.medium,
+                ),
+                child: ExpandablePanel(
+                  theme: const ExpandableThemeData(
+                    headerAlignment: ExpandablePanelHeaderAlignment.center,
+                    tapBodyToExpand: false,
+                    tapBodyToCollapse: false,
+                    tapHeaderToExpand: false,
+                    iconPadding: EdgeInsets.zero,
+                    hasIcon: false,
                   ),
-                  child: ExpandablePanel(
-                    theme: const ExpandableThemeData(
-                      headerAlignment: ExpandablePanelHeaderAlignment.center,
-                      tapBodyToExpand: false,
-                      tapBodyToCollapse: false,
-                      tapHeaderToExpand: false,
-                      iconPadding: EdgeInsets.zero,
-                      hasIcon: false,
+                  header: const FavoriteHeader(),
+                  expanded: ScrollConfiguration(
+                    behavior:
+                        const ScrollBehavior().copyWith(scrollbars: false),
+                    child: Column(
+                      children: state.objects
+                          .map(
+                            (e) => ViewSectionItem(
+                              key: ValueKey(e.id),
+                              isSelected: false,
+                              onSelected: (view) => getIt<MenuSharedState>()
+                                  .latestOpenView = view,
+                              view: e,
+                            ),
+                          )
+                          .toList(),
                     ),
-                    header: const FavoriteHeader(),
-                    expanded: ScrollConfiguration(
-                      behavior:
-                          const ScrollBehavior().copyWith(scrollbars: false),
-                      child: Column(
-                        children: state.objects
-                            .map(
-                              (e) => ViewSectionItem(
-                                key: ValueKey(e.id),
-                                isSelected: false,
-                                onSelected: (item) {},
-                                view: e,
-                              ),
-                            )
-                            .toList(),
-                      ),
-                    ),
-                    collapsed: const SizedBox(),
                   ),
-                )
-              : const Offstage();
-        },
-      ),
+                  collapsed: const SizedBox(),
+                ),
+              )
+            : const SizedBox.shrink();
+      },
     );
   }
 
@@ -178,7 +177,7 @@ class HomeMenu extends StatelessWidget {
                   children: [
                     Padding(
                       padding: EdgeInsets.only(
-                        bottom: 20.0 - MenuAppSizes.appVPadding,
+                        bottom: MenuAppSizes.appVPadding,
                       ),
                       child: MenuUser(user),
                     ),

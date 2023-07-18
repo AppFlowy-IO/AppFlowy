@@ -1,4 +1,5 @@
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -116,7 +117,9 @@ class ViewSectionItem extends StatelessWidget {
                 blocContext.read<ViewBloc>().add(const ViewEvent.duplicate());
                 break;
               case ViewDisclosureAction.favorite:
-                blocContext.read<ViewBloc>().add(const ViewEvent.favorite());
+                blocContext
+                    .read<FavoriteBloc>()
+                    .add(FavoriteEvent.toggle(view));
                 break;
               case ViewDisclosureAction.openInNewTab:
                 blocContext.read<TabsBloc>().add(
@@ -175,7 +178,7 @@ extension ViewDisclosureExtension on ViewDisclosureAction {
       case ViewDisclosureAction.duplicate:
         return const FlowySvg(name: 'editor/copy');
       case ViewDisclosureAction.favorite:
-        return const FlowySvg(name: 'editor/copy');
+        return const FlowySvg(name: 'home/favorite');
       case ViewDisclosureAction.openInNewTab:
         return const FlowySvg(name: 'grid/expander');
     }

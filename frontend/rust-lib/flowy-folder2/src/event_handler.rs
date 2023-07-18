@@ -5,7 +5,6 @@ use crate::manager::FolderManager;
 use crate::share::ImportParams;
 use flowy_error::FlowyError;
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
-// use tracing::instrument;
 
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn create_workspace_handler(
