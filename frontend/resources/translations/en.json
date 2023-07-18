@@ -86,8 +86,8 @@
       "caption": "This action cannot be undone."
     },
     "confirmRestoreAll": {
-        "title": "Are you sure to restore all pages in Trash?",
-        "caption": "This action cannot be undone."
+      "title": "Are you sure to restore all pages in Trash?",
+      "caption": "This action cannot be undone."
     }
   },
   "deletePagePrompt": {

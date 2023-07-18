@@ -40,7 +40,7 @@ Node toggleListBlockNode({
       if (textDirection != null)
         ToggleListBlockKeys.textDirection: textDirection,
     },
-    children: children ?? [paragraphNode()],
+    children: children ?? [],
   );
 }
 
