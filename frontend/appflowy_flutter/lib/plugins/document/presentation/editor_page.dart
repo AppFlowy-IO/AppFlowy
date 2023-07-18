@@ -110,6 +110,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     super.initState();
 
     indentableBlockTypes.add(ToggleListBlockKeys.type);
+    convertibleBlockTypes.add(ToggleListBlockKeys.type);
     slashMenuItems = _customSlashMenuItems();
 
     effectiveScrollController = widget.scrollController ?? ScrollController();
