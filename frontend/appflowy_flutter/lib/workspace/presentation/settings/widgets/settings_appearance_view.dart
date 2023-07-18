@@ -364,6 +364,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
       key: UniqueKey(),
       height: 32,
       child: FlowyButton(
+        onHover: (_) => FocusScope.of(context).unfocus(),
         text: FlowyText.medium(
           parseFontFamilyName(style.fontFamily!),
           fontFamily: style.fontFamily!,
