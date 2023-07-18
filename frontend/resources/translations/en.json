@@ -285,7 +285,8 @@
       "filter": "Filter",
       "sort": "Sort",
       "sortBy": "Sort by",
-      "Properties": "Properties",
+      "properties": "Properties",
+      "reorderPropertiesTooltip": "Drag to reorder properties",
       "group": "Group",
       "addFilter": "Add Filter",
       "deleteFilter": "Delete filter",
@@ -452,6 +453,7 @@
       "smartEditDisabled": "Connect OpenAI in Settings",
       "discardResponse": "Do you want to discard the AI responses?",
       "createInlineMathEquation": "Create equation",
+      "toggleList": "Toggle List",
       "cover": {
         "changeCover": "Change Cover",
         "colors": "Colors",
