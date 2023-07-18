@@ -33,7 +33,7 @@ export const GridTableRow = ({
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className={`group flex cursor-pointer items-stretch border-b border-shade-6 `}
+          className={`group flex cursor-pointer items-stretch border-b border-line-divider `}
         >
           {cells.map((cell, cellIndex) => {
             return (
@@ -50,7 +50,7 @@ export const GridTableRow = ({
                     {/* <div className='absolute left-[-30px] inset-y-0 my-auto w-8 flex items-center'>
                       <div className={`flex h-5 w-5 group-hover:hidden`}></div>
                       <button
-                        className={`hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-main-secondary group-hover:flex ${
+                        className={`hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-fill-list-hover group-hover:flex ${
                           snapshot.isDragging ? '!flex' : ''
                         }  `}
                         onClick={() => addRowAt(row.row.id)}
@@ -60,7 +60,7 @@ export const GridTableRow = ({
                     </div>*/}
                     <div className='absolute inset-y-0 left-[-30px] my-auto flex w-8 items-center justify-center'>
                       <button
-                        className={`hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-main-secondary group-hover:flex ${
+                        className={`hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-fill-list-hover group-hover:flex ${
                           snapshot.isDragging ? '!flex' : ''
                         }`}
                         onClick={() => setShowMenu(true)}
@@ -79,15 +79,17 @@ export const GridTableRow = ({
                     </div>
                     <div
                       onClick={() => onOpenRow(row)}
-                      className='absolute inset-y-0 right-0 my-auto mr-1 hidden h-9 w-9 flex-shrink-0 cursor-pointer rounded p-2 hover:bg-slate-200 group-hover:block '
+                      className=' absolute inset-y-0 right-0 my-auto mr-1 hidden flex-shrink-0 cursor-pointer items-center justify-center rounded p-1 hover:bg-fill-list-hover group-hover:flex '
                     >
-                      <FullView />
+                      <i className={' block h-5 w-5'}>
+                        <FullView />
+                      </i>
                     </div>
                   </>
                 )}
 
                 <div className={'flex h-full justify-center'}>
-                  <div className={'h-full w-[1px] bg-shade-6'}></div>
+                  <div className={'h-full w-[1px] bg-line-divider'}></div>
                 </div>
               </div>
             );

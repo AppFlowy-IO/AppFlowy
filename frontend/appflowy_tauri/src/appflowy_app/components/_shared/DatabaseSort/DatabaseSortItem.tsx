@@ -92,7 +92,7 @@ export const DatabaseSortItem = ({
   return (
     <>
       <div className={'flex items-center gap-2'}>
-        <button className={'flex-shrink-0 rounded p-1 hover:bg-main-secondary'}>
+        <button className={'flex-shrink-0 rounded p-1 hover:bg-fill-list-hover'}>
           <i className={'block h-[16px] w-[16px]'}>
             <DragElementSvg></DragElementSvg>
           </i>
@@ -100,7 +100,7 @@ export const DatabaseSortItem = ({
         <div className={'flex flex-1 items-center gap-2'}>
           <div
             className={`flex w-[180px] items-center justify-between rounded-lg border px-2 py-1 ${
-              showFieldSelect ? 'border-main-accent' : 'border-shade-4'
+              showFieldSelect ? 'border-fill-hover' : 'border-shade-4'
             }`}
             ref={refFieldSelect}
             onClick={onFieldClick}
@@ -118,7 +118,7 @@ export const DatabaseSortItem = ({
           </div>
           <div
             className={`flex w-[180px] items-center justify-between rounded-lg border px-2 py-1 ${
-              showOrderSelect ? 'border-main-accent' : 'border-shade-4'
+              showOrderSelect ? 'border-fill-hover' : 'border-shade-4'
             }`}
             ref={refOrderSelect}
             onClick={onOrderClick}
@@ -132,7 +132,7 @@ export const DatabaseSortItem = ({
         </div>
         <button
           onClick={() => onDelete?.()}
-          className={`rounded p-1 hover:bg-main-secondary ${data ? 'opacity-100' : 'opacity-0'}`}
+          className={`rounded p-1 hover:bg-fill-list-hover ${data ? 'opacity-100' : 'opacity-0'}`}
         >
           <i className={'block h-[16px] w-[16px]'}>
             <TrashSvg />

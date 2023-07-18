@@ -49,7 +49,7 @@ export const MultiSelectTypeOptions = ({
 
   return (
     <div className={'flex flex-col'}>
-      <hr className={'-mx-2 my-2 border-shade-6'} />
+      <hr className={'-mx-2 my-2 border-line-divider'} />
       <div className={'flex flex-col gap-1'}>
         <div className={'flex items-center justify-between px-3 py-1.5'}>
           <div>Options</div>

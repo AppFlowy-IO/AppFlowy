@@ -204,13 +204,13 @@ export const DatabaseFilterItem = ({
       <div className='flex items-center gap-4'>
         <div className={'w-[88px]'}>
           {index === 0 ? (
-            <span className={'text-sm text-shade-3'}>Where</span>
+            <span className={'text-sm text-text-caption'}>Where</span>
           ) : (
             <div
               ref={refLogicalOperatorSelect}
               onClick={onLogicalOperatorClick}
               className={`flex w-[88px] items-center justify-between rounded-lg border px-2 py-1 ${
-                showLogicalOperatorSelect ? 'border-main-accent' : 'border-shade-4'
+                showLogicalOperatorSelect ? 'border-fill-hover' : 'border-line-border'
               }`}
             >
               and
@@ -229,7 +229,7 @@ export const DatabaseFilterItem = ({
           ref={refFieldSelect}
           onClick={onFieldClick}
           className={`flex w-[180px] items-center justify-between rounded-lg border px-2 py-1 ${
-            showFieldSelect ? 'border-main-accent' : 'border-shade-4'
+            showFieldSelect ? 'border-fill-hover' : 'border-line-border'
           }`}
         >
           {currentFieldType !== undefined && currentFieldId ? (
@@ -240,7 +240,7 @@ export const DatabaseFilterItem = ({
               <span>{fields[currentFieldId].title}</span>
             </div>
           ) : (
-            <span className={'text-shade-4'}>Select a field</span>
+            <span className={'text-text-placeholder'}>Select a field</span>
           )}
           <i className={`h-5 w-5 transition-transform duration-500 ${showFieldSelect ? 'rotate-180' : 'rotate-0'}`}>
             <DropDownShowSvg></DropDownShowSvg>
@@ -251,10 +251,14 @@ export const DatabaseFilterItem = ({
           ref={refOperatorSelect}
           onClick={onOperatorClick}
           className={`flex w-[180px] items-center justify-between rounded-lg border px-2 py-1 ${
-            showOperatorSelect ? 'border-main-accent' : 'border-shade-4'
+            showOperatorSelect ? 'border-fill-hover' : 'border-line-border'
           }`}
         >
-          {currentOperator ? <span>{currentOperator}</span> : <span className={'text-shade-4'}>Select an option</span>}
+          {currentOperator ? (
+            <span>{currentOperator}</span>
+          ) : (
+            <span className={'text-text-placeholder'}>Select an option</span>
+          )}
           <i className={`h-5 w-5 transition-transform duration-500 ${showOperatorSelect ? 'rotate-180' : 'rotate-0'}`}>
             <DropDownShowSvg></DropDownShowSvg>
           </i>
@@ -267,13 +271,13 @@ export const DatabaseFilterItem = ({
                 ref={refValueOptions}
                 onClick={onValueOptionsClick}
                 className={`flex w-[180px] items-center justify-between rounded-lg border px-2 py-1 ${
-                  showValueOptions ? 'border-main-accent' : 'border-shade-4'
+                  showValueOptions ? 'border-fill-hover' : 'border-line-border'
                 }`}
               >
                 {currentValue ? (
                   <div className={'flex flex-1 items-center gap-1 overflow-hidden'}>
                     {(currentValue as SelectOptionPB[]).length === 0 && (
-                      <span className={'text-shade-4'}>none selected</span>
+                      <span className={'text-text-placeholder'}>none selected</span>
                     )}
                     {(currentValue as SelectOptionPB[]).map((option, i) => (
                       <span className={`${getBgColor(option.color)} rounded px-2 py-0.5 text-xs`} key={i}>
@@ -282,7 +286,7 @@ export const DatabaseFilterItem = ({
                     ))}
                   </div>
                 ) : (
-                  <span className={'text-shade-4'}>Select an option</span>
+                  <span className={'text-text-placeholder'}>Select an option</span>
                 )}
 
                 <i className={'h-5 w-5 transition-transform duration-200'}>
@@ -293,7 +297,7 @@ export const DatabaseFilterItem = ({
             {currentFieldType === FieldType.RichText && (
               <div
                 className={`flex w-[180px] items-center justify-between rounded-lg border px-2 py-1 ${
-                  textInputActive ? 'border-main-accent' : 'border-shade-4'
+                  textInputActive ? 'border-fill-hover' : 'border-line-border'
                 }`}
               >
                 <input
@@ -309,7 +313,7 @@ export const DatabaseFilterItem = ({
             {currentFieldType === FieldType.Checkbox && (
               <div
                 onClick={() => setCurrentValue(!currentValue)}
-                className={`flex w-[180px] cursor-pointer items-center gap-2 rounded-lg border border-shade-4 px-2 py-1`}
+                className={`flex w-[180px] cursor-pointer items-center gap-2 rounded-lg border border-line-border px-2 py-1`}
               >
                 <button className={'h-5 w-5'}>
                   {currentValue ? <EditorCheckSvg></EditorCheckSvg> : <EditorUncheckSvg></EditorUncheckSvg>}
@@ -319,14 +323,14 @@ export const DatabaseFilterItem = ({
             )}
           </>
         ) : (
-          <div className={`flex w-[180px] items-center justify-between rounded-lg border px-2 py-1`}>
-            <span className={'text-shade-4'}>Select field</span>
+          <div className={`flex w-[180px] items-center justify-between rounded-lg border border-line-border px-2 py-1`}>
+            <span className={'text-text-placeholder'}>Select field</span>
           </div>
         )}
 
         <button
           onClick={() => onDelete?.()}
-          className={`rounded p-1 hover:bg-main-secondary ${data ? 'opacity-100' : 'opacity-0'}`}
+          className={`rounded p-1 hover:bg-fill-list-hover ${data ? 'opacity-100' : 'opacity-0'}`}
         >
           <i className={'block h-[16px] w-[16px]'}>
             <TrashSvg />
@@ -387,7 +391,7 @@ export const DatabaseFilterItem = ({
           onOutsideClick={() => setShowValueOptions(false)}
           style={{ minWidth: `${valueOptionsMinWidth}px` }}
         >
-          <div className={'font-medium text-shade-3'}>Value option</div>
+          <div className={'font-medium text-text-caption'}>Value option</div>
           <div className={'flex flex-col gap-1'}>
             {(fields[currentFieldId].fieldOptions as ISelectOptionType).selectOptions.map((option, index) => (
               <CellOption

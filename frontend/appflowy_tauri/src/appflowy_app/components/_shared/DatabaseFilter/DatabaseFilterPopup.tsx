@@ -68,7 +68,7 @@ export const DatabaseFilterPopup = ({ onOutsideClick }: { onOutsideClick: () => 
 
       <div className={'fixed inset-0 z-10 flex items-center justify-center overflow-y-auto'}>
         <div className='flex flex-col rounded-lg bg-white shadow-md' ref={refContainer}>
-          <div className='px-6 pt-6 text-sm text-shade-3'>{t('grid.settings.filter')}</div>
+          <div className='px-6 pt-6 text-sm text-text-caption'>{t('grid.settings.filter')}</div>
 
           <div className='flex flex-col gap-3 overflow-y-scroll px-6 py-6 text-sm'>
             {rows.map((filter, index: number) => (
@@ -84,7 +84,7 @@ export const DatabaseFilterPopup = ({ onOutsideClick }: { onOutsideClick: () => 
 
           <hr />
 
-          <button onClick={onAddClick} className='flex cursor-pointer items-center gap-2 px-6 py-6 text-sm text-shade-1'>
+          <button onClick={onAddClick} className='flex cursor-pointer items-center gap-2 px-6 py-6 text-sm text-text-caption'>
             <div className='h-5 w-5'>
               <AddSvg />
             </div>

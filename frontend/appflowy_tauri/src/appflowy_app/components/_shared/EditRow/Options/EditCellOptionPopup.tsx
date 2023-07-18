@@ -113,7 +113,7 @@ export const EditCellOptionPopup = ({
           </i>
           <span>{t('grid.selectOption.deleteTag')}</span>
         </button>
-        <div className={'bg-shade-6 -mx-4 h-[1px]'}></div>
+        <div className={'bg-line-divider -mx-4 h-[1px]'}></div>
         <div className={'text-shade-3 my-2 font-medium'}>{t('grid.selectOption.colorPanelTitle')}</div>
         <div className={'flex flex-col'}>
           <ColorItem

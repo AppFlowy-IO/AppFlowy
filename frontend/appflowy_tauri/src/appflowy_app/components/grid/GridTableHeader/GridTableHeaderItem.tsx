@@ -90,18 +90,18 @@ export const GridTableHeaderItem = ({
     <>
       <div
         style={{ width: `${field.width - (index === 0 ? 7 : 14)}px` }}
-        className='flex-shrink-0 border-b border-t border-shade-6'
+        className='flex-shrink-0 border-b border-t border-line-divider'
       >
         <div className={'flex w-full items-center justify-between py-2 pl-2'} ref={ref}>
           <div className={'flex min-w-0 items-center gap-2'}>
-            <div className={'flex h-5 w-5 flex-shrink-0 items-center justify-center text-shade-3'}>
+            <div className={'text-shade-3 flex h-5 w-5 flex-shrink-0 items-center justify-center'}>
               <FieldTypeIcon fieldType={field.fieldType}></FieldTypeIcon>
             </div>
-            <span className={'overflow-hidden text-ellipsis whitespace-nowrap text-shade-3'}>{field.title}</span>
+            <span className={'text-shade-3 overflow-hidden text-ellipsis whitespace-nowrap'}>{field.title}</span>
           </div>
           <div className={'flex items-center gap-1'}>
             {sortStore.findIndex((sort) => sort.fieldId === field.fieldId) !== -1 && (
-              <button onClick={onShowSortClick} className={'rounded p-1 hover:bg-main-secondary'}>
+              <button onClick={onShowSortClick} className={'rounded p-1 hover:bg-fill-list-hover'}>
                 <i className={'block h-[16px] w-[16px]'}>
                   <SortAscSvg></SortAscSvg>
                 </i>
@@ -109,14 +109,14 @@ export const GridTableHeaderItem = ({
             )}
 
             {filtersStore.findIndex((filter) => filter.fieldId === field.fieldId) !== -1 && (
-              <button onClick={onShowFilterClick} className={'rounded p-1 hover:bg-main-secondary'}>
+              <button onClick={onShowFilterClick} className={'rounded p-1 hover:bg-fill-list-hover'}>
                 <i className={'block h-[16px] w-[16px]'}>
                   <FilterSvg></FilterSvg>
                 </i>
               </button>
             )}
 
-            <button className={'rounded p-1 hover:bg-main-secondary'} onClick={() => onFieldOptionsClick()}>
+            <button className={'rounded p-1 hover:bg-fill-list-hover'} onClick={() => onFieldOptionsClick()}>
               <i className={'block h-[16px] w-[16px]'}>
                 <Details2Svg></Details2Svg>
               </i>
@@ -125,11 +125,11 @@ export const GridTableHeaderItem = ({
         </div>
       </div>
       <div
-        className={'group h-full cursor-col-resize border-b border-t border-shade-6 px-[6px]'}
+        className={'group h-full cursor-col-resize border-b border-t border-line-divider px-[6px]'}
         onMouseDown={(e) => onMouseDown(e, field.width)}
       >
-        <div className={'flex h-full w-[3px] justify-center group-hover:bg-main-accent'}>
-          <div className={'h-full w-[1px] bg-shade-6 group-hover:bg-main-accent'}></div>
+        <div className={'flex h-full w-[3px] justify-center group-hover:bg-fill-hover'}>
+          <div className={'h-full w-[1px] bg-line-divider group-hover:bg-fill-hover'}></div>
         </div>
       </div>
       {showFieldEditor && editingField && (
